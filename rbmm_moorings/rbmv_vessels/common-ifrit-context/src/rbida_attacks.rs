@@ -77,6 +77,7 @@ const RBIDA_SEL_PROC_SYS_WRITE: &str = "proc-sys-write";
 const RBIDA_SEL_TCP_RST_HIJACK: &str = "tcp-rst-hijack";
 const RBIDA_SEL_HTTP_END_TO_END: &str = "http-end-to-end";
 const RBIDA_SEL_CONNTRACK_SPOOFED_ACK: &str = "conntrack-spoofed-ack";
+const RBIDA_SEL_OFFPATH_BLOCKED_DEST: &str = "offpath-blocked-dest";
 const RBIDA_SEL_SENTRY_UDP_NON_DNS: &str = "sentry-udp-non-dns";
 
 // ── Attack Enum ─────────────────────────────────────────────────
@@ -185,6 +186,10 @@ pub enum rbida_Attack {
     HttpEndToEnd,
     /// Spoofed ACK without prior SYN — conntrack RELATED,ESTABLISHED should drop it
     ConntrackSpoofedAck,
+    /// Lone ACK to a blocked destination — negative control proving the
+    /// rbsq_wdd_offpath_reply quirk's "blocked dests are dropped before the
+    /// substrate sees them" premise; any reply of any provenance is a BREACH
+    OffpathBlockedDest,
     // ── Sentry self-protection ──
     /// UDP to sentry on non-53 ports — INPUT DROP should block all non-DNS UDP
     SentryUdpNonDns,
@@ -250,6 +255,7 @@ impl rbida_Attack {
             RBIDA_SEL_TCP_RST_HIJACK => Some(Self::TcpRstHijack),
             RBIDA_SEL_HTTP_END_TO_END => Some(Self::HttpEndToEnd),
             RBIDA_SEL_CONNTRACK_SPOOFED_ACK => Some(Self::ConntrackSpoofedAck),
+            RBIDA_SEL_OFFPATH_BLOCKED_DEST => Some(Self::OffpathBlockedDest),
             RBIDA_SEL_SENTRY_UDP_NON_DNS => Some(Self::SentryUdpNonDns),
             _ => None,
         }
@@ -304,6 +310,7 @@ impl rbida_Attack {
             Self::TcpRstHijack => RBIDA_SEL_TCP_RST_HIJACK,
             Self::HttpEndToEnd => RBIDA_SEL_HTTP_END_TO_END,
             Self::ConntrackSpoofedAck => RBIDA_SEL_CONNTRACK_SPOOFED_ACK,
+            Self::OffpathBlockedDest => RBIDA_SEL_OFFPATH_BLOCKED_DEST,
             Self::SentryUdpNonDns => RBIDA_SEL_SENTRY_UDP_NON_DNS,
         }
     }
@@ -516,6 +523,7 @@ pub fn rbida_run(attack: &rbida_Attack, extra_args: &[&str]) -> rbida_Verdict {
         // Network path verification
         rbida_Attack::HttpEndToEnd => rbida_sorties::sortie_http_end_to_end(extra_args),
         rbida_Attack::ConntrackSpoofedAck => rbida_sorties::sortie_conntrack_spoofed_ack(extra_args),
+        rbida_Attack::OffpathBlockedDest => rbida_sorties::sortie_offpath_blocked_dest(extra_args),
         rbida_Attack::SentryUdpNonDns => rbida_sorties::sortie_sentry_udp_non_dns(extra_args),
     }
 }

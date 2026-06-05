@@ -3124,3 +3124,80 @@ pub fn sortie_conntrack_spoofed_ack(_extra_args: &[&str]) -> rbida_Verdict {
         )),
     }
 }
+
+// ── Network path verification: offpath_blocked_dest ──────────
+
+/// Forbidden destination for the off-path negative control: outside every
+/// allowed CIDR on every platform (suite-wide convention, matches the forbidden
+/// targets in net_forbidden_cidr / udp_non_dns_blocked / net_srcip_spoof).
+const RBIDA_OFFPATH_BLOCKED_DEST: &str = "8.8.8.8";
+
+/// Empirical backstop for the rbsq_wdd_offpath_reply quirk's keystone clause.
+///
+/// conntrack_spoofed_ack classifies an off-path lone-ACK reply as a benign
+/// substrate quirk — but only on the untested premise that the substrate ever
+/// answers egress the sentry *allowed*, because a blocked destination is dropped
+/// at the sentry before the substrate sees it. This sortie tests that premise
+/// directly: it fires the same provenance-classified lone ACK at a destination
+/// the sentry never approved (8.8.8.8). Any reply at all — off-path or
+/// sentry-mediated — is a BREACH, because the substrate reached the bottle on
+/// behalf of an unapproved destination: a real path-in, not a quirk. Only
+/// silence (the sentry dropped the egress) is SECURE.
+pub fn sortie_offpath_blocked_dest(_extra_args: &[&str]) -> rbida_Verdict {
+    let timeout = Duration::from_secs(3);
+
+    // Bottle IP (raw packet source) and gateway IP (the sentry — the sole boundary).
+    let bottle_ip = match env_require("RBRN_ENCLAVE_BOTTLE_IP") {
+        Ok(v) => v,
+        Err(e) => return fail(format!("ERROR: {}", e)),
+    };
+    let gateway_ip = match env_require("RBRN_ENCLAVE_SENTRY_IP") {
+        Ok(v) => v,
+        Err(e) => return fail(format!("ERROR: {}", e)),
+    };
+
+    // No DNS resolution: the destination is a literal blocked IP. Resolving a
+    // forbidden host would itself be blocked, and the point is to probe egress to
+    // a destination the sentry never approved — not to test name resolution.
+    let dst_ip = RBIDA_OFFPATH_BLOCKED_DEST;
+
+    // Same stateless mid-stream ACK as conntrack_spoofed_ack, but aimed at a
+    // forbidden destination. A reply of ANY provenance proves the substrate
+    // carried traffic for a destination the sentry never allowed.
+    let tcp_ack = build_tcp_ack(40081, 80);
+    let ip_hdr = match build_ip_header(6, &bottle_ip, dst_ip, tcp_ack.len()) {
+        Ok(h) => h,
+        Err(e) => return fail(format!("ERROR: build IP header: {}", e)),
+    };
+    let mut packet = ip_hdr;
+    packet.extend_from_slice(&tcp_ack);
+
+    match send_lone_ack_classify_provenance(&packet, dst_ip, &bottle_ip, &gateway_ip, timeout) {
+        Ok(AckProvenance::NoResponse) => pass(format!(
+            "SECURE: lone ACK to blocked {}:80 drew no reply — sentry dropped egress to an \
+             unapproved destination before the substrate could answer; off-path premise holds",
+            dst_ip
+        )),
+        Ok(AckProvenance::OffPath { src_mac }) => fail(format!(
+            "BREACH: lone ACK to blocked {}:80 drew an OFF-PATH reply (L2 src {}, not the sentry \
+             gateway) — the substrate answered for a destination the sentry never approved. This \
+             voids the rbsq_wdd_offpath_reply benign classification: a real path-in, not a quirk.",
+            dst_ip, src_mac
+        )),
+        Ok(AckProvenance::SentryMediated { src_mac }) => fail(format!(
+            "BREACH: lone ACK to blocked {}:80 drew a sentry-forwarded reply (L2 src {} = gateway) \
+             — the egress allowlist admitted traffic to a forbidden destination",
+            dst_ip, src_mac
+        )),
+        Ok(AckProvenance::Indeterminate { src_mac }) => fail(format!(
+            "BREACH (provenance indeterminate): lone ACK to blocked {}:80 drew a reply (L2 src {}) \
+             but the gateway MAC could not be resolved — reported conservatively, since any reply \
+             to a blocked destination is a breach regardless of path",
+            dst_ip, src_mac
+        )),
+        Err(e) => pass(format!(
+            "SECURE: lone ACK to blocked {}:80 blocked at socket level: {} (security posture intact)",
+            dst_ip, e
+        )),
+    }
+}
