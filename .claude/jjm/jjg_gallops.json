@@ -9152,9 +9152,10 @@
         "₢BXAAF",
         "₢BXAAG",
         "₢BXAAH",
-        "₢BXAAI"
+        "₢BXAAI",
+        "₢BXAAM"
       ],
-      "jjghn_next_pace_seed": "AAM",
+      "jjghn_next_pace_seed": "AAN",
       "jjghn_paces": {
         "₢BXAAA": {
           "jjgpn_tacks": [
@@ -9523,6 +9524,17 @@
               "jjgtn_text": "## Character\nOperator-driven, heavyweight — manual host setup, long cook.\n\n## Goal\nCapture the pre-refactor green baseline on the centos host (the platform the milestone gate re-runs on), so \"behavior-preserving\" has a real before/after to diff against.\n\n## Cinched (paddock)\n- Operator sets up the host: live GCP creds + standing canonical depot. Run under tmux so the ~100-min cook survives disconnect.\n- Same suites the gate uses: full skirmish + service lode-lifecycle.\n\n## Done\n- skirmish + service green on centos before any refactor; artifacts and provenance verdicts recorded as the baseline the gate compares against.",
               "jjgtn_silks": "skirmish-centos-baseline",
               "jjgtn_basis": "f2433a1"
+            }
+          ]
+        },
+        "₢BXAAM": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260604-2252",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nMCM vocabulary mint + reference threading — deliberate spec work, low logic risk.\n\n## Goal\nPromote `/workspace` — the Cloud Build shared inter-step filesystem mount, the non-secret-only register channel — from free-floating prose to a formal quoin in the RBS0 concept model.\n\n## Cinched\n- Registered AND defined in RBS0 only (mapping section attribute ref + anchor + definition text). Subdocuments only reference the linked term — never define, never host a mapping section.\n- Prefix starts with `rb` and follows the minting rules + MCM Quoin Sub-Letter Discipline (CLAUDE.md \"Quoin Sub-Letter Discipline\" + Memos/memo-20260110-acronym-selection-study.md). Category likely the build family (`rbtgr_`, home of build_json/provenance) — settle at mint.\n- Distinct from the existing `rbrr_bottle_workspace` (a bottle regime var); the definition disambiguates the Cloud Build mount.\n- The non-secret-only invariant (currently prose in RBSCB) becomes the canonical definition text.\n\n## Done\n`/workspace` registered + defined as a quoin in RBS0; the spec sites that mention it (discovery: `grep -rln workspace Tools/rbk/vov_veiled/*.adoc`) reference the linked term where load-bearing; RBS0 renders clean.",
+              "jjgtn_silks": "workspace-quoin",
+              "jjgtn_basis": "02034d4"
             }
           ]
         }
