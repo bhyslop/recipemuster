@@ -139,3 +139,37 @@ repaired in place as above.
 
 [restricting-domains]: https://cloud.google.com/resource-manager/docs/organization-policy/restricting-domains
 [troubleshoot-org-policies]: https://docs.cloud.google.com/iam/docs/troubleshoot-org-policies
+
+## Addendum (2026-06-05): wiring the revoke half exposed a symmetric Class-C race
+
+H1's repair (revoke-before-delete) added resource-scope `getIamPolicy` /
+`setIamPolicy` calls on the **teardown** path. The first cut leaned them clean of
+propagation tolerance, reasoning a revoke needs no member-visibility wait. That
+conflated two independent things: the member-visibility classes (A "does not
+exist" / B "is not deleted"), which are about the *member* being added or removed
+and genuinely don't gate a revoke read, and **Class C**, which is about the
+*caller's* empowerment freshness against the resource-scope IAM cache. The
+`canonical-invest` recycle runs `governor_mantle` immediately before
+`director_divest`, so the divest's first resource-scope read is issued by a
+just-re-mantled governor whose fresh `roles/owner` has not yet reached the GAR
+repo's resource-scope cache → HTTP 403.
+
+This is the symmetric partner of point 5 above. Point 5 kept caller/member
+tolerance on the *grant* path; the *revoke* path needs Class C for the same
+reason, against the same resource-scope cache, with the caller freshly empowered.
+The lesson: **Class C attaches to the caller, not to the direction of the policy
+edit** — any resource-scope IAM-policy read by a recently-empowered caller can
+draw it, grant or revoke.
+
+Fix (`1a66443e`): resource-scope revokes (`rbgi_revoke_repo_member`,
+`rbgi_revoke_sa_member`) carry the Class-C (403, empty-glob) tolerance;
+project-scope revoke and the `setIamPolicy` write loops stay lean. Live evidence:
+2026-06-05 `canonical-invest` divest of `director-canest-dir`, repo
+`getIamPolicy` returned 403 at 0/3/9/21/41/61s and 200 at 81s, then revoked
+cleanly. H1's no-tombstone claim was verified independently by payor-token
+`gcloud`: the divested live uids did **not** become `deleted:…?uid=` ghosts, and
+the distinct canonical-ghost count held stable (3 director + 3 retriever) across a
+full divest→reinvest cycle. H2's rotation path was verified the same day by a
+standing-SA re-invest: uid unchanged, the single USER_MANAGED key rotated, no SA
+delete. Spec: RBSCIP Class-C declaration generalized to grant+revoke, plus an
+evidence row.
