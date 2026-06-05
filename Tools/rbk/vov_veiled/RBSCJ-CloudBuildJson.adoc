@@ -153,43 +153,54 @@ shape (for bole: `slot_1`..`slot_N` member envelopes, each a stamp + vouch) is
 the body's knowledge; the spine is member-count-agnostic. This keeps the
 N-member envelope axis out of the spine.
 
-===== Requires/provides format (designed here; enforced by the recipe validator)
+===== Substitution-coverage check (enforced by zrbld_spine_validate)
 
-The recipe row above is the format implemented today. The capture domain also
-needs a per-step _requires/provides_ declaration so a dispatch-time validator
-can reject a bad composition before the expensive build. The FORMAT is fixed
-here; its enforcement is the recipe-validator pace.
-
-A step composes over two register channels:
+A composed step reads two register channels:
 
 * _Substitution registers_ — `_RBGL_*` keys present in the substitutions blob,
-  automapped into the step environment.
+  automapped into every step's environment.
 * _/workspace registers_ — non-secret files a step writes for a later step,
   named by path relative to `/workspace`.
 
-Each step declares two token lists:
+The two channels are validated differently, because they differ in what can be
+recovered safely from the step source. The substitution channel — where an
+undefined reference is both silent (it expands to empty in-build) and expensive
+to surface (it costs the whole cook) — is checked by derivation at dispatch; the
+`/workspace` channel is left to the steps' own in-build guards.
 
-* `requires` — substitution-register keys and `/workspace` register paths the
-  step reads before it runs.
-* `provides` — `/workspace` register paths the step writes (and, for the
-  terminal capture step, the `buildStepOutputs` slot it authors).
+*Substitution channel — derived, not declared.* A step's substitution _requires_
+is exactly the set of `_RBGL_*` names its body references — the references ARE the
+requires, so nothing separate is declared and nothing can drift from the code. At
+dispatch `zrbld_spine_validate` scans each step's include-expanded body for
+`_RBGL_*` tokens on non-comment lines and fails before submit at the first token
+absent from the substitutions blob's keys, naming the offending register. Coverage
+is _flat_: substitutions automap into every step, so a register is satisfied by
+its presence in the blob alone — there is no recipe order and no cross-step
+`provides`. The scan runs on the _include-expanded_ body; composed snippets carry
+no `_RBGL_*` references (they speak the shell-var channel — see below), so only the
+kind's own substitution reads are recovered.
 
-The validator walks the recipe in order: every `requires` token must be
-satisfied by either a key present in the substitutions blob or a `provides`
-token from an earlier step. An unsatisfiable `requires` fails dispatch with a
-named-token diagnostic, before submit.
+*Workspace channel — guarded in-step, dispatch-validation deferred.* A step's
+`/workspace` reads and writes are not safely recoverable by a static scan: the
+paths are templated by runtime loop variables (e.g. `lode_${STAMP}_vouch.json`)
+and read-vs-write classification in shell (redirections, `test -f`, `cp` of a
+var-held path) is exactly what a scanner gets wrong. The live recipes already
+guard their own `/workspace` preconditions at runtime — the vouch-push step opens
+with `test -f /workspace/lode_stamps.txt || FATAL "step 01 must run first"` — so
+the channel is crash-fast in-build. A dispatch-time `/workspace` declaration is
+added only when a future kind needs one, not authored speculatively (generalize
+against the instances we have, never stub the ones we don't).
 
-The format is deliberately shaped by the capture domain's three axes:
+The derivation is shaped by the capture domain's three axes:
 
-* _N-member envelopes_ — the terminal step's `provides` is the single
-  `buildStepOutputs` slot, not per-member registers; member fan-out is body
-  knowledge and stays out of the step contract.
-* _Tool variety_ — registers are declared identically regardless of builder
-  image or entrypoint, so a `python3` step and a `bash` step speak the same
-  contract vocabulary.
-* _Opaque-blob payloads_ — `requires` references substitution keys by NAME; the
-  validator checks key _presence_, never value shape, preserving the spine's
-  opacity to the blob.
+* _N-member envelopes_ — the terminal step's single `buildStepOutputs` slot is
+  body knowledge (member fan-out lives in the body), so it never enters the
+  coverage check.
+* _Tool variety_ — a `_RBGL_*` name appears as the same literal token whether a
+  step is bash (`${_RBGL_X}`) or `python3` (`os.environ['_RBGL_X']`), so the scan
+  is identical across builder image and entrypoint.
+* _Opaque-blob payloads_ — the check tests key _presence_ by NAME, never value
+  shape, preserving the spine's opacity to the blob.
 
 ===== Composed-snippet library (rbgjs)
 

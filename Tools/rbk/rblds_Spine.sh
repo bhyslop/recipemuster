@@ -47,7 +47,7 @@ set -euo pipefail
 # register. Sentinel-free return-1 primitive, like the rbfcb_ build primitives the
 # dispatch loop already rides; the caller buc_die's with the step identity.
 #
-# Coverage is flat by design (RBSCJ "Requires/provides format"): substitutions
+# Coverage is flat by design (RBSCJ "Substitution-coverage check"): substitutions
 # automap into every step, so there is no cross-step ordering; the /workspace
 # inter-step channel keeps its own in-step guards and is out of scope.
 #
