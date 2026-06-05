@@ -67,6 +67,22 @@ convention atop an already-identity-based mechanism, not rebuilding enforcement.
   capabilities) alongside the IAM-derived actual, for legibility and an
   intended-vs-actual audit.
 
+## Inherited concern — governor teardown leak
+
+Governor teardown is part of this heat's generic-teardown convergence (mantle →
+remove+add). It leaks today: `rbgp_governor_mantle` deletes each outgoing
+`governor-*` SA without first revoking its `roles/owner` (+ establish grants), so
+every re-mantle accrues a `deleted:…?uid=` project tombstone — H1's mechanism,
+governor tier, the cousin rbk-08 deliberately scoped out (8 ghosts and counting on
+the canonical depot). The convergence closes it for free — the generic
+revoke-before-delete covers the governor like any role, and an idempotent governor
+(rekey, not delete+recreate) drops the delete entirely — and must reuse the rbk-08
+revoke layer + Class-C propagation tolerance, not reinvent them. If this heat is
+deferred or descopes the governor, the standalone fix (lean project-scope
+revoke-before-delete in the mantle delete loop — the Payor already owns the
+project, so no Class-C) is captured in
+`Memos/memo-20260605-governor-mantle-tombstone-leak.md`.
+
 ## What done looks like (the tectonic surface)
 
 Every cult-verb surface migrated to the converged identity/verb vocabulary, not
