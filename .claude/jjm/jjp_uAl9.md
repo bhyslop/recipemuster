@@ -39,7 +39,7 @@ Ann's PHI Clipbuddy (`apcap`) — a Tauri desktop app (macOS, later Windows) tha
 | Application Spec (APCAS) | UX plan, workflow, deployment, HIPAA context | `Tools/apck/APCAS-Specification.md` |
 | Discerner Spec (APCS0) | Ten-discerner vocabulary, combining (forthcoming) | `Tools/apck/APCS0-SpecTop.adoc` |
 | Prototype Spec (APCPS) | Detection pipeline, tech stack, container architecture, wire format, project structure | `Tools/apck/APCPS-PrototypeSpecification.md` |
-| Claude Context | Build/run/deploy instructions, file mappings, prefix tree, tabtargets | `Tools/apck/apck-claude-context.md` |
+| Claude Context | Build/run/deploy instructions, file mappings, prefix tree, tabtargets | `Tools/apck/claude-apck-context.md` |
 | Rust Coding Guide (RCG) | Naming conventions, test patterns, disciplines | `Tools/vok/vov_veiled/RCG-RustCodingGuide.md` |
 
 ## Reference data for combining
