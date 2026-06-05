@@ -126,10 +126,12 @@ script_path | builder_image | id | entrypoint
 |`entrypoint`    |`bash` \| `sh` \| `python3` — selects the composed shebang line. Any other value fails composition.
 |===
 
-The spine reads each script's body (shebang stripped), prepends the shebang the
-entrypoint selects, and inlines it as the step's `script` field. This is the
-same shape the made-side `rbfca_` assemblers use; the capture spine is the
-canonical single copy for the fetched side.
+The spine reads each script's body (shebang stripped), expands any
+`#@rbgjs_include` markers against the shared snippet library (see _Composed-snippet
+library_ below), prepends the shebang the entrypoint selects, and inlines the
+result as the step's `script` field. This is the same shape the made-side
+`rbfca_` assemblers use; the capture spine is the canonical single copy for the
+fetched side.
 
 ===== Substitutions blob — opaque
 
@@ -188,3 +190,70 @@ The format is deliberately shaped by the capture domain's three axes:
 * _Opaque-blob payloads_ — `requires` references substitution keys by NAME; the
   validator checks key _presence_, never value shape, preserving the spine's
   opacity to the blob.
+
+===== Composed-snippet library (rbgjs)
+
+Cloud Build offers no native step reuse. Where the same in-step logic recurs
+across cloud steps, it is authored once as a _snippet_ in the shared cloud-step
+home `Tools/rbk/rbgjs/` and stitched into each step at host-assembly time. The
+home deliberately breaks the `rbgj«family»` letter scheme — a shared snippet
+belongs to no single made-side family, so `s` is the no-family family.
+
+*Mechanism.* A step marks an inclusion point with a directive line
+
+----
+#@rbgjs_include «name»
+----
+
+(any leading indentation tolerated). At assembly, `zrbfc_expand_includes`
+(`rbfcb_BuildHost.sh`, sibling to `zrbfc_write_script_body`, sourced by both the
+Lode spine and the made-side `rbfca_` vouch assembler) rewrites the step body,
+splicing in `rbgjs-«name».sh` with its leading shebang stripped. A body with no
+marker is rewritten unchanged, so an assembler may call the expander for every
+step. An unknown `«name»` fails the expander, which fails dispatch before submit
+(crash-fast — no silent skip). The snippet shebang exists only so shellcheck
+lints the fragment as bash; it never reaches the build.
+
+*Register channel — shell vars, not substitutions.* A snippet reads the plain
+upper-case shell vars the kind sets immediately before the marker, and writes
+plain shell vars the kind reads after — it is blind to `_RBGx_` substitution
+names. This is load-bearing: it is precisely what lets one snippet serve callers
+whose substitution namespaces are disjoint (e.g. Lode's `_RBGL_*` and
+hallmark-verify's `_RBGV_*`). The substitution-register channel (automapped
+`_RBGx_` keys) and the snippet shell-var channel are distinct; a snippet never
+crosses into the substitution channel.
+
+*The library (each snippet's requires/provides):*
+
+[cols="1,3",options="header"]
+|===
+|Snippet |Contract
+
+|`token-fetch`        |_requires_ none (ambient metadata server); _provides_ `TOKEN`. The canonical skopeo-to-GAR metadata-server token (RBSCB), in-memory, never to `/workspace`.
+|`skopeo-fingerprint` |_requires_ `ORIGIN`, `RAW_FILE`; _provides_ `SHA`, `FINGERPRINT`. Inspect the raw manifest, take its canonical sha256, derive the sanitized-origin glance fingerprint.
+|`buildx-bootstrap`   |_requires_ none; _provides_ the `rb-builder` buildx builder, created-if-absent and selected. Idempotent under retry; run once per step.
+|`buildx-push`        |_requires_ `PUSH_URI`, `PUSH_PLATFORMS`, `PUSH_CTX` (and the bootstrap builder); _provides_ the image pushed to `PUSH_URI`. The irreducible FROM-scratch push.
+|===
+
+*Share the primitive, not the whole step.* The vouch-push step (Lode `rbgjl02`,
+hallmark-verify `rbgjv03`) is NOT one shared step: the two diverge on five
+load-bearing axes — push cardinality (loop-N members vs single), destination-URI
+template and arity, platform source (literal `linux/amd64` vs a `/workspace`
+platforms file), a conditional Dockerfile (conjure verify files), and disjoint
+substitution sets. Only the buildx bootstrap and the push invocation are
+identical, so only those are shared — as `buildx-bootstrap` + `buildx-push`.
+Cardinality, URI construction, platform choice, and context assembly (which JSON,
+which Dockerfile) stay in the per-kind step. The same boundary governs
+`skopeo-fingerprint`: the inspect→digest→fingerprint core is identical across
+captures, but the first GAR copy is excluded because its destination tag is
+itself digest-derived and kind-specific, so it cannot be a clean shared
+parameter. The rule the library follows: share the irreducible identical core,
+leave kind-specific assembly in the kind.
+
+*In-heat reach (partial dedup, forward payoff).* `buildx-bootstrap`/`buildx-push`
+have two live callers (`rbgjl02`, `rbgjv03`). `token-fetch` and
+`skopeo-fingerprint` have one live caller each (bole's `rbgjl01`) this heat — the
+other copy lives in enshrine (`rbgje01`), which is reference-not-migrated, so its
+fork stays until that cutover. The snippets are authored once now regardless: the
+library teaches "compose from the library," and the dedup completes when the
+doomed forks are removed.

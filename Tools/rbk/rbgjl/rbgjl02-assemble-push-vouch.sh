@@ -24,9 +24,8 @@ test -s /workspace/lode_stamps.txt \
 
 test -n "${_RBGL_TAG_VOUCH}" || { echo "FATAL: _RBGL_TAG_VOUCH missing" >&2; exit 1; }
 
-docker buildx inspect rb-builder >/dev/null 2>&1 \
-  || docker buildx create --driver docker-container --name rb-builder
-docker buildx use rb-builder
+# Ensure the shared buildx builder — shared library snippet (run once).
+#@rbgjs_include buildx-bootstrap
 
 while IFS= read -r STAMP || test -n "${STAMP}"; do
   test -n "${STAMP}" || continue
@@ -44,12 +43,11 @@ while IFS= read -r STAMP || test -n "${STAMP}"; do
   echo "FROM scratch"        >  "${CTX}/Dockerfile"
   echo "COPY vouch.json /"   >> "${CTX}/Dockerfile"
 
-  docker buildx build \
-    --push \
-    --platform="linux/amd64" \
-    --tag "${VOUCH_URI}" \
-    "${CTX}" \
-    || { echo "FATAL: buildx push failed for vouch ${STAMP}" >&2; exit 1; }
+  # Push the FROM-scratch vouch context — shared library snippet.
+  PUSH_URI="${VOUCH_URI}"
+  PUSH_PLATFORMS="linux/amd64"
+  PUSH_CTX="${CTX}"
+#@rbgjs_include buildx-push
 
   echo "Vouch pushed: ${VOUCH_URI}"
 done < /workspace/lode_stamps.txt

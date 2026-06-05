@@ -161,6 +161,8 @@ zrbfc_assemble_vouch_steps() {
     buc_log_args "Reading script body for ${z_vid} (skip shebang)"
     zrbfc_write_script_body "${z_vscript_path}" "${z_vbody_file}" \
       || buc_die "Failed to read vouch step script: ${z_vscript_path}"
+    zrbfc_expand_includes "${z_vbody_file}" "${ZRBFC_RBGJS_SNIPPETS_DIR}" \
+      || buc_die "Failed to expand snippet includes in vouch step: ${z_vscript_path}"
     z_vbody=$(<"${z_vbody_file}")
     test -n "${z_vbody}" || buc_die "Empty vouch script body: ${z_vscript_path}"
 

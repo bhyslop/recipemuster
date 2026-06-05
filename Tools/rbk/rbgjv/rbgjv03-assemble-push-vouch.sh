@@ -42,14 +42,13 @@ else
   echo "COPY vouch_summary.json /" >> /workspace/vouch_ctx/Dockerfile
 fi
 
-docker buildx inspect rb-builder >/dev/null 2>&1 \
-  || docker buildx create --driver docker-container --name rb-builder
-docker buildx use rb-builder
+# Ensure the shared buildx builder — shared library snippet (run once).
+#@rbgjs_include buildx-bootstrap
 
-docker buildx build \
-  --push \
-  --platform="${PLATFORMS}" \
-  --tag "${VOUCH_URI}" \
-  /workspace/vouch_ctx
+# Push the FROM-scratch vouch context — shared library snippet.
+PUSH_URI="${VOUCH_URI}"
+PUSH_PLATFORMS="${PLATFORMS}"
+PUSH_CTX="/workspace/vouch_ctx"
+#@rbgjs_include buildx-push
 
 echo "Vouch artifact pushed: ${VOUCH_URI}"

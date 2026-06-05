@@ -23,14 +23,8 @@
 set -euo pipefail
 echo "=== Ensconce base images into Lodes ==="
 
-# Obtain OAuth2 token from metadata server (Mason SA)
-echo "Fetching OAuth2 token from metadata server"
-TOKEN_JSON=$(curl -sf -H "Metadata-Flavor: Google" \
-  "http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token") \
-  || { echo "Failed to fetch OAuth2 token from metadata server" >&2; exit 1; }
-
-TOKEN=$(printf '%s' "${TOKEN_JSON}" | grep -o '"access_token":"[^"]*"' | cut -d'"' -f4)
-test -n "${TOKEN}" || { echo "Failed to extract access_token from metadata response" >&2; exit 1; }
+# Obtain OAuth2 token from metadata server (Mason SA) — shared library snippet.
+#@rbgjs_include token-fetch
 
 # CB substitutions are expanded at submit time, not available as shell variables.
 # Capture each into a runtime variable so we can loop.
@@ -62,27 +56,17 @@ for SLOT in 1 2 3; do
 
   echo "--- Slot ${SLOT}: ${ORIGIN} -> ${_RBGL_LODES_ROOT}/${STAMP} ---"
 
-  # Inspect upstream for raw manifest (manifest list or single manifest).
+  # Inspect upstream, take the canonical digest, derive the glance fingerprint —
+  # shared library snippet (requires ORIGIN + RAW_FILE; provides SHA + FINGERPRINT).
   RAW_FILE="/workspace/ensconce_raw_${SLOT}.json"
-  skopeo inspect --raw "docker://${ORIGIN}" > "${RAW_FILE}" \
-    || { echo "FATAL: Failed to inspect upstream: ${ORIGIN}" >&2; exit 1; }
-
-  # Canonical digest = sha256 of the raw manifest (matches what every tool reports).
-  # sha256sum (coreutils) — this runs inside the skopeo reliquary container.
-  SHA=$(sha256sum "${RAW_FILE}" | cut -d' ' -f1)
-  test -n "${SHA}" || { echo "FATAL: Empty digest for slot ${SLOT}" >&2; exit 1; }
-
-  # Sanitize origin (: and / become -), append first 10 hex chars (legacy anchor form).
-  SANITIZED=$(printf '%s' "${ORIGIN}" | tr ':/' '--')
-  SHORT="${SHA:0:10}"
-  FINGERPRINT_TAG="${SANITIZED}-${SHORT}"
+#@rbgjs_include skopeo-fingerprint
 
   DIGEST_TAG="${_RBGL_TAG_DIGEST_PREFIX}${SHA}"
   PKG="${_RBGL_GAR_HOST}/${_RBGL_GAR_PATH}/${_RBGL_LODES_ROOT}/${STAMP}"
 
   echo "Package: ${PKG}"
   echo "Digest:  sha256:${SHA}"
-  echo "Tags:    ${DIGEST_TAG}, ${_RBGL_TAG_BOLE}, ${FINGERPRINT_TAG}"
+  echo "Tags:    ${DIGEST_TAG}, ${_RBGL_TAG_BOLE}, ${FINGERPRINT}"
 
   # Copy upstream into the Lode package under the canonical digest tag.
   skopeo copy --all \
@@ -92,7 +76,7 @@ for SLOT in 1 2 3; do
     || { echo "FATAL: skopeo copy failed for slot ${SLOT}" >&2; exit 1; }
 
   # Apply remaining member tags by GAR->GAR retag (same blobs, manifest re-tag only).
-  for MEMBER_TAG in "${_RBGL_TAG_BOLE}" "${FINGERPRINT_TAG}"; do
+  for MEMBER_TAG in "${_RBGL_TAG_BOLE}" "${FINGERPRINT}"; do
     skopeo copy --all \
       "docker://${PKG}:${DIGEST_TAG}" \
       "docker://${PKG}:${MEMBER_TAG}" \
@@ -121,7 +105,7 @@ for SLOT in 1 2 3; do
   ENVELOPE="${ENVELOPE}\"origin\":\"${ORIGIN}\","
   ENVELOPE="${ENVELOPE}\"digest\":\"sha256:${SHA}\","
   ENVELOPE="${ENVELOPE}\"verification\":\"oci-digest\","
-  ENVELOPE="${ENVELOPE}\"tags\":[\"${_RBGL_TAG_BOLE}\",\"${DIGEST_TAG}\",\"${FINGERPRINT_TAG}\"]"
+  ENVELOPE="${ENVELOPE}\"tags\":[\"${_RBGL_TAG_BOLE}\",\"${DIGEST_TAG}\",\"${FINGERPRINT}\"]"
   ENVELOPE="${ENVELOPE}}]}"
 
   # Stage the envelope for step 02 (pushes it as the :rbi_vouch artifact).

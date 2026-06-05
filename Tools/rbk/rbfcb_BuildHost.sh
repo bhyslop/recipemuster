@@ -220,6 +220,63 @@ zrbfc_write_script_body() {
   return 0
 }
 
+# Internal: expand "#@rbgjs_include <name>" markers in a step body file IN PLACE.
+# Each marker line (any leading indentation tolerated) is replaced by the body of
+# <snippets_dir>/rbgjs-<name>.sh with its leading shebang stripped — the same
+# shebang-strip rule zrbfc_write_script_body applies. A body with no markers is
+# rewritten unchanged (a no-op), so every assembler may call this for every step.
+# This is the host side of the shared cloud-step library (RBSCJ "Composed-snippet
+# library"): a snippet reads shell vars the kind sets before the marker and is
+# blind to substitution names, which is what lets one snippet serve callers with
+# disjoint _RBGx_ substitution sets. Pure primitive — args only, no kindle state,
+# no sentinel — so it stays unit-testable alongside zrbfc_write_script_body.
+# Returns non-zero if the body is unreadable, the snippets dir is missing, a
+# marker names no snippet, or a named snippet file is absent (crash-fast: the
+# caller dies, no silent skip).
+# Args: body_file snippets_dir
+zrbfc_expand_includes() {
+  local -r z_body_file="$1"
+  local -r z_snippets_dir="$2"
+  test -f "${z_body_file}"    || return 1
+  test -d "${z_snippets_dir}" || return 1
+
+  local -r z_tmp="${z_body_file}.expanded"
+  : > "${z_tmp}" || return 1
+
+  local z_line=""
+  local z_trimmed=""
+  local z_name=""
+  local z_snippet=""
+  local z_sline=""
+  local z_seen_shebang=""
+  while IFS= read -r z_line || [ -n "${z_line}" ]; do
+    z_trimmed="${z_line#"${z_line%%[![:space:]]*}"}"
+    case "${z_trimmed}" in
+      '#@rbgjs_include '*)
+        z_name="${z_trimmed#'#@rbgjs_include '}"
+        z_name="${z_name%%[[:space:]]*}"
+        test -n "${z_name}" || return 1
+        z_snippet="${z_snippets_dir}/rbgjs-${z_name}.sh"
+        test -f "${z_snippet}" || return 1
+        z_seen_shebang=""
+        while IFS= read -r z_sline || [ -n "${z_sline}" ]; do
+          if [ -z "${z_seen_shebang}" ]; then
+            z_seen_shebang=1
+            case "${z_sline}" in '#!'*) continue ;; esac
+          fi
+          printf '%s\n' "${z_sline}" >> "${z_tmp}"
+        done < "${z_snippet}"
+        ;;
+      *)
+        printf '%s\n' "${z_line}" >> "${z_tmp}"
+        ;;
+    esac
+  done < "${z_body_file}"
+
+  mv "${z_tmp}" "${z_body_file}" || return 1
+  return 0
+}
+
 # Internal: normalize a path argument for a Windows-native build tool (docker
 # under Cygwin). A Windows-native binary reads a Cygwin /cygdrive/X/... path as a
 # literal Windows path and reports "does not exist"; hand it the drive-letter

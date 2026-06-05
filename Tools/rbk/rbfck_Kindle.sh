@@ -112,6 +112,10 @@ zrbfc_kindle() {
   readonly ZRBFC_RBGJR_STEPS_DIR="${z_self_dir}/rbgjr"
   test -d "${ZRBFC_RBGJR_STEPS_DIR}" || buc_die "RBGJR steps directory not found: ${ZRBFC_RBGJR_STEPS_DIR}"
 
+  buc_log_args 'Shared cloud-step snippet library (zrbfc_expand_includes #@rbgjs_include)'
+  readonly ZRBFC_RBGJS_SNIPPETS_DIR="${z_self_dir}/rbgjs"
+  test -d "${ZRBFC_RBGJS_SNIPPETS_DIR}" || buc_die "RBGJS snippets directory not found: ${ZRBFC_RBGJS_SNIPPETS_DIR}"
+
   buc_log_args 'Tool image refs — mutable kindle state, populated by zrbfc_resolve_tool_images'
   z_rbfc_tool_gcloud=""
   z_rbfc_tool_docker=""

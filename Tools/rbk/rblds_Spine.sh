@@ -92,6 +92,8 @@ zrbld_spine_dispatch() {
 
     zrbfc_write_script_body "${z_script_path}" "${z_body_file}" \
       || buc_die "Failed to read step script: ${z_script_path}"
+    zrbfc_expand_includes "${z_body_file}" "${ZRBFC_RBGJS_SNIPPETS_DIR}" \
+      || buc_die "Failed to expand snippet includes in step: ${z_script_path}"
     z_body=$(<"${z_body_file}")
     test -n "${z_body}" || buc_die "Empty step script body: ${z_script_path}"
 
