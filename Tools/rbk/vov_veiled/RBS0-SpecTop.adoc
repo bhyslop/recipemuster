@@ -564,6 +564,12 @@
 :rbsi_escape_test:           <<rbsi_escape_test,Escape Test>>
 :rbsi_escape_test_s:         <<rbsi_escape_test,Escape Tests>>
 
+// Recipe Bottle Security Quirks (tracked, non-threatening substrate deviations)
+// rbsq_ prefix: RB Security Quirk
+:rbsq_quirk:                 <<rbsq_quirk,Quirk>>
+:rbsq_quirk_s:               <<rbsq_quirk,Quirks>>
+:rbsq_wdd_offpath_reply:     <<rbsq_wdd_offpath_reply,Windows-DD Off-Path Reply>>
+
 // Cross-references to companion specifications
 :xref_AXLA:                  Axial Lexicon Specification
 
