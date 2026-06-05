@@ -9417,6 +9417,13 @@
         "₢BXAAF": {
           "jjgpn_tacks": [
             {
+              "jjgtn_ts": "260604-2251",
+              "jjgtn_state": "jjgte_complete",
+              "jjgtn_text": "## Character\nNew code with its own tests — the heat's one declared behavior-adding sliver.\n\n## Goal\nA dispatch-time validator that checks each step's declared requires against the substitutions plus prior steps' provides, failing a bad composition before the expensive build.\n\n## Cinched (paddock)\n- The only behavior-adding work in the heat; the accept-path leaves every existing recipe unchanged.\n- The reject-path is exercised by no current fixture, so it carries its own targeted unit tests.\n\n## Done\n- A bad composition fails at dispatch with a clear message; every existing recipe passes unchanged; unit tests cover the reject-path.",
+              "jjgtn_silks": "dispatch-recipe-validator",
+              "jjgtn_basis": "f6893bb"
+            },
+            {
               "jjgtn_ts": "260603-0517",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": "## Character\nNew code with its own tests — the heat's one declared behavior-adding sliver.\n\n## Goal\nA dispatch-time validator that checks each step's declared requires against the substitutions plus prior steps' provides, failing a bad composition before the expensive build.\n\n## Cinched (paddock)\n- The only behavior-adding work in the heat; the accept-path leaves every existing recipe unchanged.\n- The reject-path is exercised by no current fixture, so it carries its own targeted unit tests.\n\n## Done\n- A bad composition fails at dispatch with a clear message; every existing recipe passes unchanged; unit tests cover the reject-path.",
