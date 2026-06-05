@@ -1615,9 +1615,10 @@ The pair is ambient — it propagates through `zbuto_invoke` like all BURE varia
 {bure_tweak_name}::
 Consumer-interpreted tweak identifier.
 The name selects which behavioral override the consuming kit applies.
-BUK validates length (0–64 characters) but assigns no meaning to the value.
+BUK validates length (0–64 characters) and the `buo` tweak sprue — a `buo<segment>_` prefix — so an unregistered or mistyped name fails loud at enforce rather than silently no-op'ing at the consumer; BUK validates the shape only and assigns no meaning beyond it.
+The sprue doubles as a virtual registry: `grep buo` enumerates every tweak across the codebase, with no central list to maintain.
 +
-Example: `graft_image` — tells RBK to substitute the graft source image.
+Example: `buorb_graft_image` — tells RBK to substitute the graft source image.
 
 [[bure_tweak_value]]
 //axl_voices axrg_variable axtu_string axd_optional

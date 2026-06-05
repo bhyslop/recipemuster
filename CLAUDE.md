@@ -151,8 +151,11 @@ When minting, enumerate ALL namespaces the system touches:
 | Command files | `.claude/commands/{cmd}.md` | `vvc-commit.md` |
 | Environment vars | `{PREFIX}_NAME` | `VVG_SIZE_LIMIT` |
 | Target repo paths | `Tools/{kit}/...` | `Tools/vvk/bin/vvx` |
+| BURE tweak names | `buo{proj}_{name}` | `buorb_graft_image` |
 
 This is not exhaustive. The principle: **any persistent name anywhere is in the mint universe.**
+
+BURE tweak-name detail: the `buo` sprue is a reserved prefix for `BURE_TWEAK_NAME` values (the test-seam channel). BURE enforces the *shape* (`buo<segment>_…`) only — never specific names — so a typo'd/unregistered tweak fails loud instead of silently no-op'ing, and `grep buo` is the virtual registry (no central list). `buost_` is the reserved segment for BUK/test-stub placeholders (BUK's own, since `buobu_` is degenerate).
 
 ### Kit Infrastructure Suffixes
 

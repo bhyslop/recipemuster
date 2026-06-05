@@ -406,11 +406,11 @@ fn rbtdti_invoke_global_passes_extra_env() {
         &mut ctx,
         RBTDGC_ORDAIN_HALLMARK,
         &[],
-        &[("BURE_TWEAK_NAME", "threemodegraft")],
+        &[("BURE_TWEAK_NAME", "buost_example")],
     )
     .unwrap();
 
-    assert!(result.stdout.contains("TWEAK:threemodegraft"));
+    assert!(result.stdout.contains("TWEAK:buost_example"));
 
     let _ = std::fs::remove_dir_all(&tmp);
 }

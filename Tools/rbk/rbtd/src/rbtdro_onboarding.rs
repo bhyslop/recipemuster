@@ -149,7 +149,9 @@ const RBTDRO_WITNESS_VESSEL_DIR: &str = RBTDRO_VESSEL_DIR_SENTRY_TETHER;
 
 /// BURE_TWEAK signal recognized by rbfd_FoundryDirectorBuild for graft mode:
 /// supplies the local image reference without mutating the vessel rbrv.env.
-const RBTDRO_GRAFT_TWEAK_NAME: &str = "threemodegraft";
+/// Mirror: rbfd_FoundryDirectorBuild.sh `z_graft_tweak_name` (same literal). Carries
+/// the buo tweak sprue, enforced by BURE.
+const RBTDRO_GRAFT_TWEAK_NAME: &str = "buorb_graft_image";
 
 /// Source image for graft: any locally-resolvable docker image works; an
 /// upstream public image keeps this case independent of the conjure case.
