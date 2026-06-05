@@ -194,7 +194,17 @@ rbld_ensconce() {
 
   # Mint the Lode stamp on the host: <kind-letter><YYMMDDHHMMSS>. The host owns
   # the stamp so the touchmark is known before the build for the capture-file.
-  local -r z_stamp="${RBGC_LODE_KIND_BOLE}${BURD_NOW_STAMP:2:6}${BURD_NOW_STAMP:9:6}"
+  local z_stamp="${RBGC_LODE_KIND_BOLE}${BURD_NOW_STAMP:2:6}${BURD_NOW_STAMP:9:6}"
+
+  # Tweak override: test infrastructure pins the stamp via the bure tweak channel
+  # to drive two captures onto one touchmark (the collision-guard exercise) — the
+  # time-based mint is seconds-grained, so two CLI ensconces never share a
+  # touchmark and the cloud guard's idempotent/collision branches never fire
+  # without a pin. The name carries the buo sprue (BURE enforces the shape).
+  # Mirror: rbtdrc_crucible.rs RBTDRC_ENSCONCE_STAMP_TWEAK_NAME — same literal.
+  local -r z_ensconce_stamp_tweak_name="buorb_ensconce_stamp"
+  test "${BURE_TWEAK_NAME:-}" != "${z_ensconce_stamp_tweak_name}" || z_stamp="${BURE_TWEAK_VALUE}"
+
   buc_info "Lode: ${RBGL_LODES_ROOT}/${z_stamp}"
 
   zrbld_ensconce_submit "${z_token}" "${z_origin}" "${z_stamp}"

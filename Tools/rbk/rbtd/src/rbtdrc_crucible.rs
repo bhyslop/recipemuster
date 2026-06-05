@@ -2805,6 +2805,19 @@ const RBTDRC_LODE_TAG_BOLE: &str = "rbi_bole";
 const RBTDRC_LODE_TAG_VOUCH: &str = "rbi_vouch";
 const RBTDRC_LODE_TAG_DIGEST_PREFIX: &str = "rbi_sha256-";
 
+/// BURE_TWEAK signal recognized by rbld_ensconce (rbldb_Bole.sh) to pin the Lode
+/// stamp, driving two captures onto one touchmark so the cloud-side collision
+/// guard's idempotent/collision branches fire. Mirror: rbldb_Bole.sh
+/// `z_ensconce_stamp_tweak_name` — same literal. Carries the buo tweak sprue,
+/// enforced by BURE.
+const RBTDRC_ENSCONCE_STAMP_TWEAK_NAME: &str = "buorb_ensconce_stamp";
+
+/// Debian-base vessel — a DIFFERENT upstream base than busybox, so ensconcing it
+/// onto a busybox touchmark trips the collision guard's different-digest branch.
+/// Carries the same yoked reliquary as busybox, so host-side skopeo resolution
+/// succeeds and the failure lands cloud-side at the guard, not host-side.
+const RBTDRC_DEB_VESSEL_DIR: &str = concat!(crate::rbtd_vessels_dir!(), "/rbev-sentry-deb-tether");
+
 fn rbtdrc_hallmark_lifecycle(dir: &Path) -> rbtdre_Verdict {
     rbtdrc_with_ctx(|ctx| {
         let vessel_dir = RBTDRC_BUSYBOX_VESSEL_DIR;
@@ -3028,7 +3041,121 @@ fn rbtdrc_lode_lifecycle(dir: &Path) -> rbtdre_Verdict {
     })
 }
 
-pub static RBTDRC_CASES_LODE_LIFECYCLE: &[rbtdre_Case] = &[case!(rbtdrc_lode_lifecycle)];
+// Lode-collision case — exercises the cloud-side touchmark collision guard
+// (rbgjl01-ensconce-capture.sh). The guard cannot fire under natural minting:
+// each ensconce mints a fresh second-grained stamp, so two CLI captures land on
+// distinct touchmarks. We pin the stamp via the buo tweak channel
+// (RBTDRC_ENSCONCE_STAMP_TWEAK_NAME) to drive both captures onto ONE touchmark.
+//
+// Sequence: (1) ensconce busybox naturally -> mint touchmark S, read it back;
+// (2) ensconce busybox pinned to S -> identical digest, guard's idempotent
+// branch, exit 0; (3) ensconce debian pinned to S -> different digest under the
+// same touchmark, guard's collision branch, host exit non-zero; (4) banish S.
+//
+// The collision verdict rests on the HOST EXIT CODE: the guard's "touchmark
+// collision" message lands in Cloud Logging (CLOUD_LOGGING_ONLY), not host
+// stdout, but a cloud build FAILURE propagates to a non-zero rbw-lE exit
+// (rbfcb_BuildHost.sh: status != SUCCESS -> buc_die). The idempotent step (2) is
+// the positive control: the identical pipeline on the same pinned touchmark
+// SUCCEEDS for the same base, so step (3)'s failure isolates to the differing
+// digest — the collision branch — not debian-specific infra. Both vessels carry
+// the same yoked reliquary, so host-side skopeo resolution is identical.
+fn rbtdrc_lode_collision(dir: &Path) -> rbtdre_Verdict {
+    rbtdrc_with_ctx(|ctx| {
+        let busybox_dir = RBTDRC_BUSYBOX_VESSEL_DIR;
+        let deb_dir = RBTDRC_DEB_VESSEL_DIR;
+        for vd in &[busybox_dir, deb_dir] {
+            if !ctx.project_root().join(vd).is_dir() {
+                return rbtdre_Verdict::Fail(format!("vessel directory not found: {}", vd));
+            }
+        }
+
+        // Step 1: ensconce busybox naturally; read back the minted touchmark S.
+        let _ = std::fs::write(dir.join("01-ensconce-fresh.txt"), "ensconcing busybox (fresh, natural mint)");
+        let fresh = match rbtdri_invoke_global(ctx, RBTDGC_ENSCONCE_BOLE, &[busybox_dir], &[]) {
+            Ok(r) if r.exit_code == 0 => r,
+            Ok(r) => return rbtdre_Verdict::Fail(format!("fresh ensconce failed (exit {})\n{}", r.exit_code, r.stderr)),
+            Err(e) => return rbtdre_Verdict::Fail(format!("fresh ensconce invocation: {}", e)),
+        };
+        let _ = std::fs::write(dir.join("01-ensconce-fresh-stdout.txt"), &fresh.stdout);
+        let touchmarks = match rbtdri_read_burv_facts_multi(&fresh, RBTDRC_FACT_EXT_LODE) {
+            Ok(v) => v,
+            Err(e) => return rbtdre_Verdict::Fail(format!("read capture-file: {}", e)),
+        };
+        if touchmarks.len() != 1 {
+            return rbtdre_Verdict::Fail(format!("expected exactly 1 capture-file, got {:?}", touchmarks));
+        }
+        let touchmark = touchmarks[0].clone();
+        let _ = std::fs::write(dir.join("02-touchmark.txt"), &touchmark);
+
+        let pin = &[
+            ("BURE_TWEAK_NAME", RBTDRC_ENSCONCE_STAMP_TWEAK_NAME),
+            ("BURE_TWEAK_VALUE", touchmark.as_str()),
+        ];
+
+        // Step 2 (positive control): ensconce busybox pinned to S — identical
+        // digest under the same touchmark — guard's idempotent branch — must PASS.
+        let _ = std::fs::write(dir.join("03-ensconce-idempotent.txt"), "ensconcing busybox pinned to S (identical digest)");
+        let idem = match rbtdri_invoke_global(ctx, RBTDGC_ENSCONCE_BOLE, &[busybox_dir], pin) {
+            Ok(r) if r.exit_code == 0 => r,
+            Ok(r) => return rbtdre_Verdict::Fail(format!(
+                "idempotent ensconce (same base, same touchmark) should pass but failed (exit {})\n{}",
+                r.exit_code, r.stderr)),
+            Err(e) => return rbtdre_Verdict::Fail(format!("idempotent ensconce invocation: {}", e)),
+        };
+        let _ = std::fs::write(dir.join("03-ensconce-idempotent-stdout.txt"), &idem.stdout);
+
+        // Step 3: ensconce debian pinned to S — different digest under the same
+        // touchmark — guard's collision branch — host exit must be non-zero.
+        let _ = std::fs::write(dir.join("04-ensconce-collision.txt"), "ensconcing debian pinned to S (different digest -> collision)");
+        let collision = match rbtdri_invoke_global(ctx, RBTDGC_ENSCONCE_BOLE, &[deb_dir], pin) {
+            Ok(r) => r,
+            Err(e) => return rbtdre_Verdict::Fail(format!("collision ensconce invocation: {}", e)),
+        };
+        let _ = std::fs::write(dir.join("04-ensconce-collision-stdout.txt"), &collision.stdout);
+        let _ = std::fs::write(dir.join("04-ensconce-collision-stderr.txt"), &collision.stderr);
+        if collision.exit_code == 0 {
+            return rbtdre_Verdict::Fail(format!(
+                "collision ensconce (different base, same touchmark {}) should fail loud but exited 0\nstdout:\n{}",
+                touchmark, collision.stdout));
+        }
+
+        // Step 4: banish S — cleanup (removes the busybox Lode steps 1-2 left;
+        // the collision step wrote nothing, dying before the GAR copy).
+        let _ = std::fs::write(dir.join("05-banish.txt"), "banishing");
+        match rbtdri_invoke_global(
+            ctx,
+            RBTDGC_BANISH_LODE,
+            &[&touchmark],
+            &[(RBTDRI_BURE_CONFIRM_KEY, RBTDRI_BURE_CONFIRM_SKIP)],
+        ) {
+            Ok(r) if r.exit_code == 0 => {}
+            Ok(r) => return rbtdre_Verdict::Fail(format!("banish failed (exit {})\n{}", r.exit_code, r.stderr)),
+            Err(e) => return rbtdre_Verdict::Fail(format!("banish invocation: {}", e)),
+        }
+
+        // Step 5: divine enumerate no longer shows S — registry restored.
+        let final_divine = match rbtdri_invoke_global(ctx, RBTDGC_DIVINE_LODES, &[], &[]) {
+            Ok(r) if r.exit_code == 0 => r,
+            Ok(r) => return rbtdre_Verdict::Fail(format!("final divine failed (exit {})\n{}", r.exit_code, r.stderr)),
+            Err(e) => return rbtdre_Verdict::Fail(format!("final divine invocation: {}", e)),
+        };
+        let _ = std::fs::write(dir.join("06-divine-final.txt"), &final_divine.stdout);
+        if final_divine.stdout.contains(&touchmark) {
+            return rbtdre_Verdict::Fail(format!(
+                "final divine still shows banished touchmark {} — cleanup failed\nstdout:\n{}",
+                touchmark, final_divine.stdout));
+        }
+
+        let _ = std::fs::write(dir.join("07-passed.txt"), "passed");
+        rbtdre_Verdict::Pass
+    })
+}
+
+pub static RBTDRC_CASES_LODE_LIFECYCLE: &[rbtdre_Case] = &[
+    case!(rbtdrc_lode_lifecycle),
+    case!(rbtdrc_lode_collision),
+];
 
 
 // Batch-vouch fixture — exercises rbfv_batch_vouch's two-pass pending→vouched
