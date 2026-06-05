@@ -8960,9 +8960,10 @@
         "₢BVAAJ",
         "₢BVAAB",
         "₢BVAAG",
-        "₢BVAAH"
+        "₢BVAAH",
+        "₢BVAAK"
       ],
-      "jjghn_next_pace_seed": "AAK",
+      "jjghn_next_pace_seed": "AAL",
       "jjghn_paces": {
         "₢BVAAA": {
           "jjgpn_tacks": [
@@ -9169,6 +9170,17 @@
               "jjgtn_text": "## Character\nIntricate but mostly mechanical — a near-variant of the existing provenance-classified sortie. Security-relevant.\n\n## Goal\nThe rbsq_wdd_offpath_reply quirk is judged benign on one untested premise: the substrate answers only egress the sentry *allowed*, because blocked destinations are dropped at the sentry before the substrate ever sees them. Convert that to a tested fact — send the provenance-classified lone-ACK to a non-allowlisted destination; any reply, off-path or sentry-mediated, is a BREACH, because the substrate reached the bottle on behalf of a destination the sentry never approved (a real path-in, not a quirk).\n\n## Cinched\n- This is the empirical backstop for the quirk's keystone clause. A BREACH on Windows DD voids the quirk's benign classification and becomes a real finding.\n- Unilateral; runs on the existing hardened nameplates, no new nameplate. The blocked-dest choice is a mount-time decision.\n\n## Done\nA provenance-aware lone-ACK to a blocked destination asserts no reply of any provenance; it runs SECURE across the platform matrix, or surfaces a real finding if it does not.\n\nSources: Memos/memo-20260604-conntrack-spoofed-ack-adjudication.md (Scope of exposure); RBSIP \"Substrate Quirks\" (rbsq_wdd_offpath_reply); sortie_conntrack_spoofed_ack in rbida_sorties.rs.",
               "jjgtn_silks": "offpath-blocked-dest-probe",
               "jjgtn_basis": "25145c1"
+            }
+          ]
+        },
+        "₢BVAAK": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260605-1014",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nSmall fix; the diagnosis is done, the judgment is which seam to cut.\n\n## Goal\ntheurge's sentry-config reads must parse a clean value regardless of terminal\ncolor. rbtdrc_read_sentry_env reads an env var via writ; rbtdrc_filter_writ_output\n(rbtdrc_crucible.rs) then strips buc status lines by their ANSI gray prefix — a\npresentation attribute. On a cold render (NO_COLOR / unset TERM / pipe / dumb\nterminal — e.g. plain ssh to cerebro) the prefix is absent, so rbob_writ's\n\"Writ to sentry: …\" status line survives the filter and is parsed as the value,\nfailing rbtdrc_sentry_config_rp_filter (\"unexpected RBRN_ENTRY_MODE 'rbob_writ\nWrit to sentry: …'\"). A correctness path keying on style as type — Interface\nContamination inside the harness.\n\n## Cinched\n- buym's NO_COLOR/TERM color gating is correct and stays; fix the consumer side.\n- Must hold under NO_COLOR. rbob_writ status goes to stderr — find where the\n  launcher folds it into the captured stdout; that merge is the deeper, cleaner\n  seam to cut.\n\n## Done\nA cold-render siege on cerebro runs green; the writ value-read no longer depends\non ANSI color.\n\nRefs: rbtdrc_filter_writ_output / rbtdrc_read_sentry_env (rbtdrc_crucible.rs); buym color gate (buym_yelp.sh).",
+              "jjgtn_silks": "writ-capture-color-decoupling",
+              "jjgtn_basis": "82298f8"
             }
           ]
         }
