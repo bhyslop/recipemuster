@@ -68,6 +68,33 @@ for SLOT in 1 2 3; do
   echo "Digest:  sha256:${SHA}"
   echo "Tags:    ${DIGEST_TAG}, ${_RBGL_TAG_BOLE}, ${FINGERPRINT}"
 
+  # Collision guard — never silently clobber an existing Lode. The bole handle
+  # (:rbi_bole) always points at this touchmark's captured image, so inspect it:
+  # absent => a fresh touchmark; present => re-use. Re-use is legitimate ONLY when
+  # it is the identical canonical digest (a Cloud Build retry re-copying the same
+  # bytes); a different digest under the same touchmark is a clobber and fails loud.
+  # The check sits immediately before the copy in this same step — atomic with the
+  # GAR write in the sense the spec requires (no host pre-submit window). EXISTING_SHA
+  # is computed the same way as SHA (sha256sum of the raw manifest), so the compare is
+  # apples-to-apples. An inspect failure is treated as absent: cloud-side auth/network
+  # is reliable, and a genuine GAR outage fails the copy below regardless.
+  EXISTING_RAW="/workspace/ensconce_existing_${SLOT}.json"
+  if skopeo inspect --raw "docker://${PKG}:${_RBGL_TAG_BOLE}" \
+       --creds "oauth2accesstoken:${TOKEN}" > "${EXISTING_RAW}" 2>/dev/null; then
+    EXISTING_SHA=$(sha256sum "${EXISTING_RAW}" | cut -d' ' -f1)
+    if [ "${EXISTING_SHA}" = "${SHA}" ]; then
+      echo "Touchmark ${STAMP} already holds identical digest sha256:${SHA} — idempotent retry, proceeding."
+    else
+      echo "FATAL: touchmark collision at ${PKG}" >&2
+      echo "  existing :${_RBGL_TAG_BOLE} -> sha256:${EXISTING_SHA}" >&2
+      echo "  refusing to clobber with  -> sha256:${SHA}" >&2
+      echo "  (banish the Lode first, or ensconce under a fresh touchmark)" >&2
+      exit 1
+    fi
+  else
+    echo "Touchmark ${STAMP} is fresh (no existing :${_RBGL_TAG_BOLE})."
+  fi
+
   # Copy upstream into the Lode package under the canonical digest tag.
   skopeo copy --all \
     "docker://${ORIGIN}" \

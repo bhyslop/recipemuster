@@ -107,6 +107,10 @@ build dispatched with `«BUILD_ID»` and the Cloud Console URL
 .. Compose the unsprued glance fingerprint: sanitize the
 {rbrv_image_origin}
 (`:` and `/` to `-`) and append the first 10 hex chars of `«DIGEST»`
+.. {rbbc_require}
+the touchmark carries no conflicting capture (collision guard, before the copy): inspect the existing `:rbi_bole` handle on the Lode package — absent means a fresh touchmark and capture proceeds; present means its canonical digest must equal `«DIGEST»` (a Cloud Build retry re-copying the same bytes, which proceeds idempotently)
+.. {rbbc_fatal}
+if the existing `:rbi_bole` digest differs from `«DIGEST»` — a touchmark collision; the step fails loud rather than clobber the prior capture (banish the Lode first, or ensconce under a fresh touchmark). The guard is digest-aware, not naive fail-if-exists, so retries pass; it is co-located with the copy in this same step — atomic with the GAR write in that it admits no host pre-submit window
 .. Copy the upstream image into the Lode package with `skopeo copy --all` (manifest list and all per-platform manifests) under the `:rbi_sha256-«DIGEST»` tag
 .. Apply the remaining member tags by GAR→GAR retag (blobs deduplicate): `:rbi_bole` (uniform handle) and `:«SANITIZED-ORIGIN»-«SHA10»` (fingerprint)
 .. Author the
