@@ -17,7 +17,7 @@
 # Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 #
 # Recipe Bottle Lode - capture-assembly spine (guard-free cluster, sourced by
-# rbldk_): the data-driven Cloud Build composer shared by every Lode capture
+# rbld0_Lode): the data-driven Cloud Build composer shared by every Lode capture
 # kind. Takes a recipe (ordered, pre-resolved step rows) plus an opaque
 # substitutions blob, composes the Build resource, submits, polls, and decodes a
 # step's buildStepOutputs slot. Owns NO kind knowledge: the recipe and the
