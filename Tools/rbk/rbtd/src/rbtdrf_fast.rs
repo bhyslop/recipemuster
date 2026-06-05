@@ -47,6 +47,7 @@ use crate::rbtdrm_manifest::{
     RBTDRM_FIXTURE_DOCKERFILE_HYGIENE,
     RBTDRM_FIXTURE_ENROLLMENT_VALIDATION,
     RBTDRM_FIXTURE_FOUNDRY_PATH,
+    RBTDRM_FIXTURE_RECIPE_VALIDATION,
     RBTDRM_FIXTURE_REGIME_SMOKE,
     RBTDRM_FIXTURE_REGIME_VALIDATION,
     RBTDRM_MODULE_BURC,
@@ -1943,6 +1944,112 @@ fn rbtdrf_np_bare_absolute_unsurveyed(dir: &Path) -> rbtdre_Verdict {
         "/etc/hosts", None)
 }
 
+// ── Recipe-validation cases ─────────────────────────────────
+//
+// Drives zrbld_spine_validate — the Lode capture-assembly spine's dispatch-time
+// substitution-coverage check — directly: write a substitution-keys file and an
+// already-include-expanded step body, source buv_validation + rblds_Spine and
+// kindle buv so buc_log_args resolves, then assert the check accepts a fully
+// covered body and returns non-zero at the first _RBGL_* reference absent from
+// the keys. The check is sentinel-free and reads only its two file arguments, so
+// this stays a dependency-free unit test — no rbld kindle, no regime, no creds.
+
+fn rbtdrf_rc_run(
+    dir: &Path,
+    label: &str,
+    keys: &str,
+    body: &str,
+    expect_ok: bool,
+) -> rbtdre_Verdict {
+    let root = match std::env::current_dir() {
+        Ok(r) => r,
+        Err(e) => return rbtdre_Verdict::Fail(format!("cannot get cwd: {}", e)),
+    };
+    let keys_file = dir.join(format!("{}-keys.txt", label));
+    let body_file = dir.join(format!("{}-body.sh", label));
+    if let Err(e) = std::fs::write(&keys_file, keys) {
+        return rbtdre_Verdict::Fail(format!("{}: write keys failed: {}", label, e));
+    }
+    if let Err(e) = std::fs::write(&body_file, body) {
+        return rbtdre_Verdict::Fail(format!("{}: write body failed: {}", label, e));
+    }
+    let buv = root.join("Tools/buk/buv_validation.sh");
+    let spine = root.join("Tools/rbk/rblds_Spine.sh");
+    let script = format!(
+        "set -euo pipefail\n\
+         source '{}'\n\
+         source '{}'\n\
+         zbuv_kindle\n\
+         zrbld_spine_validate '{}' '{}'",
+        rbtdrx_native_to_posix(&buv),
+        rbtdrx_native_to_posix(&spine),
+        rbtdrx_native_to_posix(&keys_file),
+        rbtdrx_native_to_posix(&body_file),
+    );
+
+    let expect = if expect_ok { "ok" } else { "non-zero (uncovered)" };
+    match rbtdrf_run_bash(&root, &script, dir, label) {
+        Ok((code, _, _)) => {
+            if (code == 0) == expect_ok {
+                rbtdre_Verdict::Pass
+            } else {
+                rbtdre_Verdict::Fail(format!("{}: expected {}, got exit {}", label, expect, code))
+            }
+        }
+        Err(e) => rbtdre_Verdict::Fail(format!("{}: {}", label, e)),
+    }
+}
+
+fn rbtdrf_rc_accept_all_covered(dir: &Path) -> rbtdre_Verdict {
+    rbtdrf_rc_run(dir, "rc-accept-all-covered",
+        "_RBGL_A\n_RBGL_B\n", "echo \"${_RBGL_A}\" \"${_RBGL_B}\"\n", true)
+}
+
+fn rbtdrf_rc_reject_missing_key(dir: &Path) -> rbtdre_Verdict {
+    rbtdrf_rc_run(dir, "rc-reject-missing-key",
+        "_RBGL_A\n", "echo \"${_RBGL_B}\"\n", false)
+}
+
+fn rbtdrf_rc_accept_comment_only(dir: &Path) -> rbtdre_Verdict {
+    rbtdrf_rc_run(dir, "rc-accept-comment-only",
+        "_RBGL_A\n", "# uses _RBGL_ABSENT\necho \"${_RBGL_A}\"\n", true)
+}
+
+fn rbtdrf_rc_reject_substring(dir: &Path) -> rbtdre_Verdict {
+    rbtdrf_rc_run(dir, "rc-reject-substring",
+        "_RBGL_TAG_BOLE\n", "echo \"${_RBGL_TAG}\"\n", false)
+}
+
+fn rbtdrf_rc_accept_substring_real(dir: &Path) -> rbtdre_Verdict {
+    rbtdrf_rc_run(dir, "rc-accept-substring-real",
+        "_RBGL_TAG_BOLE\n", "echo \"${_RBGL_TAG_BOLE}\"\n", true)
+}
+
+fn rbtdrf_rc_accept_no_refs(dir: &Path) -> rbtdre_Verdict {
+    rbtdrf_rc_run(dir, "rc-accept-no-refs",
+        "_RBGL_A\n", "echo hello world\n", true)
+}
+
+fn rbtdrf_rc_accept_multi_token(dir: &Path) -> rbtdre_Verdict {
+    rbtdrf_rc_run(dir, "rc-accept-multi-token",
+        "_RBGL_A\n_RBGL_B\n", "X=\"${_RBGL_A}/${_RBGL_B}\"\n", true)
+}
+
+fn rbtdrf_rc_reject_multi_second(dir: &Path) -> rbtdre_Verdict {
+    rbtdrf_rc_run(dir, "rc-reject-multi-second",
+        "_RBGL_A\n", "X=\"${_RBGL_A}/${_RBGL_B}\"\n", false)
+}
+
+fn rbtdrf_rc_accept_empty_keys(dir: &Path) -> rbtdre_Verdict {
+    rbtdrf_rc_run(dir, "rc-accept-empty-keys",
+        "", "echo hello\n", true)
+}
+
+fn rbtdrf_rc_reject_empty_keys_ref(dir: &Path) -> rbtdre_Verdict {
+    rbtdrf_rc_run(dir, "rc-reject-empty-keys-ref",
+        "", "echo \"${_RBGL_A}\"\n", false)
+}
+
 // ── Case arrays ─────────────────────────────────────────────
 
 pub static RBTDRF_CASES_ENROLLMENT_VALIDATION: &[rbtdre_Case] = &[
@@ -2119,4 +2226,25 @@ pub static RBTDRF_FIXTURE_FOUNDRY_PATH: rbtdre_Fixture = rbtdre_Fixture {
     setup: None,
     teardown: None,
     cases: RBTDRF_CASES_FOUNDRY_PATH,
+};
+
+pub static RBTDRF_CASES_RECIPE_VALIDATION: &[rbtdre_Case] = &[
+    case!(rbtdrf_rc_accept_all_covered),
+    case!(rbtdrf_rc_reject_missing_key),
+    case!(rbtdrf_rc_accept_comment_only),
+    case!(rbtdrf_rc_reject_substring),
+    case!(rbtdrf_rc_accept_substring_real),
+    case!(rbtdrf_rc_accept_no_refs),
+    case!(rbtdrf_rc_accept_multi_token),
+    case!(rbtdrf_rc_reject_multi_second),
+    case!(rbtdrf_rc_accept_empty_keys),
+    case!(rbtdrf_rc_reject_empty_keys_ref),
+];
+
+pub static RBTDRF_FIXTURE_RECIPE_VALIDATION: rbtdre_Fixture = rbtdre_Fixture {
+    name: RBTDRM_FIXTURE_RECIPE_VALIDATION,
+    disposition: rbtdre_Disposition::Independent,
+    setup: None,
+    teardown: None,
+    cases: RBTDRF_CASES_RECIPE_VALIDATION,
 };

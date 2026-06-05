@@ -56,6 +56,7 @@ pub const RBTDRM_FIXTURE_ACCESS_PROBE: &str = "access-probe";
 pub const RBTDRM_FIXTURE_LODE_LIFECYCLE: &str = "lode-lifecycle";
 // Fast fixtures (no external dependencies)
 pub const RBTDRM_FIXTURE_ENROLLMENT_VALIDATION: &str = "enrollment-validation";
+pub const RBTDRM_FIXTURE_RECIPE_VALIDATION: &str = "recipe-validation";
 pub const RBTDRM_FIXTURE_REGIME_VALIDATION: &str = "regime-validation";
 pub const RBTDRM_FIXTURE_REGIME_SMOKE: &str = "regime-smoke";
 pub const RBTDRM_FIXTURE_HANDBOOK_RENDER: &str = "handbook-render";
@@ -176,6 +177,7 @@ pub fn rbtdrm_required_colophons(fixture: &str) -> Option<&'static [&'static str
             RBTDGC_CHECK_PAYOR,
         ]),
         RBTDRM_FIXTURE_ENROLLMENT_VALIDATION
+        | RBTDRM_FIXTURE_RECIPE_VALIDATION
         | RBTDRM_FIXTURE_REGIME_VALIDATION
         | RBTDRM_FIXTURE_REGIME_SMOKE
         | RBTDRM_FIXTURE_FOUNDRY_PATH

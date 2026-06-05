@@ -35,6 +35,68 @@ set -euo pipefail
 ######################################################################
 # Capture-assembly spine (zrbld_spine_*)
 
+# Internal: dispatch-time substitution-coverage check. A capture step reads
+# automapped _RBGL_* substitution registers; a reference to a key the body's
+# substitutions blob never defines expands to empty inside the build and corrupts
+# the capture silently — the one composition fault that is neither guarded in-step
+# (unlike the /workspace handoff, which the steps test -f for themselves) nor cheap
+# to surface (it costs the whole cook). The _RBGL_* references in a step body ARE
+# its substitution requires — no separate declaration to drift from the code — so
+# this scans the include-expanded body for them on non-comment lines and returns 1
+# at the first reference absent from the blob's keys, logging the offending
+# register. Sentinel-free return-1 primitive, like the rbfcb_ build primitives the
+# dispatch loop already rides; the caller buc_die's with the step identity.
+#
+# Coverage is flat by design (RBSCJ "Requires/provides format"): substitutions
+# automap into every step, so there is no cross-step ordering; the /workspace
+# inter-step channel keeps its own in-step guards and is out of scope.
+#
+# Args: keys_file expanded_body_file
+zrbld_spine_validate() {
+  local -r z_keys_file="${1:?Substitution keys file required}"
+  local -r z_body_file="${2:?Expanded body file required}"
+
+  test -f "${z_keys_file}" || return 1
+  test -f "${z_body_file}" || return 1
+
+  # Keys as newline-bounded text for builtin whole-line membership tests. Empty
+  # keys (a blob declaring no registers) is legitimate — no test -n.
+  local -r z_keys=$(<"${z_keys_file}")
+  local -r z_keys_blob=$'\n'"${z_keys}"$'\n'
+
+  # Load the body, then iterate — the file is closed before the scan begins.
+  local z_lines=()
+  local z_line=""
+  while IFS= read -r z_line || test -n "${z_line}"; do
+    z_lines+=("${z_line}")
+  done < "${z_body_file}"
+
+  local z_i=0
+  local z_rest=""
+  local z_ref=""
+  for z_i in "${!z_lines[@]}"; do
+    z_line="${z_lines[$z_i]}"
+
+    # Full-line comments only — a _RBGL_ token in a leading-# comment is
+    # documentation, not a read; a trailing inline mention stays conservative.
+    [[ ! "${z_line}" =~ ^[[:space:]]*# ]] || continue
+
+    # Each _RBGL_* token by repeated leftmost match; strip through the match so
+    # the next token on the line surfaces.
+    z_rest="${z_line}"
+    while [[ "${z_rest}" =~ _RBGL_[A-Z0-9_]+ ]]; do
+      z_ref="${BASH_REMATCH[0]}"
+      case "${z_keys_blob}" in
+        *$'\n'"${z_ref}"$'\n'*) ;;
+        *) buc_log_args "Uncovered substitution register: ${z_ref}"; return 1 ;;
+      esac
+      z_rest="${z_rest#*"${z_ref}"}"
+    done
+  done
+
+  return 0
+}
+
 # Internal: compose, submit, and poll a Lode capture Cloud Build from a recipe
 # plus an opaque substitutions blob.
 #
@@ -64,6 +126,14 @@ zrbld_spine_dispatch() {
   test "$#" -ge 1 || buc_die "zrbld_spine_dispatch: recipe requires at least one step row"
 
   test -s "${z_subs_file}" || buc_die "Substitutions file missing or empty: ${z_subs_file}"
+
+  # Read the substitutions blob's keys once for the dispatch-time coverage check;
+  # the per-step scan rides the composition loop below, where each step body is
+  # already include-expanded (zrbld_spine_validate). A JSON object cannot carry
+  # duplicate keys, so no dedup is needed.
+  local -r z_keys_file="${z_temp_prefix}subs_keys.txt"
+  jq -r 'keys[]' "${z_subs_file}" > "${z_keys_file}" \
+    || buc_die "Failed to read substitution keys from ${z_subs_file}"
 
   buc_step "Composing ${z_label} Cloud Build steps from recipe"
   local -r z_steps_file="${z_temp_prefix}steps.json"
@@ -96,6 +166,9 @@ zrbld_spine_dispatch() {
       || buc_die "Failed to expand snippet includes in step: ${z_script_path}"
     z_body=$(<"${z_body_file}")
     test -n "${z_body}" || buc_die "Empty step script body: ${z_script_path}"
+
+    zrbld_spine_validate "${z_keys_file}" "${z_body_file}" \
+      || buc_die "Recipe step '${z_id}' references a substitution register absent from the composition blob (see transcript)"
 
     case "${z_entrypoint}" in
       bash)    z_shebang="#!/bin/bash" ;;
