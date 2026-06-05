@@ -62,6 +62,7 @@ zrbgg_kindle() {
   readonly ZRBGG_INFIX_PREFLIGHT="preflight"
   readonly ZRBGG_INFIX_VERIFY="verify"
   readonly ZRBGG_INFIX_KEY="key"
+  readonly ZRBGG_INFIX_KEY_DELETE="key_delete"
   readonly ZRBGG_INFIX_API_IAM_ENABLE="api_iam_enable"
   readonly ZRBGG_INFIX_API_CRM_ENABLE="api_crm_enable"
   readonly ZRBGG_INFIX_API_ART_ENABLE="api_art_enable"
@@ -169,50 +170,54 @@ zrbgg_create_service_account_with_key() {
   local z_token
   z_token=$(rba_get_governor_token_capture) || buc_die "Failed to get admin token"
 
-  buc_step "Preflight: confirm ${z_account_name} does not already exist"
-  # Invest is fail-loud by design (RBSRK/RBSDK): a pre-existing SA is treated as
-  # state drift, not an idempotent rerun. The operator clears it with the
-  # matching GovernorDivests verb (rbw-arD/rbw-adD) before re-investing.
+  buc_step "Preflight: does ${z_account_name} already exist?"
+  # Idempotent establish (RBSRK/RBSDK): a pre-existing SA is not drift — keep the
+  # identity (email + uid + its IAM bindings) and rotate only the key below. When
+  # absent, create the SA first. Either branch ends with exactly one fresh key.
   rbuh_json "GET" "${RBGD_API_SERVICE_ACCOUNTS}/${z_account_email}" "${z_token}" \
                                                  "${ZRBGG_INFIX_PREFLIGHT}"
   local z_preflight_code
   z_preflight_code=$(rbuh_code_capture "${ZRBGG_INFIX_PREFLIGHT}") || z_preflight_code=""
+  local z_sa_exists=0
   case "${z_preflight_code}" in
-    404) buc_log_args "Service account ${z_account_email} absent — clear to create" ;;
-    200)
-      buyy_link_yawp "${RBRR_PUBLIC_DOCS_URL}" "EventualConsistency" "GCP's post-delete read flap"
-      local z_lk_flap="${z_buym_yelp}"
-      buc_die "Service account ${z_account_email} already exists — run the matching GovernorDivests verb (rbw-arD/rbw-adD) first to re-key. Maybe this is ${z_lk_flap}: if you just divested this same-name account, GCP may still read it as present for a few seconds while the delete propagates across replicas — wait and retry before hunting for leftover state." ;;
+    404) buc_log_args "Service account ${z_account_email} absent — will create" ;;
+    200) z_sa_exists=1; buc_log_args "Service account ${z_account_email} exists — establishing key only (SA and bindings untouched)" ;;
     *)   buc_die "Preflight GET for ${z_account_email} returned unexpected HTTP ${z_preflight_code}" ;;
   esac
 
-  buc_step "Create request JSON for ${z_account_name}"
-  jq -n                                      \
-    --arg account_id "${z_account_name}"     \
-    --arg display_name "${z_display_name}"   \
-    --arg description "${z_description}"     \
-    '{
-      accountId: $account_id,
-      serviceAccount: {
-        displayName: $display_name,
-        description: $description
-      }
-    }' > "${ZRBGG_PREFIX}create_request.json" || buc_die "Failed to create request JSON"
+  local z_sa_uid=""
+  if test "${z_sa_exists}" = "0"; then
+    buc_step "Create request JSON for ${z_account_name}"
+    jq -n                                      \
+      --arg account_id "${z_account_name}"     \
+      --arg display_name "${z_display_name}"   \
+      --arg description "${z_description}"     \
+      '{
+        accountId: $account_id,
+        serviceAccount: {
+          displayName: $display_name,
+          description: $description
+        }
+      }' > "${ZRBGG_PREFIX}create_request.json" || buc_die "Failed to create request JSON"
 
-  buc_step 'Create service account via REST API'
-  rbuh_json "POST" "${RBGD_API_SERVICE_ACCOUNTS}" "${z_token}" \
-    "${ZRBGG_INFIX_CREATE}" "${ZRBGG_PREFIX}create_request.json"
-  rbuh_require_ok "Create service account" "${ZRBGG_INFIX_CREATE}"
+    buc_step 'Create service account via REST API'
+    rbuh_json "POST" "${RBGD_API_SERVICE_ACCOUNTS}" "${z_token}" \
+      "${ZRBGG_INFIX_CREATE}" "${ZRBGG_PREFIX}create_request.json"
+    rbuh_require_ok "Create service account" "${ZRBGG_INFIX_CREATE}"
 
-  local z_sa_uid
-  z_sa_uid=$(rbuh_json_field_capture "${ZRBGG_INFIX_CREATE}" '.uniqueId') \
-    || buc_die "Failed to get uniqueId from SA creation response"
-  buc_info "Service account created: ${z_account_email} (uid: ${z_sa_uid})"
+    z_sa_uid=$(rbuh_json_field_capture "${ZRBGG_INFIX_CREATE}" '.uniqueId') \
+      || buc_die "Failed to get uniqueId from SA creation response"
+    buc_info "Service account created: ${z_account_email} (uid: ${z_sa_uid})"
 
-  rbuh_poll_until_ok "SA propagation (by email)" \
-    "${RBGD_API_SERVICE_ACCOUNTS}/${z_account_email}" "${z_token}" "${ZRBGG_INFIX_VERIFY}"
+    rbuh_poll_until_ok "SA propagation (by email)" \
+      "${RBGD_API_SERVICE_ACCOUNTS}/${z_account_email}" "${z_token}" "${ZRBGG_INFIX_VERIFY}"
+  else
+    z_sa_uid=$(rbuh_json_field_capture "${ZRBGG_INFIX_PREFLIGHT}" '.uniqueId') \
+      || buc_die "Failed to get uniqueId from existing SA"
+    buc_info "Service account exists: ${z_account_email} (uid: ${z_sa_uid})"
+  fi
 
-  buc_step 'Preflight: ensure no existing USER_MANAGED keys (manual cleanup path)'
+  buc_step 'List existing USER_MANAGED keys (before blunt-kill)'
 
   # Subresource read-path can lag SA email-path readiness — flap observed
   # 200→200→404 on freshly-minted depots. Retry on the actual call, not a
@@ -242,22 +247,39 @@ zrbgg_create_service_account_with_key() {
     rbuh_require_ok "List service account keys" "${z_list_infix}"
   done
 
-  buc_log_args 'Count existing user-managed keys'
-  local z_user_keys
-  z_user_keys=$(rbuh_json_field_capture "${z_list_infix}" \
-                 '[.keys[]? | select(.keyType=="USER_MANAGED")] | length') \
-    || buc_die "Failed to parse service account keys"
+  buc_step 'Blunt-kill: delete every existing USER_MANAGED key before minting'
+  # Re-key rotates the Key lifecycle only — the SA and its IAM bindings were left
+  # untouched above. Delete all user-managed keys so exactly one fresh key exists
+  # when this returns; a 404 on a key already gone is idempotent.
+  local -r z_key_names_file="${ZRBGG_PREFIX}usermanaged_key_names.txt"
+  jq -r '.keys[]? | select(.keyType=="USER_MANAGED") | .name' \
+    "${ZRBUH_PREFIX}${z_list_infix}${ZRBUH_POSTFIX_JSON}" > "${z_key_names_file}" \
+    || buc_die "Failed to extract USER_MANAGED key names"
 
-  if test "${z_user_keys}" -gt 0; then
-    buc_log_args 'Provide a console URL to delete keys manually, then rerun this command'
-    local z_sa_email_enc="${z_account_email//@/%40}"
-    local z_keys_url="${RBGC_CONSOLE_URL}iam-admin/serviceaccounts/details/${z_sa_email_enc}?project=${RBDC_DEPOT_PROJECT_ID}"
+  local z_key_names=()
+  local z_key_line=""
+  while IFS= read -r z_key_line || test -n "${z_key_line}"; do
+    test -n "${z_key_line}" || continue
+    z_key_names+=("${z_key_line}")
+  done < "${z_key_names_file}"
 
-    buc_warn "Found ${z_user_keys} existing USER_MANAGED key(s) on ${z_account_email}."
-    buc_info "Open Console, select the **Keys** tab, delete old keys, then rerun:"
-    buc_info "  ${z_keys_url}"
-    buc_die  "Aborting to avoid minting additional keys."
-  fi
+  local z_key_del_index=0
+  local z_key_del_infix=""
+  local z_key_del_code=""
+  local z_i=0
+  for z_i in "${!z_key_names[@]}"; do
+    z_key_del_index=$((z_key_del_index + 1))
+    z_key_del_infix="${ZRBGG_INFIX_KEY_DELETE}-${z_key_del_index}"
+    buc_log_args "Deleting USER_MANAGED key ${z_key_names[$z_i]}"
+    rbuh_json "DELETE" "${RBGC_API_ROOT_IAM}${RBGC_IAM_V1}/${z_key_names[$z_i]}" \
+      "${z_token}" "${z_key_del_infix}"
+    z_key_del_code=$(rbuh_code_capture "${z_key_del_infix}") || buc_die "No HTTP code from key delete"
+    case "${z_key_del_code}" in
+      200|204) buc_log_args "Deleted key ${z_key_names[$z_i]}" ;;
+      404)     buc_log_args "Key ${z_key_names[$z_i]} already gone (404) — idempotent" ;;
+      *)       rbuh_require_ok "Delete USER_MANAGED key" "${z_key_del_infix}" ;;
+    esac
+  done
 
   buc_step 'Generate service account key (with propagation retry)'
   local z_key_req="${BURD_TEMP_DIR}/rbgg_key_request.json"
@@ -829,6 +851,20 @@ rbgg_divest_retriever() {
 
   test -n "${z_identity}" || buc_die "Identity required"
 
+  local -r z_account_email="${RBCC_account_retriever}-${z_identity}@${RBGD_SA_EMAIL_FULL}"
+
+  buc_step "Revoke Retriever IAM bindings before delete (no deleted: tombstone)"
+  local z_token
+  z_token=$(rba_get_governor_token_capture) || buc_die "Failed to get admin token"
+
+  rbgi_revoke_project_member "${z_token}" "Revoke Artifact Registry Reader" \
+    "${RBGD_PROJECT_RESOURCE}" "${RBGC_ROLE_ARTIFACTREGISTRY_READER}"        \
+    "serviceAccount:${z_account_email}" "retriever-reader-revoke"
+
+  rbgi_revoke_project_member "${z_token}" "Revoke Container Analysis Occurrences Viewer" \
+    "${RBGD_PROJECT_RESOURCE}" "${RBGC_ROLE_CONTAINERANALYSIS_OCCURRENCES_VIEWER}"        \
+    "serviceAccount:${z_account_email}" "retriever-analysis-revoke"
+
   zrbgg_divest_role "${RBCC_account_retriever}" "${z_identity}" "${RBDC_RETRIEVER_RBRA_FILE}"
 }
 
@@ -842,6 +878,29 @@ rbgg_divest_director() {
   buc_doc_shown || return 0
 
   test -n "${z_identity}" || buc_die "Identity required"
+
+  local -r z_account_email="${RBCC_account_director}-${z_identity}@${RBGD_SA_EMAIL_FULL}"
+
+  buc_step "Revoke Director IAM bindings before delete (no deleted: tombstones)"
+  local z_token
+  z_token=$(rba_get_governor_token_capture) || buc_die "Failed to get admin token"
+
+  rbgi_revoke_project_member "${z_token}" "Revoke Cloud Build Editor" \
+    "${RBGD_PROJECT_RESOURCE}" "${RBGC_ROLE_CLOUDBUILD_BUILDS_EDITOR}" \
+    "serviceAccount:${z_account_email}" "director-cb-revoke"
+
+  rbgi_revoke_project_member "${z_token}" "Revoke Project Viewer" \
+    "${RBGD_PROJECT_RESOURCE}" "roles/viewer"                     \
+    "serviceAccount:${z_account_email}" "director-viewer-revoke"
+
+  rbgi_revoke_project_member "${z_token}" "Revoke Worker Pool User" \
+    "${RBGD_PROJECT_RESOURCE}" "roles/cloudbuild.workerPoolUser"    \
+    "serviceAccount:${z_account_email}" "director-pool-revoke"
+
+  rbgi_revoke_sa_member "${z_token}" "${RBGD_MASON_EMAIL}" "${z_account_email}" "roles/iam.serviceAccountUser"
+
+  rbgi_revoke_repo_member "${z_token}" "${RBGD_GAR_PROJECT_ID}" "${z_account_email}" \
+    "${RBGD_GAR_LOCATION}" "${RBDC_GAR_REPOSITORY}" "roles/artifactregistry.repoAdmin"
 
   zrbgg_divest_role "${RBCC_account_director}" "${z_identity}" "${RBDC_DIRECTOR_RBRA_FILE}"
 }

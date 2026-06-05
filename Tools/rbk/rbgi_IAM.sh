@@ -75,6 +75,13 @@ zrbgi_kindle() {
   readonly ZRBGI_INFIX_SECRET_IAM="secret_iam"
   readonly ZRBGI_INFIX_SECRET_IAM_SET="secret_iam_set"
 
+  # Revoke (member removal) infixes — parallel the add-side SA/repo infixes so a
+  # grant and a revoke response capture never collide in a single invest+divest run.
+  readonly ZRBGI_INFIX_SA_REVOKE="sa_revoke"
+  readonly ZRBGI_INFIX_SA_REVOKE_SET="sa_revoke_set"
+  readonly ZRBGI_INFIX_REPO_REVOKE="repo_revoke"
+  readonly ZRBGI_INFIX_REPO_REVOKE_SET="repo_revoke_set"
+
   readonly ZRBGI_POSTFIX_JSON="_i_resp.json"
 
   readonly ZRBGI_KINDLED=1
@@ -787,6 +794,221 @@ rbgi_grant_secret_iam() {
   buc_log_args "Successfully granted secret role ${z_role}"
 }
 
+######################################################################
+# Revoke (member removal) — inverse of the add_*_iam_role trio.
+#
+# Three regular functions, not one: CRM / ArtifactRegistry / IAM are distinct
+# APIs with distinct getIamPolicy/setIamPolicy shapes (BCG load-bearing). They
+# share only the jq member-removal transform.
+#
+# Leaner than the add trio on purpose: the add path's member-visibility
+# propagation envelope (400 forward/backward tolerance, exponential backoff, 403
+# resource-cache tolerance) handles a freshly-minted member not yet visible — a
+# grant-only race. The member being revoked is long-established, so that
+# machinery earns nothing here. GET -> remove -> setIamPolicy; transient 5xx
+# retried; 409 fatal under the single-writer invariant. Removing an absent member
+# is a jq no-op, so revoke is idempotent. Fatal on failure like every regular
+# function — divest calls them as ordinary commands.
+
+# Revoke a project-scoped IAM member binding — inverse of rbgi_add_project_iam_role.
+rbgi_revoke_project_member() {
+  zrbgi_sentinel
+
+  local -r z_token="${1:-}"
+  local -r z_label="${2:-}"
+  local -r z_resource="${3:-}"
+  local -r z_role="${4:-}"
+  local -r z_member="${5:-}"
+  local -r z_parent_infix="${6:-}"
+
+  test -n "${z_token}"    || buc_die "Token required"
+  test -n "${z_resource}" || buc_die "resource required"
+  test -n "${z_role}"     || buc_die "role required"
+  test -n "${z_member}"   || buc_die "member required"
+
+  buc_log_args "Using admin token (value not logged)"
+
+  local -r z_resource_path="${z_resource#/}"
+  local -r z_base="${RBGC_API_ROOT_CRM}${RBGC_CRM_V1}/${z_resource_path}"
+  local -r z_get_url="${z_base}${RBGC_CRM_GET_IAM_POLICY_SUFFIX}"
+  local -r z_set_url="${z_base}${RBGC_CRM_SET_IAM_POLICY_SUFFIX}"
+
+  buc_log_args "${z_label}: revoke ${z_member} from ${z_role}"
+
+  buc_log_args '1) GET project IAM policy (v3)'
+  local -r z_get_infix="${z_parent_infix}-revoke-get"
+  local -r z_get_body="${ZRBGI_PREFIX}${z_parent_infix}_revoke_get_body.json"
+  printf '%s\n' '{"options":{"requestedPolicyVersion":3}}' > "${z_get_body}" || buc_die "Failed to write getIamPolicy body"
+  rbuh_json "POST" "${z_get_url}" "${z_token}" "${z_get_infix}" "${z_get_body}"
+  rbuh_require_ok "${z_label} (get policy)" "${z_get_infix}"
+
+  local z_etag=""
+  z_etag=$(rbuh_json_field_capture "${z_get_infix}" ".etag") || buc_die "Missing etag"
+  test -n "${z_etag}" || buc_die "Empty etag"
+
+  local z_new_policy_json=""
+  z_new_policy_json=$(rbgi_jq_remove_member_from_role_capture "${z_get_infix}" "${z_role}" "${z_member}" "${z_etag}") \
+    || buc_die "Failed to compose policy JSON"
+
+  local -r z_set_body="${ZRBGI_PREFIX}${z_parent_infix}_revoke_set_body.json"
+  printf '{"policy":%s}\n' "${z_new_policy_json}" > "${z_set_body}" || buc_die "Failed to write setIamPolicy body"
+
+  buc_log_args '2) setIamPolicy (409 fatal — single-writer invariant; transient retried)'
+  local z_set_elapsed=0
+  local z_set_infix=""
+  local z_set_code=""
+  while :; do
+    z_set_infix="${z_parent_infix}-revoke-set-${z_set_elapsed}s"
+    rbuh_json "POST" "${z_set_url}" "${z_token}" "${z_set_infix}" "${z_set_body}"
+
+    z_set_code=$(rbuh_code_capture "${z_set_infix}") || buc_die "No HTTP code from setIamPolicy"
+
+    case "${z_set_code}" in
+      200)                 break ;;
+      409)                 buc_die "${z_label}: HTTP 409 ABORTED (etag mismatch — concurrent policy change)" ;;
+      429|500|502|503|504) buc_log_args "${z_label}: transient ${z_set_code} at ${z_set_elapsed}s; retry" ;;
+      *)                   rbuh_require_ok "${z_label} (set policy)" "${z_set_infix}" ;;
+    esac
+
+    test "${z_set_elapsed}" -lt "${RBGC_MAX_CONSISTENCY_SEC}" || buc_die "${z_label}: timeout setting policy"
+    sleep "${RBGC_EVENTUAL_CONSISTENCY_SEC}"
+    z_set_elapsed=$((z_set_elapsed + RBGC_EVENTUAL_CONSISTENCY_SEC))
+  done
+
+  buc_log_args "${z_label}: revoked (setIamPolicy 200)"
+}
+
+# Revoke a repo-scoped IAM member binding — inverse of rbgi_add_repo_iam_role.
+rbgi_revoke_repo_member() {
+  zrbgi_sentinel
+
+  local -r z_token="${1:-}"
+  local -r z_project_id="${2:-}"
+  local -r z_account_email="${3:-}"
+  local -r z_location="${4:-}"
+  local -r z_repository="${5:-}"
+  local -r z_role="${6:-}"
+
+  test -n "${z_token}"         || buc_die "Token required"
+  test -n "${z_project_id}"    || buc_die "Project ID required"
+  test -n "${z_account_email}" || buc_die "Service account email required"
+  test -n "${z_location}"      || buc_die "Location is required"
+  test -n "${z_repository}"    || buc_die "Repository is required"
+  test -n "${z_role}"          || buc_die "Role is required"
+
+  buc_log_args "Using admin token (value not logged)"
+
+  local -r z_resource="projects/${z_project_id}/locations/${z_location}/repositories/${z_repository}"
+  local -r z_get_url="${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}/${z_resource}:getIamPolicy?options.requestedPolicyVersion=3"
+  local -r z_set_url="${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}/${z_resource}:setIamPolicy"
+
+  buc_log_args 'Revoking repo-scoped IAM role' " ${z_role} from ${z_account_email} on ${z_location}/${z_repository}"
+
+  buc_log_args '1) GET repo IAM policy (v3)'
+  rbuh_json "GET" "${z_get_url}" "${z_token}" "${ZRBGI_INFIX_REPO_REVOKE}"
+  rbuh_require_ok "Get repo IAM policy" "${ZRBGI_INFIX_REPO_REVOKE}"
+
+  local z_etag=""
+  z_etag=$(rbuh_json_field_capture "${ZRBGI_INFIX_REPO_REVOKE}" ".etag") || buc_die "Missing repo etag"
+  test -n "${z_etag}" || buc_die "Empty repo etag"
+
+  local z_updated_policy_json=""
+  z_updated_policy_json=$(rbgi_jq_remove_member_from_role_capture "${ZRBGI_INFIX_REPO_REVOKE}" \
+    "${z_role}" "serviceAccount:${z_account_email}" "${z_etag}") \
+    || buc_die "Failed to update policy JSON"
+
+  local -r z_set_body="${BURD_TEMP_DIR}/rbgi_repo_revoke_set_policy_body.json"
+  printf '{"policy":%s}\n' "${z_updated_policy_json}" > "${z_set_body}" || buc_die "Failed to write repo setIamPolicy body"
+
+  buc_log_args '2) setIamPolicy (409 fatal — single-writer invariant; transient retried)'
+  local z_set_elapsed=0
+  local z_set_infix=""
+  local z_set_code=""
+  while :; do
+    z_set_infix="${ZRBGI_INFIX_REPO_REVOKE_SET}-${z_set_elapsed}s"
+    rbuh_json "POST" "${z_set_url}" "${z_token}" "${z_set_infix}" "${z_set_body}"
+
+    z_set_code=$(rbuh_code_capture "${z_set_infix}") || buc_die "No HTTP code from setIamPolicy"
+
+    case "${z_set_code}" in
+      200)                 break ;;
+      409)                 buc_die "Repo IAM: HTTP 409 ABORTED (etag mismatch — concurrent policy change)" ;;
+      429|500|502|503|504) buc_log_args "Repo IAM: transient ${z_set_code} at ${z_set_elapsed}s; retry" ;;
+      *)                   rbuh_require_ok "Set repo IAM policy" "${z_set_infix}" ;;
+    esac
+
+    test "${z_set_elapsed}" -lt "${RBGC_MAX_CONSISTENCY_SEC}" || buc_die "Repo IAM: timeout setting policy"
+    sleep "${RBGC_EVENTUAL_CONSISTENCY_SEC}"
+    z_set_elapsed=$((z_set_elapsed + RBGC_EVENTUAL_CONSISTENCY_SEC))
+  done
+
+  buc_log_args 'Successfully revoked repo-scoped role' "${z_role}"
+}
+
+# Revoke an SA-scoped IAM member binding — inverse of rbgi_add_sa_iam_role.
+# getIamPolicy is the existence check, so the grant path's standalone SA-verify
+# preflight earns nothing here.
+rbgi_revoke_sa_member() {
+  zrbgi_sentinel
+
+  local -r z_token="${1:-}"
+  local -r z_target_sa_email="${2:-}"
+  local -r z_member_email="${3:-}"
+  local -r z_role="${4:-}"
+
+  test -n "${z_token}"           || buc_die "Token required"
+  test -n "${z_target_sa_email}" || buc_die "Target SA email required"
+  test -n "${z_member_email}"    || buc_die "Member email required"
+  test -n "${z_role}"            || buc_die "Role required"
+
+  buc_log_args "Using admin token (value not logged)"
+  buc_log_args "Revoking ${z_role} on SA ${z_target_sa_email} from ${z_member_email}"
+
+  local z_target_encoded=""
+  z_target_encoded=$(rbuh_urlencode_capture "${z_target_sa_email}") || buc_die "Failed to encode SA email"
+  local -r z_sa_resource="${RBGC_API_ROOT_IAM}${RBGC_IAM_V1}/projects/-/serviceAccounts/${z_target_encoded}"
+
+  buc_log_args '1) GET SA IAM policy (v3)'
+  rbuh_json "POST" "${z_sa_resource}:getIamPolicy" "${z_token}" "${ZRBGI_INFIX_SA_REVOKE}" "${ZRBGI_VERSION3_BODY}"
+  rbuh_require_ok "Get SA IAM policy" "${ZRBGI_INFIX_SA_REVOKE}"
+
+  local z_etag=""
+  z_etag=$(rbuh_json_field_capture "${ZRBGI_INFIX_SA_REVOKE}" ".etag") || buc_die "Missing SA etag"
+  test -n "${z_etag}" || buc_die "Empty SA etag"
+
+  local z_updated_policy_json=""
+  z_updated_policy_json=$(rbgi_jq_remove_member_from_role_capture "${ZRBGI_INFIX_SA_REVOKE}" \
+    "${z_role}" "serviceAccount:${z_member_email}" "${z_etag}") \
+    || buc_die "Failed to update SA IAM policy"
+
+  local -r z_set_body="${BURD_TEMP_DIR}/rbgi_sa_revoke_set_policy_body.json"
+  printf '{"policy":%s}\n' "${z_updated_policy_json}" > "${z_set_body}" || buc_die "Failed to write SA setIamPolicy body"
+
+  buc_log_args '2) setIamPolicy (409 fatal — single-writer invariant; transient retried)'
+  local z_set_elapsed=0
+  local z_set_infix=""
+  local z_set_code=""
+  while :; do
+    z_set_infix="${ZRBGI_INFIX_SA_REVOKE_SET}-${z_set_elapsed}s"
+    rbuh_json "POST" "${z_sa_resource}:setIamPolicy" "${z_token}" "${z_set_infix}" "${z_set_body}"
+
+    z_set_code=$(rbuh_code_capture "${z_set_infix}") || buc_die "No HTTP code from setIamPolicy"
+
+    case "${z_set_code}" in
+      200)                 break ;;
+      409)                 buc_die "SA IAM: HTTP 409 ABORTED (etag mismatch — concurrent policy change)" ;;
+      429|500|502|503|504) buc_log_args "SA IAM: transient ${z_set_code} at ${z_set_elapsed}s; retry" ;;
+      *)                   rbuh_require_ok "Set SA IAM policy" "${z_set_infix}" ;;
+    esac
+
+    test "${z_set_elapsed}" -lt "${RBGC_MAX_CONSISTENCY_SEC}" || buc_die "SA IAM: timeout setting policy"
+    sleep "${RBGC_EVENTUAL_CONSISTENCY_SEC}"
+    z_set_elapsed=$((z_set_elapsed + RBGC_EVENTUAL_CONSISTENCY_SEC))
+  done
+
+  buc_log_args 'Successfully revoked SA role' "${z_role}"
+}
+
 # Compose service account email from name and project ID.
 # Args: account_name project_id
 # Returns: name@project.iam.gserviceaccount.com
@@ -837,6 +1059,51 @@ rbgi_jq_add_member_to_role_capture() {
                             else . end)
       else .bindings += [{role: $role, members: [$member]}]
       end
+      # Set etag if provided (optimistic concurrency)
+      | (if $etag != "" then .etag = $etag else . end)
+    ' "${z_policy_file}"
+  ) || return 1
+
+  test -n "${z_out}" || return 1
+  printf '%s\n' "${z_out}"
+}
+
+# Remove a member from a role binding with version=3 enforcement — inverse of
+# rbgi_jq_add_member_to_role_capture. This is the one legitimate shared helper
+# (BCG load-bearing: pure JSON transform, no API, same failure class for every
+# scope). jq subtraction drops all occurrences of the member, so an absent
+# member is a no-op (idempotent). A binding left with no members is pruned —
+# setIamPolicy rejects an empty members list; only the named role can empty out,
+# since other bindings are untouched and arrive non-empty from getIamPolicy.
+#
+# Args: infix role member [etag_optional]
+# Returns: JSON policy string with member removed and version=3
+rbgi_jq_remove_member_from_role_capture() {
+  zrbgi_sentinel
+
+  local -r z_infix="${1:-}"
+  local -r z_role="${2:-}"
+  local -r z_member="${3:-}"
+  local -r z_etag_opt="${4:-}"
+
+  local -r z_policy_file="${ZRBUH_PREFIX}${z_infix}${ZRBUH_POSTFIX_JSON}"
+
+  test -n "${z_policy_file}" || return 1
+  test -f "${z_policy_file}" || return 1
+  test -n "${z_role}"        || return 1
+  test -n "${z_member}"      || return 1
+
+  local z_out=""
+  z_out=$(
+    jq --arg role "${z_role}" --arg member "${z_member}" --arg etag "${z_etag_opt}" '
+      # Enforce RBGU standard: version=3 for all IAM policies
+      .version = 3 |
+      .bindings = (.bindings // []) |
+      # Drop the member from the named role, then prune any binding left empty
+      .bindings |= ( map(if .role == $role
+                         then .members = ((.members // []) - [$member])
+                         else . end)
+                     | map(select((.members // []) | length > 0)) )
       # Set etag if provided (optimistic concurrency)
       | (if $etag != "" then .etag = $etag else . end)
     ' "${z_policy_file}"

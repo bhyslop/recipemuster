@@ -1,14 +1,15 @@
 //axhob_operation
 {rbtgo_director_divest}
 
-NOTE: This operation divests a
+NOTE: This operation tears down a
 {rbtr_director}
 {giam_service_account}
 from the
 {rbtgi_depot_project}.
 The
 {rbtr_governor}
-synthesizes the SA email from the supplied identity folio, issues a REST DELETE against the IAM API, and opportunistically removes the production RBRA file if its `client_email` matches the synthesized email.
+synthesizes the SA email from the supplied identity folio, *revokes the SA's own IAM bindings across every scope it was granted*, then issues a REST DELETE against the IAM API, and opportunistically removes the production RBRA file if its `client_email` matches the synthesized email.
+Revoking the live member before the delete is what keeps the binding leak closed: a member removed while still live leaves no `deleted:...?uid=` ghost, whereas deleting the SA first would have GCP retag its bindings as unbounded tombstones.
 A required identity folio (param1) is supplied by the operator; the SA email is composed as `${RBCC_account_director}-<identity>@${RBGD_SA_EMAIL_FULL}`.
 
 //axhos_step
@@ -25,6 +26,28 @@ A required identity folio (param1) is supplied by the operator; the SA email is 
 identity folio (param1) is non-empty
 .. {rbbc_store}
 `«SA_EMAIL»` as `${RBCC_account_director}-<identity>@${RBGD_SA_EMAIL_FULL}` (composed from the role prefix and the operator-supplied identity)
+
+//axhos_step
+. *Revoke
+{rbtr_director}
+IAM Bindings*:
+.. NOTE: Run before the DELETE so each live member is removed while the SA still exists — no `deleted:...?uid=` tombstone is minted on any resource. Mirrors exactly the bindings granted by {rbtgo_director_invest}; the {rbtr_mason} `roles/artifactregistry.writer` binding is Mason's, not the director's, and is left intact. See the member-removal contract in <<rbscig_iam_grant_contracts>>.
+.. Remove `serviceAccount:«SA_EMAIL»` from the
+{rbtgi_depot_project}
+IAM policy, roles:
+... `roles/cloudbuild.builds.editor`
+... `roles/viewer`
+... `roles/cloudbuild.workerPoolUser`
+.. Remove `serviceAccount:«SA_EMAIL»` with `roles/iam.serviceAccountUser` from the
+{rbtr_mason}
+service account IAM policy
+.. Remove `serviceAccount:«SA_EMAIL»` with `roles/artifactregistry.repoAdmin` from the
+{rbtgi_repository}
+IAM policy
+.. Policy version: 3; a binding left with no members is pruned
+.. {rbbc_fatal}
+on revoke failure — teardown is fail-loud: a non-OK policy status or an HTTP 409 etag conflict (single-writer invariant) aborts the divest before the SA is deleted; the operator reruns. The {rbtgi_repository} and {rbtr_mason} revokes presume those standing resources exist (they outlive director SAs); a missing resource there surfaces only during a full depot teardown.
+.. NOTE: Idempotent — removing an absent member is a no-op, so a re-divest revokes cleanly without error.
 
 //axhos_step
 . *Divest Director Service Account*:
@@ -67,11 +90,12 @@ single-line success naming `«SA_EMAIL»` and confirming the
 was divested, or a notice that it was already absent
 
 //axhoc_completion
-Successful execution removes the
+Successful execution revokes the
 {rbtr_director}
-{giam_service_account}
-from
-{rbtgi_depot_project}.
+{giam_service_account}'s IAM bindings across every scope it held (project,
+{rbtr_mason},
+{rbtgi_repository}) and then removes it from
+{rbtgi_depot_project}, leaving no `deleted:` ghost on any policy.
 If the installed RBRA at
 {rbrr_director_rbra_file}
 matches the divested identity, it is also removed; otherwise it is left intact.

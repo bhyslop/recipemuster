@@ -67,6 +67,22 @@ with an empty body-glob; project-scope sites do not.
   streak, and the total wait stays bounded by `RBGC_MAX_CONSISTENCY_SEC`.  Same underlying physics as the
   create-side flap (multi-replica read convergence after a parent mutation).  See evidence row below.
 
+* **Lifecycle split relocates both SA-churn races (keyfile tier)**: the
+  idempotent establish / re-key split (see {rbtgo_retriever_invest} and
+  {rbtgo_director_invest}) changes *when* the two races can fire.  The
+  **create→grant race** (Class A forward member-visibility, plus the org's
+  Domain-Restricted-Sharing lag on a brand-new SA member) now fires only at
+  *first establish* — once per identity, off the re-key hot path — because a
+  standing-depot re-invest rotates the key without minting a new SA.  The
+  **delete→recreate race** (the SA delete read-path flap above) is
+  *structurally eliminated* for re-key: the SA is no longer deleted and
+  recreated, so there is no same-name recreate to race a lagging replica.  The
+  `RBGC_GONE_CONFIRM_STREAK` mitigation survives only for the path that still
+  deletes-then-reinvests — a genuine teardown ({rbtgo_retriever_divest} /
+  {rbtgo_director_divest}) followed later by a fresh invest — now rare rather
+  than per-cycle.  See
+  `Memos/memo-20260604-credential-churn-leak-and-propagation-races.md`.
+
 ==== Rationale
 
 The connection creation LRO tests the actual operation, not a proxy.
