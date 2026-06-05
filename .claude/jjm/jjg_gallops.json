@@ -5905,9 +5905,10 @@
         "₢BBABA",
         "₢BBABP",
         "₢BBABT",
-        "₢BBABU"
+        "₢BBABU",
+        "₢BBABV"
       ],
-      "jjghn_next_pace_seed": "ABV",
+      "jjghn_next_pace_seed": "ABW",
       "jjghn_paces": {
         "₢BBAA-": {
           "jjgpn_tacks": [
@@ -7987,6 +7988,17 @@
               "jjgtn_text": "## Character\n\nMechanical lint cleanup with a security-boundary caveat. Most fixes are\nbehavior-neutral; the risk is concentrated in the jailer, where a quoting or\nword-splitting \"fix\" can change runtime behavior. Each jailer touch must be\ngated by appropriate crucible re-testing — not forbidden, but verified.\n\n## Goal\n\nBring the bash that lives outside `Tools/` — and is therefore un-gated today,\nsince the shellcheck root scans `Tools/` only — to shellcheck-clean, then widen\nthe release-tier shellcheck (`rbq_qualify_shellcheck`) to cover it so it stays\nclean by construction.\n\n## Scope\n\nDiscovery recipe (these are the currently-uncovered `.sh` files):\n\n  find . -name '*.sh' -type f -not -path './Tools/*' -not -path './tt/*' \\\n    -not -path './.git/*' -not -path '*/target/*'\n\nInclude the load-bearing ones: the moorings vessel jailer scripts under\n`rbmm_moorings/rbmv_vessels/common-sentry-context/` (sentry + pentacle),\n`MBS.STATION-reference.sh`, and the `rbnnh_post_charge.sh` charge hooks.\nExclude the same classes the release-tier gate already excludes: `Study/`\nscratch scripts and `rbmm_moorings/rbml_launchers/launcher.*.sh` trivial shims.\n\n## Jailer risk assessment — required, gating\n\nThe sentry and pentacle scripts run inside the crucible and define the security\nboundary (iptables, dnsmasq, enclave network). Before landing edits to them,\nclassify each finding as behavior-neutral vs behavior-affecting. For anything\nnot provably neutral, re-run the crucible security testing appropriately — at\nminimum the tadmor security fixture (`tt/rbw-ts.TestSuite.crucible.sh`, or the\ntadmor fixture directly), charging and quenching a crucible as the change\ndemands. RBSIP / the tadmor suite is the relevant containment contract.\n\n## Done looks like\n\n- The included outside-`Tools/` scripts are clean under `busc_shellcheckrc`.\n- `rbq_qualify_shellcheck` covers them (root widened beyond `Tools/` — multi-root\n  parameter vs explicit extra-file list is a mount-time call).\n- Jailer behavior verified intact by appropriate tadmor-tier testing after any\n  sentry/pentacle edit; the risk assessment is recorded in the commit trail.\n- The marshal-zero lint gate consequently refuses a dirty tree across the\n  widened set too.\n\n## Out of scope\n\n- `Study/` scratch and launcher shims.\n- Parallelizing shellcheck — settled out: serial is fine at release-prep cadence,\n  and `xargs -P` is non-POSIX / outside the allowed-command set.",
               "jjgtn_silks": "shellcheck-cover-moorings-and-jailer",
               "jjgtn_basis": "94adb0b"
+            }
+          ]
+        },
+        "₢BBABV": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260604-2227",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nStandalone tooling fix + one design addition; no dependency on this heat's release-qual gestalt. Goal: make scry a trustworthy, scriptable network-diagnostic primitive.\n\nscry (`rboo_observe.sh`, colophon `rbw-cs`) proved wanting during the ₣BV Docker-Desktop containment investigation (see `Memos/memo-20260604-conntrack-spoofed-ack-adjudication.md`). Four changes:\n\n- **Latent correctness bug — interface roles are hardcoded.** scry assumes sentry eth0=uplink / eth1=enclave. Docker's interface ordering is not guaranteed; on the WSL native-docker host the two are reversed, so scry captures the wrong sentry interface and mislabels its output. Discover interfaces by IP/role the way `rbjs_sentry.sh` already does (`ip -o addr`), never by hardcoded name.\n- **Add `-e`** to the tcpdump options so L2 source MACs show. Without MACs, off-path delivery (the whole DD finding) can only be inferred from absence, not demonstrated.\n- **Capture both sentry legs on docker** (currently enclave-only; the bridge leg is podman-only), so the full enclave↔uplink path is visible in one run.\n- **Bound-duration / non-interactive mode.** Today scry traps SIGINT and `wait`s forever, so nothing can drive it programmatically. Add an optional duration and optional tcpdump filter expression: when a duration is supplied, run the parallel captures under `timeout <dur>` (already present in the vessels), collect, and exit 0 — a scriptable capture primitive a fixture or operator one-liner can call. When no duration is given, preserve today's run-until-Ctrl+C behavior unchanged. The filter argument scopes the capture (e.g. one host) so output stays legible.\n\n## Done\nscry resolves interfaces by role (correct under either ordering), shows MACs, captures both sentry legs on docker, and supports a bounded non-interactive capture (duration + optional filter) that returns cleanly for scripted use — interactive behavior unchanged when no duration is passed.",
+              "jjgtn_silks": "scry-diagnostic-repairs",
+              "jjgtn_basis": "db10a43"
             }
           ]
         }
