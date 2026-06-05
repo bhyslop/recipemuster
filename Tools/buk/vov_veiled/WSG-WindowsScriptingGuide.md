@@ -24,7 +24,7 @@ bite bodies that look bash-correct from the curia.
 **Some object output formatters are lazy.** PowerShell flushes string
 output eagerly but some cmdlet formatter cycles flush only on full
 pipeline completion; `exit` mid-body discards unflushed output. Treat the
-lazy default as the safe assumption (WSp-102).
+lazy default as the safe assumption (WSp_102).
 
 **Trap, don't trust.** Assume any error which can plausibly be silenced
 WILL be silenced if not trapped. Surface every non-zero exit, every empty
@@ -51,13 +51,13 @@ Each step has its own quoting model. Each can fail silently.
 ## Established Rules
 
 Headers tag the rule's *named* phenomenon: ❌ for a failure mode, ✅ for an
-established correct shape. `WSp-` rules constrain PowerShell body
-authoring; `WSs-` rules constrain shell/bash body authoring; `WSt-` rules
+established correct shape. `WSp_` rules constrain PowerShell body
+authoring; `WSs_` rules constrain shell/bash body authoring; `WSt_` rules
 constrain transport quoting, escaping, and exit-code propagation across
 boundaries (any body language). Numbering starts at 101 within each
 family to leave room for insertions without renumbering.
 
-### ❌ WSp-101: Trailing `exit $LASTEXITCODE` without LASTEXITCODE init
+### ❌ WSp_101: Trailing `exit $LASTEXITCODE` without LASTEXITCODE init
 
 In a fresh `powershell -Command` with no native command, `$LASTEXITCODE`
 is `$null`; the typed comparison `$null -ne 0` evaluates `True`, so the
@@ -77,13 +77,13 @@ powershell -Command "$LASTEXITCODE = 0;
                      if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }"
 ```
 
-### ❌ WSp-102: `exit` mid-body before object formatters flush
+### ❌ WSp_102: `exit` mid-body before object formatters flush
 
 PowerShell flushes string output eagerly but some cmdlet object outputs
 lazily (Out-Default → Format-Table → render); `exit` aborts the formatter
 pipeline before lazy outputs render. Assume any cmdlet output is lazy
 unless verified otherwise; materialize with `| Out-String` before any
-exit. WSp-101's `$LASTEXITCODE = 0` makes this moot for happy paths;
+exit. WSp_101's `$LASTEXITCODE = 0` makes this moot for happy paths;
 failure paths still need string-materialization.
 
 ```powershell
@@ -94,7 +94,7 @@ powershell -Command "Get-Date; Get-LocalUser -Name 'foo'; exit 0"
 powershell -Command "Get-LocalUser -Name 'foo' | Out-String; ..."
 ```
 
-### ✅ WSp-103: PowerShell single-quoted strings survive nesting
+### ✅ WSp_103: PowerShell single-quoted strings survive nesting
 
 Cmd.exe treats single quotes as literal characters; PowerShell recognizes
 `'...'` as a string literal. Use single quotes for PS literals inside the
@@ -105,14 +105,14 @@ outer `"..."` — they nest reliably through every layer.
 ssh ... "powershell -NoProfile -Command \"Get-LocalUser -Name 'username'\""
 ```
 
-### ✅ WSp-104: WSp-102's lazy-flush behavior is transport-agnostic
+### ✅ WSp_104: WSp_102's lazy-flush behavior is transport-agnostic
 
 Lazy-flush is a property of the body, not of how PowerShell was launched —
 the same `Get-LocalUser; exit 0` body emits empty stdout through every
-transport. The fix (Out-String materialization, or WSp-101's `$LASTEXITCODE = 0`)
+transport. The fix (Out-String materialization, or WSp_101's `$LASTEXITCODE = 0`)
 applies uniformly.
 
-### ❌ WSp-105: PowerShell bodies are single expressions
+### ❌ WSp_105: PowerShell bodies are single expressions
 
 A PowerShell body (`powershell -Command "<body>"` or capture variant)
 MUST be exactly one of:
@@ -134,7 +134,7 @@ The wrapper-side prelude
 (`$ErrorActionPreference='Stop'; $env:WSL_UTF8=1; $LASTEXITCODE=0; <body>; if ...`)
 is library code; the rule constrains caller bodies only. The wrapper's
 exact three-slot shape (prelude / body / postlude) is the minimum-viable
-scaffolding given WSp-101, WSp-102, WSp-105, and WSp-109 acting in
+scaffolding given WSp_101, WSp_102, WSp_105, and WSp_109 acting in
 combination — see
 `Memos/memo-20260511-windows-transport-wrapper-postlude-synthesis.md`
 for the integrative rationale and the elimination argument showing why
@@ -160,12 +160,12 @@ if [[ "${z_present}" == "True" ]]; then
 fi
 ```
 
-### ❌ WSp-106: Don't interpolate strings via PowerShell when bash can build them
+### ❌ WSp_106: Don't interpolate strings via PowerShell when bash can build them
 
 The bash caller builds the string by expanding `${bash_var}` before
 sending; the PS body receives a literal. Bash escape rules cascade once;
 adding PS-side interpolation (`"...$var..."`) layers another substitution
-model on top and compounds with WSp-107's native-binary quoting traps.
+model on top and compounds with WSp_107's native-binary quoting traps.
 
 ```bash
 # ❌ PS-side string concatenation
@@ -176,7 +176,7 @@ z_path="HKLM:\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\ProfileList\\${z
 priv_ps "New-Item -Path '${z_path}' -Force | Out-Null"
 ```
 
-### ❌ WSp-107: Don't interpolate variables through PowerShell to native binaries
+### ❌ WSp_107: Don't interpolate variables through PowerShell to native binaries
 
 PowerShell's argv handling for native Windows binaries (reg.exe, sc.exe,
 schtasks.exe) mishandles embedded spaces — a path containing `Windows NT`
@@ -193,7 +193,7 @@ priv_ps "reg.exe add \"HKLM\\SOFTWARE\\Microsoft\\Windows NT\\...\\\$sid\" /v X 
 priv_ps "New-ItemProperty -Path '${z_regkey}' -Name 'X' -Value 'Y' -Force | Out-Null"
 ```
 
-### ❌ WSp-108: Error suppression is not idempotency
+### ❌ WSp_108: Error suppression is not idempotency
 
 Error-suppression flags on destructive cmdlets (`-ErrorAction Ignore`,
 `-ErrorAction SilentlyContinue`, `2>$null`, `try { ... } catch { }`)
@@ -205,7 +205,7 @@ state capture, then unconditional action (see CDD).
 Distinguish suppressing **output** from suppressing **errors**:
 `| Out-Null` discards the return object (cmdlet still throws); `-ErrorAction
 Ignore` discards the error (cmdlet returns success on real failure).
-WSp-108 forbids the latter on destructive actions.
+WSp_108 forbids the latter on destructive actions.
 
 Probe-side use is permitted on cmdlets whose purpose is to *return state*
 (`Get-LocalUser -ErrorAction SilentlyContinue` where "absent" is the
@@ -282,7 +282,7 @@ is non-destructive. Dispatch-side suppression requires all three
 conditions because the cmdlet changes state and the suppression hides
 non-absent failures by construction.
 
-### ✅ WSp-109: Wrapper helpers escape body `"` unconditionally
+### ✅ WSp_109: Wrapper helpers escape body `"` unconditionally
 
 Any bash helper that wraps caller-provided `${z_body}` inside outer
 `"..."` argv quoting MUST apply `${z_body//\"/\\\"}` before
@@ -291,8 +291,8 @@ body-author burden — body authors stay free to write inner `"`
 literally (e.g., `Get-CimInstance -Filter "LocalPath='...'"`), and the
 wrapper guarantees passthrough across the cmd.exe argv layer.
 
-WSt-102 describes the mechanism (cmd.exe's tokenizer honors `\"`
-inside `"..."`); WSp-109 names the helper-author obligation. Omitting
+WSt_102 describes the mechanism (cmd.exe's tokenizer honors `\"`
+inside `"..."`); WSp_109 names the helper-author obligation. Omitting
 the transform produces malformed argv on the wire: cmd.exe terminates
 the outer quoted string at the first inner `"`, and the remote
 interpreter sees fragmented positional arguments. Failure signature:
@@ -324,7 +324,7 @@ ssh arg without composing outer `"..."` (e.g., a thin `ssh "$user@$host"
 "$cmd"` passthrough) are out of scope — there's no inner-quote collision
 to defend against.
 
-### ❌ WSs-101: Script via stdin to bash (heredoc form / `bash -s`)
+### ❌ WSs_101: Script via stdin to bash (heredoc form / `bash -s`)
 
 When ssh feeds a script to bash via stdin (`bash -s`, heredoc), bash
 reads commands from FD 0 and child processes inherit that FD; any child
@@ -344,32 +344,32 @@ SCRIPT
 ssh ... "wsl.exe ... bash -c \"net.exe user 'foo' /add ...\""
 ```
 
-### ❌ WSs-102: BCG bans extend across the transport boundary
+### ❌ WSs_102: BCG bans extend across the transport boundary
 
 Bash authored at the curia AND bash authored for remote execution are
 both subject to BCG: no heredocs anywhere, no pipelines inside `$()`,
 no unguarded `$()`. Top-level pipelines (outside `$()`) are permitted
-as WSs-104 shape 2.
+as WSs_104 shape 2.
 
-### ✅ WSs-103: Multi-line bodies via file feed (when WSt-101 doesn't fit)
+### ✅ WSs_103: Multi-line bodies via file feed (when WSt_101 doesn't fit)
 
 When a body materially exceeds what `;`-join can express: phase 1 ships
 the body as a remote file via PowerShell; phase 2 runs
 `wsl.exe ... bash /path/to/file` (or `cygwin bash --login -c "bash
-/path/to/file"`). Side benefit: bypasses WSt-104 since the body comes
+/path/to/file"`). Side benefit: bypasses WSt_104 since the body comes
 from disk, not argv.
 
 Caveats:
 - PS `Set-Content` writes CRLF. Use `[System.IO.File]::WriteAllText($path, ($lines -join "`n"))`
   or normalize CRLF→LF into a second file before exec.
-- Do NOT pipe the file into `bash` via stdin — reintroduces WSs-101. Use
+- Do NOT pipe the file into `bash` via stdin — reintroduces WSs_101. Use
   `bash /path/to/file`, not `bash <file`.
 - Two-phase is not atomic; the caller flow must clean up the remote temp.
 
-Default discipline remains WSt-101 + WSs-104; WSs-103 applies only when
+Default discipline remains WSt_101 + WSs_104; WSs_103 applies only when
 bodies don't fit one line.
 
-### ❌ WSs-104: Bash bodies are single statements
+### ❌ WSs_104: Bash bodies are single statements
 
 A remote-bash body (`bash -c "<body>"`) MUST be exactly one of:
 
@@ -412,11 +412,11 @@ fi
 
 The `< "${KEY_FILE}"` redirection attaches the file to ssh's FD 0; sshd
 forwards to the remote command's FD 0; the body reads it as `/dev/stdin`.
-File content never enters argv. WSs-101 is structurally avoided — the
+File content never enters argv. WSs_101 is structurally avoided — the
 body is one command that explicitly consumes `/dev/stdin`, so no later
 command can be starved by leftover bytes.
 
-### ❌ WSt-101: Newlines in bodies through cmd.exe
+### ❌ WSt_101: Newlines in bodies through cmd.exe
 
 Cmd.exe is line-oriented; newlines in `"..."` quoted args fragment across
 the cmd.exe → child-binary boundary. Bodies must be single-line, including
@@ -432,7 +432,7 @@ useradd foo
 ssh ... "wsl.exe ... bash -c \"useradd foo\""
 ```
 
-### ✅ WSt-102: Outer `"..."` with `\"` for embedded double-quotes
+### ✅ WSt_102: Outer `"..."` with `\"` for embedded double-quotes
 
 The Windows argv parser (wsl.exe and most Windows binaries) honors `\"`
 inside `"..."` as escape for literal `"`. Cmd.exe passes bytes through; the
@@ -443,14 +443,14 @@ child's argv parser handles the escape, reaching Linux bash as `"`.
 ssh ... "wsl.exe ... bash -c \"echo SAW: \\\"hello\\\"\""
 ```
 
-### ❌ WSt-103: cmd.exe does NOT process `$()` or `$var`
+### ❌ WSt_103: cmd.exe does NOT process `$()` or `$var`
 
 Cmd.exe's variable syntax is `%var%` and it has no command substitution.
 `cmd.exe /c echo "X=$(uname)"` emits the literal `X=$(uname)`. The outer
 cmd.exe layer is not what processes shell variable expansion in transit
-(see WSt-104 for what does, on the w-letter path).
+(see WSt_104 for what does, on the w-letter path).
 
-### ❌ WSt-104: wsl.exe substitutes `$name` and `${name}` in argv
+### ❌ WSt_104: wsl.exe substitutes `$name` and `${name}` in argv
 
 Wsl.exe's argv-to-Linux processor performs `$name`/`${name}` substitution
 against its Linux-side root-shell environment before bash receives the
@@ -476,11 +476,11 @@ ssh ... 'wsl.exe --distribution <dist> --user root bash -c "ztmp=HELLO; echo \$z
 # stdout: HELLO
 ```
 
-### ✅ WSt-105: Exit-code propagation is reliable across transports
+### ✅ WSt_105: Exit-code propagation is reliable across transports
 
 Non-zero exit codes propagate cleanly through cmd.exe direct, wsl.exe →
 bash, cygwin bash, PowerShell, and Windows native binaries via wsl.exe
-interop. WSs-104's single statement IS the body's exit code; the caller
+interop. WSs_104's single statement IS the body's exit code; the caller
 absorbs via `|| die "..."`. No `set -e` needed inside the body (nothing
 after one statement). `set -o pipefail` IS needed for shape-2 pipelines
 when first-failure surfacing is the intent.
@@ -491,7 +491,7 @@ ssh ... 'wsl.exe --distribution <dist> --user root bash -c "false"'; echo "EXIT=
 # EXIT=1
 ```
 
-### ❌ WSt-106: Single quotes are LITERAL characters in cmd.exe-direct transport
+### ❌ WSt_106: Single quotes are LITERAL characters in cmd.exe-direct transport
 
 When routed `bash (curia) → ssh → cmd.exe → <Windows-native binary>` with
 no PowerShell or remote-bash layer, single quotes pass through to the
@@ -516,8 +516,8 @@ ssh "${USER}@${HOST}" "wsl.exe --import dist \"C:\Users\u\dist-fs\" \"...\" --ve
 Bash owns the state machine; the remote-side body is one effect. Any
 decision that would otherwise live in a remote body decomposes into:
 
-1. **Capture** — `ps_capture "<single-expression probe>"` (WSp-105-clean)
-   or `$(priv_bash LETTER "<single-statement probe>")` (WSs-104-clean)
+1. **Capture** — `ps_capture "<single-expression probe>"` (WSp_105-clean)
+   or `$(priv_bash LETTER "<single-statement probe>")` (WSs_104-clean)
    returns stdout into a bash variable. Absorb with `|| die "..."` if the
    probe must succeed, or `|| z_var=""` / `|| z_exit=$?` if an absent
    fundus state is legitimate pre-condition.
@@ -602,7 +602,7 @@ fi
 
 ### Local user existence → conditional removal
 
-`-ErrorAction SilentlyContinue` permitted per WSp-108's probe-side carve-out.
+`-ErrorAction SilentlyContinue` permitted per WSp_108's probe-side carve-out.
 
 ```bash
 local z_user_state
@@ -644,12 +644,12 @@ fi
 ## Wrapper Discipline
 
 All three wrappers compose outer `"..."` around `${z_body}` and so apply
-the WSp-109 escape transform unconditionally.
+the WSp_109 escape transform unconditionally.
 
 ### PowerShell wrapper
 
 ```bash
-local -r z_body_escaped="${z_body//\"/\\\"}"   # WSp-109
+local -r z_body_escaped="${z_body//\"/\\\"}"   # WSp_109
 ssh ... "${USER}@${HOST}" \
     "powershell -NoProfile -Command \"\$ErrorActionPreference = 'Stop'; \$env:WSL_UTF8 = 1; \$LASTEXITCODE = 0; ${z_body_escaped}; if (\$LASTEXITCODE -ne 0) { exit \$LASTEXITCODE }\""
 ```
@@ -657,32 +657,32 @@ ssh ... "${USER}@${HOST}" \
 Wrapper prelude:
 - `\$ErrorActionPreference = 'Stop'` — PS errors terminate
 - `\$env:WSL_UTF8 = 1` — wsl.exe (when called from PS body) emits UTF-8
-- `\$LASTEXITCODE = 0` — initialize to defeat the null trap (WSp-101)
+- `\$LASTEXITCODE = 0` — initialize to defeat the null trap (WSp_101)
 - Trailing `if ... exit ...` — propagate native command exit codes
 
-Body authoring follows WSp-102 through WSp-108.
+Body authoring follows WSp_102 through WSp_108.
 
 ### Bash-via-wsl.exe wrapper (w-letter)
 
 ```bash
-local -r z_body_escaped="${z_body//\"/\\\"}"   # WSp-109
+local -r z_body_escaped="${z_body//\"/\\\"}"   # WSp_109
 ssh ... "${USER}@${HOST}" \
     "wsl.exe --distribution ${DIST} --user root bash -c \"${z_body_escaped}\""
 ```
 
-Body authoring follows the WSs- and WSt- rule families, with WSt-104's
+Body authoring follows the WSs_ and WSt_ rule families, with WSt_104's
 w-letter escape table: `$name` → `\$name`; `${name}` → `\${name}`;
 `$(...)` unescaped.
 
 ### Bash-via-cygwin wrapper (c-letter)
 
 ```bash
-local -r z_body_escaped="${z_body//\"/\\\"}"   # WSp-109
+local -r z_body_escaped="${z_body//\"/\\\"}"   # WSp_109
 ssh ... "${USER}@${HOST}" \
     "C:/cygwin64/bin/bash --login -c \"${z_body_escaped}\""
 ```
 
-Body authoring follows the WSs- and WSt- rule families. Per WSt-104's
+Body authoring follows the WSs_ and WSt_ rule families. Per WSt_104's
 c-letter row, `$name`, `${name}`, and `$(...)` all pass unescaped —
 cmd.exe alone does no shell substitution.
 

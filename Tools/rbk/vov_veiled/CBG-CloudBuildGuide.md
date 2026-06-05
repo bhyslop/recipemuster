@@ -74,12 +74,12 @@ domain — the source of most Cited Rules below.
 
 | Condition | Consequence for the body |
 |-----------|--------------------------|
-| **Substitutions arrive as environment variables** (`_RBGx_*`, expanded at submit via `automapSubstitutions`). | Read from the environment, not argv; they may be empty (CBi-101). |
-| **`/workspace` is a shared, ephemeral mount** seen by every step, destroyed at build end. | The only inter-step channel; non-secret by invariant; guard every read (CBi-102). |
-| **Steps can be retried silently** on transient failure. | Every state change must be idempotent (CBi-103). |
-| **Authentication is ambient**, via the metadata server. | Tokens are fetched in-memory, used, discarded — never to `/workspace` (CBi-102). |
-| **The interpreter is the builder image's, pinned** (e.g. `gcloud` ships python 3.10). | Code to the shipped runtime; guard newer features (CBi-104). |
-| **No native step reuse** (no anchors, no includes). | Shared bash logic is composed in on the host before submit (CBh-101). |
+| **Substitutions arrive as environment variables** (`_RBGx_*`, expanded at submit via `automapSubstitutions`). | Read from the environment, not argv; they may be empty (CBi_101). |
+| **`/workspace` is a shared, ephemeral mount** seen by every step, destroyed at build end. | The only inter-step channel; non-secret by invariant; guard every read (CBi_102). |
+| **Steps can be retried silently** on transient failure. | Every state change must be idempotent (CBi_103). |
+| **Authentication is ambient**, via the metadata server. | Tokens are fetched in-memory, used, discarded — never to `/workspace` (CBi_102). |
+| **The interpreter is the builder image's, pinned** (e.g. `gcloud` ships python 3.10). | Code to the shipped runtime; guard newer features (CBi_104). |
+| **No native step reuse** (no anchors, no includes). | Shared bash logic is composed in on the host before submit (CBh_101). |
 
 ---
 
@@ -112,7 +112,7 @@ def require_env(name):
 ```
 
 `die` is python's `buc_die`; `require_env` is the assert-presence discipline for
-substitutions (CBi-101). Read required inputs through `require_env`; read
+substitutions (CBi_101). Read required inputs through `require_env`; read
 optional ones with `os.environ.get(name, "")` and an explicit absent-branch.
 
 When a python step shells out, use `subprocess.run(..., check=True)` so a
@@ -156,7 +156,7 @@ BCG's visible-transformation philosophy applied to a step's internal structure.
 
 **bash/sh**: a single file; first executable line `set -euo pipefail`; no module
 header, kindle, or sentinel (BUK constructs absent in the builder). The shebang
-is stamped by the assembler, not written by the author (CBh-101).
+is stamped by the assembler, not written by the author (CBh_101).
 
 **python**: stdlib only — no `pip install` in-step; the preamble above; `main()`
 guarded by `if __name__ == "__main__":`.
@@ -166,7 +166,7 @@ guarded by `if __name__ == "__main__":`.
 GAR reads/writes use the in-memory metadata token as credentials, never a
 credential helper (the gcloud helper is unavailable to skopeo; rationale in
 RBSCB). The token itself is fetched fresh per step — bash via the `token-fetch`
-snippet (CBh-101), python via `urllib` against `metadata.google.internal`. skopeo
+snippet (CBh_101), python via `urllib` against `metadata.google.internal`. skopeo
 copies pass `--all` for multi-arch safety:
 
 ```bash
@@ -175,7 +175,7 @@ skopeo copy --all "docker://${ORIGIN}" "docker://${PKG}:${DIGEST_TAG}" \
   || { echo "FATAL: skopeo copy failed for ${ORIGIN}" >&2; exit 1; }
 ```
 
-The *invariant* that the token never reaches `/workspace` is CBi-102; this is the
+The *invariant* that the token never reaches `/workspace` is CBi_102; this is the
 *idiom* that honors it.
 
 ---
@@ -183,23 +183,23 @@ The *invariant* that the token never reaches `/workspace` is CBi-102; this is th
 ## Cited Rules (numbered — each has, or will have, a citer)
 
 Headers tag the rule: ❌ a failure mode, ✅ an established correct shape.
-Families: `CBi-` cloud-step invariants (any language), `CBb-` bash/sh, `CBp-`
-python, `CBh-` host-composition seam. Numbered from 101 to leave room for
+Families: `CBi_` cloud-step invariants (any language), `CBb_` bash/sh, `CBp_`
+python, `CBh_` host-composition seam. Numbered from 101 to leave room for
 insertions; once a rule has a citer it is never renumbered.
 
 ### CBi — Cloud Step Invariants
 
-#### ✅ CBi-101: Substitutions are inputs — assert presence
+#### ✅ CBi_101: Substitutions are inputs — assert presence
 
 `_RBGx_*` values arrive as environment variables (submit-time expansion via
 `automapSubstitutions`), not as arguments, and **may be empty**. Assert every
 required input before use and die if absent; read optional inputs with an
 explicit empty default and a documented absent-branch. The set a step requires is
-declared in its header comment and enforced at dispatch (CBh-102).
+declared in its header comment and enforced at dispatch (CBh_102).
 
 *Cited by:* step header contracts; the dispatch validator.
 
-#### ✅ CBi-102: The `/workspace` boundary — non-secret only, secrets step-local, guard every read
+#### ✅ CBi_102: The `/workspace` boundary — non-secret only, secrets step-local, guard every read
 
 `/workspace` is the inter-step bus. Write provenance envelopes, rosters, build
 context — **never secrets**. Tokens and credentials stay step-local and
@@ -217,7 +217,7 @@ test -s /workspace/lode_stamps.txt \
 
 *Cited by:* RBSCB; every `/workspace` guard and the GAR-auth idiom.
 
-#### ✅ CBi-103: Every state change is idempotent under retry
+#### ✅ CBi_103: Every state change is idempotent under retry
 
 Cloud Build may silently re-run a step. Inspect-or-create, never bare-create;
 retag is a no-op if the tag exists; a second run reaches the same end state
@@ -226,7 +226,7 @@ then `use`.
 
 *Cited by:* the bootstrap snippet header; any retry post-mortem.
 
-#### ✅ CBi-104: Code to the builder image's pinned runtime
+#### ✅ CBi_104: Code to the builder image's pinned runtime
 
 The interpreter version is whatever the builder image ships — not your laptop's.
 Guard any feature newer than the pinned runtime:
@@ -242,7 +242,7 @@ else:
 
 ### CBb — Bash / sh Dialect
 
-#### ✅ CBb-101: Guarded `$( … )` with `pipefail` is permitted in-step — BCG's temp-file mandate is relaxed
+#### ✅ CBb_101: Guarded `$( … )` with `pipefail` is permitted in-step — BCG's temp-file mandate is relaxed
 
 BCG bans pipelines inside `$()` and unguarded command substitution, mandating
 temp files so each transformation is visible and recoverable. **Inside a step
@@ -258,15 +258,15 @@ test -n "${TOKEN}" || { echo "FATAL: no access_token in metadata response" >&2; 
 The relaxation is **characterized, not careless**: it holds because (a) the log
 is the forensic surface, (b) `pipefail` is set, and (c) the result is immediately
 validated. Outside a step body, BCG's rule stands. This is the rule a reviewer
-needs a handle for — a step comment can cite `CBb-101` to preempt "this violates
+needs a handle for — a step comment can cite `CBb_101` to preempt "this violates
 BCG."
 
 *Cited by:* step-body comments; code review.
 
-#### ✅ CBb-102: Capture substitutions into shell vars before snippets read them
+#### ✅ CBb_102: Capture substitutions into shell vars before snippets read them
 
 Substitutions are not shell variables you can loop over; capture them into plain
-shell vars at the top of the body. Snippets (CBh-101) read these **plain shell
+shell vars at the top of the body. Snippets (CBh_101) read these **plain shell
 vars**, never the `_RBGx_` names — that is what lets one snippet serve callers in
 disjoint substitution namespaces.
 
@@ -275,13 +275,13 @@ SLOT_1_ORIGIN="${_RBGL_IMAGE_1_ORIGIN}"
 SLOT_2_ORIGIN="${_RBGL_IMAGE_2_ORIGIN}"
 ```
 
-*Cited by:* the snippet contract (CBh-101).
+*Cited by:* the snippet contract (CBh_101).
 
 ### CBp — Python Dialect
 
-#### ❌ CBp-101: The python helper preamble is duplicated — a known reuse gap
+#### ❌ CBp_101: The python helper preamble is duplicated — a known reuse gap
 
-The bash steps share a composed-snippet library (`rbgjs`, CBh-101); the python
+The bash steps share a composed-snippet library (`rbgjs`, CBh_101); the python
 steps do **not**. `die`, `require_env`, `metadata_token`, `gar_fetch`, and
 `gar_json` appear **verbatim** in every python step (`rbgja01`, `rbgjv02`, …).
 
@@ -299,7 +299,7 @@ the capture-unification heat's scope — a future itch.
 The author writes the body, not the shebang, the Build JSON, or the dispatch.
 These rules describe the machinery a body must fit.
 
-#### ✅ CBh-101: Shared bash logic is spliced on the host via `#@rbgjs_include`
+#### ✅ CBh_101: Shared bash logic is spliced on the host via `#@rbgjs_include`
 
 Cloud Build has no native step reuse, so shared **bash** logic is composed
 *before submit*. A step marks an include point; the host expander
@@ -314,7 +314,7 @@ no silent skip.
 ```
 
 **Snippet contract** (RBSCJ): snippets read **plain shell vars** set before the
-marker (CBb-102), not `_RBGx_` substitutions, and are idempotent (CBi-103). The
+marker (CBb_102), not `_RBGx_` substitutions, and are idempotent (CBi_103). The
 library shares only the irreducibly identical core; kind-specific assembly stays
 in the step.
 
@@ -325,13 +325,13 @@ in the step.
 | `buildx-bootstrap` | none | the `rb-builder` buildx builder |
 | `buildx-push` | `PUSH_URI`, `PUSH_PLATFORMS`, `PUSH_CTX` | the image pushed |
 
-Bash-only today — see CBp-101 for the python gap. The recipe row's `entrypoint`
+Bash-only today — see CBp_101 for the python gap. The recipe row's `entrypoint`
 field (`bash`/`sh`/`python3`) selects the shebang the spine stamps; the author
 declares the interpreter there.
 
 *Cited by:* every `#@rbgjs_include` site; the snippet contract.
 
-#### ✅ CBh-102: The substitution blob is opaque to the spine; coverage is validated at dispatch
+#### ✅ CBh_102: The substitution blob is opaque to the spine; coverage is validated at dispatch
 
 A per-kind body builds the substitution blob (`jq -n` → `_RBGx_` keys) and hands
 it to the spine, which passes it through without reading any individual key
@@ -344,7 +344,7 @@ kind's blob provides.
 
 *Cited by:* the validator's reject message; its unit tests.
 
-#### ✅ CBh-103: A step returns data to the host via `buildStepOutputs`
+#### ✅ CBh_103: A step returns data to the host via `buildStepOutputs`
 
 `/workspace` does not survive the build. A step that must hand a value back writes
 it to the `buildStepOutputs` channel (`/builder/outputs/output`); the spine
@@ -367,11 +367,11 @@ Read these as the worked forms behind the rules above:
 
 ## Related Documents
 
-- **BCG** — Bash Console Guide. Host bash discipline; CBb-101 relaxes one of its rules in-step.
+- **BCG** — Bash Console Guide. Host bash discipline; CBb_101 relaxes one of its rules in-step.
 - **RCG** — Rust Coding Guide. Host Rust sibling.
 - **WSG** — Windows Scripting Guide. Structural precedent: BCG's discipline re-expressed for a hostile foreign environment, catalogued as cited rules.
 - **RBSCJ** — CloudBuildJson. JSON-composition trade study; home of the composed-snippet/contract decision CBh points at.
-- **RBSCB** — CloudBuildPosture. skopeo-token/credential-helper posture and the canonical `/workspace`-no-secrets invariant (CBi-102).
+- **RBSCB** — CloudBuildPosture. skopeo-token/credential-helper posture and the canonical `/workspace`-no-secrets invariant (CBi_102).
 
 ## Acronym Registry
 
