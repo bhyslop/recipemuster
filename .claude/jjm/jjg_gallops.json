@@ -8528,9 +8528,10 @@
         "₢BHAAL",
         "₢BHAAM",
         "₢BHAAN",
+        "₢BHAAO",
         "₢BHAAD"
       ],
-      "jjghn_next_pace_seed": "AAO",
+      "jjghn_next_pace_seed": "AAP",
       "jjghn_paces": {
         "₢BHAAA": {
           "jjgpn_tacks": [
@@ -8823,6 +8824,17 @@
               "jjgtn_text": "## Character\nSmall standalone — split a read verb out of divine, plus the net-new envelope decode the spec mandates. Kind-agnostic; blocks no vertical.\n\n## Goal\nRealize the divine/augur grain split per the landed RBSLA/RBSLD specs: extract single-Lode inspect out of divine into augur (rbw-la), trim divine to enumerate-only, and implement the augur substance — decoding the rbi_vouch provenance envelope, which divine's inspect branch never did.\n\n## Locked\n- Code to RBSLA/RBSLD (already written). The verb split is mechanical (mirror the rbw-ld trampoline; require the touchmark folio as banish does). The envelope decode (the provenance fields + the verified-vs-recorded posture) is the real new logic.\n- augur is kind-agnostic — no per-kind work.\n\n## Done\nrbw-la augur decodes and displays one Lode's provenance envelope; divine is enumerate-only; theurge covers the split.",
               "jjgtn_silks": "lode-augur-inspect-split",
               "jjgtn_basis": "f93913d"
+            }
+          ]
+        },
+        "₢BHAAO": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260605-1121",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nSerial — rides the cutovers. The public concept surface, not a verb catalog.\n\n## Goal\nSurface Lode and touchmark in the public README as concept-level glossary entries (parallel to Vessel/Hallmark), retire the public Enshrine/Reliquary entries, and refresh the stale RBSHR \"revised enshrine\" frame to the per-kind-verb model.\n\n## Locked\n- Concept-level only — do NOT enumerate per-kind verbs in README. The README delegates the command/verb catalog to CLAUDE.md; concept-level entries are kind-invariant, so the public surface stabilizes once and no vertical reopens it.\n- Meaningful only after the cutovers land (else README would describe two parallel capture systems).\n\n## Done\nREADME glossary reflects Lode/touchmark at concept level, superseded public capture entries retired, RBSHR frame refreshed.",
+              "jjgtn_silks": "lode-public-docs-concept",
+              "jjgtn_basis": "77e0f6c"
             }
           ]
         }
