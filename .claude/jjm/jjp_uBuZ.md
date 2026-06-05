@@ -45,10 +45,10 @@ identity-keyed one. (A deferral-honoring breadcrumb is on memo-20260527 now; ful
 ## Intent vs enforcement — the declared ledger (cinched)
 
 Enforcement is server-side IAM, always. Intent — which citizen is meant to hold which capability —
-is stored in a depot-resident **declared ledger**, distinct from IAM and from the actual-reading
-`roster` verb. The audit is the diff between the actual-state roster and the declared ledger;
-the routine ledger read is identical across tiers. Federation forces the same ledger anyway, so it
-is paid once for both. (Why it must be stored, and where it lives: memo.)
+is stored in a depot-resident **declared ledger**, distinct from IAM. The audit is the diff between
+**actual IAM state** and the declared ledger; the routine ledger read is identical across tiers.
+Federation forces the same ledger anyway, so it is paid once for both. (Today's name-regex `roster`
+verb is retired — no prefix to filter on. Why it must be stored, and where it lives: memo.)
 
 ## The audit — drift as signal, asymmetric healing (cinched)
 
@@ -59,8 +59,8 @@ asymmetry is the Pale recognition test:
 - **Surplus** (IAM beyond intent — touched outside our verbs) crossed the Pale → report; a human
   adjudicates. The audit never auto-revokes; surplus resolution is human-driven.
 
-Both lifecycle directions write intent first — grant writes the ledger before granting, remove
-withdraws it before revoking — so a crash lands as a safe report-only surplus, never an
+Both capability directions write intent first — grant writes the ledger before adding bindings,
+revoke withdraws it before removing them — so a crash lands as a safe report-only surplus, never an
 auto-converging deficit. Auto-converge is safe only where ledger-write authority is at least as
 protected as grant (else a softer escalation path; see Open). And the audit reads **both
 by-identity and by-resource-member**, so a grant to an unrostered principal cannot hide. (Drift
