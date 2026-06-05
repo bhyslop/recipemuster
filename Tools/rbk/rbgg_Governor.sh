@@ -62,7 +62,6 @@ zrbgg_kindle() {
   readonly ZRBGG_INFIX_PREFLIGHT="preflight"
   readonly ZRBGG_INFIX_VERIFY="verify"
   readonly ZRBGG_INFIX_KEY="key"
-  readonly ZRBGG_INFIX_KEY_DELETE="key_delete"
   readonly ZRBGG_INFIX_API_IAM_ENABLE="api_iam_enable"
   readonly ZRBGG_INFIX_API_CRM_ENABLE="api_crm_enable"
   readonly ZRBGG_INFIX_API_ART_ENABLE="api_art_enable"
