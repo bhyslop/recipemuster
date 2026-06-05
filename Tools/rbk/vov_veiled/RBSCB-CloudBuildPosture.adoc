@@ -323,7 +323,7 @@ Behavior-preservation is confirmed against the live system at the heat's milesto
 
 * RBSOB: OCI Layout Bridge trade study (superseded)
 * RBSCJ: Cloud Build JSON trade study
-* RBSTB: Trigger Build specification (inactive -- triggers eliminated, builds.create replaces)
+* RBSTB: Trigger Build specification — retired (triggers eliminated, builds.create replaces); rationale retained in RBSCTD trade study
 * rbfd_FoundryDirectorBuild.sh: `zrbfd_stitch_build_json()` — build stitching; `rbfl_tally()` — provenance on demand; `rbfc_plumb_full()`/`rbfc_plumb_compact()` — local trust posture display
 * RBSAI: Ark Inspect specification
 * buv_validation.sh: `buv_val_odref()` — digest-pinned image reference validator

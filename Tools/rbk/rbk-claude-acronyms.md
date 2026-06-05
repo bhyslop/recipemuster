@@ -130,7 +130,6 @@
 - **RBSSC** → `rbk/vov_veiled/RBSSC-security_config.adoc`
 - **RBSSR** → `rbk/vov_veiled/RBSSR-sentry_run.adoc`
 - **RBSSS** → `rbk/vov_veiled/RBSSS-sentry_start.adoc`
-- **RBSTB** → `rbk/vov_veiled/RBSTB-trigger_build.adoc`
 
 ## Moorings Filesystem Family (`rbm*_`)
 

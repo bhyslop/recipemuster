@@ -1239,8 +1239,6 @@ ELIMINATED: Trigger dispatch replaced by direct `builds.create` API submission.
 Build context delivered via {rbtga_ark_pouch} (FROM SCRATCH OCI image in GAR).
 Hallmark minted on the host before submission, passed to Cloud Build via `_RBGY_HALLMARK` substitution variable.
 
-// include::RBSTB-trigger_build.adoc[]
-
 NOTE: For multi-platform build authentication challenges and research findings, see link:RBWMBX-BuildxMultiPlatformAuth.adoc[RBWMBX: Buildx Multi-Platform Authentication Memo].
 
 [[rbtgo_depot_inscribe]]
