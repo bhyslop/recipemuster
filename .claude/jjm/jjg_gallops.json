@@ -9057,6 +9057,13 @@
         "₢BVAAE": {
           "jjgpn_tacks": [
             {
+              "jjgtn_ts": "260604-2011",
+              "jjgtn_state": "jjgte_abandoned",
+              "jjgtn_text": "## Character\nMechanical cross-platform validation; the one judgment is reading the conntrack verdict.\n\nValidate this heat's Windows-docker changes off-Windows: run the suites on cerebro (native Linux) and rocket's WSL side. The path normalizers are BURD_OSTYPE-gated, so expect identity behavior there — confirm it, no regression. Capture the conntrack_spoofed_ack verdict on each platform; that cross-platform read is the decisive input for the conntrack-adjudication pace — siege and blockade both breach it on Cygwin Docker Desktop, so the open question is whether native Linux/WSL breaches it too.\n\n## Done\nsiege + blockade green (or differences characterized) on cerebro and WSL, with the conntrack_spoofed_ack verdict recorded per platform.",
+              "jjgtn_silks": "requal-cerebro-and-wsl",
+              "jjgtn_basis": "f37a69f"
+            },
+            {
               "jjgtn_ts": "260603-0600",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": "## Character\nMechanical cross-platform validation; the one judgment is reading the conntrack verdict.\n\nValidate this heat's Windows-docker changes off-Windows: run the suites on cerebro (native Linux) and rocket's WSL side. The path normalizers are BURD_OSTYPE-gated, so expect identity behavior there — confirm it, no regression. Capture the conntrack_spoofed_ack verdict on each platform; that cross-platform read is the decisive input for the conntrack-adjudication pace — siege and blockade both breach it on Cygwin Docker Desktop, so the open question is whether native Linux/WSL breaches it too.\n\n## Done\nsiege + blockade green (or differences characterized) on cerebro and WSL, with the conntrack_spoofed_ack verdict recorded per platform.",
