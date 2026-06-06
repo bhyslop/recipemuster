@@ -181,6 +181,7 @@
 :burd_now_epoch:                   <<burd_now_epoch,BURD_NOW_EPOCH>>
 :burd_temp_dir:                    <<burd_temp_dir,BURD_TEMP_DIR>>
 :burd_output_dir:                  <<burd_output_dir,BURD_OUTPUT_DIR>>
+:burd_previous_dir:                <<burd_previous_dir,BURD_PREVIOUS_DIR>>
 :burd_transcript:                  <<burd_transcript,BURD_TRANSCRIPT>>
 :burd_git_context:                 <<burd_git_context,BURD_GIT_CONTEXT>>
 :burd_log_last:                    <<burd_log_last,BURD_LOG_LAST>>
@@ -230,6 +231,8 @@
 // Fact Module
 :buf_write_fact_single:           <<buf_write_fact_single,buf_write_fact_single>>
 :buf_write_fact_multi:            <<buf_write_fact_multi,buf_write_fact_multi>>
+:buf_relay:                       <<buf_relay,buf_relay>>
+:buf_read_fact:                   <<buf_read_fact,buf_read_fact>>
 :buf_burx_env:                    <<buf_burx_env,BUF_burx_env>>
 :buf_ext_alias:                   <<buf_ext_alias,BUF_EXT_ALIAS>>
 
@@ -655,6 +658,8 @@ The `current/` path segment maps
 {burd_output_dir}
 inside the BURV isolation tree.
 Fact-file constants are defined as `readonly` in kindle (e.g., `RBF_FACT_HALLMARK`).
++
+*Cross-tabtarget chaining.* Beyond the same-dispatch producer/consumer above, a fact written by one tabtarget is read by a *later* tabtarget through the depth-1 chain: at dispatch start {burd_output_dir} (`current/`) is promoted to {burd_previous_dir} (`previous/`), so the prior tabtarget's facts are readable via {buf_read_fact} from {burd_previous_dir}. A consuming tabtarget calls {buf_relay} first to forward the baton (so the chain survives more than one hop), then {buf_read_fact} for the fact it needs.
 
 [[busff_multi_fact]]
 //axl_voices axo_entity
@@ -741,6 +746,22 @@ done
 Mirror of
 {buf_write_fact_single}
 for the multi-row shape; both use the same dual-write + fail-on-preexist semantics.
+
+[[buf_relay]]
+//axl_voices axo_entity
+{buf_relay}::
+Consume-side primitive — forwards the prior dispatch's facts from {burd_previous_dir} into this dispatch's {burd_output_dir} (the baton forward), so a multi-hop tabtarget chain survives past one hop.
+No-op when there is no prior dispatch.
+Files already present in {burd_output_dir} are preserved, never clobbered — so this dispatch's own reserved files (e.g. {buf_burx_env}) and any fact it already wrote are kept.
+Install ordering invariant: a consuming tabtarget calls {buf_relay} FIRST, before any {buf_read_fact} or producer write.
+
+[[buf_read_fact]]
+//axl_voices axo_entity
+{buf_read_fact}::
+Consume-side primitive — reads a single named fact from {burd_previous_dir} and emits its bare value (trailing newline stripped) on stdout.
+Fails hard if the fact is absent — a missing upstream fact is a broken chain, not a default-to-empty.
+Single-form only: the value is an opaque singular string, never parsed.
+Signature: `buf_read_fact <filename>`.
 
 [[buf_burx_env]]
 //axpof_fact
@@ -1495,7 +1516,15 @@ Ephemeral directory for this dispatch invocation.
 [[burd_output_dir]]
 //axl_voices axrg_variable axtu_path
 {burd_output_dir}::
-Fixed output directory cleared and recreated on each dispatch.
+Fixed output directory for this dispatch (`current/`). At dispatch start the prior dispatch's `current/` is promoted to {burd_previous_dir} and a fresh empty `current/` is created.
+
+[[burd_previous_dir]]
+//axl_voices axrg_variable axtu_path
+{burd_previous_dir}::
+Fixed directory holding the prior dispatch's outputs (`previous/`), promoted from that dispatch's {burd_output_dir} at dispatch start.
+Promotion is exit-status-independent — it runs before any work, so a dispatch that failed after writing its facts still forwards them.
+The {burd_output_dir} + {burd_previous_dir} pair is the depth-1 cross-tabtarget chain; no deeper history is retained.
+Read by the consume primitives {buf_relay} and {buf_read_fact}.
 
 [[burd_transcript]]
 //axl_voices axrg_variable axtu_path

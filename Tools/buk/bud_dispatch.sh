@@ -110,21 +110,41 @@ zbud_setup() {
   # Setup transcript file path
   BURD_TRANSCRIPT="${BURD_TEMP_DIR}/transcript.txt"
 
-  # Setup output directory (fixed location, cleared on each run)
+  # Setup output directories under the output root (both fixed locations).
+  #   current/  = this dispatch's outputs (fresh each run).
+  #   previous/ = the prior dispatch's current/, promoted here at dispatch
+  #               start. Promotion is EXIT-STATUS-INDEPENDENT — it runs before
+  #               this dispatch does any work, so the prior run's outputs are
+  #               forwarded regardless of how it exited (fail-after-forward
+  #               still passes the baton). The current/+previous/ pair is the
+  #               depth-1 cross-tabtarget chain; no deeper history is kept.
   BURD_OUTPUT_DIR="${BURC_OUTPUT_ROOT_DIR}/current"
+  BURD_PREVIOUS_DIR="${BURC_OUTPUT_ROOT_DIR}/previous"
   case "${BURD_OUTPUT_DIR}" in
     /*) ;;
     *)  BURD_OUTPUT_DIR="${PWD}/${BURD_OUTPUT_DIR}" ;;
   esac
+  case "${BURD_PREVIOUS_DIR}" in
+    /*) ;;
+    *)  BURD_PREVIOUS_DIR="${PWD}/${BURD_PREVIOUS_DIR}" ;;
+  esac
 
-  # Clear if exists, then create fresh
+  # Promote prior current/ -> previous/, then create a fresh empty current/.
+  # current/ and previous/ are siblings under one root, so mv is always an
+  # atomic same-filesystem rename — never a byte copy. It relocates the prior
+  # outputs (replacing the old unconditional rm of current/) rather than
+  # destroying them. First drop the generation older than one, then promote.
+  if test -d "${BURD_PREVIOUS_DIR}"; then
+    zbud_show "Dropping stale previous directory: ${BURD_PREVIOUS_DIR}"
+    rm -rf "${BURD_PREVIOUS_DIR}" || zbud_die "Failed to remove previous directory: ${BURD_PREVIOUS_DIR}"
+  fi
   if test -d "${BURD_OUTPUT_DIR}"; then
-    zbud_show "Clearing existing output directory: ${BURD_OUTPUT_DIR}"
-    rm -rf "${BURD_OUTPUT_DIR}" || zbud_die "Failed to remove output directory: ${BURD_OUTPUT_DIR}"
+    zbud_show "Promoting prior output to previous: ${BURD_OUTPUT_DIR} -> ${BURD_PREVIOUS_DIR}"
+    mv "${BURD_OUTPUT_DIR}" "${BURD_PREVIOUS_DIR}" || zbud_die "Failed to promote output directory to previous: ${BURD_OUTPUT_DIR}"
   fi
   mkdir -p "${BURD_OUTPUT_DIR}" || zbud_die "Failed to create output directory: ${BURD_OUTPUT_DIR}"
 
-  zbud_show "Output directory ready: ${BURD_OUTPUT_DIR}"
+  zbud_show "Output directory ready: ${BURD_OUTPUT_DIR} (previous: ${BURD_PREVIOUS_DIR})"
 
   # Get Git context
   local -r z_git_context_file="${BURD_TEMP_DIR}/bud_git_context.txt"
@@ -146,6 +166,7 @@ zbud_setup() {
   # Export for child processes
   export BURD_TEMP_DIR
   export BURD_OUTPUT_DIR
+  export BURD_PREVIOUS_DIR
   export BURD_NOW_STAMP
   export BURD_NOW_EPOCH
   export BURD_TRANSCRIPT
@@ -314,7 +335,7 @@ zbud_main() {
   zbud_write_burx_initial
 
   # Detect unexpected BURD_ variables
-  local -r z_known="BURD_CONFIG_DIR BURD_REGIME_FILE BURD_NO_LOG BURD_INTERACTIVE BURD_COORDINATOR_SCRIPT BURD_LAUNCHER BURD_STATION_FILE BURD_TERM_COLS BURD_NOW_STAMP BURD_NOW_EPOCH BURD_TEMP_DIR BURD_OUTPUT_DIR BURD_TRANSCRIPT BURD_GIT_CONTEXT BURD_LOG_LAST BURD_LOG_SAME BURD_LOG_HIST BURD_COMMAND BURD_TARGET BURD_CLI_ARGS BURD_TOKEN_1 BURD_TOKEN_2 BURD_TOKEN_3 BURD_TOKEN_4 BURD_TOKEN_5 BURD_TOOLS_DIR BURD_BUK_DIR BURD_TABTARGET_DIR BURD_OSTYPE"
+  local -r z_known="BURD_CONFIG_DIR BURD_REGIME_FILE BURD_NO_LOG BURD_INTERACTIVE BURD_COORDINATOR_SCRIPT BURD_LAUNCHER BURD_STATION_FILE BURD_TERM_COLS BURD_NOW_STAMP BURD_NOW_EPOCH BURD_TEMP_DIR BURD_OUTPUT_DIR BURD_PREVIOUS_DIR BURD_TRANSCRIPT BURD_GIT_CONTEXT BURD_LOG_LAST BURD_LOG_SAME BURD_LOG_HIST BURD_COMMAND BURD_TARGET BURD_CLI_ARGS BURD_TOKEN_1 BURD_TOKEN_2 BURD_TOKEN_3 BURD_TOKEN_4 BURD_TOKEN_5 BURD_TOOLS_DIR BURD_BUK_DIR BURD_TABTARGET_DIR BURD_OSTYPE"
   ZBURD_UNEXPECTED=()
   local z_var
   for z_var in $(compgen -v BURD_); do
