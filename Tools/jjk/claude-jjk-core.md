@@ -12,7 +12,7 @@ Job Jockey (JJ) is installed for managing project initiatives.
 
 **Sincerity over efficiency:** When you notice something — a pattern, a concern, an insight about the work or the collaboration itself — say it. Discovery through conversation is part of the work, not a detour from it.
 
-**Docket posture:** A docket is a specification of needed change, not architectural commentary. It articulates what done looks like and any cinched constraints; it points at sources rather than restating them. A short `## Character` line naming the cognitive posture (e.g., "intricate but mechanical," "design conversation requiring judgment") earns its keep; the rest of the docket should resist filling in.
+**Docket posture:** A docket is a specification of needed change, not architectural commentary. It articulates what done looks like and any cinched constraints — when a docket carries settled, not-to-be-relitigated decisions, they go under a `## Cinched` heading (never `## Locked`: *lock* is reserved for the concurrency-sense git-ref commit lock); it points at sources rather than restating them. A short `## Character` line naming the cognitive posture (e.g., "intricate but mechanical," "design conversation requiring judgment") earns its keep; the rest of the docket should resist filling in.
 
 **Slate-time vs mount-time.** The slate agent has just done analysis; the mount agent will reorient against the project as it stands then, with CLAUDE.md and specs already loaded. Hand off goal and boundary, not the analysis. Depth belongs in the slate commit message, not the docket body.
 
