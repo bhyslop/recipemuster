@@ -8135,9 +8135,10 @@
         "₢BDAAO",
         "₢BDAAP",
         "₢BDAAQ",
-        "₢BDAAR"
+        "₢BDAAR",
+        "₢BDAAS"
       ],
-      "jjghn_next_pace_seed": "AAS",
+      "jjghn_next_pace_seed": "AAT",
       "jjghn_paces": {
         "₢BDAAA": {
           "jjgpn_tacks": [
@@ -8488,6 +8489,17 @@
               "jjgtn_text": "## Character\nDesign conversation — the fix is undecided; mount to design it together.\n\nSpook (team-infrastructure stumble): jjx_open mints officium ids that are\ntime-bucketed (YYMMDD-HHMM), so two machines that call jjx_open within the same\nminute mint the SAME id. Observed 2026-06-04: ☉260604-1000 was minted independently\non two hosts — one landed on origin/main as commit be145c9b7 (\"OFFICIUM 260604-1000\"),\nanother in a parallel chat on a different machine — both writing\n.claude/jjm/officia/260604-1000/. That time the gallops automerge reconciled it by\nluck and jjx_validate passed, but the collision defeats the opaque/unique intent of\nofficium ids and is a latent hazard for the officium directory and its gazette\nexchange files under concurrent multi-machine work.\n\nDone: an agreed design (not yet chosen) for making officium ids collision-safe across\nconcurrent machines.",
               "jjgtn_silks": "officium-id-collision-cross-machine",
               "jjgtn_basis": "9189678"
+            }
+          ]
+        },
+        "₢BDAAS": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260606-1106",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nDesign settled in conversation — mechanical implementation against cinched decisions plus a doc deliverable. Live read path: orient shares the gazette plumbing, so verify it survives.\n\n## Goal\nMake jjx_show the gazette round-trip surface: accept a heterogeneous target list (per-element length-dispatch), always populate the gazette with the resolved set while keeping the tool-result terse, and document the output->reslate bridge so a batch of dockets can be pulled, bash-edited, and replumbed as a mass reslate — without a new verb.\n\n## Cinched\n- MCP is the only client. Cut `detail` entirely: tool-result is always the terse table; gazette is always populated with paddock(s) + pace dockets. Bodies reach context only by Read-ing the gazette (the existing pattern); the round-trip never Reads it.\n- `targets` is a list; each element self-types by length (firemark -> expand, coronet -> single, unconditional). Singular and no-target auto-select must keep working (orient/mount depend on auto-select).\n- `remaining` is REQUIRED and affects firemark expansion only; coronet-named targets return regardless of state.\n- Type wall holds: show still emits jjezs_pace (output-typed). The round-trip is a deliberate bash bridge (drop jjezs_paddock, rewrite jjezs_pace->jjezs_reslate, apply the edit) — no permissive parser, no new verb, nothing in jjx emits reslate-shaped output.\n- No reslate dry-run; trust the per-coronet diff-echo, revisit only after 3 real collisions.\n- Guidance deliverable (CLAUDE.md JJK gazette section): the canonical bridge recipe + the transformable-vs-bespoke \"when to reach for it\" boundary (transformable edits win; bespoke novel-prose authors per-pace).\n\n## Done\nshow takes a heterogeneous target list, always populates the gazette, returns a terse result, and requires `remaining`; orient still works; the multi-heat case (bitmap/swimlanes assume a single heat) is handled or suppressed; CLAUDE.md documents the show->sed->reslate bridge and the transformable-vs-bespoke boundary; theurge/unit cover list dispatch and the always-on gazette.\n\n## Entry points\njjrpd_parade.rs (target dispatch + gazette population), jjrz_gazette.rs (slug vocabulary + read-output builder).",
+              "jjgtn_silks": "show-target-list-and-round-trip-bridge",
+              "jjgtn_basis": "bcb29a8"
             }
           ]
         }
