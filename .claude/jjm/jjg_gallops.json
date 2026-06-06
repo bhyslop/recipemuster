@@ -8136,9 +8136,10 @@
         "₢BDAAP",
         "₢BDAAQ",
         "₢BDAAR",
-        "₢BDAAS"
+        "₢BDAAS",
+        "₢BDAAT"
       ],
-      "jjghn_next_pace_seed": "AAT",
+      "jjghn_next_pace_seed": "AAU",
       "jjghn_paces": {
         "₢BDAAA": {
           "jjgpn_tacks": [
@@ -8500,6 +8501,17 @@
               "jjgtn_text": "## Character\nDesign settled in conversation — mechanical implementation against cinched decisions plus a doc deliverable. Live read path: orient shares the gazette plumbing, so verify it survives.\n\n## Goal\nMake jjx_show the gazette round-trip surface: accept a heterogeneous target list (per-element length-dispatch), always populate the gazette with the resolved set while keeping the tool-result terse, and document the output->reslate bridge so a batch of dockets can be pulled, bash-edited, and replumbed as a mass reslate — without a new verb.\n\n## Cinched\n- MCP is the only client. Cut `detail` entirely: tool-result is always the terse table; gazette is always populated with paddock(s) + pace dockets. Bodies reach context only by Read-ing the gazette (the existing pattern); the round-trip never Reads it.\n- `targets` is a list; each element self-types by length (firemark -> expand, coronet -> single, unconditional). Singular and no-target auto-select must keep working (orient/mount depend on auto-select).\n- `remaining` is REQUIRED and affects firemark expansion only; coronet-named targets return regardless of state.\n- Type wall holds: show still emits jjezs_pace (output-typed). The round-trip is a deliberate bash bridge (drop jjezs_paddock, rewrite jjezs_pace->jjezs_reslate, apply the edit) — no permissive parser, no new verb, nothing in jjx emits reslate-shaped output.\n- No reslate dry-run; trust the per-coronet diff-echo, revisit only after 3 real collisions.\n- Guidance deliverable (CLAUDE.md JJK gazette section): the canonical bridge recipe + the transformable-vs-bespoke \"when to reach for it\" boundary (transformable edits win; bespoke novel-prose authors per-pace).\n\n## Done\nshow takes a heterogeneous target list, always populates the gazette, returns a terse result, and requires `remaining`; orient still works; the multi-heat case (bitmap/swimlanes assume a single heat) is handled or suppressed; CLAUDE.md documents the show->sed->reslate bridge and the transformable-vs-bespoke boundary; theurge/unit cover list dispatch and the always-on gazette.\n\n## Entry points\njjrpd_parade.rs (target dispatch + gazette population), jjrz_gazette.rs (slug vocabulary + read-output builder).",
               "jjgtn_silks": "show-target-list-and-round-trip-bridge",
               "jjgtn_basis": "bcb29a8"
+            }
+          ]
+        },
+        "₢BDAAT": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260606-1145",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nIntricate but mechanical — server change plus spec/doc sync; the decisions are cinched, nothing left to design.\n\n## Goal\nMake `jjx_orient` (mount) and the heat-overview form of `jjx_show` (groom) take their heat firemark **solely from `gazette_in.md`**, never from params. Writing the gazette becomes a required first step of mount/groom, so the Claude Code `Write` permission fires at ceremony start instead of silently stalling a chat at the first later slate/reslate/paddock-set. Single-pace parade (`jjx_show {target: <coronet>}`) stays param-based.\n\n## Cinched\n- **Hard / sole input** — a param firemark on these two paths is *rejected*, not a fallback. Soft conventions slip unnoticed; that silent stall is exactly what this fixes.\n- **Scope = mount + groom-form only.** Single-pace parade stays param-based and cheap.\n- **Deliberate override of getter/setter orthodoxy** — the gazette normally carries content, not identities; here it carries a body-less firemark notice on purpose, to make the ceremony `Write` load-bearing. Operator decision; do not re-litigate.\n\n## Done looks like\n- New read-command input slug(s) minted (minting rules + Quoin discipline) and wired into the gazette parser; both paths require + parse the gazette firemark and reject a param firemark with a loud error.\n- CLAUDE.md synced: Mount Protocol, Groom Protocol, and the Officium Protocol gazette tables/notes (input-slug table, getter/setter line).\n- **JJS0 spec family updated** — the main spec plus every affected command spec and the gazette wire-format section. Discovery: `grep -rln 'jjx_orient\\|jjx_show\\|jjezs_' Tools/jjk/vov_veiled/JJS*.adoc`.\n- Param callers of these two paths reconciled to write the gazette first (Hard enforcement breaks them). Discovery: grep the JJK crate + tests for orient/show invocations.",
+              "jjgtn_silks": "mount-groom-gazette-heat-selection",
+              "jjgtn_basis": "33098e5"
             }
           ]
         }
