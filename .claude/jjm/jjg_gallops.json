@@ -8750,6 +8750,13 @@
         "₢BHAAG": {
           "jjgpn_tacks": [
             {
+              "jjgtn_ts": "260605-1840",
+              "jjgtn_state": "jjgte_complete",
+              "jjgtn_text": "## Character\nMechanical — a one-file constant promotion. Lands first; every vertical mints stamps off these.\n\n## Goal\nPromote the reserved Lode kind-letter set in rbgc_Constants.sh from comment to actual constants, mirroring the existing RBGC_LODE_KIND_BOLE. Cover tool, reliquary, wsl, and podvm — podvm carries two letters (its two quay families), per the paddock Lode registry layout.\n\n## Locked\n- Scope is the kind-letter constants only. Capture colophons (rbw-lF/lC/lU/lI) and divine-legend rows are NOT here — they ride each vertical (a colophon points at a verb that does not yet exist; a legend row for an unimplemented kind would lie).\n\n## Done\nThe full kind-letter constant set exists in rbgc_Constants.sh; shellcheck green.",
+              "jjgtn_silks": "lode-scaffold-kind-letters",
+              "jjgtn_basis": "13e545f"
+            },
+            {
               "jjgtn_ts": "260605-1117",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": "## Character\nMechanical — a one-file constant promotion. Lands first; every vertical mints stamps off these.\n\n## Goal\nPromote the reserved Lode kind-letter set in rbgc_Constants.sh from comment to actual constants, mirroring the existing RBGC_LODE_KIND_BOLE. Cover tool, reliquary, wsl, and podvm — podvm carries two letters (its two quay families), per the paddock Lode registry layout.\n\n## Locked\n- Scope is the kind-letter constants only. Capture colophons (rbw-lF/lC/lU/lI) and divine-legend rows are NOT here — they ride each vertical (a colophon points at a verb that does not yet exist; a legend row for an unimplemented kind would lie).\n\n## Done\nThe full kind-letter constant set exists in rbgc_Constants.sh; shellcheck green.",
