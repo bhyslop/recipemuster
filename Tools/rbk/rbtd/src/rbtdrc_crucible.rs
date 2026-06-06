@@ -32,7 +32,7 @@ use crate::rbtdre_engine::{
     rbtdre_Case, rbtdre_Disposition, rbtdre_Fixture, rbtdre_Suite, rbtdre_Verdict,
 };
 use crate::rbtdri_invocation::{
-    rbtdri_Context, rbtdri_invoke, rbtdri_invoke_global,
+    rbtdri_Context, rbtdri_invoke, rbtdri_invoke_env, rbtdri_invoke_global,
     rbtdri_parse_ifrit_verdict, rbtdri_read_burv_fact, rbtdri_read_burv_facts_multi,
     RBTDRI_BURE_CONFIRM_KEY, RBTDRI_BURE_CONFIRM_SKIP,
 };
@@ -219,8 +219,17 @@ fn rbtdrc_invoke_ifrit_with_args(
 }
 
 /// Execute a command in the sentry via writ, returning captured stdout.
+///
+/// Runs under BURD_NO_LOG so the BUK dispatch does not fold the tabtarget's
+/// stderr into stdout (nor emit log-path headers). The captured stdout is then
+/// exactly the sentry command's output — rbob_writ's "Writ to sentry" status
+/// line (buc_step, stderr) stays out of it, so a value-read needs no header or
+/// ANSI filtering and is independent of terminal color (NO_COLOR, dumb TERM,
+/// plain ssh pipe). theurge keeps its own per-invocation stdout/stderr capture,
+/// so dropping the redundant logs-buk transcript for these probe writs costs
+/// no diagnostics.
 fn rbtdrc_writ(ctx: &mut rbtdri_Context, args: &[&str]) -> Result<String, String> {
-    let result = rbtdri_invoke(ctx, RBTDGC_CRUCIBLE_WRIT, args)?;
+    let result = rbtdri_invoke_env(ctx, RBTDGC_CRUCIBLE_WRIT, args, &[("BURD_NO_LOG", "1")])?;
     if result.exit_code != 0 {
         return Err(format!(
             "writ exit {}\nstdout: {}\nstderr: {}",
@@ -296,26 +305,12 @@ fn rbtdrc_extract_iptables_rules(output: &str) -> String {
         .join("\n")
 }
 
-/// Filter writ output to remove BUK log headers (lines starting with known prefixes).
-/// Retains only the actual command output.
-fn rbtdrc_filter_writ_output(output: &str) -> String {
-    output
-        .lines()
-        .filter(|l| {
-            let t = l.trim();
-            !t.starts_with("log files:")
-                && !t.starts_with("transcript:")
-                && !t.starts_with("output dir:")
-                && !t.starts_with("\u{1b}[90m") // ANSI escape for BUK colored prefix
-        })
-        .collect::<Vec<_>>()
-        .join("\n")
-}
-
 /// Read a named environment variable from sentry's process environment via writ.
+/// writ runs under BURD_NO_LOG, so its stdout is the clean command output —
+/// the first non-empty line is the value, with no header/ANSI stripping needed.
 fn rbtdrc_read_sentry_env(ctx: &mut rbtdri_Context, var: &str) -> Result<String, String> {
     let output = rbtdrc_writ(ctx, &["printenv", var])?;
-    rbtdrc_filter_writ_output(&output)
+    output
         .lines()
         .map(|l| l.trim())
         .find(|l| !l.is_empty())
@@ -477,7 +472,7 @@ fn rbtdrc_sentry_config_rp_filter(dir: &Path) -> rbtdre_Verdict {
         };
         let _ = std::fs::write(dir.join("rp_filter.txt"), &output);
 
-        let value = rbtdrc_filter_writ_output(&output)
+        let value = output
             .lines()
             .map(|l| l.trim())
             .find(|l| !l.is_empty())
@@ -952,8 +947,8 @@ fn rbtdrc_coordinated_dnsmasq_query_audit(dir: &Path) -> rbtdre_Verdict {
         };
         let _ = std::fs::write(dir.join("dnsmasq-log.txt"), &log_output);
 
-        // Filter to actual log lines (strip BUK headers)
-        let log_content = rbtdrc_filter_writ_output(&log_output);
+        // writ runs under BURD_NO_LOG, so log_output is the raw dnsmasq log.
+        let log_content = &log_output;
 
         // Verify connectivity domain query appears in log
         let has_example = log_content
@@ -1398,7 +1393,6 @@ fn rbtdrc_coordinated_sentry_integrity(dir: &Path) -> rbtdre_Verdict {
             Ok(o) => o,
             Err(e) => return rbtdre_Verdict::Fail(format!("pre-snapshot ip link: {}", e)),
         };
-        let pre_links_filtered = rbtdrc_filter_writ_output(&pre_links);
         let _ = std::fs::write(dir.join("pre-links.txt"), &pre_links);
 
         // Run battery of 3 different attack types
@@ -1450,7 +1444,6 @@ fn rbtdrc_coordinated_sentry_integrity(dir: &Path) -> rbtdre_Verdict {
             Ok(o) => o,
             Err(e) => return rbtdre_Verdict::Fail(format!("post-snapshot ip link: {}", e)),
         };
-        let post_links_filtered = rbtdrc_filter_writ_output(&post_links);
         let _ = std::fs::write(dir.join("post-links.txt"), &post_links);
 
         // Verify: iptables rules unchanged (compare rule lines only, not BUK headers)
@@ -1467,14 +1460,11 @@ fn rbtdrc_coordinated_sentry_integrity(dir: &Path) -> rbtdre_Verdict {
             );
         }
 
-        // Verify: network interfaces unchanged (compare content only, not BUK headers)
-        if pre_links_filtered != post_links_filtered {
+        // Verify: network interfaces unchanged
+        if pre_links != post_links {
             let _ = std::fs::write(
                 dir.join("links-diff.txt"),
-                format!(
-                    "BEFORE:\n{}\nAFTER:\n{}\n",
-                    pre_links_filtered, post_links_filtered
-                ),
+                format!("BEFORE:\n{}\nAFTER:\n{}\n", pre_links, post_links),
             );
             return rbtdre_Verdict::Fail(
                 "BREACH: network interfaces changed after attack battery".to_string(),

@@ -303,6 +303,19 @@ pub fn rbtdri_invoke(
     rbtdri_invoke_impl(ctx, &tabtarget, args, &[])
 }
 
+/// Invoke a fixture-imprinted tabtarget (like `rbtdri_invoke`) with extra
+/// environment variables threaded into the child process — e.g. BURD_NO_LOG
+/// to keep BUK dispatch from folding the tabtarget's stderr into stdout.
+pub fn rbtdri_invoke_env(
+    ctx: &mut rbtdri_Context,
+    colophon: &str,
+    args: &[&str],
+    extra_env: &[(&str, &str)],
+) -> Result<rbtdri_InvokeResult, String> {
+    let tabtarget = rbtdri_find_tabtarget(&ctx.project_root, colophon, &ctx.fixture)?;
+    rbtdri_invoke_impl(ctx, &tabtarget, args, extra_env)
+}
+
 /// Invoke a global tabtarget (no imprint) with optional extra environment variables.
 pub fn rbtdri_invoke_global(
     ctx: &mut rbtdri_Context,
