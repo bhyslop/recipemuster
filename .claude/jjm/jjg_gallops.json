@@ -8812,6 +8812,13 @@
         "₢BHAAJ": {
           "jjgpn_tacks": [
             {
+              "jjgtn_ts": "260606-1012",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nGreenfield vertical — the structural outlier. Needs a new cloud capture step, not the skopeo registry path.\n\n## Goal\nLand the wsl (underpin) capture kind: a project-controlled WSL rootfs captured into a Lode. wsl fetches a vendor-published rootfs tarball over HTTPS and verifies it against the published checksum (Canonical cloud-images SHA-256), then wraps the opaque tarball as a Lode member.\n\n## Cinched\n- This is genuinely verified-against-published (the published checksum is real here). Acquisition runs cloud-side — no workstation export (paddock acquisition premise).\n- Needs a NEW cloud capture step (curl + checksum-verify + opaque-blob wrap); it does not reuse the registry-pull step. Ride the spine envelope on the rbldw_ letter.\n- Consumption (wsl --import) is deferred this heat — stop at the registry. File-disjoint. Write RBSLU.\n\n## Done\nunderpin captures a checksum-verified rootfs into rbi_ld with provenance; a theurge fixture proves capture -> divine -> banish live (no host consumption).",
+              "jjgtn_silks": "lode-wsl-capture",
+              "jjgtn_basis": "4e61101"
+            },
+            {
               "jjgtn_ts": "260605-1119",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": "## Character\nGreenfield vertical — the structural outlier. Needs a new cloud capture step, not the skopeo registry path.\n\n## Goal\nLand the wsl (underpin) capture kind: a project-controlled WSL rootfs captured into a Lode. wsl fetches a vendor-published rootfs tarball over HTTPS and verifies it against the published checksum (Canonical cloud-images SHA-256), then wraps the opaque tarball as a Lode member.\n\n## Locked\n- This is genuinely verified-against-published (the published checksum is real here). Acquisition runs cloud-side — no workstation export (paddock acquisition premise).\n- Needs a NEW cloud capture step (curl + checksum-verify + opaque-blob wrap); it does not reuse the registry-pull step. Ride the spine envelope on the rbldw_ letter.\n- Consumption (wsl --import) is deferred this heat — stop at the registry. File-disjoint. Write RBSLU.\n\n## Done\nunderpin captures a checksum-verified rootfs into rbi_ld with provenance; a theurge fixture proves capture -> divine -> banish live (no host consumption).",
@@ -8822,6 +8829,13 @@
         },
         "₢BHAAK": {
           "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260606-1012",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nGreenfield vertical, the largest — crane-based opaque-blob capture, ported from the GHCR prototype to GAR.\n\n## Goal\nLand the podvm (immure) capture machinery: port the podman-machine-image capture (crane manifest/blob navigation, FROM-scratch repackage) from the prototype (rbv_PodmanVM, RBSPV) onto the spine and into rbi_ld. This pace builds the single-family capture path; the two-family fan-out is the next pace.\n\n## Cinched\n- crane (not skopeo/docker) for opaque non-layered blobs; recorded-at-acquisition trust grade (quay publishes no durable checksum). Cloud-side acquisition. Ride the spine on the rbldv_ letter.\n- Multi-member package holding a curated platform subset, never a full mirror (paddock podvm-selective premise). File-disjoint. Write RBSLI.\n\n## Done\nimmure captures one quay family's curated platform set into rbi_ld with provenance; a theurge fixture proves capture -> divine -> banish live.",
+              "jjgtn_silks": "lode-podvm-capture-machinery",
+              "jjgtn_basis": "4e61101"
+            },
             {
               "jjgtn_ts": "260605-1119",
               "jjgtn_state": "jjgte_rough",
@@ -8834,6 +8848,13 @@
         "₢BHAAL": {
           "jjgpn_tacks": [
             {
+              "jjgtn_ts": "260606-1012",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nGreenfield follow-on to the podvm capture machinery — the two-family, multi-platform selection layer.\n\n## Goal\nExtend immure to span both quay families (machine-os-wsl and machine-os-native) via an archive argument, with curated per-platform variant selection. The families share the crane capture path and differ only in quay repo + variant set.\n\n## Cinched\n- One verb spanning both families, not two verbs (paddock Kinds). Support an \"expand selected set against the same upstream version\" refresh mode, distinct from a version bump (paddock podvm-selective premise).\n- Builds on the podvm capture machinery (preceding pace).\n\n## Done\nimmure captures both families' curated sets into their respective Lodes; a fixture proves the fan-out.",
+              "jjgtn_silks": "lode-podvm-platform-fanout",
+              "jjgtn_basis": "4e61101"
+            },
+            {
               "jjgtn_ts": "260605-1119",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": "## Character\nGreenfield follow-on to the podvm capture machinery — the two-family, multi-platform selection layer.\n\n## Goal\nExtend immure to span both quay families (machine-os-wsl and machine-os-native) via an archive argument, with curated per-platform variant selection. The families share the crane capture path and differ only in quay repo + variant set.\n\n## Locked\n- One verb spanning both families, not two verbs (paddock Kinds). Support an \"expand selected set against the same upstream version\" refresh mode, distinct from a version bump (paddock podvm-selective premise).\n- Builds on the podvm capture machinery (preceding pace).\n\n## Done\nimmure captures both families' curated sets into their respective Lodes; a fixture proves the fan-out.",
@@ -8844,6 +8865,13 @@
         },
         "₢BHAAM": {
           "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260606-1012",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nSerial cutover — sibling of the bole cutover. Gated on the conclave vertical existing.\n\n## Goal\nRetire the inscribe reliquary-mirror path and repoint RBRV_RELIQUARY onto a reliquary-kind (conclave) Lode.\n\n## Cinched\n- Follow the paddock Cutover technique (rebuild-and-repoint, delete-old-last). The single repoint is the tool-resolution chokepoint zrbfc_resolve_tool_images (in rbfca_StepAssembly), which feeds conjure/about/vouch/enshrine and bole ensconce.\n- Onboarding rides the done: flip the inscribe/reliquary handbook tracks + RBYC_RELIQUARY + the literal inscribe prose + the matching rbtdro fixture (prose is not test-guarded; the done is the only guard).\n- rbrd_inscribe (depot tripwire, rbw-rdi) is a DIFFERENT operation — out of scope, leave it.\n- Flag: inscribe mirrors :latest, so a fresh re-inscribe bumps the toolchain — copy old digests into rbi_ld if a byte-identical cohort is wanted.\n- Verify gate: one conjure build green.\n\n## Done\ninscribe retired, RBRV_RELIQUARY resolves from a conclave Lode, conjure green, rbi_rq banished last.",
+              "jjgtn_silks": "lode-reliquary-inscribe-cutover",
+              "jjgtn_basis": "4e61101"
+            },
             {
               "jjgtn_ts": "260605-1120",
               "jjgtn_state": "jjgte_rough",
@@ -8856,6 +8884,13 @@
         "₢BHAAN": {
           "jjgpn_tacks": [
             {
+              "jjgtn_ts": "260606-1012",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nSmall standalone — split a read verb out of divine, plus the net-new envelope decode the spec mandates. Kind-agnostic; blocks no vertical.\n\n## Goal\nRealize the divine/augur grain split per the landed RBSLA/RBSLD specs: extract single-Lode inspect out of divine into augur (rbw-la), trim divine to enumerate-only, and implement the augur substance — decoding the rbi_vouch provenance envelope, which divine's inspect branch never did.\n\n## Cinched\n- Code to RBSLA/RBSLD (already written). The verb split is mechanical (mirror the rbw-ld trampoline; require the touchmark folio as banish does). The envelope decode (the provenance fields + the verified-vs-recorded posture) is the real new logic.\n- augur is kind-agnostic — no per-kind work.\n\n## Done\nrbw-la augur decodes and displays one Lode's provenance envelope; divine is enumerate-only; theurge covers the split.",
+              "jjgtn_silks": "lode-augur-inspect-split",
+              "jjgtn_basis": "4e61101"
+            },
+            {
               "jjgtn_ts": "260605-1120",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": "## Character\nSmall standalone — split a read verb out of divine, plus the net-new envelope decode the spec mandates. Kind-agnostic; blocks no vertical.\n\n## Goal\nRealize the divine/augur grain split per the landed RBSLA/RBSLD specs: extract single-Lode inspect out of divine into augur (rbw-la), trim divine to enumerate-only, and implement the augur substance — decoding the rbi_vouch provenance envelope, which divine's inspect branch never did.\n\n## Locked\n- Code to RBSLA/RBSLD (already written). The verb split is mechanical (mirror the rbw-ld trampoline; require the touchmark folio as banish does). The envelope decode (the provenance fields + the verified-vs-recorded posture) is the real new logic.\n- augur is kind-agnostic — no per-kind work.\n\n## Done\nrbw-la augur decodes and displays one Lode's provenance envelope; divine is enumerate-only; theurge covers the split.",
@@ -8867,6 +8902,13 @@
         "₢BHAAO": {
           "jjgpn_tacks": [
             {
+              "jjgtn_ts": "260606-1012",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nSerial — rides the cutovers. The public concept surface, not a verb catalog.\n\n## Goal\nSurface Lode and touchmark in the public README as concept-level glossary entries (parallel to Vessel/Hallmark), retire the public Enshrine/Reliquary entries, and refresh the stale RBSHR \"revised enshrine\" frame to the per-kind-verb model.\n\n## Cinched\n- Concept-level only — do NOT enumerate per-kind verbs in README. The README delegates the command/verb catalog to CLAUDE.md; concept-level entries are kind-invariant, so the public surface stabilizes once and no vertical reopens it.\n- Meaningful only after the cutovers land (else README would describe two parallel capture systems).\n\n## Done\nREADME glossary reflects Lode/touchmark at concept level, superseded public capture entries retired, RBSHR frame refreshed.",
+              "jjgtn_silks": "lode-public-docs-concept",
+              "jjgtn_basis": "4e61101"
+            },
+            {
               "jjgtn_ts": "260605-1121",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": "## Character\nSerial — rides the cutovers. The public concept surface, not a verb catalog.\n\n## Goal\nSurface Lode and touchmark in the public README as concept-level glossary entries (parallel to Vessel/Hallmark), retire the public Enshrine/Reliquary entries, and refresh the stale RBSHR \"revised enshrine\" frame to the per-kind-verb model.\n\n## Locked\n- Concept-level only — do NOT enumerate per-kind verbs in README. The README delegates the command/verb catalog to CLAUDE.md; concept-level entries are kind-invariant, so the public surface stabilizes once and no vertical reopens it.\n- Meaningful only after the cutovers land (else README would describe two parallel capture systems).\n\n## Done\nREADME glossary reflects Lode/touchmark at concept level, superseded public capture entries retired, RBSHR frame refreshed.",
@@ -8877,6 +8919,13 @@
         },
         "₢BHAAP": {
           "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260606-1012",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nSmall housekeeping — mark deferred surfaces; settle one cross-heat revert.\n\n## Goal\nMark the stale Windows onboarding tracks (rbhw*) loudly NOT-available/deferred rather than writing them, and resolve the heat ₣A- WSL-stage DEV CACHE revert pace now that wsl-kind work is committed to.\n\n## Cinched\n- Onboarding follows consumption, not acquisition: substrate-kind (wsl/podvm) host consumption is out of scope this heat, so mark-deferred — do not write the tracks. Resist a unified Lode-onboarding track; onboarding stays distributed by consumer (paddock Carried-forward).\n- The DEV-CACHE revert pace lives in heat ₣A- — drop or transfer it (operator's choice at mount).\n\n## Done\nStale Windows tracks marked deferred; the ₣A- WSL-stage DEV CACHE revert pace dropped or transferred.",
+              "jjgtn_silks": "lode-housekeeping-deferrals",
+              "jjgtn_basis": "4e61101"
+            },
             {
               "jjgtn_ts": "260605-1121",
               "jjgtn_state": "jjgte_rough",
