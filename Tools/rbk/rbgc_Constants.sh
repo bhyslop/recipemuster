@@ -214,9 +214,14 @@ zrbgc_kindle() {
   # ride as TAGS within the one package, never as /-path-segments (GAR has no
   # subtree delete). Stamp matches the hallmark second-granular form YYMMDDHHMMSS.
   #
-  # Kind letters (reserved set; only bole is implemented this pace):
+  # Kind letters (one per capture kind; podvm carries two for its quay families):
   #   b  bole | t  tool | r  reliquary | w  wsl | vw  podvm-wsl | vn  podvm-native
   readonly RBGC_LODE_KIND_BOLE="b"
+  readonly RBGC_LODE_KIND_TOOL="t"
+  readonly RBGC_LODE_KIND_RELIQUARY="r"
+  readonly RBGC_LODE_KIND_WSL="w"
+  readonly RBGC_LODE_KIND_PODVM_WSL="vw"
+  readonly RBGC_LODE_KIND_PODVM_NATIVE="vn"
 
   # Member/provenance tags. The rbi_ sprue marks strings from RB's domain:
   # RB's authored lexicon (bole, vouch) and RB-measured-from-content values
