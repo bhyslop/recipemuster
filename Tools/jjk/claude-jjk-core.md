@@ -63,7 +63,7 @@ All JJK commands are accessed via the single `mcp__vvx__jjx` MCP tool with four 
 - `command`: string selecting the operation — always the canonical `jjx_*` name (e.g., `"jjx_show"`, `"jjx_enroll"`, `"jjx_record"`)
 - `params`: JSON object with command-specific fields (see reference below)
 - `officium`: officium identity string from `jjx_open` (required on all commands except `jjx_open` — see Officium Protocol below)
-- `model`: agent's verbatim model ID string from its system prompt (e.g., `"claude-opus-4-6[1m]"`). Required on ALL commands including `jjx_open`. The server gates commands by model tier — currently all commands require opus.
+- `model`: agent's verbatim model ID string from its system prompt (e.g., `"claude-opus-4-8"`). Required on ALL commands including `jjx_open`. The server gates commands by model tier — currently all commands require opus.
 
 **`params` must be a JSON object, never a string.** If params is accidentally stringified (e.g., `"{\"key\": \"val\"}"` instead of `{"key": "val"}`), deserialization will fail. The server has a defensive fallback for this, but always pass a native object.
 
@@ -196,14 +196,6 @@ Gazette paths: `.claude/jjm/officia/<id>/gazette_in.md` and `gazette_out.md`, wh
 
 **Construct the gazette path directly from the known officium id — never `find` for it.** Gazette files have single-MCP-call lifetime (deleted on entry, written only by getters on success), so a filesystem search will usually find nothing or a stale file, and an empty search result then poisons any command built on it. If a getter command *failed*, no gazette was written — fix the command, don't hunt the filesystem.
 
-Example — reslate a pace docket:
-1. Write `gazette_in.md`: `# jjezs_reslate AvAAH\n\n## Character\nNew docket content...`
-2. Call: `jjx_redocket` with `{}` (coronet parsed from gazette lede)
-
-Example — mass reslate multiple paces:
-1. Write `gazette_in.md` with multiple notices: `# jjezs_reslate AvAAH\n\nFirst docket...\n# jjezs_reslate AvAAI\n\nSecond docket...`
-2. Call: `jjx_redocket` with `{}`
-
 **Read-modify-write workflow** (paddock editing):
 1. Call `jjx_paddock` getter → reads `gazette_out.md`
 2. Rename `gazette_out.md` → `gazette_in.md`, edit content
@@ -225,10 +217,7 @@ When user says "mount" or you need to engage the next pace:
 3. **Read the paddock before the docket.** The paddock tells you the shape of the work and what's been learned; the docket tells you what to do next. Orientation before action.
 4. **Lead with the pace goal in one sentence**, distilled from the docket — what this pace is trying to accomplish, stated precisely. Paces can sit weeks between slating and mounting; the operator needs goal recall first, not heat scenery. Then display brief heat context (silks + paddock one-liner + recent work) and finally the full docket.
 5. **Name assessment**: If pace silks doesn't fit docket, offer rename via `jjx_relabel`
-6. Analyze docket, propose approach (2-4 bullets), assess execution strategy:
-   - Model tier: haiku (mechanical), sonnet (standard dev), opus (architectural)
-   - Parallelization: file independence, task decomposability
-   - State recommendation explicitly (e.g., "Sequential sonnet — single file")
+6. Propose the approach compactly — a one-line recommended execution strategy (model tier + sequential/parallel), not a multi-part briefing. Offer the reasoning (tier rationale, parallelization analysis) on request, not unprompted. Tiers: haiku (mechanical), sonnet (standard dev), opus (architectural).
 7. Ask to proceed, then begin work
 
 ### Groom Protocol
@@ -236,7 +225,7 @@ When user says "mount" or you need to engage the next pace:
 When user says "groom":
 
 1. Run `jjx_show` command with `{target: FIREMARK, detail: true, remaining: true}`
-2. Read `gazette_out.md` for full paddock and pace docket content — read the file directly; never parse the harness's persisted tool-result output, and never read `jjg_gallops.json` directly
+2. Read `gazette_out.md` directly for full paddock and pace docket content — never the persisted tool-result blob or `jjg_gallops.json` (see "Never reach past the JJK interface" under Key points)
 3. Display overview: heat silks, progress, remaining paces with dockets (from gazette)
 4. Enter planning mode: suggest structural operations (slate new paces, rail to reorder, reslate to refine dockets, paddock review)
 
@@ -308,10 +297,10 @@ Multiple Claude officia (concurrent chat sessions, each with its own ☉-prefixe
 - Need to undo something? Explain the situation to the user and let them decide
 
 **JJX Commands Are Self-Committing:**
-`jjx_enroll`, `jjx_close`, `jjx_record`, and other state-mutating jjx commands create git commits internally. **`jjx_close` (wrap) commits ALL uncommitted changes** — code files and gallops state together in one commit. Do NOT follow `jjx_record` or `jjx_close` with another commit command — the tree will already be clean. If a commit command says "Nothing to commit", check `git status --short` and accept the result.
+`jjx_enroll`, `jjx_close`, `jjx_record`, and other state-mutating jjx commands create git commits internally. **`jjx_close` (wrap) commits ALL uncommitted changes** — code files and gallops state together in one commit. Do NOT follow `jjx_record` or `jjx_close` with another commit command, and do NOT notch immediately before or after a wrap — the tree will already be clean. If a commit command says "Nothing to commit", check `git status --short` and accept the result. (For intermediate milestones, notch *during* work; whatever remains is captured by the wrap.)
 
 **Diagnose Before Escalating:**
-When a command fails, check the simplest explanation first. "Nothing to commit" means the tree is clean — verify with `git status`, don't try creative workarounds. "Invalid params" means wrong field names — check the MCP Command Reference above, don't guess. One diagnostic command beats three speculative retries.
+When a command fails, check the simplest explanation first. "Invalid params" means wrong field names — check the MCP Command Reference above, don't guess. One diagnostic command beats three speculative retries.
 
 ### Wrap Discipline
 
@@ -323,4 +312,4 @@ When wrapping (after user confirms), always include a summary of the work:
 Use `jjx_close` with `{coronet: "CORONET", summary: "Added bitmap displays to orient output"}`
 The agent always has context about what was accomplished — include it.
 
-**Wrap commits everything.** `jjx_close` stages and commits all dirty files (code edits + gallops state) in one commit. Do NOT notch before or after wrapping — the wrap IS the final commit. If you want separate commits for intermediate code milestones, notch during work; remaining uncommitted changes are captured by wrap.
+**Wrap is unscoped — known JJK bug, do NOT "fix" it.** Unlike `notch`/`jjx_record` (explicit file list), `jjx_close` (wrap) stages and commits **every** dirty file in the tree — your code, the gallops state, and anything another officium left uncommitted. Wrap is not yet as file-specific as notch; that gap is a known bug, deferred pending the planned git-worktrees switch — do not attempt to repair it. For now: before wrapping, make sure the tree holds only your work, or expect wrap to sweep all of it into one commit.
