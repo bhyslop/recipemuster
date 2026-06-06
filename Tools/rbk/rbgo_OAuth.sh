@@ -354,6 +354,7 @@ rbgo_docker_login() {
   local z_attempt=0
   local z_stderr_file=""
   local z_rc=0
+  local z_auth_b64=""
 
   while :; do
     z_attempt=$((z_attempt + 1))
@@ -380,8 +381,7 @@ rbgo_docker_login() {
     # to the surveyed-transient / fail-fast handling below.
     if [[ "$(<"${z_stderr_file}")" == *"${RBGC_DOCKER_WINCRED_HEADLESS_SIGNATURE}"* ]]; then
       buc_warn "Docker wincred helper cannot persist headless (no interactive Windows logon); writing the authenticated credential to the base64 file store in \${HOME}/.docker/config.json. REMOVE this bend when the host gains a working credential vault."
-      local z_auth_b64=""
-      z_auth_b64=$(printf 'oauth2accesstoken:%s' "${z_token}" | openssl base64 -A) \
+      z_auth_b64=$(rbgo_base64_encode_string_capture "oauth2accesstoken:${z_token}") \
         || buc_die "Cannot base64-encode the docker credential for the file-store bend"
       mkdir -p "${HOME}/.docker" \
         || buc_die "Cannot create ${HOME}/.docker for the credential-store bend"
