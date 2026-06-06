@@ -8514,6 +8514,7 @@
       "jjghn_creation_time": "260511",
       "jjghn_status": "jjghe_racing",
       "jjghn_order": [
+        "₢BHAAQ",
         "₢BHAAF",
         "₢BHAAA",
         "₢BHAAC",
@@ -8531,7 +8532,7 @@
         "₢BHAAP",
         "₢BHAAD"
       ],
-      "jjghn_next_pace_seed": "AAQ",
+      "jjghn_next_pace_seed": "AAR",
       "jjghn_paces": {
         "₢BHAAA": {
           "jjgpn_tacks": [
@@ -8860,6 +8861,17 @@
               "jjgtn_text": "## Character\nSmall housekeeping — mark deferred surfaces; settle one cross-heat revert.\n\n## Goal\nMark the stale Windows onboarding tracks (rbhw*) loudly NOT-available/deferred rather than writing them, and resolve the heat ₣A- WSL-stage DEV CACHE revert pace now that wsl-kind work is committed to.\n\n## Locked\n- Onboarding follows consumption, not acquisition: substrate-kind (wsl/podvm) host consumption is out of scope this heat, so mark-deferred — do not write the tracks. Resist a unified Lode-onboarding track; onboarding stays distributed by consumer (paddock Carried-forward).\n- The DEV-CACHE revert pace lives in heat ₣A- — drop or transfer it (operator's choice at mount).\n\n## Done\nStale Windows tracks marked deferred; the ₣A- WSL-stage DEV CACHE revert pace dropped or transferred.",
               "jjgtn_silks": "lode-housekeeping-deferrals",
               "jjgtn_basis": "31a803f"
+            }
+          ]
+        },
+        "₢BHAAQ": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260606-1121",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nBUK practice upgrade: design judgment on the fact-file contract plus a behavior-preserving refactor of dispatch-level machinery, then a mechanical sweep across producers/installers. High blast radius — the dispatch change touches every tabtarget — so sequence it like a ₣BX-style behavior-preserving refactor, green at each step.\n\n## Goal\nPromote the test-harness \"previous output\" concept (BURV `current/`) into a first-class production BURD primitive and formalize the fact-file consume side, so cross-tabtarget chaining is precise — and close the install-then-forgot-to-commit spook class by adopting a uniform \"tools never commit, but gate on a clean tree\" posture.\n\n## Locked (settled in design conversation; do not re-litigate)\n- Tools NEVER commit in the consumer's codebase. Tools MAY presume git and refuse downstream steps on a dirty tree. Generalize the existing clean-tree gates (discover: grep `git diff --quiet`) into one uniform, well-messaged gate. This reverses an earlier auto-commit musing; the convention change is documented deliberately (CLAUDE.md git section + the ₣BH paddock provenance premise).\n- Depth-1 chaining only — NO random-access fact store. Fan-out is ONE atomic install dispatch (one read, N writes), per the existing yoke-all precedent. The durable accumulator is the git-tracked consumer config (rbrv.env / nameplate), never the fact channel.\n- PREV is promoted from the prior dispatch's OUTPUT at dispatch start, EXIT-STATUS-INDEPENDENT, so a fail-after-forward preserves the baton.\n- Chaining facts are single-form: constant-named, bare singular-string content, no in-file parsing — the existing single-form discipline. The over-built `<stamp>.lode` multi-form is removed in favor of it: nothing parses its content host-side, provenance is canonical in GAR `:rbi_vouch`, and host-side provenance now costs a GAR call (accepted). RBSLE reslated, the `rbf_fact_lode` quoin retired.\n- Type model: generic value-fact + enum kind-brand-fact, NOT per-type fact names. Per-type names would re-noun the lode kinds, contradicting the cinched \"kinds are an enum.\" Made-vs-fetched by fact name (HALLMARK vs TOUCHMARK); kind-within-fetched by a sprue enum brand reusing the existing `rbi_<kind>` tokens.\n- Install ordering invariant: forward-prev FIRST, then read-and-assert-type, then fail-hard on wrong/absent.\n- Multi-form facts stay for ENUMERATION (roster/audit/divine \"list all\"); not chaining handoffs, out of scope to change.\n- Sequencing (MUST): build PREV + consume primitives + extend the BUK self-test first (green, no consumer changes); reconcile BURV `current/` to production PREV as its own tested step (the load-bearing risk); then migrate consumers one verb at a time.\n\n## Done\n- BURD owns a dispatch-start PREV; buf consume side exists (read-by-named-fact + forward-prev); both carry robust BUS0*.adoc treatment.\n- Single-form chaining-fact discipline established; `<stamp>.lode` removed; ensconce emits touchmark + kind-brand chaining facts; RBSLE reslated.\n- Uniform never-commit/clean-tree-gate posture applied across the install verbs and documented as a deliberate convention change.\n- Producer/installer sweep landed (discover producers: grep `buf_write_fact_*`; installers: nameplate drive-hallmark + vessel rbrv.env writes); the kludge spook path closed.\n- Test suite green (fast minimum; crucible for the lode/kludge paths).",
+              "jjgtn_silks": "buk-fact-chaining-prev-and-git-gate",
+              "jjgtn_basis": "7f1efab"
             }
           ]
         }
