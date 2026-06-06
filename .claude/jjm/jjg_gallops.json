@@ -9338,6 +9338,13 @@
         "₢BVAAH": {
           "jjgpn_tacks": [
             {
+              "jjgtn_ts": "260605-1843",
+              "jjgtn_state": "jjgte_complete",
+              "jjgtn_text": "## Character\nCleanup; mostly mechanical, one decision (the kludge-stamp commits).\n\nWind down the spike's residue. On cygwin@rocket: remove probe scripts, the live-token ~/.docker/config.json, and GAR test artifacts (cygprobe/probe images, graft test hallmarks). Reconcile the cygwin-resident kludge-stamp commits (push as accepted temporary pollution, or discard). BCG-clean the rbgo login bend (the local declared mid-loop, the piped openssl capture). Regenerate the rbw-ts help string (still lists the pre-rename suite names) with its generated context doc.\n\n## Done\ncygwin@rocket and the repo clean; rbgo BCG debt cleared; rbw-ts help string current.",
+              "jjgtn_silks": "cygwin-host-and-repo-winddown",
+              "jjgtn_basis": "93e4b2e"
+            },
+            {
               "jjgtn_ts": "260603-0601",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": "## Character\nCleanup; mostly mechanical, one decision (the kludge-stamp commits).\n\nWind down the spike's residue. On cygwin@rocket: remove probe scripts, the live-token ~/.docker/config.json, and GAR test artifacts (cygprobe/probe images, graft test hallmarks). Reconcile the cygwin-resident kludge-stamp commits (push as accepted temporary pollution, or discard). BCG-clean the rbgo login bend (the local declared mid-loop, the piped openssl capture). Regenerate the rbw-ts help string (still lists the pre-rename suite names) with its generated context doc.\n\n## Done\ncygwin@rocket and the repo clean; rbgo BCG debt cleared; rbw-ts help string current.",
