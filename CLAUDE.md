@@ -229,6 +229,7 @@ When similar things differ, ask whether the difference is load-bearing: if yes, 
 This principle is instantiated in domain-specific forms:
 - **BCG**: Zeroes Theory (state space), Interface Contamination Discipline (input forms) — see BCG Core Philosophy
 - **RCG**: Interface Contamination, Constant Discipline, Constructor Discipline — see RCG
+- **ACG**: Allocation Discipline — reference the home, don't recreate (values → constants, concepts → quoin-refs) — see ACG
 - **Specs**: Linked term structure earns its three-part form only when the concept warrants anchoring
 
 When evaluating any new pattern, extraction, or structural choice, the litmus test is: "Does this element earn its existence?" If not, it doesn't belong.

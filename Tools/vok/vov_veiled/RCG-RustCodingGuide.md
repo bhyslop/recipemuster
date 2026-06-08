@@ -627,6 +627,8 @@ Every element in a system must carry weight — its removal would create a gap b
 
 Rust's type system enforces much of this mechanically: unused fields warn, unused variants warn, dead code warns. The disciplines above — Interface Contamination (no unearned input forms), Specification Authority (no unearned features), Constant Discipline (no unearned literals), Constructor Discipline (no unearned construction sites) — are each instantiations of this principle applied to specific domains. When evaluating a new pattern or extraction, ask: "Is this element load-bearing?" If not, it doesn't belong.
 
+The allocation instance — *reference the home, don't recreate* (values → constants, concepts → quoin-refs) — is its own language-neutral guide: see **ACG** (`Tools/cmk/vov_veiled/ACG-AllocationCodingGuide.md`). Constant Discipline and String Boundary Discipline above are its Rust instances.
+
 ## What RCG Does Not Cover
 
 Trust Claude's Rust idioms for:

@@ -32,6 +32,8 @@ Concrete examples from this codebase:
 
 Non-load-bearing elements are the silent budget overruns of a codebase. Each one is small; their aggregate is what makes systems incomprehensible.
 
+The allocation instance of this principle — *reference the home, don't recreate* (values → constants, concepts → quoin-refs) — is its own language-neutral guide: see **ACG** (`Tools/cmk/vov_veiled/ACG-AllocationCodingGuide.md`).
+
 ## Module Architecture
 
 Every module has an implementation file. CLI entry points are only present if module requires standalone execution.

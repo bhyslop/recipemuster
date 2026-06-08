@@ -14,6 +14,7 @@ Concept Model Kit (CMK) is installed for managing concept model documents.
 | **MCM** | `cmk/vov_veiled/MCM-MetaConceptModel.adoc` | Meta Concept Model — the spec governing all concept model documents |
 | **AXLA** | `cmk/vov_veiled/AXLA-Lexicon.adoc` | Axial Lexicon — shared vocabulary of motifs reusable across concept models |
 | **AXMCM** | `cmk/vov_veiled/AXMCM-ClaudeMarkConceptMemo.md` | ClaudeMark concept memo |
+| **ACG** | `cmk/vov_veiled/ACG-AllocationCodingGuide.md` | Allocation Coding Guide — source-side complement to MCM: reference the home, don't recreate (values→constants, concepts→quoin-refs). Veiled/proprietary move-catalog; guide-family sibling to BCG/RCG/WSG/CBG. |
 
 ### MCM Vocabulary
 
