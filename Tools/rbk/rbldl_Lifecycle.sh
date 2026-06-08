@@ -85,11 +85,15 @@ rbld_divine() {
     for z_idx in "${!z_touchmarks[@]}"; do
       z_touch="${z_touchmarks[$z_idx]}"
 
-      # One tags-list per Lode. IMAGE is the unsprued fingerprint tag
-      # <sanitized-origin>-<sha10>; it is located via the sha10 taken from the
-      # rbi_sha256-<hex> member tag, so Director semantic names (also unsprued)
-      # cannot masquerade as the fingerprint. Per-Lode infix preserves each
-      # response for forensics.
+      # One tags-list per Lode. The IMAGE column adapts to the Lode's member
+      # scheme (the touchmark prefix names the kind; see the legend above). A
+      # single-image Lode (bole) shows its unsprued fingerprint tag
+      # <sanitized-origin>-<sha10>, located via the sha10 taken from the
+      # rbi_sha256-<hex> member tag so Director semantic names (also unsprued)
+      # cannot masquerade as the fingerprint. A clean-scheme cohort (reliquary)
+      # carries no digest/fingerprint layer, so it has no single fingerprint to
+      # show — report its member count instead (every non-:rbi_vouch tag is a
+      # member). Per-Lode infix preserves each response for forensics.
       z_pkg="${RBGL_LODES_ROOT}/${z_touch}"
       z_pkg_encoded="${z_pkg//\//%2F}"
       z_tags_url="${ZRBFC_GAR_API_BASE}/${ZRBFC_GAR_PACKAGE_BASE}/packages/${z_pkg_encoded}/tags?pageSize=1000"
@@ -99,14 +103,17 @@ rbld_divine() {
       z_resp_file="${ZRBUH_PREFIX}${z_enum_infix}${ZRBUH_POSTFIX_JSON}"
 
       z_image_file="${ZRBLD_DIVINE_PREFIX}enum_${z_idx}_image.txt"
-      jq -r --arg dp "${RBGC_LODE_TAG_DIGEST_PREFIX}" '
+      jq -r --arg dp "${RBGC_LODE_TAG_DIGEST_PREFIX}" --arg vouch "${RBGC_LODE_TAG_VOUCH}" '
         [.tags[]?.name | sub(".*/tags/"; "")] as $names
         | ([$names[] | select(startswith($dp)) | ltrimstr($dp)[0:10]][0]) as $sha10
-        | ([$names[] | select((startswith("rbi_") | not) and ($sha10 != null) and endswith("-" + $sha10))][0]) // "(no fingerprint)"
+        | ([$names[] | select((startswith("rbi_") | not) and ($sha10 != null) and endswith("-" + $sha10))][0]) as $fingerprint
+        | if $fingerprint != null then $fingerprint
+          else "(cohort: \([$names[] | select(. != $vouch)] | length) members)"
+          end
       ' "${z_resp_file}" > "${z_image_file}" \
-        || buc_die "Failed to extract fingerprint for Lode ${z_touch}"
+        || buc_die "Failed to summarize Lode ${z_touch}"
       z_image=$(<"${z_image_file}")
-      test -n "${z_image}" || buc_die "Empty fingerprint extraction for Lode ${z_touch}"
+      test -n "${z_image}" || buc_die "Empty summary extraction for Lode ${z_touch}"
 
       printf "${z_row_fmt}" "${z_touch}" "${z_image}"
     done
