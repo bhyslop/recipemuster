@@ -9479,6 +9479,13 @@
         "₢BbAAF": {
           "jjgpn_tacks": [
             {
+              "jjgtn_ts": "260608-1316",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nMechanical — RCG Constant Discipline: dedup plus magic-string removal in the\ntheurge crate (rbtd).\n\n## Goal\nThe same single-home treatment for rbrv.env in Rust.\n\n## Dependency\nRBTDGC_RBRV_FILE is generated, not authored — it projects from the bash\nRBCC_rbrv_file through rbcc_emit_consts (rbcc_Constants.sh), and rbtdgc_consts.rs\nis marked \"Do not edit.\" The bash constant is established by the bash rbrv\nsingle-home pace (₢BbAAE), so this pace rides on it and inherits AAE's ₣BH gate\ntransitively — it is not independently doable before ₣BH despite carrying no gate\nof its own.\n\n## Locked\n- Establish RBTDGC_RBRV_FILE by projection: ensure RBCC_rbrv_file is in the\n  rbcc_emit_consts list and regenerate with tt/rbw-tb.Build.sh. Joins the\n  RBTDGC_RBRN_FILE / RBRA_FILE / RBRO_FILE family. Never hand-edit the generated\n  rbtdgc_consts.rs.\n- Collapse the two ad-hoc local consts onto it — discover the `const ... =\n  \"rbrv.env\"` definitions in rbtdro_onboarding.rs and rbtdrp_pristine.rs — and\n  replace the bare `path.join(\"rbrv.env\")` magic strings. Comments and\n  error-format-strings keep the literal.\n\n## Done\nOne shared RBTDGC_RBRV_FILE projected from rbcc; no local duplicate consts; no\nbare path-join magic strings; tt/rbw-tb.Build.sh and tt/rbw-tt.Test.sh green.",
+              "jjgtn_silks": "rbrv-env-rust-sweep",
+              "jjgtn_basis": "092018e"
+            },
+            {
               "jjgtn_ts": "260608-1107",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": "## Character\nMechanical — RCG Constant Discipline: dedup plus magic-string removal in the\ntheurge crate (rbtd).\n\n## Goal\nThe same single-home treatment for rbrv.env in Rust.\n\n## Locked\n- Add RBTDGC_RBRV_FILE to the regime-file family in rbtdgc_consts.rs (sibling to\n  RBTDGC_RBRN_FILE / RBRA_FILE / RBRO_FILE).\n- Collapse the two ad-hoc local consts onto it — discover the `const ... =\n  \"rbrv.env\"` definitions in rbtdro_onboarding.rs and rbtdrp_pristine.rs — and\n  replace the bare `path.join(\"rbrv.env\")` magic strings. Comments and\n  error-format-strings keep the literal.\n\n## Done\nOne shared RBTDGC_RBRV_FILE; no local duplicate consts; no bare path-join magic\nstrings; tt/rbw-tb.Build.sh and tt/rbw-tt.Test.sh green.",
