@@ -9356,9 +9356,10 @@
       "jjghn_status": "jjghe_stabled",
       "jjghn_order": [
         "₢BbAAA",
-        "₢BbAAB"
+        "₢BbAAB",
+        "₢BbAAC"
       ],
-      "jjghn_next_pace_seed": "AAC",
+      "jjghn_next_pace_seed": "AAD",
       "jjghn_paces": {
         "₢BbAAA": {
           "jjgpn_tacks": [
@@ -9379,6 +9380,17 @@
               "jjgtn_text": "## Character\nTerm-agnostic test infrastructure — build the engine, not the word list.\nSelf-proving; zero real evicted terms.\n\n## Goal\nStand up the vocabulary-eviction mechanism as a theurge fixture (fast tier, no\ndeps): a data-driven engine reading rows of {kill_stem, keep_contexts}, scanning\nTools/ and tt/ for each kill_stem with identifier-boundary awareness, asserting\nzero hits outside the declared keep_contexts. Ship one self-test row proving both\na caught violation and a respected keep-context — but NO production evicted terms\n(population is deferred, per-cluster, behind each term's own cutover).\n\n## Locked\n- One engine for all terms: a pure corpse is a row with empty keep_contexts. Do\n  not split grep-for-simple / code-for-overloaded.\n- Identifier/sprue awareness is the whole reason this is code, not grep —\n  keep_contexts must distinguish a kill-stem-as-token from the same stem living\n  inside a kept identifier.\n- Register in the fast suite. New fixture file; the engine is independent of any\n  heat's specific rename.\n- Name it in ACG: add the section declaring this fixture THE canonical home for\n  evicted-term assertions, with the rule \"retire a term -> add a row here, never\n  improvise a grep.\" Mirrors the BUK guide naming bug_require_clean_tree as the\n  canonical clean-tree gate.\n\n## Done\nFixture green in fast with its self-test row (one caught violation, one respected\nkeep-context); ACG precisely names it as the evicted-term home; no production\nevicted terms yet.",
               "jjgtn_silks": "vocab-eviction-mechanism",
               "jjgtn_basis": "ca74d33"
+            }
+          ]
+        },
+        "₢BbAAC": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260608-1057",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nStable-noun curation — terms are BH/BZ-safe so the docket is concrete, but\nexecution is file-gated on BH.\n\n## Goal\nCurate the crucible-runtime noun cluster (Crucible, Bottle, Sentry, Pentacle):\neach traces to one canonical home (RBS0 quoin; RBYC fragment where\nhandbook-surfaced), and its drift-prone uses are made consistent — enrollment\ndescriptions and doc_briefs agree, no variant spellings, no in-source comment\nre-definitions of what the noun means.\n\n## Locked\n- Curate, never evict — these nouns live. Removal of dead terms is the ₢BbAAB\n  mechanism + BH's vocab scrub, not here.\n- Target only drift-prone uses (cross-referencing descriptions, variant\n  spellings, comment re-definitions); leave legitimate prose mentions alone.\n- Apply ACG's reference-the-home discipline.\n\n## Gate\nAfter ₣BH (lode-universal-capture) lands — these descriptions live in\nrbz_zipper.sh and the doc_briefs BH is rewriting.\n\n## Done\nEach cluster noun traces to one home; descriptions and doc_briefs consistent; no\nvariant spellings or in-source re-definitions survive; fast green.",
+              "jjgtn_silks": "noun-cluster-crucible-family",
+              "jjgtn_basis": "e373ee8"
             }
           ]
         }
