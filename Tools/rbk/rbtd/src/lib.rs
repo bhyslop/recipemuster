@@ -49,6 +49,7 @@ pub mod rbtdri_invocation;
 pub mod rbtdrk_canonical;
 pub mod rbtdrl_calibrant;
 pub mod rbtdrm_manifest;
+pub mod rbtdrn_conformance;
 pub mod rbtdro_onboarding;
 pub mod rbtdrp_pristine;
 pub mod rbtdru_cupel;

@@ -67,6 +67,9 @@ pub const RBTDRM_FIXTURE_REGIME_VALIDATION: &str = "regime-validation";
 pub const RBTDRM_FIXTURE_REGIME_SMOKE: &str = "regime-smoke";
 pub const RBTDRM_FIXTURE_HANDBOOK_RENDER: &str = "handbook-render";
 pub const RBTDRM_FIXTURE_DOCKERFILE_HYGIENE: &str = "dockerfile-hygiene";
+// Conformance — vocabulary-eviction static analysis over Tools/ and tt/. No
+// external dependency; the standing home for evicted-term assertions (ACG).
+pub const RBTDRM_FIXTURE_CONFORMANCE: &str = "conformance";
 // Foundry-path — buc_native_path_capture Cygwin /cygdrive normalizer. No
 // external dependency; pure bash-function unit test sourced direct (no kindle).
 pub const RBTDRM_FIXTURE_FOUNDRY_PATH: &str = "foundry-path";
@@ -198,6 +201,7 @@ pub fn rbtdrm_required_colophons(fixture: &str) -> Option<&'static [&'static str
         | RBTDRM_FIXTURE_REGIME_SMOKE
         | RBTDRM_FIXTURE_FOUNDRY_PATH
         | RBTDRM_FIXTURE_CUPEL
+        | RBTDRM_FIXTURE_CONFORMANCE
         | RBTDRM_FIXTURE_CALIBRANT_VERDICTS
         | RBTDRM_FIXTURE_CALIBRANT_FAIL_FAST
         | RBTDRM_FIXTURE_CALIBRANT_PROGRESSING

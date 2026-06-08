@@ -105,14 +105,34 @@ Three rules ride that litmus:
    moving. A sweep run against vocabulary two heats are still relocating only
    re-creates the drift it meant to kill.
 2. **A checker proves itself against a known answer before its output is
-   trusted.** The vocabulary-eviction / conformance fixture (fast tier) is the
-   canonical home for such checks — ACG eating its own dog food: a named home,
-   referenced not recreated. Retire a term → add a row there, never improvise a
-   grep.
+   trusted.** The conformance fixture (next section) is the canonical home for
+   such checks — ACG eating its own dog food: a named home, referenced not
+   recreated.
 3. **Concept linkage is name-identity.** The implementing symbol *is* the link: a
    function name equals its quoin's display-text, a tabtarget filename is the
    quoin's sprue, a scoped method is its inlay. A source-to-spec comment is the
    *exception*, reserved for where no single symbol can carry the link.
+
+## The named home — the conformance fixture
+
+Rule 2 and move-types ACGm_102/103 all defer to one concrete home: the
+**`conformance`** fast-tier theurge fixture
+(`Tools/rbk/rbtd/src/rbtdrn_conformance.rs`), registered in the `fast` suite. It
+is to evicted vocabulary what BUK's `bug_require_clean_tree` is to the clean-tree
+gate — the single named place the check lives, so no caller improvises its own.
+
+The fixture is a data-driven engine, not a word list. It reads rows of
+`{kill_stem, keep_contexts}` and scans `Tools/` and `tt/` with identifier-boundary
+awareness, flagging a stem as a bare token while sparing it inside a kept
+identifier (`Identifier`) or under an exempt path (`PathPrefix`). A row with empty
+`keep_contexts` is a *pure corpse* — the term must appear nowhere. The engine
+proves itself against known inputs before its verdict on the live tree is trusted
+(move discipline, rule 2), so it ships proven with zero production rows.
+
+**The rule: retire a term → add a row there. Never improvise a grep.** Population
+is deliberately deferred — each term gains its row behind its own cutover, owned
+by the heat retiring it — never against vocabulary a hot heat is still moving
+(move discipline, rule 1).
 
 ## The Move Catalog
 
