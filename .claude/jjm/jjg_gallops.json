@@ -9326,9 +9326,23 @@
       "jjghn_silks": "jjk-v4-3-create-worksite-repo",
       "jjghn_creation_time": "260608",
       "jjghn_status": "jjghe_stabled",
-      "jjghn_order": [],
-      "jjghn_next_pace_seed": "AAA",
-      "jjghn_paces": {}
+      "jjghn_order": [
+        "₢BaAAA"
+      ],
+      "jjghn_next_pace_seed": "AAB",
+      "jjghn_paces": {
+        "₢BaAAA": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260608-0953",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nDoc authoring from settled design — shape fully derived in the seed conversation\n(see paddock); transcription, not invention.\n\nCreate ACG (Allocation Coding Guide) as a veiled markdown guide. Veiled (a\nvov_veiled/ directory), guide-family sibling to BCG/RCG/WSG/CBG; exact kit home\nis a mount-time call. Proprietary — not released at MVP. Register the mint: add\nthe ACG acronym + expansion to the relevant claude-*-context.md acronym map and\nthe CLAUDE.md guide registry.\n\nSpine: don't recreate inline what has a named home; reference the home. Values ->\nconstants; concepts -> quoin-refs. MCM builds the homes; ACG owns source's\nobligation to reference them rather than recreate.\n\nCover at sapling depth:\n- Three homes by when-read: design-time -> spec; edit-time -> source comment\n  (operational mechanics only — language idiom + Pale/foreign-boundary);\n  execution-time -> runtime announcement.\n- Two source-doc forms: contract header (bounded comment, only where the\n  contract is not self-evident from name+body); intent announcement (crisp\n  printout on the verb surface). Mechanism is BUC/BCG; ACG owns when+what, not\n  the buc_* how.\n- Runtime education both paths: happy path announces intent; failure path\n  discloses the option space (live exemplar: rbfc_require_vessel_sigil).\n\nPosture: bless and name emergent practices; state the spine. Do NOT mandate\nuniversals (e.g. \"every verb must announce\") — mark as candidates. No\nqualify-enforcement in v1.",
+              "jjgtn_silks": "acg-v1-author-allocation-guide",
+              "jjgtn_basis": "64a8e60"
+            }
+          ]
+        }
+      }
     }
   }
 }
