@@ -114,3 +114,54 @@ The vme.extractor.sh script was an earlier standalone tool for manifest introspe
 The file rbp.podman.mk contains historical Makefile prototypes from the GHCR era. These Makefile targets served as an initial exploration of the VM mirroring workflow but have been fully superseded by the rbv_PodmanVM.sh module, which provides a more robust and maintainable implementation.
 
 The implementation has never been ported from GitHub Container Registry to Google Artifact Registry. This migration remains necessary for production use within the Recipe Bottle architecture, which standardizes on Google Cloud infrastructure for its depot and service account management.
+
+== 2026-06 cerebro characterization (Lode model supersession)
+
+The prototype above (ignite-VM, GHCR, `RBRM_*` regime, FROM-scratch repackage) is
+superseded by the universal Lode capture model (heat ₣BH). An off-station
+experiment on 2026-06-08 (full record: `Memos/memo-20260608-lode-podvm-cerebro-experiment.md`)
+characterized the live upstream artifacts and settled the cloud-layer tool choice.
+Findings durable enough to record here:
+
+* *Both families captured cleanly into the depot `rbi_ld` GAR with provenance* and
+  proven controllable via the existing host-side `divine` / `banish`, anchored at
+  podman 5.6 (`quay.io/podman/machine-os:5.6` index
+  `sha256:6aa8bfeb41a8ce76b52277f5a609e5adeb097725ca4c3591c8ce2b4f4446dd47`;
+  `quay.io/podman/machine-os-wsl:5.6` index
+  `sha256:61bb25d36420d8eedf240cbb12deee90b6ff6e31e2d5aba224f537f8bcafdb05`).
+
+* *Leaf shape is now precise.* Each disk leaf is an OCI *artifact* — config
+  `application/vnd.oci.empty.v1+json` (2 bytes) plus a *single*
+  `application/zstd` blob with the filename in `org.opencontainers.image.title`.
+  The blob is a *distributable* media type; there are no foreign / non-distributable
+  markers. The layer title is unreliable for version/arch (the 5.6 wsl x86_64 leaf
+  is titled `5.0-rootfs-amd64.tar.zst`) — selection must key on the index
+  descriptor `platform` + `annotations.disktype`, never the layer filename.
+
+* *The native index is heterogeneous.* `machine-os` mixes two real container
+  images (`{arm64, amd64}`, no disktype, ~65 `tar+gzip` layers) with eight disk
+  artifacts (`{aarch64, x86_64} × {applehv, hyperv, qemu, wsl}`). `machine-os-wsl`
+  holds only `wsl` disktype × `{x86_64, aarch64}`. The families also diverge in
+  version coverage (native to 6.0 + `next`; wsl only to 5.6) and tag scheme (native
+  dropped per-arch tags at 5.4) — pin per-family, never assume parity.
+
+* *Tool verdict.* `crane cp` and `oras cp` both copy a disk leaf to GAR with
+  *byte-identical* digest fidelity. skopeo is confirmed out, but on a *different
+  ground than first recorded*: its cooked operations *fatal* on the empty-config
+  artifact (`unsupported image-specific operation on artifact with type
+  "application/vnd.oci.empty.v1+json"`) — a *loud* failure in the strict-artifact
+  family, not the *silent* foreign-layer skip the earlier rationale assumed (that
+  skip cannot occur here, the blobs being distributable). Production tool choice is
+  *crane* (Google's go-containerregistry, get-by-digest-or-error matching the
+  recorded trust grade, uniform over artifacts and images), with *oras* an
+  equal-fidelity fallback.
+
+* *Cloud direction.* Production capture runs cloud-side on the Lode spine (a new
+  `rbgjl05` immure step + `rbldv_` opaque-blob × multi-member body + a
+  `podvm-lifecycle` theurge fixture), `crane cp`-ing selected leaves by digest into
+  `rbi_ld/<vn|vw><stamp>` and reusing the existing `rbgjl02` vouch step. The
+  ignite-VM bootstrap dissolves entirely — Cloud Build carries crane natively. Trust
+  grade is `recorded-at-acquisition` (quay publishes no durable checksum and rotates
+  within days). The anti-hollow-mirror guard is a host-side GAR registry-v2 blob
+  `HEAD` asserting `Content-Length` equals the declared layer size — no image tool.
+  See the memo §7 for the follow-up pace's full build sheet.
