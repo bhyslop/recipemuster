@@ -214,9 +214,12 @@ zrbgc_kindle() {
   # subtree delete). Stamp matches the hallmark second-granular form YYMMDDHHMMSS.
   #
   # Kind letters (one per capture kind; podvm carries two for its quay families):
-  #   b  bole | t  tool | r  reliquary | w  wsl | vw  podvm-wsl | vn  podvm-native
+  #   b  bole | r  reliquary | w  wsl | vw  podvm-wsl | vn  podvm-native
+  # Five kinds, not six: the single-tool kind ('t') was dropped as non-load-
+  # bearing — it split from reliquary on cardinality alone, has no consumer
+  # (tool images are only ever consumed as a co-versioned cohort), and the
+  # package layer already carries 1-vs-N for free (RBSL "Why five kinds, not four").
   readonly RBGC_LODE_KIND_BOLE="b"
-  readonly RBGC_LODE_KIND_TOOL="t"
   readonly RBGC_LODE_KIND_RELIQUARY="r"
   readonly RBGC_LODE_KIND_WSL="w"
   readonly RBGC_LODE_KIND_PODVM_WSL="vw"
@@ -225,17 +228,21 @@ zrbgc_kindle() {
   # Kind-brand enum — the touchmark's kind carried in the host-side single-form
   # chaining fact a derived-pull election reads to resolve the member tag. It is
   # read as its own fact, NOT parsed from the touchmark's kind-letter prefix
-  # (the chaining channel is single-form: opaque values, never parsed). Only the
-  # landed bole kind today; later kinds add their brand here with their vertical.
+  # (the chaining channel is single-form: opaque values, never parsed). Bole and
+  # reliquary land today; later kinds add their brand here with their vertical.
   readonly RBGC_LODE_BRAND_BOLE="bole"
+  readonly RBGC_LODE_BRAND_RELIQUARY="reliquary"
 
   # Member/provenance tags. The rbi_ sprue marks strings from RB's domain:
   # RB's authored lexicon (bole, vouch) and RB-measured-from-content values
   # (the digest). It does NOT mark foreign-cued strings — the sanitized-origin
   # tag is UNSPRUED (origin is a vessel cue), computed at capture, not a constant.
+  readonly RBGC_LODE_TAG_SPRUE="rbi_"               # RB reserved tag prefix; member tags compose as <sprue><name>
   readonly RBGC_LODE_TAG_BOLE="rbi_bole"            # uniform greppable handle (bole singleton)
   readonly RBGC_LODE_TAG_VOUCH="rbi_vouch"          # one-per-Lode provenance envelope
   readonly RBGC_LODE_TAG_DIGEST_PREFIX="rbi_sha256-"  # canonical OCI digest tag: rbi_sha256-<full-hex>
+  # reliquary cohort members carry the clean scheme :<sprue><tool> (e.g. rbi_skopeo)
+  # — no digest/fingerprint layer; the tool name is RB-authored lexicon, so sprued.
 
   # Provenance envelope (:rbi_vouch) — two honest trust grades, declared per Lode.
   # bole captures the durable-upstream grade; podvm-* will carry the recorded grade.

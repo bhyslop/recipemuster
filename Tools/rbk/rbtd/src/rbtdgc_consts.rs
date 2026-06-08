@@ -31,6 +31,7 @@ pub const RBTDGC_INFO_DEPOT: &str = "rbw-di";
 pub const RBTDGC_INSCRIBE_RELIQUARY: &str = "rbw-dI";
 pub const RBTDGC_YOKE_RELIQUARY: &str = "rbw-dY";
 pub const RBTDGC_ENSCONCE_BOLE: &str = "rbw-lE";
+pub const RBTDGC_CONCLAVE_RELIQUARY: &str = "rbw-lC";
 pub const RBTDGC_DIVINE_LODES: &str = "rbw-ld";
 pub const RBTDGC_BANISH_LODE: &str = "rbw-lB";
 pub const RBTDGC_PAYOR_INSTALL: &str = "rbw-gPI";

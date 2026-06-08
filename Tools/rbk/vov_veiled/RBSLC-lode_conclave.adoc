@@ -1,0 +1,128 @@
+//axhob_operation
+{rbtgo_lode_conclave}
+
+NOTE: This operation captures the build-tool cohort into a single
+{rbtga_lode}
+— one
+{gar_service}
+package under the
+{gar_lodes_namespace}
+namespace, identified by a host-minted
+{rbtga_touchmark}.
+It is the reliquary kind: the co-versioned set of Cloud Build tool images (gcloud, docker, alpine, syft, binfmt, skopeo) consumed as a build toolset.
+It absorbs the legacy inscribe tool-mirror — retargeted from the per-tool sibling-package layout to N member tags within one Lode package, plus the unifying
+{rbtga_lode_vouch}
+envelope.
+
+NOTE: Acquisition runs cloud-side.
+The
+{rbtr_director}
+submits a
+{gcb_service}
+job on the tethered (egress-permitted) pool, executed by the
+{rbtr_mason}
+service account via the metadata server.
+The workstation never fetches the upstream bytes — it trusts the GCP environment over a potentially-compromised station.
+
+NOTE: Conclave bootstraps from no reliquary.
+The tool images captured here ARE a reliquary, so capture cannot resolve its builders from one.
+Both steps ride the Google-hosted `gcr.io/cloud-builders/docker` builder (always pullable), and the
+{rbtga_lode_vouch}
+envelope — not the acquisition tool — is the unifier, so a docker-pull path alongside the bole kind's skopeo capture is correct.
+
+NOTE: Conclave is capture-pure.
+It mints the Lode, emits the
+{rbtga_lode_vouch}
+provenance envelope, and reports the touchmark — but writes NO consumer config.
+Election (where a vessel pins the reliquary touchmark) is a separate consumption-side yoke-stamp layer that reads the
+{rbf_fact_lode}
+this operation writes; it is not part of conclave.
+
+The
+{rbtr_director}
+convenes a reliquary cohort into a Lode:
+
+//axhos_step
+. *Authenticate as
+{rbtr_director}*:
+.. Execute
+{rbtoe_director_authenticate}
+.. {rbbc_store}
+`«DIRECTOR_TOKEN»` for subsequent API calls
+
+//axhos_step
+. *Mint Touchmark (host-side)*:
+.. {rbbc_store}
+`«TOUCHMARK»` as the reliquary kind-letter `r` + `YYMMDDHHMMSS` from current time
+.. The host owns the stamp so the touchmark — and thus the
+{rbf_fact_lode}
+path — is known before the build
+.. Example: `r260602120000`
+
+//axhos_step
+. *Submit Two-Step Capture Cloud Build*:
+.. Compose `builds.create` JSON with:
+... Step 1 — the Google-hosted docker builder image, script `rbgjl03-conclave-capture.sh` (the cohort capture step)
+... Step 2 — the Google-hosted docker builder image, script `rbgjl02-assemble-push-vouch.sh` (the vouch push)
+... substitutions carrying GAR host/path, the
+{gar_lodes_namespace}
+root, `«TOUCHMARK»`, the member-tag sprue, the acquiring SA email, the trust grade, and the envelope schema
+... serviceAccount:
+{rbtr_mason}
+... pool: tethered (upstream pull requires public egress)
+.. {rbbc_submit}
+link:https://cloud.google.com/build/docs/api/reference/rest/v1/projects.locations.builds/create[builds.create] with:
+... project:
+{rbtgi_depot_project}
+... location:
+{rbrd_gcp_region}
+.. {rbbc_store}
+`«BUILD_ID»` from response `.metadata.build.id`
+.. {rbbc_show}
+build dispatched with `«BUILD_ID»` and the Cloud Console URL
+
+//axhos_step
+. *Capture Step (in-pool — rbgjl03)*:
+.. For each tool in the co-versioned cohort manifest (`<short-name>|<upstream-ref>`):
+... Pull the upstream image (`docker pull`) and record its `RepoDigests` digest for the envelope
+... Tag and push it into the one Lode package under the clean member tag `:rbi_<tool>` (`docker tag` / `docker push`) — a distinct manifest per tool, all sharing the one package; no digest or fingerprint layer
+.. Author the
+{rbtga_lode_vouch}
+envelope JSON (schema `rbld-vouch-1`, trust grade `verified-against-published`, `members[]` one element per tool — the cardinality axis) and stage it on the {rbtgr_workspace}
+.. Write the result JSON (carrying the host-minted touchmark) to `buildStepOutputs`
+
+//axhos_step
+. *Vouch Step (in-pool — rbgjl02)*:
+.. For the staged envelope, build a `FROM scratch` image copying `vouch.json` and push it to the Lode package under the `:rbi_vouch` tag — a distinct manifest sharing the one package
+
+//axhos_step
+. *Wait for Build Completion*:
+.. {rbbc_poll}
+link:https://cloud.google.com/build/docs/api/reference/rest/v1/projects.locations.builds/get[cloudbuild.builds.get] for `«BUILD_ID»`
+.. {rbbc_require}
+final status is `SUCCESS`
+
+//axhoot_typed_output
+{rbf_fact_lode}
+. *Write Capture-Facts*:
+.. Read `buildStepOutputs[0]` (base64-decoded JSON) from the completed build to recover the host-minted `«TOUCHMARK»`
+.. {rbbc_store}
+the touchmark value and the reliquary kind-brand enum as the two bare single-form facts of the
+{rbf_fact_lode}
+— carrying no provenance content; the envelope is the in-GAR `:rbi_vouch` tag, written cloud-side by the vouch step
+
+//axhoc_completion
+Successful execution captures the build-tool cohort into a single
+{gar_service}
+package at `{gar_lodes_namespace}/«TOUCHMARK»`, carrying each tool manifest under its `:rbi_<tool>` member tag plus the `:rbi_vouch`
+{rbtga_lode_vouch}
+envelope, and hands the touchmark forward host-side as the
+{rbf_fact_lode}.
++
+The operation is capture-pure: no vessel or nameplate config is written.
+A vessel elects the reliquary touchmark separately by reading the capture-file — so election retries independently and survives, and a one-to-many fan-out across vessels iterates by reading the file rather than by a verb taking N vessel arguments.
++
+Compound provenance is batch-level (the cohort as a whole carries one
+{rbtga_lode_vouch});
+members stay individually manipulable for post-bug cleanup but need not each carry independent attestation.
+The legacy inscribe tool-mirror remains live during the reliquary cutover; conclave does not retire it.

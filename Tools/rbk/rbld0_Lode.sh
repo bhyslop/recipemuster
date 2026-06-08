@@ -34,6 +34,7 @@ source "${BASH_SOURCE[0]%/*}/rbfc0_FoundryCore.sh"
 source "${BASH_SOURCE[0]%/*}/rbldl_Lifecycle.sh"
 source "${BASH_SOURCE[0]%/*}/rblds_Spine.sh"
 source "${BASH_SOURCE[0]%/*}/rbldb_Bole.sh"
+source "${BASH_SOURCE[0]%/*}/rbldr_Reliquary.sh"
 
 ######################################################################
 # Internal Functions (zrbld_*)
@@ -55,6 +56,16 @@ zrbld_kindle() {
 
   buc_log_args 'Define ensconce operation file prefix'
   readonly ZRBLD_ENSCONCE_PREFIX="${BURD_TEMP_DIR}/rbld_ensconce_"
+
+  buc_log_args 'Define conclave operation file prefix'
+  readonly ZRBLD_CONCLAVE_PREFIX="${BURD_TEMP_DIR}/rbld_conclave_"
+
+  # Google-hosted docker builder — always pullable even under NO_PUBLIC_EGRESS.
+  # Conclave captures the reliquary tool cohort itself, so it cannot resolve its
+  # builders from a reliquary (the bootstrap it would be creating); both conclave
+  # steps ride this Google-hosted builder instead of the reliquary-resolved docker.
+  buc_log_args 'Define Google-hosted docker builder image'
+  readonly ZRBLD_GOOGLE_DOCKER_BUILDER="gcr.io/cloud-builders/docker"
 
   buc_log_args 'Define divine operation file prefix'
   readonly ZRBLD_DIVINE_PREFIX="${BURD_TEMP_DIR}/rbld_divine_"
