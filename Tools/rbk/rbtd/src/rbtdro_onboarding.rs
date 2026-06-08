@@ -54,7 +54,7 @@ use crate::rbtdgc_consts::{
     RBTDGC_CONTAINER_SENTRY,
     RBTDGC_CRUCIBLE_KLUDGE_BOTTLE,
     RBTDGC_CRUCIBLE_KLUDGE_SENTRY,
-    RBTDGC_ENSHRINE_VESSEL,
+    RBTDGC_ENSCONCE_BOLE,
     RBTDGC_INSCRIBE_RELIQUARY,
     RBTDGC_JETTISON_HALLMARK_IMAGE,
     RBTDGC_ORDAIN_HALLMARK,
@@ -63,7 +63,6 @@ use crate::rbtdgc_consts::{
     RBTDGC_REKON_HALLMARK,
     RBTDGC_ACCOUNT_GOVERNOR,
     RBTDGC_SUMMON_HALLMARK,
-    RBTDGC_VERB_ENSHRINE,
     RBTDGC_VERB_INSCRIBE,
     RBTDGC_VERB_KLUDGE,
     RBTDGC_VERB_ORDAIN,
@@ -123,7 +122,7 @@ const RBTDRO_CONSUMERS_JUPYTER_BOTTLE: &[&str] = &[RBTDRO_NAMEPLATE_SRJCL];
 // hallmark is captured. Orchestration writes a hallmark-namespace locator
 // directly into the consumer vessel's rbrv.env; conjure resolves the locator
 // at airgap-bottle build time. The forge hallmark's existence in GAR is
-// established by ordain-forge's success — no separate enshrine validation
+// established by ordain-forge's success — no separate base-capture validation
 // step on the consumer.
 
 /// Slot 1 of the airgap-bottle vessel — the only base-image slot the airgap
@@ -363,11 +362,11 @@ fn rbtdro_yoke(
     Ok(())
 }
 
-/// Enshrine one vessel — mirrors that vessel's RBRV_IMAGE_n_ORIGIN bases
-/// to GAR and writes back the resulting RBRV_IMAGE_n_ANCHOR digests.
-/// `rbfd_enshrine` is per-vessel; the airgap chain calls this twice with
-/// different vessels (forge first, then airgap-bottle).
-fn rbtdro_enshrine(
+/// Ensconce one vessel's upstream base into a bole Lode (rbw-lE). Capture-pure:
+/// it emits the touchmark chaining fact but writes no vessel config. The
+/// subsequent ordain's derived-pull election reads that fact and populates the
+/// vessel's RBRV_IMAGE_n_ANCHOR, so ensconce must immediately precede ordain.
+fn rbtdro_ensconce(
     ctx: &mut rbtdri_Context,
     dir: &Path,
     vessel_sigil: &str,
@@ -375,9 +374,9 @@ fn rbtdro_enshrine(
 ) -> Result<(), rbtdre_Verdict> {
     rbtdro_invoke_or_fail(
         ctx,
-        RBTDGC_VERB_ENSHRINE,
+        "ensconce",
         vessel_sigil,
-        RBTDGC_ENSHRINE_VESSEL,
+        RBTDGC_ENSCONCE_BOLE,
         &[vessel_sigil],
         &[],
         dir,
@@ -984,7 +983,7 @@ fn rbtdro_onboarding_ordain_conjure_jupyter_impl(ctx: &mut rbtdri_Context, dir: 
     rbtdre_Verdict::Pass
 }
 
-/// Walk the airgap supply chain: enshrine upstream rust base into forge,
+/// Walk the airgap supply chain: ensconce upstream rust base into forge,
 /// conjure the forge tethered, write the forge-hallmark locator into the
 /// airgap vessel's base anchor (no copy — orchestration writes the locator
 /// directly), conjure the airgap bottle.
@@ -1010,20 +1009,18 @@ fn rbtdro_onboarding_ordain_airgap_chain_impl(ctx: &mut rbtdri_Context, dir: &Pa
         .next()
         .unwrap_or(RBTDRO_VESSEL_DIR_AIRGAP_FORGE);
 
-    if let Err(v) = rbtdro_enshrine(ctx, dir, forge_sigil, "enshrine-upstream") {
-        return v;
-    }
-    // Commit before ordain-forge: ordain has clean-tree precondition. Enshrine
-    // wrote the forge vessel's RBRV_IMAGE_n_ANCHOR digests.
-    if let Err(v) = rbtdro_git_commit(
-        &[rbtdro_vessel_rbrv_path(RBTDRO_VESSEL_DIR_AIRGAP_FORGE)],
-        "ordain-airgap: enshrine upstream rust base into forge vessel",
-    ) {
+    // Ensconce the forge vessel's upstream rust base into a bole Lode. Capture is
+    // pure — it emits the touchmark chaining fact but writes no vessel config, so
+    // there is nothing to commit yet, and ensconce must immediately precede
+    // ordain-forge so the depth-1 chain carries the touchmark forward.
+    if let Err(v) = rbtdro_ensconce(ctx, dir, forge_sigil, "ensconce-upstream") {
         return v;
     }
 
-    // Capture the forge hallmark — it becomes the airgap-bottle's base via
-    // a hallmark-namespace locator (mechanism (c)).
+    // Ordain the forge vessel — its derived-pull election reads the touchmark the
+    // ensconce handed forward and writes RBRV_IMAGE_n_ANCHOR before the build. The
+    // forge hallmark becomes the airgap-bottle's base via a hallmark-namespace
+    // locator (mechanism (c)).
     let forge_hallmark = match rbtdro_ordain_capture(
         ctx,
         dir,
@@ -1034,6 +1031,16 @@ fn rbtdro_onboarding_ordain_airgap_chain_impl(ctx: &mut rbtdri_Context, dir: &Pa
         Ok(h) => h,
         Err(v) => return v,
     };
+
+    // Commit the elected ANCHOR that ordain-forge wrote into the forge vessel —
+    // election is operator-committed, and a clean tree is needed before the
+    // airgap-bottle anchor write + ordain-airgap below.
+    if let Err(v) = rbtdro_git_commit(
+        &[rbtdro_vessel_rbrv_path(RBTDRO_VESSEL_DIR_AIRGAP_FORGE)],
+        "ordain-airgap: elect bole touchmark into forge vessel base anchor",
+    ) {
+        return v;
+    }
 
     // Write the hallmark-base locator into airgap-bottle's rbrv.env. The slot
     // points at the forge image inside its hallmark subtree; conjure resolves
@@ -1057,7 +1064,7 @@ fn rbtdro_onboarding_ordain_airgap_chain_impl(ctx: &mut rbtdri_Context, dir: &Pa
 
     // Commit the locator write before ordain-airgap: ordain has clean-tree
     // precondition. The forge hallmark's existence in GAR is established by
-    // ordain-forge's success above — no separate enshrine validation step.
+    // ordain-forge's success above — no separate base-capture validation step.
     if let Err(v) = rbtdro_git_commit(
         &[rbtdro_vessel_rbrv_path(RBTDRO_VESSEL_DIR_AIRGAP_BOTTLE)],
         "ordain-airgap: write forge-hallmark locator into airgap-bottle base anchor",

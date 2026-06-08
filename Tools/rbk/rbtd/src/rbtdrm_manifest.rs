@@ -237,7 +237,7 @@ pub fn rbtdrm_required_colophons(fixture: &str) -> Option<&'static [&'static str
         RBTDRM_FIXTURE_ONBOARDING_SEQUENCE => Some(&[
             RBTDGC_INSCRIBE_RELIQUARY,
             RBTDGC_YOKE_RELIQUARY,
-            RBTDGC_ENSHRINE_VESSEL,
+            RBTDGC_ENSCONCE_BOLE,
             RBTDGC_ORDAIN_HALLMARK,
             RBTDGC_CRUCIBLE_KLUDGE_SENTRY,
             RBTDGC_CRUCIBLE_KLUDGE_BOTTLE,

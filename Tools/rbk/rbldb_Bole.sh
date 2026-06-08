@@ -20,15 +20,18 @@
 #   ensconce — capture an upstream base image into a Lode (Director credentials)
 # The bole rides the capture-assembly spine (rblds_): this body owns only the
 # kind-specific data — the ensconce recipe (skopeo capture + docker vouch push),
-# the substitutions blob, and the per-member envelope extract loop — and composes
-# them through zrbld_spine_dispatch / zrbld_spine_extract. No build-submission or
+# the substitutions blob, and the touchmark-fact extract — and composes them
+# through zrbld_spine_dispatch / zrbld_spine_extract. No build-submission or
 # step-composition machinery lives here.
 
 set -euo pipefail
 
-# Capture-file extension for buf_write_fact_multi (filesystem-as-data-bus).
-# Pure literal tinder — one provenance fact-file per captured Lode, keyed by
-# stamp: "<stamp>.${RBCC_fact_ext_lode}". Mirrors the roster fact precedent.
+# Ensconce is capture-pure: it writes no consumer config. It hands the captured
+# touchmark to a later derived-pull election (the conjure ANCHOR populator)
+# through two bare single-form chaining facts (RBF_FACT_LODE_TOUCHMARK +
+# RBF_FACT_LODE_BRAND) via the depth-1 cross-tabtarget chain. The provenance
+# envelope lives only in GAR (:rbi_vouch tag, pushed cloud-side by rbgjl02),
+# never host-side.
 
 ######################################################################
 # Internal Helpers (zrbld_*)
@@ -96,11 +99,15 @@ zrbld_ensconce_submit() {
     "${z_recipe[@]}"
 }
 
-# Internal: extract per-Lode provenance envelopes from the completed ensconce
-# build and write one capture-file per Lode member. The skopeo capture step
-# (step 0) authors the base64 JSON; the docker vouch step writes no output. The
-# spine decodes step 0's slot to a file; the per-member slot_n envelope below is
-# bole's shape, not the spine's.
+# Internal: extract the captured touchmark from the completed ensconce build and
+# emit the two bare single-form chaining facts (touchmark value + kind-brand
+# enum). The skopeo capture step (step 0) authors the base64 JSON carrying the
+# host-minted stamp per slot; the docker vouch step writes no output. Base-kind
+# ensconce captures exactly one base, so exactly one slot is populated — the
+# single-form facts are one-per-dispatch and buf_write_fact_single's no-clobber
+# guard turns any second populated slot into a loud failure. The provenance
+# envelope is NOT read host-side: it lives only in GAR (rbgjl02 pushed it under
+# :rbi_vouch), so the host hands forward only the touchmark a consumer needs.
 zrbld_ensconce_extract() {
   zrbld_sentinel
 
@@ -116,8 +123,6 @@ zrbld_ensconce_extract() {
   local z_slot_key=""
   local z_stamp_file=""
   local z_stamp=""
-  local z_vouch_file=""
-  local z_vouch=""
   for z_n in 1 2 3; do
     z_slot_key="slot_${z_n}"
     z_stamp_file="${ZRBLD_ENSCONCE_PREFIX}${z_n}_stamp.txt"
@@ -126,14 +131,11 @@ zrbld_ensconce_extract() {
     z_stamp=$(<"${z_stamp_file}")
     test -n "${z_stamp}" || continue
 
-    z_vouch_file="${ZRBLD_ENSCONCE_PREFIX}${z_n}_vouch.json"
-    jq -c ".${z_slot_key}.vouch" "${z_output_file}" > "${z_vouch_file}" \
-      || buc_die "Failed to extract vouch envelope for ${z_slot_key}"
-    z_vouch=$(<"${z_vouch_file}")
-    test -n "${z_vouch}" || buc_die "Empty vouch envelope for ${z_slot_key}"
-
-    buf_write_fact_multi "${z_stamp}" "${RBCC_fact_ext_lode}" "${z_vouch}"
-    buc_success "Ensconced Lode ${z_stamp} — capture-file ${z_stamp}.${RBCC_fact_ext_lode}"
+    buf_write_fact_single "${RBF_FACT_LODE_TOUCHMARK}" "${z_stamp}" \
+      || buc_die "Failed to write touchmark fact for ${z_stamp}"
+    buf_write_fact_single "${RBF_FACT_LODE_BRAND}" "${RBGC_LODE_BRAND_BOLE}" \
+      || buc_die "Failed to write kind-brand fact for ${z_stamp}"
+    buc_success "Ensconced Lode ${z_stamp} — touchmark fact emitted (${RBGC_LODE_BRAND_BOLE})"
   done
 }
 

@@ -16,7 +16,7 @@
 #
 # Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 #
-# Recipe Bottle Foundry Director Build - ordain, conjure, enshrine, mirror, graft operations (director credentials)
+# Recipe Bottle Foundry Director Build - ordain, conjure, mirror, graft operations (director credentials)
 
 set -euo pipefail
 
@@ -56,11 +56,6 @@ zrbfd_kindle() {
   readonly ZRBFD_RBGJM_STEPS_DIR="${z_self_dir}/rbgjm"
   test -d "${ZRBFD_RBGJM_STEPS_DIR}"   || buc_die "RBGJM steps directory not found: ${ZRBFD_RBGJM_STEPS_DIR}"
 
-  buc_log_args 'RBGJE enshrine step scripts (same Tools directory)'
-  # Acronym: rbgje = Recipe Bottle Google Json Enshrine (step scripts in rbgje/ dir)
-  readonly ZRBFD_RBGJE_STEPS_DIR="${z_self_dir}/rbgje"
-  test -d "${ZRBFD_RBGJE_STEPS_DIR}"   || buc_die "RBGJE steps directory not found: ${ZRBFD_RBGJE_STEPS_DIR}"
-
   # RBGJI inscribe step scripts now owned by rbfl0_FoundryLedger.sh
 
   # Delete, token, inscribe, reliquary prefixes now owned by rbfl0_FoundryLedger.sh
@@ -77,14 +72,14 @@ zrbfd_kindle() {
   buc_log_args 'Define graft operation files'
   readonly ZRBFD_GRAFT_PREFIX="${BURD_TEMP_DIR}/rbfd_graft_"
 
-  buc_log_args 'Define enshrine operation files'
-  readonly ZRBFD_ENSHRINE_PREFIX="${BURD_TEMP_DIR}/rbfd_enshrine_"
-
-  buc_log_args 'Define enshrine preflight files'
+  buc_log_args 'Define base-image registry preflight files'
   readonly ZRBFD_PREFLIGHT_PREFIX="${BURD_TEMP_DIR}/rbfd_preflight_"
 
   buc_log_args 'Define context push operation files'
   readonly ZRBFD_CONTEXT_PREFIX="${BURD_TEMP_DIR}/rbfd_context_"
+
+  buc_log_args 'Define base-anchor election files'
+  readonly ZRBFD_ELECT_PREFIX="${BURD_TEMP_DIR}/rbfd_elect_"
 
   buc_log_args 'Kindle verify module (cross-module calls from ordain)'
   zrbfv_kindle
@@ -263,10 +258,10 @@ zrbfd_quota_preflight() {
 # to Cloud Build. Checks two layers in dependency order:
 #
 #   1. Reliquary — co-versioned builder tool images (gcloud, docker, syft, etc.)
-#      created by inscribe. One reliquary per depot setup. Enshrine depends on it.
-#   2. Enshrine — upstream base images copied into private GAR, pinned by content
-#      hash. One enshrine per base image anchor. Multiple vessels sharing the same
-#      anchor only need one enshrine.
+#      created by inscribe. One reliquary per depot setup. Base capture depends on it.
+#   2. Base images — upstream bases captured into private GAR as bole Lodes via
+#      ensconce, pinned by content hash. One Lode per base image; the conjure
+#      ANCHOR resolves to it. Multiple vessels sharing a base reuse one Lode.
 #
 # A missing image at either layer causes a Cloud Build failure minutes later.
 # This preflight catches it immediately with copy-paste remediation commands.
@@ -284,13 +279,14 @@ zrbfd_registry_preflight() {
   # --- Layer 1: Reliquary tool images ---
   zrbfd_preflight_reliquary "${z_token}" "${z_vessel_dir}"
 
-  # --- Layer 2: Enshrined base images ---
+  # --- Layer 2: Base images (bole Lodes) ---
   # Each vessel declares base images via RBRV_IMAGE_n_ORIGIN (upstream tag) and
-  # RBRV_IMAGE_n_ANCHOR (locator: package-path:tag). Enshrine copies the upstream
-  # image into the enshrine namespace, pinned by content hash. The conjure
-  # Dockerfile's FROM references the locator-resolved GAR ref, not upstream tag.
+  # RBRV_IMAGE_n_ANCHOR (locator: package-path:tag). Ensconce captures the upstream
+  # image into a bole Lode (rbi_ld), pinned by content hash; the derived-pull
+  # election populates the ANCHOR. The conjure Dockerfile's FROM references the
+  # locator-resolved GAR ref, not the upstream tag.
 
-  buc_step "Verifying enshrined base images exist in GAR"
+  buc_step "Verifying base images exist in GAR"
 
   local z_n=""
   local z_anchor_var=""
@@ -311,7 +307,7 @@ zrbfd_registry_preflight() {
     z_origin="${!z_origin_var:-}"
     z_anchor="${!z_anchor_var:-}"
 
-    # Skip slots without an origin (no base image to enshrine).
+    # Skip slots without an origin (no base image to capture).
     test -n "${z_origin}" || continue
 
     # Anchor handling depends on egress mode. Tether passes through (buildx
@@ -320,12 +316,12 @@ zrbfd_registry_preflight() {
     # a non-empty origin guarantees runtime build failure.
     if test -z "${z_anchor}"; then
       if test "${RBRV_EGRESS_MODE:-}" = "rbnve_airgap"; then
-        # Two anchor-population paths per RBSAE: enshrine (origin is a public
-        # upstream) and hallmark-pin (origin names a producer vessel in this
-        # repo). Discriminate by whether origin resolves to a vessel directory.
+        # Two anchor-population paths: bole capture (origin is a public upstream)
+        # and hallmark-pin (origin names a producer vessel in this repo).
+        # Discriminate by whether origin resolves to a vessel directory.
         if test -d "${RBRR_VESSEL_DIR}/${z_origin}"; then
           buc_warn "Airgap vessel ${RBRV_SIGIL} has empty ${z_anchor_var}; origin ${z_origin} names a producer vessel"
-          buc_bare "  ${z_anchor_var} is a hallmark-pin, not an enshrine locator — enshrine is not invoked on this vessel."
+          buc_bare "  ${z_anchor_var} is a hallmark-pin, not a bole locator — ensconce is not invoked on this vessel."
           buc_bare "  Ordain the producer vessel first, then write its hallmark into ${z_anchor_var}."
           buc_bare "  Canonical handbook path:"
           buc_tabtarget "${RBZ_ONBOARD_DIR_AIRGAP}"
@@ -338,11 +334,11 @@ zrbfd_registry_preflight() {
           buc_die "Registry preflight failed — airgap vessel missing hallmark-pin anchor"
         else
           buc_warn "Airgap vessel ${RBRV_SIGIL} has empty ${z_anchor_var} but non-empty ${z_origin_var}=${z_origin}"
-          buc_bare "  Airgap conjure cannot reach upstream — base images must be enshrined first."
-          buc_bare "  The anchor locator points at the enshrined image inside GAR. Without it,"
+          buc_bare "  Airgap conjure cannot reach upstream — base images must be captured (ensconced) first."
+          buc_bare "  The anchor locator points at the captured base Lode inside GAR. Without it,"
           buc_bare "  the airgap worker pool has no source for the base image and the build fails."
-          buc_bare "  Run enshrine, then re-run ordain:"
-          buc_tabtarget "${RBZ_ENSHRINE_VESSEL}" "${z_vessel_dir}"
+          buc_bare "  Run ensconce, then re-run ordain:"
+          buc_tabtarget "${RBZ_ENSCONCE_BOLE}" "${z_vessel_dir}"
           buc_tabtarget "${RBZ_ORDAIN_HALLMARK}" "${z_vessel_dir}"
           buc_die "Registry preflight failed — airgap vessel missing required anchor"
         fi
@@ -360,9 +356,9 @@ zrbfd_registry_preflight() {
     test -n "${z_tag}"      || buc_die "Tag is empty in ${z_anchor_var}: ${z_anchor}"
 
     z_any_checked="true"
-    z_status_file="${ZRBFD_PREFLIGHT_PREFIX}enshrine_${z_n}_status.txt"
-    z_response_file="${ZRBFD_PREFLIGHT_PREFIX}enshrine_${z_n}_response.txt"
-    z_stderr_file="${ZRBFD_PREFLIGHT_PREFIX}enshrine_${z_n}_stderr.txt"
+    z_status_file="${ZRBFD_PREFLIGHT_PREFIX}base_${z_n}_status.txt"
+    z_response_file="${ZRBFD_PREFLIGHT_PREFIX}base_${z_n}_response.txt"
+    z_stderr_file="${ZRBFD_PREFLIGHT_PREFIX}base_${z_n}_stderr.txt"
 
     curl --head -sS \
       --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
@@ -373,31 +369,31 @@ zrbfd_registry_preflight() {
       -o "${z_response_file}" \
       "${ZRBFC_REGISTRY_API_BASE}/${z_pkg_path}/manifests/${z_tag}" \
       > "${z_status_file}" 2>"${z_stderr_file}" \
-      || buc_die "HEAD request failed for enshrined image: ${z_anchor} — see ${z_stderr_file}"
+      || buc_die "HEAD request failed for base image: ${z_anchor} — see ${z_stderr_file}"
 
     z_http_code=$(<"${z_status_file}")
-    test -n "${z_http_code}" || buc_die "HTTP status code is empty for enshrine check"
+    test -n "${z_http_code}" || buc_die "HTTP status code is empty for base image check"
 
     if test "${z_http_code}" = "404"; then
-      buc_warn "Enshrined base image not found: ${z_anchor} (from ${z_origin})"
-      buc_bare "  Enshrine copies upstream base images (e.g., busybox:latest from Docker Hub) into"
-      buc_bare "  your private GAR, pinned by content hash. Like the reliquary, this ensures"
-      buc_bare "  air-gapped builds never reach the public internet. The anchor locator is stable"
-      buc_bare "  until you deliberately re-enshrine to pick up a newer upstream version."
-      buc_bare "  Multiple vessels sharing the same base image anchor need only one enshrine."
-      buc_bare "  Run enshrine, then re-run ordain:"
-      buc_tabtarget "${RBZ_ENSHRINE_VESSEL}" "${z_vessel_dir}"
+      buc_warn "Base image Lode not found: ${z_anchor} (from ${z_origin})"
+      buc_bare "  Ensconce captures upstream base images (e.g., busybox:latest from Docker Hub) into"
+      buc_bare "  a bole Lode in your private GAR, pinned by content hash. Like the reliquary, this"
+      buc_bare "  ensures air-gapped builds never reach the public internet. The anchor locator is"
+      buc_bare "  stable until you deliberately re-ensconce to pick up a newer upstream version."
+      buc_bare "  Multiple vessels sharing the same base image reuse one Lode."
+      buc_bare "  Run ensconce, then re-run ordain:"
+      buc_tabtarget "${RBZ_ENSCONCE_BOLE}" "${z_vessel_dir}"
       buc_tabtarget "${RBZ_ORDAIN_HALLMARK}" "${z_vessel_dir}"
-      buc_die "Registry preflight failed — enshrined base image missing from GAR"
+      buc_die "Registry preflight failed — base image Lode missing from GAR"
     elif test "${z_http_code}" != "200"; then
-      buc_die "Unexpected HTTP ${z_http_code} when checking enshrined image: ${z_anchor}"
+      buc_die "Unexpected HTTP ${z_http_code} when checking base image: ${z_anchor}"
     fi
 
-    buc_log_args "Enshrined image verified: ${z_anchor}"
+    buc_log_args "Base image verified: ${z_anchor}"
   done
 
   if test "${z_any_checked}" = "true"; then
-    buc_info "All enshrined base images verified in GAR"
+    buc_info "All base images verified in GAR"
   fi
 }
 
@@ -423,9 +419,9 @@ zrbfd_stitch_build_json() {
 
   # Resolve base images: ANCHOR (locator) → full GAR reference, or pass ORIGIN through.
   # Spec: RBSAC step "Resolve Base Images"
-  # The locator carries its own namespace path (e.g. rbi_es/<anchor>:<anchor>);
+  # The locator carries its own namespace path (e.g. rbi_ld/<touchmark>:rbi_bole);
   # paths within a GAR repo are prefix-free per the wrest/jettison convention.
-  # Locator captures (z_image_locator_n) feed _RBGR_ENSHRINE_LOCATOR_n substitutions
+  # Locator captures (z_image_locator_n) feed _RBGR_BASE_LOCATOR_n substitutions
   # for the in-pool preflight step — anchored slots get HEAD-checked, pass-through
   # slots stay empty (preflight cannot reach upstream from the worker pool).
   local -r z_gar_repo_base="${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}/${RBGD_GAR_PROJECT_ID}/${RBDC_GAR_REPOSITORY}"
@@ -798,9 +794,9 @@ zrbfd_stitch_build_json() {
         _RBGR_GAR_PATH:            $zjq_rbga_gar_path,
         _RBGR_RELIQUARIES_ROOT:    $zjq_reliquaries_root,
         _RBGR_RELIQUARY:           $zjq_reliquary,
-        _RBGR_ENSHRINE_LOCATOR_1:  $zjq_locator_1,
-        _RBGR_ENSHRINE_LOCATOR_2:  $zjq_locator_2,
-        _RBGR_ENSHRINE_LOCATOR_3:  $zjq_locator_3
+        _RBGR_BASE_LOCATOR_1:  $zjq_locator_1,
+        _RBGR_BASE_LOCATOR_2:  $zjq_locator_2,
+        _RBGR_BASE_LOCATOR_3:  $zjq_locator_3
       },
       serviceAccount: $zjq_mason_sa,
       options: {
@@ -880,255 +876,84 @@ zrbfd_push_build_context() {
 ######################################################################
 # External Functions (rbfd_*)
 
-rbfd_enshrine() {
+# Derived-pull base-anchor election (bole kind). If the immediately-prior
+# dispatch was a bole ensconce, it handed a touchmark forward through the depth-1
+# chain; resolve it to a Lode locator and persist it as the conjure base ANCHOR
+# before the build loads the vessel. This is the fetched-side "the vessel pulls
+# the resolved coordinate from the capture-file": capture stays pure (writes no
+# vessel config) and election writes it here, durably, so repeated conjures reuse
+# the persisted ANCHOR without re-ensconcing.
+#
+# No buf_relay: the touchmark is consumed terminally. Relaying would forward a
+# stale touchmark into a later unrelated ordain (cross-vessel leakage), so the
+# depth-1 adjacency — ensconce immediately precedes the first ordain — is the
+# deliberate contract, not a limitation to paper over. Absence is normal (no
+# fresh capture in the chain): leave any existing ANCHOR untouched. Presence
+# overwrites, so a re-capture repoints.
+# Args: rbrv_file
+zrbfd_elect_base_anchor() {
   zrbfd_sentinel
 
-  buc_doc_brief "Enshrine upstream base images to GAR via Cloud Build"
-  buc_doc_param "vessel" "Vessel sigil or path to vessel directory"
-  buc_doc_shown || return 0
-
-  # Resolve vessel argument (sigil or path) and load
-  zrbfc_resolve_vessel "${BUZ_FOLIO:-}"
-  local -r z_vessel_dir=$(<"${ZRBFC_VESSEL_RESOLVED_DIR_FILE}")
-  test -n "${z_vessel_dir}" || buc_die "Empty resolved vessel path"
-  zrbfc_load_vessel "${z_vessel_dir}"
-  test "${RBRV_VESSEL_MODE:-}" = "rbnve_conjure" \
-    || buc_die "Vessel '${RBRV_SIGIL}' is not a conjure vessel (mode: ${RBRV_VESSEL_MODE:-unset})"
-
-  # Check at least one slot declares an upstream ORIGIN. ANCHOR is a derived
-  # value computed by this operation from ORIGIN; a vessel with no ORIGIN has
-  # nothing for enshrine to mirror.
-  local z_has_origin=false
-  local z_n=""
-  local z_origin_var=""
-  for z_n in 1 2 3; do
-    z_origin_var="RBRV_IMAGE_${z_n}_ORIGIN"
-    test -z "${!z_origin_var:-}" || z_has_origin=true
-  done
-  test "${z_has_origin}" = "true" \
-    || buc_die "Vessel '${RBRV_SIGIL}' declares no upstream base-image slots (RBRV_IMAGE_n_ORIGIN)"
-
-  # Resolve tool images from reliquary (enshrine uses skopeo from reliquary)
-  zrbfc_resolve_tool_images
-
-  # Authenticate as Director
-  buc_step "Loading Director RBRA credentials"
-  source "${RBDC_DIRECTOR_RBRA_FILE}" || buc_die "Failed to source Director RBRA"
-
-  buc_step "Authenticating as Director"
-  local z_token=""
-  z_token=$(rbgo_get_token_capture "${RBDC_DIRECTOR_RBRA_FILE}") \
-    || buc_die "Failed to get Director OAuth token"
-
-  # Verify reliquary tool images exist before submitting
-  zrbfd_preflight_reliquary "${z_token}" "${z_vessel_dir}"
-
-  # Always submit the Cloud Build job. The CB step inspects current upstream
-  # for each non-empty ORIGIN slot, computes the content-addressed locator
-  # from the live manifest digest, and copies into GAR. Extract overwrites
-  # whatever was previously committed in RBRV_IMAGE_n_ANCHOR with the just-
-  # computed value — the ANCHOR is a derived artifact of the current upstream,
-  # not a pin.
-  zrbfd_enshrine_submit "${z_token}"
-
-  local -r z_rbrv_file="${z_vessel_dir}/rbrv.env"
-  zrbfd_enshrine_extract_anchors "${z_rbrv_file}"
-
-  buc_success "Enshrine complete for vessel: ${RBRV_SIGIL}"
-}
-
-# Internal: Submit enshrine Cloud Build job
-# Single step: skopeo inspect + copy for each ORIGIN slot, returning anchors via buildStepOutputs.
-zrbfd_enshrine_submit() {
-  zrbfd_sentinel
-
-  local -r z_token="$1"
-
-  buc_step "Constructing enshrine Cloud Build resource"
-  local -r z_gar_host="${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}"
-  local -r z_gar_path="${RBGD_GAR_PROJECT_ID}/${RBDC_GAR_REPOSITORY}"
-  local -r z_mason_sa="projects/${RBDC_DEPOT_PROJECT_ID}/serviceAccounts/${RBGD_MASON_EMAIL}"
-
-  # Assemble enshrine step from script
-  local -r z_script_path="${ZRBFD_RBGJE_STEPS_DIR}/rbgje01-enshrine-copy.sh"
-  test -f "${z_script_path}" || buc_die "Enshrine step script not found: ${z_script_path}"
-
-  local -r z_body_file="${ZRBFD_ENSHRINE_PREFIX}body.txt"
-  local -r z_escaped_file="${ZRBFD_ENSHRINE_PREFIX}escaped.txt"
-
-  buc_log_args "Reading enshrine step script (skip shebang)"
-  zrbfc_write_script_body "${z_script_path}" "${z_body_file}" \
-    || buc_die "Failed to read enshrine step script"
-  local z_body=""
-  z_body=$(<"${z_body_file}")
-  test -n "${z_body}" || buc_die "Empty enshrine script body"
-
-  printf '#!/bin/bash\n%s' "${z_body}" > "${z_escaped_file}" \
-    || buc_die "Failed to write escaped enshrine script body"
-
-  local -r z_step_file="${ZRBFD_ENSHRINE_PREFIX}step.json"
-  echo "[]" > "${z_step_file}" || buc_die "Failed to initialize enshrine step JSON"
-
-  local -r z_step_built="${ZRBFD_ENSHRINE_PREFIX}step_built.json"
-  jq \
-    --arg name "${z_rbfc_tool_skopeo}" \
-    --arg id "enshrine-copy" \
-    --rawfile script "${z_escaped_file}" \
-    '. + [{name: $name, id: $id, script: $script}]' \
-    "${z_step_file}" > "${z_step_built}" \
-    || buc_die "Failed to build enshrine step JSON"
-  mv "${z_step_built}" "${z_step_file}" \
-    || buc_die "Failed to finalize enshrine step JSON"
-
-  # Step 0: in-pool reliquary preflight (defense-in-depth)
-  local -r z_preflight_step_file="${ZRBFD_ENSHRINE_PREFIX}preflight_step.json"
-  zrbfc_assemble_preflight_step "${z_preflight_step_file}" "${ZRBFD_ENSHRINE_PREFIX}"
-
-  local -r z_combined_steps_file="${ZRBFD_ENSHRINE_PREFIX}combined_steps.json"
-  jq -s '.[0] + .[1]' "${z_preflight_step_file}" "${z_step_file}" \
-    > "${z_combined_steps_file}" \
-    || buc_die "Failed to combine preflight and enshrine steps"
-
-  # Compose Build resource JSON
-  buc_log_args "Composing enshrine Build resource JSON"
-  local -r z_build_file="${ZRBFD_ENSHRINE_PREFIX}build.json"
-
-  # ORIGIN substitution per slot: pass non-empty ORIGIN through verbatim; empty
-  # slots become empty substitutions so the CB step's `test -n "${ORIGIN}"
-  # || continue` guard skips them.
-  local -r z_sub_origin_1="${RBRV_IMAGE_1_ORIGIN:-}"
-  local -r z_sub_origin_2="${RBRV_IMAGE_2_ORIGIN:-}"
-  local -r z_sub_origin_3="${RBRV_IMAGE_3_ORIGIN:-}"
-
-  jq -n \
-    --slurpfile zjq_steps        "${z_combined_steps_file}" \
-    --arg zjq_sa                 "${z_mason_sa}" \
-    --arg zjq_gar_host           "${z_gar_host}" \
-    --arg zjq_gar_path           "${z_gar_path}" \
-    --arg zjq_enshrines_root     "${RBGL_ENSHRINES_ROOT}" \
-    --arg zjq_enshrines_category "${RBGC_GAR_CATEGORY_ENSHRINES}" \
-    --arg zjq_origin_1           "${z_sub_origin_1}" \
-    --arg zjq_origin_2           "${z_sub_origin_2}" \
-    --arg zjq_origin_3           "${z_sub_origin_3}" \
-    --arg zjq_reliquaries_root   "${RBGL_RELIQUARIES_ROOT}" \
-    --arg zjq_reliquary          "${RBRV_RELIQUARY}" \
-    --arg zjq_pool               "${RBDC_POOL_TETHER}" \
-    --arg zjq_timeout            "${RBRR_GCB_TIMEOUT}" \
-    '{
-      steps: $zjq_steps[0],
-      substitutions: {
-        _RBGE_GAR_HOST:           $zjq_gar_host,
-        _RBGE_GAR_PATH:           $zjq_gar_path,
-        _RBGE_ENSHRINES_ROOT:     $zjq_enshrines_root,
-        _RBGE_ENSHRINES_CATEGORY: $zjq_enshrines_category,
-        _RBGE_IMAGE_1_ORIGIN:     $zjq_origin_1,
-        _RBGE_IMAGE_2_ORIGIN:     $zjq_origin_2,
-        _RBGE_IMAGE_3_ORIGIN:     $zjq_origin_3,
-        _RBGR_GAR_HOST:           $zjq_gar_host,
-        _RBGR_GAR_PATH:           $zjq_gar_path,
-        _RBGR_RELIQUARIES_ROOT:   $zjq_reliquaries_root,
-        _RBGR_RELIQUARY:          $zjq_reliquary,
-        _RBGR_ENSHRINE_LOCATOR_1: "",
-        _RBGR_ENSHRINE_LOCATOR_2: "",
-        _RBGR_ENSHRINE_LOCATOR_3: ""
-      },
-      serviceAccount: $zjq_sa,
-      options: {
-        automapSubstitutions: true,
-        logging: "CLOUD_LOGGING_ONLY",
-        pool: { name: $zjq_pool }
-      },
-      timeout: $zjq_timeout
-    }' > "${z_build_file}" \
-    || buc_die "Failed to compose enshrine build JSON"
-
-  buc_log_args "Enshrine build JSON: ${z_build_file}"
-
-  rbrd_check "${z_token}"
-
-  buc_step "Submitting enshrine Cloud Build"
-  rbuh_json "POST" "${ZRBFC_GCB_PROJECT_BUILDS_URL}" "${z_token}" \
-    "enshrine_build_create" "${z_build_file}"
-  rbuh_require_ok "Enshrine build submission" "enshrine_build_create"
-
-  local z_build_id=""
-  z_build_id=$(rbuh_json_field_capture "enshrine_build_create" '.metadata.build.id') || z_build_id=""
-  test -n "${z_build_id}" || buc_die "Build ID not found in builds.create response"
-  echo "${z_build_id}" > "${ZRBFC_BUILD_ID_FILE}" || buc_die "Failed to persist build ID"
-
-  local -r z_console_url="${ZRBFC_CLOUD_QUERY_BASE};region=${RBGD_GCB_REGION}/${z_build_id}?project=${RBGD_GCB_PROJECT_ID}"
-  buc_info "Enshrine build submitted: ${z_build_id}"
-  buc_link "Click to " "Open build in Cloud Console" "${z_console_url}"
-
-  zrbfc_wait_build_completion "${ZRBFC_BUILD_POLL_CEILING_ENSHRINE}" "Enshrine"
-}
-
-# Internal: Extract anchor results from completed enshrine build and write to vessel regime
-# Reads buildStepOutputs from the build status response (populated by /builder/outputs/output)
-zrbfd_enshrine_extract_anchors() {
-  zrbfd_sentinel
-
-  local -r z_rbrv_file="$1"
+  local -r z_rbrv_file="${1:?Vessel regime file required}"
   test -f "${z_rbrv_file}" || buc_die "Vessel regime file not found: ${z_rbrv_file}"
 
-  buc_step "Extracting anchor results from build step outputs"
+  test -f "${BURD_PREVIOUS_DIR}/${RBF_FACT_LODE_TOUCHMARK}" || {
+    buc_log_args "No bole touchmark in the chain — base ANCHOR left as-is"
+    return 0
+  }
 
-  # buildStepOutputs[1] is base64-encoded JSON from the enshrine-copy step;
-  # step 0 is the in-pool reliquary preflight, which does not write /builder/outputs/output.
-  local -r z_b64_file="${ZRBFD_ENSHRINE_PREFIX}output_b64.txt"
-  local -r z_output_file="${ZRBFD_ENSHRINE_PREFIX}output.json"
+  buc_step "Electing conjure base ANCHOR from bole capture"
 
-  jq -r '.results.buildStepOutputs[1] // empty' "${ZRBFC_BUILD_STATUS_FILE}" \
-    > "${z_b64_file}" || buc_die "Failed to extract buildStepOutputs from build result"
-  test -s "${z_b64_file}" || buc_die "No buildStepOutputs in build result — enshrine step did not produce output"
+  local z_touchmark=""
+  z_touchmark=$(buf_read_fact "${RBF_FACT_LODE_TOUCHMARK}") || buc_die "Failed to read touchmark chaining fact"
+  test -n "${z_touchmark}" || buc_die "Empty touchmark in chaining fact"
 
-  rbgo_base64_decode_file_to_file "${z_b64_file}" "${z_output_file}" \
-    || buc_die "Failed to decode buildStepOutputs base64"
-  test -s "${z_output_file}" || buc_die "Empty decoded buildStepOutputs"
+  local z_brand=""
+  z_brand=$(buf_read_fact "${RBF_FACT_LODE_BRAND}") || buc_die "Failed to read kind-brand chaining fact"
 
-  buc_log_args "Enshrine output:"
-  buc_log_pipe < "${z_output_file}"
+  # Kind-brand enum → member tag. Only bole lands today; later kinds extend here.
+  local z_tag=""
+  case "${z_brand}" in
+    "${RBGC_LODE_BRAND_BOLE}") z_tag="${RBGC_LODE_TAG_BOLE}" ;;
+    *) buc_die "Unknown Lode kind-brand in chaining fact: '${z_brand}'" ;;
+  esac
 
-  # Write each anchor back to the vessel regime file
-  local z_n=""
-  local z_slot_key=""
-  local z_anchor=""
-  local z_anchor_var=""
-  local z_anchor_line=""
-  local z_updated_file=""
+  local -r z_locator="${RBGL_LODES_ROOT}/${z_touchmark}:${z_tag}"
 
-  for z_n in 1 2 3; do
-    z_slot_key="slot_${z_n}"
-    z_anchor=$(jq -r ".${z_slot_key}.anchor // empty" "${z_output_file}") || z_anchor=""
-    test -n "${z_anchor}" || continue
+  # Find the single populated base ORIGIN slot (ensconce captures exactly one).
+  local z_line=""
+  local z_slot=""
+  local z_count=0
+  while IFS= read -r z_line || test -n "${z_line}"; do
+    case "${z_line}" in
+      RBRV_IMAGE_1_ORIGIN=?*) z_slot="1"; z_count=$((z_count + 1)) ;;
+      RBRV_IMAGE_2_ORIGIN=?*) z_slot="2"; z_count=$((z_count + 1)) ;;
+      RBRV_IMAGE_3_ORIGIN=?*) z_slot="3"; z_count=$((z_count + 1)) ;;
+    esac
+  done < "${z_rbrv_file}"
+  test "${z_count}" -eq 1 \
+    || buc_die "Base-anchor election needs exactly one populated RBRV_IMAGE_n_ORIGIN slot, found ${z_count}"
 
-    z_anchor_var="RBRV_IMAGE_${z_n}_ANCHOR"
-    z_anchor_line="${z_anchor_var}=${z_anchor}"
-    z_updated_file="${ZRBFD_ENSHRINE_PREFIX}${z_n}_updated_rbrv.env"
-
-    buc_step "Writing anchor slot ${z_n}: ${z_anchor}"
-
-    # Replace existing ANCHOR line or append — bash-native read/match/write
-    local z_found=false
-    while IFS= read -r z_line; do
-      if [[ "${z_line}" == ${z_anchor_var}=* ]]; then
-        printf '%s\n' "${z_anchor_line}"
-        z_found=true
-      else
-        printf '%s\n' "${z_line}"
-      fi
-    done < "${z_rbrv_file}" > "${z_updated_file}" \
-      || buc_die "Failed to process ${z_rbrv_file} for ${z_anchor_var}"
-
-    if [[ "${z_found}" != "true" ]]; then
-      printf '%s\n' "${z_anchor_line}" >> "${z_updated_file}" \
-        || buc_die "Failed to append ${z_anchor_var}"
+  # Replace-or-append the chosen slot's ANCHOR line.
+  local -r z_anchor_var="RBRV_IMAGE_${z_slot}_ANCHOR"
+  local -r z_anchor_line="${z_anchor_var}=${z_locator}"
+  local -r z_updated_file="${ZRBFD_ELECT_PREFIX}rbrv.env"
+  local z_found=false
+  while IFS= read -r z_line || test -n "${z_line}"; do
+    if [[ "${z_line}" == ${z_anchor_var}=* ]]; then
+      printf '%s\n' "${z_anchor_line}"; z_found=true
+    else
+      printf '%s\n' "${z_line}"
     fi
+  done < "${z_rbrv_file}" > "${z_updated_file}" \
+    || buc_die "Failed to rewrite ${z_rbrv_file} for ${z_anchor_var}"
+  if [[ "${z_found}" != "true" ]]; then
+    printf '%s\n' "${z_anchor_line}" >> "${z_updated_file}" || buc_die "Failed to append ${z_anchor_var}"
+  fi
+  cp "${z_updated_file}" "${z_rbrv_file}" || buc_die "Failed to write updated rbrv.env"
 
-    cp "${z_updated_file}" "${z_rbrv_file}" || buc_die "Failed to write updated rbrv.env"
-
-    buc_success "Slot ${z_n} enshrined: ${z_anchor}"
-  done
+  buc_success "Elected base ANCHOR slot ${z_slot}: ${z_locator}"
+  buc_info "rbrv.env base ANCHOR updated — commit it with your usual workflow to pin this base"
 }
 
 rbfd_ordain() {
@@ -1154,8 +979,15 @@ rbfd_ordain() {
     esac
   done < "${z_rbrv_file}"
   z_mode="${z_mode:-rbnve_conjure}"
+
+  # Conjure consumes an upstream base via the ANCHOR slot, so a fresh bole
+  # capture's touchmark is elected into rbrv.env before the build loads the
+  # vessel; bind/graft pin differently and elect nothing.
   case "${z_mode}" in
-    rbnve_conjure) rbfd_build "${z_vessel_dir}" ;;
+    rbnve_conjure)
+      zrbfd_elect_base_anchor "${z_rbrv_file}"
+      rbfd_build "${z_vessel_dir}"
+      ;;
     rbnve_bind)    rbfd_mirror "${z_vessel_dir}" ;;
     rbnve_graft)   rbfd_graft "${z_vessel_dir}" ;;
     *)             buc_die "Unknown vessel mode: ${z_mode}" ;;
@@ -1241,7 +1073,7 @@ rbfd_build() {
   # Quota preflight -- warn if insufficient capacity
   zrbfd_quota_preflight "${z_token}"
 
-  # Registry preflight -- verify reliquary and enshrined base images exist before expensive operations
+  # Registry preflight -- verify reliquary and base images exist before expensive operations
   zrbfd_registry_preflight "${z_token}" "${z_vessel_dir}"
 
   # Capture git metadata (stitch needs ZRBFC_GIT_INFO_FILE)
@@ -1408,7 +1240,7 @@ rbfd_mirror() {
   z_token=$(rbgo_get_token_capture "${RBDC_DIRECTOR_RBRA_FILE}") \
     || buc_die "Failed to get Director OAuth token"
 
-  # Registry preflight -- verify reliquary and enshrined base images exist before expensive operations
+  # Registry preflight -- verify reliquary and base images exist before expensive operations
   zrbfd_registry_preflight "${z_token}" "${z_vessel_dir}"
 
   # GAR coordinates
@@ -1587,9 +1419,9 @@ zrbfd_mirror_submit() {
         _RBGR_GAR_PATH:              $zjq_gar_path,
         _RBGR_RELIQUARIES_ROOT:      $zjq_reliquaries_root,
         _RBGR_RELIQUARY:             $zjq_reliquary,
-        _RBGR_ENSHRINE_LOCATOR_1:    "",
-        _RBGR_ENSHRINE_LOCATOR_2:    "",
-        _RBGR_ENSHRINE_LOCATOR_3:    ""
+        _RBGR_BASE_LOCATOR_1:    "",
+        _RBGR_BASE_LOCATOR_2:    "",
+        _RBGR_BASE_LOCATOR_3:    ""
       },
       serviceAccount: $zjq_sa,
       options: {

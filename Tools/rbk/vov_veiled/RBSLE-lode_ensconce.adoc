@@ -131,21 +131,19 @@ final status is `SUCCESS`
 
 //axhoot_typed_output
 {rbf_fact_lode}
-. *Write Capture-File*:
-.. Read `buildStepOutputs[0]` (base64-decoded JSON) from the completed build
+. *Write Capture-Facts*:
+.. Read `buildStepOutputs[0]` (base64-decoded JSON) from the completed build to recover the host-minted `«TOUCHMARK»`
 .. {rbbc_store}
-the
-{rbtga_lode_vouch}
-envelope as the
+the touchmark value and the bole kind-brand enum as the two bare single-form facts of the
 {rbf_fact_lode}
-at `«TOUCHMARK».lode` — identical content to the in-GAR `:rbi_vouch` tag
+— carrying no provenance content; the envelope is the in-GAR `:rbi_vouch` tag, written cloud-side by the vouch step
 
 //axhoc_completion
 Successful execution captures the upstream base into a single
 {gar_service}
 package at `{gar_lodes_namespace}/«TOUCHMARK»`, carrying the base manifest under its digest, handle, and fingerprint tags plus the `:rbi_vouch`
 {rbtga_lode_vouch}
-envelope, and writes the identical envelope host-side as the
+envelope, and hands the touchmark forward host-side as the
 {rbf_fact_lode}.
 +
 The operation is capture-pure: no vessel or nameplate config is written.

@@ -56,7 +56,6 @@ The Folio column shows how each tabtarget receives it:
 | `rbw-dU` | PayorUnmakesDepot | param1 | Permanently remove a depot (operator supplies depot project ID) |
 | `rbw-dl` | PayorListsDepots | — | List all active depots |
 | `rbw-di` | DepotInfo | — | Run egress posture checks against the live depot's worker pools |
-| `rbw-dE` | DirectorEnshrinesVessel | param1 | Enshrine upstream base images to GAR via Cloud Build |
 | `rbw-dI` | DirectorInscribesReliquary | — | Create reliquary: mirror tool images from upstream to GAR |
 | `rbw-dY` | DirectorYokesReliquaryAllVessels | param1 | Yoke a reliquary stamp into every vessel's rbrv.env (wildcard fan-out) |
 
@@ -88,7 +87,7 @@ The Folio column shows how each tabtarget receives it:
 | `rbw-Ofc` | OnboardingFirstCrucible | — | Start a Crucible using local builds — kludge, charge, rack |
 | `rbw-Ots` | OnboardingTadmorSecurity | — | Verify Crucible containment under attack — charge tadmor and run the adversarial suite |
 | `rbw-Odf` | OnboardingDirectorFirstBuild | — | Your First Cloud Build — inscribe, conjure, tour, summon, abjure |
-| `rbw-Oda` | OnboardingDirectorAirgap | — | Airgap Cloud Build — enshrine, conjure base, conjure airgap, charge moriah, compare plumb |
+| `rbw-Oda` | OnboardingDirectorAirgap | — | Airgap Cloud Build — ensconce, conjure base, conjure airgap, charge moriah, compare plumb |
 | `rbw-Odb` | OnboardingDirectorBind | — | Bind Cloud Build — pin upstream image by digest, mode-mixture pluml Crucible |
 | `rbw-Odg` | OnboardingDirectorGraft | — | Graft Cloud Build — push locally-built image, inspect GRAFTED Vouch verdict |
 | `rbw-Op` | OnboardingPayor | — | Payor — establish a Manor and provision the Depot |
@@ -123,7 +122,6 @@ The Folio column shows how each tabtarget receives it:
 | `rbw-irr` | DirectorRekonsReliquary | param1 | List tool images present under a reliquary stamp's GAR subtree |
 | `rbw-iah` | DirectorAuditsHallmarks | — | Audit hallmarks — list all hallmark identifiers |
 | `rbw-iar` | DirectorAuditsReliquaries | — | Audit reliquaries — list all reliquary stamps |
-| `rbw-iae` | DirectorAuditsEnshrinements | — | Audit enshrinements — list all enshrined base anchors |
 | `rbw-iwh` | DirectorWrestsHallmarkImage | param1 | Wrest a hallmark image from registry |
 | `rbw-iwr` | DirectorWrestsReliquaryImage | param1 | Wrest a reliquary tool image from registry |
 | `rbw-iwe` | DirectorWrestsEnshrinedImage | param1 | Wrest an enshrined base image from registry |

@@ -87,12 +87,11 @@ RBCC_verb_divest="divest"
 RBCC_verb_invest="invest"
 RBCC_verb_roster="roster"
 #
-#   Image/build lifecycle (enshrine/inscribe/kludge/ordain/yoke) — name the
+#   Image/build lifecycle (inscribe/kludge/ordain/yoke) — name the
 #   registry and build operations. Previously implicit in command-function
 #   names (rbfl_inscribe, rbfd_ordain, …) and tabtarget descriptions; homed
 #   here so the group has a single owner rather than being reconstructed by
 #   grep across rbfd_/rbfl_/rbfk_/rbob_.
-RBCC_verb_enshrine="enshrine"
 RBCC_verb_inscribe="inscribe"
 RBCC_verb_kludge="kludge"
 RBCC_verb_ordain="ordain"
@@ -107,7 +106,6 @@ RBCC_fact_ext_depot_project="depot-project"
 RBCC_fact_ext_roster_retriever="${RBCC_verb_roster}-${RBCC_account_retriever}"
 RBCC_fact_ext_roster_director="${RBCC_verb_roster}-${RBCC_account_director}"
 RBCC_fact_ext_audit_hallmark="audit-hallmark"
-RBCC_fact_ext_lode="lode"
 
 # Container-role tinder — the canonical bash home for the crucible's container
 # roles. Bare role tokens; the crucible is sentry + pentacle + bottle and every
@@ -161,7 +159,6 @@ rbcc_emit_consts() {
     RBCC_verb_divest     \
     RBCC_verb_invest     \
     RBCC_verb_roster     \
-    RBCC_verb_enshrine   \
     RBCC_verb_inscribe   \
     RBCC_verb_kludge     \
     RBCC_verb_ordain     \

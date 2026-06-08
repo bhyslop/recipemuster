@@ -377,9 +377,9 @@ zrbfv_graft_metadata_submit() {
         _RBGR_GAR_PATH:              $zjq_gar_path,
         _RBGR_RELIQUARIES_ROOT:      $zjq_reliquaries_root,
         _RBGR_RELIQUARY:             $zjq_reliquary,
-        _RBGR_ENSHRINE_LOCATOR_1:    "",
-        _RBGR_ENSHRINE_LOCATOR_2:    "",
-        _RBGR_ENSHRINE_LOCATOR_3:    ""
+        _RBGR_BASE_LOCATOR_1:    "",
+        _RBGR_BASE_LOCATOR_2:    "",
+        _RBGR_BASE_LOCATOR_3:    ""
       },
       serviceAccount: $zjq_sa,
       options: {

@@ -1,9 +1,9 @@
 #!/bin/sh
-# RBGJR Step 01: In-pool reliquary preflight — HEAD-check tool images and enshrined anchors
+# RBGJR Step 01: In-pool reliquary preflight — HEAD-check tool images and base anchors
 # Builder: alpine (from reliquary)
 # Substitutions: _RBGR_GAR_HOST, _RBGR_GAR_PATH, _RBGR_RELIQUARIES_ROOT,
 #                _RBGR_RELIQUARY,
-#                _RBGR_ENSHRINE_LOCATOR_1, _RBGR_ENSHRINE_LOCATOR_2, _RBGR_ENSHRINE_LOCATOR_3
+#                _RBGR_BASE_LOCATOR_1, _RBGR_BASE_LOCATOR_2, _RBGR_BASE_LOCATOR_3
 #
 # Defense-in-depth: every Cloud Build job validates reliquary GAR-presence
 # from the worker pool's vantage before expensive work runs. Catches divergence
@@ -16,8 +16,8 @@
 #     Alpine (this step's own image) is implicitly validated by Cloud Build
 #     pulling it for step execution; failure to pull alpine produces Cloud
 #     Build's own "image not pullable" error before this script runs.
-#   - Enshrined base anchor locators (slots 1/2/3 if non-empty). Conjure
-#     populates these; bind, graft, and enshrine pass them through empty.
+#   - Base anchor locators (slots 1/2/3 if non-empty). Conjure populates
+#     these; bind and graft pass them through empty.
 #
 # Failure mode: structured "this pool can't see «TOOL»" message naming each
 # missed item. Operator remediation: re-inscribe the reliquary, re-yoke the
@@ -73,20 +73,20 @@ for TOOL in gcloud docker syft binfmt skopeo; do
   fi
 done
 
-# Enshrine slots — empty for non-conjure modes; conjure populates from RBRV_IMAGE_n_ANCHOR.
+# Base slots — empty for non-conjure modes; conjure populates from RBRV_IMAGE_n_ANCHOR.
 # Locator format: <package-path>:<tag>; package path is itself prefixed by the
-# enshrine namespace already (e.g. rbi_es/<anchor>:<anchor>).
+# Lode namespace already (e.g. rbi_ld/<touchmark>:rbi_bole).
 for SLOT in 1 2 3; do
   case "${SLOT}" in
-    1) LOCATOR="${_RBGR_ENSHRINE_LOCATOR_1}" ;;
-    2) LOCATOR="${_RBGR_ENSHRINE_LOCATOR_2}" ;;
-    3) LOCATOR="${_RBGR_ENSHRINE_LOCATOR_3}" ;;
+    1) LOCATOR="${_RBGR_BASE_LOCATOR_1}" ;;
+    2) LOCATOR="${_RBGR_BASE_LOCATOR_2}" ;;
+    3) LOCATOR="${_RBGR_BASE_LOCATOR_3}" ;;
   esac
   test -n "${LOCATOR}" || continue
 
   case "${LOCATOR}" in
     *:*) : ;;
-    *)   echo "FATAL: invalid enshrine locator format (expected package-path:tag) slot ${SLOT}: ${LOCATOR}" >&2; exit 1 ;;
+    *)   echo "FATAL: invalid base locator format (expected package-path:tag) slot ${SLOT}: ${LOCATOR}" >&2; exit 1 ;;
   esac
   PKG_PATH="${LOCATOR%:*}"
   TAG="${LOCATOR##*:}"
@@ -94,20 +94,20 @@ for SLOT in 1 2 3; do
   test -n "${TAG}"      || { echo "FATAL: empty tag in locator slot ${SLOT}: ${LOCATOR}" >&2; exit 1; }
   URL="${REGISTRY_API_BASE}/${PKG_PATH}/manifests/${TAG}"
 
-  echo "--- HEAD ${PKG_PATH}:${TAG} (enshrine slot ${SLOT}) ---"
+  echo "--- HEAD ${PKG_PATH}:${TAG} (base slot ${SLOT}) ---"
   if wget -q -O /dev/null \
        --header="Authorization: Bearer ${TOKEN}" \
        --header="Accept: ${ACCEPT_MTYPES}" \
        "${URL}"; then
-    echo "  PRESENT: enshrine-anchor slot ${SLOT}"
+    echo "  PRESENT: base-anchor slot ${SLOT}"
   else
-    echo "  MISSING: enshrine-anchor slot ${SLOT}"
-    MISSES="${MISSES} enshrine-anchor:${LOCATOR}"
+    echo "  MISSING: base-anchor slot ${SLOT}"
+    MISSES="${MISSES} base-anchor:${LOCATOR}"
   fi
 done
 
 if [ -z "${MISSES}" ]; then
-  echo "=== Reliquary preflight passed — pool sees all tools and enshrined anchors ==="
+  echo "=== Reliquary preflight passed — pool sees all tools and base anchors ==="
   exit 0
 fi
 

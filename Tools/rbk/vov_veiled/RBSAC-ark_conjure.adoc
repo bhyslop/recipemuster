@@ -27,7 +27,7 @@ The subsequent {rbtgo_ark_vouch} always runs on the airgap pool regardless of ve
 
 NOTE: *Universal reliquary precondition*. Every ordain-path vessel — conjure, bind, and graft — must have `RBRV_RELIQUARY` non-empty before this operation runs. The about/vouch pipeline (gcloud, docker, alpine, syft) consumes reliquary tool images uniformly across all modes; the registry preflight below enforces this.
 
-NOTE: The conjure Cloud Build job carries the {rbsk_in_pool_preflight} as its step 0, ahead of the extract-context step. Conjure populates `_RBGR_ENSHRINE_LOCATOR_n` substitutions from `RBRV_IMAGE_n_ANCHOR` slots, so the preflight HEAD-checks each anchored base in addition to the reliquary tools.
+NOTE: The conjure Cloud Build job carries the {rbsk_in_pool_preflight} as its step 0, ahead of the extract-context step. Conjure populates `_RBGR_BASE_LOCATOR_n` substitutions from `RBRV_IMAGE_n_ANCHOR` slots, so the preflight HEAD-checks each anchored base in addition to the reliquary tools.
 
 The conjure operation:
 

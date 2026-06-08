@@ -2783,11 +2783,11 @@ const ZRBTDRC_ARK_BASENAMES_ALL: &[&str] = &[
 /// rbcc_Constants.sh RBCC_fact_ext_audit_hallmark.
 const RBTDRC_FACT_EXT_AUDIT_HALLMARK: &str = "audit-hallmark";
 
-/// Multi-fact extension emitted by `rbw-lE` (rbld_ensconce): one
-/// `<touchmark>.lode` capture-file per ensconced Lode, carrying the provenance
-/// envelope. Its root is the Lode touchmark. Mirrors rbcc_Constants.sh
-/// RBCC_fact_ext_lode.
-const RBTDRC_FACT_EXT_LODE: &str = "lode";
+/// Single-form chaining fact emitted host-side by `rbw-lE` (rbld_ensconce): the
+/// captured Lode touchmark. The derived-pull base-anchor election reads it at
+/// conjure; the provenance envelope lives only in GAR (:rbi_vouch), never
+/// host-side. Mirrors rbgc_Constants.sh RBF_FACT_LODE_TOUCHMARK.
+const RBTDRC_FACT_LODE_TOUCHMARK: &str = "rbf_fact_lode_touchmark";
 
 /// Bole-Lode member tags asserted by divine inspect. Mirror rbgc_Constants.sh
 /// RBGC_LODE_TAG_BOLE / RBGC_LODE_TAG_VOUCH / RBGC_LODE_TAG_DIGEST_PREFIX.
@@ -2958,15 +2958,11 @@ fn rbtdrc_lode_lifecycle(dir: &Path) -> rbtdre_Verdict {
         };
         let _ = std::fs::write(dir.join("01-ensconce-stdout.txt"), &ensconce.stdout);
 
-        // The capture-file root is the Lode touchmark.
-        let touchmarks = match rbtdri_read_burv_facts_multi(&ensconce, RBTDRC_FACT_EXT_LODE) {
+        // The host-side capture handoff is the bare touchmark fact.
+        let touchmark = match rbtdri_read_burv_fact(&ensconce, RBTDRC_FACT_LODE_TOUCHMARK) {
             Ok(v) => v,
-            Err(e) => return rbtdre_Verdict::Fail(format!("read capture-file: {}", e)),
+            Err(e) => return rbtdre_Verdict::Fail(format!("read touchmark fact: {}", e)),
         };
-        if touchmarks.len() != 1 {
-            return rbtdre_Verdict::Fail(format!("expected exactly 1 capture-file, got {:?}", touchmarks));
-        }
-        let touchmark = touchmarks[0].clone();
         let _ = std::fs::write(dir.join("02-touchmark.txt"), &touchmark);
 
         // Step 2: divine enumerate shows the new Lode.
@@ -3068,14 +3064,10 @@ fn rbtdrc_lode_collision(dir: &Path) -> rbtdre_Verdict {
             Err(e) => return rbtdre_Verdict::Fail(format!("fresh ensconce invocation: {}", e)),
         };
         let _ = std::fs::write(dir.join("01-ensconce-fresh-stdout.txt"), &fresh.stdout);
-        let touchmarks = match rbtdri_read_burv_facts_multi(&fresh, RBTDRC_FACT_EXT_LODE) {
+        let touchmark = match rbtdri_read_burv_fact(&fresh, RBTDRC_FACT_LODE_TOUCHMARK) {
             Ok(v) => v,
-            Err(e) => return rbtdre_Verdict::Fail(format!("read capture-file: {}", e)),
+            Err(e) => return rbtdre_Verdict::Fail(format!("read touchmark fact: {}", e)),
         };
-        if touchmarks.len() != 1 {
-            return rbtdre_Verdict::Fail(format!("expected exactly 1 capture-file, got {:?}", touchmarks));
-        }
-        let touchmark = touchmarks[0].clone();
         let _ = std::fs::write(dir.join("02-touchmark.txt"), &touchmark);
 
         let pin = &[

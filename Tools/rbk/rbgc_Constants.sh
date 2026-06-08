@@ -200,11 +200,10 @@ zrbgc_kindle() {
 
   # GAR Categorical Namespaces (₢A_AAK layout)
   # Top-level namespaces under which arks are stored. Consumed by rbgl_GarLayout.sh.
-  # The hm/rq/es siblings hold Director-authored image families; rbi_df holds
+  # The hm/rq siblings hold Director-authored image families; rbi_df holds
   # Payor-authored depot-scoped OCI artifacts produced during depot lifetime.
   readonly RBGC_GAR_CATEGORY_HALLMARKS="rbi_hm"
   readonly RBGC_GAR_CATEGORY_RELIQUARIES="rbi_rq"
-  readonly RBGC_GAR_CATEGORY_ENSHRINES="rbi_es"
   readonly RBGC_GAR_CATEGORY_DEPOT_FACTS="rbi_df"
   readonly RBGC_GAR_CATEGORY_LODES="rbi_ld"
 
@@ -222,6 +221,13 @@ zrbgc_kindle() {
   readonly RBGC_LODE_KIND_WSL="w"
   readonly RBGC_LODE_KIND_PODVM_WSL="vw"
   readonly RBGC_LODE_KIND_PODVM_NATIVE="vn"
+
+  # Kind-brand enum — the touchmark's kind carried in the host-side single-form
+  # chaining fact a derived-pull election reads to resolve the member tag. It is
+  # read as its own fact, NOT parsed from the touchmark's kind-letter prefix
+  # (the chaining channel is single-form: opaque values, never parsed). Only the
+  # landed bole kind today; later kinds add their brand here with their vertical.
+  readonly RBGC_LODE_BRAND_BOLE="bole"
 
   # Member/provenance tags. The rbi_ sprue marks strings from RB's domain:
   # RB's authored lexicon (bole, vouch) and RB-measured-from-content values
@@ -256,8 +262,8 @@ zrbgc_kindle() {
   # and are also inscribed into rbi_df at the rbrd:tripwire tag so post-
   # levy drift can be detected at every subsequent cloud submission.
   #
-  # Enumerators (rbw-iah / rbw-iar / rbw-iae) ignore rbi_df by design — its
-  # contents are operational, not part of the hallmark/reliquary/enshrine
+  # Enumerators (rbw-iah / rbw-iar) ignore rbi_df by design — its
+  # contents are operational, not part of the hallmark/reliquary
   # image catalogue.
 
   # Reliquary Tool Basenames (₢A_AAK layout)
@@ -277,6 +283,15 @@ zrbgc_kindle() {
   readonly RBF_FACT_ARK_STEM="rbf_fact_ark_stem"
   readonly RBF_FACT_ARK_YIELD="rbf_fact_ark_yield"
   readonly RBF_FACT_RELIQUARY="rbf_fact_reliquary"
+
+  # Lode capture chaining facts (single-form, fixed filenames). Ensconce is
+  # capture-pure and writes no consumer config; it hands the bole touchmark to a
+  # later derived-pull election (the conjure ANCHOR populator) through these two
+  # bare facts via the depth-1 cross-tabtarget chain. The provenance envelope
+  # lives only in GAR (:rbi_vouch), never host-side. TOUCHMARK carries the Lode
+  # stamp (e.g. b260602120000); BRAND carries the kind enum (RBGC_LODE_BRAND_*).
+  readonly RBF_FACT_LODE_TOUCHMARK="rbf_fact_lode_touchmark"
+  readonly RBF_FACT_LODE_BRAND="rbf_fact_lode_brand"
 
   # Payor fact-file filenames (governor identifying values)
   readonly RBGP_FACT_GOVERNOR_SA_EMAIL="rbgp_fact_governor_sa_email"

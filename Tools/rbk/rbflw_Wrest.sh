@@ -31,7 +31,7 @@ rbfl_wrest() {
   local -r z_locator="${BUZ_FOLIO:-}"
 
   buc_doc_brief "Wrest an image from the registry to local container runtime by locator"
-  buc_doc_param "locator" "Image locator in package-path:tag format (e.g. rbi_hm/H/image:H, rbi_rq/r260327172456/syft:r260327172456, rbi_es/eb-anchor:eb-anchor)"
+  buc_doc_param "locator" "Image locator in package-path:tag format (e.g. rbi_hm/H/image:H, rbi_rq/r260327172456/syft:r260327172456, rbi_ld/b260602120000:rbi_bole)"
   buc_doc_shown || return 0
 
   test -n "${z_locator}" || buc_die "Locator parameter required (package-path:tag)"

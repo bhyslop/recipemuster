@@ -17,8 +17,8 @@
 # Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 #
 # Recipe Bottle Foundry Ledger - inventory cluster (guard-free, sourced by rbflk_):
-# tally hallmark health, rekon a hallmark/reliquary subtree, and audit hallmarks,
-# reliquaries, and enshrinements (Retriever for tally; Director for the rest).
+# tally hallmark health, rekon a hallmark/reliquary subtree, and audit hallmarks
+# and reliquaries (Retriever for tally; Director for the rest).
 
 set -euo pipefail
 
@@ -360,45 +360,6 @@ rbfl_audit_reliquaries() {
 
   echo ""
   buc_info "Total reliquaries: ${z_count}"
-  buc_success "Audit complete"
-}
-
-rbfl_audit_enshrinements() {
-  zrbfl_sentinel
-
-  buc_doc_brief "Audit enshrinements — list all enshrined base anchors in registry"
-  buc_doc_shown || return 0
-
-  buc_step "Authenticating as Director"
-  test -f "${RBDC_DIRECTOR_RBRA_FILE}" \
-    || buc_die "Director credential not found: ${RBDC_DIRECTOR_RBRA_FILE}"
-  local z_token=""
-  z_token=$(rbgo_get_token_capture "${RBDC_DIRECTOR_RBRA_FILE}") \
-    || buc_die "Failed to get Director OAuth token"
-
-  buc_step "Enumerating enshrinements under ${RBGL_ENSHRINES_ROOT}/"
-  zrbfc_list_anchors_capture "${z_token}" "${RBGL_ENSHRINES_ROOT}"
-
-  if ! test -s "${ZRBFC_PACKAGE_LIST_FILE}"; then
-    buc_info "No enshrinements found under ${RBGL_ENSHRINES_ROOT}/"
-    buc_success "Audit complete — 0 enshrinements"
-    return 0
-  fi
-
-  echo ""
-  printf "  %s\n" "ENSHRINE-ANCHOR"
-  printf "  %s\n" "------------------------------"
-
-  local z_count=0
-  local z_line=""
-  while IFS= read -r z_line || test -n "${z_line}"; do
-    test -n "${z_line}" || continue
-    printf "  %s\n" "${z_line}"
-    z_count=$(( z_count + 1 ))
-  done < "${ZRBFC_PACKAGE_LIST_FILE}"
-
-  echo ""
-  buc_info "Total enshrinements: ${z_count}"
   buc_success "Audit complete"
 }
 

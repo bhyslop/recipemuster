@@ -19,8 +19,8 @@
 # Recipe Bottle Handbook Onboarding - Director Airgap Cloud Build
 #
 # Sequel to Your First Cloud Build (rbhodf). Teaches the airgap
-# supply chain: enshrine upstream, conjure base tethered, conjure
-# airgap ifrit from enshrined base, install into moriah, run the
+# supply chain: ensconce upstream, conjure base tethered, conjure
+# airgap ifrit from the forge base, install into moriah, run the
 # same 34-case security suite, compare plumb against tadmor baseline.
 
 set -euo pipefail
@@ -31,7 +31,7 @@ ZRBHODA_SOURCED=1
 rbho_director_airgap() {
   zrbho_sentinel
 
-  buc_doc_brief "${RBHO_TRACK_AIRGAP} — enshrine, conjure base, conjure airgap, charge moriah, compare plumb"
+  buc_doc_brief "${RBHO_TRACK_AIRGAP} — ensconce, conjure base, conjure airgap, charge moriah, compare plumb"
   buc_doc_shown || return 0
 
   local -r z_moniker="moriah"
@@ -61,11 +61,11 @@ rbho_director_airgap() {
     done < "${RBCC_rbrd_file}"
   fi
 
-  local z_airgap_base_enshrined=0
+  local z_airgap_base_anchored=0
   if test -f "${z_airgap_rbrv}"; then
     local z_anchor=""
     z_anchor=$(zrbho_po_extract_capture "${z_airgap_rbrv}" "RBRV_IMAGE_1_ANCHOR") || z_anchor=""
-    test -n "${z_anchor}" && z_airgap_base_enshrined=1
+    test -n "${z_anchor}" && z_airgap_base_anchored=1
   fi
 
   local z_airgap_ordained=0
@@ -105,9 +105,9 @@ rbho_director_airgap() {
   buh_line "matches the ifrit you met in the ${z_lk_tadmor} adversarial suite,"
   buh_line "now with full supply-chain discipline. The chain has three links:"
   buh_e
-  buh_line "  1. Mirror the rust base from upstream into your ${RBYC_DEPOT} (${RBYC_ENSHRINE})"
+  buh_line "  1. Capture the rust base from upstream into your ${RBYC_DEPOT} (ensconce into a bole Lode)"
   buh_line "  2. Build a project-authored toolchain ${RBYC_VESSEL} ${RBYC_TETHERED}"
-  buh_line "  3. Build the airgap ${RBYC_BOTTLE} ${RBYC_AIRGAP} from the enshrined ${RBYC_HALLMARK}"
+  buh_line "  3. Build the airgap ${RBYC_BOTTLE} ${RBYC_AIRGAP} from the ${z_lk_forge} ${RBYC_HALLMARK}"
   buh_e
   buh_line "Then drive the resulting ${RBYC_HALLMARK} into the ${z_lk_moriah}"
   buh_line "${RBYC_NAMEPLATE} and run the same 34 containment attacks against"
@@ -153,30 +153,29 @@ rbho_director_airgap() {
 
   buh_step_style "Step " " — "
 
-  buh_step1 "${RBYC_ENSHRINE} the upstream base"
+  buh_step1 "Ensconce the upstream base into a Lode"
   buh_e
-  buh_line "The airgap chain starts with ownership. ${RBYC_ENSHRINE} mirrors"
-  buh_line "an upstream image — here rust:slim-bookworm — into your ${RBYC_DEPOT}"
-  buh_line "under a content-addressed anchor. Once enshrined, builds pull the"
-  buh_line "base from your ${RBYC_DEPOT} without touching the public internet."
+  buh_line "The airgap chain starts with ownership. Ensconce captures an"
+  buh_line "upstream image — here rust:slim-bookworm — into a bole Lode in your"
+  buh_line "${RBYC_DEPOT} under a content-addressed touchmark. Once captured,"
+  buh_line "builds pull the base from your ${RBYC_DEPOT} without touching the"
+  buh_line "public internet."
   buh_e
   buh_line "The ${z_lk_forge} ${RBYC_VESSEL} declares its upstream base in"
   buh_line "its ${RBYC_RBRV} file:"
   buh_e
   buh_code "   RBRV_IMAGE_1_ORIGIN=rust:slim-bookworm"
-  buh_code "   RBRV_IMAGE_1_ANCHOR=rbi_es/rust-slim-bookworm-5ae2d2ef98:rust-slim-bookworm-5ae2d2ef98"
   buh_e
-  buh_line "ORIGIN names where the image comes from; ANCHOR is the locator"
-  buh_line "for it inside your ${RBYC_DEPOT}. Run ${RBYC_ENSHRINE} on ${z_lk_forge}:"
+  buh_line "ORIGIN names where the image comes from. Run ensconce on ${z_lk_forge}:"
   buh_e
-  buh_tt "   " "${RBZ_ENSHRINE_VESSEL}" "" " ${z_forge_vessel}"
+  buh_tt "   " "${RBZ_ENSCONCE_BOLE}" "" " ${z_forge_vessel}"
   buh_e
-  buh_line "${RBYC_ENSHRINE} inspects the current upstream image, computes a"
-  buh_line "content-addressed locator from the live manifest digest, copies the"
-  buh_line "image into your ${RBYC_DEPOT}, and writes the locator back into the"
-  buh_line "vessel's ${RBYC_RBRV}, overwriting any prior value. Re-running mirrors"
-  buh_line "current upstream — if upstream rotates, the next call writes a"
-  buh_line "different locator and that is the operation surfacing the change."
+  buh_line "Ensconce inspects the current upstream image, computes a"
+  buh_line "content-addressed digest from the live manifest, and captures the"
+  buh_line "image into a bole Lode in your ${RBYC_DEPOT}. The vessel's ANCHOR is"
+  buh_line "filled in when you ordain ${z_lk_forge} below. Re-ensconcing captures"
+  buh_line "current upstream — if upstream rotates, the next capture records a"
+  buh_line "different touchmark and that is the operation surfacing the change."
   buh_e
 
   buh_step1 "${RBYC_CONJURE} ${z_lk_forge} ${RBYC_TETHERED}, then point the airgap ${RBYC_BOTTLE} at it"
@@ -217,13 +216,13 @@ rbho_director_airgap() {
   buh_e
   buh_line "Substitute the captured hallmark into the locator. Commit the change."
   buh_e
-  buh_line "${RBYC_ENSHRINE} is not invoked on the airgap ${RBYC_VESSEL} — its"
+  buh_line "Ensconce is not invoked on the airgap ${RBYC_VESSEL} — its"
   buh_line "${RBYC_RBRV}'s ANCHOR points at ${z_lk_forge}'s ${RBYC_HALLMARK}"
   buh_line "subtree, and the hallmark's existence in your ${RBYC_DEPOT} is"
   buh_line "established by ${z_lk_forge}'s ${RBYC_ORDAIN} success above. Conjure"
   buh_line "resolves the locator at airgap-bottle build time."
   buh_e
-  if test "${z_airgap_base_enshrined}" = "1"; then
+  if test "${z_airgap_base_anchored}" = "1"; then
     buh_line "${RBYC_PROBE_YES}Airgap base anchor populated — base ${RBYC_HALLMARK} ready"
   else
     buh_line "${RBYC_PROBE_NO}Airgap base anchor empty — ${RBYC_CONJURE} ${z_lk_forge}, then write the locator into the airgap ${RBYC_RBRV}"
@@ -234,7 +233,7 @@ rbho_director_airgap() {
   buh_e
   buh_line "Now the airgap build has everything it needs inside your"
   buh_line "${RBYC_DEPOT} — rust toolchain, apt packages, cargo cache, all"
-  buh_line "pre-staged in the enshrined base ${RBYC_HALLMARK}."
+  buh_line "pre-staged in the ${z_lk_forge} base ${RBYC_HALLMARK}."
   buh_e
   buh_line "The airgap ${RBYC_VESSEL}'s Dockerfile starts FROM that ${RBYC_HALLMARK}:"
   buh_e
@@ -360,7 +359,7 @@ rbho_director_airgap() {
   buh_line "An airgap supply chain has three links. Any future airgap build"
   buh_line "follows the same shape:"
   buh_e
-  buh_line "   1. ${RBYC_ENSHRINE} the upstream base into your ${RBYC_DEPOT}"
+  buh_line "   1. Ensconce the upstream base into a bole Lode in your ${RBYC_DEPOT}"
   buh_line "   2. ${RBYC_CONJURE} ${z_lk_forge} ${RBYC_TETHERED}, write its ${RBYC_HALLMARK} locator"
   buh_line "      into the consumer's ${RBYC_RBRV} ANCHOR"
   buh_line "   3. ${RBYC_CONJURE} the final ${RBYC_BOTTLE} ${RBYC_AIRGAP} from the ${z_lk_forge} ${RBYC_HALLMARK}"
