@@ -9388,9 +9388,10 @@
         "₢BbAAE",
         "₢BbAAF",
         "₢BbAAC",
-        "₢BbAAD"
+        "₢BbAAD",
+        "₢BbAAG"
       ],
-      "jjghn_next_pace_seed": "AAG",
+      "jjghn_next_pace_seed": "AAH",
       "jjghn_paces": {
         "₢BbAAA": {
           "jjgpn_tacks": [
@@ -9483,6 +9484,17 @@
               "jjgtn_text": "## Character\nMechanical — RCG Constant Discipline: dedup plus magic-string removal in the\ntheurge crate (rbtd).\n\n## Goal\nThe same single-home treatment for rbrv.env in Rust.\n\n## Locked\n- Add RBTDGC_RBRV_FILE to the regime-file family in rbtdgc_consts.rs (sibling to\n  RBTDGC_RBRN_FILE / RBRA_FILE / RBRO_FILE).\n- Collapse the two ad-hoc local consts onto it — discover the `const ... =\n  \"rbrv.env\"` definitions in rbtdro_onboarding.rs and rbtdrp_pristine.rs — and\n  replace the bare `path.join(\"rbrv.env\")` magic strings. Comments and\n  error-format-strings keep the literal.\n\n## Done\nOne shared RBTDGC_RBRV_FILE; no local duplicate consts; no bare path-join magic\nstrings; tt/rbw-tb.Build.sh and tt/rbw-tt.Test.sh green.",
               "jjgtn_silks": "rbrv-env-rust-sweep",
               "jjgtn_basis": "7caffa6"
+            }
+          ]
+        },
+        "₢BbAAG": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260608-1310",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nMCM core-voicing amendment plus a voicing-wide mechanical migration. The mechanism is settled; one head fork sizes the migration.\n\n## Goal\nMake ACGm_102 (name-identity) mechanically decidable — give axvo_procedure / axvo_method an explicit implementing-symbol lookahead and carry it through the live operation voicings. Context: ACG \"AXLA/MCM interface\" section and ACGm_102's dependency note.\n\n## Head fork (settle at mount)\nOptional vs required. Required mirrors axvo_tabtarget's always-present sprue but migrates every live voicing and forbids the \"no single symbol carries the link\" exception (move-discipline rule 3); optional adds the symbol where wanted and keeps existing voicings conformant. Lean optional unless the exception proves empty in practice.\n\n## Cinched\n- One mcm_inlay = the literal implementing symbol as it appears in source — not mcm_sprue. A prefix-disciplined source symbol is an inlay; this matches axhems_scoped_method's existing read and mirrors axvo_tabtarget's literal lookahead.\n- A backtick inlay is a distinct token type from a {...} attribute-reference, so it does not shift axd_grouped's \"Nth linked term\" counting.\n\n## Gate\nDiscover live voicings: grep -rn \"//axvo_procedure\\|//axvo_method\" across the S0 specs. The RBS0 share overlaps ₣BH's active rewrite surface — weigh running the RBS0 migration after ₣BH lands to avoid merge conflict.\n\n## Done when\naxvo_procedure / axvo_method carry the symbol lookahead with AXLA grammar prose updated; the chosen migration lands; the three S0 specs still validate; ACGm_102's dependency note flips to satisfied.",
+              "jjgtn_silks": "axvo-symbol-lookahead",
+              "jjgtn_basis": "b51b018"
             }
           ]
         }
