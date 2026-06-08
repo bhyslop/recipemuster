@@ -34,6 +34,26 @@ edit-time medium, where it rots for lack of a forcing function.
   Failure-path option disclosure (the missing-param-shows-options practice, live
   in rbfc_require_vessel_sigil) is blessed alongside happy-path announcement.
 
+## Move discipline
+
+Every cleanup pace obeys one litmus: mutate only where a *wrong* move is cheaply
+caught; everywhere else the verb is detect-and-report, never repair. Code-side
+moves (the value resolves through a named constant; shellcheck and the fast suite
+verify) may mutate now; spec- and document-side moves are detect-and-report until
+the lexer/linter exists.
+
+Three rules ride that litmus:
+
+- Triage is part of every move, not an afterthought: exclude the false-positive
+  class, declare the authoritative side before any alignment, and gate scope to
+  settled lanes — never terms a hot heat is still moving.
+- A checker proves itself against a known answer before its output is trusted;
+  the eviction/conformance engine is the canonical home for such checks.
+- Concept linkage is name-identity — the implementing symbol is the link (a
+  function name equals its quoin's display-text; a tabtarget filename is a sprue;
+  a scoped method is an inlay). A source-to-spec comment is the exception,
+  reserved for where no single symbol can carry the link.
+
 ## Sequencing & lanes
 
 The ACG guide and the eviction mechanism are heat-internal and buildable now, no
