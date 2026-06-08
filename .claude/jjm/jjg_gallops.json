@@ -5906,9 +5906,10 @@
         "₢BBABT",
         "₢BBABU",
         "₢BBABV",
-        "₢BBABW"
+        "₢BBABW",
+        "₢BBABX"
       ],
-      "jjghn_next_pace_seed": "ABX",
+      "jjghn_next_pace_seed": "ABY",
       "jjghn_paces": {
         "₢BBAA-": {
           "jjgpn_tacks": [
@@ -8010,6 +8011,17 @@
               "jjgtn_text": "## Character\nStandalone tooling fix + one design addition; no dependency on this heat's release-qual gestalt. Goal: make scry a trustworthy, scriptable network-diagnostic primitive.\n\nscry (`rboo_observe.sh`, colophon `rbw-cs`) proved wanting during the ₣BV Docker-Desktop containment investigation (see `Memos/memo-20260604-conntrack-spoofed-ack-adjudication.md`). Four changes:\n\n- **Latent correctness bug — interface roles are hardcoded.** scry assumes sentry eth0=uplink / eth1=enclave. Docker's interface ordering is not guaranteed; on the WSL native-docker host the two are reversed, so scry captures the wrong sentry interface and mislabels its output. Discover interfaces by IP/role the way `rbjs_sentry.sh` already does (`ip -o addr`), never by hardcoded name.\n- **Add `-e`** to the tcpdump options so L2 source MACs show. Without MACs, off-path delivery (the whole DD finding) can only be inferred from absence, not demonstrated.\n- **Capture both sentry legs on docker** (currently enclave-only; the bridge leg is podman-only), so the full enclave↔uplink path is visible in one run.\n- **Bound-duration / non-interactive mode.** Today scry traps SIGINT and `wait`s forever, so nothing can drive it programmatically. Add an optional duration and optional tcpdump filter expression: when a duration is supplied, run the parallel captures under `timeout <dur>` (already present in the vessels), collect, and exit 0 — a scriptable capture primitive a fixture or operator one-liner can call. When no duration is given, preserve today's run-until-Ctrl+C behavior unchanged. The filter argument scopes the capture (e.g. one host) so output stays legible.\n\n## Done\nscry resolves interfaces by role (correct under either ordering), shows MACs, captures both sentry legs on docker, and supports a bounded non-interactive capture (duration + optional filter) that returns cleanly for scripted use — interactive behavior unchanged when no duration is passed.",
               "jjgtn_silks": "scry-diagnostic-repairs",
               "jjgtn_basis": "49c8d96"
+            }
+          ]
+        },
+        "₢BBABX": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260608-2201",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nSurgical bash change in one function, but gated on one genuine design question —\njudgment, not mechanical.\n\n## Goal\n`rbgo_get_token_capture` (Tools/rbk/rbgo_OAuth.sh) waits the full SA-propagation\nbudget (~104 s, 10 attempts) on credential failures that are deterministically\nterminal. Its \"Discriminate failure\" block retries exactly two OAuth error shapes —\n`invalid_grant` + `\"Invalid JWT Signature.\"` and `invalid_grant` +\n`\"Invalid grant: account not found\"` — because those are the post-mint\npropagation-race signals. The flaw: each shape is **ambiguous** — also the permanent\nsignal (key revoked / SA deleted with no mint pending). The response body alone\ncannot tell transient from terminal, so the loop retries both and burns the whole\nbudget on dead credentials. Make terminal failures fail fast without weakening\nlegitimate post-mint propagation tolerance.\n\n## Cinched\n- The string classifier is correct as far as it goes — do NOT \"repair\" by dropping\n  the retry. The propagation race is real immediately after invest/mantle.\n- The disambiguator is **call context** (did a mint just happen?), not the response\n  body. The fix lives on that axis.\n\n## Clarifying questions — resolve at mount before coding\n1. Parameterize the retry budget by caller? — `rbgo_get_token_capture` takes a\n   ceiling arg: post-mint consumers (first use after invest/mantle) pass the full\n   window; cold access probes (`rbgv_check_*` behind `rbw-ac*`) pass zero/small.\n   Is call-context the right axis, and is a function parameter the right shape?\n2. Does any access probe run as the FIRST use right after a mint (legitimately\n   needing the window)? Check whether invest/mantle self-verify via a probe — if so\n   the flag must be per-call-site, not a blanket \"probes fail fast.\"\n3. Probe-path ceiling: zero retry, or a small bounded one (a few seconds) to\n   tolerate a genuinely-just-established credential?\n4. Sequencing vs the in-flight ACCOUNT_STATE_INVALID work — the `TEMP-FORENSIC`\n   block in this same function (grep `TEMP-FORENSIC` in rbgo_OAuth.sh; memo-20260527,\n   the touchpoint-2 match it is gathering shape for) overlaps this code. Is this\n   repair the same change as that touchpoint-2 landing, or does it follow it?\n\n## Done when\n- Terminal credential failures (stale key / absent SA, no pending mint) fail fast\n  from access probes instead of waiting the full propagation budget.\n- Genuine post-mint propagation races still retry on the existing budget.\n- The chosen design (context axis) is recorded where the function lives.\n\n## Sources\n- Tools/rbk/rbgo_OAuth.sh — `rbgo_get_token_capture`, the \"Discriminate failure\"\n  block and the `RBGC_SA_KEY_CONSUMER_RETRY_*` constants; the `TEMP-FORENSIC` block\n  marks the related in-flight work.\n- memo-20260527 — Host-B capture gap / ACCOUNT_STATE_INVALID token-endpoint shape.\n- memo-20260608-lode-podvm-cerebro-experiment.md §6 — the empirical 104 s-wait\n  observation (stale Director key + deleted Governor SA, this session).",
+              "jjgtn_silks": "token-mint-failfast-terminal-iam",
+              "jjgtn_basis": "8ae3f26"
             }
           ]
         }
