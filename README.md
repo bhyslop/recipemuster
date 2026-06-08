@@ -136,6 +136,17 @@ A specific build instance of a [Vessel](#Vessel), identified by timestamp.
 Each [Hallmark](#Hallmark) produces three tagged artifacts in the [Depot](#Depot) registry: the container image (`-image`), the [software bill of materials](#SBOM) ([`-about`](#About)), and the cryptographic attestation ([`-vouch`](#Vouch)).
 [Hallmark](#Hallmark) values are recorded into [Nameplate](#Nameplate) [Regime](#Regime) files to pin a [Nameplate](#Nameplate) to specific image versions.
 
+### <a id="Lode"></a>Lode
+
+A project-owned copy of an upstream artifact — a base image, a builder tool, an OS substrate, a VM disk image — captured once into the [Depot's](#Depot) registry and held there with a provenance record, so a build never depends on the upstream remaining available or unchanged.
+A [Lode](#Lode) is the captured-side parallel of a [Hallmark](#Hallmark): where a [Hallmark](#Hallmark) is the unit of a *built* image, a [Lode](#Lode) is the unit of a *captured* one.
+Each [Lode](#Lode) records its upstream source, the exact digest captured, and a trust grade stating how strongly the bytes can be re-verified (see [Disappearing Upstream Images](#DisappearingUpstream)).
+
+### <a id="Touchmark"></a>Touchmark
+
+The identifier of a [Lode](#Lode) — the handle a consumer pins to use a specific captured artifact, the captured-side parallel of a [Hallmark](#Hallmark).
+The shared `-mark` ending signals the kinship: a [Hallmark](#Hallmark) names what was built, a [Touchmark](#Touchmark) names what was captured.
+
 ### Foundry Lifecycle
 
 [Recipe Bottle](#RecipeBottle) uses a role-based security model with four roles, each building on the previous:
@@ -535,7 +546,7 @@ We depend on Google Cloud and expect to keep depending on it — and building at
 
 The [Foundry](#Foundry) builds on images pulled from upstream registries. Most are durable — an image pinned by digest stays fetchable, and a published checksum lets you re-verify the bytes later. Some are not. The sharpest case we have hit is Quay's `quay.io/podman/machine-os` family, the disk images a `podman machine` boots: Quay churns them rapidly — new images every few hours, retention measured in days — so a reference that resolved this morning can be gone by tomorrow. For Quay's own use that is fine, and we grant it; for anyone who needs a *reproducible* build it is a trap. The indefensible part is not the churn but what comes with it: no durable reference. Quay retains no digest you can pin and publishes no checksum to verify against later, so a pinned build does not fail loudly when its base ages out — it breaks asynchronously, downstream, on someone else's clock. That is not hypothetical; it is the failure that motivated this work.
 
-The response is the <a id="Lode"></a>**[Lode](#Lode)**: a project-owned copy of an upstream artifact — a base image, a build tool, an OS substrate, a VM disk image — captured once into the [Depot's](#Depot) own registry and held with a provenance record, so the bytes a build depends on cannot be pulled out from under it. Recipe Bottle grades its confidence honestly rather than uniformly: where the upstream is durable a Lode is *verified-against-published*, its bytes still re-checkable against the source; where it is not — as with the podman machine-os images — the Lode carries the weaker but honest grade *recorded-at-acquisition*, attesting the exact digest captured and claiming nothing beyond it, because the upstream permits nothing beyond it. A registry that ships images with no durable reference has decided reproducibility is not its concern; holding our own copy, and grading our confidence in it honestly, is the only sound way to build on an upstream that will not hold still.
+The response is the **[Lode](#Lode)**: a project-owned copy of an upstream artifact — a base image, a build tool, an OS substrate, a VM disk image — captured once into the [Depot's](#Depot) own registry and held with a provenance record, so the bytes a build depends on cannot be pulled out from under it. Recipe Bottle grades its confidence honestly rather than uniformly: where the upstream is durable a Lode is *verified-against-published*, its bytes still re-checkable against the source; where it is not — as with the podman machine-os images — the Lode carries the weaker but honest grade *recorded-at-acquisition*, attesting the exact digest captured and claiming nothing beyond it, because the upstream permits nothing beyond it. A registry that ships images with no durable reference has decided reproducibility is not its concern; holding our own copy, and grading our confidence in it honestly, is the only sound way to build on an upstream that will not hold still.
 
 ## <a id="Roadmap"></a>Appendix: Roadmap
 
