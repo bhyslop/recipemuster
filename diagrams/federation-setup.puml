@@ -1,5 +1,5 @@
 @startuml
-title Federation Tier — Setup (one-time, Payor-side / org admin)\nSource: memo-20260527-operator-credential-models.md
+title Federation Tier - Setup (one-time, Payor-side / org admin)\nSource: memo-20260527-operator-credential-models.md
 
 actor "Payor\n(org admin)" as PAYOR
 participant "gcloud / REST\n(setup only)" as SETUP
@@ -7,7 +7,7 @@ participant "GCP IAM\n(org-level)" as IAM
 participant "External IdP\n(OIDC / SAML 2.0)" as IDP
 participant "Depot regime\n(RBRD)" as RBRD
 
-note over PAYOR, IAM : Workforce pool is **org-level only** —\na plain project cannot hold one. This is the free/paid tier boundary.
+note over PAYOR, IAM : Workforce pool is **org-level only** -\na plain project cannot hold one. This is the free/paid tier boundary.
 
 PAYOR -> SETUP : configure federation
 SETUP -> IAM : create org-level **workforce pool**
@@ -17,9 +17,9 @@ note right of IAM : a *mutable* claim invites spoofing
 SETUP -> IAM : grant depot capability to federated principal\nprincipal://.../workforcePools/POOL/subject/SUBJECT
 
 PAYOR -> RBRD : inscribe mode=federation\n+ org-wide facts: pool, provider, audience
-note right of RBRD : tripwire-protected (rbw-rdc) —\nmode is tamper-evident, one mode per depot
+note right of RBRD : tripwire-protected (rbw-rdc) -\nmode is tamper-evident, one mode per depot
 
 note over PAYOR, IDP : Identity proofing lives entirely in the IdP.\nRBK only grants capability to an already-known principal;\nthe depot remains home of the role-to-identity roster.
-note over SETUP, IAM : gcloud / REST touches **setup only**\n(pool & provider creation) — **never runtime**.
+note over SETUP, IAM : gcloud / REST touches **setup only**\n(pool & provider creation) - **never runtime**.
 
 @enduml

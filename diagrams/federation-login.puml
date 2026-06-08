@@ -1,5 +1,5 @@
 @startuml
-title Federation Tier — Operator Login (two-leg, curl-native)\nSource: memo-20260527-operator-credential-models.md
+title Federation Tier - Operator Login (two-leg, curl-native)\nSource: memo-20260527-operator-credential-models.md
 
 actor "Operator\n(human)" as OP
 participant "RBK Tool\n(workstation)" as TOOL
@@ -8,7 +8,7 @@ participant "Browser\n(any device)" as BR
 participant "Google STS\nsts.googleapis.com" as STS
 participant "Depot API\n(GCP)" as GCP
 
-== Leg 1 — IdP auth (outside Google, RFC 8628 device flow) ==
+== Leg 1 - IdP auth (outside Google, RFC 8628 device flow) ==
 OP -> TOOL : invoke (e.g. summon as director)
 TOOL -> IDP : POST device-authorization endpoint
 IDP --> TOOL : user_code, verification_uri,\ndevice_code, interval
@@ -21,13 +21,13 @@ loop poll until authorized
 end
 IDP --> TOOL : OIDC ID token (JWT)
 
-== Leg 2 — STS exchange (pure REST, RFC 8693) ==
+== Leg 2 - STS exchange (pure REST, RFC 8693) ==
 TOOL -> STS : POST /v1/token\ngrant_type=token-exchange\naudience=workforcePools/POOL/providers/PROVIDER\nsubject_token=<ID token>  (NO Authorization header)
 STS --> TOOL : short-lived Google access_token
 
-== Downstream — model-blind ==
+== Downstream - model-blind ==
 TOOL -> GCP : Authorization: Bearer <access_token>
 GCP --> TOOL : depot response
-note over TOOL, GCP : Session cap 15 min – 12 h (default 1 h);\nlong runs re-run Leg 2, never one long session
+note over TOOL, GCP : Session cap 15 min - 12 h (default 1 h);\nlong runs re-run Leg 2, never one long session
 
 @enduml

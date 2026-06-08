@@ -1,5 +1,5 @@
 @startuml
-title Keyfile Tier — Operator Login (current shipping tier, contrast)\nSource: memo-20260527-operator-credential-models.md
+title Keyfile Tier - Operator Login (current shipping tier, contrast)\nSource: memo-20260527-operator-credential-models.md
 
 actor "Operator\n(human)" as OP
 participant "RBK Tool\n(workstation)" as TOOL
@@ -18,9 +18,9 @@ TOOL -> TOOL : build & sign JWT assertion\n(iss=SA email, aud=token endpoint, sc
 TOOL -> GOOG : POST /token\ngrant_type=urn:ietf:params:oauth:grant-type:jwt-bearer\nassertion=<signed JWT>
 GOOG --> TOOL : short-lived access_token
 
-== Downstream — model-blind ==
+== Downstream - model-blind ==
 TOOL -> GCP : Authorization: Bearer <access_token>
 GCP --> TOOL : depot response
-note over OP, RBRA : Revocation = rotate / delete the key.\nThe one durable secret lives on disk —\nexactly what the federation tier exists to remove.
+note over OP, RBRA : Revocation = rotate / delete the key.\nThe one durable secret lives on disk -\nexactly what the federation tier exists to remove.
 
 @enduml

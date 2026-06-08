@@ -1,5 +1,5 @@
 @startuml
-title The Single Code Seam — one accessor, mode enum branches inside\nSource: memo-20260527-operator-credential-models.md (heat BZ structural payoff)
+title The Single Code Seam - one accessor, mode enum branches inside\nSource: memo-20260527-operator-credential-models.md (heat BZ structural payoff)
 
 participant "Consumer\n(any GCP call site)" as CONS
 participant "Token Accessor\n(the one seam fn)" as ACC
@@ -16,9 +16,9 @@ alt mode enum == keyfile  (read from RBRD)
   ACC -> GOOG : signed-JWT exchange
   GOOG --> ACC : access_token
 else mode enum == federation
-  ACC -> IDP : Leg 1 — device flow (RFC 8628)
+  ACC -> IDP : Leg 1 - device flow (RFC 8628)
   IDP --> ACC : OIDC ID token
-  ACC -> STS : Leg 2 — STS token-exchange (RFC 8693)
+  ACC -> STS : Leg 2 - STS token-exchange (RFC 8693)
   STS --> ACC : access_token
 end
 
@@ -27,7 +27,7 @@ ACC --> CONS : **bare access_token string**
 CONS -> GCP : Authorization: Bearer <access_token>
 GCP --> CONS : depot response
 
-note over CONS, GCP : Downstream is **model-blind** — every call site adds Bearer,\nknows nothing of the token's origin.
+note over CONS, GCP : Downstream is **model-blind** - every call site adds Bearer,\nknows nothing of the token's origin.
 note over CONS, ACC : Enabling refactor (shippable now, no behavior change):\ncollapse ~30 file-path-keyed call sites behind one\nidentity-keyed accessor. Then federation is just a second branch.
 
 @enduml
