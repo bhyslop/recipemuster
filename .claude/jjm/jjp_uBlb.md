@@ -34,6 +34,28 @@ edit-time medium, where it rots for lack of a forcing function.
   Failure-path option disclosure (the missing-param-shows-options practice, live
   in rbfc_require_vessel_sigil) is blessed alongside happy-path announcement.
 
+## Sequencing & lanes
+
+The ACG guide and the eviction mechanism are heat-internal and buildable now, no
+cross-heat dependency. The vocabulary work splits by who owns the terms:
+
+- Eviction (removing superseded terms) is gated on ₣BH — the lode-capture heat
+  curates the KILL/KEEP list and retires the terms; the mechanism pace builds the
+  standing theurge engine, and its rows populate per-cluster behind ₣BH's
+  cutovers. ACG names that engine as the canonical home for evicted-term
+  assertions (ACG eating its own dog food — a named home, referenced not
+  recreated).
+- Cluster repair (curating living vocabulary to a single home) is disjoint from
+  eviction and never removes terms. The slated noun clusters are BH/BZ-safe in
+  their terms but file-gated on ₣BH, since their descriptions share rbz_zipper.sh
+  and the doc_briefs ₣BH is rewriting.
+
+Deliberately not slated until their owning heats land: reliquary / Lode / Hallmark
+vocabulary (₣BH's lane), Manor / Depot / account-role vocabulary (₣BZ's lane,
+citizen-model), and verb clusters (₣BH curates its own verb descriptions during
+cutover). Slating against terms two hot heats are still moving would only
+re-create the drift this heat exists to kill.
+
 ## Done looks like
 
 ACG v1 exists and is reachable from BCG/RCG; the rbrv.env literal has a single
