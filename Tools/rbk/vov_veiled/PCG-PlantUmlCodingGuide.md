@@ -49,12 +49,20 @@ a diff in its source, never render nondeterminism.
 
 ## Authored Disciplines (prose — internalize, don't cite)
 
-### Sources are UTF-8; non-ASCII is deliberate
+### Sources stay ASCII; mojibake is forbidden
 
-`.puml` sources are UTF-8. Every multibyte glyph (em dash `—`, typographic
-quotes, arrows) is a hostage to the render transport (PCr_101). Prefer plain
-ASCII in diagram text where it reads as well; when a multibyte glyph earns its
-place, know it rides entirely on the render path getting its bytes across intact.
+`.puml` sources are UTF-8 by file encoding, but **while the render transport
+remains charset-unsafe (PCr_101 open), diagram text MUST be plain ASCII.** Every
+multibyte glyph (em dash `—`, typographic quotes, arrows) is a hostage to the
+transport and gets frozen into the committed `.svg` as mojibake. **No committed
+PlantUML artifact — `.puml` source or rendered `.svg` — may contain the mojibake
+signature** (`&#226;&#8364;…`); a diagram that does is a defect, not a stylistic
+choice. When PCr_101 is retired and the transport carries exact bytes, deliberate
+multibyte may return — until then, ASCII is the rule, not the preference.
+
+(Scope: this forbids mojibake in *PlantUML render artifacts*, where it is a live
+defect — not a blanket repo-wide ASCII mandate. Preserved historical artifacts
+that carry original-source corruption are a separate matter.)
 
 ### Render through the charset-independent transport
 
