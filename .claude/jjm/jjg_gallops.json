@@ -9336,9 +9336,10 @@
       "jjghn_creation_time": "260608",
       "jjghn_status": "jjghe_stabled",
       "jjghn_order": [
-        "₢BbAAA"
+        "₢BbAAA",
+        "₢BbAAB"
       ],
-      "jjghn_next_pace_seed": "AAB",
+      "jjghn_next_pace_seed": "AAC",
       "jjghn_paces": {
         "₢BbAAA": {
           "jjgpn_tacks": [
@@ -9348,6 +9349,17 @@
               "jjgtn_text": "## Character\nDoc authoring from settled design — shape fully derived in the seed conversation\n(see paddock); transcription, not invention.\n\nCreate ACG (Allocation Coding Guide) as a veiled markdown guide. Veiled (a\nvov_veiled/ directory), guide-family sibling to BCG/RCG/WSG/CBG; exact kit home\nis a mount-time call. Proprietary — not released at MVP. Register the mint: add\nthe ACG acronym + expansion to the relevant claude-*-context.md acronym map and\nthe CLAUDE.md guide registry.\n\nSpine: don't recreate inline what has a named home; reference the home. Values ->\nconstants; concepts -> quoin-refs. MCM builds the homes; ACG owns source's\nobligation to reference them rather than recreate.\n\nCover at sapling depth:\n- Three homes by when-read: design-time -> spec; edit-time -> source comment\n  (operational mechanics only — language idiom + Pale/foreign-boundary);\n  execution-time -> runtime announcement.\n- Two source-doc forms: contract header (bounded comment, only where the\n  contract is not self-evident from name+body); intent announcement (crisp\n  printout on the verb surface). Mechanism is BUC/BCG; ACG owns when+what, not\n  the buc_* how.\n- Runtime education both paths: happy path announces intent; failure path\n  discloses the option space (live exemplar: rbfc_require_vessel_sigil).\n\nPosture: bless and name emergent practices; state the spine. Do NOT mandate\nuniversals (e.g. \"every verb must announce\") — mark as candidates. No\nqualify-enforcement in v1.",
               "jjgtn_silks": "acg-v1-author-allocation-guide",
               "jjgtn_basis": "f4fffe6"
+            }
+          ]
+        },
+        "₢BbAAB": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260608-1050",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nTerm-agnostic test infrastructure — build the engine, not the word list.\nSelf-proving; zero real evicted terms.\n\n## Goal\nStand up the vocabulary-eviction mechanism as a theurge fixture (fast tier, no\ndeps): a data-driven engine reading rows of {kill_stem, keep_contexts}, scanning\nTools/ and tt/ for each kill_stem with identifier-boundary awareness, asserting\nzero hits outside the declared keep_contexts. Ship one self-test row proving both\na caught violation and a respected keep-context — but NO production evicted terms\n(population is deferred, per-cluster, behind each term's own cutover).\n\n## Locked\n- One engine for all terms: a pure corpse is a row with empty keep_contexts. Do\n  not split grep-for-simple / code-for-overloaded.\n- Identifier/sprue awareness is the whole reason this is code, not grep —\n  keep_contexts must distinguish a kill-stem-as-token from the same stem living\n  inside a kept identifier.\n- Register in the fast suite. New fixture file; the engine is independent of any\n  heat's specific rename.\n- Name it in ACG: add the section declaring this fixture THE canonical home for\n  evicted-term assertions, with the rule \"retire a term -> add a row here, never\n  improvise a grep.\" Mirrors the BUK guide naming bug_require_clean_tree as the\n  canonical clean-tree gate.\n\n## Done\nFixture green in fast with its self-test row (one caught violation, one respected\nkeep-context); ACG precisely names it as the evicted-term home; no production\nevicted terms yet.",
+              "jjgtn_silks": "vocab-eviction-mechanism",
+              "jjgtn_basis": "ca74d33"
             }
           ]
         }
