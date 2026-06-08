@@ -1,14 +1,15 @@
 ## Shape
 
-Decouple Job Jockey's state from the work repo and re-home it — together with the
-operator's fleet topology — into a single shared **worksite** store (name
-provisional): an operator-scoped, repo-shaped home that any number of discrete
-projects share. This is a **spec-first** heat. Settle the model and voice it in the
-spec(s). Store reshape, minting change, sync machinery, and moorings relocation are
-deferred to follow-on heats that cannot be clear-and-present until the model sets.
+This heat creates the **worksite repo** and the **atomic Rust manipulators** that own
+its read/write/commit, and **rebalances the fundus/curia/BURP/BURN files** into the
+worksite model (name provisional): an operator-scoped, repo-shaped home that any number
+of discrete projects share. It carries an unresolved design core — chiefly the
+worksite's git-database representation — and is stood up now to **hold** the decisions
+and open questions below until the operator can focus on resolving them. Today's act is
+capture, not construction; the build waits until the design core settles.
 
 Spine is the worksite model. BURN/BURP (fleet topology) and curia/fundus (operation
-roles) are two tributaries it unifies — kept conceptual here, not refactored.
+roles) are reorganized into it, not merely referenced.
 
 ## Cinched
 
@@ -23,11 +24,12 @@ roles) are two tributaries it unifies — kept conceptual here, not refactored.
 - **Central/shared across stations, synced by a JJ-owned pull-rebase-push loop.** The
   human never hand-manages the worksite's git. Git push is an atomic compare-and-swap
   on the remote; that CAS is the cross-station lock.
-- **Per-heat sharding is the enabling precondition, not an optimization.** Single-blob
-  storage is the shared root of merge pressure, global-lock contention, and
-  round-trip-validation cost — and is disqualifying under shared-sync (every write
-  contends on one file; every rebase is a 3-way merge of canonical JSON). Shards let
-  two stations on different heats push non-conflicting changes.
+- **Writers must be isolatable; single-blob storage is disqualifying.** Single-blob is
+  the shared root of merge pressure, global-lock contention, and round-trip-validation
+  cost — and under shared-sync it fails outright (every write contends on one file;
+  every rebase is a 3-way merge of canonical JSON). Two stations on different heats must
+  push without conflict. Per-heat sharding is the natural mechanism; the exact
+  representation is the git-database fork (Held) — principle is cinched, mechanism open.
 - **Exclusivity is soft.** Reservation tokens grant node ownership; operations
   expire/reissue them; an operator can administratively reclaim a forgotten
   reservation. No distributed-consensus machinery — fits sole-operator.
@@ -40,8 +42,9 @@ roles) are two tributaries it unifies — kept conceptual here, not refactored.
   external targets — the work-repo registry is its sibling.
 - **The legatio (alias, reldir) pair is the factoring:** alias -> fleet topology
   (leaves the repo, operator-scoped); reldir -> project location (stays with project).
-- **BURN/BURP is BUK substrate JJ defers to**, not JJ-owned. It may co-reside in the
-  worksite home; it is not absorbed. JJ resolves by alias and owns nothing of it.
+- **BURN/BURP is BUK substrate JJ defers to**, not JJ-owned. The rebalance relocates
+  these files into the worksite home (co-residence), but JJ resolves by alias and owns
+  nothing of their semantics — co-residence, not absorption.
 - **Worksite git-engine = vvx (Rust); BUK owns fleet-artifact semantics, not git
   mutation.** Verified grain: BUK does no git mutation today (only git status); all
   mutation plus the lock (refs/vvg/locks/vvx) lives in the Rust vvc crate; vvx already
@@ -59,6 +62,13 @@ roles) are two tributaries it unifies — kept conceptual here, not refactored.
 
 ## Held (refine before cutting paces)
 
+- **Worksite git-database representation — the design core that gates the build.** A
+  peer to the gallops JSON (further JSON stores committed alongside), or something more
+  primal (git objects/refs as the database directly). Git-stays-truth holds either way;
+  this decision sets the data shape and subsumes the sharding mechanism above.
+- **Scope boundary of Ba vs follow-on heats.** Which of {gallops sharding rollout,
+  station-partitioned minting, the full cross-station pull-rebase-push sync loop} land
+  in this heat versus later. Settled once the git-database fork resolves.
 - **Advisory vs. authoritative tracked SHA.** Lean: advisory by default (degrades
   gracefully under rebase-away, as basis does today), with foray's curia-readiness
   guard the only authoritative point. Governs the entire reconciliation burden.
@@ -88,14 +98,15 @@ roles) are two tributaries it unifies — kept conceptual here, not refactored.
 
 ## Done when
 
-The worksite model is voiced in the spec(s) (JJS0 and/or a new worksite spec): the
-Held forks resolved-and-recorded, new concepts minted, the curia<->worksite<->fundus
-layering restated, BUK's deferral relationship documented, and implementation
-explicitly carved out to named follow-on heats. No store reshape, minting change, sync
-machinery, or moorings relocation lands in this heat.
+The worksite repo exists and its atomic Rust manipulators (validated read/write/commit
+plus lock) are built and tested; the fundus/curia/BURP/BURN files are rebalanced into
+the worksite model; the git-database representation and the other Held forks are
+resolved-and-recorded; and the Ba-vs-follow-on scope boundary is decided. No
+construction begins until the design core (the git-database approach) is settled.
 
 ## Character
 
-Design conversation requiring judgment — architectural model-setting, spec-first.
-Resist pre-baking implementation; the payoff is a model that sets cleanly so the
-downstream implementation heats can be clear-and-present.
+Design requiring judgment, then a careful build — architectural model-setting plus the
+worksite repo and its atomic manipulators. Standing now as a holding pen for settled
+decisions and open forks; construction waits until the operator can focus and resolve
+the git-database core. Resist building before the model sets.
