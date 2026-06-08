@@ -24,7 +24,7 @@
 
 use std::cell::RefCell;
 use std::io::Write;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::process::{Command, Stdio};
 
 use crate::case;
@@ -2285,6 +2285,94 @@ fn rbtdrc_pluml_malformed_diagram(dir: &Path) -> rbtdre_Verdict {
     })
 }
 
+/// Generative case — deliberately distinct from the hermetic probe cases above.
+/// Re-renders every `diagrams/*.puml` source under the project root to a sibling
+/// committed `.svg` through the live PlantUML server, asserting each response is
+/// a well-formed SVG. This is the one pluml case that writes tracked repo files:
+/// it keeps the federation-model critical-sequence diagrams (linked from
+/// README.md) in lockstep with their source. Idempotent — identical source
+/// yields byte-stable output, so a clean tree stays clean. Fails loud when the
+/// diagrams dir is missing or empty, or when a render returns a non-SVG (the
+/// server emits a valid <svg> even for diagram syntax errors, so the "Syntax
+/// Error" payload is rejected explicitly).
+fn rbtdrc_pluml_render_diagrams(dir: &Path) -> rbtdre_Verdict {
+    rbtdrc_with_ctx(|ctx| {
+        let port = match rbtdrc_read_nameplate_port(ctx) {
+            Ok(p) => p,
+            Err(e) => return rbtdre_Verdict::Fail(format!("port discovery: {}", e)),
+        };
+        let url = format!("http://localhost:{}/svg/uml", port);
+        let diagrams_dir = ctx.project_root().join("diagrams");
+
+        let entries = match std::fs::read_dir(&diagrams_dir) {
+            Ok(e) => e,
+            Err(e) => {
+                return rbtdre_Verdict::Fail(format!(
+                    "cannot read diagrams dir {}: {}",
+                    diagrams_dir.display(),
+                    e
+                ))
+            }
+        };
+        let mut sources: Vec<PathBuf> = entries
+            .flatten()
+            .map(|e| e.path())
+            .filter(|p| p.extension().and_then(|s| s.to_str()) == Some("puml"))
+            .collect();
+        sources.sort();
+
+        if sources.is_empty() {
+            return rbtdre_Verdict::Fail(format!(
+                "no .puml sources under {}",
+                diagrams_dir.display()
+            ));
+        }
+
+        let mut rendered: Vec<String> = Vec::new();
+        for src in &sources {
+            let stem = src
+                .file_stem()
+                .and_then(|s| s.to_str())
+                .unwrap_or("")
+                .to_string();
+            let body = match std::fs::read_to_string(src) {
+                Ok(b) => b,
+                Err(e) => {
+                    return rbtdre_Verdict::Fail(format!("read {}: {}", src.display(), e))
+                }
+            };
+            let svg = match rbtdrc_curl_post_stdin(&url, &body) {
+                Ok(s) => s,
+                Err(e) => {
+                    return rbtdre_Verdict::Fail(format!("render {}: curl POST: {}", stem, e))
+                }
+            };
+            if !svg.contains("<svg") || !svg.contains("</svg>") {
+                let _ = std::fs::write(dir.join(format!("{}-bad.txt", stem)), &svg);
+                return rbtdre_Verdict::Fail(format!(
+                    "{}: response is not a well-formed SVG",
+                    stem
+                ));
+            }
+            if svg.contains("Syntax Error") {
+                let _ = std::fs::write(dir.join(format!("{}-bad.svg", stem)), &svg);
+                return rbtdre_Verdict::Fail(format!(
+                    "{}: PlantUML reported a syntax error",
+                    stem
+                ));
+            }
+            let out = diagrams_dir.join(format!("{}.svg", stem));
+            if let Err(e) = std::fs::write(&out, &svg) {
+                return rbtdre_Verdict::Fail(format!("write {}: {}", out.display(), e));
+            }
+            rendered.push(stem);
+        }
+
+        let _ = std::fs::write(dir.join("rendered.txt"), rendered.join("\n"));
+        rbtdre_Verdict::Pass
+    })
+}
+
 // ── Case registry ────────────────────────────────────────────
 
 // ── Crucible fixtures (charge/quench lifecycle) ──────────────
@@ -2599,6 +2687,7 @@ pub static RBTDRC_CASES_PLUML: &[rbtdre_Case] = &[
     case!(rbtdrc_pluml_http_headers),
     case!(rbtdrc_pluml_invalid_hash),
     case!(rbtdrc_pluml_malformed_diagram),
+    case!(rbtdrc_pluml_render_diagrams),
 ];
 
 // Bottle/sentry security cases — shared by RBTDRC_FIXTURE_TADMOR and

@@ -547,6 +547,11 @@ Orthogonal to but paired with the [Crucible Conduit](#CrucibleConduit): the cond
 - <a id="OperatorFederation"></a>**[Operator Federation](#OperatorFederation)** - The path to corporate-acceptable identity — admit operators through an external identity provider (OIDC/SAML) instead of long-lived service-account keys on disk, with identity proved by a fresh sign-in and capabilities granted to a federated principal, no secret at rest.
 This tier **requires a GCP organization**, which is the dividing line from today's keyfile model (which needs none): a qualifying organization is free via Google Cloud Identity once you verify ownership of a **DNS domain**, so the real prerequisite is controlling a domain, not paying Google.
 Revocation becomes central at the identity provider rather than a manual, per-key [Divest](#Divest).
+Critical sequences, rendered from committed PlantUML source through the [pluml](#pluml) [Crucible](#Crucible):
+[Federation login](diagrams/federation-login.svg) (two-leg device-flow + STS exchange) ·
+[Federation setup](diagrams/federation-setup.svg) (Payor-side workforce pool + provider) ·
+[Keyfile login](diagrams/keyfile-login.svg) (today's tier, for contrast) ·
+[The single code seam](diagrams/federation-seam.svg) (one accessor, mode-enum branch — the structural payoff).
 
 - <a id="VpcServiceControls"></a>**[VPC Service Controls](#VpcServiceControls)** - Google Cloud security perimeters that prevent data from being copied out of a project even if an attacker holds valid credentials.
 [Recipe Bottle's](#RecipeBottle) Cloud Build architecture uses private pools, which are the prerequisite for VPC enforcement; enabling the controls themselves is deferred until organizational policy or external distribution requires them.
