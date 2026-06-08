@@ -42,6 +42,34 @@ identity-keyed one. (A deferral-honoring breadcrumb is on memo-20260527 now; ful
   Cloud-native system identities (Mason, future Envoy) sit outside it. ("citizen" supersedes
   RBSHR's prose use of it for an artifact, now reworded to "holding.")
 
+## Naming & the home — Manor, Census (settled this session)
+
+The federation ledger's "home" is satisfied without inventing a polity abstraction (a framing
+explored and dropped):
+
+- **Manor = the Payor project — concrete, singular, one-of.** The administrative seat: the one GCP
+  project hosting the Payor SA, OAuth client, and billing, under which Depots are funded. NOT a
+  cross-cloud polity. Now a first-class RBS0 quoin (`rbtgi_manor`, cult name of the former
+  `rbtgi_payor_project`), its singularity made explicit so it stops being forgotten.
+- **Census = the declared ledger** (the intent registry; "Census" = the citizen-roll-with-rank,
+  bonded to *citizen*). The **Manor hosts the Census** — resolving the ledger-home question: it
+  lives in the Payor project where ledger-write authority already sits. Recording AWS-targeting
+  intent in the Census is not administering AWS (asymmetric sovereignty intact; Manor stays
+  GCP-only). No grand polity concept unless multi-tenancy / multi-Manor becomes real.
+
+Reserved civic-ontology quoins — named here, NOT yet in RBS0 (premature pre-MVP): **Census**
+(ledger), **Citizen** (operator-altitude identity, not a role), **capability-set** (cult name TBD —
+portfolio/office). A new RBS0 category prefix likely houses the civic ontology when incorporated.
+
+Verb dispositions (gestalt-adjust where the word's soul survives; before MVP, no legacy — the gate
+is semantic fit, not legacy cost):
+
+- **invest/divest → adjust in place** to capability grant/revoke (role-keyed `rbtgo_*_invest`
+  quoins collapse to one role-generic verb).
+- **charter/knight → retire** (role-bound). **roster → retire** (dissolves into reading the
+  Census). **mantle → TBD.**
+- **membership (add/remove citizen) → mint** civic verbs: **enfranchise / expel**.
+
 ## Intent vs enforcement — the declared ledger (cinched)
 
 Enforcement is server-side IAM, always. Intent — which citizen is meant to hold which capability —
@@ -144,9 +172,11 @@ deferred — recorded here as shape.
 
 ## Open — resolve within the heat
 
-- Where the declared ledger physically lives (a separate access-restricted object vs a GAR
-  artifact) — explicitly **not** the build bucket (the director holds objectCreator there); the
-  write-ACL must be held only by governor/payor (the ledger-write invariant; see The audit).
+- Where the Census (declared ledger) physically lives — direction settled: hosted in the **Manor**
+  (Payor project), where ledger-write authority sits. Remaining: the exact object form (a separate
+  access-restricted object vs a GAR artifact), explicitly **not** the build bucket (the director
+  holds objectCreator there); write-ACL held only by governor/payor (the ledger-write invariant;
+  see The audit).
 - Whether the keyfile tier drops the standing governor entirely or demotes it to non-privileged —
   this choice gates whether project-scope grant-limiting is in-heat.
 - The citizen orphan marker: SA tags (Preview) vs description sentinel (both advisory; the
@@ -162,4 +192,5 @@ shape — breadcrumbed, full update when frozen); memo-20260605-governor-mantle-
 (standalone governor-leak fix); memo-20260605-citizen-capability-model (the mechanism this paddock
 points to); memo-20260605-citizen-model-ultracode-process (how this revision was produced);
 RBSHR "Operator federation". This revision folds in the 260605 design conversation and two review
-passes (single-reviewer + ultracode multi-agent).
+passes (single-reviewer + ultracode multi-agent). The 260606 revision adds the Manor↔Census naming,
+the first-class RBS0 Manor quoin (`rbtgi_manor`), and the verb dispositions above.
