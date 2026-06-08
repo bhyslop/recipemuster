@@ -1,6 +1,6 @@
 {
   "jjgrn_schema_version": 4,
-  "jjgrn_next_heat_seed": "Ba",
+  "jjgrn_next_heat_seed": "Bb",
   "jjgrn_heat_order": [
     "₣BZ",
     "₣BH",
@@ -28,7 +28,8 @@
     "₣Au",
     "₣BC",
     "₣BI",
-    "₣BL"
+    "₣BL",
+    "₣Ba"
   ],
   "jjgrn_heats": {
     "₣A-": {
@@ -9305,6 +9306,14 @@
       "jjghn_silks": "rbk-14-mvp-citizen-model",
       "jjghn_creation_time": "260604",
       "jjghn_status": "jjghe_racing",
+      "jjghn_order": [],
+      "jjghn_next_pace_seed": "AAA",
+      "jjghn_paces": {}
+    },
+    "₣Ba": {
+      "jjghn_silks": "worksite-operator-home-model",
+      "jjghn_creation_time": "260608",
+      "jjghn_status": "jjghe_stabled",
       "jjghn_order": [],
       "jjghn_next_pace_seed": "AAA",
       "jjghn_paces": {}
