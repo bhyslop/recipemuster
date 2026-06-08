@@ -8583,9 +8583,10 @@
         "₢BHAAO",
         "₢BHAAP",
         "₢BHAAR",
-        "₢BHAAD"
+        "₢BHAAD",
+        "₢BHAAS"
       ],
-      "jjghn_next_pace_seed": "AAS",
+      "jjghn_next_pace_seed": "AAT",
       "jjghn_paces": {
         "₢BHAAA": {
           "jjgpn_tacks": [
@@ -9041,6 +9042,17 @@
               "jjgtn_text": "## Character\nCross-track onboarding edit — one operator-facing convention across tracks, not a one-track flip. Mechanical once scope confirms; scope rides two upstream design calls.\n\n## Goal\nTeach the uniform \"tools never commit, gate on a clean tree\" convention in onboarding. Today \"commit first\" is taught only in the kludge track (rbhoct) because kludge is the sole gating verb; once the fact-chaining pace makes the gate uniform, the Director install-gesture tracks newly refuse on a dirty tree with no prose warning.\n\n## Locked\n- Operator-facing half only — the clean-tree gate. The PREV/fact-chaining mechanism is dispatch-internal; do NOT teach it in onboarding.\n- Crash Course (rbhocc, already owns \"diagnostic failure\") is the concept home; surface the commit-between-steps prompt at the Director tracks (first-build/airgap/bind/graft).\n\n## Scope contingencies — both upstream, both landed by mount; read them before writing prose\n- Gate placement: this pace assumes a pre-condition gate (refuse-before-write, the kludge model). If the fact-chaining pace placed the gate downstream-only (install leaves the tree dirty, only charge refuses — the rbob_charge model), the affected surface shifts.\n- Election shape: if the bole cutover made election a SEPARATE operator step, the cutover tracks owe the operator a new step (not just a vocab rename) and this pace's scope widens. If election is a cycle (one command, kludge-style), rename-flip + this gate teaching suffices.\n\n## Discovery recipe\ngrep the handbook for existing commit/clean-tree prose (rbhoct is the known site); enumerate the Director install-gesture tracks under rbho* that newly gate.\n\n## Done\nThe convention is taught once as a Crash Course concept and surfaced at every onboarding track that newly gates; a new operator following the Director tracks is warned to commit before the next gated step rather than hitting an unexplained refusal.",
               "jjgtn_silks": "onboarding-clean-tree-gate",
               "jjgtn_basis": "c17e95b"
+            }
+          ]
+        },
+        "₢BHAAS": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260608-1056",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nTest-infra fix. The cutover's verify gate is structurally blind — make it see. Root cause is known and proven live; the mechanism is mount's call.\n\n## Goal\nMake the airgap-chain fixture genuinely exercise the bole derived-pull election, so the cutover gains a real automated regression guard. Today it false-greens.\n\n## Problem\n`zrbfd_elect_base_anchor` reads the bole touchmark from the depth-1 BURD `previous/` chain (ensconce emits it; the next ordain dispatch reads it). theurge isolates every tabtarget invocation in its own `burv_output` root (`rbtdri_invoke_impl`), so `bud_dispatch`'s `current/`->`previous/` promotion never chains across invokes — ordain's `BURD_PREVIOUS_DIR` is empty, the election takes its no-op guard, and the conjure builds from the lingering `rbi_es` base: green but meaningless. The real operator flow chains because sequential tabtargets share `../output-buk`.\n\n## Done\nThe fixture drives ensconce->ordain so the touchmark reaches the election, then asserts the forge anchor became `rbi_ld/<touchmark>:rbi_bole` and the conjure built from it. A non-firing election fails the fixture.\n\n## Cinched\n- Restore depth-1 chaining only for invokes meant to chain; don't collapse `burv` isolation for the rest.\n- The election itself is correct — proven live this heat: back-to-back ensconce->ordain on a forge vessel repointed the anchor `rbi_es`->`rbi_ld` and the conjure built+vouched green from it. The defect is in harness invoke-isolation, not the election.",
+              "jjgtn_silks": "theurge-fixture-fact-chain-fix",
+              "jjgtn_basis": "281ce0e"
             }
           ]
         }
