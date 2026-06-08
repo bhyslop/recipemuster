@@ -116,7 +116,7 @@ zrbgc_kindle() {
   # auth has already succeeded — the token mint and the push path are sound;
   # only the credential STORE fails. Windows docker also ignores an empty
   # credsStore (the CLI still detects wincred), so config alone cannot divert
-  # the store to the file store. At this Pale (docker's own credential store,
+  # the store to the file store. At this Palisade (docker's own credential store,
   # source we cannot edit) rbgo_docker_login bends ONCE on this exact signature:
   # since auth already succeeded it writes the credential into the base64 file
   # store itself (the config.json `auths` map docker push reads directly — the
@@ -232,6 +232,7 @@ zrbgc_kindle() {
   # reliquary land today; later kinds add their brand here with their vertical.
   readonly RBGC_LODE_BRAND_BOLE="bole"
   readonly RBGC_LODE_BRAND_RELIQUARY="reliquary"
+  readonly RBGC_LODE_BRAND_WSL="wsl"
 
   # Member/provenance tags. The rbi_ sprue marks strings from RB's domain:
   # RB's authored lexicon (bole, vouch) and RB-measured-from-content values
@@ -243,12 +244,41 @@ zrbgc_kindle() {
   readonly RBGC_LODE_TAG_DIGEST_PREFIX="rbi_sha256-"  # canonical OCI digest tag: rbi_sha256-<full-hex>
   # reliquary cohort members carry the clean scheme :<sprue><tool> (e.g. rbi_skopeo)
   # — no digest/fingerprint layer; the tool name is RB-authored lexicon, so sprued.
+  readonly RBGC_LODE_TAG_ROOTFS="rbi_rootfs"        # wsl singleton: the opaque rootfs blob member (RB-authored, sprued)
 
   # Provenance envelope (:rbi_vouch) — two honest trust grades, declared per Lode.
   # bole captures the durable-upstream grade; podvm-* will carry the recorded grade.
   readonly RBGC_LODE_TRUST_VERIFIED="verified-against-published"
   readonly RBGC_LODE_TRUST_RECORDED="recorded-at-acquisition"
   readonly RBGC_LODE_VOUCH_SCHEMA="rbld-vouch-1"    # near-term unsigned, schema-versioned
+
+  # wsl-kind acquisition convention — NOT a resolved coordinate (see RBSLU). Per
+  # the no-FQIN premise, intent stays declarative and the pipeline computes the
+  # coordinate: underpin takes the substrate version as ARGUMENTS (release + point,
+  # e.g. `24.04 4`); the host _capture function assembles the tarball URL from this
+  # path-convention template, and the cloud step DISCOVERS the checksum at capture
+  # — it fetches Canonical's published, GPG-signed SHA256SUMS, verifies the
+  # signature against the pinned signing-key fingerprint below, then verifies the
+  # rootfs bytes. No full URL and no digest are pinned here; advancing the version
+  # is a different argument, not a constant edit. The template bets on Canonical's
+  # cdimage path scheme staying stable — a fail-loud bet (a 404 / missing sums-line
+  # dies clean). printf args: (release, release.point, arch).
+  #
+  # Palisade note (RBSLU): the paddock named cloud-images.ubuntu.com/wsl/, but that
+  # path retired its checksummed-tarball publication — noble/ now ships only
+  # .manifest files and a Store-delivered .wsl. Ubuntu Base (cdimage) is the
+  # genuinely-checksummed, GPG-signed, wsl --import-shaped Canonical equivalent.
+  # Acquisition-only this heat, so the distro flavor is not load-bearing; the
+  # WSL-specific seed is a consumption-time re-pin (wsl --import deferred — see
+  # RBSLU, paddock Heat nature). The signing fingerprint is per-source: re-pin it
+  # with any source change. Retire the note if the wsl/ tarball publication returns.
+  readonly RBGC_LODE_WSL_URL_TEMPLATE="https://cdimage.ubuntu.com/ubuntu-base/releases/%s/release/ubuntu-base-%s-base-%s.tar.gz"
+  readonly RBGC_LODE_WSL_ARCH_DEFAULT="amd64"
+  # Ubuntu CD Image Automatic Signing Key (2012, RSA4096), cdimage@ubuntu.com —
+  # signs cdimage SHA256SUMS.gpg. The trust anchor: tiny, stable, auditable. The
+  # cloud step fetches the key BY this fingerprint into a clean keyring, so the
+  # keyserver is never trusted — only a signature from exactly this key passes.
+  readonly RBGC_LODE_WSL_SIGNING_FPR="843938DF228D22F7B3742BC0D94AA3F0EFE21092"
 
   # rbi_df layout: flat namespace. No subdirs. Each filename names one
   # depot-scoped artifact; tag varies by artifact role.

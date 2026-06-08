@@ -65,6 +65,7 @@ The Folio column shows how each tabtarget receives it:
 |----------|-------------|-------|---------|
 | `rbw-lE` | DirectorEnsconcesBole | param1 | Ensconce an upstream base image into a Lode (capture) |
 | `rbw-lC` | DirectorConclavesReliquary | — | Conclave the build-tool cohort into one Lode (capture) |
+| `rbw-lU` | DirectorUnderpinsWsl | param1 | Underpin a vendor WSL rootfs into a Lode (capture; args: release point) |
 | `rbw-ld` | DirectorDivinesLodes | param1 | Divine Lodes — enumerate all, or inspect one Lode's members (read-only) |
 | `rbw-lB` | DirectorBanishesLode | param1 | Banish a Lode — delete the whole rbi_ld/<touchmark> package |
 

@@ -1,0 +1,166 @@
+//axhob_operation
+{rbtgo_lode_underpin}
+
+NOTE: This operation captures a vendor-published WSL rootfs into a single
+{rbtga_lode}
+— one
+{gar_service}
+package under the
+{gar_lodes_namespace}
+namespace, identified by a host-minted
+{rbtga_touchmark}.
+It is the wsl kind: a project-controlled Linux rootfs tarball, captured as the
+substrate seed a Windows workload's `wsl --import` consumes.
+It is the structural outlier among the Lode kinds — its upstream is an HTTPS
+tarball plus an out-of-band published checksum, NOT an OCI registry image — so it
+reuses neither the skopeo (bole) nor the docker (reliquary) registry-pull steps.
+
+NOTE: Intent is declarative — no FQIN, no pinned digest.
+Underpin takes the substrate version as two arguments (release + point, e.g.
+`24.04 4`); the
+{rbtr_director}
+'s workstation assembles the resolved tarball URL from a path-convention template,
+and the cloud step DISCOVERS the checksum at capture time.
+No full URL and no digest live in project config — per the no-FQIN principle, the
+declaration stays intent and the pipeline computes the coordinate.
+
+NOTE: Acquisition runs cloud-side.
+The
+{rbtr_director}
+submits a
+{gcb_service}
+job on the tethered (egress-permitted) pool, executed by the
+{rbtr_mason}
+service account via the metadata server.
+The workstation assembles the URL but never fetches the rootfs bytes — and never
+performs the signature check, which is security-critical and so belongs in the
+trusted GCP environment, not on a potentially-compromised station.
+
+NOTE: Underpin verifies against the vendor's published, GPG-signed checksum.
+The cloud step fetches the published `SHA256SUMS` and its detached signature,
+fetches the signing key BY a pinned fingerprint into a clean keyring (so the
+keyserver is not trusted — only a signature from exactly that key passes),
+verifies the signature, extracts the expected digest for the target filename, then
+verifies the fetched rootfs bytes against it.
+This is the `verified-against-published` trust grade in its strongest form: the
+vendor publishes and signs the checksum; RB pins only the signing key.
+
+NOTE: Underpin bootstraps from no reliquary.
+Its acquisition tool is curl over HTTPS (with gnupg and docker buildx, all present
+on the Google-hosted `gcr.io/cloud-builders/docker` builder), not a registry pull,
+so it needs no reliquary tool cohort.
+The opaque tarball is wrapped as a single-layer OCI member by `FROM scratch` +
+`COPY` (never `ADD`, which would extract and destroy the opaque blob).
+
+NOTE: Underpin is capture-pure.
+It mints the Lode, emits the
+{rbtga_lode_vouch}
+provenance envelope, and reports the touchmark — but writes NO consumer config.
+Consumption (a host's `wsl --import` of the captured seed, and the nameplate
+election that pins which touchmark a node provisions) is a separate, deferred
+consumption-side layer that reads the
+{rbf_fact_lode}
+this operation writes; it is not part of underpin.
+
+The
+{rbtr_director}
+captures a vendor rootfs into a Lode:
+
+//axhos_step
+. *Authenticate as
+{rbtr_director}*:
+.. Execute
+{rbtoe_director_authenticate}
+.. {rbbc_store}
+`«DIRECTOR_TOKEN»` for subsequent API calls
+
+//axhos_step
+. *Assemble the resolved URL (host-side)*:
+.. {rbbc_store}
+`«URL»` by formatting the version arguments (release, release.point, arch) into
+the cdimage path-convention template — the only resolution the workstation does
+.. The template, the default architecture, and the pinned signing-key fingerprint
+are RB constants; the version is the operator's (later, a nameplate's) declarative choice
+
+//axhos_step
+. *Mint Touchmark (host-side)*:
+.. {rbbc_store}
+`«TOUCHMARK»` as the wsl kind-letter `w` + `YYMMDDHHMMSS` from current time
+.. The host owns the stamp so the touchmark — and thus the
+{rbf_fact_lode}
+path — is known before the build
+.. Example: `w260608120000`
+
+//axhos_step
+. *Submit Two-Step Capture Cloud Build*:
+.. Compose `builds.create` JSON with:
+... Step 1 — the Google-hosted docker builder image, script `rbgjl04-underpin-capture.sh` (the curl + GPG-verify + opaque-blob-wrap capture step)
+... Step 2 — the Google-hosted docker builder image, script `rbgjl02-assemble-push-vouch.sh` (the vouch push)
+... substitutions carrying GAR host/path, the
+{gar_lodes_namespace}
+root, `«TOUCHMARK»`, the rootfs member tag, the acquiring SA email, the trust grade, the envelope schema, the assembled `«URL»`, and the pinned signing-key fingerprint
+... serviceAccount:
+{rbtr_mason}
+... pool: tethered (upstream fetch requires public egress)
+.. {rbbc_submit}
+link:https://cloud.google.com/build/docs/api/reference/rest/v1/projects.locations.builds/create[builds.create] with:
+... project:
+{rbtgi_depot_project}
+... location:
+{rbrd_gcp_region}
+.. {rbbc_store}
+`«BUILD_ID»` from response `.metadata.build.id`
+.. {rbbc_show}
+build dispatched with `«BUILD_ID»` and the Cloud Console URL
+
+//axhos_step
+. *Capture Step (in-pool — rbgjl04)*:
+.. Derive the sibling `SHA256SUMS` / `SHA256SUMS.gpg` URLs and the target filename from `«URL»`
+.. Fetch the published checksums + detached signature; receive the signing key by the pinned fingerprint into a clean keyring; verify the signature; extract the expected digest for the target filename
+.. Fetch the rootfs tarball (`curl`) and verify its bytes against that GPG-verified published digest; fail loud on mismatch
+.. Wrap the opaque tarball as a single-layer OCI member (`FROM scratch` + `COPY`) and push it into the one Lode package under the clean member tag `:rbi_rootfs` — no digest or fingerprint layer
+.. Author the
+{rbtga_lode_vouch}
+envelope JSON (schema `rbld-vouch-1`, trust grade `verified-against-published`, `members[]` one element — the cardinality axis — carrying `verification` `gpg-sha256-published` and the signing-key fingerprint) and stage it on the {rbtgr_workspace}
+.. Write the result JSON (carrying the host-minted touchmark) to `buildStepOutputs`
+
+//axhos_step
+. *Vouch Step (in-pool — rbgjl02)*:
+.. For the staged envelope, build a `FROM scratch` image copying `vouch.json` and push it to the Lode package under the `:rbi_vouch` tag — a distinct manifest sharing the one package
+
+//axhos_step
+. *Wait for Build Completion*:
+.. {rbbc_poll}
+link:https://cloud.google.com/build/docs/api/reference/rest/v1/projects.locations.builds/get[cloudbuild.builds.get] for `«BUILD_ID»`
+.. {rbbc_require}
+final status is `SUCCESS`
+
+//axhoot_typed_output
+{rbf_fact_lode}
+. *Write Capture-Facts*:
+.. Read `buildStepOutputs[0]` (base64-decoded JSON) from the completed build to recover the host-minted `«TOUCHMARK»`
+.. {rbbc_store}
+the touchmark value and the wsl kind-brand enum as the two bare single-form facts of the
+{rbf_fact_lode}
+— carrying no provenance content; the envelope is the in-GAR `:rbi_vouch` tag, written cloud-side by the vouch step
+
+//axhoc_completion
+Successful execution captures the vendor rootfs into a single
+{gar_service}
+package at `{gar_lodes_namespace}/«TOUCHMARK»`, carrying the opaque rootfs blob
+under its `:rbi_rootfs` member tag plus the `:rbi_vouch`
+{rbtga_lode_vouch}
+envelope, and hands the touchmark forward host-side as the
+{rbf_fact_lode}.
++
+The operation is capture-pure: no vessel or nameplate config is written.
+The captured seed is a Director-dictated version closure — the substrate bytes are
+exactly the published, signature-verified rootfs, never "whatever the operator had
+installed".
++
+Consumption is deferred this heat: underpin stops at the registry.
+A host's `wsl --import` of the captured seed, and the nameplate election that pins
+which touchmark a node provisions, are a separate consumption-side layer that
+reads the capture-file — so election retries independently and survives, and a
+one-to-many fan-out across nodes iterates by reading the file rather than by a verb
+taking N node arguments.

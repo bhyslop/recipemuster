@@ -59,6 +59,7 @@ rbld_divine() {
     printf "  Kinds (touchmark prefix):\n"
     printf "${z_kind_fmt}" "${RBGC_LODE_KIND_BOLE}"      "bole"      "upstream OCI image, consumed as a FROM line"
     printf "${z_kind_fmt}" "${RBGC_LODE_KIND_RELIQUARY}" "reliquary" "date-cohort of build-tool images"
+    printf "${z_kind_fmt}" "${RBGC_LODE_KIND_WSL}"       "wsl"       "vendor-published rootfs tarball, opaque-blob member"
 
     # Load the touchmark list fully before iterating: the per-Lode tags fetch
     # spawns curl (via rbuh), and a child touching stdin would consume the

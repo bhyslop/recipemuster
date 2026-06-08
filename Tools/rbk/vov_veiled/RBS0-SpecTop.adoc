@@ -150,6 +150,7 @@
 // Recipe Bottle Term Google Operations — Lode (fetched-side universal capture)
 :rbtgo_lode_ensconce:            <<rbtgo_lode_ensconce,rbld_ensconce>>
 :rbtgo_lode_conclave:            <<rbtgo_lode_conclave,rbld_conclave>>
+:rbtgo_lode_underpin:            <<rbtgo_lode_underpin,rbld_underpin>>
 :rbtgo_lode_divine:              <<rbtgo_lode_divine,rbld_divine>>
 :rbtgo_lode_augur:               <<rbtgo_lode_augur,rbld_augur>>
 :rbtgo_lode_banish:              <<rbtgo_lode_banish,rbld_banish>>
@@ -1468,6 +1469,18 @@ The {rbtr_director} submits a two-step Cloud Build job — docker capture of the
 The reliquary kind — N member tags within one package — absorbs the legacy inscribe tool-mirror into the Lode model; the member cardinality is the only structural departure from the bole skeleton.
 
 include::RBSLC-lode_conclave.adoc[]
+
+[[rbtgo_lode_underpin]]
+//axvo_method axd_transient axd_grouped
+=== {rbtgo_lode_underpin}
+
+Captures a vendor-published WSL rootfs into a single {rbtga_lode}
+({rbtgog_lode}),
+fetching the tarball cloud-side into one `{gar_lodes_namespace}/` package under a host-minted {rbtga_touchmark}.
+The {rbtr_director} submits a two-step Cloud Build job — curl fetch with GPG-verified published-checksum verification and opaque-blob wrap, then a vouch push — writing the {rbtga_lode_vouch} provenance envelope to its one canonical home, the `:rbi_vouch` tag in GAR, and handing the touchmark forward host-side as the {rbf_fact_lode}.
+The wsl kind is the structural outlier: its upstream is an HTTPS tarball plus an out-of-band signed checksum, not an OCI image, so its capture step is new — and intent is declarative (version arguments, no FQIN), with the checksum discovered and signature-verified at capture.
+
+include::RBSLU-lode_underpin.adoc[]
 
 [[rbtgo_lode_divine]]
 //axvo_method axd_transient axd_grouped

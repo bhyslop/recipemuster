@@ -42,7 +42,8 @@ use crate::rbtdgc_consts::{
     RBTDGC_JETTISON_HALLMARK_IMAGE, RBTDGC_ORDAIN_HALLMARK, RBTDGC_REKON_HALLMARK,
     RBTDGC_ACCOUNT_DIRECTOR, RBTDGC_ACCOUNT_GOVERNOR, RBTDGC_ACCOUNT_PAYOR, RBTDGC_ACCOUNT_RETRIEVER,
     RBTDGC_TALLY_HALLMARKS, RBTDGC_VOUCH_HALLMARKS,
-    RBTDGC_ENSCONCE_BOLE, RBTDGC_CONCLAVE_RELIQUARY, RBTDGC_DIVINE_LODES, RBTDGC_BANISH_LODE,
+    RBTDGC_ENSCONCE_BOLE, RBTDGC_CONCLAVE_RELIQUARY, RBTDGC_UNDERPIN_WSL, RBTDGC_DIVINE_LODES,
+    RBTDGC_BANISH_LODE,
 };
 use crate::rbtdrm_manifest::rbtdrm_credential_check_colophon;
 
@@ -2438,6 +2439,14 @@ pub static RBTDRC_FIXTURE_RELIQUARY_LIFECYCLE: rbtdre_Fixture = rbtdre_Fixture {
     cases: RBTDRC_CASES_RELIQUARY_LIFECYCLE,
 };
 
+pub static RBTDRC_FIXTURE_WSL_LIFECYCLE: rbtdre_Fixture = rbtdre_Fixture {
+    name: crate::rbtdrm_manifest::RBTDRM_FIXTURE_WSL_LIFECYCLE,
+    disposition: rbtdre_Disposition::Independent,
+    setup: None,
+    teardown: None,
+    cases: RBTDRC_CASES_WSL_LIFECYCLE,
+};
+
 pub static RBTDRC_FIXTURE_BATCH_VOUCH: rbtdre_Fixture = rbtdre_Fixture {
     name: crate::rbtdrm_manifest::RBTDRM_FIXTURE_BATCH_VOUCH,
     disposition: rbtdre_Disposition::Independent,
@@ -2534,6 +2543,7 @@ pub static RBTDRC_SUITES: &[rbtdre_Suite] = &[
             &RBTDRC_FIXTURE_HALLMARK_LIFECYCLE,
             &RBTDRC_FIXTURE_LODE_LIFECYCLE,
             &RBTDRC_FIXTURE_RELIQUARY_LIFECYCLE,
+            &RBTDRC_FIXTURE_WSL_LIFECYCLE,
             &RBTDRC_FIXTURE_BATCH_VOUCH,
         ],
     },
@@ -2570,6 +2580,7 @@ pub static RBTDRC_SUITES: &[rbtdre_Suite] = &[
             &RBTDRC_FIXTURE_HALLMARK_LIFECYCLE,
             &RBTDRC_FIXTURE_LODE_LIFECYCLE,
             &RBTDRC_FIXTURE_RELIQUARY_LIFECYCLE,
+            &RBTDRC_FIXTURE_WSL_LIFECYCLE,
             &RBTDRC_FIXTURE_BATCH_VOUCH,
             &RBTDRC_FIXTURE_TADMOR,
             &RBTDRC_FIXTURE_SRJCL,
@@ -2900,6 +2911,16 @@ const RBTDRC_LODE_TAG_DIGEST_PREFIX: &str = "rbi_sha256-";
 /// rbgc_Constants.sh RBGC_LODE_TAG_SPRUE with the cohort tool names.
 const RBTDRC_RELIQUARY_TAG_GCLOUD: &str = "rbi_gcloud";
 const RBTDRC_RELIQUARY_TAG_SKOPEO: &str = "rbi_skopeo";
+
+/// Wsl-Lode member tag asserted by divine inspect — the single opaque rootfs
+/// blob. Mirrors rbgc_Constants.sh RBGC_LODE_TAG_ROOTFS.
+const RBTDRC_LODE_TAG_ROOTFS: &str = "rbi_rootfs";
+
+/// Underpin version arguments — the wsl substrate release + point the fixture
+/// captures. Declarative version intent (no FQIN); the host assembles the cdimage
+/// URL and the cloud step discovers + GPG-verifies the checksum (RBSLU).
+const RBTDRC_WSL_RELEASE: &str = "24.04";
+const RBTDRC_WSL_POINT: &str = "4";
 
 /// BURE_TWEAK signal recognized by rbld_ensconce (rbldb_Bole.sh) to pin the Lode
 /// stamp, driving two captures onto one touchmark so the cloud-side collision
@@ -3334,6 +3355,103 @@ fn rbtdrc_reliquary_lifecycle(dir: &Path) -> rbtdre_Verdict {
 }
 
 pub static RBTDRC_CASES_RELIQUARY_LIFECYCLE: &[rbtdre_Case] = &[case!(rbtdrc_reliquary_lifecycle)];
+
+
+// Wsl-lifecycle fixture — fetched-side rootfs capture against live GAR. Single
+// self-contained round-trip: underpin a vendor-published Ubuntu rootfs into a
+// fresh rbi_ld Lode, divine-enumerate to confirm it appears, divine-inspect to
+// confirm the opaque-rootfs member tag + vouch envelope rode in, banish the whole
+// Lode, then divine-enumerate to confirm the registry is restored. The wsl kind's
+// structural-outlier analogue of lode-lifecycle: its capture is curl + GPG-verify
+// + opaque-blob wrap, not a registry pull. Underpin takes the substrate version
+// as arguments (release point), so it needs no vessel precondition. Consumption
+// (wsl --import) is deferred — this stops at the registry, no host in the loop.
+fn rbtdrc_wsl_lifecycle(dir: &Path) -> rbtdre_Verdict {
+    rbtdrc_with_ctx(|ctx| {
+        // Step 1: underpin the pinned Ubuntu rootfs version into a fresh Lode.
+        let _ = std::fs::write(dir.join("01-underpin.txt"), "underpinning wsl rootfs");
+        let underpin = match rbtdri_invoke_global(
+            ctx,
+            RBTDGC_UNDERPIN_WSL,
+            &[RBTDRC_WSL_RELEASE, RBTDRC_WSL_POINT],
+            &[],
+        ) {
+            Ok(r) if r.exit_code == 0 => r,
+            Ok(r) => return rbtdre_Verdict::Fail(format!("underpin failed (exit {})\n{}", r.exit_code, r.stderr)),
+            Err(e) => return rbtdre_Verdict::Fail(format!("underpin invocation: {}", e)),
+        };
+        let _ = std::fs::write(dir.join("01-underpin-stdout.txt"), &underpin.stdout);
+
+        // The host-side capture handoff is the bare touchmark fact.
+        let touchmark = match rbtdri_read_burv_fact(&underpin, RBTDRC_FACT_LODE_TOUCHMARK) {
+            Ok(v) => v,
+            Err(e) => return rbtdre_Verdict::Fail(format!("read touchmark fact: {}", e)),
+        };
+        let _ = std::fs::write(dir.join("02-touchmark.txt"), &touchmark);
+
+        // Step 2: divine enumerate shows the new Lode.
+        let after = match rbtdri_invoke_global(ctx, RBTDGC_DIVINE_LODES, &[], &[]) {
+            Ok(r) if r.exit_code == 0 => r,
+            Ok(r) => return rbtdre_Verdict::Fail(format!("post-underpin divine failed (exit {})\n{}", r.exit_code, r.stderr)),
+            Err(e) => return rbtdre_Verdict::Fail(format!("post-underpin divine invocation: {}", e)),
+        };
+        let _ = std::fs::write(dir.join("03-divine-after.txt"), &after.stdout);
+        if !after.stdout.contains(&touchmark) {
+            return rbtdre_Verdict::Fail(format!(
+                "post-underpin divine missing touchmark {}\nstdout:\n{}",
+                touchmark, after.stdout
+            ));
+        }
+
+        // Step 3: divine inspect shows the rootfs member tag + the vouch envelope.
+        let inspect = match rbtdri_invoke_global(ctx, RBTDGC_DIVINE_LODES, &[&touchmark], &[]) {
+            Ok(r) if r.exit_code == 0 => r,
+            Ok(r) => return rbtdre_Verdict::Fail(format!("divine inspect failed (exit {})\n{}", r.exit_code, r.stderr)),
+            Err(e) => return rbtdre_Verdict::Fail(format!("divine inspect invocation: {}", e)),
+        };
+        let _ = std::fs::write(dir.join("04-divine-inspect.txt"), &inspect.stdout);
+        for member in &[RBTDRC_LODE_TAG_ROOTFS, RBTDRC_LODE_TAG_VOUCH] {
+            if !inspect.stdout.contains(member) {
+                return rbtdre_Verdict::Fail(format!(
+                    "divine inspect missing member tag '{}'\nstdout:\n{}",
+                    member, inspect.stdout
+                ));
+            }
+        }
+
+        // Step 4: banish the whole Lode.
+        let _ = std::fs::write(dir.join("05-banish.txt"), "banishing");
+        match rbtdri_invoke_global(
+            ctx,
+            RBTDGC_BANISH_LODE,
+            &[&touchmark],
+            &[(RBTDRI_BURE_CONFIRM_KEY, RBTDRI_BURE_CONFIRM_SKIP)],
+        ) {
+            Ok(r) if r.exit_code == 0 => {}
+            Ok(r) => return rbtdre_Verdict::Fail(format!("banish failed (exit {})\n{}", r.exit_code, r.stderr)),
+            Err(e) => return rbtdre_Verdict::Fail(format!("banish invocation: {}", e)),
+        }
+
+        // Step 5: divine enumerate no longer shows the Lode — registry restored.
+        let final_divine = match rbtdri_invoke_global(ctx, RBTDGC_DIVINE_LODES, &[], &[]) {
+            Ok(r) if r.exit_code == 0 => r,
+            Ok(r) => return rbtdre_Verdict::Fail(format!("final divine failed (exit {})\n{}", r.exit_code, r.stderr)),
+            Err(e) => return rbtdre_Verdict::Fail(format!("final divine invocation: {}", e)),
+        };
+        let _ = std::fs::write(dir.join("06-divine-final.txt"), &final_divine.stdout);
+        if final_divine.stdout.contains(&touchmark) {
+            return rbtdre_Verdict::Fail(format!(
+                "final divine still shows banished touchmark {} — banish did not restore baseline\nstdout:\n{}",
+                touchmark, final_divine.stdout
+            ));
+        }
+
+        let _ = std::fs::write(dir.join("07-passed.txt"), "passed");
+        rbtdre_Verdict::Pass
+    })
+}
+
+pub static RBTDRC_CASES_WSL_LIFECYCLE: &[rbtdre_Case] = &[case!(rbtdrc_wsl_lifecycle)];
 
 
 // Batch-vouch fixture — exercises rbfv_batch_vouch's two-pass pending→vouched

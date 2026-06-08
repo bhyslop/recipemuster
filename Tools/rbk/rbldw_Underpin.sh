@@ -1,0 +1,187 @@
+#!/bin/bash
+#
+# Copyright 2026 Scale Invariant, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# Author: Brad Hyslop <bhyslop@scaleinvariant.org>
+#
+# Recipe Bottle Lode - wsl body (guard-free cluster, sourced by rbld0_Lode):
+#   underpin — capture a vendor-published WSL rootfs into a Lode (Director creds)
+# The wsl kind rides the capture-assembly spine (rblds_): this body owns only the
+# kind-specific data — the underpin recipe (curl+gpg capture + docker vouch push),
+# the substitutions blob, and the touchmark-fact extract — and composes them
+# through zrbld_spine_dispatch / zrbld_spine_extract. No build-submission or
+# step-composition machinery lives here.
+#
+# The structural outlier among the Lode kinds: its upstream is an HTTPS rootfs
+# tarball + an out-of-band published checksum, NOT an OCI registry image — so it
+# cannot reuse the skopeo/docker registry-pull steps. Its capture step (rbgjl04)
+# fetches over curl, GPG-verifies the vendor's published SHA256SUMS against a
+# pinned signing-key fingerprint, verifies the rootfs bytes, then wraps the opaque
+# tarball as an OCI member (FROM scratch + COPY). Acquisition runs cloud-side; the
+# workstation only assembles the URL from the version arguments.
+
+set -euo pipefail
+
+# Underpin is capture-pure: it writes no consumer config. It hands the captured
+# touchmark forward through two bare single-form chaining facts
+# (RBF_FACT_LODE_TOUCHMARK + RBF_FACT_LODE_BRAND/RBGC_LODE_BRAND_WSL). The
+# provenance envelope lives only in GAR (:rbi_vouch tag, pushed cloud-side by
+# rbgjl02), never host-side. Consumption (wsl --import of the captured seed) is a
+# separate, deferred layer that reads these facts — not part of underpin.
+
+######################################################################
+# Internal Helpers (zrbld_*)
+
+# Internal: compose the underpin capture recipe (curl+gpg capture + docker vouch
+# push) and its substitutions blob, then ride the capture spine to submit and
+# poll. The spine owns the capture-domain build knobs (mason SA, TETHER pool,
+# regime timeout); this body chooses only the recipe, the substitutions, and the
+# poll ceiling. Both steps ride the Google-hosted docker builder — the capture
+# tool is curl/gpg/buildx (all present there), so the wsl kind needs neither
+# skopeo nor a reliquary bootstrap. The inscribe-grade poll ceiling gives headroom
+# for the in-step apt-get(gnupg) + keyserver fetch + buildx blob push.
+# Args: token url stamp
+zrbld_underpin_submit() {
+  zrbld_sentinel
+
+  local -r z_token="${1:?Token required}"
+  local -r z_url="${2:?URL required}"
+  local -r z_stamp="${3:?Stamp required}"
+
+  buc_step "Constructing underpin capture recipe"
+  local -r z_gar_host="${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}"
+  local -r z_gar_path="${RBGD_GAR_PROJECT_ID}/${RBDC_GAR_REPOSITORY}"
+
+  # Recipe rows: script_path|builder_image|id|entrypoint, pre-resolved for the
+  # spine. Both steps ride the Google-hosted docker builder (no reliquary
+  # bootstrap — curl/gpg/buildx, not a registry pull).
+  local -r z_recipe=(
+    "${ZRBLD_RBGJL_STEPS_DIR}/rbgjl04-underpin-capture.sh|${ZRBLD_GOOGLE_DOCKER_BUILDER}|underpin-capture|bash"
+    "${ZRBLD_RBGJL_STEPS_DIR}/rbgjl02-assemble-push-vouch.sh|${ZRBLD_GOOGLE_DOCKER_BUILDER}|assemble-push-vouch|bash"
+  )
+
+  buc_log_args "Composing underpin substitutions blob"
+  local -r z_subs_file="${ZRBLD_UNDERPIN_PREFIX}subs.json"
+  jq -n \
+    --arg zjq_gar_host     "${z_gar_host}" \
+    --arg zjq_gar_path     "${z_gar_path}" \
+    --arg zjq_lodes_root   "${RBGL_LODES_ROOT}" \
+    --arg zjq_tag_rootfs   "${RBGC_LODE_TAG_ROOTFS}" \
+    --arg zjq_tag_vouch    "${RBGC_LODE_TAG_VOUCH}" \
+    --arg zjq_trust_grade  "${RBGC_LODE_TRUST_VERIFIED}" \
+    --arg zjq_vouch_schema "${RBGC_LODE_VOUCH_SCHEMA}" \
+    --arg zjq_acquired_by  "${RBGD_MASON_EMAIL}" \
+    --arg zjq_stamp        "${z_stamp}" \
+    --arg zjq_wsl_url      "${z_url}" \
+    --arg zjq_wsl_key_fpr  "${RBGC_LODE_WSL_SIGNING_FPR}" \
+    '{
+      _RBGL_GAR_HOST:     $zjq_gar_host,
+      _RBGL_GAR_PATH:     $zjq_gar_path,
+      _RBGL_LODES_ROOT:   $zjq_lodes_root,
+      _RBGL_TAG_ROOTFS:   $zjq_tag_rootfs,
+      _RBGL_TAG_VOUCH:    $zjq_tag_vouch,
+      _RBGL_TRUST_GRADE:  $zjq_trust_grade,
+      _RBGL_VOUCH_SCHEMA: $zjq_vouch_schema,
+      _RBGL_ACQUIRED_BY:  $zjq_acquired_by,
+      _RBGL_LODE_STAMP:   $zjq_stamp,
+      _RBGL_WSL_URL:      $zjq_wsl_url,
+      _RBGL_WSL_KEY_FPR:  $zjq_wsl_key_fpr
+    }' > "${z_subs_file}" \
+    || buc_die "Failed to compose underpin substitutions blob"
+
+  zrbld_spine_dispatch \
+    "${z_token}" "Underpin" "${ZRBFC_BUILD_POLL_CEILING_INSCRIBE}" \
+    "${z_subs_file}" "${ZRBLD_UNDERPIN_PREFIX}" \
+    "${z_recipe[@]}"
+}
+
+# Internal: extract the captured touchmark from the completed underpin build and
+# emit the two bare single-form chaining facts (touchmark value + kind-brand
+# enum). The capture step (step 0) authors the base64 JSON carrying the
+# host-minted stamp in slot_1; the docker vouch step writes no output. Underpin
+# captures exactly one Lode, so exactly one slot is populated. The provenance
+# envelope is NOT read host-side: it lives only in GAR (rbgjl02 pushed it under
+# :rbi_vouch), so the host hands forward only the touchmark a consumer needs.
+zrbld_underpin_extract() {
+  zrbld_sentinel
+
+  buc_step "Extracting capture results from build step outputs"
+
+  local -r z_output_file="${ZRBLD_UNDERPIN_PREFIX}output.json"
+  zrbld_spine_extract 0 "${z_output_file}"
+
+  buc_log_args "Underpin output:"
+  buc_log_pipe < "${z_output_file}"
+
+  local -r z_stamp_file="${ZRBLD_UNDERPIN_PREFIX}stamp.txt"
+  jq -r '.slot_1.stamp // empty' "${z_output_file}" > "${z_stamp_file}" \
+    || buc_die "Failed to read wsl stamp from underpin output"
+  local -r z_stamp=$(<"${z_stamp_file}")
+  test -n "${z_stamp}" || buc_die "Underpin output carried no stamp in slot_1"
+
+  buf_write_fact_single "${RBF_FACT_LODE_TOUCHMARK}" "${z_stamp}" \
+    || buc_die "Failed to write touchmark fact for ${z_stamp}"
+  buf_write_fact_single "${RBF_FACT_LODE_BRAND}" "${RBGC_LODE_BRAND_WSL}" \
+    || buc_die "Failed to write kind-brand fact for ${z_stamp}"
+  buc_success "Underpin captured Lode ${z_stamp} — touchmark fact emitted (${RBGC_LODE_BRAND_WSL})"
+}
+
+######################################################################
+# External Functions (rbld_*)
+
+rbld_underpin() {
+  zrbld_sentinel
+
+  buc_doc_brief "Underpin a vendor-published WSL rootfs into a Lode (wsl kind, rbi_ld capture)"
+  buc_doc_param "release" "Ubuntu release series — the cdimage path segment (e.g. 24.04)"
+  buc_doc_param "point"   "Point-release number — assembles the full version (e.g. 4 -> 24.04.4)"
+  buc_doc_shown || return 0
+
+  # Two declarative version arguments (no FQIN — see RBSLU): the param1 channel
+  # routes the first to BUZ_FOLIO and forwards the rest, so release is the folio
+  # and point the first positional. The host assembles the resolved URL from the
+  # path-convention template; the cloud step discovers and verifies the checksum.
+  local -r z_release="${BUZ_FOLIO:-}"
+  local -r z_point="${1:-}"
+  test -n "${z_release}" || buc_die "release argument required (e.g. 24.04)"
+  test -n "${z_point}"   || buc_die "point argument required (e.g. 4)"
+
+  local -r z_arch="${RBGC_LODE_WSL_ARCH_DEFAULT}"
+  local -r z_fullver="${z_release}.${z_point}"
+  local z_url=""
+  printf -v z_url "${RBGC_LODE_WSL_URL_TEMPLATE}" "${z_release}" "${z_fullver}" "${z_arch}"
+  buc_info "Underpin source: ${z_url}"
+
+  buc_step "Loading Director RBRA credentials"
+  source "${RBDC_DIRECTOR_RBRA_FILE}" || buc_die "Failed to source Director RBRA"
+
+  buc_step "Authenticating as Director"
+  local z_token=""
+  z_token=$(rbgo_get_token_capture "${RBDC_DIRECTOR_RBRA_FILE}") \
+    || buc_die "Failed to get Director OAuth token"
+
+  # Mint the Lode stamp on the host: <kind-letter><YYMMDDHHMMSS>. The host owns
+  # the stamp so the touchmark is known before the build for the capture-file.
+  local -r z_stamp="${RBGC_LODE_KIND_WSL}${BURD_NOW_STAMP:2:6}${BURD_NOW_STAMP:9:6}"
+
+  buc_info "Lode: ${RBGL_LODES_ROOT}/${z_stamp}"
+
+  zrbld_underpin_submit "${z_token}" "${z_url}" "${z_stamp}"
+  zrbld_underpin_extract
+
+  buc_success "Underpin complete: ${z_url} -> ${RBGL_LODES_ROOT}/${z_stamp}"
+}
+
+# eof

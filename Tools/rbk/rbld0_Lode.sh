@@ -35,6 +35,7 @@ source "${BASH_SOURCE[0]%/*}/rbldl_Lifecycle.sh"
 source "${BASH_SOURCE[0]%/*}/rblds_Spine.sh"
 source "${BASH_SOURCE[0]%/*}/rbldb_Bole.sh"
 source "${BASH_SOURCE[0]%/*}/rbldr_Reliquary.sh"
+source "${BASH_SOURCE[0]%/*}/rbldw_Underpin.sh"
 
 ######################################################################
 # Internal Functions (zrbld_*)
@@ -59,6 +60,9 @@ zrbld_kindle() {
 
   buc_log_args 'Define conclave operation file prefix'
   readonly ZRBLD_CONCLAVE_PREFIX="${BURD_TEMP_DIR}/rbld_conclave_"
+
+  buc_log_args 'Define underpin operation file prefix'
+  readonly ZRBLD_UNDERPIN_PREFIX="${BURD_TEMP_DIR}/rbld_underpin_"
 
   # Google-hosted docker builder — always pullable even under NO_PUBLIC_EGRESS.
   # Conclave captures the reliquary tool cohort itself, so it cannot resolve its
