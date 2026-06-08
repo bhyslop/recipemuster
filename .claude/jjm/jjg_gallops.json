@@ -8138,9 +8138,10 @@
         "₢BDAAQ",
         "₢BDAAR",
         "₢BDAAS",
-        "₢BDAAT"
+        "₢BDAAT",
+        "₢BDAAU"
       ],
-      "jjghn_next_pace_seed": "AAU",
+      "jjghn_next_pace_seed": "AAV",
       "jjghn_paces": {
         "₢BDAAA": {
           "jjgpn_tacks": [
@@ -8527,6 +8528,17 @@
               "jjgtn_text": "## Character\nIntricate but mechanical — server change plus spec/doc sync; the decisions are cinched, nothing left to design.\n\n## Goal\nMake `jjx_orient` (mount) and the heat-overview form of `jjx_show` (groom) take their heat firemark **solely from `gazette_in.md`**, never from params. Writing the gazette becomes a required first step of mount/groom, so the Claude Code `Write` permission fires at ceremony start instead of silently stalling a chat at the first later slate/reslate/paddock-set. Single-pace parade (`jjx_show {target: <coronet>}`) stays param-based.\n\n## Cinched\n- **Hard / sole input** — a param firemark on these two paths is *rejected*, not a fallback. Soft conventions slip unnoticed; that silent stall is exactly what this fixes.\n- **Scope = mount + groom-form only.** Single-pace parade stays param-based and cheap.\n- **Deliberate override of getter/setter orthodoxy** — the gazette normally carries content, not identities; here it carries a body-less firemark notice on purpose, to make the ceremony `Write` load-bearing. Operator decision; do not re-litigate.\n\n## Done looks like\n- New read-command input slug(s) minted (minting rules + Quoin discipline) and wired into the gazette parser; both paths require + parse the gazette firemark and reject a param firemark with a loud error.\n- CLAUDE.md synced: Mount Protocol, Groom Protocol, and the Officium Protocol gazette tables/notes (input-slug table, getter/setter line).\n- **JJS0 spec family updated** — the main spec plus every affected command spec and the gazette wire-format section. Discovery: `grep -rln 'jjx_orient\\|jjx_show\\|jjezs_' Tools/jjk/vov_veiled/JJS*.adoc`.\n- Param callers of these two paths reconciled to write the gazette first (Hard enforcement breaks them). Discovery: grep the JJK crate + tests for orient/show invocations.",
               "jjgtn_silks": "mount-groom-gazette-heat-selection",
               "jjgtn_basis": "33098e5"
+            }
+          ]
+        },
+        "₢BDAAU": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260608-0849",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nDesign decision, not implementation — a go/no-go plus a chosen approach, decided when ₣BD is worked. The type change is out of scope here; if go, this pace's product is the implementation docket. Sibling to the docket-text-as-line-array reconsider already in this heat — decide the two together.\n\n## The question\nChange the tack from an append-only array of full-text snapshots to a single tack edited in place. Preserve the tack record and its fields (ts, state, text, silks, basis) as the pace's CURRENT docket; drop the in-JSON history. A redocket EDITS the current tack rather than prepending a new one. Evolution lives in git, not in-band.\n\n## Motivation — the spec's own principle\nJJS0 Git-as-Journal states plan evolution is visible through commit diffs \"without additional in-JSON bookkeeping.\" The append-history IS that bookkeeping. The intended in-band tack-evolution study was never built, and git already holds the full evolution (each redocket is a commit carrying basis + timestamp). Collapsing to a single edited tack realigns with the principle and shrinks the blob + merge surface — a direct lever on the worksite/sharding pains.\n\n## What this does NOT fix — set expectations\nDoes not fix the structural merge collisions (concurrent next_heat_seed / heat_order allocation); that stays on the merge-driver / worksite track. ALONE it only changes same-pace concurrent redockets from always-conflict (two array-head prepends) to conflict-only-on-overlap — and that overlap-merge benefit materializes only PAIRED with the sibling line-array pace (text as Vec<String>). Neither pace alone is the merge fix.\n\n## Weigh at mount\n- Live consumer: the line-granular docket-diff (jjrtl_diff_docket) reads the previous tack; edit-in-place removes it from JSON. Re-source from git or drop. Confirm read-sites first.\n- In-band additive-only shift: the JSON store becomes mutable (edit overwrites); git remains the sole journal. Verify no safety property leans on in-band append-only.\n- Migration: collapse existing per-pace tack arrays to current-only (history → git) via jjdr_load's migration hook + a schema_version bump.\n- Vocabulary: \"tack\" connotes a sequence of course-changes; a single edited record may want a name look (mount-time, not now).\n- Reconcile with ₣Ah's v4 data-model design, which already contemplated replacing the tack array with flat pace fields. This is a variant — preserve the tack struct, drop the history. Do not re-decide in isolation.\n\n## Done when\nA go/no-go is recorded with a chosen approach (preserve-tack-struct edit-in-place vs the flatten-to-flat-fields variant). If go, the product is the implementation docket; the type change does not land in this pace.",
+              "jjgtn_silks": "reconsider-tack-edit-in-place-not-append",
+              "jjgtn_basis": "725f83b"
             }
           ]
         }
