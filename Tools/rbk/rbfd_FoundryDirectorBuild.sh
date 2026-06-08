@@ -1397,11 +1397,7 @@ rbfd_mirror() {
   zrbfc_resolve_tool_images
 
   # Dirty-tree guard (same as inscribe — mirror should match a committed state)
-  buc_step "Verifying clean working tree"
-  git diff --quiet \
-    || buc_die "Working tree has unstaged changes — commit before mirroring"
-  git diff --cached --quiet \
-    || buc_die "Index has staged changes — commit before mirroring"
+  bug_require_clean_tree "mirroring"
 
   # Authenticate as Director
   buc_step "Loading Director RBRA credentials"

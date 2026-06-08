@@ -89,11 +89,7 @@ rbfk_kludge() {
   buc_doc_shown || return 0
 
   # Dirty-tree guard — kludge images must correspond to a committed state
-  buc_step "Verifying clean working tree"
-  git diff --quiet \
-    || buc_die "Working tree has unstaged changes — commit before kludge"
-  git diff --cached --quiet \
-    || buc_die "Index has staged changes — commit before kludge"
+  bug_require_clean_tree "kludge"
 
   # Resolve vessel argument (sigil or path)
   zrbfc_resolve_vessel "${BUZ_FOLIO:-}"
