@@ -126,6 +126,7 @@ zrbob_furnish() {
   source "${z_rbk_kit_dir}/rbgo_OAuth.sh"
   source "${z_rbk_kit_dir}/rbob_bottle.sh"
   source "${BURD_BUK_DIR}/buf_fact.sh"
+  source "${BURD_BUK_DIR}/bug_git.sh"
   source "${z_rbk_kit_dir}/rbfh_FoundryHygiene.sh"
   source "${z_rbk_kit_dir}/rbfd_FoundryDirectorBuild.sh"
   source "${z_rbk_kit_dir}/rbfk_kludge.sh"
