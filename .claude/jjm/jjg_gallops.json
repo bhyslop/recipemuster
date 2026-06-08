@@ -9356,11 +9356,12 @@
       "jjghn_status": "jjghe_stabled",
       "jjghn_order": [
         "₢BbAAA",
+        "₢BbAAE",
         "₢BbAAB",
         "₢BbAAC",
         "₢BbAAD"
       ],
-      "jjghn_next_pace_seed": "AAE",
+      "jjghn_next_pace_seed": "AAF",
       "jjghn_paces": {
         "₢BbAAA": {
           "jjgpn_tacks": [
@@ -9403,6 +9404,17 @@
               "jjgtn_text": "## Character\nStable-noun curation — terms are BH/BZ-safe so the docket is concrete, but\nexecution is file-gated on BH.\n\n## Goal\nCurate the vessel-identity noun cluster (Vessel, Sigil, Nameplate): each traces\nto one canonical home (RBS0 quoin; RBYC fragment where handbook-surfaced), and\nits drift-prone uses are made consistent — enrollment descriptions and doc_briefs\nagree, no variant spellings, no in-source comment re-definitions of what the noun\nmeans. Watch the Vessel/Sigil boundary specifically (sigil = the per-vessel\ndirectory name; vessel = the configured unit) so the two don't blur in prose.\n\n## Locked\n- Curate, never evict — these nouns live. Removal of dead terms is the ₢BbAAB\n  mechanism + BH's vocab scrub, not here.\n- Target only drift-prone uses (cross-referencing descriptions, variant\n  spellings, comment re-definitions); leave legitimate prose mentions alone.\n- Apply ACG's reference-the-home discipline.\n\n## Gate\nAfter ₣BH (lode-universal-capture) lands — these descriptions live in\nrbz_zipper.sh and the doc_briefs BH is rewriting.\n\n## Done\nEach cluster noun traces to one home; descriptions and doc_briefs consistent; no\nvariant spellings or in-source re-definitions survive; fast green.",
               "jjgtn_silks": "noun-cluster-vessel-identity",
               "jjgtn_basis": "b9751f0"
+            }
+          ]
+        },
+        "₢BbAAE": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260608-1107",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nMechanical sweep gated on one small design fork at its head — the first worked\napplication of ACG's magic-string discipline.\n\n## Goal\nGive the rbrv.env filename literal a single named home in bash; sweep the\npath-construction sites onto it.\n\n## Head fork (settle at mount)\nDoes the constant reference the existing rbrv_regime quoin (RBS0) or a freshly\nminted filename quoin distinct from the regime? The regime-vs-file split is real\n— sourcing/validation act on the regime; yoke/inscribe/enumerate act on the file\n— so lean to a distinct filename quoin, but confirm against MCM \"warrants\nanchoring\".\n\n## Locked\n- Constant joins the RBCC_rbr*_file family in rbcc_Constants.sh (sibling to\n  RBCC_rbrn_file / rbra_file / rbro_file), with a breadcrumb to its spec quoin.\n- Sweep only genuine path constructions. Discover: grep -rn \"rbrv\\.env\" Tools/rbk\n  --include=\"*.sh\"; exclude prose — doc_params, buc_info/buh_line messages, and\n  comments keep the literal (naming the file for a human is not a magic string).\n\n## Done\nEvery bash path-construction resolves through the constant; prose literals\nuntouched; the constant carries its quoin breadcrumb; tt/rbw-tl.Shellcheck.sh and\ntt/rbw-ts.TestSuite.fast.sh green.",
+              "jjgtn_silks": "rbrv-env-bash-sweep",
+              "jjgtn_basis": "2b906ef"
             }
           ]
         }
