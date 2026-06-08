@@ -22,7 +22,6 @@ Per-kit acronym mappings live in each kit's context file (loaded via `@` include
 - **CRAFT**   → `a-roe-CRAFT-cmodel-format.adoc`
 - **METAL**   → `a-roe-METAL-sequences.adoc`
 - **MIND**    → `a-roe-MIND-cmodel-semantic.adoc`
-- **PCG**     → `bpu-PCG-ProcedureCurationGuide-005.md`
 - **JRR**     → `jrr-JobRookRadar-sspec.adoc`
 - **MBC**     → `lens-mbc-MakefileBashConsole-cmodel.adoc`
 - **YAK**     → `lens-yak-YetAnotherKludge-cmodel.adoc`

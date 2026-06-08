@@ -2,6 +2,7 @@
 
 - **BCG**  → `buk/vov_veiled/BCG-BashConsoleGuide.md` (Bash Console Guide - enterprise bash patterns)
 - **WSG**  → `buk/vov_veiled/WSG-WindowsScriptingGuide.md` (Windows Scripting Guide - ssh-to-Windows transport discipline; extends BCG into the wsl.exe / cygwin / PowerShell stack)
+- **HCG**  → `buk/vov_veiled/HCG-HandbookCurationGuide.md` (Handbook Curation Guide - authoring durable operator-facing procedures: single-path, verification-when-uncertain, intent-over-mechanics, guillemet substitution. Generic procedure craft, moved into the kit from the retired cnmp PCG lens.)
 - **BUS0** → `buk/vov_veiled/BUS0-BashUtilitiesSpec.adoc` (Bash Utilities Specification - tabtarget dispatch vocabulary)
 - **BUC**  → `buk/buc_command.sh` (command utilities, buc_* functions)
 - **BUD**  → `buk/bud_dispatch.sh` (dispatch utilities, zbud_* functions)

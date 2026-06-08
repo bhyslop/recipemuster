@@ -1,7 +1,7 @@
 ## File Acronym Mappings — RBK Subdirectory (`Tools/rbk/`)
 
 - **CBG**  → `rbk/vov_veiled/CBG-CloudBuildGuide.md` (Cloud Build Guide — step-body discipline for Google Cloud Build steps; polyglot bash/sh + python; foreign-environment sibling to BCG/RCG/WSG. Rule families CBi_/CBb_/CBp_/CBh_.)
-- **PUG**  → `rbk/vov_veiled/PUG-PlantUmlGuide.md` (PlantUml Guide — diagram source + render discipline for the committed `.puml`/`.svg` pairs linked from README; foreign-environment sibling to CBG/WSG. Palisade conduct at the PlantUML render membrane; cited-rule family PUr_. Founded on PUr_101 (charset transport).)
+- **PCG**  → `rbk/vov_veiled/PCG-PlantUmlCodingGuide.md` (PlantUml Coding Guide — diagram source + render discipline for the committed `.puml`/`.svg` pairs linked from README; foreign-environment sibling to CBG/WSG. Palisade conduct at the PlantUML render membrane; cited-rule family PCr_. Founded on PCr_101 (charset transport).)
 - **RBA**  → `rbk/rba_Auth.sh` (Auth — RBRA/RBRO credential load and role token mint)
 - **RBDC** → `rbk/rbdc_DerivedConstants.sh`
 - **RBF**  → Foundry prefix (non-terminal: children rbfc, rbfd, rbfh, rbfk, rbfl, rbfr, rbfv). The former `rbf_Foundry.sh` monolith was decomposed and its residual renamed to `rbfd_FoundryDirectorBuild.sh`; no file is named bare `rbf_`.

@@ -4,11 +4,11 @@ SPDX-License-Identifier: Apache-2.0
 See LICENSE for terms.
 -->
 
-# PlantUml Guide (PUG) — Diagram Source & Render Discipline
+# PlantUml Coding Guide (PCG) — Diagram Source & Render Discipline
 
 ## Purpose
 
-PUG codifies the discipline for the project's PlantUML diagrams: how the
+PCG codifies the discipline for the project's PlantUML diagrams: how the
 committed `.puml` sources are authored, and how they are rendered to the
 committed `.svg` siblings linked from `README.md`. It is a foreign-environment
 sibling to CBG (Cloud Build step bodies) and WSG (ssh-to-Windows transport),
@@ -20,11 +20,11 @@ membrane where our text crosses into it.
 
 ## How this document is organized — two genres on purpose
 
-Like CBG, PUG separates two kinds of knowledge:
+Like CBG, PCG separates two kinds of knowledge:
 
 - **Authored Disciplines** (prose, no IDs) — patterns for what *we* control: the
   `.puml` sources and the render path. Internalized, not cited.
-- **Cited Rules** (numbered `PU*_`) — discrete facts about the PlantUML Palisade
+- **Cited Rules** (numbered `PC*_`) — discrete facts about the PlantUML Palisade
   we do *not* control, each of which something points at (a render comment, a
   memo, a review flag, a gate). An ID earns its existence only when a citer will.
 
@@ -39,7 +39,7 @@ absorb only the surveyed signature, log the bend with a removal condition.
 removes the foreign decision entirely rather than depending on the neighbor to
 make it correctly. HTTP charset negotiation is such a decision: the robust render
 path encodes UTF-8 source into charset-independent ASCII *before* transit
-(PUr_101), so no charset is ever negotiated on the wire.
+(PCr_101), so no charset is ever negotiated on the wire.
 
 **The render is one membrane, and byte-stable.** Diagrams render through exactly
 one path — the `pluml` crucible render case (`rbtdrc_pluml_render_diagrams`). No
@@ -52,7 +52,7 @@ a diff in its source, never render nondeterminism.
 ### Sources are UTF-8; non-ASCII is deliberate
 
 `.puml` sources are UTF-8. Every multibyte glyph (em dash `—`, typographic
-quotes, arrows) is a hostage to the render transport (PUr_101). Prefer plain
+quotes, arrows) is a hostage to the render transport (PCr_101). Prefer plain
 ASCII in diagram text where it reads as well; when a multibyte glyph earns its
 place, know it rides entirely on the render path getting its bytes across intact.
 
@@ -62,7 +62,7 @@ Render via PlantUML's deflate-encoded URL form, not raw-text POST that leaves th
 body charset to the server. The encoding (UTF-8 → deflate → URL-safe ASCII; see
 `plantuml.com/text-encoding`) is *independent of HTTP charset negotiation* — that
 is the whole point: it carries exact UTF-8 bytes through a neighbor that
-otherwise mis-decodes them. See PUr_101 for the failure this avoids and the one
+otherwise mis-decodes them. See PCr_101 for the failure this avoids and the one
 fallback.
 
 ### Enforcement is mechanical, not advisory
@@ -76,9 +76,9 @@ corrupt-but-well-formed output. Until it exists, this prose is the only fence.
 
 ## Cited Rules (numbered — each has a citer)
 
-### PUr_ — PlantUML render transport (the server we don't control)
+### PCr_ — PlantUML render transport (the server we don't control)
 
-**PUr_101 — raw-text POST body decodes as ISO-8859-1 absent a charset.**
+**PCr_101 — raw-text POST body decodes as ISO-8859-1 absent a charset.**
 The PlantUML server's text endpoint (`POST /svg/uml`) decodes the request body
 as the servlet default **ISO-8859-1** when the `Content-Type` carries no
 `charset`. UTF-8 multibyte input is then read byte-by-byte as Latin-1 and frozen
@@ -106,5 +106,5 @@ server reports "Default Encoding: UTF-8").
 
 ---
 
-This document is a seed, founded on PUr_101 — the em-dash mojibake in the
+This document is a seed, founded on PCr_101 — the em-dash mojibake in the
 federation-tier diagrams. Further PlantUML disciplines accrete here as found.
