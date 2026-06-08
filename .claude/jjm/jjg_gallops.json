@@ -9357,9 +9357,10 @@
       "jjghn_order": [
         "₢BbAAA",
         "₢BbAAB",
-        "₢BbAAC"
+        "₢BbAAC",
+        "₢BbAAD"
       ],
-      "jjghn_next_pace_seed": "AAD",
+      "jjghn_next_pace_seed": "AAE",
       "jjghn_paces": {
         "₢BbAAA": {
           "jjgpn_tacks": [
@@ -9391,6 +9392,17 @@
               "jjgtn_text": "## Character\nStable-noun curation — terms are BH/BZ-safe so the docket is concrete, but\nexecution is file-gated on BH.\n\n## Goal\nCurate the crucible-runtime noun cluster (Crucible, Bottle, Sentry, Pentacle):\neach traces to one canonical home (RBS0 quoin; RBYC fragment where\nhandbook-surfaced), and its drift-prone uses are made consistent — enrollment\ndescriptions and doc_briefs agree, no variant spellings, no in-source comment\nre-definitions of what the noun means.\n\n## Locked\n- Curate, never evict — these nouns live. Removal of dead terms is the ₢BbAAB\n  mechanism + BH's vocab scrub, not here.\n- Target only drift-prone uses (cross-referencing descriptions, variant\n  spellings, comment re-definitions); leave legitimate prose mentions alone.\n- Apply ACG's reference-the-home discipline.\n\n## Gate\nAfter ₣BH (lode-universal-capture) lands — these descriptions live in\nrbz_zipper.sh and the doc_briefs BH is rewriting.\n\n## Done\nEach cluster noun traces to one home; descriptions and doc_briefs consistent; no\nvariant spellings or in-source re-definitions survive; fast green.",
               "jjgtn_silks": "noun-cluster-crucible-family",
               "jjgtn_basis": "e373ee8"
+            }
+          ]
+        },
+        "₢BbAAD": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260608-1057",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nStable-noun curation — terms are BH/BZ-safe so the docket is concrete, but\nexecution is file-gated on BH.\n\n## Goal\nCurate the vessel-identity noun cluster (Vessel, Sigil, Nameplate): each traces\nto one canonical home (RBS0 quoin; RBYC fragment where handbook-surfaced), and\nits drift-prone uses are made consistent — enrollment descriptions and doc_briefs\nagree, no variant spellings, no in-source comment re-definitions of what the noun\nmeans. Watch the Vessel/Sigil boundary specifically (sigil = the per-vessel\ndirectory name; vessel = the configured unit) so the two don't blur in prose.\n\n## Locked\n- Curate, never evict — these nouns live. Removal of dead terms is the ₢BbAAB\n  mechanism + BH's vocab scrub, not here.\n- Target only drift-prone uses (cross-referencing descriptions, variant\n  spellings, comment re-definitions); leave legitimate prose mentions alone.\n- Apply ACG's reference-the-home discipline.\n\n## Gate\nAfter ₣BH (lode-universal-capture) lands — these descriptions live in\nrbz_zipper.sh and the doc_briefs BH is rewriting.\n\n## Done\nEach cluster noun traces to one home; descriptions and doc_briefs consistent; no\nvariant spellings or in-source re-definitions survive; fast green.",
+              "jjgtn_silks": "noun-cluster-vessel-identity",
+              "jjgtn_basis": "b9751f0"
             }
           ]
         }
