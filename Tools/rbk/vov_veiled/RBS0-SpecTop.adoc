@@ -2199,7 +2199,7 @@ Fields (schema `rbld-vouch-1`, near-term unsigned — `signature: null` — but 
 Each `members[]` entry carries `name`, `origin`, `digest`, `verification`, and its assigned `tags` — so the captured identity and any Director-assigned names are themselves attested.
 `members[]` is the cardinality axis: length 1 for singletons (bole), N for cohorts.
 +
-Two honest trust grades, declared per Lode (Pale honesty — never over-claim):
+Two honest trust grades, declared per Lode (Palisade honesty — never over-claim):
 +
 * `verified-against-published` — bytes re-checkable against a persistent upstream (OCI content-address, or an out-of-band published checksum). The bole kind carries this grade.
 * `recorded-at-acquisition` — upstream offers no durable re-checkable reference (e.g. quay rotates podvm images out within days), so RB attests only the digest observed at capture. Reserved for the podvm kinds.

@@ -337,7 +337,7 @@ rbgo_get_token_capture() {
 # Stateless (no sentinel) — safe to call from any module regardless of kindle
 # order, like rbgu_curl_status_is_transient_predicate.
 #
-# A second Pale neighbor lives here for headless Cygwin: Docker Desktop's
+# A second Palisade neighbor lives here for headless Cygwin: Docker Desktop's
 # wincred helper cannot persist the credential auth just succeeded for
 # (RBGC_DOCKER_WINCRED_HEADLESS_SIGNATURE), and Windows docker ignores an empty
 # credsStore, so config alone cannot divert the store to the file store. On
@@ -370,7 +370,7 @@ rbgo_docker_login() {
 
     buc_log_pipe < "${z_stderr_file}"
 
-    # Pale bend (docker's own credential store): under headless Cygwin the
+    # Palisade bend (docker's own credential store): under headless Cygwin the
     # wincred helper cannot persist the credential auth just succeeded for, and
     # an empty credsStore does not divert Windows docker to the file store
     # (verified — the CLI still detects wincred). Auth already succeeded, so

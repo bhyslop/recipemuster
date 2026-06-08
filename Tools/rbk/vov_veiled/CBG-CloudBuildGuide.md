@@ -32,7 +32,7 @@ differently:
 - **Authored Disciplines** (prose, no IDs) — systematic, interderivable patterns
   for code *we* write. Like BCG, these are internalized, not cited by number;
   numbering them would be ceremony with no citers.
-- **Cited Rules** (numbered `CB*-`) — discrete facts about the cloud Pale we do
+- **Cited Rules** (numbered `CB*-`) — discrete facts about the cloud Palisade we do
   *not* control (surprises, divergences, a recorded gap), each of which
   something will *point at*: a step comment justifying a workaround, a memo
   recording a probe, a review flagging a violation, or the dispatch validator.
@@ -58,7 +58,7 @@ the Cloud Build log — the only forensic surface. There is no transcript file, 
 print and exit non-zero is a failure that vanishes. Every fallible operation dies
 loudly, at its location, with a message naming what failed.
 
-**The vendor is at the Pale.** Cloud Build, the metadata server, the builder
+**The vendor is at the Palisade.** Cloud Build, the metadata server, the builder
 images, and the substitution machinery are not ours to edit (Rules of
 Engagement). We characterize their behavior precisely, contain our dependence at
 named seams, and never paper over it. The Cited Rules below *are* that
