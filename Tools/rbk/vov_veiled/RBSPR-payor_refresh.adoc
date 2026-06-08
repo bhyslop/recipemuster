@@ -10,7 +10,7 @@ and for renewal operations.
 . *Obtain OAuth Credentials*:
 .. For initial setup: Use JSON file downloaded during
 {rbtgo_payor_establish}
-.. For refresh/renewal: Navigate to APIs & Services > Credentials in Payor Project
+.. For refresh/renewal: Navigate to APIs & Services > Credentials in the {rbtgi_manor}
 ... Click existing "Recipe Bottle Payor" OAuth client to open details
 ... If secret compromised:
 .... Click "+ Add secret"

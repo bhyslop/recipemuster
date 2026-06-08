@@ -3,14 +3,14 @@
 
 NOTE: This operation probes
 {rbtr_payor}
-OAuth access by refreshing the stored OAuth token and then calling the Cloud Resource Manager projects.get API on the payor project.
+OAuth access by refreshing the stored OAuth token and then calling the Cloud Resource Manager projects.get API on the {rbtgi_manor}.
 It may repeat for a configured number of iterations with a configurable delay, enabling sustained access verification and OAuth token lifecycle testing.
 
 The
 {rbtr_payor}
 role uses an OAuth 2.0 refresh token rather than a service account key, so this probe exercises the distinct authentication path through
 {rbtoe_payor_authenticate}.
-A successful response confirms both that the refresh token remains valid and that the payor project is accessible via CRM.
+A successful response confirms both that the refresh token remains valid and that the {rbtgi_manor} is accessible via CRM.
 
 //axhos_step
 . *Validate Input Parameters*:

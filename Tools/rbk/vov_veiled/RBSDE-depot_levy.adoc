@@ -9,7 +9,7 @@ that share their productive lifecycle.
 The
 {rbtr_payor}
 creates a new depot infrastructure from the
-{rbtgi_payor_project}.
+{rbtgi_manor}.
 The operation accepts no CLI parameters; depot identity is read from the kindled regime as `(RBRD_CLOUD_PREFIX, RBRD_DEPOT_MONIKER)`.
 
 //axhos_step

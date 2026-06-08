@@ -57,7 +57,7 @@ credentials, enabling automation without human interaction.
 
 {rbtgo_payor_establish}
 is a guide for manual steps taken using the Google Cloud Console to create the
-{rbtgi_payor_project},
+{rbtgi_manor},
 link a billing account,
 enable required APIs,
 and configure an OAuth 2.0 client.

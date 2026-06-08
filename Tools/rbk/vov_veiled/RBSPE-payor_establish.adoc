@@ -10,7 +10,7 @@ No API path exists for initial bootstrap - OAuth client creation requires human 
 This procedure creates the project and OAuth client but does NOT install credentials.
 
 //axhos_step
-. *Create Payor Project*:
+. *Create the Manor*:
 .. Navigate to project creation in Console
 .. Set project name: `Recipe Bottle Payor`
 .. Set project ID: `rbw-payor` (preferred fixed name, single payor per account)
@@ -27,7 +27,7 @@ GCP IAM changes are https://cloud.google.com/iam/docs/access-change-propagation[
 .. Record
 {rbrp_billing_account_id}
 (format: XXXXXX-XXXXXX-XXXXXX)
-.. Link billing account to payor project
+.. Link billing account to the {rbtgi_manor}
 .. {rbhg_require}
 billing linkage for API operations
 
@@ -60,7 +60,7 @@ billing linkage for API operations
 Client secret visible only in this popup; June 2025 onwards, Google will not display it after closing
 
 //axhoot_typed_output
-{rbtgi_payor_project}
+{rbtgi_manor}
 * Project ID (`«PAYOR_PROJECT_ID»`) recorded from step 1
 
 //axhoot_typed_output
