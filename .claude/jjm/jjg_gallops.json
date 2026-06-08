@@ -2,6 +2,7 @@
   "jjgrn_schema_version": 4,
   "jjgrn_next_heat_seed": "Bc",
   "jjgrn_heat_order": [
+    "₣Bb",
     "₣BZ",
     "₣BH",
     "₣BF",
@@ -29,8 +30,7 @@
     "₣BC",
     "₣BI",
     "₣BL",
-    "₣Ba",
-    "₣Bb"
+    "₣Ba"
   ],
   "jjgrn_heats": {
     "₣A-": {
@@ -9381,7 +9381,7 @@
     "₣Bb": {
       "jjghn_silks": "rbk-10-mvp-acg-scrub",
       "jjghn_creation_time": "260608",
-      "jjghn_status": "jjghe_stabled",
+      "jjghn_status": "jjghe_racing",
       "jjghn_order": [
         "₢BbAAA",
         "₢BbAAB",
