@@ -7,7 +7,7 @@ OUT of scope: Workforce pool/provider setup, STS exchange, IdP device flow, RBRD
 activation — federation's own future work (RBSHR "Operator federation"; memo-20260527).
 
 The payoff is structural, not nominal: the **capability layer** (capability-sets, grant/revoke,
-the declared ledger, the audit) becomes tier-blind, so a later federation switch reshapes nothing
+the Terrier, the audit) becomes tier-blind, so a later federation switch reshapes nothing
 in it — it swaps identity-kind (citizen → federate) and token mint (signed-JWT → STS) and nothing
 else.
 
@@ -30,35 +30,36 @@ identity-keyed one. (A deferral-honoring breadcrumb is on memo-20260527 now; ful
   the model unfuses them. (Why this is achievable: memo.)
 - **Capability-set** = a named bundle of IAM grants, defined in code (lifted out of the invest
   bodies). Tier-blind.
-- **The verbs dissolve** to add-citizen / remove-citizen / grant / revoke / rekey + read-ledger,
+- **The verbs dissolve** to add-citizen / remove-citizen / grant / revoke / rekey + read-Terrier,
   parameterized by (actor, capability-set, citizen). invest/divest/mantle/roster stop existing as
   distinct concepts.
 - **Capability verbs are tier-blind; only identity verbs branch by tier** (and by the payor's
   OAuth backing). rekey is keyfile-only.
 - **Grant/revoke operate only on named capability-sets, never raw bindings** — the contamination
-  guard that keeps the ledger auditable.
+  guard that keeps the Terrier auditable.
 - Ontology: the depot's civic ontology covers **operator** identities — citizens (and later
   federates), people who hold capabilities — and **holdings** (arks/hoards/bullions), property.
   Cloud-native system identities (Mason, future Envoy) sit outside it. ("citizen" supersedes
   RBSHR's prose use of it for an artifact, now reworded to "holding.")
 
-## Naming & the home — Manor, Census (settled this session)
+## Naming & the home — Manor, Terrier (settled this session)
 
-The federation ledger's "home" is satisfied without inventing a polity abstraction (a framing
+The Terrier's "home" is satisfied without inventing a polity abstraction (a framing
 explored and dropped):
 
 - **Manor = the Payor project — concrete, singular, one-of.** The administrative seat: the one GCP
   project hosting the Payor SA, OAuth client, and billing, under which Depots are funded. NOT a
   cross-cloud polity. Now a first-class RBS0 quoin (`rbtgi_manor`, cult name of the former
   `rbtgi_payor_project`), its singularity made explicit so it stops being forgotten.
-- **Census = the declared ledger** (the intent registry; "Census" = the citizen-roll-with-rank,
-  bonded to *citizen*). The **Manor hosts the Census** — resolving the ledger-home question: it
-  lives in the Payor project where ledger-write authority already sits. Recording AWS-targeting
-  intent in the Census is not administering AWS (asymmetric sovereignty intact; Manor stays
-  GCP-only). No grand polity concept unless multi-tenancy / multi-Manor becomes real.
+- **Terrier = the citizen-roll** — the depot-resident record of which citizen holds which
+  capability-set (the stored intent, bonded to *citizen*). The **Manor hosts the Terrier** —
+  resolving where the registry lives: the Payor project, where Terrier-write authority already
+  sits. Recording AWS-targeting intent in the Terrier is not administering AWS (asymmetric
+  sovereignty intact; Manor stays GCP-only). No grand polity concept unless multi-tenancy /
+  multi-Manor becomes real.
 
-Reserved civic-ontology quoins — named here, NOT yet in RBS0 (premature pre-MVP): **Census**
-(ledger), **Citizen** (operator-altitude identity, not a role), **capability-set** (cult name TBD —
+Reserved civic-ontology quoins — named here, NOT yet in RBS0 (premature pre-MVP): **Terrier**
+(the citizen-roll), **Citizen** (operator-altitude identity, not a role), **capability-set** (cult name TBD —
 portfolio/office). A new RBS0 category prefix likely houses the civic ontology when incorporated.
 
 Verb dispositions (gestalt-adjust where the word's soul survives; before MVP, no legacy — the gate
@@ -67,31 +68,31 @@ is semantic fit, not legacy cost):
 - **invest/divest → adjust in place** to capability grant/revoke (role-keyed `rbtgo_*_invest`
   quoins collapse to one role-generic verb).
 - **charter/knight → retire** (role-bound). **roster → retire** (dissolves into reading the
-  Census). **mantle → TBD.**
+  Terrier). **mantle → TBD.**
 - **membership (add/remove citizen) → mint** civic verbs: **enfranchise / expel**.
 
-## Intent vs enforcement — the declared ledger (cinched)
+## Intent vs enforcement — the Terrier (cinched)
 
 Enforcement is server-side IAM, always. Intent — which citizen is meant to hold which capability —
-is stored in a depot-resident **declared ledger**, distinct from IAM. The audit is the diff between
-**actual IAM state** and the declared ledger; the routine ledger read is identical across tiers.
-Federation forces the same ledger anyway, so it is paid once for both. (Today's name-regex `roster`
+is stored in the depot-resident **Terrier**, distinct from IAM. The audit is the diff between
+**actual IAM state** and the Terrier; the routine Terrier read is identical across tiers.
+Federation forces the same Terrier anyway, so it is paid once for both. (Today's name-regex `roster`
 verb is retired — no prefix to filter on. Why it must be stored, and where it lives: memo.)
 
 ## The audit — drift as signal, asymmetric healing (cinched)
 
-The audit measures drift between declared intent (ledger) and IAM. Healing is asymmetric, and the
+The audit measures drift between declared intent (the Terrier) and IAM. Healing is asymmetric, and the
 asymmetry is the Pale recognition test:
 
 - **Deficit** (IAM short of intent — our own grant failed) is ours → auto-converge, logged.
 - **Surplus** (IAM beyond intent — touched outside our verbs) crossed the Pale → report; a human
   adjudicates. The audit never auto-revokes; surplus resolution is human-driven.
 
-Both capability directions write intent first — grant writes the ledger before adding bindings,
+Both capability directions write intent first — grant writes the Terrier before adding bindings,
 revoke withdraws it before removing them — so a crash lands as a safe report-only surplus, never an
-auto-converging deficit. Auto-converge is safe only where ledger-write authority is at least as
+auto-converging deficit. Auto-converge is safe only where Terrier-write authority is at least as
 protected as grant (else a softer escalation path; see Open). And the audit reads **both
-by-identity and by-resource-member**, so a grant to an unrostered principal cannot hide. (Drift
+by-identity and by-resource-member**, so a grant to a principal absent from the Terrier cannot hide. (Drift
 taxonomy, the member-first axis, definition-change gating, concurrency, and the orphan marker:
 memo.)
 
@@ -148,9 +149,9 @@ deferred — recorded here as shape.
 - The citizen tier is one SA (one key, union of capabilities) per person, not one per role —
   blast-radius tradeoff accepted.
 - Capability-sets are named code; grant/revoke operate only on named sets, never raw bindings.
-- The declared ledger (intent) is part of the model; IAM is enforcement; the audit diffs them.
+- The Terrier (intent) is part of the model; IAM is enforcement; the audit diffs them.
 - Audit healing is asymmetric: auto-converge deficits, report surplus; the audit never auto-revokes.
-- Ledger-write authority is never a capability-set member; the ledger writer for an entry is the
+- Terrier-write authority is never a capability-set member; the Terrier writer for an entry is the
   grant-authority holder under the active topology.
 - Governor breadth is resolved per tier, not globally: keyfile pulls grant authority to the payor /
   minimizes the standing governor; federation may keep a condition-limited governor.
@@ -158,7 +159,7 @@ deferred — recorded here as shape.
   not in this heat.
 - Migration grandfathers existing role-named SAs: recover each citizen's role from the role-prefixed
   SA name (a one-time bootstrap, distinct from the retired standing "derive from IAM"), register
-  citizens in the declared ledger, let legacy names age out. No flag day.
+  citizens in the Terrier, let legacy names age out. No flag day.
 - The convergence covers operator citizens; cloud-native identities (Mason, future Envoy) share the
   capability-set abstraction but not the citizen lifecycle.
 
@@ -166,21 +167,21 @@ deferred — recorded here as shape.
 
 - "Roster derives from IAM (an `rbk-identity` label), not a stored list — it cannot drift." Retired:
   under decoupling, deriving from IAM is lossy and makes the intended-vs-actual audit a tautology,
-  and SA labels do not exist (SAs support tags, in Preview). Replaced by the declared ledger +
+  and SA labels do not exist (SAs support tags, in Preview). Replaced by the Terrier +
   asymmetric audit. The true invariant it reached for — no enforcement state outside IAM — is
   preserved; the false corollary (no intent state may exist) is dropped.
 
 ## Open — resolve within the heat
 
-- Where the Census (declared ledger) physically lives — direction settled: hosted in the **Manor**
-  (Payor project), where ledger-write authority sits. Remaining: the exact object form (a separate
+- Where the Terrier physically lives — direction settled: hosted in the **Manor**
+  (Payor project), where Terrier-write authority sits. Remaining: the exact object form (a separate
   access-restricted object vs a GAR artifact), explicitly **not** the build bucket (the director
-  holds objectCreator there); write-ACL held only by governor/payor (the ledger-write invariant;
+  holds objectCreator there); write-ACL held only by governor/payor (the Terrier-write invariant;
   see The audit).
 - Whether the keyfile tier drops the standing governor entirely or demotes it to non-privileged —
   this choice gates whether project-scope grant-limiting is in-heat.
 - The citizen orphan marker: SA tags (Preview) vs description sentinel (both advisory; the
-  authoritative orphan signal is a key on an SA absent from the ledger — see memo).
+  authoritative orphan signal is a key on an SA absent from the Terrier — see memo).
 - Whether to offer a combined add+grant convenience wrapper for the common one-hat citizen (the
   two-gesture flow itself follows from the decoupling).
 
@@ -193,4 +194,6 @@ shape — breadcrumbed, full update when frozen); memo-20260605-governor-mantle-
 points to); memo-20260605-citizen-model-ultracode-process (how this revision was produced);
 RBSHR "Operator federation". This revision folds in the 260605 design conversation and two review
 passes (single-reviewer + ultracode multi-agent). The 260606 revision adds the Manor↔Census naming,
-the first-class RBS0 Manor quoin (`rbtgi_manor`), and the verb dispositions above.
+the first-class RBS0 Manor quoin (`rbtgi_manor`), and the verb dispositions above. The 260609
+revision elects **Terrier** for the registry — retiring the C-initial *Census* (it collided with
+Crucible) and dropping "ledger" as a competing name.
