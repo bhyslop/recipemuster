@@ -8728,9 +8728,10 @@
         "₢BHAAR",
         "₢BHAAX",
         "₢BHAAY",
+        "₢BHAAb",
         "₢BHAAD"
       ],
-      "jjghn_next_pace_seed": "AAb",
+      "jjghn_next_pace_seed": "AAc",
       "jjghn_paces": {
         "₢BHAAA": {
           "jjgpn_tacks": [
@@ -9593,6 +9594,17 @@
               "jjgtn_text": "## Character\nNet-new low-level service — the type-blind raw maintenance layer beneath the semantic Lode verbs (paddock Carried-forward, path-polymorphic raw layer).\nTier: sonnet-delegable once the cinches below are honored; the design is settled here.\n\n## Goal\nReconceive the image-family maintenance verbs as three path-polymorphic verbs on raw GAR paths — list, wrest, jettison — so ultimate cleanup after surprises needs no type awareness, no envelope, and no per-kind verbs.\nlist with no argument shows the top namespaces; with a prefix, the packages beneath; with a full package, its tags and versions — discovery by iterative narrowing.\nwrest and jettison act on a full image ref.\n\n## Cinched\n- Disambiguation rule (total, because GAR's deletable leaves are exactly tags and versions): a parameter carrying `:tag` or `@sha256:` is an image — act on it; anything else is a path — list its children.\n- Package-grain delete stays with the semantic verbs (banish/abjure, cloud-dispatched). The backdoor deletes below package grain only.\n- Host-side REST with honest LRO handling (`rbge_lro_ok` where GAR returns an LRO; tag deletes are synchronous) — a cleanup tool of last resort must not depend on the cloud pipeline it cleans up after.\n  This is deliberately NOT the cloud-dispatch model of the delete-architecture pace.\n- Envelope-independent by construction: must work on a half-deleted package, a corrupt envelope, legacy rbi_es artifacts that were never Lodes, and any future kind.\n- Made-side iah/irh/iwh/iJh untouched this heat — rekon carries a semantic canonical-member contract (hallmark-lifecycle asserts its non-zero exit) that belongs to the made-side retrofit heat.\n- iwe/iJe (enshrinement wrest/jettison) retire here — subsumed by the generic verbs (depot is disposable; rbi_es needs no named variants).\n- iar/irr/iwr/iJr retire at the inscribe cutover with rbi_rq, not here — until then they still serve the standing reliquary.\n- Colophons: mint at mount against the existing rbw-i* tree; jettison keeps the capital convention of its siblings (GAR-destroying), list and wrest stay lowercase.\n\n## Done when\n- The three verbs work against live GAR at every grain (namespaces -> packages -> tags/versions -> act on a full ref).\n- A theurge case proves member-grain jettison: capture a Lode, jettison one member tag/version via the generic verb, assert the member absent and the Lode otherwise intact — the per-member-delete assertion the multi-member kinds need (the podvm fixture builds on it).\n- iwe/iJe gone; tabtarget-context doc updated.\n- `fast` green; the new case rides the service tier, batched with adjacent paces (paddock Execution posture).",
               "jjgtn_silks": "image-backdoor-path-verbs",
               "jjgtn_basis": "401ccb9"
+            }
+          ]
+        },
+        "₢BHAAb": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260609-1617",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nDeferred small rename — the election-verb colophon move recorded in the paddock (election lives with its consumer), slated terminal so the gordian knot clears first.\nRuns before the vocab scrub so the scrub sweeps any rename stragglers.\nTier: sonnet-delegable.\n\n## Goal\nMove yoke out of the Depot family and de-capitalize it: rbw-dY -> a lowercase consumer-family colophon, per the paddock Carried-forward election rule (election is cheap reversible config, operator-committed, never self-committing).\n\n## Cinched\n- Exact destination letter is a mount-time layout choice, minted against the live colophon tree.\n- Rename only — no behavior change; yoke stays non-committing (RBSDY: the caller commits).\n- Sweep the rename across the zipper enrollment, tabtarget-context doc, and onboarding prose.\n\n## Done when\nThe new colophon routes; rbw-dY gone; zipper/docs/onboarding repointed; `fast` green.",
+              "jjgtn_silks": "yoke-colophon-consumer-move",
+              "jjgtn_basis": "1cfda60"
             }
           ]
         }
