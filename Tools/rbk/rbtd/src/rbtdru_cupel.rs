@@ -139,17 +139,22 @@ pub(crate) const ZRBTDRU_DECLARED_DEPS: &[&str] = &[
 ];
 
 /// Curated GCB container-tool allowlist — the external commands present in the
-/// reliquary tool images (alpine/docker→busybox, gcloud→Debian, skopeo→Fedora)
-/// that GCB-bash legitimately uses, enumerated empirically via the cupel
-/// inventory over Tools/rbk/rbgj*. GCB-allowed = POSIX floor (universal in every
-/// container) ∪ this list. It deliberately does NOT inherit the kit declared
-/// deps: the GCB containers lack jq/openssl/etc., and the rbgj* scripts already
-/// avoid them by hand ("no jq dependency — use grep+cut"), so a GCB script
-/// reaching for a tool outside the controlled containers must fail — a supply-
-/// chain conformance check, not merely a portability one.
+/// controlled builder images (alpine/docker→busybox, gcloud→Debian, skopeo→Fedora,
+/// gcrane:debug→busybox, the wsl-underpin fetch step→Debian) that GCB-bash
+/// legitimately uses, enumerated empirically via the cupel inventory over
+/// Tools/rbk/rbgj*. GCB-allowed = POSIX floor (universal in every container) ∪
+/// this list. It deliberately does NOT inherit the kit declared deps: membership
+/// is per-container-presence, not portability. Each entry is empirically present
+/// in the controlled builder that uses it — openssl/gpg/apt-get on the Debian
+/// wsl-underpin fetch builder, gcrane/tar in gcrane:debug busybox — while jq is
+/// still absent everywhere and the rbgj* scripts avoid it by hand ("no jq
+/// dependency — use grep+cut"), so a GCB script reaching for a tool outside its
+/// controlled container still fails — a supply-chain conformance check, not
+/// merely a portability one.
 pub(crate) const ZRBTDRU_GCB_ALLOWED: &[&str] = &[
-    "awk", "cat", "cut", "curl", "docker", "grep", "ls", "sha256sum",
-    "skopeo", "tr", "wget",
+    "apt-get", "awk", "cat", "curl", "cut", "docker", "gcrane", "gpg",
+    "grep", "head", "ls", "openssl", "sha256sum", "shasum", "skopeo",
+    "tar", "tr", "wget",
 ];
 
 /// Bash builtins and command-position keywords that name no external command —

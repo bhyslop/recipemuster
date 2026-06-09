@@ -275,8 +275,9 @@ pub fn rbtdre_run_cases(
                 crate::rbtdrg_info_now!("{}PASSED:{} {}", colors.green, colors.reset, case.name);
                 passed += 1;
             }
-            rbtdre_Verdict::Fail(_) => {
+            rbtdre_Verdict::Fail(msg) => {
                 crate::rbtdrg_info_now!("{}FAILED:{} {}", colors.red, colors.reset, case.name);
+                crate::rbtdrg_info_now!("{}", msg);
                 failed += 1;
                 if fail_fast {
                     break;

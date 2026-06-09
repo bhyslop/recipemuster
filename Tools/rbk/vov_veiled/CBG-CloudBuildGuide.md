@@ -322,6 +322,8 @@ in the step.
 |---------|----------|----------|
 | `token-fetch` | none (ambient metadata) | `TOKEN` |
 | `gcrane-fingerprint` | `ORIGIN`, `RAW_FILE` | `SHA`, `FINGERPRINT` |
+| `gcrane-append` | `APPEND_CTX`, `APPEND_URI` | the FROM-scratch single-layer image pushed to `APPEND_URI` |
+| `gpg-verify-sums` | `SUMS_URL`, `SIG_URL`, `TARGET_BASENAME`, `KEY_FPR` | `EXPECTED_SHA` |
 | `buildx-bootstrap` | none | the `rb-builder` buildx builder |
 | `buildx-push` | `PUSH_URI`, `PUSH_PLATFORMS`, `PUSH_CTX` | the image pushed |
 
@@ -360,7 +362,7 @@ the only step→host return path.
 
 Read these as the worked forms behind the rules above:
 
-- **Bash snippets** — `Tools/rbk/rbgjs/rbgjs-{token-fetch,gcrane-fingerprint,buildx-bootstrap,buildx-push}.sh`
+- **Bash snippets** — `Tools/rbk/rbgjs/rbgjs-{token-fetch,gcrane-fingerprint,gcrane-append,gpg-verify-sums,buildx-bootstrap,buildx-push}.sh`
 - **Bash steps** — `rbgjl01-ensconce-capture.sh`, `rbgjl02-assemble-push-vouch.sh`, `rbgjv03-assemble-push-vouch.sh`
 - **Python steps** — `rbgja/rbgja01-discover-platforms.py`, `rbgja/rbgja03-build-info-per-platform.py`, `rbgjv/rbgjv02-verify-provenance.py`
 - **Host composition** — `rblds_Spine.sh` (spine, validator, entrypoint switch, `buildStepOutputs` extract), `rbfca_StepAssembly.sh` (recipe rows), `rbfcb_BuildHost.sh` (`zrbfc_expand_includes`)
