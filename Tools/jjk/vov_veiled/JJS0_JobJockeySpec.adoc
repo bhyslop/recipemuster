@@ -351,6 +351,22 @@ embeds its parent
 {jjdhr_heat}).
 This redundancy is cheap and enables grep, copy-paste, and self-documenting JSON.
 
+=== Diff-Friendly Prose
+
+The same diff-friendliness governs the prose carried in
+{jjsz_gazette}
+bodies — pace dockets and paddock content.
+Dockets land in the {jjdgr_gallops} `text` field and paddocks in their own files;
+both are git-tracked and re-diffed on every edit.
+
+Such prose is authored with semantic line breaks:
+one sentence per line, with long sentences broken at their major internal boundaries (em-dash, semicolon, colon).
+Markdown soft-wraps these lines into a single rendered paragraph, so the convention is invisible in presentation.
+Its purpose is the diff:
+an incremental edit then shows the sentence that changed rather than re-flowing the whole paragraph onto one line.
+Word-level granularity, when wanted, comes from `git diff --word-diff`, not from splitting prose at the word.
+This specification's own source follows the convention.
+
 === Crash-Safe Architecture
 
 Every operation follows the same invariant regardless of transport:
