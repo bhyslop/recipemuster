@@ -8693,6 +8693,7 @@
         "₢BHAAJ",
         "₢BHAAK",
         "₢BHAAT",
+        "₢BHAAZ",
         "₢BHAAS",
         "₢BHAAU",
         "₢BHAAV",
@@ -8707,7 +8708,7 @@
         "₢BHAAY",
         "₢BHAAD"
       ],
-      "jjghn_next_pace_seed": "AAZ",
+      "jjghn_next_pace_seed": "AAa",
       "jjghn_paces": {
         "₢BHAAA": {
           "jjgpn_tacks": [
@@ -9450,6 +9451,17 @@
               "jjgtn_text": "## Character\nFocused spec retirement — lifted out of the vocab scrub because deleting a full\noperation spec is heavier than a word-level sweep and deserves its own visibility.\n\n## Goal\nRetire RBSAE-ark_enshrine.adoc — a LIVE spec describing the dead skopeo-driven\nenshrine-CREATION path. The bole cutover already deleted its step scripts (rbgje*)\nand the rbfd_enshrine creation gesture; only the spec remains, describing a path\nnothing runs, with no superseded banner. Enshrine-as-creation is superseded by bole\ngcrane Lode capture.\n\n## Cinched\n- Enshrine-as-creation IS retired: only wrest/jettison of already-existing\n  enshrinements survive (rbw-iwe / rbw-iJe), as registry artifacts, until the deferred\n  rbi_es -> rbi_ld migration. The CREATION spec dies; the artifact-maintenance verbs\n  are out of scope here.\n- Default hard delete (the vocab-scrub's original intent: \"delete it, do not adapt\n  it\"). At mount, decide whether a brief superseded-banner-then-stub better serves a\n  reader who finds an old enshrinement — operator's call.\n- Also retire the rbtgo_ark_enshrine quoin in RBS0.\n\n## Done when\nRBSAE no longer describes a live enshrine-creation operation (deleted or stubbed-as-\nretired); the rbtgo_ark_enshrine quoin is gone; no cross-ref dangles; `fast` green.",
               "jjgtn_silks": "lode-enshrine-spec-retire",
               "jjgtn_basis": "8f87e9b"
+            }
+          ]
+        },
+        "₢BHAAZ": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260609-1137",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nArchitectural decision requiring fresh judgment — stop-the-presses, parked deliberately mid-eviction.\nBroad blast radius (the whole delete family), not a mechanical change.\n\n## Decision needed\nShould GAR/GCP control-plane DELETEs stay host-issued REST (as they are system-wide today), or be proxied through cloud-side (pool) scripts for a clean host/cloud boundary?\nThen make the chosen model consistent and record it in the specs.\n\n## Why now (trigger, from the crane-embrace eviction)\n- GAR `packages delete` completes-with-error (NOT_FOUND) on multi-arch parent/child manifest webs, and the host-side delete trusts the up-front 200 — it never polls the long-running operation — so a failed delete reports success.\n  The made-side abjure (rbfld_Delete.sh) carries the identical trust-200 pattern.\n- The operator expected deletes to be proxied; they are NOT.\n  Host-direct REST DELETE is pervasive: banish, abjure, governor SA/project, payor depot/lien, buckets, GAR artifacts.\n  The distinction that actually exists is tool-vs-control-plane — container-tool image work runs cloud-side (captures), pure control-plane REST runs host-side.\n\n## Done when\nThe host-vs-cloud-proxy question is decided and recorded (RBSCB posture; the affected delete specs), and the trust-200 LRO honesty gap is closed for the delete family (banish + abjure) in whichever model wins.\nIf proxy is chosen, the migration path is scoped.\nLikely graduates to its own heat — the blast radius exceeds Lode capture.\n\n## Sources\nrbldl_Lifecycle.sh `rbld_banish`; rbfld_Delete.sh (abjure, same trust-200); rbge_Rest.sh `rbge_lro_ok` (the LRO-poll machinery to reuse); GAR cleanup-policy doc (parent/child manifest deletion rule).",
+              "jjgtn_silks": "gar-delete-host-cloud-boundary",
+              "jjgtn_basis": "fd51908"
             }
           ]
         }
