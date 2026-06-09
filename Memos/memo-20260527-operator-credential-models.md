@@ -2,17 +2,17 @@
 
 Date: 2026-05-27
 
-Status: **Committed plan — support two operator-credential models as permanent,
-per-depot-selected tiers.** The keyfile tier is the shipping default and needs no
-organization. The federation tier is future build; this memo fixes its shape and
-the architecture that lets both live in the codebase while never coexisting in a
-single depot. It is the source document for the RBSHR "Operator federation"
-roadmap entry.
+> **SUPERSEDED (2026-06-09) — folded into `Memos/memo-20260609-federation-canon.md`.**
+> That canon is the authoritative, current federation shape; read it instead of this.
+> Two changes since: (1) the keyfile tier is restructured as the **citizen** model
+> (`memo-20260605-citizen-capability-model.md` + ₣BZ paddock); (2) the operator decided a
+> **human is always present to start runs**, so the federation tier holds **no refresh token,
+> fully secret-free** — retiring this memo's refresh-token policy and R4 of `memo-20260522`.
+> The body below is retained for lineage only.
 
-NOTE (2026-06-05): the keyfile-tier shape is under active redesign in heat ₣BZ
-(`Memos/memo-20260605-citizen-capability-model.md` — the "citizen" model). The
-one-SA-per-role and verb-naming assumptions here may change; that memo will fold its
-divergences in once the model is frozen. Not yet revised.
+Status (historical): committed plan — two operator-credential models as permanent,
+per-depot-selected tiers; keyfile the shipping default (no org), federation the future build.
+The source document for the RBSHR "Operator federation" roadmap entry, now repointed at the canon.
 
 ---
 

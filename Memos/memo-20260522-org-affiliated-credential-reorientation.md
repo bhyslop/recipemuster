@@ -407,6 +407,12 @@ cross-post). Same mechanism family, opposite direction — keep them unconflated
 
 ### R4 — Synthetic-human CI emplacement and test-org session policy (resolves §11 "synthetic-human CI emplacement" and "session-policy as a lever vs constraint")
 
+> **SUPERSEDED (2026-06-09) by `Memos/memo-20260609-federation-canon.md` D2.** The operator
+> decided a human is always present to start runs, so the federation tier persists **no refresh
+> token** — the caged test-rig residual below is **not built**. The tradeoff (no unattended
+> scheduled federation runs) and its revisit-trigger live in the canon. R4's reasoning is retained
+> as derivation of record.
+
 The two test-rig questions resolve together. A federated operator (Workforce
 Identity Federation) authenticates by device flow; the resulting Google session
 is capped at **12 hours** — a hard GCP limit, even on an org you own. So
