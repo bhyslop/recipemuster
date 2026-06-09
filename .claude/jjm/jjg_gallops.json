@@ -8589,6 +8589,7 @@
         "₢BHAAI",
         "₢BHAAJ",
         "₢BHAAK",
+        "₢BHAAT",
         "₢BHAAL",
         "₢BHAAM",
         "₢BHAAN",
@@ -8598,7 +8599,7 @@
         "₢BHAAD",
         "₢BHAAS"
       ],
-      "jjghn_next_pace_seed": "AAT",
+      "jjghn_next_pace_seed": "AAU",
       "jjghn_paces": {
         "₢BHAAA": {
           "jjgpn_tacks": [
@@ -9121,6 +9122,17 @@
               "jjgtn_text": "## Character\nTest-infra fix. The cutover's verify gate is structurally blind — make it see. Root cause is known and proven live; the mechanism is mount's call.\n\n## Goal\nMake the airgap-chain fixture genuinely exercise the bole derived-pull election, so the cutover gains a real automated regression guard. Today it false-greens.\n\n## Problem\n`zrbfd_elect_base_anchor` reads the bole touchmark from the depth-1 BURD `previous/` chain (ensconce emits it; the next ordain dispatch reads it). theurge isolates every tabtarget invocation in its own `burv_output` root (`rbtdri_invoke_impl`), so `bud_dispatch`'s `current/`->`previous/` promotion never chains across invokes — ordain's `BURD_PREVIOUS_DIR` is empty, the election takes its no-op guard, and the conjure builds from the lingering `rbi_es` base: green but meaningless. The real operator flow chains because sequential tabtargets share `../output-buk`.\n\n## Done\nThe fixture drives ensconce->ordain so the touchmark reaches the election, then asserts the forge anchor became `rbi_ld/<touchmark>:rbi_bole` and the conjure built from it. A non-firing election fails the fixture.\n\n## Cinched\n- Restore depth-1 chaining only for invokes meant to chain; don't collapse `burv` isolation for the rest.\n- The election itself is correct — proven live this heat: back-to-back ensconce->ordain on a forge vessel repointed the anchor `rbi_es`->`rbi_ld` and the conjure built+vouched green from it. The defect is in harness invoke-isolation, not the election.",
               "jjgtn_silks": "theurge-fixture-fact-chain-fix",
               "jjgtn_basis": "281ce0e"
+            }
+          ]
+        },
+        "₢BHAAT": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260608-1937",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nBehavior-preserving cloud-step cutover. Mechanical but fidelity-critical — the bole\ncapture digest must not move.\n\n## Goal\nEvict skopeo from the Lode capture path by moving bole capture onto crane. Bole is\nthe last skopeo consumer in capture (conclave already uses docker, vouch uses\nbuildx), so converting it — plus its shared fingerprint snippet and its builder\nimage — removes skopeo from the capture path entirely. Drop skopeo from the\nreliquary tool cohort if nothing else still consumes it.\n\n## Done when\n- No skopeo invocation remains in the Lode capture path.\n- The lode-lifecycle service fixture passes against live GAR with the canonical\n  :rbi_sha256 digest tag unchanged for an identical upstream (fidelity preserved).\n- skopeo is either dropped from the reliquary tool cohort, or its remaining\n  consumer is noted.\n\n## Cinched\n- Skopeo eviction ONLY. Moving conclave (docker) and vouch (buildx) onto crane —\n  the broader crane-everywhere consolidation — is explicitly out of scope.\n- crane is the settled capture tool; do not reopen oras (documented-fallback only).\n\n## Sources\n- Memo memo-20260608-lode-podvm-cerebro-experiment.md — crane decision and the\n  corrected skopeo failure mode (loud fatal on empty-config, not silent skip).\n- Discovery recipe: grep skopeo across Tools/rbk/rbgjl and Tools/rbk/rbgjs;\n  classify each hit convert / rename / drop. Crane builder: ride a podvm capture\n  pace's if one has landed, else introduce crane (a static ELF, cheap to add).",
+              "jjgtn_silks": "lode-skopeo-eviction",
+              "jjgtn_basis": "a0e9745"
             }
           ]
         }
