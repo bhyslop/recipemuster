@@ -566,33 +566,25 @@ This tier **requires a GCP organization**, which is the dividing line from today
 Revocation becomes central at the identity provider rather than a manual, per-key [Divest](#Divest).
 Critical sequences, rendered from committed PlantUML source through the [pluml](#pluml) [Crucible](#Crucible) — each diagram tracks your light/dark color scheme (click any to expand):
 
-<details>
-<summary><strong>Federation login</strong> — two-leg device-flow + STS exchange</summary>
+  <details>
+  <summary><strong>Federation login</strong> — two-leg device-flow + STS exchange</summary>
+  <picture><source media="(prefers-color-scheme: dark)" srcset="diagrams/rbdgl_federation-login-dark.svg"><img alt="Federation login — two-leg device-flow + STS exchange" src="diagrams/rbdgl_federation-login.svg"></picture>
+  </details>
 
-<picture><source media="(prefers-color-scheme: dark)" srcset="diagrams/rbdgl_federation-login-dark.svg"><img alt="Federation login — two-leg device-flow + STS exchange" src="diagrams/rbdgl_federation-login.svg"></picture>
+  <details>
+  <summary><strong>Federation setup</strong> — Payor-side workforce pool + provider</summary>
+  <picture><source media="(prefers-color-scheme: dark)" srcset="diagrams/rbdgs_federation-setup-dark.svg"><img alt="Federation setup — Payor-side workforce pool + provider" src="diagrams/rbdgs_federation-setup.svg"></picture>
+  </details>
 
-</details>
+  <details>
+  <summary><strong>Keyfile login</strong> — today's tier, for contrast</summary>
+  <picture><source media="(prefers-color-scheme: dark)" srcset="diagrams/rbdgk_keyfile-login-dark.svg"><img alt="Keyfile login — today's tier, for contrast" src="diagrams/rbdgk_keyfile-login.svg"></picture>
+  </details>
 
-<details>
-<summary><strong>Federation setup</strong> — Payor-side workforce pool + provider</summary>
-
-<picture><source media="(prefers-color-scheme: dark)" srcset="diagrams/rbdgs_federation-setup-dark.svg"><img alt="Federation setup — Payor-side workforce pool + provider" src="diagrams/rbdgs_federation-setup.svg"></picture>
-
-</details>
-
-<details>
-<summary><strong>Keyfile login</strong> — today's tier, for contrast</summary>
-
-<picture><source media="(prefers-color-scheme: dark)" srcset="diagrams/rbdgk_keyfile-login-dark.svg"><img alt="Keyfile login — today's tier, for contrast" src="diagrams/rbdgk_keyfile-login.svg"></picture>
-
-</details>
-
-<details>
-<summary><strong>The single code seam</strong> — one accessor, mode-enum branch, the structural payoff</summary>
-
-<picture><source media="(prefers-color-scheme: dark)" srcset="diagrams/rbdgm_federation-seam-dark.svg"><img alt="The single code seam — one accessor, mode-enum branch" src="diagrams/rbdgm_federation-seam.svg"></picture>
-
-</details>
+  <details>
+  <summary><strong>The single code seam</strong> — one accessor, mode-enum branch, the structural payoff</summary>
+  <picture><source media="(prefers-color-scheme: dark)" srcset="diagrams/rbdgm_federation-seam-dark.svg"><img alt="The single code seam — one accessor, mode-enum branch" src="diagrams/rbdgm_federation-seam.svg"></picture>
+  </details>
 
 - <a id="VpcServiceControls"></a>**[VPC Service Controls](#VpcServiceControls)** - Google Cloud security perimeters that prevent data from being copied out of a project even if an attacker holds valid credentials.
 [Recipe Bottle's](#RecipeBottle) Cloud Build architecture uses private pools, which are the prerequisite for VPC enforcement; enabling the controls themselves is deferred until organizational policy or external distribution requires them.
