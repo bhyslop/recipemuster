@@ -23,6 +23,19 @@ pace this experiment unblocks.
   both the OCI-artifact disk leaves **and** ordinary container images uniformly.
   **oras is a fully-viable fallback** (artifact-native, also digest-faithful) and
   is the better tool if the step ever needs `oras discover`/referrers semantics.
+- **Auth: `gcrane`, not plain `crane` — ambient Google keychain, zero token
+  plumbing.** The cloud step uses **`gcrane`** (crane's Google-auth sibling:
+  identical `cp`/`manifest`/`tag` engine, same go-containerregistry repo) from
+  `gcr.io/go-containerregistry/gcrane:debug` (the `:debug` variant carries a
+  busybox shell for the bash orchestration). gcrane authenticates via
+  `google.Keychain`, which matches `*.pkg.dev` (our GAR) and draws credentials
+  from Application Default Credentials → the GCE metadata server — so on Cloud
+  Build it auths to GAR ambiently as the Mason SA with **no `crane auth login`, no
+  in-memory token-fetch, no credential-helper image**. Plain `crane` uses only the
+  docker-config keychain and would need the explicit-login + token dance; the Cloud
+  SDK image does not bundle crane at all. This generalizes conclave's existing
+  ambient model (`gcr.io/cloud-builders/docker`, no explicit login) from docker to
+  crane. Full evidence in §9.
 - **skopeo stays ruled out — but the recorded rationale was half-wrong.** The cinch
   ruled it out for *silently skipping foreign/non-distributable layers* (issue 545).
   That failure mode **does not apply** to this content: the disk blobs are
@@ -216,8 +229,9 @@ cardinality axis (length 2 here), identical in shape to bole's length-1.
 Build the production podvm capture **cloud-side**, riding the spine exactly like
 underpin/conclave (do NOT touch the workstation to acquire bytes):
 
-1. **`rbgjl05-immure-capture.sh`** (new in-pool step, builder = crane or the
-   cloud-builders image carrying crane; entrypoint bash). It must:
+1. **`rbgjl05-immure-capture.sh`** (new in-pool step, builder =
+   `gcr.io/go-containerregistry/gcrane:debug`, ambient GAR auth via the Google
+   keychain — see §9; entrypoint the busybox shell). It must:
    - read the family index at the nameplate-pinned podman version,
    - select the curated `{disktype × arch}` leaf set from the index **by descriptor
      platform+disktype** (not by layer filename),
@@ -258,3 +272,54 @@ underpin/conclave (do NOT touch the workstation to acquire bytes):
 - **skopeo-out STANDS, rationale corrected** (artifact-rejection, not silent-skip;
   see §1). RBSPV / the Lode spec should be updated to state the real failure mode.
 - **crane lean CONFIRMED**, with oras documented as an equal-fidelity fallback.
+
+---
+
+## 9. Cloud-side auth — gcrane ambient Google keychain (2026-06-08, source-read follow-up)
+
+Settled after the cerebro teardown by reading go-containerregistry source, not by
+re-running the bench. Resolves the auth axis the bole-eviction pace cinched as
+"decided here, inherited downstream" — the experiment used an explicit off-station
+token mint (§2 credential note, §6 spook) and never characterized the *cloud*
+auth path. This section is that path.
+
+**The binary distinction is load-bearing — `crane` and `gcrane` authenticate differently:**
+
+- **`crane`** authenticates only via `authn.DefaultKeychain` (the docker config
+  file). On a Cloud Build worker that config is empty, so plain crane needs an
+  explicit `crane auth login` fed by an in-memory metadata-server token — the
+  skopeo token-fetch dance, ported, not removed.
+- **`gcrane`** is the Google variant: same `cp`/`manifest`/`tag`/`digest` engine,
+  but it authenticates through `google.Keychain`. Per `pkg/v1/google/keychain.go`,
+  that keychain (a) matches `gcr.io`, `*.gcr.io`, **`*.pkg.dev`** (Artifact
+  Registry — our GAR host), and `*.google.com`, and (b) draws credentials from
+  Application Default Credentials → the **GCE metadata server** first, gcloud
+  second, anonymous last. On a Cloud Build worker the Mason SA *is* the
+  metadata-server identity, so gcrane auths to GAR ambiently with zero auth code.
+- **The Cloud SDK / gcloud image does not contain crane** — it is gcloud+gsutil+bq
+  on Debian/Alpine. "A Google image that has gcloud and presumably crane" is a
+  false premise; that path means installing crane into a fat SDK image yourself.
+
+**Decision.** The bole capture step — and every later crane-embrace capture step —
+uses **`gcrane`** from **`gcr.io/go-containerregistry/gcrane:debug`**. The `:debug`
+variant carries `/busybox/sh` (the bash orchestration) and busybox `sha256sum`
+(the fingerprint); the non-debug image is distroless — no shell, unusable as a
+script step. Pin by digest in production, not the floating `:debug` tag. The
+in-memory `token-fetch` snippet is **dropped** from the bole path; it survives only
+where a non-keychain tool still needs it, and retires entirely as skopeo and docker
+are evicted.
+
+**This is conclave's model generalized, not a new one.** The reliquary capture step
+(rbgjl03, RBSLC) already auths ambiently — `gcr.io/cloud-builders/docker`, "no
+explicit login," cred-helper via the Mason SA. gcrane extends that same ambient
+posture from docker to crane, so the whole capture family shares one auth story
+instead of two. The durable canon for this lives in **RBSCB** (Cloud Build
+posture), which today still enshrines the skopeo "cannot use the credential helper,
+fetch the token in-memory" rationale that `token-fetch.sh` cites — that line is
+superseded by this finding and updated as the eviction lands.
+
+**Sources:**
+- go-containerregistry README — crane / gcrane / krane variants and their keychains
+- `pkg/v1/google/keychain.go` — `isGoogle()` host matching (`*.pkg.dev`) + ADC/metadata credential acquisition
+- crane image docs — distroless default, `:debug` busybox shell at `/busybox/sh`
+- Cloud SDK Docker image contents — gcloud/gsutil/bq, no crane
