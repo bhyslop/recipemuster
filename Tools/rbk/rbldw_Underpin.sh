@@ -19,18 +19,19 @@
 # Recipe Bottle Lode - wsl body (guard-free cluster, sourced by rbld0_Lode):
 #   underpin — capture a vendor-published WSL rootfs into a Lode (Director creds)
 # The wsl kind rides the capture-assembly spine (rblds_): this body owns only the
-# kind-specific data — the underpin recipe (curl+gpg capture + docker vouch push),
-# the substitutions blob, and the touchmark-fact extract — and composes them
-# through zrbld_spine_dispatch / zrbld_spine_extract. No build-submission or
-# step-composition machinery lives here.
+# kind-specific data — the underpin recipe (curl+gpg fetch/verify + gcrane-append
+# wrap + vouch-push), the substitutions blob, and the touchmark-fact extract — and
+# composes them through zrbld_spine_dispatch / zrbld_spine_extract. No build-submission
+# or step-composition machinery lives here.
 #
 # The structural outlier among the Lode kinds: its upstream is an HTTPS rootfs
 # tarball + an out-of-band published checksum, NOT an OCI registry image — so it
-# cannot reuse the skopeo/docker registry-pull steps. Its capture step (rbgjl04)
-# fetches over curl, GPG-verifies the vendor's published SHA256SUMS against a
-# pinned signing-key fingerprint, verifies the rootfs bytes, then wraps the opaque
-# tarball as an OCI member (FROM scratch + COPY). Acquisition runs cloud-side; the
-# workstation only assembles the URL from the version arguments.
+# cannot reuse the skopeo/docker registry-pull steps. Its fetch step (rbgjl04) fetches
+# over curl, GPG-verifies the vendor's published SHA256SUMS against a pinned
+# signing-key fingerprint, verifies the rootfs bytes, and stages the tarball; the wrap
+# step (rbgjl05) gcrane-appends it as an opaque single-layer OCI member (never
+# extracted). Acquisition runs cloud-side; the workstation only assembles the URL from
+# the version arguments.
 
 set -euo pipefail
 
@@ -44,14 +45,17 @@ set -euo pipefail
 ######################################################################
 # Internal Helpers (zrbld_*)
 
-# Internal: compose the underpin capture recipe (curl+gpg capture + docker vouch
-# push) and its substitutions blob, then ride the capture spine to submit and
-# poll. The spine owns the capture-domain build knobs (mason SA, TETHER pool,
-# regime timeout); this body chooses only the recipe, the substitutions, and the
-# poll ceiling. Both steps ride the Google-hosted docker builder — the capture
-# tool is curl/gpg/buildx (all present there), so the wsl kind needs neither
-# skopeo nor a reliquary bootstrap. The inscribe-grade poll ceiling gives headroom
-# for the in-step apt-get(gnupg) + keyserver fetch + buildx blob push.
+# Internal: compose the underpin capture recipe (curl+gpg fetch/verify + gcrane-append
+# wrap + vouch-push) and its substitutions blob, then ride the capture spine to submit
+# and poll. The spine owns the capture-domain build knobs (mason SA, TETHER pool,
+# regime timeout); this body chooses only the recipe, the substitutions, and the poll
+# ceiling. Three steps across two builders: the fetch/verify rides the Debian Google
+# builder (curl + apt-installed gnupg), the wrap and vouch-push ride the floating gcrane
+# builder. wsl is evicted but NOT pinned this pace — it is vessel-less with no reliquary
+# source, so its tool-pinning defers to the bootstrap-builder digest-pin itch (RBS0
+# rbsk_pinning_boundary); both gcrane rows ride the floating bootstrap builder, same tier
+# as conclave. The inscribe-grade poll ceiling gives headroom for the in-step
+# apt-get(gnupg) + keyserver fetch + gcrane append.
 # Args: token url stamp
 zrbld_underpin_submit() {
   zrbld_sentinel
@@ -64,12 +68,15 @@ zrbld_underpin_submit() {
   local -r z_gar_host="${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}"
   local -r z_gar_path="${RBGD_GAR_PROJECT_ID}/${RBDC_GAR_REPOSITORY}"
 
-  # Recipe rows: script_path|builder_image|id|entrypoint, pre-resolved for the
-  # spine. Both steps ride the Google-hosted docker builder (no reliquary
-  # bootstrap — curl/gpg/buildx, not a registry pull).
+  # Recipe rows: script_path|builder_image|id|entrypoint, pre-resolved for the spine.
+  # Fetch/verify on the Debian Google builder (curl + apt-installed gnupg); wrap + vouch
+  # on the floating gcrane builder (busybox). No reliquary bootstrap and no pinning —
+  # wsl is vessel-less, so its tool-pinning defers to the bootstrap-builder digest-pin
+  # itch; both gcrane rows ride the floating bootstrap builder, same tier as conclave.
   local -r z_recipe=(
-    "${ZRBLD_RBGJL_STEPS_DIR}/rbgjl04-underpin-capture.sh|${ZRBLD_GOOGLE_DOCKER_BUILDER}|underpin-capture|bash"
-    "${ZRBLD_RBGJL_STEPS_DIR}/rbgjl02-assemble-push-vouch.sh|${ZRBLD_GOOGLE_DOCKER_BUILDER}|assemble-push-vouch|bash"
+    "${ZRBLD_RBGJL_STEPS_DIR}/rbgjl04-underpin-capture.sh|${ZRBLD_GOOGLE_DOCKER_BUILDER}|underpin-fetch|bash"
+    "${ZRBLD_RBGJL_STEPS_DIR}/rbgjl05-underpin-wrap.sh|${ZRBLD_GCRANE_BUILDER}|underpin-wrap|busybox"
+    "${ZRBLD_RBGJL_STEPS_DIR}/rbgjl02-assemble-push-vouch.sh|${ZRBLD_GCRANE_BUILDER}|assemble-push-vouch|busybox"
   )
 
   buc_log_args "Composing underpin substitutions blob"
@@ -109,8 +116,8 @@ zrbld_underpin_submit() {
 
 # Internal: extract the captured touchmark from the completed underpin build and
 # emit the two bare single-form chaining facts (touchmark value + kind-brand
-# enum). The capture step (step 0) authors the base64 JSON carrying the
-# host-minted stamp in slot_1; the docker vouch step writes no output. Underpin
+# enum). The fetch step (step 0) authors the base64 JSON carrying the
+# host-minted stamp in slot_1; the wrap and vouch-push steps write no output. Underpin
 # captures exactly one Lode, so exactly one slot is populated. The provenance
 # envelope is NOT read host-side: it lives only in GAR (rbgjl02 pushed it under
 # :rbi_vouch), so the host hands forward only the touchmark a consumer needs.

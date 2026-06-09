@@ -1,11 +1,12 @@
 #!/bin/bash
-# RBGJL Step 04: Underpin a WSL rootfs into a Lode (capture) via curl + gpg + buildx
-# Builder: gcr.io/cloud-builders/docker (Google-hosted, always pullable; Debian-
-#          based — carries curl + docker buildx, and gnupg is apt-installed by the
-#          gpg-verify-sums snippet if absent. The underpin acquisition tool is curl
-#          over HTTPS, not a registry pull, so this kind needs neither skopeo nor a
-#          reliquary bootstrap. The docker credential helper authenticates the GAR
-#          push ambiently via the Mason SA.)
+# RBGJL Step 04: Fetch + GPG-verify a WSL rootfs and stage it for the wrap step
+# Builder: gcr.io/cloud-builders/docker (Google-hosted, always pullable; Debian-based
+#          — carries curl, and gnupg is apt-installed by the gpg-verify-sums snippet
+#          if absent). The acquisition tool is curl over HTTPS, not a registry pull,
+#          so this kind needs neither skopeo nor a reliquary bootstrap. This step does
+#          NOT push: it fetches, verifies, authors the envelope, and stages rootfs.tar
+#          for the gcrane-append wrap (rbgjl05) — the fetch/verify builder (curl+gpg,
+#          Debian) and the wrap builder (gcrane:debug busybox) cannot be one image.
 # Substitutions: _RBGL_GAR_HOST, _RBGL_GAR_PATH, _RBGL_LODES_ROOT, _RBGL_LODE_STAMP,
 #                _RBGL_TAG_ROOTFS, _RBGL_TRUST_GRADE, _RBGL_VOUCH_SCHEMA,
 #                _RBGL_ACQUIRED_BY, _RBGL_WSL_URL, _RBGL_WSL_KEY_FPR
@@ -13,10 +14,10 @@
 # Fetch the vendor rootfs tarball (URL assembled host-side from the version args)
 # over HTTPS, DISCOVER its checksum from Canonical's published, GPG-signed
 # SHA256SUMS (verified against the pinned signing-key fingerprint — the
-# verified-against-published gate), verify the rootfs bytes against it, then wrap
-# the OPAQUE tarball as a single-layer OCI member (FROM scratch + COPY — never ADD,
-# which would extract) and push it into ONE GAR package rbi_ld/<stamp> under the
-# clean member tag :rbi_rootfs. Author the batch provenance envelope (members[]
+# verified-against-published gate), verify the rootfs bytes against it, then stage the
+# OPAQUE tarball for the wrap step (rbgjl05), which gcrane-appends it as a single-layer
+# OCI member (never extracted) into ONE GAR package rbi_ld/<stamp> under the clean
+# member tag :rbi_rootfs. Author the batch provenance envelope (members[]
 # length 1 — the cardinality axis) and stage it for step 02 (the :rbi_vouch
 # artifact) and for the host capture-file via /builder/outputs/output.
 # Single-platform (linux/amd64): the rootfs is an opaque blob, not a multi-arch
@@ -94,26 +95,18 @@ if [ "${ACTUAL_SHA}" != "${EXPECTED_SHA}" ]; then
 fi
 echo "Verified: sha256:${ACTUAL_SHA} (matches GPG-signed published checksum)"
 
-# --- Wrap the OPAQUE tarball as a single-layer OCI member and push ---
-# FROM scratch + COPY (never ADD): COPY stores the tarball byte-for-byte; ADD would
-# auto-extract and destroy the opaque blob. The shared buildx builder pushes it.
-echo "--- Wrapping rootfs as OCI member -> ${DEST} ---"
+# --- Stage the verified OPAQUE tarball for the wrap step (rbgjl05) ---
+# The rootfs is staged byte-for-byte into a context dir holding ONLY rootfs.tar;
+# rbgjl05 gcrane-appends that dir as a FROM-scratch single-layer member (rootfs.tar at
+# image root, never extracted — gcrane append wraps the blob, it does not unpack it).
+# The wrap is a separate step because gcrane:debug busybox has no curl/gpg: this Debian
+# builder fetches and verifies, the gcrane builder wraps and pushes.
+echo "--- Staging verified rootfs for the wrap step -> ${DEST} ---"
 CTX="/workspace/underpin_ctx_${STAMP}"
 mkdir -p "${CTX}"
 cp "${ROOTFS}" "${CTX}/rootfs.tar"
-echo "FROM scratch"      >  "${CTX}/Dockerfile"
-echo "COPY rootfs.tar /" >> "${CTX}/Dockerfile"
 
-# Ensure the shared buildx builder — shared library snippet (run once).
-#@rbgjs_include buildx-bootstrap
-
-# Push the FROM-scratch opaque-blob context — shared library snippet.
-PUSH_URI="${DEST}"
-PUSH_PLATFORMS="linux/amd64"
-PUSH_CTX="${CTX}"
-#@rbgjs_include buildx-push
-
-echo "Rootfs captured: ${DEST} (sha256:${ACTUAL_SHA})"
+echo "Rootfs verified and staged: ${DEST} (sha256:${ACTUAL_SHA})"
 
 # --- Author the batch provenance envelope (identical content lands in :rbi_vouch
 # and the host capture-file). members[] length 1 — the wsl singleton. No jq

@@ -1,17 +1,18 @@
 #!/bin/bash
 # RBGJL Step 02: Push each Lode's provenance envelope as its :rbi_vouch artifact
-# Builder: docker (from reliquary)
-# Entrypoint: bash
+# Builder: gcrane (pinned reliquary gcrane for bole; floating bootstrap gcrane for
+#          conclave/wsl — the recipe row in each per-kind body sets which)
+# Entrypoint: busybox (gcrane:debug's only shell)
 # Substitutions: _RBGL_GAR_HOST, _RBGL_GAR_PATH, _RBGL_LODES_ROOT, _RBGL_TAG_VOUCH
 #
-# Note: The Dockerfile echo-sequence below is intentional — this script runs
-# inside a Cloud Build container, not under BCG module discipline.
+# Note: this script runs inside a Cloud Build container, not under BCG module
+# discipline (CBG governs).
 #
-# Step 01 (skopeo) staged one envelope per captured Lode at
-# /workspace/lode_<stamp>_vouch.json and listed the stamps in
-# /workspace/lode_stamps.txt. Each envelope rides into the SAME package as the
-# base manifest, under the :rbi_vouch tag — a distinct manifest, one per Lode.
-# Vouch content is architecture-independent; single-platform is sufficient.
+# The capture step (rbgjl01 ensconce / rbgjl03 conclave / rbgjl04 underpin) staged one
+# envelope per captured Lode at /workspace/lode_<stamp>_vouch.json and listed the
+# stamps in /workspace/lode_stamps.txt. Each envelope rides into the SAME package as
+# the captured manifest, under the :rbi_vouch tag — a distinct manifest, one per Lode.
+# Vouch content is architecture-independent; the single appended layer is sufficient.
 
 set -euo pipefail
 
@@ -24,9 +25,6 @@ test -s /workspace/lode_stamps.txt \
 
 test -n "${_RBGL_TAG_VOUCH}" || { echo "FATAL: _RBGL_TAG_VOUCH missing" >&2; exit 1; }
 
-# Ensure the shared buildx builder — shared library snippet (run once).
-#@rbgjs_include buildx-bootstrap
-
 while IFS= read -r STAMP || test -n "${STAMP}"; do
   test -n "${STAMP}" || continue
 
@@ -37,17 +35,16 @@ while IFS= read -r STAMP || test -n "${STAMP}"; do
   VOUCH_URI="${_RBGL_GAR_HOST}/${_RBGL_GAR_PATH}/${_RBGL_LODES_ROOT}/${STAMP}:${_RBGL_TAG_VOUCH}"
   echo "--- Vouch for ${STAMP} -> ${VOUCH_URI} ---"
 
+  # Stage the envelope alone in a context dir; gcrane append wraps it as a FROM-scratch
+  # single-layer member (vouch.json lands at image root).
   CTX="/workspace/vouch_ctx_${STAMP}"
   mkdir -p "${CTX}"
   cp "${ENVELOPE_FILE}" "${CTX}/vouch.json"
-  echo "FROM scratch"        >  "${CTX}/Dockerfile"
-  echo "COPY vouch.json /"   >> "${CTX}/Dockerfile"
 
-  # Push the FROM-scratch vouch context — shared library snippet.
-  PUSH_URI="${VOUCH_URI}"
-  PUSH_PLATFORMS="linux/amd64"
-  PUSH_CTX="${CTX}"
-#@rbgjs_include buildx-push
+  # Push the FROM-scratch vouch layer via gcrane append — Lode-family snippet.
+  APPEND_CTX="${CTX}"
+  APPEND_URI="${VOUCH_URI}"
+#@rbgjs_include gcrane-append
 
   echo "Vouch pushed: ${VOUCH_URI}"
 done < /workspace/lode_stamps.txt

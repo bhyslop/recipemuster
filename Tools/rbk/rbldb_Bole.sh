@@ -19,7 +19,7 @@
 # Recipe Bottle Lode - bole body (guard-free cluster, sourced by rbld0_Lode):
 #   ensconce — capture an upstream base image into a Lode (Director credentials)
 # The bole rides the capture-assembly spine (rblds_): this body owns only the
-# kind-specific data — the ensconce recipe (gcrane capture + docker vouch push),
+# kind-specific data — the ensconce recipe (gcrane capture + vouch-push),
 # the substitutions blob, and the touchmark-fact extract — and composes them
 # through zrbld_spine_dispatch / zrbld_spine_extract. No build-submission or
 # step-composition machinery lives here.
@@ -36,8 +36,8 @@ set -euo pipefail
 ######################################################################
 # Internal Helpers (zrbld_*)
 
-# Internal: compose the ensconce capture recipe (gcrane capture + docker vouch
-# push) and its substitutions blob, then ride the capture spine to submit and
+# Internal: compose the ensconce capture recipe (gcrane capture + vouch-push) and
+# its substitutions blob, then ride the capture spine to submit and
 # poll. The spine owns the capture-domain build knobs (mason SA, TETHER pool,
 # regime timeout); this body chooses only the recipe, the substitutions, and the
 # enshrine-borrowed poll ceiling.
@@ -55,9 +55,11 @@ zrbld_ensconce_submit() {
 
   # Recipe rows: script_path|builder_image|id|entrypoint, pre-resolved for the
   # spine. The | delimiter is load-bearing — builder refs carry colons (tags).
+  # bole is a sealed-reliquary consumer: BOTH steps ride the PINNED reliquary gcrane
+  # (z_rbfc_tool_gcrane), never the floating bootstrap — zero unpinned aspects.
   local -r z_recipe=(
-    "${ZRBLD_RBGJL_STEPS_DIR}/rbgjl01-ensconce-capture.sh|${ZRBLD_GCRANE_BUILDER}|ensconce-capture|busybox"
-    "${ZRBLD_RBGJL_STEPS_DIR}/rbgjl02-assemble-push-vouch.sh|${z_rbfc_tool_docker}|assemble-push-vouch|bash"
+    "${ZRBLD_RBGJL_STEPS_DIR}/rbgjl01-ensconce-capture.sh|${z_rbfc_tool_gcrane}|ensconce-capture|busybox"
+    "${ZRBLD_RBGJL_STEPS_DIR}/rbgjl02-assemble-push-vouch.sh|${z_rbfc_tool_gcrane}|assemble-push-vouch|busybox"
   )
 
   buc_log_args "Composing ensconce substitutions blob"
@@ -102,7 +104,7 @@ zrbld_ensconce_submit() {
 # Internal: extract the captured touchmark from the completed ensconce build and
 # emit the two bare single-form chaining facts (touchmark value + kind-brand
 # enum). The gcrane capture step (step 0) authors the base64 JSON carrying the
-# host-minted stamp per slot; the docker vouch step writes no output. Base-kind
+# host-minted stamp per slot; the vouch-push step writes no output. Base-kind
 # ensconce captures exactly one base, so exactly one slot is populated — the
 # single-form facts are one-per-dispatch and buf_write_fact_single's no-clobber
 # guard turns any second populated slot into a loud failure. The provenance
@@ -183,9 +185,10 @@ rbld_ensconce() {
 
   buc_info "Ensconce base: ${z_origin}"
 
-  # Resolve tool images from reliquary (docker for the step-02 vouch push). The
-  # step-01 capture rides the Google-hosted gcrane builder (ZRBLD_GCRANE_BUILDER),
-  # not a reliquary tool — gcrane is always-pullable and auths GAR ambiently.
+  # Resolve tool images from the reliquary. bole is a sealed-reliquary consumer, so
+  # BOTH steps ride the PINNED reliquary gcrane (z_rbfc_tool_gcrane) — zero unpinned
+  # aspects (RBS0 rbsk_pinning_boundary). The vessel supplies RBRV_RELIQUARY; gcrane
+  # auths GAR ambiently whether pulled from gcr.io or our AR.
   zrbfc_resolve_tool_images
 
   buc_step "Loading Director RBRA credentials"
