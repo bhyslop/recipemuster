@@ -30,6 +30,13 @@ Job Jockey (JJ) is installed for managing project initiatives.
 
 **Paddock posture.** A paddock articulates shape, cinched decisions, and what done looks like — not a progress journal. Git log and `jjx_log` are the journal; the paddock is the shape. **Coronets do not appear in paddock prose** — not retrospectively (annotating landed work, e.g., "BBAAM depot-identity-collapse"), not prospectively (naming planned paces, e.g., "AAF — Docker dual-daemon"), not as cross-references. A coronet is an enrollment-ledger key, not shape data; pace-state operations (drop, relabel, reorder, transfer) silently invalidate coronet refs while the prose keeps them. Refer to paces by purpose, not identifier; `jjx_show` is the authoritative source for what paces exist. Firemarks may appear (heats change rarely). When editing a paddock for other reasons, prune any coronet refs you find.
 
+**Silks never appear in artifact prose.** Paddock and docket *prose* must never name heat silks — neither a heat's own silks nor another heat's. Silks are display names that evolve via `jjx_relabel`; the moment one drifts, the prose that quoted it is stale and quietly misleads. This is the same failure mode as the coronet-in-paddock rule above, applied to the third identity type, and it completes a three-way distinction by how each kind fares against the lifecycle:
+- **Firemarks** — lifecycle-bound (a heat keeps its firemark for life) → fine in both paddock and docket prose.
+- **Coronets** — stable but invalidated by pace-state ops (drop, relabel, reorder, transfer) → barred from paddock prose; in docket prose only for genuine cross-order or cross-heat dependencies (see **Reference discipline**).
+- **Silks** — evolve freely via relabel → barred from *both* paddock and docket prose (this rule).
+
+Refer to a heat or pace by its purpose, not its display name; the firemark — or, where dockets allow, the coronet — is the durable handle. When editing a paddock or docket for other reasons, prune any silks-shaped kebab strings you find, as you would a stray coronet.
+
 **Mid-execution posture.** When a failure or surprise surfaces while a pace is mounted, the default response is mechanism + one specific repair you'd attempt. Do not proliferate options or weigh consequences across alternatives — pace scope and segmentation are operator territory. If the repair is obvious, proceed; if not, surface the question and stop.
 
 **Identities vs Display Names:**
