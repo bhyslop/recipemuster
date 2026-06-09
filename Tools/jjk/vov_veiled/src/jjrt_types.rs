@@ -15,6 +15,15 @@ use std::collections::BTreeMap;
 /// All basis-related code derives the expected length from this constant.
 pub const JJRG_UNKNOWN_BASIS: &str = "0000000";
 
+/// Canonical human display labels for pace states — the single home for the
+/// short forms shown in CLI output (scout listings, paddock rendering, drop
+/// confirmation). Distinct from the persisted serde wire tokens (`jjgte_*`
+/// per-variant renames below); these are the operator-facing labels.
+pub const JJRG_STATE_ROUGH: &str = "rough";
+pub const JJRG_STATE_BRIDLED: &str = "bridled";
+pub const JJRG_STATE_COMPLETE: &str = "complete";
+pub const JJRG_STATE_ABANDONED: &str = "abandoned";
+
 /// Pace state values
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum jjrg_PaceState {
@@ -26,6 +35,20 @@ pub enum jjrg_PaceState {
     Complete,
     #[serde(rename = "jjgte_abandoned")]
     Abandoned,
+}
+
+impl jjrg_PaceState {
+    /// Human display label for this state (short form, e.g. `rough`) — the
+    /// single source of truth for CLI/display output. NOT the persisted serde
+    /// token (`jjgte_*`); see the variant renames above for the wire form.
+    pub fn jjrg_as_str(&self) -> &'static str {
+        match self {
+            jjrg_PaceState::Rough => JJRG_STATE_ROUGH,
+            jjrg_PaceState::Bridled => JJRG_STATE_BRIDLED,
+            jjrg_PaceState::Complete => JJRG_STATE_COMPLETE,
+            jjrg_PaceState::Abandoned => JJRG_STATE_ABANDONED,
+        }
+    }
 }
 
 /// Heat status values

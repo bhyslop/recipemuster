@@ -624,12 +624,7 @@ fn zjjrg_build_trophy_content(
         if let Some(pace) = heat.paces.get(coronet_key) {
             // Get final state from most recent tack
             let final_state = pace.tacks.first()
-                .map(|t| match t.state {
-                    jjrg_PaceState::Rough => "rough",
-                    jjrg_PaceState::Bridled => "bridled",
-                    jjrg_PaceState::Complete => "complete",
-                    jjrg_PaceState::Abandoned => "abandoned",
-                })
+                .map(|t| t.state.jjrg_as_str())
                 .unwrap_or("unknown");
 
             let pace_silks = pace.tacks.first()

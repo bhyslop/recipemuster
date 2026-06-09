@@ -2,7 +2,7 @@
 // All rights reserved.
 // SPDX-License-Identifier: LicenseRef-Proprietary
 
-use crate::jjrg_gallops::{jjrg_Heat as Heat, jjrg_Pace as Pace, jjrg_Tack as Tack, jjrg_Gallops as Gallops, jjrg_HeatStatus as HeatStatus, jjrg_PaceState as PaceState, JJRG_UNKNOWN_BASIS};
+use crate::jjrg_gallops::{jjrg_Heat as Heat, jjrg_Pace as Pace, jjrg_Tack as Tack, jjrg_Gallops as Gallops, jjrg_HeatStatus as HeatStatus, jjrg_PaceState as PaceState, JJRG_UNKNOWN_BASIS, JJRG_STATE_ROUGH, JJRG_STATE_BRIDLED, JJRG_STATE_COMPLETE, JJRG_STATE_ABANDONED};
 use std::collections::BTreeMap;
 
 fn create_test_gallops() -> Gallops {
@@ -97,16 +97,11 @@ fn jjtq_heat_status_filter_retired() {
 }
 
 #[test]
-fn jjtq_pace_state_to_string() {
-    assert_eq!(
-        match PaceState::Rough {
-            PaceState::Rough => "rough",
-            PaceState::Bridled => "bridled",
-            PaceState::Complete => "complete",
-            PaceState::Abandoned => "abandoned",
-        },
-        "rough"
-    );
+fn jjtq_pace_state_as_str() {
+    assert_eq!(PaceState::Rough.jjrg_as_str(), JJRG_STATE_ROUGH);
+    assert_eq!(PaceState::Bridled.jjrg_as_str(), JJRG_STATE_BRIDLED);
+    assert_eq!(PaceState::Complete.jjrg_as_str(), JJRG_STATE_COMPLETE);
+    assert_eq!(PaceState::Abandoned.jjrg_as_str(), JJRG_STATE_ABANDONED);
 }
 
 #[test]

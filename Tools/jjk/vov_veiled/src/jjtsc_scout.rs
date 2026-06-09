@@ -4,32 +4,7 @@
 //! Tests for jjx_scout command (regex search across heats/paces)
 
 use regex::Regex;
-use crate::jjrg_gallops::jjrg_PaceState as PaceState;
-use crate::jjrsc_scout::{zjrsc_pace_state_str, zjrsc_extract_match_context};
-
-// ============================================================================
-// zjrsc_pace_state_str tests
-// ============================================================================
-
-#[test]
-fn jjtsc_pace_state_str_rough() {
-    assert_eq!(zjrsc_pace_state_str(&PaceState::Rough), "rough");
-}
-
-#[test]
-fn jjtsc_pace_state_str_bridled() {
-    assert_eq!(zjrsc_pace_state_str(&PaceState::Bridled), "bridled");
-}
-
-#[test]
-fn jjtsc_pace_state_str_complete() {
-    assert_eq!(zjrsc_pace_state_str(&PaceState::Complete), "complete");
-}
-
-#[test]
-fn jjtsc_pace_state_str_abandoned() {
-    assert_eq!(zjrsc_pace_state_str(&PaceState::Abandoned), "abandoned");
-}
+use crate::jjrsc_scout::zjrsc_extract_match_context;
 
 // ============================================================================
 // zjrsc_extract_match_context tests

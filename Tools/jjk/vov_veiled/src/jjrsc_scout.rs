@@ -106,7 +106,7 @@ pub fn jjrsc_run_scout(args: jjrsc_ScoutArgs) -> (i32, String) {
                         }
 
                         // Print pace line
-                        let state_str = zjrsc_pace_state_str(&tack.state);
+                        let state_str = tack.state.jjrg_as_str();
                         vvco_out!(output, "  {} [{}] {}", coronet_key, state_str, tack.silks);
 
                         // Print match line with context (extract ~60 chars around match)
@@ -119,16 +119,6 @@ pub fn jjrsc_run_scout(args: jjrsc_ScoutArgs) -> (i32, String) {
     }
 
     (0, output.vvco_finish())
-}
-
-/// Helper to convert PaceState to display string
-pub(crate) fn zjrsc_pace_state_str(state: &PaceState) -> &'static str {
-    match state {
-        PaceState::Rough => "rough",
-        PaceState::Bridled => "bridled",
-        PaceState::Complete => "complete",
-        PaceState::Abandoned => "abandoned",
-    }
 }
 
 /// Extract context around the first regex match in content

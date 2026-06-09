@@ -215,16 +215,20 @@ pub fn jjrtl_run_drop(args: jjrtl_DropArgs) -> (i32, String) {
         }
     };
 
-    // Get firemark and silks for commit message before we move args
+    // Capture firemark, silks, prior state, and display coronet before we move
+    // args — prior state lets the drop echo its own prior→new transition.
     let coronet_str = args.coronet.clone();
-    let (fm, silks) = match Coronet::jjrf_parse(&coronet_str) {
+    let (fm, silks, prior_state, coronet_display) = match Coronet::jjrf_parse(&coronet_str) {
         Ok(c) => {
             let parent_fm = c.jjrf_parent_firemark();
-            let silks = gallops.heats.get(&parent_fm.jjrf_display())
+            let prior_tack = gallops.heats.get(&parent_fm.jjrf_display())
                 .and_then(|h| h.paces.get(&c.jjrf_display()))
-                .and_then(|p| p.tacks.first().map(|t| t.silks.clone()))
+                .and_then(|p| p.tacks.first());
+            let silks = prior_tack
+                .map(|t| t.silks.clone())
                 .unwrap_or_else(|| coronet_str.clone());
-            (parent_fm, silks)
+            let prior_state = prior_tack.map(|t| t.state.jjrg_as_str()).unwrap_or("unknown");
+            (parent_fm, silks, prior_state, c.jjrf_display())
         }
         Err(e) => {
             vvco_err!(output, "{}: error: {}", cn, e);
@@ -246,6 +250,7 @@ pub fn jjrtl_run_drop(args: jjrtl_DropArgs) -> (i32, String) {
 
             match crate::jjri_io::jjri_persist(&lock, &gallops, &args.file, &fm, message, vvc::VVCG_SIZE_LIMIT, &mut output) {
                 Ok(hash) => {
+                    vvco_out!(output, "{}: {} → {}", coronet_display, prior_state, PaceState::Abandoned.jjrg_as_str());
                     vvco_out!(output, "committed {}", hash);
                     (0, output.vvco_finish())
                 }
