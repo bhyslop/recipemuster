@@ -175,6 +175,7 @@ zrbld_spine_dispatch() {
     case "${z_entrypoint}" in
       bash)    z_shebang="#!/bin/bash" ;;
       sh)      z_shebang="#!/bin/sh" ;;
+      busybox) z_shebang="#!/busybox/sh" ;;
       python3) z_shebang="#!/usr/bin/env python3" ;;
       *)       buc_die "Unknown entrypoint '${z_entrypoint}' in recipe row: ${z_row}" ;;
     esac
