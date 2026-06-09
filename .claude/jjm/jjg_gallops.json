@@ -8590,6 +8590,7 @@
         "₢BHAAJ",
         "₢BHAAK",
         "₢BHAAT",
+        "₢BHAAU",
         "₢BHAAL",
         "₢BHAAM",
         "₢BHAAN",
@@ -8599,7 +8600,7 @@
         "₢BHAAD",
         "₢BHAAS"
       ],
-      "jjghn_next_pace_seed": "AAU",
+      "jjghn_next_pace_seed": "AAV",
       "jjghn_paces": {
         "₢BHAAA": {
           "jjgpn_tacks": [
@@ -9140,6 +9141,17 @@
               "jjgtn_text": "## Character\nBehavior-preserving cloud-step cutover. Mechanical but fidelity-critical — the bole\ncapture digest must not move.\n\n## Goal\nEvict skopeo from the Lode capture path by moving bole capture onto crane. Bole is\nthe last skopeo consumer in capture (conclave already uses docker, vouch uses\nbuildx), so converting it — plus its shared fingerprint snippet and its builder\nimage — removes skopeo from the capture path entirely. Drop skopeo from the\nreliquary tool cohort if nothing else still consumes it.\n\n## Done when\n- No skopeo invocation remains in the Lode capture path.\n- The lode-lifecycle service fixture passes against live GAR with the canonical\n  :rbi_sha256 digest tag unchanged for an identical upstream (fidelity preserved).\n- skopeo is either dropped from the reliquary tool cohort, or its remaining\n  consumer is noted.\n\n## Cinched\n- Skopeo eviction ONLY. Moving conclave (docker) and vouch (buildx) onto crane —\n  the broader crane-everywhere consolidation — is explicitly out of scope.\n- crane is the settled capture tool; do not reopen oras (documented-fallback only).\n\n## Sources\n- Memo memo-20260608-lode-podvm-cerebro-experiment.md — crane decision and the\n  corrected skopeo failure mode (loud fatal on empty-config, not silent skip).\n- Discovery recipe: grep skopeo across Tools/rbk/rbgjl and Tools/rbk/rbgjs;\n  classify each hit convert / rename / drop. Crane builder: ride a podvm capture\n  pace's if one has landed, else introduce crane (a static ELF, cheap to add).",
               "jjgtn_silks": "lode-skopeo-eviction",
               "jjgtn_basis": "a0e9745"
+            }
+          ]
+        },
+        "₢BHAAU": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260608-1950",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nBehavior-preserving cutover. Removes the docker daemon dependency from conclave.\n\n## Goal\nEvict docker from capture by moving conclave onto crane. The conclave capture step does\ndocker pull/tag/push per tool; crane cp copies registry->registry directly (daemonless,\nno pull-then-push), and crane digest replaces docker inspect for the recorded digest.\nconclave is the only docker consumer in capture.\n\n## Done when\n- No docker invocation in the conclave capture path; the step runs on a crane builder.\n- reliquary-lifecycle service fixture green against live GAR, member digests unchanged.\n\n## Cinched\n- crane is settled. Reuse the auth mechanism chosen in the skopeo-eviction pace.\n\n## Sources\n- grep docker across Tools/rbk/rbgjl to find the conclave capture step.",
+              "jjgtn_silks": "lode-docker-eviction",
+              "jjgtn_basis": "e9c38c6"
             }
           ]
         }
