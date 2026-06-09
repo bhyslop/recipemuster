@@ -8741,9 +8741,10 @@
         "₢BHAAP",
         "₢BHAAR",
         "₢BHAAX",
+        "₢BHAAY",
         "₢BHAAD"
       ],
-      "jjghn_next_pace_seed": "AAY",
+      "jjghn_next_pace_seed": "AAZ",
       "jjghn_paces": {
         "₢BHAAA": {
           "jjgpn_tacks": [
@@ -9356,6 +9357,17 @@
               "jjgtn_text": "## Character\nThe terminal skopeo removal — converts the last skopeo consumer (the made-side bind\nmirror) to crane, then purges skopeo from the reliquary cohort. A narrow, deliberate\ncrossing of the capture-only line: ONE made-side invocation, NOT the made-image package\nretrofit (Ark/Hallmark/abjure stay deferred). Runs after every other skopeo consumer is gone.\n\n## Goal\nConvert the bind mirror (rbgjm01 / rbfd_mirror) from `skopeo copy --all` to `crane cp` —\na bare registry-to-registry multi-platform copy, get-by-digest-or-error matching bind's\npin-exactly semantic. Then drop skopeo from the cohort: the conclave MANIFEST tool entry,\nthe z_rbfc_tool_skopeo plumbing, the RBGC constant, the reliquary preflight check, and the\nhelp-string mentions.\n\n## Done when\n- No skopeo invocation in any Cloud Build step, capture or made-side; a bind-mode build\n  runs green on crane.\n- skopeo gone from the cohort (MANIFEST, plumbing, constant, preflight, help); the cohort\n  provisions crane where build steps need it.\n\n## Cinched\n- Gated on the capture skopeo eviction + inscribe retirement + this pace's own mirror\n  conversion all landing first — every consumer gone before the tool is dropped.\n- crane settled; reuse the chosen auth mechanism. Made-image package retrofit stays out of\n  scope — this converts a tool invocation, not the made-side model.\n\n## Sources\n- rbgjm01-mirror-image.sh, rbfd_FoundryDirectorBuild.sh (zrbfd_mirror_submit,\n  z_rbfc_tool_skopeo). grep skopeo across Tools/rbk + tt/ for the cohort/plumbing sites.",
               "jjgtn_silks": "lode-skopeo-reliquary-eviction",
               "jjgtn_basis": "a44d7e7"
+            }
+          ]
+        },
+        "₢BHAAY": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260609-0616",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nFocused spec retirement — lifted out of the vocab scrub because deleting a full\noperation spec is heavier than a word-level sweep and deserves its own visibility.\n\n## Goal\nRetire RBSAE-ark_enshrine.adoc — a LIVE spec describing the dead skopeo-driven\nenshrine-CREATION path. The bole cutover already deleted its step scripts (rbgje*)\nand the rbfd_enshrine creation gesture; only the spec remains, describing a path\nnothing runs, with no superseded banner. Enshrine-as-creation is superseded by bole\ngcrane Lode capture.\n\n## Cinched\n- Enshrine-as-creation IS retired: only wrest/jettison of already-existing\n  enshrinements survive (rbw-iwe / rbw-iJe), as registry artifacts, until the deferred\n  rbi_es -> rbi_ld migration. The CREATION spec dies; the artifact-maintenance verbs\n  are out of scope here.\n- Default hard delete (the vocab-scrub's original intent: \"delete it, do not adapt\n  it\"). At mount, decide whether a brief superseded-banner-then-stub better serves a\n  reader who finds an old enshrinement — operator's call.\n- Also retire the rbtgo_ark_enshrine quoin in RBS0.\n\n## Done when\nRBSAE no longer describes a live enshrine-creation operation (deleted or stubbed-as-\nretired); the rbtgo_ark_enshrine quoin is gone; no cross-ref dangles; `fast` green.",
+              "jjgtn_silks": "lode-enshrine-spec-retire",
+              "jjgtn_basis": "8f87e9b"
             }
           ]
         }
