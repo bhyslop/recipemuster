@@ -564,11 +564,28 @@ Orthogonal to but paired with the [Crucible Conduit](#CrucibleConduit): the cond
 - <a id="OperatorFederation"></a>**[Operator Federation](#OperatorFederation)** - The path to corporate-acceptable identity — admit operators through an external identity provider (OIDC/SAML) instead of long-lived service-account keys on disk, with identity proved by a fresh sign-in and capabilities granted to a federated principal, no secret at rest.
 This tier **requires a GCP organization**, which is the dividing line from today's keyfile model (which needs none): a qualifying organization is free via Google Cloud Identity once you verify ownership of a **DNS domain**, so the real prerequisite is controlling a domain, not paying Google.
 Revocation becomes central at the identity provider rather than a manual, per-key [Divest](#Divest).
-Critical sequences, rendered from committed PlantUML source through the [pluml](#pluml) [Crucible](#Crucible):
-[Federation login](diagrams/federation-login.svg) (two-leg device-flow + STS exchange) ·
-[Federation setup](diagrams/federation-setup.svg) (Payor-side workforce pool + provider) ·
-[Keyfile login](diagrams/keyfile-login.svg) (today's tier, for contrast) ·
-[The single code seam](diagrams/federation-seam.svg) (one accessor, mode-enum branch — the structural payoff).
+Critical sequences, rendered from committed PlantUML source through the [pluml](#pluml) [Crucible](#Crucible) — each diagram tracks your light/dark color scheme:
+
+<details>
+<summary><strong>Critical sequences</strong> — four theme-aware diagrams (click to expand)</summary>
+
+<picture><source media="(prefers-color-scheme: dark)" srcset="diagrams/rbdgl_federation-login-dark.svg"><img alt="Federation login — two-leg device-flow + STS exchange" src="diagrams/rbdgl_federation-login.svg"></picture>
+
+*Federation login* — two-leg device-flow + STS exchange.
+
+<picture><source media="(prefers-color-scheme: dark)" srcset="diagrams/rbdgs_federation-setup-dark.svg"><img alt="Federation setup — Payor-side workforce pool + provider" src="diagrams/rbdgs_federation-setup.svg"></picture>
+
+*Federation setup* — Payor-side workforce pool + provider.
+
+<picture><source media="(prefers-color-scheme: dark)" srcset="diagrams/rbdgk_keyfile-login-dark.svg"><img alt="Keyfile login — today's tier, for contrast" src="diagrams/rbdgk_keyfile-login.svg"></picture>
+
+*Keyfile login* — today's tier, for contrast.
+
+<picture><source media="(prefers-color-scheme: dark)" srcset="diagrams/rbdgm_federation-seam-dark.svg"><img alt="The single code seam — one accessor, mode-enum branch" src="diagrams/rbdgm_federation-seam.svg"></picture>
+
+*The single code seam* — one accessor, mode-enum branch, the structural payoff.
+
+</details>
 
 - <a id="VpcServiceControls"></a>**[VPC Service Controls](#VpcServiceControls)** - Google Cloud security perimeters that prevent data from being copied out of a project even if an attacker holds valid credentials.
 [Recipe Bottle's](#RecipeBottle) Cloud Build architecture uses private pools, which are the prerequisite for VPC enforcement; enabling the controls themselves is deferred until organizational policy or external distribution requires them.

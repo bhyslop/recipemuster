@@ -2287,15 +2287,47 @@ fn rbtdrc_pluml_malformed_diagram(dir: &Path) -> rbtdre_Verdict {
 }
 
 /// Generative case — deliberately distinct from the hermetic probe cases above.
-/// Re-renders every `diagrams/*.puml` source under the project root to a sibling
-/// committed `.svg` through the live PlantUML server, asserting each response is
-/// a well-formed SVG. This is the one pluml case that writes tracked repo files:
-/// it keeps the federation-model critical-sequence diagrams (linked from
-/// README.md) in lockstep with their source. Idempotent — identical source
-/// yields byte-stable output, so a clean tree stays clean. Fails loud when the
-/// diagrams dir is missing or empty, or when a render returns a non-SVG (the
-/// server emits a valid <svg> even for diagram syntax errors, so the "Syntax
-/// Error" payload is rejected explicitly).
+/// Pure light→dark recolor of a PlantUML default-skin SVG. No crucible, no I/O —
+/// a function of the rendered bytes already in hand, so it carries zero container
+/// dependency and is unit-tested on its own. Surveys the exact default-skin
+/// palette these sequence diagrams emit and maps each color to a dark-canvas
+/// equivalent; the page background is dropped to `transparent` so the figure
+/// blends with GitHub's dark canvas under a `<picture media="(prefers-color-scheme:
+/// dark)">` source. Colors outside the surveyed palette pass through unchanged —
+/// a characterized membrane, not a silent catch-all: a future custom-skinned
+/// diagram would need its colors added to the palette here rather than be
+/// recolored by guesswork.
+fn zrbtdrc_darken_svg(light: &str) -> String {
+    // Surveyed PlantUML default-skin palette: (light_hex, dark_hex). No entry is
+    // a substring of another, so replacement order among them is immaterial.
+    const RBTDRC_DARK_PALETTE: &[(&str, &str)] = &[
+        ("#000000", "#E6E6E6"), // text + arrow ink
+        ("#181818", "#9DA5B4"), // lifelines, borders, dashes
+        ("#E2E2F0", "#3B3B54"), // participant box fill
+        ("#FEFFDD", "#48421F"), // note fill
+        ("#EEEEEE", "#2B2B2B"), // group / alt-region background
+    ];
+    // Drop the opaque page background first (specific substring, before any
+    // general hex mapping touches the same bytes).
+    let mut out = light.replace("background:#FFFFFF;", "background:transparent;");
+    for (light_hex, dark_hex) in RBTDRC_DARK_PALETTE {
+        out = out.replace(light_hex, dark_hex);
+    }
+    out
+}
+
+/// Re-renders every `diagrams/*.puml` source under the project root through the
+/// pluml-crucible PlantUML server, asserting each response is a well-formed SVG,
+/// and writes two committed siblings per source: the light `{stem}.svg` straight
+/// from the server, and a `{stem}-dark.svg` recolored by `zrbtdrc_darken_svg`.
+/// README embeds the pair via `<picture>` so each diagram tracks the reader's
+/// color scheme. This is the one pluml case that writes tracked repo files; the
+/// diagram set lives in the glob alone (drop a new `rbdgX_*.puml` in `diagrams/`
+/// and it is rendered in both modes — no second list to maintain). Idempotent —
+/// identical source yields byte-stable output, so a clean tree stays clean. Fails
+/// loud when the diagrams dir is missing or empty, or when a render returns a
+/// non-SVG (the server emits a valid <svg> even for diagram syntax errors, so the
+/// "Syntax Error" payload is rejected explicitly).
 fn rbtdrc_pluml_render_diagrams(dir: &Path) -> rbtdre_Verdict {
     rbtdrc_with_ctx(|ctx| {
         let port = match rbtdrc_read_nameplate_port(ctx) {
@@ -2365,6 +2397,10 @@ fn rbtdrc_pluml_render_diagrams(dir: &Path) -> rbtdre_Verdict {
             let out = diagrams_dir.join(format!("{}.svg", stem));
             if let Err(e) = std::fs::write(&out, &svg) {
                 return rbtdre_Verdict::Fail(format!("write {}: {}", out.display(), e));
+            }
+            let dark_out = diagrams_dir.join(format!("{}-dark.svg", stem));
+            if let Err(e) = std::fs::write(&dark_out, zrbtdrc_darken_svg(&svg)) {
+                return rbtdre_Verdict::Fail(format!("write {}: {}", dark_out.display(), e));
             }
             rendered.push(stem);
         }
@@ -3618,3 +3654,46 @@ pub static RBTDRC_CASES_ACCESS_PROBE: &[rbtdre_Case] = &[
     case!(rbtdrc_jwt_retriever),
     case!(rbtdrc_oauth_payor),
 ];
+
+// ── Crucible-free unit tests ─────────────────────────────────
+//
+// zrbtdrc_darken_svg is a pure function of the rendered bytes, so its
+// correctness is proven here without charging a crucible — distinct from the
+// crucible case, which proves the PlantUML server renders well-formed SVG.
+
+#[cfg(test)]
+mod rbtdrc_tests {
+    use super::*;
+
+    #[test]
+    fn zrbtdrc_darken_svg_maps_the_surveyed_palette() {
+        let light = concat!(
+            r##"<svg style="width:10px;height:10px;background:#FFFFFF;">"##,
+            r##"<text fill="#000000">x</text>"##,
+            r##"<line style="stroke:#181818;"/>"##,
+            r##"<rect fill="#E2E2F0"/><rect fill="#FEFFDD"/><rect fill="#EEEEEE"/></svg>"##,
+        );
+        let dark = zrbtdrc_darken_svg(light);
+
+        // Page background dropped to transparent.
+        assert!(dark.contains("background:transparent;"));
+        assert!(!dark.contains("background:#FFFFFF;"));
+
+        // Every surveyed light color is gone, replaced by its dark mapping —
+        // and the map reaches colors inside style="..." strings, not just
+        // fill="..."/stroke="..." attributes (blunt hex substitution).
+        assert!(!dark.contains("#000000") && dark.contains("#E6E6E6"));
+        assert!(!dark.contains("#181818") && dark.contains("#9DA5B4"));
+        assert!(!dark.contains("#E2E2F0") && dark.contains("#3B3B54"));
+        assert!(!dark.contains("#FEFFDD") && dark.contains("#48421F"));
+        assert!(!dark.contains("#EEEEEE") && dark.contains("#2B2B2B"));
+    }
+
+    #[test]
+    fn zrbtdrc_darken_svg_passes_unsurveyed_colors_through() {
+        // A color outside the surveyed palette is left untouched — the membrane
+        // is characterized, not a guess-everything recolor.
+        let light = r##"<rect fill="#AB12CD"/>"##;
+        assert_eq!(zrbtdrc_darken_svg(light), light);
+    }
+}
