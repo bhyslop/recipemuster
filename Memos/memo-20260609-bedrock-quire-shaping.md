@@ -278,8 +278,60 @@ MVP. Recorded here as a shaping force and one named hazard, nothing more.
   literal sharing and does not hold: VPC-SC is a *GCP* service perimeter around the depot
   project; the Outpost VPC is an *AWS* network. Different clouds; neither shares. Fix the
   cross-reference when RBSHR's conduit/chantry stubs get breadcrumbed to this memo.
+- **Terminus consumer class** — §11's open question: container-only consumers (plain
+  container networking) vs. a host-resident consumer (needs a local forward-proxy / endpoint
+  seam from the terminus, still no host VPN). Container-only is the lean; unsettled.
 
-## 11. Sources
+## 11. Launch shape — the Outpost's local terminus
+
+A same-session addendum extending §5 and §7. The shaping above left one thing unsaid: the
+Outpost is "peer-bearing" on the *AWS* side, but where does the tunnel's *local* end live?
+Three candidate homes were weighed; two are rejected here and the third adopted as the working
+shape.
+
+**Not in the sentry.** Folding the tunnel client into the sentry inverts the sentry's purpose.
+The sentry is a *containment-harness* component — it jails a possibly-hostile bottle and exists
+to prove the jail holds (the Ifrit/tadmor stance: the inside is the threat). A tunnel terminus
+serving a *trusted* reach is the opposite stance — trusted infrastructure, not a contained
+prisoner. Crossing the two makes the sentry mean two contradictory things at once. The
+predecessor's answer was WireGuard-in-sentry (the 2026-04-15 conduit memo, §12); it is rejected
+here.
+
+**Not a bottle-less crucible either.** The tempting shortcut — a crucible charged with no
+bottle — is a category error. The crucible *is* the containment harness; a bottle-less crucible
+is a jail with no prisoner, and hollowing out its one purpose to borrow its lifecycle plumbing
+is abstraction strain, not a feature.
+
+**The factoring that holds.** The image ecosystem (vessel → hallmark → nameplate) is separable
+from the runtime harness (crucible). The crucible is one *consumer* of hallmark images. The
+local terminus is a **second launch shape** beside it — same build pipeline, different runtime —
+not a variant of the first. "A whole different notion of launched container" is the correct
+read, and the signal that it belongs beside the crucible, not inside it.
+
+**Its home in the vocabulary: the Outpost's local end.** The terminus is the client-side
+counterpart of the EC2 peer — built as its own vessel, launched standalone. The Outpost now has
+two ends (AWS peer + local terminus), both operated by `raise`/`strike`; no new verbs, no new
+top-level concept. This finishes the migration this memo began: away from WireGuard-in-sentry,
+toward a dedicated terminus.
+
+**"No host WireGuard" is a design constraint, and the terminus honors it.** The tunnel client
+lives in a *container*; its config rides inside the hallmark through the same pipeline as
+everything else, and the workstation host never joins a VPN. That is the "path based on the
+container image ecosystem" — literally.
+
+**MVP untouched.** The terminus is fast-follow only: it exists only once there is an Outpost to
+terminate. The MVP (allowlist reach, sentry egress-lockdown, no Outpost, no VPC) is unaffected,
+and there the sentry keeps doing exactly what it does today. This addendum adds no MVP surface —
+consistent with §9's rule that the forward vision must not touch the MVP.
+
+**One open question, named not solved (§10): how a consumer reaches the terminus.** Container
+consumers reach it by plain container networking — trivial, never touching the host. A
+host-resident consumer (operator tooling outside any container) would need the terminus to
+expose a local seam — most plausibly a forward proxy / endpoint-override the SDK points at —
+*still* no host VPN. Which consumer class is in scope changes the design; container-only is
+dramatically simpler and is the current lean.
+
+## 12. Sources
 
 - `Memos/memo-20260415-crucible-conduit-architecture.md` — the predecessor (approaches,
   WireGuard-in-sentry, service-compatibility survey, threat-model table).
