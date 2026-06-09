@@ -14,8 +14,8 @@
 # batch provenance envelope (members[] one per tool — the cardinality axis) and
 # stage it for step 02 (the :rbi_vouch artifact) and for the host capture-file via
 # /builder/outputs/output. Single-platform (linux/amd64) — tool images run as GCB
-# steps on amd64 workers; gcrane cp copies the whole reference registry->registry
-# (daemonless — no docker daemon, no pull/tag/push).
+# steps on amd64 workers; gcrane cp --platform linux/amd64 copies just the amd64
+# manifest registry->registry (daemonless — no docker daemon, no pull/tag/push).
 #
 # Package shape:  <host>/<path>/<LODES_ROOT>/<stamp>     (one package = one Lode)
 # Member tags on that package, each a distinct tool manifest:
@@ -58,14 +58,22 @@ while IFS='|' read -r NAME UPSTREAM; do
 
   echo "--- ${NAME}: ${UPSTREAM} -> ${DEST} ---"
 
-  # gcrane cp copies the whole reference registry->registry by digest, daemonless —
-  # no docker pull/tag/push, no daemon. The manifest digest is preserved byte-for-byte.
-  gcrane cp "${UPSTREAM}" "${DEST}" \
+  # gcrane cp copies registry->registry by digest, daemonless (no docker pull/tag/push).
+  # --platform linux/amd64 flattens a multi-arch upstream to the SINGLE amd64 manifest.
+  # This is conclave-ONLY and must not leak to other Lode kinds (bole/wsl keep full-
+  # fidelity capture): the reliquary cohort is consumed solely as GCB step images on
+  # amd64 workers, so the other platforms are dead bytes — and a full multi-arch index
+  # makes the Lode package a parent-index/child-manifest web that GAR's `packages
+  # delete` cannot unwind in one cascade (it removes a parent, GAR auto-deletes the
+  # protected children, then the cascade reaches an already-gone child and fails
+  # NOT_FOUND). Phenomenon + references: RBSLC (conclave) and RBSLB (banish).
+  gcrane --platform linux/amd64 cp "${UPSTREAM}" "${DEST}" \
     || { echo "FATAL: gcrane cp failed for ${UPSTREAM} -> ${DEST}" >&2; exit 1; }
 
-  # Record the upstream manifest digest for the envelope. gcrane digest streams the
-  # registry's stored digest (sha256:...) — the same canonical value docker's
-  # RepoDigests reported. CBb_101: guarded $() with pipefail set is permitted in-step.
+  # Record the upstream manifest-list digest for the envelope. gcrane digest (no
+  # --platform) streams the tag's stored index digest (sha256:...) — the same canonical
+  # value docker's RepoDigests reported, unchanged by the single-platform copy above, so
+  # recorded digests stay identical to the pre-eviction docker path. CBb_101 applies.
   DIGEST=$(gcrane digest "${UPSTREAM}") \
     || { echo "FATAL: gcrane digest failed for ${UPSTREAM}" >&2; exit 1; }
   test -n "${DIGEST}" || { echo "FATAL: empty digest for ${UPSTREAM}" >&2; exit 1; }

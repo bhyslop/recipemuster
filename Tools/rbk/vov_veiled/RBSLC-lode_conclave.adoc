@@ -62,8 +62,8 @@ path — is known before the build
 //axhos_step
 . *Submit Two-Step Capture Cloud Build*:
 .. Compose `builds.create` JSON with:
-... Step 1 — the Google-hosted docker builder image, script `rbgjl03-conclave-capture.sh` (the cohort capture step)
-... Step 2 — the Google-hosted docker builder image, script `rbgjl02-assemble-push-vouch.sh` (the vouch push)
+... Step 1 — the Google-hosted `gcrane:debug` builder image (floating bootstrap — conclave is reliquary generation and cannot resolve from a sealed reliquary), script `rbgjl03-conclave-capture.sh` (the cohort capture step)
+... Step 2 — the Google-hosted `gcrane:debug` builder image, script `rbgjl02-assemble-push-vouch.sh` (the vouch push)
 ... substitutions carrying GAR host/path, the
 {gar_lodes_namespace}
 root, `«TOUCHMARK»`, the member-tag sprue, the acquiring SA email, the trust grade, and the envelope schema
@@ -84,8 +84,9 @@ build dispatched with `«BUILD_ID»` and the Cloud Console URL
 //axhos_step
 . *Capture Step (in-pool — rbgjl03)*:
 .. For each tool in the co-versioned cohort manifest (`<short-name>|<upstream-ref>`):
-... Pull the upstream image (`docker pull`) and record its `RepoDigests` digest for the envelope
-... Tag and push it into the one Lode package under the clean member tag `:rbi_<tool>` (`docker tag` / `docker push`) — a distinct manifest per tool, all sharing the one package; no digest or fingerprint layer
+... Copy the upstream image registry->registry with `gcrane --platform linux/amd64 cp` (daemonless — no docker pull/tag/push; the single amd64 manifest only) into the one Lode package under the clean member tag `:rbi_<tool>` — a distinct manifest per tool, all sharing the one package; no digest or fingerprint layer
+... Record the upstream tag's manifest-list digest with `gcrane digest` for the envelope — the same canonical value docker's `RepoDigests` reported, so recorded digests are unchanged from the pre-eviction docker path
+... *Single-platform capture is conclave-only and load-bearing.* The cohort is consumed solely as GCB step images on amd64 workers, so other platforms are dead bytes — and capturing the full multi-arch index would make the Lode package a parent-index / child-manifest web that GAR `packages delete` cannot unwind in one cascade: it removes a parent, GAR auto-deletes the child manifests it had protected, then the cascade reaches an already-gone child and fails `NOT_FOUND` (code 5). bole and wsl keep full-fidelity capture; the host-side banish carries that latent delete risk until the delete path is reassessed (see link:https://cloud.google.com/artifact-registry/docs/repositories/cleanup-policy[GAR cleanup policy] — child images referenced by a parent manifest are not deletable until the parent is removed). This `--platform` flag must not propagate to other Lode kinds.
 .. Author the
 {rbtga_lode_vouch}
 envelope JSON (schema `rbld-vouch-1`, trust grade `verified-against-published`, `members[]` one element per tool — the cardinality axis) and stage it on the {rbtgr_workspace}
