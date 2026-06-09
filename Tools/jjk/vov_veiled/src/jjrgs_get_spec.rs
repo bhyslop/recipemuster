@@ -13,7 +13,7 @@ use clap::Args;
 use vvc::{vvco_out, vvco_err, vvco_Output};
 
 use crate::jjrf_favor::jjrf_Coronet as Coronet;
-use crate::jjrg_gallops::jjrg_Gallops as Gallops;
+use crate::jjrg_gallops::{jjrg_Gallops as Gallops, jjrg_PaceState as PaceState, JJRG_STATE_ABANDONED};
 
 const JJRGS_CMD_NAME_GET_SPEC: &str = "jjx_get_spec";
 
@@ -72,6 +72,12 @@ pub fn jjrgs_run_get_spec(args: jjrgs_GetSpecArgs) -> (i32, String) {
 
     // Output tacks[0].text (current spec)
     if let Some(tack) = pace.tacks.first() {
+        // Lead with an abandoned marker so a dropped pace's docket cannot read as
+        // live; live paces are unchanged (verbatim docket text).
+        if tack.state == PaceState::Abandoned {
+            vvco_out!(output, "[{}]", JJRG_STATE_ABANDONED);
+            vvco_out!(output, "");
+        }
         vvco_out!(output, "{}", tack.text);
         (0, output.vvco_finish())
     } else {

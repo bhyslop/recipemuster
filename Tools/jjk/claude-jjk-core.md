@@ -126,8 +126,8 @@ jjx_relocate       {coronet, to, before?, after?, first?}
 jjx_redocket       {size_limit?}                                    # docket via gazette_in.md only; supports mass reslate
 jjx_relabel        {coronet, silks}
 jjx_drop           {coronet}
-jjx_brief      {coronet}                                            # raw docket text for ONE pace, returned inline (no gazette) — the clean single-docket read
-jjx_coronets   {firemark, remaining?, rough?}                       # coronet IDs in heat order, one per line, inline — no silks, no docket
+jjx_brief      {coronet}                                            # raw docket text for ONE pace, returned inline (no gazette) — the clean single-docket read; an abandoned pace's docket leads with an [abandoned] marker line
+jjx_coronets   {firemark, remaining?, rough?}                       # coronet IDs in heat order, one per line, inline — no silks, no docket; the default listing tags an abandoned pace as "<coronet>  [abandoned]" (coronet stays the first token; remaining/rough still exclude abandoned)
 jjx_landing        {coronet, agent, content?}
 jjx_validate       {}
 jjx_bind           {alias, reldir}                                  # remote: create legatio session (alias resolves BURN profile)

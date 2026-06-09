@@ -9,8 +9,11 @@ Get raw docket text for a
 {jjdt_coronet}
 to query
 
-{jjds_stdout} Raw docket text with no decoration.
-No prefix, no trailing newline beyond the text itself.
+{jjds_stdout} Raw docket text.
+A live pace emits the docket verbatim — no prefix, no trailing newline beyond the text itself.
+An
+{jjdpe_abandoned}
+pace's output leads with an `[abandoned]` marker line and a blank line, so a dropped pace's docket cannot be misread as live.
 
 {jjds_exit_uniform} 0 success, non-zero error.
 
@@ -24,4 +27,7 @@ No prefix, no trailing newline beyond the text itself.
 {jjdpr_pace}
 by
 {jjdt_coronet}
+. If the pace state is
+{jjdpe_abandoned},
+emit an `[abandoned]` marker line followed by a blank line
 . Output `tacks[0].text` to stdout

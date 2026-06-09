@@ -28,13 +28,18 @@ paces
 {jjdt_coronet}
 per line, in
 {jjdhm_order}
-sequence.
-No decoration, no silks, just the coronet with `₢` prefix.
+sequence — no silks, no docket.
+A live pace emits the bare coronet with its `₢` prefix.
+In the default listing an
+{jjdpe_abandoned}
+pace is tagged `<coronet>  [abandoned]`;
+the coronet stays the first whitespace token, so a token-wise reader still parses it.
+Under `--remaining` or `--rough` the abandoned paces are excluded, so no marker appears.
 
-*Example output:*
+*Example output (default listing):*
 ----
 ₢AFAAW
-₢AFAAX
+₢AFAAX  [abandoned]
 ₢AFAAQ
 ----
 
@@ -62,4 +67,6 @@ or
 {jjdpe_rough}
 .. Output
 {jjdt_coronet}
-followed by newline
+— suffixed with `  [abandoned]` when the pace state is
+{jjdpe_abandoned}
+— followed by newline

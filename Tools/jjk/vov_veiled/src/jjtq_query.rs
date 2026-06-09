@@ -3,6 +3,9 @@
 // SPDX-License-Identifier: LicenseRef-Proprietary
 
 use crate::jjrg_gallops::{jjrg_Heat as Heat, jjrg_Pace as Pace, jjrg_Tack as Tack, jjrg_Gallops as Gallops, jjrg_HeatStatus as HeatStatus, jjrg_PaceState as PaceState, JJRG_UNKNOWN_BASIS, JJRG_STATE_ROUGH, JJRG_STATE_BRIDLED, JJRG_STATE_COMPLETE, JJRG_STATE_ABANDONED};
+use crate::jjtu_testdir::JjkTestDir;
+use crate::jjrgc_get_coronets::{jjrgc_run_get_coronets, jjrgc_GetCoronetsArgs};
+use crate::jjrgs_get_spec::{jjrgs_run_get_spec, jjrgs_GetSpecArgs};
 use std::collections::BTreeMap;
 
 fn create_test_gallops() -> Gallops {
@@ -282,4 +285,86 @@ fn jjtq_get_coronets_rough_filter() {
 
     assert_eq!(rough.len(), 1);
     assert_eq!(rough[0], "₢ACAAB");
+}
+
+// ============================================================================
+// Abandoned-marker tests — exercise the real run_* functions over a temp
+// gallops, locking the output contract (not a reimplementation of the logic).
+// ============================================================================
+
+fn save_mixed_states(dir: &JjkTestDir) -> std::path::PathBuf {
+    let file = dir.path().join("jjg_gallops.json");
+    create_test_gallops_with_mixed_states().jjrg_save(&file).unwrap();
+    file
+}
+
+#[test]
+fn jjtq_coronets_default_tags_abandoned() {
+    let td = JjkTestDir::new("jjk_test_coronets_abandoned");
+    let file = save_mixed_states(&td);
+
+    let (code, out) = jjrgc_run_get_coronets(jjrgc_GetCoronetsArgs {
+        file,
+        firemark: "₣AC".to_string(),
+        remaining: false,
+        rough: false,
+    });
+
+    assert_eq!(code, 0);
+    // Abandoned pace carries the marker; the coronet stays the first token.
+    let tagged = format!("₢ACAAD  [{}]", JJRG_STATE_ABANDONED);
+    assert!(out.lines().any(|l| l == tagged.as_str()), "expected tagged abandoned line, got:\n{}", out);
+    // Live paces remain bare (unchanged contract) — exact-line match proves no tag leaked.
+    assert!(out.lines().any(|l| l == "₢ACAAA")); // complete
+    assert!(out.lines().any(|l| l == "₢ACAAB")); // rough
+    assert!(out.lines().any(|l| l == "₢ACAAC")); // bridled
+}
+
+#[test]
+fn jjtq_coronets_remaining_still_excludes_abandoned() {
+    let td = JjkTestDir::new("jjk_test_coronets_remaining");
+    let file = save_mixed_states(&td);
+
+    let (code, out) = jjrgc_run_get_coronets(jjrgc_GetCoronetsArgs {
+        file,
+        firemark: "₣AC".to_string(),
+        remaining: true,
+        rough: false,
+    });
+
+    assert_eq!(code, 0);
+    // --remaining excludes abandoned entirely: no line, no marker.
+    assert!(!out.contains("₢ACAAD"));
+    assert!(!out.contains(JJRG_STATE_ABANDONED));
+}
+
+#[test]
+fn jjtq_brief_leads_with_abandoned_marker() {
+    let td = JjkTestDir::new("jjk_test_brief_abandoned");
+    let file = save_mixed_states(&td);
+
+    let (code, out) = jjrgs_run_get_spec(jjrgs_GetSpecArgs {
+        file,
+        coronet: "₢ACAAD".to_string(),
+    });
+
+    assert_eq!(code, 0);
+    assert!(out.starts_with(&format!("[{}]", JJRG_STATE_ABANDONED)), "brief should lead with marker, got:\n{}", out);
+    assert!(out.contains("Gave up")); // docket text preserved below the marker
+}
+
+#[test]
+fn jjtq_brief_live_pace_is_verbatim() {
+    let td = JjkTestDir::new("jjk_test_brief_live");
+    let file = save_mixed_states(&td);
+
+    let (code, out) = jjrgs_run_get_spec(jjrgs_GetSpecArgs {
+        file,
+        coronet: "₢ACAAB".to_string(),
+    });
+
+    assert_eq!(code, 0);
+    // Live pace: no marker, docket text verbatim.
+    assert!(!out.contains(&format!("[{}]", JJRG_STATE_ABANDONED)));
+    assert_eq!(out.trim_end(), "Needs work");
 }
