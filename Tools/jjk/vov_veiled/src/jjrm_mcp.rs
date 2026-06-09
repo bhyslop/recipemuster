@@ -784,10 +784,12 @@ async fn zjjrm_handle_open() -> Result<CallToolResult, McpError> {
 // ============================================================================
 
 /// Extract model tier from verbatim model ID string.
-/// Returns "opus", "sonnet", "haiku", or "unknown".
+/// Returns "fable", "opus", "sonnet", "haiku", or "unknown".
 fn zjjrm_extract_tier(model: &str) -> &'static str {
     let lower = model.to_ascii_lowercase();
-    if lower.contains("opus") {
+    if lower.contains("fable") {
+        "fable"
+    } else if lower.contains("opus") {
         "opus"
     } else if lower.contains("sonnet") {
         "sonnet"
@@ -798,14 +800,14 @@ fn zjjrm_extract_tier(model: &str) -> &'static str {
     }
 }
 
-/// Gate check: require opus-tier model. Returns Err with diagnostic on failure.
+/// Gate check: require a frontier-tier model (opus or fable). Returns Err with diagnostic on failure.
 fn zjjrm_check_model_gate(model: &str) -> Result<(), String> {
     let tier = zjjrm_extract_tier(model);
-    if tier == "opus" {
+    if tier == "opus" || tier == "fable" {
         return Ok(());
     }
     Err(format!(
-        "MODEL GATE — this command requires opus.\n\n  Received model: {}\n  Extracted tier: {}\n\nJob Jockey commands currently require an opus-tier model.",
+        "MODEL GATE — this command requires a frontier-tier model (opus or fable).\n\n  Received model: {}\n  Extracted tier: {}\n\nJob Jockey commands currently require a frontier-tier model.",
         model, tier
     ))
 }
