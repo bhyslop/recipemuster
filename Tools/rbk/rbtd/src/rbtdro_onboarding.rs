@@ -129,6 +129,31 @@ const RBTDRO_CONSUMERS_JUPYTER_BOTTLE: &[&str] = &[RBTDRO_NAMEPLATE_SRJCL];
 /// supply chain populates from a hallmark.
 const RBTDRO_AIRGAP_BASE_ANCHOR_VAR: &str = "RBRV_IMAGE_1_ANCHOR";
 
+// ── Bole derived-pull election witness ───────────────────────
+//
+// The forge vessel is conjure mode with exactly one populated ORIGIN slot
+// (RBRV_IMAGE_1_ORIGIN), so the ensconce->ordain chain's derived-pull election
+// rewrites RBRV_IMAGE_1_ANCHOR to the captured Lode locator. These mirror
+// rbgc_Constants.sh (RBGC_GAR_CATEGORY_LODES / RBGC_LODE_TAG_BOLE) and
+// rbfd_FoundryDirectorBuild.sh's `${RBGL_LODES_ROOT}/${touchmark}:${tag}`
+// locator shape, so the fixture can assert the election fired against a fresh
+// touchmark rather than leaving the prior committed anchor in place.
+
+/// Forge-vessel slot the bole election rewrites (its single ORIGIN slot).
+const RBTDRO_FORGE_BASE_ANCHOR_VAR: &str = "RBRV_IMAGE_1_ANCHOR";
+
+/// Bole touchmark chaining fact ensconce writes to current/. Mirrors
+/// rbgc_Constants.sh RBF_FACT_LODE_TOUCHMARK.
+const RBTDRO_FACT_LODE_TOUCHMARK: &str = "rbf_fact_lode_touchmark";
+
+/// GAR Lode namespace root in an elected anchor locator. Mirrors
+/// rbgc_Constants.sh RBGC_GAR_CATEGORY_LODES.
+const RBTDRO_LODE_ROOT: &str = "rbi_ld";
+
+/// Bole member tag in an elected anchor locator. Mirrors rbgc_Constants.sh
+/// RBGC_LODE_TAG_BOLE.
+const RBTDRO_LODE_TAG_BOLE: &str = "rbi_bole";
+
 // ── Reliquary stamp witness ──────────────────────────────────
 
 /// Filename of a vessel's rbrv.env (relative to the vessel directory).
@@ -371,8 +396,8 @@ fn rbtdro_ensconce(
     dir: &Path,
     vessel_sigil: &str,
     label: &str,
-) -> Result<(), rbtdre_Verdict> {
-    rbtdro_invoke_or_fail(
+) -> Result<String, rbtdre_Verdict> {
+    let result = rbtdro_invoke_or_fail(
         ctx,
         "ensconce",
         vessel_sigil,
@@ -382,7 +407,15 @@ fn rbtdro_ensconce(
         dir,
         label,
     )?;
-    Ok(())
+    // Capture-pure ensconce hands the touchmark forward as a chaining fact in
+    // current/. Read it now, before the chained ordain runs: that ordain's
+    // dispatch promotes this current/ into its previous/ (where the election
+    // reads the fact), moving it out of current/ where this read looks.
+    let touchmark = rbtdri_read_burv_fact(&result, RBTDRO_FACT_LODE_TOUCHMARK).map_err(|e| {
+        rbtdre_Verdict::Fail(format!("read touchmark fact after ensconce {}: {}", vessel_sigil, e))
+    })?;
+    let _ = std::fs::write(dir.join(format!("{}-touchmark.txt", label)), &touchmark);
+    Ok(touchmark)
 }
 
 /// Pull a docker image. Used by the graft case to ensure the source image
@@ -454,6 +487,27 @@ fn rbtdro_write_vessel_env(
     std::fs::rename(&tmp_path, &rbrv_path)
         .map_err(|e| format!("atomic replace rbrv.env for {}: {}", vessel_dir, e))?;
     Ok(())
+}
+
+/// Read a single `VAR=value` line's value from a vessel's rbrv.env. The
+/// read-side complement of `rbtdro_write_vessel_env`; used to witness an
+/// election or anchor write after an ordain. Errs if the variable is absent.
+fn rbtdro_read_vessel_env(
+    root: &Path,
+    vessel_dir: &str,
+    var_name: &str,
+) -> Result<String, String> {
+    let rbrv_path = root.join(vessel_dir).join(RBTDRO_VESSEL_RBRV_FILE);
+    let file = std::fs::File::open(&rbrv_path)
+        .map_err(|e| format!("open rbrv.env for {}: {}", vessel_dir, e))?;
+    let prefix = format!("{}=", var_name);
+    for line in BufReader::new(file).lines() {
+        let line = line.map_err(|e| format!("read rbrv.env for {}: {}", vessel_dir, e))?;
+        if let Some(value) = line.strip_prefix(&prefix) {
+            return Ok(value.to_string());
+        }
+    }
+    Err(format!("variable {} not found in {}/rbrv.env", var_name, vessel_dir))
 }
 
 /// Drive a hallmark value into a nameplate's rbrn.env. Mirrors the
@@ -1012,10 +1066,21 @@ fn rbtdro_onboarding_ordain_airgap_chain_impl(ctx: &mut rbtdri_Context, dir: &Pa
     // Ensconce the forge vessel's upstream rust base into a bole Lode. Capture is
     // pure — it emits the touchmark chaining fact but writes no vessel config, so
     // there is nothing to commit yet, and ensconce must immediately precede
-    // ordain-forge so the depth-1 chain carries the touchmark forward.
-    if let Err(v) = rbtdro_ensconce(ctx, dir, forge_sigil, "ensconce-upstream") {
-        return v;
-    }
+    // ordain-forge so the depth-1 chain carries the touchmark forward. Capture
+    // the fresh touchmark now; the election below must rewrite the forge anchor
+    // to it (a stale committed anchor proves the election never fired).
+    let touchmark = match rbtdro_ensconce(ctx, dir, forge_sigil, "ensconce-upstream") {
+        Ok(t) => t,
+        Err(v) => return v,
+    };
+
+    // Chain ordain-forge off the ensconce above: theurge isolates each invoke in
+    // its own BURV root, so without this the touchmark fact never lands in
+    // ordain's previous/ and the derived-pull election silently no-ops. This
+    // makes ordain reuse the ensconce's root, so bud promotes the touchmark into
+    // ordain's previous/ — the operator's shared ../output-buk flow, restored
+    // for just this pair.
+    ctx.chain_next_invoke();
 
     // Ordain the forge vessel — its derived-pull election reads the touchmark the
     // ensconce handed forward and writes RBRV_IMAGE_n_ANCHOR before the build. The
@@ -1031,6 +1096,26 @@ fn rbtdro_onboarding_ordain_airgap_chain_impl(ctx: &mut rbtdri_Context, dir: &Pa
         Ok(h) => h,
         Err(v) => return v,
     };
+
+    // Assert the election fired: the forge anchor must now be the Lode locator
+    // for the touchmark the ensconce just minted. A no-op election (the bug this
+    // case guards) leaves the prior committed anchor — a different, older
+    // touchmark — so this comparison fails, turning the false green red. The
+    // successful ordain above means the conjure built from this elected anchor.
+    let expected_anchor = format!("{}/{}:{}", RBTDRO_LODE_ROOT, touchmark, RBTDRO_LODE_TAG_BOLE);
+    match rbtdro_read_vessel_env(&root, RBTDRO_VESSEL_DIR_AIRGAP_FORGE, RBTDRO_FORGE_BASE_ANCHOR_VAR) {
+        Ok(actual) if actual == expected_anchor => {
+            let _ = std::fs::write(dir.join("forge-elected-anchor.txt"), &actual);
+        }
+        Ok(actual) => {
+            return rbtdre_Verdict::Fail(format!(
+                "bole election did not fire: forge {} is '{}', expected '{}' \
+                 (the ensconce->ordain chain did not carry the touchmark to the election)",
+                RBTDRO_FORGE_BASE_ANCHOR_VAR, actual, expected_anchor
+            ));
+        }
+        Err(e) => return rbtdre_Verdict::Fail(format!("read forge base anchor: {}", e)),
+    }
 
     // Commit the elected ANCHOR that ordain-forge wrote into the forge vessel —
     // election is operator-committed, and a clean tree is needed before the
