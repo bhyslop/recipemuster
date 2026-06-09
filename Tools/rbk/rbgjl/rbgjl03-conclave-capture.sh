@@ -1,9 +1,10 @@
 #!/bin/bash
-# RBGJL Step 03: Conclave the build-tool cohort into a Lode (capture) via docker
-# Builder: gcr.io/cloud-builders/docker (Google-hosted, always pullable — conclave
-#          captures the reliquary tools themselves, so it cannot bootstrap from a
-#          reliquary; the cloud-builders/docker credential helper authenticates
-#          the GAR push ambiently via the Mason SA, no explicit login)
+# RBGJL Step 03: Conclave the build-tool cohort into a Lode (capture) via gcrane
+# Builder: gcr.io/go-containerregistry/gcrane:debug (Google-hosted, always pullable —
+#          conclave captures the reliquary tools themselves, so it cannot bootstrap
+#          from a reliquary; gcrane authenticates GAR ambiently via its google.Keychain
+#          -> ADC -> the GCE metadata server as the Mason SA, no explicit login. The
+#          :debug variant carries /busybox/sh for the orchestration. Auth canon: RBSCB)
 # Substitutions: _RBGL_GAR_HOST, _RBGL_GAR_PATH, _RBGL_LODES_ROOT, _RBGL_LODE_STAMP,
 #                _RBGL_TAG_SPRUE, _RBGL_TRUST_GRADE, _RBGL_VOUCH_SCHEMA,
 #                _RBGL_ACQUIRED_BY
@@ -13,7 +14,8 @@
 # batch provenance envelope (members[] one per tool — the cardinality axis) and
 # stage it for step 02 (the :rbi_vouch artifact) and for the host capture-file via
 # /builder/outputs/output. Single-platform (linux/amd64) — tool images run as GCB
-# steps on amd64 workers, so docker pull/tag/push is sufficient.
+# steps on amd64 workers; gcrane cp copies the whole reference registry->registry
+# (daemonless — no docker daemon, no pull/tag/push).
 #
 # Package shape:  <host>/<path>/<LODES_ROOT>/<stamp>     (one package = one Lode)
 # Member tags on that package, each a distinct tool manifest:
@@ -31,8 +33,9 @@ echo "Lode package: ${PKG}"
 
 # Tool image cohort: short-name|upstream-ref. Authoritative co-versioned set for
 # GCB step execution — mirrors the legacy inscribe manifest (rbgji01) verbatim;
-# the two coexist during the reliquary cutover. gcloud and docker are Google-
-# hosted (gcr.io); the rest are third-party.
+# the two coexist during the reliquary cutover. gcloud, docker, and gcrane are
+# Google-hosted (gcr.io); the rest are third-party. gcrane rides the :debug variant
+# so the resolved cohort member keeps the /busybox/sh shell its capture steps need.
 MANIFEST=(
   "gcloud|gcr.io/cloud-builders/gcloud:latest"
   "docker|gcr.io/cloud-builders/docker:latest"
@@ -40,6 +43,7 @@ MANIFEST=(
   "syft|docker.io/anchore/syft:latest"
   "binfmt|docker.io/tonistiigi/binfmt:latest"
   "skopeo|quay.io/skopeo/stable:latest"
+  "gcrane|gcr.io/go-containerregistry/gcrane:debug"
 )
 
 # Acquisition moment, attested once for the whole cohort.
@@ -59,17 +63,17 @@ for ENTRY in "${MANIFEST[@]}"; do
 
   echo "--- ${NAME}: ${UPSTREAM} -> ${DEST} ---"
 
-  docker pull "${UPSTREAM}" \
-    || { echo "FATAL: Failed to pull ${UPSTREAM}" >&2; exit 1; }
+  # gcrane cp copies the whole reference registry->registry by digest, daemonless —
+  # no docker pull/tag/push, no daemon. The manifest digest is preserved byte-for-byte.
+  gcrane cp "${UPSTREAM}" "${DEST}" \
+    || { echo "FATAL: gcrane cp failed for ${UPSTREAM} -> ${DEST}" >&2; exit 1; }
 
-  # Record the pulled digest from RepoDigests (format: repo@sha256:...).
-  DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' "${UPSTREAM}" 2>/dev/null) || DIGEST=""
-  DIGEST="${DIGEST##*@}"
-
-  docker tag "${UPSTREAM}" "${DEST}" \
-    || { echo "FATAL: Failed to tag ${NAME}" >&2; exit 1; }
-  docker push "${DEST}" \
-    || { echo "FATAL: Failed to push ${NAME} to GAR" >&2; exit 1; }
+  # Record the upstream manifest digest for the envelope. gcrane digest streams the
+  # registry's stored digest (sha256:...) — the same canonical value docker's
+  # RepoDigests reported. CBb_101: guarded $() with pipefail set is permitted in-step.
+  DIGEST=$(gcrane digest "${UPSTREAM}") \
+    || { echo "FATAL: gcrane digest failed for ${UPSTREAM}" >&2; exit 1; }
+  test -n "${DIGEST}" || { echo "FATAL: empty digest for ${UPSTREAM}" >&2; exit 1; }
 
   echo "${NAME} captured: ${DEST} (${DIGEST})"
 

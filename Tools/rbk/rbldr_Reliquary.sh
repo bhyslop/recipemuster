@@ -19,7 +19,7 @@
 # Recipe Bottle Lode - reliquary body (guard-free cluster, sourced by rbld0_Lode):
 #   conclave — convene the build-tool cohort into a Lode (Director credentials)
 # The reliquary rides the capture-assembly spine (rblds_): this body owns only the
-# kind-specific data — the conclave recipe (docker cohort capture + docker vouch
+# kind-specific data — the conclave recipe (gcrane cohort capture + gcrane vouch
 # push), the substitutions blob, and the touchmark-fact extract — and composes
 # them through zrbld_spine_dispatch / zrbld_spine_extract. No build-submission or
 # step-composition machinery lives here.
@@ -27,8 +27,9 @@
 # Conclave absorbs today's inscribe pull machinery (rbfli_Inscribe + rbgji01),
 # retargeted from the rbi_rq/<date>/<tool> sibling-package layout to one rbi_ld
 # package holding N member tags (:rbi_<tool>) plus the :rbi_vouch envelope. Both
-# steps ride the Google-hosted docker builder (ZRBLD_GOOGLE_DOCKER_BUILDER): the
-# tools captured here ARE the reliquary, so capture cannot bootstrap from one.
+# steps ride the floating gcrane builder (ZRBLD_GCRANE_BUILDER): the tools captured
+# here ARE the reliquary, so capture cannot bootstrap from one — conclave is the
+# generation phase the pinning rule permits to run unpinned (RBS0 rbsk_pinning_boundary).
 
 set -euo pipefail
 
@@ -42,12 +43,12 @@ set -euo pipefail
 ######################################################################
 # Internal Helpers (zrbld_*)
 
-# Internal: compose the conclave capture recipe (docker cohort capture + docker
+# Internal: compose the conclave capture recipe (gcrane cohort capture + gcrane
 # vouch push) and its substitutions blob, then ride the capture spine to submit
 # and poll. The spine owns the capture-domain build knobs (mason SA, TETHER pool,
 # regime timeout); this body chooses only the recipe, the substitutions, and the
-# inscribe-borrowed poll ceiling (the 6-image cohort pull needs the larger
-# ceiling — same work inscribe performs today).
+# inscribe-borrowed poll ceiling (the cohort copy needs the larger ceiling — same
+# work inscribe performs today).
 # Args: token stamp
 zrbld_conclave_submit() {
   zrbld_sentinel
@@ -60,11 +61,12 @@ zrbld_conclave_submit() {
   local -r z_gar_path="${RBGD_GAR_PROJECT_ID}/${RBDC_GAR_REPOSITORY}"
 
   # Recipe rows: script_path|builder_image|id|entrypoint, pre-resolved for the
-  # spine. Both steps ride the Google-hosted docker builder — no reliquary
-  # bootstrap (conclave IS what captures the reliquary tools).
+  # spine. Both steps ride the floating gcrane builder (busybox entrypoint —
+  # gcrane:debug's only shell) — no reliquary bootstrap (conclave IS what captures
+  # the reliquary tools; generation-tier, the one phase allowed unpinned).
   local -r z_recipe=(
-    "${ZRBLD_RBGJL_STEPS_DIR}/rbgjl03-conclave-capture.sh|${ZRBLD_GOOGLE_DOCKER_BUILDER}|conclave-capture|bash"
-    "${ZRBLD_RBGJL_STEPS_DIR}/rbgjl02-assemble-push-vouch.sh|${ZRBLD_GOOGLE_DOCKER_BUILDER}|assemble-push-vouch|bash"
+    "${ZRBLD_RBGJL_STEPS_DIR}/rbgjl03-conclave-capture.sh|${ZRBLD_GCRANE_BUILDER}|conclave-capture|busybox"
+    "${ZRBLD_RBGJL_STEPS_DIR}/rbgjl02-assemble-push-vouch.sh|${ZRBLD_GCRANE_BUILDER}|assemble-push-vouch|busybox"
   )
 
   buc_log_args "Composing conclave substitutions blob"
@@ -101,7 +103,7 @@ zrbld_conclave_submit() {
 # Internal: extract the captured touchmark from the completed conclave build and
 # emit the two bare single-form chaining facts (touchmark value + kind-brand
 # enum). The capture step (step 0) authors the base64 JSON carrying the
-# host-minted stamp in slot_1; the docker vouch step writes no output. Conclave
+# host-minted stamp in slot_1; the gcrane vouch step writes no output. Conclave
 # captures exactly one Lode (the cohort is one package), so exactly one slot is
 # populated. The provenance envelope is NOT read host-side: it lives only in GAR
 # (rbgjl02 pushed it under :rbi_vouch), so the host hands forward only the
