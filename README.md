@@ -564,26 +564,33 @@ Orthogonal to but paired with the [Crucible Conduit](#CrucibleConduit): the cond
 - <a id="OperatorFederation"></a>**[Operator Federation](#OperatorFederation)** - The path to corporate-acceptable identity — admit operators through an external identity provider (OIDC/SAML) instead of long-lived service-account keys on disk, with identity proved by a fresh sign-in and capabilities granted to a federated principal, no secret at rest.
 This tier **requires a GCP organization**, which is the dividing line from today's keyfile model (which needs none): a qualifying organization is free via Google Cloud Identity once you verify ownership of a **DNS domain**, so the real prerequisite is controlling a domain, not paying Google.
 Revocation becomes central at the identity provider rather than a manual, per-key [Divest](#Divest).
-Critical sequences, rendered from committed PlantUML source through the [pluml](#pluml) [Crucible](#Crucible) — each diagram tracks your light/dark color scheme:
+Critical sequences, rendered from committed PlantUML source through the [pluml](#pluml) [Crucible](#Crucible) — each diagram tracks your light/dark color scheme (click any to expand):
 
 <details>
-<summary><strong>Critical sequences</strong> — four theme-aware diagrams (click to expand)</summary>
+<summary><strong>Federation login</strong> — two-leg device-flow + STS exchange</summary>
 
 <picture><source media="(prefers-color-scheme: dark)" srcset="diagrams/rbdgl_federation-login-dark.svg"><img alt="Federation login — two-leg device-flow + STS exchange" src="diagrams/rbdgl_federation-login.svg"></picture>
 
-*Federation login* — two-leg device-flow + STS exchange.
+</details>
+
+<details>
+<summary><strong>Federation setup</strong> — Payor-side workforce pool + provider</summary>
 
 <picture><source media="(prefers-color-scheme: dark)" srcset="diagrams/rbdgs_federation-setup-dark.svg"><img alt="Federation setup — Payor-side workforce pool + provider" src="diagrams/rbdgs_federation-setup.svg"></picture>
 
-*Federation setup* — Payor-side workforce pool + provider.
+</details>
+
+<details>
+<summary><strong>Keyfile login</strong> — today's tier, for contrast</summary>
 
 <picture><source media="(prefers-color-scheme: dark)" srcset="diagrams/rbdgk_keyfile-login-dark.svg"><img alt="Keyfile login — today's tier, for contrast" src="diagrams/rbdgk_keyfile-login.svg"></picture>
 
-*Keyfile login* — today's tier, for contrast.
+</details>
+
+<details>
+<summary><strong>The single code seam</strong> — one accessor, mode-enum branch, the structural payoff</summary>
 
 <picture><source media="(prefers-color-scheme: dark)" srcset="diagrams/rbdgm_federation-seam-dark.svg"><img alt="The single code seam — one accessor, mode-enum branch" src="diagrams/rbdgm_federation-seam.svg"></picture>
-
-*The single code seam* — one accessor, mode-enum branch, the structural payoff.
 
 </details>
 
