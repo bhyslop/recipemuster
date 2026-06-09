@@ -117,8 +117,8 @@ runtime. (Visual companion: `diagrams/rbdgs_federation-setup.puml`.)
    `principal://iam.googleapis.com/locations/global/workforcePools/POOL/subject/SUBJECT`.
 
 Identity proofing lives **entirely** in the IdP. RBK grants capability only to an already-known
-principal; the depot remains the home of the role-to-identity roster (the **Census** declared ledger,
-in citizen-model terms — see `memo-20260605`). Recording grant *intent* in the Census parallels the
+principal; the depot remains the home of the role-to-identity roster (the **Terrier**,
+in citizen-model terms — see `memo-20260605`). Recording grant *intent* in the Terrier parallels the
 IAM grant (intent-first); it is **not** consulted at login (see The accessor).
 
 ---
@@ -246,7 +246,7 @@ and **12 h** (federation Workforce session) — which are Palisade limits no rol
 ## Relationship to the citizen (keyfile) tier
 
 Federation is the future **swap**, not a rewrite: the citizen model's capability layer
-(capability-sets, grant/revoke, the Census declared ledger, the audit) is built **tier-blind**, so the
+(capability-sets, grant/revoke, the Terrier, the audit) is built **tier-blind**, so the
 federation switch reshapes nothing in it — it changes only **identity-kind** (citizen → *federate*)
 and **token mint** (signed-JWT → STS). Identity verbs branch by tier; capability verbs do not. The
 *federate* identity is owned by the IdP (no SA minted, no key, no rekey — the IdP owns rotation;

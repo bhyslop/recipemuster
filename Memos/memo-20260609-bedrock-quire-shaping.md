@@ -97,7 +97,7 @@ invocation.
 ## 5. Vocabulary
 
 The roadmap's working words `chantry` (target) and `conduit` (reach) both start with `C`,
-which stumbles against Crucible / Census. Renamed to unbound primary letters:
+which stumbles against Crucible. Renamed to unbound primary letters:
 
 | Concept | Noun | Verbs | Register | Cardinality |
 |---|---|---|---|---|
@@ -119,7 +119,7 @@ stop/start saves only noise, and the endpoint/EIP are standing anyway.
 **Prefix allocation (open minting item).** A Quire regime is a natural sibling to
 nameplate/vessel; `RBRQ` is a free slot in the `RBR*` family. The Outpost cannot be `RBRO`
 (taken by the OAuth regime), so its config home needs a non-`RBRO` slot — deferred to the
-later minting pass (which also owns the unrelated Census/Crucible `C` collision).
+later minting pass.
 
 ## 6. Config shape — three orthogonal layers
 
@@ -263,8 +263,8 @@ MVP. Recorded here as a shaping force and one named hazard, nothing more.
 ## 10. Open / deferred
 
 - **Prefix minting** — `RBRQ` candidate for the Quire regime; Outpost needs a non-`RBRO` slot
-  (RBRO taken by OAuth). Deferred to a minting pass that also resolves the Census/Crucible `C`
-  collision (parked by the operator for another session).
+  (RBRO taken by OAuth). Deferred to a minting pass. (The Census/Crucible `C` collision once
+  parked here is resolved: Census → Terrier.)
 - **Instance vs menu** — §9's central question; the menu/envelope resolution is the candidate.
 - **Cross-Quire information flow** — the graph-property hazard; the agency lattice is its
   clearance lattice. Belongs to the choreography effort, not here.
@@ -338,7 +338,7 @@ dramatically simpler and is the current lean.
 - RBSHR Horizon Roadmap — the `chantry`, `conduit`, `embassy`/`envoy`/`bullion`, and
   `VPC Service Controls` entries (stubs; to be breadcrumbed to this memo).
 - Heat ₣BZ (`rbk-14-mvp-citizen-model`) — the citizen/capability identity model this rides;
-  intent-vs-enforcement and the declared ledger.
+  intent-vs-enforcement and the Terrier.
 - AWS, verified 2026-06-09: Bedrock is serverless/stateless and ZDR-by-default
   (data-protection docs); provider isolation via dedicated deployment accounts; model
   invocation logging opt-in/off; abuse detection automated/no-human-review; Claude on Bedrock

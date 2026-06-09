@@ -27,19 +27,18 @@ that federation plugs in later by swapping identity-kind and token mint and noth
   federate (memo-20260527).
 - **Capability-set** — a named bundle of IAM grants, defined in code (the role's binding list,
   lifted out of today's invest bodies). Tier-blind.
-- **Declared ledger** — depot-resident data mapping identity → {capability-sets held}: the stored
+- **Terrier** — depot-resident data mapping identity → {capability-sets held}: the stored
   *intent*. Tier-blind. Distinct from today's `roster` verb (RBSDR), which name-regex-reads the
   *actual* IAM state — that verb is retired here (no role prefix to filter on). The **audit**
   performs the actual-state read; the audit is precisely the diff between **actual IAM state** and
-  the declared ledger, and routine "who holds what" is the ledger read. (Short form below: "the
-  ledger.")
+  the Terrier, and routine "who holds what" is the Terrier read.
 - **Holdings** — the depot's artifacts (arks/hoards/bullions). Property, not identities. The
   depot's civic ontology — citizens/federates (people) + holdings (property) — covers *operator*
   identities; cloud-native system identities (Mason, future Envoy) sit outside it, reusing the
   capability-set abstraction without the citizen lifecycle (whether they deserve their own
   ontological category is deferred).
 
-The convergence: the **capability layer** (capability-sets, grant/revoke, the declared ledger,
+The convergence: the **capability layer** (capability-sets, grant/revoke, the Terrier,
 the audit) is tier-blind and shared. The **identity** differs by tier (citizen vs federate) —
 that difference is the one real seam. "Structural isomorphism" means the capability layer is
 identical across tiers *modulo the opaque principal handle the identity layer supplies*
@@ -55,14 +54,14 @@ Today's role-keyed verbs decompose into a generic register parameterized by
 |---|---|---|
 | invest (director/retriever) | add-citizen + grant(set) | governor is actor |
 | mantle (governor) | add-citizen + grant(governor-set) | payor is actor; not special *once the governor is idempotent* (see below) |
-| divest | revoke(all held) + remove-citizen | revoke is intent-first (withdraw ledger, then unbind); remove-citizen then deletes the SA |
-| roster | read-ledger (routine) + actual-state read folds into the audit | the old name-regex roster is retired — no prefix to filter |
+| divest | revoke(all held) + remove-citizen | revoke is intent-first (withdraw the Terrier entry, then unbind); remove-citizen then deletes the SA |
+| roster | read-Terrier (routine) + actual-state read folds into the audit | the old name-regex roster is retired — no prefix to filter |
 | — | grant(set) / revoke(set) | the capability axis, tier-blind; each intent-first |
-| — | read-ledger | read the declared ledger (routine "who holds what", tier-blind) |
+| — | read-Terrier | read the Terrier (routine "who holds what", tier-blind) |
 | — | rekey | keyfile-only identity-backing maintenance |
 
 Actor and capability-set are parameters, not verb variants. Federation reuses the capability
-half (grant/revoke/ledger-read) verbatim and swaps the identity half (add-federate, no rekey).
+half (grant/revoke/Terrier-read) verbatim and swaps the identity half (add-federate, no rekey).
 
 **mantle is not special only once the governor is idempotent** (stable name, add-once + rekey). If
 the governor stays datestamped delete+recreate (today's RBSGM), mantle decomposes to
@@ -71,9 +70,9 @@ the governor stays datestamped delete+recreate (today's RBSGM), mantle decompose
 ## Identity verbs branch; capability verbs do not
 
 - **Capability verbs (grant/revoke)** never branch on tier — both are an IAM binding on a
-  pre-existing identity. Both are **intent-first**: grant writes the ledger entry then adds
-  bindings; revoke withdraws the ledger entry then removes them. Invariant: *no IAM revoke without a
-  prior ledger withdrawal* — a crashed teardown then lands as a transient *surplus* (reported,
+  pre-existing identity. Both are **intent-first**: grant writes the Terrier entry then adds
+  bindings; revoke withdraws the Terrier entry then removes them. Invariant: *no IAM revoke without a
+  prior Terrier withdrawal* — a crashed teardown then lands as a transient *surplus* (reported,
   safe), not an auto-converging *deficit* that would resurrect the just-removed identity (acute
   because RBSDD anticipates immediate same-folio re-invest).
 - **Identity verbs** are tier-specific (this is the seam):
@@ -86,41 +85,41 @@ the governor stays datestamped delete+recreate (today's RBSGM), mantle decompose
       the orphan/audit sweep flag `>1` USER_MANAGED key on a citizen as a stranded key to reclaim.
     - **remove** = delete the SA (and key). Capabilities are revoked first by divest's
       revoke(all held), which is intent-first (see Capability verbs), so the full teardown order is
-      withdraw-ledger → unbind-IAM → delete-SA.
+      withdraw-Terrier → unbind-IAM → delete-SA.
   - *federate* (future): add ≈ first grant (identity owned by the IdP, not minted here); no rekey
     (the IdP owns rotation); remove = de-register + revoke-all (the principal is not ours to
     delete).
   - *payor*: install / refresh a human OAuth refresh token.
 - Token mint also branches (citizen: signed-JWT; federate: STS) and sits below everything.
 
-## The declared ledger
+## The Terrier
 
 Why intent must be stored (the retired "derive from IAM" cinch was self-defeating once the role
 prefix leaves the identity name):
 
-1. Without a name prefix, deriving the ledger from IAM is lossy reverse-mapping — a director set
+1. Without a name prefix, deriving the Terrier from IAM is lossy reverse-mapping — a director set
    is several bindings smeared across project + Mason SA + repo + bucket; partial and ambiguous
    matches become representable.
 2. You cannot audit IAM against itself — "intent = whatever IAM says" makes intended-vs-actual a
    tautology that always passes, discarding the drift signal.
 
-Federation forces the same ledger anyway (a federated principal carries no role marker;
-memo-20260527: "the depot remains the home of the roster"), so the ledger is paid once for both
-tiers and makes the routine ledger read identical and O(1) across tiers.
+Federation forces the same Terrier anyway (a federated principal carries no role marker;
+memo-20260527: "the depot remains the home of the roster"), so the Terrier is paid once for both
+tiers and makes the routine Terrier read identical and O(1) across tiers.
 
-- **Code vs data.** Capability-set *definitions* are code; the ledger is *data* (memberships).
+- **Code vs data.** Capability-set *definitions* are code; the Terrier is *data* (memberships).
   The audit compares: for each (identity, declared-set), are the code-defined bindings present in
   IAM?
 - **Physical home (open) — a security boundary, not just storage.** The home must place
-  ledger-write authority at least on par with grant authority (see the audit invariant below).
+  Terrier-write authority at least on par with grant authority (see the audit invariant below).
   This **disqualifies the obvious choice**: a GCS object in the depot's *build* bucket fails the
   invariant, because the director already holds `roles/storage.objectCreator` there (RBSDK) — a
-  director could overwrite the ledger and self-escalate via auto-converge. The ledger home's
+  director could overwrite the Terrier and self-escalate via auto-converge. The Terrier home's
   write-ACL must be reachable by **no capability-set** — held only by governor/payor. Viable
   options: a separate access-restricted bucket/object, or a GAR artifact, each with a
-  governor/payor-only write ACL. Decide in-heat. **Cinch: ledger-write authority is never a
+  governor/payor-only write ACL. Decide in-heat. **Cinch: Terrier-write authority is never a
   capability-set member.**
-- **Writers (topology-conditional).** The ledger writer for an entry is the holder of grant
+- **Writers (topology-conditional).** The Terrier writer for an entry is the holder of grant
   authority for that entry's capability-sets under the active topology.
   - Federation/multi-admin: the governor writes director/retriever entries; the payor writes the
     governor entry.
@@ -158,18 +157,18 @@ idempotently, distinct from out-of-band surplus.
   human-driven. (Divest/remove *do* revoke; that is an explicit operator teardown, not an audit
   heal.)
 
-**Invariant the asymmetry rests on.** Auto-converging deficits treats the declared ledger as
-authoritative intent, so writing the ledger *upward* is itself a grant. The auto-heal is safe only
-if ledger-write authority is at least as protected as the grant verbs (setIamPolicy); otherwise it
-is a softer escalation path than setIamPolicy. The ledger's physical home (above) must satisfy that
+**Invariant the asymmetry rests on.** Auto-converging deficits treats the Terrier as
+authoritative intent, so writing the Terrier *upward* is itself a grant. The auto-heal is safe only
+if Terrier-write authority is at least as protected as the grant verbs (setIamPolicy); otherwise it
+is a softer escalation path than setIamPolicy. The Terrier's physical home (above) must satisfy that
 ACL constraint — a security boundary, not a storage convenience.
 
-**Two audit axes.** The identity-first axis (above) walks `ledger identities × set-defined
-bindings`. It **cannot see** escalation onto a *fresh, non-ledger* principal — e.g. a leaked
-director, via repo-scope `repoAdmin`/`setIamPolicy`, grants a role to a brand-new SA the ledger
+**Two audit axes.** The identity-first axis (above) walks `Terrier identities × set-defined
+bindings`. It **cannot see** escalation onto a *fresh, non-Terrier* principal — e.g. a leaked
+director, via repo-scope `repoAdmin`/`setIamPolicy`, grants a role to a brand-new SA the Terrier
 never names. So the audit also runs a **member-first axis**: on every resource where an RBK
 principal can reach `setIamPolicy` (the AR repo, the build bucket, individual SAs), enumerate the
-*actual* members and flag any RBK-relevant binding whose member is neither a ledger identity nor an
+*actual* members and flag any RBK-relevant binding whose member is neither a Terrier identity nor an
 allow-listed system identity (Mason, payor, governor, future Envoy — allow-listed to avoid false
 positives). The repoAdmin residual (Authority section) is covered **only once this axis exists**.
 
@@ -187,14 +186,14 @@ Consequences:
   against an *unchanged* definition (a genuine failed grant — safe to auto-heal) from a deficit
   appearing across *all* holders of a set at once (the signature of an expansion — gate behind the
   same human adjudication that surplus-legitimization requires). **"Who may edit capability-set
-  definitions" is a first-class authority, equal to grant / ledger-write.**
+  definitions" is a first-class authority, equal to grant / Terrier-write.**
 - **Concurrency.** Two writers hit IAM: the grant verb and the audit's deficit auto-converge.
-  Auto-converge re-reads the ledger under etag immediately before each grant (not from a
+  Auto-converge re-reads the Terrier under etag immediately before each grant (not from a
   start-of-audit snapshot), so a concurrent revoke wins. Both teardown sides (revoke, definition
-  shrink) write the ledger first so a crash lands as report-only surplus, never an auto-converging
+  shrink) write the Terrier first so a crash lands as report-only surplus, never an auto-converging
   deficit that resurrects what was just removed.
-- **Audit domain.** Identity-first: ledger identities × set-defined bindings. Member-first: actual
-  members of setIamPolicy-reachable resource policies. A non-ledger, non-system member is *flagged*,
+- **Audit domain.** Identity-first: Terrier identities × set-defined bindings. Member-first: actual
+  members of setIamPolicy-reachable resource policies. A non-Terrier, non-system member is *flagged*,
   not ignored.
 
 ## Orphan hazard and the identity marker (citizen tier only)
@@ -205,13 +204,13 @@ add-citizen can strand a live key for an untracked SA (a credential leak you can
 The orphan sweep is **integrity-advisory, not authoritative.** The description sentinel lives in
 `serviceAccounts.update` — the same `serviceAccountAdmin` authority that mints citizens — so it can
 be stripped, or absent after a crash. Marker *absence must not be trusted.* The **authoritative**
-orphan signal is the ledger cross-check the capability audit already performs: a USER_MANAGED key on
-an SA absent from the declared ledger is an orphan, marker or not. Marker options, used only as
+orphan signal is the Terrier cross-check the capability audit already performs: a USER_MANAGED key on
+an SA absent from the Terrier is an orphan, marker or not. Marker options, used only as
 corroborating hints:
 
 - **SA tags** (tag bindings): key-value, listable, condition-usable, with a separable (stronger)
   tag-binding ACL — preferred once they leave **Preview**.
-- **SA `description` sentinel** (`rbk:…`): stable fallback for the sweep; the ledger owns
+- **SA `description` sentinel** (`rbk:…`): stable fallback for the sweep; the Terrier owns
   capability, the description earns exactly this one hint.
 
 Federation has no key to leak and a stray principal binding is visible in the policy, so this
@@ -295,7 +294,7 @@ Surfaces:
 
 - **RBSDK / RBSRK** — SA-name composition drops the role prefix (was `${RBCC_account_director}-<identity>`).
 - **RBSDD** — email synthesis becomes identity-only.
-- **RBSDR** — the prefix-filter roster is retired in favor of the declared-ledger read.
+- **RBSDR** — the prefix-filter roster is retired in favor of the Terrier read.
 - **RBSRA / RBSRR** — the three role-keyed `rbra.env` paths collapse toward one identity-keyed path.
 
 **Existing-SA cutover.** GCP cannot rename an SA, so legacy `director-*`/`retriever-*` SAs migrate by
@@ -304,7 +303,7 @@ race (the memo-20260604 churn) — it must run through the rbk-08 revoke layer +
 
 **One-time bootstrap** (distinct from the *retired* standing "derive from IAM"): recover each legacy
 citizen's role — and thus its capability-set — from the role-prefixed SA **name** (the RBSDR roster
-regex), reading bindings only to seed/confirm; thereafter the ledger stands independently. Stamp the
+regex), reading bindings only to seed/confirm; thereafter the Terrier stands independently. Stamp the
 orphan marker onto each grandfathered SA so the sweep operates on a marker-uniform domain (a
 back-stamp prerequisite — until then sweep coverage of the legacy population is incomplete).
 
