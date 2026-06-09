@@ -616,16 +616,51 @@ fn zjjrm_validate_officium(officium: &str) -> Result<(), String> {
     Ok(())
 }
 
-/// Resolve officium ID to gazette input file path (agent → server).
-fn zjjrm_gazette_in_path(officium: &str) -> std::path::PathBuf {
+/// Resolve an officium ID to its absolute exchange directory.
+///
+/// `OFFICIA_DIR` is relative to the server's working directory; canonicalize
+/// turns it absolute so the gazette paths we hand back are unambiguous no
+/// matter what the agent's own working directory is — the agent uses the
+/// emitted path verbatim and never reconstructs it from the id. Reconstruction
+/// is exactly the trap the ☉-glyph strip set: the id carries the glyph, the
+/// on-disk dir does not, and a hand-built path lands in a sibling that does not
+/// exist. jjx_open creates this directory and every gazette consumer validates
+/// it first, so canonicalize normally succeeds; on failure we fall back to the
+/// cwd-joined relative path rather than break gazette I/O.
+fn zjjrm_exchange_dir(officium: &str) -> std::path::PathBuf {
     let bare_id = officium.trim_start_matches(OFFICIUM_SUN_PREFIX);
-    PathBuf::from(OFFICIA_DIR).join(bare_id).join(GAZETTE_IN_FILE)
+    let relative = PathBuf::from(OFFICIA_DIR).join(bare_id);
+    std::fs::canonicalize(&relative).unwrap_or_else(|_| {
+        std::env::current_dir()
+            .map(|cwd| cwd.join(&relative))
+            .unwrap_or(relative)
+    })
 }
 
-/// Resolve officium ID to gazette output file path (server → agent).
+/// Resolve officium ID to absolute gazette input file path (agent → server).
+fn zjjrm_gazette_in_path(officium: &str) -> std::path::PathBuf {
+    zjjrm_exchange_dir(officium).join(GAZETTE_IN_FILE)
+}
+
+/// Resolve officium ID to absolute gazette output file path (server → agent).
 fn zjjrm_gazette_out_path(officium: &str) -> std::path::PathBuf {
-    let bare_id = officium.trim_start_matches(OFFICIUM_SUN_PREFIX);
-    PathBuf::from(OFFICIA_DIR).join(bare_id).join(GAZETTE_OUT_FILE)
+    zjjrm_exchange_dir(officium).join(GAZETTE_OUT_FILE)
+}
+
+/// Format the gazette path pair for emission to the agent.
+///
+/// jjx_open and jjx_orient both surface this block so the agent reads
+/// `gazette_out` and writes `gazette_in` at the exact paths the server uses,
+/// rather than constructing them from the officium id.
+fn zjjrm_gazette_paths_block(
+    gazette_in: &std::path::Path,
+    gazette_out: &std::path::Path,
+) -> String {
+    format!(
+        "gazette_in:  {}\ngazette_out: {}",
+        gazette_in.display(),
+        gazette_out.display(),
+    )
 }
 
 /// Handle jjx_open: create a new officium.
@@ -736,6 +771,10 @@ async fn zjjrm_handle_open() -> Result<CallToolResult, McpError> {
         vvco_out!(output, "Exsanguination: {} active, {} reaped", active, reaped);
     }
     vvco_out!(output, "{}{}", OFFICIUM_SUN_PREFIX, id);
+    vvco_out!(output, "{}", zjjrm_gazette_paths_block(
+        &zjjrm_gazette_in_path(&id),
+        &zjjrm_gazette_out_path(&id),
+    ));
     Ok(CallToolResult::success(vec![Content::text(output.vvco_finish())]))
 }
 
@@ -882,13 +921,18 @@ impl jjrm_McpServer {
             JJRM_CMD_NAME_ORIENT => {
                 let p = deser!(jjrm_OrientParams);
                 let mut gazette = jjrz_Gazette::jjrz_build(&[jjrz_Slug::Paddock, jjrz_Slug::Pace]);
-                let result = jjrsd_run_saddle(jjrsd_SaddleArgs {
+                let (code, mut output) = jjrsd_run_saddle(jjrsd_SaddleArgs {
                     file: gallops_pathbuf(),
                     firemark: p.firemark,
                 }, &mut gazette).await;
                 let md = gazette.jjrz_emit();
                 if !md.is_empty() { std::fs::write(&gazette_out_path, md.as_bytes()).ok(); }
-                jjrm_result(result)
+                if code == 0 {
+                    output.push('\n');
+                    output.push_str(&zjjrm_gazette_paths_block(&gazette_in_path, &gazette_out_path));
+                    output.push('\n');
+                }
+                jjrm_result((code, output))
             }
             JJRM_CMD_NAME_SHOW => {
                 let p = deser!(jjrm_ShowParams);
@@ -928,7 +972,7 @@ impl jjrm_McpServer {
                         )])),
                     },
                     None => return Ok(CallToolResult::error(vec![Content::text(
-                        format!("{}: requires gazette_in.md with jjezs_slate notice", cmd),
+                        format!("{}: requires gazette_in.md with jjezs_slate notice; checked {}", cmd, gazette_in_path.display()),
                     )])),
                 };
                 jjrm_result(jjrsl_run_slate(jjrsl_SlateArgs {
@@ -964,7 +1008,7 @@ impl jjrm_McpServer {
                         )])),
                     },
                     None => return Ok(CallToolResult::error(vec![Content::text(
-                        format!("{}: requires gazette_in.md with jjezs_reslate notice(s)", cmd),
+                        format!("{}: requires gazette_in.md with jjezs_reslate notice(s); checked {}", cmd, gazette_in_path.display()),
                     )])),
                 };
                 let first_coronet = pairs[0].0.clone();
@@ -1082,7 +1126,7 @@ impl jjrm_McpServer {
                         )])),
                     };
                     let mut gazette = jjrz_Gazette::jjrz_build(&[jjrz_Slug::Paddock, jjrz_Slug::Pace]);
-                    let result = jjrcu_run_curry(jjrcu_CurryArgs {
+                    let (code, mut output) = jjrcu_run_curry(jjrcu_CurryArgs {
                         file: gallops_pathbuf(),
                         firemark,
                         note: p.note,
@@ -1090,7 +1134,17 @@ impl jjrm_McpServer {
                     }, None, &mut gazette);
                     let md = gazette.jjrz_emit();
                     if !md.is_empty() { std::fs::write(&gazette_out_path, md.as_bytes()).ok(); }
-                    jjrm_result(result)
+                    if code == 0 {
+                        // A setter-intent miss (gazette_in landed in the wrong dir)
+                        // surfaces here as silent getter mode, never as an error —
+                        // name both paths so the miss is self-diagnosing.
+                        output.push_str(&format!(
+                            "paddock returned via gazette_out: {}\n(getter mode — no gazette_in.md at {}; write content there to set)\n",
+                            gazette_out_path.display(),
+                            gazette_in_path.display(),
+                        ));
+                    }
+                    jjrm_result((code, output))
                 }
             }
             JJRM_CMD_NAME_TRANSFER => {
