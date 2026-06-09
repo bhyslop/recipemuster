@@ -86,6 +86,15 @@ practice, live in `rbfc_require_vessel_sigil`) is blessed alongside happy-path
 announcement: an error that lists the valid forms is an execution-time
 announcement of the contract, not contamination.
 
+**The execution-time home is plural off the terminal.** "Announcement" reads as
+a single printed stream because a CLI gives you one. A routine whose product
+does not go to a terminal — an MCP command, a library call, a daemon — splits
+it: the **product** (the value returned to the caller), the **trace**
+(diagnostic breadcrumbs), and the **error** travel different media, bound per
+project. Naming the full output-role roster is future work; one invariant earns
+its place now: **trace has no re-read-every-run forcing function, so it rots like
+an edit-time comment — never make it the sole home of design-time knowledge.**
+
 ## The move discipline — one litmus, three rules
 
 Every cleanup move obeys one litmus:
