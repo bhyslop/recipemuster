@@ -238,6 +238,57 @@ fn rbtdti_invoke_sequential_burv_isolation() {
 }
 
 #[test]
+fn rbtdti_chain_next_reuses_prior_burv_root() {
+    let tmp = rbtdti_make_temp("invoke-chain");
+    let tt = rbtdti_make_tt_dir(&tmp);
+    rbtdti_write_script(&tt, &format!("{}.Bark.testplate.sh", RBTDGC_CRUCIBLE_BARK), "exit 0\n");
+
+    let burv_temp_root = tmp.join("burv-temp");
+    let burv_output_root = tmp.join("burv-output");
+    let mut ctx = rbtdri_Context::new(&tmp, "testplate", &burv_temp_root, &burv_output_root);
+
+    // First invoke takes a fresh root (invoke-00000) and advances the counter.
+    let first = rbtdri_invoke(&mut ctx, RBTDGC_CRUCIBLE_BARK, &[]).unwrap();
+    assert_eq!(ctx.invoke_count, 1);
+
+    // A chained invoke reuses the prior invoke's root without advancing the
+    // counter — the theurge-side condition that lets bud_dispatch promote the
+    // prior invoke's current/ into this invoke's previous/.
+    ctx.chain_next_invoke();
+    let chained = rbtdri_invoke(&mut ctx, RBTDGC_CRUCIBLE_BARK, &[]).unwrap();
+    assert_eq!(chained.burv_output, first.burv_output);
+    assert_eq!(chained.burv_output, burv_output_root.join(rbtdri_invoke_dir_name(0)));
+    assert_eq!(ctx.invoke_count, 1, "chained invoke must not advance the counter");
+
+    // Isolation is restored for the next unmarked invoke — it takes a fresh root.
+    let third = rbtdri_invoke(&mut ctx, RBTDGC_CRUCIBLE_BARK, &[]).unwrap();
+    assert_eq!(third.burv_output, burv_output_root.join(rbtdri_invoke_dir_name(1)));
+    assert_ne!(third.burv_output, first.burv_output);
+    assert_eq!(ctx.invoke_count, 2);
+
+    let _ = std::fs::remove_dir_all(&tmp);
+}
+
+#[test]
+fn rbtdti_chain_next_without_prior_invoke_errs() {
+    let tmp = rbtdti_make_temp("invoke-chain-noprior");
+    let tt = rbtdti_make_tt_dir(&tmp);
+    rbtdti_write_script(&tt, &format!("{}.Bark.testplate.sh", RBTDGC_CRUCIBLE_BARK), "exit 0\n");
+
+    let burv_temp_root = tmp.join("burv-temp");
+    let burv_output_root = tmp.join("burv-output");
+    let mut ctx = rbtdri_Context::new(&tmp, "testplate", &burv_temp_root, &burv_output_root);
+
+    // chain_next with no prior invoke has nothing to chain from — it must error
+    // loud rather than silently reuse a nonexistent root.
+    ctx.chain_next_invoke();
+    let result = rbtdri_invoke(&mut ctx, RBTDGC_CRUCIBLE_BARK, &[]);
+    assert!(result.is_err());
+
+    let _ = std::fs::remove_dir_all(&tmp);
+}
+
+#[test]
 fn rbtdti_invoke_captures_stdout() {
     let tmp = rbtdti_make_temp("invoke-stdout");
     let tt = rbtdti_make_tt_dir(&tmp);

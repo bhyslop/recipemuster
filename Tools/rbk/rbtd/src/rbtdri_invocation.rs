@@ -93,6 +93,10 @@ pub struct rbtdri_Context {
     pub(crate) burv_temp_root: PathBuf,
     pub(crate) burv_output_root: PathBuf,
     pub(crate) invoke_count: u32,
+    /// One-shot flag: when set, the NEXT invoke reuses the immediately-prior
+    /// invoke's BURV root instead of minting a fresh one (see
+    /// `chain_next_invoke`). Consumed and cleared by `rbtdri_invoke_impl`.
+    pub(crate) chain_next: bool,
 }
 
 impl rbtdri_Context {
@@ -108,6 +112,7 @@ impl rbtdri_Context {
             burv_temp_root: burv_temp_root.to_path_buf(),
             burv_output_root: burv_output_root.to_path_buf(),
             invoke_count: 0,
+            chain_next: false,
         }
     }
 
@@ -117,6 +122,29 @@ impl rbtdri_Context {
 
     pub fn project_root(&self) -> &Path {
         &self.project_root
+    }
+
+    /// Mark the NEXT tabtarget invocation to chain off the immediately-prior
+    /// invoke's BURV root, rather than running in fresh isolation.
+    ///
+    /// Theurge gives every invoke its own `BURV_OUTPUT_ROOT_DIR`, so
+    /// `bud_dispatch`'s start-of-dispatch `current/`->`previous/` promotion never
+    /// crosses invokes — each invoke's `previous/` is empty. That suits isolated
+    /// operations but breaks the depth-1 cross-tabtarget chain a real operator
+    /// gets for free by sharing one `../output-buk` root: the chaining fact one
+    /// tabtarget writes to `current/` never reaches the next tabtarget's
+    /// `previous/`. The bole derived-pull base-anchor election is the consumer —
+    /// `ensconce` writes the touchmark to `current/`, the following `ordain`
+    /// reads it from `previous/`.
+    ///
+    /// Calling this before such a pair makes the next invoke reuse the prior
+    /// invoke's root, so the prior invoke's `current/` is promoted into this
+    /// invoke's `previous/` — replicating the operator flow for exactly the
+    /// invokes that need it, leaving every other invoke's isolation intact.
+    /// One-shot: consumed by the next invoke and cleared. Depth-1 only — bud
+    /// keeps a single generation, so only the immediate predecessor is visible.
+    pub fn chain_next_invoke(&mut self) {
+        self.chain_next = true;
     }
 }
 
@@ -251,14 +279,30 @@ pub fn rbtdri_tabtarget_command(tabtarget: &Path) -> Command {
 }
 
 /// Internal: execute a resolved tabtarget with BURV isolation and optional extra env vars.
+///
+/// Honors the context's one-shot `chain_next` flag (see
+/// `rbtdri_Context::chain_next_invoke`): when set, this invoke reuses the
+/// immediately-prior invoke's BURV root instead of minting a fresh one — so
+/// `bud_dispatch` promotes that invoke's `current/` into this invoke's
+/// `previous/`. The flag is consumed and cleared here.
 fn rbtdri_invoke_impl(
     ctx: &mut rbtdri_Context,
     tabtarget: &Path,
     args: &[&str],
     extra_env: &[(&str, &str)],
 ) -> Result<rbtdri_InvokeResult, String> {
-    let invoke_num = ctx.invoke_count;
-    ctx.invoke_count += 1;
+    let invoke_num = if std::mem::take(&mut ctx.chain_next) {
+        // Chain off the immediately-prior invoke: reuse its root (do NOT mint a
+        // fresh one or bump the counter), so bud's promotion carries that
+        // invoke's current/ into this one's previous/. Depth-1 by construction.
+        ctx.invoke_count.checked_sub(1).ok_or_else(|| {
+            "rbtdri: chain_next_invoke set with no prior invoke to chain from".to_string()
+        })?
+    } else {
+        let n = ctx.invoke_count;
+        ctx.invoke_count += 1;
+        n
+    };
 
     let dir_name = rbtdri_invoke_dir_name(invoke_num);
     let burv_output = ctx.burv_output_root.join(&dir_name);
