@@ -133,7 +133,7 @@ crane is the **sole image/registry tool** across every capture kind; skopeo, doc
 - **oras** is documented equal-fidelity fallback only, not wired. The one future that reopens it: signed provenance via the OCI **referrers** API (oras is its reference implementation) — a *named* fork, never a silent inheritance of the crane pick.
 - **skopeo's rule-out rationale is corrected** (cerebro 2026-06): it fatals *loud* on empty-config OCI artifacts (`oci.empty.v1+json`), not the silent foreign-layer skip first assumed — the disk blobs are `application/zstd`, distributable.
 - **crane auth is the one sharp edge.** crane has no per-command `--creds` flag; it authenticates via `crane auth login` (ephemeral docker config) or a credential helper. Same Mason SA, same short-lived metadata token, **no new IAM/repo grant**. The mechanism is chosen in the first eviction pace and inherited downstream.
-- **Eviction is capture-only.** skopeo may legitimately remain in the *reliquary cohort* as a build-tool the made-side conjure consumes — a separate question from capture, not a contradiction.
+- **skopeo eviction is total, including the cohort.** The made-side bind mirror (`rbfd_mirror` / `rbgjm01`) is the last skopeo holdout — a bare `skopeo copy --all` that converts cleanly to `crane cp`. Converting it is a *narrow, deliberate exception* to the capture-only boundary: it touches one made-side tool invocation, NOT the made-image package retrofit (Ark/Hallmark/abjure stay deferred to the sibling heat). Once the mirror is on crane and every capture consumer is gone, skopeo is dropped from the reliquary cohort entirely — the terminal functional pace, just before the vocabulary scrub.
 
 ## Carried forward / consequences
 
