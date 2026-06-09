@@ -5,11 +5,17 @@ for a
 {jjdhr_heat}
 in order, one per line.
 
+*Invocation:*
+----
+vvx jjx_coronets <FIREMARK> [--remaining | --rough]
+----
+
 {jjds_arguments}
 
 //axd_required
-* `FIREMARK` — the
-{jjdt_firemark}
+* {jjdt_firemark}
+— the
+{jjdhr_heat}
 to query
 
 //axd_optional
@@ -29,6 +35,8 @@ paces
 per line, in
 {jjdhm_order}
 sequence — no silks, no docket.
+Returned inline as the tool result, not written to the
+{jjsz_gazette}.
 A live pace emits the bare coronet with its `₢` prefix.
 In the default listing an
 {jjdpe_abandoned}

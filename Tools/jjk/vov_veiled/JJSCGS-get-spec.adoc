@@ -2,14 +2,21 @@
 Get raw docket text for a
 {jjdpr_pace}.
 
+*Invocation:*
+----
+vvx jjx_brief <CORONET>
+----
+
 {jjds_arguments}
 
 //axd_required
-* `CORONET` — the
-{jjdt_coronet}
+* {jjdt_coronet}
+— the
+{jjdpr_pace}
 to query
 
-{jjds_stdout} Raw docket text.
+{jjds_stdout} Raw docket text, returned inline as the tool result — not written to the
+{jjsz_gazette}.
 A live pace emits the docket verbatim — no prefix, no trailing newline beyond the text itself.
 An
 {jjdpe_abandoned}
@@ -30,4 +37,4 @@ by
 . If the pace state is
 {jjdpe_abandoned},
 emit an `[abandoned]` marker line followed by a blank line
-. Output `tacks[0].text` to stdout
+. Emit `tacks[0].text` as the inline tool result

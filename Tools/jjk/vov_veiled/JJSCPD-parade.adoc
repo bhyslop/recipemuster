@@ -5,6 +5,11 @@ or
 information in human-readable text format.
 Output varies by target type.
 
+*Invocation:*
+----
+vvx jjx_show [<TARGET>] [--detail] [--remaining]
+----
+
 {jjds_arguments}
 
 //axd_optional axd_defaulted
