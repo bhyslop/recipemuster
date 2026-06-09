@@ -8599,10 +8599,11 @@
         "₢BHAAO",
         "₢BHAAP",
         "₢BHAAR",
+        "₢BHAAX",
         "₢BHAAD",
         "₢BHAAS"
       ],
-      "jjghn_next_pace_seed": "AAX",
+      "jjghn_next_pace_seed": "AAY",
       "jjghn_paces": {
         "₢BHAAA": {
           "jjgpn_tacks": [
@@ -9176,6 +9177,17 @@
               "jjgtn_text": "## Character\nNet-new kind on the crane-uniform spine — the last Lode kind, completing universal capture.\nLands in an already-crane world, riding the proven crane builder + auth pattern.\n\n## Goal\nCapture podman-VM machine-os images via the immure verb (rbw-lI) — one verb spanning both\nquay families (machine-os = vn, machine-os-wsl = vw) by archive argument. A new in-pool\nimmure step crane-cp's selected {disktype x arch} leaves BY DIGEST into rbi_ld/<vn|vw><stamp>,\nruns the blob-residency guard, and reuses the (crane) vouch step. New rbldv_ body —\nopaque-blob x multi-member. Carries the podvm RBSL subdoc + RBS0 quoin landing and the\nRBSPV promotion out of FUTURE/ (deferred here from the review pace).\n\n## Done when\n- immure captures both families; podvm-lifecycle service fixture green end-to-end\n  (immure -> divine cohort -> inspect members + :rbi_vouch -> per-member + whole-Lode banish\n  -> absent), added to service + complete suites.\n- divine legend carries vn/vw; the single-fixture registry (RBTDRC_FIXTURES) registers it.\n- RBSL podvm subdoc + RBS0 quoin landed; RBSPV promoted out of FUTURE/.\n\n## Cinched\n- recorded-at-acquisition grade (quay publishes no durable checksum, rotates within days).\n- Selective leaf capture (curated {disktype x arch}), declarative intent (no FQIN); selection\n  keys on the index descriptor platform + disktype, never the layer filename.\n- Cloud-side acquisition only; never touch the workstation to acquire bytes.\n\n## Sources\n- memo-20260608-lode-podvm-cerebro-experiment.md, the follow-up cloud pace section (§7) —\n  full build sheet.\n- RBSPV cerebro characterization section; paddock Vocabulary + Kinds + trust grades.",
               "jjgtn_silks": "lode-podvm-immure",
               "jjgtn_basis": "c33f15d"
+            }
+          ]
+        },
+        "₢BHAAX": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260608-2011",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nThe terminal skopeo removal — converts the last skopeo consumer (the made-side bind\nmirror) to crane, then purges skopeo from the reliquary cohort. A narrow, deliberate\ncrossing of the capture-only line: ONE made-side invocation, NOT the made-image package\nretrofit (Ark/Hallmark/abjure stay deferred). Runs after every other skopeo consumer is gone.\n\n## Goal\nConvert the bind mirror (rbgjm01 / rbfd_mirror) from `skopeo copy --all` to `crane cp` —\na bare registry-to-registry multi-platform copy, get-by-digest-or-error matching bind's\npin-exactly semantic. Then drop skopeo from the cohort: the conclave MANIFEST tool entry,\nthe z_rbfc_tool_skopeo plumbing, the RBGC constant, the reliquary preflight check, and the\nhelp-string mentions.\n\n## Done when\n- No skopeo invocation in any Cloud Build step, capture or made-side; a bind-mode build\n  runs green on crane.\n- skopeo gone from the cohort (MANIFEST, plumbing, constant, preflight, help); the cohort\n  provisions crane where build steps need it.\n\n## Cinched\n- Gated on the capture skopeo eviction + inscribe retirement + this pace's own mirror\n  conversion all landing first — every consumer gone before the tool is dropped.\n- crane settled; reuse the chosen auth mechanism. Made-image package retrofit stays out of\n  scope — this converts a tool invocation, not the made-side model.\n\n## Sources\n- rbgjm01-mirror-image.sh, rbfd_FoundryDirectorBuild.sh (zrbfd_mirror_submit,\n  z_rbfc_tool_skopeo). grep skopeo across Tools/rbk + tt/ for the cohort/plumbing sites.",
+              "jjgtn_silks": "lode-skopeo-reliquary-eviction",
+              "jjgtn_basis": "a44d7e7"
             }
           ]
         }
