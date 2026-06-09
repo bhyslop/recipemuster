@@ -8591,6 +8591,7 @@
         "₢BHAAK",
         "₢BHAAT",
         "₢BHAAU",
+        "₢BHAAV",
         "₢BHAAL",
         "₢BHAAM",
         "₢BHAAN",
@@ -8600,7 +8601,7 @@
         "₢BHAAD",
         "₢BHAAS"
       ],
-      "jjghn_next_pace_seed": "AAV",
+      "jjghn_next_pace_seed": "AAW",
       "jjghn_paces": {
         "₢BHAAA": {
           "jjgpn_tacks": [
@@ -9152,6 +9153,17 @@
               "jjgtn_text": "## Character\nBehavior-preserving cutover. Removes the docker daemon dependency from conclave.\n\n## Goal\nEvict docker from capture by moving conclave onto crane. The conclave capture step does\ndocker pull/tag/push per tool; crane cp copies registry->registry directly (daemonless,\nno pull-then-push), and crane digest replaces docker inspect for the recorded digest.\nconclave is the only docker consumer in capture.\n\n## Done when\n- No docker invocation in the conclave capture path; the step runs on a crane builder.\n- reliquary-lifecycle service fixture green against live GAR, member digests unchanged.\n\n## Cinched\n- crane is settled. Reuse the auth mechanism chosen in the skopeo-eviction pace.\n\n## Sources\n- grep docker across Tools/rbk/rbgjl to find the conclave capture step.",
               "jjgtn_silks": "lode-docker-eviction",
               "jjgtn_basis": "e9c38c6"
+            }
+          ]
+        },
+        "₢BHAAV": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260608-1950",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nBehavior-preserving cutover. Proves crane append (tarball->image, daemonless) and removes\nthe last docker-daemon dependency from capture. The shared-vouch site is the highest blast\nradius — every kind's vouch push changes.\n\n## Goal\nEvict buildx by moving the two FROM-scratch image builds onto crane append: the shared\nvouch push step (used by every kind) and the underpin opaque-blob wrap. curl and gpg stay\nin underpin — HTTPS fetch and signature verify are not registry ops crane can do.\n\n## Done when\n- No buildx/docker invocation in vouch or underpin; both use crane append.\n- lode-lifecycle, reliquary-lifecycle, and wsl-lifecycle fixtures all green against live\n  GAR (vouch is shared, so every kind re-validates).\n- Floor reached: capture is crane (all registry/image ops) + curl + gpg only.\n\n## Cinched\n- crane is settled. Reuse the auth mechanism from the skopeo-eviction pace.\n\n## Sources\n- grep buildx across Tools/rbk/rbgjl + Tools/rbk/rbgjs to find the vouch + underpin-wrap sites.",
+              "jjgtn_silks": "lode-buildx-eviction",
+              "jjgtn_basis": "c1148d1"
             }
           ]
         }
