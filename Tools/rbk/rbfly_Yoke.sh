@@ -100,7 +100,11 @@ rbfl_yoke() {
   local z_r=""
   for z_r in "${z_expected[@]}"; do z_roster="${z_roster}${z_roster:+, }${z_r}"; done
 
-  test -z "${z_missing}" || buc_die "Reliquary stamp '${z_stamp}' not found in Depot — expected ${#z_expected[@]} tool images under ${z_rqy_subtree}; missing: ${z_missing}. Re-run tt/rbw-dI.DirectorInscribesReliquary.sh to mint a fresh reliquary, or verify the stamp spelling."
+  # Render the inscribe-tabtarget hint from its colophon home (RBZ_INSCRIBE_RELIQUARY)
+  # via the tt yawp — never a hardcoded tt/<colophon>.<frontispiece>.sh literal, which
+  # rots on rename. buc_die resolves the diastema-wrapped yelp through buyf_format_yawp.
+  buyy_tt_yawp "${RBZ_INSCRIBE_RELIQUARY}"; local -r z_inscribe_tt="${z_buym_yelp}"
+  test -z "${z_missing}" || buc_die "Reliquary stamp '${z_stamp}' not found in Depot — expected ${#z_expected[@]} tool images under ${z_rqy_subtree}; missing: ${z_missing}. Re-run ${z_inscribe_tt} to mint a fresh reliquary, or verify the stamp spelling."
   buc_info "Reliquary valid — all ${#z_expected[@]} tool images present (${z_roster})"
 
   buc_step "Yoking ${z_stamp} into all vessels under ${RBRR_VESSEL_DIR}"
