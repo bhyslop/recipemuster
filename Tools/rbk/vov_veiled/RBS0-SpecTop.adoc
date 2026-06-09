@@ -558,6 +558,7 @@
 :rbsk_no_gcloud:             <<rbsk_no_gcloud,gcloud CLI Prohibition>>
 :rbsk_invest_serialized:     <<rbsk_invest_serialized,Invest Serialization>>
 :rbsk_in_pool_preflight:     <<rbsk_in_pool_preflight,In-Pool Reliquary Preflight>>
+:rbsk_pinning_boundary:      <<rbsk_pinning_boundary,Supply-Chain Pinning Boundary>>
 
 // Recipe Bottle Ifrit (adversarial AI escape testing)
 // rbsi_ prefix: RB Security Ifrit (adversarial validation concepts)
@@ -897,6 +898,19 @@ Batched invest is not supported — by design.
 Rationale: a singleton assay slot keeps the producer-output discipline uniform across roles and frees the implementation from path-space per-identity routing.
 The operator-driven move step is the deliberate promotion gate from producer output to role-production consumer; it also acts as the operator's explicit acknowledgement of which identity owns the role at runtime, since `RBRA` files encode exactly one identity at a time.
 Move (not copy) prevents the assay slot from accumulating stale credential bytes after promotion.
+
+[[rbsk_pinning_boundary]]
+//axl_voices axk_premise
+{rbsk_pinning_boundary}::
+A build that consumes a sealed reliquary MUST carry zero unpinned aspects: every tool image and base image it pulls resolves, content-pinned, from project-controlled {gar_service} (the reliquary cohort and the enshrined anchors), never from a mutable upstream tag.
+Reliquary _generation_ — the inscribe/conclave ceremony that mints the sealed cohort — is the one and only phase permitted to pull unpinned upstream images, since the first tool must be bootstrapped from somewhere.
++
+The boundary is staged on the reliquary itself: once a reliquary is sealed, everything downstream of it is pinned; everything that produces it may not yet be.
+The capture family obeys the same boundary as the made side — the capture image tool (`gcrane`) is a reliquary cohort member, so a sealed-reliquary capture (bole/wsl/podvm) resolves a pinned `gcrane`; only conclave, which builds the reliquary and therefore cannot resolve from it, rides the floating Google-hosted bootstrap builder.
++
+Rationale: a result that depends on whatever tag happened to be current at build time is a versioning failure, not a convenience — the same anti-ambient-state ethos as content-addressed anchors, the depot tripwire, and SLSA vouch.
+The narrow bootstrap exception is bounded, supervised, and re-runnable; it touches nothing a consumer relies on.
+The durable supply-chain canon, the gcr.io-bootstrap-only provenance, and the per-grade trust details live in RBSCB.
 
 == Dependency Inventory
 

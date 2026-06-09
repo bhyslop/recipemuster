@@ -43,6 +43,13 @@ All GCB step images are pulled from a datestamped reliquary in GAR — co-versio
 `RBRV_RELIQUARY` in each vessel regime identifies the active reliquary.
 Base images are separately enshrined via `RBRV_IMAGE_n_ANCHOR`.
 
+**Supply-chain pinning boundary — staged on the reliquary.**
+The governing rule: reliquary _generation_ (the inscribe/conclave ceremony that mints the sealed tool cohort) may pull unpinned upstream images — bootstrapping the first tool must start somewhere, and generation is the only phase permitted to.
+Every build that _consumes_ a sealed reliquary carries zero unpinned aspects: each tool image resolves, pinned, from the cohort, whose durable home is our own Artifact Registry (GAR), never an upstream registry.
+The made side already conforms — all conjure/vouch step images are reliquary-sourced (above).
+The capture family is brought into conformance by the crane-embrace cutover: the capture image tool (gcrane) becomes a reliquary cohort member, so a sealed-reliquary capture (bole/wsl/podvm) resolves a _pinned_ gcrane, leaving the floating Google-hosted bootstrap gcrane (`ZRBLD_GCRANE_BUILDER`) only in conclave — which builds the reliquary and therefore cannot resolve from it.
+Until that lands, capture builders ride floating bootstrap tags (see Deferred Items).
+
 **Dual private pool workers (tether + airgap).**
 Every depot gets two private pools: a tether pool (public egress) and an airgap pool (`NO_PUBLIC_EGRESS`).
 Pool routing is operation-level: inscribe and enshrine use tether (upstream access required), about and vouch always use airgap (verification isolated from public registries), conjure and bind use the vessel's `RBRV_EGRESS_MODE`.
@@ -256,6 +263,14 @@ A vessel with `FROM ubuntu:22.04` passes today — mutable tag, supply-chain ris
 This constrains vessel authors (policy decision with RBSRV implications), orthogonal to pipeline infrastructure.
 Separate future heat.
 
+**Bootstrap builder pinning + gcr.io provenance — recorded decision (2026-06).**
+The reliquary's own generators cannot resolve their tools from the reliquary (a cycle), so a small set of bootstrap builders is pulled unpinned: `gcr.io/cloud-builders/docker` and `gcr.io/go-containerregistry/gcrane:debug`.
+This is acceptable because it is bounded to reliquary _generation_ (see _Supply-chain pinning boundary_, Current Posture) — sealed-reliquary builds never touch these.
+On gcr.io durability: the Container Registry _storage product_ shut down (writes 2025-03-18, reads 2025-06-03), but Google-_owned_ images served via gcr.io URLs (cloud-builders, go-containerregistry, distroless) were migrated onto Artifact Registry under the preserved gcr.io URL and are explicitly exempt, with no announced end-of-life.
+RB stores nothing at gcr.io — every RB artifact lives in Artifact Registry — so the Container Registry shutdown does not touch RB's foundation; the only gcr.io exposure is these bootstrap-generation pulls, which are non-load-bearing (rare, supervised, re-runnable; a one-line source change if an alias is ever retired).
+Hardening (sibling itch, not yet scoped): digest-pin the bootstrap builders, or mirror them into our Artifact Registry for full control — the durable answer the reliquary already embodies for consumed tools.
+See _Registry transition_ references below.
+
 **BuildKit provenance flag.**
 `--provenance=true` on `docker buildx build` records builder internals — useful for deeper forensics.
 GCB-native SLSA v1.0 provenance covers the primary attestation use case.
@@ -304,6 +319,12 @@ Behavior-preservation is confirmed against the live system at the heat's milesto
 * https://docs.google.com/build/docs/private-pools/using-vpc-service-controls[VPC Service Controls with Cloud Build]
 * https://cloud.google.com/binary-authorization/docs/deploy-cloud-build[Deploy only images built by Cloud Build (Binary Authorization)]
 * https://cloud.google.com/build/pricing-update[Cloud Build pricing update (2025)]
+
+**Registry transition (Container Registry -> Artifact Registry):**
+
+* https://docs.cloud.google.com/artifact-registry/docs/transition/gcr-repositories[gcr.io repositories on Artifact Registry — Google-owned images unaffected by the CR shutdown]
+* https://docs.cloud.google.com/artifact-registry/docs/transition/transition-from-gcr[Transition from Container Registry]
+* https://docs.cloud.google.com/artifact-registry/docs/transition/prepare-gcr-shutdown[Prepare for Container Registry shutdown — shutdown timeline]
 
 **SBOM and supply chain:**
 
