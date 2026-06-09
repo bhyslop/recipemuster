@@ -106,7 +106,9 @@ zrbld_spine_validate() {
 #   - builder_image: the step's builder image ref (colons allowed — hence the
 #                    | delimiter, since image tags/digests contain colons)
 #   - id:            the Cloud Build step id
-#   - entrypoint:    bash | sh | python3 — selects the composed shebang line
+#   - entrypoint:    bash | sh | busybox | python3 — selects the composed shebang
+#                    line (busybox -> /busybox/sh, the only shell in distroless
+#                    :debug builder images such as gcrane:debug)
 #
 # The substitutions file holds a JSON object the spine slots verbatim into the
 # Build envelope's `substitutions` field; the spine reads no key from it. The

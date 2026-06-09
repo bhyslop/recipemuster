@@ -71,6 +71,19 @@ zrbld_kindle() {
   buc_log_args 'Define Google-hosted docker builder image'
   readonly ZRBLD_GOOGLE_DOCKER_BUILDER="gcr.io/cloud-builders/docker"
 
+  # gcrane builder — crane's Google-auth sibling (same cp/manifest/tag engine).
+  # The bole capture step rides this: gcrane authenticates GAR (*.pkg.dev)
+  # ambiently through google.Keychain -> ADC -> the GCE metadata server as the
+  # Mason SA, so the step needs no token fetch, no crane auth login, and no
+  # credential-helper image. The :debug variant carries /busybox/sh and busybox
+  # sha256sum for the orchestration (the non-debug image is distroless — no
+  # shell). Floating Google-hosted name, like ZRBLD_GOOGLE_DOCKER_BUILDER above:
+  # gcr.io is always-pullable under Private Google Access, and the persistent
+  # :debug tag is the name we ride — version-freezing belongs to the reliquary
+  # gather, not a bash-frozen digest in this constant. Auth canon: RBSCB.
+  buc_log_args 'Define Google-hosted gcrane builder image'
+  readonly ZRBLD_GCRANE_BUILDER="gcr.io/go-containerregistry/gcrane:debug"
+
   buc_log_args 'Define divine operation file prefix'
   readonly ZRBLD_DIVINE_PREFIX="${BURD_TEMP_DIR}/rbld_divine_"
 

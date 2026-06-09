@@ -1,17 +1,18 @@
 #!/bin/bash
-# RBGJL Step 01: Ensconce a base image into a Lode (capture) via skopeo
-# Builder: skopeo (from reliquary)
+# RBGJL Step 01: Ensconce a base image into a Lode (capture) via gcrane
+# Builder: gcr.io/go-containerregistry/gcrane:debug (Google-hosted, ambient GAR auth)
 # Substitutions: _RBGL_GAR_HOST, _RBGL_GAR_PATH, _RBGL_LODES_ROOT,
 #                _RBGL_TAG_BOLE, _RBGL_TAG_DIGEST_PREFIX,
 #                _RBGL_TRUST_GRADE, _RBGL_VOUCH_SCHEMA, _RBGL_ACQUIRED_BY,
 #                _RBGL_IMAGE_1_ORIGIN, _RBGL_IMAGE_2_ORIGIN, _RBGL_IMAGE_3_ORIGIN,
 #                _RBGL_LODE_1_STAMP,   _RBGL_LODE_2_STAMP,   _RBGL_LODE_3_STAMP
 #
-# For each non-empty (ORIGIN, STAMP) slot: inspect upstream, measure the canonical
-# digest, copy --all into ONE GAR package rbi_ld/<stamp>, then apply the member
-# tags by GAR->GAR retag (dedups blobs). Author the provenance envelope and stage
-# it for step 02 (the :rbi_vouch artifact) and for the host capture-file via
-# /builder/outputs/output. Mason SA ambient auth via Cloud Build metadata server.
+# For each non-empty (ORIGIN, STAMP) slot: read the upstream manifest, measure the
+# canonical digest, gcrane cp into ONE GAR package rbi_ld/<stamp>, then apply the
+# member tags by gcrane tag (registry-side, no blob round-trip). Author the
+# provenance envelope and stage it for step 02 (the :rbi_vouch artifact) and for
+# the host capture-file via /builder/outputs/output. gcrane authenticates GAR
+# ambiently via its google.Keychain (Mason SA, GCE metadata server) — no token.
 #
 # Package shape:  <host>/<path>/<LODES_ROOT>/<stamp>            (one package = one Lode)
 # Member tags on that package, all pointing at the base manifest:
@@ -23,8 +24,8 @@
 set -euo pipefail
 echo "=== Ensconce base images into Lodes ==="
 
-# Obtain OAuth2 token from metadata server (Mason SA) — shared library snippet.
-#@rbgjs_include token-fetch
+# No token fetch: gcrane authenticates GAR ambiently through its google.Keychain
+# (ADC -> GCE metadata server, the Mason SA). No --creds on any gcrane command.
 
 # CB substitutions are expanded at submit time, not available as shell variables.
 # Capture each into a runtime variable so we can loop.
@@ -56,10 +57,10 @@ for SLOT in 1 2 3; do
 
   echo "--- Slot ${SLOT}: ${ORIGIN} -> ${_RBGL_LODES_ROOT}/${STAMP} ---"
 
-  # Inspect upstream, take the canonical digest, derive the glance fingerprint —
-  # shared library snippet (requires ORIGIN + RAW_FILE; provides SHA + FINGERPRINT).
+  # Read the upstream manifest, take the canonical digest, derive the glance
+  # fingerprint — shared snippet (requires ORIGIN + RAW_FILE; provides SHA + FINGERPRINT).
   RAW_FILE="/workspace/ensconce_raw_${SLOT}.json"
-#@rbgjs_include skopeo-fingerprint
+#@rbgjs_include gcrane-fingerprint
 
   DIGEST_TAG="${_RBGL_TAG_DIGEST_PREFIX}${SHA}"
   PKG="${_RBGL_GAR_HOST}/${_RBGL_GAR_PATH}/${_RBGL_LODES_ROOT}/${STAMP}"
@@ -69,18 +70,17 @@ for SLOT in 1 2 3; do
   echo "Tags:    ${DIGEST_TAG}, ${_RBGL_TAG_BOLE}, ${FINGERPRINT}"
 
   # Collision guard — never silently clobber an existing Lode. The bole handle
-  # (:rbi_bole) always points at this touchmark's captured image, so inspect it:
+  # (:rbi_bole) always points at this touchmark's captured image, so read it:
   # absent => a fresh touchmark; present => re-use. Re-use is legitimate ONLY when
   # it is the identical canonical digest (a Cloud Build retry re-copying the same
   # bytes); a different digest under the same touchmark is a clobber and fails loud.
   # The check sits immediately before the copy in this same step — atomic with the
   # GAR write in the sense the spec requires (no host pre-submit window). EXISTING_SHA
   # is computed the same way as SHA (sha256sum of the raw manifest), so the compare is
-  # apples-to-apples. An inspect failure is treated as absent: cloud-side auth/network
-  # is reliable, and a genuine GAR outage fails the copy below regardless.
+  # apples-to-apples. A manifest-read failure is treated as absent: cloud-side
+  # auth/network is reliable, and a genuine GAR outage fails the copy below regardless.
   EXISTING_RAW="/workspace/ensconce_existing_${SLOT}.json"
-  if skopeo inspect --raw "docker://${PKG}:${_RBGL_TAG_BOLE}" \
-       --creds "oauth2accesstoken:${TOKEN}" > "${EXISTING_RAW}" 2>/dev/null; then
+  if gcrane manifest "${PKG}:${_RBGL_TAG_BOLE}" > "${EXISTING_RAW}" 2>/dev/null; then
     EXISTING_SHA=$(sha256sum "${EXISTING_RAW}" | cut -d' ' -f1)
     if [ "${EXISTING_SHA}" = "${SHA}" ]; then
       echo "Touchmark ${STAMP} already holds identical digest sha256:${SHA} — idempotent retry, proceeding."
@@ -95,21 +95,17 @@ for SLOT in 1 2 3; do
     echo "Touchmark ${STAMP} is fresh (no existing :${_RBGL_TAG_BOLE})."
   fi
 
-  # Copy upstream into the Lode package under the canonical digest tag.
-  skopeo copy --all \
-    "docker://${ORIGIN}" \
-    "docker://${PKG}:${DIGEST_TAG}" \
-    --dest-creds "oauth2accesstoken:${TOKEN}" \
-    || { echo "FATAL: skopeo copy failed for slot ${SLOT}" >&2; exit 1; }
+  # Copy upstream into the Lode package under the canonical digest tag. gcrane cp
+  # copies the whole reference (manifest list and all per-platform manifests for a
+  # multi-arch index) and preserves the manifest digest byte-for-byte.
+  gcrane cp "${ORIGIN}" "${PKG}:${DIGEST_TAG}" \
+    || { echo "FATAL: gcrane cp failed for slot ${SLOT}" >&2; exit 1; }
 
-  # Apply remaining member tags by GAR->GAR retag (same blobs, manifest re-tag only).
+  # Apply remaining member tags with gcrane tag — a registry-side re-tag of the
+  # already-copied manifest, no blob round-trip (replaces the GAR->GAR copy).
   for MEMBER_TAG in "${_RBGL_TAG_BOLE}" "${FINGERPRINT}"; do
-    skopeo copy --all \
-      "docker://${PKG}:${DIGEST_TAG}" \
-      "docker://${PKG}:${MEMBER_TAG}" \
-      --src-creds  "oauth2accesstoken:${TOKEN}" \
-      --dest-creds "oauth2accesstoken:${TOKEN}" \
-      || { echo "FATAL: skopeo retag ${MEMBER_TAG} failed for slot ${SLOT}" >&2; exit 1; }
+    gcrane tag "${PKG}:${DIGEST_TAG}" "${MEMBER_TAG}" \
+      || { echo "FATAL: gcrane tag ${MEMBER_TAG} failed for slot ${SLOT}" >&2; exit 1; }
   done
 
   echo "Slot ${SLOT} ensconced: ${STAMP}"

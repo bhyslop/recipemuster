@@ -241,7 +241,7 @@ crosses into the substitution channel.
 |Snippet |Contract
 
 |`token-fetch`        |_requires_ none (ambient metadata server); _provides_ `TOKEN`. The canonical skopeo-to-GAR metadata-server token (RBSCB), in-memory, never to `/workspace`.
-|`skopeo-fingerprint` |_requires_ `ORIGIN`, `RAW_FILE`; _provides_ `SHA`, `FINGERPRINT`. Inspect the raw manifest, take its canonical sha256, derive the sanitized-origin glance fingerprint.
+|`gcrane-fingerprint` |_requires_ `ORIGIN`, `RAW_FILE`; _provides_ `SHA`, `FINGERPRINT`. Read the raw manifest (`gcrane manifest`, registry bytes verbatim), take its canonical sha256, derive the sanitized-origin glance fingerprint.
 |`buildx-bootstrap`   |_requires_ none; _provides_ the `rb-builder` buildx builder, created-if-absent and selected. Idempotent under retry; run once per step.
 |`buildx-push`        |_requires_ `PUSH_URI`, `PUSH_PLATFORMS`, `PUSH_CTX` (and the bootstrap builder); _provides_ the image pushed to `PUSH_URI`. The irreducible FROM-scratch push.
 |===
@@ -255,16 +255,18 @@ substitution sets. Only the buildx bootstrap and the push invocation are
 identical, so only those are shared — as `buildx-bootstrap` + `buildx-push`.
 Cardinality, URI construction, platform choice, and context assembly (which JSON,
 which Dockerfile) stay in the per-kind step. The same boundary governs
-`skopeo-fingerprint`: the inspect→digest→fingerprint core is identical across
+`gcrane-fingerprint`: the read→digest→fingerprint core is identical across
 captures, but the first GAR copy is excluded because its destination tag is
 itself digest-derived and kind-specific, so it cannot be a clean shared
 parameter. The rule the library follows: share the irreducible identical core,
 leave kind-specific assembly in the kind.
 
 *In-heat reach (partial dedup, forward payoff).* `buildx-bootstrap`/`buildx-push`
-have two live callers (`rbgjl02`, `rbgjv03`). `token-fetch` and
-`skopeo-fingerprint` have one live caller each (bole's `rbgjl01`) this heat — the
-other copy lives in enshrine (`rbgje01`), which is reference-not-migrated, so its
-fork stays until that cutover. The snippets are authored once now regardless: the
-library teaches "compose from the library," and the dedup completes when the
-doomed forks are removed.
+have two live callers (`rbgjl02`, `rbgjv03`). `gcrane-fingerprint` has one live
+caller (bole's `rbgjl01`); the enshrine fork (`rbgje01`) keeps its own inline
+read→digest→fingerprint copy until that cutover. `token-fetch` no longer has a
+snippet caller at all — bole dropped it when it moved to gcrane's ambient auth,
+and the only remaining metadata-token logic is the inline copy in the doomed
+skopeo steps; the snippet retires when they are evicted. The snippets are
+authored once now regardless: the library teaches "compose from the library,"
+and the dedup completes when the doomed forks are removed.

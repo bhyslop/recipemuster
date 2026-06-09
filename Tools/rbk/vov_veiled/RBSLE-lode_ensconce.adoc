@@ -56,7 +56,7 @@ names a local vessel directory: "origin names a producer vessel — base-Lode ca
 //axhos_step
 . *Resolve Tool Images*:
 .. {rbbc_use}
-the reliquary skopeo image (capture step) and docker image (vouch step), resolved from the vessel's `RBRV_RELIQUARY` via the shared tool-image resolver
+the Google-hosted gcrane builder for the capture step (always-pullable, auths GAR ambiently via its google.Keychain — not a reliquary tool) and the reliquary docker image for the vouch step, the latter resolved from the vessel's `RBRV_RELIQUARY` via the shared tool-image resolver
 
 //axhos_step
 . *Authenticate as
@@ -78,7 +78,7 @@ path — is known before the build
 //axhos_step
 . *Submit Two-Step Capture Cloud Build*:
 .. Compose `builds.create` JSON with:
-... Step 1 — the reliquary skopeo builder image, script `rbgjl01-ensconce-capture.sh` (the capture step)
+... Step 1 — the Google-hosted gcrane builder image (`gcr.io/go-containerregistry/gcrane:debug`, busybox-shell entrypoint), script `rbgjl01-ensconce-capture.sh` (the capture step); gcrane auths GAR ambiently, so the step carries no token fetch
 ... Step 2 — the reliquary docker builder image, script `rbgjl02-assemble-push-vouch.sh` (the vouch push)
 ... substitutions carrying GAR host/path, the
 {gar_lodes_namespace}
@@ -101,18 +101,18 @@ build dispatched with `«BUILD_ID»` and the Cloud Console URL
 
 //axhos_step
 . *Capture Step (in-pool — rbgjl01)*:
-.. Fetch the raw upstream manifest (`skopeo inspect --raw`) and compute its sha256 (`sha256sum` of the raw bytes) — the canonical OCI digest
+.. Read the raw upstream manifest (`gcrane manifest`, which streams the registry's stored bytes verbatim) and compute its sha256 (`sha256sum` of the raw bytes) — the canonical OCI digest
 .. {rbbc_store}
 `«DIGEST»` — the manifest-list digest for multi-platform images, the single-manifest digest otherwise
 .. Compose the unsprued glance fingerprint: sanitize the
 {rbrv_image_origin}
 (`:` and `/` to `-`) and append the first 10 hex chars of `«DIGEST»`
 .. {rbbc_require}
-the touchmark carries no conflicting capture (collision guard, before the copy): inspect the existing `:rbi_bole` handle on the Lode package — absent means a fresh touchmark and capture proceeds; present means its canonical digest must equal `«DIGEST»` (a Cloud Build retry re-copying the same bytes, which proceeds idempotently)
+the touchmark carries no conflicting capture (collision guard, before the copy): read the existing `:rbi_bole` handle on the Lode package (`gcrane manifest`) — absent means a fresh touchmark and capture proceeds; present means its canonical digest must equal `«DIGEST»` (a Cloud Build retry re-copying the same bytes, which proceeds idempotently)
 .. {rbbc_fatal}
 if the existing `:rbi_bole` digest differs from `«DIGEST»` — a touchmark collision; the step fails loud rather than clobber the prior capture (banish the Lode first, or ensconce under a fresh touchmark). The guard is digest-aware, not naive fail-if-exists, so retries pass; it is co-located with the copy in this same step — atomic with the GAR write in that it admits no host pre-submit window
-.. Copy the upstream image into the Lode package with `skopeo copy --all` (manifest list and all per-platform manifests) under the `:rbi_sha256-«DIGEST»` tag
-.. Apply the remaining member tags by GAR→GAR retag (blobs deduplicate): `:rbi_bole` (uniform handle) and `:«SANITIZED-ORIGIN»-«SHA10»` (fingerprint)
+.. Copy the upstream image into the Lode package with `gcrane cp` (the whole reference — manifest list and all per-platform manifests — digest preserved byte-for-byte) under the `:rbi_sha256-«DIGEST»` tag
+.. Apply the remaining member tags by `gcrane tag` (a registry-side re-tag of the copied manifest, no blob round-trip): `:rbi_bole` (uniform handle) and `:«SANITIZED-ORIGIN»-«SHA10»` (fingerprint)
 .. Author the
 {rbtga_lode_vouch}
 envelope JSON (schema `rbld-vouch-1`, trust grade `verified-against-published`, single-element `members[]`) and stage it on the {rbtgr_workspace}
@@ -149,5 +149,5 @@ envelope, and hands the touchmark forward host-side as the
 The operation is capture-pure: no vessel or nameplate config is written.
 A consumer elects the touchmark separately by reading the capture-file — so election retries independently and survives, and a one-to-many fan-out iterates by reading the file rather than by a verb taking N consumer arguments.
 +
-Capture-fidelity (`recorded == upstream`) is established by construction — the same `skopeo inspect` that records the digest is the truth it would be checked against — so fidelity is a live/service-tier property, not an offline-checkable one.
+Capture-fidelity (`recorded == upstream`) is established by construction — the same `gcrane manifest` that records the digest is the truth it would be checked against — so fidelity is a live/service-tier property, not an offline-checkable one.
 Re-running against the same upstream digest reproduces the same canonical digest tag; a rotated upstream yields a different digest, and that is the capture surfacing the change, not a fault.

@@ -310,7 +310,7 @@ no silent skip.
 
 ```bash
 #@rbgjs_include token-fetch
-#@rbgjs_include skopeo-fingerprint
+#@rbgjs_include gcrane-fingerprint
 ```
 
 **Snippet contract** (RBSCJ): snippets read **plain shell vars** set before the
@@ -321,13 +321,14 @@ in the step.
 | Snippet | Requires | Provides |
 |---------|----------|----------|
 | `token-fetch` | none (ambient metadata) | `TOKEN` |
-| `skopeo-fingerprint` | `ORIGIN`, `RAW_FILE` | `SHA`, `FINGERPRINT` |
+| `gcrane-fingerprint` | `ORIGIN`, `RAW_FILE` | `SHA`, `FINGERPRINT` |
 | `buildx-bootstrap` | none | the `rb-builder` buildx builder |
 | `buildx-push` | `PUSH_URI`, `PUSH_PLATFORMS`, `PUSH_CTX` | the image pushed |
 
 Bash-only today — see CBp_101 for the python gap. The recipe row's `entrypoint`
-field (`bash`/`sh`/`python3`) selects the shebang the spine stamps; the author
-declares the interpreter there.
+field (`bash`/`sh`/`busybox`/`python3`) selects the shebang the spine stamps; the
+author declares the interpreter there (`busybox` → `#!/busybox/sh`, the only shell
+in a distroless `:debug` builder such as `gcrane:debug`).
 
 *Cited by:* every `#@rbgjs_include` site; the snippet contract.
 
@@ -359,7 +360,7 @@ the only step→host return path.
 
 Read these as the worked forms behind the rules above:
 
-- **Bash snippets** — `Tools/rbk/rbgjs/rbgjs-{token-fetch,skopeo-fingerprint,buildx-bootstrap,buildx-push}.sh`
+- **Bash snippets** — `Tools/rbk/rbgjs/rbgjs-{token-fetch,gcrane-fingerprint,buildx-bootstrap,buildx-push}.sh`
 - **Bash steps** — `rbgjl01-ensconce-capture.sh`, `rbgjl02-assemble-push-vouch.sh`, `rbgjv03-assemble-push-vouch.sh`
 - **Python steps** — `rbgja/rbgja01-discover-platforms.py`, `rbgja/rbgja03-build-info-per-platform.py`, `rbgjv/rbgjv02-verify-provenance.py`
 - **Host composition** — `rblds_Spine.sh` (spine, validator, entrypoint switch, `buildStepOutputs` extract), `rbfca_StepAssembly.sh` (recipe rows), `rbfcb_BuildHost.sh` (`zrbfc_expand_includes`)
