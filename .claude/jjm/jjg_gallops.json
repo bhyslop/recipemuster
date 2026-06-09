@@ -8592,6 +8592,7 @@
         "₢BHAAT",
         "₢BHAAU",
         "₢BHAAV",
+        "₢BHAAW",
         "₢BHAAL",
         "₢BHAAM",
         "₢BHAAN",
@@ -8601,7 +8602,7 @@
         "₢BHAAD",
         "₢BHAAS"
       ],
-      "jjghn_next_pace_seed": "AAW",
+      "jjghn_next_pace_seed": "AAX",
       "jjghn_paces": {
         "₢BHAAA": {
           "jjgpn_tacks": [
@@ -9164,6 +9165,17 @@
               "jjgtn_text": "## Character\nBehavior-preserving cutover. Proves crane append (tarball->image, daemonless) and removes\nthe last docker-daemon dependency from capture. The shared-vouch site is the highest blast\nradius — every kind's vouch push changes.\n\n## Goal\nEvict buildx by moving the two FROM-scratch image builds onto crane append: the shared\nvouch push step (used by every kind) and the underpin opaque-blob wrap. curl and gpg stay\nin underpin — HTTPS fetch and signature verify are not registry ops crane can do.\n\n## Done when\n- No buildx/docker invocation in vouch or underpin; both use crane append.\n- lode-lifecycle, reliquary-lifecycle, and wsl-lifecycle fixtures all green against live\n  GAR (vouch is shared, so every kind re-validates).\n- Floor reached: capture is crane (all registry/image ops) + curl + gpg only.\n\n## Cinched\n- crane is settled. Reuse the auth mechanism from the skopeo-eviction pace.\n\n## Sources\n- grep buildx across Tools/rbk/rbgjl + Tools/rbk/rbgjs to find the vouch + underpin-wrap sites.",
               "jjgtn_silks": "lode-buildx-eviction",
               "jjgtn_basis": "c1148d1"
+            }
+          ]
+        },
+        "₢BHAAW": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260608-1951",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nNet-new kind on the crane-uniform spine — the last Lode kind, completing universal capture.\nLands in an already-crane world, riding the proven crane builder + auth pattern.\n\n## Goal\nCapture podman-VM machine-os images via the immure verb (rbw-lI) — one verb spanning both\nquay families (machine-os = vn, machine-os-wsl = vw) by archive argument. A new in-pool\nimmure step crane-cp's selected {disktype x arch} leaves BY DIGEST into rbi_ld/<vn|vw><stamp>,\nruns the blob-residency guard, and reuses the (crane) vouch step. New rbldv_ body —\nopaque-blob x multi-member. Carries the podvm RBSL subdoc + RBS0 quoin landing and the\nRBSPV promotion out of FUTURE/ (deferred here from the review pace).\n\n## Done when\n- immure captures both families; podvm-lifecycle service fixture green end-to-end\n  (immure -> divine cohort -> inspect members + :rbi_vouch -> per-member + whole-Lode banish\n  -> absent), added to service + complete suites.\n- divine legend carries vn/vw; the single-fixture registry (RBTDRC_FIXTURES) registers it.\n- RBSL podvm subdoc + RBS0 quoin landed; RBSPV promoted out of FUTURE/.\n\n## Cinched\n- recorded-at-acquisition grade (quay publishes no durable checksum, rotates within days).\n- Selective leaf capture (curated {disktype x arch}), declarative intent (no FQIN); selection\n  keys on the index descriptor platform + disktype, never the layer filename.\n- Cloud-side acquisition only; never touch the workstation to acquire bytes.\n\n## Sources\n- memo-20260608-lode-podvm-cerebro-experiment.md, the follow-up cloud pace section (§7) —\n  full build sheet.\n- RBSPV cerebro characterization section; paddock Vocabulary + Kinds + trust grades.",
+              "jjgtn_silks": "lode-podvm-immure",
+              "jjgtn_basis": "c33f15d"
             }
           ]
         }
