@@ -43,6 +43,7 @@ zrbfc_resolve_tool_images() {
   z_rbfc_tool_syft="${z_rqy_prefix}/${RBGC_RELIQUARY_TOOL_SYFT}:${z_reliquary}"
   z_rbfc_tool_binfmt="${z_rqy_prefix}/${RBGC_RELIQUARY_TOOL_BINFMT}:${z_reliquary}"
   z_rbfc_tool_skopeo="${z_rqy_prefix}/${RBGC_RELIQUARY_TOOL_SKOPEO}:${z_reliquary}"
+  z_rbfc_tool_gcrane="${z_rqy_prefix}/${RBGC_RELIQUARY_TOOL_GCRANE}:${z_reliquary}"
   buc_log_args "Tool images resolved from reliquary: ${z_reliquary}"
 }
 

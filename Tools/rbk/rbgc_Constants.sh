@@ -312,6 +312,12 @@ zrbgc_kindle() {
   readonly RBGC_RELIQUARY_TOOL_SYFT="syft"
   readonly RBGC_RELIQUARY_TOOL_BINFMT="binfmt"
   readonly RBGC_RELIQUARY_TOOL_SKOPEO="skopeo"
+  # gcrane joins the cohort so sealed-reliquary-consuming captures (bole/wsl)
+  # resolve a PINNED gcrane builder from the reliquary, never the floating gcr.io
+  # bootstrap (the supply-chain pinning boundary — RBS0 rbsk_pinning_boundary,
+  # RBSCB). Mirrored as the :debug variant (busybox shell) so the resolved builder
+  # carries the orchestration shell its capture steps need.
+  readonly RBGC_RELIQUARY_TOOL_GCRANE="gcrane"
 
   # Fact-file filenames (written to BURD_OUTPUT_DIR by producers, read by tests)
   readonly RBF_FACT_HALLMARK="rbf_fact_hallmark"

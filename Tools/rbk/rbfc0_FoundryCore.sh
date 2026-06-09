@@ -123,6 +123,7 @@ zrbfc_kindle() {
   z_rbfc_tool_syft=""
   z_rbfc_tool_binfmt=""
   z_rbfc_tool_skopeo=""
+  z_rbfc_tool_gcrane=""
 
   # Foundry build LRO poll policy — host-side wait_build_completion governance.
   # Each *_CEILING is the per-build-kind poll budget (wall clock = ceiling ×

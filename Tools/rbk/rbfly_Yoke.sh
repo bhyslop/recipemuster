@@ -75,6 +75,7 @@ rbfl_yoke() {
     "${RBGC_RELIQUARY_TOOL_SYFT}"
     "${RBGC_RELIQUARY_TOOL_BINFMT}"
     "${RBGC_RELIQUARY_TOOL_SKOPEO}"
+    "${RBGC_RELIQUARY_TOOL_GCRANE}"
   )
 
   local z_missing=""
@@ -93,8 +94,14 @@ rbfl_yoke() {
     esac
   done
 
-  test -z "${z_missing}" || buc_die "Reliquary stamp '${z_stamp}' not found in Depot — expected 6 tool images under ${z_rqy_subtree}; missing: ${z_missing}. Re-run tt/rbw-dI.DirectorInscribesReliquary.sh to mint a fresh reliquary, or verify the stamp spelling."
-  buc_info "Reliquary valid — all 6 tool images present (gcloud, docker, alpine, syft, binfmt, skopeo)"
+  # Derive count and roster from the expected array so a cohort change (a tool
+  # added or evicted) keeps these messages accurate without a hand-edit.
+  local z_roster=""
+  local z_r=""
+  for z_r in "${z_expected[@]}"; do z_roster="${z_roster}${z_roster:+, }${z_r}"; done
+
+  test -z "${z_missing}" || buc_die "Reliquary stamp '${z_stamp}' not found in Depot — expected ${#z_expected[@]} tool images under ${z_rqy_subtree}; missing: ${z_missing}. Re-run tt/rbw-dI.DirectorInscribesReliquary.sh to mint a fresh reliquary, or verify the stamp spelling."
+  buc_info "Reliquary valid — all ${#z_expected[@]} tool images present (${z_roster})"
 
   buc_step "Yoking ${z_stamp} into all vessels under ${RBRR_VESSEL_DIR}"
 

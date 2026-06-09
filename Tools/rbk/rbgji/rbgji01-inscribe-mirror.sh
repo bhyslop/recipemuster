@@ -26,6 +26,7 @@ MANIFEST=(
   "syft|docker.io/anchore/syft:latest"
   "binfmt|docker.io/tonistiigi/binfmt:latest"
   "skopeo|quay.io/skopeo/stable:latest"
+  "gcrane|gcr.io/go-containerregistry/gcrane:debug"
 )
 
 RESULT='{'
