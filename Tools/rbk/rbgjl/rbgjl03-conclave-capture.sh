@@ -31,20 +31,16 @@ test -n "${STAMP}" || { echo "FATAL: _RBGL_LODE_STAMP missing" >&2; exit 1; }
 PKG="${_RBGL_GAR_HOST}/${_RBGL_GAR_PATH}/${_RBGL_LODES_ROOT}/${STAMP}"
 echo "Lode package: ${PKG}"
 
-# Tool image cohort: short-name|upstream-ref. Authoritative co-versioned set for
-# GCB step execution — mirrors the legacy inscribe manifest (rbgji01) verbatim;
-# the two coexist during the reliquary cutover. gcloud, docker, and gcrane are
+# Tool image cohort (short-name|upstream-ref) — authoritative co-versioned set for
+# GCB step execution; mirrors the legacy inscribe manifest (rbgji01) verbatim (the
+# two coexist during the reliquary cutover). gcloud, docker, and gcrane are
 # Google-hosted (gcr.io); the rest are third-party. gcrane rides the :debug variant
 # so the resolved cohort member keeps the /busybox/sh shell its capture steps need.
-MANIFEST=(
-  "gcloud|gcr.io/cloud-builders/gcloud:latest"
-  "docker|gcr.io/cloud-builders/docker:latest"
-  "alpine|docker.io/library/alpine:latest"
-  "syft|docker.io/anchore/syft:latest"
-  "binfmt|docker.io/tonistiigi/binfmt:latest"
-  "skopeo|quay.io/skopeo/stable:latest"
-  "gcrane|gcr.io/go-containerregistry/gcrane:debug"
-)
+# The cohort is the heredoc feeding the while-read loop at its `done`, below — this
+# step runs under /busybox/sh (gcrane:debug's only shell), which has no bash arrays,
+# so the cohort cannot be expressed as the `MANIFEST=( … )` array rbgji01 (running
+# under bash) still uses; a while-read over a `|`-split heredoc is the POSIX form,
+# matching rbgjl02's stamp loop.
 
 # Acquisition moment, attested once for the whole cohort.
 ACQUIRED_AT=$(date -u +%Y-%m-%dT%H:%M:%SZ)
@@ -55,9 +51,8 @@ ACQUIRED_AT=$(date -u +%Y-%m-%dT%H:%M:%SZ)
 MEMBERS=''
 MFIRST=true
 
-for ENTRY in "${MANIFEST[@]}"; do
-  NAME="${ENTRY%%|*}"
-  UPSTREAM="${ENTRY#*|}"
+while IFS='|' read -r NAME UPSTREAM; do
+  test -n "${NAME}" || continue
   MEMBER_TAG="${_RBGL_TAG_SPRUE}${NAME}"
   DEST="${PKG}:${MEMBER_TAG}"
 
@@ -85,7 +80,15 @@ for ENTRY in "${MANIFEST[@]}"; do
   MEMBERS="${MEMBERS}\"verification\":\"oci-digest\","
   MEMBERS="${MEMBERS}\"tags\":[\"${MEMBER_TAG}\"]"
   MEMBERS="${MEMBERS}}"
-done
+done <<'MANIFEST'
+gcloud|gcr.io/cloud-builders/gcloud:latest
+docker|gcr.io/cloud-builders/docker:latest
+alpine|docker.io/library/alpine:latest
+syft|docker.io/anchore/syft:latest
+binfmt|docker.io/tonistiigi/binfmt:latest
+skopeo|quay.io/skopeo/stable:latest
+gcrane|gcr.io/go-containerregistry/gcrane:debug
+MANIFEST
 
 # Author the batch provenance envelope (identical content lands in :rbi_vouch and
 # the host capture-file). members[] is the cardinality axis — N for the reliquary
