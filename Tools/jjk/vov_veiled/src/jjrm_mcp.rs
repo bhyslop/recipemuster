@@ -49,6 +49,7 @@ const GAZETTE_OUT_FILE: &str = "gazette_out.md";
 const PROBE_DATE_FILE: &str = ".probe_date";
 const EXSANGUINATION_THRESHOLD_SECS: u64 = 7 * 24 * 3600;
 const OFFICIUM_SUN_PREFIX: char = '\u{2609}'; // ☉
+const OFFICIUM_SUFFIX_LEN: usize = 4; // random discriminant chars appended to YYMMDD-NNNN
 
 // Command name constants — RCG String Boundary Discipline.
 // Lifecycle commands (bypass Gallops lock)
@@ -480,7 +481,34 @@ fn zjjrm_exsanguinate(officia: &Path) -> (usize, usize) {
     (reaped, active)
 }
 
-/// Generate officium ID: YYMMDD-NNNN (autonumber from directory listing).
+/// Short random discriminant for officium IDs: `len` lowercase-alphanumeric chars.
+///
+/// The daily ordinal NNNN is seeded per-machine (scan of the local officia dir),
+/// so two machines both mint `…-1000` as their first-of-day officium — a
+/// structural cross-machine collision independent of timing. This suffix breaks
+/// it: each char is drawn from std's `RandomState`, which seeds from the OS
+/// CSPRNG per process, so two machines draw independent discriminants. No `rand`
+/// dependency for what is a four-character need.
+fn zjjrm_random_suffix(len: usize) -> String {
+    use std::hash::{BuildHasher, Hasher};
+    const ALPHABET: &[u8] = b"0123456789abcdefghijklmnopqrstuvwxyz";
+    let seed = std::collections::hash_map::RandomState::new();
+    (0..len)
+        .map(|i| {
+            let mut hasher = seed.build_hasher();
+            hasher.write_usize(i);
+            ALPHABET[(hasher.finish() % ALPHABET.len() as u64) as usize] as char
+        })
+        .collect()
+}
+
+/// Generate officium ID: YYMMDD-NNNN-RAND (autonumber + random discriminant).
+///
+/// NNNN is a per-machine daily ordinal seeded by scanning the local officia dir;
+/// RAND is a cross-machine collision-breaker (see `zjjrm_random_suffix`). The
+/// scan must read only the NNNN segment — a dir is now `NNNN-RAND`, so parsing
+/// the whole post-date field would fail on every new-format dir and re-mint 1000
+/// forever; `split('-').next()` recovers the ordinal from both formats.
 fn zjjrm_generate_officium_id(officia: &Path, today: &str) -> String {
     let prefix = format!("{}-", today);
     let mut max_num: u32 = 999;
@@ -488,14 +516,15 @@ fn zjjrm_generate_officium_id(officia: &Path, today: &str) -> String {
         for entry in entries.flatten() {
             let name = entry.file_name();
             let name = name.to_string_lossy();
-            if let Some(suffix) = name.strip_prefix(&prefix) {
-                if let Ok(num) = suffix.parse::<u32>() {
+            if let Some(rest) = name.strip_prefix(&prefix) {
+                let ordinal = rest.split('-').next().unwrap_or(rest);
+                if let Ok(num) = ordinal.parse::<u32>() {
                     if num > max_num { max_num = num; }
                 }
             }
         }
     }
-    format!("{}{:04}", prefix, max_num + 1)
+    format!("{}{:04}-{}", prefix, max_num + 1, zjjrm_random_suffix(OFFICIUM_SUFFIX_LEN))
 }
 
 /// Check if daily probe is needed (probe_date file doesn't match today).
@@ -1181,4 +1210,73 @@ pub async fn jjrm_serve_stdio() -> Result<(), Box<dyn std::error::Error>> {
 
     service.waiting().await?;
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// Fresh, empty scratch officia dir. Process-id-scoped so parallel test
+    /// binaries don't share state; cleared at entry so a prior crash can't leak in.
+    fn scratch_officia(tag: &str) -> std::path::PathBuf {
+        let dir = std::env::temp_dir()
+            .join(format!("jjrm_test_officia_{}_{}", tag, std::process::id()));
+        let _ = std::fs::remove_dir_all(&dir);
+        std::fs::create_dir_all(&dir).unwrap();
+        dir
+    }
+
+    #[test]
+    fn random_suffix_is_lowercase_alphanumeric_of_requested_len() {
+        let s = zjjrm_random_suffix(OFFICIUM_SUFFIX_LEN);
+        assert_eq!(s.chars().count(), OFFICIUM_SUFFIX_LEN);
+        assert!(
+            s.chars().all(|c| c.is_ascii_lowercase() || c.is_ascii_digit()),
+            "suffix {:?} contains a non-[a-z0-9] char",
+            s
+        );
+    }
+
+    #[test]
+    fn first_of_day_id_is_ordinal_1000_with_random_suffix() {
+        let officia = scratch_officia("first_of_day");
+        let id = zjjrm_generate_officium_id(&officia, "260608");
+        let parts: Vec<&str> = id.split('-').collect();
+        assert_eq!(parts.len(), 3, "id {:?} is not three dash-segments", id);
+        assert_eq!(parts[0], "260608");
+        assert_eq!(parts[1], "1000");
+        assert_eq!(parts[2].len(), OFFICIUM_SUFFIX_LEN);
+        let _ = std::fs::remove_dir_all(&officia);
+    }
+
+    #[test]
+    fn scan_reads_ordinal_from_new_format_dirs() {
+        // The critical gotcha: a `NNNN-RAND` dir must not break the max-scan.
+        // Parsing the whole post-date field would fail and re-mint 1000 forever.
+        let officia = scratch_officia("scan_new_format");
+        std::fs::create_dir(officia.join("260608-1000-h7k2")).unwrap();
+        std::fs::create_dir(officia.join("260608-1003-q9z1")).unwrap();
+        let id = zjjrm_generate_officium_id(&officia, "260608");
+        assert!(
+            id.starts_with("260608-1004-"),
+            "expected ordinal 1004 after scanning new-format dirs, got {:?}",
+            id
+        );
+        let _ = std::fs::remove_dir_all(&officia);
+    }
+
+    #[test]
+    fn scan_handles_mixed_legacy_and_foreign_date_dirs() {
+        let officia = scratch_officia("scan_mixed");
+        std::fs::create_dir(officia.join("260608-1000")).unwrap(); // legacy, no suffix
+        std::fs::create_dir(officia.join("260608-1005-abcd")).unwrap(); // new format
+        std::fs::create_dir(officia.join("260607-1099-zzzz")).unwrap(); // other day, ignored
+        let id = zjjrm_generate_officium_id(&officia, "260608");
+        assert!(
+            id.starts_with("260608-1006-"),
+            "expected ordinal 1006 from mixed dirs, got {:?}",
+            id
+        );
+        let _ = std::fs::remove_dir_all(&officia);
+    }
 }
