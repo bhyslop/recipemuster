@@ -1,83 +1,87 @@
 ## Shape
 
-Pre-MVP source/spec hygiene, feathered in pace-at-a-time alongside MVP feature
-finalization. Each pace carries a targeted blast radius that merges trivially
-into final feature work — no cross-cutting refactors. A seed, not a tree: scope
-stays tight to the source/spec allocation family (magic-string -> constant
-sweeps, decision-detail hoisting, source-documentation standards). Resist
-becoming the junk drawer for unrelated cleanups.
+Pre-MVP source/spec hygiene grown into the ACG audit program, in two strata.
+First, targeted allocation sweeps feathered in pace-at-a-time alongside MVP
+feature finalization — magic-string -> constant sweeps and noun-cluster
+curation, each with a blast radius that merges trivially.
+Second, the audit program: per-pair spec/module audits under the ACG move
+catalog, run while ACG is young so the guide and the documents harden together.
+A seed, not a tree: scope stays tight to the source/spec allocation family.
+Resist becoming the junk drawer for unrelated cleanups.
 
 ## Governing idea
 
-The ACG (Allocation Coding Guide) spine: don't recreate inline what has a named
-home; reference the home. Values -> constants; concepts -> quoin-refs. MCM builds
-the named homes; ACG governs source's obligation to reference rather than
-recreate, and where prose with no spec-home actually goes.
-
-Three homes by when-read: design-time -> spec, edit-time -> source comment
-(operational mechanics only — language idiom + Pale/foreign-boundary),
-execution-time -> runtime announcement. Most conceptual comments are temporal
-misallocation — design-time or execution-time knowledge dumped into the
-edit-time medium, where it rots for lack of a forcing function.
+The authority is ACG (Tools/cmk/vov_veiled/ACG-AllocationCodingGuide.md) —
+the spine, the three homes, the move discipline, and the numbered move catalog
+all live there.
+This paddock cites and never restates
+(ACG's statements -> definition-sites clause applied to itself;
+an earlier revision of this paddock paraphrased the guide and has been drained).
 
 ## Cinched
 
 - ACG = "Allocation Coding Guide" (not "Asciidoc" — the guide governs source
-  authoring/allocation, barely touches asciidoc; that is MCM's domain).
-  Veiled/proprietary, guide-family sibling to BCG/RCG/WSG/CBG. Not released at
-  MVP.
-- v1 posture: bless and name emergent practices, state the spine. Do NOT mandate
-  universals ("every verb must announce") — those are candidates, confirmed
-  pace-by-pace. No qualify-enforcement in v1.
-- Two source-doc forms are distinct and both blessed: contract header (bounded
-  comment, edit-time) vs intent announcement (runtime printout, execution-time).
-  Failure-path option disclosure (the missing-param-shows-options practice, live
-  in rbfc_require_vessel_sigil) is blessed alongside happy-path announcement.
-
-## Move discipline
-
-Every cleanup pace obeys one litmus: mutate only where a *wrong* move is cheaply
-caught; everywhere else the verb is detect-and-report, never repair. Code-side
-moves (the value resolves through a named constant; shellcheck and the fast suite
-verify) may mutate now; spec- and document-side moves are detect-and-report until
-the lexer/linter exists.
-
-Three rules ride that litmus:
-
-- Triage is part of every move, not an afterthought: exclude the false-positive
-  class, declare the authoritative side before any alignment, and gate scope to
-  settled lanes — never terms a hot heat is still moving.
-- A checker proves itself against a known answer before its output is trusted;
-  the eviction/conformance engine is the canonical home for such checks.
-- Concept linkage is name-identity — the implementing symbol is the link (a
-  function name equals its quoin's display-text; a tabtarget filename is a sprue;
-  a scoped method is an inlay). A source-to-spec comment is the exception,
-  reserved for where no single symbol can carry the link.
+  authoring/allocation; asciidoc is MCM's domain).
+  Veiled/proprietary, guide-family sibling to BCG/RCG/WSG/CBG.
+  Not released at MVP.
+- v1 posture: bless and name emergent practice; no mandated universals;
+  no qualify-time enforcement.
+  Universals are candidates confirmed pace-by-pace.
+- Audit pace shape: one pace = one spec-subdocument/bash-module pair,
+  source-side and spec-side moves applied in one read;
+  the inherently cross-document moves (paraphrase collapse, tidemark drain)
+  get single corpus-wide sweep paces instead.
+- Pilot posture: ACG is untested — three pilots run before any roster of pair
+  paces is slated.
+  Every pilot's deliverable is twofold: the findings,
+  and the ACG amendments where the guide proved vague, wrong, or silent.
+  Roster vs further pilots is a post-pilot groom decision.
+- Pilot selection (groom survey): the sentry pair tests the edit-time/Palisade
+  comment boundary;
+  the access-probe pair carries known-positive paraphrase/ornament specimens,
+  so the audit proves itself against a known answer;
+  the conjure pair is the richest surface and the scale test,
+  gated with the rest of the ₣BH lane.
+- Pilots execute at top model tier in the operator's chat;
+  delegation to lesser tiers is for the post-pilot roster only,
+  after ACG hardens.
+- Antipattern catalog: mcm_antipattern broadens to cover delivery defects as
+  well as document defects;
+  Stun, Molehill, and word cancer all home in MCM's Antipatterns section,
+  with ACG and the JJK gradient-delivery guidance citing rather than defining.
 
 ## Sequencing & lanes
 
-The ACG guide and the eviction mechanism are heat-internal and buildable now, no
-cross-heat dependency. The vocabulary work splits by who owns the terms:
+Ungated front, in order: the antipattern-catalog pace, then the sentry pilot,
+then the access-probe pilot —
+the antipattern pace goes first because the access-probe pilot's word-cancer
+findings cite the home it establishes.
 
-- Eviction (removing superseded terms) is gated on ₣BH — the lode-capture heat
-  curates the KILL/KEEP list and retires the terms; the mechanism pace builds the
-  standing theurge engine, and its rows populate per-cluster behind ₣BH's
-  cutovers. ACG names that engine as the canonical home for evicted-term
-  assertions (ACG eating its own dog food — a named home, referenced not
-  recreated).
+The rest of the heat is gated on ₣BH (lode-universal-capture):
+
+- Eviction (removing superseded terms) — ₣BH curates the KILL/KEEP list;
+  the standing conformance engine's rows populate per-cluster behind ₣BH's
+  cutovers.
+  ACG names that engine the canonical home for evicted-term assertions.
+- The conjure pilot — its surface is under active ₣BH rewrite;
+  findings against it now would go stale.
+- The rbrv.env single-home sweeps and the noun-cluster curation —
+  their files share ₣BH's rewrite surface.
 - Cluster repair (curating living vocabulary to a single home) is disjoint from
-  eviction and never removes terms. The slated noun clusters are BH/BZ-safe in
-  their terms but file-gated on ₣BH, since their descriptions share rbz_zipper.sh
-  and the doc_briefs ₣BH is rewriting.
+  eviction and never removes terms.
 
-Deliberately not slated until their owning heats land: reliquary / Lode / Hallmark
-vocabulary (₣BH's lane), Manor / Depot / account-role vocabulary (₣BZ's lane,
-citizen-model), and verb clusters (₣BH curates its own verb descriptions during
-cutover). Slating against terms two hot heats are still moving would only
-re-create the drift this heat exists to kill.
+Triage rider across all audit work:
+Manor / Depot / account-role vocabulary is ₣BZ's lane and
+reliquary / Lode / Hallmark vocabulary is ₣BH's — report, never touch.
+Verb clusters stay unslated until their owning heats land;
+slating against terms two hot heats are still moving would re-create the drift
+this heat exists to kill.
 
 ## Done looks like
 
-ACG v1 exists and is reachable from BCG/RCG; the rbrv.env literal has a single
-named home in both bash and rust as the first worked application of the
-magic-string discipline.
+ACG hardened through three audit pilots, amendments landed;
+the antipattern catalog homed in MCM with citers repointed;
+the rbrv.env literal single-homed in bash and rust as the first worked
+ACGm_101 application;
+the noun clusters curated to single homes;
+the post-pilot groom has decided roster vs further pilots.
