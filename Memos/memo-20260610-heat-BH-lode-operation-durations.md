@@ -49,3 +49,40 @@ All passed today:
 - `wsl-lifecycle` — `hist-rbw-tf-sh-20260610-082544-46646-972.txt`
 - `podvm-lifecycle` — `hist-rbw-tf-sh-20260610-100942-60977-335.txt`, `-115357-25087-998.txt`
   (the second bundles fresh immure + the new all-preserved refresh + jettison + banish)
+
+## Suite registry inventory (2026-06-10, operator-reviewed)
+
+Composition source: `RBTDRC_SUITES` in `Tools/rbk/rbtd/src/rbtdrc_crucible.rs` — the sole
+owner of suite→fixture membership. Nine suites in two families: dependency-tiered
+(`fast` 10 fixtures / `service` fast+7 GCP / `crucible` fast+3 container /
+`complete` = service ∪ crucible) and release/probe ladders distinguished by
+project-churn × crucible × network posture (`gauntlet` fresh-project ladder,
+`skirmish` standing-depot mini-gauntlet, `dogfight` cloud-build viability probe,
+`siege` fully-local tadmor, `blockade` airgap moriah with credential self-heal).
+
+Reviewed with the operator at the ₢BHAAe mount: every near-pair differs on a
+load-bearing axis — inclination is keep all nine unchanged. Two findings for the
+extraction/triage pace to dispose:
+
+- **Fast-subset drift in gauntlet and skirmish.** Both embed a hand-copied fast
+  subset missing three of fast's current ten fixtures: `handbook-render`,
+  `foundry-path`, `recipe-validation`. No comment claims the omission is
+  intentional — reads as fixtures added to `fast` later and never propagated into
+  the release-qualification ladders. The registry's compile-checked-member rationale
+  guards typos, not membership drift.
+- **CLAUDE.md test-execution table is stale.** It records fast = 3 fixtures /
+  75 cases, service = +3 / 81, complete = 8 fixtures / 122; the registry now has
+  fast = 10 fixtures, service = 17, complete = 20, and the table omits the five
+  release/probe suites entirely.
+
+## Service-suite baseline — first post-cutover measurement
+
+Prior `service` duration history is invalidated by this heat: the suite gained the
+lode/reliquary/wsl/podvm-lifecycle fixtures during ₣BH, so earlier wall-clocks
+measured a different suite. The first run of the post-cutover composition (17
+fixtures, conclave Lode r260610145233 yoked) was dispatched today; span and
+outcome extract from:
+- `hist-rbw-ts-service-20260610-150505-8582-33.txt` — NOTE: this invocation died
+  immediately on the dirty-tree gate (pre-commit); the real baseline run is the
+  re-dispatch logged as the next `hist-rbw-ts-service-20260610-*.txt` after it
+  (in flight as this section is written — verify it passed before mining).
