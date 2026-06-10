@@ -34,6 +34,11 @@
 :mcm_term_matching:          <<mcm_term_matching,Term Matching>>
 :mcm_validation_summary:     <<mcm_validation_summary,Validation Summary>>
 
+:mcm_antipattern:            <<mcm_antipattern,Antipattern>>
+:mcm_antipattern_s:          <<mcm_antipattern,Antipatterns>>
+:mcm_tidemark:               <<mcm_tidemark,Tidemark>>
+:mcm_tidemark_s:             <<mcm_tidemark,Tidemarks>>
+
 :mcm_definition_section:     <<mcm_definition_section,Definition Section>>
 :mcm_definition_section_s:   <<mcm_definition_section,Definition Sections>>
 :mcm_document:               <<mcm_document,Document>>
@@ -891,6 +896,30 @@ The
 enables the
 {mcm_editor}
 to identify issues requiring attention.
+
+== Antipatterns
+
+[[mcm_antipattern]]
+{mcm_antipattern}::
+A named, recurring document defect formally catalogued so that
+{mcm_curation_action_s}
+and reviews can cite it precisely.
+Naming the defect is what makes it detectable and dischargeable;
+an unnamed defect recurs because no rule can forbid it.
+
+[[mcm_tidemark]]
+{mcm_tidemark}::
+An
+{mcm_antipattern}:
+version commentary embedded in a durable document — revision markers, dated change narration, "new in vX" annotations.
+The name is the gestalt: the stain showing where the water once stood, saying nothing about where it is.
+History-time knowledge belongs to the commit;
+git log and blame carry every line's date and reason with a forcing function, while in-document
+{mcm_tidemark_s}
+drift and pollute present-tense reading.
+A durable document — spec, guide, code, context file — speaks of itself only in the present tense.
+A dated artifact — memo, scar, commit message — is itself a historical record and may carry revision metadata without fault.
+Detection and drain moves are catalogued in ACG (ACGm_107).
 
 == Document Elements
 

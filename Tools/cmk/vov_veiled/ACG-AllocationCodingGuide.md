@@ -24,8 +24,7 @@ ACG is **v1**: it blesses and names emergent practice and states the spine. It
 does **not** mandate universals ("every verb must announce"); those are
 candidates, confirmed move-by-move, not law. There is no qualify-time enforcement
 in v1. Every move-type below is licensed precisely — most are detect-and-report,
-not repair. *(v1.1, 2026-06-10: the statements clause, the word-cancer
-antipattern, and moves ACGm_104–106 join the guide; the posture is unchanged.)*
+not repair.
 
 ## How this document is organized — frame, then catalog
 
@@ -68,6 +67,7 @@ A fact has exactly one right home, fixed by *when it is read*:
 | **Design-time** | the spec (MCM quoin) | what a thing *is* and why it is shaped so — the conceptual model |
 | **Edit-time** | the source comment | operational mechanics only — language idiom, and the Palisade (foreign-boundary) characterization a maintainer needs *at the code* |
 | **Execution-time** | the runtime announcement | what is happening now — intent printed as the operation runs |
+| **History-time** | the commit | when and why a thing changed — git log and blame own it; version narration in the document body is a tidemark (MCM `mcm_tidemark`) |
 
 Most conceptual comments are **temporal misallocation**: design-time or
 execution-time knowledge dumped into the edit-time medium, where it rots for lack
@@ -98,7 +98,7 @@ an edit-time comment — never make it the sole home of design-time knowledge.**
 
 ## The third clause — statements → definition sites
 
-*(v1.1)* The spine governs prose, not only values and names. Every normative
+The spine governs prose, not only values and names. Every normative
 idea — a rule, a scope claim, a constraint, a rationale — has exactly one
 authoritative wording at one definition site. Every other appearance is a
 **citation**: it may name the home and orient the reader; it may not restate
@@ -280,6 +280,23 @@ detect-only** (read and report; no repair until a verifier exists). Numbered fro
 - **Done:** the spec reads as constraint plus marked rationale; deleted ornament
   is gone, demoted ornament is marked.
 
+### 🔍 ACGm_107: tidemark drain
+
+- **Detect:** version commentary in a durable document — revision markers, dated
+  change narration, "new in vX" annotations. Durable means spec, guide, code, or
+  context file; a dated artifact (memo, scar, commit message) is exempt — history
+  is its content.
+- **Authority:** the history-time row of the three-homes table; the concept home
+  is MCM's `mcm_tidemark` quoin. The commit is the home — git log and blame carry
+  the change story with a forcing function the document body lacks.
+- **Licensing:** detect-only as a sweep; an individual drain is mutate-now when
+  the deleted text is pure narration (the content survives in git), reviewed when
+  narration is entangled with normative statements.
+- **Verifier:** none in v1; candidate for a cheap regex pass in the future linter
+  (date-shaped tokens and version markers outside memo paths).
+- **Done:** durable documents read in the present tense; history questions answer
+  through git.
+
 ## The AXLA/MCM interface
 
 ### The lookahead scanning rule
@@ -323,6 +340,7 @@ dependency; raised and deferred, not dropped.
 | The spine | "Reference the home" — values → constants, concepts → quoin-refs, statements → definition sites |
 | Word cancer | Variations of one normative idea scattered as paraphrases, each drifting independently; the metastatic violation of statements → definition sites |
 | Normative register | Spec-side rule: every sentence constrains or is marked rationale/gestalt; unmarked ornament is contamination |
+| Tidemark | Version commentary stranded in a durable document; history-time knowledge whose home is the commit. Quoin home: MCM `mcm_tidemark` |
 | Home | The one right location for a fact, fixed by when it is read (design / edit / execution time) |
 | Move-type | A catalogued `ACGm_` cleanup move: detect-rule, authority, licensing, verifier, countable Done |
 | mutate-now | Licensing: a wrong move is cheaply caught, so the verb may repair in place |

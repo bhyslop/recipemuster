@@ -130,7 +130,7 @@ For documents where formatting is sparse and purposeful (concept models), this c
 
 ## The Spine: One Grammar, Three Consumers
 
-*(v0.2)* The format insight above implies more than a codec. Once the canon has a single declared grammar, three distinct machines are all passes over the same parse:
+The format insight above implies more than a codec. Once the canon has a single declared grammar, three distinct machines are all passes over the same parse:
 
 - **Codec** — the recto↔verso transform. The original consumer; a trivial state machine.
 - **Validator** — the mechanization of MCM's curation actions, today specified but enforced only by attention. VOS0-VoxObscuraSpec.adoc is the intended flowering point. The opening rule set is already collected — legend coverage, anchor↔attribute bijection, interior edit distance on prefixes, chunk ceiling, legend-cargo for partial views — see `memo-20260610-quoin-minting-introspection.md` §7. Round-trip fidelity (recto→verso→recto byte-identical) is itself a validator check, and migration is gated on it.
@@ -177,7 +177,7 @@ The Getting Started guide (RBSGS-GettingStarted.adoc) is already a lectio — it
 
 ### Recension
 
-*(v0.2, candidate name — not yet cinched)* A deliberate, tool-executed re-minting pass over a canon: quoins renamed globally, family shapes repaired, the mapping spine rewritten without touching meaning. Philology's term for a critically revised text lineage, which is exactly this act. The recension is to names what normalization is to formatting.
+*(candidate name — not yet cinched)* A deliberate, tool-executed re-minting pass over a canon: quoins renamed globally, family shapes repaired, the mapping spine rewritten without touching meaning. Philology's term for a critically revised text lineage, which is exactly this act. The recension is to names what normalization is to formatting.
 
 ### The pipeline
 
