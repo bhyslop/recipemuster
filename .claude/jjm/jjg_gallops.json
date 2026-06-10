@@ -10358,9 +10358,10 @@
       "jjghn_order": [
         "₢BeAAA",
         "₢BeAAB",
-        "₢BeAAC"
+        "₢BeAAC",
+        "₢BeAAD"
       ],
-      "jjghn_next_pace_seed": "AAD",
+      "jjghn_next_pace_seed": "AAE",
       "jjghn_paces": {
         "₢BeAAA": {
           "jjgpn_tacks": [
@@ -10392,6 +10393,17 @@
               "jjgtn_text": "Close the wrong-reason hole for the regime-validation fixture's negative cases.\n\nTeach the regime probate gate to reject with its band code via the origin helper.\nNote regime probate co-occurs with nearly every CLI verb's pipeline,\nso per the allocation rule it keeps a code of its own.\nExtend the theurge negative helpers (`Tools/rbk/rbtd/src/rbtdrf_fast.rs`)\nto assert a specific expected code rather than bare nonzero,\nand flip the regime-validation fixture's negative cases onto it.\n\n## Done when\n`tt/rbw-ts.TestSuite.fast.sh` green;\na deliberate harness-style breakage (e.g. unbound variable in the gate path)\nnow fails the negative case instead of passing it.",
               "jjgtn_silks": "migrate-regime-validation-negatives",
               "jjgtn_basis": "322caed"
+            }
+          ]
+        },
+        "₢BeAAD": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260610-1155",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "Close the wrong-reason hole for the enrollment-validation fixture's negative cases.\n\nSame shape as the regime-validation migration:\nteach the enrollment validation gate to reject with its band code,\nflip the fixture's negative cases to assert that specific code.\nThe expect-code plumbing in the theurge negative helpers\nlands in the prior migration pace; this pace consumes it.\n\n## Done when\n`tt/rbw-ts.TestSuite.fast.sh` green\nwith every enrollment-validation negative case asserting the gate's code.",
+              "jjgtn_silks": "migrate-enrollment-validation-negatives",
+              "jjgtn_basis": "d298c5b"
             }
           ]
         }
