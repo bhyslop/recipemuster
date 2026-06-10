@@ -191,6 +191,34 @@ Sub-letter caution for the `rbw-p` mint: the manorial verbs pile on 'e'
 (enfranchise, enfeoff, escheat, expel) —
 second letters must diverge early, minted at the zipper with its legend.
 
+## Documentation strategy (cinched)
+
+Split by document kind; the heat's own doctrine decides each:
+
+- **Contract specs ride their pace, contract-first.**
+  Movement 3's paces are verb-shaped;
+  each pace writes the successor .adoc as the contract, implements against it, and retires the old spec in the same pace —
+  never two authoritative wordings live at once (the word-cancer rule at spec grain).
+  This is intent-first applied to documentation:
+  the spec is the intent ledger, code converges, suites audit.
+  Docs-after-the-fact is the retired "roster derives from IAM" cinch applied to documentation — rejected.
+- **Successor spec acronyms mint at slate-time.**
+  Seven verb specs retire: RBSDK, RBSRK, RBSDD, RBSRD, RBSDR, RBSRL, RBSGM;
+  the accessor seam touches RBSAX/RBSAJ/RBSAO and the credential-format RBSRA.
+  Mint the successors when the paces are cut, so dockets reference specs by name before they exist.
+- **RBS0 civic quoins land at the head of movement 3** —
+  the verb specs need citizen/terrier/capability-set quoins to voice;
+  the incorporation-timing question resolves by dependency, not preference.
+- **Narrative docs trail the surfaces they describe.**
+  README.md is the most public cult-verb surface
+  (Mantle/Invest/Divest/Roster glossary anchors, the role table, the getting-started ceremony);
+  it updates as its own pace after movements 3–4, never before the regroup it would name.
+  RBSCO cosmology and RBSGS getting-started ride the same pace.
+  Diagram repoint rides the already-queued pluml fixture run.
+- **Independent-then-compare is rejected for authoring** (the spec is the derivation);
+  its verification cousin survives: after movement 3, re-run the cold-probe —
+  a fresh agent reading only the new specs and README, reporting what fails to bind.
+
 ## The audit — MVP is a mirror, not a surgeon
 
 MVP audit: read terriers, read IAM, print the diff.
@@ -222,7 +250,8 @@ remains the cinched future shape, post-MVP.
    Transcription, not design; zero behavior change.
 3. **Civic verbs + terriers.**
    The behavior-changing movement:
-   enfranchise/expel/enfeoff/escheat/recut under the `rbw-p` family, terriers in the Terrier bucket, identity-only SA names,
+   RBS0 civic quoins incorporate at its head (see Documentation strategy);
+   then enfranchise/expel/enfeoff/escheat/recut under the `rbw-p` family, terriers in the Terrier bucket, identity-only SA names,
    `RBRS_CITIZEN` station selector,
    verb-internal credential delivery (assay staging retires — see Credential delivery),
    accessor identity override for multi-identity stations
@@ -233,7 +262,9 @@ remains the cinched future shape, post-MVP.
    The payor surface gathers into `rbw-m` per the retirement map;
    mechanical (zipper + tabtarget renames + reference sweep);
    sequenced ahead of the handbook movement so the credential tracks unfreeze against final names.
-5. **Handbook rework to the civic ceremony: home open** —
+5. **Narrative docs.**
+   README glossary/table/ceremony, RBSCO cosmology, RBSGS getting-started — one pace, after the surfaces exist (see Documentation strategy).
+6. **Handbook rework to the civic ceremony: home open** —
    the stalled handbook heat (₣A6) vs a final movement here; decide once the verbs exist.
    Credential handbook tracks stay frozen meanwhile.
 
@@ -281,7 +312,8 @@ cross-depot union exposure is federation-tier-shaped (a hijacked live session), 
 - The launcher surface reflects the elected families:
   `rbw-a` admin colophons gone, `rbw-p` live, the payor verbs under `rbw-m`.
 - The cult-verb surfaces migrated:
-  workstation bash, admin verbs, cloud-side naming, the .adoc specs voicing the old verbs, the theurge cases.
+  workstation bash, admin verbs, cloud-side naming, the .adoc verb specs (successors written contract-first, predecessors retired in-pace),
+  README and the narrative docs, the theurge cases.
   Handbook migration per the open home decision.
 - Suites green at each movement; `complete` before close.
 
@@ -319,6 +351,11 @@ cross-depot union exposure is federation-tier-shaped (a hijacked live session), 
   read-side gate at movement 1, write-side delivery verb-internal at movement 3.
 - Assay retires whole per canon D4: verb-internal delivery, probe-as-verify, intermediates in `BURD_TEMP_DIR`,
   test personas are ordinary citizens, the word vacates rbk to APCK.
+- Documentation strategy: contract specs ride their pace contract-first with in-pace predecessor retirement;
+  successor spec acronyms mint at slate-time;
+  RBS0 civic quoins at the head of movement 3;
+  narrative docs trail as their own movement;
+  post-movement-3 cold-probe is the verification step.
 - Capability-set definitions global (code); memberships local (data);
   enfeoff/escheat only on named sets, never raw bindings.
 - Intent-first orderings as tabled; key-last enfranchise.
@@ -352,9 +389,8 @@ cross-depot union exposure is federation-tier-shaped (a hijacked live session), 
 - Whether enfranchise+enfeoff get a convenience wrapper for the one-hat citizen.
 - Whether recut ships in MVP or immediately after.
 - `rbw-gq` (quota capacity review) disposition: guide vs manor — decide at the regroup.
-- RBS0 incorporation timing for the civic quoins (citizen, terrier, capability-set, the human-present premise);
-  at incorporation, decide whether the citizen's terrier entry gets a noun
-  (the prebend's manorial dual — candidate *feoffment*)
+- At RBS0 incorporation (timing settled: head of movement 3):
+  whether the citizen's terrier entry gets a noun (the prebend's manorial dual — candidate *feoffment*)
   and the read-Terrier verb word (candidate *consult*).
 - Breadcrumbs owed: the canon's diagram repoint item stands
   (the bedrock memo's verb-line breadcrumb is discharged).
@@ -376,8 +412,10 @@ Prior revisions: 260605 design conversation + two review passes; 260606 Manor/ve
 The 260610 groom revision: civic verb re-mint (enfeoff/escheat/recut),
 terrier singular reframe + Terrier bucket + managed-folder grain,
 read-population settlement, muniment reserve, colophon family election (`rbw-p` polity, `rbw-m` manor regroup, `rbw-P` rejected).
-This 260610 second pass (standalone-probe findings + assay research):
-movement-1 seam scope tightened (five constants, RBRO included, facts plus tokens, read-side gate),
-assay retirement per canon D4 (verb-internal delivery, temp-dir intermediates, personas as citizens, word vacated to APCK),
-D4-singleton supersession flagged, Quire memo added to Sources, stale silks pointer replaced.
+The 260610 second pass (standalone-probe findings + assay research):
+movement-1 seam scope tightened, assay retirement per canon D4, D4-singleton supersession flagged,
+Quire memo added to Sources, stale silks pointer replaced.
+The 260610 third pass: documentation strategy
+(contract-first in-pace specs, slate-time acronym mint, RBS0 quoins at movement-3 head, narrative-docs movement, post-build cold-probe);
+ordering renumbered to six movements.
 Operator commitment: this paddock and its paces are slated by Fable-class agents; density is calibrated accordingly.
