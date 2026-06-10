@@ -9982,6 +9982,7 @@
       "jjghn_status": "jjghe_racing",
       "jjghn_order": [
         "₢BbAAH",
+        "₢BbAAI",
         "₢BbAAA",
         "₢BbAAB",
         "₢BbAAE",
@@ -9990,7 +9991,7 @@
         "₢BbAAD",
         "₢BbAAG"
       ],
-      "jjghn_next_pace_seed": "AAI",
+      "jjghn_next_pace_seed": "AAJ",
       "jjghn_paces": {
         "₢BbAAA": {
           "jjgpn_tacks": [
@@ -10119,6 +10120,17 @@
               "jjgtn_text": "## Character\nSmall MCM/ACG/JJK cross-document curation — one definitional broadening, three quoin mints, citer repointing.\n\n## Goal\nMake MCM's Antipatterns section the single catalog for named recurring defects,\ndocument-side and delivery-side alike;\nhome Stun, Molehill, and word cancer there as quoins;\nflip every defining citer to cite.\n\n## Cinched\n- mcm_antipattern's definition broadens from document defect to also cover\n  delivery defects (operator-facing presentation failures) — the junk-drawer\n  election, operator-cinched at groom.\n- Word cancer mirrors the tidemark pattern: concept home is the MCM quoin;\n  ACG keeps the moves (statements clause, ACGm_105, registry) and cites.\n- Stun and Molehill keep their operational guidance in the JJK\n  gradient-delivery section (claude-jjk-bhyslop.md), which cites the MCM home\n  instead of defining.\n\n## Done when\nMCM Antipatterns carries the broadened definition plus quoins for word cancer,\nStun, and Molehill; ACG and the JJK gradient-delivery guidance cite rather than\ndefine; MCM validates.",
               "jjgtn_silks": "antipattern-catalog-broaden",
               "jjgtn_basis": "c511d90"
+            }
+          ]
+        },
+        "₢BbAAI": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260610-0942",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nFirst ACG audit pilot — detect-only judgment work; the guide is on trial as much\nas the documents.\n\n## Goal\nAudit the sentry pair — Tools/rbk/rbjs_sentry.sh against RBSSR + RBSSS — under\nACG's detect-only moves (ACGm_104 conceptual-comment eviction, ACGm_106 ornament\ndrain; note ACGm_105/107 findings in passing for the corpus sweeps).\nTwin deliverable: the findings report,\nand ACG amendments wherever the guide proved vague, wrong, or silent —\npilots harden the guide.\n\n## Cinched\n- Per-pair shape: source side and spec side read together; a relocation's\n  receiving quoin is judged against this pair's spec.\n- Detect-only licensing per ACG: report findings; relocations land one reviewed\n  move at a time, never batch.\n- This pair's dense security-rationale comments are the deliberate test of the\n  edit-time/Palisade boundary — whether why-comments at the iptables/conntrack\n  sites are evictable design-time knowledge or legitimate Palisade\n  characterization. Settle with the operator; record the ruling as an ACG\n  amendment.\n\n## Done when\nFindings report exists with each finding tagged by move-type and receiving home;\nagreed relocations/drains landed as individually reviewed moves;\nACG amendments landed;\nfast suite green if any source file changed.",
+              "jjgtn_silks": "pilot-audit-sentry",
+              "jjgtn_basis": "8f49d01"
             }
           ]
         }
