@@ -186,13 +186,26 @@ For MCM concept model specs, apply this discipline on top of the general minting
 
 See minting memo Pattern J (RBS0/JJS0 empirical study) for evidence.
 
+### Word Selection Discipline (MCM "Word Selection")
+
+Prefix rules govern the left half of a name; these govern the word itself. When minting any persistent name — quoin word-parts, verbs, nouns, colophon words:
+
+- **Semantic uniqueness** repo-wide: one meaning per word, ever.
+- **Vocabulary isolation**: no *trodden words* (`mcm_trodden_word`) — vocabulary heavy in ambient software prose (open, close, run, lock, task, grant) is disqualified regardless of fit.
+- **Grep gate**: repo-wide grep must land clean before adoption.
+- **Rare but real**: distinctive words whose true meaning does semantic work; concrete over abstract; never abbreviations.
+- **Mint into an asterism** (`mcm_asterism`): join a coherent metaphor family with an audible register (equestrian, ecclesiastical, diplomatic, civic).
+
+Full doctrine: MCM "Word Selection". Constrains births, not the living.
+
 ### Minting Workflow
 
 Before minting new prefixes:
 1. **Enumerate namespaces** — list every place this name will appear (code, refs, commands, env vars, target paths...)
-2. **Check reserved suffixes** — ensure the suffix matches intended type
-3. **Verify terminal exclusivity** — search existing trees, check the memo
-4. **Document the allocation** — add to prefix map in relevant heat/spec
+2. **Check word selection** — apply MCM Word Selection to the word part (grep gate, no trodden words, asterism fit)
+3. **Check reserved suffixes** — ensure the suffix matches intended type
+4. **Verify terminal exclusivity** — search existing trees, check the memo
+5. **Document the allocation** — add to prefix map in relevant heat/spec
 
 ### Project Prefix Registry
 

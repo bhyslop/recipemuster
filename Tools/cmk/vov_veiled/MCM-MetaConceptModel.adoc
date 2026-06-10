@@ -38,6 +38,11 @@
 :mcm_antipattern_s:          <<mcm_antipattern,Antipatterns>>
 :mcm_tidemark:               <<mcm_tidemark,Tidemark>>
 :mcm_tidemark_s:             <<mcm_tidemark,Tidemarks>>
+:mcm_trodden_word:           <<mcm_trodden_word,Trodden Word>>
+:mcm_trodden_word_s:         <<mcm_trodden_word,Trodden Words>>
+
+:mcm_asterism:               <<mcm_asterism,Asterism>>
+:mcm_asterism_s:             <<mcm_asterism,Asterisms>>
 
 :mcm_definition_section:     <<mcm_definition_section,Definition Section>>
 :mcm_definition_section_s:   <<mcm_definition_section,Definition Sections>>
@@ -897,6 +902,63 @@ enables the
 {mcm_editor}
 to identify issues requiring attention.
 
+== Word Selection
+
+Prefix discipline governs the left half of every persistent name;
+this section governs the right half — the word itself.
+The rules below bind the word part of every
+{mcm_quoin},
+the display text of every
+{mcm_linked_term},
+and any persistent name a system mints: verbs, nouns, file words, command words.
+They constrain births, not the living —
+existing names are swept only by deliberate remint tooling, never piecemeal.
+
+* *Semantic uniqueness.*
+One meaning per word across all persistent names, repo-wide.
+A word already bound to a meaning anywhere in the system is unavailable for a second meaning, however distant the domain.
+* *Vocabulary isolation.*
+Words mint from source domains alien to software, cloud infrastructure, CI/CD, and corporate project management.
+A word with heavy ambient presence in software prose is a
+{mcm_trodden_word}
+and is disqualified regardless of semantic fit.
+Domain choice makes collision structurally impossible;
+word-level checks merely verify.
+* *The grep gate.*
+A candidate word is verified by repo-wide grep before adoption;
+a clean landing is a minting precondition, not a nicety.
+* *Rare but real.*
+Prefer rare, real words whose true meaning does semantic work.
+Concrete, physical, sensory images lodge across sessions in ways abstract labels cannot.
+Abbreviations spend recognition to save characters — the wrong trade.
+* *Mint into an* {mcm_asterism}.
+A new word joins a coherent metaphor family wherever one fits;
+a lone orphan word is weaker than a family member.
+* *Audible register.*
+Sibling subsystems ride
+{mcm_asterism_s}
+whose registers are distinguishable by ear,
+so a stray term's home system is audible without lookup.
+
+[[mcm_asterism]]
+{mcm_asterism}::
+A named metaphor family whose source-domain relationships mirror the system relationships it names.
+The name is the gestalt: a recognizable figure of stars that is not itself a constellation and may span several —
+as a vocabulary family may span
+{mcm_concept_model_s}.
+Each term inherits relational meaning from the family
+(the coronet sits below the firemark as the hoof marking sits below the brand),
+so the metaphor performs structural work beyond retrieval,
+and a new term in an established family arrives nearly pre-learned —
+for the
+{mcm_digital_mind}
+and the
+{mcm_editor}
+alike.
+Founding specimen: Job Jockey's equestrian vocabulary (JJS0, Equestrian Vocabulary), with the racing and dressage layers as sibling families sharing one register.
+Model-side rationale: `Memos/memo-20260610-quoin-minting-introspection.md`;
+prefix-side sibling: `Memos/memo-20260110-acronym-selection-study.md`.
+
 == Antipatterns
 
 [[mcm_antipattern]]
@@ -920,6 +982,24 @@ drift and pollute present-tense reading.
 A durable document — spec, guide, code, context file — speaks of itself only in the present tense.
 A dated artifact — memo, scar, commit message — is itself a historical record and may carry revision metadata without fault.
 Detection and drain moves are catalogued in ACG (ACGm_107).
+
+[[mcm_trodden_word]]
+{mcm_trodden_word}::
+An
+{mcm_antipattern}:
+a persistent name minted from vocabulary worn featureless by ambient software prose —
+open, close, run, lock, task, manager, handler, grant.
+The name is the gestalt: a path so heavily walked that no single footprint is findable on it;
+grep returns a thousand strangers.
+A
+{mcm_trodden_word}
+fails retrieval for the
+{mcm_digital_mind}
+and search for the
+{mcm_editor},
+and invites the plan-versus-product bleed that vocabulary isolation exists to prevent.
+Semantic fit never rescues it:
+the word is disqualified before fit is weighed.
 
 == Document Elements
 
