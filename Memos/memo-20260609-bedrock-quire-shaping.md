@@ -224,25 +224,18 @@ agency ceiling, residency, capability). Enlisting a Quire = using its principal.
 is not person-like; it is a *named policy bundle* that makes Quires addressable and governable
 in a choreography rather than merely callable.
 
-**The central open question: is a Quire an *instance* or a *menu*?**
-
-- *Instance* framing: a Quire is one concrete configured endpoint; "different natures" means
-  several Quires; choreography routes among them.
-- *Menu* framing (the operator's lean, and the more promising one): a Quire is a declaration
-  of *what is allowed in the current situation* — an envelope of permitted (model, agency,
-  cost/availability) combinations. The consumer (JJK) **subselects** a concrete invocation
-  from the menu at use-time.
-
-The menu framing yields a clean division of labor that matches everything else in this memo:
-**Recipe Bottle governs the envelope — approvals, allowances, availability, cost management —
-and the consumer picks within it.** Under it, the Quire's fields become *ceilings and
-constraints* rather than fixed values: `agency` is the *maximum* permitted, region is a
-*constraint*, model is a *list of approved options*, cost is an *allowance/cap*; a
-subselection must fall within. This also strengthens §2 — what Recipe Bottle persists is
-precisely the *menu* (the governed, stateless-side-absent envelope), and the concrete
-invocation stays ephemeral, mirroring Bedrock's own statelessness. It is offered as the
-candidate resolution, **not decreed**; settling instance-vs-menu (or a both-at-different-
-altitudes synthesis) is deferred.
+**Instance and menu, resolved by altitude (settled 2026-06-10).** A Quire is the
+**endpoint-side envelope**: what exists to be invoked — approved models, reach, residency,
+logging posture. The menu-ness lives in the **prebend** (§12), the **citizen-side envelope**:
+who may invoke, at what agency ceiling, under what allowance. A concrete invocation must fall
+within the **intersection of the two envelopes** at use-time — two lattices meeting where the
+call happens. This dissolves the either/or: the Quire may be as instance-like as the AWS
+resources beneath it, because the subselection rights migrated to the prebend. The division
+of labor stands as stated: **Recipe Bottle governs the envelopes — approvals, allowances,
+availability, cost management — and the consumer picks within their intersection.** This also
+strengthens §2 — what Recipe Bottle persists is precisely the two envelopes (the governed,
+stateless-side-absent state), and the concrete invocation stays ephemeral, mirroring
+Bedrock's own statelessness.
 
 **Privacy becomes a graph property.** The deepest consequence: in a multi-Quire choreography,
 confidentiality no longer lives in the nodes. If a private Quire's output (`agency: none`)
@@ -263,10 +256,10 @@ MVP. Recorded here as a shaping force and one named hazard, nothing more.
 ## 10. Open / deferred
 
 - **Prefix minting** — `RBRQ` candidate for the Quire regime; Outpost needs a non-`RBRO` slot
-  (RBRO taken by OAuth). The §12 governance nouns (Precentor, Chorister, Prebend) join the same
-  queue. Deferred to a minting pass. (The Census/Crucible `C` collision once parked here is
-  resolved: Census → Terrier.)
-- **Instance vs menu** — §9's central question; the menu/envelope resolution is the candidate.
+  (RBRO taken by OAuth). The §12 governance nouns (Precentor, Chorister, Prebend, Cloister)
+  join the same queue, as does the unnamed **probe verb** — RB's one Quire-touching call
+  (register candidate: *intone*). Deferred to a minting pass. (The Census/Crucible `C`
+  collision once parked here is resolved: Census → Terrier.)
 - **Cross-Quire information flow** — the graph-property hazard; the agency lattice is its
   clearance lattice. Belongs to the choreography effort, not here.
 - **Identity upgrade** — confined-credential MVP → federated STS (envoy) fast-follow; rides
@@ -274,11 +267,6 @@ MVP. Recorded here as a shaping force and one named hazard, nothing more.
 - **HA** — skip for the private path.
 - **Agentic surfaces** — a non-goal for the private Quire unless deliberately re-opened (and
   then governed by IAM, never the sentry).
-- **Roadmap correction** — RBSHR's "VPC Service Controls perimeter" entry cross-references the
-  conduit VPC as shareable with the VPC-SC perimeter "to serve both consumers." That reads as
-  literal sharing and does not hold: VPC-SC is a *GCP* service perimeter around the depot
-  project; the Outpost VPC is an *AWS* network. Different clouds; neither shares. Fix the
-  cross-reference when RBSHR's conduit/chantry stubs get breadcrumbed to this memo.
 - **Terminus consumer class** — §11's open question: container-only consumers (plain
   container networking) vs. a host-resident consumer (needs a local forward-proxy / endpoint
   seam from the terminus, still no host VPN). Container-only is the lean; unsettled.
@@ -358,10 +346,48 @@ invoke)" resolves to these principals.
 | Constrained user — capped principal invoking within bounds | **Chorister** | A member of the quire, granted a place, voicing within the precentor's direction |
 | Per-chorister envelope — model list, agency ceiling, allowances | **Prebend** | The medieval term for a fixed allowance endowed to a cathedral office-holder — spend-cap-as-endowed-allowance is the literal historical meaning |
 
-All three grep clean across the repo (verified 2026-06-10). Verbs: Governor's invest/divest
-carry over (a precentor invests a chorister); canon-law alternatives (induct/deprive) noted,
-not adopted. The chantry→Quire→endow lineage was always about governed allowances — a chantry
-was funded by an endowment — so the prebend completes a family, not a theme.
+All three grep clean across the repo (verified 2026-06-10). The chantry→Quire→endow lineage
+was always about governed allowances — a chantry was funded by an endowment — so the prebend
+completes a family, not a theme.
+
+**Civic homogenization (elected 2026-06-10).** The ₣BZ civic structure absorbs this hierarchy
+whole; nothing here invents role machinery:
+
+- **The Cloister is a polity** — "admission authority is scoped to the polity it admits into"
+  generalizes directly; the Cloister is a polity whose enforcement plane is AWS IAM instead of
+  GCP IAM. Its ledger file joins the **Manor-bucket Terrier collection** (per the ₣BZ paddock's
+  reshaped Terrier: per-polity ledger files, N independent, no global bookkeeping — a new
+  polity kind costs one file). Payor founds the Cloister and creates its ledger file; the
+  bare tier (no GCP at all, §14) keeps a stated exception — local or Cloister-homed ledger.
+  Cross-cloud caution, priced: Cloister *admin ceremonies* write a GCP bucket, but the Terrier
+  is admin-plane only — working verbs (actual inference) never touch it, so a GCP outage
+  cannot block a chorister's Bedrock calls, only enrollment ceremonies.
+- **Civic verbs, not invest/divest.** ₣BZ retires invest/divest/mantle/roster; choristers are
+  **enfranchised, granted, revoked, expelled** — the same verb set, second polity kind. The
+  AWS credential analog of rekey rides whichever identity tier (§14) the Cloister runs.
+- **The precentor follows the governor's dissolution**: keeps its quoin, dissolves
+  structurally — a precentor is a citizen holding the precentor capability-set for its
+  Cloister. Precentors create precentors within their own Cloister; cross-Cloister
+  administration does not exist (account scoping already forbids it).
+- **The prebend is the chorister's ledger entry**, honoring the code-vs-data seam:
+  capability-set *definitions* (model-list and agency shapes, e.g. "counsel-quire access")
+  are code, global; the chorister's *held sets plus allowance figures* are data, local to the
+  Cloister's ledger file. This sharpens §9's intersection resolution: the citizen-side
+  envelope is, concretely, a ledger row. Enforcement is server-side (AWS) IAM; the ledger is
+  intent; no file is ever the boundary — the ₣BZ cinch, ported verbatim.
+
+**The premises: the Cloister.** The consume-side AWS account itself — where precentor,
+choristers, prebends, Quires, and (fast-follow) the Outpost's AWS end live — is the
+**Cloister**: the walled monastic enclosure, named for what the account *is* (the
+blast-radius, quota, and billing boundary; all three are account-grain in AWS) and for what
+the whole effort is *for* — cloistered conversations. Sovereign-setup sibling of the Manor's
+depot and the delivery-side embassy: stood up from Recipe-Bottle-shipped templates, owned by
+the operator wearing an AWS hat. (`Close`, the cathedral-precinct term, was considered and
+rejected as a heavily overloaded software word; grep-findability is a minting criterion.)
+Cardinality is a real design question, not decoration — the Cloister is the hardest isolation
+boundary AWS offers, so "one per operator" vs. "one per privacy domain" shapes the build.
+Lean: one per operator until a second privacy domain earns its own walls; deferred to the
+heat.
 
 **Enforcement grounding (AWS facilities, verified 2026-06-10).** Model constraint is airtight
 and native: IAM scopes `bedrock:InvokeModel` to explicit model/inference-profile ARNs — the
@@ -402,10 +428,10 @@ HMAC derivation), versus the GCP side's single JWT exchange. §13 decomposes tha
 finds the probable resolution inside curl itself — no signing helper, no daemon; the
 Sentry/Outpost-analog resident process belongs only to ladder rung 4, which is deferred.
 
-**Menu framing strengthened.** The prebend *is* a per-chorister menu — model list as approved
-options, agency as ceiling, allowance as cap — which is §9's envelope resolution made concrete
-on the consumer-governance axis. Recipe Bottle governs the envelope; the chorister picks
-within it.
+**Menu framing settled.** The prebend *is* a per-chorister menu — model list as approved
+options, agency as ceiling, allowance as cap — the citizen-side envelope of §9's
+intersection resolution. Recipe Bottle governs both envelopes; the chorister picks within
+their intersection.
 
 ## 13. AWS transport — SigV4 in bash, and the curl seam (2026-06-10 addendum)
 
@@ -476,7 +502,41 @@ response *bodies* — `invalid_grant` shapes, SA-propagation races — that curl
 that complexity is load-bearing). The two clouds get different seams because they chose
 different coupling, and matching the seam to the coupling is the whole lesson.
 
-## 14. Sources
+## 14. Standalone posture — the deployment ladder (2026-06-10 addendum)
+
+Settled in the same session as §12/§13: the Bedrock consume side **can stand alone without a
+Depot**, and the original counterpoints resolved into rung descriptions rather than
+objections. The structural key: federation canon **D1** already establishes two permanent
+identity tiers (keyfile: free, no-org; federation: paid, org-required) selected by a mode
+enum — the Cloister's identity story is *the same enum instantiated across a cloud boundary*,
+not a new model. And the federation issuer machinery is **org/Manor-side, not depot-side**
+(payor-establish builds Manor + org; depot-levy is separate and skippable), so the middle
+rung exists.
+
+| Tier | GCP footprint | Identity | Image provenance | Chorister roster |
+|---|---|---|---|---|
+| **Bare Cloister** | none | resting confined credential | kludge-grade, said out loud | local/Cloister-homed (stated Terrier exception) |
+| **Manor + Cloister** | Manor + org, no Depot | federated, no resting AWS keys | kludge unless images arrive from a Directored ecosystem | ledger file in the Manor-bucket Terrier |
+| **Manor + Depot + Cloister** | full | federated | Director-ordained, vouched, chorister-summoned | ledger file in the Manor-bucket Terrier |
+
+- **Provenance (the chorister-as-retriever answer).** Choristers consume images the way
+  retrievers do — a Director somewhere ordained and vouched them; the chorister summons,
+  never builds. Provenance is preserved with zero foundry footprint per user. Residuals,
+  named: a retriever-style pull carries a GCP read credential (or the org distributes images
+  by another channel), and the bare rung — no Director anywhere — accepts kludge-grade
+  provenance as its honest label, paralleling D1's free tier accepting resting keys.
+- **Legibility before tunnel.** "Users will appreciate the visible WireGuard container" is a
+  real fourth force on the Outpost beyond §7's three triggers — visible security earns trust
+  invisible iptables don't — but it buys *legibility*, not a privacy boundary the MVP lacks.
+  Sequencing: make the allowlist visible first (scry, traffic logs, a "here is everywhere
+  your bytes can go" report); build the Outpost when a §7 trigger fires or demand survives
+  the legibility fix.
+- **Decoupling invariant (cheap now, expensive to retrofit).** Standalone-capable is
+  checkable architecture: the Quire/Cloister kindling chain must never source a GCP regime.
+  The middle and full tiers touch GCP only in admin-plane ceremonies (ledger writes,
+  federation mint), never in the working-verb path.
+
+## 15. Sources
 
 - `Memos/memo-20260415-crucible-conduit-architecture.md` — the predecessor (approaches,
   WireGuard-in-sentry, service-compatibility survey, threat-model table).
@@ -484,6 +544,12 @@ different coupling, and matching the seam to the coupling is the whole lesson.
   `VPC Service Controls` entries (stubs; to be breadcrumbed to this memo).
 - Heat ₣BZ (`rbk-14-mvp-citizen-model`) — the citizen/capability identity model this rides;
   intent-vs-enforcement and the Terrier.
+- **₣BZ paddock, 260609 evening revision** — authoritative over the memos it supersedes on
+  Terrier homing: the Terrier is per-polity ledger files in a **Manor bucket** (payor creates
+  at levy; governor-writeable own-polity-only; admin-plane reads; working verbs never touch
+  it); civic verbs (enfranchise/expel/grant/revoke/rekey) replace invest/divest/mantle/roster;
+  governor dissolves to citizen + capability-set. §12's civic homogenization and §14's middle
+  tier ride these cinches.
 - curl/AWS, verified 2026-06-10 (§13 transport seam): curl native `--aws-sigv4` signing with
   session-token header support; surveyed signer bugs (curl issues #10129 empty query params,
   #11007 x-amz-content-sha256, wildcard-path mis-signing); AWS SigV4 troubleshooting docs and

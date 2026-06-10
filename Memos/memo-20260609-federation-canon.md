@@ -117,9 +117,12 @@ runtime. (Visual companion: `diagrams/rbdgs_federation-setup.puml`.)
    `principal://iam.googleapis.com/locations/global/workforcePools/POOL/subject/SUBJECT`.
 
 Identity proofing lives **entirely** in the IdP. RBK grants capability only to an already-known
-principal; the depot remains the home of the role-to-identity roster (the **Terrier**,
-in citizen-model terms — see `memo-20260605`). Recording grant *intent* in the Terrier parallels the
-IAM grant (intent-first); it is **not** consulted at login (see The accessor).
+principal; the role-to-identity roster (the **Terrier**, in citizen-model terms — see
+`memo-20260605`) remains RBK-homed. (Homing reshaped by the ₣BZ paddock, 260609 evening,
+which is authoritative: per-depot ledger files in a *Manor bucket*, payor-created at levy,
+governor-writeable own-depot-only — no longer depot-resident.) Recording grant *intent* in the
+Terrier parallels the IAM grant (intent-first); it is **not** consulted at login (see The
+accessor).
 
 ---
 

@@ -8,6 +8,13 @@ Status: Design captured during the 260605 grooming conversation for heat ₣BZ
 passes (a single-reviewer pass, then an ultracode multi-agent pass — see
 memo-20260605-citizen-model-ultracode-process.md).
 
+> **SUPERSEDED IN PART by the ₣BZ paddock (260609 evening revision)** — consult the paddock
+> before citing this memo on: **Terrier homing** (now per-depot ledger files in a *Manor
+> bucket*, payor-created at levy — not depot-resident, not a singular registry), **census**
+> (never built; identity scope is a tier property), **mantle** (retired — governor dissolves
+> to citizen + governor capability-set), and **migration** (retired unbuilt — pre-MVP has no
+> compatibility surface). The write-authority invariant and audit doctrine here survive.
+
 ## Scope and vocabulary
 
 This heat builds the **citizen tier** — the current, keyfile, no-org operator-credential

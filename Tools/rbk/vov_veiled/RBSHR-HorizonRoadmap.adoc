@@ -160,6 +160,7 @@ New nameplate fields: tunnel mode, peer endpoint, public keys, allowed IPs.
 VPC side requires a small WireGuard peer instance and PrivateLink endpoints for target services.
 _Trigger_: when a bottle needs to reach a cloud service that supports PrivateLink (AWS Bedrock is the known first case; survey should include Vertex AI, Azure OpenAI, GitLab Dedicated, SageMaker, and others as they emerge).
 _Reference_: `Memos/memo-20260415-crucible-conduit-architecture.md` (full design exploration, approach comparison, service compatibility survey).
+NOTE: WireGuard-in-sentry is **rejected** by the current shaping — `Memos/memo-20260609-bedrock-quire-shaping.md` §11 moves the tunnel's local end out of the sentry (whose containment-harness purpose it would invert) into a dedicated terminus vessel, the local end of the *Outpost* (`raise`/`strike`); the reach object's current vocabulary and staging live in that memo.
 
 **Cloud service conduit nameplate.**
 A nameplate configuration pattern for bottles that access cloud services at runtime.
@@ -170,7 +171,7 @@ the pattern should be researched broadly across cloud AI inference services, man
 _Trigger_: immediate — Bedrock access is a current need.
 Allowlist-only nameplate can be created now;
 tunnel-mode nameplate follows WireGuard sentry work.
-_Reference_: `Memos/memo-20260415-crucible-conduit-architecture.md` (approach A for allowlist-only, approach C for tunnel mode).
+_Reference_: `Memos/memo-20260415-crucible-conduit-architecture.md` (approach A for allowlist-only, approach C for tunnel mode); current shaping `Memos/memo-20260609-bedrock-quire-shaping.md` (the *Quire* — allowlist MVP, Outpost fast-follow, consume-side governance).
 
 **Bottle credential custody.**
 Move the service secrets a bottle workload uses — cloud API keys, IAM keys, SSH keys — off the operator's workstation and into the bottle itself, injected at charge time via nameplate/regime configuration rather than baked into the bottle image (a published image must never carry a live secret).
@@ -179,7 +180,7 @@ This blocks credential theft from a compromised workstation — the one threat t
 The existing RBRA file regime-path pattern provides the model.
 Orthogonal to but naturally paired with the encrypted tunnel conduit: the tunnel grants the bottle network reach to a cloud service and the sentry custodies the tunnel key, while this item custodies the service secret inside the bottle — network access and the credential to use it configured together.
 _Trigger_: alongside the conduit nameplate work.
-_Reference_: `Memos/memo-20260415-crucible-conduit-architecture.md` (Credential Confinement section; the `Credential theft from workstation` row of the threat-model table).
+_Reference_: `Memos/memo-20260415-crucible-conduit-architecture.md` (Credential Confinement section; the `Credential theft from workstation` row of the threat-model table); the Bedrock instance of this pattern is the Quire's confined-credential identity layer (`Memos/memo-20260609-bedrock-quire-shaping.md` §6).
 
 NOTE: For SaaS services without PrivateLink (GitHub.com, GitLab.com), the sentry CIDR/domain allowlist + TLS remains the realistic ceiling.
 The sentry still provides the core value: the bottle cannot reach anything the sentry doesn't allow, and the workstation is cut out of the data path.
@@ -253,6 +254,7 @@ near-term per the Crucible Conduit Architecture section above.
 _Reference_: this roadmap entry;
 `Memos/memo-20260415-crucible-conduit-architecture.md`;
 Crucible Conduit Architecture section above.
+NOTE: the native-consume half of this entry is renamed and currently shaped as the **Quire** in `Memos/memo-20260609-bedrock-quire-shaping.md` (vocabulary, privacy boundaries, consume-side governance: Precentor/Chorister/Prebend/Cloister, deployment ladder); the custom-model-import half stays with the embassy/bullion delivery path above and remains unshaped.
 
 **Egress lockdown — IMPLEMENTED.**
 Dual-pool architecture: tether pool (public egress) and airgap pool (`NO_PUBLIC_EGRESS`).
@@ -265,7 +267,7 @@ Wrap depot project in VPC-SC perimeter restricting API access.
 Requires egress lockdown (now implemented) as prerequisite, org-level admin for perimeter creation, and verification of every GCP API call in the pipeline.
 _Trigger_: organizational security policy mandating VPC-SC, or data exfiltration risk assessment.
 _Reference_: RBSCB-CloudBuildPosture.adoc (Potential Hardening: VPC Service Controls).
-Cross-reference: if a VPC is stood up for the crucible conduit architecture (above), design the VPC-SC perimeter to serve both Cloud Build egress and bottle conduit consumers.
+Cross-reference correction (`Memos/memo-20260609-bedrock-quire-shaping.md`): the conduit/Outpost VPC is an *AWS* network and VPC-SC is a *GCP* service perimeter around the depot project — different clouds; neither can serve the other. The two items are independent.
 
 **Cosign image signing.**
 Cryptographic signatures on images, verifiable by downstream consumers.
