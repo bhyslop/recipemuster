@@ -30,15 +30,15 @@ rbfl_wrest() {
 
   local -r z_locator="${BUZ_FOLIO:-}"
 
-  buc_doc_brief "Wrest an image from the registry to local container runtime by locator"
-  buc_doc_param "locator" "Image locator in package-path:tag format (e.g. rbi_hm/H/image:H, rbi_rq/r260327172456/syft:r260327172456, rbi_ld/b260602120000:rbi_bole)"
+  buc_doc_brief "Wrest an image from the registry to local container runtime by raw ref (type-blind)"
+  buc_doc_param "ref" "Image ref: package:tag or package@sha256:<hex>. Type-blind over any rbi_* namespace (e.g. rbi_hm/H/image:H, rbi_rq/r260327172456/syft:r260327172456, rbi_ld/b260602120000:rbi_bole)"
   buc_doc_shown || return 0
 
-  test -n "${z_locator}" || buc_die "Locator parameter required (package-path:tag)"
+  test -n "${z_locator}" || buc_die "Image ref required (package:tag or package@sha256:<hex>)"
 
   case "${z_locator}" in
     *:*) : ;;
-    *)   buc_die "Invalid locator format. Expected package-path:tag" ;;
+    *)   buc_die "Invalid image ref. Expected package:tag or package@sha256:<hex>" ;;
   esac
   local -r z_pkg_path="${z_locator%:*}"
   local -r z_tag="${z_locator##*:}"

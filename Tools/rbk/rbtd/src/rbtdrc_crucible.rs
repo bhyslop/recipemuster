@@ -43,7 +43,7 @@ use crate::rbtdgc_consts::{
     RBTDGC_ACCOUNT_DIRECTOR, RBTDGC_ACCOUNT_GOVERNOR, RBTDGC_ACCOUNT_PAYOR, RBTDGC_ACCOUNT_RETRIEVER,
     RBTDGC_TALLY_HALLMARKS, RBTDGC_VOUCH_HALLMARKS,
     RBTDGC_ENSCONCE_BOLE, RBTDGC_CONCLAVE_RELIQUARY, RBTDGC_UNDERPIN_WSL, RBTDGC_DIVINE_LODES,
-    RBTDGC_BANISH_LODE,
+    RBTDGC_BANISH_LODE, RBTDGC_LIST_IMAGES, RBTDGC_JETTISON_IMAGE,
 };
 use crate::rbtdrm_manifest::rbtdrm_credential_check_colophon;
 
@@ -2956,6 +2956,11 @@ const RBTDRC_LODE_TAG_DIGEST_PREFIX: &str = "rbi_sha256-";
 const RBTDRC_RELIQUARY_TAG_GCLOUD: &str = "rbi_gcloud";
 const RBTDRC_RELIQUARY_TAG_SKOPEO: &str = "rbi_skopeo";
 
+/// GAR Lode package-root — the raw path the type-blind image verbs (rbw-il /
+/// rbw-iJ) address a Lode by: rbi_ld/<touchmark>. Mirrors rbgc_Constants.sh
+/// RBGC_GAR_CATEGORY_LODES.
+const RBTDRC_LODES_ROOT: &str = "rbi_ld";
+
 /// Wsl-Lode member tag asserted by divine inspect — the single opaque rootfs
 /// blob. Mirrors rbgc_Constants.sh RBGC_LODE_TAG_ROOTFS.
 const RBTDRC_LODE_TAG_ROOTFS: &str = "rbi_rootfs";
@@ -3314,10 +3319,14 @@ pub static RBTDRC_CASES_LODE_LIFECYCLE: &[rbtdre_Case] = &[
 // Reliquary-lifecycle fixture — fetched-side cohort capture against live GAR.
 // Single self-contained round-trip: conclave the build-tool cohort into a fresh
 // rbi_ld Lode, divine-enumerate to confirm it appears, divine-inspect to confirm
-// the member tags + vouch envelope rode in, banish the whole Lode, then divine-
+// the member tags + vouch envelope rode in, member-grain jettison one member tag
+// via the type-blind raw verbs (rbw-il enumerate, rbw-iJ delete) and confirm the
+// member is gone while a sibling survives, banish the whole Lode, then divine-
 // enumerate to confirm the registry is restored. The reliquary kind's N-member
-// cohort analogue of lode-lifecycle's single-image bole round-trip. Conclave
-// captures a fixed tool cohort, so it needs no vessel precondition.
+// cohort analogue of lode-lifecycle's single-image bole round-trip, and the home
+// of the per-member-delete assertion the multi-member kinds need (the podvm
+// fixture builds on it). Conclave captures a fixed tool cohort, so it needs no
+// vessel precondition.
 fn rbtdrc_reliquary_lifecycle(dir: &Path) -> rbtdre_Verdict {
     rbtdrc_with_ctx(|ctx| {
         // Step 1: conclave the build-tool cohort into a fresh Lode.
@@ -3364,6 +3373,61 @@ fn rbtdrc_reliquary_lifecycle(dir: &Path) -> rbtdre_Verdict {
                     member, inspect.stdout
                 ));
             }
+        }
+
+        // Step 3.5: member-grain jettison via the type-blind raw verbs. The raw
+        // list (rbw-il) at leaf grain shows the cohort's member tags; jettison
+        // (rbw-iJ) deletes ONE member tag; a re-list proves that member absent
+        // and a sibling member still present — the per-member-delete the multi-
+        // member kinds need. Tag-grain delete leaves the Lode package and its
+        // other members intact (whole-Lode delete stays with banish, below).
+        let lode_path = format!("{}/{}", RBTDRC_LODES_ROOT, touchmark);
+        let member_ref = format!("{}:{}", lode_path, RBTDRC_RELIQUARY_TAG_SKOPEO);
+
+        let pre_list = match rbtdri_invoke_global(ctx, RBTDGC_LIST_IMAGES, &[&lode_path], &[]) {
+            Ok(r) if r.exit_code == 0 => r,
+            Ok(r) => return rbtdre_Verdict::Fail(format!("pre-jettison list failed (exit {})\n{}", r.exit_code, r.stderr)),
+            Err(e) => return rbtdre_Verdict::Fail(format!("pre-jettison list invocation: {}", e)),
+        };
+        let _ = std::fs::write(dir.join("04b-list-before-jettison.txt"), &pre_list.stdout);
+        for member in &[RBTDRC_RELIQUARY_TAG_GCLOUD, RBTDRC_RELIQUARY_TAG_SKOPEO] {
+            if !pre_list.stdout.contains(member) {
+                return rbtdre_Verdict::Fail(format!(
+                    "pre-jettison raw list missing member tag '{}'\nstdout:\n{}",
+                    member, pre_list.stdout
+                ));
+            }
+        }
+
+        let _ = std::fs::write(dir.join("04c-jettison-member.txt"), &member_ref);
+        match rbtdri_invoke_global(
+            ctx,
+            RBTDGC_JETTISON_IMAGE,
+            &[&member_ref],
+            &[(RBTDRI_BURE_CONFIRM_KEY, RBTDRI_BURE_CONFIRM_SKIP)],
+        ) {
+            Ok(r) if r.exit_code == 0 => {}
+            Ok(r) => return rbtdre_Verdict::Fail(format!("member jettison failed (exit {})\n{}", r.exit_code, r.stderr)),
+            Err(e) => return rbtdre_Verdict::Fail(format!("member jettison invocation: {}", e)),
+        }
+
+        let post_list = match rbtdri_invoke_global(ctx, RBTDGC_LIST_IMAGES, &[&lode_path], &[]) {
+            Ok(r) if r.exit_code == 0 => r,
+            Ok(r) => return rbtdre_Verdict::Fail(format!("post-jettison list failed (exit {})\n{}", r.exit_code, r.stderr)),
+            Err(e) => return rbtdre_Verdict::Fail(format!("post-jettison list invocation: {}", e)),
+        };
+        let _ = std::fs::write(dir.join("04d-list-after-jettison.txt"), &post_list.stdout);
+        if post_list.stdout.contains(RBTDRC_RELIQUARY_TAG_SKOPEO) {
+            return rbtdre_Verdict::Fail(format!(
+                "post-jettison list still shows jettisoned member '{}' — member-grain delete failed\nstdout:\n{}",
+                RBTDRC_RELIQUARY_TAG_SKOPEO, post_list.stdout
+            ));
+        }
+        if !post_list.stdout.contains(RBTDRC_RELIQUARY_TAG_GCLOUD) {
+            return rbtdre_Verdict::Fail(format!(
+                "post-jettison list missing sibling member '{}' — jettison damaged the Lode\nstdout:\n{}",
+                RBTDRC_RELIQUARY_TAG_GCLOUD, post_list.stdout
+            ));
         }
 
         // Step 4: banish the whole Lode.

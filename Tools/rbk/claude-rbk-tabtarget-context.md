@@ -120,16 +120,17 @@ The Folio column shows how each tabtarget receives it:
 
 | Colophon | Frontispiece | Folio | Purpose |
 |----------|-------------|-------|---------|
+| `rbw-il` | DirectorListsRegistry | param1 | List GAR contents by raw path (type-blind; omit arg for top namespaces) |
+| `rbw-iw` | DirectorWrestsImage | param1 | Wrest any image from registry by raw ref (path-polymorphic) |
+| `rbw-iJ` | DirectorJettisonsImage | param1 | Jettison any image tag/version from registry by raw ref (path-polymorphic) |
 | `rbw-irh` | DirectorRekonsHallmark | param1 | List ark basenames present under a hallmark's GAR subtree |
 | `rbw-irr` | DirectorRekonsReliquary | param1 | List tool images present under a reliquary stamp's GAR subtree |
 | `rbw-iah` | DirectorAuditsHallmarks | — | Audit hallmarks — list all hallmark identifiers |
 | `rbw-iar` | DirectorAuditsReliquaries | — | Audit reliquaries — list all reliquary stamps |
 | `rbw-iwh` | DirectorWrestsHallmarkImage | param1 | Wrest a hallmark image from registry |
 | `rbw-iwr` | DirectorWrestsReliquaryImage | param1 | Wrest a reliquary tool image from registry |
-| `rbw-iwe` | DirectorWrestsEnshrinedImage | param1 | Wrest an enshrined base image from registry |
 | `rbw-iJh` | DirectorJettisonsHallmarkImage | param1 | Jettison a hallmark image tag from registry |
 | `rbw-iJr` | DirectorJettisonsReliquaryImage | param1 | Jettison a reliquary tool image from registry |
-| `rbw-iJe` | DirectorJettisonsEnshrinement | param1 | Jettison an enshrinement from registry |
 
 ### Marshal — Lifecycle (`rbw-M`)
 

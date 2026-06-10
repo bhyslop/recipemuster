@@ -31,22 +31,26 @@ rbfl_jettison() {
   local z_locator="${BUZ_FOLIO:-}"
 
   # Documentation block
-  buc_doc_brief "Jettison an image tag from the registry by locator"
-  buc_doc_param "locator" "Image locator in package-path:tag format (e.g. rbi_hm/H/image:H)"
+  buc_doc_brief "Jettison an image tag or version from the registry by raw ref (type-blind)"
+  buc_doc_param "ref" "Image ref: package:tag or package@sha256:<hex>. Type-blind over any rbi_* namespace. Below-package grain only — whole-package delete is banish/abjure."
   buc_doc_shown || return 0
 
-  # Validate locator parameter
-  test -n "${z_locator}" || buc_die "Locator parameter required (package-path:tag)"
+  # Validate ref parameter
+  test -n "${z_locator}" || buc_die "Image ref required (package:tag or package@sha256:<hex>)"
 
-  # Parse locator into package path and tag
+  # Parse the image ref into package path and manifest reference. GAR's two
+  # deletable leaves are a tag (package:tag) and a version digest
+  # (package@sha256:<hex>); Docker Registry v2 DELETE addresses both by
+  # /manifests/<reference>. The @ form is matched first — a digest ref carries
+  # a colon too, so a naive split-on-colon would mangle it.
+  local z_pkg_path z_ref
   case "${z_locator}" in
-    *:*) : ;;
-    *)   buc_die "Invalid locator format. Expected package-path:tag" ;;
+    *@*) z_pkg_path="${z_locator%@*}"; z_ref="${z_locator##*@}" ;;
+    *:*) z_pkg_path="${z_locator%:*}"; z_ref="${z_locator##*:}" ;;
+    *)   buc_die "Invalid image ref. Expected package:tag or package@sha256:<hex>" ;;
   esac
-  local z_pkg_path="${z_locator%:*}"
-  local z_tag="${z_locator##*:}"
-  test -n "${z_pkg_path}" || buc_die "Package path is empty in locator"
-  test -n "${z_tag}" || buc_die "Tag is empty in locator"
+  test -n "${z_pkg_path}" || buc_die "Package path is empty in image ref"
+  test -n "${z_ref}"      || buc_die "Reference (tag or digest) is empty in image ref"
 
   buc_step "Authenticating as Director"
 
@@ -64,7 +68,7 @@ rbfl_jettison() {
   local z_stderr_file="${ZRBFL_DELETE_PREFIX}stderr.txt"
 
   rbuh_request "DELETE"                                                  \
-                    "${ZRBFC_REGISTRY_API_BASE}/${z_pkg_path}/manifests/${z_tag}" \
+                    "${ZRBFC_REGISTRY_API_BASE}/${z_pkg_path}/manifests/${z_ref}" \
                     "${z_token}"                                              \
                     "${z_response_file}" "${z_status_file}" "${z_stderr_file}" \
     || buc_die "DELETE request failed — see ${z_stderr_file}"

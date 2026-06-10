@@ -363,4 +363,168 @@ rbfl_audit_reliquaries() {
   buc_success "Audit complete"
 }
 
+######################################################################
+# Raw-path list (rbfl_*) — the type-blind maintenance backdoor (rbw-il)
+
+# Generic, envelope-independent enumeration of GAR by raw path, narrowing
+# iteratively: no path -> top namespaces; a prefix -> its children; a full
+# package -> its tags and versions. Makes no subtree or kind assumption — it
+# reads the whole registry and narrows in-process — so it tolerates half-
+# deleted debris, legacy artifacts, and any future namespace with no new verb.
+rbfl_list() {
+  zrbfl_sentinel
+
+  local -r z_path="${BUZ_FOLIO:-}"
+
+  buc_doc_brief "List GAR contents by iterative path narrowing — the type-blind raw maintenance layer"
+  buc_doc_oparm "path" "Raw GAR path. Omit for the top namespaces; a prefix lists its children; a full package lists its tags and versions. A ref carrying :tag or @sha256: is an image — use rbw-iw / rbw-iJ."
+  buc_doc_shown || return 0
+
+  # Disambiguation (total rule — GAR's deletable leaves are exactly tags and
+  # versions): a ref carrying :tag or @sha256: is an image, not a path. list
+  # walks paths only; acting on an image is wrest (rbw-iw) / jettison (rbw-iJ).
+  case "${z_path}" in
+    *@*|*:*) buc_die "'${z_path}' is an image ref, not a path — use rbw-iw (wrest) or rbw-iJ (jettison)" ;;
+  esac
+
+  buc_step "Authenticating as Director"
+  test -f "${RBDC_DIRECTOR_RBRA_FILE}" \
+    || buc_die "Director credential not found: ${RBDC_DIRECTOR_RBRA_FILE}"
+  local z_token=""
+  z_token=$(rbgo_get_token_capture "${RBDC_DIRECTOR_RBRA_FILE}") \
+    || buc_die "Failed to get Director OAuth token"
+
+  # One enumeration of every package (decoded names, slashes restored, sorted).
+  buc_step "Enumerating GAR packages"
+  local -r z_list_infix="rbfl_list_pkgs"
+  local -r z_list_url="${ZRBFC_GAR_API_BASE}/${ZRBFC_GAR_PACKAGE_BASE}/packages?pageSize=1000"
+  rbuh_json "GET" "${z_list_url}" "${z_token}" "${z_list_infix}"
+  rbuh_require_ok "List GAR packages" "${z_list_infix}"
+  local -r z_resp_file="${ZRBUH_PREFIX}${z_list_infix}${ZRBUH_POSTFIX_JSON}"
+
+  local -r z_pkgs_file="${BURD_TEMP_DIR}/rbfl_list_packages.txt"
+  jq -r '
+    .packages[]?.name
+    | sub("^.*/packages/"; "")
+    | gsub("%2F"; "/")
+  ' "${z_resp_file}" | sort > "${z_pkgs_file}" \
+    || buc_die "Failed to extract GAR package list"
+
+  # Leaf grain: the path names a package exactly -> list its tags and versions.
+  if test -n "${z_path}"; then
+    local z_pl=""
+    while IFS= read -r z_pl || test -n "${z_pl}"; do
+      if test "${z_pl}" = "${z_path}"; then
+        zrbfl_list_leaf "${z_token}" "${z_path}"
+        return 0
+      fi
+    done < "${z_pkgs_file}"
+  fi
+
+  # Branch grain: emit the distinct next path-segment beneath the prefix
+  # (empty path -> the top namespaces).
+  local z_prefix=""
+  test -z "${z_path}" || z_prefix="${z_path}/"
+
+  local -r z_kids_file="${BURD_TEMP_DIR}/rbfl_list_children.txt"
+  jq -r --arg prefix "${z_prefix}" '
+    .packages[]?.name
+    | sub("^.*/packages/"; "")
+    | gsub("%2F"; "/")
+    | select(startswith($prefix))
+    | ltrimstr($prefix)
+    | split("/")[0]
+    | select(length > 0)
+  ' "${z_resp_file}" | sort -u > "${z_kids_file}" \
+    || buc_die "Failed to derive child path segments"
+
+  if ! test -s "${z_kids_file}"; then
+    test -n "${z_path}" || buc_die "No packages found in registry"
+    buc_die "No path or package matches: ${z_path}"
+  fi
+
+  echo ""
+  if test -z "${z_path}"; then
+    printf "  %s\n" "TOP NAMESPACES"
+  else
+    printf "  CHILDREN OF  %s\n" "${z_path}"
+  fi
+  printf "  %s\n" "------------------------------"
+  local z_seg=""
+  while IFS= read -r z_seg || test -n "${z_seg}"; do
+    test -n "${z_seg}" || continue
+    if test -z "${z_path}"; then
+      printf "  %s\n" "${z_seg}"
+    else
+      printf "  %s/%s\n" "${z_path}" "${z_seg}"
+    fi
+  done < "${z_kids_file}"
+
+  echo ""
+  buc_success "List complete"
+}
+
+# Leaf display for rbfl_list: a full package's tags and versions, each annotated
+# with the ref form that wrest/jettison consume (tag -> :tag, version -> @digest).
+zrbfl_list_leaf() {
+  zrbfl_sentinel
+
+  local -r z_token="${1:?Token required}"
+  local -r z_pkg="${2:?Package path required}"
+  local -r z_encoded="${z_pkg//\//%2F}"
+
+  buc_step "Listing tags and versions of ${z_pkg}"
+
+  local -r z_tags_infix="rbfl_list_tags"
+  rbuh_json "GET" \
+    "${ZRBFC_GAR_API_BASE}/${ZRBFC_GAR_PACKAGE_BASE}/packages/${z_encoded}/tags?pageSize=1000" \
+    "${z_token}" "${z_tags_infix}"
+  rbuh_require_ok "List tags for ${z_pkg}" "${z_tags_infix}"
+  local -r z_tags_file="${BURD_TEMP_DIR}/rbfl_leaf_tags.txt"
+  jq -r '.tags[]?.name | sub("^.*/tags/"; "")' \
+    "${ZRBUH_PREFIX}${z_tags_infix}${ZRBUH_POSTFIX_JSON}" | sort > "${z_tags_file}" \
+    || buc_die "Failed to extract tags for ${z_pkg}"
+
+  local -r z_vers_infix="rbfl_list_vers"
+  rbuh_json "GET" \
+    "${ZRBFC_GAR_API_BASE}/${ZRBFC_GAR_PACKAGE_BASE}/packages/${z_encoded}/versions?pageSize=1000" \
+    "${z_token}" "${z_vers_infix}"
+  rbuh_require_ok "List versions for ${z_pkg}" "${z_vers_infix}"
+  local -r z_vers_file="${BURD_TEMP_DIR}/rbfl_leaf_vers.txt"
+  jq -r '.versions[]?.name | sub("^.*/versions/"; "")' \
+    "${ZRBUH_PREFIX}${z_vers_infix}${ZRBUH_POSTFIX_JSON}" | sort > "${z_vers_file}" \
+    || buc_die "Failed to extract versions for ${z_pkg}"
+
+  echo ""
+  printf "  PACKAGE  %s\n" "${z_pkg}"
+  echo ""
+  printf "  %s\n" "TAGS  (act:  rbw-iw ${z_pkg}:<tag>   rbw-iJ ${z_pkg}:<tag>)"
+  printf "  %s\n" "------------------------------"
+  if test -s "${z_tags_file}"; then
+    local z_tag=""
+    while IFS= read -r z_tag || test -n "${z_tag}"; do
+      test -n "${z_tag}" || continue
+      printf "    %s\n" "${z_tag}"
+    done < "${z_tags_file}"
+  else
+    printf "    (none)\n"
+  fi
+
+  echo ""
+  printf "  %s\n" "VERSIONS  (act:  rbw-iJ ${z_pkg}@<version>)"
+  printf "  %s\n" "------------------------------"
+  if test -s "${z_vers_file}"; then
+    local z_ver=""
+    while IFS= read -r z_ver || test -n "${z_ver}"; do
+      test -n "${z_ver}" || continue
+      printf "    %s\n" "${z_ver}"
+    done < "${z_vers_file}"
+  else
+    printf "    (none)\n"
+  fi
+
+  echo ""
+  buc_success "List complete — ${z_pkg}"
+}
+
 # eof

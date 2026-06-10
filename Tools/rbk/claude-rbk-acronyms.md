@@ -145,3 +145,19 @@ Tabtargets dispatch through `tt/z-launcher.sh`, naming their launcher in the `BU
 ## Shellcheck
 
 Lint bash with `tt/rbw-tl.Shellcheck.sh`; never run `shellcheck` directly. Suppressions and the inline-directive policy live in `Tools/buk/busc_shellcheckrc` and BCG § Shellcheck Integration.
+
+## Build-Generated Files (do not hand-edit)
+
+Two committed files are **regenerated from the zipper registry** (`rbz_zipper.sh`
+→ `rbz_generate_consts` / `rbz_generate_context`) by the theurge build —
+`tt/rbw-tb.Build.sh`, and the build step inside `tt/rbw-ts.*`. Change the
+**zipper**, then build; never hand-edit these:
+
+- `Tools/rbk/rbtd/src/rbtdgc_consts.rs` — theurge colophon constants (`RBTDGC_*`).
+- `Tools/rbk/claude-rbk-tabtarget-context.md` — the tabtarget Command Reference.
+
+Both carry a "Do not edit — regenerate via the build" header. **If they show as
+modified in `git status` after you edited the zipper and ran a build, that is
+expected** — they re-derived from your zipper change; they are *yours* to commit,
+not another officium's work. `rbq_Qualify` (`rbw-tl` / `rbw-tr`) only *checks*
+their freshness and fails loud if the build wasn't re-run.

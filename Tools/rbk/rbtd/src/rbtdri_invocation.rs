@@ -146,6 +146,22 @@ impl rbtdri_Context {
     pub fn chain_next_invoke(&mut self) {
         self.chain_next = true;
     }
+
+    /// Read the suite-monotonic BURV invoke counter. The suite loop reads it
+    /// after each fixture and seeds the next Context, so per-invoke dir names
+    /// stay unique across fixtures (see set_invoke_count).
+    pub fn invoke_count(&self) -> u32 {
+        self.invoke_count
+    }
+
+    /// Seed the BURV invoke counter so this fixture's invokes continue the
+    /// suite-monotonic sequence rather than restarting at 0. Crate-internal code
+    /// mutates the field directly; the bin crate must go through this setter
+    /// because the field is pub(crate) and so not visible across the lib/bin
+    /// boundary.
+    pub fn set_invoke_count(&mut self, count: u32) {
+        self.invoke_count = count;
+    }
 }
 
 // ── Tabtarget discovery ──────────────────────────────────────
