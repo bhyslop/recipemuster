@@ -43,9 +43,10 @@ while IFS='|' read -r MEMBER_TAG LEAF_DIGEST BLOB_DIGEST BLOB_SIZE; do
   curl -sfI -H "Authorization: Bearer ${TOKEN}" "${BLOB_URL}" -o "${HEAD_FILE}" \
     || { echo "FATAL: blob HEAD failed for ${MEMBER_TAG} at ${BLOB_URL}" >&2; exit 1; }
 
-  # Content-Length, case-insensitive header, strip CR. Last match wins (a redirect
-  # chain would append; the registry-v2 endpoint answers HEAD directly per the memo).
-  ACTUAL_LEN=$(grep -i '^content-length:' "${HEAD_FILE}" | tail -n1 | awk '{print $2}' | tr -d '\r')
+  # Content-Length, case-insensitive header, strip CR. awk's END keeps the last
+  # match (a redirect chain would append; the registry-v2 endpoint answers HEAD
+  # directly per the memo). grep+awk only — tail/tr are outside the GCB allowlist.
+  ACTUAL_LEN=$(grep -i 'content-length:' "${HEAD_FILE}" | awk 'END{gsub(/\r/,"",$2); print $2}')
   test -n "${ACTUAL_LEN}" \
     || { echo "FATAL: no Content-Length in HEAD response for ${MEMBER_TAG}" >&2; exit 1; }
 

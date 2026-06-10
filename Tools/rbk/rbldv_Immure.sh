@@ -78,12 +78,15 @@ zrbld_immure_resolve_family() {
 # ride the capture spine to submit and poll. The spine owns the capture-domain build
 # knobs (mason SA, TETHER pool, regime timeout); this body chooses only the recipe,
 # the substitutions, and the inscribe-grade poll ceiling (the multi-GB leaf copies
-# want the larger ceiling). Four steps across two builders: index-select and the
-# residency HEAD ride the Debian Google builder (curl + apt-installed jq); the gcrane
-# cp and the vouch-push ride the floating gcrane builder (busybox). podvm is vessel-
-# less (no reliquary slot), so its gcrane rides the floating bootstrap builder, same
-# tier as conclave/wsl — pinning defers to the bootstrap-builder digest-pin itch
-# (RBS0 rbsk_pinning_boundary).
+# want the larger ceiling). Four steps across three builders: index-select rides the
+# gcloud builder (python3 — parses the upstream OCI index, which the no-jq bash GCB
+# discipline does not cover; rbgjl06 precedent); gcrane cp and the vouch-push ride the
+# floating gcrane builder (busybox); the residency HEAD rides the Debian docker builder
+# (curl, allowlisted). The recipe-row ORDER is part of the contract: vouch (rbgjl02)
+# runs strictly after residency (rbgjl09) — the vouch artifact never precedes the
+# anti-hollow-mirror guard. podvm is vessel-less (no reliquary slot), so its gcrane
+# rides the floating bootstrap builder, same tier as conclave/wsl — pinning defers to
+# the bootstrap-builder digest-pin itch (RBS0 rbsk_pinning_boundary).
 # Args: token brand quay_family version selection stamp
 zrbld_immure_submit() {
   zrbld_sentinel
@@ -104,7 +107,7 @@ zrbld_immure_submit() {
   # floating gcrane builder (busybox). The gcrane builder reads public quay anonymously
   # and pushes GAR ambiently (google.Keychain -> Mason SA).
   local -r z_recipe=(
-    "${ZRBLD_RBGJL_STEPS_DIR}/rbgjl07-immure-select.sh|${ZRBLD_GOOGLE_DOCKER_BUILDER}|immure-select|bash"
+    "${ZRBLD_RBGJL_STEPS_DIR}/rbgjl07-immure-select.py|${ZRBLD_GCLOUD_BUILDER}|immure-select|python3"
     "${ZRBLD_RBGJL_STEPS_DIR}/rbgjl08-immure-capture.sh|${ZRBLD_GCRANE_BUILDER}|immure-capture|busybox"
     "${ZRBLD_RBGJL_STEPS_DIR}/rbgjl09-immure-residency.sh|${ZRBLD_GOOGLE_DOCKER_BUILDER}|immure-residency|bash"
     "${ZRBLD_RBGJL_STEPS_DIR}/rbgjl02-assemble-push-vouch.sh|${ZRBLD_GCRANE_BUILDER}|assemble-push-vouch|busybox"

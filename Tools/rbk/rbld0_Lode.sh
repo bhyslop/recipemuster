@@ -92,6 +92,14 @@ zrbld_kindle() {
   buc_log_args 'Define Google-hosted gcrane builder image'
   readonly ZRBLD_GCRANE_BUILDER="gcr.io/go-containerregistry/gcrane:debug"
 
+  # gcloud builder — python3 + stdlib urllib/json, Google-hosted and always pullable.
+  # The immure select step (rbgjl07) rides this to PARSE the upstream OCI index, which
+  # the no-jq bash GCB discipline does not cover; python is the native tool, the
+  # rbgjl06-package-delete.py precedent. Floating bootstrap (same itch as the gcrane
+  # builder above) — bounded: capture runs as the writer-only Mason SA.
+  buc_log_args 'Define Google-hosted gcloud (python3) builder image'
+  readonly ZRBLD_GCLOUD_BUILDER="gcr.io/cloud-builders/gcloud:latest"
+
   buc_log_args 'Define divine operation file prefix'
   readonly ZRBLD_DIVINE_PREFIX="${BURD_TEMP_DIR}/rbld_divine_"
 
