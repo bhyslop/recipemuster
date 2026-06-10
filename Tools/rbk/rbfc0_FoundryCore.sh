@@ -140,6 +140,21 @@ zrbfc_kindle() {
   readonly ZRBFC_BUILD_POLL_CEILING_ABOUT_VOUCH=100
   readonly ZRBFC_BUILD_POLL_CEILING_ABOUT=50
   readonly ZRBFC_BUILD_POLL_CEILING_VOUCH=50
+  # Cloud-dispatched tool-plane delete (banish/abjure). The host waits for one
+  # build that loops the package list in-pool (one build per abjure, never per
+  # package), each package an LRO poll + absence-verify; generous so a multi-
+  # package hallmark abjure clears within the budget.
+  readonly ZRBFC_BUILD_POLL_CEILING_DELETE=600
+
+  # Floating bootstrap builder for the cloud-dispatched delete step. The delete
+  # build (banish/abjure) consumes no reliquary, so — like underpin/wsl — it
+  # rides a floating Google-hosted image rather than a pinned reliquary tool
+  # (RBS0 rbsk_pinning_boundary; the bootstrap-pin is the accepted itch). This is
+  # the floating form of the gcloud image the reliquary mirrors and the existing
+  # python steps ride, so python3 + urllib + json are known-present. rbfc-level
+  # (not ZRBLD_) because the delete body rbldd_ runs in both the rbld and rbfl
+  # processes and both kindle rbfc. Auth canon: RBSCB.
+  readonly ZRBFC_DELETE_BUILDER="gcr.io/cloud-builders/gcloud:latest"
 
   readonly ZRBFC_KINDLED=1
 }

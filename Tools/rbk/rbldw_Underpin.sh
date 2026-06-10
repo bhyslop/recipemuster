@@ -109,7 +109,7 @@ zrbld_underpin_submit() {
     || buc_die "Failed to compose underpin substitutions blob"
 
   zrbld_spine_dispatch \
-    "${z_token}" "Underpin" "${ZRBFC_BUILD_POLL_CEILING_INSCRIBE}" \
+    "${z_token}" "${RBGD_MASON_EMAIL}" "Underpin" "${ZRBFC_BUILD_POLL_CEILING_INSCRIBE}" \
     "${z_subs_file}" "${ZRBLD_UNDERPIN_PREFIX}" \
     "${z_recipe[@]}"
 }

@@ -142,24 +142,23 @@ rbfl_abjure() {
   done < "${z_pkg_file}"
   buc_require "${z_confirm_msg}" "yes"
 
-  # Delete each package via GAR REST API.
-  # DELETE returns a long-running operation; trust 200 as accepted (matches
-  # the prior fire-and-forget semantics with 202/204 on the v2 manifest API).
-  local z_pkg_path=""
-  local z_del_idx=0
-  while IFS= read -r z_pkg_path || test -n "${z_pkg_path}"; do
-    buc_step "Deleting package: ${z_pkg_path}"
-
-    local z_pkg_encoded="${z_pkg_path//\//%2F}"
-    local z_del_url="${ZRBFC_GAR_API_BASE}/${ZRBFC_GAR_PACKAGE_BASE}/packages/${z_pkg_encoded}"
-    local z_del_infix="rbfl_abjure_del_${z_del_idx}"
-
-    rbuh_json "DELETE" "${z_del_url}" "${z_token}" "${z_del_infix}"
-    rbuh_require_ok "Delete package ${z_pkg_path}" "${z_del_infix}"
-
-    buc_info "Deleted: ${z_pkg_path}"
-    z_del_idx=$((z_del_idx + 1))
+  # Cloud-dispatched delete: load the enumerated package list and hand the whole
+  # set to a single Director-run build (one build per abjure, never per package).
+  # The in-pool step loops the list — packages.delete + honest LRO poll to
+  # terminal + absence-verify per package — so the build's success IS the delete
+  # outcome, closing the host trust-200 LRO gap. The membrane absorbs GAR's
+  # index-web cascade NOT_FOUND signature; see RBSCB and rbgjl06. Load-then-pass
+  # (BCG): the file is consumed before dispatch, no FD held across the build.
+  local z_packages=()
+  local z_pkg_line=""
+  while IFS= read -r z_pkg_line || test -n "${z_pkg_line}"; do
+    test -n "${z_pkg_line}" || continue
+    z_packages+=("${z_pkg_line}")
   done < "${z_pkg_file}"
+  test "${#z_packages[@]}" -gt 0 || buc_die "No packages loaded for abjure of ${z_subtree}"
+
+  buc_step "Dispatching cloud delete for ${z_count} package(s) under ${z_subtree}"
+  zrbld_cloud_delete_dispatch "${z_token}" "Abjure" "${ZRBFL_DELETE_PREFIX}" "${z_packages[@]}"
 
   echo ""
   buc_success "Hallmark abjured: ${z_hallmark} (${z_count} packages)"

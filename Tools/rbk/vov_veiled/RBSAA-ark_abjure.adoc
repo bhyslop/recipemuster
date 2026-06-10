@@ -5,9 +5,15 @@ NOTE: This operation formally renounces an
 {rbtga_ark}
 from
 {rbtgi_repository}
-by enumerating and deleting every package beneath the ark's
-hallmark subtree via the GAR REST API implemented by
-{gar_service}.
+by enumerating every package beneath the ark's hallmark subtree (host-side, GAR
+REST `packages.list`) and then **cloud-dispatching** their deletion: the
+workstation submits one
+{rbtr_director}-run Cloud Build that loops the package list in-pool, deleting each
+package by convergence (see the completion note) and verifying its absence — so
+the build's outcome IS the delete outcome, closing the host trust-200 LRO gap.
+Made-side abjure shares this cloud-dispatch delete backbone with fetched-side
+{rbtgo_lode_banish}; the line cinched is tool-plane (GAR package deletes go cloud)
+versus control-plane (SA / project / depot deletes stay host-side REST).
 
 An
 {rbtga_ark}
@@ -91,31 +97,24 @@ user types `yes` to confirm
 if not confirmed: "prompt not confirmed."
 
 //axhos_step
-. *Delete Each Enumerated Package*:
-.. For each `«PACKAGE»` in `«ARK_PACKAGES»`:
-... {rbbc_store}
-`«ENCODED»` as `«PACKAGE»` with `/` replaced by `%2F`
-... {rbbc_call}
-link:https://cloud.google.com/artifact-registry/docs/reference/rest/v1/projects.locations.repositories.packages/delete[GAR REST API: packages.delete] with:
-.... method: `DELETE`
-.... endpoint: `«REPO_BASE»/packages/«ENCODED»`
-.... header: `Authorization: Bearer «DIRECTOR_TOKEN»`
-... {rbbc_require}
-HTTP 200 response (deletion returns a long-running operation; the 200 is treated as accepted)
-... {rbbc_fatal}
-if delete fails: "Failed to delete package «PACKAGE» (HTTP «STATUS_CODE»)"
+. *Dispatch Cloud Delete of the Enumerated Set*:
+.. {rbbc_call}
+the cloud-dispatched delete backbone with the whole `«ARK_PACKAGES»` list: a single {rbtr_director}-run Cloud Build whose in-pool step loops the list — for each `«PACKAGE»`, link:https://cloud.google.com/artifact-registry/docs/reference/rest/v1/projects.locations.repositories.packages/delete[GAR REST API: packages.delete], poll the returned long-running operation to terminal, then verify package absence
+.. {rbbc_require}
+the build reaches terminal SUCCESS — one build per abjure, never one build per package; the build's outcome IS the delete outcome (no host-issued DELETE survives)
+.. {rbbc_fatal}
+if the build fails: the in-pool step has printed the failing package and verdict to the build log
 
 //axhoot_typed_output
 {rbtga_ark}
 . *Display Results*:
 .. {rbbc_show}
 "Hallmark abjured: «INPUT_HALLMARK» («COUNT» packages)"
-.. For each deleted package:
-... {rbbc_show}
-`  - «PACKAGE» deleted`
 
 //axhoc_completion
-Procedure completes successfully when every package discovered beneath the hallmark subtree has been deleted from the registry and the abjuration confirmation is displayed.
+Procedure completes successfully when the cloud-dispatched delete build reaches terminal SUCCESS — every package discovered beneath the hallmark subtree verified absent from the registry by the in-pool step — and the abjuration confirmation is displayed.
 The ark is now formally renounced and no longer part of the repository corpus.
 Because enumeration drives the delete set, there is no separate existence check and no orphan-detection branch: whatever lives in the subtree is removed, and an empty subtree is itself the "not present" signal.
-Deleting a package removes all of its tags in one call — per-basename HEAD/DELETE dances are no longer required.
+Each enumerated package is deleted in-pool by **convergence**: GAR refuses to delete a child manifest while its parent index still exists (FAILED_PRECONDITION, "manifest is referenced by parent manifests"), so each round the step fires a delete at every remaining version (force=true) and at the package shell — parents free their children, which a later round deletes — and polls the package GET until it 404s, the per-round "referenced by parent" skips being expected rather than errors.
+The delete build runs as {rbtr_director} (which already holds repoAdmin/delete); Mason stays writer-only.
+Posture and the convergence rationale live in RBSCB.

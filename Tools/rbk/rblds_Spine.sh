@@ -16,24 +16,42 @@
 #
 # Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 #
-# Recipe Bottle Lode - capture-assembly spine (guard-free cluster, sourced by
-# rbld0_Lode): the data-driven Cloud Build composer shared by every Lode capture
-# kind. Takes a recipe (ordered, pre-resolved step rows) plus an opaque
-# substitutions blob, composes the Build resource, submits, polls, and decodes a
-# step's buildStepOutputs slot. Owns NO kind knowledge: the recipe and the
-# substitutions are data; the only kind-flavored build knob (the poll ceiling) is
-# passed by the body. Capture-domain constants (the mason capture SA, the TETHER
-# pool, the regime build timeout) are spine-owned, because every Lode capture
-# fetches upstream bytes as mason over the network — that is what capture is, not
-# a per-kind choice. Built on the rbfcb_ build primitives (write-script-body,
-# wait-build-completion), which it calls rather than absorbs.
+# Recipe Bottle Lode - build-assembly spine (guard-free cluster, sourced by
+# rbld0_Lode for the capture kinds and cross-sourced by rbfl0_FoundryLedger for
+# made-side abjure): the data-driven Cloud Build composer shared by every Lode
+# capture kind AND by the tool-plane GAR-delete builds (banish/abjure). Takes a
+# recipe (ordered, pre-resolved step rows) plus an opaque substitutions blob,
+# composes the Build resource, submits, polls, and decodes a step's
+# buildStepOutputs slot. Owns NO kind knowledge: the recipe and the substitutions
+# are data; the only build knobs a body chooses (poll ceiling, run-as identity)
+# are passed in. The build's run-as serviceAccount is caller-supplied — capture
+# bodies pass Mason (writer-only, the identity that runs untrusted upstream
+# bytes), the delete body passes Director (repoAdmin, the only identity that may
+# delete) — so the spine carries no identity constant of its own; the remaining
+# spine-owned build constants (TETHER pool, regime build timeout) are
+# environment, not identity. Built on the rbfcb_ build primitives
+# (write-script-body, wait-build-completion), which it calls rather than absorbs.
+#
+# Sentinel is zrbfc_sentinel, not zrbld_sentinel: the spine binds nothing rbld
+# beyond its function prefix (it reads only rbfc/rbgd/rbrr/rbdc state), so it is
+# callable by any rbfc-furnished module — which is what lets abjure ride it from
+# the separate rbfl process. rbld and rbfl are never co-furnished, so the single
+# cross-source raises no double-source.
 #
 # Contract: RBSCJ "Capture Composition Contract".
 
 set -euo pipefail
 
+# Multiple inclusion detection — this cluster is multiply-sourced (rbld0_Lode for
+# the capture kinds, rbfl0_FoundryLedger for made-side abjure), so unlike the
+# single-entry guard-free clusters it carries its own guard (BCG "the single-guard
+# rule, and its one exception"). rbld and rbfl are never co-furnished, so the guard
+# never fires in practice; it is the documented backstop against a future co-furnish.
+test -z "${ZRBLDS_SOURCED:-}" || buc_die "Module rblds multiply sourced - check sourcing hierarchy"
+ZRBLDS_SOURCED=1
+
 ######################################################################
-# Capture-assembly spine (zrbld_spine_*)
+# Build-assembly spine (zrbld_spine_*)
 
 # Internal: dispatch-time substitution-coverage check. A capture step reads
 # automapped _RBGL_* substitution registers; a reference to a key the body's
@@ -113,14 +131,16 @@ zrbld_spine_validate() {
 # The substitutions file holds a JSON object the spine slots verbatim into the
 # Build envelope's `substitutions` field; the spine reads no key from it. The
 # envelope shape (serviceAccount, options.automapSubstitutions, options.logging,
-# options.pool, timeout) is the spine's; the values that vary by capture domain
-# (mason SA, TETHER pool, regime timeout) are spine-owned constants.
+# options.pool, timeout) is the spine's; the run-as identity is caller-supplied
+# (an SA email the spine composes into the depot-project resource path), and the
+# environment knobs (TETHER pool, regime timeout) are spine-owned constants.
 #
-# Args: token label poll_ceiling subs_file temp_prefix recipe_row...
+# Args: token sa_email label poll_ceiling subs_file temp_prefix recipe_row...
 zrbld_spine_dispatch() {
-  zrbld_sentinel
+  zrbfc_sentinel
 
   local -r z_token="${1:?Token required}";                  shift
+  local -r z_sa_email="${1:?Service-account email required}"; shift
   local -r z_label="${1:?Label required}";                  shift
   local -r z_poll_ceiling="${1:?Poll ceiling required}";    shift
   local -r z_subs_file="${1:?Substitutions file required}"; shift
@@ -195,12 +215,12 @@ zrbld_spine_dispatch() {
 
   buc_log_args "Composing ${z_label} Build resource JSON"
   local -r z_build_file="${z_temp_prefix}build.json"
-  local -r z_mason_sa="projects/${RBDC_DEPOT_PROJECT_ID}/serviceAccounts/${RBGD_MASON_EMAIL}"
+  local -r z_run_as_sa="projects/${RBDC_DEPOT_PROJECT_ID}/serviceAccounts/${z_sa_email}"
 
   jq -n \
     --slurpfile zjq_steps   "${z_steps_file}" \
     --slurpfile zjq_subs    "${z_subs_file}" \
-    --arg       zjq_sa      "${z_mason_sa}" \
+    --arg       zjq_sa      "${z_run_as_sa}" \
     --arg       zjq_pool    "${RBDC_POOL_TETHER}" \
     --arg       zjq_timeout "${RBRR_GCB_TIMEOUT}" \
     '{
@@ -245,7 +265,7 @@ zrbld_spine_dispatch() {
 # result registered by zrbfc_wait_build_completion).
 # Args: step_index dest_file
 zrbld_spine_extract() {
-  zrbld_sentinel
+  zrbfc_sentinel
 
   local -r z_step_index="${1:?Step index required}"
   local -r z_dest_file="${2:?Destination file required}"

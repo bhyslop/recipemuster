@@ -30,9 +30,13 @@ ZRBLD_SOURCED=1
 # Source shared Foundry Core module
 source "${BASH_SOURCE[0]%/*}/rbfc0_FoundryCore.sh"
 
-# Lode body clusters (guard-free; sourced once here, the single rbld entry)
+# Lode body clusters, sourced once here at the single rbld entry. Most are
+# guard-free; rblds_ (build-assembly spine) and rbldd_ (cloud delete) are
+# multiply-sourced — rbfl0_FoundryLedger cross-sources them for made-side abjure
+# — so they carry their own inclusion guards (BCG single-guard exception).
 source "${BASH_SOURCE[0]%/*}/rbldl_Lifecycle.sh"
 source "${BASH_SOURCE[0]%/*}/rblds_Spine.sh"
+source "${BASH_SOURCE[0]%/*}/rbldd_Delete.sh"
 source "${BASH_SOURCE[0]%/*}/rbldb_Bole.sh"
 source "${BASH_SOURCE[0]%/*}/rbldr_Reliquary.sh"
 source "${BASH_SOURCE[0]%/*}/rbldw_Underpin.sh"

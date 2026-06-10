@@ -96,7 +96,7 @@ zrbld_ensconce_submit() {
     || buc_die "Failed to compose ensconce substitutions blob"
 
   zrbld_spine_dispatch \
-    "${z_token}" "Ensconce" "${ZRBFC_BUILD_POLL_CEILING_ENSHRINE}" \
+    "${z_token}" "${RBGD_MASON_EMAIL}" "Ensconce" "${ZRBFC_BUILD_POLL_CEILING_ENSHRINE}" \
     "${z_subs_file}" "${ZRBLD_ENSCONCE_PREFIX}" \
     "${z_recipe[@]}"
 }

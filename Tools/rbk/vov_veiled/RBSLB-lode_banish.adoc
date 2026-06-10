@@ -5,9 +5,13 @@ NOTE: This operation banishes a whole
 {rbtga_lode}
 from
 {gar_service}
-via a single GAR `packages delete` on the touchmark package — the atomic whole-Lode delete.
+via a GAR `packages delete` on the touchmark package — the whole-Lode delete.
+The delete is **cloud-dispatched**: the workstation submits a
+{rbtr_director}-run Cloud Build that deletes the package in-pool by convergence
+(see the completion note) and verifies package absence — so the build's outcome IS
+the delete outcome, closing the host trust-200 LRO gap by construction.
 Kind-agnostic; the fetched-side parallel of made-side
-{rbtgo_ark_abjure}.
+{rbtgo_ark_abjure}, with which it shares the cloud-dispatch delete backbone.
 
 NOTE: A
 {rbtga_lode}
@@ -47,18 +51,20 @@ if none: "No Lode found at «PACKAGE» — nothing to banish"
 //axhos_step
 . *Confirm Banishment*:
 .. {rbbc_show}
-"Will banish the whole Lode «PACKAGE» (single packages delete)"
+"Will banish the whole Lode «PACKAGE» (cloud-dispatched delete)"
 .. {rbbc_require}
 user types `yes` to confirm
 .. {rbbc_fatal}
 if not confirmed: "prompt not confirmed."
 
 //axhos_step
-. *Delete Lode Package*:
+. *Dispatch Cloud Delete*:
 .. {rbbc_call}
-link:https://cloud.google.com/artifact-registry/docs/reference/rest/v1/projects.locations.repositories.packages/delete[GAR REST API: packages.delete] for `{gar_lodes_namespace}/«TOUCHMARK»`
+the cloud-dispatched delete backbone with the single package `{gar_lodes_namespace}/«TOUCHMARK»`: a {rbtr_director}-run Cloud Build whose in-pool step issues link:https://cloud.google.com/artifact-registry/docs/reference/rest/v1/projects.locations.repositories.packages/delete[GAR REST API: packages.delete], polls the returned long-running operation to terminal, and verifies package absence
 .. {rbbc_require}
-HTTP 200 response (deletion returns a long-running operation; the 200 is treated as accepted)
+the build reaches terminal SUCCESS — the build's outcome IS the delete outcome (no host-issued DELETE survives; the trust-200 LRO gap is closed by construction)
+.. {rbbc_fatal}
+if the build fails: the in-pool step has printed the failing package and verdict to the build log
 
 //axhoot_typed_output
 {rbtga_lode}
@@ -67,12 +73,15 @@ HTTP 200 response (deletion returns a long-running operation; the 200 is treated
 "Lode banished: «TOUCHMARK»"
 
 //axhoc_completion
-Procedure completes when the touchmark package — the whole
+Procedure completes when the cloud-dispatched delete build reaches terminal SUCCESS —
+the touchmark package, the whole
 {rbtga_lode}
-with every member version and tag — has been removed from
+with every member version and tag, verified absent from
 {gar_service}
-in one `packages delete`.
+by the in-pool step.
 +
-A presence probe drives the confirmation, so an absent Lode is reported as a clean "nothing to banish" rather than a delete error.
-Because one Lode is one package, there is no per-member dance and no orphan-detection branch — the single delete is the whole operation.
-If GAR ever refuses a single-call delete of a mixed-artifact package, the fallback is a pool-run delete loop over the package's tags, effectively atomic for these purposes.
+A host-side presence probe drives the confirmation, so an absent Lode is reported as a clean "nothing to banish" rather than a delete error.
+The in-pool delete is by **convergence**, not a single `packages delete`: GAR refuses to delete a child manifest while its parent index still exists (FAILED_PRECONDITION, "manifest is referenced by parent manifests"), so a whole-package delete of a multi-arch web removes nothing.
+Each round the step fires a delete at every remaining version (force=true) and at the package shell — the parent indexes succeed and free their children, which a later round then deletes — and polls the package GET until it 404s.
+Absence is the only success signal; the per-round "referenced by parent" skips are expected, not errors; a deadline is the sole failsafe.
+This is GAR's documented parent-before-child behavior (and the shape of Google's own gcr-cleaner `--skip-errors`); rationale and posture live in RBSCB.

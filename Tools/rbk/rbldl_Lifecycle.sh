@@ -191,15 +191,14 @@ rbld_banish() {
   test "${z_tag_count}" -gt 0 \
     || buc_die "No Lode found at ${z_pkg} — nothing to banish"
 
-  buc_require "Will banish the whole Lode ${z_pkg} (single packages delete)" "yes"
+  buc_require "Will banish the whole Lode ${z_pkg} (cloud-dispatched delete)" "yes"
 
-  # Single packages delete removes the package and all its member versions/tags
-  # atomically. DELETE returns a long-running operation; trust 200 as accepted.
-  buc_step "Deleting Lode package: ${z_pkg}"
-  local -r z_del_url="${ZRBFC_GAR_API_BASE}/${ZRBFC_GAR_PACKAGE_BASE}/packages/${z_pkg_encoded}"
-  local -r z_del_infix="rbld_banish_del"
-  rbuh_json "DELETE" "${z_del_url}" "${z_token}" "${z_del_infix}"
-  rbuh_require_ok "Delete Lode package ${z_pkg}" "${z_del_infix}"
+  # Cloud-dispatched delete: a Director-run build issues packages.delete in-pool,
+  # polls the LRO to terminal, and verifies absence — the build's success IS the
+  # delete outcome, closing the host trust-200 LRO gap. The in-pool membrane
+  # absorbs GAR's index-web cascade NOT_FOUND signature; see RBSCB and rbgjl06.
+  buc_step "Dispatching cloud delete for Lode package: ${z_pkg}"
+  zrbld_cloud_delete_dispatch "${z_token}" "Banish" "${ZRBLD_BANISH_PREFIX}" "${z_pkg}"
 
   echo ""
   buc_success "Lode banished: ${z_touchmark}"

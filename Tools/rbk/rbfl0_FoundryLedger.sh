@@ -35,6 +35,15 @@ source "${BASH_SOURCE[0]%/*}/rbfld_Delete.sh"
 source "${BASH_SOURCE[0]%/*}/rbfln_Inventory.sh"
 source "${BASH_SOURCE[0]%/*}/rbflw_Wrest.sh"
 
+# Cross-source from the rbld (Lode) family: abjure dispatches its GAR package
+# delete cloud-side through the build-assembly spine and the shared cloud-delete
+# body, exactly as banish does (the cinch-blessed narrow cross into made-side
+# delete). Both carry their own inclusion guards, so this single-source-per-
+# process reach raises no double-source; the spine reads only rbfc-level state
+# (zrbfc_sentinel), which this process kindles.
+source "${BASH_SOURCE[0]%/*}/rblds_Spine.sh"
+source "${BASH_SOURCE[0]%/*}/rbldd_Delete.sh"
+
 ######################################################################
 # Internal Functions (zrbfl_*)
 

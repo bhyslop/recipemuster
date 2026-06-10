@@ -95,7 +95,7 @@ zrbld_conclave_submit() {
     || buc_die "Failed to compose conclave substitutions blob"
 
   zrbld_spine_dispatch \
-    "${z_token}" "Conclave" "${ZRBFC_BUILD_POLL_CEILING_INSCRIBE}" \
+    "${z_token}" "${RBGD_MASON_EMAIL}" "Conclave" "${ZRBFC_BUILD_POLL_CEILING_INSCRIBE}" \
     "${z_subs_file}" "${ZRBLD_CONCLAVE_PREFIX}" \
     "${z_recipe[@]}"
 }

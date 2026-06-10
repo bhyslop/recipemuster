@@ -239,6 +239,34 @@ This is not just an airgap feature — it is a universal robustness measure agai
 
 **About/vouch always-airgap is a security property**: verification can never be influenced by a compromised public registry, even for tether vessels.
 
+==== Implemented: Cloud-Dispatched Tool-Plane Deletes
+
+GAR image-package deletes — `banish` (whole Lode) and `abjure` (every package under a hallmark subtree) — are **cloud-dispatched**, not host-issued.
+The workstation submits a Cloud Build and blocks until terminal (conjure-shaped); the in-pool step issues GAR `packages.delete`, polls the returned long-running operation to terminal, and verifies package absence.
+The build's outcome IS the delete outcome, which closes a real correctness gap: a host-issued `packages.delete` returns HTTP 200 immediately and the prior code trusted that 200, but the actual deletion runs asynchronously as an LRO whose terminal verdict the workstation never saw (the trust-200 LRO gap).
+
+**The cinched line is tool-plane versus control-plane.**
+Only GAR *package* deletes move cloud-side: `banish` and `abjure`.
+Control-plane deletes — service accounts, projects, the depot, liens, GCS buckets — stay host-issued REST, as do the member/tag-grain maintenance verbs (the raw image backdoor), which must not depend on the pipeline they exist to clean up after.
+The recorded canon is the line itself, not a trajectory toward all-deletes-go-cloud.
+
+**The delete build runs as Director, not Mason.**
+Director already holds `repoAdmin` (delete); Mason is writer-only and stays that way, so the identity that executes untrusted upstream capture bytes is never widened with delete authority.
+Running a build *as* the Director SA, submitted by the Director-authenticated workstation, requires one investiture addition: Director holds `serviceAccountUser` (actAs) on *itself* — the self-actAs binding that lets a SA run a build as itself — alongside the `workerPoolUser` and Cloud Build Editor grants it already carries.
+No new GAR grant is introduced.
+
+**Delete-by-convergence at the vendor Palisade.**
+GAR refuses to delete a child manifest while its parent index still exists: a `versions.delete` (or a whole-`packages.delete`) on a referenced child returns FAILED_PRECONDITION, "manifest is referenced by parent manifests", and a single `packages.delete` of a multi-arch web removes nothing — the package survives intact.
+This is GAR's documented behavior — its cleanup policies "don't delete images referenced by a parent manifest; if the parent manifest is deleted, then any related images are deleted" on the next run — and the reason Google's own gcr-cleaner ships a `--skip-errors` flag rather than ordering the topology.
+The in-pool step does the same: each round it fires a delete at every remaining version (force=true to drop tags) and at the package shell, skipping the per-round "referenced by parent" preconditions, and polls the package GET until it 404s.
+The parent indexes delete first (they have no parent), freeing their children for a later round; absence is the only success signal, the deadline the only failsafe — the same eventual-consistency shape as the host `rbuh_poll_until_gone`.
+This is conduct at the vendor Palisade: an empirical probe (2026-06-09) recorded the FAILED_PRECONDITION signature directly — the earlier paddock guess of an LRO terminating NOT_FOUND (code 5) "even when the delete effectively completed" was wrong; the package does not delete at all under a single call, and the step converges on the observable end state rather than trusting any LRO verdict.
+Multi-arch capture (bole/wsl keep full-fidelity index Lodes) keeps index-web packages a live shape, so the convergence loop is load-bearing.
+
+**Accepted cost: every fixture banish/abjure becomes a build.**
+Cloud dispatch moves these deletes from a sub-second host REST call to a full Cloud Build (minutes, serialized with other fixture builds).
+This is accepted as the price of delete correctness; the depot is disposable, so debris is test material, not cleanup duty.
+
 ==== Potential Hardening: VPC Service Controls Perimeter
 
 Wrap the depot project in a VPC Service Controls (VPC-SC) perimeter.

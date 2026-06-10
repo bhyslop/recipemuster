@@ -698,6 +698,15 @@ rbgg_invest_director() {
   buc_step 'Grant serviceAccountUser on Mason'
   rbgi_add_sa_iam_role "${z_token}" "${RBGD_MASON_EMAIL}" "${z_account_email}" "roles/iam.serviceAccountUser"
 
+  buc_step 'Grant serviceAccountUser on self (Director runs cloud-dispatched delete builds as itself)'
+  # The cloud-dispatched banish/abjure delete build runs AS the Director SA — the
+  # only identity holding repoAdmin/delete (Mason stays writer-only). The Director-
+  # authenticated submit therefore needs actAs on the Director SA itself: the
+  # self-actAs binding that lets a SA run a build as itself. workerPoolUser and
+  # builds.create (Cloud Build Editor) are already granted above; no new GAR grant
+  # is needed because Director already holds repoAdmin.
+  rbgi_add_sa_iam_role "${z_token}" "${z_account_email}" "${z_account_email}" "roles/iam.serviceAccountUser"
+
   buc_step 'Grant Artifact Registry roles (complete expected policy)'
   # Complete policy: Director repoAdmin + Mason writer in one setIamPolicy.
   # Prevents read-modify-write race where stale getIamPolicy omits Mason's binding.
@@ -898,6 +907,8 @@ rbgg_divest_director() {
     "serviceAccount:${z_account_email}" "director-pool-revoke"
 
   rbgi_revoke_sa_member "${z_token}" "${RBGD_MASON_EMAIL}" "${z_account_email}" "roles/iam.serviceAccountUser"
+
+  rbgi_revoke_sa_member "${z_token}" "${z_account_email}" "${z_account_email}" "roles/iam.serviceAccountUser"
 
   rbgi_revoke_repo_member "${z_token}" "${RBGD_GAR_PROJECT_ID}" "${z_account_email}" \
     "${RBGD_GAR_LOCATION}" "${RBDC_GAR_REPOSITORY}" "roles/artifactregistry.repoAdmin"
