@@ -2,6 +2,7 @@
   "jjgrn_schema_version": 4,
   "jjgrn_next_heat_seed": "Be",
   "jjgrn_heat_order": [
+    "₣Bd",
     "₣Bb",
     "₣BZ",
     "₣BH",
@@ -31,8 +32,7 @@
     "₣BI",
     "₣BL",
     "₣Ba",
-    "₣Bc",
-    "₣Bd"
+    "₣Bc"
   ],
   "jjgrn_heats": {
     "₣A-": {
@@ -10179,7 +10179,7 @@
     "₣Bd": {
       "jjghn_silks": "cmk-mcm-axla-health",
       "jjghn_creation_time": "260610",
-      "jjghn_status": "jjghe_stabled",
+      "jjghn_status": "jjghe_racing",
       "jjghn_order": [],
       "jjghn_next_pace_seed": "AAA",
       "jjghn_paces": {}
