@@ -43,16 +43,18 @@ This section exists so a returning session can re-orient against the *why* of th
 
 **Why GAR's `package` is the substrate AND the atomic-delete unit.** Each Lode is one GAR `package` — this is literal, since Lode *names* the package. `packages delete` removes the package and all its member versions in a single operation (verified against GAR's delete granularities: package / version / tag). That gives Director administration atomic whole-Lode delete for free, and per-member cleanup (`versions delete`, `tags delete`) for fixing bugs — with no custom reference-counting, because GAR content-addresses blobs and garbage-collects unreferenced ones. The consequence that reshapes the model: **single and compound Lodes are the same shape — a cardinality attribute, not a structural distinction.** A single-image Lode is a 1-member package; a reliquary or podvm cohort is an N-member package. Same delete primitive, same provenance attachment point, same wire shape. There is no separate refs object — so the "interior-hole / dangling-reference" regression class evaporates. Pre-deployment, layout is free to choose: members live as versions/tags *within one package*, not as sibling image-names, because GAR has no subtree delete — one package is what makes the single-call atomic delete possible.
 
-**Empirical correction to the atomic-delete premise (2026-06-09).**
-GAR's `packages delete` cascade fails structurally on parent-index/child-manifest webs:
-deleting a parent auto-removes its protected children, the cascade then reaches an already-gone child, and the LRO terminates NOT_FOUND (code 5) — reproduced on a fully-settled package, so structural, not a race (characterized at commit 619882ee2; the surviving 55-version reliquary debris is the corpse).
-Atomic whole-Lode delete therefore holds for flat packages but NOT reliably for index-webs.
+**Empirical correction to the atomic-delete premise (2026-06-09; the delete mechanism re-corrected from a live probe).**
+GAR will not delete a child manifest while its parent index still exists: a delete of a referenced child returns FAILED_PRECONDITION ("manifest is referenced by parent manifests"), and a single `packages delete` of a multi-arch web removes NOTHING — the package survives whole.
+An earlier reading of this same debris guessed an LRO terminating NOT_FOUND (code 5) "even when the delete effectively completed"; a direct probe disproved it — the package does not delete at all under one call (characterized at commit 619882ee2; the standing 55-version reliquary web was the corpse).
+This is GAR's documented parent-before-child behavior, and the reason Google's own gcr-cleaner ships a `--skip-errors` flag rather than ordering the topology.
+Atomic whole-Lode delete therefore holds for flat packages but NOT for index-webs, which require convergence.
 conclave now captures single-platform (`--platform linux/amd64`) to dodge the web — conclave-only; bole/wsl keep full-fidelity capture and so index-shaped Lodes remain a live shape.
-The fallback condition named under *Lode registry layout* has fired: the delete path must absorb the surveyed signature (post-terminal absence-verify, escalating to a per-version loop if a web genuinely refuses) rather than trusting the LRO verdict.
+The cloud-dispatch delete path (landed) deletes by convergence: each round it fires a delete at every remaining version (force=true) and the package shell, skips the per-round "referenced by parent" preconditions, and polls the package GET until 404 — absence the only truth, a deadline the only failsafe, the same shape as host `rbuh_poll_until_gone`.
+Live-proven on two index-web reliquary banishes and a six-package conjure-hallmark abjure; canon in RBSCB.
 
 **Why tool-plane GAR deletes dispatch cloud-side (cinched 2026-06).**
 `banish` and `abjure` move off host-issued trust-200 REST onto cloud-side delete-builds:
-the workstation dispatches and blocks, conjure-shaped; the in-pool step polls `packages.delete` to terminal and verifies absence, so the build outcome IS the delete outcome.
+the workstation dispatches and blocks, conjure-shaped; the in-pool step deletes by convergence (see the empirical-correction premise) and verifies absence, so the build outcome IS the delete outcome.
 The line is tool-plane vs control-plane: GAR package deletes go cloud; SA / project / depot / lien / bucket deletes stay host-side REST.
 The raw maintenance backdoor (see *Carried forward*) deliberately stays host-side with honest LRO handling — a cleanup tool of last resort must not depend on the pipeline it cleans up after.
 
