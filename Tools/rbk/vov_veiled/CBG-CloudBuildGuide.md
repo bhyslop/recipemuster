@@ -317,10 +317,12 @@ The supply-chain cupel walks `*.sh` only: a python step's imports and
 exists, authors hold the line manually:
 
 - **Imports: stdlib only, from the established floor** (`base64`, `datetime`,
-  `io`, `json`, `os`, `sys`, `tarfile`, `time`, `urllib`). A third-party import
-  binds the step to the floating builder's unpinned pip set. Never
+  `io`, `json`, `os`, `re`, `sys`, `tarfile`, `time`, `urllib`). A third-party
+  import binds the step to the floating builder's unpinned pip set. Never
   `importlib`/`__import__`/`exec`/`eval` — dynamic import defeats any future
-  static walk.
+  static walk. The floor accretes by review until the walk owns it mechanically
+  (`re` joined within a day of this rule's authoring — the enumeration here is
+  the temporary home, not the durable one).
 - **`subprocess` argv[0] honors the same tool floor as bash steps.** Shelling out
   to a command a bash step could not name is the same violation in a python
   costume. Prefer in-process `urllib`/REST over shelling out at all.
