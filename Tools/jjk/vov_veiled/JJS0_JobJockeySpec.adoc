@@ -365,7 +365,9 @@ Markdown soft-wraps these lines into a single rendered paragraph, so the convent
 Its purpose is the diff:
 an incremental edit then shows the sentence that changed rather than re-flowing the whole paragraph onto one line.
 Word-level granularity, when wanted, comes from `git diff --word-diff`, not from splitting prose at the word.
-This specification's own source follows the convention.
+The convention governs gazette markdown only;
+this specification's own AsciiDoc source answers instead to MCM line-break discipline.
+Deviations accumulated under an earlier, broader reading of this principle are tolerated until the Diptych migration re-flows the source wholesale.
 
 === Crash-Safe Architecture
 
