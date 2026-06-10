@@ -263,8 +263,9 @@ MVP. Recorded here as a shaping force and one named hazard, nothing more.
 ## 10. Open / deferred
 
 - **Prefix minting** — `RBRQ` candidate for the Quire regime; Outpost needs a non-`RBRO` slot
-  (RBRO taken by OAuth). Deferred to a minting pass. (The Census/Crucible `C` collision once
-  parked here is resolved: Census → Terrier.)
+  (RBRO taken by OAuth). The §12 governance nouns (Precentor, Chorister, Prebend) join the same
+  queue. Deferred to a minting pass. (The Census/Crucible `C` collision once parked here is
+  resolved: Census → Terrier.)
 - **Instance vs menu** — §9's central question; the menu/envelope resolution is the candidate.
 - **Cross-Quire information flow** — the graph-property hazard; the agency lattice is its
   clearance lattice. Belongs to the choreography effort, not here.
@@ -331,7 +332,80 @@ expose a local seam — most plausibly a forward proxy / endpoint-override the S
 *still* no host VPN. Which consumer class is in scope changes the design; container-only is
 dramatically simpler and is the current lean.
 
-## 12. Sources
+## 12. Consume-side governance — Precentor, Chorister, Prebend (2026-06-10 addendum)
+
+A next-day addendum recording the governance role shape and its grounding research. Settled as
+working language; the build itself remains distant.
+
+**The pre-authorized decision.** RBSHR's asymmetric-sovereignty stance reserves exactly this
+slot: a parallel role hierarchy on the AWS side is "a deliberate architectural decision...
+not an incremental drift." This is that decision arriving — consume-side (governing who may
+invoke Quires and at what cost), not build-side. The delivery-side batch (embassy, envoy,
+bullion, entrust, accredit, recall) keeps its diplomatic register; the consume side rides the
+Quire's ecclesiastical register, so the two AWS efforts stay distinguishable by ear.
+
+**The shape.** One administering role plus N constrained principals. Unlike the GCP trio
+(Governor/Director/Retriever divide *function*), the consume-side citizens divide
+*people/workloads* — N instances of the same shape with different ceilings. This is the ₣BZ
+citizen/capability model instantiated on AWS; the Quire memo's "capability reference (who may
+invoke)" resolves to these principals.
+
+| Concept | Noun | Register grounding |
+|---|---|---|
+| Admin role — mints/retires constrained users, owns envelopes | **Precentor** | The cathedral officer who directs the quire — governs who sings and what they sing (models and conduct, not just money) |
+| Constrained user — capped principal invoking within bounds | **Chorister** | A member of the quire, granted a place, voicing within the precentor's direction |
+| Per-chorister envelope — model list, agency ceiling, allowances | **Prebend** | The medieval term for a fixed allowance endowed to a cathedral office-holder — spend-cap-as-endowed-allowance is the literal historical meaning |
+
+All three grep clean across the repo (verified 2026-06-10). Verbs: Governor's invest/divest
+carry over (a precentor invests a chorister); canon-law alternatives (induct/deprive) noted,
+not adopted. The chantry→Quire→endow lineage was always about governed allowances — a chantry
+was funded by an endowment — so the prebend completes a family, not a theme.
+
+**Enforcement grounding (AWS facilities, verified 2026-06-10).** Model constraint is airtight
+and native: IAM scopes `bedrock:InvokeModel` to explicit model/inference-profile ARNs — the
+Quire's "governed invocation principal" is exactly this object. Agency ceilings are likewise
+IAM (denies on the agentic API surfaces). Spend constraint has **no native hard cap**; what
+exists is a ladder ordered by reaction time:
+
+1. **Application inference profiles** + cost-allocation tags — per-call attribution flowing to
+   Cost Explorer / CUR / Budgets. One AIP per (model, chorister). Tags are **non-retroactive**:
+   a mis-established binding loses attribution data permanently, which is the hard argument
+   for ceremony-enforced establishment order (AIP → tag activation → budget → action).
+2. **AWS Budgets + budget actions** — threshold breach auto-attaches an IAM deny policy.
+   Day-grain; billing lag means a runaway day can overshoot before it trips.
+3. **CloudWatch token metrics + alarm + Lambda deny** — Bedrock emits token counts as metrics
+   (dimensionable per inference profile) *without* invocation logging, so minutes-grain
+   cutoff is privacy-clean (boundary C untouched).
+4. **Counting proxy in the data path** — the only true synchronous cap. Named non-goal: it
+   spends "no standing software" and (via TLS origination) complicates boundary A. If it ever
+   comes, its natural body is the §11 terminus growing a meter.
+
+**Cap vocabulary, kept honest.** A prebend declares `soft` (notify) and `firm` (auto-deny,
+bounded overshoot — rungs 2/3). `hard` (synchronous wall) is reserved for the proxy tier and
+does not exist in the MVP. Same discipline as `agency: none` — the guarantee is a named,
+enforced property, never a hopeful adjective.
+
+**Why this layer is load-bearing (anti-crap-wrap).** AWS supplies every primitive and composes
+none of them: there is no native object uniting principal + AIP set + tags + budget + action
+wiring + agency clause. The layer is ceremony codification, not runtime interposition — the
+same move as the GCP role hierarchy, pointed at a second cloud. Its teeth: establishment-order
+guarantees (the non-retroactive-tag hazard above), roster, and the declared-vs-actual drift
+audit (the ₣BZ intent-vs-enforcement spine; the prebend is the declared side of the diff).
+
+**No resident program.** Establishment (invest/divest/roster/endow) is control-plane REST;
+the enforcement reactors are AWS-resident and event-driven (Budgets actions, alarm-triggered
+Lambdas shipped as templates — "stood up from Recipe-Bottle-shipped templates," per §1). The
+genuine implementation strain is **SigV4**: AWS signs per-request (canonical request + chained
+HMAC derivation), versus the GCP side's single JWT exchange. If a program enters the MVP it is
+a small signing/REST helper, not a daemon — the Sentry/Outpost-analog resident process belongs
+only to ladder rung 4, which is deferred with it.
+
+**Menu framing strengthened.** The prebend *is* a per-chorister menu — model list as approved
+options, agency as ceiling, allowance as cap — which is §9's envelope resolution made concrete
+on the consumer-governance axis. Recipe Bottle governs the envelope; the chorister picks
+within it.
+
+## 13. Sources
 
 - `Memos/memo-20260415-crucible-conduit-architecture.md` — the predecessor (approaches,
   WireGuard-in-sentry, service-compatibility survey, threat-model table).
@@ -339,6 +413,12 @@ dramatically simpler and is the current lean.
   `VPC Service Controls` entries (stubs; to be breadcrumbed to this memo).
 - Heat ₣BZ (`rbk-14-mvp-citizen-model`) — the citizen/capability identity model this rides;
   intent-vs-enforcement and the Terrier.
+- AWS, verified 2026-06-10 (§12 enforcement ladder): IAM model/inference-profile ARN scoping
+  for `bedrock:InvokeModel`; application inference profiles with cost-allocation tags
+  (non-retroactive, ~24h activation lag); AWS Budgets actions auto-applying IAM deny policies;
+  Bedrock CloudWatch token-count metrics independent of invocation logging; no native hard
+  spend cap (AWS's own guidance: synchronous enforcement requires a gateway/proxy); TPM service
+  quotas are account-grain and self-serve adjustable upward only.
 - AWS, verified 2026-06-09: Bedrock is serverless/stateless and ZDR-by-default
   (data-protection docs); provider isolation via dedicated deployment accounts; model
   invocation logging opt-in/off; abuse detection automated/no-human-review; Claude on Bedrock
