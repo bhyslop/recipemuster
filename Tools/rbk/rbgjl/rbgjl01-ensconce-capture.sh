@@ -113,22 +113,22 @@ for SLOT in 1 2 3; do
   # Author the provenance envelope (identical content lands in :rbi_vouch and the
   # host capture-file). No jq dependency — values are controlled (sanitized origin,
   # hex digest, SA email, build id, ISO timestamp); none can carry a literal quote.
-  # members[] is the cardinality axis — length 1 for the bole singleton.
+  # rblv_members[] is the cardinality axis — length 1 for the bole singleton.
   ENVELOPE='{'
-  ENVELOPE="${ENVELOPE}\"schema\":\"${_RBGL_VOUCH_SCHEMA}\","
-  ENVELOPE="${ENVELOPE}\"kind\":\"bole\","
-  ENVELOPE="${ENVELOPE}\"lode\":\"${STAMP}\","
-  ENVELOPE="${ENVELOPE}\"acquired_at\":\"${ACQUIRED_AT}\","
-  ENVELOPE="${ENVELOPE}\"acquired_by\":\"${_RBGL_ACQUIRED_BY}\","
-  ENVELOPE="${ENVELOPE}\"capture_build\":\"${BUILD_ID:-}\","
-  ENVELOPE="${ENVELOPE}\"trust_grade\":\"${_RBGL_TRUST_GRADE}\","
-  ENVELOPE="${ENVELOPE}\"signature\":null,"
-  ENVELOPE="${ENVELOPE}\"members\":[{"
-  ENVELOPE="${ENVELOPE}\"name\":\"${_RBGL_TAG_BOLE}\","
-  ENVELOPE="${ENVELOPE}\"origin\":\"${ORIGIN}\","
-  ENVELOPE="${ENVELOPE}\"digest\":\"sha256:${SHA}\","
-  ENVELOPE="${ENVELOPE}\"verification\":\"oci-digest\","
-  ENVELOPE="${ENVELOPE}\"tags\":[\"${_RBGL_TAG_BOLE}\",\"${DIGEST_TAG}\",\"${FINGERPRINT}\"]"
+  ENVELOPE="${ENVELOPE}\"rblv_schema\":\"${_RBGL_VOUCH_SCHEMA}\","
+  ENVELOPE="${ENVELOPE}\"rblv_kind\":\"bole\","
+  ENVELOPE="${ENVELOPE}\"rblv_lode\":\"${STAMP}\","
+  ENVELOPE="${ENVELOPE}\"rblv_acquired_at\":\"${ACQUIRED_AT}\","
+  ENVELOPE="${ENVELOPE}\"rblv_acquired_by\":\"${_RBGL_ACQUIRED_BY}\","
+  ENVELOPE="${ENVELOPE}\"rblv_capture_build\":\"${BUILD_ID:-}\","
+  ENVELOPE="${ENVELOPE}\"rblv_trust_grade\":\"${_RBGL_TRUST_GRADE}\","
+  ENVELOPE="${ENVELOPE}\"rblv_signature\":null,"
+  ENVELOPE="${ENVELOPE}\"rblv_members\":[{"
+  ENVELOPE="${ENVELOPE}\"rblv_name\":\"${_RBGL_TAG_BOLE}\","
+  ENVELOPE="${ENVELOPE}\"rblv_origin\":\"${ORIGIN}\","
+  ENVELOPE="${ENVELOPE}\"rblv_digest\":\"sha256:${SHA}\","
+  ENVELOPE="${ENVELOPE}\"rblv_verification\":\"oci-digest\","
+  ENVELOPE="${ENVELOPE}\"rblv_tags\":[\"${_RBGL_TAG_BOLE}\",\"${DIGEST_TAG}\",\"${FINGERPRINT}\"]"
   ENVELOPE="${ENVELOPE}}]}"
 
   # Stage the envelope for step 02 (pushes it as the :rbi_vouch artifact).
@@ -141,7 +141,7 @@ for SLOT in 1 2 3; do
   else
     RESULT="${RESULT},"
   fi
-  RESULT="${RESULT}\"slot_${SLOT}\":{\"stamp\":\"${STAMP}\",\"vouch\":${ENVELOPE}}"
+  RESULT="${RESULT}\"rbls_slot_${SLOT}\":{\"rbls_stamp\":\"${STAMP}\",\"rbls_vouch\":${ENVELOPE}}"
 done
 
 RESULT="${RESULT}}"

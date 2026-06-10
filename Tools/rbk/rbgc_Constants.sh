@@ -250,10 +250,12 @@ zrbgc_kindle() {
   readonly RBGC_LODE_TAG_ROOTFS="rbi_rootfs"        # wsl singleton: the opaque rootfs blob member (RB-authored, sprued)
 
   # Provenance envelope (:rbi_vouch) — two honest trust grades, declared per Lode.
-  # bole captures the durable-upstream grade; podvm-* will carry the recorded grade.
+  # bole captures the durable-upstream grade; podvm-* carries the recorded grade.
   readonly RBGC_LODE_TRUST_VERIFIED="verified-against-published"
   readonly RBGC_LODE_TRUST_RECORDED="recorded-at-acquisition"
-  readonly RBGC_LODE_VOUCH_SCHEMA="rbld-vouch-1"    # near-term unsigned, schema-versioned
+  # Schema bumped to rbld-vouch-2 with the rblv_ sprue migration (ACGm_108, first application).
+  # Pre-MVP: no back-compat; every author writes rblv_ keys, augur reads rblv_ ONLY.
+  readonly RBGC_LODE_VOUCH_SCHEMA="rbld-vouch-2"    # unsigned, schema-versioned, rblv_ sprue
 
   # wsl-kind acquisition convention — NOT a resolved coordinate (see RBSLU). Per
   # the no-FQIN premise, intent stays declarative and the pipeline computes the
@@ -301,17 +303,19 @@ zrbgc_kindle() {
   readonly RBGC_LODE_PODVM_FAMILY_WSL="quay.io/podman/machine-os-wsl"
   readonly RBGC_LODE_PODVM_FAMILY_NATIVE="quay.io/podman/machine-os"
   # Curated leaf selection per family — declarative `disktype:arch` rows the select
-  # step matches against index child descriptors. THIS PACE proves the podvm-wsl
-  # family end-to-end (both wsl-disktype leaves -> a genuine 2-member Lode, which
-  # exercises the multi-member machinery and the per-member-jettison path). The
-  # native family's full 8-leaf curation and a same-version "widen the set" refresh
-  # mode are the FOLLOWING pace (RBSL "Why podvm kinds retain selectively"); the
-  # native default below is the modest 2-leaf set the cerebro experiment captured
-  # (memo-20260608 §5) — the verb works for native, but only podvm-wsl is fixture-
-  # proven. Member tag composes as :<sprue><disktype>-<arch> (e.g. rbi_wsl-x86_64);
+  # step matches against index child descriptors (alt arch spelling: x86_64/aarch64).
+  # Member tag composes as :<sprue><disktype>-<arch> (e.g. rbi_wsl-x86_64);
   # disktype+arch are RB-selected from the index, so sprued.
+  # WSL family: 2-leaf set (both wsl-disktype leaves). The podvm-wsl fixture proves
+  # this end-to-end with the multi-member machinery and per-member-jettison path.
   readonly RBGC_LODE_PODVM_WSL_SELECTION="wsl:x86_64 wsl:aarch64"
-  readonly RBGC_LODE_PODVM_NATIVE_SELECTION="qemu:x86_64 wsl:x86_64"
+  # Native family: full 8-leaf curation — {applehv, hyperv, qemu, wsl} × {x86_64, aarch64}.
+  # Sourced from memo-20260608 §5 (the machine-os index carries exactly these 8 disktype
+  # children at the 5.6 observation point; the 2 plain-container children are EXCLUDED
+  # by disktype-key selection). This pace (lode-podvm-platform-fanout) lands full
+  # curation; the "FOLLOWING pace" deferral is retired. Native full-curation is gated
+  # one-time (not a recurring service fixture) — see the podvm-lifecycle fixture comment.
+  readonly RBGC_LODE_PODVM_NATIVE_SELECTION="applehv:x86_64 applehv:aarch64 hyperv:x86_64 hyperv:aarch64 qemu:x86_64 qemu:aarch64 wsl:x86_64 wsl:aarch64"
 
   # rbi_df layout: flat namespace. No subdirs. Each filename names one
   # depot-scoped artifact; tag varies by artifact role.

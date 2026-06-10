@@ -63,7 +63,7 @@ Registry API: extract the `:rbi_vouch` manifest from the `{gar_lodes_namespace}/
 .. {rbbc_store}
 the
 {rbtga_lode_vouch}
-fields: `kind`, `acquired_at`, `acquired_by`, `capture_build`, `trust_grade`, and `members[]` (each `origin` / `digest` / `verification` / `tags`)
+fields (schema `rbld-vouch-2`, all keys sprued `rblv_`): `rblv_kind`, `rblv_acquired_at`, `rblv_acquired_by`, `rblv_capture_build`, `rblv_trust_grade`, and `rblv_members[]` (each `rblv_origin` / `rblv_digest` / `rblv_verification` / `rblv_tags`, plus the podvm-only per-member `rblv_acquired_at` / `rblv_capture_build`)
 
 //axhoot_typed_output
 {rbtga_lode}

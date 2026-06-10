@@ -26,6 +26,17 @@ The two families diverge in version coverage and platform fan-out, so the kind-l
 (`vw` / `vn`), the upstream family reference, and the curated leaf set are all keyed
 on the family argument; there is no kind-argument indirection beyond that one word.
 
+NOTE: Refresh widens an existing Lode at its locked version.
+`immure «FAMILY» --refresh «TOUCHMARK»` reuses an existing Lode's touchmark and
+captures only the leaves the widened curated set adds, leaving every already-held
+member's bytes and provenance untouched (add-only).
+It takes no version argument — the locked version is derived from the existing
+envelope — so it can never become a version bump; advancing the podman version is a
+fresh capture into a new touchmark.
+Refresh exists because the recorded-grade upstream rotates within days: re-resolving a
+held leaf could silently repoint its member tag to rebuilt bytes, so a held member is
+never re-fetched.
+
 NOTE: Intent is declarative — no FQIN, no pinned digest.
 The curated `{disktype × arch}` leaf set is an RB constant per family; the
 {rbtr_director}
@@ -52,6 +63,17 @@ capture — trust-on-first-acquisition, the strongest honest claim the hostile
 upstream permits.
 The integrity guards are `gcrane cp`-by-digest (get-or-error, digest-faithful) and a
 registry-v2 blob-residency check, NOT a re-checkable published checksum.
+
+NOTE: Per-member times are podvm-only, and the dual position is self-disclosing.
+The vouch envelope carries `rblv_acquired_at` / `rblv_capture_build` at the envelope
+level — when the envelope was authored — for every kind; only podvm ALSO carries them
+per member, because only podvm refreshes, and so only it accumulates members across
+more than one authoring event.
+In a refreshed Lode the preserved members' times sit earlier than the envelope-level
+time, so the artifact itself displays the authored-versus-captured distinction.
+The single-capture kinds (bole / reliquary / wsl) omit the per-member twins because
+authoring coincides with capture; the asymmetry tracks refresh-capability, and a
+uniformity sweep must not graft them onto those kinds.
 
 NOTE: Immure selects leaves by the index DESCRIPTOR, never the layer filename.
 The upstream tag is a multi-arch OCI index mixing real container images and disk
@@ -97,13 +119,13 @@ captures a podvm family's disk leaves into a Lode:
 is the operator's (later, a nameplate's) declarative choice
 
 //axhos_step
-. *Mint Touchmark (host-side)*:
-.. {rbbc_store}
-`«TOUCHMARK»` as the kind-letter `«KIND»` + `YYMMDDHHMMSS` from current time
-.. The host owns the stamp so the touchmark — and thus the
+. *Mint or Reuse Touchmark, and Compute the Present-Set (host-side)*:
+.. Fresh capture: {rbbc_store}
+`«TOUCHMARK»` as the kind-letter `«KIND»` + `YYMMDDHHMMSS` from current time (e.g. `vw260610095327`), with an empty present-set
+.. Refresh (`--refresh «TOUCHMARK»`): reuse the supplied touchmark; read its existing `:rbi_vouch` envelope to derive the locked `«VERSION»` from any member's `rblv_origin`, then compute the PRESENT-SET from the GAR package's member tags — the source of truth, never the envelope alone — preserving each enveloped member verbatim and recovering each orphan tag (present in GAR, absent from the envelope after an interrupted prior run) with its digest from the tag's version reference and its `rblv_acquired_at` from that version's createTime
+.. The host owns the touchmark so it — and thus the
 {rbf_fact_lode}
 path — is known before the build
-.. Example: `vw260610095327`
 
 //axhos_step
 . *Submit Four-Step Capture Cloud Build*:
@@ -114,7 +136,7 @@ path — is known before the build
 ... Step 4 — the floating gcrane builder, script `rbgjl02-assemble-push-vouch.sh` (the vouch push)
 ... substitutions carrying GAR host/path, the
 {gar_lodes_namespace}
-root, `«TOUCHMARK»`, the member-tag sprue, the acquiring SA email, the recorded trust grade, the envelope schema, `«FAMILY»`, the version, and `«SELECTION»`
+root, `«TOUCHMARK»`, the member-tag sprue, the acquiring SA email, the recorded trust grade, the envelope schema, `«FAMILY»`, the version, `«SELECTION»`, and the present-set (the already-captured members to preserve verbatim — empty for a fresh capture)
 ... serviceAccount:
 {rbtr_mason}
 ... pool: tethered (the upstream index + leaf fetch requires public egress)
@@ -134,11 +156,11 @@ build dispatched with `«BUILD_ID»` and the Cloud Console URL
 . *Select Step (in-pool — rbgjl07, python3)*:
 .. Acquire an anonymous registry-v2 pull token for the public quay family (Www-Authenticate discovery)
 .. Fetch the family index at the pinned version; fail loud if it is not a multi-arch index
-.. For each curated `disktype:arch`, select the child descriptor matching `platform.architecture` + `annotations.disktype` — failing loud, listing every available pair, when a curated entry matches nothing (so a quay rotation reads as an inventory diff)
-.. Fetch each selected leaf manifest; assert exactly one disk-blob layer; record its digest and declared size
+.. For each curated `disktype:arch` whose member tag is NOT already in the present-set, select the child descriptor matching `platform.architecture` + `annotations.disktype` — failing loud, listing every available pair, when a curated entry matches nothing (so a quay rotation reads as an inventory diff); a present-set member is spliced into the envelope verbatim and never re-resolved upstream (add-only)
+.. Fetch each newly-selected leaf manifest; assert exactly one disk-blob layer; record its digest and declared size
 .. Author the
 {rbtga_lode_vouch}
-envelope JSON (schema `rbld-vouch-1`, trust grade `recorded-at-acquisition`, `members[]` one element per leaf — the cardinality axis — each carrying `verification` `recorded` and the captured leaf digest) and stage it plus the selection list on the {rbtgr_workspace}
+envelope JSON (schema `rbld-vouch-2`, every key sprued `rblv_`, trust grade `recorded-at-acquisition`, `rblv_members[]` one element per leaf — the cardinality axis — each carrying `rblv_verification` `recorded`, the captured leaf digest, and the per-member `rblv_acquired_at` / `rblv_capture_build`) and stage it plus the selection list — the newly-captured leaves only — on the {rbtgr_workspace}
 .. Write the result JSON (carrying the host-minted touchmark) to `buildStepOutputs`
 
 //axhos_step

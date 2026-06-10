@@ -121,7 +121,7 @@ build dispatched with `«BUILD_ID»` and the Cloud Console URL
 .. Wrap the opaque tarball as a single-layer OCI member (`FROM scratch` + `COPY`) and push it into the one Lode package under the clean member tag `:rbi_rootfs` — no digest or fingerprint layer
 .. Author the
 {rbtga_lode_vouch}
-envelope JSON (schema `rbld-vouch-1`, trust grade `verified-against-published`, `members[]` one element — the cardinality axis — carrying `verification` `gpg-sha256-published` and the signing-key fingerprint) and stage it on the {rbtgr_workspace}
+envelope JSON (schema `rbld-vouch-2`, all keys sprued `rblv_`, trust grade `verified-against-published`, `rblv_members[]` one element — the cardinality axis — carrying `rblv_verification` `gpg-sha256-published` and the per-member `rblv_signing_key` fingerprint) and stage it on the {rbtgr_workspace}
 .. Write the result JSON (carrying the host-minted touchmark) to `buildStepOutputs`
 
 //axhos_step

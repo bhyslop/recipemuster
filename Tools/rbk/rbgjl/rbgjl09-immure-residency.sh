@@ -25,8 +25,10 @@ STAMP="${_RBGL_LODE_STAMP}"
 test -n "${STAMP}" || { echo "FATAL: _RBGL_LODE_STAMP missing" >&2; exit 1; }
 
 # Guard the inter-step handoff (CBi_102): the selection list is the residency contract.
-test -s /workspace/immure_selection.txt \
-  || { echo "FATAL: /workspace/immure_selection.txt missing/empty — step 07 must run first" >&2; exit 1; }
+# An EMPTY list is legitimate (all-preserved refresh — no new leaf to residency-check),
+# so guard on -f (step 07 ran), not -s; the loop below no-ops on an empty file.
+test -f /workspace/immure_selection.txt \
+  || { echo "FATAL: /workspace/immure_selection.txt missing — step 07 must run first" >&2; exit 1; }
 
 # Mason SA OAuth token from the metadata server (provides TOKEN).
 #@rbgjs_include token-fetch

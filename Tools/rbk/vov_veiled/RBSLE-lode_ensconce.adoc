@@ -115,7 +115,7 @@ if the existing `:rbi_bole` digest differs from `«DIGEST»` — a touchmark col
 .. Apply the remaining member tags by `gcrane tag` (a registry-side re-tag of the copied manifest, no blob round-trip): `:rbi_bole` (uniform handle) and `:«SANITIZED-ORIGIN»-«SHA10»` (fingerprint)
 .. Author the
 {rbtga_lode_vouch}
-envelope JSON (schema `rbld-vouch-1`, trust grade `verified-against-published`, single-element `members[]`) and stage it on the {rbtgr_workspace}
+envelope JSON (schema `rbld-vouch-2`, all keys sprued `rblv_`, trust grade `verified-against-published`, single-element `rblv_members[]`) and stage it on the {rbtgr_workspace}
 .. Write the per-slot result JSON to `buildStepOutputs`
 
 //axhos_step

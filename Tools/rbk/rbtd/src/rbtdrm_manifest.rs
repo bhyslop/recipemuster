@@ -76,6 +76,10 @@ pub const RBTDRM_FIXTURE_CONFORMANCE: &str = "conformance";
 // Foundry-path — buc_native_path_capture Cygwin /cygdrive normalizer. No
 // external dependency; pure bash-function unit test sourced direct (no kindle).
 pub const RBTDRM_FIXTURE_FOUNDRY_PATH: &str = "foundry-path";
+// Podvm-resolve — host-side zrbld_immure_resolve_family brand mapping. No GCP
+// creds or container runtime required; invokes immure colophon, asserts the
+// diagnostic line emitted before credential load, expects non-zero exit.
+pub const RBTDRM_FIXTURE_PODVM_RESOLVE: &str = "podvm-resolve";
 // Cupel — BCG command-dependency static analysis over all Tools/ bash. No
 // external dependency; partitions kit-bash (strict) from GCB-bash (looser).
 pub const RBTDRM_FIXTURE_CUPEL: &str = "cupel";
@@ -217,6 +221,9 @@ pub fn rbtdrm_required_colophons(fixture: &str) -> Option<&'static [&'static str
         | RBTDRM_FIXTURE_CALIBRANT_FAIL_FAST
         | RBTDRM_FIXTURE_CALIBRANT_PROGRESSING
         | RBTDRM_FIXTURE_CALIBRANT_SENTINEL => Some(&[]),
+        RBTDRM_FIXTURE_PODVM_RESOLVE => Some(&[
+            RBTDGC_IMMURE_PODVM,
+        ]),
         RBTDRM_FIXTURE_DOCKERFILE_HYGIENE => Some(&[
             RBTDGC_HYGIENE_CHECK_DOCKERFILE,
             RBTDGC_HYGIENE_CHECK_VESSEL,

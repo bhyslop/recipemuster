@@ -29,6 +29,7 @@ use crate::rbtdri_invocation::{rbtdri_find_tabtarget_global, rbtdri_tabtarget_co
 use crate::rbtdgc_consts::{
     RBTDGC_HYGIENE_CHECK_DOCKERFILE,
     RBTDGC_HYGIENE_CHECK_VESSEL,
+    RBTDGC_IMMURE_PODVM,
     RBTDGC_LIST_DEPOT,
     RBTDGC_RBRS_FILE,
     RBTDGC_RENDER_NAMEPLATE,
@@ -47,6 +48,7 @@ use crate::rbtdrm_manifest::{
     RBTDRM_FIXTURE_DOCKERFILE_HYGIENE,
     RBTDRM_FIXTURE_ENROLLMENT_VALIDATION,
     RBTDRM_FIXTURE_FOUNDRY_PATH,
+    RBTDRM_FIXTURE_PODVM_RESOLVE,
     RBTDRM_FIXTURE_RECIPE_VALIDATION,
     RBTDRM_FIXTURE_REGIME_SMOKE,
     RBTDRM_FIXTURE_REGIME_VALIDATION,
@@ -2257,4 +2259,115 @@ pub static RBTDRF_FIXTURE_RECIPE_VALIDATION: rbtdre_Fixture = rbtdre_Fixture {
     setup: None,
     teardown: None,
     cases: RBTDRF_CASES_RECIPE_VALIDATION,
+};
+
+// ── Podvm-resolve cases ─────────────────────────────────────
+//
+// Asserts that zrbld_immure_resolve_family maps both podvm brands correctly.
+// Invokes the immure colophon (RBTDGC_IMMURE_PODVM) with a valid brand + version
+// arg; the colophon emits the diagnostic line immediately after family resolution
+// and BEFORE it reaches credential load. immure is GCP-capable, so the fast tier
+// drives it under the buorb_immure_resolve_only test seam: the colophon short-circuits
+// to a clean exit 0 right after the resolve diagnostic, never loading credentials nor
+// firing a build. The case asserts BOTH the family mapping AND the short-circuit
+// marker, so a silently-ignored seam (the build fires) fails the case rather than
+// passing while cloud spend burns.
+
+/// Resolve-only test seam recognized by rbld_immure (rbldv_Immure.sh): short-circuit
+/// after the family-resolution diagnostic, before any credential/network touch.
+const RBTDRF_IMMURE_RESOLVE_ONLY_TWEAK: &str = "buorb_immure_resolve_only";
+/// Stable substring of the loud short-circuit announcement the seam prints.
+const RBTDRF_IMMURE_RESOLVE_ONLY_MARKER: &str = "short-circuit after resolve (buorb_immure_resolve_only)";
+
+fn rbtdrf_pr_invoke(
+    dir: &Path,
+    label: &str,
+    args: &[&str],
+) -> Result<String, rbtdre_Verdict> {
+    let root = match std::env::current_dir() {
+        Ok(r) => r,
+        Err(e) => return Err(rbtdre_Verdict::Fail(format!("cannot get cwd: {}", e))),
+    };
+    let tt = match rbtdri_find_tabtarget_global(&root, RBTDGC_IMMURE_PODVM) {
+        Ok(p) => p,
+        Err(e) => return Err(rbtdre_Verdict::Fail(e)),
+    };
+    let output = match rbtdri_tabtarget_command(&tt)
+        .args(args)
+        .current_dir(&root)
+        .env("BURE_TWEAK_NAME", RBTDRF_IMMURE_RESOLVE_ONLY_TWEAK)
+        .env("BURE_TWEAK_VALUE", "resolve-only")
+        .output()
+    {
+        Ok(o) => o,
+        Err(e) => {
+            return Err(rbtdre_Verdict::Fail(format!(
+                "{}: failed to run {}: {}",
+                label,
+                tt.display(),
+                e
+            )));
+        }
+    };
+    let stdout = String::from_utf8_lossy(&output.stdout).into_owned();
+    let stderr = String::from_utf8_lossy(&output.stderr).into_owned();
+    let _ = std::fs::write(dir.join(format!("{}-stdout.txt", label)), &stdout);
+    let _ = std::fs::write(dir.join(format!("{}-stderr.txt", label)), &stderr);
+    Ok(format!("{}{}", stdout, stderr))
+}
+
+fn rbtdrf_podvm_resolve(dir: &Path) -> rbtdre_Verdict {
+    // native brand
+    let combined_native = match rbtdrf_pr_invoke(dir, "pr-native", &["podvm-native", "5.6"]) {
+        Ok(s) => s,
+        Err(v) => return v,
+    };
+    let needle_native = "podvm-native -> quay.io/podman/machine-os (kind vn)";
+    if !combined_native.contains(needle_native) {
+        return rbtdre_Verdict::Fail(format!(
+            "podvm-native mapping not found in output\nexpected substring: {}\ncombined output:\n{}",
+            needle_native, combined_native
+        ));
+    }
+    // The seam marker MUST appear — its absence means the tweak was ignored and immure
+    // ran past resolve toward a live build (the footgun this seam exists to disarm).
+    if !combined_native.contains(RBTDRF_IMMURE_RESOLVE_ONLY_MARKER) {
+        return rbtdre_Verdict::Fail(format!(
+            "podvm-native: resolve-only seam marker absent — tweak ignored, immure ran past resolve (live-build risk)\nexpected: {}\ncombined output:\n{}",
+            RBTDRF_IMMURE_RESOLVE_ONLY_MARKER, combined_native
+        ));
+    }
+
+    // wsl brand
+    let combined_wsl = match rbtdrf_pr_invoke(dir, "pr-wsl", &["podvm-wsl", "5.6"]) {
+        Ok(s) => s,
+        Err(v) => return v,
+    };
+    let needle_wsl = "podvm-wsl -> quay.io/podman/machine-os-wsl (kind vw)";
+    if !combined_wsl.contains(needle_wsl) {
+        return rbtdre_Verdict::Fail(format!(
+            "podvm-wsl mapping not found in output\nexpected substring: {}\ncombined output:\n{}",
+            needle_wsl, combined_wsl
+        ));
+    }
+    if !combined_wsl.contains(RBTDRF_IMMURE_RESOLVE_ONLY_MARKER) {
+        return rbtdre_Verdict::Fail(format!(
+            "podvm-wsl: resolve-only seam marker absent — tweak ignored, immure ran past resolve (live-build risk)\nexpected: {}\ncombined output:\n{}",
+            RBTDRF_IMMURE_RESOLVE_ONLY_MARKER, combined_wsl
+        ));
+    }
+
+    rbtdre_Verdict::Pass
+}
+
+pub static RBTDRF_CASES_PODVM_RESOLVE: &[rbtdre_Case] = &[
+    case!(rbtdrf_podvm_resolve),
+];
+
+pub static RBTDRF_FIXTURE_PODVM_RESOLVE: rbtdre_Fixture = rbtdre_Fixture {
+    name: RBTDRM_FIXTURE_PODVM_RESOLVE,
+    disposition: rbtdre_Disposition::Independent,
+    setup: None,
+    teardown: None,
+    cases: RBTDRF_CASES_PODVM_RESOLVE,
 };

@@ -281,7 +281,7 @@ The Lode provenance envelope rides today as a reserved `:rbi_vouch` tag (one per
 When signing becomes warranted, confirm whether GAR's OCI 1.1 referrers API is mature enough to attach attestation as a subject-linked artifact, and decide between that and cosign for the Lode vouch.
 Verifying GAR referrers maturity is a vendor (Palisade) question with no consumer until distribution leaves the project, so it is deliberately not a pace.
 _Trigger_: same as Cosign — external image distribution or builder strategy beyond Google Cloud Build.
-_Reference_: RBS0-SpecTop.adoc (Lode provenance envelope, `rbld-vouch-1`).
+_Reference_: RBS0-SpecTop.adoc (Lode provenance envelope, `rbld-vouch-2`).
 
 **Binary Authorization.**
 Deploy-time policy enforcement (only attested images can be deployed).

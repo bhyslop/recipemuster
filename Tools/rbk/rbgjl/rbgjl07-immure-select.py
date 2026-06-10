@@ -11,6 +11,7 @@
 #   _RBGL_GAR_HOST _RBGL_GAR_PATH _RBGL_LODES_ROOT _RBGL_LODE_STAMP _RBGL_TAG_SPRUE
 #   _RBGL_TAG_VOUCH _RBGL_TRUST_GRADE _RBGL_VOUCH_SCHEMA _RBGL_ACQUIRED_BY
 #   _RBGL_PODVM_BRAND _RBGL_PODVM_FAMILY _RBGL_PODVM_VERSION _RBGL_PODVM_SELECTION
+#   _RBGL_PODVM_PRESERVED (refresh add-only: JSON array of already-captured members)
 #
 # podvm is recorded-at-acquisition: quay rotates these images out within days and
 # publishes no durable checksum, so RB attests only the leaf digest observed at
@@ -113,6 +114,13 @@ def main():
     version = require_env("_RBGL_PODVM_VERSION")
     selection = require_env("_RBGL_PODVM_SELECTION")
 
+    # Refresh merge (Architecture H): the host passes the already-captured member set
+    # as _RBGL_PODVM_PRESERVED — a compact JSON array of rblv_ member objects (envelope
+    # members verbatim + orphan-recovered entries), or "[]" for a fresh capture. Members
+    # already present are spliced into the new envelope and never re-resolved upstream.
+    preserved = json.loads(os.environ.get("_RBGL_PODVM_PRESERVED", "[]") or "[]")
+    preserved_idx = {m["rblv_name"]: m for m in preserved}
+
     print("=== Select podvm disk leaves from quay family index ===")
 
     # Decompose the family into the registry-v2 host + repository (quay.io/podman/...).
@@ -150,8 +158,18 @@ def main():
             die(f"malformed selection entry '{entry}' (want disktype:arch)")
         disktype, arch = entry.split(":", 1)
         member_tag = f"{sprue}{disktype}-{arch}"
-        print(f"--- Selecting {disktype}/{arch} -> :{member_tag} ---")
 
+        # Add-only / preserve-originals: a member the host reports as already captured
+        # (enveloped verbatim, or orphan-recovered from GAR) is spliced in WITHOUT a
+        # fresh upstream resolve and WITHOUT a capture row — its held bytes and its true
+        # per-member time stand. Only genuinely-absent leaves touch the rotating
+        # upstream. Fresh capture is the empty-preserved case (every leaf is absent).
+        if member_tag in preserved_idx:
+            print(f"--- Preserving {member_tag} (already captured; not re-resolved) ---")
+            members.append(preserved_idx[member_tag])
+            continue
+
+        print(f"--- Selecting {disktype}/{arch} -> :{member_tag} ---")
         leaf_digest = None
         for m in descriptors:
             plat = m.get("platform") or {}
@@ -185,36 +203,44 @@ def main():
         print(f"  disk blob:     {blob_digest} ({blob_size} bytes)")
 
         rows.append(f"{member_tag}|{leaf_digest}|{blob_digest}|{blob_size}")
-        # Recorded grade: the attestation IS the captured leaf digest (the `digest`
-        # field); origin keeps the declared family:version so the rotating-upstream
-        # provenance survives in the envelope. verification "recorded" never implies
-        # the bytes remain re-checkable against a vanished source.
+        # Recorded grade: the attestation IS the captured leaf digest; origin keeps the
+        # declared family:version so the rotating-upstream provenance survives. The
+        # per-member rblv_acquired_at / rblv_capture_build are PODVM-ONLY — only podvm
+        # refreshes, so only podvm accumulates members across multiple authoring events;
+        # in a refreshed Lode the preserved members' times sit EARLIER than the
+        # envelope-level rblv_acquired_at, so the artifact self-discloses the
+        # authored-vs-captured split (see RBSLI). A uniformity sweep must not graft
+        # these onto the single-capture kinds.
         members.append({
-            "name": member_tag,
-            "origin": f"{family}:{version}",
-            "digest": leaf_digest,
-            "verification": "recorded",
-            "tags": [member_tag],
+            "rblv_name": member_tag,
+            "rblv_origin": f"{family}:{version}",
+            "rblv_digest": leaf_digest,
+            "rblv_verification": "recorded",
+            "rblv_tags": [member_tag],
+            "rblv_acquired_at": acquired_at,
+            "rblv_capture_build": os.environ.get("BUILD_ID", ""),
         })
 
-    if not rows:
-        die("selection produced no leaves — nothing to immure")
+    if not members:
+        die("selection produced no members — nothing to immure")
 
     envelope = {
-        "schema": require_env("_RBGL_VOUCH_SCHEMA"),
-        "kind": brand,
-        "lode": stamp,
-        "acquired_at": acquired_at,
-        "acquired_by": require_env("_RBGL_ACQUIRED_BY"),
-        "capture_build": os.environ.get("BUILD_ID", ""),
-        "trust_grade": require_env("_RBGL_TRUST_GRADE"),
-        "signature": None,
-        "members": members,
+        "rblv_schema": require_env("_RBGL_VOUCH_SCHEMA"),
+        "rblv_kind": brand,
+        "rblv_lode": stamp,
+        "rblv_acquired_at": acquired_at,
+        "rblv_acquired_by": require_env("_RBGL_ACQUIRED_BY"),
+        "rblv_capture_build": os.environ.get("BUILD_ID", ""),
+        "rblv_trust_grade": require_env("_RBGL_TRUST_GRADE"),
+        "rblv_signature": None,
+        "rblv_members": members,
     }
 
     # Truncate-then-write (idempotent under GCB retry — CBi_103; no append mode).
+    # immure_selection.txt carries ONLY the absent leaves (the cp/residency contract);
+    # on an all-preserved refresh it is legitimately empty and rbgjl08/09 no-op.
     with open("/workspace/immure_selection.txt", "w") as f:
-        f.write("\n".join(rows) + "\n")
+        f.write("\n".join(rows) + ("\n" if rows else ""))
     with open(f"/workspace/lode_{stamp}_vouch.json", "w") as f:
         json.dump(envelope, f)
     with open("/workspace/lode_stamps.txt", "w") as f:
@@ -223,7 +249,7 @@ def main():
     # Host-facing result (the capture-file carries the same envelope). One slot —
     # immure produces exactly one Lode (the cohort is one package). The spine
     # extracts buildStepOutputs from THIS step (index 0); pin the extract slot to 0.
-    result = {"slot_1": {"stamp": stamp, "vouch": envelope}}
+    result = {"rbls_slot_1": {"rbls_stamp": stamp, "rbls_vouch": envelope}}
     os.makedirs("/builder/outputs", exist_ok=True)
     with open("/builder/outputs/output", "w") as f:
         f.write(json.dumps(result))

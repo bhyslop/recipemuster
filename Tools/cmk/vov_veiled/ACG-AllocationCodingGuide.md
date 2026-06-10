@@ -338,7 +338,8 @@ detect-only** (read and report; no repair until a verifier exists). Numbered fro
 - **Done:** every key in the format carries the sprue; the format's schema
   identifier (if it has one) is bumped; the sprue grep is the format's complete
   sender/receiver census. First worked application: the Lode vouch envelope
-  (`rblv_`, schema `rbld-vouch-2`).
+  (`rblv_`, schema `rbld-vouch-2`). Second worked application: the Lode slot/result
+  format (`rbls_`, keys `rbls_slot_1`/`rbls_stamp`/`rbls_vouch`).
 - **Triage:** foreign-schema documents are excluded by the Palisade boundary
   before any sweep. Pre-MVP formats convert with no dual-dialect reading — there
   is no compatibility surface; standing artifacts are re-captured or discarded,

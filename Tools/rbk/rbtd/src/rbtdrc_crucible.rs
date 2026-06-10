@@ -2529,6 +2529,7 @@ pub static RBTDRC_FIXTURES: &[&'static rbtdre_Fixture] = &[
     &crate::rbtdrf_fast::RBTDRF_FIXTURE_REGIME_SMOKE,
     &crate::rbtdrf_fast::RBTDRF_FIXTURE_DOCKERFILE_HYGIENE,
     &crate::rbtdrf_fast::RBTDRF_FIXTURE_RECIPE_VALIDATION,
+    &crate::rbtdrf_fast::RBTDRF_FIXTURE_PODVM_RESOLVE,
     &crate::rbtdru_cupel::RBTDRU_FIXTURE_CUPEL,
     &crate::rbtdrn_conformance::RBTDRN_FIXTURE_CONFORMANCE,
     &crate::rbtdrf_handbook::RBTDRF_FIXTURE_HANDBOOK_RENDER,
@@ -2568,6 +2569,7 @@ pub static RBTDRC_SUITES: &[rbtdre_Suite] = &[
             &crate::rbtdrf_fast::RBTDRF_FIXTURE_ENROLLMENT_VALIDATION,
             &crate::rbtdrf_fast::RBTDRF_FIXTURE_REGIME_VALIDATION,
             &crate::rbtdrf_fast::RBTDRF_FIXTURE_REGIME_SMOKE,
+            &crate::rbtdrf_fast::RBTDRF_FIXTURE_PODVM_RESOLVE,
             &crate::rbtdrf_handbook::RBTDRF_FIXTURE_HANDBOOK_RENDER,
             &crate::rbtdrf_fast::RBTDRF_FIXTURE_DOCKERFILE_HYGIENE,
             &crate::rbtdrf_fast::RBTDRF_FIXTURE_FOUNDRY_PATH,
@@ -2583,6 +2585,7 @@ pub static RBTDRC_SUITES: &[rbtdre_Suite] = &[
             &crate::rbtdrf_fast::RBTDRF_FIXTURE_ENROLLMENT_VALIDATION,
             &crate::rbtdrf_fast::RBTDRF_FIXTURE_REGIME_VALIDATION,
             &crate::rbtdrf_fast::RBTDRF_FIXTURE_REGIME_SMOKE,
+            &crate::rbtdrf_fast::RBTDRF_FIXTURE_PODVM_RESOLVE,
             &crate::rbtdrf_handbook::RBTDRF_FIXTURE_HANDBOOK_RENDER,
             &crate::rbtdrf_fast::RBTDRF_FIXTURE_DOCKERFILE_HYGIENE,
             &crate::rbtdrf_fast::RBTDRF_FIXTURE_FOUNDRY_PATH,
@@ -2605,6 +2608,7 @@ pub static RBTDRC_SUITES: &[rbtdre_Suite] = &[
             &crate::rbtdrf_fast::RBTDRF_FIXTURE_ENROLLMENT_VALIDATION,
             &crate::rbtdrf_fast::RBTDRF_FIXTURE_REGIME_VALIDATION,
             &crate::rbtdrf_fast::RBTDRF_FIXTURE_REGIME_SMOKE,
+            &crate::rbtdrf_fast::RBTDRF_FIXTURE_PODVM_RESOLVE,
             &crate::rbtdrf_handbook::RBTDRF_FIXTURE_HANDBOOK_RENDER,
             &crate::rbtdrf_fast::RBTDRF_FIXTURE_DOCKERFILE_HYGIENE,
             &crate::rbtdrf_fast::RBTDRF_FIXTURE_FOUNDRY_PATH,
@@ -2623,6 +2627,7 @@ pub static RBTDRC_SUITES: &[rbtdre_Suite] = &[
             &crate::rbtdrf_fast::RBTDRF_FIXTURE_ENROLLMENT_VALIDATION,
             &crate::rbtdrf_fast::RBTDRF_FIXTURE_REGIME_VALIDATION,
             &crate::rbtdrf_fast::RBTDRF_FIXTURE_REGIME_SMOKE,
+            &crate::rbtdrf_fast::RBTDRF_FIXTURE_PODVM_RESOLVE,
             &crate::rbtdrf_handbook::RBTDRF_FIXTURE_HANDBOOK_RENDER,
             &crate::rbtdrf_fast::RBTDRF_FIXTURE_DOCKERFILE_HYGIENE,
             &crate::rbtdrf_fast::RBTDRF_FIXTURE_FOUNDRY_PATH,
@@ -2655,6 +2660,7 @@ pub static RBTDRC_SUITES: &[rbtdre_Suite] = &[
             &crate::rbtdro_onboarding::RBTDRO_FIXTURE_ONBOARDING_SEQUENCE,
             &crate::rbtdrf_fast::RBTDRF_FIXTURE_REGIME_VALIDATION,
             &crate::rbtdrf_fast::RBTDRF_FIXTURE_REGIME_SMOKE,
+            &crate::rbtdrf_fast::RBTDRF_FIXTURE_PODVM_RESOLVE,
             &crate::rbtdrf_fast::RBTDRF_FIXTURE_DOCKERFILE_HYGIENE,
             &crate::rbtdru_cupel::RBTDRU_FIXTURE_CUPEL,
             &crate::rbtdrn_conformance::RBTDRN_FIXTURE_CONFORMANCE,
@@ -2682,6 +2688,7 @@ pub static RBTDRC_SUITES: &[rbtdre_Suite] = &[
             &crate::rbtdro_onboarding::RBTDRO_FIXTURE_ONBOARDING_SEQUENCE,
             &crate::rbtdrf_fast::RBTDRF_FIXTURE_REGIME_VALIDATION,
             &crate::rbtdrf_fast::RBTDRF_FIXTURE_REGIME_SMOKE,
+            &crate::rbtdrf_fast::RBTDRF_FIXTURE_PODVM_RESOLVE,
             &crate::rbtdrf_fast::RBTDRF_FIXTURE_DOCKERFILE_HYGIENE,
             &crate::rbtdru_cupel::RBTDRU_FIXTURE_CUPEL,
             &crate::rbtdrn_conformance::RBTDRN_FIXTURE_CONFORMANCE,
@@ -3682,7 +3689,49 @@ fn rbtdrc_podvm_lifecycle(dir: &Path) -> rbtdre_Verdict {
             ));
         }
 
+        // Step 2.5: REFRESH the same Lode at its locked version. The wsl family's
+        // production curation IS the full 2-leaf set, so this refresh adds no new
+        // member — it is the all-preserved / convergent path, and that is what the
+        // recurring suite proves: refresh reuses the existing touchmark (no new Lode),
+        // derives the locked version from the envelope (it takes no version argument),
+        // re-reads the GAR member tags as the source of truth, preserves both originals
+        // verbatim, and re-authors :rbi_vouch. The widen-adds-a-member path is the
+        // one-time native gate (full 8-leaf machine-os, multi-GB), deliberately kept
+        // OUT of the recurring suite; see rbgc_Constants RBGC_LODE_PODVM_NATIVE_SELECTION.
+        let _ = std::fs::write(dir.join("03b-refresh.txt"), "refreshing podvm-wsl Lode (all-preserved)");
+        match rbtdri_invoke_global(
+            ctx,
+            RBTDGC_IMMURE_PODVM,
+            &[RBTDRC_PODVM_FAMILY, "--refresh", &touchmark],
+            &[],
+        ) {
+            Ok(r) if r.exit_code == 0 => {}
+            Ok(r) => return rbtdre_Verdict::Fail(format!("refresh immure failed (exit {})\n{}", r.exit_code, r.stderr)),
+            Err(e) => return rbtdre_Verdict::Fail(format!("refresh immure invocation: {}", e)),
+        }
+        // Post-refresh divine: the SAME touchmark, still a 2-member cohort — refresh
+        // reused the Lode and preserved both originals (no new Lode, no membership drift).
+        let after_refresh = match rbtdri_invoke_global(ctx, RBTDGC_DIVINE_LODES, &[], &[]) {
+            Ok(r) if r.exit_code == 0 => r,
+            Ok(r) => return rbtdre_Verdict::Fail(format!("post-refresh divine failed (exit {})\n{}", r.exit_code, r.stderr)),
+            Err(e) => return rbtdre_Verdict::Fail(format!("post-refresh divine invocation: {}", e)),
+        };
+        let _ = std::fs::write(dir.join("03c-divine-after-refresh.txt"), &after_refresh.stdout);
+        if !after_refresh.stdout.contains(&touchmark) {
+            return rbtdre_Verdict::Fail(format!(
+                "post-refresh divine missing touchmark {} — refresh lost the Lode\nstdout:\n{}",
+                touchmark, after_refresh.stdout
+            ));
+        }
+        if !after_refresh.stdout.contains("cohort: 2 members") {
+            return rbtdre_Verdict::Fail(format!(
+                "post-refresh divine row for {} not '(cohort: 2 members)' — refresh changed membership\nstdout:\n{}",
+                touchmark, after_refresh.stdout
+            ));
+        }
+
         // Step 3: augur inspects the podvm Lode — member tags AND the decoded
+        // (this augur now also validates the refresh PRESERVED both original members)
         // :rbi_vouch envelope. The trust-grade assertion proves augur decoded the
         // recorded-at-acquisition envelope (distinct from the verified grade the bole
         // and reliquary kinds carry); the posture-fragment assertion proves the honest-

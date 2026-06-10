@@ -126,9 +126,9 @@ zrbld_ensconce_extract() {
   local z_stamp_file=""
   local z_stamp=""
   for z_n in 1 2 3; do
-    z_slot_key="slot_${z_n}"
+    z_slot_key="rbls_slot_${z_n}"
     z_stamp_file="${ZRBLD_ENSCONCE_PREFIX}${z_n}_stamp.txt"
-    jq -r ".${z_slot_key}.stamp // empty" "${z_output_file}" > "${z_stamp_file}" \
+    jq -r ".${z_slot_key}.rbls_stamp // empty" "${z_output_file}" > "${z_stamp_file}" \
       || buc_die "Failed to read stamp for ${z_slot_key}"
     z_stamp=$(<"${z_stamp_file}")
     test -n "${z_stamp}" || continue

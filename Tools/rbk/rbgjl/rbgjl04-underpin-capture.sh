@@ -109,25 +109,25 @@ cp "${ROOTFS}" "${CTX}/rootfs.tar"
 echo "Rootfs verified and staged: ${DEST} (sha256:${ACTUAL_SHA})"
 
 # --- Author the batch provenance envelope (identical content lands in :rbi_vouch
-# and the host capture-file). members[] length 1 — the wsl singleton. No jq
+# and the host capture-file). rblv_members[] length 1 — the wsl singleton. No jq
 # dependency — values are controlled (member tag, URL, hex digest, key fingerprint,
 # SA email, build id, ISO timestamp); none can carry a literal quote. ---
 ENVELOPE='{'
-ENVELOPE="${ENVELOPE}\"schema\":\"${_RBGL_VOUCH_SCHEMA}\","
-ENVELOPE="${ENVELOPE}\"kind\":\"wsl\","
-ENVELOPE="${ENVELOPE}\"lode\":\"${STAMP}\","
-ENVELOPE="${ENVELOPE}\"acquired_at\":\"${ACQUIRED_AT}\","
-ENVELOPE="${ENVELOPE}\"acquired_by\":\"${_RBGL_ACQUIRED_BY}\","
-ENVELOPE="${ENVELOPE}\"capture_build\":\"${BUILD_ID:-}\","
-ENVELOPE="${ENVELOPE}\"trust_grade\":\"${_RBGL_TRUST_GRADE}\","
-ENVELOPE="${ENVELOPE}\"signature\":null,"
-ENVELOPE="${ENVELOPE}\"members\":[{"
-ENVELOPE="${ENVELOPE}\"name\":\"${MEMBER_TAG}\","
-ENVELOPE="${ENVELOPE}\"origin\":\"${URL}\","
-ENVELOPE="${ENVELOPE}\"digest\":\"sha256:${ACTUAL_SHA}\","
-ENVELOPE="${ENVELOPE}\"verification\":\"gpg-sha256-published\","
-ENVELOPE="${ENVELOPE}\"signing_key\":\"${KEY_FPR}\","
-ENVELOPE="${ENVELOPE}\"tags\":[\"${MEMBER_TAG}\"]"
+ENVELOPE="${ENVELOPE}\"rblv_schema\":\"${_RBGL_VOUCH_SCHEMA}\","
+ENVELOPE="${ENVELOPE}\"rblv_kind\":\"wsl\","
+ENVELOPE="${ENVELOPE}\"rblv_lode\":\"${STAMP}\","
+ENVELOPE="${ENVELOPE}\"rblv_acquired_at\":\"${ACQUIRED_AT}\","
+ENVELOPE="${ENVELOPE}\"rblv_acquired_by\":\"${_RBGL_ACQUIRED_BY}\","
+ENVELOPE="${ENVELOPE}\"rblv_capture_build\":\"${BUILD_ID:-}\","
+ENVELOPE="${ENVELOPE}\"rblv_trust_grade\":\"${_RBGL_TRUST_GRADE}\","
+ENVELOPE="${ENVELOPE}\"rblv_signature\":null,"
+ENVELOPE="${ENVELOPE}\"rblv_members\":[{"
+ENVELOPE="${ENVELOPE}\"rblv_name\":\"${MEMBER_TAG}\","
+ENVELOPE="${ENVELOPE}\"rblv_origin\":\"${URL}\","
+ENVELOPE="${ENVELOPE}\"rblv_digest\":\"sha256:${ACTUAL_SHA}\","
+ENVELOPE="${ENVELOPE}\"rblv_verification\":\"gpg-sha256-published\","
+ENVELOPE="${ENVELOPE}\"rblv_signing_key\":\"${KEY_FPR}\","
+ENVELOPE="${ENVELOPE}\"rblv_tags\":[\"${MEMBER_TAG}\"]"
 ENVELOPE="${ENVELOPE}}]}"
 
 # Stage the envelope for step 02 (pushes it as the :rbi_vouch artifact). The
@@ -138,7 +138,7 @@ echo "${STAMP}" >> /workspace/lode_stamps.txt
 
 # Host-facing result (the capture-file carries the same envelope). One slot —
 # underpin produces exactly one Lode.
-RESULT="{\"slot_1\":{\"stamp\":\"${STAMP}\",\"vouch\":${ENVELOPE}}}"
+RESULT="{\"rbls_slot_1\":{\"rbls_stamp\":\"${STAMP}\",\"rbls_vouch\":${ENVELOPE}}}"
 
 echo "=== Writing capture results ==="
 echo "${RESULT}"

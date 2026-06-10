@@ -2216,10 +2216,11 @@ and a different claim: "we faithfully captured upstream X at digest D," not "we 
 +
 It has one canonical home: the in-GAR `:rbi_vouch` tag (the Lode self-describing in the registry, decoded by {rbtgo_lode_augur}). The host-side {rbf_fact_lode} carries only the bare touchmark, not the envelope — so reading host-side provenance costs a GAR call, the accepted price of a single canonical home.
 +
-Fields (schema `rbld-vouch-1`, near-term unsigned — `signature: null` — but schema-versioned):
-`schema`, `kind`, `lode` (the touchmark), `acquired_at` (ISO-8601 UTC), `acquired_by` (the capturing Cloud Build service account), `capture_build` (the capture's own build id), `trust_grade`, and `members[]`.
-Each `members[]` entry carries `name`, `origin`, `digest`, `verification`, and its assigned `tags` — so the captured identity and any Director-assigned names are themselves attested.
-`members[]` is the cardinality axis: length 1 for singletons (bole), N for cohorts.
+Fields (schema `rbld-vouch-2`, every key carrying the `rblv_` sprue, near-term unsigned — `rblv_signature: null` — but schema-versioned):
+`rblv_schema`, `rblv_kind`, `rblv_lode` (the touchmark), `rblv_acquired_at` (ISO-8601 UTC — when the envelope was authored), `rblv_acquired_by` (the capturing Cloud Build service account), `rblv_capture_build` (the capture's own build id), `rblv_trust_grade`, and `rblv_members[]`.
+Each `rblv_members[]` entry carries `rblv_name`, `rblv_origin`, `rblv_digest`, `rblv_verification`, and its assigned `rblv_tags` — so the captured identity and any Director-assigned names are themselves attested.
+Kind-specific per-member fields ride on top of that common shape: the wsl kind adds `rblv_signing_key` (the gpg fingerprint), and the podvm kinds add per-member `rblv_acquired_at` / `rblv_capture_build` — present only because podvm refreshes, and so only it accumulates members across more than one authoring event; the per-member time then sits earlier than the envelope-level one, self-disclosing the authored-versus-captured split. The asymmetry tracks refresh-capability — a uniformity sweep must not graft these onto the single-capture kinds.
+`rblv_members[]` is the cardinality axis: length 1 for singletons (bole), N for cohorts.
 +
 Two honest trust grades, declared per Lode (Palisade honesty — never over-claim):
 +

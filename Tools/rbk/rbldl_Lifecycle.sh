@@ -187,31 +187,31 @@ rbld_augur() {
   test -f "${z_vouch_json}" \
     || buc_die "Envelope artifact present but vouch.json missing for ${z_touchmark}"
 
-  # Kind name comes from the envelope's own kind field — the kind-agnostic source
+  # Kind name comes from the envelope's own rblv_kind field — the kind-agnostic source
   # (a new Lode kind needs no change here; the prefix letter is shown as a cross-check).
   local z_trust=""
-  z_trust=$(jq -r '.trust_grade // "(absent)"' "${z_vouch_json}") \
-    || buc_die "Failed to read trust_grade from envelope for ${z_touchmark}"
+  z_trust=$(jq -r '.rblv_trust_grade // "(absent)"' "${z_vouch_json}") \
+    || buc_die "Failed to read rblv_trust_grade from envelope for ${z_touchmark}"
 
   echo ""
   printf "  Provenance envelope (:%s):\n" "${RBGC_LODE_TAG_VOUCH}"
   jq -r '
-    "    Kind:          \(.kind // "(absent)")",
-    "    Lode:          \(.lode // "(absent)")",
-    "    Schema:        \(.schema // "(absent)")",
-    "    Acquired at:   \(.acquired_at // "(absent)")",
-    "    Acquired by:   \(.acquired_by // "(absent)")",
-    "    Capture build: \(.capture_build // "(absent)")",
-    "    Signature:     \(if .signature == null then "(unsigned)" else .signature end)",
-    "    Trust grade:   \(.trust_grade // "(absent)")",
+    "    Kind:          \(.rblv_kind // "(absent)")",
+    "    Lode:          \(.rblv_lode // "(absent)")",
+    "    Schema:        \(.rblv_schema // "(absent)")",
+    "    Acquired at:   \(.rblv_acquired_at // "(absent)")",
+    "    Acquired by:   \(.rblv_acquired_by // "(absent)")",
+    "    Capture build: \(.rblv_capture_build // "(absent)")",
+    "    Signature:     \(if .rblv_signature == null then "(unsigned)" else .rblv_signature end)",
+    "    Trust grade:   \(.rblv_trust_grade // "(absent)")",
     "",
-    "    Members (\((.members // []) | length)):",
-    ((.members // [])[] |
-      "      \(.name // "(unnamed)")",
-      "        origin:       \(.origin // "(absent)")",
-      "        digest:       \(.digest // "(absent)")",
-      "        verification: \(.verification // "(absent)")",
-      "        tags:         \((.tags // []) | join(", "))")
+    "    Members (\((.rblv_members // []) | length)):",
+    ((.rblv_members // [])[] |
+      "      \(.rblv_name // "(unnamed)")",
+      "        origin:       \(.rblv_origin // "(absent)")",
+      "        digest:       \(.rblv_digest // "(absent)")",
+      "        verification: \(.rblv_verification // "(absent)")",
+      "        tags:         \((.rblv_tags // []) | join(", "))")
   ' "${z_vouch_json}" \
     || buc_die "Failed to render provenance envelope for ${z_touchmark}"
 

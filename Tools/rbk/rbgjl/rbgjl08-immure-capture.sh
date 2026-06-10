@@ -35,8 +35,11 @@ test -n "${STAMP}"  || { echo "FATAL: _RBGL_LODE_STAMP missing"   >&2; exit 1; }
 test -n "${FAMILY}" || { echo "FATAL: _RBGL_PODVM_FAMILY missing" >&2; exit 1; }
 
 # Guard the inter-step handoff (CBi_102): step 07 must have selected the leaves.
-test -s /workspace/immure_selection.txt \
-  || { echo "FATAL: /workspace/immure_selection.txt missing/empty — step 07 must run first" >&2; exit 1; }
+# An EMPTY selection is legitimate — an all-preserved refresh (every curated leaf
+# already held) adds no new leaf, so step 07 writes an empty list and this loop
+# no-ops. Only a MISSING file means step 07 never ran; guard on -f, not -s.
+test -f /workspace/immure_selection.txt \
+  || { echo "FATAL: /workspace/immure_selection.txt missing — step 07 must run first" >&2; exit 1; }
 
 PKG="${_RBGL_GAR_HOST}/${_RBGL_GAR_PATH}/${_RBGL_LODES_ROOT}/${STAMP}"
 echo "Lode package: ${PKG}"

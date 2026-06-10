@@ -50,8 +50,8 @@ set -euo pipefail
 
 # Internal: resolve the family argument to its (kind-letter, quay-family, selection,
 # brand) tuple. The brand IS the operator-typed argument and the envelope kind field.
-# podvm-wsl is fixture-proven this pace; podvm-native is wired but its full curation +
-# refresh mode are the FOLLOWING pace (see rbgc_Constants podvm selection block).
+# Both families are wired; podvm-wsl is fixture-proven recurring (service tier), and
+# podvm-native carries full 8-leaf curation (see rbgc_Constants podvm selection block).
 # Args: family   Sets: z_kind, z_quay_family, z_selection (caller-scoped locals)
 zrbld_immure_resolve_family() {
   zrbld_sentinel
@@ -87,7 +87,10 @@ zrbld_immure_resolve_family() {
 # anti-hollow-mirror guard. podvm is vessel-less (no reliquary slot), so its gcrane
 # rides the floating bootstrap builder, same tier as conclave/wsl — pinning defers to
 # the bootstrap-builder digest-pin itch (RBS0 rbsk_pinning_boundary).
-# Args: token brand quay_family version selection stamp
+# Args: token brand quay_family version selection stamp preserved
+#   preserved — compact JSON array of already-captured members (refresh add-only);
+#               "[]" for a fresh capture. Passed through as _RBGL_PODVM_PRESERVED so
+#               the select step splices them in without re-resolving upstream.
 zrbld_immure_submit() {
   zrbld_sentinel
 
@@ -97,6 +100,7 @@ zrbld_immure_submit() {
   local -r z_version="${4:?Version required}"
   local -r z_selection="${5:?Selection required}"
   local -r z_stamp="${6:?Stamp required}"
+  local -r z_preserved="${7:-[]}"
 
   buc_step "Constructing immure capture recipe"
   local -r z_gar_host="${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}"
@@ -130,6 +134,7 @@ zrbld_immure_submit() {
     --arg zjq_family       "${z_quay_family}" \
     --arg zjq_version      "${z_version}" \
     --arg zjq_selection    "${z_selection}" \
+    --arg zjq_preserved    "${z_preserved}" \
     '{
       _RBGL_GAR_HOST:        $zjq_gar_host,
       _RBGL_GAR_PATH:        $zjq_gar_path,
@@ -143,7 +148,8 @@ zrbld_immure_submit() {
       _RBGL_PODVM_BRAND:     $zjq_brand,
       _RBGL_PODVM_FAMILY:    $zjq_family,
       _RBGL_PODVM_VERSION:   $zjq_version,
-      _RBGL_PODVM_SELECTION: $zjq_selection
+      _RBGL_PODVM_SELECTION: $zjq_selection,
+      _RBGL_PODVM_PRESERVED: $zjq_preserved
     }' > "${z_subs_file}" \
     || buc_die "Failed to compose immure substitutions blob"
 
@@ -156,8 +162,8 @@ zrbld_immure_submit() {
 # Internal: extract the captured touchmark from the completed immure build and emit
 # the two bare single-form chaining facts (touchmark value + kind-brand enum). The
 # select step (step 0) authors the base64 JSON carrying the host-minted stamp in
-# slot_1; the capture/residency/vouch steps write no output. Immure captures exactly
-# one Lode (the cohort is one package), so exactly one slot is populated. The
+# rbls_slot_1; the capture/residency/vouch steps write no output. Immure captures
+# exactly one Lode (the cohort is one package), so exactly one slot is populated. The
 # provenance envelope is NOT read host-side: it lives only in GAR (rbgjl02 pushed it
 # under :rbi_vouch), so the host hands forward only the touchmark a consumer needs.
 # Args: brand
@@ -174,10 +180,10 @@ zrbld_immure_extract() {
   buc_log_pipe < "${z_output_file}"
 
   local -r z_stamp_file="${ZRBLD_IMMURE_PREFIX}stamp.txt"
-  jq -r '.slot_1.stamp // empty' "${z_output_file}" > "${z_stamp_file}" \
+  jq -r '.rbls_slot_1.rbls_stamp // empty' "${z_output_file}" > "${z_stamp_file}" \
     || buc_die "Failed to read podvm stamp from immure output"
   local -r z_stamp=$(<"${z_stamp_file}")
-  test -n "${z_stamp}" || buc_die "Immure output carried no stamp in slot_1"
+  test -n "${z_stamp}" || buc_die "Immure output carried no stamp in rbls_slot_1"
 
   buf_write_fact_single "${RBF_FACT_LODE_TOUCHMARK}" "${z_stamp}" \
     || buc_die "Failed to write touchmark fact for ${z_stamp}"
@@ -193,22 +199,50 @@ rbld_immure() {
   zrbld_sentinel
 
   buc_doc_brief "Wall in the selected podman-machine disk leaves of one quay family into a Lode (podvm kind, rbi_ld capture)"
-  buc_doc_param "family"  "Quay family — ${RBGC_LODE_BRAND_PODVM_WSL} or ${RBGC_LODE_BRAND_PODVM_NATIVE}"
-  buc_doc_param "version" "Podman version tag on the family index (e.g. 5.6)"
+  buc_doc_param "family"          "Quay family — ${RBGC_LODE_BRAND_PODVM_WSL} or ${RBGC_LODE_BRAND_PODVM_NATIVE}"
+  buc_doc_param "version|--refresh <touchmark>" \
+    "Fresh: version tag (e.g. 5.6); Refresh: literal '--refresh' followed by existing touchmark"
   buc_doc_shown || return 0
 
-  # Two declarative arguments (no FQIN — see RBSLI): the param1 channel routes the
-  # first to BUZ_FOLIO and forwards the rest, so family is the folio and version the
-  # first positional. The curated leaf-set is a per-family constant; the cloud step
-  # resolves leaf digests from the live index at capture time.
+  # BUZ_FOLIO carries the family argument (param1 channel). $1 is either the
+  # version (fresh) or the literal '--refresh' (refresh mode) with $2 as the
+  # existing touchmark. Refresh reuses the same stamp (no version bump possible);
+  # the locked version is derived from any member's rblv_origin in the existing envelope.
   local -r z_brand="${BUZ_FOLIO:-}"
-  local -r z_version="${1:-}"
-  test -n "${z_brand}"   || buc_die "family argument required (${RBGC_LODE_BRAND_PODVM_WSL} or ${RBGC_LODE_BRAND_PODVM_NATIVE})"
-  test -n "${z_version}" || buc_die "version argument required (e.g. 5.6)"
+  test -n "${z_brand}" || buc_die "family argument required (${RBGC_LODE_BRAND_PODVM_WSL} or ${RBGC_LODE_BRAND_PODVM_NATIVE})"
+
+  local z_mode="fresh"
+  local z_version=""
+  local z_stamp=""
+
+  if [ "${1:-}" = "--refresh" ]; then
+    z_mode="refresh"
+    local -r z_touchmark="${2:-}"
+    test -n "${z_touchmark}" || buc_die "touchmark required after --refresh (e.g. vw260610095327)"
+    z_stamp="${z_touchmark}"
+    buc_info "Immure REFRESH mode: reusing existing Lode ${z_touchmark}"
+  else
+    z_version="${1:-}"
+    test -n "${z_version}" || buc_die "version argument required (e.g. 5.6), or use --refresh <touchmark> for refresh mode"
+  fi
 
   local z_kind="" z_quay_family="" z_selection=""
   zrbld_immure_resolve_family "${z_brand}"
-  buc_info "Immure family: ${z_brand} (${z_quay_family}:${z_version}), leaves: ${z_selection}"
+  # Resolved-tuple diagnostic, emitted before any credential load so a host-side
+  # (no-GCB) test can assert the family mapping for either brand by reading this line.
+  buc_info "Immure family resolved: ${z_brand} -> ${z_quay_family} (kind ${z_kind}), leaves: ${z_selection}"
+
+  # Resolve-only test seam (buo sprue; BURE enforces the shape). The fast tier asserts
+  # the family mapping host-side, but immure is GCP-capable: without this short-circuit
+  # a credentialed workstation would load creds and fire a live build right below. When
+  # the tweak is set, stop here — AFTER the diagnostic, BEFORE any credential or network
+  # touch — and announce loudly, so a transcript reader sees why immure stopped early
+  # (a silent early exit reads as a bug). Mirrors rbldb_Bole's buorb_ensconce_stamp.
+  local -r z_resolve_only_tweak_name="buorb_immure_resolve_only"
+  if test "${BURE_TWEAK_NAME:-}" = "${z_resolve_only_tweak_name}"; then
+    buc_success "immure: short-circuit after resolve (${z_resolve_only_tweak_name})"
+    return 0
+  fi
 
   buc_step "Loading Director RBRA credentials"
   source "${RBDC_DIRECTOR_RBRA_FILE}" || buc_die "Failed to source Director RBRA"
@@ -218,18 +252,111 @@ rbld_immure() {
   z_token=$(rbgo_get_token_capture "${RBDC_DIRECTOR_RBRA_FILE}") \
     || buc_die "Failed to get Director OAuth token"
 
-  # Mint the Lode stamp on the host: <kind-letter><YYMMDDHHMMSS>. The host owns the
-  # stamp so the touchmark is known before the build for the capture-file. podvm
-  # kind-letters are two characters (vw/vn); the augur touchmark regex accepts the
-  # multi-letter prefix.
-  local -r z_stamp="${z_kind}${BURD_NOW_STAMP:2:6}${BURD_NOW_STAMP:9:6}"
+  # Fresh mode: mint a new stamp and compute the preserved substitution (empty — no
+  # prior envelope exists). Refresh mode: reuse the existing stamp and compute the
+  # present-set from the existing GAR envelope + member tags.
+  local z_preserved_members="[]"
+  if [ "${z_mode}" = "fresh" ]; then
+    # Mint the Lode stamp on the host: <kind-letter><YYMMDDHHMMSS>. The host owns
+    # the stamp so the touchmark is known before the build for the capture-file.
+    # podvm kind-letters are two characters (vw/vn).
+    z_stamp="${z_kind}${BURD_NOW_STAMP:2:6}${BURD_NOW_STAMP:9:6}"
+    buc_info "Immure FRESH: ${z_brand} (${z_quay_family}:${z_version}), stamp: ${z_stamp}"
+  else
+    # Refresh: derive locked version from the existing envelope and compute the
+    # present-set (enveloped + orphan members) to pass as _RBGL_PODVM_PRESERVED.
+    buc_step "Computing present-set for refresh (reading existing :rbi_vouch envelope)"
+    local -r z_vouch_dir="${ZRBLD_IMMURE_PREFIX}refresh_vouch"
+    rm -rf "${z_vouch_dir}" || buc_die "Failed to clear refresh vouch scratch dir"
+    local -r z_pkg="${RBGL_LODES_ROOT}/${z_stamp}"
+    zrbfc_gar_extract_artifact "${z_token}" "${z_pkg}" "${RBGC_LODE_TAG_VOUCH}" "${z_vouch_dir}" \
+      || buc_die "No :${RBGC_LODE_TAG_VOUCH} at ${z_pkg} — touchmark not present or not yet vouched"
+    local -r z_vouch_json="${z_vouch_dir}/vouch.json"
+    test -f "${z_vouch_json}" || buc_die "vouch.json missing in :${RBGC_LODE_TAG_VOUCH} artifact for ${z_stamp}"
+
+    # Derive the locked version from any member's rblv_origin (format "<family>:<version>").
+    z_version=$(jq -r '(.rblv_members // [])[0].rblv_origin | split(":")[1] // empty' "${z_vouch_json}") \
+      || buc_die "Failed to derive version from existing envelope for ${z_stamp}"
+    test -n "${z_version}" || buc_die "Existing envelope carries no rblv_origin in rblv_members — cannot derive version"
+    buc_info "Refresh locked to version: ${z_version} (from existing envelope)"
+    buc_info "Refresh stamp (reused): ${z_stamp}"
+
+    # Compute the present-set: members already in the existing envelope (preserve verbatim)
+    # plus any orphan tags in GAR (tag present but absent from envelope → recover).
+    # SOURCE OF TRUTH = the GAR package's member tags (never the envelope alone).
+    # Architecture H: the full present-set is passed as ONE substitution to the select step.
+    # Ceiling note: worst case 8 members ≈ 2.7 KB < 4000-byte substitution limit (CBh_103).
+    # A future widening past ~11 members must fall to in-pool recovery instead.
+    local -r z_tags_url="${ZRBFC_GAR_API_BASE}/${ZRBFC_GAR_PACKAGE_BASE}/packages/${z_pkg//\//%2F}/tags?pageSize=1000"
+    local -r z_tags_infix="rbld_immure_refresh_tags"
+    rbuh_json "GET" "${z_tags_url}" "${z_token}" "${z_tags_infix}"
+    rbuh_require_ok "List tags for ${z_stamp}" "${z_tags_infix}"
+    local -r z_resp_file="${ZRBUH_PREFIX}${z_tags_infix}${ZRBUH_POSTFIX_JSON}"
+
+    # Versions carry createTime (tags do not); fetch them too and join. An orphan is a
+    # tag the crashed run cp'd but never enveloped — recover its digest from the tag's
+    # own version reference and its rblv_acquired_at from that version's createTime.
+    # Recorded grade attests a digest AT a time, so the time is load-bearing here, not
+    # forensic decoration; rblv_capture_build stays null (the crashed build is gone).
+    local -r z_versions_url="${ZRBFC_GAR_API_BASE}/${ZRBFC_GAR_PACKAGE_BASE}/packages/${z_pkg//\//%2F}/versions?pageSize=1000"
+    local -r z_versions_infix="rbld_immure_refresh_versions"
+    rbuh_json "GET" "${z_versions_url}" "${z_token}" "${z_versions_infix}"
+    rbuh_require_ok "List versions for ${z_stamp}" "${z_versions_infix}"
+    local -r z_versions_file="${ZRBUH_PREFIX}${z_versions_infix}${ZRBUH_POSTFIX_JSON}"
+
+    # Build the preserved-member JSON array (the present-set). Enveloped members ride
+    # verbatim (their true per-member times stand); orphan tags are recovered honestly.
+    # SOURCE OF TRUTH = the GAR tags, never the envelope alone.
+    local -r z_preserved_file="${ZRBLD_IMMURE_PREFIX}preserved.json"
+    jq -n \
+      --arg sprue "${RBGC_LODE_TAG_SPRUE}" \
+      --arg vouch "${RBGC_LODE_TAG_VOUCH}" \
+      --arg family "${z_quay_family}" \
+      --arg version "${z_version}" \
+      --slurpfile tags_resp "${z_resp_file}" \
+      --slurpfile vers_resp "${z_versions_file}" \
+      --argjson existing_members "$(jq '.rblv_members // []' "${z_vouch_json}")" \
+      '
+        # sprued non-vouch tags, each carrying its digest (the tag -> version ref)
+        ( [ $tags_resp[0].tags[]?
+            | { tag: (.name | sub(".*/tags/"; "")),
+                digest: ((.version // "") | sub(".*/versions/"; "")) }
+            | select(.tag != $vouch and (.tag | startswith($sprue))) ] ) as $gar
+        # digest -> createTime
+        | ( [ $vers_resp[0].versions[]?
+              | { (.name | sub(".*/versions/"; "")): .createTime } ] | add // {} ) as $vtime
+        # rblv_name -> existing envelope member
+        | ( $existing_members | map({(.rblv_name): .}) | add // {} ) as $env
+        | [ $gar[]
+            | if $env[.tag] then
+                $env[.tag]
+              else
+                { rblv_name: .tag,
+                  rblv_origin: ($family + ":" + $version),
+                  rblv_digest: .digest,
+                  rblv_verification: "recorded",
+                  rblv_tags: [.tag],
+                  rblv_acquired_at: ($vtime[.digest] // null),
+                  rblv_capture_build: null }
+              end ]
+      ' > "${z_preserved_file}" \
+      || buc_die "Failed to compute present-set for refresh of ${z_stamp}"
+
+    z_preserved_members=$(jq -c '.' "${z_preserved_file}") \
+      || buc_die "Failed to compact preserved-member JSON"
+    local z_pcount=""
+    z_pcount=$(jq 'length' "${z_preserved_file}") \
+      || buc_die "Failed to count preserved members"
+    buc_info "Present-set computed: ${z_pcount} existing members to preserve/recover"
+  fi
 
   buc_info "Lode: ${RBGL_LODES_ROOT}/${z_stamp}"
 
-  zrbld_immure_submit "${z_token}" "${z_brand}" "${z_quay_family}" "${z_version}" "${z_selection}" "${z_stamp}"
+  zrbld_immure_submit "${z_token}" "${z_brand}" "${z_quay_family}" "${z_version}" \
+    "${z_selection}" "${z_stamp}" "${z_preserved_members}"
   zrbld_immure_extract "${z_brand}"
 
-  buc_success "Immure complete: ${z_quay_family}:${z_version} -> ${RBGL_LODES_ROOT}/${z_stamp}"
+  buc_success "Immure (${z_mode}) complete: ${z_quay_family}:${z_version} -> ${RBGL_LODES_ROOT}/${z_stamp}"
 }
 
 # eof

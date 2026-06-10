@@ -82,11 +82,11 @@ while IFS='|' read -r NAME UPSTREAM; do
 
   if [ "${MFIRST}" = "true" ]; then MFIRST=false; else MEMBERS="${MEMBERS},"; fi
   MEMBERS="${MEMBERS}{"
-  MEMBERS="${MEMBERS}\"name\":\"${MEMBER_TAG}\","
-  MEMBERS="${MEMBERS}\"origin\":\"${UPSTREAM}\","
-  MEMBERS="${MEMBERS}\"digest\":\"${DIGEST}\","
-  MEMBERS="${MEMBERS}\"verification\":\"oci-digest\","
-  MEMBERS="${MEMBERS}\"tags\":[\"${MEMBER_TAG}\"]"
+  MEMBERS="${MEMBERS}\"rblv_name\":\"${MEMBER_TAG}\","
+  MEMBERS="${MEMBERS}\"rblv_origin\":\"${UPSTREAM}\","
+  MEMBERS="${MEMBERS}\"rblv_digest\":\"${DIGEST}\","
+  MEMBERS="${MEMBERS}\"rblv_verification\":\"oci-digest\","
+  MEMBERS="${MEMBERS}\"rblv_tags\":[\"${MEMBER_TAG}\"]"
   MEMBERS="${MEMBERS}}"
 done <<'MANIFEST'
 gcloud|gcr.io/cloud-builders/gcloud:latest
@@ -99,18 +99,18 @@ gcrane|gcr.io/go-containerregistry/gcrane:debug
 MANIFEST
 
 # Author the batch provenance envelope (identical content lands in :rbi_vouch and
-# the host capture-file). members[] is the cardinality axis — N for the reliquary
+# the host capture-file). rblv_members[] is the cardinality axis — N for the reliquary
 # cohort, where bole carries 1.
 ENVELOPE='{'
-ENVELOPE="${ENVELOPE}\"schema\":\"${_RBGL_VOUCH_SCHEMA}\","
-ENVELOPE="${ENVELOPE}\"kind\":\"reliquary\","
-ENVELOPE="${ENVELOPE}\"lode\":\"${STAMP}\","
-ENVELOPE="${ENVELOPE}\"acquired_at\":\"${ACQUIRED_AT}\","
-ENVELOPE="${ENVELOPE}\"acquired_by\":\"${_RBGL_ACQUIRED_BY}\","
-ENVELOPE="${ENVELOPE}\"capture_build\":\"${BUILD_ID:-}\","
-ENVELOPE="${ENVELOPE}\"trust_grade\":\"${_RBGL_TRUST_GRADE}\","
-ENVELOPE="${ENVELOPE}\"signature\":null,"
-ENVELOPE="${ENVELOPE}\"members\":[${MEMBERS}]}"
+ENVELOPE="${ENVELOPE}\"rblv_schema\":\"${_RBGL_VOUCH_SCHEMA}\","
+ENVELOPE="${ENVELOPE}\"rblv_kind\":\"reliquary\","
+ENVELOPE="${ENVELOPE}\"rblv_lode\":\"${STAMP}\","
+ENVELOPE="${ENVELOPE}\"rblv_acquired_at\":\"${ACQUIRED_AT}\","
+ENVELOPE="${ENVELOPE}\"rblv_acquired_by\":\"${_RBGL_ACQUIRED_BY}\","
+ENVELOPE="${ENVELOPE}\"rblv_capture_build\":\"${BUILD_ID:-}\","
+ENVELOPE="${ENVELOPE}\"rblv_trust_grade\":\"${_RBGL_TRUST_GRADE}\","
+ENVELOPE="${ENVELOPE}\"rblv_signature\":null,"
+ENVELOPE="${ENVELOPE}\"rblv_members\":[${MEMBERS}]}"
 
 # Stage the envelope for step 02 (pushes it as the :rbi_vouch artifact). The
 # stamps file is the step-02 contract; conclave produces exactly one Lode.
@@ -120,7 +120,7 @@ echo "${STAMP}" >> /workspace/lode_stamps.txt
 
 # Host-facing result (the capture-file carries the same envelope). One slot —
 # conclave produces exactly one Lode (the cohort is one package).
-RESULT="{\"slot_1\":{\"stamp\":\"${STAMP}\",\"vouch\":${ENVELOPE}}}"
+RESULT="{\"rbls_slot_1\":{\"rbls_stamp\":\"${STAMP}\",\"rbls_vouch\":${ENVELOPE}}}"
 
 echo "=== Writing capture results ==="
 echo "${RESULT}"

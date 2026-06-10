@@ -89,7 +89,7 @@ build dispatched with `«BUILD_ID»` and the Cloud Console URL
 ... *Single-platform capture is conclave-only and load-bearing.* The cohort is consumed solely as GCB step images on amd64 workers, so other platforms are dead bytes — and capturing the full multi-arch index would make the Lode package a parent-index / child-manifest web: GAR refuses to delete a child manifest while its parent index still exists (`FAILED_PRECONDITION`, "manifest is referenced by parent manifests"), so a single `packages delete` of such a web removes nothing and banish must delete by convergence over multiple rounds (the cloud-dispatched delete handles this — see RBSLB and RBSCB; also link:https://cloud.google.com/artifact-registry/docs/repositories/cleanup-policy[GAR cleanup policy] — child images referenced by a parent manifest are not deletable until the parent is removed). bole and wsl keep full-fidelity capture. This `--platform` flag must not propagate to other Lode kinds.
 .. Author the
 {rbtga_lode_vouch}
-envelope JSON (schema `rbld-vouch-1`, trust grade `verified-against-published`, `members[]` one element per tool — the cardinality axis) and stage it on the {rbtgr_workspace}
+envelope JSON (schema `rbld-vouch-2`, all keys sprued `rblv_`, trust grade `verified-against-published`, `rblv_members[]` one element per tool — the cardinality axis) and stage it on the {rbtgr_workspace}
 .. Write the result JSON (carrying the host-minted touchmark) to `buildStepOutputs`
 
 //axhos_step
