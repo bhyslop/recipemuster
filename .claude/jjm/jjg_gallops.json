@@ -9133,6 +9133,13 @@
         "₢BHAAL": {
           "jjgpn_tacks": [
             {
+              "jjgtn_ts": "260610-1214",
+              "jjgtn_state": "jjgte_complete",
+              "jjgtn_text": "## Character\nGreenfield follow-on to the podvm capture machinery — the two-family, multi-platform selection layer.\nTier: sonnet-delegable — extends machinery the preceding pace just built.\n\n## Goal\nExtend immure to span both quay families (machine-os-wsl and machine-os-native) via an archive argument, with curated per-platform variant selection.\nThe families share the gcrane capture path and differ only in quay repo + variant set.\n\n## Cinched\n- One verb spanning both families, not two verbs (paddock Kinds).\n  Support an \"expand selected set against the same upstream version\" refresh mode, distinct from a version bump (paddock podvm-selective premise).\n- Builds on the podvm capture machinery (preceding pace).\n\n## Done when\n- immure captures both families' curated sets into their respective Lodes; a fixture proves the fan-out AND the refresh-mode (expand-selected-set) path — extend the preceding pace's podvm-lifecycle fixture or add a fanout/refresh case; decide which at mount.",
+              "jjgtn_silks": "lode-podvm-platform-fanout",
+              "jjgtn_basis": "6c3f70b"
+            },
+            {
               "jjgtn_ts": "260609-1616",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": "## Character\nGreenfield follow-on to the podvm capture machinery — the two-family, multi-platform selection layer.\nTier: sonnet-delegable — extends machinery the preceding pace just built.\n\n## Goal\nExtend immure to span both quay families (machine-os-wsl and machine-os-native) via an archive argument, with curated per-platform variant selection.\nThe families share the gcrane capture path and differ only in quay repo + variant set.\n\n## Cinched\n- One verb spanning both families, not two verbs (paddock Kinds).\n  Support an \"expand selected set against the same upstream version\" refresh mode, distinct from a version bump (paddock podvm-selective premise).\n- Builds on the podvm capture machinery (preceding pace).\n\n## Done when\n- immure captures both families' curated sets into their respective Lodes; a fixture proves the fan-out AND the refresh-mode (expand-selected-set) path — extend the preceding pace's podvm-lifecycle fixture or add a fanout/refresh case; decide which at mount.",
