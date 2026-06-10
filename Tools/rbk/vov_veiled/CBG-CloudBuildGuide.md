@@ -240,6 +240,21 @@ else:
 
 *Cited by:* version-guard sites; a memo if a runtime mismatch bites.
 
+#### ✅ CBi_105: A step uses only the tools its builder image ships — never install at build time
+
+A body that `apt-get install`s or `pip install`s a tool pulls unpinned bytes from
+a public repository into a privileged build at run time — a supply-chain hole no
+digest pin can see, and friction every silent retry pays again. A missing tool is
+a **builder-selection problem, not an installation problem**: move the work to a
+step whose builder ships the tool (the JSON-work ↔ registry-work split across the
+gcloud/gcrane builders is the worked form), or take another in-language path
+(python stdlib instead of jq). The skeleton's "no `pip install`" is this rule's
+python face; `apt-get install` is its bash face — and the bash face is the
+sneakier one, because `apt-get` itself is allowlisted for the conformance walk.
+
+*Cited by:* step reviews (first citer: the immure select-step draft that
+apt-installed jq, reworked 2026-06-10); builder-selection notes in step headers.
+
 ### CBb — Bash / sh Dialect
 
 #### ✅ CBb_101: Guarded `$( … )` with `pipefail` is permitted in-step — BCG's temp-file mandate is relaxed
@@ -293,6 +308,27 @@ the capture-unification heat's scope — a future itch.
 
 *Cited by:* a review flagging preamble drift; the future itch that closes it.
 *Removal condition:* delete this rule when python steps gain a shared preamble.
+
+#### ❌ CBp_102: Python bodies sit outside the conformance walk — hold the tool floor by hand
+
+The supply-chain cupel walks `*.sh` only: a python step's imports and
+`subprocess` calls are unscanned (live consequence: `rbgjv02` subprocess-runs
+`gcloud`, a command the bash allowlist never sanctioned). Until a python walk
+exists, authors hold the line manually:
+
+- **Imports: stdlib only, from the established floor** (`base64`, `datetime`,
+  `io`, `json`, `os`, `sys`, `tarfile`, `time`, `urllib`). A third-party import
+  binds the step to the floating builder's unpinned pip set. Never
+  `importlib`/`__import__`/`exec`/`eval` — dynamic import defeats any future
+  static walk.
+- **`subprocess` argv[0] honors the same tool floor as bash steps.** Shelling out
+  to a command a bash step could not name is the same violation in a python
+  costume. Prefer in-process `urllib`/REST over shelling out at all.
+
+*Cited by:* memo-20260610-heat-BH-fable-recommendation-python-import-allowlist;
+python-step reviews.
+*Removal condition:* flip ✅ (and trim to the floor list) when the cupel gains
+the python walk and these checks become mechanical.
 
 ### CBh — Host-Composition Seam (what a body is authored against)
 
@@ -352,7 +388,10 @@ kind's blob provides.
 `/workspace` does not survive the build. A step that must hand a value back writes
 it to the `buildStepOutputs` channel (`/builder/outputs/output`); the spine
 extracts the slot and base64-decodes it host-side into a capture file. This is
-the only step→host return path.
+the only step→host return path. The slot is addressed **by step index**
+(`.results.buildStepOutputs[N]`) — N is the producing step's position in the
+recipe, so reordering recipe rows silently shifts slots; the body's extract call
+pins N with a comment naming the producing step id.
 
 *Cited by:* the spine's extract logic; any step producing a host-consumed value.
 
@@ -364,7 +403,7 @@ Read these as the worked forms behind the rules above:
 
 - **Bash snippets** — `Tools/rbk/rbgjs/rbgjs-{token-fetch,gcrane-fingerprint,gcrane-append,gpg-verify-sums,buildx-bootstrap,buildx-push}.sh`
 - **Bash steps** — `rbgjl01-ensconce-capture.sh`, `rbgjl02-assemble-push-vouch.sh`, `rbgjv03-assemble-push-vouch.sh`
-- **Python steps** — `rbgja/rbgja01-discover-platforms.py`, `rbgja/rbgja03-build-info-per-platform.py`, `rbgjv/rbgjv02-verify-provenance.py`
+- **Python steps** — `rbgja/rbgja01-discover-platforms.py`, `rbgja/rbgja03-build-info-per-platform.py`, `rbgjv/rbgjv02-verify-provenance.py`, `rbgjl/rbgjl06-package-delete.py` (the convergence-delete exemplar — fire-and-forget rounds, absence-poll as the only truth)
 - **Host composition** — `rblds_Spine.sh` (spine, validator, entrypoint switch, `buildStepOutputs` extract), `rbfca_StepAssembly.sh` (recipe rows), `rbfcb_BuildHost.sh` (`zrbfc_expand_includes`)
 - **Per-kind body** — `rbldb_Bole.sh` (recipe + substitution blob + envelope intent)
 
