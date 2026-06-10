@@ -888,8 +888,10 @@ zrbfd_push_build_context() {
 # stale touchmark into a later unrelated ordain (cross-vessel leakage), so the
 # depth-1 adjacency — ensconce immediately precedes the first ordain — is the
 # deliberate contract, not a limitation to paper over. Absence is normal (no
-# fresh capture in the chain): leave any existing ANCHOR untouched. Presence
-# overwrites, so a re-capture repoints.
+# fresh capture in the chain): leave any existing ANCHOR untouched. A present
+# touchmark elects only when its kind-brand is bole; a non-bole touchmark (a wsl
+# underpin or reliquary conclave chained ahead of this ordain) likewise leaves
+# the ANCHOR as-is. A bole presence overwrites, so a re-capture repoints.
 # Args: rbrv_file
 zrbfd_elect_base_anchor() {
   zrbfd_sentinel
@@ -898,25 +900,33 @@ zrbfd_elect_base_anchor() {
   test -f "${z_rbrv_file}" || buc_die "Vessel regime file not found: ${z_rbrv_file}"
 
   test -f "${BURD_PREVIOUS_DIR}/${RBF_FACT_LODE_TOUCHMARK}" || {
-    buc_log_args "No bole touchmark in the chain — base ANCHOR left as-is"
+    buc_log_args "No Lode touchmark in the chain — base ANCHOR left as-is"
     return 0
   }
+
+  local z_brand=""
+  z_brand=$(buf_read_fact "${RBF_FACT_LODE_BRAND}") || buc_die "Failed to read kind-brand chaining fact"
+
+  # Only a bole carries a base image to elect. A non-bole capture (an underpin or
+  # conclave run earlier in the same depth-1 chain) hands its own touchmark
+  # forward but has no base ANCHOR to give — leave the ANCHOR as-is. A brand
+  # outside the authored enum is corruption.
+  local z_tag=""
+  case "${z_brand}" in
+    "${RBGC_LODE_BRAND_BOLE}")
+      z_tag="${RBGC_LODE_TAG_BOLE}" ;;
+    "${RBGC_LODE_BRAND_RELIQUARY}"|"${RBGC_LODE_BRAND_WSL}")
+      buc_log_args "Chained Lode is '${z_brand}', not a base capture — base ANCHOR left as-is"
+      return 0 ;;
+    *)
+      buc_die "Unknown Lode kind-brand in chaining fact: '${z_brand}'" ;;
+  esac
 
   buc_step "Electing conjure base ANCHOR from bole capture"
 
   local z_touchmark=""
   z_touchmark=$(buf_read_fact "${RBF_FACT_LODE_TOUCHMARK}") || buc_die "Failed to read touchmark chaining fact"
   test -n "${z_touchmark}" || buc_die "Empty touchmark in chaining fact"
-
-  local z_brand=""
-  z_brand=$(buf_read_fact "${RBF_FACT_LODE_BRAND}") || buc_die "Failed to read kind-brand chaining fact"
-
-  # Kind-brand enum → member tag. Only bole lands today; later kinds extend here.
-  local z_tag=""
-  case "${z_brand}" in
-    "${RBGC_LODE_BRAND_BOLE}") z_tag="${RBGC_LODE_TAG_BOLE}" ;;
-    *) buc_die "Unknown Lode kind-brand in chaining fact: '${z_brand}'" ;;
-  esac
 
   local -r z_locator="${RBGL_LODES_ROOT}/${z_touchmark}:${z_tag}"
 
