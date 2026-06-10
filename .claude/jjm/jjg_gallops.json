@@ -8729,9 +8729,10 @@
         "₢BHAAR",
         "₢BHAAX",
         "₢BHAAb",
-        "₢BHAAD"
+        "₢BHAAD",
+        "₢BHAAc"
       ],
-      "jjghn_next_pace_seed": "AAc",
+      "jjghn_next_pace_seed": "AAd",
       "jjghn_paces": {
         "₢BHAAA": {
           "jjgpn_tacks": [
@@ -9612,6 +9613,17 @@
               "jjgtn_text": "## Character\nDeferred small rename — the election-verb colophon move recorded in the paddock (election lives with its consumer), slated terminal so the gordian knot clears first.\nRuns before the vocab scrub so the scrub sweeps any rename stragglers.\nTier: sonnet-delegable.\n\n## Goal\nMove yoke out of the Depot family and de-capitalize it: rbw-dY -> a lowercase consumer-family colophon, per the paddock Carried-forward election rule (election is cheap reversible config, operator-committed, never self-committing).\n\n## Cinched\n- Exact destination letter is a mount-time layout choice, minted against the live colophon tree.\n- Rename only — no behavior change; yoke stays non-committing (RBSDY: the caller commits).\n- Sweep the rename across the zipper enrollment, tabtarget-context doc, and onboarding prose.\n\n## Done when\nThe new colophon routes; rbw-dY gone; zipper/docs/onboarding repointed; `fast` green.",
               "jjgtn_silks": "yoke-colophon-consumer-move",
               "jjgtn_basis": "1cfda60"
+            }
+          ]
+        },
+        "₢BHAAc": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260610-0556",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nMechanical residue check, no code change expected.\nMount after a post-repair service-tier suite run exists.\nTier: haiku/sonnet-delegable.\n\n## Goal\nConfirm the theurge suite-loop invoke-counter fix (commit 010ec044a) gives each tabtarget invocation its own BURV dir — no cross-fixture invoke-dir collision — so a non-chained invoke's `previous/` is genuinely empty.\nThat collision was the leak that fed wsl-lifecycle's `rbf_fact_lode_brand=wsl` into batch-vouch's ordain election.\n\n## Done when\nOn the latest post-repair service-suite trace dir (`../temp-buk/temp-*/rbtd`):\n- BURV invoke-dir count ≈ invocation count, where reuse of a dir more than once happens only where chaining is intentional.\n  The service suite uses no `chain_next_invoke`, so the two counts should be equal.\n- batch-vouch's ordain invoke `previous/` carries no foreign `rbf_fact_lode_brand`.\n\nRecipe:\n`ls -1d <run>/rbtd/burv-output/invoke-* | wc -l` vs `find <run>/rbtd/burv-temp/invoke-* -maxdepth 1 -name 'temp-*' | wc -l`\n\nPre-repair baseline for contrast (the failing run): 10 dirs / 32 invocations, slots reused up to 6x.\nIf the relevant trace dir has been reaped, mount after the next service run rather than paying for a fresh one.\n\n## Cinched\nThe repair approach (suite-monotonic counter, not resetting per fixture) is settled and landed; this pace verifies it, it does not re-open it.",
+              "jjgtn_silks": "burv-invoke-dir-isolation-verify",
+              "jjgtn_basis": "010ec04"
             }
           ]
         }
