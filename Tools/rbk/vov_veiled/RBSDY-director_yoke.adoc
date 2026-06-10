@@ -1,22 +1,22 @@
 //axhob_operation
 {rbtgo_director_yoke}
 
-NOTE: This operation writes `RBRV_RELIQUARY=«STAMP»` into every vessel's {rbrv_regime} file under `${RBRR_VESSEL_DIR}` so that subsequent Cloud Build operations (conjure, bind, graft, enshrine) consume the named tool image set as GCB step images.
-The about/vouch pipeline (gcloud, docker, alpine, syft) consumes reliquary tool images uniformly across all ordain modes; bind additionally uses skopeo for image-copy.
-The stamp is validated once against GAR before any vessel file is touched: all six tool packages must be present under the reliquary subtree.
-On stamp validation failure the operation errors diagnostically without writing any vessel.
+NOTE: This operation writes `RBRV_RELIQUARY=«TOUCHMARK»` into every vessel's {rbrv_regime} file under `${RBRR_VESSEL_DIR}` so that subsequent Cloud Build operations (conjure, bind, graft, enshrine) consume the named tool image set as GCB step images.
+The about/vouch pipeline (gcloud, docker, alpine, syft) consumes reliquary tool images uniformly across all ordain modes; bind additionally uses skopeo and gcrane for image-copy.
+The touchmark is validated once against GAR before any vessel file is touched: the conclave Lode package `{gar_lodes_namespace}/«TOUCHMARK»` must exist and carry all seven expected tool cohort member tags as `:rbi_<tool>` sprued tags — one per tool — on that single package.
+On touchmark validation failure the operation errors diagnostically without writing any vessel.
 On per-vessel write failure the diagnostic identifies the failing vessel and the set of vessels already written, so the operator can resume from a known point.
 This primitive does not commit; the caller (orchestrator or operator) commits the {rbrv_regime} changes.
 
 The
 {rbtr_director}
-yokes a reliquary stamp across every vessel:
+yokes a reliquary touchmark across every vessel:
 
 //axhopt_typed_parameter
 {rbtr_director}
 . *Validate Input Parameters*:
 .. {rbbc_require}
-`«STAMP»` provided as first positional argument (e.g., `r260327172456`)
+`«TOUCHMARK»` provided as first positional argument (e.g., `r260327172456`)
 
 //axhos_step
 . *Authenticate as
@@ -27,13 +27,15 @@ yokes a reliquary stamp across every vessel:
 `«DIRECTOR_TOKEN»` for subsequent API calls
 
 //axhos_step
-. *List Reliquary Packages in GAR*:
+. *List Conclave Lode Tags in GAR*:
 .. {rbbc_store}
 `«DEPOT_PROJECT_ID»` as `${RBRD_CLOUD_PREFIX}d-${RBRD_DEPOT_MONIKER}` (resolved by `RBDC_DEPOT_PROJECT_ID`)
 .. {rbbc_store}
 `«GAR_REPOSITORY»` as `${RBRD_CLOUD_PREFIX}${RBRD_DEPOT_MONIKER}-gar` (resolved by `RBDC_GAR_REPOSITORY`)
 .. {rbbc_call}
-link:https://cloud.google.com/artifact-registry/docs/reference/rest/v1/projects.locations.repositories.packages/list[packages.list] for
+link:https://cloud.google.com/artifact-registry/docs/reference/rest/v1/projects.locations.repositories.packages.tags/list[tags.list] for the package
+`{gar_lodes_namespace}/«TOUCHMARK»`
+under
 `«DEPOT_PROJECT_ID»`
 /
 {rbrd_gcp_region}
@@ -41,19 +43,19 @@ link:https://cloud.google.com/artifact-registry/docs/reference/rest/v1/projects.
 `«GAR_REPOSITORY»`
 with `pageSize=1000`
 .. {rbbc_require}
-HTTP 200 response
-.. Filter response package names to those starting with `{gar_reliquaries_namespace}/«STAMP»/`
-.. Strip the subtree prefix to yield the bare tool-name set present in GAR
+HTTP 200 response — a 404 here means the conclave Lode package does not exist
+.. Filter response tag names to those matching the sprue prefix `rbi_` (constant `RBGC_LODE_TAG_SPRUE`), excluding `:rbi_vouch`
+.. Strip the sprue prefix to yield the bare tool-name set present in GAR
 
 //axhos_step
-. *Verify Tool Image Completeness*:
-.. Expected tool name set: `gcloud`, `docker`, `alpine`, `syft`, `binfmt`, `skopeo` (per
-{rbtgo_depot_inscribe})
+. *Verify Tool Cohort Completeness*:
+.. Expected tool name set: `gcloud`, `docker`, `alpine`, `syft`, `binfmt`, `skopeo`, `gcrane` (per
+{rbtgo_lode_conclave})
 .. {rbbc_require}
-all six names present in the filtered list
+all seven names present in the filtered list — verified as `:rbi_<tool>` member tags on the single `{gar_lodes_namespace}/«TOUCHMARK»` package
 .. {rbbc_fatal}
-if any expected tool is missing — the error message names `«STAMP»`, the reliquary subtree path, and the specific missing tool(s); remediation points at
-{rbtgo_depot_inscribe}
+if any expected tool is missing — the error message names `«TOUCHMARK»`, the Lode package path, and the specific missing tool(s); remediation points at
+{rbtgo_lode_conclave}
 
 //axhos_step
 . *Iterate Vessels under `${RBRR_VESSEL_DIR}`*:
@@ -66,7 +68,7 @@ at least one vessel found — empty enumeration is a fatal error (nothing to yok
 //axhos_step
 . *Rewrite the {rbrv_regime}* (per vessel):
 .. Load the vessel's {rbrv_regime} file into memory, line by line
-.. For each line matching `^RBRV_RELIQUARY=` — substitute with `RBRV_RELIQUARY=«STAMP»`, preserving position
+.. For each line matching `^RBRV_RELIQUARY=` — substitute with `RBRV_RELIQUARY=«TOUCHMARK»`, preserving position
 .. All other lines pass through unchanged
 .. If no `RBRV_RELIQUARY=` line was found — append one under a `# Tool Image Reliquary` comment header
 .. Write the composed content to a per-vessel temp file, then atomically replace the {rbrv_regime} file via rename
@@ -74,7 +76,7 @@ at least one vessel found — empty enumeration is a fatal error (nothing to yok
 on any per-vessel I/O failure — the error message names the failing vessel and the list of vessels already written, so the operator can resume from a known point
 
 //axhoc_completion
-Successful execution writes `RBRV_RELIQUARY=«STAMP»` into the {rbrv_regime} file of every vessel discovered under `${RBRR_VESSEL_DIR}`; no GAR state is modified.
+Successful execution writes `RBRV_RELIQUARY=«TOUCHMARK»` into the {rbrv_regime} file of every vessel discovered under `${RBRR_VESSEL_DIR}`; no GAR state is modified.
 The primitive does not commit — the caller (orchestrator or operator) commits the modified {rbrv_regime} files with their usual git workflow.
 The reliquary tool images are now linked, but vessel images must be rebuilt
 ({rbtgo_ark_ordain})

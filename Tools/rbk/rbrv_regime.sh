@@ -45,7 +45,7 @@ zrbrv_kindle() {
                     rbnve_bind rbnve_conjure rbnve_graft
 
   buv_group_enroll "Tool Image Reliquary"
-  buv_string_enroll RBRV_RELIQUARY             1   14  "Reliquary datestamp (e.g., r260324193326) — identifies tool image set in GAR"
+  buv_string_enroll RBRV_RELIQUARY             1   14  "Reliquary Lode touchmark (e.g., r260324193326) — identifies the conclave tool-image Lode in GAR"
 
   buv_group_enroll "Egress Mode"
   buv_enum_enroll   RBRV_EGRESS_MODE                   "Pool routing for primary build operation" \
@@ -65,11 +65,11 @@ zrbrv_kindle() {
   buv_group_enroll "Image Group"
   buv_gate_enroll   RBRV_VESSEL_MODE  rbnve_conjure
   buv_string_enroll RBRV_IMAGE_1_ORIGIN   0  512  "Upstream base image tag slot 1 (e.g., python:3.11-slim)"
-  buv_string_enroll RBRV_IMAGE_1_ANCHOR   0  512  "GAR-mirrored anchor locator slot 1 (package-path:tag, written by enshrine)"
+  buv_string_enroll RBRV_IMAGE_1_ANCHOR   0  512  "GAR base locator slot 1 (package-path:tag, e.g. rbi_ld/<touchmark>:rbi_bole; written by the bole derived-pull election at ordain time)"
   buv_string_enroll RBRV_IMAGE_2_ORIGIN   0  512  "Upstream base image tag slot 2"
-  buv_string_enroll RBRV_IMAGE_2_ANCHOR   0  512  "GAR-mirrored anchor locator slot 2 (package-path:tag, written by enshrine)"
+  buv_string_enroll RBRV_IMAGE_2_ANCHOR   0  512  "GAR base locator slot 2 (package-path:tag, e.g. rbi_ld/<touchmark>:rbi_bole; written by the bole derived-pull election at ordain time)"
   buv_string_enroll RBRV_IMAGE_3_ORIGIN   0  512  "Upstream base image tag slot 3"
-  buv_string_enroll RBRV_IMAGE_3_ANCHOR   0  512  "GAR-mirrored anchor locator slot 3 (package-path:tag, written by enshrine)"
+  buv_string_enroll RBRV_IMAGE_3_ANCHOR   0  512  "GAR base locator slot 3 (package-path:tag, e.g. rbi_ld/<touchmark>:rbi_bole; written by the bole derived-pull election at ordain time)"
 
   buv_group_enroll "Grafting Configuration"
   buv_gate_enroll   RBRV_VESSEL_MODE  rbnve_graft

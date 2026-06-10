@@ -124,13 +124,17 @@ zrbfd_preflight_reliquary() {
   local z_missing=()
   local z_tool=""
   local z_pkg=""
+  local z_tag=""
   local z_status_file=""
   local z_response_file=""
   local z_stderr_file=""
   local z_http_code=""
 
+  # Conclave Lode layout: ONE package rbi_ld/<touchmark> carrying the cohort as
+  # sprued member tags (:rbi_<tool>) — the tool is the manifest TAG, not a sub-package.
   for z_tool in "${z_canonical_tools[@]}"; do
-    z_pkg="${RBGL_RELIQUARIES_ROOT}/${z_reliquary}/${z_tool}"
+    z_pkg="${RBGL_LODES_ROOT}/${z_reliquary}"
+    z_tag="${RBGC_LODE_TAG_SPRUE}${z_tool}"
     z_status_file="${ZRBFD_PREFLIGHT_PREFIX}reliquary_${z_tool}_status.txt"
     z_response_file="${ZRBFD_PREFLIGHT_PREFIX}reliquary_${z_tool}_response.txt"
     z_stderr_file="${ZRBFD_PREFLIGHT_PREFIX}reliquary_${z_tool}_stderr.txt"
@@ -142,9 +146,9 @@ zrbfd_preflight_reliquary() {
       -H "Accept: ${ZRBFC_ACCEPT_MANIFEST_MTYPES}" \
       -w "%{http_code}" \
       -o "${z_response_file}" \
-      "${ZRBFC_REGISTRY_API_BASE}/${z_pkg}/manifests/${z_reliquary}" \
+      "${ZRBFC_REGISTRY_API_BASE}/${z_pkg}/manifests/${z_tag}" \
       > "${z_status_file}" 2>"${z_stderr_file}" \
-      || buc_die "HEAD request failed for reliquary tool: ${z_pkg}:${z_reliquary} — see ${z_stderr_file}"
+      || buc_die "HEAD request failed for reliquary tool: ${z_pkg}:${z_tag} — see ${z_stderr_file}"
 
     z_http_code=$(<"${z_status_file}")
     test -n "${z_http_code}" || buc_die "HTTP status code is empty for reliquary check: ${z_tool}"
@@ -152,7 +156,7 @@ zrbfd_preflight_reliquary() {
     case "${z_http_code}" in
       200) buc_log_args "Reliquary tool present: ${z_tool}" ;;
       404) z_missing+=("${z_tool}") ;;
-      *)   buc_die "Unexpected HTTP ${z_http_code} when checking reliquary tool: ${z_pkg}:${z_reliquary}" ;;
+      *)   buc_die "Unexpected HTTP ${z_http_code} when checking reliquary tool: ${z_pkg}:${z_tag}" ;;
     esac
   done
 
@@ -163,18 +167,18 @@ zrbfd_preflight_reliquary() {
 
   buc_warn "Reliquary integrity check failed: ${z_reliquary} (${#z_missing[@]}/${#z_canonical_tools[@]} tools missing)"
   buc_bare "  The reliquary is a co-versioned set of builder tool images (gcloud, docker,"
-  buc_bare "  syft, alpine, binfmt, skopeo) inscribed from upstream into your private GAR."
+  buc_bare "  syft, alpine, binfmt, skopeo, gcrane) captured from upstream into your private GAR."
   buc_bare "  Air-gapped worker pools cannot pull from the public internet — the reliquary"
   buc_bare "  stages these tools so builds can run without egress. Piecemeal jettison is"
-  buc_bare "  allowed but unrecoverable surgically: re-inscribe the whole stamp."
+  buc_bare "  allowed but unrecoverable surgically: re-conclave the whole cohort."
   buc_bare ""
   for z_tool in "${z_missing[@]}"; do
-    buc_bare "  PRECHECK: GAR image not found at ${RBGL_RELIQUARIES_ROOT}/${z_reliquary}/${z_tool}"
+    buc_bare "  PRECHECK: GAR image not found at ${RBGL_LODES_ROOT}/${z_reliquary}:${RBGC_LODE_TAG_SPRUE}${z_tool}"
     buc_bare "    Required by ${RBRV_SIGIL}'s RBRV_RELIQUARY=${z_reliquary}."
   done
   buc_bare ""
-  buc_bare "  Recover by re-inscribing the reliquary, then re-yoking and re-ordaining:"
-  buc_tabtarget "${RBZ_INSCRIBE_RELIQUARY}"
+  buc_bare "  Recover by re-conclaving the reliquary, then re-yoking and re-ordaining:"
+  buc_tabtarget "${RBZ_CONCLAVE_RELIQUARY}"
   buc_tabtarget "${RBZ_YOKE_RELIQUARY}" "<new-stamp>"
   buc_tabtarget "${RBZ_ORDAIN_HALLMARK}" "${z_vessel_dir}"
   buc_die "Registry preflight failed — ${#z_missing[@]} of ${#z_canonical_tools[@]} reliquary tool images missing from GAR"
@@ -743,7 +747,8 @@ zrbfd_stitch_build_json() {
     --arg zjq_basename_about    "${RBGC_ARK_BASENAME_ABOUT}" \
     --arg zjq_basename_attest   "${RBGC_ARK_BASENAME_ATTEST}" \
     --arg zjq_basename_diags    "${RBGC_ARK_BASENAME_DIAGS}" \
-    --arg zjq_reliquaries_root  "${RBGL_RELIQUARIES_ROOT}" \
+    --arg zjq_lodes_root        "${RBGL_LODES_ROOT}" \
+    --arg zjq_tag_sprue         "${RBGC_LODE_TAG_SPRUE}" \
     --arg zjq_reliquary         "${RBRV_RELIQUARY}" \
     --arg zjq_locator_1         "${z_image_locator_1}" \
     --arg zjq_locator_2         "${z_image_locator_2}" \
@@ -792,7 +797,8 @@ zrbfd_stitch_build_json() {
         _RBGA_ARK_BASENAME_DIAGS:  $zjq_basename_diags,
         _RBGR_GAR_HOST:            $zjq_rbga_gar_host,
         _RBGR_GAR_PATH:            $zjq_rbga_gar_path,
-        _RBGR_RELIQUARIES_ROOT:    $zjq_reliquaries_root,
+        _RBGR_LODES_ROOT:          $zjq_lodes_root,
+        _RBGR_TAG_SPRUE:           $zjq_tag_sprue,
         _RBGR_RELIQUARY:           $zjq_reliquary,
         _RBGR_BASE_LOCATOR_1:  $zjq_locator_1,
         _RBGR_BASE_LOCATOR_2:  $zjq_locator_2,
@@ -1403,7 +1409,8 @@ zrbfd_mirror_submit() {
     --arg zjq_basename_image "${RBGC_ARK_BASENAME_IMAGE}" \
     --arg zjq_basename_about "${RBGC_ARK_BASENAME_ABOUT}" \
     --arg zjq_basename_diags "${RBGC_ARK_BASENAME_DIAGS}" \
-    --arg zjq_reliquaries_root "${RBGL_RELIQUARIES_ROOT}" \
+    --arg zjq_lodes_root     "${RBGL_LODES_ROOT}" \
+    --arg zjq_tag_sprue      "${RBGC_LODE_TAG_SPRUE}" \
     --arg zjq_reliquary      "${RBRV_RELIQUARY}" \
     '{
       steps: $zjq_steps[0],
@@ -1427,7 +1434,8 @@ zrbfd_mirror_submit() {
         _RBGA_ARK_BASENAME_DIAGS:    $zjq_basename_diags,
         _RBGR_GAR_HOST:              $zjq_gar_host,
         _RBGR_GAR_PATH:              $zjq_gar_path,
-        _RBGR_RELIQUARIES_ROOT:      $zjq_reliquaries_root,
+        _RBGR_LODES_ROOT:            $zjq_lodes_root,
+        _RBGR_TAG_SPRUE:             $zjq_tag_sprue,
         _RBGR_RELIQUARY:             $zjq_reliquary,
         _RBGR_BASE_LOCATOR_1:    "",
         _RBGR_BASE_LOCATOR_2:    "",

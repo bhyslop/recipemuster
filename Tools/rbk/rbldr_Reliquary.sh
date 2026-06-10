@@ -24,9 +24,9 @@
 # them through zrbld_spine_dispatch / zrbld_spine_extract. No build-submission or
 # step-composition machinery lives here.
 #
-# Conclave absorbs today's inscribe pull machinery (rbfli_Inscribe + rbgji01),
-# retargeted from the rbi_rq/<date>/<tool> sibling-package layout to one rbi_ld
-# package holding N member tags (:rbi_<tool>) plus the :rbi_vouch envelope. Both
+# Conclave absorbed the former inscribe pull machinery (rbfli_Inscribe + rbgji01,
+# now retired), retargeting from the rbi_rq/<date>/<tool> sibling-package layout to
+# one rbi_ld package holding N member tags (:rbi_<tool>) plus the :rbi_vouch envelope. Both
 # steps ride the floating gcrane builder (ZRBLD_GCRANE_BUILDER): the tools captured
 # here ARE the reliquary, so capture cannot bootstrap from one — conclave is the
 # generation phase the pinning rule permits to run unpinned (RBS0 rbsk_pinning_boundary).

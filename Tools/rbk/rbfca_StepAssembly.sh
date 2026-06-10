@@ -25,26 +25,32 @@ set -euo pipefail
 ######################################################################
 # Step Assembly (zrbfc_*)
 
-# Internal: Resolve tool image references from reliquary.
-# Must be called after vessel load (reads RBRV_RELIQUARY).
+# Internal: Resolve tool image references from the reliquary-kind (conclave) Lode.
+# Must be called after vessel load (reads RBRV_RELIQUARY — the conclave touchmark).
 # Sets module-level z_rbfc_tool_* mutable kindle state for downstream step assembly.
 # Idempotent — safe to call multiple times per invocation.
+#
+# A conclave Lode is ONE GAR package (rbi_ld/<touchmark>) holding the tool cohort as
+# sprued member tags (:rbi_<tool>), not the legacy rbi_rq/<rel>/<tool>:<rel>
+# sibling-package layout. Each ref composes RBGC_LODE_TAG_SPRUE onto the bare
+# RBGC_RELIQUARY_TOOL_* seed to address its member tag on the one package — the
+# seeds stay inputs, the resolved ref a build consumes is always the :rbi_<tool> tag.
 zrbfc_resolve_tool_images() {
   zrbfc_sentinel
 
   local -r z_reliquary="${RBRV_RELIQUARY:-}"
   test -n "${z_reliquary}" \
-    || buc_die "RBRV_RELIQUARY is required — run inscribe to create a reliquary first"
+    || buc_die "RBRV_RELIQUARY is required — run conclave to capture a reliquary Lode first"
 
-  local -r z_rqy_prefix="${ZRBFC_REGISTRY_HOST}/${ZRBFC_REGISTRY_PATH}/${RBGL_RELIQUARIES_ROOT}/${z_reliquary}"
-  z_rbfc_tool_gcloud="${z_rqy_prefix}/${RBGC_RELIQUARY_TOOL_GCLOUD}:${z_reliquary}"
-  z_rbfc_tool_docker="${z_rqy_prefix}/${RBGC_RELIQUARY_TOOL_DOCKER}:${z_reliquary}"
-  z_rbfc_tool_alpine="${z_rqy_prefix}/${RBGC_RELIQUARY_TOOL_ALPINE}:${z_reliquary}"
-  z_rbfc_tool_syft="${z_rqy_prefix}/${RBGC_RELIQUARY_TOOL_SYFT}:${z_reliquary}"
-  z_rbfc_tool_binfmt="${z_rqy_prefix}/${RBGC_RELIQUARY_TOOL_BINFMT}:${z_reliquary}"
-  z_rbfc_tool_skopeo="${z_rqy_prefix}/${RBGC_RELIQUARY_TOOL_SKOPEO}:${z_reliquary}"
-  z_rbfc_tool_gcrane="${z_rqy_prefix}/${RBGC_RELIQUARY_TOOL_GCRANE}:${z_reliquary}"
-  buc_log_args "Tool images resolved from reliquary: ${z_reliquary}"
+  local -r z_lode_pkg="${ZRBFC_REGISTRY_HOST}/${ZRBFC_REGISTRY_PATH}/${RBGL_LODES_ROOT}/${z_reliquary}"
+  z_rbfc_tool_gcloud="${z_lode_pkg}:${RBGC_LODE_TAG_SPRUE}${RBGC_RELIQUARY_TOOL_GCLOUD}"
+  z_rbfc_tool_docker="${z_lode_pkg}:${RBGC_LODE_TAG_SPRUE}${RBGC_RELIQUARY_TOOL_DOCKER}"
+  z_rbfc_tool_alpine="${z_lode_pkg}:${RBGC_LODE_TAG_SPRUE}${RBGC_RELIQUARY_TOOL_ALPINE}"
+  z_rbfc_tool_syft="${z_lode_pkg}:${RBGC_LODE_TAG_SPRUE}${RBGC_RELIQUARY_TOOL_SYFT}"
+  z_rbfc_tool_binfmt="${z_lode_pkg}:${RBGC_LODE_TAG_SPRUE}${RBGC_RELIQUARY_TOOL_BINFMT}"
+  z_rbfc_tool_skopeo="${z_lode_pkg}:${RBGC_LODE_TAG_SPRUE}${RBGC_RELIQUARY_TOOL_SKOPEO}"
+  z_rbfc_tool_gcrane="${z_lode_pkg}:${RBGC_LODE_TAG_SPRUE}${RBGC_RELIQUARY_TOOL_GCRANE}"
+  buc_log_args "Tool images resolved from reliquary Lode: ${RBGL_LODES_ROOT}/${z_reliquary}"
 }
 
 # Internal: assemble about step scripts into JSON array file

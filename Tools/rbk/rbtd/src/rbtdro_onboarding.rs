@@ -26,7 +26,7 @@
 // when each handbook-prescribed hallmark lands in GAR. Per-case precondition
 // probes enable a-la-carte single-case rerun.
 //
-// inscribe_reliquary yokes the reliquary stamp into vessel rbrv.env files
+// conclave_reliquary yokes the reliquary stamp into vessel rbrv.env files
 // and commits. Downstream cases verify it ran by reading RBRV_RELIQUARY from
 // a stable yoked vessel's rbrv.env — no out-of-source-tree scratch state.
 
@@ -55,7 +55,7 @@ use crate::rbtdgc_consts::{
     RBTDGC_CRUCIBLE_KLUDGE_BOTTLE,
     RBTDGC_CRUCIBLE_KLUDGE_SENTRY,
     RBTDGC_ENSCONCE_BOLE,
-    RBTDGC_INSCRIBE_RELIQUARY,
+    RBTDGC_CONCLAVE_RELIQUARY,
     RBTDGC_JETTISON_HALLMARK_IMAGE,
     RBTDGC_ORDAIN_HALLMARK,
     RBTDGC_PLUMB_COMPACT,
@@ -63,7 +63,6 @@ use crate::rbtdgc_consts::{
     RBTDGC_REKON_HALLMARK,
     RBTDGC_ACCOUNT_GOVERNOR,
     RBTDGC_SUMMON_HALLMARK,
-    RBTDGC_VERB_INSCRIBE,
     RBTDGC_VERB_KLUDGE,
     RBTDGC_VERB_ORDAIN,
     RBTDGC_VERB_YOKE,
@@ -709,10 +708,10 @@ fn rbtdro_kludge_nameplate(
     Ok(())
 }
 
-/// Inscribe the depot-wide reliquary toolchain. Captures the reliquary
+/// Conclave the depot-wide reliquary toolchain. Captures the reliquary
 /// stamp from BURV fact, persists it to the fixture scratch file, then
 /// yokes the stamp into all ordain-side vessels in one pass and auto-commits.
-fn rbtdro_onboarding_inscribe_reliquary(dir: &Path) -> rbtdre_Verdict {
+fn rbtdro_onboarding_conclave_reliquary(dir: &Path) -> rbtdre_Verdict {
     let probe = rbtdrb_Probe {
         name: "governor RBRA present",
         check: rbtdro_probe_governor_rbra,
@@ -721,23 +720,23 @@ fn rbtdro_onboarding_inscribe_reliquary(dir: &Path) -> rbtdre_Verdict {
     if let Err(v) = rbtdrb_assert(&probe) {
         return v;
     }
-    rbtdrc_with_ctx(|ctx| rbtdro_onboarding_inscribe_reliquary_impl(ctx, dir))
+    rbtdrc_with_ctx(|ctx| rbtdro_onboarding_conclave_reliquary_impl(ctx, dir))
 }
 
-fn rbtdro_onboarding_inscribe_reliquary_impl(
+fn rbtdro_onboarding_conclave_reliquary_impl(
     ctx: &mut rbtdri_Context,
     dir: &Path,
 ) -> rbtdre_Verdict {
     let root = ctx.project_root().to_path_buf();
     let result = match rbtdro_invoke_or_fail(
         ctx,
-        RBTDGC_VERB_INSCRIBE,
+        "conclave",
         "",
-        RBTDGC_INSCRIBE_RELIQUARY,
+        RBTDGC_CONCLAVE_RELIQUARY,
         &[],
         &[],
         dir,
-        RBTDGC_VERB_INSCRIBE,
+        "conclave",
     ) {
         Ok(r) => r,
         Err(v) => return v,
@@ -764,7 +763,7 @@ fn rbtdro_onboarding_inscribe_reliquary_impl(
     if let Err(v) = rbtdro_git_commit(
         &yoked,
         &format!(
-            "inscribe-reliquary: {} stamp across all vessels",
+            "conclave-reliquary: {} stamp across all vessels",
             RBTDGC_VERB_YOKE
         ),
     ) {
@@ -780,7 +779,7 @@ fn rbtdro_onboarding_kludge_tadmor(dir: &Path) -> rbtdre_Verdict {
     let probe = rbtdrb_Probe {
         name: "reliquary stamp captured",
         check: rbtdro_probe_reliquary_stamp,
-        remediation: "rerun rbtdro_onboarding_inscribe_reliquary before this case",
+        remediation: "rerun rbtdro_onboarding_conclave_reliquary before this case",
     };
     if let Err(v) = rbtdrb_assert(&probe) {
         return v;
@@ -822,7 +821,7 @@ fn rbtdro_onboarding_kludge_ccyolo(dir: &Path) -> rbtdre_Verdict {
     let probe = rbtdrb_Probe {
         name: "reliquary stamp captured",
         check: rbtdro_probe_reliquary_stamp,
-        remediation: "rerun rbtdro_onboarding_inscribe_reliquary before this case",
+        remediation: "rerun rbtdro_onboarding_conclave_reliquary before this case",
     };
     if let Err(v) = rbtdrb_assert(&probe) {
         return v;
@@ -844,7 +843,7 @@ fn rbtdro_onboarding_ordain_conjure_sentry(dir: &Path) -> rbtdre_Verdict {
     let probe = rbtdrb_Probe {
         name: "reliquary stamp captured",
         check: rbtdro_probe_reliquary_stamp,
-        remediation: "rerun rbtdro_onboarding_inscribe_reliquary before this case",
+        remediation: "rerun rbtdro_onboarding_conclave_reliquary before this case",
     };
     if let Err(v) = rbtdrb_assert(&probe) {
         return v;
@@ -991,7 +990,7 @@ fn rbtdro_onboarding_ordain_conjure_jupyter(dir: &Path) -> rbtdre_Verdict {
     let probe = rbtdrb_Probe {
         name: "reliquary stamp captured",
         check: rbtdro_probe_reliquary_stamp,
-        remediation: "rerun rbtdro_onboarding_inscribe_reliquary before this case",
+        remediation: "rerun rbtdro_onboarding_conclave_reliquary before this case",
     };
     if let Err(v) = rbtdrb_assert(&probe) {
         return v;
@@ -1047,7 +1046,7 @@ fn rbtdro_onboarding_ordain_airgap_chain(dir: &Path) -> rbtdre_Verdict {
     let probe = rbtdrb_Probe {
         name: "reliquary stamp captured",
         check: rbtdro_probe_reliquary_stamp,
-        remediation: "rerun rbtdro_onboarding_inscribe_reliquary before this case",
+        remediation: "rerun rbtdro_onboarding_conclave_reliquary before this case",
     };
     if let Err(v) = rbtdrb_assert(&probe) {
         return v;
@@ -1200,7 +1199,7 @@ fn rbtdro_onboarding_ordain_bind_plantuml(dir: &Path) -> rbtdre_Verdict {
     let probe = rbtdrb_Probe {
         name: "reliquary stamp captured",
         check: rbtdro_probe_reliquary_stamp,
-        remediation: "rerun rbtdro_onboarding_inscribe_reliquary before this case",
+        remediation: "rerun rbtdro_onboarding_conclave_reliquary before this case",
     };
     if let Err(v) = rbtdrb_assert(&probe) {
         return v;
@@ -1342,7 +1341,7 @@ fn rbtdro_onboarding_ordain_graft_demo(dir: &Path) -> rbtdre_Verdict {
     let probe = rbtdrb_Probe {
         name: "reliquary stamp captured",
         check: rbtdro_probe_reliquary_stamp,
-        remediation: "rerun rbtdro_onboarding_inscribe_reliquary before this case",
+        remediation: "rerun rbtdro_onboarding_conclave_reliquary before this case",
     };
     if let Err(v) = rbtdrb_assert(&probe) {
         return v;
@@ -1447,7 +1446,7 @@ fn rbtdro_onboarding_ordain_graft_demo_impl(ctx: &mut rbtdri_Context, dir: &Path
 // ── Case registry ────────────────────────────────────────────
 
 pub static RBTDRO_CASES_ONBOARDING_SEQUENCE: &[rbtdre_Case] = &[
-    case!(rbtdro_onboarding_inscribe_reliquary),
+    case!(rbtdro_onboarding_conclave_reliquary),
     case!(rbtdro_onboarding_kludge_tadmor),
     case!(rbtdro_onboarding_kludge_ccyolo),
     case!(rbtdro_onboarding_ordain_conjure_sentry),

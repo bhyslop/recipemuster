@@ -203,73 +203,6 @@ rbfl_rekon_hallmark() {
   buc_success "Rekon complete for ${z_hallmark}"
 }
 
-rbfl_rekon_reliquary() {
-  zrbfl_sentinel
-
-  local -r z_stamp="${BUZ_FOLIO:-}"
-
-  buc_doc_brief "List tool images present under a reliquary stamp's GAR subtree"
-  buc_doc_param "stamp" "Reliquary datestamp (e.g., r260327172456)"
-  buc_doc_shown || return 0
-
-  test -n "${z_stamp}" || buc_die "Usage: rbw-irr <stamp>"
-
-  buc_step "Authenticating as Director"
-  test -f "${RBDC_DIRECTOR_RBRA_FILE}" \
-    || buc_die "Director credential not found: ${RBDC_DIRECTOR_RBRA_FILE}"
-  local z_token=""
-  z_token=$(rbgo_get_token_capture "${RBDC_DIRECTOR_RBRA_FILE}") \
-    || buc_die "Failed to get Director OAuth token"
-
-  buc_step "Enumerating tool images under ${RBGL_RELIQUARIES_ROOT}/${z_stamp}/"
-  zrbfc_list_packages_capture "${z_token}" "${RBGL_RELIQUARIES_ROOT}"
-
-  # Filter the full reliquary enumeration to rows for this stamp.
-  local z_found=""
-  local z_line=""
-  local z_s=""
-  local z_t=""
-  while IFS= read -r z_line || test -n "${z_line}"; do
-    test -n "${z_line}" || continue
-    z_s="${z_line%% *}"
-    z_t="${z_line#* }"
-    if test "${z_s}" = "${z_stamp}"; then
-      z_found="${z_found}${z_found:+ }${z_t}"
-    fi
-  done < "${ZRBFC_PACKAGE_LIST_FILE}"
-
-  test -n "${z_found}" || buc_die "Reliquary stamp not found: ${z_stamp}"
-
-  echo ""
-  printf "  %-10s  %-6s  %s\n" "TOOL" "EXISTS" "PACKAGE-PATH"
-  printf "  %-10s  %-6s  %s\n" "----------" "------" "------------"
-
-  local z_canon=""
-  local z_mark=""
-  local z_path=""
-  for z_canon in \
-    "${RBGC_RELIQUARY_TOOL_GCLOUD}" \
-    "${RBGC_RELIQUARY_TOOL_DOCKER}" \
-    "${RBGC_RELIQUARY_TOOL_ALPINE}" \
-    "${RBGC_RELIQUARY_TOOL_SYFT}" \
-    "${RBGC_RELIQUARY_TOOL_BINFMT}" \
-    "${RBGC_RELIQUARY_TOOL_SKOPEO}"; do
-    z_mark="no"
-    case " ${z_found} " in
-      *" ${z_canon} "*) z_mark="yes" ;;
-    esac
-    if test "${z_mark}" = "yes"; then
-      z_path="${RBGL_RELIQUARIES_ROOT}/${z_stamp}/${z_canon}"
-    else
-      z_path="(absent)"
-    fi
-    printf "  %-10s  %-6s  %s\n" "${z_canon}" "${z_mark}" "${z_path}"
-  done
-
-  echo ""
-  buc_success "Rekon complete for ${z_stamp}"
-}
-
 rbfl_audit_hallmarks() {
   zrbfl_sentinel
 
@@ -314,52 +247,6 @@ rbfl_audit_hallmarks() {
 
   echo ""
   buc_info "Total hallmarks: ${z_count}"
-  buc_success "Audit complete"
-}
-
-rbfl_audit_reliquaries() {
-  zrbfl_sentinel
-
-  buc_doc_brief "Audit reliquaries — list all reliquary stamps in registry"
-  buc_doc_shown || return 0
-
-  buc_step "Authenticating as Director"
-  test -f "${RBDC_DIRECTOR_RBRA_FILE}" \
-    || buc_die "Director credential not found: ${RBDC_DIRECTOR_RBRA_FILE}"
-  local z_token=""
-  z_token=$(rbgo_get_token_capture "${RBDC_DIRECTOR_RBRA_FILE}") \
-    || buc_die "Failed to get Director OAuth token"
-
-  buc_step "Enumerating reliquaries under ${RBGL_RELIQUARIES_ROOT}/"
-  zrbfc_list_packages_capture "${z_token}" "${RBGL_RELIQUARIES_ROOT}"
-
-  if ! test -s "${ZRBFC_PACKAGE_LIST_FILE}"; then
-    buc_info "No reliquaries found under ${RBGL_RELIQUARIES_ROOT}/"
-    buc_success "Audit complete — 0 reliquaries"
-    return 0
-  fi
-
-  echo ""
-  printf "  %s\n" "RELIQUARY-STAMP"
-  printf "  %s\n" "------------------------------"
-
-  local z_count=0
-  local z_prev=""
-  local z_line=""
-  local z_s=""
-  while IFS= read -r z_line || test -n "${z_line}"; do
-    test -n "${z_line}" || continue
-    z_s="${z_line%% *}"
-    test -n "${z_s}" || continue
-    if test "${z_s}" != "${z_prev}"; then
-      printf "  %s\n" "${z_s}"
-      z_count=$(( z_count + 1 ))
-      z_prev="${z_s}"
-    fi
-  done < "${ZRBFC_PACKAGE_LIST_FILE}"
-
-  echo ""
-  buc_info "Total reliquaries: ${z_count}"
   buc_success "Audit complete"
 }
 

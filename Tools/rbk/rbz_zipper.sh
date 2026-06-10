@@ -77,8 +77,7 @@ zrbz_kindle() {
   buz_enroll RBZ_LIST_DEPOT             "rbw-dl"  "${z_mod}" "rbgp_depot_list"    ""  "List all active depots"
   buz_enroll RBZ_INFO_DEPOT             "rbw-di"  "${z_mod}" "rbgp_depot_info"    ""  "Run egress posture checks against the live depot's worker pools"
   z_mod="rbfl0_cli.sh"
-  buz_enroll RBZ_INSCRIBE_RELIQUARY     "rbw-dI"  "${z_mod}" "rbfl_inscribe"      ""  "Create reliquary: mirror tool images from upstream to GAR"
-  buz_enroll RBZ_YOKE_RELIQUARY         "rbw-dY"  "${z_mod}" "rbfl_yoke"          "param1"  "Yoke a reliquary stamp into every vessel's rbrv.env (wildcard fan-out)"
+  buz_enroll RBZ_YOKE_RELIQUARY         "rbw-dY"  "${z_mod}" "rbfl_yoke"          "param1"  "Yoke a reliquary touchmark into every vessel's rbrv.env (wildcard fan-out)"
 
   # Lode — fetched-side universal capture (rbw-l, UPPER=mutates GAR/cost, lower=read-only)
   buz_group RBZ__GROUP_LODE       "rbw-l"   "Lode — Fetched-side universal capture"
@@ -159,13 +158,9 @@ zrbz_kindle() {
   buz_enroll RBZ_WREST_IMAGE            "rbw-iw"  "${z_mod}" "rbfl_wrest"                 "param1"  "Wrest any image from registry by raw ref (path-polymorphic)"
   buz_enroll RBZ_JETTISON_IMAGE         "rbw-iJ"  "${z_mod}" "rbfl_jettison"             "param1"  "Jettison any image tag/version from registry by raw ref (path-polymorphic)"
   buz_enroll RBZ_REKON_HALLMARK         "rbw-irh" "${z_mod}" "rbfl_rekon_hallmark"        "param1"  "List ark basenames present under a hallmark's GAR subtree"
-  buz_enroll RBZ_REKON_RELIQUARY        "rbw-irr" "${z_mod}" "rbfl_rekon_reliquary"       "param1"  "List tool images present under a reliquary stamp's GAR subtree"
   buz_enroll RBZ_AUDIT_HALLMARKS        "rbw-iah" "${z_mod}" "rbfl_audit_hallmarks"       ""  "Audit hallmarks — list all hallmark identifiers"
-  buz_enroll RBZ_AUDIT_RELIQUARIES      "rbw-iar" "${z_mod}" "rbfl_audit_reliquaries"     ""  "Audit reliquaries — list all reliquary stamps"
   buz_enroll RBZ_WREST_HALLMARK_IMAGE   "rbw-iwh" "${z_mod}" "rbfl_wrest"                 "param1"  "Wrest a hallmark image from registry"
-  buz_enroll RBZ_WREST_RELIQUARY_IMAGE  "rbw-iwr" "${z_mod}" "rbfl_wrest"                 "param1"  "Wrest a reliquary tool image from registry"
   buz_enroll RBZ_JETTISON_HALLMARK_IMAGE  "rbw-iJh" "${z_mod}" "rbfl_jettison"            "param1"  "Jettison a hallmark image tag from registry"
-  buz_enroll RBZ_JETTISON_RELIQUARY_IMAGE "rbw-iJr" "${z_mod}" "rbfl_jettison"            "param1"  "Jettison a reliquary tool image from registry"
 
   # Marshal — lifecycle (rbw-M)
   buz_group RBZ__GROUP_MARSHAL    "rbw-M"   "Marshal — Lifecycle"

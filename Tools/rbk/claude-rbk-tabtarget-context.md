@@ -56,8 +56,7 @@ The Folio column shows how each tabtarget receives it:
 | `rbw-dU` | PayorUnmakesDepot | param1 | Permanently remove a depot (operator supplies depot project ID) |
 | `rbw-dl` | PayorListsDepots | — | List all active depots |
 | `rbw-di` | DepotInfo | — | Run egress posture checks against the live depot's worker pools |
-| `rbw-dI` | DirectorInscribesReliquary | — | Create reliquary: mirror tool images from upstream to GAR |
-| `rbw-dY` | DirectorYokesReliquaryAllVessels | param1 | Yoke a reliquary stamp into every vessel's rbrv.env (wildcard fan-out) |
+| `rbw-dY` | DirectorYokesReliquaryAllVessels | param1 | Yoke a reliquary touchmark into every vessel's rbrv.env (wildcard fan-out) |
 
 ### Lode — Fetched-side universal capture (`rbw-l`)
 
@@ -126,13 +125,9 @@ The Folio column shows how each tabtarget receives it:
 | `rbw-iw` | DirectorWrestsImage | param1 | Wrest any image from registry by raw ref (path-polymorphic) |
 | `rbw-iJ` | DirectorJettisonsImage | param1 | Jettison any image tag/version from registry by raw ref (path-polymorphic) |
 | `rbw-irh` | DirectorRekonsHallmark | param1 | List ark basenames present under a hallmark's GAR subtree |
-| `rbw-irr` | DirectorRekonsReliquary | param1 | List tool images present under a reliquary stamp's GAR subtree |
 | `rbw-iah` | DirectorAuditsHallmarks | — | Audit hallmarks — list all hallmark identifiers |
-| `rbw-iar` | DirectorAuditsReliquaries | — | Audit reliquaries — list all reliquary stamps |
 | `rbw-iwh` | DirectorWrestsHallmarkImage | param1 | Wrest a hallmark image from registry |
-| `rbw-iwr` | DirectorWrestsReliquaryImage | param1 | Wrest a reliquary tool image from registry |
 | `rbw-iJh` | DirectorJettisonsHallmarkImage | param1 | Jettison a hallmark image tag from registry |
-| `rbw-iJr` | DirectorJettisonsReliquaryImage | param1 | Jettison a reliquary tool image from registry |
 
 ### Marshal — Lifecycle (`rbw-M`)
 

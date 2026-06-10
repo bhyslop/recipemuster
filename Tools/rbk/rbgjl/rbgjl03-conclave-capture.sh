@@ -31,16 +31,15 @@ test -n "${STAMP}" || { echo "FATAL: _RBGL_LODE_STAMP missing" >&2; exit 1; }
 PKG="${_RBGL_GAR_HOST}/${_RBGL_GAR_PATH}/${_RBGL_LODES_ROOT}/${STAMP}"
 echo "Lode package: ${PKG}"
 
-# Tool image cohort (short-name|upstream-ref) — authoritative co-versioned set for
-# GCB step execution; mirrors the legacy inscribe manifest (rbgji01) verbatim (the
-# two coexist during the reliquary cutover). gcloud, docker, and gcrane are
-# Google-hosted (gcr.io); the rest are third-party. gcrane rides the :debug variant
-# so the resolved cohort member keeps the /busybox/sh shell its capture steps need.
+# Tool image cohort (short-name|upstream-ref) — the authoritative co-versioned set
+# for GCB step execution (the legacy inscribe manifest rbgji01 is retired). gcloud,
+# docker, and gcrane are Google-hosted (gcr.io); the rest are third-party. gcrane
+# rides the :debug variant so the resolved cohort member keeps the /busybox/sh shell
+# its capture steps need.
 # The cohort is the heredoc feeding the while-read loop at its `done`, below — this
 # step runs under /busybox/sh (gcrane:debug's only shell), which has no bash arrays,
-# so the cohort cannot be expressed as the `MANIFEST=( … )` array rbgji01 (running
-# under bash) still uses; a while-read over a `|`-split heredoc is the POSIX form,
-# matching rbgjl02's stamp loop.
+# so the cohort cannot be expressed as a bash `MANIFEST=( … )` array; a while-read
+# over a `|`-split heredoc is the POSIX form, matching rbgjl02's stamp loop.
 
 # Acquisition moment, attested once for the whole cohort.
 ACQUIRED_AT=$(date -u +%Y-%m-%dT%H:%M:%SZ)

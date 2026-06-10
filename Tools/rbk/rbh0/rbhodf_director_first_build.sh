@@ -26,7 +26,7 @@ ZRBHODF_SOURCED=1
 rbho_director_first_build() {
   zrbho_sentinel
 
-  buc_doc_brief "${RBHO_TRACK_FIRST_BUILD} — inscribe, conjure, tour, summon, abjure"
+  buc_doc_brief "${RBHO_TRACK_FIRST_BUILD} — conclave, conjure, tour, summon, abjure"
   buc_doc_shown || return 0
 
   local -r z_vessel="rbev-sentry-deb-tether"
@@ -120,7 +120,7 @@ rbho_director_first_build() {
 
   buh_step_style "Step " " — "
 
-  buh_step1 "Inscribe the ${RBYC_RELIQUARY}"
+  buh_step1 "Conclave the ${RBYC_RELIQUARY}"
   buh_e
   buh_line "The ${RBYC_RELIQUARY} is a set of six builder tool images (gcloud,"
   buh_line "docker, alpine, syft, binfmt, skopeo) that Cloud Build uses during"
@@ -128,22 +128,22 @@ rbho_director_first_build() {
   buh_line "check fails."
   buh_e
   buh_line "Think of it as installing the toolchain before your first build."
-  buh_line "This is a one-time operation — once inscribed, the ${RBYC_RELIQUARY}"
+  buh_line "This is a one-time operation — once conclaved, the ${RBYC_RELIQUARY}"
   buh_line "stays in the ${RBYC_DEPOT} until you choose to refresh it."
   buh_e
-  buh_line "Periodically re-inscribe to pick up newer tool versions. All ${RBYC_VESSELS}"
-  buh_line "share the same ${RBYC_RELIQUARY} — one inscribe updates the toolchain"
+  buh_line "Periodically re-conclave to pick up newer tool versions. All ${RBYC_VESSELS}"
+  buh_line "share the same ${RBYC_RELIQUARY} — one conclave updates the toolchain"
   buh_line "for every build."
   buh_e
-  buh_line "Inscribe:"
+  buh_line "Conclave:"
   buh_e
-  buh_tt "   " "${RBZ_INSCRIBE_RELIQUARY}"
+  buh_tt "   " "${RBZ_CONCLAVE_RELIQUARY}"
   buh_e
-  buh_line "This mirrors six tool images from upstream into the ${RBYC_DEPOT}"
+  buh_line "This captures six tool images from upstream into the ${RBYC_DEPOT}"
   buh_line "GAR namespace. Takes 2-5 minutes depending on network speed."
   buh_e
   buyy_cmd_yawp "r260324193326";                   local -r z_ds_example="${z_buym_yelp}"
-  buh_line "When inscribe completes, it prints a ${RBYC_RELIQUARY} datestamp"
+  buh_line "When conclave completes, it prints a ${RBYC_RELIQUARY} datestamp"
   buh_line "(e.g., ${z_ds_example}). Yoke wildcard-fans that stamp into every"
   buh_line "${RBYC_VESSEL}'s ${RBYC_REGIME} under \${RBRR_VESSEL_DIR} in one pass —"
   buh_line "there is no per-vessel argument:"

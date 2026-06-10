@@ -16,7 +16,7 @@ selects the domain — the procedure itself does not branch.
 
 NOTE: To delete an entire {rbtga_ark} (the full `{gar_hallmarks_namespace}/«HALLMARK»/` subtree — every basename including `image`, `about`, `vouch`, and any `pouch`/`diags`/`attest` tags present), use {rbtgo_ark_abjure} instead.
 
-NOTE: Jettisoning an interior member of a reliquary subtree (e.g., a single tool image) leaves a hole in an otherwise-coherent set. The operator accepts this piecemeal-by-image semantic; recovery is nuclear: re-run {rbtgo_depot_inscribe} to restore the full reliquary corpus. The operation provides no integrity guard against such interior holes.
+NOTE: Jettisoning an interior member of a reliquary Lode (e.g., a single tool image member tag) leaves a hole in an otherwise-coherent cohort. The operator accepts this piecemeal-by-image semantic; recovery is nuclear: re-run {rbtgo_lode_conclave} to restore the full reliquary corpus. The operation provides no integrity guard against such interior holes.
 
 The
 {rbtr_director}
@@ -32,7 +32,7 @@ if missing: "Locator parameter required (package-path:tag)"
 .. {rbbc_fatal}
 if malformed (no colon): "Invalid locator format. Expected package-path:tag"
 .. {rbbc_store}
-`«PACKAGE_PATH»` as portion before the final colon (e.g., `{gar_hallmarks_namespace}/«HALLMARK»/image`, `{gar_reliquaries_namespace}/«STAMP»/syft`, `{gar_enshrines_namespace}/«ANCHOR»`)
+`«PACKAGE_PATH»` as portion before the final colon (e.g., `{gar_hallmarks_namespace}/«HALLMARK»/image`, `{gar_lodes_namespace}/«TOUCHMARK»`, `{gar_enshrines_namespace}/«ANCHOR»`)
 .. {rbbc_store}
 `«TAG»` as portion after the final colon
 .. {rbbc_fatal}

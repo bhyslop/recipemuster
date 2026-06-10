@@ -334,7 +334,8 @@ zrbfv_graft_metadata_submit() {
     --arg zjq_basename_vouch    "${RBGC_ARK_BASENAME_VOUCH}" \
     --arg zjq_basename_attest   "${RBGC_ARK_BASENAME_ATTEST}" \
     --arg zjq_basename_diags    "${RBGC_ARK_BASENAME_DIAGS}" \
-    --arg zjq_reliquaries_root  "${RBGL_RELIQUARIES_ROOT}" \
+    --arg zjq_lodes_root        "${RBGL_LODES_ROOT}" \
+    --arg zjq_tag_sprue         "${RBGC_LODE_TAG_SPRUE}" \
     --arg zjq_reliquary         "${RBRV_RELIQUARY}" \
     '{
       steps: $zjq_steps[0],
@@ -375,7 +376,8 @@ zrbfv_graft_metadata_submit() {
         _RBGV_ARK_BASENAME_ATTEST:   $zjq_basename_attest,
         _RBGR_GAR_HOST:              $zjq_gar_host,
         _RBGR_GAR_PATH:              $zjq_gar_path,
-        _RBGR_RELIQUARIES_ROOT:      $zjq_reliquaries_root,
+        _RBGR_LODES_ROOT:            $zjq_lodes_root,
+        _RBGR_TAG_SPRUE:             $zjq_tag_sprue,
         _RBGR_RELIQUARY:             $zjq_reliquary,
         _RBGR_BASE_LOCATOR_1:    "",
         _RBGR_BASE_LOCATOR_2:    "",

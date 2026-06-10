@@ -1,7 +1,7 @@
 #!/bin/sh
 # RBGJR Step 01: In-pool reliquary preflight — HEAD-check tool images and base anchors
 # Builder: alpine (from reliquary)
-# Substitutions: _RBGR_GAR_HOST, _RBGR_GAR_PATH, _RBGR_RELIQUARIES_ROOT,
+# Substitutions: _RBGR_GAR_HOST, _RBGR_GAR_PATH, _RBGR_LODES_ROOT, _RBGR_TAG_SPRUE,
 #                _RBGR_RELIQUARY,
 #                _RBGR_BASE_LOCATOR_1, _RBGR_BASE_LOCATOR_2, _RBGR_BASE_LOCATOR_3
 #
@@ -20,7 +20,7 @@
 #     these; bind and graft pass them through empty.
 #
 # Failure mode: structured "this pool can't see «TOOL»" message naming each
-# missed item. Operator remediation: re-inscribe the reliquary, re-yoke the
+# missed item. Operator remediation: re-conclave the reliquary, re-yoke the
 # vessel, re-ordain the hallmark.
 #
 # Auth: Mason SA via Cloud Build metadata server. HEAD requests via busybox
@@ -31,10 +31,11 @@
 # here — the one pipe (token extract) is validated by the test -n guard below.
 set -eu
 
-test -n "${_RBGR_GAR_HOST}"          || { echo "FATAL: _RBGR_GAR_HOST missing"          >&2; exit 1; }
-test -n "${_RBGR_GAR_PATH}"          || { echo "FATAL: _RBGR_GAR_PATH missing"          >&2; exit 1; }
-test -n "${_RBGR_RELIQUARIES_ROOT}"  || { echo "FATAL: _RBGR_RELIQUARIES_ROOT missing"  >&2; exit 1; }
-test -n "${_RBGR_RELIQUARY}"         || { echo "FATAL: _RBGR_RELIQUARY missing"         >&2; exit 1; }
+test -n "${_RBGR_GAR_HOST}"   || { echo "FATAL: _RBGR_GAR_HOST missing"   >&2; exit 1; }
+test -n "${_RBGR_GAR_PATH}"   || { echo "FATAL: _RBGR_GAR_PATH missing"   >&2; exit 1; }
+test -n "${_RBGR_LODES_ROOT}" || { echo "FATAL: _RBGR_LODES_ROOT missing" >&2; exit 1; }
+test -n "${_RBGR_TAG_SPRUE}"  || { echo "FATAL: _RBGR_TAG_SPRUE missing"  >&2; exit 1; }
+test -n "${_RBGR_RELIQUARY}"  || { echo "FATAL: _RBGR_RELIQUARY missing"  >&2; exit 1; }
 
 echo "=== In-pool reliquary preflight ==="
 echo "Reliquary: ${_RBGR_RELIQUARY}"
@@ -55,13 +56,15 @@ REGISTRY_API_BASE="https://${_RBGR_GAR_HOST}/v2/${_RBGR_GAR_PATH}"
 
 MISSES=""
 
-# Tool list mirrors the inscribe step manifest (rbgji01) minus alpine.
-# Each tool's package path: <RELIQUARIES_ROOT>/<RELIQUARY>/<NAME>; tag = <RELIQUARY>.
+# Tool list mirrors the conclave cohort manifest (rbgjl03) minus alpine.
+# Conclave Lode layout: ONE package <LODES_ROOT>/<RELIQUARY> carrying the cohort
+# as sprued member tags; each tool is the manifest TAG :<TAG_SPRUE><NAME>.
 for TOOL in gcloud docker syft binfmt skopeo; do
-  PKG_PATH="${_RBGR_RELIQUARIES_ROOT}/${_RBGR_RELIQUARY}/${TOOL}"
-  URL="${REGISTRY_API_BASE}/${PKG_PATH}/manifests/${_RBGR_RELIQUARY}"
+  PKG_PATH="${_RBGR_LODES_ROOT}/${_RBGR_RELIQUARY}"
+  MEMBER_TAG="${_RBGR_TAG_SPRUE}${TOOL}"
+  URL="${REGISTRY_API_BASE}/${PKG_PATH}/manifests/${MEMBER_TAG}"
 
-  echo "--- HEAD ${PKG_PATH}:${_RBGR_RELIQUARY} ---"
+  echo "--- HEAD ${PKG_PATH}:${MEMBER_TAG} ---"
   if wget -q -O /dev/null \
        --header="Authorization: Bearer ${TOKEN}" \
        --header="Accept: ${ACCEPT_MTYPES}" \
@@ -124,5 +127,5 @@ echo "  - airgap pool private-VPC routing missing for these artifacts" >&2
 echo "  - IAM split between Director and Mason service accounts" >&2
 echo "  - time skew between host-side preflight and pool-side build execution" >&2
 echo "" >&2
-echo "Remediation: re-inscribe reliquary, re-yoke vessel, re-ordain hallmark." >&2
+echo "Remediation: re-conclave reliquary, re-yoke vessel, re-ordain hallmark." >&2
 exit 1

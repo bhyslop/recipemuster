@@ -183,13 +183,13 @@ rbho_director_bind() {
   buh_line "${RBYC_RELIQUARY} tool images regardless of mode."
   buh_e
   buh_line "If you completed ${RBHO_TRACK_FIRST_BUILD}, your ${RBYC_RELIQUARY} is already"
-  buh_line "inscribed. Otherwise inscribe it now — once per ${RBYC_DEPOT}, shared"
+  buh_line "conclaved. Otherwise conclave it now — once per ${RBYC_DEPOT}, shared"
   buh_line "across every ${RBYC_VESSEL}:"
   buh_e
-  buh_tt "   " "${RBZ_INSCRIBE_RELIQUARY}"
+  buh_tt "   " "${RBZ_CONCLAVE_RELIQUARY}"
   buh_e
   buyy_cmd_yawp "r260324193326"; local -r z_ds_example="${z_buym_yelp}"
-  buh_line "Inscribe prints a stamp (e.g., ${z_ds_example}). Yoke wildcard-fans the"
+  buh_line "Conclave prints a stamp (e.g., ${z_ds_example}). Yoke wildcard-fans the"
   buh_line "stamp into every ${RBYC_VESSEL}'s ${RBYC_RBRV} under \${RBRR_VESSEL_DIR}"
   buh_line "in one pass — there is no per-vessel argument:"
   buh_e

@@ -89,7 +89,7 @@ RBCC_verb_roster="roster"
 #
 #   Image/build lifecycle (inscribe/kludge/ordain/yoke) — name the
 #   registry and build operations. Previously implicit in command-function
-#   names (rbfl_inscribe, rbfd_ordain, …) and tabtarget descriptions; homed
+#   names (rbrd_inscribe, rbfd_ordain, …) and tabtarget descriptions; homed
 #   here so the group has a single owner rather than being reconstructed by
 #   grep across rbfd_/rbfl_/rbfk_/rbob_.
 RBCC_verb_inscribe="inscribe"

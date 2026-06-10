@@ -18,8 +18,8 @@
 #
 # Recipe Bottle Foundry Ledger - kindle entry: the single rbfl inclusion-guard and
 # kindle/sentinel, sourcing the Foundry Core entry (rbfck_) and the guard-free body
-# clusters (rbfli_ inscribe, rbfly_ yoke, rbfld_ delete, rbfln_ inventory, rbflw_
-# wrest). The readonly ZRBFL_* constants the kindle sets are read globally.
+# clusters (rbfly_ yoke, rbfld_ delete, rbfln_ inventory, rbflw_ wrest). The readonly
+# ZRBFL_* constants the kindle sets are read globally.
 
 set -euo pipefail
 
@@ -29,7 +29,6 @@ ZRBFL_SOURCED=1
 
 # Source shared Foundry Core entry and the guard-free body clusters
 source "${BASH_SOURCE[0]%/*}/rbfc0_FoundryCore.sh"
-source "${BASH_SOURCE[0]%/*}/rbfli_Inscribe.sh"
 source "${BASH_SOURCE[0]%/*}/rbfly_Yoke.sh"
 source "${BASH_SOURCE[0]%/*}/rbfld_Delete.sh"
 source "${BASH_SOURCE[0]%/*}/rbfln_Inventory.sh"
@@ -57,16 +56,8 @@ zrbfl_kindle() {
   test -n "${RBDC_DIRECTOR_RBRA_FILE:-}" || buc_die "RBDC_DIRECTOR_RBRA_FILE not set"
   test -f "${RBDC_DIRECTOR_RBRA_FILE}"   || buc_die "GCB service env file not found: ${RBDC_DIRECTOR_RBRA_FILE}"
 
-  buc_log_args 'RBGJI inscribe step scripts (same Tools directory)'
-  local z_self_dir="${BASH_SOURCE[0]%/*}"
-  readonly ZRBFL_RBGJI_STEPS_DIR="${z_self_dir}/rbgji"
-  test -d "${ZRBFL_RBGJI_STEPS_DIR}"   || buc_die "RBGJI steps directory not found: ${ZRBFL_RBGJI_STEPS_DIR}"
-
   buc_log_args 'Define delete operation file prefix'
   readonly ZRBFL_DELETE_PREFIX="${BURD_TEMP_DIR}/rbfl_delete_"
-
-  buc_log_args 'Define reliquary inscribe operation file prefix'
-  readonly ZRBFL_RELIQUARY_PREFIX="${BURD_TEMP_DIR}/rbfl_reliquary_"
 
   readonly ZRBFL_KINDLED=1
 }

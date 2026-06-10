@@ -124,7 +124,6 @@
 :rbtgo_depot_levy:                <<rbtgo_depot_levy,rbgp_depot_levy>>
 :rbtgo_depot_unmake:              <<rbtgo_depot_unmake,rbgp_depot_unmake>>
 :rbtgo_depot_list:                <<rbtgo_depot_list,rbgp_depot_list>>
-:rbtgo_depot_inscribe:            <<rbtgo_depot_inscribe,rbfl_inscribe>>
 :rbtgo_director_divest:           <<rbtgo_director_divest,rbgg_divest_director>>
 :rbtgo_director_invest:           <<rbtgo_director_invest,rbgg_invest_director>>
 :rbtgo_director_roster:           <<rbtgo_director_roster,rbgg_roster_directors>>
@@ -864,7 +863,7 @@ All other GCB step operations use the GCE metadata server for OAuth token acquis
 The provenance fetch runs as Python 3 on the gcloud builder image after the primary image is built; the reproducibility concern that motivates this premise is weaker for post-build verification.
 Works under NO_PUBLIC_EGRESS (Private Google Access reaches Google APIs).
 +
-In GCB build step contexts (conjure, bind, graft, enshrine), registry authentication uses the GCE metadata server to obtain an access token and writes a static Docker config JSON.
+In GCB build step contexts (conjure, bind, graft), registry authentication uses the GCE metadata server to obtain an access token and writes a static Docker config JSON.
 +
 Rationale: `gcloud` is an opaque, version-sensitive binary that obscures API semantics, introduces implicit authentication state, and breaks reproducibility.
 The `gcloud auth configure-docker` approach also fails mechanically in GCB steps — the gcloud builder image lacks `docker` in PATH, so the credential helper it installs cannot function.
@@ -875,12 +874,12 @@ The reliquary toolchain is mode-uniform: all ordain modes consume gcloud, docker
 [[rbsk_in_pool_preflight]]
 //axl_voices axk_premise
 {rbsk_in_pool_preflight}::
-Every ordain-path Cloud Build job — conjure's combined image+about, bind's combined mirror+about, graft's combined about+vouch, and enshrine — prepends a step 0 (`rbgjr01-reliquary-preflight.sh`) that HEAD-checks reliquary tool images from the worker pool's vantage before expensive work runs.
-Conjure additionally HEAD-checks the vessel's enshrined base anchors (slots 1-3 from `RBRV_IMAGE_n_ANCHOR`); other modes pass empty locator substitutions.
+Every ordain-path Cloud Build job — conjure's combined image+about, bind's combined mirror+about, and graft's combined about+vouch — prepends a step 0 (`rbgjr01-reliquary-preflight.sh`) that HEAD-checks reliquary cohort member tags from the worker pool's vantage before expensive work runs.
+Conjure additionally HEAD-checks the vessel's bole {rbtga_lode} base anchors (slots 1-3 from `RBRV_IMAGE_n_ANCHOR`); other modes pass empty locator substitutions.
 +
-Coverage is 5 of 6 reliquary tools — gcloud, docker, syft, binfmt, skopeo.
+Coverage is 6 of 7 reliquary cohort member tags — gcloud, docker, syft, binfmt, skopeo, gcrane.
 Alpine, the preflight step's own image, is validated implicitly by Cloud Build pulling it before the script runs.
-Failure produces a structured "this pool can't see «TOOL»" message naming each missed item, with remediation directive (re-inscribe + re-yoke + re-ordain).
+Failure produces a structured "this pool can't see «TOOL»" message naming each missed member tag, with remediation directive (re-conclave + re-yoke + re-ordain).
 +
 Rationale: defense-in-depth on top of the host-side `zrbfd_registry_preflight` (which validates the Director's host-side view of GAR).
 The in-pool check catches divergence the host-side check cannot — airgap private-VPC routing, Director↔Mason IAM split, and submit↔execute time skew.
@@ -902,8 +901,8 @@ Move (not copy) prevents the assay slot from accumulating stale credential bytes
 [[rbsk_pinning_boundary]]
 //axl_voices axk_premise
 {rbsk_pinning_boundary}::
-A build that consumes a sealed reliquary MUST carry zero unpinned aspects: every tool image and base image it pulls resolves, content-pinned, from project-controlled {gar_service} (the reliquary cohort and the enshrined anchors), never from a mutable upstream tag.
-Reliquary _generation_ — the inscribe/conclave ceremony that mints the sealed cohort — is the one and only phase permitted to pull unpinned upstream images, since the first tool must be bootstrapped from somewhere.
+A build that consumes a sealed reliquary MUST carry zero unpinned aspects: every tool image and base image it pulls resolves, content-pinned, from project-controlled {gar_service} (the reliquary cohort and the bole {rbtga_lode} base anchors), never from a mutable upstream tag.
+Reliquary _generation_ — the conclave ceremony that captures the sealed cohort into one {rbtga_lode} — is the one and only phase permitted to pull unpinned upstream images, since the first tool must be bootstrapped from somewhere.
 +
 The boundary is staged on the reliquary itself: once a reliquary is sealed, everything downstream of it is pinned; everything that produces it may not yet be.
 The capture family obeys the same boundary as the made side — the capture image tool (`gcrane`) is a reliquary cohort member, so a sealed-reliquary capture (bole/wsl/podvm) resolves a pinned `gcrane`; only conclave, which builds the reliquary and therefore cannot resolve from it, rides the floating Google-hosted bootstrap builder.
@@ -1259,24 +1258,13 @@ Hallmark minted on the host before submission, passed to Cloud Build via `_RBGY_
 
 NOTE: For multi-platform build authentication challenges and research findings, see link:RBWMBX-BuildxMultiPlatformAuth.adoc[RBWMBX: Buildx Multi-Platform Authentication Memo].
 
-[[rbtgo_depot_inscribe]]
-//axvo_method axd_transient axd_grouped
-=== {rbtgo_depot_inscribe}
-
-Inscribes a reliquary into the
-{rbtgi_depot}:
-mirrors upstream tool images into a datestamped GAR namespace
-({rbtgog_depot}).
-
-include::RBSDI-depot_inscribe.adoc[]
-
 [[rbtgo_director_yoke]]
 //axvo_method axd_transient axd_grouped
 === {rbtgo_director_yoke}
 
-Yokes a reliquary stamp across every vessel's
+Yokes a reliquary touchmark across every vessel's
 {rbrv_regime}:
-validates the stamp once against GAR, then rewrites `RBRV_RELIQUARY` in every {rbrv_regime} file under `${RBRR_VESSEL_DIR}`
+validates the conclave {rbtga_lode} touchmark once against GAR, then rewrites `RBRV_RELIQUARY` in every {rbrv_regime} file under `${RBRR_VESSEL_DIR}`
 ({rbtgog_depot}).
 
 include::RBSDY-director_yoke.adoc[]
@@ -1312,10 +1300,10 @@ include::RBSIW-image_wrest.adoc[]
 //axvo_method axd_transient axd_grouped
 === {rbtgo_image_rekon}
 
-Reports canonical-member presence under a hallmark or reliquary subtree in
+Reports canonical-member presence under a hallmark subtree in
 {rbtgi_repository}
 ({rbtgog_image}).
-Two distinct procedures (`rbfl_rekon_hallmark`, `rbfl_rekon_reliquary`); rekon-on-enshrinement is intentionally omitted (enshrinements are 1-deep).
+One procedure (`rbfl_rekon_hallmark`); rekon over reliquary cohorts (now conclave Lodes, inspected via Lode augur) and enshrinements (1-deep) is intentionally omitted.
 
 include::RBSIR-image_rekon.adoc[]
 
@@ -2260,8 +2248,8 @@ Per-platform image reference.
 [[rbf_fact_reliquary]]
 //axpof_fact
 {rbf_fact_reliquary}::
-Reliquary datestamp (`r` + `YYMMDDHHMMSS`).
-Written by {rbtgo_depot_inscribe} on successful Cloud Build submission.
+Reliquary touchmark (`r` + `YYMMDDHHMMSS`).
+Written by {rbtgo_lode_conclave} on successful Cloud Build submission.
 
 [[rbf_fact_lode]]
 //axpof_fact
@@ -3597,8 +3585,8 @@ naming a GAR-resident base image for
 conjuring vessels.
 The locator's namespace identifies how the slot was populated:
 +
-- A bole {rbtga_lode} locator under `{gar_lodes_namespace}/` — populated by the derived-pull election as a derived value of current upstream.
-The human-readable fingerprint tag is `«sanitized-origin»-«10-char-sha256»` (e.g., `python-3.11-slim-abc123def4`), carried as a member tag on the bole Lode.
+- A bole {rbtga_lode} locator `{gar_lodes_namespace}/«TOUCHMARK»:rbi_bole` — populated by the derived-pull election at ordain time as a derived value of current upstream, reading the captured bole's chained {rbtga_touchmark} fact.
+The human-readable fingerprint tag `«sanitized-origin»-«10-char-sha256»` (e.g., `python-3.11-slim-abc123def4`) rides as a sibling member tag on the same bole Lode.
 A bole Lode is shared, not per-vessel — vessels sharing the same base image origin resolve the same Lode.
 - `{gar_hallmarks_namespace}/«HALLMARK»/«BASENAME»:«HALLMARK»` — written by an orchestrating procedure (handbook step or onboarding-sequence fixture) when the vessel's base image is an internal hallmark (e.g., the airgap-bottle building FROM another vessel's just-ordained hallmark).
 The locator points at the specific
@@ -3625,7 +3613,7 @@ Applies to every vessel regardless of mode.
 [[rbrv_reliquary]]
 //axvr_variable axd_required rbst_string
 {rbrv_reliquary}::
-Reliquary datestamp identifying the tool image set in GAR for
+Reliquary touchmark identifying the conclave {rbtga_lode} tool image set in GAR for
 {rbrv_regime}
 (e.g., `r260324193326`).
 
@@ -3872,7 +3860,7 @@ Fully-qualified container image reference.
 //axl_voices axtu_string
 {rbst_locator}::
 Repository-local artifact identifier combining a package path and tag.
-Format: `package-path:tag` where `package-path` is a relative path under the categorical root (e.g., `{gar_hallmarks_namespace}/«HALLMARK»/image`, `{gar_reliquaries_namespace}/«STAMP»/syft`, `{gar_enshrines_namespace}/«ANCHOR»`).
+Format: `package-path:tag` where `package-path` is a relative path under the categorical root (e.g., `{gar_hallmarks_namespace}/«HALLMARK»/image`, the conclave member-locator `{gar_lodes_namespace}/«TOUCHMARK»:rbi_syft`, the bole base locator `{gar_lodes_namespace}/«TOUCHMARK»:rbi_bole`).
 Identifies a single artifact within the
 {rbtgi_repository}
 without repeating registry host or path.
@@ -3889,10 +3877,10 @@ Regex: `[cbg]\d{12}-r\d{12}`.
 [[rbst_reliquary_stamp]]
 //axl_voices axtu_string
 {rbst_reliquary_stamp}::
-Datestamp identifying a reliquary — the GAR namespace holding a coherent set of mirrored tool images for builder use.
+Touchmark identifying a reliquary — the single GAR package holding the co-versioned build-tool cohort for builder use.
 Format: `r` + `YYMMDDHHMMSS` (e.g., `r260327172456`); 13 characters.
 Regex: `r\d{12}`.
-Mints once at {rbtgo_depot_inscribe} time and serves both as the GAR path segment (`{gar_reliquaries_namespace}/«STAMP»/...`) and the per-tool tag, so a single value identifies the namespace and pins every member.
+Mints host-side at {rbtgo_lode_conclave} time and serves as the GAR path segment for the conclave {rbtga_lode} (`{gar_lodes_namespace}/«TOUCHMARK»`); the cohort members ride within that one package as `:rbi_<tool>` member tags rather than per-tool sub-packages, so a single value names the whole package and the sprued tags pin every member.
 
 [[rbst_touchmark]]
 //axl_voices axtu_string

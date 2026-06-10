@@ -130,7 +130,7 @@ rbho_director_airgap() {
   fi
   buh_e
   buh_line "This track assumes you have completed ${RBHO_TRACK_FIRST_BUILD} —"
-  buh_line "the ${RBYC_RELIQUARY} is inscribed and you have ${RBYC_ORDAIN}ed at least"
+  buh_line "the ${RBYC_RELIQUARY} is conclaved and you have ${RBYC_ORDAIN}ed at least"
   buh_line "one ${RBYC_VESSEL} on the ${RBYC_TETHERED} pool."
   buh_e
 

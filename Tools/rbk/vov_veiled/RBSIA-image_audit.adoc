@@ -1,20 +1,20 @@
 //axhob_operation
 {rbtgo_image_audit}
 
-NOTE: This operation produces a flat catalog of identifiers under one of the three GAR domains
-(hallmarks, reliquaries, enshrinements)
+NOTE: This operation produces a flat catalog of identifiers under one of the two GAR domains
+(hallmarks, enshrinements)
 in
 {rbtgi_repository}
 via the GAR REST API implemented by
 {gar_service}.
 Identifiers only — no per-member presence detail (use {rbtgo_image_rekon} for that), and no health classification (use {rbtgo_hallmark_tally} for that).
+Reliquary cohorts are no longer audited here — a reliquary is now a conclave {rbtga_lode}, enumerated by {rbtgo_lode_divine}.
 
 The
 {rbtr_director}
-audits over three domains, each backed by a distinct procedure:
+audits over two domains, each backed by a distinct procedure:
 
 * `rbfl_audit_hallmarks` — every hallmark identifier under the `{gar_hallmarks_namespace}/` root
-* `rbfl_audit_reliquaries` — every reliquary stamp under the `{gar_reliquaries_namespace}/` root
 * `rbfl_audit_enshrinements` — every enshrined base anchor under the `{gar_enshrines_namespace}/` root
 
 Audit vs. {rbtgo_hallmark_tally}: audit is a {rbtr_director}-tier flat-list operation across all three domains; tally is a {rbtr_retriever}-tier hallmarks-only operation that classifies each entry by basename completeness and vouch status.
@@ -71,58 +71,6 @@ table header `HALLMARK`
 `«HALLMARK»`
 ... {rbbc_show}
 "Total hallmarks: «COUNT»"
-
-== Reliquaries Audit
-
-The
-{rbtr_director}
-audits reliquary stamps:
-
-//axhos_step
-. *Authenticate as
-{rbtr_director}*:
-.. Execute
-{rbtoe_director_authenticate}
-.. {rbbc_store}
-`«DIRECTOR_TOKEN»` for subsequent API calls
-
-//axhos_step
-. *Enumerate Packages Under Reliquaries Root*:
-.. {rbbc_store}
-`«RELIQUARIES_ROOT»` from `RBGL_RELIQUARIES_ROOT` (kindled from `RBGC_GAR_CATEGORY_RELIQUARIES`, the token `rbi_rq`)
-.. {rbbc_store}
-`«REPO_BASE»` as the GAR REST API repository base
-.. {rbbc_call}
-link:https://cloud.google.com/artifact-registry/docs/reference/rest/v1/projects.locations.repositories.packages/list[GAR REST API: packages.list] with:
-... method: `GET`
-... endpoint: `«REPO_BASE»/packages?pageSize=1000`
-... header: `Authorization: Bearer «DIRECTOR_TOKEN»`
-.. {rbbc_require}
-HTTP 200 response
-.. Extract `.packages[].name`, strip the resource prefix, URL-decode `%2F` back to `/`, and retain only entries beginning with `«RELIQUARIES_ROOT»/`
-.. {rbbc_store}
-`«RELIQUARY_ROWS»` as `«STAMP» «TOOL»` pairs derived from those entries (a 2-deep enumeration shared with {rbtgo_image_rekon})
-
-//axhos_step
-. *Project to Unique Stamps*:
-.. {rbbc_store}
-`«STAMPS»` as the ordered set of distinct reliquary stamps from the first column of `«RELIQUARY_ROWS»`
-
-//axhoot_typed_output
-{rbst_reliquary_stamp}
-. *Display Results*:
-.. If `«STAMPS»` is empty:
-... {rbbc_show}
-"No reliquaries found under «RELIQUARIES_ROOT»/"
-... return success with count `0`
-.. Otherwise:
-... {rbbc_show}
-table header `RELIQUARY-STAMP`
-... For each `«STAMP»` in `«STAMPS»`:
-.... {rbbc_show}
-`«STAMP»`
-... {rbbc_show}
-"Total reliquaries: «COUNT»"
 
 == Enshrinements Audit
 

@@ -2,7 +2,7 @@
 {rbtgo_image_rekon}
 
 NOTE: This operation reports which canonical members are present under a
-hallmark or reliquary subtree in
+hallmark subtree in
 {rbtgi_repository}
 via the GAR REST API implemented by
 {gar_service}.
@@ -10,12 +10,11 @@ Raw presence enumeration — no health classification (use {rbtgo_hallmark_tally
 
 The
 {rbtr_director}
-rekons over two domains, each backed by a distinct procedure:
+rekons one domain:
 
 * `rbfl_rekon_hallmark` — basenames present under a hallmark subtree
-* `rbfl_rekon_reliquary` — tool images present under a reliquary stamp's subtree
 
-Rekon over the legacy enshrinement domain is intentionally omitted: an enshrinement is a single image per anchor (1-deep), so no presence table is meaningful — {rbtgo_image_audit} covers the catalog and {rbtgo_image_retrieve} covers retrieval.
+Rekon over reliquary cohorts and the legacy enshrinement domain is intentionally omitted: a reliquary is now a conclave {rbtga_lode} whose member tags are inspected via its Lode augur operation, and an enshrinement is a single image per anchor (1-deep), so neither warrants a presence table here — {rbtgo_image_audit} covers the catalog and {rbtgo_image_retrieve} covers retrieval.
 
 == Hallmark Rekon
 
@@ -84,68 +83,7 @@ table header `BASENAME | EXISTS | PACKAGE-PATH`
 ... {rbbc_show}
 row `«BASENAME» | «MARK» | «PATH»`
 
-== Reliquary Rekon
-
-The
-{rbtr_director}
-rekons tool images under a reliquary stamp:
-
-//axhopt_typed_parameter
-{rbst_reliquary_stamp}
-. *Validate Input Parameters*:
-.. {rbbc_require}
-`«INPUT_STAMP»` provided as first argument
-.. {rbbc_fatal}
-if missing: "Usage: rbw-irr <stamp>"
-
-//axhos_step
-. *Authenticate as
-{rbtr_director}*:
-.. Execute
-{rbtoe_director_authenticate}
-.. {rbbc_store}
-`«DIRECTOR_TOKEN»` for subsequent API calls
-
-//axhos_step
-. *Enumerate Packages Under Reliquaries Root*:
-.. {rbbc_store}
-`«RELIQUARIES_ROOT»` from `RBGL_RELIQUARIES_ROOT` (kindled from `RBGC_GAR_CATEGORY_RELIQUARIES`, the token `rbi_rq`)
-.. {rbbc_store}
-`«REPO_BASE»` as the GAR REST API repository base (`projects/«PROJECT»/locations/«REGION»/repositories/«REPOSITORY»`)
-.. {rbbc_call}
-link:https://cloud.google.com/artifact-registry/docs/reference/rest/v1/projects.locations.repositories.packages/list[GAR REST API: packages.list] with:
-... method: `GET`
-... endpoint: `«REPO_BASE»/packages?pageSize=1000`
-... header: `Authorization: Bearer «DIRECTOR_TOKEN»`
-.. {rbbc_require}
-HTTP 200 response
-.. Extract `.packages[].name`, strip the resource prefix, URL-decode `%2F` back to `/`, and retain only entries beginning with `«RELIQUARIES_ROOT»/`
-.. For each retained `<stamp>/<tool>` package, {rbbc_call}
-link:https://cloud.google.com/artifact-registry/docs/reference/rest/v1/projects.locations.repositories.packages.tags/list[GAR REST API: tags.list] for the package and {rbbc_require} at least one tag returned (HTTP 200 with non-empty `.tags[]`). Skip packages with zero tags — these are post-jettison walking-dead awaiting the depot's cleanup policy (see {rbtgo_depot_levy} step *Create Container Repository*). Filtering at this read site decouples the display from GAR's lazy reclamation cadence.
-.. {rbbc_store}
-`«RELIQUARY_ROWS»` as `«STAMP» «TOOL»` pairs derived from the live-tagged entries (a 2-deep enumeration)
-
-//axhos_step
-. *Filter to Input Stamp*:
-.. {rbbc_store}
-`«PRESENT»` as the set of tools in `«RELIQUARY_ROWS»` whose stamp equals `«INPUT_STAMP»`
-.. {rbbc_fatal}
-if `«PRESENT»` is empty: "Reliquary stamp not found: «INPUT_STAMP»"
-
-//axhoot_typed_output
-{rbst_reliquary_stamp}
-. *Display Results*:
-.. {rbbc_show}
-table header `TOOL | EXISTS | PACKAGE-PATH`
-.. For each canonical reliquary tool in the order `gcloud`, `docker`, `alpine`, `syft`, `binfmt`, `skopeo`:
-... {rbbc_store}
-`«MARK»` as `yes` if `«TOOL»` ∈ `«PRESENT»`, else `no`
-... {rbbc_store}
-`«PATH»` as `«RELIQUARIES_ROOT»/«INPUT_STAMP»/«TOOL»` when `«MARK»` = `yes`, else the literal `(absent)`
-... {rbbc_show}
-row `«TOOL» | «MARK» | «PATH»`
-
 //axhoc_completion
-Each procedure completes successfully when the canonical row set has been displayed for the input identifier.
+The procedure completes successfully when the canonical row set has been displayed for the input identifier.
 A subtree with no matching row across the canon is treated as the "not present" signal and reported as a fatal — empty subtrees do not yield empty tables.
 The operation does not classify health; that is the role of {rbtgo_hallmark_tally}.

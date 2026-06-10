@@ -30,36 +30,31 @@ rbfl_yoke() {
 
   local -r z_stamp="${BUZ_FOLIO:-}"
 
-  buc_doc_brief "Yoke a reliquary stamp into every vessel's rbrv.env — pre-validate stamp once against GAR, then rewrite RBRV_RELIQUARY across all vessels under \${RBRR_VESSEL_DIR}"
-  buc_doc_param "stamp" "Reliquary datestamp (e.g., r260327172456)"
+  buc_doc_brief "Yoke a reliquary touchmark into every vessel's rbrv.env — pre-validate the conclave Lode once against GAR, then rewrite RBRV_RELIQUARY across all vessels under \${RBRR_VESSEL_DIR}"
+  buc_doc_param "touchmark" "Reliquary Lode touchmark (e.g., r260327172456)"
   buc_doc_shown || return 0
 
-  test -n "${z_stamp}" || buc_die "Reliquary stamp required (param1)"
+  test -n "${z_stamp}" || buc_die "Reliquary touchmark required (param1)"
 
   buc_step "Authenticating as Director"
   local z_token=""
   z_token=$(rbgo_get_token_capture "${RBDC_DIRECTOR_RBRA_FILE}") \
     || buc_die "Failed to get Director OAuth token"
 
-  buc_step "Validating reliquary stamp: ${z_stamp}"
-  local -r z_rqy_subtree="${RBGL_RELIQUARIES_ROOT}/${z_stamp}/"
-  local -r z_list_url="${ZRBFC_GAR_API_BASE}/${ZRBFC_GAR_PACKAGE_BASE}/packages?pageSize=1000"
+  buc_step "Validating reliquary Lode: ${z_stamp}"
+  local -r z_pkg="${RBGL_LODES_ROOT}/${z_stamp}"
+  local -r z_pkg_encoded="${z_pkg//\//%2F}"
+  local -r z_tags_url="${ZRBFC_GAR_API_BASE}/${ZRBFC_GAR_PACKAGE_BASE}/packages/${z_pkg_encoded}/tags?pageSize=1000"
   local -r z_list_infix="rbfl_yoke_list"
 
-  rbuh_json "GET" "${z_list_url}" "${z_token}" "${z_list_infix}"
-  rbuh_require_ok "List reliquary packages" "${z_list_infix}"
+  rbuh_json "GET" "${z_tags_url}" "${z_token}" "${z_list_infix}"
+  rbuh_require_ok "List conclave Lode tags" "${z_list_infix}"
 
   local -r z_resp_file="${ZRBUH_PREFIX}${z_list_infix}${ZRBUH_POSTFIX_JSON}"
   local -r z_present_file="${BURD_TEMP_DIR}/rbfl_yoke_present.txt"
 
-  jq -r --arg subtree "${z_rqy_subtree}" '
-    .packages[]?.name
-    | sub("^.*/packages/"; "")
-    | gsub("%2F"; "/")
-    | select(startswith($subtree))
-    | ltrimstr($subtree)
-  ' "${z_resp_file}" > "${z_present_file}" \
-    || buc_die "Failed to extract reliquary package names"
+  jq -r '.tags[]?.name | sub(".*/tags/"; "")' "${z_resp_file}" > "${z_present_file}" \
+    || buc_die "Failed to extract conclave Lode member tags"
 
   local z_present=()
   local z_line=""
@@ -68,14 +63,17 @@ rbfl_yoke() {
     z_present+=("${z_line}")
   done < "${z_present_file}"
 
+  # Expected cohort members as SPRUED tags (:rbi_<tool>) — compose RBGC_LODE_TAG_SPRUE
+  # onto each bare tool seed, matching the conclave member-tag scheme (rbgjl03). The
+  # seeds stay inputs; the membership check is always against the sprued member tag.
   local -r z_expected=(
-    "${RBGC_RELIQUARY_TOOL_GCLOUD}"
-    "${RBGC_RELIQUARY_TOOL_DOCKER}"
-    "${RBGC_RELIQUARY_TOOL_ALPINE}"
-    "${RBGC_RELIQUARY_TOOL_SYFT}"
-    "${RBGC_RELIQUARY_TOOL_BINFMT}"
-    "${RBGC_RELIQUARY_TOOL_SKOPEO}"
-    "${RBGC_RELIQUARY_TOOL_GCRANE}"
+    "${RBGC_LODE_TAG_SPRUE}${RBGC_RELIQUARY_TOOL_GCLOUD}"
+    "${RBGC_LODE_TAG_SPRUE}${RBGC_RELIQUARY_TOOL_DOCKER}"
+    "${RBGC_LODE_TAG_SPRUE}${RBGC_RELIQUARY_TOOL_ALPINE}"
+    "${RBGC_LODE_TAG_SPRUE}${RBGC_RELIQUARY_TOOL_SYFT}"
+    "${RBGC_LODE_TAG_SPRUE}${RBGC_RELIQUARY_TOOL_BINFMT}"
+    "${RBGC_LODE_TAG_SPRUE}${RBGC_RELIQUARY_TOOL_SKOPEO}"
+    "${RBGC_LODE_TAG_SPRUE}${RBGC_RELIQUARY_TOOL_GCRANE}"
   )
 
   local z_missing=""
@@ -100,12 +98,12 @@ rbfl_yoke() {
   local z_r=""
   for z_r in "${z_expected[@]}"; do z_roster="${z_roster}${z_roster:+, }${z_r}"; done
 
-  # Render the inscribe-tabtarget hint from its colophon home (RBZ_INSCRIBE_RELIQUARY)
+  # Render the conclave-tabtarget hint from its colophon home (RBZ_CONCLAVE_RELIQUARY)
   # via the tt yawp — never a hardcoded tt/<colophon>.<frontispiece>.sh literal, which
   # rots on rename. buc_die resolves the diastema-wrapped yelp through buyf_format_yawp.
-  buyy_tt_yawp "${RBZ_INSCRIBE_RELIQUARY}"; local -r z_inscribe_tt="${z_buym_yelp}"
-  test -z "${z_missing}" || buc_die "Reliquary stamp '${z_stamp}' not found in Depot — expected ${#z_expected[@]} tool images under ${z_rqy_subtree}; missing: ${z_missing}. Re-run ${z_inscribe_tt} to mint a fresh reliquary, or verify the stamp spelling."
-  buc_info "Reliquary valid — all ${#z_expected[@]} tool images present (${z_roster})"
+  buyy_tt_yawp "${RBZ_CONCLAVE_RELIQUARY}"; local -r z_conclave_tt="${z_buym_yelp}"
+  test -z "${z_missing}" || buc_die "Reliquary Lode '${z_stamp}' incomplete in Depot — expected ${#z_expected[@]} tool member tags on ${z_pkg}; missing: ${z_missing}. Re-run ${z_conclave_tt} to capture a fresh reliquary Lode, or verify the touchmark spelling."
+  buc_info "Reliquary Lode valid — all ${#z_expected[@]} tool member tags present (${z_roster})"
 
   buc_step "Yoking ${z_stamp} into all vessels under ${RBRR_VESSEL_DIR}"
 

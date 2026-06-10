@@ -340,9 +340,10 @@ zrbgc_kindle() {
   # contents are operational, not part of the hallmark/reliquary
   # image catalogue.
 
-  # Reliquary Tool Basenames (₢A_AAK layout)
-  # Canonical tool names under rbi_rq/<date>/. Authoritative
-  # manifest lives in rbgji/rbgji01-inscribe-mirror.sh.
+  # Reliquary Tool Basenames (cohort seeds for the conclave Lode)
+  # Canonical tool names; the resolver composes RBGC_LODE_TAG_SPRUE onto each to
+  # address the :rbi_<tool> member tags on the one rbi_ld/<touchmark> package.
+  # Authoritative cohort manifest lives in rbgjl/rbgjl03-conclave-capture.sh.
   readonly RBGC_RELIQUARY_TOOL_GCLOUD="gcloud"
   readonly RBGC_RELIQUARY_TOOL_DOCKER="docker"
   readonly RBGC_RELIQUARY_TOOL_ALPINE="alpine"

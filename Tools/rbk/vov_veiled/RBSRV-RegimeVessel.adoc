@@ -44,7 +44,7 @@ or
 
 Selects which worker pool the primary build operation uses.
 Must be `tether` (public egress) or `airgap` (`NO_PUBLIC_EGRESS`).
-Inscribe and enshrine always use tether regardless of this setting.
+Capture operations — conclave and the rest of the {rbtga_lode} family — always use tether regardless of this setting (upstream fetch requires public egress).
 About and vouch always use airgap regardless of this setting.
 Conjure and bind use the pool selected by this variable.
 
@@ -54,7 +54,7 @@ Conjure and bind use the pool selected by this variable.
 //axhrgv_variable
 {rbrv_reliquary}
 
-Reliquary datestamp identifying the tool image set in GAR (e.g., `r260324193326`).
+Reliquary touchmark identifying the conclave {rbtga_lode} tool image set in GAR (e.g., `r260324193326`).
 Applies to every vessel regardless of mode.
 Must be 1-14 characters.
 
@@ -143,9 +143,9 @@ Optional; 0-512 characters per slot.
 //axhrgv_variable
 {rbrv_image_anchor}
 
-GAR-mirrored, content-addressed anchor for the base image.
-Populated by the bole derived-pull election off the captured {rbtga_touchmark} (see {rbtgo_lode_ensconce}).
-Format: `{sanitized-origin}-{10-char-sha256}`.
+GAR-mirrored base-image locator.
+Populated by the bole derived-pull election off the captured {rbtga_touchmark} at ordain time (see {rbtgo_lode_ensconce}).
+Format: a `package-path:tag` {rbst_locator} into the bole {rbtga_lode} — `{gar_lodes_namespace}/«TOUCHMARK»:rbi_bole` (the human-readable `«sanitized-origin»-«10-char-sha256»` fingerprint rides as a sibling member tag on the same Lode).
 When present, both {rbtgo_ark_conjure} and {rbtgo_ark_kludge} substitute the full GAR reference; kludge additionally requires the referenced image to be present in the local container runtime cache (see {rbtgo_image_retrieve} for the credentialed wrest path).
 When absent, both operations pass
 {rbrv_image_origin}
