@@ -29,6 +29,8 @@
 // jjdxf_: Fundus profiles (test infrastructure configurations)
 // jjdk_:  Key premises (design constraints)
 // jjdz_:  Serialization concerns
+// jjsz_:  Gazette entity (officium exchange files)
+// jjezs_: Gazette slugs (wire-format notice headers)
 // jjsuv_: Upper API verbs (equestrian vocabulary)
 // jjsus_: Upper API slash commands (skill artifacts)
 // jjsuc_: Upper API context artifacts (CLAUDE.md sections)
