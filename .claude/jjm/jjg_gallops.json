@@ -8746,9 +8746,10 @@
         "₢BHAAb",
         "₢BHAAD",
         "₢BHAAc",
-        "₢BHAAd"
+        "₢BHAAd",
+        "₢BHAAf"
       ],
-      "jjghn_next_pace_seed": "AAf",
+      "jjghn_next_pace_seed": "AAg",
       "jjghn_paces": {
         "₢BHAAA": {
           "jjgpn_tacks": [
@@ -9788,6 +9789,17 @@
               "jjgtn_text": "## Character\nOperator-gated live verification, then the banish-last tail of the inscribe→conclave cutover.\nOne cloud-spend sequence; the failure breadcrumb below makes diagnosis mechanical.\nRuns FIRST among remaining: the build path is inoperable until it does,\nand the bind-build, README-conversion, and vocab-scrub paces all stand downstream of a green verify.\n\n## Mount orientation — why the system is half-cut\nEvery vessel rbrv.env still yokes an rbi_rq-era reliquary touchmark;\nthe repointed resolver looks that touchmark up in rbi_ld, where it does not exist.\nAny ordain fails until conclave→yoke replaces it.\n\n## Goal\nExercise the committed conclave repoint end-to-end against live GCP — the cutover's deferred verify gate —\nthen banish the legacy rbi_rq namespace, cinched delete-old-last.\n\n## Done when\n- A fresh conclave Lode is minted (rbw-lC), its touchmark yoked across every vessel (rbw-dY),\n  and one conjure ordain runs green against it — the verify gate.\n- Then banish-last: the legacy rbi_rq GAR packages deleted,\n  and the dead constants removed\n  (discovery: `grep -rn \"RBGC_GAR_CATEGORY_RELIQUARIES\\|RBGL_RELIQUARIES_ROOT\\|rbi_rq\" Tools/rbk` —\n  zero live consumers confirmed at slate; only the definitions and comment examples remain).\n- The yoked rbrv.env change and a service-suite pass committed for the record.\n\n## Failure breadcrumb\nA cloud-preflight death `FATAL: _RBGR_TAG_SPRUE missing` means a host wiring site missed the substitution rename —\ngrep `_RBGR_TAG_SPRUE` / `_RBGR_LODES_ROOT` across the rbfd/rbfv host composition.\n\n## Sources\nCutover commit a510073d4 and its closing wrap summary (the two deferred criteria carried here);\npaddock Cutover technique (rebuild-and-repoint, delete-old-last).",
               "jjgtn_silks": "conclave-live-verify-banish",
               "jjgtn_basis": "7656612"
+            }
+          ]
+        },
+        "₢BHAAf": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260610-1605",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nThe heat's batched cloud-spend verification — one ladder pass discharging every deferred live gate.\nRuns LAST of all: after the memo-triage pace and after any fix paces it slates have landed.\nOperator-gated spend; everything before it in the heat is statically green by construction.\n\n## Goal\nDischarge the deferred live gates in one batch on the standing depot:\nthe skopeo-eviction bind-mode verify (delegated here by that pace's docket)\nplus live coverage of whatever the triage-slated fixes touched.\n\n## Cinched\n- skirmish, not gauntlet — same bind-leg coverage, no project churn;\n  fresh-project coverage belongs to the operator's standing depot-recreate plan, not this heat.\n- `complete` rides first (service ∪ crucible — the cheap non-ladder tier), then skirmish.\n- This run is also the durations re-baseline: the heat invalidated prior suite timings\n  (the durations memo records the inventory and pins the prior baseline);\n  capture this batch's timings as the new record, per whatever disposition triage gave that memo.\n- Known wrinkle: gauntlet/skirmish embed a stale hand-copied fast subset\n  (three of fast's ten fixtures missing — durations memo finding).\n  If triage's disposition lands before this runs, the subset is fixed; if not,\n  the `complete` leg already covers the missing three — note it in the wrap either way.\n\n## Open at mount\n- Whether blockade rides too: airgap-mode conjure (the resolver repoint and ANCHOR derived-pull both sit under it)\n  may have no post-cutover live verification — check the heat's run record at mount;\n  if uncovered, blockade is the venue and earns its spend.\n\n## Done when\n`complete` green; skirmish green with the bind-mode build as the named gate;\nblockade green if elected at mount;\ntimings recorded for the durations re-baseline;\nresults in the wrap.",
+              "jjgtn_silks": "endgame-verification-ladder",
+              "jjgtn_basis": "5cdbf84"
             }
           ]
         }
