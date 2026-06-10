@@ -127,10 +127,10 @@ Examples: `linux/amd64`, `linux/amd64 linux/arm64`.
 
 Variables in this group declare base image dependencies for multi-stage Dockerfiles.
 Up to 3 indexed slots (n = 1, 2, 3).
-{rbtgo_ark_enshrine}
-resolves each
+{rbtgo_lode_ensconce}
+captures each
 {rbrv_image_origin}
-to a GAR-mirrored
+into a bole {rbtga_lode}; the derived-pull election resolves the captured {rbtga_touchmark} to a GAR-mirrored
 {rbrv_image_anchor}.
 
 //axhrgv_variable
@@ -144,8 +144,7 @@ Optional; 0-512 characters per slot.
 {rbrv_image_anchor}
 
 GAR-mirrored, content-addressed anchor for the base image.
-Written by
-{rbtgo_ark_enshrine}.
+Populated by the bole derived-pull election off the captured {rbtga_touchmark} (see {rbtgo_lode_ensconce}).
 Format: `{sanitized-origin}-{10-char-sha256}`.
 When present, both {rbtgo_ark_conjure} and {rbtgo_ark_kludge} substitute the full GAR reference; kludge additionally requires the referenced image to be present in the local container runtime cache (see {rbtgo_image_retrieve} for the credentialed wrest path).
 When absent, both operations pass

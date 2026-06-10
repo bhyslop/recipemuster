@@ -61,7 +61,6 @@
 - **RBSAA** → `rbk/vov_veiled/RBSAA-ark_abjure.adoc`
 - **RBSAB** → `rbk/vov_veiled/RBSAB-ark_about.adoc` (Standalone Cloud Build about pipeline - syft SBOM + mode-aware build_info)
 - **RBSAC** → `rbk/vov_veiled/RBSAC-ark_conjure.adoc`
-- **RBSAE** → `rbk/vov_veiled/RBSAE-ark_enshrine.adoc`
 - **RBSAG** → `rbk/vov_veiled/RBSAG-ark_graft.adoc` (Graft operation - local image push to GAR)
 - **RBSAJ** → `rbk/vov_veiled/RBSAJ-access_jwt_probe.adoc`
 - **RBSAK** → `rbk/vov_veiled/RBSAK-ark_kludge.adoc` (Kludge operation - local vessel build for development)

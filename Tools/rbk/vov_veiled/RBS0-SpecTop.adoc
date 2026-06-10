@@ -120,7 +120,6 @@
 :rbtgo_ark_graft:                 <<rbtgo_ark_graft,rbfd_graft>>
 :rbtgo_ark_kludge:                <<rbtgo_ark_kludge,rbfd_kludge>>
 :rbtgo_ark_summon:                <<rbtgo_ark_summon,rbfr_summon>>
-:rbtgo_ark_enshrine:             <<rbtgo_ark_enshrine,rbfd_enshrine>>
 :rbtgo_ark_inspect:              <<rbtgo_ark_inspect,rbfc_plumb>>
 :rbtgo_depot_levy:                <<rbtgo_depot_levy,rbgp_depot_levy>>
 :rbtgo_depot_unmake:              <<rbtgo_depot_unmake,rbgp_depot_unmake>>
@@ -1363,24 +1362,6 @@ from a vessel specification.
 Build context delivered via {rbtga_ark_pouch}, submitted via `builds.create` API. The combined job produces both the `image` and `about` packages under the hallmark subtree (about steps embedded via stitch). Vouch is a separate Cloud Build job using DSSE envelope signature verification.
 
 include::RBSAC-ark_conjure.adoc[]
-
-[[rbtgo_ark_enshrine]]
-//axvo_method axd_transient axd_grouped
-=== {rbtgo_ark_enshrine}
-
-Enshrines upstream base images into
-{gar_service}
-({rbtgog_ark}),
-producing content-addressed
-{rbrv_image_anchor}
-references from
-{rbrv_image_origin}
-declarations.
-The
-{rbtr_director}
-submits a Cloud Build job that copies each upstream image by tag to GAR with a human-readable anchor tag, and writes the anchor back to the vessel regime.
-
-include::RBSAE-ark_enshrine.adoc[]
 
 [[rbtgo_ark_graft]]
 //axvo_method axd_transient axd_grouped
@@ -3574,13 +3555,13 @@ Two complementary roles depending on whether the slot's
 {rbrv_image_anchor}
 is set:
 +
-- *Upstream-base slots*: ORIGIN is the upstream registry tag the vessel author intends to mirror (e.g., `python:3.11-slim`).
-{rbtgo_ark_enshrine}
-consumes it as the source for `skopeo inspect`/`copy` and overwrites
+- *Upstream-base slots*: ORIGIN is the upstream registry tag the vessel author intends to capture (e.g., `python:3.11-slim`).
+{rbtgo_lode_ensconce}
+captures it into a bole {rbtga_lode}; the derived-pull election then resolves
 {rbrv_image_anchor}
-on every call with the freshly-computed locator.
+from the captured {rbtga_touchmark}.
 - *Hallmark-base slots*: ORIGIN is informational — a lineage marker (typically the producing vessel's sigil, e.g., `rbev-bottle-ifrit-forge`).
-{rbtgo_ark_enshrine}
+Bole capture
 is not invoked for these slots; orchestration writes
 {rbrv_image_anchor}
 directly as a hallmark-namespace locator after the producer's
@@ -3601,16 +3582,14 @@ naming a GAR-resident base image for
 conjuring vessels.
 The locator's namespace identifies how the slot was populated:
 +
-- `{gar_enshrines_namespace}/«ANCHOR»:«ANCHOR»` — written (and overwritten on each call) by
-{rbtgo_ark_enshrine}
-as a derived value of current upstream.
-The anchor itself is `«sanitized-origin»-«10-char-sha256»` (e.g., `python-3.11-slim-abc123def4`); the locator embeds it as both path segment and tag.
-Enshrined images are stored as peer packages under the shared `{gar_enshrines_namespace}/` namespace, not per-vessel — vessels sharing the same base image origin share one enshrined artifact.
+- A bole {rbtga_lode} locator under `{gar_lodes_namespace}/` — populated by the derived-pull election as a derived value of current upstream.
+The human-readable fingerprint tag is `«sanitized-origin»-«10-char-sha256»` (e.g., `python-3.11-slim-abc123def4`), carried as a member tag on the bole Lode.
+A bole Lode is shared, not per-vessel — vessels sharing the same base image origin resolve the same Lode.
 - `{gar_hallmarks_namespace}/«HALLMARK»/«BASENAME»:«HALLMARK»` — written by an orchestrating procedure (handbook step or onboarding-sequence fixture) when the vessel's base image is an internal hallmark (e.g., the airgap-bottle building FROM another vessel's just-ordained hallmark).
 The locator points at the specific
 {rbtga_ark_image}
 inside the producer hallmark's subtree.
-{rbtgo_ark_enshrine}
+Bole capture
 is not invoked on hallmark-base slots — the producer's
 {rbtgo_ark_ordain}
 success establishes the hallmark's existence in

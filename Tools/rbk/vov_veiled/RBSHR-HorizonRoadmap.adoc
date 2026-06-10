@@ -75,7 +75,7 @@ Lode .env carries author intent only — no resolved FQIN field — mirroring RB
 The `wsl` kind delivers a project-controlled WSL rootfs tar that replaces the Microsoft-Store-appx-mutable distribution today's caparison-w depends on;
 the `podvm-*` kinds collapse `rbv_PodmanVM.sh`'s existing GHCR mirror into GAR under the unified verb.
 _Trigger_: when Windows host workload requires a project-controlled WSL distro, when podman VM supply chain needs project-owned bytes in GAR, or when the `mirror`/`reliquary` machinery accumulates enough friction to motivate consolidation.
-_Reference_: RBSAE-ark_enshrine.adoc (current narrow-scope spec);
+_Reference_: RBSLE-lode_ensconce.adoc (the bole-kind capture spec);
 RBSRV-RegimeVessel.adoc (ORIGIN/ANCHOR precedent, kind-enum-gated variable groups pattern);
 `Tools/rbk/vov_veiled/FUTURE/rbv_PodmanVM.sh` (existing podman-vm fan-out machinery).
 

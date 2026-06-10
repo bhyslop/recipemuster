@@ -61,8 +61,8 @@ into package-path and tag
 ... HEAD request to `«LOCATOR-PATH»:«LOCATOR-TAG»` manifest in
 {gar_service}
 ... {rbbc_require}
-HTTP 200 — on 404, fail with directive to run {rbtgo_ark_enshrine} first.
-Multiple vessels sharing the same anchor need only one enshrine.
+HTTP 200 — on 404, fail with directive to run {rbtgo_lode_ensconce} first.
+Multiple vessels sharing the same base origin need only one ensconce.
 .. Preflight prevents wasted
 {gcb_service}
 submission time on missing images, with copy-paste remediation commands
