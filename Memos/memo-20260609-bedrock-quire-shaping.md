@@ -363,8 +363,10 @@ whole; nothing here invents role machinery:
   is admin-plane only — working verbs (actual inference) never touch it, so a GCP outage
   cannot block a chorister's Bedrock calls, only enrollment ceremonies.
 - **Civic verbs, not invest/divest.** ₣BZ retires invest/divest/mantle/roster; choristers are
-  **enfranchised, granted, revoked, expelled** — the same verb set, second polity kind. The
-  AWS credential analog of rekey rides whichever identity tier (§14) the Cloister runs.
+  **enfranchised, enfeoffed, escheated, expelled** — the same verb set, second polity kind.
+  (Verb words re-minted 2026-06-10 under MCM Word Selection: enfeoff/escheat/recut replace the
+  trodden grant/revoke/rekey; ₣BZ paddock authoritative.) The
+  AWS credential analog of recut rides whichever identity tier (§14) the Cloister runs.
 - **The precentor follows the governor's dissolution**: keeps its quoin, dissolves
   structurally — a precentor is a citizen holding the precentor capability-set for its
   Cloister. Precentors create precentors within their own Cloister; cross-Cloister
@@ -420,7 +422,7 @@ same move as the GCP role hierarchy, pointed at a second cloud. Its teeth: estab
 guarantees (the non-retroactive-tag hazard above), roster, and the declared-vs-actual drift
 audit (the ₣BZ intent-vs-enforcement spine; the prebend is the declared side of the diff).
 
-**No resident program.** Establishment (invest/divest/roster/endow) is control-plane REST;
+**No resident program.** Establishment (the civic verbs — enfranchise/enfeoff/escheat — plus endow) is control-plane REST;
 the enforcement reactors are AWS-resident and event-driven (Budgets actions, alarm-triggered
 Lambdas shipped as templates — "stood up from Recipe-Bottle-shipped templates," per §1). The
 genuine implementation strain is **SigV4**: AWS signs per-request (canonical request + chained
@@ -547,7 +549,8 @@ rung exists.
 - **₣BZ paddock, 260609 evening revision** — authoritative over the memos it supersedes on
   Terrier homing: the Terrier is per-polity ledger files in a **Manor bucket** (payor creates
   at levy; governor-writeable own-polity-only; admin-plane reads; working verbs never touch
-  it); civic verbs (enfranchise/expel/grant/revoke/rekey) replace invest/divest/mantle/roster;
+  it); civic verbs (enfranchise/expel/enfeoff/escheat/recut — words per the paddock's 260610
+  re-mint under MCM Word Selection) replace invest/divest/mantle/roster;
   governor dissolves to citizen + capability-set. §12's civic homogenization and §14's middle
   tier ride these cinches.
 - curl/AWS, verified 2026-06-10 (§13 transport seam): curl native `--aws-sigv4` signing with
