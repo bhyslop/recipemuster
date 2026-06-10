@@ -10356,9 +10356,10 @@
       "jjghn_creation_time": "260610",
       "jjghn_status": "jjghe_stabled",
       "jjghn_order": [
-        "₢BeAAA"
+        "₢BeAAA",
+        "₢BeAAB"
       ],
-      "jjghn_next_pace_seed": "AAB",
+      "jjghn_next_pace_seed": "AAC",
       "jjghn_paces": {
         "₢BeAAA": {
           "jjgpn_tacks": [
@@ -10368,6 +10369,17 @@
               "jjgtn_text": "Establish the precision exit-code band and make `buc_die` transparent to it.\n\nDefine band tinder in `Tools/buk/bubc_constants.sh`:\nband base/width plus per-gate rejection codes —\nper rejection gate, never per validation rule.\nPick the band clear of shell-reserved codes (2, 126, 127, 128+n).\n\nTeach `buc_die` (`Tools/buk/buc_command.sh`) to capture `$?` on entry\nand re-exit with it when the value lies in the band;\nadd an origin helper for deliberate rejection sites.\nExisting `cmd || buc_die` call sites stay untouched —\nthe membrane makes them propagate band codes for free.\n\nProve end-to-end survival:\na BUK self-test case where a band code raised under a `cmd || buc_die` chain\nreaches the caller's captured exit status through the tabtarget/launcher exec path.\n\n## Cinched\nExit-code band over stderr sentinel;\nper-gate codes, not per-rule.\n\n## Done when\nBand tinder and membrane land;\n`tt/buw-st.BukSelfTest.sh` green including the new survival case.",
               "jjgtn_silks": "band-tinder-and-die-membrane",
               "jjgtn_basis": "9ca3b23"
+            }
+          ]
+        },
+        "₢BeAAB": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260610-1154",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "Project the band constants into Rust as numeric consts.\n\nExtend the rbcc emission (`Tools/rbk/rbcc_Constants.sh`, riding\n`rbz_emit_consts` in `Tools/rbk/rbz_zipper.sh` → `rbtdgc_consts.rs`)\nwith a numeric emit shape — current emission is `&str` only,\ntheurge compares exit codes as integers.\nbubc is sourced at emission time,\nso projecting BUK-homed band values needs no cross-module tinder trick.\nWrite-on-change and the qualify freshness gate apply unchanged.\n\n## Done when\nGenerated `rbtdgc_consts.rs` carries the band as numeric consts;\n`tt/rbw-tb.Build.sh` regenerates it and `tt/rbw-tq.QualifyFast.sh` passes freshness.",
+              "jjgtn_silks": "numeric-const-codegen",
+              "jjgtn_basis": "be66fdc"
             }
           ]
         }
