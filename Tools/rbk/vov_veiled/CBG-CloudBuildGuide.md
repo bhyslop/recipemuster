@@ -390,8 +390,11 @@ it to the `buildStepOutputs` channel (`/builder/outputs/output`); the spine
 extracts the slot and base64-decodes it host-side into a capture file. This is
 the only step→host return path. The slot is addressed **by step index**
 (`.results.buildStepOutputs[N]`) — N is the producing step's position in the
-recipe, so reordering recipe rows silently shifts slots; the body's extract call
-pins N with a comment naming the producing step id.
+recipe (the API contract orders outputs "corresponding to build step indices"),
+so reordering recipe rows silently shifts slots; the body's extract call pins N
+with a comment naming the producing step id. The channel is contract-capped:
+**only the first 4KB is stored** (Build API, `results.buildStepOutputs`) — a
+value that can outgrow 4KB does not belong on this channel.
 
 *Cited by:* the spine's extract logic; any step producing a host-consumed value.
 
@@ -399,13 +402,16 @@ pins N with a comment naming the producing step id.
 
 ## Snippet & Exemplar Reference
 
-Read these as the worked forms behind the rules above:
+Worked forms live where the code lives — read the current family members rather
+than a curated filename list that drifts:
 
-- **Bash snippets** — `Tools/rbk/rbgjs/rbgjs-{token-fetch,gcrane-fingerprint,gcrane-append,gpg-verify-sums,buildx-bootstrap,buildx-push}.sh`
-- **Bash steps** — `rbgjl01-ensconce-capture.sh`, `rbgjl02-assemble-push-vouch.sh`, `rbgjv03-assemble-push-vouch.sh`
-- **Python steps** — `rbgja/rbgja01-discover-platforms.py`, `rbgja/rbgja03-build-info-per-platform.py`, `rbgjv/rbgjv02-verify-provenance.py`, `rbgjl/rbgjl06-package-delete.py` (the convergence-delete exemplar — fire-and-forget rounds, absence-poll as the only truth)
-- **Host composition** — `rblds_Spine.sh` (spine, validator, entrypoint switch, `buildStepOutputs` extract), `rbfca_StepAssembly.sh` (recipe rows), `rbfcb_BuildHost.sh` (`zrbfc_expand_includes`)
-- **Per-kind body** — `rbldb_Bole.sh` (recipe + substitution blob + envelope intent)
+- **Bash snippets** — `Tools/rbk/rbgjs/`; the CBh_101 table is the contract home
+  (requires/provides per snippet)
+- **Step bodies, all languages** — `Tools/rbk/rbgj*/`; the newest step in each
+  language is usually the best exemplar
+- **Host composition** — the spine (`rblds_`), recipe assembly (`rbfca_`), and
+  the include expander (`rbfcb_`)
+- **Per-kind bodies** — the `rbld` family; bole is the smallest worked form
 
 ## Related Documents
 
