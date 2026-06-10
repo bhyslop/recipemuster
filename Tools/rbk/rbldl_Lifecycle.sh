@@ -54,9 +54,11 @@ rbld_divine() {
   local -r z_kind_fmt="    %-3s %-10s %s\n"
   echo ""
   printf "  Kinds (touchmark prefix):\n"
-  printf "${z_kind_fmt}" "${RBGC_LODE_KIND_BOLE}"      "bole"      "upstream OCI image, consumed as a FROM line"
-  printf "${z_kind_fmt}" "${RBGC_LODE_KIND_RELIQUARY}" "reliquary" "date-cohort of build-tool images"
-  printf "${z_kind_fmt}" "${RBGC_LODE_KIND_WSL}"       "wsl"       "vendor-published rootfs tarball, opaque-blob member"
+  printf "${z_kind_fmt}" "${RBGC_LODE_KIND_BOLE}"         "bole"         "upstream OCI image, consumed as a FROM line"
+  printf "${z_kind_fmt}" "${RBGC_LODE_KIND_RELIQUARY}"    "reliquary"    "date-cohort of build-tool images"
+  printf "${z_kind_fmt}" "${RBGC_LODE_KIND_WSL}"          "wsl"          "vendor-published rootfs tarball, opaque-blob member"
+  printf "${z_kind_fmt}" "${RBGC_LODE_KIND_PODVM_WSL}"    "podvm-wsl"    "podman machine-os-wsl disk leaves, opaque-blob cohort"
+  printf "${z_kind_fmt}" "${RBGC_LODE_KIND_PODVM_NATIVE}" "podvm-native" "podman machine-os disk leaves, opaque-blob cohort"
 
   # Load the touchmark list fully before iterating: the per-Lode tags fetch
   # spawns curl (via rbuh), and a child touching stdin would consume the

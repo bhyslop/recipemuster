@@ -228,11 +228,14 @@ zrbgc_kindle() {
   # Kind-brand enum — the touchmark's kind carried in the host-side single-form
   # chaining fact a derived-pull election reads to resolve the member tag. It is
   # read as its own fact, NOT parsed from the touchmark's kind-letter prefix
-  # (the chaining channel is single-form: opaque values, never parsed). Bole and
-  # reliquary land today; later kinds add their brand here with their vertical.
+  # (the chaining channel is single-form: opaque values, never parsed). Each kind
+  # adds its brand here with its vertical; the brand string is also the envelope's
+  # `kind` field, and — for podvm — the operator-typed `immure` family argument.
   readonly RBGC_LODE_BRAND_BOLE="bole"
   readonly RBGC_LODE_BRAND_RELIQUARY="reliquary"
   readonly RBGC_LODE_BRAND_WSL="wsl"
+  readonly RBGC_LODE_BRAND_PODVM_WSL="podvm-wsl"
+  readonly RBGC_LODE_BRAND_PODVM_NATIVE="podvm-native"
 
   # Member/provenance tags. The rbi_ sprue marks strings from RB's domain:
   # RB's authored lexicon (bole, vouch) and RB-measured-from-content values
@@ -279,6 +282,36 @@ zrbgc_kindle() {
   # cloud step fetches the key BY this fingerprint into a clean keyring, so the
   # keyserver is never trusted — only a signature from exactly this key passes.
   readonly RBGC_LODE_WSL_SIGNING_FPR="843938DF228D22F7B3742BC0D94AA3F0EFE21092"
+
+  # podvm-kind acquisition convention — NOT resolved coordinates (see RBSLI). Per
+  # the no-FQIN premise, intent stays declarative and the pipeline resolves leaf
+  # digests at capture: immure takes the quay FAMILY and the podman VERSION as
+  # arguments (e.g. `podvm-wsl 5.6`); the cloud select step reads the family's
+  # multi-arch OCI index at that version and picks the curated {disktype × arch}
+  # leaves below from the index child DESCRIPTOR's platform.architecture +
+  # annotations.disktype — never the layer filename, which is unreliable (the 5.6
+  # wsl x86_64 leaf is titled `5.0-rootfs-amd64.tar.zst`; memo-20260608 §3.4). No
+  # digest is pinned; advancing the version is a different argument, not a constant
+  # edit. Trust grade is recorded-at-acquisition — quay rotates podvm out within
+  # days and publishes no durable checksum, so RB attests only the digest captured.
+  #
+  # Two quay families, one verb (immure spans both via the family argument). The
+  # disktype leaves carry the ALT arch spelling (x86_64/aarch64), not the OCI
+  # amd64/arm64 the plain container children use — selection keys on that spelling.
+  readonly RBGC_LODE_PODVM_FAMILY_WSL="quay.io/podman/machine-os-wsl"
+  readonly RBGC_LODE_PODVM_FAMILY_NATIVE="quay.io/podman/machine-os"
+  # Curated leaf selection per family — declarative `disktype:arch` rows the select
+  # step matches against index child descriptors. THIS PACE proves the podvm-wsl
+  # family end-to-end (both wsl-disktype leaves -> a genuine 2-member Lode, which
+  # exercises the multi-member machinery and the per-member-jettison path). The
+  # native family's full 8-leaf curation and a same-version "widen the set" refresh
+  # mode are the FOLLOWING pace (RBSL "Why podvm kinds retain selectively"); the
+  # native default below is the modest 2-leaf set the cerebro experiment captured
+  # (memo-20260608 §5) — the verb works for native, but only podvm-wsl is fixture-
+  # proven. Member tag composes as :<sprue><disktype>-<arch> (e.g. rbi_wsl-x86_64);
+  # disktype+arch are RB-selected from the index, so sprued.
+  readonly RBGC_LODE_PODVM_WSL_SELECTION="wsl:x86_64 wsl:aarch64"
+  readonly RBGC_LODE_PODVM_NATIVE_SELECTION="qemu:x86_64 wsl:x86_64"
 
   # rbi_df layout: flat namespace. No subdirs. Each filename names one
   # depot-scoped artifact; tag varies by artifact role.
