@@ -10360,9 +10360,10 @@
         "₢BeAAB",
         "₢BeAAC",
         "₢BeAAD",
-        "₢BeAAE"
+        "₢BeAAE",
+        "₢BeAAF"
       ],
-      "jjghn_next_pace_seed": "AAF",
+      "jjghn_next_pace_seed": "AAG",
       "jjghn_paces": {
         "₢BeAAA": {
           "jjgpn_tacks": [
@@ -10416,6 +10417,17 @@
               "jjgtn_text": "Close the wrong-reason hole for the recipe-validation\nand dockerfile-hygiene fixtures' negative cases.\n\nTeach the recipe validation gate and the rbfh FROM-line hygiene gate\n(`Tools/rbk/rbfh_FoundryHygiene.sh`) to reject with band codes.\nThese two gates are alternatives — never in one spawn path —\nso they may share a code per the allocation rule;\nconfirm that at migration time rather than assuming.\nFlip both fixtures' negative cases to assert the expected code.\n\n## Done when\n`tt/rbw-ts.TestSuite.fast.sh` green\nwith both fixtures' negative cases asserting specific codes.",
               "jjgtn_silks": "migrate-recipe-and-hygiene-negatives",
               "jjgtn_basis": "fe75bec"
+            }
+          ]
+        },
+        "₢BeAAF": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260610-1155",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "Write the BCG admission entry for the precision exit-code band.\n\nState the design position:\ndifferentiated exit codes are bad design, interpreting error strings is worse,\nso a small per-gate band exists for exactly the tabtargets\nthe test orchestrator asserts negatively — nothing else.\nInclude: band semantics (in-band means deliberate rejection,\ncode 1 stays \"imprecise death\"),\nthe allocation rule (share across alternatives, never along a pipeline),\nthe enrollment requirement (no code minted outside the bubc tinder block),\nand the rejected stderr-sentinel alternative with why it lost.\nCross-reference from the bubc tinder block comment.\n\n## Character\nProse craft against a settled design — judgment in wording, not in shape.\n\n## Done when\nBCG carries the entry; bubc tinder block points at it.",
+              "jjgtn_silks": "bcg-precision-band-admission",
+              "jjgtn_basis": "922f49c"
             }
           ]
         }
