@@ -69,6 +69,15 @@ ZRBLDS_SOURCED=1
 # automap into every step, so there is no cross-step ordering; the /workspace
 # inter-step channel keeps its own in-step guards and is out of scope.
 #
+# This check is also why the build sets options.substitutionOption ALLOW_LOOSE (below):
+# a python step reads its substitutions as automapped env vars, never as textual
+# ${_RBGL_*} expansions, so Cloud Build's default MUST_MATCH would reject those keys as
+# "not matched in the template" the moment a recipe MIXES a python step (env-read subs)
+# with bash steps (textual-ref subs) — the immure case (python select + bash cp/residency/
+# vouch). ALLOW_LOOSE lifts that, and this dispatch-time scan is its safe replacement:
+# it independently catches the inverse fault (a step ${}-referencing a key the blob omits)
+# that MUST_MATCH would otherwise have caught.
+#
 # Args: keys_file expanded_body_file
 zrbld_spine_validate() {
   local -r z_keys_file="${1:?Substitution keys file required}"
@@ -130,8 +139,8 @@ zrbld_spine_validate() {
 #
 # The substitutions file holds a JSON object the spine slots verbatim into the
 # Build envelope's `substitutions` field; the spine reads no key from it. The
-# envelope shape (serviceAccount, options.automapSubstitutions, options.logging,
-# options.pool, timeout) is the spine's; the run-as identity is caller-supplied
+# envelope shape (serviceAccount, options.automapSubstitutions, options.substitutionOption,
+# options.logging, options.pool, timeout) is the spine's; the run-as identity is caller-supplied
 # (an SA email the spine composes into the depot-project resource path), and the
 # environment knobs (TETHER pool, regime timeout) are spine-owned constants.
 #
@@ -229,6 +238,7 @@ zrbld_spine_dispatch() {
       serviceAccount: $zjq_sa,
       options: {
         automapSubstitutions: true,
+        substitutionOption: "ALLOW_LOOSE",
         logging: "CLOUD_LOGGING_ONLY",
         pool: { name: $zjq_pool }
       },

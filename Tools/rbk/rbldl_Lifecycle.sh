@@ -51,7 +51,7 @@ rbld_divine() {
   # Kind-letter legend, printed once so rows carry no repeated per-row column.
   # A touchmark's leading letter is its kind (b260602075327 -> bole); the
   # reader decodes the prefix from this key. One entry per implemented kind.
-  local -r z_kind_fmt="    %-3s %-10s %s\n"
+  local -r z_kind_fmt="    %-3s %-13s %s\n"
   echo ""
   printf "  Kinds (touchmark prefix):\n"
   printf "${z_kind_fmt}" "${RBGC_LODE_KIND_BOLE}"         "bole"         "upstream OCI image, consumed as a FROM line"
