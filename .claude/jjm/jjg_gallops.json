@@ -10018,9 +10018,10 @@
         "₢BbAAC",
         "₢BbAAD",
         "₢BbAAG",
-        "₢BbAAL"
+        "₢BbAAL",
+        "₢BbAAM"
       ],
-      "jjghn_next_pace_seed": "AAM",
+      "jjghn_next_pace_seed": "AAN",
       "jjghn_paces": {
         "₢BbAAA": {
           "jjgpn_tacks": [
@@ -10214,6 +10215,17 @@
               "jjgtn_text": "Consolidate every bash implementation filename to one rule:\n`«prefix»_«snake_name».sh`, all lowercase, prefer a single word —\nretiring BCG's PascalCase carve-outs so no mixed-case `.sh` file remains under `Tools/`.\n\n## Character\nIntricate but mechanical;\nthe only judgment calls are the word-shortening choices on multi-word names.\n\n## Cinched\n- One rule, no carve-outs:\n  plain modules, decomposition entries (`«prefix»0_`), decomposition clusters, and test-case files all go lowercase.\n- Where a PascalCase name is multi-word and the prefix already carries the meaning,\n  slim the word part to a single word rather than transliterating to long snake_case\n  (the foundry-director-build module is the poster child).\n- Doc files (`ACRONYM-Words.ext`) and tabtarget frontispieces are separate naming grammars — untouched.\n- The distributed kits (buk/jjk/cmk/vvk/vok/apck) are already compliant except a single buk stray;\n  the rename population is essentially rbk-internal, which is why lowercase won over uppercase as the consolidation direction.\n\n## Done when\n- A case-sensitive sweep for uppercase letters in `.sh` basenames under `Tools/` lands empty.\n- A repo-wide grep for each retired basename lands clean —\n  sourcing lines, zipper registry, specs, acronym maps, launcher configs.\n- BCG's Naming Convention Patterns table states the single lowercase rule plainly,\n  with the PascalCase rows (decomposition entry, decomposition cluster, test-case file) recut to match.\n- The CLAUDE.md mint table's code-file row (`prefix_Word.ext`) and the rbk acronym map agree with the new names.\n- The `fast` test suite passes; run a broader tier if touched files warrant it.\n\nFirst step at mount: rebuild the rename map fresh —\nenumerate offenders with a case-sensitive sweep (e.g. `find Tools -name '*.sh' | grep '[A-Z]'`)\nrather than trusting any slate-time list, then confirm the map with the operator before renaming.\nCase-only renames on macOS's case-insensitive filesystem want `git mv`.\nSingle-operator caution: land renames and reference updates in the same commit so the tree never sources a missing file.",
               "jjgtn_silks": "bash-filename-case-consolidation",
               "jjgtn_basis": "af08e89"
+            }
+          ]
+        },
+        "₢BbAAM": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260610-1113",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nDesign conversation requiring judgment — a quoin-shape mint decision, not a transform; requires the Fable model.\n\n## Goal\nDecide whether AXLA's axig \"level\" taxonomy — the Service-level / Instance-level / Operational classifier opening nearly every axig_ definition in the \"Axial Infrastructure Google\" section — earns formal quoins, and in what shape: three sibling quoins, or one enumeration-style quoin with three values.\nSecondary and weaker: whether \"scoped method\" / \"elevated method\" (in \"Axial Voicing Entity Terms\") deserve concept quoins distinct from the existing axhems_/axheme_ marker quoins.\n\n## Cinched\n- This is a mint decision, not a curation pass: the emphasis survey that motivated it found zero emphasis-vs-quoin drift across MCM and AXLA, so nothing is mechanically convertible.\n- If the verdict is to mint, linking the axig lead-lines is additive elevation under MCM line-break discipline — a follow-on pace, not folded in here.\n\n## Done when\nA verdict is recorded for both questions; if the verdict is to mint, the quoin allocation is settled per the CLAUDE.md minting workflow (namespaces, reserved suffixes, terminal exclusivity, asterism fit), leaving the AXLA source edits to a follow-on pace.",
+              "jjgtn_silks": "axla-axig-level-taxonomy-mint",
+              "jjgtn_basis": "465f885"
             }
           ]
         }
