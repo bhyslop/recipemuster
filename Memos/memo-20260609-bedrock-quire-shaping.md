@@ -282,6 +282,8 @@ MVP. Recorded here as a shaping force and one named hazard, nothing more.
 - **Terminus consumer class** — §11's open question: container-only consumers (plain
   container networking) vs. a host-resident consumer (needs a local forward-proxy / endpoint
   seam from the terminus, still no host VPN). Container-only is the lean; unsettled.
+- **SigV4 spike (cinched first move, §13)** — two `curl --aws-sigv4` calls (clean
+  control-plane; ARN-in-path probe shape) gate any AWS transport build. Not yet run.
 
 ## 11. Launch shape — the Outpost's local terminus
 
@@ -396,16 +398,85 @@ audit (the ₣BZ intent-vs-enforcement spine; the prebend is the declared side o
 the enforcement reactors are AWS-resident and event-driven (Budgets actions, alarm-triggered
 Lambdas shipped as templates — "stood up from Recipe-Bottle-shipped templates," per §1). The
 genuine implementation strain is **SigV4**: AWS signs per-request (canonical request + chained
-HMAC derivation), versus the GCP side's single JWT exchange. If a program enters the MVP it is
-a small signing/REST helper, not a daemon — the Sentry/Outpost-analog resident process belongs
-only to ladder rung 4, which is deferred with it.
+HMAC derivation), versus the GCP side's single JWT exchange. §13 decomposes that strain and
+finds the probable resolution inside curl itself — no signing helper, no daemon; the
+Sentry/Outpost-analog resident process belongs only to ladder rung 4, which is deferred.
 
 **Menu framing strengthened.** The prebend *is* a per-chorister menu — model list as approved
 options, agency as ceiling, allowance as cap — which is §9's envelope resolution made concrete
 on the consumer-governance axis. Recipe Bottle governs the envelope; the chorister picks
 within it.
 
-## 13. Sources
+## 13. AWS transport — SigV4 in bash, and the curl seam (2026-06-10 addendum)
+
+Same-day companion to §12, recording why "bash for AWS auth" is harder than the GCP precedent,
+where the difficulty actually lives, and the seam that probably dissolves most of it. Nothing
+here is built; the spike below is **cinched as the first move** before any transport code.
+
+**The GCP baseline (evidence: `rbgo_OAuth.sh`).** Google's JWT-bearer flow front-loads all
+crypto into one per-session mint: sign a ~200-byte self-contained document once, exchange it,
+then every subsequent REST call carries a bare `Authorization: Bearer` header — zero crypto
+per request. That decoupling is what makes the BCG failure-capture ceremony affordable (one
+module, one retry envelope, structured JSON error bodies to discriminate on).
+
+**SigV4 inverts the seam — four distinct strains:**
+
+1. **Cardinality** — every request is signed, so every REST helper and every poll iteration
+   becomes crypto-bearing; the ceremony owed once per session is owed per call.
+2. **Binary intermediates** — the signing key derives through four chained HMAC-SHA256 steps
+   whose intermediates are binary; bash variables cannot hold NUL bytes, so each step
+   round-trips as hex through an openssl subprocess (`-macopt hexkey:`) — workable, ~5× the
+   JWT path's ceremony, per request.
+3. **Canonicalization byte-exactness** — URI-encoding with AWS's specific rules, codepoint-
+   sorted query params, folded headers; bash has no native URI-encoder, and the failure mode
+   is a remote opaque 403 `SignatureDoesNotMatch`, not a loud local error — the exact failure
+   shape BCG discipline exists to kill.
+4. **Two sources of truth** — you sign a *reconstruction* of the request while curl builds the
+   wire bytes and mutates headers on its own (`Host`, `Content-Length`, `Expect:`); any
+   divergence breaks the signature. Interface Contamination with a foreign tool inside the
+   crypto loop, on every call.
+
+**The curl seam.** curl signs SigV4 natively: `--aws-sigv4 "aws:amz:«region»:«service»"` with
+`--user "«key»:«secret»"`; STS temporary credentials ride a plain `x-amz-security-token`
+header. Because the tool that builds the wire bytes also signs them, strains 2–4 dissolve at a
+stroke and bash never touches an HMAC. Costs, named honestly:
+
+- **A curl version floor** (feature landed 7.75, matured through 8.x) — a new pin to state in
+  the dependency inventory, where curl already sits as a consumer dependency.
+- **A Palisade dependence**: curl's signer has a surveyed bug history (wildcard paths,
+  empty-value query params, a missing `x-amz-content-sha256` quirk against some services).
+  We cannot edit curl — conduct is characterize/contain/absorb the surveyed signatures, per
+  the ROE Palisade discipline, with the signing flags composed in exactly one module function.
+- **Trust-surface honesty**: curl is already trusted for every TLS byte RB moves, so this is
+  not a new *kind* of trust — but `--aws-sigv4` is a far less-trodden path within that trusted
+  neighbor than its TLS core, and trust transfers imperfectly across surfaces. Hence the spike.
+
+**The one RB-relevant risk shape**: Bedrock *runtime* paths embed ARNs in the URI
+(`/model/arn%3Aaws%3A…/converse` when invoking via inference profile) — colons-in-path is
+precisely where signing implementations historically disagree. Establishment ceremony (IAM,
+Budgets, Bedrock control plane) uses clean paths; only the one-shot Quire probe touches the
+runtime shape, so the exposure is confined to a single verb.
+
+**Cinched: spike before build.** Two calls from the workstation retire most of the
+uncertainty: (1) a clean control-plane call (e.g. IAM `GetUser` or Bedrock
+`ListFoundationModels`); (2) the probe-shaped `Converse` call with an ARN-bearing path. If
+both land, bash keeps sovereignty over AWS transport at the cost of a version floor and one
+membrane. Hand-rolled bash SigV4 (hex-chained HMACs, testable against AWS's published SigV4
+test-vector suite) is the **named fallback, not built** — reached for only if curl's signer
+mishandles a request shape that cannot be reshaped.
+
+**Why there is no GCP analog — the seam principle.** Crypto belongs in the transport tool
+exactly when it is *transport-coupled* (a signature over the wire bytes only the
+request-builder can compute); it belongs at openssl when it is *document-coupled* (a
+self-contained signed artifact like a JWT). Google chose a document-coupled scheme, so
+`rbgo_OAuth.sh` already sits at the minimal seam for it — curl offers nothing that would
+simplify the existing GCP path (`--oauth2-bearer` is cosmetic sugar over `-H`, and curl's
+native `--retry` cannot replace the rbgo/rbuh retry loops, whose discrimination reads
+response *bodies* — `invalid_grant` shapes, SA-propagation races — that curl cannot see;
+that complexity is load-bearing). The two clouds get different seams because they chose
+different coupling, and matching the seam to the coupling is the whole lesson.
+
+## 14. Sources
 
 - `Memos/memo-20260415-crucible-conduit-architecture.md` — the predecessor (approaches,
   WireGuard-in-sentry, service-compatibility survey, threat-model table).
@@ -413,6 +484,10 @@ within it.
   `VPC Service Controls` entries (stubs; to be breadcrumbed to this memo).
 - Heat ₣BZ (`rbk-14-mvp-citizen-model`) — the citizen/capability identity model this rides;
   intent-vs-enforcement and the Terrier.
+- curl/AWS, verified 2026-06-10 (§13 transport seam): curl native `--aws-sigv4` signing with
+  session-token header support; surveyed signer bugs (curl issues #10129 empty query params,
+  #11007 x-amz-content-sha256, wildcard-path mis-signing); AWS SigV4 troubleshooting docs and
+  published test-vector suite for any hand-rolled fallback.
 - AWS, verified 2026-06-10 (§12 enforcement ladder): IAM model/inference-profile ARN scoping
   for `bedrock:InvokeModel`; application inference profiles with cost-allocation tags
   (non-retroactive, ~24h activation lag); AWS Budgets actions auto-applying IAM deny policies;
