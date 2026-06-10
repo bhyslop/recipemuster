@@ -1,12 +1,5 @@
 # Diptych: A Dual-Representation Document System for Human-AI Collaboration
 
-## Status
-Vision draft v0.2 — Engulfs lexer, validator, and recension intents (2026-06-10)
-
-Revision history:
-- v0.1 (2026-02-09) — Discovery draft as `memo-20260209-diptych-format-study.md`: the format insight (recto/verso), prefix grammar, liturgical vocabulary, phase plan.
-- v0.2 (2026-06-10) — Renamed to `-vision` and promoted to the umbrella for canon machinery: names the one-grammar/three-consumers spine, absorbs the validator (VOS flowering) and recension (re-quoiner) intents, declares the recension scope boundary, and collects the removal-conditions ledger that points here.
-
 ## Origin
 
 This memo records a design conversation between editor and digital mind (Claude Opus 4.6) that began with a practical frustration — AsciiDoc ceremony consuming tokens in concept model documents — and arrived at something larger: a yin-yang document format natively optimized for two consumers simultaneously.
@@ -138,22 +131,37 @@ The format insight above implies more than a codec. Once the canon has a single 
 
 Designed separately — codec first, validator retrofitted, recension bolted on — these become three partial parsers that drift. Designed as one lexer with three consumers, the grammar is declared once and every machine inherits it. This is the zipper pattern applied to the specification layer: one registry, many generated artifacts.
 
+### Link coverage and auto-link
+
+A further capability falls out of the same grammar, splitting across two of the three consumers: turning plain-prose mentions of an already-registered display-text into linked references.
+
+- **Detection is a validator rule** — "display-text link coverage": a plain-prose occurrence of any registered display-text (or one of its variants) is a candidate unlinked reference. It joins the opening rule set beside legend coverage and the anchor↔attribute bijection.
+- **Application is a recension mode** — "auto-link": rewrite the candidates across a canon, tool-executed, without touching meaning. Recension already owns canon-wide quoin-layer edits; this is the create-references sibling of its rename-references core.
+
+The reason this belongs in the machinery rather than in hand-authoring is that both costs that make it prohibitive under AsciiDoc are costs Diptych removes. Inserting a linked term today forces MCM's break-before-and-after line discipline, so every site is a host-line restructure; in recto each word is already its own line and the insertion is a one-line change. And visible `{...}` ceremony is what forces specs to link sparsely to stay readable; in verso a reference renders as its display text, so dense linking costs the reader nothing. Under Diptych, saturated linking stops being a readability-versus-effort tradeoff and can become the default rather than the exception.
+
+Two boundaries on the rule, surfaced by running the survey across kits:
+
+- **Flag-and-review at structural labels, never blind-apply.** Most emphasis a survey turns up is run-in step labels, not concept references — leave them. But one sub-case earns a flag: an emphasized step label whose noun is an exact quoin display-text while the step body immediately references that quoin — a `*Write brand file*:` label over a body that uses `{vose_brand_file}`. Whether the label should carry the link or stay plain is a per-step judgment, so auto-link bulk-applies in running prose and only reports at labels.
+- **Detection doubles as mint-gap detection.** A recurring bare noun with no matching display-text is not a link candidate but a *mint* candidate — a concept with no quoin yet (BUK's Fixture, Suite, Workbench, Testbench are the worked instance). These sit upstream of auto-link and independent of Diptych — minting is ordinary authoring, not blocked on this machinery — so they belong on the minting agenda, not the ledger below. The same validator pass surfaces both gaps; only the existing-quoin gap is auto-link's to close.
+
 ### Recension scope honesty
 
 Canons are the *easy* reminting universe. The full mint universe — code identifiers, git refs, environment variables, tabtarget filenames — lives in the extended namespace checklist (CLAUDE.md "Prefix Naming Discipline"). A canon-only recension would silently create spec↔code drift: rename `rbfl_jettison` in the spec, orphan it in the shell. The boundary, declared now:
 
 - **Canon recension** rides the Diptych lexer. In scope for this vision.
 - **Cross-universe recension** rides the zipper registries that already generate code-side constants. Separate machinery, same discipline.
-- A **full remint** is the orchestration of both, and is not promised by v1 of anything.
+- A **full remint** is the orchestration of both, and is not promised by any first delivery.
 
 ### The removal-conditions ledger
 
 Several tolerated inconsistencies carry "until Diptych" as their demolition date. They are debts against this memo, recorded so the machinery knows its first customers:
 
-- JJS0 body prose authored under semantic linefeeds rather than MCM line-break discipline (principle rescoped 2026-06-10; renormalization deferred to the migration re-flow).
+- JJS0 body prose authored under semantic linefeeds rather than MCM line-break discipline; renormalization deferred to the migration re-flow.
 - `jjezs_` and kin — mints that broke family shape and await canon recension.
 - AXLA hierarchy-marker chains (`axhempt_` etc.) — deep taxonomic letter-chains slated for re-mint under the early-divergence rule.
 - RBS0's mixed prefix strata (`at_`, `st_`, `mkr_`, `scr_`, `opss_`) — the museum layers, sweepable once recension is real.
+- Link coverage across the canon family — the specs mention already-quoined concepts densely in plain prose and leave them unlinked. The RBS* family alone holds ~2,700 such mentions (RBS0 ~490); spot surveys of BUS0, VOS0, and VLS show the same shape — near-zero true emphasis-drift, the whole mass sitting in plain prose. A hand sweep is prohibitive precisely because of the two costs The Spine names; deferred to the auto-link recension mode, with the link-coverage validator rule producing the worklist.
 
 ## Liturgical Vocabulary
 
