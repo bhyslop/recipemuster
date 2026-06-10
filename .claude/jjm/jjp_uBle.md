@@ -1,3 +1,17 @@
+## Gate
+
+Do not start this heat until ₣Bb's bash-filename case-consolidation pace
+(now first in that heat) has landed.
+That pace renames PascalCase bash files across `Tools/rbk` —
+including files this heat edits directly
+(the rbcc constants module, the foundry-hygiene gate, the validation gate homes) —
+and rename-on-one-side, edit-on-the-other is the worst git merge shape.
+Once it lands, this heat runs comfortably in a parallel repo alongside the rest of ₣Bb;
+verify the rename pace is wrapped via `jjx_show` on ₣Bb before mounting here.
+Mind that pace's renames when reading this heat's dockets:
+file references here predate the consolidation,
+so resolve any stale PascalCase basename to its lowercase successor.
+
 ## Shape
 
 Theurge negative cases assert bare nonzero exit,
