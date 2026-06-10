@@ -91,6 +91,9 @@ zrbld_kindle() {
   buc_log_args 'Define divine operation file prefix'
   readonly ZRBLD_DIVINE_PREFIX="${BURD_TEMP_DIR}/rbld_divine_"
 
+  buc_log_args 'Define augur operation file prefix'
+  readonly ZRBLD_AUGUR_PREFIX="${BURD_TEMP_DIR}/rbld_augur_"
+
   buc_log_args 'Define banish operation file prefix'
   readonly ZRBLD_BANISH_PREFIX="${BURD_TEMP_DIR}/rbld_banish_"
 

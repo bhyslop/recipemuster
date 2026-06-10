@@ -86,7 +86,8 @@ zrbz_kindle() {
   buz_enroll RBZ_ENSCONCE_BOLE          "rbw-lE"  "${z_mod}" "rbld_ensconce"      "param1"  "Ensconce an upstream base image into a Lode (capture)"
   buz_enroll RBZ_CONCLAVE_RELIQUARY     "rbw-lC"  "${z_mod}" "rbld_conclave"      ""        "Conclave the build-tool cohort into one Lode (capture)"
   buz_enroll RBZ_UNDERPIN_WSL           "rbw-lU"  "${z_mod}" "rbld_underpin"      "param1"  "Underpin a vendor WSL rootfs into a Lode (capture; args: release point)"
-  buz_enroll RBZ_DIVINE_LODES           "rbw-ld"  "${z_mod}" "rbld_divine"        "param1"  "Divine Lodes — enumerate all, or inspect one Lode's members (read-only)"
+  buz_enroll RBZ_DIVINE_LODES           "rbw-ld"  "${z_mod}" "rbld_divine"        ""        "Divine Lodes — enumerate every Lode by touchmark (read-only)"
+  buz_enroll RBZ_AUGUR_LODE             "rbw-la"  "${z_mod}" "rbld_augur"         "param1"  "Augur a Lode — inspect member tags and decode its rbi_vouch envelope (read-only)"
   buz_enroll RBZ_BANISH_LODE            "rbw-lB"  "${z_mod}" "rbld_banish"        "param1"  "Banish a Lode — delete the whole rbi_ld/<touchmark> package"
 
   # Guide — human-directed procedures (rbw-g)

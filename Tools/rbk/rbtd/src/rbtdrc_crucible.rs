@@ -43,7 +43,7 @@ use crate::rbtdgc_consts::{
     RBTDGC_ACCOUNT_DIRECTOR, RBTDGC_ACCOUNT_GOVERNOR, RBTDGC_ACCOUNT_PAYOR, RBTDGC_ACCOUNT_RETRIEVER,
     RBTDGC_TALLY_HALLMARKS, RBTDGC_VOUCH_HALLMARKS,
     RBTDGC_ENSCONCE_BOLE, RBTDGC_CONCLAVE_RELIQUARY, RBTDGC_UNDERPIN_WSL, RBTDGC_DIVINE_LODES,
-    RBTDGC_BANISH_LODE, RBTDGC_LIST_IMAGES, RBTDGC_JETTISON_IMAGE,
+    RBTDGC_AUGUR_LODE, RBTDGC_BANISH_LODE, RBTDGC_LIST_IMAGES, RBTDGC_JETTISON_IMAGE,
 };
 use crate::rbtdrm_manifest::rbtdrm_credential_check_colophon;
 
@@ -2944,11 +2944,21 @@ const RBTDRC_FACT_EXT_AUDIT_HALLMARK: &str = "audit-hallmark";
 /// host-side. Mirrors rbgc_Constants.sh RBF_FACT_LODE_TOUCHMARK.
 const RBTDRC_FACT_LODE_TOUCHMARK: &str = "rbf_fact_lode_touchmark";
 
-/// Bole-Lode member tags asserted by divine inspect. Mirror rbgc_Constants.sh
+/// Bole-Lode member tags asserted by augur. Mirror rbgc_Constants.sh
 /// RBGC_LODE_TAG_BOLE / RBGC_LODE_TAG_VOUCH / RBGC_LODE_TAG_DIGEST_PREFIX.
 const RBTDRC_LODE_TAG_BOLE: &str = "rbi_bole";
 const RBTDRC_LODE_TAG_VOUCH: &str = "rbi_vouch";
 const RBTDRC_LODE_TAG_DIGEST_PREFIX: &str = "rbi_sha256-";
+
+/// Envelope-decode markers asserted by augur — values that live *inside* the
+/// decoded :rbi_vouch envelope (the trust_grade field and a member's
+/// verification field), never in a bare tag listing. Their presence in augur's
+/// output is the load-bearing proof that augur decoded the envelope, not merely
+/// enumerated tags as divine's retired inspect branch did. Mirror
+/// rbgc_Constants.sh RBGC_LODE_TRUST_VERIFIED and the rbgjl0* "oci-digest"
+/// verification literal.
+const RBTDRC_LODE_TRUST_VERIFIED: &str = "verified-against-published";
+const RBTDRC_LODE_VERIFICATION_OCI: &str = "oci-digest";
 
 /// Reliquary-Lode member tags asserted by divine inspect — a representative
 /// pair of the build-tool cohort (one Google-hosted, one third-party). Compose
@@ -3113,9 +3123,9 @@ pub static RBTDRC_CASES_HALLMARK_LIFECYCLE: &[rbtdre_Case] = &[case!(rbtdrc_hall
 
 // Lode-lifecycle fixture — fetched-side base capture against live GAR. Single
 // self-contained round-trip: ensconce the busybox base into a fresh rbi_ld
-// Lode, divine-enumerate to confirm it appears, divine-inspect to confirm the
-// member tags + vouch envelope rode in, banish the whole Lode, then divine-
-// enumerate to confirm the registry is restored. Parallel to hallmark-lifecycle
+// Lode, divine-enumerate to confirm it appears, augur to confirm the member
+// tags AND the decoded :rbi_vouch envelope rode in, banish the whole Lode, then
+// divine-enumerate to confirm the registry is restored. Parallel to hallmark-lifecycle
 // on the made side. Requires a reliquary yoked on the busybox vessel (same
 // precondition hallmark-lifecycle's ordain carries).
 fn rbtdrc_lode_lifecycle(dir: &Path) -> rbtdre_Verdict {
@@ -3155,18 +3165,33 @@ fn rbtdrc_lode_lifecycle(dir: &Path) -> rbtdre_Verdict {
             ));
         }
 
-        // Step 3: divine inspect shows the member tags + the vouch envelope.
-        let inspect = match rbtdri_invoke_global(ctx, RBTDGC_DIVINE_LODES, &[&touchmark], &[]) {
+        // Step 3: augur inspects the single Lode — member tags AND the decoded
+        // :rbi_vouch envelope. This is the explicit augur-decode case: beyond the
+        // member tags (which the retired divine inspect branch also listed), it
+        // asserts the envelope's own fields surfaced — the trust grade and a
+        // member's verification — proving augur read vouch.json, not merely
+        // enumerated tags.
+        let augur = match rbtdri_invoke_global(ctx, RBTDGC_AUGUR_LODE, &[&touchmark], &[]) {
             Ok(r) if r.exit_code == 0 => r,
-            Ok(r) => return rbtdre_Verdict::Fail(format!("divine inspect failed (exit {})\n{}", r.exit_code, r.stderr)),
-            Err(e) => return rbtdre_Verdict::Fail(format!("divine inspect invocation: {}", e)),
+            Ok(r) => return rbtdre_Verdict::Fail(format!("augur failed (exit {})\n{}", r.exit_code, r.stderr)),
+            Err(e) => return rbtdre_Verdict::Fail(format!("augur invocation: {}", e)),
         };
-        let _ = std::fs::write(dir.join("04-divine-inspect.txt"), &inspect.stdout);
+        let _ = std::fs::write(dir.join("04-augur.txt"), &augur.stdout);
         for member in &[RBTDRC_LODE_TAG_BOLE, RBTDRC_LODE_TAG_VOUCH, RBTDRC_LODE_TAG_DIGEST_PREFIX] {
-            if !inspect.stdout.contains(member) {
+            if !augur.stdout.contains(member) {
                 return rbtdre_Verdict::Fail(format!(
-                    "divine inspect missing member tag '{}'\nstdout:\n{}",
-                    member, inspect.stdout
+                    "augur missing member tag '{}'\nstdout:\n{}",
+                    member, augur.stdout
+                ));
+            }
+        }
+        // Envelope-decode assertions — the new logic. These markers live inside
+        // vouch.json (trust_grade, a member's verification), never in a tag list.
+        for field in &[RBTDRC_LODE_TRUST_VERIFIED, RBTDRC_LODE_VERIFICATION_OCI] {
+            if !augur.stdout.contains(field) {
+                return rbtdre_Verdict::Fail(format!(
+                    "augur did not decode :rbi_vouch envelope — missing '{}'\nstdout:\n{}",
+                    field, augur.stdout
                 ));
             }
         }
@@ -3359,20 +3384,28 @@ fn rbtdrc_reliquary_lifecycle(dir: &Path) -> rbtdre_Verdict {
             ));
         }
 
-        // Step 3: divine inspect shows the cohort member tags + the vouch envelope.
-        let inspect = match rbtdri_invoke_global(ctx, RBTDGC_DIVINE_LODES, &[&touchmark], &[]) {
+        // Step 3: augur inspects the cohort Lode — member tags AND the decoded
+        // :rbi_vouch envelope. The trust-grade assertion proves augur decodes the
+        // N-member (cardinality-N) envelope, not just the bole singleton's.
+        let augur = match rbtdri_invoke_global(ctx, RBTDGC_AUGUR_LODE, &[&touchmark], &[]) {
             Ok(r) if r.exit_code == 0 => r,
-            Ok(r) => return rbtdre_Verdict::Fail(format!("divine inspect failed (exit {})\n{}", r.exit_code, r.stderr)),
-            Err(e) => return rbtdre_Verdict::Fail(format!("divine inspect invocation: {}", e)),
+            Ok(r) => return rbtdre_Verdict::Fail(format!("augur failed (exit {})\n{}", r.exit_code, r.stderr)),
+            Err(e) => return rbtdre_Verdict::Fail(format!("augur invocation: {}", e)),
         };
-        let _ = std::fs::write(dir.join("04-divine-inspect.txt"), &inspect.stdout);
+        let _ = std::fs::write(dir.join("04-augur.txt"), &augur.stdout);
         for member in &[RBTDRC_RELIQUARY_TAG_GCLOUD, RBTDRC_RELIQUARY_TAG_SKOPEO, RBTDRC_LODE_TAG_VOUCH] {
-            if !inspect.stdout.contains(member) {
+            if !augur.stdout.contains(member) {
                 return rbtdre_Verdict::Fail(format!(
-                    "divine inspect missing member tag '{}'\nstdout:\n{}",
-                    member, inspect.stdout
+                    "augur missing member tag '{}'\nstdout:\n{}",
+                    member, augur.stdout
                 ));
             }
+        }
+        if !augur.stdout.contains(RBTDRC_LODE_TRUST_VERIFIED) {
+            return rbtdre_Verdict::Fail(format!(
+                "augur did not decode cohort :rbi_vouch envelope — missing trust grade '{}'\nstdout:\n{}",
+                RBTDRC_LODE_TRUST_VERIFIED, augur.stdout
+            ));
         }
 
         // Step 3.5: member-grain jettison via the type-blind raw verbs. The raw
@@ -3511,18 +3544,19 @@ fn rbtdrc_wsl_lifecycle(dir: &Path) -> rbtdre_Verdict {
             ));
         }
 
-        // Step 3: divine inspect shows the rootfs member tag + the vouch envelope.
-        let inspect = match rbtdri_invoke_global(ctx, RBTDGC_DIVINE_LODES, &[&touchmark], &[]) {
+        // Step 3: augur inspects the rootfs Lode — member tags AND the decoded
+        // :rbi_vouch envelope (the rootfs singleton).
+        let augur = match rbtdri_invoke_global(ctx, RBTDGC_AUGUR_LODE, &[&touchmark], &[]) {
             Ok(r) if r.exit_code == 0 => r,
-            Ok(r) => return rbtdre_Verdict::Fail(format!("divine inspect failed (exit {})\n{}", r.exit_code, r.stderr)),
-            Err(e) => return rbtdre_Verdict::Fail(format!("divine inspect invocation: {}", e)),
+            Ok(r) => return rbtdre_Verdict::Fail(format!("augur failed (exit {})\n{}", r.exit_code, r.stderr)),
+            Err(e) => return rbtdre_Verdict::Fail(format!("augur invocation: {}", e)),
         };
-        let _ = std::fs::write(dir.join("04-divine-inspect.txt"), &inspect.stdout);
+        let _ = std::fs::write(dir.join("04-augur.txt"), &augur.stdout);
         for member in &[RBTDRC_LODE_TAG_ROOTFS, RBTDRC_LODE_TAG_VOUCH] {
-            if !inspect.stdout.contains(member) {
+            if !augur.stdout.contains(member) {
                 return rbtdre_Verdict::Fail(format!(
-                    "divine inspect missing member tag '{}'\nstdout:\n{}",
-                    member, inspect.stdout
+                    "augur missing member tag '{}'\nstdout:\n{}",
+                    member, augur.stdout
                 ));
             }
         }

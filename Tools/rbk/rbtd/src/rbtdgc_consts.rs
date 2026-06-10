@@ -34,6 +34,7 @@ pub const RBTDGC_ENSCONCE_BOLE: &str = "rbw-lE";
 pub const RBTDGC_CONCLAVE_RELIQUARY: &str = "rbw-lC";
 pub const RBTDGC_UNDERPIN_WSL: &str = "rbw-lU";
 pub const RBTDGC_DIVINE_LODES: &str = "rbw-ld";
+pub const RBTDGC_AUGUR_LODE: &str = "rbw-la";
 pub const RBTDGC_BANISH_LODE: &str = "rbw-lB";
 pub const RBTDGC_PAYOR_INSTALL: &str = "rbw-gPI";
 pub const RBTDGC_PAYOR_ESTABLISH: &str = "rbw-gPE";

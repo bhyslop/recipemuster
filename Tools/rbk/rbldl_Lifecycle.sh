@@ -17,7 +17,8 @@
 # Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 #
 # Recipe Bottle Lode - lifecycle REST (guard-free cluster, sourced by rbld0_Lode):
-#   divine — enumerate Lodes / inspect one Lode's members (read-only)
+#   divine — enumerate every Lode by touchmark (read-only)
+#   augur  — inspect one Lode: member tags + decoded rbi_vouch envelope (read-only)
 #   banish — delete a whole Lode (Director credentials)
 
 set -euo pipefail
@@ -28,10 +29,7 @@ set -euo pipefail
 rbld_divine() {
   zrbld_sentinel
 
-  local -r z_touchmark="${BUZ_FOLIO:-}"
-
-  buc_doc_brief "Divine Lodes — enumerate all Lodes, or inspect one Lode's members (read-only)"
-  buc_doc_oparm "touchmark" "Lode stamp to inspect (e.g., b260602120000); omit to enumerate all Lodes"
+  buc_doc_brief "Divine Lodes — enumerate every Lode by touchmark (read-only)"
   buc_doc_shown || return 0
 
   buc_step "Authenticating as Director"
@@ -41,122 +39,201 @@ rbld_divine() {
   z_token=$(rbgo_get_token_capture "${RBDC_DIRECTOR_RBRA_FILE}") \
     || buc_die "Failed to get Director OAuth token"
 
-  if test -z "${z_touchmark}"; then
-    buc_step "Enumerating Lodes under ${RBGL_LODES_ROOT}/"
-    zrbfc_list_anchors_capture "${z_token}" "${RBGL_LODES_ROOT}"
+  buc_step "Enumerating Lodes under ${RBGL_LODES_ROOT}/"
+  zrbfc_list_anchors_capture "${z_token}" "${RBGL_LODES_ROOT}"
 
-    if ! test -s "${ZRBFC_PACKAGE_LIST_FILE}"; then
-      buc_info "No Lodes found under ${RBGL_LODES_ROOT}/"
-      buc_success "Divine complete — 0 Lodes"
-      return 0
-    fi
-
-    # Kind-letter legend, printed once so rows carry no repeated per-row column.
-    # A touchmark's leading letter is its kind (b260602075327 -> bole); the
-    # reader decodes the prefix from this key. One entry per implemented kind.
-    local -r z_kind_fmt="    %-3s %-10s %s\n"
-    echo ""
-    printf "  Kinds (touchmark prefix):\n"
-    printf "${z_kind_fmt}" "${RBGC_LODE_KIND_BOLE}"      "bole"      "upstream OCI image, consumed as a FROM line"
-    printf "${z_kind_fmt}" "${RBGC_LODE_KIND_RELIQUARY}" "reliquary" "date-cohort of build-tool images"
-    printf "${z_kind_fmt}" "${RBGC_LODE_KIND_WSL}"       "wsl"       "vendor-published rootfs tarball, opaque-blob member"
-
-    # Load the touchmark list fully before iterating: the per-Lode tags fetch
-    # spawns curl (via rbuh), and a child touching stdin would consume the
-    # loop's remaining input. Load-then-iterate keeps that FD closed.
-    local z_touchmarks=()
-    local z_touch=""
-    while IFS= read -r z_touch || test -n "${z_touch}"; do
-      test -n "${z_touch}" || continue
-      z_touchmarks+=("${z_touch}")
-    done < "${ZRBFC_PACKAGE_LIST_FILE}"
-
-    local -r z_row_fmt="  %-15s %s\n"
-    echo ""
-    printf "${z_row_fmt}" "TOUCHMARK" "IMAGE"
-    printf "${z_row_fmt}" "---------------" "--------------------------------------"
-
-    local z_idx=0
-    local z_pkg=""
-    local z_pkg_encoded=""
-    local z_tags_url=""
-    local z_enum_infix=""
-    local z_resp_file=""
-    local z_image_file=""
-    local z_image=""
-    for z_idx in "${!z_touchmarks[@]}"; do
-      z_touch="${z_touchmarks[$z_idx]}"
-
-      # One tags-list per Lode. The IMAGE column adapts to the Lode's member
-      # scheme (the touchmark prefix names the kind; see the legend above). A
-      # single-image Lode (bole) shows its unsprued fingerprint tag
-      # <sanitized-origin>-<sha10>, located via the sha10 taken from the
-      # rbi_sha256-<hex> member tag so Director semantic names (also unsprued)
-      # cannot masquerade as the fingerprint. A clean-scheme cohort (reliquary)
-      # carries no digest/fingerprint layer, so it has no single fingerprint to
-      # show — report its member count instead (every non-:rbi_vouch tag is a
-      # member). Per-Lode infix preserves each response for forensics.
-      z_pkg="${RBGL_LODES_ROOT}/${z_touch}"
-      z_pkg_encoded="${z_pkg//\//%2F}"
-      z_tags_url="${ZRBFC_GAR_API_BASE}/${ZRBFC_GAR_PACKAGE_BASE}/packages/${z_pkg_encoded}/tags?pageSize=1000"
-      z_enum_infix="rbld_divine_enum_${z_idx}"
-      rbuh_json "GET" "${z_tags_url}" "${z_token}" "${z_enum_infix}"
-      rbuh_require_ok "List tags for Lode ${z_touch}" "${z_enum_infix}"
-      z_resp_file="${ZRBUH_PREFIX}${z_enum_infix}${ZRBUH_POSTFIX_JSON}"
-
-      z_image_file="${ZRBLD_DIVINE_PREFIX}enum_${z_idx}_image.txt"
-      jq -r --arg dp "${RBGC_LODE_TAG_DIGEST_PREFIX}" --arg vouch "${RBGC_LODE_TAG_VOUCH}" '
-        [.tags[]?.name | sub(".*/tags/"; "")] as $names
-        | ([$names[] | select(startswith($dp)) | ltrimstr($dp)[0:10]][0]) as $sha10
-        | ([$names[] | select((startswith("rbi_") | not) and ($sha10 != null) and endswith("-" + $sha10))][0]) as $fingerprint
-        | if $fingerprint != null then $fingerprint
-          else "(cohort: \([$names[] | select(. != $vouch)] | length) members)"
-          end
-      ' "${z_resp_file}" > "${z_image_file}" \
-        || buc_die "Failed to summarize Lode ${z_touch}"
-      z_image=$(<"${z_image_file}")
-      test -n "${z_image}" || buc_die "Empty summary extraction for Lode ${z_touch}"
-
-      printf "${z_row_fmt}" "${z_touch}" "${z_image}"
-    done
-    echo ""
-    buc_info "Total Lodes: ${#z_touchmarks[@]}"
-    buc_success "Divine complete"
+  if ! test -s "${ZRBFC_PACKAGE_LIST_FILE}"; then
+    buc_info "No Lodes found under ${RBGL_LODES_ROOT}/"
+    buc_success "Divine complete — 0 Lodes"
     return 0
   fi
 
-  # Inspect depth: list the member tags on one Lode package.
-  buc_step "Inspecting Lode ${RBGL_LODES_ROOT}/${z_touchmark}"
+  # Kind-letter legend, printed once so rows carry no repeated per-row column.
+  # A touchmark's leading letter is its kind (b260602075327 -> bole); the
+  # reader decodes the prefix from this key. One entry per implemented kind.
+  local -r z_kind_fmt="    %-3s %-10s %s\n"
+  echo ""
+  printf "  Kinds (touchmark prefix):\n"
+  printf "${z_kind_fmt}" "${RBGC_LODE_KIND_BOLE}"      "bole"      "upstream OCI image, consumed as a FROM line"
+  printf "${z_kind_fmt}" "${RBGC_LODE_KIND_RELIQUARY}" "reliquary" "date-cohort of build-tool images"
+  printf "${z_kind_fmt}" "${RBGC_LODE_KIND_WSL}"       "wsl"       "vendor-published rootfs tarball, opaque-blob member"
+
+  # Load the touchmark list fully before iterating: the per-Lode tags fetch
+  # spawns curl (via rbuh), and a child touching stdin would consume the
+  # loop's remaining input. Load-then-iterate keeps that FD closed.
+  local z_touchmarks=()
+  local z_touch=""
+  while IFS= read -r z_touch || test -n "${z_touch}"; do
+    test -n "${z_touch}" || continue
+    z_touchmarks+=("${z_touch}")
+  done < "${ZRBFC_PACKAGE_LIST_FILE}"
+
+  local -r z_row_fmt="  %-15s %s\n"
+  echo ""
+  printf "${z_row_fmt}" "TOUCHMARK" "IMAGE"
+  printf "${z_row_fmt}" "---------------" "--------------------------------------"
+
+  local z_idx=0
+  local z_pkg=""
+  local z_pkg_encoded=""
+  local z_tags_url=""
+  local z_enum_infix=""
+  local z_resp_file=""
+  local z_image_file=""
+  local z_image=""
+  for z_idx in "${!z_touchmarks[@]}"; do
+    z_touch="${z_touchmarks[$z_idx]}"
+
+    # One tags-list per Lode. The IMAGE column adapts to the Lode's member
+    # scheme (the touchmark prefix names the kind; see the legend above). A
+    # single-image Lode (bole) shows its unsprued fingerprint tag
+    # <sanitized-origin>-<sha10>, located via the sha10 taken from the
+    # rbi_sha256-<hex> member tag so Director semantic names (also unsprued)
+    # cannot masquerade as the fingerprint. A clean-scheme cohort (reliquary)
+    # carries no digest/fingerprint layer, so it has no single fingerprint to
+    # show — report its member count instead (every non-:rbi_vouch tag is a
+    # member). Per-Lode infix preserves each response for forensics.
+    z_pkg="${RBGL_LODES_ROOT}/${z_touch}"
+    z_pkg_encoded="${z_pkg//\//%2F}"
+    z_tags_url="${ZRBFC_GAR_API_BASE}/${ZRBFC_GAR_PACKAGE_BASE}/packages/${z_pkg_encoded}/tags?pageSize=1000"
+    z_enum_infix="rbld_divine_enum_${z_idx}"
+    rbuh_json "GET" "${z_tags_url}" "${z_token}" "${z_enum_infix}"
+    rbuh_require_ok "List tags for Lode ${z_touch}" "${z_enum_infix}"
+    z_resp_file="${ZRBUH_PREFIX}${z_enum_infix}${ZRBUH_POSTFIX_JSON}"
+
+    z_image_file="${ZRBLD_DIVINE_PREFIX}enum_${z_idx}_image.txt"
+    jq -r --arg dp "${RBGC_LODE_TAG_DIGEST_PREFIX}" --arg vouch "${RBGC_LODE_TAG_VOUCH}" '
+      [.tags[]?.name | sub(".*/tags/"; "")] as $names
+      | ([$names[] | select(startswith($dp)) | ltrimstr($dp)[0:10]][0]) as $sha10
+      | ([$names[] | select((startswith("rbi_") | not) and ($sha10 != null) and endswith("-" + $sha10))][0]) as $fingerprint
+      | if $fingerprint != null then $fingerprint
+        else "(cohort: \([$names[] | select(. != $vouch)] | length) members)"
+        end
+    ' "${z_resp_file}" > "${z_image_file}" \
+      || buc_die "Failed to summarize Lode ${z_touch}"
+    z_image=$(<"${z_image_file}")
+    test -n "${z_image}" || buc_die "Empty summary extraction for Lode ${z_touch}"
+
+    printf "${z_row_fmt}" "${z_touch}" "${z_image}"
+  done
+  echo ""
+  buc_info "Total Lodes: ${#z_touchmarks[@]}"
+  buc_success "Divine complete"
+}
+
+rbld_augur() {
+  zrbld_sentinel
+
+  local -r z_touchmark="${BUZ_FOLIO:-}"
+
+  buc_doc_brief "Augur a Lode — inspect member tags and decode its rbi_vouch provenance envelope (read-only)"
+  buc_doc_param "touchmark" "Lode stamp to inspect (e.g., b260602120000)"
+  buc_doc_shown || return 0
+
+  test -n "${z_touchmark}" || buc_die "Touchmark parameter required"
+  [[ "${z_touchmark}" =~ ^[a-z]+[0-9]{12}$ ]] \
+    || buc_die "Touchmark format invalid: '${z_touchmark}' (expected <kind><YYMMDDHHMMSS>, e.g. b260602120000)"
+
+  buc_step "Authenticating as Director"
+  test -f "${RBDC_DIRECTOR_RBRA_FILE}" \
+    || buc_die "Director credential not found: ${RBDC_DIRECTOR_RBRA_FILE}"
+  local z_token=""
+  z_token=$(rbgo_get_token_capture "${RBDC_DIRECTOR_RBRA_FILE}") \
+    || buc_die "Failed to get Director OAuth token"
+
   local -r z_pkg="${RBGL_LODES_ROOT}/${z_touchmark}"
   local -r z_pkg_encoded="${z_pkg//\//%2F}"
-  local -r z_tags_url="${ZRBFC_GAR_API_BASE}/${ZRBFC_GAR_PACKAGE_BASE}/packages/${z_pkg_encoded}/tags?pageSize=1000"
-  local -r z_tags_infix="rbld_divine_tags"
 
+  # Member tags — every tag on the Lode package. An empty package is the
+  # "Lode not present" signal (matches divine's enumerate contract).
+  buc_step "Fetching member tags for Lode ${z_pkg}"
+  local -r z_tags_url="${ZRBFC_GAR_API_BASE}/${ZRBFC_GAR_PACKAGE_BASE}/packages/${z_pkg_encoded}/tags?pageSize=1000"
+  local -r z_tags_infix="rbld_augur_tags"
   rbuh_json "GET" "${z_tags_url}" "${z_token}" "${z_tags_infix}"
   rbuh_require_ok "List tags for Lode ${z_touchmark}" "${z_tags_infix}"
 
   local -r z_resp_file="${ZRBUH_PREFIX}${z_tags_infix}${ZRBUH_POSTFIX_JSON}"
-  local -r z_tags_file="${ZRBLD_DIVINE_PREFIX}tags.txt"
+  local -r z_tags_file="${ZRBLD_AUGUR_PREFIX}tags.txt"
   jq -r '.tags[]?.name | sub(".*/tags/"; "")' "${z_resp_file}" > "${z_tags_file}" \
     || buc_die "Failed to extract member tags for Lode ${z_touchmark}"
+  test -s "${z_tags_file}" \
+    || buc_die "No member tags found under ${z_pkg} — Lode not present in registry"
 
-  if ! test -s "${z_tags_file}"; then
-    buc_die "No member tags found under ${z_pkg} — Lode not present in registry"
-  fi
-
-  echo ""
-  printf "  %s\n" "MEMBER-TAG"
-  printf "  %s\n" "------------------------------"
-  local z_count=0
+  local z_tags=()
   local z_tag=""
   while IFS= read -r z_tag || test -n "${z_tag}"; do
     test -n "${z_tag}" || continue
-    printf "  %s\n" "${z_tag}"
-    z_count=$((z_count + 1))
+    z_tags+=("${z_tag}")
   done < "${z_tags_file}"
+
   echo ""
-  buc_info "Total members: ${z_count}"
-  buc_success "Divine complete — Lode ${z_touchmark}"
+  printf "  Member tags (%s):\n" "${#z_tags[@]}"
+  for z_tag in "${z_tags[@]}"; do
+    printf "    %s\n" "${z_tag}"
+  done
+
+  # Provenance envelope — extract the :rbi_vouch FROM-scratch artifact and read
+  # its vouch.json layer. This is the inspect depth divine never carried: the
+  # acquisition facts and the honest trust-grade posture. The same gcrane-pushed
+  # single-layer image rbgjl02 wrote (vouch.json at image root).
+  buc_step "Decoding provenance envelope (:${RBGC_LODE_TAG_VOUCH})"
+  local -r z_vouch_dir="${ZRBLD_AUGUR_PREFIX}vouch"
+  rm -rf "${z_vouch_dir}" || buc_die "Failed to clear vouch scratch dir: ${z_vouch_dir}"
+  zrbfc_gar_extract_artifact "${z_token}" "${z_pkg}" "${RBGC_LODE_TAG_VOUCH}" "${z_vouch_dir}" \
+    || buc_die "No :${RBGC_LODE_TAG_VOUCH} envelope at ${z_pkg} — not a vouched Lode (capture incomplete or a legacy artifact)"
+  local -r z_vouch_json="${z_vouch_dir}/vouch.json"
+  test -f "${z_vouch_json}" \
+    || buc_die "Envelope artifact present but vouch.json missing for ${z_touchmark}"
+
+  # Kind name comes from the envelope's own kind field — the kind-agnostic source
+  # (a new Lode kind needs no change here; the prefix letter is shown as a cross-check).
+  local z_trust=""
+  z_trust=$(jq -r '.trust_grade // "(absent)"' "${z_vouch_json}") \
+    || buc_die "Failed to read trust_grade from envelope for ${z_touchmark}"
+
+  echo ""
+  printf "  Provenance envelope (:%s):\n" "${RBGC_LODE_TAG_VOUCH}"
+  jq -r '
+    "    Kind:          \(.kind // "(absent)")",
+    "    Lode:          \(.lode // "(absent)")",
+    "    Schema:        \(.schema // "(absent)")",
+    "    Acquired at:   \(.acquired_at // "(absent)")",
+    "    Acquired by:   \(.acquired_by // "(absent)")",
+    "    Capture build: \(.capture_build // "(absent)")",
+    "    Signature:     \(if .signature == null then "(unsigned)" else .signature end)",
+    "    Trust grade:   \(.trust_grade // "(absent)")",
+    "",
+    "    Members (\((.members // []) | length)):",
+    ((.members // [])[] |
+      "      \(.name // "(unnamed)")",
+      "        origin:       \(.origin // "(absent)")",
+      "        digest:       \(.digest // "(absent)")",
+      "        verification: \(.verification // "(absent)")",
+      "        tags:         \((.tags // []) | join(", "))")
+  ' "${z_vouch_json}" \
+    || buc_die "Failed to render provenance envelope for ${z_touchmark}"
+
+  # Honest trust posture — never over-claim what the upstream permits (the Pale).
+  echo ""
+  case "${z_trust}" in
+    "${RBGC_LODE_TRUST_VERIFIED}")
+      printf "  Trust posture: %s\n" "${z_trust}"
+      printf "    Bytes remain re-checkable against the published upstream — an OCI\n"
+      printf "    content-address on a durable registry, or a vendor-published checksum.\n"
+      ;;
+    "${RBGC_LODE_TRUST_RECORDED}")
+      printf "  Trust posture: %s\n" "${z_trust}"
+      printf "    RB attests only the digest observed at capture: the upstream offers no\n"
+      printf "    durable re-checkable reference, so the claim never implies the bytes\n"
+      printf "    remain verifiable against a vanished source.\n"
+      ;;
+    *)
+      printf "  Trust posture: %s (unrecognized grade — displayed verbatim)\n" "${z_trust}"
+      ;;
+  esac
+
+  echo ""
+  buc_success "Augur complete — Lode ${z_touchmark}"
 }
 
 rbld_banish() {
