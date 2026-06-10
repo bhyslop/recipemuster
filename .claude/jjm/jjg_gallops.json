@@ -9981,6 +9981,7 @@
       "jjghn_creation_time": "260608",
       "jjghn_status": "jjghe_racing",
       "jjghn_order": [
+        "₢BbAAH",
         "₢BbAAA",
         "₢BbAAB",
         "₢BbAAE",
@@ -9989,7 +9990,7 @@
         "₢BbAAD",
         "₢BbAAG"
       ],
-      "jjghn_next_pace_seed": "AAH",
+      "jjghn_next_pace_seed": "AAI",
       "jjghn_paces": {
         "₢BbAAA": {
           "jjgpn_tacks": [
@@ -10107,6 +10108,17 @@
               "jjgtn_text": "## Character\nMCM core-voicing amendment plus a voicing-wide mechanical migration. The mechanism is settled; one head fork sizes the migration.\n\n## Goal\nMake ACGm_102 (name-identity) mechanically decidable — give axvo_procedure / axvo_method an explicit implementing-symbol lookahead and carry it through the live operation voicings. Context: ACG \"AXLA/MCM interface\" section and ACGm_102's dependency note.\n\n## Head fork (settle at mount)\nOptional vs required. Required mirrors axvo_tabtarget's always-present sprue but migrates every live voicing and forbids the \"no single symbol carries the link\" exception (move-discipline rule 3); optional adds the symbol where wanted and keeps existing voicings conformant. Lean optional unless the exception proves empty in practice.\n\n## Cinched\n- One mcm_inlay = the literal implementing symbol as it appears in source — not mcm_sprue. A prefix-disciplined source symbol is an inlay; this matches axhems_scoped_method's existing read and mirrors axvo_tabtarget's literal lookahead.\n- A backtick inlay is a distinct token type from a {...} attribute-reference, so it does not shift axd_grouped's \"Nth linked term\" counting.\n\n## Gate\nDiscover live voicings: grep -rn \"//axvo_procedure\\|//axvo_method\" across the S0 specs. The RBS0 share overlaps ₣BH's active rewrite surface — weigh running the RBS0 migration after ₣BH lands to avoid merge conflict.\n\n## Done when\naxvo_procedure / axvo_method carry the symbol lookahead with AXLA grammar prose updated; the chosen migration lands; the three S0 specs still validate; ACGm_102's dependency note flips to satisfied.",
               "jjgtn_silks": "axvo-symbol-lookahead",
               "jjgtn_basis": "b51b018"
+            }
+          ]
+        },
+        "₢BbAAH": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260610-0942",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nSmall MCM/ACG/JJK cross-document curation — one definitional broadening, three quoin mints, citer repointing.\n\n## Goal\nMake MCM's Antipatterns section the single catalog for named recurring defects,\ndocument-side and delivery-side alike;\nhome Stun, Molehill, and word cancer there as quoins;\nflip every defining citer to cite.\n\n## Cinched\n- mcm_antipattern's definition broadens from document defect to also cover\n  delivery defects (operator-facing presentation failures) — the junk-drawer\n  election, operator-cinched at groom.\n- Word cancer mirrors the tidemark pattern: concept home is the MCM quoin;\n  ACG keeps the moves (statements clause, ACGm_105, registry) and cites.\n- Stun and Molehill keep their operational guidance in the JJK\n  gradient-delivery section (claude-jjk-bhyslop.md), which cites the MCM home\n  instead of defining.\n\n## Done when\nMCM Antipatterns carries the broadened definition plus quoins for word cancer,\nStun, and Molehill; ACG and the JJK gradient-delivery guidance cite rather than\ndefine; MCM validates.",
+              "jjgtn_silks": "antipattern-catalog-broaden",
+              "jjgtn_basis": "c511d90"
             }
           ]
         }
