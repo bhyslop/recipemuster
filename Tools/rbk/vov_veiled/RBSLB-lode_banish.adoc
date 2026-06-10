@@ -60,7 +60,7 @@ if not confirmed: "prompt not confirmed."
 //axhos_step
 . *Dispatch Cloud Delete*:
 .. {rbbc_call}
-the cloud-dispatched delete backbone with the single package `{gar_lodes_namespace}/«TOUCHMARK»`: a {rbtr_director}-run Cloud Build whose in-pool step issues link:https://cloud.google.com/artifact-registry/docs/reference/rest/v1/projects.locations.repositories.packages/delete[GAR REST API: packages.delete], polls the returned long-running operation to terminal, and verifies package absence
+the cloud-dispatched delete backbone with the single package `{gar_lodes_namespace}/«TOUCHMARK»`: a {rbtr_director}-run Cloud Build whose in-pool step deletes by convergence — link:https://cloud.google.com/artifact-registry/docs/reference/rest/v1/projects.locations.repositories.packages/delete[GAR REST API: packages.delete] and per-version deletes fired in rounds, no single call's verdict trusted — and verifies package absence (GET until 404; see the completion note)
 .. {rbbc_require}
 the build reaches terminal SUCCESS — the build's outcome IS the delete outcome (no host-issued DELETE survives; the trust-200 LRO gap is closed by construction)
 .. {rbbc_fatal}

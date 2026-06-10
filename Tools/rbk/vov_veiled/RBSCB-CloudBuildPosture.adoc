@@ -242,7 +242,7 @@ This is not just an airgap feature — it is a universal robustness measure agai
 ==== Implemented: Cloud-Dispatched Tool-Plane Deletes
 
 GAR image-package deletes — `banish` (whole Lode) and `abjure` (every package under a hallmark subtree) — are **cloud-dispatched**, not host-issued.
-The workstation submits a Cloud Build and blocks until terminal (conjure-shaped); the in-pool step issues GAR `packages.delete`, polls the returned long-running operation to terminal, and verifies package absence.
+The workstation submits a Cloud Build and blocks until terminal (conjure-shaped); the in-pool step deletes each package by convergence (see *Delete-by-convergence* below) and verifies package absence.
 The build's outcome IS the delete outcome, which closes a real correctness gap: a host-issued `packages.delete` returns HTTP 200 immediately and the prior code trusted that 200, but the actual deletion runs asynchronously as an LRO whose terminal verdict the workstation never saw (the trust-200 LRO gap).
 
 **The cinched line is tool-plane versus control-plane.**

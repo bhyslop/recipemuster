@@ -144,11 +144,12 @@ rbfl_abjure() {
 
   # Cloud-dispatched delete: load the enumerated package list and hand the whole
   # set to a single Director-run build (one build per abjure, never per package).
-  # The in-pool step loops the list — packages.delete + honest LRO poll to
-  # terminal + absence-verify per package — so the build's success IS the delete
-  # outcome, closing the host trust-200 LRO gap. The membrane absorbs GAR's
-  # index-web cascade NOT_FOUND signature; see RBSCB and rbgjl06. Load-then-pass
-  # (BCG): the file is consumed before dispatch, no FD held across the build.
+  # The in-pool step loops the list, deleting each package by convergence (GAR's
+  # parent-before-child FAILED_PRECONDITION means a single packages.delete of an
+  # index web removes nothing) and verifying absence via package GET to 404 — so
+  # the build's success IS the delete outcome, closing the host trust-200 LRO
+  # gap; see RBSCB and rbgjl06. Load-then-pass (BCG): the file is consumed
+  # before dispatch, no FD held across the build.
   local z_packages=()
   local z_pkg_line=""
   while IFS= read -r z_pkg_line || test -n "${z_pkg_line}"; do

@@ -142,8 +142,9 @@ zrbfc_kindle() {
   readonly ZRBFC_BUILD_POLL_CEILING_VOUCH=50
   # Cloud-dispatched tool-plane delete (banish/abjure). The host waits for one
   # build that loops the package list in-pool (one build per abjure, never per
-  # package), each package an LRO poll + absence-verify; generous so a multi-
-  # package hallmark abjure clears within the budget.
+  # package), each package a convergence loop (rbgjl06: fire deletes, poll the
+  # package GET to 404); generous so a multi-package hallmark abjure clears
+  # within the budget.
   readonly ZRBFC_BUILD_POLL_CEILING_DELETE=600
 
   # Floating bootstrap builder for the cloud-dispatched delete step. The delete

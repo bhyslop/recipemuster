@@ -21,7 +21,8 @@
 # rbgjl06 package-delete step) plus a substitutions blob (GAR coordinates + the
 # space-joined package list) and rides the build-assembly spine, blocking until
 # the build is terminal. The build runs as Director (repoAdmin/delete); the
-# in-pool step polls each packages.delete LRO to terminal and verifies absence,
+# in-pool step deletes each package by convergence and verifies absence (rbgjl06:
+# fire deletes, poll the package GET to 404 — no single call's verdict trusted),
 # so the build's outcome IS the delete outcome — no host-issued trust-200 DELETE.
 #
 # Homed in the rbld family because it rides zrbld_spine_dispatch (a base-level
