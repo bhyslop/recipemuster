@@ -63,10 +63,10 @@ while IFS='|' read -r NAME UPSTREAM; do
   # This is conclave-ONLY and must not leak to other Lode kinds (bole/wsl keep full-
   # fidelity capture): the reliquary cohort is consumed solely as GCB step images on
   # amd64 workers, so the other platforms are dead bytes — and a full multi-arch index
-  # makes the Lode package a parent-index/child-manifest web that GAR's `packages
-  # delete` cannot unwind in one cascade (it removes a parent, GAR auto-deletes the
-  # protected children, then the cascade reaches an already-gone child and fails
-  # NOT_FOUND). Phenomenon + references: RBSLC (conclave) and RBSLB (banish).
+  # makes the Lode package a parent-index/child-manifest web, where GAR refuses to
+  # delete a child while its parent index exists (FAILED_PRECONDITION, "referenced by
+  # parent manifests") and a single packages.delete removes nothing — banish then
+  # needs multiple convergence rounds instead of one. References: RBSLC, RBSLB, RBSCB.
   gcrane --platform linux/amd64 cp "${UPSTREAM}" "${DEST}" \
     || { echo "FATAL: gcrane cp failed for ${UPSTREAM} -> ${DEST}" >&2; exit 1; }
 
