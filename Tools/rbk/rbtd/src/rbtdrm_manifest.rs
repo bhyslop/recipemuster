@@ -60,6 +60,9 @@ pub const RBTDRM_FIXTURE_RELIQUARY_LIFECYCLE: &str = "reliquary-lifecycle";
 // Wsl-lifecycle fixture — fetched-side rootfs capture against live GAR:
 // underpin -> divine (enumerate + inspect rootfs member) -> banish, restored.
 pub const RBTDRM_FIXTURE_WSL_LIFECYCLE: &str = "wsl-lifecycle";
+// Podvm-lifecycle fixture — fetched-side podvm disk-leaf capture against live GAR:
+// immure -> divine (cohort) -> augur (members + envelope) -> per-member jettison -> banish, restored.
+pub const RBTDRM_FIXTURE_PODVM_LIFECYCLE: &str = "podvm-lifecycle";
 // Fast fixtures (no external dependencies)
 pub const RBTDRM_FIXTURE_ENROLLMENT_VALIDATION: &str = "enrollment-validation";
 pub const RBTDRM_FIXTURE_RECIPE_VALIDATION: &str = "recipe-validation";
@@ -180,6 +183,14 @@ pub fn rbtdrm_required_colophons(fixture: &str) -> Option<&'static [&'static str
         RBTDRM_FIXTURE_WSL_LIFECYCLE => Some(&[
             RBTDGC_UNDERPIN_WSL,
             RBTDGC_DIVINE_LODES,
+            RBTDGC_BANISH_LODE,
+        ]),
+        RBTDRM_FIXTURE_PODVM_LIFECYCLE => Some(&[
+            RBTDGC_IMMURE_PODVM,
+            RBTDGC_DIVINE_LODES,
+            RBTDGC_AUGUR_LODE,
+            RBTDGC_LIST_IMAGES,
+            RBTDGC_JETTISON_IMAGE,
             RBTDGC_BANISH_LODE,
         ]),
         RBTDRM_FIXTURE_BATCH_VOUCH => Some(&[

@@ -1,4 +1,21 @@
-= Podman VM Supply Chain
+// Promoted out of FUTURE/ at heat ₣BH. This is an include fragment of RBS0 (the
+// "Podman VM Supply Chain" section); it carries no level-0 title — RBS0 supplies the
+// heading and a +2 leveloffset. The Motivation and Constraints below are the live
+// justification for the podvm Lode kind; the Architecture / Operations / Configuration
+// / Implementation-Status sections describe the SUPERSEDED ignite-VM / GHCR prototype
+// and are retained as historical characterization only — do not resurrect that design.
+
+[NOTE]
+====
+*Status (heat ₣BH):* the live podvm supply chain is the universal Lode capture model —
+the {rbtgo_lode_immure} operation (RBSLI), `recorded-at-acquisition` trust grade,
+cloud-side gcrane capture into the `{gar_lodes_namespace}/` namespace. The *Motivation*
+and *Constraints* sections below remain the live justification for the podvm kind. The
+*Architecture*, *Operations*, *Configuration*, and *Implementation Status* sections
+describe the *superseded* ignite-VM / GHCR prototype and are kept as historical record
+only; the 2026-06 cerebro section records the experiment that settled the cloud-layer
+choices.
+====
 
 == Motivation
 
@@ -152,16 +169,22 @@ Findings durable enough to record here:
   "application/vnd.oci.empty.v1+json"`) — a *loud* failure in the strict-artifact
   family, not the *silent* foreign-layer skip the earlier rationale assumed (that
   skip cannot occur here, the blobs being distributable). Production tool choice is
-  *crane* (Google's go-containerregistry, get-by-digest-or-error matching the
-  recorded trust grade, uniform over artifacts and images), with *oras* an
-  equal-fidelity fallback.
+  *gcrane* — crane's Google-auth sibling (same `cp`/`manifest`/`digest` engine,
+  get-by-digest-or-error matching the recorded trust grade, uniform over artifacts and
+  images), authenticating GAR ambiently through its `google.Keychain` so the step needs
+  no token plumbing (the ambient-auth canon is RBSCB; the same posture conclave/wsl
+  capture already ride). *oras* is the documented equal-fidelity fallback, wired only if
+  signed provenance via the OCI referrers API is ever adopted.
 
-* *Cloud direction.* Production capture runs cloud-side on the Lode spine (a new
-  `rbgjl05` immure step + `rbldv_` opaque-blob × multi-member body + a
-  `podvm-lifecycle` theurge fixture), `crane cp`-ing selected leaves by digest into
-  `rbi_ld/<vn|vw><stamp>` and reusing the existing `rbgjl02` vouch step. The
-  ignite-VM bootstrap dissolves entirely — Cloud Build carries crane natively. Trust
-  grade is `recorded-at-acquisition` (quay publishes no durable checksum and rotates
-  within days). The anti-hollow-mirror guard is a host-side GAR registry-v2 blob
-  `HEAD` asserting `Content-Length` equals the declared layer size — no image tool.
-  See the memo §7 for the follow-up pace's full build sheet.
+* *Cloud direction (LANDED — the {rbtgo_lode_immure} operation, RBSLI).* Production
+  capture runs cloud-side on the Lode spine as the `immure` verb (`rbw-lI`, one verb
+  spanning both quay families via a family argument), in four steps: a python3 select
+  step (`rbgjl07`, on the gcloud builder — it parses the upstream OCI index, which the
+  no-jq bash GCB discipline does not cover), a `gcrane cp`-by-digest capture
+  (`rbgjl08`), a registry-v2 blob-residency `HEAD` guard asserting `Content-Length`
+  equals the declared layer size (`rbgjl09`), and the reused vouch push (`rbgjl02`),
+  writing selected leaves into `rbi_ld/<vn|vw><stamp>`. The `rbldv_` body is opaque-blob
+  × multi-member, and the `podvm-lifecycle` service fixture proves the lifecycle end to
+  end. The ignite-VM bootstrap dissolves entirely — Cloud Build carries gcrane natively.
+  Trust grade is `recorded-at-acquisition` (quay publishes no durable checksum and
+  rotates within days).

@@ -150,6 +150,7 @@
 :rbtgo_lode_ensconce:            <<rbtgo_lode_ensconce,rbld_ensconce>>
 :rbtgo_lode_conclave:            <<rbtgo_lode_conclave,rbld_conclave>>
 :rbtgo_lode_underpin:            <<rbtgo_lode_underpin,rbld_underpin>>
+:rbtgo_lode_immure:              <<rbtgo_lode_immure,rbld_immure>>
 :rbtgo_lode_divine:              <<rbtgo_lode_divine,rbld_divine>>
 :rbtgo_lode_augur:               <<rbtgo_lode_augur,rbld_augur>>
 :rbtgo_lode_banish:              <<rbtgo_lode_banish,rbld_banish>>
@@ -1477,6 +1478,19 @@ The wsl kind is the structural outlier: its upstream is an HTTPS tarball plus an
 
 include::RBSLU-lode_underpin.adoc[]
 
+[[rbtgo_lode_immure]]
+//axvo_method axd_transient axd_grouped
+=== {rbtgo_lode_immure}
+
+Captures the selected podman-machine disk leaves of one quay family into a single {rbtga_lode}
+({rbtgog_lode}),
+copying each leaf by digest cloud-side into one `{gar_lodes_namespace}/` package under a host-minted {rbtga_touchmark}.
+One verb spans both quay families — `podvm-wsl` (`quay.io/podman/machine-os-wsl`) and `podvm-native` (`quay.io/podman/machine-os`) — selected by a family argument, not two verbs.
+The {rbtr_director} submits a four-step Cloud Build job — a python select step that reads the upstream OCI index and picks the curated `{disktype × arch}` leaves by descriptor, a gcrane copy-by-digest, a blob-residency guard, then a vouch push — writing the {rbtga_lode_vouch} provenance envelope to its one canonical home, the `:rbi_vouch` tag in GAR, and handing the touchmark forward host-side as the {rbf_fact_lode}.
+The podvm kind is opaque-blob (like wsl) × multi-member (like reliquary); intent is declarative (family + version arguments, no FQIN), and the trust grade is recorded-at-acquisition — quay publishes no durable checksum and rotates within days, so RB attests only the digest observed at capture.
+
+include::RBSLI-lode_immure.adoc[]
+
 [[rbtgo_lode_divine]]
 //axvo_method axd_transient axd_grouped
 === {rbtgo_lode_divine}
@@ -1640,7 +1654,7 @@ include::RBSCE-command_exec.adoc[]
 
 === Podman VM Supply Chain
 
-include::RBSPV-PodmanVmSupplyChain.adoc[]
+include::RBSPV-PodmanVmSupplyChain.adoc[leveloffset=+2]
 
 // [[mkc_interface_check]] removed — historical (Podman era), IP-based discovery replaced interface checks
 

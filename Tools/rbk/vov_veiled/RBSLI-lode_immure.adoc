@@ -1,0 +1,195 @@
+//axhob_operation
+{rbtgo_lode_immure}
+
+NOTE: This operation captures the selected podman-machine disk leaves of one quay
+family into a single
+{rbtga_lode}
+— one
+{gar_service}
+package under the
+{gar_lodes_namespace}
+namespace, identified by a host-minted
+{rbtga_touchmark}.
+It is the podvm kind: a defensive mirror of quay's podman-machine images, which the
+upstream rotates within days and never publishes a durable checksum for.
+Its payload shape is opaque-blob (like the wsl kind) and its cardinality is
+multi-member (like the reliquary kind): each captured leaf is a single-platform OCI
+artifact — an empty config plus one `application/zstd` disk blob — riding as one
+member tag within the one package.
+
+NOTE: One verb spans both quay families.
+`immure` takes the family as its first argument — `podvm-wsl`
+(`quay.io/podman/machine-os-wsl`, consumed by Windows podman) or `podvm-native`
+(`quay.io/podman/machine-os`, consumed by macOS/Linux podman) — and the podman
+version as its second (e.g. `5.6`).
+The two families diverge in version coverage and platform fan-out, so the kind-letter
+(`vw` / `vn`), the upstream family reference, and the curated leaf set are all keyed
+on the family argument; there is no kind-argument indirection beyond that one word.
+
+NOTE: Intent is declarative — no FQIN, no pinned digest.
+The curated `{disktype × arch}` leaf set is an RB constant per family; the
+{rbtr_director}
+'s workstation assembles no coordinate beyond the family and version, and the cloud
+step RESOLVES each leaf digest from the live index at capture time.
+No upstream digest lives in project config — per the no-FQIN principle, the
+declaration stays intent and the pipeline computes the coordinate.
+
+NOTE: Acquisition runs cloud-side.
+The
+{rbtr_director}
+submits a
+{gcb_service}
+job on the tethered (egress-permitted) pool, executed by the
+{rbtr_mason}
+service account via the metadata server.
+The workstation never fetches the multi-gigabyte disk bytes — only the cloud step
+copies them, registry-to-registry by digest.
+
+NOTE: The trust grade is recorded-at-acquisition.
+quay publishes no durable, re-checkable checksum for podvm and rotates the images
+out within days, so RB attests only the leaf digest observed at the moment of
+capture — trust-on-first-acquisition, the strongest honest claim the hostile
+upstream permits.
+The integrity guards are `gcrane cp`-by-digest (get-or-error, digest-faithful) and a
+registry-v2 blob-residency check, NOT a re-checkable published checksum.
+
+NOTE: Immure selects leaves by the index DESCRIPTOR, never the layer filename.
+The upstream tag is a multi-arch OCI index mixing real container images and disk
+artifacts; selection keys on each child descriptor's `platform.architecture` (the alt
+spelling `x86_64` / `aarch64`) plus `annotations.disktype`.
+The layer's embedded filename is unreliable for version and arch and is never read.
+
+NOTE: Immure bootstraps from no reliquary.
+podvm is vessel-less — like wsl — so it has no reliquary slot to resolve tools from;
+its index parsing rides python3 on the Google-hosted gcloud builder, and its registry
+copy rides gcrane on the floating gcrane builder.
+Pinning these floating builders is the bootstrap-builder digest-pin itch, not this
+operation.
+
+NOTE: Immure is capture-pure.
+It mints the Lode, emits the
+{rbtga_lode_vouch}
+provenance envelope, and reports the touchmark — but writes NO consumer config.
+Consumption (a host's `podman machine init` from a captured seed, and the nameplate
+election that pins which touchmark a node provisions) is a separate, deferred
+consumption-side layer that reads the
+{rbf_fact_lode}
+this operation writes; it is not part of immure.
+
+The
+{rbtr_director}
+captures a podvm family's disk leaves into a Lode:
+
+//axhos_step
+. *Authenticate as
+{rbtr_director}*:
+.. Execute
+{rbtoe_director_authenticate}
+.. {rbbc_store}
+`«DIRECTOR_TOKEN»` for subsequent API calls
+
+//axhos_step
+. *Resolve the family (host-side)*:
+.. {rbbc_store}
+`«KIND»` (`vw` / `vn`), `«FAMILY»` (the quay family reference), and `«SELECTION»`
+(the curated `disktype:arch` rows) from the family argument
+.. The family-to-tuple mapping and the curated leaf set are RB constants; the version
+is the operator's (later, a nameplate's) declarative choice
+
+//axhos_step
+. *Mint Touchmark (host-side)*:
+.. {rbbc_store}
+`«TOUCHMARK»` as the kind-letter `«KIND»` + `YYMMDDHHMMSS` from current time
+.. The host owns the stamp so the touchmark — and thus the
+{rbf_fact_lode}
+path — is known before the build
+.. Example: `vw260610095327`
+
+//axhos_step
+. *Submit Four-Step Capture Cloud Build*:
+.. Compose `builds.create` JSON with:
+... Step 1 — the Google-hosted gcloud builder, script `rbgjl07-immure-select.py` (python3: the index read + leaf select + envelope author)
+... Step 2 — the floating gcrane builder, script `rbgjl08-immure-capture.sh` (`gcrane cp` each selected leaf by digest)
+... Step 3 — the Google-hosted docker builder, script `rbgjl09-immure-residency.sh` (the blob-residency HEAD guard)
+... Step 4 — the floating gcrane builder, script `rbgjl02-assemble-push-vouch.sh` (the vouch push)
+... substitutions carrying GAR host/path, the
+{gar_lodes_namespace}
+root, `«TOUCHMARK»`, the member-tag sprue, the acquiring SA email, the recorded trust grade, the envelope schema, `«FAMILY»`, the version, and `«SELECTION»`
+... serviceAccount:
+{rbtr_mason}
+... pool: tethered (the upstream index + leaf fetch requires public egress)
+... `options.substitutionOption` ALLOW_LOOSE — the python step reads its substitutions as automapped env vars, not textual expansions, so the strict match would reject them
+.. {rbbc_submit}
+link:https://cloud.google.com/build/docs/api/reference/rest/v1/projects.locations.builds/create[builds.create] with:
+... project:
+{rbtgi_depot_project}
+... location:
+{rbrd_gcp_region}
+.. {rbbc_store}
+`«BUILD_ID»` from response `.metadata.build.id`
+.. {rbbc_show}
+build dispatched with `«BUILD_ID»` and the Cloud Console URL
+
+//axhos_step
+. *Select Step (in-pool — rbgjl07, python3)*:
+.. Acquire an anonymous registry-v2 pull token for the public quay family (Www-Authenticate discovery)
+.. Fetch the family index at the pinned version; fail loud if it is not a multi-arch index
+.. For each curated `disktype:arch`, select the child descriptor matching `platform.architecture` + `annotations.disktype` — failing loud, listing every available pair, when a curated entry matches nothing (so a quay rotation reads as an inventory diff)
+.. Fetch each selected leaf manifest; assert exactly one disk-blob layer; record its digest and declared size
+.. Author the
+{rbtga_lode_vouch}
+envelope JSON (schema `rbld-vouch-1`, trust grade `recorded-at-acquisition`, `members[]` one element per leaf — the cardinality axis — each carrying `verification` `recorded` and the captured leaf digest) and stage it plus the selection list on the {rbtgr_workspace}
+.. Write the result JSON (carrying the host-minted touchmark) to `buildStepOutputs`
+
+//axhos_step
+. *Capture Step (in-pool — rbgjl08, gcrane)*:
+.. For each selection row, `gcrane cp «FAMILY»@«LEAF_DIGEST»` into the one Lode package under the clean member tag `:rbi_<disktype>-<arch>` — by digest, get-or-error, daemonless
+.. Confirm each copied tag resolves to the selected digest (a free manifest-level readback)
+.. Each leaf is a single-platform manifest, so the package stays FLAT — no parent-index web — keeping banish single-call atomic by construction
+
+//axhos_step
+. *Residency Step (in-pool — rbgjl09)*:
+.. For each member, HEAD the GAR registry-v2 blob and assert its `Content-Length` equals the leaf manifest's declared layer size
+.. The anti-hollow-mirror guard the recorded grade demands — a registry can hold a manifest whose large layer never fully landed, which the digest readback alone would not catch
+
+//axhos_step
+. *Vouch Step (in-pool — rbgjl02)*:
+.. For the staged envelope, build a `FROM scratch` image copying `vouch.json` and push it to the Lode package under the `:rbi_vouch` tag — a distinct manifest sharing the one package
+.. The recipe order is load-bearing: the vouch push runs strictly after the residency guard, so the provenance artifact never precedes the integrity check
+
+//axhos_step
+. *Wait for Build Completion*:
+.. {rbbc_poll}
+link:https://cloud.google.com/build/docs/api/reference/rest/v1/projects.locations.builds/get[cloudbuild.builds.get] for `«BUILD_ID»`
+.. {rbbc_require}
+final status is `SUCCESS`
+
+//axhoot_typed_output
+{rbf_fact_lode}
+. *Write Capture-Facts*:
+.. Read `buildStepOutputs[0]` (base64-decoded JSON) from the completed build to recover the host-minted `«TOUCHMARK»`
+.. {rbbc_store}
+the touchmark value and the podvm kind-brand enum (`podvm-wsl` / `podvm-native`, verbatim the family argument) as the two bare single-form facts of the
+{rbf_fact_lode}
+— carrying no provenance content; the envelope is the in-GAR `:rbi_vouch` tag, written cloud-side by the vouch step
+
+//axhoc_completion
+Successful execution captures the selected podman-machine disk leaves into a single
+{gar_service}
+package at `{gar_lodes_namespace}/«TOUCHMARK»`, carrying each opaque disk blob under
+its `:rbi_<disktype>-<arch>` member tag plus the `:rbi_vouch`
+{rbtga_lode_vouch}
+envelope, and hands the touchmark forward host-side as the
+{rbf_fact_lode}.
++
+The operation is capture-pure: no vessel or nameplate config is written.
+The captured cohort is a Director-dictated version closure — the substrate bytes are
+exactly the digests captured from the pinned family/version, never "whatever the
+operator's podman happened to fetch".
++
+Consumption is deferred this heat: immure stops at the registry.
+A host's `podman machine init` from a captured seed, and the nameplate election that
+pins which touchmark a node provisions, are a separate consumption-side layer that
+reads the capture-file — so election retries independently and survives, and a
+one-to-many fan-out across nodes iterates by reading the file rather than by a verb
+taking N node arguments.

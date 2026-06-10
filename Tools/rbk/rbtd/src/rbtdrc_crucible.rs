@@ -44,6 +44,7 @@ use crate::rbtdgc_consts::{
     RBTDGC_TALLY_HALLMARKS, RBTDGC_VOUCH_HALLMARKS,
     RBTDGC_ENSCONCE_BOLE, RBTDGC_CONCLAVE_RELIQUARY, RBTDGC_UNDERPIN_WSL, RBTDGC_DIVINE_LODES,
     RBTDGC_AUGUR_LODE, RBTDGC_BANISH_LODE, RBTDGC_LIST_IMAGES, RBTDGC_JETTISON_IMAGE,
+    RBTDGC_IMMURE_PODVM,
 };
 use crate::rbtdrm_manifest::rbtdrm_credential_check_colophon;
 
@@ -2483,6 +2484,14 @@ pub static RBTDRC_FIXTURE_WSL_LIFECYCLE: rbtdre_Fixture = rbtdre_Fixture {
     cases: RBTDRC_CASES_WSL_LIFECYCLE,
 };
 
+pub static RBTDRC_FIXTURE_PODVM_LIFECYCLE: rbtdre_Fixture = rbtdre_Fixture {
+    name: crate::rbtdrm_manifest::RBTDRM_FIXTURE_PODVM_LIFECYCLE,
+    disposition: rbtdre_Disposition::Independent,
+    setup: None,
+    teardown: None,
+    cases: RBTDRC_CASES_PODVM_LIFECYCLE,
+};
+
 pub static RBTDRC_FIXTURE_BATCH_VOUCH: rbtdre_Fixture = rbtdre_Fixture {
     name: crate::rbtdrm_manifest::RBTDRM_FIXTURE_BATCH_VOUCH,
     disposition: rbtdre_Disposition::Independent,
@@ -2512,6 +2521,7 @@ pub static RBTDRC_FIXTURES: &[&'static rbtdre_Fixture] = &[
     &RBTDRC_FIXTURE_LODE_LIFECYCLE,
     &RBTDRC_FIXTURE_RELIQUARY_LIFECYCLE,
     &RBTDRC_FIXTURE_WSL_LIFECYCLE,
+    &RBTDRC_FIXTURE_PODVM_LIFECYCLE,
     &RBTDRC_FIXTURE_BATCH_VOUCH,
     &RBTDRC_FIXTURE_ACCESS_PROBE,
     &crate::rbtdrf_fast::RBTDRF_FIXTURE_ENROLLMENT_VALIDATION,
@@ -2584,6 +2594,7 @@ pub static RBTDRC_SUITES: &[rbtdre_Suite] = &[
             &RBTDRC_FIXTURE_LODE_LIFECYCLE,
             &RBTDRC_FIXTURE_RELIQUARY_LIFECYCLE,
             &RBTDRC_FIXTURE_WSL_LIFECYCLE,
+            &RBTDRC_FIXTURE_PODVM_LIFECYCLE,
             &RBTDRC_FIXTURE_BATCH_VOUCH,
         ],
     },
@@ -2623,6 +2634,7 @@ pub static RBTDRC_SUITES: &[rbtdre_Suite] = &[
             &RBTDRC_FIXTURE_LODE_LIFECYCLE,
             &RBTDRC_FIXTURE_RELIQUARY_LIFECYCLE,
             &RBTDRC_FIXTURE_WSL_LIFECYCLE,
+            &RBTDRC_FIXTURE_PODVM_LIFECYCLE,
             &RBTDRC_FIXTURE_BATCH_VOUCH,
             &RBTDRC_FIXTURE_TADMOR,
             &RBTDRC_FIXTURE_SRJCL,
@@ -3594,6 +3606,213 @@ fn rbtdrc_wsl_lifecycle(dir: &Path) -> rbtdre_Verdict {
 }
 
 pub static RBTDRC_CASES_WSL_LIFECYCLE: &[rbtdre_Case] = &[case!(rbtdrc_wsl_lifecycle)];
+
+
+// Podvm-lifecycle fixture — fetched-side podvm disk-leaf capture against live GAR. Single
+// self-contained round-trip: immure a quay.io/podman/machine-os-wsl family into a fresh
+// rbi_ld Lode, divine-enumerate to confirm it appears as a cohort, augur to confirm the
+// two member tags (rbi_wsl-x86_64, rbi_wsl-aarch64) + decoded :rbi_vouch envelope rode
+// in at recorded-at-acquisition grade, jettison one member tag via the type-blind raw
+// image verb proving per-member delete, banish the whole Lode, then divine-enumerate to
+// confirm the registry is restored. Structural analogue of both reliquary-lifecycle
+// (multi-member cohort + member-jettison case) and wsl-lifecycle (opaque-blob capture).
+
+/// Podvm-wsl kind argument — family brand passed to immure.
+const RBTDRC_PODVM_FAMILY: &str = "podvm-wsl";
+/// Podvm version tag — the quay.io family index version to capture.
+const RBTDRC_PODVM_VERSION: &str = "5.6";
+
+/// Podvm-wsl member tags asserted by augur. Compose RBGC_LODE_TAG_SPRUE ("rbi_")
+/// with the selection leaf names from rbgc_Constants.sh RBGC_LODE_PODVM_WSL_SELECTION.
+const RBTDRC_PODVM_TAG_WSL_X86: &str = "rbi_wsl-x86_64";
+const RBTDRC_PODVM_TAG_WSL_AARCH: &str = "rbi_wsl-aarch64";
+
+/// Trust grade for the recorded-at-acquisition envelope — mirrors rbgc_Constants.sh
+/// RBGC_LODE_TRUST_RECORDED. The podvm upstream offers no durable checksum, so RB
+/// attests only the digest observed at capture.
+const RBTDRC_LODE_TRUST_RECORDED: &str = "recorded-at-acquisition";
+
+/// Honest-posture text fragment emitted by augur for recorded-at-acquisition grade
+/// (rbldl_Lifecycle.sh RBGC_LODE_TRUST_RECORDED branch). Proves augur rendered the
+/// trust-posture section, not just the envelope header. Matches a stable substring
+/// of the fixed prose rather than the full multi-line block.
+const RBTDRC_PODVM_TRUST_POSTURE_FRAGMENT: &str = "attests only the digest observed at capture";
+
+fn rbtdrc_podvm_lifecycle(dir: &Path) -> rbtdre_Verdict {
+    rbtdrc_with_ctx(|ctx| {
+        // Step 1: immure the podvm-wsl family + version into a fresh Lode.
+        let _ = std::fs::write(dir.join("01-immure.txt"), "immuring podvm-wsl disk leaves");
+        let immure = match rbtdri_invoke_global(
+            ctx,
+            RBTDGC_IMMURE_PODVM,
+            &[RBTDRC_PODVM_FAMILY, RBTDRC_PODVM_VERSION],
+            &[],
+        ) {
+            Ok(r) if r.exit_code == 0 => r,
+            Ok(r) => return rbtdre_Verdict::Fail(format!("immure failed (exit {})\n{}", r.exit_code, r.stderr)),
+            Err(e) => return rbtdre_Verdict::Fail(format!("immure invocation: {}", e)),
+        };
+        let _ = std::fs::write(dir.join("01-immure-stdout.txt"), &immure.stdout);
+
+        // The host-side capture handoff is the bare touchmark fact.
+        let touchmark = match rbtdri_read_burv_fact(&immure, RBTDRC_FACT_LODE_TOUCHMARK) {
+            Ok(v) => v,
+            Err(e) => return rbtdre_Verdict::Fail(format!("read touchmark fact: {}", e)),
+        };
+        let _ = std::fs::write(dir.join("02-touchmark.txt"), &touchmark);
+
+        // Step 2: divine enumerate shows the new Lode as a cohort.
+        let after = match rbtdri_invoke_global(ctx, RBTDGC_DIVINE_LODES, &[], &[]) {
+            Ok(r) if r.exit_code == 0 => r,
+            Ok(r) => return rbtdre_Verdict::Fail(format!("post-immure divine failed (exit {})\n{}", r.exit_code, r.stderr)),
+            Err(e) => return rbtdre_Verdict::Fail(format!("post-immure divine invocation: {}", e)),
+        };
+        let _ = std::fs::write(dir.join("03-divine-after.txt"), &after.stdout);
+        if !after.stdout.contains(&touchmark) {
+            return rbtdre_Verdict::Fail(format!(
+                "post-immure divine missing touchmark {}\nstdout:\n{}",
+                touchmark, after.stdout
+            ));
+        }
+        // Cohort display asserts the member count column, not a specific digest.
+        if !after.stdout.contains("cohort: 2 members") {
+            return rbtdre_Verdict::Fail(format!(
+                "post-immure divine row for {} missing '(cohort: 2 members)'\nstdout:\n{}",
+                touchmark, after.stdout
+            ));
+        }
+
+        // Step 3: augur inspects the podvm Lode — member tags AND the decoded
+        // :rbi_vouch envelope. The trust-grade assertion proves augur decoded the
+        // recorded-at-acquisition envelope (distinct from the verified grade the bole
+        // and reliquary kinds carry); the posture-fragment assertion proves the honest-
+        // posture prose block was rendered (struct proof, not digest assertion).
+        let augur = match rbtdri_invoke_global(ctx, RBTDGC_AUGUR_LODE, &[&touchmark], &[]) {
+            Ok(r) if r.exit_code == 0 => r,
+            Ok(r) => return rbtdre_Verdict::Fail(format!("augur failed (exit {})\n{}", r.exit_code, r.stderr)),
+            Err(e) => return rbtdre_Verdict::Fail(format!("augur invocation: {}", e)),
+        };
+        let _ = std::fs::write(dir.join("04-augur.txt"), &augur.stdout);
+        // Member-tag presence (structural: these are the two WSL disk-leaf kinds).
+        for member in &[RBTDRC_PODVM_TAG_WSL_X86, RBTDRC_PODVM_TAG_WSL_AARCH, RBTDRC_LODE_TAG_VOUCH] {
+            if !augur.stdout.contains(member) {
+                return rbtdre_Verdict::Fail(format!(
+                    "augur missing member tag '{}'\nstdout:\n{}",
+                    member, augur.stdout
+                ));
+            }
+        }
+        // Trust-grade assertion — recorded-at-acquisition, not verified-against-published.
+        // Never assert specific digest hex: the upstream rotates and the digest changes.
+        if !augur.stdout.contains(RBTDRC_LODE_TRUST_RECORDED) {
+            return rbtdre_Verdict::Fail(format!(
+                "augur did not decode podvm :rbi_vouch envelope — missing trust grade '{}'\nstdout:\n{}",
+                RBTDRC_LODE_TRUST_RECORDED, augur.stdout
+            ));
+        }
+        // Kind field assertion — proves the envelope names the podvm-wsl kind.
+        if !augur.stdout.contains(RBTDRC_PODVM_FAMILY) {
+            return rbtdre_Verdict::Fail(format!(
+                "augur envelope missing kind '{}'\nstdout:\n{}",
+                RBTDRC_PODVM_FAMILY, augur.stdout
+            ));
+        }
+        // Honest-posture prose block — proves the recorded-at-acquisition branch ran.
+        if !augur.stdout.contains(RBTDRC_PODVM_TRUST_POSTURE_FRAGMENT) {
+            return rbtdre_Verdict::Fail(format!(
+                "augur trust-posture prose missing expected fragment '{}'\nstdout:\n{}",
+                RBTDRC_PODVM_TRUST_POSTURE_FRAGMENT, augur.stdout
+            ));
+        }
+
+        // Step 3.5: per-member jettison via the type-blind raw verbs. The raw
+        // list (rbw-il) at leaf grain shows the podvm cohort's member tags; jettison
+        // (rbw-iJ) deletes ONE member tag; a re-list proves that member absent and
+        // a sibling member still present — the per-member-delete the multi-member
+        // podvm kind needs. Tag-grain delete leaves the Lode package and its other
+        // members intact (whole-Lode delete stays with banish, below).
+        let lode_path = format!("{}/{}", RBTDRC_LODES_ROOT, touchmark);
+        let member_ref = format!("{}:{}", lode_path, RBTDRC_PODVM_TAG_WSL_AARCH);
+
+        let pre_list = match rbtdri_invoke_global(ctx, RBTDGC_LIST_IMAGES, &[&lode_path], &[]) {
+            Ok(r) if r.exit_code == 0 => r,
+            Ok(r) => return rbtdre_Verdict::Fail(format!("pre-jettison list failed (exit {})\n{}", r.exit_code, r.stderr)),
+            Err(e) => return rbtdre_Verdict::Fail(format!("pre-jettison list invocation: {}", e)),
+        };
+        let _ = std::fs::write(dir.join("04b-list-before-jettison.txt"), &pre_list.stdout);
+        for member in &[RBTDRC_PODVM_TAG_WSL_X86, RBTDRC_PODVM_TAG_WSL_AARCH] {
+            if !pre_list.stdout.contains(member) {
+                return rbtdre_Verdict::Fail(format!(
+                    "pre-jettison raw list missing member tag '{}'\nstdout:\n{}",
+                    member, pre_list.stdout
+                ));
+            }
+        }
+
+        let _ = std::fs::write(dir.join("04c-jettison-member.txt"), &member_ref);
+        match rbtdri_invoke_global(
+            ctx,
+            RBTDGC_JETTISON_IMAGE,
+            &[&member_ref],
+            &[(RBTDRI_BURE_CONFIRM_KEY, RBTDRI_BURE_CONFIRM_SKIP)],
+        ) {
+            Ok(r) if r.exit_code == 0 => {}
+            Ok(r) => return rbtdre_Verdict::Fail(format!("member jettison failed (exit {})\n{}", r.exit_code, r.stderr)),
+            Err(e) => return rbtdre_Verdict::Fail(format!("member jettison invocation: {}", e)),
+        }
+
+        let post_list = match rbtdri_invoke_global(ctx, RBTDGC_LIST_IMAGES, &[&lode_path], &[]) {
+            Ok(r) if r.exit_code == 0 => r,
+            Ok(r) => return rbtdre_Verdict::Fail(format!("post-jettison list failed (exit {})\n{}", r.exit_code, r.stderr)),
+            Err(e) => return rbtdre_Verdict::Fail(format!("post-jettison list invocation: {}", e)),
+        };
+        let _ = std::fs::write(dir.join("04d-list-after-jettison.txt"), &post_list.stdout);
+        if post_list.stdout.contains(RBTDRC_PODVM_TAG_WSL_AARCH) {
+            return rbtdre_Verdict::Fail(format!(
+                "post-jettison list still shows jettisoned member '{}' — member-grain delete failed\nstdout:\n{}",
+                RBTDRC_PODVM_TAG_WSL_AARCH, post_list.stdout
+            ));
+        }
+        if !post_list.stdout.contains(RBTDRC_PODVM_TAG_WSL_X86) {
+            return rbtdre_Verdict::Fail(format!(
+                "post-jettison list missing sibling member '{}' — jettison damaged the Lode\nstdout:\n{}",
+                RBTDRC_PODVM_TAG_WSL_X86, post_list.stdout
+            ));
+        }
+
+        // Step 4: banish the whole Lode.
+        let _ = std::fs::write(dir.join("05-banish.txt"), "banishing");
+        match rbtdri_invoke_global(
+            ctx,
+            RBTDGC_BANISH_LODE,
+            &[&touchmark],
+            &[(RBTDRI_BURE_CONFIRM_KEY, RBTDRI_BURE_CONFIRM_SKIP)],
+        ) {
+            Ok(r) if r.exit_code == 0 => {}
+            Ok(r) => return rbtdre_Verdict::Fail(format!("banish failed (exit {})\n{}", r.exit_code, r.stderr)),
+            Err(e) => return rbtdre_Verdict::Fail(format!("banish invocation: {}", e)),
+        }
+
+        // Step 5: divine enumerate no longer shows the Lode — registry restored.
+        let final_divine = match rbtdri_invoke_global(ctx, RBTDGC_DIVINE_LODES, &[], &[]) {
+            Ok(r) if r.exit_code == 0 => r,
+            Ok(r) => return rbtdre_Verdict::Fail(format!("final divine failed (exit {})\n{}", r.exit_code, r.stderr)),
+            Err(e) => return rbtdre_Verdict::Fail(format!("final divine invocation: {}", e)),
+        };
+        let _ = std::fs::write(dir.join("06-divine-final.txt"), &final_divine.stdout);
+        if final_divine.stdout.contains(&touchmark) {
+            return rbtdre_Verdict::Fail(format!(
+                "final divine still shows banished touchmark {} — banish did not restore baseline\nstdout:\n{}",
+                touchmark, final_divine.stdout
+            ));
+        }
+
+        let _ = std::fs::write(dir.join("07-passed.txt"), "passed");
+        rbtdre_Verdict::Pass
+    })
+}
+
+pub static RBTDRC_CASES_PODVM_LIFECYCLE: &[rbtdre_Case] = &[case!(rbtdrc_podvm_lifecycle)];
 
 
 // Batch-vouch fixture — exercises rbfv_batch_vouch's two-pass pending→vouched
