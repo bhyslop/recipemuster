@@ -24,7 +24,8 @@ ACG is **v1**: it blesses and names emergent practice and states the spine. It
 does **not** mandate universals ("every verb must announce"); those are
 candidates, confirmed move-by-move, not law. There is no qualify-time enforcement
 in v1. Every move-type below is licensed precisely — most are detect-and-report,
-not repair.
+not repair. *(v1.1, 2026-06-10: the statements clause, the word-cancer
+antipattern, and moves ACGm_104–106 join the guide; the posture is unchanged.)*
 
 ## How this document is organized — frame, then catalog
 
@@ -46,8 +47,8 @@ discrete moves; systematize the discipline behind them.
 The governing idea, stated once:
 
 > Don't recreate inline what has a named home. **Values → constants; concepts →
-> quoin-refs.** MCM builds the homes; ACG governs source's duty to reference
-> rather than recreate.
+> quoin-refs; statements → definition sites.** MCM builds the homes; ACG governs
+> source's duty to reference rather than recreate.
 
 This is the **allocation instance of Load-Bearing Complexity** (CLAUDE.md). A
 recreated value or name is a non-load-bearing duplicate: its existence adds drift
@@ -94,6 +95,41 @@ it: the **product** (the value returned to the caller), the **trace**
 project. Naming the full output-role roster is future work; one invariant earns
 its place now: **trace has no re-read-every-run forcing function, so it rots like
 an edit-time comment — never make it the sole home of design-time knowledge.**
+
+## The third clause — statements → definition sites
+
+*(v1.1)* The spine governs prose, not only values and names. Every normative
+idea — a rule, a scope claim, a constraint, a rationale — has exactly one
+authoritative wording at one definition site. Every other appearance is a
+**citation**: it may name the home and orient the reader; it may not restate
+the content in other words.
+
+A paraphrase is a fork — a second wording that drifts independently, leaving a
+reader unable to know which wording is law. A **word cancer** is the metastatic
+form: variations of one idea scattered across documents, each restatement
+enlarging the drift surface, none authoritative. The term is deliberately ugly.
+The pattern is the most recurrent failure mode of LLM-assisted maintenance of
+large codebases: a model completing "what should be said here" recreates a
+nearby idea in fresh words, and every recreation seeds the next.
+
+For an LLM reader the cost is mechanical, not aesthetic: two near-paraphrases
+are nearly the same retrieval key, and once they drift the model retrieves a
+confident *blend* — statement-level interference, the prose analogue of the
+prefix-collision mechanism in
+`Memos/memo-20260610-quoin-minting-introspection.md`. A quoin gives a concept
+one string; this clause gives a claim one wording. Canonical specimen: the
+2026-06-10 Diff-Friendly-Prose repair, where a context file *characterized* a
+spec's scope instead of citing it, and the characterization carried the error
+for months.
+
+**Normative register** rides this clause on the spec side. In a spec, every
+sentence either constrains — an implementer or validator could act differently
+because it exists — or is explicitly marked as rationale or gestalt (MCM's task
+lens `**Gestalt**:` field is the blessed form: metaphor marked as interpretive
+guidance). Unmarked ornament is contamination: it spends reader attention and
+implies constraint where none exists. A code comment restating design-time
+knowledge is the same failure in the other medium (temporal misallocation,
+above); flowery spec prose is its mirror.
 
 ## The move discipline — one litmus, three rules
 
@@ -204,6 +240,46 @@ detect-only** (read and report; no repair until a verifier exists). Numbered fro
 - **Done:** a report of parameters whose type is derivable but unhomed; nothing
   mutated.
 
+### 🔍 ACGm_104: conceptual-comment eviction
+
+- **Detect:** an edit-time comment carrying design-time knowledge — what a thing
+  *is*, why it is shaped so, how it relates to other concepts — rather than
+  operational mechanics or Palisade characterization.
+- **Authority:** the three-homes table. The spec quoin is the design-time home;
+  where no quoin exists, the move creates or extends one, then cites it.
+- **Licensing:** detect-only for the sweep — relocation mutates two documents
+  (source and spec) and a wrong move is not cheaply caught, so each relocation
+  lands as its own reviewed move, never batch-applied.
+- **Verifier:** none in v1; the future lexer/linter plus spec link validation.
+- **Done:** a report of misallocated comments, each tagged with its receiving
+  quoin (existing or proposed); relocations land one reviewed move at a time.
+
+### 🔍 ACGm_105: paraphrase collapse
+
+- **Detect:** the same normative idea worded differently in two or more places —
+  across specs, context files, handbooks, or comments. The smell: a reader could
+  ask "which of these is law?"
+- **Authority:** the statements → definition sites clause. Triage declares one
+  home authoritative; every other site becomes a citation.
+- **Licensing:** detect-only — the collapse mutates prose in several documents
+  at once and judgment selects the surviving wording; never batch-applied.
+- **Verifier:** none mechanized; recurrence is caught by re-running the detect
+  sweep against the declared home.
+- **Done:** for each word cancer: one authoritative wording at one site,
+  citations elsewhere, the variant wordings gone.
+
+### 🔍 ACGm_106: ornament drain
+
+- **Detect:** spec sentences in normative position that neither constrain nor
+  carry marked rationale or gestalt — prose an implementer or validator could
+  delete without acting differently.
+- **Authority:** the normative-register rule (the statements clause, above).
+- **Licensing:** detect-only — whether a sentence constrains is judgment;
+  draining is per-document and reviewed.
+- **Verifier:** none in v1.
+- **Done:** the spec reads as constraint plus marked rationale; deleted ornament
+  is gone, demoted ornament is marked.
+
 ## The AXLA/MCM interface
 
 ### The lookahead scanning rule
@@ -244,7 +320,9 @@ dependency; raised and deferred, not dropped.
 | Term | Expansion |
 |------|-----------|
 | ACG | Allocation Coding Guide (this document) |
-| The spine | "Reference the home" — values → constants, concepts → quoin-refs |
+| The spine | "Reference the home" — values → constants, concepts → quoin-refs, statements → definition sites |
+| Word cancer | Variations of one normative idea scattered as paraphrases, each drifting independently; the metastatic violation of statements → definition sites |
+| Normative register | Spec-side rule: every sentence constrains or is marked rationale/gestalt; unmarked ornament is contamination |
 | Home | The one right location for a fact, fixed by when it is read (design / edit / execution time) |
 | Move-type | A catalogued `ACGm_` cleanup move: detect-rule, authority, licensing, verifier, countable Done |
 | mutate-now | Licensing: a wrong move is cheaply caught, so the verb may repair in place |
