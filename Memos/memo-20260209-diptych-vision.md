@@ -1,7 +1,11 @@
-# Diptych: A Dual-Representation Document Format for Human-AI Collaboration
+# Diptych: A Dual-Representation Document System for Human-AI Collaboration
 
 ## Status
-Discovery draft v0.1 — Conversational exploration (2026-02-09)
+Vision draft v0.2 — Engulfs lexer, validator, and recension intents (2026-06-10)
+
+Revision history:
+- v0.1 (2026-02-09) — Discovery draft as `memo-20260209-diptych-format-study.md`: the format insight (recto/verso), prefix grammar, liturgical vocabulary, phase plan.
+- v0.2 (2026-06-10) — Renamed to `-vision` and promoted to the umbrella for canon machinery: names the one-grammar/three-consumers spine, absorbs the validator (VOS flowering) and recension (re-quoiner) intents, declares the recension scope boundary, and collects the removal-conditions ledger that points here.
 
 ## Origin
 
@@ -124,6 +128,33 @@ Bold, italic, and other formatting use toggle semantics rather than paired delim
 
 For documents where formatting is sparse and purposeful (concept models), this costs almost nothing. And it eliminates the matching-delimiter problem entirely.
 
+## The Spine: One Grammar, Three Consumers
+
+*(v0.2)* The format insight above implies more than a codec. Once the canon has a single declared grammar, three distinct machines are all passes over the same parse:
+
+- **Codec** — the recto↔verso transform. The original consumer; a trivial state machine.
+- **Validator** — the mechanization of MCM's curation actions, today specified but enforced only by attention. VOS0-VoxObscuraSpec.adoc is the intended flowering point. The opening rule set is already collected — legend coverage, anchor↔attribute bijection, interior edit distance on prefixes, chunk ceiling, legend-cargo for partial views — see `memo-20260610-quoin-minting-introspection.md` §7. Round-trip fidelity (recto→verso→recto byte-identical) is itself a validator check, and migration is gated on it.
+- **Recension** — the re-quoiner: tool-executed global renaming of quoins across canons. What makes accumulated misminting cheap to sweep, and what lets present-day inconsistency be tolerated rather than hand-fixed.
+
+Designed separately — codec first, validator retrofitted, recension bolted on — these become three partial parsers that drift. Designed as one lexer with three consumers, the grammar is declared once and every machine inherits it. This is the zipper pattern applied to the specification layer: one registry, many generated artifacts.
+
+### Recension scope honesty
+
+Canons are the *easy* reminting universe. The full mint universe — code identifiers, git refs, environment variables, tabtarget filenames — lives in the extended namespace checklist (CLAUDE.md "Prefix Naming Discipline"). A canon-only recension would silently create spec↔code drift: rename `rbfl_jettison` in the spec, orphan it in the shell. The boundary, declared now:
+
+- **Canon recension** rides the Diptych lexer. In scope for this vision.
+- **Cross-universe recension** rides the zipper registries that already generate code-side constants. Separate machinery, same discipline.
+- A **full remint** is the orchestration of both, and is not promised by v1 of anything.
+
+### The removal-conditions ledger
+
+Several tolerated inconsistencies carry "until Diptych" as their demolition date. They are debts against this memo, recorded so the machinery knows its first customers:
+
+- JJS0 body prose authored under semantic linefeeds rather than MCM line-break discipline (principle rescoped 2026-06-10; renormalization deferred to the migration re-flow).
+- `jjezs_` and kin — mints that broke family shape and await canon recension.
+- AXLA hierarchy-marker chains (`axhempt_` etc.) — deep taxonomic letter-chains slated for re-mint under the early-divergence rule.
+- RBS0's mixed prefix strata (`at_`, `st_`, `mkr_`, `scr_`, `opss_`) — the museum layers, sweepable once recension is real.
+
 ## Liturgical Vocabulary
 
 The naming draws from the existing Vox Obscura liturgical tradition:
@@ -143,6 +174,10 @@ In liturgy, the lectionary is the calendar and rubric that tells the celebrant w
 A composed view derived from a canon according to lectionary rules. What a constrained agent (haiku, sonnet) receives for bounded mechanical work. Terms resolved to display text (possibly with guillemet notation `«Heat»` from the earlier ClaudeMark exploration), concept machinery stripped, scope bounded to the task.
 
 The Getting Started guide (RBSGS-GettingStarted.adoc) is already a lectio — it selects concepts from the full RBSA vocabulary and composes them into a procedural narrative for newcomers. Each `include::` subdocument in RBSA-SpecTop is a potential lectio boundary.
+
+### Recension
+
+*(v0.2, candidate name — not yet cinched)* A deliberate, tool-executed re-minting pass over a canon: quoins renamed globally, family shapes repaired, the mapping spine rewritten without touching meaning. Philology's term for a critically revised text lineage, which is exactly this act. The recension is to names what normalization is to formatting.
 
 ### The pipeline
 
@@ -177,6 +212,10 @@ ClaudeMark's useful insights fold into Diptych:
 
 ClaudeMark as a separate named format is superseded. The lectio output inherits its ideas.
 
+### Quoin Minting Introspection memo
+
+`memo-20260610-quoin-minting-introspection.md` (2026-06-10) reports from the model's side what the mapping spine actually buys — certain coreference rather than token savings — and what minting choices serve it: early divergence, cross-kit sub-letter rhyme, Zipf-shaped brevity, real-word stems, legend cargo for partial views. Its §7 rule set is the validator's feedstock; its guidance constrains new mints immediately and recension targets eventually.
+
 ### Vox Obscura / Voce Viva
 
 The Diptych codec, the lectionary engine, and the recto/verso transforms are hidden infrastructure — Vox Obscura. Users never see the word-per-line storage format or the codec mechanics. They interact with the verso (or lectio) through transparent tooling.
@@ -194,8 +233,8 @@ Plain prose documents (READMEs, memos like this one, guides without linked terms
 ### Phase 1: Format specification
 Define the complete Diptych grammar — every prefix character, the sentence boundary token, list-mode tokens, formatting toggles, code block fencing, the mapping section syntax. Produce a specification document (itself a Diptych canon, naturally).
 
-### Phase 2: Codec
-Implement the recto↔verso transform. Likely in Rust within `vvr` as a new subcommand. The transform is a simple state machine:
+### Phase 2: Lexer and codec
+Implement the shared lexer — the one parse every consumer rides (see The Spine) — and the recto↔verso transform over it. Likely in Rust within `vvr` as a new subcommand. The transform is a simple state machine:
 - **PROSE** → accumulate words, join with space (verso) or split on space (recto)
 - **STRUCTURAL** → emit line as-is (prefix-discriminated)
 - **CODEBLOCK** → pass through verbatim until fence close
@@ -205,11 +244,17 @@ Implement the recto↔verso transform. Likely in Rust within `vvr` as a new subc
 ### Phase 3: Transparent presentation
 MCP tools (or equivalent) that virtualize file access. When opus reads a Diptych file, it receives the verso. When opus writes, the output is transformed back to recto. The codec is invisible.
 
-### Phase 4: Lectionary engine
-Compile lectiones from canons according to focal depth rules. This replaces the not-yet-implemented `/cma-render` pipeline. The lectionary engine reads a canon, applies selection rules, and emits a lectio in simplified format for constrained agents.
+### Phase 4: Validator
+Mechanize MCM's curation actions over the shared lexer: link validation, legend coverage, prefix distinguishability, round-trip fidelity. VOS0 is the flowering point; the opening rule set is collected in the quoin minting introspection memo §7. Where the grammar permits, run against AsciiDoc canons too — validation value should not wait for migration.
 
-### Phase 5: Migration
-Convert existing concept model documents (JJSA, RBSA, MCM, VLS, BUSA, etc.) from AsciiDoc to Diptych format. This is the largest effort but can be done incrementally — one document at a time, validating round-trip fidelity.
+### Phase 5: Recension
+The canon re-quoiner: rename a quoin globally across canons, repair family shapes, rewrite the mapping spine without touching meaning. Scope boundary per The Spine — canon-side only; cross-universe renames ride the zipper registries.
+
+### Phase 6: Lectionary engine
+Compile lectiones from canons according to focal depth rules. This replaces the not-yet-implemented `/cma-render` pipeline. The lectionary engine reads a canon, applies selection rules, and emits a lectio in simplified format for constrained agents. Lectio compilation treats legend rows as mandatory cargo: every prefix family present in a slice travels with its legend.
+
+### Phase 7: Migration
+Convert existing concept model documents (JJSA, RBSA, MCM, VLS, BUSA, etc.) from AsciiDoc to Diptych format. This is the largest effort but can be done incrementally — one document at a time, gated on the validator's round-trip fidelity check, with the recension available to discharge the removal-conditions ledger as each document converts.
 
 ## A Note on Scale
 
