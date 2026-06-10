@@ -1,199 +1,265 @@
 ## Boundary — shape, not mechanism (cinched)
 
-This heat builds the **citizen tier** — the current keyfile, no-org operator-credential tier —
-restructured so its capability layer is identical to the future federation tier's. The backing
-stays keyfile; a no-org operator runs it unchanged. We do **not** touch federation here.
-OUT of scope: Workforce pool/provider setup, STS exchange, IdP device flow, RBRD mode-enum
-activation — federation's own future work (RBSHR "Operator federation"; memo-20260527).
+This heat builds the **citizen tier** — the keyfile, no-org operator-credential tier —
+restructured so its capability layer is identical to the future federation tier's.
+The backing stays keyfile; a no-org operator runs it unchanged.
+We do **not** build federation here.
+OUT of scope: workforce pool/provider setup, STS exchange, IdP device flow,
+RBRD mode-enum activation,
+the full drift-audit machinery,
+and `modifiedGrantsByRole` topology conditioning —
+all post-MVP (RBSHR "Operator federation"; `Memos/memo-20260609-federation-canon.md`; audit section below).
 
-The payoff is structural, not nominal: the **capability layer** (capability-sets, grant/revoke,
-the Terrier, the audit) becomes tier-blind, so a later federation switch reshapes nothing
-in it — it swaps identity-kind (citizen → federate) and token mint (signed-JWT → STS) and nothing
-else.
+Pre-MVP there is **no compatibility surface**: no depots exist that we must migrate.
+The grandfather bootstrap (role-from-SA-name recovery) is retired unbuilt.
 
-Mechanism for everything below lives in `Memos/memo-20260605-citizen-capability-model.md`; this
-paddock holds shape only.
+Mechanism lives in `Memos/memo-20260605-citizen-capability-model.md`
+(this revision supersedes its Terrier-homing, census, mantle, and migration passages — breadcrumb owed)
+and `Memos/memo-20260609-federation-canon.md`; this paddock holds shape.
 
-NOTE — supersedes memo-20260527: it says operator verbs "keep their names, only bodies differ" and
-keyfile is "one SA key file each per role." This heat converges the verb *bodies* in shape, makes
-the citizen tier one SA *per person*, and generalizes 20260527's role-keyed token seam to an
-identity-keyed one. (A deferral-honoring breadcrumb is on memo-20260527 now; full note when frozen.)
+## The premise — human present (cinched; earmarked for RBS0)
 
-## The citizen model — identity decoupled from capability
+Canon D2, restated as the bounding premise:
+**a human is present at the kickoff of every run; no run outlives a session cap.**
+Therefore the system holds no refresh token anywhere beyond the payor's own,
+ships no unattended-run support,
+and an orchestrating agent never holds a secret
+(device-flow kickoff surfaces only user_code + verification URI).
+This belongs in RBS0 as a premise quoin voiced `axk_premise` when the civic vocabulary incorporates —
+it is the constraint that bounds the entire credential design.
+The unchosen middle credential path — a bash-managed per-operator OAuth refresh token —
+is recorded as declined under this premise
+(a durable secret at rest, plus the OAuth-client ceremony multiplied across operators);
+no current revisit trigger.
 
-- **Citizen** = a keyfile-tier operator identity (governor/director/retriever), rank-neutral: rank
-  is not a property of the citizen, it lives in the capability-sets it holds. Multi-role is
-  first-class — one citizen holds several capability-sets. (Federation peer = *federate*; payor =
-  founder, outside both. Definitions: memo.)
-- **Identity lifecycle is decoupled from capability lifecycle** — the spine. Adding/removing a
-  citizen is independent of granting/revoking its capabilities. Today's `invest` fuses the two;
-  the model unfuses them. (Why this is achievable: memo.)
-- **Capability-set** = a named bundle of IAM grants, defined in code (lifted out of the invest
-  bodies). Tier-blind.
-- **The verbs dissolve** to add-citizen / remove-citizen / grant / revoke / rekey + read-Terrier,
-  parameterized by (actor, capability-set, citizen). invest/divest/mantle/roster stop existing as
-  distinct concepts.
-- **Capability verbs are tier-blind; only identity verbs branch by tier** (and by the payor's
-  OAuth backing). rekey is keyfile-only.
-- **Grant/revoke operate only on named capability-sets, never raw bindings** — the contamination
-  guard that keeps the Terrier auditable.
-- Ontology: the depot's civic ontology covers **operator** identities — citizens (and later
-  federates), people who hold capabilities — and **holdings** (arks/hoards/bullions), property.
-  Cloud-native system identities (Mason, future Envoy) sit outside it. ("citizen" supersedes
-  RBSHR's prose use of it for an artifact, now reworded to "holding.")
+## The civic structure (cinched this revision)
 
-## Naming & the home — Manor, Terrier (settled this session)
+**Payor founds, governors populate, ledgers tell, IAM enforces.**
 
-The Terrier's "home" is satisfied without inventing a polity abstraction (a framing
-explored and dropped):
+- **Admission authority is scoped to the polity it admits into.**
+  The payor's founding gestures: establish manor, levy depot, create the depot's ledger file, seat the first governor.
+  The payor is outside the citizenry — no ledger entry; its authority is constitutive, not grantable or revocable from inside.
+  After founding, the payor is ceremonial:
+  routine administration never exercises the payor credential,
+  keeping the highest-blast-radius credential cold.
+- **All citizen administration is governor-wielded and depot-scoped**:
+  enfranchise, expel, grant, revoke, rekey.
+  A governor may grant the governor capability-set to another citizen of its own depot — governors create governors.
+  Cross-depot administration does not exist and needs no rule: depot project scoping already forbids it.
+  Revisit trigger: an org running many depots wanting delegated cross-depot administration gets a manor-scope steward seated by the payor — federation-era.
+- **Governor keeps its quoin.**
+  It dissolves structurally: a governor is a citizen holding the governor capability-set;
+  mantle ceases to exist as a verb.
+  Singleton-governor is a posture, never a code-enforced constraint.
+  Standing governor is the default posture for both tiers
+  (regression-testable administration, cold payor, tier symmetry);
+  an operator may expel theirs between uses
+  (known caveat: the on-disk key outlives the revoke by the propagation lag).
+- **Identity scope is a tier property.**
+  Keyfile citizens are depot-minted: the governor mints the SA in the depot project.
+  Federates are IdP-scoped.
+  A person in two keyfile depots is two citizens with two keys;
+  the one-identity-across-depots story belongs to federation, where the IdP is the census.
+  We never build a census.
 
-- **Manor = the Payor project — concrete, singular, one-of.** The administrative seat: the one GCP
-  project hosting the Payor SA, OAuth client, and billing, under which Depots are funded. NOT a
-  cross-cloud polity. Now a first-class RBS0 quoin (`rbtgi_manor`, cult name of the former
-  `rbtgi_payor_project`), its singularity made explicit so it stops being forgotten.
-- **Terrier = the citizen-roll** — the depot-resident record of which citizen holds which
-  capability-set (the stored intent, bonded to *citizen*). The **Manor hosts the Terrier** —
-  resolving where the registry lives: the Payor project, where Terrier-write authority already
-  sits. Recording AWS-targeting intent in the Terrier is not administering AWS (asymmetric
-  sovereignty intact; Manor stays GCP-only). No grand polity concept unless multi-tenancy /
-  multi-Manor becomes real.
+## The Terrier — per-depot ledger files (reshaped this revision)
 
-Reserved civic-ontology quoins — named here, NOT yet in RBS0 (premature pre-MVP): **Terrier**
-(the citizen-roll), **Citizen** (operator-altitude identity, not a role), **capability-set** (cult name TBD —
-portfolio/office). A new RBS0 category prefix likely houses the civic ontology when incorporated.
+The Terrier is a **collection**: one ledger file per depot, hosted in a Manor bucket, created by the payor at levy.
 
-Verb dispositions (gestalt-adjust where the word's soul survives; before MVP, no legacy — the gate
-is semantic fit, not legacy cost):
+- Write ACL: each depot's governors write exactly their own depot's file, plus the payor.
+  Ledger-write thereby co-locates with grant authority on the same principal — the write-authority invariant satisfied trivially.
+- Read population: governors + payor initially (admin-plane);
+  widen only when a working verb demonstrates need.
+  Never `allUsers`/`allAuthenticatedUsers` — citizen names are reconnaissance data.
+- A rights query ("what does X hold in depot Y") is a pure read of one file.
+- **The Terrier is admin-plane only — working verbs never touch it.**
+  Directors and retrievers neither read nor write it;
+  routine operations go straight to IAM-enforced resources.
+- Object versioning on: grant history for free.
+- No global bookkeeping: N independent files, no cross-depot consistency, no "already registered?" lookup.
+- File format, bucket naming, managed-folder vs per-depot-prefix mechanics: mount-time.
 
-- **invest/divest → adjust in place** to capability grant/revoke (role-keyed `rbtgo_*_invest`
-  quoins collapse to one role-generic verb).
-- **charter/knight → retire** (role-bound). **roster → retire** (dissolves into reading the
-  Terrier). **mantle → TBD.**
-- **membership (add/remove citizen) → mint** civic verbs: **enfranchise / expel**.
+## Verbs and orderings (cinched)
 
-## Intent vs enforcement — the Terrier (cinched)
+Civic verbs, all governor-wielded:
 
-Enforcement is server-side IAM, always. Intent — which citizen is meant to hold which capability —
-is stored in the depot-resident **Terrier**, distinct from IAM. The audit is the diff between
-**actual IAM state** and the Terrier; the routine Terrier read is identical across tiers.
-Federation forces the same Terrier anyway, so it is paid once for both. (Today's name-regex `roster`
-verb is retired — no prefix to filter on. Why it must be stored, and where it lives: memo.)
+| Verb | Order | Crash leaves |
+|---|---|---|
+| enfranchise | create SA → register in ledger → mint key **last** | keyless SA (sweepable) or registered keyless citizen (rekey completes); never an unregistered key |
+| grant | write ledger → apply bindings | visible deficit; re-run grant (idempotent) |
+| revoke | withdraw ledger → remove bindings | visible surplus; report-only, safe |
+| expel | revoke all held → delete key + SA | partial teardown lands as surplus, never resurrection |
+| rekey | new key → deliver → verify → delete old | ledger untouched — keys are not its business |
+| read-Terrier | pure read | — |
 
-## The audit — drift as signal, asymmetric healing (cinched)
+Robustness of the verb set against the two open futures
+(the convergence test: change lands only in named, pre-fenced places):
 
-The audit measures drift between declared intent (the Terrier) and IAM. Healing is asymmetric, and the
-asymmetry is the Pale recognition test:
+| Verb | Federation arrives | RBRA dropped entirely |
+|---|---|---|
+| enfranchise / expel | branch by tier (designed for it) | body swaps, name survives |
+| grant / revoke | untouched | untouched |
+| read-Terrier | untouched | untouched |
+| rekey | untouched (keyfile-side only) | retires |
 
-- **Deficit** (IAM short of intent — our own grant failed) is ours → auto-converge, logged.
-- **Surplus** (IAM beyond intent — touched outside our verbs) crossed the Pale → report; a human
-  adjudicates. The audit never auto-revokes; surplus resolution is human-driven.
+RBRA is **demoted, not deleted**: one credential-kind behind the accessor.
+Keyfile-tier permanence is itself not promised; the verb set survives either resolution.
+Capability-set definitions are code, global across depots; memberships are data, local per depot.
+Grant/revoke operate only on named sets, never raw bindings (contamination guard unchanged).
 
-Both capability directions write intent first — grant writes the Terrier before adding bindings,
-revoke withdraws it before removing them — so a crash lands as a safe report-only surplus, never an
-auto-converging deficit. Auto-converge is safe only where Terrier-write authority is at least as
-protected as grant (else a softer escalation path; see Open). And the audit reads **both
-by-identity and by-resource-member**, so a grant to a principal absent from the Terrier cannot hide. (Drift
-taxonomy, the member-first axis, definition-change gating, concurrency, and the orphan marker:
-memo.)
+## The audit — MVP is a mirror, not a surgeon (resized this revision)
 
-## Authority topology — the one seam with policy content
+MVP audit: read ledgers, read IAM, print the diff.
+Report-only — no auto-converge in either direction;
+the heal for a deficit is re-running the idempotent grant.
+With nothing auto-converging from the ledger, ledger-write is not an escalation path,
+which defers the write-authority-vs-grant-authority machinery whole.
+The full asymmetric-healing doctrine
+(deficit auto-converge, surplus adjudication, member-first axis, expansion gating, etag concurrency — memo-20260605)
+remains the cinched future shape, post-MVP.
 
-"Who may grant which capability-set." Shape:
+## Ordering — substrate first (cinched)
 
-- Authority boundaries are IAM-real only where they fall on resource-scope splits (payor/governor
-  holds because billing is a separate resource; governor/director does not).
-- Grant authority is preventively scopable at **project** scope but only **detectively** at
-  **resource** scope — so the resolution composes: IAM-limit the project-scoped grants,
-  detective-audit the resource-scoped residual, and pull authority to the payor where a standing
-  governor buys nothing.
-- **Tier-dependent**: keyfile/solo → topology (no/minimal standing governor); federation/multi-admin
-  → a condition-limited governor. The model allows the answer to differ (actor and capability-set
-  are parameters).
-- Surplus-detection's security value depends on the topology — do not substitute detective audit for
-  structural closure. (The IAM attribute, its scope/role limits, and the seam reasoning: memo.)
+1. **Accessor seam.**
+   One accessor (likely homed in rba) resolves every token;
+   no file outside it names an `RBDC_*_RBRA_FILE` or sources an RBRA file — grep is the gate.
+   Identity-keyed interface, role-shaped contents initially:
+   call sites keep passing today's role word, reread as a citizen name.
+   Honors canon D3 at the interface only:
+   contract silent about mint freshness; no cache built (no consumer yet).
+   Zero behavior change; suites are the arbiter.
+2. **Capability-sets as named code.**
+   Transcribe the binding lists out of the invest/mantle bodies; verbs become thin compositions.
+   Transcription, not design; zero behavior change.
+3. **Civic verbs + ledger.**
+   The behavior-changing movement:
+   enfranchise/expel/grant/revoke/rekey, ledger files, identity-only SA names,
+   `RBRS_CITIZEN` station selector,
+   accessor identity override for multi-identity stations
+   (the dev/test rig holds several personas; the assay axis already proves the need).
+4. **Handbook rework to the civic ceremony: home open** —
+   the stalled handbook heat (₣A6) vs a final movement here; decide once the verbs exist.
+   Credential handbook tracks stay frozen meanwhile.
 
-## Blast radius — larger resting target, finer response (cinched)
+The substrate movements (1, 2) are no-regret under every model variant discussed;
+design wobbles cannot reach them.
+Their correctness is mechanical (suites + grep), not judgment —
+deliberately robust to agent variance across sessions.
 
-One citizen = one SA = one key carrying the union of held capabilities — forced by "one identity per
-person," accepted as a tradeoff. The resting-key form of this exposure is citizen-tier-only
-(federation has no key at rest; the union property itself is tier-blind); most citizens wear one
-hat; and decoupling buys finer incident response (revoke a capability without touching the key;
-rekey without touching capabilities). (Reasoning: memo.)
+## MVP purpose (framing, cinched)
 
-## Inherited concern — governor teardown leak
+The realistic pioneer is the solo evaluator with their own GCP billing — one human wearing every hat.
+The multi-role union citizen
+(one person, one identity, one rbra.env, all capability-sets)
+**is** the evaluator onboarding experience; that is this heat's MVP case, not an architectural nicety.
+Day-after picture:
+payor establishes manor, levies depot, seats self-citizen as governor;
+that governor grants director + retriever sets to the same citizen;
+`RBRS_CITIZEN` brands the station;
+every tabtarget works through the accessor;
+read-Terrier prints one line.
+invest/divest/mantle/roster no longer exist.
 
-Governor teardown sits inside this heat's blast radius: today's mantle leaks a project tombstone
-per re-mantle. The convergence closes it (cheap revoke-before-delete; an idempotent governor is a
-further, not-free refinement). Mechanism + standalone fallback if descoped:
-memo + memo-20260605-governor-mantle-tombstone-leak.md.
+## Inherited concern — governor teardown leak (resolved by dissolution)
+
+With mantle gone and the governor a citizen under the generic verbs,
+teardown is expel (revoke-all-first — no tombstone)
+and replacement is rekey (no delete at all).
+The standalone fallback (memo-20260605-governor-mantle-tombstone-leak)
+applies only if the civic verbs are descoped.
+
+## Blast radius (cinched, updated)
+
+One citizen = one SA = one key carrying the union of held capability-sets **within its depot** — accepted (memo reasoning stands).
+Depot-minted identity bounds the union at the depot:
+cross-depot union exposure is federation-tier-shaped (a hijacked live session), never keyfile-shaped (a file at rest).
 
 ## What done looks like
 
-Every cult-verb surface migrated to the citizen/capability vocabulary: workstation bash (role-keyed
-selection collapses to one identity accessor), the governor/payor admin verbs (the admin verbs
-collapse to the dissolved set), cloud-side bash naming roles, the .adoc specs voicing the cult
-verbs, the Rust theurge cases, the onboarding handbook. "citizen" replaces the role-named identity
-throughout, and the SA name itself becomes identity-only (the naming migration: memo).
-
-The load-bearing federation-enabling core is narrow: route the role/file-path-keyed token-accessor
-calls through one identity-keyed accessor (generalizing memo-20260527's "single code seam"). The
-vocabulary convergence is the larger, motivated-but-not-required remainder. Scoping/heat-chopping is
-deferred — recorded here as shape.
+- No call site outside the accessor touches credential files or paths (grep-verifiable).
+- Capability-sets are named code;
+  civic verbs operate on (actor, capability-set, citizen) within a depot;
+  ledger files function as described;
+  a rights query is a read.
+- The cult-verb surfaces migrated:
+  workstation bash, admin verbs, cloud-side naming, the .adoc specs voicing the old verbs, the theurge cases.
+  Handbook migration per the open home decision.
+- Suites green at each movement; `complete` before close.
 
 ## Cinched decisions
 
-- Enforcement is server-side IAM. No file or client-side check is ever the boundary.
-- The identity is the **citizen** — rank-neutral, keyfile-backed (federation peer *federate*; payor
-  founder outside both). Identity lifecycle decoupled from capability lifecycle. Multi-role
-  first-class.
-- The citizen tier is one SA (one key, union of capabilities) per person, not one per role —
-  blast-radius tradeoff accepted.
-- Capability-sets are named code; grant/revoke operate only on named sets, never raw bindings.
-- The Terrier (intent) is part of the model; IAM is enforcement; the audit diffs them.
-- Audit healing is asymmetric: auto-converge deficits, report surplus; the audit never auto-revokes.
-- Terrier-write authority is never a capability-set member; the Terrier writer for an entry is the
-  grant-authority holder under the active topology.
-- Governor breadth is resolved per tier, not globally: keyfile pulls grant authority to the payor /
-  minimizes the standing governor; federation may keep a condition-limited governor.
-- The mode enum (keyfile vs federation) belongs in RBRD and is added only when federation lands —
-  not in this heat.
-- Migration grandfathers existing role-named SAs: recover each citizen's role from the role-prefixed
-  SA name (a one-time bootstrap, distinct from the retired standing "derive from IAM"), register
-  citizens in the Terrier, let legacy names age out. No flag day.
-- The convergence covers operator citizens; cloud-native identities (Mason, future Envoy) share the
-  capability-set abstraction but not the citizen lifecycle.
+- Enforcement is server-side IAM; the ledger is intent; no file or client-side check is ever the boundary.
+- Human-present premise (canon D2) bounds the design;
+  no refresh tokens anywhere beyond the payor's own;
+  earmarked for RBS0 as an `axk_premise` voicing.
+- Payor founds, governors populate, ledgers tell, IAM enforces;
+  admission authority is scoped to the polity it admits into.
+- Governor keeps the quoin;
+  dissolves to citizen + governor capability-set;
+  mantle retires;
+  singleton and standing-governor are postures, not constraints.
+- Governors create governors within their own depot; cross-depot administration does not exist.
+- Identity scope is a tier property:
+  keyfile citizens depot-minted; federates IdP-scoped; no census, ever.
+- The Terrier is per-depot ledger files in a Manor bucket;
+  payor creates at levy;
+  governor-writeable own-depot-only;
+  admin-plane reads;
+  working verbs never touch it.
+- Capability-set definitions global (code); memberships local (data);
+  grant/revoke only on named sets, never raw bindings.
+- Intent-first orderings as tabled; key-last enfranchise.
+- MVP audit is a read-only diff; the asymmetric-healing doctrine is deferred intact, not diluted.
+- RBRA is demoted to one credential-kind behind the accessor — not deleted; permanence not promised either.
+- Multi-role is first-class; the solo evaluator's union citizen is the MVP case.
+- No migration machinery: pre-MVP has no compatibility surface.
+- The accessor is identity-keyed at the interface from day one; D3's no-per-call-mint assumption honored at the interface only.
 
 ## Retired cinches
 
-- "Roster derives from IAM (an `rbk-identity` label), not a stored list — it cannot drift." Retired:
-  under decoupling, deriving from IAM is lossy and makes the intended-vs-actual audit a tautology,
-  and SA labels do not exist (SAs support tags, in Preview). Replaced by the Terrier +
-  asymmetric audit. The true invariant it reached for — no enforcement state outside IAM — is
-  preserved; the false corollary (no intent state may exist) is dropped.
+- "Roster derives from IAM, not a stored list" — retired earlier (see memo); the Terrier + audit replaced it.
+  The true invariant (no enforcement state outside IAM) survives.
+- "Manor hosts the Terrier" as a singular registry — retired this revision for per-depot ledger files
+  (still physically Manor-hosted as a bucket, but no global census;
+  both the singular-registry framing and a briefly-explored manor-scoped-citizen-SA model are dropped).
+- "Keyfile/solo drops or demotes the standing governor" — retired:
+  standing governor is the default posture;
+  the true invariant (minimize standing privilege) survives as the posture knob.
+- "One SA per person" globally — narrowed: one SA per person **per depot**;
+  the cross-depot one-identity property is federation's, via the IdP.
+- The memo-20260527 stepping-stone question (role-keyed vs identity-keyed accessor) — resolved:
+  identity-keyed interface, role-shaped contents.
 
 ## Open — resolve within the heat
 
-- Where the Terrier physically lives — direction settled: hosted in the **Manor**
-  (Payor project), where Terrier-write authority sits. Remaining: the exact object form (a separate
-  access-restricted object vs a GAR artifact), explicitly **not** the build bucket (the director
-  holds objectCreator there); write-ACL held only by governor/payor (the Terrier-write invariant;
-  see The audit).
-- Whether the keyfile tier drops the standing governor entirely or demotes it to non-privileged —
-  this choice gates whether project-scope grant-limiting is in-heat.
-- The citizen orphan marker: SA tags (Preview) vs description sentinel (both advisory; the
-  authoritative orphan signal is a key on an SA absent from the Terrier — see memo).
-- Whether to offer a combined add+grant convenience wrapper for the common one-hat citizen (the
-  two-gesture flow itself follows from the decoupling).
+- Handbook rework home: ₣A6 vs a final movement here.
+- Ledger reader-population mechanics, file format, managed-folder vs per-depot-prefix layout.
+- Whether enfranchise+grant get a convenience wrapper for the one-hat citizen.
+- Whether rekey ships in MVP or immediately after.
+- RBS0 incorporation timing for the civic quoins (citizen, Terrier, capability-set, the human-present premise).
+- Breadcrumbs owed:
+  memo-20260605 (Terrier homing, census, mantle, migration passages superseded by this revision);
+  the canon's diagram repoint item stands.
+- `RBRA_TOKEN_LIFETIME_SEC` eviction to RBRD lifetime policy (canon D4/D5) — small, slot it where convenient.
 
 ## Sources
 
-rbk-08-credential-repairs; memo-20260604-credential-churn-leak-and-propagation-races (the lifecycle
-split — the enabler); memo-20260527-operator-credential-models (the two-tier plan and cult-verb
-shape — breadcrumbed, full update when frozen); memo-20260605-governor-mantle-tombstone-leak
-(standalone governor-leak fix); memo-20260605-citizen-capability-model (the mechanism this paddock
-points to); memo-20260605-citizen-model-ultracode-process (how this revision was produced);
-RBSHR "Operator federation". This revision folds in the 260605 design conversation and two review
-passes (single-reviewer + ultracode multi-agent). The 260606 revision adds the Manor↔Census naming,
-the first-class RBS0 Manor quoin (`rbtgi_manor`), and the verb dispositions above. The 260609
-revision elects **Terrier** for the registry — retiring the C-initial *Census* (it collided with
-Crucible) and dropping "ledger" as a competing name.
+rbk-08-credential-repairs;
+memo-20260604-credential-churn-leak-and-propagation-races (the lifecycle split — the enabler);
+memo-20260527-operator-credential-models (folded into the federation canon);
+memo-20260605-governor-mantle-tombstone-leak (standalone fallback only);
+memo-20260605-citizen-capability-model (mechanism, partially superseded as noted);
+memo-20260605-citizen-model-ultracode-process;
+memo-20260609-federation-canon (D1–D6; the tier boundary and the premise);
+RBSHR "Operator federation".
+Prior revisions: 260605 design conversation + two review passes; 260606 Manor/verb dispositions; 260609 morning Terrier naming.
+This 260609 evening revision folds in a long design conversation (first Fable 5 session):
+the civic structure and admission scoping,
+governor dissolution and postures,
+per-depot ledger Terrier replacing the singular registry,
+read-only MVP audit,
+human-present premise propagation,
+demote-don't-delete RBRA and the verb robustness matrix,
+substrate-first ordering,
+and the solo-evaluator MVP framing.
+Operator commitment: this paddock and its paces are slated by Fable-class agents; density is calibrated accordingly.
