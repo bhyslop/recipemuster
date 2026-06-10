@@ -10359,9 +10359,10 @@
         "₢BeAAA",
         "₢BeAAB",
         "₢BeAAC",
-        "₢BeAAD"
+        "₢BeAAD",
+        "₢BeAAE"
       ],
-      "jjghn_next_pace_seed": "AAE",
+      "jjghn_next_pace_seed": "AAF",
       "jjghn_paces": {
         "₢BeAAA": {
           "jjgpn_tacks": [
@@ -10404,6 +10405,17 @@
               "jjgtn_text": "Close the wrong-reason hole for the enrollment-validation fixture's negative cases.\n\nSame shape as the regime-validation migration:\nteach the enrollment validation gate to reject with its band code,\nflip the fixture's negative cases to assert that specific code.\nThe expect-code plumbing in the theurge negative helpers\nlands in the prior migration pace; this pace consumes it.\n\n## Done when\n`tt/rbw-ts.TestSuite.fast.sh` green\nwith every enrollment-validation negative case asserting the gate's code.",
               "jjgtn_silks": "migrate-enrollment-validation-negatives",
               "jjgtn_basis": "d298c5b"
+            }
+          ]
+        },
+        "₢BeAAE": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260610-1155",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "Close the wrong-reason hole for the recipe-validation\nand dockerfile-hygiene fixtures' negative cases.\n\nTeach the recipe validation gate and the rbfh FROM-line hygiene gate\n(`Tools/rbk/rbfh_FoundryHygiene.sh`) to reject with band codes.\nThese two gates are alternatives — never in one spawn path —\nso they may share a code per the allocation rule;\nconfirm that at migration time rather than assuming.\nFlip both fixtures' negative cases to assert the expected code.\n\n## Done when\n`tt/rbw-ts.TestSuite.fast.sh` green\nwith both fixtures' negative cases asserting specific codes.",
+              "jjgtn_silks": "migrate-recipe-and-hygiene-negatives",
+              "jjgtn_basis": "fe75bec"
             }
           ]
         }
