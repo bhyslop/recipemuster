@@ -89,8 +89,8 @@ Each [Depot](#Depot) supports two build egress profiles:
 
 - <a id="Tethered"></a>**[Tethered](#Tethered)** — Build egress mode allowing public internet access during Cloud Build. [Tethered](#Tethered) builds pull base images from upstream registries at build time — simpler to set up, but dependent on upstream availability.
 - <a id="Airgap"></a>**[Airgap](#Airgap)** — Build egress mode with no public internet access during Cloud Build.
-[Airgap](#Airgap) builds draw all dependencies from [Enshrined](#Enshrine) images in the [Depot's](#Depot) registry — fully self-contained, independent of upstream availability.
-Requires [Enshrining](#Enshrine) base images before the first build.
+[Airgap](#Airgap) builds draw all dependencies from [Lodes](#Lode) in the [Depot's](#Depot) registry — fully self-contained, independent of upstream availability.
+Requires [Capturing](#Capture) base images before the first build.
 See [Build Isolation](#BuildIsolation) for the security rationale behind these profiles.
 
 ### <a id="Manor"></a>Manor
@@ -170,7 +170,7 @@ After downloading the OAuth client credentials, the [Payor](#Payor) [Installs](#
 With [Payor](#Payor) credentials in place, the [Payor](#Payor) [Levies](#Levy) a [Depot](#Depot), provisioning it with build infrastructure, artifact registry, and secrets storage.
 The [Payor](#Payor) then [Mantles](#Mantle) a [Governor](#Governor) service account to administer the [Depot](#Depot).
 
-Before the first build can run, the [Depot](#Depot) needs its supply-chain infrastructure in place: upstream base images must be [Enshrined](#Enshrine) into the registry, and a [Reliquary](#Reliquary) of builder tool images must be inscribed.
+Before the first build can run, the [Depot](#Depot) needs its supply-chain infrastructure in place: upstream base images and the cohort of builder tool images must be [Captured](#Capture) into the registry as [Lodes](#Lode).
 
 #### Credential Distribution
 
@@ -192,7 +192,7 @@ The [Retriever](#Retriever) [Summons](#Summon) [Vouched](#Vouch) images locally 
 - [SLSA provenance](#Provenance) attestation and verification
 - [Software Bills of Material (SBOM)](#SBOM) for every build
 - Full build transcripts captured as auxiliary metadata artifacts
-- Upstream base images [Enshrined](#Enshrine) into the [Depot's](#Depot) registry, so builds do not depend on third-party registry availability at build time
+- Upstream base images [Captured](#Capture) into the [Depot's](#Depot) registry as [Lodes](#Lode), so builds do not depend on third-party registry availability at build time
 - `gcloud` never runs on the workstation — REST calls via `curl` and `jq` drive all remote operations, and the Google-supplied `gcloud` binary is confined to Cloud Build step containers on the server side
 
 Each build's source context is packaged as a [Pouch](#Pouch) — the security boundary between workstation and build infrastructure.
@@ -330,12 +330,11 @@ This is a [Governor](#Governor) operation; observation-only, no cloud mutation.
 
 ### Supply Chain
 
-<a id="Enshrine"></a>**[Enshrine](#Enshrine)** — Mirror upstream base images into your [Depot's](#Depot) registry.
-[Enshrining](#Enshrine) ensures the build pipeline has a fixed, self-contained supply chain — builds draw from project-owned copies rather than depending on third-party registry availability at build time.
-
-<a id="Reliquary"></a>**[Reliquary](#Reliquary)** — Co-versioned set of builder tool images (skopeo, docker, gcloud, syft) inscribed from upstream into the [Depot's](#Depot) registry.
-Cloud Build jobs use [Reliquary](#Reliquary) images as step containers, ensuring builds run with known, project-owned toolchains rather than pulling tools from upstream at build time.
-The [Director](#Director) inscribes a [Reliquary](#Reliquary) before any [Ordain](#Ordain) or [Enshrine](#Enshrine) operation can run.
+<a id="Capture"></a>**[Capture](#Capture)** — Mirror an upstream artifact into your [Depot's](#Depot) registry as a [Lode](#Lode).
+[Capturing](#Capture) ensures the build pipeline has a fixed, self-contained supply chain — builds draw from project-owned copies rather than depending on third-party registry availability at build time.
+Each artifact kind — base image, builder toolset, OS substrate, VM disk image — has its own capture operation, but every capture produces the same thing: a [Lode](#Lode) with a provenance record, named by its [Touchmark](#Touchmark).
+Builder tool images are [Captured](#Capture) together as one co-versioned [Lode](#Lode); Cloud Build jobs use its members as step containers, ensuring builds run with known, project-owned toolchains rather than pulling tools from upstream at build time.
+The [Director](#Director) [Captures](#Capture) the builder-tool [Lode](#Lode) before any [Ordain](#Ordain) or base-image [Capture](#Capture) can run.
 
 ### Building
 
@@ -501,14 +500,14 @@ If a compromised dependency, build plugin, or Dockerfile instruction executes du
 This is defense-in-depth for proprietary code: even if a build step is compromised, the network is not available as an exfiltration channel.
 
 **The curated gate principle.**
-[Airgap](#Airgap) does not mean "nothing external." It means all external content enters through a single auditable gate — the [Enshrine](#Enshrine) ceremony — rather than ad-hoc network fetches during build.
-The attack surface collapses from "any URL a Dockerfile mentions" to "the specific digests the [Director](#Director) [Enshrined](#Enshrine)."
-Builder tool images enter through a parallel gate: the [Reliquary](#Reliquary), inscribed once and pinned by digest for all subsequent builds.
+[Airgap](#Airgap) does not mean "nothing external." It means all external content enters through a single auditable gate — [Lode](#Lode) [Capture](#Capture) — rather than ad-hoc network fetches during build.
+The attack surface collapses from "any URL a Dockerfile mentions" to "the specific digests the [Director](#Director) [Captured](#Capture)."
+Builder tool images enter through the same gate: [Captured](#Capture) as a co-versioned [Lode](#Lode) and pinned by digest for all subsequent builds.
 
 **What [Airgap](#Airgap) does not protect: the base image contents.**
 Base images like `debian-slim` were themselves built with full internet access — `apt-get install` already ran inside them.
 The [Airgap](#Airgap) protects *your* build steps on top of those bases, not the base image contents themselves.
-Base images are vetted separately: digest-pinned at [Enshrine](#Enshrine) time, inspectable via [SBOM](#SBOM), and stored as project-owned copies in the [Depot's](#Depot) registry.
+Base images are vetted separately: digest-pinned at [Capture](#Capture) time, inspectable via [SBOM](#SBOM), and held as [Lodes](#Lode) in the [Depot's](#Depot) registry.
 A [Tethered](#Tethered) build of the base image followed by an [Airgapped](#Airgap) build of your application is the expected pattern — the base image is a known input, your proprietary layers are the protected output.
 
 **Regulatory alignment.**
@@ -640,7 +639,7 @@ The annotated tree below maps its files to the concepts defined above.
 | `        │   └── rbjp_pentacle.sh` | [Pentacle](#Pentacle) runtime — namespace setup |
 | `        ├── rbev-sentry-deb-tether/` | [Conjure](#Conjure) — [Sentry](#Sentry) (tethered, upstream pull) |
 | `        │   └── rbrv.env` | [RBRV](#RBRV) — [Conjure](#Conjure) mode, tether egress |
-| `        ├── rbev-sentry-deb-airgap/` | [Conjure](#Conjure) — [Sentry](#Sentry) (airgapped, enshrined bases) |
+| `        ├── rbev-sentry-deb-airgap/` | [Conjure](#Conjure) — [Sentry](#Sentry) (airgapped, [Lode](#Lode) bases) |
 | `        │   └── rbrv.env` | [RBRV](#RBRV) — [Conjure](#Conjure) mode, airgap egress |
 | `        ├── rbev-bottle-ccyolo/` | [Conjure](#Conjure) — [ccyolo](#ccyolo) Claude Code sandbox |
 | `        │   ├── Dockerfile` | node:22-slim + SSH + Claude Code |

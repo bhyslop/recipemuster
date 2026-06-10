@@ -64,20 +64,16 @@ _Trigger_: Podman first-class deployment (above).
 _Reference_: containers/podman-compose#710 (June 2023, open);
 containers/podman-compose#1329 (October 2025, open).
 
-**Revised enshrine — universal capture verb under Lode recipe noun.**
-Today's narrow `enshrine` mirrors only upstream OCI base images.
-Three additional capture needs share the same gesture (pull from upstream, SLSA-wrap, store in GAR): build-time tool images (today's `mirror`/`reliquary` machinery), the WSL substrate distro that hosts the Windows workload, and podman VM disk images.
-The revision generalizes `enshrine` into a universal verb operating on a single recipe noun — **Lode**, parallel to {rbtga_vessel} on the built side — with a kind enum that gates pipeline behavior: `base`, `tool`, `reliquary`, `wsl`, `podvm-wsl`, `podvm-native`.
-Today's `reliquary` demotes from top-level noun to a kind enum slot — the date-cohort semantic survives, the cult-vocabulary weight drops.
-Today's `mirror` verb retires entirely;
-absorbed into enshrine on the `tool` and `reliquary` kinds.
-Lode .env carries author intent only — no resolved FQIN field — mirroring RBRV's ORIGIN/ANCHOR pattern (kindle code computes upstream coordinates from kind primitives at module-startup).
-The `wsl` kind delivers a project-controlled WSL rootfs tar that replaces the Microsoft-Store-appx-mutable distribution today's caparison-w depends on;
-the `podvm-*` kinds collapse `rbv_PodmanVM.sh`'s existing GHCR mirror into GAR under the unified verb.
-_Trigger_: when Windows host workload requires a project-controlled WSL distro, when podman VM supply chain needs project-owned bytes in GAR, or when the `mirror`/`reliquary` machinery accumulates enough friction to motivate consolidation.
-_Reference_: RBSLE-lode_ensconce.adoc (the bole-kind capture spec);
-RBSRV-RegimeVessel.adoc (ORIGIN/ANCHOR precedent, kind-enum-gated variable groups pattern);
-`Tools/rbk/vov_veiled/FUTURE/rbv_PodmanVM.sh` (existing podman-vm fan-out machinery).
+**Substrate Lode consumption — wsl/podvm host-side election and provisioning.**
+Lode capture is landed: per-kind capture verbs (`ensconce`/`conclave`/`underpin`/`immure` — `enshrine` retired) each emit one provenance-enveloped GAR package, the **Lode**, parallel to {rbtga_ark} on the built side and identified by its touchmark;
+intent stays distributed per kind — no unified recipe noun, no resolved-FQIN field — generalizing RBRV's ORIGIN/ANCHOR pattern.
+What remains is the consumption half for the substrate kinds: the workload's `wsl --import` consuming a verified rootfs Lode in place of the Microsoft-Store-appx-mutable distribution today's caparison-w depends on, and podman machine provisioning consuming a podvm Lode in place of quay's rapidly-churning upstream.
+Substrate touchmarks are Director-pinned at the nameplate and materialized at charge — the Retriever receives versions, never elects them.
+Open: which host-tier regime backs node-side election/provisioning (station regime vs BURN node profile vs a new host-config regime).
+_Trigger_: when the Windows host workload moves onto the project-controlled WSL distro, or when podman machine provisioning must survive quay retention.
+_Reference_: RBSLU-lode_underpin.adoc, RBSLI-lode_immure.adoc (the substrate capture specs);
+RBSDY-director_yoke.adoc (build-time election precedent);
+BUSJCW CaparisonWindows, BUSJGW GarrisonWsl (the `wsl --export` seed path this retires).
 
 **Hairpin peer access between crucibles.**
 Bottled containers cannot currently reach each other's published entry ports.
@@ -258,8 +254,8 @@ NOTE: the native-consume half of this entry is renamed and currently shaped as t
 
 **Egress lockdown — IMPLEMENTED.**
 Dual-pool architecture: tether pool (public egress) and airgap pool (`NO_PUBLIC_EGRESS`).
-Operation-level routing: inscribe/enshrine use tether, about/vouch always airgap, conjure/bind per vessel `RBRV_EGRESS_MODE`.
-Reliquaries (tool images) and anchors (base images) provide universal GAR-sourced dependencies.
+Operation-level routing: Lode capture uses tether, about/vouch always airgap, conjure/bind per vessel `RBRV_EGRESS_MODE`.
+Lodes (builder tools and base images) provide universal GAR-sourced dependencies.
 _Reference_: RBSCB-CloudBuildPosture.adoc (Implemented: Egress Lockdown via Dual Pools).
 
 **VPC Service Controls perimeter.**
