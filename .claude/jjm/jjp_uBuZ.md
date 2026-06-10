@@ -125,6 +125,44 @@ Keyfile-tier permanence is itself not promised; the verb set survives either res
 Capability-set definitions are code, global across depots; memberships are data, local per depot.
 Enfeoff/escheat operate only on named sets, never raw bindings (contamination guard unchanged).
 
+## Launcher surface — colophon families (elected)
+
+Two family mints, one rejection:
+
+- **`rbw-p` — the polity family** (minted): governor-wielded citizen administration —
+  enfranchise, enfeoff, escheat, expel, recut, terrier read, audit.
+  The family letter names the tier-blind domain noun,
+  so federation changes verb bodies, never colophons — the convergence test applied to the launcher surface.
+- **`rbw-m` — the manor family** (minted; regroup executes this heat): the payor's founding surface,
+  gathered from its current scatter across `rbw-g` and `rbw-d` (see map).
+  Levy gains the create-terrier and seat-first-governor founding gestures here.
+  Director-wielded depot verbs (`rbw-di`, `rbw-dI`, `rbw-dY`) stay in `rbw-d`.
+- **`rbw-P` rejected**: payor and polity are semantically adjacent,
+  and a case-only family discriminator is unreliable across the fleet
+  (Git Bash ships completion-ignore-case; macOS and Windows filesystems resolve wrong-case paths).
+  Case-pair families are reserved for semantically unrelated pairs —
+  the `rbw-i`/`rbw-I` precedent; `rbw-m` vs `rbw-M` (Marshal) rides the same allowance.
+- **`rbw-a` retires whole** with the cult verbs.
+  The `rbw-ac` access probes survive in place
+  (accessor-seam diagnostics, not polity administration), reworded to citizen identity in movement 1;
+  their long-term family belongs to the accessor seam.
+
+Retirement map:
+
+| Today | Fate |
+|---|---|
+| `rbw-arI` / `rbw-adI` (invest) | `rbw-p` enfranchise + enfeoff |
+| `rbw-arD` / `rbw-adD` (divest) | `rbw-p` escheat / expel |
+| `rbw-arr` / `rbw-adr` (roster) | `rbw-p` terrier read |
+| `rbw-aM` (mantle) | retires whole; founding seat rides `rbw-m` levy |
+| `rbw-gPI` / `rbw-gPE` / `rbw-gPR` (payor OAuth ceremonies) | `rbw-m` (move; verbs unchanged) |
+| `rbw-dL` / `rbw-dU` / `rbw-dl` (depot levy/unmake/list) | `rbw-m` (move; levy gains terrier + seat gestures) |
+| — | `rbw-p` recut, audit (new surface) |
+
+Sub-letter caution for the `rbw-p` mint: the manorial verbs pile on 'e'
+(enfranchise, enfeoff, escheat, expel) —
+second letters must diverge early, minted at the zipper with its legend.
+
 ## The audit — MVP is a mirror, not a surgeon
 
 MVP audit: read terriers, read IAM, print the diff.
@@ -151,11 +189,15 @@ remains the cinched future shape, post-MVP.
    Transcription, not design; zero behavior change.
 3. **Civic verbs + terriers.**
    The behavior-changing movement:
-   enfranchise/expel/enfeoff/escheat/recut, terriers in the Terrier bucket, identity-only SA names,
+   enfranchise/expel/enfeoff/escheat/recut under the `rbw-p` family, terriers in the Terrier bucket, identity-only SA names,
    `RBRS_CITIZEN` station selector,
    accessor identity override for multi-identity stations
    (the dev/test rig holds several personas; the assay axis already proves the need).
-4. **Handbook rework to the civic ceremony: home open** —
+4. **Manor colophon regroup.**
+   The payor surface gathers into `rbw-m` per the retirement map;
+   mechanical (zipper + tabtarget renames + reference sweep);
+   sequenced ahead of the handbook movement so the credential tracks unfreeze against final names.
+5. **Handbook rework to the civic ceremony: home open** —
    the stalled handbook heat (₣A6) vs a final movement here; decide once the verbs exist.
    Credential handbook tracks stay frozen meanwhile.
 
@@ -199,6 +241,8 @@ cross-depot union exposure is federation-tier-shaped (a hijacked live session), 
   civic verbs operate on (actor, capability-set, citizen) within a depot;
   terriers function as described;
   a rights query is a read.
+- The launcher surface reflects the elected families:
+  `rbw-a` gone, `rbw-p` live, the payor verbs under `rbw-m`.
 - The cult-verb surfaces migrated:
   workstation bash, admin verbs, cloud-side naming, the .adoc specs voicing the old verbs, the theurge cases.
   Handbook migration per the open home decision.
@@ -229,6 +273,10 @@ cross-depot union exposure is federation-tier-shaped (a hijacked live session), 
   managed-folder grain;
   working verbs never touch terriers;
   *muniment* held in reserve, unminted.
+- Colophon families: `rbw-p` polity (tier-blind — federation never moves colophons);
+  `rbw-m` manor regroup executes this heat;
+  `rbw-P` rejected on case-adjacency;
+  case-pair families only for semantically unrelated meanings.
 - Capability-set definitions global (code); memberships local (data);
   enfeoff/escheat only on named sets, never raw bindings.
 - Intent-first orderings as tabled; key-last enfranchise.
@@ -260,14 +308,13 @@ cross-depot union exposure is federation-tier-shaped (a hijacked live session), 
 - Terrier file format (reader population, grain, and bucket naming are settled above).
 - Whether enfranchise+enfeoff get a convenience wrapper for the one-hat citizen.
 - Whether recut ships in MVP or immediately after.
+- `rbw-gq` (quota capacity review) disposition: guide vs manor — decide at the regroup.
 - RBS0 incorporation timing for the civic quoins (citizen, terrier, capability-set, the human-present premise);
   at incorporation, decide whether the citizen's terrier entry gets a noun
   (the prebend's manorial dual — candidate *feoffment*)
   and the read-Terrier verb word (candidate *consult*).
-- Breadcrumbs owed:
-  the bedrock Quire memo's verb lines predate the re-mint
-  (§12 "enfranchised, granted, revoked, expelled" and "Establishment (invest/divest/roster/endow)") — owe it the civic-verb breadcrumb;
-  the canon's diagram repoint item stands.
+- Breadcrumbs owed: the canon's diagram repoint item stands
+  (the bedrock memo's verb-line breadcrumb is discharged).
 - `RBRA_TOKEN_LIFETIME_SEC` eviction to RBRD lifetime policy (canon D4/D5) — small, slot it where convenient.
 
 ## Sources
@@ -287,5 +334,6 @@ civic verb re-mint (enfeoff/escheat/recut),
 terrier singular reframe + Terrier bucket + managed-folder grain,
 read-population settlement (governors and above, explicit exclusions),
 muniment reserve, endow/enfeoff conscious adjacency, feoffment/consult queued for RBS0 incorporation,
-bedrock-memo breadcrumb queued.
+colophon family election (`rbw-p` polity, `rbw-m` manor regroup in-heat, `rbw-P` rejected),
+bedrock-memo breadcrumb discharged.
 Operator commitment: this paddock and its paces are slated by Fable-class agents; density is calibrated accordingly.
