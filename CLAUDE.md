@@ -151,6 +151,7 @@ When minting, enumerate ALL namespaces the system touches:
 | Environment vars | `{PREFIX}_NAME` | `VVG_SIZE_LIMIT` |
 | Target repo paths | `Tools/{kit}/...` | `Tools/vvk/bin/vvx` |
 | BURE tweak names | `buo{proj}_{name}` | `buorb_graft_image` |
+| JSON wire keys | `{sprue}_{term}` (one sprue per RB-authored wire format; foreign schemas keep foreign keys) | `rblv_digest` |
 
 This is not exhaustive. The principle: **any persistent name anywhere is in the mint universe.**
 

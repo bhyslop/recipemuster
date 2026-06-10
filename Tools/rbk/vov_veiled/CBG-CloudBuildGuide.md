@@ -145,6 +145,11 @@ ENVELOPE="${ENVELOPE}}"
 If a value could ever carry a quote or newline, it is not controlled — do not
 hand-roll it.
 
+Key naming rides ACG's wire-format clause: JSON this project authors on both
+sides carries the format's minted key-sprue (e.g. `rblv_*` for the Lode vouch
+envelope); JSON conforming to a foreign schema keeps the foreign keys. Rule and
+conversion move: ACG "wire formats are named homes" / ACGm_108.
+
 ### Separate pure logic from network ops
 
 Resolve inputs, build paths, and author envelopes in a block with no network

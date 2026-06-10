@@ -131,6 +131,28 @@ implies constraint where none exists. A code comment restating design-time
 knowledge is the same failure in the other medium (temporal misallocation,
 above); flowery spec prose is its mirror.
 
+## The fourth clause — wire formats are named homes
+
+A JSON document this project authors on **both sides** — an envelope, a result
+slot, a substitutions blob — is itself a home: a wire format with senders and
+receivers that must stay findable from each other. Its keys are therefore
+**minted names** (CLAUDE.md mint: any persistent name anywhere is in scope),
+carrying one key-sprue per format: `rblv_digest`, never bare `digest`. The sprue
+is what makes the format greppable — `grep rblv_` returns the author, every
+consumer, and the schema definition, with no central registry to drift (the
+`buo` tweak-sprue precedent; the `_RBGL_` substitution registers are the senior
+worked example). One sprue per *format*, not per file or per domain: two formats
+sharing a sprue blur the census that is the sprue's whole purpose.
+
+The boundary is the Palisade: JSON conforming to a **foreign** schema — a Cloud
+Build envelope, an OCI manifest, a vendor API response — keeps the foreign keys.
+Sprued keys inside a foreign document are the tell that someone is decorating a
+schema they don't own.
+
+The clause is prospective: it binds every wire format as it is authored or
+touched; no retroactive sweep is mandated. The conversion move is catalogued as
+ACGm_108.
+
 ## The move discipline — one litmus, three rules
 
 Every cleanup move obeys one litmus:
@@ -297,6 +319,31 @@ detect-only** (read and report; no repair until a verifier exists). Numbered fro
 - **Done:** durable documents read in the present tense; history questions answer
   through git.
 
+### 🔧 ACGm_108: bare wire-key → minted sprue
+
+- **Detect:** an RB-authored JSON wire format (both sender and receiver ours)
+  whose keys are bare terms (`name`, `digest`, `stamp`) rather than sprue-carried
+  minted names.
+- **Authority:** the fourth clause (wire formats are named homes). The sprue
+  itself is governed by the mint discipline (CLAUDE.md): one sprue per format,
+  terminal-exclusive, used for nothing else.
+- **Licensing:** mutate-now when the format's author and every consumer convert
+  in one move and a live verifier covers the path — a rename either resolves
+  everywhere or the suite fails loud. Detect-only when the consumers cannot all
+  convert together; for an RB-authored format that inability is itself a finding
+  worth recording.
+- **Verifier:** the consuming suite tier for the format (e.g. the capture
+  fixtures for the Lode vouch envelope), plus the census check: `grep <sprue>_`
+  returns exactly the format's sites and nothing else.
+- **Done:** every key in the format carries the sprue; the format's schema
+  identifier (if it has one) is bumped; the sprue grep is the format's complete
+  sender/receiver census. First worked application: the Lode vouch envelope
+  (`rblv_`, schema `rbld-vouch-2`).
+- **Triage:** foreign-schema documents are excluded by the Palisade boundary
+  before any sweep. Pre-MVP formats convert with no dual-dialect reading — there
+  is no compatibility surface; standing artifacts are re-captured or discarded,
+  never grandfathered.
+
 ## The AXLA/MCM interface
 
 ### The lookahead scanning rule
@@ -338,6 +385,7 @@ dependency; raised and deferred, not dropped.
 |------|-----------|
 | ACG | Allocation Coding Guide (this document) |
 | The spine | "Reference the home" — values → constants, concepts → quoin-refs, statements → definition sites |
+| Wire format | An RB-authored JSON document with senders and receivers; a named home whose keys are minted (sprued) names — the fourth clause |
 | Word cancer | Variations of one normative idea scattered as paraphrases, each drifting independently; the metastatic violation of statements → definition sites |
 | Normative register | Spec-side rule: every sentence constrains or is marked rationale/gestalt; unmarked ornament is contamination |
 | Tidemark | Version commentary stranded in a durable document; history-time knowledge whose home is the commit. Quoin home: MCM `mcm_tidemark` |
