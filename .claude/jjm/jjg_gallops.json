@@ -10357,9 +10357,10 @@
       "jjghn_status": "jjghe_stabled",
       "jjghn_order": [
         "₢BeAAA",
-        "₢BeAAB"
+        "₢BeAAB",
+        "₢BeAAC"
       ],
-      "jjghn_next_pace_seed": "AAC",
+      "jjghn_next_pace_seed": "AAD",
       "jjghn_paces": {
         "₢BeAAA": {
           "jjgpn_tacks": [
@@ -10380,6 +10381,17 @@
               "jjgtn_text": "Project the band constants into Rust as numeric consts.\n\nExtend the rbcc emission (`Tools/rbk/rbcc_Constants.sh`, riding\n`rbz_emit_consts` in `Tools/rbk/rbz_zipper.sh` → `rbtdgc_consts.rs`)\nwith a numeric emit shape — current emission is `&str` only,\ntheurge compares exit codes as integers.\nbubc is sourced at emission time,\nso projecting BUK-homed band values needs no cross-module tinder trick.\nWrite-on-change and the qualify freshness gate apply unchanged.\n\n## Done when\nGenerated `rbtdgc_consts.rs` carries the band as numeric consts;\n`tt/rbw-tb.Build.sh` regenerates it and `tt/rbw-tq.QualifyFast.sh` passes freshness.",
               "jjgtn_silks": "numeric-const-codegen",
               "jjgtn_basis": "be66fdc"
+            }
+          ]
+        },
+        "₢BeAAC": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260610-1154",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "Close the wrong-reason hole for the regime-validation fixture's negative cases.\n\nTeach the regime probate gate to reject with its band code via the origin helper.\nNote regime probate co-occurs with nearly every CLI verb's pipeline,\nso per the allocation rule it keeps a code of its own.\nExtend the theurge negative helpers (`Tools/rbk/rbtd/src/rbtdrf_fast.rs`)\nto assert a specific expected code rather than bare nonzero,\nand flip the regime-validation fixture's negative cases onto it.\n\n## Done when\n`tt/rbw-ts.TestSuite.fast.sh` green;\na deliberate harness-style breakage (e.g. unbound variable in the gate path)\nnow fails the negative case instead of passing it.",
+              "jjgtn_silks": "migrate-regime-validation-negatives",
+              "jjgtn_basis": "322caed"
             }
           ]
         }
