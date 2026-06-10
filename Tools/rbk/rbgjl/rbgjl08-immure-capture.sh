@@ -9,14 +9,15 @@
 # Substitutions: _RBGL_GAR_HOST, _RBGL_GAR_PATH, _RBGL_LODES_ROOT, _RBGL_LODE_STAMP,
 #                _RBGL_PODVM_FAMILY
 #
-# Step 07 (Debian builder: curl + jq) anon-read the quay family index, selected the
+# Step 07 (python3 on the gcloud builder) anon-read the quay family index, selected the
 # curated leaves by descriptor platform+disktype, and staged the selection list at
 # /workspace/immure_selection.txt (one row: member_tag|leaf_digest|blob_digest|
 # blob_size). This step gcrane-cp's each leaf BY DIGEST from the family repo into the
 # ONE GAR package rbi_ld/<stamp> under its member tag, then confirms the copy is
 # digest-faithful (cheap manifest readback; the blob Content-Length residency guard
-# is rbgjl09). The split exists because index selection needs jq and the gcrane:debug
-# busybox shell carries neither jq nor curl.
+# is rbgjl09). The split exists because parsing the structured upstream index belongs
+# in python (CBG CBp_ rules), which the gcrane:debug busybox shell cannot host —
+# registry copy is gcrane's job, index parsing is python's.
 #
 # gcrane cp <family>@<leaf-digest> is get-or-error (the loud failure the recorded
 # trust grade wants) and preserves the manifest digest byte-for-byte (memo-20260608

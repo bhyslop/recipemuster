@@ -103,9 +103,10 @@ zrbld_immure_submit() {
   local -r z_gar_path="${RBGD_GAR_PROJECT_ID}/${RBDC_GAR_REPOSITORY}"
 
   # Recipe rows: script_path|builder_image|id|entrypoint, pre-resolved for the spine.
-  # Select + residency on the Debian Google builder (curl + apt jq); cp + vouch on the
-  # floating gcrane builder (busybox). The gcrane builder reads public quay anonymously
-  # and pushes GAR ambiently (google.Keychain -> Mason SA).
+  # Select on the gcloud builder (python3 — index parse); residency on the Debian docker
+  # builder (curl HEAD); cp + vouch on the floating gcrane builder (busybox). The gcrane
+  # builder reads public quay anonymously and pushes GAR ambiently (google.Keychain ->
+  # Mason SA).
   local -r z_recipe=(
     "${ZRBLD_RBGJL_STEPS_DIR}/rbgjl07-immure-select.py|${ZRBLD_GCLOUD_BUILDER}|immure-select|python3"
     "${ZRBLD_RBGJL_STEPS_DIR}/rbgjl08-immure-capture.sh|${ZRBLD_GCRANE_BUILDER}|immure-capture|busybox"
