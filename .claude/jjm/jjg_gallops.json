@@ -10018,8 +10018,7 @@
         "₢BbAAC",
         "₢BbAAD",
         "₢BbAAG",
-        "₢BbAAL",
-        "₢BbAAM"
+        "₢BbAAL"
       ],
       "jjghn_next_pace_seed": "AAN",
       "jjghn_paces": {
@@ -10217,17 +10216,6 @@
               "jjgtn_basis": "af08e89"
             }
           ]
-        },
-        "₢BbAAM": {
-          "jjgpn_tacks": [
-            {
-              "jjgtn_ts": "260610-1113",
-              "jjgtn_state": "jjgte_rough",
-              "jjgtn_text": "## Character\nDesign conversation requiring judgment — a quoin-shape mint decision, not a transform; requires the Fable model.\n\n## Goal\nDecide whether AXLA's axig \"level\" taxonomy — the Service-level / Instance-level / Operational classifier opening nearly every axig_ definition in the \"Axial Infrastructure Google\" section — earns formal quoins, and in what shape: three sibling quoins, or one enumeration-style quoin with three values.\nSecondary and weaker: whether \"scoped method\" / \"elevated method\" (in \"Axial Voicing Entity Terms\") deserve concept quoins distinct from the existing axhems_/axheme_ marker quoins.\n\n## Cinched\n- This is a mint decision, not a curation pass: the emphasis survey that motivated it found zero emphasis-vs-quoin drift across MCM and AXLA, so nothing is mechanically convertible.\n- If the verdict is to mint, linking the axig lead-lines is additive elevation under MCM line-break discipline — a follow-on pace, not folded in here.\n\n## Done when\nA verdict is recorded for both questions; if the verdict is to mint, the quoin allocation is settled per the CLAUDE.md minting workflow (namespaces, reserved suffixes, terminal exclusivity, asterism fit), leaving the AXLA source edits to a follow-on pace.",
-              "jjgtn_silks": "axla-axig-level-taxonomy-mint",
-              "jjgtn_basis": "465f885"
-            }
-          ]
         }
       }
     },
@@ -10325,9 +10313,30 @@
       "jjghn_silks": "cmk-mcm-axla-health",
       "jjghn_creation_time": "260610",
       "jjghn_status": "jjghe_racing",
-      "jjghn_order": [],
-      "jjghn_next_pace_seed": "AAA",
-      "jjghn_paces": {}
+      "jjghn_order": [
+        "₢BdAAA"
+      ],
+      "jjghn_next_pace_seed": "AAB",
+      "jjghn_paces": {
+        "₢BdAAA": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260610-1116",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "Drafted from ₢BbAAM in ₣Bb.\n\n## Character\nDesign conversation requiring judgment — a quoin-shape mint decision, not a transform; requires the Fable model.\n\n## Goal\nDecide whether AXLA's axig \"level\" taxonomy — the Service-level / Instance-level / Operational classifier opening nearly every axig_ definition in the \"Axial Infrastructure Google\" section — earns formal quoins, and in what shape: three sibling quoins, or one enumeration-style quoin with three values.\nSecondary and weaker: whether \"scoped method\" / \"elevated method\" (in \"Axial Voicing Entity Terms\") deserve concept quoins distinct from the existing axhems_/axheme_ marker quoins.\n\n## Cinched\n- This is a mint decision, not a curation pass: the emphasis survey that motivated it found zero emphasis-vs-quoin drift across MCM and AXLA, so nothing is mechanically convertible.\n- If the verdict is to mint, linking the axig lead-lines is additive elevation under MCM line-break discipline — a follow-on pace, not folded in here.\n\n## Done when\nA verdict is recorded for both questions; if the verdict is to mint, the quoin allocation is settled per the CLAUDE.md minting workflow (namespaces, reserved suffixes, terminal exclusivity, asterism fit), leaving the AXLA source edits to a follow-on pace.",
+              "jjgtn_silks": "axla-axig-level-taxonomy-mint",
+              "jjgtn_basis": "23d434e"
+            },
+            {
+              "jjgtn_ts": "260610-1113",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nDesign conversation requiring judgment — a quoin-shape mint decision, not a transform; requires the Fable model.\n\n## Goal\nDecide whether AXLA's axig \"level\" taxonomy — the Service-level / Instance-level / Operational classifier opening nearly every axig_ definition in the \"Axial Infrastructure Google\" section — earns formal quoins, and in what shape: three sibling quoins, or one enumeration-style quoin with three values.\nSecondary and weaker: whether \"scoped method\" / \"elevated method\" (in \"Axial Voicing Entity Terms\") deserve concept quoins distinct from the existing axhems_/axheme_ marker quoins.\n\n## Cinched\n- This is a mint decision, not a curation pass: the emphasis survey that motivated it found zero emphasis-vs-quoin drift across MCM and AXLA, so nothing is mechanically convertible.\n- If the verdict is to mint, linking the axig lead-lines is additive elevation under MCM line-break discipline — a follow-on pace, not folded in here.\n\n## Done when\nA verdict is recorded for both questions; if the verdict is to mint, the quoin allocation is settled per the CLAUDE.md minting workflow (namespaces, reserved suffixes, terminal exclusivity, asterism fit), leaving the AXLA source edits to a follow-on pace.",
+              "jjgtn_silks": "axla-axig-level-taxonomy-mint",
+              "jjgtn_basis": "465f885"
+            }
+          ]
+        }
+      }
     }
   }
 }
