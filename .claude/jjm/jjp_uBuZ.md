@@ -66,7 +66,8 @@ no current revisit trigger.
 ## The Terrier — a terrier per polity (singular reframe)
 
 Each polity keeps **its own terrier** — one ledger file per depot, payor-created at levy —
-hosted together in the **Terrier bucket**, a Manor-homed GCS bucket.
+hosted together in the **Terrier bucket**, a Manor-homed GCS bucket
+(concept name elected; the physical GCS name and `rbgb_` allocation are mount-time).
 The singular is the metaphor working:
 historically every manor kept its own terrier and no realm-wide terrier existed,
 so the word itself encodes the no-global-bookkeeping cinch.
@@ -125,6 +126,32 @@ Keyfile-tier permanence is itself not promised; the verb set survives either res
 Capability-set definitions are code, global across depots; memberships are data, local per depot.
 Enfeoff/escheat operate only on named sets, never raw bindings (contamination guard unchanged).
 
+## Credential delivery — assay retires (settled)
+
+Canon D4 already condemns today's delivery flow:
+RBRA is full-auto (sole authors are the identity verbs; operator never edits),
+so the assay staging directory plus the manual operator `mv` into a role directory is human authorship of RBRA placement —
+an XOR-rule violation the civic verbs close.
+
+- **Delivery is verb-internal.** Enfranchise and recut write the final identity-keyed RBRA path directly:
+  mint → write → verify (the access probe is the prove-before-trust step, folded in) → done.
+  No staging slot, no operator move.
+- **The yoke precedent applies, in its cleaner form.**
+  Tool-authored regime mutation is proven by the reliquary yoke (temp file, atomic swap, BCG discipline);
+  RBRA is wholly infra-owned, so delivery is a whole-file write — no surgical field rewrite needed.
+- **Mid-verb intermediates ride `BURD_TEMP_DIR`** (per-invocation, cleaned).
+  Today's decoded-key JSON parked in the semi-durable secrets/assay directory is a lingering-plaintext leak this closes.
+  `BURD_OUTPUT_DIR` is rejected for credentials:
+  its current/previous recycling clobbers on a two-run horizon, and secrets do not ride the run-output channel.
+- **Test personas are ordinary citizens.**
+  The dev/test rig's personas are plain citizen identities under the accessor identity override (Ordering, movement 3);
+  no special slot, no special word.
+- **The word assay vacates rbk**, resolving its standing double-binding with APCK's detection-pipeline assay
+  (semantic uniqueness restored by attrition).
+  Theurge's *cupel* is a separate clean mint and is unaffected.
+- Out-of-heat note (roadmap-grade): the yoke's surgical write puts an infra-authored field inside the human-edited `rbrv.env` —
+  in tension with canon D4's per-file XOR read literally; not this heat's to fix.
+
 ## Launcher surface — colophon families (elected)
 
 Two family mints, one rejection:
@@ -142,10 +169,11 @@ Two family mints, one rejection:
   (Git Bash ships completion-ignore-case; macOS and Windows filesystems resolve wrong-case paths).
   Case-pair families are reserved for semantically unrelated pairs —
   the `rbw-i`/`rbw-I` precedent; `rbw-m` vs `rbw-M` (Marshal) rides the same allowance.
-- **`rbw-a` retires whole** with the cult verbs.
+- **`rbw-a`'s admin colophons retire** with the cult verbs.
   The `rbw-ac` access probes survive in place
-  (accessor-seam diagnostics, not polity administration), reworded to citizen identity in movement 1;
-  their long-term family belongs to the accessor seam.
+  (accessor-seam diagnostics, not polity administration), rekeyed to identity in movement 1;
+  the payor probe keeps payor wording — probes are per-credential-kind, and the payor is no citizen.
+  The probes' long-term family belongs to the accessor seam.
 
 Retirement map:
 
@@ -177,8 +205,13 @@ remains the cinched future shape, post-MVP.
 ## Ordering — substrate first (cinched)
 
 1. **Accessor seam.**
-   One accessor (likely homed in rba) resolves every token;
-   no file outside it names an `RBDC_*_RBRA_FILE` or sources an RBRA file — grep is the gate.
+   One accessor (likely homed in rba) resolves every credential —
+   all five `RBDC_*` credential constants are in seam scope
+   (governor/director/retriever/assay RBRA **and** the payor's RBRO; the accessor branches by credential-kind: signed-JWT vs payor OAuth).
+   The surface is tokens **plus identity facts** (call sites read fields like the client email today), not tokens alone.
+   The gate is read-side at this movement:
+   no file outside the accessor names an `RBDC_*` credential file or sources one — grep is the gate.
+   (Write-side delivery arrives verb-internal at movement 3 — see Credential delivery.)
    Identity-keyed interface, role-shaped contents initially:
    call sites keep passing today's role word, reread as a citizen name.
    Honors canon D3 at the interface only:
@@ -191,8 +224,11 @@ remains the cinched future shape, post-MVP.
    The behavior-changing movement:
    enfranchise/expel/enfeoff/escheat/recut under the `rbw-p` family, terriers in the Terrier bucket, identity-only SA names,
    `RBRS_CITIZEN` station selector,
+   verb-internal credential delivery (assay staging retires — see Credential delivery),
    accessor identity override for multi-identity stations
-   (the dev/test rig holds several personas; the assay axis already proves the need).
+   (the dev/test rig holds several personas; today's assay test-credential slot already proves the need.
+   Canon D4's "RBRA is a true per-home singleton" describes the shipped operator posture;
+   the rig is the named exception, served by the override — this paddock supersedes the canon's singleton phrasing for multi-identity stations).
 4. **Manor colophon regroup.**
    The payor surface gathers into `rbw-m` per the retirement map;
    mechanical (zipper + tabtarget renames + reference sweep);
@@ -241,8 +277,9 @@ cross-depot union exposure is federation-tier-shaped (a hijacked live session), 
   civic verbs operate on (actor, capability-set, citizen) within a depot;
   terriers function as described;
   a rights query is a read.
+- Credential delivery is verb-internal; the assay staging directory no longer exists.
 - The launcher surface reflects the elected families:
-  `rbw-a` gone, `rbw-p` live, the payor verbs under `rbw-m`.
+  `rbw-a` admin colophons gone, `rbw-p` live, the payor verbs under `rbw-m`.
 - The cult-verb surfaces migrated:
   workstation bash, admin verbs, cloud-side naming, the .adoc specs voicing the old verbs, the theurge cases.
   Handbook migration per the open home decision.
@@ -277,6 +314,11 @@ cross-depot union exposure is federation-tier-shaped (a hijacked live session), 
   `rbw-m` manor regroup executes this heat;
   `rbw-P` rejected on case-adjacency;
   case-pair families only for semantically unrelated meanings.
+- Accessor seam scope: all five `RBDC_*` credential constants including the payor's RBRO;
+  the surface is tokens plus identity facts;
+  read-side gate at movement 1, write-side delivery verb-internal at movement 3.
+- Assay retires whole per canon D4: verb-internal delivery, probe-as-verify, intermediates in `BURD_TEMP_DIR`,
+  test personas are ordinary citizens, the word vacates rbk to APCK.
 - Capability-set definitions global (code); memberships local (data);
   enfeoff/escheat only on named sets, never raw bindings.
 - Intent-first orderings as tabled; key-last enfranchise.
@@ -301,11 +343,12 @@ cross-depot union exposure is federation-tier-shaped (a hijacked live session), 
 - The memo-20260527 stepping-stone question (role-keyed vs identity-keyed accessor) — resolved:
   identity-keyed interface, role-shaped contents.
 - The 260609 verb words grant/revoke/rekey — re-minted (see Verbs section); the verb *semantics* carried over unchanged.
+- The assay staging mechanism — retired by canon D4 application (see Credential delivery); its three jobs survive in successors.
 
 ## Open — resolve within the heat
 
 - Handbook rework home: ₣A6 vs a final movement here.
-- Terrier file format (reader population, grain, and bucket naming are settled above).
+- Terrier file format, physical bucket name, and `rbgb_` allocation (concept naming and ACL shape settled above).
 - Whether enfranchise+enfeoff get a convenience wrapper for the one-hat citizen.
 - Whether recut ships in MVP or immediately after.
 - `rbw-gq` (quota capacity review) disposition: guide vs manor — decide at the regroup.
@@ -319,21 +362,22 @@ cross-depot union exposure is federation-tier-shaped (a hijacked live session), 
 
 ## Sources
 
-rbk-08-credential-repairs;
-memo-20260604-credential-churn-leak-and-propagation-races (the lifecycle split — the enabler);
+The prior credential-repairs heat's revoke layer and Class-C propagation tolerance are assumed throughout
+(its record: memo-20260604-credential-churn-leak-and-propagation-races — the lifecycle split, the enabler);
 memo-20260527-operator-credential-models (folded into the federation canon);
 memo-20260605-governor-mantle-tombstone-leak (standalone fallback only);
 memo-20260605-citizen-capability-model (mechanism, partially superseded as noted);
 memo-20260605-citizen-model-ultracode-process;
 memo-20260609-federation-canon (D1–D6; the tier boundary and the premise);
+memo-20260609-bedrock-quire-shaping (the consume-side Quire/Cloister civic homogenization: choristers, prebend, the endow/enfeoff dual);
 MCM "Word Selection" + `mcm_asterism`/`mcm_trodden_word` (the verb re-mint doctrine);
 RBSHR "Operator federation".
 Prior revisions: 260605 design conversation + two review passes; 260606 Manor/verb dispositions; 260609 morning Terrier naming; 260609 evening civic structure, per-depot Terrier, substrate ordering.
-This 260610 revision (groom session following the MCM Word Selection landing):
-civic verb re-mint (enfeoff/escheat/recut),
+The 260610 groom revision: civic verb re-mint (enfeoff/escheat/recut),
 terrier singular reframe + Terrier bucket + managed-folder grain,
-read-population settlement (governors and above, explicit exclusions),
-muniment reserve, endow/enfeoff conscious adjacency, feoffment/consult queued for RBS0 incorporation,
-colophon family election (`rbw-p` polity, `rbw-m` manor regroup in-heat, `rbw-P` rejected),
-bedrock-memo breadcrumb discharged.
+read-population settlement, muniment reserve, colophon family election (`rbw-p` polity, `rbw-m` manor regroup, `rbw-P` rejected).
+This 260610 second pass (standalone-probe findings + assay research):
+movement-1 seam scope tightened (five constants, RBRO included, facts plus tokens, read-side gate),
+assay retirement per canon D4 (verb-internal delivery, temp-dir intermediates, personas as citizens, word vacated to APCK),
+D4-singleton supersession flagged, Quire memo added to Sources, stale silks pointer replaced.
 Operator commitment: this paddock and its paces are slated by Fable-class agents; density is calibrated accordingly.
