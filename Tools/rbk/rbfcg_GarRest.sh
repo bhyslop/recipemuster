@@ -28,7 +28,7 @@ set -euo pipefail
 # Internal: enumerate every <element>/<basename> pair under <subtree-root>/ via GAR REST.
 # Writes "<element> <basename>" pairs (one per line, sorted) to ZRBFC_PACKAGE_LIST_FILE.
 # An empty file is a valid result (no elements).
-# Args: token, subtree_root (e.g., RBGL_HALLMARKS_ROOT, RBGL_RELIQUARIES_ROOT)
+# Args: token, subtree_root (e.g., RBGL_HALLMARKS_ROOT)
 # Pagination: pageSize=1000 — deferred until evidence of >1000 packages.
 zrbfc_list_packages_capture() {
   zrbfc_sentinel
@@ -93,7 +93,7 @@ zrbfc_list_packages_capture() {
 # For 1-deep categories (e.g., enshrinements) where the package itself is
 # named <anchor> with no further basename. Writes "<anchor>" lines (one per
 # line, sorted) to ZRBFC_PACKAGE_LIST_FILE. An empty file is a valid result.
-# Args: token, subtree_root (e.g., RBGL_RELIQUARIES_ROOT)
+# Args: token, subtree_root (e.g., RBGL_LODES_ROOT)
 # Pagination: pageSize=1000 — deferred until evidence of >1000 packages.
 zrbfc_list_anchors_capture() {
   zrbfc_sentinel

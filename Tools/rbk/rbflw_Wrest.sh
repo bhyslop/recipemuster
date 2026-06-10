@@ -31,7 +31,7 @@ rbfl_wrest() {
   local -r z_locator="${BUZ_FOLIO:-}"
 
   buc_doc_brief "Wrest an image from the registry to local container runtime by raw ref (type-blind)"
-  buc_doc_param "ref" "Image ref: package:tag or package@sha256:<hex>. Type-blind over any rbi_* namespace (e.g. rbi_hm/H/image:H, rbi_rq/r260327172456/syft:r260327172456, rbi_ld/b260602120000:rbi_bole)"
+  buc_doc_param "ref" "Image ref: package:tag or package@sha256:<hex>. Type-blind over any rbi_* namespace (e.g. rbi_hm/H/image:H, rbi_ld/b260602120000:rbi_bole)"
   buc_doc_shown || return 0
 
   test -n "${z_locator}" || buc_die "Image ref required (package:tag or package@sha256:<hex>)"

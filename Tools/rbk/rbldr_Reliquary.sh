@@ -25,8 +25,7 @@
 # step-composition machinery lives here.
 #
 # Conclave absorbed the former inscribe pull machinery (rbfli_Inscribe + rbgji01,
-# now retired), retargeting from the rbi_rq/<date>/<tool> sibling-package layout to
-# one rbi_ld package holding N member tags (:rbi_<tool>) plus the :rbi_vouch envelope. Both
+# now retired): one rbi_ld package holding N member tags (:rbi_<tool>) plus the :rbi_vouch envelope. Both
 # steps ride the floating gcrane builder (ZRBLD_GCRANE_BUILDER): the tools captured
 # here ARE the reliquary, so capture cannot bootstrap from one — conclave is the
 # generation phase the pinning rule permits to run unpinned (RBS0 rbsk_pinning_boundary).
@@ -151,8 +150,6 @@ rbld_conclave() {
 
   # Mint the Lode stamp on the host: <kind-letter><YYMMDDHHMMSS>. The host owns
   # the stamp so the touchmark is known before the build for the capture-file.
-  # The reliquary kind-letter 'r' matches the legacy inscribe datestamp prefix,
-  # but the namespaces differ (rbi_ld vs rbi_rq), so no collision.
   local -r z_stamp="${RBGC_LODE_KIND_RELIQUARY}${BURD_NOW_STAMP:2:6}${BURD_NOW_STAMP:9:6}"
 
   buc_info "Lode: ${RBGL_LODES_ROOT}/${z_stamp}"

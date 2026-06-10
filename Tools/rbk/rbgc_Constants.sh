@@ -200,10 +200,9 @@ zrbgc_kindle() {
 
   # GAR Categorical Namespaces (₢A_AAK layout)
   # Top-level namespaces under which arks are stored. Consumed by rbgl_GarLayout.sh.
-  # The hm/rq siblings hold Director-authored image families; rbi_df holds
+  # rbi_hm holds Director-authored image families; rbi_df holds
   # Payor-authored depot-scoped OCI artifacts produced during depot lifetime.
   readonly RBGC_GAR_CATEGORY_HALLMARKS="rbi_hm"
-  readonly RBGC_GAR_CATEGORY_RELIQUARIES="rbi_rq"
   readonly RBGC_GAR_CATEGORY_DEPOT_FACTS="rbi_df"
   readonly RBGC_GAR_CATEGORY_LODES="rbi_ld"
 
