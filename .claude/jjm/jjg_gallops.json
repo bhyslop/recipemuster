@@ -8152,9 +8152,10 @@
         "₢BDAAI",
         "₢BDAAK",
         "₢BDAAS",
-        "₢BDAAT"
+        "₢BDAAT",
+        "₢BDAAV"
       ],
-      "jjghn_next_pace_seed": "AAV",
+      "jjghn_next_pace_seed": "AAW",
       "jjghn_paces": {
         "₢BDAAA": {
           "jjgpn_tacks": [
@@ -8677,6 +8678,17 @@
               "jjgtn_text": "## Character\nDesign decision, not implementation — a go/no-go plus a chosen approach, decided when ₣BD is worked. The type change is out of scope here; if go, this pace's product is the implementation docket. Sibling to the docket-text-as-line-array reconsider already in this heat — decide the two together.\n\n## The question\nChange the tack from an append-only array of full-text snapshots to a single tack edited in place. Preserve the tack record and its fields (ts, state, text, silks, basis) as the pace's CURRENT docket; drop the in-JSON history. A redocket EDITS the current tack rather than prepending a new one. Evolution lives in git, not in-band.\n\n## Motivation — the spec's own principle\nJJS0 Git-as-Journal states plan evolution is visible through commit diffs \"without additional in-JSON bookkeeping.\" The append-history IS that bookkeeping. The intended in-band tack-evolution study was never built, and git already holds the full evolution (each redocket is a commit carrying basis + timestamp). Collapsing to a single edited tack realigns with the principle and shrinks the blob + merge surface — a direct lever on the worksite/sharding pains.\n\n## What this does NOT fix — set expectations\nDoes not fix the structural merge collisions (concurrent next_heat_seed / heat_order allocation); that stays on the merge-driver / worksite track. ALONE it only changes same-pace concurrent redockets from always-conflict (two array-head prepends) to conflict-only-on-overlap — and that overlap-merge benefit materializes only PAIRED with the sibling line-array pace (text as Vec<String>). Neither pace alone is the merge fix.\n\n## Weigh at mount\n- Live consumer: the line-granular docket-diff (jjrtl_diff_docket) reads the previous tack; edit-in-place removes it from JSON. Re-source from git or drop. Confirm read-sites first.\n- In-band additive-only shift: the JSON store becomes mutable (edit overwrites); git remains the sole journal. Verify no safety property leans on in-band append-only.\n- Migration: collapse existing per-pace tack arrays to current-only (history → git) via jjdr_load's migration hook + a schema_version bump.\n- Vocabulary: \"tack\" connotes a sequence of course-changes; a single edited record may want a name look (mount-time, not now).\n- Reconcile with ₣Ah's v4 data-model design, which already contemplated replacing the tack array with flat pace fields. This is a variant — preserve the tack struct, drop the history. Do not re-decide in isolation.\n\n## Done when\nA go/no-go is recorded with a chosen approach (preserve-tack-struct edit-in-place vs the flatten-to-flat-fields variant). If go, the product is the implementation docket; the type change does not land in this pace.",
               "jjgtn_silks": "reconsider-tack-edit-in-place-not-append",
               "jjgtn_basis": "725f83b"
+            }
+          ]
+        },
+        "₢BDAAV": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260610-1102",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nMostly mechanical substitution, plus two small mint decisions requiring operator judgment.\n\nIn the Racing Vocabulary glossary of JJS0,\nfive upper-vocabulary verbs appear as bare italic mentions (*muster*, *parade*, *furlough*, *retire*, *rail*)\neven though `jjsuv_` quoins with definition sites already exist;\nreplace each italic mention with its quoin ref,\nmatching how the same bullet list already renders the heat/pace/firemark/coronet/silks/gallops entries.\nDiscovery recipe: `grep -n '\\*[a-z-]*\\*' Tools/jjk/vov_veiled/JJS0_JobJockeySpec.adoc` —\nthe glossary-section hits are the targets.\n\nTwo glossary words have no concept quoin to point at:\n*paddock* (the artifact concept — existing quoins cover only the path field and the jjx command)\nand *docket* (the presentation alias — only the revise-docket operation quoins exist).\nResolve with the operator whether to mint concept quoins for these two;\nif minted, follow MCM linked-term structure and the Quoin Sub-Letter Discipline.\n\nEdits follow MCM line-break discipline wherever a line is restructured.\n\n## Cinched\nDressage vocabulary (school, longe, breeze, corral, volte, caracole, gait, beat, quirt, reined) stays italic —\nV4 reserved vocabulary with no machinery behind it; out of scope.\nRun-in labels (e.g. *Invocation:*, *Design rationale:*) and literal-block output templates\n(e.g. the JJSCRT trophy markdown) are correct as-is; do not touch.\n\n## Done when\nThe five jjsuv glossary mentions are quoin refs,\nthe paddock/docket mint question is resolved with the operator (minted or explicitly declined),\nand the document's attribute refs all resolve.",
+              "jjgtn_silks": "jjs0-glossary-quoin-emphasis",
+              "jjgtn_basis": "6aac0d1"
             }
           ]
         }
