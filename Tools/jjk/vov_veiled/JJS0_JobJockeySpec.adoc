@@ -837,13 +837,11 @@ is ever attempted.
 
 Job Jockey's terminology is drawn entirely from equestrianism.
 This is not decoration — it is a namespace discipline applied to human cognition and language model disambiguation.
+The general doctrine — vocabulary isolation, the grep gate, rare-but-real sensory words, the metaphor-family gestalt — lives in MCM's Word Selection section (`mcm_asterism`, `mcm_trodden_word`), with this vocabulary as its founding specimen;
+JJS0 states only what is Job Jockey's own.
 
-Planning systems face a persistent hazard: when the vocabulary used to _organize_ work overlaps with the vocabulary used to _do_ work, the boundary between plan and product dissolves.
-"Task" could be a planning unit or a runtime construct.
-"Phase" could be a workflow stage or a build step.
-"Diff" could be a review artifact or a git object.
-Every ambiguous term forces a context switch — the human pauses to resolve which layer a word belongs to, and the language model may silently resolve it wrong.
-
+Planning vocabulary is maximally exposed to the trodden-word hazard:
+the words that _organize_ work ("task," "phase," "diff") are the same words that _do_ work, so the boundary between plan and product dissolves term by term.
 In early incarnations, Job Jockey used generic planning terms that bled directly into source code.
 Planning concepts became load-bearing in two systems simultaneously: changing one risked breaking the other.
 The fix was not better naming within the same domain — it was choosing a source domain so alien to software engineering that collision becomes structurally impossible.
@@ -855,9 +853,7 @@ No CI step is called `corral`.
 When a human says "mount," there is no ambiguity about which system they are addressing.
 When a language model encounters "school," it does not reach for a compiler.
 
-The vocabulary also exploits a property of human memory: concrete, physical, sensory metaphors lodge more durably than abstract labels.
-A jockey wearing silks, a horse being schooled in a dressage ring, a volte circling back to the same point with refined intent — these images persist across sessions in ways that "human-claimed-pending-interactive-work" cannot.
-The cognitive cost of re-establishing context drops when the terms are vivid and the metaphor is coherent.
+The racing and dressage layers below are sibling asterisms sharing the equestrian register.
 
 === Racing Vocabulary
 
