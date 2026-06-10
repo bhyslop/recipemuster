@@ -9984,6 +9984,7 @@
         "₢BbAAH",
         "₢BbAAI",
         "₢BbAAJ",
+        "₢BbAAK",
         "₢BbAAA",
         "₢BbAAB",
         "₢BbAAE",
@@ -9992,7 +9993,7 @@
         "₢BbAAD",
         "₢BbAAG"
       ],
-      "jjghn_next_pace_seed": "AAK",
+      "jjghn_next_pace_seed": "AAL",
       "jjghn_paces": {
         "₢BbAAA": {
           "jjgpn_tacks": [
@@ -10143,6 +10144,17 @@
               "jjgtn_text": "## Character\nSecond ACG audit pilot — prose-judgment focus; runs against known-positive\nspecimens.\n\n## Goal\nAudit the access-probe pair — Tools/rbk/rbgv_AccessProbe.sh against\nRBSAJ + RBSAO — under ACG's detect-only moves, with emphasis on ACGm_105\n(paraphrase collapse) and ACGm_106 (ornament drain):\nthe groom survey found spec and source wording the bounded\npropagation-absorbing-retry idea twice,\nand rationale-as-normative prose in RBSAJ.\nTwin deliverable: findings plus ACG amendments.\n\n## Cinched\n- The known specimens serve as ACG rule-2 known answers: if the audit misses\n  them, the detect rule is wrong — fix the guide, not the report.\n- Triage rider: Manor/Payor/account-role vocabulary is ₣BZ's lane — report,\n  never touch.\n- Word-cancer findings cite the MCM antipattern home established by the\n  preceding antipattern-catalog pace.\n\n## Done when\nFindings report with move-type tags;\nagreed collapses/drains landed as individually reviewed moves,\none authoritative wording per idea with citations elsewhere;\nACG amendments landed;\nfast suite green if any source file changed.",
               "jjgtn_silks": "pilot-audit-access-probes",
               "jjgtn_basis": "9606dca"
+            }
+          ]
+        },
+        "₢BbAAK": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260610-0942",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nThird ACG audit pilot — the scale test on the richest surface; multi-module\npairing.\n\n## Goal\nAudit the conjure pair — Tools/rbk/rbfd_FoundryDirectorBuild.sh (plus its\nrbfca_/rbfcg_/rbfcp_ support where the spec reaches) against RBSAC — under the\nfull detect-only move set.\nThis pilot answers whether the per-pair shape scales:\nbiggest source surface, deep conceptual comments\n(anchor semantics, egress-mode branching, two-layer preflight).\nTwin deliverable: findings plus ACG amendments,\nclosing with a recommendation for the post-pilot groom —\nroster of pair paces vs further pilots.\n\n## Gate\nAfter ₣BH (lode-universal-capture) lands — the conjure surface is under active\n₣BH rewrite (ensconce cutover, anchor wiring); findings against it now go stale.\n\n## Cinched\n- Runs only after the first two pilots' ACG amendments have landed — this pilot\n  exercises the hardened guide.\n- Reliquary/Lode/Hallmark vocabulary belongs to ₣BH's lane even after it lands;\n  term curation stays out of scope — allocation findings only.\n\n## Done when\nFindings report with move-type tags;\nagreed moves landed as individually reviewed moves;\nACG amendments landed;\nroster recommendation recorded for the post-pilot groom;\nfast suite green if any source file changed.",
+              "jjgtn_silks": "pilot-audit-conjure",
+              "jjgtn_basis": "14a1035"
             }
           ]
         }
