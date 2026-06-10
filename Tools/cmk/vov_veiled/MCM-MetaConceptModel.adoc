@@ -367,8 +367,7 @@ maintain consistent indentation
 // end::mapping-example[]
 ----
 
-The
-{mcm_mapping_scrub}
+{mcm_normalization}
 maintains these alignments during curation unless expansion is required.
 
 === Document Source Management
@@ -640,8 +639,7 @@ follow consistent patterns:
 :exv_act_ing:                <<excm_act,Acting>>
 ----
 
-The
-{mcm_mapping_scrub}
+{mcm_normalization}
 enforces consistent application of these patterns across the document.
 
 ==== {mcm_domain} Pattern
