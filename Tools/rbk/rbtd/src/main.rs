@@ -220,18 +220,26 @@ fn rbtdb_run_suite(args: &[String]) -> ExitCode {
     // fixture's crucible left charged — the same leak the per-process bash loop
     // had. Routine failure is always a Fail verdict, which quenches normally
     // (teardown is finally-shaped in rbtdre_run_fixture).
+    let mut next_invoke_count = 0u32;
     for fixture in suite.fixtures {
-        let ctx = rbtdri_Context::new(
+        let mut ctx = rbtdri_Context::new(
             &project_root,
             fixture.name,
             &roots.burv_temp_root,
             &roots.burv_output_root,
         );
+        // Carry the BURV invoke counter across fixtures so per-invoke dir names
+        // never collide between fixtures. A fresh Context starts at 0, so without
+        // this every fixture's first invoke reuses invoke-00000 — and bud's
+        // start-of-dispatch current/->previous/ promotion then leaks the prior
+        // fixture's chaining facts into a non-chained invoke's previous/.
+        // Suite-monotonic numbering gives each invoke its own dir, closing that.
+        ctx.invoke_count = next_invoke_count;
         rbtdrc_set_context(ctx);
 
         let run_result = rbtdre_run_fixture(fixture, &colors, &roots.trace_root);
 
-        let _ctx = rbtdrc_take_context();
+        next_invoke_count = rbtdrc_take_context().invoke_count;
 
         match run_result {
             Ok(result) => {
