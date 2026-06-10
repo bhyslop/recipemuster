@@ -117,7 +117,7 @@ zrbld_underpin_submit() {
 # Internal: extract the captured touchmark from the completed underpin build and
 # emit the two bare single-form chaining facts (touchmark value + kind-brand
 # enum). The fetch step (step 0) authors the base64 JSON carrying the
-# host-minted stamp in slot_1; the wrap and vouch-push steps write no output. Underpin
+# host-minted stamp in rbls_slot_1; the wrap and vouch-push steps write no output. Underpin
 # captures exactly one Lode, so exactly one slot is populated. The provenance
 # envelope is NOT read host-side: it lives only in GAR (rbgjl02 pushed it under
 # :rbi_vouch), so the host hands forward only the touchmark a consumer needs.
@@ -133,10 +133,14 @@ zrbld_underpin_extract() {
   buc_log_pipe < "${z_output_file}"
 
   local -r z_stamp_file="${ZRBLD_UNDERPIN_PREFIX}stamp.txt"
-  jq -r '.slot_1.stamp // empty' "${z_output_file}" > "${z_stamp_file}" \
+  jq -r '.rbls_slot_1.rbls_stamp // empty' "${z_output_file}" > "${z_stamp_file}" \
     || buc_die "Failed to read wsl stamp from underpin output"
   local -r z_stamp=$(<"${z_stamp_file}")
-  test -n "${z_stamp}" || buc_die "Underpin output carried no stamp in slot_1"
+  local -r z_keys_file="${ZRBLD_UNDERPIN_PREFIX}output_keys.txt"
+  jq -cr 'keys' "${z_output_file}" > "${z_keys_file}" \
+    || buc_die "Failed to read keys from underpin output"
+  local -r z_keys=$(<"${z_keys_file}")
+  test -n "${z_stamp}" || buc_die "Underpin output carried no stamp in rbls_slot_1 (keys present: ${z_keys})"
 
   buf_write_fact_single "${RBF_FACT_LODE_TOUCHMARK}" "${z_stamp}" \
     || buc_die "Failed to write touchmark fact for ${z_stamp}"

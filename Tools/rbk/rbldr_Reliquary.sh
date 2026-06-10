@@ -122,7 +122,11 @@ zrbld_conclave_extract() {
   jq -r '.rbls_slot_1.rbls_stamp // empty' "${z_output_file}" > "${z_stamp_file}" \
     || buc_die "Failed to read reliquary stamp from conclave output"
   local -r z_stamp=$(<"${z_stamp_file}")
-  test -n "${z_stamp}" || buc_die "Conclave output carried no stamp in rbls_slot_1"
+  local -r z_keys_file="${ZRBLD_CONCLAVE_PREFIX}output_keys.txt"
+  jq -cr 'keys' "${z_output_file}" > "${z_keys_file}" \
+    || buc_die "Failed to read keys from conclave output"
+  local -r z_keys=$(<"${z_keys_file}")
+  test -n "${z_stamp}" || buc_die "Conclave output carried no stamp in rbls_slot_1 (keys present: ${z_keys})"
 
   buf_write_fact_single "${RBF_FACT_LODE_TOUCHMARK}" "${z_stamp}" \
     || buc_die "Failed to write touchmark fact for ${z_stamp}"
