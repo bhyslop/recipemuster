@@ -6,6 +6,9 @@ Draft v0.8 — Thirteen assessments complete (10 core + 3 tabtarget) (2026-01-10
 ## Purpose
 Codify the naming convention system used across projects for human-AI collaboration. The system creates unique, prefix-free identifiers that enable unambiguous reference to concepts, files, and modules in conversation.
 
+## Companion
+`memo-20260610-quoin-minting-introspection.md` argues toward the same rules from the inside — an LLM's introspective report on what prefix identifiers do to its processing (certain coreference, interference/early divergence, cross-kit rhyme, Zipf-shaped brevity). This memo reasons from observed collisions; that one from the reader's machinery. Consult both when revising minting discipline.
+
 ## Core Rules (Hypothesized)
 
 ### Rule 1: Project Prefix
