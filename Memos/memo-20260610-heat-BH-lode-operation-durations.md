@@ -79,10 +79,14 @@ extraction/triage pace to dispose:
 
 Prior `service` duration history is invalidated by this heat: the suite gained the
 lode/reliquary/wsl/podvm-lifecycle fixtures during ₣BH, so earlier wall-clocks
-measured a different suite. The first run of the post-cutover composition (17
-fixtures, conclave Lode r260610145233 yoked) was dispatched today; span and
-outcome extract from:
-- `hist-rbw-ts-service-20260610-150505-8582-33.txt` — NOTE: this invocation died
-  immediately on the dirty-tree gate (pre-commit); the real baseline run is the
-  re-dispatch logged as the next `hist-rbw-ts-service-20260610-*.txt` after it
-  (in flight as this section is written — verify it passed before mining).
+measured a different suite. Baseline of the post-cutover composition (17 fixtures,
+163 cases, conclave Lode r260610145233 yoked):
+
+- **`hist-rbw-ts-service-20260610-155202-73909-525.txt` — the baseline: full pass,
+  span 15:52:02→16:44:51 = 52m49s** (17 fixtures run, 163 passed, 0 failed).
+- `hist-rbw-ts-service-20260610-150533-9198-694.txt` — failed run, do not mine for
+  suite span: died at wsl-lifecycle on the rbls_ sprue-sweep miss in the underpin
+  extract (fixed same day, commit 6d213818); its first 15 fixtures' per-fixture
+  spans are still honest if per-fixture grain is wanted.
+- `hist-rbw-ts-service-20260610-150505-8582-33.txt` — instant dirty-tree gate
+  death, nothing to mine.
