@@ -8750,13 +8750,14 @@
         "₢BHAAP",
         "₢BHAAR",
         "₢BHAAX",
+        "₢BHAAg",
         "₢BHAAb",
         "₢BHAAD",
         "₢BHAAc",
         "₢BHAAd",
         "₢BHAAf"
       ],
-      "jjghn_next_pace_seed": "AAg",
+      "jjghn_next_pace_seed": "AAh",
       "jjghn_paces": {
         "₢BHAAA": {
           "jjgpn_tacks": [
@@ -9842,6 +9843,17 @@
               "jjgtn_text": "## Character\nThe heat's batched cloud-spend verification — one ladder pass discharging every deferred live gate.\nRuns LAST of all: after the memo-triage pace and after any fix paces it slates have landed.\nOperator-gated spend; everything before it in the heat is statically green by construction.\n\n## Goal\nDischarge the deferred live gates in one batch on the standing depot:\nthe skopeo-eviction bind-mode verify (delegated here by that pace's docket)\nplus live coverage of whatever the triage-slated fixes touched.\n\n## Cinched\n- skirmish, not gauntlet — same bind-leg coverage, no project churn;\n  fresh-project coverage belongs to the operator's standing depot-recreate plan, not this heat.\n- `complete` rides first (service ∪ crucible — the cheap non-ladder tier), then skirmish.\n- This run is also the durations re-baseline: the heat invalidated prior suite timings\n  (the durations memo records the inventory and pins the prior baseline);\n  capture this batch's timings as the new record, per whatever disposition triage gave that memo.\n- Known wrinkle: gauntlet/skirmish embed a stale hand-copied fast subset\n  (three of fast's ten fixtures missing — durations memo finding).\n  If triage's disposition lands before this runs, the subset is fixed; if not,\n  the `complete` leg already covers the missing three — note it in the wrap either way.\n\n## Open at mount\n- Whether blockade rides too: airgap-mode conjure (the resolver repoint and ANCHOR derived-pull both sit under it)\n  may have no post-cutover live verification — check the heat's run record at mount;\n  if uncovered, blockade is the venue and earns its spend.\n\n## Done when\n`complete` green; skirmish green with the bind-mode build as the named gate;\nblockade green if elected at mount;\ntimings recorded for the durations re-baseline;\nresults in the wrap.",
               "jjgtn_silks": "endgame-verification-ladder",
               "jjgtn_basis": "5cdbf84"
+            }
+          ]
+        },
+        "₢BHAAg": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260610-2114",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nMechanical registry edit; membership is compile-checked.\nTier: sonnet-delegable.\nMust land before the endgame ladder runs — the overnight skirmish should run the corrected subset.\n\n## Goal\nRepair the hand-copied fast subset embedded in the gauntlet and skirmish suites,\nand refresh the stale CLAUDE.md test-execution table.\n\n## Done when\n- gauntlet and skirmish in RBTDRC_SUITES (rbtdrc_crucible.rs) carry the full fast-fixture set\n  (both currently miss handbook-render, foundry-path, recipe-validation).\n- The CLAUDE.md test-execution table matches the registry composition\n  and names the five release/probe suites it currently omits.\n- Build green; fast green.\n\n## Sources\nMemos/memo-20260610-heat-BH-lode-operation-durations.md (suite registry inventory section).",
+              "jjgtn_silks": "suite-subset-and-test-table-repair",
+              "jjgtn_basis": "e5c5a86"
             }
           ]
         }
