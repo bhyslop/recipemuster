@@ -8758,13 +8758,14 @@
         "₢BHAAl",
         "₢BHAAm",
         "₢BHAAn",
+        "₢BHAAo",
         "₢BHAAb",
         "₢BHAAD",
         "₢BHAAc",
         "₢BHAAd",
         "₢BHAAf"
       ],
-      "jjghn_next_pace_seed": "AAo",
+      "jjghn_next_pace_seed": "AAp",
       "jjghn_paces": {
         "₢BHAAA": {
           "jjgpn_tacks": [
@@ -9938,6 +9939,17 @@
               "jjgtn_text": "## Character\nSmall spec-hygiene pace; dangle-safe quoin surgery.\nMust land before the vocab-finalization scrub so the scrub sweeps its word-level tail.\nTier: sonnet-delegable.\n\n## Goal\n- Retire RBSIA's Enshrinements-Audit section and the gar_enshrines_namespace quoin\n  (mapping attribute + definition + every ref) — the depot is disposable,\n  so auditing legacy rbi_es artifacts has no future subject;\n  the iae tabtargets are already gone (Wave 1 of the image-family retirement).\n- Collapse rbst_reliquary_stamp into rbst_touchmark: one quoin survives, refs repoint;\n  both already match the same stamp form.\n\n## Done when\nQuoins resolve clean — no dangling attribute refs or anchors;\nthe later scrub's discovery grep finds no structural residue from these two items;\nfast green.\n\n## Sources\nMemos/memo-20260610-heat-BH-enshrine-structural-residue.md (items 2 and 3;\nitem 1 confirmed owned by the terminal vocab scrub's KILL list — no action here).",
               "jjgtn_silks": "enshrine-spec-structural-residue",
               "jjgtn_basis": "8d586ff"
+            }
+          ]
+        },
+        "₢BHAAo": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260610-2117",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nBehavior-preserving consolidation; the judgment was settled at triage:\nthe per-kind-verbs premise protects vocabulary, not extract implementation,\nand the propagation-drift class fired on exactly this block\n(the rbls_ sprue sweep missed one of the three copies and broke the service suite same-day).\nTier: sonnet-delegable, opus-grade review.\n\n## Goal\nOne shared single-slot extract (prefix / brand / label parameterized) consumed by\nunderpin, conclave, and immure — replacing the three byte-parallel copies in\nrbldw_Underpin.sh, rbldr_Reliquary.sh, rbldv_Immure.sh, including the keys-dump diagnostic.\nrbldb_Bole.sh stays separate: its multi-slot 1..3 continue-on-empty loop is genuinely\ndifferent shape.\nThe helper's home is a mount-time choice — kind data arrives as parameters,\nso a spine-adjacent home does not violate spine-owns-no-kind-knowledge.\n\n## Done when\nThree copies replaced by one; build + shellcheck + fast green.\nLive coverage shares the next service-tier run (verification batching),\nnever a dedicated run of its own.\n\n## Sources\nMemos/memo-20260610-heat-BH-extract-keys-triplication.md (option 2 chosen at triage).",
+              "jjgtn_silks": "single-slot-extract-consolidation",
+              "jjgtn_basis": "8c99b46"
             }
           ]
         }
