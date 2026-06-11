@@ -10039,6 +10039,13 @@
         "₢BHAAn": {
           "jjgpn_tacks": [
             {
+              "jjgtn_ts": "260610-2200",
+              "jjgtn_state": "jjgte_complete",
+              "jjgtn_text": "## Character\nSmall spec-hygiene pace; dangle-safe quoin surgery.\nMust land before the vocab-finalization scrub so the scrub sweeps its word-level tail.\nTier: sonnet-delegable.\n\n## Goal\n- Retire RBSIA's Enshrinements-Audit section and the gar_enshrines_namespace quoin\n  (mapping attribute + definition + every ref) — the depot is disposable,\n  so auditing legacy rbi_es artifacts has no future subject;\n  the iae tabtargets are already gone (Wave 1 of the image-family retirement).\n- Collapse rbst_reliquary_stamp into rbst_touchmark: one quoin survives, refs repoint;\n  both already match the same stamp form.\n\n## Done when\nQuoins resolve clean — no dangling attribute refs or anchors;\nthe later scrub's discovery grep finds no structural residue from these two items;\nfast green.\n\n## Sources\nMemos/memo-20260610-heat-BH-enshrine-structural-residue.md (items 2 and 3;\nitem 1 confirmed owned by the terminal vocab scrub's KILL list — no action here).",
+              "jjgtn_silks": "enshrine-spec-structural-residue",
+              "jjgtn_basis": "25904d2"
+            },
+            {
               "jjgtn_ts": "260610-2117",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": "## Character\nSmall spec-hygiene pace; dangle-safe quoin surgery.\nMust land before the vocab-finalization scrub so the scrub sweeps its word-level tail.\nTier: sonnet-delegable.\n\n## Goal\n- Retire RBSIA's Enshrinements-Audit section and the gar_enshrines_namespace quoin\n  (mapping attribute + definition + every ref) — the depot is disposable,\n  so auditing legacy rbi_es artifacts has no future subject;\n  the iae tabtargets are already gone (Wave 1 of the image-family retirement).\n- Collapse rbst_reliquary_stamp into rbst_touchmark: one quoin survives, refs repoint;\n  both already match the same stamp form.\n\n## Done when\nQuoins resolve clean — no dangling attribute refs or anchors;\nthe later scrub's discovery grep finds no structural residue from these two items;\nfast green.\n\n## Sources\nMemos/memo-20260610-heat-BH-enshrine-structural-residue.md (items 2 and 3;\nitem 1 confirmed owned by the terminal vocab scrub's KILL list — no action here).",
