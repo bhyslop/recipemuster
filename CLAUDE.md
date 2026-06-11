@@ -76,14 +76,27 @@ Two Rust build targets. Always use the tabtarget, never raw cargo commands.
 
 ### Test Execution
 
-**Test suites** group fixtures by dependency tier. Run the broadest applicable suite:
+**Test suites** group fixtures by dependency tier. Composition is owned by
+`RBTDRC_SUITES` (`Tools/rbk/rbtd/src/rbtdrc_crucible.rs`); this table summarizes it.
+Run the broadest applicable suite:
 
 | Suite | Tabtarget | Dependencies | What it covers |
 |-------|-----------|-------------|----------------|
-| `fast` | `tt/rbw-ts.TestSuite.fast.sh` | None | enrollment-validation (47), regime-validation (21), regime-smoke (7) = 75 cases |
-| `service` | `tt/rbw-ts.TestSuite.service.sh` | GCP credentials | fast + access-probe (4), hallmark-lifecycle (1), batch-vouch (1) = 81 cases |
-| `crucible` | `tt/rbw-ts.TestSuite.crucible.sh` | Container runtime | fast + tadmor-security (34), srjcl-jupyter (3), pluml-diagram (5) = 117 cases |
-| `complete` | `tt/rbw-ts.TestSuite.complete.sh` | All of the above | All 8 fixtures = 122 cases |
+| `fast` | `tt/rbw-ts.TestSuite.fast.sh` | None | 10 fixtures: enrollment-validation, regime-validation, regime-smoke, podvm-resolve, handbook-render, dockerfile-hygiene, foundry-path, recipe-validation, cupel, conformance |
+| `service` | `tt/rbw-ts.TestSuite.service.sh` | GCP credentials | fast + access-probe, hallmark-lifecycle, lode-lifecycle, reliquary-lifecycle, wsl-lifecycle, podvm-lifecycle, batch-vouch (17 fixtures) |
+| `crucible` | `tt/rbw-ts.TestSuite.crucible.sh` | Container runtime | fast + tadmor, srjcl, pluml (13 fixtures) |
+| `complete` | `tt/rbw-ts.TestSuite.complete.sh` | All of the above | service ∪ crucible (20 fixtures) |
+
+**Release/probe suites** — ladders distinguished by project-churn × crucible ×
+network posture, not dependency tier:
+
+| Suite | Tabtarget | Precondition | What it covers |
+|-------|-----------|-------------|----------------|
+| `gauntlet` | `tt/rbw-ts.TestSuite.gauntlet.sh` | None (levies fresh projects) | Release-qualification ladder: marshal-zero state → canonical-establish → onboarding-sequence → fast fixtures → crucibles |
+| `skirmish` | `tt/rbw-ts.TestSuite.skirmish.sh` | Canonical depot already levied | Mini-gauntlet: depot→build→crucible chain without project churn |
+| `dogfight` | `tt/rbw-ts.TestSuite.dogfight.sh` | Canonical depot already levied | Cloud-build viability probe: ordain → summon → run, no crucible |
+| `siege` | `tt/rbw-ts.TestSuite.siege.sh` | None (fully local) | Tadmor self-contained: kludge both vessels + security cases |
+| `blockade` | `tt/rbw-ts.TestSuite.blockade.sh` | Depot levied + moriah hallmark ordained | Airgap moriah crucible with credential self-heal |
 
 **After code changes**, run the appropriate tier:
 - Regime/validation changes → `fast`
