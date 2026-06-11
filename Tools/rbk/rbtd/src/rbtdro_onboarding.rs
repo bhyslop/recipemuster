@@ -40,7 +40,7 @@ use crate::rbtdrc_crucible::{
     rbtdrc_rekon_basename_yes, rbtdrc_with_ctx, RBTDRC_ARK_BASENAME_ABOUT,
     RBTDRC_ARK_BASENAME_ATTEST, RBTDRC_ARK_BASENAME_IMAGE, RBTDRC_ARK_BASENAME_POUCH,
     RBTDRC_ARK_BASENAME_VOUCH, RBTDRC_FACT_ARK_STEM, RBTDRC_FACT_GAR_ROOT, RBTDRC_FACT_HALLMARK,
-    RBTDRC_FACT_RELIQUARY, RBTDRC_GAR_CATEGORY_HALLMARKS,
+    RBTDRC_GAR_CATEGORY_HALLMARKS,
 };
 use crate::rbtdre_engine::{rbtdre_Case, rbtdre_Disposition, rbtdre_Fixture, rbtdre_Verdict};
 use crate::rbtdri_invocation::{
@@ -742,7 +742,7 @@ fn rbtdro_onboarding_conclave_reliquary_impl(
         Err(v) => return v,
     };
 
-    let stamp = match rbtdri_read_burv_fact(&result, RBTDRC_FACT_RELIQUARY) {
+    let stamp = match rbtdri_read_burv_fact(&result, RBTDRO_FACT_LODE_TOUCHMARK) {
         Ok(s) => s,
         Err(e) => return rbtdre_Verdict::Fail(format!("read reliquary fact: {}", e)),
     };

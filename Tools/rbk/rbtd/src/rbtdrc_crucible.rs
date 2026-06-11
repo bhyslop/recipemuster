@@ -2851,7 +2851,6 @@ static RBTDRC_CASES_SECURITY: &[rbtdre_Case] = &[
 
 /// BURV fact file names — single definition, matching rbgc_Constants.sh values.
 pub(crate) const RBTDRC_FACT_HALLMARK: &str = "rbf_fact_hallmark";
-pub(crate) const RBTDRC_FACT_RELIQUARY: &str = "rbf_fact_reliquary";
 pub(crate) const RBTDRC_FACT_GAR_ROOT: &str = "rbf_fact_gar_root";
 pub(crate) const RBTDRC_FACT_ARK_STEM: &str = "rbf_fact_ark_stem";
 
