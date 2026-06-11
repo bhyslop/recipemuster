@@ -8755,13 +8755,14 @@
         "₢BHAAi",
         "₢BHAAj",
         "₢BHAAk",
+        "₢BHAAl",
         "₢BHAAb",
         "₢BHAAD",
         "₢BHAAc",
         "₢BHAAd",
         "₢BHAAf"
       ],
-      "jjghn_next_pace_seed": "AAl",
+      "jjghn_next_pace_seed": "AAm",
       "jjghn_paces": {
         "₢BHAAA": {
           "jjgpn_tacks": [
@@ -9902,6 +9903,17 @@
               "jjgtn_text": "## Character\nSmall consistency extension of the rbk-08 read-back-verification pattern.\nTier: sonnet-delegable.\nThe live flap signature is unobservable on the standing depot;\nlive proof rides the operator's depot-recreate plan, not this heat.\n\n## Goal\nrbgg_invest_director: after granting the Director SA self-actAs\n(roles/iam.serviceAccountUser on itself), poll the SA IAM policy until the binding\nis visible before declaring invest complete — closes the Class-C propagation flap\nat the first post-invest builds.create (the spine dispatch dies on the first\nPERMISSION_DENIED today).\n\n## Done when\nRead-back gate landed matching the existing read-back pattern; fast green;\nthe invest path unbroken against the standing depot.\n\n## Sources\nMemos/memo-20260610-heat-BH-fable-recommendation-actas-propagation-flap.md\n(repair option 1 — invest-side gate — chosen at triage; submit-side tolerance declined).",
               "jjgtn_silks": "invest-actas-readback-gate",
               "jjgtn_basis": "0a7de88"
+            }
+          ]
+        },
+        "₢BHAAl": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260610-2116",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nHazard-closure design + implement; small but cross-cutting (theurge suite runner +\ncredential load path). Tier: sonnet-delegable with care —\nthe failure mode it closes is a PASSING fast suite that spends money and mutates the depot.\n\n## Goal\nMake fast-tier credlessness structural rather than conventional:\nthe fast suite runner exports a poison marker and the credential-load path refuses under it\n(loud die naming the violation), so a fast case that reaches a credential load fails the\nsuite instead of firing a live build.\nExact shape is a mount-time choice (poison env var is the cheap candidate from the memo);\nwhatever lands, state the convention where an author of a new fast case will read it.\n\n## Done when\nA fast case reaching credential load dies loud by construction; fast suite green;\nthe convention documented in the theurge/test authoring context.\n\n## Sources\nMemos/memo-20260610-heat-BH-fast-tier-credless-by-convention.md\n(the near-miss record: the podvm resolve case was one inspection away from live multi-GB\nsubmissions on every fast run; the buorb_immure_resolve_only seam was the spot fix).",
+              "jjgtn_silks": "fast-tier-credless-by-construction",
+              "jjgtn_basis": "382827b"
             }
           ]
         }
