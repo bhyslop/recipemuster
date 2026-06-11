@@ -8756,13 +8756,14 @@
         "₢BHAAj",
         "₢BHAAk",
         "₢BHAAl",
+        "₢BHAAm",
         "₢BHAAb",
         "₢BHAAD",
         "₢BHAAc",
         "₢BHAAd",
         "₢BHAAf"
       ],
-      "jjghn_next_pace_seed": "AAm",
+      "jjghn_next_pace_seed": "AAn",
       "jjghn_paces": {
         "₢BHAAA": {
           "jjgpn_tacks": [
@@ -9914,6 +9915,17 @@
               "jjgtn_text": "## Character\nHazard-closure design + implement; small but cross-cutting (theurge suite runner +\ncredential load path). Tier: sonnet-delegable with care —\nthe failure mode it closes is a PASSING fast suite that spends money and mutates the depot.\n\n## Goal\nMake fast-tier credlessness structural rather than conventional:\nthe fast suite runner exports a poison marker and the credential-load path refuses under it\n(loud die naming the violation), so a fast case that reaches a credential load fails the\nsuite instead of firing a live build.\nExact shape is a mount-time choice (poison env var is the cheap candidate from the memo);\nwhatever lands, state the convention where an author of a new fast case will read it.\n\n## Done when\nA fast case reaching credential load dies loud by construction; fast suite green;\nthe convention documented in the theurge/test authoring context.\n\n## Sources\nMemos/memo-20260610-heat-BH-fast-tier-credless-by-convention.md\n(the near-miss record: the podvm resolve case was one inspection away from live multi-GB\nsubmissions on every fast run; the buorb_immure_resolve_only seam was the spot fix).",
               "jjgtn_silks": "fast-tier-credless-by-construction",
               "jjgtn_basis": "382827b"
+            }
+          ]
+        },
+        "₢BHAAm": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260610-2117",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nTest-infrastructure extension; no cloud surface, no ladder dependency.\nTier: sonnet-delegable.\n\n## Goal\nExtend the cupel supply-chain conformance to *.py cloud steps\n(it walks *.sh only today; the python steps are entirely unscanned —\nthe live specimen is rbgjv02 subprocess-running gcloud invisibly):\n- import allowlist anchored on the module root of every import;\n  stdlib floor per the memo; importlib / __import__ / exec / eval banned outright.\n- subprocess argv[0] literals scanned against ZRBTDRU_GCB_ALLOWED —\n  one tool floor, two languages; adjudicate rbgjv02's gcloud by allowlisting it\n  with a dated comment (no REST conversion this pace).\n- ten-minute probe: is zrbfc_expand_includes language-blind\n  (the #@rbgjs_include marker is a valid python comment)?\n  Record the answer against CBG CBp_101 (the preamble-duplication gap).\n\n## Done when\nThe cupel walks python step files; an unsanctioned import or subprocess target fails\nthe cupel fixture; fast green.\n\n## Sources\nMemos/memo-20260610-heat-BH-fable-recommendation-python-import-allowlist.md\n(carries the empirical import floor and the CBG addenda, including the\nauthoritative-floor-lives-on-the-constant decision).",
+              "jjgtn_silks": "cupel-python-import-allowlist",
+              "jjgtn_basis": "31f8041"
             }
           ]
         }
