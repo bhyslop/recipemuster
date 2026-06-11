@@ -1633,7 +1633,25 @@ Respects NO_COLOR environment convention.
 The tweak mechanism provides a single caller-supplied name/value override that flows through invocation without BUK interpreting its semantics.
 BUK enrolls, validates, and propagates the pair; consuming kits (e.g., RBK) check the name and act on the value.
 
-Constraint: one tweak per invocation.
+Doctrine — what a tweak is for:
+a tweak forces one hard-to-produce condition so a test can observe the infrastructure handle it correctly —
+a colliding identity stamp, a poisoned configuration value, a denied credential path —
+ideally asserting the rejecting gate's named exit code, never bare nonzero.
+An injection that enables a positive path, carries a parameter, or short-circuits work for convenience is not a tweak;
+it wants a CLI parameter, a regime slot, or its own command.
+
+Doctrine — one tweak at a time, by design:
+any one test, fixture, or suite run carries at most one tweak.
+This is sufficiency, not a limitation —
+one forced condition per observation is what keeps the seam non-intrusive,
+and suites composed of single-condition observations cover the bases without massive test machinery.
+A test that appears to need two simultaneous tweaks is mis-tiered or mis-designed;
+a dual need that survives scrutiny mints a second mechanism deliberately, never by widening this one.
+
+Doctrine — a suite may reserve the slot:
+a test tier may dedicate the tweak slot to one standing guard for its whole run;
+cases in that tier then carry no tweaks of their own — the reservation is part of the tier's definition.
+
 The caller sets at most one
 {bure_tweak_name}/{bure_tweak_value}
 pair in the environment before invoking a tabtarget.
@@ -1647,7 +1665,7 @@ The name selects which behavioral override the consuming kit applies.
 BUK validates length (0–64 characters) and the `buo` tweak sprue — a `buo<segment>_` prefix — so an unregistered or mistyped name fails loud at enforce rather than silently no-op'ing at the consumer; BUK validates the shape only and assigns no meaning beyond it.
 The sprue doubles as a virtual registry: `grep buo` enumerates every tweak across the codebase, with no central list to maintain.
 +
-Example: `buorb_graft_image` — tells RBK to substitute the graft source image.
+Example: `buorb_ensconce_stamp` — tells RBK to pin a capture's identity stamp, forcing the stamp-collision condition the cloud-side guard exists to reject.
 
 [[bure_tweak_value]]
 //axl_voices axrg_variable axtu_string axd_optional

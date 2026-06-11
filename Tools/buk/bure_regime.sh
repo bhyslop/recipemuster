@@ -89,6 +89,9 @@ zbure_enforce() {
   # of tweaks is `grep buo`); it never enumerates consumer names, so this stays
   # generic. An unregistered or mistyped tweak name fails loud here rather than
   # silently no-op'ing at the consumer.
+  # Doctrine (BUS0 "Tweak Mechanism"): a tweak forces one hard-to-produce
+  # condition for a test to observe handled correctly; one tweak at a time per
+  # test/fixture/suite, by design; a suite may reserve the slot for a standing guard.
   if test -n "${BURE_TWEAK_NAME}"; then
     case "${BURE_TWEAK_NAME}" in
       buo[a-z]*_*) : ;;
