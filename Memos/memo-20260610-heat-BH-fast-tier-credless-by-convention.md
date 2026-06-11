@@ -4,6 +4,9 @@ Date: 2026-06-10
 Status: standing-hazard record from the podvm refresh pace; the immediate instance was caught
 pre-run and fixed with a buo test-seam. Triage material for the ₣BH terminal memo-walk pace.
 TRIAGED 2026-06-10: slated as the fast-tier-credless-by-construction pace (₢BHAAl, pending — the poison-marker enforcement).
+RESTAMPED 2026-06-11: ₢BHAAl dropped at the ₣Be groom; closure recreated as ₢BeAAI (fast-credless-guard) —
+the guard rides the tweak slot per the BUS0 tweak doctrine's suite-reservation rule and dies at the
+token-mint chokepoint with a band rejection code (₣Be precision exit-code band).
 
 ## The near-miss
 
