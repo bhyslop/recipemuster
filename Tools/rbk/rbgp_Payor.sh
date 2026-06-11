@@ -550,6 +550,12 @@ zrbgp_write_posture_check() {
 
   case "${z_variant}" in
     tether)
+      # quay blob-CDN: podvm immure blob pulls 302-redirect from quay.io to its
+      # CDN family (cdn01/02/03.quay.io — Red Hat's published allowlist set).
+      # First breakage point if the pool's egress posture ever tightens to an
+      # allowlist; probe one representative host. Connection-level reachability
+      # only — the no -f rule above means the CDN's 4xx to a bare GET still
+      # counts as reached.
       printf '%s\n' \
         '#!/bin/bash' \
         'set -euo pipefail' \
@@ -557,6 +563,8 @@ zrbgp_write_posture_check() {
         'echo "tether: public reached"' \
         "curl -sS -o /dev/null --max-time ${ZRBGP_POSTURE_REQUEST_MAX_TIME_SEC} https://storage.googleapis.com || { echo \"tether: ERROR google unreachable (connection failure)\" >&2; exit 1; }" \
         'echo "tether: google reached"' \
+        "curl -sS -o /dev/null --max-time ${ZRBGP_POSTURE_REQUEST_MAX_TIME_SEC} https://cdn01.quay.io || { echo \"tether: ERROR quay blob-CDN unreachable (connection failure)\" >&2; exit 1; }" \
+        'echo "tether: quay blob-CDN reached"' \
         > "${z_path}" \
         || buc_die "Failed to write tether posture check"
       ;;

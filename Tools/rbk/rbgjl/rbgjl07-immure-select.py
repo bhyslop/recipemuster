@@ -157,6 +157,11 @@ def main():
         if ":" not in entry:
             die(f"malformed selection entry '{entry}' (want disktype:arch)")
         disktype, arch = entry.split(":", 1)
+        # Both fields non-empty: an empty disktype would silently match any
+        # annotation-less descriptor below (ann.get(...) == ""); fail loud on
+        # the malformed curated constant instead.
+        if not disktype or not arch:
+            die(f"malformed selection entry '{entry}' (empty disktype or arch)")
         member_tag = f"{sprue}{disktype}-{arch}"
 
         # Add-only / preserve-originals: a member the host reports as already captured

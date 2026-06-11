@@ -43,7 +43,7 @@
 - **RBID** → `rbev-vessels/common-ifrit-context/` (Ifrit — in-bottle attack binary for crucible testing; shared source across tether/airgap variants)
 - **RBJ**  → Jailer prefix (non-terminal: children rbjs, rbjp, rbje, rbjh)
 - **RBJS** → `rbk/rbjs_sentry.sh` (Jailer Sentry - container security setup: iptables, dnsmasq, enclave network)
-- **RBLD** → `rbk/rbld*` (Lode capture family — fetched-side universal capture; cloud-side in-pool steps in `rbgjl/`; GAR namespace `rbi_ld`; colophon family `rbw-l*`; spec letter `RBSL` reserved, file not yet written. Container: `rbld` names no file. The former `rbld_Lode.sh` monolith is decomposed into the children below — CLI `rbld0_cli`, 0-trick entry `rbld0_Lode`, lifecycle `rbldl_`, bole body `rbldb_`; the capture-assembly spine `rblds_` is carved from `rbldb_` at the capture-spine pace and is not yet a file.)
+- **RBLD** → `rbk/rbld*` (Lode capture family — fetched-side universal capture; cloud-side in-pool steps in `rbgjl/`; GAR namespace `rbi_ld`; colophon family `rbw-l*`; spec family `RBSL*` (catalogued below). Container: `rbld` names no file. The former `rbld_Lode.sh` monolith is decomposed into the children below — CLI `rbld0_cli`, 0-trick entry `rbld0_Lode`, lifecycle `rbldl_`, bole body `rbldb_`; the capture-assembly spine `rblds_` is carved from `rbldb_` at the capture-spine pace and is not yet a file.)
   - **RBLD0** → `rbk/rbld0_*.sh` (Lode `0`-prefix — CLI `rbld0_cli.sh` (multifacet dispatch across the rbld children via `buc_execute rbld_`; `zrbld_furnish` sources the 0-trick entry, which pulls the clusters) + 0-trick gestalt entry `rbld0_Lode.sh` (single `ZRBLD_SOURCED` inclusion-guard + the whole kindle, readonly `ZRBLD_*` consts read globally; sources the guard-free body clusters `rbldl_`/`rblds_`/`rbldb_`). Per the rbh0 `0`-trick precedent, the `0`-prefix homes both the gestalt entry and the CLI.)
   - **RBLDS** → `rbk/rblds_Spine.sh` (Lode capture-assembly spine — the data-driven Cloud Build composer shared by every Lode capture kind: `zrbld_spine_dispatch` composes a build from a recipe (ordered pre-resolved `script_path|builder|id|entrypoint` rows) plus an opaque substitutions blob, submits, and polls; `zrbld_spine_extract` decodes a step's `buildStepOutputs[N]` slot to a file. Owns no kind knowledge — capture-domain constants (mason SA, TETHER pool, regime timeout) are spine-owned, the kind-flavored poll ceiling is passed by the body. Functions keep the `zrbld_` container prefix; guard-free cluster sourced by `rbld0_Lode`. Contract: RBSCJ "Capture Composition Contract".)
   - **RBLDB** → `rbk/rbldb_*.sh` (Bole body — base-kind ensconce, thinned to ride the spine: owns only the ensconce recipe (gcrane capture + docker vouch push), the substitutions blob, and the per-member `slot_n` extract loop, composing through `zrbld_spine_dispatch`/`zrbld_spine_extract`. Holds `zrbld_ensconce_submit`/`_extract`/`rbld_ensconce`; no build-submission or step-composition machinery.)
@@ -105,6 +105,14 @@
 - **RBSIP** → `rbk/vov_veiled/RBSIP-ifrit_pentester.adoc` (Ifrit Pentester — adversarial AI escape testing framework)
 - **RBSIR** → `rbk/vov_veiled/RBSIR-image_rekon.adoc` (Image Rekon — director-only canonical-member presence under hallmark/reliquary subtrees)
 - **RBSIW** → `rbk/vov_veiled/RBSIW-image_wrest.adoc`
+- **RBSL** → Lode operation spec family (fetched-side universal capture; container: `RBSL` names no file):
+  - **RBSLA** → `rbk/vov_veiled/RBSLA-lode_augur.adoc` (Lode Augur — inspect one Lode: member tags + decoded `:rbi_vouch` envelope, read-only)
+  - **RBSLB** → `rbk/vov_veiled/RBSLB-lode_banish.adoc` (Lode Banish — whole-Lode delete, cloud-dispatch convergence)
+  - **RBSLC** → `rbk/vov_veiled/RBSLC-lode_conclave.adoc` (Lode Conclave — capture the build-tool date-cohort into one Lode)
+  - **RBSLD** → `rbk/vov_veiled/RBSLD-lode_divine.adoc` (Lode Divine — enumerate Lodes by touchmark, read-only)
+  - **RBSLE** → `rbk/vov_veiled/RBSLE-lode_ensconce.adoc` (Lode Ensconce — capture an upstream base image, bole kind)
+  - **RBSLI** → `rbk/vov_veiled/RBSLI-lode_immure.adoc` (Lode Immure — capture podman-machine disk leaves of one quay family, podvm kinds)
+  - **RBSLU** → `rbk/vov_veiled/RBSLU-lode_underpin.adoc` (Lode Underpin — capture a vendor WSL rootfs, wsl kind)
 - **RBSNC** → `rbk/vov_veiled/RBSNC-network_create.adoc`
 - **RBSNX** → `rbk/vov_veiled/RBSNX-network_connect.adoc`
 - **RBSOB** → `rbk/vov_veiled/RBSOB-oci_layout_bridge.adoc`

@@ -42,7 +42,9 @@ while IFS='|' read -r MEMBER_TAG LEAF_DIGEST BLOB_DIGEST BLOB_SIZE; do
 
   BLOB_URL="https://${_RBGL_GAR_HOST}/v2/${GAR_IMAGE}/blobs/${BLOB_DIGEST}"
   HEAD_FILE="/workspace/immure_head_${MEMBER_TAG}.txt"
-  curl -sfI -H "Authorization: Bearer ${TOKEN}" "${BLOB_URL}" -o "${HEAD_FILE}" \
+  # < /dev/null: keep curl off the while-read stdin (a child reading stdin
+  # would consume the remaining selection rows).
+  curl -sfI -H "Authorization: Bearer ${TOKEN}" "${BLOB_URL}" -o "${HEAD_FILE}" < /dev/null \
     || { echo "FATAL: blob HEAD failed for ${MEMBER_TAG} at ${BLOB_URL}" >&2; exit 1; }
 
   # Content-Length, case-insensitive header, strip CR. awk's END keeps the last

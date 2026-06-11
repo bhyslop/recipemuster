@@ -164,7 +164,7 @@ build dispatched with `«BUILD_ID»` and the Cloud Console URL
 .. Author the
 {rbtga_lode_vouch}
 envelope JSON (schema `rbld-vouch-2`, every key sprued `rblv_`, trust grade `recorded-at-acquisition`, `rblv_members[]` one element per leaf — the cardinality axis — each carrying `rblv_verification` `recorded`, the captured leaf digest, and the per-member `rblv_acquired_at` / `rblv_capture_build`) and stage it plus the selection list — the newly-captured leaves only — on the {rbtgr_workspace}
-.. Write the result JSON (carrying the host-minted touchmark) to `buildStepOutputs`
+.. Write the result JSON (carrying the host-minted touchmark) to `buildStepOutputs` — sized against the channel's 4KB raw-byte cap (CBG CBh_103): the slot payload carries the full envelope, and a worst-case 8-leaf native-family payload measures 3211 bytes (351 bytes per member × 8, ~340 envelope header, ~60 slot wrapper), leaving 885 bytes of headroom — the envelope-in-slot shape holds to ~10 leaves, past which this arithmetic must be redone
 
 //axhos_step
 . *Capture Step (in-pool — rbgjl08, gcrane)*:

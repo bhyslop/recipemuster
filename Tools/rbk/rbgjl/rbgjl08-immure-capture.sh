@@ -53,13 +53,16 @@ while IFS='|' read -r MEMBER_TAG LEAF_DIGEST BLOB_DIGEST BLOB_SIZE; do
   # Copy registry->registry by digest, daemonless (no docker pull/tag/push). The
   # leaf is a single-platform OCI artifact (empty config + one zstd blob); gcrane cp
   # copies the manifest and its blob and preserves the manifest digest.
-  gcrane cp "${SRC}" "${DEST}" \
+  # < /dev/null: keep in-loop tools off the while-read stdin (a child reading
+  # stdin would consume the remaining selection rows; busybox sh has no arrays,
+  # so the belt beats load-then-iterate).
+  gcrane cp "${SRC}" "${DEST}" < /dev/null \
     || { echo "FATAL: gcrane cp failed for ${SRC} -> ${DEST}" >&2; exit 1; }
 
   # Cheap manifest-level integrity check (free on this builder): the copied tag must
   # resolve to the same digest we selected. The deeper blob Content-Length residency
   # guard is rbgjl09 (needs curl — a Debian step). CBb_101 applies.
-  DEST_DIGEST=$(gcrane digest "${DEST}") \
+  DEST_DIGEST=$(gcrane digest "${DEST}" < /dev/null) \
     || { echo "FATAL: gcrane digest failed for ${DEST}" >&2; exit 1; }
   test "${DEST_DIGEST}" = "${LEAF_DIGEST}" \
     || { echo "FATAL: copied digest mismatch for ${MEMBER_TAG} — ${DEST_DIGEST} != ${LEAF_DIGEST}" >&2; exit 1; }
