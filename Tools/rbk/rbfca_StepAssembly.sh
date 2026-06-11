@@ -47,7 +47,6 @@ zrbfc_resolve_tool_images() {
   z_rbfc_tool_alpine="${z_lode_pkg}:${RBGC_LODE_TAG_SPRUE}${RBGC_RELIQUARY_TOOL_ALPINE}"
   z_rbfc_tool_syft="${z_lode_pkg}:${RBGC_LODE_TAG_SPRUE}${RBGC_RELIQUARY_TOOL_SYFT}"
   z_rbfc_tool_binfmt="${z_lode_pkg}:${RBGC_LODE_TAG_SPRUE}${RBGC_RELIQUARY_TOOL_BINFMT}"
-  z_rbfc_tool_skopeo="${z_lode_pkg}:${RBGC_LODE_TAG_SPRUE}${RBGC_RELIQUARY_TOOL_SKOPEO}"
   z_rbfc_tool_gcrane="${z_lode_pkg}:${RBGC_LODE_TAG_SPRUE}${RBGC_RELIQUARY_TOOL_GCRANE}"
   buc_log_args "Tool images resolved from reliquary Lode: ${RBGL_LODES_ROOT}/${z_reliquary}"
 }

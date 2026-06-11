@@ -3,7 +3,7 @@
 # Builder: gcr.io/cloud-builders/docker (Google-hosted, always pullable; Debian-based
 #          — carries curl, and gnupg is apt-installed by the gpg-verify-sums snippet
 #          if absent). The acquisition tool is curl over HTTPS, not a registry pull,
-#          so this kind needs neither skopeo nor a reliquary bootstrap. This step does
+#          so this kind needs neither gcrane nor a reliquary bootstrap. This step does
 #          NOT push: it fetches, verifies, authors the envelope, and stages rootfs.tar
 #          for the gcrane-append wrap (rbgjl05) — the fetch/verify builder (curl+gpg,
 #          Debian) and the wrap builder (gcrane:debug busybox) cannot be one image.

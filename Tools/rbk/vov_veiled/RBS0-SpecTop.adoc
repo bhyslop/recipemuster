@@ -869,7 +869,7 @@ Rationale: `gcloud` is an opaque, version-sensitive binary that obscures API sem
 The `gcloud auth configure-docker` approach also fails mechanically in GCB steps — the gcloud builder image lacks `docker` in PATH, so the credential helper it installs cannot function.
 +
 NOTE: The gcloud reliquary image exists because every ordain-path build step (conjure, bind, graft) uses it for the about/vouch pipeline (`bash`, `date`, and `gcloud` for provenance retrieval per the exception above).
-The reliquary toolchain is mode-uniform: all ordain modes consume gcloud, docker, alpine, and syft from the reliquary; bind additionally uses skopeo for image-copy.
+The reliquary toolchain is mode-uniform: all ordain modes consume gcloud, docker, alpine, and syft from the reliquary; bind additionally uses gcrane for image-copy.
 
 [[rbsk_in_pool_preflight]]
 //axl_voices axk_premise
@@ -877,7 +877,7 @@ The reliquary toolchain is mode-uniform: all ordain modes consume gcloud, docker
 Every ordain-path Cloud Build job — conjure's combined image+about, bind's combined mirror+about, and graft's combined about+vouch — prepends a step 0 (`rbgjr01-reliquary-preflight.sh`) that HEAD-checks reliquary cohort member tags from the worker pool's vantage before expensive work runs.
 Conjure additionally HEAD-checks the vessel's bole {rbtga_lode} base anchors (slots 1-3 from `RBRV_IMAGE_n_ANCHOR`); other modes pass empty locator substitutions.
 +
-Coverage is 6 of 7 reliquary cohort member tags — gcloud, docker, syft, binfmt, skopeo, gcrane.
+Coverage is 5 of 6 reliquary cohort member tags — gcloud, docker, syft, binfmt, gcrane.
 Alpine, the preflight step's own image, is validated implicitly by Cloud Build pulling it before the script runs.
 Failure produces a structured "this pool can't see «TOOL»" message naming each missed member tag, with remediation directive (re-conclave + re-yoke + re-ordain).
 +
@@ -1437,7 +1437,7 @@ include::RBSDV-director_vouch.adoc[]
 Ensconces a single upstream base image into a {rbtga_lode}
 ({rbtgog_lode}),
 capturing it cloud-side into the `{gar_lodes_namespace}/` namespace under a host-minted {rbtga_touchmark}.
-The {rbtr_director} submits a two-step Cloud Build job — skopeo capture of the upstream manifest, then a vouch push — writing the {rbtga_lode_vouch} provenance envelope to its one canonical home, the `:rbi_vouch` tag in GAR, and handing the touchmark forward host-side as the {rbf_fact_lode}.
+The {rbtr_director} submits a two-step Cloud Build job — gcrane capture of the upstream manifest, then a vouch push — writing the {rbtga_lode_vouch} provenance envelope to its one canonical home, the `:rbi_vouch` tag in GAR, and handing the touchmark forward host-side as the {rbf_fact_lode}.
 The bole kind — base images consumed as a FROM line — is the canonical capture skeleton the remaining kinds reuse.
 
 include::RBSLE-lode_ensconce.adoc[]
@@ -3082,7 +3082,7 @@ Maximum duration for Cloud Build operations.
 Public docs URL — readme target for buh_tlt glossary links, updated per-release or per-incorporation.
 
 // RBRG variable definitions eliminated — reliquaries replace pin-based tool image management
-// Tool images (gcloud, docker, alpine, syft, binfmt, skopeo) now sourced from reliquary at ordain time
+// Tool images (gcloud, docker, alpine, syft, binfmt, gcrane) now sourced from reliquary at ordain time
 
 [[rbrr_group_public_docs]]
 //axvr_group

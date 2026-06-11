@@ -139,7 +139,7 @@ pub(crate) const ZRBTDRU_DECLARED_DEPS: &[&str] = &[
 ];
 
 /// Curated GCB container-tool allowlist — the external commands present in the
-/// controlled builder images (alpine/docker→busybox, gcloud→Debian, skopeo→Fedora,
+/// controlled builder images (alpine/docker→busybox, gcloud→Debian,
 /// gcrane:debug→busybox, the wsl-underpin fetch step→Debian) that GCB-bash
 /// legitimately uses, enumerated empirically via the cupel inventory over
 /// Tools/rbk/rbgj*. GCB-allowed = POSIX floor (universal in every container) ∪
@@ -153,7 +153,7 @@ pub(crate) const ZRBTDRU_DECLARED_DEPS: &[&str] = &[
 /// merely a portability one.
 pub(crate) const ZRBTDRU_GCB_ALLOWED: &[&str] = &[
     "apt-get", "awk", "cat", "curl", "cut", "docker", "gcrane", "gpg",
-    "grep", "head", "ls", "openssl", "sha256sum", "shasum", "skopeo",
+    "grep", "head", "ls", "openssl", "sha256sum", "shasum",
     "tar", "tr", "wget",
 ];
 

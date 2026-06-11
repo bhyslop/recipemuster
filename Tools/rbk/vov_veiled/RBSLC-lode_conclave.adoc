@@ -9,7 +9,7 @@ package under the
 {gar_lodes_namespace}
 namespace, identified by a host-minted
 {rbtga_touchmark}.
-It is the reliquary kind: the co-versioned set of Cloud Build tool images (gcloud, docker, alpine, syft, binfmt, skopeo) consumed as a build toolset.
+It is the reliquary kind: the co-versioned set of Cloud Build tool images (gcloud, docker, alpine, syft, binfmt, gcrane) consumed as a build toolset.
 It absorbs the legacy inscribe tool-mirror — retargeted from the per-tool sibling-package layout to N member tags within one Lode package, plus the unifying
 {rbtga_lode_vouch}
 envelope.
@@ -28,7 +28,7 @@ NOTE: Conclave bootstraps from no reliquary.
 The tool images captured here ARE a reliquary, so capture cannot resolve its builders from one.
 Both steps ride the Google-hosted `gcr.io/cloud-builders/docker` builder (always pullable), and the
 {rbtga_lode_vouch}
-envelope — not the acquisition tool — is the unifier, so a docker-pull path alongside the bole kind's skopeo capture is correct.
+envelope — not the acquisition tool — is the unifier, so a docker-pull path alongside the bole kind's gcrane capture is correct.
 
 NOTE: *Dirty-tree guard*.
 Conclave refuses on a working tree with unstaged or staged changes, per the uniform Lode capture guard — see {rbtgo_lode_ensconce}.

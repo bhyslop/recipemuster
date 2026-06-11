@@ -77,11 +77,12 @@ Docker-based steps authenticate to GAR automatically — Cloud Build pre-populat
 The capture steps use **`gcrane`** (crane's Google-auth sibling — same `cp`/`manifest`/`tag` engine), whose `google.Keychain` matches `*.pkg.dev` and draws credentials from Application Default Credentials → the GCE metadata server.
 On a Cloud Build worker the Mason SA *is* that metadata-server identity, so gcrane reads and writes GAR ambiently with **no token fetch, no `crane auth login`, no credential-helper image, and no new IAM grant**.
 This is the same ambient model the docker-based steps already use, extended from docker to crane — one auth story across the capture family rather than two.
-The one remaining tool that cannot auth ambiently is **skopeo** (the made-side bind mirror): skopeo cannot consume the gcloud credential helper — gcloud is not a single binary to place on the skopeo container's PATH — so each skopeo step fetches a short-lived OAuth2 token directly from the GCB metadata server (the Mason SA's ambient identity) and passes it via `--src-creds`/`--dest-creds`.
-This is the canonical skopeo→Artifact Registry pattern, not a workaround — the credential-helper alternative was evaluated and rejected (see Deferred Items).
-The token is held in step-local memory and re-minted by each step that needs it; it is never written to `/workspace`.
+The bind mirror (made-side) previously used **skopeo**, which required a per-step OAuth2 token fetch from the GCB metadata server (the Mason SA's ambient identity) via `--src-creds`/`--dest-creds`.
+That token was held in step-local memory, never written to `/workspace`.
 _Invariant: the {rbtgr_workspace} carries non-secret build data only — secrets stay step-local._
-As skopeo is evicted across the crane-embrace cutovers, the per-step token fetch retires entirely and ambient gcrane auth becomes universal.
+The bind mirror now uses **gcrane** (`gcrane cp`), evicting skopeo entirely.
+Ambient gcrane auth is now universal for registry-tool steps — no registry tool fetches a token.
+The one surviving per-step token fetch is the immure residency guard (`rbgjl09`), whose raw curl blob-HEAD needs a bearer token — curl's floor role, not a registry tool's.
 
 **Provenance on demand.**
 `rbfl_tally()` lists all hallmarks and queries Container Analysis inline for each per-platform image, displaying SLSA build level, build invocation ID, and single-origin verification per hallmark.
@@ -222,7 +223,7 @@ This is not just an airgap feature — it is a universal robustness measure agai
 
 |Enshrine
 |tether
-|Pulls base images from upstream via skopeo
+|Pulls base images from upstream via gcrane
 
 |Conjure/Bind
 |vessel's RBRV_EGRESS_MODE
@@ -323,14 +324,14 @@ Periodic independent rebuilds compared by digest.
 Requires reproducible toolchains — a vessel-author discipline, not a pipeline control.
 Not actionable until vessel ecosystem matures.
 
-**skopeo credential helper — rejected, not merely deferred (evaluated 2026-06).**
-The standalone `docker-credential-gcr` helper could let skopeo authenticate to GAR via a `credHelpers` config entry instead of the inline token fetch (see Current Posture).
-Rejected: on GCB the helper mints the _same_ metadata-server token we already obtain (no new capability), but requires injecting a new binary into the skopeo container — a fresh vouched supply-chain dependency, the opposite of our minimize-the-dependency-manifold posture — and skopeo→GAR via credential helper carries documented 400-error friction (skopeo issue #2573, locked/unresolved), with the community fallback being the explicit `oauth2accesstoken` token, i.e. exactly the current approach.
-Revisit only if skopeo gains first-class GAR/ADC authentication or the helper friction is resolved upstream.
-Scope note: the capture steps no longer use skopeo at all — the crane-embrace moved them to gcrane, which auths GAR ambiently (see Current Posture) — so this rejection now governs only the remaining made-side skopeo (the bind mirror) until it too is evicted.
+**skopeo credential helper — rejected, not merely deferred (evaluated 2026-06). Moot: skopeo fully evicted.**
+The standalone `docker-credential-gcr` helper could have let skopeo authenticate to GAR via a `credHelpers` config entry instead of an inline token fetch.
+Rejected: on GCB the helper mints the _same_ metadata-server token we already obtained (no new capability), but required injecting a new binary into the skopeo container — a fresh vouched supply-chain dependency, the opposite of our minimize-the-dependency-manifold posture — and skopeo→GAR via credential helper carried documented 400-error friction (skopeo issue #2573, locked/unresolved), with the community fallback being the explicit `oauth2accesstoken` token, i.e. exactly the approach we used.
+The question is now closed: skopeo has been evicted from the cohort entirely (bind mirror converted to gcrane), so neither the inline-token approach nor the credential-helper approach remains in use.
 
-**Capture-machinery duplication — token fetch, skopeo-capture, vouch-push.**
-The cloud capture steps presently duplicate logic by copy: the metadata-token fetch across the remaining skopeo steps, the read→digest→fingerprint→copy block (the enshrine fork — bole now rides the shared `gcrane-fingerprint` snippet and gcrane's ambient auth), and the `FROM scratch` vouch-push step (Lode `rbgjl02` and hallmark-verify `rbgjv03`).
+**Capture-machinery duplication — vouch-push.**
+The cloud capture steps presently duplicate logic by copy: the `FROM scratch` vouch-push step (Lode `rbgjl02` and hallmark-verify `rbgjv03`).
+(The registry-tool metadata-token fetch is retired with skopeo's eviction — the `token-fetch` snippet survives solely for the immure residency guard's curl blob-HEAD; the read→digest→fingerprint→copy block is unified under the shared `gcrane-fingerprint` snippet and gcrane's ambient auth.)
 This is acknowledged, not accidental — Cloud Build offers no native step reuse (no YAML anchors or includes), and its blessed reuse mechanism, custom builder images, conflicts with the _cloud is just labor; the Director controls what enters_ posture above (a custom builder holding our logic would be a new vouched artifact rather than inline-from-repo).
 Remedy (built in the capture-machinery-unification refactor): a host assembly spine (aligned with the `stitch` vocabulary), a shared cloud step-library (`rbgjs`) of compose-once snippets, and a dispatch-time recipe validator that derives each step's substitution coverage — composed once and referenced, replacing copy-by-example with compose-from-library. The `/workspace` inter-step channel stays guarded in-step (the steps' own `test -f` preconditions) rather than by a dispatch contract.
 Dedup is deliberately partial: only the survivor (bole) rides the spine; the doomed enshrine and inscribe forks are left in place for later removal, so the duplicated copies above persist until that cutover.

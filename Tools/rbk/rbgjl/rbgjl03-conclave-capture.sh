@@ -19,7 +19,7 @@
 #
 # Package shape:  <host>/<path>/<LODES_ROOT>/<stamp>     (one package = one Lode)
 # Member tags on that package, each a distinct tool manifest:
-#   :<TAG_SPRUE><tool>   e.g. rbi_gcloud, rbi_skopeo   (clean scheme — no digest layer)
+#   :<TAG_SPRUE><tool>   e.g. rbi_gcloud, rbi_gcrane   (clean scheme — no digest layer)
 # The :rbi_vouch tag is a separate manifest pushed by step 02.
 
 set -euo pipefail
@@ -93,7 +93,6 @@ docker|gcr.io/cloud-builders/docker:latest
 alpine|docker.io/library/alpine:latest
 syft|docker.io/anchore/syft:latest
 binfmt|docker.io/tonistiigi/binfmt:latest
-skopeo|quay.io/skopeo/stable:latest
 gcrane|gcr.io/go-containerregistry/gcrane:debug
 MANIFEST
 

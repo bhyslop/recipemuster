@@ -130,7 +130,7 @@ rule everywhere, opposite mechanic by environment:
 - **host**: `jq -n --arg/--slurpfile` — the host has `jq`; never concatenate,
   never YAML (Cloud Build's wire format is JSON; RBSCJ).
 - **bash, inside a step**: hand-rolled `printf`/concatenation, because pulling
-  `jq` into a minimal skopeo container is friction — and permitted *only* because
+  `jq` into a minimal gcrane container is friction — and permitted *only* because
   every interpolated value is controlled (hex digests, ISO timestamps, sanitized
   origins, SA emails), none of which can carry a literal quote:
 
@@ -153,7 +153,7 @@ conversion move: ACG "wire formats are named homes" / ACGm_108.
 ### Separate pure logic from network ops
 
 Resolve inputs, build paths, and author envelopes in a block with no network
-calls; isolate `skopeo`/`gcloud`/`curl`/`urllib` calls in their own block. The
+calls; isolate `gcrane`/`gcloud`/`curl`/`urllib` calls in their own block. The
 pure block is testable without the cloud; the network block can be stubbed.
 BCG's visible-transformation philosophy applied to a step's internal structure.
 
@@ -168,20 +168,21 @@ guarded by `if __name__ == "__main__":`.
 
 ### GAR authentication idiom
 
-GAR reads/writes use the in-memory metadata token as credentials, never a
-credential helper (the gcloud helper is unavailable to skopeo; rationale in
-RBSCB). The token itself is fetched fresh per step — bash via the `token-fetch`
-snippet (CBh_101), python via `urllib` against `metadata.google.internal`. skopeo
-copies pass `--all` for multi-arch safety:
+GAR reads/writes use gcrane's ambient `google.Keychain`, which draws credentials
+from Application Default Credentials → the GCE metadata server (the Mason SA's
+ambient identity on Cloud Build workers).
+No token fetch, no `crane auth login`, no credential-helper image.
+The same ambient model the docker-based steps use, extended from docker to crane — one auth story across all steps.
 
 ```bash
-skopeo copy --all "docker://${ORIGIN}" "docker://${PKG}:${DIGEST_TAG}" \
-  --dest-creds "oauth2accesstoken:${TOKEN}" \
-  || { echo "FATAL: skopeo copy failed for ${ORIGIN}" >&2; exit 1; }
+gcrane cp "${ORIGIN}" "${PKG}:${DIGEST_TAG}" \
+  || { echo "FATAL: gcrane cp failed for ${ORIGIN}" >&2; exit 1; }
 ```
 
-The *invariant* that the token never reaches `/workspace` is CBi_102; this is the
-*idiom* that honors it.
+The *invariant* that credentials never reach `/workspace` is CBi_102; the ambient
+model honors it structurally — no token is ever minted by the step body.
+(Historical: skopeo used an in-memory metadata token via `--dest-creds oauth2accesstoken:${TOKEN}`;
+that pattern is retired. Rationale for why a credential-helper was rejected is in RBSCB.)
 
 ---
 
@@ -426,7 +427,7 @@ than a curated filename list that drifts:
 - **RCG** — Rust Coding Guide. Host Rust sibling.
 - **WSG** — Windows Scripting Guide. Structural precedent: BCG's discipline re-expressed for a hostile foreign environment, catalogued as cited rules.
 - **RBSCJ** — CloudBuildJson. JSON-composition trade study; home of the composed-snippet/contract decision CBh points at.
-- **RBSCB** — CloudBuildPosture. skopeo-token/credential-helper posture and the canonical `/workspace`-no-secrets invariant (CBi_102).
+- **RBSCB** — CloudBuildPosture. GAR authentication posture (gcrane ambient auth; skopeo credential-helper rejection history) and the canonical `/workspace`-no-secrets invariant (CBi_102).
 
 ## Acronym Registry
 

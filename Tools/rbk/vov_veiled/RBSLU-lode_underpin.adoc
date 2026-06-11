@@ -13,7 +13,7 @@ It is the wsl kind: a project-controlled Linux rootfs tarball, captured as the
 substrate seed a Windows workload's `wsl --import` consumes.
 It is the structural outlier among the Lode kinds — its upstream is an HTTPS
 tarball plus an out-of-band published checksum, NOT an OCI registry image — so it
-reuses neither the skopeo (bole) nor the docker (reliquary) registry-pull steps.
+reuses neither the gcrane (bole) nor the docker (reliquary) registry-pull steps.
 
 NOTE: Intent is declarative — no FQIN, no pinned digest.
 Underpin takes the substrate version as two arguments (release + point, e.g.

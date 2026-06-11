@@ -118,7 +118,7 @@ zrbfd_preflight_reliquary() {
     "${RBGC_RELIQUARY_TOOL_ALPINE}"
     "${RBGC_RELIQUARY_TOOL_SYFT}"
     "${RBGC_RELIQUARY_TOOL_BINFMT}"
-    "${RBGC_RELIQUARY_TOOL_SKOPEO}"
+    "${RBGC_RELIQUARY_TOOL_GCRANE}"
   )
 
   local z_missing=()
@@ -167,7 +167,7 @@ zrbfd_preflight_reliquary() {
 
   buc_warn "Reliquary integrity check failed: ${z_reliquary} (${#z_missing[@]}/${#z_canonical_tools[@]} tools missing)"
   buc_bare "  The reliquary is a co-versioned set of builder tool images (gcloud, docker,"
-  buc_bare "  syft, alpine, binfmt, skopeo, gcrane) captured from upstream into your private GAR."
+  buc_bare "  syft, alpine, binfmt, gcrane) captured from upstream into your private GAR."
   buc_bare "  Air-gapped worker pools cannot pull from the public internet — the reliquary"
   buc_bare "  stages these tools so builds can run without egress. Piecemeal jettison is"
   buc_bare "  allowed but unrecoverable surgically: re-conclave the whole cohort."
@@ -1228,7 +1228,7 @@ rbfd_mirror() {
   local z_vessel_dir="${1:-}"
 
   # Documentation block
-  buc_doc_brief "Mirror a bind vessel image from upstream to GAR via combined Cloud Build (skopeo copy + about)"
+  buc_doc_brief "Mirror a bind vessel image from upstream to GAR via combined Cloud Build (gcrane cp + about)"
   buc_doc_param "vessel_dir" "Path to vessel directory containing rbrv.env"
   buc_doc_shown || return 0
 
@@ -1251,7 +1251,7 @@ rbfd_mirror() {
   test -n "${RBRV_BIND_IMAGE:-}" \
     || buc_die "RBRV_BIND_IMAGE not set for bind vessel '${RBRV_SIGIL}'"
 
-  # Resolve tool images from reliquary (mirror uses skopeo + about steps from reliquary)
+  # Resolve tool images from reliquary (mirror uses gcrane + about steps from reliquary)
   zrbfc_resolve_tool_images
 
   # Dirty-tree guard — mirror stamps HEAD into the about metadata and composes
@@ -1300,7 +1300,7 @@ rbfd_mirror() {
   buf_write_fact_single "${RBF_FACT_ARK_YIELD}-${RBGC_ARK_BASENAME_IMAGE}" \
     "${RBGL_HALLMARKS_ROOT}/${z_hallmark}/${RBGC_ARK_BASENAME_IMAGE}:${z_hallmark}"
 
-  # Submit combined Cloud Build (skopeo image copy + about steps)
+  # Submit combined Cloud Build (gcrane image copy + about steps)
   zrbfd_mirror_submit "${z_hallmark}" "${z_token}"
 
   # Summary
@@ -1309,7 +1309,7 @@ rbfd_mirror() {
   echo "  Hallmark: ${z_hallmark}"
 }
 
-# Internal: submit combined mirror Cloud Build job (skopeo image copy + about steps)
+# Internal: submit combined mirror Cloud Build job (gcrane image copy + about steps)
 # Args: hallmark token
 zrbfd_mirror_submit() {
   zrbfd_sentinel
@@ -1322,7 +1322,7 @@ zrbfd_mirror_submit() {
   local -r z_gar_path="${RBGD_GAR_PROJECT_ID}/${RBDC_GAR_REPOSITORY}"
   local -r z_mason_sa="projects/${RBDC_DEPOT_PROJECT_ID}/serviceAccounts/${RBGD_MASON_EMAIL}"
 
-  # Step 0: Mirror image via skopeo
+  # Step 0: Mirror image via gcrane
   local -r z_mscript_path="${ZRBFD_RBGJM_STEPS_DIR}/rbgjm01-mirror-image.sh"
   test -f "${z_mscript_path}" || buc_die "Mirror step script not found: ${z_mscript_path}"
 
@@ -1338,12 +1338,12 @@ zrbfd_mirror_submit() {
   z_mbody=$(<"${z_mbody_file}")
   test -n "${z_mbody}" || buc_die "Empty mirror script body"
 
-  printf '#!/bin/bash\n%s' "${z_mbody}" > "${z_mescaped_file}" \
+  printf '#!/busybox/sh\n%s' "${z_mbody}" > "${z_mescaped_file}" \
     || buc_die "Failed to escape mirror script body"
 
   echo "[]" > "${z_mirror_step_file}" || buc_die "Failed to initialize mirror step JSON"
   jq \
-    --arg name "${z_rbfc_tool_skopeo}" \
+    --arg name "${z_rbfc_tool_gcrane}" \
     --arg id "mirror-image" \
     --rawfile script "${z_mescaped_file}" \
     '. + [{name: $name, id: $id, script: $script}]' \

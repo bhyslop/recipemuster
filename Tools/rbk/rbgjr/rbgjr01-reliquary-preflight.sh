@@ -12,7 +12,7 @@
 # execution.
 #
 # Coverage:
-#   - Reliquary tool images (5 of 6): gcloud, docker, syft, binfmt, skopeo.
+#   - Reliquary tool images (5 of 6): gcloud, docker, syft, binfmt, gcrane.
 #     Alpine (this step's own image) is implicitly validated by Cloud Build
 #     pulling it for step execution; failure to pull alpine produces Cloud
 #     Build's own "image not pullable" error before this script runs.
@@ -59,7 +59,7 @@ MISSES=""
 # Tool list mirrors the conclave cohort manifest (rbgjl03) minus alpine.
 # Conclave Lode layout: ONE package <LODES_ROOT>/<RELIQUARY> carrying the cohort
 # as sprued member tags; each tool is the manifest TAG :<TAG_SPRUE><NAME>.
-for TOOL in gcloud docker syft binfmt skopeo; do
+for TOOL in gcloud docker syft binfmt gcrane; do
   PKG_PATH="${_RBGR_LODES_ROOT}/${_RBGR_RELIQUARY}"
   MEMBER_TAG="${_RBGR_TAG_SPRUE}${TOOL}"
   URL="${REGISTRY_API_BASE}/${PKG_PATH}/manifests/${MEMBER_TAG}"

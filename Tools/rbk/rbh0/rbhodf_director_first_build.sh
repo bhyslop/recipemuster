@@ -123,7 +123,7 @@ rbho_director_first_build() {
   buh_step1 "Conclave the ${RBYC_RELIQUARY}"
   buh_e
   buh_line "The ${RBYC_RELIQUARY} is a set of six builder tool images (gcloud,"
-  buh_line "docker, alpine, syft, binfmt, skopeo) that Cloud Build uses during"
+  buh_line "docker, alpine, syft, binfmt, gcrane) that Cloud Build uses during"
   buh_line "${RBYC_VESSEL} construction. Without it, the ${RBYC_CONJURE} preflight"
   buh_line "check fails."
   buh_e
@@ -143,7 +143,7 @@ rbho_director_first_build() {
   buh_e
   buh_tt "   " "${RBZ_CONCLAVE_RELIQUARY}"
   buh_e
-  buh_line "This captures six tool images from upstream into the ${RBYC_DEPOT}"
+  buh_line "This captures the tool images from upstream into the ${RBYC_DEPOT}"
   buh_line "GAR namespace. Takes 2-5 minutes depending on network speed."
   buh_e
   buyy_cmd_yawp "r260324193326";                   local -r z_ds_example="${z_buym_yelp}"

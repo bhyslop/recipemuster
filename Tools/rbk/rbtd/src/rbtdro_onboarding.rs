@@ -1193,7 +1193,7 @@ fn rbtdro_onboarding_ordain_airgap_chain_impl(ctx: &mut rbtdri_Context, dir: &Pa
 
 /// Pin upstream PlantUML by digest. Bind mode reads RBRV_BIND_IMAGE from
 /// rbev-bottle-plantuml/rbrv.env and mirrors the digest into GAR via Cloud
-/// Build (skopeo from reliquary + about/vouch metadata). Propagates plantuml
+/// Build (gcrane from reliquary + about/vouch metadata). Propagates plantuml
 /// hallmark to pluml via RBRN_BOTTLE_HALLMARK.
 fn rbtdro_onboarding_ordain_bind_plantuml(dir: &Path) -> rbtdre_Verdict {
     let probe = rbtdrb_Probe {

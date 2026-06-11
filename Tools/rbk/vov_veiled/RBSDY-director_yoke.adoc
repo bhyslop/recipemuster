@@ -2,8 +2,8 @@
 {rbtgo_director_yoke}
 
 NOTE: This operation writes `RBRV_RELIQUARY=«TOUCHMARK»` into every vessel's {rbrv_regime} file under `${RBRR_VESSEL_DIR}` so that subsequent Cloud Build operations (conjure, bind, graft, enshrine) consume the named tool image set as GCB step images.
-The about/vouch pipeline (gcloud, docker, alpine, syft) consumes reliquary tool images uniformly across all ordain modes; bind additionally uses skopeo and gcrane for image-copy.
-The touchmark is validated once against GAR before any vessel file is touched: the conclave Lode package `{gar_lodes_namespace}/«TOUCHMARK»` must exist and carry all seven expected tool cohort member tags as `:rbi_<tool>` sprued tags — one per tool — on that single package.
+The about/vouch pipeline (gcloud, docker, alpine, syft) consumes reliquary tool images uniformly across all ordain modes; bind additionally uses gcrane for image-copy.
+The touchmark is validated once against GAR before any vessel file is touched: the conclave Lode package `{gar_lodes_namespace}/«TOUCHMARK»` must exist and carry all six expected tool cohort member tags as `:rbi_<tool>` sprued tags — one per tool — on that single package.
 On touchmark validation failure the operation errors diagnostically without writing any vessel.
 On per-vessel write failure the diagnostic identifies the failing vessel and the set of vessels already written, so the operator can resume from a known point.
 This primitive does not commit; the caller (orchestrator or operator) commits the {rbrv_regime} changes.
@@ -49,10 +49,10 @@ HTTP 200 response — a 404 here means the conclave Lode package does not exist
 
 //axhos_step
 . *Verify Tool Cohort Completeness*:
-.. Expected tool name set: `gcloud`, `docker`, `alpine`, `syft`, `binfmt`, `skopeo`, `gcrane` (per
+.. Expected tool name set: `gcloud`, `docker`, `alpine`, `syft`, `binfmt`, `gcrane` (per
 {rbtgo_lode_conclave})
 .. {rbbc_require}
-all seven names present in the filtered list — verified as `:rbi_<tool>` member tags on the single `{gar_lodes_namespace}/«TOUCHMARK»` package
+all six names present in the filtered list — verified as `:rbi_<tool>` member tags on the single `{gar_lodes_namespace}/«TOUCHMARK»` package
 .. {rbbc_fatal}
 if any expected tool is missing — the error message names `«TOUCHMARK»`, the Lode package path, and the specific missing tool(s); remediation points at
 {rbtgo_lode_conclave}

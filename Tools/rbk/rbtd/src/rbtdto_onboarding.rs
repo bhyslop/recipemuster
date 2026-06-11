@@ -37,7 +37,7 @@ fn rbtdto_cases_registered() {
         .expect("onboarding-sequence is registered");
     assert_eq!(fix.cases.len(), 8, "expected eight cases");
     let names: Vec<&str> = fix.cases.iter().map(|c| c.name).collect();
-    assert!(names.iter().any(|n| n.contains("rbtdro_onboarding_inscribe_reliquary")));
+    assert!(names.iter().any(|n| n.contains("rbtdro_onboarding_conclave_reliquary")));
     assert!(names.iter().any(|n| n.contains("rbtdro_onboarding_kludge_tadmor")));
     assert!(names.iter().any(|n| n.contains("rbtdro_onboarding_kludge_ccyolo")));
     assert!(names.iter().any(|n| n.contains("rbtdro_onboarding_ordain_conjure_sentry")));
@@ -47,17 +47,17 @@ fn rbtdto_cases_registered() {
     assert!(names.iter().any(|n| n.contains("rbtdro_onboarding_ordain_graft_demo")));
 }
 
-/// Case order is load-bearing for StateProgressing — inscribe must precede
+/// Case order is load-bearing for StateProgressing — conclave must precede
 /// all reliquary-consuming cases (kludge, conjure, srjcl, airgap, bind).
 #[test]
-fn rbtdto_inscribe_precedes_reliquary_consumers() {
+fn rbtdto_conclave_precedes_reliquary_consumers() {
     let fix = rbtdrc_lookup_fixture(RBTDRM_FIXTURE_ONBOARDING_SEQUENCE)
         .expect("onboarding-sequence is registered");
     let names: Vec<&str> = fix.cases.iter().map(|c| c.name).collect();
-    let inscribe_idx = names
+    let conclave_idx = names
         .iter()
-        .position(|n| n.contains("rbtdro_onboarding_inscribe_reliquary"))
-        .expect("inscribe case present");
+        .position(|n| n.contains("rbtdro_onboarding_conclave_reliquary"))
+        .expect("conclave case present");
     let kludge_tadmor_idx = names
         .iter()
         .position(|n| n.contains("rbtdro_onboarding_kludge_tadmor"))
@@ -82,10 +82,10 @@ fn rbtdto_inscribe_precedes_reliquary_consumers() {
         .iter()
         .position(|n| n.contains("rbtdro_onboarding_ordain_bind_plantuml"))
         .expect("ordain-bind case present");
-    assert!(inscribe_idx < kludge_tadmor_idx);
-    assert!(inscribe_idx < kludge_ccyolo_idx);
-    assert!(inscribe_idx < conjure_idx);
-    assert!(inscribe_idx < srjcl_idx);
-    assert!(inscribe_idx < airgap_idx);
-    assert!(inscribe_idx < bind_idx);
+    assert!(conclave_idx < kludge_tadmor_idx);
+    assert!(conclave_idx < kludge_ccyolo_idx);
+    assert!(conclave_idx < conjure_idx);
+    assert!(conclave_idx < srjcl_idx);
+    assert!(conclave_idx < airgap_idx);
+    assert!(conclave_idx < bind_idx);
 }

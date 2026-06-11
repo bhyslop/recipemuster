@@ -94,7 +94,7 @@ rbho_director_bind() {
   buh_line "the ${RBYC_VESSEL} image from the project's Dockerfile, and SLSA"
   buh_line "${RBYC_PROVENANCE} attests the build chain. ${RBYC_BIND} is the simplest"
   buh_line "${RBYC_ORDAIN} mode: no Dockerfile, no build context, no image build —"
-  buh_line "Cloud Build runs skopeo to copy the digest-pinned upstream image into"
+  buh_line "Cloud Build runs gcrane to copy the digest-pinned upstream image into"
   buh_line "your ${RBYC_DEPOT}, then about/vouch records what was mirrored."
   buh_e
   buh_line "This track binds ${z_lk_vessel} — the PlantUML server image. PlantUML"
@@ -178,7 +178,7 @@ rbho_director_bind() {
   buh_e
   buh_line "Every ${RBYC_ORDAIN}-path ${RBYC_VESSEL} — ${RBYC_CONJURE}, ${RBYC_BIND}, and"
   buh_line "${RBYC_GRAFT} — needs a ${RBYC_RELIQUARY} stamp in its ${RBYC_RBRV}. ${RBYC_BIND}"
-  buh_line "uses skopeo from the ${RBYC_RELIQUARY} to copy the upstream image into"
+  buh_line "uses gcrane from the ${RBYC_RELIQUARY} to copy the upstream image into"
   buh_line "your ${RBYC_DEPOT}, and the about/vouch pipeline that follows runs on"
   buh_line "${RBYC_RELIQUARY} tool images regardless of mode."
   buh_e
@@ -218,7 +218,7 @@ rbho_director_bind() {
   buh_code "   RBRV_BIND_IMAGE=docker.io/plantuml/plantuml-server@sha256:cd3d67a..."
   buh_e
   buh_line "${RBYC_ORDAIN} reads the mode from the ${RBYC_RBRV} and routes accordingly."
-  buh_line "For ${RBYC_BIND}, that means: a Cloud Build job runs skopeo (from your"
+  buh_line "For ${RBYC_BIND}, that means: a Cloud Build job runs gcrane (from your"
   buh_line "${RBYC_RELIQUARY}) to copy the digest-pinned image from upstream into"
   buh_line "your ${RBYC_DEPOT} under a ${RBYC_HALLMARK} tag, then the about steps assemble"
   buh_line "${RBYC_SBOM} and metadata. No project Dockerfile, no ${RBYC_POUCH} —"
@@ -237,7 +237,7 @@ rbho_director_bind() {
   buh_e
   buh_tt "   " "${RBZ_ORDAIN_HALLMARK}" "" " ${z_vessel}"
   buh_e
-  buh_line "Wall-clock: ~5-10 minutes — skopeo copy plus about/vouch metadata."
+  buh_line "Wall-clock: ~5-10 minutes — gcrane copy plus about/vouch metadata."
   buh_line "Faster than ${RBYC_CONJURE} because there is no image build, just a"
   buh_line "digest-addressed copy."
   buh_e

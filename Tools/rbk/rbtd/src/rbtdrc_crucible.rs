@@ -2983,7 +2983,7 @@ const RBTDRC_LODE_VERIFICATION_OCI: &str = "oci-digest";
 /// pair of the build-tool cohort (one Google-hosted, one third-party). Compose
 /// rbgc_Constants.sh RBGC_LODE_TAG_SPRUE with the cohort tool names.
 const RBTDRC_RELIQUARY_TAG_GCLOUD: &str = "rbi_gcloud";
-const RBTDRC_RELIQUARY_TAG_SKOPEO: &str = "rbi_skopeo";
+const RBTDRC_RELIQUARY_TAG_GCRANE: &str = "rbi_gcrane";
 
 /// GAR Lode package-root — the raw path the type-blind image verbs (rbw-il /
 /// rbw-iJ) address a Lode by: rbi_ld/<touchmark>. Mirrors rbgc_Constants.sh
@@ -3009,7 +3009,7 @@ const RBTDRC_ENSCONCE_STAMP_TWEAK_NAME: &str = "buorb_ensconce_stamp";
 
 /// Debian-base vessel — a DIFFERENT upstream base than busybox, so ensconcing it
 /// onto a busybox touchmark trips the collision guard's different-digest branch.
-/// Carries the same yoked reliquary as busybox, so host-side skopeo resolution
+/// Carries the same yoked reliquary as busybox, so host-side tool resolution
 /// succeeds and the failure lands cloud-side at the guard, not host-side.
 const RBTDRC_DEB_VESSEL_DIR: &str = concat!(crate::rbtd_vessels_dir!(), "/rbev-sentry-deb-tether");
 
@@ -3265,7 +3265,7 @@ fn rbtdrc_lode_lifecycle(dir: &Path) -> rbtdre_Verdict {
 // the positive control: the identical pipeline on the same pinned touchmark
 // SUCCEEDS for the same base, so step (3)'s failure isolates to the differing
 // digest — the collision branch — not debian-specific infra. Both vessels carry
-// the same yoked reliquary, so host-side skopeo resolution is identical.
+// the same yoked reliquary, so host-side tool resolution is identical.
 fn rbtdrc_lode_collision(dir: &Path) -> rbtdre_Verdict {
     rbtdrc_with_ctx(|ctx| {
         let busybox_dir = RBTDRC_BUSYBOX_VESSEL_DIR;
@@ -3412,7 +3412,7 @@ fn rbtdrc_reliquary_lifecycle(dir: &Path) -> rbtdre_Verdict {
             Err(e) => return rbtdre_Verdict::Fail(format!("augur invocation: {}", e)),
         };
         let _ = std::fs::write(dir.join("04-augur.txt"), &augur.stdout);
-        for member in &[RBTDRC_RELIQUARY_TAG_GCLOUD, RBTDRC_RELIQUARY_TAG_SKOPEO, RBTDRC_LODE_TAG_VOUCH] {
+        for member in &[RBTDRC_RELIQUARY_TAG_GCLOUD, RBTDRC_RELIQUARY_TAG_GCRANE, RBTDRC_LODE_TAG_VOUCH] {
             if !augur.stdout.contains(member) {
                 return rbtdre_Verdict::Fail(format!(
                     "augur missing member tag '{}'\nstdout:\n{}",
@@ -3434,7 +3434,7 @@ fn rbtdrc_reliquary_lifecycle(dir: &Path) -> rbtdre_Verdict {
         // member kinds need. Tag-grain delete leaves the Lode package and its
         // other members intact (whole-Lode delete stays with banish, below).
         let lode_path = format!("{}/{}", RBTDRC_LODES_ROOT, touchmark);
-        let member_ref = format!("{}:{}", lode_path, RBTDRC_RELIQUARY_TAG_SKOPEO);
+        let member_ref = format!("{}:{}", lode_path, RBTDRC_RELIQUARY_TAG_GCRANE);
 
         let pre_list = match rbtdri_invoke_global(ctx, RBTDGC_LIST_IMAGES, &[&lode_path], &[]) {
             Ok(r) if r.exit_code == 0 => r,
@@ -3442,7 +3442,7 @@ fn rbtdrc_reliquary_lifecycle(dir: &Path) -> rbtdre_Verdict {
             Err(e) => return rbtdre_Verdict::Fail(format!("pre-jettison list invocation: {}", e)),
         };
         let _ = std::fs::write(dir.join("04b-list-before-jettison.txt"), &pre_list.stdout);
-        for member in &[RBTDRC_RELIQUARY_TAG_GCLOUD, RBTDRC_RELIQUARY_TAG_SKOPEO] {
+        for member in &[RBTDRC_RELIQUARY_TAG_GCLOUD, RBTDRC_RELIQUARY_TAG_GCRANE] {
             if !pre_list.stdout.contains(member) {
                 return rbtdre_Verdict::Fail(format!(
                     "pre-jettison raw list missing member tag '{}'\nstdout:\n{}",
@@ -3469,10 +3469,10 @@ fn rbtdrc_reliquary_lifecycle(dir: &Path) -> rbtdre_Verdict {
             Err(e) => return rbtdre_Verdict::Fail(format!("post-jettison list invocation: {}", e)),
         };
         let _ = std::fs::write(dir.join("04d-list-after-jettison.txt"), &post_list.stdout);
-        if post_list.stdout.contains(RBTDRC_RELIQUARY_TAG_SKOPEO) {
+        if post_list.stdout.contains(RBTDRC_RELIQUARY_TAG_GCRANE) {
             return rbtdre_Verdict::Fail(format!(
                 "post-jettison list still shows jettisoned member '{}' — member-grain delete failed\nstdout:\n{}",
-                RBTDRC_RELIQUARY_TAG_SKOPEO, post_list.stdout
+                RBTDRC_RELIQUARY_TAG_GCRANE, post_list.stdout
             ));
         }
         if !post_list.stdout.contains(RBTDRC_RELIQUARY_TAG_GCLOUD) {

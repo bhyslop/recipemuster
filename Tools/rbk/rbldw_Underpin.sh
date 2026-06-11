@@ -26,7 +26,7 @@
 #
 # The structural outlier among the Lode kinds: its upstream is an HTTPS rootfs
 # tarball + an out-of-band published checksum, NOT an OCI registry image — so it
-# cannot reuse the skopeo/docker registry-pull steps. Its fetch step (rbgjl04) fetches
+# cannot reuse the gcrane/docker registry-pull steps. Its fetch step (rbgjl04) fetches
 # over curl, GPG-verifies the vendor's published SHA256SUMS against a pinned
 # signing-key fingerprint, verifies the rootfs bytes, and stages the tarball; the wrap
 # step (rbgjl05) gcrane-appends it as an opaque single-layer OCI member (never

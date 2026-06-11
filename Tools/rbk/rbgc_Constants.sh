@@ -244,7 +244,7 @@ zrbgc_kindle() {
   readonly RBGC_LODE_TAG_BOLE="rbi_bole"            # uniform greppable handle (bole singleton)
   readonly RBGC_LODE_TAG_VOUCH="rbi_vouch"          # one-per-Lode provenance envelope
   readonly RBGC_LODE_TAG_DIGEST_PREFIX="rbi_sha256-"  # canonical OCI digest tag: rbi_sha256-<full-hex>
-  # reliquary cohort members carry the clean scheme :<sprue><tool> (e.g. rbi_skopeo)
+  # reliquary cohort members carry the clean scheme :<sprue><tool> (e.g. rbi_gcrane)
   # — no digest/fingerprint layer; the tool name is RB-authored lexicon, so sprued.
   readonly RBGC_LODE_TAG_ROOTFS="rbi_rootfs"        # wsl singleton: the opaque rootfs blob member (RB-authored, sprued)
 
@@ -348,12 +348,13 @@ zrbgc_kindle() {
   readonly RBGC_RELIQUARY_TOOL_ALPINE="alpine"
   readonly RBGC_RELIQUARY_TOOL_SYFT="syft"
   readonly RBGC_RELIQUARY_TOOL_BINFMT="binfmt"
-  readonly RBGC_RELIQUARY_TOOL_SKOPEO="skopeo"
-  # gcrane joins the cohort so sealed-reliquary-consuming captures (bole/wsl)
-  # resolve a PINNED gcrane builder from the reliquary, never the floating gcr.io
-  # bootstrap (the supply-chain pinning boundary — RBS0 rbsk_pinning_boundary,
-  # RBSCB). Mirrored as the :debug variant (busybox shell) so the resolved builder
-  # carries the orchestration shell its capture steps need.
+  # gcrane is in the cohort for two reasons: (1) sealed-reliquary-consuming captures
+  # (bole/wsl) resolve a PINNED gcrane builder from the reliquary, never the floating
+  # gcr.io bootstrap (supply-chain pinning boundary — RBS0 rbsk_pinning_boundary,
+  # RBSCB); (2) the bind mirror step (rbgjm01) uses gcrane cp for registry-to-registry
+  # copy, authenticating GAR ambiently via google.Keychain. Mirrored as the :debug
+  # variant (busybox shell) so the resolved builder carries the orchestration shell
+  # its steps need.
   readonly RBGC_RELIQUARY_TOOL_GCRANE="gcrane"
 
   # Fact-file filenames (written to BURD_OUTPUT_DIR by producers, read by tests)
