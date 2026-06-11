@@ -10761,6 +10761,7 @@
       "jjghn_creation_time": "260610",
       "jjghn_status": "jjghe_stabled",
       "jjghn_order": [
+        "₢BeAAG",
         "₢BeAAA",
         "₢BeAAB",
         "₢BeAAC",
@@ -10768,7 +10769,7 @@
         "₢BeAAE",
         "₢BeAAF"
       ],
-      "jjghn_next_pace_seed": "AAG",
+      "jjghn_next_pace_seed": "AAH",
       "jjghn_paces": {
         "₢BeAAA": {
           "jjgpn_tacks": [
@@ -10833,6 +10834,17 @@
               "jjgtn_text": "Write the BCG admission entry for the precision exit-code band.\n\nState the design position:\ndifferentiated exit codes are bad design, interpreting error strings is worse,\nso a small per-gate band exists for exactly the tabtargets\nthe test orchestrator asserts negatively — nothing else.\nInclude: band semantics (in-band means deliberate rejection,\ncode 1 stays \"imprecise death\"),\nthe allocation rule (share across alternatives, never along a pipeline),\nthe enrollment requirement (no code minted outside the bubc tinder block),\nand the rejected stderr-sentinel alternative with why it lost.\nCross-reference from the bubc tinder block comment.\n\n## Character\nProse craft against a settled design — judgment in wording, not in shape.\n\n## Done when\nBCG carries the entry; bubc tinder block points at it.",
               "jjgtn_silks": "bcg-precision-band-admission",
               "jjgtn_basis": "922f49c"
+            }
+          ]
+        },
+        "₢BeAAG": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260611-1317",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nTweak-census cleanup, first of three — small and file-local plus one fixture repoint.\nTier: sonnet-delegable.\n\n## Goal\nRetire the `buorb_immure_resolve_only` tweak —\na doctrine violation per the BUS0 Tweak Mechanism section (convenience short-circuit, not condition-forcing).\nGive the immure resolve/selection path its own read-only lowercase colophon:\na dry-run/plan verb with operator value in its own right (show what immure would capture),\nminted at mount-time per Word Selection against the live colophon tree.\nRepoint the fast podvm-resolve case to invoke the new colophon directly,\ndropping the tweak export and the seam-marker output assertion it existed to carry.\n\n## Cinched\n- The tweak read in the immure body and both theurge constants go; no compatibility shim.\n- New colophon is lowercase (touches no GAR/cost state), in the Lode family.\n- Full immure behavior unchanged.\n\n## Done when\n`grep -rn \"buorb_immure_resolve_only\" Tools/` returns zero;\nfast suite green with the podvm-resolve case exercising the new colophon.",
+              "jjgtn_silks": "evict-immure-resolve-only-tweak",
+              "jjgtn_basis": "21d2eb9"
             }
           ]
         }
