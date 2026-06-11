@@ -10798,6 +10798,13 @@
         "₢BeAAC": {
           "jjgpn_tacks": [
             {
+              "jjgtn_ts": "260611-1318",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nThe heat's centerpiece conversion — replaces fabricated-regime probate testing with in-universe poisoning.\nOpens with a short census; the conversion itself is mechanical but each case needs real reading.\nTier: opus-driven with sonnet-delegable bodies.\n\n## Goal\nConvert the regime-validation negative cases from Rust-fabricated regime files\ndriven through the test-only `*_probate` side-door entries\nto in-universe tests:\nthe real validate verbs run against real regime files,\nwith a regime-poison tweak forcing the invalid condition —\none BUK seam in the regime-load path, post-source pre-validate,\nsupporting set and unset of one named variable —\nand each case asserting its rejection gate's specific band code.\nHouse the converted negatives in a NEW fixture outside the fast suite:\nfast reserves the tweak slot for the credless guard, and poison cases need the slot,\nso this fixture enrolls in the service, crucible, and complete suites instead;\nthe regime-validation positives stay in fast.\nDelete each `*_probate` side-door entry as its consumers convert.\nUpdate the CLAUDE.md test-table guidance:\nregime/validation changes run fast plus the new fixture.\n\n## Open at mount\n- Baseline availability census: which regimes have a valid in-tree baseline (nameplate/vessel/repo)\n  versus operator-local (station/payor/oauth/auth/depot) needing a staged valid-baseline fixture file.\n- Per-gate band-code allocation against the allocation rule\n  (share across alternatives, never along a pipeline).\n\n## Cinched\n- The poison seam is one membrane in BUK regime-load with set+unset semantics, carried on the tweak channel.\n- The probate doors delete — no parallel survival.\n- The enrollment-validation, recipe-validation, and dockerfile-hygiene fixtures are out of scope here:\n  their staging shapes are already honest (inline values against the validator; the artifact under test is a file).\n\n## Done when\nThe regime-validation negatives run in-universe in the new fixture asserting specific band codes;\nno regime `*_probate` entry survives in Tools/;\nfast green;\nthe new fixture green standalone via the single-fixture tabtarget.",
+              "jjgtn_silks": "migrate-regime-validation-negatives",
+              "jjgtn_basis": "4e9ea92"
+            },
+            {
               "jjgtn_ts": "260610-1154",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": "Close the wrong-reason hole for the regime-validation fixture's negative cases.\n\nTeach the regime probate gate to reject with its band code via the origin helper.\nNote regime probate co-occurs with nearly every CLI verb's pipeline,\nso per the allocation rule it keeps a code of its own.\nExtend the theurge negative helpers (`Tools/rbk/rbtd/src/rbtdrf_fast.rs`)\nto assert a specific expected code rather than bare nonzero,\nand flip the regime-validation fixture's negative cases onto it.\n\n## Done when\n`tt/rbw-ts.TestSuite.fast.sh` green;\na deliberate harness-style breakage (e.g. unbound variable in the gate path)\nnow fails the negative case instead of passing it.",
@@ -10830,6 +10837,13 @@
         },
         "₢BeAAF": {
           "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260611-1318",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nProse craft against settled design — judgment in wording, not in shape.\n\n## Goal\nWrite the BCG admission entry for the precision exit-code band.\nState the design position:\ndifferentiated exit codes are bad design, interpreting error strings is worse,\nso a small per-gate band exists for exactly the tabtargets the test orchestrator asserts negatively — nothing else.\nInclude: band semantics (in-band means deliberate rejection, code 1 stays \"imprecise death\"),\nthe allocation rule (share across alternatives, never along a pipeline),\nthe enrollment requirement (no code minted outside the bubc tinder block),\nand the rejected stderr-sentinel alternative with why it lost.\nCross-reference from the bubc tinder block comment.\nThen sweep the tweak-doctrine touchpoints into agreement with the BUS0 Tweak Mechanism section\n(landed at heat start):\nthe CLAUDE.md BUK include's tweak paragraph,\nthe fast-tier slot reservation (the credless guard),\nand the in-universe poison seam as the doctrine's worked examples —\nconfirming the live tweak census conforms (stamp, poison, guard) with no stale exceptions.\n\n## Done when\nBCG carries the band entry; the bubc tinder block points at it;\nthe CLAUDE.md BUK include and BUS0 agree;\nthe doctrine's worked examples name the live census.",
+              "jjgtn_silks": "bcg-precision-band-admission",
+              "jjgtn_basis": "4e9ea92"
+            },
             {
               "jjgtn_ts": "260610-1155",
               "jjgtn_state": "jjgte_rough",
