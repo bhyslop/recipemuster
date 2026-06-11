@@ -8754,13 +8754,14 @@
         "₢BHAAh",
         "₢BHAAi",
         "₢BHAAj",
+        "₢BHAAk",
         "₢BHAAb",
         "₢BHAAD",
         "₢BHAAc",
         "₢BHAAd",
         "₢BHAAf"
       ],
-      "jjghn_next_pace_seed": "AAk",
+      "jjghn_next_pace_seed": "AAl",
       "jjghn_paces": {
         "₢BHAAA": {
           "jjgpn_tacks": [
@@ -9890,6 +9891,17 @@
               "jjgtn_text": "## Character\nTiny surgical repair mirroring the landed kind-brand fix (commit 91666a97b).\nTier: sonnet-delegable.\n\n## Goal\nzrbfd_elect_base_anchor (rbfd_FoundryDirectorBuild.sh): when the populated\nRBRV_IMAGE_n_ORIGIN slot count is not exactly one, log-and-leave-the-ANCHOR\n(loud buc_log_args), not buc_die — absence of election is already a normal outcome\nof this function, and the die kills a multi-origin ordain behind a chained bole fact\n(dormant today: no live vessel populates slots 2-3; fires on the first that does).\nDecide at mount whether count==0 warrants a distinct message from count>1.\n\n## Done when\nThe die is softened to log-and-leave; fast green;\na fixture case covers the multi-slot no-op if one is cheap to add.\n\n## Sources\nMemos/memo-20260610-heat-BH-fable-recommendation-elect-anchor-slot-count.md",
               "jjgtn_silks": "elect-anchor-slot-count-soften",
               "jjgtn_basis": "438cd71"
+            }
+          ]
+        },
+        "₢BHAAk": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260610-2116",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nSmall consistency extension of the rbk-08 read-back-verification pattern.\nTier: sonnet-delegable.\nThe live flap signature is unobservable on the standing depot;\nlive proof rides the operator's depot-recreate plan, not this heat.\n\n## Goal\nrbgg_invest_director: after granting the Director SA self-actAs\n(roles/iam.serviceAccountUser on itself), poll the SA IAM policy until the binding\nis visible before declaring invest complete — closes the Class-C propagation flap\nat the first post-invest builds.create (the spine dispatch dies on the first\nPERMISSION_DENIED today).\n\n## Done when\nRead-back gate landed matching the existing read-back pattern; fast green;\nthe invest path unbroken against the standing depot.\n\n## Sources\nMemos/memo-20260610-heat-BH-fable-recommendation-actas-propagation-flap.md\n(repair option 1 — invest-side gate — chosen at triage; submit-side tolerance declined).",
+              "jjgtn_silks": "invest-actas-readback-gate",
+              "jjgtn_basis": "0a7de88"
             }
           ]
         }
