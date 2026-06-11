@@ -1,7 +1,8 @@
 # Fable recommendation — python cloud steps need an import allowlist (and a subprocess policy)
 
 Date: 2026-06-10
-Status: recommendation, grounded in code (second Fable review pass); not yet acted on. Operator-prompted:
+TRIAGED 2026-06-10: slated and landed as the cupel-python-import-allowlist pace (₢BHAAm, wrapped) — twelve-root floor on ZRBTDRU_PY_IMPORT_ALLOWED, subprocess argv[0] scan, gcloud adjudicated with dated comment.
+Status: recommendation, grounded in code (second Fable review pass). Operator-prompted:
 "should we create an equivalent of the bash command allowlist for python, anchored on imports?"
 
 ## Verdict: yes — and the gap is already carrying live traffic

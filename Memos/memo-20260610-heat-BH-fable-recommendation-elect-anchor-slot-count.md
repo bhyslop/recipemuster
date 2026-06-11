@@ -1,7 +1,8 @@
 # Fable recommendation — elect_base_anchor slot-count die is a dormant sibling of the brand-leak ordain killer
 
 Date: 2026-06-10
-Status: recommendation from the post-wrap ₣BH review (second Fable pass); not yet acted on.
+Status: recommendation from the post-wrap ₣BH review (second Fable pass).
+TRIAGED 2026-06-10: slated and landed as the elect-anchor-slot-count-soften pace (₢BHAAj, wrapped).
 
 ## The behavior
 

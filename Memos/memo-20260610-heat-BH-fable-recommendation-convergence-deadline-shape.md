@@ -4,6 +4,7 @@ Date: 2026-06-10
 
 Status: Recommendation from the Fable review of the cloud-dispatch delete architecture
 (commit 4f8a5c703). Latent for today's package shapes; wrong-shaped for large webs.
+TRIAGED 2026-06-10: declined for now — recorded as an RBSHR horizon entry (progress-aware convergence deadline); revisit if captured web sizes grow an order of magnitude.
 
 ## The correctable behavior
 

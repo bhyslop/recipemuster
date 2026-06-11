@@ -1,7 +1,8 @@
 # Fable recommendation — rbfl_jettison success message claims a tolerance the code refuses
 
 Date: 2026-06-10
-Status: recommendation from the post-wrap ₣BH review (second Fable pass); not yet acted on.
+Status: recommendation from the post-wrap ₣BH review (second Fable pass).
+TRIAGED 2026-06-10: folded into the cloud-delete-hardening pace (₢BHAAh, wrapped) — code now tolerates 404, matching the message.
 
 ## The behavior
 

@@ -3,6 +3,7 @@
 Date: 2026-06-10
 Status: standing-hazard record from the podvm refresh pace; the immediate instance was caught
 pre-run and fixed with a buo test-seam. Triage material for the ₣BH terminal memo-walk pace.
+TRIAGED 2026-06-10: slated as the fast-tier-credless-by-construction pace (₢BHAAl, pending — the poison-marker enforcement).
 
 ## The near-miss
 

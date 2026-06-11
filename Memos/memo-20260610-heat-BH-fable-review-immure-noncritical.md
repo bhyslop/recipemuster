@@ -1,6 +1,7 @@
 # Fable review — ₢BHAAW immure pace, noncritical findings + carried follow-ups
 
 Date: 2026-06-10
+TRIAGED 2026-06-10: items 1, 2, 6, 7, 8 slated and landed as the immure-capture-residue pace (₢BHAAi, wrapped); items 3, 4, 5 recorded-declined — they stand as records here.
 Status: noncritical findings from the pre-wrap adversarial review of the podvm immure pace.
 Nothing here blocks the wrap; the two stale-comment sites that DID block it went to the
 implementing session directly. All items below are triage material for the ₣BH terminal

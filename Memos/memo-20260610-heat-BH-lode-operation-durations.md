@@ -1,6 +1,7 @@
 # Lode operation durations — log manifest (heat ₣BH)
 
 Date: 2026-06-10
+TRIAGED 2026-06-10: subset drift + stale CLAUDE.md table slated and landed as the suite-subset pace (₢BHAAg, wrapped); the durations re-baseline rides the endgame ladder (₢BHAAf); further per-operation extraction declined — this memo stands as the manifest.
 Status: **filename manifest only** — preserves which of today's passed-test logs to mine
 for per-operation duration expectations. The actual duration extraction is a later pace
 (logs in `../logs-buk/` rotate, so the filenames are captured here before they age out).

@@ -1,6 +1,7 @@
 # Enshrine/reliquary structural residue — needs an owner the word-scrub disclaims
 
 Date: 2026-06-10
+TRIAGED 2026-06-10: items 2+3 slated and landed as the enshrine-spec-structural-residue pace (₢BHAAn, wrapped); item 1 confirmed owned by the terminal vocab scrub.
 Status: triage material from the inscribe→conclave cutover handoff. The cutover's closing session
 flagged these as LOW/not-this-pace; recorded here because the heat's terminal vocab scrub explicitly
 disowns structural removals ("structural removals are owned by their own paces, not here"), so

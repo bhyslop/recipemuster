@@ -4,6 +4,7 @@ Date: 2026-06-10
 
 Status: Recommendation from the Fable review of the cloud-dispatch delete architecture
 (commit 4f8a5c703). Not observable on a standing depot; will surface on a pristine gauntlet.
+TRIAGED 2026-06-10: repair option 1 slated and landed as the invest-actas-readback-gate pace (₢BHAAk, wrapped); live flap proof rides the operator depot-recreate plan.
 
 ## The correctable behavior
 

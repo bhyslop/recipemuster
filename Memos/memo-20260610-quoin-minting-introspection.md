@@ -4,6 +4,8 @@
 
 Discovery draft v0.1 — Introspective report (2026-06-10)
 
+TRIAGED 2026-06-10: standing reference, no pace — the guidance constrains future mints and the eventual reminting-tooling design.
+
 ## Origin
 
 This memo records introspections offered by Claude (Fable 5) during a review of MCM,

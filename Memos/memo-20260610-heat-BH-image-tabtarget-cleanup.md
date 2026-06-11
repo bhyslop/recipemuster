@@ -5,6 +5,8 @@
 deliberately-incurred terminal-exclusivity violation and the two later events
 that clear it.*
 
+TRIAGED 2026-06-10: Wave 2 confirmed landed (grep census clean — no `rbw-i[waJ]r` survives); Wave 3 recorded as an RBSHR horizon entry for the made-side retrofit heat.
+
 ## Why this memo exists
 
 The image-backdoor-path-verbs pace introduced the generic, type-blind

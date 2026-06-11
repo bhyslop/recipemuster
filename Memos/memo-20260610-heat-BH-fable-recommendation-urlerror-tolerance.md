@@ -4,6 +4,7 @@ Date: 2026-06-10
 
 Status: Recommendation from the Fable review of the cloud-dispatch delete architecture
 (commit 4f8a5c703). Small consistency repair in the convergence step.
+TRIAGED 2026-06-10: folded into the cloud-delete-hardening pace (₢BHAAh, wrapped) — fire_delete tolerates URLError/timeout in the reconciling form; truth-readers stay fail-fast.
 
 ## The correctable behavior
 

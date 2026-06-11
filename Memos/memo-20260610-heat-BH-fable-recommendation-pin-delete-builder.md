@@ -4,6 +4,7 @@ Date: 2026-06-10
 
 Status: Recommendation from the Fable review of the cloud-dispatch delete architecture
 (commit 4f8a5c703). Not a blocker for the landed pace; priority hardening.
+TRIAGED 2026-06-10: folded into the cloud-delete-hardening pace (₢BHAAh, wrapped) — ZRBFC_DELETE_BUILDER digest-pinned, RBSCB posture updated.
 
 ## The correctable behavior
 

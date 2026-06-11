@@ -4,6 +4,7 @@ Date: 2026-06-10
 
 Status: Recommendation from the Fable review of the cloud-dispatch delete architecture
 (commit 4f8a5c703). Cheap hang-bounding in the convergence step.
+TRIAGED 2026-06-10: folded into the cloud-delete-hardening pace (₢BHAAh, wrapped) — 30s timeout on every urlopen.
 
 ## The correctable behavior
 

@@ -1,6 +1,7 @@
 # Lode extract keys-dump triplication — cleanup candidate (heat ₣BH)
 
 Date: 2026-06-10
+TRIAGED 2026-06-10: option 2 slated and landed as the single-slot-extract-consolidation pace (₢BHAAo, wrapped — zrbld_spine_extract_single in the spine).
 Status: finding only, no verdict — for the terminal memo triage / a cleanup pass.
 
 ## What exists
