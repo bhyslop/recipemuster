@@ -24,11 +24,17 @@ use super::rbtdru_cupel::{
     zrbtdru_command_words,
     zrbtdru_is_assignment,
     zrbtdru_keyword_kind,
+    zrbtdru_py_import_roots,
+    zrbtdru_py_scan,
+    zrbtdru_py_tokens,
     zrbtdru_Domain,
+    zrbtdru_Finding,
+    zrbtdru_PyToken,
     ZRBTDRU_DECLARED_DEPS,
     ZRBTDRU_EVICTIONS,
     ZRBTDRU_GCB_ALLOWED,
     ZRBTDRU_POSIX_FLOOR,
+    ZRBTDRU_PY_IMPORT_ALLOWED,
 };
 
 /// Command-position tokens of `src`, as bare strings (line numbers dropped).
@@ -313,3 +319,132 @@ fn rbtdtu_classify_path_command_uses_basename() {
     assert!(verdict.is_some());
     assert!(verdict.unwrap().contains("evicted"));
 }
+
+// ── Python step scan ────────────────────────────────────────
+
+/// Run the python scan over `src`, returning its findings.
+fn py_findings(src: &str) -> Vec<zrbtdru_Finding> {
+    let mut findings = Vec::new();
+    let mut inventory = BTreeSet::new();
+    zrbtdru_py_scan(src, "step.py", &mut findings, &mut inventory);
+    findings
+}
+
+#[test]
+fn rbtdtu_py_import_roots_plain_and_dotted() {
+    assert_eq!(zrbtdru_py_import_roots("import json"), vec!["json"]);
+    assert_eq!(zrbtdru_py_import_roots("import urllib.request"), vec!["urllib"]);
+}
+
+#[test]
+fn rbtdtu_py_import_roots_from_and_comma_forms() {
+    assert_eq!(zrbtdru_py_import_roots("from datetime import datetime, timezone"), vec!["datetime"]);
+    assert_eq!(zrbtdru_py_import_roots("import os, sys"), vec!["os", "sys"]);
+}
+
+#[test]
+fn rbtdtu_py_import_roots_non_import_line_empty() {
+    assert!(zrbtdru_py_import_roots("result = compute()").is_empty());
+    assert!(zrbtdru_py_import_roots("# import requests").is_empty());
+}
+
+#[test]
+fn rbtdtu_py_tokens_comment_stripped() {
+    let toks = zrbtdru_py_tokens("x = 1  # eval(evil)\n");
+    assert!(toks.iter().all(|(_, t)| *t != zrbtdru_PyToken::Ident("eval".to_string())));
+}
+
+#[test]
+fn rbtdtu_py_tokens_triple_quoted_string_single_token() {
+    let toks = zrbtdru_py_tokens("\"\"\"docstring with exec( inside\nsecond line\"\"\"\nx = 1\n");
+    let strings: Vec<_> = toks.iter().filter(|(_, t)| matches!(t, zrbtdru_PyToken::Str(_))).collect();
+    assert_eq!(strings.len(), 1);
+    assert!(toks.iter().all(|(_, t)| *t != zrbtdru_PyToken::Ident("exec".to_string())));
+}
+
+#[test]
+fn rbtdtu_py_tokens_line_numbers_advance() {
+    let toks = zrbtdru_py_tokens("a\nb\n");
+    assert_eq!(toks[0].0, 1);
+    assert_eq!(toks[1].0, 2);
+}
+
+#[test]
+fn rbtdtu_py_scan_floor_imports_pass() {
+    for root in ZRBTDRU_PY_IMPORT_ALLOWED {
+        let src = format!("import {}\n", root);
+        assert!(py_findings(&src).is_empty(), "floor import flagged: {}", root);
+    }
+}
+
+#[test]
+fn rbtdtu_py_scan_third_party_import_flagged() {
+    let findings = py_findings("import requests\n");
+    assert_eq!(findings.len(), 1);
+    assert_eq!(findings[0].command, "requests");
+    assert!(findings[0].detail.contains("unsanctioned import"));
+}
+
+#[test]
+fn rbtdtu_py_scan_from_subprocess_flagged() {
+    let findings = py_findings("from subprocess import run\n");
+    assert_eq!(findings.len(), 1);
+    assert!(findings[0].detail.contains("argv[0]"));
+}
+
+#[test]
+fn rbtdtu_py_scan_dynamic_import_flagged() {
+    assert!(!py_findings("import importlib\n").is_empty());
+    assert!(!py_findings("mod = __import__(\"os\")\n").is_empty());
+}
+
+#[test]
+fn rbtdtu_py_scan_exec_eval_calls_flagged() {
+    assert_eq!(py_findings("exec(payload)\n").len(), 1);
+    assert_eq!(py_findings("eval(expr)\n").len(), 1);
+}
+
+#[test]
+fn rbtdtu_py_scan_exec_attribute_not_flagged() {
+    // An attribute named exec is a different symbol from the builtin.
+    assert!(py_findings("conn.exec(query)\n").is_empty());
+}
+
+#[test]
+fn rbtdtu_py_scan_subprocess_allowed_target_passes() {
+    let src = "import subprocess\nsubprocess.run([\"gcloud\", \"info\"], check=True)\n";
+    assert!(py_findings(src).is_empty());
+}
+
+#[test]
+fn rbtdtu_py_scan_subprocess_unknown_target_flagged() {
+    let src = "import subprocess\nsubprocess.run([\"pip\", \"install\", \"x\"])\n";
+    let findings = py_findings(src);
+    assert_eq!(findings.len(), 1);
+    assert_eq!(findings[0].command, "pip");
+    assert_eq!(findings[0].line, 2);
+}
+
+#[test]
+fn rbtdtu_py_scan_subprocess_multiline_list_scanned() {
+    let src = "import subprocess\nresult = subprocess.run(\n    [\"pip\", \"install\"],\n    check=True,\n)\n";
+    let findings = py_findings(src);
+    assert_eq!(findings.len(), 1);
+    assert_eq!(findings[0].command, "pip");
+    assert_eq!(findings[0].line, 3);
+}
+
+#[test]
+fn rbtdtu_py_scan_subprocess_dynamic_argv0_skipped() {
+    // A non-literal argv[0] cannot be statically named — skipped, like
+    // dynamic tokens in the bash scan.
+    let src = "import subprocess\nsubprocess.run([cmd, \"arg\"])\n";
+    assert!(py_findings(src).is_empty());
+}
+
+#[test]
+fn rbtdtu_py_scan_string_mention_not_flagged() {
+    assert!(py_findings("msg = \"do not eval(this) or exec(that)\"\n").is_empty());
+}
+
+// eof

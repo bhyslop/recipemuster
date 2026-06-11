@@ -312,31 +312,41 @@ so it can be lifted into a shared snippet later without reconciliation; treat
 divergence as a bug. Closing the gap (a python `#@`-include analogue) is out of
 the capture-unification heat's scope — a future itch.
 
+**Probe (2026-06-10): the expander is already nearly language-blind.** The
+`#@rbgjs_include` marker is a valid python comment, the splice is pure line
+copying, and the first-line shebang strip handles a python shebang — so a
+shared python preamble snippet would splice through `zrbfc_expand_includes`
+with zero expander surgery. The one bash-shaped assumption is the hardcoded
+snippet filename `rbgjs-«name».sh`: a python snippet must either ride that
+`.sh` suffix despite its content or wait for a naming decision (suffix from
+the body's extension, or a python-named sibling). The itch is a snippet-naming
+choice, not expander work.
+
 *Cited by:* a review flagging preamble drift; the future itch that closes it.
 *Removal condition:* delete this rule when python steps gain a shared preamble.
 
-#### ❌ CBp_102: Python bodies sit outside the conformance walk — hold the tool floor by hand
+#### ✅ CBp_102: Python bodies are inside the conformance walk — the cupel holds the tool floor
 
-The supply-chain cupel walks `*.sh` only: a python step's imports and
-`subprocess` calls are unscanned (live consequence: `rbgjv02` subprocess-runs
-`gcloud`, a command the bash allowlist never sanctioned). Until a python walk
-exists, authors hold the line manually:
+The supply-chain cupel walks the python cloud steps (`rbgj*/*.py`) alongside
+the bash domains: every import is held to a stdlib floor anchored on its module
+root, dynamic-import surface (`importlib`/`__import__`/`exec`/`eval`) is banned
+outright, and `subprocess` argv[0] literals are classified against the same GCB
+tool floor as bash command positions — one floor, two languages. What an author
+must know:
 
-- **Imports: stdlib only, from the established floor** (`base64`, `datetime`,
-  `io`, `json`, `os`, `re`, `sys`, `tarfile`, `time`, `urllib`). A third-party
-  import binds the step to the floating builder's unpinned pip set. Never
-  `importlib`/`__import__`/`exec`/`eval` — dynamic import defeats any future
-  static walk. The floor accretes by review until the walk owns it mechanically
-  (`re` joined within a day of this rule's authoring — the enumeration here is
-  the temporary home, not the durable one).
-- **`subprocess` argv[0] honors the same tool floor as bash steps.** Shelling out
-  to a command a bash step could not name is the same violation in a python
-  costume. Prefer in-process `urllib`/REST over shelling out at all.
+- **Imports: stdlib only.** The floor's authoritative home is the doc comment
+  on `ZRBTDRU_PY_IMPORT_ALLOWED` (`rbtdru_cupel.rs`), beside the tool floor on
+  `ZRBTDRU_GCB_ALLOWED` — reference the home, never restate the list (ACG). A
+  third-party import binds the step to the floating builder's unpinned pip set;
+  the fixture fails it.
+- **Shell out as `subprocess.«fn»([...])` with a literal argv[0]**, importing
+  the module unaliased. `from subprocess import …` is rejected (it hides
+  argv[0] from the scan); an aliased import (`import subprocess as sp`) evades
+  the lexer-grade scan — review holds that line. Prefer in-process
+  `urllib`/REST over shelling out at all.
 
 *Cited by:* memo-20260610-heat-BH-fable-recommendation-python-import-allowlist;
-python-step reviews.
-*Removal condition:* flip ✅ (and trim to the floor list) when the cupel gains
-the python walk and these checks become mechanical.
+the cupel python case (`rbtdru_gcb_python`).
 
 ### CBh — Host-Composition Seam (what a body is authored against)
 

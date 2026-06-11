@@ -56,6 +56,12 @@
 //                  evicted commands and gcloud are present, so evictions are not
 //                  enforced and the GCB-extra allowlist is added.
 //
+// A third case walks the python cloud steps (*.py under the same rbgj*
+// directories): imports are held to a stdlib floor anchored on each import's
+// module root, dynamic-import surface is banned outright, and `subprocess`
+// argv[0] literals are classified against the same GCB tool floor as bash
+// command positions — one floor, two languages (CBG, CBp rules).
+//
 // Known lexer limits (accepted per the fixture's design — the corpus is
 // shellcheck-clean and the discovery run surfaces residue for triage):
 //   - Command substitutions nested inside double-quoted strings are not scanned.
@@ -90,6 +96,11 @@ pub(crate) const ZRBTDRU_KIT_ROOTS: &[&str] = &["buk", "rbk"];
 /// Extension (no dot) selecting bash files from the corpus walk.
 pub(crate) const ZRBTDRU_SH_EXT: &str = "sh";
 
+/// Extension (no dot) selecting python cloud-step files. Python is scanned
+/// only under the GCB job directories (rbgj*) — other python in the kit roots
+/// (e.g. in-bottle attack scripts) is not cloud-step surface.
+pub(crate) const ZRBTDRU_PY_EXT: &str = "py";
+
 /// Directory-name prefix marking the Google Cloud Build job family. Any bash
 /// under a `Tools/rbk/rbgj*` directory is GCB-bash. Partitioning by this prefix
 /// — rather than a hardcoded directory list — keeps the partition drift-proof
@@ -120,6 +131,7 @@ pub(crate) const ZRBTDRU_INVENTORY_SUFFIX: &str = "-inventory.txt";
 /// Domain labels — name the findings trace and the verdict message per domain.
 pub(crate) const ZRBTDRU_LABEL_KIT: &str = "kit";
 pub(crate) const ZRBTDRU_LABEL_GCB: &str = "gcb";
+pub(crate) const ZRBTDRU_LABEL_PY: &str = "py";
 
 // ── BCG allowlists (source of truth: BCG + RBS0 Dependency Inventory) ──
 
@@ -151,10 +163,33 @@ pub(crate) const ZRBTDRU_DECLARED_DEPS: &[&str] = &[
 /// dependency — use grep+cut"), so a GCB script reaching for a tool outside its
 /// controlled container still fails — a supply-chain conformance check, not
 /// merely a portability one.
+///
+/// This list is the single tool floor for BOTH step languages: bash
+/// command-position tokens and python `subprocess` argv[0] literals are
+/// classified against the same membership (one floor, two languages).
 pub(crate) const ZRBTDRU_GCB_ALLOWED: &[&str] = &[
-    "apt-get", "awk", "cat", "curl", "cut", "docker", "gcrane", "gpg",
+    "apt-get", "awk", "cat", "curl", "cut", "docker",
+    // gcloud adjudicated 2026-06-10: rbgjv02's SLSA provenance describe
+    // subprocess-runs it in the cloud-sdk builder where it is native;
+    // REST conversion deferred.
+    "gcloud",
+    "gcrane", "gpg",
     "grep", "head", "ls", "openssl", "sha256sum", "shasum",
     "tar", "tr", "wget",
+];
+
+/// Python stdlib import floor — the module roots a python cloud step may
+/// import, enumerated empirically as the union over Tools/rbk/rbgj*/*.py.
+/// This constant is the floor's authoritative home (CBG CBp_102 points here,
+/// never restates the list). Stdlib-only is the criterion: a third-party
+/// import binds a step to the floating builder's unpinned pip set — the same
+/// drift class the bash allowlist exists to stop. `subprocess` is sanctioned
+/// only because its argv[0] literals are scanned against the GCB tool floor;
+/// dynamic-import surface (importlib / __import__ / exec / eval) is banned
+/// outright in the scan, never via this list.
+pub(crate) const ZRBTDRU_PY_IMPORT_ALLOWED: &[&str] = &[
+    "base64", "datetime", "io", "json", "os", "re", "socket", "subprocess",
+    "sys", "tarfile", "time", "urllib",
 ];
 
 /// Bash builtins and command-position keywords that name no external command —
@@ -819,9 +854,10 @@ struct zrbtdru_ScanResult {
 
 // ── Corpus walk and scan ────────────────────────────────────
 
-/// Recursively collect every `*.sh` file under `dir` into `out`, skipping any
-/// subdirectory whose basename begins with one of `excluded_prefixes`.
-fn zrbtdru_walk_sh(dir: &Path, excluded_prefixes: &[&str], out: &mut Vec<PathBuf>) {
+/// Recursively collect every file with extension `ext` under `dir` into
+/// `out`, skipping any subdirectory whose basename begins with one of
+/// `excluded_prefixes`.
+fn zrbtdru_walk_ext(dir: &Path, ext: &str, excluded_prefixes: &[&str], out: &mut Vec<PathBuf>) {
     let entries = match std::fs::read_dir(dir) {
         Ok(e) => e,
         Err(_) => return,
@@ -841,8 +877,8 @@ fn zrbtdru_walk_sh(dir: &Path, excluded_prefixes: &[&str], out: &mut Vec<PathBuf
             if excluded {
                 continue;
             }
-            zrbtdru_walk_sh(&path, excluded_prefixes, out);
-        } else if path.extension().and_then(|e| e.to_str()) == Some(ZRBTDRU_SH_EXT) {
+            zrbtdru_walk_ext(&path, ext, excluded_prefixes, out);
+        } else if path.extension().and_then(|e| e.to_str()) == Some(ext) {
             out.push(path);
         }
     }
@@ -867,7 +903,7 @@ fn zrbtdru_scan_domain(tools: &Path, domain: zrbtdru_Domain) -> Result<zrbtdru_S
     // sourced function names resolve (e.g. rbk's Windows handbook sources jjk's
     // zipper); only dead ABANDONED code stays invisible.
     let mut universe_files: Vec<PathBuf> = Vec::new();
-    zrbtdru_walk_sh(tools, ZRBTDRU_UNIVERSE_EXCLUDED_DIR_PREFIXES, &mut universe_files);
+    zrbtdru_walk_ext(tools, ZRBTDRU_SH_EXT, ZRBTDRU_UNIVERSE_EXCLUDED_DIR_PREFIXES, &mut universe_files);
     universe_files.sort();
 
     let mut locals: BTreeSet<String> = BTreeSet::new();
@@ -880,7 +916,7 @@ fn zrbtdru_scan_domain(tools: &Path, domain: zrbtdru_Domain) -> Result<zrbtdru_S
     // Pass 2 — lint target. Only the release kit roots, minus dead/not-yet-live.
     let mut lint_files: Vec<PathBuf> = Vec::new();
     for kit in ZRBTDRU_KIT_ROOTS {
-        zrbtdru_walk_sh(&tools.join(kit), ZRBTDRU_LINT_EXCLUDED_DIR_PREFIXES, &mut lint_files);
+        zrbtdru_walk_ext(&tools.join(kit), ZRBTDRU_SH_EXT, ZRBTDRU_LINT_EXCLUDED_DIR_PREFIXES, &mut lint_files);
     }
     lint_files.sort();
 
@@ -917,6 +953,273 @@ fn zrbtdru_scan_domain(tools: &Path, domain: zrbtdru_Domain) -> Result<zrbtdru_S
     Ok(zrbtdru_ScanResult { findings, inventory })
 }
 
+// ── Python step scan ────────────────────────────────────────
+
+/// One lexical token of a python step body. The scanner needs identifiers
+/// (import roots, dynamic-import surface, the `subprocess` attribute chain),
+/// string literals (subprocess argv[0]), and the punctuation that joins them;
+/// everything else — comments, whitespace — is dropped at lex time.
+#[derive(Clone, Debug, PartialEq)]
+pub(crate) enum zrbtdru_PyToken {
+    Ident(String),
+    Str(String),
+    Punct(char),
+}
+
+/// Tokenize python source into (line, token) pairs. Handles single- and
+/// triple-quoted strings (escapes consumed, content preserved) and strips
+/// `#` comments. Scanner-grade, not a parser — soundness rests on the step
+/// files being valid python, exactly as the bash lexer rests on the corpus
+/// being shellcheck-clean.
+pub(crate) fn zrbtdru_py_tokens(src: &str) -> Vec<(usize, zrbtdru_PyToken)> {
+    let chars: Vec<char> = src.chars().collect();
+    let mut out: Vec<(usize, zrbtdru_PyToken)> = Vec::new();
+    let mut i = 0;
+    let mut line = 1;
+    while i < chars.len() {
+        let c = chars[i];
+        if c == '\n' {
+            line += 1;
+            i += 1;
+            continue;
+        }
+        if c == '#' {
+            while i < chars.len() && chars[i] != '\n' {
+                i += 1;
+            }
+            continue;
+        }
+        if c == '"' || c == '\'' {
+            let quote = c;
+            let triple = i + 2 < chars.len() && chars[i + 1] == quote && chars[i + 2] == quote;
+            let start_line = line;
+            let mut content = String::new();
+            if triple {
+                i += 3;
+                while i < chars.len() {
+                    if chars[i] == '\\' && i + 1 < chars.len() {
+                        if chars[i + 1] == '\n' {
+                            line += 1;
+                        }
+                        content.push(chars[i + 1]);
+                        i += 2;
+                        continue;
+                    }
+                    if chars[i] == quote
+                        && i + 2 < chars.len()
+                        && chars[i + 1] == quote
+                        && chars[i + 2] == quote
+                    {
+                        i += 3;
+                        break;
+                    }
+                    if chars[i] == '\n' {
+                        line += 1;
+                    }
+                    content.push(chars[i]);
+                    i += 1;
+                }
+            } else {
+                i += 1;
+                while i < chars.len() {
+                    if chars[i] == '\\' && i + 1 < chars.len() {
+                        content.push(chars[i + 1]);
+                        i += 2;
+                        continue;
+                    }
+                    if chars[i] == quote {
+                        i += 1;
+                        break;
+                    }
+                    if chars[i] == '\n' {
+                        // Unterminated single-quoted string is a python syntax
+                        // error; stop at the line so the scan stays sane.
+                        break;
+                    }
+                    content.push(chars[i]);
+                    i += 1;
+                }
+            }
+            out.push((start_line, zrbtdru_PyToken::Str(content)));
+            continue;
+        }
+        if c.is_ascii_alphabetic() || c == '_' {
+            let mut ident = String::new();
+            while i < chars.len() && (chars[i].is_ascii_alphanumeric() || chars[i] == '_') {
+                ident.push(chars[i]);
+                i += 1;
+            }
+            out.push((line, zrbtdru_PyToken::Ident(ident)));
+            continue;
+        }
+        if !c.is_whitespace() {
+            out.push((line, zrbtdru_PyToken::Punct(c)));
+        }
+        i += 1;
+    }
+    out
+}
+
+/// Module roots named by a python import line: `import a.b, c` yields
+/// ["a", "c"]; `from x.y import z` yields ["x"]. Non-import lines yield
+/// nothing.
+pub(crate) fn zrbtdru_py_import_roots(line: &str) -> Vec<String> {
+    let trimmed = line.trim_start();
+    if let Some(rest) = trimmed.strip_prefix("from ") {
+        let root: String = rest
+            .trim_start()
+            .chars()
+            .take_while(|c| c.is_ascii_alphanumeric() || *c == '_')
+            .collect();
+        if root.is_empty() {
+            return Vec::new();
+        }
+        return vec![root];
+    }
+    let rest = match trimmed.strip_prefix("import ") {
+        Some(r) => r,
+        None => return Vec::new(),
+    };
+    rest.split(',')
+        .map(|part| {
+            part.trim_start()
+                .chars()
+                .take_while(|c| c.is_ascii_alphanumeric() || *c == '_')
+                .collect::<String>()
+        })
+        .filter(|root| !root.is_empty())
+        .collect()
+}
+
+/// Scan one python step body, appending findings and inventory entries.
+/// Three checks:
+///
+///   - Import allowlist — every import's module root must be on the python
+///     stdlib floor. `from subprocess import …` is additionally rejected even
+///     though the root is sanctioned: only the attribute-call form keeps
+///     `subprocess` argv[0] visible to the scan below.
+///   - Dynamic-import ban — `importlib` / `__import__` anywhere, and `exec` /
+///     `eval` as builtin calls. Dynamic import defeats static conformance.
+///   - Subprocess argv[0] — a `subprocess.«fn»([` whose first list element is
+///     a string literal is classified against the GCB tool floor (POSIX floor
+///     ∪ the curated container-tool list). A non-literal argv[0] is skipped,
+///     like dynamic tokens in the bash scan.
+///
+/// Accepted scanner limits (lexer-grade, mirroring the bash lexer's): an
+/// aliased module (`import subprocess as sp`) hides the attribute chain, and
+/// code assembled in strings is invisible. The corpus is reviewed source; the
+/// scan is the drift tripwire, not a sandbox.
+pub(crate) fn zrbtdru_py_scan(
+    src: &str,
+    rel: &str,
+    findings: &mut Vec<zrbtdru_Finding>,
+    inventory: &mut BTreeSet<String>,
+) {
+    for (idx, line) in src.lines().enumerate() {
+        for root in zrbtdru_py_import_roots(line) {
+            inventory.insert(root.clone());
+            if !ZRBTDRU_PY_IMPORT_ALLOWED.contains(&root.as_str()) {
+                findings.push(zrbtdru_Finding {
+                    file: rel.to_string(),
+                    line: idx + 1,
+                    command: root,
+                    detail: "unsanctioned import — not in the python stdlib import floor"
+                        .to_string(),
+                });
+            }
+        }
+        if line.trim_start().starts_with("from subprocess ") {
+            findings.push(zrbtdru_Finding {
+                file: rel.to_string(),
+                line: idx + 1,
+                command: "subprocess".to_string(),
+                detail: "from-import of subprocess — use subprocess.«fn»(…) so argv[0] stays scannable"
+                    .to_string(),
+            });
+        }
+    }
+
+    let tokens = zrbtdru_py_tokens(src);
+    for (i, (line, tok)) in tokens.iter().enumerate() {
+        let ident = match tok {
+            zrbtdru_PyToken::Ident(s) => s.as_str(),
+            _ => continue,
+        };
+        let after_dot = i > 0 && tokens[i - 1].1 == zrbtdru_PyToken::Punct('.');
+        if ident == "importlib" || ident == "__import__" {
+            findings.push(zrbtdru_Finding {
+                file: rel.to_string(),
+                line: *line,
+                command: ident.to_string(),
+                detail: "banned dynamic-import surface — defeats static conformance".to_string(),
+            });
+            continue;
+        }
+        if (ident == "exec" || ident == "eval") && !after_dot {
+            let called = matches!(tokens.get(i + 1), Some((_, zrbtdru_PyToken::Punct('('))));
+            if called {
+                findings.push(zrbtdru_Finding {
+                    file: rel.to_string(),
+                    line: *line,
+                    command: ident.to_string(),
+                    detail: "banned dynamic-exec builtin — defeats static conformance".to_string(),
+                });
+            }
+            continue;
+        }
+        if ident == "subprocess" && !after_dot {
+            let shape_ok = matches!(tokens.get(i + 1), Some((_, zrbtdru_PyToken::Punct('.'))))
+                && matches!(tokens.get(i + 2), Some((_, zrbtdru_PyToken::Ident(_))))
+                && matches!(tokens.get(i + 3), Some((_, zrbtdru_PyToken::Punct('('))))
+                && matches!(tokens.get(i + 4), Some((_, zrbtdru_PyToken::Punct('['))));
+            if !shape_ok {
+                continue;
+            }
+            if let Some((arg_line, zrbtdru_PyToken::Str(argv0))) = tokens.get(i + 5) {
+                inventory.insert(argv0.clone());
+                if !ZRBTDRU_POSIX_FLOOR.contains(&argv0.as_str())
+                    && !ZRBTDRU_GCB_ALLOWED.contains(&argv0.as_str())
+                {
+                    findings.push(zrbtdru_Finding {
+                        file: rel.to_string(),
+                        line: *arg_line,
+                        command: argv0.clone(),
+                        detail:
+                            "unknown subprocess target — not in the curated GCB container-tool allowlist"
+                                .to_string(),
+                    });
+                }
+            }
+        }
+    }
+}
+
+/// Walk the python cloud-step surface — every `*.py` under a GCB job
+/// directory in the release kit roots — and scan each body. Python elsewhere
+/// in the kits (e.g. in-bottle attack scripts) is not cloud-step surface and
+/// stays out of scope.
+fn zrbtdru_scan_python(tools: &Path) -> Result<zrbtdru_ScanResult, String> {
+    let mut files: Vec<PathBuf> = Vec::new();
+    for kit in ZRBTDRU_KIT_ROOTS {
+        zrbtdru_walk_ext(&tools.join(kit), ZRBTDRU_PY_EXT, ZRBTDRU_LINT_EXCLUDED_DIR_PREFIXES, &mut files);
+    }
+    files.sort();
+
+    let root = tools.parent().unwrap_or(tools);
+    let mut findings: Vec<zrbtdru_Finding> = Vec::new();
+    let mut inventory: BTreeSet<String> = BTreeSet::new();
+    for path in &files {
+        if !zrbtdru_is_gcb(path) {
+            continue;
+        }
+        let src = std::fs::read_to_string(path)
+            .map_err(|e| format!("read {} failed: {}", path.display(), e))?;
+        let rel = path.strip_prefix(root).unwrap_or(path).display().to_string();
+        zrbtdru_py_scan(&src, &rel, &mut findings, &mut inventory);
+    }
+    Ok(zrbtdru_ScanResult { findings, inventory })
+}
+
 /// Render findings as a stable one-per-line report.
 fn zrbtdru_render(findings: &[zrbtdru_Finding]) -> String {
     let mut report = String::new();
@@ -926,18 +1229,10 @@ fn zrbtdru_render(findings: &[zrbtdru_Finding]) -> String {
     report
 }
 
-/// Drive one domain's scan, persist a findings trace into the case dir, and
-/// fail the verdict when any violation remains.
-fn zrbtdru_run_domain(dir: &Path, domain: zrbtdru_Domain, label: &str) -> rbtdre_Verdict {
-    let root = match std::env::current_dir() {
-        Ok(r) => r,
-        Err(e) => return rbtdre_Verdict::Fail(format!("cannot get cwd: {}", e)),
-    };
-    let tools = root.join(ZRBTDRU_TOOLS_SUBDIR);
-    let scan = match zrbtdru_scan_domain(&tools, domain) {
-        Ok(s) => s,
-        Err(e) => return rbtdre_Verdict::Fail(e),
-    };
+/// Persist a scan's findings and inventory traces into the case dir and turn
+/// the result into a verdict. `what` names the violation class in the fail
+/// message (e.g. "BCG command-discipline violation(s) in kit-bash").
+fn zrbtdru_report(dir: &Path, label: &str, scan: &zrbtdru_ScanResult, what: &str) -> rbtdre_Verdict {
     let findings = &scan.findings;
     let report = zrbtdru_render(findings);
     let findings_name = format!("{}{}{}", ZRBTDRU_TRACE_PREFIX, label, ZRBTDRU_FINDINGS_SUFFIX);
@@ -954,13 +1249,44 @@ fn zrbtdru_run_domain(dir: &Path, domain: zrbtdru_Domain, label: &str) -> rbtdre
     if findings.is_empty() {
         rbtdre_Verdict::Pass
     } else {
-        rbtdre_Verdict::Fail(format!(
-            "{} BCG command-discipline violation(s) in {}-bash:\n{}",
-            findings.len(),
-            label,
-            report
-        ))
+        rbtdre_Verdict::Fail(format!("{} {}:\n{}", findings.len(), what, report))
     }
+}
+
+/// Drive one bash domain's scan, persist its traces, and fail the verdict
+/// when any violation remains.
+fn zrbtdru_run_domain(dir: &Path, domain: zrbtdru_Domain, label: &str) -> rbtdre_Verdict {
+    let root = match std::env::current_dir() {
+        Ok(r) => r,
+        Err(e) => return rbtdre_Verdict::Fail(format!("cannot get cwd: {}", e)),
+    };
+    let tools = root.join(ZRBTDRU_TOOLS_SUBDIR);
+    let scan = match zrbtdru_scan_domain(&tools, domain) {
+        Ok(s) => s,
+        Err(e) => return rbtdre_Verdict::Fail(e),
+    };
+    let what = format!("BCG command-discipline violation(s) in {}-bash", label);
+    zrbtdru_report(dir, label, &scan, &what)
+}
+
+/// Drive the python cloud-step scan, persist its traces, and fail the verdict
+/// when any violation remains.
+fn zrbtdru_run_python(dir: &Path) -> rbtdre_Verdict {
+    let root = match std::env::current_dir() {
+        Ok(r) => r,
+        Err(e) => return rbtdre_Verdict::Fail(format!("cannot get cwd: {}", e)),
+    };
+    let tools = root.join(ZRBTDRU_TOOLS_SUBDIR);
+    let scan = match zrbtdru_scan_python(&tools) {
+        Ok(s) => s,
+        Err(e) => return rbtdre_Verdict::Fail(e),
+    };
+    zrbtdru_report(
+        dir,
+        ZRBTDRU_LABEL_PY,
+        &scan,
+        "python step-conformance violation(s)",
+    )
 }
 
 // ── Cases and fixture ───────────────────────────────────────
@@ -973,9 +1299,14 @@ fn rbtdru_gcb_bash(dir: &Path) -> rbtdre_Verdict {
     zrbtdru_run_domain(dir, zrbtdru_Domain::Gcb, ZRBTDRU_LABEL_GCB)
 }
 
+fn rbtdru_gcb_python(dir: &Path) -> rbtdre_Verdict {
+    zrbtdru_run_python(dir)
+}
+
 pub static RBTDRU_CASES_CUPEL: &[rbtdre_Case] = &[
     case!(rbtdru_kit_bash),
     case!(rbtdru_gcb_bash),
+    case!(rbtdru_gcb_python),
 ];
 
 pub static RBTDRU_FIXTURE_CUPEL: rbtdre_Fixture = rbtdre_Fixture {
