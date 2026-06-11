@@ -38,7 +38,7 @@ zrbv_furnish() {
   source "${z_rbk_kit_dir}/rbrm_regime.sh"
   source "${z_rbk_kit_dir}/rbdc_DerivedConstants.sh"
   source "${z_rbk_kit_dir}/rbrs_regime.sh"
-  source "${z_rbk_kit_dir}/rbv_PodmanVM.sh"
+  source "${z_rbk_kit_dir}/rbv_podvm.sh"
 
   # Initialize enrollment and validate environment
   zbuv_kindle

@@ -120,7 +120,7 @@ An important transitional note concerns GHCR-era variables. The original impleme
 
 == Implementation Status
 
-The current implementation exists in Tools/rbk/rbv_PodmanVM.sh and targets GitHub Container Registry. This bash module implements the mirror, fetch, init, start, stop, and nuke operations as described above. However, the check operation, which would discover upstream updates by comparing digests, has no bash implementation and exists only as a concept.
+The current implementation exists in Tools/rbk/vov_veiled/FUTURE/rbv_podvm.sh and targets GitHub Container Registry. This bash module implements the mirror, fetch, init, start, stop, and nuke operations as described above. However, the check operation, which would discover upstream updates by comparing digests, has no bash implementation and exists only as a concept.
 
 The codebase reflects an evolution well beyond the original specifications. Earlier specification documents RBSVC and RBSVM described a simpler design in which crane would copy entire images directly from upstream to the registry. This design envisioned variables like rbrr_chosen_vmimage_fqin and rbrr_chosen_vmimage_sha that would reference complete images. These variables were never implemented in code and remain spec-only ghosts.
 
@@ -128,7 +128,7 @@ The actual bash implementation evolved to a more sophisticated approach involvin
 
 The vme.extractor.sh script was an earlier standalone tool for manifest introspection. It has been superseded by the zrbv_process_image_type function in the modern bash module, which integrates manifest parsing directly into the mirroring workflow.
 
-The file rbp.podman.mk contains historical Makefile prototypes from the GHCR era. These Makefile targets served as an initial exploration of the VM mirroring workflow but have been fully superseded by the rbv_PodmanVM.sh module, which provides a more robust and maintainable implementation.
+The file rbp.podman.mk contains historical Makefile prototypes from the GHCR era. These Makefile targets served as an initial exploration of the VM mirroring workflow but have been fully superseded by the rbv_podvm.sh module, which provides a more robust and maintainable implementation.
 
 The implementation has never been ported from GitHub Container Registry to Google Artifact Registry. This migration remains necessary for production use within the Recipe Bottle architecture, which standardizes on Google Cloud infrastructure for its depot and service account management.
 
