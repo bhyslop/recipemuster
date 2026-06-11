@@ -1,23 +1,20 @@
 //axhob_operation
 {rbtgo_image_audit}
 
-NOTE: This operation produces a flat catalog of identifiers under one of the two GAR domains
-(hallmarks, enshrinements)
-in
+NOTE: This operation produces a flat catalog of hallmark identifiers in
 {rbtgi_repository}
 via the GAR REST API implemented by
 {gar_service}.
 Identifiers only — no per-member presence detail (use {rbtgo_image_rekon} for that), and no health classification (use {rbtgo_hallmark_tally} for that).
-Reliquary cohorts are no longer audited here — a reliquary is now a conclave {rbtga_lode}, enumerated by {rbtgo_lode_divine}.
+Captured upstream artifacts are not audited here — base images and reliquary cohorts are now {rbtga_lode}s (bole and conclave kinds), enumerated by {rbtgo_lode_divine}.
 
 The
 {rbtr_director}
-audits over two domains, each backed by a distinct procedure:
+audits one domain:
 
 * `rbfl_audit_hallmarks` — every hallmark identifier under the `{gar_hallmarks_namespace}/` root
-* `rbfl_audit_enshrinements` — every enshrined base anchor under the `{gar_enshrines_namespace}/` root
 
-Audit vs. {rbtgo_hallmark_tally}: audit is a {rbtr_director}-tier flat-list operation across all three domains; tally is a {rbtr_retriever}-tier hallmarks-only operation that classifies each entry by basename completeness and vouch status.
+Audit vs. {rbtgo_hallmark_tally}: audit is a {rbtr_director}-tier flat-list operation; tally is a {rbtr_retriever}-tier operation that classifies each entry by basename completeness and vouch status.
 The two roles compose without overlap.
 
 == Hallmarks Audit
@@ -72,53 +69,6 @@ table header `HALLMARK`
 ... {rbbc_show}
 "Total hallmarks: «COUNT»"
 
-== Enshrinements Audit
-
-The
-{rbtr_director}
-audits enshrined base anchors:
-
-//axhos_step
-. *Authenticate as
-{rbtr_director}*:
-.. Execute
-{rbtoe_director_authenticate}
-.. {rbbc_store}
-`«DIRECTOR_TOKEN»` for subsequent API calls
-
-//axhos_step
-. *Enumerate Anchors Under Enshrines Root*:
-.. {rbbc_store}
-`«ENSHRINES_ROOT»` from `RBGL_ENSHRINES_ROOT` (kindled from `RBGC_GAR_CATEGORY_ENSHRINES`, the token `rbi_es`)
-.. {rbbc_store}
-`«REPO_BASE»` as the GAR REST API repository base
-.. {rbbc_call}
-link:https://cloud.google.com/artifact-registry/docs/reference/rest/v1/projects.locations.repositories.packages/list[GAR REST API: packages.list] with:
-... method: `GET`
-... endpoint: `«REPO_BASE»/packages?pageSize=1000`
-... header: `Authorization: Bearer «DIRECTOR_TOKEN»`
-.. {rbbc_require}
-HTTP 200 response
-.. Extract `.packages[].name`, strip the resource prefix, URL-decode `%2F` back to `/`, and retain only entries beginning with `«ENSHRINES_ROOT»/`
-.. {rbbc_store}
-`«ANCHORS»` as the list of anchor segments (1-deep enumeration — enshrines are flat, one image per anchor; see helper `zrbfc_list_anchors_capture`)
-
-//axhoot_typed_output
-{rbtga_ark}
-. *Display Results*:
-.. If `«ANCHORS»` is empty:
-... {rbbc_show}
-"No enshrinements found under «ENSHRINES_ROOT»/"
-... return success with count `0`
-.. Otherwise:
-... {rbbc_show}
-table header `ENSHRINE-ANCHOR`
-... For each `«ANCHOR»` in `«ANCHORS»`:
-.... {rbbc_show}
-`«ANCHOR»`
-... {rbbc_show}
-"Total enshrinements: «COUNT»"
-
 //axhoc_completion
-Each procedure completes successfully when the ordered list of identifiers — possibly empty — has been displayed and the count line emitted.
+The procedure completes successfully when the ordered list of identifiers — possibly empty — has been displayed and the count line emitted.
 The empty case is non-fatal: an empty domain reports zero rather than failing, since "registry holds no entries in this domain" is a valid director observation, not an error.

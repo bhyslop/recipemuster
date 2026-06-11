@@ -200,7 +200,6 @@
 // GAR top-level categorical namespaces (wire-format values)
 :gar_hallmarks_namespace:    <<gar_hallmarks_namespace,rbi_hm>>
 :gar_reliquaries_namespace:  <<gar_reliquaries_namespace,rbi_rq>>
-:gar_enshrines_namespace:    <<gar_enshrines_namespace,rbi_es>>
 :gar_lodes_namespace:        <<gar_lodes_namespace,rbi_ld>>
 
 // Google Cloud Storage
@@ -496,7 +495,6 @@
 :rbst_image_ref:             <<rbst_image_ref,Image Reference>>
 :rbst_locator:               <<rbst_locator,Locator>>
 :rbst_hallmark:                  <<rbst_hallmark,Hallmark>>
-:rbst_reliquary_stamp:       <<rbst_reliquary_stamp,Reliquary Stamp>>
 :rbst_touchmark:             <<rbst_touchmark,Touchmark>>
 :rbst_path:                  <<rbst_path,Path>>
 :rbst_platform_list:         <<rbst_platform_list,Platform List>>
@@ -1879,12 +1877,7 @@ A path-segment value, not a cloud-visible resource name; carries no {rbrd_cloud_
 
 [[gar_reliquaries_namespace]]
 {gar_reliquaries_namespace}::
-GAR top-level path token under which reliquary tool images live as basename siblings, keyed by {rbst_reliquary_stamp}.
-A path-segment value, not a cloud-visible resource name; carries no {rbrd_cloud_prefix} since each {rbtgi_depot} owns its own GAR repo.
-
-[[gar_enshrines_namespace]]
-{gar_enshrines_namespace}::
-GAR top-level path token under which enshrined upstream base images live as peer packages keyed by content-addressed anchor.
+GAR top-level path token under which reliquary tool images live as basename siblings, keyed by {rbst_touchmark}.
 A path-segment value, not a cloud-visible resource name; carries no {rbrd_cloud_prefix} since each {rbtgi_depot} owns its own GAR repo.
 
 [[rbtga_ark]]
@@ -2142,7 +2135,7 @@ The vessel name appears in all artifact tags as the stem before the hallmark.
 {gar_lodes_namespace}::
 GAR top-level path token under which every {rbtga_lode} lives as one package keyed by its {rbtga_touchmark}; members and provenance ride as tags within that package, never as path-segment siblings.
 A path-segment value, not a cloud-visible resource name; carries no {rbrd_cloud_prefix} since each {rbtgi_depot} owns its own GAR repo.
-The fetched-side counterpart to {gar_hallmarks_namespace}; the prior {gar_enshrines_namespace} and {gar_reliquaries_namespace} fold into it as the bole and reliquary kinds land.
+The fetched-side counterpart to {gar_hallmarks_namespace}.
 
 [[rbtga_lode]]
 //axl_voices axig_artifact_group
@@ -3873,14 +3866,6 @@ Dual-timestamp {rbtga_hallmark} identifying a specific build of a vessel.
 Format: `«MODE»YYMMDDHHMMSS-rYYMMDDHHMMSS` where `«MODE»` is `c` (conjure), `b` (bind), or `g` (graft).
 Example: `c260224153022-r260224160530`; 1-128 characters.
 Regex: `[cbg]\d{12}-r\d{12}`.
-
-[[rbst_reliquary_stamp]]
-//axl_voices axtu_string
-{rbst_reliquary_stamp}::
-Touchmark identifying a reliquary — the single GAR package holding the co-versioned build-tool cohort for builder use.
-Format: `r` + `YYMMDDHHMMSS` (e.g., `r260327172456`); 13 characters.
-Regex: `r\d{12}`.
-Mints host-side at {rbtgo_lode_conclave} time and serves as the GAR path segment for the conclave {rbtga_lode} (`{gar_lodes_namespace}/«TOUCHMARK»`); the cohort members ride within that one package as `:rbi_<tool>` member tags rather than per-tool sub-packages, so a single value names the whole package and the sprued tags pin every member.
 
 [[rbst_touchmark]]
 //axl_voices axtu_string

@@ -32,7 +32,7 @@ if missing: "Locator parameter required (package-path:tag)"
 .. {rbbc_fatal}
 if malformed (no colon): "Invalid locator format. Expected package-path:tag"
 .. {rbbc_store}
-`«PACKAGE_PATH»` as portion before the final colon (e.g., `{gar_hallmarks_namespace}/«HALLMARK»/image`, `{gar_lodes_namespace}/«TOUCHMARK»`, `{gar_enshrines_namespace}/«ANCHOR»`)
+`«PACKAGE_PATH»` as portion before the final colon (e.g., `{gar_hallmarks_namespace}/«HALLMARK»/image`, `{gar_lodes_namespace}/«TOUCHMARK»`)
 .. {rbbc_store}
 `«TAG»` as portion after the final colon
 .. {rbbc_fatal}
