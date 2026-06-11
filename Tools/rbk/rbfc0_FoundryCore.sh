@@ -146,15 +146,19 @@ zrbfc_kindle() {
   # within the budget.
   readonly ZRBFC_BUILD_POLL_CEILING_DELETE=600
 
-  # Floating bootstrap builder for the cloud-dispatched delete step. The delete
-  # build (banish/abjure) consumes no reliquary, so — like underpin/wsl — it
-  # rides a floating Google-hosted image rather than a pinned reliquary tool
-  # (RBS0 rbsk_pinning_boundary; the bootstrap-pin is the accepted itch). This is
-  # the floating form of the gcloud image the reliquary mirrors and the existing
-  # python steps ride, so python3 + urllib + json are known-present. rbfc-level
-  # (not ZRBLD_) because the delete body rbldd_ runs in both the rbld and rbfl
-  # processes and both kindle rbfc. Auth canon: RBSCB.
-  readonly ZRBFC_DELETE_BUILDER="gcr.io/cloud-builders/gcloud:latest"
+  # Digest-pinned bootstrap builder for the cloud-dispatched delete step. The
+  # delete build (banish/abjure) consumes no reliquary — the delete of the last
+  # reliquary must still work — so it cannot resolve a pinned tool from the
+  # cohort; but unlike the Mason-run floating bootstraps (underpin/wsl), this
+  # build runs as Director (repoAdmin/delete), and the identity that holds
+  # delete authority never executes floating bytes — so this one bootstrap is
+  # digest-pinned, not :latest (RBS0 rbsk_pinning_boundary covers the Mason-run
+  # floaters only). The step's needs are frozen (python3 + urllib + json), so
+  # staleness cost is near zero; refresh the digest deliberately as a reviewed
+  # one-line change (digest of gcr.io/cloud-builders/gcloud:latest, resolved
+  # 2026-06-10). rbfc-level (not ZRBLD_) because the delete body rbldd_ runs in
+  # both the rbld and rbfl processes and both kindle rbfc. Auth canon: RBSCB.
+  readonly ZRBFC_DELETE_BUILDER="gcr.io/cloud-builders/gcloud@sha256:8da9de84573d9a2ab150fd10a1ed38fdb27065f8020bcfe1cb49f8456db42ced"
 
   readonly ZRBFC_KINDLED=1
 }

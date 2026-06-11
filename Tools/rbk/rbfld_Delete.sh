@@ -77,7 +77,10 @@ rbfl_jettison() {
   z_http_code=$(<"${z_status_file}")
   test -n "${z_http_code}" || buc_die "HTTP status code is empty"
 
-  if test "${z_http_code}" != "202" && test "${z_http_code}" != "204"; then
+  # 202/204 = deleted; 404 = already gone. Idempotent delete is the house shape
+  # (rbuh_poll_until_gone, the rbgjl06 convergence loop) — a cleanup-of-last-resort
+  # verb must not die on already-gone, and the success message is the contract.
+  if test "${z_http_code}" != "202" && test "${z_http_code}" != "204" && test "${z_http_code}" != "404"; then
     local z_body="empty"
     if test -f "${z_response_file}"; then z_body=$(<"${z_response_file}"); fi
     buc_warn "Response body: ${z_body}"

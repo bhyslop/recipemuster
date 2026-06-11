@@ -256,6 +256,11 @@ Director already holds `repoAdmin` (delete); Mason is writer-only and stays that
 Running a build *as* the Director SA, submitted by the Director-authenticated workstation, requires one investiture addition: Director holds `serviceAccountUser` (actAs) on *itself* — the self-actAs binding that lets a SA run a build as itself — alongside the `workerPoolUser` and Cloud Build Editor grants it already carries.
 No new GAR grant is introduced.
 
+**The delete builder is digest-pinned (2026-06-10).**
+Every other reliquary-less bootstrap (the underpin/wsl gcrane floaters) runs as Mason, writer-only — that asymmetry is the design: the identity that executes unpinned bytes never holds delete authority.
+The delete build breaks that pairing by running as Director, so its builder may not float: `ZRBFC_DELETE_BUILDER` rides `gcr.io/cloud-builders/gcloud` pinned by digest, not `:latest`.
+The pin preserves the reliquary-less property the delete build requires (a digest needs no reliquary to resolve from; the delete of the last reliquary still works), and since the step's needs are frozen (python3 + urllib + json), staleness cost is near zero — the digest refreshes deliberately, as a reviewed one-line change.
+
 **Delete-by-convergence at the vendor Palisade.**
 GAR refuses to delete a child manifest while its parent index still exists: a `versions.delete` (or a whole-`packages.delete`) on a referenced child returns FAILED_PRECONDITION, "manifest is referenced by parent manifests", and a single `packages.delete` of a multi-arch web removes nothing — the package survives intact.
 This is GAR's documented behavior — its cleanup policies "don't delete images referenced by a parent manifest; if the parent manifest is deleted, then any related images are deleted" on the next run — and the reason Google's own gcr-cleaner ships a `--skip-errors` flag rather than ordering the topology.

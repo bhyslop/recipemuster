@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 # RBGJL Step 06: Cloud-dispatched GAR package delete by convergence. Shared by
 #   banish (Lode) and abjure (hallmark).
-# Builder: gcr.io/cloud-builders/gcloud:latest (floating bootstrap; python3 +
-#   urllib + json — the reliquary-less delete build rides this, not a pinned tool).
+# Builder: gcr.io/cloud-builders/gcloud, digest-pinned (ZRBFC_DELETE_BUILDER —
+#   the reliquary-less delete build runs as Director, so its bootstrap never
+#   floats; python3 + urllib + json are the frozen needs).
 # Runs as Director (the build's serviceAccount — the only identity holding
 #   repoAdmin/delete; Mason stays writer-only). There is no host-issued DELETE, so
 #   the build's success IS the delete outcome — closing the trust-200 LRO gap.
@@ -26,6 +27,7 @@
 
 import json
 import os
+import socket
 import sys
 import time
 import urllib.error
@@ -51,16 +53,20 @@ METADATA_TOKEN_URL = (
 
 
 def metadata_token():
-    """Fetch OAuth2 access token from GCE metadata server."""
+    """Fetch OAuth2 access token from GCE metadata server. Dies loud on any
+    failure — without a token nothing downstream can run."""
     req = urllib.request.Request(METADATA_TOKEN_URL, headers={"Metadata-Flavor": "Google"})
-    resp = urllib.request.urlopen(req)
-    return json.loads(resp.read())["access_token"]
+    try:
+        resp = urllib.request.urlopen(req, timeout=URLOPEN_TIMEOUT_SEC)
+        return json.loads(resp.read())["access_token"]
+    except (urllib.error.URLError, socket.timeout) as e:
+        die(f"Metadata token fetch failed: {e}")
 
 
 def gar_fetch(url, token, accept, method="GET"):
     headers = {"Authorization": f"Bearer {token}", "Accept": accept}
     req = urllib.request.Request(url, headers=headers, method=method)
-    return urllib.request.urlopen(req)
+    return urllib.request.urlopen(req, timeout=URLOPEN_TIMEOUT_SEC)
 
 
 def gar_json(url, token, accept):
@@ -71,6 +77,8 @@ def gar_json(url, token, accept):
 JSON_ACCEPT = "application/json"
 ROUND_PAUSE_SEC = 8         # settle between rounds, letting freed children become deletable
 DELETE_DEADLINE_SEC = 180   # per-package convergence ceiling; host budget covers the loop
+URLOPEN_TIMEOUT_SEC = 30    # bound every HTTP call — urllib's default (None) hangs a stuck
+                            # socket silently until the Cloud Build timeout kills the build
 
 
 def package_absent(pkg_url, token):
@@ -82,6 +90,8 @@ def package_absent(pkg_url, token):
         if e.code == 404:
             return True
         die(f"Absence-verify returned unexpected HTTP {e.code}")
+    except (urllib.error.URLError, socket.timeout) as e:
+        die(f"Absence-verify failed: {e}")
     return False
 
 
@@ -100,6 +110,8 @@ def list_version_ids(api_base, pkg_url, token):
             if e.code == 404:
                 return ids
             die(f"versions.list failed: HTTP {e.code}")
+        except (urllib.error.URLError, socket.timeout) as e:
+            die(f"versions.list failed: {e}")
         for v in data.get("versions", []):
             name = v.get("name", "")
             if "/versions/" in name:
@@ -114,12 +126,17 @@ def fire_delete(url, token, label):
     single call, is the arbiter of truth. A 404 is already-gone; any other non-success is
     logged for the build trail (it reconciles next round, or the deadline makes it loud).
     A FAILED_PRECONDITION 'referenced by parent manifests' is the expected per-round skip
-    for a child whose parent index has not gone yet."""
+    for a child whose parent index has not gone yet. A transport-level failure (connection
+    reset, DNS blip, timeout) is morally the same event as a 5xx — logged in the same
+    reconciling form, never branched on. The truth-readers above deliberately do NOT share
+    this tolerance: a flaky reader misreporting absence is the one failure never absorbed."""
     try:
         gar_fetch(url, token, JSON_ACCEPT, method="DELETE")
     except urllib.error.HTTPError as e:
         if e.code != 404:
             print(f"    {label}: HTTP {e.code} (reconciling via absence poll)")
+    except (urllib.error.URLError, socket.timeout) as e:
+        print(f"    {label}: {e} (reconciling via absence poll)")
 
 
 def converge_delete(api_base, package_base, pkg, token):
