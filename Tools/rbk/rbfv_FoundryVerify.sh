@@ -99,6 +99,11 @@ rbfv_vouch_gate() {
 rbfv_about() {
   zrbfv_sentinel
 
+  # No dirty-tree guard — about constructs metadata for an image already in
+  # GAR, not an image. The commit it stamps cannot be made to match the
+  # image's build-time tree by gating (standalone re-about is approximate by
+  # construction); the ordain paths produce about inside their gated builds.
+
   local -r z_hallmark="${2:-}"
   local -r z_conjure_build_id="${3:-}"  # Optional: conjure BUILD_ID for provenance
 
