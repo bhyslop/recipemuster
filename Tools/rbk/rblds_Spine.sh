@@ -33,9 +33,11 @@
 # (write-script-body, wait-build-completion), which it calls rather than absorbs.
 #
 # Sentinel is zrbfc_sentinel, not zrbld_sentinel: the spine binds nothing rbld
-# beyond its function prefix (it reads only rbfc/rbgd/rbrr/rbdc state), so it is
-# callable by any rbfc-furnished module — which is what lets abjure ride it from
-# the separate rbfl process. rbld and rbfl are never co-furnished, so the single
+# beyond its function prefix (it reads only rbfc/rbgd/rbrr/rbdc state, plus — in
+# the single-slot extract — the rbgc fact keys and the buf_ fact machinery, both
+# furnished by rbld0_cli and rbfl0_cli alike), so it is callable by any
+# rbfc-furnished module — which is what lets abjure ride it from the separate
+# rbfl process. rbld and rbfl are never co-furnished, so the single
 # cross-source raises no double-source.
 #
 # Contract: RBSCJ "Capture Composition Contract".
@@ -288,6 +290,54 @@ zrbld_spine_extract() {
   rbgo_base64_decode_file_to_file "${z_b64_file}" "${z_dest_file}" \
     || buc_die "Failed to decode buildStepOutputs[${z_step_index}] base64"
   test -s "${z_dest_file}" || buc_die "Empty decoded buildStepOutputs[${z_step_index}]"
+}
+
+# Internal: the shared single-slot capture extract for the one-Lode kinds
+# (underpin, conclave, immure): decode step 0's buildStepOutputs slot, require
+# the host-minted stamp in rbls_slot_1 (dumping the present keys when absent, so
+# a slot-shape drift self-diagnoses), and emit the two bare single-form chaining
+# facts (touchmark value + kind-brand enum). Kind data arrives as parameters —
+# the spine still owns no kind knowledge. The provenance envelope is NOT read
+# host-side: it lives only in GAR (:rbi_vouch, pushed cloud-side), so the host
+# hands forward only the touchmark a consumer needs. Bole stays on its own
+# extract (rbldb_): its multi-slot 1..3 continue-on-empty loop is genuinely
+# different shape. Consolidated from three byte-parallel per-kind copies after
+# the rbls_ sprue sweep missed one of them and broke the service suite same-day
+# (memo-20260610-heat-BH-extract-keys-triplication).
+# Args: prefix brand label
+#   prefix — the kind's temp-file prefix (ZRBLD_*_PREFIX)
+#   brand  — kind-brand enum for the fact (RBGC_LODE_BRAND_* / immure's family)
+#   label  — display word for messages, matching the dispatch label (e.g. "Underpin")
+zrbld_spine_extract_single() {
+  zrbfc_sentinel
+
+  local -r z_prefix="${1:?Prefix required}"
+  local -r z_brand="${2:?Brand required}"
+  local -r z_label="${3:?Label required}"
+
+  buc_step "Extracting capture results from build step outputs"
+
+  local -r z_output_file="${z_prefix}output.json"
+  zrbld_spine_extract 0 "${z_output_file}"
+
+  buc_log_args "${z_label} output:"
+  buc_log_pipe < "${z_output_file}"
+
+  local -r z_stamp_file="${z_prefix}stamp.txt"
+  jq -r '.rbls_slot_1.rbls_stamp // empty' "${z_output_file}" > "${z_stamp_file}" \
+    || buc_die "Failed to read stamp from ${z_label} output"
+  local -r z_stamp=$(<"${z_stamp_file}")
+  local -r z_keys_file="${z_prefix}output_keys.txt"
+  jq -cr 'keys' "${z_output_file}" > "${z_keys_file}" \
+    || buc_die "Failed to read keys from ${z_label} output"
+  local -r z_keys=$(<"${z_keys_file}")
+  test -n "${z_stamp}" || buc_die "${z_label} output carried no stamp in rbls_slot_1 (keys present: ${z_keys})"
+
+  buf_write_fact_single "${RBF_FACT_LODE_TOUCHMARK}" "${z_stamp}" \
+    || buc_die "Failed to write touchmark fact for ${z_stamp}"
+  buf_write_fact_single "${RBF_FACT_LODE_BRAND}" "${z_brand}" \
+    || buc_die "Failed to write kind-brand fact for ${z_stamp}"
+  buc_success "${z_label} captured Lode ${z_stamp} — touchmark fact emitted (${z_brand})"
 }
 
 # eof

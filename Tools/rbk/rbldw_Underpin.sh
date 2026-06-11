@@ -20,9 +20,9 @@
 #   underpin — capture a vendor-published WSL rootfs into a Lode (Director creds)
 # The wsl kind rides the capture-assembly spine (rblds_): this body owns only the
 # kind-specific data — the underpin recipe (curl+gpg fetch/verify + gcrane-append
-# wrap + vouch-push), the substitutions blob, and the touchmark-fact extract — and
-# composes them through zrbld_spine_dispatch / zrbld_spine_extract. No build-submission
-# or step-composition machinery lives here.
+# wrap + vouch-push) and the substitutions blob — and composes them through
+# zrbld_spine_dispatch / zrbld_spine_extract_single. No build-submission or
+# step-composition machinery lives here.
 #
 # The structural outlier among the Lode kinds: its upstream is an HTTPS rootfs
 # tarball + an out-of-band published checksum, NOT an OCI registry image — so it
@@ -114,41 +114,6 @@ zrbld_underpin_submit() {
     "${z_recipe[@]}"
 }
 
-# Internal: extract the captured touchmark from the completed underpin build and
-# emit the two bare single-form chaining facts (touchmark value + kind-brand
-# enum). The fetch step (step 0) authors the base64 JSON carrying the
-# host-minted stamp in rbls_slot_1; the wrap and vouch-push steps write no output. Underpin
-# captures exactly one Lode, so exactly one slot is populated. The provenance
-# envelope is NOT read host-side: it lives only in GAR (rbgjl02 pushed it under
-# :rbi_vouch), so the host hands forward only the touchmark a consumer needs.
-zrbld_underpin_extract() {
-  zrbld_sentinel
-
-  buc_step "Extracting capture results from build step outputs"
-
-  local -r z_output_file="${ZRBLD_UNDERPIN_PREFIX}output.json"
-  zrbld_spine_extract 0 "${z_output_file}"
-
-  buc_log_args "Underpin output:"
-  buc_log_pipe < "${z_output_file}"
-
-  local -r z_stamp_file="${ZRBLD_UNDERPIN_PREFIX}stamp.txt"
-  jq -r '.rbls_slot_1.rbls_stamp // empty' "${z_output_file}" > "${z_stamp_file}" \
-    || buc_die "Failed to read wsl stamp from underpin output"
-  local -r z_stamp=$(<"${z_stamp_file}")
-  local -r z_keys_file="${ZRBLD_UNDERPIN_PREFIX}output_keys.txt"
-  jq -cr 'keys' "${z_output_file}" > "${z_keys_file}" \
-    || buc_die "Failed to read keys from underpin output"
-  local -r z_keys=$(<"${z_keys_file}")
-  test -n "${z_stamp}" || buc_die "Underpin output carried no stamp in rbls_slot_1 (keys present: ${z_keys})"
-
-  buf_write_fact_single "${RBF_FACT_LODE_TOUCHMARK}" "${z_stamp}" \
-    || buc_die "Failed to write touchmark fact for ${z_stamp}"
-  buf_write_fact_single "${RBF_FACT_LODE_BRAND}" "${RBGC_LODE_BRAND_WSL}" \
-    || buc_die "Failed to write kind-brand fact for ${z_stamp}"
-  buc_success "Underpin captured Lode ${z_stamp} — touchmark fact emitted (${RBGC_LODE_BRAND_WSL})"
-}
-
 ######################################################################
 # External Functions (rbld_*)
 
@@ -194,7 +159,9 @@ rbld_underpin() {
   buc_info "Lode: ${RBGL_LODES_ROOT}/${z_stamp}"
 
   zrbld_underpin_submit "${z_token}" "${z_url}" "${z_stamp}"
-  zrbld_underpin_extract
+  # Shared single-slot extract (rblds_): the fetch step (step 0) authors the
+  # output; the wrap and vouch-push steps write none.
+  zrbld_spine_extract_single "${ZRBLD_UNDERPIN_PREFIX}" "${RBGC_LODE_BRAND_WSL}" "Underpin"
 
   buc_success "Underpin complete: ${z_url} -> ${RBGL_LODES_ROOT}/${z_stamp}"
 }

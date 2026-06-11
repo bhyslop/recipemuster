@@ -19,9 +19,9 @@
 # Recipe Bottle Lode - reliquary body (guard-free cluster, sourced by rbld0_Lode):
 #   conclave — convene the build-tool cohort into a Lode (Director credentials)
 # The reliquary rides the capture-assembly spine (rblds_): this body owns only the
-# kind-specific data — the conclave recipe (gcrane cohort capture + vouch-push),
-# the substitutions blob, and the touchmark-fact extract — and composes
-# them through zrbld_spine_dispatch / zrbld_spine_extract. No build-submission or
+# kind-specific data — the conclave recipe (gcrane cohort capture + vouch-push)
+# and the substitutions blob — and composes them through
+# zrbld_spine_dispatch / zrbld_spine_extract_single. No build-submission or
 # step-composition machinery lives here.
 #
 # Conclave absorbed the former inscribe pull machinery (rbfli_Inscribe + rbgji01,
@@ -99,42 +99,6 @@ zrbld_conclave_submit() {
     "${z_recipe[@]}"
 }
 
-# Internal: extract the captured touchmark from the completed conclave build and
-# emit the two bare single-form chaining facts (touchmark value + kind-brand
-# enum). The capture step (step 0) authors the base64 JSON carrying the
-# host-minted stamp in slot_1; the vouch-push step writes no output. Conclave
-# captures exactly one Lode (the cohort is one package), so exactly one slot is
-# populated. The provenance envelope is NOT read host-side: it lives only in GAR
-# (rbgjl02 pushed it under :rbi_vouch), so the host hands forward only the
-# touchmark a consumer needs.
-zrbld_conclave_extract() {
-  zrbld_sentinel
-
-  buc_step "Extracting capture results from build step outputs"
-
-  local -r z_output_file="${ZRBLD_CONCLAVE_PREFIX}output.json"
-  zrbld_spine_extract 0 "${z_output_file}"
-
-  buc_log_args "Conclave output:"
-  buc_log_pipe < "${z_output_file}"
-
-  local -r z_stamp_file="${ZRBLD_CONCLAVE_PREFIX}stamp.txt"
-  jq -r '.rbls_slot_1.rbls_stamp // empty' "${z_output_file}" > "${z_stamp_file}" \
-    || buc_die "Failed to read reliquary stamp from conclave output"
-  local -r z_stamp=$(<"${z_stamp_file}")
-  local -r z_keys_file="${ZRBLD_CONCLAVE_PREFIX}output_keys.txt"
-  jq -cr 'keys' "${z_output_file}" > "${z_keys_file}" \
-    || buc_die "Failed to read keys from conclave output"
-  local -r z_keys=$(<"${z_keys_file}")
-  test -n "${z_stamp}" || buc_die "Conclave output carried no stamp in rbls_slot_1 (keys present: ${z_keys})"
-
-  buf_write_fact_single "${RBF_FACT_LODE_TOUCHMARK}" "${z_stamp}" \
-    || buc_die "Failed to write touchmark fact for ${z_stamp}"
-  buf_write_fact_single "${RBF_FACT_LODE_BRAND}" "${RBGC_LODE_BRAND_RELIQUARY}" \
-    || buc_die "Failed to write kind-brand fact for ${z_stamp}"
-  buc_success "Conclave captured Lode ${z_stamp} — touchmark fact emitted (${RBGC_LODE_BRAND_RELIQUARY})"
-}
-
 ######################################################################
 # External Functions (rbld_*)
 
@@ -163,7 +127,9 @@ rbld_conclave() {
   buc_info "Lode: ${RBGL_LODES_ROOT}/${z_stamp}"
 
   zrbld_conclave_submit "${z_token}" "${z_stamp}"
-  zrbld_conclave_extract
+  # Shared single-slot extract (rblds_): the capture step (step 0) authors the
+  # output; the vouch-push step writes none.
+  zrbld_spine_extract_single "${ZRBLD_CONCLAVE_PREFIX}" "${RBGC_LODE_BRAND_RELIQUARY}" "Conclave"
 
   buc_success "Conclave complete: build-tool cohort -> ${RBGL_LODES_ROOT}/${z_stamp}"
 }

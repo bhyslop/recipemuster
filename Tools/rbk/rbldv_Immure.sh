@@ -21,9 +21,9 @@
 #            a Lode (Director credentials)
 # The podvm kind rides the capture-assembly spine (rblds_): this body owns only the
 # kind-specific data — the immure recipe (anon-quay index select + gcrane cp-by-digest
-# + blob-residency guard + vouch-push), the substitutions blob, and the touchmark-fact
-# extract — and composes them through zrbld_spine_dispatch / zrbld_spine_extract. No
-# build-submission or step-composition machinery lives here.
+# + blob-residency guard + vouch-push) and the substitutions blob — and composes them
+# through zrbld_spine_dispatch / zrbld_spine_extract_single. No build-submission or
+# step-composition machinery lives here.
 #
 # Shape: opaque-blob (like wsl/underpin) x multi-member (like reliquary/conclave). Each
 # selected disk leaf is a single-platform OCI artifact (empty config + one zstd blob);
@@ -157,43 +157,6 @@ zrbld_immure_submit() {
     "${z_token}" "${RBGD_MASON_EMAIL}" "Immure" "${ZRBFC_BUILD_POLL_CEILING_INSCRIBE}" \
     "${z_subs_file}" "${ZRBLD_IMMURE_PREFIX}" \
     "${z_recipe[@]}"
-}
-
-# Internal: extract the captured touchmark from the completed immure build and emit
-# the two bare single-form chaining facts (touchmark value + kind-brand enum). The
-# select step (step 0) authors the base64 JSON carrying the host-minted stamp in
-# rbls_slot_1; the capture/residency/vouch steps write no output. Immure captures
-# exactly one Lode (the cohort is one package), so exactly one slot is populated. The
-# provenance envelope is NOT read host-side: it lives only in GAR (rbgjl02 pushed it
-# under :rbi_vouch), so the host hands forward only the touchmark a consumer needs.
-# Args: brand
-zrbld_immure_extract() {
-  zrbld_sentinel
-  local -r z_brand="${1:?Brand required}"
-
-  buc_step "Extracting capture results from build step outputs"
-
-  local -r z_output_file="${ZRBLD_IMMURE_PREFIX}output.json"
-  zrbld_spine_extract 0 "${z_output_file}"
-
-  buc_log_args "Immure output:"
-  buc_log_pipe < "${z_output_file}"
-
-  local -r z_stamp_file="${ZRBLD_IMMURE_PREFIX}stamp.txt"
-  jq -r '.rbls_slot_1.rbls_stamp // empty' "${z_output_file}" > "${z_stamp_file}" \
-    || buc_die "Failed to read podvm stamp from immure output"
-  local -r z_stamp=$(<"${z_stamp_file}")
-  local -r z_keys_file="${ZRBLD_IMMURE_PREFIX}output_keys.txt"
-  jq -cr 'keys' "${z_output_file}" > "${z_keys_file}" \
-    || buc_die "Failed to read keys from immure output"
-  local -r z_keys=$(<"${z_keys_file}")
-  test -n "${z_stamp}" || buc_die "Immure output carried no stamp in rbls_slot_1 (keys present: ${z_keys})"
-
-  buf_write_fact_single "${RBF_FACT_LODE_TOUCHMARK}" "${z_stamp}" \
-    || buc_die "Failed to write touchmark fact for ${z_stamp}"
-  buf_write_fact_single "${RBF_FACT_LODE_BRAND}" "${z_brand}" \
-    || buc_die "Failed to write kind-brand fact for ${z_stamp}"
-  buc_success "Immure captured Lode ${z_stamp} — touchmark fact emitted (${z_brand})"
 }
 
 ######################################################################
@@ -362,7 +325,9 @@ rbld_immure() {
 
   zrbld_immure_submit "${z_token}" "${z_brand}" "${z_quay_family}" "${z_version}" \
     "${z_selection}" "${z_stamp}" "${z_preserved_members}"
-  zrbld_immure_extract "${z_brand}"
+  # Shared single-slot extract (rblds_): the select step (step 0) authors the
+  # output; the capture, residency, and vouch-push steps write none.
+  zrbld_spine_extract_single "${ZRBLD_IMMURE_PREFIX}" "${z_brand}" "Immure"
 
   buc_success "Immure (${z_mode}) complete: ${z_quay_family}:${z_version} -> ${RBGL_LODES_ROOT}/${z_stamp}"
 }
