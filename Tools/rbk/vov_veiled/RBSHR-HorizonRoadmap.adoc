@@ -75,6 +75,16 @@ _Reference_: RBSLU-lode_underpin.adoc, RBSLI-lode_immure.adoc (the substrate cap
 RBSDY-director_yoke.adoc (build-time election precedent);
 BUSJCW CaparisonWindows, BUSJGW GarrisonWsl (the `wsl --export` seed path this retires).
 
+**Image-family hallmark variants — Wave 3 retirement.**
+The path-polymorphic raw verbs (`rbw-il`/`iw`/`iJ`) deliberately carry a transient terminal-exclusivity violation:
+`iw` and `iJ` still head the hallmark variants `iwh`/`iJh` (alongside `iah`/`irh`).
+Wave 1 (enshrinement variants) and Wave 2 (reliquary variants) have landed;
+the final wave retires the hallmark variants when Ark earns the `k` command family in the made-side retrofit heat.
+The wrest/jettison variants are pure pass-throughs and delete cleanly;
+`rekon`/`audit` carry semantic contracts (canonical-member presence assertion, fact-multi emission) that must be re-homed, not deleted.
+_Trigger_: the made-side Ark/Hallmark retrofit heat.
+_Reference_: `Memos/memo-20260610-heat-BH-image-tabtarget-cleanup.md` (waves, removal conditions, the done-when grep).
+
 **Hairpin peer access between crucibles.**
 Bottled containers cannot currently reach each other's published entry ports.
 Each bottle is isolated behind its own sentry on a separate enclave network.
@@ -278,6 +288,15 @@ When signing becomes warranted, confirm whether GAR's OCI 1.1 referrers API is m
 Verifying GAR referrers maturity is a vendor (Palisade) question with no consumer until distribution leaves the project, so it is deliberately not a pace.
 _Trigger_: same as Cosign — external image distribution or builder strategy beyond Google Cloud Build.
 _Reference_: RBS0-SpecTop.adoc (Lode provenance envelope, `rbld-vouch-2`).
+
+**Progress-aware convergence deadline for cloud-side package deletes.**
+`converge_delete` (rbgjl06-package-delete.py) enforces a fixed 180s per-package ceiling measured from the package's start.
+`fire_delete` is synchronous HTTP, so a ≥1000-version index web can spend the entire ceiling inside round 1 — still making monotonic progress — and die mid-convergence;
+the fixed shape penalizes exactly the packages that most need convergence.
+Repair shape per the memo: die only on consecutive no-progress rounds (remaining-version count supplies the signal), retain a work-scaled absolute ceiling as backstop, and document the abjure-size budget against `RBRR_GCB_TIMEOUT` (per-package ceilings must sum inside the build timeout).
+Latent today — the largest observed web is 55 versions, far from the edge.
+_Trigger_: captured webs an order of magnitude past today's, or a convergence death attributed to the fixed ceiling.
+_Reference_: `Memos/memo-20260610-heat-BH-fable-recommendation-convergence-deadline-shape.md`.
 
 **Binary Authorization.**
 Deploy-time policy enforcement (only attested images can be deployed).
