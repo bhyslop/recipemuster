@@ -29,6 +29,12 @@ NOTE: *Universal reliquary precondition*. Every ordain-path vessel — conjure, 
 
 NOTE: The conjure Cloud Build job carries the {rbsk_in_pool_preflight} as its step 0, ahead of the extract-context step. Conjure populates `_RBGR_BASE_LOCATOR_n` substitutions from `RBRV_IMAGE_n_ANCHOR` slots, so the preflight HEAD-checks each anchored base in addition to the reliquary tools.
 
+NOTE: *Dirty-tree guard*.
+Conjure refuses on a working tree with unstaged or staged changes (`bug_require_clean_tree`), before the base-anchor election and before anything leaves the host.
+The build stamps HEAD into the image (`git.commit` label, about build_info) and ships working-tree bytes (the pouch context, the composed step scripts), so the recorded commit must match the bytes built.
+The derived-pull base-anchor election is the one sanctioned post-gate write: it rewrites at most one `RBRV_IMAGE_n_ANCHOR` line, machine-derived from an attested capture, recorded independently in the `_RBGR_BASE_LOCATOR_n` substitutions, and surfaced for immediate operator commit.
+Graft is the deliberate exception to the guard — see {rbtgo_ark_graft}.
+
 The conjure operation:
 
 //axhopt_typed_parameter

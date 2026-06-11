@@ -208,6 +208,10 @@ rbld_immure() {
     "Fresh: version tag (e.g. 5.6); Refresh: literal '--refresh' followed by existing touchmark"
   buc_doc_shown || return 0
 
+  # Dirty-tree guard — capture composes its cloud step bodies from the working
+  # tree; the Lode's provenance envelope must be the product of committed code.
+  bug_require_clean_tree "immure"
+
   # BUZ_FOLIO carries the family argument (param1 channel). $1 is either the
   # version (fresh) or the literal '--refresh' (refresh mode) with $2 as the
   # existing touchmark. Refresh reuses the same stamp (no version bump possible);

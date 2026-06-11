@@ -250,6 +250,8 @@ to refresh per-moniker depot fact files
 . *Inscribe Depot Regime Tripwire*:
 .. Build a `FROM scratch` image carrying the {rbrd_regime} assignment file and push it host-side to `«REGION»-docker.pkg.dev/«DEPOT_PROJECT_ID»/«GAR_REPOSITORY»/rbi_df/rbrd:tripwire`, authenticating to GAR with the Payor OAuth access token already in scope.
 .. {rbbc_require}
+clean working tree (`bug_require_clean_tree`) — the tripwire ships the tracked {rbrd_regime} assignment file's bytes as the depot's permanent drift reference, so the inscribed state must be a committed one. A refusal here leaves the depot live but un-inscribed, recoverable via `tt/rbw-rdi.sh` after committing.
+.. {rbbc_require}
 pre-push existence guard via `docker manifest inspect`: image absent → proceed with build + push; image present → fatal (depot already inscribed; unmake and relevy to refresh).
 .. NOTE: The tripwire freezes the depot-time-immutable
 {rbrd_regime}

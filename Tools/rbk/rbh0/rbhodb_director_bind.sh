@@ -232,7 +232,8 @@ rbho_director_bind() {
   buh_line "            publisher; the digest pins what you got."
   buh_line "  ${RBYC_GRAFT}    Push a locally-built image. Trust the local machine."
   buh_e
-  buh_line "${RBYC_ORDAIN} ${z_lk_vessel}:"
+  buh_line "${RBYC_ORDAIN} ${z_lk_vessel} — commit anything pending first; the"
+  buh_line "mirror refuses on a dirty working tree:"
   buh_e
   buh_tt "   " "${RBZ_ORDAIN_HALLMARK}" "" " ${z_vessel}"
   buh_e

@@ -996,14 +996,11 @@ rbfd_ordain() {
   done < "${z_rbrv_file}"
   z_mode="${z_mode:-rbnve_conjure}"
 
-  # Conjure consumes an upstream base via the ANCHOR slot, so a fresh bole
-  # capture's touchmark is elected into rbrv.env before the build loads the
-  # vessel; bind/graft pin differently and elect nothing.
+  # Mode dispatch. Each mode owns its own dirty-tree posture: conjure gates
+  # then elects inside rbfd_build, bind gates inside rbfd_mirror, graft is
+  # deliberately ungated (see the comment in rbfd_graft).
   case "${z_mode}" in
-    rbnve_conjure)
-      zrbfd_elect_base_anchor "${z_rbrv_file}"
-      rbfd_build "${z_vessel_dir}"
-      ;;
+    rbnve_conjure) rbfd_build "${z_vessel_dir}" ;;
     rbnve_bind)    rbfd_mirror "${z_vessel_dir}" ;;
     rbnve_graft)   rbfd_graft "${z_vessel_dir}" ;;
     *)             buc_die "Unknown vessel mode: ${z_mode}" ;;
@@ -1056,6 +1053,19 @@ rbfd_build() {
     done
     buc_die "Vessel directory required"
   fi
+
+  # Dirty-tree guard — conjure stamps HEAD into the image (git.commit label,
+  # build_info) and ships working-tree bytes (pouch context, step scripts), so
+  # the tree must match a commit before anything leaves the host.
+  bug_require_clean_tree "conjuring"
+
+  # Derived-pull base-anchor election: the one sanctioned post-gate write. It
+  # rewrites at most one RBRV_IMAGE_n_ANCHOR line, machine-derived from an
+  # attested capture, consumed by this same build, and recorded independently
+  # of the git stamp (the _RBGR_BASE_LOCATOR_n substitutions and the Lode's
+  # provenance envelope both carry the locator); election surfaces the write
+  # for immediate commit.
+  zrbfd_elect_base_anchor "${z_vessel_dir}/rbrv.env"
 
   # Load and validate vessel
   zrbfc_load_vessel "${z_vessel_dir}"
@@ -1244,7 +1254,8 @@ rbfd_mirror() {
   # Resolve tool images from reliquary (mirror uses skopeo + about steps from reliquary)
   zrbfc_resolve_tool_images
 
-  # Dirty-tree guard (same as inscribe — mirror should match a committed state)
+  # Dirty-tree guard — mirror stamps HEAD into the about metadata and composes
+  # its cloud step bodies from the working tree; both must match a commit.
   bug_require_clean_tree "mirroring"
 
   # Authenticate as Director
@@ -1517,6 +1528,9 @@ rbfd_graft() {
   local -r z_local_image="${RBRV_GRAFT_IMAGE}"
 
   # No dirty-tree guard — image already built; git state irrelevant to container
+  # bytes. The about metadata still stamps HEAD, but graft's GRAFTED vouch
+  # verdict already declares provenance unverifiable, so no commit-vs-bytes
+  # claim exists to protect.
 
   # Verify local image exists
   buc_step "Verifying local image exists"

@@ -52,6 +52,9 @@ so it needs no reliquary tool cohort.
 The opaque tarball is wrapped as a single-layer OCI member by `FROM scratch` +
 `COPY` (never `ADD`, which would extract and destroy the opaque blob).
 
+NOTE: *Dirty-tree guard*.
+Underpin refuses on a working tree with unstaged or staged changes, per the uniform Lode capture guard — see {rbtgo_lode_ensconce}.
+
 NOTE: Underpin is capture-pure.
 It mints the Lode, emits the
 {rbtga_lode_vouch}

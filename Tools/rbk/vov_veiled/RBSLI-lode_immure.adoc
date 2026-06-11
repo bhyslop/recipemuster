@@ -88,6 +88,9 @@ copy rides gcrane on the floating gcrane builder.
 Pinning these floating builders is the bootstrap-builder digest-pin itch, not this
 operation.
 
+NOTE: *Dirty-tree guard*.
+Immure refuses on a working tree with unstaged or staged changes, per the uniform Lode capture guard — see {rbtgo_lode_ensconce}.
+
 NOTE: Immure is capture-pure.
 It mints the Lode, emits the
 {rbtga_lode_vouch}

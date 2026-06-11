@@ -160,6 +160,10 @@ rbld_underpin() {
   buc_doc_param "point"   "Point-release number — assembles the full version (e.g. 4 -> 24.04.4)"
   buc_doc_shown || return 0
 
+  # Dirty-tree guard — capture composes its cloud step bodies from the working
+  # tree; the Lode's provenance envelope must be the product of committed code.
+  bug_require_clean_tree "underpin"
+
   # Two declarative version arguments (no FQIN — see RBSLU): the param1 channel
   # routes the first to BUZ_FOLIO and forwards the rest, so release is the folio
   # and point the first positional. The host assembles the resolved URL from the

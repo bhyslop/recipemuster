@@ -144,6 +144,10 @@ rbld_conclave() {
   buc_doc_brief "Convene the build-tool cohort into one Lode (reliquary kind, rbi_ld capture)"
   buc_doc_shown || return 0
 
+  # Dirty-tree guard — capture composes its cloud step bodies from the working
+  # tree; the Lode's provenance envelope must be the product of committed code.
+  bug_require_clean_tree "conclave"
+
   buc_step "Loading Director RBRA credentials"
   source "${RBDC_DIRECTOR_RBRA_FILE}" || buc_die "Failed to source Director RBRA"
 

@@ -18,6 +18,10 @@ No separate regime variable governs runtime selection for graft.
 
 NOTE: *Universal reliquary precondition*. Every ordain-path vessel — conjure, bind, and graft — must have `RBRV_RELIQUARY` non-empty before this operation runs. Graft's about+vouch combined Cloud Build job consumes reliquary tool images (gcloud, docker, alpine, syft) just like conjure and bind; the registry preflight enforces this before submission.
 
+NOTE: *No dirty-tree guard — deliberate*.
+Conjure and bind refuse on a dirty working tree because they stamp HEAD into provenance for bytes derived from the tree; graft's image was already built outside RB, so git state is irrelevant to the container bytes.
+The about metadata still stamps HEAD, but graft's GRAFTED vouch verdict already declares provenance unverifiable, so no commit-vs-bytes claim exists to protect.
+
 The
 {rbtr_director}
 grafts an image:

@@ -135,6 +135,10 @@ rbho_director_first_build() {
   buh_line "share the same ${RBYC_RELIQUARY} — one conclave updates the toolchain"
   buh_line "for every build."
   buh_e
+  buh_line "If you have uncommitted changes, commit them first — capture and"
+  buh_line "build commands refuse on a dirty working tree, so every artifact"
+  buh_line "traces to a committed state."
+  buh_e
   buh_line "Conclave:"
   buh_e
   buh_tt "   " "${RBZ_CONCLAVE_RELIQUARY}"
@@ -151,7 +155,8 @@ rbho_director_first_build() {
   buh_tt "   " "${RBZ_YOKE_RELIQUARY}" "" " <stamp>"
   buh_e
   buh_line "Yoke validates the stamp once against GAR, then rewrites RBRV_RELIQUARY"
-  buh_line "in every ${RBYC_VESSEL}'s rbrv.env. Commit the changes."
+  buh_line "in every ${RBYC_VESSEL}'s rbrv.env. Commit the changes — ${RBYC_ORDAIN}"
+  buh_line "refuses to build from an uncommitted tree."
   buh_e
   buh_line "Reminder: yoking links the new ${RBYC_RELIQUARY} into the ${RBYC_VESSEL}"
   buh_line "${RBYC_REGIME}, but existing ${RBYC_VESSEL} images still embed the old tool"

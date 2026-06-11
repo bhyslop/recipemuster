@@ -197,6 +197,11 @@ rbho_director_airgap() {
   buh_line "built against — it is not itself customer code, which is why"
   buh_line "${RBYC_TETHERED} build is acceptable at this layer."
   buh_e
+  buh_line "Both ensconce and ${RBYC_ORDAIN} refuse on a dirty working tree, so"
+  buh_line "commit anything pending before this pair. During this run ${RBYC_ORDAIN}"
+  buh_line "elects the ensconced touchmark into ${z_lk_forge}'s ANCHOR slot —"
+  buh_line "an rbrv.env edit it leaves for you to commit when the build finishes."
+  buh_e
   buh_line "Now bridge: the airgap ${RBYC_VESSEL} ${z_lk_airgap} declares"
   buh_line "${z_lk_forge} as its base:"
   buh_e
@@ -214,7 +219,9 @@ rbho_director_airgap() {
   buh_e
   buh_code "   RBRV_IMAGE_1_ANCHOR=rbi_hm/\${FORGE_HALLMARK}/image:\${FORGE_HALLMARK}"
   buh_e
-  buh_line "Substitute the captured hallmark into the locator. Commit the change."
+  buh_line "Substitute the captured hallmark into the locator. Commit the change"
+  buh_line "together with the elected forge ANCHOR from the previous step —"
+  buh_line "the airgap ${RBYC_ORDAIN} below refuses on an uncommitted tree."
   buh_e
   buh_line "Ensconce is not invoked on the airgap ${RBYC_VESSEL} — its"
   buh_line "${RBYC_RBRV}'s ANCHOR points at ${z_lk_forge}'s ${RBYC_HALLMARK}"

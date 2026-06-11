@@ -60,6 +60,7 @@ zrbrd_furnish() {
 
   local z_rbk_kit_dir="${BASH_SOURCE[0]%/*}"
 
+  source "${BURD_BUK_DIR}/bug_git.sh"
   source "${BURD_BUK_DIR}/buv_validation.sh"
   source "${BURD_BUK_DIR}/burd_regime.sh"
   source "${BURD_BUK_DIR}/bupr_PresentationRegime.sh"

@@ -151,6 +151,10 @@ rbld_ensconce() {
   buc_doc_param "vessel" "Vessel sigil or path to vessel directory declaring the base ORIGIN"
   buc_doc_shown || return 0
 
+  # Dirty-tree guard — capture composes its cloud step bodies from the working
+  # tree; the Lode's provenance envelope must be the product of committed code.
+  bug_require_clean_tree "ensconce"
+
   # Resolve vessel argument (sigil or path) and load.
   zrbfc_resolve_vessel "${BUZ_FOLIO:-}"
   local -r z_vessel_dir=$(<"${ZRBFC_VESSEL_RESOLVED_DIR_FILE}")

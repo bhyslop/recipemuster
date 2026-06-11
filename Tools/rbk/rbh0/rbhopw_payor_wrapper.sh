@@ -82,7 +82,9 @@ rbho_payor_handbook() {
   buh_line "${RBYC_RETRIEVER} and ${RBYC_DIRECTOR} accounts for those who build and"
   buh_line "retrieve container images."
   buh_e
-  buh_line "${RBYC_PAYOR} creates the Depot:"
+  buh_line "${RBYC_PAYOR} creates the Depot — commit anything pending first;"
+  buh_line "the tripwire inscribe at the end of ${RBYC_LEVY} refuses on a dirty"
+  buh_line "working tree, so the inscribed ${RBYC_RBRD} is a committed state:"
   buh_tt  "  " "${RBZ_LEVY_DEPOT}"
   buh_e
   buh_line "This enables APIs, creates the Artifact Registry repository and"

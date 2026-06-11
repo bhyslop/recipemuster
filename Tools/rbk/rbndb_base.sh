@@ -122,6 +122,11 @@ rbrd_inscribe() {
   buc_doc_param "bearer_token" "OAuth access token with GAR write (Payor)"
   buc_doc_shown || return 0
 
+  # Dirty-tree guard — the tripwire image ships the tracked rbrd.env bytes, and
+  # rbrd_check forever after compares local config against them; the inscribed
+  # reference must be a committed state.
+  bug_require_clean_tree "tripwire inscribe"
+
   local -r z_token="${1:-${BUZ_FOLIO:-}}"
   test -n "${z_token}" || buc_die "rbrd_inscribe: bearer token required (positional arg or BUZ_FOLIO)"
 

@@ -22,6 +22,11 @@ job on the tethered (egress-permitted) pool, executed by the
 service account via the metadata server.
 The workstation never fetches the upstream bytes — it trusts the GCP environment over a potentially-compromised station.
 
+NOTE: *Dirty-tree guard*.
+Every Lode capture verb refuses on a working tree with unstaged or staged changes (`bug_require_clean_tree`), before any credential load or submission.
+The capture composes its cloud step bodies and snippet includes from the working tree at submit time, and those steps write the Lode's provenance envelope — so the envelope must be the product of committed code, even though no git fact is stamped into it.
+The guard is uniform across all four capture verbs; the spine's delete builds are deliberately ungated (a delete creates nothing whose reproducibility could suffer).
+
 NOTE: Ensconce is capture-pure.
 It mints the Lode, emits the
 {rbtga_lode_vouch}

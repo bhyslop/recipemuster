@@ -30,6 +30,9 @@ Both steps ride the Google-hosted `gcr.io/cloud-builders/docker` builder (always
 {rbtga_lode_vouch}
 envelope — not the acquisition tool — is the unifier, so a docker-pull path alongside the bole kind's skopeo capture is correct.
 
+NOTE: *Dirty-tree guard*.
+Conclave refuses on a working tree with unstaged or staged changes, per the uniform Lode capture guard — see {rbtgo_lode_ensconce}.
+
 NOTE: Conclave is capture-pure.
 It mints the Lode, emits the
 {rbtga_lode_vouch}

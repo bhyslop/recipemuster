@@ -93,6 +93,7 @@ The tripwire is _produced_ exactly once, host-side, at the tail of
 {rbtgo_depot_levy}
 — after the depot-tracking refresh, using the Payor OAuth access token already in scope.
 A pre-push existence guard (`docker manifest inspect`) makes inscription idempotent-by-refusal: an already-present tripwire is fatal, since RBRD is frozen for the depot's productive lifetime and refreshing it requires a fresh depot (unmake + relevy).
+Inscription also refuses on a working tree with unstaged or staged changes (`bug_require_clean_tree`): the tripwire ships the tracked {rbrd_regime} assignment file's bytes as the depot's permanent drift reference, so the inscribed state must be a committed one.
 +
 The tripwire is _consumed_ inline by every cloud-submitting command before it dispatches a build: the command pulls the image, extracts the embedded {rbrd_regime} assignment file, and exact-byte-compares it (comments, whitespace, and line ordering all participate) against the local copy.
 A mismatch, a missing image, or a registry/auth failure is fatal with recovery guidance — the command refuses to submit cloud work against a drifted or unverifiable depot regime.
