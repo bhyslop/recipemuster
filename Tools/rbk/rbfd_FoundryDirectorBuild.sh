@@ -897,7 +897,9 @@ zrbfd_push_build_context() {
 # fresh capture in the chain): leave any existing ANCHOR untouched. A present
 # touchmark elects only when its kind-brand is bole; a non-bole touchmark (a wsl
 # underpin or reliquary conclave chained ahead of this ordain) likewise leaves
-# the ANCHOR as-is. A bole presence overwrites, so a re-capture repoints.
+# the ANCHOR as-is. Election also requires exactly one populated ORIGIN slot —
+# zero or several leave the ANCHORs as-is too, since the touchmark cannot say
+# which slot it belongs to. A bole presence overwrites, so a re-capture repoints.
 # Args: rbrv_file
 zrbfd_elect_base_anchor() {
   zrbfd_sentinel
@@ -947,8 +949,21 @@ zrbfd_elect_base_anchor() {
       RBRV_IMAGE_3_ORIGIN=?*) z_slot="3"; z_count=$((z_count + 1)) ;;
     esac
   done < "${z_rbrv_file}"
-  test "${z_count}" -eq 1 \
-    || buc_die "Base-anchor election needs exactly one populated RBRV_IMAGE_n_ORIGIN slot, found ${z_count}"
+  # Election can only disambiguate a single populated slot. Any other count is a
+  # no-op, not corruption — same shape as the non-bole brand no-op above: a bole
+  # fact chained ahead of this ordain must never kill it pre-submit. Zero slots
+  # means the vessel declares no base ORIGIN to elect into; two-plus means the
+  # touchmark cannot say which slot it belongs to — those ANCHORs stay
+  # operator-pinned.
+  case "${z_count}" in
+    1) ;;
+    0)
+      buc_log_args "Vessel has no populated RBRV_IMAGE_n_ORIGIN slot — base ANCHOR left as-is"
+      return 0 ;;
+    *)
+      buc_log_args "Vessel has ${z_count} populated RBRV_IMAGE_n_ORIGIN slots — election cannot disambiguate; base ANCHORs left as-is"
+      return 0 ;;
+  esac
 
   # Replace-or-append the chosen slot's ANCHOR line.
   local -r z_anchor_var="RBRV_IMAGE_${z_slot}_ANCHOR"
