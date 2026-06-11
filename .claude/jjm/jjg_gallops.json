@@ -2,6 +2,7 @@
   "jjgrn_schema_version": 4,
   "jjgrn_next_heat_seed": "Bf",
   "jjgrn_heat_order": [
+    "₣Be",
     "₣Bd",
     "₣Bb",
     "₣BZ",
@@ -32,8 +33,7 @@
     "₣BI",
     "₣BL",
     "₣Ba",
-    "₣Bc",
-    "₣Be"
+    "₣Bc"
   ],
   "jjgrn_heats": {
     "₣A-": {
@@ -10773,7 +10773,7 @@
     "₣Be": {
       "jjghn_silks": "rbk-09-better-negatives",
       "jjghn_creation_time": "260610",
-      "jjghn_status": "jjghe_stabled",
+      "jjghn_status": "jjghe_racing",
       "jjghn_order": [
         "₢BeAAG",
         "₢BeAAH",
