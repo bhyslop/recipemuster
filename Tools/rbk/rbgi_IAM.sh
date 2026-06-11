@@ -70,6 +70,7 @@ zrbgi_kindle() {
   readonly ZRBGI_INFIX_REPO_ROLE="repo_role"
   readonly ZRBGI_INFIX_REPO_ROLE_SET="repo_role_set"
   readonly ZRBGI_INFIX_SA_IAM_VERIFY="sa_iamverify"
+  readonly ZRBGI_INFIX_SA_BINDING_POLL="sa_binding_poll"
   readonly ZRBGI_INFIX_BUCKET_IAM="bucket_iam"
   readonly ZRBGI_INFIX_BUCKET_IAM_SET="bucket_iam_set"
   readonly ZRBGI_INFIX_SECRET_IAM="secret_iam"
@@ -546,6 +547,74 @@ rbgi_add_sa_iam_role() {
   test "${z_prop_succeeded}" = "1" || buc_die "SA IAM: propagation retry loop exited without success"
 
   buc_log_args 'Successfully granted SA role' "${z_role}"
+}
+
+# Read-back gate: poll a SA's IAM policy until a (role, member) binding is
+# visible. The grant's setIamPolicy 200 is authoritative for the write, but a
+# freshly granted binding joins the Class-C propagation race — a consumer that
+# exercises it immediately (builds.create's actAs check against an
+# invest-fresh self-actAs binding) can die on a flap, not a defect. Visibility
+# is the strongest pre-consumer signal available; confining the wait here
+# keeps consumer paths simple. Distinct from the project-scope post-set
+# read-back that was removed as non-load-bearing: there, same-email deleted:
+# tombstone uid-reconciliation on a standing depot could lag the policy read
+# past any bounded poll, false-timing-out a grant that had already succeeded.
+# An SA's own policy dies with the SA, so a recreated SA reads back
+# tombstone-free and this poll converges on GCP's normal cache clock.
+rbgi_poll_sa_iam_binding() {
+  zrbgi_sentinel
+
+  local -r z_token="${1:-}"
+  local -r z_target_sa_email="${2:-}"
+  local -r z_member_email="${3:-}"  # email only; function adds serviceAccount: prefix
+  local -r z_role="${4:-}"
+
+  test -n "${z_token}"           || buc_die "Token required"
+  test -n "${z_target_sa_email}" || buc_die "Target SA email required"
+  test -n "${z_member_email}"    || buc_die "Member email required"
+  test -n "${z_role}"            || buc_die "Role required"
+
+  local z_target_encoded
+  z_target_encoded=$(rbuh_urlencode_capture "${z_target_sa_email}") \
+    || buc_die "Failed to encode SA email"
+  local -r z_sa_resource="${RBGC_API_ROOT_IAM}${RBGC_IAM_V1}/projects/-/serviceAccounts/${z_target_encoded}"
+  local -r z_member="serviceAccount:${z_member_email}"
+
+  buc_log_args "Read-back: waiting for ${z_role} on ${z_target_sa_email} to show ${z_member}"
+
+  local z_elapsed=0
+  while :; do
+    local z_poll_infix="${ZRBGI_INFIX_SA_BINDING_POLL}-${z_elapsed}s"
+    rbuh_json "POST" "${z_sa_resource}:getIamPolicy" "${z_token}" \
+      "${z_poll_infix}" "${ZRBGI_VERSION3_BODY}" || true
+
+    local z_code=""
+    z_code=$(rbuh_code_capture "${z_poll_infix}") || z_code=""
+
+    if test "${z_code}" = "200"; then
+      local z_resp_file="${ZRBUH_PREFIX}${z_poll_infix}${ZRBUH_POSTFIX_JSON}"
+      local z_hits_file="${ZRBGI_PREFIX}${z_poll_infix}_binding_hits.txt"
+      local z_hits_stderr="${ZRBGI_PREFIX}${z_poll_infix}_binding_stderr.txt"
+      jq -r --arg role "${z_role}" --arg member "${z_member}" \
+        '[.bindings[]? | select(.role == $role) | .members[]? | select(. == $member)] | length' \
+        "${z_resp_file}" > "${z_hits_file}" 2>"${z_hits_stderr}" \
+        || buc_die "Failed to inspect SA IAM policy for binding — see ${z_hits_stderr}"
+      local z_hits=$(<"${z_hits_file}")
+      test -n "${z_hits}" || buc_die "Empty binding count from SA IAM policy inspection"
+      if test "${z_hits}" != "0"; then
+        buc_log_args "Binding visible after ${z_elapsed}s"
+        return 0
+      fi
+      buc_log_args "Binding not yet visible (read lags the grant), waiting ${RBGC_EVENTUAL_CONSISTENCY_SEC}s..."
+    else
+      buc_log_args "SA getIamPolicy returned HTTP ${z_code} during read-back, waiting ${RBGC_EVENTUAL_CONSISTENCY_SEC}s..."
+    fi
+
+    test "${z_elapsed}" -lt "${RBGC_MAX_CONSISTENCY_SEC}" \
+      || buc_die "Binding ${z_role} for ${z_member} on ${z_target_sa_email} not visible after ${RBGC_MAX_CONSISTENCY_SEC}s"
+    sleep "${RBGC_EVENTUAL_CONSISTENCY_SEC}"
+    z_elapsed=$((z_elapsed + RBGC_EVENTUAL_CONSISTENCY_SEC))
+  done
 }
 
 rbgi_add_bucket_iam_role() {

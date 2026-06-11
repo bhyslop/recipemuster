@@ -707,6 +707,13 @@ rbgg_invest_director() {
   # is needed because Director already holds repoAdmin.
   rbgi_add_sa_iam_role "${z_token}" "${z_account_email}" "${z_account_email}" "roles/iam.serviceAccountUser"
 
+  buc_step 'Read-back: confirm self-actAs binding visible before declaring invest complete'
+  # The first post-invest builds.create exercises this binding (the spine
+  # dispatch has no tolerance for a PERMISSION_DENIED actAs flap), so the
+  # Class-C propagation wait is confined here, invest-side, rather than
+  # spread to every spine rider's submit path.
+  rbgi_poll_sa_iam_binding "${z_token}" "${z_account_email}" "${z_account_email}" "roles/iam.serviceAccountUser"
+
   buc_step 'Grant Artifact Registry roles (complete expected policy)'
   # Complete policy: Director repoAdmin + Mason writer in one setIamPolicy.
   # Prevents read-modify-write race where stale getIamPolicy omits Mason's binding.
