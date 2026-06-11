@@ -76,6 +76,15 @@ extraction/triage pace to dispose:
   fast = 10 fixtures, service = 17, complete = 20, and the table omits the five
   release/probe suites entirely.
 
+## Ladder re-baseline (2026-06-11, endgame-verification run)
+
+Post-heat composition, recorded per this memo's triage disposition:
+
+- **complete**: 22:36:51→23:48:40 = **71m49s** (20 fixtures, 234 cases, 0 failed) — `hist-rbw-ts-complete-20260610-223651-9144-637.txt`
+- **skirmish**: 05:00:39→06:37:26 = **96m47s** (16 fixtures, 297 cases, 0 failed; warm-pool run — attempt 5; the four prior attempts died to recorded causes, see the 2026-06-11 night-ledger memos) — `hist-rbw-ts-skirmish-20260611-050038-58524-141.txt`
+- **blockade**: 07:05:53→07:18:00 = **12m07s** (2 fixtures, 66 cases, 0 failed) — `hist-rbw-ts-blockade-20260611-070552-59542-659.txt`
+- **fast** (consolidated gate form): 153 cases, ~4m.
+
 ## Service-suite baseline — first post-cutover measurement
 
 Prior `service` duration history is invalidated by this heat: the suite gained the
