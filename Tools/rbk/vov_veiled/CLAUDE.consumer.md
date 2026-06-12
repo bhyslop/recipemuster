@@ -10,7 +10,7 @@ New users: start with the README.md at the project root. It walks through the fu
 
 After initial payor setup, the adaptive onboarding guide reads your current state and shows the next step:
 ```
-tt/rbw-go.OnboardMAIN.sh
+tt/rbw-o.ONBOARDING.sh
 ```
 
 ## Domain Vocabulary
@@ -202,5 +202,5 @@ Project Root/
 - **Regime validation fails on startup**: Run the regime's render command to see current values, then validate to identify the specific error. Fix the `.env` file and retry.
 - **OAuth token expired**: `tt/rbw-gPR.PayorRefresh.sh`
 - **Lost credential file**: Re-run the creation command for that role (payor install, governor mantle, director knight, retriever charter).
-- **Tabtarget not found**: Run `tt/rbw-tf.QualifyFast.sh` to check tabtarget and colophon health.
-- **Build fails**: Check `tt/rbw-ft.DirectorTalliesHallmarks.sh` for build status. Review logs in the GCP Console for the depot project.
+- **Tabtarget not found**: Run `tt/rbw-tq.QualifyFast.sh` to check tabtarget and colophon health.
+- **Build fails**: Check `tt/rbw-ft.RetrieverTalliesHallmarks.sh` for build status. Review logs in the GCP Console for the depot project.
