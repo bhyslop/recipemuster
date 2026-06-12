@@ -1,7 +1,7 @@
 //axhob_operation
 {rbtgo_director_yoke}
 
-NOTE: This operation writes `RBRV_RELIQUARY=«TOUCHMARK»` into every vessel's {rbrv_regime} file under `${RBRR_VESSEL_DIR}` so that subsequent Cloud Build operations (conjure, bind, graft, enshrine) consume the named tool image set as GCB step images.
+NOTE: This operation writes `RBRV_RELIQUARY=«TOUCHMARK»` into every vessel's {rbrv_regime} file under `${RBRR_VESSEL_DIR}` so that subsequent Cloud Build operations (conjure, bind, graft, ensconce) consume the named tool image set as GCB step images.
 The about/vouch pipeline (gcloud, docker, alpine, syft) consumes reliquary tool images uniformly across all ordain modes; bind additionally uses gcrane for image-copy.
 The touchmark is validated once against GAR before any vessel file is touched: the conclave Lode package `{gar_lodes_namespace}/«TOUCHMARK»` must exist and carry all six expected tool cohort member tags as `:rbi_<tool>` sprued tags — one per tool — on that single package.
 On touchmark validation failure the operation errors diagnostically without writing any vessel.

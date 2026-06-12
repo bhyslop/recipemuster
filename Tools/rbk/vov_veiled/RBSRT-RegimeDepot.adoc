@@ -99,5 +99,5 @@ The tripwire is _consumed_ inline by every cloud-submitting command before it di
 A mismatch, a missing image, or a registry/auth failure is fatal with recovery guidance — the command refuses to submit cloud work against a drifted or unverifiable depot regime.
 The check takes a bearer token parameter and is role-agnostic; each consuming command passes its own role's token (no new IAM grants).
 +
-The tripwire is depot-scoped operational state, not part of the hallmark / reliquary / enshrine image catalogue; the image enumerators ignore the `rbi_df` namespace by design.
+The tripwire is depot-scoped operational state, not part of the hallmark / Lode image catalogue; the image enumerators ignore the `rbi_df` namespace by design.
 Both operations are implemented host-side (Cloud Build is not involved) by `rbrd_inscribe` and `rbrd_check` in `Tools/rbk/rbndb_base.sh`, exposed for manual use via the `rbw-rdi` (inscribe) and `rbw-rdc` (check) tabtargets.

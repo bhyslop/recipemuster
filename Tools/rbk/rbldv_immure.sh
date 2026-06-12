@@ -77,8 +77,8 @@ zrbld_immure_resolve_family() {
 # cp-by-digest + blob-residency guard + vouch-push) and its substitutions blob, then
 # ride the capture spine to submit and poll. The spine owns the capture-domain build
 # knobs (mason SA, TETHER pool, regime timeout); this body chooses only the recipe,
-# the substitutions, and the inscribe-grade poll ceiling (the multi-GB leaf copies
-# want the larger ceiling). Four steps across three builders: index-select rides the
+# the substitutions, and the heavy capture poll ceiling (the multi-GB leaf copies
+# want the larger budget). Four steps across three builders: index-select rides the
 # gcloud builder (python3 — parses the upstream OCI index, which the no-jq bash GCB
 # discipline does not cover; rbgjl06 precedent); gcrane cp and the vouch-push ride the
 # floating gcrane builder (busybox); the residency HEAD rides the Debian docker builder
@@ -154,7 +154,7 @@ zrbld_immure_submit() {
     || buc_die "Failed to compose immure substitutions blob"
 
   zrbld_spine_dispatch \
-    "${z_token}" "${RBGD_MASON_EMAIL}" "Immure" "${ZRBFC_BUILD_POLL_CEILING_INSCRIBE}" \
+    "${z_token}" "${RBGD_MASON_EMAIL}" "Immure" "${ZRBFC_BUILD_POLL_CEILING_CAPTURE_HEAVY}" \
     "${z_subs_file}" "${ZRBLD_IMMURE_PREFIX}" \
     "${z_recipe[@]}"
 }

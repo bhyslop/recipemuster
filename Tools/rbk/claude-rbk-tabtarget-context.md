@@ -88,7 +88,7 @@ The Folio column shows how each tabtarget receives it:
 | `rbw-Ocd` | OnboardingCredentialDirector | — | Install director credentials — place RBRA key file |
 | `rbw-Ofc` | OnboardingFirstCrucible | — | Start a Crucible using local builds — kludge, charge, rack |
 | `rbw-Ots` | OnboardingTadmorSecurity | — | Verify Crucible containment under attack — charge tadmor and run the adversarial suite |
-| `rbw-Odf` | OnboardingDirectorFirstBuild | — | Your First Cloud Build — inscribe, conjure, tour, summon, abjure |
+| `rbw-Odf` | OnboardingDirectorFirstBuild | — | Your First Cloud Build — conclave, conjure, tour, summon, abjure |
 | `rbw-Oda` | OnboardingDirectorAirgap | — | Airgap Cloud Build — ensconce, conjure base, conjure airgap, charge moriah, compare plumb |
 | `rbw-Odb` | OnboardingDirectorBind | — | Bind Cloud Build — pin upstream image by digest, mode-mixture pluml Crucible |
 | `rbw-Odg` | OnboardingDirectorGraft | — | Graft Cloud Build — push locally-built image, inspect GRAFTED Vouch verdict |

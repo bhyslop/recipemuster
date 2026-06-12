@@ -206,7 +206,7 @@ Step 3 reads from workspace rather than re-discovering from the registry.
 [cols="1,2"]
 |===
 | `_RBGV_IMAGE_1` | Resolved base image reference for slot 1 (full GAR ref if anchored, upstream tag if pass-through). Empty if slot unused.
-| `_RBGV_IMAGE_1_PROVENANCE` | Provenance type for slot 1: `anchored` (GAR-mirrored via enshrine) or `pass-through` (upstream direct). Empty if slot unused.
+| `_RBGV_IMAGE_1_PROVENANCE` | Provenance type for slot 1: `anchored` (a bole Lode in GAR, captured via ensconce) or `pass-through` (upstream direct). Empty if slot unused.
 | `_RBGV_IMAGE_2` | Resolved base image reference for slot 2.
 | `_RBGV_IMAGE_2_PROVENANCE` | Provenance type for slot 2.
 | `_RBGV_IMAGE_3` | Resolved base image reference for slot 3.

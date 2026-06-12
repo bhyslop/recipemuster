@@ -14,7 +14,7 @@ rekons one domain:
 
 * `rbfl_rekon_hallmark` — basenames present under a hallmark subtree
 
-Rekon over reliquary cohorts and the legacy enshrinement domain is intentionally omitted: a reliquary is now a conclave {rbtga_lode} whose member tags are inspected via its Lode augur operation, and an enshrinement is a single image per anchor (1-deep), so neither warrants a presence table here — {rbtgo_image_audit} covers the catalog and {rbtgo_image_retrieve} covers retrieval.
+Rekon over Lodes is intentionally omitted: a reliquary cohort is a conclave {rbtga_lode} whose member tags are inspected via its Lode augur operation, and a bole Lode is a single image per anchor (1-deep), so neither warrants a presence table here — {rbtgo_image_audit} covers the catalog and {rbtgo_image_retrieve} covers retrieval.
 
 == Hallmark Rekon
 

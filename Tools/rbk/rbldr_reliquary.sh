@@ -24,8 +24,8 @@
 # zrbld_spine_dispatch / zrbld_spine_extract_single. No build-submission or
 # step-composition machinery lives here.
 #
-# Conclave absorbed the former inscribe pull machinery (rbfli_Inscribe + rbgji01,
-# now retired): one rbi_ld package holding N member tags (:rbi_<tool>) plus the :rbi_vouch envelope. Both
+# Conclave captures the build-tool cohort:
+# one rbi_ld package holding N member tags (:rbi_<tool>) plus the :rbi_vouch envelope. Both
 # steps ride the floating gcrane builder (ZRBLD_GCRANE_BUILDER): the tools captured
 # here ARE the reliquary, so capture cannot bootstrap from one — conclave is the
 # generation phase the pinning rule permits to run unpinned (RBS0 rbsk_pinning_boundary).
@@ -46,8 +46,7 @@ set -euo pipefail
 # and its substitutions blob, then ride the capture spine to submit
 # and poll. The spine owns the capture-domain build knobs (mason SA, TETHER pool,
 # regime timeout); this body chooses only the recipe, the substitutions, and the
-# inscribe-borrowed poll ceiling (the cohort copy needs the larger ceiling — same
-# work inscribe performs today).
+# heavy capture poll ceiling (the cohort copy needs the larger budget).
 # Args: token stamp
 zrbld_conclave_submit() {
   zrbld_sentinel
@@ -94,7 +93,7 @@ zrbld_conclave_submit() {
     || buc_die "Failed to compose conclave substitutions blob"
 
   zrbld_spine_dispatch \
-    "${z_token}" "${RBGD_MASON_EMAIL}" "Conclave" "${ZRBFC_BUILD_POLL_CEILING_INSCRIBE}" \
+    "${z_token}" "${RBGD_MASON_EMAIL}" "Conclave" "${ZRBFC_BUILD_POLL_CEILING_CAPTURE_HEAVY}" \
     "${z_subs_file}" "${ZRBLD_CONCLAVE_PREFIX}" \
     "${z_recipe[@]}"
 }

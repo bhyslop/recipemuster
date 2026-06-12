@@ -111,7 +111,7 @@ rbfk_kludge() {
   test -d "${RBRV_CONJURE_BLDCONTEXT}" \
     || buc_die "Build context not found: ${RBRV_CONJURE_BLDCONTEXT}"
 
-  # Resolve base images — mirror conjure's anchor-aware resolution so an enshrined
+  # Resolve base images — mirror conjure's anchor-aware resolution so an anchored
   # vessel built via kludge resolves the same GAR-anchored layers as conjure.
   # Slot types diverge by credential need: anchored refs point into GAR and need
   # GCP auth, so misses refuse with a wrest remediation (credentialed-out-of-band).
@@ -178,7 +178,7 @@ rbfk_kludge() {
     buc_bare ""
     buc_bare "  Anchored slots (wrest from GAR):"
     for z_miss in "${z_anchored_misses[@]}"; do
-      buc_tabtarget "${RBZ_WREST_ENSHRINED_IMAGE}" "${z_miss}"
+      buc_tabtarget "${RBZ_WREST_IMAGE}" "${z_miss}"
     done
     buc_bare ""
     buc_die "Local image cache incomplete — see remediation above"

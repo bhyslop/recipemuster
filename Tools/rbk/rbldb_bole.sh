@@ -40,7 +40,7 @@ set -euo pipefail
 # its substitutions blob, then ride the capture spine to submit and
 # poll. The spine owns the capture-domain build knobs (mason SA, TETHER pool,
 # regime timeout); this body chooses only the recipe, the substitutions, and the
-# enshrine-borrowed poll ceiling.
+# light capture poll ceiling (a single small image copy).
 # Args: token origin stamp
 zrbld_ensconce_submit() {
   zrbld_sentinel
@@ -96,7 +96,7 @@ zrbld_ensconce_submit() {
     || buc_die "Failed to compose ensconce substitutions blob"
 
   zrbld_spine_dispatch \
-    "${z_token}" "${RBGD_MASON_EMAIL}" "Ensconce" "${ZRBFC_BUILD_POLL_CEILING_ENSHRINE}" \
+    "${z_token}" "${RBGD_MASON_EMAIL}" "Ensconce" "${ZRBFC_BUILD_POLL_CEILING_CAPTURE_LIGHT}" \
     "${z_subs_file}" "${ZRBLD_ENSCONCE_PREFIX}" \
     "${z_recipe[@]}"
 }

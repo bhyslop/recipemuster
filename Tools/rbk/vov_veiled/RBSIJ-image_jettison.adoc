@@ -8,8 +8,8 @@ using the Docker Registry HTTP API V2 implemented by
 
 `rbfl_jettison` is locator-generic: the same procedure backs
 {rbtga_ark}
-hallmark members,
-reliquary tool images, and enshrinement images.
+hallmark members
+and Lode members.
 The package path embedded in the
 {rbst_locator}
 selects the domain — the procedure itself does not branch.
@@ -79,4 +79,4 @@ if jettison fails: "Jettison failed with HTTP «STATUS_CODE»"
 
 //axhoc_completion
 Procedure completes successfully when the tag has been jettisoned from the registry and the jettisoned message is displayed.
-The locator-generic shape means a hallmark member, a reliquary tool image, or an enshrinement image are all deleted by the same call — domain identity lives in the locator's package path, not in branched logic.
+The locator-generic shape means a hallmark member or a Lode member is deleted by the same call — domain identity lives in the locator's package path, not in branched logic.

@@ -177,7 +177,7 @@ rbho_director_bind() {
   buh_step1 "Yoke every ${RBYC_VESSEL} to a ${RBYC_RELIQUARY}"
   buh_e
   buh_line "Every ${RBYC_ORDAIN}-path ${RBYC_VESSEL} — ${RBYC_CONJURE}, ${RBYC_BIND}, and"
-  buh_line "${RBYC_GRAFT} — needs a ${RBYC_RELIQUARY} stamp in its ${RBYC_RBRV}. ${RBYC_BIND}"
+  buh_line "${RBYC_GRAFT} — needs a ${RBYC_RELIQUARY} touchmark in its ${RBYC_RBRV}. ${RBYC_BIND}"
   buh_line "uses gcrane from the ${RBYC_RELIQUARY} to copy the upstream image into"
   buh_line "your ${RBYC_DEPOT}, and the about/vouch pipeline that follows runs on"
   buh_line "${RBYC_RELIQUARY} tool images regardless of mode."
@@ -203,9 +203,9 @@ rbho_director_bind() {
   buh_line "versions until you rebuild them via ${RBYC_ORDAIN}."
   buh_e
   if test "${z_vessel_yoked}" = "1"; then
-    buh_line "${RBYC_PROBE_YES}${z_lk_vessel} ${RBYC_RELIQUARY} stamp set"
+    buh_line "${RBYC_PROBE_YES}${z_lk_vessel} ${RBYC_RELIQUARY} touchmark set"
   else
-    buh_line "${RBYC_PROBE_NO}${z_lk_vessel} ${RBYC_RELIQUARY} stamp not set — yoke above before ${RBYC_ORDAIN}"
+    buh_line "${RBYC_PROBE_NO}${z_lk_vessel} ${RBYC_RELIQUARY} touchmark not set — yoke above before ${RBYC_ORDAIN}"
   fi
   buh_e
 

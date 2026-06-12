@@ -197,7 +197,7 @@ zrbfc_assemble_vouch_steps() {
 # Args: output_file temp_prefix
 # Reads ZRBFC_RBGJR_STEPS_DIR and z_rbfc_tool_alpine from module state.
 # Single step prepends to every ordain-path Cloud Build job (conjure, bind,
-# graft, enshrine) as defense-in-depth: validates reliquary GAR-presence from
+# graft) as defense-in-depth: validates reliquary GAR-presence from
 # the worker pool's vantage before expensive work runs.
 zrbfc_assemble_preflight_step() {
   zrbfc_sentinel

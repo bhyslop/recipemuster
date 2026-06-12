@@ -32,7 +32,7 @@ PKG="${_RBGL_GAR_HOST}/${_RBGL_GAR_PATH}/${_RBGL_LODES_ROOT}/${STAMP}"
 echo "Lode package: ${PKG}"
 
 # Tool image cohort (short-name|upstream-ref) — the authoritative co-versioned set
-# for GCB step execution (the legacy inscribe manifest rbgji01 is retired). gcloud,
+# for GCB step execution. gcloud,
 # docker, and gcrane are Google-hosted (gcr.io); the rest are third-party. gcrane
 # rides the :debug variant so the resolved cohort member keeps the /busybox/sh shell
 # its capture steps need.

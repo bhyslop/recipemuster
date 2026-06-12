@@ -13,12 +13,11 @@
   - **RBFCG** → `rbk/rbfcg_*.sh` (Foundry Core GAR-REST)
   - **RBFCP** → `rbk/rbfcp_*.sh` (Foundry Core plumb — ~640 lines, the single biggest extraction)
   - **RBFC0** → `rbk/rbfc0_core.sh` (Foundry Core 0-trick entry — the module gestalt: single inclusion-guard + kindle + leaked tool-image globals `z_rbfc_tool_*` (copied verbatim). CLI partner `rbfc0_cli.sh` (`zrbfc_furnish`); bare `rbfc_cli.sh` is retired so `rbfc` names no file now that it has children. Per the rbh0 `0`-trick precedent, the `0`-prefix homes both the gestalt entry and the CLI.)
-- **RBFD** → `rbk/rbfd_director.sh` (Foundry Director Build — Director-side Cloud Build orchestration: `rbfd_ordain`/`rbfd_build`/`rbfd_enshrine`/`rbfd_mirror`/`rbfd_graft`, plus reliquary/quota/registry preflights and `zrbfd_stitch_build_json`; CLI partner `rbfd_cli.sh`)
+- **RBFD** → `rbk/rbfd_director.sh` (Foundry Director Build — Director-side Cloud Build orchestration: `rbfd_ordain`/`rbfd_build`/`rbfd_mirror`/`rbfd_graft`, plus reliquary/quota/registry preflights and `zrbfd_stitch_build_json`; CLI partner `rbfd_cli.sh`)
 - **RBFH** → `rbk/rbfh_hygiene.sh` (Foundry Hygiene — Dockerfile FROM-line constraint shared by kludge and conjure; thin BCG CLI partner `rbk/rbfh_cli.sh` surfaces the contract via `rbw-fhc`/`rbw-fhv`)
 - **RBFK** → `rbk/rbfk_kludge.sh` (Foundry Kludge — local vessel image build for development (`rbfk_kludge`); CLI partner `rbfk_cli.sh`, colophon `rbw-fk`)
 - **RBFL** → `rbk/rbfl*` (Foundry Ledger family — Container (terminal: names no file). The `rbfl_FoundryLedger.sh` monolith was decomposed into the children below; the rbfl CLI is now the 0-top `rbfl0_cli.sh`. Cluster boundaries — which function lands in which file — were settled at the explosion.)
-  - **RBFLI** → `rbk/rbfli_*.sh` (Foundry Ledger inscribe — reliquary creation / tool-image mirror gesture)
-  - **RBFLY** → `rbk/rbfly_*.sh` (Foundry Ledger yoke — reliquary-stamp yoke into vessel regimes)
+  - **RBFLY** → `rbk/rbfly_*.sh` (Foundry Ledger yoke — reliquary-touchmark yoke into vessel regimes)
   - **RBFLD** → `rbk/rbfld_*.sh` (Foundry Ledger delete — reliquary / ledger removal gesture)
   - **RBFLN** → `rbk/rbfln_*.sh` (Foundry Ledger inventory — ledger listing / enumeration gesture)
   - **RBFLW** → `rbk/rbflw_*.sh` (Foundry Ledger wrest — image wrest from registry)
@@ -34,7 +33,7 @@
 - **RBGO** → `rbk/rbgo_oauth.sh` (also owns the stateless `rbgo_curl_status_is_transient_predicate` transient-curl-exit classifier)
 - **RBGP** → `rbk/rbgp_payor.sh`
 - **RBGV** → `rbk/rbgv_probe.sh` (Google Verification — JWT SA and Payor OAuth access probes)
-- **RBGJS** → `rbk/rbgjs/` (shared cloud-step snippet library — the no-family member of the `rbgj«family»/` cloud-step scheme, where each letter is a made-side family of in-pool step scripts (`rbgja` about, `rbgjb` build, `rbgje` enshrine, `rbgji` inscribe, `rbgjl` lode, `rbgjm` mirror, `rbgjr` reliquary, `rbgjv` verify). A *shared* snippet belongs to no single family, so `s` breaks the scheme as the no-family family. Holds composed-once fragments — `rbgjs-token-fetch.sh`, `rbgjs-gcrane-fingerprint.sh`, `rbgjs-buildx-bootstrap.sh`, `rbgjs-buildx-push.sh` — each shebang'd only for shellcheck and spliced into a step at `#@rbgjs_include «name»` markers by the host-side expander `zrbfc_expand_includes` (`rbfcb_host.sh`), reached by both the Lode spine `rblds_` and the made-side `rbfca_` vouch assembler. Snippets read shell vars the kind sets before the marker, never `_RBGx_` substitutions — that is what lets one snippet serve disjoint substitution namespaces. Container: `rbgjs` HAS children (the snippet files), names no bare file. Contract: RBSCJ "Composed-snippet library (rbgjs)".)
+- **RBGJS** → `rbk/rbgjs/` (shared cloud-step snippet library — the no-family member of the `rbgj«family»/` cloud-step scheme, where each letter is a family of in-pool step scripts (`rbgja` about, `rbgjb` build, `rbgjl` lode, `rbgjm` mirror, `rbgjr` reliquary, `rbgjv` verify). A *shared* snippet belongs to no single family, so `s` breaks the scheme as the no-family family. Holds composed-once fragments — `rbgjs-token-fetch.sh`, `rbgjs-gcrane-fingerprint.sh`, `rbgjs-gcrane-append.sh`, `rbgjs-gpg-verify-sums.sh`, `rbgjs-buildx-bootstrap.sh`, `rbgjs-buildx-push.sh` — each shebang'd only for shellcheck and spliced into a step at `#@rbgjs_include «name»` markers by the host-side expander `zrbfc_expand_includes` (`rbfcb_host.sh`), reached by both the Lode spine `rblds_` and the made-side `rbfca_` vouch assembler. Snippets read shell vars the kind sets before the marker, never `_RBGx_` substitutions — that is what lets one snippet serve disjoint substitution namespaces. Container: `rbgjs` HAS children (the snippet files), names no bare file. Contract: RBSCJ "Composed-snippet library (rbgjs)".)
 - **RBH0** → `rbk/rbh0/` (Handbook directory — decomposed one-function-per-file)
   - `rbh*` is the Handbook family (human-facing procedures), parallel to `rbg*` (Google machinery). Three groups: `RBHO` onboarding, `RBHP` payor, `RBHW` windows. Colophon pattern: `rbw-h0` (HandbookTOP index), `rbw-h{o,p,w}` (group tops), `rbw-H{O,P,W}*` (subordinate procedures).
   - **RBHO0** → `rbk/rbh0/rbho0_*.sh` (Onboarding 0-prefix — CLI `rbho0_cli.sh` (thin furnish, probe-only deps) + 0-trick gestalt entry `rbho0_onboarding.sh` (kindle, sentinel, probes, shared helpers))
@@ -96,7 +95,7 @@
 - **RBSDS** → `rbk/vov_veiled/RBSDS-dns_step.adoc`
 - **RBSDU** → `rbk/vov_veiled/RBSDU-depot_unmake.adoc`
 - **RBSDV** → `rbk/vov_veiled/RBSDV-director_vouch.adoc`
-- **RBSDY** → `rbk/vov_veiled/RBSDY-director_yoke.adoc` (Yoke operation — director validates reliquary stamp and conjure vessel, then rewrites RBRV_RELIQUARY in rbrv.env)
+- **RBSDY** → `rbk/vov_veiled/RBSDY-director_yoke.adoc` (Yoke operation — director validates a reliquary touchmark against GAR, then rewrites RBRV_RELIQUARY in rbrv.env)
 - **RBSFH** → `rbk/vov_veiled/RBSFH-dockerfile_hygiene.adoc` (Dockerfile Hygiene — FROM-line constraint enforced by rbfh, shared across kludge and conjure paths)
 - **RBSGD** → `rbk/vov_veiled/RBSGD-gdc_establish.adoc`
 - **RBSGM** → `rbk/vov_veiled/RBSGM-governor_mantle.adoc`
@@ -104,7 +103,7 @@
 - **RBSHR** → `rbk/vov_veiled/RBSHR-HorizonRoadmap.adoc` (Horizon Roadmap - single collection point for defined-but-unscoped future work)
 - **RBSII** → `rbk/vov_veiled/RBSII-iptables_init.adoc`
 - **RBSIJ** → `rbk/vov_veiled/RBSIJ-image_jettison.adoc`
-- **RBSIA** → `rbk/vov_veiled/RBSIA-image_audit.adoc` (Image Audit — three-domain catalog listing: hallmarks, reliquaries, enshrinements)
+- **RBSIA** → `rbk/vov_veiled/RBSIA-image_audit.adoc` (Image Audit — flat hallmark-identifier catalog listing; Lodes are enumerated by divine, not audited here)
 - **RBSIP** → `rbk/vov_veiled/RBSIP-ifrit_pentester.adoc` (Ifrit Pentester — adversarial AI escape testing framework)
 - **RBSIR** → `rbk/vov_veiled/RBSIR-image_rekon.adoc` (Image Rekon — director-only canonical-member presence under hallmark/reliquary subtrees)
 - **RBSIW** → `rbk/vov_veiled/RBSIW-image_wrest.adoc`

@@ -200,7 +200,7 @@ rbho_director_graft() {
   buh_step1 "Yoke every ${RBYC_VESSEL} to a ${RBYC_RELIQUARY}"
   buh_e
   buh_line "Every ${RBYC_ORDAIN}-path ${RBYC_VESSEL} — ${RBYC_CONJURE}, ${RBYC_BIND}, and"
-  buh_line "${RBYC_GRAFT} — needs a ${RBYC_RELIQUARY} stamp in its ${RBYC_RBRV}. ${RBYC_GRAFT}"
+  buh_line "${RBYC_GRAFT} — needs a ${RBYC_RELIQUARY} touchmark in its ${RBYC_RBRV}. ${RBYC_GRAFT}"
   buh_line "skips Cloud Build for the image push, but the about+vouch metadata"
   buh_line "that follows runs on ${RBYC_RELIQUARY} tool images (gcloud, docker,"
   buh_line "alpine, syft) just like the other modes."
@@ -226,9 +226,9 @@ rbho_director_graft() {
   buh_line "versions until you rebuild them via ${RBYC_ORDAIN}."
   buh_e
   if test "${z_vessel_yoked}" = "1"; then
-    buh_line "${RBYC_PROBE_YES}${z_lk_vessel} ${RBYC_RELIQUARY} stamp set"
+    buh_line "${RBYC_PROBE_YES}${z_lk_vessel} ${RBYC_RELIQUARY} touchmark set"
   else
-    buh_line "${RBYC_PROBE_NO}${z_lk_vessel} ${RBYC_RELIQUARY} stamp not set — yoke above before ${RBYC_ORDAIN}"
+    buh_line "${RBYC_PROBE_NO}${z_lk_vessel} ${RBYC_RELIQUARY} touchmark not set — yoke above before ${RBYC_ORDAIN}"
   fi
   buh_e
 

@@ -21,7 +21,7 @@ Key term categories in README.md:
 - **Architecture**: Foundry, Crucible, Depot, Vessel, Hallmark, Nameplate, Regime, Tabtarget
 - **Roles**: Payor, Governor, Director, Retriever
 - **Containers**: Sentry, Pentacle, Bottle
-- **Foundry Operations** (appendix): Establish, Install, Levy, Unmake, Mantle, Knight, Charter, Forfeit, Enshrine, Reliquary, Ordain, Conjure, Bind, Graft, Kludge, Tally, Vouch, Plumb, Summon, Wrest, Abjure, Jettison
+- **Foundry Operations** (appendix): Establish, Install, Levy, Unmake, Mantle, Knight, Charter, Forfeit, Capture, Ordain, Conjure, Bind, Graft, Kludge, Tally, Vouch, Plumb, Summon, Wrest, Abjure, Jettison
 - **Crucible Operations** (appendix): Charge, Quench, Rack, Hail, Scry
 - **Testing**: Ifrit, Theurge
 
@@ -33,21 +33,21 @@ Recipe Bottle uses domain-specific verbs instead of generic ones (create, delete
 
 | Verb | What it does |
 |------|-------------|
-| **inscribe** | Create a reliquary — mirror builder tool images from upstream into a datestamped GAR namespace. Prerequisite for enshrine and ordain. |
-| **enshrine** | Copy upstream base images into your private GAR, pinned by content hash. Supply-chain hardening: your builds pull from your own registry. |
+| **conclave** | Capture the co-versioned cohort of builder tool images from upstream into one Lode (the reliquary), identified by its touchmark. Prerequisite for ensconce and ordain. |
+| **ensconce** | Capture an upstream base image into your private GAR as a bole Lode, pinned by content hash. Supply-chain hardening: your builds pull from your own registry. |
 | **ordain** | Build a hallmark. Mode-aware: detects the vessel type and dispatches accordingly (conjure, bind, or graft). |
 | **conjure** | Build from source via Cloud Build (full SLSA provenance). A mode of ordain, not a separate command. |
 | **bind** | Mirror an upstream image pinned by digest (digest-pin verification). A mode of ordain. |
 | **graft** | Push a locally-built image to GAR (no provenance chain). A mode of ordain. |
 | **kludge** | Build a vessel image locally for development iteration. No Cloud Build, no hallmark — just a local image. |
 
-The supply chain has three layers: inscribe creates the reliquary (tool images), enshrine copies base images, ordain builds your vessel using both.
+The supply chain has three layers: conclave captures the builder-tool Lode (the reliquary), ensconce captures base images as bole Lodes, ordain builds your vessel using both.
 
 ### How do I verify and inspect images?
 
 | Verb | What it does |
 |------|-------------|
-| **audit** | List registry identifiers in one of the three domains (hallmarks, reliquaries, enshrinements) — director-tier flat catalog, no health detail |
+| **audit** | List hallmark identifiers — director-tier flat catalog, no health detail (Lodes are enumerated by divine instead) |
 | **tally** | Count and classify hallmarks in the registry by health state — retriever-tier, hallmarks only |
 | **vouch** | Verify SLSA provenance — proves a hallmark was built by trusted infrastructure |
 | **plumb** | Examine an image's provenance details: SBOM, build info, Dockerfile |
@@ -57,14 +57,14 @@ The supply chain has three layers: inscribe creates the reliquary (tool images),
 | Verb | What it does |
 |------|-------------|
 | **summon** | Pull a vouched hallmark image locally (full vouch ceremony first) |
-| **wrest** | Pull a specific image by locator — works across hallmark members, reliquary tools, or enshrinements (direct pull, no vouch) |
+| **wrest** | Pull a specific image by locator — path-polymorphic across hallmark members and Lode members (direct pull, no vouch) |
 
 ### How do I remove images?
 
 | Verb | What it does |
 |------|-------------|
 | **abjure** | Delete a hallmark's artifacts from GAR (the full set: image + about + vouch) |
-| **jettison** | Delete a specific image tag by locator — works across hallmark members, reliquary tools, or enshrinements (surgical, single artifact) |
+| **jettison** | Delete a specific image tag by locator — path-polymorphic across hallmark members and Lode members (surgical, single artifact) |
 
 ### How do I run containers?
 

@@ -56,15 +56,8 @@ zrbfd_kindle() {
   readonly ZRBFD_RBGJM_STEPS_DIR="${z_self_dir}/rbgjm"
   test -d "${ZRBFD_RBGJM_STEPS_DIR}"   || buc_die "RBGJM steps directory not found: ${ZRBFD_RBGJM_STEPS_DIR}"
 
-  # RBGJI inscribe step scripts now owned by rbfl0_ledger.sh
-
-  # Delete, token, inscribe, reliquary prefixes now owned by rbfl0_ledger.sh
-  # Vouch and about prefixes now owned by rbfv_verify.sh
-
   buc_log_args 'Define stitch operation file prefix (postfixed per step id)'
   readonly ZRBFD_STITCH_PREFIX="${BURD_TEMP_DIR}/rbfd_stitch_"
-
-  # Inscribe and reliquary prefixes now owned by rbfl0_ledger.sh
 
   buc_log_args 'Define mirror operation files'
   readonly ZRBFD_MIRROR_PREFIX="${BURD_TEMP_DIR}/rbfd_mirror_"
@@ -95,8 +88,8 @@ zrbfd_sentinel() {
 
 # Verify reliquary tool images exist in GAR.
 # Full-subtree presence check: every canonical tool image must be present at
-# the stamp. Inscribe creates all 6 atomically; piecemeal jettison or registry
-# damage compromises the stamp's integrity. Misses are accumulated across the
+# the touchmark. Conclave captures all 6 atomically; piecemeal jettison or registry
+# damage compromises the cohort's integrity. Misses are accumulated across the
 # whole tool set so the operator sees full damage in one report.
 # Args: token vessel_dir
 zrbfd_preflight_reliquary() {
@@ -108,7 +101,7 @@ zrbfd_preflight_reliquary() {
   test -n "${z_vessel_dir}" || buc_die "zrbfd_preflight_reliquary: vessel_dir required"
 
   local -r z_reliquary="${RBRV_RELIQUARY:-}"
-  test -n "${z_reliquary}" || buc_die "RBRV_RELIQUARY required on every ordain-path vessel — yoke a reliquary stamp via tt/${RBZ_YOKE_RELIQUARY}.sh before ordaining"
+  test -n "${z_reliquary}" || buc_die "RBRV_RELIQUARY required on every ordain-path vessel — yoke a reliquary touchmark via tt/${RBZ_YOKE_RELIQUARY}.sh before ordaining"
 
   buc_step "Verifying reliquary tool images exist in GAR"
 
@@ -179,7 +172,7 @@ zrbfd_preflight_reliquary() {
   buc_bare ""
   buc_bare "  Recover by re-conclaving the reliquary, then re-yoking and re-ordaining:"
   buc_tabtarget "${RBZ_CONCLAVE_RELIQUARY}"
-  buc_tabtarget "${RBZ_YOKE_RELIQUARY}" "<new-stamp>"
+  buc_tabtarget "${RBZ_YOKE_RELIQUARY}" "<new-touchmark>"
   buc_tabtarget "${RBZ_ORDAIN_HALLMARK}" "${z_vessel_dir}"
   buc_die "Registry preflight failed — ${#z_missing[@]} of ${#z_canonical_tools[@]} reliquary tool images missing from GAR"
 }
@@ -262,7 +255,7 @@ zrbfd_quota_preflight() {
 # to Cloud Build. Checks two layers in dependency order:
 #
 #   1. Reliquary — co-versioned builder tool images (gcloud, docker, syft, etc.)
-#      created by inscribe. One reliquary per depot setup. Base capture depends on it.
+#      captured by conclave. One reliquary cohort per depot setup. Base capture depends on it.
 #   2. Base images — upstream bases captured into private GAR as bole Lodes via
 #      ensconce, pinned by content hash. One Lode per base image; the conjure
 #      ANCHOR resolves to it. Multiple vessels sharing a base reuse one Lode.

@@ -169,9 +169,8 @@ pub(crate) const ZRBTDRU_DECLARED_DEPS: &[&str] = &[
 /// classified against the same membership (one floor, two languages).
 pub(crate) const ZRBTDRU_GCB_ALLOWED: &[&str] = &[
     "apt-get", "awk", "cat", "curl", "cut", "docker",
-    // gcloud adjudicated 2026-06-10: rbgjv02's SLSA provenance describe
-    // subprocess-runs it in the cloud-sdk builder where it is native;
-    // REST conversion deferred.
+    // gcloud: rbgjv02's SLSA provenance describe subprocess-runs it in the
+    // cloud-sdk builder, where it is native.
     "gcloud",
     "gcrane", "gpg",
     "grep", "head", "ls", "openssl", "sha256sum", "shasum",

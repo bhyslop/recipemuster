@@ -39,20 +39,20 @@ The Director controls what enters the pouch; the cloud is just labor.
 See RBSAC.
 
 **Builder step images are reliquary-sourced.**
-All GCB step images are pulled from a datestamped reliquary in GAR — co-versioned tool images frozen by the inscribe ceremony.
-`RBRV_RELIQUARY` in each vessel regime identifies the active reliquary.
-Base images are separately enshrined via `RBRV_IMAGE_n_ANCHOR`.
+All GCB step images are pulled from the reliquary-kind Lode in GAR — co-versioned tool images frozen by the conclave ceremony, identified by a touchmark.
+`RBRV_RELIQUARY` in each vessel regime identifies the active cohort.
+Base images are separately captured as bole Lodes via ensconce, anchored through `RBRV_IMAGE_n_ANCHOR`.
 
 **Supply-chain pinning boundary — staged on the reliquary.**
-The governing rule: reliquary _generation_ (the inscribe/conclave ceremony that mints the sealed tool cohort) may pull unpinned upstream images — bootstrapping the first tool must start somewhere, and generation is the only phase permitted to.
+The governing rule: reliquary _generation_ (the conclave ceremony that mints the sealed tool cohort) may pull unpinned upstream images — bootstrapping the first tool must start somewhere, and generation is the only phase permitted to.
 Every build that _consumes_ a sealed reliquary carries zero unpinned aspects: each tool image resolves, pinned, from the cohort, whose durable home is our own Artifact Registry (GAR), never an upstream registry.
-The made side already conforms — all conjure/vouch step images are reliquary-sourced (above).
-The capture family is brought into conformance by the crane-embrace cutover: the capture image tool (gcrane) becomes a reliquary cohort member, so a sealed-reliquary capture (bole/wsl/podvm) resolves a _pinned_ gcrane, leaving the floating Google-hosted bootstrap gcrane (`ZRBLD_GCRANE_BUILDER`) only in conclave — which builds the reliquary and therefore cannot resolve from it.
-Until that lands, capture builders ride floating bootstrap tags (see Deferred Items).
+The made side conforms — all conjure/vouch step images are reliquary-sourced (above).
+The capture family conforms via the crane embrace: gcrane is a reliquary cohort member, and bole — vessel-adjacent, with a reliquary slot to resolve from — rides the _pinned_ gcrane.
+The floating Google-hosted bootstrap gcrane (`ZRBLD_GCRANE_BUILDER`) remains in conclave — which builds the reliquary and therefore cannot resolve from it — and in the vessel-less substrate kinds (wsl/podvm), whose pinning is the accepted bootstrap-digest-pin itch (RBS0 `rbsk_pinning_boundary`).
 
 **Dual private pool workers (tether + airgap).**
 Every depot gets two private pools: a tether pool (public egress) and an airgap pool (`NO_PUBLIC_EGRESS`).
-Pool routing is operation-level: inscribe and enshrine use tether (upstream access required), about and vouch always use airgap (verification isolated from public registries), conjure and bind use the vessel's `RBRV_EGRESS_MODE`.
+Pool routing is operation-level: the Lode captures (ensconce, conclave, underpin, immure) use tether (upstream access required), about and vouch always use airgap (verification isolated from public registries), conjure and bind use the vessel's `RBRV_EGRESS_MODE`.
 Pools are fully managed by Google (scale to zero, no VMs to maintain).
 
 **Artifact Registry storage.**
@@ -200,13 +200,13 @@ See RBSOB superseded notice.
 
 Egress lockdown is implemented through the dual-pool architecture.
 The airgap pool (`NO_PUBLIC_EGRESS`) blocks all public internet access.
-Operations that require upstream access (inscribe, enshrine) run on the tether pool.
+Operations that require upstream access (the Lode captures: ensconce, conclave, underpin, immure) run on the tether pool.
 Operations that must be isolated (about, vouch) always run on the airgap pool.
 Conjure and bind are routed per vessel's `RBRV_EGRESS_MODE`.
 
 **Dependency mirroring is universal.**
-All GCB step images come from reliquaries (inscribed tool images in GAR).
-All base images come from anchors (enshrined base images in GAR).
+All GCB step images come from the reliquary cohort (a conclave-captured Lode in GAR).
+All base images come from anchors (bole Lodes in GAR).
 This is not just an airgap feature — it is a universal robustness measure against upstream registry churn.
 
 **Operation pool routing:**
@@ -217,13 +217,9 @@ This is not just an airgap feature — it is a universal robustness measure agai
 |Pool
 |Rationale
 
-|Inscribe
+|Lode capture (ensconce/conclave/underpin/immure)
 |tether
-|Pulls tool images from upstream registries
-
-|Enshrine
-|tether
-|Pulls base images from upstream via gcrane
+|Pulls upstream artifacts — base images, tool images, rootfs tarballs, disk blobs
 
 |Conjure/Bind
 |vessel's RBRV_EGRESS_MODE
@@ -339,7 +335,7 @@ The cloud capture steps presently duplicate logic by copy: the `FROM scratch` vo
 (The registry-tool metadata-token fetch is retired with skopeo's eviction — the `token-fetch` snippet survives solely for the immure residency guard's curl blob-HEAD; the read→digest→fingerprint→copy block is unified under the shared `gcrane-fingerprint` snippet and gcrane's ambient auth.)
 This is acknowledged, not accidental — Cloud Build offers no native step reuse (no YAML anchors or includes), and its blessed reuse mechanism, custom builder images, conflicts with the _cloud is just labor; the Director controls what enters_ posture above (a custom builder holding our logic would be a new vouched artifact rather than inline-from-repo).
 Remedy (built in the capture-machinery-unification refactor): a host assembly spine (aligned with the `stitch` vocabulary), a shared cloud step-library (`rbgjs`) of compose-once snippets, and a dispatch-time recipe validator that derives each step's substitution coverage — composed once and referenced, replacing copy-by-example with compose-from-library. The `/workspace` inter-step channel stays guarded in-step (the steps' own `test -f` preconditions) rather than by a dispatch contract.
-Dedup is deliberately partial: only the survivor (bole) rides the spine; the doomed enshrine and inscribe forks are left in place for later removal, so the duplicated copies above persist until that cutover.
+Dedup is deliberately partial: every capture kind rides the spine, and the pre-spine capture forks are removed; what persists is the made-side copy (hallmark-verify `rbgjv03`), deferred to the made-side retrofit heat.
 Behavior-preservation is confirmed against the live system at the heat's milestone skirmish gate (full skirmish + service).
 
 ==== References

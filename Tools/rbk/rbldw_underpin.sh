@@ -54,7 +54,7 @@ set -euo pipefail
 # builder. wsl is evicted but NOT pinned this pace — it is vessel-less with no reliquary
 # source, so its tool-pinning defers to the bootstrap-builder digest-pin itch (RBS0
 # rbsk_pinning_boundary); both gcrane rows ride the floating bootstrap builder, same tier
-# as conclave. The inscribe-grade poll ceiling gives headroom for the in-step
+# as conclave. The heavy capture poll ceiling gives headroom for the in-step
 # apt-get(gnupg) + keyserver fetch + gcrane append.
 # Args: token url stamp
 zrbld_underpin_submit() {
@@ -109,7 +109,7 @@ zrbld_underpin_submit() {
     || buc_die "Failed to compose underpin substitutions blob"
 
   zrbld_spine_dispatch \
-    "${z_token}" "${RBGD_MASON_EMAIL}" "Underpin" "${ZRBFC_BUILD_POLL_CEILING_INSCRIBE}" \
+    "${z_token}" "${RBGD_MASON_EMAIL}" "Underpin" "${ZRBFC_BUILD_POLL_CEILING_CAPTURE_HEAVY}" \
     "${z_subs_file}" "${ZRBLD_UNDERPIN_PREFIX}" \
     "${z_recipe[@]}"
 }

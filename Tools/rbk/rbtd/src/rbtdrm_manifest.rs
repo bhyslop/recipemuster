@@ -95,13 +95,13 @@ pub const RBTDRM_FIXTURE_CANONICAL_ESTABLISH: &str = "canonical-establish";
 // run. Distinction from canonical-establish is precondition, not behavior.
 pub const RBTDRM_FIXTURE_CANONICAL_INVEST: &str = "canonical-invest";
 // Gauntlet onboarding-sequence fixture (§3: handbook-walked vessel
-// construction — inscribe reliquary, enshrine bases, kludge tadmor/ccyolo,
+// construction — conclave reliquary, ensconce bases, kludge tadmor/ccyolo,
 // plus one ordain-* case per director-mode handbook track, build-only)
 pub const RBTDRM_FIXTURE_ONBOARDING_SEQUENCE: &str = "onboarding-sequence";
 // Self-contained tadmor build fixture (rbw-ts.TestSuite.tadmor): kludges tadmor sentry+bottle
 // locally and commits each hallmark (so the subsequent tadmor crucible fixture
 // charges against a clean nameplate). Reuses onboarding's kludge helper minus
-// its reliquary-stamp witness probe — local kludge has no GCP/reliquary dep.
+// its reliquary-touchmark witness probe — local kludge has no GCP/reliquary dep.
 pub const RBTDRM_FIXTURE_KLUDGE_TADMOR: &str = "kludge-tadmor";
 // Dogfight cloud-build viability fixture — standing-depot sibling to
 // canonical-invest, proving the cloud-build → summon → run path yields a

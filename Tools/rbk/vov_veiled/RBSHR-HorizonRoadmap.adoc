@@ -65,7 +65,7 @@ _Reference_: containers/podman-compose#710 (June 2023, open);
 containers/podman-compose#1329 (October 2025, open).
 
 **Substrate Lode consumption — wsl/podvm host-side election and provisioning.**
-Lode capture is landed: per-kind capture verbs (`ensconce`/`conclave`/`underpin`/`immure` — `enshrine` retired) each emit one provenance-enveloped GAR package, the **Lode**, parallel to {rbtga_ark} on the built side and identified by its touchmark;
+Lode capture is landed: per-kind capture verbs (`ensconce`/`conclave`/`underpin`/`immure`) each emit one provenance-enveloped GAR package, the **Lode**, parallel to {rbtga_ark} on the built side and identified by its touchmark;
 intent stays distributed per kind — no unified recipe noun, no resolved-FQIN field — generalizing RBRV's ORIGIN/ANCHOR pattern.
 What remains is the consumption half for the substrate kinds: the workload's `wsl --import` consuming a verified rootfs Lode in place of the Microsoft-Store-appx-mutable distribution today's caparison-w depends on, and podman machine provisioning consuming a podvm Lode in place of quay's rapidly-churning upstream.
 Substrate touchmarks are Director-pinned at the nameplate and materialized at charge — the Retriever receives versions, never elects them.
@@ -78,7 +78,7 @@ BUSJCW CaparisonWindows, BUSJGW GarrisonWsl (the `wsl --export` seed path this r
 **Image-family hallmark variants — Wave 3 retirement.**
 The path-polymorphic raw verbs (`rbw-il`/`iw`/`iJ`) deliberately carry a transient terminal-exclusivity violation:
 `iw` and `iJ` still head the hallmark variants `iwh`/`iJh` (alongside `iah`/`irh`).
-Wave 1 (enshrinement variants) and Wave 2 (reliquary variants) have landed;
+Waves 1 and 2 (the fetched-side per-domain variants) have landed;
 the final wave retires the hallmark variants when Ark earns the `k` command family in the made-side retrofit heat.
 The wrest/jettison variants are pure pass-throughs and delete cleanly;
 `rekon`/`audit` carry semantic contracts (canonical-member presence assertion, fact-multi emission) that must be re-homed, not deleted.

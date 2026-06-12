@@ -18,7 +18,7 @@
 # Member tags on that package, all pointing at the base manifest:
 #   :<TAG_DIGEST_PREFIX><full-hex>   canonical OCI digest (exact cross-Lode dedup)
 #   :<TAG_BOLE>                      uniform greppable handle
-#   :<sanitized-origin>-<sha10>      UNSPRUED — name + glance-fingerprint (= legacy enshrine anchor)
+#   :<sanitized-origin>-<sha10>      UNSPRUED — name + glance-fingerprint (the ANCHOR tag form)
 # The :rbi_vouch tag is a separate manifest pushed by step 02.
 
 set -euo pipefail

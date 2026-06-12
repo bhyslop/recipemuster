@@ -3,7 +3,7 @@
 
 NOTE: This operation builds a vessel image locally on the workstation using `docker build`, without authenticating to or fetching from Cloud Build or GAR. It produces a
 {rbtga_hallmark}
-with a `k` prefix (kludge) that composes cleanly with the nameplate and compose infrastructure but is obviously not a production hallmark. Kludge resolves the same {rbrv_image_anchor} declarations that {rbtgo_ark_conjure} does — so an enshrined vessel built via kludge consumes the same GAR-anchored base layers as the conjure path — but anchored layers must be pre-cached locally; the credentialed fetch happens out-of-band via {rbtgo_image_retrieve}. Origin-only slots (no anchor) require no credentials, so kludge pulls them inline if they're not already cached.
+with a `k` prefix (kludge) that composes cleanly with the nameplate and compose infrastructure but is obviously not a production hallmark. Kludge resolves the same {rbrv_image_anchor} declarations that {rbtgo_ark_conjure} does — so an anchored vessel built via kludge consumes the same GAR-anchored base layers as the conjure path — but anchored layers must be pre-cached locally; the credentialed fetch happens out-of-band via {rbtgo_image_retrieve}. Origin-only slots (no anchor) require no credentials, so kludge pulls them inline if they're not already cached.
 
 NOTE: Kludge is a deliberate development shortcut for fast edit-build-test cycles. It enables iterating on vessel Dockerfiles, entrypoint scripts, and package lists without waiting for a Cloud Build round-trip. The ugly name is intentional -- this is not part of the production hallmark pipeline.
 
@@ -80,6 +80,6 @@ if any anchored miss accumulated, emit a remediation block pointing at {rbtgo_im
 == See Also
 
 * {rbtgo_ark_conjure} -- production image build via Cloud Build; shares anchor-resolution semantics with kludge
-* {rbtgo_image_retrieve} -- credentialed wrest of an enshrined base image into the local cache (remediation target when an anchored slot is missing)
+* {rbtgo_image_retrieve} -- credentialed wrest of an anchored base image into the local cache (remediation target when an anchored slot is missing)
 * {rbtgo_ark_vouch} -- provenance attestation (kludge bypasses this entirely)
 * {rbtgo_ark_summon} -- pull from GAR (not needed for kludge -- image is already local)

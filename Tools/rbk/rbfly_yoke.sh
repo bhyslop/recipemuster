@@ -17,7 +17,7 @@
 # Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 #
 # Recipe Bottle Foundry Ledger - yoke cluster (guard-free, sourced by rbflk_):
-# validate a reliquary stamp against GAR, then rewrite RBRV_RELIQUARY across every
+# validate a reliquary touchmark against GAR, then rewrite RBRV_RELIQUARY across every
 # vessel's rbrv.env (Director credentials).
 
 set -euo pipefail

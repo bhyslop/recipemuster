@@ -60,7 +60,7 @@ zrbyc_kindle() {
     readonly "${1}=${z_buym_yelp}"
   }
 
-  # --- Paddock anchor inventory (38 base terms) ---
+  # --- Paddock anchor inventory (37 base terms) ---
 
   # Operations
   zrbyc_yk RBYC_ORDAIN    "${z_docs}" "Ordain"
@@ -69,7 +69,6 @@ zrbyc_kindle() {
   zrbyc_yk RBYC_GRAFT     "${z_docs}" "Graft"
   zrbyc_yk RBYC_KLUDGE    "${z_docs}" "Kludge"
   zrbyc_yk RBYC_KLUDGE_D  "${z_docs}" "Kludge"   "Kludged"
-  zrbyc_yk RBYC_ENSHRINE  "${z_docs}" "Enshrine"
   zrbyc_yk RBYC_SUMMON    "${z_docs}" "Summon"
   zrbyc_yk RBYC_PLUMB     "${z_docs}" "Plumb"
   zrbyc_yk RBYC_TALLY     "${z_docs}" "Tally"

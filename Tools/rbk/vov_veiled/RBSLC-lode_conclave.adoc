@@ -10,7 +10,7 @@ package under the
 namespace, identified by a host-minted
 {rbtga_touchmark}.
 It is the reliquary kind: the co-versioned set of Cloud Build tool images (gcloud, docker, alpine, syft, binfmt, gcrane) consumed as a build toolset.
-It absorbs the legacy inscribe tool-mirror — retargeted from the per-tool sibling-package layout to N member tags within one Lode package, plus the unifying
+It captures the cohort as N member tags within one Lode package — superseding the retired per-tool sibling-package layout — plus the unifying
 {rbtga_lode_vouch}
 envelope.
 
@@ -129,4 +129,3 @@ A vessel elects the reliquary touchmark separately by reading the capture-file �
 Compound provenance is batch-level (the cohort as a whole carries one
 {rbtga_lode_vouch});
 members stay individually manipulable for post-bug cleanup but need not each carry independent attestation.
-The legacy inscribe tool-mirror remains live during the reliquary cutover; conclave does not retire it.

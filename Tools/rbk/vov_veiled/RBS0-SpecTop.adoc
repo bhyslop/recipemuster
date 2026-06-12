@@ -99,8 +99,7 @@
 :rbf_fact_gar_root:          <<rbf_fact_gar_root,RBF_FACT_GAR_ROOT>>
 :rbf_fact_ark_stem:          <<rbf_fact_ark_stem,RBF_FACT_ARK_STEM>>
 :rbf_fact_ark_yield:         <<rbf_fact_ark_yield,RBF_FACT_ARK_YIELD>>
-:rbf_fact_reliquary:         <<rbf_fact_reliquary,RBF_FACT_RELIQUARY>>
-:rbf_fact_lode:              <<rbf_fact_lode,Lode Capture-File>>
+:rbf_fact_lode:              <<rbf_fact_lode,Lode Capture Facts>>
 
 // Recipe Bottle Payor Fact Files (governor identifying values)
 :rbgp_fact_governor_sa_email:  <<rbgp_fact_governor_sa_email,RBGP_FACT_GOVERNOR_SA_EMAIL>>
@@ -199,7 +198,6 @@
 
 // GAR top-level categorical namespaces (wire-format values)
 :gar_hallmarks_namespace:    <<gar_hallmarks_namespace,rbi_hm>>
-:gar_reliquaries_namespace:  <<gar_reliquaries_namespace,rbi_rq>>
 :gar_lodes_namespace:        <<gar_lodes_namespace,rbi_ld>>
 
 // Google Cloud Storage
@@ -1276,7 +1274,7 @@ Jettisons a single
 artifact by
 {rbst_locator}
 ({rbtgog_image}).
-Locator-generic across hallmark members, reliquary tool images, and enshrinement images.
+Locator-generic across hallmark members and Lode members.
 
 include::RBSIJ-image_jettison.adoc[]
 
@@ -1289,7 +1287,7 @@ Wrests a single
 artifact by
 {rbst_locator}
 ({rbtgog_image}).
-Locator-generic across hallmark members, reliquary tool images, and enshrinement images.
+Locator-generic across hallmark members and Lode members.
 {rbtr_director}-tier — peer to {rbtgo_image_delete}, distinct from {rbtgo_ark_summon}.
 
 include::RBSIW-image_wrest.adoc[]
@@ -1301,7 +1299,7 @@ include::RBSIW-image_wrest.adoc[]
 Reports canonical-member presence under a hallmark subtree in
 {rbtgi_repository}
 ({rbtgog_image}).
-One procedure (`rbfl_rekon_hallmark`); rekon over reliquary cohorts (now conclave Lodes, inspected via Lode augur) and enshrinements (1-deep) is intentionally omitted.
+One procedure (`rbfl_rekon_hallmark`); rekon over Lodes is intentionally omitted — reliquary cohorts are conclave Lodes inspected via Lode augur, and bole Lodes are 1-deep.
 
 include::RBSIR-image_rekon.adoc[]
 
@@ -1309,7 +1307,7 @@ include::RBSIR-image_rekon.adoc[]
 //axvo_method axd_transient axd_grouped
 === {rbtgo_image_audit}
 
-Lists identifiers under one of three GAR domains (hallmarks, reliquaries, enshrinements) in
+Lists identifiers under the hallmark GAR domain in
 {rbtgi_repository}
 ({rbtgog_image}).
 {rbtr_director}-tier flat catalog; complements the {rbtr_retriever}-tier {rbtgo_hallmark_tally}, which adds health classification on the hallmark domain only.
@@ -1447,8 +1445,8 @@ include::RBSLE-lode_ensconce.adoc[]
 Convenes the build-tool cohort into a single {rbtga_lode}
 ({rbtgog_lode}),
 capturing the co-versioned Cloud Build tool images cloud-side into one `{gar_lodes_namespace}/` package under a host-minted {rbtga_touchmark}.
-The {rbtr_director} submits a two-step Cloud Build job — docker capture of the tool cohort, then a vouch push — writing the {rbtga_lode_vouch} provenance envelope to its one canonical home, the `:rbi_vouch` tag in GAR, and handing the touchmark forward host-side as the {rbf_fact_lode}.
-The reliquary kind — N member tags within one package — absorbs the legacy inscribe tool-mirror into the Lode model; the member cardinality is the only structural departure from the bole skeleton.
+The {rbtr_director} submits a two-step Cloud Build job — gcrane capture of the tool cohort, then a vouch push — writing the {rbtga_lode_vouch} provenance envelope to its one canonical home, the `:rbi_vouch` tag in GAR, and handing the touchmark forward host-side as the {rbf_fact_lode}.
+The reliquary kind — N member tags within one package — brings the build-tool cohort into the Lode model; the member cardinality is the only structural departure from the bole skeleton.
 
 include::RBSLC-lode_conclave.adoc[]
 
@@ -1875,11 +1873,6 @@ Shared fields include `vessel_mode`, `vessel_name`, `platform`, `image_digest`; 
 GAR top-level path token under which every {rbtga_hallmark}'s ark packages live as basename siblings (`image`, `about`, `vouch`, `diags`, `attest`, `pouch`).
 A path-segment value, not a cloud-visible resource name; carries no {rbrd_cloud_prefix} since each {rbtgi_depot} owns its own GAR repo.
 
-[[gar_reliquaries_namespace]]
-{gar_reliquaries_namespace}::
-GAR top-level path token under which reliquary tool images live as basename siblings, keyed by {rbst_touchmark}.
-A path-segment value, not a cloud-visible resource name; carries no {rbrd_cloud_prefix} since each {rbtgi_depot} owns its own GAR repo.
-
 [[rbtga_ark]]
 //axl_voices axig_artifact_group
 {rbtga_ark}::
@@ -2237,12 +2230,6 @@ Composable with basename and `:«HALLMARK»` tag for full artifact references.
 //axpof_fact
 {rbf_fact_ark_yield}::
 Per-platform image reference.
-
-[[rbf_fact_reliquary]]
-//axpof_fact
-{rbf_fact_reliquary}::
-Reliquary touchmark (`r` + `YYMMDDHHMMSS`).
-Written by {rbtgo_lode_conclave} on successful Cloud Build submission.
 
 [[rbf_fact_lode]]
 //axpof_fact
@@ -3104,8 +3091,7 @@ Container image build process configuration.
 {rbrr_group_cbv2}::
 include::RBSRR-RegimeRepo.adoc[]
 
-// RBRG regime eliminated — reliquaries replace pin-based tool image management
-// Tool images now sourced from datestamped reliquary namespace in GAR at ordain time
+// RBRG regime eliminated — tool images are sourced from the reliquary-kind Lode at ordain time
 
 === Depot Regime (RBRD)
 
@@ -3857,7 +3843,7 @@ Format: `package-path:tag` where `package-path` is a relative path under the cat
 Identifies a single artifact within the
 {rbtgi_repository}
 without repeating registry host or path.
-Domain-blind: the package path embedded in the locator is sufficient to dispatch a delete or pull against any of the three categorical domains (hallmarks, reliquaries, enshrinements).
+Domain-blind: the package path embedded in the locator is sufficient to dispatch a delete or pull against any categorical domain (hallmarks, Lodes).
 
 [[rbst_hallmark]]
 //axl_voices axtu_string

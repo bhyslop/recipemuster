@@ -104,7 +104,7 @@ zrbz_kindle() {
   buz_enroll RBZ_ONBOARD_CRED_DIRECTOR  "rbw-Ocd" "${z_mod}" "rbho_credential_director"  ""  "Install director credentials — place RBRA key file"
   buz_enroll RBZ_ONBOARD_FIRST_CRUCIBLE "rbw-Ofc" "${z_mod}" "rbho_first_crucible"       ""  "Start a Crucible using local builds — kludge, charge, rack"
   buz_enroll RBZ_ONBOARD_TADMOR_SECURITY "rbw-Ots" "${z_mod}" "rbho_tadmor_security"     ""  "Verify Crucible containment under attack — charge tadmor and run the adversarial suite"
-  buz_enroll RBZ_ONBOARD_DIR_FIRST_BUILD "rbw-Odf" "${z_mod}" "rbho_director_first_build" "" "Your First Cloud Build — inscribe, conjure, tour, summon, abjure"
+  buz_enroll RBZ_ONBOARD_DIR_FIRST_BUILD "rbw-Odf" "${z_mod}" "rbho_director_first_build" "" "Your First Cloud Build — conclave, conjure, tour, summon, abjure"
   buz_enroll RBZ_ONBOARD_DIR_AIRGAP     "rbw-Oda" "${z_mod}" "rbho_director_airgap"      ""  "Airgap Cloud Build — ensconce, conjure base, conjure airgap, charge moriah, compare plumb"
   buz_enroll RBZ_ONBOARD_DIR_BIND       "rbw-Odb" "${z_mod}" "rbho_director_bind"        ""  "Bind Cloud Build — pin upstream image by digest, mode-mixture pluml Crucible"
   buz_enroll RBZ_ONBOARD_DIR_GRAFT      "rbw-Odg" "${z_mod}" "rbho_director_graft"       ""  "Graft Cloud Build — push locally-built image, inspect GRAFTED Vouch verdict"
@@ -145,10 +145,9 @@ zrbz_kindle() {
   # and iJ deliberately violate terminal exclusivity while their per-domain
   # children survive — see Memos/retired/memo-20260610-heat-BH-image-tabtarget-cleanup.md.
   #
-  # Surviving per-domain variants (retire in later waves): hallmarks (h) are
-  # made-side, untouched this heat; reliquaries (r) retire at the inscribe
-  # cutover. Their verbs: rekon (member-list), audit (catalog-list), wrest
-  # (pull), Jettison (delete). The enshrinement (e) variants retired here.
+  # Surviving per-domain variants (retire at the made-side retrofit):
+  # hallmarks (h) only. Their verbs: rekon (member-list), audit
+  # (catalog-list), wrest (pull), Jettison (delete).
   buz_group RBZ__GROUP_IMAGE      "rbw-i"   "Image — Container image operations"
   z_mod="rbfl0_cli.sh"
   buz_enroll RBZ_LIST_IMAGES            "rbw-il"  "${z_mod}" "rbfl_list"                  "param1"  "List GAR contents by raw path (type-blind; omit arg for top namespaces)"

@@ -100,8 +100,8 @@ one kind-flavored build knob); and the interpretation of the decoded step
 output (the per-member envelope fan-out).
 |===
 
-The only kind-flavored build knob the body passes is the poll ceiling (ensconce
-borrows the enshrine ceiling). `serviceAccount`/`pool`/`timeout` are NOT body
+The only kind-flavored build knob the body passes is the poll ceiling (light for
+ensconce, heavy for the cohort and blob kinds). `serviceAccount`/`pool`/`timeout` are NOT body
 parameters: they are capture-domain invariants the spine owns. A future kind
 that needed a different pool or SA would change the spine's capture-domain
 constants deliberately, not slip past as recipe data.
@@ -244,10 +244,12 @@ crosses into the substitution channel.
 |===
 |Snippet |Contract
 
-|`token-fetch`        |_requires_ none; _provides_ `TOKEN` (Mason SA OAuth2, from the GCB metadata server). Sole surviving caller is the immure residency guard (rbgjl09), whose curl blob-HEAD needs a bearer token — curl's floor role, not gcrane's. The registry steps themselves auth ambiently via gcrane (RBSCB); the skopeo bind mirror, formerly a consumer of inline token fetch, was converted to gcrane.
+|`token-fetch`        |_requires_ none; _provides_ `TOKEN` (Mason SA OAuth2, from the GCB metadata server). Sole surviving caller is the immure residency guard (rbgjl09), whose curl blob-HEAD needs a bearer token — curl's floor role, not gcrane's. The registry steps themselves auth ambiently via gcrane (RBSCB); the bind mirror, formerly a consumer of inline token fetch, now auths ambiently via gcrane.
 |`gcrane-fingerprint` |_requires_ `ORIGIN`, `RAW_FILE`; _provides_ `SHA`, `FINGERPRINT`. Read the raw manifest (`gcrane manifest`, registry bytes verbatim), take its canonical sha256, derive the sanitized-origin glance fingerprint.
+|`gcrane-append`      |_requires_ `APPEND_CTX`, `APPEND_URI`; _provides_ the FROM-scratch single-layer image pushed to `APPEND_URI` (`gcrane append --oci-empty-base`). The capture-side push — daemonless, no builder bootstrap; single-platform by construction.
+|`gpg-verify-sums`    |_requires_ `SUMS_URL`, `SIG_URL`, `TARGET_BASENAME`, `KEY_FPR`; _provides_ `EXPECTED_SHA`. Verified-against-published gate for vendor-tarball kinds: fetch published SHA256SUMS + detached signature, verify under the pinned key fingerprint, extract the target's digest.
 |`buildx-bootstrap`   |_requires_ none; _provides_ the `rb-builder` buildx builder, created-if-absent and selected. Idempotent under retry; run once per step.
-|`buildx-push`        |_requires_ `PUSH_URI`, `PUSH_PLATFORMS`, `PUSH_CTX` (and the bootstrap builder); _provides_ the image pushed to `PUSH_URI`. The irreducible FROM-scratch push.
+|`buildx-push`        |_requires_ `PUSH_URI`, `PUSH_PLATFORMS`, `PUSH_CTX` (and the bootstrap builder); _provides_ the image pushed to `PUSH_URI`. The irreducible FROM-scratch push (made side).
 |===
 
 *Share the primitive, not the whole step.* The vouch-push step (Lode `rbgjl02`,
@@ -255,22 +257,22 @@ hallmark-verify `rbgjv03`) is NOT one shared step: the two diverge on five
 load-bearing axes — push cardinality (loop-N members vs single), destination-URI
 template and arity, platform source (literal `linux/amd64` vs a `/workspace`
 platforms file), a conditional Dockerfile (conjure verify files), and disjoint
-substitution sets. Only the buildx bootstrap and the push invocation are
-identical, so only those are shared — as `buildx-bootstrap` + `buildx-push`.
+substitution sets.
 Cardinality, URI construction, platform choice, and context assembly (which JSON,
-which Dockerfile) stay in the per-kind step. The same boundary governs
+which Dockerfile) stay in the per-kind step. The push core is shared per
+builder family — the made side as `buildx-bootstrap` + `buildx-push`, the
+capture side as the daemonless `gcrane-append`. The same boundary governs
 `gcrane-fingerprint`: the read→digest→fingerprint core is identical across
 captures, but the first GAR copy is excluded because its destination tag is
 itself digest-derived and kind-specific, so it cannot be a clean shared
 parameter. The rule the library follows: share the irreducible identical core,
 leave kind-specific assembly in the kind.
 
-*In-heat reach (partial dedup, forward payoff).* `buildx-bootstrap`/`buildx-push`
-have two live callers (`rbgjl02`, `rbgjv03`). `gcrane-fingerprint` has one live
-caller (bole's `rbgjl01`); the enshrine fork (`rbgje01`) keeps its own inline
-read→digest→fingerprint copy until that cutover. `token-fetch` has one live
-caller (the immure residency guard `rbgjl09`, whose curl blob-HEAD needs a
-bearer token) — bole dropped it when it moved to gcrane's ambient auth,
-and the bind mirror (skopeo) has been evicted and converted to gcrane.
-The snippets are authored once: the library teaches "compose from the library,"
-and the dedup completes when the doomed enshrine forks are removed.
+*Live callers.* `buildx-bootstrap`/`buildx-push` have one live caller
+(hallmark-verify `rbgjv03`); the capture-side vouch-push rides `gcrane-append`
+(two live callers — `rbgjl02`, `rbgjl05`). `gcrane-fingerprint` has one live
+caller (bole's `rbgjl01`); `gpg-verify-sums` one (underpin's `rbgjl04`).
+`token-fetch` has one live caller (the immure residency guard `rbgjl09`, whose
+curl blob-HEAD needs a bearer token) — the registry steps auth ambiently via
+gcrane. The snippets are authored once: the library teaches "compose from the
+library."

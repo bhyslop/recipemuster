@@ -147,8 +147,8 @@ rbho_director_first_build() {
   buh_line "GAR namespace. Takes 2-5 minutes depending on network speed."
   buh_e
   buyy_cmd_yawp "r260324193326";                   local -r z_ds_example="${z_buym_yelp}"
-  buh_line "When conclave completes, it prints a ${RBYC_RELIQUARY} datestamp"
-  buh_line "(e.g., ${z_ds_example}). Yoke wildcard-fans that stamp into every"
+  buh_line "When conclave completes, it prints a ${RBYC_RELIQUARY} touchmark"
+  buh_line "(e.g., ${z_ds_example}). Yoke wildcard-fans that touchmark into every"
   buh_line "${RBYC_VESSEL}'s ${RBYC_REGIME} under \${RBRR_VESSEL_DIR} in one pass —"
   buh_line "there is no per-vessel argument:"
   buh_e

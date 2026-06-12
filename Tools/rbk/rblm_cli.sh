@@ -199,9 +199,9 @@ rblm_zero() {
   done
 
   # Blank depot-scoped fields in all vessel regime files.
-  # RBRV_RELIQUARY references a reliquary inscribed to the prior depot's GAR.
-  # RBRV_IMAGE_*_ANCHOR references enshrined base images in the prior depot's GAR.
-  # Both become stale after depot change — onboarding requires inscribe + enshrine.
+  # RBRV_RELIQUARY references a reliquary-kind Lode in the prior depot's GAR.
+  # RBRV_IMAGE_*_ANCHOR references bole Lodes in the prior depot's GAR.
+  # Both become stale after depot change — onboarding requires conclave + ensconce.
   if test -n "${z_vessel_dir}" && test -d "${z_vessel_dir}"; then
     local z_vr=""
     local z_vr_tmp=""

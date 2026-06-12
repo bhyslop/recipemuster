@@ -26,7 +26,7 @@
 // when each handbook-prescribed hallmark lands in GAR. Per-case precondition
 // probes enable a-la-carte single-case rerun.
 //
-// conclave_reliquary yokes the reliquary stamp into vessel rbrv.env files
+// conclave_reliquary yokes the reliquary touchmark into vessel rbrv.env files
 // and commits. Downstream cases verify it ran by reading RBRV_RELIQUARY from
 // a stable yoked vessel's rbrv.env — no out-of-source-tree scratch state.
 
@@ -153,7 +153,7 @@ const RBTDRO_LODE_ROOT: &str = "rbi_ld";
 /// RBGC_LODE_TAG_BOLE.
 const RBTDRO_LODE_TAG_BOLE: &str = "rbi_bole";
 
-// ── Reliquary stamp witness ──────────────────────────────────
+// ── Reliquary touchmark witness ──────────────────────────────────
 
 /// Filename of a vessel's rbrv.env (relative to the vessel directory).
 const RBTDRO_VESSEL_RBRV_FILE: &str = "rbrv.env";
@@ -165,7 +165,7 @@ const RBTDRO_FIELD_RBRV_RELIQUARY: &str = "RBRV_RELIQUARY";
 /// Stable vessel chosen for the case-1 witness probe. Yoke is wildcard-
 /// fan-out across every vessel under ${RBRR_VESSEL_DIR}; sentry-tether is a
 /// guaranteed-present member of that set, so its rbrv.env always carries
-/// the stamp after case 1.
+/// the touchmark after case 1.
 const RBTDRO_WITNESS_VESSEL_DIR: &str = RBTDRO_VESSEL_DIR_SENTRY_TETHER;
 
 // ── Graft override ───────────────────────────────────────────
@@ -218,13 +218,13 @@ fn rbtdro_probe_governor_rbra() -> Result<(), String> {
     Ok(())
 }
 
-/// Cases 3-7 probe: reliquary stamp yoked into the witness vessel's rbrv.env.
+/// Cases 3-7 probe: reliquary touchmark yoked into the witness vessel's rbrv.env.
 /// Case 1's yoke fan-out writes RBRV_RELIQUARY into every ordain-path vessel
 /// and commits; reading the witness vessel's committed value is the cross-case
 /// evidence that case 1 ran. No out-of-source-tree scratch state.
 /// Kludge is local-only (no GCP), so governor RBRA is not a load-bearing
 /// precondition for kludge; the witness presence confirms case 1 completed.
-fn rbtdro_probe_reliquary_stamp() -> Result<(), String> {
+fn rbtdro_probe_reliquary_touchmark() -> Result<(), String> {
     let root = rbtdro_probe_root()?;
     let rbrv = root
         .join(RBTDRO_WITNESS_VESSEL_DIR)
@@ -363,14 +363,14 @@ fn rbtdro_ordain_capture_full(
     Ok((hallmark, gar_root, ark_stem))
 }
 
-/// Yoke the reliquary stamp into every vessel's rbrv.env. The yoke tabtarget
-/// validates the stamp once against GAR, then wildcard-iterates every vessel
+/// Yoke the reliquary touchmark into every vessel's rbrv.env. The yoke tabtarget
+/// validates the touchmark once against GAR, then wildcard-iterates every vessel
 /// under ${RBRR_VESSEL_DIR}. The orchestrator commits the resulting rbrv.env
 /// changes after this primitive returns.
 fn rbtdro_yoke(
     ctx: &mut rbtdri_Context,
     dir: &Path,
-    stamp: &str,
+    touchmark: &str,
     label: &str,
 ) -> Result<(), rbtdre_Verdict> {
     rbtdro_invoke_or_fail(
@@ -378,7 +378,7 @@ fn rbtdro_yoke(
         RBTDGC_VERB_YOKE,
         "",
         RBTDGC_YOKE_RELIQUARY,
-        &[stamp],
+        &[touchmark],
         &[],
         dir,
         label,
@@ -709,8 +709,8 @@ fn rbtdro_kludge_nameplate(
 }
 
 /// Conclave the depot-wide reliquary toolchain. Captures the reliquary
-/// stamp from BURV fact, persists it to the fixture scratch file, then
-/// yokes the stamp into all ordain-side vessels in one pass and auto-commits.
+/// touchmark from BURV fact, persists it to the fixture scratch file, then
+/// yokes the touchmark into all ordain-side vessels in one pass and auto-commits.
 fn rbtdro_onboarding_conclave_reliquary(dir: &Path) -> rbtdre_Verdict {
     let probe = rbtdrb_Probe {
         name: "governor RBRA present",
@@ -742,15 +742,15 @@ fn rbtdro_onboarding_conclave_reliquary_impl(
         Err(v) => return v,
     };
 
-    let stamp = match rbtdri_read_burv_fact(&result, RBTDRO_FACT_LODE_TOUCHMARK) {
+    let touchmark = match rbtdri_read_burv_fact(&result, RBTDRO_FACT_LODE_TOUCHMARK) {
         Ok(s) => s,
         Err(e) => return rbtdre_Verdict::Fail(format!("read reliquary fact: {}", e)),
     };
-    let _ = std::fs::write(dir.join("reliquary-stamp.txt"), &stamp);
+    let _ = std::fs::write(dir.join("reliquary-touchmark.txt"), &touchmark);
 
     // Wildcard-yoke: single invocation writes RBRV_RELIQUARY into every
     // vessel under ${RBRR_VESSEL_DIR}.
-    if let Err(v) = rbtdro_yoke(ctx, dir, &stamp, RBTDGC_VERB_YOKE) {
+    if let Err(v) = rbtdro_yoke(ctx, dir, &touchmark, RBTDGC_VERB_YOKE) {
         return v;
     }
 
@@ -763,7 +763,7 @@ fn rbtdro_onboarding_conclave_reliquary_impl(
     if let Err(v) = rbtdro_git_commit(
         &yoked,
         &format!(
-            "conclave-reliquary: {} stamp across all vessels",
+            "conclave-reliquary: {} touchmark across all vessels",
             RBTDGC_VERB_YOKE
         ),
     ) {
@@ -777,8 +777,8 @@ fn rbtdro_onboarding_conclave_reliquary_impl(
 /// Probe: reliquary scratch present (confirms case 1 completed).
 fn rbtdro_onboarding_kludge_tadmor(dir: &Path) -> rbtdre_Verdict {
     let probe = rbtdrb_Probe {
-        name: "reliquary stamp captured",
-        check: rbtdro_probe_reliquary_stamp,
+        name: "reliquary touchmark captured",
+        check: rbtdro_probe_reliquary_touchmark,
         remediation: "rerun rbtdro_onboarding_conclave_reliquary before this case",
     };
     if let Err(v) = rbtdrb_assert(&probe) {
@@ -796,7 +796,7 @@ fn rbtdro_onboarding_kludge_tadmor_impl(ctx: &mut rbtdri_Context, dir: &Path) ->
 
 /// Standalone tadmor kludge for the self-contained build+run path (rbw-ts.TestSuite.tadmor).
 /// Same build+commit of both vessels as the onboarding case, but WITHOUT the
-/// reliquary-stamp probe: that probe is an onboarding-sequence sequencing
+/// reliquary-touchmark probe: that probe is an onboarding-sequence sequencing
 /// witness, not a local-kludge dependency (kludge is local docker, no GCP, no
 /// reliquary). Drives + commits the sentry and bottle hallmarks so the tadmor
 /// crucible fixture that follows charges against a clean nameplate.
@@ -819,8 +819,8 @@ pub static RBTDRO_FIXTURE_KLUDGE_TADMOR: rbtdre_Fixture = rbtdre_Fixture {
 /// Probe: reliquary scratch present (confirms case 1 completed).
 fn rbtdro_onboarding_kludge_ccyolo(dir: &Path) -> rbtdre_Verdict {
     let probe = rbtdrb_Probe {
-        name: "reliquary stamp captured",
-        check: rbtdro_probe_reliquary_stamp,
+        name: "reliquary touchmark captured",
+        check: rbtdro_probe_reliquary_touchmark,
         remediation: "rerun rbtdro_onboarding_conclave_reliquary before this case",
     };
     if let Err(v) = rbtdrb_assert(&probe) {
@@ -837,12 +837,12 @@ fn rbtdro_onboarding_kludge_ccyolo_impl(ctx: &mut rbtdri_Context, dir: &Path) ->
 }
 
 /// Ordain rbev-sentry-deb-tether (conjure mode). Case 1 yoked the reliquary
-/// stamp into the vessel. Propagates the resulting hallmark to all sentry-tether
+/// touchmark into the vessel. Propagates the resulting hallmark to all sentry-tether
 /// consumers (moriah, srjcl, pluml) via RBRN_SENTRY_HALLMARK.
 fn rbtdro_onboarding_ordain_conjure_sentry(dir: &Path) -> rbtdre_Verdict {
     let probe = rbtdrb_Probe {
-        name: "reliquary stamp captured",
-        check: rbtdro_probe_reliquary_stamp,
+        name: "reliquary touchmark captured",
+        check: rbtdro_probe_reliquary_touchmark,
         remediation: "rerun rbtdro_onboarding_conclave_reliquary before this case",
     };
     if let Err(v) = rbtdrb_assert(&probe) {
@@ -988,8 +988,8 @@ fn rbtdro_onboarding_ordain_conjure_sentry_impl(ctx: &mut rbtdri_Context, dir: &
 /// resulting hallmark to srjcl via RBRN_BOTTLE_HALLMARK.
 fn rbtdro_onboarding_ordain_conjure_jupyter(dir: &Path) -> rbtdre_Verdict {
     let probe = rbtdrb_Probe {
-        name: "reliquary stamp captured",
-        check: rbtdro_probe_reliquary_stamp,
+        name: "reliquary touchmark captured",
+        check: rbtdro_probe_reliquary_touchmark,
         remediation: "rerun rbtdro_onboarding_conclave_reliquary before this case",
     };
     if let Err(v) = rbtdrb_assert(&probe) {
@@ -1040,12 +1040,12 @@ fn rbtdro_onboarding_ordain_conjure_jupyter_impl(ctx: &mut rbtdri_Context, dir: 
 /// conjure the forge tethered, write the forge-hallmark locator into the
 /// airgap vessel's base anchor (no copy — orchestration writes the locator
 /// directly), conjure the airgap bottle.
-/// Case 1 yoked the reliquary stamp into both forge and airgap vessels.
+/// Case 1 yoked the reliquary touchmark into both forge and airgap vessels.
 /// Propagates airgap-bottle hallmark to moriah via RBRN_BOTTLE_HALLMARK.
 fn rbtdro_onboarding_ordain_airgap_chain(dir: &Path) -> rbtdre_Verdict {
     let probe = rbtdrb_Probe {
-        name: "reliquary stamp captured",
-        check: rbtdro_probe_reliquary_stamp,
+        name: "reliquary touchmark captured",
+        check: rbtdro_probe_reliquary_touchmark,
         remediation: "rerun rbtdro_onboarding_conclave_reliquary before this case",
     };
     if let Err(v) = rbtdrb_assert(&probe) {
@@ -1197,8 +1197,8 @@ fn rbtdro_onboarding_ordain_airgap_chain_impl(ctx: &mut rbtdri_Context, dir: &Pa
 /// hallmark to pluml via RBRN_BOTTLE_HALLMARK.
 fn rbtdro_onboarding_ordain_bind_plantuml(dir: &Path) -> rbtdre_Verdict {
     let probe = rbtdrb_Probe {
-        name: "reliquary stamp captured",
-        check: rbtdro_probe_reliquary_stamp,
+        name: "reliquary touchmark captured",
+        check: rbtdro_probe_reliquary_touchmark,
         remediation: "rerun rbtdro_onboarding_conclave_reliquary before this case",
     };
     if let Err(v) = rbtdrb_assert(&probe) {
@@ -1339,8 +1339,8 @@ fn rbtdro_onboarding_ordain_bind_plantuml_impl(ctx: &mut rbtdri_Context, dir: &P
 /// graft-demo is terminal.
 fn rbtdro_onboarding_ordain_graft_demo(dir: &Path) -> rbtdre_Verdict {
     let probe = rbtdrb_Probe {
-        name: "reliquary stamp captured",
-        check: rbtdro_probe_reliquary_stamp,
+        name: "reliquary touchmark captured",
+        check: rbtdro_probe_reliquary_touchmark,
         remediation: "rerun rbtdro_onboarding_conclave_reliquary before this case",
     };
     if let Err(v) = rbtdrb_assert(&probe) {

@@ -1,8 +1,9 @@
 #!/bin/bash
 # RBGJS token-fetch — OAuth2 access token from the Cloud Build metadata server
-# (Mason SA). The canonical skopeo-to-GAR authentication (RBSCB): skopeo cannot
-# use the gcloud credential helper, so the token is fetched in-memory and never
-# written to /workspace, which carries non-secret data only.
+# (Mason SA). Sole consumer: the immure residency guard's curl blob-HEAD
+# (rbgjl09) — registry steps auth ambiently via gcrane (RBSCB). The token is
+# fetched in-memory and never written to /workspace, which carries non-secret
+# data only.
 #   requires: (none — ambient metadata server)
 #   provides: TOKEN
 echo "Fetching OAuth2 token from metadata server"
