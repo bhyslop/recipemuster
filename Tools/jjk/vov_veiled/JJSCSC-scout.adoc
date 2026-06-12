@@ -2,32 +2,71 @@
 Search across
 {jjdhr_heat_s}
 and
-{jjdpr_pace_s}
-using regex patterns.
+{jjdpr_pace_s}.
+A pattern containing regex metacharacters runs as a single regex pass;
+a plain pattern runs a three-tier word search.
 
 {jjds_arguments}
 
 //axd_required
-* pattern — regex pattern to search for (case insensitive)
+* pattern — search pattern (case insensitive).
+Presence of any regex metacharacter of the set `.*+?[](){}|^$\` selects regex mode;
+otherwise plain mode.
 
 //axd_optional
 * `--actionable` — limit results to
 {jjdpe_rough}
 or
 {jjdpe_bridled}
-paces only
+paces only;
+suppresses heat-level rows.
 
-{jjds_stdout} Grouped text output:
+{jjds_stdout} Word-frequency summary, then grouped results:
 ----
+Matches:
+    12 ark
+     3 arks
+     1 hallmark
+
 ₣XX heat-silks
-  ₢XXXXX [state] pace-silks
-    field: ...match excerpt...
+  [whole] heat-silks: ...match excerpt...
+  [whole] paddock: ...match excerpt...
+  ₢XXXXX [state] [whole] docket: ...match excerpt...
 ₣YY another-heat
-  ₢YYYYY [state] another-pace
-    field: ...match excerpt...
+  ₢YYYYY [state] [prefix] warrant: ...match excerpt...
+  ₢YYYYZ [state] [substring] silks: ...match excerpt...
 ----
 
-Where `field` is one of: `silks`, `docket`, `warrant`, or `paddock`.
+The summary block lists distinct matched-text strings with occurrence counts,
+descending by count then alphabetical:
+in plain mode each occurrence counts as its full containing word
+(searching `ark` surfaces `ark`, `arks`, `hallmark` as distinct entries);
+in regex mode each distinct match span counts.
+Every searched surface feeds the summary —
+heat-level and pace surfaces alike,
+independent of which field produced a result row.
+
+Heat-level rows carry no
+{jjdt_coronet};
+their field label is `heat-silks` (the
+{jjdhr_heat_p}
+{jjdhm_silks})
+or `paddock` (the file at the
+{jjdhm_paddock}).
+Pace rows lead with the
+{jjdt_coronet}
+and state;
+their field label is `silks`
+({jjdcm_silks}),
+`docket`
+({jjdcm_text}),
+or `warrant`
+({jjdcm_direction}).
+In plain mode every row carries a tier provenance marker:
+`[whole]` (`\bWORD\b`),
+`[prefix]` (`\bWORD`),
+`[substring]` (bare substring);
+regex-mode rows carry no marker.
 Match excerpt shows approximately 60 characters of context around the first match.
 
 {jjds_exit_uniform} 0 success, non-zero error.
@@ -36,10 +75,28 @@ Match excerpt shows approximately 60 characters of context around the first matc
 
 . Read
 {jjdgr_gallops}
-. Build case-insensitive regex from pattern argument
+. Classify the pattern:
+any metacharacter present → regex mode,
+a single case-insensitive pass with the raw pattern;
+none → plain mode,
+three case-insensitive tiers over the escaped word
+(whole, prefix, substring),
+applied uniformly to heat-level and pace surfaces
 . For each
 {jjdhr_heat}
-(all statuses: racing, stabled, retired):
+(all statuses: racing, stabled, retired),
+independent of pace count:
+.. Heat-level search, once per
+{jjdhr_heat}
+(skipped entirely when `--actionable` is specified):
+... Search the
+{jjdhr_heat_p}
+{jjdhm_silks};
+on match emit a `heat-silks` heat-level row
+... Read the file at the
+{jjdhm_paddock}
+once;
+on match emit a `paddock` heat-level row
 .. For each
 {jjdpr_pace}
 in
@@ -49,33 +106,35 @@ in
 or
 {jjdpe_bridled}
 state
-... Search in order (first match wins):
-.... {jjdkm_silks}
+... Search tier-major, field-minor —
+the strongest tier wins across fields;
+within a tier, the first field in this order wins:
+.... {jjdcm_silks}
 (from `tacks[0].silks`)
-.... {jjdkm_text}
+.... {jjdcm_text}
 (docket from `tacks[0].text`)
-.... {jjdkm_warrant}
+.... {jjdcm_direction}
 (from `tacks[0].direction` if present)
-.... {jjdhm_paddock}
-file content
-... If match found:
-.... If this is the first match in this
-{jjdhr_heat},
-print heat header
-.... Print pace line with
-{jjdt_coronet},
-state, and
-{jjdkm_silks}
-.... Print match line with field name and context excerpt (60 chars around match)
+... On match emit one pace row
+. Order output by tier:
+rows within a heat group sort strongest-tier first;
+heat groups sort by their strongest row's tier;
+each heat header prints once above its group
+. Emit the word-frequency summary above the result groups
 
 *Design rationale:*
 {jjdo_search}
 does NOT search steeplechase/chalk descriptions.
 Steeplechase entries are for session history reconstruction; searching them would conflate "what we planned" with "what we discussed."
 The scout searches plan artifacts only:
-{jjdkm_silks},
-{jjdkm_text},
-{jjdkm_warrant},
-and
+the
+{jjdhr_heat_p}
+{jjdhm_silks}
+and the file at the
 {jjdhm_paddock}
-content.
+at heat level;
+{jjdcm_silks},
+{jjdcm_text},
+and
+{jjdcm_direction}
+per pace.
