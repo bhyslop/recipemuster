@@ -1521,14 +1521,8 @@ rbfd_graft() {
   test "${RBRV_VESSEL_MODE:-}" = "rbnve_graft" \
     || buc_die "Vessel '${RBRV_SIGIL}' is not a graft vessel (mode: ${RBRV_VESSEL_MODE:-unset})"
 
-  # Tweak override: test infrastructure injects the graft image via the bure tweak
-  # channel. The name carries the buo sprue (BURE enforces the shape). Mirror:
-  # rbtdro_onboarding.rs RBTDRO_GRAFT_TWEAK_NAME — same literal, cross-language.
-  local -r z_graft_tweak_name="buorb_graft_image"
-  test "${BURE_TWEAK_NAME:-}" != "${z_graft_tweak_name}" || RBRV_GRAFT_IMAGE="${BURE_TWEAK_VALUE}"
-
   test -n "${RBRV_GRAFT_IMAGE:-}" \
-    || buc_die "RBRV_GRAFT_IMAGE not set for graft vessel '${RBRV_SIGIL}'"
+    || buc_die "RBRV_GRAFT_IMAGE not set for graft vessel '${RBRV_SIGIL}' — anoint the vessel from a build, or set the slot by hand"
 
   # Resolve tool images from reliquary (graft about+vouch steps use tool images)
   zrbfc_resolve_tool_images

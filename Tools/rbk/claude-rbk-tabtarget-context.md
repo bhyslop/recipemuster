@@ -154,6 +154,7 @@ The Folio column shows how each tabtarget receives it:
 | `rbw-rvr` | RenderVesselRegime | param1 | Render vessel regime |
 | `rbw-rvv` | ValidateVesselRegime | param1 | Validate vessel regime |
 | `rbw-rvy` | DirectorYokesReliquaryAllVessels | param1 | Yoke a reliquary touchmark into every vessel's rbrv.env (wildcard fan-out) |
+| `rbw-rva` | DirectorAnointsGraftVessel | param1 | Anoint a graft vessel with the previous build's hallmark (rewrites RBRV_GRAFT_IMAGE from chained facts) |
 | `rbw-rrr` | RenderRepoRegime | — | Render repo regime |
 | `rbw-rrv` | ValidateRepoRegime | — | Validate repo regime |
 | `rbw-rdr` | RenderDepotRegime | — | Render depot regime |

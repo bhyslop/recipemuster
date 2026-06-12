@@ -87,11 +87,12 @@ RBCC_verb_divest="divest"
 RBCC_verb_invest="invest"
 RBCC_verb_roster="roster"
 #
-#   Image/build lifecycle (inscribe/kludge/ordain/yoke) — name the
+#   Image/build lifecycle (anoint/inscribe/kludge/ordain/yoke) — name the
 #   registry and build operations. Previously implicit in command-function
 #   names (rbrd_inscribe, rbfd_ordain, …) and tabtarget descriptions; homed
 #   here so the group has a single owner rather than being reconstructed by
 #   grep across rbfd_/rbfl_/rbfk_/rbob_.
+RBCC_verb_anoint="anoint"
 RBCC_verb_inscribe="inscribe"
 RBCC_verb_kludge="kludge"
 RBCC_verb_ordain="ordain"
@@ -159,6 +160,7 @@ rbcc_emit_consts() {
     RBCC_verb_divest     \
     RBCC_verb_invest     \
     RBCC_verb_roster     \
+    RBCC_verb_anoint     \
     RBCC_verb_inscribe   \
     RBCC_verb_kludge     \
     RBCC_verb_ordain     \

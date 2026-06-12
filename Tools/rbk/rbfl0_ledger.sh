@@ -18,8 +18,8 @@
 #
 # Recipe Bottle Foundry Ledger - kindle entry: the single rbfl inclusion-guard and
 # kindle/sentinel, sourcing the Foundry Core entry (rbfck_) and the guard-free body
-# clusters (rbfly_ yoke, rbfld_ delete, rbfln_ inventory, rbflw_ wrest). The readonly
-# ZRBFL_* constants the kindle sets are read globally.
+# clusters (rbfla_ anoint, rbfly_ yoke, rbfld_ delete, rbfln_ inventory, rbflw_ wrest).
+# The readonly ZRBFL_* constants the kindle sets are read globally.
 
 set -euo pipefail
 
@@ -29,6 +29,7 @@ ZRBFL_SOURCED=1
 
 # Source shared Foundry Core entry and the guard-free body clusters
 source "${BASH_SOURCE[0]%/*}/rbfc0_core.sh"
+source "${BASH_SOURCE[0]%/*}/rbfla_anoint.sh"
 source "${BASH_SOURCE[0]%/*}/rbfly_yoke.sh"
 source "${BASH_SOURCE[0]%/*}/rbfld_delete.sh"
 source "${BASH_SOURCE[0]%/*}/rbfln_inventory.sh"

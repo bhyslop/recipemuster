@@ -50,6 +50,7 @@ use crate::rbtdri_invocation::{
 use crate::rbtdrk_canonical::rbtdrk_canonical_rbra;
 use crate::rbtdgc_consts::{
     RBTDGC_ABJURE_HALLMARK,
+    RBTDGC_ANOINT_GRAFT,
     RBTDGC_CONTAINER_BOTTLE,
     RBTDGC_CONTAINER_SENTRY,
     RBTDGC_CRUCIBLE_KLUDGE_BOTTLE,
@@ -63,6 +64,7 @@ use crate::rbtdgc_consts::{
     RBTDGC_REKON_HALLMARK,
     RBTDGC_ACCOUNT_GOVERNOR,
     RBTDGC_SUMMON_HALLMARK,
+    RBTDGC_VERB_ANOINT,
     RBTDGC_VERB_KLUDGE,
     RBTDGC_VERB_ORDAIN,
     RBTDGC_VERB_YOKE,
@@ -168,17 +170,12 @@ const RBTDRO_FIELD_RBRV_RELIQUARY: &str = "RBRV_RELIQUARY";
 /// the touchmark after case 1.
 const RBTDRO_WITNESS_VESSEL_DIR: &str = RBTDRO_VESSEL_DIR_SENTRY_TETHER;
 
-// ── Graft override ───────────────────────────────────────────
+// ── Graft anoint witness ─────────────────────────────────────
 
-/// BURE_TWEAK signal recognized by rbfd_director for graft mode:
-/// supplies the local image reference without mutating the vessel rbrv.env.
-/// Mirror: rbfd_director.sh `z_graft_tweak_name` (same literal). Carries
-/// the buo tweak sprue, enforced by BURE.
-const RBTDRO_GRAFT_TWEAK_NAME: &str = "buorb_graft_image";
-
-/// Source image for graft: any locally-resolvable docker image works; an
-/// upstream public image keeps this case independent of the conjure case.
-const RBTDRO_GRAFT_SOURCE_IMAGE: &str = "busybox:latest";
+/// Field the ccyolo kludge case's anoint chain writes into the graft vessel's
+/// rbrv.env; the ordain-graft case reads the committed value back as its
+/// image source. Presence of a tagged ref is the cross-case witness.
+const RBTDRO_FIELD_RBRV_GRAFT_IMAGE: &str = "RBRV_GRAFT_IMAGE";
 
 // ── Probes ───────────────────────────────────────────────────
 //
@@ -241,6 +238,33 @@ fn rbtdro_probe_reliquary_touchmark() -> Result<(), String> {
             "{} is empty in {}",
             RBTDRO_FIELD_RBRV_RELIQUARY,
             rbrv.display()
+        ));
+    }
+    Ok(())
+}
+
+/// Graft case probe: RBRV_GRAFT_IMAGE anointed into the graft vessel's
+/// committed rbrv.env by the ccyolo kludge case's anoint chain. A tagged ref
+/// is the cross-case witness; local docker presence is asserted in the case
+/// body where the failure message can carry the ref.
+fn rbtdro_probe_graft_anointed() -> Result<(), String> {
+    let root = rbtdro_probe_root()?;
+    let rbrv = root
+        .join(RBTDRO_VESSEL_DIR_GRAFT)
+        .join(RBTDRO_VESSEL_RBRV_FILE);
+    let value = rbtdro_read_env_value(&rbrv, RBTDRO_FIELD_RBRV_GRAFT_IMAGE).ok_or_else(|| {
+        format!(
+            "{} missing from {}",
+            RBTDRO_FIELD_RBRV_GRAFT_IMAGE,
+            rbrv.display()
+        )
+    })?;
+    if !value.contains(':') {
+        return Err(format!(
+            "{} in {} is not a tagged image ref (unanointed?): {}",
+            RBTDRO_FIELD_RBRV_GRAFT_IMAGE,
+            rbrv.display(),
+            value
         ));
     }
     Ok(())
@@ -415,24 +439,6 @@ fn rbtdro_ensconce(
     })?;
     let _ = std::fs::write(dir.join(format!("{}-touchmark.txt", label)), &touchmark);
     Ok(touchmark)
-}
-
-/// Pull a docker image. Used by the graft case to ensure the source image
-/// is locally resolvable before the BURE_TWEAK-overridden ordain.
-fn rbtdro_docker_pull(image_ref: &str) -> Result<(), String> {
-    let output = std::process::Command::new("docker")
-        .args(["pull", image_ref])
-        .output()
-        .map_err(|e| format!("docker pull exec failed: {}", e))?;
-    if !output.status.success() {
-        return Err(format!(
-            "docker pull {} exited {}: {}",
-            image_ref,
-            output.status.code().unwrap_or(-1),
-            String::from_utf8_lossy(&output.stderr).trim()
-        ));
-    }
-    Ok(())
 }
 
 /// Write a value into a vessel's rbrv.env. Same atomic-rename pattern as
@@ -815,7 +821,8 @@ pub static RBTDRO_FIXTURE_KLUDGE_TADMOR: rbtdre_Fixture = rbtdre_Fixture {
     cases: RBTDRO_CASES_KLUDGE_TADMOR,
 };
 
-/// Build ccyolo sentry and bottle locally. Kludge is local docker — no GCP.
+/// Build ccyolo sentry and bottle locally, then anoint graft-demo off the
+/// bottle kludge's chained facts. Kludge and anoint are local — no GCP.
 /// Probe: reliquary scratch present (confirms case 1 completed).
 fn rbtdro_onboarding_kludge_ccyolo(dir: &Path) -> rbtdre_Verdict {
     let probe = rbtdrb_Probe {
@@ -830,10 +837,41 @@ fn rbtdro_onboarding_kludge_ccyolo(dir: &Path) -> rbtdre_Verdict {
 }
 
 fn rbtdro_onboarding_kludge_ccyolo_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_Verdict {
-    match rbtdro_kludge_nameplate(ctx, dir, RBTDRO_NAMEPLATE_CCYOLO) {
-        Ok(()) => rbtdre_Verdict::Pass,
-        Err(v) => v,
+    if let Err(v) = rbtdro_kludge_nameplate(ctx, dir, RBTDRO_NAMEPLATE_CCYOLO) {
+        return v;
     }
+
+    // Anoint graft-demo off the bottle kludge that just ran: the anoint
+    // dispatch reads the kludge's chained build facts (previous-dir baton)
+    // and rewrites the graft vessel's RBRV_GRAFT_IMAGE. Must follow the
+    // kludge immediately — any intervening dispatch breaks the depth-1
+    // chain. The ordain-graft case consumes the committed value.
+    if let Err(v) = rbtdro_invoke_or_fail(
+        ctx,
+        RBTDGC_VERB_ANOINT,
+        RBTDRO_VESSEL_DIR_GRAFT,
+        RBTDGC_ANOINT_GRAFT,
+        &[RBTDRO_VESSEL_DIR_GRAFT],
+        &[],
+        dir,
+        "anoint-graft-demo",
+    ) {
+        return v;
+    }
+
+    // Commit the anointed slot — anoint is operator-committed by design, and
+    // downstream cases gate on a clean tree.
+    if let Err(v) = rbtdro_git_commit(
+        &[rbtdro_vessel_rbrv_path(RBTDRO_VESSEL_DIR_GRAFT)],
+        &format!(
+            "{}: graft-demo image from ccyolo {}",
+            RBTDGC_VERB_ANOINT, RBTDGC_VERB_KLUDGE
+        ),
+    ) {
+        return v;
+    }
+
+    rbtdre_Verdict::Pass
 }
 
 /// Ordain rbev-sentry-deb-tether (conjure mode). Case 1 yoked the reliquary
@@ -1334,9 +1372,9 @@ fn rbtdro_onboarding_ordain_bind_plantuml_impl(ctx: &mut rbtdri_Context, dir: &P
     rbtdre_Verdict::Pass
 }
 
-/// Pull the graft source image, then ordain rbev-graft-demo with a
-/// BURE_TWEAK overriding RBRV_GRAFT_IMAGE in-process. No consumers —
-/// graft-demo is terminal.
+/// Ordain rbev-graft-demo from its committed RBRV_GRAFT_IMAGE — anointed by
+/// the ccyolo kludge case's chain, consumed here as any operator-set regime
+/// value, no injection. No consumers — graft-demo is terminal.
 fn rbtdro_onboarding_ordain_graft_demo(dir: &Path) -> rbtdre_Verdict {
     let probe = rbtdrb_Probe {
         name: "reliquary touchmark captured",
@@ -1346,35 +1384,54 @@ fn rbtdro_onboarding_ordain_graft_demo(dir: &Path) -> rbtdre_Verdict {
     if let Err(v) = rbtdrb_assert(&probe) {
         return v;
     }
+    let probe = rbtdrb_Probe {
+        name: "graft-demo anointed",
+        check: rbtdro_probe_graft_anointed,
+        remediation: "rerun rbtdro_onboarding_kludge_ccyolo (its anoint chain writes RBRV_GRAFT_IMAGE) before this case",
+    };
+    if let Err(v) = rbtdrb_assert(&probe) {
+        return v;
+    }
     rbtdrc_with_ctx(|ctx| rbtdro_onboarding_ordain_graft_demo_impl(ctx, dir))
 }
 
 fn rbtdro_onboarding_ordain_graft_demo_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_Verdict {
-    if let Err(e) = rbtdro_docker_pull(RBTDRO_GRAFT_SOURCE_IMAGE) {
-        return rbtdre_Verdict::Fail(format!(
-            "docker pull {}: {}",
-            RBTDRO_GRAFT_SOURCE_IMAGE, e
-        ));
-    }
+    // Read the anointed graft image from the committed vessel regime.
+    let rbrv = ctx
+        .project_root()
+        .join(RBTDRO_VESSEL_DIR_GRAFT)
+        .join(RBTDRO_VESSEL_RBRV_FILE);
+    let graft_image = match rbtdro_read_env_value(&rbrv, RBTDRO_FIELD_RBRV_GRAFT_IMAGE) {
+        Some(v) if !v.trim().is_empty() => v,
+        _ => {
+            return rbtdre_Verdict::Fail(format!(
+                "{} absent from {}",
+                RBTDRO_FIELD_RBRV_GRAFT_IMAGE,
+                rbrv.display()
+            ))
+        }
+    };
 
     // Capture source layer DiffIDs before ordain — graft pushes bytes through
     // GAR's manifest-envelope normalization; round-trip identity proves the
-    // bytes survived unchanged.
-    let source_layers = match rbtdrc_docker_layers_capture(RBTDRO_GRAFT_SOURCE_IMAGE) {
+    // bytes survived unchanged. Doubles as the local-presence gate: the
+    // anointed image must still sit in the docker cache from its kludge.
+    let source_layers = match rbtdrc_docker_layers_capture(&graft_image) {
         Ok(v) => v,
-        Err(e) => return rbtdre_Verdict::Fail(format!("source image inspect: {}", e)),
+        Err(e) => {
+            return rbtdre_Verdict::Fail(format!(
+                "anointed image {} inspect: {}",
+                graft_image, e
+            ))
+        }
     };
     let _ = std::fs::write(dir.join("source-layers.txt"), &source_layers);
 
-    let extra_env: &[(&str, &str)] = &[
-        ("BURE_TWEAK_NAME", RBTDRO_GRAFT_TWEAK_NAME),
-        ("BURE_TWEAK_VALUE", RBTDRO_GRAFT_SOURCE_IMAGE),
-    ];
     let (hallmark, gar_root, ark_stem) = match rbtdro_ordain_capture_full(
         ctx,
         dir,
         RBTDRO_VESSEL_DIR_GRAFT,
-        extra_env,
+        &[],
         "ordain-graft",
     ) {
         Ok(facts) => facts,
@@ -1415,16 +1472,6 @@ fn rbtdro_onboarding_ordain_graft_demo_impl(ctx: &mut rbtdri_Context, dir: &Path
 
     if let Err(e) = rbtdrc_docker_rmi(&[&image_ref]) {
         return rbtdre_Verdict::Fail(format!("rmi: {}", e));
-    }
-
-    // graft-demo is terminal (no consumers); the step writes no regime file, so
-    // this commit owns only the graft vessel's rbrv.env and is normally a clean
-    // no-op (the scoped status check skips it when nothing changed).
-    if let Err(v) = rbtdro_git_commit(
-        &[rbtdro_vessel_rbrv_path(RBTDRO_VESSEL_DIR_GRAFT)],
-        "ordain-graft: graft-demo hallmark",
-    ) {
-        return v;
     }
 
     if let Err(v) = rbtdro_invoke_or_fail(
