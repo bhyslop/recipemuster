@@ -9430,6 +9430,13 @@
         "₢BeAAA": {
           "jjgpn_tacks": [
             {
+              "jjgtn_ts": "260612-1151",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nThe heat's keystone membrane — small surface, subtle exit-status semantics;\nevery later negative assertion rides through it.\nTier: opus-driven.\n\n## Goal\nEstablish the precision exit-code band and make `buc_die` transparent to it.\n\nDefine band tinder in `Tools/buk/bubc_constants.sh`:\nband base/width plus per-gate rejection codes —\nper rejection gate, never per validation rule.\nPick the band clear of shell-reserved codes (2, 126, 127, 128+n).\n\nTeach `buc_die` (`Tools/buk/buc_command.sh`) to capture `$?` on entry\nand re-exit with it when the value lies in the band;\nadd an origin helper for deliberate rejection sites.\nExisting `cmd || buc_die` call sites stay untouched —\nthe membrane makes them propagate band codes for free.\n\nProve end-to-end survival:\na BUK self-test case where a band code raised under a `cmd || buc_die` chain\nreaches the caller's captured exit status through the tabtarget/launcher exec path.\n\n## Cinched\nExit-code band over stderr sentinel;\nper-gate codes, not per-rule.\n\n## Done when\nBand tinder and membrane land;\n`tt/buw-st.BukSelfTest.sh` green including the new survival case.",
+              "jjgtn_silks": "band-tinder-and-die-membrane",
+              "jjgtn_basis": "bdff74a"
+            },
+            {
               "jjgtn_ts": "260610-1154",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": "Establish the precision exit-code band and make `buc_die` transparent to it.\n\nDefine band tinder in `Tools/buk/bubc_constants.sh`:\nband base/width plus per-gate rejection codes —\nper rejection gate, never per validation rule.\nPick the band clear of shell-reserved codes (2, 126, 127, 128+n).\n\nTeach `buc_die` (`Tools/buk/buc_command.sh`) to capture `$?` on entry\nand re-exit with it when the value lies in the band;\nadd an origin helper for deliberate rejection sites.\nExisting `cmd || buc_die` call sites stay untouched —\nthe membrane makes them propagate band codes for free.\n\nProve end-to-end survival:\na BUK self-test case where a band code raised under a `cmd || buc_die` chain\nreaches the caller's captured exit status through the tabtarget/launcher exec path.\n\n## Cinched\nExit-code band over stderr sentinel;\nper-gate codes, not per-rule.\n\n## Done when\nBand tinder and membrane land;\n`tt/buw-st.BukSelfTest.sh` green including the new survival case.",
@@ -9440,6 +9447,13 @@
         },
         "₢BeAAB": {
           "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260612-1151",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nMechanical codegen extension riding an existing emit pattern.\nTier: sonnet-delegable.\n\n## Goal\nProject the band constants into Rust as numeric consts.\n\nExtend the rbcc emission (`Tools/rbk/rbcc_constants.sh`, riding\n`rbz_emit_consts` in `Tools/rbk/rbz_zipper.sh` → `rbtdgc_consts.rs`)\nwith a numeric emit shape — current emission is `&str` only,\ntheurge compares exit codes as integers.\nbubc is sourced at emission time,\nso projecting BUK-homed band values needs no cross-module tinder trick.\nWrite-on-change and the qualify freshness gate apply unchanged.\n\n## Done when\nGenerated `rbtdgc_consts.rs` carries the band as numeric consts;\n`tt/rbw-tb.Build.sh` regenerates it and `tt/rbw-tq.QualifyFast.sh` passes freshness.",
+              "jjgtn_silks": "numeric-const-codegen",
+              "jjgtn_basis": "bdff74a"
+            },
             {
               "jjgtn_ts": "260610-1154",
               "jjgtn_state": "jjgte_rough",
@@ -9477,6 +9491,13 @@
         "₢BeAAD": {
           "jjgpn_tacks": [
             {
+              "jjgtn_ts": "260612-1151",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nMechanical assertion flip;\nthe only judgment is reuse-or-build on the expect-code plumbing.\nTier: sonnet-delegable.\n\n## Goal\nClose the wrong-reason hole for the enrollment-validation fixture's negative cases.\n\nTeach the enrollment validation gate to reject with its band code,\nand flip the fixture's negative cases to assert that specific code.\nThis fixture needs no in-universe conversion —\nit already stages values inline against the validator, file-fabrication-free and tweak-free —\nand it stays in fast.\nExpect-code assertion plumbing for the fast-tier negative helpers lands here\nif the regime conversion pace has not already provided a shareable form;\ncheck before building.\n\n## Done when\n`tt/rbw-ts.TestSuite.fast.sh` green\nwith every enrollment-validation negative case asserting the gate's code.",
+              "jjgtn_silks": "migrate-enrollment-validation-negatives",
+              "jjgtn_basis": "bdff74a"
+            },
+            {
               "jjgtn_ts": "260611-1321",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": "Close the wrong-reason hole for the enrollment-validation fixture's negative cases.\n\nTeach the enrollment validation gate to reject with its band code,\nand flip the fixture's negative cases to assert that specific code.\nThis fixture needs no in-universe conversion —\nit already stages values inline against the validator, file-fabrication-free and tweak-free —\nand it stays in fast.\nExpect-code assertion plumbing for the fast-tier negative helpers lands here\nif the regime conversion pace has not already provided a shareable form;\ncheck before building.\n\n## Done when\n`tt/rbw-ts.TestSuite.fast.sh` green\nwith every enrollment-validation negative case asserting the gate's code.",
@@ -9495,6 +9516,13 @@
         "₢BeAAE": {
           "jjgpn_tacks": [
             {
+              "jjgtn_ts": "260612-1151",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nMechanical assertion flip across two fixtures;\none one-look judgment on whether the two gates may share a code.\nTier: sonnet-delegable.\n\n## Goal\nClose the wrong-reason hole for the recipe-validation\nand dockerfile-hygiene fixtures' negative cases.\n\nTeach the recipe validation gate and the rbfh FROM-line hygiene gate\n(`Tools/rbk/rbfh_hygiene.sh`) to reject with band codes.\nThese two gates are alternatives — never in one spawn path —\nso they may share a code per the allocation rule;\nconfirm that at migration time rather than assuming.\nFlip both fixtures' negative cases to assert the expected code.\n\n## Done when\n`tt/rbw-ts.TestSuite.fast.sh` green\nwith both fixtures' negative cases asserting specific codes.",
+              "jjgtn_silks": "migrate-recipe-and-hygiene-negatives",
+              "jjgtn_basis": "bdff74a"
+            },
+            {
               "jjgtn_ts": "260610-1155",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": "Close the wrong-reason hole for the recipe-validation\nand dockerfile-hygiene fixtures' negative cases.\n\nTeach the recipe validation gate and the rbfh FROM-line hygiene gate\n(`Tools/rbk/rbfh_FoundryHygiene.sh`) to reject with band codes.\nThese two gates are alternatives — never in one spawn path —\nso they may share a code per the allocation rule;\nconfirm that at migration time rather than assuming.\nFlip both fixtures' negative cases to assert the expected code.\n\n## Done when\n`tt/rbw-ts.TestSuite.fast.sh` green\nwith both fixtures' negative cases asserting specific codes.",
@@ -9505,6 +9533,13 @@
         },
         "₢BeAAF": {
           "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260612-1151",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nProse craft against settled design — judgment in wording, not in shape.\nTier: opus-driven.\n\n## Goal\nWrite the BCG admission entry for the precision exit-code band.\nState the design position:\ndifferentiated exit codes are bad design, interpreting error strings is worse,\nso a small per-gate band exists for exactly the tabtargets the test orchestrator asserts negatively — nothing else.\nInclude: band semantics (in-band means deliberate rejection, code 1 stays \"imprecise death\"),\nthe allocation rule (share across alternatives, never along a pipeline),\nthe enrollment requirement (no code minted outside the bubc tinder block),\nand the rejected stderr-sentinel alternative with why it lost.\nCross-reference from the bubc tinder block comment.\nThen sweep the tweak-doctrine touchpoints into agreement with the BUS0 Tweak Mechanism section\n(landed at heat start):\nthe CLAUDE.md BUK include's tweak paragraph,\nthe fast-tier slot reservation (the credless guard),\nand the in-universe poison seam as the doctrine's worked examples —\nconfirming the live tweak census conforms (stamp, poison, guard) with no stale exceptions.\n\n## Done when\nBCG carries the band entry; the bubc tinder block points at it;\nthe CLAUDE.md BUK include and BUS0 agree;\nthe doctrine's worked examples name the live census.",
+              "jjgtn_silks": "bcg-precision-band-admission",
+              "jjgtn_basis": "bdff74a"
+            },
             {
               "jjgtn_ts": "260611-1318",
               "jjgtn_state": "jjgte_rough",
