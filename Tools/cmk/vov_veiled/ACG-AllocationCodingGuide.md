@@ -75,6 +75,17 @@ of a forcing function. The spec is re-read when the design is questioned; the
 announcement is re-read every run; an edit-time comment restating either is read
 by no one with a reason to correct it when it drifts.
 
+**The edit-time Palisade license is a fallback home, not a co-equal one.**
+Palisade characterization obeys the same single-authoritative-wording rule as
+every other statement: when a spec home carries the characterization, the spec is
+authoritative and the comment keeps only the **residue** — the one-line
+signature, the do-not-"fix" tripwire, and the citation. The full characterization
+lives at the code only where no spec home exists. The bound serves the context
+economy: code is the most-frequently-loaded medium, so it carries what an editor
+needs *before* deciding to load the spec; the spec carries everything needed
+after. Worked ruling: the sentry-pair audit, where the spec side already carried
+every detected comment's content.
+
 Two edit-time/execution-time source-doc forms are distinct and **both blessed**:
 
 - **Contract header** — a bounded edit-time comment stating a function's input
@@ -261,13 +272,22 @@ detect-only** (read and report; no repair until a verifier exists). Numbered fro
   *is*, why it is shaped so, how it relates to other concepts — rather than
   operational mechanics or Palisade characterization.
 - **Authority:** the three-homes table. The spec quoin is the design-time home;
-  where no quoin exists, the move creates or extends one, then cites it.
+  where no quoin exists, the move creates or extends one, then cites it; where
+  the home already carries the content, the move degenerates to
+  citation-collapse (below).
 - **Licensing:** detect-only for the sweep — relocation mutates two documents
   (source and spec) and a wrong move is not cheaply caught, so each relocation
   lands as its own reviewed move, never batch-applied.
+- **Citation-collapse (the common case):** when the receiving home already
+  carries the comment's content, nothing relocates — declare the authoritative
+  side (move discipline, rule 1; the spec, per the Palisade fallback bound) and
+  the comment shrinks to residue: signature + tripwire + citation. The
+  sentry-pair pilot found every one of its detected comments already homed;
+  expect collapse, not relocation, wherever the spec side is mature.
 - **Verifier:** none in v1; the future lexer/linter plus spec link validation.
 - **Done:** a report of misallocated comments, each tagged with its receiving
-  quoin (existing or proposed); relocations land one reviewed move at a time.
+  quoin (existing, proposed, or already-carrying); relocations and collapses
+  land one reviewed move at a time.
 
 ### 🔍 ACGm_105: paraphrase collapse
 
@@ -361,7 +381,29 @@ mint, so it carries a real migration and is held for its own deliberate pace
 rather than folded into guide authoring. Recorded here as ACGm_102's named
 dependency; raised and deferred, not dropped.
 
+### The cited-constraint anchor (deferred)
+
+The sentry-pair pilot surfaced a third census mechanism beside the quoin and the
+sprue: a **cited constraint** — a normative proposition (an invariant, a
+deliberate deviation, a foreign-behavior signature) that the spec defines once
+under a minted ID and that code comments and tests cite. One grep then returns
+the definition, every defending code site, and every attacking test — with no
+registry to drift. The mechanism is MCM/AXLA-level design (a new category, not a
+quoin variant) and is deferred to its own pace; two rulings bind now:
+
+- **Test names never appear in source comments.** A comment naming its defending
+  tests goes stale on every test rename with no forcing function. The linkage
+  inverts: the test cites the constraint it defends.
+- **Tripwire residues cite the constraint anchor once it exists.** Until then a
+  residue names the spec section in prose — and relocation sweeps that would
+  write prose pointers at scale wait for the mechanism rather than landing every
+  citation twice.
+
 ## Related Guides
+
+Which guide governs a file is itself an allocation question with a single
+answer: **one file answers to exactly one guide, chosen by its environment.**
+Guides may overlap in content; a file is never subject to two.
 
 - **BCG** — host bash. Constant Discipline and Interface Contamination are the
   bash instances of the spine.
@@ -389,3 +431,6 @@ dependency; raised and deferred, not dropped.
 | mutate-now | Licensing: a wrong move is cheaply caught, so the verb may repair in place |
 | detect-only | Licensing: the verb reads and reports; no repair until a verifier exists |
 | Name-identity | Concept linkage where the implementing symbol *is* the link to its quoin |
+| Citation-collapse | ACGm_104's degenerate case: the receiving home already carries the comment's content, so the comment shrinks to residue and nothing relocates |
+| Residue | What survives at the code after a collapse: the one-line signature, the do-not-"fix" tripwire, and the citation |
+| Cited constraint | Deferred third census mechanism beside quoin and sprue: a normative proposition the spec defines under a minted ID and that code and tests cite (see The AXLA/MCM interface) |

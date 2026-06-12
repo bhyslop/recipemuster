@@ -44,6 +44,10 @@ basename unchanged. A memo path that no longer resolves has retired — look for
 the same basename under `Memos/retired/`. Retired memos are historical record:
 read them freely, never resurrect work from them without operator direction.
 
+Memos are provenance, never authority: if a fact must still be true after the
+memo retires, it needs a spec home. The temptation to home durable knowledge in
+a memo is itself the signal that formal specification is due.
+
 ## Working Preferences
 - When user mentions an acronym, immediately navigate to the corresponding file
 - Assume full edit permissions for all files in the three main directories
