@@ -103,10 +103,68 @@ enfranchise/expel survive as admission/removal compositions;
 | expel | escheat all offices → deregister note (IdP-side removal is the IdP admin's) | partial teardown lands as surplus, never resurrection |
 | read-Terrier | pure read | — |
 
-The vocabulary itself is **open**:
-the office noun, the impersonation act, login/session words —
-re-minted under MCM Word Selection as the follow-on vocabulary pace (see Open).
-Until minted, paddock prose uses *office* as a working placeholder, not an elected quoin.
+The verb *words* above are a working set, now superseded in part:
+the four-E set (enfranchise/enfeoff/escheat/expel) fails the sibling-initials rule
+MCM Word Selection gained from the vocabulary pace;
+see Vocabulary elections below for the replacement words.
+The table's *bodies* and crash semantics stand unchanged.
+
+## Vocabulary elections (in progress)
+
+Shape rulings (operator, 260612):
+the operator surface carries two daily admission verbs plus one rare whole-person expulsion
+(spec grain keeps all four cases as quoins);
+*citizen* survives as the operator noun;
+one sign-in word serves every human including the payor — the mechanism difference is hearting;
+the standing-role noun is ashlar, low-traffic.
+
+Elected:
+
+- **mantle** — the standing-role noun (the governor, director, and retriever mantles);
+  supersedes the *office* placeholder, which failed its cold probe
+  (heard as place-of-work, not civic role).
+- **compear** — the per-session human sign-in act
+  (Scots law: to appear formally in answer to a summons; noun *compearance*).
+  Not a tabtarget: compearance is an accessor step —
+  any cloud tabtarget probes for a live assize, opens the device grant,
+  prints the clickable URL + code, and fails loud.
+  The pending-grant holder shape (who polls the device code) rides the spike's session-cache election.
+- **assize** — the live-window noun: a bounded sitting that is also a fixed regulated measure,
+  so the word carries the cap in its own body;
+  the premise phrase becomes "a human compears at the kickoff of every run; no run outlives its assize."
+
+Probed once (day-after story), pending operator confirmation:
+
+- **invest / divest** — the daily admission/removal verbs,
+  etymologically married to mantle (investiture: robing in the garments of office);
+  cult-word reuse under the eviction-then-reuse ruling.
+- **attaint** — the rare whole-person expulsion (attainder: the old law's civic death).
+- **don** — the impersonation act (donning a mantle; Leg 3); one mantle worn at a time is the blast-radius cinch made audible.
+- **muniment** — the terrier-entry noun (deeds preserved as proof of rights).
+
+Mantle homonym guard (transform-scoped):
+until the cult colophon family (`rbw-aM`/`arI`/`adI`/`arD`/`adD`) is renamed,
+the reused words carry two senses in the repo.
+New senses live in heat artifacts only — never in code, colophons, or specs;
+the verb movement's **first act** is renaming that family, so the senses never coexist in code;
+any agent meeting these words in existing code reads the retiring cult sense.
+This guard deletes itself when the rename lands.
+
+Sibling initials within the polity demesne: Invest, Divest, Attaint, read verb open — distinct;
+compear consumes no colophon initial.
+
+*Census* stands, correctly spaced against *terrier*:
+the census answers who exists and is the IdP's book (we only read assertions from it);
+the terrier answers who holds what and is ours.
+
+Candidate ceremony, deliberately unminted (one specimen):
+the vocabulary load-test story — a day-after tale told in the candidate words,
+testing asterism coherence beyond single-word cold probes;
+mint on second use.
+
+Still open: the founding-of-IdP-trust verb; the read-Terrier verb;
+the tentative confirmations above;
+the classification ledger and the office→mantle prose sweep land at the pace's close.
 
 ## Retriever differentiation (cinched 260612 — policy, not mechanism)
 
@@ -153,6 +211,7 @@ post-build cold-probe verifies.
 3. **Federation spike.** Slated as the heat's first pace; see its docket.
    Gate for movement 4: the legs proven in curl, the banked verification items answered.
 4. **Civic verbs + offices + terriers.** The behavior-changing movement:
+   its first act renames the cult colophon family (discharging the mantle homonym guard);
    RBS0 civic quoins at its head;
    establish-federation + office establishment into levy;
    the three legs in the accessor with session cache and headless fail-fast;
@@ -233,11 +292,10 @@ The hijacked-live-session exposure is bounded by the session cap and the lifetim
 
 ## Open — resolve within the heat
 
-- **Vocabulary re-mint** (next mull, then its own pace):
-  the office noun, the impersonation act, login/session words, establish-federation's verb —
-  manorial register, MCM Word Selection, grep gate;
-  *office* is a placeholder until then.
-  The terrier-entry noun and read-Terrier word questions fold in.
+- **Vocabulary re-mint** (the vocabulary pace, racing):
+  elections and shape rulings recorded in Vocabulary elections above;
+  remaining — founding-trust verb, read-Terrier verb, tentative confirmations,
+  classification ledger and placeholder sweep at close.
 - Test-rig synthetic-persona credential (see Test rig).
 - Terrier file format, physical bucket name, `rbgb_` allocation.
 - Handbook rework home.
