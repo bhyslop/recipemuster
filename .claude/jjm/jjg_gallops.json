@@ -9789,6 +9789,13 @@
         "₢BHAAb": {
           "jjgpn_tacks": [
             {
+              "jjgtn_ts": "260612-0809",
+              "jjgtn_state": "jjgte_complete",
+              "jjgtn_text": "## Character\nDeferred small rename — the election-verb colophon move recorded in the paddock (election lives with its consumer), slated terminal so the gordian knot clears first.\nRuns before the vocab scrub so the scrub sweeps any rename stragglers.\nTier: sonnet-delegable.\n\n## Goal\nMove yoke out of the Depot family and de-capitalize it: rbw-dY -> a lowercase consumer-family colophon, per the paddock Carried-forward election rule (election is cheap reversible config, operator-committed, never self-committing).\n\n## Cinched\n- Exact destination letter is a mount-time layout choice, minted against the live colophon tree.\n- Rename only — no behavior change; yoke stays non-committing (RBSDY: the caller commits).\n- Sweep the rename across the zipper enrollment, tabtarget-context doc, and onboarding prose.\n\n## Done when\nThe new colophon routes; rbw-dY gone; zipper/docs/onboarding repointed; `fast` green.\nCompletion is the grep census, not the site list (the partial-sweep drift lesson):\n`grep -rn \"rbw-dY\" Tools/ tt/` returns zero.",
+              "jjgtn_silks": "yoke-colophon-consumer-move",
+              "jjgtn_basis": "9dd3caa"
+            },
+            {
               "jjgtn_ts": "260610-1554",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": "## Character\nDeferred small rename — the election-verb colophon move recorded in the paddock (election lives with its consumer), slated terminal so the gordian knot clears first.\nRuns before the vocab scrub so the scrub sweeps any rename stragglers.\nTier: sonnet-delegable.\n\n## Goal\nMove yoke out of the Depot family and de-capitalize it: rbw-dY -> a lowercase consumer-family colophon, per the paddock Carried-forward election rule (election is cheap reversible config, operator-committed, never self-committing).\n\n## Cinched\n- Exact destination letter is a mount-time layout choice, minted against the live colophon tree.\n- Rename only — no behavior change; yoke stays non-committing (RBSDY: the caller commits).\n- Sweep the rename across the zipper enrollment, tabtarget-context doc, and onboarding prose.\n\n## Done when\nThe new colophon routes; rbw-dY gone; zipper/docs/onboarding repointed; `fast` green.\nCompletion is the grep census, not the site list (the partial-sweep drift lesson):\n`grep -rn \"rbw-dY\" Tools/ tt/` returns zero.",
