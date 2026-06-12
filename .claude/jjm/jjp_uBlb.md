@@ -45,6 +45,9 @@ an earlier revision of this paddock paraphrased the guide and has been drained).
 - Pilots execute at top model tier in the operator's chat;
   delegation to lesser tiers is for the post-pilot roster only,
   after ACG hardens.
+- Per-pace model tier rides in each docket's Character line
+  (judgment/curation work at opus, the mechanical sweeps at sonnet);
+  the pilot top-tier gate stays a hard Gate, not a Character hint.
 - Antipattern catalog: mcm_antipattern broadens to cover delivery defects as
   well as document defects;
   Stun, Molehill, and word cancer all home in MCM's Antipatterns section,
@@ -56,8 +59,13 @@ Ungated front, in order: the antipattern-catalog pace, then the sentry pilot,
 then the access-probe pilot —
 the antipattern pace goes first because the access-probe pilot's word-cancer
 findings cite the home it establishes.
+The BUK test-vocab mint and the axvo symbol-lookahead amendment ride the back
+of the ungated front:
+the mint is self-contained in BUS0,
+and the axvo pace is only partially gated —
+its RBS0 migration share defers until ₣BH lands.
 
-The rest of the heat is gated on ₣BH (lode-universal-capture):
+The rest of the heat is gated on ₣BH:
 
 - Eviction (removing superseded terms) — ₣BH curates the KILL/KEEP list;
   the standing conformance engine's rows populate per-cluster behind ₣BH's
