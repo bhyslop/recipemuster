@@ -5917,9 +5917,10 @@
         "₢BBABU",
         "₢BBABV",
         "₢BBABW",
-        "₢BBABX"
+        "₢BBABX",
+        "₢BBABY"
       ],
-      "jjghn_next_pace_seed": "ABY",
+      "jjghn_next_pace_seed": "ABZ",
       "jjghn_paces": {
         "₢BBAA-": {
           "jjgpn_tacks": [
@@ -8032,6 +8033,17 @@
               "jjgtn_text": "## Character\nSurgical bash change in one function, but gated on one genuine design question —\njudgment, not mechanical.\n\n## Goal\n`rbgo_get_token_capture` (Tools/rbk/rbgo_OAuth.sh) waits the full SA-propagation\nbudget (~104 s, 10 attempts) on credential failures that are deterministically\nterminal. Its \"Discriminate failure\" block retries exactly two OAuth error shapes —\n`invalid_grant` + `\"Invalid JWT Signature.\"` and `invalid_grant` +\n`\"Invalid grant: account not found\"` — because those are the post-mint\npropagation-race signals. The flaw: each shape is **ambiguous** — also the permanent\nsignal (key revoked / SA deleted with no mint pending). The response body alone\ncannot tell transient from terminal, so the loop retries both and burns the whole\nbudget on dead credentials. Make terminal failures fail fast without weakening\nlegitimate post-mint propagation tolerance.\n\n## Cinched\n- The string classifier is correct as far as it goes — do NOT \"repair\" by dropping\n  the retry. The propagation race is real immediately after invest/mantle.\n- The disambiguator is **call context** (did a mint just happen?), not the response\n  body. The fix lives on that axis.\n\n## Clarifying questions — resolve at mount before coding\n1. Parameterize the retry budget by caller? — `rbgo_get_token_capture` takes a\n   ceiling arg: post-mint consumers (first use after invest/mantle) pass the full\n   window; cold access probes (`rbgv_check_*` behind `rbw-ac*`) pass zero/small.\n   Is call-context the right axis, and is a function parameter the right shape?\n2. Does any access probe run as the FIRST use right after a mint (legitimately\n   needing the window)? Check whether invest/mantle self-verify via a probe — if so\n   the flag must be per-call-site, not a blanket \"probes fail fast.\"\n3. Probe-path ceiling: zero retry, or a small bounded one (a few seconds) to\n   tolerate a genuinely-just-established credential?\n4. Sequencing vs the in-flight ACCOUNT_STATE_INVALID work — the `TEMP-FORENSIC`\n   block in this same function (grep `TEMP-FORENSIC` in rbgo_OAuth.sh; memo-20260527,\n   the touchpoint-2 match it is gathering shape for) overlaps this code. Is this\n   repair the same change as that touchpoint-2 landing, or does it follow it?\n\n## Done when\n- Terminal credential failures (stale key / absent SA, no pending mint) fail fast\n  from access probes instead of waiting the full propagation budget.\n- Genuine post-mint propagation races still retry on the existing budget.\n- The chosen design (context axis) is recorded where the function lives.\n\n## Sources\n- Tools/rbk/rbgo_OAuth.sh — `rbgo_get_token_capture`, the \"Discriminate failure\"\n  block and the `RBGC_SA_KEY_CONSUMER_RETRY_*` constants; the `TEMP-FORENSIC` block\n  marks the related in-flight work.\n- memo-20260527 — Host-B capture gap / ACCOUNT_STATE_INVALID token-endpoint shape.\n- memo-20260608-lode-podvm-cerebro-experiment.md §6 — the empirical 104 s-wait\n  observation (stale Director key + deleted Governor SA, this session).",
               "jjgtn_silks": "token-mint-failfast-terminal-iam",
               "jjgtn_basis": "8ae3f26"
+            }
+          ]
+        },
+        "₢BBABY": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260612-0915",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nSingle-chokepoint bash change in the shared build wait loop;\nmechanical once the loop is read.\nSonnet-delegable body with driver verification.\n\n## Goal\nSplit the build-completion poll budget in the shared wait loop\n(`Tools/rbk/rbfcb_BuildHost.sh`, `zrbfc_wait_build_completion`) into two bounded clocks:\na shared, generous queue ceiling counting PENDING/QUEUED polls before the first WORKING,\nand the existing per-kind execution ceilings counting only from the QUEUED→WORKING transition.\nEvery op still terminates itself with success or failure:\nworst-case wall clock = queue ceiling + execution ceiling.\n\n## Cinched\n- Queue ceiling is one shared constant across kinds, sized ~15 minutes\n  (exact value and constant name are mount-time);\n  queue exhaustion dies loud as its own message — pool never took the build —\n  and keeps the quota-review tabtarget hint.\n- Per-kind execution ceilings (`ZRBFC_BUILD_POLL_CEILING_*`) keep current values;\n  their meaning narrows to execution-only.\n- The existing poll-20 queue-weather `buc_warn` survives\n  and repeats every ~20 queued polls instead of firing once.\n- One info line at the QUEUED→WORKING transition records the queued poll count,\n  so future log mining gets the queue/execution split for free.\n\n## Evidence\n`Memos/memo-20260611-heat-BH-vouch-poll-ceiling-queued-burst.md` —\ntrace plus the 2026-06-12 incidence addendum\n(2 timeouts + 1 near-miss in 531 builds over 8 weeks, all pure queue weather,\nconfined to the small-budget kinds).\nShape-sibling: the RBSHR progress-aware-convergence-deadline entry.\n\n## Done when\nTwo clocks live in the shared loop;\nqueue death and execution death are distinct loud messages;\nthe transition info line and repeating weather warning are observable in a log;\n`fast` is green and a service-tier run exercises at least one real build wait.",
+              "jjgtn_silks": "build-poll-two-clock-split",
+              "jjgtn_basis": "b977385"
             }
           ]
         }
