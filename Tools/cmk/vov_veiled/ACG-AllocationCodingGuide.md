@@ -67,7 +67,7 @@ A fact has exactly one right home, fixed by *when it is read*:
 | **Design-time** | the spec (MCM quoin) | what a thing *is* and why it is shaped so — the conceptual model |
 | **Edit-time** | the source comment | operational mechanics only — language idiom, and the Palisade (foreign-boundary) characterization a maintainer needs *at the code* |
 | **Execution-time** | the runtime announcement | what is happening now — intent printed as the operation runs |
-| **History-time** | the commit | when and why a thing changed — git log and blame own it; version narration in the document body is a tidemark (MCM `mcm_tidemark`) |
+| **History-time** | the commit | when and why a thing changed — git log and blame own it; version narration in the document body is a skidmark (MCM `mcm_skidmark`) |
 
 Most conceptual comments are **temporal misallocation**: design-time or
 execution-time knowledge dumped into the edit-time medium, where it rots for lack
@@ -302,14 +302,14 @@ detect-only** (read and report; no repair until a verifier exists). Numbered fro
 - **Done:** the spec reads as constraint plus marked rationale; deleted ornament
   is gone, demoted ornament is marked.
 
-### 🔍 ACGm_107: tidemark drain
+### 🔍 ACGm_107: skidmark drain
 
 - **Detect:** version commentary in a durable document — revision markers, dated
   change narration, "new in vX" annotations. Durable means spec, guide, code, or
   context file; a dated artifact (memo, scar, commit message) is exempt — history
   is its content.
 - **Authority:** the history-time row of the three-homes table; the concept home
-  is MCM's `mcm_tidemark` quoin. The commit is the home — git log and blame carry
+  is MCM's `mcm_skidmark` quoin. The commit is the home — git log and blame carry
   the change story with a forcing function the document body lacks.
 - **Licensing:** detect-only as a sweep; an individual drain is mutate-now when
   the deleted text is pure narration (the content survives in git), reviewed when
@@ -389,7 +389,7 @@ dependency; raised and deferred, not dropped.
 | Wire format | An RB-authored JSON document with senders and receivers; a named home whose keys are minted (sprued) names — the fourth clause |
 | Word cancer | Variations of one normative idea scattered as paraphrases, each drifting independently; the metastatic violation of statements → definition sites |
 | Normative register | Spec-side rule: every sentence constrains or is marked rationale/gestalt; unmarked ornament is contamination |
-| Tidemark | Version commentary stranded in a durable document; history-time knowledge whose home is the commit. Quoin home: MCM `mcm_tidemark` |
+| Skidmark | Version commentary stranded in a durable document; history-time knowledge whose home is the commit. Quoin home: MCM `mcm_skidmark` |
 | Home | The one right location for a fact, fixed by when it is read (design / edit / execution time) |
 | Move-type | A catalogued `ACGm_` cleanup move: detect-rule, authority, licensing, verifier, countable Done |
 | mutate-now | Licensing: a wrong move is cheaply caught, so the verb may repair in place |

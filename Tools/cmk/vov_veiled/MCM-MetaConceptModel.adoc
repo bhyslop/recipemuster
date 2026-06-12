@@ -37,8 +37,8 @@
 
 :mcm_antipattern:            <<mcm_antipattern,Antipattern>>
 :mcm_antipattern_s:          <<mcm_antipattern,Antipatterns>>
-:mcm_tidemark:               <<mcm_tidemark,Tidemark>>
-:mcm_tidemark_s:             <<mcm_tidemark,Tidemarks>>
+:mcm_skidmark:               <<mcm_skidmark,Skidmark>>
+:mcm_skidmark_s:             <<mcm_skidmark,Skidmarks>>
 :mcm_trodden_word:           <<mcm_trodden_word,Trodden Word>>
 :mcm_trodden_word_s:         <<mcm_trodden_word,Trodden Words>>
 
@@ -1094,15 +1094,15 @@ and reviews can cite it precisely.
 Naming the defect is what makes it detectable and dischargeable;
 an unnamed defect recurs because no rule can forbid it.
 
-[[mcm_tidemark]]
-{mcm_tidemark}::
+[[mcm_skidmark]]
+{mcm_skidmark}::
 An
 {mcm_antipattern}:
 version commentary embedded in a durable document — revision markers, dated change narration, "new in vX" annotations.
-The name is the gestalt: the stain showing where the water once stood, saying nothing about where it is.
+The name is the gestalt: the streak left by something that already passed, saying nothing about where it is now.
 History-time knowledge belongs to the commit;
 git log and blame carry every line's date and reason with a forcing function, while in-document
-{mcm_tidemark_s}
+{mcm_skidmark_s}
 drift and pollute present-tense reading.
 A durable document — spec, guide, code, context file — speaks of itself only in the present tense.
 A dated artifact — memo, scar, commit message — is itself a historical record and may carry revision metadata without fault.
