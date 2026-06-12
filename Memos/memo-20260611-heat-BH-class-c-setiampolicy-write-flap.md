@@ -2,6 +2,12 @@
 
 Date: 2026-06-11 (~03:49, skirmish ladder attempt 2)
 Status: finding with full trace evidence, no verdict — for the ₣BH terminal memo triage.
+TRIAGED 2026-06-12: declined — no pace created; superseded by ₣BZ office-federation
+(this memo is cited there as flap derivation). The failing surface — hot-path
+resource-scope IAM mutation in divest — retires with the RBRA estate; under the
+office architecture all resource IAM freezes at levy and the flap family confines
+there. Bridge-period suite attrition accepted; the repair shapes below remain
+recorded if the bridge proves painful.
 Sibling evidence row for `memo-20260604-credential-churn-leak-and-propagation-races`
 (its 2026-06-05 addendum documents the same fixture edge on the READ surface).
 

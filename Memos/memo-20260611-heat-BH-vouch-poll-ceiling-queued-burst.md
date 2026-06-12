@@ -4,6 +4,8 @@ Date: 2026-06-11 (~04:45, skirmish ladder attempt 4)
 Status: finding with trace evidence, no verdict — for the ₣BH terminal memo triage.
 Shape-sibling of the progress-aware-convergence-deadline finding (RBSHR entry):
 a fixed ceiling penalizing exactly the runs that queue.
+TRIAGED 2026-06-12: shape (a) elected — two bounded clocks (queue ceiling + execution-only
+per-kind ceilings) in the shared wait loop; pace slated in ₣BB. Incidence addendum below.
 
 ## Phenomenon
 
@@ -35,6 +37,18 @@ contention (rejected by tonight's evidence — it cost a full skirmish attempt).
 Census note for (a): every `ZRBFC_BUILD_POLL_CEILING_*` consumer shares the
 conflation; the fix belongs in the shared wait-build-completion loop
 (`rbfcb_BuildHost.sh`), not per-kind.
+
+## Incidence addendum (2026-06-12, mined from ../logs-buk hist files)
+
+Across 531 poll sequences in 390 logs spanning 2026-04-14..2026-06-11 (~8 weeks):
+**2 timeouts, both pure queue weather** — this vouch incident (QUEUED 47/50, died 3 polls
+into WORKING) and a 2026-05-27 inscribe that sat QUEUED for all 120/120 polls, never
+reaching WORKING. Zero timeouts from genuinely slow execution. One near-miss the same
+night as this incident: a vouch at Q=27/50 (54% of budget queued) that survived —
+bad-pool days cluster. Normal weather: median queue 8 polls (~40s), p90 11. Exposure
+confines to the small-budget kinds (vouch 50, ensconce 50; inscribe 120, since retired):
+conjure (960) rode out a 53-poll burst the same hour the vouch died of one. Overall
+rate 0.38%; within the vulnerable labels 5.6% — roughly one lost suite attempt per month.
 
 ## Night context (the full skirmish ledger, for the wrap)
 
