@@ -56,7 +56,6 @@ The Folio column shows how each tabtarget receives it:
 | `rbw-dU` | PayorUnmakesDepot | param1 | Permanently remove a depot (operator supplies depot project ID) |
 | `rbw-dl` | PayorListsDepots | — | List all active depots |
 | `rbw-di` | DepotInfo | — | Run egress posture checks against the live depot's worker pools |
-| `rbw-dY` | DirectorYokesReliquaryAllVessels | param1 | Yoke a reliquary touchmark into every vessel's rbrv.env (wildcard fan-out) |
 
 ### Lode — Fetched-side universal capture (`rbw-l`)
 
@@ -153,6 +152,7 @@ The Folio column shows how each tabtarget receives it:
 | `rbw-rvl` | ListVesselRegime | — | List vessel regimes |
 | `rbw-rvr` | RenderVesselRegime | param1 | Render vessel regime |
 | `rbw-rvv` | ValidateVesselRegime | param1 | Validate vessel regime |
+| `rbw-rvy` | DirectorYokesReliquaryAllVessels | param1 | Yoke a reliquary touchmark into every vessel's rbrv.env (wildcard fan-out) |
 | `rbw-rrr` | RenderRepoRegime | — | Render repo regime |
 | `rbw-rrv` | ValidateRepoRegime | — | Validate repo regime |
 | `rbw-rdr` | RenderDepotRegime | — | Render depot regime |

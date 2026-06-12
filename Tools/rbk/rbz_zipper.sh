@@ -76,9 +76,6 @@ zrbz_kindle() {
   buz_enroll RBZ_UNMAKE_DEPOT           "rbw-dU"  "${z_mod}" "rbgp_depot_unmake"  "param1"  "Permanently remove a depot (operator supplies depot project ID)"
   buz_enroll RBZ_LIST_DEPOT             "rbw-dl"  "${z_mod}" "rbgp_depot_list"    ""  "List all active depots"
   buz_enroll RBZ_INFO_DEPOT             "rbw-di"  "${z_mod}" "rbgp_depot_info"    ""  "Run egress posture checks against the live depot's worker pools"
-  z_mod="rbfl0_cli.sh"
-  buz_enroll RBZ_YOKE_RELIQUARY         "rbw-dY"  "${z_mod}" "rbfl_yoke"          "param1"  "Yoke a reliquary touchmark into every vessel's rbrv.env (wildcard fan-out)"
-
   # Lode — fetched-side universal capture (rbw-l, UPPER=mutates GAR/cost, lower=read-only)
   buz_group RBZ__GROUP_LODE       "rbw-l"   "Lode — Fetched-side universal capture"
   z_mod="rbld0_cli.sh"
@@ -183,6 +180,8 @@ zrbz_kindle() {
   buz_enroll RBZ_LIST_VESSELS           "rbw-rvl" "${z_mod}" "rbrv_list"      ""        "List vessel regimes"
   buz_enroll RBZ_RENDER_VESSEL          "rbw-rvr" "${z_mod}" "rbrv_render"    "param1"  "Render vessel regime"
   buz_enroll RBZ_VALIDATE_VESSEL        "rbw-rvv" "${z_mod}" "rbrv_validate"  "param1"  "Validate vessel regime"
+  z_mod="rbfl0_cli.sh"
+  buz_enroll RBZ_YOKE_RELIQUARY         "rbw-rvy" "${z_mod}" "rbfl_yoke"      "param1"  "Yoke a reliquary touchmark into every vessel's rbrv.env (wildcard fan-out)"
   z_mod="rbrr_cli.sh"
   buz_enroll RBZ_RENDER_REPO            "rbw-rrr" "${z_mod}" "rbrr_render"    ""  "Render repo regime"
   buz_enroll RBZ_VALIDATE_REPO          "rbw-rrv" "${z_mod}" "rbrr_validate"  ""  "Validate repo regime"
