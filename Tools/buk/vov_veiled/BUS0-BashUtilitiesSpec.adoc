@@ -679,7 +679,7 @@ A producer emitting per-alias observation facts writes `<alias>.buf_ext_alias` r
 Constant values match constant names downcased (e.g., `BUF_EXT_ALIAS="buf_ext_alias"`), so any fact file is recognizable on disk by extension alone.
 Adding an extension is a deliberate edit to the registry; opaque ad-hoc extensions are not the shape.
 * *BUK/RB boundary discipline.* The BUK registry holds only BUK-domain extensions.
-RB-domain extensions register in `rbgc_Constants.sh` under the `RBGP_FACT_EXT_*` family, and neither universe enumerates the other.
+RB-domain extensions register in `rbgc_constants.sh` under the `RBGP_FACT_EXT_*` family, and neither universe enumerates the other.
 Boundary is by ownership of the producer module, not by where the fact lands on disk.
 +
 Emission cardinality: one write per `<root, extension>` key per dispatch.

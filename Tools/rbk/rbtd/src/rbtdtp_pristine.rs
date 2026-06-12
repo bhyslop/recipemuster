@@ -73,7 +73,7 @@ fn rbtdtp_throwaway_prefix_disjoint_per_tincture() {
 /// Dual-station dry-run for the pristine fixture: two distinct tinctures
 /// produce disjoint depot project IDs, GAR repos, GCS buckets, and SA
 /// emails — the wrap criterion for ₢BBABB. Mirrors RBDC composition rules
-/// (rbdc_DerivedConstants.sh) without invoking GCP.
+/// (rbdc_derived.sh) without invoking GCP.
 #[test]
 fn rbtdtp_pristine_dual_station_disjoint() {
     let (a, b) = ("aaa", "bbb");

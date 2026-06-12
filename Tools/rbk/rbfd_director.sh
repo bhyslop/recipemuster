@@ -25,10 +25,10 @@ test -z "${ZRBFD_SOURCED:-}" || buc_die "Module rbfd multiply sourced - check so
 ZRBFD_SOURCED=1
 
 # Source shared Foundry Core module
-source "${BASH_SOURCE[0]%/*}/rbfc0_FoundryCore.sh"
+source "${BASH_SOURCE[0]%/*}/rbfc0_core.sh"
 
 # Source Foundry Verify module (ordain cross-module calls: rbfv_vouch, zrbfv_graft_metadata_submit)
-source "${BASH_SOURCE[0]%/*}/rbfv_FoundryVerify.sh"
+source "${BASH_SOURCE[0]%/*}/rbfv_verify.sh"
 
 ######################################################################
 # Internal Functions (zrbfd_*)
@@ -49,22 +49,22 @@ zrbfd_kindle() {
   readonly ZRBFD_RBGJB_STEPS_DIR="${z_self_dir}/rbgjb"
   test -d "${ZRBFD_RBGJB_STEPS_DIR}"   || buc_die "RBGJB steps directory not found: ${ZRBFD_RBGJB_STEPS_DIR}"
 
-  # RBGJV and RBGJA step dirs now owned by rbfc0_FoundryCore.sh (shared assembly helpers)
+  # RBGJV and RBGJA step dirs now owned by rbfc0_core.sh (shared assembly helpers)
 
   buc_log_args 'RBGJM mirror step scripts (same Tools directory)'
   # Acronym: rbgjm = Recipe Bottle Google Json Mirror (step scripts in rbgjm/ dir)
   readonly ZRBFD_RBGJM_STEPS_DIR="${z_self_dir}/rbgjm"
   test -d "${ZRBFD_RBGJM_STEPS_DIR}"   || buc_die "RBGJM steps directory not found: ${ZRBFD_RBGJM_STEPS_DIR}"
 
-  # RBGJI inscribe step scripts now owned by rbfl0_FoundryLedger.sh
+  # RBGJI inscribe step scripts now owned by rbfl0_ledger.sh
 
-  # Delete, token, inscribe, reliquary prefixes now owned by rbfl0_FoundryLedger.sh
-  # Vouch and about prefixes now owned by rbfv_FoundryVerify.sh
+  # Delete, token, inscribe, reliquary prefixes now owned by rbfl0_ledger.sh
+  # Vouch and about prefixes now owned by rbfv_verify.sh
 
   buc_log_args 'Define stitch operation file prefix (postfixed per step id)'
   readonly ZRBFD_STITCH_PREFIX="${BURD_TEMP_DIR}/rbfd_stitch_"
 
-  # Inscribe and reliquary prefixes now owned by rbfl0_FoundryLedger.sh
+  # Inscribe and reliquary prefixes now owned by rbfl0_ledger.sh
 
   buc_log_args 'Define mirror operation files'
   readonly ZRBFD_MIRROR_PREFIX="${BURD_TEMP_DIR}/rbfd_mirror_"

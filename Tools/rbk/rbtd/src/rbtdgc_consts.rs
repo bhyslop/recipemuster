@@ -110,7 +110,7 @@ pub const RBTDGC_HANDBOOK_WINDOWS: &str = "rbw-hw";
 pub const RBTDGC_HW_DOCKER_DESKTOP: &str = "rbw-HWdd";
 pub const RBTDGC_HW_DOCKER_CONTEXT: &str = "rbw-HWdc";
 
-// RBCC constants (rbcc_Constants.sh single-homed set)
+// RBCC constants (rbcc_constants.sh single-homed set)
 pub const RBTDGC_MOORINGS_DIR: &str = "rbmm_moorings";
 pub const RBTDGC_VESSELS_SUBDIR: &str = "rbmv_vessels";
 pub const RBTDGC_ACCOUNT_GOVERNOR: &str = "governor";

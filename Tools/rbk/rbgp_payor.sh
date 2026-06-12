@@ -1878,7 +1878,7 @@ rbgp_governor_mantle() {
   buc_step 'Write RBRA file' "${z_rbra_file}"
   # CAUTION: jq -r unescapes JSON \n to real newlines, so z_private_key holds a
   # multi-line PEM string. printf '%s' below preserves real newlines into the
-  # RBRA file. Consumer (rbgo_OAuth.sh:zrbgo_build_jwt_capture) tolerates either
+  # RBRA file. Consumer (rbgo_oauth.sh:zrbgo_build_jwt_capture) tolerates either
   # real-newline or '\n'-escape form via printf '%b'; do not "normalize" to one
   # form without auditing the consumer.
   {

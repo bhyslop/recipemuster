@@ -39,12 +39,12 @@ source "${BURD_BUK_DIR}/buym_yelp.sh"
 source "${BURD_BUK_DIR}/buh_handbook.sh"
 
 # Source test case files
-source "${BUTT_BUTS_DIR}/butckk_KickTires.sh"
-source "${BUTT_BUTS_DIR}/butcbe_BureEnvironment.sh"
-source "${BUTT_BUTS_DIR}/butcbx_BurxExchange.sh"
-source "${BUTT_BUTS_DIR}/butcfc_FactChaining.sh"
-source "${BUTT_BUTS_DIR}/butclc_LinkCombinator.sh"
-source "${BUTT_BUTS_DIR}/butcym_YelpModule.sh"
+source "${BUTT_BUTS_DIR}/butckk_kick.sh"
+source "${BUTT_BUTS_DIR}/butcbe_bure.sh"
+source "${BUTT_BUTS_DIR}/butcbx_burx.sh"
+source "${BUTT_BUTS_DIR}/butcfc_facts.sh"
+source "${BUTT_BUTS_DIR}/butclc_links.sh"
+source "${BUTT_BUTS_DIR}/butcym_yelp.sh"
 
 buc_context "${0##*/}"
 zbuv_kindle

@@ -25,7 +25,7 @@ test -z "${ZRBFK_SOURCED:-}" || buc_die "Module rbfk multiply sourced - check so
 ZRBFK_SOURCED=1
 
 # Source shared Foundry Core module (registry constants + vessel resolution helpers)
-source "${BASH_SOURCE[0]%/*}/rbfc0_FoundryCore.sh"
+source "${BASH_SOURCE[0]%/*}/rbfc0_core.sh"
 
 ######################################################################
 # Internal Functions (zrbfk_*)

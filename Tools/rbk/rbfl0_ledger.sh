@@ -28,11 +28,11 @@ test -z "${ZRBFL_SOURCED:-}" || buc_die "Module rbfl multiply sourced - check so
 ZRBFL_SOURCED=1
 
 # Source shared Foundry Core entry and the guard-free body clusters
-source "${BASH_SOURCE[0]%/*}/rbfc0_FoundryCore.sh"
-source "${BASH_SOURCE[0]%/*}/rbfly_Yoke.sh"
-source "${BASH_SOURCE[0]%/*}/rbfld_Delete.sh"
-source "${BASH_SOURCE[0]%/*}/rbfln_Inventory.sh"
-source "${BASH_SOURCE[0]%/*}/rbflw_Wrest.sh"
+source "${BASH_SOURCE[0]%/*}/rbfc0_core.sh"
+source "${BASH_SOURCE[0]%/*}/rbfly_yoke.sh"
+source "${BASH_SOURCE[0]%/*}/rbfld_delete.sh"
+source "${BASH_SOURCE[0]%/*}/rbfln_inventory.sh"
+source "${BASH_SOURCE[0]%/*}/rbflw_wrest.sh"
 
 # Cross-source from the rbld (Lode) family: abjure dispatches its GAR package
 # delete cloud-side through the build-assembly spine and the shared cloud-delete
@@ -40,8 +40,8 @@ source "${BASH_SOURCE[0]%/*}/rbflw_Wrest.sh"
 # delete). Both carry their own inclusion guards, so this single-source-per-
 # process reach raises no double-source; the spine reads only rbfc-level state
 # (zrbfc_sentinel), which this process kindles.
-source "${BASH_SOURCE[0]%/*}/rblds_Spine.sh"
-source "${BASH_SOURCE[0]%/*}/rbldd_Delete.sh"
+source "${BASH_SOURCE[0]%/*}/rblds_spine.sh"
+source "${BASH_SOURCE[0]%/*}/rbldd_delete.sh"
 
 ######################################################################
 # Internal Functions (zrbfl_*)

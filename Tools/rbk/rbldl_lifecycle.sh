@@ -16,7 +16,7 @@
 #
 # Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 #
-# Recipe Bottle Lode - lifecycle REST (guard-free cluster, sourced by rbld0_Lode):
+# Recipe Bottle Lode - lifecycle REST (guard-free cluster, sourced by rbld0_lode):
 #   divine — enumerate every Lode by touchmark (read-only)
 #   augur  — inspect one Lode: member tags + decoded rbi_vouch envelope (read-only)
 #   banish — delete a whole Lode (Director credentials)

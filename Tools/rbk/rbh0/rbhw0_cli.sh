@@ -45,7 +45,7 @@ zrbhw_furnish() {
   zbuwz_kindle
   zrbz_kindle
   zjjz_kindle
-  source "${z_rbh0_dir}/rbhw0_Windows.sh"                    || buc_die "Failed to source rbhw0_Windows.sh"
+  source "${z_rbh0_dir}/rbhw0_windows.sh"                    || buc_die "Failed to source rbhw0_windows.sh"
   source "${z_rbh0_dir}/rbhwht_handbook_top.sh"              || buc_die "Failed to source rbhwht_handbook_top.sh"
   source "${z_rbh0_dir}/rbhw0_top.sh"                        || buc_die "Failed to source rbhw0_top.sh"
   source "${z_rbh0_dir}/rbhwdd_docker_desktop.sh"            || buc_die "Failed to source rbhwdd_docker_desktop.sh"

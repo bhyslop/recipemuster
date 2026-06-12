@@ -34,8 +34,8 @@
 
 set -euo pipefail
 
-# Multiple inclusion detection — multiply-sourced (rbld0_Lode for banish,
-# rbfl0_FoundryLedger for abjure), so it carries its own guard (BCG "the
+# Multiple inclusion detection — multiply-sourced (rbld0_lode for banish,
+# rbfl0_ledger for abjure), so it carries its own guard (BCG "the
 # single-guard rule, and its one exception"). rbld and rbfl are never
 # co-furnished, so the guard is the documented backstop, not a live fire.
 test -z "${ZRBLDD_SOURCED:-}" || buc_die "Module rbldd multiply sourced - check sourcing hierarchy"

@@ -143,7 +143,7 @@ When asked to "mint" names, apply these rules. Full study: `Memos/memo-20260110-
 
 | Domain | Pattern | Example |
 |--------|---------|---------|
-| Code files | `prefix_Word.ext` | `rbga_ArtifactRegistry.sh` |
+| Code files | `prefix_word.ext` (lowercase, prefer 1 word) | `rbga_registry.sh` |
 | Doc files | `ACRONYM-Words.ext` | `RBS0-SpecTop.adoc` |
 | Functions (public) | `prefix_name()` | `buc_log_args()` |
 | Functions (private) | `zprefix_name()` | `zbuc_color()` |

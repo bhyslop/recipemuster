@@ -133,8 +133,8 @@ const RBTDRO_AIRGAP_BASE_ANCHOR_VAR: &str = "RBRV_IMAGE_1_ANCHOR";
 // The forge vessel is conjure mode with exactly one populated ORIGIN slot
 // (RBRV_IMAGE_1_ORIGIN), so the ensconce->ordain chain's derived-pull election
 // rewrites RBRV_IMAGE_1_ANCHOR to the captured Lode locator. These mirror
-// rbgc_Constants.sh (RBGC_GAR_CATEGORY_LODES / RBGC_LODE_TAG_BOLE) and
-// rbfd_FoundryDirectorBuild.sh's `${RBGL_LODES_ROOT}/${touchmark}:${tag}`
+// rbgc_constants.sh (RBGC_GAR_CATEGORY_LODES / RBGC_LODE_TAG_BOLE) and
+// rbfd_director.sh's `${RBGL_LODES_ROOT}/${touchmark}:${tag}`
 // locator shape, so the fixture can assert the election fired against a fresh
 // touchmark rather than leaving the prior committed anchor in place.
 
@@ -142,14 +142,14 @@ const RBTDRO_AIRGAP_BASE_ANCHOR_VAR: &str = "RBRV_IMAGE_1_ANCHOR";
 const RBTDRO_FORGE_BASE_ANCHOR_VAR: &str = "RBRV_IMAGE_1_ANCHOR";
 
 /// Bole touchmark chaining fact ensconce writes to current/. Mirrors
-/// rbgc_Constants.sh RBF_FACT_LODE_TOUCHMARK.
+/// rbgc_constants.sh RBF_FACT_LODE_TOUCHMARK.
 const RBTDRO_FACT_LODE_TOUCHMARK: &str = "rbf_fact_lode_touchmark";
 
 /// GAR Lode namespace root in an elected anchor locator. Mirrors
-/// rbgc_Constants.sh RBGC_GAR_CATEGORY_LODES.
+/// rbgc_constants.sh RBGC_GAR_CATEGORY_LODES.
 const RBTDRO_LODE_ROOT: &str = "rbi_ld";
 
-/// Bole member tag in an elected anchor locator. Mirrors rbgc_Constants.sh
+/// Bole member tag in an elected anchor locator. Mirrors rbgc_constants.sh
 /// RBGC_LODE_TAG_BOLE.
 const RBTDRO_LODE_TAG_BOLE: &str = "rbi_bole";
 
@@ -170,9 +170,9 @@ const RBTDRO_WITNESS_VESSEL_DIR: &str = RBTDRO_VESSEL_DIR_SENTRY_TETHER;
 
 // ── Graft override ───────────────────────────────────────────
 
-/// BURE_TWEAK signal recognized by rbfd_FoundryDirectorBuild for graft mode:
+/// BURE_TWEAK signal recognized by rbfd_director for graft mode:
 /// supplies the local image reference without mutating the vessel rbrv.env.
-/// Mirror: rbfd_FoundryDirectorBuild.sh `z_graft_tweak_name` (same literal). Carries
+/// Mirror: rbfd_director.sh `z_graft_tweak_name` (same literal). Carries
 /// the buo tweak sprue, enforced by BURE.
 const RBTDRO_GRAFT_TWEAK_NAME: &str = "buorb_graft_image";
 

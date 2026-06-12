@@ -18,14 +18,14 @@
 #
 # rbcr_render.sh - Backward compatibility wrapper
 #
-# This module has moved to Tools/buk/bupr_PresentationRegime.sh
+# This module has moved to Tools/buk/bupr_regime.sh
 # This wrapper provides old rbcr_* function names for existing consumers.
 
 set -euo pipefail
 
 # Source the actual module from BUK
 ZRBCR_WRAPPER_DIR="${BASH_SOURCE[0]%/*}"
-source "${BURD_BUK_DIR}/bupr_PresentationRegime.sh"
+source "${BURD_BUK_DIR}/bupr_regime.sh"
 
 # Backward-compatible function aliases
 zrbcr_kindle()       { zbupr_kindle "$@"; }

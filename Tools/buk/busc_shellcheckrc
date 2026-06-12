@@ -79,7 +79,7 @@ disable=SC2059
 disable=SC2088
 
 # SC1003: Want to escape a single quote?
-#   rbfh_FoundryHygiene.sh Rule 3 uses the case glob *'\') to match a FROM line
+#   rbfh_hygiene.sh Rule 3 uses the case glob *'\') to match a FROM line
 #   ending in a literal backslash (Dockerfile line-continuation). The single-quoted
 #   backslash is genuinely literal; no single-quote escaping is intended.
 disable=SC1003

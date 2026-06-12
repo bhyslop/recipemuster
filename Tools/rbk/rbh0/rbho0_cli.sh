@@ -40,8 +40,8 @@ zrbho_furnish() {
   source "${BURD_BUK_DIR}/buv_validation.sh"         || buc_die "Failed to source buv_validation.sh"
   source "${BURD_BUK_DIR}/buz_zipper.sh"             || buc_die "Failed to source buz_zipper.sh"
   source "${BURD_BUK_DIR}/buwz_zipper.sh"            || buc_die "Failed to source buwz_zipper.sh"
-  source "${z_rbk_kit_dir}/rbcc_Constants.sh"        || buc_die "Failed to source rbcc_Constants.sh"
-  source "${z_rbk_kit_dir}/rbgc_Constants.sh"        || buc_die "Failed to source rbgc_Constants.sh"
+  source "${z_rbk_kit_dir}/rbcc_constants.sh"        || buc_die "Failed to source rbcc_constants.sh"
+  source "${z_rbk_kit_dir}/rbgc_constants.sh"        || buc_die "Failed to source rbgc_constants.sh"
   source "${z_rbk_kit_dir}/rbrr_regime.sh"           || buc_die "Failed to source rbrr_regime.sh"
   source "${z_rbk_kit_dir}/rbrd_regime.sh"           || buc_die "Failed to source rbrd_regime.sh"
   source "${RBCC_rbrr_file}"                         || buc_die "Failed to source ${RBCC_rbrr_file}"
@@ -58,7 +58,7 @@ zrbho_furnish() {
   zrbrr_kindle
   zrbrd_kindle
   zrbyc_kindle
-  source "${z_rbh0_dir}/rbho0_Onboarding.sh"            || buc_die "Failed to source rbho0_Onboarding.sh"
+  source "${z_rbh0_dir}/rbho0_onboarding.sh"            || buc_die "Failed to source rbho0_onboarding.sh"
   source "${z_rbh0_dir}/rbho0_start_here.sh"            || buc_die "Failed to source rbho0_start_here.sh"
   source "${z_rbh0_dir}/rbhocc_crash_course.sh"         || buc_die "Failed to source rbhocc_crash_course.sh"
   source "${z_rbh0_dir}/rbhocr_credential_retriever.sh" || buc_die "Failed to source rbhocr_credential_retriever.sh"

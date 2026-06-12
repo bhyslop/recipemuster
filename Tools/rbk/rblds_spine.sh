@@ -17,7 +17,7 @@
 # Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 #
 # Recipe Bottle Lode - build-assembly spine (guard-free cluster, sourced by
-# rbld0_Lode for the capture kinds and cross-sourced by rbfl0_FoundryLedger for
+# rbld0_lode for the capture kinds and cross-sourced by rbfl0_ledger for
 # made-side abjure): the data-driven Cloud Build composer shared by every Lode
 # capture kind AND by the tool-plane GAR-delete builds (banish/abjure). Takes a
 # recipe (ordered, pre-resolved step rows) plus an opaque substitutions blob,
@@ -44,8 +44,8 @@
 
 set -euo pipefail
 
-# Multiple inclusion detection — this cluster is multiply-sourced (rbld0_Lode for
-# the capture kinds, rbfl0_FoundryLedger for made-side abjure), so unlike the
+# Multiple inclusion detection — this cluster is multiply-sourced (rbld0_lode for
+# the capture kinds, rbfl0_ledger for made-side abjure), so unlike the
 # single-entry guard-free clusters it carries its own guard (BCG "the single-guard
 # rule, and its one exception"). rbld and rbfl are never co-furnished, so the guard
 # never fires in practice; it is the documented backstop against a future co-furnish.

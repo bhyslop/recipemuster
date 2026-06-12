@@ -16,7 +16,7 @@
 #
 # Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 #
-# Recipe Bottle Lode - reliquary body (guard-free cluster, sourced by rbld0_Lode):
+# Recipe Bottle Lode - reliquary body (guard-free cluster, sourced by rbld0_lode):
 #   conclave — convene the build-tool cohort into a Lode (Director credentials)
 # The reliquary rides the capture-assembly spine (rblds_): this body owns only the
 # kind-specific data — the conclave recipe (gcrane cohort capture + vouch-push)

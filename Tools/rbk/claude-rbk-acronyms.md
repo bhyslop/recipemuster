@@ -2,19 +2,19 @@
 
 - **CBG**  → `rbk/vov_veiled/CBG-CloudBuildGuide.md` (Cloud Build Guide — step-body discipline for Google Cloud Build steps; polyglot bash/sh + python; foreign-environment sibling to BCG/RCG/WSG. Rule families CBi_/CBb_/CBp_/CBh_.)
 - **PCG**  → `rbk/vov_veiled/PCG-PlantUmlCodingGuide.md` (PlantUml Coding Guide — diagram source + render discipline for the committed `.puml`/`.svg` pairs linked from README; foreign-environment sibling to CBG/WSG. Palisade conduct at the PlantUML render membrane; cited-rule family PCr_. Founded on PCr_101 (charset transport).)
-- **RBA**  → `rbk/rba_Auth.sh` (Auth — RBRA/RBRO credential load and role token mint)
-- **RBDC** → `rbk/rbdc_DerivedConstants.sh`
+- **RBA**  → `rbk/rba_auth.sh` (Auth — RBRA/RBRO credential load and role token mint)
+- **RBDC** → `rbk/rbdc_derived.sh`
 - **RBDG** → `diagrams/rbdg*` (Recipe Bottle Diagram family — committed PlantUML `.puml` sources plus rendered light/dark `.svg` pairs, embedded theme-aware in README via `<picture>`. Container: `rbdg` HAS children, names no file. Members: `rbdgl_` federation-login, `rbdgs_` federation-setup, `rbdgk_` keyfile-login, `rbdgm_` federation-seam. Light SVGs are rendered by the pluml crucible case `rbtdrc_pluml_render_diagrams`; the `*-dark.svg` siblings are produced in the same case by the pure `zrbtdrc_darken_svg` recolor — no second container trip. The diagram set lives in the case's `diagrams/*.puml` glob alone: a new diagram is just a `rbdgX_*.puml` dropped in `diagrams/`, rendered in both modes on the next pluml fixture run.)
-- **RBF**  → Foundry prefix (non-terminal: children rbfc, rbfd, rbfh, rbfk, rbfl, rbfr, rbfv). The former `rbf_Foundry.sh` monolith was decomposed and its residual renamed to `rbfd_FoundryDirectorBuild.sh`; no file is named bare `rbf_`.
+- **RBF**  → Foundry prefix (non-terminal: children rbfc, rbfd, rbfh, rbfk, rbfl, rbfr, rbfv). The former `rbf_Foundry.sh` monolith was decomposed and its residual renamed to `rbfd_director.sh`; no file is named bare `rbf_`.
 - **RBFC** → `rbk/rbfc*` (Foundry Core family — Container (terminal: names no file). The `rbfc_FoundryCore.sh` monolith was decomposed into the children below; the rbfc CLI is now the 0-top `rbfc0_cli.sh`.)
   - **RBFCV** → `rbk/rbfcv_*.sh` (Foundry Core vessel-resolution)
-  - **RBFCB** → `rbk/rbfcb_*.sh` (Foundry Core build-host primitives — wait-build-completion, git-metadata, write-script-body, native-path; relocated verbatim from the former `rbfc` monolith and sourced by the rbfc 0-trick entry `rbfc0_FoundryCore` so every consumer reaches them unchanged; also sourced directly by the `rblds_` spine and the Rust fast-path driver. Pulled forward ahead of the rest of the Foundry explosion because the spine depends on it.)
+  - **RBFCB** → `rbk/rbfcb_*.sh` (Foundry Core build-host primitives — wait-build-completion, git-metadata, write-script-body, native-path; relocated verbatim from the former `rbfc` monolith and sourced by the rbfc 0-trick entry `rbfc0_core` so every consumer reaches them unchanged; also sourced directly by the `rblds_` spine and the Rust fast-path driver. Pulled forward ahead of the rest of the Foundry explosion because the spine depends on it.)
   - **RBFCA** → `rbk/rbfca_*.sh` (Foundry Core step-assembly)
   - **RBFCG** → `rbk/rbfcg_*.sh` (Foundry Core GAR-REST)
   - **RBFCP** → `rbk/rbfcp_*.sh` (Foundry Core plumb — ~640 lines, the single biggest extraction)
-  - **RBFC0** → `rbk/rbfc0_FoundryCore.sh` (Foundry Core 0-trick entry — the module gestalt: single inclusion-guard + kindle + leaked tool-image globals `z_rbfc_tool_*` (copied verbatim). CLI partner `rbfc0_cli.sh` (`zrbfc_furnish`); bare `rbfc_cli.sh` is retired so `rbfc` names no file now that it has children. Per the rbh0 `0`-trick precedent, the `0`-prefix homes both the gestalt entry and the CLI.)
-- **RBFD** → `rbk/rbfd_FoundryDirectorBuild.sh` (Foundry Director Build — Director-side Cloud Build orchestration: `rbfd_ordain`/`rbfd_build`/`rbfd_enshrine`/`rbfd_mirror`/`rbfd_graft`, plus reliquary/quota/registry preflights and `zrbfd_stitch_build_json`; CLI partner `rbfd_cli.sh`)
-- **RBFH** → `rbk/rbfh_FoundryHygiene.sh` (Foundry Hygiene — Dockerfile FROM-line constraint shared by kludge and conjure; thin BCG CLI partner `rbk/rbfh_cli.sh` surfaces the contract via `rbw-fhc`/`rbw-fhv`)
+  - **RBFC0** → `rbk/rbfc0_core.sh` (Foundry Core 0-trick entry — the module gestalt: single inclusion-guard + kindle + leaked tool-image globals `z_rbfc_tool_*` (copied verbatim). CLI partner `rbfc0_cli.sh` (`zrbfc_furnish`); bare `rbfc_cli.sh` is retired so `rbfc` names no file now that it has children. Per the rbh0 `0`-trick precedent, the `0`-prefix homes both the gestalt entry and the CLI.)
+- **RBFD** → `rbk/rbfd_director.sh` (Foundry Director Build — Director-side Cloud Build orchestration: `rbfd_ordain`/`rbfd_build`/`rbfd_enshrine`/`rbfd_mirror`/`rbfd_graft`, plus reliquary/quota/registry preflights and `zrbfd_stitch_build_json`; CLI partner `rbfd_cli.sh`)
+- **RBFH** → `rbk/rbfh_hygiene.sh` (Foundry Hygiene — Dockerfile FROM-line constraint shared by kludge and conjure; thin BCG CLI partner `rbk/rbfh_cli.sh` surfaces the contract via `rbw-fhc`/`rbw-fhv`)
 - **RBFK** → `rbk/rbfk_kludge.sh` (Foundry Kludge — local vessel image build for development (`rbfk_kludge`); CLI partner `rbfk_cli.sh`, colophon `rbw-fk`)
 - **RBFL** → `rbk/rbfl*` (Foundry Ledger family — Container (terminal: names no file). The `rbfl_FoundryLedger.sh` monolith was decomposed into the children below; the rbfl CLI is now the 0-top `rbfl0_cli.sh`. Cluster boundaries — which function lands in which file — were settled at the explosion.)
   - **RBFLI** → `rbk/rbfli_*.sh` (Foundry Ledger inscribe — reliquary creation / tool-image mirror gesture)
@@ -22,41 +22,44 @@
   - **RBFLD** → `rbk/rbfld_*.sh` (Foundry Ledger delete — reliquary / ledger removal gesture)
   - **RBFLN** → `rbk/rbfln_*.sh` (Foundry Ledger inventory — ledger listing / enumeration gesture)
   - **RBFLW** → `rbk/rbflw_*.sh` (Foundry Ledger wrest — image wrest from registry)
-  - **RBFL0** → `rbk/rbfl0_FoundryLedger.sh` (Foundry Ledger 0-trick entry — the module gestalt: single inclusion-guard + kindle/sentinel. CLI partner `rbfl0_cli.sh` (`zrbfl_furnish`); bare `rbfl_cli.sh` is retired so `rbfl` names no file now that it has children. Per the rbh0 `0`-trick precedent, the `0`-prefix homes both the gestalt entry and the CLI.)
-- **RBFR** → `rbk/rbfr_FoundryRetriever.sh` (Foundry Retriever — retriever-credentialed hallmark summon (`rbfr_summon`); CLI partner `rbfr_cli.sh`)
-- **RBFV** → `rbk/rbfv_FoundryVerify.sh` (Foundry Verify — hallmark provenance verification: `rbfv_vouch`/`rbfv_about`/`rbfv_vouch_gate`/`rbfv_batch_vouch`; CLI partner `rbfv_cli.sh`)
-- **RBGA** → `rbk/rbga_ArtifactRegistry.sh`
-- **RBGB** → `rbk/rbgb_Buckets.sh`
-- **RBGC** → `rbk/rbgc_Constants.sh`
-- **RBGE** → `rbk/rbge_Rest.sh` (Google REST — LRO polling + API-enable patterns over rbuh)
-- **RBGG** → `rbk/rbgg_Governor.sh`
-- **RBGI** → `rbk/rbgi_IAM.sh`
-- **RBGO** → `rbk/rbgo_OAuth.sh` (also owns the stateless `rbgo_curl_status_is_transient_predicate` transient-curl-exit classifier)
-- **RBGP** → `rbk/rbgp_Payor.sh`
-- **RBGV** → `rbk/rbgv_AccessProbe.sh` (Google Verification — JWT SA and Payor OAuth access probes)
-- **RBGJS** → `rbk/rbgjs/` (shared cloud-step snippet library — the no-family member of the `rbgj«family»/` cloud-step scheme, where each letter is a made-side family of in-pool step scripts (`rbgja` about, `rbgjb` build, `rbgje` enshrine, `rbgji` inscribe, `rbgjl` lode, `rbgjm` mirror, `rbgjr` reliquary, `rbgjv` verify). A *shared* snippet belongs to no single family, so `s` breaks the scheme as the no-family family. Holds composed-once fragments — `rbgjs-token-fetch.sh`, `rbgjs-gcrane-fingerprint.sh`, `rbgjs-buildx-bootstrap.sh`, `rbgjs-buildx-push.sh` — each shebang'd only for shellcheck and spliced into a step at `#@rbgjs_include «name»` markers by the host-side expander `zrbfc_expand_includes` (`rbfcb_BuildHost.sh`), reached by both the Lode spine `rblds_` and the made-side `rbfca_` vouch assembler. Snippets read shell vars the kind sets before the marker, never `_RBGx_` substitutions — that is what lets one snippet serve disjoint substitution namespaces. Container: `rbgjs` HAS children (the snippet files), names no bare file. Contract: RBSCJ "Composed-snippet library (rbgjs)".)
+  - **RBFL0** → `rbk/rbfl0_ledger.sh` (Foundry Ledger 0-trick entry — the module gestalt: single inclusion-guard + kindle/sentinel. CLI partner `rbfl0_cli.sh` (`zrbfl_furnish`); bare `rbfl_cli.sh` is retired so `rbfl` names no file now that it has children. Per the rbh0 `0`-trick precedent, the `0`-prefix homes both the gestalt entry and the CLI.)
+- **RBFR** → `rbk/rbfr_retriever.sh` (Foundry Retriever — retriever-credentialed hallmark summon (`rbfr_summon`); CLI partner `rbfr_cli.sh`)
+- **RBFV** → `rbk/rbfv_verify.sh` (Foundry Verify — hallmark provenance verification: `rbfv_vouch`/`rbfv_about`/`rbfv_vouch_gate`/`rbfv_batch_vouch`; CLI partner `rbfv_cli.sh`)
+- **RBGA** → `rbk/rbga_registry.sh`
+- **RBGB** → `rbk/rbgb_buckets.sh`
+- **RBGC** → `rbk/rbgc_constants.sh`
+- **RBGE** → `rbk/rbge_rest.sh` (Google REST — LRO polling + API-enable patterns over rbuh)
+- **RBGG** → `rbk/rbgg_governor.sh`
+- **RBGI** → `rbk/rbgi_iam.sh`
+- **RBGO** → `rbk/rbgo_oauth.sh` (also owns the stateless `rbgo_curl_status_is_transient_predicate` transient-curl-exit classifier)
+- **RBGP** → `rbk/rbgp_payor.sh`
+- **RBGV** → `rbk/rbgv_probe.sh` (Google Verification — JWT SA and Payor OAuth access probes)
+- **RBGJS** → `rbk/rbgjs/` (shared cloud-step snippet library — the no-family member of the `rbgj«family»/` cloud-step scheme, where each letter is a made-side family of in-pool step scripts (`rbgja` about, `rbgjb` build, `rbgje` enshrine, `rbgji` inscribe, `rbgjl` lode, `rbgjm` mirror, `rbgjr` reliquary, `rbgjv` verify). A *shared* snippet belongs to no single family, so `s` breaks the scheme as the no-family family. Holds composed-once fragments — `rbgjs-token-fetch.sh`, `rbgjs-gcrane-fingerprint.sh`, `rbgjs-buildx-bootstrap.sh`, `rbgjs-buildx-push.sh` — each shebang'd only for shellcheck and spliced into a step at `#@rbgjs_include «name»` markers by the host-side expander `zrbfc_expand_includes` (`rbfcb_host.sh`), reached by both the Lode spine `rblds_` and the made-side `rbfca_` vouch assembler. Snippets read shell vars the kind sets before the marker, never `_RBGx_` substitutions — that is what lets one snippet serve disjoint substitution namespaces. Container: `rbgjs` HAS children (the snippet files), names no bare file. Contract: RBSCJ "Composed-snippet library (rbgjs)".)
 - **RBH0** → `rbk/rbh0/` (Handbook directory — decomposed one-function-per-file)
   - `rbh*` is the Handbook family (human-facing procedures), parallel to `rbg*` (Google machinery). Three groups: `RBHO` onboarding, `RBHP` payor, `RBHW` windows. Colophon pattern: `rbw-h0` (HandbookTOP index), `rbw-h{o,p,w}` (group tops), `rbw-H{O,P,W}*` (subordinate procedures).
-  - **RBHO0** → `rbk/rbh0/rbho0_*.sh` (Onboarding 0-prefix — CLI `rbho0_cli.sh` (thin furnish, probe-only deps) + 0-trick gestalt entry `rbho0_Onboarding.sh` (kindle, sentinel, probes, shared helpers))
-  - **RBHP0** → `rbk/rbh0/rbhp0_*.sh` (Payor 0-prefix — CLI `rbhp0_cli.sh` (full regime + OAuth + IAM deps) + 0-trick gestalt entry `rbhp0_Payor.sh` (kindle, sentinel, enforce))
-  - **RBHW0** → `rbk/rbh0/rbhw0_*.sh` (Windows 0-prefix — CLI `rbhw0_cli.sh` (handbook display + zipper deps) + 0-trick gestalt entry `rbhw0_Windows.sh` (kindle, sentinel))
+  - **RBHO0** → `rbk/rbh0/rbho0_*.sh` (Onboarding 0-prefix — CLI `rbho0_cli.sh` (thin furnish, probe-only deps) + 0-trick gestalt entry `rbho0_onboarding.sh` (kindle, sentinel, probes, shared helpers))
+  - **RBHP0** → `rbk/rbh0/rbhp0_*.sh` (Payor 0-prefix — CLI `rbhp0_cli.sh` (full regime + OAuth + IAM deps) + 0-trick gestalt entry `rbhp0_payor.sh` (kindle, sentinel, enforce))
+  - **RBHW0** → `rbk/rbh0/rbhw0_*.sh` (Windows 0-prefix — CLI `rbhw0_cli.sh` (handbook display + zipper deps) + 0-trick gestalt entry `rbhw0_windows.sh` (kindle, sentinel))
 - **RBID** → `rbev-vessels/common-ifrit-context/` (Ifrit — in-bottle attack binary for crucible testing; shared source across tether/airgap variants)
 - **RBJ**  → Jailer prefix (non-terminal: children rbjs, rbjp, rbje, rbjh)
 - **RBJS** → `rbk/rbjs_sentry.sh` (Jailer Sentry - container security setup: iptables, dnsmasq, enclave network)
-- **RBLD** → `rbk/rbld*` (Lode capture family — fetched-side universal capture; cloud-side in-pool steps in `rbgjl/`; GAR namespace `rbi_ld`; colophon family `rbw-l*`; spec family `RBSL*` (catalogued below). Container: `rbld` names no file. The former `rbld_Lode.sh` monolith is decomposed into the children below — CLI `rbld0_cli`, 0-trick entry `rbld0_Lode`, lifecycle `rbldl_`, bole body `rbldb_`; the capture-assembly spine `rblds_` is carved from `rbldb_` at the capture-spine pace and is not yet a file.)
-  - **RBLD0** → `rbk/rbld0_*.sh` (Lode `0`-prefix — CLI `rbld0_cli.sh` (multifacet dispatch across the rbld children via `buc_execute rbld_`; `zrbld_furnish` sources the 0-trick entry, which pulls the clusters) + 0-trick gestalt entry `rbld0_Lode.sh` (single `ZRBLD_SOURCED` inclusion-guard + the whole kindle, readonly `ZRBLD_*` consts read globally; sources the guard-free body clusters `rbldl_`/`rblds_`/`rbldb_`). Per the rbh0 `0`-trick precedent, the `0`-prefix homes both the gestalt entry and the CLI.)
-  - **RBLDS** → `rbk/rblds_Spine.sh` (Lode capture-assembly spine — the data-driven Cloud Build composer shared by every Lode capture kind: `zrbld_spine_dispatch` composes a build from a recipe (ordered pre-resolved `script_path|builder|id|entrypoint` rows) plus an opaque substitutions blob, submits, and polls; `zrbld_spine_extract` decodes a step's `buildStepOutputs[N]` slot to a file. Owns no kind knowledge — capture-domain constants (mason SA, TETHER pool, regime timeout) are spine-owned, the kind-flavored poll ceiling is passed by the body. Functions keep the `zrbld_` container prefix; guard-free cluster sourced by `rbld0_Lode`. Contract: RBSCJ "Capture Composition Contract".)
+- **RBLD** → `rbk/rbld*` (Lode capture family — fetched-side universal capture; cloud-side in-pool steps in `rbgjl/`; GAR namespace `rbi_ld`; colophon family `rbw-l*`; spec family `RBSL*` (catalogued below). Container: `rbld` names no file. The former `rbld_Lode.sh` monolith is decomposed into the children below — CLI `rbld0_cli`, 0-trick entry `rbld0_lode`, lifecycle `rbldl_`, capture-assembly spine `rblds_`, delete `rbldd_`, and the per-kind bodies `rbldb_`/`rbldr_`/`rbldw_`/`rbldv_`.)
+  - **RBLD0** → `rbk/rbld0_*.sh` (Lode `0`-prefix — CLI `rbld0_cli.sh` (multifacet dispatch across the rbld children via `buc_execute rbld_`; `zrbld_furnish` sources the 0-trick entry, which pulls the clusters) + 0-trick gestalt entry `rbld0_lode.sh` (single `ZRBLD_SOURCED` inclusion-guard + the whole kindle, readonly `ZRBLD_*` consts read globally; sources the guard-free body clusters `rbldl_`/`rblds_`/`rbldb_`). Per the rbh0 `0`-trick precedent, the `0`-prefix homes both the gestalt entry and the CLI.)
+  - **RBLDS** → `rbk/rblds_spine.sh` (Lode capture-assembly spine — the data-driven Cloud Build composer shared by every Lode capture kind: `zrbld_spine_dispatch` composes a build from a recipe (ordered pre-resolved `script_path|builder|id|entrypoint` rows) plus an opaque substitutions blob, submits, and polls; `zrbld_spine_extract` decodes a step's `buildStepOutputs[N]` slot to a file. Owns no kind knowledge — capture-domain constants (mason SA, TETHER pool, regime timeout) are spine-owned, the kind-flavored poll ceiling is passed by the body. Functions keep the `zrbld_` container prefix; guard-free cluster sourced by `rbld0_lode`. Contract: RBSCJ "Capture Composition Contract".)
   - **RBLDB** → `rbk/rbldb_*.sh` (Bole body — base-kind ensconce, thinned to ride the spine: owns only the ensconce recipe (gcrane capture + docker vouch push), the substitutions blob, and the per-member `slot_n` extract loop, composing through `zrbld_spine_dispatch`/`zrbld_spine_extract`. Holds `zrbld_ensconce_submit`/`_extract`/`rbld_ensconce`; no build-submission or step-composition machinery.)
-  - **RBLDL** → `rbk/rbldl_*.sh` (Lode lifecycle REST — `divine`/`banish`, direct GAR-REST host ops, kept distinct from the assembly spine. Guard-free cluster sourced by `rbld0_Lode`.)
-  - Reserved (legend only, no files this heat — future Lode kinds, letters matching the Lode GAR kind-letters): **RBLDT** tool, **RBLDR** reliquary/conclave, **RBLDW** wsl, **RBLDV** podvm
+  - **RBLDL** → `rbk/rbldl_*.sh` (Lode lifecycle REST — `divine`/`banish`, direct GAR-REST host ops, kept distinct from the assembly spine. Guard-free cluster sourced by `rbld0_lode`.)
+  - **RBLDR** → `rbk/rbldr_reliquary.sh` (Reliquary body — `conclave`, the build-tool date-cohort capture kind riding the spine)
+  - **RBLDW** → `rbk/rbldw_underpin.sh` (Wsl body — `underpin`, the vendor WSL rootfs capture kind riding the spine)
+  - **RBLDV** → `rbk/rbldv_immure.sh` (Podvm body — `immure`, the podman-machine disk capture kind riding the spine)
+  - Reserved (legend only, no file — future Lode kind, letter matching the Lode GAR kind-letters): **RBLDT** tool
 - **RBLM** → `rbk/rblm_cli.sh` (Lifecycle Marshal - zero regime to blank template, proof repo for release testing)
 - **RBNNH** → `rbnnh_` prefix family — optional per-nameplate customization files in `.rbk/{moniker}/`: `rbnnh_compose.yml` (Compose overlay fragment) and `rbnnh_post_charge.sh` (post-charge hook script). Contract: `Tools/rbk/vov_veiled/RBSCH-charge_hook.adoc`.
 - **RBOB** → `rbk/rbob_bottle.sh`
 - **RBYC** → `rbk/rbyc_common.sh` (Common vocabulary — linked term constants for handbook yelp fragments)
-- **RBQ**  → `rbk/rbq_Qualify.sh` (Qualification orchestrator - tabtarget/colophon/nameplate health)
+- **RBQ**  → `rbk/rbq_qualify.sh` (Qualification orchestrator - tabtarget/colophon/nameplate health)
 - **RBTD** → `rbk/rbtd/` (Theurge — crucible test orchestrator)
 - **RBTW** → `rbk/rbtd/rbtw_workbench.sh` (Theurge workbench — build/test routing, orthogonal from VOW)
-- **RBUH** → `rbk/rbuh_Http.sh` (Utility HTTP — JSON REST, polling, shared temp-file machinery)
+- **RBUH** → `rbk/rbuh_http.sh` (Utility HTTP — JSON REST, polling, shared temp-file machinery)
 - **RBS0** → `rbk/vov_veiled/RBS0-SpecTop.adoc`
 - **RBSAA** → `rbk/vov_veiled/RBSAA-ark_abjure.adoc`
 - **RBSAB** → `rbk/vov_veiled/RBSAB-ark_about.adoc` (Standalone Cloud Build about pipeline - syft SBOM + mode-aware build_info)
@@ -166,5 +169,5 @@ Two committed files are **regenerated from the zipper registry** (`rbz_zipper.sh
 Both carry a "Do not edit — regenerate via the build" header. **If they show as
 modified in `git status` after you edited the zipper and ran a build, that is
 expected** — they re-derived from your zipper change; they are *yours* to commit,
-not another officium's work. `rbq_Qualify` (`rbw-tl` / `rbw-tr`) only *checks*
+not another officium's work. `rbq_qualify` (`rbw-tl` / `rbw-tr`) only *checks*
 their freshness and fails loud if the build wasn't re-run.

@@ -2849,12 +2849,12 @@ static RBTDRC_CASES_SECURITY: &[rbtdre_Case] = &[
 
 // ── Hallmark / ark vocabulary and docker helpers ─────────────
 
-/// BURV fact file names — single definition, matching rbgc_Constants.sh values.
+/// BURV fact file names — single definition, matching rbgc_constants.sh values.
 pub(crate) const RBTDRC_FACT_HALLMARK: &str = "rbf_fact_hallmark";
 pub(crate) const RBTDRC_FACT_GAR_ROOT: &str = "rbf_fact_gar_root";
 pub(crate) const RBTDRC_FACT_ARK_STEM: &str = "rbf_fact_ark_stem";
 
-/// Ark basenames — matching rbgc_Constants.sh RBGC_ARK_BASENAME_* values.
+/// Ark basenames — matching rbgc_constants.sh RBGC_ARK_BASENAME_* values.
 pub(crate) const RBTDRC_ARK_BASENAME_IMAGE: &str = "image";
 pub(crate) const RBTDRC_ARK_BASENAME_VOUCH: &str = "vouch";
 pub(crate) const RBTDRC_ARK_BASENAME_ABOUT: &str = "about";
@@ -2959,16 +2959,16 @@ const ZRBTDRC_ARK_BASENAMES_ALL: &[&str] = &[
 
 /// Multi-fact extension emitted by `rbw-iah` (rbfl_audit_hallmarks): one
 /// `<hallmark>.audit-hallmark` file per discovered hallmark. Mirrors
-/// rbcc_Constants.sh RBCC_fact_ext_audit_hallmark.
+/// rbcc_constants.sh RBCC_fact_ext_audit_hallmark.
 const RBTDRC_FACT_EXT_AUDIT_HALLMARK: &str = "audit-hallmark";
 
 /// Single-form chaining fact emitted host-side by `rbw-lE` (rbld_ensconce): the
 /// captured Lode touchmark. The derived-pull base-anchor election reads it at
 /// conjure; the provenance envelope lives only in GAR (:rbi_vouch), never
-/// host-side. Mirrors rbgc_Constants.sh RBF_FACT_LODE_TOUCHMARK.
+/// host-side. Mirrors rbgc_constants.sh RBF_FACT_LODE_TOUCHMARK.
 const RBTDRC_FACT_LODE_TOUCHMARK: &str = "rbf_fact_lode_touchmark";
 
-/// Bole-Lode member tags asserted by augur. Mirror rbgc_Constants.sh
+/// Bole-Lode member tags asserted by augur. Mirror rbgc_constants.sh
 /// RBGC_LODE_TAG_BOLE / RBGC_LODE_TAG_VOUCH / RBGC_LODE_TAG_DIGEST_PREFIX.
 const RBTDRC_LODE_TAG_BOLE: &str = "rbi_bole";
 const RBTDRC_LODE_TAG_VOUCH: &str = "rbi_vouch";
@@ -2979,24 +2979,24 @@ const RBTDRC_LODE_TAG_DIGEST_PREFIX: &str = "rbi_sha256-";
 /// verification field), never in a bare tag listing. Their presence in augur's
 /// output is the load-bearing proof that augur decoded the envelope, not merely
 /// enumerated tags as divine's retired inspect branch did. Mirror
-/// rbgc_Constants.sh RBGC_LODE_TRUST_VERIFIED and the rbgjl0* "oci-digest"
+/// rbgc_constants.sh RBGC_LODE_TRUST_VERIFIED and the rbgjl0* "oci-digest"
 /// verification literal.
 const RBTDRC_LODE_TRUST_VERIFIED: &str = "verified-against-published";
 const RBTDRC_LODE_VERIFICATION_OCI: &str = "oci-digest";
 
 /// Reliquary-Lode member tags asserted by divine inspect — a representative
 /// pair of the build-tool cohort (one Google-hosted, one third-party). Compose
-/// rbgc_Constants.sh RBGC_LODE_TAG_SPRUE with the cohort tool names.
+/// rbgc_constants.sh RBGC_LODE_TAG_SPRUE with the cohort tool names.
 const RBTDRC_RELIQUARY_TAG_GCLOUD: &str = "rbi_gcloud";
 const RBTDRC_RELIQUARY_TAG_GCRANE: &str = "rbi_gcrane";
 
 /// GAR Lode package-root — the raw path the type-blind image verbs (rbw-il /
-/// rbw-iJ) address a Lode by: rbi_ld/<touchmark>. Mirrors rbgc_Constants.sh
+/// rbw-iJ) address a Lode by: rbi_ld/<touchmark>. Mirrors rbgc_constants.sh
 /// RBGC_GAR_CATEGORY_LODES.
 const RBTDRC_LODES_ROOT: &str = "rbi_ld";
 
 /// Wsl-Lode member tag asserted by divine inspect — the single opaque rootfs
-/// blob. Mirrors rbgc_Constants.sh RBGC_LODE_TAG_ROOTFS.
+/// blob. Mirrors rbgc_constants.sh RBGC_LODE_TAG_ROOTFS.
 const RBTDRC_LODE_TAG_ROOTFS: &str = "rbi_rootfs";
 
 /// Underpin version arguments — the wsl substrate release + point the fixture
@@ -3005,9 +3005,9 @@ const RBTDRC_LODE_TAG_ROOTFS: &str = "rbi_rootfs";
 const RBTDRC_WSL_RELEASE: &str = "24.04";
 const RBTDRC_WSL_POINT: &str = "4";
 
-/// BURE_TWEAK signal recognized by rbld_ensconce (rbldb_Bole.sh) to pin the Lode
+/// BURE_TWEAK signal recognized by rbld_ensconce (rbldb_bole.sh) to pin the Lode
 /// stamp, driving two captures onto one touchmark so the cloud-side collision
-/// guard's idempotent/collision branches fire. Mirror: rbldb_Bole.sh
+/// guard's idempotent/collision branches fire. Mirror: rbldb_bole.sh
 /// `z_ensconce_stamp_tweak_name` — same literal. Carries the buo tweak sprue,
 /// enforced by BURE.
 const RBTDRC_ENSCONCE_STAMP_TWEAK_NAME: &str = "buorb_ensconce_stamp";
@@ -3295,7 +3295,7 @@ fn rbtdrc_lode_lifecycle(dir: &Path) -> rbtdre_Verdict {
 // The collision verdict rests on the HOST EXIT CODE: the guard's "touchmark
 // collision" message lands in Cloud Logging (CLOUD_LOGGING_ONLY), not host
 // stdout, but a cloud build FAILURE propagates to a non-zero rbw-lE exit
-// (rbfcb_BuildHost.sh: status != SUCCESS -> buc_die). The idempotent step (2) is
+// (rbfcb_host.sh: status != SUCCESS -> buc_die). The idempotent step (2) is
 // the positive control: the identical pipeline on the same pinned touchmark
 // SUCCEEDS for the same base, so step (3)'s failure isolates to the differing
 // digest — the collision branch — not debian-specific infra. Both vessels carry
@@ -3664,17 +3664,17 @@ const RBTDRC_PODVM_FAMILY: &str = "podvm-wsl";
 const RBTDRC_PODVM_VERSION: &str = "5.6";
 
 /// Podvm-wsl member tags asserted by augur. Compose RBGC_LODE_TAG_SPRUE ("rbi_")
-/// with the selection leaf names from rbgc_Constants.sh RBGC_LODE_PODVM_WSL_SELECTION.
+/// with the selection leaf names from rbgc_constants.sh RBGC_LODE_PODVM_WSL_SELECTION.
 const RBTDRC_PODVM_TAG_WSL_X86: &str = "rbi_wsl-x86_64";
 const RBTDRC_PODVM_TAG_WSL_AARCH: &str = "rbi_wsl-aarch64";
 
-/// Trust grade for the recorded-at-acquisition envelope — mirrors rbgc_Constants.sh
+/// Trust grade for the recorded-at-acquisition envelope — mirrors rbgc_constants.sh
 /// RBGC_LODE_TRUST_RECORDED. The podvm upstream offers no durable checksum, so RB
 /// attests only the digest observed at capture.
 const RBTDRC_LODE_TRUST_RECORDED: &str = "recorded-at-acquisition";
 
 /// Honest-posture text fragment emitted by augur for recorded-at-acquisition grade
-/// (rbldl_Lifecycle.sh RBGC_LODE_TRUST_RECORDED branch). Proves augur rendered the
+/// (rbldl_lifecycle.sh RBGC_LODE_TRUST_RECORDED branch). Proves augur rendered the
 /// trust-posture section, not just the envelope header. Matches a stable substring
 /// of the fixed prose rather than the full multi-line block.
 const RBTDRC_PODVM_TRUST_POSTURE_FRAGMENT: &str = "attests only the digest observed at capture";
@@ -3731,7 +3731,7 @@ fn rbtdrc_podvm_lifecycle(dir: &Path) -> rbtdre_Verdict {
         // re-reads the GAR member tags as the source of truth, preserves both originals
         // verbatim, and re-authors :rbi_vouch. The widen-adds-a-member path is the
         // one-time native gate (full 8-leaf machine-os, multi-GB), deliberately kept
-        // OUT of the recurring suite; see rbgc_Constants RBGC_LODE_PODVM_NATIVE_SELECTION.
+        // OUT of the recurring suite; see rbgc_constants RBGC_LODE_PODVM_NATIVE_SELECTION.
         let _ = std::fs::write(dir.join("03b-refresh.txt"), "refreshing podvm-wsl Lode (all-preserved)");
         match rbtdri_invoke_global(
             ctx,

@@ -31,11 +31,11 @@ ZRBFC_SOURCED=1
 
 # Build-host primitives and the guard-free body clusters; sourced here so every
 # rbfc consumer reaches them unchanged.
-source "${BASH_SOURCE[0]%/*}/rbfcb_BuildHost.sh"
-source "${BASH_SOURCE[0]%/*}/rbfcv_VesselResolution.sh"
-source "${BASH_SOURCE[0]%/*}/rbfca_StepAssembly.sh"
-source "${BASH_SOURCE[0]%/*}/rbfcg_GarRest.sh"
-source "${BASH_SOURCE[0]%/*}/rbfcp_Plumb.sh"
+source "${BASH_SOURCE[0]%/*}/rbfcb_host.sh"
+source "${BASH_SOURCE[0]%/*}/rbfcv_resolve.sh"
+source "${BASH_SOURCE[0]%/*}/rbfca_assembly.sh"
+source "${BASH_SOURCE[0]%/*}/rbfcg_gar.sh"
+source "${BASH_SOURCE[0]%/*}/rbfcp_plumb.sh"
 
 ######################################################################
 # Internal Functions (zrbfc_*)

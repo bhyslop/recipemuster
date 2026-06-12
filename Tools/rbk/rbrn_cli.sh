@@ -160,8 +160,8 @@ zrbrn_furnish() {
   local z_rbk_kit_dir="${BASH_SOURCE[0]%/*}"
   source "${BURD_BUK_DIR}/buv_validation.sh"
   source "${BURD_BUK_DIR}/burd_regime.sh"
-  source "${BURD_BUK_DIR}/bupr_PresentationRegime.sh"
-  source "${z_rbk_kit_dir}/rbcc_Constants.sh"
+  source "${BURD_BUK_DIR}/bupr_regime.sh"
+  source "${z_rbk_kit_dir}/rbcc_constants.sh"
   source "${z_rbk_kit_dir}/rbrn_regime.sh"
 
   # Heavy sources (survey/audit only)
@@ -169,11 +169,11 @@ zrbrn_furnish() {
     rbrn_survey|rbrn_audit)
       source "${z_rbk_kit_dir}/rbrr_regime.sh"
       source "${z_rbk_kit_dir}/rbrd_regime.sh"
-      source "${z_rbk_kit_dir}/rbdc_DerivedConstants.sh"
-      source "${z_rbk_kit_dir}/rbgc_Constants.sh"
-      source "${z_rbk_kit_dir}/rbgl_GarLayout.sh"
-      source "${z_rbk_kit_dir}/rbgd_DepotConstants.sh"
-      source "${z_rbk_kit_dir}/rbgo_OAuth.sh"
+      source "${z_rbk_kit_dir}/rbdc_derived.sh"
+      source "${z_rbk_kit_dir}/rbgc_constants.sh"
+      source "${z_rbk_kit_dir}/rbgl_layout.sh"
+      source "${z_rbk_kit_dir}/rbgd_depot.sh"
+      source "${z_rbk_kit_dir}/rbgo_oauth.sh"
       ;;
   esac
 

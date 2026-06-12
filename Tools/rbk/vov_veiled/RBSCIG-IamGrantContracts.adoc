@@ -130,7 +130,7 @@ metageneration-based preconditions and `If-Match` header semantics from its
 legacy REST design.
 
 **The single-writer invariant is necessary but not sufficient.**
-The operational invariant at the top of `rbgi_IAM.sh` ("Single admin actor.
+The operational invariant at the top of `rbgi_iam.sh` ("Single admin actor.
 There are no concurrent writers in the same project.") protects against
 concurrent _Recipe Bottle_ operations.  However, Google's own internal
 processes — API enablement auto-grants, service agent auto-provisioning,
@@ -399,7 +399,7 @@ Noting for completeness.
 
 The implementation has converged onto the verified API contracts catalogued
 above.  This section records, per pattern, how the current code in
-`rbgi_IAM.sh` realizes the contract — the gaps an earlier draft of this memo
+`rbgi_iam.sh` realizes the contract — the gaps an earlier draft of this memo
 flagged (wrong etag-mismatch code, vanilla-init on impossible responses,
 unconditional etag-skipping overwrites, missing `requestedPolicyVersion`) are
 now closed.
@@ -422,7 +422,7 @@ now closed.
  `options.requestedPolicyVersion=3` query parameter and has no 404
  vanilla-init branch.  A non-200 GET hits `rbuh_require_ok` and dies:
  404 means the repository does not exist (a real error), not an absent
- policy.  The inline director AR grant path in `rbgg_Governor.sh` was
+ policy.  The inline director AR grant path in `rbgg_governor.sh` was
  the historical POST-on-GET-only site (observed failing with HTTP 404
  on 2026-03-12 as the transcoding layer rejected POST); it now uses GET.
 

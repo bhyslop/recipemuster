@@ -1065,8 +1065,8 @@ The one-yawp-one-capture rhythm is the invariant. Pre-captured constants (e.g., 
 | Implementation file          | `«prefix»_«name».sh`         | `rbv_podman.sh`              | N/A      | lowercase (prefer 1 word, allow snake_case) |
 | CLI file                     | `«prefix»_cli.sh`            | `rbv_cli.sh`                 | N/A      | snake_case (fixed)            |
 | Decomposition CLI            | `«prefix»0_cli.sh`           | —                            | N/A      | fixed (decomposed module)     |
-| Decomposition entry          | `«prefix»0_«ModuleName».sh`  | —                            | N/A      | PascalCase «ModuleName»        |
-| Decomposition cluster        | `«prefix»«g»_«Name».sh`      | —                            | N/A      | gesture letter + PascalCase «Name» |
+| Decomposition entry          | `«prefix»0_«name».sh`        | `rbfc0_core.sh`              | N/A      | lowercase (prefer 1 word)      |
+| Decomposition cluster        | `«prefix»«g»_«name».sh`      | `rbfcb_host.sh`              | N/A      | gesture letter + lowercase «name» (prefer 1 word) |
 | Public functions             | `«prefix»_«command»`         | `rbv_init`, `rbv_start`      | Impl     | snake_case (usually one word) |
 | Internal functions           | `z«prefix»_«name»`           | `zrbv_validate_pat`          | Impl     | snake_case (often multi word) |
 | Furnish function             | `z«prefix»_furnish`          | `zrbv_furnish`               | CLI      | fixed name                    |
@@ -1084,7 +1084,7 @@ The one-yawp-one-capture rhythm is the invariant. Pre-captured constants (e.g., 
 | Roll arrays                  | `z_«prefix»_«name»_roll`     | `z_rbv_target_roll`          | Impl     | snake_case, kindle-only       |
 | Enroll return vars           | `z_«funcname»_«retval»`      | `z_«prefix»_enroll_name`     | Impl     | snake_case (func name verbatim)|
 | Testbench file               | `«prefix»tb_testbench.sh`    | `rbtb_testbench.sh`          | N/A      | fixed name                    |
-| Test case file               | `«prefix»tc«xx»_«Name».sh`  | `rbtckk_KickTires.sh`        | N/A      | PascalCase name               |
+| Test case file               | `«prefix»tc«xx»_«name».sh`  | `butckk_kick.sh`             | N/A      | lowercase (prefer 1 word)     |
 | Fixture baste function       | `z«tb»_«name»_baste`        | `zrbtb_ark_baste`            | Testbench| snake_case, fixture layer     |
 | Case function                | `«tc»_«name»_tcase`         | `rbtckk_false_tcase`         | Test case| snake_case, case layer        |
 | Yawp function (public)       | `«prefix»_«name»_yawp`      | `buyy_cmd_yawp`              | Impl     | snake_case                    |

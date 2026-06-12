@@ -357,7 +357,7 @@ These rules describe the machinery a body must fit.
 
 Cloud Build has no native step reuse, so shared **bash** logic is composed
 *before submit*. A step marks an include point; the host expander
-(`zrbfc_expand_includes`, `rbfcb_BuildHost.sh`) replaces each marker with the
+(`zrbfc_expand_includes`, `rbfcb_host.sh`) replaces each marker with the
 body of `rbgjs/rbgjs-<name>.sh`, shebang stripped. A marker-free body is rewritten
 unchanged (safe to call on every step); a missing snippet crashes the expander —
 no silent skip.

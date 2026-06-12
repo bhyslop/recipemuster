@@ -55,8 +55,8 @@ zrbrr_furnish() {
 
   source "${BURD_BUK_DIR}/buv_validation.sh"
   source "${BURD_BUK_DIR}/burd_regime.sh"
-  source "${BURD_BUK_DIR}/bupr_PresentationRegime.sh"
-  source "${z_rbk_kit_dir}/rbcc_Constants.sh"
+  source "${BURD_BUK_DIR}/bupr_regime.sh"
+  source "${z_rbk_kit_dir}/rbcc_constants.sh"
   source "${z_rbk_kit_dir}/rbrr_regime.sh"
   source "${RBCC_rbrr_file}"
 

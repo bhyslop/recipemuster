@@ -133,7 +133,7 @@ RBCC_container_sentry="sentry"
 # and no drift. rbtd's lib.rs paths, the manifest account-label mirror, and the
 # rbtdrk/rbtdrp .env consts all source these instead of hand-copying.
 rbcc_emit_consts() {
-  printf '%s\n' "// RBCC constants (rbcc_Constants.sh single-homed set)"
+  printf '%s\n' "// RBCC constants (rbcc_constants.sh single-homed set)"
 
   local z_name=""
   local z_stem=""

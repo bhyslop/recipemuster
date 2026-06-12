@@ -216,7 +216,7 @@ detect-only** (read and report; no repair until a verifier exists). Numbered fro
   string — that *constructs or addresses* something, where a named home exists or
   should. Not human-facing prose.
 - **Authority:** the value resolves through a single named constant home (e.g.
-  the `RBCC_rbr*_file` family in `rbcc_Constants.sh`). The constant is ground
+  the `RBCC_rbr*_file` family in `rbcc_constants.sh`). The constant is ground
   truth; every literal is a copy that can drift.
 - **Licensing:** mutate-now — the constant either resolves or the verifier fails,
   so a wrong move dies loud and immediately.

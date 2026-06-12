@@ -20,7 +20,7 @@ use super::rbtdgc_consts::*;
 
 /// Pin the one surviving compile-time path literal (the `rbtd_vessels_dir!`
 /// macro in lib.rs) to the generated source of truth. The macro must equal
-/// `<RBTDGC_MOORINGS_DIR>/<RBTDGC_VESSELS_SUBDIR>`; if rbcc_Constants.sh changes
+/// `<RBTDGC_MOORINGS_DIR>/<RBTDGC_VESSELS_SUBDIR>`; if rbcc_constants.sh changes
 /// either, codegen updates the consts and this test fails until the macro
 /// literal is corrected — drift caught at test time, no new dependency.
 #[test]

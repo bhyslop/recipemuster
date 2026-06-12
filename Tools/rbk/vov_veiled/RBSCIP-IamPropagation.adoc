@@ -185,9 +185,9 @@ and any need for `roles/iam.serviceAccountTokenCreator` grants for the readiness
 
 ==== Backoff Profile
 
-All IAM-grant propagation retries — every site in `rbgi_IAM.sh` plus the
+All IAM-grant propagation retries — every site in `rbgi_iam.sh` plus the
 inline GAR retry in `rbgg_invest_director` — use the same single profile
-locked in `rbgc_Constants.sh`:
+locked in `rbgc_constants.sh`:
 
 * Initial delay: `RBGC_PROPAGATION_INITIAL_DELAY_SEC` (3 seconds)
 * Multiplier: 2x (per-site arithmetic, not a kindle constant)

@@ -73,7 +73,7 @@ This is a cosmetic difference from `cloudbuild.yaml` — the structured provenan
 This section governs the host-composed `projects.builds.create` path for Lode
 captures — distinct from the trigger-autodetect path the Decision above covers.
 A Lode capture is composed on the host by the capture-assembly spine
-(`rblds_Spine.sh`) from two data inputs handed by a per-kind body (e.g. bole's
+(`rblds_spine.sh`) from two data inputs handed by a per-kind body (e.g. bole's
 `zrbld_ensconce_submit`): an ordered _recipe_ of step rows and an opaque
 _substitutions_ blob. The spine carries no per-kind branch and no
 kind-registration mechanism — a new Lode kind is a new body file the spine
@@ -221,7 +221,7 @@ belongs to no single made-side family, so `s` is the no-family family.
 ----
 
 (any leading indentation tolerated). At assembly, `zrbfc_expand_includes`
-(`rbfcb_BuildHost.sh`, sibling to `zrbfc_write_script_body`, sourced by both the
+(`rbfcb_host.sh`, sibling to `zrbfc_write_script_body`, sourced by both the
 Lode spine and the made-side `rbfca_` vouch assembler) rewrites the step body,
 splicing in `rbgjs-«name».sh` with its leading shebang stripped. A body with no
 marker is rewritten unchanged, so an assembler may call the expander for every

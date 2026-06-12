@@ -16,7 +16,7 @@
 #
 # Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 #
-# Recipe Bottle Lode - podvm body (guard-free cluster, sourced by rbld0_Lode):
+# Recipe Bottle Lode - podvm body (guard-free cluster, sourced by rbld0_lode):
 #   immure — wall in the selected podman-machine disk leaves of one quay family into
 #            a Lode (Director credentials)
 # The podvm kind rides the capture-assembly spine (rblds_): this body owns only the
@@ -51,7 +51,7 @@ set -euo pipefail
 # Internal: resolve the family argument to its (kind-letter, quay-family, selection,
 # brand) tuple. The brand IS the operator-typed argument and the envelope kind field.
 # Both families are wired; podvm-wsl is fixture-proven recurring (service tier), and
-# podvm-native carries full 8-leaf curation (see rbgc_Constants podvm selection block).
+# podvm-native carries full 8-leaf curation (see rbgc_constants podvm selection block).
 # Args: family   Sets: z_kind, z_quay_family, z_selection (caller-scoped locals)
 zrbld_immure_resolve_family() {
   zrbld_sentinel
@@ -208,7 +208,7 @@ rbld_immure() {
   # a credentialed workstation would load creds and fire a live build right below. When
   # the tweak is set, stop here — AFTER the diagnostic, BEFORE any credential or network
   # touch — and announce loudly, so a transcript reader sees why immure stopped early
-  # (a silent early exit reads as a bug). Mirrors rbldb_Bole's buorb_ensconce_stamp.
+  # (a silent early exit reads as a bug). Mirrors rbldb_bole's buorb_ensconce_stamp.
   local -r z_resolve_only_tweak_name="buorb_immure_resolve_only"
   if test "${BURE_TWEAK_NAME:-}" = "${z_resolve_only_tweak_name}"; then
     buc_success "immure: short-circuit after resolve (${z_resolve_only_tweak_name})"

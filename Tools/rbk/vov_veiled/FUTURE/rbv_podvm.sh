@@ -172,7 +172,7 @@ zrbv_ignite_bootstrap() {
     buc_step "Creating ignite VM with natural podman init..."
     podman machine init --log-level=debug      "${RBRM_IGNITE_MACHINE_NAME}" \
                                             2> "${ZRBV_IGNITE_INIT_STDERR}"  \
-         | "${ZRBV_SCRIPT_DIR}/rbupmis_Scrub.sh" "${ZRBV_IGNITE_INIT_STDOUT}"  \
+         | "${ZRBV_SCRIPT_DIR}/rbupmis_scrub.sh" "${ZRBV_IGNITE_INIT_STDOUT}"  \
       || buc_die "Bad init."
 
     buc_step "Starting ignite machine..."
@@ -542,7 +542,7 @@ rbv_init() {
   buc_step "Initializing machine from cached image..."
   podman machine init --rootful --image "${z_cache_file}" "${RBRM_DEPLOY_MACHINE_NAME}" \
                                           2> "${ZRBV_DEPLOY_INIT_STDERR}"             \
-       | "${ZRBV_SCRIPT_DIR}/rbupmis_Scrub.sh" "${ZRBV_DEPLOY_INIT_STDOUT}"             \
+       | "${ZRBV_SCRIPT_DIR}/rbupmis_scrub.sh" "${ZRBV_DEPLOY_INIT_STDOUT}"             \
     || buc_die "Failed to initialize VM"
 
   buc_step "Starting VM to write brand file..."

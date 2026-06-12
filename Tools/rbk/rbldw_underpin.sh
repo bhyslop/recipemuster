@@ -16,7 +16,7 @@
 #
 # Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 #
-# Recipe Bottle Lode - wsl body (guard-free cluster, sourced by rbld0_Lode):
+# Recipe Bottle Lode - wsl body (guard-free cluster, sourced by rbld0_lode):
 #   underpin — capture a vendor-published WSL rootfs into a Lode (Director creds)
 # The wsl kind rides the capture-assembly spine (rblds_): this body owns only the
 # kind-specific data — the underpin recipe (curl+gpg fetch/verify + gcrane-append

@@ -24,7 +24,7 @@
 // the consts against the zipper); the former runtime drift check is retired.
 use crate::rbtdgc_consts::*;
 
-// Credential roles are projected from rbcc_Constants.sh into the generated
+// Credential roles are projected from rbcc_constants.sh into the generated
 // RBTDGC_ACCOUNT_* consts (rbtdgc_consts.rs) — consumed here and across the access
 // probe surface. The former hand-written RBTDRM_ROLE_* mirror is retired.
 
@@ -118,7 +118,7 @@ pub const RBTDRM_FIXTURE_CALIBRANT_SENTINEL: &str = "calibrant-sentinel";
 
 // Operation verbs and container roles are generated as RBTDGC_VERB_* and
 // RBTDGC_CONTAINER_* (rbtdgc_consts.rs) from their canonical bash home in
-// rbcc_Constants.sh; consumers source those directly. Compound operations like
+// rbcc_constants.sh; consumers source those directly. Compound operations like
 // "kludge sentry" are composed at the call site from RBTDGC_VERB_KLUDGE and the
 // relevant RBTDGC_CONTAINER_* constant.
 

@@ -85,7 +85,7 @@ pub(crate) const RBTDRP_FAMILY_STEM_ARC_BASE: &str = "pristl";
 /// Placeholder moniker installed by tear_down before invoking rbw-dU. With the
 /// throwaway moniker still in rbrd.env, RBDC composes to the throwaway's own
 /// project_id and rbgp_depot_unmake's live-disqualify guard refuses the call
-/// (rbgp_Payor.sh:948-952). Rotating to a value outside the family stem makes
+/// (rbgp_payor.sh:948-952). Rotating to a value outside the family stem makes
 /// RBDC compose to a different value so the guard lets the unmake through.
 /// Marshal-zero is the recovery between runs and blanks the field anyway.
 const RBTDRP_TEAR_DOWN_PLACEHOLDER_MONIKER: &str = "torndown";
@@ -106,19 +106,19 @@ const RBTDRP_FAMILY_NUMERIC_FLOOR: u32 = 100000;
 /// as 1 and shadowing real entries.
 const RBTDRP_FAMILY_NUMERIC_WIDTH: usize = 6;
 
-/// Fact-file extension mirror of RBCC_fact_ext_depot in rbcc_Constants.sh.
+/// Fact-file extension mirror of RBCC_fact_ext_depot in rbcc_constants.sh.
 /// rbgp_depot_list emits `<cloud_prefix>/<moniker>.depot` files with state
 /// content; the cloud_prefix subdir prevents collisions between same-moniker
 /// depots under different cloud_prefixes.
 const RBTDRP_FACT_EXT_DEPOT: &str = "depot";
 
 /// Fact-file extension mirror of RBCC_fact_ext_depot_project in
-/// rbcc_Constants.sh. rbgp_depot_list emits
+/// rbcc_constants.sh. rbgp_depot_list emits
 /// `<cloud_prefix>/<moniker>.depot-project` files with project_id content.
 const RBTDRP_FACT_EXT_DEPOT_PROJECT: &str = "depot-project";
 
 /// Fact-file name for the governor SA email (mirror of
-/// RBGP_FACT_GOVERNOR_SA_EMAIL from rbgc_Constants.sh). Read from the mantle
+/// RBGP_FACT_GOVERNOR_SA_EMAIL from rbgc_constants.sh). Read from the mantle
 /// invocation's BURV output.
 const RBTDRP_FACT_GOVERNOR_SA_EMAIL: &str = "rbgp_fact_governor_sa_email";
 
@@ -127,7 +127,7 @@ const RBTDRP_FACT_GOVERNOR_SA_EMAIL: &str = "rbgp_fact_governor_sa_email";
 const RBTDRP_DELETE_REQUESTED: &str = "DELETE_REQUESTED";
 
 /// Roles whose RBRA credential files rblm_zero deletes, including the assay
-/// invest-drop slot — all projected from rbcc_Constants.sh.
+/// invest-drop slot — all projected from rbcc_constants.sh.
 const RBTDRP_RBRA_ROLES: &[&str] = &[
     RBTDGC_ACCOUNT_GOVERNOR,
     RBTDGC_ACCOUNT_DIRECTOR,
@@ -140,7 +140,7 @@ const RBTDRP_RBRN_BLANK_FIELDS: &[&str] = &["RBRN_SENTRY_HALLMARK", "RBRN_BOTTLE
 
 /// Vessel-local regime file — no rbcc home, so it stays a bare literal. The
 /// moorings dir and the other .env paths come from the generated RBTDGC_*
-/// consts directly (projected from rbcc_Constants.sh).
+/// consts directly (projected from rbcc_constants.sh).
 const RBTDRP_RBRV_FILE: &str = "rbrv.env";
 
 /// BURS station-file env var (exported by bul_launcher.sh) — absolute path
@@ -1106,7 +1106,7 @@ fn rbtdrp_sa_cycle_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_Verdict 
 // ── Case 4 (new): live-disqualify refusal ────────────────────
 
 /// Recovery-diagnostic substring emitted by `rbgp_depot_unmake`'s
-/// live-disqualify branch (rbgp_Payor.sh:944-948). The branch names
+/// live-disqualify branch (rbgp_payor.sh:944-948). The branch names
 /// `RBRD_DEPOT_MONIKER` rename or `rbw-MZ` as recovery paths; the
 /// assertion matches on the field-name token, which is invariant
 /// across cosmetic message edits.
@@ -1117,7 +1117,7 @@ const RBTDRP_LIVE_DISQUALIFY_RECOVERY: &str = "RBRD_DEPOT_MONIKER";
 /// are non-blank). Composes the live RBDC_DEPOT_PROJECT_ID and invokes
 /// `rbw-dU` with it as $1; expects non-zero exit + recovery diagnostic
 /// naming `RBRD_DEPOT_MONIKER` (BBAA9 contract). The refusal lands
-/// before authenticate (rbgp_Payor.sh:944-948), so no GCP traffic
+/// before authenticate (rbgp_payor.sh:944-948), so no GCP traffic
 /// occurs — assertion is on exit-code + diagnostic shape only.
 fn rbtdrp_depot_live_disqualify(dir: &Path) -> rbtdre_Verdict {
     let probe = rbtdrb_Probe {

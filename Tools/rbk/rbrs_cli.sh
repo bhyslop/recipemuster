@@ -52,8 +52,8 @@ zrbrs_furnish() {
   local z_rbk_kit_dir="${BASH_SOURCE[0]%/*}"
   source "${BURD_BUK_DIR}/buv_validation.sh"
   source "${BURD_BUK_DIR}/burd_regime.sh"
-  source "${BURD_BUK_DIR}/bupr_PresentationRegime.sh"
-  source "${z_rbk_kit_dir}/rbcc_Constants.sh"
+  source "${BURD_BUK_DIR}/bupr_regime.sh"
+  source "${z_rbk_kit_dir}/rbcc_constants.sh"
   source "${z_rbk_kit_dir}/rbrs_regime.sh"
 
   zbuv_kindle

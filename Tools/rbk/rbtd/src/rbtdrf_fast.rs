@@ -87,7 +87,7 @@ const RBTDRF_BUK_ROOT: &str = "Tools/buk";
 const RBTDRF_RBK_ROOT: &str = "Tools/rbk";
 const RBTDRF_BUV_VALIDATION: &str = "Tools/buk/buv_validation.sh";
 const RBTDRF_BUC_COMMAND: &str = "Tools/buk/buc_command.sh";
-const RBTDRF_RBLDS_SPINE: &str = "Tools/rbk/rblds_Spine.sh";
+const RBTDRF_RBLDS_SPINE: &str = "Tools/rbk/rblds_spine.sh";
 
 // ── Helpers ──────────────────────────────────────────────────
 
@@ -1143,7 +1143,7 @@ export RBRP_OPERATOR_EMAIL=\"\"";
 
 // rbrp enforce reaches RBGC_GLOBAL_PAYOR_REGEX; stage rbgc kindled ahead of the
 // probate, mirroring rbtdrf_rs_rbrr_nonempty_prefix.
-const RBTDRF_RBGC_PRELUDE: &str = "source 'Tools/rbk/rbgc_Constants.sh'\nzrbgc_kindle\n";
+const RBTDRF_RBGC_PRELUDE: &str = "source 'Tools/rbk/rbgc_constants.sh'\nzrbgc_kindle\n";
 
 fn rbtdrf_rv_rbrp_baseline_valid(dir: &Path) -> rbtdre_Verdict {
     rbtdrf_run_probate_in(dir, RBTDRF_RBK_ROOT, RBTDRM_MODULE_RBRP, RBTDRM_PROBATE_RBRP,
@@ -1323,11 +1323,11 @@ fn rbtdrf_rv_rbrv_all_vessels(dir: &Path) -> rbtdre_Verdict {
     let script = format!(
         "set -euo pipefail\n\
          source '{}'\n\
-         source '{}/rbcc_Constants.sh'\n\
-         source '{}/rbgc_Constants.sh'\n\
+         source '{}/rbcc_constants.sh'\n\
+         source '{}/rbgc_constants.sh'\n\
          source '{}/rbrr_regime.sh'\n\
          source '{}/rbrd_regime.sh'\n\
-         source '{}/rbdc_DerivedConstants.sh'\n\
+         source '{}/rbdc_derived.sh'\n\
          zbuv_kindle\nzrbcc_kindle\n\
          source \"${{PWD}}/{moorings}/rbrr.env\"\n\
          source \"${{PWD}}/{moorings}/rbrd.env\"\n\
@@ -1510,11 +1510,11 @@ fn rbtdrf_rs_rbrr_nonempty_prefix(dir: &Path) -> rbtdre_Verdict {
     let script = format!(
         "set -euo pipefail\n\
          source '{}'\n\
-         source '{}/rbcc_Constants.sh'\n\
-         source '{}/rbgc_Constants.sh'\n\
+         source '{}/rbcc_constants.sh'\n\
+         source '{}/rbgc_constants.sh'\n\
          source '{}/rbrr_regime.sh'\n\
          source '{}/rbrd_regime.sh'\n\
-         source '{}/rbgl_GarLayout.sh'\n\
+         source '{}/rbgl_layout.sh'\n\
          zbuv_kindle\nzrbcc_kindle\nzrbgc_kindle\n\
          source \"${{PWD}}/{moorings}/rbrr.env\"\n\
          source \"${{PWD}}/{moorings}/rbrd.env\"\n\
@@ -1575,11 +1575,11 @@ fn rbtdrf_rs_rbrv(dir: &Path) -> rbtdre_Verdict {
     let script = format!(
         "set -euo pipefail\n\
          source '{}'\n\
-         source '{}/rbcc_Constants.sh'\n\
-         source '{}/rbgc_Constants.sh'\n\
+         source '{}/rbcc_constants.sh'\n\
+         source '{}/rbgc_constants.sh'\n\
          source '{}/rbrr_regime.sh'\n\
          source '{}/rbrd_regime.sh'\n\
-         source '{}/rbdc_DerivedConstants.sh'\n\
+         source '{}/rbdc_derived.sh'\n\
          zbuv_kindle\nzrbcc_kindle\n\
          source \"${{PWD}}/{moorings}/rbrr.env\"\n\
          source \"${{PWD}}/{moorings}/rbrd.env\"\n\
@@ -1659,7 +1659,7 @@ fn rbtdrf_rs_burd(dir: &Path) -> rbtdre_Verdict {
 /// discovery for candidate depot project IDs). BUW dispatch merges
 /// stderr→stdout via `2>&1` (bud_dispatch.sh:372), so the captured
 /// stdout carries the buc_warn/buc_info/buc_tabtarget/buc_die output
-/// from rbgp_depot_unmake's no-arg branch (rbgp_Payor.sh:937-942).
+/// from rbgp_depot_unmake's no-arg branch (rbgp_payor.sh:937-942).
 ///
 /// Pure shell, no GCP traffic — refusal lands before authenticate.
 fn rbtdrf_rs_unmake_empty_arg_refusal(dir: &Path) -> rbtdre_Verdict {
@@ -1799,11 +1799,11 @@ fn rbtdrf_dh_all_vessels_pass(dir: &Path) -> rbtdre_Verdict {
     let resolve_script = format!(
         "set -euo pipefail\n\
          source '{}'\n\
-         source '{}/rbcc_Constants.sh'\n\
-         source '{}/rbgc_Constants.sh'\n\
+         source '{}/rbcc_constants.sh'\n\
+         source '{}/rbgc_constants.sh'\n\
          source '{}/rbrr_regime.sh'\n\
          source '{}/rbrd_regime.sh'\n\
-         source '{}/rbdc_DerivedConstants.sh'\n\
+         source '{}/rbdc_derived.sh'\n\
          zbuv_kindle\nzrbcc_kindle\n\
          source \"${{PWD}}/{moorings}/rbrr.env\"\n\
          source \"${{PWD}}/{moorings}/rbrd.env\"\n\
@@ -1960,7 +1960,7 @@ fn rbtdrf_np_bare_absolute_unsurveyed(dir: &Path) -> rbtdre_Verdict {
 //
 // Drives zrbld_spine_validate — the Lode capture-assembly spine's dispatch-time
 // substitution-coverage check — directly: write a substitution-keys file and an
-// already-include-expanded step body, source buv_validation + rblds_Spine and
+// already-include-expanded step body, source buv_validation + rblds_spine and
 // kindle buv so buc_log_args resolves, then assert the check accepts a fully
 // covered body and returns non-zero at the first _RBGL_* reference absent from
 // the keys. The check is sentinel-free and reads only its two file arguments, so
@@ -2273,7 +2273,7 @@ pub static RBTDRF_FIXTURE_RECIPE_VALIDATION: rbtdre_Fixture = rbtdre_Fixture {
 // marker, so a silently-ignored seam (the build fires) fails the case rather than
 // passing while cloud spend burns.
 
-/// Resolve-only test seam recognized by rbld_immure (rbldv_Immure.sh): short-circuit
+/// Resolve-only test seam recognized by rbld_immure (rbldv_immure.sh): short-circuit
 /// after the family-resolution diagnostic, before any credential/network touch.
 const RBTDRF_IMMURE_RESOLVE_ONLY_TWEAK: &str = "buorb_immure_resolve_only";
 /// Stable substring of the loud short-circuit announcement the seam prints.

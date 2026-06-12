@@ -16,7 +16,7 @@
 #
 # Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 #
-# Recipe Bottle Lode - bole body (guard-free cluster, sourced by rbld0_Lode):
+# Recipe Bottle Lode - bole body (guard-free cluster, sourced by rbld0_lode):
 #   ensconce — capture an upstream base image into a Lode (Director credentials)
 # The bole rides the capture-assembly spine (rblds_): this body owns only the
 # kind-specific data — the ensconce recipe (gcrane capture + vouch-push),

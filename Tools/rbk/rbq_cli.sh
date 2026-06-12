@@ -34,9 +34,9 @@ zrbq_furnish() {
   source "${BURD_BUK_DIR}/buv_validation.sh"
   source "${BURD_BUK_DIR}/buz_zipper.sh"
   source "${z_rbk_kit_dir}/rbz_zipper.sh"
-  source "${z_rbk_kit_dir}/rbcc_Constants.sh"
+  source "${z_rbk_kit_dir}/rbcc_constants.sh"
   source "${z_rbk_kit_dir}/rbrn_regime.sh"
-  source "${z_rbk_kit_dir}/rbq_Qualify.sh"
+  source "${z_rbk_kit_dir}/rbq_qualify.sh"
 
   zbuz_kindle
   zrbz_kindle

@@ -27,7 +27,7 @@ ZRBGC_SOURCED=1
 
 # Tinder constants (pure string literals, no variable expansion — available at source time)
 # Depot project ID infix between RBRD_CLOUD_PREFIX and RBRD_DEPOT_MONIKER, consumed
-# by rbdc_DerivedConstants.sh's RBDC_DEPOT_PROJECT_ID derivation.
+# by rbdc_derived.sh's RBDC_DEPOT_PROJECT_ID derivation.
 RBGC_depot_project_infix="d-"
 
 ######################################################################
@@ -80,7 +80,7 @@ zrbgc_kindle() {
   readonly RBGC_SA_KEY_CONSUMER_RETRY_MAX_DELAY_SEC=15
 
   # IAM-grant propagation retry — exponential-backoff budget shared by every
-  # get-modify-set IAM grant site in rbgi_IAM.sh plus the inline GAR retry in
+  # get-modify-set IAM grant site in rbgi_iam.sh plus the inline GAR retry in
   # rbgg_invest_director. Recognizes three propagation classes against the
   # same time budget: (A) forward member-visibility (HTTP 400 "does not
   # exist"), (B) backward member-visibility (HTTP 400 "is not deleted"),
@@ -199,7 +199,7 @@ zrbgc_kindle() {
   readonly RBGC_HALLMARK_PREFIX_GRAFT="g"
 
   # GAR Categorical Namespaces (₢A_AAK layout)
-  # Top-level namespaces under which arks are stored. Consumed by rbgl_GarLayout.sh.
+  # Top-level namespaces under which arks are stored. Consumed by rbgl_layout.sh.
   # rbi_hm holds Director-authored image families; rbi_df holds
   # Payor-authored depot-scoped OCI artifacts produced during depot lifetime.
   readonly RBGC_GAR_CATEGORY_HALLMARKS="rbi_hm"
