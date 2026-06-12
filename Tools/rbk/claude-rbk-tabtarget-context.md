@@ -67,6 +67,7 @@ The Folio column shows how each tabtarget receives it:
 | `rbw-lI` | DirectorImmuresPodvm | param1 | Immure podman-machine disk leaves of one quay family into a Lode (capture; args: family version) |
 | `rbw-ld` | DirectorDivinesLodes | — | Divine Lodes — enumerate every Lode by touchmark (read-only) |
 | `rbw-la` | DirectorAugursLode | param1 | Augur a Lode — inspect member tags and decode its rbi_vouch envelope (read-only) |
+| `rbw-lp` | DirectorPresagesImmure | param1 | Presage an immure — show what it would capture for one quay family (read-only; args: family [version]) |
 | `rbw-lB` | DirectorBanishesLode | param1 | Banish a Lode — delete the whole rbi_ld/<touchmark> package |
 
 ### Guide — Human-directed procedures (`rbw-g`)

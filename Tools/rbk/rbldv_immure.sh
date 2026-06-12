@@ -17,8 +17,10 @@
 # Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 #
 # Recipe Bottle Lode - podvm body (guard-free cluster, sourced by rbld0_lode):
-#   immure — wall in the selected podman-machine disk leaves of one quay family into
-#            a Lode (Director credentials)
+#   immure  — wall in the selected podman-machine disk leaves of one quay family into
+#             a Lode (Director credentials)
+#   presage — show what immure would capture for one quay family (read-only dry-run:
+#             family resolution + leaf selection, no credential or network touch)
 # The podvm kind rides the capture-assembly spine (rblds_): this body owns only the
 # kind-specific data — the immure recipe (anon-quay index select + gcrane cp-by-digest
 # + blob-residency guard + vouch-push) and the substitutions blob — and composes them
@@ -162,6 +164,36 @@ zrbld_immure_submit() {
 ######################################################################
 # External Functions (rbld_*)
 
+rbld_presage() {
+  zrbld_sentinel
+
+  buc_doc_brief "Presage an immure — show what it would capture for one quay family (read-only, no credential or network touch)"
+  buc_doc_param "family"  "Quay family — ${RBGC_LODE_BRAND_PODVM_WSL} or ${RBGC_LODE_BRAND_PODVM_NATIVE}"
+  buc_doc_param "version" "Optional version tag (e.g. 5.6) — when present, leaves render as full upstream origins"
+  buc_doc_shown || return 0
+
+  local -r z_brand="${BUZ_FOLIO:-}"
+  test -n "${z_brand}" || buc_die "family argument required (${RBGC_LODE_BRAND_PODVM_WSL} or ${RBGC_LODE_BRAND_PODVM_NATIVE})"
+  local -r z_version="${1:-}"
+
+  local z_kind="" z_quay_family="" z_selection=""
+  zrbld_immure_resolve_family "${z_brand}"
+  buc_info "Presage: immure ${z_brand} -> ${z_quay_family} (kind ${z_kind}), leaves: ${z_selection}"
+
+  local z_leaf=""
+  local z_count=0
+  for z_leaf in ${z_selection}; do
+    z_count=$((z_count + 1))
+    if test -n "${z_version}"; then
+      buc_info "  would capture: ${z_quay_family}:${z_version} leaf ${z_leaf}"
+    else
+      buc_info "  would capture leaf: ${z_leaf}"
+    fi
+  done
+
+  buc_success "Presage complete: immure ${z_brand} would capture ${z_count} leaves into ${RBGL_LODES_ROOT}/${z_kind}<stamp>"
+}
+
 rbld_immure() {
   zrbld_sentinel
 
@@ -199,21 +231,7 @@ rbld_immure() {
 
   local z_kind="" z_quay_family="" z_selection=""
   zrbld_immure_resolve_family "${z_brand}"
-  # Resolved-tuple diagnostic, emitted before any credential load so a host-side
-  # (no-GCB) test can assert the family mapping for either brand by reading this line.
   buc_info "Immure family resolved: ${z_brand} -> ${z_quay_family} (kind ${z_kind}), leaves: ${z_selection}"
-
-  # Resolve-only test seam (buo sprue; BURE enforces the shape). The fast tier asserts
-  # the family mapping host-side, but immure is GCP-capable: without this short-circuit
-  # a credentialed workstation would load creds and fire a live build right below. When
-  # the tweak is set, stop here — AFTER the diagnostic, BEFORE any credential or network
-  # touch — and announce loudly, so a transcript reader sees why immure stopped early
-  # (a silent early exit reads as a bug). Mirrors rbldb_bole's buorb_ensconce_stamp.
-  local -r z_resolve_only_tweak_name="buorb_immure_resolve_only"
-  if test "${BURE_TWEAK_NAME:-}" = "${z_resolve_only_tweak_name}"; then
-    buc_success "immure: short-circuit after resolve (${z_resolve_only_tweak_name})"
-    return 0
-  fi
 
   buc_step "Loading Director RBRA credentials"
   source "${RBDC_DIRECTOR_RBRA_FILE}" || buc_die "Failed to source Director RBRA"

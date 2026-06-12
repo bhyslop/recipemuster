@@ -85,6 +85,7 @@ zrbz_kindle() {
   buz_enroll RBZ_IMMURE_PODVM           "rbw-lI"  "${z_mod}" "rbld_immure"        "param1"  "Immure podman-machine disk leaves of one quay family into a Lode (capture; args: family version)"
   buz_enroll RBZ_DIVINE_LODES           "rbw-ld"  "${z_mod}" "rbld_divine"        ""        "Divine Lodes — enumerate every Lode by touchmark (read-only)"
   buz_enroll RBZ_AUGUR_LODE             "rbw-la"  "${z_mod}" "rbld_augur"         "param1"  "Augur a Lode — inspect member tags and decode its rbi_vouch envelope (read-only)"
+  buz_enroll RBZ_PRESAGE_IMMURE         "rbw-lp"  "${z_mod}" "rbld_presage"       "param1"  "Presage an immure — show what it would capture for one quay family (read-only; args: family [version])"
   buz_enroll RBZ_BANISH_LODE            "rbw-lB"  "${z_mod}" "rbld_banish"        "param1"  "Banish a Lode — delete the whole rbi_ld/<touchmark> package"
 
   # Guide — human-directed procedures (rbw-g)
