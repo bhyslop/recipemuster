@@ -932,6 +932,12 @@ existing names are swept only by deliberate remint tooling, never piecemeal.
 * *Semantic uniqueness.*
 One meaning per word across all persistent names, repo-wide.
 A word already bound to a meaning anywhere in the system is unavailable for a second meaning, however distant the domain.
+* *One word per concept.*
+The dual of semantic uniqueness: no alias
+{mcm_quoin_s} —
+a concept already named is closed to a second word.
+Near neighbors must be spaced:
+adjacent definitions state their distinction, or one of the pair dies.
 * *Vocabulary isolation.*
 Words mint from source domains alien to software, cloud infrastructure, CI/CD, and corporate project management.
 A word with heavy ambient presence in software prose is a
@@ -946,6 +952,22 @@ a clean landing is a minting precondition, not a nicety.
 Prefer rare, real words whose true meaning does semantic work.
 Concrete, physical, sensory images lodge across sessions in ways abstract labels cannot.
 Abbreviations spend recognition to save characters — the wrong trade.
+* *Word husbandry.*
+A word's commonness matches its operation's traffic:
+daily surfaces earn short, plain, instantly-guessable words;
+rare ceremonies must not spend them —
+mint longer, rarer, more colorful words there,
+conserving the small stock of plain English for the surfaces that need it.
+Husbandry lowers the commonness ceiling, never the
+{mcm_fair_faced}
+floor: color may rise with rarity; opacity may not.
+* *Sibling initials.*
+Wherever a sibling set shares an abbreviation namespace —
+colophon suffixes, quoin sub-letters, any single-character discriminator —
+elect words whose first letters stay distinct,
+so the abbreviation can remain the word's initial.
+An election-time check beside the grep gate;
+the word-side twin of sub-letter monosemy.
 * *Mint into an* {mcm_asterism}.
 A new word joins a coherent metaphor family wherever one fits;
 a lone orphan word is weaker than a family member.
@@ -1071,6 +1093,8 @@ is the registry contract —
 an
 {mcm_ashlar}
 mint is incomplete until its entry exists.
+A project whose operators work through digital minds may mirror the sheet into agent context files;
+mirrors are derived, never canonical.
 
 [[mcm_cold_probe]]
 {mcm_cold_probe}::
