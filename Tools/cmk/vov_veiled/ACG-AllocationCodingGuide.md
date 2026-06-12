@@ -116,7 +116,7 @@ For an LLM reader the cost is mechanical, not aesthetic: two near-paraphrases
 are nearly the same retrieval key, and once they drift the model retrieves a
 confident *blend* — statement-level interference, the prose analogue of the
 prefix-collision mechanism in
-`Memos/memo-20260610-quoin-minting-introspection.md`. A quoin gives a concept
+`Memos/retired/memo-20260610-quoin-minting-introspection.md`. A quoin gives a concept
 one string; this clause gives a claim one wording. Canonical specimen: the
 2026-06-10 Diff-Friendly-Prose repair, where a context file *characterized* a
 spec's scope instead of citing it, and the characterization carried the error

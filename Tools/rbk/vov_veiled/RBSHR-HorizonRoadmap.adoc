@@ -83,7 +83,7 @@ the final wave retires the hallmark variants when Ark earns the `k` command fami
 The wrest/jettison variants are pure pass-throughs and delete cleanly;
 `rekon`/`audit` carry semantic contracts (canonical-member presence assertion, fact-multi emission) that must be re-homed, not deleted.
 _Trigger_: the made-side Ark/Hallmark retrofit heat.
-_Reference_: `Memos/memo-20260610-heat-BH-image-tabtarget-cleanup.md` (waves, removal conditions, the done-when grep).
+_Reference_: `Memos/retired/memo-20260610-heat-BH-image-tabtarget-cleanup.md` (waves, removal conditions, the done-when grep).
 
 **Hairpin peer access between crucibles.**
 Bottled containers cannot currently reach each other's published entry ports.
@@ -296,7 +296,7 @@ the fixed shape penalizes exactly the packages that most need convergence.
 Repair shape per the memo: die only on consecutive no-progress rounds (remaining-version count supplies the signal), retain a work-scaled absolute ceiling as backstop, and document the abjure-size budget against `RBRR_GCB_TIMEOUT` (per-package ceilings must sum inside the build timeout).
 Latent today — the largest observed web is 55 versions, far from the edge.
 _Trigger_: captured webs an order of magnitude past today's, or a convergence death attributed to the fixed ceiling.
-_Reference_: `Memos/memo-20260610-heat-BH-fable-recommendation-convergence-deadline-shape.md`.
+_Reference_: `Memos/retired/memo-20260610-heat-BH-fable-recommendation-convergence-deadline-shape.md`.
 
 **Binary Authorization.**
 Deploy-time policy enforcement (only attested images can be deployed).
