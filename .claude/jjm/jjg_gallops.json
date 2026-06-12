@@ -8173,9 +8173,10 @@
         "₢BDAAK",
         "₢BDAAS",
         "₢BDAAT",
-        "₢BDAAV"
+        "₢BDAAV",
+        "₢BDAAW"
       ],
-      "jjghn_next_pace_seed": "AAW",
+      "jjghn_next_pace_seed": "AAX",
       "jjghn_paces": {
         "₢BDAAA": {
           "jjgpn_tacks": [
@@ -8709,6 +8710,17 @@
               "jjgtn_text": "## Character\nMostly mechanical substitution, plus two small mint decisions requiring operator judgment.\n\nIn the Racing Vocabulary glossary of JJS0,\nfive upper-vocabulary verbs appear as bare italic mentions (*muster*, *parade*, *furlough*, *retire*, *rail*)\neven though `jjsuv_` quoins with definition sites already exist;\nreplace each italic mention with its quoin ref,\nmatching how the same bullet list already renders the heat/pace/firemark/coronet/silks/gallops entries.\nDiscovery recipe: `grep -n '\\*[a-z-]*\\*' Tools/jjk/vov_veiled/JJS0_JobJockeySpec.adoc` —\nthe glossary-section hits are the targets.\n\nTwo glossary words have no concept quoin to point at:\n*paddock* (the artifact concept — existing quoins cover only the path field and the jjx command)\nand *docket* (the presentation alias — only the revise-docket operation quoins exist).\nResolve with the operator whether to mint concept quoins for these two;\nif minted, follow MCM linked-term structure and the Quoin Sub-Letter Discipline.\n\nEdits follow MCM line-break discipline wherever a line is restructured.\n\n## Cinched\nDressage vocabulary (school, longe, breeze, corral, volte, caracole, gait, beat, quirt, reined) stays italic —\nV4 reserved vocabulary with no machinery behind it; out of scope.\nRun-in labels (e.g. *Invocation:*, *Design rationale:*) and literal-block output templates\n(e.g. the JJSCRT trophy markdown) are correct as-is; do not touch.\n\n## Done when\nThe five jjsuv glossary mentions are quoin refs,\nthe paddock/docket mint question is resolved with the operator (minted or explicitly declined),\nand the document's attribute refs all resolve.",
               "jjgtn_silks": "jjs0-glossary-quoin-emphasis",
               "jjgtn_basis": "6aac0d1"
+            }
+          ]
+        },
+        "₢BDAAW": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260612-1056",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "`jjx_record`'s \"uncommitted changes outside file list\" warning treats a staged rename's\n`old -> new` porcelain line as one opaque path,\nso a rename whose old and new paths are BOTH in the `files[]` list still warns as outside the list.\nEvidence: the ₣BH bash-filename-case sweep (commit 94729c007) listed both sides of all 50 `git mv` pairs,\nyet every pair printed in the warning — 50 false lines drowning any real outside-list signal.\nThe commit itself was correct; the defect is matcher honesty, not staging.\n\n## Character\nSmall mechanical Rust fix with a unit test; the only judgment call is the matching rule.\n\n## Cinched\n- Decompose `R`-status lines into their two paths before matching against the file list;\n  a rename counts as covered when both sides are listed\n  (whether new-path-only should also satisfy is a mount-time call — pick the stricter rule if unsure).\n\n## Done when\n- A `jjx_record` whose file list names both sides of a staged rename emits no outside-list warning for that pair.\n- A rename genuinely absent from the file list still warns.\n- A unit test covers the rename-pair case.\n\nFind the site: grep the warning text \"outside file list\" under the JJK/VVC Rust sources.",
+              "jjgtn_silks": "record-warning-decompose-rename-pairs",
+              "jjgtn_basis": "9471778"
             }
           ]
         }
