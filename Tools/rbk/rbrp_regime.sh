@@ -74,33 +74,17 @@ zrbrp_enforce() {
   # Custom format checks beyond buv_ type system
   zrbgc_sentinel
   [[ "${RBRP_PAYOR_PROJECT_ID}" =~ ${RBGC_GLOBAL_PAYOR_REGEX} ]] \
-    || buc_die "RBRP_PAYOR_PROJECT_ID does not match payor project pattern"
+    || buc_reject "${BUBC_band_regime}" "RBRP_PAYOR_PROJECT_ID does not match payor project pattern"
 
   if test -n "${RBRP_BILLING_ACCOUNT_ID}"; then
     [[ "${RBRP_BILLING_ACCOUNT_ID}" =~ ^[A-Z0-9]{6}-[A-Z0-9]{6}-[A-Z0-9]{6}$ ]] \
-      || buc_die "RBRP_BILLING_ACCOUNT_ID must be XXXXXX-XXXXXX-XXXXXX format"
+      || buc_reject "${BUBC_band_regime}" "RBRP_BILLING_ACCOUNT_ID must be XXXXXX-XXXXXX-XXXXXX format"
   fi
 
   if test -n "${RBRP_OAUTH_CLIENT_ID}"; then
     [[ "${RBRP_OAUTH_CLIENT_ID}" =~ \.apps\.googleusercontent\.com$ ]] \
-      || buc_die "RBRP_OAUTH_CLIENT_ID must end with .apps.googleusercontent.com"
+      || buc_reject "${BUBC_band_regime}" "RBRP_OAUTH_CLIENT_ID must end with .apps.googleusercontent.com"
   fi
-}
-
-######################################################################
-# Public Functions (rbrp_*)
-
-# Source an arbitrary RBRP regime file and run the full kindle->enforce
-# chain against it, failing on first fault. Test-facing contract surface:
-# theurge drives synthetic-malformed regime files through this without
-# reaching module internals. Prerequisites: buv kindled, and RBGC kindled
-# (zrbrp_enforce reaches RBGC_GLOBAL_PAYOR_REGEX for the payor-project check).
-rbrp_probate() {
-  local -r z_file="${1:-}"
-  test -n "${z_file}" || buc_die "rbrp_probate: regime file argument required"
-  source "${z_file}"  || buc_die "rbrp_probate: cannot source ${z_file}"
-  zrbrp_kindle
-  zrbrp_enforce
 }
 
 # eof

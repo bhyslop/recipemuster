@@ -68,14 +68,26 @@ BUBC_windows_fw_display_name="OpenSSH Server"
 # No band code is minted outside this block.
 BUBC_band_base=100
 BUBC_band_width=16
-# Gate codes, allocated upward from base:
-BUBC_band_regime=100    # regime validation rejection (validate verbs)
-BUBC_band_enroll=101    # enrollment validation rejection
+# Gate codes, allocated upward from base. The regime-load pipeline crosses
+# two gates in one spawn path — the buv layer (vet value checks + scope
+# sentinel) and the regime module's own custom enforce rules — so per the
+# allocation rule they carry distinct codes:
+BUBC_band_regime=100    # regime-module custom enforce rejection (cross-field, format regex, existence)
+BUBC_band_enroll=101    # buv enrollment-validation rejection (buv_vet, buv_scope_sentinel)
 BUBC_band_recipe=102    # recipe validation rejection
 BUBC_band_hygiene=103   # Dockerfile FROM-line hygiene rejection (rbfh)
 BUBC_band_credless=104  # credless guard at token mint (fast-tier suite invariant)
 # Self-test probe pins the band top, proving full-width propagation:
 BUBC_band_selftest=115  # BUK self-test deliberate rejection (buw-xb fixture)
+
+# Regime-poison tweak (BUS0 Tweak Mechanism; buost_ is BUK's reserved buo
+# segment). The seam is one membrane in buv_regime_enroll — the single buv
+# entry every regime kindle crosses, post-source pre-validate. Under this
+# tweak name, BURE_TWEAK_VALUE names one variable to corrupt: "VAR=value"
+# sets, bare "VAR" unsets. The seam applies only when VAR carries the
+# enrolling scope's prefix, so a poison rides inert through the host
+# regimes of a dispatch and lands exactly once, on its target.
+BUBC_tweak_regime_poison="buost_regime_poison"
 
 # Windows registry preconditions for unattended power-on posture.
 # Operator-handbook step (BUSJHW Windows: Host Availability) sets these;

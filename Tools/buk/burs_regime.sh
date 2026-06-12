@@ -64,22 +64,7 @@ zburs_enforce() {
   buv_vet BURS
 
   [[ "${BURS_TINCTURE}" =~ ^[a-z][a-z0-9]{0,2}$ ]] \
-    || buc_die "Invalid BURS_TINCTURE format: ${BURS_TINCTURE} (expected 1-3 chars, lowercase alphanumeric starting with letter; no hyphens)"
-}
-
-######################################################################
-# Public Functions (burs_*)
-
-# Source an arbitrary BURS regime file and run the full kindle->enforce
-# chain against it, failing on first fault. Test-facing contract surface:
-# theurge drives synthetic-malformed regime files through this without
-# reaching module internals. Prerequisite: buv kindled.
-burs_probate() {
-  local -r z_file="${1:-}"
-  test -n "${z_file}" || buc_die "burs_probate: regime file argument required"
-  source "${z_file}"  || buc_die "burs_probate: cannot source ${z_file}"
-  zburs_kindle
-  zburs_enforce
+    || buc_reject "${BUBC_band_regime}" "Invalid BURS_TINCTURE format: ${BURS_TINCTURE} (expected 1-3 chars, lowercase alphanumeric starting with letter; no hyphens)"
 }
 
 # eof

@@ -106,9 +106,9 @@ zrbrn_enforce() {
   # Cross-port check (entry ports must be less than uplink port min)
   if test "${RBRN_ENTRY_MODE}" = "rbnne_enabled"; then
     test "${RBRN_ENTRY_PORT_WORKSTATION}" -lt "${RBRN_UPLINK_PORT_MIN}" || \
-      buc_die "RBRN_ENTRY_PORT_WORKSTATION must be less than RBRN_UPLINK_PORT_MIN"
+      buc_reject "${BUBC_band_regime}" "RBRN_ENTRY_PORT_WORKSTATION must be less than RBRN_UPLINK_PORT_MIN"
     test "${RBRN_ENTRY_PORT_ENCLAVE}" -lt "${RBRN_UPLINK_PORT_MIN}" || \
-      buc_die "RBRN_ENTRY_PORT_ENCLAVE must be less than RBRN_UPLINK_PORT_MIN"
+      buc_reject "${BUBC_band_regime}" "RBRN_ENTRY_PORT_ENCLAVE must be less than RBRN_UPLINK_PORT_MIN"
   fi
 
   # Build docker env args array from validated values
@@ -118,18 +118,6 @@ zrbrn_enforce() {
 
 ######################################################################
 # Public Functions (rbrn_*)
-
-# Source an arbitrary RBRN regime file and run the full kindle->enforce
-# chain against it, failing on first fault. Test-facing contract surface:
-# theurge drives synthetic-malformed regime files through this without
-# reaching module internals. Prerequisite: buv kindled.
-rbrn_probate() {
-  local -r z_file="${1:-}"
-  test -n "${z_file}" || buc_die "rbrn_probate: regime file argument required"
-  source "${z_file}"  || buc_die "rbrn_probate: cannot source ${z_file}"
-  zrbrn_kindle
-  zrbrn_enforce
-}
 
 # List available nameplate monikers as space-separated tokens
 # Prerequisite: RBCC sourced (needs RBCC_moorings_dir, RBCC_rbrn_file)
@@ -169,7 +157,7 @@ zrbrn_ip_in_subnet() {
   local z_base_int=$(zrbrn_ip_to_int "${z_base}")
   local z_net_mask=$(( (0xFFFFFFFF << (32 - z_mask)) & 0xFFFFFFFF ))
   if [[ $(( z_ip_int & z_net_mask )) -ne $(( z_base_int & z_net_mask )) ]]; then
-    buc_die "${z_label}=${z_ip} is not within subnet ${z_base}/${z_mask}"
+    buc_reject "${BUBC_band_regime}" "${z_label}=${z_ip} is not within subnet ${z_base}/${z_mask}"
   fi
 }
 

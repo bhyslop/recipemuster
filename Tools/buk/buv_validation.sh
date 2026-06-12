@@ -120,6 +120,39 @@ zbuv_reset_enrollment() {
 
 # Regime context setters — called during kindle to establish enrollment scope
 
+# Regime-poison seam (BUS0 Tweak Mechanism) — the one membrane in the
+# regime-load path, crossed at every regime kindle post-source pre-validate.
+# Under BUBC_tweak_regime_poison, BURE_TWEAK_VALUE names one variable to
+# corrupt: "VAR=value" sets, bare "VAR" unsets. Applies only when VAR carries
+# this scope's prefix ("${z_scope}_"), so the poison rides inert through a
+# dispatch's host regimes and lands exactly once, on its target — before the
+# scope's enrollments, sentinel, vet, and lock ever see the environment.
+# The tweak-name expansion below the empty-check is unguarded on purpose:
+# a poisoned context without the bubc tinder dies loud, never no-ops.
+zbuv_poison_apply() {
+  local z_scope="${1:-}"
+  test -n "${BURE_TWEAK_NAME:-}" || return 0
+  test "${BURE_TWEAK_NAME}" = "${BUBC_tweak_regime_poison}" || return 0
+
+  local z_spec="${BURE_TWEAK_VALUE:-}"
+  test -n "${z_spec}" || buc_die "regime poison: BURE_TWEAK_VALUE required ('VAR=value' to set, 'VAR' to unset)"
+  local z_var="${z_spec%%=*}"
+  [[ "${z_var}" =~ ^[A-Z][A-Z0-9_]*$ ]] || buc_die "regime poison: invalid variable name '${z_var}'"
+
+  case "${z_var}" in
+    "${z_scope}_"*) : ;;
+    *) return 0 ;;
+  esac
+
+  if test "${z_spec}" = "${z_var}"; then
+    unset "${z_var}" || buc_die "regime poison: cannot unset ${z_var}"
+    buc_log_args "regime poison: unset ${z_var} (scope ${z_scope})"
+  else
+    export "${z_var}=${z_spec#*=}" || buc_die "regime poison: cannot set ${z_var}"
+    buc_log_args "regime poison: set ${z_var} (scope ${z_scope})"
+  fi
+}
+
 # buv_regime_enroll SCOPE — set current enrollment scope
 # Validates that SCOPE is non-empty. All subsequent enroll calls use this scope
 # until another buv_regime_enroll is called.
@@ -133,6 +166,8 @@ buv_regime_enroll() {
   z_buv_current_group_idx=-1
   z_buv_current_gate_var=""
   z_buv_current_gate_val=""
+
+  zbuv_poison_apply "${z_scope}"
 }
 
 # buv_group_enroll TITLE — set current group context
@@ -637,7 +672,7 @@ buv_scope_sentinel() {
   done
 
   if test "${#z_unexpected[@]}" -gt 0; then
-    buc_die "Unexpected ${z_prefix}* variables not enrolled in ${z_scope}: ${z_unexpected[*]}"
+    buc_reject "${BUBC_band_enroll}" "Unexpected ${z_prefix}* variables not enrolled in ${z_scope}: ${z_unexpected[*]}"
   fi
 }
 
@@ -664,7 +699,11 @@ buv_docker_env() {
   done
 }
 
-# buv_vet SCOPE — iterate all enrolled vars in scope; die on first failure
+# buv_vet SCOPE — iterate all enrolled vars in scope; reject on first failure
+# A failed value check is the buv enrollment-validation gate firing — it
+# rejects with BUBC_band_enroll so negative tests can assert WHICH layer
+# refused (the band expansion is unguarded on purpose: a vet failure without
+# the bubc tinder dies loud, never soft).
 buv_vet() {
   zbuv_sentinel
 
@@ -676,7 +715,7 @@ buv_vet() {
   for z_i in "${!z_buv_scope_roll[@]}"; do
     test "${z_buv_scope_roll[$z_i]}" = "${z_scope}" || continue
     z_err=$(zbuv_check_capture "${z_i}")
-    test -z "${z_err}" || test "${z_err}" = "${BUV_check_gated}" || buc_die "${z_buv_varname_roll[$z_i]}: ${z_err#"${BUV_check_fail}"}"
+    test -z "${z_err}" || test "${z_err}" = "${BUV_check_gated}" || buc_reject "${BUBC_band_enroll}" "${z_buv_varname_roll[$z_i]}: ${z_err#"${BUV_check_fail}"}"
   done
 }
 

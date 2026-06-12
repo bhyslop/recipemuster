@@ -112,16 +112,4 @@ burn_die_no_folio() {
   buc_die "No BURN investiture supplied."
 }
 
-# Source an arbitrary BURN regime file and run the full kindle->enforce
-# chain against it, failing on first fault. Test-facing contract surface:
-# theurge drives synthetic-malformed regime files through this without
-# reaching module internals. Prerequisite: buv kindled.
-burn_probate() {
-  local -r z_file="${1:-}"
-  test -n "${z_file}" || buc_die "burn_probate: regime file argument required"
-  source "${z_file}"  || buc_die "burn_probate: cannot source ${z_file}"
-  zburn_kindle
-  zburn_enforce
-}
-
 # eof

@@ -68,31 +68,16 @@ zrbra_enforce() {
   # RBRA_ROLE must be a valid role name (minted rbnae_ enum sprue)
   case "${RBRA_ROLE}" in
     rbnae_governor|rbnae_retriever|rbnae_director) ;;
-    *) buc_die "RBRA_ROLE must be rbnae_governor, rbnae_retriever, or rbnae_director — got: '${RBRA_ROLE}'" ;;
+    *) buc_reject "${BUBC_band_regime}" "RBRA_ROLE must be rbnae_governor, rbnae_retriever, or rbnae_director — got: '${RBRA_ROLE}'" ;;
   esac
 
   # Client email must match service account pattern
   [[ "${RBRA_CLIENT_EMAIL}" =~ \.iam\.gserviceaccount\.com$ ]] \
-    || buc_die "RBRA_CLIENT_EMAIL does not match service account pattern (*.iam.gserviceaccount.com): '${RBRA_CLIENT_EMAIL}'"
+    || buc_reject "${BUBC_band_regime}" "RBRA_CLIENT_EMAIL does not match service account pattern (*.iam.gserviceaccount.com): '${RBRA_CLIENT_EMAIL}'"
 
   # Private key must contain PEM key material
   [[ "${RBRA_PRIVATE_KEY}" =~ BEGIN ]] \
-    || buc_die "RBRA_PRIVATE_KEY does not contain PEM key material"
-}
-
-######################################################################
-# Public Functions (rbra_*)
-
-# Source an arbitrary RBRA regime file and run the full kindle->enforce
-# chain against it, failing on first fault. Test-facing contract surface:
-# theurge drives synthetic-malformed regime files through this without
-# reaching module internals. Prerequisite: buv kindled.
-rbra_probate() {
-  local -r z_file="${1:-}"
-  test -n "${z_file}" || buc_die "rbra_probate: regime file argument required"
-  source "${z_file}"  || buc_die "rbra_probate: cannot source ${z_file}"
-  zrbra_kindle
-  zrbra_enforce
+    || buc_reject "${BUBC_band_regime}" "RBRA_PRIVATE_KEY does not contain PEM key material"
 }
 
 # eof

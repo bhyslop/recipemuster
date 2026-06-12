@@ -144,6 +144,8 @@ RBCC_container_sentry="sentry"
 # (same mechanical transform, BUBC_ prefix stripped) — theurge asserts exit
 # codes as integers. bubc is sourced by the launcher on every dispatch, so the
 # band values are present at emission time with no cross-module tinder trick.
+# A third section projects BUBC string tinder (the regime-poison tweak name)
+# through the same transform via the string primitive.
 rbcc_emit_consts() {
   printf '%s\n' "// RBCC constants (rbcc_constants.sh single-homed set)"
 
@@ -204,6 +206,14 @@ rbcc_emit_consts() {
     buz_emit_const_i32 "RBTDGC_${z_upper}" "${!z_name}" \
       || buc_die "rbcc_emit_consts: emit failed for ${z_name}"
   done
+
+  printf '%s\n' ""
+  printf '%s\n' "// BUBC regime-poison tweak (bubc_constants.sh) — string"
+  z_name="BUBC_tweak_regime_poison"
+  z_stem="${z_name#BUBC_}"
+  z_upper="$(printf '%s' "${z_stem}" | tr '[:lower:]' '[:upper:]')"
+  buz_emit_const "RBTDGC_${z_upper}" "${!z_name}" \
+    || buc_die "rbcc_emit_consts: emit failed for ${z_name}"
 }
 
 ######################################################################
