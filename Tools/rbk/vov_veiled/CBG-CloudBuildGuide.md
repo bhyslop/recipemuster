@@ -392,12 +392,14 @@ in a distroless `:debug` builder such as `gcrane:debug`).
 
 A per-kind body builds the substitution blob (`jq -n` → `_RBGx_` keys) and hands
 it to the spine, which passes it through without reading any individual key
-(keeping the spine kind-agnostic). Before the expensive submit, the validator
-scans each include-expanded step body for the `_RBGx_` tokens it references
-(*requires*) and fails if any is absent from the blob's keys (*provides*) — the
-heat's one declared behavior-add, whose reject path carries its own unit tests.
-A body author's obligation: every `_RBGx_` the body reads must be a key the
-kind's blob provides.
+(keeping the spine kind-agnostic). The spine adds exactly one key of its own —
+`_RBGL_GIT_COMMIT`, the dispatching HEAD commit, dispatch provenance it owns
+like the pool and timeout; bodies never declare it. Before the expensive submit,
+the validator scans each include-expanded step body for the `_RBGx_` tokens it
+references (*requires*) and fails if any is absent from the blob's keys
+(*provides*) — the heat's one declared behavior-add, whose reject path carries
+its own unit tests. A body author's obligation: every `_RBGx_` the body reads
+must be a key the kind's blob provides (or the spine's one injected key).
 
 *Cited by:* the validator's reject message; its unit tests.
 

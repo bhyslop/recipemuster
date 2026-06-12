@@ -120,12 +120,12 @@ if the existing `:rbi_bole` digest differs from `«DIGEST»` — a touchmark col
 .. Apply the remaining member tags by `gcrane tag` (a registry-side re-tag of the copied manifest, no blob round-trip): `:rbi_bole` (uniform handle) and `:«SANITIZED-ORIGIN»-«SHA10»` (fingerprint)
 .. Author the
 {rbtga_lode_vouch}
-envelope JSON (schema `rbld-vouch-2`, all keys sprued `rblv_`, trust grade `verified-against-published`, single-element `rblv_members[]`) and stage it on the {rbtgr_workspace}
+envelope JSON (schema `rbld-vouch-3`, all keys sprued `rblv_`, trust grade `verified-against-published`, single-element `rblv_members[]`) and stage it on the {rbtgr_workspace}
 .. Write the per-slot result JSON to `buildStepOutputs`
 
 //axhos_step
 . *Vouch Step (in-pool — rbgjl02)*:
-.. For the staged envelope, build a `FROM scratch` image copying `vouch.json` and push it to the Lode package under the `:rbi_vouch` tag — a distinct manifest sharing the one package
+.. Splice the dispatching HEAD commit (`rblv_git_commit`, the spine-injected substitution) into the staged envelope, then build a `FROM scratch` image copying `vouch.json` and push it to the Lode package under the `:rbi_vouch` tag — a distinct manifest sharing the one package
 
 //axhos_step
 . *Wait for Build Completion*:

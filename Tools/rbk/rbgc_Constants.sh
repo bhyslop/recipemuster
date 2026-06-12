@@ -252,9 +252,11 @@ zrbgc_kindle() {
   # bole captures the durable-upstream grade; podvm-* carries the recorded grade.
   readonly RBGC_LODE_TRUST_VERIFIED="verified-against-published"
   readonly RBGC_LODE_TRUST_RECORDED="recorded-at-acquisition"
-  # Schema bumped to rbld-vouch-2 with the rblv_ sprue migration (ACGm_108, first application).
+  # rbld-vouch-2: the rblv_ sprue migration (ACGm_108, first application).
+  # rbld-vouch-3: rblv_git_commit added — the dispatching HEAD commit, stamped at
+  #   the shared vouch-push step (rbgjl02) from the spine-injected substitution.
   # Pre-MVP: no back-compat; every author writes rblv_ keys, augur reads rblv_ ONLY.
-  readonly RBGC_LODE_VOUCH_SCHEMA="rbld-vouch-2"    # unsigned, schema-versioned, rblv_ sprue
+  readonly RBGC_LODE_VOUCH_SCHEMA="rbld-vouch-3"    # unsigned, schema-versioned, rblv_ sprue
 
   # wsl-kind acquisition convention — NOT a resolved coordinate (see RBSLU). Per
   # the no-FQIN premise, intent stays declarative and the pipeline computes the

@@ -139,8 +139,9 @@ zrbld_spine_validate() {
 #                    line (busybox -> /busybox/sh, the only shell in distroless
 #                    :debug builder images such as gcrane:debug)
 #
-# The substitutions file holds a JSON object the spine slots verbatim into the
-# Build envelope's `substitutions` field; the spine reads no key from it. The
+# The substitutions file holds a JSON object the spine slots into the Build
+# envelope's `substitutions` field; the spine reads no key from it and adds
+# exactly one — _RBGL_GIT_COMMIT, the dispatching HEAD commit (see below). The
 # envelope shape (serviceAccount, options.automapSubstitutions, options.substitutionOption,
 # options.logging, options.pool, timeout) is the spine's; the run-as identity is caller-supplied
 # (an SA email the spine composes into the depot-project resource path), and the
@@ -160,13 +161,28 @@ zrbld_spine_dispatch() {
 
   test -s "${z_subs_file}" || buc_die "Substitutions file missing or empty: ${z_subs_file}"
 
+  # Stamp the dispatching HEAD commit into the blob — dispatch provenance, spine-owned
+  # like the pool and timeout (environment, not kind knowledge). The shared vouch-push
+  # step (rbgjl02) splices it into every envelope, so each kind inherits the field with
+  # no per-body edit. Honesty rides the upstream gate: every capture verb runs
+  # bug_require_clean_tree before composing, so HEAD names committed code by
+  # construction. Recipes without the vouch step (the delete builds) carry the key
+  # unread — ALLOW_LOOSE automaps it; the coverage check below is refs-need-keys only.
+  zrbfc_ensure_git_metadata
+  local -r z_git_commit=$(<"${ZRBFC_GIT_COMMIT_FILE}")
+  test -n "${z_git_commit}" || buc_die "Empty git commit from ${ZRBFC_GIT_COMMIT_FILE}"
+  local -r z_subs_stamped_file="${z_temp_prefix}subs_stamped.json"
+  jq --arg zjq_commit "${z_git_commit}" '. + {_RBGL_GIT_COMMIT: $zjq_commit}' \
+    "${z_subs_file}" > "${z_subs_stamped_file}" \
+    || buc_die "Failed to stamp git commit into substitutions blob"
+
   # Read the substitutions blob's keys once for the dispatch-time coverage check;
   # the per-step scan rides the composition loop below, where each step body is
   # already include-expanded (zrbld_spine_validate). A JSON object cannot carry
   # duplicate keys, so no dedup is needed.
   local -r z_keys_file="${z_temp_prefix}subs_keys.txt"
-  jq -r 'keys[]' "${z_subs_file}" > "${z_keys_file}" \
-    || buc_die "Failed to read substitution keys from ${z_subs_file}"
+  jq -r 'keys[]' "${z_subs_stamped_file}" > "${z_keys_file}" \
+    || buc_die "Failed to read substitution keys from ${z_subs_stamped_file}"
 
   buc_step "Composing ${z_label} Cloud Build steps from recipe"
   local -r z_steps_file="${z_temp_prefix}steps.json"
@@ -230,7 +246,7 @@ zrbld_spine_dispatch() {
 
   jq -n \
     --slurpfile zjq_steps   "${z_steps_file}" \
-    --slurpfile zjq_subs    "${z_subs_file}" \
+    --slurpfile zjq_subs    "${z_subs_stamped_file}" \
     --arg       zjq_sa      "${z_run_as_sa}" \
     --arg       zjq_pool    "${RBDC_POOL_TETHER}" \
     --arg       zjq_timeout "${RBRR_GCB_TIMEOUT}" \

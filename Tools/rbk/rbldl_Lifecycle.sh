@@ -202,6 +202,7 @@ rbld_augur() {
     "    Acquired at:   \(.rblv_acquired_at // "(absent)")",
     "    Acquired by:   \(.rblv_acquired_by // "(absent)")",
     "    Capture build: \(.rblv_capture_build // "(absent)")",
+    "    Git commit:    \(.rblv_git_commit // "(absent)")",
     "    Signature:     \(if .rblv_signature == null then "(unsigned)" else .rblv_signature end)",
     "    Trust grade:   \(.rblv_trust_grade // "(absent)")",
     "",

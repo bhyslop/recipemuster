@@ -163,7 +163,7 @@ build dispatched with `«BUILD_ID»` and the Cloud Console URL
 .. Fetch each newly-selected leaf manifest; assert exactly one disk-blob layer; record its digest and declared size
 .. Author the
 {rbtga_lode_vouch}
-envelope JSON (schema `rbld-vouch-2`, every key sprued `rblv_`, trust grade `recorded-at-acquisition`, `rblv_members[]` one element per leaf — the cardinality axis — each carrying `rblv_verification` `recorded`, the captured leaf digest, and the per-member `rblv_acquired_at` / `rblv_capture_build`) and stage it plus the selection list — the newly-captured leaves only — on the {rbtgr_workspace}
+envelope JSON (schema `rbld-vouch-3`, every key sprued `rblv_`, trust grade `recorded-at-acquisition`, `rblv_members[]` one element per leaf — the cardinality axis — each carrying `rblv_verification` `recorded`, the captured leaf digest, and the per-member `rblv_acquired_at` / `rblv_capture_build`) and stage it plus the selection list — the newly-captured leaves only — on the {rbtgr_workspace}
 .. Write the result JSON (carrying the host-minted touchmark) to `buildStepOutputs` — sized against the channel's 4KB raw-byte cap (CBG CBh_103): the slot payload carries the full envelope, and a worst-case 8-leaf native-family payload measures 3211 bytes (351 bytes per member × 8, ~340 envelope header, ~60 slot wrapper), leaving 885 bytes of headroom — the envelope-in-slot shape holds to ~10 leaves, past which this arithmetic must be redone
 
 //axhos_step
@@ -179,7 +179,7 @@ envelope JSON (schema `rbld-vouch-2`, every key sprued `rblv_`, trust grade `rec
 
 //axhos_step
 . *Vouch Step (in-pool — rbgjl02)*:
-.. For the staged envelope, build a `FROM scratch` image copying `vouch.json` and push it to the Lode package under the `:rbi_vouch` tag — a distinct manifest sharing the one package
+.. Splice the dispatching HEAD commit (`rblv_git_commit`, the spine-injected substitution) into the staged envelope, then build a `FROM scratch` image copying `vouch.json` and push it to the Lode package under the `:rbi_vouch` tag — a distinct manifest sharing the one package
 .. The recipe order is load-bearing: the vouch push runs strictly after the residency guard, so the provenance artifact never precedes the integrity check
 
 //axhos_step

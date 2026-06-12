@@ -136,9 +136,13 @@ fetched side.
 ===== Substitutions blob — opaque
 
 The body composes the substitutions object (the `_RBGL_*` keys) into a file; the
-spine slots it verbatim into the Build resource's `substitutions` field and
-reads no key from it. `options.automapSubstitutions` maps the keys into each
-step's environment. The spine's opacity to the blob is what keeps it
+spine slots it into the Build resource's `substitutions` field and reads no key
+from it. The spine adds exactly one key of its own — `_RBGL_GIT_COMMIT`, the
+dispatching repo's HEAD commit — dispatch provenance it owns the same way it
+owns the pool and timeout; the shared vouch-push step splices it into every
+envelope as `rblv_git_commit`, and recipes without that step carry the key
+unread. `options.automapSubstitutions` maps the keys into each step's
+environment. The spine's opacity to the body's keys is what keeps it
 registration-agnostic — a new kind authors a different blob without touching the
 spine.
 

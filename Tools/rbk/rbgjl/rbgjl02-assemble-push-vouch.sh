@@ -3,7 +3,8 @@
 # Builder: gcrane (pinned reliquary gcrane for bole; floating bootstrap gcrane for
 #          conclave/wsl — the recipe row in each per-kind body sets which)
 # Entrypoint: busybox (gcrane:debug's only shell)
-# Substitutions: _RBGL_GAR_HOST, _RBGL_GAR_PATH, _RBGL_LODES_ROOT, _RBGL_TAG_VOUCH
+# Substitutions: _RBGL_GAR_HOST, _RBGL_GAR_PATH, _RBGL_LODES_ROOT, _RBGL_TAG_VOUCH,
+#                _RBGL_GIT_COMMIT (spine-injected, never in a body's blob)
 #
 # Note: this script runs inside a Cloud Build container, not under BCG module
 # discipline (CBG governs).
@@ -24,6 +25,7 @@ test -s /workspace/lode_stamps.txt \
   || { echo "FATAL: /workspace/lode_stamps.txt is empty — nothing ensconced" >&2; exit 1; }
 
 test -n "${_RBGL_TAG_VOUCH}" || { echo "FATAL: _RBGL_TAG_VOUCH missing" >&2; exit 1; }
+test -n "${_RBGL_GIT_COMMIT}" || { echo "FATAL: _RBGL_GIT_COMMIT missing" >&2; exit 1; }
 
 while IFS= read -r STAMP || test -n "${STAMP}"; do
   test -n "${STAMP}" || continue
@@ -39,7 +41,19 @@ while IFS= read -r STAMP || test -n "${STAMP}"; do
   # single-layer member (vouch.json lands at image root).
   CTX="/workspace/vouch_ctx_${STAMP}"
   mkdir -p "${CTX}"
-  cp "${ENVELOPE_FILE}" "${CTX}/vouch.json"
+
+  # Splice the dispatching HEAD commit into the envelope — this shared push step is
+  # the one injection point every kind rides, so the capture steps never author the
+  # field. Pure-shell prepend inside the leading brace (busybox has no jq); the
+  # staged envelope is a single-line JSON object and the commit is bare hex, so no
+  # quoting hazard. The GAR :rbi_vouch artifact is the envelope's only canonical
+  # home; the pre-splice staged copy is workspace debris.
+  ENVELOPE_JSON=$(cat "${ENVELOPE_FILE}")
+  case "${ENVELOPE_JSON}" in
+    "{"*) ;;
+    *) echo "FATAL: staged envelope for ${STAMP} is not a JSON object" >&2; exit 1 ;;
+  esac
+  printf '{"rblv_git_commit":"%s",%s' "${_RBGL_GIT_COMMIT}" "${ENVELOPE_JSON#\{}" > "${CTX}/vouch.json"
 
   # Push the FROM-scratch vouch layer via gcrane append — Lode-family snippet.
   APPEND_CTX="${CTX}"

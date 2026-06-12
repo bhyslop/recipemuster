@@ -3219,6 +3219,35 @@ fn rbtdrc_lode_lifecycle(dir: &Path) -> rbtdre_Verdict {
                 ));
             }
         }
+        // The envelope also carries the dispatching HEAD commit (rblv_git_commit,
+        // spine-injected substitution spliced at the shared vouch-push step).
+        // Assert the literal hash, not mere field presence — proving the value
+        // survived host -> substitution -> splice -> GAR -> augur decode. HEAD
+        // cannot have moved since dispatch: ensconce gated a clean tree and this
+        // fixture commits nothing.
+        let head = match Command::new("git")
+            .args(["rev-parse", "HEAD"])
+            .current_dir(ctx.project_root())
+            .output()
+        {
+            Ok(out) if out.status.success() => {
+                String::from_utf8_lossy(&out.stdout).trim().to_string()
+            }
+            Ok(out) => {
+                return rbtdre_Verdict::Fail(format!(
+                    "git rev-parse HEAD failed (exit {}): {}",
+                    out.status.code().unwrap_or(-1),
+                    String::from_utf8_lossy(&out.stderr).trim()
+                ))
+            }
+            Err(e) => return rbtdre_Verdict::Fail(format!("git rev-parse invocation: {}", e)),
+        };
+        if !augur.stdout.contains(&head) {
+            return rbtdre_Verdict::Fail(format!(
+                "augur envelope missing dispatching commit {}\nstdout:\n{}",
+                head, augur.stdout
+            ));
+        }
 
         // Step 4: banish the whole Lode.
         let _ = std::fs::write(dir.join("05-banish.txt"), "banishing");
