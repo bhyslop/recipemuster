@@ -6,6 +6,11 @@ feature finalization — magic-string -> constant sweeps and noun-cluster
 curation, each with a blast radius that merges trivially.
 Second, the audit program: per-pair spec/module audits under the ACG move
 catalog, run while ACG is young so the guide and the documents harden together.
+The first pilot grew the program a third stratum:
+mechanism and guide work the audits themselves surfaced —
+the cited-constraint anchor design,
+the jailer dialect guide,
+and the deferred collapse landings they gate.
 A seed, not a tree: scope stays tight to the source/spec allocation family.
 Resist becoming the junk drawer for unrelated cleanups.
 
@@ -52,13 +57,35 @@ an earlier revision of this paddock paraphrased the guide and has been drained).
   well as document defects;
   Stun, Molehill, and word cancer all home in MCM's Antipatterns section,
   with ACG and the JJK gradient-delivery guidance citing rather than defining.
+- Heat tipped toward guidance over code repair (operator ruling at pilot 1):
+  the pilot verdict was a mature spec side and a double-written source side,
+  so guide and mechanism quality is the multiplier;
+  collapse/relocation landings defer behind the cited-constraint anchor
+  mechanism so each residue lands once, citing an anchor.
+  Pilot 1's rulings live in ACG, not here:
+  the citation-collapse case on ACGm_104,
+  the Palisade fallback bound in the three-homes section,
+  the cited-constraint anchor deferred record with its two binding rulings,
+  and the one-file-one-guide rule in Related Guides.
+- Remaining pilots apply the citation-collapse pattern where it fits rather
+  than re-deriving it; their amendment hunting aims at ground pilot 1 did not
+  cover.
+- The jailer dialect (zero-dependency in-vessel POSIX sh) gets its own guide,
+  promoted ahead of rule-of-3;
+  rationale recorded in the pilot findings memo
+  (Memos/memo-20260612-acg-pilot-sentry-findings.md).
+- Motivating strategy (operator): regenerate-from-specs trials — cheaper
+  models regenerating code from spec + guide, diffed against live code — as
+  the future forcing function on guide/spec quality.
+  Makes the dedup direction a prerequisite, not hygiene;
+  shapes prioritization toward guides and mechanisms.
 
 ## Sequencing & lanes
 
-Ungated front, in order: the antipattern-catalog pace, then the sentry pilot,
-then the access-probe pilot —
-the antipattern pace goes first because the access-probe pilot's word-cancer
-findings cite the home it establishes.
+Ungated front, in order: the access-probe pilot next,
+then the cited-constraint anchor design,
+then the jailer dialect guide,
+then the sentry collapse landings the anchor mechanism gates.
 The BUK test-vocab mint and the axvo symbol-lookahead amendment ride the back
 of the ungated front:
 the mint is self-contained in BUS0,
@@ -89,6 +116,10 @@ this heat exists to kill.
 
 ACG hardened through three audit pilots, amendments landed;
 the antipattern catalog homed in MCM with citers repointed;
+the cited-constraint anchor mechanism specified at its MCM/AXLA home;
+the jailer dialect guide authored and registered;
+the sentry collapses landed through the anchor mechanism and the pilot
+findings memo retired;
 the rbrv.env literal single-homed in bash and rust as the first worked
 ACGm_101 application;
 the noun clusters curated to single homes;
