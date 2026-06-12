@@ -96,11 +96,38 @@ buc_success() {
   zbuc_tint BUYC_GREEN "$*"
   printf '%s\n' "${z_buym_format}" >&2 || buc_die
 }
+# Band membrane: $? captured before any command so a `cmd || buc_die` chain
+# whose cmd exited with a precision-band code (bubc band tinder) re-exits
+# that code instead of laundering it to 1. Everything else — including a
+# cold caller before bubc is sourced — stays exit 1, "imprecise death".
 buc_die() {
+  local z_status=$?
   zbuc_tag_args 3 "buc_die      " "ERROR: [${ZBUC_CONTEXT:-}] $*"
   buyy_fail_yawp "ERROR:"; local z_pfx="${z_buym_yelp}"
   zbuc_print -1 "" "${z_pfx} [${ZBUC_CONTEXT:-}] $*"
+  if test -n "${BUBC_band_base:-}"                                \
+     && test "${z_status}" -ge "${BUBC_band_base}"                \
+     && test "${z_status}" -lt "$((BUBC_band_base + BUBC_band_width))"; then
+    exit "${z_status}"
+  fi
   exit 1
+}
+
+# Deliberate rejection origin. Exits with an in-band code from the bubc band
+# tinder block so a negative test can assert WHICH gate fired; buc_die
+# wrappers upstream propagate the code unchanged through the band membrane.
+# An out-of-band argument is a programming error and dies imprecisely.
+buc_reject() {
+  local z_code="${1:-}"
+  shift || true
+  test -n "${BUBC_band_base:-}" || buc_die "buc_reject: band tinder not sourced (bubc_constants.sh)"
+  test -n "${z_code}"           || buc_die "buc_reject: band code required"
+  test "${z_code}" -ge "${BUBC_band_base}" 2>/dev/null || buc_die "buc_reject: code '${z_code}' below band"
+  test "${z_code}" -lt "$((BUBC_band_base + BUBC_band_width))" || buc_die "buc_reject: code '${z_code}' above band"
+  zbuc_tag_args 3 "buc_reject   " "ERROR: [${ZBUC_CONTEXT:-}] $*"
+  buyy_fail_yawp "ERROR:"; local z_pfx="${z_buym_yelp}"
+  zbuc_print -1 "" "${z_pfx} [${ZBUC_CONTEXT:-}] $*"
+  exit "${z_code}"
 }
 
 # Display unprefixed cyan text for typeable guidance (commands, config values).

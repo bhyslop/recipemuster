@@ -40,6 +40,7 @@ source "${BURD_BUK_DIR}/buh_handbook.sh"
 
 # Source test case files
 source "${BUTT_BUTS_DIR}/butckk_kick.sh"
+source "${BUTT_BUTS_DIR}/butcbd_band.sh"
 source "${BUTT_BUTS_DIR}/butcbe_bure.sh"
 source "${BUTT_BUTS_DIR}/butcbx_burx.sh"
 source "${BUTT_BUTS_DIR}/butcfc_facts.sh"
@@ -63,6 +64,15 @@ butt_kindle() {
   butr_fixture_enroll "kick-tires" "" "zbutt_noop_baste"
   butr_case_enroll "kick-tires" butckk_false_tcase
   butr_case_enroll "kick-tires" butckk_true_tcase
+
+  # band-survival fixture (6 cases)
+  butr_fixture_enroll "band-survival" "" "zbutt_noop_baste"
+  butr_case_enroll "band-survival" butcbd_die_in_band_tcase
+  butr_case_enroll "band-survival" butcbd_die_plain_tcase
+  butr_case_enroll "band-survival" butcbd_die_out_of_band_tcase
+  butr_case_enroll "band-survival" butcbd_reject_direct_tcase
+  butr_case_enroll "band-survival" butcbd_reject_out_of_band_tcase
+  butr_case_enroll "band-survival" butcbd_survival_tcase
 
   # bure-tweak fixture (9 cases)
   butr_fixture_enroll "bure-tweak" "" "zbutt_noop_baste"

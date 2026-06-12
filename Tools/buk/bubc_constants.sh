@@ -53,6 +53,30 @@ BUBC_windows_ssh_port="22"
 BUBC_windows_fw_rule_name="sshd"
 BUBC_windows_fw_display_name="OpenSSH Server"
 
+# Precision exit-code band — deliberate-rejection gate codes.
+# An in-band exit status means a named rejection gate fired on purpose;
+# exit 1 stays "imprecise death" (buc_die default). buc_die propagates
+# in-band $? values unchanged (the band membrane), so existing
+# `cmd || buc_die` chains carry these codes to the dispatch boundary where
+# the test orchestrator asserts them in negative cases.
+# Placement: clear of shell-reserved codes (2, 126, 127, 128+n signals),
+# the sysexits.h range (64-78), curl's exit codes (1-92), and
+# timeout(1)/container-runtime reserved codes (124-125).
+# Allocation rule: one code per rejection GATE, never per validation rule.
+# Gates may share a code only if they never co-occur in one test case's
+# spawn path — share across alternatives, never along a pipeline.
+# No band code is minted outside this block.
+BUBC_band_base=100
+BUBC_band_width=16
+# Gate codes, allocated upward from base:
+BUBC_band_regime=100    # regime validation rejection (validate verbs)
+BUBC_band_enroll=101    # enrollment validation rejection
+BUBC_band_recipe=102    # recipe validation rejection
+BUBC_band_hygiene=103   # Dockerfile FROM-line hygiene rejection (rbfh)
+BUBC_band_credless=104  # credless guard at token mint (fast-tier suite invariant)
+# Self-test probe pins the band top, proving full-width propagation:
+BUBC_band_selftest=115  # BUK self-test deliberate rejection (buw-xb fixture)
+
 # Windows registry preconditions for unattended power-on posture.
 # Operator-handbook step (BUSJHW Windows: Host Availability) sets these;
 # bujb_invigilate_windows reads them. Single source of truth so the path
