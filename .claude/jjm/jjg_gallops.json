@@ -10842,9 +10842,10 @@
         "₢BeAAC",
         "₢BeAAD",
         "₢BeAAE",
-        "₢BeAAF"
+        "₢BeAAF",
+        "₢BeAAJ"
       ],
-      "jjghn_next_pace_seed": "AAJ",
+      "jjghn_next_pace_seed": "AAK",
       "jjghn_paces": {
         "₢BeAAA": {
           "jjgpn_tacks": [
@@ -10977,6 +10978,17 @@
               "jjgtn_text": "## Character\nHazard-closure — closes the recorded near-miss class where a PASSING fast suite spends money and mutates the depot.\nSmall surface: one gate at the token-mint chokepoint, one suite-runner export, one proof case, prose.\nTier: sonnet-delegable with care.\n\n## Goal\nMake fast-tier credlessness structural.\nThe fast suite runner sets the credless-guard tweak on every case invocation,\nand the OAuth/JWT token-mint chokepoint (the rbgo/rba path) dies instantly under it\nwith its own band rejection code naming the violation.\nThis establishes the suite invariant from the BUS0 tweak doctrine's slot-reservation rule:\nfast cases carry no tweaks of their own — in the fast tier the slot belongs to the guard.\nAdd the doctrine-pure proof case:\na deliberate cloud-verb invocation under the guard asserting the guard's specific band code.\nState the convention in the theurge/test authoring context where an author of a new fast case will read it.\n\n## Cinched\n- The guard rides the single tweak slot; no new mechanism.\n  The demolition condition is the doctrine's own: a genuine dual-tweak need mints the dedicated variable then.\n- The gate lands at token mint, gating actual credential use — never at zipper/dispatch; zippers untouched.\n- The guard's rejection code is a band code from the bubc tinder block.\n\n## Sources\nMemos/memo-20260610-heat-BH-fast-tier-credless-by-convention.md\n(the near-miss record; the spot-fix seam it describes retires earlier in this heat).\n\n## Done when\nA fast case reaching token mint dies with the guard's band code by construction;\nthe proof case asserts that code;\nfast suite green;\nthe convention documented in the test authoring context.",
               "jjgtn_silks": "fast-credless-guard",
               "jjgtn_basis": "a99206c"
+            }
+          ]
+        },
+        "₢BeAAJ": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260612-0922",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nMechanical Rust refactor — move code between modules, no behavior change.\nSonnet-delegable body with driver verification.\n\n## Goal\n`Tools/rbk/rbtd/src/rbtdru_cupel.rs` stands ~1330 lines,\npast the RCG 800-line stop-and-ask threshold;\nthe operator elected a split at the ₣BH terminal triage (2026-06-12).\nCarve the python-scan machinery (the import-allowlist scanning surface)\ninto its own module under the rbtd prefix discipline,\nleaving the shell-side cupel checks in place;\nmodule name and exact seam are mount-time choices.\n\n## Cinched\n- Pure relocation — no scanner behavior change, no new checks ride along.\n- No tidemark: the moved code carries no \"moved from\" narration; the commit tells the story.\n\n## Done when\n`rbtdru_cupel.rs` is back under the 800-line threshold,\nthe new module obeys rbtd naming discipline and the acronym map knows it,\nand the `fast` suite (cupel fixture included) is green.",
+              "jjgtn_silks": "cupel-python-scan-split",
+              "jjgtn_basis": "c64a9fd"
             }
           ]
         }
