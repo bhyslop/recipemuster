@@ -36,6 +36,14 @@ Per-kit acronym mappings live in each kit's context file (loaded via `@` include
 - **WRC**     → `wrs-WRC-WardRealmConcepts.adoc`
 - **WCC**     → `WCC-WebClaudetoClaudeCode.md`
 
+## Retired Memos
+
+A memo whose work is fully dispositioned (every concern resolved into a pace, an
+itch/RBSHR entry, or an explicit decline) moves to `Memos/retired/` with its
+basename unchanged. A memo path that no longer resolves has retired — look for
+the same basename under `Memos/retired/`. Retired memos are historical record:
+read them freely, never resurrect work from them without operator direction.
+
 ## Working Preferences
 - When user mentions an acronym, immediately navigate to the corresponding file
 - Assume full edit permissions for all files in the three main directories

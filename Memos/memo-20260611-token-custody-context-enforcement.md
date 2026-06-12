@@ -2,6 +2,9 @@
 
 Date: 2026-06-11
 
+TRIAGED 2026-06-12: owned by ₣BZ (office-federation evidence, cited by its paddock) —
+outside ₣BH triage scope; no disposition claimed here.
+
 Status: Evidence memo, companion to
 `memo-20260611-google-impersonation-preference.md`. Substantiates the
 token-custody layer model presented in the 2026-06-11 federation-architecture

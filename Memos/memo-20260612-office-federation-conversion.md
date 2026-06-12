@@ -2,6 +2,9 @@
 
 Date: 2026-06-12
 
+TRIAGED 2026-06-12: owned by ₣BZ (its bedrock decision record) —
+outside ₣BH triage scope; no disposition claimed here.
+
 Status: **DECIDED** (operator commitment, 2026-06-12, after the 06-10→06-12
 design conversation). Single-tier operator credential model: **workforce
 federation with office-SA impersonation**. The keyfile **citizen tier is

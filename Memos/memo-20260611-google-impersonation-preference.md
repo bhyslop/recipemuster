@@ -2,6 +2,9 @@
 
 Date: 2026-06-11
 
+TRIAGED 2026-06-12: owned by ₣BZ (office-federation evidence, cited by its paddock) —
+outside ₣BH triage scope; no disposition claimed here.
+
 Status: Evidence memo. Substantiates the claim "impersonation is Google's own
 recommended pattern," made during the 2026-06-11 federation-architecture
 conversation (the office-SA / IAM-frozen-at-levy proposal, alpha-repo heat ₣BZ
