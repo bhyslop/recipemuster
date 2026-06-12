@@ -2,7 +2,18 @@
 
 Date: 2026-06-09
 
-Status: **CANON.** The single authoritative home for the **federation** operator-credential
+Status: **CANON, superseded in part (2026-06-12)** by
+`memo-20260612-office-federation-conversion.md`: **D1 is retired** — the keyfile/citizen
+tier is canceled unbuilt and federation is the **single** operator tier (no mode enum);
+the direct-resource-grant model below is replaced by **office-SA impersonation**
+(capability bindings frozen on levy-minted office SAs; operators hold one
+`serviceAccountTokenCreator` binding per office and mint office tokens via
+`generateAccessToken`). D2, D3, D4, D6 survive unchanged; D5's deferred
+capability-set-keyed lifetime is **activated** (retriever at the 12 h ceiling). The
+login mechanics (Setup, Leg 1, Leg 2, the accessor seam, the orchestration pattern)
+remain authoritative, with a third leg (`generateAccessToken`) appended after Leg 2.
+
+Original status: the single authoritative home for the **federation** operator-credential
 tier (the paid, organization-required tier — keyless, no operator secret on disk). This document
 supersedes `memo-20260527-operator-credential-models.md` (folded in whole) and **R4** of
 `memo-20260522-org-affiliated-credential-reorientation.md` (the test-rig refresh-token residual —
