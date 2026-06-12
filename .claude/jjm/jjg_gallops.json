@@ -9546,6 +9546,13 @@
         "₢BeAAB": {
           "jjgpn_tacks": [
             {
+              "jjgtn_ts": "260612-1330",
+              "jjgtn_state": "jjgte_complete",
+              "jjgtn_text": "## Character\nMechanical codegen extension riding an existing emit pattern.\nTier: sonnet-delegable.\n\n## Goal\nProject the band constants into Rust as numeric consts.\n\nExtend the rbcc emission (`Tools/rbk/rbcc_constants.sh`, riding\n`rbz_emit_consts` in `Tools/rbk/rbz_zipper.sh` → `rbtdgc_consts.rs`)\nwith a numeric emit shape — current emission is `&str` only,\ntheurge compares exit codes as integers.\nbubc is sourced at emission time,\nso projecting BUK-homed band values needs no cross-module tinder trick.\nWrite-on-change and the qualify freshness gate apply unchanged.\n\n## Done when\nGenerated `rbtdgc_consts.rs` carries the band as numeric consts;\n`tt/rbw-tb.Build.sh` regenerates it and `tt/rbw-tq.QualifyFast.sh` passes freshness.",
+              "jjgtn_silks": "numeric-const-codegen",
+              "jjgtn_basis": "5cf0c11"
+            },
+            {
               "jjgtn_ts": "260612-1151",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": "## Character\nMechanical codegen extension riding an existing emit pattern.\nTier: sonnet-delegable.\n\n## Goal\nProject the band constants into Rust as numeric consts.\n\nExtend the rbcc emission (`Tools/rbk/rbcc_constants.sh`, riding\n`rbz_emit_consts` in `Tools/rbk/rbz_zipper.sh` → `rbtdgc_consts.rs`)\nwith a numeric emit shape — current emission is `&str` only,\ntheurge compares exit codes as integers.\nbubc is sourced at emission time,\nso projecting BUK-homed band values needs no cross-module tinder trick.\nWrite-on-change and the qualify freshness gate apply unchanged.\n\n## Done when\nGenerated `rbtdgc_consts.rs` carries the band as numeric consts;\n`tt/rbw-tb.Build.sh` regenerates it and `tt/rbw-tq.QualifyFast.sh` passes freshness.",
