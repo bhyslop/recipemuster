@@ -133,6 +133,10 @@ RBCC_container_sentry="sentry"
 # the sole transform, applied mechanically, so there is no per-entry mapping
 # and no drift. rbtd's lib.rs paths, the manifest account-label mirror, and the
 # rbtdrk/rbtdrp .env consts all source these instead of hand-copying.
+# A second section projects the BUBC precision exit-code band as i32 consts
+# (same mechanical transform, BUBC_ prefix stripped) — theurge asserts exit
+# codes as integers. bubc is sourced by the launcher on every dispatch, so the
+# band values are present at emission time with no cross-module tinder trick.
 rbcc_emit_consts() {
   printf '%s\n' "// RBCC constants (rbcc_constants.sh single-homed set)"
 
@@ -172,6 +176,24 @@ rbcc_emit_consts() {
     z_stem="${z_name#RBCC_}"
     z_upper="$(printf '%s' "${z_stem}" | tr '[:lower:]' '[:upper:]')"
     buz_emit_const "RBTDGC_${z_upper}" "${!z_name}" \
+      || buc_die "rbcc_emit_consts: emit failed for ${z_name}"
+  done
+
+  printf '%s\n' ""
+  printf '%s\n' "// BUBC precision exit-code band (bubc_constants.sh) — numeric"
+  for z_name in \
+    BUBC_band_base      \
+    BUBC_band_width     \
+    BUBC_band_regime    \
+    BUBC_band_enroll    \
+    BUBC_band_recipe    \
+    BUBC_band_hygiene   \
+    BUBC_band_credless  \
+    BUBC_band_selftest  \
+  ; do
+    z_stem="${z_name#BUBC_}"
+    z_upper="$(printf '%s' "${z_stem}" | tr '[:lower:]' '[:upper:]')"
+    buz_emit_const_i32 "RBTDGC_${z_upper}" "${!z_name}" \
       || buc_die "rbcc_emit_consts: emit failed for ${z_name}"
   done
 }

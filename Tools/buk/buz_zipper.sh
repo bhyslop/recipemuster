@@ -163,6 +163,23 @@ buz_emit_const() {
   printf 'pub const %s: &str = "%s";\n' "${z_name}" "${z_value}"
 }
 
+# buz_emit_const_i32() - Emit one Rust numeric const declaration to stdout
+# Args: const_name, value
+# Writes: pub const <const_name>: i32 = <value>;
+# Numeric sibling of buz_emit_const for values consumers compare as integers
+# (exit codes — process status lands as i32 on the Rust side). Value must be
+# all digits: the band lives in 0-255 exit space, so no sign handling.
+buz_emit_const_i32() {
+  zbuz_sentinel
+
+  local -r z_name="${1:-}"
+  local -r z_value="${2:-}"
+  test -n "${z_name}" || buc_die "buz_emit_const_i32: const name required"
+  [[ "${z_value}" =~ ^[0-9]+$ ]] || buc_die "buz_emit_const_i32: all-digit value required for ${z_name}, got '${z_value}'"
+
+  printf 'pub const %s: i32 = %s;\n' "${z_name}" "${z_value}"
+}
+
 # buz_emit_colophon_consts() - Emit Rust string consts for every enrolled colophon.
 # Args: add_prefix, strip_prefix
 # Each const name is <add_prefix> followed by the enroll varname with

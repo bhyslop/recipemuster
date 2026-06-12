@@ -141,3 +141,13 @@ pub const RBTDGC_VERB_YOKE: &str = "yoke";
 pub const RBTDGC_CONTAINER_BOTTLE: &str = "bottle";
 pub const RBTDGC_CONTAINER_PENTACLE: &str = "pentacle";
 pub const RBTDGC_CONTAINER_SENTRY: &str = "sentry";
+
+// BUBC precision exit-code band (bubc_constants.sh) — numeric
+pub const RBTDGC_BAND_BASE: i32 = 100;
+pub const RBTDGC_BAND_WIDTH: i32 = 16;
+pub const RBTDGC_BAND_REGIME: i32 = 100;
+pub const RBTDGC_BAND_ENROLL: i32 = 101;
+pub const RBTDGC_BAND_RECIPE: i32 = 102;
+pub const RBTDGC_BAND_HYGIENE: i32 = 103;
+pub const RBTDGC_BAND_CREDLESS: i32 = 104;
+pub const RBTDGC_BAND_SELFTEST: i32 = 115;
