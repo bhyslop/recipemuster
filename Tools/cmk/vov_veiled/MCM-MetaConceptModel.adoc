@@ -966,6 +966,9 @@ Wherever a sibling set shares an abbreviation namespace —
 colophon suffixes, quoin sub-letters, any single-character discriminator —
 elect words whose first letters stay distinct,
 so the abbreviation can remain the word's initial.
+The verbs orbiting one critical noun are siblings from birth,
+abbreviation namespace or not:
+verb families acquire one eventually, and by then the words are minted.
 An election-time check beside the grep gate;
 the word-side twin of sub-letter monosemy.
 * *Mint into an* {mcm_asterism}.
