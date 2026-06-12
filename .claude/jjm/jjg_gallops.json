@@ -8775,10 +8775,11 @@
         "₢BHAAl",
         "₢BHAAb",
         "₢BHAAd",
+        "₢BHAAq",
         "₢BHAAp",
         "₢BHAAD"
       ],
-      "jjghn_next_pace_seed": "AAq",
+      "jjghn_next_pace_seed": "AAr",
       "jjghn_paces": {
         "₢BHAAA": {
           "jjgpn_tacks": [
@@ -10170,6 +10171,17 @@
               "jjgtn_text": "Consolidate every bash implementation filename to one rule:\n`«prefix»_«snake_name».sh`, all lowercase, prefer a single word —\nretiring BCG's PascalCase carve-outs so no mixed-case `.sh` file remains under `Tools/`.\n\n## Character\nIntricate but mechanical;\nthe only judgment calls are the word-shortening choices on multi-word names.\n\n## Cinched\n- One rule, no carve-outs:\n  plain modules, decomposition entries (`«prefix»0_`), decomposition clusters, and test-case files all go lowercase.\n- Where a PascalCase name is multi-word and the prefix already carries the meaning,\n  slim the word part to a single word rather than transliterating to long snake_case\n  (the foundry-director-build module is the poster child).\n- Doc files (`ACRONYM-Words.ext`) and tabtarget frontispieces are separate naming grammars — untouched.\n- The distributed kits (buk/jjk/cmk/vvk/vok/apck) are already compliant except a single buk stray;\n  the rename population is essentially rbk-internal, which is why lowercase won over uppercase as the consolidation direction.\n\n## Done when\n- A case-sensitive sweep for uppercase letters in `.sh` basenames under `Tools/` lands empty.\n- A repo-wide grep for each retired basename lands clean —\n  sourcing lines, zipper registry, specs, acronym maps, launcher configs.\n- BCG's Naming Convention Patterns table states the single lowercase rule plainly,\n  with the PascalCase rows (decomposition entry, decomposition cluster, test-case file) recut to match.\n- The CLAUDE.md mint table's code-file row (`prefix_Word.ext`) and the rbk acronym map agree with the new names.\n- The `fast` test suite passes; run a broader tier if touched files warrant it.\n\nFirst step at mount: rebuild the rename map fresh —\nenumerate offenders with a case-sensitive sweep (e.g. `find Tools -name '*.sh' | grep '[A-Z]'`)\nrather than trusting any slate-time list, then confirm the map with the operator before renaming.\nCase-only renames on macOS's case-insensitive filesystem want `git mv`.\nSingle-operator caution: land renames and reference updates in the same commit so the tree never sources a missing file.",
               "jjgtn_silks": "bash-filename-case-consolidation",
               "jjgtn_basis": "af08e89"
+            }
+          ]
+        },
+        "₢BHAAq": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260612-0927",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nSmall, chokepointed addition across host substitution and one shared cloud step;\nmechanical once the injection point is read.\nSonnet-delegable body with driver verification; one service-tier proof run.\n\n## Goal\nThe Lode provenance envelope (`:rbi_vouch`) records no git fact,\nso it cannot answer which repo state dispatched the capture\n(residue from the reproducibility-audit pace; operator elected the improvement at the 2026-06-12 triage).\nAdd the dispatching HEAD commit to the envelope.\nHonesty is already guaranteed upstream:\nevery capture verb gates `bug_require_clean_tree` before composing its steps,\nso HEAD is the product of committed code by construction.\n\n## Cinched\n- Inject at the single shared chokepoint — the assemble-and-push cloud step all kinds ride —\n  fed by one new substitution through the spine blob,\n  so every kind inherits the field from one edit and one fixture proves the mechanism for all.\n- Reuse the existing host git-metadata primitive; no new git plumbing.\n- Bump the envelope schema version; additive field only — no existing field changes.\n- No tidemark in specs; the field-list spec gains the field in present tense.\n\n## Done when\nA freshly captured Lode's decoded envelope carries the dispatching commit;\nthe schema version is bumped and the envelope field-list spec agrees;\n`fast` is green and one service-tier lode-lifecycle run proves the field end-to-end against live GAR.",
+              "jjgtn_silks": "envelope-git-commit-stamp",
+              "jjgtn_basis": "c022760"
             }
           ]
         }
