@@ -10,6 +10,20 @@ Microsoft-side (Entra tenant + app registration).
 
 ---
 
+## Why this spike
+
+The office-federation conversion
+(`memo-20260612-office-federation-conversion.md`) bet the single-tier
+credential model on a runtime chain no RBK code had ever executed:
+device flow → STS → office-SA impersonation.
+This spike is the ₣BZ ordering's gate for the verb movement —
+prove the chain live and answer the banked verification items
+*before* the civic verbs, accessor federation branch, and levy changes are
+slated against it, so design wobbles surface here at throwaway-script cost
+rather than mid-movement.
+The pool/provider stood up here may persist as the project's standing test
+trust (docket cinch).
+
 ## The proven chain (the headline)
 
 A federated principal minted an office-SA token from a clean shell and called
