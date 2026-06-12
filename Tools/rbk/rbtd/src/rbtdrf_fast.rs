@@ -27,8 +27,10 @@ use crate::case;
 use crate::rbtdre_engine::{rbtdre_Case, rbtdre_Disposition, rbtdre_Fixture, rbtdre_Verdict};
 use crate::rbtdri_invocation::{rbtdri_find_tabtarget_global, rbtdri_tabtarget_command, rbtdri_bash_program};
 use crate::rbtdgc_consts::{
+    RBTDGC_BAND_CREDLESS,
     RBTDGC_HYGIENE_CHECK_DOCKERFILE,
     RBTDGC_HYGIENE_CHECK_VESSEL,
+    RBTDGC_JETTISON_IMAGE,
     RBTDGC_LIST_DEPOT,
     RBTDGC_PRESAGE_IMMURE,
     RBTDGC_RBRS_FILE,
@@ -1709,6 +1711,54 @@ fn rbtdrf_rs_unmake_empty_arg_refusal(dir: &Path) -> rbtdre_Verdict {
     rbtdre_Verdict::Pass
 }
 
+/// Credless-guard proof — the BUS0 suite-invariant case. A deliberate cloud
+/// verb (rbw-iJ, registry delete) invoked from a fast-tier fixture must die
+/// at the token-mint chokepoint with the credless band code: the guard env
+/// arrives via `rbtdri_tabtarget_command` because this fixture is
+/// `credless: true`, and `rbgo_get_token_capture` rejects before touching
+/// any credential — so the verdict is identical on credentialed and bare
+/// machines. The junk ref names a nonexistent namespace and the verb's
+/// interactive confirm sits after the mint, so even a broken guard cannot
+/// delete anything — the case just fails loud on the wrong exit code.
+fn rbtdrf_rs_credless_guard_mint_refusal(dir: &Path) -> rbtdre_Verdict {
+    let root = match std::env::current_dir() {
+        Ok(r) => r,
+        Err(e) => return rbtdre_Verdict::Fail(format!("cannot get cwd: {}", e)),
+    };
+
+    let tt = match rbtdri_find_tabtarget_global(&root, RBTDGC_JETTISON_IMAGE) {
+        Ok(p) => p,
+        Err(e) => return rbtdre_Verdict::Fail(e),
+    };
+
+    let output = match rbtdri_tabtarget_command(&tt)
+        .arg("rbi_xx/credless-guard-proof:none")
+        .current_dir(&root)
+        .output()
+    {
+        Ok(o) => o,
+        Err(e) => {
+            return rbtdre_Verdict::Fail(format!("failed to run {}: {}", tt.display(), e));
+        }
+    };
+
+    let stdout = String::from_utf8_lossy(&output.stdout).into_owned();
+    let stderr = String::from_utf8_lossy(&output.stderr).into_owned();
+    let code = output.status.code().unwrap_or(-1);
+    let _ = std::fs::write(dir.join("credless-guard-stdout.txt"), &stdout);
+    let _ = std::fs::write(dir.join("credless-guard-stderr.txt"), &stderr);
+
+    if code != RBTDGC_BAND_CREDLESS {
+        return rbtdre_Verdict::Fail(format!(
+            "{} under the credless guard exited {} — expected the credless band \
+             code {} from the token-mint gate\nstdout:\n{}\n\nstderr:\n{}",
+            RBTDGC_JETTISON_IMAGE, code, RBTDGC_BAND_CREDLESS, stdout, stderr
+        ));
+    }
+
+    rbtdre_Verdict::Pass
+}
+
 // ── Dockerfile-hygiene cases ────────────────────────────────
 //
 // Drives the Dockerfile FROM-line hygiene contract through the rbw-fhc and
@@ -2176,6 +2226,7 @@ pub static RBTDRF_CASES_REGIME_SMOKE: &[rbtdre_Case] = &[
     case!(rbtdrf_rs_rbrp),
     case!(rbtdrf_rs_burd),
     case!(rbtdrf_rs_unmake_empty_arg_refusal),
+    case!(rbtdrf_rs_credless_guard_mint_refusal),
 ];
 
 // ── Fixture statics ──────────────────────────────────────────
@@ -2186,6 +2237,7 @@ pub static RBTDRF_FIXTURE_ENROLLMENT_VALIDATION: rbtdre_Fixture = rbtdre_Fixture
     setup: None,
     teardown: None,
     cases: RBTDRF_CASES_ENROLLMENT_VALIDATION,
+    credless: true,
 };
 
 pub static RBTDRF_FIXTURE_REGIME_VALIDATION: rbtdre_Fixture = rbtdre_Fixture {
@@ -2194,6 +2246,7 @@ pub static RBTDRF_FIXTURE_REGIME_VALIDATION: rbtdre_Fixture = rbtdre_Fixture {
     setup: None,
     teardown: None,
     cases: RBTDRF_CASES_REGIME_VALIDATION,
+    credless: true,
 };
 
 pub static RBTDRF_FIXTURE_REGIME_SMOKE: rbtdre_Fixture = rbtdre_Fixture {
@@ -2202,6 +2255,7 @@ pub static RBTDRF_FIXTURE_REGIME_SMOKE: rbtdre_Fixture = rbtdre_Fixture {
     setup: None,
     teardown: None,
     cases: RBTDRF_CASES_REGIME_SMOKE,
+    credless: true,
 };
 
 pub static RBTDRF_CASES_DOCKERFILE_HYGIENE: &[rbtdre_Case] = &[
@@ -2222,6 +2276,7 @@ pub static RBTDRF_FIXTURE_DOCKERFILE_HYGIENE: rbtdre_Fixture = rbtdre_Fixture {
     setup: None,
     teardown: None,
     cases: RBTDRF_CASES_DOCKERFILE_HYGIENE,
+    credless: true,
 };
 
 pub static RBTDRF_CASES_FOUNDRY_PATH: &[rbtdre_Case] = &[
@@ -2238,6 +2293,7 @@ pub static RBTDRF_FIXTURE_FOUNDRY_PATH: rbtdre_Fixture = rbtdre_Fixture {
     setup: None,
     teardown: None,
     cases: RBTDRF_CASES_FOUNDRY_PATH,
+    credless: true,
 };
 
 pub static RBTDRF_CASES_RECIPE_VALIDATION: &[rbtdre_Case] = &[
@@ -2259,6 +2315,7 @@ pub static RBTDRF_FIXTURE_RECIPE_VALIDATION: rbtdre_Fixture = rbtdre_Fixture {
     setup: None,
     teardown: None,
     cases: RBTDRF_CASES_RECIPE_VALIDATION,
+    credless: true,
 };
 
 // ── Podvm-resolve cases ─────────────────────────────────────
@@ -2353,4 +2410,5 @@ pub static RBTDRF_FIXTURE_PODVM_RESOLVE: rbtdre_Fixture = rbtdre_Fixture {
     setup: None,
     teardown: None,
     cases: RBTDRF_CASES_PODVM_RESOLVE,
+    credless: true,
 };

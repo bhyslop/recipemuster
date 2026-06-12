@@ -261,6 +261,13 @@ rbgo_get_token_capture() {
   buc_doc_param "rbra_file" "Path to RBRA credentials file containing RBRA_* variables"
   buc_doc_shown || return 0
 
+  # Credless guard gate — first, before any credential touch (even the file
+  # existence test), so a guarded run rejects identically on credentialed and
+  # bare machines. RBCC_tweak_credless_guard expands unguarded on purpose:
+  # if rbcc is somehow absent, set -u kills the mint rather than failing open.
+  test "${BURE_TWEAK_NAME:-}" != "${RBCC_tweak_credless_guard}" \
+    || buc_reject "${BUBC_band_credless}" "Credless guard: OAuth token mint refused — this run carries the fast-tier guard (fast cases must never reach credentials)"
+
   buc_log_args "Validate RBRA file exists"
   test -f "${z_rbra_file}" || return 1
 

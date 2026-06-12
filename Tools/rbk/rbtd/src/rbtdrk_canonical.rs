@@ -879,6 +879,7 @@ pub static RBTDRK_FIXTURE_CANONICAL_ESTABLISH: rbtdre_Fixture = rbtdre_Fixture {
     setup: None,
     teardown: None,
     cases: RBTDRK_CASES_CANONICAL_ESTABLISH,
+    credless: false,
 };
 
 // canonical-invest — the no-levy recycle variant shared by skirmish, dogfight,
@@ -907,4 +908,5 @@ pub static RBTDRK_FIXTURE_CANONICAL_INVEST: rbtdre_Fixture = rbtdre_Fixture {
     setup: None,
     teardown: None,
     cases: RBTDRK_CASES_CANONICAL_INVEST,
+    credless: false,
 };

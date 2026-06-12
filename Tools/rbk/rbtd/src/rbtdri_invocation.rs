@@ -43,6 +43,11 @@ pub const RBTDRI_BURV_OUTPUT_SUBDIR: &str = "current";
 /// confirmation prompts in non-interactive contexts (test fixtures, automation).
 pub const RBTDRI_BURE_CONFIRM_KEY: &str = "BURE_CONFIRM";
 
+/// BURE tweak-slot env var (BUS0 Tweak Mechanism) — the single test-seam
+/// channel every tabtarget inherits. The credless guard rides this slot for
+/// fast-tier fixtures; case-supplied tweaks ride it everywhere else.
+pub const RBTDRI_BURE_TWEAK_NAME_KEY: &str = "BURE_TWEAK_NAME";
+
 /// Value paired with `RBTDRI_BURE_CONFIRM_KEY` to skip the confirmation prompt.
 pub const RBTDRI_BURE_CONFIRM_SKIP: &str = "skip";
 
@@ -162,6 +167,29 @@ impl rbtdri_Context {
     pub fn set_invoke_count(&mut self, count: u32) {
         self.invoke_count = count;
     }
+}
+
+// ── Credless guard ───────────────────────────────────────────
+
+thread_local! {
+    /// Fast-tier credless guard arm state. Thread-local (not process-global)
+    /// to match the rbtdrc context channel: cases, hooks, and direct-Command
+    /// helpers all run on the thread that installed the context, and unit
+    /// tests on parallel threads cannot interfere with each other.
+    static RBTDRI_CREDLESS_ARMED: std::cell::Cell<bool> = const { std::cell::Cell::new(false) };
+}
+
+/// Arm or disarm the credless guard for the current thread. Armed by
+/// `rbtdrc_set_context` from the fixture's `credless` field and disarmed by
+/// `rbtdrc_take_context`, so the guard rides every invocation of a fast-tier
+/// fixture's cases regardless of which suite hosts the fixture.
+pub fn rbtdri_arm_credless(armed: bool) {
+    RBTDRI_CREDLESS_ARMED.with(|c| c.set(armed));
+}
+
+/// Read the current thread's credless guard arm state.
+pub fn rbtdri_credless_armed() -> bool {
+    RBTDRI_CREDLESS_ARMED.with(|c| c.get())
 }
 
 // ── Tabtarget discovery ──────────────────────────────────────
@@ -288,9 +316,20 @@ pub fn rbtdri_bash_program() -> &'static str {
 /// Linux/macOS that conversion is identity and the bash program is just "bash",
 /// so the call site is unconditional. Callers chain `.args(...)`,
 /// `.current_dir(...)`, and `.env(...)` as on any `Command::new` result.
+///
+/// The credless guard lands here — the one constructor every tabtarget launch
+/// goes through, including the direct-Command case helpers that bypass
+/// `rbtdri_invoke*` — so a fast-tier fixture cannot spawn an unguarded
+/// tabtarget by construction.
 pub fn rbtdri_tabtarget_command(tabtarget: &Path) -> Command {
     let mut cmd = Command::new(rbtdri_bash_program());
     cmd.arg(rbtdrx_native_to_posix(tabtarget));
+    if rbtdri_credless_armed() {
+        cmd.env(
+            RBTDRI_BURE_TWEAK_NAME_KEY,
+            crate::rbtdgc_consts::RBTDGC_TWEAK_CREDLESS_GUARD,
+        );
+    }
     cmd
 }
 
@@ -328,6 +367,21 @@ fn rbtdri_invoke_impl(
         .map_err(|e| format!("rbtdri: failed to create BURV output dir: {}", e))?;
     std::fs::create_dir_all(&burv_temp)
         .map_err(|e| format!("rbtdri: failed to create BURV temp dir: {}", e))?;
+
+    // Tweak-slot conflict gate (BUS0): under the credless guard the single
+    // tweak slot belongs to the guard — a fast-tier case supplying its own
+    // tweak has self-identified as not belonging in fast. Fail loud rather
+    // than letting the case silently overwrite the guard.
+    if rbtdri_credless_armed()
+        && extra_env.iter().any(|(k, _)| *k == RBTDRI_BURE_TWEAK_NAME_KEY)
+    {
+        return Err(format!(
+            "rbtdri: fixture '{}' is fast-tier credless — its tweak slot belongs to \
+             the credless guard, so a case may not set {} (a case needing a seam \
+             does not belong in fast)",
+            ctx.fixture, RBTDRI_BURE_TWEAK_NAME_KEY
+        ));
+    }
 
     let mut cmd = rbtdri_tabtarget_command(tabtarget);
     cmd.args(args)

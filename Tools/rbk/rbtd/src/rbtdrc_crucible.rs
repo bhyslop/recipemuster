@@ -61,12 +61,24 @@ thread_local! {
 }
 
 /// Store invocation context for case functions. Called before run_sections.
+///
+/// Also arms the fast-tier credless guard from the registered fixture's
+/// `credless` field — installing a context IS entering a fixture's run, so
+/// the guard cannot be forgotten at a runner call site. An unregistered
+/// fixture name arms nothing (the runner has already fataled on lookup
+/// failure before reaching here on every real path).
 pub fn rbtdrc_set_context(ctx: rbtdri_Context) {
+    let credless = rbtdrc_lookup_fixture(ctx.fixture())
+        .map(|f| f.credless)
+        .unwrap_or(false);
+    crate::rbtdri_invocation::rbtdri_arm_credless(credless);
     RBTDRC_CTX.with(|c| *c.borrow_mut() = Some(ctx));
 }
 
 /// Retrieve invocation context after cases complete. Called for quench.
+/// Disarms the credless guard — the fixture's run is over.
 pub fn rbtdrc_take_context() -> rbtdri_Context {
+    crate::rbtdri_invocation::rbtdri_arm_credless(false);
     RBTDRC_CTX.with(|c| {
         c.borrow_mut()
             .take()
@@ -2421,6 +2433,7 @@ pub static RBTDRC_FIXTURE_TADMOR: rbtdre_Fixture = rbtdre_Fixture {
     setup: Some(rbtdrc_charge_crucible),
     teardown: Some(rbtdrc_quench_crucible),
     cases: RBTDRC_CASES_SECURITY,
+    credless: false,
 };
 
 // Moriah is the airgap-bottle nameplate; runtime semantics are identical
@@ -2432,6 +2445,7 @@ pub static RBTDRC_FIXTURE_MORIAH: rbtdre_Fixture = rbtdre_Fixture {
     setup: Some(rbtdrc_charge_crucible),
     teardown: Some(rbtdrc_quench_crucible),
     cases: RBTDRC_CASES_SECURITY,
+    credless: false,
 };
 
 pub static RBTDRC_FIXTURE_SRJCL: rbtdre_Fixture = rbtdre_Fixture {
@@ -2440,6 +2454,7 @@ pub static RBTDRC_FIXTURE_SRJCL: rbtdre_Fixture = rbtdre_Fixture {
     setup: Some(rbtdrc_charge_crucible),
     teardown: Some(rbtdrc_quench_crucible),
     cases: RBTDRC_CASES_SRJCL,
+    credless: false,
 };
 
 pub static RBTDRC_FIXTURE_PLUML: rbtdre_Fixture = rbtdre_Fixture {
@@ -2448,6 +2463,7 @@ pub static RBTDRC_FIXTURE_PLUML: rbtdre_Fixture = rbtdre_Fixture {
     setup: Some(rbtdrc_charge_crucible),
     teardown: Some(rbtdrc_quench_crucible),
     cases: RBTDRC_CASES_PLUML,
+    credless: false,
 };
 
 // ── Bare fixtures owned by rbtdrc (no charge/quench) ─────────
@@ -2458,6 +2474,7 @@ pub static RBTDRC_FIXTURE_HALLMARK_LIFECYCLE: rbtdre_Fixture = rbtdre_Fixture {
     setup: None,
     teardown: None,
     cases: RBTDRC_CASES_HALLMARK_LIFECYCLE,
+    credless: false,
 };
 
 pub static RBTDRC_FIXTURE_LODE_LIFECYCLE: rbtdre_Fixture = rbtdre_Fixture {
@@ -2466,6 +2483,7 @@ pub static RBTDRC_FIXTURE_LODE_LIFECYCLE: rbtdre_Fixture = rbtdre_Fixture {
     setup: None,
     teardown: None,
     cases: RBTDRC_CASES_LODE_LIFECYCLE,
+    credless: false,
 };
 
 pub static RBTDRC_FIXTURE_RELIQUARY_LIFECYCLE: rbtdre_Fixture = rbtdre_Fixture {
@@ -2474,6 +2492,7 @@ pub static RBTDRC_FIXTURE_RELIQUARY_LIFECYCLE: rbtdre_Fixture = rbtdre_Fixture {
     setup: None,
     teardown: None,
     cases: RBTDRC_CASES_RELIQUARY_LIFECYCLE,
+    credless: false,
 };
 
 pub static RBTDRC_FIXTURE_WSL_LIFECYCLE: rbtdre_Fixture = rbtdre_Fixture {
@@ -2482,6 +2501,7 @@ pub static RBTDRC_FIXTURE_WSL_LIFECYCLE: rbtdre_Fixture = rbtdre_Fixture {
     setup: None,
     teardown: None,
     cases: RBTDRC_CASES_WSL_LIFECYCLE,
+    credless: false,
 };
 
 pub static RBTDRC_FIXTURE_PODVM_LIFECYCLE: rbtdre_Fixture = rbtdre_Fixture {
@@ -2490,6 +2510,7 @@ pub static RBTDRC_FIXTURE_PODVM_LIFECYCLE: rbtdre_Fixture = rbtdre_Fixture {
     setup: None,
     teardown: None,
     cases: RBTDRC_CASES_PODVM_LIFECYCLE,
+    credless: false,
 };
 
 pub static RBTDRC_FIXTURE_BATCH_VOUCH: rbtdre_Fixture = rbtdre_Fixture {
@@ -2498,6 +2519,7 @@ pub static RBTDRC_FIXTURE_BATCH_VOUCH: rbtdre_Fixture = rbtdre_Fixture {
     setup: None,
     teardown: None,
     cases: RBTDRC_CASES_BATCH_VOUCH,
+    credless: false,
 };
 
 pub static RBTDRC_FIXTURE_ACCESS_PROBE: rbtdre_Fixture = rbtdre_Fixture {
@@ -2506,6 +2528,7 @@ pub static RBTDRC_FIXTURE_ACCESS_PROBE: rbtdre_Fixture = rbtdre_Fixture {
     setup: None,
     teardown: None,
     cases: RBTDRC_CASES_ACCESS_PROBE,
+    credless: false,
 };
 
 /// Registry of all fixtures known to theurge. Single source of truth: drives

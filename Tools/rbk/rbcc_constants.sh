@@ -108,6 +108,13 @@ RBCC_fact_ext_roster_retriever="${RBCC_verb_roster}-${RBCC_account_retriever}"
 RBCC_fact_ext_roster_director="${RBCC_verb_roster}-${RBCC_account_director}"
 RBCC_fact_ext_audit_hallmark="audit-hallmark"
 
+# Tweak-name tinder — RB-owned BURE_TWEAK_NAME values (buo sprue, BUS0 Tweak
+# Mechanism). The credless guard is the fast-tier slot reservation: theurge
+# sets it on every tabtarget a fast-tier fixture spawns, and the token-mint
+# membranes (rbgo_get_token_capture, zrbgp_authenticate_capture) reject under
+# it with BUBC_band_credless — a passing fast run can never use credentials.
+RBCC_tweak_credless_guard="buorb_credless_guard"
+
 # Container-role tinder — the canonical bash home for the crucible's container
 # roles. Bare role tokens; the crucible is sentry + pentacle + bottle and every
 # container name / compose service derives from these. Distinct from the
@@ -172,6 +179,7 @@ rbcc_emit_consts() {
     RBCC_container_bottle    \
     RBCC_container_pentacle  \
     RBCC_container_sentry    \
+    RBCC_tweak_credless_guard \
   ; do
     z_stem="${z_name#RBCC_}"
     z_upper="$(printf '%s' "${z_stem}" | tr '[:lower:]' '[:upper:]')"

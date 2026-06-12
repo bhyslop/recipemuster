@@ -222,4 +222,5 @@ pub static RBTDRD_FIXTURE_DOGFIGHT: rbtdre_Fixture = rbtdre_Fixture {
     setup: None,
     teardown: None,
     cases: RBTDRD_CASES_DOGFIGHT,
+    credless: false,
 };

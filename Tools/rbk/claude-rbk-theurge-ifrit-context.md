@@ -91,6 +91,16 @@ Cases group by purpose in source order (no formal section structure):
 - **coordinated-attacks** — simultaneous attack + observation: ARP gratuitous/poison, table stability
 - **coordinated-integrity** — attack then verify sentry state unchanged: sentry integrity, DNS cache integrity, MAC flood
 
+### Fast-Tier Cases: Credless by Construction
+
+The fast suite's fixtures carry `credless: true` on their `rbtdre_Fixture` static. While such a fixture runs, every tabtarget Command theurge builds (via `rbtdri_tabtarget_command` — including the direct-Command helpers) carries the credless-guard tweak (`RBCC_tweak_credless_guard` / `RBTDGC_TWEAK_CREDLESS_GUARD`), and both token-mint membranes (`rbgo_get_token_capture`, `zrbgp_authenticate_capture`) reject under it with the credless band code (`BUBC_band_credless` / `RBTDGC_BAND_CREDLESS`) before touching any credential. The guard rides the fixture, not the suite — a fast fixture hosted in service/complete is still guarded.
+
+Rules for authoring a fast-tier case:
+
+- **A fast case may invoke any tabtarget freely** — if its chain reaches a token mint, the run dies with the credless band code instead of spending money or mutating the depot. The proof case is `rbtdrf_rs_credless_guard_mint_refusal` (regime-smoke).
+- **Fast cases carry no tweaks of their own.** The BURE tweak slot belongs to the guard in the fast tier (BUS0 Tweak Mechanism, slot-reservation rule); `rbtdri_invoke*` fails loud if a guarded case supplies `BURE_TWEAK_NAME`. A case that needs a test seam has self-identified as not belonging in fast — home it in a higher tier.
+- **A new fast fixture must set `credless: true`** and join the fast suite list in `rbtdrc_crucible.rs`; fixtures in higher tiers set `credless: false`.
+
 ### Adding a New Test
 
 **New ifrit attack** (simple probe, single command):

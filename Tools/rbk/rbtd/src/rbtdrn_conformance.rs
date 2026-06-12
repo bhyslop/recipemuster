@@ -385,4 +385,5 @@ pub static RBTDRN_FIXTURE_CONFORMANCE: rbtdre_Fixture = rbtdre_Fixture {
     setup: None,
     teardown: None,
     cases: RBTDRN_CASES_CONFORMANCE,
+    credless: true,
 };

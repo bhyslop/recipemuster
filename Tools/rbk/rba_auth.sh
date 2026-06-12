@@ -49,8 +49,10 @@ rba_get_governor_token_capture() {
   # Need access to RBDC_GOVERNOR_RBRA_FILE from regime
   test -n "${RBDC_GOVERNOR_RBRA_FILE:-}" || return 1
 
+  # return $? not 1: an in-band rejection from the mint (credless guard) must
+  # survive this wrapper so the buc_die membrane upstream re-exits it precisely.
   local z_token
-  z_token=$(rbgo_get_token_capture "${RBDC_GOVERNOR_RBRA_FILE}") || return 1
+  z_token=$(rbgo_get_token_capture "${RBDC_GOVERNOR_RBRA_FILE}") || return $?
 
   test -n "${z_token}" || return 1
   echo    "${z_token}"
@@ -68,8 +70,9 @@ rba_authenticate_role_capture() {
 
   source "${z_rbra_file}" || return 1
 
+  # return $? not 1: in-band mint rejections survive this wrapper (see above).
   local z_token
-  z_token=$(rbgo_get_token_capture "${z_rbra_file}") || return 1
+  z_token=$(rbgo_get_token_capture "${z_rbra_file}") || return $?
 
   test -n "${z_token}" || return 1
 

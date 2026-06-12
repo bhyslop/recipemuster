@@ -1314,4 +1314,5 @@ pub static RBTDRU_FIXTURE_CUPEL: rbtdre_Fixture = rbtdre_Fixture {
     setup: None,
     teardown: None,
     cases: RBTDRU_CASES_CUPEL,
+    credless: true,
 };

@@ -819,6 +819,7 @@ pub static RBTDRO_FIXTURE_KLUDGE_TADMOR: rbtdre_Fixture = rbtdre_Fixture {
     setup: None,
     teardown: None,
     cases: RBTDRO_CASES_KLUDGE_TADMOR,
+    credless: false,
 };
 
 /// Build ccyolo sentry and bottle locally, then anoint graft-demo off the
@@ -1509,4 +1510,5 @@ pub static RBTDRO_FIXTURE_ONBOARDING_SEQUENCE: rbtdre_Fixture = rbtdre_Fixture {
     setup: None,
     teardown: None,
     cases: RBTDRO_CASES_ONBOARDING_SEQUENCE,
+    credless: false,
 };

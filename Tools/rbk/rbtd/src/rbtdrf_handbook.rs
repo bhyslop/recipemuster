@@ -173,4 +173,5 @@ pub static RBTDRF_FIXTURE_HANDBOOK_RENDER: rbtdre_Fixture = rbtdre_Fixture {
     setup: None,
     teardown: None,
     cases: RBTDRF_CASES_HANDBOOK_RENDER,
+    credless: true,
 };

@@ -1316,4 +1316,5 @@ pub static RBTDRP_FIXTURE_PRISTINE_LIFECYCLE: rbtdre_Fixture = rbtdre_Fixture {
     setup: None,
     teardown: None,
     cases: RBTDRP_CASES_PRISTINE_LIFECYCLE,
+    credless: false,
 };

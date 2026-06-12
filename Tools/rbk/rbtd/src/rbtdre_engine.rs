@@ -172,6 +172,14 @@ pub struct rbtdre_Fixture {
     pub setup: Option<fn() -> Result<(), String>>,
     pub teardown: Option<fn()>,
     pub cases: &'static [rbtdre_Case],
+    /// Fast-tier credless guard (BUS0 tweak doctrine, slot-reservation rule).
+    /// When true, every tabtarget Command built while this fixture runs carries
+    /// `BURE_TWEAK_NAME=<credless guard>`, and the token-mint membranes reject
+    /// with the credless band code — the fixture cannot use credentials, by
+    /// construction, regardless of which suite hosts it. True for exactly the
+    /// fast-suite members; a guarded fixture's cases carry no tweaks of their
+    /// own (in the fast tier the slot belongs to the guard).
+    pub credless: bool,
 }
 
 /// A named suite — an ordered set of fixtures run as one sequential batch.

@@ -20,7 +20,7 @@ use std::path::PathBuf;
 
 use super::rbtdre_engine::rbtdre_Verdict;
 use super::rbtdri_invocation::*;
-use super::rbtdgc_consts::{RBTDGC_CRUCIBLE_BARK, RBTDGC_CRUCIBLE_CHARGE, RBTDGC_CRUCIBLE_WRIT, RBTDGC_ORDAIN_HALLMARK};
+use super::rbtdgc_consts::{RBTDGC_CRUCIBLE_BARK, RBTDGC_CRUCIBLE_CHARGE, RBTDGC_CRUCIBLE_WRIT, RBTDGC_ORDAIN_HALLMARK, RBTDGC_TWEAK_CREDLESS_GUARD};
 use super::rbtdrm_manifest::{RBTDRM_FIXTURE_SRJCL, RBTDRM_FIXTURE_TADMOR};
 use super::rbtdth_helpers::rbtdth_scratch_root;
 
@@ -462,6 +462,97 @@ fn rbtdti_invoke_global_passes_extra_env() {
     .unwrap();
 
     assert!(result.stdout.contains("TWEAK:buost_example"));
+
+    let _ = std::fs::remove_dir_all(&tmp);
+}
+
+// ── Credless guard ──────────────────────────────────────────
+//
+// The guard flag is thread-local, so these tests cannot interfere with the
+// other invocation tests running on parallel cargo-test threads. Each test
+// disarms before asserting/returning to leave its thread clean.
+
+#[test]
+fn rbtdti_credless_armed_applies_guard_env() {
+    let tmp = rbtdti_make_temp("credless-env");
+    let tt = rbtdti_make_tt_dir(&tmp);
+    rbtdti_write_script(
+        &tt,
+        &format!("{}.DirectorOrdains.sh", RBTDGC_ORDAIN_HALLMARK),
+        "echo \"TWEAK:${BURE_TWEAK_NAME}\"\n",
+    );
+
+    let burv_temp_root = tmp.join("burv-temp");
+    let burv_output_root = tmp.join("burv-output");
+    let mut ctx = rbtdri_Context::new(&tmp, "testplate", &burv_temp_root, &burv_output_root);
+
+    rbtdri_arm_credless(true);
+    let result = rbtdri_invoke_global(&mut ctx, RBTDGC_ORDAIN_HALLMARK, &[], &[]);
+    rbtdri_arm_credless(false);
+
+    let result = result.unwrap();
+    assert!(
+        result.stdout.contains(&format!("TWEAK:{}", RBTDGC_TWEAK_CREDLESS_GUARD)),
+        "guard env missing from spawned tabtarget: {}",
+        result.stdout
+    );
+
+    let _ = std::fs::remove_dir_all(&tmp);
+}
+
+#[test]
+fn rbtdti_credless_armed_rejects_case_tweak() {
+    let tmp = rbtdti_make_temp("credless-conflict");
+    let tt = rbtdti_make_tt_dir(&tmp);
+    rbtdti_write_script(
+        &tt,
+        &format!("{}.DirectorOrdains.sh", RBTDGC_ORDAIN_HALLMARK),
+        "exit 0\n",
+    );
+
+    let burv_temp_root = tmp.join("burv-temp");
+    let burv_output_root = tmp.join("burv-output");
+    let mut ctx = rbtdri_Context::new(&tmp, "testplate", &burv_temp_root, &burv_output_root);
+
+    rbtdri_arm_credless(true);
+    let result = rbtdri_invoke_global(
+        &mut ctx,
+        RBTDGC_ORDAIN_HALLMARK,
+        &[],
+        &[(RBTDRI_BURE_TWEAK_NAME_KEY, "buost_example")],
+    );
+    rbtdri_arm_credless(false);
+
+    let err = result.unwrap_err();
+    assert!(
+        err.contains("credless"),
+        "conflict error should name the credless guard: {}",
+        err
+    );
+
+    let _ = std::fs::remove_dir_all(&tmp);
+}
+
+#[test]
+fn rbtdti_credless_disarmed_leaves_tweak_slot_free() {
+    let tmp = rbtdti_make_temp("credless-disarmed");
+    let tt = rbtdti_make_tt_dir(&tmp);
+    rbtdti_write_script(
+        &tt,
+        &format!("{}.DirectorOrdains.sh", RBTDGC_ORDAIN_HALLMARK),
+        "echo \"TWEAK:${BURE_TWEAK_NAME:-unset}\"\n",
+    );
+
+    let burv_temp_root = tmp.join("burv-temp");
+    let burv_output_root = tmp.join("burv-output");
+    let mut ctx = rbtdri_Context::new(&tmp, "testplate", &burv_temp_root, &burv_output_root);
+
+    let result = rbtdri_invoke_global(&mut ctx, RBTDGC_ORDAIN_HALLMARK, &[], &[]).unwrap();
+    assert!(
+        result.stdout.contains("TWEAK:unset"),
+        "disarmed invoke must not carry the guard: {}",
+        result.stdout
+    );
 
     let _ = std::fs::remove_dir_all(&tmp);
 }
