@@ -9650,6 +9650,13 @@
         "₢BeAAG": {
           "jjgpn_tacks": [
             {
+              "jjgtn_ts": "260612-1222",
+              "jjgtn_state": "jjgte_complete",
+              "jjgtn_text": "## Character\nTweak-census cleanup, first of three — small and file-local plus one fixture repoint.\nTier: sonnet-delegable.\n\n## Goal\nRetire the `buorb_immure_resolve_only` tweak —\na doctrine violation per the BUS0 Tweak Mechanism section (convenience short-circuit, not condition-forcing).\nGive the immure resolve/selection path its own read-only lowercase colophon:\na dry-run/plan verb with operator value in its own right (show what immure would capture),\nminted at mount-time per Word Selection against the live colophon tree.\nRepoint the fast podvm-resolve case to invoke the new colophon directly,\ndropping the tweak export and the seam-marker output assertion it existed to carry.\n\n## Cinched\n- The tweak read in the immure body and both theurge constants go; no compatibility shim.\n- New colophon is lowercase (touches no GAR/cost state), in the Lode family.\n- Full immure behavior unchanged.\n\n## Done when\n`grep -rn \"buorb_immure_resolve_only\" Tools/` returns zero;\nfast suite green with the podvm-resolve case exercising the new colophon.",
+              "jjgtn_silks": "evict-immure-resolve-only-tweak",
+              "jjgtn_basis": "61ed428"
+            },
+            {
               "jjgtn_ts": "260611-1317",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": "## Character\nTweak-census cleanup, first of three — small and file-local plus one fixture repoint.\nTier: sonnet-delegable.\n\n## Goal\nRetire the `buorb_immure_resolve_only` tweak —\na doctrine violation per the BUS0 Tweak Mechanism section (convenience short-circuit, not condition-forcing).\nGive the immure resolve/selection path its own read-only lowercase colophon:\na dry-run/plan verb with operator value in its own right (show what immure would capture),\nminted at mount-time per Word Selection against the live colophon tree.\nRepoint the fast podvm-resolve case to invoke the new colophon directly,\ndropping the tweak export and the seam-marker output assertion it existed to carry.\n\n## Cinched\n- The tweak read in the immure body and both theurge constants go; no compatibility shim.\n- New colophon is lowercase (touches no GAR/cost state), in the Lode family.\n- Full immure behavior unchanged.\n\n## Done when\n`grep -rn \"buorb_immure_resolve_only\" Tools/` returns zero;\nfast suite green with the podvm-resolve case exercising the new colophon.",
