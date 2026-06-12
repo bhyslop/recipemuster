@@ -9278,6 +9278,13 @@
         "₢BbAAH": {
           "jjgpn_tacks": [
             {
+              "jjgtn_ts": "260612-1236",
+              "jjgtn_state": "jjgte_complete",
+              "jjgtn_text": "## Character\nSmall MCM/ACG/JJK cross-document curation — one definitional broadening, three quoin mints, citer repointing.\n\n## Goal\nMake MCM's Antipatterns section the single catalog for named recurring defects,\ndocument-side and delivery-side alike;\nhome Stun, Molehill, and word cancer there as quoins;\nflip every defining citer to cite.\n\n## Cinched\n- mcm_antipattern's definition broadens from document defect to also cover\n  delivery defects (operator-facing presentation failures) — the junk-drawer\n  election, operator-cinched at groom.\n- Word cancer mirrors the tidemark pattern: concept home is the MCM quoin;\n  ACG keeps the moves (statements clause, ACGm_105, registry) and cites.\n- Stun and Molehill keep their operational guidance in the JJK\n  gradient-delivery section (claude-jjk-bhyslop.md), which cites the MCM home\n  instead of defining.\n\n## Done when\nMCM Antipatterns carries the broadened definition plus quoins for word cancer,\nStun, and Molehill; ACG and the JJK gradient-delivery guidance cite rather than\ndefine; MCM validates.",
+              "jjgtn_silks": "antipattern-catalog-broaden",
+              "jjgtn_basis": "acac922"
+            },
+            {
               "jjgtn_ts": "260610-0942",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": "## Character\nSmall MCM/ACG/JJK cross-document curation — one definitional broadening, three quoin mints, citer repointing.\n\n## Goal\nMake MCM's Antipatterns section the single catalog for named recurring defects,\ndocument-side and delivery-side alike;\nhome Stun, Molehill, and word cancer there as quoins;\nflip every defining citer to cite.\n\n## Cinched\n- mcm_antipattern's definition broadens from document defect to also cover\n  delivery defects (operator-facing presentation failures) — the junk-drawer\n  election, operator-cinched at groom.\n- Word cancer mirrors the tidemark pattern: concept home is the MCM quoin;\n  ACG keeps the moves (statements clause, ACGm_105, registry) and cites.\n- Stun and Molehill keep their operational guidance in the JJK\n  gradient-delivery section (claude-jjk-bhyslop.md), which cites the MCM home\n  instead of defining.\n\n## Done when\nMCM Antipatterns carries the broadened definition plus quoins for word cancer,\nStun, and Molehill; ACG and the JJK gradient-delivery guidance cite rather than\ndefine; MCM validates.",
