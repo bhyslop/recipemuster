@@ -9097,6 +9097,7 @@
         "₢BbAAJ",
         "₢BbAAO",
         "₢BbAAP",
+        "₢BbAAQ",
         "₢BbAAN",
         "₢BbAAG",
         "₢BbAAK",
@@ -9107,7 +9108,7 @@
         "₢BbAAC",
         "₢BbAAD"
       ],
-      "jjghn_next_pace_seed": "AAQ",
+      "jjghn_next_pace_seed": "AAR",
       "jjghn_paces": {
         "₢BbAAA": {
           "jjgpn_tacks": [
@@ -9414,6 +9415,17 @@
               "jjgtn_text": "## Character\nGuide authoring — v1 bless-and-name codification of existing practice, judgment work.\n\n## Goal\nAuthor the guide for the in-vessel jailer dialect:\nzero-dependency POSIX sh baked into vessel images,\nrunning inside the security envelope where container logs are the only observability\n(rbjs_sentry.sh is the type specimen; survey the other vessel-context scripts for siblings).\nCodify the emergent patterns:\nphase-anchor announcements (greppable from container log back to source — the execution-time census),\ndistinct exit codes per phase family (the exit code locates the failure),\n`|| exit N` discipline,\nself-probing prologue (validate the env-file transport before trusting any parameter),\nno sourcing, no functions, no bashisms.\nMint the guide's name per the guide-family pattern and register the acronym mapping.\n\n## Cinched\n- One file answers to exactly one guide (ACG Related Guides);\n  overlap with BCG/CBG content is acceptable —\n  the jailer scripts answer to this guide alone.\n- v1 posture: bless and name what exists; mandate nothing new.\n- Promoted ahead of rule-of-3 deliberately:\n  a guide is codification not abstraction,\n  and the regenerate-from-specs strategy makes the dialect guide the generator's\n  input for the security envelope\n  (rationale recorded in Memos/memo-20260612-acg-pilot-sentry-findings.md).\n\n## Done when\nGuide exists in the guide family with its acronym mapping registered;\nthe jailer scripts' governing guide is unambiguous;\nthe known phase-label inconsistency in the type specimen is citable against a written rule.",
               "jjgtn_silks": "jailer-dialect-guide",
               "jjgtn_basis": "e62801a"
+            }
+          ]
+        },
+        "₢BbAAQ": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260612-1413",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nMechanical but individually reviewed — each collapse lands as its own reviewed move, never batch.\n\n## Gate\nGated on the cited-constraint anchor mechanism (the immediately preceding pace):\neach residue cites an anchor,\nand landing prose pointers first would force a second pass over the same sites.\n\n## Goal\nLand the six citation-collapses from the sentry pilot:\nMemos/memo-20260612-acg-pilot-sentry-findings.md carries the findings (F1-F6),\neach with site, receiving home, residue content, and per-extra dispositions\n(history-time provenance pointers drop; concrete-IP color drops; sortie names\nreplaced by anchor citations).\nMint the anchors the residues cite, with definitions at the receiving specs.\nRide-along: fix the RBJp0/RBJp1 announcement-prefix mismatch in the type\nspecimen's parameter-validation block.\nRetire the memo when all findings are dispositioned.\n\n## Cinched\n- Receiving homes are already mature — every move is collapse, not relocation;\n  the spec side does not change except to host anchor definitions.\n- Detect-tier verification is insufficient: the file ships baked into the\n  sentry vessel, so bottle/sentry changes verify at crucible tier (tadmor).\n\n## Done when\nSix comments collapsed to residue + anchor citation, one reviewed move at a time;\nprovenance pointers gone;\nthe announcement-prefix mismatch fixed;\ncrucible tier green;\nthe findings memo retired to Memos/retired/.",
+              "jjgtn_silks": "sentry-citation-collapses",
+              "jjgtn_basis": "1fdd121"
             }
           ]
         }
