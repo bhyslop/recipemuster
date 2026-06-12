@@ -9153,6 +9153,13 @@
         "₢BbAAC": {
           "jjgpn_tacks": [
             {
+              "jjgtn_ts": "260612-1150",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nStable-noun curation — terms are BH/BZ-safe so the docket is concrete,\nbut execution is file-gated on BH.\nTier: opus — the drift-vs-legitimate-mention call is judgment, not mechanics.\n\n## Goal\nCurate the crucible-runtime noun cluster (Crucible, Bottle, Sentry, Pentacle):\neach traces to one canonical home (RBS0 quoin; RBYC fragment where\nhandbook-surfaced),\nand its drift-prone uses are made consistent —\nenrollment descriptions and doc_briefs agree, no variant spellings,\nno in-source comment re-definitions of what the noun means.\n\n## Cinched\n- Curate, never evict — these nouns live.\n  Removal of dead terms is the standing conformance-engine eviction mechanism\n  plus BH's vocab scrub, not here.\n- Target only drift-prone uses (cross-referencing descriptions, variant\n  spellings, comment re-definitions); leave legitimate prose mentions alone.\n- Apply ACG's reference-the-home discipline.\n\n## Gate\nAfter ₣BH lands — these descriptions live in\nrbz_zipper.sh and the doc_briefs BH is rewriting.\n\n## Done when\nEach cluster noun traces to one home;\ndescriptions and doc_briefs consistent;\nno variant spellings or in-source re-definitions survive;\nfast green.",
+              "jjgtn_silks": "noun-cluster-crucible-family",
+              "jjgtn_basis": "817ab83"
+            },
+            {
               "jjgtn_ts": "260612-1148",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": "## Character\nStable-noun curation — terms are BH/BZ-safe so the docket is concrete,\nbut execution is file-gated on BH.\nTier: opus — the drift-vs-legitimate-mention call is judgment, not mechanics.\n\n## Goal\nCurate the crucible-runtime noun cluster (Crucible, Bottle, Sentry, Pentacle):\neach traces to one canonical home (RBS0 quoin; RBYC fragment where\nhandbook-surfaced),\nand its drift-prone uses are made consistent —\nenrollment descriptions and doc_briefs agree, no variant spellings,\nno in-source comment re-definitions of what the noun means.\n\n## Cinched\n- Curate, never evict — these nouns live.\n  Removal of dead terms is the standing conformance-engine eviction mechanism\n  plus BH's vocab scrub, not here.\n- Target only drift-prone uses (cross-referencing descriptions, variant\n  spellings, comment re-definitions); leave legitimate prose mentions alone.\n- Apply ACG's reference-the-home discipline.\n\n## Gate\nAfter ₣BH (lode-universal-capture) lands — these descriptions live in\nrbz_zipper.sh and the doc_briefs BH is rewriting.\n\n## Done when\nEach cluster noun traces to one home;\ndescriptions and doc_briefs consistent;\nno variant spellings or in-source re-definitions survive;\nfast green.",
@@ -9171,6 +9178,13 @@
         "₢BbAAD": {
           "jjgpn_tacks": [
             {
+              "jjgtn_ts": "260612-1150",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nStable-noun curation — terms are BH/BZ-safe so the docket is concrete,\nbut execution is file-gated on BH.\nTier: opus — the drift-vs-legitimate-mention call is judgment, not mechanics.\n\n## Goal\nCurate the vessel-identity noun cluster (Vessel, Sigil, Nameplate):\neach traces to one canonical home (RBS0 quoin; RBYC fragment where\nhandbook-surfaced),\nand its drift-prone uses are made consistent —\nenrollment descriptions and doc_briefs agree, no variant spellings,\nno in-source comment re-definitions of what the noun means.\nWatch the Vessel/Sigil boundary specifically\n(sigil = the per-vessel directory name; vessel = the configured unit)\nso the two don't blur in prose.\n\n## Cinched\n- Curate, never evict — these nouns live.\n  Removal of dead terms is the standing conformance-engine eviction mechanism\n  plus BH's vocab scrub, not here.\n- Target only drift-prone uses (cross-referencing descriptions, variant\n  spellings, comment re-definitions); leave legitimate prose mentions alone.\n- Apply ACG's reference-the-home discipline.\n\n## Gate\nAfter ₣BH lands — these descriptions live in\nrbz_zipper.sh and the doc_briefs BH is rewriting.\n\n## Done when\nEach cluster noun traces to one home;\ndescriptions and doc_briefs consistent;\nno variant spellings or in-source re-definitions survive;\nfast green.",
+              "jjgtn_silks": "noun-cluster-vessel-identity",
+              "jjgtn_basis": "817ab83"
+            },
+            {
               "jjgtn_ts": "260612-1148",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": "## Character\nStable-noun curation — terms are BH/BZ-safe so the docket is concrete,\nbut execution is file-gated on BH.\nTier: opus — the drift-vs-legitimate-mention call is judgment, not mechanics.\n\n## Goal\nCurate the vessel-identity noun cluster (Vessel, Sigil, Nameplate):\neach traces to one canonical home (RBS0 quoin; RBYC fragment where\nhandbook-surfaced),\nand its drift-prone uses are made consistent —\nenrollment descriptions and doc_briefs agree, no variant spellings,\nno in-source comment re-definitions of what the noun means.\nWatch the Vessel/Sigil boundary specifically\n(sigil = the per-vessel directory name; vessel = the configured unit)\nso the two don't blur in prose.\n\n## Cinched\n- Curate, never evict — these nouns live.\n  Removal of dead terms is the standing conformance-engine eviction mechanism\n  plus BH's vocab scrub, not here.\n- Target only drift-prone uses (cross-referencing descriptions, variant\n  spellings, comment re-definitions); leave legitimate prose mentions alone.\n- Apply ACG's reference-the-home discipline.\n\n## Gate\nAfter ₣BH (lode-universal-capture) lands — these descriptions live in\nrbz_zipper.sh and the doc_briefs BH is rewriting.\n\n## Done when\nEach cluster noun traces to one home;\ndescriptions and doc_briefs consistent;\nno variant spellings or in-source re-definitions survive;\nfast green.",
@@ -9188,6 +9202,13 @@
         },
         "₢BbAAE": {
           "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260612-1150",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nMechanical sweep gated on one small design fork at its head —\nthe first worked application of ACG's magic-string discipline.\nTier: sonnet — mechanical once the head fork settles;\nthe fork carries a documented lean for the operator to confirm at mount.\n\n## Goal\nGive the rbrv.env filename literal a single named home in bash;\nsweep the path-construction sites onto it.\n\n## Head fork (settle at mount)\nDoes the constant reference the existing rbrv_regime quoin (RBS0)\nor a freshly minted filename quoin distinct from the regime?\nThe regime-vs-file split is real —\nsourcing/validation act on the regime; yoke/inscribe/enumerate act on the file —\nso lean to a distinct filename quoin,\nbut confirm against MCM \"warrants anchoring\".\n\n## Gate\nAfter ₣BH lands.\nThis sweep's path-construction sites overlap BH's active rewrite surface —\nthe inscribe cutover repoints the yoke and Director-track rbrv.env handling,\nand BH's terminal vocab scrub greps the whole tree last —\nso landing this in a parallel repo before BH's tail would guarantee a merge\nconflict.\nRun it after BH is done, in the main line.\n\n## Cinched\n- Constant joins the RBCC_rbr*_file family in rbcc_constants.sh\n  (sibling to RBCC_rbrn_file / rbra_file / rbro_file),\n  with a breadcrumb to its spec quoin.\n- Sweep only genuine path constructions.\n  Discover: grep -rn \"rbrv\\.env\" Tools/rbk --include=\"*.sh\";\n  exclude prose — doc_params, buc_info/buh_line messages, and comments keep the\n  literal (naming the file for a human is not a magic string).\n\n## Done when\nEvery bash path-construction resolves through the constant;\nprose literals untouched;\nthe constant carries its quoin breadcrumb;\ntt/rbw-tl.Shellcheck.sh and tt/rbw-ts.TestSuite.fast.sh green.",
+              "jjgtn_silks": "rbrv-env-bash-sweep",
+              "jjgtn_basis": "817ab83"
+            },
             {
               "jjgtn_ts": "260612-1148",
               "jjgtn_state": "jjgte_rough",
@@ -9317,6 +9338,13 @@
         },
         "₢BbAAK": {
           "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260612-1150",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nThird ACG audit pilot — the scale test on the richest surface;\nmulti-module pairing.\n\n## Gate\nTwo gates, both hard:\n\n- Top-tier model only (Fable-class at slating), worked in the operator's chat —\n  never mount or delegate this pace at a lesser tier.\n  The pilot's primary deliverable is ACG amendment judgment plus the roster\n  recommendation, and delegation makes that feedback secondhand.\n  If mounted on a lesser tier, stop and tell the operator instead of proceeding.\n- After ₣BH lands —\n  the conjure surface is under active ₣BH rewrite\n  (ensconce cutover, anchor wiring);\n  findings against it now go stale.\n\n## Goal\nAudit the conjure pair —\nRBFD (Tools/rbk/rbfd_director.sh, plus its rbfca_/rbfcg_/rbfcp_ support where\nthe spec reaches) against RBSAC —\nunder the full detect-only move set.\nThis pilot answers whether the per-pair shape scales:\nbiggest source surface, deep conceptual comments\n(anchor semantics, egress-mode branching, two-layer preflight).\nTwin deliverable: findings plus ACG amendments,\nclosing with a recommendation for the post-pilot groom —\nroster of pair paces vs further pilots.\n\n## Cinched\n- Runs only after the first two pilots' ACG amendments have landed —\n  this pilot exercises the hardened guide.\n- Reliquary/Lode/Hallmark vocabulary belongs to ₣BH's lane even after it lands;\n  term curation stays out of scope — allocation findings only.\n\n## Done when\nFindings report with move-type tags;\nagreed moves landed as individually reviewed moves;\nACG amendments landed;\nroster recommendation recorded for the post-pilot groom;\nfast suite green if any source file changed.",
+              "jjgtn_silks": "pilot-audit-conjure",
+              "jjgtn_basis": "817ab83"
+            },
             {
               "jjgtn_ts": "260612-1148",
               "jjgtn_state": "jjgte_rough",
