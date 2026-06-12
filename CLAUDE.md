@@ -204,11 +204,12 @@ See minting memo Pattern J (RBS0/JJS0 empirical study) for evidence.
 
 Prefix rules govern the left half of a name; these govern the word itself. When minting any persistent name — quoin word-parts, verbs, nouns, colophon words:
 
-- **Semantic uniqueness** repo-wide: one meaning per word, ever.
+- **Semantic uniqueness** repo-wide: one meaning per word, ever. (Pre-MVP operator ruling: a retired word may be re-minted after a deliberate eviction sweep — the grep gate proves the sweep.)
 - **Vocabulary isolation**: no *trodden words* (`mcm_trodden_word`) — vocabulary heavy in ambient software prose (open, close, run, lock, task, grant) is disqualified regardless of fit.
 - **Grep gate**: repo-wide grep must land clean before adoption.
 - **Rare but real**: distinctive words whose true meaning does semantic work; concrete over abstract; never abbreviations.
 - **Mint into an asterism** (`mcm_asterism`): join a coherent metaphor family with an audible register (equestrian, ecclesiastical, diplomatic, civic).
+- **Exposure ladder** (`mcm_ashlar`/`mcm_hearting`): hearting (interior, prefix-only) → quoin (catalogued default) → ashlar (operator-facing). An ashlar must be fair-faced (first-contact actionable; `mcm_cold_probe` tests it), draws from the coffer (bounded operator vocabulary), and registers on the project's broadside (RB's broadside is the README glossary). Words in error output are ashlar.
 
 Full doctrine: MCM "Word Selection". Constrains births, not the living.
 

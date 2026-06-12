@@ -67,6 +67,7 @@
 :axl_detail_site_s:                   <<axl_detail_site,Detail Sites>>
 
 // Axial Dimension Terms
+:axd_ashlar:                          <<axd_ashlar,Ashlar>>
 :axd_conditional:                     <<axd_conditional,Conditional>>
 :axd_defaulted:                       <<axd_defaulted,Defaulted>>
 :axd_dimension:                       <<axd_dimension,Dimension>>
@@ -448,18 +449,28 @@ The
 {axl_annotation}
 appears between anchor and definition as a space-separated list of prefix terms on a comment line with no space after `//`.
 +
-Format: `//relationship primary [dimension ...]`
+Format: `//primary [dimension ...]`
 +
-* First term: the relationship (typically `axl_voices`)
-* Second term: the primary
+* First term: the primary
 {axl_motif}
 being voiced
 * Remaining terms: dimension terms (prefixed `axd_`) specifying characteristics
+* The relationship is implicit: a direct annotation
+{axl_voices}
+its primary
+{axl_motif}.
 +
 Examples:
 +
-* `//axl_voices axc_call` - simple voicing
-* `//axl_voices axr_member axd_required axd_nullable` - voicing with dimensions
+* `//axc_call` - simple voicing
+* `//axr_member axd_required axd_nullable` - voicing with dimensions
++
+Legacy form — read, never authored:
+annotations beginning with an explicit relationship token
+(`//axl_voices primary [dimension ...]`)
+predate the direct form.
+They read identically to the direct form and are **deprecated for new authorship**;
+unswept instances stand until deliberate remint tooling retires them.
 +
 Category prefixes carry semantic meaning, eliminating need for punctuation.
 Position determines role: relationship first, primary second, dimensions following.
@@ -1453,7 +1464,22 @@ A characteristic modifier that qualifies a member or argument in an
 {axd_dimension_s}
 appear after the primary
 {axl_motif}
-in annotation format: `//axl_voices primary dimension ...`
+in annotation format: `//primary dimension ...`
+
+[[axd_ashlar]]
+{axd_ashlar}::
+A
+{axd_dimension}
+marking the annotated term as operator-facing vocabulary —
+{xref_MCM}
+`mcm_ashlar`.
+Unlike member-level
+{axd_dimension_s},
+it qualifies the term itself, not a serialization characteristic.
+A term carrying `axd_ashlar` is subject to the ashlar rules at its
+{xref_MCM}
+definition (fair-faced, coffer, broadside registration),
+and its absence from the project's broadside is a detectable defect.
 
 === Value Dimensions
 

@@ -25,6 +25,7 @@
 
 :mcm_category_group:         <<mcm_category_group,Category Group>>
 :mcm_category_group_s:       <<mcm_category_group,Category Groups>>
+:mcm_cold_probe:             <<mcm_cold_probe,Cold Probe>>
 :mcm_curation_action:        <<mcm_curation_action,Curation Action>>
 :mcm_curation_action_s:      <<mcm_curation_action,Curation Actions>>
 :mcm_demotion_analysis:      <<mcm_demotion_analysis,Demotion Analysis>>
@@ -41,8 +42,14 @@
 :mcm_trodden_word:           <<mcm_trodden_word,Trodden Word>>
 :mcm_trodden_word_s:         <<mcm_trodden_word,Trodden Words>>
 
+:mcm_ashlar:                 <<mcm_ashlar,Ashlar>>
+:mcm_ashlar_s:               <<mcm_ashlar,Ashlars>>
 :mcm_asterism:               <<mcm_asterism,Asterism>>
 :mcm_asterism_s:             <<mcm_asterism,Asterisms>>
+:mcm_broadside:              <<mcm_broadside,Broadside>>
+:mcm_coffer:                 <<mcm_coffer,Coffer>>
+:mcm_fair_faced:             <<mcm_fair_faced,Fair-Faced>>
+:mcm_hearting:               <<mcm_hearting,Hearting>>
 
 :mcm_definition_section:     <<mcm_definition_section,Definition Section>>
 :mcm_definition_section_s:   <<mcm_definition_section,Definition Sections>>
@@ -502,7 +509,7 @@ Use for standalone terms with self-contained meaning.
 [source,asciidoc]
 ----
 [[term_anchor]]
-//axl_voices axk_motif
+//axk_motif
 {term_reference}::
 Definition text following sentence-per-line rules.
 ----
@@ -519,7 +526,7 @@ Use for fields of a structure or steps in a procedure.
 [source,asciidoc]
 ----
 * [[field_anchor]]
-//axl_voices axr_member
+//axr_member
 {field_reference} defines the specific meaning within the parent structure.
 ----
 
@@ -535,13 +542,13 @@ Use for terms whose meaning requires extended explanation or contains nested chi
 [source,asciidoc]
 ----
 [[sequence_anchor]]
-//axl_voices axo_sequence
+//axo_sequence
 === {sequence_reference}
 
 The sequence executes these steps:
 
 * [[step_one_anchor]]
-//axl_voices axo_step
+//axo_step
 First step description.
 ----
 
@@ -904,6 +911,14 @@ to identify issues requiring attention.
 
 == Word Selection
 
+Vocabulary is the primary interface of every system the
+{mcm_editor}
+choreographs:
+names are how intent survives across minds and sessions,
+and the specification machinery around them is scaffolding in their service.
+A name that fails its reader fails the system,
+however sound the code beneath it.
+
 Prefix discipline governs the left half of every persistent name;
 this section governs the right half — the word itself.
 The rules below bind the word part of every
@@ -958,6 +973,116 @@ alike.
 Founding specimen: Job Jockey's equestrian vocabulary (JJS0, Equestrian Vocabulary), with the racing and dressage layers as sibling families sharing one register.
 Model-side rationale: `Memos/memo-20260610-quoin-minting-introspection.md`;
 prefix-side sibling: `Memos/memo-20260110-acronym-selection-study.md`.
+
+=== Exposure
+
+Word-selection care scales with who must read the name.
+Every persistent name sits on a ladder of increasing dressing:
+
+* {mcm_hearting} — interior names, uncatalogued, governed by prefix discipline alone.
+* A
+{mcm_quoin}
+— the catalogued default; the rules above bind.
+* {mcm_ashlar} — a
+{mcm_quoin}
+that faces the operator; everything below binds, plus the rules at its definition.
+
+The ladder is deliberate at both ends:
+{mcm_hearting}
+is permission to leave interior names plain,
+granted so that care can concentrate where reading is costly.
+Misclassification fails quiet in one direction —
+a word that should be
+{mcm_ashlar}
+but is unmarked skips the stricter tests —
+so when a word surfaces in operator output, ask whether it belongs on the
+{mcm_broadside}.
+
+[[mcm_ashlar]]
+{mcm_ashlar}::
+A
+{mcm_quoin}
+the operator must trigger, observe in output or errors, or reason about system state with.
+The dressed facing stone — finished finely because it faces out.
+Beyond the rules above, an
+{mcm_ashlar}
+must be
+{mcm_fair_faced},
+draws from the
+{mcm_coffer},
+and is not minted until it appears on the project's
+{mcm_broadside}.
+Scrutiny scales with contact frequency:
+a word the operator meets daily outranks a founding-ceremony word,
+and both outrank any spec-interior
+{mcm_quoin}.
+Verbs name what the operator does or sees, never the mechanism beneath.
+Words appearing in failure output are
+{mcm_ashlar_s}
+even when the operator never invokes them.
+
+[[mcm_hearting]]
+{mcm_hearting}::
+The wall-core fill — structural, unseen, taking no dressing.
+Interior names governed by prefix discipline alone:
+locals, private helpers, intermediate artifacts no operator and no spec must read.
+{mcm_hearting}
+is a deliberate grant of plainness, not neglect;
+its existence is what lets
+{mcm_ashlar}
+care stay affordable.
+
+[[mcm_fair_faced]]
+{mcm_fair_faced}::
+The property an
+{mcm_ashlar}
+must hold: finished so it needs no render coat.
+An operator meeting the word for the first time, mid-ceremony,
+must act correctly without a glossary lookup.
+Rare enough to land clean in the grep gate,
+common enough to guess warm —
+the deliberate tightening of rare-but-real at the wall's face.
+The
+{mcm_cold_probe}
+is its test.
+
+[[mcm_coffer]]
+{mcm_coffer}::
+The bounded budget of
+{mcm_ashlar_s}
+an operator can be asked to hold.
+Each mint spends from it;
+spec-grain precision collapses into fewer operator words wherever the distinction does not change what the operator does.
+The fine grain lives on in
+{mcm_quoin_s};
+the
+{mcm_coffer}
+governs only the wall's face.
+
+[[mcm_broadside]]
+{mcm_broadside}::
+The single public sheet where a project posts its
+{mcm_ashlar}
+vocabulary.
+Each project designates exactly one;
+presence on the
+{mcm_broadside}
+is the registry contract —
+an
+{mcm_ashlar}
+mint is incomplete until its entry exists.
+
+[[mcm_cold_probe]]
+{mcm_cold_probe}::
+A
+{mcm_curation_action}
+testing
+{mcm_fair_faced}:
+present each candidate to a fresh reader in one sentence of working context;
+the reader states what they expect the word to do or mean.
+The stated expectation is the verdict —
+mismatch fails the candidate,
+and no advocacy by the minter is admitted.
 
 == Antipatterns
 

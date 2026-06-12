@@ -25,14 +25,17 @@ Concept Model Kit (CMK) is installed for managing concept model documents.
 | **Concept Model** | `mcm_` | A unified constellation of linked terms whose relationships give meaning to a domain. Manifested as an AsciiDoc document following MCM patterns. |
 | **Category** | `mcm_` | The prefix group (e.g., `bzsn_`, `bzsdp_`, `mcm_`) that scopes a set of related quoins. |
 | **Variant** | `mcm_` | Suffix modifiers on attribute references: `_s` plural, `_p` possessive, `_ed` past, `_ing` progressive. |
-| **Annotation** | `mcm_` | An AsciiDoc comment line carrying structured metadata as space-separated prefix terms. Position determines role: relationship first, primary motif second, dimensions following. Example: `//axl_voices axk_premise`. |
+| **Annotation** | `mcm_` | An AsciiDoc comment line carrying structured metadata as space-separated prefix terms. Position determines role: primary motif first, dimensions following; the voices relationship is implicit. Example: `//axk_premise`. Legacy `//axl_voices …` form is read-only — never author it anew. |
+| **Ashlar** | `mcm_` | A quoin that faces the operator — must be fair-faced (first-contact actionable), draws from the coffer (bounded operator vocabulary), registers on the project's broadside. Words in error output are ashlar. Definition-site marker: `axd_ashlar`. |
+| **Hearting** | `mcm_` | Interior names — uncatalogued, prefix discipline only. Deliberate plainness so ashlar care stays affordable. |
+| **Broadside** | `mcm_` | The project's single public sheet of ashlar vocabulary; registration there completes a mint. |
 
 ### AXLA Vocabulary
 
 | Term | Prefix | Meaning |
 |------|--------|---------|
 | **Motif** | `axl_` | A reusable conceptual pattern from AXLA that a quoin can voice. The shared vocabulary across concept models. |
-| **Voicing** | `axl_` | An annotation at a definition site declaring which AXLA motif a quoin instantiates (e.g., `// axl_voices axk_premise`). |
+| **Voicing** | `axl_` | An annotation at a definition site declaring which AXLA motif a quoin instantiates (e.g., `//axk_premise`). |
 | **Premise** | `axk_` | A motif representing a declared design constraint that bounds system complexity by stating what the system will not handle. |
 | **Definition Site** | `axl_` | The location where a quoin's `[[anchor]]` and definition text appear. Where voicings are declared. |
 
@@ -41,7 +44,7 @@ Concept Model Kit (CMK) is installed for managing concept model documents.
 - **Linked Terms**: `{category_term}` — references defined vocabulary
 - **Attribute References**: `:category_term: <<anchor,Display Text>>` — in mapping section
 - **Anchors**: `[[anchor_name]]` — definition targets
-- **Annotations**: `//axl_voices axk_premise` — prefix-discriminated comment lines (no space after `//`, letter distinguishes from regular comments)
+- **Annotations**: `//axk_premise` — prefix-discriminated comment lines (no space after `//`, letter distinguishes from regular comments); primary motif first, `axd_` dimensions follow, voices relationship implicit. Legacy `//axl_voices …` form is read-only.
 
 ### Minting Guidance
 
