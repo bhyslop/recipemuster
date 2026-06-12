@@ -9096,6 +9096,7 @@
         "₢BbAAI",
         "₢BbAAJ",
         "₢BbAAO",
+        "₢BbAAP",
         "₢BbAAN",
         "₢BbAAG",
         "₢BbAAK",
@@ -9106,7 +9107,7 @@
         "₢BbAAC",
         "₢BbAAD"
       ],
-      "jjghn_next_pace_seed": "AAP",
+      "jjghn_next_pace_seed": "AAQ",
       "jjghn_paces": {
         "₢BbAAA": {
           "jjgpn_tacks": [
@@ -9402,6 +9403,17 @@
               "jjgtn_text": "## Character\nDesign conversation requiring judgment — a new MCM/AXLA-level mechanism, worked at top tier.\n\n## Goal\nDesign the cited-constraint anchor:\na third census mechanism beside quoin and sprue —\na normative proposition (invariant, deliberate deviation, foreign signature)\nthat the spec defines once under a minted ID\nand that code comments and tests cite,\nso one grep returns definition, defending sites, and attacking tests.\nSettle the MCM mechanics (new category, not a quoin variant),\nthe ID shape, the allocation path, the category taxonomy,\nand the validator rules this feeds.\nACG's \"The cited-constraint anchor (deferred)\" section is the entry point and\ngets repointed from deferred to live when this lands.\n\n## Cinched\n- Direction is cinched; the design leanings are not.\n  Leanings recorded in Memos/memo-20260612-acg-pilot-sentry-findings.md\n  (opaque dense suffix for the closed-spec/open-code boundary,\n  category as definition-site field not ID letter,\n  allocator and naming open) —\n  confirm or overturn each at mount.\n- Test names never appear in source comments (ACG ruling);\n  this mechanism is the named replacement for that linkage.\n\n## Done when\nThe category is specified at its MCM/AXLA home;\nID shape and allocation path decided;\nACG's deferred section repointed;\nthe first anchors are mintable by the relocation work this pace gates.",
               "jjgtn_silks": "cited-constraint-anchor-design",
               "jjgtn_basis": "a7e147b"
+            }
+          ]
+        },
+        "₢BbAAP": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260612-1413",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nGuide authoring — v1 bless-and-name codification of existing practice, judgment work.\n\n## Goal\nAuthor the guide for the in-vessel jailer dialect:\nzero-dependency POSIX sh baked into vessel images,\nrunning inside the security envelope where container logs are the only observability\n(rbjs_sentry.sh is the type specimen; survey the other vessel-context scripts for siblings).\nCodify the emergent patterns:\nphase-anchor announcements (greppable from container log back to source — the execution-time census),\ndistinct exit codes per phase family (the exit code locates the failure),\n`|| exit N` discipline,\nself-probing prologue (validate the env-file transport before trusting any parameter),\nno sourcing, no functions, no bashisms.\nMint the guide's name per the guide-family pattern and register the acronym mapping.\n\n## Cinched\n- One file answers to exactly one guide (ACG Related Guides);\n  overlap with BCG/CBG content is acceptable —\n  the jailer scripts answer to this guide alone.\n- v1 posture: bless and name what exists; mandate nothing new.\n- Promoted ahead of rule-of-3 deliberately:\n  a guide is codification not abstraction,\n  and the regenerate-from-specs strategy makes the dialect guide the generator's\n  input for the security envelope\n  (rationale recorded in Memos/memo-20260612-acg-pilot-sentry-findings.md).\n\n## Done when\nGuide exists in the guide family with its acronym mapping registered;\nthe jailer scripts' governing guide is unambiguous;\nthe known phase-label inconsistency in the type specimen is citable against a written rule.",
+              "jjgtn_silks": "jailer-dialect-guide",
+              "jjgtn_basis": "e62801a"
             }
           ]
         }
