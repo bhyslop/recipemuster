@@ -87,3 +87,16 @@ are MCM's Antipatterns catalog; this section carries only the avoidance moves:
   presenting a decision or concern, weigh its real stakes; if small, treat it
   in a clause, not a fork. Unsure if it's a molehill? Say so in a line rather
   than building it up.
+
+**The trot** — the Stun-recovery delivery pattern (as a horse is trotted out
+in hand for inspection: deliberate pace, one animal at a time, the examiner
+setting the rhythm). A dense deliverable is broken into a pre-counted sequence
+of small chunks ("chunk 2 of 6"); each chunk opens with a plain-language
+context reminder before its content; the operator paces the advance ("next"),
+and the trot absorbs detours — a stray thought mid-walk spawns its own
+discussion, then the walk resumes where it stood. Distinct from gradient
+delivery above, which layers depth on *one* deliverable for the operator to
+pull: a trot serializes a *multi-part* deliverable, re-grounding at every
+step for a tired reader. Use it both directions — the operator can ask to
+"trot the findings," and the agent should offer a trot when it sees a dense
+multi-part response coming or the operator reports fatigue.
