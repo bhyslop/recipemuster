@@ -20,23 +20,32 @@ Unchanged in substance from the canon's D2, wording per the vocabulary elections
 **a human compears at the kickoff of every run; no run outlives its assize.**
 No refresh token anywhere beyond the payor's own;
 an orchestrating agent never holds a secret
-(device-flow kickoff surfaces only user_code + verification URI).
+(device-flow kickoff surfaces only user_code + verification URI —
+spike-verified live: no offline_access scope, no refresh token in the response).
 Belongs in RBS0 as a premise quoin voiced `axk_premise` at civic incorporation.
 
-## The mantle architecture (cinched 260612)
+## The mantle architecture (cinched 260612; spike-proven, two amendments absorbed)
 
 **Capability-sets instantiate as mantle SAs at levy; all resource IAM freezes there.**
+The full three-leg chain is proven live end-to-end in pure curl
+(`Memos/memo-20260612-federation-legs-spike-findings.md`).
 
 - Levy creates the mantle SAs (governor / director / retriever) beside mason
   and grants **every** resource binding (project, GAR repo, mason actAs) to them, once,
   behind a settle gate — levy is long and payor-driven; the gate is cheap there.
-- Admission to a mantle is **one binding**:
-  `roles/iam.serviceAccountTokenCreator` on the mantle SA, naming the operator's `principal://` subject.
-  Removal is that binding's deletion.
-- Runtime chain: IdP device flow (Leg 1) → STS exchange (Leg 2) →
-  `generateAccessToken` on the mantle SA (Leg 3) → short-lived mantle token.
+- Admission to a mantle writes the tokenCreator binding —
+  plus, on a citizen's **first** admission to a depot, one depot-scoped binding (spike F2):
+  `roles/iam.serviceAccountTokenCreator` on the mantle SA naming the `principal://` subject,
+  and `roles/serviceusage.serviceUsageConsumer` on the depot project
+  (Leg 3 needs a quota project; further mantles in the same depot need only tokenCreator).
+  Invest is an idempotent ensure of both.
+  Removal deletes the tokenCreator binding;
+  the serviceUsageConsumer residue at a citizen's last divestment is a verb-movement spec decision (see Open).
+- Runtime chain: IdP device flow (Leg 1) → STS exchange (Leg 2, nothing extra — spike F3) →
+  `generateAccessToken` on the mantle SA (Leg 3, depot as quota project via `x-goog-user-project`) →
+  short-lived mantle token.
   Leg 3 is the **don**.
-  Everything downstream bearer-blind, unchanged.
+  Everything downstream bearer-blind, unchanged — no quota-project ceremony downstream (spike-verified).
 - **Zero service account keys exist anywhere**; the depot runs with
   `disableServiceAccountKeyCreation` fully enforced.
   The system's sole durable secret is the payor's RBRO refresh token.
@@ -44,13 +53,15 @@ Belongs in RBS0 as a premise quoin voiced `axk_premise` at civic incorporation.
   the federated principal is the grantable identity, implicit in the IdP assertion.
   The IdP is the census (cinch carried forward).
 - Flap payoff (the architecture's origin): post-levy IAM mutation collapses to
-  one binding type at one scope with one gate point;
+  two binding types at two scopes with one gate point (F2 widened the original one-binding claim);
   the SA-lifecycle flap family confines to levy;
   hot paths perform zero IAM mutation.
-  Mantle tokens are uncapped and self-expiring; the 10-key cap is irrelevant (no keys).
+  Mantle tokens accrue no count cap and self-expire
+  (the 10-key cap is irrelevant — no keys; lifetimes per the two-ceiling note in Token custody).
 - A donned mantle's token is a plain SA token —
-  the workforce federated-token per-product support matrix is dodged entirely.
-- Blast radius: a token wears one mantle at a time;
+  the workforce federated-token per-product support matrix is dodged entirely
+  (and AR + Cloud Build are GA with no known limitations regardless — spike V2; belt and braces).
+- Blast radius: a token carries one mantle's authority at a time;
   the multi-hat union-credential concern dissolves.
 
 ## The civic structure (cinched, carried forward with the mantle recast)
@@ -59,10 +70,13 @@ Belongs in RBS0 as a premise quoin voiced `axk_premise` at civic incorporation.
 
 - Admission authority scoped to the polity it admits into; payor outside the citizenry,
   ceremonial after founding; founding gestures gain **affiance**
-  (the IdP-trust betrothal: workforce pool + provider + attribute mapping, org-level, once per manor)
+  (the IdP-trust betrothal: workforce pool + provider + attribute mapping, org-level —
+  and seating the payor's org-level `workforcePoolAdmin` role first, spike F1)
   and **mantle establishment** at levy.
 - All operator administration is governor-wielded and depot-scoped.
   A governor invests another with the governor mantle — governors create governors.
+  The founding exception: levy's last act is the payor investing the first governor —
+  the one admission gesture outside governor wielding.
   Cross-depot administration does not exist.
 - Governor dissolves structurally: an operator wearing the governor mantle.
   Standing governor remains the default posture.
@@ -86,15 +100,23 @@ payor-created at levy, governor-writeable own-terrier-only,
 read population governors-and-above — all unchanged.
 Entries — **muniments** — record (principal subject, mantle held);
 key IDs vanish with the keys.
-Working verbs never touch terriers; audit is a read-only diff
-(terrier intent vs the mantle SAs' tokenCreator bindings — resource bindings are frozen and need no audit loop).
+Runtime verbs (compear, don, the bearer-blind verbs) never touch terriers;
+admission verbs write muniments first.
+Audit is a read-only diff
+(terrier intent vs the mantle SAs' tokenCreator bindings — resource bindings are frozen and need no audit loop);
+*audit* as a word is unresolved (trodden + initial-collides with attaint if it ever becomes an operator verb — see Open).
 Audit and rehearse are spaced two distinctions apart:
 rehearse recounts what the record says; audit checks the record against reality.
+Attribution trail (spike V3): the always-on token-mint log names the mantle SA and caller IP, **not** the human;
+the federate appears downstream via `serviceAccountDelegationInfo` —
+so levy enables per-service Data Access audit logs as a ceremony step
+(AR needs ADMIN_READ + DATA_READ for full retriever-trail coverage).
 
 ## Verbs and orderings (recast 260612; words elected)
 
-Invest and divest carry single-binding bodies —
-first-vs-further admission is system-resolved bookkeeping
+Invest and divest carry small idempotent bodies —
+first-vs-further admission differs only in the depot-scoped F2 binding,
+which invest ensures alongside the tokenCreator
 (spec grain keeps the four admission/removal cases as quoins);
 attaint composes divest-all;
 **recut retires** (the IdP owns rotation; there is nothing to rotate Google-side);
@@ -102,14 +124,14 @@ attaint composes divest-all;
 
 | Verb | Body | Crash leaves |
 |---|---|---|
-| invest | muniment write → tokenCreator binding (idempotent, first or further mantle alike) | visible deficit; re-run |
-| divest | muniment withdraw → remove binding | visible surplus; report-only |
+| invest | muniment write → ensure tokenCreator on the mantle SA + serviceUsageConsumer on the depot | visible deficit; re-run |
+| divest | muniment withdraw → remove tokenCreator binding | visible surplus; report-only |
 | attaint | divest all mantles → deregister note (IdP-side removal is the IdP admin's) | partial teardown lands as surplus, never resurrection |
 | rehearse | pure read of the terrier | — |
 
 (The earlier four-E working set — enfranchise/enfeoff/escheat/expel — was superseded at the
 vocabulary pace: it failed MCM's sibling-initials rule;
-bodies and crash semantics carried over unchanged.)
+bodies and crash semantics carried over unchanged, then F2 widened invest's ensure set.)
 
 ## Vocabulary elections (complete 260612)
 
@@ -128,11 +150,12 @@ Elected and operator-confirmed:
 - **compear** — the per-session human sign-in act
   (Scots law: to appear formally in answer to a summons; noun *compearance*).
   Not a tabtarget: compearance is an accessor step —
-  any cloud tabtarget probes for a live assize, opens the device grant,
-  prints the clickable URL + code, and fails loud.
-  The pending-grant holder shape (who polls the device code) rides the spike's cache-wiring election.
+  any cloud tabtarget probes for a live assize and on a miss with a TTY
+  runs Leg 1 inline (prints the clickable URL + user code, polls);
+  headless miss fails loud (elected at the spike).
 - **assize** — the live-window noun: a bounded sitting that is also a fixed regulated measure,
   so the word carries the cap in its own body.
+  Concretely: the assize is the workforce-pool session window (15 min–12 h, spike V1).
 - **don** — the impersonation act (Leg 3);
   one mantle worn at a time is the blast-radius cinch made audible.
 - **invest / divest** — the daily admission/removal verbs,
@@ -191,23 +214,36 @@ mint on second use.
 ## Retriever differentiation (cinched 260612 — policy, not mechanism)
 
 Same architecture, three knobs:
-retriever-mantle token lifetime at the 12 h ceiling
+retriever-mantle token lifetime at the 12 h ceiling —
+mechanism spike-confirmed (V1): 1 h default and max,
+12 h only via `constraints/iam.allowServiceAccountCredentialLifetimeExtension`
+listing the retriever-mantle SA
 (activates the canon's deferred D5 capability-set-keyed lifetime — the trigger case);
 machine consumers (CI, crucible charges, runtime pulls) ride their **own workload identities**
 granted reader directly — the IdP is never in a machine pull chain;
 the reserve-key posture (one key on retriever-mantle, scoped policy exception)
 is documented fallback, **not built**.
 
-## Token custody (cinched MVP shape; upgrades named)
+## Token custody (cinched MVP shape; spike election absorbed)
 
-MVP: per-assize filesystem scratch behind the accessor seam, 0600,
-never outliving the assize, never a regime.
+MVP, elected at the spike: the per-assize scratch caches the **federated token only**
+(plus expiry and subject) — 0600 in a 0700 dir,
+tmpfs-preferred (`$XDG_RUNTIME_DIR` on Linux, `$TMPDIR` on macOS), written atomically,
+never a regime, never `BURD_OUTPUT_DIR`, never `BURD_TEMP_DIR`, never outliving the assize.
+Mantle tokens are never cached: each verb-run mints one from the federated token
+and holds it in process memory only — one-mantle-per-token blast radius automatic.
+The IdP token is never persisted at all (consumed by Leg 2 in-process).
+Two ceilings compose (spike V1): the pool session caps the federated token — that window is the assize;
+the mantle token is independently capped (1 h; 12 h by org-policy listing)
+and **can outlive the assize that minted it** — overhang policy open (see Open).
 First upgrade: OS keystores via container credential-helpers
 (one election covers podman and Docker; podman's Linux default is already tmpfs).
 Anti-exfiltration layer: VPC-SC ingress with IP access levels (workforce-compatible),
-deferred with triggers (first multi-operator org customer or first audit requirement).
+deferred with triggers (first multi-operator org customer or first audit requirement);
+the STS egress shape under a perimeter is answered on paper (spike V4: ANY_IDENTITY egress to sts.googleapis.com).
 Device-bound CBA is currently unavailable to federated principals — named revisit trigger.
-Evidence: the two beta-repo memos of 2026-06-11 (custody/context-enforcement; impersonation preference).
+Evidence: the two beta-repo memos of 2026-06-11 (custody/context-enforcement; impersonation preference);
+the spike findings memo.
 
 ## Launcher surface (carried forward, one addition)
 
@@ -232,12 +268,14 @@ post-build cold-probe verifies.
 2. **Capability-sets as named code.** As before — transcription out of the legacy
    cult-verb bodies (the SA-creation machinery riding under the seam);
    these definitions become the mantle SAs' levy-time grant lists.
-3. **Federation spike.** Slated as the heat's first pace; see its docket.
-   Gate for movement 4: the legs proven in curl, the banked verification items answered.
+3. **Federation spike.** **Done** — chain proven live, all verification items answered,
+   session-cache shape elected, two paddock amendments absorbed (F2 two-binding admission,
+   V3 downstream attribution): `Memos/memo-20260612-federation-legs-spike-findings.md`.
+   The movement-4 gate is open.
 4. **Civic verbs + mantles + terriers.** The behavior-changing movement:
    its first act renames the cult colophon family (discharging the mantle homonym guard);
    RBS0 civic quoins at its head;
-   affiance + mantle establishment into levy;
+   affiance + mantle establishment + audit-log enablement into levy;
    the three legs in the accessor with the assize cache and headless fail-fast
    (compearance as an accessor step, never a tabtarget);
    admission verbs under `rbw-p`; terriers live.
@@ -248,17 +286,18 @@ post-build cold-probe verifies.
    The bridge's demolition condition, executed.
 8. **Handbook rework: home open** (₣A6 vs a final movement here), unchanged.
 
-Movements 1–2 are no-regret and proceed immediately; nothing waits on the spike.
+Movements 1–2 are no-regret and proceed immediately; the spike gate is now open.
 
 ## MVP purpose (carried forward, recast day-after picture)
 
 The realistic pioneer is the solo evaluator — now with domain + org + IdP tenant,
-accepted as a one-time founding hour.
+accepted as a one-time founding hour
+(spike-observed Entra path: free Azure signup provisions a real tenant, ~15 min, $0).
 Day-after picture:
 payor establishes the manor and affiances it to the IdP,
 levies the depot (mantles rise with it),
-invests self with the governor mantle by one binding;
-that governor invests self with the director and retriever mantles (two bindings);
+invests the first governor — self — as levy's last act;
+that governor invests self with the director and retriever mantles;
 every tabtarget works through the accessor on a morning compearance (one device-flow click);
 a terrier rehearsal prints three muniments;
 the cult verb estate and every key file no longer exist.
@@ -269,9 +308,10 @@ Synthetic personas need assizes once keys retire.
 Options: per-run human click (a 12 h assize on the project's own test org)
 vs a test-org-only secret (Keycloak password grant or caged token — R4's ghost).
 Decide at movement-4 slating, deliberately.
-Test IdP election rides the spike:
-free Entra tenant (real foreign IdP, device flow)
-and Keycloak-in-a-crucible (hermetic; JWKS upload makes a private issuer viable for programmatic flow).
+Spike inputs now in hand: the standing test trust candidate exists
+(pool `spike-office-test` + provider `spike-entra` + spike SA — disposition open),
+and Keycloak-in-a-crucible is paper-confirmed viable for the programmatic flow
+(uploaded JWKS serve STS exchange exactly; console sign-in cannot ride them — spike V5).
 
 ## Blast radius (recast)
 
@@ -295,13 +335,14 @@ The hijacked-live-assize exposure is bounded by the assize and the lifetime poli
 ## Cinched decisions
 
 - Single tier: workforce federation + mantle impersonation; keyfile citizen tier canceled unbuilt; no mode enum (supersedes canon D1).
-- Mantle SAs at levy instantiate capability-sets; all resource IAM frozen at levy behind a settle gate; admission is one tokenCreator binding.
-- Zero SA keys; sole durable secret is the payor's RBRO; human-present premise (D2) bounds the design.
-- Payor founds (now incl. affiance + mantle establishment), governors populate, terriers tell, IAM enforces.
+- Mantle SAs at levy instantiate capability-sets; all resource IAM frozen at levy behind a settle gate.
+- Admission is tokenCreator on the mantle SA + (first admission per depot) serviceUsageConsumer on the depot project, idempotent-ensured (spike F2 amendment).
+- Zero SA keys; sole durable secret is the payor's RBRO; human-present premise (D2) bounds the design — spike-verified live (no refresh token).
+- Payor founds (now incl. affiance + mantle establishment + first-governor investment + audit-log enablement), governors populate, terriers tell, IAM enforces.
 - One live IdP provider per pool; provider addition is a payor ceremony; dual-provider for migration only.
 - Recut retires; credential delivery retires whole; the word assay vacates rbk.
-- Retriever differs by policy only: 12 h lifetime, machine pulls on workload identity, reserve-key posture documented not built.
-- Token custody: assize scratch behind the accessor at MVP; keystore upgrade and VPC-SC ingress as named deferrals.
+- Retriever differs by policy only: 12 h lifetime via the V1 org-policy listing, machine pulls on workload identity, reserve-key posture documented not built.
+- Token custody: federated-token-only assize scratch (tmpfs-preferred) behind the accessor at MVP; mantle tokens per-verb in-process; keystore upgrade and VPC-SC ingress as named deferrals.
 - Terrier, documentation strategy, launcher families, audit-as-mirror: carried forward as previously cinched.
 - Intent-first verb orderings (muniment write precedes binding) carried forward.
 - Capability-set definitions global (code, realized as mantle grant lists); memberships local (bindings + muniments).
@@ -317,22 +358,33 @@ The hijacked-live-assize exposure is bounded by the assize and the lifetime poli
   collapsed: identity is always IdP-scoped; depot-minted identity died with the tier.
 - The blast-radius union-key acceptance — dissolved by one-mantle-per-token.
 - The four-E civic verb working set — superseded by the elected words (sibling-initials rule).
+- "Admission is one binding" — widened to two by spike F2; the flap payoff survives (one gate point, hot paths still zero-IAM).
 - Earlier retired cinches stand as recorded.
 
 ## Open — resolve within the heat
 
+- **Mantle-token overhang policy**: a mantle token can outlive the assize that minted it (spike V1 two-ceiling composition);
+  embrace (stated custody note, retriever especially) or clamp (mint lifetime ≤ remaining assize).
+- **The word *audit***: trodden, and initial-collides with attaint if it ever becomes an operator verb;
+  classify spec-interior or re-mint before the verb movement.
+- **Affiance scope**: "once per manor" vs the second-affiancing of provider addition —
+  does affiance name the trust ceremony first-or-further (parallel to invest), or only the founding?
+- **Last-governor guard**: can the last governor be divested/attainted?
+  Recovery presumably the payor's founding exception re-exercised; pin at verb-movement slating.
+- **serviceUsageConsumer residue** at a citizen's last divestment: sweep in divest, sweep in attaint only, or leave (visible surplus).
+- **Spike fixture disposition**: payor's org-level workforcePoolAdmin keep-or-revoke;
+  spike pool/provider/SA as the standing test trust or teardown (cloud-resource ledger in the findings memo).
 - Test-rig synthetic-persona credential (see Test rig).
 - Terrier file format, physical bucket name, `rbgb_` allocation.
 - Handbook rework home.
 - `rbw-gq` disposition at the regroup.
-- Spike verification items: audit delegationInfo shape; mantle-token lifetime ceiling
-  and the lifetime-extension org-policy constraint; AR/Cloud Build federated-token status;
-  STS egress-rule shape under VPC-SC; Keycloak-crucible JWKS-upload viability.
 - Beta-repo evidence memos: migrate to this repo or leave pointed-at.
 
 ## Sources
 
 Decision record: memo-20260612-office-federation-conversion (this heat's bedrock).
+Spike evidence: memo-20260612-federation-legs-spike-findings —
+the chain proven live, the five verification items, the session-cache election, the F1/F2/V3 amendments absorbed above.
 Federation canon memo-20260609 (banner updated; login legs authoritative, D1 retired).
 Evidence (beta repo, 2026-06-11): google-impersonation-preference; token-custody-context-enforcement.
 Flap derivation: memo-20260604-credential-churn-leak-and-propagation-races;
@@ -342,5 +394,6 @@ memo-20260605-citizen-capability-model (canceled tier's mechanism, historical).
 Vocabulary: elected in conversation at the vocabulary pace under MCM Word Selection,
 which gained four rules back from the same conversation.
 Prior paddock revisions through 260610 stand as recorded;
-this 260612 revision is the office-federation conversion and the vocabulary elections.
+this 260612 revision is the office-federation conversion, the vocabulary elections,
+and the spike-findings absorption.
 Operator commitment: this paddock and its paces are slated by Fable-class agents; density is calibrated accordingly.
