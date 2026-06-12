@@ -105,22 +105,15 @@ authoritative wording at one definition site. Every other appearance is a
 the content in other words.
 
 A paraphrase is a fork — a second wording that drifts independently, leaving a
-reader unable to know which wording is law. A **word cancer** is the metastatic
-form: variations of one idea scattered across documents, each restatement
-enlarging the drift surface, none authoritative. The term is deliberately ugly.
-The pattern is the most recurrent failure mode of LLM-assisted maintenance of
-large codebases: a model completing "what should be said here" recreates a
-nearby idea in fresh words, and every recreation seeds the next.
-
-For an LLM reader the cost is mechanical, not aesthetic: two near-paraphrases
-are nearly the same retrieval key, and once they drift the model retrieves a
-confident *blend* — statement-level interference, the prose analogue of the
-prefix-collision mechanism in
-`Memos/retired/memo-20260610-quoin-minting-introspection.md`. A quoin gives a concept
-one string; this clause gives a claim one wording. Canonical specimen: the
-2026-06-10 Diff-Friendly-Prose repair, where a context file *characterized* a
-spec's scope instead of citing it, and the characterization carried the error
-for months.
+reader unable to know which wording is law. Its metastatic form is the
+**word cancer** (concept home: MCM `mcm_word_cancer`) — the most recurrent
+failure mode of LLM-assisted maintenance of large codebases, and the defect
+this clause exists to forbid. A quoin gives a concept one string; this clause
+gives a claim one wording — the prose analogue of the prefix-collision
+mechanism in `Memos/retired/memo-20260610-quoin-minting-introspection.md`.
+Canonical specimen: the 2026-06-10 Diff-Friendly-Prose repair, where a context
+file *characterized* a spec's scope instead of citing it, and the
+characterization carried the error for months.
 
 **Normative register** rides this clause on the spec side. In a spec, every
 sentence either constrains — an implementer or validator could act differently
@@ -281,8 +274,9 @@ detect-only** (read and report; no repair until a verifier exists). Numbered fro
 - **Detect:** the same normative idea worded differently in two or more places —
   across specs, context files, handbooks, or comments. The smell: a reader could
   ask "which of these is law?"
-- **Authority:** the statements → definition sites clause. Triage declares one
-  home authoritative; every other site becomes a citation.
+- **Authority:** the statements → definition sites clause; the concept home is
+  MCM's `mcm_word_cancer` quoin. Triage declares one home authoritative; every
+  other site becomes a citation.
 - **Licensing:** detect-only — the collapse mutates prose in several documents
   at once and judgment selects the surviving wording; never batch-applied.
 - **Verifier:** none mechanized; recurrence is caught by re-running the detect
@@ -387,7 +381,7 @@ dependency; raised and deferred, not dropped.
 | ACG | Allocation Coding Guide (this document) |
 | The spine | "Reference the home" — values → constants, concepts → quoin-refs, statements → definition sites |
 | Wire format | An RB-authored JSON document with senders and receivers; a named home whose keys are minted (sprued) names — the fourth clause |
-| Word cancer | Variations of one normative idea scattered as paraphrases, each drifting independently; the metastatic violation of statements → definition sites |
+| Word cancer | Variations of one normative idea scattered as paraphrases, each drifting independently; the metastatic violation of statements → definition sites. Quoin home: MCM `mcm_word_cancer` |
 | Normative register | Spec-side rule: every sentence constrains or is marked rationale/gestalt; unmarked ornament is contamination |
 | Skidmark | Version commentary stranded in a durable document; history-time knowledge whose home is the commit. Quoin home: MCM `mcm_skidmark` |
 | Home | The one right location for a fact, fixed by when it is read (design / edit / execution time) |

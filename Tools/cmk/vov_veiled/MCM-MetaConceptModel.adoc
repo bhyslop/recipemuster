@@ -37,10 +37,15 @@
 
 :mcm_antipattern:            <<mcm_antipattern,Antipattern>>
 :mcm_antipattern_s:          <<mcm_antipattern,Antipatterns>>
+:mcm_molehill:               <<mcm_molehill,Molehill>>
+:mcm_molehill_s:             <<mcm_molehill,Molehills>>
 :mcm_skidmark:               <<mcm_skidmark,Skidmark>>
 :mcm_skidmark_s:             <<mcm_skidmark,Skidmarks>>
+:mcm_stun:                   <<mcm_stun,Stun>>
 :mcm_trodden_word:           <<mcm_trodden_word,Trodden Word>>
 :mcm_trodden_word_s:         <<mcm_trodden_word,Trodden Words>>
+:mcm_word_cancer:            <<mcm_word_cancer,Word Cancer>>
+:mcm_word_cancer_s:          <<mcm_word_cancer,Word Cancers>>
 
 :mcm_ashlar:                 <<mcm_ashlar,Ashlar>>
 :mcm_ashlar_s:               <<mcm_ashlar,Ashlars>>
@@ -1115,11 +1120,24 @@ and no advocacy by the minter is admitted.
 
 [[mcm_antipattern]]
 {mcm_antipattern}::
-A named, recurring document defect formally catalogued so that
+A named, recurring defect formally catalogued so that
 {mcm_curation_action_s}
 and reviews can cite it precisely.
+The catalog spans document defects — flaws in durable artifacts —
+and delivery defects — failures in operator-facing presentation;
+both recur, and both are dischargeable only once named.
 Naming the defect is what makes it detectable and dischargeable;
 an unnamed defect recurs because no rule can forbid it.
+
+[[mcm_molehill]]
+{mcm_molehill}::
+An
+{mcm_antipattern}:
+a delivery defect — manufacturing a significant-looking decision-fork or challenge
+out of something nearly inconsequential,
+then building structure around it.
+The name is the gestalt: a molehill presented at mountain scale,
+spending the reader's deliberation on stakes that fit in a clause.
 
 [[mcm_skidmark]]
 {mcm_skidmark}::
@@ -1134,6 +1152,17 @@ drift and pollute present-tense reading.
 A durable document — spec, guide, code, context file — speaks of itself only in the present tense.
 A dated artifact — memo, scar, commit message — is itself a historical record and may carry revision metadata without fault.
 Detection and drain moves are catalogued in ACG (ACGm_107).
+
+[[mcm_stun]]
+{mcm_stun}::
+An
+{mcm_antipattern}:
+a delivery defect — a wall of dense, fully-structured prose with no on-ramp,
+so the reader's comprehension seizes before it can enter.
+The name is the gestalt: the delivery stuns before it informs.
+The finished staircase, seen from outside, is a wall;
+the defect is not completeness but delivering it whole,
+with no sentence to stand on and no way to climb.
 
 [[mcm_trodden_word]]
 {mcm_trodden_word}::
@@ -1152,6 +1181,29 @@ and search for the
 and invites the plan-versus-product bleed that vocabulary isolation exists to prevent.
 Semantic fit never rescues it:
 the word is disqualified before fit is weighed.
+
+[[mcm_word_cancer]]
+{mcm_word_cancer}::
+An
+{mcm_antipattern}:
+variations of one normative idea scattered across documents as paraphrases,
+each restatement enlarging the drift surface,
+none authoritative.
+The name is deliberately ugly, and the ugliness is the diagnosis:
+each paraphrase metastasizes —
+a
+{mcm_digital_mind}
+completing "what should be said here" recreates a nearby idea in fresh words,
+and every recreation seeds the next.
+The cost is mechanical, not aesthetic:
+near-paraphrases are nearly the same retrieval key,
+and once they drift the
+{mcm_digital_mind}
+retrieves a confident blend of them — statement-level interference —
+while the
+{mcm_editor}
+is left unable to know which wording is law.
+Detection and collapse moves are catalogued in ACG (ACGm_105).
 
 == Document Elements
 

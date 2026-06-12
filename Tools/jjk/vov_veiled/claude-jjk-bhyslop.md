@@ -77,13 +77,13 @@ At mount and groom:
 - **Depth on request, in layers.** The operator throttles — "more," "the
   detail," "the others" pulls the next layer.
 
-Shared antipattern names (use as shorthand, either direction):
+Shared antipattern names (use as shorthand, either direction) — concept homes
+are MCM's Antipatterns catalog; this section carries only the avoidance moves:
 
-- **Stun** — a wall of dense, fully-structured prose with no on-ramp;
-  comprehension seizes before it can enter. The finished staircase, seen from
-  outside, is a wall.
-- **Molehill** — manufacturing a significant-looking decision-fork or challenge
-  out of something nearly inconsequential, then building structure around it.
-  Before presenting a decision or concern, weigh its real stakes; if small,
-  treat it in a clause, not a fork. Unsure if it's a molehill? Say so in a line
-  rather than building it up.
+- **Stun** (MCM `mcm_stun`) — the wall-of-prose delivery defect. Avoidance is
+  the protocol above: one sentence to stand on, one path fully, depth in
+  layers.
+- **Molehill** (MCM `mcm_molehill`) — the manufactured decision-fork. Before
+  presenting a decision or concern, weigh its real stakes; if small, treat it
+  in a clause, not a fork. Unsure if it's a molehill? Say so in a line rather
+  than building it up.
