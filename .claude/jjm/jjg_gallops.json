@@ -10449,9 +10449,10 @@
       "jjghn_creation_time": "260604",
       "jjghn_status": "jjghe_racing",
       "jjghn_order": [
-        "₢BZAAA"
+        "₢BZAAA",
+        "₢BZAAB"
       ],
-      "jjghn_next_pace_seed": "AAB",
+      "jjghn_next_pace_seed": "AAC",
       "jjghn_paces": {
         "₢BZAAA": {
           "jjgpn_tacks": [
@@ -10461,6 +10462,17 @@
               "jjgtn_text": "Prove the office-federation runtime chain end-to-end in pure curl/openssl/jq before the verb movement is slated,\nand answer the banked verification items.\n\nStand up on the existing org: a workforce pool, an OIDC provider against a test IdP\n(free Entra tenant; also assess Keycloak-in-a-crucible viability via uploaded JWKS for the hermetic case),\nand walk: device flow (Leg 1) → STS exchange (Leg 2) → `generateAccessToken` on a test office SA (Leg 3) →\nbearer call against a depot API.\nNo gcloud at runtime; setup ceremony may use console/gcloud freely.\nElect the session-cache wiring shape (token shared across tabtarget processes,\nper-session scratch, ≤ session cap, fail-loud when absent and no human can click).\n\nSources: `Memos/memo-20260612-office-federation-conversion.md` (decision record),\n`Memos/memo-20260609-federation-canon.md` (Leg 1/2 mechanics),\nbeta-repo evidence memos of 2026-06-11 (custody, impersonation preference).\n\n## Done when\n\n- A federated principal mints an office-SA token from a clean shell and successfully calls a depot API with it.\n- Session-cache shape elected and recorded (memo or paddock note).\n- Verification items answered with evidence: audit-log delegationInfo shape under impersonation;\n  office-token lifetime ceiling and the lifetime-extension org-policy constraint;\n  Artifact Registry and Cloud Build status in the workforce federated-token support matrix;\n  STS egress-rule shape under a VPC-SC perimeter (paper answer acceptable);\n  Keycloak-uploaded-JWKS programmatic flow viability (paper answer acceptable if Entra leg consumed the budget).\n- Findings land as a memo; surprises that change the paddock's office-architecture section are flagged, not silently absorbed.\n\n## Cinched\n\n- This is evidence-gathering, not production code: throwaway scripts acceptable, BCG discipline not required.\n- The pool/provider created here may serve as the project's standing test trust if it proves clean.\n\n## Character\n\nExploratory spike against foreign APIs; expect Palisade surprises; characterize precisely rather than tolerate silently.",
               "jjgtn_silks": "federation-legs-spike",
               "jjgtn_basis": "f7443c8"
+            }
+          ]
+        },
+        "₢BZAAB": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260612-0915",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "Elect the operator-facing (ashlar) vocabulary for the office-federation model,\nin design conversation with the operator —\nwords are elected here, applied later.\n\nSlots to fill:\nthe generic standing-role noun (current placeholder *office* — first decide whether it is ashlar at all or spec-only);\nthe impersonation act;\nthe per-session human sign-in act and the live-window noun (highest traffic — daily words on trodden ground);\nthe founding-of-IdP-trust verb (joins the Establish/Levy founding family);\nthe user-facing admission verb surface;\nthe terrier-entry noun and read-Terrier verb (carried opens).\n\nDiscipline: MCM Word Selection including the Exposure ladder\n(`mcm_ashlar`, `mcm_fair_faced`, `mcm_coffer`, `mcm_broadside`, `mcm_cold_probe`);\nthe project broadside is the README glossary (registration itself may ride the narrative-docs movement);\nretired cult words (mantle, invest, divest, roster) are reusable per the operator's eviction-then-reuse ruling —\neviction sweep precedes any re-mint, the grep gate proves it;\nthe credential asterism is manorial-civic, audible against foundry (ecclesiastical) and crucible (alchemical).\n\nResolve with the operator before electing words:\nhow many admission verbs operators face (spec grain may stay finer);\nwhether *citizen* survives as the operator noun;\nwhether one sign-in word serves all humans including the payor;\neach candidate cold-probed, verdicts recorded.\n\nSources: ₣BZ paddock (office architecture, verb table, vocabulary Open item);\n`Memos/memo-20260612-office-federation-conversion.md`;\nMCM Word Selection.\n\n## Done when\n\n- Elections recorded in the paddock; the *office* placeholder prose replaced by the elected words.\n- A classification ledger (word → exposure tier → traffic class) lands in the paddock or a memo.\n- Cold-probe verdicts recorded for every ashlar election.\n- No code or spec-file changes — application rides the verb movement's paces.\n\n## Character\n\nDesign conversation requiring operator judgment throughout; the agent proposes, probes, and records — the operator rules.",
+              "jjgtn_silks": "ashlar-vocabulary-mint",
+              "jjgtn_basis": "209d880"
             }
           ]
         }
