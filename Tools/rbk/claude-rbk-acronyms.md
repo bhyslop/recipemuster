@@ -138,7 +138,7 @@
 - **RBSSC** → `rbk/vov_veiled/RBSSC-security_config.adoc`
 - **RBSSR** → `rbk/vov_veiled/RBSSR-sentry_run.adoc`
 - **RBSSS** → `rbk/vov_veiled/RBSSS-sentry_start.adoc`
-- **RBSTR** → `rbk/vov_veiled/RBSTR-Terrier.adoc` (Terrier — a polity's durable, cloud-resident record of which citizen holds which mantle; muniment entries written by the admission verbs, read by rehearse, made atomic by GCS preconditions. Minted ahead of the M4 terrier pace to home the atomic-write contract as spec authority; MCM/RBS0 wiring lands at that pace.)
+- **RBSTR** → `rbk/vov_veiled/RBSTR-Terrier.adoc` (Terrier access — the standing ACG home for the Terrier's atomic write/withdraw/read muniment sub-operations (GCS-precondition atomicity), composed by thin invest/divest/rehearse wrappers. The Terrier *noun* — format, bucket, managed-folder IAM — is a separate RBS0 civic quoin seated at M4; this subdoc's sub-op quoins + `include::` into RBS0 are contract-first work of the M4 terrier pace.)
 
 ## Moorings Filesystem Family (`rbm*_`)
 

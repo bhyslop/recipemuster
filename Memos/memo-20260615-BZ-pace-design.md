@@ -62,11 +62,39 @@ in the pace and here, not in the paddock.
 Add as we find more.
 Resist the pull to call precision over-treatment — divergence is Opus-first suspect.
 
-## Open questions for the operator (slate-time picks, not blockers)
+## Slate-time picks — resolved in the 260615 trot
 
-- Test-rig synthetic-persona credential: per-run human click (12 h assize) vs test-org-only
-  secret. Paddock keeps spike fixtures as standing trust; leans toward the click.
-- Terrier file format, physical bucket name, `rbgb_` allocation.
+- **Test-rig synthetic-persona credential → per-run human click.**
+  A 12 h assize on the project's own test org.
+  The zero-secret invariant then holds even in the test estate,
+  and the suites exercise the real Leg-1 compearance rather than a secret-shortcut.
+  The Keycloak-in-a-crucible password grant stays paper-only (as the paddock already records it) —
+  documented-viable, not a planned fallback.
+
+- **Terrier — write-semantics and structural home settled; internals parked.**
+  Governor terrier writes are atomic at GCS itself via object preconditions
+  (`ifGenerationMatch=0` create, `ifGenerationMatch=<gen>` update; 412-on-conflict; no cloud invocation, no external lock) —
+  a single conditioned REST call, within bash's BCG-good case (web-confirmed).
+  Homed in the new `RBSTR-Terrier.adoc` (acronym registered), reframed across the trot to its settled identity:
+  a **standing terrier sub-operation subdoc** defining the atomic write / withdraw / read of a muniment,
+  with invest / divest / rehearse as thin RBS0-side wrappers that reference it (ACG — reference the home, don't recreate).
+  The terrier **noun** (object format, bucket, managed-folder IAM grain) is a separate RBS0 civic quoin seated at M4;
+  RBSTR's sub-op quoins + `include::` into RBS0 are contract-first work of the M4 terrier pace.
+  Internals — per-entry vs per-subject granularity, bucket name, managed-folder IAM — parked to that pace.
+
+- **Cult-rename target → garment-of-office mint: enrobe / defrock.**
+  M4's first act renames the legacy keyfile-SA family off the words federation claims (invest / divest / mantle).
+  Operator chose a proper mint (rare-and-colorful) over a cheap marker:
+  **enrobe** = create a key-backed SA — unifies cult `invest` (director/retriever) and `mantle` (governor),
+  subject differing (payor enrobes the governor; governor enrobes director/retriever);
+  **defrock** = decommission one (replaces cult `divest`);
+  `roster` stays (carries no homonym).
+  Grep-gated clean; transitional ashlar (doomed at M7) — lands in specs/acronym map but NOT the README broadside.
+  `mantle` is reserved to federation and cannot be reused;
+  the garment register deliberately rhymes with federation's (mantle / don) while the words differ.
+
+## Slate-time picks — still open
+
 - Handbook rework home: ₣A6 vs a final ₣BZ movement.
 - `rbw-gq` disposition at the regroup.
 - Beta-repo evidence memos: migrate into this repo or leave pointed-at.

@@ -1,26 +1,43 @@
-// RBSTR — Terrier
+// RBSTR — Terrier access (sub-operation subdoc)
 //
-// STUB / contract-first. Minted ahead of the M4 terrier pace to home a settled
-// write-semantics decision as spec authority rather than memo provenance. Its
-// MCM integration — quoin registration in the RBS0 mapping section and the
-// `include::` into RBS0 — is contract-first work of the terrier pace and is not
-// yet done; this fragment stands alone until then. The civic words below
-// (terrier, muniment, mantle, rehearse, admission verbs) are plain prose here
-// and become quoin references when the verb movement registers them in RBS0.
+// STANDING subdoc, contract-first. The ACG home for the Terrier's access
+// sub-operations — the atomic write / withdraw / read of a muniment. invest,
+// divest, and rehearse are thin RBS0-side wrappers that compose these sub-ops
+// and add their own non-terrier steps (the IAM bindings); the shared
+// terrier-touch is defined once here, never restated in the wrappers (ACG:
+// reference the home, don't recreate).
+//
+// Scope boundary: this subdoc defines the *access* — the verbs against the
+// terrier. The Terrier *noun* (the resource contract: object format, bucket,
+// managed-folder IAM grain) is a separate civic concept quoin that RBS0 seats
+// with the other civic quoins (terrier, muniment, mantle, ...) at the head of
+// the verb movement (M4). This subdoc references that noun; it does not define it.
+//
+// Not yet wired: registering the sub-operation quoins in the RBS0 mapping
+// section and `include::`-ing this file into RBS0 (proximal to its include site,
+// the standard operation-fragment treatment) is contract-first work of the M4
+// terrier pace. Until then the civic words below are plain prose. Settled now:
+// this subdoc's identity, and the atomic-write contract.
 
-== Terrier
+== Terrier access
 
 The Terrier is a polity's durable, cloud-resident, authoritative record of which
-citizen holds which mantle. It is the one record in the federation design that
-outlives every operator's machine: the source of truth read by the rehearse verb
-and by the read-only reconciliation diff, written by the admission verbs. It
-lives in a manor-homed Cloud Storage bucket, one entry — a *muniment*, recording
-(principal subject, mantle held) — per object.
+citizen holds which mantle — one entry, a *muniment* recording (principal
+subject, mantle held), per object (terrier noun quoin, forthcoming). Exactly
+three sub-operations touch it:
+
+* *write* a muniment — composed by the admission verb that grants a mantle;
+* *withdraw* a muniment — composed by the admission verb that removes one;
+* *read* muniments — the primitive rehearse composes, and the read side of the
+  reconciliation diff.
+
+write and withdraw share the atomic write-semantics below; read is a pure
+list-and-fetch, no precondition.
 
 === Write semantics — atomic, server-adjudicated (settled)
 
-Governor writes to the Terrier are made atomic by Cloud Storage itself. No
-Cloud Build invocation, and no external lock, is involved.
+Writes to the Terrier are made atomic by Cloud Storage itself. No Cloud Build
+invocation, and no external lock, is involved.
 
 * *Create is conditional on absence.* The object write carries the
   `ifGenerationMatch=0` precondition, so Cloud Storage performs the write only if
@@ -42,12 +59,17 @@ atomicity, the caller adds one query parameter and checks the HTTP code. This is
 within bash's good case under BCG — glue over a service, carrying no lock logic
 of its own.
 
-=== Open — to be settled in the terrier pace
+=== Forthcoming — settled with the terrier noun quoin (M4)
 
-* Entry/object format: per-entry versus per-subject object granularity, and the
-  JSON shape of a muniment under a freshly-minted terrier sprue.
-* Physical bucket name, and where its constant is homed.
-* Managed-folder grain and the IAM that scopes a governor's write to its own
+Properties of the Terrier *noun*, not of its access; they settle when the noun
+quoin lands:
+
+* object granularity — per-entry versus per-subject — and the JSON shape of a
+  muniment under a freshly-minted terrier sprue (this also fixes whether the
+  generation-conditional update clause above is ever exercised, or whether
+  writes are create-and-delete only);
+* the physical bucket name, and where its constant is homed;
+* the managed-folder grain and the IAM that scopes a governor's write to its own
   polity (today's `rbgb_` carries bucket-level IAM only).
 
 // eof
