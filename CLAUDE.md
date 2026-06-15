@@ -95,9 +95,11 @@ Run the broadest applicable suite:
 | Suite | Tabtarget | Dependencies | What it covers |
 |-------|-----------|-------------|----------------|
 | `fast` | `tt/rbw-ts.TestSuite.fast.sh` | None | 10 fixtures: enrollment-validation, regime-validation, regime-smoke, podvm-resolve, handbook-render, dockerfile-hygiene, foundry-path, recipe-validation, cupel, conformance |
-| `service` | `tt/rbw-ts.TestSuite.service.sh` | GCP credentials | fast + access-probe, hallmark-lifecycle, lode-lifecycle, reliquary-lifecycle, wsl-lifecycle, podvm-lifecycle, batch-vouch (17 fixtures) |
-| `crucible` | `tt/rbw-ts.TestSuite.crucible.sh` | Container runtime | fast + tadmor, srjcl, pluml (13 fixtures) |
-| `complete` | `tt/rbw-ts.TestSuite.complete.sh` | All of the above | service ∪ crucible (20 fixtures) |
+| `service` | `tt/rbw-ts.TestSuite.service.sh` | GCP credentials | fast + access-probe, hallmark-lifecycle, lode-lifecycle, reliquary-lifecycle, wsl-lifecycle, podvm-lifecycle, batch-vouch, regime-poison (18 fixtures) |
+| `crucible` | `tt/rbw-ts.TestSuite.crucible.sh` | Container runtime | fast + tadmor, srjcl, pluml, regime-poison (14 fixtures) |
+| `complete` | `tt/rbw-ts.TestSuite.complete.sh` | All of the above | service ∪ crucible (21 fixtures) |
+
+`regime-poison` is the in-universe negative-validation fixture (real validate verbs against real regimes, one field corrupted via the regime-poison tweak, asserting a specific band code). It rides above fast — fast reserves the tweak slot for the credless guard — so a regime/validation change runs fast (positives) plus this fixture (negatives) via `tt/rbw-tf.FixtureRun.sh regime-poison`. Its operator-local cases (station/oauth/auth/node/privilege) self-skip when the regime is not configured on the machine.
 
 **Release/probe suites** — ladders distinguished by project-churn × crucible ×
 network posture, not dependency tier:
@@ -111,7 +113,7 @@ network posture, not dependency tier:
 | `blockade` | `tt/rbw-ts.TestSuite.blockade.sh` | Depot levied + moriah hallmark ordained | Airgap moriah crucible with credential self-heal |
 
 **After code changes**, run the appropriate tier:
-- Regime/validation changes → `fast`
+- Regime/validation changes → `fast` + `regime-poison` (`tt/rbw-tf.FixtureRun.sh regime-poison`)
 - Foundry/credential changes → `service`
 - Bottle/sentry/network changes → `crucible`
 - Pre-release or decomposition sweep → `complete`
