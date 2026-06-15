@@ -68,6 +68,13 @@ pub const RBTDRM_FIXTURE_ENROLLMENT_VALIDATION: &str = "enrollment-validation";
 pub const RBTDRM_FIXTURE_RECIPE_VALIDATION: &str = "recipe-validation";
 pub const RBTDRM_FIXTURE_REGIME_VALIDATION: &str = "regime-validation";
 pub const RBTDRM_FIXTURE_REGIME_SMOKE: &str = "regime-smoke";
+// Regime-poison — in-universe negatives. Drives the real validate verbs against
+// real (in-tree or staged) regimes with one field corrupted via the
+// regime-poison tweak, asserting the specific band code of the gate that fires.
+// NOT credless: the tweak slot carries the per-case poison, so this fixture
+// cannot ride fast (whose slot belongs to the credless guard) — it enrolls in
+// service/crucible/complete instead.
+pub const RBTDRM_FIXTURE_REGIME_POISON: &str = "regime-poison";
 pub const RBTDRM_FIXTURE_HANDBOOK_RENDER: &str = "handbook-render";
 pub const RBTDRM_FIXTURE_DOCKERFILE_HYGIENE: &str = "dockerfile-hygiene";
 // Conformance — vocabulary-eviction static analysis over Tools/ and tt/. No

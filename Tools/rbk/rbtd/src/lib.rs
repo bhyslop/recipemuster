@@ -52,6 +52,7 @@ pub mod rbtdrm_manifest;
 pub mod rbtdrn_conformance;
 pub mod rbtdro_onboarding;
 pub mod rbtdrp_pristine;
+pub mod rbtdrs_poison;
 pub mod rbtdru_cupel;
 pub mod rbtdrx_platform;
 

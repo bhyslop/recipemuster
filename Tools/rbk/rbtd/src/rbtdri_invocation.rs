@@ -48,6 +48,10 @@ pub const RBTDRI_BURE_CONFIRM_KEY: &str = "BURE_CONFIRM";
 /// fast-tier fixtures; case-supplied tweaks ride it everywhere else.
 pub const RBTDRI_BURE_TWEAK_NAME_KEY: &str = "BURE_TWEAK_NAME";
 
+/// BURE tweak-value env var — the payload paired with `BURE_TWEAK_NAME`. The
+/// regime-poison tweak reads it as `VAR=value` (set) or bare `VAR` (unset).
+pub const RBTDRI_BURE_TWEAK_VALUE_KEY: &str = "BURE_TWEAK_VALUE";
+
 /// Value paired with `RBTDRI_BURE_CONFIRM_KEY` to skip the confirmation prompt.
 pub const RBTDRI_BURE_CONFIRM_SKIP: &str = "skip";
 

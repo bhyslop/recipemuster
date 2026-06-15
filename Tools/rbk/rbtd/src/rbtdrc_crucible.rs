@@ -2549,6 +2549,7 @@ pub static RBTDRC_FIXTURES: &[&'static rbtdre_Fixture] = &[
     &RBTDRC_FIXTURE_ACCESS_PROBE,
     &crate::rbtdrf_fast::RBTDRF_FIXTURE_ENROLLMENT_VALIDATION,
     &crate::rbtdrf_fast::RBTDRF_FIXTURE_REGIME_VALIDATION,
+    &crate::rbtdrs_poison::RBTDRS_FIXTURE_REGIME_POISON,
     &crate::rbtdrf_fast::RBTDRF_FIXTURE_REGIME_SMOKE,
     &crate::rbtdrf_fast::RBTDRF_FIXTURE_DOCKERFILE_HYGIENE,
     &crate::rbtdrf_fast::RBTDRF_FIXTURE_RECIPE_VALIDATION,
@@ -2607,6 +2608,7 @@ pub static RBTDRC_SUITES: &[rbtdre_Suite] = &[
         fixtures: &[
             &crate::rbtdrf_fast::RBTDRF_FIXTURE_ENROLLMENT_VALIDATION,
             &crate::rbtdrf_fast::RBTDRF_FIXTURE_REGIME_VALIDATION,
+            &crate::rbtdrs_poison::RBTDRS_FIXTURE_REGIME_POISON,
             &crate::rbtdrf_fast::RBTDRF_FIXTURE_REGIME_SMOKE,
             &crate::rbtdrf_fast::RBTDRF_FIXTURE_PODVM_RESOLVE,
             &crate::rbtdrf_handbook::RBTDRF_FIXTURE_HANDBOOK_RENDER,
@@ -2630,6 +2632,7 @@ pub static RBTDRC_SUITES: &[rbtdre_Suite] = &[
         fixtures: &[
             &crate::rbtdrf_fast::RBTDRF_FIXTURE_ENROLLMENT_VALIDATION,
             &crate::rbtdrf_fast::RBTDRF_FIXTURE_REGIME_VALIDATION,
+            &crate::rbtdrs_poison::RBTDRS_FIXTURE_REGIME_POISON,
             &crate::rbtdrf_fast::RBTDRF_FIXTURE_REGIME_SMOKE,
             &crate::rbtdrf_fast::RBTDRF_FIXTURE_PODVM_RESOLVE,
             &crate::rbtdrf_handbook::RBTDRF_FIXTURE_HANDBOOK_RENDER,
@@ -2649,6 +2652,7 @@ pub static RBTDRC_SUITES: &[rbtdre_Suite] = &[
         fixtures: &[
             &crate::rbtdrf_fast::RBTDRF_FIXTURE_ENROLLMENT_VALIDATION,
             &crate::rbtdrf_fast::RBTDRF_FIXTURE_REGIME_VALIDATION,
+            &crate::rbtdrs_poison::RBTDRS_FIXTURE_REGIME_POISON,
             &crate::rbtdrf_fast::RBTDRF_FIXTURE_REGIME_SMOKE,
             &crate::rbtdrf_fast::RBTDRF_FIXTURE_PODVM_RESOLVE,
             &crate::rbtdrf_handbook::RBTDRF_FIXTURE_HANDBOOK_RENDER,
