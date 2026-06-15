@@ -6,6 +6,8 @@ See LICENSE for terms.
 
 # Jailer Dialect Guide (JDG) — In-Vessel POSIX sh for the Security Envelope
 
+*Guide-family member — see GMG (Guide Meta-Guide) for the family's shared authoring conventions.*
+
 ## Purpose
 
 JDG codifies the dialect of the **jailer scripts** (`rbj*`) — the

@@ -6,6 +6,8 @@ See LICENSE for terms.
 
 # Rust Coding Guide (RCG) - Pattern Reference
 
+*Guide-family member — see GMG (Guide Meta-Guide) for the family's shared authoring conventions.*
+
 ## Core Philosophy
 
 RCG is deliberately minimal. Trust Claude's inherent Rust idioms for error handling, struct design, documentation, and general style. This guide covers only project-specific conventions that override or extend standard Rust practice.

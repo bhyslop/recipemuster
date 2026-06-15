@@ -6,6 +6,8 @@ See LICENSE for terms.
 
 # Cloud Build Guide (CBG) — Step-Body Discipline
 
+*Guide-family member — see GMG (Guide Meta-Guide) for the family's shared authoring conventions.*
+
 ## Purpose
 
 CBG codifies the discipline for authoring the **body of a single Google Cloud

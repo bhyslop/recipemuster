@@ -6,6 +6,8 @@ SPDX-License-Identifier: LicenseRef-Proprietary
 
 # Allocation Coding Guide (ACG) — Reference the Home
 
+*Guide-family member — see GMG (Guide Meta-Guide) for the family's shared authoring conventions.*
+
 ## Purpose
 
 ACG codifies one discipline: **don't recreate inline what already has a named

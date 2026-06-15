@@ -6,6 +6,8 @@ See LICENSE for terms.
 
 # Bash Console Guide (BCG) - Pattern Reference
 
+*Guide-family member — see GMG (Guide Meta-Guide) for the family's shared authoring conventions.*
+
 ## Core Philosophy
 
 This pattern emerged from environments where hidden failures cascade into production outages. When bash scripts manage critical infrastructure, every potential failure point needs explicit handling at its location, making post-mortem analysis straightforward.

@@ -6,6 +6,8 @@ See LICENSE for terms.
 
 # PlantUml Coding Guide (PCG) — Diagram Source & Render Discipline
 
+*Guide-family member — see GMG (Guide Meta-Guide) for the family's shared authoring conventions.*
+
 ## Purpose
 
 PCG codifies the discipline for the project's PlantUML diagrams: how the

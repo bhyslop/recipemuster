@@ -1,5 +1,7 @@
 # WSG — Windows Scripting Guide
 
+*Guide-family member — see GMG (Guide Meta-Guide) for the family's shared authoring conventions.*
+
 ## Purpose
 
 WSG codifies the discipline for embedding remote shell actions (PowerShell or

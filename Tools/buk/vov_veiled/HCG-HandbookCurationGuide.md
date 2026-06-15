@@ -6,6 +6,8 @@ See LICENSE for terms.
 
 # Handbook Curation Guide (HCG) — Crafting Durable Procedures
 
+*Guide-family member — see GMG (Guide Meta-Guide) for the family's shared authoring conventions.*
+
 ## Your Role as Digital Mind
 
 You're helping an Editor shape procedures that survive time and execute reliably. These procedures run infrequently - during incidents, quarterly maintenance, annual audits. The Executors are intelligent but unfamiliar with the specific task. Your job: make procedures they'll actually follow.
