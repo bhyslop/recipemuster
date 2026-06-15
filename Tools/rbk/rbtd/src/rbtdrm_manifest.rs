@@ -129,38 +129,6 @@ pub const RBTDRM_FIXTURE_CALIBRANT_SENTINEL: &str = "calibrant-sentinel";
 // "kludge sentry" are composed at the call site from RBTDGC_VERB_KLUDGE and the
 // relevant RBTDGC_CONTAINER_* constant.
 
-// Regime-validation contract surfaces — the regime module theurge sources and
-// the public *_probate entry it calls to drive a staged regime file through
-// kindle+enforce. Single definition per String Boundary Discipline.
-pub const RBTDRM_MODULE_RBRR: &str = "rbrr_regime.sh";
-pub const RBTDRM_PROBATE_RBRR: &str = "rbrr_probate";
-pub const RBTDRM_MODULE_RBRD: &str = "rbrd_regime.sh";
-pub const RBTDRM_PROBATE_RBRD: &str = "rbrd_probate";
-pub const RBTDRM_MODULE_RBRV: &str = "rbrv_regime.sh";
-pub const RBTDRM_PROBATE_RBRV: &str = "rbrv_probate";
-pub const RBTDRM_MODULE_RBRN: &str = "rbrn_regime.sh";
-pub const RBTDRM_PROBATE_RBRN: &str = "rbrn_probate";
-// Payor/station/oauth/auth regimes — RBK file-based regimes gaining a probate
-// seam alongside the reference quartet above. RBRP's enforce reaches RBGC's
-// payor-project regex, so its case supplies an rbgc kindle prereq to the harness.
-pub const RBTDRM_MODULE_RBRP: &str = "rbrp_regime.sh";
-pub const RBTDRM_PROBATE_RBRP: &str = "rbrp_probate";
-pub const RBTDRM_MODULE_RBRS: &str = "rbrs_regime.sh";
-pub const RBTDRM_PROBATE_RBRS: &str = "rbrs_probate";
-pub const RBTDRM_MODULE_RBRO: &str = "rbro_regime.sh";
-pub const RBTDRM_PROBATE_RBRO: &str = "rbro_probate";
-pub const RBTDRM_MODULE_RBRA: &str = "rbra_regime.sh";
-pub const RBTDRM_PROBATE_RBRA: &str = "rbra_probate";
-// BUK file-based regimes — same probate seam, sourced from Tools/buk.
-pub const RBTDRM_MODULE_BURC: &str = "burc_regime.sh";
-pub const RBTDRM_PROBATE_BURC: &str = "burc_probate";
-pub const RBTDRM_MODULE_BURN: &str = "burn_regime.sh";
-pub const RBTDRM_PROBATE_BURN: &str = "burn_probate";
-pub const RBTDRM_MODULE_BURP: &str = "burp_regime.sh";
-pub const RBTDRM_PROBATE_BURP: &str = "burp_probate";
-pub const RBTDRM_MODULE_BURS: &str = "burs_regime.sh";
-pub const RBTDRM_PROBATE_BURS: &str = "burs_probate";
-
 /// Per-fixture required colophons. Returns None for unknown fixtures.
 pub fn rbtdrm_required_colophons(fixture: &str) -> Option<&'static [&'static str]> {
     match fixture {
