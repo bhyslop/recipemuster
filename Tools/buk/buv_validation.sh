@@ -30,6 +30,11 @@ BUV_check_fail="fail:"
 ZBUV_SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
 source "${ZBUV_SCRIPT_DIR}/buc_command.sh"
 source "${ZBUV_SCRIPT_DIR}/buym_yelp.sh"
+# Band tinder + the regime-poison tweak name: buc_reject (buc_command) and the
+# regime-poison seam below both reference BUBC_* constants at runtime. Sourced
+# here so the dependency holds wherever buv is sourced, not only on
+# launcher-dispatched paths; bubc's inclusion guard makes a re-source a no-op.
+source "${ZBUV_SCRIPT_DIR}/bubc_constants.sh"
 
 buv_file_exists() {
   local z_filepath="${1:-}"
@@ -127,8 +132,11 @@ zbuv_reset_enrollment() {
 # this scope's prefix ("${z_scope}_"), so the poison rides inert through a
 # dispatch's host regimes and lands exactly once, on its target — before the
 # scope's enrollments, sentinel, vet, and lock ever see the environment.
-# The tweak-name expansion below the empty-check is unguarded on purpose:
-# a poisoned context without the bubc tinder dies loud, never no-ops.
+# BURE_TWEAK_NAME is the optional test-seam slot, so its presence check is
+# guarded. The poison name is a bubc tinder constant sourced at module top, so
+# its reference stays unguarded — a typo dies under set -u rather than silently
+# matching nothing. Any other tweak occupying the slot — notably the fast-tier
+# credless guard — compares unequal here and rides inert.
 zbuv_poison_apply() {
   local z_scope="${1:-}"
   test -n "${BURE_TWEAK_NAME:-}" || return 0
