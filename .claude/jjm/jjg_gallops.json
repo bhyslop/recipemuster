@@ -9096,9 +9096,10 @@
         "₢BZAAF",
         "₢BZAAG",
         "₢BZAAH",
-        "₢BZAAI"
+        "₢BZAAI",
+        "₢BZAAJ"
       ],
-      "jjghn_next_pace_seed": "AAJ",
+      "jjghn_next_pace_seed": "AAK",
       "jjghn_paces": {
         "₢BZAAA": {
           "jjgpn_tacks": [
@@ -9210,6 +9211,17 @@
               "jjgtn_text": "Extend the credential accessor (built behavior-preserving at movement 1) with its federation branch through Leg 2: device-flow compearance (Leg 1 — an accessor step, never a tabtarget: any cloud tabtarget probes for a live assize and, on a miss with a TTY, runs Leg 1 inline printing the clickable URL + user code and polling; a headless miss fails loud), the STS exchange (Leg 2), and the per-assize federated-token scratch cache.\nCache shape and the headless election: the paddock \"Token custody\" and \"Verbs and orderings\".\n\n## Done when\n- A cloud tabtarget, on a live-assize miss with a TTY, runs Leg 1 inline; a headless miss fails loud.\n- The STS exchange yields the federated token; that token only is cached per-assize, tmpfs-preferred, 0600, never outliving the assize.\n\n## Cinched\n- compearance is an accessor step, not a tabtarget; consumes no colophon initial.\n- Only the federated token is cached; the IdP token is consumed in-process and never persisted.\n\n## Character\nThe behavior-heavy heart, first half — the live-assize machinery.\nFirst-cut docket; deep-review pending — the boundary with the don leg is a review question.",
               "jjgtn_silks": "accessor-compearance-assize",
               "jjgtn_basis": "fa5cc89"
+            }
+          ]
+        },
+        "₢BZAAJ": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260615-1144",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "Complete the three-leg chain in the accessor: the don (Leg 3) — generateAccessToken on the mantle SA, with the depot as quota project via `x-goog-user-project`; the short-lived mantle token held in process memory only, never cached; one mantle worn per token.\nOverhang: a long run re-mints the mantle token mid-flight from the cached federated token while the assize lives, and fails loud (\"assize lapsed, compear\") when it lapses.\nThe spike-proven chain and the overhang ruling: the paddock.\n\n## Done when\n- A donned mantle token mints from the cached federated token; everything downstream stays bearer-blind and unchanged (no quota-project ceremony downstream).\n- Mid-run re-mint works while the assize lives; an assize lapse fails loud with the compear instruction.\n\n## Cinched\n- A token carries exactly one mantle's authority; mantle tokens are never cached.\n- Duration-aware admission control is a named deferral, not built here.\n\n## Character\nThe behavior-heavy heart, second half — the impersonation act and overhang.\nFirst-cut docket; deep-review pending.",
+              "jjgtn_silks": "accessor-don-leg3",
+              "jjgtn_basis": "6481504"
             }
           ]
         }
