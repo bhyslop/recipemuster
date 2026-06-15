@@ -9932,6 +9932,13 @@
         "₢BeAAJ": {
           "jjgpn_tacks": [
             {
+              "jjgtn_ts": "260615-1158",
+              "jjgtn_state": "jjgte_complete",
+              "jjgtn_text": "## Character\nMechanical Rust refactor — move code between modules, no behavior change.\nSonnet-delegable body with driver verification.\n\n## Goal\n`Tools/rbk/rbtd/src/rbtdru_cupel.rs` stands ~1330 lines,\npast the RCG 800-line stop-and-ask threshold;\nthe operator elected a split at the ₣BH terminal triage (2026-06-12).\nCarve the python-scan machinery (the import-allowlist scanning surface)\ninto its own module under the rbtd prefix discipline,\nleaving the shell-side cupel checks in place;\nmodule name and exact seam are mount-time choices.\n\n## Cinched\n- Pure relocation — no scanner behavior change, no new checks ride along.\n- No tidemark: the moved code carries no \"moved from\" narration; the commit tells the story.\n\n## Done when\n`rbtdru_cupel.rs` is back under the 800-line threshold,\nthe new module obeys rbtd naming discipline and the acronym map knows it,\nand the `fast` suite (cupel fixture included) is green.",
+              "jjgtn_silks": "cupel-python-scan-split",
+              "jjgtn_basis": "b8e4643"
+            },
+            {
               "jjgtn_ts": "260612-0922",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": "## Character\nMechanical Rust refactor — move code between modules, no behavior change.\nSonnet-delegable body with driver verification.\n\n## Goal\n`Tools/rbk/rbtd/src/rbtdru_cupel.rs` stands ~1330 lines,\npast the RCG 800-line stop-and-ask threshold;\nthe operator elected a split at the ₣BH terminal triage (2026-06-12).\nCarve the python-scan machinery (the import-allowlist scanning surface)\ninto its own module under the rbtd prefix discipline,\nleaving the shell-side cupel checks in place;\nmodule name and exact seam are mount-time choices.\n\n## Cinched\n- Pure relocation — no scanner behavior change, no new checks ride along.\n- No tidemark: the moved code carries no \"moved from\" narration; the commit tells the story.\n\n## Done when\n`rbtdru_cupel.rs` is back under the 800-line threshold,\nthe new module obeys rbtd naming discipline and the acronym map knows it,\nand the `fast` suite (cupel fixture included) is green.",
