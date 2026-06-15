@@ -9038,9 +9038,10 @@
       "jjghn_order": [
         "₢BZAAA",
         "₢BZAAB",
-        "₢BZAAC"
+        "₢BZAAC",
+        "₢BZAAD"
       ],
-      "jjghn_next_pace_seed": "AAD",
+      "jjghn_next_pace_seed": "AAE",
       "jjghn_paces": {
         "₢BZAAA": {
           "jjgpn_tacks": [
@@ -9086,6 +9087,17 @@
               "jjgtn_text": "Steward the design of ₣BZ's remaining paces (paddock movements 1–2, then 4–8) under a frozen, Fable-authored paddock.\nThis pace is the Opus/Fable membrane: the pace succession forms here, divergences from Fable's framing are recorded here, the paddock stays untouched.\n\nFirst act: write the freeze banner into the paddock — the last sanctioned paddock edit.\n\nWorking surface: Memos/memo-20260615-BZ-pace-design.md — the accreting design conversation and Opus/Fable divergence record (semantic-linefeed).\nThis docket stays a thin charter; the memo carries the volume.\n\n## Done when\n- The remaining paces are slated with dockets — movements 1–2 first, 4–8 as decisions allow.\n- The Opus/Fable divergence record lives in the design memo, not the paddock.\n- This pace wraps when the succession is fully slated, not when the heat's work is done.\n\n## Cinched\n- The paddock is frozen: read-only until Fable re-authors or the operator sanctions a change in conversation; corrections route into paces or the design memo, never back into the paddock.\n- Movements 1–2 are no-regret; they slate without waiting on the paddock's Open items, which are slate-time picks, not blockers.\n\n## Character\nOperator-led planning; the agent drafts and records, the operator rules.\nMounted continuously across chats, not slated-now-mounted-later — so normal stale-by-mount docket discipline is relaxed for this pace alone.",
               "jjgtn_silks": "pace-design-membrane",
               "jjgtn_basis": "4b22ed8"
+            }
+          ]
+        },
+        "₢BZAAD": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260615-0840",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "Collapse every credential resolution behind one identity-keyed accessor — paddock Ordering movement 1.\nToday ~50 call sites mint tokens directly via `rbgo_get_token_capture \"${RBDC_<ROLE>_RBRA_FILE}\"`, plus the governor wrapper `rba_get_governor_token_capture`.\nAfter this pace, one accessor keyed by identity (governor / director / retriever) is the only place credential material is touched.\n\nBehavior is unchanged: the accessor wraps today's keyfile mint during the bridge; the federation branch lands at movement 4.\nHome: `rba_auth.sh`. The source-side grep gate is the verification; the test suites are the arbiter.\n\nSources: ₣BZ paddock \"Ordering\" movement 1 and \"What done looks like\" (first bullet); code-grounding in `Memos/memo-20260615-BZ-pace-design.md`.\n\n## Done when\n- A single accessor resolves credentials by identity; no call site outside it touches credential material (grep-verifiable).\n- Every former direct-mint site routes through the accessor; behavior unchanged.\n- `service` suite green (credential paths) — the arbiter of the no-behavior-change claim.\n\n## Cinched\n- Identity-keyed interface, not RBRA-path-keyed; the RBRA-file plumbing moves inside the accessor.\n- The keyfile mint stays inside the accessor during the bridge — no federation here; that branch is movement 4.\n\n## Character\nMechanical, behavior-preserving refactor across ~50 sites; the grep gate and suites make correctness checkable, not a matter of judgment.",
+              "jjgtn_silks": "accessor-seam",
+              "jjgtn_basis": "7768490"
             }
           ]
         }
