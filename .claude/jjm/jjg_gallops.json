@@ -9037,9 +9037,10 @@
       "jjghn_status": "jjghe_racing",
       "jjghn_order": [
         "₢BZAAA",
-        "₢BZAAB"
+        "₢BZAAB",
+        "₢BZAAC"
       ],
-      "jjghn_next_pace_seed": "AAC",
+      "jjghn_next_pace_seed": "AAD",
       "jjghn_paces": {
         "₢BZAAA": {
           "jjgpn_tacks": [
@@ -9074,6 +9075,17 @@
               "jjgtn_text": "Elect the operator-facing (ashlar) vocabulary for the office-federation model,\nin design conversation with the operator —\nwords are elected here, applied later.\n\nSlots to fill:\nthe generic standing-role noun (current placeholder *office* — first decide whether it is ashlar at all or spec-only);\nthe impersonation act;\nthe per-session human sign-in act and the live-window noun (highest traffic — daily words on trodden ground);\nthe founding-of-IdP-trust verb (joins the Establish/Levy founding family);\nthe user-facing admission verb surface;\nthe terrier-entry noun and read-Terrier verb (carried opens).\n\nDiscipline: MCM Word Selection including the Exposure ladder\n(`mcm_ashlar`, `mcm_fair_faced`, `mcm_coffer`, `mcm_broadside`, `mcm_cold_probe`);\nthe project broadside is the README glossary (registration itself may ride the narrative-docs movement);\nretired cult words (mantle, invest, divest, roster) are reusable per the operator's eviction-then-reuse ruling —\neviction sweep precedes any re-mint, the grep gate proves it;\nthe credential asterism is manorial-civic, audible against foundry (ecclesiastical) and crucible (alchemical).\n\nResolve with the operator before electing words:\nhow many admission verbs operators face (spec grain may stay finer);\nwhether *citizen* survives as the operator noun;\nwhether one sign-in word serves all humans including the payor;\neach candidate cold-probed, verdicts recorded.\n\nSources: ₣BZ paddock (office architecture, verb table, vocabulary Open item);\n`Memos/memo-20260612-office-federation-conversion.md`;\nMCM Word Selection.\n\n## Done when\n\n- Elections recorded in the paddock; the *office* placeholder prose replaced by the elected words.\n- A classification ledger (word → exposure tier → traffic class) lands in the paddock or a memo.\n- Cold-probe verdicts recorded for every ashlar election.\n- No code or spec-file changes — application rides the verb movement's paces.\n\n## Character\n\nDesign conversation requiring operator judgment throughout; the agent proposes, probes, and records — the operator rules.",
               "jjgtn_silks": "ashlar-vocabulary-mint",
               "jjgtn_basis": "209d880"
+            }
+          ]
+        },
+        "₢BZAAC": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260615-0830",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "Steward the design of ₣BZ's remaining paces (paddock movements 1–2, then 4–8) under a frozen, Fable-authored paddock.\nThis pace is the Opus/Fable membrane: the pace succession forms here, divergences from Fable's framing are recorded here, the paddock stays untouched.\n\nFirst act: write the freeze banner into the paddock — the last sanctioned paddock edit.\n\nWorking surface: Memos/memo-20260615-BZ-pace-design.md — the accreting design conversation and Opus/Fable divergence record (semantic-linefeed).\nThis docket stays a thin charter; the memo carries the volume.\n\n## Done when\n- The remaining paces are slated with dockets — movements 1–2 first, 4–8 as decisions allow.\n- The Opus/Fable divergence record lives in the design memo, not the paddock.\n- This pace wraps when the succession is fully slated, not when the heat's work is done.\n\n## Cinched\n- The paddock is frozen: read-only until Fable re-authors or the operator sanctions a change in conversation; corrections route into paces or the design memo, never back into the paddock.\n- Movements 1–2 are no-regret; they slate without waiting on the paddock's Open items, which are slate-time picks, not blockers.\n\n## Character\nOperator-led planning; the agent drafts and records, the operator rules.\nMounted continuously across chats, not slated-now-mounted-later — so normal stale-by-mount docket discipline is relaxed for this pace alone.",
+              "jjgtn_silks": "pace-design-membrane",
+              "jjgtn_basis": "4b22ed8"
             }
           ]
         }
