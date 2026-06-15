@@ -9718,6 +9718,13 @@
         "₢BeAAD": {
           "jjgpn_tacks": [
             {
+              "jjgtn_ts": "260615-0950",
+              "jjgtn_state": "jjgte_complete",
+              "jjgtn_text": "## Character\nMechanical assertion flip;\nthe only judgment is reuse-or-build on the expect-code plumbing.\nTier: sonnet-delegable.\n\n## Goal\nClose the wrong-reason hole for the enrollment-validation fixture's negative cases.\n\nTeach the enrollment validation gate to reject with its band code,\nand flip the fixture's negative cases to assert that specific code.\nThis fixture needs no in-universe conversion —\nit already stages values inline against the validator, file-fabrication-free and tweak-free —\nand it stays in fast.\nExpect-code assertion plumbing for the fast-tier negative helpers lands here\nif the regime conversion pace has not already provided a shareable form;\ncheck before building.\n\n## Done when\n`tt/rbw-ts.TestSuite.fast.sh` green\nwith every enrollment-validation negative case asserting the gate's code.",
+              "jjgtn_silks": "migrate-enrollment-validation-negatives",
+              "jjgtn_basis": "8a146fe"
+            },
+            {
               "jjgtn_ts": "260612-1151",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": "## Character\nMechanical assertion flip;\nthe only judgment is reuse-or-build on the expect-code plumbing.\nTier: sonnet-delegable.\n\n## Goal\nClose the wrong-reason hole for the enrollment-validation fixture's negative cases.\n\nTeach the enrollment validation gate to reject with its band code,\nand flip the fixture's negative cases to assert that specific code.\nThis fixture needs no in-universe conversion —\nit already stages values inline against the validator, file-fabrication-free and tweak-free —\nand it stays in fast.\nExpect-code assertion plumbing for the fast-tier negative helpers lands here\nif the regime conversion pace has not already provided a shareable form;\ncheck before building.\n\n## Done when\n`tt/rbw-ts.TestSuite.fast.sh` green\nwith every enrollment-validation negative case asserting the gate's code.",
