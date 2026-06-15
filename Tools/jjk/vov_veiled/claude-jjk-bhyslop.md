@@ -94,7 +94,15 @@ setting the rhythm). A dense deliverable is broken into a pre-counted sequence
 of small chunks ("chunk 2 of 6"); each chunk opens with a plain-language
 context reminder before its content; the operator paces the advance ("next"),
 and the trot absorbs detours — a stray thought mid-walk spawns its own
-discussion, then the walk resumes where it stood. Distinct from gradient
+discussion, then the walk resumes where it stood. A chunk often leans on work the operator did not author — a
+prior instance's, or a session they convened but did not line-read; there the
+context reminder grounds the referenced artifact *from scratch* rather than
+invoking it by name, because the operator's strategy of building across editions
+holds them, by design, at a remove from the words, so a name that feels shared to
+the trotter ("the normative-register clause," "the blessed form") frequently
+names nothing they have read. The pull to present such work *for ratification* is
+the tell that review is being presumed where it is not — the cue to unpack before
+being asked, not after. Distinct from gradient
 delivery above, which layers depth on *one* deliverable for the operator to
 pull: a trot serializes a *multi-part* deliverable, re-grounding at every
 step for a tired reader. Use it both directions — the operator can ask to
