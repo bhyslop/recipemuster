@@ -1,0 +1,53 @@
+// RBSTR — Terrier
+//
+// STUB / contract-first. Minted ahead of the M4 terrier pace to home a settled
+// write-semantics decision as spec authority rather than memo provenance. Its
+// MCM integration — quoin registration in the RBS0 mapping section and the
+// `include::` into RBS0 — is contract-first work of the terrier pace and is not
+// yet done; this fragment stands alone until then. The civic words below
+// (terrier, muniment, mantle, rehearse, admission verbs) are plain prose here
+// and become quoin references when the verb movement registers them in RBS0.
+
+== Terrier
+
+The Terrier is a polity's durable, cloud-resident, authoritative record of which
+citizen holds which mantle. It is the one record in the federation design that
+outlives every operator's machine: the source of truth read by the rehearse verb
+and by the read-only reconciliation diff, written by the admission verbs. It
+lives in a manor-homed Cloud Storage bucket, one entry — a *muniment*, recording
+(principal subject, mantle held) — per object.
+
+=== Write semantics — atomic, server-adjudicated (settled)
+
+Governor writes to the Terrier are made atomic by Cloud Storage itself. No
+Cloud Build invocation, and no external lock, is involved.
+
+* *Create is conditional on absence.* The object write carries the
+  `ifGenerationMatch=0` precondition, so Cloud Storage performs the write only if
+  no live object exists at that key. Concurrent creators race cleanly: one
+  succeeds; the others receive `HTTP 412 Precondition Failed` and treat an
+  already-present identical muniment as idempotent success.
+* *Update is conditional on generation.* Where a muniment is rewritten rather
+  than created, the write carries `ifGenerationMatch=<generation>` read
+  beforehand — optimistic concurrency control. The write lands only if the object
+  has not changed since the read; otherwise the 412 directs a read-and-retry.
+* Cloud Storage guarantees these preconditions are evaluated atomically and free
+  of race conditions. There is no multi-object transaction across muniments, and
+  none is needed: each muniment is an independent object, so distinct governors
+  writing distinct entries never contend, and the precondition covers the rare
+  same-entry case.
+
+Each write is therefore a single conditioned REST call: the bucket adjudicates
+atomicity, the caller adds one query parameter and checks the HTTP code. This is
+within bash's good case under BCG — glue over a service, carrying no lock logic
+of its own.
+
+=== Open — to be settled in the terrier pace
+
+* Entry/object format: per-entry versus per-subject object granularity, and the
+  JSON shape of a muniment under a freshly-minted terrier sprue.
+* Physical bucket name, and where its constant is homed.
+* Managed-folder grain and the IAM that scopes a governor's write to its own
+  polity (today's `rbgb_` carries bucket-level IAM only).
+
+// eof
