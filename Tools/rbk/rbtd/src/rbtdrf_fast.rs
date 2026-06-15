@@ -28,6 +28,7 @@ use crate::rbtdre_engine::{rbtdre_Case, rbtdre_Disposition, rbtdre_Fixture, rbtd
 use crate::rbtdri_invocation::{rbtdri_find_tabtarget_global, rbtdri_tabtarget_command, rbtdri_bash_program};
 use crate::rbtdgc_consts::{
     RBTDGC_BAND_CREDLESS,
+    RBTDGC_BAND_ENROLL,
     RBTDGC_HYGIENE_CHECK_DOCKERFILE,
     RBTDGC_HYGIENE_CHECK_VESSEL,
     RBTDGC_JETTISON_IMAGE,
@@ -68,26 +69,42 @@ const RBTDRF_RBLDS_SPINE: &str = "Tools/rbk/rblds_spine.sh";
 
 // ── Helpers ──────────────────────────────────────────────────
 
-/// Sub-assertion within a case: run bash snippet, check exit code.
+// buv_report is a report path, not a buc_reject gate: its documented contract
+// is "returns non-zero if any failed", a bare 1 — so the one report-mixed
+// negative asserts this, not a band. Still precise enough to catch an off-band
+// harness breakage (a buc_die elsewhere also exits 1, but the report's own
+// failure is the last command and deterministic under set -e).
+const RBTDRF_REPORT_NONZERO: i32 = 1;
+
+/// Sub-assertion within a case: run bash snippet, assert the exact exit code.
+/// `expect_code` is 0 for a positive; for a negative it is the rejection gate's
+/// band code (buv_vet rejects with RBTDGC_BAND_ENROLL). Asserting the precise
+/// code, not bare nonzero, closes the wrong-reason hole: a harness breakage
+/// exits off-band and fails the case loud rather than passing as a "rejection".
 struct RbtdrfSub {
     label: &'static str,
     setup: &'static str,
     command: &'static str,
-    expect_ok: bool,
+    expect_code: i32,
 }
 
 impl RbtdrfSub {
     const fn ok(label: &'static str, setup: &'static str) -> Self {
-        Self { label, setup, command: "buv_vet \"TEST\"", expect_ok: true }
+        Self { label, setup, command: "buv_vet \"TEST\"", expect_code: 0 }
     }
     const fn fatal(label: &'static str, setup: &'static str) -> Self {
-        Self { label, setup, command: "buv_vet \"TEST\"", expect_ok: false }
+        Self { label, setup, command: "buv_vet \"TEST\"", expect_code: RBTDGC_BAND_ENROLL }
     }
     const fn ok_cmd(label: &'static str, setup: &'static str, command: &'static str) -> Self {
-        Self { label, setup, command, expect_ok: true }
+        Self { label, setup, command, expect_code: 0 }
     }
-    const fn fatal_cmd(label: &'static str, setup: &'static str, command: &'static str) -> Self {
-        Self { label, setup, command, expect_ok: false }
+    const fn fatal_cmd(
+        label: &'static str,
+        setup: &'static str,
+        command: &'static str,
+        expect_code: i32,
+    ) -> Self {
+        Self { label, setup, command, expect_code }
     }
 }
 
@@ -138,14 +155,12 @@ fn rbtdrf_run_ev(
         );
 
         match rbtdrf_run_bash(&root, &script, dir, &format!("sub-{}", i)) {
-            Ok((code, _, _)) => {
-                let ok = code == 0;
-                if ok != sub.expect_ok {
-                    return if sub.expect_ok {
-                        rbtdre_Verdict::Fail(format!("{}: expected ok, got exit {}", sub.label, code))
-                    } else {
-                        rbtdre_Verdict::Fail(format!("{}: expected failure, got exit 0", sub.label))
-                    };
+            Ok((code, _, stderr)) => {
+                if code != sub.expect_code {
+                    return rbtdre_Verdict::Fail(format!(
+                        "{}: expected exit {}, got {}\nstderr:\n{}",
+                        sub.label, sub.expect_code, code, stderr
+                    ));
                 }
             }
             Err(e) => {
@@ -723,7 +738,7 @@ fn rbtdrf_ev_report_mixed(dir: &Path) -> rbtdre_Verdict {
          buv_bool_enroll TEST_FLAG \"Flag\"",
         &[RbtdrfSub::fatal_cmd("mixed report",
             "export TEST_NAME=\"myname\"\nexport TEST_FLAG=\"bad\"",
-            "buv_report \"TEST\" \"Mixed report\"")],
+            "buv_report \"TEST\" \"Mixed report\"", RBTDRF_REPORT_NONZERO)],
     )
 }
 
@@ -767,12 +782,15 @@ fn rbtdrf_ev_multiscope(dir: &Path) -> rbtdre_Verdict {
         Err(e) => return rbtdre_Verdict::Fail(format!("alpha scope: {}", e)),
     }
 
-    // Sub 2: vet BETA fails
+    // Sub 2: vet BETA fails at the buv enrollment gate (band_enroll)
     let script2 = format!("{}buv_vet \"BETA\"", enrollment);
     match rbtdrf_run_bash(&root, &script2, dir, "sub-1") {
-        Ok((code, _, _)) if code != 0 => {}
-        Ok((_, _, _)) => {
-            return rbtdre_Verdict::Fail("beta scope: expected failure, got exit 0".to_string());
+        Ok((code, _, _)) if code == RBTDGC_BAND_ENROLL => {}
+        Ok((code, _, stderr)) => {
+            return rbtdre_Verdict::Fail(format!(
+                "beta scope: expected exit {}, got {}\nstderr:\n{}",
+                RBTDGC_BAND_ENROLL, code, stderr
+            ));
         }
         Err(e) => return rbtdre_Verdict::Fail(format!("beta scope: {}", e)),
     }
