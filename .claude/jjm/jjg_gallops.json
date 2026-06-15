@@ -9094,9 +9094,10 @@
         "₢BZAAD",
         "₢BZAAE",
         "₢BZAAF",
-        "₢BZAAG"
+        "₢BZAAG",
+        "₢BZAAH"
       ],
-      "jjghn_next_pace_seed": "AAH",
+      "jjghn_next_pace_seed": "AAI",
       "jjghn_paces": {
         "₢BZAAA": {
           "jjgpn_tacks": [
@@ -9186,6 +9187,17 @@
               "jjgtn_text": "Seat the elected civic vocabulary as RBS0 quoins at the head of the verb movement — the contract-first foundation the levy, accessor, terrier, and verb paces all reference.\nAlso seat the Terrier noun quoin (the resource contract: object format, bucket, managed-folder IAM grain) and wire in the already-minted terrier sub-operation subdoc: register its sub-op quoins in the RBS0 mapping section and add its `include::`.\nVocabulary, exposure rulings, and the sub-letter discipline: the paddock \"Vocabulary elections\" and the CLAUDE.md quoin guidance.\n\n## Done when\n- The civic words (mantle, compear, assize, don, invest, divest, attaint, affiance, rehearse, muniment, citizen, census) are RBS0 quoins with definition sites.\n- The Terrier noun quoin exists; the terrier sub-op quoins are registered and the sub-op subdoc is included into RBS0.\n\n## Cinched\n- Concepts are RBS0 quoins; operations are their own subdocs (the noun/sub-op split already settled for the Terrier).\n\n## Character\nMCM quoin authoring under the sub-letter discipline — careful naming, little behavior.\nFirst-cut docket; deep-review pending. The terrier-noun internals it must fix are parked in the terrier sub-op subdoc.",
               "jjgtn_silks": "rbs0-civic-quoins",
               "jjgtn_basis": "f59e20f"
+            }
+          ]
+        },
+        "₢BZAAH": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260615-1143",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "Fold the founding gestures into levy: affiance (the IdP-trust betrothal — workforce pool + provider + attribute mapping, and seat the payor's org-level workforcePoolAdmin), mantle establishment (the three mantle SAs created beside mason at levy, every resource binding granted to them once behind the settle gate), and AR Data-Access audit-log enablement.\nThe mantle SAs' grant lists are the capability-sets lifted by movement 2.\nMantle architecture, the settle gate, and spike F1/F2/V3: the paddock.\n\n## Done when\n- Levy affiances the manor to the IdP and establishes the three mantle SAs with all resource IAM frozen behind the settle gate.\n- AR Data-Access audit logs are enabled at levy.\n- A successor levy/affiance contract spec carries it (acronym minted when the docket is firmed).\n\n## Cinched\n- All resource IAM freezes at levy; hot paths perform zero IAM mutation (the paddock flap payoff).\n- affiance covers first or further provider alike.\n\n## Character\nFounding-ceremony assembly — long, payor-driven, the settle gate cheap there.\nFirst-cut docket; deep-review pending — may split affiance from mantle establishment.",
+              "jjgtn_silks": "levy-founding-gestures",
+              "jjgtn_basis": "c276c35"
             }
           ]
         }
