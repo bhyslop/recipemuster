@@ -126,19 +126,19 @@ Canonical specimen: the 2026-06-10 Diff-Friendly-Prose repair, where a context
 file *characterized* a spec's scope instead of citing it, and the
 characterization carried the error for months.
 
-**Spec form is the document-form layer's domain, not this clause's.** Whether a
-spec sentence may be rationale, how rationale is marked, and whether free
-rationale prose belongs in a spec at all are questions of spec *form* — owned by
-MCM and the diptych design, not by ACG, which governs *allocation*: one
-authoritative wording per claim, cited elsewhere. The pilot-2 access-probe audit
-seeds that document-form layer with a first principle — rationale carrying no
-forcing function rots exactly as trace does (the three-homes execution-time note,
-above), so a spec's durable contents each want a forcing function or a defined
-consumer; recorded in
-`Memos/memo-20260615-acg-pilot-access-probe-findings.md`. What stays here as
-allocation: a code comment restating design-time knowledge is a cross-medium fork
-of the spine (temporal misallocation, above) — the same failure as one spec
-paraphrasing another, in the other medium.
+**Rationale is a fact, not a marked register.** A constrained document — spec,
+guide, lexicon — is built of declarative statements of fact, and a reason (why a
+constraint is shaped as it is) is one of them: it falls under the same one-home
+rule above and needs no special marking to set it apart. Two obligations ride
+this and pull against each other — holding both is the clause's hardest case, and
+the reason ACG governs the editing of specs and not only source. *DRY the
+rationale:* a reason has one authoritative home and is cited, never re-worded,
+elsewhere; a code comment restating what the spec already homes is the
+cross-medium instance of that fork (temporal misallocation, above). *Keep the
+load-bearing:* a statement earns its place by being load-bearing (CLAUDE.md), but
+draining what is not must never groom away a constraint — or a reason the long
+term depends on. The reasoning is worked in
+`Memos/memo-20260615-acg-pilot-access-probe-findings.md`.
 
 ## The fourth clause — wire formats are named homes
 
@@ -322,18 +322,18 @@ detect-only** (read and report; no repair until a verifier exists). Numbered fro
 
 ### 🔍 ACGm_106: ornament drain
 
-- **Detect:** spec sentences in normative position that neither constrain nor
-  carry marked rationale or gestalt — prose an implementer or validator could
-  delete without acting differently.
-- **Authority:** the spec-form layer (MCM / the diptych design) — *pending*. The
-  in-ACG normative-register rule this move rode was pared back as spec-form
-  overreach (pilot 2); until the document-form layer rehomes it, the move stays
-  catalogued but detect-only with its authority held externally.
-- **Licensing:** detect-only — whether a sentence constrains is judgment;
+- **Detect:** statements in a constrained document that are not load-bearing —
+  prose an implementer or validator could delete without acting differently, and
+  that no reader needs to keep a constraint correct over the long term.
+- **Authority:** Load-Bearing Complexity (CLAUDE.md), the principle ACG already
+  instantiates — an element earns its place only when its removal would open a
+  gap between intent and behavior. A statement that is neither a constraint nor a
+  reason the long term depends on is non-load-bearing.
+- **Licensing:** detect-only — whether a statement is load-bearing is judgment;
   draining is per-document and reviewed.
 - **Verifier:** none in v1.
-- **Done:** the spec reads as constraint plus marked rationale; deleted ornament
-  is gone, demoted ornament is marked.
+- **Done:** the document reads as load-bearing declarative facts; non-load-bearing
+  prose is gone.
 
 ### 🔍 ACGm_107: skidmark drain
 
@@ -443,7 +443,6 @@ Guides may overlap in content; a file is never subject to two.
 | The spine | "Reference the home" — values → constants, concepts → quoin-refs, statements → definition sites |
 | Wire format | An RB-authored JSON document with senders and receivers; a named home whose keys are minted (sprued) names — the fourth clause |
 | Word cancer | Variations of one normative idea scattered as paraphrases, each drifting independently; the metastatic violation of statements → definition sites. Quoin home: MCM `mcm_word_cancer` |
-| Normative register | Spec-form rule (every spec sentence constrains or is marked rationale; unmarked ornament is contamination) — pared from ACG as spec-form overreach (pilot 2); home migrating to MCM / the diptych design |
 | Skidmark | Version commentary stranded in a durable document; history-time knowledge whose home is the commit. Quoin home: MCM `mcm_skidmark` |
 | Home | The one right location for a fact, fixed by when it is read (design / edit / execution time) |
 | Move-type | A catalogued `ACGm_` cleanup move: detect-rule, authority, licensing, verifier, countable Done |
