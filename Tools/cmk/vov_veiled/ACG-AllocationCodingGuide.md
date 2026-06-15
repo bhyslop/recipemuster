@@ -452,7 +452,10 @@ Guides may overlap in content; a file is never subject to two.
   bash instances of the spine.
 - **RCG** — host Rust. Constant Discipline (Beyond Strings), String Boundary
   Discipline, and Interface Contamination are the Rust instances.
-- **WSG**, **CBG** — foreign-environment siblings (Windows transport, cloud step).
+- **WSG**, **CBG**, **JDG** — foreign-environment siblings (Windows transport,
+  cloud step, in-vessel jailer `sh`). A jailer script (`rbj*`) answers to JDG
+  alone for its dialect; its behavior answers to its RBS spec, an orthogonal
+  axis.
 - **MCM** — builds the named homes ACG references; the design-time home.
 - **AXLA** — the motif vocabulary; the lookahead scanning rule and the
   name-identity symbol-link dependency live against it.
