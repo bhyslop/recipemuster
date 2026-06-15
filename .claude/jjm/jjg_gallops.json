@@ -9092,9 +9092,10 @@
         "₢BZAAB",
         "₢BZAAC",
         "₢BZAAD",
-        "₢BZAAE"
+        "₢BZAAE",
+        "₢BZAAF"
       ],
-      "jjghn_next_pace_seed": "AAF",
+      "jjghn_next_pace_seed": "AAG",
       "jjghn_paces": {
         "₢BZAAA": {
           "jjgpn_tacks": [
@@ -9162,6 +9163,17 @@
               "jjgtn_text": "Lift the capability-sets — the per-role resource-grant lists — out of the legacy cult-verb bodies into named code — paddock Ordering movement 2.\nToday the grant lists live inline inside `rbgg_invest_director` / `rbgg_invest_retriever` and the governor mantle, expressed through `rbgi_add_{project,repo,sa,bucket}_iam_role`.\nAfter this pace, each role's grant list is a named definition; these definitions become the mantle SAs' levy-time grant lists at movement 4.\n\nNo behavior change: this is transcription into named form, not a re-grant.\nThe key-minting body `zrbgg_create_service_account_with_key` is untouched here — it retires at movement 7.\n\nSources: ₣BZ paddock \"Ordering\" movement 2 (capability-set definitions become the mantle SAs' levy-time grant lists) and the \"Cinched\" line on definitions-global / memberships-local; code-grounding in `Memos/memo-20260615-BZ-pace-design.md`.\n\n## Done when\n- Each role's resource-grant list (governor / director / retriever) exists as a named definition in code.\n- The legacy invest / mantle bodies consume the named definitions rather than inlining the grants — behavior unchanged.\n- `service` suite green (the IAM-grant paths).\n\n## Cinched\n- Definitions are global (code); memberships and bindings stay local — the capability-set definition is distinct from its realization (paddock Cinched).\n- Transcription only; no grant added or removed; the key machinery is untouched (it retires at movement 7).\n\n## Character\nNear-mechanical extraction; the only judgment is cluster boundaries — which grants belong to which set — already implied by the existing per-role invest bodies.",
               "jjgtn_silks": "capability-sets-as-code",
               "jjgtn_basis": "2e0e308"
+            }
+          ]
+        },
+        "₢BZAAF": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260615-1143",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "Rename the legacy keyfile-SA family off the words federation claims — invest / divest / mantle — to the garment-of-office mint enrobe / defrock.\nMovement 4's first act; discharges the homonym guard so the elected words enter code in one sense only.\nenrobe = create a key-backed SA (unifies the cult create-verbs across governor and director/retriever); defrock = decommission one; roster stays (carries no homonym).\nMint rationale and register: the BZ pace-design memo.\nBlast radius (discovery, not enumeration): grep the cult colophon family `rbw-a{M,rI,dI,rD,dD}`, the `rbgg_*` / `rbgp` governor-mantle functions, and their `RBSD*` / `RBSR*` specs plus the `rbz_zipper` enroll lines; the generated consts re-derive via the build.\n\n## Done when\n- invest / divest / mantle no longer carry the cult sense in code, colophons, or specs (grep-verifiable); roster unchanged.\n- The generated tabtarget consts and context re-derive via the build, not hand-edited.\n- The fast suite is green.\n\n## Cinched\n- First-cut assumption, for the deep review to confirm: full depth — vacate the words from functions and specs, not only the operator-facing colophons, or two senses coexist through the movement-4-to-movement-7 window.\n- enrobe / defrock are transitional ashlar: specs and the acronym map, never the README broadside (the family is doomed at movement 7).\n\n## Character\nWide but mechanical — a grep-gated rename whose correctness is checkable, not a matter of judgment.\nFirst-cut docket; deep-review pending.",
+              "jjgtn_silks": "cult-rename-enrobe-defrock",
+              "jjgtn_basis": "378be7d"
             }
           ]
         }
