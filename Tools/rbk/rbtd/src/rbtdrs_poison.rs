@@ -44,6 +44,8 @@ use crate::rbtdgc_consts::{
     RBTDGC_BAND_ENROLL,
     RBTDGC_BAND_REGIME,
     RBTDGC_TWEAK_REGIME_POISON,
+    RBTDGC_VALIDATE_DEPOT,
+    RBTDGC_VALIDATE_PAYOR,
     RBTDGC_VALIDATE_REPO,
 };
 use crate::rbtdre_engine::{
@@ -59,6 +61,16 @@ use crate::rbtdri_invocation::{
     RBTDRI_BURE_TWEAK_VALUE_KEY,
 };
 use crate::rbtdrm_manifest::RBTDRM_FIXTURE_REGIME_POISON;
+
+// Regime variable names referenced by 2+ poison specs — single definition so a
+// typo cannot silently poison a different field than intended.
+const RBTDRS_VAR_RBRR_RUNTIME_PREFIX: &str = "RBRR_RUNTIME_PREFIX";
+const RBTDRS_VAR_RBRD_CLOUD_PREFIX: &str = "RBRD_CLOUD_PREFIX";
+const RBTDRS_VAR_RBRD_DEPOT_MONIKER: &str = "RBRD_DEPOT_MONIKER";
+
+// BUK validate colophons — not projected into RBTDGC_* (those carry the rbw-*
+// RB colophons only), so the buw-* BUK colophons are named here.
+const RBTDRS_VALIDATE_BURC: &str = "buw-rcv";
 
 // ── Poison harness ──────────────────────────────────────────
 
@@ -128,11 +140,110 @@ fn rbtdrs_rbrr_unexpected_var(dir: &Path) -> rbtdre_Verdict {
         RBTDGC_BAND_ENROLL, "rbrr-unexpected-var")
 }
 
+fn rbtdrs_rbrr_bad_vessel_dir(dir: &Path) -> rbtdre_Verdict {
+    // A nonexistent directory fails the zrbrr_enforce existence check → regime.
+    rbtdrs_poison(dir, RBTDGC_VALIDATE_REPO, &[],
+        "RBRR_VESSEL_DIR=/tmp/nonexistent-rbtdrs-vessel-dir",
+        RBTDGC_BAND_REGIME, "rbrr-bad-vessel-dir")
+}
+
+fn rbtdrs_rbrr_bad_secrets_dir(dir: &Path) -> rbtdre_Verdict {
+    rbtdrs_poison(dir, RBTDGC_VALIDATE_REPO, &[],
+        "RBRR_SECRETS_DIR=/tmp/nonexistent-rbtdrs-secrets-dir",
+        RBTDGC_BAND_REGIME, "rbrr-bad-secrets-dir")
+}
+
+fn rbtdrs_rbrr_bad_runtime_prefix_uppercase(dir: &Path) -> rbtdre_Verdict {
+    // Valid length, so it clears the buv enroll; uppercase fails the
+    // zrbrr_enforce format regex → regime.
+    rbtdrs_poison(dir, RBTDGC_VALIDATE_REPO, &[],
+        &format!("{}=BAD-", RBTDRS_VAR_RBRR_RUNTIME_PREFIX),
+        RBTDGC_BAND_REGIME, "rbrr-bad-runtime-prefix-uppercase")
+}
+
+fn rbtdrs_rbrr_bad_runtime_prefix_no_trailing_hyphen(dir: &Path) -> rbtdre_Verdict {
+    rbtdrs_poison(dir, RBTDGC_VALIDATE_REPO, &[],
+        &format!("{}=acme", RBTDRS_VAR_RBRR_RUNTIME_PREFIX),
+        RBTDGC_BAND_REGIME, "rbrr-bad-runtime-prefix-no-trailing-hyphen")
+}
+
+fn rbtdrs_rbrr_bad_runtime_prefix_too_long(dir: &Path) -> rbtdre_Verdict {
+    // 12 chars exceeds the buv_string_enroll max (11) → enroll.
+    rbtdrs_poison(dir, RBTDGC_VALIDATE_REPO, &[],
+        &format!("{}=twelvechars-", RBTDRS_VAR_RBRR_RUNTIME_PREFIX),
+        RBTDGC_BAND_ENROLL, "rbrr-bad-runtime-prefix-too-long")
+}
+
+// ── RBRD (depot) — verb rbw-rdv against the tracked rbrd.env ─
+
+fn rbtdrs_rbrd_missing_moniker(dir: &Path) -> rbtdre_Verdict {
+    // Unset a required field → buv presence check → enroll.
+    rbtdrs_poison(dir, RBTDGC_VALIDATE_DEPOT, &[], RBTDRS_VAR_RBRD_DEPOT_MONIKER,
+        RBTDGC_BAND_ENROLL, "rbrd-missing-moniker")
+}
+
+fn rbtdrs_rbrd_bad_moniker(dir: &Path) -> rbtdre_Verdict {
+    // Uppercase + hyphen fails the zrbrd_enforce moniker regex → regime.
+    rbtdrs_poison(dir, RBTDGC_VALIDATE_DEPOT, &[],
+        &format!("{}=BAD-MONIKER", RBTDRS_VAR_RBRD_DEPOT_MONIKER),
+        RBTDGC_BAND_REGIME, "rbrd-bad-moniker")
+}
+
+fn rbtdrs_rbrd_bad_cloud_prefix_uppercase(dir: &Path) -> rbtdre_Verdict {
+    rbtdrs_poison(dir, RBTDGC_VALIDATE_DEPOT, &[],
+        &format!("{}=BAD-", RBTDRS_VAR_RBRD_CLOUD_PREFIX),
+        RBTDGC_BAND_REGIME, "rbrd-bad-cloud-prefix-uppercase")
+}
+
+fn rbtdrs_rbrd_bad_cloud_prefix_no_trailing_hyphen(dir: &Path) -> rbtdre_Verdict {
+    rbtdrs_poison(dir, RBTDGC_VALIDATE_DEPOT, &[],
+        &format!("{}=acme", RBTDRS_VAR_RBRD_CLOUD_PREFIX),
+        RBTDGC_BAND_REGIME, "rbrd-bad-cloud-prefix-no-trailing-hyphen")
+}
+
+fn rbtdrs_rbrd_bad_cloud_prefix_too_long(dir: &Path) -> rbtdre_Verdict {
+    // 12 chars exceeds the buv_string_enroll max (11) → enroll, before the
+    // joint-length enforce ever runs.
+    rbtdrs_poison(dir, RBTDGC_VALIDATE_DEPOT, &[],
+        &format!("{}=twelvechars-", RBTDRS_VAR_RBRD_CLOUD_PREFIX),
+        RBTDGC_BAND_ENROLL, "rbrd-bad-cloud-prefix-too-long")
+}
+
+// ── RBRP (payor) — verb rbw-rpv against the tracked rbrp.env ─
+
+fn rbtdrs_rbrp_bad_payor_project(dir: &Path) -> rbtdre_Verdict {
+    // Valid length, so it clears the buv enroll; fails the zrbrp_enforce
+    // payor-project regex → regime.
+    rbtdrs_poison(dir, RBTDGC_VALIDATE_PAYOR, &[],
+        "RBRP_PAYOR_PROJECT_ID=not-a-payor-project",
+        RBTDGC_BAND_REGIME, "rbrp-bad-payor-project")
+}
+
+// ── BURC (config) — verb buw-rcv against the tracked burc.env ─
+
+fn rbtdrs_burc_missing_station_file(dir: &Path) -> rbtdre_Verdict {
+    // Unset a required field → buv presence check → enroll.
+    rbtdrs_poison(dir, RBTDRS_VALIDATE_BURC, &[], "BURC_STATION_FILE",
+        RBTDGC_BAND_ENROLL, "burc-missing-station-file")
+}
+
 // ── Fixture ─────────────────────────────────────────────────
 
 pub static RBTDRS_CASES_REGIME_POISON: &[rbtdre_Case] = &[
     case!(rbtdrs_rbrr_bad_timeout),
     case!(rbtdrs_rbrr_unexpected_var),
+    case!(rbtdrs_rbrr_bad_vessel_dir),
+    case!(rbtdrs_rbrr_bad_secrets_dir),
+    case!(rbtdrs_rbrr_bad_runtime_prefix_uppercase),
+    case!(rbtdrs_rbrr_bad_runtime_prefix_no_trailing_hyphen),
+    case!(rbtdrs_rbrr_bad_runtime_prefix_too_long),
+    case!(rbtdrs_rbrd_missing_moniker),
+    case!(rbtdrs_rbrd_bad_moniker),
+    case!(rbtdrs_rbrd_bad_cloud_prefix_uppercase),
+    case!(rbtdrs_rbrd_bad_cloud_prefix_no_trailing_hyphen),
+    case!(rbtdrs_rbrd_bad_cloud_prefix_too_long),
+    case!(rbtdrs_rbrp_bad_payor_project),
+    case!(rbtdrs_burc_missing_station_file),
 ];
 
 pub static RBTDRS_FIXTURE_REGIME_POISON: rbtdre_Fixture = rbtdre_Fixture {
