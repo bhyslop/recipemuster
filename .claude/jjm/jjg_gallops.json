@@ -9095,9 +9095,10 @@
         "₢BZAAE",
         "₢BZAAF",
         "₢BZAAG",
-        "₢BZAAH"
+        "₢BZAAH",
+        "₢BZAAI"
       ],
-      "jjghn_next_pace_seed": "AAI",
+      "jjghn_next_pace_seed": "AAJ",
       "jjghn_paces": {
         "₢BZAAA": {
           "jjgpn_tacks": [
@@ -9198,6 +9199,17 @@
               "jjgtn_text": "Fold the founding gestures into levy: affiance (the IdP-trust betrothal — workforce pool + provider + attribute mapping, and seat the payor's org-level workforcePoolAdmin), mantle establishment (the three mantle SAs created beside mason at levy, every resource binding granted to them once behind the settle gate), and AR Data-Access audit-log enablement.\nThe mantle SAs' grant lists are the capability-sets lifted by movement 2.\nMantle architecture, the settle gate, and spike F1/F2/V3: the paddock.\n\n## Done when\n- Levy affiances the manor to the IdP and establishes the three mantle SAs with all resource IAM frozen behind the settle gate.\n- AR Data-Access audit logs are enabled at levy.\n- A successor levy/affiance contract spec carries it (acronym minted when the docket is firmed).\n\n## Cinched\n- All resource IAM freezes at levy; hot paths perform zero IAM mutation (the paddock flap payoff).\n- affiance covers first or further provider alike.\n\n## Character\nFounding-ceremony assembly — long, payor-driven, the settle gate cheap there.\nFirst-cut docket; deep-review pending — may split affiance from mantle establishment.",
               "jjgtn_silks": "levy-founding-gestures",
               "jjgtn_basis": "c276c35"
+            }
+          ]
+        },
+        "₢BZAAI": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260615-1144",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "Extend the credential accessor (built behavior-preserving at movement 1) with its federation branch through Leg 2: device-flow compearance (Leg 1 — an accessor step, never a tabtarget: any cloud tabtarget probes for a live assize and, on a miss with a TTY, runs Leg 1 inline printing the clickable URL + user code and polling; a headless miss fails loud), the STS exchange (Leg 2), and the per-assize federated-token scratch cache.\nCache shape and the headless election: the paddock \"Token custody\" and \"Verbs and orderings\".\n\n## Done when\n- A cloud tabtarget, on a live-assize miss with a TTY, runs Leg 1 inline; a headless miss fails loud.\n- The STS exchange yields the federated token; that token only is cached per-assize, tmpfs-preferred, 0600, never outliving the assize.\n\n## Cinched\n- compearance is an accessor step, not a tabtarget; consumes no colophon initial.\n- Only the federated token is cached; the IdP token is consumed in-process and never persisted.\n\n## Character\nThe behavior-heavy heart, first half — the live-assize machinery.\nFirst-cut docket; deep-review pending — the boundary with the don leg is a review question.",
+              "jjgtn_silks": "accessor-compearance-assize",
+              "jjgtn_basis": "fa5cc89"
             }
           ]
         }
