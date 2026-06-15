@@ -1,3 +1,11 @@
+## Freeze — Opus stewarding a Fable-authored paddock (260615)
+
+This paddock was authored at Fable density and calibration.
+The working agents are now Opus-class; a first Opus read mistook load-bearing precision for over-treatment.
+Until Fable is available to re-author, or the operator sanctions a change in conversation, this paddock is read-only.
+Corrections and tightenings — including over-treatments Opus believes it spots — are carried in the paces and in the pace-design memo, never folded back here.
+Live pace-design work and the Opus/Fable divergence record: `Memos/memo-20260615-BZ-pace-design.md`.
+
 ## Boundary — single tier, mantle impersonation (cinched 260612)
 
 This heat builds the **one** operator credential model:
