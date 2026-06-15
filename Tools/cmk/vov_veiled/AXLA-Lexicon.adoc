@@ -158,6 +158,16 @@
 :axpof_fact:                          <<axpof_fact,Fact Voicing>>
 :axpot_tally:                         <<axpot_tally,Tally Voicing>>
 
+// Axial Voicing Cited-Constraint Terms (definition-site rivet annotations)
+:axvc_dictum:                         <<axvc_dictum,Dictum Voicing>>
+:axvc_camber:                         <<axvc_camber,Camber Voicing>>
+:axvc_spoor:                          <<axvc_spoor,Spoor Voicing>>
+:axvc_membrane:                       <<axvc_membrane,Membrane Voicing>>
+
+// Axial Voicing Sprue Terms (definition-site sprue-family annotations)
+:axvs_escutcheon:                     <<axvs_escutcheon,Escutcheon Voicing>>
+:axvs_fascicle:                       <<axvs_fascicle,Fascicle Voicing>>
+
 // Axial Hierarchy Operation Terms (standalone hierarchy markers)
 :axhob_operation:                     <<axhob_operation,Hierarchy Operation>>
 :axhoc_completion:                    <<axhoc_completion,Hierarchy Completion>>
@@ -3198,6 +3208,101 @@ at the
 {axl_definition_site},
 and that method's affiliated entity must match the entity opened by
 {axheb_entity}
+
+== Axial Voicing Cited-Constraint Terms
+
+{axvc_*} annotations declare the kind of normative proposition a
+{mcm_rivet}
+defines.
+A rivet identifier is opaque and carries no kind; the
+{axvc_*}
+voicing is the single place the kind is stated, and it lives in the (closed) specification while the cited identifier travels into released code — so the kind stays legible to authors without leaking into the open.
+The four terms split along the realm boundary:
+{axvc_dictum}
+and
+{axvc_camber}
+voice propositions about code we author;
+{axvc_spoor}
+and
+{axvc_membrane}
+voice the edge where an ungovernable neighbor is met.
+
+=== Definition-Site Voicing Annotations (axvc_*)
+
+{axvc_*} annotations appear in parent documents between anchor and definition, declaring the kind of the
+{mcm_rivet}
+being defined.
+The surface syntax follows the prefix-discriminated pattern:
+
+[source,asciidoc]
+----
+[[RBr_a3f]]
+//axvc_camber
+{RBr_a3f}::
+Loose rp_filter is deliberate; restoring strict silently drops entry-port
+ingress before the firewall sees it.
+----
+
+The annotation line starts with `//axvc_` (no space after `//`), followed by the specific voicing term.
+
+[[axvc_dictum]]
+{axvc_dictum}::
+Voices a
+{mcm_rivet}
+as an invariant — a property that must hold.
+The definition states the property; the citing code is its defender, and a citing test ideally attacks it.
+
+[[axvc_camber]]
+{axvc_camber}::
+Voices a
+{mcm_rivet}
+as a deliberate deviation — a choice that reads as wrong or simplifiable but is load-bearing.
+The definition must name the seductive wrong "fix" the deviation guards against, so an editor sees why the odd-looking code must stand.
+
+[[axvc_spoor]]
+{axvc_spoor}::
+Voices a
+{mcm_rivet}
+as a foreign-behavior signature — the surveyed behavior of an ungovernable neighbor at the realm's edge.
+The definition states the exact signature, never an approximation.
+
+[[axvc_membrane]]
+{axvc_membrane}::
+Voices a
+{mcm_rivet}
+as a membrane — a workaround that bends our discipline to absorb a foreign behavior.
+The definition must name the retirement condition that retires the membrane when the neighbor heals.
+
+== Axial Voicing Sprue Terms
+
+{axvs_*} annotations declare that a term owns a family of
+{mcm_sprue_s}
+sharing one prefix — an RB-authored wire vocabulary that is grep-locatable by that prefix but otherwise unhomed.
+The voicing gives the family one catalogued home and a per-flavor obligation a validator can enforce.
+A
+{mcm_sprue}
+remains a lookahead argument elsewhere; these annotations voice the *family* at the definition site that owns its prefix, not each token.
+
+=== Definition-Site Voicing Annotations (axvs_*)
+
+{axvs_*} annotations appear at a
+{axl_definition_site}
+between anchor and definition.
+The annotation line starts with `//axvs_` (no space after `//`), followed by the specific voicing term.
+
+[[axvs_escutcheon]]
+{axvs_escutcheon}::
+Voices a
+{mcm_sprue}
+family whose members name resident artifact *types* in a registry — for example the `rbi_` tags naming GAR-resident kinds.
+Obligation: every tag bearing the prefix names a known resident type.
+
+[[axvs_fascicle]]
+{axvs_fascicle}::
+Voices a
+{mcm_sprue}
+family whose members are the field keys of one RB-authored wire document — for example the `rblv_` keys of the vouch envelope.
+Obligation: every key bearing the prefix belongs to the declared envelope schema.
 
 == Axial Type Universal Terms
 

@@ -400,23 +400,47 @@ mint, so it carries a real migration and is held for its own deliberate pace
 rather than folded into guide authoring. Recorded here as ACGm_102's named
 dependency; raised and deferred, not dropped.
 
-### The cited-constraint anchor (deferred)
+### The cited-constraint anchor — the rivet
 
 The sentry-pair pilot surfaced a third census mechanism beside the quoin and the
 sprue: a **cited constraint** — a normative proposition (an invariant, a
-deliberate deviation, a foreign-behavior signature) that the spec defines once
-under a minted ID and that code comments and tests cite. One grep then returns
-the definition, every defending code site, and every attacking test — with no
-registry to drift. The mechanism is MCM/AXLA-level design (a new category, not a
-quoin variant) and is deferred to its own pace; two rulings bind now:
+deliberate deviation, a foreign-behavior signature, a Palisade membrane) that the
+spec defines once under a minted ID and that code comments and tests cite. One
+grep then returns the definition, every defending code site, and every attacking
+test — with no registry to drift. It is specified at its MCM/AXLA home as the
+**rivet** (`mcm_rivet`), a fourth census category peer to the quoin, inlay, and
+sprue — and a *voiced subject*, like the quoin (the inlay and sprue are by
+contrast lookahead arguments).
+
+The shape, as built:
+
+- **ID.** RB rivets are `RBr_` + an opaque tail (e.g. `RBr_a3f`). The mixed-case
+  `RBr_` prefix grep-isolates them; the tail carries no meaning. The spec is
+  closed and the code is open, so a readable anchor would leak the security
+  reasoning into released identifiers — the opaque tail is the membrane against
+  that. The underscore rhymes the ID into the quoin/sprue family.
+- **Allocation.** Until linting exists: generate a tail (random or time-based),
+  grep the repo for the full ID, adopt it on zero hits. The grep is both the
+  uniqueness check and the census — no registry.
+- **Kind.** The kind is *not* in the ID. It is declared at the definition site by
+  an AXLA voicing, the `axvc_` family: `axvc_dictum` (invariant), `axvc_camber`
+  (deliberate deviation), `axvc_spoor` (foreign signature), `axvc_membrane`
+  (Palisade membrane). Re-categorizing never re-mints the ID.
+
+The same census discipline homes a *homeless sprue family* — an RB-authored wire
+vocabulary that is grep-locatable by prefix but owns no subdocument. An AXLA
+`axvs_` voicing gives the family one catalogued home: `axvs_escutcheon` for a
+prefix naming resident artifact types (e.g. `rbi_` GAR tags), `axvs_fascicle` for
+the field keys of one wire envelope (e.g. `rblv_`).
+
+Two rulings, now live rather than pending:
 
 - **Test names never appear in source comments.** A comment naming its defending
   tests goes stale on every test rename with no forcing function. The linkage
-  inverts: the test cites the constraint it defends.
-- **Tripwire residues cite the constraint anchor once it exists.** Until then a
-  residue names the spec section in prose — and relocation sweeps that would
-  write prose pointers at scale wait for the mechanism rather than landing every
-  citation twice.
+  inverts: the test cites the rivet it attacks.
+- **Tripwire residues cite the rivet.** A residue cites the rivet ID in prose;
+  the relocation sweeps this pace gates may now land each citation once, against
+  a real anchor.
 
 ## Related Guides
 
@@ -451,4 +475,4 @@ Guides may overlap in content; a file is never subject to two.
 | Name-identity | Concept linkage where the implementing symbol *is* the link to its quoin |
 | Citation-collapse | ACGm_104's degenerate case: the receiving home already carries the comment's content, so the comment shrinks to residue and nothing relocates |
 | Residue | What survives at the code after a collapse: the one-line signature, the do-not-"fix" tripwire, and the citation |
-| Cited constraint | Deferred third census mechanism beside quoin and sprue: a normative proposition the spec defines under a minted ID and that code and tests cite (see The AXLA/MCM interface) |
+| Cited constraint / Rivet | A normative proposition the spec defines once under an opaque minted ID (`RBr_`+tail) that code and tests cite. Specified at its MCM/AXLA home as `mcm_rivet`, a fourth census category; kind declared by an `axvc_` voicing, not by the ID |

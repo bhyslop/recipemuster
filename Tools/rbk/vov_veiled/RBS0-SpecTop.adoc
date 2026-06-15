@@ -200,6 +200,10 @@
 :gar_hallmarks_namespace:    <<gar_hallmarks_namespace,rbi_hm>>
 :gar_lodes_namespace:        <<gar_lodes_namespace,rbi_ld>>
 
+// RB-authored sprue families (axvs_-voiced; see AXLA)
+:gar_image_sprue:            <<gar_image_sprue,rbi_ sprue>>
+:rblv_sprue:                 <<rblv_sprue,rblv_ sprue>>
+
 // Google Cloud Storage
 :gcs_bucket:                 <<gcs_bucket,Cloud Storage Bucket>>
 :gcs_bucket_s:               <<gcs_bucket,Cloud Storage Buckets>>
@@ -2130,6 +2134,13 @@ GAR top-level path token under which every {rbtga_lode} lives as one package key
 A path-segment value, not a cloud-visible resource name; carries no {rbrd_cloud_prefix} since each {rbtgi_depot} owns its own GAR repo.
 The fetched-side counterpart to {gar_hallmarks_namespace}.
 
+[[gar_image_sprue]]
+//axvs_escutcheon
+{gar_image_sprue}::
+The `rbi_` prefix marking every GAR-resident image tag and namespace as a string from RB's own domain — `rbi_hm` (hallmarks), `rbi_ld` (Lodes), `rbi_df` (depot probes), and the per-package member tags such as `:rbi_bole` and `:rbi_vouch`.
+Withheld from foreign-cued strings such as a sanitized upstream origin.
+This term is the family's one catalogued home; each member tag names a known GAR-resident type.
+
 [[rbtga_lode]]
 //axl_voices axig_artifact_group
 {rbtga_lode}::
@@ -2177,6 +2188,12 @@ Example: `b260602120000`.
 The shared `-mark` suffix with {rbtga_hallmark} is a deliberate role-signal: any `*mark` is a specific-instance handle; the first syllable carries the side — `hall-` what we forged, `touch-` what we captured.
 The touchmark is the GAR path segment: the Lode package is `{gar_lodes_namespace}/«TOUCHMARK»`, so one value names the whole package.
 See {rbst_touchmark} for the string type and regex.
+
+[[rblv_sprue]]
+//axvs_fascicle
+{rblv_sprue}::
+The `rblv_` prefix carried by every field key of the {rbtga_lode_vouch} envelope (schema `rbld-vouch-3`) — an RB-authored wire vocabulary whose keys are enumerated in that envelope's definition below.
+The family is grep-locatable by prefix; this term is its one catalogued home, and every `rblv_` key belongs to the declared envelope schema.
 
 [[rbtga_lode_vouch]]
 //axl_voices axig_verification_artifact

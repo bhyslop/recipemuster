@@ -74,6 +74,8 @@
 :mcm_inlay_s:                <<mcm_inlay,Inlays>>
 :mcm_sprue:                  <<mcm_sprue,Sprue>>
 :mcm_sprue_s:                <<mcm_sprue,Sprues>>
+:mcm_rivet:                  <<mcm_rivet,Rivet>>
+:mcm_rivet_s:                <<mcm_rivet,Rivets>>
 :mcm_attribute_reference:    <<mcm_attribute_reference,Attribute Reference>>
 :mcm_attribute_reference_s:  <<mcm_attribute_reference,Attribute References>>
 :mcm_line_break:             <<mcm_line_break,Line Break>>
@@ -1312,6 +1314,38 @@ that follows the prefix naming discipline is also an
 {mcm_inlay};
 one that does not is recognized solely by its backtick delimiters.
 Used by arity rules when annotations read literal wire names from following text.
+
+[[mcm_rivet]]
+{mcm_rivet}::
+A formal identifier for a *normative proposition* — an invariant, a deliberate
+deviation, a foreign-behavior signature, or a Palisade membrane — that a
+{mcm_concept_model}
+defines once at a definition site and that source code and tests cite by its
+identifier.
+Unlike a
+{mcm_quoin},
+whose readable name carries its meaning, a
+{mcm_rivet}
+identifier is *opaque*: it leaks no semantics into released code, while one
+repo-wide search on the identifier still returns the definition, every
+defending code site, and every attacking test — a census with no registry to
+drift.
+The kind of proposition is declared at the definition site by an
+{mcm_annotation}
+voicing an axial motif (the `axvc_` family), never encoded in the identifier,
+so re-categorizing a
+{mcm_rivet}
+never re-mints it.
+A
+{mcm_rivet}
+is a *voiced subject*, as is the
+{mcm_quoin};
+the
+{mcm_inlay}
+and
+{mcm_sprue}
+are by contrast *lookahead arguments* that voicings read, never voiced
+subjects.
 
 [[mcm_category]]
 {mcm_category}::
