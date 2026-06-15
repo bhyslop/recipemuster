@@ -13,7 +13,7 @@ A first Opus read (this session) mistook load-bearing precision for over-treatme
 it manufactured a "movement-4 is gated by the Open items" blocker that reading the code dissolved.
 Lesson carried forward: read the paddock as authority; suspect the divergence is *Opus's* first.
 
-The paddock is frozen (banner lands as this pace's first act).
+The paddock is frozen — the banner landed 260615 at the paddock head.
 Corrections and tightenings are carried here and into the paces — never folded back into the
 paddock — until Fable re-authors or the operator sanctions a change in conversation.
 
@@ -23,8 +23,8 @@ Skeleton is the paddock's Ordering section (movements 1–8).
 Movement 3 (the federation spike) is done as ₢BZAAA; the vocabulary mint is done as ₢BZAAB.
 Remaining, to be cut:
 
-- M1 — Accessor seam. Identity-keyed accessor swallowing the RBRA-file plumbing; behavior-preserving; grep-gate + suites as arbiter. No-regret.
-- M2 — Capability-sets as named code. Lift the three grant lists (governor / director / retriever) into named definitions. No-regret.
+- M1 — Accessor seam. Identity-keyed accessor swallowing the RBRA-file plumbing; behavior-preserving; grep-gate + suites as arbiter. No-regret. **Slated** as the accessor-seam pace (₢BZAAD).
+- M2 — Capability-sets as named code. Lift the three grant lists (governor / director / retriever) into named definitions. No-regret. **Slated** as the capability-sets-as-code pace (₢BZAAE).
 - M4 — Civic verbs + mantles + terriers. The behavior-changing movement; multi-pace; its first act renames the cult colophon family. Needs operator slate-time picks (see Open).
 - M5 — Manor colophon regroup (+ founding gestures).
 - M6 — Narrative docs (+ broadside registration of the elected words).
