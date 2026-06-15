@@ -1,0 +1,221 @@
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/vov_veiled/RBSCIP-IamPropagation.adoc-49-
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/vov_veiled/RBSCIP-IamPropagation.adoc-50-. **Wrong SA identity** -- The code impersonated the default build SA
+Tools/rbk/vov_veiled/RBSCIP-IamPropagation.adoc:51:  (`{PN}@cloudbuild.gserviceaccount.com`) but CB v2 connections use the Cloud Build Service Agent
+Tools/rbk/vov_veiled/RBSCIP-IamPropagation.adoc:52:  (`service-{PN}@gcp-sa-cloudbuild.iam.gserviceaccount.com`).  Even if impersonation worked,
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/vov_veiled/RBSCIP-IamPropagation.adoc-53-  it would have tested the wrong principal.
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/vov_veiled/RBSCIP-IamPropagation.adoc-54-
+--
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/vov_veiled/RBSCIP-IamPropagation.adoc-77-
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/vov_veiled/RBSCIP-IamPropagation.adoc-78-|CB v2 connection creation uses the Cloud Build Service Agent to read secrets
+Tools/rbk/vov_veiled/RBSCIP-IamPropagation.adoc:79:|https://cloud.google.com/build/docs/automating-builds/github/connect-repo-github[Connect a GitHub host] -- the Cloud Build Service Agent must have `roles/secretmanager.secretAccessor` on the secrets used by the connection
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/vov_veiled/RBSCIP-IamPropagation.adoc-80-|===
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/vov_veiled/RBSCIP-IamPropagation.adoc-81-
+--
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/vov_veiled/RBSTB-trigger_build.adoc-18-The
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/vov_veiled/RBSTB-trigger_build.adoc-19-{rbtr_director}
+Tools/rbk/vov_veiled/RBSTB-trigger_build.adoc:20:dispatches a trigger-based remote container build:
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/vov_veiled/RBSTB-trigger_build.adoc-21-
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/vov_veiled/RBSTB-trigger_build.adoc-22-//axhopt_typed_parameter
+--
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/vov_veiled/RBSTB-trigger_build.adoc-67-`«TRIGGER_NAME»` from `RBGC_RUBRIC_TRIGGER_PREFIX` + `«VESSEL_SIGIL»`
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/vov_veiled/RBSTB-trigger_build.adoc-68-.. {rbbc_call}
+Tools/rbk/vov_veiled/RBSTB-trigger_build.adoc:69:link:https://cloud.google.com/build/docs/api/reference/rest/v1/projects.locations.triggers/list[cloudbuild.triggers.list] with:
+Tools/rbk/vov_veiled/RBSTB-trigger_build.adoc-70-... project:
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/vov_veiled/RBSTB-trigger_build.adoc-71-{rbrr_depot_project_id}
+--
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/vov_veiled/RBSTB-trigger_build.adoc-88-{rbtgo_rubric_inscribe})
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/vov_veiled/RBSTB-trigger_build.adoc-89-.. {rbbc_submit}
+Tools/rbk/vov_veiled/RBSTB-trigger_build.adoc:90:link:https://cloud.google.com/build/docs/api/reference/rest/v1/projects.locations.triggers/run[cloudbuild.triggers.run] with:
+Tools/rbk/vov_veiled/RBSTB-trigger_build.adoc-91-... project:
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/vov_veiled/RBSTB-trigger_build.adoc-92-{rbrr_depot_project_id}
+--
+Tools/rbk/vov_veiled/RBSTB-trigger_build.adoc-129-. *Wait for Build Completion*:
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/vov_veiled/RBSTB-trigger_build.adoc-130-.. {rbbc_poll}
+Tools/rbk/vov_veiled/RBSTB-trigger_build.adoc:131:link:https://cloud.google.com/build/docs/api/reference/rest/v1/projects.locations.builds/get[cloudbuild.builds.get] with:
+Tools/rbk/vov_veiled/RBSTB-trigger_build.adoc-132-... project:
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/vov_veiled/RBSTB-trigger_build.adoc-133-{rbrr_depot_project_id}
+--
+Tools/rbk/vov_veiled/RBS0-SpecTop.adoc-95-:rbtgr_rubric:              <<rbtgr_rubric,RB Rubric>>
+Tools/rbk/vov_veiled/RBS0-SpecTop.adoc-96-:rbtgr_rubric_s:            <<rbtgr_rubric,RB Rubrics>>
+Tools/rbk/vov_veiled/RBS0-SpecTop.adoc:97::rbtgr_build_json:          <<rbtgr_build_json,cloudbuild.json>>
+Tools/rbk/vov_veiled/RBS0-SpecTop.adoc-98-:rbtgr_provenance:          <<rbtgr_provenance,Rubric Provenance>>
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/vov_veiled/RBS0-SpecTop.adoc-99-
+--
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/vov_veiled/RBS0-SpecTop.adoc-777-This wraps complex Container Analysis API interaction that would be burdensome to replicate via raw REST.
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/vov_veiled/RBS0-SpecTop.adoc-778-All other GCB step operations use the GCE metadata server for OAuth token acquisition and direct registry REST API calls — no gcloud.
+Tools/rbk/vov_veiled/RBS0-SpecTop.adoc:779:The provenance fetch runs as Python 3 on the gcloud builder image after the primary image is built; the reproducibility concern that motivates this premise is weaker for post-build verification.
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/vov_veiled/RBS0-SpecTop.adoc-780-Works under NO_PUBLIC_EGRESS (Private Google Access reaches Google APIs).
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/vov_veiled/RBS0-SpecTop.adoc-781-+
+--
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/vov_veiled/RBS0-SpecTop.adoc-783-+
+Tools/rbk/vov_veiled/RBS0-SpecTop.adoc-784-Rationale: `gcloud` is an opaque, version-sensitive binary that obscures API semantics, introduces implicit authentication state, and breaks reproducibility.
+Tools/rbk/vov_veiled/RBS0-SpecTop.adoc:785:The `gcloud auth configure-docker` approach also fails mechanically in GCB steps — the gcloud builder image lacks `docker` in PATH, so the credential helper it installs cannot function.
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/vov_veiled/RBS0-SpecTop.adoc-786-+
+Tools/rbk/vov_veiled/RBS0-SpecTop.adoc:787:NOTE: The gcloud reliquary image exists because conjure build steps use it as a convenience shell (for `bash` and `date`).
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/vov_veiled/RBS0-SpecTop.adoc-788-The vouch verification step (conjure mode) additionally invokes `gcloud` for provenance retrieval (see exception above).
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/vov_veiled/RBS0-SpecTop.adoc-789-
+--
+Tools/rbk/vov_veiled/RBS0-SpecTop.adoc-1732-Discovered constraints from implementation:
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/vov_veiled/RBS0-SpecTop.adoc-1733-+
+Tools/rbk/vov_veiled/RBS0-SpecTop.adoc:1734:  * **Private worker pool**: The RunBuild API caller ({rbtr_director}) requires `cloudbuild.workerpools.use` to specify a private pool, a permission not included in `roles/cloudbuild.builds.editor`.
+Tools/rbk/vov_veiled/RBS0-SpecTop.adoc:1735:    {rbtgo_director_knight} grants `roles/cloudbuild.workerPoolUser` at project scope.
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/vov_veiled/RBS0-SpecTop.adoc-1736-    Vouch runs on the same private pool as conjure (`RBRR_GCB_POOL_STEM`), eliminating an untested default-pool-with-buildx permutation.
+Tools/rbk/vov_veiled/RBS0-SpecTop.adoc-1737-  * **gcloud exception**: Vouch verification (conjure mode) invokes `gcloud artifacts docker images describe` for provenance retrieval (see {rbsk_no_gcloud} exception).
+--
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/vov_veiled/RBS0-SpecTop.adoc-1823-//axl_voices axig_build_config
+Tools/rbk/vov_veiled/RBS0-SpecTop.adoc-1824-{rbtgr_build_json}::
+Tools/rbk/vov_veiled/RBS0-SpecTop.adoc:1825:The generated `cloudbuild.json` for a vessel, produced from step scripts and regime pins by the stitch function.
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/vov_veiled/RBS0-SpecTop.adoc-1826-All values resolved directly at stitch time — no placeholders, no post-processing.
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/vov_veiled/RBS0-SpecTop.adoc-1827-Submitted via `builds.create` API. Build context delivered via pouch (FROM SCRATCH OCI image in GAR).
+--
+Tools/rbk/vov_veiled/RBS0-SpecTop.adoc-1870-`docker pull --platform` works on CB workers (Docker 20.10.24, Experimental: true);
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/vov_veiled/RBS0-SpecTop.adoc-1871-`$${VAR}` escaping required for shell variables in {rbtgr_build_json} (Cloud Build interprets `${VAR}` as substitution variables);
+Tools/rbk/vov_veiled/RBS0-SpecTop.adoc:1872:`jq` is not available in `gcr.io/cloud-builders/docker` — the `--platform` flag approach avoids JSON manifest parsing entirely.
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/vov_veiled/RBS0-SpecTop.adoc-1873-See `Memos/memo-20260305-provenance-architecture-gap.md` for full experiment details.
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/vov_veiled/RBS0-SpecTop.adoc-1874-+
+--
+Tools/rbk/vov_veiled/RBSDU-depot_unmake.adoc-69-... Construct pool resource name: `projects/«DEPOT_PROJECT_ID»/locations/{rbrr_gcp_region}/workerPools/rbw-«INPUT_DEPOT_NAME»-pool«SUFFIX»`
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/vov_veiled/RBSDU-depot_unmake.adoc-70-... {rbbc_call}
+Tools/rbk/vov_veiled/RBSDU-depot_unmake.adoc:71:link:https://cloud.google.com/build/docs/api/reference/rest/v1/projects.locations.workerPools/delete[workerPools.delete] for the pool resource name
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/vov_veiled/RBSDU-depot_unmake.adoc-72-... Treat HTTP 404 as success (pool already gone — tolerated)
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/vov_veiled/RBSDU-depot_unmake.adoc-73-.. {rbbc_require}
+--
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/vov_veiled/RBSCB-CloudBuildPosture.adoc-22-
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/vov_veiled/RBSCB-CloudBuildPosture.adoc-23-**Build definitions are fully static.**
+Tools/rbk/vov_veiled/RBSCB-CloudBuildPosture.adoc:24:Each vessel's `cloudbuild.json` is stitched from step scripts (`rbgjb*.sh`) and current regime pins -- zero custom substitution overrides
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/vov_veiled/RBSCB-CloudBuildPosture.adoc-25-at submission time.
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/vov_veiled/RBSCB-CloudBuildPosture.adoc-26-The build is fully determined by the stitched JSON and the pouch (build context as OCI image in GAR).
+--
+Tools/rbk/vov_veiled/RBSCB-CloudBuildPosture.adoc-288-* https://docs.google.com/build/docs/private-pools/use-in-private-network[Cloud Build in a private network (NO_PUBLIC_EGRESS)]
+Tools/rbk/vov_veiled/RBSCB-CloudBuildPosture.adoc-289-* https://docs.google.com/build/docs/private-pools/using-vpc-service-controls[VPC Service Controls with Cloud Build]
+Tools/rbk/vov_veiled/RBSCB-CloudBuildPosture.adoc:290:* https://cloud.google.com/binary-authorization/docs/deploy-cloud-build[Deploy only images built by Cloud Build (Binary Authorization)]
+Tools/rbk/vov_veiled/RBSCB-CloudBuildPosture.adoc:291:* https://cloud.google.com/build/pricing-update[Cloud Build pricing update (2025)]
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/vov_veiled/RBSCB-CloudBuildPosture.adoc-292-
+Tools/rbk/vov_veiled/RBSCB-CloudBuildPosture.adoc-293-**SBOM and supply chain:**
+--
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/vov_veiled/RBSCO-CosmologyIntro.adoc-117-`gcloud` is never required on the
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/vov_veiled/RBSCO-CosmologyIntro.adoc-118-{at_workstation};
+Tools/rbk/vov_veiled/RBSCO-CosmologyIntro.adoc:119:it appears only inside Google-managed Cloud Build step containers (e.g. `gcr.io/cloud-builders/gcloud`) where it runs server-side during remote builds.
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/vov_veiled/RBSCO-CosmologyIntro.adoc-120-
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/vov_veiled/RBSCO-CosmologyIntro.adoc-121-Auxiliary provenance data, including the per-platform SBOM (`sbom.linux_amd64.spdx.json`), build transcript, build configuration snapshot, and key package summaries, is bundled into a compressed archive and uploaded to GAR as a **Generic Artifact** using the image tag as the package name and a fixed `metadata` version identifier.
+--
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/vov_veiled/RBSDK-director_knight.adoc-93-{rbrr_depot_project_id}
+Tools/rbk/vov_veiled/RBSDK-director_knight.adoc-94-.. Add `serviceAccount:«DIRECTOR_EMAIL»` with roles:
+Tools/rbk/vov_veiled/RBSDK-director_knight.adoc:95:... `roles/cloudbuild.builds.editor` (submit and manage builds)
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/vov_veiled/RBSDK-director_knight.adoc-96-... `roles/viewer` (read project resources)
+Tools/rbk/vov_veiled/RBSDK-director_knight.adoc:97:... `roles/cloudbuild.workerPoolUser` (use private pool for vouch `builds.create`)
+Tools/rbk/vov_veiled/RBSDK-director_knight.adoc-98-.. Policy version: 3
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/vov_veiled/RBSDK-director_knight.adoc-99-.. {rbbc_require}
+--
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/vov_veiled/RBSDE-depot_levy.adoc-66-//axhos_step
+Tools/rbk/vov_veiled/RBSDE-depot_levy.adoc-67-. *Enable Depot Project APIs*:
+Tools/rbk/vov_veiled/RBSDE-depot_levy.adoc:68:.. For each service in [`artifactregistry`, `cloudbuild`, `containeranalysis`, `iam`, `serviceusage`, `storage`]:
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/vov_veiled/RBSDE-depot_levy.adoc-69-... Execute
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/vov_veiled/RBSDE-depot_levy.adoc-70-{rbtoe_api_enable}
+--
+Tools/rbk/vov_veiled/RBSDE-depot_levy.adoc-77-.. Construct pool ID: `rbw-«INPUT_DEPOT_NAME»-pool`
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/vov_veiled/RBSDE-depot_levy.adoc-78-.. {rbbc_call}
+Tools/rbk/vov_veiled/RBSDE-depot_levy.adoc:79:link:https://cloud.google.com/build/docs/api/reference/rest/v1/projects.locations.workerPools/create[workerPools.create] with:
+Tools/rbk/vov_veiled/RBSDE-depot_levy.adoc-80-... parent: `projects/«DEPOT_PROJECT_ID»/locations/{rbrr_gcp_region}`
+Tools/rbk/vov_veiled/RBSDE-depot_levy.adoc-81-... workerPoolId: `rbw-«INPUT_DEPOT_NAME»-pool`
+--
+Tools/rbk/vov_veiled/RBSDE-depot_levy.adoc-168-{rbtr_mason}*:
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/vov_veiled/RBSDE-depot_levy.adoc-169-.. {rbtoe_iam_grant_sa} on `«MASON_EMAIL»`
+Tools/rbk/vov_veiled/RBSDE-depot_levy.adoc:170:.. Add member: `serviceAccount:service-«PROJECT_NUMBER»@gcp-sa-cloudbuild.iam.gserviceaccount.com`
+Tools/rbk/vov_veiled/RBSDE-depot_levy.adoc-171-.. Grant role: `roles/iam.serviceAccountTokenCreator`
+Tools/rbk/vov_veiled/RBSDE-depot_levy.adoc-172-.. NOTE: Cloud Build service agent is Google-provisioned (auto-created when Cloud Build API is enabled), not a user-created service account. The `tokenCreator` role enables build steps running as {rbtr_mason} (via the build JSON's `serviceAccount` field) to generate fresh access tokens for GCP API calls — required for GAR authentication (docker login, crane push). This is distinct from `serviceAccountUser` (actAs), which the {rbtr_director} holds on {rbtr_mason} for submitting builds.
+--
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/vov_veiled/RBSAV-ark_vouch.adoc-168-The verification script (Python 3) decodes base64url payload and signature, reconstructs PAE, and calls `openssl dgst -sha256 -verify` as a subprocess.
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/vov_veiled/RBSAV-ark_vouch.adoc-169-Attestor public keys are embedded in the step script (sourced from `projects/verified-builder/` KMS); no runtime KMS dependency.
+Tools/rbk/vov_veiled/RBSAV-ark_vouch.adoc:170:The about/vouch steps run on the gcloud builder image and invoke `gcloud` directly (see {rbsk_no_gcloud} exception).
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/vov_veiled/RBSAV-ark_vouch.adoc-171-No jq, no slsa-verifier — Python 3 standard library + openssl only. Air-gap compatible (Private Google Access reaches Google APIs).
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/vov_veiled/RBSAV-ark_vouch.adoc-172-+
+--
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/vov_veiled/RBSCTD-CloudBuildTriggerDispatch.adoc-39-|API
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/vov_veiled/RBSCTD-CloudBuildTriggerDispatch.adoc-40-|`developerconnect.googleapis.com`
+Tools/rbk/vov_veiled/RBSCTD-CloudBuildTriggerDispatch.adoc:41:|`cloudbuild.googleapis.com/v2`
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/vov_veiled/RBSCTD-CloudBuildTriggerDispatch.adoc-42-
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/vov_veiled/RBSCTD-CloudBuildTriggerDispatch.adoc-43-|Resource
+--
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/vov_veiled/RBSCTD-CloudBuildTriggerDispatch.adoc-129-
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/vov_veiled/RBSCTD-CloudBuildTriggerDispatch.adoc-130-|RunBuildTriggerRequest.source is RepoSource (Go GAPIC proto)
+Tools/rbk/vov_veiled/RBSCTD-CloudBuildTriggerDispatch.adoc:131:|https://pkg.go.dev/cloud.google.com/go/cloudbuild/apiv1/v2/cloudbuildpb#RunBuildTriggerRequest[RunBuildTriggerRequest protobuf definition]
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/vov_veiled/RBSCTD-CloudBuildTriggerDispatch.adoc-132-
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/vov_veiled/RBSCTD-CloudBuildTriggerDispatch.adoc-133-|Source type supports connected_repository and git_source (Go GAPIC proto)
+Tools/rbk/vov_veiled/RBSCTD-CloudBuildTriggerDispatch.adoc:134:|https://pkg.go.dev/cloud.google.com/go/cloudbuild/apiv1/v2/cloudbuildpb#Source[Source protobuf definition — shows alternatives not available in RunBuildTriggerRequest]
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/vov_veiled/RBSCTD-CloudBuildTriggerDispatch.adoc-135-
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/vov_veiled/RBSCTD-CloudBuildTriggerDispatch.adoc-136-|Feature request for 2nd gen support in trigger/build requests
+--
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/vov_veiled/RBSCTD-CloudBuildTriggerDispatch.adoc-138-
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/vov_veiled/RBSCTD-CloudBuildTriggerDispatch.adoc-139-|Provenance tied to trigger-invoked builds (v1.0 vs v0.1)
+Tools/rbk/vov_veiled/RBSCTD-CloudBuildTriggerDispatch.adoc:140:|https://cloud.google.com/build/docs/securing-builds/generate-validate-build-provenance[Generate and validate build provenance]
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/vov_veiled/RBSCTD-CloudBuildTriggerDispatch.adoc-141-
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/vov_veiled/RBSCTD-CloudBuildTriggerDispatch.adoc-142-|Triggered vs inline provenance structure (buildType v1)
+Tools/rbk/vov_veiled/RBSCTD-CloudBuildTriggerDispatch.adoc:143:|https://cloud.google.com/build/gcb-buildtypes/google-worker/v1[Cloud Build buildType v1]
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/vov_veiled/RBSCTD-CloudBuildTriggerDispatch.adoc-144-
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/vov_veiled/RBSCTD-CloudBuildTriggerDispatch.adoc-145-|CB v2 repositories API reference
+Tools/rbk/vov_veiled/RBSCTD-CloudBuildTriggerDispatch.adoc:146:|https://cloud.google.com/build/docs/api/reference/rest/v2/projects.locations.connections.repositories[CB v2 repositories REST API]
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/vov_veiled/RBSCTD-CloudBuildTriggerDispatch.adoc-147-
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/vov_veiled/RBSCTD-CloudBuildTriggerDispatch.adoc-148-|CB v2 repositories create
+Tools/rbk/vov_veiled/RBSCTD-CloudBuildTriggerDispatch.adoc:149:|https://cloud.google.com/build/docs/api/reference/rest/v2/projects.locations.connections.repositories/create[CB v2 repositories create method]
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/vov_veiled/RBSCTD-CloudBuildTriggerDispatch.adoc-150-
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/vov_veiled/RBSCTD-CloudBuildTriggerDispatch.adoc-151-|Developer Connect gitRepositoryLinks API (the path that does NOT work with triggers)
+--
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/vov_veiled/RBSCTD-CloudBuildTriggerDispatch.adoc-153-
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/vov_veiled/RBSCTD-CloudBuildTriggerDispatch.adoc-154-|Developer forums — "Couldn't read commit" error thread
+Tools/rbk/vov_veiled/RBSCTD-CloudBuildTriggerDispatch.adoc:155:|https://discuss.google.dev/t/gcp-cloudbuild-failed-to-trigger-build-couldnt-read-commit/100578[GCP CloudBuild Failed to trigger build — Couldn't read commit]
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/vov_veiled/RBSCTD-CloudBuildTriggerDispatch.adoc-156-
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/vov_veiled/RBSCTD-CloudBuildTriggerDispatch.adoc-157-|1st gen vs 2nd gen repository connections
+Tools/rbk/vov_veiled/RBSCTD-CloudBuildTriggerDispatch.adoc:158:|https://cloud.google.com/build/docs/automating-builds/github/connect-repo-github[Connect a GitHub repository — 1st vs 2nd gen]
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/vov_veiled/RBSCTD-CloudBuildTriggerDispatch.adoc-159-
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/vov_veiled/RBSCTD-CloudBuildTriggerDispatch.adoc-160-|Cloud Build release notes (provenance tied to triggered builds)
+Tools/rbk/vov_veiled/RBSCTD-CloudBuildTriggerDispatch.adoc:161:|https://cloud.google.com/build/docs/release-notes[Cloud Build release notes]
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/vov_veiled/RBSCTD-CloudBuildTriggerDispatch.adoc-162-
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/vov_veiled/RBSCTD-CloudBuildTriggerDispatch.adoc-163-|Artifact Analysis occurrences (provenance verification)
+--
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/vov_veiled/RBSCJ-CloudBuildJson.adoc-1-==== Decision
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/vov_veiled/RBSCJ-CloudBuildJson.adoc-2-
+Tools/rbk/vov_veiled/RBSCJ-CloudBuildJson.adoc:3:Cloud Build configuration files for trigger-based builds use `cloudbuild.json` format,
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/vov_veiled/RBSCJ-CloudBuildJson.adoc-4-generated programmatically via `jq`.
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/vov_veiled/RBSCJ-CloudBuildJson.adoc-5-YAML is not used.
+--
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/vov_veiled/RBSCJ-CloudBuildJson.adoc-34-
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/vov_veiled/RBSCJ-CloudBuildJson.adoc-35-|Trigger autodetect precedence includes JSON
+Tools/rbk/vov_veiled/RBSCJ-CloudBuildJson.adoc:36:|https://docs.google.com/build/docs/api/reference/rest/v1/projects.triggers[projects.triggers REST resource] — precedence: `cloudbuild.yaml`, `cloudbuild.yml`, `cloudbuild.json`, `Dockerfile`
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/vov_veiled/RBSCJ-CloudBuildJson.adoc-37-
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/vov_veiled/RBSCJ-CloudBuildJson.adoc-38-|No deprecation signals through Feb 2026
+--
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/vov_veiled/RBSCJ-CloudBuildJson.adoc-45-==== What Dies
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/vov_veiled/RBSCJ-CloudBuildJson.adoc-46-
+Tools/rbk/vov_veiled/RBSCJ-CloudBuildJson.adoc:47:* Any assumption that `cloudbuild.yaml` is required for triggers or SLSA provenance
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/vov_veiled/RBSCJ-CloudBuildJson.adoc-48-* The linked term `rbtgr_build_yaml` — replaced by
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/vov_veiled/RBSCJ-CloudBuildJson.adoc-49-{rbtgr_build_json}
+--
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/vov_veiled/RBSCJ-CloudBuildJson.adoc-59-==== Provenance Note
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/vov_veiled/RBSCJ-CloudBuildJson.adoc-60-
+Tools/rbk/vov_veiled/RBSCJ-CloudBuildJson.adoc:61:SLSA v1.0 provenance records `buildConfigSource.path` which will contain `cloudbuild.json`.
+Tools/rbk/vov_veiled/RBSCJ-CloudBuildJson.adoc:62:This is a cosmetic difference from `cloudbuild.yaml` — the structured provenance fields
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/vov_veiled/RBSCJ-CloudBuildJson.adoc-63-(build inputs, parameters, outputs) are identical regardless of config file format.
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/vov_veiled/RBSCJ-CloudBuildJson.adoc-64-
+--
+Tools/rbk/vov_veiled/RBSCJ-CloudBuildJson.adoc-67-* Research conducted: 2026-02-24 (web search + API documentation review)
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/vov_veiled/RBSCJ-CloudBuildJson.adoc-68-* Google docs consistently present YAML examples by convention, not by requirement
+Tools/rbk/vov_veiled/RBSCJ-CloudBuildJson.adoc:69:* The `gcloud builds submit` CLI internally converts any config format to JSON for API submission
+--
+Tools/rbk/vov_veiled/RBSGM-governor_mantle.adoc-109-.. Add role: `roles/owner` (excluding billing permissions maintained by
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/vov_veiled/RBSGM-governor_mantle.adoc-110-{rbtr_payor})
+Tools/rbk/vov_veiled/RBSGM-governor_mantle.adoc:111:// roles/cloudbuild.connectionViewer eliminated (₣Av) — CB v2 connections no longer used
+Tools/rbk/vov_veiled/RBSGM-governor_mantle.adoc-112-.. Set policy version: 3 for conditional binding support
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/vov_veiled/RBSGM-governor_mantle.adoc-113-.. {rbbc_require}
+--
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/vov_veiled/RBSQB-quota_build.adoc-53-.. Select the depot project (`«DEPOT_PROJECT_ID»`) from the project selector
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/vov_veiled/RBSQB-quota_build.adoc-54-.. Navigate to *IAM & Admin > Quotas & System Limits*
+Tools/rbk/vov_veiled/RBSQB-quota_build.adoc:55:.. In the filter bar, enter `cloudbuild.googleapis.com` to show only
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/vov_veiled/RBSQB-quota_build.adoc-56-{gcb_service}
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/vov_veiled/RBSQB-quota_build.adoc-57-quotas
+--
+Tools/rbk/vov_veiled/RBSQB-quota_build.adoc-83-. *Confirm Quota Headroom*:
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/vov_veiled/RBSQB-quota_build.adoc-84-.. After pool recreation or quota increase, return to *IAM & Admin > Quotas & System Limits*
+Tools/rbk/vov_veiled/RBSQB-quota_build.adoc:85:.. Filter for `cloudbuild.googleapis.com` and verify the *Concurrent Build CPUs (Private Pool)* row
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/vov_veiled/RBSQB-quota_build.adoc-86-.. {rbhg_require}
+Tools/rbk/vov_veiled/RBSQB-quota_build.adoc-87-quota headroom supports the required concurrent builds: `«CPU_QUOTA»` ÷ vCPUs per machine type ≥

@@ -1,0 +1,756 @@
+22-/ axvo_: Axial Voicing Operation (definition-site operation annotations) → mcm_form_deflist
+23:// axhr*_: Axial Hierarchy Regime (standalone hierarchy markers) → mcm_form_deflist
+24:// axho*_: Axial Hierarchy Operation (standalone operation hierarchy markers) → mcm_form_deflist
+25:// axhp*_: Axial Hierarchy Protocol (standalone protocol hierarchy markers) → mcm_form_deflist
+26-/ axpo*_: Axial Product-of-Operation (definition-site voicings for operation outputs) → mcm_form_deflist
+27-/ axve_: Axial Voicing Entity (definition-site entity annotations) → mcm_form_deflist
+28:// axhe*_: Axial Hierarchy Entity (standalone entity hierarchy markers) → mcm_form_deflist
+29-/ xref_: External specification references
+--
+65-:axl_definition_site_s:               <<axl_definition_site,Definition Sites>>
+66::axl_detail_site:                     <<axl_detail_site,Detail Site>>
+67::axl_detail_site_s:                   <<axl_detail_site,Detail Sites>>
+68-
+--
+121-
+122:// Axial Hierarchy Regime Terms (standalone hierarchy markers)
+123::axhrgc_gate:                         <<axhrgc_gate,Hierarchy Gate>>
+124::axhrgb_group:                        <<axhrgb_group,Hierarchy Group>>
+125::axhrgv_variable:                     <<axhrgv_variable,Hierarchy Grouped Variable>>
+126::axhrb_regime:                        <<axhrb_regime,Hierarchy Regime>>
+127::axhrv_variable:                      <<axhrv_variable,Hierarchy Variable>>
+128-
+--
+152-
+153:// Axial Hierarchy Operation Terms (standalone hierarchy markers)
+154::axhob_operation:                     <<axhob_operation,Hierarchy Operation>>
+155::axhoc_completion:                    <<axhoc_completion,Hierarchy Completion>>
+156::axhog_guarantee:                     <<axhog_guarantee,Hierarchy Guarantee>>
+157::axhoom_motif_output:                 <<axhoom_motif_output,Hierarchy Motif Output>>
+158::axhoot_typed_output:                 <<axhoot_typed_output,Hierarchy Typed Output>>
+159::axhopa_arg_parameter:                <<axhopa_arg_parameter,Hierarchy Arg Parameter>>
+160::axhopm_motif_parameter:              <<axhopm_motif_parameter,Hierarchy Motif Parameter>>
+161::axhopt_typed_parameter:              <<axhopt_typed_parameter,Hierarchy Typed Parameter>>
+162::axhoq_precondition:                  <<axhoq_precondition,Hierarchy Precondition>>
+163::axhos_step:                          <<axhos_step,Hierarchy Step>>
+164::axhos_waymark:                       <<axhos_waymark,Hierarchy Waymark>>
+165-
+166:// Axial Hierarchy Protocol Terms (standalone hierarchy markers)
+167::axhpb_protocol:                      <<axhpb_protocol,Hierarchy Protocol>>
+168::axhpc_call:                          <<axhpc_call,Hierarchy Call>>
+169::axhpr_return:                        <<axhpr_return,Hierarchy Return>>
+170::axhpt_transaction:                   <<axhpt_transaction,Hierarchy Transaction>>
+171-
+172:// Axial Hierarchy Regime Operation Markers (subdocument)
+173::axhro_kindle:                        <<axhro_kindle,Hierarchy Kindle>>
+174::axhro_render:                        <<axhro_render,Hierarchy Render>>
+175::axhro_validate:                      <<axhro_validate,Hierarchy Validate>>
+176::axhro_list:                          <<axhro_list,Hierarchy List>>
+177::axhro_survey:                        <<axhro_survey,Hierarchy Survey>>
+178::axhro_audit:                         <<axhro_audit,Hierarchy Audit>>
+179-
+--
+182-
+183:// Axial Hierarchy Entity Terms (standalone entity hierarchy markers)
+184-:axheb_entity:                        <<axheb_entity,Hierarchy Entity>>
+185::axheft_typed_field:                  <<axheft_typed_field,Hierarchy Typed Field>>
+186::axhefm_motif_field:                  <<axhefm_motif_field,Hierarchy Motif Field>>
+187::axhems_scoped_method:                <<axhems_scoped_method,Hierarchy Scoped Method>>
+188::axheme_elevated_method:              <<axheme_elevated_method,Hierarchy Elevated Method>>
+189::axhempt_typed_parameter:             <<axhempt_typed_parameter,Hierarchy Typed Parameter>>
+190::axhempa_arg_parameter:               <<axhempa_arg_parameter,Hierarchy Arg Parameter>>
+191::axhempm_motif_parameter:             <<axhempm_motif_parameter,Hierarchy Motif Parameter>>
+192::axhemot_typed_output:                <<axhemot_typed_output,Hierarchy Typed Output>>
+193::axhemom_motif_output:                <<axhemom_motif_output,Hierarchy Motif Output>>
+194-
+--
+1088-{axl_voices}
+1089:{axhopt_typed_parameter}
+1090:/{axhopa_arg_parameter}
+1091-in CLI context.
+--
+1151-{axl_voices}
+1152:{axhoc_completion}
+1153-in CLI context.
+--
+1182-{axl_voices}
+1183:{axhoc_completion}
+1184-in CLI context.
+--
+1393-Structural detail — the roster of transactions, call/return envelopes, and member types — lives at the
+1394:{axl_detail_site}
+1395-under
+1396:{axhpb_protocol}
+1397:and nested hierarchy markers.
+1398-
+--
+1519-The default lifecycle for most procedures.
+1520:{axhoc_completion}
+1521-documents exit status or return value.
+--
+1526-runs continuously until explicitly stopped.
+1527:{axhoc_completion}
+1528-documents startup success criteria, not termination.
+1529-Requires
+1530:{axhos_step} (startup)
+1531-and
+1532:{axhos_step} (shutdown)
+1533-sections.
+1534-May include
+1535:{axhos_step} (health, signals, recovery)
+1536-sections.
+--
+1541-executes on a schedule.
+1542:{axhoc_completion}
+1543-applies per-run.
+1544-Requires
+1545:{axhos_step} (schedule)
+1546-section.
+1547-May include
+1548:{axhos_step} (idempotency, overlap)
+1549-sections.
+--
+1561-{axd_conditional}
+1562:requires corresponding hierarchy markers in the subdocument to include at least one
+1563:{axhrgc_gate}
+1564-specifying the activation criteria.
+--
+1787-Regime annotations use the prefix-discriminated form (`//ax...` with no space after `//`) to provide structured metadata about regime definitions in AsciiDoc specifications.
+1788:Two complementary annotation families enable regime specification across parent documents and their subdocuments.
+1789-
+--
+1851-{axd_conditional}
+1852:(group activation depends on gate conditions in subdocument).
+1853-
+--
+1909-
+1910:=== Standalone Hierarchy Markers (axhr*_)
+1911-
+1912:Hierarchy markers appear in regime subdocuments as standalone annotations, NOT between anchor and definition.
+1913-Each marker uses the prefix-discriminated form and reads ahead a specified number of
+--
+1920-----
+1921://axhrb_regime
+1922-{rbrv_regime}
+1923-
+1924://axhrgv_variable
+1925-{rbrv_sigil}
+--
+1927-
+1928:The hierarchy marker line starts with `//axhr` (no space after `//`), followed by the sub-prefix identifying the marker type.
+1929-Following text contains the
+--
+1938-
+1939:|{axhrb_regime}     |1 {mcm_attribute_reference}  |The regime this subdoc describes
+1940:|{axhrv_variable}   |1 {mcm_attribute_reference}  |An ungrouped regime variable
+1941:|{axhrgb_group}     |1 {mcm_attribute_reference}  |A group (must match {axvr_group} in parent)
+1942:|{axhrgc_gate}      |2 {mcm_attribute_reference_s}|Enumerated variable + enum value
+1943:|{axhrgv_variable}  |1 {mcm_attribute_reference}  |A variable within current group
+1944:|{axhro_kindle}     |1 {mcm_attribute_reference}  |Kit-level kindle operation for this regime
+1945:|{axhro_validate}   |1 {mcm_attribute_reference}  |Kit-level validate operation for this regime
+1946:|{axhro_render}     |1 {mcm_attribute_reference}  |Kit-level render operation for this regime
+1947:|{axhro_list}       |1 {mcm_attribute_reference}  |Kit-level list operation for this regime
+1948:|{axhro_survey}     |1 {mcm_attribute_reference}  |Kit-level survey operation for this regime
+1949:|{axhro_audit}      |1 {mcm_attribute_reference}  |Kit-level audit operation for this regime
+1950-|===
+1951-
+1952:[[axhrb_regime]]
+1953:{axhrb_regime}::
+1954:Marks the regime that a subdocument describes.
+1955-Lookahead: 1
+1956-{mcm_attribute_reference}
+1957:— the regime this subdoc describes.
+1958-The referenced attribute must correspond to an anchor annotated with
+--
+1961-
+1962:[[axhrv_variable]]
+1963:{axhrv_variable}::
+1964:Marks an ungrouped regime variable in a subdocument.
+1965-Lookahead: 1
+--
+1968-
+1969:[[axhrgb_group]]
+1970:{axhrgb_group}::
+1971:Marks a group boundary within a subdocument.
+1972-Lookahead: 1
+--
+1978-
+1979:[[axhrgc_gate]]
+1980:{axhrgc_gate}::
+1981-Marks a conditional activation gate within a group.
+--
+1990-
+1991:[[axhrgv_variable]]
+1992:{axhrgv_variable}::
+1993:Marks a variable within the current group in a subdocument.
+1994-Lookahead: 1
+--
+1997-
+1998:[[axhro_kindle]]
+1999:{axhro_kindle}::
+2000:Marks a regime kindle operation description in a subdocument.
+2001-Lookahead: 1
+--
+2006-
+2007:[[axhro_validate]]
+2008:{axhro_validate}::
+2009:Marks a regime validate operation description in a subdocument.
+2010-Lookahead: 1
+--
+2015-
+2016:[[axhro_render]]
+2017:{axhro_render}::
+2018:Marks a regime render operation description in a subdocument.
+2019-Lookahead: 1
+--
+2024-
+2025:[[axhro_list]]
+2026:{axhro_list}::
+2027:Marks a regime list operation description in a subdocument.
+2028-Lookahead: 1
+--
+2036-
+2037:[[axhro_survey]]
+2038:{axhro_survey}::
+2039:Marks a regime survey operation description in a subdocument.
+2040-Lookahead: 1
+--
+2048-
+2049:[[axhro_audit]]
+2050:{axhro_audit}::
+2051:Marks a regime audit operation description in a subdocument.
+2052-Lookahead: 1
+--
+2065-* Higher-level markers implicitly close previous scope (no end markers needed)
+2066:* {axhrgb_group},
+2067:{axhrgc_gate},
+2068-and
+2069:{axhrgv_variable}
+2070-must appear within
+2071:{axhrb_regime}
+2072-scope
+2073:* {axhrgc_gate}
+2074-and
+2075:{axhrgv_variable}
+2076-must appear within
+2077:{axhrgb_group}
+2078-scope
+2079-* Multiple
+2080:{axhrgc_gate}
+2081-within one group have AND semantics
+2082:* {axhro_kindle},
+2083:{axhro_validate},
+2084:{axhro_render},
+2085:{axhro_list},
+2086:{axhro_survey},
+2087-and
+2088:{axhro_audit}
+2089-must appear within
+2090:{axhrb_regime}
+2091-scope but outside any
+2092:{axhrgb_group}
+2093-scope
+--
+2096-
+2097:* {axhrb_regime}
+2098-attribute reference must match a regime defined with
+--
+2100-in parent
+2101:* {axhrgb_group}
+2102-attribute reference must match a group defined with
+--
+2104-under that regime
+2105:* {axhrgc_gate}
+2106-first attribute reference must voice
+--
+2123-
+2124:[[axl_detail_site]]
+2125:{axl_detail_site}::
+2126:The location where a linked term's details are elaborated through hierarchy markers and prose.
+2127:Typically a subdocument included from the parent, but may be inline within the parent document for compact definitions.
+2128-The
+2129:{axl_detail_site}
+2130-is opened by a hierarchy block marker (e.g.,
+2131:{axhob_operation},
+2132:{axhrb_regime})
+2133-and contains subordinate markers for parameters, steps, variables, or other structural elements.
+--
+2139-and
+2140:{axl_detail_site_s},
+2141-paralleling the regime annotation pattern.
+--
+2296-Valid on
+2297:{axhoot_typed_output}.
+2298-At the definition site, the corresponding term is voiced
+--
+2308-Valid on
+2309:{axhoot_typed_output}.
+2310-At the definition site, the corresponding term is voiced
+--
+2338-At detail sites, referenced by
+2339:{axhoot_typed_output}
+2340-with
+--
+2348-At detail sites, referenced by
+2349:{axhoot_typed_output}
+2350-with
+--
+2384-
+2385:{axho*} markers appear at the
+2386:{axl_detail_site}
+2387-as standalone annotations, paralleling the
+2388:{axhr*}
+2389:regime hierarchy markers.
+2390-Each marker uses the prefix-discriminated form and reads ahead a specified number of
+--
+2399-
+2400:|{axhob_operation}          |1 {mcm_attribute_reference}  |The operation this detail site describes (no dimensions — dimensions are at {axl_definition_site} only)
+2401:|{axhoc_completion}         |0                            |Introduces the signaling contract section (exit codes, status); bare marker, no lookahead
+2402:|{axhopt_typed_parameter}   |1 {mcm_attribute_reference}  |A named input parameter whose identity reuses an existing domain type term (zero new terms minted)
+2403:|{axhopa_arg_parameter}     |1 {mcm_attribute_reference}  |A named input parameter whose identity reuses a shared CLI argument term (small vocabulary per spec)
+2404:|{axhopm_motif_parameter}   |0                            |Type on annotation line (motif terms); bare marker, no lookahead
+2405:|{axhoot_typed_output}      |1 {mcm_attribute_reference}  |A named output whose identity reuses an existing domain type term (parallel to typed_parameter pattern)
+2406:|{axhoom_motif_output}      |0                            |Type on annotation line (motif terms); bare marker, no lookahead
+2407:|{axhoq_precondition}       |0                            |A required condition before execution; bare marker, no lookahead
+2408:|{axhog_guarantee}          |0                            |A promised condition after execution; bare marker, no lookahead
+2409:|{axhos_step}               |0                            |A named behavioral step; bare marker, no lookahead
+2410:|{axhos_waymark}            |0                            |A branch-targetable step with a local AsciiDoc anchor; bare marker, no lookahead
+2411-|===
+2412-
+2413:[[axhob_operation]]
+2414:{axhob_operation}::
+2415-Opens the operation hierarchy block at the
+2416:{axl_detail_site}.
+2417-Lookahead: 1
+--
+2433-----
+2434://axhob_operation
+2435-{rbtgo_depot_levy}
+2436-
+2437://axhopt_typed_parameter
+2438-{rbtgo_depot_levy_name}
+--
+2440-
+2441:[[axhoc_completion]]
+2442:{axhoc_completion}::
+2443-Marks the signaling contract section in an operation
+2444:{axl_detail_site}.
+2445-0-arity bare marker — no lookahead required; content follows directly.
+--
+2447-Distinct from
+2448:{axhog_guarantee}
+2449-which describes state promises, and
+2450:{axhoot_typed_output}
+2451:/{axhoom_motif_output}
+2452-which describe produced data.
+--
+2454-
+2455:[[axhopt_typed_parameter]]
+2456:{axhopt_typed_parameter}::
+2457-Marks a named input parameter in an operation
+2458:{axl_detail_site}
+2459-whose lookahead reuses an existing domain type term.
+--
+2466-
+2467:[[axhopa_arg_parameter]]
+2468:{axhopa_arg_parameter}::
+2469-Marks a named input parameter in an operation
+2470:{axl_detail_site}
+2471-whose lookahead reuses a shared CLI argument term.
+--
+2478-
+2479:[[axhopm_motif_parameter]]
+2480:{axhopm_motif_parameter}::
+2481-Marks an input parameter in an operation
+2482:{axl_detail_site}
+2483-whose type information is carried on the annotation line itself (motif terms such as dimension modifiers and type classifiers).
+--
+2486-
+2487:[[axhoot_typed_output]]
+2488:{axhoot_typed_output}::
+2489-Marks a named output in an operation
+2490:{axl_detail_site}
+2491-whose lookahead reuses an existing domain type term.
+2492-Parallel to the
+2493:{axhopt_typed_parameter}
+2494-pattern: no new term is minted — the attribute reference on the following line names a type already defined elsewhere in the lexicon.
+--
+2500-
+2501:[[axhoom_motif_output]]
+2502:{axhoom_motif_output}::
+2503-Marks an output in an operation
+2504:{axl_detail_site}
+2505-whose type information is carried on the annotation line itself (motif terms such as dimension modifiers and type classifiers).
+--
+2514-
+2515:[[axhoq_precondition]]
+2516:{axhoq_precondition}::
+2517-Marks a required precondition in an operation
+2518:{axl_detail_site}.
+2519-No lookahead required — bare marker; content follows directly.
+--
+2521-
+2522:[[axhog_guarantee]]
+2523:{axhog_guarantee}::
+2524-Marks a postcondition guarantee in an operation
+2525:{axl_detail_site}.
+2526-No lookahead required — bare marker; content follows directly.
+--
+2528-
+2529:[[axhos_step]]
+2530:{axhos_step}::
+2531-Marks a named behavioral step in an operation
+2532:{axl_detail_site}.
+2533-No lookahead required — bare marker; content follows directly.
+--
+2535-Branching between steps is expressed in prose using cross-references or by directing to a
+2536:{axhos_waymark}
+2537-anchor.
+2538-
+2539:[[axhos_waymark]]
+2540:{axhos_waymark}::
+2541-Variant of
+2542:{axhos_step}
+2543-for steps that must be branch-targetable from other steps.
+--
+2550-
+2551:Operation hierarchy markers establish implicit scope through document order:
+2552-
+2553:* {axhob_operation}
+2554-opens the operation block; all subsequent markers belong to it until document end or next
+2555:{axhob_operation}
+2556:* {axhoc_completion},
+2557:{axhopt_typed_parameter},
+2558:{axhopa_arg_parameter},
+2559:{axhopm_motif_parameter},
+2560:{axhoot_typed_output},
+2561:{axhoom_motif_output},
+2562:{axhoq_precondition},
+2563:{axhog_guarantee},
+2564-and
+2565:{axhos_step}
+2566-must appear within
+2567:{axhob_operation}
+2568-scope
+--
+2570-* At most one
+2571:{axhoc_completion}
+2572-per operation
+--
+2575-
+2576:* {axhob_operation}
+2577-attribute reference must match an operation defined with
+--
+2582-{axl_definition_site}
+2583:* {axhob_operation}
+2584-carries no dimensions — all dimensions are authoritative at the
+--
+2594-
+2595:{axhp*} markers appear at the
+2596:{axl_detail_site}
+2597-of an
+--
+2599-as standalone annotations, paralleling the
+2600:{axho*}
+2601:operation hierarchy markers.
+2602-A protocol's structural detail — the roster of transactions, and within each transaction the call envelope and return envelope — is expressed through a four-level nesting of these markers.
+--
+2609-
+2610:|{axhpb_protocol}   |1 {mcm_attribute_reference}  |The protocol this detail site describes (no dimensions — dimensions are at {axl_definition_site} only)
+2611:|{axhpt_transaction}|0                            |A named call/return pairing within the protocol; bare marker, identity carried through heading and prose
+2612:|{axhpc_call}       |0                            |The caller-side envelope of an enclosing transaction; bare marker, members listed in following prose
+2613:|{axhpr_return}     |0                            |The callee-side envelope of an enclosing transaction; bare marker, members listed in following prose
+2614-|===
+2615-
+2616:[[axhpb_protocol]]
+2617:{axhpb_protocol}::
+2618-Opens the protocol hierarchy block at the
+2619:{axl_detail_site}.
+2620-Lookahead: 1
+--
+2634-----
+2635://axhpb_protocol
+2636-{apcswp_wire}
+2637-
+2638://axhpt_transaction
+2639-discerner — main detection transaction.
+2640-
+2641://axhpc_call
+2642-caller payload members:
+--
+2644-
+2645:[[axhpt_transaction]]
+2646:{axhpt_transaction}::
+2647-Marks a named call/return pairing within an
+--
+2651-A transaction groups exactly one
+2652:{axhpc_call}
+2653-and one
+2654:{axhpr_return}
+2655-that together constitute a single caller-initiated exchange.
+--
+2657-Multiple
+2658:{axhpt_transaction}
+2659-blocks within one protocol describe the full set of exchanges the protocol supports.
+2660-
+2661:[[axhpc_call]]
+2662:{axhpc_call}::
+2663-Marks the caller-side envelope of an enclosing
+2664:{axhpt_transaction}.
+2665-No lookahead required — bare marker; content follows directly.
+--
+2669-Exactly one
+2670:{axhpc_call}
+2671-per
+2672:{axhpt_transaction}.
+2673-
+2674:[[axhpr_return]]
+2675:{axhpr_return}::
+2676-Marks the callee-side envelope of an enclosing
+2677:{axhpt_transaction}.
+2678-No lookahead required — bare marker; content follows directly.
+2679-The prose under this marker enumerates the envelope's members using the same type-reference pattern as
+2680:{axhpc_call}.
+2681-Exactly one
+2682:{axhpr_return}
+2683-per
+2684:{axhpt_transaction}.
+2685-A transaction where the caller expects no data back still declares
+2686:{axhpr_return}
+2687-(with prose noting "empty envelope" or equivalent) — the return presence is the signal, and uniform structure keeps the hierarchy complete.
+--
+2690-
+2691:Protocol hierarchy markers establish implicit scope through document order:
+2692-
+2693:* {axhpb_protocol}
+2694-opens the protocol block; all subsequent markers belong to it until document end or next
+2695:{axhpb_protocol}
+2696:* {axhpt_transaction}
+2697-must appear within
+2698:{axhpb_protocol}
+2699-scope
+2700:* {axhpc_call}
+2701-and
+2702:{axhpr_return}
+2703-must appear within
+2704:{axhpt_transaction}
+2705-scope, each exactly once
+--
+2709-
+2710:* {axhpb_protocol}
+2711-attribute reference must match a protocol defined with
+--
+2714-{axl_definition_site}
+2715:* {axhpb_protocol}
+2716-carries no dimensions — all dimensions are authoritative at the
+--
+2719-* Types referenced in
+2720:{axhpc_call}
+2721-and
+2722:{axhpr_return}
+2723-member prose must resolve to
+--
+2731-and
+2732:{axl_detail_site_s},
+2733-paralleling the regime and operation annotation patterns.
+--
+2737-
+2738:* A *scoped* method is defined entirely within the entity subdocument.
+2739-It has no parent-document linked term — its identity exists only within the entity's contract, expressed through position and prose.
+--
+2760-definition.
+2761:The annotated term defines an object with both structure and behavior whose contract is elaborated in a subdocument via
+2762-{axhe*}
+2763:hierarchy markers.
+2764-The first
+--
+2773-
+2774:Hierarchy markers appear in entity subdocuments as standalone annotations, NOT between anchor and definition.
+2775-Each marker uses the prefix-discriminated form.
+--
+2785-containing field markers
+2786:({axheft_typed_field},
+2787:{axhefm_motif_field})
+2788-and method markers
+2789:({axhems_scoped_method},
+2790:{axheme_elevated_method}).
+2791-
+2792-* *Layer 2*: Method scope opened by a method marker, containing parameter markers
+2793:({axhempt_typed_parameter},
+2794:{axhempa_arg_parameter},
+2795:{axhempm_motif_parameter})
+2796-and output markers
+2797:({axhemot_typed_output},
+2798:{axhemom_motif_output}).
+2799-
+--
+2811-
+2812:|{axheb_entity}             |1 {mcm_attribute_reference}  |The entity this subdoc describes
+2813:|{axheft_typed_field}       |1 {mcm_attribute_reference}  |A field's type (domain type term)
+2814:|{axhefm_motif_field}       |0                            |Type on annotation line (motif terms)
+2815:|{axhems_scoped_method}     |1 {mcm_inlay}                |Implementation method name; opens Layer 2
+2816:|{axheme_elevated_method}   |1 {mcm_attribute_reference}  |The parent-document method term
+2817:|{axhempt_typed_parameter}  |1 {mcm_attribute_reference}  |A parameter's type (domain type term)
+2818:|{axhempa_arg_parameter}    |1 {mcm_attribute_reference}  |A parameter's identity (shared argument term)
+2819:|{axhempm_motif_parameter}  |0                            |Type on annotation line (motif terms)
+2820:|{axhemot_typed_output}     |1 {mcm_attribute_reference}  |An output's type (domain type term)
+2821:|{axhemom_motif_output}     |0                            |Type on annotation line (motif terms)
+2822-|===
+--
+2826-Opens the entity hierarchy block at the
+2827:{axl_detail_site}.
+2828-Lookahead: 1
+--
+2835-
+2836:[[axheft_typed_field]]
+2837:{axheft_typed_field}::
+2838-Marks a data member of the entity whose type identity reuses an existing domain type term.
+--
+2849-
+2850:[[axhefm_motif_field]]
+2851:{axhefm_motif_field}::
+2852-Marks a data member of the entity whose type is expressed entirely through axial motif terms on the annotation line.
+--
+2863-
+2864:[[axhems_scoped_method]]
+2865:{axhems_scoped_method}::
+2866-Opens a scoped method scope within the entity.
+--
+2870-{mcm_inlay}
+2871:that exists only within the entity subdocument.
+2872-Lookahead: 1
+--
+2876-
+2877:[[axheme_elevated_method]]
+2878:{axheme_elevated_method}::
+2879-References an elevated method within the entity — a method that has a linked term at the
+--
+2887-
+2888:[[axhempt_typed_parameter]]
+2889:{axhempt_typed_parameter}::
+2890-Marks a parameter within the current method scope whose type identity reuses an existing domain type term.
+--
+2900-
+2901:[[axhempa_arg_parameter]]
+2902:{axhempa_arg_parameter}::
+2903-Marks a parameter within the current method scope whose identity reuses a shared argument term.
+--
+2907-
+2908:[[axhempm_motif_parameter]]
+2909:{axhempm_motif_parameter}::
+2910-Marks a parameter within the current method scope whose type is expressed entirely through axial motif terms on the annotation line.
+--
+2914-
+2915:[[axhemot_typed_output]]
+2916:{axhemot_typed_output}::
+2917-Marks an output of the current method scope whose type identity reuses an existing domain type term.
+--
+2921-
+2922:[[axhemom_motif_output]]
+2923:{axhemom_motif_output}::
+2924-Marks an output of the current method scope whose type is expressed entirely through axial motif terms on the annotation line.
+--
+2930-
+2931:Entity hierarchy markers establish implicit scope through document order:
+2932-
+--
+2934-opens the entity block; all subsequent markers belong to it until document end
+2935:* {axheft_typed_field}
+2936-and
+2937:{axhefm_motif_field}
+2938-must appear within
+--
+2940-scope but outside any method scope (Layer 1)
+2941:* {axhems_scoped_method}
+2942-and
+2943:{axheme_elevated_method}
+2944-must appear within
+--
+2947-* A method marker implicitly closes any prior method scope
+2948:* {axhempt_typed_parameter},
+2949:{axhempa_arg_parameter},
+2950:{axhempm_motif_parameter},
+2951:{axhemot_typed_output},
+2952-and
+2953:{axhemom_motif_output}
+2954-must appear within a method scope (Layer 2)
+--
+2963-{axl_definition_site}
+2964:* {axheme_elevated_method}
+2965-attribute reference must match a method defined with
+--
+3318-{axvo_method}
+3319:with a detail-site subdocument requires:
+3320-
+3321:* {axhob_operation}
+3322-— opens the hierarchy block, with lookahead to the operation's linked term
+--
+3324-* At least one
+3325:{axhos_step}
+3326-— what the operation does
+3327-
+3328:* {axhoc_completion}
+3329-— how the operation signals success or failure
+--
+3332-
+3333:* {axhopt_typed_parameter}
+3334:/{axhopa_arg_parameter}
+3335:/{axhopm_motif_parameter}
+3336-— input parameters (typed/arg variants use 1-arity lookahead; motif is bare)
+3337-
+3338:* {axhoot_typed_output}
+3339:/{axhoom_motif_output}
+3340-— produced artifacts (typed variant uses 1-arity lookahead; motif is bare)
+3341-
+3342:* {axhoq_precondition}
+3343-— environmental state requirements before execution
+3344-
+3345:* {axhog_guarantee}
+3346-— environmental state guarantees after success
+--
+3358-(which voice
+3359:{axhoc_completion}
+3360-in CLI context)
+--
+3364-(which voices
+3365:{axhopt_typed_parameter}
+3366:/{axhopa_arg_parameter}
+3367-in CLI context; may list zero arguments if operation takes none)
+--
+3518-requires corresponding
+3519:{axhrgb_group}
+3520:in subdocument to have at least one
+3521:{axhrgc_gate}
+3522-
+--
+3526-corresponding
+3527:{axhrgb_group}
+3528-must have no
+3529:{axhrgc_gate}
+3530-
+--
+3533-under a regime should appear as either
+3534:{axhrv_variable}
+3535-or
+3536:{axhrgv_variable}
+3537:in the subdocument
+3538-
+--
+3592-
+3593:* {axhob_operation}
+3594-attribute reference must match a term voiced
+--
+3601-* Every
+3602:{axhoc_completion},
+3603:{axhopt_typed_parameter},
+3604:{axhopa_arg_parameter},
+3605:{axhopm_motif_parameter},
+3606:{axhoot_typed_output},
+3607:{axhoom_motif_output},
+3608:{axhoq_precondition},
+3609:{axhog_guarantee},
+3610-and
+3611:{axhos_step}
+3612-must appear within
+3613:{axhob_operation}
+3614-scope

@@ -1,0 +1,141 @@
+.claude/jjm/jjp_uAl6.md:239:[Omitted long matching line]
+.claude/jjm/jjg_gallops.json:546:[Omitted long matching line]
+.claude/jjm/jjg_gallops.json:846:[Omitted long matching line]
+Tools/rbk/rbho_onboarding.sh:510:      buh_tc  "    " "tt/rbw-hs.RetrieverSummonsHallmark.sh"
+Tools/rbk/rbho_onboarding.sh:513:      buh_tc  "    " "tt/rbw-hpf.RetrieverPlumbsFull.sh"
+Tools/rbk/rbho_onboarding.sh:514:      buh_tc  "    " "tt/rbw-hpc.RetrieverPlumbsCompact.sh"
+Tools/rbk/rbho_onboarding.sh:547:      buh_tc  "    " "tt/rbw-hk.LocalKludge.sh"
+Tools/rbk/rbho_onboarding.sh:649:      buh_tc  "    " "tt/rbw-hk.LocalKludge.sh"
+Tools/rbk/rbho_onboarding.sh:704:      buh_tc  "    " "tt/rbw-hO.DirectorOrdainsHallmark.sh"
+Tools/rbk/rbho_onboarding.sh:708:      buh_tc  "    " "tt/rbw-hV.DirectorVouchesHallmarks.sh"
+Tools/rbk/rbho_onboarding.sh:709:      buh_tc  "    " "tt/rbw-ht.DirectorTalliesHallmarks.sh"
+Tools/rbk/rbho_onboarding.sh:712:      buh_tc  "    " "tt/rbw-hs.RetrieverSummonsHallmark.sh"
+Tools/rbk/rbho_onboarding.sh:727:      buh_tc  "    " "tt/rbw-hO.DirectorOrdainsHallmark.sh"
+Tools/rbk/rbho_onboarding.sh:734:      buh_tc  "    " "tt/rbw-hV.DirectorVouchesHallmarks.sh"
+Tools/rbk/rbho_onboarding.sh:735:      buh_tc  "    " "tt/rbw-hs.RetrieverSummonsHallmark.sh"
+Tools/rbk/rbho_onboarding.sh:746:      buh_tc  "    " "tt/rbw-hO.DirectorOrdainsHallmark.sh"
+Tools/rbk/rbho_onboarding.sh:764:      buh_tc  "    " "tt/rbw-hpf.RetrieverPlumbsFull.sh"
+Tools/rbk/rbho_onboarding.sh:773:      buh_tc  "    " "tt/rbw-ht.DirectorTalliesHallmarks.sh"
+Tools/rbk/rbz_zipper.sh:96:  buz_enroll RBZ_ORDAIN_HALLMARK        "rbw-hO"  "${z_mod}" "rbfd_ordain"          ""  "Ordain hallmark: conjure, bind, or graft based on vessel mode"
+Tools/rbk/rbz_zipper.sh:97:  buz_enroll RBZ_KLUDGE_VESSEL          "rbw-hk"  "${z_mod}" "rbfd_kludge"          ""  "Kludge a vessel image locally for development"
+Tools/rbk/rbz_zipper.sh:99:  buz_enroll RBZ_ABJURE_HALLMARK        "rbw-hA"  "${z_mod}" "rbfl_abjure"          ""  "Abjure a hallmark (delete artifacts from GAR)"
+Tools/rbk/rbz_zipper.sh:100:  buz_enroll RBZ_TALLY_HALLMARKS        "rbw-ht"  "${z_mod}" "rbfl_tally"           ""  "Tally hallmarks by health state"
+Tools/rbk/rbz_zipper.sh:102:  buz_enroll RBZ_VOUCH_HALLMARKS        "rbw-hV"  "${z_mod}" "rbfv_batch_vouch"     ""  "Mode-aware vouch: SLSA (conjure), digest-pin (bind), GRAFTED (graft)"
+Tools/rbk/rbz_zipper.sh:104:  buz_enroll RBZ_SUMMON_HALLMARK        "rbw-hs"  "${z_mod}" "rbfr_summon"          ""  "Summon vouched hallmark image locally"
+Tools/rbk/rbz_zipper.sh:106:  buz_enroll RBZ_PLUMB_FULL             "rbw-hpf" "${z_mod}" "rbfc_plumb_full"      ""  "Full provenance display (SBOM, build info, Dockerfile)"
+Tools/rbk/rbz_zipper.sh:107:  buz_enroll RBZ_PLUMB_COMPACT          "rbw-hpc" "${z_mod}" "rbfc_plumb_compact"   ""  "Compact provenance summary"
+.claude/jjm/retired/jjh_b260402-r260409-jjk-v3-6-minor-issues.md:1190:[Omitted long matching line]
+.claude/jjm/retired/jjh_b260402-r260409-rbk-mvp-3-onboarding-guides.md:1165:**Guidance**: Run `tt/rbw-hs.RetrieverSummonsHallmark.sh` with a specific vessel and hallmark. Then inspect with `tt/rbw-hpf.RetrieverPlumbsFull.sh` or `tt/rbw-hpc.RetrieverPlumbsCompact.sh`. Point out: SBOM, build info, vouch chain — this is how you know what you're running.
+.claude/jjm/retired/jjh_b260402-r260409-rbk-mvp-3-onboarding-guides.md:1196:**Guidance**: Run `tt/rbw-hk.LocalKludge.sh` to build a vessel locally. Charge the nameplate to test your local build, rack in and look around. Kludge is the retriever's experimentation tool — iterate on your local environment without needing director credentials or Cloud Build.
+.claude/jjm/retired/jjh_b260402-r260409-rbk-mvp-3-onboarding-guides.md:1213:- Tabtargets: `rbw-hs` (summon), `rbw-hpf`/`rbw-hpc` (plumb), `rbw-cC` (charge), `rbw-cQ` (quench), `rbw-cr` (rack), `rbw-hk` (kludge)
+.claude/jjm/retired/jjh_b260402-r260409-rbk-mvp-3-onboarding-guides.md:1261:**Guidance**: Run `tt/rbw-hs.RetrieverSummonsHallmark.sh` with a specific vessel and hallmark. Then inspect with `tt/rbw-hpf.RetrieverPlumbsFull.sh` or `tt/rbw-hpc.RetrieverPlumbsCompact.sh`. Point out: SBOM, build info, vouch chain — this is how you know what you're running.
+.claude/jjm/retired/jjh_b260402-r260409-rbk-mvp-3-onboarding-guides.md:1292:**Guidance**: Run `tt/rbw-hk.LocalKludge.sh` to build a vessel locally. Charge the nameplate to test your local build, rack in and look around. Kludge is the retriever's experimentation tool — iterate on your local environment without needing director credentials or Cloud Build.
+.claude/jjm/retired/jjh_b260402-r260409-rbk-mvp-3-onboarding-guides.md:1309:- Tabtargets: `rbw-hs` (summon), `rbw-hpf`/`rbw-hpc` (plumb), `rbw-cC` (charge), `rbw-cQ` (quench), `rbw-cr` (rack), `rbw-hk` (kludge)
+.claude/jjm/retired/jjh_b260402-r260409-rbk-mvp-3-onboarding-guides.md:1356:**Guidance**: Run `tt/rbw-hs.RetrieverSummonsHallmark.sh` with a specific vessel and hallmark. Then inspect with `tt/rbw-hpf.RetrieverPlumbsFull.sh` or `tt/rbw-hpc.RetrieverPlumbsCompact.sh`. Point out: SBOM, build info, vouch chain — this is how you know what you're running.
+.claude/jjm/retired/jjh_b260402-r260409-rbk-mvp-3-onboarding-guides.md:1391:- Tabtargets: `rbw-hs` (summon), `rbw-hpf`/`rbw-hpc` (plumb), `rbw-cC` (charge), `rbw-cQ` (quench), `rbw-cr` (rack)
+.claude/jjm/retired/jjh_b260402-r260409-rbk-mvp-3-onboarding-guides.md:1427:**Guidance**: Run `tt/rbw-hs.RetrieverSummonsHallmark.sh` with a specific vessel and hallmark. Then inspect with `tt/rbw-hpf.RetrieverPlumbsFull.sh` or `tt/rbw-hpc.RetrieverPlumbsCompact.sh`. Point out: SBOM, build info, vouch chain — this is how you know what you're running.
+.claude/jjm/retired/jjh_b260402-r260409-rbk-mvp-3-onboarding-guides.md:1460:- Tabtargets: `rbw-hs` (summon), `rbw-hpf`/`rbw-hpc` (plumb), `rbw-cC` (charge), `rbw-cr` (rack)
+.claude/jjm/retired/jjh_b260402-r260409-rbk-mvp-3-onboarding-guides.md:1487:**Guidance**: Run `tt/rbw-hs.RetrieverSummonsHallmark.sh` with a specific vessel and hallmark. Then inspect with `tt/rbw-hpf.RetrieverPlumbsFull.sh` or `tt/rbw-hpc.RetrieverPlumbsCompact.sh`. Point out: SBOM, build info, vouch chain — this is how you know what you're running.
+.claude/jjm/retired/jjh_b260402-r260409-rbk-mvp-3-onboarding-guides.md:1513:- Tabtargets: `rbw-hs` (summon), `rbw-hpf`/`rbw-hpc` (plumb), `rbw-cC` (charge), `rbw-cr` (rack)
+.claude/jjm/retired/jjh_b260402-r260409-rbk-mvp-3-onboarding-guides.md:1528:3. **Summon a hallmark** — guide user to run `tt/rbw-hs.RetrieverSummonsHallmark.sh`, verify local image lands
+.claude/jjm/retired/jjh_b260402-r260409-rbk-mvp-3-onboarding-guides.md:1529:4. **Inspect the artifact** — guide user to run `tt/rbw-hpf.RetrieverPlumbsFull.sh` or `tt/rbw-hpc.RetrieverPlumbsCompact.sh`, verify about/vouch metadata visible
+.claude/jjm/retired/jjh_b260402-r260409-rbk-mvp-3-onboarding-guides.md:1542:- Post-rename tabtargets: `rbw-hs` (summon), `rbw-hpf`/`rbw-hpc` (plumbs), `rbw-cC` (charge)
+.claude/jjm/retired/jjh_b260402-r260409-rbk-mvp-3-onboarding-guides.md:1665:**Guidance**: Run `tt/rbw-hk.LocalKludge.sh` to build `rbev-sentry-debian-slim` locally. Test with charge/rack. This is the fastest way to see a vessel come to life. Later units teach how to push builds to the registry — and how to build this same vessel via Cloud Build for production.
+.claude/jjm/retired/jjh_b260402-r260409-rbk-mvp-3-onboarding-guides.md:1698:[Omitted long matching line]
+.claude/jjm/retired/jjh_b260402-r260409-rbk-mvp-3-onboarding-guides.md:1713:[Omitted long matching line]
+.claude/jjm/retired/jjh_b260402-r260409-rbk-mvp-3-onboarding-guides.md:1728:**Guidance**: You kludged `rbev-sentry-debian-slim` in Unit 2 and conjured it in Unit 4. Now push your local build to the registry via graft. Run `tt/rbw-hO.DirectorOrdainsHallmark.sh` in graft mode. Explain: one combined Cloud Build job runs about + vouch. The GRAFTED verdict means "this image was locally built — trust it at your own assessment." The development cycle: kludge → test → graft when satisfied.
+.claude/jjm/retired/jjh_b260402-r260409-rbk-mvp-3-onboarding-guides.md:1743:**Guidance**: Run `tt/rbw-hpf.RetrieverPlumbsFull.sh` against each mode's hallmark. Compare the about metadata (build_info.json fields differ by mode) and vouch verdicts (DSSE vs digest-pin vs GRAFTED). Run `tt/rbw-ht.DirectorTalliesHallmarks.sh` to see the full registry health view. This is the director's operational dashboard.
+.claude/jjm/retired/jjh_b260402-r260409-rbk-mvp-3-onboarding-guides.md:1757:- Tabtargets: `rbw-hk` (kludge), `rbw-dI` (inscribe reliquary), `rbw-dE` (enshrine), `rbw-hO` (ordain), `rbw-hV` (vouch), `rbw-ht` (tally), `rbw-hpf` (plumb full)
+.claude/jjm/retired/jjh_b260402-r260409-rbk-mvp-3-onboarding-guides.md:1820:**Guidance**: Run `tt/rbw-hk.LocalKludge.sh` to build `rbev-sentry-debian-slim` locally. Test with charge/rack. This is the fastest way to see a vessel come to life. Later units teach how to push builds to the registry — and how to build this same vessel via Cloud Build for production.
+.claude/jjm/retired/jjh_b260402-r260409-rbk-mvp-3-onboarding-guides.md:1853:[Omitted long matching line]
+.claude/jjm/retired/jjh_b260402-r260409-rbk-mvp-3-onboarding-guides.md:1868:[Omitted long matching line]
+.claude/jjm/retired/jjh_b260402-r260409-rbk-mvp-3-onboarding-guides.md:1883:**Guidance**: You kludged `rbev-sentry-debian-slim` in Unit 2 and conjured it in Unit 4. Now push your local build to the registry via graft. Run `tt/rbw-hO.DirectorOrdainsHallmark.sh` in graft mode. Explain: one combined Cloud Build job runs about + vouch. The GRAFTED verdict means "this image was locally built — trust it at your own assessment." The development cycle: kludge → test → graft when satisfied.
+.claude/jjm/retired/jjh_b260402-r260409-rbk-mvp-3-onboarding-guides.md:1898:**Guidance**: Run `tt/rbw-hpf.RetrieverPlumbsFull.sh` against each mode's hallmark. Compare the about metadata (build_info.json fields differ by mode) and vouch verdicts (DSSE vs digest-pin vs GRAFTED). Run `tt/rbw-ht.DirectorTalliesHallmarks.sh` to see the full registry health view. This is the director's operational dashboard.
+.claude/jjm/retired/jjh_b260402-r260409-rbk-mvp-3-onboarding-guides.md:1912:- Tabtargets: `rbw-hk` (kludge), `rbw-dI` (inscribe reliquary), `rbw-dE` (enshrine), `rbw-hO` (ordain), `rbw-hV` (vouch), `rbw-ht` (tally), `rbw-hpf` (plumb full)
+.claude/jjm/retired/jjh_b260402-r260409-rbk-mvp-3-onboarding-guides.md:1960:**Guidance**: Run `tt/rbw-hk.LocalKludge.sh` to build a vessel locally. Test with charge/rack. This is the fastest way to see a vessel come to life. Later units teach how to push builds to the registry.
+.claude/jjm/retired/jjh_b260402-r260409-rbk-mvp-3-onboarding-guides.md:1991:**Guidance**: Run `tt/rbw-hO.DirectorOrdainsHallmark.sh` for a conjure vessel. Explain the flow: Cloud Build runs Dockerfile, generates SBOM via syft, writes build_info.json, then vouch verifies SLSA provenance via DSSE envelope. Two Cloud Build jobs total. Mention tether vs airgap pool choice. Verify with `tt/rbw-hV.DirectorVouchesHallmarks.sh` and `tt/rbw-ht.DirectorTalliesHallmarks.sh`.
+.claude/jjm/retired/jjh_b260402-r260409-rbk-mvp-3-onboarding-guides.md:2004:**Guidance**: Run `tt/rbw-hO.DirectorOrdainsHallmark.sh` for a bind vessel (e.g., `rbev-bottle-plantuml`). Explain: the upstream image is pulled by digest, pushed to GAR, about metadata generated, vouch records a digest-pin verdict. Two Cloud Build jobs. No SLSA provenance — the image wasn't built here.
+.claude/jjm/retired/jjh_b260402-r260409-rbk-mvp-3-onboarding-guides.md:2017:**Guidance**: First kludge a vessel locally (already learned in Unit 2). Then run `tt/rbw-hO.DirectorOrdainsHallmark.sh` in graft mode to push it. Explain: one combined Cloud Build job runs about + vouch. The GRAFTED verdict means "this image was locally built — trust it at your own assessment." The development cycle: kludge → test → graft when satisfied.
+.claude/jjm/retired/jjh_b260402-r260409-rbk-mvp-3-onboarding-guides.md:2030:**Guidance**: Run `tt/rbw-hpf.RetrieverPlumbsFull.sh` against each mode's hallmark. Compare the about metadata (build_info.json fields differ by mode) and vouch verdicts (DSSE vs digest-pin vs GRAFTED). Run `tt/rbw-ht.DirectorTalliesHallmarks.sh` to see the full registry health view. This is the director's operational dashboard.
+.claude/jjm/retired/jjh_b260402-r260409-rbk-mvp-3-onboarding-guides.md:2044:- Tabtargets: `rbw-hk` (kludge), `rbw-dI` (inscribe reliquary), `rbw-dE` (enshrine), `rbw-hO` (ordain), `rbw-hV` (vouch), `rbw-ht` (tally), `rbw-hpf` (plumb full)
+.claude/jjm/retired/jjh_b260402-r260409-rbk-mvp-3-onboarding-guides.md:2108:**Guidance**: Run `tt/rbw-hO.DirectorOrdainsHallmark.sh` to submit a Cloud Build. Explain the conjure flow: Cloud Build runs, SBOM generated (syft), about metadata written, vouch attestation attached. Mention bind mode for upstream images (like PlantUML). Verify with `tt/rbw-hV.DirectorVouchesHallmarks.sh` and `tt/rbw-ht.DirectorTalliesHallmarks.sh`.
+.claude/jjm/retired/jjh_b260402-r260409-rbk-mvp-3-onboarding-guides.md:2122:**Guidance**: Run `tt/rbw-hk.LocalKludge.sh` to build locally. Test with charge/rack. When satisfied, run `tt/rbw-hO.DirectorOrdainsHallmark.sh` in graft mode to push. Explain: kludge is fast iteration, graft is "I'm satisfied, push this."
+.claude/jjm/retired/jjh_b260402-r260409-rbk-mvp-3-onboarding-guides.md:2135:- Tabtargets: `rbw-dE` (enshrine), `rbw-dI` (inscribe), `rbw-hO` (ordain), `rbw-hV` (vouch), `rbw-ht` (tally), `rbw-hk` (kludge)
+.claude/jjm/retired/jjh_b260402-r260409-rbk-mvp-3-onboarding-guides.md:2183:**Guidance**: Run `tt/rbw-hO.DirectorOrdainsHallmark.sh` to submit a Cloud Build. Explain the conjure flow: Cloud Build runs, SBOM generated (syft), about metadata written, vouch attestation attached. Verify with `tt/rbw-hV.DirectorVouchesHallmarks.sh` and `tt/rbw-ht.DirectorTalliesHallmarks.sh`.
+.claude/jjm/retired/jjh_b260402-r260409-rbk-mvp-3-onboarding-guides.md:2197:**Guidance**: Run `tt/rbw-hk.LocalKludge.sh` to build locally. Test with charge/rack. When satisfied, run `tt/rbw-hO.DirectorOrdainsHallmark.sh` in graft mode to push. Explain: kludge is fast iteration, graft is "I'm satisfied, push this."
+.claude/jjm/retired/jjh_b260402-r260409-rbk-mvp-3-onboarding-guides.md:2210:- Tabtargets: `rbw-dE` (enshrine), `rbw-dI` (inscribe), `rbw-hO` (ordain), `rbw-hV` (vouch), `rbw-ht` (tally), `rbw-hk` (kludge)
+.claude/jjm/retired/jjh_b260402-r260409-rbk-mvp-3-onboarding-guides.md:2247:**Guidance**: Run `tt/rbw-hO.DirectorOrdainsHallmark.sh` to submit a Cloud Build. Explain the conjure flow: Cloud Build runs, SBOM generated (syft), about metadata written, vouch attestation attached. Verify with `tt/rbw-hV.DirectorVouchesHallmarks.sh` and `tt/rbw-ht.DirectorTalliesHallmarks.sh`.
+.claude/jjm/retired/jjh_b260402-r260409-rbk-mvp-3-onboarding-guides.md:2257:**Guidance**: Run `tt/rbw-hk.LocalKludge.sh` to build locally. Test with charge/rack. When satisfied, run `tt/rbw-hO.DirectorOrdainsHallmark.sh` in graft mode to push. Explain: kludge is fast iteration, graft is "I'm satisfied, push this."
+.claude/jjm/retired/jjh_b260402-r260409-rbk-mvp-3-onboarding-guides.md:2269:- Tabtargets: `rbw-dE` (enshrine), `rbw-dI` (inscribe), `rbw-hO` (ordain), `rbw-hV` (vouch), `rbw-ht` (tally), `rbw-hk` (kludge)
+.claude/jjm/retired/jjh_b260402-r260409-rbk-mvp-3-onboarding-guides.md:2286:5. **Ordain a hallmark** — guide user to submit a Cloud Build via `tt/rbw-hO.DirectorOrdainsHallmark.sh`, verify hallmark lands
+.claude/jjm/retired/jjh_b260402-r260409-rbk-mvp-3-onboarding-guides.md:2287:6. **Vouch exists** — verify about + vouch artifacts present via `tt/rbw-hV.DirectorVouchesHallmarks.sh`
+.claude/jjm/retired/jjh_b260402-r260409-rbk-mvp-3-onboarding-guides.md:2288:7. **Graft from local** — guide user through local build + graft push via `tt/rbw-hO.DirectorOrdainsHallmark.sh` (graft mode, optional kludge path)
+.claude/jjm/retired/jjh_b260402-r260409-rbk-mvp-3-onboarding-guides.md:2300:- Post-rename tabtargets: `rbw-dE` (enshrine), `rbw-hO` (ordain), `rbw-hV` (vouch), `rbw-ht` (tally)
+Tools/rbk/vov_veiled/RBS0-SpecTop.adoc:142::rbtc_plumb_full:                <<rbtc_plumb_full,rbw-hpf>>
+Tools/rbk/vov_veiled/RBS0-SpecTop.adoc:143::rbtc_plumb_compact:             <<rbtc_plumb_compact,rbw-hpc>>
+Tools/rbk/rbtd/src/rbtdrm_manifest.rs:30:pub const RBTDRM_COLOPHON_ORDAIN: &str = "rbw-hO";
+Tools/rbk/rbtd/src/rbtdrm_manifest.rs:31:pub const RBTDRM_COLOPHON_ABJURE: &str = "rbw-hA";
+Tools/rbk/rbtd/src/rbtdrm_manifest.rs:32:pub const RBTDRM_COLOPHON_TALLY: &str = "rbw-ht";
+Tools/rbk/rbtd/src/rbtdrm_manifest.rs:33:pub const RBTDRM_COLOPHON_KLUDGE: &str = "rbw-hk";
+Tools/rbk/vov_veiled/CLAUDE.consumer.md:206:- **Build fails**: Check `tt/rbw-ht.DirectorTalliesHallmarks.sh` for build status. Review logs in the GCP Console for the depot project.
+Tools/rbk/rbfc_FoundryCore.sh:486:# Plumb (rbw-hpf / rbw-hpc)
+Tools/rbk/rbk-claude-tabtarget-context.md:74:| `rbw-hO` | DirectorOrdainsHallmark | — | Ordain hallmark: conjure, bind, or graft based on vessel mode |
+Tools/rbk/rbk-claude-tabtarget-context.md:75:| `rbw-hk` | LocalKludge | — | Kludge a vessel image locally for development |
+Tools/rbk/rbk-claude-tabtarget-context.md:76:| `rbw-hA` | DirectorAbjuresHallmark | — | Abjure a hallmark (delete artifacts from GAR) |
+Tools/rbk/rbk-claude-tabtarget-context.md:77:| `rbw-ht` | DirectorTalliesHallmarks | — | Tally hallmarks by health state |
+Tools/rbk/rbk-claude-tabtarget-context.md:78:| `rbw-hV` | DirectorVouchesHallmarks | — | Mode-aware vouch: SLSA (conjure), digest-pin (bind), GRAFTED (graft) |
+Tools/rbk/rbk-claude-tabtarget-context.md:79:| `rbw-hs` | RetrieverSummonsHallmark | — | Summon vouched hallmark image locally |
+Tools/rbk/rbk-claude-tabtarget-context.md:80:| `rbw-hpf` | RetrieverPlumbsFull | — | Full provenance display (SBOM, build info, Dockerfile) |
+Tools/rbk/rbk-claude-tabtarget-context.md:81:| `rbw-hpc` | RetrieverPlumbsCompact | — | Compact provenance summary |
+Tools/rbk/rbk-claude-theurge-ifrit-context.md:69:   tt/rbw-hO.DirectorOrdainsHallmark.sh rbev-bottle-ifrit
+Tools/rbk/rbk-claude-theurge-ifrit-context.md:73:   tt/rbw-hs.RetrieverSummonsHallmark.sh rbev-bottle-ifrit <hallmark>
+Tools/rbk/rbw_workbench.sh:22:# Qualification gate runs for rbw-cC (crucible charge) and rbw-hO (hallmark ordain) before dispatch.
+.claude/jjm/retired/jjh_b260401-r260409-rbk-theurge-rust-test-infrastructure.md:2145:rbw-DO   DirectorOrdainsHallmark         →  rbw-hO   DirectorOrdainsHallmark
+.claude/jjm/retired/jjh_b260401-r260409-rbk-theurge-rust-test-infrastructure.md:2146:rbw-DA   DirectorAbjuresHallmark         →  rbw-hA   DirectorAbjuresHallmark
+.claude/jjm/retired/jjh_b260401-r260409-rbk-theurge-rust-test-infrastructure.md:2147:rbw-DV   DirectorVouchesHallmarks        →  rbw-hV   DirectorVouchesHallmarks
+.claude/jjm/retired/jjh_b260401-r260409-rbk-theurge-rust-test-infrastructure.md:2148:rbw-Dt   DirectorTalliesHallmarks        →  rbw-ht   DirectorTalliesHallmarks
+.claude/jjm/retired/jjh_b260401-r260409-rbk-theurge-rust-test-infrastructure.md:2149:rbw-Rs   RetrieverSummonsHallmark        →  rbw-hs   RetrieverSummonsHallmark
+.claude/jjm/retired/jjh_b260401-r260409-rbk-theurge-rust-test-infrastructure.md:2150:rbw-LK   RetrieverKludgesHallmark        →  rbw-hk   RetrieverKludgesHallmark
+.claude/jjm/retired/jjh_b260401-r260409-rbk-theurge-rust-test-infrastructure.md:2151:rbw-RpF  RetrieverPlumbsFull             →  rbw-hpf  RetrieverPlumbsFull
+.claude/jjm/retired/jjh_b260401-r260409-rbk-theurge-rust-test-infrastructure.md:2152:rbw-Rpc  RetrieverPlumbsCompact          →  rbw-hpc  RetrieverPlumbsCompact
+.claude/jjm/retired/jjh_b260401-r260409-rbk-theurge-rust-test-infrastructure.md:2242:rbw-DO   DirectorOrdainsHallmark         →  rbw-hO   DirectorOrdainsHallmark
+.claude/jjm/retired/jjh_b260401-r260409-rbk-theurge-rust-test-infrastructure.md:2243:rbw-DA   DirectorAbjuresHallmark         →  rbw-hA   DirectorAbjuresHallmark
+.claude/jjm/retired/jjh_b260401-r260409-rbk-theurge-rust-test-infrastructure.md:2244:rbw-DV   DirectorVouchesHallmarks        →  rbw-hV   DirectorVouchesHallmarks
+.claude/jjm/retired/jjh_b260401-r260409-rbk-theurge-rust-test-infrastructure.md:2245:rbw-Dt   DirectorTalliesHallmarks        →  rbw-ht   DirectorTalliesHallmarks
+.claude/jjm/retired/jjh_b260401-r260409-rbk-theurge-rust-test-infrastructure.md:2246:rbw-Rs   RetrieverSummonsHallmark        →  rbw-hs   RetrieverSummonsHallmark
+.claude/jjm/retired/jjh_b260401-r260409-rbk-theurge-rust-test-infrastructure.md:2247:rbw-LK   RetrieverKludgesHallmark        →  rbw-hk   RetrieverKludgesHallmark
+.claude/jjm/retired/jjh_b260401-r260409-rbk-theurge-rust-test-infrastructure.md:2248:rbw-RpF  RetrieverPlumbsFull             →  rbw-hpf  RetrieverPlumbsFull
+.claude/jjm/retired/jjh_b260401-r260409-rbk-theurge-rust-test-infrastructure.md:2249:rbw-Rpc  RetrieverPlumbsCompact          →  rbw-hpc  RetrieverPlumbsCompact
+.claude/jjm/retired/jjh_b260401-r260409-rbk-theurge-rust-test-infrastructure.md:2339:rbw-DO   DirectorOrdainsHallmark         →  rbw-hO   DirectorOrdainsHallmark
+.claude/jjm/retired/jjh_b260401-r260409-rbk-theurge-rust-test-infrastructure.md:2340:rbw-DA   DirectorAbjuresHallmark         →  rbw-hA   DirectorAbjuresHallmark
+.claude/jjm/retired/jjh_b260401-r260409-rbk-theurge-rust-test-infrastructure.md:2341:rbw-DV   DirectorVouchesHallmarks        →  rbw-hV   DirectorVouchesHallmarks
+.claude/jjm/retired/jjh_b260401-r260409-rbk-theurge-rust-test-infrastructure.md:2342:rbw-Dt   DirectorTalliesHallmarks        →  rbw-ht   DirectorTalliesHallmarks
+.claude/jjm/retired/jjh_b260401-r260409-rbk-theurge-rust-test-infrastructure.md:2343:rbw-Rs   RetrieverSummonsHallmark        →  rbw-hs   RetrieverSummonsHallmark
+.claude/jjm/retired/jjh_b260401-r260409-rbk-theurge-rust-test-infrastructure.md:2344:rbw-LK   RetrieverKludgesHallmark        →  rbw-hk   RetrieverKludgesHallmark
+.claude/jjm/retired/jjh_b260401-r260409-rbk-theurge-rust-test-infrastructure.md:2345:rbw-RpF  RetrieverPlumbsFull             →  rbw-hpf  RetrieverPlumbsFull
+.claude/jjm/retired/jjh_b260401-r260409-rbk-theurge-rust-test-infrastructure.md:2346:rbw-Rpc  RetrieverPlumbsCompact          →  rbw-hpc  RetrieverPlumbsCompact
+.claude/jjm/retired/jjh_b260401-r260409-rbk-theurge-rust-test-infrastructure.md:2433:rbw-DO   DirectorOrdainsConsecration     →  rbw-hO   DirectorOrdainsHallmark
+.claude/jjm/retired/jjh_b260401-r260409-rbk-theurge-rust-test-infrastructure.md:2434:rbw-DA   DirectorAbjuresConsecration     →  rbw-hA   DirectorAbjuresHallmark
+.claude/jjm/retired/jjh_b260401-r260409-rbk-theurge-rust-test-infrastructure.md:2435:rbw-DV   DirectorVouchesConsecrations    →  rbw-hV   DirectorVouchesHallmarks
+.claude/jjm/retired/jjh_b260401-r260409-rbk-theurge-rust-test-infrastructure.md:2436:rbw-Dt   DirectorTalliesConsecrations    →  rbw-ht   DirectorTalliesHallmarks
+.claude/jjm/retired/jjh_b260401-r260409-rbk-theurge-rust-test-infrastructure.md:2437:rbw-Rs   RetrieverSummonsConsecration    →  rbw-hs   RetrieverSummonsHallmark
+.claude/jjm/retired/jjh_b260401-r260409-rbk-theurge-rust-test-infrastructure.md:2438:rbw-LK   LedgerKludgesVessel             →  rbw-hk   RetrieverKludgesHallmark
+.claude/jjm/retired/jjh_b260401-r260409-rbk-theurge-rust-test-infrastructure.md:2439:rbw-RpF  RetrieverPlumbsFull             →  rbw-hpf  RetrieverPlumbsFull
+.claude/jjm/retired/jjh_b260401-r260409-rbk-theurge-rust-test-infrastructure.md:2440:rbw-Rpc  RetrieverPlumbsCompact          →  rbw-hpc  RetrieverPlumbsCompact
+.claude/jjm/retired/jjh_b260401-r260409-rbk-theurge-rust-test-infrastructure.md:2524:rbw-DO   DirectorOrdainsConsecration     →  rbw-hO   DirectorOrdainsHallmark
+.claude/jjm/retired/jjh_b260401-r260409-rbk-theurge-rust-test-infrastructure.md:2525:rbw-DA   DirectorAbjuresConsecration     →  rbw-hA   DirectorAbjuresHallmark
+.claude/jjm/retired/jjh_b260401-r260409-rbk-theurge-rust-test-infrastructure.md:2526:rbw-DV   DirectorVouchesConsecrations    →  rbw-hV   DirectorVouchesHallmarks
+.claude/jjm/retired/jjh_b260401-r260409-rbk-theurge-rust-test-infrastructure.md:2527:rbw-Dt   DirectorTalliesConsecrations    →  rbw-ht   DirectorTalliesHallmarks
+.claude/jjm/retired/jjh_b260401-r260409-rbk-theurge-rust-test-infrastructure.md:2528:rbw-Rs   RetrieverSummonsConsecration    →  rbw-hs   RetrieverSummonsHallmark
+.claude/jjm/retired/jjh_b260401-r260409-rbk-theurge-rust-test-infrastructure.md:2529:rbw-LK   LedgerKludgesVessel             →  rbw-hk   RetrieverKludgesHallmark
+.claude/jjm/retired/jjh_b260401-r260409-rbk-theurge-rust-test-infrastructure.md:2530:rbw-RpF  RetrieverPlumbsFull             →  rbw-hpf  RetrieverPlumbsFull
+.claude/jjm/retired/jjh_b260401-r260409-rbk-theurge-rust-test-infrastructure.md:2531:rbw-Rpc  RetrieverPlumbsCompact          →  rbw-hpc  RetrieverPlumbsCompact
+.claude/jjm/retired/jjh_b260401-r260409-rbk-theurge-rust-test-infrastructure.md:2625:rbw-DO   DirectorOrdainsConsecration     →  rbw-hO   DirectorOrdainsHallmark
+.claude/jjm/retired/jjh_b260401-r260409-rbk-theurge-rust-test-infrastructure.md:2626:rbw-DA   DirectorAbjuresConsecration     →  rbw-hA   DirectorAbjuresHallmark
+.claude/jjm/retired/jjh_b260401-r260409-rbk-theurge-rust-test-infrastructure.md:2627:rbw-DV   DirectorVouchesConsecrations    →  rbw-hV   DirectorVouchesHallmarks
+.claude/jjm/retired/jjh_b260401-r260409-rbk-theurge-rust-test-infrastructure.md:2633:rbw-Dt   DirectorTalliesConsecrations    →  rbw-ht   DirectorTalliesHallmarks
+.claude/jjm/retired/jjh_b260401-r260409-rbk-theurge-rust-test-infrastructure.md:2634:rbw-Rs   RetrieverSummonsConsecration    →  rbw-hs   RetrieverSummonsHallmark
+.claude/jjm/retired/jjh_b260401-r260409-rbk-theurge-rust-test-infrastructure.md:2635:rbw-LK   LedgerKludgesVessel             →  rbw-hk   RetrieverKludgesHallmark
+.claude/jjm/retired/jjh_b260401-r260409-rbk-theurge-rust-test-infrastructure.md:2636:rbw-RpF  RetrieverPlumbsFull             →  rbw-hpf  RetrieverPlumbsFull
+.claude/jjm/retired/jjh_b260401-r260409-rbk-theurge-rust-test-infrastructure.md:2637:rbw-Rpc  RetrieverPlumbsCompact          →  rbw-hpc  RetrieverPlumbsCompact
+Tools/rbk/vov_veiled/RBSAK-ark_kludge.adoc:63:`tt/rbw-hk.LocalKludge.sh «vessel-sigil»`

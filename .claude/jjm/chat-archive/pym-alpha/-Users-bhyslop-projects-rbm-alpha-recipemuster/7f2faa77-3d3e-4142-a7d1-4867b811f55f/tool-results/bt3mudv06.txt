@@ -1,0 +1,500 @@
+# jjezs_paddock ₣A6
+
+## Character
+
+Iterative discovery work. This paddock is a living document that evolves through **interview-implement-interview cycles**, not a one-shot design phase. Implementation paces teach us things the interview cannot; interview paces integrate what was learned and unblock the next build. Cognitive posture: patient exploration over productive rush, willingness to revise decisions when implementation contradicts them.
+
+Teaching pedagogy is distinct from setup choreography. This heat is about helping learners internalize Recipe Bottle's **novel conceptual apparatus** — vessels, depots, hallmarks, vouching, ordain modes, charters, knights, pentacles, bottles, sentries — not about walking them through prescribed setup steps. Setup steps happen, but they are in service of understanding. General container and GCP knowledge is assumed.
+
+## Prerequisites
+
+`₣A3` (rbk-mvp-3-onboarding-guides) must complete and retire before this heat races:
+- `₢A3AAI` (buh-handbook-rename-sweep) — bug→buh module rename
+- `₢A3AAJ` (rbgm-split-to-rbho-rbhp) — file structure in place
+- `₢A3AAF` (docs-alignment-and-cross-machine-validation) — final A3 validation
+
+After A3 retires, this heat consumes `Tools/rbk/rbho_onboarding.sh` as the home for new handbook content. New tabtargets use a **two-colophon scheme**: `rbw-o` (lowercase, terminal) for the onboarding StartHere entry point, and `rbw-O*` (uppercase family) for individual onboarding handbook tracks (e.g. `rbw-Occ.OnboardingCrashCourse.sh`). This replaces the old `rbw-gO*` onboarding family from A3. The case-split family is a deliberate starting-letter differentiation for clarity. (The initially-proposed `rbw-h?` prefix was found to collide with the existing Hallmark tabtarget family — see Provenance.)
+
+## Context — The Malformation
+
+A3 produced onboarding guides organized around four "role tracks" (retriever, director, governor, payor). The decomposition followed **authorization boundaries** — which roles can perform which actions. But learners don't come to the tool with a role; they come with an **intent**. They want to explore local containers, evaluate the cloud build engine, set up billing, or administer credentials. Role-tracks answered "what can I do next?" but never "what does this mean?" The teaching was setup-oriented, not understanding-oriented.
+
+Breakthrough insight (from the interview distilled in this paddock): **learners decompose along intent and goal, not along authorization**. The same probe can appear in multiple handbooks with different teaching contexts. The same role can appear in multiple tracks for different learner goals. Authorization gates actions; intent shapes learning.
+
+## Design Decision Record
+
+### Frame 4-refined — Handbook as Self-Describing Document
+
+Every handbook tabtarget prints a complete teaching document with live probe results interleaved. Units alternate between:
+
+- **Verified units**: teaching prose + embedded probe status (✓/✗ with concrete values) + tabtarget reference to run for fix
+- **Teaching-only units**: pure conceptual explanation, no probes, no checkmarks
+
+A learner reads top-to-bottom for teaching; an expert scrolls for the first red probe; a mid-learner reads around what's broken. **One format, three reading strategies** — no mode switching, no state-based branching logic, no walkthrough-vs-reference conflation.
+
+### Probe-Aware Menu Routing
+
+`tt/rbw-o.OnboardingStartHere.sh` runs quick triage probes and highlights menu items based on repo state. Unpopulated RBRR highlights the payor path. Populated RBRR plus existing RBRA highlights "find your role." Static menu items remain visible so learners can override routing — probe-aware is guidance, not gating.
+
+### Handbook Output Is Ephemeral
+
+**Handbook steps don't log.** Teaching output is ephemeral UX; logs are for commands that change state. A `buh_*` display call produces no log file. Commands invoked from within handbook-guided flow still log normally. The split is between **teaching conversation** (ephemeral) and **persistent operations** (logged).
+
+### No Step Recording, No Mode Switching
+
+Earlier A3 drafts tracked steps taken and supported walkthrough/reference mode switching. Both removed. Retrospection comes from re-running the handbook (which re-displays teaching with current probe state). If a future switchboard layer wants to provide history, it reads logs and probes without any track instrumentation. Tracks stay stateless and idempotent.
+
+### Monotonic vs Cyclic Probes
+
+Some probes check stable state (RBRR populated, SA files present, reliquary inscribed) — once green, they stay green for a long time. Others check cyclic state (OAuth tokens expire, crucible charge state is transient) — red-after-green is routine. Teaching framing adjusts to cadence:
+- **Monotonic**: brief "here's what this is" on first encounter, terse diagnostic on re-check
+- **Cyclic**: "this resets, here's how to refresh" framing, no shame in running the refresh tabtarget
+
+### Per-Unit Brevity Discipline
+
+Each unit ≈ 3–5 sentences of teaching + 3–6 probe lines + one tabtarget reference. A full track of 8 units renders in ~240 lines — skimmable in 2 minutes, deep-readable in 10. Total track length stays disciplined by per-unit discipline, not by artificial caps.
+
+### Teach the Pattern, Not the Inventory
+
+The regime landscape has 13 regimes and a consistent `rbw-r{letter}{r|v}` tabtarget pattern. The crash course teaches the **pattern**, not the inventory. Once a learner owns the pattern, they can discover any regime's tools by knowing one letter. Six regimes are user-facing (teach on demand); the rest are deferred or invisible.
+
+### Shared Probes, Separate Teaching
+
+The same probe appears in multiple handbooks. RBRR probes appear in the payor handbook ("you are responsible for filling this") *and* the director handbook ("your payor established this; verify before building"). Same ground truth, different teaching context. This repetition is load-bearing — different learners in different sessions, each deserves their own framing.
+
+### Marshal Zero as First-Lesson Gift
+
+`rblm_zero()` produces the invalid-baseline state bare-fork learners encounter: RBRR identity fields blanked, RBRA credentials deleted, hallmarks blanked, reliquary/anchor values blanked, payor OAuth preserved. Running `tt/rbw-rrv.ValidateRepoRegime.sh` against this state **fails diagnostically** — telling the learner exactly which fields need values. This failure is the crash course's first concrete teaching moment: *"In this system, configuration errors fail diagnostically. Trust the error messages."*
+
+## Regime Filtering for Pedagogy
+
+User-facing (teach on demand):
+- **BURC** — project-level BUK settings (`.buk/burc.env`)
+- **BURS** — per-developer station; `BURS_LOG_DIR` is the anchor
+- **RBRR** — repository regime (depot identity, shared across team, monotonic)
+- **RBRP** — payor regime (payor's own identity, stable across depot rotations)
+- **RBRV** — vessel regime (per-vessel image spec)
+- **RBRN** — nameplate regime (per-crucible deployment config)
+
+Deferred / barely mentioned: RBRS (future), RBRM (future), RBRO (invisible validator), RBRA (tooling-created, not hand-edited), BURE/BURD/BURX (infrastructure).
+
+Cleanup action items surfaced by interview:
+- `Tools/cccr.env` — delete (cruft)
+- `.rbk/rbje_compose_probe.env` — needs scrubbing, out of scope for onboarding
+
+## Rough Track Roster
+
+Working titles, evocative and distinct from the prior role placeholders. **All names are rough** and will be refined in later interview passes. Each track is a single `tt/rbw-O??.Onboarding{TrackName}.sh` tabtarget (uppercase-O family) rendering a complete teaching document in Frame 4-refined format. Final track acronyms (the `??` slots) are assigned during the drafting pace (₢A6AAA Artifact 3).
+
+### Foundation (everyone)
+
+1. **Crash Course: Reading the Map** — universal prerequisite. Tabtargets, regimes, log placement, station vs versioned, the `rbw-r{letter}{r|v}` pattern. Local-only, no cloud, no image operations. Teaches BURC, BURS, RBRR at a surface level — enough to navigate the rest. Provisional acronym: `Occ`.
+
+2. **Take Your Station** — joining an existing configured project. Verify your RBRA is placed correctly, run access probes, confirm you can operate in your role(s). Shortest path, mostly probe-driven with minimal teaching.
+
+### Role-intent tracks
+
+3. **Kindle Your First Crucible** — crucible explorer. Local sandbox with kludged hallmarks, security exploration, fast iteration, no cloud. Teaches: crucible, charge/quench, sentry/pentacle/bottle composition, kludge mode for local hallmark synthesis. *First implementation target — simplest path, zero cloud, tightest feedback loop.* (Name flagged for "kindle" vocabulary overload — see Open Questions.)
+
+4. **Establish the Depot** — payor ceremony (~15 min). GCP project creation, OAuth consent screen, billing, RBRR initial population. Teaches: depot, payor responsibility, consent dance, the relationship between payor identity (RBRP) and depot identity (RBRR).
+
+5. **Knight the Realm** — governor. SA administration: create governor/director/retriever SAs, issue RBRA credentials, distribute securely. Teaches: knight, charter, SA lifecycle, secret distribution discipline.
+
+6. **Receive Your Knighthood** — cross-cutting mini-track for directors and retrievers receiving their RBRA from a governor. Place the file correctly (path derived from RBRR), verify via access probe, understand sensitivity. May appear as a unit within Director/Retriever tracks or as a standalone for experienced users receiving new credentials.
+
+### Director subtracks (rough — may decompose or merge)
+
+7. **Your First Ordination** — director, one vessel, one ordain mode. Generic path teaching what ordination means, what gets produced, how vouching works, where hallmarks land. *May decompose by mode (conjure/bind/graft).*
+
+8. **Enshrine the Ancestors** — base image enshrinement. Mirror upstream tool images into GAR, understand supply-chain intent, observe the resulting reliquary contents.
+
+9. **Inscribe the Reliquary** — reliquary management. Create reliquary, understand its role as canonical image reference, understand `RBRV_RELIQUARY`. *May merge with #8 into "Stock the Armory" or similar.*
+
+10. **Tethered Cloud Builds** — cloud build integration from workstation. Understand tethered vs airgapped distinction. Wall-clock ~20 min — pedagogy needs to handle wait time (open question).
+
+11. **Airgap Your Builds** — airgapped mode. Most restrictive ordain mode, teaches isolation. Presumes tethered is understood.
+
+12. **Building for Crucibles** — building crucible targets for testing. May be distinct from tethered/airgapped or variant of Your First Ordination. Needs interview refinement.
+
+### Evaluation tracks
+
+13. **Assay the Realm** — enterprise evaluator. Tour of all ordain modes, enshrinement, reliquaries, airgap. For someone deciding whether to trust Recipe Bottle as a corporate build engine. **Framing matters**: this learner is evaluating, not executing. Critical eye, breadth over depth.
+
+### Cross-cutting surfaces
+
+- **Realm Dashboard** — reference surface showing all probes across all regimes. Equivalent to the old `rbw-gOr` reference mode, now in Frame 4-refined format. Reachable from StartHere menu and as its own tabtarget.
+- **Secret Handling Primer** — the RBRA distribution lesson, appearing as a unit in Knight the Realm (governor side, distributing) and Receive Your Knighthood (recipient side, placing). Teaches operational handling knowledge — *what it is, how to handle, where it goes* — without teaching *how to read*.
+- **Depot Relationships** — the user flagged wanting good intro text explaining "what a Depot is and how Directors dictate its content but Retrievers use it." This is a relational teaching unit that may appear verbatim in multiple tracks. Candidate for a shared snippet consumed by multiple handbooks.
+
+## Public-Docs Anchor Coordination with `₣A5`
+
+Handbook sequences link into `${RBGC_PUBLIC_DOCS_URL}#{Anchor}` where `{Anchor}` is a **PascalCase single word per concept**. `₣A5` (rbk-mvp-3-public-docs-refresh) curates `README.md` to host these anchors; `₣A6` consumes them. The coupling is load-bearing — either heat changing an anchor requires the other heat to update references. This list is the shared truth.
+
+**Existing** (live callers in `Tools/rbk/rbho_onboarding.sh` — must survive A5's refresh):
+`Retriever`, `Director`, `Governor`, `Payor`, `Depot`, `Vessel`, `Hallmark`, `Summon`, `Vouch`, `Plumb`, `Bottle`, `Nameplate`, `Sentry`, `Pentacle`, `Charge`, `Quench`
+
+**New for Crash Course** (`₢A6AAA`): A5 must add during its refresh.
+`Tabtarget`, `Regime`, `RBRR`, `BURC`, `BURS`, `MarshalZero`, `DiagnosticFailure`
+
+**New for later tracks** (added per pace as each track is drafted; non-final):
+`Crucible`, `Kludge`, `Ordain`, `Conjure`, `Bind`, `Graft`, `Reliquary`, `Enshrine`, `Charter`, `Knight`, `RBRP`, `RBRV`, `RBRN`, `OAuth`, `ConsentScreen`, `Airgap`, `Tethered`
+
+## Teaching Voice
+
+Teaching content is **vocabulary-first and relational**. The example the user articulated during interview: *"I want good intro text to what a 'Depot' is and how 'Directors' dictate its content but 'Retrievers' use it."* This is the shape of good teaching — nouns introduced in relation to each other, verbs connecting them, roles emerging from what they do to the nouns rather than abstract job titles.
+
+Principles:
+- Introduce nouns in context with concrete referents (a depot IS a GCP project; a vessel IS a configured image spec)
+- Connect nouns via verbs (directors *ordain* vessels into depots; retrievers *summon* hallmarks from depots)
+- Roles emerge from actions, not labels
+- Each new term has a reason to exist at the moment of introduction
+- Avoid "X is defined as Y" — prefer "when you X, you Y, which is called Z"
+
+The load-bearing primitive for vocabulary-first teaching is `buh_tlt` from `Tools/buk/buh_handbook.sh`:
+```bash
+buh_tlt "  A " "depot" "${z_docs}#Depot" " is the facility where container images are built and stored."
+```
+Renders the noun as a clickable OSC-8 hyperlink to the public-docs anchor. Every new concept introduced to a learner should be a `buh_tlt` call on its first mention.
+
+## Release Gate: Agent-Learner Evaluation
+
+Every handbook ships with an **agent-learner comprehension test** that functions as a release gate. Design principles (established in interview, mechanics deferred to future pace):
+
+- Test for **application**, not recall. Scenario questions, not definition lookups.
+- **Misconception probes**: questions where surface-level understanding gives wrong answers.
+- **Differential testing**: run eval against full handbook and against stripped/shuffled variant; signal is in the delta, not absolute score.
+- **Persona anchoring**: learner agents use a system prompt that reduces inference-from-general-knowledge advantage — *"reason strictly from what the handbook tells you; if it doesn't say it, you don't know it."*
+- **Synthetic critic alongside learner**: separate agent evaluates the handbook AS pedagogy (gaps, ambiguities, places a naive reader would stumble). Gate requires both learner and critic to pass.
+- **Goodhart mitigation**: eval questions not in track author's working context; rotate periodically; allow human override with written justification.
+
+Mechanics of the eval harness are **deferred** to a dedicated pace in this heat. The eval will co-evolve with the first implemented handbook.
+
+## Process Rhythm
+
+This heat runs on interview-implement-interview cycles, not linear execution.
+
+| Pace kind | Produces |
+|-----------|----------|
+| **Interview-paddock** | Paddock refinement + spec for next implementation pace(s) |
+| **Implement-{track}** | Working handbook tabtarget for one track, tested via agent-learner eval |
+| **Interview-reconcile** | Absorption of implementation findings + spec for next implementation pace |
+
+Interview paces are a **first-class pace type**, not preamble. Each interview pace unblocks N implementation paces; each implementation pace generates questions for the next interview.
+
+**First implementation target: Kindle Your First Crucible.** Rationale: local-only, zero cloud flakiness, tightest feedback loop, smallest scope. Lessons about how to write handbooks in Frame 4-refined format will generalize to harder tracks.
+
+**Second implementation candidates** (after first is stable): Crash Course (universal foundation) or Take Your Station (shortest path, probe-heavy, exercises the monotonic-probe side of the framing).
+
+## Open Questions (Interview Work Remaining)
+
+Items to resolve before implementation can start:
+
+- **StartHere menu text** — exact words (in progress as Q3 when interview resumes)
+- **Crash Course unit breakdown** — what units, what each teaches, what each probes, learning outcomes
+- **Kindle Your First Crucible unit breakdown** — the first complete learner path spec at implementation fidelity
+
+Items that can wait until later interview passes (between implementations):
+
+- **Wait-time pedagogy** — what does a learner do during a 20-minute cloud build? Teaching moment or drop-off risk?
+- **Agent-learner eval mechanics** — concrete harness design
+- **Director subtrack decomposition** — are tethered/airgapped/crucible builds distinct paths or variants of one path?
+- **Shared snippet mechanism** — how do Depot Relationships and Secret Handling Primer appear in multiple handbooks without duplication?
+- **Probe-aware menu implementation** — mechanism for triage probes and dynamic highlighting
+- **Track name refinement** — current roster is rough; final names come from iteration
+- **"Kindle" vocabulary overload** — the rough track "Kindle Your First Crucible" overloads the verb "kindle", which is already used in BUK/zipper vocabulary for module kindling (colophon→module→command array generation). The BUK usage is implementer-facing and learners don't directly encounter it, so the overload may be tolerable; alternatively, pick a different verb for the crucible track. Flagged during the prior interview, resolution deferred to track-name refinement.
+- **Wait-time pedagogy for the first long-running track implementation**
+
+## Provenance
+
+Interview conducted in a prior chat session whose jjk officium identity was `☉260409-1001`. **No retrievable transcript exists** — officia record identity, not conversation content. This paddock is the authoritative digest of the interview.
+
+### Key turning points from the interview
+
+- User articulated that role tracks are a malformation — authorization ≠ intent
+- User articulated concern for teaching NOVEL vocabulary specifically (not general containers/GCP)
+- User proposed probe-aware handbook with checkmark redisplay, refining interviewer's Frame 4 into Frame 4-refined
+- User initially confirmed `tt/rbw-h?` as the new tabtarget prefix family (corrected post-interview — see Mounting corrections below)
+- User identified implementation burden (not learner burden) as reason to drop step recording
+- User surfaced additional learner profiles through the interview exercise ("crumbs I forgot")
+- User asked for intimate track names distinct from prior role placeholders
+
+### Mounting corrections caught in `₢A6AAA`
+
+**Prefix collision**: `rbw-h?` (initially confirmed during interview) collided with the existing `rbw-h` Hallmark family — 8 tabtargets: `rbw-hO` DirectorOrdainsHallmark, `rbw-hk` LocalKludge, `rbw-hA` DirectorAbjuresHallmark, `rbw-ht` DirectorTalliesHallmarks, `rbw-hV` DirectorVouchesHallmarks, `rbw-hs` RetrieverSummonsHallmark, `rbw-hpf` RetrieverPlumbsFull, `rbw-hpc` RetrieverPlumbsCompact. Corrected to the two-colophon scheme: `rbw-o` (lowercase, terminal) for `OnboardingStartHere` + `rbw-O*` (uppercase family) for individual handbook tracks (`rbw-Occ` for Crash Course, etc.). Case-split family chosen deliberately for starting-letter clarity.
+
+**Transcript phantom**: The original docket and this Provenance section referenced "interview transcript" as if the officium were a retrievable archive. It is not — officia record identity only; conversation content is not persisted. Only jjk commands that write to paddocks, dockets, or gazette files leave durable traces. Docket and this paddock updated accordingly; this paddock is the authoritative digest.
+
+### Lessons
+
+- **Mint-time namespace verification** must sweep the existing tabtarget tree (`ls tt/`), not only the paddock's own proposals — a project-prefix check against CLAUDE.md's registry is insufficient when prefixes have families with reserved subfunction letters.
+- **Officium identity ≠ officium archive**. Treat `☉` references as provenance markers, not as fetchable artifacts. If a prior session's conversation content matters beyond the committed paddock/docket state, capture it explicitly at the time — a memo, a paddock section, a design-note commit. Retroactive archaeology is not available.
+
+## References
+
+### Code and configuration
+- `Tools/rbk/rbho_onboarding.sh` — home for new handbook sequence functions
+- `Tools/rbk/rbho_cli.sh` — CLI furnish (sources buh, rbcc, rbgc, rbz, rbho; kindles dependencies)
+- `Tools/rbk/rbhp_payor.sh` — payor ceremonies (post-A3)
+- `Tools/rbk/rblm_cli.sh` — `rblm_zero()` produces the invalid-state baseline that teaches diagnostic failure
+- `Tools/rbk/rbz_zipper.sh` — rbw colophon registry; new `RBZ__GROUP_ONBOARDING` added here
+- `Tools/rbk/rbgc_Constants.sh` — defines `RBGC_PUBLIC_DOCS_URL`
+- `Tools/buk/buh_handbook.sh` — display module for handbook tabtargets; `buh_tlt` is the vocabulary-first primitive
+- `Tools/buk/buz_zipper.sh` — generic zipper mechanism (`buz_group`, `buz_enroll`, `buz_exec_lookup`)
+- `.rbk/rbrr.env` — concrete RBRR example
+- `.buk/burc.env` — concrete BURC example
+- `Tools/rbk/rbrp_regime.sh` — RBRP validator (reveals payor identity field shape)
+- `Tools/rbk/rbap_AccessProbe.sh` — RBRA consumer (reveals per-role credential file usage)
+
+### Specifications
+- `Tools/rbk/vov_veiled/RBS0-SpecTop.adoc` §Configuration Regimes — regime catalog
+- `Tools/buk/vov_veiled/BUS0-BashUtilitiesSpec.adoc` §Regime Configuration — BUK regimes
+- `Tools/rbk/vov_veiled/RBSRS-RegimeStation.adoc` — Station regime spec
+- `Tools/rbk/vov_veiled/RBSRR-RegimeRepo.adoc` — Repository regime spec
+
+### Prior work
+- `₣A3` paddock — contains the role-track design this heat supersedes
+- `₣A5` paddock — public-docs refresh; coordinates anchor curation with this heat
+- `₣AU` paddock — MVP-3 release context from which A3 was spun
+
+### External
+- `https://scaleinv.github.io/recipebottle` — public project page, target for cross-linking
+
+# jjezs_pace ₢A6AAA
+
+## Character
+
+Comprehensive foundation-landing pace for the handbook restart. Absorbs what was previously split across `₢A6AAA` (drafts) and the now-dropped `₢A6AAB` (implementation). Produces a first-iteration working implementation of the two foundation tabtargets — the probe-aware StartHere menu and the universal Crash Course handbook — plus smoke testing across three repo states and a prototype agent-learner eval.
+
+Low-novelty in mechanism (same bash idioms, same `buh_*` primitives, same dispatch chain as the existing `rbho_*` sequences). High-novelty in pedagogical framing: first deployed artifacts of the Frame 4-refined handbook restart, first deliberate break from role-decomposition as the primary organizing axis. Review happens against the running code — user executes the tabtargets, reads the output, annotates what works and what doesn't, approves or requests revisions.
+
+## Status — as-built (resumption anchor)
+
+This section is a snapshot of where the pace actually stands, intended as a pickup anchor for a fresh mounting session. The Deliverables below describe the *plan*; this section describes what has actually happened.
+
+### Initial implementation landed
+
+Commit `9844ce32` — *"land handbook-restart foundation: rbho_start_here + rbho_crash_course sequences, tt/rbw-o and tt/rbw-Occ dispatchers, RBZ__GROUP_ONBOARDING zipper group + two enrollments"*.
+
+Files touched in that commit:
+- `Tools/rbk/rbho_onboarding.sh` — added `rbho_start_here()` and `rbho_crash_course()` at a new "Handbook restart — foundation" banner section near the end of the file
+- `Tools/rbk/rbz_zipper.sh` — added `RBZ__GROUP_ONBOARDING` group with two enrollments, positioned between the existing Guide and Hallmark groups
+- `Tools/rbk/rbk-claude-tabtarget-context.md` — regenerated from zipper via `rbw-MG.MarshalGenerate.sh`
+- `tt/rbw-o.OnboardingStartHere.sh` — new 4-line thin dispatcher
+- `tt/rbw-Occ.OnboardingCrashCourse.sh` — new 4-line thin dispatcher
+
+### Smoke testing — State 3 (Ready) verified
+
+Both tabtargets run cleanly against the current repo state (populated RBRR + credentials present):
+
+- `tt/rbw-o.OnboardingStartHere.sh` — exit 0, renders menu with `→ Crash Course` as the only arrow (correct for Ready state). All tabtarget references resolve via `buz_healthcheck`.
+- `tt/rbw-Occ.OnboardingCrashCourse.sh` — exit 0, renders all 6 units. Unit 3 (RBRR) shows `[*] RBRR populated — depot project: rbwg-d-depot10041-260327170532`. Unit 4 (Station) shows `[*] BURC present` and `[*] Station file present at /Users/bhyslop/projects/rbm_alpha_recipemuster/../station-files/burs.env`. Unit 5 (Marshal Zero) shows `[*] Current RBRR state: populated (not a zero state right now)`.
+- `tt/rbw-tf.QualifyFast.sh` — passes (tabtarget structure OK, RBW colophon registrations OK, generated context freshness OK).
+
+### Smoke States 1 and 2 — deferred
+
+Not yet exercised; waiting on user approval to touch live repo state:
+
+- **State 1 (Bare-fork simulation)** — requires running `tt/rbw-MZ.MarshalZeroes.sh` to blank RBRR identity fields (reversible, preserves OAuth). Expected outcome: StartHere arrows Crash Course + Establish the Depot; Crash Course Unit 3 shows red ("depot identity fields are blank"); Unit 5 shows "zero-like — this is where a bare-fork learner starts".
+- **State 2 (Joining simulation)** — requires temporarily moving credential files out of `${RBRR_SECRETS_DIR}` and restoring. Expected outcome: StartHere arrows Crash Course + Take Your Station; Crash Course Unit 3 green, Unit 5 says "populated (not a zero state right now)".
+
+### RBGC_PUBLIC_DOCS_URL observation — coordination item for `₣A5`
+
+Another officium has retargeted `RBGC_PUBLIC_DOCS_URL` to `https://github.com/scaleinv/recipebottle/blob/main/README.md`. The paddock's "Public-Docs Anchor Coordination with `₣A5`" section still references the `scaleinv.github.io` URL and implicitly assumes a github-pages build. The anchor scheme (PascalCase single-word concepts like `#Depot`, `#RBRR`, `#MarshalZero`) still works mechanically — the code uses the constant so it's automatically correct — but the paddock coordination text is stale about *where* A5 is curating anchors.
+
+`Tools/rbk/rbgc_Constants.sh` has been edited by another officium (visible as unstaged change in working tree during this pace's work). Not touched by this pace.
+
+**Paddock follow-up needed**: update the Anchor Coordination section to say A5 is curating `README.md` on `main`, not a github-pages build. Worth a short paddock reslate when convenient.
+
+### User revisions pending
+
+User ran both tabtargets, confirmed they function, wants to do revisions on both. Specific revision items not yet captured at time of this reslate — user stepping away, revisions to be taken up on resume.
+
+### Prototype eval artifact — not yet delivered
+
+Deliverable 4 still open. Planned form: markdown file at `Tools/rbk/vov_veiled/A6-prototype-eval.md` containing the anti-inference system prompt, 3–5 application-focused scenario questions, and a differential-test note. Awaiting user signoff on the form before writing.
+
+### Paddock Artifact 3 items — still open
+
+Deliverable 5 items still pending:
+- **Track acronym table** — assign `rbw-O??` subfunction letters for the other 12 tracks; suggested table (`Ots/Ofc/Oed/Okr/Ork/Oof/Oea/Oir/Otc/Oac/Obc/Oar`) is a proposal pending confirmation
+- **Implementation-sequence decision** — paddock currently says "First implementation target: Kindle Your First Crucible" but Crash Course landed first; needs reconciliation
+- **Anchor Coordination section update** — fold in the `RBGC_PUBLIC_DOCS_URL` retargeting observation (see above)
+- **New open questions** from this implementation — none surfaced that aren't already captured
+
+### Downstream paces — swept, clean
+
+`₢A6AAC`, `₢A6AAD`, `₢A6AAE` were mass-reslated in commit `fe7e1d50` to fix stale colophons (`rbw-h`/`rbw-Hcc`/`rbw-Hfc` → `rbw-o`/`rbw-Occ`/`rbw-Ofc`), update dropped-A6AAB dependency references to `₢A6AAA`, and add a small amount of concrete guidance (zipper registration form, menu-update mechanics) that became visible while this pace's implementation was landing. The interview-transcript phantom was also removed from `₢A6AAE`'s References section in the same sweep — slightly beyond the user's explicit "colophon" scope, flagged in the report, user has not yet indicated whether to restore it.
+
+## Prefix Context
+
+Tabtarget colophons use the **two-colophon onboarding scheme** settled in the `₣A6` paddock Prerequisites section:
+
+- `rbw-o` (lowercase, terminal) — the onboarding StartHere entry point, standalone tabtarget
+- `rbw-O*` (uppercase family) — individual onboarding handbook tracks (e.g. `rbw-Occ` for Crash Course, `rbw-Ofc` for First Crucible)
+
+This replaces the initially-proposed `rbw-h?` family from the interview, which collided with the existing `rbw-h` Hallmark family. Case-split family is deliberate starting-letter differentiation for clarity.
+
+## Existing code as mechanism reference (NOT structural template)
+
+The existing `rbho_*` sequences — `rbho_triage`, `rbho_reference`, `rbho_retriever`, `rbho_director`, `rbho_governor`, `rbho_payor` — are **mechanism references** for this pace. They demonstrate how filesystem probes, `buh_*` primitives, and the dispatch chain fit together. Their *organizational shapes* (role-based decomposition, credential-driven routing, two-mode walkthrough/reference rendering) are precisely what this heat replaces. **Copy the idioms, not the structure.**
+
+The distinction is load-bearing. `rbho_triage` is a role-router: probe RBRA credentials → enumerate detected roles → link each to a role walkthrough. Its organizing axis is *authorization* — the paddock's exact diagnosis of the malformation this heat is curing. Using it as a "structural template" for `rbho_start_here` would import the role-axis into the very tabtarget meant to supplant it.
+
+**What to borrow from existing sequences**:
+- `buc_doc_brief "description"` + `buc_doc_shown || return 0` — dispatch-mode guard
+- `zrbho_po_extract_capture ${file} ${key}` — read a KEY=VALUE from a file without sourcing
+- `zrbho_po_status ${flag} "${text}"` — render `[*] text` or `[ ] text` status line
+- `zrbho_probe_role_credentials` — useful for the *any-credential-present* check even though per-role detail is not used
+- `buh_section`, `buh_e`, `buh_t` — section headers, blank lines, plain text
+- `buh_tlt "prefix " "concept" "${z_docs}#Anchor" " suffix"` — vocabulary-first teaching (concept as clickable OSC-8 hyperlink)
+- `buh_tc "prefix " "tt/rbw-...sh"` — text + cyan command reference
+- `buh_tT "prefix " "${RBZ_*}"` — text + resolved-via-glob tabtarget (also validates existence)
+- Filesystem-only probing convention (`test -f`, extract via helper, no env-var dependency on BURS)
+
+**What NOT to borrow**:
+- Role-based decomposition of menu items or teaching content
+- Credential detection as a primary routing signal
+- Two-mode (walkthrough vs reference) rendering
+- Unit structure organized around role tasks
+
+## Dispatch chain (reference)
+
+```
+tt/rbw-{colophon}.*.sh  (5-line thin dispatcher)
+  → .buk/launcher.rbw_workbench.sh
+  → rbw_workbench.sh :: rbw_route()
+  → buz_exec_lookup()  (exact-string colophon match)
+  → rbho_cli.sh        (CLI furnish sources buh/rbcc/rbgc/rbz/rbho)
+  → rbho_{sequence}()  (enrolled function in rbho_onboarding.sh)
+```
+
+## Deliverable 1 — `rbho_start_here()` + `tt/rbw-o.OnboardingStartHere.sh` + zipper
+
+**Status**: LANDED in commit `9844ce32`. Verified in State 3 (Ready). Pending user revision notes.
+
+**Sequence function** in `Tools/rbk/rbho_onboarding.sh`, added at a new "Handbook restart — foundation" banner section after the existing role-track sequences.
+
+**Probe set** (deliberately narrow — state, not role):
+- `z_rbrr_populated` — `.rbk/rbrr.env` exists AND has non-empty `RBRR_DEPOT_PROJECT_ID`
+- `z_has_any_rbra` — any of payor/governor/director/retriever credential files exist (via `zrbho_probe_role_credentials`; per-role values are collected but ignored for routing)
+
+**Highlighting logic** (three states, foundation-focused, no role inference):
+- **Cold start** (no RBRR) → arrow on Crash Course + arrow on Establish the Depot. These are the only unblocked actions.
+- **Joining** (RBRR populated, no credentials) → arrow on Crash Course + arrow on Take Your Station. These are the only unblocked actions.
+- **Ready** (RBRR populated, has credentials) → arrow on Crash Course only. Learner picks their own track from the static menu. No guessing.
+
+Arrow rendering: leading `→ ` prefix on highlighted items, `  ` on others. Simple, discoverable, easy to revise.
+
+**Menu body** (static, intent-organized):
+
+1. **Preamble** — what Recipe Bottle is, what handbooks are, how to read this menu
+2. **Foundation** — Crash Course (always first, always arrowed), Take Your Station (`[planned]`, arrowed when joining)
+3. **Role-intent tracks** — Your First Crucible `[planned]`, Establish the Depot `[planned]` (arrowed when cold-start), Knight the Realm `[planned]`, Receive Your Knighthood `[planned]`
+4. **Director subtracks** — Your First Ordination, Enshrine the Ancestors, Inscribe the Reliquary, Tethered Cloud Builds, Airgap Your Builds, Building for Crucibles (all `[planned]`, none arrowed in first iteration)
+5. **Evaluation** — Assay the Realm `[planned]`
+6. **Reference** — Realm Dashboard (links to existing `rbw-gOr.OnboardReference.sh` until A6 produces Frame 4-refined replacement)
+7. **Find your role / legacy fallback** — "Run Crash Course first if unsure" guidance, plus honest pointer to legacy role-organized `rbw-go.OnboardMAIN.sh` triage as preserved fallback during the heat
+
+**Tabtarget dispatcher** at `tt/rbw-o.OnboardingStartHere.sh` (exact copy of existing 5-line pattern, with `BURD_NO_LOG=1` — handbook output is ephemeral per paddock decision):
+```bash
+#!/bin/bash
+export BURD_LAUNCHER=".buk/launcher.rbw_workbench.sh"
+export BURD_NO_LOG=1
+exec "${BASH_SOURCE[0]%/*}/../${BURD_LAUNCHER}" "${0##*/}" "${@}"
+```
+
+**Zipper enrollment** in `Tools/rbk/rbz_zipper.sh` — new `RBZ__GROUP_ONBOARDING` group adjacent to the existing `RBZ__GROUP_GUIDE`:
+```bash
+buz_group   RBZ__GROUP_ONBOARDING  "rbw-o"   "Onboarding — Handbook restart"
+z_mod="rbho_cli.sh"
+buz_enroll  RBZ_ONBOARD_START_HERE "rbw-o"   "${z_mod}"  "rbho_start_here"   ""  "Onboarding start — probe-aware menu into handbook tracks"
+```
+
+## Deliverable 2 — `rbho_crash_course()` + `tt/rbw-Occ.OnboardingCrashCourse.sh` + zipper
+
+**Status**: LANDED in commit `9844ce32`. Verified in State 3 (Ready). Pending user revision notes.
+
+**Sequence function** in `Tools/rbk/rbho_onboarding.sh`, next to `rbho_start_here()`.
+
+**Probes**:
+- `z_rbrr_populated` + `z_rbrr_project` — RBRR identity state (for Unit 3 + Unit 5)
+- `z_burc_present` — `.buk/burc.env` existence (for Unit 4)
+- `z_station_present` — `${BURD_STATION_FILE}` existence (for Unit 4)
+
+**Unit breakdown** (6 units, alternating teaching-only and verified, per paddock per-unit brevity discipline):
+
+1. **What you're looking at** (teaching-only) — introduce `Tabtarget` (link), the `tt/` directory, the `{colophon}.{frontispiece}.sh` naming. Concrete example: `tt/rbw-go.OnboardMAIN.sh`. Teach that tab completion narrows by colophon. Vocabulary: tabtarget, colophon, frontispiece.
+2. **Regimes — the configuration map** (teaching-only) — introduce `Regime` (link), the 13-regime landscape, the six user-facing ones, the `rbw-r{letter}{r|v}` render/validate tabtarget pattern. Teach the *pattern*, not the inventory. Vocabulary: regime, render, validate.
+3. **Repository regime** (verified) — introduce `RBRR` (link), explain depot identity as shared team ground truth. Probe `.rbk/rbrr.env` + `RBRR_DEPOT_PROJECT_ID`. Vocabulary: RBRR, depot.
+4. **Station regime and log placement** (verified) — introduce `BURC` (link — project config) and `BURS` (link — per-developer station). Explain station-vs-repo split; call out `BURS_LOG_DIR` as the anchor. Probe `.buk/burc.env` existence + `${BURD_STATION_FILE}` existence. Teach: state-changing commands log, handbooks don't. Vocabulary: station, BURC, BURS.
+5. **Marshal Zero — the first lesson** (teaching + verified) — introduce `MarshalZero` (link). Walk through what `rblm_zero()` does (blank RBRR fields, delete credentials, preserve OAuth). Then describe the `DiagnosticFailure` (link) experience of running `rbw-rrv.ValidateRepoRegime.sh` against zero state. Teach the core lesson: *"In this system, configuration errors fail diagnostically. Trust the error messages."* Probe current state as "populated" or "zero-like". Vocabulary: Marshal Zero, diagnostic failure.
+6. **Next steps** (teaching-only) — summarize learned capabilities, point back to StartHere menu via `buh_tT " " "${RBZ_ONBOARD_START_HERE}"`. Close the loop.
+
+**Two entry states** handled without branching: the same units render in both states. For bare-fork, verified units show red with teaching-focused context about what the learner will fill in via the payor track. For joining-existing, the same units show green with verification-focused context about what the existing team has done. Same text, same probes, different stories emerge from the probe outcomes.
+
+**Teaching voice** per paddock principles: vocabulary-first via `buh_tlt`, relational prose (nouns introduced in context with concrete referents, verbs connecting them), roles emerge from actions not labels, each new term has a reason to exist at the moment of introduction.
+
+**Tabtarget dispatcher** at `tt/rbw-Occ.OnboardingCrashCourse.sh` — same 5-line pattern.
+
+**Zipper enrollment** next to the START_HERE entry under the same group:
+```bash
+buz_enroll  RBZ_ONBOARD_CRASH_COURSE "rbw-Occ" "${z_mod}"  "rbho_crash_course" ""  "Crash Course — universal prerequisite: tabtargets, regimes, Marshal Zero"
+```
+
+## Deliverable 3 — Smoke testing across three states
+
+**Status**: State 3 (Ready) VERIFIED. States 1 and 2 deferred pending user approval to touch live repo.
+
+Run both new tabtargets in three repo states, document observed behavior in the pace commit message.
+
+**State 1: Bare-fork simulation** — run `tt/rbw-MZ.MarshalZeroes.sh` to zero RBRR identity + credentials, preserving OAuth. Then:
+- `tt/rbw-o.OnboardingStartHere.sh` — expect: Crash Course arrowed, Establish the Depot arrowed, all other tracks shown without arrows
+- `tt/rbw-Occ.OnboardingCrashCourse.sh` — expect: Unit 3 (RBRR) shows red with "depot identity fields are blank", Unit 5 (Marshal Zero) confirms current state is zero-like
+
+**State 2: Joining-existing simulation** — with populated RBRR but credentials removed from `${RBRR_SECRETS_DIR}`. (This may require temporary manipulation; document exact steps.)
+- StartHere — expect: Crash Course arrowed, Take Your Station arrowed
+- Crash Course — expect: Unit 3 green with project ID, Unit 5 says "populated (not a zero state right now)"
+
+**State 3: Ready / current repo state** — with whatever's currently in `.rbk/`. Run both, expect:
+- StartHere — only Crash Course arrowed (Ready state)
+- Crash Course — whatever the current probe outcomes are
+
+Document the actual observed rendering from each run in the pace commit. If any state reveals bugs, fix them before wrapping.
+
+**Do not touch ground truth** — use Marshal Zero (reversible) and backup files if needed. Do not blow away RBRR permanently for testing.
+
+## Deliverable 4 — Prototype agent-learner eval
+
+**Status**: NOT YET DELIVERED. Planned form below; awaiting user signoff on form/location before writing.
+
+**Scoped intent** per the original A6AAB design: *just enough to validate the concept end-to-end, not a full release gate.* The real eval harness is a later dedicated pace.
+
+**Form**: a markdown file or commit-message appendix containing:
+- **Anti-inference system prompt**: *"You are a learner evaluating a handbook. Reason strictly from what the handbook tells you. If the handbook doesn't say it, you don't know it. Do not draw on general knowledge of containers, Google Cloud, or DevOps."*
+- **Scenario questions** (3–5): application-focused, not recall. Examples:
+    - *"A learner runs `tt/rbw-rrv.ValidateRepoRegime.sh` and gets a list of blank fields. Based only on the Crash Course, what should they conclude and what should they do next?"*
+    - *"What's the difference between a station setting and a repository setting, and why does it matter?"*
+    - *"If you needed to find the tabtarget that validates the payor regime, how would you name it without looking it up?"*
+- **Differential test**: run the same questions against the full Crash Course output AND against a stripped variant (teaching prose removed, probes and tabtarget references left). Compare scores. Signal is in the delta.
+- **Goodhart mitigation** note: questions not drawn from author's immediate working context; rotate if repeated.
+
+**Execution**: this pace DELIVERS the eval artifact but does NOT necessarily run it. Running the eval can happen inline (user pastes handbook output into a fresh Claude session with the system prompt) or is deferred as a sanity check. The pace succeeds if the eval artifact is present and well-formed.
+
+**Where the eval artifact lives**: as a new small markdown file at `Tools/rbk/vov_veiled/A6-prototype-eval.md` — drafter's call, note the choice in the commit.
+
+## Deliverable 5 — Paddock refinement (remaining items)
+
+**Status**: OPEN. Items itemized below.
+
+The paddock was already updated during earlier reslates to:
+- Sweep the `rbw-h?` prefix collision to the two-colophon scheme
+- Remove the interview-transcript phantom and add the mounting-corrections section
+- Add the Public-Docs Anchor Coordination section
+- Flag the "kindle" vocabulary overload in Open Questions
+- Assign provisional `Occ` for Crash Course
+- Expand References with the dispatch-chain files
+
+Remaining work (via `jjx_paddock` setter):
+
+- **Finalize track acronym table** — assign `rbw-O??` subfunction letters for the other 12 tracks. Suggested (for review): `Ots` Take Your Station, `Ofc` First Crucible, `Oed` Establish Depot, `Okr` Knight the Realm, `Ork` Receive Knighthood, `Oof` First Ordination, `Oea` Enshrine Ancestors, `Oir` Inscribe Reliquary, `Otc` Tethered Cloud, `Oac` Airgap Builds, `Obc` Building for Crucibles, `Oar` Assay Realm. Record as a table. Open for revision.
+- **Update Anchor Coordination section** — replace the implicit `scaleinv.github.io` target framing with `github.com/scaleinv/recipebottle/blob/main/README.md` (see Status section above). Note that the anchor scheme (`#PascalCase`) still holds.

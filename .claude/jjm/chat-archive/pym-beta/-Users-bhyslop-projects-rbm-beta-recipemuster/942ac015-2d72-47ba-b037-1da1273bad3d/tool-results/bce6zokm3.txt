@@ -1,0 +1,664 @@
+# jjezs_paddock ₣BB
+
+## Context
+
+Release qualification gap surfaced by the ₣A_ depot-regen heat. Every existing test tier (`rbw-tf` fast, `rbw-tr` release) tolerates accumulated depot state, so silent first-build assumptions slip through. Recent spooks — kludge-aware-charge-prereq (k-prefixed hallmarks at GAR), ZRBOB_PROJECT (compose project name without runtime prefix), rbob_charged_predicate prefix omission, reliquary integrity-broken on negative test — all share a property: they only manifest on first-build paths, and none were caught until live verification surfaced them.
+
+This heat constructs `rbw-tP` QualifyPristine — a third tier that **refuses to run** unless marshal-zero state was just committed. The refusal is enforced by the test itself, not by ceremony or operator discipline.
+
+## Single operator prerequisite chain
+
+Operator has exactly one prerequisite chain: confirm Payor health → marshal-zero → commit → run `rbw-tP`. Payor OAuth is the only credential the operator must have ready; everything else (governor, retriever, director SAs and their RBRA files) is **minted by the qualification itself**, not restored from backup.
+
+## Entry contract — load-bearing
+
+`rbw-tP` fails-fast unless ALL of the following hold:
+
+- Working tree clean
+- HEAD commit is a marshal-zero commit (detectable signature baked into `rblm_zero` per BBAAB)
+- RBRR fields are blank (prefixes, depot project ID, etc.)
+- No RBRA credential files present (governor, retriever, director — all deleted by marshal-zero, recreated by the qualification)
+- No hallmark fields populated in nameplates
+- No depot-scoped fields populated in vessel rbrv.env files
+
+Operator cannot skip the prerequisite. This is the property that makes the tier catch the silent-first-build bug class by construction.
+
+## Failure mode contract
+
+Mid-qualification failure means start-over-from-zero, not patch-and-continue. Documented explicitly in runbook to prevent the very accumulated-state bug class this tier exists to catch.
+
+## Release-branch execution contract
+
+Three properties bind every fixture and phase in this tier.
+
+**Run on a release branch.** The release machinery is engineered for branch execution, not main. The branch will accumulate many commits across a successful pristine run. After a failed run, the branch holds bygone commits that `rbw-MZ` does not touch — they remain as history; the next run starts from a fresh marshal-zero commit on top.
+
+**Commits during the run are first-class.** Each step that mutates regime state (rbrr.env, rbra files, vessel rbrv.env, etc.) commits the change. Container-recipe work has a documented cognitive failure mode: humans lose track of where they are in long sequences. The growing commit trail is the operator's mental anchor against that.
+
+**Stop on very first failure, cleanly and clearly.** A step fails → fixture stops → operator stops → debugging happens immediately on the failed branch. Stderr names the failed step; fixture exits non-zero. Recovery is `rbw-MZ` + retry on a fresh marshal-zero. No graceful degradation, no recovery branches.
+
+Engineering scaffolding for any other shape — partial-run cleanup, soft-delete tolerance, multi-mode failure handling, recovery-time orphan inspection, diagnostic-redundancy — is non-load-bearing and does not belong in pristine-tier code. The single mechanical path is the entire surface.
+
+## Tier layering
+
+Three tiers, escalating cost:
+
+| Colophon | Frontispiece | Cost | Entry contract |
+|----------|--------------|------|----------------|
+| `rbw-tf` | QualifyFast | seconds | none |
+| `rbw-tr` | QualifyRelease | minutes | none (accumulated state OK) |
+| `rbw-tP` | QualifyPristine *(new)* | ~1 hour + cloud $ | marshal-zero just committed |
+
+`rbw-tP` is THE release gate. `rbw-tr` becomes the pre-pristine smoke test — cheap-and-frequent for development confidence; pristine for actual release.
+
+## Gauntlet test suite — design
+
+`rbw-tP` exec's the **gauntlet suite** — a TestSuite (not a custom orchestrator script) composed of fixtures sequenced from marshal-zero state through canonical-credentialed state to crucible verification. The TestSuite mechanism is existing infrastructure (`tt/rbtd-s.TestSuite.{fast,service,crucible,complete}.sh`); the gauntlet suite extends it.
+
+**Suite-of-fixtures, not orchestrator-script.** The original construction plan (custom bash orchestrator with inline tabtarget calls) was abandoned in favor of suite composition. Each section of the release-qualification sequence becomes a fixture; the suite composes them in order.
+
+**Naming hygiene.** "Gauntlet" is the suite name; "pristine" is reserved for the §1 pristine-lifecycle fixture and informally for tier vocabulary. The suite name does not appear at fixture or case level — distinct stratification across naming layers (suite ≠ fixture ≠ case).
+
+**State ladder, fixtures along it.** The suite walks a state ladder no single fixture covers:
+
+1. enrollment-validation (preflight, state-indifferent)
+2. pristine-lifecycle (§1: marshal-zero gate + throwaway depot/SA lifecycle)
+3. canonical-establish (§2: canonical depot levy + governor mantle + retriever invest + director invest + IAM propagation wait)
+4. canonical-onboarding-sequence (§3: reliquary inscribe + per-vessel hallmark ordain — handbook-driven build walks per BBAAf)
+5. regime-validation, regime-smoke (post-§3, regimes now populated)
+6. four-mode (cloud-build mode coverage)
+7. tadmor, moriah, srjcl, pluml (§4: per-crucible test fixtures, vessel-exists preconditions per BBAAs)
+
+No automatic teardown — see "No-teardown decision" below.
+
+## Dual purpose: handbook-regression coverage
+
+The gauntlet's primary purpose is release qualification (catch silent first-build assumptions). Its **secondary purpose** is automated handbook-regression coverage: ensure operator-facing onboarding handbook tracks (`rbh*`) stay in sync with working code so future operators following the prescribed steps aren't surprised by drift.
+
+Build-side handbook coverage lives in BBAAf (canonical-onboarding-sequence): each ordain case walks the corresponding director-mode handbook track (`rbw-Odf` conjure / `rbw-Oda` airgap / `rbw-Odb` bind / `rbw-Odg` graft) rather than calling inscribe/ordain machinery directly.
+
+**Build/run split — load-bearing.** Handbook walks cover the BUILD step (vessel construction) and stop when the hallmark lands in GAR. Run-side fixtures (per-crucible: tadmor/moriah/srjcl/pluml) stay as direct test fixtures with vessel-exists preconditions, NOT handbook walks. The split keeps run-side reusable against any vessel source — coupling them to handbook prose breaks reusability.
+
+Drift between fixtures and handbooks is accepted future maintenance: whoever changes one is responsible for updating the other; the gauntlet's job is to surface drift, not prevent it by construction.
+
+Run-side handbook coverage (`rbw-Ots`, the rack portion of `rbw-Ofc`) is explicitly out of scope for this heat.
+
+## Fixture disposition — Independent vs StateProgressing
+
+Each fixture declares a disposition flag in Rust, controlling engine behavior:
+
+- **Independent** — cases are self-contained; suite-order is informational. Engine permits keep-going mode for surveying.
+- **StateProgressing** — case N's success establishes preconditions for case N+1. Engine refuses keep-going mode (incoherent: failed case leaves broken precondition). Fail-fast required.
+
+**Default is Independent.** Existing fixtures (`enrollment-validation`, `regime-validation`, `regime-smoke`, `four-mode`, `tadmor`, `moriah`, `srjcl`, `pluml`) are Independent and require no tagging change. Only fixtures whose case-N success establishes case-N+1 preconditions get StateProgressing — currently `pristine-lifecycle`, `canonical-establish`, and `canonical-onboarding-sequence`.
+
+Suite-level disposition derives from membership: any StateProgressing fixture in the suite makes the suite state-progressing → suite-level keep-going refused.
+
+**Per-case precondition probes.** Each case in a StateProgressing fixture probes its precondition at start. If state matches expectation, run. If not, refuse with operator-actionable diagnostic naming the expected state and the closest fixture that produces it. This enables safe a-la-carte single-case rerun — the engine doesn't need to know the case's history; the case's probe enforces.
+
+## Suite-level fail-fast
+
+Across all suites — not just gauntlet — any fixture failure stops subsequent fixtures from running automatically. State-progressing suites require this for correctness; independent suites adopt it for the simpler mental model. Operators who want full surveying run individual fixtures separately.
+
+## No-teardown decision
+
+The gauntlet suite omits an automatic teardown phase. After green tally, the canonical depot, SAs, hallmarks, and RBRA files persist for operator inspection. Deliberate trade-off:
+
+- **Inspect-after-success** is genuine operator value — browse canonical depot in GCP console, inspect GAR contents, run ad-hoc verification a test sequence cannot anticipate.
+- **Cleanup is operator-driven** — manual sequence is `rbw-fA` per vessel + `rbw-arD` + `rbw-adD` + `rbw-dU` (governor cleanup folds into unmake per BBAAN). All existing tabtargets; no new infrastructure.
+- **Failed runs don't accumulate cleanup debt** — under fail-fast, teardown wouldn't run anyway; the no-teardown decision only changes behavior on full success.
+- **Cost visibility** — pending-delete soft-deleted projects accumulate per run (RELEASE.md accepts this); not changed by teardown decision.
+
+Documentation of the post-success cleanup ceremony is BBAAI work (RELEASE.md).
+
+## Operator scope
+
+Single operator (project lead). Not designed for multi-operator workflow. The README.md release section remains the runbook for the gauntlet itself; the dual-purpose handbook-regression coverage protects the broader operator surface (onboarding tracks under `rbh*`) from drift.
+
+## Coupling to ₣A_
+
+Cutover work from ₣A_ informing `rbw-tP`'s sequence has landed (BBAAM depot-identity-collapse). ₣A_'s remaining paces run independently of BB.
+
+## Locked design decisions
+
+- **Depot identity collapse**: RBRR collapses to `RBRR_DEPOT_MONIKER`; `RBRR_CLOUD_PREFIX` flows through depot-affiliated resources; per-moniker depot fact-files; pristine-fixture moniker autodetect lives in Rust (`rbtdrp_pristine.rs`), not payor.
+- **Cult-verb naming**: SA domain muster→**roster**; image domain muster→**audit**. Domain-exclusive split; lowercase tail letters preserved for no-cloud-change observation colophons.
+- **Build/run split**: handbook walks cover build only; per-crucible fixtures stay reusable as direct tests.
+
+## Calibrant fixture family — BBAAh
+
+Synthetic Rust fixtures with deterministic verdicts, registered in the manifest by BBAAh. The family exists to give ₣BC `rbk-mvp-3-theurge-self-test` deterministic targets for bash-blackbox driving and manifest-coverage validation; here in ₣BB only the foundation lands.
+
+**Anchor word: `calibrant`.** Module `rbtdrl_calibrant.rs` (classifier `l` for caLibrant since `c` is owned by crucible). Replaces the dormant `rbtdrd_dummy.rs` placeholder. Test counterpart `rbtdtl_calibrant.rs`. Internal-only vocabulary; not end-user-facing.
+
+**Fixture catalog** (Rust, manifest-registered):
+
+- `calibrant-verdicts` (Independent) — pass / fail / skip / pass_with_output. Verdict-path coverage. The case-written file (`output.txt`) is distinct from the engine-auto `trace.txt`.
+- `calibrant-fail-fast` (Independent, multi-section) — fixture-internal fail-fast across cases and across sections; "not_reached" cases write sentinel files used as absence-of-side-effect assertions.
+- `calibrant-progressing` (StateProgressing) — exercises `rbtdrb_Probe` diagnostic format and `rbtdre_resolve_fail_fast` policy gate.
+- `calibrant-sentinel` (Independent) — single case writing a known file when it runs. Used for suite-level fail-fast verification.
+
+Suite: `calibrant` = [verdicts, fail-fast, sentinel]. Sentinel-after-fail verifies cross-fixture fail-fast contract.
+
+Downstream consumption — bash testbench, manifest-coverage runtime checks, coverage-validation fixtures and driver — lives in ₣BC.
+
+## References
+
+- ₣A_ rbk-mvp-3-resource-prefix-and-depot-regen — surfaced the gap
+- ₣BC rbk-mvp-3-theurge-self-test — calibrant downstream consumers
+- `tt/rbw-tr.QualifyRelease.sh` — current release qualify; layered alongside, not replaced
+- `Tools/rbk/rblm_cli.sh` — `rbw-MZ` zeroes local regime; marshal-zero signature baked here per BBAAB
+- `.claude/commands/rbk-prep-release.md` — upstream contribution ceremony; pristine-pass becomes a precondition (BBAAH)
+
+# jjezs_pace ₢BBAA8
+
+## Character
+
+Design conversation requiring judgment. Mechanism choice must follow operator concurrence — load-bearing slate-time instruction.
+
+## Issue evidence
+
+Failed in BBAAX first-run gauntlet attempt at `rbtdro_onboarding_ordain_conjure` verification tail. Conjure cloud build (4m0s) and vouch (1m30s) both succeeded. All GAR artifacts confirmed via gcloud post-failure (image, attest-amd64, attest-arm64, about, vouch tagged correctly). Failure was wrest's `docker login` against `us-central1-docker.pkg.dev`:
+
+    Error response from daemon: Get "https://us-central1-docker.pkg.dev/v2/":
+    net/http: request canceled while waiting for connection
+    (Client.Timeout exceeded while awaiting headers)
+
+Endpoint probed clean post-failure (curl 134ms, 401 as expected; gcloud listing fast). Documented docker daemon transient per moby/moby#44350: non-configurable Client.Timeout fires before the registry auth backend responds; industry remediation across the corpus is retry. Same case had 4 curl rc=28 warnings during the preceding vouch poll, absorbed by the existing 3-consecutive tolerance.
+
+## Asymmetry to close
+
+`Tools/rbk/rbfc_FoundryCore.sh` poll loop tolerates this transient class with a 3-consecutive policy (BCG-clean, in production).
+`Tools/rbk/rbfl_FoundryLedger.sh` `rbfl_wrest`'s docker login is single-shot, fatal on the same transient class. Same daemon, same registry boundary, different fate.
+
+## Scope
+
+Retry shape for transient-vulnerable docker daemon ↔ registry single-shot calls. Immediate surface is wrest's docker login; design surface should include other single-shot daemon calls crossing the same boundary (login, pull, push, inspect with registry round-trip).
+
+## Discuss before implementing — load-bearing
+
+Mount agent surfaces the design space and proposes a recommended shape; operator concurrence precedes landing. No pre-baking at slate-time. Design questions to seat at the table belong in the conversation, not the docket.
+
+## Out of scope
+
+- Curl/gcloud transient audit beyond the docker daemon path — distinct class
+- Build-poll loop changes (already tolerant)
+- Generic retry framework — only what the surveyed surface requires
+
+## References
+
+- moby/moby#44350 — non-configurable docker daemon Client.Timeout
+- BBAAX inline-fix commits 24e24651 (depot Cloud Build URL) and dd5893ba (Mid-execution posture rule) — first-run iteration arc context
+
+# jjezs_pace ₢BBAAH
+
+## Character
+
+Final integration pace. Wires pristine-pass as a precondition for `/rbk-prep-release` so the upstream contribution ceremony cannot proceed without a recent pristine green. Closes the loop: pristine qualification becomes load-bearing on release prep, not optional ceremony.
+
+## Work
+
+Modify `.claude/commands/rbk-prep-release.md` to add a precondition step: verify rbw-tP ran green against the current HEAD. If not, prep-release fails-fast with operator-visible message naming the marshal-zero → pristine sequence.
+
+Recency contract is **exact-HEAD-match** — strongest invariant, prevents stale passes. rbw-tP green tally writes an artifact linking pass to HEAD's commit SHA; `/rbk-prep-release` reads it and refuses on mismatch. Artifact is gitignored (deliberately not committed). Artifact mechanism (file location, contents) is a mount-time decision.
+
+Update README "Release Procedure" section to reflect that the prep-release step now enforces rbw-tP had to pass against the very HEAD that prep-release is preparing. README references the post-success cleanup ceremony documented in RELEASE.md (owned by BBAAI).
+
+## Verification
+
+- `/rbk-prep-release` fails fast when no pristine pass is recorded for current HEAD
+- After successful rbw-tP, `/rbk-prep-release` proceeds normally
+- After successful rbw-tP followed by an unrelated commit, `/rbk-prep-release` refuses (SHA mismatch)
+- Pristine-passed artifact is gitignored
+- README precondition documentation references the cleanup ceremony in RELEASE.md
+
+## Out of scope
+
+- Cleanup ceremony documentation in RELEASE.md (owned by BBAAI)
+- Restructuring the rest of `/rbk-prep-release` (preserved as-is)
+- Multi-pristine-run aggregation
+- CI integration
+- Recency policies beyond exact-HEAD-match (other policies left for future heats if needed)
+
+# jjezs_pace ₢BBAAI
+
+## Character
+
+Maintenance pace — re-read RELEASE.md with fresh eyes after the rest of the heat lands and apply accumulated fixes the operator identified during heat work but did not address inline. Material gauntlet-design impact: vocabulary, structure, and post-success ceremony all need RELEASE.md updates beyond simple cleanup.
+
+Owns post-success cleanup ceremony placement in RELEASE.md; BBAAH wires the precondition and references this section from README.
+
+## Work
+
+- Re-read RELEASE.md cold
+- Sweep gauntlet vocabulary: introduce gauntlet-suite framing where the entire test sequence is meant; "pristine" stays for tier-vocabulary and the §1 fixture name
+- Update §3 Sequence to reflect the gauntlet suite shape (suite-of-fixtures composed in order, not custom orchestrator-script)
+- Update Cost framing if drift accumulated
+- No-teardown semantics: explicitly document that rbw-tP leaves canonical infrastructure in place after green tally for operator inspection
+- Document the post-success cleanup ceremony (`rbw-fA` per vessel + `rbw-arD` + `rbw-adD` + `rbw-dU`) in RELEASE.md for when operators are ready to release resources
+- Apply other corrections, clarifications, and restructurings captured during the heat but deferred from those paces — sourced from BB heat commit messages (search for RELEASE.md references) and BBAAc walkthrough findings
+- Verify references to rbw-tP, fixture names, and the marshal-zero signature shape match what the heat actually delivered
+- Confirm cross-doc links from RELEASE.md to README.md anchors still resolve
+- Confirm the README's pointer paragraph and reference-tree entry still match RELEASE.md content
+
+## Verification
+
+- Updates committed
+- Operator confirms the doc reads correctly cold from a release-day perspective
+- Gauntlet vocabulary, no-teardown semantics, and post-success cleanup ceremony all present and clear in RELEASE.md
+- README anchor for cleanup ceremony resolves correctly from BBAAH's reference
+
+## Out of scope
+
+- README.md restructuring beyond cross-doc consistency
+- Re-architecting the release procedure itself (architectural changes belong in a separate heat)
+
+# jjezs_pace ₢BBAAX
+
+## Character
+
+First end-to-end execution of the gauntlet suite via rbw-tP against actual fresh state. The bug class this heat exists to catch — silent first-build assumptions — surfaces here in its remaining form: case-level probes have caught what they can during walkthrough and fixture construction; this pace exposes the cross-section bugs only the full assembled sequence reveals.
+
+**Wrap criterion is green tally.** Not "ran to completion." Not "captured findings." Not "construction complete." This pace exists as a structural guardrail against the recurring agent failure mode where wrap is driven at "I built the thing" rather than "the thing actually works against reality." If the first run surfaces issues, fixes land here (small) or spawn follow-up paces (large) — but this pace stays open until rbw-tP runs green end-to-end.
+
+Intent-only docket. Triage decisions surface at mount time per surprise.
+
+Post-BBABB landing: this pace may run concurrently with BBABA on a different machine when both stations carry distinct BURS_TINCTURE values. Tincture composition makes RBDC-derived names disjoint per station; the remaining collision surface is operator error (same tincture on both stations).
+
+## Cost
+
+~1 hour wall-clock + 2 GCP projects per attempt (one throwaway from pristine-lifecycle fixture, one canonical from canonical-establish). Re-runs after inline fixes accumulate cost; budget accordingly.
+
+## Scope
+
+- Marshal zero per RELEASE.md §2 (signature commit on HEAD)
+- Run rbw-tP, which enforces entry contract and exec's the gauntlet suite tabtarget
+- Capture every surprise — failed assertions, unexpected diagnostics, performance anomalies, missing tabtargets, awkward UX
+- Triage routing per surprise:
+  - Tiny inline (one-line bash, message clarity) — fix and re-run within this pace
+  - Larger (structural, design call) — slate as follow-up pace, surface to operator before deciding
+- Record into pace closure: wall-clock total, per-phase wall-clock, cloud cost, surprises + dispositions
+
+## Collision-aware diagnostic
+
+Any GCP "resource already exists" or equivalent name-collision error during the run produces a diagnostic that names BURS_TINCTURE and the colliding term, with a hypothesis pointing at peer-station tincture overlap. Distinguishes tincture-composition collision from transient GCP race.
+
+## Constraints
+
+- Honor paddock's Release-branch execution contract
+- **Wrap criterion is green tally** — explicit guardrail, restated to defeat drift
+- Re-runs within the pace are first-class; each re-run draws fresh quota
+- Per BBAAN's invest-fatal-on-exists and divest-deletes-production-RBRA: any retry path must respect cult-verb posture; reset between attempts goes through marshal-zero, not partial recovery
+- Per RELEASE.md failure mode contract: mid-qualification failure means start over from marshal-zero, not patch-and-continue
+
+## Cross-pace dependencies
+
+- gauntlet-suite-assembly landed (rbw-tP and the gauntlet suite tabtarget exist)
+- BBABB landed (BURS_TINCTURE composition; required for the parallel-station property)
+
+## Out of scope
+
+- Restoring RBRAs — gauntlet self-mints all role credentials (BBAAN's invest cult-verb); only Payor OAuth is the operator's prerequisite
+- /rbk-prep-release integration (BBAAH)
+- Multi-day re-run scenarios
+- Cleanup beyond what rbw-tP itself does — operator peeks post-success and runs cleanup tabtargets manually if desired
+
+# jjezs_pace ₢BBAAq
+
+## Character
+
+Reflective audit pace at the tail of BB. Walk the changes landed across BB's paces and determine which RBS0 (and adjacent veiled-spec) sections fell out of sync with code/behavior, then update them.
+
+Cognitive posture: deliberate read-and-compare. Source of truth is the code/handbook surface as it stands at mount-time; RBS0 is being reconciled to it.
+
+## Wrap criterion
+
+RBS0 (and any directly-implicated sibling spec files under `rbk/vov_veiled/`) reflect the behavior shipped during BB. Each touched section either updated or explicitly judged still-correct. No silent drift left behind for the next heat.
+
+## Constraints
+
+- Read-only against code; spec edits only.
+- Scope is BB's changes — not a full RBS0 audit.
+
+## Out of scope
+
+- Restructuring RBS0 beyond what BB's changes require.
+- Spec touches outside the veiled-spec family unless directly implicated.
+
+## Known sync points (running list — append as paces land)
+
+- **`RBSAJ-access_jwt_probe.adoc`** (from BBAAc inline fix on the JWT-SA probe — IAM-policy-read propagation race absorption). The procedural spec describes the OLD semantic: "all iterations must pass; HTTP 403 → fatal access denied; HTTP 401 → fatal token rejected." New code semantic in `rbgv_AccessProbe.sh`: bounded propagation-absorbing retry — first 2xx wins, HTTP 403 retries within `max_attempts × delay_ms` budget, all other codes (including 401) fall to a single fail-fast catch-all with body-summary diagnostic via `zrbgv_jq_error_message_capture`. Sections needing rewrite: §"Execute Probe Iterations" (rename concept to *attempts*; rewrite "Evaluate Response" sub-section to reflect 2xx-wins / 403-retry / else-fatal); §"Display Summary" ("succeeded after «I» attempt(s)" instead of "«N»/«N» iterations passed"); the top NOTE block (intent shift from sustained-access verification to propagation-window absorption + verification); §"Validate Input Parameters" (`ITERATION_COUNT` description shifts to "max attempts — first 2xx wins"; `DELAY_MS` to "between retries"). Companion call-site change: `rbte_engine.sh::rbte_probe` defaults shifted to 60 × 3000ms (≈180s budget) for SA roles only; Payor probe defaults and semantic unchanged.
+
+# jjezs_pace ₢BBAAx
+
+Drafted from ₢A-AAT in ₣A-.
+
+## Character
+Imprint-channel sibling to ₢A-AAS. Design decision pace — the core question is how `buh_tt` and the handbook-render fixture should treat imprint-channel colophons when the handbook is host-agnostic. Likely needs discussion before code lands.
+
+## Docket
+`buh_tt` delegates to `buyy_tt_yawp`, which globs `${BURD_TABTARGET_DIR}/${colophon}.*` when no imprint arg is supplied and picks the first alphabetical match. For imprint-channel colophons with multiple host variants, the first match is arbitrary.
+
+### Concrete trigger
+Surfaced during ₢A6AAn. In `Tools/rbk/rbh0/rbhw0_top.sh:52`, the Windows handbook teaches Phase 3 with:
+```bash
+buh_tt "     Phase 2 (clone repos):              " "${JJZ_FUNDUS_PHASE2}"
+```
+`JJZ_FUNDUS_PHASE2` is enrolled with channel `imprint`; the tabtargets are `jjw-tfP2.ProvisionPhase2.cerebro.sh` and `jjw-tfP2.ProvisionPhase2.localhost.sh`. The handbook is host-agnostic (it's about "a Windows host" in the abstract), so the glob picks `cerebro` — arbitrary and potentially misleading for a learner setting up a different host.
+
+The prior hardcoded string was `tt/jjw-tfP2.ProvisionPhase2.{host}.sh` — explicit about the placeholder. The `buh_tt` replacement (prescribed in ₢A6AAn's docket) loses that teaching signal in exchange for a clickable link.
+
+### Why this isn't caught by the fixture today
+`handbook-render` checks exit 0, not rendered content correctness. The Windows handbook rendering with `cerebro.sh` baked in is a green case — the fixture catches display *breakage* but not display *drift*.
+
+### Candidate directions
+- **Suffix annotation idiom**: document the standard `buh_tt ... "${FOO}" "" " (pick your host)"` pattern for imprint-channel colophons in host-agnostic handbooks. Cheapest; no primitive change. Accepts that the rendered link points at an arbitrary variant.
+- **Multi-variant rendering in `buyy_tt_yawp`**: when called with no imprint on an imprint-channel colophon, render something like `tt/jjw-tfP2.ProvisionPhase2.{host}.sh` (synthetic placeholder) instead of globbing. Needs a way to detect "colophon is imprint-channel" — likely requires `buz_exec_lookup` or a sibling query on the zipper registry.
+- **Require explicit imprint**: make `buh_tt` on an imprint-channel colophon without an imprint arg a hard error. Forces every caller to make a choice. Breaking change; audit scope unclear without a grep sweep.
+- **Companion fixture assertion**: extend `handbook-render` (coordinating with ₢A-AAS) to snapshot rendered content and diff against expected per-colophon output. Catches drift, not just breakage. Heavier but pairs naturally with the param1 coverage work.
+
+### Prerequisites
+- ₢A6AAn complete — it produced the concrete trigger.
+- Likely best sequenced after ₢A-AAS so the fixture's parameterization mechanism is known before deciding whether to leverage it for content-snapshot testing.
+
+### Wrap criterion
+- Decision recorded on imprint-channel handling in handbooks (one of the directions above, or another).
+- If a primitive change: `buh_tt`/`buyy_tt_yawp` updated, call sites audited, fixture updated if behavior is observable.
+- If an idiom only: documented in BCG or the handbook-building guide, and `rbhw0_top.sh:52` updated to apply it.
+- Windows handbook (`rbw-hw`) renders in a way that doesn't silently commit a learner to the wrong host variant.
+
+### Notes
+- Currently `JJZ_FUNDUS_PHASE2` is the only known imprint-channel colophon used from a host-agnostic handbook. `JJZ_FUNDUS_SCENARIO` and `JJZ_FUNDUS_SINGLE` are also imprint-channel but aren't referenced from handbooks at time of slate.
+- Pairs thematically with ₢A-AAS — both address the gap where channeled colophons meet uniform handbook/fixture shapes. May be worth groom-time discussion of whether to merge.
+
+# jjezs_pace ₢BBABA
+
+## Character
+
+Validate BBAAX's repairs by re-running rbw-tP end-to-end on a branch named after this pace's coronet. Branch isolation lets parallel attempts on different machines avoid the commit-trail race on main; with BBABB landed, parallel mac+linux execution against a shared payor manor is now first-class — distinct BURS_TINCTURE values give every RBDC-derived name (depot project_id, GAR repo, GCS bucket, SA emails) per-station disjointness by construction.
+
+## Wrap criterion
+
+Green tally end-to-end. Same guardrail as BBAAX — partial completion is not pass.
+
+## Cost
+
+~90m wall-clock + 2 GCP projects per attempt.
+
+## Scope
+
+- Create a branch named after this pace's coronet, off current main
+- Run rbw-tP from marshal-zero on the branch
+- Operator selects which machine the pace mounts on (mac or linux); pace does NOT use foray
+- Triage surprises per BBAAX rules: tiny inline fix + re-run, larger → follow-up pace
+
+## Collision-aware diagnostic
+
+Any GCP "resource already exists" or equivalent name-collision error during the run produces a diagnostic that names BURS_TINCTURE and the colliding term, with a hypothesis pointing at peer-station tincture overlap. Distinguishes tincture-composition collision from transient GCP race.
+
+## Locked decisions
+
+- Branch name == pace coronet (identity-stable; no human-meaningful name)
+- Branch lives until pace wraps; deletion is operator territory
+
+## Cross-pace dependencies
+
+- BBABB landed (BURS_TINCTURE composition; the parallel-station property depends on it)
+
+# jjezs_pace ₢BBABG
+
+## Character
+
+Mechanical. Fold the two fast-codebase-check entry points into one tier, parallelize the slow one, expand its coverage, bring its baseline to zero, and wire it into marshal-zero as an early structural gate.
+
+## Locked decisions
+
+- **One fast-tier shellcheck entry.** `rbq_qualify_fast` absorbs `buq_shellcheck`; standalone `tt/buw-qsc.QualifyShellCheck.sh` retires. The primitive function stays; only the standalone tabtarget retires. `rbw-tr` drops its now-redundant shellcheck phase.
+- **Parallelize via xargs -P.** Replace the single shellcheck invocation with xargs-driven parallel invocation; aggregate exit code into one verdict. Target ~1–2s wall-clock for the file set (down from ~9s).
+- **Coverage expansion.** `.buk/rbbc_constants.sh` joins the shellcheck file set. Mount-time call on scope-generalization shape (multi-root parameter vs explicit outside-Tools list).
+- **Baseline zero.** Every current shellcheck finding either fixed in-place or moved to `busc_shellcheckrc` with BCG-structural rationale. Fast-tier exits zero on clean tree after wrap.
+- **MZ early gate.** `rblm_zero` runs the parallelized shellcheck primitive in its pre-check block (alongside tree-clean / upstream / pushed). Non-zero shellcheck fails marshal-zero before it touches anything. Gauntlet entry-state cannot accept a shellcheck-dirty codebase by construction.
+
+## Wrap criterion
+
+`tt/rbw-tf.QualifyFast.sh` exits zero, runs in ~2s wall-clock, covers `Tools/` plus `.buk/rbbc_constants.sh`. `tt/buw-qsc.QualifyShellCheck.sh` no longer exists. `tt/rbw-tr.QualifyRelease.sh` no longer makes a separate shellcheck call. `tt/rbw-MZ.MarshalZeroes.sh` fails fast on any shellcheck finding before mutating anything.
+
+## Out of scope
+
+- `tt/*.sh` shellcheck coverage (`buq_tabtargets` shape-check is the appropriate gate for generated shims)
+- `.buk/launcher.*.sh` (3–4 line trivial shims; capture as itch if ever produces a finding)
+- `Tools/rbk/vov_veiled/FUTURE/` subtree — operator call at mount (exempt vs fix)
+
+# jjezs_pace ₢BBABL
+
+## Character
+Mechanical retry-tolerance extension; shape locked by the memo. Two touchpoints, one error class. Surfaced by dogfight verification (2 failures / 3 runs — transient).
+
+## Source
+`Memos/memo-20260527-account-state-invalid-reinvest-flap.md` — full 401/`ACCOUNT_STATE_INVALID` signature, two-host evidence, the prior-art gap, and the time-bound tolerance model to reuse.
+
+## Shape (locked)
+- `rbfc_FoundryCore.sh` build-status poll loop: absorb a transient `401 UNAUTHENTICATED` + `ACCOUNT_STATE_INVALID` with bounded backoff instead of counting it toward the consecutive-error fatal — a still-`WORKING` build must survive a director-SA auth flap.
+- `rbgo_OAuth.sh` consumer-retry token mint: extend the existing retry error-class to `ACCOUNT_STATE_INVALID`, covering the `rbfv` vouch path (Host B in the memo).
+- The retry budget is the discriminator (settling completes within budget; real denial waits it out and fails clean) — reuse the established propagation / access-probe time-bound model rather than minting new literals.
+
+## Done
+A director re-invest immediately followed by `ordain` survives the flap: the transient is logged and retried within budget, never fatal on a healthy build. Confirm the `rbfv` vouch failure body is the same class (memo caveat).
+
+# jjezs_pace ₢BBABM
+
+Drafted from ₢AUAAR in ₣AU.
+
+## Character
+
+Mechanical ceremony rewrite + verification sweep. The `.claude/commands/rbk-prep-release.md` file is currently a foot-gun — running it today would fail at Step 8 because it copies a retired file. This pace consolidates all prep-release fixes under a single owner: retirement cleanup (absorbed from ₢A8AAA D4), original AUAAR refinements, plus the verification sweep (absorbed from ₢A8AAA D5).
+
+Absorbed scope: ₢A8AAA D4 and D5. ₢A8AAA D3 (CLAUDE.consumer.md glossary) already landed on commit 5dc8dcc6 and is excluded.
+
+## Context
+
+The current prep-release ceremony assumes an older architecture. Three upstream changes invalidated parts of it:
+
+- **b7c1dbdd** (₣A8 D1-D3): retired `index.html`, `README.consumer.md`, `.nojekyll`; RBSPH created; RBSCO reshaped.
+- **5dc8dcc6** (₢A8AAG): CLAUDE.consumer.md 11-term glossary replaced with trigger directive pointing to README.
+- **b63dc6cf** (₢A8AAK): foundry colophon restructure `rbw-h*` → `rbw-f*`; 15 hardcoded `buh_tc` foundry paths converted to `buh_tT` with zipper constants.
+
+None of these are reflected in `.claude/commands/rbk-prep-release.md`. The ceremony must be brought current before the first release attempt.
+
+Several original AUAAR items may have been resolved by intervening work; tracks below verify current state before editing.
+
+## Docket
+
+### Track 1 — Retirement artifact cleanup (absorbed from A8AAA D4)
+
+Fix stale references to retired files in `.claude/commands/rbk-prep-release.md`:
+
+1. **Step 2 line 35**: replace `(index.html promise)` with something pointing at the current authoritative source for declared dependencies (README Prerequisites section, or an RBS0-anchored statement). Decide during execution.
+2. **Step 8 lines 106-115**: delete `cp Tools/rbk/vov_veiled/README.consumer.md README.md` (source file retired). Keep the `CLAUDE.consumer.md` copy line. Drop the trailing note about lowercase `readme.md`.
+3. **Step 10e line 202**: delete `git rm -f --ignore-unmatch readme.md`. Add defensive `git rm -f --ignore-unmatch index.html` and `git rm -f --ignore-unmatch .nojekyll`.
+4. **Step 10 survival list (lines 215-226)**: remove `.nojekyll` (line 220) and `index.html` (line 221) from the "what should survive" enumeration.
+5. **Step 10f line 207**: reconsider `git add CLAUDE.md README.md`. Under the new architecture README.md is the canonical consumer doc already tracked in the squash merge; `git add -u` handles its modifications. `git add CLAUDE.md` stays because Step 8 overwrites it from the consumer template.
+
+### Track 2 — Command audit automation (original AUAAR item A)
+
+Add external-command audit to `rbq_qualify_release()` between shellcheck and the `.complete.` test suite.
+
+**Declared dependencies**: bash, git, curl, ssh/scp/ssh-keygen, jq, docker.
+
+**Assumed POSIX/coreutils** (any system with bash): chmod, cp, mv, rm, mkdir, mktemp, date, sleep, cat, grep, sed, awk, sort, head, tail, wc, tee, touch, ln, tr, cut, printf, test, true, false, kill.
+
+Scope: all `.sh` files under `Tools/buk/` and `Tools/rbk/` except cloudbuild scripts (`Tools/rbk/rbgja/`, `rbgjb/`, `rbgjv/`) and `**/vov_veiled/`.
+
+Once automated in `rbq_qualify_release()`, the ceremony's **Step 2 (external command audit as LLM task) becomes redundant** — pre-strip qualification (Step 4 via `rbw-tr`) covers it. Delete Step 2 as part of this track.
+
+### Track 3 — Verify claimed-done items in current ceremony
+
+Three original AUAAR items may already be resolved by changes that landed after the pace was drafted. Read the current ceremony and either close the item or capture remaining work.
+
+- **Item B (post-strip fast vs full qualify)**: current Step 11 already uses `tt/rbw-tf.QualifyFast.sh`. Confirm and close.
+- **Item C (stripped-tabtarget marshal reset)**: original text cited `rbw-MR.MarshalReset.sh` called from "Step 10"; current Step 9 calls `rbw-MZ.MarshalZeroes.sh` and runs **before** Step 10's strip. Verify this ordering is robust. If fine as-is, close. If fragile, fix via direct `rblm_reset` invocation from `Tools/rbk/rblm_cli.sh`.
+- **Item D (regime variable completeness check)**: current Step 3 implements this. Confirm and close.
+
+### Track 4 — OPEN_SOURCE_UPSTREAM remote (original AUAAR item E)
+
+Ensure the `OPEN_SOURCE_UPSTREAM` git remote points at `git@github.com:scaleinv/recipebottle.git`.
+
+1. `git remote -v` — inspect current state.
+2. If already correct, document as done.
+3. Otherwise, set via `git remote add` or `git remote set-url`. **User confirmation required** before any remote mutation — this is a shared-state change.
+
+### Track 5 — Verification sweep (absorbed from A8AAA D5)
+
+After Tracks 1-4 land, run the sweep:
+
+1. **Retirement grep**: confirm no live references to `index.html`, `README.consumer.md`, or `.nojekyll` outside retired gallops and memo artifacts.
+2. **Foundry colophon grep**: confirm no stale `rbw-h*` foundry references in consumer-visible files (customer-visible `.sh`/`.md`/`.adoc`). The `rbw-h*` namespace now belongs exclusively to Handbook after b63dc6cf.
+3. **Fast qualify**: `tt/rbw-tf.QualifyFast.sh` (or the then-current qualify-fast tabtarget — verify during execution).
+4. **Manual smoke**: exercise the current onboarding entry point (check `tt/` for the correct tabtarget — `rbw-o` is listed as "Onboarding start") and one or more role tracks.
+5. **Notch** remaining changes.
+6. **Ask user for go-ahead to wrap the heat.** Do NOT auto-wrap.
+
+### Verification gates
+
+- Each track presented to user before executing.
+- User review point before committing the ceremony diff.
+- User confirmation before any remote mutation (Track 4).
+- No auto-wrap — user decides when the pace closes.
+
+## References
+
+- `.claude/commands/rbk-prep-release.md` — ceremony rewrite target
+- `Tools/rbk/rbq_Qualify.sh` — qualification orchestrator (Track 2)
+- `Tools/rbk/rblm_cli.sh` — lifecycle marshal (Track 3 candidate)
+- Commit `b7c1dbdd` — retirement landing (Track 1 source of truth)
+- Commit `5dc8dcc6` — CLAUDE.consumer.md glossary trigger directive (D3 done elsewhere; excluded here)
+- Commit `b63dc6cf` — foundry colophon restructure `rbw-h*` → `rbw-f*` (Track 5 widened grep)
+- ₣AU paddock — release-finalize heat context
+- ₣A8 paddock — public docs refresh context
+- ₢A8AAA — this pace absorbed its D4+D5 tracks; dropped concurrently with this reslate
+
+# jjezs_pace ₢BBABN
+
+Drafted from ₢AUAA5 in ₣AU.
+
+## Character
+
+Research-heavy with judgment — produces a ranked findings document; no code changes in this pace. Parallels the prior `oauth-trust-hygiene-sweep` review method (₢A_AAN) but widened to the foundry surface, including the step scripts deployed INTO Cloud Build workers (a distinct trust boundary from the on-curia orchestrating bash). Remediation is explicitly deferred: each finding cluster that the operator elects to pursue gets its own follow-up pace, slated by the operator after reviewing the findings.
+
+## Scope
+
+### On-curia orchestrating bash (rbf* family)
+
+| File | Role |
+|------|------|
+| `Tools/rbk/rbfc_FoundryCore.sh` | Shared foundry primitives (~52 KB) |
+| `Tools/rbk/rbfd_FoundryDirectorBuild.sh` | Director build orchestration — conjure/bind/graft/enshrine/inscribe dispatch (~72 KB, largest file in the family) |
+| `Tools/rbk/rbfl_FoundryLedger.sh` | Hallmark ledger — abjure/tally/jettison/rekons/wrest (~36 KB) |
+| `Tools/rbk/rbfr_FoundryRetriever.sh` | Retriever operations — summon, plumb (~12 KB) |
+| `Tools/rbk/rbfv_FoundryVerify.sh` | Verify — vouch emit and consume (~39 KB) |
+| `Tools/rbk/rbfc_cli.sh`, `rbfd_cli.sh`, `rbfl_cli.sh`, `rbfr_cli.sh`, `rbfv_cli.sh` | CLI dispatchers |
+
+### Cloud Build step scripts (deployed into Cloud Build workers — distinct trust boundary)
+
+These scripts run INSIDE Cloud Build workers with Cloud Build's identity, not the operator's identity. They receive parameters via `_RBG*` substitutions that the director renders into jq-composed build step bodies. They are a distinct trust surface from the orchestrating bash: quoting hazards land differently (step scripts run in a minimal container); error handling in-builder affects what exit codes the builder surfaces; step scripts see only what the director sends.
+
+| Directory | Count | Role |
+|-----------|------:|------|
+| `Tools/rbk/rbgja/` | 4 | About assembly — discover-platforms.py, syft-per-platform.sh, build-info-per-platform.py, assemble-push-about.sh |
+| `Tools/rbk/rbgjb/` | 6 | Buildx — derive-tag-base, qemu-binfmt, buildx-push-image, per-platform-pullback, push-per-platform, push-diags |
+| `Tools/rbk/rbgje/` | 1 | Enshrine — copy |
+| `Tools/rbk/rbgji/` | 1 | Inscribe — mirror |
+| `Tools/rbk/rbgjm/` | 1 | Mirror-image |
+| `Tools/rbk/rbgjv/` | 3 | Vouch/verify — download-verifier, verify-provenance.py, assemble-push-vouch |
+
+Three of these are Python (`rbgja01`, `rbgja03`, `rbgjv02`) — audited with the same trust-foment lens adapted to Python idioms.
+
+## Method
+
+Apply the same tiered trust-foment framework used in the OAuth review (₢A_AAN), adapted to foundry concerns:
+
+### Tier 1 — visible-in-30-seconds signals
+
+- Shellcheck cleanliness across all foundry bash and step-script bash
+- `set -euo pipefail` presence and placement
+- Quoting and expansion discipline (especially for parameters that flow into jq, curl, skopeo, docker buildx, oras, etc.)
+- Python: lint (ruff/pyflakes if available), `shell=True` subprocess use, unvalidated input
+- TODO/FIXME/XXX density, especially undated or in supply-chain-adjacent paths
+- Dead code, commented-out blocks, unused constants
+
+### Tier 2 — second-look signals
+
+- **Error handling asymmetry across the rbf* family** — do rbfc, rbfd, rbfl, rbfr, rbfv fail the same way for the same class of problem?
+- **Duplication across step scripts** — rbgjb03/rbgjb05 buildx paths, rbgja04/rbgjv03 assemble-push variants
+- **Stale references after recent structural work** — with `₢A_AAB` RBRR_CLOUD_PREFIX threading and `₢A_AAK` categorical layout changes landing in A_, check for drift, half-migrated paths, or comments that contradict current code
+- **TOCTOU / race-adjacent patterns** — temp file creation, permission tightening order
+- **Error-swallowing patterns** — `|| true` placements, subshell failure masking, pipefail gaps
+
+### Tier 3 — foundry-specific trust surfaces
+
+1. **Supply-chain chain of custody** — ordain → vouch → summon → plumb. What does each ark promise, and does the consumer actually verify what was promised? Specifically:
+   - SLSA provenance: `rbgjv02-verify-provenance.py` is the verifier. Does the vouch artifact it checks against actually carry what the director claimed to emit?
+   - Vouch gate: can a conjure/bind/graft succeed without a matching vouch? Does `rbfr` refuse to summon an un-vouched hallmark?
+   - Cross-mode (conjure vs. bind vs. graft): each has different provenance guarantees. Does the mode-aware vouch logic in `rbfv_FoundryVerify.sh` correctly distinguish, or are there paths where a graft verdict can leak into a conjure-mode verification?
+
+2. **Multi-platform build integrity** — buildx per-platform pullback, digest handling, and platform-specific SBOM/about emission. Does the per-platform pipeline cross-contaminate? Can a push-per-platform step silently push an image built for the wrong platform?
+
+3. **Cloud Build step-script input validation** — step scripts receive `_RBG*` substitutions composed by the director via jq `--arg` and `--argjson`. jq quoting is correct by construction, but:
+   - Any place the director uses raw string interpolation into a build YAML/JSON?
+   - Any step script that interpolates its own environment into a shell command without quoting?
+   - Any step script that accepts an argv parameter without validating its shape?
+
+4. **Cloud Build posture verification** — the step container environment. What's in it? What can it reach? RBSCB-CloudBuildPosture.adoc is the stated posture; does step-script behavior match, or does any step script make assumptions incompatible with the stated posture (e.g., expecting network reachability that airgap pool denies)?
+
+5. **Secret handling in step scripts** — step scripts should see only what they need. Check for:
+   - Secret Manager refs correctly scoped per step
+   - No secrets logged to Cloud Build logs (Google mirrors these; log leaks are persistent)
+   - No secrets written to intermediate build artifacts (e.g., baked into image layers)
+   - No secrets embedded in step-script source itself
+
+6. **Container-registry write authority** — which step pushes to which path? Can a graft step push into a hallmark path meant for conjure? (The AAK categorical layout tightens this, but worth auditing once it lands.)
+
+7. **Verifier/verified symmetry** — the vouch schema and the provenance-verify schema must stay in lockstep. If `rbgjv03-assemble-push-vouch.sh` emits field X and `rbgjv02-verify-provenance.py` checks field Y, divergence is a silent trust gap.
+
+8. **Dependency pins inside step scripts** — step scripts pull tools (syft, skopeo, oras, cosign if present, docker buildx, qemu-binfmt, gcloud-within-builder). Are these pinned by digest? By tag? Not at all? The RBSRG (RegimeGcbPins) spec is the reference contract; does reality match?
+
+9. **Failure modes visible to operator** — when a cloud build step fails, what does the operator see? Cryptic exit codes, clean structured errors, or a wall of unattributed output? This is a trust signal for the operator experience more than for an external auditor, but both matter.
+
+10. **Python ↔ bash boundary** — `rbgja01-discover-platforms.py`, `rbgja03-build-info-per-platform.py`, `rbgjv02-verify-provenance.py`. These read bash-set environment, emit JSON to stdout or files, and signal failure via exit code. The boundary is where most cross-language bugs live. Check: JSON emission discipline (one doc per invocation, no stray stdout), exit-code fidelity, schema stability.
+
+## Deliverable
+
+A findings report written to the chat (not committed to disk unless operator requests) matching the format produced for ₢A_AAN:
+
+- **"What builds trust here"** section — specific patterns worth preserving (setting the floor)
+- **Tier 1 / 2 / 3 findings** — each numbered (F1, F2, …), each naming file:line, describing the trust-foment signal, and proposing a specific fix or clarification
+- **Priority list** — findings ranked by trust-yield-per-line-of-diff so the operator can pick which to pursue first
+
+The operator then reviews and elects which clusters to remediate. Each elected cluster becomes its own follow-up pace, either in AU (if pre-release scope) or in A_ (if structural enough to block depot regen). F-numbering is internal to this audit and does not carry across pace boundaries.
+
+## Relation to other work
+
+- **₢A_AAN** (oauth-trust-hygiene-sweep) already covers the OAuth surface (`rbgo_OAuth.sh`, `rbgp_Payor.sh` OAuth portion, `rbgv_AccessProbe.sh`, `rbro_regime.sh`, `rbro_cli.sh`). This foundry audit does NOT revisit those files.
+- **F7 follow-up** (factor three token-exchange code paths, still to be slated in A_) is also OAuth-scoped and not revisited here.
+- **AAK / AAL / AAB** (GAR categorical layout and prefix threading in A_) are actively reshaping paths the foundry constructs. The audit acknowledges this: findings about path construction should be cross-referenced against AAK's helper-module intent (`rbgl_GarLayout.sh`) to avoid flagging things AAK already plans to fix. Ideally this audit runs AFTER AAK lands, so the audit reviews the post-migration state rather than transitional code.
+- **Recent AU paces** touched `rbfd_FoundryDirectorBuild.sh` (lanes S/A/J/K/F — build provenance, multiplatform, vouch preflight, digest extraction) and `rbfc_FoundryCore.sh` (lane F). The audit reads the current state; it does not revisit decisions those paces made, only flags if the implementations embody trust-foment signals visible at the code surface.
+
+## Out of scope
+
+- Implementing any fixes (separate per-cluster paces — operator's decision)
+- Auditing OAuth code (covered by ₢A_AAN and its forthcoming F7 sibling)
+- Auditing non-foundry / non-step-script RBK code (governor, IAM, access-probe — separate audits if wanted)
+- Auditing JJK, BUK, CMK, VVK — all out-of-kit scope
+- Pen-testing the Cloud Build environment itself (that's an external-service posture question — see RBSCB; audit only compares script behavior to stated posture)
+- Changing the stated Cloud Build posture (RBSCB is a design decision; audit observes, doesn't propose)
+- Regenerating pinned digest references (RBSRG is a contract; audit checks adherence, doesn't rotate)
+
+## Verification (for the audit pace itself)
+
+This is a research pace; the "verification" is that the deliverable exists, names real file:line references, is internally consistent, and the operator reads it and either accepts it as-is or asks for clarifications before deciding on follow-ups.
+
+- Every finding names `file:line` (verifiable by inspection)
+- Every finding proposes a specific remediation OR explicitly marks "observation-only"
+- Findings are ranked (not a flat list)
+- Priority table clusters related findings so follow-up paces can be scoped cleanly
+- "What builds trust here" section present — audits that only find faults foment their own kind of distrust

@@ -1,0 +1,218 @@
+Tools/buk/buwz_zipper.sh:38:  buz_enroll BUWZ_TT_LIST_LAUNCHERS      "buw-tt-ll"  "${z_mod}" "buut_list_launchers"               ""  "List all registered launchers"
+Tools/buk/buwz_zipper.sh:39:  buz_enroll BUWZ_TT_BATCH_LOGGING       "buw-tt-cbl" "${z_mod}" "buut_tabtarget_batch_logging"      ""  "Create batch tabtarget with logging"
+Tools/buk/buwz_zipper.sh:40:  buz_enroll BUWZ_TT_BATCH_NOLOG         "buw-tt-cbn" "${z_mod}" "buut_tabtarget_batch_nolog"        ""  "Create batch tabtarget without logging"
+Tools/buk/buwz_zipper.sh:41:  buz_enroll BUWZ_TT_INTERACTIVE_LOGGING "buw-tt-cil" "${z_mod}" "buut_tabtarget_interactive_logging" ""  "Create interactive tabtarget with logging"
+Tools/buk/buwz_zipper.sh:42:  buz_enroll BUWZ_TT_INTERACTIVE_NOLOG   "buw-tt-cin" "${z_mod}" "buut_tabtarget_interactive_nolog"  ""  "Create interactive tabtarget without logging"
+Tools/buk/buwz_zipper.sh:43:  buz_enroll BUWZ_TT_LAUNCHER            "buw-tt-cl"  "${z_mod}" "buut_launcher"                     ""  "Create launcher script"
+Tools/buk/buwz_zipper.sh:47:  buz_enroll BUWZ_RC_VALIDATE "buw-rcv" "${z_mod}" "burc_validate"  ""  "Validate BURC regime"
+Tools/buk/buwz_zipper.sh:48:  buz_enroll BUWZ_RC_RENDER   "buw-rcr" "${z_mod}" "burc_render"    ""  "Render BURC regime"
+Tools/buk/buwz_zipper.sh:52:  buz_enroll BUWZ_RS_VALIDATE "buw-rsv" "${z_mod}" "burs_validate"  ""  "Validate BURS regime"
+Tools/buk/buwz_zipper.sh:53:  buz_enroll BUWZ_RS_RENDER   "buw-rsr" "${z_mod}" "burs_render"    ""  "Render BURS regime"
+Tools/buk/buwz_zipper.sh:57:  buz_enroll BUWZ_RE_VALIDATE "buw-rev" "${z_mod}" "bure_validate"  ""  "Validate BURE regime"
+Tools/buk/buwz_zipper.sh:58:  buz_enroll BUWZ_RE_RENDER   "buw-rer" "${z_mod}" "bure_render"    ""  "Render BURE regime"
+Tools/buk/buwz_zipper.sh:62:  buz_enroll BUWZ_QUALIFY_SHELLCHECK "buw-qsc" "${z_mod}" "buq_shellcheck"  ""  "Run shellcheck on all tools"
+Tools/buk/buwz_zipper.sh:66:  buz_enroll BUWZ_DELAY "buw-xd" "${z_mod}" "bux_delay"  ""  "Sleep 20 seconds (timing fixture)"
+Tools/buk/buwz_zipper.sh:70:  buz_enroll BUWZ_SELF_TEST "buw-st" "${z_mod}" "buw-st"  ""  "BUK self-test (kick-tires + bure-tweak)"
+Tools/buk/buwz_zipper.sh:74:  buz_enroll BUWZ_H0_TOP            "buw-h0"    "${z_mod}" "buhw_handbook_top"        ""        "BUK top-level handbook index"
+Tools/buk/buwz_zipper.sh:75:  buz_enroll BUWZ_HW_TOP            "buw-hw"    "${z_mod}" "buhw_top"                ""        "BUK-level Windows procedures checklist"
+Tools/buk/buwz_zipper.sh:76:  buz_enroll BUWZ_HW_ACCESS_BASE    "buw-HWab"  "${z_mod}" "buhw_access_base"        ""        "OpenSSH server install + lockdown"
+Tools/buk/buwz_zipper.sh:77:  buz_enroll BUWZ_HW_ACCESS_REMOTE  "buw-HWar"  "${z_mod}" "buhw_access_remote"      ""        "Client key gen + ssh config"
+Tools/buk/buwz_zipper.sh:78:  buz_enroll BUWZ_HW_ACCESS_ENTRY   "buw-HWax"  "${z_mod}" "buhw_access_entrypoints" ""        "SSH command= routing + icacls"
+Tools/buk/buwz_zipper.sh:79:  buz_enroll BUWZ_HW_ENV_WSL        "buw-HWew"  "${z_mod}" "buhw_environment_wsl"    "param1"  "WSL distro creation"
+Tools/buk/buwz_zipper.sh:80:  buz_enroll BUWZ_HW_ENV_CYGWIN     "buw-HWec"  "${z_mod}" "buhw_environment_cygwin" ""        "Cygwin install"
+Tools/buk/butt_testbench.sh:57:  butr_suite_enroll "self-test"
+Tools/buk/butt_testbench.sh:60:  butr_fixture_enroll "kick-tires" "" "zbutt_noop_baste"
+Tools/buk/butt_testbench.sh:61:  butr_case_enroll "kick-tires" butckk_false_tcase
+Tools/buk/butt_testbench.sh:62:  butr_case_enroll "kick-tires" butckk_true_tcase
+Tools/buk/butt_testbench.sh:65:  butr_fixture_enroll "bure-tweak" "" "zbutt_noop_baste"
+Tools/buk/butt_testbench.sh:66:  butr_case_enroll "bure-tweak" butcbe_tweak_empty_tcase
+Tools/buk/butt_testbench.sh:67:  butr_case_enroll "bure-tweak" butcbe_tweak_both_set_tcase
+Tools/buk/butt_testbench.sh:68:  butr_case_enroll "bure-tweak" butcbe_tweak_name_only_tcase
+Tools/buk/butt_testbench.sh:69:  butr_case_enroll "bure-tweak" butcbe_tweak_value_only_tcase
+Tools/buk/butt_testbench.sh:70:  butr_case_enroll "bure-tweak" butcbe_tweak_name_too_long_tcase
+Tools/buk/butt_testbench.sh:71:  butr_case_enroll "bure-tweak" butcbe_tweak_value_too_long_tcase
+Tools/buk/butt_testbench.sh:72:  butr_case_enroll "bure-tweak" butcbe_label_valid_tcase
+Tools/buk/butt_testbench.sh:73:  butr_case_enroll "bure-tweak" butcbe_label_too_long_tcase
+Tools/buk/butt_testbench.sh:74:  butr_case_enroll "bure-tweak" butcbe_unexpected_var_tcase
+Tools/buk/butt_testbench.sh:77:  butr_fixture_enroll "burx-exchange" "" "zbutt_noop_baste"
+Tools/buk/butt_testbench.sh:78:  butr_case_enroll "burx-exchange" butcbx_burx_dual_write_tcase
+Tools/buk/butt_testbench.sh:79:  butr_case_enroll "burx-exchange" butcbx_burx_fields_tcase
+Tools/buk/butt_testbench.sh:80:  butr_case_enroll "burx-exchange" butcbx_burx_preexist_tcase
+Tools/buk/butt_testbench.sh:81:  butr_case_enroll "burx-exchange" butcbx_burx_timestamp_format_tcase
+Tools/buk/butt_testbench.sh:84:  butr_fixture_enroll "buh-link" "" "zbutt_noop_baste"
+Tools/buk/butt_testbench.sh:85:  butr_case_enroll "buh-link" butclc_tlt_osc8_tcase
+Tools/buk/butt_testbench.sh:86:  butr_case_enroll "buh-link" butclc_tlt_fallback_tcase
+Tools/buk/butt_testbench.sh:87:  butr_case_enroll "buh-link" butclc_all_combinators_tcase
+Tools/buk/buv_validation.sh:77:  # Mutable kindle state: regime context (set by buv_regime_enroll / buv_group_enroll / buv_gate_enroll)
+Tools/buk/buv_validation.sh:92:zbuv_reset_enrollment() {
+Tools/buk/buv_validation.sh:122:# buv_regime_enroll SCOPE — set current enrollment scope
+Tools/buk/buv_validation.sh:124:# until another buv_regime_enroll is called.
+Tools/buk/buv_validation.sh:125:buv_regime_enroll() {
+Tools/buk/buv_validation.sh:129:  test -n "${z_scope}" || buc_die "buv_regime_enroll: scope required"
+Tools/buk/buv_validation.sh:137:# buv_group_enroll TITLE — set current group context
+Tools/buk/buv_validation.sh:139:# this group title until the next buv_group_enroll call.
+Tools/buk/buv_validation.sh:140:# Resets gate context — use buv_gate_enroll after this to gate items.
+Tools/buk/buv_validation.sh:141:buv_group_enroll() {
+Tools/buk/buv_validation.sh:144:  test -n "${z_buv_current_scope}" || buc_die "buv_group_enroll: call buv_regime_enroll first"
+Tools/buk/buv_validation.sh:147:  test -n "${z_title}" || buc_die "buv_group_enroll: title required"
+Tools/buk/buv_validation.sh:160:# buv_gate_enroll GATE_VAR GATE_VAL — set gate context within current group
+Tools/buk/buv_validation.sh:163:buv_gate_enroll() {
+Tools/buk/buv_validation.sh:166:  test -n "${z_buv_current_group}" || buc_die "buv_gate_enroll: call buv_group_enroll first"
+Tools/buk/buv_validation.sh:170:  test -n "${z_gate_var}" || buc_die "buv_gate_enroll: gate variable required"
+Tools/buk/buv_validation.sh:171:  test -n "${z_gate_val}" || buc_die "buv_gate_enroll: gate value required"
+Tools/buk/buv_validation.sh:181:# Usage: zbuv_enroll VARNAME TYPE P1 P2 DESC
+Tools/buk/buv_validation.sh:182:# Gate context inherited from buv_gate_enroll; group from buv_group_enroll.
+Tools/buk/buv_validation.sh:183:zbuv_enroll() {
+Tools/buk/buv_validation.sh:192:  test -n "${z_buv_current_scope}" || buc_die "zbuv_enroll: call buv_regime_enroll first"
+Tools/buk/buv_validation.sh:193:  [[ "${z_varname}" =~ ^[A-Za-z_][A-Za-z0-9_]*$ ]] || buc_die "zbuv_enroll: invalid variable name: '${z_varname}'"
+Tools/buk/buv_validation.sh:208:# Signature: buv_TYPE_enroll VARNAME P1 P2 "description"
+Tools/buk/buv_validation.sh:209:# Scope from buv_regime_enroll; group from buv_group_enroll; gate from buv_gate_enroll.
+Tools/buk/buv_validation.sh:211:buv_string_enroll() {
+Tools/buk/buv_validation.sh:216:  zbuv_enroll "${z_varname}" "string" "${z_p1}" "${z_p2}" "${z_desc}"
+Tools/buk/buv_validation.sh:219:buv_xname_enroll() {
+Tools/buk/buv_validation.sh:224:  zbuv_enroll "${z_varname}" "xname" "${z_p1}" "${z_p2}" "${z_desc}"
+Tools/buk/buv_validation.sh:227:buv_gname_enroll() {
+Tools/buk/buv_validation.sh:232:  zbuv_enroll "${z_varname}" "gname" "${z_p1}" "${z_p2}" "${z_desc}"
+Tools/buk/buv_validation.sh:235:buv_fqin_enroll() {
+Tools/buk/buv_validation.sh:240:  zbuv_enroll "${z_varname}" "fqin" "${z_p1}" "${z_p2}" "${z_desc}"
+Tools/buk/buv_validation.sh:243:buv_bool_enroll() {
+Tools/buk/buv_validation.sh:246:  zbuv_enroll "${z_varname}" "bool" "" "" "${z_desc}"
+Tools/buk/buv_validation.sh:249:buv_enum_enroll() {
+Tools/buk/buv_validation.sh:253:  zbuv_enroll "${z_varname}" "enum" "$*" "" "${z_desc}"
+Tools/buk/buv_validation.sh:256:buv_decimal_enroll() {
+Tools/buk/buv_validation.sh:261:  zbuv_enroll "${z_varname}" "decimal" "${z_p1}" "${z_p2}" "${z_desc}"
+Tools/buk/buv_validation.sh:264:buv_odref_enroll() {
+Tools/buk/buv_validation.sh:267:  zbuv_enroll "${z_varname}" "odref" "" "" "${z_desc}"
+Tools/buk/buv_validation.sh:270:buv_ipv4_enroll() {
+Tools/buk/buv_validation.sh:273:  zbuv_enroll "${z_varname}" "ipv4" "" "" "${z_desc}"
+Tools/buk/buv_validation.sh:276:buv_port_enroll() {
+Tools/buk/buv_validation.sh:279:  zbuv_enroll "${z_varname}" "port" "" "" "${z_desc}"
+Tools/buk/buv_validation.sh:284:buv_list_string_enroll() {
+Tools/buk/buv_validation.sh:289:  zbuv_enroll "${z_varname}" "list_string" "${z_p1}" "${z_p2}" "${z_desc}"
+Tools/buk/buv_validation.sh:292:buv_list_ipv4_enroll() {
+Tools/buk/buv_validation.sh:295:  zbuv_enroll "${z_varname}" "list_ipv4" "" "" "${z_desc}"
+Tools/buk/buv_validation.sh:298:buv_list_gname_enroll() {
+Tools/buk/buv_validation.sh:303:  zbuv_enroll "${z_varname}" "list_gname" "${z_p1}" "${z_p2}" "${z_desc}"
+Tools/buk/buv_validation.sh:306:buv_list_cidr_enroll() {
+Tools/buk/buv_validation.sh:309:  zbuv_enroll "${z_varname}" "list_cidr" "" "" "${z_desc}"
+Tools/buk/buv_validation.sh:312:buv_list_domain_enroll() {
+Tools/buk/buv_validation.sh:315:  zbuv_enroll "${z_varname}" "list_domain" "" "" "${z_desc}"
+Tools/buk/buz_zipper.sh:33:  # Registry rolls (populated by buz_enroll in consumer kindle, same-process only)
+Tools/buk/buz_zipper.sh:101:# buz_enroll() - Register colophon tuple in parallel rolls
+Tools/buk/buz_zipper.sh:106:buz_enroll() {
+Tools/buk/buz_zipper.sh:109:  test $# -eq 6 || buc_die "buz_enroll: requires 6 arguments (varname colophon module command channel description), got $#"
+Tools/buk/buz_zipper.sh:117:  test -n "${z_varname}"     || buc_die "buz_enroll: varname required"
+Tools/buk/buz_zipper.sh:118:  test -n "${z_colophon}"    || buc_die "buz_enroll: colophon required"
+Tools/buk/buz_zipper.sh:119:  test -n "${z_module}"      || buc_die "buz_enroll: module required"
+Tools/buk/buz_zipper.sh:120:  test -n "${z_command}"     || buc_die "buz_enroll: command required"
+Tools/buk/buz_zipper.sh:121:  test -n "${z_description}" || buc_die "buz_enroll: description required"
+Tools/buk/buz_zipper.sh:126:    *) buc_die "buz_enroll: invalid channel: ${z_channel}" ;;
+Tools/buk/buz_zipper.sh:131:    || buc_die "buz_enroll: invalid variable name: ${z_varname}"
+Tools/buk/buz_zipper.sh:141:  printf -v "${z_varname}" '%s' "${z_colophon}" || buc_die "buz_enroll: printf -v failed for ${z_varname}"
+Tools/buk/buz_zipper.sh:149:# Writes markdown to stdout. Groups come from buz_group; descriptions from buz_enroll.
+Tools/buk/burc_regime.sh:40:  buv_regime_enroll BURC
+Tools/buk/burc_regime.sh:42:  buv_group_enroll "Station Reference"
+Tools/buk/burc_regime.sh:43:  buv_string_enroll  BURC_STATION_FILE          1  512  "Path to developer's BURS station file"
+Tools/buk/burc_regime.sh:45:  buv_group_enroll "Tabtarget Infrastructure"
+Tools/buk/burc_regime.sh:46:  buv_string_enroll  BURC_TABTARGET_DIR         1  128  "Directory containing launcher scripts"
+Tools/buk/burc_regime.sh:47:  buv_string_enroll  BURC_TABTARGET_DELIMITER   1    1  "Token separator in tabtarget filenames"
+Tools/buk/burc_regime.sh:49:  buv_group_enroll "Project Structure"
+Tools/buk/burc_regime.sh:50:  buv_string_enroll  BURC_TOOLS_DIR             1  128  "Directory containing tool scripts"
+Tools/buk/burc_regime.sh:51:  buv_string_enroll  BURC_PROJECT_ROOT          1  512  "Path from burc.env to project root"
+Tools/buk/burc_regime.sh:52:  buv_string_enroll  BURC_MANAGED_KITS          1  512  "Comma-separated kit list for vvx"
+Tools/buk/burc_regime.sh:54:  buv_group_enroll "Build Output"
+Tools/buk/burc_regime.sh:55:  buv_string_enroll  BURC_TEMP_ROOT_DIR         1  512  "Root directory for temporary files"
+Tools/buk/burc_regime.sh:56:  buv_string_enroll  BURC_OUTPUT_ROOT_DIR       1  512  "Root directory for command output"
+Tools/buk/burc_regime.sh:58:  buv_group_enroll "Logging"
+Tools/buk/burc_regime.sh:59:  buv_xname_enroll   BURC_LOG_LAST              1   64  "Filename stem for last-run log"
+Tools/buk/burc_regime.sh:60:  buv_xname_enroll   BURC_LOG_EXT               1   16  "Log file extension (without dot)"
+Tools/buk/burc_regime.sh:61:  buv_string_enroll  BURC_BUK_DIR               1  256  "Derived: BUK directory"
+Tools/buk/burd_regime.sh:41:  buv_regime_enroll BURD
+Tools/buk/burd_regime.sh:43:  buv_group_enroll "Launcher Configuration"
+Tools/buk/burd_regime.sh:44:  buv_string_enroll  BURD_CONFIG_DIR            1  256  "Path to the .buk/ configuration directory"
+Tools/buk/burd_regime.sh:45:  buv_string_enroll  BURD_REGIME_FILE           1  256  "Path to the BURC regime configuration file"
+Tools/buk/burd_regime.sh:46:  buv_string_enroll  BURD_STATION_FILE          1  256  "Path to the developer's BURS station file"
+Tools/buk/burd_regime.sh:47:  buv_string_enroll  BURD_COORDINATOR_SCRIPT    1  256  "Path to the coordinator script for this tabtarget"
+Tools/buk/burd_regime.sh:48:  buv_string_enroll  BURD_LAUNCHER              1  256  "Path to the tabtarget launcher script"
+Tools/buk/burd_regime.sh:49:  buv_string_enroll  BURD_TERM_COLS             1    8  "Terminal column width at dispatch time"
+Tools/buk/burd_regime.sh:51:  buv_group_enroll "Directory Paths"
+Tools/buk/burd_regime.sh:52:  buv_string_enroll  BURD_TOOLS_DIR             1  256  "Tools directory path (from BURC)"
+Tools/buk/burd_regime.sh:53:  buv_string_enroll  BURD_BUK_DIR               1  256  "BUK directory path (derived)"
+Tools/buk/burd_regime.sh:54:  buv_string_enroll  BURD_TABTARGET_DIR         1  256  "Tabtarget directory path (from BURC)"
+Tools/buk/burd_regime.sh:56:  buv_group_enroll "Computed State"
+Tools/buk/burd_regime.sh:57:  buv_string_enroll  BURD_NOW_STAMP             1   64  "Timestamp string computed at dispatch time"
+Tools/buk/burd_regime.sh:58:  buv_string_enroll  BURD_NOW_EPOCH             1   16  "UTC epoch seconds from same date invocation as BURD_NOW_STAMP"
+Tools/buk/burd_regime.sh:59:  buv_string_enroll  BURD_TEMP_DIR              1  256  "Temporary directory for this invocation"
+Tools/buk/burd_regime.sh:60:  buv_string_enroll  BURD_OUTPUT_DIR            1  256  "Output directory for this invocation"
+Tools/buk/burd_regime.sh:61:  buv_string_enroll  BURD_TRANSCRIPT            1  256  "Path to transcript file for this invocation"
+Tools/buk/burd_regime.sh:62:  buv_string_enroll  BURD_GIT_CONTEXT           1  128  "Git context string at dispatch time"
+Tools/buk/burd_regime.sh:64:  buv_group_enroll "Parsed Tabtarget"
+Tools/buk/burd_regime.sh:65:  buv_string_enroll  BURD_TARGET                1  256  "Target parsed from tabtarget filename"
+Tools/buk/burd_regime.sh:66:  buv_string_enroll  BURD_COMMAND               1   64  "Command parsed from tabtarget filename"
+Tools/buk/burd_regime.sh:67:  buv_string_enroll  BURD_TOKEN_1               1   64  "First token parsed from tabtarget filename"
+Tools/buk/burd_regime.sh:68:  buv_string_enroll  BURD_TOKEN_2               1  128  "Second token parsed from tabtarget filename"
+Tools/buk/burd_regime.sh:69:  buv_string_enroll  BURD_TOKEN_3               0   64  "Third token (optional)"
+Tools/buk/burd_regime.sh:70:  buv_string_enroll  BURD_TOKEN_4               0   64  "Fourth token (optional)"
+Tools/buk/burd_regime.sh:71:  buv_string_enroll  BURD_TOKEN_5               0   64  "Fifth token (optional)"
+Tools/buk/burd_regime.sh:73:  buv_group_enroll "Caller Options"
+Tools/buk/burd_regime.sh:74:  buv_string_enroll  BURD_NO_LOG                0   16  "Disable logging when set"
+Tools/buk/burd_regime.sh:75:  buv_string_enroll  BURD_INTERACTIVE           0   16  "Interactive mode flag when set"
+Tools/buk/burd_regime.sh:77:  buv_group_enroll "Log Paths"
+Tools/buk/burd_regime.sh:78:  buv_string_enroll  BURD_LOG_LAST              0  256  "Path to last-run log file"
+Tools/buk/burd_regime.sh:79:  buv_string_enroll  BURD_LOG_SAME              0  256  "Path to same-command log file"
+Tools/buk/burd_regime.sh:80:  buv_string_enroll  BURD_LOG_HIST              0  256  "Path to historical log file"
+Tools/buk/burd_regime.sh:83:  buv_string_enroll  BURD_CLI_ARGS              0 9999  "CLI arguments (array, validated separately)"
+Tools/buk/vov_veiled/BCG-BashConsoleGuide.md:99:| `buv_*_enroll` calls | kindle | Declare field contracts (type, range, description) |
+Tools/buk/vov_veiled/BCG-BashConsoleGuide.md:659:z«prefix»_reset_enrollment() {
+Tools/buk/vov_veiled/BCG-BashConsoleGuide.md:800:«reg»_enroll() {
+Tools/buk/vov_veiled/BCG-BashConsoleGuide.md:816:  z_«reg»_enroll_name="${z_name}"
+Tools/buk/vov_veiled/BCG-BashConsoleGuide.md:824:  «reg»_enroll "alpha" "/path/alpha" "handle_alpha"
+Tools/buk/vov_veiled/BCG-BashConsoleGuide.md:825:  Z«CON»_DEFAULT="${z_«reg»_enroll_name}"
+Tools/buk/vov_veiled/BCG-BashConsoleGuide.md:827:  «reg»_enroll "bravo" "/path/bravo" "handle_bravo"
+Tools/buk/vov_veiled/BCG-BashConsoleGuide.md:890:- **_enroll**: Populate parallel-array registries (rolls) during kindle with validated inputs and return values
+Tools/buk/vov_veiled/BCG-BashConsoleGuide.md:918:| Enroll functions             | `[z]«prefix»_[«scope»_]enroll` | `«prefix»_enroll`          | Impl     | kindle-only                   |
+Tools/buk/vov_veiled/BCG-BashConsoleGuide.md:921:| Enroll return vars           | `z_«funcname»_«retval»`      | `z_«prefix»_enroll_name`     | Impl     | snake_case (func name verbatim)|
+Tools/buk/vov_veiled/BCG-BashConsoleGuide.md:1496:| Roll population + return | `_enroll` function (kindle only), `z_«funcname»_«retval»` vars |
+Tools/buk/vov_veiled/BCG-BashConsoleGuide.md:1546:- [ ] `_enroll` functions set `z_«funcname»_«retval»` return vars, never echo; callers never use `$()` (when applicable)
+Tools/buk/vov_veiled/BCG-BashConsoleGuide.md:1547:- [ ] `_enroll` functions called only within kindle (when applicable)
+Tools/buk/vov_veiled/BCG-BashConsoleGuide.md:1589:- [ ] Special functions: `*_predicate`, `*_capture`, `*_enroll`, `*_recite` suffixes
+Tools/buk/vov_veiled/BCG-BashConsoleGuide.md:1634:- [ ] Kindle calls `buv_*_enroll` for each config field
+Tools/buk/vov_veiled/BCG-BashConsoleGuide.md:1694:- Registered as second argument to `butr_fixture_enroll`
+Tools/buk/vov_veiled/BCG-BashConsoleGuide.md:1700:- Registered as third argument to `butr_fixture_enroll`
+Tools/buk/vov_veiled/BCG-BashConsoleGuide.md:1732:| Fixture enrollment | `butr_fixture_enroll` | — |
+Tools/buk/vov_veiled/BCG-BashConsoleGuide.md:1733:| Suite enrollment | `butr_suite_enroll` | Sets suite context |
+Tools/buk/vov_veiled/BCG-BashConsoleGuide.md:1734:| Case enrollment | `butr_case_enroll` | — |
+Tools/buk/vov_veiled/BCG-BashConsoleGuide.md:1752:grep -rn 'butr_fixture_enroll\|butr_case_enroll' Tools/
+Tools/buk/vov_veiled/BCG-BashConsoleGuide.md:1799:### FM-001: _register → _enroll
+Tools/buk/vov_veiled/BCG-BashConsoleGuide.md:1814:- Function suffix: `_enroll` (kindle-only)
+Tools/buk/butr_registry.sh:64:# butr_fixture_enroll() - Register a fixture with litmus predicate and baste function
+Tools/buk/butr_registry.sh:69:butr_fixture_enroll() {
+Tools/buk/butr_registry.sh:76:  test -n "${z_name}" || buto_fatal "butr_fixture_enroll: fixture_name required"
+Tools/buk/butr_registry.sh:81:    test "${z_butr_name_roll[$z_i]}" != "${z_name}" || buto_fatal "butr_fixture_enroll: duplicate fixture '${z_name}'"
+Tools/buk/butr_registry.sh:86:    declare -F "${z_litmus}" >/dev/null || buto_fatal "butr_fixture_enroll: litmus function not found: ${z_litmus}"
+Tools/buk/butr_registry.sh:91:    declare -F "${z_baste}" >/dev/null || buto_fatal "butr_fixture_enroll: baste function not found: ${z_baste}"
+Tools/buk/butr_registry.sh:102:# butr_suite_enroll() - Set current suite context for subsequent case enrollments
+Tools/buk/butr_registry.sh:105:butr_suite_enroll() {
+Tools/buk/butr_registry.sh:108:  test $# -gt 0 || buto_fatal "butr_suite_enroll: at least one suite required"
+Tools/buk/butr_registry.sh:131:# butr_case_enroll() - Register a test case function for a fixture
+Tools/buk/butr_registry.sh:134:butr_case_enroll() {
+Tools/buk/butr_registry.sh:140:  test -n "${z_fixture}" || buto_fatal "butr_case_enroll: fixture_name required"
+Tools/buk/butr_registry.sh:141:  test -n "${z_case}" || buto_fatal "butr_case_enroll: case_function required"
+Tools/buk/butr_registry.sh:144:  test "${z_butr_suite_context_set}" -eq 1 || buto_fatal "butr_case_enroll: no suite context — call butr_suite_enroll first"
+Tools/buk/butr_registry.sh:156:  test -n "${z_fixture_idx}" || buto_fatal "butr_case_enroll: unknown fixture '${z_fixture}'"
+Tools/buk/butr_registry.sh:159:  declare -F "${z_case}" >/dev/null || buto_fatal "butr_case_enroll: case function not found: ${z_case}"
+Tools/buk/burs_regime.sh:38:  buv_regime_enroll BURS
+Tools/buk/burs_regime.sh:40:  buv_group_enroll "Developer Logging"
+Tools/buk/burs_regime.sh:41:  buv_string_enroll  BURS_LOG_DIR  1  512  "Directory for BUK operation logs"
+Tools/buk/bure_regime.sh:48:  buv_regime_enroll BURE
+Tools/buk/bure_regime.sh:50:  buv_group_enroll "Behavioral Overrides"
+Tools/buk/bure_regime.sh:51:  buv_string_enroll  BURE_COUNTDOWN   0  4  "Countdown override (skip to disable)"
+Tools/buk/bure_regime.sh:52:  buv_enum_enroll    BURE_VERBOSE     "Verbosity level" 0 1 2 3
+Tools/buk/bure_regime.sh:53:  buv_enum_enroll    BURE_COLOR       "Color mode" auto 0 1
+Tools/buk/bure_regime.sh:55:  buv_group_enroll "Tweak Mechanism"
+Tools/buk/bure_regime.sh:56:  buv_string_enroll  BURE_TWEAK_NAME  0  64   "Tweak name (consumer-interpreted)"
+Tools/buk/bure_regime.sh:57:  buv_string_enroll  BURE_TWEAK_VALUE 0  256  "Tweak value (consumer-interpreted)"
+Tools/buk/bure_regime.sh:59:  buv_group_enroll "Exchange Labels"
+Tools/buk/bure_regime.sh:60:  buv_string_enroll  BURE_LABEL       0  120  "Correlation label for cross-project exchange (xname format)"
+Tools/buk/vov_veiled/BUS0-BashUtilitiesSpec.adoc:380:Registered with `butr_fixture_enroll(name, init_fn, setup_fn)`.
+Tools/buk/vov_veiled/BUS0-BashUtilitiesSpec.adoc:387:Suite context is set with `butr_suite_enroll(SUITE1 [SUITE2...])` before case enrollments.

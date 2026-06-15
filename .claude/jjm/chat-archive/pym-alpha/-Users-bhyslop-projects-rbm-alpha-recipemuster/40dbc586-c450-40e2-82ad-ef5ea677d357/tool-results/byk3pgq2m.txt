@@ -1,0 +1,200 @@
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrp_pristine.rs:32:    RBTDRM_COLOPHON_DEPOT_LEVY, RBTDRM_COLOPHON_DEPOT_LIST, RBTDRM_COLOPHON_DEPOT_UNMAKE,
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrp_pristine.rs:33:    RBTDRM_COLOPHON_GOV_FORFEIT, RBTDRM_COLOPHON_GOV_LIST_SAS, RBTDRM_COLOPHON_GOV_MANTLE,
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrp_pristine.rs:571:        RBTDRM_COLOPHON_DEPOT_LIST,
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrp_pristine.rs:597:        RBTDRM_COLOPHON_DEPOT_LEVY,
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrp_pristine.rs:621:        RBTDRM_COLOPHON_DEPOT_LIST,
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrp_pristine.rs:645:        RBTDRM_COLOPHON_DEPOT_UNMAKE,
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrp_pristine.rs:663:        RBTDRM_COLOPHON_DEPOT_LIST,
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrp_pristine.rs:712:        RBTDRM_COLOPHON_DEPOT_LIST,
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrp_pristine.rs:738:        RBTDRM_COLOPHON_DEPOT_LEVY,
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrp_pristine.rs:762:        RBTDRM_COLOPHON_GOV_MANTLE,
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrp_pristine.rs:786:        RBTDRM_COLOPHON_GOV_LIST_SAS,
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrp_pristine.rs:810:        RBTDRM_COLOPHON_GOV_FORFEIT,
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrp_pristine.rs:828:        RBTDRM_COLOPHON_GOV_LIST_SAS,
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrp_pristine.rs:852:        RBTDRM_COLOPHON_DEPOT_UNMAKE,
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdtm_manifest.rs:57:    let manifest = RBTDRM_COLOPHON_CHARGE;
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdtm_manifest.rs:59:    assert!(err.contains(RBTDRM_COLOPHON_QUENCH));
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdtm_manifest.rs:65:    assert!(err.contains(RBTDRM_COLOPHON_CHARGE));
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdtm_manifest.rs:70:    let manifest = format!("{}X {}Y", RBTDRM_COLOPHON_CHARGE, RBTDRM_COLOPHON_QUENCH);
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdtm_manifest.rs:72:    assert!(err.contains(RBTDRM_COLOPHON_CHARGE));
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdtm_manifest.rs:77:    let err = rbtdrm_verify(RBTDRM_COLOPHON_CHARGE, "nonexistent").unwrap_err();
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdtm_manifest.rs:100:    let manifest = RBTDRM_COLOPHON_DEPOT_LEVY;
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdtm_manifest.rs:103:    assert!(err.contains(RBTDRM_COLOPHON_DEPOT_LIST));
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdtm_manifest.rs:115:    let manifest = RBTDRM_COLOPHON_ONBOARD_START_HERE;
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdtm_manifest.rs:117:    assert!(err.contains(RBTDRM_COLOPHON_ONBOARD_CRASH_COURSE));
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrm_manifest.rs:23:pub const RBTDRM_COLOPHON_CHARGE: &str = "rbw-cC";
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrm_manifest.rs:24:pub const RBTDRM_COLOPHON_QUENCH: &str = "rbw-cQ";
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrm_manifest.rs:25:pub const RBTDRM_COLOPHON_WRIT: &str = "rbw-cw";
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrm_manifest.rs:26:pub const RBTDRM_COLOPHON_FIAT: &str = "rbw-cf";
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrm_manifest.rs:27:pub const RBTDRM_COLOPHON_BARK: &str = "rbw-cb";
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrm_manifest.rs:30:pub const RBTDRM_COLOPHON_ORDAIN: &str = "rbw-fO";
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrm_manifest.rs:31:pub const RBTDRM_COLOPHON_ABJURE: &str = "rbw-fA";
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrm_manifest.rs:32:pub const RBTDRM_COLOPHON_TALLY: &str = "rbw-ft";
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrm_manifest.rs:33:pub const RBTDRM_COLOPHON_KLUDGE: &str = "rbw-fk";
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrm_manifest.rs:34:pub const RBTDRM_COLOPHON_VOUCH: &str = "rbw-fV";
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrm_manifest.rs:35:pub const RBTDRM_COLOPHON_SUMMON: &str = "rbw-fs";
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrm_manifest.rs:36:pub const RBTDRM_COLOPHON_PLUMB_FULL: &str = "rbw-fpf";
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrm_manifest.rs:37:pub const RBTDRM_COLOPHON_PLUMB_COMPACT: &str = "rbw-fpc";
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrm_manifest.rs:42:pub const RBTDRM_COLOPHON_REKON_HALLMARK: &str = "rbw-irh";
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrm_manifest.rs:43:pub const RBTDRM_COLOPHON_REKON_RELIQUARY: &str = "rbw-irr";
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrm_manifest.rs:44:pub const RBTDRM_COLOPHON_MUSTER_HALLMARKS: &str = "rbw-imh";
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrm_manifest.rs:45:pub const RBTDRM_COLOPHON_MUSTER_RELIQUARIES: &str = "rbw-imr";
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrm_manifest.rs:46:pub const RBTDRM_COLOPHON_MUSTER_ENSHRINEMENTS: &str = "rbw-ime";
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrm_manifest.rs:47:pub const RBTDRM_COLOPHON_WREST_HALLMARK_IMAGE: &str = "rbw-iwh";
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrm_manifest.rs:48:pub const RBTDRM_COLOPHON_WREST_RELIQUARY_IMAGE: &str = "rbw-iwr";
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrm_manifest.rs:49:pub const RBTDRM_COLOPHON_WREST_ENSHRINED_IMAGE: &str = "rbw-iwe";
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrm_manifest.rs:50:pub const RBTDRM_COLOPHON_JETTISON_HALLMARK_IMAGE: &str = "rbw-iJh";
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrm_manifest.rs:51:pub const RBTDRM_COLOPHON_JETTISON_RELIQUARY_IMAGE: &str = "rbw-iJr";
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrm_manifest.rs:52:pub const RBTDRM_COLOPHON_JETTISON_ENSHRINEMENT: &str = "rbw-iJe";
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrm_manifest.rs:55:pub const RBTDRM_COLOPHON_CRUCIBLE_ACTIVE: &str = "rbw-cic";
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrm_manifest.rs:58:pub const RBTDRM_COLOPHON_ACCESS_PROBE: &str = "rbtd-ap";
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrm_manifest.rs:61:pub const RBTDRM_COLOPHON_DEPOT_LEVY: &str = "rbw-dL";
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrm_manifest.rs:62:pub const RBTDRM_COLOPHON_DEPOT_LIST: &str = "rbw-dl";
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrm_manifest.rs:63:pub const RBTDRM_COLOPHON_DEPOT_UNMAKE: &str = "rbw-dU";
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrm_manifest.rs:66:pub const RBTDRM_COLOPHON_GOV_MANTLE: &str = "rbw-aM";
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrm_manifest.rs:67:pub const RBTDRM_COLOPHON_GOV_LIST_SAS: &str = "rbw-aL";
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrm_manifest.rs:68:pub const RBTDRM_COLOPHON_GOV_FORFEIT: &str = "rbw-aF";
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrm_manifest.rs:72:pub const RBTDRM_COLOPHON_ONBOARD_START_HERE: &str = "rbw-o";
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrm_manifest.rs:73:pub const RBTDRM_COLOPHON_ONBOARD_CRASH_COURSE: &str = "rbw-Occ";
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrm_manifest.rs:74:pub const RBTDRM_COLOPHON_ONBOARD_CRED_RETRIEVER: &str = "rbw-Ocr";
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrm_manifest.rs:75:pub const RBTDRM_COLOPHON_ONBOARD_CRED_DIRECTOR: &str = "rbw-Ocd";
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrm_manifest.rs:76:pub const RBTDRM_COLOPHON_ONBOARD_FIRST_CRUCIBLE: &str = "rbw-Ofc";
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrm_manifest.rs:77:pub const RBTDRM_COLOPHON_ONBOARD_DIR_FIRST_BUILD: &str = "rbw-Odf";
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrm_manifest.rs:78:pub const RBTDRM_COLOPHON_ONBOARD_PAYOR_HB: &str = "rbw-Op";
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrm_manifest.rs:79:pub const RBTDRM_COLOPHON_ONBOARD_GOVERNOR_HB: &str = "rbw-Og";
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrm_manifest.rs:81:pub const RBTDRM_COLOPHON_HANDBOOK_TOP: &str = "rbw-h0";
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrm_manifest.rs:82:pub const RBTDRM_COLOPHON_HANDBOOK_WINDOWS: &str = "rbw-hw";
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrm_manifest.rs:83:pub const RBTDRM_COLOPHON_HW_DOCKER_DESKTOP: &str = "rbw-HWdd";
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrm_manifest.rs:84:pub const RBTDRM_COLOPHON_HW_DOCKER_CONTEXT: &str = "rbw-HWdc";
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrm_manifest.rs:86:pub const RBTDRM_COLOPHON_PAYOR_ESTABLISH: &str = "rbw-gPE";
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrm_manifest.rs:87:pub const RBTDRM_COLOPHON_PAYOR_REFRESH: &str = "rbw-gPR";
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrm_manifest.rs:88:pub const RBTDRM_COLOPHON_QUOTA_BUILD: &str = "rbw-gq";
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrm_manifest.rs:111:            RBTDRM_COLOPHON_CHARGE,
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrm_manifest.rs:112:            RBTDRM_COLOPHON_QUENCH,
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrm_manifest.rs:113:            RBTDRM_COLOPHON_WRIT,
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrm_manifest.rs:114:            RBTDRM_COLOPHON_FIAT,
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrm_manifest.rs:115:            RBTDRM_COLOPHON_BARK,
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrm_manifest.rs:116:            RBTDRM_COLOPHON_CRUCIBLE_ACTIVE,
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrm_manifest.rs:119:            RBTDRM_COLOPHON_ORDAIN,
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrm_manifest.rs:120:            RBTDRM_COLOPHON_ABJURE,
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrm_manifest.rs:121:            RBTDRM_COLOPHON_WREST_HALLMARK_IMAGE,
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrm_manifest.rs:122:            RBTDRM_COLOPHON_KLUDGE,
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrm_manifest.rs:123:            RBTDRM_COLOPHON_SUMMON,
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrm_manifest.rs:124:            RBTDRM_COLOPHON_PLUMB_FULL,
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrm_manifest.rs:125:            RBTDRM_COLOPHON_PLUMB_COMPACT,
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrm_manifest.rs:126:            RBTDRM_COLOPHON_REKON_HALLMARK,
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrm_manifest.rs:127:            RBTDRM_COLOPHON_JETTISON_HALLMARK_IMAGE,
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrm_manifest.rs:130:            RBTDRM_COLOPHON_ORDAIN,
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrm_manifest.rs:131:            RBTDRM_COLOPHON_ABJURE,
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrm_manifest.rs:132:            RBTDRM_COLOPHON_JETTISON_HALLMARK_IMAGE,
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrm_manifest.rs:133:            RBTDRM_COLOPHON_VOUCH,
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrm_manifest.rs:134:            RBTDRM_COLOPHON_TALLY,
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrm_manifest.rs:136:        RBTDRM_FIXTURE_ACCESS_PROBE => Some(&[RBTDRM_COLOPHON_ACCESS_PROBE]),
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrm_manifest.rs:141:            RBTDRM_COLOPHON_DEPOT_LEVY,
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrm_manifest.rs:142:            RBTDRM_COLOPHON_DEPOT_LIST,
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrm_manifest.rs:143:            RBTDRM_COLOPHON_DEPOT_UNMAKE,
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrm_manifest.rs:144:            RBTDRM_COLOPHON_GOV_MANTLE,
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrm_manifest.rs:145:            RBTDRM_COLOPHON_GOV_LIST_SAS,
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrm_manifest.rs:146:            RBTDRM_COLOPHON_GOV_FORFEIT,
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrm_manifest.rs:149:            RBTDRM_COLOPHON_ONBOARD_START_HERE,
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrm_manifest.rs:150:            RBTDRM_COLOPHON_ONBOARD_CRASH_COURSE,
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrm_manifest.rs:151:            RBTDRM_COLOPHON_ONBOARD_CRED_RETRIEVER,
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrm_manifest.rs:152:            RBTDRM_COLOPHON_ONBOARD_CRED_DIRECTOR,
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrm_manifest.rs:153:            RBTDRM_COLOPHON_ONBOARD_FIRST_CRUCIBLE,
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrm_manifest.rs:154:            RBTDRM_COLOPHON_ONBOARD_DIR_FIRST_BUILD,
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrm_manifest.rs:155:            RBTDRM_COLOPHON_ONBOARD_PAYOR_HB,
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrm_manifest.rs:156:            RBTDRM_COLOPHON_ONBOARD_GOVERNOR_HB,
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrm_manifest.rs:157:            RBTDRM_COLOPHON_HANDBOOK_TOP,
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrm_manifest.rs:158:            RBTDRM_COLOPHON_HANDBOOK_WINDOWS,
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrm_manifest.rs:159:            RBTDRM_COLOPHON_HW_DOCKER_DESKTOP,
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrm_manifest.rs:160:            RBTDRM_COLOPHON_HW_DOCKER_CONTEXT,
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrm_manifest.rs:161:            RBTDRM_COLOPHON_PAYOR_ESTABLISH,
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrm_manifest.rs:162:            RBTDRM_COLOPHON_PAYOR_REFRESH,
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrm_manifest.rs:163:            RBTDRM_COLOPHON_QUOTA_BUILD,
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrc_crucible.rs:35:    RBTDRM_COLOPHON_ABJURE, RBTDRM_COLOPHON_ACCESS_PROBE, RBTDRM_COLOPHON_BARK,
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrc_crucible.rs:36:    RBTDRM_COLOPHON_FIAT, RBTDRM_COLOPHON_JETTISON_HALLMARK_IMAGE, RBTDRM_COLOPHON_KLUDGE,
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrc_crucible.rs:37:    RBTDRM_COLOPHON_ORDAIN, RBTDRM_COLOPHON_PLUMB_COMPACT, RBTDRM_COLOPHON_PLUMB_FULL,
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrc_crucible.rs:38:    RBTDRM_COLOPHON_REKON_HALLMARK, RBTDRM_COLOPHON_SUMMON, RBTDRM_COLOPHON_TALLY,
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrc_crucible.rs:39:    RBTDRM_COLOPHON_VOUCH, RBTDRM_COLOPHON_WREST_HALLMARK_IMAGE, RBTDRM_COLOPHON_WRIT,
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrc_crucible.rs:89:    let result = match rbtdri_invoke(ctx, RBTDRM_COLOPHON_BARK, &[RBTDRC_IFRIT_BINARY, attack]) {
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrc_crucible.rs:107:    let result = match rbtdri_invoke(ctx, RBTDRM_COLOPHON_BARK, &bark_args) {
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrc_crucible.rs:118:    let result = rbtdri_invoke(ctx, RBTDRM_COLOPHON_WRIT, args)?;
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrc_crucible.rs:130:    let result = rbtdri_invoke(ctx, RBTDRM_COLOPHON_FIAT, args)?;
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrc_crucible.rs:523:            RBTDRM_COLOPHON_WRIT,
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrc_crucible.rs:547:            RBTDRM_COLOPHON_WRIT,
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrc_crucible.rs:615:            RBTDRM_COLOPHON_BARK,
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrc_crucible.rs:627:            RBTDRM_COLOPHON_BARK,
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrc_crucible.rs:717:            RBTDRM_COLOPHON_BARK,
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrc_crucible.rs:818:            RBTDRM_COLOPHON_BARK,
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrc_crucible.rs:934:            RBTDRM_COLOPHON_BARK,
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrc_crucible.rs:1022:            RBTDRM_COLOPHON_BARK,
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrc_crucible.rs:1109:                RBTDRM_COLOPHON_BARK,
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrc_crucible.rs:1218:            RBTDRM_COLOPHON_WRIT,
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrc_crucible.rs:1230:            RBTDRM_COLOPHON_BARK,
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrc_crucible.rs:1256:            RBTDRM_COLOPHON_WRIT,
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrc_crucible.rs:1334:            RBTDRM_COLOPHON_BARK,
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrc_crucible.rs:1380:            RBTDRM_COLOPHON_BARK,
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrc_crucible.rs:1497:            match rbtdri_invoke(ctx, RBTDRM_COLOPHON_BARK, &["ps", "aux"]) {
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrc_crucible.rs:2311:        let ordain_result = match rbtdri_invoke_global(ctx, RBTDRM_COLOPHON_ORDAIN, &[vessel_dir], &[]) {
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrc_crucible.rs:2336:        match rbtdri_invoke_global(ctx, RBTDRM_COLOPHON_WREST_HALLMARK_IMAGE, &[&locator], &[]) {
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrc_crucible.rs:2372:        let summon_result = match rbtdri_invoke_global(ctx, RBTDRM_COLOPHON_SUMMON, &[&hallmark], &[]) {
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrc_crucible.rs:2386:        let plumb_full_result = match rbtdri_invoke_global(ctx, RBTDRM_COLOPHON_PLUMB_FULL, &[&hallmark], &[]) {
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrc_crucible.rs:2403:        let rekon_result = match rbtdri_invoke_global(ctx, RBTDRM_COLOPHON_REKON_HALLMARK, &[&hallmark], &[]) {
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrc_crucible.rs:2428:        match rbtdri_invoke_global(ctx, RBTDRM_COLOPHON_ABJURE, &[&hallmark, "--force"], &[]) {
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrc_crucible.rs:2447:        let ordain_result = match rbtdri_invoke_global(ctx, RBTDRM_COLOPHON_ORDAIN, &[vessel_dir], &[]) {
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrc_crucible.rs:2474:        match rbtdri_invoke_global(ctx, RBTDRM_COLOPHON_WREST_HALLMARK_IMAGE, &[&locator], &[]) {
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrc_crucible.rs:2487:        let plumb_compact_result = match rbtdri_invoke_global(ctx, RBTDRM_COLOPHON_PLUMB_COMPACT, &[&hallmark], &[]) {
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrc_crucible.rs:2513:        match rbtdri_invoke_global(ctx, RBTDRM_COLOPHON_JETTISON_HALLMARK_IMAGE, &[&jettison_locator, "--force"], &[]) {
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrc_crucible.rs:2521:        let rekon_result = match rbtdri_invoke_global(ctx, RBTDRM_COLOPHON_REKON_HALLMARK, &[&hallmark], &[]) {
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrc_crucible.rs:2545:        match rbtdri_invoke_global(ctx, RBTDRM_COLOPHON_ABJURE, &[&hallmark, "--force"], &[]) {
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrc_crucible.rs:2582:            RBTDRM_COLOPHON_ORDAIN,
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrc_crucible.rs:2612:        match rbtdri_invoke_global(ctx, RBTDRM_COLOPHON_WREST_HALLMARK_IMAGE, &[&locator], &[]) {
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrc_crucible.rs:2645:        match rbtdri_invoke_global(ctx, RBTDRM_COLOPHON_ABJURE, &[&hallmark, "--force"], &[]) {
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrc_crucible.rs:2664:        let kludge_result = match rbtdri_invoke_global(ctx, RBTDRM_COLOPHON_KLUDGE, &[vessel_dir], &[]) {
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrc_crucible.rs:2756:        let ordain_result = match rbtdri_invoke_global(ctx, RBTDRM_COLOPHON_ORDAIN, &[vessel_dir], &[]) {
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrc_crucible.rs:2773:        match rbtdri_invoke_global(ctx, RBTDRM_COLOPHON_JETTISON_HALLMARK_IMAGE, &[&jettison_locator, "--force"], &[]) {
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrc_crucible.rs:2781:        let tally_pending = match rbtdri_invoke_global(ctx, RBTDRM_COLOPHON_TALLY, &[], &[]) {
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrc_crucible.rs:2801:        match rbtdri_invoke_global(ctx, RBTDRM_COLOPHON_VOUCH, &[], &[]) {
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrc_crucible.rs:2809:        let tally_vouched = match rbtdri_invoke_global(ctx, RBTDRM_COLOPHON_TALLY, &[], &[]) {
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrc_crucible.rs:2828:        match rbtdri_invoke_global(ctx, RBTDRM_COLOPHON_ABJURE, &[&hallmark, "--force"], &[]) {
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrc_crucible.rs:2848:    let result = match rbtdri_invoke_imprint(ctx, RBTDRM_COLOPHON_ACCESS_PROBE, role, &[]) {
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/main.rs:38:    rbtdrm_verify, RBTDRM_COLOPHON_CHARGE, RBTDRM_COLOPHON_CRUCIBLE_ACTIVE,
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/main.rs:39:    RBTDRM_COLOPHON_QUENCH,
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/main.rs:100:        match rbtdri_invoke(&mut ctx, RBTDRM_COLOPHON_CHARGE, &[]) {
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/main.rs:119:        match rbtdri_invoke_global(&mut ctx, RBTDRM_COLOPHON_CRUCIBLE_ACTIVE, &[fixture], &[]) {
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/main.rs:160:        match rbtdri_invoke(&mut ctx, RBTDRM_COLOPHON_QUENCH, &[]) {
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/main.rs:168:        match rbtdri_invoke_global(&mut ctx, RBTDRM_COLOPHON_CRUCIBLE_ACTIVE, &[fixture], &[]) {
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/main.rs:253:            RBTDRM_COLOPHON_CRUCIBLE_ACTIVE,
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdri_invocation.rs:31:use crate::rbtdrm_manifest::RBTDRM_COLOPHON_BARK;
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdri_invocation.rs:301:    let result = rbtdri_invoke(ctx, RBTDRM_COLOPHON_BARK, &[RBTDRI_IFRIT_BINARY, attack_selector])?;
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrf_handbook.rs:34:    RBTDRM_COLOPHON_HANDBOOK_TOP, RBTDRM_COLOPHON_HANDBOOK_WINDOWS,
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrf_handbook.rs:35:    RBTDRM_COLOPHON_HW_DOCKER_CONTEXT, RBTDRM_COLOPHON_HW_DOCKER_DESKTOP,
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrf_handbook.rs:36:    RBTDRM_COLOPHON_ONBOARD_CRASH_COURSE, RBTDRM_COLOPHON_ONBOARD_CRED_DIRECTOR,
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrf_handbook.rs:37:    RBTDRM_COLOPHON_ONBOARD_CRED_RETRIEVER, RBTDRM_COLOPHON_ONBOARD_DIR_FIRST_BUILD,
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrf_handbook.rs:38:    RBTDRM_COLOPHON_ONBOARD_FIRST_CRUCIBLE, RBTDRM_COLOPHON_ONBOARD_GOVERNOR_HB,
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrf_handbook.rs:39:    RBTDRM_COLOPHON_ONBOARD_PAYOR_HB, RBTDRM_COLOPHON_ONBOARD_START_HERE,
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrf_handbook.rs:40:    RBTDRM_COLOPHON_PAYOR_ESTABLISH, RBTDRM_COLOPHON_PAYOR_REFRESH,
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrf_handbook.rs:41:    RBTDRM_COLOPHON_QUOTA_BUILD,
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrf_handbook.rs:90:    rbtdrf_hb_render(dir, RBTDRM_COLOPHON_ONBOARD_START_HERE, "onboard-start-here")
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrf_handbook.rs:94:    rbtdrf_hb_render(dir, RBTDRM_COLOPHON_ONBOARD_CRASH_COURSE, "onboard-crash-course")
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrf_handbook.rs:98:    rbtdrf_hb_render(dir, RBTDRM_COLOPHON_ONBOARD_CRED_RETRIEVER, "onboard-cred-retriever")
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrf_handbook.rs:102:    rbtdrf_hb_render(dir, RBTDRM_COLOPHON_ONBOARD_CRED_DIRECTOR, "onboard-cred-director")
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrf_handbook.rs:106:    rbtdrf_hb_render(dir, RBTDRM_COLOPHON_ONBOARD_FIRST_CRUCIBLE, "onboard-first-crucible")
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrf_handbook.rs:110:    rbtdrf_hb_render(dir, RBTDRM_COLOPHON_ONBOARD_DIR_FIRST_BUILD, "onboard-dir-first-build")
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrf_handbook.rs:114:    rbtdrf_hb_render(dir, RBTDRM_COLOPHON_ONBOARD_PAYOR_HB, "onboard-payor-hb")
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrf_handbook.rs:118:    rbtdrf_hb_render(dir, RBTDRM_COLOPHON_ONBOARD_GOVERNOR_HB, "onboard-governor-hb")
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrf_handbook.rs:124:    rbtdrf_hb_render(dir, RBTDRM_COLOPHON_HANDBOOK_TOP, "handbook-top")
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrf_handbook.rs:128:    rbtdrf_hb_render(dir, RBTDRM_COLOPHON_HANDBOOK_WINDOWS, "handbook-windows")
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrf_handbook.rs:132:    rbtdrf_hb_render(dir, RBTDRM_COLOPHON_HW_DOCKER_DESKTOP, "hw-docker-desktop")
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrf_handbook.rs:136:    rbtdrf_hb_render(dir, RBTDRM_COLOPHON_HW_DOCKER_CONTEXT, "hw-docker-context")
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrf_handbook.rs:142:    rbtdrf_hb_render(dir, RBTDRM_COLOPHON_PAYOR_ESTABLISH, "payor-establish")
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrf_handbook.rs:146:    rbtdrf_hb_render(dir, RBTDRM_COLOPHON_PAYOR_REFRESH, "payor-refresh")
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdrf_handbook.rs:150:    rbtdrf_hb_render(dir, RBTDRM_COLOPHON_QUOTA_BUILD, "quota-build")
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdti_invocation.rs:23:use super::rbtdrm_manifest::RBTDRM_COLOPHON_ORDAIN;
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdti_invocation.rs:339:    let script_name = format!("{}.DirectorOrdains.sh", RBTDRM_COLOPHON_ORDAIN);
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdti_invocation.rs:342:    let result = rbtdri_find_tabtarget_global(&tmp, RBTDRM_COLOPHON_ORDAIN);
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdti_invocation.rs:354:    let script_name = format!("{}.DirectorOrdains.tadmor.sh", RBTDRM_COLOPHON_ORDAIN);
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdti_invocation.rs:357:    let result = rbtdri_find_tabtarget_global(&tmp, RBTDRM_COLOPHON_ORDAIN);
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdti_invocation.rs:369:    let result = rbtdri_find_tabtarget_global(&tmp, RBTDRM_COLOPHON_ORDAIN);
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdti_invocation.rs:381:    let script_name = format!("{}.DirectorOrdains.sh", RBTDRM_COLOPHON_ORDAIN);
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbtd/src/rbtdti_invocation.rs:392:        RBTDRM_COLOPHON_ORDAIN,

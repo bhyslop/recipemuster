@@ -1,0 +1,1242 @@
+Disk survey (threshold 85%): 228 GB: 80%
+Heat: rbk-mvp-3-cleanups-and-imageops (₣BA)
+Status: racing
+Created: 260426
+
+
+## Paces
+
+### jettison-multi-platform-cascade-fix (₢BAAAG) [rough]
+
+## Character
+
+Targeted machinery fix on a defect surfaced empirically by ₣A_'s AAS pace.
+Small-diff, high-confidence change once the cascade traversal is written —
+the OCI Distribution Spec already nails down the index-to-children
+relationship, and `zrbfc_gar_extract_artifact` already implements the
+read-side of that traversal. This pace mirrors that traversal on the
+delete side.
+
+The risk surface is narrow: existing single-platform jettisons (pouch on
+bind, anything else not pushed via buildx) must remain unchanged. The new
+code path activates only when the manifest at the locator is an OCI image
+index / Docker manifest list.
+
+Verification is concrete: the batch_vouch fixture (already implemented under
+AAS) is the regression test. It currently FAILS at step 03 because vouch
+jettison leaves the package container in GAR's ListPackages; after this pace
+lands, it must pass step 03 (tally pending) through step 06 (abjure) cleanly.
+
+## Docket
+
+### Read-only investigation completed (carryover from prior chat)
+
+A previous mounting did cadence-step-2 (the read pass) and pre-validated the
+docket against the actual code. The premise holds: all three reference points
+(`zrbfc_gar_extract_artifact`'s mediaType branch, `rbfl_jettison`'s
+single-DELETE shape, `rbgjv03-assemble-push-vouch.sh`'s buildx push) match
+the docket's description structurally. No design pivots were surfaced.
+
+Three small decisions were ratified by the working chat:
+
+1. **Helper extraction is in.** Add `zrbfc_jettison_index_children` to
+   `rbfc_FoundryCore.sh` next to `zrbfc_gar_extract_artifact`. Args:
+   `(token, package, tag)`. Side effects: per-digest DELETEs only — the
+   index-by-tag DELETE stays in `rbfl_jettison` so the existing single-DELETE
+   path is the unconditional finalizer. Mirrors the read-side helper's
+   curl+jq pattern.
+
+2. **Retrofit existing DELETE's stderr capture in the same notch.** The
+   current `rbfl_jettison` curl doesn't redirect stderr; BCG's "Stderr
+   Capture — Never Suppress" applies. Single-line addition (`2>"${z_stderr_file}"`
+   plus a die-message reference). No behavior change.
+
+3. **RBSIJ amendment rides the same notch.** The spec is small and ships
+   with the behavior. Two new operation steps between current "Confirm
+   Jettison" and "Jettison Tag":
+   - **Probe Manifest Type** — GET manifest, branch 404 (early-exit
+     idempotent success) vs 200 (continue), extract mediaType.
+   - **Cascade Children if Index** — when mediaType matches
+     `*manifest.list*` or `*image.index*`, enumerate `.manifests[].digest`
+     and DELETE each child by digest before the existing tag DELETE.
+   Plus a NOTE explaining the producer-side asymmetry (single-platform
+   `docker push` vs multi-platform `docker buildx --push`).
+
+### Empirical motivation (recorded for the next mounting)
+
+`rbfl_jettison` calls Docker Registry V2 `DELETE /v2/<pkg>/manifests/<tag>`.
+For single-platform pushes (e.g. pouch, which is `docker push` from
+`rbfd_FoundryDirectorBuild.sh`), this removes the only manifest, the package
+becomes empty, and GAR drops it from `ListPackages`. For multi-platform
+buildx pushes (vouch in `rbgjv03-assemble-push-vouch.sh`, all reliquary tool
+images, all enshrinements), the tag points to an OCI image index referencing
+N per-platform manifests; DELETE-by-tag removes only the index, leaving the
+N children as untagged content. The package container persists in
+`ListPackages` because it still has manifests.
+
+`zrbfc_list_hallmarks_capture` and consequently `rbfl_tally` and `rbfl_rekon`
+enumerate via `ListPackages`, so they continue to report the basename present
+after a jettison-by-tag against multi-platform content. AAS's batch_vouch
+fixture exposed this as a tally-still-vouched failure post-jettison; the
+morning's stale-hallmark abjure (which uses the GAR REST package-delete path,
+not the V2 manifest path) cleanly removed all six packages including vouch
+— confirming the package container persistence is real and is exactly what
+abjure already overcomes.
+
+The asymmetry was bind_lifecycle's pouch jettison passing while batch_vouch's
+vouch jettison failed; same locator grammar, different push mechanism on the
+producer side.
+
+### Approach: cascade through the index
+
+In `rbfl_jettison`, after parsing the locator and authenticating:
+
+1. **Probe** — GET the manifest at `<pkg>/manifests/<tag>` with the
+   manifest Accept header (use `ZRBFC_ACCEPT_MANIFEST_MTYPES`). Capture
+   status, response, stderr to per-call temp files under
+   `${ZRBFL_DELETE_PREFIX}probe_*`.
+2. **Branch on probe status:**
+   - `404` → preserve existing idempotent semantics: emit
+     `"Jettisoned or nonexistent: <locator>"` and return success.
+   - `200` → fall through.
+   - other → die with status code.
+3. **Read mediaType** with `jq -r '.mediaType // empty' ... 2>/dev/null || true`
+   (matching `zrbfc_gar_extract_artifact`'s pattern). Empty mediaType is
+   safe — falls through to single-DELETE behavior.
+4. **Conditional cascade** — `case "${z_media_type}" in
+   *manifest.list*|*image.index*) zrbfc_jettison_index_children ... ;; esac`.
+5. **DELETE-by-tag** (existing code, unchanged behavior) — remains as the
+   unconditional final step. Accepts 202|204.
+
+The cascade helper itself: GET the index manifest (manifest Accept header),
+extract `.manifests[].digest` to a temp file, load-then-iterate (BCG
+stdin-consumption discipline), per-child DELETE with 202|204 acceptance.
+
+### Surface
+
+- **`Tools/rbk/rbfl_FoundryLedger.sh`** — extend `rbfl_jettison` with
+  probe + branch + cascade-call before the existing DELETE. Retrofit
+  stderr capture on the existing DELETE.
+- **`Tools/rbk/rbfc_FoundryCore.sh`** — new helper
+  `zrbfc_jettison_index_children` near `zrbfc_gar_extract_artifact`.
+  Reuses existing constants: `ZRBFC_REGISTRY_API_BASE`,
+  `ZRBFC_ACCEPT_MANIFEST_MTYPES`, `RBCC_CURL_*`.
+- **`Tools/rbk/vov_veiled/RBSIJ-image_jettison.adoc`** — two new operation
+  steps + a NOTE about the producer-side asymmetry.
+
+No tabtarget surface change. No new prefixes. No new modules. No new
+constants in regimes.
+
+### BCG patterns to preserve
+
+Working chat noted these explicitly so they survive the next mounting:
+
+- All new curl calls capture stderr to per-call temp files and reference
+  them in `buc_die` messages.
+- `local -r` for one-shot locals; plain `local` only for per-iteration loop
+  variables (BCG Exception 2).
+- Load-then-iterate for the child-digest loop (read digests into array,
+  iterate over `${!arr[@]}` with index discriminator) — protects against
+  stdin consumption hazards.
+- `case "${z_media_type}" in *manifest.list*|*image.index*) ... ;; esac`
+  for pattern matching, not `[[ ]]`.
+- HTTP code branches via `case`, accepting 202|204 for DELETEs and 200
+  (with 404 idempotent) for the probe GET.
+
+Important `rbgu_http_json` caveat: it accepts only 200/201/204 in
+`rbgu_http_require_ok`. The V2 manifest DELETE path returns 202, so the
+existing single-DELETE pattern (raw curl with explicit `-w "%{http_code}"`
+plus a case-statement check) is the right model — do not refactor those
+calls onto `rbgu_http_json`.
+
+### Verification
+
+1. **Regression — batch_vouch fixture must pass end-to-end:**
+   `tt/rbtd-s.SingleCase.batch-vouch.sh rbtdrc_batch_vouch_lifecycle`
+   (currently fails at step 03 tally pending; after this pace must pass
+   through step 07 passed).
+2. **Bind/pouch unaffected:** `tt/rbtd-s.SingleCase.four-mode.sh
+   rbtdrc_fourmode_bind_lifecycle` — single-platform jettison path must
+   still pass.
+3. **All four single-mode SingleCases GREEN** — sanity sweep:
+   conjure_lifecycle, bind_lifecycle, graft_lifecycle, kludge_lifecycle.
+4. **Fast suite GREEN** — no regression on non-crucible tests
+   (`tt/rbtd-s.TestSuite.fast.sh`).
+5. **Manual one-shot:** ordain a fresh hallmark, jettison vouch via
+   `rbw-iJh.DirectorJettisonsHallmarkImage.sh`, run `rbw-ft` —
+   the hallmark should reflect "pending" (image+about, no vouch) rather
+   than "vouched" with all six basenames.
+6. **Cost discipline:** the regression test is one ordain (≈3-5min Cloud
+   Build) per fixture run. Don't loop unnecessarily.
+
+### Hard dependency notes
+
+- `₢BAAAF` (imageops-fixtures) **depends on this pace landing**. BAAAF's
+  `muster_absent` cases assert concrete absence, which requires the cascade
+  fix to make packages truly empty.
+- This pace is independent of `₢BAAAA` (oauth hygiene), `₢BAAAC` (OCI URL
+  keyword extraction), and `₢BAAAB` (BCG shellcheck sweep) — disjoint
+  surfaces.
+- **Test-suite reservation:** ₣BA's paddock blocks crucible/service suites
+  while ₣A_ is racing on live infra. The notch criteria (bind_lifecycle +
+  batch_vouch GREEN) require coordination — either wait for ₣A_'s wrap, or
+  the user authorizes a partial-verification notch (bash -n + shellcheck +
+  fast suite) with full crucible verification deferred. Mounting agent
+  should surface this before running fixtures.
+
+### Out of scope
+
+- **Changing `rbfl_abjure`.** Abjure already uses GAR REST package-delete
+  and works correctly for multi-platform content; don't refactor it.
+- **Changing `zrbfc_list_hallmarks_capture` semantics.** Package-level
+  enumeration is correct given the post-cascade behavior. Don't switch to
+  tag-level enumeration.
+- **Adding new tabtargets.** The existing `rbw-iJh` /
+  `DirectorJettisonsHallmarkImage` (and its sibling `rbw-iJr` / `rbw-iJe`
+  introduced by BAAAD) suffice; the cascade is a behavior change inside
+  `rbfl_jettison`, not a new operation.
+- **Changing the producer side** (rbgjv03's buildx push, rbgjb*'s buildx
+  pushes, enshrine's skopeo copy). Multi-platform pushes are a feature, not
+  a defect; the consumer side (jettison) just needs to handle them.
+- **Cascading abjure semantics into jettison** (i.e., letting jettison
+  delete a whole package, not a tag). The spec for jettison is "by locator"
+  not "by package"; broadening would conflate operations.
+- **Backward-compat shims** for the silent-no-op behavior. Hard cutover:
+  after this pace, jettison-by-tag against a multi-platform locator does
+  the right thing; nothing should depend on the broken behavior.
+- **Refactoring the existing single DELETE onto `rbgu_http_json`.** That
+  helper rejects 202; the V2 manifest DELETE path returns 202. Keep the
+  raw curl + explicit code check.
+
+### Cadence
+
+1. Mount BA, parade this pace, read this docket.
+2. Read in order before any edit:
+   - `rbfl_FoundryLedger.sh` — `rbfl_jettison` and the existing DELETE
+     pattern
+   - `rbfc_FoundryCore.sh` — `zrbfc_gar_extract_artifact` for the mediaType
+     branch shape and the curl+jq pattern
+   - `rbgu_Utility.sh` — `rbgu_http_json` and acceptance helpers (note
+     200/201/204-only acceptance — see caveat above)
+   - `rbgjv03-assemble-push-vouch.sh` — confirm buildx push shape
+3. Implement the cascade. Single notch when:
+   - bash -n / shellcheck clean on touched files
+   - bind_lifecycle GREEN (no regression)
+   - batch_vouch GREEN (the regression test passes)
+4. Wrap.
+
+### References
+
+- ₣A_'s AAS docket and wrap summary — full empirical investigation and
+  decision history.
+- `Tools/rbk/rbfc_FoundryCore.sh` — `zrbfc_gar_extract_artifact` is the
+  read-side mediaType branch, the structural template for the delete-side
+  cascade. Insert `zrbfc_jettison_index_children` adjacent.
+- `Tools/rbk/rbfl_FoundryLedger.sh` — `rbfl_jettison` is the function to
+  extend.
+- `Tools/rbk/rbgu_Utility.sh` — `rbgu_http_json` /
+  `rbgu_http_require_ok` reference for HTTP helper acceptance behavior.
+- `Tools/rbk/rbgjv/rbgjv03-assemble-push-vouch.sh` — confirms vouch is a
+  multi-platform buildx push (canonical example).
+- `Tools/rbk/vov_veiled/RBSIJ-image_jettison.adoc` — spec to amend.
+- `Tools/buk/vov_veiled/BCG-BashConsoleGuide.md` — BCG patterns: stderr
+  capture, load-then-iterate, local -r discipline.
+
+### oauth-trust-hygiene-sweep (₢BAAAA) [rough]
+
+Drafted from ₢A_AAN in ₣A_.
+
+## Character
+
+Mechanical apply. All design decisions are baked into this docket; the agent's job is to execute the listed edits, run the listed tests, and notch with the listed file list. No options to evaluate. No "decide between..." sections. If anything looks ambiguous, the docket is the source of truth — re-read it rather than improvise.
+
+This docket was built and reviewed in a prior chat; its line numbers and diffs were verified against the working tree at slate time. Spot-check before applying — line numbers may drift if other officia touch the target files.
+
+## Pre-flight (re-verify before edits)
+
+Run these to establish a known baseline:
+
+```
+git status --short                           # expect clean of AAN target files (see file list at end)
+tt/rbtd-s.TestSuite.fast.sh                  # expect 93/93 green (47+23+8+15)
+shellcheck Tools/rbk/rbgo_OAuth.sh Tools/rbk/rbgp_Payor.sh Tools/buk/buh_handbook.sh \
+           Tools/rbk/rbgu_Utility.sh Tools/rbk/rbgg_Governor.sh \
+           Tools/rbk/rbgc_Constants.sh Tools/rbk/rbrp_regime.sh 2>&1 | grep -c '^In '
+# expect ~119 warnings baseline (post-AAN target: ~110, drops 9: 1 SC2034 from F1, 7 SC2034 from F6a, 1-2 SC2153 from F6b directives)
+```
+
+If baseline differs significantly, investigate before editing. Another officium may have touched these files.
+
+## Cross-officium constraints (HARD)
+
+A parallel officium may be working on ₢A_AAS (theurge Rust + tabtargets). **Never** touch:
+
+- `Tools/rbk/rbtd/src/rbtdrc_crucible.rs`
+- `Tools/rbk/rbtd/src/rbtdrm_manifest.rs`
+- `Tools/rbk/rbtd/src/rbtdrf_fast.rs`
+- `Tools/rbk/rbtd/tests/rbtdtm_manifest.rs`
+- `tt/rbtd-r.Run.batch-vouch.sh`
+- `tt/rbtd-s.SingleCase.batch-vouch.sh`
+- `Tools/rbk/rbtd/scripts/rbte_engine.sh`
+
+Never run `tt/rbtd-s.TestSuite.crucible.sh` or `tt/rbtd-s.TestSuite.complete.sh`. Fast suite is read-only and safe.
+
+If `git status --short` shows uncommitted changes to AAS-affiliated files at any point, leave them alone — that's the other officium's in-flight work.
+
+## Apply order (one notch at the end, not per-finding)
+
+### Step 1 — Pure deletions (F1, F6a) and shellcheck directives (F6b)
+
+**F1** — Delete dead `ZRBGO_PRIVATE_KEY_FILE`. File: `Tools/rbk/rbgo_OAuth.sh`, line 50:
+
+```bash
+  readonly ZRBGO_PRIVATE_KEY_FILE="${BURD_TEMP_DIR}/rbgo_private_key.pem"
+```
+
+Delete the entire line.
+
+**F6a** — Delete 7 dead `ZRBGP_INFIX_*` constants in `Tools/rbk/rbgp_Payor.sh`. Verified zero consumers tree-wide. Lines 46, 47, 48, 53, 54, 61, 63:
+
+```bash
+  readonly ZRBGP_INFIX_PROJECT_DELETE="project_delete"
+  readonly ZRBGP_INFIX_PROJECT_RESTORE="project_restore"
+  readonly ZRBGP_INFIX_PROJECT_STATE="project_state"
+  readonly ZRBGP_INFIX_CREATE_REPO="create_repo"
+  readonly ZRBGP_INFIX_VERIFY_REPO="verify_repo"
+  readonly ZRBGP_INFIX_GOV_VERIFY_SA="gov_verify_sa"
+  readonly ZRBGP_INFIX_GOV_IAM="gov_iam"
+```
+
+Delete those exact lines; leave the other 11 INFIX constants intact.
+
+**F6b** — Add file-scoped shellcheck directive to silence SC2153 false positive on cross-module `ZRBGU_PREFIX`. Apply to BOTH files (the extension to `rbgg_Governor.sh` is a confirmed freebie since both have the same false-positive shape and the file is touched by F13 anyway).
+
+In `Tools/rbk/rbgp_Payor.sh`, insert after line 25 (after `ZRBGP_SOURCED=1`):
+
+```bash
+# shellcheck disable=SC2153
+# ZRBGU_PREFIX and ZRBGU_POSTFIX_* are defined in rbgu_Utility.sh and shared
+# across modules via the kindle/sentinel chain (zrbgu_sentinel asserted in
+# zrbgp_kindle). Shellcheck cannot follow the runtime sourcing graph.
+```
+
+In `Tools/rbk/rbgg_Governor.sh`, insert the same block after the file's own `ZRBGG_SOURCED=1` line (find via grep — the multiple-inclusion guard).
+
+Note: the BCG-wide answer to this class of false positive is being studied under ₢A_AAY (`bcg-shellcheck-cross-module-discipline`). When AAY lands, these per-file directives become redundant and should be removed by AAY's apply pass.
+
+### Step 2 — F3 OAuth URL constants
+
+`RBGC_OAUTH_TOKEN_URL` already exists at `Tools/rbk/rbgc_Constants.sh:69`. Mint two more.
+
+In `rbgc_Constants.sh`, after line 69 (`readonly RBGC_OAUTH_TOKEN_URL=...`), insert:
+
+```bash
+  readonly RBGC_OAUTH_AUTHORIZE_URL="https://accounts.google.com/o/oauth2/v2/auth"
+  readonly RBGC_OAUTH_USERINFO_URL="https://www.googleapis.com/oauth2/v3/userinfo"
+```
+
+Then four substitutions in `Tools/rbk/rbgp_Payor.sh`:
+
+- Line ~102: `"https://oauth2.googleapis.com/token"` → `"${RBGC_OAUTH_TOKEN_URL}"`
+- Line ~443: replace ONLY the bare URL portion, NOT the query string. The full line is:
+  ```
+  local -r z_auth_url="https://accounts.google.com/o/oauth2/v2/auth?client_id=${z_client_id}&redirect_uri=urn:ietf:wg:oauth:2.0:oob&scope=openid%20email%20https://www.googleapis.com/auth/cloud-platform%20https://www.googleapis.com/auth/cloud-billing&response_type=code&access_type=offline"
+  ```
+  Replace `https://accounts.google.com/o/oauth2/v2/auth` (the prefix) with `${RBGC_OAUTH_AUTHORIZE_URL}` — keep the entire `?client_id=...` query string inline (it's parameterized, not extractable).
+- Line ~485: `"https://oauth2.googleapis.com/token"` → `"${RBGC_OAUTH_TOKEN_URL}"`
+- Line ~538: `"https://www.googleapis.com/oauth2/v3/userinfo"` → `"${RBGC_OAUTH_USERINFO_URL}"`
+
+### Step 3 — Behavior-adjacent (F2, F5)
+
+**F2** — Close TOCTOU on RBRO write. `Tools/rbk/rbgp_Payor.sh:504-509`. Current:
+
+```bash
+  buc_step 'Store OAuth credentials'
+  {
+    echo "RBRO_CLIENT_SECRET=${z_client_secret}"
+    echo "RBRO_REFRESH_TOKEN=${z_refresh_token}"
+  } > "${z_rbro_file}" || buc_die "Failed to write RBRO credentials file"
+  chmod 600 "${z_rbro_file}" || buc_die "Failed to set RBRO file permissions"
+```
+
+Replace with:
+
+```bash
+  buc_step 'Store OAuth credentials'
+  (
+    umask 077
+    {
+      echo "RBRO_CLIENT_SECRET=${z_client_secret}"
+      echo "RBRO_REFRESH_TOKEN=${z_refresh_token}"
+    } > "${z_rbro_file}"
+  ) || buc_die "Failed to write RBRO credentials file"
+  chmod 600 "${z_rbro_file}" || buc_die "Failed to set RBRO file permissions"
+```
+
+The subshell isolates the umask change so the file is created at 0600 from the start. The chmod 600 stays as belt-and-suspenders.
+
+**F5** — Mint `buh_prompt_secret` and swap callsite.
+
+In `Tools/buk/buh_handbook.sh`, after the `buh_prompt` function (currently ending around line 237), insert:
+
+```bash
+# buh_prompt_secret "prompt text"
+# Like buh_prompt but suppresses terminal echo of typed/pasted input.
+# Emits a trailing newline to stderr so subsequent output starts on a fresh line.
+buh_prompt_secret() {
+  zbuh_sentinel
+  printf '%s' "${1:-}" >&2
+  local z_input
+  read -rs z_input
+  printf '\n' >&2
+  printf '%s' "${z_input}"
+}
+```
+
+Place this BEFORE the existing `buh_prompt_required` function so the prompts cluster together.
+
+In `Tools/rbk/rbgp_Payor.sh:461`, change:
+
+```bash
+  z_auth_code=$(buh_prompt "Copy the authorization code and paste here: ")
+```
+
+to:
+
+```bash
+  z_auth_code=$(buh_prompt_secret "Copy the authorization code and paste here: ")
+```
+
+### Step 4 — Comments only (F8, F9, F10, F11, F12)
+
+**F8** — Document `rbgu_rbro_load`. Decision: **document, do not inline** (the auto-source of `rbro_regime.sh` is genuine load-bearing value; AAD just landed the payor/ subdirectory migration so callers shouldn't grow path knowledge).
+
+In `Tools/rbk/rbgu_Utility.sh`, replace the existing comment block above `rbgu_rbro_load` (lines 786-787 currently say "RBTOE: RBRO Load Pattern / Loads and validates RBRO credentials") with:
+
+```bash
+# RBTOE: RBRO Load Pattern
+# Thin wrapper: defensively sources rbro_regime.sh (callers don't need to know
+# its path, which moved under AAD's payor/ subdirectory migration), then
+# delegates to rbro_load. Parallels rbgu_rbra_load at the call-signature level
+# even though that function carries its own validation; the uniform rbgu_*
+# load-through-utility convention is the load-bearing reason this wrapper exists.
+```
+
+**F9** — Comment `RBRP_OAUTH_CLIENT_ID` deliberate `min=0`. In `Tools/rbk/rbrp_regime.sh:48-49`, insert before the enrollment line:
+
+```bash
+  buv_group_enroll "OAuth Configuration"
+  # min=0 deliberate — not every operator has a Payor identity (Retriever-only
+  # operators authenticate via JWT SA, never via Payor OAuth). Required-at-use
+  # is enforced by test -n in rbgp_Payor.sh consumers. Do not tighten to min=1.
+  buv_string_enroll  RBRP_OAUTH_CLIENT_ID  0  256  "OAuth 2.0 client identifier"
+```
+
+**F10** — Comment field-name-basis scrubber. In `Tools/rbk/rbgo_OAuth.sh:153`, insert before the `buc_log_args "Debug: Show the actual response..."` line:
+
+```bash
+  # Scrubber filters by field NAME, not value. Deliberate best-effort log hygiene:
+  # explicitly deletes access_token/refresh_token, then drops any field whose key
+  # matches token|secret|key|password (case-insensitive) — catches id_token,
+  # client_secret, etc. If the OAuth provider ever returns a new secret-carrying
+  # field whose name doesn't match this regex, the scrub would miss it; update
+  # the regex here when that happens.
+```
+
+**F11** — Scope-tagging header comment on `rbgp_Payor.sh`. **CORRECTION FROM ORIGINAL DOCKET:** the original docket said "OAuth ~76-566 / Depot 568-end" — that is wrong. `rbgp_payor_oauth_refresh` is OAuth and lives at line ~1123. Use the corrected map below.
+
+In `Tools/rbk/rbgp_Payor.sh:19` (the existing single-line `# Recipe Bottle GCP Payor - ...` comment), replace with:
+
+```bash
+# Recipe Bottle GCP Payor - Billing and Destructive Lifecycle Operations
+#
+# Scope: this file mixes two concerns; entry points are interleaved.
+#   OAuth credential flow:
+#     zrbgp_refresh_capture         (~76)   refresh-token exchange
+#     zrbgp_authenticate_capture    (~122)  load + exchange
+#     rbgp_payor_install            (~400)  full install ceremony
+#     rbgp_payor_oauth_refresh      (~1123) display refresh procedure
+#   Depot lifecycle operations:
+#     zrbgp_billing_attach/detach, liens, bucket helpers (~196-395)
+#     rbgp_depot_levy / unmake / list (~568-1121)
+#     rbgp_governor_mantle          (~1162) Governor SA reset (writes RBRA)
+```
+
+**F12** — Comment no-cache intent on `zrbgp_authenticate_capture`. In `Tools/rbk/rbgp_Payor.sh:120-121`, replace the existing two-line comment with:
+
+```bash
+# RBTOE: Payor OAuth Authentication Pattern
+# Establishes Payor OAuth context by loading RBRO credentials and obtaining access token.
+# Tokens are deliberately not cached — each call refreshes. Rationale: simplicity
+# and freshness; refresh tokens are long-lived so the extra roundtrips are cheap
+# relative to the depot operations they authorize, and uncached tokens can't grow
+# stale between distinct Payor ceremonies.
+```
+
+### Step 5 — F13 producer-reality docs + BCG brace freebie + consumer-comment fix
+
+**F13 — CORRECTION FROM ORIGINAL DOCKET:** the original docket asserted "RBRA_PRIVATE_KEY must hold '\n' escape sequences (literal backslash-n), NOT real newlines." This premise is **inverted** with respect to the actual code. The reality:
+
+- All three writer sites use `z_private_key=$(jq -r '.private_key' ...)`. `jq -r` unescapes JSON `\n` → real newlines.
+- All three writer sites then use `printf '%s' "$z_private_key"`, preserving real newlines verbatim.
+- The RBRA file therefore contains a multi-line `RBRA_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----<real newline>...-----END-----<real newline>"`.
+- Consumer at `rbgo_OAuth.sh:125` does `printf '%b' "${RBRA_PRIVATE_KEY}\n"`. `%b` on real newlines is a no-op; PEM has no backslashes for `%b` to process. The `%b` is harmless redundancy.
+- The consumer comment at `rbgo_OAuth.sh:82-83` ("contains \n sequences that must become real newlines") is **misleading or stale**.
+
+Decision: **document reality, not the docket's misframing**. Three writer sites confirmed (rgbs_ServiceAccounts.sh checked, does NOT touch RBRA — only three writers exist).
+
+Also confirmed during prep: **BCG brace inconsistency** at the writer sites. `rbgu:602` and `rbgg:264` use unbraced `"$z_private_key"`; `rbgp:1332` uses braced `"${z_private_key}"`. BCG mandates braces. Brace the two unbraced sites in the same pass — confirmed freebie.
+
+**Producer comment + brace fix at all three sites:**
+
+`Tools/rbk/rbgu_Utility.sh:602` — current:
+
+```bash
+  buc_log_args 'Write RBRA file'
+  {
+    printf 'RBRA_CLIENT_EMAIL="%s"\n'      "$z_client_email"
+    printf 'RBRA_PRIVATE_KEY="'; printf '%s' "$z_private_key"; printf '"\n'
+    printf 'RBRA_PROJECT_ID="%s"\n'        "$z_project_id"
+    printf 'RBRA_TOKEN_LIFETIME_SEC=%s\n'  "$z_lifetime_sec"
+  } > "${z_rbra_path}" || buc_die "Failed to write RBRA file ${z_rbra_path}"
+```
+
+Replace with:
+
+```bash
+  buc_log_args 'Write RBRA file'
+  # CAUTION: jq -r unescapes JSON \n to real newlines, so z_private_key holds a
+  # multi-line PEM string. printf '%s' below preserves real newlines into the
+  # RBRA file. Consumer (rbgo_OAuth.sh:zrbgo_build_jwt_capture) tolerates either
+  # real-newline or '\n'-escape form via printf '%b'; do not "normalize" to one
+  # form without auditing the consumer.
+  {
+    printf 'RBRA_CLIENT_EMAIL="%s"\n'      "${z_client_email}"
+    printf 'RBRA_PRIVATE_KEY="'; printf '%s' "${z_private_key}"; printf '"\n'
+    printf 'RBRA_PROJECT_ID="%s"\n'        "${z_project_id}"
+    printf 'RBRA_TOKEN_LIFETIME_SEC=%s\n'  "${z_lifetime_sec}"
+  } > "${z_rbra_path}" || buc_die "Failed to write RBRA file ${z_rbra_path}"
+```
+
+(Note: also brace the other three printf args in this block while we're here — full BCG sweep on the 4-line block.)
+
+`Tools/rbk/rbgg_Governor.sh:264` — current block (lines ~260-267):
+
+```bash
+  buc_step 'Write RBRA file' "${z_rbra_file}"
+  {
+    printf 'RBRA_ROLE=%s\n'                  "${z_role}"
+    printf 'RBRA_CLIENT_EMAIL="%s"\n'      "$z_client_email"
+    printf 'RBRA_PRIVATE_KEY="'; printf '%s' "$z_private_key"; printf '"\n'
+    printf 'RBRA_PROJECT_ID="%s"\n'        "$z_project_id"
+    printf 'RBRA_TOKEN_LIFETIME_SEC=1800\n'
+  } > "${z_rbra_file}" || buc_die "Failed to write RBRA file ${z_rbra_file}"
+```
+
+Replace with:
+
+```bash
+  buc_step 'Write RBRA file' "${z_rbra_file}"
+  # CAUTION: jq -r unescapes JSON \n to real newlines, so z_private_key holds a
+  # multi-line PEM string. printf '%s' below preserves real newlines into the
+  # RBRA file. Consumer (rbgo_OAuth.sh:zrbgo_build_jwt_capture) tolerates either
+  # real-newline or '\n'-escape form via printf '%b'; do not "normalize" to one
+  # form without auditing the consumer.
+  {
+    printf 'RBRA_ROLE=%s\n'                  "${z_role}"
+    printf 'RBRA_CLIENT_EMAIL="%s"\n'      "${z_client_email}"
+    printf 'RBRA_PRIVATE_KEY="'; printf '%s' "${z_private_key}"; printf '"\n'
+    printf 'RBRA_PROJECT_ID="%s"\n'        "${z_project_id}"
+    printf 'RBRA_TOKEN_LIFETIME_SEC=1800\n'
+  } > "${z_rbra_file}" || buc_die "Failed to write RBRA file ${z_rbra_file}"
+```
+
+`Tools/rbk/rbgp_Payor.sh:1332` (already braced — only add the comment):
+
+Insert the same CAUTION comment block immediately above the `buc_step 'Write RBRA file'` line (or above the `{` if `buc_step` isn't immediately before it — find the heredoc-style block at line 1328-1335). Block already uses `${z_private_key}` etc., so no brace edits needed here.
+
+**Consumer-comment fix** at `Tools/rbk/rbgo_OAuth.sh:82-83`. Current:
+
+```bash
+  # RBRA_* expected: CLIENT_EMAIL, PRIVATE_KEY, TOKEN_LIFETIME_SEC
+  # RBRA_PRIVATE_KEY contains \n sequences that must become real newlines for openssl
+```
+
+Replace with:
+
+```bash
+  # RBRA_* expected: CLIENT_EMAIL, PRIVATE_KEY, TOKEN_LIFETIME_SEC
+  # RBRA_PRIVATE_KEY is sourced as a multi-line string (real newlines from PEM).
+  # printf '%b' below is defensive and tolerates either real-newline or '\n'-escape
+  # form; PEM keys contain no backslashes so %b is otherwise a no-op.
+```
+
+## Test plan
+
+### Tier 1 — mechanical correctness
+
+```
+bash -n Tools/rbk/rbgo_OAuth.sh
+bash -n Tools/rbk/rbgp_Payor.sh
+bash -n Tools/rbk/rbgu_Utility.sh
+bash -n Tools/rbk/rbgg_Governor.sh
+bash -n Tools/rbk/rbgc_Constants.sh
+bash -n Tools/rbk/rbrp_regime.sh
+bash -n Tools/buk/buh_handbook.sh
+
+tt/rbtd-s.TestSuite.fast.sh                  # expect 93/93
+
+shellcheck Tools/rbk/rbgo_OAuth.sh Tools/rbk/rbgp_Payor.sh Tools/buk/buh_handbook.sh \
+           Tools/rbk/rbgu_Utility.sh Tools/rbk/rbgg_Governor.sh \
+           Tools/rbk/rbgc_Constants.sh Tools/rbk/rbrp_regime.sh
+# expect ~110 warnings (down 9-10 from 119 baseline). NO new findings.
+
+tt/rbw-rov.ValidateOauthRegime.sh
+tt/rbw-rpv.ValidatePayorRegime.sh
+```
+
+### Tier 2 — behavior on edited surfaces
+
+Interactive Payor install — exercises F2, F3, F5 in one ceremony:
+
+```
+ls -la ~/.rbw/payor/rbro.env 2>/dev/null    # note pre-state
+
+tt/rbw-gPI.PayorInstall.sh <path-to-oauth-client.json>
+
+# F5: visually confirm auth code does NOT echo when typed/pasted
+# F2: immediately after ceremony, stat the file
+stat -f %Lp ~/.rbw/payor/rbro.env           # macOS — expect 600
+# (or stat -c %a on Linux/WSL)
+# F3: ceremony completes without "Failed to execute..." OAuth URL errors
+```
+
+Subsequent Payor op — exercises F12 + F3 refresh path:
+
+```
+tt/rbw-dl.PayorListsDepots.sh
+```
+
+### Tier 3 — full credential lifecycle
+
+Order matters; Governor reset writes the RBRA the others depend on.
+
+```
+# 3.1 Governor reset (writes via rbgp_Payor.sh:1332 — F13 site #3)
+tt/rbw-aM.PayorMantlesGovernor.sh
+
+# Inspect the resulting RBRA format (F13 reality check):
+ls -la output/governor-*.rbra | tail -1
+cat output/governor-*.rbra | tail -10
+# Expected: multi-line PEM with real newlines inside RBRA_PRIVATE_KEY="..."
+
+# Install per the buc_bare hint emitted by mantle:
+cp output/governor-*.rbra <RBDC_GOVERNOR_RBRA_FILE>      # actual path printed at end of mantle
+
+# 3.2 Charter Retriever (writes via rbgg_Governor.sh:264 — F13 site #2)
+tt/rbw-aC.GovernorChartersRetriever.sh
+
+# 3.3 Knight Director (writes via rbgg_Governor.sh:264 — F13 site #2 again)
+tt/rbw-aK.GovernorKnightsDirector.sh
+
+# 3.4 Verify all three SAs exist
+tt/rbw-aL.GovernorListsServiceAccounts.sh
+
+# 3.5 Consumer round-trip — proves F13 reality claim end-to-end
+tt/rbw-ft.RetrieverTalliesHallmarks.sh
+# Clean tally output proves: producer wrote real newlines → consumer's %b accepted them.
+```
+
+## Notch
+
+ONE `jjx_record` at the end. Explicit file list:
+
+- `Tools/rbk/rbgo_OAuth.sh`
+- `Tools/rbk/rbgp_Payor.sh`
+- `Tools/rbk/rbgc_Constants.sh`
+- `Tools/rbk/rbrp_regime.sh`
+- `Tools/rbk/rbgu_Utility.sh`
+- `Tools/rbk/rbgg_Governor.sh`
+- `Tools/buk/buh_handbook.sh`
+
+**Never** include AAS files in the record (see Cross-officium constraints above).
+
+Intent line for the commit: synthesize from what was actually applied. Suggested base: "OAuth-surface trust hygiene sweep (F1+F6a deletes, F6b shellcheck directives in rbgp+rbgg, F3 OAuth URL constants, F2 TOCTOU subshell, F5 buh_prompt_secret, F8-F12 comments, F13 producer-reality docs + BCG brace freebie at rbgu/rbgg writer sites + consumer-comment fix; AAY slated for BCG-wide SC2153 study)."
+
+## Out of scope (do not expand)
+
+- F4 (ID-token scrub generalization) — folded into F7.
+- F7 (factor token-exchange paths) — separate pace, pre-AAE.
+- BCG-wide SC2153 study — slated as ₢A_AAY.
+- Splitting `rbgp_Payor.sh` into multiple files — F11 is a comment-only map; an actual split is a larger heat.
+- Behavior changes to OAuth flow, token caching, alternate auth.
+- Touching `rbgv_AccessProbe.sh` — review concluded clean.
+
+## Corrections from the docket's prior version
+
+This docket's prior version asserted:
+
+1. **F11**: "OAuth ~76-566 / Depot 568-end" — wrong. `rbgp_payor_oauth_refresh` is OAuth and lives at 1123. Corrected map in F11 above.
+2. **F13**: "RBRA_PRIVATE_KEY must hold '\n' escape sequences" — inverted. Reality is real newlines today; `%b` is defensive. Corrected approach in F13 above.
+3. **F13 candidate writer files**: original mentioned `rbgg_Governor.sh, rbgi_IAM.sh, rgbs_ServiceAccounts.sh` as candidates. Verified: the three writers are `rbgu_Utility.sh:602`, `rbgg_Governor.sh:264`, `rbgp_Payor.sh:1332`. `rbgi_IAM.sh` and `rgbs_ServiceAccounts.sh` do NOT write RBRA.
+4. **F6b extension**: original scoped to `rbgp_Payor.sh` only; the same SC2153 false positive fires in `rbgg_Governor.sh:195`. Extended as a confirmed freebie since rbgg is touched by F13 anyway.
+5. **BCG brace freebie**: original did not address it; rbgu:602 and rbgg:264 use unbraced expansion in the F13 block. Brace fix folded in.
+
+## References
+
+- Original AAN docket (this file, prior version) — for context on review provenance.
+- ₢A_AAY (`bcg-shellcheck-cross-module-discipline`) — slated to study whether F6b's per-file directives should be replaced by a BCG-mandated one-liner.
+- BCG (Bash Console Guide): `Tools/buk/vov_veiled/BCG-BashConsoleGuide.md`.
+- `Tools/rbk/rbgc_Constants.sh:69` — existing `RBGC_OAUTH_TOKEN_URL`, sibling to the two new mints.
+- Cross-officium constraints: enforce AAS file boundary throughout.
+
+## Verification gates before notching
+
+- [ ] Tier 1 green: bash -n clean, fast suite 93/93, shellcheck delta ~9 fewer warnings, regime validators pass.
+- [ ] Tier 2 observed: F5 no-echo confirmed, F2 perms 600 confirmed, F3 URLs round-trip.
+- [ ] Tier 3 observed: Governor mantled, RBRA format inspected, retriever+director chartered, list shows all three, retriever tally rounds-trips successfully.
+- [ ] Git status shows only AAN target files dirty before notch (no AAS file pollution).
+
+If any gate fails, STOP and report. Do not adjust scope to make a failing gate pass.
+
+### bcg-shellcheck-cross-module-discipline (₢BAAAB) [rough]
+
+Drafted from ₢A_AAY in ₣A_.
+
+## Character
+
+Simple-pattern discipline. BCG exists because nuanced bash craftsmanship gets forgotten across chat boundaries and corrupts. The shape of the answer here should be a uniform, easily-verifiable rule baked into BCG — not a per-script judgment call. Bias toward the simplest mechanical pattern. Only consider a more-nuanced shape if there's a concrete reason against the default.
+
+## Docket
+
+Cross-module readonly state (Z*_PREFIX, RB*_* constants) is shared across BCG-compliant modules via the kindle/sentinel chain. Shellcheck cannot follow runtime sourcing and fires SC2153 ("possible misspelling") on every cross-module reference. ₢A_AAN's F6b addresses this per-file in two scripts (`rbgp_Payor.sh`, `rbgg_Governor.sh`). This pace decides whether to promote the fix to a BCG-level pattern.
+
+### Default answer
+
+A single mandated line in BCG's prologue spec for kindled modules:
+
+    # shellcheck disable=SC2153  # cross-module Z*_/RB*_ state via kindle chain
+
+Placed below the copyright header, above `set -euo pipefail`. Uniform across all BCG modules. Verifiable by `grep -L 'shellcheck disable=SC2153' Tools/**/*.sh` (find files missing the directive).
+
+### Decision criterion
+
+Adopt the default unless one of these holds:
+
+- A meaningful fraction of BCG modules do NOT participate in cross-module state sharing (the directive becomes dead weight in leaf modules — silent typo-detection loss for no benefit).
+- A survey finds existing typo bugs that SC2153 *would* have caught (suggests the false-positive rate is acceptable and the warning carries real value).
+
+If neither holds, apply the default. If either holds, report the finding and slate a follow-up — do not invent a middle ground.
+
+### Work items
+
+1. **Survey** — count BCG-compliant modules in the tree; spot-check ~10 for whether they reference cross-module readonly state. Estimate participation rate.
+2. **Decide** using the criterion above. Record the outcome in one line.
+3. **If applying:** amend BCG (`Tools/buk/vov_veiled/BCG-BashConsoleGuide.md`), sweep the directive across all BCG modules, remove pre-existing per-file SC2153 disables (including those landed by AAN F6b). Single notch.
+4. **If not applying:** report why; slate a follow-up if a different shape is warranted.
+5. **Verify** — shellcheck delta across the tree matches expectation; a deliberate scratch-script typo confirms `set -u` still catches what SC2153 used to catch.
+
+## Why simple
+
+The architectural alternatives (`.shellcheckrc` repo config, `# shellcheck source=...` per-reference directives) preserve more typo detection but cost more cognitive load and survive chat boundaries less well. BCG's track record favors verifiable uniformity over engineering nuance. Stay there unless evidence forces otherwise.
+
+## Out of scope
+
+- SC2154 disable (different shellcheck class, different tradeoff).
+- `.shellcheckrc` repo-level config.
+- `# shellcheck source=...` directives.
+- Bringing non-BCG scripts into BCG compliance.
+
+## References
+
+- ₢A_AAN F6b — becomes redundant if the default is applied.
+- BCG: `Tools/buk/vov_veiled/BCG-BashConsoleGuide.md`.
+- CLAUDE.md "Load-Bearing Complexity" — uniformity is what's load-bearing here, not technical sophistication.
+
+### oci-magic-string-extraction (₢BAAAC) [rough]
+
+Drafted from ₢A_AAM in ₣A_.
+
+## Character
+
+Mechanical — small-scope extraction of OCI Distribution Spec protocol keywords (`manifests`, `blobs`, `tags/list`, `v2`) that currently appear as bare literals in URL construction across rbfr and rbfv. Low per-site judgment once the naming scheme is chosen; the design thought lies in choosing between named-constant replacement vs a URL-builder helper.
+
+## Docket
+
+The OCI Registry HTTP API v2 URL shape `/v2/<name>/manifests/<reference>` (and peers `blobs/`, `tags/list`) appears ~10× across `rbfr_FoundryRetriever.sh` and `rbfv_FoundryVerify.sh` with the endpoint keywords inlined as bare string literals. These are protocol-defined keywords from the OCI Distribution Spec — frozen, not arbitrary — but repeated inlining violates BCG's Load-Bearing Complexity principle. See BCG:609 `Z«PREFIX»_API_VERSION="v2"` as the canonical pattern for capturing protocol keywords.
+
+### Two options (pick one at pace execution)
+
+**Option A — named protocol constants as RBFC tinder**. Add `ZRBFC_ENDPOINT_MANIFESTS="manifests"`, `ZRBFC_ENDPOINT_BLOBS="blobs"`, `ZRBFC_ENDPOINT_TAGS_LIST="tags/list"`, `ZRBFC_API_VERSION="v2"` at RBFC tinder-constant position (post-`SOURCED`, pre-kindle). Each site replaces the bare literal with the named constant. Minimal structural change, most direct expression of BCG's tinder-constant pattern.
+
+**Option B — URL-builder helper**. Add `zrbfc_manifest_url_capture <vessel_path> <reference>` returning `${ZRBFC_REGISTRY_API_BASE}/<vessel_path>/manifests/<reference>`. Callers collapse to one line. Higher upfront effort, higher payoff if future OCI endpoints get added. Tilts toward "one place owns the URL shape."
+
+### Sites (verify-on-touch; line numbers will drift)
+
+- `rbfr_FoundryRetriever.sh` — `/tags/list` (~142), `/manifests/` (~188, 213, 238)
+- `rbfv_FoundryVerify.sh` — `/manifests/` (~89, 142, 166, 224, 617, 641), `/tags/list` (~822)
+- Any other hits from `grep -rnE '/manifests/|/tags/list|/blobs/|/v2/' Tools/rbk/`
+
+### Verification
+
+- Fast suite green (no new test surface for this refactor)
+- Crucible suite green (exercises actual registry fetches end-to-end)
+- Manual smoke: `tt/rbw-cC.Charge.tadmor.sh` succeeds unchanged
+
+### Scope guardrails
+
+- Pure extraction — no URL semantics change, no new endpoint types
+- Independent of AAK: OCI protocol keywords persist regardless of whether path grammar reshapes into hallmark-centered layout
+- Does not block or get blocked by depot regen (AAE)
+
+### kludge-aware-charge-prereq (₢BAAAH) [rough]
+
+## Character
+
+Mint a small constant family, swap four bare literals to use it, and add one
+discriminator helper. Mechanical with one micro-design choice (the helper's
+name and signature). The judgment work is recognizing that the BCG magic-string
+issue here is broader than just `k` — there is a four-letter undeclared
+provenance vocabulary (`c`/`k`/`b`/`g`) that wants symbolic treatment as a
+group.
+
+## Docket
+
+The hallmark prefix letter (`c`=conjure, `k`=kludge, `b`=bind, `g`=graft)
+encodes artifact provenance and lives as a bare literal at four production
+sites. Charge-time prerequisite checks in `rbob_bottle.sh` cannot discriminate
+local-only kludge hallmarks from depot-resident ones, so the diagnostic when
+state is missing always suggests `tt/rbw-fs.RetrieverSummonsHallmark.sh` —
+which is guaranteed to fail for `k`-prefixed hallmarks because they never go
+to GAR.
+
+Surfaced during ₢A_AAU verification: a stale tadmor sentry hallmark
+(`k260416190047-...`) in `.rbk/tadmor/rbrn.env` produced "vouch artifact
+missing locally" with the unhelpful "run summon" suggestion. The actual fix
+was `tt/rbw-cKS.KludgeSentry.sh tadmor`. The diagnostic should have said so.
+
+### Pattern
+
+Symbolic constants for the four mode prefixes; pattern-match against
+constants at the discrimination site.
+
+### Sites
+
+**Mint** — `Tools/rbk/rbgc_Constants.sh`, parallel to the existing
+`RBGC_ARK_BASENAME_*` block:
+
+```
+readonly RBGC_HALLMARK_PREFIX_CONJURE="c"
+readonly RBGC_HALLMARK_PREFIX_KLUDGE="k"
+readonly RBGC_HALLMARK_PREFIX_BIND="b"
+readonly RBGC_HALLMARK_PREFIX_GRAFT="g"
+```
+
+**Production sites in `Tools/rbk/rbfd_FoundryDirectorBuild.sh`** —
+replace bare literals with constant references:
+
+- `:1137` — `"c${BURD_NOW_STAMP...}"` → `"${RBGC_HALLMARK_PREFIX_CONJURE}${BURD_NOW_STAMP...}"`
+- `:1293` — `"k${BURD_NOW_STAMP...}"` → `"${RBGC_HALLMARK_PREFIX_KLUDGE}${BURD_NOW_STAMP...}"`
+- `:1391` — `"b${BURD_NOW_STAMP...}"` → `"${RBGC_HALLMARK_PREFIX_BIND}${BURD_NOW_STAMP...}"`
+- `:1648` — `"g${z_cdate...}"` → `"${RBGC_HALLMARK_PREFIX_GRAFT}${z_cdate...}"`
+
+The existing inline comment at `:1290` ("k prefix distinguishes from
+conjure c, bind b") should drop — the constant names carry the meaning.
+
+**Discriminator + diagnostic in `Tools/rbk/rbob_bottle.sh`** —
+add helper and apply at the prerequisite checks:
+
+```
+zrbob_hallmark_is_kludge() {
+  case "${1}" in
+    "${RBGC_HALLMARK_PREFIX_KLUDGE}"*) return 0 ;;
+    *) return 1 ;;
+  esac
+}
+```
+
+Update the missing-vouch and missing-image paths around `:307` and `:320`
+(both for sentry and for bottle — four sites total) so the diagnostic
+branches:
+
+- Kludge hallmark missing locally → `"Kludge hallmark not built locally — run: tt/rbw-cK{S,B}.Kludge{Sentry,Bottle}.sh ${RBRN_MONIKER}"`. Do NOT call `zrbob_vouch_gate_and_summon` (guaranteed to fail).
+- Non-kludge hallmark missing locally → existing summon path unchanged.
+
+### Verification
+
+- `tt/rbtd-s.TestSuite.fast.sh` — green (no behavior change to fast paths)
+- Manual: edit `.rbk/tadmor/rbrn.env` to a fake `k000000000000-deadbeef`
+  hallmark, run `tt/rbw-cC.Charge.tadmor.sh`. Should produce a clear
+  "kludge required" diagnostic naming the right tabtarget. Restore stamp
+  after.
+- Manual: with a real-but-not-locally-summoned non-kludge hallmark (any
+  conjure stamp from depot), confirm the summon path still triggers
+  unchanged.
+- `tt/rbtd-s.TestSuite.crucible.sh` — green for tadmor (the fixture this
+  defect was originally surfaced under).
+
+### Out of scope
+
+- **Fixture-level bootstrap** ("ensure local state before tests run") —
+  the larger architectural conversation about test-rig vs. system-under-test
+  separation. Lives in its own pace or grooming session, not here.
+- **Theurge runner reporting** — making "Charge failed (exit 1)" itself
+  more diagnostic at the runner level. Separate concern; this pace fixes
+  the upstream warning that prints before the failure.
+- **Cross-checking depot for non-kludge hallmark presence** before
+  attempting summon — tempting but already covered by the existing
+  `zrbob_vouch_gate_and_summon` path which surfaces a sensible error if
+  the artifact isn't in GAR.
+- **Hallmark stamp coherence between `.rbk/<nameplate>/rbrn.env` and
+  reachable state** — the deeper "should committed stamps be reproducibility
+  anchors or convenience defaults" question. Defer.
+- **Other consumers of the prefix letter** beyond the four production
+  sites in `rbfd_FoundryDirectorBuild.sh` — none found in initial search;
+  if any surface during the swap, fold into this pace, otherwise leave for
+  follow-up.
+
+### Cadence
+
+Mint constants, refactor the four production sites, add helper, update the
+four diagnostic sites. Run fast suite. Notch once when the manual verification
+above passes against tadmor.
+
+### Discovery context
+
+Surfaced during ₣A_ ₢A_AAU verification (260426). Original blocker: stale
+sentry hallmark `k260416190047-e29568f4` in `.rbk/tadmor/rbrn.env`, fixed by
+hand-kludging. Conversation noted that the existing diagnostic actively
+misled — suggesting summon for a hallmark class that never goes to depot.
+Slotted into ₣BA (`rbk-mvp-3-cleanups-and-imageops`) as squarely image-lifecycle
+work; natural neighbor is `imageops-fixtures` ₢BAAAF.
+
+### kludge-honors-enshrine-anchors (₢BAAAI) [rough]
+
+## Character
+
+Targeted feature addition on the consumer side of enshrine. Closes a silent
+semantic divergence between kludge and conjure: today an enshrined vessel
+produces different base layers under the two paths. Small-diff, high-confidence
+— the resolution code already exists in conjure (rbfd_FoundryDirectorBuild.sh:381+392)
+and just needs DRY extraction plus a local-presence guard. The credential
+boundary stays exactly where it is: kludge remains uncredentialed; wrest
+remains the credentialed step.
+
+## Problem
+
+`rbfd_kludge` (rbfd_FoundryDirectorBuild.sh:1268-1278) reads only
+`RBRV_IMAGE_n_ORIGIN` and ignores `RBRV_IMAGE_n_ANCHOR`. Conjure (line 381+392)
+consumes both. Result: an enshrined vessel built via kludge uses upstream base
+layers; the same vessel built via conjure uses GAR-anchored base layers. A
+developer iterating with kludge believes they are testing the same base image
+as conjure — they are not.
+
+The clean path closes the gap without making kludge credentialed. Kludge
+resolves the anchor to a full GAR ref, then performs a local-only presence
+check (`docker image inspect`) and fails with a remediation pointing at
+`rbw-iwe.DirectorWrestsEnshrinedImage.sh`. The credentialed pull happens in
+wrest, which already exists. Same pattern applies to origin slots: missing
+local cache → `docker pull «origin»` remediation. The `--pull=never` flag on
+docker build enforces the no-network contract uniformly.
+
+## Docket
+
+### Approach: kindle-time constant + uniform local-presence check
+
+Three coordinated changes:
+
+1. **Kindle one composite constant** in `rbfc_FoundryCore.sh` after the rbgl
+   dependency is satisfied:
+   ```
+   readonly ZRBFC_ENSHRINES_BASE="${ZRBFC_REGISTRY_HOST}/${ZRBFC_REGISTRY_PATH}/${RBGL_ENSHRINES_ROOT}"
+   ```
+   Verify the kindle order — conjure already references `RBGL_ENSHRINES_ROOT`
+   from rbfc-level code (rbfd line 392), so the dependency exists in practice.
+   If not formalized in `zrbfc_kindle`, add `zrbgl_kindle` call.
+
+2. **DRY conjure** — in `zrbfd_stitch_build_json`, replace the recomputed
+   `z_gar_repo_base` (line 381, currently
+   `${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}/${RBGD_GAR_PROJECT_ID}/${RBRR_GAR_REPOSITORY}`)
+   with `ZRBFC_ENSHRINES_BASE` substitution at line 392. Slot resolution
+   becomes `"${ZRBFC_ENSHRINES_BASE}/${z_anchor}:${z_anchor}"`. Behavior must
+   be byte-equivalent — this is a refactor, not a change.
+
+3. **Rewrite kludge slot loop** (rbfd_FoundryDirectorBuild.sh:1268-1278) to
+   mirror conjure's anchor-aware resolution and add a local-presence guard:
+   - For each slot, read both ORIGIN and ANCHOR
+   - ANCHOR set with empty ORIGIN → `buc_die` (malformed regime — defensive)
+   - ANCHOR set → resolve via `${ZRBFC_ENSHRINES_BASE}/${anchor}:${anchor}`
+   - ANCHOR empty → pass ORIGIN through verbatim
+   - Run `docker image inspect REF >/dev/null 2>&1` on every resolved ref
+     (local daemon query — no network, no credentials)
+   - Accumulate misses with type-specific remediation:
+     - Anchored miss → emit tabtarget pointer to
+       `rbw-iwe.DirectorWrestsEnshrinedImage.sh enshrines/«anchor»:«anchor»`
+     - Origin miss → emit `docker pull «origin»` instruction
+   - On any miss: print full remediation block (use existing
+     `buc_warn`/`buc_tabtarget`/`buc_die` pattern from
+     `zrbfd_registry_preflight` lines 336-345) and abort
+   - Add `--pull=never` to the `docker build` invocation (line 1295)
+     unconditionally
+
+### Spec touch
+
+- **`Tools/rbk/vov_veiled/RBSAK-ark_kludge.adoc`** — replace step 2 with
+  resolve+verify language. Add new step "Verify Local Image Presence" between
+  resolve and assign-hallmark. Amend build step to mention `--pull=never`. Add
+  Limitations bullet:
+  ```
+  * All declared base images must be locally cached before kludge runs:
+    anchored slots via {rbtgo_image_wrest_enshrined}, origin slots via plain
+    `docker pull`. Kludge never reaches a registry.
+  ```
+  Drafted wording is in the working chat that produced this pace; mounting
+  agent should refine for AsciiDoc/MCM conformance.
+
+- **`Tools/rbk/vov_veiled/RBSAE-ark_enshrine.adoc`** — optional one-line
+  consumer note that {rbrv_image_anchor} is read by both {rbtgo_ark_conjure}
+  and {rbtgo_ark_kludge}. Defer if it makes the producer spec noisy.
+
+### Surface
+
+- `Tools/rbk/rbfc_FoundryCore.sh` — one kindled constant added; verify rbgl
+  kindle precedes (add the call if not present)
+- `Tools/rbk/rbfd_FoundryDirectorBuild.sh` — `zrbfd_stitch_build_json`
+  (line 381+392, DRY refactor) and `rbfd_kludge` (line 1268-1295, slot loop
+  rewrite + presence check + `--pull=never`)
+- `Tools/rbk/vov_veiled/RBSAK-ark_kludge.adoc` — step 2 rewrite, new step,
+  build step amendment, Limitations bullet
+- `Tools/rbk/vov_veiled/RBSAE-ark_enshrine.adoc` — optional consumer note
+
+No tabtarget surface change. No new prefixes. No new modules.
+
+### Verification
+
+1. **Kludge unchanged for origin-only, pre-cached vessels** — pick a vessel
+   with no anchors, base images already in `docker images`, kludge succeeds
+   exactly as today.
+2. **Kludge fails clearly when origin not cached** — same vessel, fresh
+   docker cache, kludge fails with `docker pull «origin»` remediation; run
+   the pull; kludge succeeds.
+3. **Kludge fails clearly when anchor not cached** — vessel with anchors,
+   fresh cache, kludge fails with `rbw-iwe enshrines/«anchor»:«anchor»`
+   remediation; run wrest; kludge succeeds.
+4. **Anchored kludge produces same base layer as conjure** — for the same
+   anchored vessel, diff `docker inspect --format='{{.RootFS.Layers}}'` of
+   the kludge build and the conjure build's pulled image. Base-layer digests
+   identical confirms the gap is closed.
+5. **Malformed regime caught** — fabricate a vessel rbrv.env with ANCHOR
+   set and ORIGIN empty; kludge dies with explicit "malformed regime"
+   message before docker is invoked.
+6. **`--pull=never` enforcement** — confirm `docker build --pull=never`
+   surfaces hardcoded FROM stages not parameterized through `RBF_IMAGE_n`.
+   This is a vessel hygiene side benefit, not a regression — but if any
+   existing vessel in the repo has such a FROM, document it as a
+   spook-or-itch for follow-up rather than blocking this pace.
+7. **kludge_lifecycle SingleCase GREEN** —
+   `tt/rbtd-s.SingleCase.kludge-lifecycle.sh` (or whatever the canonical
+   single-case name is in the fundus registry).
+8. **crucible suite GREEN** — `tt/rbtd-s.TestSuite.crucible.sh`. Watch for
+   onboarding-flow scripts (`rbw-Ofc`, `rbw-Ots`, `rbw-Oda`) that may need
+   to pre-pull/pre-wrest before the kludge step. If a flow breaks because
+   it assumed auto-pull, the fix is one new step in the flow, not a
+   weakening of this pace's contract.
+9. **fast suite GREEN** — `tt/rbtd-s.TestSuite.fast.sh`. The kindled
+   constant addition should be invisible to non-foundry tests.
+
+### Out of scope
+
+- **Conjure behavioral change.** The DRY refactor must be byte-equivalent.
+  Conjure resolve-loop output identical pre/post.
+- **Wrest API change.** `rbfl_wrest`'s general locator signature
+  (`category/path:tag` with cloud prefix prepended internally) stays. Three
+  categories (hallmarks/reliquaries/enshrines) under one signature is the
+  right abstraction for wrest.
+- **Auto-wrest from kludge.** Tempting but wrong — that re-introduces
+  credentials into kludge. Hard line: kludge never authenticates.
+- **Auto-pull from kludge for origin slots.** Same principle — `--pull=never`
+  is unconditional. Operator pre-pulls.
+- **Conditional `--pull=never` based on anchor presence.** Considered and
+  rejected in working chat — uniform contract is simpler and the
+  origin-pre-pull cost is acceptable given the clear remediation message.
+- **Onboarding script refactor.** Existing flows may need a one-line note
+  ("first-run kludge requires pre-pulled origin images"); leave to a
+  follow-up if the cold-cache pass surfaces real friction.
+
+### Hard dependency notes
+
+- Independent of BA's other paces. Disjoint files from BAAAG (jettison
+  cascade): BAAAG is `rbfl_jettison`/`rbfc_FoundryCore.sh:575`; this pace
+  is `rbfd_kludge`/`rbfc_FoundryCore.sh` kindle section.
+- Builds on BAAAD's `rbw-iwe.DirectorWrestsEnshrinedImage.sh` mint (already
+  landed). The remediation message references that tabtarget by exact name.
+
+### Cadence
+
+1. Mount BA, parade this pace, read this docket.
+2. Read in order before any edit:
+   - `rbfc_FoundryCore.sh` kindle section — find right insertion point,
+     verify or add rbgl kindle precedence
+   - `rbfd_FoundryDirectorBuild.sh:381+392` — conjure DRY target
+   - `rbfd_FoundryDirectorBuild.sh:1268-1295` — kludge target
+   - `rbfd_FoundryDirectorBuild.sh:336-345` — existing
+     `buc_warn`/`buc_tabtarget`/`buc_die` remediation pattern to mirror
+   - `rbfl_wrest` (rbfl_FoundryLedger.sh:733-779) — locator format reminder
+3. Apply changes in this order:
+   - Kindled constant → conjure DRY (verify behavior unchanged with a
+     manual diff or quick conjure run) → kludge slot loop rewrite →
+     presence-check block → `--pull=never` → spec rewrite
+4. Single notch when:
+   - bash -n / shellcheck clean on touched files
+   - kludge_lifecycle SingleCase GREEN
+   - manual cold-cache test of an anchored vessel passes (remediation →
+     wrest → build)
+   - manual cold-cache test of an origin-only vessel passes (remediation →
+     docker pull → build)
+   - crucible suite GREEN
+   - fast suite GREEN
+5. Wrap.
+
+### References
+
+- `Tools/rbk/rbfc_FoundryCore.sh:51-53` (`ZRBFC_REGISTRY_HOST` /
+  `ZRBFC_REGISTRY_PATH` — composition pattern)
+- `Tools/rbk/rbgl_GarLayout.sh:50` (`RBGL_ENSHRINES_ROOT` — already includes
+  `RBRR_CLOUD_PREFIX`)
+- `Tools/rbk/rbfd_FoundryDirectorBuild.sh:381+392` (conjure's anchor
+  resolution — DRY target)
+- `Tools/rbk/rbfd_FoundryDirectorBuild.sh:1234-1320` (`rbfd_kludge` — target)
+- `Tools/rbk/rbfd_FoundryDirectorBuild.sh:336-345` (preflight remediation
+  pattern to mirror)
+- `Tools/rbk/rbfl_FoundryLedger.sh:733-779` (`rbfl_wrest` — locator format
+  `enshrines/«anchor»:«anchor»` for remediation message)
+- `Tools/rbk/vov_veiled/RBSAK-ark_kludge.adoc` (spec to rewrite)
+- `Tools/rbk/vov_veiled/RBSAE-ark_enshrine.adoc` (producer-side spec;
+  optional consumer note)
+
+### imageops-fixtures (₢BAAAF) [rough]
+
+## Character
+
+Additive test infrastructure. Two new service-tier fixtures exercising the reliquary and enshrinement lifecycles end-to-end against live GAR. Catches the regression class where Pace 1's piecemeal jettison either silently fails OR rekon fails to reflect the resulting interior-hole state.
+
+Sequential/mechanical work item per fixture: scaffold the fixture file, add cases, register in manifest, run.
+
+## Docket
+
+Two new theurge fixtures, both service-tier (require GCP credentials, no container runtime). Together they form the safety net for piecemeal-jettison correctness and post-jettison enumeration accuracy.
+
+### Inputs (specify before scaffolding)
+
+- **Reliquary fixture**: inscribe a fresh reliquary using a stable test spec. Suggest a 3-tool reliquary (small enough for fast cycle, large enough to verify decrement behavior). Test spec lives at a path under the kit's existing reliquary spec convention — mint or reuse on touch.
+- **Enshrine fixture**: use `rbev-busybox` (or smallest available kit-shipped vessel with `RBRV_IMAGE_ORIGIN` set). Confirms the small-base enshrine path with minimal Cloud Build cost per fixture run.
+
+### Idempotency / re-run discipline
+
+Each fixture begins with a prereq-sweep case that probes for residue from prior runs and jettisons it before the inscribe/enshrine case. Avoids "already exists" failures on retry. Alternative considered: unique-per-run stamps (e.g., timestamped). Rejected — inflates GAR clutter over time and complicates manual cleanup.
+
+### GAR empty-package behavior — answered (per ₢A_AAS investigation, 260426)
+
+GAR's `ListPackages` retains a package entry as long as ANY manifest content remains under it. After a single-platform `DELETE manifest-by-tag` (e.g. pouch from a `docker push`), the package becomes empty and GAR drops it from `ListPackages`. After a multi-platform `DELETE manifest-by-tag` (e.g. vouch, all reliquary tool images, all enshrinements — all pushed via buildx), only the index manifest is removed; per-platform child manifests remain as untagged content and the package persists in `ListPackages`. Empirically confirmed via the morning of 260426's stale-hallmark abjure cleanup, which used GAR REST package-delete and removed all six packages including vouch — the package container had persisted post-jettison.
+
+The new ₣BA pace **`₢BAAAG jettison-multi-platform-cascade-fix`** (slated ahead of this fixture) extends `rbfl_jettison` to cascade through OCI image indices: enumerate per-platform child manifest digests, DELETE each by digest, then DELETE the index by tag. After BAAAG lands, package containers become truly empty and GAR drops them.
+
+Therefore both fixtures' `muster_absent` cases assert **concrete absence**: the stamp/base does NOT appear in catalog after the post-cascade jettison sequence completes. No branching tolerance, no probe-and-codify-at-runtime — pick the asserted shape and write it concretely.
+
+If `₢BAAAG` has not yet landed when this fixture is mounted, this fixture is **blocked**. Hard dependency. Do not implement against a probe-then-decide strategy; do not implement against pre-cascade behavior expecting a follow-up to flip assertions.
+
+### Fixture 1: `reliquary-lifecycle`
+
+Implementation: new `rbtdrc_reliquary_lifecycle.rs` section. Assumes 3-tool spec (parameterize if changed).
+
+Cases (sequential within fixture):
+
+1. `prereq_sweep` — muster reliquaries; jettison-and-abjure any prior fixture stamp residue.
+2. `inscribe` — invoke `rbw-dI.DirectorInscribesReliquary.sh` against the fixture spec; verify creates a stamp under `<prefix>reliquaries/<stamp>/` with all 3 tools.
+3. `muster_present` — invoke `rbw-imr`; verify the new stamp appears in catalog.
+4. `rekon_full` — invoke `rbw-irr <stamp>`; verify all 3 tools listed.
+5. `wrest_one` — invoke `rbw-iwr <stamp>/<tool-1>`; verify image pulls cleanly to local daemon.
+6. `jettison_one` — invoke `rbw-iJr <stamp>/<tool-1>`; verify surgical delete succeeds.
+7. `rekon_decremented` — invoke `rbw-irr <stamp>`; verify exactly 2 tools listed (regression case: catches jettison silently failing OR rekon failing to reflect post-delete state). Post-BAAAG, this MUST pass concretely.
+8. `jettison_two` — invoke `rbw-iJr <stamp>/<tool-2>`; verify delete succeeds.
+9. `jettison_three` — invoke `rbw-iJr <stamp>/<tool-3>`; verify delete succeeds.
+10. `muster_absent` — invoke `rbw-imr`; verify stamp absent from catalog. Concrete absence (post-BAAAG cascade).
+
+### Fixture 2: `enshrine-lifecycle`
+
+Implementation: new `rbtdrc_enshrine_lifecycle.rs` section.
+
+Cases (sequential within fixture):
+
+1. `prereq_sweep` — muster enshrinements; jettison-and-abjure any prior `rbev-busybox`-base residue.
+2. `enshrine` — invoke `rbw-dE.DirectorEnshrinesVessel.sh` against the test vessel; verify creates `<prefix>enshrines/<base>`. **Cost note**: invokes Cloud Build (billable per fixture run).
+3. `muster_present` — invoke `rbw-ime`; verify the new enshrinement appears in catalog.
+4. `wrest` — invoke `rbw-iwe <base>`; verify image pulls cleanly.
+5. `jettison` — invoke `rbw-iJe <base>`; verify delete succeeds.
+6. `muster_absent` — invoke `rbw-ime`; verify enshrinement absent from catalog. Concrete absence (post-BAAAG cascade).
+
+### Manifest integration
+
+`rbtdrm_manifest.rs` — add fixture sections for both new fixtures. The colophon constants for the new tabtargets land in BAAAD (already wrapped); this pace registers the fixture cases referencing those constants.
+
+### Tier classification
+
+Service-tier — both fixtures need GCP credentials at `RBDC_DIRECTOR_RBRA_FILE` (director ops: inscribe, enshrine, jettison, wrest, muster — all director-tier per BAAAD).
+
+Add to `tt/rbtd-s.TestSuite.service.sh`. Service suite grows by **+16 cases** (10 reliquary-lifecycle + 6 enshrine-lifecycle). Absolute count depends on AAS's contributions already merged; express as relative delta in the docket and verify post-merge.
+
+### Cost / discipline note
+
+- `rbw-dE` (enshrine) invokes Cloud Build per fixture run — billable. Expect a few cents per run.
+- `rbw-dI` (inscribe) is pull-and-push, no Cloud Build — negligible cost.
+- Run frequency discipline: don't loop these in CI without budget consideration. Sequential-only per existing test discipline; never parallelize.
+
+### Test discipline
+
+Sequential only — both fixtures interact with shared GAR state. Never parallelize with each other or with other service-tier fixtures (per existing test discipline).
+
+The prereq-sweep case at the head and the muster-absent case at the tail bookend cleanup. Mid-fixture failure may leave partial state; manual recovery via `rbw-imr` / `rbw-ime` enumeration + `rbw-iJr`/`rbw-iJe` cleanup is the documented path.
+
+### Verification
+
+- Both fixtures pass cleanly against post-BAAAG depot.
+- Each case individually runnable via `tt/rbtd-s.SingleCase.reliquary-lifecycle.sh <case>` and `tt/rbtd-s.SingleCase.enshrine-lifecycle.sh <case>`.
+- Fixture cleanup leaves no stamp/base residue (post-fixture muster confirms expected empty state — concrete, post-cascade).
+- `tt/rbtd-r.Run.reliquary-lifecycle.sh` and `tt/rbtd-r.Run.enshrine-lifecycle.sh` runnable as standalone fixtures.
+- Informal cross-pace check: post-jettison ordain attempts on a yoked vessel fail at BAAAE's precheck — confirms producer + safety net working in concert.
+
+### Dependencies
+
+- **₢BAAAD (imageops-broaden) — DONE.** Provides the `rbw-irr`, `rbw-imr`, `rbw-iwr`, `rbw-iJr`, `rbw-ime`, `rbw-iwe`, `rbw-iJe` tabtargets and underlying ops. Wrapped 260426; available on main.
+- **₢BAAAE (imageops-precheck) — DONE.** Provides ordain-time ref existence check; not a hard dependency for this fixture but the informal cross-pace check above relies on it. Wrapped 260426; available on main.
+- **₢BAAAG (jettison-multi-platform-cascade-fix) — HARD DEPENDENCY.** The cascade fix is what makes `muster_absent` cases assert concrete absence rather than branching tolerance. Mount this fixture only after BAAAG wraps.
+
+### Out of scope
+
+- Crucible-tier integration (these don't need container runtime)
+- Negative-path coverage for the precheck path itself (BAAAE handles its own coverage; not blocking here)
+- Tally fixture coverage (tally is retriever-tier; orthogonal to image-family coverage)
+- Fixture for hallmark muster (`rbw-imh`) — coverage already provided by AAS's four-mode fixture's tally cases; symmetric director muster of hallmarks doesn't need its own lifecycle fixture
+- Stress/scale testing of jettison loops (cost-prohibitive; covered conceptually by 3-tool reliquary)
+
+### Affiliated context
+
+The interior-hole bug class becomes real once piecemeal reliquary jettison is exposed by BAAAD's tabtarget surface. These fixtures are the safety net. Closes the imageops sequence in ₣BA after BAAAG fixes the underlying jettison defect.
+
+File-touch bitmap (x = pace commit touched file):
+
+  1 D imageops-broaden
+  2 E imageops-precheck
+
+DE
+·x rbfd_FoundryDirectorBuild.sh
+x· CLAUDE.consumer.md, CLAUDE.md, RBS0-SpecTop.adoc, RBSIJ-image_jettison.adoc, RBSIM-image_muster.adoc, RBSIR-image_rekon.adoc, RBSIW-image_wrest.adoc, rbfc_FoundryCore.sh, rbfl_FoundryLedger.sh, rbfr_FoundryRetriever.sh, rbfv_FoundryVerify.sh, rbhocd_credential_director.sh, rbhodf_director_first_build.sh, rbk-claude-tabtarget-context.md, rbtdrc_crucible.rs, rbtdrm_manifest.rs, rbw-iJ.DirectorJettisonsImage.sh, rbw-iJe.DirectorJettisonsEnshrinement.sh, rbw-iJh.DirectorJettisonsHallmarkImage.sh, rbw-iJr.DirectorJettisonsReliquaryImage.sh, rbw-ime.DirectorMustersEnshrinements.sh, rbw-imh.DirectorMustersHallmarks.sh, rbw-imr.DirectorMustersReliquaries.sh, rbw-ir.DirectorRekonsImages.sh, rbw-irh.DirectorRekonsHallmark.sh, rbw-irr.DirectorRekonsReliquary.sh, rbw-iw.DirectorWrestsImage.sh, rbw-iwe.DirectorWrestsEnshrinedImage.sh, rbw-iwh.DirectorWrestsHallmarkImage.sh, rbw-iwr.DirectorWrestsReliquaryImage.sh, rbz_zipper.sh
+
+Commit swim lanes (x = commit affiliated with pace):
+
+  1 D imageops-broaden
+  2 E imageops-precheck
+
+123456789abcdefghi
+·····xxx·xxx······  D  6c
+········x···xx····  E  3c

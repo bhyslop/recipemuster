@@ -1,0 +1,499 @@
+# jjezs_paddock ₣BB
+
+## Context
+
+Release qualification gap surfaced by the ₣A_ depot-regen heat. Every existing test tier (`rbw-tf` fast, `rbw-tr` release) tolerates accumulated depot state, so silent first-build assumptions slip through. Recent spooks — kludge-aware-charge-prereq (k-prefixed hallmarks at GAR), ZRBOB_PROJECT (compose project name without runtime prefix), rbob_charged_predicate prefix omission, reliquary integrity-broken on negative test — all share a property: they only manifest on first-build paths, and none were caught until live verification surfaced them.
+
+This heat constructs `rbw-tP` QualifyPristine — a third tier that **refuses to run** unless marshal-zero state was just committed. The refusal is enforced by the test itself, not by ceremony or operator discipline.
+
+## Single operator prerequisite chain
+
+Operator has exactly one prerequisite chain: confirm Payor health → marshal-zero → commit → run `rbw-tP`. Payor OAuth is the only credential the operator must have ready; everything else (governor, retriever, director SAs and their RBRA files) is **minted by the qualification itself**, not restored from backup.
+
+## Entry contract — load-bearing
+
+`rbw-tP` fails-fast unless ALL of the following hold:
+
+- Working tree clean
+- HEAD commit is a marshal-zero commit (detectable signature baked into `rblm_zero` per BBAAB)
+- RBRR fields are blank (prefixes, depot project ID, etc.)
+- No RBRA credential files present (governor, retriever, director — all deleted by marshal-zero, recreated by the qualification)
+- No hallmark fields populated in nameplates
+- No depot-scoped fields populated in vessel rbrv.env files
+
+Operator cannot skip the prerequisite. This is the property that makes the tier catch the silent-first-build bug class by construction.
+
+## Failure mode contract
+
+Mid-qualification failure means start-over-from-zero, not patch-and-continue. Documented explicitly in runbook to prevent the very accumulated-state bug class this tier exists to catch.
+
+## Release-branch execution contract
+
+Three properties bind every fixture and phase in this tier.
+
+**Run on a release branch.** The release machinery is engineered for branch execution, not main. The branch will accumulate many commits across a successful pristine run. After a failed run, the branch holds bygone commits that `rbw-MZ` does not touch — they remain as history; the next run starts from a fresh marshal-zero commit on top.
+
+**Commits during the run are first-class.** Each step that mutates regime state (rbrr.env, rbra files, vessel rbrv.env, etc.) commits the change. Container-recipe work has a documented cognitive failure mode: humans lose track of where they are in long sequences. The growing commit trail is the operator's mental anchor against that.
+
+**Stop on very first failure, cleanly and clearly.** A step fails → fixture stops → operator stops → debugging happens immediately on the failed branch. Stderr names the failed step; fixture exits non-zero. Recovery is `rbw-MZ` + retry on a fresh marshal-zero. No graceful degradation, no recovery branches.
+
+Engineering scaffolding for any other shape — partial-run cleanup, soft-delete tolerance, multi-mode failure handling, recovery-time orphan inspection, diagnostic-redundancy — is non-load-bearing and does not belong in pristine-tier code. The single mechanical path is the entire surface.
+
+## Tier layering
+
+Three tiers, escalating cost:
+
+| Colophon | Frontispiece | Cost | Entry contract |
+|----------|--------------|------|----------------|
+| `rbw-tf` | QualifyFast | seconds | none |
+| `rbw-tr` | QualifyRelease | minutes | none (accumulated state OK) |
+| `rbw-tP` | QualifyPristine *(new)* | ~1 hour + cloud $ | marshal-zero just committed |
+
+`rbw-tP` is THE release gate. `rbw-tr` becomes the pre-pristine smoke test — cheap-and-frequent for development confidence; pristine for actual release.
+
+## Operator scope
+
+Single operator (project lead). Not designed for multi-operator workflow. Runbook lives in README.md release section.
+
+## Coupling to ₣A_
+
+Runs concurrently with ₣A_'s remaining paces; ₣A_'s one-time cutover informs `rbw-tP`'s sequence.
+
+## Depot identity collapse — locked design decisions (₢BBAAM)
+
+These decisions emerged in conversation during ₢BBAAM Step 1. They persist for the rest of the pace and constrain BBAAK cases 4-5 (the follow-on pace).
+
+**Maximal collapse.** RBRR drops `RBRR_DEPOT_PROJECT_ID`, `RBRR_GAR_REPOSITORY`, `RBRR_GCB_POOL_STEM` and gains `RBRR_DEPOT_MONIKER` (format `^[a-z][a-z0-9]*$`, length 1–26). Project ID, GAR repo, pool stem, and bucket fall out as RBDC kindle constants from `(RBRR_CLOUD_PREFIX, RBRR_DEPOT_MONIKER)`. The minimal-collapse alternative (drop only the timestamp, keep the three RBRR fields) was considered and rejected — it would leave the operator hand-pasting derivable values into RBRR after every levy.
+
+**CLOUD_PREFIX scope.** `RBRR_CLOUD_PREFIX` flows uniformly through depot project_id, GAR repo, pool stem, AND bucket (depot-affiliated resources). Payor remains on `RBGC_GLOBAL_PREFIX` (installation-scoped, not depot-affiliated); payor naming uniformity is out of scope for this pace.
+
+**Naming shapes.** Type markers and pool suffixes live as literal strings inside RBDC, keeping rbdc kindle independent of rbgc kindle ordering:
+
+- Project: `${CLOUD_PREFIX}d-${MONIKER}`
+- GAR repository: `${CLOUD_PREFIX}${MONIKER}-gar` (note: `-gar` suffix, not `-repository`)
+- Pool stem: `${CLOUD_PREFIX}${MONIKER}-pool`
+- Bucket: `${CLOUD_PREFIX}b-${MONIKER}`
+
+**409 posture deferred.** Timestamp drop alone creates the operator-visible "fails if exists" property: re-levying a moniker collides at project-create against the GCP soft-delete graveyard. Downstream sub-resource 409 posture is left as today — bucket fatal; AR / pools idempotent. A pre-locked redesign here would over-engineer; surface fixture-driven need before reshaping.
+
+**Mason SA name unchanged.** `mason-${moniker}` retained; broader SA-naming uniformity deferred.
+
+**Pristine-fixture moniker autodetect lives in Rust, not payor.** Theurge-side autodetect for pristine-lifecycle cases 2-3 — family stems (e.g. `pristq`, `pristg`) and the `100000` floor — lives in `rbtdrp_pristine.rs`. Payor `rbgp_depot_list` emits per-moniker fact files; theurge consumes them and computes the next free six-digit numeric increment per family prefix. Payor stays uncoupled from fixture identity space.
+
+**Depot fact-file shape.** Per-moniker fact files use `<moniker>.${RBGP_FACT_EXT_DEPOT}` (extension constant resolves to `depot`). File content is one of `RBGP_DEPOT_STATE_COMPLETE`, `RBGP_DEPOT_STATE_BROKEN`, `RBGP_DEPOT_STATE_DELETE_REQUESTED`. State and extension tinder constants live in `rbgc_Constants.sh` (added in Step 1).
+
+## Cult-verb naming decision — domain-exclusive split
+
+JJ owns "muster" as a verb (`jjx_list`). Recipe Bottle's two unrelated muster uses both rename to avoid the collision. The two replacement verbs are **domain-exclusive** — each belongs to one domain only and does not substitute for the other.
+
+**SA cult-verb (BBAAN surface):** muster → **roster**. Colophons `rbw-arr` (retriever), `rbw-adr` (director). Constants `RBYC_ROSTER`, `RBZ_ROSTER_RETRIEVER`, `RBZ_ROSTER_DIRECTOR`. Functions `rbgg_roster_retrievers`, `rbgg_roster_directors`. Verb-as-noun ceremony: `(Roster):`.
+
+**Image domain (landed code, separate rename pace):** muster → **audit**. Colophons `rbw-iah/iar/iae`. Constants `RBZ_AUDIT_HALLMARKS/RELIQUARIES/ENSHRINEMENTS` and Rust `RBTDRM_COLOPHON_AUDIT_*`. Functions `rbfl_audit_hallmarks/reliquaries/enshrinements`. Spec quoin `:rbtgo_image_audit:`; spec file likely renames RBSIM → RBSIA (BBAAQ decides).
+
+**Case discipline.** Lowercase tail letter on both new colophons preserves BBAAN's existing rule: capitals (`I`, `D`) for cloud-mutating verbs; lowercase (`r`, `a`) for no-cloud-change observation. Mantle (`rbw-aM`) unchanged.
+
+**Cross-pace ordering.** BBAAQ (spec sweep) lands the spec-side rename first, so spec is source-of-truth. The image-rename code pace executes after BBAAQ. BBAAN's docket has been updated to use roster vocabulary directly. BBAAC and BBAAG are touched only at colophon/verb references. BBAAR's docket is already abstract ("adapt to whatever BBAAN settles") and inherits the new vocabulary without redocketing.
+
+## References
+
+- ₣A_ rbk-mvp-3-resource-prefix-and-depot-regen — surfaced the gap
+- `tt/rbw-tr.QualifyRelease.sh` — current release qualify; layered alongside, not replaced
+- `Tools/rbk/rblm_cli.sh` — `rbw-MZ` zeroes local regime; marshal-zero signature baked here per BBAAB
+- `.claude/commands/rbk-prep-release.md` — upstream contribution ceremony; pristine-pass becomes a precondition (BBAAH)
+
+# jjezs_pace ₢BBAAH
+
+## Character
+
+Final integration pace. Wires pristine-pass as a precondition for `/rbk-prep-release` so the upstream contribution ceremony cannot proceed without a recent pristine green. Closes the loop: pristine qualification becomes load-bearing on release prep, not optional ceremony.
+
+## Work
+
+Modify `.claude/commands/rbk-prep-release.md` to add a precondition step at or near step 1:
+
+- Verify a recent `rbw-tP` run was green
+- Recency contract — design call: most recent commit on main? Last 7 days? Tagged release marker on the green run? Suggest "pristine-passed marker file references HEAD's commit SHA exactly" — strongest invariant, prevents stale passes
+- If pristine has not run green against the current HEAD, prep-release fails-fast with operator-visible message naming the marshal-zero → pristine sequence
+
+Likely needs a small artifact written by `rbw-tP` on success — e.g., a `.pristine-passed` file (gitignored) carrying timestamp + commit SHA. `/rbk-prep-release` reads it; if SHA doesn't match HEAD, prep-release refuses.
+
+Update README "Release Procedure" section (from Pace 1) to reflect that step 4 (`/rbk-prep-release`) now enforces step 3 (`rbw-tP`) had to pass against the very HEAD that prep-release is preparing.
+
+## Verification
+
+- `/rbk-prep-release` fails fast when no pristine pass is recorded for current HEAD
+- After successful `rbw-tP`, `/rbk-prep-release` proceeds normally
+- After successful `rbw-tP` followed by an unrelated commit, `/rbk-prep-release` refuses (SHA mismatch)
+- Pristine-passed artifact's gitignore status is correct (deliberately not committed)
+- README accurately documents the precondition
+
+## Out of scope
+
+- Restructuring the rest of `/rbk-prep-release` (preserved as-is)
+- Multi-pristine-run aggregation
+- CI integration
+- Recency policies beyond exact-HEAD-match (other policies left for future heats if needed)
+
+# jjezs_pace ₢BBAAI
+
+## Character
+
+Maintenance pace — re-read RELEASE.md with fresh eyes after the rest of the heat lands and apply accumulated fixes the operator identified during heat work but did not address inline.
+
+## Work
+
+- Re-read RELEASE.md cold
+- Apply corrections, clarifications, and restructurings captured during BBAAB–BBAAH execution but deferred from those paces
+- Verify references to `rbw-tP`, the `pristine-lifecycle` fixture, and the marshal-zero signature shape match what BBAAB–BBAAH actually delivered
+- Confirm cross-doc links from RELEASE.md to README.md anchors still resolve
+- Confirm the README's pointer paragraph and reference-tree entry still match RELEASE.md content
+
+## Verification
+
+- Updates committed
+- Operator confirms the doc reads correctly cold from a release-day perspective
+
+## Out of scope
+
+- README.md restructuring beyond cross-doc consistency
+- Re-architecting the release procedure itself (architectural changes belong in a separate heat)
+
+# jjezs_pace ₢BBAAK
+
+## Character
+
+Theurge consumer pace. Rebuilds pristine-lifecycle fixture atop the new SA-management surface produced by the cult-verb foundation pace (BBAAN). Depends on BBAAN landing first. Character is mechanical — the new shape is settled in the paddock; this pace adapts theurge to it. Intent-only docket — code-level planning happens at mount time, in real-time conversation against current state, not pre-staged here.
+
+## Scope
+
+Pristine-lifecycle section restructures. BBAAJ's §2 (pristine-lifecycle-simple) and BBAAK's original §3 (pristine-lifecycle-credentialed) collapse into a single unified section containing three fused cases that share one throwaway depot for the run:
+
+- Depot stand-up — depot levy and the rbrr field install needed to satisfy downstream preconditions.
+- SA cycle — governor mantle, retriever invest, director invest, access-probes, divests of operational SAs.
+- Depot tear-down — unmake, which absorbs governor cleanup.
+
+Test consumes per-row observation facts via type-extension lookup. All stdout-substring assertions retire from pristine-lifecycle code. Test-side primitives reduce to tabtarget invocation, file copy (assay → role production path), `Path::exists()` on facts, and one fact-read for depot project_id.
+
+Manifest registration: add new cult-verb colophons; remove the colophons retired by BBAAN.
+
+Cost reduction: one throwaway depot per fixture run, down from four under the original BBAAJ+BBAAK design.
+
+## BBAAN sequencing implications
+
+These flow from BBAAN's settled implementation conventions and constrain the fused-case ordering.
+
+**Post-divest production RBRA absence.** "Divests of operational SAs" leaves no production RBRA at the role's path (BBAAN's divest-deletes-production-RBRA decision). Any subsequent fixture step that needs those credentials must re-invest first. The current SA-cycle ordering (mantle → invest → access-probes → divest) is correct as written; tear-down does not need credentials.
+
+**Invest fatal-on-exists.** Re-invest within a single fixture run requires divest first (BBAAN's fatal-if-exists decision). The fused-case design already lands invest exactly once per role; no in-run re-invest needed.
+
+**Governor cleanup folded into unmake.** No separate "forfeit governor" step appears in the fused case — `Depot tear-down — unmake, which absorbs governor cleanup` is the entire cleanup. The 404-tolerant unmake makes ordering robust to mid-fixture failures (an unmake after a failed mantle still cleans up cleanly).
+
+**RBCC fact-extension constants.** BBAAN consolidates fact-extension tinder constants into one contiguous block in RBCC (migrating `RBGP_FACT_EXT_DEPOT` from RBGC; new retriever/director ext constants join it). Rust-side consumers — including `RBTDRP_FACT_DEPOT_PROJECT_ID` and any new fact-name imports — must point to the RBCC home. Pristine fixture is currently service-tier-broken pending BBAAM Step 5; this remap is part of the bring-back-online work for this pace.
+
+## Constraints
+
+- Depends on BBAAN landing first.
+- Honor paddock's Release-branch execution contract: stop on first failure cleanly; commits during the run are first-class; no recovery scaffolding.
+- Reuse paddock-locked patterns; do not re-engineer them here.
+- Real-time review of each step before commit. Prior-Claude does not pre-engineer for current-Claude.
+
+## Out of scope
+
+- SA-management surface refactor (BBAAN).
+- Phase 1+ of rbw-tP (BBAAC and onward).
+- Multi-instance test scenarios beyond single-instance per role.
+- Case 1 (marshal-zero gate) — stays in §1, untouched by this rebuild.
+
+# jjezs_pace ₢BBAAP
+
+## Character
+
+Test sweep audit — closes out depot-identity-collapse on the test side after BBAAM's five-step landing. Most of the original BBAAP scope was absorbed by BBAAM Step 4 (`rbgp_depot_list` multi-fact reshape, commit `8eb44097`); this pace shrinks to the remaining audit task.
+
+Coding-only pace. Spec/banner-copy surface for the new (CLOUD_PREFIX, MONIKER) shape is owned by sibling pace ₢BBAAQ.
+
+Intent-only docket — implementation specifics surface at mount time.
+
+## Scope
+
+- Audit fast-suite tests for residual references to pre-collapse RBRR fields or derivations (`RBRR_DEPOT_PROJECT_ID`, `RBRR_GAR_REPOSITORY`, `RBRR_GCB_POOL_STEM`, timestamp-suffixed project-id constructions, fact-file reads against the dropped `RBGP_FACT_DEPOT_PROJECT_ID`, etc.). Sweep into the new (CLOUD_PREFIX, MONIKER) + RBDC-kindled shape.
+
+## Constraints
+
+- Honor paddock's Release-branch execution contract.
+- Real-time review at each step before commit.
+- BCG compliance for any new state-determination probes or constants.
+
+## Out of scope
+
+- Spec/banner-copy updates for the new (CLOUD_PREFIX, MONIKER) shape — owned by sibling pace ₢BBAAQ.
+- `rbgp_depot_list` reshape — delivered under BBAAM Step 4 (commit `8eb44097`).
+- Bucket / Mason SA naming uniformity.
+- 409-fatal posture redesign.
+
+# jjezs_pace ₢BBAAR
+
+## Character
+
+Operator-handbook sweep for the cult-verb refactor (BBAAN) and the producer-output discipline. Lands after BBAAN so handbook narrative describes settled vocabulary, not intent. Designed to run in parallel with downstream coding paces — the handbook surface is operator-facing prose, not depot runtime code, so it doesn't block any depot/foundry work.
+
+Different cognitive posture from the coding paces it reflects — prose with intentional ceremony tone. Best held in a separate session from the coding officium, parallel to BBAAQ. Soft pairing with BBAAQ for vocabulary consistency between spec and operator narrative.
+
+## Scope
+
+Five handbook files in `Tools/rbk/rbh0/`, all with paddock-settled vocabulary by the time this pace mounts.
+
+**rbhogw_governor_wrapper.sh — primary surface.** The canonical operator narrative for SA management.
+- Cult-verb constant refs: `RBYC_CHARTER`, `RBYC_KNIGHT`, `RBZ_CHARTER_RETRIEVER`, `RBZ_KNIGHT_DIRECTOR`, `RBZ_LIST_SERVICE_ACCOUNTS` — adapt to whatever BBAAN settles.
+- Verb-as-noun ceremony lines (L63, L66, L73): "Create a Retriever with read access (Charter):", "Create a Director with build access (Knight):", "List issued service accounts:" — adjust to the new vocabulary.
+- Producer-output narrative (L49-52): if BBAAN's assay-slot-exclusive credential-write changes the operator's RBRA install path, update the install-step instructions accordingly.
+
+**rbhocr_credential_retriever.sh, rbhocd_credential_director.sh — credential install.** Light verb touch-ups in narrative; potential producer-output flow adjustment via the shared `zrbho_credential_install` helper. `RBYC_TALLY` reference in rbhocr (L42) — adjust if tally vocabulary moves.
+
+**rbhopw_payor_wrapper.sh — payor wrapper.** `RBZ_MANTLE_GOVERNOR` reference (L95) — confirm mantle stays unchanged per BBAAN's cult-verb decision (mantle stays as singleton-per-depot exception). Producer-output narrative for governor RBRA placement parallels rbhogw.
+
+**rbhob_base.sh — shared helpers.** `zrbho_credential_install` may need adjustment if BBAAN settles assay-slot-exclusive write semantics — base helper changes ripple consistently across all credential install narratives.
+
+## Operator-visible behaviors from BBAAN
+
+These behaviors must surface in narrative; the handbook is the operator's contract.
+
+**Divest removes the production RBRA.** After successful cloud DELETE, the role's local production RBRA file is also removed. Operator narrative should state this explicitly so the disappearing file isn't a surprise.
+
+**Invest is fatal if the SA already exists.** Re-keying flow is divest-then-invest. Narrative should guide the operator to divest first when re-investing.
+
+**Unmake silently absorbs governor cleanup.** No separate governor forfeit step in the procedure. Operator behavior is unchanged ("just run unmake"); the absence-of-mantle case is invisible to the operator (404-tolerant under the hood).
+
+## Constraints
+
+- Honor paddock's Release-branch execution contract.
+- Handbook narrative describes what landed in BBAAN — read the actual code state, do not work from intent. If implementation differs from paddock-settled vocabulary, raise it; do not silently reconcile.
+- Preserve the existing operator-narrative tone — ceremony language is intentional. Verb swaps should keep the same cadence (e.g., the parenthetical "(Charter):" pattern stays as "(Invest):", not flattened into prose).
+- Use existing `buh_line` / `buh_step` / `buh_section` / `buh_tt` primitives — no narrative-structure rework.
+- Real-time review at each step before commit. No pre-engineered choices.
+
+## Out of scope
+
+- Code logic changes beyond what's required to consume renamed RBZ/RBYC constants. Structural changes for new producer-output discipline land in BBAAN; this pace adapts narrative to whatever BBAAN settled.
+- Handbook files outside the five listed — depot-identity narrative is already swept by BBAAM Step 1; non-SA handbooks (crucible, windows, tadmor, first-crucible, dispatch CLI) don't touch the changing surfaces.
+- Spec/README/RBYC vocabulary documentation — owned by sibling pace ₢BBAAQ.
+- Restructuring handbook section ordering or step decomposition — out of scope for a vocabulary sweep.
+- New onboarding content — out of scope.
+
+# jjezs_pace ₢BBAAU
+
+## Character
+
+Mechanical rename. JJ owns "muster" as a verb (`jjx_list`); RB's image-domain muster verb collides. Per paddock cult-verb naming decision: image muster → **audit**. This pace sweeps all landed image-muster sites in code, tabtargets, and project-memory files.
+
+No design decisions in scope. The rename target and case rule are paddock-locked. Symbol-substitution discipline only.
+
+Depends on BBAAQ landing the spec-side rename first so spec is source-of-truth at code-rename time.
+
+## Scope
+
+**Bash:**
+
+- `Tools/rbk/rbz_zipper.sh` (L122-129) — `RBZ_MUSTER_HALLMARKS/RELIQUARIES/ENSHRINEMENTS` → `RBZ_AUDIT_*`; `buz_enroll` function refs `rbfl_muster_*` → `rbfl_audit_*`; verb-list comment.
+- `Tools/rbk/rbfl_FoundryLedger.sh` — three function defs (`rbfl_muster_hallmarks/reliquaries/enshrinements` → `rbfl_audit_*`); `buc_doc_brief` strings ("Muster hallmarks..." → "Audit hallmarks..."); `buc_success "Muster complete..."` strings; comments at L19-20 (verb listings).
+- `Tools/rbk/rbfc_FoundryCore.sh:524` — comment ("shared by tally, rekon, muster, batch_vouch" → "audit").
+
+**Rust:**
+
+- `Tools/rbk/rbtd/src/rbtdrm_manifest.rs:41-46` — three constants `RBTDRM_COLOPHON_MUSTER_HALLMARKS/RELIQUARIES/ENSHRINEMENTS` → `RBTDRM_COLOPHON_AUDIT_*`; verb-list comment at L41.
+
+**Tabtarget files (rename, content unchanged — they're colophon-agnostic launchers):**
+
+- `tt/rbw-imh.DirectorMustersHallmarks.sh` → `tt/rbw-iah.DirectorAuditsHallmarks.sh`
+- `tt/rbw-imr.DirectorMustersReliquaries.sh` → `tt/rbw-iar.DirectorAuditsReliquaries.sh`
+- `tt/rbw-ime.DirectorMustersEnshrinements.sh` → `tt/rbw-iae.DirectorAuditsEnshrinements.sh`
+
+**Project memory:**
+
+- `CLAUDE.md:84` — RBSIM acronym mapping. If BBAAQ renamed the spec file (RBSIM → RBSIA), update both the acronym key and the file path here.
+- `Tools/rbk/rbk-claude-tabtarget-context.md:103-105` — three image table rows (colophon, frontispiece, purpose).
+- `Tools/rbk/vov_veiled/CLAUDE.consumer.md:50` — verb table entry for "muster".
+
+**Permission file (operator-owned, surface only):**
+
+- `.claude/settings.local.json:1057-1059` — three tabtarget shim references. Surface to operator with the proposed three replacements; do not silently rewrite.
+
+## Verification
+
+- `tt/` lists three new `rbw-ia*.DirectorAudits*.sh` tabtargets; old `rbw-im*.DirectorMusters*.sh` files absent.
+- `grep -rni 'muster' Tools/rbk/ tt/` returns zero hits in image-domain code paths (SA-domain roster references — if BBAAN landed — and JJ-internal jjk/ references excluded).
+- `tt/rbtd-b.Build.sh` builds clean (Rust constant rename compiles).
+- `tt/rbtd-s.TestSuite.fast.sh` passes — fast suite covers manifest validation; rename should not break enrollment-validation.
+- `tt/rbw-iah.DirectorAuditsHallmarks.sh` invokable end-to-end against the canonical depot (smoke test).
+- `CLAUDE.md` and `rbk-claude-tabtarget-context.md` acronym/colophon mappings consistent with new filenames.
+
+## Constraints
+
+- Spec-side rename (RBSIM content + possible file rename to RBSIA, plus RBS0 image-muster section) lands first via BBAAQ. This pace begins after BBAAQ commits.
+- Symbol substitution only — no behavioral changes, no test additions, no helper extractions.
+- Honor paddock's Release-branch execution contract.
+- BCG compliance for any incidental touch beyond pure rename.
+
+## Out of scope
+
+- SA cult-verb roster work (BBAAN — separate domain, separate pace).
+- Spec/README/RBSIM file content (BBAAQ — already in flight).
+- New audit functionality, behavioral changes to listing semantics.
+- `.claude/settings.local.json` rewrite beyond surfacing the three references for operator review.
+- `Tools/rbk/vov_veiled/RBSIR-image_rekon.adoc:18` xref to `{rbtgo_image_muster}` — owned by BBAAQ's spec sweep.
+
+# jjezs_pace ₢BBAAV
+
+## Character
+
+Mechanical AsciiDoc xref repair. BBAAQ's quoin retirements (Surfaces 2 and 4 plus naming-collision repair) left dead `{attribute}` references in sibling specs that now render as literal text. This pace flips them to the live attributes. No code, no narrative tracks — pure .adoc.
+
+Runs in parallel with any non-spec work. All replacement targets are already settled in RBS0.
+
+## Scope
+
+**SA cult-verb retirements (BBAAQ Surface 2):**
+- `{rbtgo_director_knight}` → `{rbtgo_director_invest}`
+- `{rbtgo_retriever_charter}` → `{rbtgo_retriever_invest}`
+- `{rbtgo_sa_forfeit}` → per call site, `{rbtgo_director_divest}` or `{rbtgo_retriever_divest}` (per-role split, requires reading context)
+- `{rbtgo_sa_list}` → per call site, `{rbtgo_director_roster}` or `{rbtgo_retriever_roster}`
+
+**RBRR retirements (BBAAQ Surface 4) — 11 sibling specs noted by BBAAQ:** RBSGM, RBSDK, RBSRK, RBSSF, RBSSL, RBSAJ, RBSIW, RBSDY, RBSDI, RBSTB, RBSRR
+- `{rbrr_depot_project_id}` / `{rbrr_gar_repository}` / `{rbrr_gcb_pool_stem}` → flip to literal `RBRR_CLOUD_PREFIX` / `RBRR_DEPOT_MONIKER` prose with derivation pattern, matching BBAAQ Surface 4's RBSDE rewrite precedent.
+
+**Image-muster retirement (already prompted to BBAAQ — verify if still pending):**
+- `Tools/rbk/vov_veiled/RBSIR-image_rekon.adoc:18` — `{rbtgo_image_muster}` → `{rbtgo_image_audit}`
+
+**Orphan .adoc files** — RBSDK-director_knight.adoc, RBSRK-retriever_knight.adoc, RBSSF-sa_forfeit.adoc, RBSSL-sa_list.adoc no longer included by RBS0. Decide: `git rm` or keep on disk un-rendered. Single decision call at mount time.
+
+## Verification
+
+- `grep -rn '{rbtgo_director_knight\|rbtgo_retriever_charter\|rbtgo_sa_forfeit\|rbtgo_sa_list\|rbtgo_image_muster\|rbrr_depot_project_id\|rbrr_gar_repository\|rbrr_gcb_pool_stem}' Tools/rbk/vov_veiled/` returns zero hits.
+- AsciiDoc rendering shows no literal `{...}` strings in swept files (spot-check a few).
+
+## Out of scope
+
+- New quoin authoring.
+- Behavioral or structural changes to spec content beyond xref flipping.
+- Code, tabtargets, project memory.
+- Operator handbook tracks (BBAAR).
+
+# jjezs_pace ₢BBAAW
+
+## Character
+
+Construction of the canonical entry-point script `tt/rbw-tP.QualifyPristine.sh`. Stitches existing tabtargets per RELEASE.md §3 sequence into one orchestrator. No new cloud-mutating logic — every cloud step is a call to an existing tabtarget. The script's value is sequence, entry-contract enforcement, and exit gating, not novel functionality.
+
+Coding-only pace. **Wrap criterion**: script exists, parses cleanly, each tabtarget invocation has the right shape under cheap dry-checks. The gate-on-green discipline lives in the sibling first-run pace.
+
+Intent-only docket. Code-level planning happens at mount time.
+
+## Scope
+
+New file: `tt/rbw-tP.QualifyPristine.sh`. Body comprises three responsibilities.
+
+**Entry contract** (per RELEASE.md L46–53): refuse to run unless ALL hold:
+- marshal-zero signature on HEAD
+- working tree clean
+- RBRA files absent
+- RBRR fields blank
+- hallmark pins blank in every nameplate regime
+- depot-scoped fields blank in every vessel regime
+
+**Sequence body** (per RELEASE.md L63–69):
+- pristine-lifecycle fixture (gate + simple + credentialed sections — depends on BBAAK landing)
+- canonical infrastructure setup — levy canonical depot (`rbw-dL`), mantle canonical governor (`rbw-aM`), invest canonical retriever (`rbw-arI` per BBAAN), invest canonical director (`rbw-adI` per BBAAN), IAM propagation wait
+- supply chain — inscribe reliquary (`rbw-dI`), ordain all hallmarks (`rbw-fO` per vessel)
+- crucible suite — charge/run-fixture/quench × {tadmor, moriah, srjcl, pluml}, sequential, per-fixture quench-after to avoid cross-fixture contamination
+- cleanup — abjure all hallmarks (`rbw-fA`), divest operational SAs (`rbw-arD`, `rbw-adD` per BBAAN), unmake depot (`rbw-dU`); governor cleanup folds into unmake per BBAAN's settled posture
+
+**Exit semantics**: green tally on success; operator-actionable diagnostic on failure naming the marshal-zero → pristine sequence per RELEASE.md L74.
+
+## Constraints
+
+- Honor paddock's Release-branch execution contract
+- Reuse existing tabtargets exclusively — no inline cloud-mutating logic
+- Real-time review at each step before commit
+- Wrap on script-exists + parses + invocation shapes correct; do **not** wrap on "ran end-to-end" — that is the first-run pace's wrap criterion
+
+## Cross-pace dependencies
+
+- BBAAK landed (credentialed fixture cases available)
+- BBAAN landed (cult-verb tabtargets `rbw-arI`, `rbw-adI`, `rbw-arD`, `rbw-adD`, `rbw-arr`, `rbw-adr`)
+
+## Out of scope
+
+- First end-to-end run against fresh cloud state (sibling pace)
+- Modifications to existing tabtargets to support orchestration — surface as separate paces if needed
+- Phase-skip flags or partial re-run flags (single-shot ceremony per RELEASE.md L10–11)
+- Pristine-passed sentinel artifact (BBAAH territory)
+- `/rbk-prep-release` integration (BBAAH)
+
+# jjezs_pace ₢BBAAX
+
+## Character
+
+First end-to-end execution of `rbw-tP` against actual fresh state. The bug class this heat exists to catch — silent first-build assumptions — surfaces here, not in construction.
+
+**Wrap criterion is green tally.** Not "ran to completion." Not "captured findings." Not "construction complete." This pace exists as a structural guardrail against the recurring agent failure mode where wrap is driven at "I built the thing" rather than "the thing actually works against reality." If the first run surfaces issues, fixes land here (small) or spawn follow-up paces (large) — but this pace stays open until `rbw-tP` runs green end-to-end.
+
+Intent-only docket. Triage decisions surface at mount time per surprise.
+
+## Cost
+
+~1 hour wall-clock + 2 GCP projects per attempt (one throwaway from pristine-lifecycle fixture, one canonical from infrastructure setup). Re-runs after inline fixes accumulate cost; budget accordingly.
+
+## Scope
+
+- Marshal zero per RELEASE.md §2 (signature commit on HEAD)
+- Install RBRAs from secure backup (manual operator step per runbook)
+- Run `tt/rbw-tP.QualifyPristine.sh`
+- Capture every surprise — failed assertions, unexpected diagnostics, performance anomalies, missing tabtargets, awkward UX
+- Triage routing per surprise:
+  - Tiny inline (one-line bash, message clarity) — fix and re-run within this pace
+  - Larger (structural, design call) — slate as follow-up pace, surface to operator before deciding
+- Record into pace closure: wall-clock total, per-phase wall-clock, cloud cost, surprises + dispositions
+
+## Constraints
+
+- Honor paddock's Release-branch execution contract
+- **Wrap criterion is green tally** — explicit guardrail, restated to defeat drift
+- Re-runs within the pace are first-class; each re-run draws fresh quota
+- Per BBAAN's invest-fatal-on-exists and divest-deletes-production-RBRA: any retry path must respect cult-verb posture; reset between attempts goes through marshal-zero, not partial recovery
+- Per RELEASE.md L10–11 failure mode contract: mid-qualification failure means start over from step 2, not patch-and-continue
+
+## Cross-pace dependencies
+
+- ₢BBAAW (rbw-tP-build) landed — the script exists and parses
+
+## Out of scope
+
+- Restoring RBRAs after marshal-zero (manual operator step per runbook)
+- `/rbk-prep-release` integration (BBAAH)
+- Multi-day re-run scenarios
+- Cleanup beyond what `rbw-tP` itself does (cleanup is in the script body, owned by ₢BBAAW)
+
+# jjezs_pace ₢BBAAb
+
+## Character
+
+Spec-uniformity sweep across the six cult-verb procedural sub-specs landed in BBAAZ. Pure .adoc — no code, no behavior change. File-disjoint targets → parallel agents. Suitable for landing while long test runs are in flight.
+
+## Drifts (from BBAAZ post-review notch 118c2d43)
+
+1. **Invest step-3 shape drift** — RBSDK and RBSRK use different headings + action-verb idioms for the SA-existence preflight. Pick one shape (RBSDK's `{rbbc_require}` HTTP-404 form is a reasonable target), apply to both.
+
+2. **Divest //axhoc_completion drift** — RBSDD and RBSRD completion blocks are non-parallel (different lengths; RBSRD has a "Proceed to invest" hint that RBSDD lacks). Pick one parallel template, apply to both.
+
+3. **Divest step-4 RBRA-removal phrasing drift** — RBSDD describes the cloud-state-mirroring rationale in a NOTE block; RBSRD has it inline. Align placement.
+
+4. **NOTE-block typographic style** — the six BBAAZ-authored specs use inline NOTE prose with linked terms interpolated mid-line; gold-standard RBSDE/RBSDV use line-broken NOTE prose with linked terms on their own lines. Convert the six new specs to line-broken form for typographic consistency with the rest of the procedural-spec corpus.
+
+## References
+
+- BBAAZ post-review notch 118c2d43 — surfaced these drifts during review of the parallel-agent work.
+- RBSDE-depot_levy.adoc, RBSDV-director_vouch.adoc — line-broken NOTE-block reference shape.
+
+## Out of scope
+
+Code, behavioral changes, contract semantics, other procedural specs (RBSDE/RBSDU/RBSGM/RBSDV/RBSDY).

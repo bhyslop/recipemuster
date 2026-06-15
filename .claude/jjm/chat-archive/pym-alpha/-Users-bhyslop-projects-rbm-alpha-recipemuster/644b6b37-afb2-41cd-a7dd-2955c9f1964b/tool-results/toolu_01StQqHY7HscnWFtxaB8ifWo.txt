@@ -1,0 +1,246 @@
+Tools/jjk/vov_veiled/JJS0_JobJockeySpec.adoc-78-:jjdhm_firemark:  <<jjdhm_firemark,firemark>>
+Tools/jjk/vov_veiled/JJS0_JobJockeySpec.adoc-79-:jjdhm_order:     <<jjdhm_order,order>>
+Tools/jjk/vov_veiled/JJS0_JobJockeySpec.adoc-80-:jjdhm_paddock:        <<jjdhm_paddock,paddock_file>>
+Tools/jjk/vov_veiled/JJS0_JobJockeySpec.adoc:81::jjdhm_pensum_seed:    <<jjdhm_pensum_seed,next_pensum_seed>>
+Tools/jjk/vov_veiled/JJS0_JobJockeySpec.adoc-82-:jjdhm_seed:           <<jjdhm_seed,next_pace_seed>>
+Tools/jjk/vov_veiled/JJS0_JobJockeySpec.adoc-83-:jjdhm_silks:          <<jjdhm_silks,silks>>
+Tools/jjk/vov_veiled/JJS0_JobJockeySpec.adoc-84-:jjdhm_paces:          <<jjdhm_paces,paces>>
+--
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/vov_veiled/JJS0_JobJockeySpec.adoc-1089-{jjdt_coronet}.
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/vov_veiled/JJS0_JobJockeySpec.adoc-1090-+
+Tools/jjk/vov_veiled/JJS0_JobJockeySpec.adoc-1091-Seed:
+Tools/jjk/vov_veiled/JJS0_JobJockeySpec.adoc:1092:{jjdhm_pensum_seed}
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/vov_veiled/JJS0_JobJockeySpec.adoc-1093-on
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/vov_veiled/JJS0_JobJockeySpec.adoc-1094-{jjdhr_heat},
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/vov_veiled/JJS0_JobJockeySpec.adoc-1095-incremented by
+--
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/vov_veiled/JJS0_JobJockeySpec.adoc-1333-Incremented by
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/vov_veiled/JJS0_JobJockeySpec.adoc-1334-{jjdo_enroll}.
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/vov_veiled/JJS0_JobJockeySpec.adoc-1335-
+Tools/jjk/vov_veiled/JJS0_JobJockeySpec.adoc:1336:* [[jjdhm_pensum_seed]]
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/vov_veiled/JJS0_JobJockeySpec.adoc-1337-//axl_voices axr_member axd_required
+Tools/jjk/vov_veiled/JJS0_JobJockeySpec.adoc:1338:{jjdhm_pensum_seed}
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/vov_veiled/JJS0_JobJockeySpec.adoc-1339-is the next
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/vov_veiled/JJS0_JobJockeySpec.adoc-1340-{jjdt_pensum}
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/vov_veiled/JJS0_JobJockeySpec.adoc-1341-index to allocate, stored as 2 {jjdz_charset} characters.
+--
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/vov_veiled/JJS0_JobJockeySpec.adoc-2181-lifecycle except for
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/vov_veiled/JJS0_JobJockeySpec.adoc-2182-{jjdo_relay}
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/vov_veiled/JJS0_JobJockeySpec.adoc-2183-which increments
+Tools/jjk/vov_veiled/JJS0_JobJockeySpec.adoc:2184:{jjdhm_pensum_seed}.
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/vov_veiled/JJS0_JobJockeySpec.adoc-2185-Member of
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/vov_veiled/JJS0_JobJockeySpec.adoc-2186-{jjsogrd_remote_dispatch}.
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/vov_veiled/JJS0_JobJockeySpec.adoc-2187-
+--
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/vov_veiled/JJS0_JobJockeySpec.adoc-2344-Mints a
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/vov_veiled/JJS0_JobJockeySpec.adoc-2345-{jjdt_pensum}
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/vov_veiled/JJS0_JobJockeySpec.adoc-2346-token (incrementing
+Tools/jjk/vov_veiled/JJS0_JobJockeySpec.adoc:2347:{jjdhm_pensum_seed}
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/vov_veiled/JJS0_JobJockeySpec.adoc-2348-under
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/vov_veiled/JJS0_JobJockeySpec.adoc-2349-{jjdgr_gallops}
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/vov_veiled/JJS0_JobJockeySpec.adoc-2350-lock), sets `BURE_LABEL`, launches via SSH, captures `burx.env` start fields via a second SSH connection.
+--
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/vov_veiled/JJS0_JobJockeySpec.adoc-2418-.. Load
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/vov_veiled/JJS0_JobJockeySpec.adoc-2419-{jjdgr_gallops}
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/vov_veiled/JJS0_JobJockeySpec.adoc-2420-.. Increment
+Tools/jjk/vov_veiled/JJS0_JobJockeySpec.adoc:2421:{jjdhm_pensum_seed}
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/vov_veiled/JJS0_JobJockeySpec.adoc-2422-.. Persist
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/vov_veiled/JJS0_JobJockeySpec.adoc-2423-{jjdgr_gallops}
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/vov_veiled/JJS0_JobJockeySpec.adoc-2424-with commit
+--
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/vov_veiled/src/jjri_io.rs-96-    // Old-format files cannot pass round-trip check because BTreeMap serializes heats
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/vov_veiled/src/jjri_io.rs-97-    // in sorted key order, which differs from original furlough-shuffled order.
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/vov_veiled/src/jjri_io.rs-98-    //
+Tools/jjk/vov_veiled/src/jjri_io.rs:99:    // Also detect missing next_pensum_seed field (added in v3.7). Serde inserts
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/vov_veiled/src/jjri_io.rs-100-    // default "AA" on deserialization, causing round-trip byte mismatch until the
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/vov_veiled/src/jjri_io.rs-101-    // next save writes the field back to disk.
+Tools/jjk/vov_veiled/src/jjri_io.rs:102:    const PENSUM_SEED_KEY: &[u8] = b"\"next_pensum_seed\"";
+Tools/jjk/vov_veiled/src/jjri_io.rs:103:    let needs_pensum_seed_migration = !gallops.heats.is_empty()
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/vov_veiled/src/jjri_io.rs-104-        && !original_bytes.windows(PENSUM_SEED_KEY.len()).any(|w| w == PENSUM_SEED_KEY);
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/vov_veiled/src/jjri_io.rs-105-    let is_migration_mode = gallops.heat_order.is_empty()
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/vov_veiled/src/jjri_io.rs-106-        || gallops.schema_version.is_none()
+Tools/jjk/vov_veiled/src/jjri_io.rs:107:        || needs_pensum_seed_migration;
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/vov_veiled/src/jjri_io.rs-108-
+Tools/jjk/vov_veiled/src/jjri_io.rs-109-    / Round-trip validation: run before recomputation to validate the stored format.
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/vov_veiled/src/jjri_io.rs-110-    // Skipped for old-format files (heat_order empty) — BTreeMap key order differs from
+--
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/vov_veiled/src/jjtfu_furlough.rs-50-        status,
+Tools/jjk/vov_veiled/src/jjtfu_furlough.rs-51-        order: vec![pace_key],
+Tools/jjk/vov_veiled/src/jjtfu_furlough.rs-52-        next_pace_seed: "AAB".to_string(),
+Tools/jjk/vov_veiled/src/jjtfu_furlough.rs:53:        next_pensum_seed: "AA".to_string(),
+Tools/jjk/vov_veiled/src/jjtfu_furlough.rs-54-        paddock_file: ".claude/jjm/jjp_AB.md".to_string(),
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/vov_veiled/src/jjtfu_furlough.rs-55-        paces,
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/vov_veiled/src/jjtfu_furlough.rs-56-    };
+--
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/vov_veiled/src/jjrv_validate.rs-167-        ));
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/vov_veiled/src/jjrv_validate.rs-168-    }
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/vov_veiled/src/jjrv_validate.rs-169-
+Tools/jjk/vov_veiled/src/jjrv_validate.rs:170:    // next_pensum_seed (2 URL-safe base64 characters)
+Tools/jjk/vov_veiled/src/jjrv_validate.rs:171:    if heat.next_pensum_seed.len() != 2 {
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/vov_veiled/src/jjrv_validate.rs-172-        errors.push(format!(
+Tools/jjk/vov_veiled/src/jjrv_validate.rs:173:            "{}: next_pensum_seed must be 2 characters, got {}",
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/vov_veiled/src/jjrv_validate.rs-174-            heat_ctx,
+Tools/jjk/vov_veiled/src/jjrv_validate.rs:175:            heat.next_pensum_seed.len()
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/vov_veiled/src/jjrv_validate.rs-176-        ));
+Tools/jjk/vov_veiled/src/jjrv_validate.rs:177:    } else if !zjjrg_is_base64(&heat.next_pensum_seed) {
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/vov_veiled/src/jjrv_validate.rs-178-        errors.push(format!(
+Tools/jjk/vov_veiled/src/jjrv_validate.rs:179:            "{}: next_pensum_seed contains invalid base64 characters",
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/vov_veiled/src/jjrv_validate.rs-180-            heat_ctx
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/vov_veiled/src/jjrv_validate.rs-181-        ));
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/vov_veiled/src/jjrv_validate.rs-182-    }
+--
+Tools/jjk/vov_veiled/src/jjtgl_garland.rs-62-        status: jjrg_HeatStatus::Racing,
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/vov_veiled/src/jjtgl_garland.rs-63-        order,
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/vov_veiled/src/jjtgl_garland.rs-64-        next_pace_seed,
+Tools/jjk/vov_veiled/src/jjtgl_garland.rs:65:        next_pensum_seed: "AA".to_string(),
+Tools/jjk/vov_veiled/src/jjtgl_garland.rs-66-        paddock_file: format!(".claude/jjm/jjp_{}.md", heat_id),
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/vov_veiled/src/jjtgl_garland.rs-67-        paces,
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/vov_veiled/src/jjtgl_garland.rs-68-    };
+--
+Tools/jjk/vov_veiled/src/jjtgl_garland.rs-209-        status: jjrg_HeatStatus::Racing,
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/vov_veiled/src/jjtgl_garland.rs-210-        order,
+Tools/jjk/vov_veiled/src/jjtgl_garland.rs-211-        next_pace_seed: "AAC".to_string(),
+Tools/jjk/vov_veiled/src/jjtgl_garland.rs:212:        next_pensum_seed: "AA".to_string(),
+Tools/jjk/vov_veiled/src/jjtgl_garland.rs-213-        paddock_file: ".claude/jjm/jjp_AB.md".to_string(),
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/vov_veiled/src/jjtgl_garland.rs-214-        paces,
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/vov_veiled/src/jjtgl_garland.rs-215-    };
+--
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/vov_veiled/src/jjtpd_parade.rs-49-        status,
+Tools/jjk/vov_veiled/src/jjtpd_parade.rs-50-        order: vec![pace_key],
+Tools/jjk/vov_veiled/src/jjtpd_parade.rs-51-        next_pace_seed: "AAB".to_string(),
+Tools/jjk/vov_veiled/src/jjtpd_parade.rs:52:        next_pensum_seed: "AA".to_string(),
+Tools/jjk/vov_veiled/src/jjtpd_parade.rs-53-        paddock_file: format!(".claude/jjm/jjp_{}.md", heat_id),
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/vov_veiled/src/jjtpd_parade.rs-54-        paces,
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/vov_veiled/src/jjtpd_parade.rs-55-    };
+--
+Tools/jjk/vov_veiled/src/jjtrl_rail.rs-45-        status: jjrg_HeatStatus::Racing,
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/vov_veiled/src/jjtrl_rail.rs-46-        order,
+Tools/jjk/vov_veiled/src/jjtrl_rail.rs-47-        next_pace_seed: "AAZ".to_string(),
+Tools/jjk/vov_veiled/src/jjtrl_rail.rs:48:        next_pensum_seed: "AA".to_string(),
+Tools/jjk/vov_veiled/src/jjtrl_rail.rs-49-        paddock_file: ".claude/jjm/jjp_test.md".to_string(),
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/vov_veiled/src/jjtrl_rail.rs-50-        paces,
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/vov_veiled/src/jjtrl_rail.rs-51-    };
+--
+Tools/jjk/vov_veiled/src/jjtq_query.rs-43-            status: HeatStatus::Racing,
+Tools/jjk/vov_veiled/src/jjtq_query.rs-44-            order: vec!["₢ABAAA".to_string(), "₢ABAAB".to_string()],
+Tools/jjk/vov_veiled/src/jjtq_query.rs-45-            next_pace_seed: "AAC".to_string(),
+Tools/jjk/vov_veiled/src/jjtq_query.rs:46:            next_pensum_seed: "AA".to_string(),
+Tools/jjk/vov_veiled/src/jjtq_query.rs-47-            paddock_file: ".claude/jjm/jjp_AB.md".to_string(),
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/vov_veiled/src/jjtq_query.rs-48-            paces,
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/vov_veiled/src/jjtq_query.rs-49-        },
+--
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/vov_veiled/src/jjtq_query.rs-230-                "₢ACAAD".to_string(),
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/vov_veiled/src/jjtq_query.rs-231-            ],
+Tools/jjk/vov_veiled/src/jjtq_query.rs-232-            next_pace_seed: "AAE".to_string(),
+Tools/jjk/vov_veiled/src/jjtq_query.rs:233:            next_pensum_seed: "AA".to_string(),
+Tools/jjk/vov_veiled/src/jjtq_query.rs-234-            paddock_file: ".claude/jjm/jjp_AC.md".to_string(),
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/vov_veiled/src/jjtq_query.rs-235-            paces,
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/vov_veiled/src/jjtq_query.rs-236-        },
+--
+Tools/jjk/vov_veiled/src/jjtg_gallops.rs-59-        status: jjrg_HeatStatus::Racing,
+Tools/jjk/vov_veiled/src/jjtg_gallops.rs-60-        order: vec![pace_key],
+Tools/jjk/vov_veiled/src/jjtg_gallops.rs-61-        next_pace_seed: "AAB".to_string(),
+Tools/jjk/vov_veiled/src/jjtg_gallops.rs:62:        next_pensum_seed: "AA".to_string(),
+Tools/jjk/vov_veiled/src/jjtg_gallops.rs-63-        paddock_file: ".claude/jjm/jjp_AB.md".to_string(),
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/vov_veiled/src/jjtg_gallops.rs-64-        paces,
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/vov_veiled/src/jjtg_gallops.rs-65-    };
+--
+Tools/jjk/vov_veiled/src/jjtg_gallops.rs-439-    assert_eq!(heat.status, jjrg_HeatStatus::Stabled);
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/vov_veiled/src/jjtg_gallops.rs-440-    assert!(heat.order.is_empty());
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/vov_veiled/src/jjtg_gallops.rs-441-    assert_eq!(heat.next_pace_seed, "AAA");
+Tools/jjk/vov_veiled/src/jjtg_gallops.rs:442:    assert_eq!(heat.next_pensum_seed, "AA");
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/vov_veiled/src/jjtg_gallops.rs-443-
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/vov_veiled/src/jjtg_gallops.rs-444-    // Check seed was incremented
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/vov_veiled/src/jjtg_gallops.rs-445-    assert_eq!(gallops.next_heat_seed, "AC");
+--
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/vov_veiled/src/jjtg_gallops.rs-458-
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/vov_veiled/src/jjtg_gallops.rs-459-    // Seed incremented
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/vov_veiled/src/jjtg_gallops.rs-460-    let heat = gallops.heats.get("₣AB").unwrap();
+Tools/jjk/vov_veiled/src/jjtg_gallops.rs:461:    assert_eq!(heat.next_pensum_seed, "AB");
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/vov_veiled/src/jjtg_gallops.rs-462-
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/vov_veiled/src/jjtg_gallops.rs-463-    // Second mint
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/vov_veiled/src/jjtg_gallops.rs-464-    let pensum2 = gallops.jjrg_mint_pensum("AB").unwrap();
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/vov_veiled/src/jjtg_gallops.rs-465-    assert_eq!(pensum2.jjrf_as_str(), "AB%AB");
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/vov_veiled/src/jjtg_gallops.rs-466-
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/vov_veiled/src/jjtg_gallops.rs-467-    let heat = gallops.heats.get("₣AB").unwrap();
+Tools/jjk/vov_veiled/src/jjtg_gallops.rs:468:    assert_eq!(heat.next_pensum_seed, "AC");
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/vov_veiled/src/jjtg_gallops.rs-469-}
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/vov_veiled/src/jjtg_gallops.rs-470-
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/vov_veiled/src/jjtg_gallops.rs-471-#[test]
+--
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/vov_veiled/src/jjtg_gallops.rs-487-}
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/vov_veiled/src/jjtg_gallops.rs-488-
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/vov_veiled/src/jjtg_gallops.rs-489-#[test]
+Tools/jjk/vov_veiled/src/jjtg_gallops.rs:490:fn jjtg_pensum_seed_backwards_compat() {
+Tools/jjk/vov_veiled/src/jjtg_gallops.rs:491:    // Simulate a gallops JSON without next_pensum_seed field
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/vov_veiled/src/jjtg_gallops.rs-492-    let json = r#"{
+Tools/jjk/vov_veiled/src/jjtg_gallops.rs-493-        "schema_version": 4,
+Tools/jjk/vov_veiled/src/jjtg_gallops.rs-494-        "next_heat_seed": "AC",
+--
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/vov_veiled/src/jjtg_gallops.rs-508-
+Tools/jjk/vov_veiled/src/jjtg_gallops.rs-509-    let gallops: jjrg_Gallops = serde_json::from_str(json).unwrap();
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/vov_veiled/src/jjtg_gallops.rs-510-    let heat = gallops.heats.get("₣AB").unwrap();
+Tools/jjk/vov_veiled/src/jjtg_gallops.rs:511:    assert_eq!(heat.next_pensum_seed, "AA");
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/vov_veiled/src/jjtg_gallops.rs-512-}
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/vov_veiled/src/jjtg_gallops.rs-513-
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/vov_veiled/src/jjtg_gallops.rs-514-#[test]
+--
+Tools/jjk/vov_veiled/src/jjro_ops.rs-62-        status: jjrg_HeatStatus::Stabled,
+Tools/jjk/vov_veiled/src/jjro_ops.rs-63-        order: Vec::new(),
+Tools/jjk/vov_veiled/src/jjro_ops.rs-64-        next_pace_seed: "AAA".to_string(),
+Tools/jjk/vov_veiled/src/jjro_ops.rs:65:        next_pensum_seed: JJRT_PENSUM_SEED_INIT.to_string(),
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/vov_veiled/src/jjro_ops.rs-66-        paddock_file,
+Tools/jjk/vov_veiled/src/jjro_ops.rs-67-        paces: BTreeMap::new(),
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/vov_veiled/src/jjro_ops.rs-68-    };
+--
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/vov_veiled/src/jjro_ops.rs-160-
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/vov_veiled/src/jjro_ops.rs-161-/// Mint a Pensum identity for a Heat
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/vov_veiled/src/jjro_ops.rs-162-///
+Tools/jjk/vov_veiled/src/jjro_ops.rs:163:/// Reads `next_pensum_seed`, constructs pensum from firemark + sentinel + seed,
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/vov_veiled/src/jjro_ops.rs-164-/// increments seed. Caller must save gallops after mutation.
+Tools/jjk/vov_veiled/src/jjro_ops.rs-165-pub fn jjrg_mint_pensum(gallops: &mut jjrg_Gallops, firemark_input: &str) -> Result<Pensum, String> {
+Tools/jjk/vov_veiled/src/jjro_ops.rs-166-    let firemark = Firemark::jjrf_parse(firemark_input)
+--
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/vov_veiled/src/jjro_ops.rs-173-    let pensum = Pensum(format!("{}{}{}",
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/vov_veiled/src/jjro_ops.rs-174-        firemark.jjrf_as_str(),
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/vov_veiled/src/jjro_ops.rs-175-        PENSUM_SENTINEL,
+Tools/jjk/vov_veiled/src/jjro_ops.rs:176:        heat.next_pensum_seed,
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/vov_veiled/src/jjro_ops.rs-177-    ));
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/vov_veiled/src/jjro_ops.rs-178-
+Tools/jjk/vov_veiled/src/jjro_ops.rs:179:    heat.next_pensum_seed = zjjrg_increment_seed(&heat.next_pensum_seed);
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/vov_veiled/src/jjro_ops.rs-180-
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/vov_veiled/src/jjro_ops.rs-181-    Ok(pensum)
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/vov_veiled/src/jjro_ops.rs-182-}
+--
+Tools/jjk/vov_veiled/src/jjtrs_restring.rs-58-        status: jjrg_HeatStatus::Racing,
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/vov_veiled/src/jjtrs_restring.rs-59-        order,
+Tools/jjk/vov_veiled/src/jjtrs_restring.rs-60-        next_pace_seed: next_pace_suffix,
+Tools/jjk/vov_veiled/src/jjtrs_restring.rs:61:        next_pensum_seed: "AA".to_string(),
+Tools/jjk/vov_veiled/src/jjtrs_restring.rs-62-        paddock_file: format!(".claude/jjm/jjp_{}.md", heat_id),
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/vov_veiled/src/jjtrs_restring.rs-63-        paces,
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/vov_veiled/src/jjtrs_restring.rs-64-    };
+--
+Tools/jjk/vov_veiled/src/jjrt_types.rs-61-pub const JJRT_PENSUM_SEED_INIT: &str = "AA";
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/vov_veiled/src/jjrt_types.rs-62-
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/vov_veiled/src/jjrt_types.rs-63-/// Default pensum seed for backwards compatibility with existing gallops files
+Tools/jjk/vov_veiled/src/jjrt_types.rs:64:fn default_pensum_seed() -> String {
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/vov_veiled/src/jjrt_types.rs-65-    JJRT_PENSUM_SEED_INIT.to_string()
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/vov_veiled/src/jjrt_types.rs-66-}
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/vov_veiled/src/jjrt_types.rs-67-
+--
+Tools/jjk/vov_veiled/src/jjrt_types.rs-73-    pub status: jjrg_HeatStatus,
+Tools/jjk/vov_veiled/src/jjrt_types.rs-74-    pub order: Vec<String>,
+Tools/jjk/vov_veiled/src/jjrt_types.rs-75-    pub next_pace_seed: String,
+Tools/jjk/vov_veiled/src/jjrt_types.rs:76:    #[serde(default = "default_pensum_seed")]
+Tools/jjk/vov_veiled/src/jjrt_types.rs:77:    pub next_pensum_seed: String,
+Tools/jjk/vov_veiled/src/jjrt_types.rs-78-    pub paddock_file: String,
+Tools/jjk/vov_veiled/src/jjrt_types.rs-79-    pub paces: BTreeMap<String, jjrg_Pace>,
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/vov_veiled/src/jjrt_types.rs-80-}
+--
+Tools/jjk/vov_veiled/src/jjrg_gallops.rs-213-            status: jjrg_HeatStatus::Racing,
+Tools/jjk/vov_veiled/src/jjrg_gallops.rs-214-            order: vec![coronet_key],
+Tools/jjk/vov_veiled/src/jjrg_gallops.rs-215-            next_pace_seed: "AAB".to_string(),
+Tools/jjk/vov_veiled/src/jjrg_gallops.rs:216:            next_pensum_seed: "AA".to_string(),
+Tools/jjk/vov_veiled/src/jjrg_gallops.rs-217-            paddock_file: ".claude/jjm/jjp_test.md".to_string(),
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/vov_veiled/src/jjrg_gallops.rs-218-            paces,
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/vov_veiled/src/jjrg_gallops.rs-219-        };

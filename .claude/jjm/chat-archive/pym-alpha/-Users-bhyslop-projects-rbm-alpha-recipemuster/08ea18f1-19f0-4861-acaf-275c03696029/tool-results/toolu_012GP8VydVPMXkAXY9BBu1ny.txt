@@ -1,0 +1,299 @@
+Tools/rbk/rbz_zipper.sh:58:  buz_enroll RBZ_CRUCIBLE_KLUDGE_BOTTLE "rbw-cKB" "${z_mod}" "rbob_kludge_bottle" "param1" "Kludge bottle vessel and drive hallmark into nameplate"
+Tools/rbk/rbz_zipper.sh:87:  buz_group RBZ__GROUP_HALLMARK   "rbw-h"   "Hallmark — Registry artifact lifecycle"
+Tools/rbk/rbz_zipper.sh:89:  buz_enroll RBZ_ORDAIN_HALLMARK        "rbw-hO"  "${z_mod}" "rbfd_ordain"          ""  "Ordain hallmark: conjure, bind, or graft based on vessel mode"
+Tools/rbk/rbz_zipper.sh:92:  buz_enroll RBZ_ABJURE_HALLMARK        "rbw-hA"  "${z_mod}" "rbfl_abjure"          ""  "Abjure a hallmark (delete artifacts from GAR)"
+Tools/rbk/rbz_zipper.sh:93:  buz_enroll RBZ_TALLY_HALLMARKS        "rbw-ht"  "${z_mod}" "rbfl_tally"           ""  "Tally hallmarks by health state"
+Tools/rbk/rbz_zipper.sh:95:  buz_enroll RBZ_VOUCH_HALLMARKS        "rbw-hV"  "${z_mod}" "rbfv_batch_vouch"     ""  "Mode-aware vouch: SLSA (conjure), digest-pin (bind), GRAFTED (graft)"
+Tools/rbk/rbz_zipper.sh:97:  buz_enroll RBZ_SUMMON_HALLMARK        "rbw-hs"  "${z_mod}" "rbfr_summon"          ""  "Summon vouched hallmark image locally"
+Tools/rbk/rbz_zipper.sh:157:  buz_enroll RBZ_THEURGE_KLUDGE  "rbw-tK"  "${z_mod}" "rbob_kludge"        "imprint"  "Local kludge build + install hallmark into nameplate"
+Tools/rbk/rbz_zipper.sh:158:  buz_enroll RBZ_THEURGE_ORDAIN  "rbw-tO"  "${z_mod}" "rbob_ordain"        "imprint"  "Cloud build + install hallmark into nameplate"
+Tools/rbk/rbrn_regime.sh:49:  buv_fqin_enroll    RBRN_SENTRY_HALLMARK      1  128  "Hallmark tag for Sentry Image"
+Tools/rbk/rbrn_regime.sh:50:  buv_fqin_enroll    RBRN_BOTTLE_HALLMARK      1  128  "Hallmark tag for Bottle Image"
+Tools/rbk/rbfl_FoundryLedger.sh:264:  local z_hallmark="${2:-}"
+Tools/rbk/rbfl_FoundryLedger.sh:268:  buc_doc_brief "Abjure a hallmark (delete all per-platform image, about, and vouch artifacts)"
+Tools/rbk/rbfl_FoundryLedger.sh:270:  buc_doc_param "hallmark" "Full hallmark (e.g., c260305133650-r260305160530)"
+Tools/rbk/rbfl_FoundryLedger.sh:281:  test -n "${z_hallmark}" || buc_die "Hallmark parameter required"
+Tools/rbk/rbfl_FoundryLedger.sh:283:  # Derive inscribe timestamp from full hallmark (needed for -multi intermediate tag)
+Tools/rbk/rbfl_FoundryLedger.sh:284:  local -r z_inscribe_ts="${z_hallmark%%-r*}"
+Tools/rbk/rbfl_FoundryLedger.sh:285:  test -n "${z_inscribe_ts}" || buc_die "Failed to derive inscribe timestamp from hallmark"
+Tools/rbk/rbfl_FoundryLedger.sh:303:    z_image_tags+=("${z_hallmark}${RBGC_ARK_SUFFIX_IMAGE}")
+Tools/rbk/rbfl_FoundryLedger.sh:322:      z_image_tags+=("${z_hallmark}${RBGC_ARK_SUFFIX_IMAGE}${z_platform_suffixes[$z_idx]}")
+Tools/rbk/rbfl_FoundryLedger.sh:325:      z_image_tags+=("${z_hallmark}${RBGC_ARK_SUFFIX_IMAGE}")
+Tools/rbk/rbfl_FoundryLedger.sh:330:  # About, vouch, and diags tags use full hallmark
+Tools/rbk/rbfl_FoundryLedger.sh:331:  local -r z_about_tag="${z_hallmark}${RBGC_ARK_SUFFIX_ABOUT}"
+Tools/rbk/rbfl_FoundryLedger.sh:332:  local -r z_vouch_tag="${z_hallmark}${RBGC_ARK_SUFFIX_VOUCH}"
+Tools/rbk/rbfl_FoundryLedger.sh:333:  local -r z_diags_tag="${z_hallmark}${RBGC_ARK_SUFFIX_DIAGS}"
+Tools/rbk/rbfl_FoundryLedger.sh:444:    buc_die "Hallmark not found: no image tags and no -about exists for ${RBRV_SIGIL}/${z_hallmark}"
+Tools/rbk/rbfl_FoundryLedger.sh:455:    local z_confirm_msg="Will abjure ark ${RBRV_SIGIL}/${z_hallmark}:"
+Tools/rbk/rbfl_FoundryLedger.sh:599:  buc_success "Hallmark abjured: ${RBRV_SIGIL}/${z_hallmark}"
+Tools/rbk/rbfl_FoundryLedger.sh:619:  buc_doc_brief "List hallmarks across all vessels with health status"
+Tools/rbk/rbfl_FoundryLedger.sh:655:    # Extract tags and identify full hallmarks
+Tools/rbk/rbfl_FoundryLedger.sh:660:    local z_consec_file="${BURD_TEMP_DIR}/rbfl_dc_${z_sigil}_hallmarks.txt"
+Tools/rbk/rbfl_FoundryLedger.sh:700:      || buc_die "Failed to sort hallmarks for ${z_sigil}"
+Tools/rbk/rbfl_FoundryLedger.sh:703:      buc_info "No hallmarks found for ${z_sigil}"
+Tools/rbk/rbfl_FoundryLedger.sh:711:    while IFS= read -r z_hallmark || test -n "${z_hallmark}"; do
+Tools/rbk/rbfl_FoundryLedger.sh:718:        test "${z_c}" = "${z_hallmark}" || continue
+Tools/rbk/rbfl_FoundryLedger.sh:747:      printf "  %-42s %-30s %-10s\n" "${z_hallmark}" "${z_plat_display}" "${z_health}"
+Tools/rbk/rbfl_FoundryLedger.sh:749:      # Write per-hallmark fact file for test observability
+Tools/rbk/rbfl_FoundryLedger.sh:750:      test -n "${z_hallmark}" || buc_die "Empty hallmark in unique file for ${z_sigil}"
+Tools/rbk/rbfl_FoundryLedger.sh:751:      buf_write_fact "${z_sigil}${RBCC_FACT_CONSEC_INFIX}${z_hallmark}" "${z_sigil}"
+Tools/rbk/rbfl_FoundryLedger.sh:760:    buc_step "Pending hallmarks can be vouched:"
+Tools/rbk/rbfl_FoundryLedger.sh:761:    buc_tabtarget "${RBZ_VOUCH_HALLMARKS}"
+Tools/rbk/rbfl_FoundryLedger.sh:764:    buc_step "Incomplete hallmarks should be abjured and re-conjured:"
+Tools/rbk/rbfl_FoundryLedger.sh:765:    buc_tabtarget "${RBZ_ABJURE_HALLMARK}"
+Tools/rbk/rblm_cli.sh:73:  bug_t "  Vessel hallmarks BLANKED (stale after depot change):"
+Tools/rbk/rblm_cli.sh:137:  # Blank hallmark values in all vessel nameplates.
+Tools/rbk/rblm_cli.sh:148:        RBRN_SENTRY_HALLMARK=*)  printf '%s\n' "RBRN_SENTRY_HALLMARK=" ;;
+Tools/rbk/rblm_cli.sh:149:        RBRN_BOTTLE_HALLMARK=*)  printf '%s\n' "RBRN_BOTTLE_HALLMARK=" ;;
+Tools/rbk/rblm_cli.sh:153:    bug_t "  Blanked hallmarks: ${z_np}"
+Tools/rbk/rbw_workbench.sh:22:# Qualification gate runs for rbw-cC (crucible charge) and rbw-hO (hallmark ordain) before dispatch.
+Tools/rbk/rbw_workbench.sh:66:    "${RBZ_CRUCIBLE_CHARGE}"|"${RBZ_ORDAIN_HALLMARK}")
+Tools/rbk/rbgm_ManualProcedures.sh:694:      buc_tabtarget "${RBZ_ORDAIN_HALLMARK}" "${z_vessel_dir:-rbev-vessels}/${z_busybox_sigil}"
+Tools/rbk/rbgm_ManualProcedures.sh:696:      buc_tabtarget "${RBZ_VOUCH_HALLMARKS}"
+Tools/rbk/rbgm_ManualProcedures.sh:705:      buc_tabtarget "${RBZ_ORDAIN_HALLMARK}" "${z_vessel_dir:-rbev-vessels}/${z_bottle_sigil}"
+Tools/rbk/rbgm_ManualProcedures.sh:707:      buc_tabtarget "${RBZ_VOUCH_HALLMARKS}"
+Tools/rbk/rbgm_ManualProcedures.sh:721:      buc_tabtarget "${RBZ_ORDAIN_HALLMARK}" "${z_vessel_dir:-rbev-vessels}/${z_sentry_sigil}"
+Tools/rbk/rbgm_ManualProcedures.sh:723:      buc_tabtarget "${RBZ_VOUCH_HALLMARKS}"
+Tools/rbk/rbgm_ManualProcedures.sh:734:    # Sub-probe: nameplate hallmarks populated
+Tools/rbk/rbgm_ManualProcedures.sh:735:    local z_has_bottle_hallmark=0
+Tools/rbk/rbgm_ManualProcedures.sh:736:    local z_has_sentry_hallmark=0
+Tools/rbk/rbgm_ManualProcedures.sh:739:      test -n "${RBRN_BOTTLE_HALLMARK:-}" && z_has_bottle_hallmark=1
+Tools/rbk/rbgm_ManualProcedures.sh:740:      test -n "${RBRN_SENTRY_HALLMARK:-}" && z_has_sentry_hallmark=1
+Tools/rbk/rbgm_ManualProcedures.sh:746:    if test "${z_has_bottle_hallmark}" = "1" && test "${z_has_sentry_hallmark}" = "1" && \
+Tools/rbk/rbgm_ManualProcedures.sh:750:      local z_bottle_vouch_ref="${z_gar_host}/${RBRR_DEPOT_PROJECT_ID}/${RBRR_GAR_REPOSITORY}/${RBRN_BOTTLE_VESSEL}:${RBRN_BOTTLE_HALLMARK}-vouch"
+Tools/rbk/rbgm_ManualProcedures.sh:751:      local z_sentry_vouch_ref="${z_gar_host}/${RBRR_DEPOT_PROJECT_ID}/${RBRR_GAR_REPOSITORY}/${RBRN_SENTRY_VESSEL}:${RBRN_SENTRY_HALLMARK}-vouch"
+Tools/rbk/rbgm_ManualProcedures.sh:757:    zrbgm_po_status "${z_has_bottle_hallmark}"  "  Bottle hallmark recorded"
+Tools/rbk/rbgm_ManualProcedures.sh:758:    zrbgm_po_status "${z_has_sentry_hallmark}"  "  Sentry hallmark recorded"
+Tools/rbk/rbgm_ManualProcedures.sh:764:    if test "${z_has_bottle_hallmark}" = "0"; then
+Tools/rbk/rbgm_ManualProcedures.sh:765:      bug_t "  Next: Record bottle hallmark in the tadmor nameplate."
+Tools/rbk/rbgm_ManualProcedures.sh:768:      bug_t "    Set (substitute your actual hallmark value):"
+Tools/rbk/rbgm_ManualProcedures.sh:769:      bug_tc "    RBRN_BOTTLE_HALLMARK=" "<hallmark>"
+Tools/rbk/rbgm_ManualProcedures.sh:771:      buc_tabtarget "${RBZ_SUMMON_HALLMARK}" "${RBRN_BOTTLE_VESSEL:-${z_bottle_sigil}} <hallmark>"
+Tools/rbk/rbgm_ManualProcedures.sh:772:    elif test "${z_has_sentry_hallmark}" = "0"; then
+Tools/rbk/rbgm_ManualProcedures.sh:773:      bug_t "  Next: Record sentry hallmark in the tadmor nameplate."
+Tools/rbk/rbgm_ManualProcedures.sh:776:      bug_t "    Set (substitute your actual hallmark value):"
+Tools/rbk/rbgm_ManualProcedures.sh:777:      bug_tc "    RBRN_SENTRY_HALLMARK=" "<hallmark>"
+Tools/rbk/rbgm_ManualProcedures.sh:779:      buc_tabtarget "${RBZ_SUMMON_HALLMARK}" "${RBRN_SENTRY_VESSEL:-${z_sentry_sigil}} <hallmark>"
+Tools/rbk/rbgm_ManualProcedures.sh:784:        buc_tabtarget "${RBZ_SUMMON_HALLMARK}" "${RBRN_BOTTLE_VESSEL:-${z_bottle_sigil}} ${RBRN_BOTTLE_HALLMARK:-<hallmark>}"
+Tools/rbk/rbgm_ManualProcedures.sh:788:        buc_tabtarget "${RBZ_SUMMON_HALLMARK}" "${RBRN_SENTRY_VESSEL:-${z_sentry_sigil}} ${RBRN_SENTRY_HALLMARK:-<hallmark>}"
+Tools/rbk/rbgja/rbgja02-syft-per-platform.sh:5:#                _RBGA_HALLMARK, _RBGA_VESSEL_MODE,
+Tools/rbk/rbgja/rbgja02-syft-per-platform.sh:23:test -n "${_RBGA_HALLMARK}"   || { echo "_RBGA_HALLMARK missing"   >&2; exit 1; }
+Tools/rbk/rbgja/rbgja02-syft-per-platform.sh:32:IMAGE_TAG="${_RBGA_HALLMARK}${_RBGA_ARK_SUFFIX_IMAGE}"
+Tools/rbk/rbrn_cli.sh:55:      local z_sentry_img="${z_gar_base}/${RBRN_SENTRY_VESSEL}:${RBRN_SENTRY_HALLMARK}${RBGC_ARK_SUFFIX_IMAGE}"
+Tools/rbk/rbrn_cli.sh:56:      local z_bottle_img="${z_gar_base}/${RBRN_BOTTLE_VESSEL}:${RBRN_BOTTLE_HALLMARK}${RBGC_ARK_SUFFIX_IMAGE}"
+Tools/rbk/rbfv_FoundryVerify.sh:67:  local -r z_hallmark="${2:-}"
+Tools/rbk/rbfv_FoundryVerify.sh:70:  test -n "${z_hallmark}" || buc_die "rbfv_vouch_gate: hallmark required"
+Tools/rbk/rbfv_FoundryVerify.sh:75:  local -r z_vouch_tag="${z_hallmark}${RBGC_ARK_SUFFIX_VOUCH}"
+Tools/rbk/rbfv_FoundryVerify.sh:95:    buc_die "Hallmark not vouched: ${z_vessel}:${z_hallmark} (HTTP ${z_vouch_http_code} — refusing to use unvouched image)"
+Tools/rbk/rbfv_FoundryVerify.sh:104:  local -r z_hallmark="${2:-}"
+Tools/rbk/rbfv_FoundryVerify.sh:107:  buc_doc_brief "Assemble about metadata artifact for an existing hallmark image"
+Tools/rbk/rbfv_FoundryVerify.sh:109:  buc_doc_param "hallmark" "Full hallmark (e.g., c260305133650-r260305160530)"
+Tools/rbk/rbfv_FoundryVerify.sh:118:  test -n "${z_hallmark}" || buc_die "Hallmark parameter required"
+Tools/rbk/rbfv_FoundryVerify.sh:130:  local -r z_image_tag="${z_hallmark}${RBGC_ARK_SUFFIX_IMAGE}"
+Tools/rbk/rbfv_FoundryVerify.sh:154:  local -r z_about_tag="${z_hallmark}${RBGC_ARK_SUFFIX_ABOUT}"
+Tools/rbk/rbfv_FoundryVerify.sh:177:  zrbfv_about_submit "${z_hallmark}" "${z_token}" "${z_conjure_build_id}"
+Tools/rbk/rbfv_FoundryVerify.sh:179:  buc_success "About complete: ${RBRV_SIGIL}/${z_hallmark}"
+Tools/rbk/rbfv_FoundryVerify.sh:186:# Args: vessel_dir hallmark
+Tools/rbk/rbfv_FoundryVerify.sh:191:  local -r z_hallmark="$2"
+Tools/rbk/rbfv_FoundryVerify.sh:195:  test -n "${z_hallmark}" || buc_die "Hallmark parameter required"
+Tools/rbk/rbfv_FoundryVerify.sh:212:  local -r z_image_tag="${z_hallmark}${RBGC_ARK_SUFFIX_IMAGE}"
+Tools/rbk/rbfv_FoundryVerify.sh:311:    --arg zjq_hallmark      "${z_hallmark}" \
+Tools/rbk/rbfv_FoundryVerify.sh:335:        _RBGA_HALLMARK:          $zjq_hallmark,
+Tools/rbk/rbfv_FoundryVerify.sh:351:        _RBGV_HALLMARK:          $zjq_hallmark,
+Tools/rbk/rbfv_FoundryVerify.sh:392:  buc_success "About+Vouch complete: ${RBRV_SIGIL}/${z_hallmark}"
+Tools/rbk/rbfv_FoundryVerify.sh:393:  local -r z_about_tag="${z_hallmark}${RBGC_ARK_SUFFIX_ABOUT}"
+Tools/rbk/rbfv_FoundryVerify.sh:394:  local -r z_vouch_tag="${z_hallmark}${RBGC_ARK_SUFFIX_VOUCH}"
+Tools/rbk/rbfv_FoundryVerify.sh:403:  local -r z_hallmark="$1"
+Tools/rbk/rbfv_FoundryVerify.sh:425:      # Extract inscribe timestamp from hallmark (e.g., c260305133650 from c260305133650-r260305160530)
+Tools/rbk/rbfv_FoundryVerify.sh:426:      z_inscribe_ts="${z_hallmark%%-r*}"
+Tools/rbk/rbfv_FoundryVerify.sh:498:    --arg zjq_hallmark "${z_hallmark}" \
+Tools/rbk/rbfv_FoundryVerify.sh:519:        _RBGA_HALLMARK:          $zjq_hallmark,
+Tools/rbk/rbfv_FoundryVerify.sh:569:  local -r z_hallmark="${2:-}"
+Tools/rbk/rbfv_FoundryVerify.sh:573:  buc_doc_param "hallmark" "Full hallmark (e.g., c260305133650-r260305160530)"
+Tools/rbk/rbfv_FoundryVerify.sh:588:  test -n "${z_hallmark}" || buc_die "Hallmark parameter required"
+Tools/rbk/rbfv_FoundryVerify.sh:603:  local -r z_about_tag="${z_hallmark}${RBGC_ARK_SUFFIX_ABOUT}"
+Tools/rbk/rbfv_FoundryVerify.sh:627:  local -r z_vouch_tag="${z_hallmark}${RBGC_ARK_SUFFIX_VOUCH}"
+Tools/rbk/rbfv_FoundryVerify.sh:650:  zrbfv_vouch_submit "${z_hallmark}" "${z_vouch_tag}" "${z_token}"
+Tools/rbk/rbfv_FoundryVerify.sh:652:  buc_success "Vouch complete: ${RBRV_SIGIL}/${z_hallmark}"
+Tools/rbk/rbfv_FoundryVerify.sh:664:  local -r z_hallmark="$1"
+Tools/rbk/rbfv_FoundryVerify.sh:723:    --arg zjq_hallmark      "${z_hallmark}" \
+Tools/rbk/rbfv_FoundryVerify.sh:743:        _RBGV_HALLMARK:      $zjq_hallmark,
+Tools/rbk/rbfv_FoundryVerify.sh:791:  buc_doc_brief "Vouch all pending hallmarks across all vessels"
+Tools/rbk/rbfv_FoundryVerify.sh:809:    buc_step "Scanning ${z_sigil} for pending hallmarks"
+Tools/rbk/rbfv_FoundryVerify.sh:832:    # Classify: find hallmarks with -about but no -vouch
+Tools/rbk/rbfv_FoundryVerify.sh:862:      || buc_die "Failed to compute pending hallmarks for ${z_sigil}"
+Tools/rbk/rbfv_FoundryVerify.sh:867:      || buc_die "Failed to count vouched hallmarks for ${z_sigil}"
+Tools/rbk/rbfv_FoundryVerify.sh:874:      buc_info "No pending hallmarks for ${z_sigil}"
+Tools/rbk/rbfv_FoundryVerify.sh:878:    # Load pending hallmarks into array (load-then-iterate)
+Tools/rbk/rbfv_FoundryVerify.sh:887:      local z_hallmark="${z_pending_items[$z_pi]}"
+Tools/rbk/rbfv_FoundryVerify.sh:888:      test -n "${z_hallmark}" || continue
+Tools/rbk/rbfv_FoundryVerify.sh:890:      buc_step "Vouching ${z_sigil}/${z_hallmark}"
+Tools/rbk/rbfv_FoundryVerify.sh:895:        rbfv_vouch "${z_vessel_dir}" "${z_hallmark}" \
+Tools/rbk/rbfv_FoundryVerify.sh:896:          || buc_die "rbfv_vouch failed for ${z_sigil}/${z_hallmark}"
+Tools/rbk/rbfv_FoundryVerify.sh:902:        buc_warn "Vouch failed for ${z_sigil}/${z_hallmark} (exit ${z_vouch_status}) — skipping"
+Tools/rbk/rbfv_FoundryVerify.sh:915:    buc_warn "Some hallmarks failed — older builds may lack SLSA provenance"
+Tools/rbk/rbcc_Constants.sh:60:  # Fact-file infix for per-vessel-hallmark presence files
+Tools/rbk/rbcc_Constants.sh:61:  # Composed as: ${vessel}${RBCC_FACT_CONSEC_INFIX}${hallmark}
+Tools/rbk/rbgja/rbgja04-assemble-push-about.sh:5:#                _RBGA_HALLMARK, _RBGA_ARK_SUFFIX_ABOUT
+Tools/rbk/rbgja/rbgja04-assemble-push-about.sh:25:test -n "${_RBGA_HALLMARK}"   || { echo "_RBGA_HALLMARK missing"   >&2; exit 1; }
+Tools/rbk/rbgja/rbgja04-assemble-push-about.sh:32:META_URI="${_RBGA_GAR_HOST}/${_RBGA_GAR_PATH}/${_RBGA_VESSEL}:${_RBGA_HALLMARK}${_RBGA_ARK_SUFFIX_ABOUT}"
+Tools/rbk/rbfr_FoundryRetriever.sh:117:  local z_hallmark="${2:-}"
+Tools/rbk/rbfr_FoundryRetriever.sh:122:  buc_doc_param "hallmark" "Full hallmark (e.g., c260305133650-r260305160530)"
+Tools/rbk/rbfr_FoundryRetriever.sh:127:  test -n "${z_hallmark}" || buc_die "Hallmark parameter required"
+Tools/rbk/rbfr_FoundryRetriever.sh:137:  # Construct ark tags — all use full hallmark
+Tools/rbk/rbfr_FoundryRetriever.sh:138:  local z_image_tag="${z_hallmark}${RBGC_ARK_SUFFIX_IMAGE}"
+Tools/rbk/rbfr_FoundryRetriever.sh:139:  local z_about_tag="${z_hallmark}${RBGC_ARK_SUFFIX_ABOUT}"
+Tools/rbk/rbfr_FoundryRetriever.sh:140:  local z_vouch_tag="${z_hallmark}${RBGC_ARK_SUFFIX_VOUCH}"
+Tools/rbk/rbfr_FoundryRetriever.sh:265:  buc_success "Hallmark summoned: ${z_vessel}/${z_hallmark}"
+Tools/rbk/rbfd_FoundryDirectorBuild.sh:232:      buc_tabtarget "${RBZ_ORDAIN_HALLMARK}" "${z_vessel_dir}"
+Tools/rbk/rbfd_FoundryDirectorBuild.sh:298:      buc_tabtarget "${RBZ_ORDAIN_HALLMARK}" "${z_vessel_dir}"
+Tools/rbk/rbfd_FoundryDirectorBuild.sh:505:  #   - _RBGA_HALLMARK: computed at build time by rbgjb01, read from workspace
+Tools/rbk/rbfd_FoundryDirectorBuild.sh:512:  # About steps run in vessel dir so .hallmark from rbgjb01 is accessible
+Tools/rbk/rbfd_FoundryDirectorBuild.sh:519:  # Hallmark: $(cat .hallmark) → bash reads workspace file written by rbgjb01
+Tools/rbk/rbfd_FoundryDirectorBuild.sh:521:  buc_log_args "Post-processing about steps: hallmark from workspace, build ID from env"
+Tools/rbk/rbfd_FoundryDirectorBuild.sh:526:  z_about_content="${z_about_content//\$\{_RBGA_HALLMARK\}/\$(cat .hallmark)}"
+Tools/rbk/rbfd_FoundryDirectorBuild.sh:960:  buc_doc_brief "Ordain a hallmark from a vessel (conjure, mirror, or graft based on vessel mode)"
+Tools/rbk/rbfd_FoundryDirectorBuild.sh:987:  # Chaining: read hallmark persisted by mode dispatch
+Tools/rbk/rbfd_FoundryDirectorBuild.sh:988:  buc_step "Reading hallmark from mode dispatch output"
+Tools/rbk/rbfd_FoundryDirectorBuild.sh:989:  local z_hallmark=""
+Tools/rbk/rbfd_FoundryDirectorBuild.sh:990:  z_hallmark=$(<"${BURD_OUTPUT_DIR}/${RBF_FACT_HALLMARK}") \
+Tools/rbk/rbfd_FoundryDirectorBuild.sh:991:    || buc_die "Failed to read hallmark from output"
+Tools/rbk/rbfd_FoundryDirectorBuild.sh:992:  test -n "${z_hallmark}" || buc_die "Empty hallmark in output"
+Tools/rbk/rbfd_FoundryDirectorBuild.sh:998:      rbfv_vouch "${z_vessel_dir}" "${z_hallmark}"
+Tools/rbk/rbfd_FoundryDirectorBuild.sh:1001:      zrbfv_graft_metadata_submit "${z_vessel_dir}" "${z_hallmark}"
+Tools/rbk/rbfd_FoundryDirectorBuild.sh:1005:      rbfv_vouch "${z_vessel_dir}" "${z_hallmark}"
+Tools/rbk/rbfd_FoundryDirectorBuild.sh:1116:  # Discover hallmark from build step output (strong tie — no GAR scanning)
+Tools/rbk/rbfd_FoundryDirectorBuild.sh:1118:  # writes hallmark to /builder/outputs/output (base64-encoded in buildStepOutputs[1]).
+Tools/rbk/rbfd_FoundryDirectorBuild.sh:1119:  buc_step "Discovering hallmark from build step output"
+Tools/rbk/rbfd_FoundryDirectorBuild.sh:1133:  local z_found_hallmark=""
+Tools/rbk/rbfd_FoundryDirectorBuild.sh:1134:  z_found_hallmark=$(<"${z_step_decoded_file}")
+Tools/rbk/rbfd_FoundryDirectorBuild.sh:1135:  test -n "${z_found_hallmark}" || buc_die "Decoded hallmark is empty"
+Tools/rbk/rbfd_FoundryDirectorBuild.sh:1136:  buc_info "Discovered hallmark: ${z_found_hallmark}"
+Tools/rbk/rbfd_FoundryDirectorBuild.sh:1141:  buf_write_fact "${RBF_FACT_HALLMARK}" "${z_found_hallmark}"
+Tools/rbk/rbfd_FoundryDirectorBuild.sh:1146:  # Write ark stem fact file (sigil:hallmark base for composing artifact refs)
+Tools/rbk/rbfd_FoundryDirectorBuild.sh:1147:  buf_write_fact "${RBF_FACT_ARK_STEM}" "${RBRV_SIGIL}:${z_found_hallmark}"
+Tools/rbk/rbfd_FoundryDirectorBuild.sh:1156:    z_yield_tag="${z_found_hallmark}${RBGC_ARK_SUFFIX_IMAGE}-${z_plat_suffix}"
+Tools/rbk/rbfd_FoundryDirectorBuild.sh:1165:  buc_info "Output: ${BURD_OUTPUT_DIR}/${RBF_FACT_HALLMARK}"
+Tools/rbk/rbfd_FoundryDirectorBuild.sh:1177:# kludge hallmark (k-prefixed timestamp) in the same GAR-style
+Tools/rbk/rbfd_FoundryDirectorBuild.sh:1230:  # Generate kludge hallmark (k prefix distinguishes from conjure c, bind b)
+Tools/rbk/rbfd_FoundryDirectorBuild.sh:1233:  local -r z_hallmark="k${BURD_NOW_STAMP:2:6}${BURD_NOW_STAMP:9:6}-${BURD_GIT_CONTEXT}"
+Tools/rbk/rbfd_FoundryDirectorBuild.sh:1236:  local -r z_image_ref="${ZRBFC_REGISTRY_HOST}/${ZRBFC_REGISTRY_PATH}/${RBRV_SIGIL}:${z_hallmark}${RBGC_ARK_SUFFIX_IMAGE}"
+Tools/rbk/rbfd_FoundryDirectorBuild.sh:1237:  local -r z_vouch_ref="${ZRBFC_REGISTRY_HOST}/${ZRBFC_REGISTRY_PATH}/${RBRV_SIGIL}:${z_hallmark}${RBGC_ARK_SUFFIX_VOUCH}"
+Tools/rbk/rbfd_FoundryDirectorBuild.sh:1240:  buc_info "Hallmark: ${z_hallmark}"
+Tools/rbk/rbfd_FoundryDirectorBuild.sh:1257:  # Persist hallmark to output directory
+Tools/rbk/rbfd_FoundryDirectorBuild.sh:1258:  buf_write_fact "${RBF_FACT_HALLMARK}" "${z_hallmark}"
+Tools/rbk/rbfd_FoundryDirectorBuild.sh:1262:  buc_bare "  Hallmark: ${z_hallmark}"
+Tools/rbk/rbfd_FoundryDirectorBuild.sh:1324:  # Generate hallmark timestamps: bYYMMDDHHMMSS-rYYMMDDHHMMSS
+Tools/rbk/rbfd_FoundryDirectorBuild.sh:1331:  local -r z_hallmark="${z_mirror_ts}-${z_build_ts}"
+Tools/rbk/rbfd_FoundryDirectorBuild.sh:1333:  buc_info "Hallmark: ${z_hallmark}"
+Tools/rbk/rbfd_FoundryDirectorBuild.sh:1338:  buf_write_fact "${RBF_FACT_HALLMARK}" "${z_hallmark}"
+Tools/rbk/rbfd_FoundryDirectorBuild.sh:1344:  buf_write_fact "${RBF_FACT_ARK_STEM}" "${RBRV_SIGIL}:${z_hallmark}"
+Tools/rbk/rbfd_FoundryDirectorBuild.sh:1347:  local -r z_bind_image_tag="${z_hallmark}${RBGC_ARK_SUFFIX_IMAGE}"
+Tools/rbk/rbfd_FoundryDirectorBuild.sh:1351:  zrbfd_mirror_submit "${z_hallmark}" "${z_token}"
+Tools/rbk/rbfd_FoundryDirectorBuild.sh:1356:  echo "  Hallmark: ${z_hallmark}"
+Tools/rbk/rbfd_FoundryDirectorBuild.sh:1360:# Args: hallmark token
+Tools/rbk/rbfd_FoundryDirectorBuild.sh:1364:  local -r z_hallmark="$1"
+Tools/rbk/rbfd_FoundryDirectorBuild.sh:1456:    --arg zjq_hallmark "${z_hallmark}" \
+Tools/rbk/rbfd_FoundryDirectorBuild.sh:1477:        _RBGA_HALLMARK:          $zjq_hallmark,
+Tools/rbk/rbfd_FoundryDirectorBuild.sh:1569:  # Extract image creation timestamp for hallmark T1
+Tools/rbk/rbfd_FoundryDirectorBuild.sh:1601:  # Generate push timestamp (T2) for hallmark
+Tools/rbk/rbfd_FoundryDirectorBuild.sh:1607:  local -r z_hallmark="${z_graft_ts}-${z_push_ts}"
+Tools/rbk/rbfd_FoundryDirectorBuild.sh:1608:  local -r z_image_tag="${z_hallmark}${RBGC_ARK_SUFFIX_IMAGE}"
+Tools/rbk/rbfd_FoundryDirectorBuild.sh:1611:  buc_info "Hallmark: ${z_hallmark}"
+Tools/rbk/rbfd_FoundryDirectorBuild.sh:1632:  buf_write_fact "${RBF_FACT_HALLMARK}" "${z_hallmark}"
+Tools/rbk/rbfd_FoundryDirectorBuild.sh:1638:  buf_write_fact "${RBF_FACT_ARK_STEM}" "${RBRV_SIGIL}:${z_hallmark}"
+Tools/rbk/rbfd_FoundryDirectorBuild.sh:1646:  echo "  Hallmark: ${z_hallmark}"
+Tools/rbk/rbgc_Constants.sh:129:  readonly RBF_FACT_HALLMARK="rbf_fact_hallmark"
+Tools/rbk/rbob_bottle.sh:47:    RBRN_SENTRY_HALLMARK
+Tools/rbk/rbob_bottle.sh:48:    RBRN_BOTTLE_HALLMARK
+Tools/rbk/rbob_bottle.sh:126:  readonly ZRBOB_SENTRY_IMAGE="${z_gar_base}/${RBRN_SENTRY_VESSEL}:${RBRN_SENTRY_HALLMARK}${RBGC_ARK_SUFFIX_IMAGE}"
+Tools/rbk/rbob_bottle.sh:127:  readonly ZRBOB_BOTTLE_IMAGE="${z_gar_base}/${RBRN_BOTTLE_VESSEL}:${RBRN_BOTTLE_HALLMARK}${RBGC_ARK_SUFFIX_IMAGE}"
+Tools/rbk/rbob_bottle.sh:130:  readonly ZRBOB_SENTRY_VOUCH="${z_gar_base}/${RBRN_SENTRY_VESSEL}:${RBRN_SENTRY_HALLMARK}${RBGC_ARK_SUFFIX_VOUCH}"
+Tools/rbk/rbob_bottle.sh:131:  readonly ZRBOB_BOTTLE_VOUCH="${z_gar_base}/${RBRN_BOTTLE_VESSEL}:${RBRN_BOTTLE_HALLMARK}${RBGC_ARK_SUFFIX_VOUCH}"
+Tools/rbk/rbob_bottle.sh:191:# Usage: zrbob_vouch_gate_and_summon <vessel> <hallmark> <image_ref>
+Tools/rbk/rbob_bottle.sh:194:  local z_hallmark="${2:-}"
+Tools/rbk/rbob_bottle.sh:198:  test -n "${z_hallmark}" || buc_die "zrbob_vouch_gate_and_summon: hallmark required"
+Tools/rbk/rbob_bottle.sh:282:    buc_tabtarget "${RBZ_SUMMON_HALLMARK}" "${RBRN_SENTRY_VESSEL}" "${RBRN_SENTRY_HALLMARK}"
+Tools/rbk/rbob_bottle.sh:288:    buc_tabtarget "${RBZ_SUMMON_HALLMARK}" "${RBRN_BOTTLE_VESSEL}" "${RBRN_BOTTLE_HALLMARK}"
+Tools/rbk/rbob_bottle.sh:295:    zrbob_vouch_gate_and_summon "${RBRN_SENTRY_VESSEL}" "${RBRN_SENTRY_HALLMARK}" "${ZRBOB_SENTRY_IMAGE}"
+Tools/rbk/rbob_bottle.sh:300:    zrbob_vouch_gate_and_summon "${RBRN_BOTTLE_VESSEL}" "${RBRN_BOTTLE_HALLMARK}" "${ZRBOB_BOTTLE_IMAGE}"
+Tools/rbk/rbob_bottle.sh:388:# Drive Hallmark — rewrite a single RBRN_*_HALLMARK line in nameplate env
+Tools/rbk/rbob_bottle.sh:389:# Args: nameplate_file variable_name new_hallmark
+Tools/rbk/rbob_bottle.sh:391:zrbob_drive_hallmark() {
+Tools/rbk/rbob_bottle.sh:398:  test -n "${z_new_value}" || buc_die "New hallmark value required"
+Tools/rbk/rbob_bottle.sh:440:# Kludge — build bottle vessel locally and drive hallmark into nameplate
+Tools/rbk/rbob_bottle.sh:446:  buc_doc_brief "Build bottle vessel locally and drive hallmark into nameplate"
+Tools/rbk/rbob_bottle.sh:458:  # Read hallmark from fact file
+Tools/rbk/rbob_bottle.sh:459:  local z_hallmark=""
+Tools/rbk/rbob_bottle.sh:460:  z_hallmark=$(<"${BURD_OUTPUT_DIR}/${RBF_FACT_HALLMARK}") \
+Tools/rbk/rbob_bottle.sh:461:    || buc_die "Failed to read hallmark from kludge output"
+Tools/rbk/rbob_bottle.sh:462:  test -n "${z_hallmark}" || buc_die "Empty hallmark from kludge output"
+Tools/rbk/rbob_bottle.sh:464:  # Drive hallmark into nameplate
+Tools/rbk/rbob_bottle.sh:465:  zrbob_drive_hallmark "${ZRBOB_ENV_RBRN}" "RBRN_BOTTLE_HALLMARK" "${z_hallmark}"
+Tools/rbk/rbob_bottle.sh:467:  buc_success "Kludge installed: ${z_hallmark} → ${RBRN_MONIKER}"
+Tools/rbk/rbob_bottle.sh:471:# Ordain — cloud-build bottle vessel and drive hallmark into nameplate
+Tools/rbk/rbob_bottle.sh:477:  buc_doc_brief "Ordain bottle vessel via cloud build and drive hallmark into nameplate"
+Tools/rbk/rbob_bottle.sh:489:  # Read hallmark from fact file
+Tools/rbk/rbob_bottle.sh:490:  local z_hallmark=""
+Tools/rbk/rbob_bottle.sh:491:  z_hallmark=$(<"${BURD_OUTPUT_DIR}/${RBF_FACT_HALLMARK}") \
+Tools/rbk/rbob_bottle.sh:492:    || buc_die "Failed to read hallmark from ordain output"
+Tools/rbk/rbob_bottle.sh:493:  test -n "${z_hallmark}" || buc_die "Empty hallmark from ordain output"
+Tools/rbk/rbob_bottle.sh:495:  # Drive hallmark into nameplate
+Tools/rbk/rbob_bottle.sh:496:  zrbob_drive_hallmark "${ZRBOB_ENV_RBRN}" "RBRN_BOTTLE_HALLMARK" "${z_hallmark}"
+Tools/rbk/rbob_bottle.sh:498:  buc_success "Ordain installed: ${z_hallmark} → ${RBRN_MONIKER}"
+Tools/rbk/rbfc_FoundryCore.sh:458:# Args: vessel hallmark mode
+Tools/rbk/rbfc_FoundryCore.sh:464:  local -r z_hallmark="${2:-}"
+Tools/rbk/rbfc_FoundryCore.sh:468:  test -n "${z_hallmark}" || buc_die "Hallmark parameter required"
+Tools/rbk/rbfc_FoundryCore.sh:475:  local -r z_about_tag="${z_hallmark}${RBGC_ARK_SUFFIX_ABOUT}"
+Tools/rbk/rbfc_FoundryCore.sh:476:  local -r z_vouch_tag="${z_hallmark}${RBGC_ARK_SUFFIX_VOUCH}"
+Tools/rbk/rbfc_FoundryCore.sh:488:      zrbfc_plumb_show_bind "${z_vessel}" "${z_hallmark}" "${z_mode}"
+Tools/rbk/rbfc_FoundryCore.sh:527:    zrbfc_plumb_show_compact "${z_vessel}" "${z_hallmark}" "${z_extract}" "${z_has_vouch}"
+Tools/rbk/rbfc_FoundryCore.sh:529:    zrbfc_plumb_show_full "${z_vessel}" "${z_hallmark}" "${z_extract}" "${z_has_vouch}"
+Tools/rbk/rbfc_FoundryCore.sh:534:# Args: vessel hallmark mode
+Tools/rbk/rbfc_FoundryCore.sh:539:  local -r z_hallmark="$2"
+Tools/rbk/rbfc_FoundryCore.sh:544:    echo "=== ${z_vessel} / ${z_hallmark} ==="
+Tools/rbk/rbfc_FoundryCore.sh:554:  echo "  HALLMARK PLUMB: ${z_vessel} / ${z_hallmark}"
+Tools/rbk/rbfc_FoundryCore.sh:601:    local z_bi_moniker="" z_bi_source_img="" z_bi_mirror_ts="" z_bi_hallmark=""
+Tools/rbk/rbfc_FoundryCore.sh:607:      (.build.hallmark // "?"),
+Tools/rbk/rbfc_FoundryCore.sh:616:      read -r z_bi_hallmark
+Tools/rbk/rbfc_FoundryCore.sh:642:    echo "  Hallmark:   ${z_bi_hallmark}"
+Tools/rbk/rbfc_FoundryCore.sh:980:# Args: vessel hallmark extract_dir has_vouch
+Tools/rbk/rbfc_FoundryCore.sh:985:  local -r z_hallmark="$2"
+Tools/rbk/rbfc_FoundryCore.sh:991:  echo "  HALLMARK PLUMB: ${z_vessel} / ${z_hallmark}"
+Tools/rbk/rbfc_FoundryCore.sh:1003:# Args: vessel hallmark extract_dir has_vouch
+Tools/rbk/rbfc_FoundryCore.sh:1008:  local -r z_hallmark="$2"
+Tools/rbk/rbfc_FoundryCore.sh:1016:  echo "  HALLMARK PLUMB (FULL): ${z_vessel} / ${z_hallmark}"
+Tools/rbk/rbfc_FoundryCore.sh:1084:  local z_hallmark="${2:-}"
+Tools/rbk/rbfc_FoundryCore.sh:1086:  buc_doc_brief "Plumb a hallmark's trust posture (full detail)"
+Tools/rbk/rbfc_FoundryCore.sh:1088:  buc_doc_param "hallmark" "Full hallmark (e.g., c260305133650-r260305160530)"
+Tools/rbk/rbfc_FoundryCore.sh:1091:  zrbfc_plumb_core "${z_vessel}" "${z_hallmark}" "full"
+Tools/rbk/rbfc_FoundryCore.sh:1098:  local z_hallmark="${2:-}"
+Tools/rbk/rbfc_FoundryCore.sh:1100:  buc_doc_brief "Plumb a hallmark's trust posture (compact summary)"
+Tools/rbk/rbfc_FoundryCore.sh:1102:  buc_doc_param "hallmark" "Full hallmark (e.g., c260305133650-r260305160530)"
+Tools/rbk/rbfc_FoundryCore.sh:1105:  zrbfc_plumb_core "${z_vessel}" "${z_hallmark}" "compact"
+Tools/rbk/rbgjm/rbgjm01-mirror-image.sh:5:#                _RBGA_HALLMARK, _RBGA_BIND_SOURCE, _RBGA_ARK_SUFFIX_IMAGE
+Tools/rbk/rbgjm/rbgjm01-mirror-image.sh:16:test -n "${_RBGA_HALLMARK}"     || { echo "_RBGA_HALLMARK missing"     >&2; exit 1; }
+Tools/rbk/rbgjm/rbgjm01-mirror-image.sh:20:DEST_TAG="${_RBGA_HALLMARK}${_RBGA_ARK_SUFFIX_IMAGE}"
+Tools/rbk/rbgjb/rbgjb07-push-diags.sh:9:# and pushes as hallmark-diags. The about pipeline (rbgja01) pulls this
+Tools/rbk/rbgjb/rbgjb07-push-diags.sh:31:test -s .hallmark || (echo "hallmark not derived" >&2; exit 1)
+Tools/rbk/rbgjb/rbgjb07-push-diags.sh:32:HALLMARK="$(cat .hallmark)"
+Tools/rbk/rbgjb/rbgjb07-push-diags.sh:34:DIAGS_URI="${_RBGY_GAR_LOCATION}${_RBGY_GAR_HOST_SUFFIX}/${_RBGY_GAR_PROJECT}/${_RBGY_GAR_REPOSITORY}/${_RBGY_MONIKER}:${HALLMARK}${_RBGY_ARK_SUFFIX_DIAGS}"
+Tools/rbk/rbgjv/rbgjv03-assemble-push-vouch.sh:6:#                _RBGV_HALLMARK, _RBGV_ARK_SUFFIX_VOUCH
+Tools/rbk/rbgjv/rbgjv03-assemble-push-vouch.sh:25:VOUCH_TAG="${_RBGV_GAR_HOST}/${_RBGV_GAR_PATH}/${_RBGV_VESSEL}:${_RBGV_HALLMARK}${_RBGV_ARK_SUFFIX_VOUCH}"
+Tools/rbk/rbgjb/rbgjb05-push-per-platform.sh:20:test -s .hallmark || (echo "hallmark not derived" >&2; exit 1)
+Tools/rbk/rbgjb/rbgjb05-push-per-platform.sh:21:HALLMARK="$(cat .hallmark)"
+Tools/rbk/rbgjb/rbgjb05-push-per-platform.sh:29:  PER_PLAT_TAG="${HALLMARK}${_RBGY_ARK_SUFFIX_IMAGE}${SUFFIX}"
+Tools/rbk/rbgjb/rbgjb04-per-platform-pullback.sh:10:# then docker tag to the per-platform hallmark tag and the inscribe-time
+Tools/rbk/rbgjb/rbgjb04-per-platform-pullback.sh:24:test -s .hallmark || (echo "hallmark not derived" >&2; exit 1)
+Tools/rbk/rbgjb/rbgjb04-per-platform-pullback.sh:25:HALLMARK="$(cat .hallmark)"
+Tools/rbk/rbgjb/rbgjb04-per-platform-pullback.sh:43:  PER_PLAT_TAG="${HALLMARK}${_RBGY_ARK_SUFFIX_IMAGE}${SUFFIX}"
+Tools/rbk/rbgjb/rbgjb01-derive-tag-base.sh:2:# RBGJB Step 01: Derive hallmark from inscribe + build timestamps
+Tools/rbk/rbgjb/rbgjb01-derive-tag-base.sh:15:HALLMARK="${_RBGY_INSCRIBE_TIMESTAMP}-r$(date -u +%y%m%d%H%M%S)"
+Tools/rbk/rbgjb/rbgjb01-derive-tag-base.sh:16:test -n "${HALLMARK}" || { echo "HALLMARK empty" >&2; exit 1; }
+Tools/rbk/rbgjb/rbgjb01-derive-tag-base.sh:17:echo "${HALLMARK}" > .hallmark
+Tools/rbk/rbgjb/rbgjb01-derive-tag-base.sh:19:# Expose hallmark via Cloud Build step output mechanism
+Tools/rbk/rbgjb/rbgjb01-derive-tag-base.sh:21:echo -n "${HALLMARK}" > /builder/outputs/output
+Tools/rbk/rbgjb/rbgjb06-imagetools-create.sh:24:test -s .hallmark || (echo "hallmark not derived" >&2; exit 1)
+Tools/rbk/rbgjb/rbgjb06-imagetools-create.sh:25:HALLMARK="$(cat .hallmark)"
+Tools/rbk/rbgjb/rbgjb06-imagetools-create.sh:28:CONSUMER_TAG="${HALLMARK}${_RBGY_ARK_SUFFIX_IMAGE}"
+Tools/rbk/rbgjb/rbgjb06-imagetools-create.sh:35:  PER_PLAT_TAG="${HALLMARK}${_RBGY_ARK_SUFFIX_IMAGE}${SUFFIX}"

@@ -1,0 +1,4807 @@
+log files:   ../logs-buk/last.txt ../logs-buk/same-buw-jpS-sh.txt ../logs-buk/hist-buw-jpS-sh-20260511-064015-19676-11.txt
+transcript:  /Users/bhyslop/projects/rbm_alpha_recipemuster/../temp-buk/temp-20260511-064015-19676-11/transcript.txt
+output dir:  /Users/bhyslop/projects/rbm_alpha_recipemuster/../output-buk/current
+[90mbujb_privileged_ssh_command[0m [1;37mPrivileged SSH: bhyslop@rocket (bujn-winpc)[0m
+
+
+TimeCreated : 5/11/2026 6:39:48 AM
+Message     : 
+
+TimeCreated : 5/11/2026 6:39:48 AM
+Message     : sshd: debug2: channel 0: read failed rfd 12 maxlen 32768: Broken pipe
+
+TimeCreated : 5/11/2026 6:39:48 AM
+Message     : sshd: debug2: channel 0: read failed
+
+TimeCreated : 5/11/2026 6:39:48 AM
+Message     : sshd: debug2: chan_shutdown_read: channel 0: (i0 o3 sock -1 wfd 12 efd 14 [read])
+
+TimeCreated : 5/11/2026 6:39:48 AM
+Message     : sshd: debug2: channel 0: input open -> drain
+
+TimeCreated : 5/11/2026 6:39:48 AM
+Message     : sshd: debug2: channel 0: read 0 from efd 14
+
+TimeCreated : 5/11/2026 6:39:48 AM
+Message     : sshd: debug2: channel 0: closing read-efd 14
+
+TimeCreated : 5/11/2026 6:39:48 AM
+Message     : sshd: debug2: channel 0: ibuf empty
+
+TimeCreated : 5/11/2026 6:39:48 AM
+Message     : sshd: debug2: channel 0: send eof
+
+TimeCreated : 5/11/2026 6:39:48 AM
+Message     : sshd: debug3: send packet: type 96
+
+TimeCreated : 5/11/2026 6:39:48 AM
+Message     : sshd: debug2: channel 0: input drain -> closed
+
+TimeCreated : 5/11/2026 6:39:48 AM
+Message     : sshd: debug2: pselect_notify_done: reading
+
+TimeCreated : 5/11/2026 6:39:48 AM
+Message     : sshd: debug1: Received SIGCHLD.
+
+TimeCreated : 5/11/2026 6:39:48 AM
+Message     : sshd: debug1: session_by_pid: pid 9548
+
+TimeCreated : 5/11/2026 6:39:48 AM
+Message     : sshd: debug2: channel 0: request exit-status confirm 0
+
+TimeCreated : 5/11/2026 6:39:48 AM
+Message     : sshd: debug3: send packet: type 98
+
+TimeCreated : 5/11/2026 6:39:48 AM
+Message     : sshd: debug1: session_exit_message: session 0 channel 0 pid 9548 exit 0
+
+TimeCreated : 5/11/2026 6:39:48 AM
+Message     : sshd: debug1: session_exit_message: release channel 0
+
+TimeCreated : 5/11/2026 6:39:48 AM
+Message     : sshd: debug2: channel 0: send close
+
+TimeCreated : 5/11/2026 6:39:48 AM
+Message     : sshd: debug3: send packet: type 97
+
+TimeCreated : 5/11/2026 6:39:48 AM
+Message     : sshd: debug3: channel 0: will not send data after close
+
+TimeCreated : 5/11/2026 6:39:48 AM
+Message     : sshd: debug3: receive packet: type 97
+
+TimeCreated : 5/11/2026 6:39:48 AM
+Message     : sshd: debug2: channel 0: rcvd close
+
+TimeCreated : 5/11/2026 6:39:48 AM
+Message     : sshd: debug3: channel 0: will not send data after close
+
+TimeCreated : 5/11/2026 6:39:48 AM
+Message     : sshd: debug2: channel 0: is dead
+
+TimeCreated : 5/11/2026 6:39:48 AM
+Message     : sshd: debug2: channel 0: gc: notify user
+
+TimeCreated : 5/11/2026 6:39:48 AM
+Message     : sshd: debug1: session_by_channel: session 0 channel 0
+
+TimeCreated : 5/11/2026 6:39:48 AM
+Message     : sshd: debug1: session_close_by_channel: channel 0 child 0
+
+TimeCreated : 5/11/2026 6:39:48 AM
+Message     : sshd: debug3: session_unused: session id 0 unused
+
+TimeCreated : 5/11/2026 6:39:48 AM
+Message     : sshd: debug2: channel 0: gc: user detached
+
+TimeCreated : 5/11/2026 6:39:48 AM
+Message     : sshd: debug2: channel 0: is dead
+
+TimeCreated : 5/11/2026 6:39:48 AM
+Message     : sshd: debug2: channel 0: garbage collecting
+
+TimeCreated : 5/11/2026 6:39:48 AM
+Message     : sshd: debug1: channel 0: free: server-session, nchannels 1
+
+TimeCreated : 5/11/2026 6:39:48 AM
+Message     : sshd: debug3: channel 0: status: The following connections are open:\\r\\n  #0 server-session (t4 
+              [session:command] r0 i3/0 o3/0 e[closed]/0 fd -1/-1/-1 sock -1 cc -1 io 0x00/0x00)\\r\\n
+
+TimeCreated : 5/11/2026 6:39:48 AM
+Message     : sshd: debug3: receive packet: type 1
+
+TimeCreated : 5/11/2026 6:39:48 AM
+Message     : sshd: debug1: do_cleanup
+
+TimeCreated : 5/11/2026 6:39:48 AM
+Message     : sshd: debug3: mm_request_receive: entering
+
+TimeCreated : 5/11/2026 6:39:48 AM
+Message     : sshd: debug1: do_cleanup
+
+TimeCreated : 5/11/2026 6:39:48 AM
+Message     : sshd: debug2: pselect_notify_done: reading
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: fd 6 is not O_NONBLOCK
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: spawning "C:\\WINDOWS\\System32\\OpenSSH\\sshd.exe" -R as subprocess
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: send_rexec_state: entering fd = 10 config len 2217
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: ssh_msg_send: type 0
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: send_rexec_state: done
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug1: inetd sockets after dupping: 4, 4
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: process_channel_timeouts: setting 0 timeouts
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: channel_clear_timeouts: clearing
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug1: Local version string SSH-2.0-OpenSSH_for_Windows_9.5
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug1: Remote protocol version 2.0, remote software version OpenSSH_10.0
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug1: compat_banner: match: OpenSSH_10.0 pat OpenSSH* compat 0x04000000
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug2: fd 4 setting O_NONBLOCK
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: spawning "C:\\WINDOWS\\System32\\OpenSSH\\sshd.exe" -y as user
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug2: Network child is on pid 11352
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: send_rexec_state: entering fd = 6 config len 2217
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: ssh_msg_send: type 0
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: send_rexec_state: done
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: ssh_msg_send: type 0
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: ssh_msg_send: type 0
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: preauth child monitor started
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: process_channel_timeouts: setting 0 timeouts
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: channel_clear_timeouts: clearing
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: recv_idexch_state: entering fd = 3
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: ssh_msg_recv entering
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: recv_idexch_state: done
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug2: fd 5 setting O_NONBLOCK
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: append_hostkey_type: ssh-rsa key not permitted by HostkeyAlgorithms [preauth]
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug1: list_hostkey_types: rsa-sha2-512,rsa-sha2-256,ecdsa-sha2-nistp256,ssh-ed25519 [preauth]
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: send packet: type 20 [preauth]
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug1: SSH2_MSG_KEXINIT sent [preauth]
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: receive packet: type 20 [preauth]
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug1: SSH2_MSG_KEXINIT received [preauth]
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug2: local server KEXINIT proposal [preauth]
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug2: KEX algorithms: curve25519-sha256,curve25519-sha256@libssh.org,ecdh-sha2-nistp256,ecdh-sha2
+              -nistp384,ecdh-sha2-nistp521,diffie-hellman-group-exchange-sha256,diffie-hellman-group16-sha512,diffie-he
+              llman-group18-sha512,diffie-hellman-group14-sha256,kex-strict-s-v00@openssh.com [preauth]
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug2: host key algorithms: rsa-sha2-512,rsa-sha2-256,ecdsa-sha2-nistp256,ssh-ed25519 [preauth]
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug2: ciphers ctos: chacha20-poly1305@openssh.com,aes128-ctr,aes192-ctr,aes256-ctr,aes128-gcm@ope
+              nssh.com,aes256-gcm@openssh.com [preauth]
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug2: ciphers stoc: chacha20-poly1305@openssh.com,aes128-ctr,aes192-ctr,aes256-ctr,aes128-gcm@ope
+              nssh.com,aes256-gcm@openssh.com [preauth]
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug2: MACs ctos: umac-64-etm@openssh.com,umac-128-etm@openssh.com,hmac-sha2-256-etm@openssh.com,h
+              mac-sha2-512-etm@openssh.com,umac-64@openssh.com,umac-128@openssh.com,hmac-sha2-256,hmac-sha2-512 
+              [preauth]
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug2: MACs stoc: umac-64-etm@openssh.com,umac-128-etm@openssh.com,hmac-sha2-256-etm@openssh.com,h
+              mac-sha2-512-etm@openssh.com,umac-64@openssh.com,umac-128@openssh.com,hmac-sha2-256,hmac-sha2-512 
+              [preauth]
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug2: compression ctos: none,zlib@openssh.com [preauth]
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug2: compression stoc: none,zlib@openssh.com [preauth]
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug2: languages ctos:  [preauth]
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug2: languages stoc:  [preauth]
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug2: first_kex_follows 0  [preauth]
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug2: reserved 0  [preauth]
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug2: peer client KEXINIT proposal [preauth]
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug2: KEX algorithms: ecdh-sha2-nistp256,mlkem768x25519-sha256,sntrup761x25519-sha512,sntrup761x2
+              5519-sha512@openssh.com,curve25519-sha256,curve25519-sha256@libssh.org,ecdh-sha2-nistp384,ecdh-sha2-nistp
+              521,diffie-hellman-group-exchange-sha256,diffie-hellman-group16-sha512,diffie-hellman-group18-sha512,diff
+              ie-hellman-group14-sha256,ext-info-c,kex-strict-c-v00@openssh.com [preauth]
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug2: host key algorithms: ssh-ed25519-cert-v01@openssh.com,ecdsa-sha2-nistp256-cert-v01@openssh.
+              com,ecdsa-sha2-nistp384-cert-v01@openssh.com,ecdsa-sha2-nistp521-cert-v01@openssh.com,sk-ssh-ed25519-cert
+              -v01@openssh.com,sk-ecdsa-sha2-nistp256-cert-v01@openssh.com,rsa-sha2-512-cert-v01@openssh.com,rsa-sha2-2
+              56-cert-v01@openssh.com,ssh-ed25519,ecdsa-sha2-nistp256,ecdsa-sha2-nistp384,ecdsa-sha2-nistp521,sk-ssh-ed
+              25519@openssh.com,sk-ecdsa-sha2-nistp256@openssh.com,rsa-sha2-512,rsa-sha2-256 [preauth]
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug2: ciphers ctos: aes128-gcm@openssh.com,aes256-gcm@openssh.com,chacha20-poly1305@openssh.com,a
+              es128-ctr,aes192-ctr,aes256-ctr [preauth]
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug2: ciphers stoc: aes128-gcm@openssh.com,aes256-gcm@openssh.com,chacha20-poly1305@openssh.com,a
+              es128-ctr,aes192-ctr,aes256-ctr [preauth]
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug2: MACs ctos: hmac-sha2-256-etm@openssh.com,hmac-sha2-256,umac-64-etm@openssh.com,umac-128-etm
+              @openssh.com,hmac-sha2-512-etm@openssh.com,hmac-sha1-etm@openssh.com,umac-64@openssh.com,umac-128@openssh
+              .com,hmac-sha2-512,hmac-sha1 [preauth]
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug2: MACs stoc: hmac-sha2-256-etm@openssh.com,hmac-sha2-256,umac-64-etm@openssh.com,umac-128-etm
+              @openssh.com,hmac-sha2-512-etm@openssh.com,hmac-sha1-etm@openssh.com,umac-64@openssh.com,umac-128@openssh
+              .com,hmac-sha2-512,hmac-sha1 [preauth]
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug2: compression ctos: none,zlib@openssh.com [preauth]
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug2: compression stoc: none,zlib@openssh.com [preauth]
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug2: languages ctos:  [preauth]
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug2: languages stoc:  [preauth]
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug2: first_kex_follows 0  [preauth]
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug2: reserved 0  [preauth]
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: kex_choose_conf: will use strict KEX ordering [preauth]
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug1: kex: algorithm: ecdh-sha2-nistp256 [preauth]
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug1: kex: host key algorithm: ssh-ed25519 [preauth]
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug1: kex: client->server cipher: aes128-gcm@openssh.com MAC: <implicit> compression: none 
+              [preauth]
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug1: kex: server->client cipher: aes128-gcm@openssh.com MAC: <implicit> compression: none 
+              [preauth]
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug1: expecting SSH2_MSG_KEX_ECDH_INIT [preauth]
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: receive packet: type 30 [preauth]
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug1: SSH2_MSG_KEX_ECDH_INIT received [preauth]
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: mm_sshkey_sign: entering [preauth]
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: mm_request_send: entering, type 6 [preauth]
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: mm_sshkey_sign: waiting for MONITOR_ANS_SIGN [preauth]
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: mm_request_receive_expect: entering, type 7 [preauth]
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: mm_request_receive: entering [preauth]
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: mm_request_receive: entering
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: monitor_read: checking request 6
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: mm_answer_sign: entering
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: mm_answer_sign: ssh-ed25519 KEX signature len=83
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: mm_request_send: entering, type 7
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug2: monitor_read: 6 used once, disabling now
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: send packet: type 31 [preauth]
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: send packet: type 21 [preauth]
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug1: ssh_packet_send2_wrapped: resetting send seqnr 3 [preauth]
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug2: ssh_set_newkeys: mode 1 [preauth]
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug1: rekey out after 4294967296 blocks [preauth]
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug1: SSH2_MSG_NEWKEYS sent [preauth]
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug1: Sending SSH2_MSG_EXT_INFO [preauth]
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: send packet: type 7 [preauth]
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug1: expecting SSH2_MSG_NEWKEYS [preauth]
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: receive packet: type 21 [preauth]
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug1: ssh_packet_read_poll2: resetting read seqnr 3 [preauth]
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug1: SSH2_MSG_NEWKEYS received [preauth]
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug2: ssh_set_newkeys: mode 0 [preauth]
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug1: rekey in after 4294967296 blocks [preauth]
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug1: KEX done [preauth]
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: receive packet: type 5 [preauth]
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: send packet: type 6 [preauth]
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: receive packet: type 50 [preauth]
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug1: userauth-request for user bhyslop service ssh-connection method none [preauth]
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug1: attempt 0 failures 0 [preauth]
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: mm_getpwnamallow: entering [preauth]
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: mm_request_send: entering, type 8 [preauth]
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: mm_getpwnamallow: waiting for MONITOR_ANS_PWNAM [preauth]
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: mm_request_receive_expect: entering, type 9 [preauth]
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: mm_request_receive: entering [preauth]
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: mm_request_receive: entering
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: monitor_read: checking request 8
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: mm_answer_pwnamallow: entering
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug2: parse_server_config_depth: config reprocess config len 2217
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: checking match for 'Group administrators' user bhyslop host 100.100.223.55 addr 
+              100.100.223.55 laddr 100.112.50.29 lport 22
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: LsaLogonUser Succeeded (Impersonation: 0)
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug1: user bhyslop matched group list administrators at line 88
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: match found
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: reprocess config:89 setting AuthorizedKeysFile 
+              __PROGRAMDATA__/ssh/administrators_authorized_keys
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: mm_answer_pwnamallow: sending MONITOR_ANS_PWNAM: 1
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: mm_request_send: entering, type 9
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug2: monitor_read: 8 used once, disabling now
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: process_channel_timeouts: setting 0 timeouts [preauth]
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: channel_clear_timeouts: clearing [preauth]
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug2: input_userauth_request: setting up authctxt for bhyslop [preauth]
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: mm_inform_authserv: entering [preauth]
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: mm_request_send: entering, type 4 [preauth]
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug2: input_userauth_request: try method none [preauth]
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: userauth_finish: failure partial=0 next methods="publickey,keyboard-interactive" [preauth]
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: mm_request_receive: entering
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: monitor_read: checking request 4
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: mm_answer_authserv: service=ssh-connection, style=
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug2: monitor_read: 4 used once, disabling now
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: send packet: type 51 [preauth]
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: receive packet: type 50 [preauth]
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug1: userauth-request for user bhyslop service ssh-connection method publickey [preauth]
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug1: attempt 1 failures 0 [preauth]
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug2: input_userauth_request: try method publickey [preauth]
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug2: userauth_pubkey: valid user bhyslop querying public key ssh-ed25519 
+              AAAAC3NzaC1lZDI1NTE5AAAAINqo5TftE69ZojgSucBTbNJujahF0yCkxbKxJ6AR9aZJ [preauth]
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug1: userauth_pubkey: publickey test pkalg ssh-ed25519 pkblob ED25519 
+              SHA256:AEvGDYbtBM6yaMAm3hsPKunDlXj+tEjxJzX2RZyy50w [preauth]
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: mm_key_allowed: entering [preauth]
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: mm_request_send: entering, type 22 [preauth]
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: mm_key_allowed: waiting for MONITOR_ANS_KEYALLOWED [preauth]
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: mm_request_receive_expect: entering, type 23 [preauth]
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: mm_request_receive: entering [preauth]
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: mm_request_receive: entering
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: monitor_read: checking request 22
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: mm_answer_keyallowed: entering
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug1: trying public key file __PROGRAMDATA__/ssh/administrators_authorized_keys
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug1: __PROGRAMDATA__/ssh/administrators_authorized_keys:1: matching key found: ED25519 
+              SHA256:AEvGDYbtBM6yaMAm3hsPKunDlXj+tEjxJzX2RZyy50w
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug1: __PROGRAMDATA__/ssh/administrators_authorized_keys:1: key options: agent-forwarding 
+              port-forwarding pty user-rc x11-forwarding
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: __PROGRAMDATA__/ssh/administrators_authorized_keys:1: key options: agent-forwarding 
+              port-forwarding pty user-rc x11-forwarding
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug2: auth_check_authkeys_file: __PROGRAMDATA__/ssh/administrators_authorized_keys: processed 
+              1/1 lines
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: mm_answer_keyallowed: publickey authentication test: ED25519 key is allowed
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: mm_request_send: entering, type 23
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: send packet: type 60 [preauth]
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug2: userauth_pubkey: authenticated 0 pkalg ssh-ed25519 [preauth]
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: user_specific_delay: user specific delay 0.000ms [preauth]
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: ensure_minimum_time_since: elapsed 1.000ms, delaying 7.231ms (requested 8.231ms) [preauth]
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: receive packet: type 50 [preauth]
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug1: userauth-request for user bhyslop service ssh-connection method 
+              publickey-hostbound-v00@openssh.com [preauth]
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug1: attempt 2 failures 0 [preauth]
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug2: input_userauth_request: try method publickey-hostbound-v00@openssh.com [preauth]
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug2: userauth_pubkey: valid user bhyslop attempting public key ssh-ed25519 
+              AAAAC3NzaC1lZDI1NTE5AAAAINqo5TftE69ZojgSucBTbNJujahF0yCkxbKxJ6AR9aZJ [preauth]
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: userauth_pubkey: publickey-hostbound-v00@openssh.com have ssh-ed25519 signature for 
+              ED25519 SHA256:AEvGDYbtBM6yaMAm3hsPKunDlXj+tEjxJzX2RZyy50w [preauth]
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: mm_key_allowed: entering [preauth]
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: mm_request_send: entering, type 22 [preauth]
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: mm_key_allowed: waiting for MONITOR_ANS_KEYALLOWED [preauth]
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: mm_request_receive_expect: entering, type 23 [preauth]
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: mm_request_receive: entering [preauth]
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: mm_request_receive: entering
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: monitor_read: checking request 22
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: mm_answer_keyallowed: entering
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug1: trying public key file __PROGRAMDATA__/ssh/administrators_authorized_keys
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug1: __PROGRAMDATA__/ssh/administrators_authorized_keys:1: matching key found: ED25519 
+              SHA256:AEvGDYbtBM6yaMAm3hsPKunDlXj+tEjxJzX2RZyy50w
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug1: __PROGRAMDATA__/ssh/administrators_authorized_keys:1: key options: agent-forwarding 
+              port-forwarding pty user-rc x11-forwarding
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: __PROGRAMDATA__/ssh/administrators_authorized_keys:1: key options: agent-forwarding 
+              port-forwarding pty user-rc x11-forwarding
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug2: auth_check_authkeys_file: __PROGRAMDATA__/ssh/administrators_authorized_keys: processed 
+              1/1 lines
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: mm_answer_keyallowed: publickey authentication: ED25519 key is allowed
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: mm_request_send: entering, type 23
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: mm_sshkey_verify: entering [preauth]
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: mm_request_send: entering, type 24 [preauth]
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: mm_sshkey_verify: waiting for MONITOR_ANS_KEYVERIFY [preauth]
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: mm_request_receive_expect: entering, type 25 [preauth]
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: mm_request_receive: entering [preauth]
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: mm_request_receive: entering
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: monitor_read: checking request 24
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: mm_answer_keyverify: publickey ED25519 signature using ssh-ed25519 verified
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug1: auth_activate_options: setting new authentication options
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: mm_request_send: entering, type 25
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug1: monitor_child_preauth: user bhyslop authenticated by privileged process
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: mm_get_keystate: Waiting for new keys
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: mm_request_receive_expect: entering, type 26
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: mm_request_receive: entering
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: mm_get_keystate: GOT new keys
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug1: auth_activate_options: setting new authentication options [preauth]
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug2: userauth_pubkey: authenticated 1 pkalg ssh-ed25519 [preauth]
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: user_specific_delay: user specific delay 0.000ms [preauth]
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: ensure_minimum_time_since: elapsed 2.000ms, delaying 6.231ms (requested 8.231ms) [preauth]
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: send packet: type 52 [preauth]
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: mm_request_send: entering, type 26 [preauth]
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: mm_send_keystate: Finished sending state [preauth]
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug1: monitor_read_log: child log fd closed
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: LsaLogonUser Succeeded (Impersonation: 1)
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: spawning "C:\\WINDOWS\\System32\\OpenSSH\\sshd.exe" -z as user
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: send_rexec_state: entering fd = 5 config len 2217
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: ssh_msg_send: type 0
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: send_rexec_state: done
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: ssh_msg_send: type 0
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: ssh_msg_send: type 0
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: ssh_msg_send: type 0
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: ssh_msg_send: type 0
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: ssh_msg_send: type 0
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: process_channel_timeouts: setting 0 timeouts
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: channel_clear_timeouts: clearing
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: recv_idexch_state: entering fd = 3
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: ssh_msg_recv entering
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: recv_idexch_state: done
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug2: fd 5 setting O_NONBLOCK
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: recv_autxctx_state: entering fd = 3
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: ssh_msg_recv entering
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: recv_autxctx_state: done
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug2: parse_server_config_depth: config reprocess config len 2217
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: checking match for 'Group administrators' user bhyslop host 100.100.223.55 addr 
+              100.100.223.55 laddr 100.112.50.29 lport 22
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: get_user_token - i am running as bhyslop, returning process token
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug1: user bhyslop matched group list administrators at line 88
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: match found
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: reprocess config:89 setting AuthorizedKeysFile 
+              __PROGRAMDATA__/ssh/administrators_authorized_keys
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: monitor_recv_keystate: entering 
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: ssh_msg_recv entering
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: monitor_recv_keystate: done
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: monitor_apply_keystate: packet_set_state
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug2: ssh_set_newkeys: mode 0
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug1: rekey in after 4294967296 blocks
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug2: ssh_set_newkeys: mode 1
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug1: rekey out after 4294967296 blocks
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug1: ssh_packet_set_postauth: called
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: ssh_packet_set_state: done
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: monitor_recv_authopt: entering 
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: ssh_msg_recv entering
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: monitor_recv_authopt: done
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: notify_hostkeys: key 0: ssh-rsa SHA256:pMIycYrhgNfUsONaF9GlDXTvSirFAm2GXSfrQBxTh1Y
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: notify_hostkeys: key 1: ecdsa-sha2-nistp256 
+              SHA256:gyZUiNhyB2WJYxOFJ9TGIZhysMsn4CZva/yuWWp5KRE
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: notify_hostkeys: key 2: ssh-ed25519 SHA256:/rWRtcgqvO+OrzdxY++wZnp3mjs8QSmpB/4qSKfQN+w
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: notify_hostkeys: sent 3 hostkeys
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: send packet: type 80
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug1: active: key options: agent-forwarding port-forwarding pty user-rc x11-forwarding
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug1: Entering interactive session for SSH2.
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug1: server_init_dispatch
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: pselect: installing signal handler for 3, previous 00007FF687A9F110
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: pselect_notify_setup: initializing
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug2: fd 10 setting O_NONBLOCK
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug2: fd 8 setting O_NONBLOCK
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: pselect_notify_setup: pid 18824 saved 18824 pipe0 10 pipe1 8
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: receive packet: type 90
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug1: server_input_channel_open: ctype session rchan 0 win 2097152 max 32768
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug1: input_session_request
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug1: channel 0: new session [server-session] (inactive timeout: 0)
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug2: session_new: allocate (allocated 0 max 10)
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: session_unused: session id 0 unused
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug1: session_new: session 0
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug1: session_open: channel 0
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug1: session_open: session 0: link with channel 0
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug1: server_input_channel_open: confirm session
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: send packet: type 91
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: receive packet: type 80
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug1: server_input_global_request: rtype no-more-sessions@openssh.com want_reply 0
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: receive packet: type 98
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug1: server_input_channel_req: channel 0 request env reply 0
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug1: session_by_channel: session 0 channel 0
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug1: session_input_channel_req: session 0 req env
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug2: Ignoring env request LANG: disallowed name
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: receive packet: type 98
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug1: server_input_channel_req: channel 0 request env reply 0
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug1: session_by_channel: session 0 channel 0
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug1: session_input_channel_req: session 0 req env
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug2: Ignoring env request LC_TERMINAL_VERSION: disallowed name
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: receive packet: type 98
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug1: server_input_channel_req: channel 0 request env reply 0
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug1: session_by_channel: session 0 channel 0
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug1: session_input_channel_req: session 0 req env
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug2: Ignoring env request LC_TERMINAL: disallowed name
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: receive packet: type 98
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug1: server_input_channel_req: channel 0 request exec reply 1
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug1: session_by_channel: session 0 channel 0
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug1: session_input_channel_req: session 0 req exec
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug2: channel_set_xtype: labeled channel 0 as session:command (inactive timeout 0)
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug2: fd 9 setting O_NONBLOCK
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug2: fd 11 setting O_NONBLOCK
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug2: fd 12 setting O_NONBLOCK
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug2: fd 13 setting O_NONBLOCK
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug2: fd 14 setting O_NONBLOCK
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug2: fd 15 setting O_NONBLOCK
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: shell: "c:\\\\windows\\\\system32\\\\cmd.exe"
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: shell_option: /c
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: exec_command: powershell -NoProfile -Command "Get-WinEvent -ListLog OpenSSH/Debug | 
+              Format-List LogName,IsEnabled,LogMode,RecordCount"
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: arg escape option: TRUE
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: spawn_argv[0]: "c:\\\\windows\\\\system32\\\\cmd.exe" /c "powershell -NoProfile -Command 
+              "Get-WinEvent -ListLog OpenSSH/Debug | Format-List LogName,IsEnabled,LogMode,RecordCount""
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: spawning "c:\\\\windows\\\\system32\\\\cmd.exe" /c "powershell -NoProfile -Command 
+              "Get-WinEvent -ListLog OpenSSH/Debug | Format-List LogName,IsEnabled,LogMode,RecordCount"" as subprocess
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug2: fd 5 setting TCP_NODELAY
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: fd 12 is O_NONBLOCK
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: fd 11 is O_NONBLOCK
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: fd 14 is O_NONBLOCK
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: send packet: type 99
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug3: receive packet: type 96
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug2: channel 0: rcvd eof
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug2: channel 0: output open -> drain
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug2: channel 0: obuf empty
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug2: chan_shutdown_write: channel 0: (i0 o1 sock -1 wfd 11 efd 14 [read])
+
+TimeCreated : 5/11/2026 6:39:53 AM
+Message     : sshd: debug2: channel 0: output drain -> closed
+
+TimeCreated : 5/11/2026 6:39:54 AM
+Message     : sshd: debug2: channel 0: read failed rfd 12 maxlen 32768: Broken pipe
+
+TimeCreated : 5/11/2026 6:39:54 AM
+Message     : sshd: debug2: channel 0: read failed
+
+TimeCreated : 5/11/2026 6:39:54 AM
+Message     : sshd: debug2: chan_shutdown_read: channel 0: (i0 o3 sock -1 wfd 12 efd 14 [read])
+
+TimeCreated : 5/11/2026 6:39:54 AM
+Message     : sshd: debug2: channel 0: input open -> drain
+
+TimeCreated : 5/11/2026 6:39:54 AM
+Message     : sshd: debug2: channel 0: read 0 from efd 14
+
+TimeCreated : 5/11/2026 6:39:54 AM
+Message     : sshd: debug2: channel 0: closing read-efd 14
+
+TimeCreated : 5/11/2026 6:39:54 AM
+Message     : sshd: debug2: channel 0: ibuf empty
+
+TimeCreated : 5/11/2026 6:39:54 AM
+Message     : sshd: debug2: channel 0: send eof
+
+TimeCreated : 5/11/2026 6:39:54 AM
+Message     : sshd: debug3: send packet: type 96
+
+TimeCreated : 5/11/2026 6:39:54 AM
+Message     : sshd: debug2: channel 0: input drain -> closed
+
+TimeCreated : 5/11/2026 6:39:54 AM
+Message     : sshd: debug2: pselect_notify_done: reading
+
+TimeCreated : 5/11/2026 6:39:54 AM
+Message     : sshd: debug1: Received SIGCHLD.
+
+TimeCreated : 5/11/2026 6:39:54 AM
+Message     : sshd: debug1: session_by_pid: pid 7144
+
+TimeCreated : 5/11/2026 6:39:54 AM
+Message     : sshd: debug2: channel 0: request exit-status confirm 0
+
+TimeCreated : 5/11/2026 6:39:54 AM
+Message     : sshd: debug3: send packet: type 98
+
+TimeCreated : 5/11/2026 6:39:54 AM
+Message     : sshd: debug1: session_exit_message: session 0 channel 0 pid 7144 exit 0
+
+TimeCreated : 5/11/2026 6:39:54 AM
+Message     : sshd: debug1: session_exit_message: release channel 0
+
+TimeCreated : 5/11/2026 6:39:54 AM
+Message     : sshd: debug2: channel 0: send close
+
+TimeCreated : 5/11/2026 6:39:54 AM
+Message     : sshd: debug3: send packet: type 97
+
+TimeCreated : 5/11/2026 6:39:54 AM
+Message     : sshd: debug3: channel 0: will not send data after close
+
+TimeCreated : 5/11/2026 6:39:54 AM
+Message     : sshd: debug3: receive packet: type 97
+
+TimeCreated : 5/11/2026 6:39:54 AM
+Message     : sshd: debug2: channel 0: rcvd close
+
+TimeCreated : 5/11/2026 6:39:54 AM
+Message     : sshd: debug3: channel 0: will not send data after close
+
+TimeCreated : 5/11/2026 6:39:54 AM
+Message     : sshd: debug2: channel 0: is dead
+
+TimeCreated : 5/11/2026 6:39:54 AM
+Message     : sshd: debug2: channel 0: gc: notify user
+
+TimeCreated : 5/11/2026 6:39:54 AM
+Message     : sshd: debug1: session_by_channel: session 0 channel 0
+
+TimeCreated : 5/11/2026 6:39:54 AM
+Message     : sshd: debug1: session_close_by_channel: channel 0 child 0
+
+TimeCreated : 5/11/2026 6:39:54 AM
+Message     : sshd: debug3: session_unused: session id 0 unused
+
+TimeCreated : 5/11/2026 6:39:54 AM
+Message     : sshd: debug2: channel 0: gc: user detached
+
+TimeCreated : 5/11/2026 6:39:54 AM
+Message     : sshd: debug2: channel 0: is dead
+
+TimeCreated : 5/11/2026 6:39:54 AM
+Message     : sshd: debug2: channel 0: garbage collecting
+
+TimeCreated : 5/11/2026 6:39:54 AM
+Message     : sshd: debug1: channel 0: free: server-session, nchannels 1
+
+TimeCreated : 5/11/2026 6:39:54 AM
+Message     : sshd: debug3: channel 0: status: The following connections are open:\\r\\n  #0 server-session (t4 
+              [session:command] r0 i3/0 o3/0 e[closed]/0 fd -1/-1/-1 sock -1 cc -1 io 0x00/0x00)\\r\\n
+
+TimeCreated : 5/11/2026 6:39:54 AM
+Message     : sshd: debug3: receive packet: type 1
+
+TimeCreated : 5/11/2026 6:39:54 AM
+Message     : sshd: debug1: do_cleanup
+
+TimeCreated : 5/11/2026 6:39:54 AM
+Message     : sshd: debug3: mm_request_receive: entering
+
+TimeCreated : 5/11/2026 6:39:54 AM
+Message     : sshd: debug1: do_cleanup
+
+TimeCreated : 5/11/2026 6:39:54 AM
+Message     : sshd: debug2: pselect_notify_done: reading
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: fd 6 is not O_NONBLOCK
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: spawning "C:\\WINDOWS\\System32\\OpenSSH\\sshd.exe" -R as subprocess
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: send_rexec_state: entering fd = 10 config len 2217
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: ssh_msg_send: type 0
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: send_rexec_state: done
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug1: inetd sockets after dupping: 4, 4
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: process_channel_timeouts: setting 0 timeouts
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: channel_clear_timeouts: clearing
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug1: Local version string SSH-2.0-OpenSSH_for_Windows_9.5
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug1: Remote protocol version 2.0, remote software version OpenSSH_10.0
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug1: compat_banner: match: OpenSSH_10.0 pat OpenSSH* compat 0x04000000
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug2: fd 4 setting O_NONBLOCK
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: spawning "C:\\WINDOWS\\System32\\OpenSSH\\sshd.exe" -y as user
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug2: Network child is on pid 15004
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: send_rexec_state: entering fd = 6 config len 2217
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: ssh_msg_send: type 0
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: send_rexec_state: done
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: ssh_msg_send: type 0
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: ssh_msg_send: type 0
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: preauth child monitor started
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: process_channel_timeouts: setting 0 timeouts
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: channel_clear_timeouts: clearing
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: recv_idexch_state: entering fd = 3
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: ssh_msg_recv entering
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: recv_idexch_state: done
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug2: fd 5 setting O_NONBLOCK
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: append_hostkey_type: ssh-rsa key not permitted by HostkeyAlgorithms [preauth]
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug1: list_hostkey_types: rsa-sha2-512,rsa-sha2-256,ecdsa-sha2-nistp256,ssh-ed25519 [preauth]
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: send packet: type 20 [preauth]
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug1: SSH2_MSG_KEXINIT sent [preauth]
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: receive packet: type 20 [preauth]
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug1: SSH2_MSG_KEXINIT received [preauth]
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug2: local server KEXINIT proposal [preauth]
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug2: KEX algorithms: curve25519-sha256,curve25519-sha256@libssh.org,ecdh-sha2-nistp256,ecdh-sha2
+              -nistp384,ecdh-sha2-nistp521,diffie-hellman-group-exchange-sha256,diffie-hellman-group16-sha512,diffie-he
+              llman-group18-sha512,diffie-hellman-group14-sha256,kex-strict-s-v00@openssh.com [preauth]
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug2: host key algorithms: rsa-sha2-512,rsa-sha2-256,ecdsa-sha2-nistp256,ssh-ed25519 [preauth]
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug2: ciphers ctos: chacha20-poly1305@openssh.com,aes128-ctr,aes192-ctr,aes256-ctr,aes128-gcm@ope
+              nssh.com,aes256-gcm@openssh.com [preauth]
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug2: ciphers stoc: chacha20-poly1305@openssh.com,aes128-ctr,aes192-ctr,aes256-ctr,aes128-gcm@ope
+              nssh.com,aes256-gcm@openssh.com [preauth]
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug2: MACs ctos: umac-64-etm@openssh.com,umac-128-etm@openssh.com,hmac-sha2-256-etm@openssh.com,h
+              mac-sha2-512-etm@openssh.com,umac-64@openssh.com,umac-128@openssh.com,hmac-sha2-256,hmac-sha2-512 
+              [preauth]
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug2: MACs stoc: umac-64-etm@openssh.com,umac-128-etm@openssh.com,hmac-sha2-256-etm@openssh.com,h
+              mac-sha2-512-etm@openssh.com,umac-64@openssh.com,umac-128@openssh.com,hmac-sha2-256,hmac-sha2-512 
+              [preauth]
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug2: compression ctos: none,zlib@openssh.com [preauth]
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug2: compression stoc: none,zlib@openssh.com [preauth]
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug2: languages ctos:  [preauth]
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug2: languages stoc:  [preauth]
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug2: first_kex_follows 0  [preauth]
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug2: reserved 0  [preauth]
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug2: peer client KEXINIT proposal [preauth]
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug2: KEX algorithms: ecdh-sha2-nistp256,mlkem768x25519-sha256,sntrup761x25519-sha512,sntrup761x2
+              5519-sha512@openssh.com,curve25519-sha256,curve25519-sha256@libssh.org,ecdh-sha2-nistp384,ecdh-sha2-nistp
+              521,diffie-hellman-group-exchange-sha256,diffie-hellman-group16-sha512,diffie-hellman-group18-sha512,diff
+              ie-hellman-group14-sha256,ext-info-c,kex-strict-c-v00@openssh.com [preauth]
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug2: host key algorithms: ssh-ed25519-cert-v01@openssh.com,ecdsa-sha2-nistp256-cert-v01@openssh.
+              com,ecdsa-sha2-nistp384-cert-v01@openssh.com,ecdsa-sha2-nistp521-cert-v01@openssh.com,sk-ssh-ed25519-cert
+              -v01@openssh.com,sk-ecdsa-sha2-nistp256-cert-v01@openssh.com,rsa-sha2-512-cert-v01@openssh.com,rsa-sha2-2
+              56-cert-v01@openssh.com,ssh-ed25519,ecdsa-sha2-nistp256,ecdsa-sha2-nistp384,ecdsa-sha2-nistp521,sk-ssh-ed
+              25519@openssh.com,sk-ecdsa-sha2-nistp256@openssh.com,rsa-sha2-512,rsa-sha2-256 [preauth]
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug2: ciphers ctos: aes128-gcm@openssh.com,aes256-gcm@openssh.com,chacha20-poly1305@openssh.com,a
+              es128-ctr,aes192-ctr,aes256-ctr [preauth]
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug2: ciphers stoc: aes128-gcm@openssh.com,aes256-gcm@openssh.com,chacha20-poly1305@openssh.com,a
+              es128-ctr,aes192-ctr,aes256-ctr [preauth]
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug2: MACs ctos: hmac-sha2-256-etm@openssh.com,hmac-sha2-256,umac-64-etm@openssh.com,umac-128-etm
+              @openssh.com,hmac-sha2-512-etm@openssh.com,hmac-sha1-etm@openssh.com,umac-64@openssh.com,umac-128@openssh
+              .com,hmac-sha2-512,hmac-sha1 [preauth]
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug2: MACs stoc: hmac-sha2-256-etm@openssh.com,hmac-sha2-256,umac-64-etm@openssh.com,umac-128-etm
+              @openssh.com,hmac-sha2-512-etm@openssh.com,hmac-sha1-etm@openssh.com,umac-64@openssh.com,umac-128@openssh
+              .com,hmac-sha2-512,hmac-sha1 [preauth]
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug2: compression ctos: none,zlib@openssh.com [preauth]
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug2: compression stoc: none,zlib@openssh.com [preauth]
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug2: languages ctos:  [preauth]
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug2: languages stoc:  [preauth]
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug2: first_kex_follows 0  [preauth]
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug2: reserved 0  [preauth]
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: kex_choose_conf: will use strict KEX ordering [preauth]
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug1: kex: algorithm: ecdh-sha2-nistp256 [preauth]
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug1: kex: host key algorithm: ssh-ed25519 [preauth]
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug1: kex: client->server cipher: aes128-gcm@openssh.com MAC: <implicit> compression: none 
+              [preauth]
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug1: kex: server->client cipher: aes128-gcm@openssh.com MAC: <implicit> compression: none 
+              [preauth]
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug1: expecting SSH2_MSG_KEX_ECDH_INIT [preauth]
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: receive packet: type 30 [preauth]
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug1: SSH2_MSG_KEX_ECDH_INIT received [preauth]
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: mm_sshkey_sign: entering [preauth]
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: mm_request_send: entering, type 6 [preauth]
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: mm_sshkey_sign: waiting for MONITOR_ANS_SIGN [preauth]
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: mm_request_receive_expect: entering, type 7 [preauth]
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: mm_request_receive: entering [preauth]
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: mm_request_receive: entering
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: monitor_read: checking request 6
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: mm_answer_sign: entering
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: mm_answer_sign: ssh-ed25519 KEX signature len=83
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: mm_request_send: entering, type 7
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug2: monitor_read: 6 used once, disabling now
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: send packet: type 31 [preauth]
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: send packet: type 21 [preauth]
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug1: ssh_packet_send2_wrapped: resetting send seqnr 3 [preauth]
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug2: ssh_set_newkeys: mode 1 [preauth]
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug1: rekey out after 4294967296 blocks [preauth]
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug1: SSH2_MSG_NEWKEYS sent [preauth]
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug1: Sending SSH2_MSG_EXT_INFO [preauth]
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: send packet: type 7 [preauth]
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug1: expecting SSH2_MSG_NEWKEYS [preauth]
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: receive packet: type 21 [preauth]
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug1: ssh_packet_read_poll2: resetting read seqnr 3 [preauth]
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug1: SSH2_MSG_NEWKEYS received [preauth]
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug2: ssh_set_newkeys: mode 0 [preauth]
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug1: rekey in after 4294967296 blocks [preauth]
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug1: KEX done [preauth]
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: receive packet: type 5 [preauth]
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: send packet: type 6 [preauth]
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: receive packet: type 50 [preauth]
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug1: userauth-request for user bhyslop service ssh-connection method none [preauth]
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug1: attempt 0 failures 0 [preauth]
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: mm_getpwnamallow: entering [preauth]
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: mm_request_send: entering, type 8 [preauth]
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: mm_getpwnamallow: waiting for MONITOR_ANS_PWNAM [preauth]
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: mm_request_receive_expect: entering, type 9 [preauth]
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: mm_request_receive: entering [preauth]
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: mm_request_receive: entering
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: monitor_read: checking request 8
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: mm_answer_pwnamallow: entering
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug2: parse_server_config_depth: config reprocess config len 2217
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: checking match for 'Group administrators' user bhyslop host 100.100.223.55 addr 
+              100.100.223.55 laddr 100.112.50.29 lport 22
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: LsaLogonUser Succeeded (Impersonation: 0)
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug1: user bhyslop matched group list administrators at line 88
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: match found
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: reprocess config:89 setting AuthorizedKeysFile 
+              __PROGRAMDATA__/ssh/administrators_authorized_keys
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: mm_answer_pwnamallow: sending MONITOR_ANS_PWNAM: 1
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: mm_request_send: entering, type 9
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug2: monitor_read: 8 used once, disabling now
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: process_channel_timeouts: setting 0 timeouts [preauth]
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: channel_clear_timeouts: clearing [preauth]
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug2: input_userauth_request: setting up authctxt for bhyslop [preauth]
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: mm_inform_authserv: entering [preauth]
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: mm_request_send: entering, type 4 [preauth]
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug2: input_userauth_request: try method none [preauth]
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: userauth_finish: failure partial=0 next methods="publickey,keyboard-interactive" [preauth]
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: mm_request_receive: entering
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: monitor_read: checking request 4
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: mm_answer_authserv: service=ssh-connection, style=
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug2: monitor_read: 4 used once, disabling now
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: send packet: type 51 [preauth]
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: receive packet: type 50 [preauth]
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug1: userauth-request for user bhyslop service ssh-connection method publickey [preauth]
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug1: attempt 1 failures 0 [preauth]
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug2: input_userauth_request: try method publickey [preauth]
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug2: userauth_pubkey: valid user bhyslop querying public key ssh-ed25519 
+              AAAAC3NzaC1lZDI1NTE5AAAAINqo5TftE69ZojgSucBTbNJujahF0yCkxbKxJ6AR9aZJ [preauth]
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug1: userauth_pubkey: publickey test pkalg ssh-ed25519 pkblob ED25519 
+              SHA256:AEvGDYbtBM6yaMAm3hsPKunDlXj+tEjxJzX2RZyy50w [preauth]
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: mm_key_allowed: entering [preauth]
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: mm_request_send: entering, type 22 [preauth]
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: mm_key_allowed: waiting for MONITOR_ANS_KEYALLOWED [preauth]
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: mm_request_receive_expect: entering, type 23 [preauth]
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: mm_request_receive: entering [preauth]
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: mm_request_receive: entering
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: monitor_read: checking request 22
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: mm_answer_keyallowed: entering
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug1: trying public key file __PROGRAMDATA__/ssh/administrators_authorized_keys
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug1: __PROGRAMDATA__/ssh/administrators_authorized_keys:1: matching key found: ED25519 
+              SHA256:AEvGDYbtBM6yaMAm3hsPKunDlXj+tEjxJzX2RZyy50w
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug1: __PROGRAMDATA__/ssh/administrators_authorized_keys:1: key options: agent-forwarding 
+              port-forwarding pty user-rc x11-forwarding
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: __PROGRAMDATA__/ssh/administrators_authorized_keys:1: key options: agent-forwarding 
+              port-forwarding pty user-rc x11-forwarding
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug2: auth_check_authkeys_file: __PROGRAMDATA__/ssh/administrators_authorized_keys: processed 
+              1/1 lines
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: mm_answer_keyallowed: publickey authentication test: ED25519 key is allowed
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: mm_request_send: entering, type 23
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: send packet: type 60 [preauth]
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug2: userauth_pubkey: authenticated 0 pkalg ssh-ed25519 [preauth]
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: user_specific_delay: user specific delay 0.000ms [preauth]
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: ensure_minimum_time_since: elapsed 1.000ms, delaying 7.231ms (requested 8.231ms) [preauth]
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: receive packet: type 50 [preauth]
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug1: userauth-request for user bhyslop service ssh-connection method 
+              publickey-hostbound-v00@openssh.com [preauth]
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug1: attempt 2 failures 0 [preauth]
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug2: input_userauth_request: try method publickey-hostbound-v00@openssh.com [preauth]
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug2: userauth_pubkey: valid user bhyslop attempting public key ssh-ed25519 
+              AAAAC3NzaC1lZDI1NTE5AAAAINqo5TftE69ZojgSucBTbNJujahF0yCkxbKxJ6AR9aZJ [preauth]
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: userauth_pubkey: publickey-hostbound-v00@openssh.com have ssh-ed25519 signature for 
+              ED25519 SHA256:AEvGDYbtBM6yaMAm3hsPKunDlXj+tEjxJzX2RZyy50w [preauth]
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: mm_key_allowed: entering [preauth]
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: mm_request_send: entering, type 22 [preauth]
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: mm_key_allowed: waiting for MONITOR_ANS_KEYALLOWED [preauth]
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: mm_request_receive_expect: entering, type 23 [preauth]
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: mm_request_receive: entering [preauth]
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: mm_request_receive: entering
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: monitor_read: checking request 22
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: mm_answer_keyallowed: entering
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug1: trying public key file __PROGRAMDATA__/ssh/administrators_authorized_keys
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug1: __PROGRAMDATA__/ssh/administrators_authorized_keys:1: matching key found: ED25519 
+              SHA256:AEvGDYbtBM6yaMAm3hsPKunDlXj+tEjxJzX2RZyy50w
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug1: __PROGRAMDATA__/ssh/administrators_authorized_keys:1: key options: agent-forwarding 
+              port-forwarding pty user-rc x11-forwarding
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: __PROGRAMDATA__/ssh/administrators_authorized_keys:1: key options: agent-forwarding 
+              port-forwarding pty user-rc x11-forwarding
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug2: auth_check_authkeys_file: __PROGRAMDATA__/ssh/administrators_authorized_keys: processed 
+              1/1 lines
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: mm_answer_keyallowed: publickey authentication: ED25519 key is allowed
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: mm_request_send: entering, type 23
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: mm_sshkey_verify: entering [preauth]
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: mm_request_send: entering, type 24 [preauth]
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: mm_sshkey_verify: waiting for MONITOR_ANS_KEYVERIFY [preauth]
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: mm_request_receive_expect: entering, type 25 [preauth]
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: mm_request_receive: entering [preauth]
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: mm_request_receive: entering
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: monitor_read: checking request 24
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: mm_answer_keyverify: publickey ED25519 signature using ssh-ed25519 verified
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug1: auth_activate_options: setting new authentication options
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: mm_request_send: entering, type 25
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug1: monitor_child_preauth: user bhyslop authenticated by privileged process
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: mm_get_keystate: Waiting for new keys
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: mm_request_receive_expect: entering, type 26
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: mm_request_receive: entering
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: mm_get_keystate: GOT new keys
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug1: auth_activate_options: setting new authentication options [preauth]
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug2: userauth_pubkey: authenticated 1 pkalg ssh-ed25519 [preauth]
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: user_specific_delay: user specific delay 0.000ms [preauth]
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: ensure_minimum_time_since: elapsed 3.000ms, delaying 5.231ms (requested 8.231ms) [preauth]
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: send packet: type 52 [preauth]
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: mm_request_send: entering, type 26 [preauth]
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: mm_send_keystate: Finished sending state [preauth]
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug1: monitor_read_log: child log fd closed
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: LsaLogonUser Succeeded (Impersonation: 1)
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: spawning "C:\\WINDOWS\\System32\\OpenSSH\\sshd.exe" -z as user
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: send_rexec_state: entering fd = 5 config len 2217
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: ssh_msg_send: type 0
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: send_rexec_state: done
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: ssh_msg_send: type 0
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: ssh_msg_send: type 0
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: ssh_msg_send: type 0
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: ssh_msg_send: type 0
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: ssh_msg_send: type 0
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: process_channel_timeouts: setting 0 timeouts
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: channel_clear_timeouts: clearing
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: recv_idexch_state: entering fd = 3
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: ssh_msg_recv entering
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: recv_idexch_state: done
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug2: fd 5 setting O_NONBLOCK
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: recv_autxctx_state: entering fd = 3
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: ssh_msg_recv entering
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: recv_autxctx_state: done
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug2: parse_server_config_depth: config reprocess config len 2217
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: checking match for 'Group administrators' user bhyslop host 100.100.223.55 addr 
+              100.100.223.55 laddr 100.112.50.29 lport 22
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: get_user_token - i am running as bhyslop, returning process token
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug1: user bhyslop matched group list administrators at line 88
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: match found
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: reprocess config:89 setting AuthorizedKeysFile 
+              __PROGRAMDATA__/ssh/administrators_authorized_keys
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: monitor_recv_keystate: entering 
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: ssh_msg_recv entering
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: monitor_recv_keystate: done
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: monitor_apply_keystate: packet_set_state
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug2: ssh_set_newkeys: mode 0
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug1: rekey in after 4294967296 blocks
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug2: ssh_set_newkeys: mode 1
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug1: rekey out after 4294967296 blocks
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug1: ssh_packet_set_postauth: called
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: ssh_packet_set_state: done
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: monitor_recv_authopt: entering 
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: ssh_msg_recv entering
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: monitor_recv_authopt: done
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: notify_hostkeys: key 0: ssh-rsa SHA256:pMIycYrhgNfUsONaF9GlDXTvSirFAm2GXSfrQBxTh1Y
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: notify_hostkeys: key 1: ecdsa-sha2-nistp256 
+              SHA256:gyZUiNhyB2WJYxOFJ9TGIZhysMsn4CZva/yuWWp5KRE
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: notify_hostkeys: key 2: ssh-ed25519 SHA256:/rWRtcgqvO+OrzdxY++wZnp3mjs8QSmpB/4qSKfQN+w
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: notify_hostkeys: sent 3 hostkeys
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: send packet: type 80
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug1: active: key options: agent-forwarding port-forwarding pty user-rc x11-forwarding
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug1: Entering interactive session for SSH2.
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug1: server_init_dispatch
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: receive packet: type 90
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug1: server_input_channel_open: ctype session rchan 0 win 2097152 max 32768
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug1: input_session_request
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug1: channel 0: new session [server-session] (inactive timeout: 0)
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug2: session_new: allocate (allocated 0 max 10)
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: session_unused: session id 0 unused
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug1: session_new: session 0
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug1: session_open: channel 0
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug1: session_open: session 0: link with channel 0
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug1: server_input_channel_open: confirm session
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: send packet: type 91
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: receive packet: type 80
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug1: server_input_global_request: rtype no-more-sessions@openssh.com want_reply 0
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: receive packet: type 98
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug1: server_input_channel_req: channel 0 request env reply 0
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug1: session_by_channel: session 0 channel 0
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug1: session_input_channel_req: session 0 req env
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug2: Ignoring env request LANG: disallowed name
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: receive packet: type 98
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug1: server_input_channel_req: channel 0 request env reply 0
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug1: session_by_channel: session 0 channel 0
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug1: session_input_channel_req: session 0 req env
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug2: Ignoring env request LC_TERMINAL_VERSION: disallowed name
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: receive packet: type 98
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug1: server_input_channel_req: channel 0 request env reply 0
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug1: session_by_channel: session 0 channel 0
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug1: session_input_channel_req: session 0 req env
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug2: Ignoring env request LC_TERMINAL: disallowed name
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: receive packet: type 98
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug1: server_input_channel_req: channel 0 request exec reply 1
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug1: session_by_channel: session 0 channel 0
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug1: session_input_channel_req: session 0 req exec
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug2: channel_set_xtype: labeled channel 0 as session:command (inactive timeout 0)
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug2: fd 8 setting O_NONBLOCK
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug2: fd 9 setting O_NONBLOCK
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug2: fd 10 setting O_NONBLOCK
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug2: fd 11 setting O_NONBLOCK
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug2: fd 12 setting O_NONBLOCK
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug2: fd 13 setting O_NONBLOCK
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: shell: "c:\\\\windows\\\\system32\\\\cmd.exe"
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: shell_option: /c
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: exec_command: powershell -NoProfile -Command "Restart-Service sshd"
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: arg escape option: TRUE
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: spawn_argv[0]: "c:\\\\windows\\\\system32\\\\cmd.exe" /c "powershell -NoProfile -Command 
+              "Restart-Service sshd""
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: spawning "c:\\\\windows\\\\system32\\\\cmd.exe" /c "powershell -NoProfile -Command 
+              "Restart-Service sshd"" as subprocess
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug2: fd 5 setting TCP_NODELAY
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: fd 10 is O_NONBLOCK
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: fd 9 is O_NONBLOCK
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: fd 12 is O_NONBLOCK
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: send packet: type 99
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug3: receive packet: type 96
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug2: channel 0: rcvd eof
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug2: channel 0: output open -> drain
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug2: channel 0: obuf empty
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug2: chan_shutdown_write: channel 0: (i0 o1 sock -1 wfd 9 efd 12 [read])
+
+TimeCreated : 5/11/2026 6:39:59 AM
+Message     : sshd: debug2: channel 0: output drain -> closed
+
+TimeCreated : 5/11/2026 6:40:00 AM
+Message     : sshd: debug2: fd 3 setting O_NONBLOCK
+
+TimeCreated : 5/11/2026 6:40:00 AM
+Message     : sshd: debug3: sock_set_v6only: set socket 3 IPV6_V6ONLY
+
+TimeCreated : 5/11/2026 6:40:00 AM
+Message     : sshd: debug1: Bind to port 22 on ::.
+
+TimeCreated : 5/11/2026 6:40:00 AM
+Message     : sshd: debug2: fd 4 setting O_NONBLOCK
+
+TimeCreated : 5/11/2026 6:40:00 AM
+Message     : sshd: debug1: Bind to port 22 on 0.0.0.0.
+
+TimeCreated : 5/11/2026 6:40:00 AM
+Message     : sshd: debug3: pselect: installing signal handler for 3, previous 00007FF687AA8030
+
+TimeCreated : 5/11/2026 6:40:00 AM
+Message     : sshd: debug3: pselect: installing signal handler for 6, previous 00007FF687AA7F30
+
+TimeCreated : 5/11/2026 6:40:00 AM
+Message     : sshd: debug3: pselect: installing signal handler for 7, previous 00007FF687AA8020
+
+TimeCreated : 5/11/2026 6:40:00 AM
+Message     : sshd: debug3: pselect: installing signal handler for 8, previous 00007FF687AA8020
+
+TimeCreated : 5/11/2026 6:40:00 AM
+Message     : sshd: debug3: pselect_notify_setup: initializing
+
+TimeCreated : 5/11/2026 6:40:00 AM
+Message     : sshd: debug2: fd 7 setting O_NONBLOCK
+
+TimeCreated : 5/11/2026 6:40:00 AM
+Message     : sshd: debug2: fd 5 setting O_NONBLOCK
+
+TimeCreated : 5/11/2026 6:40:00 AM
+Message     : sshd: debug3: pselect_notify_setup: pid 13364 saved 13364 pipe0 7 pipe1 5
+
+TimeCreated : 5/11/2026 6:40:00 AM
+Message     : sshd: debug2: channel 0: read failed rfd 10 maxlen 32768: Broken pipe
+
+TimeCreated : 5/11/2026 6:40:00 AM
+Message     : sshd: debug2: channel 0: read failed
+
+TimeCreated : 5/11/2026 6:40:00 AM
+Message     : sshd: debug2: chan_shutdown_read: channel 0: (i0 o3 sock -1 wfd 10 efd 12 [read])
+
+TimeCreated : 5/11/2026 6:40:00 AM
+Message     : sshd: debug2: channel 0: input open -> drain
+
+TimeCreated : 5/11/2026 6:40:00 AM
+Message     : sshd: debug2: channel 0: read 0 from efd 12
+
+TimeCreated : 5/11/2026 6:40:00 AM
+Message     : sshd: debug2: channel 0: closing read-efd 12
+
+TimeCreated : 5/11/2026 6:40:00 AM
+Message     : sshd: debug2: channel 0: ibuf empty
+
+TimeCreated : 5/11/2026 6:40:00 AM
+Message     : sshd: debug2: channel 0: send eof
+
+TimeCreated : 5/11/2026 6:40:00 AM
+Message     : sshd: debug3: send packet: type 96
+
+TimeCreated : 5/11/2026 6:40:00 AM
+Message     : sshd: debug2: channel 0: input drain -> closed
+
+TimeCreated : 5/11/2026 6:40:00 AM
+Message     : sshd: debug1: Received SIGCHLD.
+
+TimeCreated : 5/11/2026 6:40:00 AM
+Message     : sshd: debug1: session_by_pid: pid 4640
+
+TimeCreated : 5/11/2026 6:40:00 AM
+Message     : sshd: debug2: channel 0: request exit-status confirm 0
+
+TimeCreated : 5/11/2026 6:40:00 AM
+Message     : sshd: debug3: send packet: type 98
+
+TimeCreated : 5/11/2026 6:40:00 AM
+Message     : sshd: debug1: session_exit_message: session 0 channel 0 pid 4640 exit 0
+
+TimeCreated : 5/11/2026 6:40:00 AM
+Message     : sshd: debug1: session_exit_message: release channel 0
+
+TimeCreated : 5/11/2026 6:40:00 AM
+Message     : sshd: debug2: channel 0: send close
+
+TimeCreated : 5/11/2026 6:40:00 AM
+Message     : sshd: debug3: send packet: type 97
+
+TimeCreated : 5/11/2026 6:40:00 AM
+Message     : sshd: debug3: channel 0: will not send data after close
+
+TimeCreated : 5/11/2026 6:40:00 AM
+Message     : sshd: debug3: receive packet: type 97
+
+TimeCreated : 5/11/2026 6:40:00 AM
+Message     : sshd: debug2: channel 0: rcvd close
+
+TimeCreated : 5/11/2026 6:40:00 AM
+Message     : sshd: debug3: channel 0: will not send data after close
+
+TimeCreated : 5/11/2026 6:40:00 AM
+Message     : sshd: debug2: channel 0: is dead
+
+TimeCreated : 5/11/2026 6:40:00 AM
+Message     : sshd: debug2: channel 0: gc: notify user
+
+TimeCreated : 5/11/2026 6:40:00 AM
+Message     : sshd: debug1: session_by_channel: session 0 channel 0
+
+TimeCreated : 5/11/2026 6:40:00 AM
+Message     : sshd: debug1: session_close_by_channel: channel 0 child 0
+
+TimeCreated : 5/11/2026 6:40:00 AM
+Message     : sshd: debug3: session_unused: session id 0 unused
+
+TimeCreated : 5/11/2026 6:40:00 AM
+Message     : sshd: debug2: channel 0: gc: user detached
+
+TimeCreated : 5/11/2026 6:40:00 AM
+Message     : sshd: debug2: channel 0: is dead
+
+TimeCreated : 5/11/2026 6:40:00 AM
+Message     : sshd: debug2: channel 0: garbage collecting
+
+TimeCreated : 5/11/2026 6:40:00 AM
+Message     : sshd: debug1: channel 0: free: server-session, nchannels 1
+
+TimeCreated : 5/11/2026 6:40:00 AM
+Message     : sshd: debug3: channel 0: status: The following connections are open:\\r\\n  #0 server-session (t4 
+              [session:command] r0 i3/0 o3/0 e[closed]/0 fd -1/-1/-1 sock -1 cc -1 io 0x00/0x00)\\r\\n
+
+TimeCreated : 5/11/2026 6:40:00 AM
+Message     : sshd: debug3: receive packet: type 1
+
+TimeCreated : 5/11/2026 6:40:00 AM
+Message     : sshd: debug1: do_cleanup
+
+TimeCreated : 5/11/2026 6:40:00 AM
+Message     : sshd: debug3: mm_request_receive: entering
+
+TimeCreated : 5/11/2026 6:40:00 AM
+Message     : sshd: debug1: do_cleanup
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug3: fd 6 is not O_NONBLOCK
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug3: spawning "C:\\WINDOWS\\System32\\OpenSSH\\sshd.exe" -R as subprocess
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug3: send_rexec_state: entering fd = 10 config len 2217
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug3: ssh_msg_send: type 0
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug3: send_rexec_state: done
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug1: inetd sockets after dupping: 4, 4
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug3: process_channel_timeouts: setting 0 timeouts
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug3: channel_clear_timeouts: clearing
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug1: Local version string SSH-2.0-OpenSSH_for_Windows_9.5
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug1: Remote protocol version 2.0, remote software version OpenSSH_10.0
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug1: compat_banner: match: OpenSSH_10.0 pat OpenSSH* compat 0x04000000
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug2: fd 4 setting O_NONBLOCK
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug3: spawning "C:\\WINDOWS\\System32\\OpenSSH\\sshd.exe" -y as user
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug2: Network child is on pid 11724
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug3: send_rexec_state: entering fd = 6 config len 2217
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug3: ssh_msg_send: type 0
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug3: send_rexec_state: done
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug3: ssh_msg_send: type 0
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug3: ssh_msg_send: type 0
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug3: preauth child monitor started
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug3: process_channel_timeouts: setting 0 timeouts
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug3: channel_clear_timeouts: clearing
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug3: recv_idexch_state: entering fd = 3
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug3: ssh_msg_recv entering
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug3: recv_idexch_state: done
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug2: fd 5 setting O_NONBLOCK
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug3: append_hostkey_type: ssh-rsa key not permitted by HostkeyAlgorithms [preauth]
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug1: list_hostkey_types: rsa-sha2-512,rsa-sha2-256,ecdsa-sha2-nistp256,ssh-ed25519 [preauth]
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug3: send packet: type 20 [preauth]
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug1: SSH2_MSG_KEXINIT sent [preauth]
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug3: receive packet: type 20 [preauth]
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug1: SSH2_MSG_KEXINIT received [preauth]
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug2: local server KEXINIT proposal [preauth]
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug2: KEX algorithms: curve25519-sha256,curve25519-sha256@libssh.org,ecdh-sha2-nistp256,ecdh-sha2
+              -nistp384,ecdh-sha2-nistp521,diffie-hellman-group-exchange-sha256,diffie-hellman-group16-sha512,diffie-he
+              llman-group18-sha512,diffie-hellman-group14-sha256,kex-strict-s-v00@openssh.com [preauth]
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug2: host key algorithms: rsa-sha2-512,rsa-sha2-256,ecdsa-sha2-nistp256,ssh-ed25519 [preauth]
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug2: ciphers ctos: chacha20-poly1305@openssh.com,aes128-ctr,aes192-ctr,aes256-ctr,aes128-gcm@ope
+              nssh.com,aes256-gcm@openssh.com [preauth]
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug2: ciphers stoc: chacha20-poly1305@openssh.com,aes128-ctr,aes192-ctr,aes256-ctr,aes128-gcm@ope
+              nssh.com,aes256-gcm@openssh.com [preauth]
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug2: MACs ctos: umac-64-etm@openssh.com,umac-128-etm@openssh.com,hmac-sha2-256-etm@openssh.com,h
+              mac-sha2-512-etm@openssh.com,umac-64@openssh.com,umac-128@openssh.com,hmac-sha2-256,hmac-sha2-512 
+              [preauth]
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug2: MACs stoc: umac-64-etm@openssh.com,umac-128-etm@openssh.com,hmac-sha2-256-etm@openssh.com,h
+              mac-sha2-512-etm@openssh.com,umac-64@openssh.com,umac-128@openssh.com,hmac-sha2-256,hmac-sha2-512 
+              [preauth]
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug2: compression ctos: none,zlib@openssh.com [preauth]
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug2: compression stoc: none,zlib@openssh.com [preauth]
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug2: languages ctos:  [preauth]
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug2: languages stoc:  [preauth]
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug2: first_kex_follows 0  [preauth]
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug2: reserved 0  [preauth]
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug2: peer client KEXINIT proposal [preauth]
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug2: KEX algorithms: ecdh-sha2-nistp256,mlkem768x25519-sha256,sntrup761x25519-sha512,sntrup761x2
+              5519-sha512@openssh.com,curve25519-sha256,curve25519-sha256@libssh.org,ecdh-sha2-nistp384,ecdh-sha2-nistp
+              521,diffie-hellman-group-exchange-sha256,diffie-hellman-group16-sha512,diffie-hellman-group18-sha512,diff
+              ie-hellman-group14-sha256,ext-info-c,kex-strict-c-v00@openssh.com [preauth]
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug2: host key algorithms: ssh-ed25519-cert-v01@openssh.com,ecdsa-sha2-nistp256-cert-v01@openssh.
+              com,ecdsa-sha2-nistp384-cert-v01@openssh.com,ecdsa-sha2-nistp521-cert-v01@openssh.com,sk-ssh-ed25519-cert
+              -v01@openssh.com,sk-ecdsa-sha2-nistp256-cert-v01@openssh.com,rsa-sha2-512-cert-v01@openssh.com,rsa-sha2-2
+              56-cert-v01@openssh.com,ssh-ed25519,ecdsa-sha2-nistp256,ecdsa-sha2-nistp384,ecdsa-sha2-nistp521,sk-ssh-ed
+              25519@openssh.com,sk-ecdsa-sha2-nistp256@openssh.com,rsa-sha2-512,rsa-sha2-256 [preauth]
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug2: ciphers ctos: aes128-gcm@openssh.com,aes256-gcm@openssh.com,chacha20-poly1305@openssh.com,a
+              es128-ctr,aes192-ctr,aes256-ctr [preauth]
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug2: ciphers stoc: aes128-gcm@openssh.com,aes256-gcm@openssh.com,chacha20-poly1305@openssh.com,a
+              es128-ctr,aes192-ctr,aes256-ctr [preauth]
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug2: MACs ctos: hmac-sha2-256-etm@openssh.com,hmac-sha2-256,umac-64-etm@openssh.com,umac-128-etm
+              @openssh.com,hmac-sha2-512-etm@openssh.com,hmac-sha1-etm@openssh.com,umac-64@openssh.com,umac-128@openssh
+              .com,hmac-sha2-512,hmac-sha1 [preauth]
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug2: MACs stoc: hmac-sha2-256-etm@openssh.com,hmac-sha2-256,umac-64-etm@openssh.com,umac-128-etm
+              @openssh.com,hmac-sha2-512-etm@openssh.com,hmac-sha1-etm@openssh.com,umac-64@openssh.com,umac-128@openssh
+              .com,hmac-sha2-512,hmac-sha1 [preauth]
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug2: compression ctos: none,zlib@openssh.com [preauth]
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug2: compression stoc: none,zlib@openssh.com [preauth]
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug2: languages ctos:  [preauth]
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug2: languages stoc:  [preauth]
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug2: first_kex_follows 0  [preauth]
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug2: reserved 0  [preauth]
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug3: kex_choose_conf: will use strict KEX ordering [preauth]
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug1: kex: algorithm: ecdh-sha2-nistp256 [preauth]
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug1: kex: host key algorithm: ssh-ed25519 [preauth]
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug1: kex: client->server cipher: aes128-gcm@openssh.com MAC: <implicit> compression: none 
+              [preauth]
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug1: kex: server->client cipher: aes128-gcm@openssh.com MAC: <implicit> compression: none 
+              [preauth]
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug1: expecting SSH2_MSG_KEX_ECDH_INIT [preauth]
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug3: receive packet: type 30 [preauth]
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug1: SSH2_MSG_KEX_ECDH_INIT received [preauth]
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug3: mm_sshkey_sign: entering [preauth]
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug3: mm_request_send: entering, type 6 [preauth]
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug3: mm_sshkey_sign: waiting for MONITOR_ANS_SIGN [preauth]
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug3: mm_request_receive_expect: entering, type 7 [preauth]
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug3: mm_request_receive: entering [preauth]
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug3: mm_request_receive: entering
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug3: monitor_read: checking request 6
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug3: mm_answer_sign: entering
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug3: mm_answer_sign: ssh-ed25519 KEX signature len=83
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug3: mm_request_send: entering, type 7
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug2: monitor_read: 6 used once, disabling now
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug3: send packet: type 31 [preauth]
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug3: send packet: type 21 [preauth]
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug1: ssh_packet_send2_wrapped: resetting send seqnr 3 [preauth]
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug2: ssh_set_newkeys: mode 1 [preauth]
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug1: rekey out after 4294967296 blocks [preauth]
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug1: SSH2_MSG_NEWKEYS sent [preauth]
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug1: Sending SSH2_MSG_EXT_INFO [preauth]
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug3: send packet: type 7 [preauth]
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug1: expecting SSH2_MSG_NEWKEYS [preauth]
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug3: receive packet: type 21 [preauth]
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug1: ssh_packet_read_poll2: resetting read seqnr 3 [preauth]
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug1: SSH2_MSG_NEWKEYS received [preauth]
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug2: ssh_set_newkeys: mode 0 [preauth]
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug1: rekey in after 4294967296 blocks [preauth]
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug1: KEX done [preauth]
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug3: receive packet: type 5 [preauth]
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug3: send packet: type 6 [preauth]
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug3: receive packet: type 50 [preauth]
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug1: userauth-request for user bujuw_user service ssh-connection method none [preauth]
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug1: attempt 0 failures 0 [preauth]
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug3: mm_getpwnamallow: entering [preauth]
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug3: mm_request_send: entering, type 8 [preauth]
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug3: mm_request_receive: entering
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug3: monitor_read: checking request 8
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug3: mm_answer_pwnamallow: entering
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug2: parse_server_config_depth: config reprocess config len 2217
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug3: checking match for 'Group administrators' user bujuw_user host 100.100.223.55 addr 
+              100.100.223.55 laddr 100.112.50.29 lport 22
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug3: LsaLogonUser Succeeded (Impersonation: 0)
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug1: user bujuw_user does not match group list administrators at line 88
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug3: match not found
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug3: mm_answer_pwnamallow: sending MONITOR_ANS_PWNAM: 1
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug3: mm_request_send: entering, type 9
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug2: monitor_read: 8 used once, disabling now
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug3: mm_getpwnamallow: waiting for MONITOR_ANS_PWNAM [preauth]
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug3: mm_request_receive_expect: entering, type 9 [preauth]
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug3: mm_request_receive: entering [preauth]
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug3: process_channel_timeouts: setting 0 timeouts [preauth]
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug3: channel_clear_timeouts: clearing [preauth]
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug2: input_userauth_request: setting up authctxt for bujuw_user [preauth]
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug3: mm_inform_authserv: entering [preauth]
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug3: mm_request_send: entering, type 4 [preauth]
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug2: input_userauth_request: try method none [preauth]
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug3: userauth_finish: failure partial=0 next methods="publickey,keyboard-interactive" [preauth]
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug3: mm_request_receive: entering
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug3: monitor_read: checking request 4
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug3: mm_answer_authserv: service=ssh-connection, style=
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug2: monitor_read: 4 used once, disabling now
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug3: send packet: type 51 [preauth]
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug3: receive packet: type 50 [preauth]
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug1: userauth-request for user bujuw_user service ssh-connection method publickey [preauth]
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug1: attempt 1 failures 0 [preauth]
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug2: input_userauth_request: try method publickey [preauth]
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug2: userauth_pubkey: valid user bujuw_user querying public key ssh-ed25519 
+              AAAAC3NzaC1lZDI1NTE5AAAAICpUImcgnijS9OCBTka4LnPAmJsLfEVvYE/oC+94lgog [preauth]
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug1: userauth_pubkey: publickey test pkalg ssh-ed25519 pkblob ED25519 
+              SHA256:uC8TgGxMs4n+4UCzlMydw4jb7NI/WWdAdBdvhAYohvM [preauth]
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug3: mm_key_allowed: entering [preauth]
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug3: mm_request_send: entering, type 22 [preauth]
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug3: mm_key_allowed: waiting for MONITOR_ANS_KEYALLOWED [preauth]
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug3: mm_request_receive_expect: entering, type 23 [preauth]
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug3: mm_request_receive: entering [preauth]
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug3: mm_request_receive: entering
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug3: monitor_read: checking request 22
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug3: mm_answer_keyallowed: entering
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug1: trying public key file C:\\Users\\bujuw_user.rocket.003\\.ssh/authorized_keys
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug3: Failed to open file:C:/Users/bujuw_user.rocket.003/.ssh/authorized_keys error:2
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug1: Could not open authorized keys 'C:\\Users\\bujuw_user.rocket.003\\.ssh/authorized_keys': 
+              No such file or directory
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug3: mm_answer_keyallowed: publickey authentication test: ED25519 key is not allowed
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug3: mm_request_send: entering, type 23
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug2: userauth_pubkey: authenticated 0 pkalg ssh-ed25519 [preauth]
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug3: user_specific_delay: user specific delay 0.000ms [preauth]
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug3: ensure_minimum_time_since: elapsed 0.000ms, delaying 7.476ms (requested 7.476ms) [preauth]
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug3: userauth_finish: failure partial=0 next methods="publickey,keyboard-interactive" [preauth]
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug3: send packet: type 51 [preauth]
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug1: do_cleanup [preauth]
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug1: monitor_read_log: child log fd closed
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug3: mm_request_receive: entering
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug1: do_cleanup
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug1: Killing privsep child 11724
+
+TimeCreated : 5/11/2026 6:40:03 AM
+Message     : sshd: debug2: pselect_notify_done: reading
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: fd 6 is not O_NONBLOCK
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: spawning "C:\\WINDOWS\\System32\\OpenSSH\\sshd.exe" -R as subprocess
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: send_rexec_state: entering fd = 10 config len 2217
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: ssh_msg_send: type 0
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: send_rexec_state: done
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug1: inetd sockets after dupping: 4, 4
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: process_channel_timeouts: setting 0 timeouts
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: channel_clear_timeouts: clearing
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug1: Local version string SSH-2.0-OpenSSH_for_Windows_9.5
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug1: Remote protocol version 2.0, remote software version OpenSSH_10.0
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug1: compat_banner: match: OpenSSH_10.0 pat OpenSSH* compat 0x04000000
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug2: fd 4 setting O_NONBLOCK
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: spawning "C:\\WINDOWS\\System32\\OpenSSH\\sshd.exe" -y as user
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug2: Network child is on pid 16376
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: send_rexec_state: entering fd = 6 config len 2217
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: ssh_msg_send: type 0
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: send_rexec_state: done
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: ssh_msg_send: type 0
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: ssh_msg_send: type 0
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: preauth child monitor started
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: process_channel_timeouts: setting 0 timeouts
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: channel_clear_timeouts: clearing
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: recv_idexch_state: entering fd = 3
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: ssh_msg_recv entering
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: recv_idexch_state: done
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug2: fd 5 setting O_NONBLOCK
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: append_hostkey_type: ssh-rsa key not permitted by HostkeyAlgorithms [preauth]
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug1: list_hostkey_types: rsa-sha2-512,rsa-sha2-256,ecdsa-sha2-nistp256,ssh-ed25519 [preauth]
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: send packet: type 20 [preauth]
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug1: SSH2_MSG_KEXINIT sent [preauth]
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: receive packet: type 20 [preauth]
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug1: SSH2_MSG_KEXINIT received [preauth]
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug2: local server KEXINIT proposal [preauth]
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug2: KEX algorithms: curve25519-sha256,curve25519-sha256@libssh.org,ecdh-sha2-nistp256,ecdh-sha2
+              -nistp384,ecdh-sha2-nistp521,diffie-hellman-group-exchange-sha256,diffie-hellman-group16-sha512,diffie-he
+              llman-group18-sha512,diffie-hellman-group14-sha256,kex-strict-s-v00@openssh.com [preauth]
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug2: host key algorithms: rsa-sha2-512,rsa-sha2-256,ecdsa-sha2-nistp256,ssh-ed25519 [preauth]
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug2: ciphers ctos: chacha20-poly1305@openssh.com,aes128-ctr,aes192-ctr,aes256-ctr,aes128-gcm@ope
+              nssh.com,aes256-gcm@openssh.com [preauth]
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug2: ciphers stoc: chacha20-poly1305@openssh.com,aes128-ctr,aes192-ctr,aes256-ctr,aes128-gcm@ope
+              nssh.com,aes256-gcm@openssh.com [preauth]
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug2: MACs ctos: umac-64-etm@openssh.com,umac-128-etm@openssh.com,hmac-sha2-256-etm@openssh.com,h
+              mac-sha2-512-etm@openssh.com,umac-64@openssh.com,umac-128@openssh.com,hmac-sha2-256,hmac-sha2-512 
+              [preauth]
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug2: MACs stoc: umac-64-etm@openssh.com,umac-128-etm@openssh.com,hmac-sha2-256-etm@openssh.com,h
+              mac-sha2-512-etm@openssh.com,umac-64@openssh.com,umac-128@openssh.com,hmac-sha2-256,hmac-sha2-512 
+              [preauth]
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug2: compression ctos: none,zlib@openssh.com [preauth]
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug2: compression stoc: none,zlib@openssh.com [preauth]
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug2: languages ctos:  [preauth]
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug2: languages stoc:  [preauth]
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug2: first_kex_follows 0  [preauth]
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug2: reserved 0  [preauth]
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug2: peer client KEXINIT proposal [preauth]
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug2: KEX algorithms: ecdh-sha2-nistp256,mlkem768x25519-sha256,sntrup761x25519-sha512,sntrup761x2
+              5519-sha512@openssh.com,curve25519-sha256,curve25519-sha256@libssh.org,ecdh-sha2-nistp384,ecdh-sha2-nistp
+              521,diffie-hellman-group-exchange-sha256,diffie-hellman-group16-sha512,diffie-hellman-group18-sha512,diff
+              ie-hellman-group14-sha256,ext-info-c,kex-strict-c-v00@openssh.com [preauth]
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug2: host key algorithms: ssh-ed25519-cert-v01@openssh.com,ecdsa-sha2-nistp256-cert-v01@openssh.
+              com,ecdsa-sha2-nistp384-cert-v01@openssh.com,ecdsa-sha2-nistp521-cert-v01@openssh.com,sk-ssh-ed25519-cert
+              -v01@openssh.com,sk-ecdsa-sha2-nistp256-cert-v01@openssh.com,rsa-sha2-512-cert-v01@openssh.com,rsa-sha2-2
+              56-cert-v01@openssh.com,ssh-ed25519,ecdsa-sha2-nistp256,ecdsa-sha2-nistp384,ecdsa-sha2-nistp521,sk-ssh-ed
+              25519@openssh.com,sk-ecdsa-sha2-nistp256@openssh.com,rsa-sha2-512,rsa-sha2-256 [preauth]
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug2: ciphers ctos: aes128-gcm@openssh.com,aes256-gcm@openssh.com,chacha20-poly1305@openssh.com,a
+              es128-ctr,aes192-ctr,aes256-ctr [preauth]
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug2: ciphers stoc: aes128-gcm@openssh.com,aes256-gcm@openssh.com,chacha20-poly1305@openssh.com,a
+              es128-ctr,aes192-ctr,aes256-ctr [preauth]
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug2: MACs ctos: hmac-sha2-256-etm@openssh.com,hmac-sha2-256,umac-64-etm@openssh.com,umac-128-etm
+              @openssh.com,hmac-sha2-512-etm@openssh.com,hmac-sha1-etm@openssh.com,umac-64@openssh.com,umac-128@openssh
+              .com,hmac-sha2-512,hmac-sha1 [preauth]
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug2: MACs stoc: hmac-sha2-256-etm@openssh.com,hmac-sha2-256,umac-64-etm@openssh.com,umac-128-etm
+              @openssh.com,hmac-sha2-512-etm@openssh.com,hmac-sha1-etm@openssh.com,umac-64@openssh.com,umac-128@openssh
+              .com,hmac-sha2-512,hmac-sha1 [preauth]
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug2: compression ctos: none,zlib@openssh.com [preauth]
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug2: compression stoc: none,zlib@openssh.com [preauth]
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug2: languages ctos:  [preauth]
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug2: languages stoc:  [preauth]
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug2: first_kex_follows 0  [preauth]
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug2: reserved 0  [preauth]
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: kex_choose_conf: will use strict KEX ordering [preauth]
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug1: kex: algorithm: ecdh-sha2-nistp256 [preauth]
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug1: kex: host key algorithm: ssh-ed25519 [preauth]
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug1: kex: client->server cipher: aes128-gcm@openssh.com MAC: <implicit> compression: none 
+              [preauth]
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug1: kex: server->client cipher: aes128-gcm@openssh.com MAC: <implicit> compression: none 
+              [preauth]
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug1: expecting SSH2_MSG_KEX_ECDH_INIT [preauth]
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: receive packet: type 30 [preauth]
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug1: SSH2_MSG_KEX_ECDH_INIT received [preauth]
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: mm_sshkey_sign: entering [preauth]
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: mm_request_send: entering, type 6 [preauth]
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: mm_sshkey_sign: waiting for MONITOR_ANS_SIGN [preauth]
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: mm_request_receive_expect: entering, type 7 [preauth]
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: mm_request_receive: entering [preauth]
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: mm_request_receive: entering
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: monitor_read: checking request 6
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: mm_answer_sign: entering
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: mm_answer_sign: ssh-ed25519 KEX signature len=83
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: mm_request_send: entering, type 7
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug2: monitor_read: 6 used once, disabling now
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: send packet: type 31 [preauth]
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: send packet: type 21 [preauth]
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug1: ssh_packet_send2_wrapped: resetting send seqnr 3 [preauth]
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug2: ssh_set_newkeys: mode 1 [preauth]
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug1: rekey out after 4294967296 blocks [preauth]
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug1: SSH2_MSG_NEWKEYS sent [preauth]
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug1: Sending SSH2_MSG_EXT_INFO [preauth]
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: send packet: type 7 [preauth]
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug1: expecting SSH2_MSG_NEWKEYS [preauth]
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: receive packet: type 21 [preauth]
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug1: ssh_packet_read_poll2: resetting read seqnr 3 [preauth]
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug1: SSH2_MSG_NEWKEYS received [preauth]
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug2: ssh_set_newkeys: mode 0 [preauth]
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug1: rekey in after 4294967296 blocks [preauth]
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug1: KEX done [preauth]
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: receive packet: type 5 [preauth]
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: send packet: type 6 [preauth]
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: receive packet: type 50 [preauth]
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug1: userauth-request for user bhyslop service ssh-connection method none [preauth]
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug1: attempt 0 failures 0 [preauth]
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: mm_getpwnamallow: entering [preauth]
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: mm_request_send: entering, type 8 [preauth]
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: mm_getpwnamallow: waiting for MONITOR_ANS_PWNAM [preauth]
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: mm_request_receive_expect: entering, type 9 [preauth]
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: mm_request_receive: entering [preauth]
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: mm_request_receive: entering
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: monitor_read: checking request 8
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: mm_answer_pwnamallow: entering
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug2: parse_server_config_depth: config reprocess config len 2217
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: checking match for 'Group administrators' user bhyslop host 100.100.223.55 addr 
+              100.100.223.55 laddr 100.112.50.29 lport 22
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: LsaLogonUser Succeeded (Impersonation: 0)
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug1: user bhyslop matched group list administrators at line 88
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: match found
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: reprocess config:89 setting AuthorizedKeysFile 
+              __PROGRAMDATA__/ssh/administrators_authorized_keys
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: mm_answer_pwnamallow: sending MONITOR_ANS_PWNAM: 1
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: mm_request_send: entering, type 9
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug2: monitor_read: 8 used once, disabling now
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: process_channel_timeouts: setting 0 timeouts [preauth]
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: channel_clear_timeouts: clearing [preauth]
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug2: input_userauth_request: setting up authctxt for bhyslop [preauth]
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: mm_inform_authserv: entering [preauth]
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: mm_request_send: entering, type 4 [preauth]
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug2: input_userauth_request: try method none [preauth]
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: userauth_finish: failure partial=0 next methods="publickey,keyboard-interactive" [preauth]
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: mm_request_receive: entering
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: monitor_read: checking request 4
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: mm_answer_authserv: service=ssh-connection, style=
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug2: monitor_read: 4 used once, disabling now
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: send packet: type 51 [preauth]
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: receive packet: type 50 [preauth]
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug1: userauth-request for user bhyslop service ssh-connection method publickey [preauth]
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug1: attempt 1 failures 0 [preauth]
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug2: input_userauth_request: try method publickey [preauth]
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug2: userauth_pubkey: valid user bhyslop querying public key ssh-ed25519 
+              AAAAC3NzaC1lZDI1NTE5AAAAINqo5TftE69ZojgSucBTbNJujahF0yCkxbKxJ6AR9aZJ [preauth]
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug1: userauth_pubkey: publickey test pkalg ssh-ed25519 pkblob ED25519 
+              SHA256:AEvGDYbtBM6yaMAm3hsPKunDlXj+tEjxJzX2RZyy50w [preauth]
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: mm_key_allowed: entering [preauth]
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: mm_request_send: entering, type 22 [preauth]
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: mm_key_allowed: waiting for MONITOR_ANS_KEYALLOWED [preauth]
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: mm_request_receive_expect: entering, type 23 [preauth]
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: mm_request_receive: entering [preauth]
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: mm_request_receive: entering
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: monitor_read: checking request 22
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: mm_answer_keyallowed: entering
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug1: trying public key file __PROGRAMDATA__/ssh/administrators_authorized_keys
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug1: __PROGRAMDATA__/ssh/administrators_authorized_keys:1: matching key found: ED25519 
+              SHA256:AEvGDYbtBM6yaMAm3hsPKunDlXj+tEjxJzX2RZyy50w
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug1: __PROGRAMDATA__/ssh/administrators_authorized_keys:1: key options: agent-forwarding 
+              port-forwarding pty user-rc x11-forwarding
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: __PROGRAMDATA__/ssh/administrators_authorized_keys:1: key options: agent-forwarding 
+              port-forwarding pty user-rc x11-forwarding
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug2: auth_check_authkeys_file: __PROGRAMDATA__/ssh/administrators_authorized_keys: processed 
+              1/1 lines
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: mm_answer_keyallowed: publickey authentication test: ED25519 key is allowed
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: mm_request_send: entering, type 23
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: send packet: type 60 [preauth]
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug2: userauth_pubkey: authenticated 0 pkalg ssh-ed25519 [preauth]
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: user_specific_delay: user specific delay 0.000ms [preauth]
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: ensure_minimum_time_since: elapsed 1.000ms, delaying 7.231ms (requested 8.231ms) [preauth]
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: receive packet: type 50 [preauth]
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug1: userauth-request for user bhyslop service ssh-connection method 
+              publickey-hostbound-v00@openssh.com [preauth]
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug1: attempt 2 failures 0 [preauth]
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug2: input_userauth_request: try method publickey-hostbound-v00@openssh.com [preauth]
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug2: userauth_pubkey: valid user bhyslop attempting public key ssh-ed25519 
+              AAAAC3NzaC1lZDI1NTE5AAAAINqo5TftE69ZojgSucBTbNJujahF0yCkxbKxJ6AR9aZJ [preauth]
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: userauth_pubkey: publickey-hostbound-v00@openssh.com have ssh-ed25519 signature for 
+              ED25519 SHA256:AEvGDYbtBM6yaMAm3hsPKunDlXj+tEjxJzX2RZyy50w [preauth]
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: mm_key_allowed: entering [preauth]
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: mm_request_send: entering, type 22 [preauth]
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: mm_key_allowed: waiting for MONITOR_ANS_KEYALLOWED [preauth]
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: mm_request_receive_expect: entering, type 23 [preauth]
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: mm_request_receive: entering [preauth]
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: mm_request_receive: entering
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: monitor_read: checking request 22
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: mm_answer_keyallowed: entering
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug1: trying public key file __PROGRAMDATA__/ssh/administrators_authorized_keys
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug1: __PROGRAMDATA__/ssh/administrators_authorized_keys:1: matching key found: ED25519 
+              SHA256:AEvGDYbtBM6yaMAm3hsPKunDlXj+tEjxJzX2RZyy50w
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug1: __PROGRAMDATA__/ssh/administrators_authorized_keys:1: key options: agent-forwarding 
+              port-forwarding pty user-rc x11-forwarding
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: __PROGRAMDATA__/ssh/administrators_authorized_keys:1: key options: agent-forwarding 
+              port-forwarding pty user-rc x11-forwarding
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug2: auth_check_authkeys_file: __PROGRAMDATA__/ssh/administrators_authorized_keys: processed 
+              1/1 lines
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: mm_answer_keyallowed: publickey authentication: ED25519 key is allowed
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: mm_request_send: entering, type 23
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: mm_sshkey_verify: entering [preauth]
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: mm_request_send: entering, type 24 [preauth]
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: mm_sshkey_verify: waiting for MONITOR_ANS_KEYVERIFY [preauth]
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: mm_request_receive_expect: entering, type 25 [preauth]
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: mm_request_receive: entering [preauth]
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: mm_request_receive: entering
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: monitor_read: checking request 24
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: mm_answer_keyverify: publickey ED25519 signature using ssh-ed25519 verified
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug1: auth_activate_options: setting new authentication options
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: mm_request_send: entering, type 25
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug1: monitor_child_preauth: user bhyslop authenticated by privileged process
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: mm_get_keystate: Waiting for new keys
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: mm_request_receive_expect: entering, type 26
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: mm_request_receive: entering
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: mm_get_keystate: GOT new keys
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug1: auth_activate_options: setting new authentication options [preauth]
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug2: userauth_pubkey: authenticated 1 pkalg ssh-ed25519 [preauth]
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: user_specific_delay: user specific delay 0.000ms [preauth]
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: ensure_minimum_time_since: elapsed 2.000ms, delaying 6.231ms (requested 8.231ms) [preauth]
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: send packet: type 52 [preauth]
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: mm_request_send: entering, type 26 [preauth]
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: mm_send_keystate: Finished sending state [preauth]
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug1: monitor_read_log: child log fd closed
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: LsaLogonUser Succeeded (Impersonation: 1)
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: spawning "C:\\WINDOWS\\System32\\OpenSSH\\sshd.exe" -z as user
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: send_rexec_state: entering fd = 5 config len 2217
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: ssh_msg_send: type 0
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: send_rexec_state: done
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: ssh_msg_send: type 0
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: ssh_msg_send: type 0
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: ssh_msg_send: type 0
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: ssh_msg_send: type 0
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: ssh_msg_send: type 0
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: process_channel_timeouts: setting 0 timeouts
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: channel_clear_timeouts: clearing
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: recv_idexch_state: entering fd = 3
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: ssh_msg_recv entering
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: recv_idexch_state: done
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug2: fd 5 setting O_NONBLOCK
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: recv_autxctx_state: entering fd = 3
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: ssh_msg_recv entering
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: recv_autxctx_state: done
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug2: parse_server_config_depth: config reprocess config len 2217
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: checking match for 'Group administrators' user bhyslop host 100.100.223.55 addr 
+              100.100.223.55 laddr 100.112.50.29 lport 22
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: get_user_token - i am running as bhyslop, returning process token
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug1: user bhyslop matched group list administrators at line 88
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: match found
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: reprocess config:89 setting AuthorizedKeysFile 
+              __PROGRAMDATA__/ssh/administrators_authorized_keys
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: monitor_recv_keystate: entering 
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: ssh_msg_recv entering
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: monitor_recv_keystate: done
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: monitor_apply_keystate: packet_set_state
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug2: ssh_set_newkeys: mode 0
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug1: rekey in after 4294967296 blocks
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug2: ssh_set_newkeys: mode 1
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug1: rekey out after 4294967296 blocks
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug1: ssh_packet_set_postauth: called
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: ssh_packet_set_state: done
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: monitor_recv_authopt: entering 
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: ssh_msg_recv entering
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: monitor_recv_authopt: done
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: notify_hostkeys: key 0: ssh-rsa SHA256:pMIycYrhgNfUsONaF9GlDXTvSirFAm2GXSfrQBxTh1Y
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: notify_hostkeys: key 1: ecdsa-sha2-nistp256 
+              SHA256:gyZUiNhyB2WJYxOFJ9TGIZhysMsn4CZva/yuWWp5KRE
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: notify_hostkeys: key 2: ssh-ed25519 SHA256:/rWRtcgqvO+OrzdxY++wZnp3mjs8QSmpB/4qSKfQN+w
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: notify_hostkeys: sent 3 hostkeys
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: send packet: type 80
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug1: active: key options: agent-forwarding port-forwarding pty user-rc x11-forwarding
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug1: Entering interactive session for SSH2.
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug1: server_init_dispatch
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: receive packet: type 90
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug1: server_input_channel_open: ctype session rchan 0 win 2097152 max 32768
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug1: input_session_request
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug1: channel 0: new session [server-session] (inactive timeout: 0)
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug2: session_new: allocate (allocated 0 max 10)
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: session_unused: session id 0 unused
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug1: session_new: session 0
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug1: session_open: channel 0
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug1: session_open: session 0: link with channel 0
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug1: server_input_channel_open: confirm session
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: send packet: type 91
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: receive packet: type 80
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug1: server_input_global_request: rtype no-more-sessions@openssh.com want_reply 0
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: receive packet: type 98
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug1: server_input_channel_req: channel 0 request env reply 0
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug1: session_by_channel: session 0 channel 0
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug1: session_input_channel_req: session 0 req env
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug2: Ignoring env request LANG: disallowed name
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: receive packet: type 98
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug1: server_input_channel_req: channel 0 request env reply 0
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug1: session_by_channel: session 0 channel 0
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug1: session_input_channel_req: session 0 req env
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug2: Ignoring env request LC_TERMINAL_VERSION: disallowed name
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: receive packet: type 98
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug1: server_input_channel_req: channel 0 request env reply 0
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug1: session_by_channel: session 0 channel 0
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug1: session_input_channel_req: session 0 req env
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug2: Ignoring env request LC_TERMINAL: disallowed name
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: receive packet: type 98
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug1: server_input_channel_req: channel 0 request exec reply 1
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug1: session_by_channel: session 0 channel 0
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug1: session_input_channel_req: session 0 req exec
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug2: channel_set_xtype: labeled channel 0 as session:command (inactive timeout 0)
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug2: fd 8 setting O_NONBLOCK
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug2: fd 9 setting O_NONBLOCK
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug2: fd 10 setting O_NONBLOCK
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug2: fd 11 setting O_NONBLOCK
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug2: fd 12 setting O_NONBLOCK
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug2: fd 13 setting O_NONBLOCK
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: shell: "c:\\\\windows\\\\system32\\\\cmd.exe"
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: shell_option: /c
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: exec_command: powershell -NoProfile -Command "Get-WinEvent -FilterHashtable 
+              @{LogName=\\\\"OpenSSH/Debug\\\\"; StartTime=(Get-Date).AddSeconds(-30)} -ErrorAction SilentlyContinue | 
+              Sort-Object TimeCreated | Format-List TimeCreated,Message"
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: arg escape option: TRUE
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: spawn_argv[0]: "c:\\\\windows\\\\system32\\\\cmd.exe" /c "powershell -NoProfile -Command 
+              "Get-WinEvent -FilterHashtable @{LogName=\\\\"OpenSSH/Debug\\\\"; StartTime=(Get-Date).AddSeconds(-30)} 
+              -ErrorAction SilentlyContinue | Sort-Object TimeCreated | Format-List TimeCreated,Message""
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: spawning "c:\\\\windows\\\\system32\\\\cmd.exe" /c "powershell -NoProfile -Command 
+              "Get-WinEvent -FilterHashtable @{LogName=\\\\"OpenSSH/Debug\\\\"; StartTime=(Get-Date).AddSeconds(-30)} 
+              -ErrorAction SilentlyContinue | Sort-Object TimeCreated | Format-List TimeCreated,Message"" as subprocess
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug2: fd 5 setting TCP_NODELAY
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: fd 10 is O_NONBLOCK
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: fd 9 is O_NONBLOCK
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: fd 12 is O_NONBLOCK
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: send packet: type 99
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: receive packet: type 96
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug2: channel 0: rcvd eof
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug2: channel 0: output open -> drain
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug2: channel 0: obuf empty
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug2: chan_shutdown_write: channel 0: (i0 o1 sock -1 wfd 9 efd 12 [read])
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug2: channel 0: output drain -> closed
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug2: channel 0: read 114 from efd 12
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug2: channel 0: rwin 2097152 elen 114 euse 1
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug2: channel 0: sent ext data 114
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug2: channel 0: read 117 from efd 12
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug2: channel 0: rwin 2097038 elen 117 euse 1
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug2: channel 0: sent ext data 117
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug2: channel 0: read 18 from efd 12
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug2: channel 0: rwin 2096921 elen 18 euse 1
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug2: channel 0: sent ext data 18
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug2: channel 0: read 77 from efd 12
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug2: channel 0: rwin 2096903 elen 77 euse 1
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug2: channel 0: sent ext data 77
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug2: channel 0: read 270 from efd 12
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug2: channel 0: rwin 2096826 elen 270 euse 1
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug2: channel 0: sent ext data 270
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug2: channel 0: read 3 from efd 12
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug2: channel 0: rwin 2096556 elen 3 euse 1
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug2: channel 0: sent ext data 3
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug2: channel 0: read failed rfd 10 maxlen 32768: Broken pipe
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug2: channel 0: read failed
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug2: chan_shutdown_read: channel 0: (i0 o3 sock -1 wfd 10 efd 12 [read])
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug2: channel 0: input open -> drain
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug2: channel 0: read 0 from efd 12
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug2: channel 0: closing read-efd 12
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug2: channel 0: ibuf empty
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug2: channel 0: send eof
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: send packet: type 96
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug2: channel 0: input drain -> closed
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug1: Received SIGCHLD.
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug1: session_by_pid: pid 15568
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug2: channel 0: request exit-status confirm 0
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: send packet: type 98
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug1: session_exit_message: session 0 channel 0 pid 15568 exit 1
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug1: session_exit_message: release channel 0
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug2: channel 0: send close
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: send packet: type 97
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: channel 0: will not send data after close
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: receive packet: type 97
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug2: channel 0: rcvd close
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: channel 0: will not send data after close
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug2: channel 0: is dead
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug2: channel 0: gc: notify user
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug1: session_by_channel: session 0 channel 0
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug1: session_close_by_channel: channel 0 child 0
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: session_unused: session id 0 unused
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug2: channel 0: gc: user detached
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug2: channel 0: is dead
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug2: channel 0: garbage collecting
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug1: channel 0: free: server-session, nchannels 1
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: channel 0: status: The following connections are open:\\r\\n  #0 server-session (t4 
+              [session:command] r0 i3/0 o3/0 e[closed]/0 fd -1/-1/-1 sock -1 cc -1 io 0x00/0x00)\\r\\n
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: receive packet: type 1
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug1: do_cleanup
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug3: mm_request_receive: entering
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug1: do_cleanup
+
+TimeCreated : 5/11/2026 6:40:10 AM
+Message     : sshd: debug2: pselect_notify_done: reading
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: fd 6 is not O_NONBLOCK
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: spawning "C:\\WINDOWS\\System32\\OpenSSH\\sshd.exe" -R as subprocess
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: send_rexec_state: entering fd = 10 config len 2217
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: ssh_msg_send: type 0
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: send_rexec_state: done
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug1: inetd sockets after dupping: 4, 4
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: process_channel_timeouts: setting 0 timeouts
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: channel_clear_timeouts: clearing
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug1: Local version string SSH-2.0-OpenSSH_for_Windows_9.5
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug1: Remote protocol version 2.0, remote software version OpenSSH_10.0
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug1: compat_banner: match: OpenSSH_10.0 pat OpenSSH* compat 0x04000000
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug2: fd 4 setting O_NONBLOCK
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: spawning "C:\\WINDOWS\\System32\\OpenSSH\\sshd.exe" -y as user
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug2: Network child is on pid 11808
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: send_rexec_state: entering fd = 6 config len 2217
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: ssh_msg_send: type 0
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: send_rexec_state: done
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: ssh_msg_send: type 0
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: ssh_msg_send: type 0
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: preauth child monitor started
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: process_channel_timeouts: setting 0 timeouts
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: channel_clear_timeouts: clearing
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: recv_idexch_state: entering fd = 3
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: ssh_msg_recv entering
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: recv_idexch_state: done
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug2: fd 5 setting O_NONBLOCK
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: append_hostkey_type: ssh-rsa key not permitted by HostkeyAlgorithms [preauth]
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug1: list_hostkey_types: rsa-sha2-512,rsa-sha2-256,ecdsa-sha2-nistp256,ssh-ed25519 [preauth]
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: send packet: type 20 [preauth]
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug1: SSH2_MSG_KEXINIT sent [preauth]
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: receive packet: type 20 [preauth]
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug1: SSH2_MSG_KEXINIT received [preauth]
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug2: local server KEXINIT proposal [preauth]
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug2: KEX algorithms: curve25519-sha256,curve25519-sha256@libssh.org,ecdh-sha2-nistp256,ecdh-sha2
+              -nistp384,ecdh-sha2-nistp521,diffie-hellman-group-exchange-sha256,diffie-hellman-group16-sha512,diffie-he
+              llman-group18-sha512,diffie-hellman-group14-sha256,kex-strict-s-v00@openssh.com [preauth]
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug2: host key algorithms: rsa-sha2-512,rsa-sha2-256,ecdsa-sha2-nistp256,ssh-ed25519 [preauth]
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug2: ciphers ctos: chacha20-poly1305@openssh.com,aes128-ctr,aes192-ctr,aes256-ctr,aes128-gcm@ope
+              nssh.com,aes256-gcm@openssh.com [preauth]
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug2: ciphers stoc: chacha20-poly1305@openssh.com,aes128-ctr,aes192-ctr,aes256-ctr,aes128-gcm@ope
+              nssh.com,aes256-gcm@openssh.com [preauth]
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug2: MACs ctos: umac-64-etm@openssh.com,umac-128-etm@openssh.com,hmac-sha2-256-etm@openssh.com,h
+              mac-sha2-512-etm@openssh.com,umac-64@openssh.com,umac-128@openssh.com,hmac-sha2-256,hmac-sha2-512 
+              [preauth]
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug2: MACs stoc: umac-64-etm@openssh.com,umac-128-etm@openssh.com,hmac-sha2-256-etm@openssh.com,h
+              mac-sha2-512-etm@openssh.com,umac-64@openssh.com,umac-128@openssh.com,hmac-sha2-256,hmac-sha2-512 
+              [preauth]
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug2: compression ctos: none,zlib@openssh.com [preauth]
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug2: compression stoc: none,zlib@openssh.com [preauth]
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug2: languages ctos:  [preauth]
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug2: languages stoc:  [preauth]
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug2: first_kex_follows 0  [preauth]
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug2: reserved 0  [preauth]
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug2: peer client KEXINIT proposal [preauth]
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug2: KEX algorithms: ecdh-sha2-nistp256,mlkem768x25519-sha256,sntrup761x25519-sha512,sntrup761x2
+              5519-sha512@openssh.com,curve25519-sha256,curve25519-sha256@libssh.org,ecdh-sha2-nistp384,ecdh-sha2-nistp
+              521,diffie-hellman-group-exchange-sha256,diffie-hellman-group16-sha512,diffie-hellman-group18-sha512,diff
+              ie-hellman-group14-sha256,ext-info-c,kex-strict-c-v00@openssh.com [preauth]
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug2: host key algorithms: ssh-ed25519-cert-v01@openssh.com,ecdsa-sha2-nistp256-cert-v01@openssh.
+              com,ecdsa-sha2-nistp384-cert-v01@openssh.com,ecdsa-sha2-nistp521-cert-v01@openssh.com,sk-ssh-ed25519-cert
+              -v01@openssh.com,sk-ecdsa-sha2-nistp256-cert-v01@openssh.com,rsa-sha2-512-cert-v01@openssh.com,rsa-sha2-2
+              56-cert-v01@openssh.com,ssh-ed25519,ecdsa-sha2-nistp256,ecdsa-sha2-nistp384,ecdsa-sha2-nistp521,sk-ssh-ed
+              25519@openssh.com,sk-ecdsa-sha2-nistp256@openssh.com,rsa-sha2-512,rsa-sha2-256 [preauth]
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug2: ciphers ctos: aes128-gcm@openssh.com,aes256-gcm@openssh.com,chacha20-poly1305@openssh.com,a
+              es128-ctr,aes192-ctr,aes256-ctr [preauth]
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug2: ciphers stoc: aes128-gcm@openssh.com,aes256-gcm@openssh.com,chacha20-poly1305@openssh.com,a
+              es128-ctr,aes192-ctr,aes256-ctr [preauth]
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug2: MACs ctos: hmac-sha2-256-etm@openssh.com,hmac-sha2-256,umac-64-etm@openssh.com,umac-128-etm
+              @openssh.com,hmac-sha2-512-etm@openssh.com,hmac-sha1-etm@openssh.com,umac-64@openssh.com,umac-128@openssh
+              .com,hmac-sha2-512,hmac-sha1 [preauth]
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug2: MACs stoc: hmac-sha2-256-etm@openssh.com,hmac-sha2-256,umac-64-etm@openssh.com,umac-128-etm
+              @openssh.com,hmac-sha2-512-etm@openssh.com,hmac-sha1-etm@openssh.com,umac-64@openssh.com,umac-128@openssh
+              .com,hmac-sha2-512,hmac-sha1 [preauth]
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug2: compression ctos: none,zlib@openssh.com [preauth]
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug2: compression stoc: none,zlib@openssh.com [preauth]
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug2: languages ctos:  [preauth]
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug2: languages stoc:  [preauth]
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug2: first_kex_follows 0  [preauth]
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug2: reserved 0  [preauth]
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: kex_choose_conf: will use strict KEX ordering [preauth]
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug1: kex: algorithm: ecdh-sha2-nistp256 [preauth]
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug1: kex: host key algorithm: ssh-ed25519 [preauth]
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug1: kex: client->server cipher: aes128-gcm@openssh.com MAC: <implicit> compression: none 
+              [preauth]
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug1: kex: server->client cipher: aes128-gcm@openssh.com MAC: <implicit> compression: none 
+              [preauth]
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug1: expecting SSH2_MSG_KEX_ECDH_INIT [preauth]
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: receive packet: type 30 [preauth]
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug1: SSH2_MSG_KEX_ECDH_INIT received [preauth]
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: mm_sshkey_sign: entering [preauth]
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: mm_request_send: entering, type 6 [preauth]
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: mm_sshkey_sign: waiting for MONITOR_ANS_SIGN [preauth]
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: mm_request_receive_expect: entering, type 7 [preauth]
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: mm_request_receive: entering [preauth]
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: mm_request_receive: entering
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: monitor_read: checking request 6
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: mm_answer_sign: entering
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: mm_answer_sign: ssh-ed25519 KEX signature len=83
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: mm_request_send: entering, type 7
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug2: monitor_read: 6 used once, disabling now
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: send packet: type 31 [preauth]
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: send packet: type 21 [preauth]
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug1: ssh_packet_send2_wrapped: resetting send seqnr 3 [preauth]
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug2: ssh_set_newkeys: mode 1 [preauth]
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug1: rekey out after 4294967296 blocks [preauth]
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug1: SSH2_MSG_NEWKEYS sent [preauth]
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug1: Sending SSH2_MSG_EXT_INFO [preauth]
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: send packet: type 7 [preauth]
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug1: expecting SSH2_MSG_NEWKEYS [preauth]
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: receive packet: type 21 [preauth]
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug1: ssh_packet_read_poll2: resetting read seqnr 3 [preauth]
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug1: SSH2_MSG_NEWKEYS received [preauth]
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug2: ssh_set_newkeys: mode 0 [preauth]
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug1: rekey in after 4294967296 blocks [preauth]
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug1: KEX done [preauth]
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: receive packet: type 5 [preauth]
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: send packet: type 6 [preauth]
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: receive packet: type 50 [preauth]
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug1: userauth-request for user bhyslop service ssh-connection method none [preauth]
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug1: attempt 0 failures 0 [preauth]
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: mm_getpwnamallow: entering [preauth]
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: mm_request_send: entering, type 8 [preauth]
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: mm_getpwnamallow: waiting for MONITOR_ANS_PWNAM [preauth]
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: mm_request_receive_expect: entering, type 9 [preauth]
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: mm_request_receive: entering [preauth]
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: mm_request_receive: entering
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: monitor_read: checking request 8
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: mm_answer_pwnamallow: entering
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug2: parse_server_config_depth: config reprocess config len 2217
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: checking match for 'Group administrators' user bhyslop host 100.100.223.55 addr 
+              100.100.223.55 laddr 100.112.50.29 lport 22
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: LsaLogonUser Succeeded (Impersonation: 0)
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug1: user bhyslop matched group list administrators at line 88
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: match found
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: reprocess config:89 setting AuthorizedKeysFile 
+              __PROGRAMDATA__/ssh/administrators_authorized_keys
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: mm_answer_pwnamallow: sending MONITOR_ANS_PWNAM: 1
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: mm_request_send: entering, type 9
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug2: monitor_read: 8 used once, disabling now
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: process_channel_timeouts: setting 0 timeouts [preauth]
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: channel_clear_timeouts: clearing [preauth]
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug2: input_userauth_request: setting up authctxt for bhyslop [preauth]
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: mm_inform_authserv: entering [preauth]
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: mm_request_send: entering, type 4 [preauth]
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug2: input_userauth_request: try method none [preauth]
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: userauth_finish: failure partial=0 next methods="publickey,keyboard-interactive" [preauth]
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: mm_request_receive: entering
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: monitor_read: checking request 4
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: mm_answer_authserv: service=ssh-connection, style=
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug2: monitor_read: 4 used once, disabling now
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: send packet: type 51 [preauth]
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: receive packet: type 50 [preauth]
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug1: userauth-request for user bhyslop service ssh-connection method publickey [preauth]
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug1: attempt 1 failures 0 [preauth]
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug2: input_userauth_request: try method publickey [preauth]
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug2: userauth_pubkey: valid user bhyslop querying public key ssh-ed25519 
+              AAAAC3NzaC1lZDI1NTE5AAAAINqo5TftE69ZojgSucBTbNJujahF0yCkxbKxJ6AR9aZJ [preauth]
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug1: userauth_pubkey: publickey test pkalg ssh-ed25519 pkblob ED25519 
+              SHA256:AEvGDYbtBM6yaMAm3hsPKunDlXj+tEjxJzX2RZyy50w [preauth]
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: mm_key_allowed: entering [preauth]
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: mm_request_send: entering, type 22 [preauth]
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: mm_key_allowed: waiting for MONITOR_ANS_KEYALLOWED [preauth]
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: mm_request_receive_expect: entering, type 23 [preauth]
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: mm_request_receive: entering [preauth]
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: mm_request_receive: entering
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: monitor_read: checking request 22
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: mm_answer_keyallowed: entering
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug1: trying public key file __PROGRAMDATA__/ssh/administrators_authorized_keys
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug1: __PROGRAMDATA__/ssh/administrators_authorized_keys:1: matching key found: ED25519 
+              SHA256:AEvGDYbtBM6yaMAm3hsPKunDlXj+tEjxJzX2RZyy50w
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug1: __PROGRAMDATA__/ssh/administrators_authorized_keys:1: key options: agent-forwarding 
+              port-forwarding pty user-rc x11-forwarding
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: __PROGRAMDATA__/ssh/administrators_authorized_keys:1: key options: agent-forwarding 
+              port-forwarding pty user-rc x11-forwarding
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug2: auth_check_authkeys_file: __PROGRAMDATA__/ssh/administrators_authorized_keys: processed 
+              1/1 lines
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: mm_answer_keyallowed: publickey authentication test: ED25519 key is allowed
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: mm_request_send: entering, type 23
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: send packet: type 60 [preauth]
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug2: userauth_pubkey: authenticated 0 pkalg ssh-ed25519 [preauth]
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: user_specific_delay: user specific delay 0.000ms [preauth]
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: ensure_minimum_time_since: elapsed 1.000ms, delaying 7.231ms (requested 8.231ms) [preauth]
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: receive packet: type 50 [preauth]
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug1: userauth-request for user bhyslop service ssh-connection method 
+              publickey-hostbound-v00@openssh.com [preauth]
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug1: attempt 2 failures 0 [preauth]
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug2: input_userauth_request: try method publickey-hostbound-v00@openssh.com [preauth]
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug2: userauth_pubkey: valid user bhyslop attempting public key ssh-ed25519 
+              AAAAC3NzaC1lZDI1NTE5AAAAINqo5TftE69ZojgSucBTbNJujahF0yCkxbKxJ6AR9aZJ [preauth]
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: userauth_pubkey: publickey-hostbound-v00@openssh.com have ssh-ed25519 signature for 
+              ED25519 SHA256:AEvGDYbtBM6yaMAm3hsPKunDlXj+tEjxJzX2RZyy50w [preauth]
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: mm_key_allowed: entering [preauth]
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: mm_request_send: entering, type 22 [preauth]
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: mm_key_allowed: waiting for MONITOR_ANS_KEYALLOWED [preauth]
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: mm_request_receive_expect: entering, type 23 [preauth]
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: mm_request_receive: entering [preauth]
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: mm_request_receive: entering
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: monitor_read: checking request 22
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: mm_answer_keyallowed: entering
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug1: trying public key file __PROGRAMDATA__/ssh/administrators_authorized_keys
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug1: __PROGRAMDATA__/ssh/administrators_authorized_keys:1: matching key found: ED25519 
+              SHA256:AEvGDYbtBM6yaMAm3hsPKunDlXj+tEjxJzX2RZyy50w
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug1: __PROGRAMDATA__/ssh/administrators_authorized_keys:1: key options: agent-forwarding 
+              port-forwarding pty user-rc x11-forwarding
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: __PROGRAMDATA__/ssh/administrators_authorized_keys:1: key options: agent-forwarding 
+              port-forwarding pty user-rc x11-forwarding
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug2: auth_check_authkeys_file: __PROGRAMDATA__/ssh/administrators_authorized_keys: processed 
+              1/1 lines
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: mm_answer_keyallowed: publickey authentication: ED25519 key is allowed
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: mm_request_send: entering, type 23
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: mm_sshkey_verify: entering [preauth]
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: mm_request_send: entering, type 24 [preauth]
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: mm_sshkey_verify: waiting for MONITOR_ANS_KEYVERIFY [preauth]
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: mm_request_receive_expect: entering, type 25 [preauth]
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: mm_request_receive: entering [preauth]
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: mm_request_receive: entering
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: monitor_read: checking request 24
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: mm_answer_keyverify: publickey ED25519 signature using ssh-ed25519 verified
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug1: auth_activate_options: setting new authentication options
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: mm_request_send: entering, type 25
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug1: monitor_child_preauth: user bhyslop authenticated by privileged process
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: mm_get_keystate: Waiting for new keys
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: mm_request_receive_expect: entering, type 26
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: mm_request_receive: entering
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: mm_get_keystate: GOT new keys
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug1: auth_activate_options: setting new authentication options [preauth]
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug2: userauth_pubkey: authenticated 1 pkalg ssh-ed25519 [preauth]
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: user_specific_delay: user specific delay 0.000ms [preauth]
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: ensure_minimum_time_since: elapsed 2.000ms, delaying 6.231ms (requested 8.231ms) [preauth]
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: send packet: type 52 [preauth]
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: mm_request_send: entering, type 26 [preauth]
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: mm_send_keystate: Finished sending state [preauth]
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug1: monitor_read_log: child log fd closed
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: LsaLogonUser Succeeded (Impersonation: 1)
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: spawning "C:\\WINDOWS\\System32\\OpenSSH\\sshd.exe" -z as user
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: send_rexec_state: entering fd = 5 config len 2217
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: ssh_msg_send: type 0
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: send_rexec_state: done
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: ssh_msg_send: type 0
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: ssh_msg_send: type 0
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: ssh_msg_send: type 0
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: ssh_msg_send: type 0
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: ssh_msg_send: type 0
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: process_channel_timeouts: setting 0 timeouts
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: channel_clear_timeouts: clearing
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: recv_idexch_state: entering fd = 3
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: ssh_msg_recv entering
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: recv_idexch_state: done
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug2: fd 5 setting O_NONBLOCK
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: recv_autxctx_state: entering fd = 3
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: ssh_msg_recv entering
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: recv_autxctx_state: done
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug2: parse_server_config_depth: config reprocess config len 2217
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: checking match for 'Group administrators' user bhyslop host 100.100.223.55 addr 
+              100.100.223.55 laddr 100.112.50.29 lport 22
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: get_user_token - i am running as bhyslop, returning process token
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug1: user bhyslop matched group list administrators at line 88
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: match found
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: reprocess config:89 setting AuthorizedKeysFile 
+              __PROGRAMDATA__/ssh/administrators_authorized_keys
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: monitor_recv_keystate: entering 
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: ssh_msg_recv entering
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: monitor_recv_keystate: done
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: monitor_apply_keystate: packet_set_state
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug2: ssh_set_newkeys: mode 0
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug1: rekey in after 4294967296 blocks
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug2: ssh_set_newkeys: mode 1
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug1: rekey out after 4294967296 blocks
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug1: ssh_packet_set_postauth: called
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: ssh_packet_set_state: done
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: monitor_recv_authopt: entering 
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: ssh_msg_recv entering
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: monitor_recv_authopt: done
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: notify_hostkeys: key 0: ssh-rsa SHA256:pMIycYrhgNfUsONaF9GlDXTvSirFAm2GXSfrQBxTh1Y
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: notify_hostkeys: key 1: ecdsa-sha2-nistp256 
+              SHA256:gyZUiNhyB2WJYxOFJ9TGIZhysMsn4CZva/yuWWp5KRE
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: notify_hostkeys: key 2: ssh-ed25519 SHA256:/rWRtcgqvO+OrzdxY++wZnp3mjs8QSmpB/4qSKfQN+w
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: notify_hostkeys: sent 3 hostkeys
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: send packet: type 80
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug1: active: key options: agent-forwarding port-forwarding pty user-rc x11-forwarding
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug1: Entering interactive session for SSH2.
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug1: server_init_dispatch
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: receive packet: type 90
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug1: server_input_channel_open: ctype session rchan 0 win 2097152 max 32768
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug1: input_session_request
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug1: channel 0: new session [server-session] (inactive timeout: 0)
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug2: session_new: allocate (allocated 0 max 10)
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: session_unused: session id 0 unused
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug1: session_new: session 0
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug1: session_open: channel 0
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug1: session_open: session 0: link with channel 0
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug1: server_input_channel_open: confirm session
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: send packet: type 91
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug3: receive packet: type 80
+
+TimeCreated : 5/11/2026 6:40:15 AM
+Message     : sshd: debug1: server_input_global_request: rtype no-more-sessions@openssh.com want_reply 0
+
+TimeCreated : 5/11/2026 6:40:16 AM
+Message     : sshd: debug3: receive packet: type 98
+
+TimeCreated : 5/11/2026 6:40:16 AM
+Message     : sshd: debug1: server_input_channel_req: channel 0 request env reply 0
+
+TimeCreated : 5/11/2026 6:40:16 AM
+Message     : sshd: debug1: session_by_channel: session 0 channel 0
+
+TimeCreated : 5/11/2026 6:40:16 AM
+Message     : sshd: debug1: session_input_channel_req: session 0 req env
+
+TimeCreated : 5/11/2026 6:40:16 AM
+Message     : sshd: debug2: Ignoring env request LANG: disallowed name
+
+TimeCreated : 5/11/2026 6:40:16 AM
+Message     : sshd: debug3: receive packet: type 98
+
+TimeCreated : 5/11/2026 6:40:16 AM
+Message     : sshd: debug1: server_input_channel_req: channel 0 request env reply 0
+
+TimeCreated : 5/11/2026 6:40:16 AM
+Message     : sshd: debug1: session_by_channel: session 0 channel 0
+
+TimeCreated : 5/11/2026 6:40:16 AM
+Message     : sshd: debug1: session_input_channel_req: session 0 req env
+
+TimeCreated : 5/11/2026 6:40:16 AM
+Message     : sshd: debug2: Ignoring env request LC_TERMINAL_VERSION: disallowed name
+
+TimeCreated : 5/11/2026 6:40:16 AM
+Message     : sshd: debug3: receive packet: type 98
+
+TimeCreated : 5/11/2026 6:40:16 AM
+Message     : sshd: debug1: server_input_channel_req: channel 0 request env reply 0
+
+TimeCreated : 5/11/2026 6:40:16 AM
+Message     : sshd: debug1: session_by_channel: session 0 channel 0
+
+TimeCreated : 5/11/2026 6:40:16 AM
+Message     : sshd: debug1: session_input_channel_req: session 0 req env
+
+TimeCreated : 5/11/2026 6:40:16 AM
+Message     : sshd: debug2: Ignoring env request LC_TERMINAL: disallowed name
+
+TimeCreated : 5/11/2026 6:40:16 AM
+Message     : sshd: debug3: receive packet: type 98
+
+TimeCreated : 5/11/2026 6:40:16 AM
+Message     : sshd: debug1: server_input_channel_req: channel 0 request exec reply 1
+
+TimeCreated : 5/11/2026 6:40:16 AM
+Message     : sshd: debug1: session_by_channel: session 0 channel 0
+
+TimeCreated : 5/11/2026 6:40:16 AM
+Message     : sshd: debug1: session_input_channel_req: session 0 req exec
+
+TimeCreated : 5/11/2026 6:40:16 AM
+Message     : sshd: debug2: channel_set_xtype: labeled channel 0 as session:command (inactive timeout 0)
+
+TimeCreated : 5/11/2026 6:40:16 AM
+Message     : sshd: debug2: fd 8 setting O_NONBLOCK
+
+TimeCreated : 5/11/2026 6:40:16 AM
+Message     : sshd: debug2: fd 9 setting O_NONBLOCK
+
+TimeCreated : 5/11/2026 6:40:16 AM
+Message     : sshd: debug2: fd 10 setting O_NONBLOCK
+
+TimeCreated : 5/11/2026 6:40:16 AM
+Message     : sshd: debug2: fd 11 setting O_NONBLOCK
+
+TimeCreated : 5/11/2026 6:40:16 AM
+Message     : sshd: debug2: fd 12 setting O_NONBLOCK
+
+TimeCreated : 5/11/2026 6:40:16 AM
+Message     : sshd: debug2: fd 13 setting O_NONBLOCK
+
+TimeCreated : 5/11/2026 6:40:16 AM
+Message     : sshd: debug3: shell: "c:\\\\windows\\\\system32\\\\cmd.exe"
+
+TimeCreated : 5/11/2026 6:40:16 AM
+Message     : sshd: debug3: shell_option: /c
+
+TimeCreated : 5/11/2026 6:40:16 AM
+Message     : sshd: debug3: exec_command: powershell -NoProfile -Command "Get-WinEvent -FilterHashtable 
+              @{LogName=\\\\"OpenSSH/Debug\\\\"; StartTime=(Get-Date).AddSeconds(-30)} -Oldest -ErrorAction 
+              SilentlyContinue | Format-List TimeCreated,Message"
+
+TimeCreated : 5/11/2026 6:40:16 AM
+Message     : sshd: debug3: arg escape option: TRUE
+
+TimeCreated : 5/11/2026 6:40:16 AM
+Message     : sshd: debug3: spawn_argv[0]: "c:\\\\windows\\\\system32\\\\cmd.exe" /c "powershell -NoProfile -Command 
+              "Get-WinEvent -FilterHashtable @{LogName=\\\\"OpenSSH/Debug\\\\"; StartTime=(Get-Date).AddSeconds(-30)} 
+              -Oldest -ErrorAction SilentlyContinue | Format-List TimeCreated,Message""
+
+TimeCreated : 5/11/2026 6:40:16 AM
+Message     : sshd: debug3: spawning "c:\\\\windows\\\\system32\\\\cmd.exe" /c "powershell -NoProfile -Command 
+              "Get-WinEvent -FilterHashtable @{LogName=\\\\"OpenSSH/Debug\\\\"; StartTime=(Get-Date).AddSeconds(-30)} 
+              -Oldest -ErrorAction SilentlyContinue | Format-List TimeCreated,Message"" as subprocess
+
+TimeCreated : 5/11/2026 6:40:16 AM
+Message     : sshd: debug2: fd 5 setting TCP_NODELAY
+
+TimeCreated : 5/11/2026 6:40:16 AM
+Message     : sshd: debug3: fd 10 is O_NONBLOCK
+
+TimeCreated : 5/11/2026 6:40:16 AM
+Message     : sshd: debug3: fd 9 is O_NONBLOCK
+
+TimeCreated : 5/11/2026 6:40:16 AM
+Message     : sshd: debug3: fd 12 is O_NONBLOCK
+
+TimeCreated : 5/11/2026 6:40:16 AM
+Message     : sshd: debug3: send packet: type 99
+
+TimeCreated : 5/11/2026 6:40:16 AM
+Message     : sshd: debug3: receive packet: type 96
+
+TimeCreated : 5/11/2026 6:40:16 AM
+Message     : sshd: debug2: channel 0: rcvd eof
+
+TimeCreated : 5/11/2026 6:40:16 AM
+Message     : sshd: debug2: channel 0: output open -> drain
+
+TimeCreated : 5/11/2026 6:40:16 AM
+Message     : sshd: debug2: channel 0: obuf empty
+
+TimeCreated : 5/11/2026 6:40:16 AM
+Message     : sshd: debug2: chan_shutdown_write: channel 0: (i0 o1 sock -1 wfd 9 efd 12 [read])
+
+TimeCreated : 5/11/2026 6:40:16 AM
+Message     : sshd: debug2: channel 0: output drain -> closed
+
+
+

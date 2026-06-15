@@ -1,0 +1,679 @@
+# jjezs_paddock ₣A6
+
+## Character
+
+Iterative discovery work. This paddock is a living document that evolves through **interview-implement-interview cycles**, not a one-shot design phase. Implementation paces teach us things the interview cannot; interview paces integrate what was learned and unblock the next build. Cognitive posture: patient exploration over productive rush, willingness to revise decisions when implementation contradicts them.
+
+Teaching pedagogy is distinct from setup choreography. This heat is about helping learners internalize Recipe Bottle's **novel conceptual apparatus** — vessels, depots, hallmarks, vouching, ordain modes, charters, knights, pentacles, bottles, sentries — not about walking them through prescribed setup steps. Setup steps happen, but they are in service of understanding. General container and GCP knowledge is assumed.
+
+## Prerequisites
+
+`₣A3` (rbk-mvp-3-onboarding-guides) must complete and retire before this heat races:
+- `₢A3AAI` (buh-handbook-rename-sweep) — bug→buh module rename
+- `₢A3AAJ` (rbgm-split-to-rbho-rbhp) — file structure in place
+- `₢A3AAF` (docs-alignment-and-cross-machine-validation) — final A3 validation
+
+After A3 retires, this heat consumes `Tools/rbk/rbho_onboarding.sh` as the home for new handbook content. New tabtargets use a **two-colophon scheme**: `rbw-o` (lowercase, terminal) for the onboarding StartHere entry point, and `rbw-O*` (uppercase family) for individual onboarding handbook tracks (e.g. `rbw-Occ.OnboardingCrashCourse.sh`). This replaces the old `rbw-gO*` onboarding family from A3. The case-split family is a deliberate starting-letter differentiation for clarity. (The initially-proposed `rbw-h?` prefix was found to collide with the existing Hallmark tabtarget family — see Provenance.)
+
+## Context — The Malformation
+
+A3 produced onboarding guides organized around four "role tracks" (retriever, director, governor, payor). The decomposition followed **authorization boundaries** — which roles can perform which actions. But learners don't come to the tool with a role; they come with an **intent**. They want to explore local containers, evaluate the cloud build engine, set up billing, or administer credentials. Role-tracks answered "what can I do next?" but never "what does this mean?" The teaching was setup-oriented, not understanding-oriented.
+
+Breakthrough insight (from the interview distilled in this paddock): **learners decompose along intent and goal, not along authorization**. The same probe can appear in multiple handbooks with different teaching contexts. The same role can appear in multiple tracks for different learner goals. Authorization gates actions; intent shapes learning.
+
+## Design Decision Record
+
+### Frame 4-refined — Handbook as Self-Describing Document
+
+Every handbook tabtarget prints a complete teaching document with live probe results interleaved. Units alternate between:
+
+- **Verified units**: teaching prose + embedded probe status (✓/✗ with concrete values) + tabtarget reference to run for fix
+- **Teaching-only units**: pure conceptual explanation, no probes, no checkmarks
+
+A learner reads top-to-bottom for teaching; an expert scrolls for the first red probe; a mid-learner reads around what's broken. **One format, three reading strategies** — no mode switching, no state-based branching logic, no walkthrough-vs-reference conflation.
+
+### Probe-Aware Menu Routing
+
+`tt/rbw-o.OnboardingStartHere.sh` runs quick triage probes and highlights menu items based on repo state. Unpopulated RBRR highlights the payor path. Populated RBRR plus existing RBRA highlights "find your role." Static menu items remain visible so learners can override routing — probe-aware is guidance, not gating.
+
+### Handbook Output Is Ephemeral
+
+**Handbook steps don't log.** Teaching output is ephemeral UX; logs are for commands that change state. A `buh_*` display call produces no log file. Commands invoked from within handbook-guided flow still log normally. The split is between **teaching conversation** (ephemeral) and **persistent operations** (logged).
+
+### No Step Recording, No Mode Switching
+
+Earlier A3 drafts tracked steps taken and supported walkthrough/reference mode switching. Both removed. Retrospection comes from re-running the handbook (which re-displays teaching with current probe state). If a future switchboard layer wants to provide history, it reads logs and probes without any track instrumentation. Tracks stay stateless and idempotent.
+
+### Monotonic vs Cyclic Probes
+
+Some probes check stable state (RBRR populated, SA files present, reliquary inscribed) — once green, they stay green for a long time. Others check cyclic state (OAuth tokens expire, crucible charge state is transient) — red-after-green is routine. Teaching framing adjusts to cadence:
+- **Monotonic**: brief "here's what this is" on first encounter, terse diagnostic on re-check
+- **Cyclic**: "this resets, here's how to refresh" framing, no shame in running the refresh tabtarget
+
+### Per-Unit Brevity Discipline
+
+Each unit ≈ 3–5 sentences of teaching + 3–6 probe lines + one tabtarget reference. A full track of 8 units renders in ~240 lines — skimmable in 2 minutes, deep-readable in 10. Total track length stays disciplined by per-unit discipline, not by artificial caps.
+
+### Teach the Pattern, Not the Inventory
+
+The regime landscape has 13 regimes and a consistent `rbw-r{letter}{r|v}` tabtarget pattern. The crash course teaches the **pattern**, not the inventory. Once a learner owns the pattern, they can discover any regime's tools by knowing one letter. Six regimes are user-facing (teach on demand); the rest are deferred or invisible.
+
+### Shared Probes, Separate Teaching
+
+The same probe appears in multiple handbooks. RBRR probes appear in the payor handbook ("you are responsible for filling this") *and* the director handbook ("your payor established this; verify before building"). Same ground truth, different teaching context. This repetition is load-bearing — different learners in different sessions, each deserves their own framing.
+
+### Diagnostic Failure as First-Lesson Principle
+
+Running `tt/rbw-rrv.ValidateRepoRegime.sh` against incomplete state **fails diagnostically** — telling the learner exactly which fields need values. This is the crash course's first concrete teaching moment: *"In this system, configuration errors fail diagnostically. Trust the error messages."* Marshal Zero is internal release tooling and must not appear in onboarding content.
+
+## Regime Filtering for Pedagogy
+
+User-facing (teach on demand):
+- **BURC** — project-level BUK settings (`.buk/burc.env`)
+- **BURS** — per-developer station; `BURS_LOG_DIR` is the anchor
+- **RBRR** — repository regime (depot identity, shared across team, monotonic)
+- **RBRP** — payor regime (payor's own identity, stable across depot rotations)
+- **RBRV** — vessel regime (per-vessel image spec)
+- **RBRN** — nameplate regime (per-crucible deployment config)
+
+Deferred / barely mentioned: RBRS (future), RBRM (future), RBRO (invisible validator), RBRA (tooling-created, not hand-edited), BURE/BURD/BURX (infrastructure).
+
+Cleanup action items surfaced by interview:
+- `Tools/cccr.env` — delete (cruft)
+- `.rbk/rbje_compose_probe.env` — needs scrubbing, out of scope for onboarding
+
+## Rough Track Roster
+
+Working titles, evocative and distinct from the prior role placeholders. **All names are rough** and will be refined in later interview passes. Each track is a single `tt/rbw-O??.Onboarding{TrackName}.sh` tabtarget (uppercase-O family) rendering a complete teaching document in Frame 4-refined format. Final track acronyms (the `??` slots) are assigned during the drafting pace (₢A6AAA Artifact 3).
+
+**Vessel/nameplate assignments**: Tracks that involve hands-on container work should use concrete vessels shipped with the project, not abstract examples. The four shipped vessels and their teaching roles:
+
+| Vessel | Mode | Teaching role |
+|--------|------|---------------|
+| `rbev-sentry-deb-tether` | conjure (tether) | Sentry firewall image, daily-iteration variant; shared `common-sentry-context/` Dockerfile |
+| `rbev-sentry-deb-airgap` | conjure (airgap) | Sentry firewall image, airgap-built variant; same shared sentry context |
+| `rbev-bottle-ccyolo` | conjure | First crucible experience — Claude Code in a sandbox (₢A6AAG creates this) |
+| `rbev-bottle-ifrit-tether` | conjure (tether) | Adversarial testing vessel — daily-iteration variant, kludge-friendly (`common-ifrit-context/Dockerfile.tether`) |
+| `rbev-bottle-ifrit-airgap` | conjure (airgap) | Adversarial testing vessel — airgap-built variant, supply-chain disciplined (`common-ifrit-context/Dockerfile.airgap`, FROM forge) |
+| `rbev-bottle-ifrit-forge` | conjure (tether) | Build-time fixture: warms cargo cache + apt deps for airgap-ifrit; consumed input, not a runtime image |
+| `rbev-bottle-plantuml` | bind | Upstream image pinned by digest — teaches bind mode |
+| `rbev-bottle-graft-demo` | graft | Teaching-only graft vessel — local image pushed to GAR, no Dockerfile in project, no nameplate |
+
+| Nameplate | Sentry | Bottle | Teaching role |
+|-----------|--------|--------|---------------|
+| `ccyolo` | sentry-deb-tether | bottle-ccyolo | First crucible, kludge-only, Claude OAuth subscription required |
+| `tadmor` | sentry-deb-tether | bottle-ifrit-tether | Daily security test authoring, kludge-friendly iteration |
+| `moriah` | sentry-deb-airgap | bottle-ifrit-airgap | Airgap chain demonstration target (Building for Crucibles); cloud-built hallmarks; same security suite as tadmor |
+| `pluml` | sentry-deb-tether | bottle-plantuml | Bind mode demonstration |
+
+### Foundation (everyone)
+
+1. **Crash Course: Reading the Map** — universal prerequisite. Tabtargets, regimes, log placement, station vs versioned, the `rbw-r{letter}{r|v}` pattern. Local-only, no cloud, no image operations. Teaches BURC, BURS, RBRR at a surface level — enough to navigate the rest. Provisional acronym: `Occ`. **No vessels.**
+
+2. **Take Your Station** — joining an existing configured project. Verify your RBRA is placed correctly, run access probes, confirm you can operate in your role(s). Shortest path, mostly probe-driven with minimal teaching. **No vessels.**
+
+### Role-intent tracks
+
+3. **Kindle Your First Crucible** — crucible explorer. Kludge ccyolo locally, charge, shell in, authenticate Claude Code via OAuth copy/paste between bottle terminal and workstation browser. Teaches: crucible, charge/quench, sentry/pentacle/bottle composition, kludge mode for local hallmark synthesis. *First implementation target — simplest path, zero cloud, tightest feedback loop.* Prerequisite: Claude OAuth subscription. **Nameplate: `ccyolo`.** (Name flagged for "kindle" vocabulary overload — see Open Questions.)
+
+4. **Establish the Depot** — payor ceremony (~15 min). GCP project creation, OAuth consent screen, billing, RBRR initial population. Teaches: depot, payor responsibility, consent dance, the relationship between payor identity (RBRP) and depot identity (RBRR). **No vessels.**
+
+5. **Knight the Realm** — governor. SA administration: create governor/director/retriever SAs, issue RBRA credentials, distribute securely. Teaches: knight, charter, SA lifecycle, secret distribution discipline. **No vessels.**
+
+6. **Receive Your Knighthood** — cross-cutting mini-track for directors and retrievers receiving their RBRA from a governor. Place the file correctly (path derived from RBRR), verify via access probe, understand sensitivity. May appear as a unit within Director/Retriever tracks or as a standalone for experienced users receiving new credentials. **No vessels.**
+
+### Director subtracks (dependency-ordered)
+
+The director subtracks follow a strict dependency chain: inscribe → tethered → enshrine → airgap. Each track requires the previous track's outcome. The learner builds real shipped vessels — the same ones they already met in the crucible track.
+
+7. **Your First Ordination** — conceptual map, **no probes, no vessels**. Teaches the ordination pipeline shape: director pushes a pouch (build context) to GAR, Cloud Build produces an `-image` (the container) and an `-about` (the SBOM), then a separate job produces `-vouch` (provenance attestation). Introduces the tethered vs airgap egress mode fork. All teaching-only units.
+
+8. **Inscribe the Reliquary** — hands-on. Get builder tool images (skopeo, docker, gcloud, syft) into GAR. Prerequisite for all Cloud Build operations — conjure's preflight fails without a reliquary. Teaches: reliquary as co-versioned toolchain, `RBRV_RELIQUARY` in vessel regime. **No vessel target** (reliquary is tool infrastructure, not a vessel build).
+
+9. **Tethered Cloud Builds** — hands-on, first real cloud build. Tether pool has public internet; base images pulled from upstream during build. Wall-clock ~20 min — pedagogy needs to handle wait time (open question). Requires: reliquary inscribed. **Vessel: `rbev-sentry-debian-slim`** (conjure mode, learner already knows this vessel from the crucible track).
+
+10. **Enshrine the Ancestors** — hands-on. Mirror upstream base images into GAR with content-addressed anchors for **all shipped conjure vessels** (sentry-debian-slim, bottle-ccyolo, bottle-ifrit). Produces `RBRV_IMAGE_n_ANCHOR` values per vessel. Enshrine itself requires reliquary tool images. Teaches: supply-chain independence, anchor scheme, air-gap readiness, and the concrete scope of upstream dependencies the project carries. Requires: reliquary inscribed.
+
+11. **Airgap Your Builds** — hands-on, airgap pool with no public internet. All dependencies pre-enshrined in GAR. Most restrictive build mode, full isolation. Requires: enshrined base images. **Vessel: `rbev-sentry-debian-slim`** (rebuild the same vessel from track 9, now airgapped — proving the enshrined bases work).
+
+12. **Building for Crucibles** — ordain the vessels needed to charge a crucible from cloud-built hallmarks instead of kludged ones. The learner ordains the **ifrit forge** tethered (warming a cargo cache + pre-staging apt deps), then ordains **bottle-ifrit-airgap** on the airgap pool from the enshrined forge, drives the airgap hallmark into the **moriah** nameplate, charges, and runs the adversarial test suite — the same suite that runs against tadmor with kludged hallmarks. Closes the loop: the learner built the airgap security testing infrastructure themselves and validated containment against the same attacks. **Nameplate: `moriah`** (sentry-deb-airgap + bottle-ifrit-airgap). Tadmor remains the daily-iteration nameplate; it is not touched by this track.
+
+### Evaluation tracks (split by concern)
+
+Evaluators arrive with specific concerns, not a desire to tour everything. Three discrete tracks, each self-contained. **Framing matters**: these learners are evaluating, not executing. Critical eye, breadth over depth.
+
+13. **Assay: Supply Chain** — evaluator concerned with build provenance. Tours all three ordain modes using concrete shipped vessels: conjure (**sentry-debian-slim**), bind (**bottle-plantuml**), graft (**bottle-graft-demo** — no nameplate, just a local image pushed to GAR). Teaches: SLSA attestation chain, SBOM via plumb, vouch verdicts per mode (full SLSA / digest-pin / GRAFTED), pouch as security boundary, reliquary as toolchain control. The trust hierarchy across modes is the central lesson.
+
+14. **Assay: Containment** — evaluator concerned with runtime security. Tours the crucible architecture: sentry/pentacle/bottle composition, iptables + dnsmasq dual-layer enforcement, namespace isolation. Introduces the Ifrit and Theurge — adversarial AI-authored escape tests that actively validate containment. The evaluator sees the test results, understands the methodology (Claude Code sessions with full visibility authored the attacks, Ifrit delivers them, Theurge coordinates inside/outside observation). **Nameplate: `tadmor`** (the adversarial testing target).
+
+15. **Assay: Operations** — evaluator concerned with operational model. Tours credential lifecycle (payor → governor → director/retriever), regime configuration, depot provisioning/unmake, and day-to-day operations (charge/quench, tally/vouch/summon cycle). Teaches: how a small team stands this up, what ongoing maintenance looks like, recovery procedures. **No vessels** — operational walkthrough, not hands-on building.
+
+### Cross-cutting surfaces
+
+- **Realm Dashboard** — reference surface showing all probes across all regimes. Equivalent to the old `rbw-gOr` reference mode, now in Frame 4-refined format. Reachable from StartHere menu and as its own tabtarget.
+- **Secret Handling Primer** — the RBRA distribution lesson, appearing as a unit in Knight the Realm (governor side, distributing) and Receive Your Knighthood (recipient side, placing). Teaches operational handling knowledge — *what it is, how to handle, where it goes* — without teaching *how to read*.
+- **Depot Relationships** — the user flagged wanting good intro text explaining "what a Depot is and how Directors dictate its content but Retrievers use it." This is a relational teaching unit that may appear verbatim in multiple tracks. Candidate for a shared snippet consumed by multiple handbooks.
+
+### Remaining gaps
+
+- **Graft demo vessel**: ₢A6AAH enrolled — creates `rbev-graft-demo/` with graft-mode `rbrv.env`.
+- **Ifrit airgap pattern**: decided in ₢A6AAI — shared `common-ifrit-context/` with `Dockerfile.tether` and `Dockerfile.airgap`; three-vessel split (tether/airgap/forge); nameplate symmetry with new `moriah` for the airgap chain. Implementation gated on ₢A6AAv (`ifrit-symmetric-rename` — preconditioning rename sweep) → ₢A6AAV (forge + airgap + moriah + theurge fixture). Trajectory: tether variant retires when kludge cycle tolerates the forge dependency; no ETA.
+- **Bind mode hands-on**: No director subtrack teaches bind explicitly. Bind is covered conceptually (track 7) and demonstrated in Assay: Supply Chain (track 13). Bind is simple enough (no Dockerfile, no build, just a digest pin in rbrv.env) that the conceptual + eval coverage likely suffices. Revisit if learner feedback says otherwise.
+
+## README Anchor Inventory
+
+Handbook sequences link into `${RBGC_PUBLIC_DOCS_URL}#{Anchor}` via `buh_tlt`. All anchors below are live in `README.md` as of `6c266d09`.
+
+`Vessel`, `Hallmark`, `Vouch`, `Depot`, `Ordain`, `Conjure`, `Bind`, `Graft`, `Kludge`, `Enshrine`, `Reliquary`, `Pouch`, `Tethered`, `Airgap`, `Summon`, `Plumb`, `Tally`, `Levy`, `Payor`, `Governor`, `Director`, `Retriever`, `Charter`, `Knight`, `Nameplate`, `Enclave`, `Sentry`, `Pentacle`, `Bottle`, `Crucible`, `Charge`, `Quench`, `Tabtarget`, `Regime`, `Provenance`, `SBOM`, `RBRP`, `RBRR`, `RBRN`, `RBRV`, `BURC`, `BURS`
+
+The `-image`, `-about`, and `-vouch` artifact suffixes are described within the `Hallmark` entry (plain English, no separate anchors).
+
+**Not anchored** (intentional): Marshal Zero (internal release tooling), DiagnosticFailure (property not noun), ConsentScreen (Google's term), OAuth (described in prose within RBRP track).
+
+## Teaching Voice
+
+Teaching content is **vocabulary-first and relational**. The example the user articulated during interview: *"I want good intro text to what a 'Depot' is and how 'Directors' dictate its content but 'Retrievers' use it."* This is the shape of good teaching — nouns introduced in relation to each other, verbs connecting them, roles emerging from what they do to the nouns rather than abstract job titles.
+
+Principles:
+- Introduce nouns in context with concrete referents (a depot IS a GCP project; a vessel IS a configured image spec)
+- Connect nouns via verbs (directors *ordain* vessels into depots; retrievers *summon* hallmarks from depots)
+- Roles emerge from actions, not labels
+- Each new term has a reason to exist at the moment of introduction
+- Avoid "X is defined as Y" — prefer "when you X, you Y, which is called Z"
+
+The load-bearing primitive for vocabulary-first teaching is `buh_tlt` from `Tools/buk/buh_handbook.sh`:
+```bash
+buh_tlt "  A " "depot" "${z_docs}#Depot" " is the facility where container images are built and stored."
+```
+Renders the noun as a clickable OSC-8 hyperlink to the public-docs anchor. Every new concept introduced to a learner should be a `buh_tlt` call on its first mention.
+
+## Release Gate: Agent-Learner Evaluation
+
+Every handbook ships with an **agent-learner comprehension test** that functions as a release gate. Design principles (established in interview, mechanics deferred to future pace):
+
+- Test for **application**, not recall. Scenario questions, not definition lookups.
+- **Misconception probes**: questions where surface-level understanding gives wrong answers.
+- **Differential testing**: run eval against full handbook and against stripped/shuffled variant; signal is in the delta, not absolute score.
+- **Persona anchoring**: learner agents use a system prompt that reduces inference-from-general-knowledge advantage — *"reason strictly from what the handbook tells you; if it doesn't say it, you don't know it."*
+- **Synthetic critic alongside learner**: separate agent evaluates the handbook AS pedagogy (gaps, ambiguities, places a naive reader would stumble). Gate requires both learner and critic to pass.
+- **Goodhart mitigation**: eval questions not in track author's working context; rotate periodically; allow human override with written justification.
+
+Mechanics of the eval harness are **deferred** to a dedicated pace in this heat. The eval will co-evolve with the first implemented handbook.
+
+## Process Rhythm
+
+This heat runs on interview-implement-interview cycles, not linear execution.
+
+| Pace kind | Produces |
+|-----------|----------|
+| **Interview-paddock** | Paddock refinement + spec for next implementation pace(s) |
+| **Implement-{track}** | Working handbook tabtarget for one track, tested via agent-learner eval |
+| **Interview-reconcile** | Absorption of implementation findings + spec for next implementation pace |
+
+Interview paces are a **first-class pace type**, not preamble. Each interview pace unblocks N implementation paces; each implementation pace generates questions for the next interview.
+
+**Foundation tracks landed**: First Crucible and Crash Course are implemented and working. The cycle has shifted to infrastructure paces (yelp migration, decomposition) that prepare the codebase for parallel director subtrack implementation.
+
+## Implementation Progress
+
+### Display Layer Migration — Complete
+
+Handbook display converted from BUK combinator style to pure yelp style. Canonical idiom (in BCG §Semicolon Sequencing):
+```bash
+buyy_text_yawp "  A depot is the ..."; z_depot=$BUYY_CAPTURE
+```
+Legacy capture API deleted from `buym_yelp.sh` — zero consumers remained. BUS0 yawp count corrected to 8.
+
+**Remaining**: ₢A6AAe converts payor handbook (HREF diastema path), then ₢A6AAf sweeps dead combinators from `buh_handbook.sh`.
+
+### Decomposition Plan
+
+After yelp cleanup, the monolithic handbook files decompose into one-function-per-file under `Tools/rbk/rbh0/` (₢A6AAh). Enables parallel officia on independent handbook tracks without merge conflicts. Positioned after AAe/AAf/AAg/AAA — sweep, clean, audit, and validate the monolith before extraction.
+
+### Critical Path
+
+```
+AAe (payor yelp) → AAf (combinator sweep) → AAg (BCG review)
+  → AAA (menu cleanup) → AAh (decompose)
+                            ↓ parallel-capable
+              AAI→AAv→AAV, AAU→AAV, AAW, AAH→AAX, AAZ, AAM
+                            ↓ all wrapped
+              AAF (final docs hygiene — always last)
+
+(AAv `ifrit-symmetric-rename`: preconditioning rename sweep between AAI's
+ design record and AAV's airgap implementation. Parallel-capable with AAU.)
+```
+
+## Open Questions
+
+- **Wait-time pedagogy** — what does a learner do during a 20-minute cloud build? Blocking for Tethered Cloud Builds track.
+- **Agent-learner eval mechanics** — concrete harness design
+- **Shared snippet mechanism** — how do Depot Relationships and Secret Handling Primer appear in multiple handbooks without duplication?
+- **Track name refinement** — current roster is rough; final names come from iteration
+- **"Kindle" vocabulary overload** — overloads BUK/zipper "kindle" (module kindling). BUK usage is implementer-facing so may be tolerable; deferred to track-name refinement.
+- **Building for Crucibles placement** — does this fold into the crucible track (₢A6AAC/AAD) since kludge bypasses cloud, or is it a distinct director subtrack?
+- **Crash Course Unit 5 rework** — currently teaches diagnostic failure via Marshal Zero; needs reframing to teach the principle without referencing Marshal (internal release tooling)
+
+## Provenance
+
+Interview origin: `☉260409-1001`. This paddock is the authoritative digest — officia record identity only, not conversation content.
+
+### Lessons
+
+- **Mint-time namespace verification** must sweep the existing tabtarget tree (`ls tt/`), not only the paddock's own proposals — a project-prefix check against CLAUDE.md's registry is insufficient when prefixes have families with reserved subfunction letters. (Caught the `rbw-h?` → Hallmark collision; corrected to two-colophon `rbw-o`/`rbw-O*` scheme.)
+- **Officium identity ≠ officium archive**. Treat `☉` references as provenance markers, not as fetchable artifacts. Capture session content explicitly at the time if it matters beyond committed state.
+
+## References
+
+### Code and configuration
+- `Tools/rbk/rbho_onboarding.sh` — home for new handbook sequence functions
+- `Tools/rbk/rbho_cli.sh` — CLI furnish (sources buh, rbcc, rbgc, rbz, rbho; kindles dependencies)
+- `Tools/rbk/rbhp_payor.sh` — payor ceremonies (post-A3)
+- `Tools/rbk/rbz_zipper.sh` — rbw colophon registry; new `RBZ__GROUP_ONBOARDING` added here
+- `Tools/rbk/rbgc_Constants.sh` — defines `RBGC_PUBLIC_DOCS_URL`
+- `Tools/buk/buh_handbook.sh` — display module for handbook tabtargets; `buh_tlt` is the vocabulary-first primitive
+- `Tools/buk/buz_zipper.sh` — generic zipper mechanism (`buz_group`, `buz_enroll`, `buz_exec_lookup`)
+- `.rbk/rbrr.env` — concrete RBRR example
+- `.buk/burc.env` — concrete BURC example
+- `Tools/rbk/rbrp_regime.sh` — RBRP validator (reveals payor identity field shape)
+- `Tools/rbk/rbgv_AccessProbe.sh` — RBRA consumer (reveals per-role credential file usage)
+
+### Specifications
+- `Tools/rbk/vov_veiled/RBS0-SpecTop.adoc` §Configuration Regimes — regime catalog
+- `Tools/buk/vov_veiled/BUS0-BashUtilitiesSpec.adoc` §Regime Configuration — BUK regimes
+- `Tools/rbk/vov_veiled/RBSRS-RegimeStation.adoc` — Station regime spec
+- `Tools/rbk/vov_veiled/RBSRR-RegimeRepo.adoc` — Repository regime spec
+
+### Prior work
+- `₣A3` paddock — contains the role-track design this heat supersedes
+- `₣A5` paddock — public-docs refresh; coordinates anchor curation with this heat
+- `₣AU` paddock — MVP-3 release context from which A3 was spun
+
+### External
+- `https://scaleinv.github.io/recipebottle` — public project page, target for cross-linking
+
+# jjezs_pace ₢A6AA-
+
+## Character
+
+Pattern-application sweep. Pattern is articulated; per-site execution is mount-time work. Methodical, BCG-disciplined, one site at a time.
+
+## Docket
+
+Replace the "tell operator what to type into rbr*.env" pattern with in-place editing across RBR*.env-touching commands.
+
+### Pattern
+
+1. Pre-flight: assert target rbr*.env is clean (no uncommitted changes); fail early naming the file if dirty
+2. Determine the new values via the existing work
+3. BCG-compliant in-place edit of the rbr*.env file writing those values, then surface the change with a commit reminder
+
+### Trigger case
+
+`rbgp_payor_install` (invoked by `tt/rbw-gPI.PayorInstall.sh`) currently emits "Configuration required in rbrp.env: RBRP_..." instructions rather than writing the values. Four fields involved; `RBRP_BILLING_ACCOUNT_ID` is operator-supplied and may remain a placeholder or get its own prompt.
+
+### Discovery
+
+Grep `Tools/rbk/` for "Configuration required in" and analogous hand-edit emissions to enumerate sites at mount-time.
+
+### Done
+
+Every site emitting hand-edit instructions for an RBR*.env file applies the three-step pattern.
+
+# jjezs_pace ₢A6AA9
+
+Drafted from ₢A-AAJ in ₣A-.
+
+## Character
+Mechanical sweep with judgment — convert existing procedures, evaluate whether the pattern held up.
+
+## Docket
+After practicing the Windows procedures with `buh_step1`/`buh_step2`, decide whether to adopt auto-numbered steps across all handbook procedures (onboarding, payor). Convert if yes, document why not if no. Includes PayorEstablish, PayorRefresh, QuotaBuild, and any onboarding procedures still using hardcoded `buh_section "N. ..."`.
+
+# jjezs_pace ₢A6AAF
+
+## Character
+
+Final-pace finalizer for `₣A6`. Narrow, mostly mechanical audit of documentation surfaces against the handbook artifacts this heat produced. Runs **after all other A6 paces are wrapped** — the whole point is to catch stale references left behind once the handbook corpus has settled. Cognitive posture: patient, thorough, accepting that the work is sweeping rather than inventing.
+
+## Provenance
+
+This pace carries a three-heat lineage. Originally enrolled in `₣A3` as `₢A3AAF` ("docs-alignment-and-cross-machine-validation") covering five sections. Four sections (Dual-Mode Validation, Term Introduction Audit of current role-tracks, Cross-Machine Testing of role tracks, Dead code removal from `rbgm_onboarding()`) were **obsoleted** by the `₣A6` malformation insight — auditing role-track content is wasted effort if the role-track design itself is being replaced.
+
+Transferred A3 → A5 as `₢A5AAG` ("handbook-split-dangling-refs-audit") with narrowed scope focused on the `bug_*` → `buh_*` and `rbgm_*` → `rbho_*`/`rbhp_*` rename fallout. While in A5 it accreted 9 commits against the `₢A3AAF` coronet — those commits are baked into git history and attributable via the old coronet.
+
+Restrung A5 → A6 as `₢A6AAF` because the gravity had already shifted: the A5-framed docket was already defined in terms of "what did A6 land, what's still stale." That's A6 work wearing A5 clothing. Moving it here lets A5 retire on its own termination condition (readme-rewrite paces landing) without being blocked on A6's handbook corpus maturing.
+
+**Re-verify what the 9 pre-transfer commits already accomplished** before doing new work. `git log --grep 'A3AAF' --oneline` and inspect — the transferred commits may have handled some rename sweeps already.
+
+## Position on the Rail — Last Pace Discipline
+
+This pace is **deliberately positioned last** in `₣A6`. Do not mount it until:
+
+- All handbook implementation paces (`₢A6AAA`, `₢A6AAD`, and any later tracks added during interview-reconcile cycles) are wrapped
+- `₣A6`'s interview-reconcile paces have run and produced their paddock refinements
+- `₣A5`'s `readme-rewrite-*` paces are complete (the anchors this pace verifies are curated by A5; if A5 hasn't refreshed them, auditing resolution is premature)
+
+If new handbook tracks get enrolled during A6's interview cycles, this pace should be relocated to remain last. Its value is in being the sweep that catches everything the earlier work left behind, and that property only holds if it really is the last thing that runs.
+
+## ⚠ Vocabulary will have shifted by mount time
+
+This docket is written *before* the handbook corpus exists. When mounting, the first action is to **re-audit the vocabulary and reference lists in this docket** — they may be stale. Specifically:
+
+- A6 will have added new onboarding tabtargets under the two-colophon scheme (`rbw-o` + `rbw-O*`). The specific colophons (`rbw-Occ`, `rbw-Ofc`, etc.) will only be known at mount time.
+- A6 will have introduced new user-facing vocabulary (intent-based track names, per-track concepts) that wasn't defined at writing time.
+- `₣A5`'s `readme-rewrite-*` paces will have executed before this pace runs; the README structure and anchor landscape will reflect their work.
+- The old `rbw-gO*` tabtargets may or may not still exist depending on retirement decisions made during A6's later paces.
+
+**Recheck the sections below at mount time and update this docket in place before beginning work if anything is stale.**
+
+## Docket
+
+### Scope — three document surfaces
+
+#### 1. README.md dangling-reference sweep
+
+Search `README.md` for:
+
+- **Old symbol names from A3 renames**: `bug_*`, `zbug_*`, `ZBUG_*`, `bug_guide.sh` — should all have been renamed to `buh_*` / `zbuh_*` / `ZBUH_*` / `buh_handbook.sh`.
+- **Old module names from A3 split**: `rbgm_*`, `zrbgm_*`, `ZRBGM_*`, `rbgm_ManualProcedures.sh`, `rbgm_cli.sh` — should all be gone, replaced with `rbho_*` / `rbhp_*` or removed entirely.
+- **Obsolete tabtarget references**: any surviving `tt/rbw-gO*` invocation examples. If A6 has retired the old family by this point, they're dangling; if A6 has kept both live during transition, they're valid but stale-looking. Decide per-reference whether to update to the new `rbw-o` / `rbw-O*` scheme or remove.
+- **Anchor resolution**: every `buh_tlt` call in `rbho_onboarding.sh` (and anywhere else in the handbook corpus) that targets `${RBGC_PUBLIC_DOCS_URL}#{Anchor}` — verify the anchor exists in the refreshed README. Cross-reference against A6 paddock's "Public-Docs Anchor Coordination with `₣A5`" section, which is the shared truth between the two heats.
+
+#### 2. CLAUDE.consumer.md colophon table
+
+- The table auto-regenerates from `Tools/rbk/rbz_zipper.sh`. Run the regenerator and verify the output matches expectations.
+- RBGM-era colophons should be **gone** (`rbw-go`, `rbw-gO*`, `rbw-gP*`, `rbw-gq` — if any still appear, either A6 kept them intentionally during transition or retirement is incomplete; flag for decision).
+- New handbook colophons from A6 (`rbw-o`, `rbw-O*` family members) should be **present** with correct frontispieces and purpose text.
+- If the colophon table is stale, regenerate it and commit.
+
+#### 3. Tabtarget existence integrity
+
+- Run `ls tt/` and cross-reference against every tabtarget path mentioned in `README.md`, `CLAUDE.consumer.md`, and any public docs that reference Recipe Bottle tabtargets.
+- Flag any reference pointing at a file that doesn't exist.
+- Fix obvious typos and path errors.
+- Any remaining forward-looking references (to tabtargets A6 defined in paddock but never built because the track was deferred or dropped) should be removed — there should be no "planned" tabtarget references surviving this pace, because A6 is the heat responsible for producing them.
+
+### Anchor coordination verification
+
+Cross-reference against the A6 paddock's "Public-Docs Anchor Coordination with `₣A5`" section:
+
+- **Existing anchors** (live at A6 start): verify none were broken by A5's README refresh.
+- **New-for-Crash-Course anchors** (`Tabtarget`, `Regime`, `RBRR`, `BURC`, `BURS`, `MarshalZero`, `DiagnosticFailure`): verify A5 added them and A6's handbook consumers resolve to them.
+- **New-for-later-tracks anchors** (`Crucible`, `Kludge`, `Ordain`, etc.): verify each one consumed by A6 handbooks has a matching A5 anchor.
+
+This section is the load-bearing coupling between the two heats. If the coupling is broken, this pace is where it gets caught.
+
+### Out of Scope
+
+- **Dual-mode validation** — obsoleted by Frame 4-refined (the whole point of the A6 restart).
+- **Term introduction audit of old role-track content** — the old tracks are either retired or coexist with the new tracks as legacy; auditing them is wasted effort.
+- **Cross-machine testing of role tracks** — same reason.
+- **Dead code removal from `rbgm_onboarding()`** — absorbed by `₢A3AAJ` (already wrapped).
+- **Inventing new anchors or concepts** — this pace audits, it does not extend vocabulary.
+- **Rewriting README prose** — that's A5's job; this pace checks that what A5 wrote and what A6 consumes agree.
+
+### Validation gates
+
+- `ls tt/` matches all README and CLAUDE.consumer.md references with zero dangling paths.
+- `grep -rn 'bug_\|rbgm_\|zbug_\|zrbgm_\|bug_guide' README.md CLAUDE.consumer.md` returns nothing (or only acceptable historical references in changelogs).
+- Every anchor consumed by A6 handbooks exists in the refreshed README.
+- CLAUDE.consumer.md colophon table reflects current `rbz_zipper.sh` state.
+
+### Inventory questions to answer at mount time
+
+Before deciding what work remains, answer:
+
+1. What did the 9 pre-transfer commits (against `₢A3AAF`) actually accomplish? `git log --grep 'A3AAF' --oneline` and inspect.
+2. Which items in sections 1–3 of this docket are already done by those commits or by later A5/A6 work?
+3. What's the final state of `₣A6`'s handbook corpus? Which tabtargets actually shipped? Which were planned but dropped?
+4. Has `₣A5` retired? Are all `readme-rewrite-*` paces landed? If not, this pace is being mounted too early.
+5. Did A6 retire the `rbw-gO*` family, or does it still coexist with the new `rbw-o` / `rbw-O*` scheme?
+
+## References
+
+### Lineage
+- `₣A3` (retired) — original home as `₢A3AAF`; commit history attributable via grep
+- `₣A5` (retiring or retired) — intermediate home as `₢A5AAG`; scope narrowing happened here
+- `₢A3AAI` — `bug_*` → `buh_*` rename, source of one class of rename fallout
+- `₢A3AAJ` — `rbgm_*` → `rbho_*` / `rbhp_*` split, source of another class of rename fallout
+
+### A6 coordination
+- `₣A6` paddock — "Public-Docs Anchor Coordination with `₣A5`" section is the shared anchor truth
+- `₢A6AAA`, `₢A6AAD`, and any later A6 track-implementation paces — produce the handbook corpus this pace audits
+- `₢A6AAE` — interview-reconcile-post-fc; this pace runs after that or any later interview-reconcile paces
+
+### Audit targets
+- `README.md` — consumer-facing glossary and setup instructions
+- `CLAUDE.consumer.md` — auto-generated colophon table, sourced from `Tools/rbk/rbz_zipper.sh`
+- `Tools/rbk/rbho_onboarding.sh` — all `buh_tlt` call sites that reference anchors
+- `tt/` — authoritative tabtarget inventory
+- `Tools/rbk/rbz_zipper.sh` — colophon registry
+
+### External
+- Public project page: `https://scaleinv.github.io/recipebottle` — destination of `RBGC_PUBLIC_DOCS_URL` links
+
+# jjezs_pace ₢A6AAM
+
+## Character
+
+Evaluation design pace. Produce a minimal eval artifact that tests whether handbook output actually teaches — can a model with no prior Recipe Bottle knowledge, constrained to reason only from what the handbook says, correctly answer application questions?
+
+## Docket
+
+Create `Tools/rbk/vov_veiled/A6-prototype-eval.md` containing:
+
+- Anti-inference system prompt constraining the model to handbook-only reasoning
+- 3–5 application-focused scenario questions (not recall)
+- Differential test design: full handbook output vs stripped variant (teaching prose removed), compare scores
+- Goodhart mitigation note
+
+Then run the eval against at least the Crash Course output. Report whether the teaching prose carries measurable weight.
+
+### Out of scope
+
+- Full eval harness or automation
+- Release-gate mechanics
+
+# jjezs_pace ₢A6AAU
+
+## Character
+
+Refinement pace — the initial implementation landed in prior commits (zipper enrollment, thin dispatcher, `rbho_director_first_build()` with 5-step conjure lifecycle teaching arc). What remains is content refinement informed by the ₢A6AAY durability fix and user review feedback.
+
+## Docket
+
+### Content corrections
+
+1. **Attest tag durability**: The teaching content was written when `-attest-{arch}` tags were considered ephemeral scaffolding. ₢A6AAY established they are **durable** provenance-carrying artifacts — the only objects with GCB-attested digests. Update teaching prose in `rbho_director_first_build()` to reflect:
+   - `-attest-{arch}` tags persist alongside `-image`, `-about`, `-vouch`, `-pouch`, `-diags`
+   - They carry the GCB-attested digests (classic Docker image store re-serializes manifests, producing different digests than buildx-native)
+   - Abjure deletes them alongside all other ark artifacts
+   - The tag inventory tour (step 3) should mention them as durable, not skip them as ephemeral
+
+2. **Smoke test docket update**: ₢A6AAS's docket still says "No `-attest-{arch}` tags (swept by host after vouch)" in expected observations. This is now wrong — post-conjure rekon SHOULD show `-attest-{arch}` tags as durable artifacts.
+
+### User revision feedback
+
+Capture and implement revision notes from user review of the handbook output. User confirmed the tabtarget functions but wants content revisions — specifics to be gathered at mount time.
+
+### Probes
+
+- Reliquary inscribed (monotonic)
+- Director RBRA present and valid
+- Depot provisioned (RBRR populated)
+- Latest hallmark health state
+
+### Requires
+
+- ₢A6AAY wrapped (attest durability fix) ✓
+- Director credentials and a provisioned Depot
+
+### Out of scope
+
+- Airgap builds (₢A6AAV)
+- Bind or graft modes
+- Credential installation (₢A6AAO)
+- Pipeline refactoring (already done)
+- Greenfield implementation (already landed)
+
+# jjezs_pace ₢A6AAW
+
+## Character
+
+Handbook track implementation — bind mode: pin an upstream image by digest with zero build. Pattern replication from `tt/rbw-Ofc.OnboardingFirstCrucible.sh`. Teaches the simplest ordain mode — no Dockerfile, no build context, no pouch. The learner sees a different vouch verdict (digest-pin, no SLSA) and understands why.
+
+The arc opens with a sentry-kludge step (or a callout to reuse an already-conjured Sentry hallmark from `₢A6AAU`) so the track is self-contained — the learner can complete the bind lesson without having completed First Cloud Build first. The pedagogy explicitly names the mode mixture (kludged Sentry, bound Bottle) inside the single Crucible so learners read it as intentional, not as an oversight.
+
+Uses `rbev-bottle-plantuml` as the teaching Bottle — a real upstream image that renders diagrams but whose Docker Hub source could phone home. Bind pins it; the Sentry blocks all egress.
+
+## Docket
+
+Implement `tt/rbw-Odb.OnboardingDirectorBind.sh` — the bind mode handbook track.
+
+### Teaching arc
+
+0. **Ready a Sentry** — kludge the Sentry locally (primary path, matches the `Ofc` track's pattern the learner already met), or reuse the Cloud-Built Sentry hallmark from First Cloud Build (`₢A6AAU`) if that track has been completed. Teach: the Sentry enforces network policy regardless of its own provenance chain — the policy is load-bearing, not the build mode behind it. A kludged Sentry is fine for learning bind; a Conjured Sentry is fine too; what matters for the bind lesson is what happens to the *Bottle* image.
+1. **Bind PlantUML** — pin upstream image by digest into GAR. No Dockerfile in the project, no build. Teach: bind mode mirrors an upstream image by digest, the director trusts the upstream publisher, the depot gets an immutable copy. Contrast with conjure (project builds the image) and graft (local machine builds the image).
+2. **Inspect Vouch verdict** — digest-pin, no SLSA. Teach: SLSA provenance requires Cloud Build — bind bypasses Cloud Build entirely, so the vouch verdict honestly reports "digest-pin." The image is exactly what upstream published, pinned by content hash, but the project didn't build it.
+3. **Charge the pluml Crucible** — render a diagram, observe blocked egress. Teach: the Sentry enforces network isolation regardless of image provenance. The PlantUML image might phone home if run naked; inside the Crucible it cannot. You get the tool without the risk.
+
+### Mode mixture — name it explicitly
+
+The pluml Crucible in this track pairs a (kludged or conjured) Sentry with a bound PlantUML Bottle. Two different ordain modes cohabiting in one Crucible is the expected shape, not a defect. Teaching prose should say so directly — each Hallmark carries its own Vouch verdict, and a Nameplate can pin Hallmarks of different modes without conflict. This reinforces the trust-hierarchy lesson rather than undermining it.
+
+### Probes
+
+- Director RBRA present and valid
+- Depot provisioned
+- Sentry hallmark available (kludged locally or conjured in a prior track)
+- PlantUML hallmark exists and is vouched (digest-pin)
+- pluml Crucible chargeable
+
+### Implementation
+
+- Zipper enrollment in `rbz_zipper.sh` (colophon `rbw-Odb`, group `RBZ__GROUP_ONBOARDING`), positioned alongside `rbw-Odf` and `rbw-Oda` in the Director Subtracks section
+- Thin dispatcher tabtarget `tt/rbw-Odb.OnboardingDirectorBind.sh` using the nolog launcher pattern (match the `Oda` dispatcher)
+- Sequence function `rbho_director_bind()` in a new `rbhodb_director_bind.sh`, following the post-decomposition pattern of `rbhodf_director_first_build.sh` and `rbhoda_director_airgap.sh`
+- Teaching content using `buh_*` primitives and `RBYC_*` linked terms throughout (ORDAIN/BIND/CHARGE, SENTRY/BOTTLE/CRUCIBLE/HALLMARK/NAMEPLATE/VESSEL, KLUDGED/CONJURED/BOUND)
+- CLI furnish in `rbho0_cli.sh` to source the new helper
+- Regenerate tabtarget context via `tt/rbw-MG.MarshalGenerate.sh`
+- Start-here menu entry in `rbho0_start_here.sh` under Director Subtracks — parallel entry to `rbw-Odf` and `rbw-Oda`, briefing the bind mode + mode-mixture pedagogy, five-bullet Steps list mirroring the 0-3 teaching arc, Requires line naming "Your First Crucible (kludged Sentry available)" as prerequisite with "Your First Cloud Build completed" as the acceptable alternative
+
+### Requires
+
+- Director credentials, provisioned Depot
+- `rbev-bottle-plantuml` Vessel and `pluml` Nameplate (already shipped)
+- Sentry Vessel (already shipped — `rbev-sentry-deb-tether` / `rbev-sentry-deb-airgap`); the track teaches kludging one, no new Vessel work
+
+### Out of scope
+
+- Conjure or graft modes (own tracks — `₢A6AAU`, `₢A6AAX`)
+- Reliquary inscription (bind doesn't use Cloud Build)
+- PlantUML Vessel creation (already exists)
+- Sentry Vessel creation (already exists — the track kludges the shipped Vessel)
+
+# jjezs_pace ₢A6AAZ
+
+## Character
+Design + implementation — new GAR structural concept (VOUCHES superdirectory), rewrite plumb from local-only to GAR-direct, update vouch to populate the new namespace.
+
+## Docket
+
+### Problem
+Plumb currently requires `summon` (local pull) before it can display provenance. This is unnecessarily heavy for a read-only inspection. Additionally, there is no way to reverse-map a hallmark to its vessel without iterating all vessel packages.
+
+### Design
+
+Introduce a VOUCHES superdirectory in GAR — a single package where every vouch artifact is additionally tagged. Since GAR is content-addressable, this is a tag pointer, not data duplication.
+
+- **`RBGC_VOUCHES_PACKAGE`** — new constant in `rbgc_Constants.sh` alongside the `RBGC_ARK_SUFFIX_*` family
+- Vouch step additionally tags into `VOUCHES/{hallmark}-vouch` after pushing to `{vessel}:{hallmark}-vouch`
+- Plumb queries GAR directly via Retriever credentials (curl), never touches local docker
+
+### Plumb conversion
+
+- Remove all `docker image inspect` / `docker create` / `docker cp` logic
+- Authenticate as Retriever (new requirement — plumb was previously unauthenticated)
+- Fetch `-about` and `-vouch` manifests via Registry API, extract JSON layers via blob API
+- New hallmark-only mode: look up in VOUCHES, read `vouch_summary.json` to discover vessel, then fetch about from the vessel package
+- Vessel+hallmark mode still works (skips VOUCHES lookup)
+
+### Vouch amendment
+
+- After pushing vouch artifact to `{vessel}:{hallmark}-vouch`, additionally tag into VOUCHES package
+- This is a registry-side tag operation (no re-push of blobs)
+
+### Spec documents to update
+
+| Document | Changes |
+|----------|---------|
+| **RBSAP** (ark_plumb) | Complete rewrite: GAR-direct, Retriever auth, hallmark-only mode via VOUCHES |
+| **RBSAV** (ark_vouch) | New step: tag vouch artifact into VOUCHES superdirectory |
+| **RBS0** (SpecTop) | New `RBGC_VOUCHES_PACKAGE` constant definition |
+| **RBSGS** (GettingStarted) | Remove "summon first" prerequisite for plumb |
+
+### Implementation files
+
+- `rbgc_Constants.sh` — add `RBGC_VOUCHES_PACKAGE`
+- `rbfc_FoundryCore.sh` — rewrite `zrbfc_plumb_core`, `rbfc_plumb_full`, `rbfc_plumb_compact`
+- `rbfv_FoundryVerify.sh` — amend `rbfv_vouch` / vouch Cloud Build to tag into VOUCHES
+- `rbgjv03-assemble-push-vouch.sh` — additional tag push
+- `rbfr_FoundryRetriever.sh` — plumb no longer needs summon; update any coupling
+
+# jjezs_pace ₢A6AAu
+
+## Character
+
+Interactive debug pace. No pre-written docket — work proceeds by running the existing First Kludge onboarding track, observing output with the user, and iterating on issues as they surface. Cognitive posture: responsive, hands-on, driven by user judgment at each step.
+
+## Docket
+
+Re-review the existing onboarding-director-first-kludge handbook track. Interactive debug until the user is satisfied.
+
+# jjezs_pace ₢A6AAx
+
+## Character
+
+Interactive debug pace. No pre-written docket — work proceeds by running the newly-landed airgap onboarding track, observing output with the user, and iterating on issues as they surface. Mirrors `₢A6AAu`'s relationship to the first-kludge track: implementation lands in `₢A6AA1`, then this pace absorbs user review feedback. Cognitive posture: responsive, hands-on, driven by user judgment at each step.
+
+## Docket
+
+Re-review the airgap onboarding handbook track produced by `₢A6AA1`. Interactive debug until the user is satisfied.
+
+### Requires
+
+- `₢A6AA1` wrapped — handbook track `rbw-Oda.OnboardingDirectorAirgap.sh` landed, sequence `rbho_director_airgap()` in `rbhoda_director_airgap.sh`, zipper entry under `RBZ__GROUP_ONBOARDING`, start-here menu entry, all five teaching units rendering.
+- Infrastructure from `₢A6AAV` already in place — forge vessel, airgap-ifrit vessel, moriah nameplate, 10 moriah tabtargets, theurge fixture, enclave validator fix.
+
+### Out of scope
+
+- Vessel / nameplate / fixture creation (handled by `₢A6AAV` Phase 1)
+- Teaching arc authoring (handled by `₢A6AA1`)
+- Moriah docs/anchor introduction (handled by `₢A6AAw`)
+- Final docs hygiene sweep (handled by `₢A6AAF`)
+
+# jjezs_pace ₢A6AAy
+
+## Character
+
+Quick verification — the fix is already committed, just need to confirm the 3 cases pass.
+
+## Docket
+
+Verify that adding `172.64.0.0/13` to tadmor's `RBRN_UPLINK_ALLOWED_CIDRS` (committed in 8420c17d) fixes the 3 failing cases.
+
+### Steps
+
+1. Kludge sentry (hallmark may be stale), commit hallmark
+2. Charge tadmor
+3. Run the 3 previously-failing cases via SingleCase:
+   - `rbtdrc_tcp443_allow_example`
+   - `rbtdrc_cidr_all_ports_allowed`
+   - `rbtdrc_sortie_http_end_to_end`
+4. If all 3 pass, run full `tt/rbtd-r.Run.tadmor.sh` to confirm 54/54
+5. If any still fail, investigate — the IP may have rotated again or the CIDR range may need further expansion
+
+### Context
+
+Fix propagated from ccyolo nameplate (8b39ea53, ₢A6AAG) where the same Cloudflare rotation was resolved by adding `172.64.0.0/13`. Tadmor was missed in that pass.

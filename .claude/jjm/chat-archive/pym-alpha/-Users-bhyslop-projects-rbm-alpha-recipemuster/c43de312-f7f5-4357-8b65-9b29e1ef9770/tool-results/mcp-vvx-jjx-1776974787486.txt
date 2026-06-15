@@ -1,0 +1,889 @@
+Disk survey (threshold 85%): 228 GB: 79%
+Heat: rbk-mvp-3-resource-prefix-and-depot-regen (₣A_)
+Status: racing
+Created: 260415
+
+
+## Paces
+
+### gar-categorical-layout-migration (₢A_AAK) [rough]
+
+## Character
+Structural — reshapes ark storage in GAR and the path grammar all producer/consumer code uses. Atomic cutover: old and new shapes do not coexist. Notches 1 and 2 are complete; Notch 3 (spec sweep) remains. Grep-zero on `RBGC_ARK_SUFFIX_` and `RBGC_VOUCHES_PACKAGE` is the binding verification.
+
+## Docket
+
+Migrate GAR top-level namespace from vessel-scattered hyphen-suffix (`<vessel>:<hallmark>-<suffix>`) to three prefixed categorical namespaces with basename arks under each hallmark. **Notches 1 and 2 landed; only the spec sweep (Notch 3) remains.**
+
+### Post-Notch-2 actual path shape (binding)
+
+Three root constants in `rbgl_GarLayout.sh`, kindled from `RBRR_CLOUD_PREFIX` + category:
+
+```
+RBGL_HALLMARKS_ROOT   = "${RBRR_CLOUD_PREFIX}hallmarks"
+RBGL_RELIQUARIES_ROOT = "${RBRR_CLOUD_PREFIX}reliquaries"
+RBGL_ENSHRINES_ROOT   = "${RBRR_CLOUD_PREFIX}enshrines"
+```
+
+Call-site interpolation (NOT a helper function — "no subshell, no function call overhead" per rbgl_GarLayout.sh:23):
+
+```
+${z_gar_base}/${RBGL_HALLMARKS_ROOT}/<hallmark>/<basename>:<hallmark>
+${z_gar_base}/${RBGL_RELIQUARIES_ROOT}/<date>/<tool>:<date>
+${z_gar_base}/${RBGL_ENSHRINES_ROOT}/<anchor>:<anchor>
+```
+
+Tag matches path-terminal segment in all three shapes (hallmark | date | anchor). Redundant by construction — divergence is a visible bug.
+
+Basename constants in `rbgc_Constants.sh`:
+```
+RBGC_ARK_BASENAME_IMAGE   = "image"
+RBGC_ARK_BASENAME_ABOUT   = "about"
+RBGC_ARK_BASENAME_VOUCH   = "vouch"
+RBGC_ARK_BASENAME_DIAGS   = "diags"
+RBGC_ARK_BASENAME_ATTEST  = "attest"
+RBGC_ARK_BASENAME_POUCH   = "pouch"
+```
+
+Category constants in `rbgc_Constants.sh`:
+```
+RBGC_GAR_CATEGORY_HALLMARKS   = "hallmarks"
+RBGC_GAR_CATEGORY_RELIQUARIES = "reliquaries"
+RBGC_GAR_CATEGORY_ENSHRINES   = "enshrines"
+```
+
+### Vocabulary conversions (applies uniformly across all spec files)
+
+| Old | New |
+|-----|-----|
+| `<vessel>:<hallmark>-image` | `<cloud_prefix>hallmarks/<hallmark>/image:<hallmark>` |
+| `<vessel>:<hallmark>-about` | `<cloud_prefix>hallmarks/<hallmark>/about:<hallmark>` |
+| `<vessel>:<hallmark>-vouch` | `<cloud_prefix>hallmarks/<hallmark>/vouch:<hallmark>` |
+| `<vessel>:<hallmark>-pouch` | `<cloud_prefix>hallmarks/<hallmark>/pouch:<hallmark>` |
+| `<vessel>:<hallmark>-diags` | `<cloud_prefix>hallmarks/<hallmark>/diags:<hallmark>` |
+| `<vessel>:<hallmark>-attest-<ARCH>` | `<cloud_prefix>hallmarks/<hallmark>/attest:<hallmark>-<ARCH>` (attest remains per-arch-tagged under one basename; see note below) |
+| `{repo}/enshrine:{anchor}` | `<cloud_prefix>enshrines/<anchor>:<anchor>` |
+| `vouches:<hallmark>-vouch` (aggregator) | dissolved — hallmark-only lookup comes free via subtree navigation |
+| "vouches superdirectory" phrase | "hallmark subtree" / remove as redundant |
+| `RBGC_ARK_SUFFIX_*` | `RBGC_ARK_BASENAME_*` |
+| `_RBGA_ARK_SUFFIX_*` attribute refs | `_RBGA_ARK_BASENAME_*` (where they appear in spec attribute tables) |
+| `_RBGY_ARK_SUFFIX_*` attribute refs | `_RBGY_ARK_BASENAME_*` (where they appear in spec attribute tables) |
+| `RBGC_VOUCHES_PACKAGE` | DELETED — remove attribute and any reference |
+
+Attest note: confirm with the code — the `attest:<hallmark>-<ARCH>` shape is a working hypothesis. If code actually emits `attest-<ARCH>:<hallmark>` or another shape, specs reflect the code. Verify by reading `rbfd_FoundryDirectorBuild.sh` attest push site before committing attest prose.
+
+### Enshrine shift (binding, per-agent handoff)
+
+Old: `{repo}/enshrine:{anchor}` — singular `enshrine` namespace, anchor as tag on a shared package.
+
+New: `<cloud_prefix>enshrines/<anchor>:<anchor>` — plural `enshrines/` for namespace symmetry; each anchor is a peer package under the namespace, not a tag on a shared package. Spec prose in RBSAE and any other file referencing enshrine layout must update.
+
+### Abjure rewrite (RBSAA)
+
+Old: per-suffix HEAD/DELETE dance — one HEAD and one DELETE per suffix, sequential, hardcoded list of 5-6 suffixes.
+
+New: enumerate-then-delete via `${RBGL_HALLMARKS_ROOT}/<hallmark>` subtree. Loop iterates over discovered children rather than a hardcoded list — naturally tolerates graft's missing pouch and any future ark additions. Still N deletes; the iteration shape changes, not the operation count.
+
+### File-by-file edit list (~17 files)
+
+**From original docket (10):**
+- `RBSAC-ark_conjure.adoc` — 5 hits: `-image/-about` tags, `VESSEL:HALLMARK-pouch`, `enshrine:ANCHOR`
+- `RBSAE-ark_enshrine.adoc` — 2 hits: enshrine-tag→enshrines-path-segment shift; heavy prose rewrite
+- `RBSDI-depot_inscribe.adoc` — no direct stale refs, but ADD: `_RBGN_CLOUD_PREFIX` substitution docs + `<prefix>reliquaries/<date>/<tool>:<date>` reliquary path
+- `RBSAA-ark_abjure.adoc` — 25+ hits: per-suffix algorithm → enumerate-then-delete (see Abjure rewrite above)
+- `RBSAV-ark_vouch.adoc` — 15 hits: `-about/-vouch/-image` tags; dual-tag `vouches:HALLMARK-vouch` dissolves; `_RBGV_VOUCHES_PACKAGE` attribute deleted
+- `RBSAS-ark_summon.adoc` — 3 hits: `VESSEL:HALLMARK-{image,about,vouch}` → basename shape
+- `RBSAP-ark_plumb.adoc` — ~7 hits: "vouches hallmark-only mode" → hallmark subtree navigation
+- `RBSCL-consecration_tally.adoc` — ~7 hits: tag-suffix classification → basename-under-hallmark enumeration
+- `RBS0-SpecTop.adoc` — 40+ hits: heaviest; dense attestation section; vouches superdirectory explanation; enshrine namespace ref
+- `RBSCO-CosmologyIntro.adoc` — CLEAN. Scanned, no stale layout refs. Listed for completeness; no edits needed.
+
+**Additions from grep sweep (7):**
+- `RBSAB-ark_about.adoc` — 20+ hits: many `-image/-about/-diags` refs; `_RBGA_ARK_SUFFIX_*` attribute table pointing at renamed constants
+- `RBSAG-ark_graft.adoc` — 3 hits: `{VESSEL}:{HALLMARK}-image`, `-about` refs
+- `RBSAK-ark_kludge.adoc` — 3 hits: `{SIGIL}:{HALLMARK}-image`, `-vouch` grammar
+- `RBSCB-CloudBuildPosture.adoc` — dedicated tag table with `{HALLMARK}-image`, `{HALLMARK}-about`, `{HALLMARK}-diags`; plus `-diags` prose
+- `RBSCC-crucible_charge.adoc` — 2 hits: `{vessel}:{hallmark}-vouch` in prerequisite checks (local image store refs)
+- `RBSDV-director_vouch.adoc` — 7 hits: classification algo refs `-about/-vouch/-image`
+- `RBSGS-GettingStarted.adoc` — 1 hit: "vouches superdirectory" phrase
+- `RBSIJ-image_jettison.adoc` — 1 hit: "three artifacts: `-image`, `-about`, `-vouch`"
+- `RBSTB-trigger_build.adoc` — 2 hits: `_RBGY_ARK_SUFFIX_IMAGE` attribute + `ARK_SUFFIX_IMAGE` usage
+
+### Scope notes
+
+- `.rbk/` is clean (compose.yml and fixtures already updated in Notch 2b).
+- `Tools/rbk/rbgc_Constants.sh` already defines `RBGC_ARK_BASENAME_*` and `RBGC_GAR_CATEGORY_*` (Notch 1). No code-side changes needed in Notch 3.
+- `RBSHR-HorizonRoadmap.adoc` and `RBSIP-ifrit_pentester.adoc` matched grep but are false positives (image-layer metaphor; URL fragments in bibliography).
+
+### Execution plan (parallel agent dispatch)
+
+Five general-purpose agents, each receiving the same conversion-rules brief (Vocabulary conversions + Enshrine shift + Abjure rewrite + path shape), working on disjoint file sets:
+
+- **Agent A** (heavy lifecycle): RBS0, RBSAA, RBSAV
+- **Agent B** (ark mid): RBSAB, RBSAC, RBSAE, RBSAS
+- **Agent C** (ark light + local): RBSAG, RBSAK, RBSAP, RBSIJ
+- **Agent D** (aggregators + infra): RBSCL, RBSDV, RBSCB, RBSTB
+- **Agent E** (prose + inscribe): RBSCC, RBSGS, RBSDI
+
+After all agents return, main session does final grep-zero verification and reads each modified file's diff for consistency before notch.
+
+### Verification
+
+- `grep -nE 'RBGC_ARK_SUFFIX_' Tools/` returns zero (renamed constants; no spec references)
+- `grep -nE 'RBGC_VOUCHES_PACKAGE' Tools/` returns zero (deleted; no spec references)
+- `grep -nE ':\$\{[^}]*HALLMARK[^}]*\}-(image|vouch|pouch|about|attest|diags)' Tools/` returns zero
+- `grep -nE 'enshrine:\{?[Aa]nchor' Tools/` returns zero (old enshrine tag grammar gone)
+- `grep -rnE 'vouches (superdirectory|package|aggregator)' Tools/rbk/vov_veiled/` returns zero
+- Each edited spec reads cleanly with new path shape and vocabulary
+
+### Out of scope
+
+- Tabtarget signature simplification — `₢A_AAL`
+- Depot regen execution — `₢A_AAE`
+- Reliquary garbage collection — deferred
+- Filesystem moorings rename — separate heat per `₢A_AAJ`
+
+### aak-live-depot-burn-in (₢A_AAP) [rough]
+
+## Character
+
+Live-infrastructure verification. The AAK migration was all grammar until now — bash string construction, Rust constants, spec prose, fast-suite regime checks. None of it has touched real GAR, real Cloud Build, real containers. This pace is the first-time burn-in: exercise every code path that matters, against the current depot (mixed-shape content is fine — no backward compat obligation), and surface any gaps before `₢A_AAE` (depot regen, irreversible).
+
+Posture: investigative. Expect some surprises. Fix what's small inline; surface what's big for a follow-up pace. Don't force green — honest failures here are the whole point of running.
+
+## Docket
+
+Exercise the full AAK-migrated code surface against the current depot. Work through the tiers in order; escalate on failure.
+
+### Tier 1 — Automated suites
+
+- `tt/rbtd-s.TestSuite.service.sh` — 80 cases (fast + access-probe + four-mode foundry integration). Requires GCP credentials at `RBDC_DIRECTOR_RBRA_FILE` and `RBDC_RETRIEVER_RBRA_FILE`.
+- `tt/rbtd-s.TestSuite.crucible.sh` — 117 cases (fast + tadmor-security + srjcl-jupyter + pluml-diagram). Requires container runtime.
+
+Sequential only — fixtures share regime state and container namespaces.
+
+### Tier 2 — Hand-run producer paths
+
+Once suites are green (or triaged), exercise the director-side producer lifecycle against a real vessel:
+
+- **Inscribe** a reliquary: `tt/rbw-dI.DirectorInscribesReliquary.sh` — verifies `_RBGN_CLOUD_PREFIX` substitution threads correctly into the inscribe builder; check resulting GAR shape under `<prefix>reliquaries/<date>/<tool>:<date>`.
+- **Conjure** busybox: `tt/rbw-fO.DirectorOrdainsHallmark.sh rbev-vessels/rbev-busybox` — hits the heavy rewrite: `rbfd_FoundryDirectorBuild.sh` (conjure jq block, pouch construction, per-platform attest sweep, fact emissions) and the Cloud Build step scripts (`rbgjb/`, `rbgja/`). Watch the Cloud Build console — URL construction failures surface as build-submission errors.
+- **Enshrine** a base (if any vessel has `RBRV_IMAGE_ORIGIN` set): exercises `rbgje01-enshrine-copy.sh` and the anchor-as-path-segment shift.
+- **Graft** a local image: `tt/rbw-fO.*` against `rbev-graft-demo` — exercises `rbfd` graft path + `rbgja01-graft-push.sh` if applicable.
+
+After each: confirm artifact layout under `<prefix>hallmarks/<hallmark>/` has `image`, `vouch`, `pouch`/none-for-graft, `about`, `attest`, `diags` as sibling basenames — via `tt/rbw-ir.DirectorRekonsImages.sh` (raw GAR tag listing).
+
+### Tier 3 — Hand-run consumer paths
+
+- **Tally**: `tt/rbw-ft.RetrieverTalliesHallmarks.sh` — confirms tally's new basename-enumeration classification works against mixed-shape depot content. Look for the vouched/pending/incomplete counts and per-hallmark listings; any hallmark misclassified surfaces here.
+- **Plumb compact + full**: `tt/rbw-fpc.*` and `tt/rbw-fpf.*` on a vouched hallmark — confirms metadata fetch from new `<hallmark>/vouch` and `<hallmark>/about` packages.
+- **Summon**: `tt/rbw-fs.RetrieverSummonsHallmark.sh` — confirms retriever pull path against new layout.
+- **Charge tadmor**: `tt/rbw-cC.Charge.tadmor.sh` — compose.yml interpolation against new basename shape. Sentry + pentacle + bottle come up cleanly or they don't.
+- **Quench tadmor**: `tt/rbw-cQ.Quench.tadmor.sh` — tests cleanup path.
+
+### Tier 4 — Abjure
+
+- **Abjure a freshly-conjured hallmark**: `tt/rbw-fA.DirectorAbjuresHallmark.sh rbev-vessels/rbev-busybox «hallmark»` — exercises the new enumerate-then-delete via GAR REST `/packages` (the biggest algorithmic rewrite in Notch 2b). Confirm all 5-6 basename packages deleted cleanly; confirm `tt/rbw-ir` shows empty for that hallmark.
+- **Abjure a pre-AAK hallmark** (if any exist with old-shape content): exercises enumerate-then-delete's topology-agnosticism. Should Just Work because it enumerates the subtree — but worth confirming rather than assuming.
+
+### Triage protocol
+
+On failure:
+1. Record the exact tabtarget invocation, stderr, and GAR state (screenshot or `rbw-ir` listing)
+2. Classify: **grammar bug** (stale path or tag in bash/Rust), **contract bug** (fact emission mismatch), **integration bug** (new code is right but an adjacent old assumption broke), **AAL-scope** (signature-related, legitimate to defer), or **AAE-scope** (depot-state related, legitimate to defer)
+3. Fix grammar and contract bugs inline in this pace — they're part of cutover completion
+4. Integration bugs: assess scope; small means fix here, large means spinoff pace with explicit handoff docket
+5. AAL/AAE-scope: document and move on; these are out of this pace's contract
+
+### Verification
+
+- Service suite green or triaged
+- Crucible suite green or triaged
+- One full ordain → summon → charge → quench cycle passes against current depot
+- One abjure cycle passes (delete → confirm empty)
+- Tally/plumb/rekon reflect new layout correctly on at least one vessel's hallmarks
+- No stale-grammar failure modes surface (if they do, they return to AAK for a Notch 5; this pace is consumer-side)
+
+### Out of scope
+
+- Depot regen (`₢A_AAE`) — explicitly gates on this pace completing
+- Tabtarget signature simplification (`₢A_AAL`) — orthogonal to path grammar
+- Filesystem moorings rename (`₢A_AAJ`) — separate heat
+- Any fact-contract harmonization (the `ark_stem` includes-prefix vs. wrest locator excludes-prefix asymmetry flagged in AAK close summary) — surface-level tax, not broken
+
+### References
+
+- `₢A_AAK` — parent migration, 4 notches landed: a9e95201 (1 + 2a), 6c362750 (2b), 93c651f2 (specs), 739b4a35 (Rust catchup)
+- `Tools/rbk/rbfd_FoundryDirectorBuild.sh` — producer; per-mode fact emission now uniform
+- `Tools/rbk/rbfl_FoundryLedger.sh:264–359` — abjure new algorithm
+- `Tools/rbk/rbgl_GarLayout.sh` — root constants contract
+- `Tools/rbk/rbtd/src/rbtdrc_crucible.rs:2210–2414` — four-mode fixture
+- `.rbk/rbob_compose.yml:23,57,77` — compose interpolation
+
+### tally-hallmark-enumeration-rewrite (₢A_AAO) [rough]
+
+## Character
+
+Architectural rewrite — both `rbfl_tally` and `rbfv_batch_vouch` shared a per-vessel tag-enumeration shape (Docker Registry v2 `/tags/list` keyed on vessel sigil + case-on-suffix classifier) that dissolved with the GAR categorical-layout migration. They now need a per-hallmark package-enumeration implementation (GAR REST `/packages` keyed under `${RBGL_HALLMARKS_ROOT}/<hallmark>/`). Health/state classification moves from per-tag suffix matching to per-hallmark basename presence in the package set. Vessel column drops in AAK; restoration via vouch/about metadata is AAL territory per the heat paddock.
+
+## Docket
+
+Replace two stubbed function bodies (`rbfl_tally` and `rbfv_batch_vouch`, both stubbed in ₢A_AAK Notch 2b with `buc_die` pointing here) with hallmark-enumeration implementations against the new GAR categorical layout.
+
+### Why these are stubbed
+
+Both functions were stubbed in ₢A_AAK Notch 2b because the Notch 2a constant deletion broke their shared shape:
+
+1. **URL target** — `${ZRBFC_REGISTRY_API_BASE}/${RBRR_CLOUD_PREFIX}${z_sigil}/tags/list` no longer returns anything; packages live under `hallmarks/<H>/<basename>` not `<sigil>/...`
+2. **Case-on-suffix classifier** — references deleted `RBGC_ARK_SUFFIX_*` constants; even renaming to `RBGC_ARK_BASENAME_*` doesn't restore semantics (basenames are package directories, not tag suffixes)
+
+Stubbing was correct in 2b — the rewrite is architecturally substantial and deserves its own focused notch rather than getting jammed into the cross-file 2b cutover.
+
+### Shared subroutine: list hallmarks
+
+Both functions need: list all packages in repo, filter to `${RBGL_HALLMARKS_ROOT}/<hallmark>/<basename>` shape, group by hallmark, build map<hallmark, set<basename>>. Likely lift to a shared helper in `rbfc_FoundryCore.sh`:
+
+```
+zrbfc_list_hallmarks_capture <token>  # writes hallmark→basenames map to scratch file
+```
+
+API call (one per invocation, regardless of vessel count):
+```
+GET ${ZRBFC_GAR_API_BASE}/${ZRBFC_GAR_PACKAGE_BASE}/packages?pageSize=1000
+```
+Pagination via `pageToken` deferred until evidence of >1000 packages. GAR returns names URL-encoded (slashes as `%2F`); decode then prefix-match.
+
+### `rbfl_tally` shape
+
+1. Authenticate as Retriever (existing read-only credential — unchanged).
+2. Call shared list-hallmarks subroutine.
+3. For each hallmark, classify health from basename presence:
+   - `vouched`: image + about + vouch all present
+   - `pending`: image + about, no vouch
+   - `incomplete`: image only (or any other non-healthy combination)
+4. Per-hallmark fact emission: revisit `buf_write_fact "${z_sigil}${RBCC_FACT_CONSEC_INFIX}${z_hallmark}" "${z_sigil}"` pattern. Without vessel in path, fact key shape needs adjustment — check fixture consumers (`grep -nE 'RBCC_FACT_CONSEC_INFIX' Tools/rbtd/`).
+5. Display table: hallmark, basenames-present, health.
+6. Tabtarget recommendations (RBZ_VOUCH_HALLMARKS for pending, RBZ_ABJURE_HALLMARK for incomplete) — unchanged.
+
+### `rbfv_batch_vouch` shape
+
+1. Authenticate as Director (existing).
+2. Call shared list-hallmarks subroutine.
+3. Filter to "pending" hallmarks (about present, vouch absent).
+4. For each pending hallmark, resolve vessel directory (read vouch/about metadata for vessel name → map to `${RBRR_VESSEL_DIR}/<vessel>` — but vouch metadata only exists for already-vouched hallmarks, so for pending hallmarks vessel must come from about metadata) and call `rbfv_vouch <vessel_dir> <hallmark>`.
+5. Track vouched/already/failed counts; print summary.
+
+The vessel-resolution step is the AAL-territory work that the heat paddock defers — but batch_vouch needs vessel to call rbfv_vouch. Either (a) read vessel from about metadata in batch_vouch (anticipating AAL), or (b) further-defer batch_vouch until AAL lands the vessel-from-metadata pattern, or (c) simplify batch_vouch to not need vessel (rewrite rbfv_vouch signature to take only hallmark).
+
+### Vessel column
+
+Drops in AAK. Restoration is AAL scope per the heat paddock — AAL adds vessel-from-vouch-metadata reading on demand via the `_RBGV_VESSEL` field that rbfv already emits into vouch JSON.
+
+### Files
+
+- `Tools/rbk/rbfl_FoundryLedger.sh` — replace `rbfl_tally` body
+- `Tools/rbk/rbfv_FoundryVerify.sh` — replace `rbfv_batch_vouch` body
+- `Tools/rbk/rbfc_FoundryCore.sh` — add shared list-hallmarks helper
+
+### Verification
+
+- Fast suite 90/90 green
+- Crucible suite tally fixture (if exists) green
+- Manual: tally empty repo, tally a single conjure hallmark, tally mix of vouched/pending/incomplete
+- Manual: batch_vouch with no pending, batch_vouch with multiple pending across multiple vessels
+
+### References
+
+- `Tools/rbk/rbfl_FoundryLedger.sh` — `rbfl_tally` stubbed in 2b
+- `Tools/rbk/rbfv_FoundryVerify.sh` — `rbfv_batch_vouch` stubbed in 2b
+- Pace ₢A_AAK — stubs both functions with pointers to this pace
+- `RBSCL-consecration_tally.adoc` — tally spec target (Notch 3 of ₢A_AAK)
+- `RBSAV-ark_vouch.adoc` — vouch/batch_vouch spec target (Notch 3 of ₢A_AAK)
+- `Tools/rbk/rbfc_FoundryCore.sh:41,45` — `ZRBFC_GAR_API_BASE`, `ZRBFC_GAR_PACKAGE_BASE`
+- `Tools/rbk/rbgl_GarLayout.sh:48` — `RBGL_HALLMARKS_ROOT`
+
+### tabtarget-vessel-param-removal (₢A_AAL) [rough]
+
+## Character
+
+Mechanical once ₢A_AAK lands. CLI UX simplification — vessel parameter drops from tabtargets whose folio was `(vessel, hallmark)`. Review attention: confirm the metadata-resolution path (vessel from vouch/about) is exercised and yields correct vessel identity for every affected command.
+
+## Docket
+
+After the GAR categorical layout migration (₢A_AAK) lands, vessel is no longer part of the GAR path. Tabtargets that previously took `(vessel, hallmark)` to construct ark paths simplify to `(hallmark)` alone. Internal vessel identity is resolved on demand from the hallmark's `vouch` or `about` metadata.
+
+### Affected tabtargets (verify and refine)
+
+Foundry and image families — confirm the exact list by grepping for dispatch channels that take both params. Expected targets:
+
+- `rbw-fA` DirectorAbjuresHallmark
+- `rbw-fV` DirectorVouchesHallmarks
+- `rbw-fs` RetrieverSummonsHallmark
+- `rbw-fpf` RetrieverPlumbsFull
+- `rbw-fpc` RetrieverPlumbsCompact
+- `rbw-ft` RetrieverTalliesHallmarks (if vessel-filtered)
+- `rbw-iJ` DirectorJettisonsImage
+- `rbw-ir` DirectorRekonsImages
+- `rbw-iw` DirectorWrestsImage
+
+### NOT affected
+
+Nameplate-moniker tabtargets (Charge, Quench, Rack, KludgeBottle, Hail, Writ, Fiat, Bark, SshTo, Ifrit-*) pass a nameplate moniker — not a vessel for path construction. Different axis; unchanged.
+
+### Per-tabtarget changes
+
+- Folio channel: `param1`+`param2` collapses to `param1` (hallmark). Hallmarks are dynamic (datestamp + sha) so `imprint` does not apply — param1 is the answer for every affected tabtarget.
+- Workbench dispatch simplifies accordingly (channel declarations in zipper enrollments, dispatch tables in workbench routing).
+- Underlying command-function signatures in foundry/image modules lose the vessel parameter.
+
+### Vessel-resolution helper
+
+Mint `rbfc_vessel_for_hallmark(hallmark)` in `Tools/rbk/rbfc_FoundryCore.sh`. Reads the `_RBGA_VESSEL` field from the hallmark's vouch metadata (already emitted per AAK verification — see `rbfv_FoundryVerify.sh:310,335,499,520`). Single home prevents reinvention at each call site.
+
+Call sites that need vessel name for operation prose or logging route through the helper. Resolution is metadata-read only — no second source of truth.
+
+### Cross-cutting
+
+- Zipper enrollment updates for affected colophons (channel declaration changes from `param1+param2` to `param1`)
+- `tt/rbw-MG.MarshalGenerate.sh` regenerates `Tools/rbk/rbk-claude-tabtarget-context.md` to reflect the new signatures
+
+### Depends on
+
+- ₢A_AAK — vessel must resolve from metadata in the new GAR layout before it can leave the CLI surface
+
+### Verification
+
+- Affected tabtargets take hallmark-only params; none reference the old vessel param
+- A representative flow (summon -> plumb -> abjure against a known hallmark) runs end-to-end without the user specifying vessel
+- `rbfc_vessel_for_hallmark()` returns the correct vessel for at least one conjure-mode hallmark and one graft-mode hallmark
+- Regenerated `rbk-claude-tabtarget-context.md` reflects the new signatures
+- `tt/rbtd-s.TestSuite.fast.sh` — 75/75 green
+- `tt/rbtd-s.TestSuite.service.sh` — 80/80 green (if credentials available)
+
+### Out of scope
+
+- Layout migration itself — predecessor ₢A_AAK
+- Nameplate-moniker tabtargets — different axis
+- Depot regen — ₢A_AAE
+
+### rbro-payor-subdirectory-migration (₢A_AAD) [rough]
+
+Drafted from ₢A6AAl in ₣A6.
+
+## Character
+Mechanical refactoring with a migration shim — straightforward path surgery plus a tinder constant mint, verified end-to-end through governor reset proving payor operations survive the move. Includes a small retrofit of the existing RBRA migration to fail-loud on both-exist (consistency with the new payor migration policy).
+
+## Docket
+Move `rbro.env` from flat `RBRR_SECRETS_DIR/rbro.env` into `RBRR_SECRETS_DIR/payor/rbro.env` to match the established `{role}/` subdirectory pattern used by RBRA credentials (governor, retriever, director each have their own subdirectory).
+
+### Mint tinder constant
+Add `RBCC_role_payor="payor"` to `Tools/rbk/rbcc_Constants.sh` alongside the existing `RBCC_role_governor`, `RBCC_role_retriever`, `RBCC_role_director` tinder constants.
+
+### Path change
+In `Tools/rbk/rbdc_DerivedConstants.sh`, change:
+```
+readonly RBDC_PAYOR_RBRO_FILE="${RBRR_SECRETS_DIR}/${RBCC_rbro_file}"
+```
+to:
+```
+readonly RBDC_PAYOR_RBRO_FILE="${RBRR_SECRETS_DIR}/${RBCC_role_payor}/${RBCC_rbro_file}"
+```
+
+### Migration policy: fail-loud on both-exist
+
+Both the new payor migration AND the existing RBRA migration in `zrbdc_kindle()` (lines 40–56) currently silently leave both files if both old and new exist. Replace with hard-fail, forcing human resolution.
+
+**New payor migration block** (parallel to existing RBRA, but with fail-loud):
+```bash
+# Payor migration: rbro.env -> payor/rbro.env
+local z_mig_payor_old="${RBRR_SECRETS_DIR}/${RBCC_rbro_file}"
+local z_mig_payor_new="${RBRR_SECRETS_DIR}/${RBCC_role_payor}/${RBCC_rbro_file}"
+if test -f "${z_mig_payor_old}" && test -f "${z_mig_payor_new}"; then
+  buc_die "Migration ambiguous: both ${z_mig_payor_old} and ${z_mig_payor_new} exist; delete the obsolete file before continuing"
+fi
+if test -f "${z_mig_payor_old}"; then
+  mv "${z_mig_payor_old}" "${z_mig_payor_new}" || buc_die "Failed to migrate: ${z_mig_payor_old} -> ${z_mig_payor_new}"
+fi
+```
+
+**Retrofit existing RBRA migration** (lines 43–56) — add the both-exist guard to match the new policy. Inside the `for z_mig_role` loop, before the existing `if test -f "${z_mig_old}" && ! test -f "${z_mig_new}"; then` block, add:
+```bash
+if test -f "${z_mig_old}" && test -f "${z_mig_new}"; then
+  buc_die "Migration ambiguous for role ${z_mig_role}: both ${z_mig_old} and ${z_mig_new} exist; delete the obsolete file before continuing"
+fi
+```
+
+### Ensure payor directory creation
+Add `${RBCC_role_payor}` to the `mkdir -p` block at lines 35–38 that already creates governor/retriever/director subdirectories.
+
+### Doc/spec updates
+Update literal `~/.rbw/rbro.env` references to `~/.rbw/payor/rbro.env` in:
+- `RBSRO-RegimeOauth.adoc`
+- `RBSGS-GettingStarted.adoc`
+- `RBSPI-payor_install.adoc`
+- `RBSPR-payor_refresh.adoc` (added — payor refresh handbook spec)
+- `RBS0-SpecTop.adoc` (prose references to the file path)
+- `CLAUDE.consumer.md`
+- `rbhpr_refresh.sh` (handbook display text)
+- `rblm_cli.sh` (marshal display text)
+
+### Verification — governor reset cycle
+After code changes, prove payor operations survive the migration by running a governor reset cycle:
+1. `tt/rbtd-s.TestSuite.fast.sh` — 75/75 green (regime validation exercises RBDC paths)
+2. `tt/rbw-aM.PayorMantlesGovernor.sh` — reset governor SA
+3. `tt/rbw-aC.GovernorChartersRetriever.sh` — re-issue retriever RBRA
+4. `tt/rbw-aK.GovernorKnightsDirector.sh` — re-issue director RBRA
+5. Confirm all three RBRA files land in their role subdirectories and payor OAuth (`payor/rbro.env`) is still functional throughout
+
+### Both-exist policy verification
+- Stage a fake "both exist" scenario for payor: create both `~/.rbw/rbro.env` and `~/.rbw/payor/rbro.env`. Run any tabtarget that triggers `zrbdc_kindle`. Confirm `buc_die` with the expected message.
+- Repeat for one RBRA role (e.g., governor): confirm retrofitted guard fires.
+
+### oauth-trust-hygiene-sweep (₢A_AAN) [rough]
+
+## Character
+
+Mechanical and small-diff — each item is a visible-to-first-read trust signal with a straightforward fix. No behavior change intended. Positioned before ₢A_AAE (depot regen) so the OAuth surface a fresh depot exercises reads as deliberate. F7 (factor the three near-duplicate token-exchange code paths) is OUT of scope here — separate pace, also pre-AAE.
+
+## Docket
+
+Surface-hygiene sweep across the OAuth-touching bash, originating from a trust-evaluation review of `rbgo_OAuth.sh`, `rbro_regime.sh`, `rbgp_Payor.sh`, `rbgv_AccessProbe.sh`, and the `buh_prompt` path. Findings numbered per the review (F1/F2/F3/F5/F6a/F6b/F8/F9/F10/F11/F12/F13). F4 folds into F7.
+
+### F1 — Remove dead `ZRBGO_PRIVATE_KEY_FILE` constant
+
+`Tools/rbk/rbgo_OAuth.sh:50` declares `readonly ZRBGO_PRIVATE_KEY_FILE="${BURD_TEMP_DIR}/rbgo_private_key.pem"`; grep-confirmed unreferenced anywhere in the tree. The live signing path (lines 124-127) uses process substitution and does NOT write the private key to disk. The dead constant invites "did they used to write the key to disk?" misread. Delete the line.
+
+### F2 — Close TOCTOU on RBRO credential file write
+
+`Tools/rbk/rbgp_Payor.sh:504-509` writes the RBRO file under default umask, then `chmod 600`. Between the `>` redirect and the chmod, the file exists with permissive perms (typically 644). Add `umask 077` in local scope before the heredoc write block (shell umask restores on function exit automatically — actually no, bash umask is not local to functions; use a subshell `( umask 077; { echo ...; echo ...; } > "${z_rbro_file}" )` OR preserve-and-restore pattern). Either is fine; the subshell approach is cleanest. The explicit `chmod 600` can stay as belt-and-suspenders.
+
+### F3 — Extract OAuth endpoint URLs to RBGC constants
+
+Three inlined URLs in `Tools/rbk/rbgp_Payor.sh` duplicate an existing pattern:
+
+- `:102` and `:485`: `"https://oauth2.googleapis.com/token"` — already exists as `RBGC_OAUTH_TOKEN_URL` (used by `rbgo_OAuth.sh:146`). Replace both with the constant.
+- `:443`: `"https://accounts.google.com/o/oauth2/v2/auth"` — mint `RBGC_OAUTH_AUTHORIZE_URL` in `rbgc_Constants.sh`.
+- `:538`: `"https://www.googleapis.com/oauth2/v3/userinfo"` — mint `RBGC_OAUTH_USERINFO_URL`.
+
+Per RCG Constant Discipline: 2+ occurrences extractable. Current inconsistency (rbgo uses the constant, rbgp inlines the same string) reads as "nobody's in charge of this."
+
+### F5 — Suppress terminal echo on auth-code prompt
+
+OAuth authorization codes appear on-screen and in terminal scrollback today because `buh_prompt` (`Tools/buk/buh_handbook.sh:231-237`) uses `read -r`. Mint `buh_prompt_secret` in `buh_handbook.sh` using `read -rs` followed by a trailing newline emitted to stderr (so the user sees the prompt progress but not the value). Callsite: `Tools/rbk/rbgp_Payor.sh:461`. Auth codes are short-lived (single-use, minutes) but are secrets redeemable for a refresh token until consumed; auditors flag terminal echo verbatim.
+
+### F6a — Remove 7 dead `ZRBGP_INFIX_*` constants
+
+`Tools/rbk/rbgp_Payor.sh:46-63`. Grep-confirmed unreferenced anywhere in the tree:
+
+- Line 46: `ZRBGP_INFIX_PROJECT_DELETE`
+- Line 47: `ZRBGP_INFIX_PROJECT_RESTORE`
+- Line 48: `ZRBGP_INFIX_PROJECT_STATE`
+- Line 53: `ZRBGP_INFIX_CREATE_REPO`
+- Line 54: `ZRBGP_INFIX_VERIFY_REPO`
+- Line 61: `ZRBGP_INFIX_GOV_VERIFY_SA`
+- Line 63: `ZRBGP_INFIX_GOV_IAM`
+
+Names imply planned-but-unimplemented or removed-but-not-cleaned code paths. Delete them.
+
+### F6b — Resolve SC2153 false-positive on `ZRBGU_PREFIX`
+
+`Tools/rbk/rbgp_Payor.sh:278` references `ZRBGU_PREFIX` (defined once in `rbgu_Utility.sh:41`, legitimately cross-module shared — 30+ references across 5 files). Shellcheck can't follow the sourcing chain, flags SC2153. Add `# shellcheck source=rbgu_Utility.sh` directive at the rbgu source line in the furnish/kindle path, OR a targeted `# shellcheck disable=SC2153` at the use site with a pointer comment. Goal: shellcheck runs clean on rbgp_Payor.sh (useful trust signal for anyone running shellcheck across the tree).
+
+### F8 — Inline or document `rbgu_rbro_load`
+
+`Tools/rbk/rbgu_Utility.sh:788-802` is a thin wrapper around `rbro_load` that adds only log calls. Decide the intent:
+
+- **Inline option:** delete the wrapper, callers call `rbro_load` directly. Simplest.
+- **Document option:** add a one-line comment explaining the indirection (e.g., "centralizes RBRO load through the utility module so consumer modules don't need to source `rbro_regime.sh` directly — RBTOE pattern parallels `rbgu_rbra_load`").
+
+The existing `rbgu_rbra_load` function at line 780 appears to follow the same pattern, which suggests the wrapper is deliberate (uniform load-through-utility convention). If so, document. If not, inline.
+
+### F9 — Comment `RBRP_OAUTH_CLIENT_ID` deliberate `min=0`
+
+`Tools/rbk/rbrp_regime.sh:49` enrolls `RBRP_OAUTH_CLIENT_ID` with `min=0` (empty allowed). Consumer-side `test -n` checks in `rbgp_Payor.sh` are the load-bearing requirement. **Rationale surfaced during review: not every operator has a Payor identity** — some operators run Retriever-only against a depot provisioned by someone else, never needing Payor OAuth. Add a comment above the enrollment:
+
+```
+# min=0 deliberate — not every operator has a Payor identity (Retriever-only
+# operators authenticate via JWT SA, never via Payor OAuth). Required-at-use
+# is enforced by test -n in rbgp_Payor.sh consumers. Do not tighten to min=1.
+```
+
+Prevents a future reviewer from "tightening" and breaking non-Payor operators.
+
+### F10 — Comment field-name-basis scrubber
+
+`Tools/rbk/rbgo_OAuth.sh:154-156` filters OAuth response fields by key-name regex (`token|secret|key|password`) rather than value content. This is deliberate defense-in-depth, but a reader can't tell. Add a comment:
+
+```
+# Scrubber filters by field NAME, not value. Deliberate best-effort log hygiene:
+# catches known secret-carrying keys (access_token, refresh_token, id_token via
+# the regex, client_secret). If the OAuth provider ever returns a new
+# secret-carrying field whose name doesn't match this regex, the scrub would
+# miss it — update the regex here when that happens.
+```
+
+Frames the scrubber as best-effort-by-design, not comprehensive.
+
+### F11 — Scope-tagging header comment on `rbgp_Payor.sh`
+
+Top-of-file comment currently says "Recipe Bottle GCP Payor - Billing and Destructive Lifecycle Operations" (line 19). File is 1350 lines mixing two concerns:
+
+- OAuth credential flow: ~lines 76-566 (install, refresh, authenticate-capture)
+- Depot lifecycle: ~lines 568-end (levy, unmake, buckets, repos, worker pools, SA provisioning, IAM)
+
+Add a brief map to the header after line 19:
+
+```
+# Scope: two concerns in this file
+#   OAuth credential flow ........... ~lines 76-566 (install, refresh, authenticate-capture)
+#   Depot lifecycle operations ...... ~lines 568-end (levy, unmake, bucket/repo/pool/SA provisioning)
+```
+
+Reduces first-read review surface; signals to an auditor where to focus. Does not split the file (larger scope).
+
+### F12 — Comment no-cache intent on `zrbgp_authenticate_capture`
+
+`Tools/rbk/rbgp_Payor.sh:122-141`. Each call re-exchanges the refresh token. For operations with many API calls (e.g., `rbgp_depot_levy` — 60+ auth sites), this means dozens of refresh exchanges per ceremony. Add a one-line comment at the top of the function:
+
+```
+# Tokens are deliberately not cached — each call refreshes. Rationale: simplicity
+# and freshness; refresh tokens are long-lived so the extra roundtrips are cheap
+# relative to the depot operations they authorize, and uncached tokens can't
+# grow stale between distinct Payor ceremonies.
+```
+
+Sets reader expectation; answers the "is this calling Google every time?" question without requiring code reading.
+
+### F13 — Document RBRA `\n`-escaped private-key format at the producer side
+
+`Tools/rbk/rbgo_OAuth.sh:82-83` documents at the CONSUMER side that `RBRA_PRIVATE_KEY` holds `\n` escape sequences converted via `printf '%b'`. The producer (wherever RBRA files are written by Governor/IAM code) should carry parallel documentation so a new producer doesn't write real newlines and silently break signing. Locate the RBRA-writing site (candidates: `rbgg_Governor.sh`, `rbgi_IAM.sh`, `rgbs_ServiceAccounts.sh` — grep for `RBRA_PRIVATE_KEY=` write sites). Add a comment there referencing the format requirement, e.g.:
+
+```
+# CAUTION: RBRA_PRIVATE_KEY must hold '\n' escape sequences (literal backslash-n),
+# NOT real newlines. rbgo_OAuth.sh:82-83 expects this format and converts via
+# printf '%b' for openssl sign. Writing real newlines here breaks signing silently.
+```
+
+If the producer extracts the key from a Google SA JSON response (which has real newlines), the write path must escape them. Note in the comment what transform is needed.
+
+## Not in this pace
+
+- **F4** (ID-token scrub; scrubber shared across token-exchange paths): folds into the F7 factoring pace. Currently only `zrbgo_exchange_jwt_capture` logs the response body; other OAuth paths don't log, so no live leak today. F7 will introduce a shared helper that uses the scrubber; doing F4 twice is wasted work.
+- **F7** (factor the three near-duplicate token-exchange code paths across rbgo and rbgp): separate pace, to land before ₢A_AAE.
+
+## Verification
+
+- `tt/rbtd-s.TestSuite.fast.sh` — 75/75 green (no behavior change; regime validation should still pass)
+- `shellcheck Tools/rbk/rbgo_OAuth.sh Tools/rbk/rbgp_Payor.sh Tools/rbk/rbro_regime.sh Tools/rbk/rbro_cli.sh Tools/rbk/rbgv_AccessProbe.sh` — clean exit on rbgo and rbgp (false-positive directives documented, dead constants removed)
+- `tt/rbw-rov.ValidateOauthRegime.sh` — still passes (RBRO regime untouched)
+- Credentialed-station smoke (user-side if not reachable here): `tt/rbw-rpv.ValidatePayorRegime.sh` + any single Payor op (`tt/rbw-dl.PayorListsDepots.sh`) — confirms OAuth authenticate round-trip survives the URL-constant extraction
+- **F5 regression check**: run `rbgp_payor_install <json>` interactively — confirm auth-code prompt does not echo the typed/pasted value
+- **F2 regression check**: delete `~/.rbw/payor/rbro.env`, re-run install, immediately after the heredoc block verify `stat -f %Lp ~/.rbw/payor/rbro.env` (BSD) or `stat -c %a ~/.rbw/payor/rbro.env` (GNU/Linux/WSL) reports `600` at the moment of creation (not only post-chmod)
+
+## Out of scope
+
+- Factoring token-exchange paths (F7, separate pace)
+- Rearchitecting the OAuth flow; caching tokens; alternate auth mechanisms
+- Splitting `rbgp_Payor.sh` into separate files (F11 adds a map comment; a file split is larger scope — if it happens, separate heat)
+- Changes to `rbgv_AccessProbe.sh` — review concluded it's clean; no findings there
+- Anything that changes regime enrollment semantics beyond the F9 comment (F9 only documents existing behavior; does not change validation)
+
+## Notes on ordering
+
+Slated after ₢A_AAD (payor rbro.env subdirectory migration). AAD moves the `rbro.env` path and touches `rbhpr_refresh.sh`; this pace touches adjacent OAuth bash. Minimal file overlap between the two — mostly rbdc/rbcc constants for AAD vs rbgo/rbgp/buh for this pace — so the ordering is for logical grouping rather than dependency. F7 will slot adjacent, also before ₢A_AAE.
+
+### research-config-directory-naming (₢A_AAJ) [rough]
+
+## Character
+
+Research completed — decisions recorded. Pace is wrap-ready.
+
+## Decision
+
+### Principle
+
+**Visibility aligns with authorship.** Consumer-authored content is visible at top level; kit machinery is hidden or lives under `Tools/`. Dot-prefix on consumer-authored directories (`.rbk/`, `.buk/`) contradicts the handbook's explicit teaching that learners should read those files. Visibility signals importance to the human reader ([Lobsters — "Use `.config` to store your project configs"](https://lobste.rs/s/wac58n/use_config_store_your_project_configs)).
+
+### Renames
+
+| Current | Becomes | Notes |
+|---------|---------|-------|
+| `.rbk/` + `.buk/` | `rbmm_moorings/` | Unified consumer configuration umbrella |
+| `.buk/launcher.*.sh` | `rbmm_moorings/rbml_launchers/` | All launchers merged, no kit segregation |
+| `.buk/users/` | `rbmm_moorings/rbmu_users/` | Remote device profile registry |
+| `rbev-vessels/` | `rbmm_moorings/rbmv_vessels/` | Default for `RBRR_VESSEL_DIR`; customer can override |
+| `.rbk/rbob_compose.yml` | `Tools/rbk/rbob_compose.yml` | Kit machinery (crucible topology), not consumer tunable |
+| `.buk/rbbc_constants.sh` | Eliminated | No longer needed — layout is standardized, kit-side constants suffice |
+| `Tools/rbk/rbmP_laterSecurityAudit.md` | `Memos/` | Orphan memo; `rbm*` namespace reclaimed for moorings family |
+
+### Prefix family: `rbm*_`
+
+Gestalt: user-facing content inside moorings. A new concept-prefix family under RB.
+
+| Prefix | Meaning | Location |
+|--------|---------|----------|
+| `rbmm_` | Moorings umbrella (the directory itself) | `rbmm_moorings/` |
+| `rbml_` | Moorings launchers | `rbmm_moorings/rbml_launchers/` |
+| `rbmu_` | Moorings users (remote profiles) | `rbmm_moorings/rbmu_users/` |
+| `rbmv_` | Moorings vessels | `rbmm_moorings/rbmv_vessels/` |
+
+`rbm` is non-terminal. Future `rbm?_` slots remain open for other user-facing moorings concerns.
+
+### Final layout
+
+```
+rbmm_moorings/                      <- single consumer-owned entry at repo root
+  burc.env                          <- BUK regime (authored)
+  rbrr.env                          <- RBK repo regime (authored)
+  rbrp.env                          <- RBK payor regime (authored)
+  tadmor/
+    rbrn.env                        <- nameplate regime (authored)
+    compose.yml                     <- per-nameplate overlay (authored)
+  ccyolo/ ...
+  pluml/ ...
+  srjcl/ ...
+  rbml_launchers/
+    launcher.rbw_workbench.sh
+    launcher_nolog.rbw_workbench.sh
+    launcher.jjw_workbench.sh
+    launcher.buw_workbench.sh
+    launcher.cmw_workbench.sh
+    launcher.study_workbench.sh
+    launcher.vow_workbench.sh
+    launcher.vvw_workbench.sh
+    launcher.vslw_workbench.sh
+    launcher.apcw_workbench.sh
+    launcher.rbtw_workbench.sh
+  rbmu_users/
+    <BURH-style profiles>
+  rbmv_vessels/
+    common-sentry-context/
+    rbev-bottle-ifrit/              <- kit-shipped, keeps rbev- provenance marker
+    rbev-bottle-plantuml/ ...
+    <user vessels without rbev- prefix>
+Tools/
+  rbk/
+    rbob_compose.yml                <- base crucible topology (kit-shipped)
+    rbob_bottle.sh
+    ...
+  buk/ ...
+tt/
+  z-launcher.sh                     <- trampoline, hardcodes ../rbmm_moorings/rbml_launchers/
+  rbw-*.sh ...                      <- tabtargets route through z-launcher
+```
+
+### Trampoline design
+
+Every tabtarget currently hardcodes `.buk/launcher_*_workbench.sh` — the single most pervasive path reference in the system. Introducing `tt/z-launcher.sh` as a stable indirection means future moorings-directory renames touch exactly one file. Tabtargets call the trampoline with a workbench identifier; the trampoline resolves `../rbmm_moorings/rbml_launchers/launcher.{id}.sh` (or equivalent).
+
+The `rbmm_moorings/` path inside `z-launcher.sh` is hardcoded. Customers adjust it at project start if they choose to rename the moorings directory. That's a deliberate single-point-of-customization.
+
+### Rejected / decided alternatives
+
+- **Kit subdirectories inside moorings** (`rbmm_moorings/rbk/`, `rbmm_moorings/buk/`) — rejected. File prefixes (`burc.`, `rbrr.`, `rbrn.`) already encode kit; subdirs would be redundant nesting, and the kit boundary is a producer concern not a consumer one.
+- **Separate `regime/` and `vessels/` top-level dirs** — rejected. Single `rbmm_moorings/` umbrella is cleaner. Vessels are consumer-configured (even if rarely edited), belong with the rest of the configuration surface.
+- **`rbmb_` bootstrap-constants module** — rejected. Original `rbbc_constants.sh` existed to single-source the `.rbk` literal across many files. With `rbmm_moorings/` as the standardized, z-launcher-hardcoded name, no cross-file indirection is needed.
+- **Bridge period (both old and new paths work transiently)** — rejected. Hard cutover is cleaner.
+- **Extend moorings to JJK/CMK/VVK** — rejected. `rbmm_moorings/` is RBK+BUK only. JJK uses `.claude/jjm/` for agent-side state (different kettle). Other kits keep their own conventions.
+- **Visible `config/` or `regime/`** — rejected. `config/` throws away the project's distinctive vocabulary; `regime/` is too narrow (regimes are formal configurations; moorings also contains bootstrap glue and vessels).
+
+### Prefix coexistence note
+
+Inside `rbmm_moorings/`, regime files retain their original family prefixes (`burc_`, `rbrr_`, `rbrn_`, `rbrp_`). The `rbm*_` family is the moorings-infrastructure prefix — directories and any new moorings-level code. This is a feature, not a conflict: regime file prefixes tell you which kit's regime you're reading; `rbm*_` tells you it's moorings infrastructure.
+
+## Migration scope (for the follow-up rename heat)
+
+The actual filesystem rename is out of scope for this heat (₣A_). It is intended as a separate follow-up heat. The migration scope below is captured here so the follow-up heat has a starting inventory.
+
+### Code references
+
+- ~33 files in `Tools/` reference paths starting with `.rbk/`, `.buk/`, or `rbev-vessels/`
+- Every tabtarget in `tt/` hardcodes `.buk/launcher...` — mechanical sed sweep, then tabtargets route through `z-launcher.sh` going forward
+- `BURD_LAUNCHER` value in each tabtarget → replaced with workbench identifier passed to trampoline
+- `RBRR_VESSEL_DIR` default flips to `rbmm_moorings/rbmv_vessels/`
+
+### Handbook and specs
+
+- Every handbook track that teaches `.rbk/`, `.buk/`, `rbev-vessels/` — update vocabulary and examples
+- Specs: RBS0, RBRN, RBSRR, RBSRP, RBSRV, and others that reference these paths
+- README.md, CLAUDE.md, consumer CLAUDE.md (`Tools/rbk/vov_veiled/CLAUDE.consumer.md`)
+- AsciiDoc linked terms that reference the old dir names
+
+### Infrastructure
+
+- Marshal zero template (currently creates `.rbk/` and `.buk/` for new consumers) — regenerate to create `rbmm_moorings/` layout
+- Test fixtures that create these directories
+- Any diagrams showing the directory structure
+
+### Cleanup
+
+- Delete `rbbc_constants.sh` (absorbed into kit code)
+- Move `rbmP_laterSecurityAudit.md` -> `Memos/`
+- Move `rbob_compose.yml` from `.rbk/` to `Tools/rbk/`
+- Register new `rbm*_` prefixes in CLAUDE.md File Acronym Mappings
+
+### Observed non-issue
+
+**gitignore patterns** — nothing in `.rbk/`, `.buk/`, or `rbev-vessels/` is currently gitignored. Migration doesn't touch ignore files.
+
+## Out of scope
+
+- Actually executing the renames (separate follow-up heat, not a pace in this heat)
+- Extending moorings pattern to other kits
+- Eliminating per-nameplate overlay `compose.yml` files (they ARE consumer-authored)
+- Redesigning the launcher infrastructure beyond introducing `z-launcher.sh`
+
+## Paddock update on wrap
+
+A_ paddock should record (additive to what's already there):
+- The `rbm*_` prefix family and its gestalt ("user-facing content inside moorings")
+- The hard-cutover discipline for the moorings rename (when its own heat eventually runs)
+
+The filesystem rename is NOT a prerequisite to this heat's ₢A_AAE — it's a separate follow-up heat. Paddock should not claim otherwise.
+
+## Sources
+
+- [Lobsters — Use `.config` to store your project configs](https://lobste.rs/s/wac58n/use_config_store_your_project_configs)
+- [GitHub — Folder Structure Conventions](https://github.com/kriasoft/Folder-Structure-Conventions)
+- [monorepo.tools](https://monorepo.tools/)
+- [mise — Monorepo Tasks](https://mise.jdx.dev/tasks/monorepo.html)
+
+### regenerate-depot (₢A_AAE) [rough]
+
+## Character
+Operational — live GCP infrastructure change, requires payor credentials. The forcing function for the entire heat: AAA–AAD all land before this; this regen validates the new prefix wiring and GAR layout end-to-end against fresh infrastructure.
+
+## Preconditions
+
+Before running, set non-empty prefixes in `.rbk/rbrr.env` (so the regen exercises non-empty paths, not the empty-prefix shortcut):
+
+```
+RBRR_CLOUD_PREFIX="rbm-"
+RBRR_RUNTIME_PREFIX="dev-"
+```
+
+Distinct values for cloud and runtime are deliberate — proves the variables are wired distinctly, not aliased through any common derivation. `rbm-` matches the project family prefix; `dev-` signals local-machine scope. Both are 4 chars (well under the 11-char ceiling) and pass the regex.
+
+Also confirm before running:
+- AAA–AAD all landed and committed
+- `tt/rbw-rrv.ValidateRepoRegime.sh` — passes
+- `tt/rbw-rrr.RenderRepoRegime.sh` — shows both prefixes rendered with `rbm-` / `dev-`
+- `tt/rbtd-s.TestSuite.fast.sh` — 75/75 green
+
+## Work
+
+Run depot unmake + depot levy to regenerate the depot with the new prefix-aware configuration:
+
+1. `tt/rbw-dU.PayorUnmakesDepot.sh` — unmake the existing depot
+2. `tt/rbw-dL.PayorLeviesDepot.sh` — provision fresh depot with the new prefix-aware GAR layout
+
+## Verification
+
+- `tt/rbw-dl.PayorListsDepots.sh` — confirms new depot is active
+- GAR repository created, worker pools provisioned (verify via gcloud or via tabtarget output)
+- `tt/rbw-fO.DirectorOrdainsHallmark.sh` against a small vessel (suggest sentry-deb-tether or similar small target) — confirms hallmark publication into `${RBRR_CLOUD_PREFIX}hallmarks/<hallmark>/...` layout
+- `tt/rbw-dE.DirectorEnshrinesVessel.sh` — confirms enshrine lands under `${RBRR_CLOUD_PREFIX}enshrines/`
+- `tt/rbw-dI.DirectorInscribesReliquary.sh` — confirms reliquary lands under `${RBRR_CLOUD_PREFIX}reliquaries/<date>/<tool>`
+- `tt/rbw-ft.RetrieverTalliesHallmarks.sh` — tally surfaces the published hallmark with prefixed paths
+
+If any verification step fails, the failure is informative: the prefix wiring or layout migration has a gap that needs to be back-fixed in AAB or AAK before depot-regen can succeed.
+
+### run-complete-test-suite (₢A_AAF) [rough]
+
+## Character
+Validation — patience and diagnostic attention. Failures are the point. Preflight rebuilds the kit-shipped vessels that AAE's depot regen wiped, then runs the complete suite against the freshly stocked depot.
+
+## Preflight: rebuild kit-shipped vessels
+
+AAE wipes the depot. The complete test suite includes `tadmor-security`, `srjcl-jupyter`, and `pluml-diagram` fixtures, each requiring built vessel images that no longer exist after regen. AAE's verification only exercises one small vessel (sentry-deb-tether or similar) — it doesn't restock the suite-needed vessels.
+
+Before running the suite, ordain every vessel referenced by complete-suite fixtures:
+
+- Tadmor: sentry vessel (`rbev-sentry-deb-tether`) + bottle vessel (verify exact name in nameplate)
+- Srjcl: bottle vessel (`rbev-bottle-anthropic-jupyter`)
+- Pluml: bottle vessel (`rbev-bottle-plantuml`)
+- Plus any additional vessels referenced by enrollment-validation, regime-validation, regime-smoke, access-probe, four-mode (most of these don't need built images, but verify)
+
+For each vessel: `tt/rbw-fO.DirectorOrdainsHallmark.sh <vessel>` (or vessel-mode-appropriate ordain pathway). Confirms the new prefix-aware GAR layout from AAB/AAK works end-to-end against the regenerated depot.
+
+## Work
+
+Run `tt/rbtd-s.TestSuite.complete.sh` — the full 122-case suite covering enrollment-validation, regime-validation, regime-smoke, access-probe, four-mode, tadmor-security, srjcl-jupyter, and pluml-diagram. All container names and image references should now carry the configured prefixes (`rbm-` cloud, `dev-` runtime per AAE preconditions).
+
+Diagnose and fix any failures caused by the prefix wiring. Failures fall into two buckets:
+- **Prefix gap** — a hardcoded path or container name slipped past AAB's grep sweep. Back-fix in AAB and re-verify.
+- **Layout gap** — a producer or consumer site wasn't updated to the new GAR layout in AAK. Back-fix in AAK and re-verify.
+
+The complete-suite failure surface is the safety net for both AAB and AAK gaps.
+
+### run-all-onboarding-tracks (₢A_AAG) [rough]
+
+## Character
+End-to-end validation — user perspective. Every handbook track must complete cleanly.
+
+## Work
+Walk every onboarding track in sequence: Crash Course, Credential Retriever, Credential Director, First Crucible, Director First Cloud Build, Payor, Governor. Verify all handbook windows render correctly with prefixed resource names. Confirm probe outputs show the correct prefixed container/image identifiers. Fix any display or functional issues.
+
+### oci-magic-string-extraction (₢A_AAM) [rough]
+
+## Character
+
+Mechanical — small-scope extraction of OCI Distribution Spec protocol keywords (`manifests`, `blobs`, `tags/list`, `v2`) that currently appear as bare literals in URL construction across rbfr and rbfv. Low per-site judgment once the naming scheme is chosen; the design thought lies in choosing between named-constant replacement vs a URL-builder helper.
+
+## Docket
+
+The OCI Registry HTTP API v2 URL shape `/v2/<name>/manifests/<reference>` (and peers `blobs/`, `tags/list`) appears ~10× across `rbfr_FoundryRetriever.sh` and `rbfv_FoundryVerify.sh` with the endpoint keywords inlined as bare string literals. These are protocol-defined keywords from the OCI Distribution Spec — frozen, not arbitrary — but repeated inlining violates BCG's Load-Bearing Complexity principle. See BCG:609 `Z«PREFIX»_API_VERSION="v2"` as the canonical pattern for capturing protocol keywords.
+
+### Two options (pick one at pace execution)
+
+**Option A — named protocol constants as RBFC tinder**. Add `ZRBFC_ENDPOINT_MANIFESTS="manifests"`, `ZRBFC_ENDPOINT_BLOBS="blobs"`, `ZRBFC_ENDPOINT_TAGS_LIST="tags/list"`, `ZRBFC_API_VERSION="v2"` at RBFC tinder-constant position (post-`SOURCED`, pre-kindle). Each site replaces the bare literal with the named constant. Minimal structural change, most direct expression of BCG's tinder-constant pattern.
+
+**Option B — URL-builder helper**. Add `zrbfc_manifest_url_capture <vessel_path> <reference>` returning `${ZRBFC_REGISTRY_API_BASE}/<vessel_path>/manifests/<reference>`. Callers collapse to one line. Higher upfront effort, higher payoff if future OCI endpoints get added. Tilts toward "one place owns the URL shape."
+
+### Sites (verify-on-touch; line numbers will drift)
+
+- `rbfr_FoundryRetriever.sh` — `/tags/list` (~142), `/manifests/` (~188, 213, 238)
+- `rbfv_FoundryVerify.sh` — `/manifests/` (~89, 142, 166, 224, 617, 641), `/tags/list` (~822)
+- Any other hits from `grep -rnE '/manifests/|/tags/list|/blobs/|/v2/' Tools/rbk/`
+
+### Verification
+
+- Fast suite green (no new test surface for this refactor)
+- Crucible suite green (exercises actual registry fetches end-to-end)
+- Manual smoke: `tt/rbw-cC.Charge.tadmor.sh` succeeds unchanged
+
+### Scope guardrails
+
+- Pure extraction — no URL semantics change, no new endpoint types
+- Independent of AAK: OCI protocol keywords persist regardless of whether path grammar reshapes into hallmark-centered layout
+- Does not block or get blocked by depot regen (AAE)
+
+File-touch bitmap (x = pace commit touched file):
+
+  1 I rename-rbap-to-rbgv
+  2 A rbrr-image-and-runtime-prefix-variables
+  3 B derived-constants-and-consumer-wiring
+  4 C marshal-release-zeroes-prefixes
+  5 K gar-categorical-layout-migration
+
+IABCK
+··x·x rbfc_FoundryCore.sh, rbfd_FoundryDirectorBuild.sh, rbfl_FoundryLedger.sh, rbfr_FoundryRetriever.sh, rbfv_FoundryVerify.sh, rbgje01-enshrine-copy.sh, rbob_bottle.sh, rbob_compose.yml, rbrn_cli.sh
+·x··x RBS0-SpecTop.adoc
+·x·x· RBSRR-RegimeRepo.adoc, rbrr.env, rbrr_regime.sh
+····x RBSAA-ark_abjure.adoc, RBSAB-ark_about.adoc, RBSAC-ark_conjure.adoc, RBSAE-ark_enshrine.adoc, RBSAG-ark_graft.adoc, RBSAK-ark_kludge.adoc, RBSAP-ark_plumb.adoc, RBSAS-ark_summon.adoc, RBSAV-ark_vouch.adoc, RBSCB-CloudBuildPosture.adoc, RBSCC-crucible_charge.adoc, RBSCL-consecration_tally.adoc, RBSDI-depot_inscribe.adoc, RBSDV-director_vouch.adoc, RBSGS-GettingStarted.adoc, RBSIJ-image_jettison.adoc, RBSTB-trigger_build.adoc, rbfc_cli.sh, rbfd_cli.sh, rbfl_cli.sh, rbfr_cli.sh, rbfv_cli.sh, rbgc_Constants.sh, rbgja01-discover-platforms.py, rbgja02-syft-per-platform.sh, rbgja03-build-info-per-platform.py, rbgja04-assemble-push-about.sh, rbgjb03-buildx-push-image.sh, rbgjb04-per-platform-pullback.sh, rbgjb05-push-per-platform.sh, rbgjb06-push-diags.sh, rbgji01-inscribe-mirror.sh, rbgjv02-verify-provenance.py, rbgjv03-assemble-push-vouch.sh, rbgl_GarLayout.sh, rbob_cli.sh, rbtdrc_crucible.rs
+···x· rblm_cli.sh
+
+Commit swim lanes (x = commit affiliated with pace):
+
+  1 I rename-rbap-to-rbgv
+  2 A rbrr-image-and-runtime-prefix-variables
+  3 B derived-constants-and-consumer-wiring
+  4 C marshal-release-zeroes-prefixes
+  5 K gar-categorical-layout-migration
+
+123456789abcdefghijklmnopqrstuvw
+············x···················  I  1c
+·················xx·············  A  2c
+····················xx··········  B  2c
+······················xx········  C  2c
+························x·x·xxx·  K  5c

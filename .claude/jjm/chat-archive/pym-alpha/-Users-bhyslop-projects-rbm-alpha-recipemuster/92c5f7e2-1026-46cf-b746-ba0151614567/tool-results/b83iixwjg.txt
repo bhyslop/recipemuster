@@ -1,0 +1,2548 @@
+log files:   ../logs-buk/last.txt ../logs-buk/same-buw-jpS-sh.txt ../logs-buk/hist-buw-jpS-sh-20260510-214021-80462-85.txt
+transcript:  /Users/bhyslop/projects/rbm_alpha_recipemuster/../temp-buk/temp-20260510-214021-80462-85/transcript.txt
+output dir:  /Users/bhyslop/projects/rbm_alpha_recipemuster/../output-buk/current
+[90mbujb_privileged_ssh_command[0m [1;37mPrivileged SSH: bhyslop@rocket (bujn-winpc)[0m
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+\$_.Message : The term '\$_.Message' is not recognized as the name of a cmdlet, function, script file, or operable 
+program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:149
++ ... )} -ErrorAction SilentlyContinue | Where-Object { \$_.Message -match  ...
++                                                       ~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (\$_.Message:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 

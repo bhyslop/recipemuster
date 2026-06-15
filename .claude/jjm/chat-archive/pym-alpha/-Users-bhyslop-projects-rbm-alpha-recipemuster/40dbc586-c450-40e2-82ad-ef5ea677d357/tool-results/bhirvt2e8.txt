@@ -1,0 +1,324 @@
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/jjz_zipper.sh-  # Fundus — test account and scenario infrastructure (jjw-tf)
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/jjz_zipper.sh-  buz_group JJZ__GROUP_FUNDUS   "jjw-tf"  "Fundus — Test account and scenario infrastructure"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/jjz_zipper.sh:  buz_enroll JJZ_FUNDUS_PHASE1    "jjw-tfP1" "jjfp_cli.sh" "jjfp_provision" ""        "Phase 1: Create accounts and install keypairs (requires root)"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/jjz_zipper.sh:  buz_enroll JJZ_FUNDUS_PHASE2    "jjw-tfP2" "jjfp_cli.sh" "jjfp_repo"      "imprint" "Phase 2: Clone repos and install BUK via SSH"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/jjz_zipper.sh:  buz_enroll JJZ_FUNDUS_SCENARIO  "jjw-tfs"  "jjfp_cli.sh" "jjfp_scenario"  "imprint" "Run fundus scenario suite"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/jjz_zipper.sh:  buz_enroll JJZ_FUNDUS_SINGLE    "jjw-tfS"  "jjfp_cli.sh" "jjfp_single"    "imprint" "Run single fundus test"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/jjz_zipper.sh-
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/jjk/jjz_zipper.sh-  readonly ZJJZ_KINDLED=1
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/apck/apcz_zipper.sh-  # Build — Tauri build and development (apcw-)
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/apck/apcz_zipper.sh-  buz_group APCZ__GROUP_BUILD   "apcw-"   "Build — Tauri build and development"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/apck/apcz_zipper.sh:  buz_enroll APCZ_BUILD          "apcw-b"  "apcc_cli.sh" "apcc_build"         ""  "cargo tauri build (release)"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/apck/apcz_zipper.sh:  buz_enroll APCZ_RUN            "apcw-r"  "apcc_cli.sh" "apcc_run"           ""  "cargo tauri dev (local development)"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/apck/apcz_zipper.sh:  buz_enroll APCZ_DEPLOY         "apcw-D"  "apcc_cli.sh" "apcc_deploy"        ""  "Build + scp to anns-macbook-air"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/apck/apcz_zipper.sh:  buz_enroll APCZ_FIXTURE_LOAD   "apcw-fl" "apcc_cli.sh" "apcc_fixture_load"  "imprint"  "Run apcal to load fixture HTML onto clipboard"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/apck/apcz_zipper.sh:  buz_enroll APCZ_TEST           "apcw-t"  "apcc_cli.sh" "apcc_test"          ""  "cargo test in apcd/"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/apck/apcz_zipper.sh:  buz_enroll APCZ_DICT_REFRESH  "apcw-dr" "apcc_cli.sh" "apcc_dictionary_refresh" "" "Refresh dictionaries from public sources"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/apck/apcz_zipper.sh:  buz_enroll APCZ_BATCH_ASSAY  "apcw-ba" "apcc_cli.sh" "apcc_batch_assay"       "param1" "Batch assay — run detection pipeline on HTML directory"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/apck/apcz_zipper.sh:  buz_enroll APCZ_NS_INSTALL   "apcw-nsi" "apcc_cli.sh" "apcc_neural_stanford_install" "" "Neural Stanford install — convergent venv + ONNX export (always reaches a working state)"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/apck/apcz_zipper.sh:  buz_enroll APCZ_NS_ASSAY     "apcw-nsa" "apcc_cli.sh" "apcc_neural_stanford_assay"  "param1" "Neural Stanford assay — run apcnsa on HTML directory"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/apck/apcz_zipper.sh-
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/apck/apcz_zipper.sh-  # Container — Python NLP discerner image lifecycle (apcw-c*)
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/apck/apcz_zipper.sh-  buz_group APCZ__GROUP_CONTAINER "apcw-c" "Container — Python NLP discerner image lifecycle"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/apck/apcz_zipper.sh:  buz_enroll APCZ_CONTAINER_BUILD  "apcw-cb" "apcc_cli.sh" "apcc_container_build"  "" "docker build of the apck-container image (first build pulls ML models)"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/apck/apcz_zipper.sh:  buz_enroll APCZ_CONTAINER_START  "apcw-cs" "apcc_cli.sh" "apcc_container_start"  "" "Truncate container-log.txt then docker run the container with security flags"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/apck/apcz_zipper.sh:  buz_enroll APCZ_CONTAINER_STOP   "apcw-cx" "apcc_cli.sh" "apcc_container_stop"   "" "docker stop + docker rm the container"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/apck/apcz_zipper.sh:  buz_enroll APCZ_CONTAINER_STATUS "apcw-ci" "apcc_cli.sh" "apcc_container_status" "" "Container running state, image tag, bind-mount reachability"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/apck/apcz_zipper.sh-
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/apck/apcz_zipper.sh-  readonly ZAPCZ_KINDLED=1
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/bul_launcher.sh-
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/bul_launcher.sh-  export BURD_COORDINATOR_SCRIPT="${z_coordinator}"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/bul_launcher.sh:  exec "${BURC_TOOLS_DIR}/buk/bud_dispatch.sh" "${1##*/}" "${@:2}"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/bul_launcher.sh-}
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/buz_zipper.sh-  test -z "${ZBUZ_KINDLED:-}" || buc_die "buz already kindled"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/buz_zipper.sh-
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/buz_zipper.sh:  # Registry rolls (populated by buz_enroll in consumer kindle, same-process only)
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/buz_zipper.sh-  z_buz_colophon_roll=()
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/buz_zipper.sh-  z_buz_module_roll=()
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/buz_zipper.sh-# Public enroll (kindle-only registry population)
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/buz_zipper.sh-
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/buz_zipper.sh:# buz_enroll() - Register colophon tuple in parallel rolls
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/buz_zipper.sh-# Args: varname, colophon, module, command, channel, description
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/buz_zipper.sh-# All 6 arguments required. Channel: "" (none), "imprint", or "param1".
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/buz_zipper.sh-# Assigns colophon string to caller's variable via printf -v
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/buz_zipper.sh-# Side effects: populates registry rolls (must be called in same process, NOT inside $())
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/buz_zipper.sh:buz_enroll() {
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/buz_zipper.sh-  zbuz_sentinel
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/buz_zipper.sh-
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/buz_zipper.sh:  test $# -eq 6 || buc_die "buz_enroll: requires 6 arguments (varname colophon module command channel description), got $#"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/buz_zipper.sh-
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/buz_zipper.sh-  local -r z_varname="${1}"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/buz_zipper.sh-  local -r z_channel="${5}"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/buz_zipper.sh-  local -r z_description="${6}"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/buz_zipper.sh:  test -n "${z_varname}"     || buc_die "buz_enroll: varname required"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/buz_zipper.sh:  test -n "${z_colophon}"    || buc_die "buz_enroll: colophon required"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/buz_zipper.sh:  test -n "${z_module}"      || buc_die "buz_enroll: module required"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/buz_zipper.sh:  test -n "${z_command}"     || buc_die "buz_enroll: command required"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/buz_zipper.sh:  test -n "${z_description}" || buc_die "buz_enroll: description required"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/buz_zipper.sh-
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/buz_zipper.sh-  # Validate channel value (empty string is valid — means no channel)
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/buz_zipper.sh-  case "${z_channel}" in
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/buz_zipper.sh-    ""|"imprint"|"param1") ;;
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/buz_zipper.sh:    *) buc_die "buz_enroll: invalid channel: ${z_channel}" ;;
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/buz_zipper.sh-  esac
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/buz_zipper.sh-
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/buz_zipper.sh-  # Validate variable name
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/buz_zipper.sh-  [[ "${z_varname}" =~ ^[A-Za-z_][A-Za-z0-9_]*$ ]] \
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/buz_zipper.sh:    || buc_die "buz_enroll: invalid variable name: ${z_varname}"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/buz_zipper.sh-
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/buz_zipper.sh-  # Roll population (only persists in same-process context, lost in $() subshell)
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/buz_zipper.sh-
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/buz_zipper.sh-  # Assign colophon to caller's variable
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/buz_zipper.sh:  printf -v "${z_varname}" '%s' "${z_colophon}" || buc_die "buz_enroll: printf -v failed for ${z_varname}"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/buz_zipper.sh-}
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/buz_zipper.sh-
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/buz_zipper.sh-# buz_emit_context() - Emit colophon registry as markdown, organized by groups
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/buz_zipper.sh-# Args: tabtarget_dir
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/buz_zipper.sh:# Writes markdown to stdout. Groups come from buz_group; descriptions from buz_enroll.
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/buz_zipper.sh-# Frontispiece extracted from tabtarget filenames on disk.
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/buz_zipper.sh-buz_emit_context() {
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/bul_nolog_launcher.sh-
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/bul_nolog_launcher.sh-  export BURD_COORDINATOR_SCRIPT="${z_coordinator}"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/bul_nolog_launcher.sh:  exec "${BURC_TOOLS_DIR}/buk/bud_dispatch.sh" "${1##*/}" "${@:2}"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/bul_nolog_launcher.sh-}
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/burd_regime.sh-# BURD Regime - Bash Utility Regime Dispatch Module
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/burd_regime.sh-#
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/burd_regime.sh:# BURD is an ephemeral regime — variables are constructed by bud_dispatch.sh during
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/burd_regime.sh-# tabtarget execution, not sourced from a file.
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/burd_regime.sh-
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/buts/butcbx_BurxExchange.sh-# BUTCBX - BURX exchange test cases for BUK self-test
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/buts/butcbx_BurxExchange.sh-#
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/buts/butcbx_BurxExchange.sh:# Verifies that bud_dispatch.sh produces well-formed burx.env via
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/buts/butcbx_BurxExchange.sh-# dual-write during dispatch.  These cases inspect the current dispatch's
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/buts/butcbx_BurxExchange.sh-# own output — the dispatch IS the integration test for buf_write_fact_single.
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/buwz_zipper.sh-  # TabTarget subsystem (buut_cli.sh)
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/buwz_zipper.sh-  local z_mod="buut_cli.sh"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/buwz_zipper.sh:  buz_enroll BUWZ_TT_LIST_LAUNCHERS      "buw-tt-ll"  "${z_mod}" "buut_list_launchers"               ""  "List all registered launchers"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/buwz_zipper.sh:  buz_enroll BUWZ_TT_BATCH_LOGGING       "buw-tt-cbl" "${z_mod}" "buut_tabtarget_batch_logging"      ""  "Create batch tabtarget with logging"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/buwz_zipper.sh:  buz_enroll BUWZ_TT_BATCH_NOLOG         "buw-tt-cbn" "${z_mod}" "buut_tabtarget_batch_nolog"        ""  "Create batch tabtarget without logging"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/buwz_zipper.sh:  buz_enroll BUWZ_TT_INTERACTIVE_LOGGING "buw-tt-cil" "${z_mod}" "buut_tabtarget_interactive_logging" ""  "Create interactive tabtarget with logging"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/buwz_zipper.sh:  buz_enroll BUWZ_TT_INTERACTIVE_NOLOG   "buw-tt-cin" "${z_mod}" "buut_tabtarget_interactive_nolog"  ""  "Create interactive tabtarget without logging"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/buwz_zipper.sh:  buz_enroll BUWZ_TT_LAUNCHER            "buw-tt-cl"  "${z_mod}" "buut_launcher"                     ""  "Create launcher script"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/buwz_zipper.sh-
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/buwz_zipper.sh-  # Config Regime subsystem (burc_cli.sh)
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/buwz_zipper.sh-  z_mod="burc_cli.sh"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/buwz_zipper.sh:  buz_enroll BUWZ_RC_VALIDATE "buw-rcv" "${z_mod}" "burc_validate"  ""  "Validate BURC regime"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/buwz_zipper.sh:  buz_enroll BUWZ_RC_RENDER   "buw-rcr" "${z_mod}" "burc_render"    ""  "Render BURC regime"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/buwz_zipper.sh-
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/buwz_zipper.sh-  # Station Regime subsystem (burs_cli.sh)
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/buwz_zipper.sh-  z_mod="burs_cli.sh"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/buwz_zipper.sh:  buz_enroll BUWZ_RS_VALIDATE "buw-rsv" "${z_mod}" "burs_validate"  ""  "Validate BURS regime"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/buwz_zipper.sh:  buz_enroll BUWZ_RS_RENDER   "buw-rsr" "${z_mod}" "burs_render"    ""  "Render BURS regime"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/buwz_zipper.sh-
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/buwz_zipper.sh-  # Environment Regime subsystem (bure_cli.sh)
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/buwz_zipper.sh-  z_mod="bure_cli.sh"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/buwz_zipper.sh:  buz_enroll BUWZ_RE_VALIDATE "buw-rev" "${z_mod}" "bure_validate"  ""  "Validate BURE regime"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/buwz_zipper.sh:  buz_enroll BUWZ_RE_RENDER   "buw-rer" "${z_mod}" "bure_render"    ""  "Render BURE regime"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/buwz_zipper.sh-
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/buwz_zipper.sh-  # Host Regime subsystem (burh_cli.sh)
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/buwz_zipper.sh-  z_mod="burh_cli.sh"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/buwz_zipper.sh:  buz_enroll BUWZ_RH_VALIDATE "buw-rhv" "${z_mod}" "burh_validate" "param1" "Validate BURH profile"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/buwz_zipper.sh:  buz_enroll BUWZ_RH_RENDER   "buw-rhr" "${z_mod}" "burh_render"   "param1" "Render BURH profile"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/buwz_zipper.sh:  buz_enroll BUWZ_RH_LIST     "buw-rhl" "${z_mod}" "burh_list"     ""       "List BURH profiles"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/buwz_zipper.sh-
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/buwz_zipper.sh-  # Qualification subsystem (buq_cli.sh)
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/buwz_zipper.sh-  z_mod="buq_cli.sh"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/buwz_zipper.sh:  buz_enroll BUWZ_QUALIFY_SHELLCHECK "buw-qsc" "${z_mod}" "buq_shellcheck"  ""  "Run shellcheck on all tools"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/buwz_zipper.sh-
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/buwz_zipper.sh-  # Test fixtures (bux_cli.sh)
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/buwz_zipper.sh-  z_mod="bux_cli.sh"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/buwz_zipper.sh:  buz_enroll BUWZ_DELAY "buw-xd" "${z_mod}" "bux_delay"  ""  "Sleep 20 seconds (timing fixture)"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/buwz_zipper.sh-
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/buwz_zipper.sh-  # Self-test (butt_testbench.sh)
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/buwz_zipper.sh-  z_mod="butt_testbench.sh"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/buwz_zipper.sh:  buz_enroll BUWZ_SELF_TEST "buw-st" "${z_mod}" "buw-st"  ""  "BUK self-test (kick-tires + bure-tweak)"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/buwz_zipper.sh-
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/buwz_zipper.sh-  # Host Regime — constructors + SSH automation (burh_cli.sh)
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/buwz_zipper.sh-  z_mod="burh_cli.sh"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/buwz_zipper.sh:  buz_enroll BUWZ_RHC_LINUX      "buw-rhcl"  "${z_mod}" "burh_construct_linux"      ""        "Construct BURH profile: Linux"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/buwz_zipper.sh:  buz_enroll BUWZ_RHC_MAC        "buw-rhcm"  "${z_mod}" "burh_construct_mac"        ""        "Construct BURH profile: macOS"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/buwz_zipper.sh:  buz_enroll BUWZ_RHC_CYGWIN     "buw-rhcc"  "${z_mod}" "burh_construct_cygwin"     ""        "Construct BURH profile: Cygwin"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/buwz_zipper.sh:  buz_enroll BUWZ_RHC_WSL        "buw-rhcw"  "${z_mod}" "burh_construct_wsl"        ""        "Construct BURH profile: WSL"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/buwz_zipper.sh:  buz_enroll BUWZ_RHC_POWERSHELL "buw-rhcp"  "${z_mod}" "burh_construct_powershell" ""        "Construct BURH profile: PowerShell"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/buwz_zipper.sh:  buz_enroll BUWZ_RHC_LOCALHOST  "buw-rhcx"  "${z_mod}" "burh_construct_localhost"  ""        "Construct BURH profile: localhost"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/buwz_zipper.sh:  buz_enroll BUWZ_HW_SSH_CONFIG  "buw-HWsc"  "${z_mod}" "burh_ssh_config"           ""        "Write SSH config from BURH profiles"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/buwz_zipper.sh:  buz_enroll BUWZ_HW_VERIFY_SSH  "buw-HWvs"  "${z_mod}" "burh_verify_ssh"           "param1"  "Verify SSH to BURH profile"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/buwz_zipper.sh:  buz_enroll BUWZ_RH_INSTALL_KEY "buw-rhk"   "${z_mod}" "burh_install_key"          "param1"  "Install BURH key into authorized_keys"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/buwz_zipper.sh-
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/buwz_zipper.sh-  # Windows Commands (buwc_cli.sh)
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/buwz_zipper.sh-  z_mod="buwc_cli.sh"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/buwz_zipper.sh:  buz_enroll BUWZ_WC_BOOTSTRAP   "buw-wcb"   "${z_mod}" "buwc_bootstrap_sshd"       ""        "Provision sshd on Windows (WSL)"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/buwz_zipper.sh:  buz_enroll BUWZ_WC_INSTALL_KEY "buw-wck"   "${z_mod}" "buwc_install_key"          "param1"  "Install BURH key into Windows admin authorized_keys"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/buwz_zipper.sh-
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/buwz_zipper.sh-  # Handbook — top index + Windows OS procedures (buhw_cli.sh)
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/buwz_zipper.sh-  z_mod="buhw_cli.sh"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/buwz_zipper.sh:  buz_enroll BUWZ_H0_TOP            "buw-h0"    "${z_mod}" "buhw_handbook_top"        ""        "BUK top-level handbook index"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/buwz_zipper.sh:  buz_enroll BUWZ_HW_TOP            "buw-hw"    "${z_mod}" "buhw_top"                ""        "BUK-level Windows procedures checklist"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/buwz_zipper.sh:  buz_enroll BUWZ_HW_ACCESS_BASE    "buw-HWab"  "${z_mod}" "buhw_access_base"        ""        "OpenSSH server install + lockdown"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/buwz_zipper.sh:  buz_enroll BUWZ_HW_ACCESS_REMOTE  "buw-HWar"  "${z_mod}" "buhw_access_remote"      ""        "Client key gen + ssh config"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/buwz_zipper.sh:  buz_enroll BUWZ_HW_ACCESS_ENTRY   "buw-HWax"  "${z_mod}" "buhw_access_entrypoints" ""        "SSH command= routing + icacls"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/buwz_zipper.sh:  buz_enroll BUWZ_HW_ENV_WSL        "buw-HWew"  "${z_mod}" "buhw_environment_wsl"    "param1"  "WSL distro creation"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/buwz_zipper.sh:  buz_enroll BUWZ_HW_ENV_CYGWIN     "buw-HWec"  "${z_mod}" "buhw_environment_cygwin" ""        "Cygwin install"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/buwz_zipper.sh-
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/buwz_zipper.sh-  readonly ZBUWZ_KINDLED=1
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbfd_FoundryDirectorBuild.sh-  # Generate kludge hallmark (k prefix distinguishes from conjure c, bind b)
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbfd_FoundryDirectorBuild.sh-  # Timestamp for chronological sorting, git describe for commit provenance
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbfd_FoundryDirectorBuild.sh:  # BURD_GIT_CONTEXT is exported by bud_dispatch; dirty-tree guard above ensures clean tree
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbfd_FoundryDirectorBuild.sh-  local -r z_hallmark="k${BURD_NOW_STAMP:2:6}${BURD_NOW_STAMP:9:6}-${BURD_GIT_CONTEXT}"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbfd_FoundryDirectorBuild.sh-
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh-  buz_group RBZ__GROUP_ACCOUNTS   "rbw-a"   "Accounts — Service account management"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh-  local z_mod="rbgp_cli.sh"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh:  buz_enroll RBZ_MANTLE_GOVERNOR         "rbw-aM"  "${z_mod}" "rbgp_governor_mantle"       ""        "Create/replace governor service account"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh-  z_mod="rbgg_cli.sh"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh:  buz_enroll RBZ_CHARTER_RETRIEVER       "rbw-aC"  "${z_mod}" "rbgg_charter_retriever"     ""        "Charter retriever (image pull) service account"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh:  buz_enroll RBZ_KNIGHT_DIRECTOR         "rbw-aK"  "${z_mod}" "rbgg_knight_director"       ""        "Knight director (build) service account"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh:  buz_enroll RBZ_LIST_SERVICE_ACCOUNTS   "rbw-aL"  "${z_mod}" "rbgg_list_service_accounts" ""        "List issued service accounts"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh:  buz_enroll RBZ_FORFEIT_SERVICE_ACCOUNT "rbw-aF"  "${z_mod}" "rbgg_forfeit_service_account" ""      "Forfeit a service account"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh-
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh-  # Crucible — container runtime (rbw-c)
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh-  buz_group RBZ__GROUP_CRUCIBLE   "rbw-c"   "Crucible — Container runtime"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh-  z_mod="rbob_cli.sh"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh:  buz_enroll RBZ_CRUCIBLE_CHARGE  "rbw-cC"  "${z_mod}" "rbob_charge"       "imprint"  "Charge crucible (sentry + pentacle + bottle containers)"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh:  buz_enroll RBZ_CRUCIBLE_QUENCH  "rbw-cQ"  "${z_mod}" "rbob_quench"       "imprint"  "Quench crucible"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh:  buz_enroll RBZ_CRUCIBLE_SSH     "rbw-cS"  "${z_mod}" "rbob_ssh"          "imprint"  "SSH into the bottle container"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh:  buz_enroll RBZ_CRUCIBLE_HAIL    "rbw-ch"  "${z_mod}" "rbob_hail"         "param1"   "Shell into the sentry container"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh:  buz_enroll RBZ_CRUCIBLE_RACK    "rbw-cr"  "${z_mod}" "rbob_rack"         "param1"   "Shell into the bottle container"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh:  buz_enroll RBZ_CRUCIBLE_SCRY    "rbw-cs"  "${z_mod}" "rbob_scry"         "param1"   "Observe network traffic on crucible containers"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh:  buz_enroll RBZ_CRUCIBLE_WRIT    "rbw-cw"  "${z_mod}" "rbob_writ"         "imprint"  "Non-interactive exec in sentry container"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh:  buz_enroll RBZ_CRUCIBLE_FIAT    "rbw-cf"  "${z_mod}" "rbob_fiat"         "imprint"  "Non-interactive exec in pentacle container"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh:  buz_enroll RBZ_CRUCIBLE_BARK    "rbw-cb"  "${z_mod}" "rbob_bark"         "imprint"  "Non-interactive exec in bottle container"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh:  buz_enroll RBZ_CRUCIBLE_ACTIVE  "rbw-cic" "${z_mod}" "rbob_charged"      "param1"   "Check if crucible is currently charged"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh:  buz_enroll RBZ_CRUCIBLE_KLUDGE_BOTTLE "rbw-cKB" "${z_mod}" "rbob_kludge_bottle" "param1" "Kludge bottle vessel and drive hallmark into nameplate"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh:  buz_enroll RBZ_CRUCIBLE_KLUDGE_SENTRY "rbw-cKS" "${z_mod}" "rbob_kludge_sentry" "param1" "Kludge sentry vessel and drive hallmark into nameplate"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh-
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh-  # Depot — GCP project infrastructure (rbw-d, UPPER=mutates, lower=read)
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh-  buz_group RBZ__GROUP_DEPOT      "rbw-d"   "Depot — GCP project infrastructure"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh-  z_mod="rbgp_cli.sh"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh:  buz_enroll RBZ_LEVY_DEPOT             "rbw-dL"  "${z_mod}" "rbgp_depot_levy"   ""  "Provision GCP depot project"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh:  buz_enroll RBZ_UNMAKE_DEPOT           "rbw-dU"  "${z_mod}" "rbgp_depot_unmake"  ""  "Permanently remove a depot"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh:  buz_enroll RBZ_LIST_DEPOT             "rbw-dl"  "${z_mod}" "rbgp_depot_list"    ""  "List all active depots"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh-  z_mod="rbfd_cli.sh"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh:  buz_enroll RBZ_ENSHRINE_VESSEL        "rbw-dE"  "${z_mod}" "rbfd_enshrine"      ""  "Enshrine upstream base images to GAR via Cloud Build"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh-  z_mod="rbfl_cli.sh"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh:  buz_enroll RBZ_INSCRIBE_RELIQUARY     "rbw-dI"  "${z_mod}" "rbfl_inscribe"      ""  "Create reliquary: mirror tool images from upstream to GAR"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh:  buz_enroll RBZ_YOKE_RELIQUARY         "rbw-dY"  "${z_mod}" "rbfl_yoke"          ""  "Yoke a reliquary stamp into a conjure vessel's rbrv.env"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh-
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh-  # Guide — human-directed procedures (rbw-g)
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh-  buz_group RBZ__GROUP_GUIDE      "rbw-g"   "Guide — Human-directed procedures"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh-  z_mod="rbgp_cli.sh"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh:  buz_enroll RBZ_PAYOR_INSTALL          "rbw-gPI" "${z_mod}" "rbgp_payor_install"   ""  "Ingest OAuth credentials from JSON key file"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh-  z_mod="rbh0/rbhp0_cli.sh"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh:  buz_enroll RBZ_PAYOR_ESTABLISH        "rbw-gPE" "${z_mod}" "rbhp_establish"       ""  "Guided Manor establishment — GCP project + OAuth consent screen"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh:  buz_enroll RBZ_PAYOR_REFRESH          "rbw-gPR" "${z_mod}" "rbhp_refresh"         ""  "Refresh expired OAuth tokens"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh:  buz_enroll RBZ_QUOTA_BUILD            "rbw-gq"  "${z_mod}" "rbhp_quota_build"     ""  "Display Cloud Build capacity review procedure"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh-  # Onboarding — handbook tracks (rbw-o terminal + rbw-O* family, see ₣A6 paddock)
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh-  buz_group RBZ__GROUP_ONBOARDING "rbw-o"   "Onboarding — Handbook restart"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh-  z_mod="rbh0/rbho0_cli.sh"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh:  buz_enroll RBZ_ONBOARD_START_HERE    "rbw-o"   "${z_mod}" "rbho_start_here"            ""  "Onboarding start — probe-aware menu into handbook tracks"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh:  buz_enroll RBZ_ONBOARD_CRASH_COURSE  "rbw-Occ" "${z_mod}" "rbho_crash_course"          ""  "Crash Course — universal prerequisite: tabtargets, regimes, diagnostic failure"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh:  buz_enroll RBZ_ONBOARD_CRED_RETRIEVER "rbw-Ocr" "${z_mod}" "rbho_credential_retriever" ""  "Install retriever credentials — place RBRA key file"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh:  buz_enroll RBZ_ONBOARD_CRED_DIRECTOR  "rbw-Ocd" "${z_mod}" "rbho_credential_director"  ""  "Install director credentials — place RBRA key file"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh:  buz_enroll RBZ_ONBOARD_FIRST_CRUCIBLE "rbw-Ofc" "${z_mod}" "rbho_first_crucible"       ""  "Start a Crucible using local builds — kludge, charge, rack"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh:  buz_enroll RBZ_ONBOARD_TADMOR_SECURITY "rbw-Ots" "${z_mod}" "rbho_tadmor_security"     ""  "Verify Crucible containment under attack — charge tadmor and run the adversarial suite"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh:  buz_enroll RBZ_ONBOARD_DIR_FIRST_BUILD "rbw-Odf" "${z_mod}" "rbho_director_first_build" "" "Your First Cloud Build — inscribe, conjure, tour, summon, abjure"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh:  buz_enroll RBZ_ONBOARD_DIR_AIRGAP     "rbw-Oda" "${z_mod}" "rbho_director_airgap"      ""  "Airgap Cloud Build — enshrine, conjure forge, conjure airgap, charge moriah, compare plumb"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh:  buz_enroll RBZ_ONBOARD_DIR_BIND       "rbw-Odb" "${z_mod}" "rbho_director_bind"        ""  "Bind Cloud Build — pin upstream image by digest, mode-mixture pluml Crucible"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh:  buz_enroll RBZ_ONBOARD_DIR_GRAFT      "rbw-Odg" "${z_mod}" "rbho_director_graft"       ""  "Graft Cloud Build — push locally-built image, inspect GRAFTED Vouch verdict"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh:  buz_enroll RBZ_ONBOARD_PAYOR_HB      "rbw-Op"  "${z_mod}" "rbho_payor_handbook"       ""  "Payor — establish a Manor and provision the Depot"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh:  buz_enroll RBZ_ONBOARD_GOVERNOR_HB   "rbw-Og"  "${z_mod}" "rbho_governor_handbook"    ""  "Governor — administer service accounts for directors and retrievers"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh-
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh-  # Foundry — registry artifact lifecycle (rbw-f, UPPER=mutates GAR, lower=read/local)
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh-  buz_group RBZ__GROUP_FOUNDRY    "rbw-f"   "Foundry — Registry artifact lifecycle"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh-  z_mod="rbfd_cli.sh"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh:  buz_enroll RBZ_ORDAIN_HALLMARK        "rbw-fO"  "${z_mod}" "rbfd_ordain"          ""  "Ordain hallmark: conjure, bind, or graft based on vessel mode"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh:  buz_enroll RBZ_KLUDGE_VESSEL          "rbw-fk"  "${z_mod}" "rbfd_kludge"          ""  "Kludge a vessel image locally for development"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh-  z_mod="rbfl_cli.sh"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh:  buz_enroll RBZ_ABJURE_HALLMARK        "rbw-fA"  "${z_mod}" "rbfl_abjure"          ""  "Abjure a hallmark (delete artifacts from GAR)"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh:  buz_enroll RBZ_TALLY_HALLMARKS        "rbw-ft"  "${z_mod}" "rbfl_tally"           ""  "Tally hallmarks by health state"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh-  z_mod="rbfv_cli.sh"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh:  buz_enroll RBZ_VOUCH_HALLMARKS        "rbw-fV"  "${z_mod}" "rbfv_batch_vouch"     ""  "Mode-aware vouch: SLSA (conjure), digest-pin (bind), GRAFTED (graft)"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh-  z_mod="rbfr_cli.sh"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh:  buz_enroll RBZ_SUMMON_HALLMARK        "rbw-fs"  "${z_mod}" "rbfr_summon"          ""  "Summon vouched hallmark image locally"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh-  z_mod="rbfc_cli.sh"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh:  buz_enroll RBZ_PLUMB_FULL             "rbw-fpf" "${z_mod}" "rbfc_plumb_full"      ""  "Full provenance display (SBOM, build info, Dockerfile)"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh:  buz_enroll RBZ_PLUMB_COMPACT          "rbw-fpc" "${z_mod}" "rbfc_plumb_compact"   ""  "Compact provenance summary"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh-
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh-  # Ifrit — attack binary (rbw-I)
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh-  buz_group RBZ__GROUP_IFRIT      "rbw-I"   "Ifrit — Attack binary"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh-  z_mod="rbob_cli.sh"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh:  buz_enroll RBZ_BOTTLE_IFRIT   "rbw-Ic"  "${z_mod}" "rbob_ifrit_client"  "imprint"  "Launch Claude Code inside a running bottle for escape testing"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh:  buz_enroll RBZ_BOTTLE_SORTIE  "rbw-Is"  "${z_mod}" "rbob_ifrit_sortie"  "imprint"  "Run automated security test scripts inside the bottle"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh-
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh-  # Image — container image operations (rbw-i, UPPER=mutates, lower=read)
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh-  buz_group RBZ__GROUP_IMAGE      "rbw-i"   "Image — Container image operations"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh-  z_mod="rbfl_cli.sh"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh:  buz_enroll RBZ_REKON_HALLMARK         "rbw-irh" "${z_mod}" "rbfl_rekon_hallmark"        ""  "List ark basenames present under a hallmark's GAR subtree"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh:  buz_enroll RBZ_REKON_RELIQUARY        "rbw-irr" "${z_mod}" "rbfl_rekon_reliquary"       ""  "List tool images present under a reliquary stamp's GAR subtree"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh:  buz_enroll RBZ_MUSTER_HALLMARKS       "rbw-imh" "${z_mod}" "rbfl_muster_hallmarks"      ""  "Muster hallmarks — list all hallmark identifiers"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh:  buz_enroll RBZ_MUSTER_RELIQUARIES     "rbw-imr" "${z_mod}" "rbfl_muster_reliquaries"    ""  "Muster reliquaries — list all reliquary stamps"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh:  buz_enroll RBZ_MUSTER_ENSHRINEMENTS   "rbw-ime" "${z_mod}" "rbfl_muster_enshrinements"  ""  "Muster enshrinements — list all enshrined base anchors"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh:  buz_enroll RBZ_WREST_HALLMARK_IMAGE   "rbw-iwh" "${z_mod}" "rbfl_wrest"                 ""  "Wrest a hallmark image from registry"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh:  buz_enroll RBZ_WREST_RELIQUARY_IMAGE  "rbw-iwr" "${z_mod}" "rbfl_wrest"                 ""  "Wrest a reliquary tool image from registry"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh:  buz_enroll RBZ_WREST_ENSHRINED_IMAGE  "rbw-iwe" "${z_mod}" "rbfl_wrest"                 ""  "Wrest an enshrined base image from registry"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh:  buz_enroll RBZ_JETTISON_HALLMARK_IMAGE  "rbw-iJh" "${z_mod}" "rbfl_jettison"            ""  "Jettison a hallmark image tag from registry"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh:  buz_enroll RBZ_JETTISON_RELIQUARY_IMAGE "rbw-iJr" "${z_mod}" "rbfl_jettison"            ""  "Jettison a reliquary tool image from registry"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh:  buz_enroll RBZ_JETTISON_ENSHRINEMENT    "rbw-iJe" "${z_mod}" "rbfl_jettison"            ""  "Jettison an enshrinement from registry"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh-
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh-  # Marshal — lifecycle (rbw-M)
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh-  buz_group RBZ__GROUP_MARSHAL    "rbw-M"   "Marshal — Lifecycle"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh:  buz_enroll RBZ_MARSHAL_ZERO           "rbw-MZ"  "rblm_cli.sh" "rblm_zero"      ""  "Zero regime to blank template"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh:  buz_enroll RBZ_MARSHAL_PROOF          "rbw-MP"  "rblm_cli.sh" "rblm_proof"     ""  "Proof repo for release testing"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh:  buz_enroll RBZ_MARSHAL_GENERATE       "rbw-MG"  "rblm_cli.sh" "rblm_generate"  ""  "Generate tabtarget context from zipper registry"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh-
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh-  # Nameplate — cross-nameplate operations (rbw-n)
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh-  buz_group RBZ__GROUP_NAMEPLATE  "rbw-n"   "Nameplate — Cross-nameplate operations"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh-  z_mod="rbrn_cli.sh"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh:  buz_enroll RBZ_LIST_NAMEPLATES        "rbw-rnl" "${z_mod}" "rbrn_list"    ""  "List all nameplates"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh:  buz_enroll RBZ_SURVEY_NAMEPLATES      "rbw-ni"  "${z_mod}" "rbrn_survey"  ""  "Survey nameplate status"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh:  buz_enroll RBZ_AUDIT_NAMEPLATES       "rbw-nv"  "${z_mod}" "rbrn_audit"   ""  "Validate all nameplates"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh-
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh-  # Regime — config files (rbw-r)
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh-  buz_group RBZ__GROUP_REGIME     "rbw-r"   "Regime — Config files"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh-  z_mod="rbrn_cli.sh"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh:  buz_enroll RBZ_RENDER_NAMEPLATE       "rbw-rnr" "${z_mod}" "rbrn_render"    "param1"  "Render nameplate regime"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh:  buz_enroll RBZ_VALIDATE_NAMEPLATE     "rbw-rnv" "${z_mod}" "rbrn_validate"  "param1"  "Validate nameplate regime"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh-  z_mod="rbrv_cli.sh"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh:  buz_enroll RBZ_LIST_VESSELS           "rbw-rvl" "${z_mod}" "rbrv_list"      ""        "List vessel regimes"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh:  buz_enroll RBZ_RENDER_VESSEL          "rbw-rvr" "${z_mod}" "rbrv_render"    "param1"  "Render vessel regime"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh:  buz_enroll RBZ_VALIDATE_VESSEL        "rbw-rvv" "${z_mod}" "rbrv_validate"  "param1"  "Validate vessel regime"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh-  z_mod="rbrr_cli.sh"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh:  buz_enroll RBZ_RENDER_REPO            "rbw-rrr" "${z_mod}" "rbrr_render"    ""  "Render repo regime"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh:  buz_enroll RBZ_VALIDATE_REPO          "rbw-rrv" "${z_mod}" "rbrr_validate"  ""  "Validate repo regime"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh-  z_mod="rbrp_cli.sh"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh:  buz_enroll RBZ_RENDER_PAYOR           "rbw-rpr" "${z_mod}" "rbrp_render"    ""  "Render payor regime"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh:  buz_enroll RBZ_VALIDATE_PAYOR         "rbw-rpv" "${z_mod}" "rbrp_validate"  ""  "Validate payor regime"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh-  z_mod="rbro_cli.sh"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh:  buz_enroll RBZ_RENDER_OAUTH           "rbw-ror" "${z_mod}" "rbro_render"    ""  "Render OAuth regime"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh:  buz_enroll RBZ_VALIDATE_OAUTH         "rbw-rov" "${z_mod}" "rbro_validate"  ""  "Validate OAuth regime"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh-  z_mod="rbrs_cli.sh"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh:  buz_enroll RBZ_RENDER_STATION         "rbw-rsr" "${z_mod}" "rbrs_render"    ""  "Render station regime"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh:  buz_enroll RBZ_VALIDATE_STATION       "rbw-rsv" "${z_mod}" "rbrs_validate"  ""  "Validate station regime"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh-  z_mod="rbra_cli.sh"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh:  buz_enroll RBZ_RENDER_AUTH            "rbw-rar" "${z_mod}" "rbra_render"    "param1"  "Render auth regime"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh:  buz_enroll RBZ_VALIDATE_AUTH          "rbw-rav" "${z_mod}" "rbra_validate"  "param1"  "Validate auth regime"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh:  buz_enroll RBZ_LIST_AUTH              "rbw-ral" "${z_mod}" "rbra_list"      ""        "List auth regimes"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh-
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh-  # Theurge — test infrastructure (rbw-t)
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh-  buz_group RBZ__GROUP_THEURGE    "rbw-t"   "Theurge — Test infrastructure"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh-  z_mod="rbob_cli.sh"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh:  buz_enroll RBZ_THEURGE_KLUDGE  "rbw-tK"  "${z_mod}" "rbob_kludge"        "imprint"  "Local kludge build + install hallmark into nameplate"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh:  buz_enroll RBZ_THEURGE_ORDAIN  "rbw-tO"  "${z_mod}" "rbob_ordain"        "imprint"  "Cloud build + install hallmark into nameplate"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh-  z_mod="rbq_cli.sh"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh:  buz_enroll RBZ_QUALIFY_FAST    "rbw-tf"   "${z_mod}" "rbq_qualify_fast"   ""         "Fast qualify: tabtargets, colophons, nameplate health"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh:  buz_enroll RBZ_QUALIFY_RELEASE "rbw-tr"   "${z_mod}" "rbq_qualify_release" ""        "Release qualify: + shellcheck, full test suite"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh-
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh-  # Handbook — human-facing procedures (rbw-h0 index, rbw-hw/HW* windows)
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh-  buz_group RBZ__GROUP_HANDBOOK   "rbw-HW"  "Handbook — Human-facing procedures"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh-  z_mod="rbh0/rbhw0_cli.sh"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh:  buz_enroll RBZ_HANDBOOK_TOP           "rbw-h0"    "${z_mod}" "rbhw_handbook_top"              ""        "Top-level handbook index across all groups"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh:  buz_enroll RBZ_HANDBOOK_WINDOWS       "rbw-hw"    "${z_mod}" "rbhw_top"                       ""        "Windows test infrastructure orchestrator"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh:  buz_enroll RBZ_HW_DOCKER_DESKTOP     "rbw-HWdd"  "${z_mod}" "rbhw_docker_desktop"            ""        "Docker Desktop install"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh:  buz_enroll RBZ_HW_DOCKER_WSL_NATIVE  "rbw-HWdw"  "${z_mod}" "rbhw_docker_wsl_native"         "param1"  "Native dockerd in WSL"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh:  buz_enroll RBZ_HW_DOCKER_CONTEXT     "rbw-HWdc"  "${z_mod}" "rbhw_docker_context_discipline" ""        "Deterministic daemon selection"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh-
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/rbk/rbz_zipper.sh-  readonly ZRBZ_COLOPHON_MANIFEST="${z_buz_colophon_roll[*]}"

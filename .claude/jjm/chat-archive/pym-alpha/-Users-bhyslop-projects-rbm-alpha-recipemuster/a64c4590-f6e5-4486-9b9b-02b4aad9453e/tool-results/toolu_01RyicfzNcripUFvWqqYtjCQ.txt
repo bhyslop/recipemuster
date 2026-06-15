@@ -1,0 +1,252 @@
+Memos/memo-20260111-config-regime-requirements.adoc:8::crg_regime:                 <<crg_regime,Config Regime>>
+Memos/memo-20260111-config-regime-requirements.adoc:9::crg_regime_s:               <<crg_regime,Config Regimes>>
+Memos/memo-20260111-config-regime-requirements.adoc:46:{crg_regime}
+Memos/memo-20260111-config-regime-requirements.adoc:109:{crg_regime}.
+Memos/memo-20260111-config-regime-requirements.adoc:249:==== Validation Target (<regime>_validate)
+Memos/memo-20260111-config-regime-requirements.adoc:253:==== Render Target (<regime>_render)
+Memos/memo-20260111-config-regime-requirements.adoc:343:[[crg_regime]]
+Memos/memo-20260111-config-regime-requirements.adoc:344:{crg_regime}::
+Memos/memo-20260111-config-regime-requirements.adoc:355:{crg_regime}
+Memos/memo-20260111-config-regime-requirements.adoc:391:{crg_regime}.
+Memos/memo-20260111-config-regime-requirements.adoc:396:{crg_regime_s}.
+Memos/memo-20260111-config-regime-requirements.adoc:443:{crg_regime}.
+Memos/memo-20260111-config-regime-requirements.adoc:478:for basic type checking while implementing regime-specific relationship validation.
+Memos/memo-20260111-config-regime-requirements.adoc:491:{crg_regime_s}.
+Tools/buk/vov_veiled/BUSD-DispatchRuntime.adoc:1://axhrb_regime
+Tools/buk/vov_veiled/BUSD-DispatchRuntime.adoc:2:{burd_regime}
+Tools/buk/vov_veiled/BUSD-DispatchRuntime.adoc:4:This regime specifies the ephemeral runtime state assembled by bud_dispatch.sh during tabtarget execution.
+Tools/buk/vov_veiled/BUSD-DispatchRuntime.adoc:5:Unlike file-sourced regimes, BURD variables are constructed inline during dispatch — no assignment file exists.
+Tools/buk/vov_veiled/BUSD-DispatchRuntime.adoc:12:These configure dispatch behavior (logging, interactivity) and identify the regime and coordinator to use.
+Tools/buk/vov_veiled/BUSD-DispatchRuntime.adoc:16:{burd_regime_file}
+Tools/buk/vov_veiled/BUSD-DispatchRuntime.adoc:18:Path to the BURC regime assignment file to source during setup.
+Tools/buk/vov_veiled/BUSD-DispatchRuntime.adoc:46:Absolute path to the developer's station regime assignment file.
+Tools/buk/vov_veiled/BUSD-DispatchRuntime.adoc:55:Used by presentation regime for output formatting.
+Tools/buk/vov_veiled/BUSD-DispatchRuntime.adoc:168:Inline initialization within zbud_main: zbud_setup sources the regime file, derives computed variables, creates ephemeral directories.
+Tools/cmk/vov_veiled/AXLA-Lexicon.adoc:21:// axvr_: Axial Voicing Regime (definition-site regime annotations) → mcm_form_deflist
+Tools/cmk/vov_veiled/AXLA-Lexicon.adoc:109::axrg_regime:                         <<axrg_regime,Regime>>
+Tools/cmk/vov_veiled/AXLA-Lexicon.adoc:110::axrg_regime_s:                       <<axrg_regime,Regimes>>
+Tools/cmk/vov_veiled/AXLA-Lexicon.adoc:116::axvr_regime:                         <<axvr_regime,Regime Voicing>>
+Tools/cmk/vov_veiled/AXLA-Lexicon.adoc:123::axhrb_regime:                        <<axhrb_regime,Hierarchy Regime>>
+Tools/cmk/vov_veiled/AXLA-Lexicon.adoc:1519:qualify regime structure annotations.
+Tools/cmk/vov_veiled/AXLA-Lexicon.adoc:1619:{axrg_regime_s}
+Tools/cmk/vov_veiled/AXLA-Lexicon.adoc:1622:[[axrg_regime]]
+Tools/cmk/vov_veiled/AXLA-Lexicon.adoc:1623:{axrg_regime}::
+Tools/cmk/vov_veiled/AXLA-Lexicon.adoc:1628:{axrg_regime}
+Tools/cmk/vov_veiled/AXLA-Lexicon.adoc:1644:{axrg_regime}
+Tools/cmk/vov_veiled/AXLA-Lexicon.adoc:1662:{axrg_regime},
+Tools/cmk/vov_veiled/AXLA-Lexicon.adoc:1672:{axrg_regime}.
+Tools/cmk/vov_veiled/AXLA-Lexicon.adoc:1673:Typically composed of a project marker and regime marker (e.g., `RBRR_` = `RB` + `RR` + `_`).
+Tools/cmk/vov_veiled/AXLA-Lexicon.adoc:1689:{axvr_regime}
+Tools/cmk/vov_veiled/AXLA-Lexicon.adoc:1690:declaring which provenance(s) a regime supports.
+Tools/cmk/vov_veiled/AXLA-Lexicon.adoc:1695:The file path is known at load time and the regime module is responsible for locating and sourcing it.
+Tools/cmk/vov_veiled/AXLA-Lexicon.adoc:1700:The regime module finds variables already in scope; no file sourcing occurs.
+Tools/cmk/vov_veiled/AXLA-Lexicon.adoc:1709:Regime annotations use the prefix-discriminated form (`//ax...` with no space after `//`) to provide structured metadata about regime definitions in AsciiDoc specifications.
+Tools/cmk/vov_veiled/AXLA-Lexicon.adoc:1710:Two complementary annotation families enable regime specification across parent documents and their subdocuments.
+Tools/cmk/vov_veiled/AXLA-Lexicon.adoc:1714:{axvr_*} annotations appear in parent documents between anchor and definition, declaring the regime role of the term being defined.
+Tools/cmk/vov_veiled/AXLA-Lexicon.adoc:1730:[[axvr_regime]]
+Tools/cmk/vov_veiled/AXLA-Lexicon.adoc:1731:{axvr_regime}::
+Tools/cmk/vov_veiled/AXLA-Lexicon.adoc:1732:Voices a regime definition.
+Tools/cmk/vov_veiled/AXLA-Lexicon.adoc:1745:Voices a regime variable definition.
+Tools/cmk/vov_veiled/AXLA-Lexicon.adoc:1746:The annotated term defines a named configuration element within a regime.
+Tools/cmk/vov_veiled/AXLA-Lexicon.adoc:1749:the parent regime (an anchor that voices
+Tools/cmk/vov_veiled/AXLA-Lexicon.adoc:1750:{axrg_regime}).
+Tools/cmk/vov_veiled/AXLA-Lexicon.adoc:1751:This ties each variable unequivocally to its regime.
+Tools/cmk/vov_veiled/AXLA-Lexicon.adoc:1763:Voices a regime group definition.
+Tools/cmk/vov_veiled/AXLA-Lexicon.adoc:1766:within a regime.
+Tools/cmk/vov_veiled/AXLA-Lexicon.adoc:1769:the parent regime (an anchor that voices
+Tools/cmk/vov_veiled/AXLA-Lexicon.adoc:1770:{axrg_regime}).
+Tools/cmk/vov_veiled/AXLA-Lexicon.adoc:1778:Voices a regime kindle operation definition.
+Tools/cmk/vov_veiled/AXLA-Lexicon.adoc:1782:{axrg_regime}:
+Tools/cmk/vov_veiled/AXLA-Lexicon.adoc:1787:Voices a regime validate operation definition.
+Tools/cmk/vov_veiled/AXLA-Lexicon.adoc:1791:{axrg_regime}:
+Tools/cmk/vov_veiled/AXLA-Lexicon.adoc:1796:Voices a regime render operation definition.
+Tools/cmk/vov_veiled/AXLA-Lexicon.adoc:1800:{axrg_regime}:
+Tools/cmk/vov_veiled/AXLA-Lexicon.adoc:1806:Voices a regime list operation definition.
+Tools/cmk/vov_veiled/AXLA-Lexicon.adoc:1811:{axrg_regime}:
+Tools/cmk/vov_veiled/AXLA-Lexicon.adoc:1816:Voices a regime survey operation definition.
+Tools/cmk/vov_veiled/AXLA-Lexicon.adoc:1821:{axrg_regime}.
+Tools/cmk/vov_veiled/AXLA-Lexicon.adoc:1825:Voices a regime audit operation definition.
+Tools/cmk/vov_veiled/AXLA-Lexicon.adoc:1830:{axrg_regime}.
+Tools/cmk/vov_veiled/AXLA-Lexicon.adoc:1834:Hierarchy markers appear in regime subdocuments as standalone annotations, NOT between anchor and definition.
+Tools/cmk/vov_veiled/AXLA-Lexicon.adoc:1843://axhrb_regime
+Tools/cmk/vov_veiled/AXLA-Lexicon.adoc:1844:{rbrv_regime}
+Tools/cmk/vov_veiled/AXLA-Lexicon.adoc:1861:|{axhrb_regime}     |1 {mcm_attribute_reference}  |The regime this subdoc describes
+Tools/cmk/vov_veiled/AXLA-Lexicon.adoc:1862:|{axhrv_variable}   |1 {mcm_attribute_reference}  |An ungrouped regime variable
+Tools/cmk/vov_veiled/AXLA-Lexicon.adoc:1866:|{axhro_kindle}     |1 {mcm_attribute_reference}  |Kit-level kindle operation for this regime
+Tools/cmk/vov_veiled/AXLA-Lexicon.adoc:1867:|{axhro_validate}   |1 {mcm_attribute_reference}  |Kit-level validate operation for this regime
+Tools/cmk/vov_veiled/AXLA-Lexicon.adoc:1868:|{axhro_render}     |1 {mcm_attribute_reference}  |Kit-level render operation for this regime
+Tools/cmk/vov_veiled/AXLA-Lexicon.adoc:1869:|{axhro_list}       |1 {mcm_attribute_reference}  |Kit-level list operation for this regime
+Tools/cmk/vov_veiled/AXLA-Lexicon.adoc:1870:|{axhro_survey}     |1 {mcm_attribute_reference}  |Kit-level survey operation for this regime
+Tools/cmk/vov_veiled/AXLA-Lexicon.adoc:1871:|{axhro_audit}      |1 {mcm_attribute_reference}  |Kit-level audit operation for this regime
+Tools/cmk/vov_veiled/AXLA-Lexicon.adoc:1874:[[axhrb_regime]]
+Tools/cmk/vov_veiled/AXLA-Lexicon.adoc:1875:{axhrb_regime}::
+Tools/cmk/vov_veiled/AXLA-Lexicon.adoc:1876:Marks the regime that a subdocument describes.
+Tools/cmk/vov_veiled/AXLA-Lexicon.adoc:1879:— the regime this subdoc describes.
+Tools/cmk/vov_veiled/AXLA-Lexicon.adoc:1881:{axvr_regime}
+Tools/cmk/vov_veiled/AXLA-Lexicon.adoc:1886:Marks an ungrouped regime variable in a subdocument.
+Tools/cmk/vov_veiled/AXLA-Lexicon.adoc:1911:The gate variable may belong to a different regime (cross-regime gating is legal).
+Tools/cmk/vov_veiled/AXLA-Lexicon.adoc:1922:Marks a regime kindle operation description in a subdocument.
+Tools/cmk/vov_veiled/AXLA-Lexicon.adoc:1931:Marks a regime validate operation description in a subdocument.
+Tools/cmk/vov_veiled/AXLA-Lexicon.adoc:1940:Marks a regime render operation description in a subdocument.
+Tools/cmk/vov_veiled/AXLA-Lexicon.adoc:1949:Marks a regime list operation description in a subdocument.
+Tools/cmk/vov_veiled/AXLA-Lexicon.adoc:1957:regimes.
+Tools/cmk/vov_veiled/AXLA-Lexicon.adoc:1961:Marks a regime survey operation description in a subdocument.
+Tools/cmk/vov_veiled/AXLA-Lexicon.adoc:1969:regimes.
+Tools/cmk/vov_veiled/AXLA-Lexicon.adoc:1973:Marks a regime audit operation description in a subdocument.
+Tools/cmk/vov_veiled/AXLA-Lexicon.adoc:1981:regimes.
+Tools/cmk/vov_veiled/AXLA-Lexicon.adoc:1993:{axhrb_regime}
+Tools/cmk/vov_veiled/AXLA-Lexicon.adoc:2012:{axhrb_regime}
+Tools/cmk/vov_veiled/AXLA-Lexicon.adoc:2019:* {axhrb_regime}
+Tools/cmk/vov_veiled/AXLA-Lexicon.adoc:2020:attribute reference must match a regime defined with
+Tools/cmk/vov_veiled/AXLA-Lexicon.adoc:2021:{axvr_regime}
+Tools/cmk/vov_veiled/AXLA-Lexicon.adoc:2026:under that regime
+Tools/cmk/vov_veiled/AXLA-Lexicon.adoc:2054:{axhrb_regime})
+Tools/cmk/vov_veiled/AXLA-Lexicon.adoc:2063:paralleling the regime annotation pattern.
+Tools/cmk/vov_veiled/AXLA-Lexicon.adoc:2311:regime hierarchy markers.
+Tools/cmk/vov_veiled/AXLA-Lexicon.adoc:2521:paralleling the regime and operation annotation patterns.
+Tools/cmk/vov_veiled/AXLA-Lexicon.adoc:3211:{axrg_regime}
+Tools/cmk/vov_veiled/AXLA-Lexicon.adoc:3262:— regime files use unique keys; multiple assignments of same variable not permitted
+Tools/cmk/vov_veiled/AXLA-Lexicon.adoc:3271:{axvr_regime}
+Tools/cmk/vov_veiled/AXLA-Lexicon.adoc:3284:in definition text must be the parent regime
+Tools/cmk/vov_veiled/AXLA-Lexicon.adoc:3299:in definition text must be the parent regime
+Tools/cmk/vov_veiled/AXLA-Lexicon.adoc:3321:under a regime should appear as either
+Tools/buk/vov_veiled/BUS0-BashUtilitiesSpec.adoc:51::axrg_regime:                      <<axrg_regime,Regime>>
+Tools/buk/vov_veiled/BUS0-BashUtilitiesSpec.adoc:52::axrg_regime_s:                    <<axrg_regime,Regimes>>
+Tools/buk/vov_veiled/BUS0-BashUtilitiesSpec.adoc:69::burc_regime:                      <<burc_regime,BURC Regime>>
+Tools/buk/vov_veiled/BUS0-BashUtilitiesSpec.adoc:82::burs_regime:                      <<burs_regime,BURS Regime>>
+Tools/buk/vov_veiled/BUS0-BashUtilitiesSpec.adoc:86::burd_regime:                      <<burd_regime,BURD Regime>>
+Tools/buk/vov_veiled/BUS0-BashUtilitiesSpec.adoc:95::burd_regime_file:                 <<burd_regime_file,BURD_REGIME_FILE>>
+Tools/buk/vov_veiled/BUS0-BashUtilitiesSpec.adoc:126::bure_regime:                      <<bure_regime,BURE Regime>>
+Tools/buk/vov_veiled/BUS0-BashUtilitiesSpec.adoc:159::burx_regime:                     <<burx_regime,BURX Regime>>
+Tools/buk/vov_veiled/BUS0-BashUtilitiesSpec.adoc:577:{burx_regime}
+Tools/buk/vov_veiled/BUS0-BashUtilitiesSpec.adoc:586:{axrg_regime_s}
+Tools/buk/vov_veiled/BUS0-BashUtilitiesSpec.adoc:615:Silent initialization of Bash Utility Kit regime state from
+Tools/buk/vov_veiled/BUS0-BashUtilitiesSpec.adoc:623:{axrg_regime_s}.
+Tools/buk/vov_veiled/BUS0-BashUtilitiesSpec.adoc:630:{axrg_regime}
+Tools/buk/vov_veiled/BUS0-BashUtilitiesSpec.adoc:635:[[burc_regime]]
+Tools/buk/vov_veiled/BUS0-BashUtilitiesSpec.adoc:636://axvr_regime axf_bash axrd_file_sourced axrd_singleton
+Tools/buk/vov_veiled/BUS0-BashUtilitiesSpec.adoc:637:{burc_regime}::
+Tools/buk/vov_veiled/BUS0-BashUtilitiesSpec.adoc:638:Configuration regime for project-level BUK settings.
+Tools/buk/vov_veiled/BUS0-BashUtilitiesSpec.adoc:645:{burs_regime}
+Tools/buk/vov_veiled/BUS0-BashUtilitiesSpec.adoc:701:[[burs_regime]]
+Tools/buk/vov_veiled/BUS0-BashUtilitiesSpec.adoc:702://axvr_regime axf_bash axrd_file_sourced axrd_singleton
+Tools/buk/vov_veiled/BUS0-BashUtilitiesSpec.adoc:703:{burs_regime}::
+Tools/buk/vov_veiled/BUS0-BashUtilitiesSpec.adoc:704:Configuration regime for developer-level BUK settings.
+Tools/buk/vov_veiled/BUS0-BashUtilitiesSpec.adoc:719:[[burd_regime]]
+Tools/buk/vov_veiled/BUS0-BashUtilitiesSpec.adoc:720://axvr_regime axf_bash axrd_constructed axrd_singleton
+Tools/buk/vov_veiled/BUS0-BashUtilitiesSpec.adoc:721:{burd_regime}::
+Tools/buk/vov_veiled/BUS0-BashUtilitiesSpec.adoc:723:Unlike file-sourced regimes, BURD variables are constructed inline — no assignment file exists.
+Tools/buk/vov_veiled/BUS0-BashUtilitiesSpec.adoc:733:[[burd_regime_file]]
+Tools/buk/vov_veiled/BUS0-BashUtilitiesSpec.adoc:735:{burd_regime_file}::
+Tools/buk/vov_veiled/BUS0-BashUtilitiesSpec.adoc:736:Path to the BURC regime assignment file to source during setup.
+Tools/buk/vov_veiled/BUS0-BashUtilitiesSpec.adoc:761:Absolute path to the developer's station regime assignment file.
+Tools/buk/vov_veiled/BUS0-BashUtilitiesSpec.adoc:871:[[bure_regime]]
+Tools/buk/vov_veiled/BUS0-BashUtilitiesSpec.adoc:872://axvr_regime axf_bash axrd_constructed axrd_singleton
+Tools/buk/vov_veiled/BUS0-BashUtilitiesSpec.adoc:873:{bure_regime}::
+Tools/buk/vov_veiled/BUS0-BashUtilitiesSpec.adoc:874:Ambient regime for caller-supplied behavioral overrides to BUK primitives.
+Tools/buk/vov_veiled/BUS0-BashUtilitiesSpec.adoc:875:Unlike file-sourced regimes, BURE variables are set directly in the caller's environment.
+Tools/buk/vov_veiled/BUS0-BashUtilitiesSpec.adoc:953:[[burx_regime]]
+Tools/buk/vov_veiled/BUS0-BashUtilitiesSpec.adoc:954://axvr_regime axf_bash axrd_constructed axrd_singleton
+Tools/buk/vov_veiled/BUS0-BashUtilitiesSpec.adoc:955:{burx_regime}::
+Tools/buk/vov_veiled/BUS0-BashUtilitiesSpec.adoc:956:Exchange regime for cross-project dispatch state.
+Tools/buk/vov_veiled/BUS0-BashUtilitiesSpec.adoc:963:Unlike single-project regimes,
+Tools/buk/vov_veiled/BUS0-BashUtilitiesSpec.adoc:964:{burx_regime}
+Tools/rbk/vov_veiled/RBRN-RegimeNameplate.adoc:1://axhrb_regime
+Tools/rbk/vov_veiled/RBRN-RegimeNameplate.adoc:2:{rbrn_regime}
+Tools/rbk/vov_veiled/RBRN-RegimeNameplate.adoc:4:This regime specifies variables that define crucible deployment configurations within the Recipe Bottle system.
+Tools/rbk/vov_veiled/RBRN-RegimeNameplate.adoc:6:{rbrn_regime}
+Tools/rbk/vov_veiled/FUTURE/RBSPV-PodmanVmSupplyChain.adoc:96:[Omitted long matching line]
+Tools/rbk/vov_veiled/FUTURE/RBSPV-PodmanVmSupplyChain.adoc:100:These variables are defined in the RBRM (Machine) regime at `.rbk/rbrm.env`, separated from the broader RBRR configuration to clarify the distinction between Recipe Bottle's application-level configuration and the underlying VM infrastructure configuration.
+Tools/rbk/vov_veiled/RBSRP-RegimePayor.adoc:1://axhrb_regime
+Tools/rbk/vov_veiled/RBSRP-RegimePayor.adoc:2:{rbrp_regime}
+Tools/rbk/vov_veiled/RBSRP-RegimePayor.adoc:4:This regime specifies variables that define administrative payor configuration within the Recipe Bottle system.
+Tools/rbk/vov_veiled/RBSRP-RegimePayor.adoc:6:{rbrp_regime}
+Tools/rbk/vov_veiled/RBSRP-RegimePayor.adoc:41:The kindle function is the validator for this regime.
+Tools/rbk/vov_veiled/RBSCC-crucible_charge.adoc:34:`docker compose --profile sessile up -d` with base compose file, optional nameplate fragment, and env-files for both repo regime and nameplate regime
+Tools/rbk/vov_veiled/RBSRR-RegimeRepo.adoc:1://axhrb_regime
+Tools/rbk/vov_veiled/RBSRR-RegimeRepo.adoc:2:{rbrr_regime}
+Tools/rbk/vov_veiled/RBSRR-RegimeRepo.adoc:4:This regime specifies variables that define repository-wide configuration and installation-wide settings within the Recipe Bottle system.
+Tools/rbk/vov_veiled/RBSRR-RegimeRepo.adoc:6:{rbrr_regime}
+Tools/rbk/vov_veiled/RBSRR-RegimeRepo.adoc:120:{rbrm_regime}.
+Tools/rbk/vov_veiled/RBSRS-RegimeStation.adoc:1://axhrb_regime
+Tools/rbk/vov_veiled/RBSRS-RegimeStation.adoc:2:{rbrs_regime}
+Tools/rbk/vov_veiled/RBSRS-RegimeStation.adoc:4:This regime specifies variables that define workstation-specific Podman VM configuration within the Recipe Bottle system.
+Tools/rbk/vov_veiled/RBSRS-RegimeStation.adoc:6:{rbrs_regime}
+Tools/rbk/vov_veiled/RBSRS-RegimeStation.adoc:7:is a singleton regime containing platform-specific paths and settings for the local development environment.
+Tools/rbk/vov_veiled/RBSRS-RegimeStation.adoc:38:The kindle function is the validator for this regime.
+Tools/rbk/vov_veiled/RBSIP-ifrit_pentester.adoc:117:This includes `.rbk/` regime files (infrastructure shape, not credentials — actual RBRA credential files reside outside the repository in the secrets directory).
+Tools/rbk/vov_veiled/RBSRV-RegimeVessel.adoc:1://axhrb_regime
+Tools/rbk/vov_veiled/RBSRV-RegimeVessel.adoc:2:{rbrv_regime}
+Tools/rbk/vov_veiled/RBSRV-RegimeVessel.adoc:4:This regime specifies variables that define container vessel configurations within the Recipe Bottle system.
+Tools/rbk/vov_veiled/RBSRV-RegimeVessel.adoc:6:{rbrv_regime}
+Tools/rbk/vov_veiled/RBSRA-CredentialFormat.adoc:1://axhrb_regime
+Tools/rbk/vov_veiled/RBSRA-CredentialFormat.adoc:2:{rbra_regime}
+Tools/rbk/vov_veiled/RBSRA-CredentialFormat.adoc:4:This regime specifies variables that define service account authentication credentials within the Recipe Bottle system.
+Tools/rbk/vov_veiled/RBSRA-CredentialFormat.adoc:6:{rbra_regime}
+Tools/rbk/vov_veiled/RBSRA-CredentialFormat.adoc:48:No external regime dependencies for kindling.
+Tools/vok/vov_veiled/VLS-VoxLiturgicalSpec.adoc:131:* `burc_regime` — `rc` = regime-config classification, `regime` = epithet
+Tools/rbk/vov_veiled/RBSRM-RegimeMachine.adoc:1://axhrb_regime
+Tools/rbk/vov_veiled/RBSRM-RegimeMachine.adoc:2:{rbrm_regime}
+Tools/rbk/vov_veiled/RBSRM-RegimeMachine.adoc:4:This regime specifies Podman VM supply chain configuration within the Recipe Bottle system.
+Tools/rbk/vov_veiled/RBSRM-RegimeMachine.adoc:6:{rbrm_regime}
+Tools/rbk/vov_veiled/RBSAV-ark_vouch.adoc:185:| `_RBGV_GAR_HOST` | GAR Docker host (e.g., `us-central1-docker.pkg.dev`). Source: regime constants.
+Tools/rbk/vov_veiled/RBSAV-ark_vouch.adoc:186:| `_RBGV_GAR_PATH` | GAR repository path (`«PROJECT»/«REPOSITORY»`). Source: regime constants.
+Tools/rbk/vov_veiled/RBSAP-ark_plumb.adoc:31:vessel mode (conjure, bind, or graft) from vessel regime
+Tools/rbk/vov_veiled/RBSAP-ark_plumb.adoc:78:.. *Recipe*: the Dockerfile content from `recipe.txt` in the about artifact (available for any mode when the Dockerfile path was configured in the vessel regime). When `recipe.txt` is absent, display the Dockerfile path from `build_info.json` if available, or omit the section.
+Tools/rbk/vov_veiled/RBSCB-CloudBuildPosture.adoc:24:Each vessel's `cloudbuild.json` is stitched from step scripts (`rbgjb*.sh`) and current regime pins -- zero custom substitution overrides
+Tools/rbk/vov_veiled/RBSCB-CloudBuildPosture.adoc:43:The main repo (tooling, specs, regime files) is never exposed to Google.
+Tools/rbk/vov_veiled/RBSCB-CloudBuildPosture.adoc:49:`RBRV_RELIQUARY` in each vessel regime identifies the active reliquary.
+Tools/rbk/vov_veiled/RBSCB-CloudBuildPosture.adoc:312:* RBRV vessel regime: `RBRV_CONJURE_PLATFORMS` vs `RBGC_BUILD_RUNNER_PLATFORM` — binfmt inclusion predicate
+Tools/rbk/vov_veiled/RBSRO-RegimeOauth.adoc:1://axhrb_regime
+Tools/rbk/vov_veiled/RBSRO-RegimeOauth.adoc:2:{rbro_regime}
+Tools/rbk/vov_veiled/RBSRO-RegimeOauth.adoc:4:This regime specifies OAuth 2.0 credentials used by the Payor role for token generation and API authentication.
+Tools/rbk/vov_veiled/RBSAE-ark_enshrine.adoc:16:is then written back to the vessel regime locally.
+Tools/rbk/vov_veiled/RBSAE-ark_enshrine.adoc:75:Per-slot anchor string written to the vessel regime.
+Tools/rbk/vov_veiled/RBSAE-ark_enshrine.adoc:80:(with all upstream platforms preserved) and updates the vessel regime with
+Tools/rbk/vov_veiled/RBSQB-quota_build.adoc:69:from the regime configuration
+Tools/rbk/vov_veiled/RBSQB-quota_build.adoc:74:(the regime's minimum concurrent build target)
+Tools/rbk/vov_veiled/RBSAG-ark_graft.adoc:17:No separate regime variable governs runtime selection for graft.
+Tools/rbk/vov_veiled/RBSNC-network_create.adoc:5:The `networks:` section of `rbob_compose.yml` defines the enclave network with a static subnet from the nameplate regime.
+Tools/rbk/vov_veiled/RBS0-SpecTop.adoc:141:// rbtc_refresh_gcb_pins eliminated (₣Av) — RBRG regime removed, reliquaries replace pin refresh
+Tools/rbk/vov_veiled/RBS0-SpecTop.adoc:308::rbrr_regime:                <<rbrr_regime,RBRR Regime>>
+Tools/rbk/vov_veiled/RBS0-SpecTop.adoc:322:// RBRG regime eliminated (₣Av) — reliquaries replace pin-based tool image management
+Tools/rbk/vov_veiled/RBS0-SpecTop.adoc:340:// RBRG regime eliminated (₣Av) — reliquaries replace pin-based tool image management
+Tools/rbk/vov_veiled/RBS0-SpecTop.adoc:343::rbrm_regime:                <<rbrm_regime,RBRM Regime>>
+Tools/rbk/vov_veiled/RBS0-SpecTop.adoc:350::rbrp_regime:                <<rbrp_regime,RBRP Regime>>
+Tools/rbk/vov_veiled/RBS0-SpecTop.adoc:355::rbro_regime:                <<rbro_regime,RBRO Regime>>
+Tools/rbk/vov_veiled/RBS0-SpecTop.adoc:359::rbrs_regime:                <<rbrs_regime,RBRS Regime>>
+Tools/rbk/vov_veiled/RBS0-SpecTop.adoc:364::rbrv_regime:                <<rbrv_regime,RBRV Regime>>
+Tools/rbk/vov_veiled/RBS0-SpecTop.adoc:387::rbra_regime:                <<rbra_regime,RBRA Regime>>
+Tools/rbk/vov_veiled/RBS0-SpecTop.adoc:449::rbrn_regime:                       <<rbrn_regime,RBRN Regime>>
+Tools/rbk/vov_veiled/RBS0-SpecTop.adoc:762:regime variable declares the operator's minimum concurrency requirement.
+Tools/rbk/vov_veiled/RBS0-SpecTop.adoc:1097:hallmarks across all regime vessels
+Tools/rbk/vov_veiled/RBS0-SpecTop.adoc:1139:submits a Cloud Build job that copies each upstream image by tag to GAR with a human-readable anchor tag, and writes the anchor back to the vessel regime.
+Tools/rbk/vov_veiled/RBS0-SpecTop.adoc:1682:When a Dockerfile path is configured in the vessel regime, its content is embedded as `recipe.txt` (subject to ~4KB Cloud Build substitution variable size limit; omitted with a warning if exceeded).
+Tools/rbk/vov_veiled/RBS0-SpecTop.adoc:1762:A named container image specification in the regime that defines what to build and how it arrives in the
+Tools/rbk/vov_veiled/RBS0-SpecTop.adoc:1772:A vessel's regime file (`rbrv.env`) declares its mode, Dockerfile path (conjure), upstream reference (bind), or local image (graft), along with platform targets and build configuration.
+Tools/rbk/vov_veiled/RBS0-SpecTop.adoc:1827:The generated `cloudbuild.json` for a vessel, produced from step scripts and regime pins by the stitch function.
+Tools/rbk/vov_veiled/RBS0-SpecTop.adoc:2346:configures it by setting up regime files and creating
+Tools/rbk/vov_veiled/RBS0-SpecTop.adoc:2424:// rbtc_refresh_gcb_pins eliminated (₣Av) — RBRG regime removed, reliquaries replace pin refresh
+Tools/rbk/vov_veiled/RBS0-SpecTop.adoc:2478:regime
+Tools/rbk/vov_veiled/RBS0-SpecTop.adoc:2486:[[rbrr_regime]]
+Tools/rbk/vov_veiled/RBS0-SpecTop.adoc:2487://axvr_regime axf_bash axrd_file_sourced axrd_singleton
+Tools/rbk/vov_veiled/RBS0-SpecTop.adoc:2488:{rbrr_regime}::
+Tools/rbk/vov_veiled/RBS0-SpecTop.adoc:2570:{rbro_regime}
+Tools/rbk/vov_veiled/RBS0-SpecTop.adoc:2588:{rbrr_regime}.
+Tools/rbk/vov_veiled/RBS0-SpecTop.adoc:2706:// RBRG regime eliminated (₣Av) — reliquaries replace pin-based tool image management
+Tools/rbk/vov_veiled/RBS0-SpecTop.adoc:2711:[[rbrm_regime]]
+Tools/rbk/vov_veiled/RBS0-SpecTop.adoc:2712://axvr_regime axf_bash axrd_file_sourced axrd_singleton
+Tools/rbk/vov_veiled/RBS0-SpecTop.adoc:2713:{rbrm_regime}::
+Tools/rbk/vov_veiled/RBS0-SpecTop.adoc:2721:[[rbra_regime]]
+Tools/rbk/vov_veiled/RBS0-SpecTop.adoc:2722://axvr_regime axf_bash axrd_file_sourced axrd_manifold
+Tools/rbk/vov_veiled/RBS0-SpecTop.adoc:2723:{rbra_regime}::
+Tools/rbk/vov_veiled/RBS0-SpecTop.adoc:2761:[[rbrp_regime]]
+Tools/rbk/vov_veiled/RBS0-SpecTop.adoc:2762://axvr_regime axf_bash axrd_file_sourced axrd_singleton
+Tools/rbk/vov_veiled/RBS0-SpecTop.adoc:2763:{rbrp_regime}::
+Tools/rbk/vov_veiled/RBS0-SpecTop.adoc:2803:[[rbro_regime]]
+Tools/rbk/vov_veiled/RBS0-SpecTop.adoc:2804://axvr_regime axf_bash axrd_file_sourced axrd_singleton
+Tools/rbk/vov_veiled/RBS0-SpecTop.adoc:2805:{rbro_regime}::
+Tools/rbk/vov_veiled/RBS0-SpecTop.adoc:2824:The station regime defines workstation-specific Podman VM configuration for the local development environment.
+Tools/rbk/vov_veiled/RBS0-SpecTop.adoc:2826:[[rbrs_regime]]
+
+[Showing results with pagination = limit: 250]

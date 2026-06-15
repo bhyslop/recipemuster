@@ -1,0 +1,252 @@
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-18-
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-19-The patterns reject bash 4+ features to maintain compatibility with older enterprise systems still running bash 3.2, particularly older RHEL/CentOS or macOS deployments.
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-20-
+Tools/buk/vov_veiled/BCG-BashConsoleGuide.md:21:### Load-Bearing Complexity
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-22-
+Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-23-Every element in a system — every function extraction, every pattern variant, every structural distinction — must carry weight. An element is **load-bearing** when its removal would create a gap between intent and behavior. When similar things differ, ask whether the difference is load-bearing: if yes, document why; if no, homogenize.
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-24-
+Tools/buk/vov_veiled/BCG-BashConsoleGuide.md:25:This is the general decision criterion that tools like Zeroes Theory instantiate. Zeroes Theory asks "how many zeroes did this add to state space?" — load-bearing complexity asks the prior question: "does this element earn its existence at all?"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-26-
+Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-27-Concrete examples from this codebase:
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-28-
+--
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-122-| `z«prefix»_enforce`  | Implementation | `z«prefix»_sentinel`                               | No                | No                | Validate sourced config (regime archetype only)  |
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-123-| `z«prefix»_furnish`  | CLI only       | `buc_doc_env...`                                   | Yes (all deps)    | No                | Document env vars, source all deps, kindle       |
+Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-124-| Module header        | Implementation | `test -z "${Z«PREFIX»_SOURCED:-}" \|\| buc_die`    | No                | N/A               | Prevent multiple inclusion                       |
+Tools/buk/vov_veiled/BCG-BashConsoleGuide.md:125:| CLI header           | CLI            | `set -euo pipefail`                                | Yes (buc_command)  | N/A               | Source buc_command.sh only                       |
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-126-
+Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-127-**Kindle constant**: Any variable — internal (`Z«PREFIX»_SCREAMING_NAME`) or public (`«PREFIX»_SCREAMING_NAME`) — defined exclusively within the kindle function with `readonly`. No other function — including enroll, setup, or helper functions — may assign to kindle constants. This ensures module state is fully determined at kindle time and visible in one place.
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-128-
+--
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-188-# «shebang»
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-189-# «copyright»
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-190-
+Tools/buk/vov_veiled/BCG-BashConsoleGuide.md:191:set -euo pipefail
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-192-
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-193-source "${BURD_BUK_DIR}/buc_command.sh"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-194-
+--
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-271-# «shebang»
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-272-# «copyright»
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-273-
+Tools/buk/vov_veiled/BCG-BashConsoleGuide.md:274:set -euo pipefail
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-275-
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-276-# Multiple inclusion detection
+Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-277-test -z "${Z«PREFIX»_SOURCED:-}" || buc_die "Module «prefix» multiply sourced - check sourcing hierarchy"
+--
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-442-z_token=$(zauth_get_token_capture) || buc_die "Failed to capture token"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-443-
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-444-# ❌ NEVER combine declaration with capture
+Tools/buk/vov_veiled/BCG-BashConsoleGuide.md:445:local z_token=$(zauth_get_token_capture)  # Hides exit status!
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-446-
+Tools/buk/vov_veiled/BCG-BashConsoleGuide.md:447:# From file using builtin $(<file) - NOT command substitution, a bash builtin
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-448-local z_content=$(<"${Z«PREFIX»_TEMP_FILE}")
+Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-449-test -n "${z_content}" || buc_die "Failed to read or empty: ${Z«PREFIX»_TEMP_FILE}"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-450-
+--
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-456-local z_token
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-457-z_token=$(zauth_get_token_capture) || buc_die "Failed to capture token"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-458-
+Tools/buk/vov_veiled/BCG-BashConsoleGuide.md:459:# Temp files INSTEAD of command substitution holds intermediate results
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-460-echo "${z_result}" > "${Z«PREFIX»_RESULT_FILE}"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-461-complex_command > "${Z«PREFIX»_TEMP1}" || buc_die "Complex command failed"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-462-process < "${Z«PREFIX»_TEMP1}" > "${Z«PREFIX»_TEMP2}" || buc_die "Process failed"
+--
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-485-
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-486-### Temp Files Instead of Command Substitution
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-487-
+Tools/buk/vov_veiled/BCG-BashConsoleGuide.md:488:[Omitted long matching line]
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-489-
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-490-```bash
+Tools/buk/vov_veiled/BCG-BashConsoleGuide.md:491:# ❌ Anti-pattern: nested command substitution
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-492-z_result=$(echo $(complex_command) | process)  # Hidden failures!
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-493-
+Tools/buk/vov_veiled/BCG-BashConsoleGuide.md:494:# ❌ Anti-pattern: unguarded command substitution
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-495-z_timestamp=$(date +%s)  # Failure is silent!
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-496-
+Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-497-# ✅ Correct: temp files make failures visible afterward
+--
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-702-| Type      | Pattern                        | First Line           | Returns                      | buc_step                  | Contract                            |
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-703-|-----------|--------------------------------|----------------------|------------------------------|---------------------------|-------------------------------------|
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-704-| Predicate | `[z]«prefix»_«name»_predicate` | `z«prefix»_sentinel` | 0=true, 1=false              | No (use buc_log_«source») | Never dies, status only             |
+Tools/buk/vov_veiled/BCG-BashConsoleGuide.md:705:| Capture   | `[z]«prefix»_«name»_capture`   | `z«prefix»_sentinel` | stdout once at end or exit 1 | No (use buc_log_«source») | Clean error handling, single return |
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-706-| Enroll    | `[z]«prefix»_[«scope»_]enroll` | `z«prefix»_sentinel` | `z_«funcname»_«retval»` vars | No (use buc_log_«source») | Mutates rolls (parallel arrays) in kindle only; returns via variables |
+Tools/buk/vov_veiled/BCG-BashConsoleGuide.md:707:| Recite    | `[z]«prefix»_«what»_recite`    | `z«prefix»_sentinel` | stdout or exit 1             | No (use buc_log_«source») | Read-only access to rolls; never mutates |
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-708-| Litmus predicate | `z«tb»_«name»_litmus_predicate` | —              | 0=proceed, 1=skip            | No                        | Reusable, composable; never dies, no output |
+Tools/buk/vov_veiled/BCG-BashConsoleGuide.md:709:| Fixture baste | `z«tb»_«name»_baste`         | —                   | — (side effects only)        | Optional                  | Fixture subshell; kindle, source, configure |
+Tools/buk/vov_veiled/BCG-BashConsoleGuide.md:710:| Tcase     | `«tc»_«name»_tcase`           | —                    | — (exit status to suite)     | No                        | Case subshell; assertions, verification |
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-711-
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-712----
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-713-
+Tools/buk/vov_veiled/BCG-BashConsoleGuide.md:714:#### Capture Functions (controlled command substitution)
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-715-
+Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-716-**Purpose: Return a single processed value through stdout with clean error handling.**
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-717-
+Tools/buk/vov_veiled/BCG-BashConsoleGuide.md:718:Capture functions encapsulate command substitution to ensure predictable error handling and single-point-of-return semantics.
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-719-
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-720-```bash
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-721-z«prefix»_«name»_capture() {
+--
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-739-
+Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-740-**Use capture functions for:**
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-741-- Secrets that must never touch disk
+Tools/buk/vov_veiled/BCG-BashConsoleGuide.md:742:- Values requiring command substitution or pipeline processing
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-743-- Any computed value where clean error handling matters
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-744-
+Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-745-**Contract:**
+Tools/buk/vov_veiled/BCG-BashConsoleGuide.md:746:- Returns stdout once at end or exits with status 1
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-747-- Never uses `buc_die` internally
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-748-- No side effects beyond the returned value
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-749-- May source credential files when necessary for security
+--
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-774-
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-775-#### Enroll Functions (kindle-only registry population)
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-776-
+Tools/buk/vov_veiled/BCG-BashConsoleGuide.md:777:**Purpose**: Populate parallel-array registries (rolls) during module initialization. Enroll functions solve the subshell problem: when a function both mutates shared state and returns a value, calling it in `$()` loses the mutations.
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-778-
+Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-779-**The parallel-array registry pattern (rolls)**:
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-780-- Kindle initializes N empty arrays (rolls) of the same length
+--
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-885-
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-886-## When to Use Special Functions
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-887-
+Tools/buk/vov_veiled/BCG-BashConsoleGuide.md:888:- **_capture**: Need a value that requires command substitution or clean error handling
+Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-889-- **_predicate**: Need true/false for conditional logic without dying
+Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-890-- **_enroll**: Populate parallel-array registries (rolls) during kindle with validated inputs and return values
+Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-891-- **_recite**: Read-only access to roll arrays populated by enroll functions
+Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-892-- **_litmus_predicate**: Fixture precondition check in parent shell (0=proceed, 1=skip); reusable, composable
+Tools/buk/vov_veiled/BCG-BashConsoleGuide.md:893:- **_baste**: Fixture preparation inside fixture subshell (kindle, source, configure)
+Tools/buk/vov_veiled/BCG-BashConsoleGuide.md:894:- **_tcase**: Test case verification function inside `_tcase` subshell
+Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-895-- **Neither**: Use temp files for multi-step pipelines, direct `|| buc_die` for simple failures
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-896-
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-897-## Naming Convention Patterns
+--
+Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-982-[[ "${z_var}" == "value" ]]    # Use: test "${z_var}" = "value"
+Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-983-[[ -n "${z_param}" ]]          # Use: test -n "${z_param}"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-984-
+Tools/buk/vov_veiled/BCG-BashConsoleGuide.md:985:# Never use test with command substitution that might expand to empty
+Tools/buk/vov_veiled/BCG-BashConsoleGuide.md:986:# test with ZERO arguments returns TRUE (exit 0) — silent pass landmine
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-987-test $(echo "${z_val}" | grep -E '^pattern$')  # ❌ Succeeds when grep matches nothing!
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-988-
+Tools/buk/vov_veiled/BCG-BashConsoleGuide.md:989:# ✅ Use exit-status predicates instead
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-990-echo "${z_val}" | grep -qE '^pattern$' || buc_die "Invalid format"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-991-
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-992-# ✅ Or use case statement for pattern matching
+--
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-1001-### ❌ Subshell Exit vs Brace-Group
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-1002-
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-1003-```bash
+Tools/buk/vov_veiled/BCG-BashConsoleGuide.md:1004:# ❌ exit in subshell kills only the subshell — script continues
+Tools/buk/vov_veiled/BCG-BashConsoleGuide.md:1005:some_cmd || (echo "ERROR" >&2 && exit 1)
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-1006-
+Tools/buk/vov_veiled/BCG-BashConsoleGuide.md:1007:# ✅ Brace-group stays in same process — exit/return works correctly
+Tools/buk/vov_veiled/BCG-BashConsoleGuide.md:1008:some_cmd || { echo "ERROR" >&2; exit 1; }
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-1009-```
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-1010-
+Tools/buk/vov_veiled/BCG-BashConsoleGuide.md:1011:**Rule**: Error blocks must use `{ ...; }` not `( ... )` when intending to exit or return. The `(subshell)` creates a new process — `exit` terminates only that subshell, not the calling script.
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-1012-
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-1013-### ✅ Legitimate Subshell Uses
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-1014-
+Tools/buk/vov_veiled/BCG-BashConsoleGuide.md:1015:The prohibition above is specific to error-handling blocks where `exit`/`return` must reach the calling shell. Subshells are legitimate in these contexts:
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-1016-
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-1017-- **Test execution** — principled isolation between suites and cases; see **Test Execution Patterns**
+Tools/buk/vov_veiled/BCG-BashConsoleGuide.md:1018:- **`$()` command substitution** — inside `_capture`/`_recite` functions only, or bash introspection (`compgen`, `declare -F`, `mktemp`); see **Capture Functions** and **Command Substitution Rules** checklist
+Tools/buk/vov_veiled/BCG-BashConsoleGuide.md:1019:- **Isolation subshells** — environment containment with exit-status propagation (below)
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-1020-
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-1021-#### Isolation Subshells (environment containment)
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-1022-
+Tools/buk/vov_veiled/BCG-BashConsoleGuide.md:1023:When a sequence of commands mutates the shell environment (sourcing files, `cd`, venv activation, `export`), a subshell prevents those mutations from leaking into subsequent commands. The exit status propagates across the `)` boundary, so the caller can detect and handle failures.
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-1024-
+Tools/buk/vov_veiled/BCG-BashConsoleGuide.md:1025:**Rarely needed.** Most code operates within a single kindled environment. Use isolation subshells only when you must execute commands that change the environment and those changes must not persist.
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-1026-
+Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-1027-**Two variants** — same principle, different caller handling:
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-1028-
+--
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-1031-(
+Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-1032-  source "${z_config_file}" || buc_die "Failed to source: ${z_config_file}"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-1033-  «prefix»_operation || buc_die "Operation failed"
+Tools/buk/vov_veiled/BCG-BashConsoleGuide.md:1034:) || buc_die "Isolation subshell failed"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-1035-
+Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-1036-# Variant 2: Status capture — caller inspects and decides
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-1037-local z_status=0
+--
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-1041-) || z_status=$?
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-1042-```
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-1043-
+Tools/buk/vov_veiled/BCG-BashConsoleGuide.md:1044:Inside the subshell, `buc_die` calls `exit` which terminates only the subshell — producing a non-zero exit status that the outer `|| buc_die` or `|| z_status=$?` catches. Failure propagates through exit status, not through `exit` reaching the parent.
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-1045-
+Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-1046-**Constraints:**
+Tools/buk/vov_veiled/BCG-BashConsoleGuide.md:1047:- Every command inside must have explicit `|| buc_die` — `set -e` is suppressed inside `( ... ) ||` (as with all BCG code, never rely on it)
+Tools/buk/vov_veiled/BCG-BashConsoleGuide.md:1048:- The outer boundary must have `|| buc_die` or `|| z_status=$?` — never leave the subshell exit status unchecked
+Tools/buk/vov_veiled/BCG-BashConsoleGuide.md:1049:- Sourcing inside the subshell is permitted (this is a primary use case — isolation prevents sourced variables from leaking)
+Tools/buk/vov_veiled/BCG-BashConsoleGuide.md:1050:- Keep subshell bodies short and focused — if the body grows complex, delegate to a CLI script via `exec`
+Tools/buk/vov_veiled/BCG-BashConsoleGuide.md:1051:- `$( ... ) || buc_die` is legitimate when you need both isolation and output capture — `$()` is a subshell, so isolation holds and the two-line capture pattern applies
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-1052-
+Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-1053-**Use cases:**
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-1054-- Iterating config files that define overlapping variables (e.g., sourcing each nameplate `.env` in a loop)
+--
+Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-1059-**Anti-pattern — no internal error handling:**
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-1060-
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-1061-```bash
+Tools/buk/vov_veiled/BCG-BashConsoleGuide.md:1062:# ❌ Failures inside subshell are silent — source or echo can fail undetected
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-1063-(
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-1064-  source "${z_file}"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-1065-  echo "${SOME_VAR}"
+--
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-1176-
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-1177----
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-1178-
+Tools/buk/vov_veiled/BCG-BashConsoleGuide.md:1179:## `set -e` is Not Sufficient
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-1180-
+Tools/buk/vov_veiled/BCG-BashConsoleGuide.md:1181:**The POSIX suppression rule**: `set -e` is suppressed inside `if`, `while`, `||`, `&&` test expressions, and this propagates through the **entire call tree** of the tested command.
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-1182-
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-1183-```bash
+Tools/buk/vov_veiled/BCG-BashConsoleGuide.md:1184:# ❌ set -e suppressed for entire call tree of some_function
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-1185-if some_function; then ...
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-1186-
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-1187-# Even if some_function calls other_function that fails,
+Tools/buk/vov_veiled/BCG-BashConsoleGuide.md:1188:# set -e will not terminate — suppression propagates
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-1189-```
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-1190-
+Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-1191-**BCG rule: Only `_predicate` functions may appear in `if`/`while` conditions.** All other functions must be invoked as simple commands with explicit `|| buc_die` / `|| return`. This completely prevents the suppression hazard.
+--
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-1197-# ✅ Regular function — explicit error handling, not inside conditional
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-1198-some_function || buc_die "..."
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-1199-
+Tools/buk/vov_veiled/BCG-BashConsoleGuide.md:1200:# ❌ Regular function in conditional — set -e suppressed for entire call tree
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-1201-if some_function; then ...
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-1202-```
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-1203-
+Tools/buk/vov_veiled/BCG-BashConsoleGuide.md:1204:**Why BCG's `|| buc_die` discipline works**: It doesn't rely on `set -e` — explicit error handling after every command means suppression doesn't matter. The `|| z_status=$?` capture pattern intentionally relies on this suppression behavior.
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-1205-
+Tools/buk/vov_veiled/BCG-BashConsoleGuide.md:1206:**Loops**: `set -e` does not reliably catch failures inside `for`/`while` loop bodies in bash 3.2. Every command in a loop body must have explicit error handling.
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-1207-
+Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-1208-The error handling suffix depends on the function type:
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-1209-
+--
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-1217-### ❌ Test-and-control-flow with `&&`
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-1218-
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-1219-```bash
+Tools/buk/vov_veiled/BCG-BashConsoleGuide.md:1220:# ❌ Relies on set -e exemption for &&/|| lists — fragile
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-1221-test "${z_val}" = "done" && break
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-1222-test -z "${z_val}" && return 0
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-1223-[[ "${z_line}" == *"pattern"* ]] && continue
+--
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-1228-[[ "${z_line}" != *"pattern"* ]] || continue
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-1229-```
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-1230-
+Tools/buk/vov_veiled/BCG-BashConsoleGuide.md:1231:**BCG rule: Never `test ... && break/continue/return`.** Always invert the test and use `||`. The `||` form is already the BCG standard for control flow after a test; the `&&` form relies on humans remembering that bash exempts `&&`/`||` lists from `set -e`, which is a language-lawyer trap.
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-1232-
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-1233-### ❌ `A && B || C` as Pseudo-Ternary
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-1234-
+--
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-1422-buc_log_args "Detail from variables"        # Transcript only, from arguments
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-1423-command | buc_log_pipe                      # Transcript only, from pipeline
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-1424-buc_warn "Non-fatal warning"                # Yellow, stderr
+Tools/buk/vov_veiled/BCG-BashConsoleGuide.md:1425:buc_die "Fatal error message"               # Red, stderr, exits
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-1426-
+Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-1427-### When to use buc_step vs buc_log_«source»:
+/Users/bhyslop/projects/rbm_alpha_recipemuster/Tools/buk/vov_veiled/BCG-BashConsoleGuide.md-1428-
+--
+
+[Showing results with pagination = limit: 250]

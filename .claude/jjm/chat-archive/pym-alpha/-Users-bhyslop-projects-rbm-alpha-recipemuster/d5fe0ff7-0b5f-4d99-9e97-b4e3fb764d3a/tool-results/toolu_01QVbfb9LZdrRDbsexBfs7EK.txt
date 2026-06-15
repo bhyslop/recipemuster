@@ -1,0 +1,565 @@
+2::doctype: book
+10:// axt_: Axial Type (type system definitions) → mcm_form_deflist
+11:// axr_: Axial Record (record/member structure patterns) → mcm_form_section for records, mcm_form_deflist for members
+12:// axj_: Axial JSON (JSON-specific concerns) → mcm_form_section for structures, mcm_form_bullet for fields
+18:// axd_: Axial Dimension (member/argument characteristic modifiers) → mcm_form_deflist
+31:// Extended Type Categories (domain-specific type subcategories):
+32:// axtu_: Axial Type Universal (generic infrastructure types) → mcm_form_deflist
+33:// axtg_: Axial Type Google (Google Cloud Platform types) → mcm_form_deflist
+34:// axtw_: Axial Type AWS (Amazon Web Services types) → mcm_form_deflist [reserved]
+35:// axta_: Axial Type Azure (Microsoft Azure types) → mcm_form_deflist [reserved]
+36:// axth_: Axial Type GitHub (GitHub types) → mcm_form_deflist [reserved]
+39:// Extended Infrastructure Categories (domain-specific infrastructure patterns):
+40:// axig_: Axial Infrastructure Google (GCP infrastructure resources) → mcm_form_deflist
+41:// axiw_: Axial Infrastructure AWS (AWS infrastructure resources) → mcm_form_deflist [reserved]
+42:// axia_: Axial Infrastructure Azure (Azure infrastructure resources) → mcm_form_deflist [reserved]
+43:// axih_: Axial Infrastructure GitHub (GitHub infrastructure resources) → mcm_form_deflist [reserved]
+70::axd_conditional:                     <<axd_conditional,Conditional>>
+71::axd_defaulted:                       <<axd_defaulted,Defaulted>>
+72::axd_dimension:                       <<axd_dimension,Dimension>>
+73::axd_dimension_s:                     <<axd_dimension,Dimensions>>
+74::axd_disjoint_lifecycle:              <<axd_disjoint_lifecycle,Disjoint Lifecycle>>
+75::axd_endianness:                      <<axd_endianness,Endianness>>
+76::axd_field_number:                    <<axd_field_number,Field Number>>
+77::axd_file_bus:                        <<axd_file_bus,File Bus>>
+78::axd_list:                            <<axd_list,List>>
+79::axd_longrunning:                     <<axd_longrunning,Long-running>>
+80::axd_none:                            <<axd_none,None>>
+81::axd_nullable:                        <<axd_nullable,Nullable>>
+82::axd_optional:                        <<axd_optional,Optional>>
+83::axd_periodic:                        <<axd_periodic,Periodic>>
+84::axd_repeated:                        <<axd_repeated,Repeated>>
+85::axd_required:                        <<axd_required,Required>>
+86::axd_attended:                        <<axd_attended,Attended>>
+87::axd_grouped:                         <<axd_grouped,Grouped>>
+88::axd_internal:                        <<axd_internal,Internal>>
+89::axd_slash_command:                   <<axd_slash_command,Slash Command>>
+90::axd_tabtarget:                       <<axd_tabtarget,Tabtarget>>
+91::axd_fact:                            <<axd_fact,Fact>>
+92::axd_tally:                           <<axd_tally,Tally>>
+93::axd_algebraic:                       <<axd_algebraic,Algebraic>>
+94::axd_temporal:                        <<axd_temporal,Temporal>>
+95::axd_transient:                       <<axd_transient,Transient>>
+96::axd_wire_type:                       <<axd_wire_type,Wire Type>>
+97::axd_xml_form:                        <<axd_xml_form,XML Form>>
+158::axhoot_typed_output:                 <<axhoot_typed_output,Hierarchy Typed Output>>
+161::axhopt_typed_parameter:              <<axhopt_typed_parameter,Hierarchy Typed Parameter>>
+185::axheft_typed_field:                  <<axheft_typed_field,Hierarchy Typed Field>>
+186::axhefm_motif_field:                  <<axhefm_motif_field,Hierarchy Motif Field>>
+189::axhempt_typed_parameter:             <<axhempt_typed_parameter,Hierarchy Typed Parameter>>
+192::axhemot_typed_output:                <<axhemot_typed_output,Hierarchy Typed Output>>
+195:// Axial Type Universal Terms (generic infrastructure)
+205:// Axial Type Google Terms (Google Cloud Platform)
+212:// Axial Infrastructure Google Terms (GCP infrastructure resources)
+276:// Axial Type Terms
+277::axt_array:                           <<axt_array,Array Type>>
+278::axt_boolean:                         <<axt_boolean,Boolean Type>>
+279::axt_enum_value:                      <<axt_enum_value,Enum Value>>
+280::axt_enum_value_s:                    <<axt_enum_value,Enum Values>>
+281::axt_enumeration:                     <<axt_enumeration,Enumeration Type>>
+282::axt_map:                             <<axt_map,Map Type>>
+283::axt_number:                          <<axt_number,Number Type>>
+284::axt_object:                          <<axt_object,Object Type>>
+285::axt_string:                          <<axt_string,String Type>>
+286::axt_type:                            <<axt_type,Type>>
+287::axt_type_s:                          <<axt_type,Types>>
+288::axt_insignia:                        <<axt_insignia,Insignia>>
+289::axt_insignia_s:                      <<axt_insignia,Insignia>>
+290::axt_variant:                         <<axt_variant,Variant Type>>
+292:// Axial Record Terms
+293::axr_record_binary:                   <<axr_record_binary,Binary Record>>
+294::axr_record_json:                     <<axr_record_json,JSON Record>>
+295::axr_member:                          <<axr_member,Member>>
+296::axr_member_s:                        <<axr_member,Members>>
+297::axr_record:                          <<axr_record,Record>>
+298::axr_record_s:                        <<axr_record,Records>>
+299::axr_record_protobuf:                 <<axr_record_protobuf,Protobuf Record>>
+300::axr_record_xml:                      <<axr_record_xml,XML Record>>
+301::axr_record_yaml:                     <<axr_record_yaml,YAML Record>>
+304::axj_array_element:                   <<axj_array_element,Array Element Type>>
+305::axj_field:                           <<axj_field,JSON Field>>
+306::axj_field_s:                         <<axj_field,JSON Fields>>
+307::axj_field_cardinality:               <<axj_field_cardinality,Field Cardinality>>
+308::axj_field_tag:                       <<axj_field_tag,Field Tag>>
+309::axj_field_type:                      <<axj_field_type,Field Type>>
+310::axj_nested_field:                    <<axj_nested_field,Nested Field>>
+311::axj_nested_field_s:                  <<axj_nested_field,Nested Fields>>
+312::axj_root_structure:                  <<axj_root_structure,Root Structure>>
+313::axj_structure:                       <<axj_structure,JSON Structure>>
+314::axj_structure_s:                     <<axj_structure,JSON Structures>>
+315::axj_type_reference:                  <<axj_type_reference,Type Reference>>
+321::axa_argument_type:                   <<axa_argument_type,Argument Type>>
+370:// Infrastructure Terms
+450:* Remaining terms: dimension terms (prefixed `axd_`) specifying characteristics
+455:* `//axl_voices axr_member axd_required axd_nullable` - voicing with dimensions
+473:* Type/instance level - where the
+476:* Contextual requirements - parent structures or operations the
+488:During type-scheme linting, these expectations guide validation of definition structure.
+493:* {axj_structure} definitions expect
+496:* {axj_field} definitions expect
+498:`mcm_form_bullet` under parent structure
+620:Request/response via JSON or other structured format.
+693:representing an object with both structure and behavior.
+695:{axr_record}
+700:describe the entity's data members and its behavioral interface (construction, mutation, registration).
+703:== Axial Type Terms
+705:[[axt_type]]
+706:{axt_type}::
+709:representing a data format constraint that defines valid values and structures.
+710:Enforces data validation and enables type-safe operations.
+712:[[axt_string]]
+713:{axt_string}::
+716:representing text data type with optional pattern validation.
+728:[[axt_number]]
+729:{axt_number}::
+732:representing numeric value type supporting integers and floating point.
+735:[[axt_boolean]]
+736:{axt_boolean}::
+739:representing binary true/false value type.
+742:[[axt_array]]
+743:{axt_array}::
+746:representing ordered collection of typed elements.
+747:Specifies element type and optional size constraints.
+749:[[axt_object]]
+750:{axt_object}::
+753:representing named field collection forming a composite type.
+754:Contains typed fields with defined cardinality.
+756:[[axt_map]]
+757:{axt_map}::
+760:representing a dictionary structure with typed keys and typed values.
+763:from following text — the first identifies the key type, the second identifies the value type.
+765:Serialization format determines key ordering guarantees and key type constraints (e.g., JSON restricts keys to strings).
+767:[[axt_enumeration]]
+768:{axt_enumeration}::
+774:[[axt_enum_value]]
+775:{axt_enum_value}::
+779:{axt_enumeration}.
+782:[[axt_insignia]]
+783:{axt_insignia}::
+786:representing a glyph-prefixed typed identity string with seed-based allocation.
+788:{axt_string}
+792:{axt_insignia}
+794:{axd_dimension_s}:
+795:{axd_algebraic}
+797:{axd_temporal}.
+799:[[axt_variant]]
+800:{axt_variant}::
+803:representing a value that can take one of several distinct forms, where each form may have different structure.
+805:{axt_enumeration}
+807:{axt_variant}
+812:== Axial Record Terms
+814:{axr_record_s}
+816:{axr_member_s}
+817:provide format-agnostic patterns for structured data.
+819:{axr_member_s}
+821:{axr_record}.
+823:[[axr_record]]
+824:{axr_record}::
+827:representing a named collection of typed
+828:{axr_member_s}.
+831:{axr_record_json},
+832:{axr_record_protobuf},
+835:[[axr_record_json]]
+836:{axr_record_json}::
+839:representing a JSON object structure.
+840:{axr_member_s}
+843:{axd_nullable}
+846:[[axr_record_protobuf]]
+847:{axr_record_protobuf}::
+851:{axr_member_s}
+853:{axd_field_number}
+855:{axd_wire_type}
+857:Supports schema evolution through field numbering.
+859:[[axr_record_xml]]
+860:{axr_record_xml}::
+863:representing an XML element structure.
+864:{axr_member_s}
+866:{axd_xml_form}
+868:Order may be significant depending on schema.
+870:[[axr_record_yaml]]
+871:{axr_record_yaml}::
+876:{axr_member_s}
+879:[[axr_record_binary]]
+880:{axr_record_binary}::
+883:representing a binary/memory structure.
+884:{axr_member_s}
+886:{axd_endianness}
+887:for multi-byte fields.
+890:[[axr_member]]
+891:{axr_member}::
+894:representing a named, typed element within an
+895:{axr_record}.
+897:{axr_record}.
+906:Additional type motifs on the annotation line (e.g.,
+907:{axt_map},
+908:{axt_string})
+910:{axr_member}
+911:sprue first, then type motif lookaheads.
+913:{axd_dimension_s}
+916:`//axl_voices axr_member axd_required axt_string`
+920:[[axj_structure]]
+921:{axj_structure}::
+924:representing named schema definition for JSON objects.
+925:Defines complete object shape with field specifications.
+927:[[axj_field]]
+928:{axj_field}::
+931:representing named, typed element within a
+932:{axj_structure}.
+933:Combines tag identifier with type constraint.
+935:[[axj_field_tag]]
+936:{axj_field_tag}::
+940:{axj_field}.
+943:[[axj_field_type]]
+944:{axj_field_type}::
+948:{axj_field}.
+955:representing type constraint for members of an
+956:{axt_array}
+957:field.
+960:[[axj_nested_field]]
+961:{axj_nested_field}::
+964:representing fields within object-typed fields enabling hierarchy.
+965:Maintains type safety through nested validation.
+967:[[axj_root_structure]]
+968:{axj_root_structure}::
+971:representing top-level JSON object schema.
+974:[[axj_field_cardinality]]
+975:{axj_field_cardinality}::
+978:representing required, optional, or repeated nature of a field.
+981:[[axj_type_reference]]
+982:{axj_type_reference}::
+986:{axj_structure}
+1041:{axa_argument_type}
+1044:[[axa_argument_type]]
+1045:{axa_argument_type}::
+1050:Enforces type safety at interface boundary.
+1087:representing a structured section documenting an operation's arguments.
+1089:{axhopt_typed_parameter}
+1094:{axd_dimension}
+1115://axd_required
+1118://axd_optional axd_defaulted
+1224:representing nested command within parent command structure.
+1255:Appears after `?` in URL structure.
+1268:representing structured input payload for HTTP requests.
+1270:{axj_structure}
+1277:representing structured output payload from HTTP responses.
+1279:{axj_structure}.
+1387:{axd_dimension_s}
+1389:{axd_file_bus}),
+1391:{axd_disjoint_lifecycle}),
+1393:Structural detail — the roster of transactions, call/return envelopes, and member types — lives at the
+1401:{axd_dimension_s}
+1404:to specify characteristics of members and arguments.
+1407:{axd_dimension_s}
+1410:{axd_dimension_s}
+1413:[[axd_dimension]]
+1414:{axd_dimension}::
+1415:A characteristic modifier that qualifies a member or argument in an
+1417:{axd_dimension_s}
+1425:{axd_dimension_s}
+1429:[[axd_required]]
+1430:{axd_required}::
+1431:Member or argument must be present.
+1435:[[axd_optional]]
+1436:{axd_optional}::
+1437:Member or argument may be omitted.
+1440:[[axd_nullable]]
+1441:{axd_nullable}::
+1443:Required for JSON where null is an explicit value type.
+1446:[[axd_none]]
+1447:{axd_none}::
+1448:Section or field is explicitly declared as having no content.
+1452:[[axd_defaulted]]
+1453:{axd_defaulted}::
+1457:[[axd_repeated]]
+1458:{axd_repeated}::
+1459:May have multiple values (array, list, repeated field).
+1461:Applies to usage sites (arguments, members) where multiple occurrences are permitted.
+1463:[[axd_list]]
+1464:{axd_list}::
+1467:{axd_repeated}
+1469:Applies to type voicings where the type intrinsically represents a delimited collection.
+1475:{axd_dimension_s}
+1477:Using them in forbidden contexts is a type-scheme error.
+1479:[[axd_field_number]]
+1480:{axd_field_number}::
+1481:Numeric field identifier for protobuf encoding.
+1485:[[axd_wire_type]]
+1486:{axd_wire_type}::
+1487:Protobuf encoding type (varint, fixed32, fixed64, length-delimited).
+1491:[[axd_endianness]]
+1492:{axd_endianness}::
+1497:[[axd_xml_form]]
+1498:{axd_xml_form}::
+1499:Whether XML member is attribute or child element.
+1506:{axd_dimension_s}
+1515:[[axd_transient]]
+1516:{axd_transient}::
+1523:[[axd_longrunning]]
+1524:{axd_longrunning}::
+1538:[[axd_periodic]]
+1539:{axd_periodic}::
+1554:{axd_dimension_s}
+1555:qualify regime structure annotations.
+1557:[[axd_conditional]]
+1558:{axd_conditional}::
+1561:{axd_conditional}
+1579:{axd_dimension_s}
+1584:[[axd_file_bus]]
+1585:{axd_file_bus}::
+1599:{axd_file_bus}
+1601:{axr_record_s}
+1603:{axr_record_json}).
+1605:[[axd_disjoint_lifecycle]]
+1606:{axd_disjoint_lifecycle}::
+1621:{axd_dimension}
+1628:|{axd_required}     |recommend |recommend |recommend |recommend |recommend
+1629:|{axd_optional}     |recommend |recommend |recommend |recommend |recommend
+1630:|{axd_nullable}     |required  |implicit  |recommend |context   |recommend
+1631:|{axd_defaulted}    |optional  |required  |optional  |optional  |optional
+1632:|{axd_repeated}     |recommend |required  |recommend |recommend |recommend
+1633:|{axd_list}         |optional  |optional  |optional  |optional  |optional
+1634:|{axd_field_number} |forbidden |required  |forbidden |forbidden |forbidden
+1635:|{axd_wire_type}    |forbidden |required  |forbidden |forbidden |forbidden
+1636:|{axd_endianness}   |forbidden |forbidden |forbidden |required  |forbidden
+1637:|{axd_xml_form}     |forbidden |forbidden |required  |forbidden |forbidden
+1684:Standard JSON object structure with string keys mapping to typed values.
+1698:are structured configuration systems that coordinate specification, validation, and rendering of typed configuration data.
+1704:representing a structured configuration system.
+1718:representing a named configuration element at schema level.
+1723:and defines a name, type constraints, and relationships with other variables.
+1787:Regime annotations use the prefix-discriminated form (`//ax...` with no space after `//`) to provide structured metadata about regime definitions in AsciiDoc specifications.
+1798://axvr_variable axd_required rbst_xname
+1803:The annotation line starts with `//axvr_` (no space after `//`), followed by the specific voicing term, then space-separated dimension and type terms.
+1811:The annotated term defines a structured configuration system that binds related
+1815:{axd_dimension_s}:
+1831:{axd_dimension_s}:
+1832:{axd_required}
+1834:{axd_optional},
+1835:type
+1837:(base type or type voicing).
+1850:{axd_dimension_s}:
+1851:{axd_conditional}
+1861:setting defaults, detecting unexpected variables, and building derived structures.
+1870:checking all type and constraint requirements, failing on first violation.
+1880:Rendering occurs before validation so all fields are visible on failure.
+1928:The hierarchy marker line starts with `//axhr` (no space after `//`), followed by the sub-prefix identifying the marker type.
+1985:{axt_enumeration})
+1987:{axt_enum_value}
+2107:{axt_enumeration};
+2109:{axt_enum_value}
+2110:of that specific enumeration type
+2160:{axd_dimension_s}:
+2162:({axd_transient},
+2163:{axd_longrunning},
+2165:{axd_periodic}).
+2167:{axd_attended}.
+2169:{axd_internal}.
+2171:{axd_grouped}
+2191:{axd_dimension_s}:
+2193:({axd_transient},
+2194:{axd_longrunning},
+2196:{axd_periodic}).
+2198:{axd_attended}.
+2200:{axd_internal}.
+2202:{axd_grouped}
+2222:{axd_dimension_s}:
+2224:{axd_tabtarget},
+2225:{axd_slash_command},
+2226:or other exposure mechanism specifying the default interface for external members.
+2230:[[axd_attended]]
+2231:{axd_attended}::
+2233:{axd_dimension}
+2241:[[axd_internal]]
+2242:{axd_internal}::
+2244:{axd_dimension}
+2252:[[axd_grouped]]
+2253:{axd_grouped}::
+2255:{axd_dimension}
+2272:[[axd_tabtarget]]
+2273:{axd_tabtarget}::
+2275:{axd_dimension}
+2276:indicating that external members of an operation group are exposed as tabtargets.
+2280:[[axd_slash_command]]
+2281:{axd_slash_command}::
+2283:{axd_dimension}
+2284:indicating that external members of an operation group are exposed as
+2289:[[axd_fact]]
+2290:{axd_fact}::
+2292:{axd_dimension}
+2297:{axhoot_typed_output}.
+2301:[[axd_tally]]
+2302:{axd_tally}::
+2304:{axd_dimension}
+2309:{axhoot_typed_output}.
+2313:[[axd_algebraic]]
+2314:{axd_algebraic}::
+2316:{axd_dimension}
+2318:{axt_insignia}.
+2320:Digit count disambiguates type within the algebraic family.
+2323:[[axd_temporal]]
+2324:{axd_temporal}::
+2326:{axd_dimension}
+2328:{axt_insignia}.
+2339:{axhoot_typed_output}
+2341:{axd_fact}.
+2349:{axhoot_typed_output}
+2351:{axd_tally}.
+2402:|{axhopt_typed_parameter}   |1 {mcm_attribute_reference}  |A named input parameter whose identity reuses an existing domain type term (zero new terms minted)
+2404:|{axhopm_motif_parameter}   |0                            |Type on annotation line (motif terms); bare marker, no lookahead
+2405:|{axhoot_typed_output}      |1 {mcm_attribute_reference}  |A named output whose identity reuses an existing domain type term (parallel to typed_parameter pattern)
+2406:|{axhoom_motif_output}      |0                            |Type on annotation line (motif terms); bare marker, no lookahead
+2437://axhopt_typed_parameter
+2450:{axhoot_typed_output}
+2455:[[axhopt_typed_parameter]]
+2456:{axhopt_typed_parameter}::
+2459:whose lookahead reuses an existing domain type term.
+2460:No new term is minted — the attribute reference on the following line names a type already defined elsewhere in the lexicon.
+2461:Used when the parameter's identity is fully captured by the type (e.g., a parameter that is simply a CIDR block or a domain name).
+2464:— must resolve to an existing type anchor; zero new terms minted.
+2483:whose type information is carried on the annotation line itself (motif terms such as dimension modifiers and type classifiers).
+2484:0-arity bare marker — no lookahead required; type follows inline.
+2487:[[axhoot_typed_output]]
+2488:{axhoot_typed_output}::
+2491:whose lookahead reuses an existing domain type term.
+2493:{axhopt_typed_parameter}
+2494:pattern: no new term is minted — the attribute reference on the following line names a type already defined elsewhere in the lexicon.
+2495:Used when the output's identity is fully captured by the type (e.g., an output that is simply a list of names or a CIDR block).
+2498:— must resolve to an existing type anchor; zero new terms minted.
+2505:whose type information is carried on the annotation line itself (motif terms such as dimension modifiers and type classifiers).
+2506:0-arity bare marker — no lookahead required; type follows inline.
+2510:{axd_fact}
+2512:{axd_tally}
+2557:{axhopt_typed_parameter},
+2560:{axhoot_typed_output},
+2590:{axd_grouped},
+2612:|{axhpc_call}       |0                            |The caller-side envelope of an enclosing transaction; bare marker, members listed in following prose
+2613:|{axhpr_return}     |0                            |The callee-side envelope of an enclosing transaction; bare marker, members listed in following prose
+2642:caller payload members:
+2666:The prose under this marker enumerates the envelope's members, each referencing a type term defined at the
+2679:The prose under this marker enumerates the envelope's members using the same type-reference pattern as
+2687:(with prose noting "empty envelope" or equivalent) — the return presence is the signal, and uniform structure keeps the hierarchy complete.
+2719:* Types referenced in
+2723:member prose must resolve to
+2724:{axt_type}
+2735:Entity specifications describe objects with both structure (fields) and behavior (methods).
+2761:The annotated term defines an object with both structure and behavior whose contract is elaborated in a subdocument via
+2768:{axd_dimension_s}:
+2770:{axd_internal}.
+2779:Zero-arity markers carry their type and dimension information entirely on the annotation line.
+2781:The entity hierarchy uses a two-layer structure:
+2785:containing field markers
+2786:({axheft_typed_field},
+2787:{axhefm_motif_field})
+2793:({axhempt_typed_parameter},
+2797:({axhemot_typed_output},
+2800:Variant suffixes identify the source of type identity:
+2802:* `_typed_*` — 1-arity; lookahead reads a project-specific type term
+2804:* `_motif_*` — 0-arity; type expressed through axial motif terms on the annotation line
+2813:|{axheft_typed_field}       |1 {mcm_attribute_reference}  |A field's type (domain type term)
+2814:|{axhefm_motif_field}       |0                            |Type on annotation line (motif terms)
+2817:|{axhempt_typed_parameter}  |1 {mcm_attribute_reference}  |A parameter's type (domain type term)
+2819:|{axhempm_motif_parameter}  |0                            |Type on annotation line (motif terms)
+2820:|{axhemot_typed_output}     |1 {mcm_attribute_reference}  |An output's type (domain type term)
+2821:|{axhemom_motif_output}     |0                            |Type on annotation line (motif terms)
+2836:[[axheft_typed_field]]
+2837:{axheft_typed_field}::
+2838:Marks a data member of the entity whose type identity reuses an existing domain type term.
+2841:— must resolve to an existing type anchor.
+2842:{axd_dimension_s}
+2843:on the annotation line qualify the field:
+2844:{axd_required}
+2846:{axd_optional},
+2847:{axd_repeated},
+2850:[[axhefm_motif_field]]
+2851:{axhefm_motif_field}::
+2852:Marks a data member of the entity whose type is expressed entirely through axial motif terms on the annotation line.
+2854:{axd_dimension_s}
+2855:on the annotation line include a type motif
+2856:({axt_string},
+2857:{axt_boolean},
+2858:{axt_array},
+2860:({axd_required},
+2861:{axd_repeated},
+2888:[[axhempt_typed_parameter]]
+2889:{axhempt_typed_parameter}::
+2890:Marks a parameter within the current method scope whose type identity reuses an existing domain type term.
+2893:— must resolve to an existing type anchor.
+2894:{axd_dimension_s}
+2896:{axd_required}
+2898:{axd_optional},
+2910:Marks a parameter within the current method scope whose type is expressed entirely through axial motif terms on the annotation line.
+2912:{axd_dimension_s}
+2913:on the annotation line include a type motif and structural qualifiers.
+2915:[[axhemot_typed_output]]
+2916:{axhemot_typed_output}::
+2917:Marks an output of the current method scope whose type identity reuses an existing domain type term.
+2920:— must resolve to an existing type anchor.
+2924:Marks an output of the current method scope whose type is expressed entirely through axial motif terms on the annotation line.
+2926:{axd_dimension_s}
+2927:on the annotation line include a type motif and structural qualifiers.
+2935:* {axheft_typed_field}
+2937:{axhefm_motif_field}
+2948:* {axhempt_typed_parameter},
+2951:{axhemot_typed_output},
+2955:* Field markers should precede method markers within the entity (fields then methods)
+2972:== Axial Type Universal Terms
+2974:{axtu_*} types represent generic infrastructure patterns that are not specific to any cloud provider or platform.
+2975:These types capture critical gestalts that appear across many systems.
+3039:== Axial Type Google Terms
+3041:{axtg_*} types represent Google Cloud Platform resource identifiers and patterns.
+3042:These types have specific format requirements enforced by GCP APIs.
+3085:== Axial Infrastructure Google Terms
+3087:{axig_*} terms represent Google Cloud Platform infrastructure patterns.
+3242:Instance-level: a cryptographically signed attestation recording build inputs, environment, and outputs per the SLSA framework.
+3299:== Infrastructure Terms
+3333:* {axhopt_typed_parameter}
+3336:— input parameters (typed/arg variants use 1-arity lookahead; motif is bare)
+3338:* {axhoot_typed_output}
+3340:— produced artifacts (typed variant uses 1-arity lookahead; motif is bare)
+3365:{axhopt_typed_parameter}
+3380:{axd_defaulted}
+3387:{axd_dimension}
+3390:* {axd_required}
+3392:{axd_optional}
+3394:* {axd_defaulted}
+3397:=== Type Voicing Qualification
+3399:Voicing a type (subspecializing
+3400:{axt_*}
+3407:* {axd_list}
+3408:— type intrinsically represents delimited collection
+3412:* {axd_required},
+3413:{axd_optional},
+3414:{axd_defaulted}
+3415:— presence applies to usage sites, not type definitions
+3417:* {axd_repeated}
+3418:— repetition applies to usage sites, not type definitions
+3447:* Type in annotation (base type motif or type voicing)
+3450:{axd_required}
+3452:{axd_optional}
+3454:* {axd_defaulted}
+3459:* {axd_required}
+3462:* {axd_optional}
+3465:* {axd_defaulted}
+3468:* {axd_list}
+3469:— inherited from type voicing; variable's type is a delimited collection
+3473:* {axd_repeated}
+3476:* {axd_nullable}
+3498:* {axd_required}
+3500:{axd_optional}
+3502:* Type
+3504:(base type or type voicing)
+3517:{axd_conditional}
+3525:{axd_conditional}:
+3545:{axd_transient},
+3546:{axd_longrunning},
+3548:{axd_periodic}
+3551:{axd_grouped}:
+3566:{axd_transient},
+3567:{axd_longrunning},
+3569:{axd_periodic}
+3572:{axd_grouped}:
+3587:{axd_tabtarget},
+3588:{axd_slash_command},
+3589:or other interface mechanism specifying the default exposure for external members
+3603:{axhopt_typed_parameter},
+3606:{axhoot_typed_output},

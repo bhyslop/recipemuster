@@ -1,0 +1,605 @@
+ence for Unit 5 Marshal Zero teaching
+- `Tools/buk/buh_handbook.sh` — display primitive catalog
+- `Tools/buk/buz_zipper.sh` — zipper mechanism (`buz_group`, `buz_enroll`, `buz_exec_lookup`)
+- `tt/rbw-go.OnboardMAIN.sh` — 5-line thin dispatcher pattern (copied for both new tabtargets)
+- `₣A6` paddock — Prefix Context, Anchor Coordination, Teaching Voice, Open Questions, Provenance (Mounting corrections), Rough Track Roster
+- Commit `9844ce32` — initial implementation land
+- Commit `fe7e1d50` — downstream paces (A6AAC/AAD/AAE) colophon sweep
+
+### graft-demo-vessel (₢A6AAH) [rough]
+
+## Character
+
+Small infrastructure build. Create a minimal graft-mode vessel for use in Assay: Supply Chain (track 13). No nameplate, no crucible integration — just an `rbrv.env` declaring graft mode and a local image the learner can push to GAR.
+
+## Docket
+
+Create `rbev-vessels/rbev-bottle-graft-demo/` with graft-mode configuration.
+
+### Create vessel directory
+
+- `rbrv.env` with `RBRV_VESSEL_MODE=graft` and minimal configuration
+- No Dockerfile (graft vessels have no project-side Dockerfile — the image is built locally by the user)
+- Document in a comment or README what local image the learner builds before grafting (e.g., `docker build` a trivial alpine+socat image, then graft it)
+
+### Verify graft cycle
+
+1. Build a trivial local image (alpine + socat or similar)
+2. Graft it: `tt/rbw-hO.DirectorOrdainsHallmark.sh rbev-bottle-graft-demo`
+3. Verify the GRAFTED verdict from vouch
+4. Verify tally shows the grafted hallmark
+
+### Out of scope
+
+- Nameplate or crucible integration for this vessel
+- Cloud Build ordination (graft bypasses Cloud Build for the image)
+- Onboarding handbook content (that's the Assay: Supply Chain track)
+
+### ifrit-airgap-feasibility (₢A6AAI) [rough]
+
+## Character
+
+Investigation pace — determine whether bottle-ifrit can realistically build on the airgap pool. The answer directly affects track 12 (Building for Crucibles) docket. Quick, focused, binary outcome.
+
+## Docket
+
+Determine whether `rbev-bottle-ifrit` can be built airgapped, or must remain tethered.
+
+### Investigate
+
+Read `rbev-vessels/rbev-bottle-ifrit/Dockerfile`. Identify all network-dependent build steps:
+- `apt-get install` / `apt-get update` — pulls from Debian repos
+- `npm install` — pulls from npm registry
+- Any other fetches (pip, curl, wget)
+
+### Assess
+
+For each network dependency, determine:
+1. Can it be satisfied from enshrined base images alone? (unlikely for apt/npm)
+2. Can it be pre-staged into the build context via the pouch? (possible but complex)
+3. Is there a simpler vessel that demonstrates airgap without these complications?
+
+### Decide
+
+Three possible outcomes:
+- **Ifrit goes airgap**: all dependencies resolvable without upstream at build time. Update track 12 docket accordingly.
+- **Ifrit stays tethered, sentry goes airgap**: sentry-debian-slim has minimal deps (bash, iptables, dnsmasq, iproute2 — all in the base image). Track 12 uses sentry as the airgap demonstration and ifrit as the tethered companion. Teaches the distinction: "some vessels can go airgapped, others need upstream."
+- **Ifrit stays tethered, separate airgap demo**: if neither vessel works cleanly, note for later.
+
+Record the decision in the A6 paddock (track 12 description and remaining gaps section).
+
+### Out of scope
+
+- Actually building ifrit airgapped (that's track 12's job if feasible)
+- Changing ifrit's Dockerfile
+- Onboarding content
+
+### bind-mode-coverage-decision (₢A6AAJ) [rough]
+
+## Character
+
+Decision pace — confirm or reject the current assumption that bind mode doesn't need its own hands-on director subtrack. Quick review of what the existing tracks cover, then a recorded decision.
+
+## Docket
+
+Evaluate whether bind mode needs a dedicated hands-on track or is sufficiently covered by existing tracks.
+
+### Review current coverage
+
+1. **Track 7 (Your First Ordination)** — conceptual introduction mentions bind as one of three ordain modes
+2. **Track 13 (Assay: Supply Chain)** — evaluator tours bind using bottle-plantuml, sees digest-pin verification verdict
+
+### Assess
+
+Bind mode is operationally simple: no Dockerfile, no build context, no pouch. The director runs ordain, which mirrors an upstream image by digest into GAR. The complexity is in understanding *when* to use bind vs conjure, not in executing it.
+
+Questions to answer:
+- Does the evaluator tour in track 13 give enough hands-on exposure?
+- Would a director who needs to bind an upstream image in production be served by the conceptual intro + eval tour, or do they need a dedicated walkthrough?
+- Is there pedagogical value in a "bind your first upstream image" experience distinct from the evaluation tour?
+
+### Record decision
+
+Update the A6 paddock remaining gaps section with the outcome:
+- **No dedicated track**: bind is covered; remove from gaps
+- **Add dedicated track**: slate a new director subtrack and update the roster
+
+### Out of scope
+
+- Actually implementing any new track
+- Changing existing track dockets
+
+### ccyolo-vessel-and-nameplate (₢A6AAG) [rough]
+
+## Character
+
+Infrastructure build — new vessel, new nameplate, CCCK retirement. Mechanical once the Dockerfile and nameplate config are settled, but the Dockerfile needs care: npm-friendly base, Claude Code installation, minimal attack surface beyond what Claude Code needs. Debug cycle is kludge→charge→shell-in→verify Claude Code authenticates via OAuth copy/paste. This pace produces the artifact; teaching with it is a separate pace.
+
+## Docket
+
+Create the ccyolo vessel and nameplate for running Claude Code inside a Crucible with network containment scoped to Anthropic API endpoints. Retire CCCK (`Tools/ccck/`).
+
+### Create vessel `rbev-bottle-ccyolo`
+
+New vessel directory under `rbev-vessels/`:
+
+- **Mode**: conjure (has Dockerfile)
+- **Base image**: npm-friendly (node:lts-slim or similar — pick the smallest image that gives a working `npm install`)
+- **Installed**: Claude Code via npm (`@anthropic-ai/claude-code`), bash, curl, git (Claude Code operational dependencies)
+- **NOT installed**: scapy, strace, or other attack tooling (that's ifrit's job)
+- **`rbrv.env`**: conjure mode, kludge-oriented (no reliquary or enshrine dependencies needed for first use)
+
+### Create nameplate `ccyolo`
+
+New nameplate directory `.rbk/ccyolo/`:
+
+- **Sentry vessel**: sentry-debian-slim (shared with tadmor)
+- **Bottle vessel**: rbev-bottle-ccyolo
+- **DNS allowlist**: Anthropic API endpoints (`api.anthropic.com`, and whatever else Claude Code needs for OAuth browser flow)
+- **CIDR allowlist**: corresponding IP ranges for the DNS entries
+- **Hallmark fields**: blank initially, populated by first kludge
+
+### Verify kludge→charge→authenticate cycle
+
+1. Kludge sentry: `tt/rbw-cKB.KludgeBottle.sh ccyolo` (or kludge both vessels)
+2. Charge: `tt/rbw-cC.Charge.ccyolo.sh`
+3. Shell into bottle: `tt/rbw-cr.Rack.sh ccyolo`
+4. Run `claude` inside the bottle — verify OAuth copy/paste flow works (user copies URL from bottle terminal, pastes in workstation browser, copies code back)
+5. Verify Claude Code can reach Anthropic API
+6. Verify Claude Code cannot reach anything else (no npm registry, no github, no arbitrary hosts)
+7. Quench: `tt/rbw-cQ.Quench.ccyolo.sh`
+
+### Retire CCCK
+
+- Remove `Tools/ccck/` directory (cccw_workbench.sh and any other files)
+- Remove CCCK entries from `CLAUDE.md` file acronym mappings
+- Remove any CCCK zipper enrollments if they exist
+- Update any cross-references
+
+### Out of scope
+
+- Onboarding handbook content using ccyolo (that's the first crucible drafting/implementation paces)
+- Cloud Build ordination of ccyolo (kludge-only for now)
+- Enshrinement of ccyolo base image
+- Aggressive Claude Code permission configuration details (deferred to handbook pace where the learner experience is designed)
+
+### first-crucible-draft (₢A6AAC) [rough]
+
+## Character
+Second drafting pace, informed by real implementation lessons from ₢A6AAA and by the concrete infrastructure built in ₢A6AAG. By the time this pace runs, we have a working ccyolo vessel+nameplate and a verified kludge→charge→SSH cycle to draft against. Harder than the Crash Course draft because a learner track teaches a full role-intent, not just the foundation.
+
+## Docket
+
+Produce a draft of the "Start a Crucible Using Local Builds" handbook (`tt/rbw-Ofc.OnboardingFirstCrucible.sh`) at Frame 4-refined fidelity, ready for implementation review.
+
+### Prerequisites
+- ₢A6AAA complete and accepted (foundation: StartHere menu, Crash Course, credential install tabtargets)
+- ₢A6AAG complete (ccyolo vessel `rbev-bottle-ccyolo` and nameplate `.rbk/ccyolo/rbrn.env` exist; kludge→charge→SSH cycle verified)
+- Crash Course working in real bash code, informing this draft's structure
+
+### Target learner
+The **crucible explorer**: local standalone crucibles with kludged hallmarks, fast iteration for security exploration, no cloud. Zero registry, zero cloud — fully self-contained on the developer's workstation. This is the simplest complete learner path and the fastest feedback loop for the pedagogy heat.
+
+### Draft the handbook
+
+Full Frame 4-refined document covering the concrete step sequence established in the StartHere menu:
+
+**Step sequence** (from the StartHere menu bullets, now the canonical procedure shape):
+1. **Build images locally** — Kludge Sentry and Bottle vessels
+2. **Configure local network** — Amend the ccyolo Nameplate RBRN file with hallmarks
+3. **Start the sandbox** — Charge the Crucible
+4. **Enter the container via SSH** — Connect to the Bottle, run Claude Code, authenticate via OAuth copy/paste flow
+5. **Verify network containment** — Anthropic reachable, example.com reachable, everything else blocked
+6. **Quench** — clean shutdown
+
+### Operational lessons from ₢A6AAG (teach these)
+
+The following were discovered and verified during the ccyolo build. The handbook should teach them as first-class content, not footnotes.
+
+**Two kludge commands with different roles:**
+- `tt/rbw-fk.LocalKludge.sh rbev-sentry-debian-slim` — standalone vessel kludge. Produces a hallmark but does NOT drive it into any nameplate. The sentry image is shared across all nameplates, so kludging it is rare (only when sentry Dockerfile changes). The handbook teaches the manual sentry kludge once to show the full process.
+- `tt/rbw-cKB.KludgeBottle.sh ccyolo` — nameplate-aware bottle kludge. Builds the bottle vessel AND drives the hallmark into the nameplate's `rbrn.env` automatically. This is the common iteration loop — edit Dockerfile, notch, kludge, charge, test.
+
+**Manual hallmark drive for sentry:**
+After `rbw-fk` kludges the sentry, the learner must manually edit the nameplate to install the hallmark. The handbook should include a copy/paste command:
+```
+vi .rbk/ccyolo/rbrn.env
+```
+Edit `RBRN_SENTRY_HALLMARK=` to the hallmark printed by the kludge output. This is deliberately manual — it teaches what hallmarks are and where they live. The bottle kludge automates this same step, so the learner sees both the manual and automated paths.
+
+**Clean git tree required for kludge:**
+Kludge refuses to run with uncommitted changes (`git diff --quiet` guard). The handbook must teach the notch-before-kludge discipline. Include copy/paste git commands for continuity:
+```
+git add .rbk/ccyolo/rbrn.env
+git commit -m "Drive sentry hallmark into ccyolo nameplate"
+```
+(Or equivalent jjx_record if within a heat context.)
+
+**SSH entry, not docker exec:**
+The handbook teaches SSH via `tt/rbw-cS.SshTo.ccyolo.sh` as the primary entry method. Rack (`tt/rbw-cr.Rack.sh ccyolo`) is mentioned only as a diagnostic fallback. The *why* is a teachable moment: `docker exec -it` allocates a pseudo-TTY but does not propagate SIGWINCH (terminal window resize). This is a long-standing Docker limitation (moby/moby#35407, docker/cli#3554). Claude Code's interactive TUI depends on correct terminal dimensions — resizing the window after `docker exec` breaks the display. SSH provides a proper login session with full terminal negotiation, SIGWINCH propagation, and correct environment setup.
+
+**Network containment verification with example.com:**
+The ccyolo nameplate includes `example.com` in both `RBRN_UPLINK_ALLOWED_DOMAINS` and `RBRN_UPLINK_ALLOWED_CIDRS` as a deliberate test target. This lets the learner verify that the DNS/CIDR allowlist works for a non-Anthropic domain. The verification step should show:
+- `api.anthropic.com` → reachable (404 expected — API wants auth, not GET /)
+- `claude.ai` → reachable (403 expected — web app)
+- `example.com` → reachable (200)
+- `google.com` → blocked (000 / timeout)
+- `registry.npmjs.org` → blocked (000 / timeout)
+
+This demonstrates both the allowlist and the blocklist in one pass. The comment in `rbrn.env` explains example.com's test purpose.
+
+### Learning outcomes
+
+After completion, the learner can:
+- Kludge a local hallmark for sentry (manual process) and bottle (automated) vessels
+- Understand the three-container Crucible composition (sentry + pentacle + bottle) and what each does
+- Edit RBRN networking fields and drive hallmarks into a nameplate
+- Charge a crucible from a nameplate
+- SSH into the bottle and run Claude Code inside the sandbox
+- Verify network containment (allowed domains reachable, everything else blocked)
+- Quench the crucible cleanly
+- Iterate: edit Dockerfile → notch → kludge bottle → notch hallmark → charge → SSH → test
+
+### Key concepts to teach (vocabulary-first, relational)
+- Crucible — the composition of sentry + pentacle + bottle containers
+- Nameplate / RBRN — the file that defines a specific deployment target, including networking
+- Kludge mode — local hallmark synthesis without cloud build
+- Hallmark — the version tag that connects a nameplate to a specific built image
+- Charge / quench — lifecycle verbs for the crucible
+- Rack — docker exec into a running bottle (diagnostic fallback)
+- SSH entry — proper terminal access via sentry DNAT port forwarding
+- Sentry filtering — how network access is controlled (iptables + dnsmasq allowlist)
+- The local-vs-cloud distinction and why this track never touches cloud
+
+### Explicit non-goals
+- Vouching (cloud-only concept for this learner)
+- Enshrinement or reliquaries
+- Ordain modes other than kludge
+- SA credentials or RBRA placement
+- Any GAR interaction
+
+Draft as actual handbook output — the exact text a learner would see — wrapped in pseudo-bash indicating where `buh_*` calls would produce each line.
+
+### Identify infrastructure requirements
+
+List any probes, tabtargets, or helper functions that don't exist and need to be built in ₢A6AAD. Examples:
+- Is there a probe for "crucible is currently charged"? (`rbw-cic.CrucibleIsCharged` exists — verify suitability)
+- Is there a probe for "nameplate X exists"?
+- Is there a probe for "kludged hallmark is present for nameplate"?
+- Is there a probe for "port conflict with other charged crucibles"?
+
+Produce an inventory: "probes existing", "probes needed", "tabtargets needed".
+
+### Flag cross-track shared snippets
+
+If teaching content would naturally appear in multiple tracks (e.g., "what is a vessel," "what is a depot," "how RBRN networking works"), flag as candidates. Do NOT design the mechanism — just note candidates.
+
+### Voice check
+
+Teaching voice should match the crucible learner's energy: exploratory, fast-iteration, slightly irreverent. The learner is here to play with containers, not to set up production infrastructure.
+
+### Explicit assumptions
+Mark everything made up without user input. Key areas:
+- Unit ordering
+- Which concepts need their own unit vs being folded into another
+- Whether the RBRN editing step is a verified unit or teaching-only
+- How wait-time during charge is handled pedagogically
+
+### Out of Scope
+- Actual implementation (₢A6AAD)
+- Agent-learner eval design beyond what ₢A6AAA prototyped
+- Other learner tracks
+- Shared snippet mechanism design
+- Creating the ccyolo vessel/nameplate (₢A6AAG's job)
+
+## References
+- ₢A6AAA outcomes (StartHere menu step bullets, Crash Course structure, `buh_*` patterns)
+- ₢A6AAG outcomes (ccyolo vessel, nameplate, verified kludge→charge→SSH cycle, two spook fixes in rbob_cli.sh furnish)
+- `Tools/rbk/rbho_onboarding.sh` — `rbho_start_here()` step bullets as canonical procedure shape
+- `Tools/rbk/vov_veiled/RBSCC-crucible_charge.adoc` — crucible charge spec
+- `Tools/rbk/vov_veiled/RBSCN-crucible_enjoin.adoc` — crucible enjoin spec
+- `Tools/rbk/vov_veiled/RBSAK-ark_kludge.adoc` — kludge operation spec
+- `.rbk/tadmor/rbrn.env`, `.rbk/pluml/rbrn.env` — existing RBRN examples showing networking field patterns
+- `.rbk/ccyolo/rbrn.env` — the nameplate this handbook teaches (from ₢A6AAG)
+- `rbev-vessels/rbev-bottle-ccyolo/Dockerfile` — the bottle image this handbook teaches (from ₢A6AAG)
+- `tt/rbw-cS.SshTo.ccyolo.sh` — SSH entry tabtarget (from ₢A6AAG)
+- moby/moby#35407, docker/cli#3554 — docker exec SIGWINCH limitation (why SSH, not Rack)
+- ₣A6 paddock
+
+### first-crucible-implement (₢A6AAD) [rough]
+
+## Character
+Second implementation pace. By this point, Frame 4-refined is proven on Crash Course, and the First Crucible draft is reviewed and accepted. This pace is a larger build-out than `₢A6AAA` but lower-risk because patterns are established. The first full learner track to work end-to-end — the validation that the heat's core thesis (teach-first pedagogy) actually delivers.
+
+## Docket
+
+Implement the "Your First Crucible" handbook (`tt/rbw-Ofc.OnboardingFirstCrucible.sh`) from the draft produced in Pace `₢A6AAC`, plus any infrastructure identified as needed during that draft.
+
+### Prerequisites
+- Pace `₢A6AAC` complete and accepted
+- Pace `₢A6AAA` implementations stable (no regressions in Crash Course or OnboardingStartHere)
+
+### Implement `tt/rbw-Ofc.OnboardingFirstCrucible.sh`
+
+Following the same pattern established in Pace `₢A6AAA`:
+- Dispatch to new function in `rbho_onboarding.sh`: `rbho_first_crucible` (or similar)
+- Renders the full Frame 4-refined document from the Pace `₢A6AAC` draft
+- Probes embedded inline
+- Uses `buh_*` primitives for display
+- Register in `rbz_zipper.sh` under `RBZ__GROUP_ONBOARDING` as `RBZ_ONBOARD_FIRST_CRUCIBLE` (colophon `rbw-Ofc`)
+
+### Build out infrastructure identified in the draft
+
+From the Pace `₢A6AAC` draft's "probes needed" inventory, build only what's necessary:
+- Missing probes → add minimal probe functions to `rbho_onboarding.sh`
+- Missing tabtargets → only if they're essential to the crucible explorer path
+- Helper functions → scoped tightly, not generalized
+
+Do NOT generalize infrastructure beyond First Crucible's needs in this pace. The second track will tell us what to generalize; over-generalizing now risks building the wrong abstraction.
+
+### Update the menu
+
+`rbw-o.OnboardingStartHere.sh` menu from Pace `₢A6AAA` has "Your First Crucible" as a `[planned]` item. Replace the placeholder with a resolved `buh_tT` reference to `RBZ_ONBOARD_FIRST_CRUCIBLE`, drop the `[planned]` marker, and verify highlighting still works based on probe state.
+
+### Smoke testing
+
+Manual test scenarios:
+1. **Cold start**: fresh user runs `tt/rbw-o.OnboardingStartHere.sh`, picks First Crucible, works through the handbook, produces a running crucible. Every probe in the handbook should turn green by the end.
+2. **Return visit**: after charging a crucible, re-run `tt/rbw-Ofc.OnboardingFirstCrucible.sh`. Verify probes show green (crucible charged, nameplate present, etc.) and teaching content is still readable as reference.
+3. **Quench and retry**: quench the crucible, re-run the handbook. Verify probes correctly show mixed state (kludged hallmark present, but crucible not charged).
+4. **Fresh nameplate**: if multiple nameplates are supported, verify handbook works for each.
+
+Document observed behavior.
+
+### Agent-learner eval
+
+Run the prototype eval from `₢A6AAA` against the First Crucible handbook. Compare against Crash Course scores. Use the delta to sharpen the eval: a good track should score meaningfully higher on comprehension than a stripped variant.
+
+If the eval reveals systematic failures (agent can't understand what a crucible IS, agent fails to predict what `charge` does), note them — they're the next interview's material.
+
+### Success criteria
+- `tt/rbw-Ofc.OnboardingFirstCrucible.sh` renders a complete Frame 4-refined document
+- All probe states work correctly across cold-start, return, quench+retry, and fresh-nameplate scenarios
+- Menu from Pace `₢A6AAA` correctly routes and highlights First Crucible
+- Prototype eval produces scores and failure modes
+- A real human (user) walks through the track cold and produces a running crucible without outside help
+
+### Out of Scope
+- Other learner tracks
+- Full eval harness
+- Shared snippet mechanism
+- Generalizing any infrastructure beyond First Crucible's direct needs
+
+## References
+- Pace `₢A6AAC` draft
+- Pace `₢A6AAA` outputs (patterns, eval prototype, `rbho_onboarding.sh` post-Crash Course state)
+- `Tools/rbk/vov_veiled/RBSCC-crucible_charge.adoc`
+- `Tools/rbk/vov_veiled/RBSAK-ark_kludge.adoc`
+- `.rbk/tadmor/rbrn.env` — nameplate reference
+- `₣A6` paddock
+
+### interview-reconcile-post-fc (₢A6AAE) [rough]
+
+## Character
+Interview pace — distinct from drafting and implementing. This is where we pause after the first complete track lands and integrate what the implementation taught us. Reconciling built reality with planned design. A conversation pace, not a code-producing one, but one that directly unblocks subsequent drafting paces.
+
+## Docket
+
+After First Crucible ships as working code, open an interview session to absorb implementation learnings, refine the paddock, and spec the next track(s).
+
+### Prerequisites
+- Pace `₢A6AAD` complete and accepted
+- All three handbook tabtargets (`rbw-o.OnboardingStartHere.sh`, `rbw-Occ.OnboardingCrashCourse.sh`, `rbw-Ofc.OnboardingFirstCrucible.sh`) stable and exercised
+
+### Review what was built
+
+Walk through the outcomes of the first implementation cycle:
+- What did Frame 4-refined feel like in practice? Any friction?
+- What did the prototype eval reveal? Any surprises in agent scores?
+- What infrastructure ended up being built vs planned?
+- Where did the draft-then-implement gap show up? (i.e., what did the draft assume that implementation proved wrong?)
+- Which assumptions flagged in Paces `₢A6AAA` and `₢A6AAC` turned out right, which were wrong?
+
+### Refine the paddock
+
+Based on implementation lessons:
+- Update the Frame 4-refined design decision with concrete observations
+- Adjust per-unit brevity discipline if the measured length/readability didn't match the prediction
+- Refine the rough track roster if Crucible implementation revealed structural issues
+- Update open questions list — close answered ones, add newly-surfaced ones
+- Record any new technical terms discovered or vocabulary overloads caught
+
+### Pick the next track
+
+Candidates (in rough order of implementation ease):
+1. **Take Your Station** — shortest path, probe-heavy, exercises monotonic probe framing, minimal teaching
+2. **Establish the Depot** — highest-touch for first-time users, longest wall-clock (~15 min), most external dependencies (GCP, OAuth)
+3. **Knight the Realm** — governor administration, introduces Knight the Realm + Receive Your Knighthood pair
+
+Each choice has trade-offs:
+- Take Your Station tests probe framing but not teaching depth
+- Establish the Depot tests real-world applicability but adds cloud-flake risk
+- Knight the Realm exercises cross-track shared snippets (Secret Handling Primer appears in both governor-side and recipient-side tracks)
+
+Pick one or two based on what implementation lessons suggest would advance the heat most. Spec it at the level of the `₢A6AAC` docket.
+
+### Slate the next drafting pace
+
+Produce a gazette entry for the next track's draft pace, to be enrolled at the end of this interview pace. The pattern continues: draft → implement → reconcile, for each track in sequence.
+
+### Consider eval sophistication
+
+By this point, the prototype eval from `₢A6AAA` has run against two tracks. Is it time to graduate from prototype to real release gate? Or does the prototype still need more iteration?
+
+If graduating: slate a dedicated "eval-harness-formalize" pace that builds the release-gate mechanism properly. If not: note what the prototype still needs to learn before we commit to gate mechanics.
+
+### Wait-time pedagogy (defer or engage?)
+
+Establish the Depot and Tethered Cloud Builds both have real wall-clock wait times (15 min and 20 min respectively). The pedagogy for "what does the learner do during the wait" is an open question we haven't addressed. If the next track is one of these, this question becomes blocking. If the next track is Take Your Station, we can defer.
+
+### Record in paddock
+
+At the end of this pace, the paddock should be meaningfully updated with:
+- Concrete observations from implementation, not speculation
+- Next pace(s) slated and visible on the rail
+- A clearer picture of what the release gate looks like
+- Refined rough track roster
+
+### Out of Scope
+- Drafting the next track (that's the next drafting pace)
+- Implementing anything
+- Agent-learner eval harness beyond what's already running
+
+## References
+- Paces `₢A6AAA` through `₢A6AAD` outputs
+- `₣A6` paddock
+- Any new paddock/docket/gazette artifacts from subsequent officia working in this heat
+
+### handbook-final-docs-hygiene (₢A6AAF) [rough]
+
+## Character
+
+Final-pace finalizer for `₣A6`. Narrow, mostly mechanical audit of documentation surfaces against the handbook artifacts this heat produced. Runs **after all other A6 paces are wrapped** — the whole point is to catch stale references left behind once the handbook corpus has settled. Cognitive posture: patient, thorough, accepting that the work is sweeping rather than inventing.
+
+## Provenance
+
+This pace carries a three-heat lineage. Originally enrolled in `₣A3` as `₢A3AAF` ("docs-alignment-and-cross-machine-validation") covering five sections. Four sections (Dual-Mode Validation, Term Introduction Audit of current role-tracks, Cross-Machine Testing of role tracks, Dead code removal from `rbgm_onboarding()`) were **obsoleted** by the `₣A6` malformation insight — auditing role-track content is wasted effort if the role-track design itself is being replaced.
+
+Transferred A3 → A5 as `₢A5AAG` ("handbook-split-dangling-refs-audit") with narrowed scope focused on the `bug_*` → `buh_*` and `rbgm_*` → `rbho_*`/`rbhp_*` rename fallout. While in A5 it accreted 9 commits against the `₢A3AAF` coronet — those commits are baked into git history and attributable via the old coronet.
+
+Restrung A5 → A6 as `₢A6AAF` because the gravity had already shifted: the A5-framed docket was already defined in terms of "what did A6 land, what's still stale." That's A6 work wearing A5 clothing. Moving it here lets A5 retire on its own termination condition (readme-rewrite paces landing) without being blocked on A6's handbook corpus maturing.
+
+**Re-verify what the 9 pre-transfer commits already accomplished** before doing new work. `git log --grep 'A3AAF' --oneline` and inspect — the transferred commits may have handled some rename sweeps already.
+
+## Position on the Rail — Last Pace Discipline
+
+This pace is **deliberately positioned last** in `₣A6`. Do not mount it until:
+
+- All handbook implementation paces (`₢A6AAA`, `₢A6AAD`, and any later tracks added during interview-reconcile cycles) are wrapped
+- `₣A6`'s interview-reconcile paces have run and produced their paddock refinements
+- `₣A5`'s `readme-rewrite-*` paces are complete (the anchors this pace verifies are curated by A5; if A5 hasn't refreshed them, auditing resolution is premature)
+
+If new handbook tracks get enrolled during A6's interview cycles, this pace should be relocated to remain last. Its value is in being the sweep that catches everything the earlier work left behind, and that property only holds if it really is the last thing that runs.
+
+## ⚠ Vocabulary will have shifted by mount time
+
+This docket is written *before* the handbook corpus exists. When mounting, the first action is to **re-audit the vocabulary and reference lists in this docket** — they may be stale. Specifically:
+
+- A6 will have added new onboarding tabtargets under the two-colophon scheme (`rbw-o` + `rbw-O*`). The specific colophons (`rbw-Occ`, `rbw-Ofc`, etc.) will only be known at mount time.
+- A6 will have introduced new user-facing vocabulary (intent-based track names, per-track concepts) that wasn't defined at writing time.
+- `₣A5`'s `readme-rewrite-*` paces will have executed before this pace runs; the README structure and anchor landscape will reflect their work.
+- The old `rbw-gO*` tabtargets may or may not still exist depending on retirement decisions made during A6's later paces.
+
+**Recheck the sections below at mount time and update this docket in place before beginning work if anything is stale.**
+
+## Docket
+
+### Scope — three document surfaces
+
+#### 1. README.md dangling-reference sweep
+
+Search `README.md` for:
+
+- **Old symbol names from A3 renames**: `bug_*`, `zbug_*`, `ZBUG_*`, `bug_guide.sh` — should all have been renamed to `buh_*` / `zbuh_*` / `ZBUH_*` / `buh_handbook.sh`.
+- **Old module names from A3 split**: `rbgm_*`, `zrbgm_*`, `ZRBGM_*`, `rbgm_ManualProcedures.sh`, `rbgm_cli.sh` — should all be gone, replaced with `rbho_*` / `rbhp_*` or removed entirely.
+- **Obsolete tabtarget references**: any surviving `tt/rbw-gO*` invocation examples. If A6 has retired the old family by this point, they're dangling; if A6 has kept both live during transition, they're valid but stale-looking. Decide per-reference whether to update to the new `rbw-o` / `rbw-O*` scheme or remove.
+- **Anchor resolution**: every `buh_tlt` call in `rbho_onboarding.sh` (and anywhere else in the handbook corpus) that targets `${RBGC_PUBLIC_DOCS_URL}#{Anchor}` — verify the anchor exists in the refreshed README. Cross-reference against A6 paddock's "Public-Docs Anchor Coordination with `₣A5`" section, which is the shared truth between the two heats.
+
+#### 2. CLAUDE.consumer.md colophon table
+
+- The table auto-regenerates from `Tools/rbk/rbz_zipper.sh`. Run the regenerator and verify the output matches expectations.
+- RBGM-era colophons should be **gone** (`rbw-go`, `rbw-gO*`, `rbw-gP*`, `rbw-gq` — if any still appear, either A6 kept them intentionally during transition or retirement is incomplete; flag for decision).
+- New handbook colophons from A6 (`rbw-o`, `rbw-O*` family members) should be **present** with correct frontispieces and purpose text.
+- If the colophon table is stale, regenerate it and commit.
+
+#### 3. Tabtarget existence integrity
+
+- Run `ls tt/` and cross-reference against every tabtarget path mentioned in `README.md`, `CLAUDE.consumer.md`, and any public docs that reference Recipe Bottle tabtargets.
+- Flag any reference pointing at a file that doesn't exist.
+- Fix obvious typos and path errors.
+- Any remaining forward-looking references (to tabtargets A6 defined in paddock but never built because the track was deferred or dropped) should be removed — there should be no "planned" tabtarget references surviving this pace, because A6 is the heat responsible for producing them.
+
+### Anchor coordination verification
+
+Cross-reference against the A6 paddock's "Public-Docs Anchor Coordination with `₣A5`" section:
+
+- **Existing anchors** (live at A6 start): verify none were broken by A5's README refresh.
+- **New-for-Crash-Course anchors** (`Tabtarget`, `Regime`, `RBRR`, `BURC`, `BURS`, `MarshalZero`, `DiagnosticFailure`): verify A5 added them and A6's handbook consumers resolve to them.
+- **New-for-later-tracks anchors** (`Crucible`, `Kludge`, `Ordain`, etc.): verify each one consumed by A6 handbooks has a matching A5 anchor.
+
+This section is the load-bearing coupling between the two heats. If the coupling is broken, this pace is where it gets caught.
+
+### Out of Scope
+
+- **Dual-mode validation** — obsoleted by Frame 4-refined (the whole point of the A6 restart).
+- **Term introduction audit of old role-track content** — the old tracks are either retired or coexist with the new tracks as legacy; auditing them is wasted effort.
+- **Cross-machine testing of role tracks** — same reason.
+- **Dead code removal from `rbgm_onboarding()`** — absorbed by `₢A3AAJ` (already wrapped).
+- **Inventing new anchors or concepts** — this pace audits, it does not extend vocabulary.
+- **Rewriting README prose** — that's A5's job; this pace checks that what A5 wrote and what A6 consumes agree.
+
+### Validation gates
+
+- `ls tt/` matches all README and CLAUDE.consumer.md references with zero dangling paths.
+- `grep -rn 'bug_\|rbgm_\|zbug_\|zrbgm_\|bug_guide' README.md CLAUDE.consumer.md` returns nothing (or only acceptable historical references in changelogs).
+- Every anchor consumed by A6 handbooks exists in the refreshed README.
+- CLAUDE.consumer.md colophon table reflects current `rbz_zipper.sh` state.
+
+### Inventory questions to answer at mount time
+
+Before deciding what work remains, answer:
+
+1. What did the 9 pre-transfer commits (against `₢A3AAF`) actually accomplish? `git log --grep 'A3AAF' --oneline` and inspect.
+2. Which items in sections 1–3 of this docket are already done by those commits or by later A5/A6 work?
+3. What's the final state of `₣A6`'s handbook corpus? Which tabtargets actually shipped? Which were planned but dropped?
+4. Has `₣A5` retired? Are all `readme-rewrite-*` paces landed? If not, this pace is being mounted too early.
+5. Did A6 retire the `rbw-gO*` family, or does it still coexist with the new `rbw-o` / `rbw-O*` scheme?
+
+## References
+
+### Lineage
+- `₣A3` (retired) — original home as `₢A3AAF`; commit history attributable via grep
+- `₣A5` (retiring or retired) — intermediate home as `₢A5AAG`; scope narrowing happened here
+- `₢A3AAI` — `bug_*` → `buh_*` rename, source of one class of rename fallout
+- `₢A3AAJ` — `rbgm_*` → `rbho_*` / `rbhp_*` split, source of another class of rename fallout
+
+### A6 coordination
+- `₣A6` paddock — "Public-Docs Anchor Coordination with `₣A5`" section is the shared anchor truth
+- `₢A6AAA`, `₢A6AAD`, and any later A6 track-implementation paces — produce the handbook corpus this pace audits
+- `₢A6AAE` — interview-reconcile-post-fc; this pace runs after that or any later interview-reconcile paces
+
+### Audit targets
+- `README.md` — consumer-facing glossary and setup instructions
+- `CLAUDE.consumer.md` — auto-generated colophon table, sourced from `Tools/rbk/rbz_zipper.sh`
+- `Tools/rbk/rbho_onboarding.sh` — all `buh_tlt` call sites that reference anchors
+- `tt/` — authoritative tabtarget inventory
+- `Tools/rbk/rbz_zipper.sh` — colophon registry
+
+### External
+- Public project page: `https://scaleinv.github.io/recipebottle` — destination of `RBGC_PUBLIC_DOCS_URL` links
+
+File-touch bitmap (x = pace commit touched file):
+
+  1 A menu-and-crash-course-draft
+  2 K buv-secret-enroll-type
+  3 G ccyolo-vessel-and-nameplate
+
+AKG
+x·x README.md
+··x .dockerignore, CLAUDE.md, Dockerfile, ccck-s.ConnectShell.sh, cccw_workbench.sh, compose.yml, docker-compose.yml, entrypoint.sh, launcher.cccw_workbench.sh, rbob_cli.sh, rbrn.env, rbrv.env, rbw-cC.Charge.ccyolo.sh, rbw-cQ.Quench.ccyolo.sh, rbw-cS.SshTo.ccyolo.sh, requirements.md
+·x· bupr_PresentationRegime.sh, buv_validation.sh, rbra_regime.sh
+x·· bud_dispatch.sh, buh_handbook.sh, bul_nolog_launcher.sh, launcher_nolog.rbw_workbench.sh, rbho_onboarding.sh, rbk-claude-tabtarget-context.md, rbw-Occ.OnboardingConfigureEnvironment.sh, rbw-Occ.OnboardingCrashCourse.sh, rbw-Ocd.OnboardingCredentialDirector.sh, rbw-Ocr.OnboardingCredentialRetriever.sh, rbw-Ofc.OnboardingFirstCrucible.sh, rbw-o.ONBOARDING.sh, rbw-o.OnboardingStartHere.sh, rbz_zipper.sh
+
+Commit swim lanes (x = commit affiliated with pace):
+
+(showing last 35 of 65 commits)
+
+  1 A menu-and-crash-course-draft
+  2 K buv-secret-enroll-type
+  3 G ccyolo-vessel-and-nameplate
+
+123456789abcdefghijklmnopqrstuvwxyz
+xxxxxxxxxxx··x·xxxxxx·············x  A  19c
+············x·x····················  K  2c
+······················xxxxxxxxxxxx·  G  12c
+

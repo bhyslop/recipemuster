@@ -1,0 +1,769 @@
+115-
+116-### Boilerplate Functions (one per module/CLI)
+117-
+118-| Function             | Location       | First Line                                         | Can Source?       | Can use buc_step? | Purpose                                          |
+119-|----------------------|----------------|----------------------------------------------------|-------------------|-------------------|--------------------------------------------------|
+120:| `z«prefix»_kindle`   | Implementation | `test -z "${Z«PREFIX»_KINDLED:-}" \|\| buc_die`    | Yes (credentials) | No (use buc_log_*)| Define all kindle constants, set module state    |
+121:| `z«prefix»_sentinel` | Implementation | `test "${Z«PREFIX»_KINDLED:-}" = "1" \|\| buc_die` | No                | No                | Guard all other functions                        |
+122-| `z«prefix»_enforce`  | Implementation | `z«prefix»_sentinel`                               | No                | No                | Validate sourced config (regime archetype only)  |
+123-| `z«prefix»_furnish`  | CLI only       | `buc_doc_env...`                                   | Yes (all deps)    | No                | Document env vars, source all deps, kindle       |
+124:| Module header        | Implementation | `test -z "${Z«PREFIX»_SOURCED:-}" \|\| buc_die`    | No                | N/A               | Prevent multiple inclusion                       |
+125-| CLI header           | CLI            | `set -euo pipefail`                                | Yes (buc_command)  | N/A               | Source buc_command.sh only                       |
+126-
+127-**Kindle constant**: Any variable — internal (`Z«PREFIX»_SCREAMING_NAME`) or public (`«PREFIX»_SCREAMING_NAME`) — defined exclusively within the kindle function with `readonly`. No other function — including enroll, setup, or helper functions — may assign to kindle constants. This ensures module state is fully determined at kindle time and visible in one place.
+128-
+129-**Mutable kindle state**: A variable initialized in kindle but intentionally mutated after kindle returns (counters, accumulators, registry rolls, builder state). Uses **lowercase** `z_«prefix»_name` to visually distinguish from `readonly` kindle constants. Never apply `readonly` to mutable kindle state.
+--
+203-  # Source all dependencies
+204-  source "${BURD_BUK_DIR}/buv_validation.sh"
+205-  source "${BURD_BUK_DIR}/«prefix»_«name».sh"
+206-
+207-  # Source regime files, if any
+208:  source "${«PREFIX»_REGIME_FILE}" || buc_die "Failed to source regime file"
+209-
+210-  z«prefix»_kindle
+211-  z«prefix»_enforce  # Regime archetype: ironclad gate after kindle (omit if no regime)
+212-}
+213-
+--
+231-  buc_doc_env "BURD_TOOLS_DIR        " "Project tools root directory (dispatch-provided)"
+232-  buc_doc_env "«PREFIX»_REGIME_FILE " "Module configuration file"
+233-  buc_doc_env_done || return 0
+234-
+235-  # Always source light dependencies
+236:  source "${«PREFIX»_REGIME_FILE}" || buc_die "Failed to source regime"
+237:  source "${BURD_BUK_DIR}/buv_validation.sh" || buc_die "Failed to source validation"
+238-
+239-  # Conditionally source heavy dependencies based on command
+240-  case "${z_command}" in
+241-    «prefix»_survey|«prefix»_audit)
+242-      # These commands need GCP and OAuth infrastructure
+243:      source "${BURD_TOOLS_DIR}/some/heavy_dep.sh" || buc_die "Failed to source heavy deps"
+244-      zheavy_kindle
+245-      ;;
+246-    «prefix»_validate|«prefix»_render)
+247-      # These commands work with config only
+248-      ;;
+--
+272-# «copyright»
+273-
+274-set -euo pipefail
+275-
+276-# Multiple inclusion detection
+277:test -z "${Z«PREFIX»_SOURCED:-}" || buc_die "Module «prefix» multiply sourced - check sourcing hierarchy"
+278-Z«PREFIX»_SOURCED=1
+279-
+280-# Tinder constants (pure string literals, no variable expansion — available at source time)
+281-# «PREFIX»_some_path="fixed-filename.env"
+282-# «PREFIX»_some_prefix="prefix_"
+283-
+284-######################################################################
+285-# Internal Functions (z«prefix»_*)
+286-
+287-z«prefix»_kindle() {
+288:  test -z "${Z«PREFIX»_KINDLED:-}" || buc_die "Module «prefix» already kindled"
+289-
+290-  # Validate only the BURD variables actually used
+291-  buv_dir_exists "${BURD_TEMP_DIR}"   # If using temp files
+292-  buv_dir_exists "${BURD_OUTPUT_DIR}"  # If producing outputs
+293:  test -n "${BURD_NOW_STAMP:-}" || buc_die "BURD_NOW_STAMP is unset"  # If using timestamps
+294-
+295-  # Validate module specific environment
+296-  buv_file_exists "${«PREFIX»_REGIME_FILE}"  # If present
+297-
+298-  # Source credentials into environment only - never write to disk
+299:  source "${REGIME_CRED_FILE}" || buc_die "Failed to source credentials"
+300-
+301-  # Kindle constant (public — safe to read from other modules; never a secret)
+302-  «PREFIX»_PUBLIC_SELECTED_NAME="some-specific-name"
+303-
+304-  # Kindle constants (internal)
+--
+312-
+313-  Z«PREFIX»_KINDLED=1
+314-}
+315-
+316-z«prefix»_sentinel() {
+317:  test "${Z«PREFIX»_KINDLED:-}" = "1" || buc_die "Module «prefix» not kindled - call z«prefix»_kindle first"
+318-}
+319-
+320-# Helper functions follow
+321-
+322-######################################################################
+--
+333-  buc_doc_param "«required_arg»" "«one_line_description»"
+334-  buc_doc_oparm "«optional_arg»" "«one_line_description»"
+335-  buc_doc_shown || return 0
+336-
+337-  # Implementation
+338:  test -n "${z_param1}" || buc_die "Parameter 'param1' is required"
+339-
+340-  buc_step "«user_visible_milestone»"
+341-  buc_log_args "«detailed_progress_information»"
+342:  [command] || buc_die "«failure_explanation»"
+343-
+344-  buc_success "«success_message»"
+345-}
+346-```
+347-
+--
+433-# ❌ NEVER use local -i — silently coerces non-integer values to 0
+434-local -i z_count="${z_input}"  # "abc" becomes 0 — violates no-silent-failures!
+435-
+436-# ✅ Use plain local with explicit validation
+437-local z_count="${z_input}"
+438:test "${z_count}" -ge 0 2>/dev/null || buc_die "z_count must be non-negative integer, got: ${z_count}"
+439-
+440-# ✅ Two-line pattern for captured values (explicit and debuggable)
+441-local z_token
+442:z_token=$(zauth_get_token_capture) || buc_die "Failed to capture token"
+443-
+444-# ❌ NEVER combine declaration with capture
+445-local z_token=$(zauth_get_token_capture)  # Hides exit status!
+446-
+447-# From file using builtin $(<file) - NOT command substitution, a bash builtin
+448-local z_content=$(<"${Z«PREFIX»_TEMP_FILE}")
+449:test -n "${z_content}" || buc_die "Failed to read or empty: ${Z«PREFIX»_TEMP_FILE}"
+450-
+451-# Never split declaration from $(<file) assignment
+452-# ❌ local z_content
+453-# ❌ z_content=$(<"${Z«PREFIX»_FILE}")  # Unnecessary verbosity
+454-
+455-# Use Capture functions for secrets that must never touch disk
+456-local z_token
+457:z_token=$(zauth_get_token_capture) || buc_die "Failed to capture token"
+458-
+459-# Temp files INSTEAD of command substitution holds intermediate results
+460-echo "${z_result}" > "${Z«PREFIX»_RESULT_FILE}"
+461:complex_command > "${Z«PREFIX»_TEMP1}" || buc_die "Complex command failed"
+462:process < "${Z«PREFIX»_TEMP1}" > "${Z«PREFIX»_TEMP2}" || buc_die "Process failed"
+463-local z_result=$(<"${Z«PREFIX»_TEMP2}")
+464:test -n "${z_result}" || buc_die "Failed to read or empty: ${Z«PREFIX»_TEMP2}"
+465-```
+466-
+467-### Prefer Bash Builtins Over External Tools
+468-
+469-```bash
+--
+474-"${z_string#prefix}"               # Instead of: sed 's/^prefix//'
+475-"${z_string%suffix}"               # Instead of: sed 's/suffix$//'
+476-
+477-# ✅ Reading lines with 'read' — guard handles missing trailing newline
+478-while IFS= read -r z_line || test -n "${z_line}"; do
+479:  echo "Processing: ${z_line}" || buc_die "Failed to echo line"
+480-done < "${Z_MODULE_INPUT_FILE}"
+481-
+482-# ✅ Arithmetic with $((...))
+483-z_result=$((z_value * 2 + 10))    # Instead of: expr or bc
+484-```
+485-
+486-### Temp Files Instead of Command Substitution
+487-
+488:[Omitted long matching line]
+489-
+490-```bash
+491-# ❌ Anti-pattern: nested command substitution
+492-z_result=$(echo $(complex_command) | process)  # Hidden failures!
+493-
+494-# ❌ Anti-pattern: unguarded command substitution
+495-z_timestamp=$(date +%s)  # Failure is silent!
+496-
+497-# ✅ Correct: temp files make failures visible afterward
+498:complex_command > "${Z_MODULE_TEMP1}" || buc_die "Complex command failed"
+499:process < "${Z_MODULE_TEMP1}" > "${Z_MODULE_TEMP2}" || buc_die "Process failed"
+500:read -r z_result < "${Z_MODULE_TEMP2}" || buc_die "No result"
+501-
+502-# ✅ Correct: single external command via temp file
+503:date +%s > "${Z_MODULE_TEMP1}" || buc_die "Failed to get timestamp"
+504-local -r z_timestamp=$(<"${Z_MODULE_TEMP1}")
+505:test -n "${z_timestamp}" || buc_die "Empty timestamp"
+506-
+507-# ⚠️ EXCEPTION: Secrets use _capture functions, never temp files
+508:# ⚠️ EXCEPTION: _recite functions return via stdout (read-only roll access)
+509-```
+510-
+511-**Temp file lifecycle**: Temp files under `BURD_TEMP_DIR` are **preserved after execution** for forensic debugging. Never delete temp files in module code — their persistence is intentional. Cleanup is handled by infrastructure outside BCG's scope.
+512-
+513-### Stderr Capture — Never Suppress
+514-
+515:Never use `2>/dev/null` on external commands. Redirect stderr to a temp file so forensic evidence is preserved when commands fail. Include the stderr file path in the `buc_die` message so the user can inspect it.
+516-
+517-```bash
+518-# ❌ Anti-pattern: stderr suppressed — failure cause invisible
+519-curl -sS "${z_url}" -o "${z_output_file}" 2>/dev/null \
+520:  || buc_die "Failed to fetch ${z_url}"
+521-
+522-# ✅ Correct: stderr captured to temp file, referenced in die message
+523-curl -sS "${z_url}" -o "${z_output_file}" 2>"${z_stderr_file}" \
+524:  || buc_die "Failed to fetch ${z_url} — see ${z_stderr_file}"
+525-```
+526-
+527-**Stderr file naming**: Use a kindle `_PREFIX` constant (grouped with other temp file prefixes for collision visibility) and append a discriminator at the usage site.
+528-
+529-**In loops**, use an auto-incrementing integer for uniqueness rather than trusting loop data values to be unique:
+--
+538-  local z_manifest_file="${Z«PREFIX»_«COMMAND»_PREFIX}${z_index}_manifest.json"
+539-  local z_stderr_file="${Z«PREFIX»_«COMMAND»_PREFIX}${z_index}_inspect_stderr.txt"
+540-
+541-  docker manifest inspect "${z_image}:${z_tag}" \
+542-    > "${z_manifest_file}" 2>"${z_stderr_file}" \
+543:    || buc_die "Failed to inspect ${z_image}:${z_tag} — see ${z_stderr_file}"
+544-
+545-  z_index=$((z_index + 1))
+546-done
+547-```
+548-
+--
+586-  ...
+587-done
+588-
+589-# Exception 3: Two-line capture pattern (readonly would lock empty value)
+590-local z_token
+591:z_token=$(zauth_get_token_capture) || buc_die "Failed to capture token"
+592-
+593-# Exception 4: Accumulators and state-tracking flags
+594-local z_any_failed=0
+595-local z_current_group=""
+596-```
+--
+601-
+602-Every variable assigned in a kindle function is a constant. Apply `readonly` to every assignment — whether the value is a literal, computed from other variables, or composed from prior assignments:
+603-
+604-```bash
+605-z«prefix»_kindle() {
+606:  test -z "${Z«PREFIX»_KINDLED:-}" || buc_die "Module «prefix» already kindled"
+607-
+608-  # Simple kindle constants (literal values, but defined in kindle for readonly enforcement)
+609-  readonly Z«PREFIX»_API_VERSION="v2"
+610-  readonly Z«PREFIX»_MAX_RETRIES=3
+611-
+--
+630-
+631-**Convention**: Mutable kindle state uses **lowercase** `z_«prefix»_name`. Constants use **UPPERCASE** `readonly Z«PREFIX»_NAME`. Case alone signals mutability.
+632-
+633-```bash
+634-z«prefix»_kindle() {
+635:  test -z "${Z«PREFIX»_KINDLED:-}" || buc_die "Module «prefix» already kindled"
+636-
+637-  # ✅ Kindle constants — UPPERCASE, readonly
+638-  readonly Z«PREFIX»_TEMP_PREFIX="${BURD_TEMP_DIR}/«prefix»_"
+639-
+640-  # ✅ Mutable kindle state — lowercase, NO readonly
+--
+702-| Type      | Pattern                        | First Line           | Returns                      | buc_step                  | Contract                            |
+703-|-----------|--------------------------------|----------------------|------------------------------|---------------------------|-------------------------------------|
+704-| Predicate | `[z]«prefix»_«name»_predicate` | `z«prefix»_sentinel` | 0=true, 1=false              | No (use buc_log_«source») | Never dies, status only             |
+705-| Capture   | `[z]«prefix»_«name»_capture`   | `z«prefix»_sentinel` | stdout once at end or exit 1 | No (use buc_log_«source») | Clean error handling, single return |
+706-| Enroll    | `[z]«prefix»_[«scope»_]enroll` | `z«prefix»_sentinel` | `z_«funcname»_«retval»` vars | No (use buc_log_«source») | Mutates rolls (parallel arrays) in kindle only; returns via variables |
+707:| Recite    | `[z]«prefix»_«what»_recite`    | `z«prefix»_sentinel` | stdout or exit 1             | No (use buc_log_«source») | Read-only access to rolls; never mutates |
+708-| Litmus predicate | `z«tb»_«name»_litmus_predicate` | —              | 0=proceed, 1=skip            | No                        | Reusable, composable; never dies, no output |
+709-| Fixture baste | `z«tb»_«name»_baste`         | —                   | — (side effects only)        | Optional                  | Fixture subshell; kindle, source, configure |
+710-| Tcase     | `«tc»_«name»_tcase`           | —                    | — (exit status to suite)     | No                        | Case subshell; assertions, verification |
+711-
+712----
+--
+723-
+724-  # Process and validate internally
+725-  local z_result
+726-  z_result=$(some_command | process) || return 1
+727-
+728:  # Validate without buc_die
+729-  test -n "${z_result}" || return 1
+730-
+731-  # Single output at end
+732-  echo "${z_result}"
+733-}
+734-
+735-# Caller uses two-line pattern
+736-local z_value
+737:z_value=$(z«prefix»_«name»_capture) || buc_die "Failed to capture value"
+738-```
+739-
+740-**Use capture functions for:**
+741-- Secrets that must never touch disk
+742-- Values requiring command substitution or pipeline processing
+743-- Any computed value where clean error handling matters
+744-
+745-**Contract:**
+746-- Returns stdout once at end or exits with status 1
+747:- Never uses `buc_die` internally
+748-- No side effects beyond the returned value
+749-- May source credential files when necessary for security
+750-- May use `buc_log_«source»` for forensic trail (writes to transcript file only)
+751-- Never writes secrets to disk
+752-- Never writes to stderr
+--
+770-
+771-# Caller uses in conditionals
+772-z«prefix»_file_valid_predicate "${z_config}" || buc_warn "Config invalid, using defaults"
+773-```
+774-
+775:#### Enroll Functions (kindle-only registry population)
+776-
+777-**Purpose**: Populate parallel-array registries (rolls) during module initialization. Enroll functions solve the subshell problem: when a function both mutates shared state and returns a value, calling it in `$()` loses the mutations.
+778-
+779-**The parallel-array registry pattern (rolls)**:
+780-- Kindle initializes N empty arrays (rolls) of the same length
+--
+785-**Example** (using synthetic notation — «reg» owns the rolls, «con» consumes them):
+786-
+787-```bash
+788-# Module «reg» — owns the rolls
+789-z«reg»_kindle() {
+790:  test -z "${Z«REG»_KINDLED:-}" || buc_die "already kindled"
+791-
+792-  z_«reg»_name_roll=()
+793-  z_«reg»_target_roll=()
+794-  z_«reg»_handler_roll=()
+795-
+--
+801-  z«reg»_sentinel   # Safe: «reg» is already kindled when consumer calls this
+802-
+803-  local z_name="${1:-}"
+804-  local z_target="${2:-}"
+805-  local z_handler="${3:-}"
+806:  test -n "${z_name}" || buc_die "enroll: name required"
+807-
+808-  # Registration-time validation
+809:  declare -F "${z_handler}" >/dev/null || buc_die "enroll: handler not found: ${z_handler}"
+810-
+811-  z_«reg»_name_roll+=("${z_name}")
+812-  z_«reg»_target_roll+=("${z_target}")
+813-  z_«reg»_handler_roll+=("${z_handler}")
+814-
+--
+816-  z_«reg»_enroll_name="${z_name}"
+817-}
+818-
+819-# Module «con» — consumes the registry
+820-z«con»_kindle() {
+821:  test -z "${Z«CON»_KINDLED:-}" || buc_die "already kindled"
+822-
+823-  # «reg» must be kindled first (rolls initialized, sentinel passes)
+824-  «reg»_enroll "alpha" "/path/alpha" "handle_alpha"
+825-  Z«CON»_DEFAULT="${z_«reg»_enroll_name}"
+826-
+--
+832-
+833-**Key constraints**:
+834-- Enroll functions may ONLY be called within kindle
+835-- Rolls are initialized in kindle, populated by enroll in kindle, then immutable after kindle completes
+836-- Enroll functions work exclusively with rolls (parallel arrays) — no other shared state mutation
+837:- Registration-time validation: check invariants at enroll time, not at recite/execution time
+838-- Return values use `z_«funcname»_«retval»` convention (function name embedded verbatim for traceability)
+839-- Must NOT be called inside `$()` — side effects would be lost
+840:- May use `buc_die` internally (unlike `_capture`)
+841-
+842-**Two-level registries**: When entities have parent-child relationships (e.g., groups containing items), use two flat registries with a foreign-key column rather than per-parent dynamic arrays. This avoids `eval` and stays bash 3.2 safe.
+843-
+844-**Contract summary**:
+845-- Mutates rolls (parallel arrays) only
+--
+852-**Purpose: Provide read-only access to roll arrays populated by enroll functions.**
+853-
+854-Recite functions are the only access path to rolls after kindle completes. They must never mutate roll arrays.
+855-
+856-```bash
+857:«prefix»_«what»_recite() {
+858-  z«prefix»_sentinel
+859-
+860-  local z_key="${1:-}"
+861-  test -n "${z_key}" || return 1
+862-
+--
+869-  return 1
+870-}
+871-
+872-# Caller uses two-line capture pattern
+873-local z_target
+874:z_target=$(«prefix»_target_recite "alpha") || buc_die "not found"
+875-```
+876-
+877-**Contract:**
+878-- Read-only: MUST NOT mutate roll arrays or any shared state
+879-- Returns via echo (like capture functions) — safe to call in `$()`
+880:- Returns 1 on not-found (like `_capture`) — never uses `buc_die` internally
+881:- Caller decides error handling: `|| buc_die` or conditional
+882-- Usable anywhere after kindle completes (not restricted to kindle)
+883-
+884----
+885-
+886-## When to Use Special Functions
+887-
+888-- **_capture**: Need a value that requires command substitution or clean error handling
+889-- **_predicate**: Need true/false for conditional logic without dying
+890-- **_enroll**: Populate parallel-array registries (rolls) during kindle with validated inputs and return values
+891:- **_recite**: Read-only access to roll arrays populated by enroll functions
+892-- **_litmus_predicate**: Fixture precondition check in parent shell (0=proceed, 1=skip); reusable, composable
+893-- **_baste**: Fixture preparation inside fixture subshell (kindle, source, configure)
+894-- **_tcase**: Test case verification function inside `_tcase` subshell
+895:- **Neither**: Use temp files for multi-step pipelines, direct `|| buc_die` for simple failures
+896-
+897-## Naming Convention Patterns
+898-
+899-### ✅ Correct Patterns
+900-
+--
+914-| Kindle constant (internal)   | `Z«PREFIX»_«NAME»`           | `ZRBV_TEMP_FILE`             | Impl     | SCREAMING_SNAKE (multi-word)  |
+915-| Kindle constant (public)     | `«PREFIX»_«NAME»`            | `RBV_REGIME_FILE`            | Both     | SCREAMING_SNAKE (multi-word)  |
+916-| Tinder constant (public)     | `«PREFIX»_«name»`            | `RBBC_rbrr_file`             | Impl     | lower_snake (multi-word)      |
+917-| Local parameters             | `z_«name»`                   | `z_vm_name`, `z_force_flag`  | Both     | snake_case (multi-word)       |
+918-| Enroll functions             | `[z]«prefix»_[«scope»_]enroll` | `«prefix»_enroll`          | Impl     | kindle-only                   |
+919:| Recite functions             | `[z]«prefix»_«what»_recite`  | `«prefix»_target_recite`     | Impl     | read-only, never mutates      |
+920-| Roll arrays                  | `z_«prefix»_«name»_roll`     | `z_rbv_target_roll`          | Impl     | snake_case, kindle-only       |
+921-| Enroll return vars           | `z_«funcname»_«retval»`      | `z_«prefix»_enroll_name`     | Impl     | snake_case (func name verbatim)|
+922-| Testbench file               | `«prefix»tb_testbench.sh`    | `rbtb_testbench.sh`          | N/A      | fixed name                    |
+923-| Test case file               | `«prefix»tc«xx»_«Name».sh`  | `rbtckk_KickTires.sh`        | N/A      | PascalCase name               |
+924-| Litmus predicate             | `z«tb»_«name»_litmus_predicate` | `zrbtb_container_runtime_litmus_predicate` | Testbench| snake_case, parent layer |
+--
+960-
+961-### ✅ Use test Command instead of `[[ xxx ]]/fi` where possible
+962-
+963-```bash
+964-# Error, warning, and optional reporting
+965:test -f "${z_file}" || buc_die "File not found"
+966-test "${z_var}" = "expected" || buc_warn "Unexpected value"
+967-test -n "${z_param}" || buc_step "Running with zero length parameter"
+968-```
+969-
+970-### ✅ Exception: Pattern Matching Only
+--
+985-# Never use test with command substitution that might expand to empty
+986-# test with ZERO arguments returns TRUE (exit 0) — silent pass landmine
+987-test $(echo "${z_val}" | grep -E '^pattern$')  # ❌ Succeeds when grep matches nothing!
+988-
+989-# ✅ Use exit-status predicates instead
+990:echo "${z_val}" | grep -qE '^pattern$' || buc_die "Invalid format"
+991-
+992-# ✅ Or use case statement for pattern matching
+993-case "${z_val}" in
+994-  *pattern*) buc_log_args "Found pattern" ;;
+995:  *) buc_die "Pattern not found" ;;
+996-esac
+997-```
+998-
+999-**Note**: Use `=` not `==` in test expressions for POSIX compliance.
+1000-
+--
+1013-### ✅ Legitimate Subshell Uses
+1014-
+1015-The prohibition above is specific to error-handling blocks where `exit`/`return` must reach the calling shell. Subshells are legitimate in these contexts:
+1016-
+1017-- **Test execution** — principled isolation between suites and cases; see **Test Execution Patterns**
+1018:- **`$()` command substitution** — inside `_capture`/`_recite` functions only, or bash introspection (`compgen`, `declare -F`, `mktemp`); see **Capture Functions** and **Command Substitution Rules** checklist
+1019-- **Isolation subshells** — environment containment with exit-status propagation (below)
+1020-
+1021-#### Isolation Subshells (environment containment)
+1022-
+1023-When a sequence of commands mutates the shell environment (sourcing files, `cd`, venv activation, `export`), a subshell prevents those mutations from leaking into subsequent commands. The exit status propagates across the `)` boundary, so the caller can detect and handle failures.
+--
+1027-**Two variants** — same principle, different caller handling:
+1028-
+1029-```bash
+1030-# Variant 1: Error propagation — die on any internal failure
+1031-(
+1032:  source "${z_config_file}" || buc_die "Failed to source: ${z_config_file}"
+1033:  «prefix»_operation || buc_die "Operation failed"
+1034:) || buc_die "Isolation subshell failed"
+1035-
+1036-# Variant 2: Status capture — caller inspects and decides
+1037-local z_status=0
+1038-(
+1039:  source "${z_config_file}" || buc_die "Failed to source: ${z_config_file}"
+1040:  «prefix»_operation || buc_die "Operation failed"
+1041-) || z_status=$?
+1042-```
+1043-
+1044:Inside the subshell, `buc_die` calls `exit` which terminates only the subshell — producing a non-zero exit status that the outer `|| buc_die` or `|| z_status=$?` catches. Failure propagates through exit status, not through `exit` reaching the parent.
+1045-
+1046-**Constraints:**
+1047:- Every command inside must have explicit `|| buc_die` — `set -e` is suppressed inside `( ... ) ||` (as with all BCG code, never rely on it)
+1048:- The outer boundary must have `|| buc_die` or `|| z_status=$?` — never leave the subshell exit status unchecked
+1049-- Sourcing inside the subshell is permitted (this is a primary use case — isolation prevents sourced variables from leaking)
+1050-- Keep subshell bodies short and focused — if the body grows complex, delegate to a CLI script via `exec`
+1051:- `$( ... ) || buc_die` is legitimate when you need both isolation and output capture — `$()` is a subshell, so isolation holds and the two-line capture pattern applies
+1052-
+1053-**Use cases:**
+1054-- Iterating config files that define overlapping variables (e.g., sourcing each nameplate `.env` in a loop)
+1055-- Running commands that require `cd` to a different directory
+1056-- Activating a virtual environment for a single operation
+--
+1061-```bash
+1062-# ❌ Failures inside subshell are silent — source or echo can fail undetected
+1063-(
+1064-  source "${z_file}"
+1065-  echo "${SOME_VAR}"
+1066:) || buc_die "Subshell failed"
+1067-
+1068-# ✅ Every command explicitly handled
+1069-(
+1070:  source "${z_file}" || buc_die "Failed to source: ${z_file}"
+1071:  echo "${SOME_VAR}" || buc_die "Failed to echo"
+1072:) || buc_die "Subshell failed"
+1073-```
+1074-
+1075----
+1076-
+1077-## Prohibited Constructs
+--
+1165-### Rules
+1166-
+1167-1. **One canonical form**: Every command, argument, and parameter has exactly one accepted form. Do not accept alternatives.
+1168-2. **No tolerances**: Do not add case folding, prefix stripping, alias acceptance, or alternative parse paths. If the canonical form is `--racing`, do not also accept `-r`, `racing`, or `RACING`.
+1169-3. **No undocumented defaults**: Do not add `${1:-default}` patterns that silently fill missing required arguments. Required means required.
+1170:4. **No silent normalization**: Do not silently transform input. If input doesn't match the canonical form, `buc_die` with a clear message stating the expected form.
+1171-5. **Documentation uses canonical form**: All documentation, examples, and `buc_doc_*` output must show the single canonical invocation — never a tolerated alternative.
+1172-
+1173-### Smell Test
+1174-
+1175-If a command can be invoked two different ways for the same result, the interface is contaminated. If `"${1:-}"` silently provides a default for what should be a mandatory argument, the interface is contaminated.
+--
+1186-
+1187-# Even if some_function calls other_function that fails,
+1188-# set -e will not terminate — suppression propagates
+1189-```
+1190-
+1191:**BCG rule: Only `_predicate` functions may appear in `if`/`while` conditions.** All other functions must be invoked as simple commands with explicit `|| buc_die` / `|| return`. This completely prevents the suppression hazard.
+1192-
+1193-```bash
+1194-# ✅ Predicate in conditional — designed for this, never dies, status only
+1195-if z«prefix»_ready_predicate; then ...
+1196-
+1197-# ✅ Regular function — explicit error handling, not inside conditional
+1198:some_function || buc_die "..."
+1199-
+1200-# ❌ Regular function in conditional — set -e suppressed for entire call tree
+1201-if some_function; then ...
+1202-```
+1203-
+1204:**Why BCG's `|| buc_die` discipline works**: It doesn't rely on `set -e` — explicit error handling after every command means suppression doesn't matter. The `|| z_status=$?` capture pattern intentionally relies on this suppression behavior.
+1205-
+1206-**Loops**: `set -e` does not reliably catch failures inside `for`/`while` loop bodies in bash 3.2. Every command in a loop body must have explicit error handling.
+1207-
+1208-The error handling suffix depends on the function type:
+1209-
+1210-| Function type    | On failure use       | Why                                             |
+1211-|------------------|----------------------|-------------------------------------------------|
+1212:| Regular/enroll   | `\|\| buc_die`       | Enroll validates invariants; violations are fatal |
+1213-| Predicate        | `\|\| return 1`      | Never dies, status only                          |
+1214:| Capture/recite   | `\|\| return 1`      | Never dies, caller decides                       |
+1215-| Flow control     | `\|\| continue`      | Intentional skip to next iteration               |
+1216-
+1217-### ❌ Test-and-control-flow with `&&`
+1218-
+1219-```bash
+--
+1232-
+1233-### ❌ `A && B || C` as Pseudo-Ternary
+1234-
+1235-```bash
+1236-# ❌ C runs both when A fails AND when B fails — not equivalent to if/then/else
+1237:curl "${z_url}" && jq '.field' "${z_file}" || buc_die "Failed"
+1238-
+1239-# ✅ Explicit if/then/else — C runs only when A fails
+1240-if curl "${z_url}"; then
+1241:  jq '.field' "${z_file}" || buc_die "jq failed"
+1242-else
+1243:  buc_die "curl failed"
+1244-fi
+1245-```
+1246-
+1247-**BCG rule: Never `A && B || C`.** This is not if-then-else. When `A` succeeds but `B` fails, `C` runs — which is almost never the intended behavior. Use explicit `if`/`then`/`else` for conditional execution with a fallback.
+1248-
+--
+1254-
+1255-**Index iteration** — use when you need the index (parallel arrays, kindle rolls). Inherently safe on empty arrays, no guard needed:
+1256-
+1257-```bash
+1258-for z_i in "${!z_«prefix»_name_roll[@]}"; do
+1259:  echo "${z_«prefix»_name_roll[$z_i]}" || buc_die "Failed to echo"
+1260-done
+1261-```
+1262-
+1263-**Guarded value iteration** — use when you only need values. The `(( ))` guard prevents expansion of the empty array:
+1264-
+1265-```bash
+1266-if (( ${#z_«prefix»_name_roll[@]} )); then
+1267-  for z_val in "${z_«prefix»_name_roll[@]}"; do
+1268:    echo "${z_val}" || buc_die "Failed to echo"
+1269-  done
+1270-fi
+1271-```
+1272-
+1273-**Anti-pattern** — unguarded value iteration on a possibly-empty array:
+1274-
+1275-```bash
+1276-# ❌ Crashes under set -u in bash 3.2 when array is empty
+1277-for z_val in "${z_«prefix»_name_roll[@]}"; do
+1278:  echo "${z_val}" || buc_die "Failed to echo"
+1279-done
+1280-```
+1281-
+1282----
+1283-
+--
+1346-**Use `printf -v` for assignment to indirect variable** — after name validation:
+1347-
+1348-```bash
+1349-# ✅ printf -v for assignment — no quoting hazards from values
+1350-echo "${z_varname}" | grep -qE '^[A-Za-z_][A-Za-z0-9_]*$' \
+1351:  || buc_die "Invalid variable name: ${z_varname}"
+1352:printf -v "${z_varname}" '%s' "${z_new_value}" || buc_die "printf -v failed"
+1353-```
+1354-
+1355-**Anti-patterns:**
+1356-
+1357-```bash
+--
+1420-
+1421-buc_step "Major user-visible operation"     # White, stderr, milestones
+1422-buc_log_args "Detail from variables"        # Transcript only, from arguments
+1423-command | buc_log_pipe                      # Transcript only, from pipeline
+1424-buc_warn "Non-fatal warning"                # Yellow, stderr
+1425:buc_die "Fatal error message"               # Red, stderr, exits
+1426-
+1427-### When to use buc_step vs buc_log_«source»:
+1428-
+1429-**Use buc_step in:**
+1430-- Public command functions (rbv_start, rbv_stop)
+--
+1466-### Using BCU Utilities
+1467-
+1468-```bash
+1469-# Always prefer BCU functions over raw commands
+1470-buc_step    # Instead of echo
+1471:buc_die     # Instead of echo + exit
+1472-buc_warn    # Instead of echo >&2
+1473-```
+1474-
+1475----
+1476-
+--
+1478-
+1479-| Situation           | Use This Pattern                                                 |
+1480-|---------------------|------------------------------------------------------------------|
+1481-| Module structure    | Always split: implementation + CLI                               |
+1482-| Need return value   | Check error handling decision tree                               |
+1483:| Simple validation   | `test ... \|\| buc_die`                                          |
+1484-| Config validation   | Regime archetype: enrollment → enforce → report                  |
+1485-| User feedback       | `buc_step` for major milestones, `buc_log_«source»` for forensic trail    |
+1486-| Runtime information | `buc_log_«source»` for details, `buc_step` for milestones, never comments |
+1487-| Show commands       | `buc_code`                                                       |
+1488-| Non-fatal issue     | `buc_warn`                                                       |
+1489:| Fatal error         | `buc_die`                                                        |
+1490-| Success message     | `buc_success`                                                    |
+1491-| Variable expansion  | Always `"${var}"`                                                |
+1492-| Control flow after test | `test ... \|\| break/continue/return` (never `&&`)           |
+1493-| Conditional tests   | `test` not `[[ ]]`                                               |
+1494-| Pattern matching    | `[[ var =~ pattern ]]` only                                      |
+1495-| Secret extraction   | `_capture` function, never temp files                            |
+1496-| Roll population + return | `_enroll` function (kindle only), `z_«funcname»_«retval»` vars |
+1497:| Roll read access    | `_recite` function                                               |
+1498-| True/false check    | `_predicate` function                                            |
+1499-| Runtime information | `buc_log_«source»`/`buc_step`, never comments                             |
+1500-| File paths          | Kindle constants — defined in kindle only                        |
+1501-| File reading        | Single-line `$(<file)` with validation                           |
+1502-| Function structure  | See Function Patterns tables                                     |
+--
+1516-- [ ] Implementation file sources nothing (except within kindle function)
+1517-- [ ] CLI header sources only `buc_command.sh`; all other deps sourced in furnish
+1518-- [ ] External code accesses module through CLI only (no direct `z*_kindle()` calls from outside)
+1519-
+1520-### Required Functions
+1521:- [ ] `z«prefix»_kindle` - first line: `test -z "${Z«PREFIX»_KINDLED:-}" || buc_die`
+1522:- [ ] `z«prefix»_sentinel` - first line: `test "${Z«PREFIX»_KINDLED:-}" = "1" || buc_die`
+1523-- [ ] `z«prefix»_furnish` (CLI only) - documents env vars, sources all deps, calls kindle; gates with `buc_doc_env_done`
+1524-- [ ] `z«prefix»_enforce` (regime archetype only) - `buv_vet` + custom format checks after kindle
+1525-- [ ] All public functions start with sentinel check
+1526-- [ ] All internal helpers prefixed with `z«prefix»_`
+1527-
+--
+1538-- [ ] No tilde in quoted strings — use `${HOME}` instead
+1539-- [ ] No `local -i` — use plain local with explicit validation
+1540-- [ ] No raw `eval` for value assignment — use `printf -v` after name validation; `${!name}` for reading
+1541-
+1542-### Error Handling
+1543:- [ ] Every command that can fail has `|| buc_die` (`|| buc_warn` only with a human-authored comment granting permission and explaining why non-fatal is safe)
+1544-- [ ] `_predicate` functions return 0/1, never die, no output
+1545-- [ ] `_capture` functions output once at end or exit 1, no stderr
+1546-- [ ] `_enroll` functions set `z_«funcname»_«retval»` return vars, never echo; callers never use `$()` (when applicable)
+1547-- [ ] `_enroll` functions called only within kindle (when applicable)
+1548:- [ ] `_recite` functions never mutate roll arrays (when applicable)
+1549-- [ ] Roll arrays use `z_«prefix»_«name»_roll` naming convention (when applicable)
+1550:- [ ] Two-line pattern for capturing: `z_var=$(func_capture) || buc_die`
+1551:- [ ] File reads validated: `test -n "${z_content}" || buc_die`
+1552-- [ ] Pipelines either: occur inside a `_capture` function, write to temp files with explicit status checks, or explicitly inspect `${PIPESTATUS[@]}`
+1553-- [ ] No `test $(command)` — use `grep -q` or `case` for validation
+1554-- [ ] Only `_predicate` functions in `if`/`while` conditions — no regular/enroll functions in conditionals
+1555-- [ ] No `test ... && break/continue/return` — invert test and use `||`
+1556-- [ ] Error blocks use `{ ...; }` not `( ... )` — no `|| (... exit ...)` patterns
+1557:- [ ] Isolation subshells (`( ... ) || buc_die`) have `|| buc_die` on every internal command and on the outer boundary
+1558-
+1559-### Command Substitution Rules
+1560-- [ ] NO `local z_var=$(cmd)` — always two-line pattern (`local` swallows exit status)
+1561-- [ ] NO pipelines inside `$()` — use `_capture` function or temp files
+1562:- [ ] NO unguarded `$()` — every `$(cmd)` must have `|| buc_die` or `|| return 1`
+1563:- [ ] NO `$()` on external commands — use temp files; `_capture`/`_recite` for contracted functions only
+1564-- [ ] Bash introspection (`compgen`, `declare -F`, `mktemp`) permitted in `$()` — no file-based alternative
+1565-- [ ] `$(<file)` always followed by validation
+1566-- [ ] Temp files for all external command output capture
+1567:- [ ] `_capture` and `_recite` functions properly named with suffix
+1568-
+1569-### Loop Safety
+1570-- [ ] All while-read loops use load-then-iterate pattern
+1571-- [ ] All `while read` conditions include trailing-newline guard: `|| test -n "${z_var}"`
+1572-- [ ] No file descriptor held open across function calls that may touch stdin
+--
+1584-- [ ] Module prefix: 2-4 lowercase letters + underscore
+1585-- [ ] Public functions: `«prefix»_«command»` (snake_case)
+1586-- [ ] Internal functions: `z«prefix»_«name»` (snake_case)
+1587-- [ ] Internal constants: `Z«PREFIX»_«NAME»` (SCREAMING_SNAKE)
+1588-- [ ] Public constants: `«PREFIX»_«NAME»` (SCREAMING_SNAKE)
+1589:- [ ] Special functions: `*_predicate`, `*_capture`, `*_enroll`, `*_recite` suffixes
+1590-
+1591-### Documentation & Visibility
+1592-- [ ] Public functions documented with `buc_doc_*` blocks
+1593-- [ ] Internal functions documented with `buc_doc_*` blocks (recommended)
+1594-- [ ] `buc_doc_shown || return 0` after documentation in functions that have it
+--
+1606-- [ ] No other sourcing anywhere
+1607-
+1608-### Interface Contamination Discipline
+1609-- [ ] Commands accept exactly one canonical form for each argument — no aliases
+1610-- [ ] No case folding, prefix stripping, or normalization of inputs
+1611:- [ ] No `${1:-default}` for required parameters — missing required args cause `buc_die`
+1612-- [ ] `buc_doc_*` output shows the single canonical invocation form
+1613-- [ ] Zeroes theory applied: no unexplained state space expansion
+1614-
+1615-### Code Quality
+1616-- [ ] Prefer bash builtins over external tools (parameter expansion vs sed/awk)
+1617:- [ ] Use BCU utilities instead of raw bash (buc_die vs echo+exit)
+1618-- [ ] Use enrollment for config validation, `buv_dir_exists`/`buv_file_exists` for path checks
+1619-- [ ] Consistent error messages (specific and actionable)
+1620-- [ ] Proper temp file naming with module prefix
+1621-- [ ] No silent failures or ignored conditions
+1622:- [ ] No `2>/dev/null` — stderr redirected to temp file, path included in `buc_die` message
+1623-- [ ] Temp files never deleted in module code — preserved for forensics
+1624-
+1625-### Enterprise Safety
+1626-- [ ] Crash-fast principle applied throughout
+1627-- [ ] No elegant-but-fragile pipeline patterns
+--
+1806-
+1807-**Recognition — legacy code looks like:**
+1808-- Functions named `*_register` that populate parallel arrays
+1809-- Variables starting with `z1z_` used as return channels
+1810-- Parallel arrays without `_roll` suffix (e.g., `zbuz_colophons` instead of `z_buz_colophon_roll`)
+1811:- Accessor functions named `*_get_*` without `_recite` suffix
+1812-
+1813-**Current convention:**
+1814-- Function suffix: `_enroll` (kindle-only)
+1815-- Return variables: `z_«funcname»_«retval»` (function name embedded verbatim)
+1816-- Array naming: `z_«prefix»_«name»_roll`
+1817:- Accessor suffix: `_recite` (read-only, never mutates)
+1818-
+1819-**Known legacy sites:**
+1820-- `buz_register` in `Tools/buk/buz_zipper.sh`
+1821-- `butr_register` in `Tools/buk/butr_registry.sh`
+1822-
+1823:**Migration:** When touching a file that uses the old pattern, transform to new. Enroll calls must move into kindle. Return variables must use `z_«funcname»_«retval»`. Arrays must gain `_roll` suffix using `z_«prefix»_` convention. Accessors must gain `_recite` suffix.

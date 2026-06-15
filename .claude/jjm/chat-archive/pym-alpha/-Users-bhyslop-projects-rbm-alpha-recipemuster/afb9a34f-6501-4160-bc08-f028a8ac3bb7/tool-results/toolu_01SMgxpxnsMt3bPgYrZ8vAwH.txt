@@ -1,0 +1,850 @@
+23:# work pre-kindle and require only the display infrastructure (buh_*) plus
+36:# filesystem directly and render via buh_*). The kindle exists to assert
+62:    buh_line "${RBYC_PROBE_YES}${z_text}"
+64:    buh_line "${RBYC_PROBE_NO}${z_text}"
+329:    buh_line " [*] ${z_link}${z_pad}${z_tt}"
+331:    buh_line " [ ] ${z_link}"
+358:  buh_section "Recipe Bottle — Onboarding Start"
+359:  buh_e
+360:  buh_line "  ${RBYC_RECIPE_BOTTLE} builds container images with supply-chain provenance"
+361:  buh_line "  and runs untrusted containers behind enforced network isolation."
+362:  buh_e
+363:  buh_line "  This menu points you at handbook tracks — self-describing teaching"
+364:  buh_line "  documents that explain concepts and show you live probe status."
+365:  buh_e
+368:  buh_section "Foundation"
+369:  buh_e
+370:  buh_line "    Configure your Repo's Environment"
+371:  buh_line "      Universal prerequisite. ${RBYC_TABTARGETS}, ${RBYC_REGIMES},"
+372:  buh_line "      ${RBYC_BURS} setup, validation, ${RBYC_LOGS}. Local-only, no cloud."
+373:  buh_tt   "        " "${RBZ_ONBOARD_CRASH_COURSE}"
+374:  buh_e
+375:  buh_line "    Install ${RBYC_RETRIEVER} Credentials"
+376:  buh_line "      For joining an established project."
+377:  buh_line "      Place your ${RBYC_RBRA} credential file, verify, confirm you can pull images."
+378:  buh_tt   "        " "${RBZ_ONBOARD_CRED_RETRIEVER}"
+379:  buh_e
+380:  buh_line "    Install ${RBYC_DIRECTOR} Credentials"
+381:  buh_line "      For joining an established project."
+382:  buh_line "      Place your ${RBYC_RBRA} credential file, verify, confirm you can build and publish."
+383:  buh_tt   "        " "${RBZ_ONBOARD_CRED_DIRECTOR}"
+384:  buh_e
+385:  buh_line "    Start a ${RBYC_CRUCIBLE} Using Local Builds"
+386:  buh_line "      The ${RBYC_CCYOLO} ${RBYC_CRUCIBLE} runs Claude Code in a container that can"
+387:  buh_line "      only reach Anthropic. Requires a Claude OAuth subscription."
+388:  buh_line "      Steps:"
+389:  buh_line "        * Build images locally      — ${RBYC_KLUDGE} ${RBYC_SENTRY}/${RBYC_PENTACLE} and ${RBYC_BOTTLE}"
+390:  buh_line "        * Configure local network   — amend ${RBYC_NAMEPLATE} ${RBYC_RBRN} file"
+391:  buh_line "        * Start the sandbox         — ${RBYC_CHARGE} the ${RBYC_CRUCIBLE}"
+392:  buh_line "        * Shell into the container  — ${RBYC_RACK} the ${RBYC_BOTTLE}"
+393:  buh_line "      No cloud, no credentials beyond your own."
+394:  buh_tt   "        " "${RBZ_ONBOARD_FIRST_CRUCIBLE}"
+395:  buh_e
+398:  buh_section "Create Payor and Depot"
+399:  buh_e
+400:  buh_line "  A ${RBYC_DEPOT} is the facility where the team's container images are"
+401:  buh_line "  built and stored — the ground truth other tracks rest on."
+402:  buh_e
+403:  buh_line "    ${RBYC_PAYOR} — establish a ${RBYC_MANOR} and provision the ${RBYC_DEPOT}"
+404:  buh_tt   "        " "${RBZ_ONBOARD_PAYOR_HB}"
+405:  buh_e
+406:  buh_line "    ${RBYC_GOVERNOR} — administer service accounts for ${RBYC_DIRECTORS} and ${RBYC_RETRIEVERS}"
+407:  buh_tt   "        " "${RBZ_ONBOARD_GOVERNOR_HB}"
+408:  buh_e
+411:  buh_section "Director Subtracks"
+412:  buh_e
+413:  buh_line "    Your First Cloud Build"
+414:  buh_line "      Provision the builder toolchain, ${RBYC_ORDAIN} your first"
+415:  buh_line "      ${RBYC_VESSEL} via Cloud Build, and tour the result."
+416:  buh_line "      Steps:"
+417:  buh_line "        * Inscribe the ${RBYC_RELIQUARY} — provision builder tool images"
+418:  buh_line "        * ${RBYC_CONJURE} ${RBYC_SENTRY} — first tethered cloud build"
+419:  buh_line "        * Tour: ${RBYC_TALLY}, ${RBYC_VOUCH}, ${RBYC_PLUMB}, ${RBYC_POUCH} — inspect images and SLSA"
+420:  buh_line "        * ${RBYC_SUMMON} — pull the hallmark locally"
+421:  buh_line "        * ${RBYC_ABJURE} and ${RBYC_REKON} — hallmark lifecycle"
+422:  buh_line "      Requires: Director credentials and a provisioned Depot."
+423:  buh_tt   "        " "${RBZ_ONBOARD_DIR_FIRST_BUILD}"
+424:  buh_e
+425:  buh_line "    ${RBYC_AIRGAP} Cloud Build"
+426:  buh_line "      Build with zero upstream access. ${RBYC_ENSHRINE} mirrors base images"
+427:  buh_line "      into the Depot so Cloud Build never reaches the internet."
+428:  buh_line "      Steps:"
+429:  buh_line "        * ${RBYC_ENSHRINE} base images — mirror upstream into the Depot"
+430:  buh_line "        * ${RBYC_CONJURE} ${RBYC_SENTRY} airgapped — same vessel, full isolation"
+431:  buh_line "        * Compare ${RBYC_PLUMB} output — tethered vs airgap side by side"
+432:  buh_line "      Requires: Reliquary inscribed (previous track)."
+433:  buh_e
+434:  buh_line "    ${RBYC_BIND} — Safe PlantUML Container"
+435:  buh_line "      Mirror an upstream image by digest — no Dockerfile, no build."
+436:  buh_line "      PlantUML renders diagrams but its Docker Hub image could"
+437:  buh_line "      phone home. Bind pins it; the Sentry blocks all egress."
+438:  buh_line "      Steps:"
+441:  buh_line "        * ${RBYC_BIND} ${z_plantuml} — pin upstream image by digest"
+442:  buh_line "        * Inspect ${RBYC_VOUCH} verdict — digest-pin, no SLSA (image not built here)"
+445:  buh_line "        * ${RBYC_CHARGE} the ${z_pluml} ${RBYC_CRUCIBLE} — render a diagram, observe blocked egress"
+446:  buh_line "      You get the tool without the risk."
+447:  buh_e
+448:  buh_line "    ${RBYC_GRAFT} — Local Image Publishing"
+449:  buh_line "      Push a locally-built image to the Depot. The user owns the"
+450:  buh_line "      entire build — SLSA cannot vouch for this image. Vouch verdict"
+451:  buh_line "      is GRAFTED: an explicit signal that provenance stops at the"
+452:  buh_line "      local machine. Not the enterprise path for safe image creation."
+453:  buh_line "      Steps:"
+454:  buh_line "        * ${RBYC_KLUDGE} a vessel image locally"
+455:  buh_line "        * ${RBYC_GRAFT} — push local image to the Depot"
+456:  buh_line "        * Inspect ${RBYC_VOUCH} verdict — GRAFTED, no provenance chain"
+457:  buh_line "      Development and prototyping workflow, not production supply chain."
+458:  buh_e
+489:  buh_section "Recipe Bottle — Configure your Repo's Environment"
+490:  buh_e
+491:  buh_step_style "Step " " — "
+494:  buh_step1 "What you ran to get here"
+495:  buh_e
+496:  buh_line "The command you just ran is a ${RBYC_TABTARGET} — a launcher script"
+497:  buh_line "in the ${BURC_TABTARGET_DIR}/ directory. Tab completion narrows by prefix: type \`${BURC_TABTARGET_DIR}/rbw-<TAB>\` to see every"
+498:  buh_line "${RBYC_RECIPE_BOTTLE} command."
+499:  buh_e
+502:  buh_step1 "View the project config"
+503:  buh_e
+504:  buh_line "A ${RBYC_REGIME} is a configuration file with a schema, a renderer,"
+505:  buh_line "and a validator. Run the renderer for the project config regime:"
+506:  buh_e
+507:  buh_tt   "   " "${BUWZ_RC_RENDER}"
+508:  buh_e
+509:  buh_line "${RBYC_BURC} is checked into git — shared project settings that every"
+510:  buh_line "clone gets. It tells the launcher where to find tools and where"
+511:  buh_line "to look for your personal station file."
+512:  buh_e
+515:  buh_step1 "View your personal station"
+516:  buh_e
+517:  buh_line "${RBYC_BURS} is your per-developer station file: local, gitignored,"
+518:  buh_line "holds things that vary per machine. Run the renderer:"
+519:  buh_e
+520:  buh_tt   "   " "${BUWZ_RS_RENDER}"
+521:  buh_e
+522:  buh_line "The repo-vs-personal split is deliberate: ${RBYC_BURC} travels with the code; ${RBYC_BURS} stays on your machine."
+523:  buh_e
+526:  buh_step1 "Validate your station"
+527:  buh_e
+528:  buh_line "Every ${RBYC_REGIME} has a validate tabtarget that checks the file against"
+529:  buh_line "its schema. This may fail if your station file is missing fields"
+530:  buh_line "beyond the minimum the launcher required — that is expected."
+531:  buh_line "Run it:"
+532:  buh_e
+533:  buh_tt   "   " "${BUWZ_RS_VALIDATE}"
+534:  buh_e
+535:  buh_line "Read the error if it fails — it names the field and tells you"
+536:  buh_line "what to fill in."
+537:  buh_e
+543:    buh_line "${z_mark} Station file present at ${z_path}"
+547:  buh_e
+550:  buh_step1 "Validate the repo regime"
+551:  buh_e
+552:  buh_line "The repository regime (${RBYC_RBRR}) holds your team's ${RBYC_DEPOT}"
+553:  buh_line "identity — the GCP project where container images are built and stored."
+554:  buh_line "Run the validator:"
+555:  buh_e
+556:  buh_tt   "   " "${RBZ_VALIDATE_REPO}"
+557:  buh_e
+558:  buh_line "On a bare fork, ${RBYC_RBRR} fields are blank and validation will fail —"
+559:  buh_line "you need a ${RBYC_PAYOR} account and a ${RBYC_DEPOT} to populate them."
+560:  buh_line "On a team repo, they are already populated and validation passes."
+561:  buh_line "Either way, read the output — it tells you exactly what state you're in."
+562:  buh_e
+568:  buh_e
+571:  buh_step1 "Check your logs"
+572:  buh_e
+573:  buh_line "When you ran the validator, it printed file paths at the top"
+574:  buh_line "of its output. Every state-changing command writes three ${RBYC_LOG}"
+575:  buh_line "files to ${RBYC_BURS}_LOG_DIR:"
+576:  buh_e
+580:    buh_line "   stable    ${z_log_path}  (always the same path, great for Claude)"
+582:    buh_line "   stable    always the same path — tooling reads this one"
+584:  buh_line "   per-cmd   same filename across runs — diff between executions"
+585:  buh_line "   history   timestamped — permanent record, never overwritten"
+586:  buh_e
+587:  buh_line "Some commands also write a ${RBYC_TRANSCRIPT} — a single file"
+588:  buh_line "capturing key decision points and state transitions. When a"
+589:  buh_line "command fails, the transcript is the first thing to read."
+590:  buh_e
+591:  buh_line "Handbook display commands (like this one) do not log — teaching"
+592:  buh_line "output is ephemeral by design."
+593:  buh_e
+596:  buh_step1 "The pattern"
+597:  buh_e
+598:  buh_line "Every ${RBYC_REGIME} has a render and a validate tabtarget."
+599:  buh_line "The letter after \`r\` is all that changes:"
+600:  buh_e
+617:  buh_line "   c  ${RBYC_BURC}  ${z_rc_r}   ${z_rc_v}"
+618:  buh_line "   s  ${RBYC_BURS}  ${z_rs_r}  ${z_rs_v}"
+619:  buh_line "   r  ${RBYC_RBRR}  ${z_rr_r}     ${z_rr_v}"
+620:  buh_line "   p  ${RBYC_RBRP}  ${z_rp_r}    ${z_rp_v}"
+621:  buh_line "   o  ${RBYC_RBRO}  ${z_ro_r}    ${z_ro_v}"
+622:  buh_e
+623:  buh_line "These take a target name (vessel, nameplate, or role):"
+624:  buh_e
+625:  buh_line "   v  ${RBYC_RBRV}  ${z_rv_r}     ${z_rv_v}"
+626:  buh_line "   n  ${RBYC_RBRN}  ${z_rn_r}  ${z_rn_v}"
+627:  buh_line "   a  ${RBYC_RBRA}  ${z_ra_r}       ${z_ra_v}"
+628:  buh_e
+629:  buh_line "Learn the letter — you can find any regime's tools from it."
+630:  buh_e
+633:  buh_step1 "Next steps"
+634:  buh_e
+635:  buh_line "Your repo environment is configured. The tools work, errors explain"
+636:  buh_line "themselves, and ${RBYC_LOGS} land where you told them to."
+637:  buh_e
+638:  buh_line "Return to the start menu for what to do next:"
+639:  buh_tt   "   " "${RBZ_ONBOARD_START_HERE}"
+640:  buh_e
+665:  buh_step_style "Step " " — "
+668:  buh_step1 "Get the key file"
+669:  buh_e
+670:  buh_line "A ${RBYC_GOVERNOR} produces ${RBYC_RBRA} credential files for ${RBYC_DIRECTORS} and ${RBYC_RETRIEVERS}."
+671:  buh_line "Your ${RBYC_GOVERNOR} hands you this file out-of-band — it is a"
+672:  buh_line "secret, never committed to the repo."
+673:  buh_e
+676:  buh_step1 "Install the key file"
+677:  buh_e
+679:    buh_line "Place the file at the path derived from ${RBYC_RBRR}:"
+680:    buh_e
+681:    buh_code "   ${z_secrets_dir}/${z_role_constant}/${RBCC_rbra_file}"
+682:    buh_e
+683:    buh_line "Create the directory if it does not exist."
+685:    buh_warn "RBRR not populated — cannot determine credential path."
+688:    buh_line "Run ${z_env_link} first."
+690:  buh_e
+696:  buh_e
+699:  buh_step1 "Validate"
+700:  buh_e
+701:  buh_line "Run the ${RBYC_RBRA} validator for your role:"
+702:  buh_e
+703:  buh_tt   "   " "${RBZ_VALIDATE_AUTH}" "" " ${z_role_constant}"
+704:  buh_e
+705:  buh_line "Read the output — it checks the file format and reports"
+706:  buh_line "what the credential grants."
+707:  buh_e
+719:  buh_section "Install Retriever Credentials"
+720:  buh_e
+721:  buh_line "A ${RBYC_RETRIEVER} pulls container images from the"
+722:  buh_line "  ${RBYC_DEPOT} — read-only access to what others have built."
+723:  buh_e
+728:  buh_step1 "Confirm live access"
+729:  buh_e
+730:  buh_line "Run ${RBYC_TALLY} to list ${RBYC_HALLMARKS} in the registry using your retriever credential:"
+731:  buh_e
+732:  buh_tt   "   " "${RBZ_TALLY_HALLMARKS}"
+733:  buh_e
+734:  buh_line "If the command succeeds you have working pull access to the ${RBYC_DEPOT}."
+735:  buh_line "If it fails, re-check the file placement in Step 2."
+736:  buh_e
+739:  buh_step1 "Next steps"
+740:  buh_e
+741:  buh_line "Return to the start menu:"
+742:  buh_tt   "   " "${RBZ_ONBOARD_START_HERE}"
+743:  buh_e
+753:  buh_section "Install Director Credentials"
+754:  buh_e
+755:  buh_line "A ${RBYC_DIRECTOR} causes cloud builds and publishes container images to the"
+756:  buh_line "  ${RBYC_DEPOT} — write access to the registry."
+757:  buh_e
+762:  buh_step1 "Confirm live access"
+763:  buh_e
+764:  buh_line "Run ${RBYC_REKON} to list raw image tags in the registry"
+765:  buh_line "using your director credential:"
+766:  buh_e
+767:  buh_tt   "   " "${RBZ_REKON_IMAGE}" "" " rbev-busybox"
+768:  buh_e
+769:  buh_line "If the command succeeds you have working build access to the"
+770:  buh_line "  ${RBYC_DEPOT}."
+771:  buh_line "If it fails, re-check the file placement in Step 2."
+772:  buh_e
+775:  buh_step1 "Next steps"
+776:  buh_e
+777:  buh_line "Return to the start menu:"
+778:  buh_tt   "   " "${RBZ_ONBOARD_START_HERE}"
+779:  buh_e
+869:  buh_section "Start a Crucible Using Local Builds"
+870:  buh_e
+871:  buh_line "A ${RBYC_CRUCIBLE} is a sandboxed container environment with enforced"
+872:  buh_line "network isolation. You are going to build one on your workstation"
+873:  buh_line "and run Claude Code inside it — no cloud account, no credentials"
+874:  buh_line "beyond your own Claude subscription."
+875:  buh_e
+876:  buh_line "This track uses the ${RBYC_CCYOLO} ${RBYC_NAMEPLATE}: a Claude Code sandbox that can"
+877:  buh_line "only reach Anthropic. Everything else is blocked."
+878:  buh_e
+882:    buh_error "Docker is not available on this machine."
+883:    buh_line  "Install Docker Desktop (or dockerd in WSL) and re-run this handbook."
+884:    buh_e
+885:    buh_tt  "Return to start: " "${RBZ_ONBOARD_START_HERE}"
+886:    buh_e
+890:  buh_line "Prerequisite: a Claude OAuth subscription (you will authenticate"
+891:  buh_line "inside the container via copy/paste from your browser)."
+892:  buh_e
+894:  buh_step_style "Step " " — "
+899:  buh_step1 "Build images locally"
+900:  buh_e
+901:  buh_line "A ${RBYC_VESSEL} is a specification for a container image — a Dockerfile"
+902:  buh_line "and build context. A ${RBYC_HALLMARK} is a specific build instance,"
+903:  buh_line "identified by a timestamp tag."
+904:  buh_e
+905:  buh_line "${RBYC_KLUDGE} builds a vessel image locally using Docker — no cloud, no"
+906:  buh_line "registry, no credentials. The fastest path from Dockerfile to running"
+907:  buh_line "container without cloud image backup."
+908:  buh_e
+911:  buh_step2 "Kludge the sentry"
+912:  buh_e
+913:  buh_line "The ${RBYC_SENTRY} is the gatekeeper container. It runs iptables"
+914:  buh_line "and dnsmasq to enforce network policy — only domains you whitelist"
+915:  buh_line "are reachable from inside."
+916:  buh_e
+917:  buh_line "Kludge it:"
+918:  buh_e
+919:  buh_tt  "   " "${RBZ_KLUDGE_VESSEL}" "" " ${z_sentry_vessel}"
+920:  buh_e
+921:  buh_line "The output prints a hallmark tag — something like"
+922:  buh_line "${z_example_tag}"
+923:  buh_line "Copy it. You will paste it into the nameplate in Step 2."
+924:  buh_e
+928:    buh_line "${RBYC_PROBE_YES}Kludge-tagged sentry image found locally"
+930:    buh_line "${RBYC_PROBE_NO}No kludge-tagged sentry image found"
+932:  buh_e
+934:  buh_warn "Kludge requires a clean git tree."
+935:  buh_line "If you have uncommitted changes, commit them first.  This is by"
+936:  buh_line "design — container images not backed by git commits easy to confuse."
+937:  buh_e
+940:  buh_step2 "Kludge the bottle"
+941:  buh_e
+942:  buh_line "The ${RBYC_BOTTLE} is your workload container — where Claude Code"
+943:  buh_line "runs. The ${RBYC_CCYOLO} bottle includes SSH, node, and the Claude CLI."
+944:  buh_e
+945:  buh_line "This command is different from the sentry kludge. It builds the"
+946:  buh_line "bottle AND drives the ${RBYC_HALLMARK} into the nameplate"
+947:  buh_line "automatically:"
+948:  buh_e
+949:  buh_tt  "   " "${RBZ_CRUCIBLE_KLUDGE_BOTTLE}" "" " ${z_moniker}"
+950:  buh_e
+951:  buh_line "Two kludge commands, two different jobs:"
+952:  buh_line "  ${z_cmd_rbw_fk}  — standalone vessel kludge. Produces a hallmark, touches nothing else."
+953:  buh_line "  ${z_cmd_rbw_cKB} — nameplate-aware bottle kludge. Builds AND installs the hallmark."
+954:  buh_e
+955:  buh_line "The sentry is shared across nameplates, so you kludge it standalone"
+956:  buh_line "and drive the hallmark yourself. The bottle belongs to one nameplate,"
+957:  buh_line "so the tool does the driving for you."
+958:  buh_e
+962:    buh_line "${RBYC_PROBE_YES}Kludge-tagged bottle image found locally"
+964:    buh_line "${RBYC_PROBE_NO}No kludge-tagged bottle image found"
+966:  buh_e
+971:  buh_step1 "Drive sentry hallmark into the nameplate"
+972:  buh_e
+973:  buh_line "A ${RBYC_NAMEPLATE} is the file that defines a Crucible — it specifies"
+974:  buh_line "what ${RBYC_HALLMARK} to use for ${RBYC_SENTRY}, ${RBYC_PENTACLE}, and"
+975:  buh_line "${RBYC_BOTTLE} containers. It lives at:"
+976:  buh_e
+977:  buh_code "   ${z_nameplate_file}"
+978:  buh_e
+979:  buh_line "The ${RBYC_RBRN} file has two hallmark fields — one for the sentry"
+980:  buh_line "and one for the bottle. The bottle kludge (Step 1.2) already drove"
+981:  buh_line "its hallmark. Now you drive the sentry hallmark by hand."
+982:  buh_e
+983:  buh_line "Open the nameplate file and paste the sentry hallmark from Step 1.1"
+984:  buh_line "into the ${z_cmd_sentry_hallmark} field."
+985:  buh_e
+986:  buh_line "This is deliberately manual — it teaches you what ${RBYC_HALLMARKS} are and"
+987:  buh_line "where they live. You just saw the automated version with the ${RBYC_BOTTLE};"
+988:  buh_line "now you see the mechanism underneath."
+989:  buh_e
+993:    buh_line " [*] ${z_code_sentry_field} = ${z_sentry_hallmark}"
+995:    buh_line "${RBYC_PROBE_NO}RBRN_SENTRY_HALLMARK is empty — paste the sentry hallmark from Step 1.1"
+998:    buh_line " [*] ${z_code_bottle_field} = ${z_bottle_hallmark}"
+1000:    buh_line "${RBYC_PROBE_NO}RBRN_BOTTLE_HALLMARK is empty — run Step 1.2 (bottle kludge)"
+1002:  buh_e
+1004:  buh_line "After editing, commit the change — the next ${RBYC_KLUDGE} will need a"
+1005:  buh_line "clean tree:"
+1006:  buh_e
+1007:  buh_code "   git add ${z_nameplate_file}"
+1008:  buh_code "   git commit -m \"Drive sentry hallmark into ${z_moniker} nameplate\""
+1009:  buh_e
+1014:  buh_step1 "Charge the crucible"
+1015:  buh_e
+1016:  buh_line "${RBYC_CHARGE} starts three containers from your nameplate:"
+1017:  buh_e
+1018:  buh_line "  ${RBYC_SENTRY}   — runs iptables + dnsmasq, enforces the network allowlist"
+1019:  buh_line "  ${RBYC_PENTACLE}  — establishes the network namespace shared with the bottle"
+1020:  buh_line "  ${RBYC_BOTTLE}    — your workload container (Claude Code lives here)"
+1021:  buh_e
+1022:  buh_line "The sentry mediates all traffic. The bottle never touches the"
+1023:  buh_line "network directly — everything routes through the sentry's rules."
+1024:  buh_e
+1025:  buh_tt  "   " "${RBZ_CRUCIBLE_CHARGE}" "${z_moniker}"
+1026:  buh_e
+1027:  buh_line "Charge takes 10-30 seconds. It pulls the images from your local"
+1028:  buh_line "Docker, creates the enclave network, starts the containers, waits"
+1029:  buh_line "for the sentry to confirm its iptables rules are applied, then"
+1030:  buh_line "starts the bottle."
+1031:  buh_e
+1035:    buh_line "${RBYC_PROBE_YES}Crucible ${z_moniker} is charged (bottle container running)"
+1037:    buh_line "${RBYC_PROBE_NO}Crucible ${z_moniker} is not charged"
+1039:  buh_e
+1044:  buh_step1 "Enter the container and run Claude Code"
+1045:  buh_e
+1046:  buh_line "SSH into the bottle:"
+1047:  buh_e
+1048:  buh_line "   ${z_cmd_ssh}"
+1049:  buh_e
+1050:  buh_line "You land as the claude user in ~/workspace, which contains"
+1051:  buh_line "a small sample project. Run Claude Code:"
+1052:  buh_e
+1053:  buh_code "   claude"
+1054:  buh_e
+1055:  buh_line "Claude Code will prompt you to authenticate. It opens a URL —"
+1056:  buh_line "copy it to your workstation browser, sign in with your Claude"
+1057:  buh_line "subscription, and paste the code back into the terminal."
+1058:  buh_e
+1059:  buh_warn "The ccyolo bottle pins Claude Code to a specific version."
+1060:  buh_line "Versions after v2.1.89 have a regression where paste does not"
+1061:  buh_line "work in the OAuth input prompt through SSH or docker exec"
+1062:  buh_line "(github.com/anthropics/claude-code/issues/47745). If you"
+1063:  buh_line "update the pin and paste stops working, type the code manually."
+1064:  buh_e
+1065:  buh_line "Once authenticated, Claude Code starts in full autonomy mode —"
+1066:  buh_line "no permission prompts. Inside a network-contained crucible,"
+1067:  buh_line "this is the correct posture: the sentry enforces the real"
+1068:  buh_line "security boundary, not the tool permission system."
+1069:  buh_e
+1070:  buh_line "Try your first interaction:"
+1071:  buh_e
+1072:  buh_code "   The count_words.sh script has bugs — can you find and fix them?"
+1073:  buh_e
+1074:  buh_line "Watch Claude read the files, identify issues, and edit the code."
+1075:  buh_line "The workspace persists across charge/quench cycles — your changes"
+1076:  buh_line "survive restarts."
+1077:  buh_e
+1078:  buh_line "Why SSH instead of docker exec?"
+1079:  buh_e
+1080:  buh_line "Docker exec is laggy and breaks terminal resize — Claude Code's"
+1081:  buh_line "interactive display needs correct dimensions. SSH gives a proper"
+1082:  buh_line "login session with full terminal negotiation."
+1083:  buh_e
+1084:  buh_line "If SSH fails, ${RBYC_RACK} is the diagnostic fallback —"
+1085:  buh_line "docker exec into the bottle to inspect state:"
+1086:  buh_e
+1087:  buh_tt  "   " "${RBZ_CRUCIBLE_RACK}" "" " ${z_moniker}"
+1088:  buh_e
+1093:  buh_step1 "Verify network containment"
+1094:  buh_e
+1095:  buh_line "From inside the ${RBYC_BOTTLE} (while SSH'd in), you can test what's reachable."
+1096:  buh_line "The ${RBYC_CCYOLO} nameplate allows Anthropic and example.com (a test"
+1097:  buh_line "target). Everything else is blocked."
+1098:  buh_e
+1099:  buh_line "Run these curl commands inside the bottle:"
+1100:  buh_e
+1101:  buh_code "   curl -s -o /dev/null -w '%{http_code}' https://api.anthropic.com"
+1102:  buh_line "   Expected: 404 (API wants auth, not bare GET)"
+1103:  buh_e
+1104:  buh_code "   curl -s -o /dev/null -w '%{http_code}' https://claude.ai"
+1105:  buh_line "   Expected: 403 (web app)"
+1106:  buh_e
+1107:  buh_code "   curl -s -o /dev/null -w '%{http_code}' https://example.com"
+1108:  buh_line "   Expected: 200 (test target on allowlist)"
+1109:  buh_e
+1110:  buh_code "   curl -s -o /dev/null -w '%{http_code}' --max-time 5 https://google.com"
+1111:  buh_line "   Expected: 000 or timeout (blocked)"
+1112:  buh_e
+1113:  buh_code "   curl -s -o /dev/null -w '%{http_code}' --max-time 5 https://registry.npmjs.org"
+1114:  buh_line "   Expected: 000 or timeout (blocked)"
+1115:  buh_e
+1116:  buh_line "The ${RBYC_SENTRY} enforces this with two layers:"
+1117:  buh_line "dnsmasq resolves only whitelisted domains; iptables drops"
+1118:  buh_line "packets to any IP not in the CIDR allowlist. Both layers"
+1119:  buh_line "must agree for traffic to pass."
+1120:  buh_e
+1121:  buh_line "example.com is included in the ${RBYC_CCYOLO} ${RBYC_NAMEPLATE} specifically"
+1122:  buh_line "for this verification step — it proves the allowlist works"
+1123:  buh_line "for a non-Anthropic domain."
+1124:  buh_e
+1129:  buh_step1 "Quench the crucible"
+1130:  buh_e
+1131:  buh_line "${RBYC_QUENCH} stops and removes all three containers and the"
+1132:  buh_line "enclave network:"
+1133:  buh_e
+1134:  buh_tt  "   " "${RBZ_CRUCIBLE_QUENCH}" "${z_moniker}"
+1135:  buh_e
+1136:  buh_line "Clean shutdown. The images stay cached locally — your next charge"
+1137:  buh_line "reuses them instantly."
+1138:  buh_e
+1143:  buh_section "The iteration loop"
+1144:  buh_e
+1145:  buh_line "You now have the full local cycle:"
+1146:  buh_e
+1147:  buh_line "  1. Edit the Dockerfile or entrypoint"
+1148:  buh_line "  2. Commit your changes (${RBYC_KLUDGE} needs a clean tree)"
+1149:  buh_line "  3. ${RBYC_KLUDGE} the ${RBYC_BOTTLE}:"
+1150:  buh_tt    "       " "${RBZ_CRUCIBLE_KLUDGE_BOTTLE}" "" " ${z_moniker}"
+1151:  buh_line  "  4. Commit the ${RBYC_HALLMARK} change"
+1152:  buh_line  "  5. ${RBYC_CHARGE}: Stop and restart"
+1153:  buh_tt    "       " "${RBZ_CRUCIBLE_CHARGE}" "${z_moniker}"
+1154:  buh_line  "  6. SSH in:"
+1155:  buh_line  "       ${z_cmd_ssh}"
+1156:  buh_line  "  7. Test your changes"
+1157:  buh_e
+1158:  buh_line "${RBYC_CHARGE} tears down any prior state before starting, so you"
+1159:  buh_line "don't need to Quench between iterations — just Charge again."
+1160:  buh_e
+1161:  buh_line "Steps 3-7 take under a minute. The ${RBYC_SENTRY} rarely changes, so"
+1162:  buh_line "you almost never re-kludge it — the ${RBYC_BOTTLE} is your iteration"
+1163:  buh_line "target."
+1164:  buh_e
+1167:  buh_tt  "Return to start: " "${RBZ_ONBOARD_START_HERE}"
+1168:  buh_e
+1233:  buh_section "Your First Cloud Build"
+1234:  buh_e
+1235:  buh_line "This track walks you through the complete ${RBYC_CONJURE} lifecycle:"
+1236:  buh_line "provision the builder toolchain, ${RBYC_ORDAIN} your first ${RBYC_VESSEL} via"
+1237:  buh_line "Cloud Build, inspect the result, pull it locally, and clean up."
+1238:  buh_e
+1239:  buh_line "You will build ${z_lk_vessel_name} — the same ${RBYC_SENTRY} you"
+1240:  buh_line "already know from the ${RBYC_CRUCIBLE} track, but this time built by"
+1241:  buh_line "Google Cloud Build with full SLSA provenance."
+1242:  buh_e
+1245:  buh_line "Prerequisites:"
+1246:  buh_e
+1249:    buh_line " ${z_buym_yelp} Director credential installed"
+1251:    buh_error " [ ] Director credential missing — run:"
+1253:    buh_line "      ${z_buym_yelp}"
+1257:    buh_line " ${z_buym_yelp} Depot configured (RBRR_DEPOT_PROJECT_ID populated)"
+1259:    buh_error " [ ] Depot not configured — the Payor must establish the Depot first:"
+1261:    buh_line "      ${z_buym_yelp}"
+1263:  buh_e
+1266:    buh_error "Complete the prerequisites above before continuing."
+1267:    buh_e
+1269:    buh_line "Return to start: ${z_buym_yelp}"
+1270:    buh_e
+1274:  buh_line "Configure this handbook session:"
+1275:  buh_e
+1276:  buh_code "   export ONBOARD_VESSEL=${z_vessel}"
+1277:  buh_e
+1278:  buh_line "This sets the vessel you will build throughout the track."
+1279:  buh_line "The remaining steps reference it by name."
+1280:  buh_e
+1282:  buh_step_style "Step " " — "
+1284:  buh_step1 "Inscribe the Reliquary"
+1285:  buh_e
+1286:  buh_line "The ${RBYC_RELIQUARY} is a set of builder tool images (skopeo,"
+1287:  buh_line "docker, gcloud, syft) that Cloud Build uses during ${RBYC_VESSEL}"
+1288:  buh_line "construction. Without it, conjure's preflight check fails."
+1289:  buh_e
+1290:  buh_line "Think of it as installing the toolchain before your first build."
+1291:  buh_line "This is a one-time operation — once inscribed, the reliquary"
+1292:  buh_line "stays in the ${RBYC_DEPOT} until you choose to refresh it."
+1293:  buh_e
+1294:  buh_line "Periodically re-inscribe to pick up newer tool versions. All ${RBYC_VESSELS}"
+1295:  buh_line "share the same ${RBYC_RELIQUARY} — one inscribe updates the toolchain"
+1296:  buh_line "for every build."
+1297:  buh_e
+1298:  buh_line "Inscribe:"
+1299:  buh_e
+1301:  buh_line "   ${z_buym_yelp}"
+1302:  buh_e
+1303:  buh_line "This mirrors four tool images from upstream into your Depot's"
+1304:  buh_line "GAR. Takes 2-5 minutes depending on network speed."
+1305:  buh_e
+1307:  buh_line "When inscribe completes, it prints a reliquary datestamp"
+1308:  buh_line "(e.g., ${z_buym_yelp}). Every vessel that uses Cloud Build"
+1309:  buh_line "needs this value in its regime file:"
+1310:  buh_e
+1311:  buh_code "   RBRV_RELIQUARY=<datestamp>"
+1312:  buh_e
+1314:  buh_line "Open ${z_buym_yelp} and set the field,"
+1315:  buh_line "then commit the change."
+1316:  buh_e
+1318:  buh_step1 "${RBYC_CONJURE} the ${RBYC_SENTRY}"
+1319:  buh_e
+1320:  buh_line "${RBYC_CONJURE} is the build mode where Cloud Build constructs a"
+1321:  buh_line "vessel image from the project's Dockerfile and build context."
+1322:  buh_e
+1323:  buh_line "${RBYC_ORDAIN} is the command that triggers the full pipeline —"
+1324:  buh_line "it reads the vessel's ${RBYC_RBRV} regime to determine the mode"
+1325:  buh_line "(conjure, bind, or graft) and acts accordingly:"
+1326:  buh_e
+1330:  buh_line "   ${z_tt}${z_buym_yelp}"
+1331:  buh_e
+1332:  buh_line "This builds on the ${RBYC_TETHERED} pool — Cloud Build has"
+1333:  buh_line "public internet access and pulls base images from upstream"
+1334:  buh_line "registries during the build. (The ${RBYC_AIRGAP} track removes"
+1335:  buh_line "that dependency.)"
+1336:  buh_e
+1337:  buh_line "The pipeline:"
+1338:  buh_e
+1339:  buh_line "  1. The host mints a ${RBYC_HALLMARK} — a timestamped tag"
+1340:  buh_line "     identifying this build"
+1341:  buh_line "  2. A ${RBYC_POUCH} (build context archive) is pushed to GAR"
+1342:  buh_line "  3. Cloud Build constructs the image across platforms"
+1343:  buh_line "  4. SLSA provenance is generated per platform digest"
+1344:  buh_line "  5. ${RBYC_VOUCH} verifies the provenance chain"
+1345:  buh_e
+1346:  buh_warn "Wall-clock: ~15-20 minutes for a 3-platform build."
+1347:  buh_line "The command blocks until Cloud Build finishes. Use the time"
+1348:  buh_line "to read ahead — the next steps explain what to look for."
+1349:  buh_e
+1351:  buh_step1 "Capture the hallmark"
+1352:  buh_e
+1353:  buh_line "When ${RBYC_ORDAIN} completes, it writes the ${RBYC_HALLMARK}"
+1354:  buh_line "to the ${RBYC_OUTPUT} directory — a fixed-path staging area"
+1355:  buh_line "that each tabtarget clears and recreates on entry."
+1356:  buh_line "Read the hallmark from the fact file and export it so"
+1357:  buh_line "you can copy-paste the commands in the remaining steps:"
+1358:  buh_e
+1359:  buh_code "   export ONBOARD_HALLMARK=\$(cat ${BURD_OUTPUT_DIR}/${RBF_FACT_HALLMARK})"
+1360:  buh_e
+1362:  buh_step1 "Tour the hallmark artifacts"
+1363:  buh_e
+1364:  buh_line "Every conjured ${RBYC_HALLMARK} produces a set of tagged"
+1365:  buh_line "artifacts in GAR. Each suffix serves a specific role:"
+1366:  buh_e
+1368:  buh_line "   ${z_buym_yelp}"
+1369:  buh_line "      A FROM SCRATCH OCI image pushed from host to GAR before"
+1370:  buh_line "      the build. Contains the Dockerfile, scripts, and"
+1371:  buh_line "      configuration Cloud Build needs. Identical for tethered"
+1372:  buh_line "      and airgapped builds — the pool determines network"
+1373:  buh_line "      access, not the pouch."
+1374:  buh_e
+1376:  buh_line "   ${z_buym_yelp}"
+1377:  buh_line "      The consumer image — a multiplatform manifest list."
+1378:  buh_line "      This is what you pull and run."
+1379:  buh_e
+1381:  buh_line "   ${z_buym_yelp}"
+1382:  buh_line "      Per-platform provenance-carrying image (one per platform)."
+1383:  buh_line "      Shares all layers with -image — only the manifest differs."
+1384:  buh_line "      These carry the GCB-attested digests used by vouch."
+1385:  buh_e
+1387:  buh_line "   ${z_buym_yelp}"
+1388:  buh_line "      SBOM (software bill of materials) + build info."
+1389:  buh_e
+1391:  buh_line "   ${z_buym_yelp}"
+1392:  buh_line "      SLSA provenance verification record."
+1393:  buh_e
+1395:  buh_line "   ${z_buym_yelp}"
+1396:  buh_line "      Diagnostics from the build."
+1397:  buh_e
+1398:  buh_line "Inspect them:"
+1399:  buh_e
+1401:  buh_step2 "Tally"
+1402:  buh_e
+1403:  buh_line "${RBYC_TALLY} lists all hallmarks and their health state:"
+1404:  buh_e
+1406:  buh_line "   ${z_buym_yelp}"
+1407:  buh_e
+1408:  buh_line "Look for your ${RBYC_HALLMARK} with health state 'vouched' — that"
+1409:  buh_line "means SLSA provenance was verified."
+1410:  buh_e
+1412:  buh_step2 "Vouch"
+1413:  buh_e
+1414:  buh_line "${RBYC_VOUCH} verifies SLSA provenance for each platform"
+1415:  buh_line "digest in the ${RBYC_HALLMARK}. The ordain pipeline runs ${RBYC_VOUCH}"
+1416:  buh_line "automatically. If a build was interrupted before ${RBYC_VOUCH}"
+1417:  buh_line "completed, run this to reattempt ${RBYC_VOUCH} on untreated ${RBYC_HALLMARKS}:"
+1418:  buh_e
+1420:  buh_line "   ${z_buym_yelp}"
+1421:  buh_e
+1422:  buh_line "The ${RBYC_CONJURE} verdict is full SLSA — Cloud Build produced"
+1423:  buh_line "this image, and the provenance chain proves it."
+1424:  buh_e
+1426:  buh_step2 "Plumb"
+1427:  buh_e
+1428:  buh_line "${RBYC_PLUMB} displays the SBOM, build info, and Dockerfile"
+1429:  buh_line "that produced the hallmark. Two modes:"
+1430:  buh_e
+1434:  buh_line "   ${z_tt}${z_buym_yelp}"
+1435:  buh_line "   Full provenance display — SBOM packages, build parameters,"
+1436:  buh_line "   Dockerfile content."
+1437:  buh_e
+1441:  buh_line "   ${z_tt}${z_buym_yelp}"
+1442:  buh_line "   Compact summary — one-line-per-artifact overview."
+1443:  buh_e
+1445:  buh_step1 "Summon the hallmark"
+1446:  buh_e
+1447:  buh_line "${RBYC_SUMMON} pulls a set of images affiliated with a"
+1448:  buh_line "${RBYC_HALLMARK} that has been ${RBYC_VOUCHED} to your local"
+1449:  buh_line "Docker image cache:"
+1450:  buh_e
+1454:  buh_line "   ${z_tt}${z_buym_yelp}"
+1455:  buh_e
+1457:  buh_line "   ${z_buym_yelp}"
+1458:  buh_line "   is a multiplatform manifest list."
+1459:  buh_line "   Docker resolves it to the image matching your host"
+1460:  buh_line "   architecture — the same image that ${RBYC_CHARGE} uses when"
+1461:  buh_line "   starting a ${RBYC_CRUCIBLE} from cloud-built ${RBYC_HALLMARKS}."
+1462:  buh_e
+1467:    buh_line " ${z_buym_yelp} Conjured sentry image found locally (summoned from GAR)"
+1469:    buh_line " [ ] No conjured sentry image found locally — run ${RBYC_SUMMON} above"
+1471:  buh_e
+1473:  buh_step1 "Abjure and Rekon — hallmark lifecycle"
+1474:  buh_e
+1475:  buh_line "${RBYC_REKON} lists the raw tags for a ${RBYC_VESSEL}"
+1476:  buh_line "package in GAR. Run it before and after ${RBYC_ABJURE} to see"
+1477:  buh_line "the full lifecycle:"
+1478:  buh_e
+1482:  buh_line "   ${z_tt}${z_buym_yelp}"
+1483:  buh_e
+1484:  buh_line "You should see all five durable tags for your ${RBYC_HALLMARK}:"
+1486:  buh_line "   ${z_buym_yelp}"
+1487:  buh_e
+1488:  buh_line "${RBYC_ABJURE} removes all artifacts for a ${RBYC_HALLMARK}"
+1489:  buh_line "from GAR. This is permanent — the hallmark and all its"
+1490:  buh_line "tags are deleted:"
+1491:  buh_e
+1495:  buh_line "   ${z_tt}${z_buym_yelp}"
+1496:  buh_e
+1497:  buh_line "After abjure, run Rekon again:"
+1498:  buh_e
+1502:  buh_line "   ${z_tt}${z_buym_yelp}"
+1503:  buh_e
+1504:  buh_line "The tags for your ${RBYC_HALLMARK} should be gone. The image is no"
+1505:  buh_line "longer in the ${RBYC_DEPOT}."
+1506:  buh_e
+1508:  buh_section "What you learned"
+1509:  buh_e
+1510:  buh_line "You just completed the full conjure lifecycle:"
+1511:  buh_e
+1512:  buh_line "  1. ${RBYC_RELIQUARY} — builder toolchain provisioned"
+1513:  buh_line "  2. ${RBYC_CONJURE} — vessel built by Cloud Build with SLSA provenance"
+1514:  buh_line "  3. ${RBYC_TALLY}/${RBYC_VOUCH} — health and provenance verified"
+1515:  buh_line "  4. ${RBYC_PLUMB} — SBOM and build info inspected"
+1516:  buh_line "  5. ${RBYC_SUMMON} — consumer image pulled locally"
+1517:  buh_line "  6. ${RBYC_ABJURE}/${RBYC_REKON} — lifecycle cleanup"
+1518:  buh_e
+1519:  buh_line "This was a ${RBYC_TETHERED} build — Cloud Build had"
+1520:  buh_line "internet access. The next track teaches you to remove"
+1521:  buh_line "that dependency entirely."
+1522:  buh_e
+1526:  buh_line "Return to start: ${z_buym_yelp}"
+1527:  buh_e
+1542:  buh_section "Payor — Establish a Manor and Provision the Depot"
+1543:  buh_e
+1544:  buh_line "The ${RBYC_PAYOR} establishes a ${RBYC_MANOR} — an administrative seat"
+1545:  buh_line "holding the billing account, OAuth client, and operator identity."
+1546:  buh_line "Unlike other roles that use service account keys, the ${RBYC_PAYOR}"
+1547:  buh_line "authenticates via OAuth — representing the human project owner."
+1548:  buh_e
+1549:  buh_line "By the end of this handbook you will have a ${RBYC_MANOR}, a ${RBYC_DEPOT}"
+1550:  buh_line "funded under it, and a ${RBYC_GOVERNOR} service account ready to administer it."
+1551:  buh_e
+1553:  buh_line "This ceremony takes about 15 minutes."
+1554:  buh_e
+1556:  buh_step_style "Step " " — "
+1561:  buh_step1 "Establish the Manor"
+1562:  buh_e
+1563:  buh_line "The ${RBYC_MANORS} GCP project hosts the OAuth client and billing"
+1564:  buh_line "account. It must be created before any infrastructure can be"
+1565:  buh_line "provisioned."
+1566:  buh_e
+1567:  buh_line "Run the guided setup:"
+1568:  buh_tt  "  " "${RBZ_PAYOR_ESTABLISH}"
+1569:  buh_e
+1570:  buh_line "This guides you through creating the ${RBYC_MANORS} GCP project,"
+1571:  buh_line "enabling billing, and configuring the OAuth consent screen. The ${RBYC_MANOR}"
+1572:  buh_line "identity is recorded in ${RBYC_RBRP}."
+1573:  buh_e
+1578:  buh_step1 "Install OAuth credentials"
+1579:  buh_e
+1580:  buh_line "Step 1 ended with downloading a JSON client secret file from the"
+1581:  buh_line "OAuth client you just created. Install it:"
+1582:  buh_e
+1583:  buh_tt  "  " "${RBZ_PAYOR_INSTALL}" "" " \${HOME}/Downloads/client_secret_*.json"
+1584:  buh_e
+1585:  buh_line "This walks you through the OAuth authorization flow and stores"
+1586:  buh_line "the credential securely."
+1587:  buh_e
+1588:  buh_line "If you are refreshing an existing credential that has expired:"
+1589:  buh_tt  "  " "${RBZ_PAYOR_REFRESH}"
+1590:  buh_e
+1595:  buh_step1 "Provision the Depot"
+1596:  buh_e
+1597:  buh_line "A ${RBYC_DEPOT} is the facility where container images are built and"
+1598:  buh_line "stored — a GCP project with a container repository, storage bucket,"
+1599:  buh_line "and build infrastructure, funded under the ${RBYC_MANORS} billing account."
+1600:  buh_line "A ${RBYC_GOVERNOR} administers the ${RBYC_DEPOT} — creating"
+1601:  buh_line "${RBYC_RETRIEVER} and ${RBYC_DIRECTOR} accounts for those who build and"
+1602:  buh_line "retrieve container images."
+1603:  buh_e
+1604:  buh_line "${RBYC_PAYOR} creates the Depot:"
+1605:  buh_tt  "  " "${RBZ_LEVY_DEPOT}"
+1606:  buh_e
+1607:  buh_line "This enables APIs, creates the Artifact Registry repository and"
+1608:  buh_line "Cloud Storage bucket, and configures Cloud Build."
+1609:  buh_e
+1610:  buh_line "${RBYC_PAYOR} can list Depots for verification:"
+1611:  buh_tt  "  " "${RBZ_LIST_DEPOT}"
+1612:  buh_e
+1613:  buh_line "${RBYC_PAYOR} creates the Governor service account:"
+1614:  buh_tt  "  " "${RBZ_MANTLE_GOVERNOR}"
+1615:  buh_e
+1616:  buh_line "Hand the resulting key file to the person who will administer"
+1617:  buh_line "this ${RBYC_DEPOT}. After this handoff, the ${RBYC_GOVERNOR} can create"
+1618:  buh_line "${RBYC_RETRIEVER} and ${RBYC_DIRECTOR} accounts independently."
+1619:  buh_e
+1620:  buh_line "The ${RBYC_PAYORS} job for this ${RBYC_DEPOT} is done unless billing or"
+1621:  buh_line "project-level changes are needed."
+1622:  buh_e
+1625:  buh_tt  "Return to start: " "${RBZ_ONBOARD_START_HERE}"
+1626:  buh_e
+1642:  buh_section "Governor — Administer Service Accounts"
+1643:  buh_e
+1644:  buh_line "A ${RBYC_GOVERNOR} administers a ${RBYC_DEPOT} — creating service accounts"
+1645:  buh_line "and managing access for those who build and run container images."
+1646:  buh_e
+1648:  buh_step_style "Step " " — "
+1653:  buh_step1 "Install governor credentials"
+1654:  buh_e
+1655:  buh_line "The ${RBYC_GOVERNOR} works within a ${RBYC_DEPOT} provisioned under the"
+1656:  buh_line "${RBYC_PAYORS} ${RBYC_MANOR}. Your Payor creates your credential by running:"
+1657:  buh_tt  "  " "${RBZ_MANTLE_GOVERNOR}"
+1658:  buh_e
+1659:  buh_line "If no ${RBYC_DEPOT} exists yet, the ${RBYC_PAYOR} establishes one first:"
+1660:  buh_tt  "  " "${RBZ_ONBOARD_PAYOR_HB}"
+1661:  buh_e
+1662:  buh_line "Install the resulting key file into the secrets directory under"
+1663:  buh_line "the governor role subdirectory. The path is derived from your"
+1664:  buh_line "${RBYC_RBRR} configuration — check RBRR_SECRETS_DIR for the location."
+1665:  buh_e
+1670:  buh_step1 "Provision downstream service accounts"
+1671:  buh_e
+1672:  buh_line "The governor provisions access for two downstream roles:"
+1673:  buh_e
+1674:  buh_line "A ${RBYC_RETRIEVER} has read access to the ${RBYC_DEPOT} — they pull and run"
+1675:  buh_line "container images that others have built."
+1676:  buh_line "A ${RBYC_DIRECTOR} has build and publish access — they create container"
+1677:  buh_line "images and push them to the registry."
+1678:  buh_e
+1679:  buh_line "Create a ${RBYC_RETRIEVER} with read access (${RBYC_CHARTER}):"
+1680:  buh_tt  "  " "${RBZ_CHARTER_RETRIEVER}"
+1681:  buh_e
+1682:  buh_line "Create a ${RBYC_DIRECTOR} with build access (${RBYC_KNIGHT}):"
+1683:  buh_tt  "  " "${RBZ_KNIGHT_DIRECTOR}"
+1684:  buh_e
+1685:  buh_line "Each command creates the service account and applies the IAM"
+1686:  buh_line "grants it needs. The output is an ${RBYC_RBRA} key file — hand it to"
+1687:  buh_line "the Retriever or Director user."
+1688:  buh_e
+1689:  buh_line "List issued service accounts:"
+1690:  buh_tt  "  " "${RBZ_LIST_SERVICE_ACCOUNTS}"
+1691:  buh_e
+1696:  buh_step1 "Verify the chain"
+1697:  buh_e
+1698:  buh_line "The service accounts you created include IAM grants — each SA"
+1699:  buh_line "gets exactly the permissions its role requires, no more."
+1700:  buh_line "${RBYC_RETRIEVER} gets read access."
+1701:  buh_line "${RBYC_DIRECTOR} gets read, write, and build trigger access."
+1702:  buh_e
+1703:  buh_line "Verify the complete chain works by installing both credentials"
+1704:  buh_line "locally and running the credential handbook tracks:"
+1705:  buh_tt  "  " "${RBZ_ONBOARD_CRED_RETRIEVER}"
+1706:  buh_tt  "  " "${RBZ_ONBOARD_CRED_DIRECTOR}"
+1707:  buh_e
+1708:  buh_line "If the ${RBYC_RETRIEVER} can pull from the ${RBYC_DEPOT} and the"
+1709:  buh_line "${RBYC_DIRECTOR} can see the registry, your grants are correct."
+1710:  buh_e
+1713:  buh_tt  "Return to start: " "${RBZ_ONBOARD_START_HERE}"
+1714:  buh_e

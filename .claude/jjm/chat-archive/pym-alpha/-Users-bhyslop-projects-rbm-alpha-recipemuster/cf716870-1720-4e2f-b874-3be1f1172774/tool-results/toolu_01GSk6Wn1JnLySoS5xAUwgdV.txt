@@ -1,0 +1,215 @@
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-bottle-ccyolo/entrypoint.sh-1-#!/bin/bash
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-bottle-ccyolo/entrypoint.sh-2-set -e
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-bottle-ccyolo/entrypoint.sh-3-
+rbev-vessels/rbev-bottle-ccyolo/entrypoint.sh:4:# Ensure claude user home is ready
+rbev-vessels/rbev-bottle-ccyolo/entrypoint.sh:5:CLAUDE_HOME=$(getent passwd claude | cut -d: -f6)
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-bottle-ccyolo/entrypoint.sh-6-
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-bottle-ccyolo/entrypoint.sh-7-# Seed persistent workspace with sample project on first boot.
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-bottle-ccyolo/entrypoint.sh-8-# The volume is empty on initial charge; subsequent charges reuse it.
+--
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-bottle-ccyolo/entrypoint.sh-12-  chmod +x "${WORKSPACE}"/*.sh 2>/dev/null || true
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-bottle-ccyolo/entrypoint.sh-13-fi
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-bottle-ccyolo/entrypoint.sh-14-
+rbev-vessels/rbev-bottle-ccyolo/entrypoint.sh:15:chown -R claude:claude "${CLAUDE_HOME}"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-bottle-ccyolo/entrypoint.sh-16-
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-bottle-ccyolo/entrypoint.sh-17-# Start SSH daemon in foreground (container lifecycle tied to sshd)
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-bottle-ccyolo/entrypoint.sh-18-exec /usr/sbin/sshd -D
+--
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-bottle-ccyolo/Dockerfile-2-#
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-bottle-ccyolo/Dockerfile-3-# SSH-accessible container running Claude Code. The sentry DNAT
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-bottle-ccyolo/Dockerfile-4-# forwards ENTRY_PORT_WORKSTATION to this container's port 22.
+rbev-vessels/rbev-bottle-ccyolo/Dockerfile:5:# User SSHs in as "claude" (empty password, PAM-permissive),
+rbev-vessels/rbev-bottle-ccyolo/Dockerfile:6:# then runs `claude` to authenticate via OAuth copy/paste flow.
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-bottle-ccyolo/Dockerfile-7-#
+rbev-vessels/rbev-bottle-ccyolo/Dockerfile-8-# Build context: rbev-vessels/rbev-bottle-ccyolo/ (co-located with Dockerfile)
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-bottle-ccyolo/Dockerfile-9-
+--
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-bottle-ccyolo/Dockerfile-24-# Install Claude Code globally via npm (node and npm provided by base image)
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-bottle-ccyolo/Dockerfile-25-# Pin version — v2.1.105+ has a bracketed paste regression that breaks
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-bottle-ccyolo/Dockerfile-26-# OAuth code entry through SSH/docker-exec terminals.
+rbev-vessels/rbev-bottle-ccyolo/Dockerfile:27:RUN npm install -g @anthropic-ai/claude-code@2.1.89
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-bottle-ccyolo/Dockerfile-28-
+rbev-vessels/rbev-bottle-ccyolo/Dockerfile:29:# Create unprivileged claude user with empty password
+rbev-vessels/rbev-bottle-ccyolo/Dockerfile:30:RUN useradd -m -s /bin/bash claude && \
+rbev-vessels/rbev-bottle-ccyolo/Dockerfile:31:    passwd -d claude
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-bottle-ccyolo/Dockerfile-32-
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-bottle-ccyolo/Dockerfile-33-# Generate SSH host keys
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-bottle-ccyolo/Dockerfile-34-RUN ssh-keygen -A
+--
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-bottle-ccyolo/Dockerfile-50-# Preconfigure Claude Code for full autonomy (yolo mode).
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-bottle-ccyolo/Dockerfile-51-# Inside a network-contained crucible, bypassing permission prompts is
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-bottle-ccyolo/Dockerfile-52-# the correct posture — the sentry enforces the real security boundary.
+rbev-vessels/rbev-bottle-ccyolo/Dockerfile:53:RUN mkdir -p /home/claude/.claude && \
+rbev-vessels/rbev-bottle-ccyolo/Dockerfile-54-    echo '{"permissions":{"defaultMode":"bypassPermissions"}}' \
+rbev-vessels/rbev-bottle-ccyolo/Dockerfile:55:      > /home/claude/.claude/settings.json && \
+rbev-vessels/rbev-bottle-ccyolo/Dockerfile:56:    chown -R claude:claude /home/claude/.claude
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-bottle-ccyolo/Dockerfile-57-
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-bottle-ccyolo/Dockerfile-58-# Stage sample project as a template — the entrypoint seeds the
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-bottle-ccyolo/Dockerfile-59-# persistent workspace volume on first boot.
+--
+rbev-vessels/rbev-bottle-ccyolo/sample-project/README.md-13-The script has bugs. Try asking Claude to find and fix them:
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-bottle-ccyolo/sample-project/README.md-14-
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-bottle-ccyolo/sample-project/README.md-15-```
+rbev-vessels/rbev-bottle-ccyolo/sample-project/README.md:16:claude
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-bottle-ccyolo/sample-project/README.md-17-
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-bottle-ccyolo/sample-project/README.md-18-> The count_words.sh script has bugs — can you find and fix them?
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-bottle-ccyolo/sample-project/README.md-19-```
+--
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-bottle-anthropic-jupyter/Dockerfile-40-    ipcalc               `#For IP calculations and subnet info`                \
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-bottle-anthropic-jupyter/Dockerfile-41-    && rm -rf /var/lib/apt/lists/*
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-bottle-anthropic-jupyter/Dockerfile-42-
+rbev-vessels/rbev-bottle-anthropic-jupyter/Dockerfile:43:RUN pip install --no-cache-dir jupyter jupyterlab
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-bottle-anthropic-jupyter/Dockerfile-44-RUN pip install --no-cache-dir anthropic
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-bottle-anthropic-jupyter/Dockerfile-45-
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-bottle-anthropic-jupyter/Dockerfile-46-# Set the working directory to the mount point
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-bottle-anthropic-jupyter/Dockerfile-47-WORKDIR ${RBEV_BOTTLE_WORKDIR}
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-bottle-anthropic-jupyter/Dockerfile-48-
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-bottle-anthropic-jupyter/Dockerfile-49-# Generate Jupyter config and set dark theme using settings override
+rbev-vessels/rbev-bottle-anthropic-jupyter/Dockerfile:50:RUN jupyter lab --generate-config                                                                                                         &&\
+rbev-vessels/rbev-bottle-anthropic-jupyter/Dockerfile:51:    mkdir -p                                 /root/.jupyter/lab/user-settings/@jupyterlab/apputils-extension                              &&\
+rbev-vessels/rbev-bottle-anthropic-jupyter/Dockerfile:52:    echo '{"theme": "JupyterLab Dark"}'   >  /root/.jupyter/lab/user-settings/@jupyterlab/apputils-extension/themes.jupyterlab-settings   &&\
+rbev-vessels/rbev-bottle-anthropic-jupyter/Dockerfile:53:    echo "c.ServerApp.allow_origin = '*'" >> /root/.jupyter/jupyter_server_config.py                                                       &&\
+rbev-vessels/rbev-bottle-anthropic-jupyter/Dockerfile:54:    echo "c.ServerApp.ip = '0.0.0.0'"     >> /root/.jupyter/jupyter_server_config.py
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-bottle-anthropic-jupyter/Dockerfile-55-
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-bottle-anthropic-jupyter/Dockerfile-56-# Create a startup script with enhanced logging
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-bottle-anthropic-jupyter/Dockerfile-57-RUN echo '#!/bin/sh'                                                                     >  /startup.sh  &&\
+--
+rbev-vessels/rbev-bottle-anthropic-jupyter/Dockerfile-61-    echo 'echo "Current listening ports:"'                                              >>  /startup.sh  &&\
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-bottle-anthropic-jupyter/Dockerfile-62-    echo 'netstat -tuln'                                                                >>  /startup.sh  &&\
+rbev-vessels/rbev-bottle-anthropic-jupyter/Dockerfile-63-    echo 'echo "Disable nag: Would you like to receive official Jupyter news?"'         >>  /startup.sh  &&\
+rbev-vessels/rbev-bottle-anthropic-jupyter/Dockerfile:64:    echo 'jupyter labextension disable "@jupyterlab/apputils-extension:announcements"'  >>  /startup.sh  &&\
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-bottle-anthropic-jupyter/Dockerfile-65-    echo 'echo "Starting Jupyter Lab server..."'                                        >>  /startup.sh  &&\
+rbev-vessels/rbev-bottle-anthropic-jupyter/Dockerfile:66:    echo 'jupyter lab'                                        \
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-bottle-anthropic-jupyter/Dockerfile-67-         '--ip=0.0.0.0'                                       \
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-bottle-anthropic-jupyter/Dockerfile-68-         '--port=${RBEV_BOTTLE_JUPYTER_PORT}'                 \
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-bottle-anthropic-jupyter/Dockerfile-69-         '--no-browser'                                       \
+--
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-bottle-ifrit/src/rbida_sorties.rs-14-//
+rbev-vessels/rbev-bottle-ifrit/src/rbida_sorties.rs-15-/ Author: Brad Hyslop <bhyslop@scaleinvariant.org>
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-bottle-ifrit/src/rbida_sorties.rs-16-//
+rbev-vessels/rbev-bottle-ifrit/src/rbida_sorties.rs:17:// RBIDA_SORTIES — ported python sorties (rbtis_*.py) as ifrit attack variants
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-bottle-ifrit/src/rbida_sorties.rs-18-//
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-bottle-ifrit/src/rbida_sorties.rs-19-// Each sortie was originally a python module in Tools/rbk/rbtid/. This module
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-bottle-ifrit/src/rbida_sorties.rs-20-// reproduces the same security checks in Rust, producing a single rbida_Verdict
+--
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-bottle-ifrit/src/rbida_sorties.rs-886-        .unwrap_or("");
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-bottle-ifrit/src/rbida_sorties.rs-887-    let external_ip = "8.8.8.8";
+rbev-vessels/rbev-bottle-ifrit/src/rbida_sorties.rs-888-    let timeout = Duration::from_secs(3);
+rbev-vessels/rbev-bottle-ifrit/src/rbida_sorties.rs:889:    let secret = b"EXFIL:ifrit-escaped-via-icmp-payload-encoding";
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-bottle-ifrit/src/rbida_sorties.rs-890-
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-bottle-ifrit/src/rbida_sorties.rs-891-    // ICMP to sentry should work (enclave ICMP allowed)
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-bottle-ifrit/src/rbida_sorties.rs-892-    match send_icmp(&sentry_ip, secret, 1, timeout) {
+--
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-bottle-ifrit/src/rbida_sorties.rs-1195-    }
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-bottle-ifrit/src/rbida_sorties.rs-1196-
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-bottle-ifrit/src/rbida_sorties.rs-1197-    // Protocol 253 (experimental) to external
+rbev-vessels/rbev-bottle-ifrit/src/rbida_sorties.rs:1198:    match send_raw_proto(external_ip, 253, b"EXFIL:ifrit", timeout) {
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-bottle-ifrit/src/rbida_sorties.rs-1199-        Ok(replied) => {
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-bottle-ifrit/src/rbida_sorties.rs-1200-            if replied {
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-bottle-ifrit/src/rbida_sorties.rs-1201-                return fail(format!(
+--
+rbev-vessels/rbev-bottle-ifrit/src/rbida_sorties.rs-2522-    let timeout = Duration::from_secs(5);
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-bottle-ifrit/src/rbida_sorties.rs-2523-
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-bottle-ifrit/src/rbida_sorties.rs-2524-    // Resolve example.com — it's on the allowed CIDR list.
+rbev-vessels/rbev-bottle-ifrit/src/rbida_sorties.rs:2525:    // Use getent (same resolver as other ifrit attacks).
+rbev-vessels/rbev-bottle-ifrit/src/rbida_sorties.rs-2526-    let resolve_output = match std::process::Command::new("getent")
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-bottle-ifrit/src/rbida_sorties.rs-2527-        .args(["hosts", "example.com"])
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-bottle-ifrit/src/rbida_sorties.rs-2528-        .output()
+--
+rbev-vessels/rbev-bottle-ifrit/src/rbida_sorties.rs-2568-pub fn sortie_http_end_to_end(_extra_args: &[&str]) -> rbida_Verdict {
+rbev-vessels/rbev-bottle-ifrit/src/rbida_sorties.rs-2569-    let timeout = Duration::from_secs(10);
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-bottle-ifrit/src/rbida_sorties.rs-2570-
+rbev-vessels/rbev-bottle-ifrit/src/rbida_sorties.rs:2571:    // Resolve example.com via getent to get IP (same as other ifrit attacks)
+rbev-vessels/rbev-bottle-ifrit/src/rbida_sorties.rs-2572-    let resolve_output = match Command::new("getent")
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-bottle-ifrit/src/rbida_sorties.rs-2573-        .args(["hosts", "example.com"])
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-bottle-ifrit/src/rbida_sorties.rs-2574-        .output()
+--
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-busybox/Dockerfile-6-WORKDIR /app
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-busybox/Dockerfile-7-
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-busybox/Dockerfile-8-# Create a non-root user for security
+rbev-vessels/rbev-busybox/Dockerfile:9:RUN adduser -D appuser
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-busybox/Dockerfile-10-
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-busybox/Dockerfile-11-# Switch to non-root user
+rbev-vessels/rbev-busybox/Dockerfile:12:USER appuser
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-busybox/Dockerfile-13-
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-busybox/Dockerfile-14-# Set the entrypoint to show it's running
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-busybox/Dockerfile-15-CMD ["echo", "BusyBox container is running!"]
+--
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-bottle-ifrit/src/main.rs-19-// Receives an attack selector argument, executes one attack, prints a verdict
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-bottle-ifrit/src/main.rs-20-// line to stdout, and exits 0 (PASS/SECURE) or nonzero (FAIL).
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-bottle-ifrit/src/main.rs-21-//
+rbev-vessels/rbev-bottle-ifrit/src/main.rs:22:// Wire protocol (consumed by theurge's rbtdri_parse_ifrit_verdict):
+rbev-vessels/rbev-bottle-ifrit/src/main.rs-23-/   stdout: "IFRIT_VERDICT: PASS" or "IFRIT_VERDICT: FAIL <detail>"
+rbev-vessels/rbev-bottle-ifrit/src/main.rs-24-/   exit:   0 for pass, 1 for fail
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-bottle-ifrit/src/main.rs-25-
+--
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-busybox-native-verify/Dockerfile-5-WORKDIR /app
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-busybox-native-verify/Dockerfile-6-
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-busybox-native-verify/Dockerfile-7-# Create a non-root user for security
+rbev-vessels/rbev-busybox-native-verify/Dockerfile:8:RUN adduser -D appuser
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-busybox-native-verify/Dockerfile-9-
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-busybox-native-verify/Dockerfile-10-# Switch to non-root user
+rbev-vessels/rbev-busybox-native-verify/Dockerfile:11:USER appuser
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-busybox-native-verify/Dockerfile-12-
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-busybox-native-verify/Dockerfile-13-# Set the entrypoint to show it's running
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-busybox-native-verify/Dockerfile-14-CMD ["echo", "BusyBox native-verify container is running!"]
+--
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-busybox-airgap-negative-canary/Dockerfile-4-FROM ${RBF_IMAGE_1}
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-busybox-airgap-negative-canary/Dockerfile-5-
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-busybox-airgap-negative-canary/Dockerfile-6-WORKDIR /app
+rbev-vessels/rbev-busybox-airgap-negative-canary/Dockerfile:7:RUN adduser -D appuser
+rbev-vessels/rbev-busybox-airgap-negative-canary/Dockerfile:8:USER appuser
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-busybox-airgap-negative-canary/Dockerfile-9-CMD ["echo", "This should never run — airgap canary"]
+--
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-bottle-anthropic-jupyter/rbrv.env-19-# Recipe Bottle Regime Vessel - Bottle Anthropic Jupyter (Conjuring)
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-bottle-anthropic-jupyter/rbrv.env-20-
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-bottle-anthropic-jupyter/rbrv.env-21-# Core Identity
+rbev-vessels/rbev-bottle-anthropic-jupyter/rbrv.env:22:RBRV_SIGIL=rbev-bottle-anthropic-jupyter
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-bottle-anthropic-jupyter/rbrv.env-23-RBRV_DESCRIPTION="Jupyter Notebook bottle with Claude API access and networking tools"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-bottle-anthropic-jupyter/rbrv.env-24-
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-bottle-anthropic-jupyter/rbrv.env-25-# Vessel Mode
+--
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-bottle-ifrit/rbrv.env-19-# Recipe Bottle Regime Vessel - Bottle Ifrit (Conjuring)
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-bottle-ifrit/rbrv.env-20-
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-bottle-ifrit/rbrv.env-21-# Core Identity
+rbev-vessels/rbev-bottle-ifrit/rbrv.env:22:RBRV_SIGIL=rbev-bottle-ifrit
+rbev-vessels/rbev-bottle-ifrit/rbrv.env:23:RBRV_DESCRIPTION="Rust ifrit attack binary with network tools and echo service"
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-bottle-ifrit/rbrv.env-24-
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-bottle-ifrit/rbrv.env-25-# Vessel Mode
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-bottle-ifrit/rbrv.env-26-RBRV_VESSEL_MODE=conjure
+--
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-bottle-ifrit/Dockerfile-2-#
+rbev-vessels/rbev-bottle-ifrit/Dockerfile-3-# Single-stage build: Rust toolchain stays in image (test vessel, size
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-bottle-ifrit/Dockerfile-4-# irrelevant, iteration speed matters). Layer-cached dependency compilation
+rbev-vessels/rbev-bottle-ifrit/Dockerfile:5:# means source-only changes rebuild just the ifrit crate.
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-bottle-ifrit/Dockerfile-6-#
+rbev-vessels/rbev-bottle-ifrit/Dockerfile:7:# Build context: rbev-vessels/rbev-bottle-ifrit/ (co-located with Dockerfile)
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-bottle-ifrit/Dockerfile-8-
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-bottle-ifrit/Dockerfile-9-ARG RBF_IMAGE_1
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-bottle-ifrit/Dockerfile-10-FROM ${RBF_IMAGE_1}
+--
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-bottle-ifrit/Dockerfile-39-RUN cargo build --release
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-bottle-ifrit/Dockerfile-40-
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-bottle-ifrit/Dockerfile-41-# Install binary to standard location with CAP_NET_RAW file capability.
+rbev-vessels/rbev-bottle-ifrit/Dockerfile:42:# Container cap_add only populates the bounding set; non-root ifrit user
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-bottle-ifrit/Dockerfile-43-# needs file capabilities to get NET_RAW in effective set for raw sockets.
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-bottle-ifrit/Dockerfile-44-RUN cp target/release/rbid /usr/local/bin/rbid && \
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-bottle-ifrit/Dockerfile-45-    setcap cap_net_raw+ep /usr/local/bin/rbid
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-bottle-ifrit/Dockerfile-46-
+rbev-vessels/rbev-bottle-ifrit/Dockerfile:47:# Create unprivileged ifrit user
+rbev-vessels/rbev-bottle-ifrit/Dockerfile:48:RUN useradd -m -s /bin/bash ifrit
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-bottle-ifrit/Dockerfile-49-
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-bottle-ifrit/Dockerfile-50-# Keep the container alive with echo service on port 8888
+rbev-vessels/rbev-bottle-ifrit/Dockerfile-51-CMD ["socat", "TCP-LISTEN:8888,fork,reuseaddr", "EXEC:cat"]
+--
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-bottle-ifrit/src/rbida_attacks.rs-14-//
+rbev-vessels/rbev-bottle-ifrit/src/rbida_attacks.rs-15-/ Author: Brad Hyslop <bhyslop@scaleinvariant.org>
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-bottle-ifrit/src/rbida_attacks.rs-16-//
+rbev-vessels/rbev-bottle-ifrit/src/rbida_attacks.rs:17:// RBIDA — attack definitions and dispatch for ifrit
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-bottle-ifrit/src/rbida_attacks.rs-18-//
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-bottle-ifrit/src/rbida_attacks.rs-19-// Each variant of rbida_Attack represents one security boundary probe.
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-bottle-ifrit/src/rbida_attacks.rs-20-// Exhaustive match in rbida_run ensures adding a variant forces handling.
+rbev-vessels/rbev-bottle-ifrit/src/rbida_attacks.rs:21:// Attacks shell out to system commands available in the ifrit vessel image.
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-bottle-ifrit/src/rbida_attacks.rs-22-
+rbev-vessels/rbev-bottle-ifrit/src/rbida_attacks.rs-23-use std::process::Command;
+/Users/bhyslop/projects/rbm_alpha_recipemuster/rbev-vessels/rbev-bottle-ifrit/src/rbida_attacks.rs-24-
