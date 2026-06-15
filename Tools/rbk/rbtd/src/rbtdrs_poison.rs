@@ -44,10 +44,13 @@ use crate::rbtdgc_consts::{
     RBTDGC_BAND_ENROLL,
     RBTDGC_BAND_REGIME,
     RBTDGC_TWEAK_REGIME_POISON,
+    RBTDGC_VALIDATE_AUTH,
     RBTDGC_VALIDATE_DEPOT,
     RBTDGC_VALIDATE_NAMEPLATE,
+    RBTDGC_VALIDATE_OAUTH,
     RBTDGC_VALIDATE_PAYOR,
     RBTDGC_VALIDATE_REPO,
+    RBTDGC_VALIDATE_STATION,
     RBTDGC_VALIDATE_VESSEL,
 };
 use crate::rbtdre_engine::{
@@ -73,12 +76,16 @@ const RBTDRS_VAR_RBRD_DEPOT_MONIKER: &str = "RBRD_DEPOT_MONIKER";
 // BUK validate colophons — not projected into RBTDGC_* (those carry the rbw-*
 // RB colophons only), so the buw-* BUK colophons are named here.
 const RBTDRS_VALIDATE_BURC: &str = "buw-rcv";
+const RBTDRS_VALIDATE_BURS: &str = "buw-rsv";
+const RBTDRS_VALIDATE_BURN: &str = "buw-rnv";
+const RBTDRS_VALIDATE_BURP: &str = "buw-rpv";
 
-// Folio monikers referenced by 2+ cases — a known-good entry-enabled nameplate
-// and a known-good conjure vessel, both committed in-tree. Removing either
-// fails the cases loud (the verb cannot locate the regime), not silently.
+// Folio monikers referenced by 2+ cases — a known-good entry-enabled nameplate,
+// a known-good conjure vessel, and a committed BURN node, all in-tree. Removing
+// any fails the cases loud (the verb cannot locate the regime), not silently.
 const RBTDRS_NAMEPLATE_TADMOR: &str = "tadmor";
 const RBTDRS_VESSEL_BUSYBOX: &str = "rbev-busybox";
+const RBTDRS_NODE_BUJN_WINPC: &str = "bujn-winpc";
 
 // ── Poison harness ──────────────────────────────────────────
 
@@ -315,6 +322,92 @@ fn rbtdrs_rbrv_no_bind_image(dir: &Path) -> rbtdre_Verdict {
         "RBRV_BIND_IMAGE", RBTDGC_BAND_ENROLL, "rbrv-no-bind-image")
 }
 
+// ── Operator-local regimes — station, oauth, auth, node, privilege ──
+//
+// These regimes have no in-tree baseline: their files live in the operator's
+// station tree, present only on a configured workstation. Each case probes the
+// baseline verb un-poisoned first — if it is not green the regime is not
+// configured here and the case self-skips (the regime-smoke station precedent);
+// when green, the baseline run also proves the poison is the only variable, then
+// the poisoned run asserts the band. The poison corrupts an in-memory variable
+// in the validate subshell after the file is sourced — it never modifies the
+// operator's regime file, so even secret-bearing oauth/auth config is untouched.
+
+/// Operator-local variant of rbtdrs_poison: self-skip when the baseline verb is
+/// not green (regime absent on this machine), else assert the poisoned band.
+fn rbtdrs_poison_optional(
+    dir: &Path,
+    validate_colophon: &str,
+    folio: &[&str],
+    poison: &str,
+    expected_band: i32,
+    label: &str,
+) -> rbtdre_Verdict {
+    let root = match std::env::current_dir() {
+        Ok(r) => r,
+        Err(e) => return rbtdre_Verdict::Fail(format!("cannot get cwd: {}", e)),
+    };
+    let tt = match rbtdri_find_tabtarget_global(&root, validate_colophon) {
+        Ok(p) => p,
+        Err(e) => return rbtdre_Verdict::Fail(e),
+    };
+    let baseline = match rbtdri_tabtarget_command(&tt)
+        .args(folio)
+        .current_dir(&root)
+        .output()
+    {
+        Ok(o) => o,
+        Err(e) => {
+            return rbtdre_Verdict::Fail(format!("{}: failed to run {}: {}", label, tt.display(), e));
+        }
+    };
+    let base_code = baseline.status.code().unwrap_or(-1);
+    let _ = std::fs::write(dir.join(format!("{}-baseline-stdout.txt", label)), &baseline.stdout);
+    let _ = std::fs::write(dir.join(format!("{}-baseline-stderr.txt", label)), &baseline.stderr);
+    if base_code != 0 {
+        return rbtdre_Verdict::Skip(format!(
+            "{}: {} baseline not green (exit {}) — operator-local regime not configured here",
+            label, validate_colophon, base_code
+        ));
+    }
+    rbtdrs_poison(dir, validate_colophon, folio, poison, expected_band, label)
+}
+
+fn rbtdrs_rbrs_missing_platform(dir: &Path) -> rbtdre_Verdict {
+    rbtdrs_poison_optional(dir, RBTDGC_VALIDATE_STATION, &[], "RBRS_VM_PLATFORM",
+        RBTDGC_BAND_ENROLL, "rbrs-missing-platform")
+}
+
+fn rbtdrs_rbro_missing_refresh_token(dir: &Path) -> rbtdre_Verdict {
+    rbtdrs_poison_optional(dir, RBTDGC_VALIDATE_OAUTH, &[], "RBRO_REFRESH_TOKEN",
+        RBTDGC_BAND_ENROLL, "rbro-missing-refresh-token")
+}
+
+fn rbtdrs_rbra_bad_private_key(dir: &Path) -> rbtdre_Verdict {
+    // Non-PEM material clears the secret-length enroll but fails the
+    // zrbra_enforce BEGIN check → regime. Folio is a configured credential role.
+    rbtdrs_poison_optional(dir, RBTDGC_VALIDATE_AUTH, &["rbnae_retriever"],
+        "RBRA_PRIVATE_KEY=no-pem-material", RBTDGC_BAND_REGIME, "rbra-bad-private-key")
+}
+
+fn rbtdrs_burs_bad_tincture(dir: &Path) -> rbtdre_Verdict {
+    // Uppercase clears the length enroll but fails the zburs_enforce regex → regime.
+    rbtdrs_poison_optional(dir, RBTDRS_VALIDATE_BURS, &[], "BURS_TINCTURE=A1",
+        RBTDGC_BAND_REGIME, "burs-bad-tincture")
+}
+
+fn rbtdrs_burn_bad_platform(dir: &Path) -> rbtdre_Verdict {
+    // Off-enum value fails the buv_enum_enroll check → enroll.
+    rbtdrs_poison_optional(dir, RBTDRS_VALIDATE_BURN, &[RBTDRS_NODE_BUJN_WINPC],
+        "BURN_PLATFORM=bunne_solaris", RBTDGC_BAND_ENROLL, "burn-bad-platform")
+}
+
+fn rbtdrs_burp_missing_workload_key(dir: &Path) -> rbtdre_Verdict {
+    // Unset a required field → buv presence check → enroll.
+    rbtdrs_poison_optional(dir, RBTDRS_VALIDATE_BURP, &[RBTDRS_NODE_BUJN_WINPC],
+        "BURP_WORKLOAD_KEY_FILE", RBTDGC_BAND_ENROLL, "burp-missing-workload-key")
+}
+
 // ── Fixture ─────────────────────────────────────────────────
 
 pub static RBTDRS_CASES_REGIME_POISON: &[rbtdre_Case] = &[
@@ -344,6 +437,12 @@ pub static RBTDRS_CASES_REGIME_POISON: &[rbtdre_Case] = &[
     case!(rbtdrs_rbrv_unexpected_var),
     case!(rbtdrs_rbrv_partial_conjure),
     case!(rbtdrs_rbrv_no_bind_image),
+    case!(rbtdrs_rbrs_missing_platform),
+    case!(rbtdrs_rbro_missing_refresh_token),
+    case!(rbtdrs_rbra_bad_private_key),
+    case!(rbtdrs_burs_bad_tincture),
+    case!(rbtdrs_burn_bad_platform),
+    case!(rbtdrs_burp_missing_workload_key),
 ];
 
 pub static RBTDRS_FIXTURE_REGIME_POISON: rbtdre_Fixture = rbtdre_Fixture {
