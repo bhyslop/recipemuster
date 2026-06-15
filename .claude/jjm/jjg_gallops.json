@@ -9762,6 +9762,13 @@
         "₢BeAAE": {
           "jjgpn_tacks": [
             {
+              "jjgtn_ts": "260615-1049",
+              "jjgtn_state": "jjgte_complete",
+              "jjgtn_text": "## Character\nMechanical assertion flip across two fixtures;\none one-look judgment on whether the two gates may share a code.\nTier: sonnet-delegable.\n\n## Goal\nClose the wrong-reason hole for the recipe-validation\nand dockerfile-hygiene fixtures' negative cases.\n\nTeach the recipe validation gate and the rbfh FROM-line hygiene gate\n(`Tools/rbk/rbfh_hygiene.sh`) to reject with band codes.\nThese two gates are alternatives — never in one spawn path —\nso they may share a code per the allocation rule;\nconfirm that at migration time rather than assuming.\nFlip both fixtures' negative cases to assert the expected code.\n\n## Done when\n`tt/rbw-ts.TestSuite.fast.sh` green\nwith both fixtures' negative cases asserting specific codes.",
+              "jjgtn_silks": "migrate-recipe-and-hygiene-negatives",
+              "jjgtn_basis": "f933d92"
+            },
+            {
               "jjgtn_ts": "260612-1151",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": "## Character\nMechanical assertion flip across two fixtures;\none one-look judgment on whether the two gates may share a code.\nTier: sonnet-delegable.\n\n## Goal\nClose the wrong-reason hole for the recipe-validation\nand dockerfile-hygiene fixtures' negative cases.\n\nTeach the recipe validation gate and the rbfh FROM-line hygiene gate\n(`Tools/rbk/rbfh_hygiene.sh`) to reject with band codes.\nThese two gates are alternatives — never in one spawn path —\nso they may share a code per the allocation rule;\nconfirm that at migration time rather than assuming.\nFlip both fixtures' negative cases to assert the expected code.\n\n## Done when\n`tt/rbw-ts.TestSuite.fast.sh` green\nwith both fixtures' negative cases asserting specific codes.",
