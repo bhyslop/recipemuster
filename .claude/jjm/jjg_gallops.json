@@ -9039,9 +9039,10 @@
         "₢BZAAA",
         "₢BZAAB",
         "₢BZAAC",
-        "₢BZAAD"
+        "₢BZAAD",
+        "₢BZAAE"
       ],
-      "jjghn_next_pace_seed": "AAE",
+      "jjghn_next_pace_seed": "AAF",
       "jjghn_paces": {
         "₢BZAAA": {
           "jjgpn_tacks": [
@@ -9098,6 +9099,17 @@
               "jjgtn_text": "Collapse every credential resolution behind one identity-keyed accessor — paddock Ordering movement 1.\nToday ~50 call sites mint tokens directly via `rbgo_get_token_capture \"${RBDC_<ROLE>_RBRA_FILE}\"`, plus the governor wrapper `rba_get_governor_token_capture`.\nAfter this pace, one accessor keyed by identity (governor / director / retriever) is the only place credential material is touched.\n\nBehavior is unchanged: the accessor wraps today's keyfile mint during the bridge; the federation branch lands at movement 4.\nHome: `rba_auth.sh`. The source-side grep gate is the verification; the test suites are the arbiter.\n\nSources: ₣BZ paddock \"Ordering\" movement 1 and \"What done looks like\" (first bullet); code-grounding in `Memos/memo-20260615-BZ-pace-design.md`.\n\n## Done when\n- A single accessor resolves credentials by identity; no call site outside it touches credential material (grep-verifiable).\n- Every former direct-mint site routes through the accessor; behavior unchanged.\n- `service` suite green (credential paths) — the arbiter of the no-behavior-change claim.\n\n## Cinched\n- Identity-keyed interface, not RBRA-path-keyed; the RBRA-file plumbing moves inside the accessor.\n- The keyfile mint stays inside the accessor during the bridge — no federation here; that branch is movement 4.\n\n## Character\nMechanical, behavior-preserving refactor across ~50 sites; the grep gate and suites make correctness checkable, not a matter of judgment.",
               "jjgtn_silks": "accessor-seam",
               "jjgtn_basis": "7768490"
+            }
+          ]
+        },
+        "₢BZAAE": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260615-0841",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "Lift the capability-sets — the per-role resource-grant lists — out of the legacy cult-verb bodies into named code — paddock Ordering movement 2.\nToday the grant lists live inline inside `rbgg_invest_director` / `rbgg_invest_retriever` and the governor mantle, expressed through `rbgi_add_{project,repo,sa,bucket}_iam_role`.\nAfter this pace, each role's grant list is a named definition; these definitions become the mantle SAs' levy-time grant lists at movement 4.\n\nNo behavior change: this is transcription into named form, not a re-grant.\nThe key-minting body `zrbgg_create_service_account_with_key` is untouched here — it retires at movement 7.\n\nSources: ₣BZ paddock \"Ordering\" movement 2 (capability-set definitions become the mantle SAs' levy-time grant lists) and the \"Cinched\" line on definitions-global / memberships-local; code-grounding in `Memos/memo-20260615-BZ-pace-design.md`.\n\n## Done when\n- Each role's resource-grant list (governor / director / retriever) exists as a named definition in code.\n- The legacy invest / mantle bodies consume the named definitions rather than inlining the grants — behavior unchanged.\n- `service` suite green (the IAM-grant paths).\n\n## Cinched\n- Definitions are global (code); memberships and bindings stay local — the capability-set definition is distinct from its realization (paddock Cinched).\n- Transcription only; no grant added or removed; the key machinery is untouched (it retires at movement 7).\n\n## Character\nNear-mechanical extraction; the only judgment is cluster boundaries — which grants belong to which set — already implied by the existing per-role invest bodies.",
+              "jjgtn_silks": "capability-sets-as-code",
+              "jjgtn_basis": "2e0e308"
             }
           ]
         }
