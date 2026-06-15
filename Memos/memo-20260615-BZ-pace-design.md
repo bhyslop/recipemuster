@@ -93,8 +93,20 @@ Resist the pull to call precision over-treatment — divergence is Opus-first su
   `mantle` is reserved to federation and cannot be reused;
   the garment register deliberately rhymes with federation's (mantle / don) while the words differ.
 
-## Slate-time picks — still open
+## Slate-time picks — resolved (260615 trot, cont.)
 
-- Handbook rework home: ₣A6 vs a final ₣BZ movement.
-- `rbw-gq` disposition at the regroup.
-- Beta-repo evidence memos: migrate into this repo or leave pointed-at.
+- **Handbook rework home → ₣A6.**
+  When federation lands and the keyfile estate retires, onboarding is rewritten
+  (install-RBRA-key-files → morning compearance, one device-flow click).
+  That rework is chivvied into ₣A6 (the handbook-restart heat) as a separate pace — not authored here.
+
+- **`rbw-gq` (QuotaBuild) → stays a guide, regroups under Payor as `rbw-gPQ`.**
+  Cloud Build quota/capacity is a Payor concern — the Payor owns the project, billing, and quota;
+  the Director only consumes builds — so QuotaBuild joins the Payor guide subfamily (`rbw-gPI/gPE/gPR`).
+  The orphan `rbw-gq` becomes `rbw-gPQ`; the colophon rename rides the M5 regroup, not authored here.
+
+- **Beta-repo evidence memos → already in this repo; no action.**
+  Both 2026-06-11 memos (`memo-20260611-google-impersonation-preference`,
+  `memo-20260611-token-custody-context-enforcement`) are present in `Memos/`; migrate-vs-point-at is moot.
+  Their load-bearing facts are already absorbed into the paddock cinches and the token-custody section,
+  so they stand as pure provenance.
