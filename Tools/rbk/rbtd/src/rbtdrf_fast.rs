@@ -29,6 +29,8 @@ use crate::rbtdri_invocation::{rbtdri_find_tabtarget_global, rbtdri_tabtarget_co
 use crate::rbtdgc_consts::{
     RBTDGC_BAND_CREDLESS,
     RBTDGC_BAND_ENROLL,
+    RBTDGC_BAND_HYGIENE,
+    RBTDGC_BAND_RECIPE,
     RBTDGC_HYGIENE_CHECK_DOCKERFILE,
     RBTDGC_HYGIENE_CHECK_VESSEL,
     RBTDGC_JETTISON_IMAGE,
@@ -202,8 +204,9 @@ fn rbtdrf_run_tt(
     Ok(())
 }
 
-/// Run a tabtarget that is expected to fail. Inverts rbtdrf_run_tt:
-/// non-zero exit returns Ok(()), zero exit returns Err. Invocation errors
+/// Run a tabtarget expected to exit with a specific non-zero code. Asserts the
+/// exact exit code rather than bare non-zero, closing the wrong-reason hole:
+/// a harness breakage exits off-band and fails the case loud. Invocation errors
 /// (tabtarget not found, launcher failure) still propagate as Err.
 fn rbtdrf_run_tt_neg(
     project_root: &Path,
@@ -211,6 +214,7 @@ fn rbtdrf_run_tt_neg(
     args: &[&str],
     dir: &Path,
     label: &str,
+    expect_code: i32,
 ) -> Result<(), String> {
     let tt = rbtdri_find_tabtarget_global(project_root, colophon)?;
     let output = rbtdri_tabtarget_command(&tt)
@@ -223,10 +227,11 @@ fn rbtdrf_run_tt_neg(
     let _ = std::fs::write(dir.join(format!("{}-stdout.txt", label)), &output.stdout);
     let _ = std::fs::write(dir.join(format!("{}-stderr.txt", label)), &output.stderr);
 
-    if code == 0 {
+    if code != expect_code {
         return Err(format!(
-            "{}: {} expected failure, got exit 0",
-            label, colophon,
+            "{}: {} expected exit {}, got {}\nstderr:\n{}",
+            label, colophon, expect_code, code,
+            String::from_utf8_lossy(&output.stderr),
         ));
     }
     Ok(())
@@ -1290,7 +1295,7 @@ fn rbtdrf_dh_run_synthetic(
     dir: &Path,
     label: &str,
     body: &str,
-    expect_pass: bool,
+    expect_code: i32,
 ) -> rbtdre_Verdict {
     let root = match std::env::current_dir() {
         Ok(r) => r,
@@ -1301,10 +1306,10 @@ fn rbtdrf_dh_run_synthetic(
         return rbtdre_Verdict::Fail(format!("{}: write Dockerfile failed: {}", label, e));
     }
     let path_str = dockerfile.to_string_lossy().into_owned();
-    let result = if expect_pass {
+    let result = if expect_code == 0 {
         rbtdrf_run_tt(&root, RBTDGC_HYGIENE_CHECK_DOCKERFILE, &[&path_str], dir, label)
     } else {
-        rbtdrf_run_tt_neg(&root, RBTDGC_HYGIENE_CHECK_DOCKERFILE, &[&path_str], dir, label)
+        rbtdrf_run_tt_neg(&root, RBTDGC_HYGIENE_CHECK_DOCKERFILE, &[&path_str], dir, label, expect_code)
     };
     match result {
         Ok(()) => rbtdre_Verdict::Pass,
@@ -1313,35 +1318,35 @@ fn rbtdrf_dh_run_synthetic(
 }
 
 fn rbtdrf_dh_accept_parameterized(dir: &Path) -> rbtdre_Verdict {
-    rbtdrf_dh_run_synthetic(dir, "dh-accept-parameterized", RBTDRF_DH_BODY_PARAMETERIZED, true)
+    rbtdrf_dh_run_synthetic(dir, "dh-accept-parameterized", RBTDRF_DH_BODY_PARAMETERIZED, 0)
 }
 
 fn rbtdrf_dh_accept_scratch(dir: &Path) -> rbtdre_Verdict {
-    rbtdrf_dh_run_synthetic(dir, "dh-accept-scratch", RBTDRF_DH_BODY_SCRATCH, true)
+    rbtdrf_dh_run_synthetic(dir, "dh-accept-scratch", RBTDRF_DH_BODY_SCRATCH, 0)
 }
 
 fn rbtdrf_dh_accept_multistage_as(dir: &Path) -> rbtdre_Verdict {
-    rbtdrf_dh_run_synthetic(dir, "dh-accept-multistage-as", RBTDRF_DH_BODY_MULTISTAGE_AS, true)
+    rbtdrf_dh_run_synthetic(dir, "dh-accept-multistage-as", RBTDRF_DH_BODY_MULTISTAGE_AS, 0)
 }
 
 fn rbtdrf_dh_accept_empty(dir: &Path) -> rbtdre_Verdict {
-    rbtdrf_dh_run_synthetic(dir, "dh-accept-empty", RBTDRF_DH_BODY_EMPTY, true)
+    rbtdrf_dh_run_synthetic(dir, "dh-accept-empty", RBTDRF_DH_BODY_EMPTY, 0)
 }
 
 fn rbtdrf_dh_accept_comments_only(dir: &Path) -> rbtdre_Verdict {
-    rbtdrf_dh_run_synthetic(dir, "dh-accept-comments-only", RBTDRF_DH_BODY_COMMENTS_ONLY, true)
+    rbtdrf_dh_run_synthetic(dir, "dh-accept-comments-only", RBTDRF_DH_BODY_COMMENTS_ONLY, 0)
 }
 
 fn rbtdrf_dh_reject_hardcoded_literal(dir: &Path) -> rbtdre_Verdict {
-    rbtdrf_dh_run_synthetic(dir, "dh-reject-hardcoded-literal", RBTDRF_DH_BODY_HARDCODED_LITERAL, false)
+    rbtdrf_dh_run_synthetic(dir, "dh-reject-hardcoded-literal", RBTDRF_DH_BODY_HARDCODED_LITERAL, RBTDGC_BAND_HYGIENE)
 }
 
 fn rbtdrf_dh_reject_tab_in_from(dir: &Path) -> rbtdre_Verdict {
-    rbtdrf_dh_run_synthetic(dir, "dh-reject-tab-in-from", RBTDRF_DH_BODY_TAB_IN_FROM, false)
+    rbtdrf_dh_run_synthetic(dir, "dh-reject-tab-in-from", RBTDRF_DH_BODY_TAB_IN_FROM, RBTDGC_BAND_HYGIENE)
 }
 
 fn rbtdrf_dh_reject_trailing_backslash(dir: &Path) -> rbtdre_Verdict {
-    rbtdrf_dh_run_synthetic(dir, "dh-reject-trailing-backslash", RBTDRF_DH_BODY_TRAILING_BACKSLASH, false)
+    rbtdrf_dh_run_synthetic(dir, "dh-reject-trailing-backslash", RBTDRF_DH_BODY_TRAILING_BACKSLASH, RBTDGC_BAND_HYGIENE)
 }
 
 fn rbtdrf_dh_all_vessels_pass(dir: &Path) -> rbtdre_Verdict {
@@ -1531,7 +1536,7 @@ fn rbtdrf_rc_run(
     label: &str,
     keys: &str,
     body: &str,
-    expect_ok: bool,
+    expect_code: i32,
 ) -> rbtdre_Verdict {
     let root = match std::env::current_dir() {
         Ok(r) => r,
@@ -1559,13 +1564,15 @@ fn rbtdrf_rc_run(
         rbtdrx_native_to_posix(&body_file),
     );
 
-    let expect = if expect_ok { "ok" } else { "non-zero (uncovered)" };
     match rbtdrf_run_bash(&root, &script, dir, label) {
-        Ok((code, _, _)) => {
-            if (code == 0) == expect_ok {
+        Ok((code, _, stderr)) => {
+            if code == expect_code {
                 rbtdre_Verdict::Pass
             } else {
-                rbtdre_Verdict::Fail(format!("{}: expected {}, got exit {}", label, expect, code))
+                rbtdre_Verdict::Fail(format!(
+                    "{}: expected exit {}, got {}\nstderr:\n{}",
+                    label, expect_code, code, stderr
+                ))
             }
         }
         Err(e) => rbtdre_Verdict::Fail(format!("{}: {}", label, e)),
@@ -1574,52 +1581,52 @@ fn rbtdrf_rc_run(
 
 fn rbtdrf_rc_accept_all_covered(dir: &Path) -> rbtdre_Verdict {
     rbtdrf_rc_run(dir, "rc-accept-all-covered",
-        "_RBGL_A\n_RBGL_B\n", "echo \"${_RBGL_A}\" \"${_RBGL_B}\"\n", true)
+        "_RBGL_A\n_RBGL_B\n", "echo \"${_RBGL_A}\" \"${_RBGL_B}\"\n", 0)
 }
 
 fn rbtdrf_rc_reject_missing_key(dir: &Path) -> rbtdre_Verdict {
     rbtdrf_rc_run(dir, "rc-reject-missing-key",
-        "_RBGL_A\n", "echo \"${_RBGL_B}\"\n", false)
+        "_RBGL_A\n", "echo \"${_RBGL_B}\"\n", RBTDGC_BAND_RECIPE)
 }
 
 fn rbtdrf_rc_accept_comment_only(dir: &Path) -> rbtdre_Verdict {
     rbtdrf_rc_run(dir, "rc-accept-comment-only",
-        "_RBGL_A\n", "# uses _RBGL_ABSENT\necho \"${_RBGL_A}\"\n", true)
+        "_RBGL_A\n", "# uses _RBGL_ABSENT\necho \"${_RBGL_A}\"\n", 0)
 }
 
 fn rbtdrf_rc_reject_substring(dir: &Path) -> rbtdre_Verdict {
     rbtdrf_rc_run(dir, "rc-reject-substring",
-        "_RBGL_TAG_BOLE\n", "echo \"${_RBGL_TAG}\"\n", false)
+        "_RBGL_TAG_BOLE\n", "echo \"${_RBGL_TAG}\"\n", RBTDGC_BAND_RECIPE)
 }
 
 fn rbtdrf_rc_accept_substring_real(dir: &Path) -> rbtdre_Verdict {
     rbtdrf_rc_run(dir, "rc-accept-substring-real",
-        "_RBGL_TAG_BOLE\n", "echo \"${_RBGL_TAG_BOLE}\"\n", true)
+        "_RBGL_TAG_BOLE\n", "echo \"${_RBGL_TAG_BOLE}\"\n", 0)
 }
 
 fn rbtdrf_rc_accept_no_refs(dir: &Path) -> rbtdre_Verdict {
     rbtdrf_rc_run(dir, "rc-accept-no-refs",
-        "_RBGL_A\n", "echo hello world\n", true)
+        "_RBGL_A\n", "echo hello world\n", 0)
 }
 
 fn rbtdrf_rc_accept_multi_token(dir: &Path) -> rbtdre_Verdict {
     rbtdrf_rc_run(dir, "rc-accept-multi-token",
-        "_RBGL_A\n_RBGL_B\n", "X=\"${_RBGL_A}/${_RBGL_B}\"\n", true)
+        "_RBGL_A\n_RBGL_B\n", "X=\"${_RBGL_A}/${_RBGL_B}\"\n", 0)
 }
 
 fn rbtdrf_rc_reject_multi_second(dir: &Path) -> rbtdre_Verdict {
     rbtdrf_rc_run(dir, "rc-reject-multi-second",
-        "_RBGL_A\n", "X=\"${_RBGL_A}/${_RBGL_B}\"\n", false)
+        "_RBGL_A\n", "X=\"${_RBGL_A}/${_RBGL_B}\"\n", RBTDGC_BAND_RECIPE)
 }
 
 fn rbtdrf_rc_accept_empty_keys(dir: &Path) -> rbtdre_Verdict {
     rbtdrf_rc_run(dir, "rc-accept-empty-keys",
-        "", "echo hello\n", true)
+        "", "echo hello\n", 0)
 }
 
 fn rbtdrf_rc_reject_empty_keys_ref(dir: &Path) -> rbtdre_Verdict {
     rbtdrf_rc_run(dir, "rc-reject-empty-keys-ref",
-        "", "echo \"${_RBGL_A}\"\n", false)
+        "", "echo \"${_RBGL_A}\"\n", RBTDGC_BAND_RECIPE)
 }
 
 // ── Case arrays ─────────────────────────────────────────────

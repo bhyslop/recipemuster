@@ -77,19 +77,19 @@ rbfh_dockerfile_check() {
 
     # Rule 1: no tab character anywhere on the FROM line
     case "${z_line}" in
-      *$'\t'*) buc_die "${z_path}:${z_lineno}: FROM line contains tab character — ${z_line}" ;;
+      *$'\t'*) buc_reject "${BUBC_band_hygiene}" "${z_path}:${z_lineno}: FROM line contains tab character — ${z_line}" ;;
     esac
 
     # Rule 3: line does not end with `\`
     case "${z_line}" in
-      *'\') buc_die "${z_path}:${z_lineno}: FROM line ends with backslash continuation — ${z_line}" ;;
+      *'\') buc_reject "${BUBC_band_hygiene}" "${z_path}:${z_lineno}: FROM line ends with backslash continuation — ${z_line}" ;;
     esac
 
     # Rule 2: second whitespace-delimited token must be approved
     read -r z_pre z_token2 z_post <<<"${z_line}"
     case "${z_token2}" in
       '${RBF_IMAGE_1}'|'${RBF_IMAGE_2}'|'${RBF_IMAGE_3}'|'scratch') : ;;
-      *) buc_die "${z_path}:${z_lineno}: FROM image token must be \${RBF_IMAGE_1..3} or scratch — ${z_line}" ;;
+      *) buc_reject "${BUBC_band_hygiene}" "${z_path}:${z_lineno}: FROM image token must be \${RBF_IMAGE_1..3} or scratch — ${z_line}" ;;
     esac
   done < "${z_path}"
 }

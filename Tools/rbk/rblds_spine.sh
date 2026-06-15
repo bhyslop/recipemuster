@@ -117,7 +117,7 @@ zrbld_spine_validate() {
       z_ref="${BASH_REMATCH[0]}"
       case "${z_keys_blob}" in
         *$'\n'"${z_ref}"$'\n'*) ;;
-        *) buc_log_args "Uncovered substitution register: ${z_ref}"; return 1 ;;
+        *) buc_log_args "Uncovered substitution register: ${z_ref}"; return "${BUBC_band_recipe}" ;;
       esac
       z_rest="${z_rest#*"${z_ref}"}"
     done
