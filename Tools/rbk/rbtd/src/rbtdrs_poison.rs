@@ -45,8 +45,10 @@ use crate::rbtdgc_consts::{
     RBTDGC_BAND_REGIME,
     RBTDGC_TWEAK_REGIME_POISON,
     RBTDGC_VALIDATE_DEPOT,
+    RBTDGC_VALIDATE_NAMEPLATE,
     RBTDGC_VALIDATE_PAYOR,
     RBTDGC_VALIDATE_REPO,
+    RBTDGC_VALIDATE_VESSEL,
 };
 use crate::rbtdre_engine::{
     rbtdre_Case,
@@ -71,6 +73,12 @@ const RBTDRS_VAR_RBRD_DEPOT_MONIKER: &str = "RBRD_DEPOT_MONIKER";
 // BUK validate colophons — not projected into RBTDGC_* (those carry the rbw-*
 // RB colophons only), so the buw-* BUK colophons are named here.
 const RBTDRS_VALIDATE_BURC: &str = "buw-rcv";
+
+// Folio monikers referenced by 2+ cases — a known-good entry-enabled nameplate
+// and a known-good conjure vessel, both committed in-tree. Removing either
+// fails the cases loud (the verb cannot locate the regime), not silently.
+const RBTDRS_NAMEPLATE_TADMOR: &str = "tadmor";
+const RBTDRS_VESSEL_BUSYBOX: &str = "rbev-busybox";
 
 // ── Poison harness ──────────────────────────────────────────
 
@@ -227,6 +235,86 @@ fn rbtdrs_burc_missing_station_file(dir: &Path) -> rbtdre_Verdict {
         RBTDGC_BAND_ENROLL, "burc-missing-station-file")
 }
 
+// ── RBRN (nameplate) — verb rbw-rnv against a real nameplate ─
+//
+// Folio is an entry-enabled nameplate; all eight cases poison one field of its
+// real regime. Seven reject in the buv pipeline (enum, ipv4, presence,
+// sentinel); port-conflict is the lone module-enforce case.
+
+fn rbtdrs_rbrn_missing_moniker(dir: &Path) -> rbtdre_Verdict {
+    // Unset a required field → buv presence check → enroll.
+    rbtdrs_poison(dir, RBTDGC_VALIDATE_NAMEPLATE, &[RBTDRS_NAMEPLATE_TADMOR],
+        "RBRN_MONIKER", RBTDGC_BAND_ENROLL, "rbrn-missing-moniker")
+}
+
+fn rbtdrs_rbrn_invalid_runtime(dir: &Path) -> rbtdre_Verdict {
+    // Off-enum value fails the buv_enum_enroll check → enroll.
+    rbtdrs_poison(dir, RBTDGC_VALIDATE_NAMEPLATE, &[RBTDRS_NAMEPLATE_TADMOR],
+        "RBRN_RUNTIME=invalid", RBTDGC_BAND_ENROLL, "rbrn-invalid-runtime")
+}
+
+fn rbtdrs_rbrn_invalid_entry_mode(dir: &Path) -> rbtdre_Verdict {
+    rbtdrs_poison(dir, RBTDGC_VALIDATE_NAMEPLATE, &[RBTDRS_NAMEPLATE_TADMOR],
+        "RBRN_ENTRY_MODE=bogus", RBTDGC_BAND_ENROLL, "rbrn-invalid-entry-mode")
+}
+
+fn rbtdrs_rbrn_invalid_dns_mode(dir: &Path) -> rbtdre_Verdict {
+    rbtdrs_poison(dir, RBTDGC_VALIDATE_NAMEPLATE, &[RBTDRS_NAMEPLATE_TADMOR],
+        "RBRN_UPLINK_DNS_MODE=bogus", RBTDGC_BAND_ENROLL, "rbrn-invalid-dns-mode")
+}
+
+fn rbtdrs_rbrn_invalid_access_mode(dir: &Path) -> rbtdre_Verdict {
+    rbtdrs_poison(dir, RBTDGC_VALIDATE_NAMEPLATE, &[RBTDRS_NAMEPLATE_TADMOR],
+        "RBRN_UPLINK_ACCESS_MODE=bogus", RBTDGC_BAND_ENROLL, "rbrn-invalid-access-mode")
+}
+
+fn rbtdrs_rbrn_bad_ip(dir: &Path) -> rbtdre_Verdict {
+    // Malformed address fails the buv_ipv4_enroll check → enroll.
+    rbtdrs_poison(dir, RBTDGC_VALIDATE_NAMEPLATE, &[RBTDRS_NAMEPLATE_TADMOR],
+        "RBRN_ENCLAVE_BASE_IP=not-an-ip", RBTDGC_BAND_ENROLL, "rbrn-bad-ip")
+}
+
+fn rbtdrs_rbrn_unexpected_var(dir: &Path) -> rbtdre_Verdict {
+    rbtdrs_poison(dir, RBTDGC_VALIDATE_NAMEPLATE, &[RBTDRS_NAMEPLATE_TADMOR],
+        "RBRN_BOGUS=foo", RBTDGC_BAND_ENROLL, "rbrn-unexpected-var")
+}
+
+fn rbtdrs_rbrn_port_conflict(dir: &Path) -> rbtdre_Verdict {
+    // A workstation port at/above the uplink minimum (a valid port number, so it
+    // clears the buv enroll) trips the zrbrn_enforce cross-port check → regime.
+    rbtdrs_poison(dir, RBTDGC_VALIDATE_NAMEPLATE, &[RBTDRS_NAMEPLATE_TADMOR],
+        "RBRN_ENTRY_PORT_WORKSTATION=10001", RBTDGC_BAND_REGIME, "rbrn-port-conflict")
+}
+
+// ── RBRV (vessel) — verb rbw-rvv against a real vessel ───────
+//
+// Mode-specific: the conjure cases use a conjure vessel, the bind case a bind
+// vessel, so the gated field being poisoned is active. Folio is the vessel
+// moniker (= RBRV_SIGIL).
+
+fn rbtdrs_rbrv_missing_sigil(dir: &Path) -> rbtdre_Verdict {
+    // Unset a required field → buv presence check → enroll.
+    rbtdrs_poison(dir, RBTDGC_VALIDATE_VESSEL, &[RBTDRS_VESSEL_BUSYBOX],
+        "RBRV_SIGIL", RBTDGC_BAND_ENROLL, "rbrv-missing-sigil")
+}
+
+fn rbtdrs_rbrv_unexpected_var(dir: &Path) -> rbtdre_Verdict {
+    rbtdrs_poison(dir, RBTDGC_VALIDATE_VESSEL, &[RBTDRS_VESSEL_BUSYBOX],
+        "RBRV_BOGUS=foo", RBTDGC_BAND_ENROLL, "rbrv-unexpected-var")
+}
+
+fn rbtdrs_rbrv_partial_conjure(dir: &Path) -> rbtdre_Verdict {
+    // Unset a conjure-gated required field on a conjure vessel → enroll.
+    rbtdrs_poison(dir, RBTDGC_VALIDATE_VESSEL, &[RBTDRS_VESSEL_BUSYBOX],
+        "RBRV_CONJURE_PLATFORMS", RBTDGC_BAND_ENROLL, "rbrv-partial-conjure")
+}
+
+fn rbtdrs_rbrv_no_bind_image(dir: &Path) -> rbtdre_Verdict {
+    // Unset the bind-gated required field on a bind vessel → enroll.
+    rbtdrs_poison(dir, RBTDGC_VALIDATE_VESSEL, &["rbev-bottle-plantuml"],
+        "RBRV_BIND_IMAGE", RBTDGC_BAND_ENROLL, "rbrv-no-bind-image")
+}
+
 // ── Fixture ─────────────────────────────────────────────────
 
 pub static RBTDRS_CASES_REGIME_POISON: &[rbtdre_Case] = &[
@@ -244,6 +332,18 @@ pub static RBTDRS_CASES_REGIME_POISON: &[rbtdre_Case] = &[
     case!(rbtdrs_rbrd_bad_cloud_prefix_too_long),
     case!(rbtdrs_rbrp_bad_payor_project),
     case!(rbtdrs_burc_missing_station_file),
+    case!(rbtdrs_rbrn_missing_moniker),
+    case!(rbtdrs_rbrn_invalid_runtime),
+    case!(rbtdrs_rbrn_invalid_entry_mode),
+    case!(rbtdrs_rbrn_invalid_dns_mode),
+    case!(rbtdrs_rbrn_invalid_access_mode),
+    case!(rbtdrs_rbrn_bad_ip),
+    case!(rbtdrs_rbrn_unexpected_var),
+    case!(rbtdrs_rbrn_port_conflict),
+    case!(rbtdrs_rbrv_missing_sigil),
+    case!(rbtdrs_rbrv_unexpected_var),
+    case!(rbtdrs_rbrv_partial_conjure),
+    case!(rbtdrs_rbrv_no_bind_image),
 ];
 
 pub static RBTDRS_FIXTURE_REGIME_POISON: rbtdre_Fixture = rbtdre_Fixture {
