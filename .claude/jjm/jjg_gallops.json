@@ -9628,9 +9628,10 @@
         "₢BeAAD",
         "₢BeAAE",
         "₢BeAAF",
-        "₢BeAAJ"
+        "₢BeAAJ",
+        "₢BeAAK"
       ],
-      "jjghn_next_pace_seed": "AAK",
+      "jjghn_next_pace_seed": "AAL",
       "jjghn_paces": {
         "₢BeAAA": {
           "jjgpn_tacks": [
@@ -9844,6 +9845,17 @@
               "jjgtn_text": "## Character\nMechanical Rust refactor — move code between modules, no behavior change.\nSonnet-delegable body with driver verification.\n\n## Goal\n`Tools/rbk/rbtd/src/rbtdru_cupel.rs` stands ~1330 lines,\npast the RCG 800-line stop-and-ask threshold;\nthe operator elected a split at the ₣BH terminal triage (2026-06-12).\nCarve the python-scan machinery (the import-allowlist scanning surface)\ninto its own module under the rbtd prefix discipline,\nleaving the shell-side cupel checks in place;\nmodule name and exact seam are mount-time choices.\n\n## Cinched\n- Pure relocation — no scanner behavior change, no new checks ride along.\n- No tidemark: the moved code carries no \"moved from\" narration; the commit tells the story.\n\n## Done when\n`rbtdru_cupel.rs` is back under the 800-line threshold,\nthe new module obeys rbtd naming discipline and the acronym map knows it,\nand the `fast` suite (cupel fixture included) is green.",
               "jjgtn_silks": "cupel-python-scan-split",
               "jjgtn_basis": "c64a9fd"
+            }
+          ]
+        },
+        "₢BeAAK": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260615-0926",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nMechanical relocation with a multi-consumer rename; the judgment is in the namespace choice, not the edits.\n\n## Goal\n`BUBC_moorings_dir` is a tinder constant that expands a runtime variable (`BURD_CONFIG_DIR`),\nviolating BCG tinder-purity (tinder must be pure source-time literals — no runtime expansion).\nRelocate its derivation out of `bubc_constants.sh`'s source-time block into a kindle context\nthat legitimately holds `BURD_CONFIG_DIR`, renaming it into that module's kindle namespace.\nThe sibling subdir constants (`BUBC_*_subdir`) are pure literals and stay in bubc —\nonly the `BURD_CONFIG_DIR`-derived basename moves.\n\nSurfaced when heat ₣Be's regime-poison seam fix made `buv_validation.sh` source bubc,\nwidening the contexts that source it to non-dispatch ones where `BURD_CONFIG_DIR` is unset;\nnothing breaks today (the empty basename is unused there, fast is green),\nbut the latent violation is now broader. The seam fix landed in commit 6cd0c1410.\n\n## Cinched\n- Only the runtime-derived basename moves; the pure-literal subdir constants stay in bubc.\n- No `${…:-}` cosmetic guard and no source-time conditional — both are band-aids that leave\n  the purity violation standing (rejected during the ₣Be analysis).\n\n## Done when\n`BUBC_moorings_dir` (renamed) no longer expands a runtime variable in tinder position;\nits derivation lives in a kindle with `BURD_CONFIG_DIR` present;\nall consumers (the burn/burp/burs enrollment help-strings, plus any qualify/tabtarget tooling)\nreference the relocated constant;\nshellcheck clean; fast green.",
+              "jjgtn_silks": "bubc-moorings-tinder-relocate",
+              "jjgtn_basis": "b9dde63"
             }
           ]
         }
