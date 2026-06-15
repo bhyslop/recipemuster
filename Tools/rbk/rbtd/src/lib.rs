@@ -53,7 +53,9 @@ pub mod rbtdrn_conformance;
 pub mod rbtdro_onboarding;
 pub mod rbtdrp_pristine;
 pub mod rbtdrs_poison;
+pub mod rbtdru_bash;
 pub mod rbtdru_cupel;
+pub mod rbtdru_python;
 pub mod rbtdrx_platform;
 
 #[cfg(test)]
