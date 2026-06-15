@@ -74,11 +74,11 @@ most of it recoverable from git (file reads/writes) or compressible (verbatim fo
   in timestamp order. So heat/pace attribution is a single forward pass over one
   session's transcript — no external join, concurrency-safe across multiple officia.
   (Confirmed empirically: e.g. `jjx_record ₢A6AAC` under officium `☉260413-1019`.)
-- **Wholesale capture, per-project boundary.** Capture every session in the transcript
-  dir matching this repo's cwd; no relevance filtering. The boundary is the
-  **project, across hosts** — not the host, and not a cross-project consolidation.
-  cerebro-alpha (same project, other host) merges in; **beta (a different project) is
-  excluded by construction** — one repo must never absorb another's chats.
+- **Wholesale capture; the boundary is per-mechanism.** No relevance filtering — every
+  session in each source dir. The deliberate one-time backfill is an operator-chosen
+  *consolidation* (alpha + beta + cerebro-alpha into one store) — no accidental bleed in a
+  hand-run act. The "don't absorb another repo's chats" boundary governs the **automatic
+  recurring** mechanism, which stays scoped to the current project's transcript dir.
 - **Never-forget but update.** Additive sync: pick up new session files and the growth
   of existing ones; never delete from the store even when the source disappears. Git
   history carries the "never forget."
@@ -127,12 +127,14 @@ all mismatch. Discussion ongoing.
 
 ## Follow-ups
 
-- **Two capture paces drafted, not yet slated** into ₣BD: (1) decide store +
-  first-time multi-source backfill (local-alpha + cerebro-alpha); (2) auto-recurring
-  capture at mount/groom/muster. Order: (1) first. Store pinned "alongside gallops" so
-  it tracks that category regardless of the gestalt outcome.
-- **Beta's history needs its own capturer** (beta's own JJK once this lands, or a
-  one-off backup) — alpha must not reach across.
+- **Two capture paces slated** into ₣BD: ₢BDAAX (store + first-time backfill of
+  local-alpha + local-beta + cerebro-alpha) before ₢BDAAK, then ₢BDAAY (auto-recurring at
+  mount/groom/muster). Store pinned "alongside gallops" so it tracks that category
+  regardless of the gestalt outcome.
+- **Beta's _ongoing_ capture** is the real open question for the recurring mechanism:
+  does alpha's auto-capture also sweep beta, or does beta self-capture? The one-time
+  backfill rescues beta's _existing_ history into the store regardless; only beta's
+  _future_ turns on this.
 - **Cost-analytics pace** deferred until the corpus is captured.
 - **State-gestalt naming** — open (above).
 
