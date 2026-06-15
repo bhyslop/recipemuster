@@ -143,9 +143,18 @@ the diptych vision (`memo-20260209-diptych-vision.md`) overturned it: the
 destination is a *restrictive declared grammar* with no free-form admonition, so
 blessing `NOTE:` would enshrine a construct with a demolition date and protect
 exactly the dumping-ground prose the destination sheds. The deeper turn (below)
-is that this is not ACG's question at all.
+is the forcing-function principle — and the resolution moved once more after it.
 
-## The first principle (feedstock for the spec-form layer — MCM / diptych)
+**Re-steer (operator, same session):** the first cut punted spec form to an
+MCM/diptych "spec-form layer" and recast ACGm_106 as authority-pending there; the
+operator re-steered. The marked-rationale *register* is dropped entirely — a
+reason is a declarative fact under the one-home rule, needing no marker — and ACG
+**keeps** the spec-editing remit it was always for (DRY the rationale; keep the
+load-bearing). ACGm_106 re-grounds on Load-Bearing Complexity; all diptych
+language is stripped from the guide as premature coupling. The forcing-function
+reasoning below survives as the *why*, recorded here, not wired into ACG.
+
+## The first principle (the forcing-function test)
 
 The pilot's durable finding, seeded here for the document-form design:
 
@@ -166,30 +175,35 @@ The pilot's durable finding, seeded here for the document-form design:
    No canon-residue was found that wants free unforced prose. *Caveat:* not
    proven exhaustive from one pair — a true residue would be the exception to
    characterize, not the rule.
-5. **Therefore:** rationale earns a place in the canon only when bound to a
-   constraint with a forcing function. This is spec-form doctrine — MCM and the
-   diptych design own it. ACG governs allocation and should not legislate it,
-   which is why the normative-register clause was pared back this pace.
+5. **Therefore:** a reason earns its place in a constrained document by being
+   load-bearing, and it is a declarative fact under the one-home rule — not a
+   specially-marked register. (Per the re-steer above: this is ACG's own remit,
+   not a punt to an external layer; the marked-rationale register is dropped and
+   ACGm_106 grounds on Load-Bearing Complexity.) The forcing-function test is the
+   reasoning behind the keep-the-load-bearing half of that rule; recorded here as
+   the *why*, deliberately not wired into the guide.
 
 ## Rulings landed in ACG (this pace)
 
 1. **ACGm_104/105 unit-boundary note** added (fork 1).
-2. **Normative-register clause pared to its allocation core.** The spec-form
-   half ("every spec sentence constrains or is marked rationale"; the
-   `**Gestalt**:`-is-the-blessed-form enshrinement) removed; a one-line boundary
-   added — spec form is MCM/diptych's domain, ACG governs allocation. The
-   allocation residue (a code comment restating design-time knowledge is a
-   cross-medium fork) stays.
-3. **ACGm_106 recast detect-only, authority-pending** — its authority pointer
-   moved from the in-ACG normative-register rule to the spec-form layer (MCM /
-   diptych), held externally until rehomed. The move stays catalogued.
+2. **Third clause re-cut to declarative facts.** The marked-rationale register —
+   "every spec sentence constrains or is marked rationale" and the
+   `**Gestalt**:`-is-the-blessed-form enshrinement — removed entirely. In its
+   place: a reason is a declarative fact under the one-home rule, and ACG owns the
+   spec-editing tension it was always for — DRY the rationale, keep the
+   load-bearing. No diptych language in the guide.
+3. **ACGm_106 re-grounded on Load-Bearing Complexity** (CLAUDE.md, the principle
+   ACG already instantiates) — drain statements that are not load-bearing. The
+   move stays catalogued; its authority is ACG-native again, not pending an
+   external layer.
 4. **Acronym Registry** "Normative register" row updated to record the migration.
 
 ## Routed / deferred
 
-- **Full normative-register + ACGm_106 re-home into MCM / diptych:** recommended
-  **follow-on pace** — surfaced here, not executed (junk-drawer discipline; the
-  migration is a spec-form design task, not an ACG-scrub move).
+- **No MCM/diptych migration pace.** The first cut recommended one; the re-steer
+  dissolved it — ACG kept the spec-editing remit, so there is nothing to re-home.
+  The diptych ledger pointer (below) still stands as feedstock for that future
+  grammar work, but it is not gated on any follow-on ACG pace.
 - **Forcing-function first principle:** this memo, plus a one-line pointer in the
   diptych removal-conditions ledger so the migration finds it.
 - **Spec-side findings (F2, F3, F4, F5):** report-only, ₣BZ lane
@@ -205,6 +219,7 @@ The pilot's durable finding, seeded here for the document-form design:
 - ACG amendments (104/105 seam; normative-register pare-back; ACGm_106 recast;
   registry row): **landed this pace.**
 - Diptych ledger pointer: **landed this pace.**
-- Full normative-register → MCM migration: **slate a follow-on pace.**
+- Full normative-register → MCM migration: **dissolved by the re-steer** (no
+  follow-on pace owed).
 - Report-only spec findings and deferred bash collapses ride ₣BZ and the anchor
   pace; this memo retires when those routed items land.
