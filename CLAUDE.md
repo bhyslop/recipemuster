@@ -182,7 +182,7 @@ When minting, enumerate ALL namespaces the system touches:
 
 This is not exhaustive. The principle: **any persistent name anywhere is in the mint universe.**
 
-BURE tweak-name detail: the `buo` sprue is a reserved prefix for `BURE_TWEAK_NAME` values (the test-seam channel). BURE enforces the *shape* (`buo<segment>_…`) only — never specific names — so a typo'd/unregistered tweak fails loud instead of silently no-op'ing, and `grep buo` is the virtual registry (no central list). `buost_` is the reserved segment for BUK/test-stub placeholders (BUK's own, since `buobu_` is degenerate).
+BURE tweak-name detail: the `buo` sprue is a reserved prefix for `BURE_TWEAK_NAME` values (the test-seam channel). BURE enforces the *shape* (`buo<segment>_…`) only — never specific names — so a typo'd/unregistered tweak fails loud instead of silently no-op'ing, and `grep buo` is the virtual registry (no central list). The segment after `buo` names the owning kit; `buost_` is BUK's own segment (BUK as consumer, since `buobu_` would be degenerate), homing both BUK-owned behavioral tweaks (the `buost_regime_poison` seam) and BUK self-test stubs (`buost_example`). Tweak *doctrine* — what a tweak is for, one-at-a-time by design, a suite reserving the slot for a standing guard — lives in BUS0 "Tweak Mechanism"; the live behavioral census is stamp (`buorb_ensconce_stamp`), poison (`buost_regime_poison`), and the fast-tier credless guard (`buorb_credless_guard`). A deliberate-rejection gate asserts its named exit code from the precision band, never bare nonzero — see BCG "Precision Exit-Code Band".
 
 ### Kit Infrastructure Suffixes
 

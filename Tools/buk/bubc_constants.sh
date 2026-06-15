@@ -54,6 +54,9 @@ BUBC_windows_fw_rule_name="sshd"
 BUBC_windows_fw_display_name="OpenSSH Server"
 
 # Precision exit-code band — deliberate-rejection gate codes.
+# Design position, allocation rule, and the rejected stderr-sentinel
+# alternative: BCG "Precision Exit-Code Band". This block is the sole mint —
+# no band code is defined anywhere else.
 # An in-band exit status means a named rejection gate fired on purpose;
 # exit 1 stays "imprecise death" (buc_die default). buc_die propagates
 # in-band $? values unchanged (the band membrane), so existing

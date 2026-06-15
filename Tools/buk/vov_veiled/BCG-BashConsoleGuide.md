@@ -1592,7 +1592,8 @@ buc_step "Major user-visible operation"     # White, stderr, milestones
 buc_log_args "Detail from variables"        # Transcript only, from arguments
 command | buc_log_pipe                      # Transcript only, from pipeline
 buc_warn "Non-fatal warning"                # Yellow, stderr
-buc_die "Fatal error message"               # Red, stderr, exits
+buc_die "Fatal error message"               # Red, stderr, exits 1 (or in-band $? — see Precision Exit-Code Band)
+buc_reject «code» "Deliberate rejection"    # Red, stderr, exits in-band (see Precision Exit-Code Band)
 
 ### When to use buc_step vs buc_log_«source»:
 
@@ -1631,6 +1632,37 @@ echo "Progress update..." >&2      # If this is progress info
 
 ---
 
+## Precision Exit-Code Band
+
+Differentiated exit codes are bad design: they tempt callers into branching on integers whose meanings drift, and each new code is one more contract to keep in sync across every site that reads it. Interpreting a command's error *strings* is worse — it couples the caller to wording that an innocuous message edit silently breaks. Yet a negative test must prove a command failed *for the reason under test*, not from an unbound variable, a missing file, or a refactor typo. A bare-nonzero assertion passes on all of those — the **wrong-reason hole**: a case meant to prove a deliberate refusal also goes green on any harness breakage.
+
+The resolution is a **precision exit-code band**: a small contiguous range of exit codes, one per deliberate-rejection gate, carried by *exactly* the tabtargets the test orchestrator asserts negatively — and nothing else. It is not a general error taxonomy and must never grow into one. Outside the band, an exit code means only "failed"; only the band is load-bearing, and only at the negative-test boundary.
+
+### Band semantics
+
+An in-band exit status means a named rejection gate fired **on purpose**. Exit `1` stays *imprecise death* — `buc_die`'s default, meaning "something went wrong" and nothing more. Two primitives carry the band:
+
+- **`buc_reject «code» «message»`** — the rejection *origin*. A gate that has decided to refuse calls it with its band code; `buc_reject` prints the message to stderr and exits with that code. An out-of-band code is a programming error and dies imprecisely.
+- **`buc_die`** — the band *membrane*. It captures `$?`; if the value is in-band it re-exits with that exact code, otherwise it collapses to `1`. This is why existing `cmd || buc_die` chains need no audit: a `buc_reject` deep in a spawn path propagates its code unchanged through every upstream `|| buc_die` to the dispatch boundary, while ordinary failures still flatten to `1`.
+
+The band lives as tinder in `bubc_constants.sh` — `BUBC_band_base` and `BUBC_band_width` fix the range, placed clear of shell-reserved codes (2, 126–128+n), the `sysexits.h` range (64–78), curl's codes (1–92), and `timeout`/container-runtime codes (124–125). Both primitives read that tinder, so a code is in-band only because it was minted there.
+
+### Allocation rule
+
+One code per rejection **gate**, never per validation **rule**. The hole being closed is wrong-*layer* failure (a harness breakage masquerading as a refusal), not wrong-*rule* failure (a case already names the rule it exercises). A gate that checks twenty fields takes one code, not twenty.
+
+Two gates may share a code **only if they never co-occur in one test case's spawn path** — **share across alternatives, never along a pipeline**. Alternatives — gates a single input can never reach in the same run — reuse a code without ambiguity. Gates chained in one spawn path must be distinct, or an in-band code at the boundary cannot say which one fired.
+
+### Enrollment
+
+**No band code is minted outside the bubc tinder block.** That block is the single grep-able registry of what the band means; a code defined anywhere else is invisible to the next reader and uncheckable by the membrane. A consumer that needs the band in another language projects it *from* this block by codegen — it never re-literals a code.
+
+### Rejected alternative: the stderr sentinel
+
+The alternative weighed and declined was a sentinel token printed to stderr — a magic string the negative test greps for. It lost on two counts. First, a sentinel is string interpretation *minimized*, not *avoided*: the caller still parses output for meaning, the exact coupling the band exists to refuse. Second, the sentinel rides stderr, and stderr is swallowed by the same capture-and-relaunch wrappers that would otherwise launder an exit code — so a sentinel is no more durable across those membranes than the code it was meant to replace, and is harder to assert on besides. An exit code, carried by the `buc_die` membrane, survives the wrappers intact.
+
+---
+
 ## Integration Patterns
 
 ### Using BCU Utilities
@@ -1657,6 +1689,7 @@ buc_warn    # Instead of echo >&2
 | Show commands       | `buc_code`                                                       |
 | Non-fatal issue     | `buc_warn`                                                       |
 | Fatal error         | `buc_die`                                                        |
+| Deliberate rejection (negative test asserts the gate) | `buc_reject «band-code»` (see Precision Exit-Code Band) |
 | Success message     | `buc_success`                                                    |
 | Variable expansion  | Always `"${var}"`                                                |
 | Control flow after test | `test ... \|\| break/continue/return` (never `&&`)           |

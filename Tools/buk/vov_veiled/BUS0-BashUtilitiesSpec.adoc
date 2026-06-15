@@ -1635,8 +1635,9 @@ BUK enrolls, validates, and propagates the pair; consuming kits (e.g., RBK) chec
 
 Doctrine — what a tweak is for:
 a tweak forces one hard-to-produce condition so a test can observe the infrastructure handle it correctly —
-a colliding identity stamp, a poisoned configuration value, a denied credential path —
-ideally asserting the rejecting gate's named exit code, never bare nonzero.
+a colliding identity stamp (`buorb_ensconce_stamp`), a poisoned configuration value (`buost_regime_poison`), a denied credential path (`buorb_credless_guard`) —
+ideally asserting the rejecting gate's named exit code, never bare nonzero (the precision exit-code band; see BCG "Precision Exit-Code Band").
+Those three are the live behavioral census — exactly what `grep buo` finds, beside `buost_example`, BUK's own stub that exercises this channel's name/value plumbing in the BUK self-test rather than forcing any condition in a consumer.
 An injection that enables a positive path, carries a parameter, or short-circuits work for convenience is not a tweak;
 it wants a CLI parameter, a regime slot, or its own command.
 
@@ -1651,6 +1652,7 @@ a dual need that survives scrutiny mints a second mechanism deliberately, never 
 Doctrine — a suite may reserve the slot:
 a test tier may dedicate the tweak slot to one standing guard for its whole run;
 cases in that tier then carry no tweaks of their own — the reservation is part of the tier's definition.
+The fast tier is the live instance: it reserves the slot for `buorb_credless_guard`, which the token-mint membranes reject with the credless band code, so a passing fast run can never spend a credential.
 
 The caller sets at most one
 {bure_tweak_name}/{bure_tweak_value}
