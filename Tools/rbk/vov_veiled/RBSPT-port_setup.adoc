@@ -18,10 +18,14 @@ No userspace proxy is involved; the kernel forwards packets directly.
 //axhos_step
 . Reverse Path Filtering:
 * Set rp_filter to loose mode (value 2) on all interfaces via `/proc/sys/net/ipv4/conf/all/rp_filter`
-* Strict mode (value 1) requires the source-IP reverse-path to match the ingress interface.
-  Inbound published-port traffic from the framework's gateway arrives on whichever interface the framework chose for port-publish delivery, but its reverse route is always via the default gateway on the interface attached to {at_transit_network} — strict mode mismatches and drops at routing time, before the FORWARD chain ever sees the packet.
-  Loose mode allows any source IP that is reachable via any interface, which is the actual invariant for entry-port traffic.
-  Iptables rules below still gate authorization; rp_filter is not the load-bearing security control.
++
+[[RBr_2e3]]
+//axvc_camber
+RBr_2e3::
+Strict mode (value 1) requires the source-IP reverse-path to match the ingress interface.
+Inbound published-port traffic from the framework's gateway arrives on whichever interface the framework chose for port-publish delivery, but its reverse route is always via the default gateway on the interface attached to {at_transit_network} — strict mode mismatches and drops at routing time, before the FORWARD chain ever sees the packet.
+Loose mode allows any source IP that is reachable via any interface, which is the actual invariant for entry-port traffic.
+Iptables rules below still gate authorization; rp_filter is not the load-bearing security control.
 
 //axhos_step
 . DNAT Rules:
