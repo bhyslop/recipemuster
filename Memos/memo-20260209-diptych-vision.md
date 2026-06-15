@@ -162,6 +162,7 @@ Several tolerated inconsistencies carry "until Diptych" as their demolition date
 - AXLA hierarchy-marker chains (`axhempt_` etc.) — deep taxonomic letter-chains slated for re-mint under the early-divergence rule.
 - RBS0's mixed prefix strata (`at_`, `st_`, `mkr_`, `scr_`, `opss_`) — the museum layers, sweepable once recension is real.
 - Link coverage across the canon family — the specs mention already-quoined concepts densely in plain prose and leave them unlinked. The RBS* family alone holds ~2,700 such mentions (RBS0 ~490); spot surveys of BUS0, VOS0, and VLS show the same shape — near-zero true emphasis-drift, the whole mass sitting in plain prose. A hand sweep is prohibitive precisely because of the two costs The Spine names; deferred to the auto-link recension mode, with the link-coverage validator rule producing the worklist.
+- Free rationale prose in AsciiDoc specs (the `NOTE:` admonition and kin) — carries no forcing function and rots, exactly as trace does; RBSAJ's access-probe NOTE is the worked specimen. The restricted grammar must decide where marked rationale lives, under the principle that rationale earns a canon home only when bound to a forced constraint (the cited-constraint anchor), with human context moving to the lectio. First principle and audit specimen: `Memos/memo-20260615-acg-pilot-access-probe-findings.md`.
 
 ## Liturgical Vocabulary
 

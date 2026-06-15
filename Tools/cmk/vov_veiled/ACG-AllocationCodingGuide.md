@@ -126,14 +126,19 @@ Canonical specimen: the 2026-06-10 Diff-Friendly-Prose repair, where a context
 file *characterized* a spec's scope instead of citing it, and the
 characterization carried the error for months.
 
-**Normative register** rides this clause on the spec side. In a spec, every
-sentence either constrains — an implementer or validator could act differently
-because it exists — or is explicitly marked as rationale or gestalt (MCM's task
-lens `**Gestalt**:` field is the blessed form: metaphor marked as interpretive
-guidance). Unmarked ornament is contamination: it spends reader attention and
-implies constraint where none exists. A code comment restating design-time
-knowledge is the same failure in the other medium (temporal misallocation,
-above); flowery spec prose is its mirror.
+**Spec form is the document-form layer's domain, not this clause's.** Whether a
+spec sentence may be rationale, how rationale is marked, and whether free
+rationale prose belongs in a spec at all are questions of spec *form* — owned by
+MCM and the diptych design, not by ACG, which governs *allocation*: one
+authoritative wording per claim, cited elsewhere. The pilot-2 access-probe audit
+seeds that document-form layer with a first principle — rationale carrying no
+forcing function rots exactly as trace does (the three-homes execution-time note,
+above), so a spec's durable contents each want a forcing function or a defined
+consumer; recorded in
+`Memos/memo-20260615-acg-pilot-access-probe-findings.md`. What stays here as
+allocation: a code comment restating design-time knowledge is a cross-medium fork
+of the spine (temporal misallocation, above) — the same failure as one spec
+paraphrasing another, in the other medium.
 
 ## The fourth clause — wire formats are named homes
 
@@ -283,7 +288,9 @@ detect-only** (read and report; no repair until a verifier exists). Numbered fro
   side (move discipline, rule 1; the spec, per the Palisade fallback bound) and
   the comment shrinks to residue: signature + tripwire + citation. The
   sentry-pair pilot found every one of its detected comments already homed;
-  expect collapse, not relocation, wherever the spec side is mature.
+  expect collapse, not relocation, wherever the spec side is mature. For how this
+  differs from ACGm_105 — the comment is the unit here, the recurring wording is
+  the unit there — see the unit-boundary note under ACGm_105.
 - **Verifier:** none in v1; the future lexer/linter plus spec link validation.
 - **Done:** a report of misallocated comments, each tagged with its receiving
   quoin (existing, proposed, or already-carrying); relocations and collapses
@@ -303,13 +310,25 @@ detect-only** (read and report; no repair until a verifier exists). Numbered fro
   sweep against the declared home.
 - **Done:** for each word cancer: one authoritative wording at one site,
   citations elsewhere, the variant wordings gone.
+- **Boundary with ACGm_104 (the unit differs):** 104 acts on a *misallocated
+  comment* — the container — collapsing it to residue; 105 tracks a *recurring
+  wording* corpus-wide — the string — picking the one law and citing the rest.
+  They coincide on one comment without conflict: the comment collapses (104) while
+  a coined phrase inside it is logged as a 105 corpus item. When a source comment
+  duplicates exactly one spec home, the operative move is 104 citation-collapse;
+  105 names only the phrase recurring across the corpus. Pilot 1 practiced this
+  (whole comment → 104; the "don't-trust-Docker discipline" phrase → 105 seed);
+  pilot 2's specimen was mis-filed under 105 for want of this line.
 
 ### 🔍 ACGm_106: ornament drain
 
 - **Detect:** spec sentences in normative position that neither constrain nor
   carry marked rationale or gestalt — prose an implementer or validator could
   delete without acting differently.
-- **Authority:** the normative-register rule (the statements clause, above).
+- **Authority:** the spec-form layer (MCM / the diptych design) — *pending*. The
+  in-ACG normative-register rule this move rode was pared back as spec-form
+  overreach (pilot 2); until the document-form layer rehomes it, the move stays
+  catalogued but detect-only with its authority held externally.
 - **Licensing:** detect-only — whether a sentence constrains is judgment;
   draining is per-document and reviewed.
 - **Verifier:** none in v1.
@@ -424,7 +443,7 @@ Guides may overlap in content; a file is never subject to two.
 | The spine | "Reference the home" — values → constants, concepts → quoin-refs, statements → definition sites |
 | Wire format | An RB-authored JSON document with senders and receivers; a named home whose keys are minted (sprued) names — the fourth clause |
 | Word cancer | Variations of one normative idea scattered as paraphrases, each drifting independently; the metastatic violation of statements → definition sites. Quoin home: MCM `mcm_word_cancer` |
-| Normative register | Spec-side rule: every sentence constrains or is marked rationale/gestalt; unmarked ornament is contamination |
+| Normative register | Spec-form rule (every spec sentence constrains or is marked rationale; unmarked ornament is contamination) — pared from ACG as spec-form overreach (pilot 2); home migrating to MCM / the diptych design |
 | Skidmark | Version commentary stranded in a durable document; history-time knowledge whose home is the commit. Quoin home: MCM `mcm_skidmark` |
 | Home | The one right location for a fact, fixed by when it is read (design / edit / execution time) |
 | Move-type | A catalogued `ACGm_` cleanup move: detect-rule, authority, licensing, verifier, countable Done |
