@@ -9097,9 +9097,10 @@
         "₢BZAAG",
         "₢BZAAH",
         "₢BZAAI",
-        "₢BZAAJ"
+        "₢BZAAJ",
+        "₢BZAAK"
       ],
-      "jjghn_next_pace_seed": "AAK",
+      "jjghn_next_pace_seed": "AAL",
       "jjghn_paces": {
         "₢BZAAA": {
           "jjgpn_tacks": [
@@ -9222,6 +9223,17 @@
               "jjgtn_text": "Complete the three-leg chain in the accessor: the don (Leg 3) — generateAccessToken on the mantle SA, with the depot as quota project via `x-goog-user-project`; the short-lived mantle token held in process memory only, never cached; one mantle worn per token.\nOverhang: a long run re-mints the mantle token mid-flight from the cached federated token while the assize lives, and fails loud (\"assize lapsed, compear\") when it lapses.\nThe spike-proven chain and the overhang ruling: the paddock.\n\n## Done when\n- A donned mantle token mints from the cached federated token; everything downstream stays bearer-blind and unchanged (no quota-project ceremony downstream).\n- Mid-run re-mint works while the assize lives; an assize lapse fails loud with the compear instruction.\n\n## Cinched\n- A token carries exactly one mantle's authority; mantle tokens are never cached.\n- Duration-aware admission control is a named deferral, not built here.\n\n## Character\nThe behavior-heavy heart, second half — the impersonation act and overhang.\nFirst-cut docket; deep-review pending.",
               "jjgtn_silks": "accessor-don-leg3",
               "jjgtn_basis": "6481504"
+            }
+          ]
+        },
+        "₢BZAAK": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260615-1144",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "Stand up the Terrier: the manor-homed bucket at managed-folder grain (governor-writeable own-polity-only, read population governors-and-above), and realize the write / withdraw / read muniment sub-operations against the atomic GCS-precondition contract already specified.\nThis pace settles the Terrier noun internals parked at the sub-op subdoc: per-entry vs per-subject object granularity, the muniment JSON shape under a fresh terrier sprue, the physical bucket name and its constant home, and the managed-folder IAM (today's `rbgb_` carries bucket-level IAM only — this likely adds managed-folder IAM to it).\nWrite semantics and sub-op contract: the terrier sub-operation subdoc.\n\n## Done when\n- The terrier bucket exists with per-polity managed-folder write IAM; write / withdraw / read sub-ops work and are atomic per the contract.\n- The Terrier noun internals are decided and recorded in the noun quoin.\n\n## Cinched\n- Runtime verbs never touch terriers; admission verbs write muniments first; the reconciliation diff is read-only and spec-interior.\n\n## Character\nResource + sub-op realization; the managed-folder-IAM addition to `rbgb_` is the one place it grows beyond a conditioned REST call.\nFirst-cut docket; deep-review pending.",
+              "jjgtn_silks": "terrier-live",
+              "jjgtn_basis": "1afb82b"
             }
           ]
         }
