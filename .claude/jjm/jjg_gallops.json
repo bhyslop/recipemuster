@@ -9044,9 +9044,10 @@
       "jjghn_creation_time": "260601",
       "jjghn_status": "jjghe_racing",
       "jjghn_order": [
-        "₢BUAAA"
+        "₢BUAAA",
+        "₢BUAAB"
       ],
-      "jjghn_next_pace_seed": "AAB",
+      "jjghn_next_pace_seed": "AAC",
       "jjghn_paces": {
         "₢BUAAA": {
           "jjgpn_tacks": [
@@ -9063,6 +9064,17 @@
               "jjgtn_text": "## Character\nBCG authoring + whole-document consistency review. Judgment on where the decomposition pattern fits and how it reconciles with the existing single-module guidance.\n\n## Goal\nIncorporate the module-decomposition \"0-trick\" into BCG: when a module outgrows one file, the prefix becomes a container naming no file, with a two-tier layout — a `«prefix»0_` top tier (CLI `«prefix»0_cli.sh` + entry `«prefix»0_«ModuleName».sh`, the sourcing hub holding the single inclusion-guard + the whole kindle) and a gesture-letter cluster tier (guard-free bodies the entry sources). Dispatch functions keep the container prefix — terminal exclusivity is file-level, not function-level.\n\n## Cinched\n- `«prefix»0_«ModuleName».sh` is THE entry form (e.g. `rbld0_Lode.sh`) — retires the `k`-postfix entry.\n- The `0` tier is the module's top/entry surface (cli, entry, rbh0-style landings); the cluster tier uses gesture letters; the `_cli.sh`-must-be-executable marker still governs (entry is non-executable).\n\n## Scope\n1. Whole-document review pass so the decomposition pattern reconciles with Module Architecture, Module-CLI Prefix Unity, the Templates, the Naming conventions, and the filesystem marker.\n2. Module Maturity Checklist updated to cover decomposed modules.\n3. FM-002 retiring the `k`-entry form (`k` → `0_«ModuleName»`).\n\n## Found\n- BCG today documents only single modules (Module-CLI Prefix Unity: `rbrn_` + `rbrn_cli`); no decomposition pattern exists.\n- Precedent: the rbh0 handbook (`rbho0_cli` + `rbho0_start_here` top tier). Live exemplar: the rbk lode-module-explosion (`rbld0_cli` + `rbld` clusters) — its `rbldk_Kindle.sh` renames to `rbld0_Lode.sh` under FM-002 (that rename is rbk-heat work, not this pace).\n\n## Done\nBCG carries a Module Decomposition section consistent with the rest of the document; the Maturity Checklist covers decomposed modules; FM-002 records the `k` → `0_«ModuleName»` retirement; the whole-document review is complete; `0_«ModuleName»` is cinched.",
               "jjgtn_silks": "bcg-module-decomposition-0-trick",
               "jjgtn_basis": "a0c5e46"
+            }
+          ]
+        },
+        "₢BUAAB": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260616-1059",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "Rigorously determine whether the GCS build bucket is fully superseded by pouch-based build-context delivery, and retire the vestige if so.\n\nBuild context now ships to Cloud Build as the pouch — a FROM SCRATCH OCI image pushed to GAR before `builds.create`.\nSee RBS0's `{rbtga_ark_pouch}` definition and the pouch push in `rbfd_director.sh`; RBSCTD records the trigger-dispatch supersession that introduced it.\nThe older design staged source into the GCS build bucket; a kit-wide grep for `storageSource` and `objectCreator` lands empty today, so that staging path appears gone.\n\nCandidate residue, if the verdict is retire:\nthe build-bucket creation and its one-day lifecycle rule at depot levy in `rbgp_payor.sh`;\nMason's `roles/storage.objectViewer` grant on that bucket at levy;\nthe stale director-enrobe spec line (RBSDK) granting the director `storage.objectCreator`/`objectViewer`, which the director capability code grants nowhere;\nbucket-only constants in `rbgb_buckets.sh` / `rbgd_depot.sh` / `rbdc_derived.sh`.\n\n## Done when\nEvery reader and writer of the build bucket is enumerated from the live kit, yielding a verdict.\nEither a live consumer is found — keep the bucket and correct the specs to match — or none is, in which case the bucket, its levy creation, Mason's grant, and the stale RBSDK line retire together with the suites green.\nThe adjacent capability-spec drift is dispositioned in the same sweep: RBSRK omits the `containeranalysis.occurrencesViewer` role the retriever capability code actually grants.\n\n## Cinched\nPouch is the build-context delivery mechanism; this pace does not reopen that decision.\n\n## Character\nInvestigation-first ACG simplification — a hidden live consumer is the one risk, so the study gates the cut; mechanical once the verdict is in.",
+              "jjgtn_silks": "build-bucket-vestige-scrub",
+              "jjgtn_basis": "97cf0c4"
             }
           ]
         }
