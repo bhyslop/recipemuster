@@ -12,17 +12,20 @@ Premise-touching ideas wait on Fable: any idea that would amend a cinched ₣BZ 
 Keep this catalog shape-shaped — each idea a named tension plus a current lean, never a running discussion log.
 Genuinely thin or orthogonal ideas belong in itches or the horizon roadmap, not here; this paddock is for ideas worth deliberating with heat context.
 
-## Idea — a noun for the configured federation (keystone vocabulary)
+## Idea — entente, the configured-federation noun (keystone vocabulary)
 
 Tension: the civic vocabulary names every actor and container in the federation story — the manor that founds, the depot that runs, the citizen who signs in, the mantle they don, the assize they open — but has no noun for the configured trust itself.
 A configured federation is referred to mechanically (the workforce pool plus provider plus attribute mapping) or with the overloaded word federation, which carries both the concept and the instance at once.
 
 Why it is the keystone: the healthy payor-governor model is only sayable as a relationship between named nouns, and three ideas below lean on it — multiple federations names instances of it, the governor-selects idea affiliates a depot with one, and the payor federation-setup guide configures one.
-With the noun the model collapses to four speakable lines: the payor founds one (affiance, org-scope); the payor sanctions a set of them as eligible (the bound); the governor affiliates a depot with a sanctioned one (depot-scope); a depot draws its citizens from the one it is affiliated with.
+With the noun the model collapses to four speakable lines: the payor founds one entente (affiance, org-scope); the payor sanctions a set of them as eligible (the bound); the governor affiliates a depot with a sanctioned entente (depot-scope); a depot draws its citizens from the entente it is affiliated with.
 
-Current lean: mint a civic noun in the affiance asterism — betrothal, pledged faith with an external sovereign, the diplomatic and feudal register.
-Illustrative candidates only, not a choice: concordat (a formal standing pact between a sovereign and an external authority — it names the agreement, which is what a configured federation civically is, while pool and provider stay the GCP mechanism beneath); or troth (the affiance-tight pledged-faith noun, shorter, but reads as the act more than the standing object).
-This sharpens RBS0 even in the single-federation case, so it is flagged for Fable's ₣BZ heat-review as a candidate RBS0 civic quoin; the mint is Fable's, owing the grep gate, the asterism check, and terminal exclusivity.
+Chosen noun (working lean): entente — the standing trust between two powers, in the diplomatic register the manorial/legal asterism already spans.
+It pluralizes cleanly, which the multiple-federations idea needs: a manor holds several ententes as a sovereign holds several, where the marriage-register nouns (troth, espousal) stay monogamous and break.
+The winnowing constraint was the colophon namespace: the structural ideal was a con-/com- binding-together word (concordat, covenant), but that whole Latin family starts with c, and Crucible owns the rbw-c colophon family — so the configured-federation tabtargets would collide.
+Entente is grep-clean and takes a free rbw-e colophon family.
+Noted tradeoff carried to the mint: entente connotes a loose understanding, which undersells the hard cryptographic trust beneath; weighed and accepted.
+This sharpens RBS0 even in the single-federation case, so it is flagged for Fable's ₣BZ heat-review as a candidate RBS0 civic quoin; the mint is Fable's, owing the asterism check and terminal exclusivity (the grep gate lands clean), plus a fair-faced cold-probe before it hardens, and a check of whether affiance stays the founding verb or the entente earns a founding verb in its own register (you do not betroth an entente).
 
 ## Idea — payor federation-setup guide
 
