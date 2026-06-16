@@ -333,6 +333,8 @@ Operator-specific test machines reachable from this station.
 
 @Tools/rbk/claude-rbk-acronyms.md
 
+@Tools/rbk/claude-rbk-conduct.md
+
 @Tools/rbk/claude-rbk-tabtarget-context.md
 
 For theurge/ifrit crucible testing work, read `Tools/rbk/claude-rbk-theurge-ifrit-context.md` — covers the iteration loop (kludge, charge, test, ordain), architecture of the two Rust binaries, and how to add new security test cases.

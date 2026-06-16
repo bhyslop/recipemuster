@@ -80,13 +80,18 @@ by no one with a reason to correct it when it drifts.
 **The edit-time Palisade license is a fallback home, not a co-equal one.**
 Palisade characterization obeys the same single-authoritative-wording rule as
 every other statement: when a spec home carries the characterization, the spec is
-authoritative and the comment keeps only the **residue** — the one-line
-signature, the do-not-"fix" tripwire, and the citation. The full characterization
-lives at the code only where no spec home exists. The bound serves the context
-economy: code is the most-frequently-loaded medium, so it carries what an editor
-needs *before* deciding to load the spec; the spec carries everything needed
-after. Worked ruling: the sentry-pair audit, where the spec side already carried
-every detected comment's content.
+authoritative and the comment keeps only the **residue** — the citation alone,
+never the rationale. After a collapse the code keeps only the inert pointer (the
+rivet ID) and *no* restatement of the constraint's reasoning: the tripwire, the
+signature, the "why" — every word of rationale — lives at exactly one home, the
+spec, reached by following the pointer. A comment that re-explains what the spec
+states is not a helpful residue; it is the fork this guide forbids. The opaque
+ID's *presence* is the whole before-load signal — it marks the line as governed
+and freelancing as wrong; the content is one grep away and always current, while
+a copy in the code only manufactures a second wording that drifts. The full
+characterization lives at the code only where no spec home exists. Worked ruling:
+the sentry-pair audit, where the spec side already carried every detected
+comment's content, collapsed to announcement-borne rivet citations.
 
 Two edit-time/execution-time source-doc forms are distinct and **both blessed**:
 
@@ -288,7 +293,7 @@ detect-only** (read and report; no repair until a verifier exists). Numbered fro
 - **Citation-collapse (the common case):** when the receiving home already
   carries the comment's content, nothing relocates — declare the authoritative
   side (move discipline, rule 1; the spec, per the Palisade fallback bound) and
-  the comment shrinks to residue: signature + tripwire + citation. The
+  the comment shrinks to residue: the citation alone, never the rationale. The
   sentry-pair pilot found every one of its detected comments already homed;
   expect collapse, not relocation, wherever the spec side is mature. For how this
   differs from ACGm_105 — the comment is the unit here, the recurring wording is
@@ -457,7 +462,8 @@ Guides may overlap in content; a file is never subject to two.
 - **WSG**, **CBG**, **JDG** — foreign-environment siblings (Windows transport,
   cloud step, in-vessel jailer `sh`). A jailer script (`rbj*`) answers to JDG
   alone for its dialect; its behavior answers to its RBS spec, an orthogonal
-  axis.
+  axis. In a jailer script a rivet citation rides the execution-time
+  announcement (no comment by dialect) — see JDG.
 - **MCM** — builds the named homes ACG references; the design-time home.
 - **AXLA** — the motif vocabulary; the lookahead scanning rule and the
   name-identity symbol-link dependency live against it.
@@ -479,5 +485,5 @@ Guides may overlap in content; a file is never subject to two.
 | detect-only | Licensing: the verb reads and reports; no repair until a verifier exists |
 | Name-identity | Concept linkage where the implementing symbol *is* the link to its quoin |
 | Citation-collapse | ACGm_104's degenerate case: the receiving home already carries the comment's content, so the comment shrinks to residue and nothing relocates |
-| Residue | What survives at the code after a collapse: the one-line signature, the do-not-"fix" tripwire, and the citation |
+| Residue | What survives at the code after a collapse: the citation alone (the rivet ID) — never the rationale, which lives solely at the spec home |
 | Cited constraint / Rivet | A normative proposition the spec defines once under an opaque minted ID (`RBr_`+tail) that code and tests cite. Specified at its MCM/AXLA home as `mcm_rivet`, a fourth census category; kind declared by an `axvc_` voicing, not by the ID |

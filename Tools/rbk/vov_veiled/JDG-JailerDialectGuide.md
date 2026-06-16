@@ -198,6 +198,8 @@ neither is fixed by the pace that wrote this guide.
 
 *Cited by:* the deviation above; future reviews of jailer scripts.
 
+*Rivet citations ride the announcement.* A cited-constraint rivet (ACG "residue"; concept home MCM `mcm_rivet`) defined in the script's `.adoc` spec is cited from the code by its opaque `RBr_<tail>` ID. Because a jailer script carries no comments by dialect, the citation rides the phase announcement as a second token — `echo "RBJp2c: RBr_a3f: <message>"` (`RBr_a3f` is AXLA's illustration ID; a real citation carries the spec's live ID). The phase tag stays leading so this rule's grep still resolves; the rivet ID enters the container log as a second census surface; and the constraint's rationale stays wholly in the spec, never restated in the script.
+
 #### ✅ JDo_102: Exit-code families locate the failure
 
 A jailer script exits with a code whose **tens digit is the phase number** and

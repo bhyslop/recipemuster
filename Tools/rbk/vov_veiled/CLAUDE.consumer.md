@@ -114,6 +114,8 @@ All credential files require `600` permissions and must never be committed to ve
 
 @Tools/buk/claude-buk-core.md
 
+@Tools/rbk/claude-rbk-conduct.md
+
 @Tools/rbk/claude-rbk-tabtarget-context.md
 
 Test suite/fixture tabtargets use the `rbw-ts` (suites), `rbw-tf` (single fixture), and `rbw-tc` (single case) colophons:
