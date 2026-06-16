@@ -105,8 +105,11 @@
 :vose_kit:              <<vose_kit,Kit>>
 :vose_kit_s:            <<vose_kit,Kits>>
 :vose_kit_p:            <<vose_kit,Kit's>>
-:vose_managed_section:  <<vose_managed_section,Managed Section>>
-:vose_managed_section_s: <<vose_managed_section,Managed Sections>>
+:vose_include_region:   <<vose_include_region,Include Region>>
+:vose_include_region_s: <<vose_include_region,Include Regions>>
+:vose_kit_include:      <<vose_kit_include,Kit Include>>
+:vose_kit_include_s:    <<vose_kit_include,Kit Includes>>
+:vose_kit_include_p:    <<vose_kit_include,Kit Include's>>
 :vose_marker:           <<vose_marker,Marker>>
 :vose_marker_s:         <<vose_marker,Markers>>
 :vose_uninstalled_marker: <<vose_uninstalled_marker,Uninstalled Marker>>
@@ -118,7 +121,6 @@
 :vosem_brand_kits:      <<vosem_brand_kits,brand_kits>>
 :vosem_brand_sha:       <<vosem_brand_sha,brand_sha>>
 :vosem_display_name:    <<vosem_display_name,display_name>>
-:vosem_file:            <<vosem_file,file>>
 :vosem_brand:        <<vosem_brand,brand>>
 :vosem_kit_id:          <<vosem_kit_id,kit_id>>
 :vosem_tag:             <<vosem_tag,tag>>
@@ -202,12 +204,10 @@ declares itself to the
 {vose_conclave}
 through a
 {vose_whisper}
-- a builder-pattern API that registers the
+- a static registry entry recording the
 {vose_kit_p}
-identity,
-{vose_managed_section_s},
-and
-{vosa_concept_model_s}.
+identity and its
+{vose_kit_include_s}.
 
 The
 {vosor_release}
@@ -224,7 +224,7 @@ to a
 {vosp_target_repo}.
 The
 {vosou_uninstall}
-operation removes Claude Code integration (commands, hooks, CLAUDE.md sections, vvx binary) while preserving
+operation removes Claude Code integration (commands, hooks, the CLAUDE.md include region, vvx binary) while preserving
 {vose_kit}
 directories.
 Uses
@@ -232,11 +232,13 @@ Uses
 -based prefix matching for command/hook removal.
 The
 {vosof_freshen}
-operation updates CLAUDE.md
-{vose_managed_section_s}
-directly from
+operation rebuilds CLAUDE.md's
+{vose_include_region}
+in the
 {vosp_kit_forge}
-templates without a
+from the kit
+{vose_registry}
+without a
 {vose_parcel},
 enabling rapid iteration during development.
 
@@ -471,55 +473,50 @@ like any other — it just happens to contain binaries.
 A
 {vose_kit_p}
 declaration to the
-{vose_conclave}.
-Implemented as a Rust builder API in the
+{vose_conclave}:
+a static `vofc_Kit` entry recording the
 {vose_kit_p}
-{vosp_veiled}
-directory.
+{vost_cipher},
+display name,
+and
+{vose_kit_include_s}.
 +
-Builder API:
+Declaration form:
 +
 [source,rust]
 ----
-use voci_ciphers::JJ;
-
-Whisper::for_kit("jjk")
-    .cipher(JJ)                 // symbolic reference to const
-    .display_name("Job Jockey")
-    .managed_section("vocjjmc_core.md", "JJK")
-    .managed_section("vocjjmc_gallops.md", "JJK_GALLOPS")
-    .concept_model("JJS0_JobJockeySpec.adoc")
-    .register(&mut conclave)
+// an entry in DISTRIBUTABLE_KITS (vofc_registry.rs)
+vofc_Kit {
+    cipher: &JJ,
+    display_name: "Job Jockey",
+    claude_includes: &["claude-jjk-core.md"],
+}
 ----
 +
-File location: `Tools/{kit}/vov_veiled/vo{cipher}w_whisper.rs`
+File location: `Tools/vok/vof/src/vofc_registry.rs` (the `DISTRIBUTABLE_KITS` table)
 
 [[vose_conclave]]
 //axl_voices axo_entity
 {vose_conclave}::
-The central API that
+The static registry that
 {vose_kit_s}
 use to describe themselves.
-Lives in VOK as `vocv_conclave.rs`.
-Collects
+Lives in VOK as `vofc_registry.rs` — the `DISTRIBUTABLE_KITS` table of
 {vose_whisper_s}
-and validates
-{vosk_prefix_validation}
-during
-{vosor_release}.
+alongside the cipher registry and its access functions.
 +
 Responsibilities:
 +
-* Collect
+* Hold the
 {vose_whisper_s}
-from all participating
+of all participating
 {vose_kit_s}
 * Enforce
 {vosk_prefix_validation}
-during
-{vosor_release}
-* Provide asset enumeration for
-{vosoi_install}
+(terminal-exclusivity rules over the cipher registry)
+* Anchor asset enumeration for
+{vosor_release},
+{vosoi_install},
 and
 {vosou_uninstall}
 
@@ -536,12 +533,12 @@ Structure:
 Tools/{kit}/
   {kit}a_arcanum.sh      # Public - install script
   {kit}u_utility.sh      # Public - utilities
+  claude-{kit}-*.md      # Public - Claude guidance (@-included by CLAUDE.md)
   README.md              # Public - documentation
   commands/              # Public - slash commands
     {cipher}c-*.md
   vov_veiled/            # Private - never distributed
-    vo{cipher}w_whisper.rs
-    vo{cipher}mc_*.md    # CLAUDE.md templates
+    claude-{kit}-{owner}.md  # Veiled per-owner Claude guidance
     {ACRONYM}-*.adoc     # Concept models
 ----
 +
@@ -565,36 +562,57 @@ selects one and emplaces it as the
 — the universal kit
 * Uses cipher `vv` (Voce Viva)
 
-[[vose_managed_section]]
-//axl_voices axo_entity
-{vose_managed_section}::
-A block of content in the target CLAUDE.md file bounded by
-{vose_marker_s}.
-Each
-{vose_kit}
-may contribute multiple
-{vose_managed_section_s}
-for distinct feature groups.
+[[vose_include_region]]
+//axo_entity
+{vose_include_region}::
+The single block of content in the target CLAUDE.md file bounded by
+{vose_marker_s},
+tagged `VVK-INCLUDES`.
+Its body is a set of `@`-include lines — one per
+{vose_kit_include}
+of each installed
+{vose_kit},
+in registry order, written project-root-relative.
+The guidance text lives in the `@`-targets, never inline, so the
+{vose_include_region}
+cannot go stale.
+Exactly one
+{vose_include_region}
+exists per target CLAUDE.md, replacing the former per-kit inline mechanism.
 +
 Members:
-
-[[vosem_file]]
-//axl_voices axr_member axd_required
-* {vosem_file} - Template file path relative to
-{vosp_veiled}
-(e.g., `vocjjmc_core.md`)
 
 [[vosem_tag]]
 //axl_voices axr_member axd_required
 * {vosem_tag} - Identifier used in
 {vose_marker_s}
-(e.g., `JJK`, `JJK_GALLOPS`)
+(the literal `VVK-INCLUDES`)
+
+[[vose_kit_include]]
+//axo_entity
+{vose_kit_include}::
+A public Claude guidance file (`claude-{kit}-*.md`) that a
+{vose_kit}
+declares for inclusion.
+Each
+{vose_kit_include}
+becomes one `@`-include line in the
+{vose_include_region}
+body.
+Declared as the `claude_includes` field of a
+{vose_kit_p}
+{vose_whisper},
+collected by the
+{vose_conclave}.
+Veiled per-owner files (`claude-{kit}-{owner}.md`) are never
+{vose_kit_include_s}
+— they do not distribute.
 
 [[vose_marker]]
 //axl_voices axt_string
 {vose_marker}::
-Delimiters bounding a
-{vose_managed_section}
+Delimiters bounding the
+{vose_include_region}
 in CLAUDE.md.
 +
 Format: `<\!-- MANAGED:{tag}:BEGIN -->` and `<\!-- MANAGED:{tag}:END -->`
@@ -610,8 +628,8 @@ is preserved.
 [[vose_uninstalled_marker]]
 //axl_voices axt_string
 {vose_uninstalled_marker}::
-Placeholder preserving position of a removed
-{vose_managed_section}.
+Placeholder preserving position of the removed
+{vose_include_region}.
 +
 Format: `<\!-- MANAGED:{tag}:UNINSTALLED -->`
 +
@@ -627,7 +645,7 @@ On
 {vose_marker_s}
 are collapsed to a single
 {vose_uninstalled_marker},
-preserving user's chosen section ordering for future reinstall.
+preserving the region's position for future reinstall.
 
 [[vose_canonical_binary]]
 //axl_voices axo_entity
@@ -801,12 +819,9 @@ Each
 {vose_kit}
 has a `vov_veiled/` subdirectory containing:
 +
-* {vose_whisper}
-Rust source (`vo{cipher}w_whisper.rs`)
-* {vose_managed_section}
-templates (`vo{cipher}mc_*.md`)
 * {vosa_concept_model_s}
 (AsciiDoc specs)
+* Veiled per-owner Claude guidance (`claude-{kit}-{owner}.md`)
 +
 Excluded from
 {vose_parcel}
@@ -892,15 +907,12 @@ must derive from
 An AsciiDoc specification file following MCM patterns.
 Lives in
 {vosp_veiled},
-never distributed.
-Indexed by
-{vose_conclave}
-for acronym registry and uniqueness validation.
+never distributed —
+excluded from the
+{vose_parcel}
+by the `vov_veiled/` convention.
 +
 Naming: Keeps existing acronym (e.g., `JJS0_JobJockeySpec.adoc`).
-Registered in
-{vose_whisper}
-via `.concept_model()` builder method.
 
 [[vosa_mcp_config]]
 //axl_voices axo_entity
@@ -1214,18 +1226,28 @@ copy `claude/hooks/*` to `.claude/hooks/`
 {vosc_call}
 create with header `# Claude Code Project Memory`
 .. {vosc_call}
-read templates from `kits/{kit}/templates/`
-.. For each
-{vose_managed_section}:
-... If
+sweep any legacy per-kit
+{vose_marker_s}
+left by the retired inline mechanism
+.. {vosc_call}
+build the
+{vose_include_region}
+body: one `@`-include line per
+{vose_kit_include}
+of each installed
+{vose_kit},
+in registry order
+.. Upsert the
+{vose_include_region}:
+... If its
 {vose_marker_s}
 exist: replace content between markers
-... Else if
+... Else if the
 {vose_uninstalled_marker}
 exists: expand at that location
 ... Else: append at end of file
 .. {vosc_step}
-"CLAUDE.md sections updated"
+"CLAUDE.md include region updated"
 +
 NOTE: This is a deterministic text transformation implemented in Rust.
 No LLM assistance required for marker manipulation.
@@ -1257,8 +1279,8 @@ at `.mcp.json`
 * Commands in `.claude/commands/`
 * Hooks in `.claude/hooks/`
 * Brand file at `.vvk/vvbf_brand.json`
-* Updated CLAUDE.md with
-{vose_managed_section_s}
+* Updated CLAUDE.md with the
+{vose_include_region}
 * Single git commit
 
 //axhoc_completion
@@ -1277,7 +1299,7 @@ Removes Claude Code integration from
 while preserving
 {vose_kit}
 directories.
-Unveiled kit content is typically open-source and remains functional outside Claude Code; vacate removes only the Claude-specific layer (commands, hooks, managed sections, vvx binary).
+Unveiled kit content is typically open-source and remains functional outside Claude Code; vacate removes only the Claude-specific layer (commands, hooks, the CLAUDE.md include region, vvx binary).
 Uses brand file to enumerate what to remove.
 
 Invocation (from target repo root):
@@ -1350,20 +1372,22 @@ remove files matching `{cipher}h-*.md` from `.claude/hooks/`
 "{n} commands removed, {m} hooks removed"
 
 //axhos_step
-. *Collapse CLAUDE.md sections*:
+. *Collapse CLAUDE.md region*:
 .. If CLAUDE.md exists:
-... For each
-{vose_managed_section}
-tag from kit list:
-.... If
+... {vosc_call}
+sweep any legacy per-kit
 {vose_marker_s}
-exist: replace with single
+left by the retired inline mechanism
+... If the
+{vose_include_region}
+{vose_marker_s}
+exist: replace with a single
 {vose_uninstalled_marker}
-.... If markers absent: no action (section was never added or already collapsed)
+... If markers absent: no action (region was never added or already collapsed)
 .. {vosc_step}
-"CLAUDE.md sections collapsed"
+"CLAUDE.md include region collapsed"
 +
-NOTE: Preserves user's chosen section ordering for future reinstall.
+NOTE: Preserves the region's position for future reinstall.
 
 //axhos_step
 . *Remove vvx binary*:
@@ -1410,8 +1434,8 @@ removed from `${BURC_TOOLS_DIR}/vvk/bin/vvx`
 removed from `.mcp.json`
 * Commands removed from `.claude/commands/`
 * Hooks removed from `.claude/hooks/`
-* CLAUDE.md sections collapsed to
-{vose_uninstalled_marker_s}
+* CLAUDE.md include region collapsed to a single
+{vose_uninstalled_marker}
 * Brand file and `.vvk/` removed
 * Kit directories *preserved* (unveiled content remains functional)
 * Single git commit
@@ -1419,30 +1443,35 @@ removed from `.mcp.json`
 //axhoc_completion
 Claude Code integration cleanly removed.
 Kit directories remain for continued use outside Claude Code.
-{vose_uninstalled_marker_s}
-preserve section positions for future reinstall.
+The
+{vose_uninstalled_marker}
+preserves the region's position for future reinstall.
 
 
 [[vosof_freshen]]
 //axvo_procedure axd_transient
 === {vosof_freshen}
 
-Updates CLAUDE.md
-{vose_managed_section_s}
-from
-{vosp_kit_forge}
-templates, bypassing the
+Rebuilds CLAUDE.md's
+{vose_include_region}
+from the kit
+{vose_conclave},
+bypassing the
 {vose_parcel}
 pipeline.
-Operates directly on
-{vosp_veiled}
-content within the
+Operates directly within the
 {vosp_kit_forge}
 itself.
 
 This is a development-time operation for use in the
 {vosp_kit_forge}
-when template content has changed and CLAUDE.md needs to reflect those changes without a full
+when the kit
+{vose_conclave}
+has changed — kits added or removed, or a
+{vose_kit_include}
+list edited — and CLAUDE.md's
+{vose_include_region}
+needs to match without a full
 {vosor_release}
 and
 {vosoi_install}
@@ -1471,39 +1500,43 @@ parse burc.env for `BURC_PROJECT_ROOT`, `BURC_TOOLS_DIR`, `BURC_MANAGED_KITS`
 if missing or empty: "burc.env missing required variable: {name}"
 
 //axhos_step
-. *Read forge templates*:
+. *Build include region body*:
 .. For each kit in `BURC_MANAGED_KITS`:
 ... {vosc_call}
-look up
+look up the
 {vose_kit}
-in
-{vose_registry}
-to get
-{vose_managed_section}
-declarations
+{vose_whisper}
+in the
+{vose_conclave}
 ... For each
-{vose_managed_section}:
+{vose_kit_include}
+of the
+{vose_kit}:
 {vosc_call}
-read template from `${BURC_TOOLS_DIR}/{kit}/vov_veiled/{template_path}`
-... {vosc_fatal}
-if template not found: "Template not found in forge: {path}"
+emit one `@`-include line, project-root-relative to the kit's installed directory
 
 //axhos_step
 . *Freshen CLAUDE.md*:
 .. If CLAUDE.md absent:
 {vosc_call}
 create with header `# Claude Code Project Memory`
-.. For each
-{vose_managed_section}:
-... If
+.. {vosc_call}
+sweep any legacy per-kit
+{vose_marker_s}
+left by the retired inline mechanism
+.. Upsert the
+{vose_include_region}:
+... If its
 {vose_marker_s}
 exist: replace content between markers
-... Else if
+... Else if the
 {vose_uninstalled_marker}
 exists: expand at that location
 ... Else: append at end of file
 .. {vosc_step}
-report each section as updated, expanded, or appended
+report the
+{vose_include_region}
+as updated, expanded, or appended
 
 NOTE: No git commit is performed.
 The caller decides when to commit, enabling
@@ -1511,14 +1544,16 @@ The caller decides when to commit, enabling
 to be composed with other operations.
 
 //axhoom_motif_output
-* Updated CLAUDE.md with
-{vose_managed_section_s}
-from forge templates
+* Updated CLAUDE.md with the
+{vose_include_region}
+rebuilt from the kit
+{vose_conclave}
 
 //axhoc_completion
-CLAUDE.md
-{vose_managed_section_s}
-reflect current forge template content.
+CLAUDE.md's
+{vose_include_region}
+reflects the current kit
+{vose_conclave}.
 No other files modified.
 
 
@@ -1665,52 +1700,43 @@ Both systems use the same resolution logic for sourcing
 but Job Jockey includes heat/pace identity in the third field while VOK leaves it empty.
 
 
-== Whisper Builder API
+== Kit Declaration
 
-The
+A
 {vose_whisper}
-builder provides a fluent interface for
-{vose_kit}
-registration.
+is a static `vofc_Kit` entry in the
+{vose_conclave}
+table (`DISTRIBUTABLE_KITS` in `vofc_registry.rs`).
+Declaration order is significant: kits install in table order, which fixes the order of `@`-include lines in the
+{vose_include_region}.
 
-=== Required Methods
+=== Fields
 
-`Whisper::for_kit(id: &str)` — Create whisper for kit with given
-{vosem_kit_id}.
+[[vosem_display_name]]
+//axr_member axd_required
+* {vosem_display_name} — `display_name`: human-readable name (e.g., `Job Jockey`).
 
-`.cipher(c: Cipher)` — Set the
+* `cipher` — reference to the
+{vose_kit_p}
+{vost_cipher},
+a const in the cipher registry.
+
+* `claude_includes` — the
+{vose_kit_p}
+{vose_kit_include_s}
+(`claude-{kit}-*.md` basenames relative to the kit directory); may be empty.
+
+[[vosem_kit_id]]
+//axr_member
+* {vosem_kit_id} — kit identifier (e.g., `jjk`).
+Not a stored field; derived from the
 {vost_cipher}
-(symbolic const from `voci_ciphers`).
-
-`.display_name(name: &str)` — Set human-readable name.
-
-`.register(&mut Conclave)` — Finalize and register with
-{vose_conclave}.
-
-=== Optional Methods
-
-`.managed_section(file: &str, tag: &str)` — Add a
-{vose_managed_section}.
-May be called multiple times.
-
-`.concept_model(path: &str)` — Register a
-{vosa_concept_model}
-for acronym indexing.
-May be called multiple times.
+via `cipher.kit_id()`.
 
 === Validation
 
-Each builder method validates its input immediately.
-Final validation occurs at `.register()`:
-
-* {vosem_kit_id}
-must be valid identifier
-* {vost_cipher}
-must be a valid const from `voci_ciphers`
-* All
-{vose_managed_section}
-files must exist
-* All
-{vosa_concept_model}
-files must exist
+* The
+{vost_cipher}
+must be a const registered in the cipher registry.
+* Terminal exclusivity holds across all ciphers — no cipher is a prefix of another (`vofc_validate_terminal_exclusivity`).
 

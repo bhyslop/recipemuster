@@ -925,6 +925,19 @@ Agent-driven analysis of RBS0 (30 quoins) and JJS0 (23 quoins) surfaced consiste
 
 Applies to spec-internal quoin minting; orthogonal to the project/domain prefix minting governed by Rules 1–6.
 
+### Pattern K: Claude-Asset Naming Exception (from VOS0 @-include rework)
+
+Some filenames are not led by a registered project prefix yet are entirely correct: they belong to a **Claude-asset class** named by the Claude Code platform, not by our namespace. The canonical members are the literal `CLAUDE.md`, the `.claude/` directory, and the `claude-*.md` guidance files.
+
+This surfaced when VOK's CLAUDE.md mechanism moved from per-kit inline templates (`vo{cipher}mc_*.md`, cipher-led, since deleted) to a single `@`-include region whose body points at each kit's public guidance file. Those guidance files follow the Claude-asset convention rather than the cipher rule:
+
+- `claude-{kit}-core.md` — public per-kit guidance, lives in the kit root, `@`-included by the target repo's CLAUDE.md.
+- `claude-{kit}-{owner}.md` — veiled per-owner guidance, lives in `vov_veiled/`.
+
+**Derived rule**: the `claude-` filename prefix (and the bare `CLAUDE.md` / `.claude/`) is a recognized exception to Rule 1 (Project Prefix). A `claude-*.md` file is named for the platform that consumes it, so it leads with `claude-`, not a project cipher; the `{kit}` segment that follows carries the namespace signal. Do not flag these as cipher violations, and do not mint cipher-led aliases for them.
+
+Applies to the Claude-asset class only; all other file naming remains governed by Rules 1–6.
+
 ## Future Work
 
 - [x] Complete 2-3 deep assessments (actually completed 10)

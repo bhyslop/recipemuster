@@ -232,7 +232,7 @@ vvx jj <subcommand>    # JJK functionality (when jjk feature enabled)
 | **Arcanum** | Kit's install script (`*a_`). The hidden knowledge that configures Claude. |
 | **Cipher** | Project prefix (2-5 chars). Const declarations in `voci_`. Globally unique namespace root. |
 | **Codex** | Version tracking system (`vox_`) |
-| **Conclave** | Kit registration API (`vocv_`). Collects whispers, validates ciphers. |
+| **Conclave** | Static kit registry (`vofc_`, `DISTRIBUTABLE_KITS`). Holds kit declarations, validates ciphers. |
 | **Kit** | A distributable Claude Code extension (directory in Tools/) |
 | **Kit Forge** | Source repo where kits are developed |
 | **Ledger** | Release record (`*l_`). JSON history of releases. |
@@ -245,7 +245,7 @@ vvx jj <subcommand>    # JJK functionality (when jjk feature enabled)
 | **Vox Obscura** | The hidden voice - source infrastructure (VOK) |
 | **vvr** | Voce Viva Rust - the compiled binary |
 | **vvx** | Platform wrapper that dispatches to correct vvr binary |
-| **Whisper** | Kit's declaration to conclave (`*w_`). Builder API for registration. |
+| **Whisper** | Kit's declaration to conclave — a static `vofc_Kit` entry (cipher, display_name, claude_includes). |
 
 ## Prefix Maps
 
@@ -255,7 +255,7 @@ vvx jj <subcommand>    # JJK functionality (when jjk feature enabled)
 |--------|------|---------|
 | `voa_` | Arcanum | Main kit entry (install/uninstall) |
 | `voci_` | Cipher | Project prefix registry (const declarations) |
-| `vocv_` | Conclave | Kit registration API (collects whispers) |
+| `vofc_` | Conclave | Static kit + cipher registry (`DISTRIBUTABLE_KITS`) |
 | `vol_` | Ledger | Release record |
 | `vop_` | Prepare | Release preparation |
 | `vor`  | Rust source | Has children (not terminal) |
