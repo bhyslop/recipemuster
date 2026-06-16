@@ -1169,11 +1169,12 @@ Creates
 {rbtgi_depot}
 infrastructure
 ({rbtgog_depot}):
-project, bucket, repository, and
+project, bucket, repository,
 {rbtr_mason}
-service account.
+service account, and the three
+{rbtf_mantle_s}.
 
-include::RBSDE-depot_levy.adoc[]
+include::RBSMF-depot_levy.adoc[]
 
 [[rbtgo_depot_unmake]]
 //axvo_method axd_transient axd_grouped

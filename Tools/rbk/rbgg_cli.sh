@@ -47,6 +47,7 @@ zrbgg_furnish() {
   source "${RBCC_rbrr_file}"
   source "${RBCC_rbrd_file}"
   source "${z_rbk_kit_dir}/rbgg_governor.sh"
+  source "${z_rbk_kit_dir}/rbgw_capabilities.sh"
 
   zbuv_kindle
   zburd_kindle
@@ -66,6 +67,7 @@ zrbgg_furnish() {
   zrba_kindle
   zrbgi_kindle
   zrbgg_kindle
+  zrbgw_kindle
 }
 
 buc_execute rbgg_ "Governor Procedures" zrbgg_furnish "$@"

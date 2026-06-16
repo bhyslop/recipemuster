@@ -3,7 +3,7 @@
 
 NOTE: This operation creates an
 {rbtgi_depot}
-- a cohesive unit of Recipe Bottle infrastructure including the depot project, build bucket, container repository, Mason service account, and private worker pool
+- a cohesive unit of Recipe Bottle infrastructure including the depot project, build bucket, container repository, Mason service account, private worker pool, and the three {rbtf_mantle_s} (governor, director, retriever)
 that share their productive lifecycle.
 
 The
@@ -207,6 +207,77 @@ Permissions*:
 IAM binding successful
 
 //axhos_step
+. *Establish the
+{rbtf_mantle}
+Service Accounts*:
+.. NOTE: The three
+{rbtf_mantle_s}
+— governor, director, and retriever — are the impersonatable identities a
+{rbtf_citizen}
+dons at runtime under the single-tier federation credential model.
+Each is created here, beside
+{rbtr_mason},
+and granted its full resource authority once and for all; the everyday
+{rbtf_brevet}
+admission verb later binds a citizen to a mantle without ever touching this resource IAM.
+.. NOTE: The mantle accounts are stable depot singletons — one governor, one director, one retriever.
+Their account IDs carry the reserved `rbma` sprue and render `rbma-governor`, `rbma-director`, and `rbma-retriever` (kindled as `RBCC_account_mantle_*`).
+The hyphen is forced by GCP: a service-account ID admits only lowercase letters, digits, and hyphens, so the sprue's underscore form `rbma_` lives in the constant names and never in the rendered ID.
+The `rbma-` lead also keeps the mantles clear of the `governor-*` / `director-*` / `retriever-*` names the bridge-legacy enrobe estate uses, so an enrobe `governor-*` blunt-kill can never reach a mantle.
+.. For each role in [`governor`, `director`, `retriever`]:
+... {rbbc_submit}
+link:https://cloud.google.com/iam/docs/reference/rest/v1/projects.serviceAccounts/create[iam.serviceAccounts.create] with:
+.... accountId: `«MANTLE_ACCOUNT_ID»` (`${RBCC_account_mantle_«ROLE»}`)
+.... displayName: `«RBGC_DEPOT_DISPLAY_PREFIX» mantle «ROLE» «RBRD_DEPOT_MONIKER»`
+.... project: `«DEPOT_PROJECT_ID»`
+... {rbbc_store}
+`«MANTLE_EMAIL»` from response `.email` field
+... {rbbc_poll}
+link:https://cloud.google.com/iam/docs/reference/rest/v1/projects.serviceAccounts/get[serviceAccounts.get] by email until HTTP 200, absorbing create-path propagation lag (the email path propagates independently of the uid path — poll the email, as the enrobe ceremonies do).
+... Grant the role's _capability-set_ to `serviceAccount:«MANTLE_EMAIL»`.
+.. NOTE: A _capability-set_ is a role's complete resource-grant list, defined once as named code (the shared per-role grant functions) and applied identically to a bridge-legacy enrobed account and to the mantle account here — the member email is the only per-call variable.
+This spec deliberately does not re-enumerate the grants: unlike
+{rbtr_mason}'s
+levy-only permissions above, the capability-sets are shared with the enrobe estate, so their single home is the code, not this contract.
+The mantle therefore receives exactly what an enrobed account of the same role receives.
+(The
+{rbtr_director}
+set is heterogeneous — project roles, `serviceAccountUser` on
+{rbtr_mason}
+and on the mantle itself, and the complete Artifact Registry repo policy — which is why it is a function, not a flat list.)
+
+//axhos_step
+. *Settle Gate — freeze the depot's resource IAM*:
+.. NOTE: Every resource binding the depot will carry is now written —
+{rbtr_mason}'s
+grants, the Cloud Build agent impersonation, and the three mantle capability-sets.
+This gate is the freeze.
+Past it the depot's resource IAM is settled once and no hot path mutates it again: the everyday admission verbs
+({rbtf_brevet},
+{rbtf_unseat})
+write only the per-citizen `tokenCreator` binding on a mantle and, on a citizen's first admission to the depot, the depot-scoped `serviceUsageConsumer` binding — never a resource binding.
+The gate is a deliberate barrier, not fire-and-forget: levy is long and payor-driven, so settling here is cheap, and it spares every later operation the resource-scope propagation races the grant harness would otherwise absorb.
+.. {rbbc_require}
+every mantle capability-set has confirmed its own grants settled — each grant carries the propagation read-back the grant harness provides — before the depot is declared founded.
+
+//axhos_step
+. *Enable Artifact Registry Data-Access Audit Logs*:
+.. NOTE: Under mantle impersonation the always-on token-mint log names the mantle service account and caller IP, not the human; the
+{rbtf_citizen}
+surfaces only at the _using_ service's Data-Access log, through `serviceAccountDelegationInfo[].principalSubject`.
+Enabling Artifact Registry Data-Access logs at levy is therefore what makes every mantle-token use attributable to the citizen who donned the mantle (spike-verified — see `Memos/memo-20260612-federation-legs-spike-findings.md`, V3).
+.. {rbbc_call}
+link:https://cloud.google.com/resource-manager/reference/rest/v3/projects/getIamPolicy[projects.getIamPolicy] for `«DEPOT_PROJECT_ID»`
+.. Add an `auditConfigs` entry for service `artifactregistry.googleapis.com` enabling both the `ADMIN_READ` and `DATA_READ` log types.
+.. {rbbc_submit}
+link:https://cloud.google.com/resource-manager/reference/rest/v3/projects/setIamPolicy[projects.setIamPolicy] for `«DEPOT_PROJECT_ID»`, carrying the `auditConfigs` field in the write.
+.. {rbbc_require}
+the returned policy carries the Artifact Registry `auditConfigs` entry.
+.. NOTE: `auditConfigs` are silently dropped unless the `setIamPolicy` write explicitly carries them (see <<rbscig_iam_grant_contracts>>).
+Both log classes are load-bearing: `ListRepositories` — the retriever path — logs as `ADMIN_READ`, while artifact pulls log as `DATA_READ`.
+The config is set on the using service `artifactregistry.googleapis.com` and never on `iamcredentials.googleapis.com`, which rejects service-level audit config because its token-mint logging is always-on and not optional.
+
+//axhos_step
 . *Submit Per-Pool Probe Builds*:
 .. For each worker pool variant in [`tether`, `airgap`]:
 ... {rbbc_submit}
@@ -258,7 +329,7 @@ pre-push existence guard via `docker manifest inspect`: image absent → proceed
 (CLOUD_PREFIX, DEPOT_MONIKER, GCP_REGION, GCB_MACHINE_TYPE) into GAR. Every cloud-submitting command thereafter pulls and exact-byte-diffs the inscribed copy against the local {rbrd_regime} assignment file before submitting, so a post-levy hand-edit fails loud rather than silently diverging from the depot's actual worker-pool quotas, region, and identity. Implemented host-side (Cloud Build is not involved) by `rbrd_inscribe` in `Tools/rbk/rbndb_base.sh`. The tripwire push runs after the depot-tracking refresh; a failure here leaves the depot live but un-inscribed, recoverable via `tt/rbw-rdi.sh` once the cause is resolved.
 
 //axhoc_completion
-Successful execution creates depot infrastructure with configured build bucket, container repository, Mason service account, and private worker pool — all derived from `(RBRD_CLOUD_PREFIX, RBRD_DEPOT_MONIKER)`.
+Successful execution creates depot infrastructure with configured build bucket, container repository, Mason service account, private worker pool, and the three {rbtf_mantle_s} (governor, director, retriever) — their resource authority frozen behind the settle gate and Artifact Registry Data-Access audit logs enabled — all derived from `(RBRD_CLOUD_PREFIX, RBRD_DEPOT_MONIKER)`.
 Proceed to
 {rbtgo_governor_enrobe}
 to create the

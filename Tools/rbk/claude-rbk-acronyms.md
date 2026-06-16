@@ -34,6 +34,7 @@
 - **RBGO** → `rbk/rbgo_oauth.sh` (also owns the stateless `rbgo_curl_status_is_transient_predicate` transient-curl-exit classifier)
 - **RBGP** → `rbk/rbgp_payor.sh`
 - **RBGV** → `rbk/rbgv_probe.sh` (Google Verification — JWT SA and Payor OAuth access probes)
+- **RBGW** → `rbk/rbgw_capabilities.sh` (Capability-Sets — shared single home for the three per-role resource-grant lists (governor/director/retriever), applied identically to bridge-legacy enrobed SAs and to the mantle SAs at depot levy; library module, no CLI, sourced by rbgg_cli + rbgp_cli)
 - **RBGJS** → `rbk/rbgjs/` (shared cloud-step snippet library — the no-family member of the `rbgj«family»/` cloud-step scheme, where each letter is a family of in-pool step scripts (`rbgja` about, `rbgjb` build, `rbgjl` lode, `rbgjm` mirror, `rbgjr` reliquary, `rbgjv` verify). A *shared* snippet belongs to no single family, so `s` breaks the scheme as the no-family family. Holds composed-once fragments — `rbgjs-token-fetch.sh`, `rbgjs-gcrane-fingerprint.sh`, `rbgjs-gcrane-append.sh`, `rbgjs-gpg-verify-sums.sh`, `rbgjs-buildx-bootstrap.sh`, `rbgjs-buildx-push.sh` — each shebang'd only for shellcheck and spliced into a step at `#@rbgjs_include «name»` markers by the host-side expander `zrbfc_expand_includes` (`rbfcb_host.sh`), reached by both the Lode spine `rblds_` and the made-side `rbfca_` vouch assembler. Snippets read shell vars the kind sets before the marker, never `_RBGx_` substitutions — that is what lets one snippet serve disjoint substitution namespaces. Container: `rbgjs` HAS children (the snippet files), names no bare file. Contract: RBSCJ "Composed-snippet library (rbgjs)".)
 - **RBH0** → `rbk/rbh0/` (Handbook directory — decomposed one-function-per-file)
   - `rbh*` is the Handbook family (human-facing procedures), parallel to `rbg*` (Google machinery). Three groups: `RBHO` onboarding, `RBHP` payor, `RBHW` windows. Colophon pattern: `rbw-h0` (HandbookTOP index), `rbw-h{o,p,w}` (group tops), `rbw-H{O,P,W}*` (subordinate procedures).
@@ -87,7 +88,6 @@
 - **RBSCO** → `rbk/vov_veiled/RBSCO-CosmologyIntro.adoc`
 - **RBSCTD** → `rbk/vov_veiled/RBSCTD-CloudBuildTriggerDispatch.adoc`
 - **RBSDD** → `rbk/vov_veiled/RBSDD-director_defrock.adoc` (Governor defrocks a director SA — zero-arg by-role lookup)
-- **RBSDE** → `rbk/vov_veiled/RBSDE-depot_levy.adoc`
 - **RBSDI** → `rbk/vov_veiled/RBSDI-depot_inscribe.adoc` (Reliquary creation — director mirrors tool images to datestamped GAR namespace)
 - **RBSDK** → `rbk/vov_veiled/RBSDK-director_enrobe.adoc` (Governor enrobes a director SA — singleton-per-role)
 - **RBSDL** → `rbk/vov_veiled/RBSDL-depot_list.adoc`
@@ -116,6 +116,7 @@
   - **RBSLE** → `rbk/vov_veiled/RBSLE-lode_ensconce.adoc` (Lode Ensconce — capture an upstream base image, bole kind)
   - **RBSLI** → `rbk/vov_veiled/RBSLI-lode_immure.adoc` (Lode Immure — capture podman-machine disk leaves of one quay family, podvm kinds)
   - **RBSLU** → `rbk/vov_veiled/RBSLU-lode_underpin.adoc` (Lode Underpin — capture a vendor WSL rootfs, wsl kind)
+- **RBSMF** → `rbk/vov_veiled/RBSMF-depot_levy.adoc` (Manor demesne — depot levy ceremony, now also establishing the three mantle SAs and enabling AR Data-Access audit logs; successor to the retired RBSDE depot_levy spec)
 - **RBSNC** → `rbk/vov_veiled/RBSNC-network_create.adoc`
 - **RBSNX** → `rbk/vov_veiled/RBSNX-network_connect.adoc`
 - **RBSOB** → `rbk/vov_veiled/RBSOB-oci_layout_bridge.adoc`

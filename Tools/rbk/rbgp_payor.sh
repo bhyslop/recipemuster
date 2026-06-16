@@ -1692,29 +1692,6 @@ rbgp_payor_oauth_refresh() {
   buc_info "Any successful payor operation resets the 6-month timer"
 }
 
-# Governor capability-set — the role's resource-grant list as named code.
-# Applied to z_member_email: the governor SA created here today, the governor
-# mantle SA at levy. roles/owner on the depot project is the whole set, named so
-# levy can grant it to the mantle SA verbatim.
-zrbgp_grant_governor_capabilities() {
-  zrbgp_sentinel
-
-  local -r z_token="${1:-}"
-  local -r z_member_email="${2:-}"
-
-  test -n "${z_token}"        || buc_die "zrbgp_grant_governor_capabilities: token required"
-  test -n "${z_member_email}" || buc_die "zrbgp_grant_governor_capabilities: member email required"
-
-  buc_step 'Grant roles/owner on depot project'
-  rbgi_add_project_iam_role \
-    "${z_token}" \
-    "Grant Governor Owner" \
-    "projects/${RBDC_DEPOT_PROJECT_ID}" \
-    "roles/owner" \
-    "serviceAccount:${z_member_email}" \
-    "governor-owner"
-}
-
 rbgp_enrobe_governor() {
   zrbgp_sentinel
 
@@ -1838,7 +1815,7 @@ rbgp_enrobe_governor() {
   # No fixed sleep needed: rbgi_add_project_iam_role retries on "does not exist"
   # propagation errors with exponential backoff (see RBSCIP trade study)
 
-  zrbgp_grant_governor_capabilities "${z_token}" "${z_governor_email}"
+  rbgw_grant_governor_capabilities "${z_token}" "${z_governor_email}"
 
   buc_step 'Generate service account key (with propagation retry)'
   local -r z_key_req="${BURD_TEMP_DIR}/rbgp_governor_key_request.json"

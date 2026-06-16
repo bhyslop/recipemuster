@@ -395,7 +395,7 @@ zrbgc_kindle() {
   # Artifact Registry (GAR) Composition
   readonly RBGC_GAR_HOST_SUFFIX="-docker.pkg.dev"
 
-  # GAR Cleanup Policy (applied at depot levy — see RBSDE "Create Container Repository").
+  # GAR Cleanup Policy (applied at depot levy — see RBSMF "Create Container Repository").
   # Reaps untagged manifests on GAR's daily cleanup cadence; underwrites the V2-DELETE-by-tag
   # contract documented in RBSIJ for multi-platform orphan children.
   readonly RBGC_GAR_CLEANUP_POLICY_ID="rb-delete-untagged"
