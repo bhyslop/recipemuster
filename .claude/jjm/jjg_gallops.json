@@ -9189,6 +9189,13 @@
         "₢BZAAF": {
           "jjgpn_tacks": [
             {
+              "jjgtn_ts": "260615-1758",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "Rename the legacy keyfile-SA cult family off the words federation claims — invest / divest / mantle — to the garment-of-office mint enrobe / defrock.\nThe verb movement's first act; discharges the homonym guard so the elected words enter code in one sense only.\nenrobe = create a key-backed SA (unifies the cult create-verbs across governor and director/retriever); defrock = decommission one; roster stays (carries no homonym).\nMint rationale and register: the BZ pace-design memo.\nBlast radius is discovery, not enumeration: grep the cult words across Tools/rbk in one sweep — the rbw-a colophon family and rbz_zipper enroll lines, the governor-auth and payor-auth mantle functions, the cult specs with their RBS0 op-quoins and include:: sites, the acronym map, and the theurge Rust canonical-establish fixtures that drive the cult colophons by cult-word function name.\nThe generated consts re-derive via the build, not by hand.\n\n## Done when\ninvest/divest/mantle no longer carry the cult sense anywhere in Tools/rbk — bash, colophons, specs, acronym map, and theurge fixtures (grep-verifiable); roster unchanged.\nGenerated consts re-derive via build; fast suite plus regime-poison green.\n\n## Cinched\nFull depth: vacate the cult words from functions, specs, op-quoins, acronym map, and Rust fixtures — not operator-facing colophons only, since the homonym otherwise stays live in the layers the federation verbs reference.\nenrobe/defrock are transitional ashlar — specs and acronym map only, never the README broadside (doomed at the estate-retirement movement).\n\n## Character\nWide but mechanical grep-gated rename crossing four surfaces — bash, specs, acronym map, theurge Rust — and two auth paths in two files.",
+              "jjgtn_silks": "cult-rename-enrobe-defrock",
+              "jjgtn_basis": "885fd24"
+            },
+            {
               "jjgtn_ts": "260615-1143",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": "Rename the legacy keyfile-SA family off the words federation claims — invest / divest / mantle — to the garment-of-office mint enrobe / defrock.\nMovement 4's first act; discharges the homonym guard so the elected words enter code in one sense only.\nenrobe = create a key-backed SA (unifies the cult create-verbs across governor and director/retriever); defrock = decommission one; roster stays (carries no homonym).\nMint rationale and register: the BZ pace-design memo.\nBlast radius (discovery, not enumeration): grep the cult colophon family `rbw-a{M,rI,dI,rD,dD}`, the `rbgg_*` / `rbgp` governor-mantle functions, and their `RBSD*` / `RBSR*` specs plus the `rbz_zipper` enroll lines; the generated consts re-derive via the build.\n\n## Done when\n- invest / divest / mantle no longer carry the cult sense in code, colophons, or specs (grep-verifiable); roster unchanged.\n- The generated tabtarget consts and context re-derive via the build, not hand-edited.\n- The fast suite is green.\n\n## Cinched\n- First-cut assumption, for the deep review to confirm: full depth — vacate the words from functions and specs, not only the operator-facing colophons, or two senses coexist through the movement-4-to-movement-7 window.\n- enrobe / defrock are transitional ashlar: specs and the acronym map, never the README broadside (the family is doomed at movement 7).\n\n## Character\nWide but mechanical — a grep-gated rename whose correctness is checkable, not a matter of judgment.\nFirst-cut docket; deep-review pending.",
@@ -9199,6 +9206,13 @@
         },
         "₢BZAAG": {
           "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260615-1758",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "Seat the elected federation civic vocabulary as RBS0 quoins at the head of the verb movement — the contract-first foundation the levy, accessor, terrier, and verb paces all reference.\nDeclare one new federation category prefix in the RBS0 mapping-section header — RBS0 categorizes by flat single-prefix categories, not a sub-lettered scheme — then seat the elected civic nouns and acts as flat quoins under it.\nThe human-present premise rides the existing premise category as a further quoin voiced axk_premise; clone the form from a sibling premise.\nAlso seat the Terrier noun quoin as a shell — its internals are parked to the terrier-live pace — and wire in the already-minted Terrier sub-operation subdoc: register its sub-op quoins in the RBS0 mapping section and add its include:: proximal to the registration.\nThe elected word set and the noun/sub-op split are authoritative in the frozen paddock; do not re-derive them here.\n\n## Done when\nThe elected civic words are RBS0 quoins with definition sites, under one new federation category prefix declared in the mapping header.\nThe human-present premise is a premise-category quoin voiced axk_premise.\nThe Terrier noun quoin exists as a shell; the Terrier sub-op quoins are registered in the mapping section and the subdoc is include::'d into RBS0.\n\n## Cinched\nConcepts are RBS0 quoins; the Terrier access sub-ops stay homed in their subdoc (ACG: reference the home, don't recreate).\nTerrier noun internals — object granularity, muniment JSON shape, bucket name, managed-folder IAM grain — are NOT decided here; they are parked to the terrier-live pace.\n\n## Character\nFlat-category MCM quoin authoring in RBS0 plus subdoc wiring — additive spec work, no code, no runtime behavior.",
+              "jjgtn_silks": "rbs0-civic-quoins",
+              "jjgtn_basis": "885fd24"
+            },
             {
               "jjgtn_ts": "260615-1143",
               "jjgtn_state": "jjgte_rough",
@@ -9211,6 +9225,13 @@
         "₢BZAAH": {
           "jjgpn_tacks": [
             {
+              "jjgtn_ts": "260615-1758",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "Fold mantle establishment and audit-log enablement into levy.\nEstablish the three mantle SAs beside mason and grant every resource binding to them once, behind the settle gate; the mantle SAs reuse the named capability-set grant definitions lifted into code earlier in the substrate work.\nEnable AR Data-Access audit logs at levy as a ceremony step.\nBoth gestures are depot-project-scoped, payor-authenticated, and share crash-leaves-visible-deficit, re-run semantics.\n\n## Done when\nLevy establishes the three mantle SAs with all resource IAM frozen behind the settle gate.\nAR audit logs are enabled at levy for both ADMIN_READ and DATA_READ on the using service — not on iamcredentials, which rejects service-level auditConfig (see the federation-legs-spike-findings memo, V3).\nA successor levy contract spec carries it, succeeding the live levy spec contract-first; acronym minted when firmed.\n\n## Cinched\nAll resource IAM freezes at levy; hot paths zero-IAM.\nMantle SAs instantiate the capability-sets at levy behind the settle gate.\n\n## Character\nFounding-ceremony assembly — long, payor-driven, settle gate cheap there.",
+              "jjgtn_silks": "levy-founding-gestures",
+              "jjgtn_basis": "885fd24"
+            },
+            {
               "jjgtn_ts": "260615-1143",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": "Fold the founding gestures into levy: affiance (the IdP-trust betrothal — workforce pool + provider + attribute mapping, and seat the payor's org-level workforcePoolAdmin), mantle establishment (the three mantle SAs created beside mason at levy, every resource binding granted to them once behind the settle gate), and AR Data-Access audit-log enablement.\nThe mantle SAs' grant lists are the capability-sets lifted by movement 2.\nMantle architecture, the settle gate, and spike F1/F2/V3: the paddock.\n\n## Done when\n- Levy affiances the manor to the IdP and establishes the three mantle SAs with all resource IAM frozen behind the settle gate.\n- AR Data-Access audit logs are enabled at levy.\n- A successor levy/affiance contract spec carries it (acronym minted when the docket is firmed).\n\n## Cinched\n- All resource IAM freezes at levy; hot paths perform zero IAM mutation (the paddock flap payoff).\n- affiance covers first or further provider alike.\n\n## Character\nFounding-ceremony assembly — long, payor-driven, the settle gate cheap there.\nFirst-cut docket; deep-review pending — may split affiance from mantle establishment.",
@@ -9221,6 +9242,13 @@
         },
         "₢BZAAI": {
           "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260615-1758",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "Extend the identity-keyed credential accessor stood up in the substrate work with its federation branch through Leg 2.\nDevice-flow compearance is Leg 1, an accessor step never a tabtarget: on a live-assize miss with a TTY, run Leg 1 inline (print verification_uri + user_code, poll); a headless miss fails loud — the fail-fast membrane, which is also the suite-head seam where an automated run injects a compeared assize.\nThe STS exchange is Leg 2 — a bare unauthenticated POST, audience = the provider resource name, nothing extra (see the federation-legs-spike-findings memo, F3).\nCache the STS federated token only, per-assize, never outliving the assize; the IdP token is consumed by Leg 2 in-process and never persisted.\n\n## Done when\nA cloud tabtarget on a live-assize miss runs Leg 1 inline under a TTY and fails loud when headless.\nLeg 2 yields the federated token; that token alone is cached per the token-custody cinch (its 0600/tmpfs/atomic shape lives there — do not restate).\nThe per-run human-click assize is fed at suite head and the persona's per-assize federated token is consumed by the otherwise-headless cases thereafter.\nThe compearance step consumes no colophon initial.\n\n## Cinched\nThe federation branch extends the identity-keyed accessor stood up in the substrate work — it adds a token-mint path, not a second credential entry point.\ncompearance is an accessor step, not a tabtarget; only the federated token is cached; the IdP token is never persisted.\n\n## Character\nThe behavior-heavy heart, first half — net-new runtime, no federation machinery exists in the kit today.",
+              "jjgtn_silks": "accessor-compearance-assize",
+              "jjgtn_basis": "885fd24"
+            },
             {
               "jjgtn_ts": "260615-1144",
               "jjgtn_state": "jjgte_rough",
@@ -9233,6 +9261,13 @@
         "₢BZAAJ": {
           "jjgpn_tacks": [
             {
+              "jjgtn_ts": "260615-1758",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "Complete the three-leg chain in the credential accessor: the don, Leg 3 — generateAccessToken on the mantle SA, naming the depot as quota project via the x-goog-user-project header; the short-lived mantle token lives in process memory only, never cached, carrying exactly one mantle's authority.\nOverhang: a long run re-mints the mantle token mid-flight from the still-live cached federated token, and fails loud — \"assize lapsed, compear\" — once the assize lapses.\nThe two lifetime ceilings compose independently (see the federation-legs-spike-findings memo, V1); the mantle token outlives nothing here, and it is the assize that caps re-minting.\n\n## Done when\nA donned mantle token mints from the cached federated token; downstream bearer calls stay quota-project-blind and unchanged.\nMid-run re-mint works while the assize lives; assize lapse fails loud with the compear instruction.\n\n## Cinched\nA token carries exactly one mantle's authority; mantle tokens never cached.\nThe Leg-3 403 is the structural Palisade signature recorded in the spike findings (F2: missing quota-project header / serviceUsageConsumer grant) — recognized and failed loud, never retried as a propagation race, unlike the SA-propagation loops the accessor already carries.\nDuration-aware admission control is a named deferral, not built here.\n\n## Character\nThe behavior-heavy heart, second half — net-new federation runtime in the accessor, no don code exists today.",
+              "jjgtn_silks": "accessor-don-leg3",
+              "jjgtn_basis": "885fd24"
+            },
+            {
               "jjgtn_ts": "260615-1144",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": "Complete the three-leg chain in the accessor: the don (Leg 3) — generateAccessToken on the mantle SA, with the depot as quota project via `x-goog-user-project`; the short-lived mantle token held in process memory only, never cached; one mantle worn per token.\nOverhang: a long run re-mints the mantle token mid-flight from the cached federated token while the assize lives, and fails loud (\"assize lapsed, compear\") when it lapses.\nThe spike-proven chain and the overhang ruling: the paddock.\n\n## Done when\n- A donned mantle token mints from the cached federated token; everything downstream stays bearer-blind and unchanged (no quota-project ceremony downstream).\n- Mid-run re-mint works while the assize lives; an assize lapse fails loud with the compear instruction.\n\n## Cinched\n- A token carries exactly one mantle's authority; mantle tokens are never cached.\n- Duration-aware admission control is a named deferral, not built here.\n\n## Character\nThe behavior-heavy heart, second half — the impersonation act and overhang.\nFirst-cut docket; deep-review pending.",
@@ -9244,6 +9279,13 @@
         "₢BZAAK": {
           "jjgpn_tacks": [
             {
+              "jjgtn_ts": "260615-1758",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "Stand up the Terrier: the manor-homed bucket at managed-folder grain — governor-writeable own-polity-only, read population governors-and-above — and realize the write / withdraw / read muniment sub-operations against the atomic GCS-precondition contract the Terrier subdoc already specifies.\nSettle the Terrier noun internals that the subdoc's Forthcoming section parks, and record them in the Terrier noun quoin.\nThe one growth beyond a single conditioned REST call: managed-folder IAM is net-new on the buckets module, which carries whole-bucket IAM only today — a thin rbgi-delegating wrapper, sibling to the AR repo-IAM shape in the registry module.\n\n## Done when\nThe terrier bucket exists with per-polity managed-folder write IAM; write/withdraw/read sub-ops work and are atomic per the Terrier contract.\nThe noun internals the subdoc parks are settled and recorded in the Terrier noun quoin — granularity, muniment shape under a fresh terrier sprue, bucket name + constant home, managed-folder grain.\n\n## Cinched\nRuntime verbs never touch terriers; admission verbs write muniments first; the reconciliation diff is read-only and spec-interior, never an operator verb.\nAtomicity is GCS object preconditions per the Terrier subdoc — no external lock, no cloud invocation.\n\n## Character\nResource + sub-op realization; the managed-folder-IAM addition to the buckets module is the one place it grows beyond a conditioned REST call.",
+              "jjgtn_silks": "terrier-live",
+              "jjgtn_basis": "885fd24"
+            },
+            {
               "jjgtn_ts": "260615-1144",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": "Stand up the Terrier: the manor-homed bucket at managed-folder grain (governor-writeable own-polity-only, read population governors-and-above), and realize the write / withdraw / read muniment sub-operations against the atomic GCS-precondition contract already specified.\nThis pace settles the Terrier noun internals parked at the sub-op subdoc: per-entry vs per-subject object granularity, the muniment JSON shape under a fresh terrier sprue, the physical bucket name and its constant home, and the managed-folder IAM (today's `rbgb_` carries bucket-level IAM only — this likely adds managed-folder IAM to it).\nWrite semantics and sub-op contract: the terrier sub-operation subdoc.\n\n## Done when\n- The terrier bucket exists with per-polity managed-folder write IAM; write / withdraw / read sub-ops work and are atomic per the contract.\n- The Terrier noun internals are decided and recorded in the noun quoin.\n\n## Cinched\n- Runtime verbs never touch terriers; admission verbs write muniments first; the reconciliation diff is read-only and spec-interior.\n\n## Character\nResource + sub-op realization; the managed-folder-IAM addition to `rbgb_` is the one place it grows beyond a conditioned REST call.\nFirst-cut docket; deep-review pending.",
@@ -9254,6 +9296,13 @@
         },
         "₢BZAAL": {
           "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260615-1758",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "Build the operator-facing federation surface — invest, divest, attaint, rehearse under the polity launcher family — operating on (actor, mantle, principal) within a depot.\nEach verb is a thin composition over the Terrier sub-operations and the two IAM binding types — tokenCreator on the mantle SA, serviceUsageConsumer on the depot; the per-verb bodies and their crash residues are the paddock Verbs-and-orderings table — author to it, do not re-derive.\nFour contract specs carry the verbs, contract-first, retiring the renamed cult predecessors in-pace; the cult-rename act must have landed first.\n\n## Done when\ninvest/divest/attaint/rehearse operate over (actor, mantle, principal); the muniment write precedes every binding; first-vs-further admission differs only in the depot-scoped binding.\nThe depot-scoped binding survives divest as suspension and is swept only by attaint; rehearse mutates nothing.\nFederation personas pass the suites against the standing spike trust; the full keyless rewrite of the canonical credential-bootstrap fixture is coupled to the RBRA-estate retirement movement, where that fixture must change regardless.\n\n## Cinched\nIntent-first ordering: muniment write precedes binding.\nRemoving the last governor is legal; recovery is the payor's founding exception re-exercised.\n\n## Character\nThe operator surface: small idempotent bodies over the sub-ops and the two binding types.",
+              "jjgtn_silks": "admission-verbs-polity",
+              "jjgtn_basis": "885fd24"
+            },
             {
               "jjgtn_ts": "260615-1144",
               "jjgtn_state": "jjgte_rough",
