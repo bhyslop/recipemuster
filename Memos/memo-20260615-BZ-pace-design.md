@@ -110,3 +110,16 @@ Resist the pull to call precision over-treatment — divergence is Opus-first su
   `memo-20260611-token-custody-context-enforcement`) are present in `Memos/`; migrate-vs-point-at is moot.
   Their load-bearing facts are already absorbed into the paddock cinches and the token-custody section,
   so they stand as pure provenance.
+
+## Movement-4 review findings (260615) — see the dedicated memo
+
+The deep adversarial review of the seven movement-4 paces (run by the pace-design
+membrane pace under a balanced-merits workflow) is recorded in
+`Memos/memo-20260615-BZ-m4-review-findings.md`.
+That memo is the entry point for model Fable's terminal review of the heat (the
+terminal Fable-review pace calls it out by name).
+Headline: four of the five judgment calls held the first cut; the levy-founding pace
+split into two (a net-new affiance pace plus a reshaped levy/mantle-establishment
+pace), taking movement 4 to eight paces.
+The one medium-confidence call — when federation personas must pass the suites — took
+the M7-coupled reading, with its residual risk recorded for Fable to overturn.
