@@ -24,16 +24,23 @@ at
 {rbtf_compear},
 not affiance's.
 
-NOTE: Affiance is *idempotent-ensure*, exercised once per provider with founding
-gravity. Re-running it against an already-seated trust reconciles rather than
-duplicates — the role grant, the pool, and the provider are each ensured. The
+NOTE: Affiance is *idempotent-ensure-exists*, exercised once per provider with
+founding gravity. Re-running it against an already-seated trust neither duplicates
+nor fails — the org-level grant is re-ensured, and the pool and provider are each
+ensured present (created when absent, left in place when already there). The
 project's standing test trust (the federation-legs spike's `spike-office-test`
 pool) is the reference instance: against the seeded Federation regime this
-operation is a reconciling no-op on the resources and a re-ensure of the org-level
-grant. A second provider under the same pool is a further affiance with a different
+operation is a no-op on the resources and a re-ensure of the org-level grant. A
+second provider under the same pool is a further affiance with a different
 `RBRF_PROVIDER_ID`; the pool persists across providers. This is the
 {rbtf_affiance}
 cinch — first or further provider alike — realized as one idempotent body.
+
+NOTE: *Drift reconciliation is a deferred follow-up, not in the founding cut.* An
+already-present pool or provider is left as it stands; affiance does not yet patch
+a resource whose live `sessionDuration`, `attributeMapping`, or `oidc` fields have
+drifted from the Federation regime. The patch-to-converge behavior is a horizon
+item — until it lands, affiance ensures existence, not field convergence.
 
 NOTE: Scope boundary. Affiance seats only the *org-level* trust. The depot-scoped
 admission bindings (the
@@ -66,6 +73,9 @@ the role into effect — re-read the policy at `RBGC_EVENTUAL_CONSISTENCY_SEC` i
 
 //axhos_step
 . *Ensure the workforce identity pool*:
+.. {rbbc_call}
+link:https://cloud.google.com/iam/docs/reference/rest/v1/locations.workforcePools/get[workforcePools.get] for `RBRF_WORKFORCE_POOL_ID` under `organizations/RBRF_ORG_ID`
+.. present (HTTP 200) → leave it in place, advance. Absent (HTTP 404) → create it:
 .. {rbbc_submit}
 link:https://cloud.google.com/iam/docs/reference/rest/v1/locations.workforcePools/create[workforcePools.create] with:
 ... parent: `organizations/RBRF_ORG_ID`
@@ -81,13 +91,16 @@ link:https://cloud.google.com/iam/docs/reference/rest/v1/locations.workforcePool
 }
 ----
 .. {rbbc_await}
-returned operation
+the returned operation to done
 .. {rbbc_require}
-the pool present after the operation — a `409 ALREADY_EXISTS` is idempotent success, not fatal. On the already-exists path the operation reads the pool and reconciles `sessionDuration` to the regime value via link:https://cloud.google.com/iam/docs/reference/rest/v1/locations.workforcePools/patch[workforcePools.patch] when it has drifted.
-.. NOTE: `sessionDuration` is the assize cap (900s–43200s; the regime validator bounds it). A soft-deleted pool of the same ID occupies the namespace for a purge window and surfaces here as a fatal create conflict that no reconcile clears — the workforce-pool analogue of the depot project's soft-delete graveyard, restored via link:https://cloud.google.com/iam/docs/reference/rest/v1/locations.workforcePools/undelete[workforcePools.undelete] rather than re-created.
+the pool present. Ensure-exists only: an already-present pool is left as it stands — not recreated, not patched, not failed. Drift reconciliation of `sessionDuration` is the deferred follow-up noted above.
+.. NOTE: `sessionDuration` is the assize cap (900s–43200s; the regime validator bounds it). A `404` GET followed by a `409` create signals a soft-deleted pool of the same id holding the namespace for a purge window — restored via link:https://cloud.google.com/iam/docs/reference/rest/v1/locations.workforcePools/undelete[workforcePools.undelete] rather than re-created, the workforce-pool analogue of the depot project's soft-delete graveyard.
 
 //axhos_step
 . *Ensure the pool provider and its attribute mapping*:
+.. {rbbc_call}
+link:https://cloud.google.com/iam/docs/reference/rest/v1/locations.workforcePools.providers/get[workforcePools.providers.get] for `RBRF_PROVIDER_ID` under `locations/global/workforcePools/RBRF_WORKFORCE_POOL_ID`
+.. present (HTTP 200) → leave it in place, advance. Absent (HTTP 404) → create it:
 .. {rbbc_submit}
 link:https://cloud.google.com/iam/docs/reference/rest/v1/locations.workforcePools.providers/create[workforcePools.providers.create] with:
 ... parent: `locations/global/workforcePools/RBRF_WORKFORCE_POOL_ID`
@@ -109,9 +122,9 @@ link:https://cloud.google.com/iam/docs/reference/rest/v1/locations.workforcePool
 }
 ----
 .. {rbbc_await}
-returned operation
+the returned operation to done
 .. {rbbc_require}
-the provider present — `409 ALREADY_EXISTS` is idempotent success. On the already-exists path the operation reconciles `attributeMapping`, `oidc.issuerUri`, and `oidc.clientId` to the regime values via link:https://cloud.google.com/iam/docs/reference/rest/v1/locations.workforcePools.providers/patch[workforcePools.providers.patch] when they have drifted.
+the provider present. Ensure-exists only: an already-present provider is left as it stands — not recreated, not patched, not failed. Drift reconciliation of `attributeMapping` / `oidc` is the deferred follow-up noted above.
 .. NOTE: `RBRF_ATTRIBUTE_MAPPING` is stored as a single `key=value` string in the regime and parsed into the API's `attributeMapping` object; the regime validator guarantees it maps `google.subject`. `webSsoConfig` (`ID_TOKEN` / `ONLY_ID_TOKEN_CLAIMS`) is an affiance-fixed protocol constant, not regime config — the spike-proven shape that makes the provider serve the device flow.
 .. NOTE: The provider resource name `//iam.googleapis.com/locations/global/workforcePools/RBRF_WORKFORCE_POOL_ID/providers/RBRF_PROVIDER_ID` is the STS audience the accessor's second leg presents (spike Leg 2). Affiance seats the resource that name addresses; it does not itself exercise the legs.
 
