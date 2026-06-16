@@ -30,6 +30,7 @@ The Folio column shows how each tabtarget receives it:
 | `rbw-acr` | CheckRetrieverCredential | — | Check the retriever credential reaches Google Cloud (JWT SA access probe) |
 | `rbw-acd` | CheckDirectorCredential | — | Check the director credential reaches Google Cloud (JWT SA access probe) |
 | `rbw-acp` | CheckPayorCredential | — | Check the payor credential reaches Google Cloud (OAuth access probe) |
+| `rbw-acf` | CheckFederatedAccess | — | Check federated access — open or reuse an assize via device flow + STS (Legs 1+2) against the RBRF trust |
 
 ### Crucible — Container runtime (`rbw-c`)
 

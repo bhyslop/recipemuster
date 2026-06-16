@@ -86,6 +86,29 @@ rbgv_check_payor() {
   buc_success "Payor OAuth access probe passed"
 }
 
+# Federated access probe — triggers the accessor's compearance step (Legs 1+2):
+# cache-hit reuses a live assize; a miss with a terminal runs the device flow +
+# STS exchange and caches the federated token; a headless miss fails loud. This
+# is the cloud tabtarget that exercises compearance — compearance itself owns no
+# colophon. Depot-agnostic: needs only the RBRF trust, not RBRR/RBRD.
+rbgv_check_compearance() {
+  zrbgv_sentinel
+  buc_doc_brief "Check federated access — open or reuse an assize via device flow + STS (Legs 1+2) against the RBRF trust"
+  buc_doc_shown || return 0
+
+  buc_step "Federated access probe — compearance against the RBRF trust"
+  source "${RBCC_rbrf_file}" || buc_die "Failed to source RBRF: ${RBCC_rbrf_file}"
+  zrbrf_kindle
+  zrbrf_enforce
+
+  rba_compear
+
+  local z_token
+  z_token=$(zrba_assize_read_capture) || buc_die "Assize not readable after compearance"
+  test -n "${z_token}" || buc_die "Assize holds an empty federated token"
+  buc_success "Federated assize live — federated token obtained (${#z_token} chars)"
+}
+
 ######################################################################
 # Furnish and Main
 
@@ -102,6 +125,7 @@ zrbgv_furnish() {
   source "${z_rbk}/rbrr_regime.sh"
   source "${z_rbk}/rbrd_regime.sh"
   source "${z_rbk}/rbrp_regime.sh"
+  source "${z_rbk}/rbrf_regime.sh"
   source "${z_rbk}/rbcc_constants.sh"
   source "${z_rbk}/rbgc_constants.sh"
   source "${z_rbk}/rbdc_derived.sh"
@@ -126,7 +150,7 @@ zrbgv_furnish() {
   # (credential path needed by the probe); depot-identity RBDC_* values it
   # also composes are unread on the Payor path. Mirrors BBAAS pattern in
   # rbgp_cli.sh:56-60 for rbgp_depot_list.
-  if test "${z_command}" != "rbgv_check_payor"; then
+  if test "${z_command}" != "rbgv_check_payor" && test "${z_command}" != "rbgv_check_compearance"; then
     zrbrr_enforce
     zrbrd_enforce
   fi

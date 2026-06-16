@@ -52,6 +52,7 @@ zrbz_kindle() {
   buz_enroll RBZ_CHECK_RETRIEVER         "rbw-acr" "${z_mod}" "rbgv_check_retriever"       ""        "Check the retriever credential reaches Google Cloud (JWT SA access probe)"
   buz_enroll RBZ_CHECK_DIRECTOR          "rbw-acd" "${z_mod}" "rbgv_check_director"        ""        "Check the director credential reaches Google Cloud (JWT SA access probe)"
   buz_enroll RBZ_CHECK_PAYOR             "rbw-acp" "${z_mod}" "rbgv_check_payor"           ""        "Check the payor credential reaches Google Cloud (OAuth access probe)"
+  buz_enroll RBZ_CHECK_COMPEARANCE       "rbw-acf" "${z_mod}" "rbgv_check_compearance"     ""        "Check federated access — open or reuse an assize via device flow + STS (Legs 1+2) against the RBRF trust"
 
   # Crucible — container runtime (rbw-c)
   buz_group RBZ__GROUP_CRUCIBLE   "rbw-c"   "Crucible — Container runtime"

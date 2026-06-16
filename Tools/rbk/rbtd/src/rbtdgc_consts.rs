@@ -12,6 +12,7 @@ pub const RBTDGC_CHECK_GOVERNOR: &str = "rbw-acg";
 pub const RBTDGC_CHECK_RETRIEVER: &str = "rbw-acr";
 pub const RBTDGC_CHECK_DIRECTOR: &str = "rbw-acd";
 pub const RBTDGC_CHECK_PAYOR: &str = "rbw-acp";
+pub const RBTDGC_CHECK_COMPEARANCE: &str = "rbw-acf";
 pub const RBTDGC_CRUCIBLE_CHARGE: &str = "rbw-cC";
 pub const RBTDGC_CRUCIBLE_QUENCH: &str = "rbw-cQ";
 pub const RBTDGC_CRUCIBLE_SSH: &str = "rbw-cS";
