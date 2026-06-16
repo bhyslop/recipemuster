@@ -9961,9 +9961,10 @@
         "₢BeAAE",
         "₢BeAAF",
         "₢BeAAJ",
-        "₢BeAAK"
+        "₢BeAAK",
+        "₢BeAAL"
       ],
-      "jjghn_next_pace_seed": "AAL",
+      "jjghn_next_pace_seed": "AAM",
       "jjghn_paces": {
         "₢BeAAA": {
           "jjgpn_tacks": [
@@ -10237,6 +10238,17 @@
               "jjgtn_text": "## Character\nMechanical relocation with a multi-consumer rename; the judgment is in the namespace choice, not the edits.\n\n## Goal\n`BUBC_moorings_dir` is a tinder constant that expands a runtime variable (`BURD_CONFIG_DIR`),\nviolating BCG tinder-purity (tinder must be pure source-time literals — no runtime expansion).\nRelocate its derivation out of `bubc_constants.sh`'s source-time block into a kindle context\nthat legitimately holds `BURD_CONFIG_DIR`, renaming it into that module's kindle namespace.\nThe sibling subdir constants (`BUBC_*_subdir`) are pure literals and stay in bubc —\nonly the `BURD_CONFIG_DIR`-derived basename moves.\n\nSurfaced when heat ₣Be's regime-poison seam fix made `buv_validation.sh` source bubc,\nwidening the contexts that source it to non-dispatch ones where `BURD_CONFIG_DIR` is unset;\nnothing breaks today (the empty basename is unused there, fast is green),\nbut the latent violation is now broader. The seam fix landed in commit 6cd0c1410.\n\n## Cinched\n- Only the runtime-derived basename moves; the pure-literal subdir constants stay in bubc.\n- No `${…:-}` cosmetic guard and no source-time conditional — both are band-aids that leave\n  the purity violation standing (rejected during the ₣Be analysis).\n\n## Done when\n`BUBC_moorings_dir` (renamed) no longer expands a runtime variable in tinder position;\nits derivation lives in a kindle with `BURD_CONFIG_DIR` present;\nall consumers (the burn/burp/burs enrollment help-strings, plus any qualify/tabtarget tooling)\nreference the relocated constant;\nshellcheck clean; fast green.",
               "jjgtn_silks": "bubc-moorings-tinder-relocate",
               "jjgtn_basis": "b9dde63"
+            }
+          ]
+        },
+        "₢BeAAL": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260615-1852",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nModel-gated full-heat review requiring judgment.\nThis pace exists to be done by Fable 5, and only by Fable 5.\n\n## Model gate\nBefore any review work, the mounting agent MUST confirm its own model ID is `claude-fable-5`.\nIf the active model is opus, sonnet, haiku, or anything other than Fable 5, decline immediately and stop — do not attempt, partially attempt, or best-effort the review under the wrong model.\nReport the model mismatch to the operator and wait for a Fable session.\nAn opus attempt is the explicit non-goal: the operator wants Fable's eyes on this heat, nothing else.\n\n## Goal\nReview the ₣Be heat as landed, across all its paces.\nRead the heat paddock first — it carries the shape, the cinched decisions, the Done-when, and the doctrine the work answers to (BUS0 tweak doctrine, the BCG precision exit-code band, in-universe-over-fabrication).\nAssess correctness, doctrine conformance, and whether the landed work actually meets the paddock's Done-when or overclaims it.\n\n## Done when\nFable has surfaced a review verdict to the operator — what holds, what is weak, and any gap between the Done-when and the work as landed.",
+              "jjgtn_silks": "fable-full-heat-review",
+              "jjgtn_basis": "b484ca7"
             }
           ]
         }
