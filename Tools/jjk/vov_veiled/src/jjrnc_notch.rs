@@ -141,18 +141,7 @@ pub fn jjrnc_run_notch(args: jjrnc_NotchArgs) -> (i32, String) {
 
     let status_output = String::from_utf8_lossy(&status_result.stdout);
     let files_set: HashSet<_> = args.files.iter().map(|s| s.as_str()).collect();
-    let mut warnings = Vec::new();
-
-    for line in status_output.lines() {
-        if line.len() < 4 {
-            continue;
-        }
-        // Parse git status --porcelain format: "XY filename"
-        let filepath = &line[3..];
-        if !files_set.contains(filepath) {
-            warnings.push(format!("  {}", line));
-        }
-    }
+    let warnings = jjrnc_outside_list_warnings(&status_output, &files_set);
 
     if !warnings.is_empty() {
         vvco_err!(output, "warning: uncommitted changes outside file list:");
@@ -207,4 +196,37 @@ pub fn jjrnc_run_notch(args: jjrnc_NotchArgs) -> (i32, String) {
 
     let rc = vvc::commit(&commit_args, &mut output);
     (rc, output.vvco_finish())
+}
+
+/// Compute the warning lines for porcelain status entries not covered by the file list.
+///
+/// Parses `git status --porcelain` (v1) output. A staged rename or copy renders its
+/// path as `old -> new`; such a line is covered only when BOTH sides appear in the
+/// file list. Every other entry is covered when its single path appears in the list.
+pub fn jjrnc_outside_list_warnings(status_output: &str, files_set: &HashSet<&str>) -> Vec<String> {
+    let mut warnings = Vec::new();
+
+    for line in status_output.lines() {
+        if line.len() < 4 {
+            continue;
+        }
+        // Parse git status --porcelain format: "XY filename"
+        let status_code = &line[0..2];
+        let filepath = &line[3..];
+        // Renames/copies carry both endpoints in one "old -> new" path; cover only
+        // when both endpoints are listed, otherwise the pair is genuinely outside.
+        if status_code.starts_with('R') || status_code.starts_with('C') {
+            if let Some((old_path, new_path)) = filepath.split_once(" -> ") {
+                if !(files_set.contains(old_path) && files_set.contains(new_path)) {
+                    warnings.push(format!("  {}", line));
+                }
+                continue;
+            }
+        }
+        if !files_set.contains(filepath) {
+            warnings.push(format!("  {}", line));
+        }
+    }
+
+    warnings
 }

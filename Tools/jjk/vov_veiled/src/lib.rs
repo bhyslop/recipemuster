@@ -65,6 +65,9 @@ mod jjtf_favor;
 mod jjtn_notch;
 
 #[cfg(test)]
+mod jjtnc_notch;
+
+#[cfg(test)]
 mod jjtg_gallops;
 
 #[cfg(test)]
