@@ -9116,6 +9116,7 @@
         "₢BZAAF",
         "₢BZAAG",
         "₢BZAAM",
+        "₢BZAAT",
         "₢BZAAH",
         "₢BZAAI",
         "₢BZAAJ",
@@ -9127,7 +9128,7 @@
         "₢BZAAS",
         "₢BZAAN"
       ],
-      "jjghn_next_pace_seed": "AAT",
+      "jjghn_next_pace_seed": "AAU",
       "jjghn_paces": {
         "₢BZAAA": {
           "jjgpn_tacks": [
@@ -9461,6 +9462,17 @@
               "jjgtn_text": "Reconsider whether compearance must gate on terminal-interactivity, or whether a headless run can open an assize by surfacing the device-flow prompt out-of-band and polling to completion.\n\nThe Leg-1+2 compearance step currently gates on TTY presence and fails loud when headless — the fail-fast membrane the human-present premise prescribes.\nThe operator's challenge: IdP-completion detection is already a headless HTTP poll loop, and RFC 8628 is asynchronous by design (the device polls while the human authenticates on a separate device), so terminal-interactivity is a policy choice, not a technical necessity.\nThe suspected design error: conflating \"a human authenticates each assize\" (the premise) with \"a human is at a controlling terminal\" (the current enforcement), which fails a headless-but-human-reachable caller — e.g. a long-running agent whose operator watches its output channel but holds no TTY.\n\nThe alternative to weigh: deliver the verification URI and user code through an out-of-band channel (emit, a known file, a notification), poll headlessly until completion or device-code expiry, and reserve fail-fast for the case where no channel and no human can be established.\nThe cost it trades: the fail-fast guard against a silent ~15-minute poll-until-expiry hang, and the obligation to answer \"which channel, and is someone watching it.\"\n\nThis touches cinched paddock material — the human-present premise and the headless fail-fast membrane (spike D2/D3) — so resolving it may require an operator-sanctioned paddock amendment rather than a pace-local decision.\n\n## Done when\nThe design question is settled either way, with rationale recorded in the pace-design memo.\nEither the TTY-gate-plus-fail-fast enforcement is reaffirmed — and the reason the premise requires a controlling terminal rather than merely a reachable human is written down — or a decoupled design is specified (out-of-band prompt delivery plus headless polling), with the human-present-premise / fail-fast-membrane cinch amended to match.\nThe rework this implies for the compearance accessor step and the Leg-1+2 pace is identified and slated or folded, not left implicit.\n\n## Cinched\nZero durable secrets beyond the payor's RBRO; no refresh token; the federated-token-only assize cache.\nThe device flow stays the compearance mechanism; a human still authenticates each assize.\nExplicitly under reconsideration: whether \"human present\" must mean \"controlling terminal present,\" and whether a headless miss fails loud unconditionally.\n\n## Character\nDesign reconsideration requiring judgment; touches a cinched premise, so it may surface a paddock amendment rather than land purely in code.",
               "jjgtn_silks": "compearance-headless-reconsider",
               "jjgtn_basis": "dc2dff3"
+            }
+          ]
+        },
+        "₢BZAAT": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260616-1222",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "Walk the operator through the live, human-in-the-loop proof of federation compearance — the one thing the build paces cannot verify without a terminal and a browser click.\nEverything machine-verifiable (BCG, shellcheck, the credless and headless gates, the jq-emit expression checks) is already green in the build paces; this pace is only the live-trust + human-click portion they defer.\nAgent drives it as a trot: operator at a terminal, Leg 1 device flow (verification URL + user code, then browser approval), Leg 2 STS exchange, federated token cached per-assize; then confirm the headless cases consume that one compeared assize at suite head.\nRun against the trust affiance founds, not only the standing spike fixture.\n\n## Done when\nA live assize opens end to end: Leg 1 under a TTY, Leg 2 yields the federated token, that token alone is cached.\nThe suite-head seam is shown: one compeared assize fed at suite head, the otherwise-headless cases consume it thereafter.\n\n## Cinched\nAll human-in-the-loop federation proof consolidates here; the build paces wrap on machine-verifiable criteria and hand their live-proof obligation to this pace.\nRuns after affiance founds the trust.\n\n## Character\nOperator-paced live walkthrough — interactive, needs a terminal and browser, not autonomous.",
+              "jjgtn_silks": "federation-live-proof",
+              "jjgtn_basis": "10dbc1e"
             }
           ]
         }
