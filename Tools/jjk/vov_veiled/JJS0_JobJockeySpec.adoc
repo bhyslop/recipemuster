@@ -30,10 +30,12 @@
 // jjdk_:  Key premises (design constraints)
 // jjdz_:  Serialization concerns
 // jjsz_:  Gazette entity (officium exchange files)
+// jjsp_:  Paddock entity (heat-wide context file)
 // jjezs_: Gazette slugs (wire-format notice headers)
 // jjsuv_: Upper API verbs (equestrian vocabulary)
 // jjsus_: Upper API slash commands (skill artifacts)
 // jjsuc_: Upper API context artifacts (CLAUDE.md sections)
+// jjsa_:  Presentation aliases (display terms for schema fields)
 // jjsgm*: Gallops methods (entity-affiliated operations)
 // jjsop*: Operation procedures (MCP-served)
 // jjsog*: Operation groups
@@ -123,6 +125,9 @@
 :jjdym_align:  <<jjdym_align,align>>
 :jjdye_left:   <<jjdye_left,Left>>
 :jjdye_right:  <<jjdye_right,Right>>
+
+// Paddock entity
+:jjsp_paddock:    <<jjsp_paddock,Paddock>>
 
 // Gazette entity
 :jjsz_gazette:    <<jjsz_gazette,Gazette>>
@@ -283,6 +288,9 @@
 
 // Upper API: context artifact
 :jjsuc_insert:  <<jjsuc_insert,CLAUDE.md JJK section>>
+
+// Presentation aliases
+:jjsa_docket:   <<jjsa_docket,docket>>
 
 // Gallops methods
 :jjsgmrd_revise_docket:  <<jjsgmrd_revise_docket,Revise Docket Method>>
@@ -866,12 +874,12 @@ Terms drawn from horse racing — the competitive, forward-driving aspect of ini
 * {jjdt_coronet} — pace identity, `₢`-prefixed. The marking at the hoof line — fine-grained, below the firemark, identifying the individual step.
 * {jjdt_silks} — display name. The jockey's colors — vivid, human-recognizable, worn for the crowd, not the horse.
 * {jjdgr_gallops} — the persistent data store. Training grounds where real work happens before race day — not the race itself, but where readiness is built.
-* *paddock* — heat-wide context. The gathering area where horses are assessed before entering the course.
-* *muster* — list heats. Assembling the field before the race.
-* *parade* — show heat or pace detail. The formal presentation of horses before the crowd.
-* *furlough* — alter heat status. A horse temporarily withdrawn from racing — not retired, not scratched, resting.
-* *retire* — archive a completed heat. The horse leaves the racing life — honored, not discarded.
-* *rail* — reorder paces. The rail governs position on the track — who runs where.
+* {jjsp_paddock} — heat-wide context. The gathering area where horses are assessed before entering the course.
+* {jjsuv_muster} — list heats. Assembling the field before the race.
+* {jjsuv_parade} — show heat or pace detail. The formal presentation of horses before the crowd.
+* {jjsuv_furlough} — alter heat status. A horse temporarily withdrawn from racing — not retired, not scratched, resting.
+* {jjsuv_retire} — archive a completed heat. The horse leaves the racing life — honored, not discarded.
+* {jjsuv_rail} — reorder paces. The rail governs position on the track — who runs where.
 
 === Dressage Vocabulary
 
@@ -893,7 +901,11 @@ Terms drawn from dressage and classical horsemanship — the disciplined, precis
 
 The display and output layer uses distinct terms for certain schema fields, following the same vocabulary isolation principle:
 
-* *docket* — the presentation term for the `text` field. What the {jjdpr_pace} should accomplish. Used in CLI output labels and slash command descriptions.
+* [[jjsa_docket]]
+{jjsa_docket}
+is the presentation term for the {jjdcm_text} field —
+what the {jjdpr_pace} should accomplish.
+Used in CLI output labels and slash command descriptions.
 
 These are display/CLI terms, not schema changes. Field renames are deferred to a future heat.
 
@@ -1682,6 +1694,16 @@ Left-align column content.
 //axl_voices axt_enum_value
 {jjdye_right}::
 Right-align column content.
+
+=== {jjsp_paddock}
+
+[[jjsp_paddock]]
+//axve_entity
+{jjsp_paddock}::
+The heat-wide context file for a {jjdhr_heat} —
+background, shape, and cinched decisions that orient work across the heat's {jjdpr_pace_s}.
+Stored as an external markdown file outside {jjdgr_gallops}, addressed by {jjdhm_paddock}.
+The file is created by {jjdo_create}; its content is read and written via {jjdo_paddock}.
 
 === {jjsz_gazette}
 
