@@ -9118,6 +9118,7 @@
         "₢BZAAM",
         "₢BZAAU",
         "₢BZAAT",
+        "₢BZAAV",
         "₢BZAAH",
         "₢BZAAI",
         "₢BZAAJ",
@@ -9129,7 +9130,7 @@
         "₢BZAAS",
         "₢BZAAN"
       ],
-      "jjghn_next_pace_seed": "AAV",
+      "jjghn_next_pace_seed": "AAW",
       "jjghn_paces": {
         "₢BZAAA": {
           "jjgpn_tacks": [
@@ -9492,6 +9493,17 @@
               "jjgtn_text": "Prove the depot levy's federation-founding steps execute end to end on a real fresh levy — the runtime proof the levy code pace deferred.\nThe three mantle service-account establishments, their per-role capability-set grants, and the Artifact Registry Data-Access audit-log enablement (v3 setIamPolicy, updateMask auditConfigs,etag) all run against live GCP, not only shellcheck.\nThe gauntlet already levies a fresh project at canonical-establish; this pace adds the assertions that the founding gestures landed.\n\n## Done when\nA fresh gauntlet levy stands up the three rbma- mantle SAs with their capability-sets and the AR Data-Access audit config, each confirmed present against live GCP.\nThe v3 audit setIamPolicy round-trips the artifactregistry auditConfigs entry — the content gate fires by correctness, not luck.\n\n## Cinched\nAutonomous, machine-verifiable proof only — no human-in-the-loop step; the live federation walkthrough is a separate terminal-and-browser pace.\n\n## Character\nAutonomous gauntlet against live GCP: read the levy home (rbgp_depot_levy plus the rbgw capability-sets), then assert outcomes. Not interactive.",
               "jjgtn_silks": "levy-founding-proof",
               "jjgtn_basis": "f5aa622"
+            }
+          ]
+        },
+        "₢BZAAV": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260616-1237",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "Close the federation's true end to end: a federated citizen dons a levy mantle and the Artifact Registry Data-Access log attributes the act to the human.\nThis is the payoff of the levy's audit-log enablement and the spike's V3 attribution finding — proven by neither the levy runtime proof (which shows the audit config exists, not that attribution works) nor the live-compearance pace (which stops at the cached federated token).\nIt sits exactly where those two halves meet: the levied mantles and audit config on one side, a live federated token on the other.\n\n## Done when\nA federated token from the live compearance mints a mantle access token, an Artifact Registry call is made under it, and the resulting Data-Access log entry carries serviceAccountDelegationInfo[].principalSubject equal to the federate's immutable IdP subject.\nThe mint-hop quirk the spike flagged — principalEmail is the mantle SA, the subject absent from the mint record — is observed at the using-service log and not mistaken for a failure.\n\n## Cinched\nDepends on a standing levied depot (mantles plus audit config) and a live federated token — the convergence of the autonomous levy proof and the human-in-the-loop compearance.\n\n## Character\nOperator-paced live verification reading real audit logs — interactive, follows the live compearance; read the federation-legs-spike findings memo (V3) for the exact log shape.",
+              "jjgtn_silks": "citizen-attribution-proof",
+              "jjgtn_basis": "2ef1366"
             }
           ]
         }
