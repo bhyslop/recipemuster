@@ -133,6 +133,7 @@
 :rbtgo_image_audit:               <<rbtgo_image_audit,Image Audit>>
 :rbtgo_image_rekon:               <<rbtgo_image_rekon,Image Rekon>>
 :rbtgo_image_retrieve:            <<rbtgo_image_retrieve,rbfl_wrest>>
+:rbtgo_manor_affiance:            <<rbtgo_manor_affiance,rbgp_manor_affiance>>
 :rbtgo_payor_establish:           <<rbtgo_payor_establish,rbhp_establish>>
 :rbtgo_payor_install:             <<rbtgo_payor_install,rbgp_payor_install>>
 :rbtgo_payor_refresh:             <<rbtgo_payor_refresh,rbhp_refresh>>
@@ -1160,6 +1161,18 @@ OAuth access
 by refreshing the stored OAuth token and calling the Cloud Resource Manager projects.get API, with optional iteration and delay for sustained verification.
 
 include::RBSAO-access_oauth_probe.adoc[]
+
+[[rbtgo_manor_affiance]]
+//axvo_method axd_transient axd_grouped
+=== {rbtgo_manor_affiance}
+
+Affiances the
+{rbtgi_manor}
+to its external OIDC identity provider
+({rbtgog_payor}):
+the org-level workforce pool, its provider, and the attribute mapping.
+
+include::RBSMA-manor_affiance.adoc[]
 
 [[rbtgo_depot_levy]]
 //axvo_method axd_transient axd_grouped

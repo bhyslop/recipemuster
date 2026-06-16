@@ -1,0 +1,142 @@
+//axhob_operation
+{rbtgo_manor_affiance}
+
+NOTE: This operation pledges the trust between a
+{rbtgi_manor}
+and an external OIDC identity provider — the
+{rbtf_affiance}
+act. It seats the org-level workforce identity pool, the pool's provider, and the
+provider's attribute mapping, all under the manor's organization. One pool serves
+every
+{rbtgi_depot}
+under the manor: the same federated `principal://` subject is grantable in each, so
+the trust is a property of the manor, never of a depot.
+
+The
+{rbtr_payor}
+performs the affiance. The operation accepts no CLI parameters; the IdP trust to
+seat is read from the kindled Federation regime as
+`(RBRF_ORG_ID, RBRF_WORKFORCE_POOL_ID, RBRF_PROVIDER_ID, RBRF_SESSION_DURATION,
+RBRF_IDP_ISSUER, RBRF_IDP_CLIENT_ID, RBRF_ATTRIBUTE_MAPPING)`.
+The device-flow endpoints and scope (`RBRF_IDP_DEVICE_ENDPOINT`,
+`RBRF_IDP_TOKEN_ENDPOINT`, `RBRF_IDP_SCOPE`) are the credential accessor's to read
+at
+{rbtf_compear},
+not affiance's.
+
+NOTE: Affiance is *idempotent-ensure*, exercised once per provider with founding
+gravity. Re-running it against an already-seated trust reconciles rather than
+duplicates — the role grant, the pool, and the provider are each ensured. The
+project's standing test trust (the federation-legs spike's `spike-office-test`
+pool) is the reference instance: against the seeded Federation regime this
+operation is a reconciling no-op on the resources and a re-ensure of the org-level
+grant. A second provider under the same pool is a further affiance with a different
+`RBRF_PROVIDER_ID`; the pool persists across providers. This is the
+{rbtf_affiance}
+cinch — first or further provider alike — realized as one idempotent body.
+
+NOTE: Scope boundary. Affiance seats only the *org-level* trust. The depot-scoped
+admission bindings (the
+{rbtf_mantle}
+service-account `tokenCreator` and the depot `serviceUsageConsumer` of spike
+Finding F2) belong to the levy and admission ceremonies, never here. Affiance owns
+spike Finding F1 alone.
+
+//axhos_step
+. *Authenticate as
+{rbtr_payor}*:
+.. Execute
+{rbtoe_payor_authenticate}
+.. NOTE: The payor's standing org role `roles/resourcemanager.organizationAdmin` is sufficient to self-grant the workforce-pool admin role in the next step — spike Finding F1. A payor lacking organization-level authority cannot affiance; the next step's `setIamPolicy` is where that surfaces.
+
+//axhos_step
+. *Seat the org-level workforce-pool admin role* (spike Finding F1 — this MUST precede pool or provider creation, or both return `403`):
+.. {rbbc_call}
+link:https://cloud.google.com/resource-manager/reference/rest/v3/organizations/getIamPolicy[organizations.getIamPolicy] for `organizations/RBRF_ORG_ID`
+.. {rbbc_store}
+the returned policy and its `etag`
+.. Ensure a binding granting `roles/iam.workforcePoolAdmin` to `user:RBRP_OPERATOR_EMAIL`:
+... member already present in that role's binding → policy unchanged, skip the write
+... otherwise add the member, creating the binding if the role is absent
+.. {rbbc_call}
+link:https://cloud.google.com/resource-manager/reference/rest/v3/organizations/setIamPolicy[organizations.setIamPolicy] for `organizations/RBRF_ORG_ID` with the amended policy and the read-back `etag`
+.. {rbbc_poll}
+the role into effect — re-read the policy at `RBGC_EVENTUAL_CONSISTENCY_SEC` intervals up to `RBGC_MAX_CONSISTENCY_SEC` (the spike observed ~10s propagation)
+.. NOTE: This is the one privilege escalation affiance performs, and it is self-scoped to the payor. It is idempotent — a payor already holding the role passes straight through, no write issued. The `setIamPolicy` carries the read-back `etag` so a concurrent org-policy edit fails the write rather than clobbering it.
+
+//axhos_step
+. *Ensure the workforce identity pool*:
+.. {rbbc_submit}
+link:https://cloud.google.com/iam/docs/reference/rest/v1/locations.workforcePools/create[workforcePools.create] with:
+... parent: `organizations/RBRF_ORG_ID`
+... workforcePoolId: `RBRF_WORKFORCE_POOL_ID`
+... body:
++
+----
+{
+  "displayName": "RBRF_WORKFORCE_POOL_ID",
+  "description": "Recipe Bottle manor federation pool",
+  "sessionDuration": "RBRF_SESSION_DURATION",
+  "disabled": false
+}
+----
+.. {rbbc_await}
+returned operation
+.. {rbbc_require}
+the pool present after the operation — a `409 ALREADY_EXISTS` is idempotent success, not fatal. On the already-exists path the operation reads the pool and reconciles `sessionDuration` to the regime value via link:https://cloud.google.com/iam/docs/reference/rest/v1/locations.workforcePools/patch[workforcePools.patch] when it has drifted.
+.. NOTE: `sessionDuration` is the assize cap (900s–43200s; the regime validator bounds it). A soft-deleted pool of the same ID occupies the namespace for a purge window and surfaces here as a fatal create conflict that no reconcile clears — the workforce-pool analogue of the depot project's soft-delete graveyard, restored via link:https://cloud.google.com/iam/docs/reference/rest/v1/locations.workforcePools/undelete[workforcePools.undelete] rather than re-created.
+
+//axhos_step
+. *Ensure the pool provider and its attribute mapping*:
+.. {rbbc_submit}
+link:https://cloud.google.com/iam/docs/reference/rest/v1/locations.workforcePools.providers/create[workforcePools.providers.create] with:
+... parent: `locations/global/workforcePools/RBRF_WORKFORCE_POOL_ID`
+... workforcePoolProviderId: `RBRF_PROVIDER_ID`
+... body:
++
+----
+{
+  "displayName": "RBRF_PROVIDER_ID",
+  "attributeMapping": { <parsed from RBRF_ATTRIBUTE_MAPPING: "google.subject" -> "assertion.oid"> },
+  "oidc": {
+    "issuerUri": "RBRF_IDP_ISSUER",
+    "clientId":  "RBRF_IDP_CLIENT_ID",
+    "webSsoConfig": {
+      "responseType": "ID_TOKEN",
+      "assertionClaimsBehavior": "ONLY_ID_TOKEN_CLAIMS"
+    }
+  }
+}
+----
+.. {rbbc_await}
+returned operation
+.. {rbbc_require}
+the provider present — `409 ALREADY_EXISTS` is idempotent success. On the already-exists path the operation reconciles `attributeMapping`, `oidc.issuerUri`, and `oidc.clientId` to the regime values via link:https://cloud.google.com/iam/docs/reference/rest/v1/locations.workforcePools.providers/patch[workforcePools.providers.patch] when they have drifted.
+.. NOTE: `RBRF_ATTRIBUTE_MAPPING` is stored as a single `key=value` string in the regime and parsed into the API's `attributeMapping` object; the regime validator guarantees it maps `google.subject`. `webSsoConfig` (`ID_TOKEN` / `ONLY_ID_TOKEN_CLAIMS`) is an affiance-fixed protocol constant, not regime config — the spike-proven shape that makes the provider serve the device flow.
+.. NOTE: The provider resource name `//iam.googleapis.com/locations/global/workforcePools/RBRF_WORKFORCE_POOL_ID/providers/RBRF_PROVIDER_ID` is the STS audience the accessor's second leg presents (spike Leg 2). Affiance seats the resource that name addresses; it does not itself exercise the legs.
+
+//axhoot_typed_output
+{rbtgi_manor}
+. *Confirm Affiance*:
+.. {rbbc_show}
+single-line success banner naming the affianced
+{rbtgi_manor},
+the workforce pool and provider resource names, and the
+{rbtf_compear}
+follow-up hint (the first
+{rbtf_citizen}
+verifies the trust by compearing against the provider).
+
+//axhoc_completion
+Successful execution leaves the manor affianced: the org-level
+`roles/iam.workforcePoolAdmin` grant is seated on the payor, and the workforce pool,
+its provider, and the attribute mapping exist under `organizations/RBRF_ORG_ID`. A
+{rbtf_citizen}
+may now
+{rbtf_compear}
+against the provider and exchange the resulting assertion for a federated token.
+Admission of a citizen to a
+{rbtf_mantle}
+— the depot-scoped bindings — is the separate concern of the levy and the
+{rbtf_brevet}
+verb.
