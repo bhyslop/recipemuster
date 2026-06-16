@@ -1,6 +1,6 @@
 {
   "jjgrn_schema_version": 4,
-  "jjgrn_next_heat_seed": "Bf",
+  "jjgrn_next_heat_seed": "Bg",
   "jjgrn_heat_order": [
     "₣BU",
     "₣Be",
@@ -32,7 +32,8 @@
     "₣BI",
     "₣BL",
     "₣Ba",
-    "₣Bc"
+    "₣Bc",
+    "₣Bf"
   ],
   "jjgrn_heats": {
     "₣A-": {
@@ -10435,6 +10436,14 @@
           ]
         }
       }
+    },
+    "₣Bf": {
+      "jjghn_silks": "rbk-14-mvp-federation-evolution",
+      "jjghn_creation_time": "260616",
+      "jjghn_status": "jjghe_stabled",
+      "jjghn_order": [],
+      "jjghn_next_pace_seed": "AAA",
+      "jjghn_paces": {}
     }
   }
 }
