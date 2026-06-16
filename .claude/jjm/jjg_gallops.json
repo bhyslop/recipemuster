@@ -9591,6 +9591,7 @@
         "₢BbAAQ",
         "₢BbAAN",
         "₢BbAAG",
+        "₢BbAAR",
         "₢BbAAK",
         "₢BbAAA",
         "₢BbAAB",
@@ -9599,7 +9600,7 @@
         "₢BbAAC",
         "₢BbAAD"
       ],
-      "jjghn_next_pace_seed": "AAR",
+      "jjghn_next_pace_seed": "AAS",
       "jjghn_paces": {
         "₢BbAAA": {
           "jjgpn_tacks": [
@@ -9980,6 +9981,17 @@
               "jjgtn_text": "## Character\nMechanical but individually reviewed — each collapse lands as its own reviewed move, never batch.\n\n## Gate\nGated on the cited-constraint anchor mechanism (the immediately preceding pace):\neach residue cites an anchor,\nand landing prose pointers first would force a second pass over the same sites.\n\n## Goal\nLand the six citation-collapses from the sentry pilot:\nMemos/memo-20260612-acg-pilot-sentry-findings.md carries the findings (F1-F6),\neach with site, receiving home, residue content, and per-extra dispositions\n(history-time provenance pointers drop; concrete-IP color drops; sortie names\nreplaced by anchor citations).\nMint the anchors the residues cite, with definitions at the receiving specs.\nRide-along: fix the RBJp0/RBJp1 announcement-prefix mismatch in the type\nspecimen's parameter-validation block.\nRetire the memo when all findings are dispositioned.\n\n## Cinched\n- Receiving homes are already mature — every move is collapse, not relocation;\n  the spec side does not change except to host anchor definitions.\n- Detect-tier verification is insufficient: the file ships baked into the\n  sentry vessel, so bottle/sentry changes verify at crucible tier (tadmor).\n\n## Done when\nSix comments collapsed to residue + anchor citation, one reviewed move at a time;\nprovenance pointers gone;\nthe announcement-prefix mismatch fixed;\ncrucible tier green;\nthe findings memo retired to Memos/retired/.",
               "jjgtn_silks": "sentry-citation-collapses",
               "jjgtn_basis": "1fdd121"
+            }
+          ]
+        },
+        "₢BbAAR": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260616-1015",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "Introduce a flat command-exposure voicing family in AXLA — sibling to the existing axho_/axhr_/axhp_ hierarchy families — that binds an operation to the concrete identifier(s) exposing it on a CLI surface, then instantiate it in RBS0 as the single place the spec names concrete colophons.\nVoicings, not quoins: a row binds an existing operation attribute-reference to its full routing identifier carried as a value, so tabtargets gain no quoins and the colophon stays a busdc_colophon value.\nPoint, don't restate: the axho_/axhr_/axhp_ families and how BUS0/RBS0 instantiate them; BUS0 bust_tabtarget and busdc_colophon for the exposed concepts; the build-generated tabtarget context stays the colophon inventory.\n\n## Cinched\nFlat, not nested — an exposure-container block plus full-identifier rows, one identifier on the single line after each marker.\nColophons want uniform recursion, which AXLA's distinct-named-level families do not give; the flat full-identifier row is also what fits an MCP tool-plus-enum surface, not tabtargets alone.\nOne identifier per line is greppable both directions and reconcilable against the generated inventory.\nThe membrane is the join between operation concepts and concrete identifiers; frontispiece, folio, and purpose live only in the generated inventory.\nThe exposure dimension types the identifier and the family block is an exposure container, not a string prefix; ride the existing axd_tabtarget / axd_slash_command dimensions and admit an MCP dimension when one is first instantiated.\nMarker and dimension names are a mount-time mint under AXLA naming discipline.\n\n## Gate\nPartial, like the axvo symbol-lookahead pace ahead of it.\nThe AXLA family and the BUS0 exposure tie are ungated and land now.\nThe RBS0 membrane defers: its colophon set spans vocabulary ₣BH and ₣BZ are still moving, and it overlaps ₣BH's active RBS0 rewrite — it waits until those lanes settle, per the heat triage rider.\n\n## Done when\nAXLA defines the command-exposure voicing family with arity and placement rules, sibling to the existing hierarchy families, riding the existing exposure dimensions.\nBUS0 ties the tabtarget exposure to bust_tabtarget / busdc_colophon.\nOnce the gating lanes clear, RBS0 carries the command rows as the sole site naming concrete colophons — the inline colophon-shape note and the vestigial Tabtarget-Colophons quoin section fold in, operations elsewhere staying colophon-blind.\n\n## Character\nAXLA voicing-grammar design plus contract-first instantiation — additive, no runtime behavior.\nTier: opus for the family-shape judgment; the RBS0 rows are mechanical once the family is set.",
+              "jjgtn_silks": "cli-command-voicing-family",
+              "jjgtn_basis": "e95800d"
             }
           ]
         }
