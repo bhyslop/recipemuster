@@ -407,6 +407,19 @@
 :rbrp_payor_project_id:      <<rbrp_payor_project_id,RBRP_PAYOR_PROJECT_ID>>
 :rbrp_regime:                <<rbrp_regime,RBRP Regime>>
 
+// Recipe Bottle Regime: Federation (manor IdP trust)
+:rbrf_attribute_mapping:     <<rbrf_attribute_mapping,RBRF_ATTRIBUTE_MAPPING>>
+:rbrf_idp_client_id:         <<rbrf_idp_client_id,RBRF_IDP_CLIENT_ID>>
+:rbrf_idp_device_endpoint:   <<rbrf_idp_device_endpoint,RBRF_IDP_DEVICE_ENDPOINT>>
+:rbrf_idp_issuer:            <<rbrf_idp_issuer,RBRF_IDP_ISSUER>>
+:rbrf_idp_scope:             <<rbrf_idp_scope,RBRF_IDP_SCOPE>>
+:rbrf_idp_token_endpoint:    <<rbrf_idp_token_endpoint,RBRF_IDP_TOKEN_ENDPOINT>>
+:rbrf_org_id:                <<rbrf_org_id,RBRF_ORG_ID>>
+:rbrf_provider_id:           <<rbrf_provider_id,RBRF_PROVIDER_ID>>
+:rbrf_regime:                <<rbrf_regime,RBRF Regime>>
+:rbrf_session_duration:      <<rbrf_session_duration,RBRF_SESSION_DURATION>>
+:rbrf_workforce_pool_id:     <<rbrf_workforce_pool_id,RBRF_WORKFORCE_POOL_ID>>
+
 // Recipe Bottle Regime: OAuth (local OAuth credentials)
 :rbro_client_secret:         <<rbro_client_secret,RBRO_CLIENT_SECRET>>
 :rbro_refresh_token:         <<rbro_refresh_token,RBRO_REFRESH_TOKEN>>
@@ -3488,6 +3501,66 @@ desktop application.
 Email address of the human operator managing depot infrastructure.
 
 include::RBSRP-RegimePayor.adoc[]
+
+=== Federation Regime (RBRF)
+
+[[rbrf_regime]]
+//axvr_regime axf_bash axrd_file_sourced axrd_singleton
+{rbrf_regime}::
+Manor-scoped (org-level) IdP trust and workforce-pool identity: the external OIDC provider the manor is affianced to, the pool that serves every depot under the manor, and the device-flow endpoints a compearance drives.
+File-sourced singleton at {rbsld_moorings}rbrf.env; carries no secrets, so it ships committed.
+
+[[rbrf_org_id]]
+//axrg_variable axtu_string
+{rbrf_org_id}::
+GCP organization numeric ID owning the workforce pool; affiance creates the pool beneath it.
+
+[[rbrf_workforce_pool_id]]
+//axrg_variable axtu_string
+{rbrf_workforce_pool_id}::
+Workforce identity pool ID. Org-scoped — one pool serves every depot under the manor.
+
+[[rbrf_provider_id]]
+//axrg_variable axtu_string
+{rbrf_provider_id}::
+Workforce pool provider ID — the external IdP trust root within the pool.
+
+[[rbrf_session_duration]]
+//axrg_variable axtu_string
+{rbrf_session_duration}::
+Workforce pool session duration — the assize cap, the live window a compearance opens.
+
+[[rbrf_idp_issuer]]
+//axrg_variable axtu_string
+{rbrf_idp_issuer}::
+OIDC issuer URI of the external IdP.
+
+[[rbrf_idp_client_id]]
+//axrg_variable axtu_string
+{rbrf_idp_client_id}::
+Public client (application) ID registered at the IdP for the device authorization flow.
+
+[[rbrf_idp_scope]]
+//axrg_variable axtu_string
+{rbrf_idp_scope}::
+Device-flow OAuth scope; requests openid and never offline_access (the human-present premise).
+
+[[rbrf_idp_device_endpoint]]
+//axrg_variable axtu_string
+{rbrf_idp_device_endpoint}::
+IdP device authorization endpoint (RFC 8628) — the Leg 1 device-code request target.
+
+[[rbrf_idp_token_endpoint]]
+//axrg_variable axtu_string
+{rbrf_idp_token_endpoint}::
+IdP token endpoint — the Leg 1 device-code polling target.
+
+[[rbrf_attribute_mapping]]
+//axrg_variable axtu_string
+{rbrf_attribute_mapping}::
+Workforce provider attribute mapping; must map google.subject to the federated subject.
+
+include::RBSRF-RegimeFederation.adoc[]
 
 === OAuth Regime (RBRO)
 

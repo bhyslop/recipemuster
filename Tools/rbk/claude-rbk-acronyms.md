@@ -126,6 +126,7 @@
 - **RBSQB** → `rbk/vov_veiled/RBSQB-quota_build.adoc`
 - **RBSRA** → `rbk/vov_veiled/RBSRA-CredentialFormat.adoc`
 - **RBSRD** → `rbk/vov_veiled/RBSRD-retriever_defrock.adoc` (Governor defrocks a retriever SA — zero-arg by-role lookup)
+- **RBSRF** → `rbk/vov_veiled/RBSRF-RegimeFederation.adoc` (Regime Federation — manor-scoped, org-level IdP trust + workforce-pool identity; the config home the accessor's federation legs read. One pool serves every depot under the manor. Carries no secrets, ships committed; affiance rewrites the values when founding a fresh trust.)
 - **RBSRG** → `rbk/vov_veiled/RBSRG-RegimeGcbPins.adoc`
 - **RBSRK** → `rbk/vov_veiled/RBSRK-retriever_enrobe.adoc` (Governor enrobes a retriever SA — singleton-per-role)
 - **RBSRL** → `rbk/vov_veiled/RBSRL-retriever_roster.adoc` (Governor rosters retriever SAs — fact-multi emission, presence-as-fact)

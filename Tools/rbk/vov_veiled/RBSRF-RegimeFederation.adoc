@@ -1,0 +1,92 @@
+//axhrb_regime
+{rbrf_regime}
+
+This regime specifies the manor-scoped IdP trust and workforce-pool identity within the Recipe Bottle system.
+Each
+{rbrf_regime}
+instance represents the org-level federation: the workforce identity pool, its external OIDC provider, and the device-flow endpoints a compearance drives.
+The trust is org-scoped, not depot-scoped — one pool serves every depot under the manor, the same federated subject grantable in each.
+RBRF assignment files are found in the operator's local filesystem and carry no secrets — every value is a public identifier — so the file ships committed; affiance rewrites the values when founding a fresh trust against a real org and IdP tenant.
+
+//axhrv_variable
+{rbrf_org_id}
+
+GCP organization numeric ID owning the workforce pool.
+Affiance creates the pool beneath this organization.
+Required; numeric.
+
+//axhrv_variable
+{rbrf_workforce_pool_id}
+
+Workforce identity pool ID, org-scoped — one pool serves every depot under the manor.
+Required; lowercase alphanumeric and hyphen, 4-32 chars, must not start with the reserved `gcp-` prefix.
+
+//axhrv_variable
+{rbrf_provider_id}
+
+Workforce pool provider ID — the external IdP trust root within the pool.
+Required; same naming constraints as the pool ID.
+
+//axhrv_variable
+{rbrf_session_duration}
+
+Workforce pool session duration — the assize cap, the live window a compearance opens.
+Caps the federated token lifetime independently of the mantle token.
+Required; NNNs format (e.g. 3600s).
+
+//axhrv_variable
+{rbrf_idp_issuer}
+
+OIDC issuer URI of the external IdP.
+Required; https:// URI.
+
+//axhrv_variable
+{rbrf_idp_client_id}
+
+Public client (application) ID registered at the IdP for the device authorization flow.
+Required.
+
+//axhrv_variable
+{rbrf_idp_scope}
+
+Device-flow OAuth scope requested at Leg 1.
+Required; must request `openid`, and must NOT request `offline_access` — a refresh token would let a run begin outside a live assize, contradicting the human-present premise.
+
+//axhrv_variable
+{rbrf_idp_device_endpoint}
+
+IdP device authorization endpoint (RFC 8628) — the Leg 1 device-code request target.
+Explicit field rather than a tenant-derived template, so a non-Entra IdP needs only new values, no code change.
+Required; https:// URI.
+
+//axhrv_variable
+{rbrf_idp_token_endpoint}
+
+IdP token endpoint — the Leg 1 device-code polling target.
+Required; https:// URI.
+
+//axhrv_variable
+{rbrf_attribute_mapping}
+
+Workforce provider attribute mapping written into the provider by affiance.
+Must map `google.subject`; the mapped IdP claim becomes the grantable federated subject.
+Required.
+
+//axhro_kindle
+{rbkro_kindle}
+
+Enrolls all RBRF_ variables via buv enrollment.
+Guards against unexpected RBRF_ variables via scope sentinel.
+Locks all enrolled variables against mutation.
+
+//axhro_validate
+{rbkro_validate}
+
+Validates fields via buv_vet type checkers, then custom format checks in a separate enforce step.
+Validates the org as numeric, the pool and provider IDs as lowercase alphanumeric/hyphen with the `gcp-` prefix reserved, the issuer and both device-flow endpoints as https:// URIs, the session duration as NNNs, the scope as requesting openid but never offline_access (the human-present premise), and the attribute mapping as mapping google.subject.
+
+//axhro_render
+{rbkro_render}
+
+Renders via buv_render.
+Sections: Workforce Pool Identity, IdP Trust.
