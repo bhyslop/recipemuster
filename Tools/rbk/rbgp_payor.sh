@@ -1116,6 +1116,148 @@ zrbgp_enable_ar_audit_logs() {
   buc_log_args "Confirmed Data-Access audit config on ${z_audit_service}"
 }
 
+rbgp_manor_affiance() {
+  zrbgp_sentinel
+
+  buc_doc_brief "Affiance the manor to its external OIDC IdP — seat the org-level workforce pool, provider, and attribute mapping (RBSMA)"
+  buc_doc_shown || return 0
+
+  buc_step 'Authenticate as Payor'
+  local z_token
+  z_token=$(zrbgp_authenticate_capture) || buc_die "Failed to authenticate as Payor via OAuth"
+
+  # Federation trust config is read from the kindled RBRF regime — the caller's
+  # furnish sources, kindles, and enforces rbrf before dispatch (like RBRD/RBRP
+  # for depot_levy). RBRP_OPERATOR_EMAIL (the payor's federated console identity)
+  # is the grantee of the workforce-pool admin role.
+  local -r z_org="organizations/${RBRF_ORG_ID}"
+  local -r z_pool_id="${RBRF_WORKFORCE_POOL_ID}"
+  local -r z_provider_id="${RBRF_PROVIDER_ID}"
+  local -r z_iam_root="${RBGC_API_ROOT_IAM}${RBGC_IAM_V1}"
+  local -r z_pools_base="${z_iam_root}/locations/global/workforcePools"
+
+  # Spike Finding F1: pool/provider creation 403s ("unregistered callers"-style)
+  # until the payor holds roles/iam.workforcePoolAdmin at the organization.
+  # organizationAdmin (a payor standing role) is sufficient to self-grant. This
+  # MUST precede both creates. Reuses the generic CRM read-modify-write IAM
+  # helper (etag + propagation retry) against the organization resource;
+  # idempotent — a payor already holding the role passes straight through.
+  buc_step 'Seat org-level workforcePoolAdmin (spike F1 — must precede pool/provider)'
+  rbgi_add_project_iam_role \
+    "${z_token}" \
+    "Affiance: seat workforcePoolAdmin" \
+    "${z_org}" \
+    "roles/iam.workforcePoolAdmin" \
+    "user:${RBRP_OPERATOR_EMAIL}" \
+    "affiance_org_grant"
+
+  # Ensure the workforce identity pool (idempotent: GET, create only if absent).
+  # NOTE: workforce-pool REST shape is per the IAM v1 docs; the live device-flow
+  # proof against the standing spike trust rides tt/rbw-acf (needs a human click)
+  # and has not yet exercised these create calls. Drift-reconcile on an existing
+  # pool (PATCH sessionDuration) is a named follow-up, not in this first cut.
+  buc_step 'Ensure workforce identity pool'
+  local -r z_pool_get_url="${z_pools_base}/${z_pool_id}"
+  rbuh_json "GET" "${z_pool_get_url}" "${z_token}" "affiance_pool_get"
+  local z_pool_code
+  z_pool_code=$(rbuh_code_capture "affiance_pool_get") || buc_die "No HTTP code from workforcePools.get"
+
+  case "${z_pool_code}" in
+    200)
+      buc_info "Workforce pool ${z_pool_id} already present — leaving in place (drift-reconcile is a named follow-up)"
+      ;;
+    404)
+      local -r z_pool_body="${BURD_TEMP_DIR}/rbgp_affiance_pool.json"
+      jq -n \
+        --arg displayName     "${z_pool_id}" \
+        --arg description     "Recipe Bottle manor federation pool" \
+        --arg sessionDuration "${RBRF_SESSION_DURATION}" \
+        '{
+          displayName: $displayName,
+          description: $description,
+          sessionDuration: $sessionDuration
+        }' > "${z_pool_body}" || buc_die "Failed to build workforce pool body"
+
+      local -r z_pool_create_url="${z_pools_base}?workforcePoolId=${z_pool_id}&parent=${z_org}"
+      rbge_lro_ok \
+        "Create workforce pool" \
+        "${z_token}" \
+        "${z_pool_create_url}" \
+        "affiance_pool_create" \
+        "${z_pool_body}" \
+        ".name" \
+        "${z_iam_root}" \
+        "" \
+        "${RBGC_EVENTUAL_CONSISTENCY_SEC}" \
+        "${RBGC_MAX_CONSISTENCY_SEC}"
+      buc_info "Workforce pool ${z_pool_id} created under ${z_org}"
+      ;;
+    *)
+      rbuh_require_ok "Workforce pool get" "affiance_pool_get"
+      ;;
+  esac
+
+  # Ensure the pool provider and its attribute mapping (idempotent).
+  buc_step 'Ensure workforce pool provider and attribute mapping'
+  local -r z_providers_base="${z_pools_base}/${z_pool_id}/providers"
+  local -r z_provider_get_url="${z_providers_base}/${z_provider_id}"
+  rbuh_json "GET" "${z_provider_get_url}" "${z_token}" "affiance_provider_get"
+  local z_provider_code
+  z_provider_code=$(rbuh_code_capture "affiance_provider_get") || buc_die "No HTTP code from providers.get"
+
+  case "${z_provider_code}" in
+    200)
+      buc_info "Provider ${z_provider_id} already present — leaving in place (drift-reconcile is a named follow-up)"
+      ;;
+    404)
+      # webSsoConfig (ID_TOKEN / ONLY_ID_TOKEN_CLAIMS) is an affiance-fixed
+      # protocol constant — the spike-proven shape that serves the device flow,
+      # not regime config. attributeMapping is parsed from the regime's
+      # comma-separated key=value string inside jq (the validator guarantees it
+      # maps google.subject).
+      local -r z_provider_body="${BURD_TEMP_DIR}/rbgp_affiance_provider.json"
+      jq -n \
+        --arg displayName "${z_provider_id}" \
+        --arg issuerUri   "${RBRF_IDP_ISSUER}" \
+        --arg clientId    "${RBRF_IDP_CLIENT_ID}" \
+        --arg mapping     "${RBRF_ATTRIBUTE_MAPPING}" \
+        '{
+          displayName: $displayName,
+          attributeMapping: ($mapping | split(",") | map(split("=") | {(.[0]): .[1]}) | add),
+          oidc: {
+            issuerUri: $issuerUri,
+            clientId: $clientId,
+            webSsoConfig: {
+              responseType: "ID_TOKEN",
+              assertionClaimsBehavior: "ONLY_ID_TOKEN_CLAIMS"
+            }
+          }
+        }' > "${z_provider_body}" || buc_die "Failed to build provider body"
+
+      local -r z_provider_create_url="${z_providers_base}?workforcePoolProviderId=${z_provider_id}"
+      rbge_lro_ok \
+        "Create workforce pool provider" \
+        "${z_token}" \
+        "${z_provider_create_url}" \
+        "affiance_provider_create" \
+        "${z_provider_body}" \
+        ".name" \
+        "${z_iam_root}" \
+        "" \
+        "${RBGC_EVENTUAL_CONSISTENCY_SEC}" \
+        "${RBGC_MAX_CONSISTENCY_SEC}"
+      buc_info "Provider ${z_provider_id} created under pool ${z_pool_id}"
+      ;;
+    *)
+      rbuh_require_ok "Provider get" "affiance_provider_get"
+      ;;
+  esac
+
+  buc_step 'Manor affianced'
+  buc_info "Manor affianced: pool=${z_pool_id} provider=${z_provider_id} org=${z_org}"
+  buc_info "Verify the trust by compearing — run tt/rbw-acf.CheckFederatedAccess.sh"
+}
+
 rbgp_depot_levy() {
   zrbgp_sentinel
 
