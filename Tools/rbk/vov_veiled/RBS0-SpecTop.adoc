@@ -123,12 +123,12 @@
 :rbtgo_depot_levy:                <<rbtgo_depot_levy,rbgp_depot_levy>>
 :rbtgo_depot_unmake:              <<rbtgo_depot_unmake,rbgp_depot_unmake>>
 :rbtgo_depot_list:                <<rbtgo_depot_list,rbgp_depot_list>>
-:rbtgo_director_divest:           <<rbtgo_director_divest,rbgg_divest_director>>
-:rbtgo_director_invest:           <<rbtgo_director_invest,rbgg_invest_director>>
+:rbtgo_director_defrock:           <<rbtgo_director_defrock,rbgg_defrock_director>>
+:rbtgo_director_enrobe:           <<rbtgo_director_enrobe,rbgg_enrobe_director>>
 :rbtgo_director_roster:           <<rbtgo_director_roster,rbgg_roster_directors>>
 :rbtgo_director_vouch:            <<rbtgo_director_vouch,rbfv_batch_vouch>>
 :rbtgo_director_yoke:             <<rbtgo_director_yoke,rbfl_yoke>>
-:rbtgo_governor_mantle:            <<rbtgo_governor_mantle,rbgp_governor_mantle>>
+:rbtgo_governor_enrobe:            <<rbtgo_governor_enrobe,rbgp_enrobe_governor>>
 :rbtgo_image_delete:              <<rbtgo_image_delete,rbfl_jettison>>
 :rbtgo_image_audit:               <<rbtgo_image_audit,Image Audit>>
 :rbtgo_image_rekon:               <<rbtgo_image_rekon,Image Rekon>>
@@ -136,8 +136,8 @@
 :rbtgo_payor_establish:           <<rbtgo_payor_establish,rbhp_establish>>
 :rbtgo_payor_install:             <<rbtgo_payor_install,rbgp_payor_install>>
 :rbtgo_payor_refresh:             <<rbtgo_payor_refresh,rbhp_refresh>>
-:rbtgo_retriever_divest:          <<rbtgo_retriever_divest,rbgg_divest_retriever>>
-:rbtgo_retriever_invest:          <<rbtgo_retriever_invest,rbgg_invest_retriever>>
+:rbtgo_retriever_defrock:          <<rbtgo_retriever_defrock,rbgg_defrock_retriever>>
+:rbtgo_retriever_enrobe:          <<rbtgo_retriever_enrobe,rbgg_enrobe_retriever>>
 :rbtgo_retriever_roster:          <<rbtgo_retriever_roster,rbgg_roster_retrievers>>
 :rbtgo_quota_build:               <<rbtgo_quota_build,rbhp_quota_build>>
 :rbtgo_trigger_build:             <<rbtgo_trigger_build,rbfd_build>>
@@ -555,7 +555,7 @@
 
 // Recipe Bottle Key Premises
 :rbsk_no_gcloud:             <<rbsk_no_gcloud,gcloud CLI Prohibition>>
-:rbsk_invest_serialized:     <<rbsk_invest_serialized,Invest Serialization>>
+:rbsk_enrobe_serialized:     <<rbsk_enrobe_serialized,Enrobe Serialization>>
 :rbsk_in_pool_preflight:     <<rbsk_in_pool_preflight,In-Pool Reliquary Preflight>>
 :rbsk_pinning_boundary:      <<rbsk_pinning_boundary,Supply-Chain Pinning Boundary>>
 
@@ -886,13 +886,13 @@ The in-pool check catches divergence the host-side check cannot — airgap priva
 +
 Scope boundary: standalone vouch (`zrbfv_vouch_submit`) and standalone about (`zrbfv_about_submit`) are operator-recovery paths and are not currently covered.
 
-[[rbsk_invest_serialized]]
+[[rbsk_enrobe_serialized]]
 //axl_voices axk_premise
-{rbsk_invest_serialized}::
-{rbtgo_retriever_invest}, {rbtgo_director_invest}, and {rbtgo_governor_mantle} write credential bytes to a singleton assay slot (`RBDC_ASSAY_RBRA_FILE`), not a per-identity slot.
-The operator MUST move `RBDC_ASSAY_RBRA_FILE` to a safe place before initiating the next operation that writes to the assay slot — typically the role's production slot (`RBDC_RETRIEVER_RBRA_FILE`, `RBDC_DIRECTOR_RBRA_FILE`, or `RBDC_GOVERNOR_RBRA_FILE`) when the invester and the consumer are the same operator, otherwise a delivery channel to the consumer.
+{rbsk_enrobe_serialized}::
+{rbtgo_retriever_enrobe}, {rbtgo_director_enrobe}, and {rbtgo_governor_enrobe} write credential bytes to a singleton assay slot (`RBDC_ASSAY_RBRA_FILE`), not a per-identity slot.
+The operator MUST move `RBDC_ASSAY_RBRA_FILE` to a safe place before initiating the next operation that writes to the assay slot — typically the role's production slot (`RBDC_RETRIEVER_RBRA_FILE`, `RBDC_DIRECTOR_RBRA_FILE`, or `RBDC_GOVERNOR_RBRA_FILE`) when the enrober and the consumer are the same operator, otherwise a delivery channel to the consumer.
 Two consecutive assay-slot writers without an intervening move lose the first writer's bytes.
-Batched invest is not supported — by design.
+Batched enrobe is not supported — by design.
 +
 Rationale: a singleton assay slot keeps the producer-output discipline uniform across roles and frees the implementation from path-space per-identity routing.
 The operator-driven move step is the deliberate promotion gate from producer output to role-production consumer; it also acts as the operator's explicit acknowledgement of which identity owns the role at runtime, since `RBRA` files encode exactly one identity at a time.
@@ -1128,7 +1128,7 @@ infrastructure
 ({rbtgog_depot}).
 Includes
 {rbtr_governor}
-service account cleanup; no separate demantle verb (DELETE tolerates 404).
+service account cleanup; no separate defrock verb (DELETE tolerates 404).
 
 include::RBSDU-depot_unmake.adoc[]
 
@@ -1155,16 +1155,16 @@ to enable the desired level of parallel build execution.
 
 include::RBSQB-quota_build.adoc[]
 
-[[rbtgo_governor_mantle]]
+[[rbtgo_governor_enrobe]]
 //axvo_method axd_transient axd_grouped
-=== {rbtgo_governor_mantle}
+=== {rbtgo_governor_enrobe}
 
-Mantles
+Enrobes
 {rbtr_governor}
 configuration
 ({rbtgog_governor}).
 
-include::RBSGM-governor_mantle.adoc[]
+include::RBSGM-governor_enrobe.adoc[]
 
 == {rbtr_governor} Operations
 
@@ -1172,31 +1172,31 @@ The
 {rbtr_retriever}
 and
 {rbtr_director}
-service accounts share a cult-verb triad: invest mints the SA and emits its RBRA credential bytes, divest tears it down, and roster lists existing instances.
-Each verb has per-role instances; the colophon shape is `rbw-a<role-letter><verb-letter>` where the letter case carries semantic load — capital `I` (invest) and `D` (divest) for cloud-mutating verbs, lowercase `r` (roster) for read-only observation, mirroring the existing `rbw-d[lL]` precedent.
-{rbtgo_governor_mantle} stays as the singleton-per-depot exception; governor SA cleanup folds into {rbtgo_depot_unmake}.
+service accounts share a cult-verb triad: enrobe mints the SA and emits its RBRA credential bytes, defrock tears it down, and roster lists existing instances.
+Each verb has per-role instances; the colophon shape is `rbw-a<role-letter><verb-letter>` where the letter case carries semantic load — capital `E` (enrobe) and `F` (defrock) for cloud-mutating verbs, lowercase `r` (roster) for read-only observation, mirroring the existing `rbw-d[lL]` precedent.
+{rbtgo_governor_enrobe} stays as the singleton-per-depot exception; governor SA cleanup folds into {rbtgo_depot_unmake}.
 
-[[rbtgo_director_divest]]
+[[rbtgo_director_defrock]]
 //axvo_method axd_transient axd_grouped
-=== {rbtgo_director_divest}
+=== {rbtgo_director_defrock}
 
-Divests a
+Defrocks a
 {rbtr_director}
 {giam_service_account}
 ({rbtgog_governor}).
 
-include::RBSDD-director_divest.adoc[]
+include::RBSDD-director_defrock.adoc[]
 
-[[rbtgo_director_invest]]
+[[rbtgo_director_enrobe]]
 //axvo_method axd_transient axd_grouped
-=== {rbtgo_director_invest}
+=== {rbtgo_director_enrobe}
 
-Invests a
+Enrobes a
 {rbtr_director}
 {giam_service_account}
 ({rbtgog_governor}).
 
-include::RBSDK-director_invest.adoc[]
+include::RBSDK-director_enrobe.adoc[]
 
 [[rbtgo_director_roster]]
 //axvo_method axd_transient axd_grouped
@@ -1211,27 +1211,27 @@ via per-SA fact-file emission
 
 include::RBSDR-director_roster.adoc[]
 
-[[rbtgo_retriever_divest]]
+[[rbtgo_retriever_defrock]]
 //axvo_method axd_transient axd_grouped
-=== {rbtgo_retriever_divest}
+=== {rbtgo_retriever_defrock}
 
-Divests a
+Defrocks a
 {rbtr_retriever}
 {giam_service_account}
 ({rbtgog_governor}).
 
-include::RBSRD-retriever_divest.adoc[]
+include::RBSRD-retriever_defrock.adoc[]
 
-[[rbtgo_retriever_invest]]
+[[rbtgo_retriever_enrobe]]
 //axvo_method axd_transient axd_grouped
-=== {rbtgo_retriever_invest}
+=== {rbtgo_retriever_enrobe}
 
-Invests a
+Enrobes a
 {rbtr_retriever}
 {giam_service_account}
 ({rbtgog_governor}).
 
-include::RBSRK-retriever_invest.adoc[]
+include::RBSRK-retriever_enrobe.adoc[]
 
 [[rbtgo_retriever_roster]]
 //axvo_method axd_transient axd_grouped
@@ -2063,7 +2063,7 @@ The vouch step branches on `_RBGV_VESSEL_MODE`: conjure runs DSSE provenance ver
 Discovered constraints from implementation:
 +
   * **Private worker pool**: The RunBuild API caller ({rbtr_director}) requires `cloudbuild.workerpools.use` to specify a private pool, a permission not included in `roles/cloudbuild.builds.editor`.
-    {rbtgo_director_invest} grants `roles/cloudbuild.workerPoolUser` at project scope.
+    {rbtgo_director_enrobe} grants `roles/cloudbuild.workerPoolUser` at project scope.
     Vouch runs on the same private pool as conjure (the depot's worker pool, derived from `(RBRD_CLOUD_PREFIX, RBRD_DEPOT_MONIKER)`), eliminating an untested default-pool-with-buildx permutation.
   * **gcloud exception**: Vouch verification (conjure mode) invokes `gcloud artifacts docker images describe` for provenance retrieval (see {rbsk_no_gcloud} exception).
     All other steps use the GCE metadata server for OAuth tokens and direct registry REST API calls.
@@ -2259,7 +2259,7 @@ The consumption-side touchmark election reads them via derived-pull through the 
 [[rbgp_fact_governor_sa_email]]
 //axpof_fact
 {rbgp_fact_governor_sa_email}::
-Governor service-account email created by {rbtgo_governor_mantle}.
+Governor service-account email created by {rbtgo_governor_enrobe}.
 Written immediately after the IAM create call returns success.
 
 [[rbtgr_build_json]]
@@ -4200,7 +4200,7 @@ service account context:
 exists or
 {rbbc_fatal}
 "Governor RBRA file missing - run
-{rbtgo_governor_mantle}",
+{rbtgo_governor_enrobe}",
 . loads RBRA credentials (RBRA_CLIENT_EMAIL, RBRA_PRIVATE_KEY, RBRA_PROJECT_ID),
 . generates JWT with scope `https://www.googleapis.com/auth/cloud-platform`,
 . {rbbc_call} link:https://oauth2.googleapis.com/token[Google OAuth token endpoint] to exchange JWT for access token,
@@ -4218,7 +4218,7 @@ service account context:
 exists or
 {rbbc_fatal}
 "Director RBRA file missing - run
-{rbtgo_director_invest}",
+{rbtgo_director_enrobe}",
 . loads RBRA credentials (RBRA_CLIENT_EMAIL, RBRA_PRIVATE_KEY, RBRA_PROJECT_ID),
 . generates JWT with scope `https://www.googleapis.com/auth/cloud-platform`,
 . {rbbc_call} link:https://oauth2.googleapis.com/token[Google OAuth token endpoint] to exchange JWT for access token,
@@ -4236,7 +4236,7 @@ service account context:
 exists or
 {rbbc_fatal}
 "Retriever RBRA file missing - run
-{rbtgo_retriever_invest}",
+{rbtgo_retriever_enrobe}",
 . loads RBRA credentials (RBRA_CLIENT_EMAIL, RBRA_PRIVATE_KEY, RBRA_PROJECT_ID),
 . generates JWT with scope `https://www.googleapis.com/auth/cloud-platform`,
 . {rbbc_call} link:https://oauth2.googleapis.com/token[Google OAuth token endpoint] to exchange JWT for access token,

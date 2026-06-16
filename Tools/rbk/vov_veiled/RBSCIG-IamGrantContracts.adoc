@@ -263,7 +263,7 @@ profile):
 |C — caller-recently-empowered
 |403
 |`""` (empty — match any body)
-|Resource-scope sites only ({rbtoe_iam_grant_repo}, {rbtoe_iam_grant_sa}, {rbtoe_iam_grant_bucket}, {rbtoe_iam_grant_secret}, plus the inline GAR retry in {rbtgo_director_invest})
+|Resource-scope sites only ({rbtoe_iam_grant_repo}, {rbtoe_iam_grant_sa}, {rbtoe_iam_grant_bucket}, {rbtoe_iam_grant_secret}, plus the inline GAR retry in {rbtgo_director_enrobe})
 |Time-bound only; no body fingerprinting
 |===
 
@@ -341,7 +341,7 @@ times with `RBGC_SA_KEY_CREATE_RETRY_DELAY_SEC` delay between attempts.
 
 ===== Member Removal (Revoke) Contract
 
-The teardown path ({rbtgo_retriever_divest}, {rbtgo_director_divest}) removes a
+The teardown path ({rbtgo_retriever_defrock}, {rbtgo_director_defrock}) removes a
 service-account member from each binding it was granted — the inverse of the
 grant trio above.  The contract:
 
@@ -355,14 +355,14 @@ grant trio above.  The contract:
   arrives non-empty from the read and is untouched).
 
 * **Idempotent.**  Subtracting a member that is not present is a no-op, so the
-  write re-asserts the same policy and returns HTTP 200.  A re-divest, or a
-  divest of an identity already partially torn down, revokes cleanly.
+  write re-asserts the same policy and returns HTTP 200.  A re-defrock, or a
+  defrock of an identity already partially torn down, revokes cleanly.
 
 * **Class C only — and why.**  The member-visibility classes (A: forward "does
   not exist", B: backward "is not deleted") cannot fire on a revoke — the member
   being removed is long-established, not freshly created or deleted — so the
   revokes drop them.  Class C (caller-recently-empowered, 403) is different: it is
-  about the *governor*, not the member.  A governor freshly re-mantled before a
+  about the *governor*, not the member.  A governor freshly re-enrobed before a
   teardown has not yet propagated its `roles/owner` to the resource-scope IAM
   cache, so the **resource-scope** revokes (repo and Mason SA) retry the
   `getIamPolicy` on 403 against `RBGC_PROPAGATION_DEADLINE_SEC`, exactly as the

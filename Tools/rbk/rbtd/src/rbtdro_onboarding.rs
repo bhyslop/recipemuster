@@ -205,7 +205,7 @@ fn rbtdro_read_env_value(path: &Path, key: &str) -> Option<String> {
 }
 
 /// Cases 1, 2, 8, 9 probe: governor RBRA present at the canonical secrets path.
-/// Established by canonical-establish §2 (rbtdrk_governor_mantle).
+/// Established by canonical-establish §2 (rbtdrk_governor_enrobe).
 fn rbtdro_probe_governor_rbra() -> Result<(), String> {
     let root = rbtdro_probe_root()?;
     let path = rbtdrk_canonical_rbra(&root, RBTDGC_ACCOUNT_GOVERNOR)?;
@@ -721,7 +721,7 @@ fn rbtdro_onboarding_conclave_reliquary(dir: &Path) -> rbtdre_Verdict {
     let probe = rbtdrb_Probe {
         name: "governor RBRA present",
         check: rbtdro_probe_governor_rbra,
-        remediation: "rerun canonical-establish (rbtdrk_governor_mantle) before this fixture",
+        remediation: "rerun canonical-establish (rbtdrk_governor_enrobe) before this fixture",
     };
     if let Err(v) = rbtdrb_assert(&probe) {
         return v;

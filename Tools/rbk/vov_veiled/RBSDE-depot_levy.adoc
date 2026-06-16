@@ -127,7 +127,7 @@ link:https://cloud.google.com/artifact-registry/docs/reference/rest/v1/projects.
 HTTP 200 response confirming IAM propagation complete
 .. {rbbc_fatal}
 if timeout: "IAM propagation timeout - artifactregistry API not accessible"
-.. NOTE: This poll gates the project-scope artifactregistry API surface, not the per-repository resource-scope IAM cache.  Resource-scope cache lag (class C, see <<rbscig_iam_grant_contracts>>) is absorbed in-band by the IAM grant harness when {rbtgo_director_invest} subsequently issues `getIamPolicy` against the AR repo — not by this preflight poll.
+.. NOTE: This poll gates the project-scope artifactregistry API surface, not the per-repository resource-scope IAM cache.  Resource-scope cache lag (class C, see <<rbscig_iam_grant_contracts>>) is absorbed in-band by the IAM grant harness when {rbtgo_director_enrobe} subsequently issues `getIamPolicy` against the AR repo — not by this preflight poll.
 
 //axhos_step
 . *Create Build Bucket*:
@@ -235,7 +235,7 @@ per-pool probe block carrying the pool ID, GAR artifact reference, build ID + Cl
 . *Confirm Depot Creation*:
 .. {rbbc_show}
 single-line success banner naming `«DEPOT_PROJECT_ID»` and the
-{rbtgo_governor_mantle}
+{rbtgo_governor_enrobe}
 follow-up hint
 
 //axhoot_typed_output
@@ -260,7 +260,7 @@ pre-push existence guard via `docker manifest inspect`: image absent → proceed
 //axhoc_completion
 Successful execution creates depot infrastructure with configured build bucket, container repository, Mason service account, and private worker pool — all derived from `(RBRD_CLOUD_PREFIX, RBRD_DEPOT_MONIKER)`.
 Proceed to
-{rbtgo_governor_mantle}
+{rbtgo_governor_enrobe}
 to create the
 {rbtr_governor}
 for this depot.

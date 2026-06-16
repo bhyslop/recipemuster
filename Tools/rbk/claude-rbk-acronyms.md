@@ -86,10 +86,10 @@
 - **RBSCN** → `rbk/vov_veiled/RBSCN-crucible_enjoin.adoc`
 - **RBSCO** → `rbk/vov_veiled/RBSCO-CosmologyIntro.adoc`
 - **RBSCTD** → `rbk/vov_veiled/RBSCTD-CloudBuildTriggerDispatch.adoc`
-- **RBSDD** → `rbk/vov_veiled/RBSDD-director_divest.adoc` (Governor divests a director SA — zero-arg by-role lookup)
+- **RBSDD** → `rbk/vov_veiled/RBSDD-director_defrock.adoc` (Governor defrocks a director SA — zero-arg by-role lookup)
 - **RBSDE** → `rbk/vov_veiled/RBSDE-depot_levy.adoc`
 - **RBSDI** → `rbk/vov_veiled/RBSDI-depot_inscribe.adoc` (Reliquary creation — director mirrors tool images to datestamped GAR namespace)
-- **RBSDK** → `rbk/vov_veiled/RBSDK-director_invest.adoc` (Governor invests a director SA — singleton-per-role)
+- **RBSDK** → `rbk/vov_veiled/RBSDK-director_enrobe.adoc` (Governor enrobes a director SA — singleton-per-role)
 - **RBSDL** → `rbk/vov_veiled/RBSDL-depot_list.adoc`
 - **RBSDN** → `rbk/vov_veiled/RBSDN-depot_initialize.adoc`
 - **RBSDR** → `rbk/vov_veiled/RBSDR-director_roster.adoc` (Governor rosters director SAs — fact-multi emission, presence-as-fact)
@@ -99,7 +99,7 @@
 - **RBSDY** → `rbk/vov_veiled/RBSDY-director_yoke.adoc` (Yoke operation — director validates a reliquary touchmark against GAR, then rewrites RBRV_RELIQUARY in rbrv.env)
 - **RBSFH** → `rbk/vov_veiled/RBSFH-dockerfile_hygiene.adoc` (Dockerfile Hygiene — FROM-line constraint enforced by rbfh, shared across kludge and conjure paths)
 - **RBSGD** → `rbk/vov_veiled/RBSGD-gdc_establish.adoc`
-- **RBSGM** → `rbk/vov_veiled/RBSGM-governor_mantle.adoc`
+- **RBSGM** → `rbk/vov_veiled/RBSGM-governor_enrobe.adoc`
 - **RBSGS** → `rbk/vov_veiled/RBSGS-GettingStarted.adoc`
 - **RBSHR** → `rbk/vov_veiled/RBSHR-HorizonRoadmap.adoc` (Horizon Roadmap - single collection point for defined-but-unscoped future work)
 - **RBSII** → `rbk/vov_veiled/RBSII-iptables_init.adoc`
@@ -125,9 +125,9 @@
 - **RBSPT** → `rbk/vov_veiled/RBSPT-port_setup.adoc`
 - **RBSQB** → `rbk/vov_veiled/RBSQB-quota_build.adoc`
 - **RBSRA** → `rbk/vov_veiled/RBSRA-CredentialFormat.adoc`
-- **RBSRD** → `rbk/vov_veiled/RBSRD-retriever_divest.adoc` (Governor divests a retriever SA — zero-arg by-role lookup)
+- **RBSRD** → `rbk/vov_veiled/RBSRD-retriever_defrock.adoc` (Governor defrocks a retriever SA — zero-arg by-role lookup)
 - **RBSRG** → `rbk/vov_veiled/RBSRG-RegimeGcbPins.adoc`
-- **RBSRK** → `rbk/vov_veiled/RBSRK-retriever_invest.adoc` (Governor invests a retriever SA — singleton-per-role)
+- **RBSRK** → `rbk/vov_veiled/RBSRK-retriever_enrobe.adoc` (Governor enrobes a retriever SA — singleton-per-role)
 - **RBSRL** → `rbk/vov_veiled/RBSRL-retriever_roster.adoc` (Governor rosters retriever SAs — fact-multi emission, presence-as-fact)
 - **RBRN**  → `rbk/vov_veiled/RBRN-RegimeNameplate.adoc`
 - **RBSRM** → `rbk/vov_veiled/RBSRM-RegimeMachine.adoc`

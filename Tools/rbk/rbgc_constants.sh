@@ -81,7 +81,7 @@ zrbgc_kindle() {
 
   # IAM-grant propagation retry — exponential-backoff budget shared by every
   # get-modify-set IAM grant site in rbgi_iam.sh plus the inline GAR retry in
-  # rbgg_invest_director. Recognizes three propagation classes against the
+  # rbgg_enrobe_director. Recognizes three propagation classes against the
   # same time budget: (A) forward member-visibility (HTTP 400 "does not
   # exist"), (B) backward member-visibility (HTTP 400 "is not deleted"),
   # (C) caller-recently-empowered (HTTP 403 from resource-scope IAM caches).

@@ -64,8 +64,8 @@ member.
   no long-running-operation handle (AIP-151 defines such a terminal-completion contract but it is not
   applied to this operation), so there is no pollable "deletion settled" signal at all — consecutive-404
   confirmation is the only available proxy.  A same-name recreate
-  ({rbtgo_retriever_invest} / {rbtgo_director_invest}) racing a still-lagging replica then trips the
-  invest existence preflight (200 → fail-loud "already exists").  Empirically observed where
+  ({rbtgo_retriever_enrobe} / {rbtgo_director_enrobe}) racing a still-lagging replica then trips the
+  enrobe existence preflight (200 → fail-loud "already exists").  Empirically observed where
   `rbuh_poll_until_gone` saw GET 200,200,404 and declared gone at 6s, then the recreate's preflight GET
   returned 200 two seconds later.  Mitigation: `rbuh_poll_until_gone` requires `RBGC_GONE_CONFIRM_STREAK`
   consecutive 404 observations before declaring the resource durably gone; any intervening 200 resets the
@@ -73,18 +73,18 @@ member.
   create-side flap (multi-replica read convergence after a parent mutation).  See evidence row below.
 
 * **Lifecycle split relocates both SA-churn races (keyfile tier)**: the
-  idempotent establish / re-key split (see {rbtgo_retriever_invest} and
-  {rbtgo_director_invest}) changes *when* the two races can fire.  The
+  idempotent establish / re-key split (see {rbtgo_retriever_enrobe} and
+  {rbtgo_director_enrobe}) changes *when* the two races can fire.  The
   **create→grant race** (Class A forward member-visibility, plus the org's
   Domain-Restricted-Sharing lag on a brand-new SA member) now fires only at
   *first establish* — once per identity, off the re-key hot path — because a
-  standing-depot re-invest rotates the key without minting a new SA.  The
+  standing-depot re-enrobe rotates the key without minting a new SA.  The
   **delete→recreate race** (the SA delete read-path flap above) is
   *structurally eliminated* for re-key: the SA is no longer deleted and
   recreated, so there is no same-name recreate to race a lagging replica.  The
   `RBGC_GONE_CONFIRM_STREAK` mitigation survives only for the path that still
-  deletes-then-reinvests — a genuine teardown ({rbtgo_retriever_divest} /
-  {rbtgo_director_divest}) followed later by a fresh invest — now rare rather
+  deletes-then-re-enrobes — a genuine teardown ({rbtgo_retriever_defrock} /
+  {rbtgo_director_defrock}) followed later by a fresh enrobe — now rare rather
   than per-cycle.  See
   `Memos/memo-20260604-credential-churn-leak-and-propagation-races.md`.
 
@@ -156,8 +156,8 @@ and any need for `roles/iam.serviceAccountTokenCreator` grants for the readiness
 |SA email read-path flaps 404→200 after delete; a single 404 is not durable proof of deletion
 |`Memos/memo-20260604-canonical-divest-delete-flap.md` -- transcript-level evidence, canonical depot `cancbhm-d-canest3bhm100001`, 2026-06-04
 
-|Resource-scope `getIamPolicy` on a *revoke* draws a Class-C 403 when the caller was just re-empowered (governor re-mantle); a single 403 is not denial
-|`Memos/memo-20260604-credential-churn-leak-and-propagation-races.md` (revoke-side addendum) -- transcript-level evidence, canonical depot `cancbhm-d-canest3bhm100001`, 2026-06-05: divest repo `getIamPolicy` 403 at 0/3/9/21/41/61s, 200 at 81s, then revoked with no `deleted:` tombstone
+|Resource-scope `getIamPolicy` on a *revoke* draws a Class-C 403 when the caller was just re-empowered (governor re-enrobe); a single 403 is not denial
+|`Memos/memo-20260604-credential-churn-leak-and-propagation-races.md` (revoke-side addendum) -- transcript-level evidence, canonical depot `cancbhm-d-canest3bhm100001`, 2026-06-05: defrock repo `getIamPolicy` 403 at 0/3/9/21/41/61s, 200 at 81s, then revoked with no `deleted:` tombstone
 |===
 
 ==== What Dies
@@ -186,7 +186,7 @@ and any need for `roles/iam.serviceAccountTokenCreator` grants for the readiness
 ==== Backoff Profile
 
 All IAM-grant propagation retries — every site in `rbgi_iam.sh` plus the
-inline GAR retry in `rbgg_invest_director` — use the same single profile
+inline GAR retry in `rbgg_enrobe_director` — use the same single profile
 locked in `rbgc_constants.sh`:
 
 * Initial delay: `RBGC_PROPAGATION_INITIAL_DELAY_SEC` (3 seconds)

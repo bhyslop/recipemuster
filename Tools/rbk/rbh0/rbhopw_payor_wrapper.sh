@@ -128,9 +128,9 @@ rbho_payor_handbook() {
   buh_tt  "  " "${RBZ_CHECK_DEPOT}" "" " \$(gcloud auth print-access-token)"
   buh_e
   buh_line "${RBYC_PAYOR} creates the Governor service account:"
-  buh_tt  "  " "${RBZ_MANTLE_GOVERNOR}"
+  buh_tt  "  " "${RBZ_ENROBE_GOVERNOR}"
   buh_e
-  buh_line "The mantle command writes the key file to its output directory"
+  buh_line "The enrobe command writes the key file to its output directory"
   buh_line "and prints two cp commands — one for production install, one"
   buh_line "for assay (test) mode."
   buh_e

@@ -109,7 +109,7 @@ permanently removes a {rbtgi_depot} and all its resources.
 The
 {rbtr_payor}
 then executes
-{rbtgo_governor_mantle}
+{rbtgo_governor_enrobe}
 to create the
 {rbtr_governor}
 service account within the
@@ -132,7 +132,7 @@ manages the roster of credentialed users throughout the
 lifecycle.
 While credential creation is typically infrequent, this administrative function remains active.
 
-{rbtgo_director_invest}
+{rbtgo_director_enrobe}
 provisions a
 {rbtr_director}
 service account, producing an
@@ -141,7 +141,7 @@ at the path specified by
 {rbrr_director_rbra_file}.
 Directors submit builds and manage images.
 
-{rbtgo_retriever_invest}
+{rbtgo_retriever_enrobe}
 provisions a
 {rbtr_retriever}
 service account, producing an
@@ -157,9 +157,9 @@ also maintains visibility into issued credentials through
 and
 {rbtgo_retriever_roster},
 and can revoke access through
-{rbtgo_director_divest}
+{rbtgo_director_defrock}
 or
-{rbtgo_retriever_divest}.
+{rbtgo_retriever_defrock}.
 
 == Credential Files
 
@@ -263,7 +263,7 @@ If
 credentials are compromised or need rotation, the
 {rbtr_payor}
 executes
-{rbtgo_governor_mantle}
+{rbtgo_governor_enrobe}
 to replace the existing
 {rbtr_governor}
 service account with a fresh one, generating new
@@ -273,8 +273,8 @@ credentials.
 To revoke a user's access, the
 {rbtr_governor}
 executes
-{rbtgo_director_divest}
+{rbtgo_director_defrock}
 or
-{rbtgo_retriever_divest}
+{rbtgo_retriever_defrock}
 for the target service account, invalidating the corresponding
 {rbtgi_rbra_file}.

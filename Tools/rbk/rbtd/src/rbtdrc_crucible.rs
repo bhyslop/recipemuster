@@ -2561,7 +2561,7 @@ pub static RBTDRC_FIXTURES: &[&'static rbtdre_Fixture] = &[
     &crate::rbtdrf_handbook::RBTDRF_FIXTURE_HANDBOOK_RENDER,
     &crate::rbtdrp_pristine::RBTDRP_FIXTURE_PRISTINE_LIFECYCLE,
     &crate::rbtdrk_canonical::RBTDRK_FIXTURE_CANONICAL_ESTABLISH,
-    &crate::rbtdrk_canonical::RBTDRK_FIXTURE_CANONICAL_INVEST,
+    &crate::rbtdrk_canonical::RBTDRK_FIXTURE_CANONICAL_ENROBE,
     &crate::rbtdro_onboarding::RBTDRO_FIXTURE_ONBOARDING_SEQUENCE,
     &crate::rbtdro_onboarding::RBTDRO_FIXTURE_KLUDGE_TADMOR,
     &crate::rbtdrd_dogfight::RBTDRD_FIXTURE_DOGFIGHT,
@@ -2704,7 +2704,7 @@ pub static RBTDRC_SUITES: &[rbtdre_Suite] = &[
         ],
     },
     // Skirmish — the "mini gauntlet": the depot→build→crucible chain WITHOUT
-    // project-ID churn. canonical-invest reuses a standing operator-levied depot
+    // project-ID churn. canonical-enrobe reuses a standing operator-levied depot
     // (no levy, no unmake) where the gauntlet's pristine-lifecycle/canonical-
     // establish each levy a fresh project; pristine-lifecycle is dropped
     // entirely. onboarding-sequence then builds the crucible images (local
@@ -2716,7 +2716,7 @@ pub static RBTDRC_SUITES: &[rbtdre_Suite] = &[
         name: "skirmish",
         fixtures: &[
             &crate::rbtdrf_fast::RBTDRF_FIXTURE_ENROLLMENT_VALIDATION,
-            &crate::rbtdrk_canonical::RBTDRK_FIXTURE_CANONICAL_INVEST,
+            &crate::rbtdrk_canonical::RBTDRK_FIXTURE_CANONICAL_ENROBE,
             &crate::rbtdro_onboarding::RBTDRO_FIXTURE_ONBOARDING_SEQUENCE,
             &crate::rbtdrf_fast::RBTDRF_FIXTURE_REGIME_VALIDATION,
             &crate::rbtdrf_fast::RBTDRF_FIXTURE_REGIME_SMOKE,
@@ -2736,16 +2736,16 @@ pub static RBTDRC_SUITES: &[rbtdre_Suite] = &[
     // Dogfight — standing-depot cloud-build viability probe. Sibling to skirmish
     // in the operator-precondition family (reuses a hand-levied depot, no levy,
     // no unmake) but charges NO crucible: it proves only the cloud-build →
-    // summon → run path yields a runnable artifact. canonical-invest leads
-    // exactly as it does in skirmish — re-mantling the governor and divest/re-
-    // investing retriever + director so the dogfight fixture finds fresh
+    // summon → run path yields a runnable artifact. canonical-enrobe leads
+    // exactly as it does in skirmish — re-mantling the governor and defrock/re-
+    // enrobing retriever + director so the dogfight fixture finds fresh
     // credentials; the dogfight fixture itself stays crucible-free. OPERATOR
     // PRECONDITION: a canonical depot already levied (the standing-depot setup
     // skirmish assumes).
     rbtdre_Suite {
         name: "dogfight",
         fixtures: &[
-            &crate::rbtdrk_canonical::RBTDRK_FIXTURE_CANONICAL_INVEST,
+            &crate::rbtdrk_canonical::RBTDRK_FIXTURE_CANONICAL_ENROBE,
             &crate::rbtdrd_dogfight::RBTDRD_FIXTURE_DOGFIGHT,
         ],
     },
@@ -2768,22 +2768,22 @@ pub static RBTDRC_SUITES: &[rbtdre_Suite] = &[
     // siege on the network-posture axis (siege = tether bottle, blockade =
     // airgap bottle), but unlike siege it is NOT fully local: moriah is
     // conjure-mode and auto-summons its hallmarks from the depot's GAR, so the
-    // charge needs a live Retriever SA. canonical-invest leads (exactly as in
-    // skirmish/dogfight) to re-mantle the Governor and re-invest Retriever +
+    // charge needs a live Retriever SA. canonical-enrobe leads (exactly as in
+    // skirmish/dogfight) to re-enrobe the Governor and re-enrobe Retriever +
     // Director against the standing operator-levied depot, so a shared-depot
     // host that has obsoleted this station's SAs no longer walls the summon
     // with a persistent Invalid JWT Signature. Then the moriah crucible charges
     // (auto-summoning its already-ordained conjure hallmarks), runs the security
     // cases, quenches. No kludge predecessor - conjure hallmarks come from GAR,
-    // not a local build. NOTE: like skirmish/dogfight, the governor mantle
-    // re-mantles the SHARED governor, which in turn obsoletes Retriever/Director
-    // SAs on other hosts until they re-invest. OPERATOR PRECONDITION: canonical
+    // not a local build. NOTE: like skirmish/dogfight, the governor enrobe
+    // re-enrobes the SHARED governor, which in turn obsoletes Retriever/Director
+    // SAs on other hosts until they re-enrobe. OPERATOR PRECONDITION: canonical
     // depot levied AND the moriah conjure hallmark already ordained into its GAR
-    // (canonical-invest heals credentials, not a missing hallmark).
+    // (canonical-enrobe heals credentials, not a missing hallmark).
     rbtdre_Suite {
         name: "blockade",
         fixtures: &[
-            &crate::rbtdrk_canonical::RBTDRK_FIXTURE_CANONICAL_INVEST,
+            &crate::rbtdrk_canonical::RBTDRK_FIXTURE_CANONICAL_ENROBE,
             &RBTDRC_FIXTURE_MORIAH,
         ],
     },

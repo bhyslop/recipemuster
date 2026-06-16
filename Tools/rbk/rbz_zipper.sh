@@ -36,12 +36,12 @@ zrbz_kindle() {
   # Accounts — Google Cloud service accounts (rbw-a)
   buz_group RBZ__GROUP_ACCOUNTS   "rbw-a"   "Accounts — Service account management"
   local z_mod="rbgp_cli.sh"
-  buz_enroll RBZ_MANTLE_GOVERNOR         "rbw-aM"  "${z_mod}" "rbgp_governor_mantle"       ""        "Create/replace governor service account"
+  buz_enroll RBZ_ENROBE_GOVERNOR         "rbw-aE"  "${z_mod}" "rbgp_enrobe_governor"       ""        "Enrobe (create/replace) governor service account"
   z_mod="rbgg_cli.sh"
-  buz_enroll RBZ_INVEST_RETRIEVER        "rbw-arI" "${z_mod}" "rbgg_invest_retriever"      "param1"  "Invest a Retriever service account for an identity"
-  buz_enroll RBZ_INVEST_DIRECTOR         "rbw-adI" "${z_mod}" "rbgg_invest_director"       "param1"  "Invest a Director service account for an identity"
-  buz_enroll RBZ_DIVEST_RETRIEVER        "rbw-arD" "${z_mod}" "rbgg_divest_retriever"      "param1"  "Divest a Retriever service account by identity"
-  buz_enroll RBZ_DIVEST_DIRECTOR         "rbw-adD" "${z_mod}" "rbgg_divest_director"       "param1"  "Divest a Director service account by identity"
+  buz_enroll RBZ_ENROBE_RETRIEVER        "rbw-arE" "${z_mod}" "rbgg_enrobe_retriever"      "param1"  "Enrobe a Retriever service account for an identity"
+  buz_enroll RBZ_ENROBE_DIRECTOR         "rbw-adE" "${z_mod}" "rbgg_enrobe_director"       "param1"  "Enrobe a Director service account for an identity"
+  buz_enroll RBZ_DEFROCK_RETRIEVER       "rbw-arF" "${z_mod}" "rbgg_defrock_retriever"     "param1"  "Defrock a Retriever service account by identity"
+  buz_enroll RBZ_DEFROCK_DIRECTOR        "rbw-adF" "${z_mod}" "rbgg_defrock_director"      "param1"  "Defrock a Director service account by identity"
   buz_enroll RBZ_ROSTER_RETRIEVERS       "rbw-arr" "${z_mod}" "rbgg_roster_retrievers"     ""        "Roster Retriever service accounts (emit per-identity fact files)"
   buz_enroll RBZ_ROSTER_DIRECTORS        "rbw-adr" "${z_mod}" "rbgg_roster_directors"      ""        "Roster Director service accounts (emit per-identity fact files)"
 

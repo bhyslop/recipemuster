@@ -93,14 +93,14 @@ pub const RBTDRM_FIXTURE_CUPEL: &str = "cupel";
 // Pristine-lifecycle fixture (gate + SA/depot lifecycle cases)
 pub const RBTDRM_FIXTURE_PRISTINE_LIFECYCLE: &str = "pristine-lifecycle";
 // Gauntlet canonical-establish fixture (§2: canonical depot levy + governor
-// mantle + retriever/director invest with per-case precondition probes)
+// enrobe + retriever/director enrobe with per-case precondition probes)
 pub const RBTDRM_FIXTURE_CANONICAL_ESTABLISH: &str = "canonical-establish";
-// Skirmish canonical-invest fixture — the no-levy variant of
-// canonical-establish. Reuses the three investiture cases (governor mantle +
-// retriever/director invest) against a depot the operator has already levied
+// Skirmish canonical-enrobe fixture — the no-levy variant of
+// canonical-establish. Reuses the three enrobe cases (governor enrobe +
+// retriever/director enrobe) against a depot the operator has already levied
 // by hand; omits depot-levy so the skirmish suite creates no GCP project per
 // run. Distinction from canonical-establish is precondition, not behavior.
-pub const RBTDRM_FIXTURE_CANONICAL_INVEST: &str = "canonical-invest";
+pub const RBTDRM_FIXTURE_CANONICAL_ENROBE: &str = "canonical-enrobe";
 // Gauntlet onboarding-sequence fixture (§3: handbook-walked vessel
 // construction — conclave reliquary, ensconce bases, kludge tadmor/ccyolo,
 // plus one ordain-* case per director-mode handbook track, build-only)
@@ -111,7 +111,7 @@ pub const RBTDRM_FIXTURE_ONBOARDING_SEQUENCE: &str = "onboarding-sequence";
 // its reliquary-touchmark witness probe — local kludge has no GCP/reliquary dep.
 pub const RBTDRM_FIXTURE_KLUDGE_TADMOR: &str = "kludge-tadmor";
 // Dogfight cloud-build viability fixture — standing-depot sibling to
-// canonical-invest, proving the cloud-build → summon → run path yields a
+// canonical-enrobe, proving the cloud-build → summon → run path yields a
 // runnable artifact with NO crucible charged (the orthogonal axis skirmish
 // covers). Ordains conjure-mode busybox, summons it, runs a degenerate
 // container-runtime command proving executability, then abjures.
@@ -207,30 +207,30 @@ pub fn rbtdrm_required_colophons(fixture: &str) -> Option<&'static [&'static str
             RBTDGC_LEVY_DEPOT,
             RBTDGC_LIST_DEPOT,
             RBTDGC_UNMAKE_DEPOT,
-            RBTDGC_MANTLE_GOVERNOR,
-            RBTDGC_INVEST_RETRIEVER,
-            RBTDGC_INVEST_DIRECTOR,
-            RBTDGC_DIVEST_RETRIEVER,
-            RBTDGC_DIVEST_DIRECTOR,
+            RBTDGC_ENROBE_GOVERNOR,
+            RBTDGC_ENROBE_RETRIEVER,
+            RBTDGC_ENROBE_DIRECTOR,
+            RBTDGC_DEFROCK_RETRIEVER,
+            RBTDGC_DEFROCK_DIRECTOR,
             RBTDGC_CHECK_RETRIEVER,
             RBTDGC_CHECK_DIRECTOR,
         ]),
         RBTDRM_FIXTURE_CANONICAL_ESTABLISH => Some(&[
             RBTDGC_LEVY_DEPOT,
             RBTDGC_LIST_DEPOT,
-            RBTDGC_MANTLE_GOVERNOR,
-            RBTDGC_INVEST_RETRIEVER,
-            RBTDGC_INVEST_DIRECTOR,
+            RBTDGC_ENROBE_GOVERNOR,
+            RBTDGC_ENROBE_RETRIEVER,
+            RBTDGC_ENROBE_DIRECTOR,
             RBTDGC_CHECK_RETRIEVER,
             RBTDGC_CHECK_DIRECTOR,
         ]),
-        // canonical-invest reuses canonical-establish's investiture cases sans
+        // canonical-enrobe reuses canonical-establish's enrobe cases sans
         // levy — same colophons minus LEVY_DEPOT (depot is operator-provided).
-        RBTDRM_FIXTURE_CANONICAL_INVEST => Some(&[
+        RBTDRM_FIXTURE_CANONICAL_ENROBE => Some(&[
             RBTDGC_LIST_DEPOT,
-            RBTDGC_MANTLE_GOVERNOR,
-            RBTDGC_INVEST_RETRIEVER,
-            RBTDGC_INVEST_DIRECTOR,
+            RBTDGC_ENROBE_GOVERNOR,
+            RBTDGC_ENROBE_RETRIEVER,
+            RBTDGC_ENROBE_DIRECTOR,
             RBTDGC_CHECK_RETRIEVER,
             RBTDGC_CHECK_DIRECTOR,
         ]),

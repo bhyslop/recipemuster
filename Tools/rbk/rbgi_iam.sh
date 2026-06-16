@@ -77,7 +77,7 @@ zrbgi_kindle() {
   readonly ZRBGI_INFIX_SECRET_IAM_SET="secret_iam_set"
 
   # Revoke (member removal) infixes — parallel the add-side SA/repo infixes so a
-  # grant and a revoke response capture never collide in a single invest+divest run.
+  # grant and a revoke response capture never collide in a single enrobe+defrock run.
   readonly ZRBGI_INFIX_SA_REVOKE="sa_revoke"
   readonly ZRBGI_INFIX_SA_REVOKE_SET="sa_revoke_set"
   readonly ZRBGI_INFIX_REPO_REVOKE="repo_revoke"
@@ -271,7 +271,7 @@ rbgi_add_project_iam_role() {
 
   # The setIamPolicy 200 is the authoritative grant confirmation: the policy was
   # written atomically with this binding. A post-set read-back verify loop was
-  # removed here. Against a standing depot, repeated divest/invest cycles leave
+  # removed here. Against a standing depot, repeated defrock/enrobe cycles leave
   # same-email `deleted:serviceAccount:...?uid=` tombstones in the policy (accepted
   # — re-levy is quota-limited), and the email→uid read reconciliation can lag the
   # getIamPolicy read past any bounded poll, producing a false timeout on a grant
@@ -553,7 +553,7 @@ rbgi_add_sa_iam_role() {
 # visible. The grant's setIamPolicy 200 is authoritative for the write, but a
 # freshly granted binding joins the Class-C propagation race — a consumer that
 # exercises it immediately (builds.create's actAs check against an
-# invest-fresh self-actAs binding) can die on a flap, not a defect. Visibility
+# enrobe-fresh self-actAs binding) can die on a flap, not a defect. Visibility
 # is the strongest pre-consumer signal available; confining the wait here
 # keeps consumer paths simple. Distinct from the project-scope post-set
 # read-back that was removed as non-load-bearing: there, same-email deleted:
@@ -874,7 +874,7 @@ rbgi_grant_secret_iam() {
 # long-established, so the member-visibility classes (400 forward "does not
 # exist" / backward "is not deleted") cannot fire on a revoke and are dropped.
 # Class C — caller-recently-empowered (403) — DOES fire: it is about the governor,
-# not the member, and a governor freshly re-mantled before a teardown has not yet
+# not the member, and a governor freshly re-enrobed before a teardown has not yet
 # propagated its roles/owner to the resource-scope IAM cache. So the
 # resource-scope revokes (repo, sa) retry the GET on 403 against the propagation
 # deadline; project-scope revoke needs none (project caches absorb governor
@@ -882,7 +882,7 @@ rbgi_grant_secret_iam() {
 # roles/owner permission as the GET, so once the GET clears the SET will not 403;
 # 409 stays fatal under the single-writer invariant, transient 5xx retried.
 # Removing an absent member is a jq no-op, so revoke is idempotent. Fatal on
-# failure like every regular function — divest calls them as ordinary commands.
+# failure like every regular function — defrock calls them as ordinary commands.
 
 # Revoke a project-scoped IAM member binding — inverse of rbgi_add_project_iam_role.
 rbgi_revoke_project_member() {
@@ -978,7 +978,7 @@ rbgi_revoke_repo_member() {
 
   buc_log_args 'Revoking repo-scoped IAM role' " ${z_role} from ${z_account_email} on ${z_location}/${z_repository}"
 
-  # GET with Class C (403) propagation retry only — a freshly-mantled governor's
+  # GET with Class C (403) propagation retry only — a freshly-enrobed governor's
   # read permission on this resource-scope target can lag the resource IAM cache.
   # The member-visibility classes (400) cannot fire on a revoke.
   local -ra z_tolerance=(
@@ -1069,7 +1069,7 @@ rbgi_revoke_sa_member() {
   z_target_encoded=$(rbuh_urlencode_capture "${z_target_sa_email}") || buc_die "Failed to encode SA email"
   local -r z_sa_resource="${RBGC_API_ROOT_IAM}${RBGC_IAM_V1}/projects/-/serviceAccounts/${z_target_encoded}"
 
-  # GET with Class C (403) propagation retry only — a freshly-mantled governor's
+  # GET with Class C (403) propagation retry only — a freshly-enrobed governor's
   # read permission on this resource-scope target can lag the resource IAM cache.
   # The member-visibility classes (400) cannot fire on a revoke.
   local -ra z_tolerance=(

@@ -18,9 +18,9 @@
 //
 // Proves the cloud-depot build-and-retrieve path yields a *runnable*
 // artifact, with no crucible apparatus. Standing-depot scenario fixture,
-// sibling to canonical-invest in the operator-precondition family: it reuses
+// sibling to canonical-enrobe in the operator-precondition family: it reuses
 // a depot the operator has levied by hand (no levy, no unmake) and assumes a
-// director + retriever already invested. It differs from the skirmish chain
+// director + retriever already enrobed. It differs from the skirmish chain
 // on the crucible axis — dogfight charges NO crucible. It proves only
 // build → summon → run viability, not containment (the crucible's orthogonal
 // concern).
@@ -74,7 +74,7 @@ fn rbtdrd_probe_root() -> Result<PathBuf, String> {
 }
 
 /// Precondition: director RBRA present at the canonical secrets path —
-/// evidence an operator has levied the standing depot and invested a director
+/// evidence an operator has levied the standing depot and enrobed a director
 /// (the role that ordains and abjures). Mirrors onboarding's governor-RBRA
 /// probe shape. The retriever credential summon needs is not separately
 /// probed; summon fails loud if it is absent.
@@ -118,7 +118,7 @@ fn rbtdrd_build_run_lifecycle(dir: &Path) -> rbtdre_Verdict {
         name: "director RBRA present",
         check: rbtdrd_probe_director_rbra,
         remediation:
-            "levy a standing depot and invest a director (canonical-invest or rbw-adI) before this fixture",
+            "levy a standing depot and enrobe a director (canonical-enrobe or rbw-adE) before this fixture",
     };
     if let Err(v) = rbtdrb_assert(&probe) {
         return v;

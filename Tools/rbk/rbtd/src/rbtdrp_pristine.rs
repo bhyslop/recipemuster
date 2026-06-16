@@ -37,9 +37,9 @@ use crate::rbtdri_invocation::{
     RBTDRI_BURE_CONFIRM_KEY, RBTDRI_BURE_CONFIRM_SKIP, RBTDRI_BURV_OUTPUT_SUBDIR,
 };
 use crate::rbtdgc_consts::{
-    RBTDGC_CHECK_DIRECTOR, RBTDGC_CHECK_RETRIEVER, RBTDGC_DIVEST_DIRECTOR,
-    RBTDGC_DIVEST_RETRIEVER, RBTDGC_INVEST_DIRECTOR, RBTDGC_INVEST_RETRIEVER,
-    RBTDGC_LEVY_DEPOT, RBTDGC_LIST_DEPOT, RBTDGC_MANTLE_GOVERNOR, RBTDGC_MOORINGS_DIR,
+    RBTDGC_CHECK_DIRECTOR, RBTDGC_CHECK_RETRIEVER, RBTDGC_DEFROCK_DIRECTOR,
+    RBTDGC_DEFROCK_RETRIEVER, RBTDGC_ENROBE_DIRECTOR, RBTDGC_ENROBE_RETRIEVER,
+    RBTDGC_LEVY_DEPOT, RBTDGC_LIST_DEPOT, RBTDGC_ENROBE_GOVERNOR, RBTDGC_MOORINGS_DIR,
     RBTDGC_RBRA_FILE, RBTDGC_RBRD_FILE, RBTDGC_RBRN_FILE, RBTDGC_RBRR_FILE,
     RBTDGC_ACCOUNT_ASSAY, RBTDGC_ACCOUNT_DIRECTOR, RBTDGC_ACCOUNT_GOVERNOR, RBTDGC_ACCOUNT_RETRIEVER,
     RBTDGC_UNMAKE_DEPOT,
@@ -90,7 +90,7 @@ pub(crate) const RBTDRP_FAMILY_STEM_ARC_BASE: &str = "pristl";
 /// Marshal-zero is the recovery between runs and blanks the field anyway.
 const RBTDRP_TEAR_DOWN_PLACEHOLDER_MONIKER: &str = "torndown";
 
-/// Static identities for the SA cycle case. The invest colophons compose
+/// Static identities for the SA cycle case. The enrobe colophons compose
 /// SA account names as `<role>-<identity>`; these are stable across runs
 /// because each run uses a fresh throwaway depot project.
 const RBTDRP_IDENTITY_RETRIEVER: &str = "pristl-ret";
@@ -118,7 +118,7 @@ const RBTDRP_FACT_EXT_DEPOT: &str = "depot";
 const RBTDRP_FACT_EXT_DEPOT_PROJECT: &str = "depot-project";
 
 /// Fact-file name for the governor SA email (mirror of
-/// RBGP_FACT_GOVERNOR_SA_EMAIL from rbgc_constants.sh). Read from the mantle
+/// RBGP_FACT_GOVERNOR_SA_EMAIL from rbgc_constants.sh). Read from the enrobe
 /// invocation's BURV output.
 const RBTDRP_FACT_GOVERNOR_SA_EMAIL: &str = "rbgp_fact_governor_sa_email";
 
@@ -127,7 +127,7 @@ const RBTDRP_FACT_GOVERNOR_SA_EMAIL: &str = "rbgp_fact_governor_sa_email";
 const RBTDRP_DELETE_REQUESTED: &str = "DELETE_REQUESTED";
 
 /// Roles whose RBRA credential files rblm_zero deletes, including the assay
-/// invest-drop slot — all projected from rbcc_constants.sh.
+/// enrobe-drop slot — all projected from rbcc_constants.sh.
 const RBTDRP_RBRA_ROLES: &[&str] = &[
     RBTDGC_ACCOUNT_GOVERNOR,
     RBTDGC_ACCOUNT_DIRECTOR,
@@ -830,10 +830,10 @@ fn rbtdrp_depot_stand_up_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_Ve
 // ── Case 3: SA cycle ─────────────────────────────────────────
 
 /// Case 3 — SA cycle. Pre-condition: depot stood up by case 2 (moniker in
-/// rbrd.env). Mantles governor (RBRA lands in BURV output; copy to canonical),
-/// then for each role: invest → copy assay → canonical → access-probe.
-/// Divests both roles in reverse order, verifies BBAAN's
-/// divest-deletes-production-RBRA contract via canonical-path absence checks.
+/// rbrd.env). Enrobes governor (RBRA lands in BURV output; copy to canonical),
+/// then for each role: enrobe → copy assay → canonical → access-probe.
+/// Defrocks both roles in reverse order, verifies BBAAN's
+/// defrock-deletes-production-RBRA contract via canonical-path absence checks.
 /// Best-effort cleanup of assay file at the end.
 fn rbtdrp_sa_cycle(dir: &Path) -> rbtdre_Verdict {
     rbtdrc_with_ctx(|ctx| rbtdrp_sa_cycle_impl(ctx, dir))
@@ -855,25 +855,25 @@ fn rbtdrp_sa_cycle_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_Verdict 
     };
     let _ = std::fs::write(dir.join("moniker.txt"), &moniker);
 
-    let mantle = match rbtdrp_invoke_logged(
+    let enrobe = match rbtdrp_invoke_logged(
         ctx,
-        RBTDGC_MANTLE_GOVERNOR,
+        RBTDGC_ENROBE_GOVERNOR,
         &[],
         &[],
         dir,
-        "mantle",
+        "enrobe",
     ) {
         Ok(r) => r,
-        Err(e) => return rbtdre_Verdict::Fail(format!("governor mantle: {}", e)),
+        Err(e) => return rbtdre_Verdict::Fail(format!("governor enrobe: {}", e)),
     };
-    if mantle.exit_code != 0 {
+    if enrobe.exit_code != 0 {
         return rbtdre_Verdict::Fail(format!(
-            "governor mantle exit {}\n{}",
-            mantle.exit_code, mantle.stderr
+            "governor enrobe exit {}\n{}",
+            enrobe.exit_code, enrobe.stderr
         ));
     }
 
-    let governor_email = match rbtdri_read_burv_fact(&mantle, RBTDRP_FACT_GOVERNOR_SA_EMAIL) {
+    let governor_email = match rbtdri_read_burv_fact(&enrobe, RBTDRP_FACT_GOVERNOR_SA_EMAIL) {
         Ok(s) => s,
         Err(e) => return rbtdre_Verdict::Fail(format!("read governor SA email fact: {}", e)),
     };
@@ -886,7 +886,7 @@ fn rbtdrp_sa_cycle_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_Verdict 
 
     if !assay_canonical.exists() {
         return rbtdre_Verdict::Fail(format!(
-            "assay RBRA absent after governor mantle: {}",
+            "assay RBRA absent after governor enrobe: {}",
             assay_canonical.display()
         ));
     }
@@ -912,28 +912,28 @@ fn rbtdrp_sa_cycle_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_Verdict 
         ));
     }
 
-    // Retriever: invest → assay → canonical → access-probe.
-    let invest_ret = match rbtdrp_invoke_logged(
+    // Retriever: enrobe → assay → canonical → access-probe.
+    let enrobe_ret = match rbtdrp_invoke_logged(
         ctx,
-        RBTDGC_INVEST_RETRIEVER,
+        RBTDGC_ENROBE_RETRIEVER,
         &[RBTDRP_IDENTITY_RETRIEVER],
         &[],
         dir,
-        "invest-retriever",
+        "enrobe-retriever",
     ) {
         Ok(r) => r,
-        Err(e) => return rbtdre_Verdict::Fail(format!("invest retriever: {}", e)),
+        Err(e) => return rbtdre_Verdict::Fail(format!("enrobe retriever: {}", e)),
     };
-    if invest_ret.exit_code != 0 {
+    if enrobe_ret.exit_code != 0 {
         return rbtdre_Verdict::Fail(format!(
-            "invest retriever exit {}\n{}",
-            invest_ret.exit_code, invest_ret.stderr
+            "enrobe retriever exit {}\n{}",
+            enrobe_ret.exit_code, enrobe_ret.stderr
         ));
     }
 
     if !assay_canonical.exists() {
         return rbtdre_Verdict::Fail(format!(
-            "assay RBRA absent after invest-retriever: {}",
+            "assay RBRA absent after enrobe-retriever: {}",
             assay_canonical.display()
         ));
     }
@@ -979,28 +979,28 @@ fn rbtdrp_sa_cycle_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_Verdict 
         ));
     }
 
-    // Director: invest → assay → canonical → access-probe.
-    let invest_dir = match rbtdrp_invoke_logged(
+    // Director: enrobe → assay → canonical → access-probe.
+    let enrobe_dir = match rbtdrp_invoke_logged(
         ctx,
-        RBTDGC_INVEST_DIRECTOR,
+        RBTDGC_ENROBE_DIRECTOR,
         &[RBTDRP_IDENTITY_DIRECTOR],
         &[],
         dir,
-        "invest-director",
+        "enrobe-director",
     ) {
         Ok(r) => r,
-        Err(e) => return rbtdre_Verdict::Fail(format!("invest director: {}", e)),
+        Err(e) => return rbtdre_Verdict::Fail(format!("enrobe director: {}", e)),
     };
-    if invest_dir.exit_code != 0 {
+    if enrobe_dir.exit_code != 0 {
         return rbtdre_Verdict::Fail(format!(
-            "invest director exit {}\n{}",
-            invest_dir.exit_code, invest_dir.stderr
+            "enrobe director exit {}\n{}",
+            enrobe_dir.exit_code, enrobe_dir.stderr
         ));
     }
 
     if !assay_canonical.exists() {
         return rbtdre_Verdict::Fail(format!(
-            "assay RBRA absent after invest-director: {}",
+            "assay RBRA absent after enrobe-director: {}",
             assay_canonical.display()
         ));
     }
@@ -1045,53 +1045,53 @@ fn rbtdrp_sa_cycle_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_Verdict 
         ));
     }
 
-    // Divests in reverse order.
-    let divest_dir = match rbtdrp_invoke_logged(
+    // Defrocks in reverse order.
+    let defrock_dir = match rbtdrp_invoke_logged(
         ctx,
-        RBTDGC_DIVEST_DIRECTOR,
+        RBTDGC_DEFROCK_DIRECTOR,
         &[RBTDRP_IDENTITY_DIRECTOR],
         &[],
         dir,
-        "divest-director",
+        "defrock-director",
     ) {
         Ok(r) => r,
-        Err(e) => return rbtdre_Verdict::Fail(format!("divest director: {}", e)),
+        Err(e) => return rbtdre_Verdict::Fail(format!("defrock director: {}", e)),
     };
-    if divest_dir.exit_code != 0 {
+    if defrock_dir.exit_code != 0 {
         return rbtdre_Verdict::Fail(format!(
-            "divest director exit {}\n{}",
-            divest_dir.exit_code, divest_dir.stderr
+            "defrock director exit {}\n{}",
+            defrock_dir.exit_code, defrock_dir.stderr
         ));
     }
     if director_canonical.exists() {
         return rbtdre_Verdict::Fail(format!(
-            "director canonical RBRA still present after divest: {} \
-             (BBAAN divest-deletes-production-RBRA contract violated)",
+            "director canonical RBRA still present after defrock: {} \
+             (BBAAN defrock-deletes-production-RBRA contract violated)",
             director_canonical.display()
         ));
     }
 
-    let divest_ret = match rbtdrp_invoke_logged(
+    let defrock_ret = match rbtdrp_invoke_logged(
         ctx,
-        RBTDGC_DIVEST_RETRIEVER,
+        RBTDGC_DEFROCK_RETRIEVER,
         &[RBTDRP_IDENTITY_RETRIEVER],
         &[],
         dir,
-        "divest-retriever",
+        "defrock-retriever",
     ) {
         Ok(r) => r,
-        Err(e) => return rbtdre_Verdict::Fail(format!("divest retriever: {}", e)),
+        Err(e) => return rbtdre_Verdict::Fail(format!("defrock retriever: {}", e)),
     };
-    if divest_ret.exit_code != 0 {
+    if defrock_ret.exit_code != 0 {
         return rbtdre_Verdict::Fail(format!(
-            "divest retriever exit {}\n{}",
-            divest_ret.exit_code, divest_ret.stderr
+            "defrock retriever exit {}\n{}",
+            defrock_ret.exit_code, defrock_ret.stderr
         ));
     }
     if retriever_canonical.exists() {
         return rbtdre_Verdict::Fail(format!(
-            "retriever canonical RBRA still present after divest: {} \
-             (BBAAN divest-deletes-production-RBRA contract violated)",
+            "retriever canonical RBRA still present after defrock: {} \
+             (BBAAN defrock-deletes-production-RBRA contract violated)",
             retriever_canonical.display()
         ));
     }

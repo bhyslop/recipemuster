@@ -19,9 +19,9 @@
 // Establishes long-lived canonical state the gauntlet's downstream fixtures
 // inherit:
 //   1. depot_levy        — install canonical RBRR prefixes; levy a fresh canest depot
-//   2. governor_mantle   — mantle governor against the canonical depot
-//   3. retriever_invest  — invest a canonical retriever SA + access-probe
-//   4. director_invest   — invest a canonical director SA + access-probe
+//   2. governor_enrobe   — enrobe governor against the canonical depot
+//   3. retriever_enrobe  — enrobe a canonical retriever SA + access-probe
+//   4. director_enrobe   — enrobe a canonical director SA + access-probe
 //
 // Disposition: StateProgressing. Each case carries a precondition probe via
 // rbtdrb_Probe so a-la-carte single-case rerun fails cleanly when an earlier
@@ -41,13 +41,13 @@ use crate::rbtdri_invocation::{
     rbtdri_InvokeResult, RBTDRI_BURV_OUTPUT_SUBDIR,
 };
 use crate::rbtdgc_consts::{
-    RBTDGC_DIVEST_DIRECTOR,
-    RBTDGC_DIVEST_RETRIEVER,
-    RBTDGC_INVEST_DIRECTOR,
-    RBTDGC_INVEST_RETRIEVER,
+    RBTDGC_DEFROCK_DIRECTOR,
+    RBTDGC_DEFROCK_RETRIEVER,
+    RBTDGC_ENROBE_DIRECTOR,
+    RBTDGC_ENROBE_RETRIEVER,
     RBTDGC_LEVY_DEPOT,
     RBTDGC_LIST_DEPOT,
-    RBTDGC_MANTLE_GOVERNOR,
+    RBTDGC_ENROBE_GOVERNOR,
     RBTDGC_RBRA_FILE,
     RBTDGC_RBRD_FILE,
     RBTDGC_RBRR_FILE,
@@ -59,7 +59,7 @@ use crate::rbtdgc_consts::{
 use crate::rbtdrm_manifest::{
     rbtdrm_credential_check_colophon,
     RBTDRM_FIXTURE_CANONICAL_ESTABLISH,
-    RBTDRM_FIXTURE_CANONICAL_INVEST,
+    RBTDRM_FIXTURE_CANONICAL_ENROBE,
 };
 
 // ── Canonical-fixture identities ─────────────────────────────
@@ -433,7 +433,7 @@ fn rbtdrk_probe_canonical_moniker() -> Result<(), String> {
 }
 
 /// Cases 3 and 4 probe: governor RBRA file present at the canonical path.
-/// Established by case 2's mantle + canonical-copy step.
+/// Established by case 2's enrobe + canonical-copy step.
 fn rbtdrk_probe_governor_rbra() -> Result<(), String> {
     let root = rbtdrk_probe_root()?;
     let path = rbtdrk_canonical_rbra(&root, RBTDGC_ACCOUNT_GOVERNOR)?;
@@ -575,10 +575,10 @@ fn rbtdrk_depot_levy_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_Verdic
     rbtdre_Verdict::Pass
 }
 
-/// Case 2 — governor mantle. Mantles governor against the canonical depot,
+/// Case 2 — governor enrobe. Enrobes governor against the canonical depot,
 /// reads the SA email fact, copies governor RBRA from BURV output to the
 /// canonical path under RBRR_SECRETS_DIR.
-fn rbtdrk_governor_mantle(dir: &Path) -> rbtdre_Verdict {
+fn rbtdrk_governor_enrobe(dir: &Path) -> rbtdre_Verdict {
     let probe = rbtdrb_Probe {
         name: "canonical depot moniker installed",
         check: rbtdrk_probe_canonical_moniker,
@@ -587,10 +587,10 @@ fn rbtdrk_governor_mantle(dir: &Path) -> rbtdre_Verdict {
     if let Err(v) = rbtdrb_assert(&probe) {
         return v;
     }
-    rbtdrc_with_ctx(|ctx| rbtdrk_governor_mantle_impl(ctx, dir))
+    rbtdrc_with_ctx(|ctx| rbtdrk_governor_enrobe_impl(ctx, dir))
 }
 
-fn rbtdrk_governor_mantle_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_Verdict {
+fn rbtdrk_governor_enrobe_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_Verdict {
     let root = ctx.project_root().to_path_buf();
 
     let assay = match rbtdrk_canonical_rbra(&root, RBTDGC_ACCOUNT_ASSAY) {
@@ -598,25 +598,25 @@ fn rbtdrk_governor_mantle_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_V
         Err(e) => return rbtdre_Verdict::Fail(format!("canonical assay RBRA path: {}", e)),
     };
 
-    let mantle = match rbtdrk_invoke_logged(
+    let enrobe = match rbtdrk_invoke_logged(
         ctx,
-        RBTDGC_MANTLE_GOVERNOR,
+        RBTDGC_ENROBE_GOVERNOR,
         &[],
         &[],
         dir,
-        "mantle",
+        "enrobe",
     ) {
         Ok(r) => r,
-        Err(e) => return rbtdre_Verdict::Fail(format!("governor mantle: {}", e)),
+        Err(e) => return rbtdre_Verdict::Fail(format!("governor enrobe: {}", e)),
     };
-    if mantle.exit_code != 0 {
+    if enrobe.exit_code != 0 {
         return rbtdre_Verdict::Fail(format!(
-            "governor mantle exit {}\n{}",
-            mantle.exit_code, mantle.stderr
+            "governor enrobe exit {}\n{}",
+            enrobe.exit_code, enrobe.stderr
         ));
     }
 
-    let email = match rbtdri_read_burv_fact(&mantle, RBTDRK_FACT_GOVERNOR_SA_EMAIL) {
+    let email = match rbtdri_read_burv_fact(&enrobe, RBTDRK_FACT_GOVERNOR_SA_EMAIL) {
         Ok(s) => s,
         Err(e) => return rbtdre_Verdict::Fail(format!("read governor SA email fact: {}", e)),
     };
@@ -624,7 +624,7 @@ fn rbtdrk_governor_mantle_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_V
 
     if !assay.exists() {
         return rbtdre_Verdict::Fail(format!(
-            "assay RBRA absent after governor mantle: {}",
+            "assay RBRA absent after governor enrobe: {}",
             assay.display()
         ));
     }
@@ -652,126 +652,126 @@ fn rbtdrk_governor_mantle_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_V
     rbtdre_Verdict::Pass
 }
 
-/// Case 3 — retriever invest + access-probe. The access-probe doubles as the
-/// IAM-propagation gate: the invest tabtarget is responsible for waiting on
+/// Case 3 — retriever enrobe + access-probe. The access-probe doubles as the
+/// IAM-propagation gate: the enrobe tabtarget is responsible for waiting on
 /// propagation before exiting (or the probe iterates internally). No separate
 /// propagation-wait case.
-fn rbtdrk_retriever_invest(dir: &Path) -> rbtdre_Verdict {
+fn rbtdrk_retriever_enrobe(dir: &Path) -> rbtdre_Verdict {
     let probe = rbtdrb_Probe {
         name: "governor RBRA present",
         check: rbtdrk_probe_governor_rbra,
-        remediation: "rerun rbtdrk_governor_mantle or the full canonical-establish fixture",
+        remediation: "rerun rbtdrk_governor_enrobe or the full canonical-establish fixture",
     };
     if let Err(v) = rbtdrb_assert(&probe) {
         return v;
     }
     rbtdrc_with_ctx(|ctx| {
-        rbtdrk_role_invest_impl(
+        rbtdrk_role_enrobe_impl(
             ctx,
             dir,
-            RBTDGC_INVEST_RETRIEVER,
+            RBTDGC_ENROBE_RETRIEVER,
             RBTDRK_IDENTITY_RETRIEVER,
             RBTDGC_ACCOUNT_RETRIEVER,
         )
     })
 }
 
-/// Case 4 — director invest + access-probe.
-fn rbtdrk_director_invest(dir: &Path) -> rbtdre_Verdict {
+/// Case 4 — director enrobe + access-probe.
+fn rbtdrk_director_enrobe(dir: &Path) -> rbtdre_Verdict {
     let probe = rbtdrb_Probe {
         name: "governor RBRA present",
         check: rbtdrk_probe_governor_rbra,
-        remediation: "rerun rbtdrk_governor_mantle or the full canonical-establish fixture",
+        remediation: "rerun rbtdrk_governor_enrobe or the full canonical-establish fixture",
     };
     if let Err(v) = rbtdrb_assert(&probe) {
         return v;
     }
     rbtdrc_with_ctx(|ctx| {
-        rbtdrk_role_invest_impl(
+        rbtdrk_role_enrobe_impl(
             ctx,
             dir,
-            RBTDGC_INVEST_DIRECTOR,
+            RBTDGC_ENROBE_DIRECTOR,
             RBTDRK_IDENTITY_DIRECTOR,
             RBTDGC_ACCOUNT_DIRECTOR,
         )
     })
 }
 
-/// Shared divest body: invoke the divest colophon for the identity, 404-tolerant
-/// (the standing SA may be present or already gone). Exercises rbgg_divest_*'s
-/// revoke-before-delete and poll_until_gone debounce, so the following invest
+/// Shared defrock body: invoke the defrock colophon for the identity, 404-tolerant
+/// (the standing SA may be present or already gone). Exercises rbgg_defrock_*'s
+/// revoke-before-delete and poll_until_gone debounce, so the following enrobe
 /// hits the create branch against a durably-gone SA.
-fn rbtdrk_role_divest_impl(
+fn rbtdrk_role_defrock_impl(
     ctx: &mut rbtdri_Context,
     dir: &Path,
-    divest_colophon: &str,
+    defrock_colophon: &str,
     identity: &str,
     role: &str,
 ) -> rbtdre_Verdict {
-    let label = format!("divest-{}", role);
-    let divest = match rbtdrk_invoke_logged(ctx, divest_colophon, &[identity], &[], dir, &label) {
+    let label = format!("defrock-{}", role);
+    let defrock = match rbtdrk_invoke_logged(ctx, defrock_colophon, &[identity], &[], dir, &label) {
         Ok(r) => r,
-        Err(e) => return rbtdre_Verdict::Fail(format!("divest {}: {}", role, e)),
+        Err(e) => return rbtdre_Verdict::Fail(format!("defrock {}: {}", role, e)),
     };
-    if divest.exit_code != 0 {
+    if defrock.exit_code != 0 {
         return rbtdre_Verdict::Fail(format!(
-            "divest {} exit {}\n{}",
-            role, divest.exit_code, divest.stderr
+            "defrock {} exit {}\n{}",
+            role, defrock.exit_code, defrock.stderr
         ));
     }
     rbtdre_Verdict::Pass
 }
 
-/// Case — director divest. Clears the standing director SA (revoke bindings →
-/// delete) so the following director invest exercises the create branch.
-fn rbtdrk_director_divest(dir: &Path) -> rbtdre_Verdict {
+/// Case — director defrock. Clears the standing director SA (revoke bindings →
+/// delete) so the following director enrobe exercises the create branch.
+fn rbtdrk_director_defrock(dir: &Path) -> rbtdre_Verdict {
     let probe = rbtdrb_Probe {
         name: "governor RBRA present",
         check: rbtdrk_probe_governor_rbra,
-        remediation: "rerun rbtdrk_governor_mantle or the full canonical-establish fixture",
+        remediation: "rerun rbtdrk_governor_enrobe or the full canonical-establish fixture",
     };
     if let Err(v) = rbtdrb_assert(&probe) {
         return v;
     }
     rbtdrc_with_ctx(|ctx| {
-        rbtdrk_role_divest_impl(
+        rbtdrk_role_defrock_impl(
             ctx,
             dir,
-            RBTDGC_DIVEST_DIRECTOR,
+            RBTDGC_DEFROCK_DIRECTOR,
             RBTDRK_IDENTITY_DIRECTOR,
             RBTDGC_ACCOUNT_DIRECTOR,
         )
     })
 }
 
-/// Case — retriever divest. Clears the standing retriever SA (revoke bindings →
-/// delete) so the following retriever invest exercises the create branch.
-fn rbtdrk_retriever_divest(dir: &Path) -> rbtdre_Verdict {
+/// Case — retriever defrock. Clears the standing retriever SA (revoke bindings →
+/// delete) so the following retriever enrobe exercises the create branch.
+fn rbtdrk_retriever_defrock(dir: &Path) -> rbtdre_Verdict {
     let probe = rbtdrb_Probe {
         name: "governor RBRA present",
         check: rbtdrk_probe_governor_rbra,
-        remediation: "rerun rbtdrk_governor_mantle or the full canonical-establish fixture",
+        remediation: "rerun rbtdrk_governor_enrobe or the full canonical-establish fixture",
     };
     if let Err(v) = rbtdrb_assert(&probe) {
         return v;
     }
     rbtdrc_with_ctx(|ctx| {
-        rbtdrk_role_divest_impl(
+        rbtdrk_role_defrock_impl(
             ctx,
             dir,
-            RBTDGC_DIVEST_RETRIEVER,
+            RBTDGC_DEFROCK_RETRIEVER,
             RBTDRK_IDENTITY_RETRIEVER,
             RBTDGC_ACCOUNT_RETRIEVER,
         )
     })
 }
 
-/// Shared invest body for retriever and director: invest → assert assay
-/// dropped by the invest tabtarget → copy to canonical role path → access-probe.
-fn rbtdrk_role_invest_impl(
+/// Shared enrobe body for retriever and director: enrobe → assert assay
+/// dropped by the enrobe tabtarget → copy to canonical role path → access-probe.
+fn rbtdrk_role_enrobe_impl(
     ctx: &mut rbtdri_Context,
     dir: &Path,
-    invest_colophon: &str,
+    enrobe_colophon: &str,
     identity: &str,
     role: &str,
 ) -> rbtdre_Verdict {
@@ -782,32 +782,32 @@ fn rbtdrk_role_invest_impl(
         Err(e) => return rbtdre_Verdict::Fail(format!("canonical assay RBRA path: {}", e)),
     };
 
-    // Invest is idempotent (RBSRK/RBSDK): a standing-depot rerun rotates the key
-    // on the existing SA; a freshly-levied depot creates it. Either way the invest
+    // Enrobe is idempotent (RBSRK/RBSDK): a standing-depot rerun rotates the key
+    // on the existing SA; a freshly-levied depot creates it. Either way the enrobe
     // tabtarget drops the assay RBRA.
 
-    let label_invest = format!("invest-{}", role);
-    let invest = match rbtdrk_invoke_logged(
+    let label_enrobe = format!("enrobe-{}", role);
+    let enrobe = match rbtdrk_invoke_logged(
         ctx,
-        invest_colophon,
+        enrobe_colophon,
         &[identity],
         &[],
         dir,
-        &label_invest,
+        &label_enrobe,
     ) {
         Ok(r) => r,
-        Err(e) => return rbtdre_Verdict::Fail(format!("invest {}: {}", role, e)),
+        Err(e) => return rbtdre_Verdict::Fail(format!("enrobe {}: {}", role, e)),
     };
-    if invest.exit_code != 0 {
+    if enrobe.exit_code != 0 {
         return rbtdre_Verdict::Fail(format!(
-            "invest {} exit {}\n{}",
-            role, invest.exit_code, invest.stderr
+            "enrobe {} exit {}\n{}",
+            role, enrobe.exit_code, enrobe.stderr
         ));
     }
 
     if !assay.exists() {
         return rbtdre_Verdict::Fail(format!(
-            "assay RBRA absent after invest-{}: {}",
+            "assay RBRA absent after enrobe-{}: {}",
             role,
             assay.display()
         ));
@@ -868,9 +868,9 @@ fn rbtdrk_role_invest_impl(
 
 pub static RBTDRK_CASES_CANONICAL_ESTABLISH: &[rbtdre_Case] = &[
     case!(rbtdrk_depot_levy),
-    case!(rbtdrk_governor_mantle),
-    case!(rbtdrk_retriever_invest),
-    case!(rbtdrk_director_invest),
+    case!(rbtdrk_governor_enrobe),
+    case!(rbtdrk_retriever_enrobe),
+    case!(rbtdrk_director_enrobe),
 ];
 
 pub static RBTDRK_FIXTURE_CANONICAL_ESTABLISH: rbtdre_Fixture = rbtdre_Fixture {
@@ -882,31 +882,31 @@ pub static RBTDRK_FIXTURE_CANONICAL_ESTABLISH: rbtdre_Fixture = rbtdre_Fixture {
     credless: false,
 };
 
-// canonical-invest — the no-levy recycle variant shared by skirmish, dogfight,
+// canonical-enrobe — the no-levy recycle variant shared by skirmish, dogfight,
 // and blockade. Runs against a depot the operator has levied by hand (no GCP
-// project created per run). After re-mantling the governor it divests then
-// re-invests retriever + director, so every run exercises the full teardown →
-// reinvest cycle: rbgg_divest_*'s revoke-before-delete and poll_until_gone
-// debounce, then the invest create branch against a durably-gone SA. This
+// project created per run). After re-mantling the governor it defrocks then
+// re-enrobes retriever + director, so every run exercises the full teardown →
+// re-enrobe cycle: rbgg_defrock_*'s revoke-before-delete and poll_until_gone
+// debounce, then the enrobe create branch against a durably-gone SA. This
 // deliberately stresses the IAM eventual-consistency edges (the delete→recreate
 // read-flap) on every run. Each case carries its own precondition probe
-// (governor mantle probes the standing depot's moniker; divest/invest probe the
-// governor). Divest runs in reverse role order, invest in forward order. Sharing
+// (governor enrobe probes the standing depot's moniker; defrock/enrobe probe the
+// governor). Defrock runs in reverse role order, enrobe in forward order. Sharing
 // the case fns is the same provenance-vs-behavior split tadmor/moriah exploit
 // with RBTDRC_CASES_SECURITY.
-pub static RBTDRK_CASES_CANONICAL_INVEST: &[rbtdre_Case] = &[
-    case!(rbtdrk_governor_mantle),
-    case!(rbtdrk_director_divest),
-    case!(rbtdrk_retriever_divest),
-    case!(rbtdrk_retriever_invest),
-    case!(rbtdrk_director_invest),
+pub static RBTDRK_CASES_CANONICAL_ENROBE: &[rbtdre_Case] = &[
+    case!(rbtdrk_governor_enrobe),
+    case!(rbtdrk_director_defrock),
+    case!(rbtdrk_retriever_defrock),
+    case!(rbtdrk_retriever_enrobe),
+    case!(rbtdrk_director_enrobe),
 ];
 
-pub static RBTDRK_FIXTURE_CANONICAL_INVEST: rbtdre_Fixture = rbtdre_Fixture {
-    name: RBTDRM_FIXTURE_CANONICAL_INVEST,
+pub static RBTDRK_FIXTURE_CANONICAL_ENROBE: rbtdre_Fixture = rbtdre_Fixture {
+    name: RBTDRM_FIXTURE_CANONICAL_ENROBE,
     disposition: rbtdre_Disposition::StateProgressing,
     setup: None,
     teardown: None,
-    cases: RBTDRK_CASES_CANONICAL_INVEST,
+    cases: RBTDRK_CASES_CANONICAL_ENROBE,
     credless: false,
 };

@@ -1,7 +1,7 @@
 //axhob_operation
-{rbtgo_director_invest}
+{rbtgo_director_enrobe}
 
-NOTE: This operation invests a
+NOTE: This operation enrobes a
 {rbtr_director}
 {giam_service_account}
 into the
@@ -173,4 +173,4 @@ repository IAM set with all expected bindings
 `«DIRECTOR_RBRA_FILE»` RBRA bytes to the assay output slot via the producer-output discipline (the orphan's `${BURD_OUTPUT_DIR}` credential write retires)
 
 //axhoc_completion
-Successful execution invests director service account `«DIRECTOR_ACCOUNT_NAME»` with build management permissions, generates its credential key, and writes the RBRA file to the assay output slot.
+Successful execution enrobes director service account `«DIRECTOR_ACCOUNT_NAME»` with build management permissions, generates its credential key, and writes the RBRA file to the assay output slot.

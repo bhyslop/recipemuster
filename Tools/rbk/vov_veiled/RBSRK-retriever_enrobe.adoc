@@ -1,7 +1,7 @@
 //axhob_operation
-{rbtgo_retriever_invest}
+{rbtgo_retriever_enrobe}
 
-NOTE: This operation invests a
+NOTE: This operation enrobes a
 {rbtr_retriever}
 {giam_service_account}
 into the
@@ -118,4 +118,4 @@ IAM policy update successful
 `«RETRIEVER_RBRA_FILE»` RBRA bytes to the assay output slot via the producer-output discipline (the orphan's `${BURD_OUTPUT_DIR}` credential write retires)
 
 //axhoc_completion
-Successful execution invests retriever service account `«RETRIEVER_ACCOUNT_NAME»` with read-only Artifact Registry access, generates its credential key, and delivers the RBRA credential bytes to the assay output slot.
+Successful execution enrobes retriever service account `«RETRIEVER_ACCOUNT_NAME»` with read-only Artifact Registry access, generates its credential key, and delivers the RBRA credential bytes to the assay output slot.

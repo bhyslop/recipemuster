@@ -594,9 +594,9 @@ rbgg_roster_directors() {
 }
 
 # Retriever capability-set — the role's resource-grant list as named code.
-# Applied to z_member_email: the invested retriever SA today, the retriever
+# Applied to z_member_email: the enrobed retriever SA today, the retriever
 # mantle SA at levy. The member is the only per-call variable; the grant
-# sequence is the invest body's verbatim.
+# sequence is the enrobe body's verbatim.
 zrbgg_grant_retriever_capabilities() {
   zrbgg_sentinel
 
@@ -626,7 +626,7 @@ zrbgg_grant_retriever_capabilities() {
 }
 
 # Director capability-set — the role's resource-grant list as named code.
-# Applied to z_member_email: the invested director SA today, the director mantle
+# Applied to z_member_email: the enrobed director SA today, the director mantle
 # SA at levy. Heterogeneous by nature (project grants, Mason and self actAs, a
 # self-actAs read-back poll, the complete AR repo-policy ceremony) — which is why
 # it is a function, not a flat list. The member is the only per-call variable.
@@ -676,10 +676,10 @@ zrbgg_grant_director_capabilities() {
   # is needed because Director already holds repoAdmin.
   rbgi_add_sa_iam_role "${z_token}" "${z_member_email}" "${z_member_email}" "roles/iam.serviceAccountUser"
 
-  buc_step 'Read-back: confirm self-actAs binding visible before declaring invest complete'
-  # The first post-invest builds.create exercises this binding (the spine
+  buc_step 'Read-back: confirm self-actAs binding visible before declaring enrobe complete'
+  # The first post-enrobe builds.create exercises this binding (the spine
   # dispatch has no tolerance for a PERMISSION_DENIED actAs flap), so the
-  # Class-C propagation wait is confined here, invest-side, rather than
+  # Class-C propagation wait is confined here, enrobe-side, rather than
   # spread to every spine rider's submit path.
   rbgi_poll_sa_iam_binding "${z_token}" "${z_member_email}" "${z_member_email}" "roles/iam.serviceAccountUser"
 
@@ -769,12 +769,12 @@ zrbgg_grant_director_capabilities() {
   done
 }
 
-rbgg_invest_retriever() {
+rbgg_enrobe_retriever() {
   zrbgg_sentinel
 
   local z_identity="${BUZ_FOLIO:-}"
 
-  buc_doc_brief "Invest a Retriever service account for an identity"
+  buc_doc_brief "Enrobe a Retriever service account for an identity"
   buc_doc_param "identity" "Identity (required) — composes ${RBCC_account_retriever}-<identity>"
   buc_doc_shown || return 0
 
@@ -783,7 +783,7 @@ rbgg_invest_retriever() {
   local z_account_name="${RBCC_account_retriever}-${z_identity}"
   local z_account_email="${z_account_name}@${RBGD_SA_EMAIL_FULL}"
 
-  buc_step "Investing Retriever service account: ${z_account_name}"
+  buc_step "Enrobing Retriever service account: ${z_account_name}"
 
   zrbgg_create_service_account_with_key                                          \
     "${z_account_name}"                                                        \
@@ -799,17 +799,17 @@ rbgg_invest_retriever() {
   buc_info "RBRA file written: ${RBDC_ASSAY_RBRA_FILE}"
   buc_info ""
   buc_info "Move the RBRA file to a safe place — typically delivered to the"
-  buc_info "operator who consumes this identity. When the invester is also the"
+  buc_info "operator who consumes this identity. When the enrober is also the"
   buc_info "consumer, the local role slot is the canonical destination:"
   buc_bare "        mv ${RBDC_ASSAY_RBRA_FILE} ${RBDC_RETRIEVER_RBRA_FILE}"
 }
 
-rbgg_invest_director() {
+rbgg_enrobe_director() {
   zrbgg_sentinel
 
   local z_identity="${BUZ_FOLIO:-}"
 
-  buc_doc_brief "Invest a Director service account for an identity"
+  buc_doc_brief "Enrobe a Director service account for an identity"
   buc_doc_param "identity" "Identity (required) — composes ${RBCC_account_director}-<identity>"
   buc_doc_shown || return 0
 
@@ -818,7 +818,7 @@ rbgg_invest_director() {
   local z_account_name="${RBCC_account_director}-${z_identity}"
   local z_account_email="${z_account_name}@${RBGD_SA_EMAIL_FULL}"
 
-  buc_step "Investing Director service account: ${z_account_name}"
+  buc_step "Enrobing Director service account: ${z_account_name}"
 
   zrbgg_create_service_account_with_key                      \
     "${z_account_name}"                                    \
@@ -835,14 +835,14 @@ rbgg_invest_director() {
   buc_info "RBRA file written: ${RBDC_ASSAY_RBRA_FILE}"
   buc_info ""
   buc_info "Move the RBRA file to a safe place — typically delivered to the"
-  buc_info "operator who consumes this identity. When the invester is also the"
+  buc_info "operator who consumes this identity. When the enrober is also the"
   buc_info "consumer, the local role slot is the canonical destination:"
   buc_bare "        mv ${RBDC_ASSAY_RBRA_FILE} ${RBDC_DIRECTOR_RBRA_FILE}"
 }
 
-# Divest a single role+identity: synthesize email, DELETE (404-tolerant),
+# Defrock a single role+identity: synthesize email, DELETE (404-tolerant),
 # opportunistic role-RBRA cleanup only on email match.
-zrbgg_divest_role() {
+zrbgg_defrock_role() {
   zrbgg_sentinel
 
   local -r z_role="$1"
@@ -851,7 +851,7 @@ zrbgg_divest_role() {
 
   local z_account_email="${z_role}-${z_identity}@${RBGD_SA_EMAIL_FULL}"
 
-  buc_step "Divesting service account: ${z_account_email}"
+  buc_step "Defrocking service account: ${z_account_email}"
 
   buc_log_args 'Get OAuth token from admin'
   local z_token
@@ -866,7 +866,7 @@ zrbgg_divest_role() {
   buc_log_args 'Confirm deletion propagated before any same-name recreate'
   # When the DELETE actually removed an SA, wait until the GET path reports it
   # gone — a delete-accepted response precedes propagation, and an immediately
-  # following same-name invest would otherwise race a still-visible account.
+  # following same-name enrobe would otherwise race a still-visible account.
   # Skipped on 404: the account was already absent, nothing to wait for.
   local z_delete_code
   z_delete_code=$(rbuh_code_capture "${ZRBGG_INFIX_DELETE}") || z_delete_code=""
@@ -882,19 +882,19 @@ zrbgg_divest_role() {
       || z_installed_email=""
     if test "${z_installed_email}" = "${z_account_email}"; then
       rm -f "${z_role_rbra_file}"
-      buc_info "Removed installed RBRA at ${z_role_rbra_file} (matched divested email)"
+      buc_info "Removed installed RBRA at ${z_role_rbra_file} (matched defrocked email)"
     fi
   fi
 
-  buc_success "Divest operation completed"
+  buc_success "Defrock operation completed"
 }
 
-rbgg_divest_retriever() {
+rbgg_defrock_retriever() {
   zrbgg_sentinel
 
   local z_identity="${BUZ_FOLIO:-}"
 
-  buc_doc_brief "Divest a Retriever service account by identity"
+  buc_doc_brief "Defrock a Retriever service account by identity"
   buc_doc_param "identity" "Identity (required) — composes ${RBCC_account_retriever}-<identity>"
   buc_doc_shown || return 0
 
@@ -914,15 +914,15 @@ rbgg_divest_retriever() {
     "${RBGD_PROJECT_RESOURCE}" "${RBGC_ROLE_CONTAINERANALYSIS_OCCURRENCES_VIEWER}"        \
     "serviceAccount:${z_account_email}" "retriever-analysis-revoke"
 
-  zrbgg_divest_role "${RBCC_account_retriever}" "${z_identity}" "${RBDC_RETRIEVER_RBRA_FILE}"
+  zrbgg_defrock_role "${RBCC_account_retriever}" "${z_identity}" "${RBDC_RETRIEVER_RBRA_FILE}"
 }
 
-rbgg_divest_director() {
+rbgg_defrock_director() {
   zrbgg_sentinel
 
   local z_identity="${BUZ_FOLIO:-}"
 
-  buc_doc_brief "Divest a Director service account by identity"
+  buc_doc_brief "Defrock a Director service account by identity"
   buc_doc_param "identity" "Identity (required) — composes ${RBCC_account_director}-<identity>"
   buc_doc_shown || return 0
 
@@ -953,7 +953,7 @@ rbgg_divest_director() {
   rbgi_revoke_repo_member "${z_token}" "${RBGD_GAR_PROJECT_ID}" "${z_account_email}" \
     "${RBGD_GAR_LOCATION}" "${RBDC_GAR_REPOSITORY}" "roles/artifactregistry.repoAdmin"
 
-  zrbgg_divest_role "${RBCC_account_director}" "${z_identity}" "${RBDC_DIRECTOR_RBRA_FILE}"
+  zrbgg_defrock_role "${RBCC_account_director}" "${z_identity}" "${RBDC_DIRECTOR_RBRA_FILE}"
 }
 
 rbgg_destroy_project() {

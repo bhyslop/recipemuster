@@ -235,7 +235,7 @@ Artifact Preservation section (hoard entry) for the GCP sibling concept.
 **Accredit / Recall — governor operations for embassy binding lifecycle.**
 Accredit: governor configures the envoy's OIDC federation against an embassy's IAM role trust policy, and records the binding (embassy name, AWS account, region, role ARN, bucket name) in depot state.
 Recall: governor removes the federation configuration and prunes the binding.
-Follows the existing governor verb register (mantles, charters, knights, forfeits) with diplomatic-register verbs appropriate for foreign-court relationships.
+Follows the existing governor verb register (enrobes, charters, knights, forfeits) with diplomatic-register verbs appropriate for foreign-court relationships.
 A single depot may be accredited to multiple embassies.
 _Trigger_: embassy entry above.
 _Reference_: this roadmap entry.

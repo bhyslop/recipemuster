@@ -138,9 +138,9 @@ fn rbtdtk_cases_registered() {
     assert_eq!(fixture.cases.len(), 4, "expected four cases");
     let names: Vec<&str> = fixture.cases.iter().map(|c| c.name).collect();
     assert!(names.iter().any(|n| n.contains("rbtdrk_depot_levy")));
-    assert!(names.iter().any(|n| n.contains("rbtdrk_governor_mantle")));
-    assert!(names.iter().any(|n| n.contains("rbtdrk_retriever_invest")));
-    assert!(names.iter().any(|n| n.contains("rbtdrk_director_invest")));
+    assert!(names.iter().any(|n| n.contains("rbtdrk_governor_enrobe")));
+    assert!(names.iter().any(|n| n.contains("rbtdrk_retriever_enrobe")));
+    assert!(names.iter().any(|n| n.contains("rbtdrk_director_enrobe")));
 }
 
 /// install_canonical_prefixes refuses cleanly when rbrr.env is absent — the

@@ -41,12 +41,12 @@ rbho_governor_handbook() {
   buh_e
   buh_line "The ${RBYC_GOVERNOR} works within a ${RBYC_DEPOT} provisioned under the"
   buh_line "${RBYC_PAYORS} ${RBYC_MANOR}. Your Payor creates your credential by running:"
-  buh_tt  "  " "${RBZ_MANTLE_GOVERNOR}"
+  buh_tt  "  " "${RBZ_ENROBE_GOVERNOR}"
   buh_e
   buh_line "If no ${RBYC_DEPOT} exists yet, the ${RBYC_PAYOR} establishes one first:"
   buh_tt  "  " "${RBZ_ONBOARD_PAYOR_HB}"
   buh_e
-  buh_line "The mantle command writes the key file to its output"
+  buh_line "The enrobe command writes the key file to its output"
   buh_line "directory and prints two cp commands — one for production"
   buh_line "install, one for assay (test) mode. Run the production line"
   buh_line "to place the file at the path derived from your ${RBYC_RBRR}"
@@ -62,11 +62,11 @@ rbho_governor_handbook() {
   buh_line "A ${RBYC_DIRECTOR} has build and publish access — they create container"
   buh_line "images and push them to the registry."
   buh_e
-  buh_line "Create a ${RBYC_RETRIEVER} with read access (${RBYC_INVEST}):"
-  buh_tt  "  " "${RBZ_INVEST_RETRIEVER}" "" " <identity>"
+  buh_line "Create a ${RBYC_RETRIEVER} with read access (${RBYC_ENROBE}):"
+  buh_tt  "  " "${RBZ_ENROBE_RETRIEVER}" "" " <identity>"
   buh_e
-  buh_line "Create a ${RBYC_DIRECTOR} with build access (${RBYC_INVEST}):"
-  buh_tt  "  " "${RBZ_INVEST_DIRECTOR}" "" " <identity>"
+  buh_line "Create a ${RBYC_DIRECTOR} with build access (${RBYC_ENROBE}):"
+  buh_tt  "  " "${RBZ_ENROBE_DIRECTOR}" "" " <identity>"
   buh_e
   buh_line "Each command creates the service account and applies the IAM"
   buh_line "grants it needs. The output is an ${RBYC_RBRA} key file — hand it to"
@@ -78,16 +78,16 @@ rbho_governor_handbook() {
   buh_line "List issued ${RBYC_DIRECTORS} (${RBYC_ROSTER}):"
   buh_tt  "  " "${RBZ_ROSTER_DIRECTORS}"
   buh_e
-  buh_line "Remove a ${RBYC_RETRIEVER} (${RBYC_DIVEST}):"
-  buh_tt  "  " "${RBZ_DIVEST_RETRIEVER}" "" " <identity>"
+  buh_line "Remove a ${RBYC_RETRIEVER} (${RBYC_DEFROCK}):"
+  buh_tt  "  " "${RBZ_DEFROCK_RETRIEVER}" "" " <identity>"
   buh_e
-  buh_line "Remove a ${RBYC_DIRECTOR} (${RBYC_DIVEST}):"
-  buh_tt  "  " "${RBZ_DIVEST_DIRECTOR}" "" " <identity>"
+  buh_line "Remove a ${RBYC_DIRECTOR} (${RBYC_DEFROCK}):"
+  buh_tt  "  " "${RBZ_DEFROCK_DIRECTOR}" "" " <identity>"
   buh_e
-  buh_line "${RBYC_DIVEST} deletes the cloud service account and removes the"
+  buh_line "${RBYC_DEFROCK} deletes the cloud service account and removes the"
   buh_line "local production ${RBYC_RBRA} file — cloud and local state agree."
-  buh_line "${RBYC_INVEST} is fatal if the service account already exists. To"
-  buh_line "re-key, divest the old account first, then invest again."
+  buh_line "${RBYC_ENROBE} is fatal if the service account already exists. To"
+  buh_line "re-key, defrock the old account first, then enrobe again."
   buh_e
 
   buh_step1 "Verify the chain"

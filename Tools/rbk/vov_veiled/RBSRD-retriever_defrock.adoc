@@ -1,5 +1,5 @@
 //axhob_operation
-{rbtgo_retriever_divest}
+{rbtgo_retriever_defrock}
 
 NOTE: This operation tears down a
 {rbtr_retriever}
@@ -30,7 +30,7 @@ identity folio (param1) is non-empty
 . *Revoke
 {rbtr_retriever}
 IAM Bindings*:
-.. NOTE: Run before the DELETE so the live member is removed while the SA still exists — no `deleted:...?uid=` tombstone is minted. Mirrors exactly the bindings granted by {rbtgo_retriever_invest}. See the member-removal contract in <<rbscig_iam_grant_contracts>>.
+.. NOTE: Run before the DELETE so the live member is removed while the SA still exists — no `deleted:...?uid=` tombstone is minted. Mirrors exactly the bindings granted by {rbtgo_retriever_enrobe}. See the member-removal contract in <<rbscig_iam_grant_contracts>>.
 .. Remove `serviceAccount:«RETRIEVER_EMAIL»` from the
 {rbtgi_depot_project}
 IAM policy, roles:
@@ -38,20 +38,20 @@ IAM policy, roles:
 ... `roles/containeranalysis.occurrences.viewer`
 .. Policy version: 3; a binding left with no members is pruned
 .. {rbbc_fatal}
-on revoke failure — teardown is fail-loud: a non-OK policy status or an HTTP 409 etag conflict (single-writer invariant) aborts the divest before the SA is deleted; the operator reruns
-.. NOTE: Idempotent — removing an absent member is a no-op, so a re-divest, or a divest of an already-partially-torn-down identity, revokes cleanly without error.
+on revoke failure — teardown is fail-loud: a non-OK policy status or an HTTP 409 etag conflict (single-writer invariant) aborts the defrock before the SA is deleted; the operator reruns
+.. NOTE: Idempotent — removing an absent member is a no-op, so a re-defrock, or a defrock of an already-partially-torn-down identity, revokes cleanly without error.
 
 //axhos_step
-. *Divest Retriever Service Account*:
+. *Defrock Retriever Service Account*:
 .. {rbbc_call}
 link:https://cloud.google.com/iam/docs/reference/rest/v1/projects.serviceAccounts/delete[iam.projects.serviceAccounts.delete] with:
 ... method: `DELETE`
 ... endpoint: `https://iam.googleapis.com/v1/projects/{rbtgi_depot_project}/serviceAccounts/«RETRIEVER_EMAIL»`
 ... header: `Authorization: Bearer «GOVERNOR_TOKEN»`
 .. {rbbc_require}
-HTTP 200 response OR HTTP 404 (already divested)
+HTTP 200 response OR HTTP 404 (already defrocked)
 .. {rbbc_warn}
-if HTTP 404: "Retriever service account not found in cloud (already divested)"
+if HTTP 404: "Retriever service account not found in cloud (already defrocked)"
 
 //axhos_step
 . *Confirm Deletion Propagated*:
@@ -59,7 +59,7 @@ if HTTP 404: "Retriever service account not found in cloud (already divested)"
 the SA GET endpoint until it returns HTTP 404 for `RBGC_GONE_CONFIRM_STREAK` consecutive observations, confirming the
 {giam_service_account}
 is durably gone. A delete-accepted response precedes propagation, and the post-delete read path flaps 404→200 across replicas (see <<rbscip_trade_study>>), so a single 404 is not durable proof — an immediately following same-name
-{rbtgo_retriever_invest}
+{rbtgo_retriever_enrobe}
 would otherwise race a still-visible account. Any intervening non-404 resets the streak.
 .. NOTE: skipped when the DELETE returned HTTP 404 — the account was already absent, so there is nothing to wait for
 .. {rbbc_require}
@@ -71,12 +71,12 @@ would otherwise race a still-visible account. Any intervening non-404 resets the
 {rbrr_retriever_rbra_file},
 source it and read `RBRA_CLIENT_EMAIL`
 .. If `RBRA_CLIENT_EMAIL` equals `«RETRIEVER_EMAIL»`, remove the file
-.. NOTE: The removal is conditional — if the installed RBRA's `client_email` does not match the divested `«RETRIEVER_EMAIL»` (e.g., a different identity is currently installed), the file is left in place. No fatal error is raised when the file is absent or non-matching.
+.. NOTE: The removal is conditional — if the installed RBRA's `client_email` does not match the defrocked `«RETRIEVER_EMAIL»` (e.g., a different identity is currently installed), the file is left in place. No fatal error is raised when the file is absent or non-matching.
 
 //axhos_step
 . *Display Result*:
 .. {rbbc_show}
-single-line success notice naming `«RETRIEVER_EMAIL»` and confirming divestiture, or a 404-already-gone notice if cloud state was already clean
+single-line success notice naming `«RETRIEVER_EMAIL»` and confirming defrocking, or a 404-already-gone notice if cloud state was already clean
 
 //axhoc_completion
 Successful execution revokes the
@@ -85,12 +85,12 @@ Successful execution revokes the
 {rbtgi_depot_project}, leaving no `deleted:` ghost on the project policy.
 If the installed RBRA at
 {rbrr_retriever_rbra_file}
-matches the divested identity, it is also removed; otherwise it is left intact.
+matches the defrocked identity, it is also removed; otherwise it is left intact.
 A 404 response from the cloud DELETE is accepted as success — the
 {giam_service_account}
 is absent either way.
 Proceed to
-{rbtgo_retriever_invest}
+{rbtgo_retriever_enrobe}
 to re-issue a fresh
 {rbtr_retriever}
 {giam_service_account}

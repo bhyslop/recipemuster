@@ -249,7 +249,7 @@ The recorded canon is the line itself, not a trajectory toward all-deletes-go-cl
 
 **The delete build runs as Director, not Mason.**
 Director already holds `repoAdmin` (delete); Mason is writer-only and stays that way, so the identity that executes untrusted upstream capture bytes is never widened with delete authority.
-Running a build *as* the Director SA, submitted by the Director-authenticated workstation, requires one investiture addition: Director holds `serviceAccountUser` (actAs) on *itself* — the self-actAs binding that lets a SA run a build as itself — alongside the `workerPoolUser` and Cloud Build Editor grants it already carries.
+Running a build *as* the Director SA, submitted by the Director-authenticated workstation, requires one capability-set addition: Director holds `serviceAccountUser` (actAs) on *itself* — the self-actAs binding that lets a SA run a build as itself — alongside the `workerPoolUser` and Cloud Build Editor grants it already carries.
 No new GAR grant is introduced.
 
 **The delete builder is digest-pinned (2026-06-10).**

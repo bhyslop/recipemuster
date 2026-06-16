@@ -81,10 +81,10 @@ RBCC_onboarding_nameplate="tadmor"
 # Members are bare verb tokens; the group carries one author here so it is
 # projectable under the single-canonical-author rule. Two surfaces:
 #
-#   SA-management (divest/invest/roster) — composed into the fact-extension
+#   SA-management (defrock/enrobe/roster) — composed into the fact-extension
 #   constants below; consumed by the governor/director account surface.
-RBCC_verb_divest="divest"
-RBCC_verb_invest="invest"
+RBCC_verb_defrock="defrock"
+RBCC_verb_enrobe="enrobe"
 RBCC_verb_roster="roster"
 #
 #   Image/build lifecycle (anoint/inscribe/kludge/ordain/yoke) — name the
@@ -170,8 +170,8 @@ rbcc_emit_consts() {
     RBCC_rbrn_file       \
     RBCC_rbra_file       \
     RBCC_rbro_file       \
-    RBCC_verb_divest     \
-    RBCC_verb_invest     \
+    RBCC_verb_defrock     \
+    RBCC_verb_enrobe     \
     RBCC_verb_roster     \
     RBCC_verb_anoint     \
     RBCC_verb_inscribe   \
