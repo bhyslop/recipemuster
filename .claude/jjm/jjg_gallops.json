@@ -9102,13 +9102,14 @@
         "₢BZAAE",
         "₢BZAAF",
         "₢BZAAG",
+        "₢BZAAM",
         "₢BZAAH",
         "₢BZAAI",
         "₢BZAAJ",
         "₢BZAAK",
         "₢BZAAL"
       ],
-      "jjghn_next_pace_seed": "AAM",
+      "jjghn_next_pace_seed": "AAN",
       "jjghn_paces": {
         "₢BZAAA": {
           "jjgpn_tacks": [
@@ -9316,6 +9317,17 @@
               "jjgtn_text": "Build the operator-facing federation surface — invest / divest / attaint / rehearse under the polity launcher family — operating on (actor, mantle, principal) within a depot.\nEach composes the terrier sub-operations and the IAM bindings: invest writes a muniment then ensures tokenCreator on the mantle SA plus, on a citizen's first admission per depot, serviceUsageConsumer on the depot; divest withdraws the muniment and removes the tokenCreator binding (the depot-scoped binding stays — suspension, not erasure); attaint composes divest-all and sweeps the depot-scoped binding; rehearse is a pure read of the terrier.\nVerb bodies, crash semantics, and sibling-initials: the paddock \"Verbs and orderings\". The contract specs succeed the cult specs renamed by movement 4's first act.\n\n## Done when\n- invest / divest / attaint / rehearse work over (actor, mantle, principal); muniment write precedes binding; first-vs-further admission differs only in the depot-scoped binding.\n- The service suite is green on federation personas; complete green before the heat closes.\n\n## Cinched\n- Intent-first ordering: the muniment write precedes the binding.\n- Removing the last governor is legal; recovery is the payor's founding exception re-exercised.\n\n## Character\nThe operator surface; small idempotent bodies over the sub-ops and the two binding types.\nFirst-cut docket; deep-review pending — may split per-verb.",
               "jjgtn_silks": "admission-verbs-polity",
               "jjgtn_basis": "412876f"
+            }
+          ]
+        },
+        "₢BZAAM": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260615-1759",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "Affiance the manor to its IdP — the org-scoped IdP-trust founding: workforce pool + provider + attribute mapping.\nSeat the payor's org-level workforcePoolAdmin role BEFORE creating the pool or provider, or the ceremony 403s — see the federation-legs-spike-findings memo (F1).\nWholly net-new behavior: no affiance machinery exists in the kit today; greenfield REST against the workforce-pool API, org-scoped.\nA successor affiance contract spec carries it; acronym minted when firmed.\n\n## Done when\nA payor affiances the manor — the pool, provider, and attribute mapping exist and the payor's org-level workforcePoolAdmin self-grant has landed.\nLeg-1 device flow reaches the provider against the standing spike fixture trust.\nThe successor affiance contract spec carries it, seated under the manor demesne.\n\n## Cinched\nAffiance covers first or further provider alike; a second affiancing is a payor ceremony with founding gravity.\nworkforcePoolAdmin is seated before pool or provider creation.\n\n## Character\nNet-new federation founding, org-scoped, no existing code — wholly greenfield REST against the workforce-pool API.",
+              "jjgtn_silks": "manor-affiance",
+              "jjgtn_basis": "c97cc25"
             }
           ]
         }
