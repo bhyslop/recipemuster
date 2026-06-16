@@ -76,6 +76,15 @@ RBCC_account_director="director"
 RBCC_account_payor="payor"
 RBCC_account_assay="assay"
 RBCC_account_mason="mason"
+
+# Mantle service-account names — the three impersonatable federation identities
+# (governor / director / retriever) established at depot levy. Hardcoded literals
+# for grep. The rbma- prefix is hyphenated because a GCP service-account id admits
+# only lowercase letters, digits, and hyphens (RFC1035) — the underscore sprue form
+# cannot appear in this field; grep rbma still finds all three.
+RBCC_account_mantle_governor="rbma-governor"
+RBCC_account_mantle_director="rbma-director"
+RBCC_account_mantle_retriever="rbma-retriever"
 RBCC_onboarding_nameplate="tadmor"
 
 # Operation-verb tinder — the canonical bash home for RBK operation verbs.

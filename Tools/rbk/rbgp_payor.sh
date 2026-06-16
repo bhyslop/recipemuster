@@ -1023,6 +1023,88 @@ rbgp_payor_install() {
   fi
 }
 
+# Establish one mantle service account at levy: create + propagation poll.
+# The email is deterministic (<account_id>@RBGD_SA_EMAIL_FULL); the caller computes
+# it for the capability-set grant. Pristine-state expectation as Mason: a 409 is
+# fatal (rbuh_require_ok), not idempotent success.
+zrbgp_establish_mantle_sa() {
+  zrbgp_sentinel
+
+  local -r z_token="${1:-}"
+  local -r z_account_id="${2:-}"
+  local -r z_role="${3:-}"
+
+  test -n "${z_token}"      || buc_die "zrbgp_establish_mantle_sa: token required"
+  test -n "${z_account_id}" || buc_die "zrbgp_establish_mantle_sa: account id required"
+  test -n "${z_role}"       || buc_die "zrbgp_establish_mantle_sa: role required"
+
+  buc_step "Create ${z_role} mantle service account: ${z_account_id}"
+  local -r z_display_name="${RBGC_DEPOT_DISPLAY_PREFIX} mantle ${z_role} ${RBRD_DEPOT_MONIKER}"
+  local -r z_create_body="${BURD_TEMP_DIR}/rbgp_create_mantle_${z_role}.json"
+
+  jq -n \
+    --arg accountId "${z_account_id}" \
+    --arg displayName "${z_display_name}" \
+    '{
+      accountId: $accountId,
+      serviceAccount: {
+        displayName: $displayName
+      }
+    }' > "${z_create_body}" || buc_die "Failed to build ${z_role} mantle creation body"
+
+  local -r z_create_url="${RBGC_API_ROOT_IAM}${RBGC_IAM_V1}/projects/${RBDC_DEPOT_PROJECT_ID}/serviceAccounts"
+  rbuh_json "POST" "${z_create_url}" "${z_token}" "mantle_${z_role}_create" "${z_create_body}"
+  rbuh_require_ok "Create ${z_role} mantle service account" "mantle_${z_role}_create"
+
+  buc_step "Verify ${z_role} mantle service account propagation"
+  local -r z_sa_email="${z_account_id}@${RBGD_SA_EMAIL_FULL}"
+  local -r z_sa_url="${RBGC_API_ROOT_IAM}${RBGC_IAM_V1}/projects/${RBDC_DEPOT_PROJECT_ID}/serviceAccounts/${z_sa_email}"
+  rbuh_poll_until_ok "${z_role} mantle SA" "${z_sa_url}" "${z_token}" "mantle_${z_role}_preflight"
+}
+
+# Enable Artifact Registry Data-Access audit logs on the depot project (spike V3):
+# ADMIN_READ + DATA_READ on the using service artifactregistry.googleapis.com,
+# never on iamcredentials. auditConfigs are dropped unless the write carries them,
+# so the set is masked to auditConfigs and rides the read etag. See RBSMF.
+zrbgp_enable_ar_audit_logs() {
+  zrbgp_sentinel
+
+  local -r z_token="${1:-}"
+  test -n "${z_token}" || buc_die "zrbgp_enable_ar_audit_logs: token required"
+
+  buc_step 'Enable Artifact Registry Data-Access audit logs'
+  local -r z_get_body="${BURD_TEMP_DIR}/rbgp_audit_get.json"
+  printf '%s\n' '{"options":{"requestedPolicyVersion":3}}' > "${z_get_body}" \
+    || buc_die "Failed to write audit getIamPolicy body"
+  rbuh_json "POST" "${RBGD_API_CRM_GET_IAM_POLICY}" "${z_token}" "depot_audit_get" "${z_get_body}"
+  rbuh_require_ok "Get project IAM policy for audit config" "depot_audit_get"
+
+  local z_etag
+  z_etag=$(rbuh_json_field_capture "depot_audit_get" '.etag') || buc_die "Failed to read project policy etag"
+  test -n "${z_etag}" || buc_die "Empty project policy etag"
+
+  local -r z_set_body="${BURD_TEMP_DIR}/rbgp_audit_set.json"
+  jq -n --arg etag "${z_etag}" \
+    '{
+      policy: {
+        auditConfigs: [
+          {
+            service: "artifactregistry.googleapis.com",
+            auditLogConfigs: [
+              { logType: "ADMIN_READ" },
+              { logType: "DATA_READ" }
+            ]
+          }
+        ],
+        etag: $etag
+      },
+      updateMask: "auditConfigs"
+    }' > "${z_set_body}" || buc_die "Failed to build audit setIamPolicy body"
+
+  rbuh_json "POST" "${RBGD_API_CRM_SET_IAM_POLICY}" "${z_token}" "depot_audit_set" "${z_set_body}"
+  rbuh_require_ok "Enable Artifact Registry audit logs" "depot_audit_set"
+}
+
 rbgp_depot_levy() {
   zrbgp_sentinel
 
@@ -1289,6 +1371,30 @@ rbgp_depot_levy() {
 
   buc_step 'Enable Cloud Build service agent to impersonate Mason'
   rbgi_add_sa_iam_role "${z_token}" "${z_mason_sa_email}" "${z_cb_service_agent}" "roles/iam.serviceAccountTokenCreator"
+
+  buc_step 'Establish the mantle service accounts'
+  # The three federation mantles (governor/director/retriever) — the impersonatable
+  # identities a citizen dons at runtime — created beside Mason and granted their full
+  # resource authority once, here, via the shared rbgw capability-sets. See RBSMF.
+  local -r z_gov_mantle_email="${RBCC_account_mantle_governor}@${RBGD_SA_EMAIL_FULL}"
+  local -r z_dir_mantle_email="${RBCC_account_mantle_director}@${RBGD_SA_EMAIL_FULL}"
+  local -r z_ret_mantle_email="${RBCC_account_mantle_retriever}@${RBGD_SA_EMAIL_FULL}"
+
+  zrbgp_establish_mantle_sa "${z_token}" "${RBCC_account_mantle_governor}" "governor"
+  rbgw_grant_governor_capabilities "${z_token}" "${z_gov_mantle_email}"
+
+  zrbgp_establish_mantle_sa "${z_token}" "${RBCC_account_mantle_director}" "director"
+  rbgw_grant_director_capabilities "${z_token}" "${z_dir_mantle_email}"
+
+  zrbgp_establish_mantle_sa "${z_token}" "${RBCC_account_mantle_retriever}" "retriever"
+  rbgw_grant_retriever_capabilities "${z_token}" "${z_ret_mantle_email}"
+
+  buc_step 'Settle gate — depot resource IAM frozen'
+  # Every resource binding the depot will carry is now written and self-confirmed by
+  # each capability-set grant; this is the freeze. Post-levy admission writes only the
+  # per-citizen tokenCreator + serviceUsageConsumer bindings, never a resource binding.
+
+  zrbgp_enable_ar_audit_logs "${z_token}"
 
   buc_step 'Submit per-pool probe builds (populate quota rows + assert egress posture + GAR write)'
 
