@@ -33,10 +33,18 @@ Iptables rules below still gate authorization; rp_filter is not the load-bearing
 ** Source {rbrn_enclave_sentry_ip}: RETURN (short-circuits the DNAT)
 ** Source {rbrn_enclave_bottle_ip}: RETURN (short-circuits the DNAT)
 ** No source filter: DNAT to {rbrn_enclave_bottle_ip}:{rbrn_entry_port_enclave}
-* The per-IP source exclusion of the two enclave-internal containers is the load-bearing classification axis.
-  Whole-CIDR exclusion of the enclave subnet is incorrect: on linux Docker Engine the host attaches to the enclave bridge as a peer with the bridge gateway IP, which is inside the enclave CIDR; whole-CIDR exclusion rejects every legitimate host SYN.
-  Per-IP exclusion narrows the rejection to exactly the threat surface and lets the bridge gateway, the framework VM gateway, the rootlesskit synthetic source, and external clients all pass.
-* Invariant defended: enclave-internal sources MUST NOT reach the entry port via DNAT.
++
+[[RBr_316]]
+//axvc_camber
+RBr_316::
+The per-IP source exclusion of the two enclave-internal containers is the load-bearing classification axis.
+Whole-CIDR exclusion of the enclave subnet is incorrect: on linux Docker Engine the host attaches to the enclave bridge as a peer with the bridge gateway IP, which is inside the enclave CIDR; whole-CIDR exclusion rejects every legitimate host SYN.
+Per-IP exclusion narrows the rejection to exactly the threat surface and lets the bridge gateway, the framework VM gateway, the rootlesskit synthetic source, and external clients all pass.
++
+[[RBr_3d3]]
+//axvc_dictum
+RBr_3d3::
+Invariant defended: enclave-internal sources MUST NOT reach the entry port via DNAT.
 
 //axhos_step
 . Forward Filter:
@@ -45,9 +53,13 @@ Iptables rules below still gate authorization; rp_filter is not the load-bearing
 ** Destination {rbrn_enclave_bottle_ip}
 ** Destination port {rbrn_entry_port_enclave}
 ** Conntrack state DNAT (`-m conntrack --ctstate DNAT`)
-* The conntrack DNAT-state match IS the authorization: only flows that sentry's own PREROUTING DNAT created conntrack state for are allowed to forward.
-  Conntrack DNAT-state is unforgeable from either bridge.
-* The return path is handled by the parent FORWARD chain's RELATED,ESTABLISHED ACCEPT (see {scr_iptables_init} state tracking) before reaching RBM-FORWARD.
++
+[[RBr_528]]
+//axvc_dictum
+RBr_528::
+The conntrack DNAT-state match IS the authorization: only flows that sentry's own PREROUTING DNAT created conntrack state for are allowed to forward.
+Conntrack DNAT-state is unforgeable from either bridge.
+The return path is handled by the parent FORWARD chain's RELATED,ESTABLISHED ACCEPT (see {scr_iptables_init} state tracking) before reaching RBM-FORWARD.
 
 //axhos_step
 . MASQUERADE Rule:
@@ -57,6 +69,10 @@ Iptables rules below still gate authorization; rp_filter is not the load-bearing
 ** Destination {rbrn_enclave_bottle_ip}
 ** Destination port {rbrn_entry_port_enclave}
 ** MASQUERADE (rewrites source to sentry enclave IP)
-* Return-path symmetry: the MASQUERADE rewrites the source of the post-DNAT packet to sentry's enclave IP, so the bottle's reply destination is in-enclave.
-  The bottle then routes via its directly-connected enclave route back to sentry, where conntrack reverses the NAT cleanly.
-  Without this, the bottle would reply to the original (possibly framework-rewritten) source IP, traversing default-via-sentry into transit — empirically broken on the Docker Desktop runtime.
++
+[[RBr_509]]
+//axvc_dictum
+RBr_509::
+Return-path symmetry: the MASQUERADE rewrites the source of the post-DNAT packet to sentry's enclave IP, so the bottle's reply destination is in-enclave.
+The bottle then routes via its directly-connected enclave route back to sentry, where conntrack reverses the NAT cleanly.
+Without this, the bottle would reply to the original (possibly framework-rewritten) source IP, traversing default-via-sentry into transit — empirically broken on the Docker Desktop runtime.

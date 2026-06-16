@@ -189,12 +189,9 @@ source order. A tag that lies about its phase, or that goes backwards, breaks th
 log-to-source mapping the census depends on.
 
 *Known deviation (citer):* the type specimen `rbjs_sentry.sh` violates JDo_101 in
-two places, blessed-but-unrepaired under the v1 posture. (1) The
-parameter-dump echoes under the `RBJp1: Validate parameters` announcement are
-themselves tagged `RBJp0:`, so they report a phase they do not sit in. (2) The
-phase-2 band announces `RBJp2`, then `RBJp2c`, then `RBJp2b` — the suffix
-ordering is non-monotonic (`c` precedes `b`). Both are citable against this rule;
-neither is fixed by the pace that wrote this guide.
+its phase-2 band: the announcements run `RBJp2`, then `RBJp2c`, then `RBJp2b` —
+the suffix ordering is non-monotonic (`c` precedes `b`). Citable against this rule;
+blessed-but-unrepaired under the v1 posture.
 
 *Cited by:* the deviation above; future reviews of jailer scripts.
 

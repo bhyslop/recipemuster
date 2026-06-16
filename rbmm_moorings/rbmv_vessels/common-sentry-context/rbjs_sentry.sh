@@ -16,19 +16,19 @@ test "$(echo ${RBJE_PROBE} | cut -d' ' -f2)" = "bravo" || { echo "FATAL: RBJE_PR
 echo "RBJp0: Compose env-file quoting validated — RBJE_PROBE = '${RBJE_PROBE}'"
 
 echo "RBJp1: Validate parameters"
-: "${RBRN_ENCLAVE_BASE_IP:?}"        && echo "RBJp0: RBRN_ENCLAVE_BASE_IP        = ${RBRN_ENCLAVE_BASE_IP}"
-: "${RBRN_ENCLAVE_NETMASK:?}"        && echo "RBJp0: RBRN_ENCLAVE_NETMASK        = ${RBRN_ENCLAVE_NETMASK}"
-: "${RBRN_ENCLAVE_SENTRY_IP:?}"      && echo "RBJp0: RBRN_ENCLAVE_SENTRY_IP      = ${RBRN_ENCLAVE_SENTRY_IP}"
-: "${RBRN_ENCLAVE_BOTTLE_IP:?}"      && echo "RBJp0: RBRN_ENCLAVE_BOTTLE_IP      = ${RBRN_ENCLAVE_BOTTLE_IP}"
-: "${RBRR_DNS_SERVER:?}"             && echo "RBJp0: RBRR_DNS_SERVER             = ${RBRR_DNS_SERVER}"
-: "${RBRN_ENTRY_MODE:?}"             && echo "RBJp0: RBRN_ENTRY_MODE             = ${RBRN_ENTRY_MODE}"
-: "${RBRN_ENTRY_PORT_WORKSTATION:?}" && echo "RBJp0: RBRN_ENTRY_PORT_WORKSTATION = ${RBRN_ENTRY_PORT_WORKSTATION}"
-: "${RBRN_ENTRY_PORT_ENCLAVE:?}"     && echo "RBJp0: RBRN_ENTRY_PORT_ENCLAVE     = ${RBRN_ENTRY_PORT_ENCLAVE}"
-: "${RBRN_UPLINK_DNS_MODE:?}"        && echo "RBJp0: RBRN_UPLINK_DNS_MODE        = ${RBRN_UPLINK_DNS_MODE}"
-: "${RBRN_UPLINK_PORT_MIN:?}"        && echo "RBJp0: RBRN_UPLINK_PORT_MIN        = ${RBRN_UPLINK_PORT_MIN}"
-: "${RBRN_UPLINK_ACCESS_MODE:?}"     && echo "RBJp0: RBRN_UPLINK_ACCESS_MODE     = ${RBRN_UPLINK_ACCESS_MODE}"
-: "${RBRN_UPLINK_ALLOWED_CIDRS:?}"   && echo "RBJp0: RBRN_UPLINK_ALLOWED_CIDRS   = ${RBRN_UPLINK_ALLOWED_CIDRS}"
-: "${RBRN_UPLINK_ALLOWED_DOMAINS:?}" && echo "RBJp0: RBRN_UPLINK_ALLOWED_DOMAINS = ${RBRN_UPLINK_ALLOWED_DOMAINS}"
+: "${RBRN_ENCLAVE_BASE_IP:?}"        && echo "RBJp1: RBRN_ENCLAVE_BASE_IP        = ${RBRN_ENCLAVE_BASE_IP}"
+: "${RBRN_ENCLAVE_NETMASK:?}"        && echo "RBJp1: RBRN_ENCLAVE_NETMASK        = ${RBRN_ENCLAVE_NETMASK}"
+: "${RBRN_ENCLAVE_SENTRY_IP:?}"      && echo "RBJp1: RBRN_ENCLAVE_SENTRY_IP      = ${RBRN_ENCLAVE_SENTRY_IP}"
+: "${RBRN_ENCLAVE_BOTTLE_IP:?}"      && echo "RBJp1: RBRN_ENCLAVE_BOTTLE_IP      = ${RBRN_ENCLAVE_BOTTLE_IP}"
+: "${RBRR_DNS_SERVER:?}"             && echo "RBJp1: RBRR_DNS_SERVER             = ${RBRR_DNS_SERVER}"
+: "${RBRN_ENTRY_MODE:?}"             && echo "RBJp1: RBRN_ENTRY_MODE             = ${RBRN_ENTRY_MODE}"
+: "${RBRN_ENTRY_PORT_WORKSTATION:?}" && echo "RBJp1: RBRN_ENTRY_PORT_WORKSTATION = ${RBRN_ENTRY_PORT_WORKSTATION}"
+: "${RBRN_ENTRY_PORT_ENCLAVE:?}"     && echo "RBJp1: RBRN_ENTRY_PORT_ENCLAVE     = ${RBRN_ENTRY_PORT_ENCLAVE}"
+: "${RBRN_UPLINK_DNS_MODE:?}"        && echo "RBJp1: RBRN_UPLINK_DNS_MODE        = ${RBRN_UPLINK_DNS_MODE}"
+: "${RBRN_UPLINK_PORT_MIN:?}"        && echo "RBJp1: RBRN_UPLINK_PORT_MIN        = ${RBRN_UPLINK_PORT_MIN}"
+: "${RBRN_UPLINK_ACCESS_MODE:?}"     && echo "RBJp1: RBRN_UPLINK_ACCESS_MODE     = ${RBRN_UPLINK_ACCESS_MODE}"
+: "${RBRN_UPLINK_ALLOWED_CIDRS:?}"   && echo "RBJp1: RBRN_UPLINK_ALLOWED_CIDRS   = ${RBRN_UPLINK_ALLOWED_CIDRS}"
+: "${RBRN_UPLINK_ALLOWED_DOMAINS:?}" && echo "RBJp1: RBRN_UPLINK_ALLOWED_DOMAINS = ${RBRN_UPLINK_ALLOWED_DOMAINS}"
 
 echo "RBJp1: Discovering network interfaces by IP (Docker does not guarantee eth0/eth1 ordering)"
 z_temp_file="/tmp/rbj_iface_discovery.txt"
@@ -50,11 +50,6 @@ rm -f "${z_temp_file}"
 echo "RBJp1: Enclave interface = ${RBJ_ENCLAVE_IF}"
 echo "RBJp1: Uplink interface  = ${RBJ_UPLINK_IF}"
 
-# Docker assigns the container's default route to whichever attached network's
-# gateway it picks (alphabetically-first attached, empirically); compose 'priority'
-# is not honored. Same don't-trust-Docker discipline as interface naming above —
-# sentry takes ownership: derive uplink gateway as first usable IP of uplink
-# subnet (Docker bridge convention) and install default route via uplink.
 echo "RBJp1: Computing uplink gateway from connected subnet"
 z_uplink_addr_cidr=$(ip -o -4 addr show dev "${RBJ_UPLINK_IF}" | awk '{print $4; exit}')
 test -n "${z_uplink_addr_cidr}" || { echo "FATAL: No IPv4 address on uplink interface ${RBJ_UPLINK_IF}"; exit 12; }
@@ -73,7 +68,7 @@ z_gw_int=$(( z_net_int + 1 ))
 RBJ_UPLINK_GW="$(( (z_gw_int >> 24) & 0xFF )).$(( (z_gw_int >> 16) & 0xFF )).$(( (z_gw_int >> 8) & 0xFF )).$(( z_gw_int & 0xFF ))"
 echo "RBJp1: Uplink gateway     = ${RBJ_UPLINK_GW}"
 
-echo "RBJp1: Replacing default route via uplink (sentry-side ownership)"
+echo "RBJp1: RBr_2c9: Replacing default route via uplink (sentry-side ownership)"
 ip route replace default via "${RBJ_UPLINK_GW}" dev "${RBJ_UPLINK_IF}" || exit 13
 ip -o -4 route show default
 
@@ -121,21 +116,7 @@ if test "${RBRN_ENTRY_MODE}" = "rbnne_enabled"; then
   echo "RBJp2c: RBr_2e3: Relaxing rp_filter to loose mode (required for interface-agnostic ingress)"
   echo 2 > /proc/sys/net/ipv4/conf/all/rp_filter || exit 25
 
-  echo "RBJp2c: Configuring entry-port DNAT + MASQUERADE + FORWARD-ACCEPT"
-  # Classification: destination port + per-IP source exclusion of the two enclave-internal
-  # containers (sentry and bottle/pentacle). RETURN short-circuit pattern — if source matches
-  # either enclave container IP, skip the DNAT; otherwise the unconditional DNAT below fires.
-  #
-  # Why per-IP and not whole-CIDR (! -s ENCLAVE_CIDR): on linux Docker Engine the host
-  # attaches to the enclave bridge as a peer with the bridge gateway IP (.1), which is inside
-  # the enclave CIDR by Docker convention. Whole-CIDR exclusion rejects every legitimate host
-  # SYN (empirically confirmed on cerebro: PREROUTING DNAT fired 0 times). Per-IP excludes
-  # exactly the threat surface — the two enclave container IPs known to compose — and lets
-  # the bridge gateway, Desktop's VM gateway (192.168.65.1), rootlesskit's synthetic source
-  # (10.0.2.100), and external clients all pass.
-  #
-  # Invariant defended: "enclave-internal sources MUST NOT reach sentry's entry port via DNAT"
-  # (ifrit's direct_sentry_probe and net_dnat_entry_reflection sorties).
+  echo "RBJp2c: RBr_316 RBr_3d3: Configuring entry-port DNAT (per-IP enclave-source exclusion)"
   iptables -t nat -A PREROUTING -p tcp --dport "${RBRN_ENTRY_PORT_WORKSTATION}" \
            -s "${RBRN_ENCLAVE_SENTRY_IP}" -j RETURN || exit 25
   iptables -t nat -A PREROUTING -p tcp --dport "${RBRN_ENTRY_PORT_WORKSTATION}" \
@@ -143,19 +124,11 @@ if test "${RBRN_ENTRY_MODE}" = "rbnne_enabled"; then
   iptables -t nat -A PREROUTING -p tcp --dport "${RBRN_ENTRY_PORT_WORKSTATION}" \
            -j DNAT --to-destination "${RBRN_ENCLAVE_BOTTLE_IP}:${RBRN_ENTRY_PORT_ENCLAVE}" || exit 25
 
-  # Return-path symmetry: MASQUERADE rewrites the source of the post-DNAT packet to
-  # sentry's enclave IP, so the bottle's reply destination is in-enclave. The bottle then
-  # routes via its directly-connected enclave route back to sentry, where conntrack reverses
-  # the NAT cleanly. Without this, the bottle would reply to the original (possibly
-  # framework-rewritten) source IP, traversing default-via-sentry into transit — empirically
-  # broken on Docker Desktop per the topology-reframe scry diagnostic.
+  echo "RBJp2c: RBr_509: Configuring entry-port MASQUERADE (return-path symmetry)"
   iptables -t nat -A POSTROUTING -o ${RBJ_ENCLAVE_IF} -p tcp \
            -d "${RBRN_ENCLAVE_BOTTLE_IP}" --dport "${RBRN_ENTRY_PORT_ENCLAVE}" -j MASQUERADE || exit 25
 
-  # Authorization: only flows that sentry's own PREROUTING DNAT created conntrack state
-  # for are allowed to forward. Conntrack DNAT-state is unforgeable from either bridge.
-  # The parent FORWARD chain's ESTABLISHED,RELATED ACCEPT (line above) handles the return
-  # path before reaching RBM-FORWARD.
+  echo "RBJp2c: RBr_528: Configuring entry-port FORWARD authorization (conntrack DNAT-state)"
   iptables -A RBM-FORWARD -p tcp \
            -d "${RBRN_ENCLAVE_BOTTLE_IP}" --dport "${RBRN_ENTRY_PORT_ENCLAVE}" \
            -m conntrack --ctstate DNAT -j ACCEPT || exit 25
@@ -253,8 +226,7 @@ else
         echo "address=/${domain}/${z_ip}"                    >> /etc/dnsmasq.conf || exit 41
       done
     done
-    # No server= lines — no forwarding path exists. Subdomain queries return frozen IPs.
-    # All non-allowed domains get NXDOMAIN.
+    echo "RBJp4: RBr_57c: Sealing resolver — no server= forwarding, NXDOMAIN catch-all"
     echo "address=/#/"                                        >> /etc/dnsmasq.conf || exit 41
   fi
 
