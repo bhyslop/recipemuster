@@ -9110,9 +9110,10 @@
         "₢BZAAL",
         "₢BZAAO",
         "₢BZAAP",
+        "₢BZAAQ",
         "₢BZAAN"
       ],
-      "jjghn_next_pace_seed": "AAQ",
+      "jjghn_next_pace_seed": "AAR",
       "jjghn_paces": {
         "₢BZAAA": {
           "jjgpn_tacks": [
@@ -9371,6 +9372,17 @@
               "jjgtn_text": "PLACEHOLDER — movement 6 (narrative docs) is not yet designed; reslate to firm when known.\nScope from the paddock Ordering: the federation narrative docs trail as their own movement, plus broadside registration of the elected federation words (the README glossary); post-build cold-probe verifies.\nHolds the slot before the terminal Fable-review pace.\n\n## Done when\nMovement 6 is designed and this placeholder is reslated into firm docket(s) covering the federation narrative docs and broadside registration.\n\n## Cinched\nPlaceholder only — not yet mountable; reslate to firm before mounting.\nBroadside registration of the elected words rides here, per the paddock Documentation strategy.\n\n## Character\nUnfirmed placeholder — carries scope and source, not a mountable plan.",
               "jjgtn_silks": "placeholder-m6-narrative-docs",
               "jjgtn_basis": "381d25b"
+            }
+          ]
+        },
+        "₢BZAAQ": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260615-1807",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "PLACEHOLDER — movement 7 (RBRA estate retirement) is not yet designed; reslate to firm when known.\nScope from the paddock Ordering: after federation personas pass the suites, retire the cult estate, the key machinery, RBSRA and the keyfile probe specs whole — the bridge's demolition condition executed.\nCarries the keyless rewrite of the canonical credential-bootstrap fixture, coupled here per the movement-4 review-findings memo's M4-vs-M7 resolution.\nHolds the slot before the terminal Fable-review pace.\n\n## Done when\nMovement 7 is designed and this placeholder is reslated into firm docket(s) retiring the RBRA estate and rewriting the canonical credential-bootstrap fixture keyless.\n\n## Cinched\nPlaceholder only — not yet mountable; reslate to firm before mounting.\nThe keyless canonical-fixture rewrite is coupled to this movement (movement-4 review-findings memo).\n\n## Character\nUnfirmed placeholder — carries scope and source, not a mountable plan.",
+              "jjgtn_silks": "placeholder-m7-rbra-retirement",
+              "jjgtn_basis": "116bac0"
             }
           ]
         }
