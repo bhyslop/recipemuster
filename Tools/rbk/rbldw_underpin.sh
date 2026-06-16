@@ -149,7 +149,7 @@ rbld_underpin() {
 
   buc_step "Authenticating as Director"
   local z_token=""
-  z_token=$(rbgo_get_token_capture "${RBDC_DIRECTOR_RBRA_FILE}") \
+  z_token=$(rba_token_capture director) \
     || buc_die "Failed to get Director OAuth token"
 
   # Mint the Lode stamp on the host: <kind-letter><YYMMDDHHMMSS>. The host owns

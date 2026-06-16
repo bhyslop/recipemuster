@@ -36,7 +36,7 @@ rbld_divine() {
   test -f "${RBDC_DIRECTOR_RBRA_FILE}" \
     || buc_die "Director credential not found: ${RBDC_DIRECTOR_RBRA_FILE}"
   local z_token=""
-  z_token=$(rbgo_get_token_capture "${RBDC_DIRECTOR_RBRA_FILE}") \
+  z_token=$(rba_token_capture director) \
     || buc_die "Failed to get Director OAuth token"
 
   buc_step "Enumerating Lodes under ${RBGL_LODES_ROOT}/"
@@ -140,7 +140,7 @@ rbld_augur() {
   test -f "${RBDC_DIRECTOR_RBRA_FILE}" \
     || buc_die "Director credential not found: ${RBDC_DIRECTOR_RBRA_FILE}"
   local z_token=""
-  z_token=$(rbgo_get_token_capture "${RBDC_DIRECTOR_RBRA_FILE}") \
+  z_token=$(rba_token_capture director) \
     || buc_die "Failed to get Director OAuth token"
 
   local -r z_pkg="${RBGL_LODES_ROOT}/${z_touchmark}"
@@ -252,7 +252,7 @@ rbld_banish() {
 
   buc_step "Authenticating as Director"
   local z_token=""
-  z_token=$(rbgo_get_token_capture "${RBDC_DIRECTOR_RBRA_FILE}") \
+  z_token=$(rba_token_capture director) \
     || buc_die "Failed to get Director OAuth token"
 
   local -r z_pkg="${RBGL_LODES_ROOT}/${z_touchmark}"

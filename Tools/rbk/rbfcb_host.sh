@@ -44,7 +44,7 @@ zrbfc_wait_build_completion() {
 
   buc_log_args 'Get fresh token for polling'
   local z_token=""
-  z_token=$(rbgo_get_token_capture "${RBDC_DIRECTOR_RBRA_FILE}") || buc_die "Failed to get GCB OAuth token"
+  z_token=$(rba_token_capture director) || buc_die "Failed to get GCB OAuth token"
 
   local z_status="PENDING"
   local z_polls=0

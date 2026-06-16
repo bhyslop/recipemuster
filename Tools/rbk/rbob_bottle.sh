@@ -300,7 +300,7 @@ zrbob_summon_full_hallmark() {
   test -f "${RBDC_RETRIEVER_RBRA_FILE}" || buc_die "Retriever credential not found: ${RBDC_RETRIEVER_RBRA_FILE}"
 
   local z_token
-  z_token=$(rbgo_get_token_capture "${RBDC_RETRIEVER_RBRA_FILE}") || buc_die "Failed to get OAuth token for auto-summon"
+  z_token=$(rba_token_capture retriever) || buc_die "Failed to get OAuth token for auto-summon"
 
   buc_step "Auto-summoning hallmark ${z_hallmark} (image + about + vouch)"
 
@@ -331,7 +331,7 @@ zrbob_vouch_gate_and_summon() {
   test -f "${RBDC_RETRIEVER_RBRA_FILE}" || buc_die "Retriever credential not found: ${RBDC_RETRIEVER_RBRA_FILE}"
 
   local z_token
-  z_token=$(rbgo_get_token_capture "${RBDC_RETRIEVER_RBRA_FILE}") || buc_die "Failed to get OAuth token for auto-summon"
+  z_token=$(rba_token_capture retriever) || buc_die "Failed to get OAuth token for auto-summon"
 
   # Pull the image
   buc_step "Auto-summoning ${z_image_ref}"

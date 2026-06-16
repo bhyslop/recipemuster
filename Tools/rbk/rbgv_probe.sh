@@ -71,32 +71,6 @@ zrbgv_ms_to_sleep_capture() {
   printf '%d.%03d' "${z_sec}" "${z_rem}"
 }
 
-# Resolve the RBRA file path for a given role name
-# Role names: governor | director | retriever
-zrbgv_role_rbra_file_capture() {
-  zrbgv_sentinel
-
-  local z_role="${1}"
-
-  case "${z_role}" in
-    governor)
-      test -n "${RBDC_GOVERNOR_RBRA_FILE:-}"  || buc_die "RBDC_GOVERNOR_RBRA_FILE is not set"
-      printf '%s\n' "${RBDC_GOVERNOR_RBRA_FILE}"
-      ;;
-    director)
-      test -n "${RBDC_DIRECTOR_RBRA_FILE:-}"  || buc_die "RBDC_DIRECTOR_RBRA_FILE is not set"
-      printf '%s\n' "${RBDC_DIRECTOR_RBRA_FILE}"
-      ;;
-    retriever)
-      test -n "${RBDC_RETRIEVER_RBRA_FILE:-}" || buc_die "RBDC_RETRIEVER_RBRA_FILE is not set"
-      printf '%s\n' "${RBDC_RETRIEVER_RBRA_FILE}"
-      ;;
-    *)
-      buc_die "Unknown role '${z_role}': expected governor | director | retriever"
-      ;;
-  esac
-}
-
 # HTTP GET with bounded exponential-backoff retry on transient 5xx responses.
 # On any non-5xx response (including auth errors), populates z_code_file and returns.
 # On curl-network failure or exhausted 5xx retries, buc_die. The caller evaluates
@@ -183,17 +157,9 @@ zrbgv_jwt_ar_probe_once_capture() {
 
   buc_log_args "JWT SA probe attempt ${z_attempt} for role '${z_role}'"
 
-  buc_log_args "Resolve RBRA file for role"
-  local z_rbra_file
-  z_rbra_file=$(zrbgv_role_rbra_file_capture "${z_role}") \
-    || buc_die "Failed to resolve RBRA file for role ${z_role}"
-
-  buc_log_args "Validate RBRA file exists"
-  test -f "${z_rbra_file}" || buc_die "RBRA file not found for role ${z_role}: ${z_rbra_file}"
-
-  buc_log_args "Exchange JWT for OAuth token"
+  buc_log_args "Mint OAuth token for role via the credential accessor"
   local z_token
-  z_token=$(rbgo_get_token_capture "${z_rbra_file}") \
+  z_token=$(rba_token_capture "${z_role}") \
     || buc_die "Failed to obtain OAuth token for role ${z_role} (attempt ${z_attempt})"
   test -n "${z_token}" || buc_die "Empty OAuth token for role ${z_role} (attempt ${z_attempt})"
 

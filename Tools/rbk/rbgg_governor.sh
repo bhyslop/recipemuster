@@ -168,7 +168,7 @@ zrbgg_create_service_account_with_key() {
 
   buc_step 'Get OAuth token from admin'
   local z_token
-  z_token=$(rba_get_governor_token_capture) || buc_die "Failed to get admin token"
+  z_token=$(rba_token_capture governor) || buc_die "Failed to get admin token"
 
   buc_step "Preflight: does ${z_account_name} already exist?"
   # Idempotent establish (RBSRK/RBSDK): a pre-existing SA is not drift — keep the
@@ -436,7 +436,7 @@ zrbgg_get_project_number_capture() {
   zrbgg_sentinel
 
   local z_token
-  z_token=$(rba_get_governor_token_capture) || return 1
+  z_token=$(rba_token_capture governor) || return 1
 
   rbuh_json "GET" "${RBGD_API_CRM_GET_PROJECT}" "${z_token}" "${ZRBGG_INFIX_PROJECT_INFO}"
   rbuh_require_ok "Get project info"                         "${ZRBGG_INFIX_PROJECT_INFO}" || return 1
@@ -528,7 +528,7 @@ zrbgg_roster_role() {
 
   buc_log_args 'Get OAuth token from admin'
   local z_token
-  z_token=$(rba_get_governor_token_capture) || buc_die "Failed to get admin token (rc=$?)"
+  z_token=$(rba_token_capture governor) || buc_die "Failed to get admin token (rc=$?)"
 
   local z_url_base="${RBGD_API_SERVICE_ACCOUNTS}"
   local z_page_token=""
@@ -616,7 +616,7 @@ rbgg_invest_retriever() {
     "${RBCC_role_retriever}" > /dev/null || buc_die "Failed to create Retriever SA"
 
   local z_token
-  z_token=$(rba_get_governor_token_capture) || buc_die "Failed to get admin token"
+  z_token=$(rba_token_capture governor) || buc_die "Failed to get admin token"
 
   buc_step 'Adding Artifact Registry Reader role'
   rbgi_add_project_iam_role                 \
@@ -668,7 +668,7 @@ rbgg_invest_director() {
 
   buc_step 'Get OAuth token from admin'
   local z_token
-  z_token=$(rba_get_governor_token_capture) || buc_die "Failed to get admin token"
+  z_token=$(rba_token_capture governor) || buc_die "Failed to get admin token"
 
   buc_step 'Adding Cloud Build Editor role (project scope)'
   rbgi_add_project_iam_role                 \
@@ -822,7 +822,7 @@ zrbgg_divest_role() {
 
   buc_log_args 'Get OAuth token from admin'
   local z_token
-  z_token=$(rba_get_governor_token_capture) || buc_die "Failed to get admin token"
+  z_token=$(rba_token_capture governor) || buc_die "Failed to get admin token"
 
   buc_log_args 'Delete via REST API (404-tolerant)'
   rbuh_json "DELETE" "${RBGD_API_SERVICE_ACCOUNTS}/${z_account_email}" "${z_token}" \
@@ -871,7 +871,7 @@ rbgg_divest_retriever() {
 
   buc_step "Revoke Retriever IAM bindings before delete (no deleted: tombstone)"
   local z_token
-  z_token=$(rba_get_governor_token_capture) || buc_die "Failed to get admin token"
+  z_token=$(rba_token_capture governor) || buc_die "Failed to get admin token"
 
   rbgi_revoke_project_member "${z_token}" "Revoke Artifact Registry Reader" \
     "${RBGD_PROJECT_RESOURCE}" "${RBGC_ROLE_ARTIFACTREGISTRY_READER}"        \
@@ -899,7 +899,7 @@ rbgg_divest_director() {
 
   buc_step "Revoke Director IAM bindings before delete (no deleted: tombstones)"
   local z_token
-  z_token=$(rba_get_governor_token_capture) || buc_die "Failed to get admin token"
+  z_token=$(rba_token_capture governor) || buc_die "Failed to get admin token"
 
   rbgi_revoke_project_member "${z_token}" "Revoke Cloud Build Editor" \
     "${RBGD_PROJECT_RESOURCE}" "${RBGC_ROLE_CLOUDBUILD_BUILDS_EDITOR}" \
@@ -950,7 +950,7 @@ rbgg_destroy_project() {
 
   buc_step 'Mint admin OAuth token'
   local z_token
-  z_token=$(rba_get_governor_token_capture) || buc_die "Failed to get admin token"
+  z_token=$(rba_token_capture governor) || buc_die "Failed to get admin token"
 
   buc_step 'Triple confirmation required'
   buc_warn ""
@@ -1016,7 +1016,7 @@ rbgg_restore_project() {
 
   buc_step 'Mint admin OAuth token'
   local z_token
-  z_token=$(rba_get_governor_token_capture) || buc_die "Failed to get admin token"
+  z_token=$(rba_token_capture governor) || buc_die "Failed to get admin token"
 
   buc_step 'Check current project state'
   rbuh_json "GET" "${RBGD_API_CRM_GET_PROJECT}" "${z_token}" "${ZRBGG_INFIX_PROJECT_STATE}"

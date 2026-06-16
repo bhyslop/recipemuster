@@ -1101,7 +1101,7 @@ rbfd_build() {
   # Authenticate as Director
   buc_step "Authenticating as Director"
   local z_token=""
-  z_token=$(rbgo_get_token_capture "${RBDC_DIRECTOR_RBRA_FILE}") \
+  z_token=$(rba_token_capture director) \
     || buc_die "Failed to get Director OAuth token"
 
   # Quota preflight -- warn if insufficient capacity
@@ -1272,7 +1272,7 @@ rbfd_mirror() {
 
   buc_step "Authenticating as Director"
   local z_token
-  z_token=$(rbgo_get_token_capture "${RBDC_DIRECTOR_RBRA_FILE}") \
+  z_token=$(rba_token_capture director) \
     || buc_die "Failed to get Director OAuth token"
 
   # Registry preflight -- verify reliquary and base images exist before expensive operations
@@ -1565,7 +1565,7 @@ rbfd_graft() {
 
   buc_step "Authenticating as Director"
   local z_token
-  z_token=$(rbgo_get_token_capture "${RBDC_DIRECTOR_RBRA_FILE}") \
+  z_token=$(rba_token_capture director) \
     || buc_die "Failed to get Director OAuth token"
 
   # Registry preflight -- verify reliquary tool images exist (graft about+vouch use them)

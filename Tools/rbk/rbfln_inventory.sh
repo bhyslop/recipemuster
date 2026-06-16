@@ -35,7 +35,7 @@ rbfl_tally() {
   test -f "${RBDC_RETRIEVER_RBRA_FILE}" \
     || buc_die "Retriever credential not found: ${RBDC_RETRIEVER_RBRA_FILE}"
   local z_token=""
-  z_token=$(rbgo_get_token_capture "${RBDC_RETRIEVER_RBRA_FILE}") \
+  z_token=$(rba_token_capture retriever) \
     || buc_die "Failed to get Retriever OAuth token"
 
   buc_step "Enumerating hallmarks under ${RBGL_HALLMARKS_ROOT}/"
@@ -151,7 +151,7 @@ rbfl_rekon_hallmark() {
   test -f "${RBDC_DIRECTOR_RBRA_FILE}" \
     || buc_die "Director credential not found: ${RBDC_DIRECTOR_RBRA_FILE}"
   local z_token=""
-  z_token=$(rbgo_get_token_capture "${RBDC_DIRECTOR_RBRA_FILE}") \
+  z_token=$(rba_token_capture director) \
     || buc_die "Failed to get Director OAuth token"
 
   buc_step "Enumerating arks under ${RBGL_HALLMARKS_ROOT}/${z_hallmark}/"
@@ -213,7 +213,7 @@ rbfl_audit_hallmarks() {
   test -f "${RBDC_DIRECTOR_RBRA_FILE}" \
     || buc_die "Director credential not found: ${RBDC_DIRECTOR_RBRA_FILE}"
   local z_token=""
-  z_token=$(rbgo_get_token_capture "${RBDC_DIRECTOR_RBRA_FILE}") \
+  z_token=$(rba_token_capture director) \
     || buc_die "Failed to get Director OAuth token"
 
   buc_step "Enumerating hallmarks under ${RBGL_HALLMARKS_ROOT}/"
@@ -278,7 +278,7 @@ rbfl_list() {
   test -f "${RBDC_DIRECTOR_RBRA_FILE}" \
     || buc_die "Director credential not found: ${RBDC_DIRECTOR_RBRA_FILE}"
   local z_token=""
-  z_token=$(rbgo_get_token_capture "${RBDC_DIRECTOR_RBRA_FILE}") \
+  z_token=$(rba_token_capture director) \
     || buc_die "Failed to get Director OAuth token"
 
   # One enumeration of every package (decoded names, slashes restored, sorted).

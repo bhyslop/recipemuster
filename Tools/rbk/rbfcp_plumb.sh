@@ -53,7 +53,7 @@ zrbfc_plumb_core() {
   test -f "${RBDC_RETRIEVER_RBRA_FILE}" \
     || buc_die "Retriever credential not found: ${RBDC_RETRIEVER_RBRA_FILE}"
   local z_token=""
-  z_token=$(rbgo_get_token_capture "${RBDC_RETRIEVER_RBRA_FILE}") \
+  z_token=$(rba_token_capture retriever) \
     || buc_die "Failed to get Retriever OAuth token"
 
   local -r z_extract="${BURD_TEMP_DIR}/plumb"

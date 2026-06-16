@@ -43,40 +43,34 @@ zrba_sentinel() {
 ######################################################################
 # External / RBTOE Pattern Functions
 
-rba_get_governor_token_capture() {
+# The credential accessor — the single place credential material is resolved.
+# Keyed by identity (governor | director | retriever): maps the identity to its
+# RBDC_<ROLE>_RBRA_FILE and mints through rbgo. No call site outside this
+# function touches credential material (source-side grep-gated). The keyfile mint
+# here is bridge scaffolding; the federated-token path will branch in this one
+# function when it lands.
+rba_token_capture() {
   zrba_sentinel
 
-  # Need access to RBDC_GOVERNOR_RBRA_FILE from regime
-  test -n "${RBDC_GOVERNOR_RBRA_FILE:-}" || return 1
+  local -r z_identity="${1:-}"
 
-  # return $? not 1: an in-band rejection from the mint (credless guard) must
-  # survive this wrapper so the buc_die membrane upstream re-exits it precisely.
-  local z_token
-  z_token=$(rbgo_get_token_capture "${RBDC_GOVERNOR_RBRA_FILE}") || return $?
-
-  test -n "${z_token}" || return 1
-  echo    "${z_token}"
-}
-
-rba_authenticate_role_capture() {
-  zrba_sentinel
-
-  local -r z_rbra_file="${1}"
+  local z_rbra_file
+  case "${z_identity}" in
+    governor)  z_rbra_file="${RBDC_GOVERNOR_RBRA_FILE:-}"  ;;
+    director)  z_rbra_file="${RBDC_DIRECTOR_RBRA_FILE:-}"  ;;
+    retriever) z_rbra_file="${RBDC_RETRIEVER_RBRA_FILE:-}" ;;
+    *) buc_die "rba_token_capture: unknown identity '${z_identity}' (expected governor | director | retriever)" ;;
+  esac
 
   test -n "${z_rbra_file}" || return 1
-  test -f "${z_rbra_file}" || return 1
 
-  buc_log_args "Authenticating with RBRA file: ${z_rbra_file}"
-
-  source "${z_rbra_file}" || return 1
-
-  # return $? not 1: in-band mint rejections survive this wrapper (see above).
+  # return $? not 1: an in-band rejection from the mint (credless guard) must
+  # survive this accessor so the buc_die membrane upstream re-exits it precisely.
   local z_token
   z_token=$(rbgo_get_token_capture "${z_rbra_file}") || return $?
 
   test -n "${z_token}" || return 1
-
-  echo "${z_token}"
+  echo    "${z_token}"
 }
 
 rba_extract_json_to_rbra() {

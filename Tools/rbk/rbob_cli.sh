@@ -124,6 +124,7 @@ zrbob_furnish() {
   source "${z_rbk_kit_dir}/rbgl_layout.sh"
   source "${z_rbk_kit_dir}/rbgd_depot.sh"
   source "${z_rbk_kit_dir}/rbgo_oauth.sh"
+  source "${z_rbk_kit_dir}/rba_auth.sh"
   source "${z_rbk_kit_dir}/rbob_bottle.sh"
   source "${BURD_BUK_DIR}/buf_fact.sh"
   source "${BURD_BUK_DIR}/bug_git.sh"
@@ -181,6 +182,7 @@ zrbob_furnish() {
   zrbgl_kindle
   zrbgd_kindle
   zrbgo_kindle
+  zrba_kindle
   zrbob_kindle
 
   # rbfh kindle (Dockerfile hygiene) — load-bearing for both kludge and ordain

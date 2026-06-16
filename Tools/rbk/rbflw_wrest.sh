@@ -49,7 +49,7 @@ rbfl_wrest() {
   test -f "${RBDC_DIRECTOR_RBRA_FILE}" \
     || buc_die "Director credential not found: ${RBDC_DIRECTOR_RBRA_FILE}"
   local z_token
-  z_token=$(rbgo_get_token_capture "${RBDC_DIRECTOR_RBRA_FILE}") \
+  z_token=$(rba_token_capture director) \
     || buc_die "Failed to get OAuth token"
 
   buc_step "Logging into container registry"

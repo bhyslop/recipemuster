@@ -348,7 +348,7 @@ zrbgp_billing_attach() {
   buc_step "Attaching billing account: ${z_billing_account}"
 
   local z_token
-  z_token=$(rba_get_governor_token_capture) || buc_die "Failed to get admin token"
+  z_token=$(rba_token_capture governor) || buc_die "Failed to get admin token"
   local -r z_billing_body="${BURD_TEMP_DIR}/rbgp_billing_attach.json"
   jq -n --arg billingAccountName "billingAccounts/${z_billing_account}" \
     --arg projectId "${RBDC_DEPOT_PROJECT_ID}" \
@@ -375,7 +375,7 @@ zrbgp_billing_detach() {
   buc_step "Detaching billing account from project"
 
   local z_token
-  z_token=$(rba_get_governor_token_capture) || buc_die "Failed to get admin token"
+  z_token=$(rba_token_capture governor) || buc_die "Failed to get admin token"
   local -r z_billing_body="${BURD_TEMP_DIR}/rbgp_billing_detach.json"
   jq -n --arg projectId "${RBDC_DEPOT_PROJECT_ID}" \
     '{
@@ -402,7 +402,7 @@ zrbgp_liens_list() {
   buc_step "Listing liens on project: ${RBDC_DEPOT_PROJECT_ID}"
 
   local z_token
-  z_token=$(rba_get_governor_token_capture) || buc_die "Failed to get admin token"
+  z_token=$(rba_token_capture governor) || buc_die "Failed to get admin token"
   rbuh_json "GET" "${RBGC_API_ROOT_CRM}${RBGC_CRM_V1}/liens?parent=projects/${RBDC_DEPOT_PROJECT_ID}" "${z_token}" "${ZRBGP_INFIX_LIST_LIENS}"
   rbuh_require_ok "List liens" "${ZRBGP_INFIX_LIST_LIENS}"
 
@@ -435,7 +435,7 @@ zrbgp_lien_delete() {
   buc_step "Deleting lien: ${z_lien_name}"
 
   local z_token
-  z_token=$(rba_get_governor_token_capture) || buc_die "Failed to get admin token"
+  z_token=$(rba_token_capture governor) || buc_die "Failed to get admin token"
   rbuh_json "DELETE" "${RBGC_API_CRM_DELETE_LIEN}/${z_lien_name}" "${z_token}" "${ZRBGP_INFIX_DELETE_LIEN}"
   rbuh_require_ok "Delete lien" "${ZRBGP_INFIX_DELETE_LIEN}" 404 "not found (already deleted)"
 
@@ -491,7 +491,7 @@ zrbgp_get_project_number_capture() {
   zrbgp_sentinel
 
   local z_token
-  z_token=$(rba_get_governor_token_capture) || return 1
+  z_token=$(rba_token_capture governor) || return 1
 
   rbuh_json "GET" "${RBGC_API_ROOT_CRM}${RBGC_CRM_V1}${RBGC_PATH_PROJECTS}/${RBDC_DEPOT_PROJECT_ID}" "${z_token}" "${ZRBGP_INFIX_PROJECT_INFO}"
   rbuh_require_ok "Get project info" "${ZRBGP_INFIX_PROJECT_INFO}" || return 1
