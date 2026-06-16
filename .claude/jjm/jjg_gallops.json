@@ -9116,6 +9116,7 @@
         "₢BZAAF",
         "₢BZAAG",
         "₢BZAAM",
+        "₢BZAAW",
         "₢BZAAU",
         "₢BZAAT",
         "₢BZAAH",
@@ -9130,7 +9131,7 @@
         "₢BZAAS",
         "₢BZAAN"
       ],
-      "jjghn_next_pace_seed": "AAW",
+      "jjghn_next_pace_seed": "AAX",
       "jjghn_paces": {
         "₢BZAAA": {
           "jjgpn_tacks": [
@@ -9511,6 +9512,17 @@
               "jjgtn_text": "Close the federation's true end to end: a federated citizen dons a levy mantle and the Artifact Registry Data-Access log attributes the act to the human.\nThis is the payoff of the levy's audit-log enablement and the spike's V3 attribution finding — proven by neither the levy runtime proof (which shows the audit config exists, not that attribution works) nor the live-compearance pace (which stops at the cached federated token).\nIt sits exactly where those two halves meet: the levied mantles and audit config on one side, a live federated token on the other.\n\n## Done when\nA federated token from the live compearance mints a mantle access token, an Artifact Registry call is made under it, and the resulting Data-Access log entry carries serviceAccountDelegationInfo[].principalSubject equal to the federate's immutable IdP subject.\nThe mint-hop quirk the spike flagged — principalEmail is the mantle SA, the subject absent from the mint record — is observed at the using-service log and not mistaken for a failure.\n\n## Cinched\nDepends on a standing levied depot (mantles plus audit config) and a live federated token — the convergence of the autonomous levy proof and the human-in-the-loop compearance.\n\n## Character\nOperator-paced live verification reading real audit logs — interactive, follows the live compearance; read the federation-legs-spike findings memo (V3) for the exact log shape.",
               "jjgtn_silks": "citizen-attribution-proof",
               "jjgtn_basis": "2ef1366"
+            }
+          ]
+        },
+        "₢BZAAW": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260616-1255",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "Prove the affiance ceremony (rbgp_manor_affiance, colophon rbw-mA) end-to-end against the live org — the autonomous founding-ceremony proof, sibling to the levy-founding-proof.\nBoth tiers run autonomously under payor credentials; no human click.\nLive Leg-1 device-flow reachability is proven downstream by the citizen-attribution capstone — a citizen must compear against the affiance-seated provider to be attributed — and is not owned here.\n\nTier A — reconcile against the standing spike trust.\nRun rbw-mA and assert: the furnish enforced RBRF and skipped the depot/repo regimes (the pre-levy regime wiring), the org-level workforcePoolAdmin self-grant landed idempotently, the pool and provider GET clean, and the run exits clean leaving the standing trust in place.\n\nTier B — create-path de-risk: the only path that exercises the workforce-pool / provider create REST shapes, unrun since the original spike.\nRun affiance against a throwaway, unique pool + provider id — a test-seam overriding RBRF_WORKFORCE_POOL_ID / RBRF_PROVIDER_ID, plus a teardown delete.\nAssert pool, provider, and attribute mapping are created carrying the regime's field values, then delete the throwaway pool.\n\n## Done when\nBoth tiers pass against the live org under payor credentials.\nTier A leaves the standing spike trust intact; Tier B leaves no live throwaway pool (soft-delete debris accepted, per the depot-project graveyard precedent).\n\n## Cinched\nBoth tiers in scope.\nLeg-1 device-flow proof rides the downstream citizen-attribution capstone, not this pace.\nTier B uses throwaway unique ids and never touches the standing trust's pool.\nTier A's config-convergence assertion follows the resolved ensure-exists-vs-reconcile decision on the affiance impl (RBSMA).\n\n## Character\nAutonomous live-cloud proof.\nTier B is net-new test infrastructure — a tweak overriding the pool/provider ids plus a teardown delete gesture.",
+              "jjgtn_silks": "affiance-proof",
+              "jjgtn_basis": "4b4b38e"
             }
           ]
         }
