@@ -33,12 +33,6 @@ ZBURD_SOURCED=1
 zburd_kindle() {
   test -z "${ZBURD_KINDLED:-}" || buc_die "Module burd already kindled"
 
-  # Kindle the BUBC layout constants this module's enroll descriptions reference.
-  # BURD_BUK_DIR is the dispatch-provided anchor already used to locate this file;
-  # bubc_constants.sh guards against multiple inclusion, so the re-source is a no-op
-  # for callers that furnished it earlier.
-  source "${BURD_BUK_DIR}/bubc_constants.sh" || buc_die "Failed to source bubc_constants.sh"
-
   # No defaults set — buv uses ${!varname:-} for safe indirect expansion under set -u.
   # Unset variables are detected distinctly from empty by zbuv_check_capture.
 
@@ -47,7 +41,8 @@ zburd_kindle() {
   buv_regime_enroll BURD
 
   buv_group_enroll "Launcher Configuration"
-  buv_string_enroll  BURD_CONFIG_DIR            1  256  "Path to the ${BUBC_moorings_dir}/ configuration directory"
+  buv_string_enroll  BURD_CONFIG_DIR            1  256  "Path to the ${BURD_MOORINGS_DIR}/ configuration directory"
+  buv_string_enroll  BURD_MOORINGS_DIR          1  256  "Basename of the config directory (repo-root-relative, for operator-facing display)"
   buv_string_enroll  BURD_REGIME_FILE           1  256  "Path to the BURC regime configuration file"
   buv_string_enroll  BURD_STATION_FILE          1  256  "Path to the developer's BURS station file"
   buv_string_enroll  BURD_COORDINATOR_SCRIPT    1  256  "Path to the coordinator script for this tabtarget"

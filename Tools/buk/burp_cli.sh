@@ -53,7 +53,7 @@ burp_list() {
   buc_doc_shown || return 0
 
   local z_aliases
-  z_aliases=$(burp_list_capture) || buc_die "No BURP profiles under ${BUBC_moorings_dir}/${BUBC_rbmu_users_subdir}/${BURS_USER}/"
+  z_aliases=$(burp_list_capture) || buc_die "No BURP profiles under ${BURD_MOORINGS_DIR}/${BUBC_rbmu_users_subdir}/${BURS_USER}/"
   buc_step "Available investitures for ${BURS_USER}:"
   local z_alias=""
   for z_alias in ${z_aliases}; do

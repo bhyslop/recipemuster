@@ -38,7 +38,7 @@ zburs_kindle() {
   buv_regime_enroll BURS
 
   buv_group_enroll "Developer Identity"
-  buv_xname_enroll   BURS_USER     1   32  "Local developer username (routes to ${BUBC_moorings_dir}/${BUBC_rbmu_users_subdir}/ profiles)"
+  buv_xname_enroll   BURS_USER     1   32  "Local developer username (routes to ${BURD_MOORINGS_DIR}/${BUBC_rbmu_users_subdir}/ profiles)"
   buv_string_enroll  BURS_TINCTURE 1    3  "Per-station tincture composed by test fixtures into cloud/runtime prefixes and family stems for parallel-run disjointness on a shared payor manor (lowercase alphanumeric, leading letter, no hyphen)"
 
   buv_group_enroll "Developer Logging"

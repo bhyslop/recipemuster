@@ -25,12 +25,6 @@ test -z "${ZBUBC_SOURCED:-}" || return 0
 ZBUBC_SOURCED=1
 
 # Source-time literal constants.
-#
-# BUBC_moorings_dir is the basename of the project's config dir. The
-# project-intimate trampoline (z-launcher) is the sole authority for the name;
-# it exports BURD_CONFIG_DIR (absolute), and we derive the basename here so
-# tooling (qualify, tabtarget creation) refers to it without re-literaling.
-BUBC_moorings_dir="${BURD_CONFIG_DIR##*/}"
 BUBC_launchers_subdir="rbml_launchers"
 BUBC_rbmn_nodes_subdir="rbmn_nodes"
 BUBC_rbmu_users_subdir="rbmu_users"

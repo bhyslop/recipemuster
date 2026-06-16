@@ -359,7 +359,7 @@
 :rbrr_group_resource_prefixing: <<rbrr_group_resource_prefixing,Runtime Prefix Group>>
 
 // Consumer moorings root — the single place the literal moorings directory name appears.
-// Mirrors bash fact-locale RBCC_moorings_dir / BUBC_moorings_dir. Each regime's file
+// Mirrors bash fact-locale RBCC_moorings_dir / BURD_MOORINGS_DIR. Each regime's file
 // location composes from this quoin in that regime's definition; there are no per-file
 // quoins — the regime quoin owns its file location.
 :rbsld_moorings:             <<rbsld_moorings,rbmm_moorings/>>

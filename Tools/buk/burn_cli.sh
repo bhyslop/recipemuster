@@ -53,7 +53,7 @@ burn_list() {
   buc_doc_shown || return 0
 
   local z_aliases
-  z_aliases=$(burn_list_capture) || buc_die "No BURN profiles under ${BUBC_moorings_dir}/${BUBC_rbmn_nodes_subdir}/"
+  z_aliases=$(burn_list_capture) || buc_die "No BURN profiles under ${BURD_MOORINGS_DIR}/${BUBC_rbmn_nodes_subdir}/"
   buc_step "Available investitures:"
   local z_alias=""
   for z_alias in ${z_aliases}; do

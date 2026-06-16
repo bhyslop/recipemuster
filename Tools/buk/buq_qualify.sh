@@ -128,7 +128,7 @@ buq_tabtargets() {
         ;;
     esac
     local z_launcher_basename="${z_launcher_line#"${z_launcher_prefix}"}"
-    local z_launcher_path="${BUBC_moorings_dir}/${BUBC_launchers_subdir}/${z_launcher_basename}"
+    local z_launcher_path="${BURD_MOORINGS_DIR}/${BUBC_launchers_subdir}/${z_launcher_basename}"
     test -f "${z_project_root}/${z_launcher_path}" || {
       z_fail_files+=("${z_basename}")
       z_fail_reasons+=("launcher not found: ${z_launcher_path}")
