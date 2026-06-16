@@ -194,11 +194,20 @@ would destroy them.  Requesting version 3 everywhere closes that hazard.
 The `setIamPolicy` request includes an optional `updateMask` field (FieldMask).
 When not provided, it defaults to `bindings, etag`.  This means the `version`
 and `auditConfigs` fields in the submitted policy JSON are _ignored_ by the
-server unless the mask explicitly includes them.  The compose function should
-not need to manage `auditConfigs` (Recipe Bottle does not configure audit
-logging via IAM policy), but this default explains why submitting a policy with
-version=1 does not downgrade a version=3 policy when the mask is defaulted —
-the version field is simply ignored.
+server unless the mask explicitly includes them.  This default explains why
+submitting a policy with version=1 does not downgrade a version=3 policy when
+the mask is defaulted — the version field is simply ignored.
+
+Recipe Bottle exercises this mask discipline deliberately in one place: enabling
+Artifact Registry Data-Access audit logs at depot levy (the depot-levy ceremony,
+RBSMF).  That write carries `updateMask: "auditConfigs,etag"` and a policy body
+holding only the `auditConfigs` entry plus the read `etag` — no `bindings`.
+Because `bindings` sits outside the mask, the project's existing bindings are
+left untouched: the masked write is the safe side of the "setIamPolicy replaces
+the whole policy" footgun, and the `etag` inside the mask keeps the
+read-modify-write concurrency check load-bearing.  This call uses CRM v3
+`getIamPolicy`/`setIamPolicy`, per Google's documented Data-Access audit-log
+procedure.
 
 ===== Empty-Policy / No-Policy Behavior
 

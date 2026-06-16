@@ -48,6 +48,13 @@ _Reference_:
 <<rbscig_iam_grant_contracts>>
 (Convergence Analysis section).
 
+**CRM v1 `getIamPolicy`/`setIamPolicy` migration to v3.**
+The project-IAM grant path (`rbgi_add_project_iam_role`) and the project-lifecycle constants `RBGD_API_CRM_GET_PROJECT` / `RBGD_API_CRM_DELETE_PROJECT` / `RBGD_API_CRM_UNDELETE_PROJECT` still call Cloud Resource Manager **v1**, which Google has placed on a deprecation path (v1beta1 already deprecated; v3 is the GAPIC modernization target).
+The depot-levy Data-Access audit-log call was moved to v3 when it was added, because Google documents that procedure only against v3; the remaining v1 callers were left on the base they were proven against to keep that change surgical.
+Migrating them is a mechanical base-URL switch (`RBGD_API_BASE_CRM_PROJECT` from `/v1` to `/v3`) plus re-verification that the v3 endpoints accept the same request shapes — `getIamPolicy`/`setIamPolicy` share `google.iam.v1` types across versions, so the risk is low but unrun.
+_Trigger_: when CRM v1 receives a concrete sunset date, or the next time the project-IAM or project-lifecycle paths are touched for other reasons.
+_Reference_: rbgd_depot.sh (the `RBGD_API_BASE_CRM_PROJECT` vs `RBGD_API_BASE_CRM_PROJECT_V3` split); Cloud Resource Manager "Perform the migration" (v1 to v3) guide.
+
 **Podman as first-class deployment target.**
 Recipe Bottle currently deploys to Podman on workstations via the bottle lifecycle (RBSBS, RBSBR, RBSBL).
 Podman support is functional but not hardened — the sentry container, network isolation, and eBPF enforcement assume Linux Podman with rootful access.
