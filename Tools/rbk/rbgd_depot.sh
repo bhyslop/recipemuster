@@ -46,6 +46,7 @@ zrbgd_kindle() {
   # Common API Base Paths (hoisted for reuse)
   readonly RBGD_API_BASE_SERVICEUSAGE="${RBGC_API_ROOT_SERVICEUSAGE}${RBGC_SERVICEUSAGE_V1}${RBGC_PATH_PROJECTS}/${RBDC_DEPOT_PROJECT_ID}${RBGC_SERVICEUSAGE_PATH_SERVICES}"
   readonly RBGD_API_BASE_CRM_PROJECT="${RBGC_API_ROOT_CRM}${RBGC_CRM_V1}${RBGC_PATH_PROJECTS}/${RBDC_DEPOT_PROJECT_ID}"
+  readonly RBGD_API_BASE_CRM_PROJECT_V3="${RBGC_API_ROOT_CRM}${RBGC_CRM_V3}${RBGC_PATH_PROJECTS}/${RBDC_DEPOT_PROJECT_ID}"
   readonly RBGD_API_BASE_IAM_PROJECT="${RBGC_API_ROOT_IAM}${RBGC_IAM_V1}${RBGC_PATH_PROJECTS}/${RBDC_DEPOT_PROJECT_ID}"
 
   # IAM Service Accounts
@@ -59,9 +60,12 @@ zrbgd_kindle() {
   readonly RBGD_GCS_BUCKET="${RBDC_GCS_BUCKET}"
   readonly RBGD_MASON_EMAIL="${RBCC_account_mason}-${RBGD_DEPOT_NAME}@${RBGD_SA_EMAIL_FULL}"
 
-  # Cloud Resource Manager (CRM) APIs
-  readonly RBGD_API_CRM_GET_IAM_POLICY="${RBGD_API_BASE_CRM_PROJECT}${RBGC_CRM_GET_IAM_POLICY_SUFFIX}"
-  readonly RBGD_API_CRM_SET_IAM_POLICY="${RBGD_API_BASE_CRM_PROJECT}${RBGC_CRM_SET_IAM_POLICY_SUFFIX}"
+  # Cloud Resource Manager (CRM) APIs. The IAM-policy pair rides CRM v3: Google's
+  # Data Access audit-log procedure is documented only against v3 getIamPolicy/
+  # setIamPolicy, and CRM v1 is on the deprecation path (see RBSMF audit-log step).
+  # The project-lifecycle reads/deletes below stay on the v1 base they were proven against.
+  readonly RBGD_API_CRM_GET_IAM_POLICY="${RBGD_API_BASE_CRM_PROJECT_V3}${RBGC_CRM_GET_IAM_POLICY_SUFFIX}"
+  readonly RBGD_API_CRM_SET_IAM_POLICY="${RBGD_API_BASE_CRM_PROJECT_V3}${RBGC_CRM_SET_IAM_POLICY_SUFFIX}"
   readonly RBGD_API_CRM_GET_PROJECT="${RBGD_API_BASE_CRM_PROJECT}"
   readonly RBGD_API_CRM_DELETE_PROJECT="${RBGD_API_BASE_CRM_PROJECT}"
   readonly RBGD_API_CRM_UNDELETE_PROJECT="${RBGD_API_BASE_CRM_PROJECT}:undelete"

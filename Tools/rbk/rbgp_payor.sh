@@ -1065,7 +1065,8 @@ zrbgp_establish_mantle_sa() {
 # Enable Artifact Registry Data-Access audit logs on the depot project (spike V3):
 # ADMIN_READ + DATA_READ on the using service artifactregistry.googleapis.com,
 # never on iamcredentials. auditConfigs are dropped unless the write carries them,
-# so the set is masked to auditConfigs and rides the read etag. See RBSMF.
+# so the v3 set masks updateMask=auditConfigs,etag — writing only the audit config,
+# never bindings, riding the read etag for concurrency. See RBSMF.
 zrbgp_enable_ar_audit_logs() {
   zrbgp_sentinel
 
@@ -1098,7 +1099,7 @@ zrbgp_enable_ar_audit_logs() {
         ],
         etag: $etag
       },
-      updateMask: "auditConfigs"
+      updateMask: "auditConfigs,etag"
     }' > "${z_set_body}" || buc_die "Failed to build audit setIamPolicy body"
 
   rbuh_json "POST" "${RBGD_API_CRM_SET_IAM_POLICY}" "${z_token}" "depot_audit_set" "${z_set_body}"
