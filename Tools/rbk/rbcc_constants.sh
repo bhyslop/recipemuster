@@ -48,6 +48,7 @@ RBCC_vessels_subdir="rbmv_vessels"
 RBCC_rbrr_file="${RBCC_moorings_dir}/rbrr.env"
 RBCC_rbrp_file="${RBCC_moorings_dir}/rbrp.env"
 RBCC_rbrm_file="${RBCC_moorings_dir}/rbrm.env"
+RBCC_rbrf_file="${RBCC_moorings_dir}/rbrf.env"
 RBCC_rbrd_basename="rbrd.env"
 RBCC_rbrd_file="${RBCC_moorings_dir}/${RBCC_rbrd_basename}"
 
@@ -164,6 +165,7 @@ rbcc_emit_consts() {
     RBCC_rbrr_file       \
     RBCC_rbrp_file       \
     RBCC_rbrm_file       \
+    RBCC_rbrf_file       \
     RBCC_rbrd_basename   \
     RBCC_rbrd_file       \
     RBCC_rbrs_file       \

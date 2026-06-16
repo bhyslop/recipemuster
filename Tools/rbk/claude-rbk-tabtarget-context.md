@@ -163,6 +163,8 @@ The Folio column shows how each tabtarget receives it:
 | `rbw-rdc` | CheckDepotRegime | param1 | Check local rbrd.env against inscribed tripwire (bearer token via positional) |
 | `rbw-rpr` | RenderPayorRegime | — | Render payor regime |
 | `rbw-rpv` | ValidatePayorRegime | — | Validate payor regime |
+| `rbw-rfr` | RenderFederationRegime | — | Render federation regime |
+| `rbw-rfv` | ValidateFederationRegime | — | Validate federation regime |
 | `rbw-ror` | RenderOauthRegime | — | Render OAuth regime |
 | `rbw-rov` | ValidateOauthRegime | — | Validate OAuth regime |
 | `rbw-rsr` | RenderStationRegime | — | Render station regime |
