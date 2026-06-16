@@ -1,8 +1,8 @@
 // RBSTR — Terrier access (sub-operation subdoc)
 //
 // STANDING subdoc, contract-first. The ACG home for the Terrier's access
-// sub-operations — the atomic write / withdraw / read of a muniment. invest,
-// divest, and rehearse are thin RBS0-side wrappers that compose these sub-ops
+// sub-operations — the atomic engross / expunge / peruse of a muniment. brevet,
+// unseat, and rehearse are thin RBS0-side wrappers that compose these sub-ops
 // and add their own non-terrier steps (the IAM bindings); the shared
 // terrier-touch is defined once here, never restated in the wrappers (ACG:
 // reference the home, don't recreate).
@@ -13,30 +13,61 @@
 // with the other civic quoins (terrier, muniment, mantle, ...) at the head of
 // the verb movement (M4). This subdoc references that noun; it does not define it.
 //
-// Not yet wired: registering the sub-operation quoins in the RBS0 mapping
-// section and `include::`-ing this file into RBS0 (proximal to its include site,
-// the standard operation-fragment treatment) is contract-first work of the M4
-// terrier pace. Until then the civic words below are plain prose. Settled now:
-// this subdoc's identity, and the atomic-write contract.
+// Wired (M4): the sub-operation quoins below are registered in the RBS0 mapping
+// section under the rbtf_ federation category, and this file is `include::`'d
+// into RBS0 proximal to the terrier noun quoin (the standard operation-fragment
+// treatment). Settled: this subdoc's identity, the atomic-write contract, and the
+// three sub-operation quoins (engross / expunge / peruse).
 
 == Terrier access
 
-The Terrier is a polity's durable, cloud-resident, authoritative record of which
-citizen holds which mantle — one entry, a *muniment* recording (principal
-subject, mantle held), per object (terrier noun quoin, forthcoming). Exactly
-three sub-operations touch it:
+The
+{rbtf_terrier}
+is a polity's durable, cloud-resident, authoritative record of which
+{rbtf_citizen}
+holds which
+{rbtf_mantle}
+— one
+{rbtf_muniment}
+per object, recording (principal subject, mantle held).
+Exactly three sub-operations touch it, each a single conditioned REST call
+against the bucket:
 
-* *write* a muniment — composed by the admission verb that grants a mantle;
-* *withdraw* a muniment — composed by the admission verb that removes one;
-* *read* muniments — the primitive rehearse composes, and the read side of the
-  reconciliation diff.
+[[rbtf_engross]]
+{rbtf_engross}::
+Write a
+{rbtf_muniment}
+(to engross: to set a deed down in its formal, final copy).
+Composed by
+{rbtf_brevet},
+which engrosses the muniment before it writes the IAM binding.
+Carries the atomic write-semantics below.
 
-write and withdraw share the atomic write-semantics below; read is a pure
-list-and-fetch, no precondition.
+[[rbtf_expunge]]
+{rbtf_expunge}::
+Withdraw a
+{rbtf_muniment}
+(to strike an entry from the record).
+Composed by
+{rbtf_unseat}.
+Carries the atomic write-semantics below.
+
+[[rbtf_peruse]]
+{rbtf_peruse}::
+Read
+{rbtf_muniment_s}
+(to examine the record through).
+The pure list-and-fetch primitive — no precondition — that
+{rbtf_rehearse}
+composes, and the read side of the reconciliation diff.
 
 === Write semantics — atomic, server-adjudicated (settled)
 
-Writes to the Terrier are made atomic by Cloud Storage itself. No Cloud Build
+Mutations of the Terrier —
+{rbtf_engross}
+and
+{rbtf_expunge}
+— are made atomic by Cloud Storage itself. No Cloud Build
 invocation, and no external lock, is involved.
 
 * *Create is conditional on absence.* The object write carries the
@@ -54,15 +85,16 @@ invocation, and no external lock, is involved.
   writing distinct entries never contend, and the precondition covers the rare
   same-entry case.
 
-Each write is therefore a single conditioned REST call: the bucket adjudicates
+Each mutation is therefore a single conditioned REST call: the bucket adjudicates
 atomicity, the caller adds one query parameter and checks the HTTP code. This is
 within bash's good case under BCG — glue over a service, carrying no lock logic
 of its own.
 
-=== Forthcoming — settled with the terrier noun quoin (M4)
+=== Forthcoming — settled when the terrier noun's internals land
 
-Properties of the Terrier *noun*, not of its access; they settle when the noun
-quoin lands:
+Properties of the Terrier *noun*, not of its access; the noun is seated as a shell
+civic quoin in RBS0, but these internals are parked to the terrier-live pace and
+settle there:
 
 * object granularity — per-entry versus per-subject — and the JSON shape of a
   muniment under a freshly-minted terrier sprue (this also fixes whether the

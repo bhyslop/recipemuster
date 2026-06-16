@@ -558,6 +558,7 @@
 :rbsk_enrobe_serialized:     <<rbsk_enrobe_serialized,Enrobe Serialization>>
 :rbsk_in_pool_preflight:     <<rbsk_in_pool_preflight,In-Pool Reliquary Preflight>>
 :rbsk_pinning_boundary:      <<rbsk_pinning_boundary,Supply-Chain Pinning Boundary>>
+:rbsk_human_present:         <<rbsk_human_present,Human Present>>
 
 // Recipe Bottle Ifrit (adversarial AI escape testing)
 // rbsi_ prefix: RB Security Ifrit (adversarial validation concepts)
@@ -573,6 +574,29 @@
 :rbsq_quirk:                 <<rbsq_quirk,Quirk>>
 :rbsq_quirk_s:               <<rbsq_quirk,Quirks>>
 :rbsq_wdd_offpath_reply:     <<rbsq_wdd_offpath_reply,Windows-DD Off-Path Reply>>
+
+// Recipe Bottle Federation Civics (the workforce-federation vocabulary)
+// rbtf_ prefix: RB Term Federation (the civic roles, acts, and records of office federation)
+:rbtf_mantle:                <<rbtf_mantle,Mantle>>
+:rbtf_mantle_s:              <<rbtf_mantle,Mantles>>
+:rbtf_citizen:               <<rbtf_citizen,Citizen>>
+:rbtf_citizen_s:             <<rbtf_citizen,Citizens>>
+:rbtf_compear:               <<rbtf_compear,Compear>>
+:rbtf_assize:                <<rbtf_assize,Assize>>
+:rbtf_don:                   <<rbtf_don,Don>>
+:rbtf_brevet:                <<rbtf_brevet,Brevet>>
+:rbtf_unseat:                <<rbtf_unseat,Unseat>>
+:rbtf_attaint:               <<rbtf_attaint,Attaint>>
+:rbtf_affiance:              <<rbtf_affiance,Affiance>>
+:rbtf_rehearse:              <<rbtf_rehearse,Rehearse>>
+:rbtf_muniment:              <<rbtf_muniment,Muniment>>
+:rbtf_muniment_s:            <<rbtf_muniment,Muniments>>
+:rbtf_census:                <<rbtf_census,Census>>
+:rbtf_terrier:               <<rbtf_terrier,Terrier>>
+// Terrier access sub-operations — defined in RBSTR-Terrier.adoc (ACG home), registered here
+:rbtf_engross:               <<rbtf_engross,Engross>>
+:rbtf_expunge:               <<rbtf_expunge,Expunge>>
+:rbtf_peruse:                <<rbtf_peruse,Peruse>>
 
 // Cross-references to companion specifications
 :xref_AXLA:                  Axial Lexicon Specification
@@ -910,6 +934,26 @@ The capture family obeys the same boundary as the made side — the capture imag
 Rationale: a result that depends on whatever tag happened to be current at build time is a versioning failure, not a convenience — the same anti-ambient-state ethos as content-addressed anchors, the depot tripwire, and SLSA vouch.
 The narrow bootstrap exception is bounded, supervised, and re-runnable; it touches nothing a consumer relies on.
 The durable supply-chain canon, the gcr.io-bootstrap-only provenance, and the per-grade trust details live in RBSCB.
+
+[[rbsk_human_present]]
+//axk_premise
+{rbsk_human_present}::
+A live
+{rbtf_assize}
+— opened by a human
+{rbtf_compear}
+— backs every run of
+{at_recipe_bottle};
+no run begins outside one, and every token self-expires.
++
+No refresh token exists anywhere beyond the
+{rbtr_payor}'s
+own RBRO: an orchestrating agent never holds a durable secret, and the
+{rbtf_compear}
+device-flow kickoff surfaces only a user code and a verification URI — spike-verified live, with no `offline_access` scope and no refresh token in the response.
++
+Rationale: this is the design's outer bound on blast radius — a compromised station or agent inherits only what the live assize still permits, and that window closes on its own.
+A long run re-mints mantle tokens mid-flight from the cached federated token while the assize lives; when the assize lapses, the next mint fails loud (`assize lapsed, compear`) rather than silently reaching for a stored credential, because there is none to reach for.
 
 == Dependency Inventory
 
@@ -1779,6 +1823,149 @@ or cloud identity — the
 taxonomy concerns operational authority, not authentication type.
 Marshal operations are invisible to
 {rbtr_consumer_s}.
+
+=== Federation Civics
+
+The vocabulary of office federation: the standing roles an operator wears, the human
+who wears them, the acts that admit and remove, and the record that tells who holds
+what.
+The elected word set is authoritative; these definitions seat it as the contract the
+levy, accessor, terrier, and verb work all reference.
+
+[[rbtf_mantle]]
+//axo_role
+{rbtf_mantle}::
+A standing role — governor, director, or retriever — realized as an impersonatable
+{giam_service_account}
+whose resource authority is granted once, at depot levy, and frozen there.
+A
+{rbtf_citizen}
+wears exactly one
+{rbtf_mantle}
+per token, so the mantle worn is that token's blast radius.
+Supersedes the abandoned _office_ placeholder, which was heard as a place of work rather than a civic role.
+
+[[rbtf_citizen]]
+//axo_actor
+{rbtf_citizen}::
+The operator identity within a polity: a federated principal asserted by the external IdP, never a per-user Google account.
+The
+{rbtf_citizen}
+is the grantable subject — the `principal://` to which a
+{rbtf_mantle}
+is admitted — and the same subject is grantable in every depot under the manor.
+
+[[rbtf_compear]]
+{rbtf_compear}::
+The per-session human sign-in act (Scots law: to appear formally in answer to a summons), which opens a live
+{rbtf_assize}.
+Surfaced through the credential accessor, never as a tabtarget: a cloud command that finds no live assize runs the device-flow kickoff inline when a TTY is present, and fails loud when headless.
+
+[[rbtf_assize]]
+{rbtf_assize}::
+The live window opened by a
+{rbtf_compear}
+— a bounded sitting that is also a fixed regulated measure, concretely the workforce-pool session window (15 minutes to 12 hours).
+No run begins outside a live assize; once it lapses, the next token mint fails loud rather than reaching for a stored secret.
+
+[[rbtf_don]]
+{rbtf_don}::
+The impersonation act that mints a short-lived
+{rbtf_mantle}
+token from the federated token of a live
+{rbtf_assize}
+(the third federation leg, with the depot as quota project).
+Exactly one mantle is worn per token — the blast-radius bound made audible.
+
+[[rbtf_brevet]]
+{rbtf_brevet}::
+The everyday admission act that grants a
+{rbtf_citizen}
+a
+{rbtf_mantle}:
+an idempotent ensure of the `tokenCreator` binding on the mantle
+{giam_service_account},
+plus — on the citizen's first admission to a depot — the depot-scoped `serviceUsageConsumer` binding.
+The
+{rbtf_muniment}
+is written first, before the binding.
+
+[[rbtf_unseat]]
+{rbtf_unseat}::
+The everyday removal act that withdraws a
+{rbtf_mantle}
+from a
+{rbtf_citizen}:
+it removes the `tokenCreator` binding and leaves the depot-scoped binding in place.
+A citizen unseated of every mantle is _suspended_, not erased — visible, recoverable, and cheap to re-admit with a fresh
+{rbtf_brevet}.
+
+[[rbtf_attaint]]
+{rbtf_attaint}::
+The rare whole-person expulsion (attainder: the old law's civic death).
+It unseats every
+{rbtf_mantle}
+the
+{rbtf_citizen}
+holds and sweeps the depot-scoped binding that
+{rbtf_unseat}
+leaves behind; removal of the principal on the IdP side remains the IdP administrator's act.
+
+[[rbtf_affiance]]
+{rbtf_affiance}::
+The founding act that pledges trust between a manor and an external IdP — the workforce pool, its provider, and the attribute mapping, all seated org-level.
+A
+{rbtr_payor}
+ceremony with founding gravity, exercised once per provider; it covers the first or any further provider alike.
+
+[[rbtf_rehearse]]
+{rbtf_rehearse}::
+The read act over a
+{rbtf_terrier}
+(medieval sense: to recount a record formally, in order) — it recounts what the
+{rbtf_muniment_s}
+say.
+Distinct from the spec-interior reconciliation diff, which checks the record against reality; rehearse recounts the record alone.
+
+[[rbtf_muniment]]
+{rbtf_muniment}::
+A single
+{rbtf_terrier}
+entry recording one (principal subject,
+{rbtf_mantle}
+held) pair — deeds preserved as proof of rights.
+A muniment names a holding, not a secret: key identifiers vanish with the keys the federation no longer mints.
+
+[[rbtf_census]]
+{rbtf_census}::
+The external IdP regarded as the authoritative population of
+{rbtf_citizen_s}
+— who exists.
+Spaced one distinction from the
+{rbtf_terrier}
+(who holds what); the census is never an operator-triggered act.
+
+[[rbtf_terrier]]
+{rbtf_terrier}::
+A polity's durable, cloud-resident, authoritative record of which
+{rbtf_citizen}
+holds which
+{rbtf_mantle},
+kept as
+{rbtf_muniment_s}
+in a Manor-homed bucket.
++
+NOTE: Shell quoin.
+The noun's internals — object granularity, the
+{rbtf_muniment}
+JSON shape, the physical bucket name and where its constant is homed, and the managed-folder IAM grain that scopes a governor's write to its own polity — are settled at the terrier-live pace, not here.
+Its access sub-operations (
+{rbtf_engross},
+{rbtf_expunge},
+{rbtf_peruse})
+are homed in the Terrier access subdoc below.
+
+include::RBSTR-Terrier.adoc[leveloffset=+1]
 
 === {gcp_service} Definitions
 
