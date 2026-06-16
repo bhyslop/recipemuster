@@ -9095,6 +9095,7 @@
       "jjghn_creation_time": "260604",
       "jjghn_status": "jjghe_racing",
       "jjghn_order": [
+        "₢BZAAR",
         "₢BZAAA",
         "₢BZAAB",
         "₢BZAAC",
@@ -9113,7 +9114,7 @@
         "₢BZAAQ",
         "₢BZAAN"
       ],
-      "jjghn_next_pace_seed": "AAR",
+      "jjghn_next_pace_seed": "AAS",
       "jjghn_paces": {
         "₢BZAAA": {
           "jjgpn_tacks": [
@@ -9383,6 +9384,17 @@
               "jjgtn_text": "PLACEHOLDER — movement 7 (RBRA estate retirement) is not yet designed; reslate to firm when known.\nScope from the paddock Ordering: after federation personas pass the suites, retire the cult estate, the key machinery, RBSRA and the keyfile probe specs whole — the bridge's demolition condition executed.\nCarries the keyless rewrite of the canonical credential-bootstrap fixture, coupled here per the movement-4 review-findings memo's M4-vs-M7 resolution.\nHolds the slot before the terminal Fable-review pace.\n\n## Done when\nMovement 7 is designed and this placeholder is reslated into firm docket(s) retiring the RBRA estate and rewriting the canonical credential-bootstrap fixture keyless.\n\n## Cinched\nPlaceholder only — not yet mountable; reslate to firm before mounting.\nThe keyless canonical-fixture rewrite is coupled to this movement (movement-4 review-findings memo).\n\n## Character\nUnfirmed placeholder — carries scope and source, not a mountable plan.",
               "jjgtn_silks": "placeholder-m7-rbra-retirement",
               "jjgtn_basis": "116bac0"
+            }
+          ]
+        },
+        "₢BZAAR": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260615-1847",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "Run the credential-surface suites at heat HEAD and record their dispositions as the heat's known-good floor, before any movement-4 code lands.\nOnly `fast` is green at current HEAD; `service` and `complete` last ran before the regime-poison conversion and the sentry citation-collapses landed, so no verified floor exists on the very surface this heat rewires.\nRun `complete` then `dogfight` sequentially (never parallel — fixtures share regime and container state); `blockade` is optional at operator call.\nDepot is levied — the cloud-probe precondition — confirmed at slate.\n\n## Done when\n- `complete` and `dogfight` have run green at the heat-HEAD commit; the wrap summary records each suite's verdict and the commit SHA as the durable floor marker.\n- Any red result is dispositioned — fix-first or accept-and-note — before the movement-1 credential-accessor refactor mounts, never silently carried.\n\n## Cinched\n- This pace makes no code change; its sole deliverable is the recorded disposition in the wrap summary (the heat's journal, since the paddock is frozen).\n- A red baseline blocks the movement-1 mount until resolved.\n\n## Character\nVerification gate, not a change — run the suites, read the logs, record the floor. Mechanical; the only judgment is dispositioning a red.",
+              "jjgtn_silks": "known-good-floor",
+              "jjgtn_basis": "0521d1c"
             }
           ]
         }
