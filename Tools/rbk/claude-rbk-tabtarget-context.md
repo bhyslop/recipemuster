@@ -58,6 +58,12 @@ The Folio column shows how each tabtarget receives it:
 | `rbw-dl` | PayorListsDepots | — | List all active depots |
 | `rbw-di` | DepotInfo | — | Run egress posture checks against the live depot's worker pools |
 
+### Manor — IdP federation founding (`rbw-m`)
+
+| Colophon | Frontispiece | Folio | Purpose |
+|----------|-------------|-------|---------|
+| `rbw-mA` | PayorAffiancesManor | — | Affiance the manor to its IdP — seat the org-level workforce pool, provider, and attribute mapping |
+
 ### Lode — Fetched-side universal capture (`rbw-l`)
 
 | Colophon | Frontispiece | Folio | Purpose |

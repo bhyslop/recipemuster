@@ -39,10 +39,12 @@ zrbgp_furnish() {
   source "${z_rbk_kit_dir}/rbcc_constants.sh"
   source "${z_rbk_kit_dir}/rbrr_regime.sh"
   source "${z_rbk_kit_dir}/rbrd_regime.sh"
+  source "${z_rbk_kit_dir}/rbrf_regime.sh"
   source "${z_rbk_kit_dir}/rbdc_derived.sh"
   source "${z_rbk_kit_dir}/rbgd_depot.sh"
   source "${RBCC_rbrr_file}"
   source "${RBCC_rbrd_file}"
+  source "${RBCC_rbrf_file}"
   source "${z_rbk_kit_dir}/rbgl_layout.sh"
   source "${z_rbk_kit_dir}/rbgo_oauth.sh"
   source "${z_rbk_kit_dir}/rbuh_http.sh"
@@ -63,10 +65,16 @@ zrbgp_furnish() {
 
   zrbrr_kindle
   zrbrd_kindle
-  if test "${z_command}" != "rbgp_depot_list"; then
-    zrbrr_enforce
-    zrbrd_enforce
-  fi
+  zrbrf_kindle
+  # Per-command regime enforcement. depot_list scans all depots and needs no one
+  # depot/repo regime. manor_affiance is a manor-level founding op that runs
+  # before any depot exists, so it enforces the federation regime (RBRF) instead
+  # of the depot/repo regimes. Every other command works a specific depot.
+  case "${z_command}" in
+    rbgp_depot_list)     : ;;
+    rbgp_manor_affiance) zrbrf_enforce ;;
+    *)                   zrbrr_enforce; zrbrd_enforce ;;
+  esac
   zrbdc_kindle
 
   zrbgc_kindle

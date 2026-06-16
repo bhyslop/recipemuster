@@ -77,6 +77,13 @@ zrbz_kindle() {
   buz_enroll RBZ_UNMAKE_DEPOT           "rbw-dU"  "${z_mod}" "rbgp_depot_unmake"  "param1"  "Permanently remove a depot (operator supplies depot project ID)"
   buz_enroll RBZ_LIST_DEPOT             "rbw-dl"  "${z_mod}" "rbgp_depot_list"    ""  "List all active depots"
   buz_enroll RBZ_INFO_DEPOT             "rbw-di"  "${z_mod}" "rbgp_depot_info"    ""  "Run egress posture checks against the live depot's worker pools"
+
+  # Manor — IdP federation founding (rbw-m). Seeds the elected manor colophon
+  # family; the M5 colophon regroup later gathers levy/establish into it.
+  buz_group RBZ__GROUP_MANOR      "rbw-m"   "Manor — IdP federation founding"
+  z_mod="rbgp_cli.sh"
+  buz_enroll RBZ_AFFIANCE_MANOR         "rbw-mA"  "${z_mod}" "rbgp_manor_affiance" ""  "Affiance the manor to its IdP — seat the org-level workforce pool, provider, and attribute mapping"
+
   # Lode — fetched-side universal capture (rbw-l, UPPER=mutates GAR/cost, lower=read-only)
   buz_group RBZ__GROUP_LODE       "rbw-l"   "Lode — Fetched-side universal capture"
   z_mod="rbld0_cli.sh"

@@ -29,6 +29,7 @@ pub const RBTDGC_LEVY_DEPOT: &str = "rbw-dL";
 pub const RBTDGC_UNMAKE_DEPOT: &str = "rbw-dU";
 pub const RBTDGC_LIST_DEPOT: &str = "rbw-dl";
 pub const RBTDGC_INFO_DEPOT: &str = "rbw-di";
+pub const RBTDGC_AFFIANCE_MANOR: &str = "rbw-mA";
 pub const RBTDGC_ENSCONCE_BOLE: &str = "rbw-lE";
 pub const RBTDGC_CONCLAVE_RELIQUARY: &str = "rbw-lC";
 pub const RBTDGC_UNDERPIN_WSL: &str = "rbw-lU";
