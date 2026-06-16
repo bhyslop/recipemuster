@@ -47,9 +47,9 @@ The full three-leg chain is proven live end-to-end in pure curl
   `roles/iam.serviceAccountTokenCreator` on the mantle SA naming the `principal://` subject,
   and `roles/serviceusage.serviceUsageConsumer` on the depot project
   (Leg 3 needs a quota project; further mantles in the same depot need only tokenCreator).
-  Invest is an idempotent ensure of both.
-  Divest removes the tokenCreator binding and leaves the depot-scoped binding in place —
-  a citizen divested of every mantle is *suspended*, not erased, and cheap to re-invest;
+  Brevet is an idempotent ensure of both.
+  Unseat removes the tokenCreator binding and leaves the depot-scoped binding in place —
+  a citizen unseated of every mantle is *suspended*, not erased, and cheap to re-brevet;
   **attaint alone sweeps the depot-scoped binding** (cinched at the review walk).
 - Runtime chain: IdP device flow (Leg 1) → STS exchange (Leg 2, nothing extra — spike F3) →
   `generateAccessToken` on the mantle SA (Leg 3, depot as quota project via `x-goog-user-project`) →
@@ -84,8 +84,8 @@ The full three-leg chain is proven live end-to-end in pure curl
   and seating the payor's org-level `workforcePoolAdmin` role first, spike F1)
   and **mantle establishment** at levy.
 - All operator administration is governor-wielded and depot-scoped.
-  A governor invests another with the governor mantle — governors create governors.
-  The founding exception: levy's last act is the payor investing the first governor —
+  A governor brevets another with the governor mantle — governors create governors.
+  The founding exception: levy's last act is the payor breveting the first governor —
   the one admission gesture outside governor wielding.
   Removing the last governor is **legal** (cinched at the review walk):
   a governorless depot is visible and recoverable, never broken —
@@ -104,7 +104,7 @@ Subjects are **pool-scoped, not provider-scoped** —
 every provider is a full root of trust for the whole subject namespace,
 so the pool's security floor is its weakest provider.
 Adding a provider is a payor ceremony with founding gravity — a second affiancing:
-**affiance covers first or further provider alike** (cinched at the review walk, parallel to invest);
+**affiance covers first or further provider alike** (cinched at the review walk, parallel to brevet);
 the machinery difference beneath is hearting.
 Dual-provider windows exist for IdP **migration** only (overlap, re-admit, retire) —
 never as an availability hedge; live tokens already ride out IdP outages within the assize.
@@ -132,24 +132,24 @@ so levy enables per-service Data Access audit logs as a ceremony step
 
 ## Verbs and orderings (recast 260612; words elected)
 
-Invest and divest carry small idempotent bodies —
+Brevet and unseat carry small idempotent bodies —
 first-vs-further admission differs only in the depot-scoped F2 binding,
-which invest ensures alongside the tokenCreator
+which brevet ensures alongside the tokenCreator
 (spec grain keeps the four admission/removal cases as quoins);
-attaint composes divest-all plus the F2 sweep;
+attaint composes unseat-all plus the F2 sweep;
 **recut retires** (the IdP owns rotation; there is nothing to rotate Google-side);
 **credential delivery retires whole** (nothing is delivered; the assay machinery vacates with it).
 
 | Verb | Body | Crash leaves |
 |---|---|---|
-| invest | muniment write → ensure tokenCreator on the mantle SA + serviceUsageConsumer on the depot | visible deficit; re-run |
-| divest | muniment withdraw → remove tokenCreator binding (depot-scoped binding stays: suspension, not erasure) | visible surplus; report-only |
-| attaint | divest all mantles → sweep serviceUsageConsumer → deregister note (IdP-side removal is the IdP admin's) | partial teardown lands as surplus, never resurrection |
+| brevet | muniment write → ensure tokenCreator on the mantle SA + serviceUsageConsumer on the depot | visible deficit; re-run |
+| unseat | muniment withdraw → remove tokenCreator binding (depot-scoped binding stays: suspension, not erasure) | visible surplus; report-only |
+| attaint | unseat all mantles → sweep serviceUsageConsumer → deregister note (IdP-side removal is the IdP admin's) | partial teardown lands as surplus, never resurrection |
 | rehearse | pure read of the terrier | — |
 
 (The earlier four-E working set — enfranchise/enfeoff/escheat/expel — was superseded at the
 vocabulary pace: it failed MCM's sibling-initials rule;
-bodies and crash semantics carried over unchanged, then F2 widened invest's ensure set.)
+bodies and crash semantics carried over unchanged, then F2 widened brevet's ensure set.)
 
 ## Vocabulary elections (complete 260612)
 
@@ -176,7 +176,7 @@ Elected and operator-confirmed:
   Concretely: the assize is the workforce-pool session window (15 min–12 h, spike V1).
 - **don** — the impersonation act (Leg 3);
   one mantle worn at a time is the blast-radius cinch made audible.
-- **invest / divest** — the daily admission/removal verbs,
+- **brevet / unseat** — the daily admission/removal verbs,
   etymologically married to mantle (investiture: robing in the garments of office);
   cult-word reuse under the eviction-then-reuse ruling.
 - **attaint** — the rare whole-person expulsion (attainder: the old law's civic death).
@@ -194,8 +194,8 @@ Classification ledger (word → exposure → traffic → verdict):
 | compear | sign-in act | ashlar | daily: instruction/error text | sentence- and story-probed; confirmed |
 | assize | live-window noun | ashlar | daily: error text, cap prose | sentence- and story-probed; confirmed |
 | don | impersonation act | ashlar | low: narrative, verbose output | story-probed; confirmed |
-| invest | admission verb | ashlar | governor-occasional | story-probed; confirmed (reuse) |
-| divest | removal verb | ashlar | governor-occasional | story-probed; confirmed (reuse) |
+| brevet | admission verb | ashlar | governor-occasional | story-probed; confirmed (reuse) |
+| unseat | removal verb | ashlar | governor-occasional | story-probed; confirmed (reuse) |
 | attaint | whole-person expulsion | ashlar | rare | story-probed; confirmed |
 | affiance | IdP-trust founding verb | ashlar | founding-rare (first or further provider) | sentence-probed; confirmed |
 | rehearse | read-Terrier verb | ashlar | governor-occasional | sentence-probed; confirmed; spaced against the reconciliation diff |
@@ -203,7 +203,7 @@ Classification ledger (word → exposure → traffic → verdict):
 | citizen | operator noun | ashlar | narrative docs | shape ruling: survives the canceled tier |
 | census | IdP-as-population concept | quoin (spec/narrative) | — | spaced against terrier (who exists vs who holds what); never operator-triggered |
 
-Sibling initials: polity demesne **I**nvest / **D**ivest / **A**ttaint / **R**ehearse — distinct;
+Sibling initials: polity demesne **B**revet / **U**nseat / **A**ttaint / **R**ehearse — distinct;
 manor demesne **L**evy / **E**stablish / **A**ffiance — distinct;
 compear consumes no colophon initial (accessor step, not a tabtarget).
 
@@ -320,8 +320,8 @@ accepted as a one-time founding hour
 Day-after picture:
 payor establishes the manor and affiances it to the IdP,
 levies the depot (mantles rise with it),
-invests the first governor — self — as levy's last act;
-that governor invests self with the director and retriever mantles;
+brevets the first governor — self — as levy's last act;
+that governor brevets self with the director and retriever mantles;
 every tabtarget works through the accessor on a morning compearance (one device-flow click);
 a terrier rehearsal prints three muniments;
 the cult verb estate and every key file no longer exist.
@@ -366,7 +366,7 @@ The hijacked-live-assize exposure is bounded by the assize and the lifetime poli
 - Mantle SAs at levy instantiate capability-sets; all resource IAM frozen at levy behind a settle gate.
 - Admission is tokenCreator on the mantle SA + (first admission per depot) serviceUsageConsumer on the depot project, idempotent-ensured (spike F2 amendment).
 - Zero SA keys; sole durable secret is the payor's RBRO; human-present premise (D2) bounds the design — spike-verified live (no refresh token).
-- Payor founds (now incl. affiance + mantle establishment + first-governor investment + audit-log enablement), governors populate, terriers tell, IAM enforces.
+- Payor founds (now incl. affiance + mantle establishment + first-governor brevet + audit-log enablement), governors populate, terriers tell, IAM enforces.
 - One live IdP provider per pool; provider addition is a payor ceremony; dual-provider for migration only; affiance covers first or further provider alike.
 - Recut retires; credential delivery retires whole; the word assay vacates rbk.
 - Retriever differs by policy only: 12 h lifetime via the V1 org-policy listing, machine pulls on workload identity, reserve-key posture documented not built.
@@ -374,7 +374,7 @@ The hijacked-live-assize exposure is bounded by the assize and the lifetime poli
 - Review-walk rulings (260612): mantle-token overhang embraced (duration-aware admission deferred with trigger);
   *audit* demoted to spec-interior prose;
   last-governor removal legal with payor recovery;
-  attaint alone sweeps the depot-scoped F2 binding (divested-of-all is suspension);
+  attaint alone sweeps the depot-scoped F2 binding (unseated-of-all is suspension);
   spike fixtures kept as standing test trust.
 - Terrier, documentation strategy, launcher families, reconciliation-as-mirror: carried forward as previously cinched.
 - Intent-first verb orderings (muniment write precedes binding) carried forward.
