@@ -1103,6 +1103,17 @@ zrbgp_enable_ar_audit_logs() {
 
   rbuh_json "POST" "${RBGD_API_CRM_SET_IAM_POLICY}" "${z_token}" "depot_audit_set" "${z_set_body}"
   rbuh_require_ok "Enable Artifact Registry audit logs" "depot_audit_set"
+
+  # Content gate: setIamPolicy returns the resulting policy, which must carry the
+  # Artifact Registry auditConfigs entry. A masked write that silently dropped
+  # auditConfigs still returns HTTP 200, so the status check is not sufficient — this
+  # confirms the entry actually landed. See RBSMF "Enable Artifact Registry Data-Access
+  # Audit Logs" (the returned-policy require).
+  local z_audit_service
+  z_audit_service=$(rbuh_json_field_capture "depot_audit_set" \
+    '.auditConfigs[]? | select(.service=="artifactregistry.googleapis.com") | .service') \
+    || buc_die "setIamPolicy returned without the Artifact Registry auditConfigs entry"
+  buc_log_args "Confirmed Data-Access audit config on ${z_audit_service}"
 }
 
 rbgp_depot_levy() {
