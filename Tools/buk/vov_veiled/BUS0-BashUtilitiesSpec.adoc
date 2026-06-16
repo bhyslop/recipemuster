@@ -21,6 +21,7 @@
 // busn_:  Node Access (verbs for remote node management)
 // busit_: Invocation Tier (tier classification)
 // busig_: Invocation Global (capture state set by zbuto_invoke)
+// busr_:  Test Registry (enrollment dimensions: fixture, suite)
 // busx_:  Case Boundary (test case isolation runner)
 // busff_: Fact-File (inter-step communication via output files)
 // buf_:   Fact Module (dual-write fact-file primitives)
@@ -79,6 +80,9 @@
 :busdi_imprint_s:       <<busdi_imprint,Imprints>>
 :busdm_formulary:       <<busdm_formulary,Formulary>>
 :busdm_formulary_s:     <<busdm_formulary,Formularies>>
+:busdm_workbench:       <<busdm_workbench,Workbench>>
+:busdm_testbench:       <<busdm_testbench,Testbench>>
+:busdm_testbench_s:     <<busdm_testbench,Testbenches>>
 :busdl_launcher:        <<busdl_launcher,Launcher>>
 :busdl_launcher_s:      <<busdl_launcher,Launchers>>
 
@@ -207,6 +211,12 @@
 :bure_tweak_name:                  <<bure_tweak_name,BURE_TWEAK_NAME>>
 :bure_tweak_value:                 <<bure_tweak_value,BURE_TWEAK_VALUE>>
 :bure_label:                       <<bure_label,BURE_LABEL>>
+
+// Test Registry
+:busr_fixture:                    <<busr_fixture,Fixture>>
+:busr_fixture_s:                  <<busr_fixture,Fixtures>>
+:busr_suite:                      <<busr_suite,Suite>>
+:busr_suite_s:                    <<busr_suite,Suites>>
 
 // Invocation Tier
 :busit_unit:                      <<busit_unit,Unit Tier>>
@@ -396,16 +406,36 @@ registers handlers for a set of
 {busdc_colophon_s}
 and dispatches to the appropriate function.
 +
-Types:
-+
-* **Workbench** (`{prefix}w_workbench.sh`): Routes commands for a kit
-* **Testbench** (`{prefix}t_testbench.sh`): Routes tests for a kit
+Two types exist: the
+{busdm_workbench}
+routes commands for a kit, and the
+{busdm_testbench}
+routes tests.
 +
 A
 {busdm_formulary}
 is sourced by the
 {busdl_launcher}
 and provides the dispatch function.
+
+[[busdm_workbench]]
+//axo_entity
+{busdm_workbench}::
+A
+{busdm_formulary}
+that routes commands for a kit.
+Named `{prefix}w_workbench.sh`.
+Provides a `{prefix}w_dispatch` function that routes by
+{busdf_frontispiece}.
+
+[[busdm_testbench]]
+//axo_entity
+{busdm_testbench}::
+A
+{busdm_formulary}
+that routes tests for a kit.
+Named `{prefix}t_testbench.sh`.
+Provides a `{prefix}t_dispatch` function that routes test cases.
 
 [[busdl_launcher]]
 //axl_voices axo_entity
@@ -450,6 +480,11 @@ from own filename
 
 === Workbench Pattern
 
+A
+{busdm_workbench}
+dispatches with a `case` over the
+{busdf_frontispiece}:
+
 [source,bash]
 ----
 # Tools/{kit}/{prefix}w_workbench.sh
@@ -469,7 +504,8 @@ from own filename
 
 === Testbench Pattern
 
-Testbenches follow the same pattern but route to test functions:
+{busdm_testbench_s}
+follow the same pattern but route to test functions:
 
 [source,bash]
 ----
@@ -489,18 +525,34 @@ Testbenches follow the same pattern but route to test functions:
 
 === Test Registry Model
 
-The test registry (`butr_registry.sh`) uses two orthogonal enrollment dimensions:
+The test registry (`butr_registry.sh`) uses two orthogonal enrollment dimensions: the
+{busr_fixture}
+and the
+{busr_suite}.
 
-**Fixture** — init/setup execution context.
-Each test case belongs to exactly one fixture.
-Fixtures provide isolation via `_tsuite` subshell boundaries.
+[[busr_fixture]]
+//axo_entity
+{busr_fixture}::
+An init/setup execution context.
+Each test case belongs to exactly one
+{busr_fixture}.
+{busr_fixture_s}
+provide isolation via `_tsuite` subshell boundaries.
 Registered with `butr_fixture_enroll(name, init_fn, setup_fn)`.
 
-**Suite** — cross-cutting selection group (N:M with cases).
-A case can belong to multiple suites.
-Suites classify by dependency tier (what environment must exist), not by test methodology.
-A suite is a membership tag.
-Suites enable suite dispatch: run a cross-cutting subset of cases grouped by their owning fixtures.
+[[busr_suite]]
+//axo_entity
+{busr_suite}::
+A cross-cutting selection group (N:M with cases).
+A case can belong to multiple
+{busr_suite_s}.
+{busr_suite_s}
+classify by dependency tier (what environment must exist), not by test methodology.
+A
+{busr_suite}
+is a membership tag.
+It enables suite dispatch: run a cross-cutting subset of cases grouped by their owning
+{busr_fixture_s}.
 Suite context is set with `butr_suite_enroll(SUITE1 [SUITE2...])` before case enrollments.
 Queried by `butd_run_suite(suite_name)`.
 
