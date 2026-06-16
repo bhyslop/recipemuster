@@ -83,6 +83,7 @@ zrbz_kindle() {
   buz_group RBZ__GROUP_MANOR      "rbw-m"   "Manor — IdP federation founding"
   z_mod="rbgp_cli.sh"
   buz_enroll RBZ_AFFIANCE_MANOR         "rbw-mA"  "${z_mod}" "rbgp_manor_affiance" ""  "Affiance the manor to its IdP — seat the org-level workforce pool, provider, and attribute mapping"
+  buz_enroll RBZ_JILT_MANOR             "rbw-mJ"  "${z_mod}" "rbgp_manor_jilt"     ""  "Jilt the manor from its IdP — dissolve the org-level workforce pool (provider cascades)"
 
   # Lode — fetched-side universal capture (rbw-l, UPPER=mutates GAR/cost, lower=read-only)
   buz_group RBZ__GROUP_LODE       "rbw-l"   "Lode — Fetched-side universal capture"

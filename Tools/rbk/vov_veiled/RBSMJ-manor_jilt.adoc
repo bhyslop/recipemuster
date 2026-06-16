@@ -1,0 +1,132 @@
+//axhob_operation
+{rbtgo_manor_jilt}
+
+NOTE: This operation dissolves the trust between a
+{rbtgi_manor}
+and its external OIDC identity provider — the
+{rbtf_jilt}
+act, the structural inverse of
+{rbtf_affiance}.
+It deletes the org-level workforce identity pool; the pool's provider is namespaced
+beneath it and cascades with the deletion. One pool serves every
+{rbtgi_depot}
+under the manor, so jilting it breaks federated access for every depot at once — a
+founding-rare, deliberately confirmed act.
+
+The
+{rbtr_payor}
+performs the jilt. The operation accepts no CLI parameters; the pool to dissolve is
+read from the kindled Federation regime as `(RBRF_ORG_ID, RBRF_WORKFORCE_POOL_ID)` —
+the same organization and pool
+{rbtf_affiance}
+seated.
+
+NOTE: Jilt is *idempotent*. A pool that never existed (the probe returns `404`) or one
+already soft-deleted (the probe returns `200` with `state: DELETED`) is reported
+already-dissolved and the operation exits clean without issuing a delete. Only an
+`ACTIVE` pool is deleted.
+
+NOTE: *Pool-only deletion.* The provider
+{rbtf_affiance}
+created is namespaced under the pool
+(`//iam.googleapis.com/locations/global/workforcePools/RBRF_WORKFORCE_POOL_ID/providers/RBRF_PROVIDER_ID`)
+and is removed when the pool is deleted; jilt issues no separate provider delete. This
+is the
+{rbtf_jilt}
+cinch — dissolve the betrothal whole, in one gesture.
+
+NOTE: *Soft-delete graveyard.* `workforcePools.delete` soft-deletes the pool: it
+enters a `DELETED` state and holds its id-namespace for a purge window (~30 days)
+before permanent removal. Recovery within that window is
+{rbbc_call}
+link:https://cloud.google.com/iam/docs/reference/rest/v1/locations.workforcePools/undelete[workforcePools.undelete]
+— the workforce-pool analogue of the depot project's soft-delete graveyard
+({rbtgo_depot_unmake}).
+A subsequent
+{rbtf_affiance}
+against a soft-deleted pool of the same id meets a `404` GET followed by a `409`
+create and must undelete rather than re-create (the signal the RBSMA soft-delete NOTE
+records from the other side).
+
+NOTE: Scope boundary. Jilt unmakes only the *org-level* IdP trust. The depot-scoped
+admission bindings (the
+{rbtf_mantle}
+service-account `tokenCreator` and the depot `serviceUsageConsumer` of spike Finding
+F2) and the mantle service accounts belong to the levy and admission ceremonies and
+their own teardowns; jilt neither sweeps nor depends on them. Jilt is affiance's
+inverse on spike Finding F1 alone.
+
+//axhos_step
+. *Safety confirmation* (zero traffic — the deliberate pause precedes authentication):
+.. {rbbc_require}
+operator confirmation matching the workforce pool id `RBRF_WORKFORCE_POOL_ID`.
+Dissolving the pool breaks federated access for every
+{rbtgi_depot}
+under the manor; the confirmation is the gate. The standard confirm-skip seam
+suppresses the interactive prompt for non-interactive test runs.
+
+//axhos_step
+. *Authenticate as
+{rbtr_payor}*:
+.. Execute
+{rbtoe_payor_authenticate}
+.. {rbbc_require}
+authentication successful
+
+//axhos_step
+. *Probe the workforce identity pool*:
+.. {rbbc_call}
+link:https://cloud.google.com/iam/docs/reference/rest/v1/locations.workforcePools/get[workforcePools.get] for `RBRF_WORKFORCE_POOL_ID` under `organizations/RBRF_ORG_ID`
+.. {rbbc_store}
+`«POOL_CODE»` (HTTP status) and `«POOL_STATE»` (`.state`)
+.. *Already-dissolved short-circuit* — exit clean (idempotent no-op), no delete issued, when either:
+... `«POOL_CODE»` is `404` (no pool of this id under the org), or
+... `«POOL_CODE»` is `200` and `«POOL_STATE»` is `DELETED` (pool already soft-deleted, awaiting purge)
+.. Any other non-`200` is
+{rbbc_fatal}.
+.. An `ACTIVE` pool (`200`, state `ACTIVE`) advances to deletion.
+
+//axhos_step
+. *Dissolve the pool* (provider cascades):
+.. {rbbc_submit}
+link:https://cloud.google.com/iam/docs/reference/rest/v1/locations.workforcePools/delete[workforcePools.delete] for the pool resource name
+.. {rbbc_require}
+the delete accepted (HTTP `200`, returning a long-running operation)
+.. NOTE: the delete cascades to the pool's provider; jilt issues no separate provider delete.
+
+//axhos_step
+. *Verify dissolution*:
+.. {rbbc_call}
+link:https://cloud.google.com/iam/docs/reference/rest/v1/locations.workforcePools/get[workforcePools.get] for the pool resource name
+.. {rbbc_poll}
+the pool at `RBGC_EVENTUAL_CONSISTENCY_SEC` intervals up to `RBGC_MAX_CONSISTENCY_SEC`
+.. {rbbc_require}
+a dissolved terminal: `state: DELETED` (soft-deleted, the expected outcome) *or* a
+`404` (hard-gone). Either is success — the verify tolerates whether the GET surfaces
+soft-deleted resources, mirroring the depot-unmake resource-state poll
+({rbtgo_depot_unmake}).
+
+//axhoot_typed_output
+{rbtgi_manor}
+. *Confirm Jilt*:
+.. {rbbc_show}
+single-line banner naming the dissolved
+{rbtgi_manor},
+the workforce pool resource name, the dissolved terminal reached, and the
+undelete-within-the-purge-window recovery hint.
+
+//axhoc_completion
+Successful execution leaves the manor jilted: the workforce pool is soft-deleted
+(`state: DELETED`), its provider removed with it, and no
+{rbtf_citizen}
+can
+{rbtf_compear}
+against the dissolved trust until a fresh
+{rbtf_affiance}
+re-seats it — or an
+{rbbc_call}
+link:https://cloud.google.com/iam/docs/reference/rest/v1/locations.workforcePools/undelete[workforcePools.undelete]
+restores it within the purge window. The depot-scoped
+{rbtf_mantle}
+bindings and the mantle service accounts are untouched: their teardown is the levy and
+admission concern, never jilt's.

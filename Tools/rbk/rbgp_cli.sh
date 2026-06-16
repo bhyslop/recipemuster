@@ -67,13 +67,14 @@ zrbgp_furnish() {
   zrbrd_kindle
   zrbrf_kindle
   # Per-command regime enforcement. depot_list scans all depots and needs no one
-  # depot/repo regime. manor_affiance is a manor-level founding op that runs
-  # before any depot exists, so it enforces the federation regime (RBRF) instead
-  # of the depot/repo regimes. Every other command works a specific depot.
+  # depot/repo regime. manor_affiance and manor_jilt are manor-level founding/
+  # un-founding ops that work the federation trust independent of any one depot,
+  # so they enforce the federation regime (RBRF) instead of the depot/repo
+  # regimes. Every other command works a specific depot.
   case "${z_command}" in
-    rbgp_depot_list)     : ;;
-    rbgp_manor_affiance) zrbrf_enforce ;;
-    *)                   zrbrr_enforce; zrbrd_enforce ;;
+    rbgp_depot_list)                     : ;;
+    rbgp_manor_affiance|rbgp_manor_jilt) zrbrf_enforce ;;
+    *)                                   zrbrr_enforce; zrbrd_enforce ;;
   esac
   zrbdc_kindle
 

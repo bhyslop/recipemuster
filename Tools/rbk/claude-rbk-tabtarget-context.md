@@ -63,6 +63,7 @@ The Folio column shows how each tabtarget receives it:
 | Colophon | Frontispiece | Folio | Purpose |
 |----------|-------------|-------|---------|
 | `rbw-mA` | PayorAffiancesManor | — | Affiance the manor to its IdP — seat the org-level workforce pool, provider, and attribute mapping |
+| `rbw-mJ` | PayorJiltsManor | — | Jilt the manor from its IdP — dissolve the org-level workforce pool (provider cascades) |
 
 ### Lode — Fetched-side universal capture (`rbw-l`)
 

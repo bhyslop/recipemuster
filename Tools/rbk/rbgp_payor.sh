@@ -1259,6 +1259,104 @@ rbgp_manor_affiance() {
   buc_info "Verify the trust by compearing — run tt/rbw-acf.CheckFederatedAccess.sh"
 }
 
+rbgp_manor_jilt() {
+  zrbgp_sentinel
+
+  buc_doc_brief "Jilt the manor — dissolve its workforce pool, breaking the manor↔IdP betrothal (RBSMJ)"
+  buc_doc_shown || return 0
+
+  # Affiance's structural inverse. Reads the one configured pool from the kindled
+  # RBRF regime (the caller's furnish enforces rbrf before dispatch, like
+  # manor_affiance) — no CLI folio: jilt targets the regime's pool, never an
+  # operator-supplied one.
+  local -r z_org="organizations/${RBRF_ORG_ID}"
+  local -r z_pool_id="${RBRF_WORKFORCE_POOL_ID}"
+  local -r z_iam_root="${RBGC_API_ROOT_IAM}${RBGC_IAM_V1}"
+  local -r z_pool_url="${z_iam_root}/locations/global/workforcePools/${z_pool_id}"
+
+  # Safety gate first (zero traffic). Dissolving the pool breaks federated access
+  # for every depot under the manor; the operator types the pool id to confirm.
+  # buc_require honors BURE_CONFIRM=skip for non-interactive test runs.
+  buc_step 'Safety confirmation required'
+  buc_require "DANGER: Dissolve workforce pool ${z_pool_id} under ${z_org} — breaks federated access for every depot under the manor" "${z_pool_id}"
+
+  buc_step 'Authenticate as Payor'
+  local z_token
+  z_token=$(zrbgp_authenticate_capture) || buc_die "Failed to authenticate as Payor via OAuth"
+
+  # Probe the pool. Idempotent: an absent pool (404) or one already soft-deleted
+  # (200, state DELETED) is reported dissolved and exits clean — no delete issued.
+  buc_step 'Probe workforce identity pool'
+  rbuh_json "GET" "${z_pool_url}" "${z_token}" "jilt_pool_get"
+  local z_pool_code
+  z_pool_code=$(rbuh_code_capture "jilt_pool_get") || buc_die "No HTTP code from workforcePools.get"
+
+  case "${z_pool_code}" in
+    404)
+      buc_success "Workforce pool ${z_pool_id} absent under ${z_org} — already dissolved (no-op)"
+      return 0
+      ;;
+    200)
+      local z_pool_state
+      z_pool_state=$(rbuh_json_field_capture "jilt_pool_get" '.state // "UNKNOWN"') || z_pool_state="UNKNOWN"
+      if test "${z_pool_state}" = "DELETED"; then
+        buc_success "Workforce pool ${z_pool_id} already soft-deleted (state DELETED) — already dissolved (no-op)"
+        buc_info "Recover within the purge window via workforcePools.undelete, or re-affiance after purge"
+        return 0
+      fi
+      ;;
+    *)
+      rbuh_require_ok "Workforce pool get" "jilt_pool_get"
+      ;;
+  esac
+
+  # Dissolve the pool. The provider is namespaced beneath the pool and cascades
+  # with the deletion — no separate provider delete. workforcePools.delete returns
+  # an LRO; confirm acceptance, then poll the resource to its terminal state.
+  buc_step 'Dissolve workforce pool (provider cascades)'
+  rbuh_json "DELETE" "${z_pool_url}" "${z_token}" "jilt_pool_delete"
+  rbuh_require_ok "Delete workforce pool" "jilt_pool_delete"
+  buc_info "Workforce pool ${z_pool_id} delete accepted — awaiting soft-delete transition"
+
+  # Verify dissolution: poll until state DELETED (soft-delete terminal) or 404
+  # (hard-gone). Either is success — robust to whether get surfaces soft-deleted
+  # resources. Mirrors the depot-unmake resource-state poll.
+  buc_step 'Verify dissolution'
+  local z_jilt_elapsed=0
+  local z_jilt_dissolved=""
+  while :; do
+    sleep "${RBGC_EVENTUAL_CONSISTENCY_SEC}"
+    z_jilt_elapsed=$((z_jilt_elapsed + RBGC_EVENTUAL_CONSISTENCY_SEC))
+
+    local z_verify_infix="jilt_pool_verify_${z_jilt_elapsed}s"
+    rbuh_json "GET" "${z_pool_url}" "${z_token}" "${z_verify_infix}"
+    local z_verify_code
+    z_verify_code=$(rbuh_code_capture "${z_verify_infix}") || z_verify_code=""
+
+    if test "${z_verify_code}" = "404"; then
+      z_jilt_dissolved="404"
+      break
+    fi
+    if test "${z_verify_code}" = "200"; then
+      local z_verify_state
+      z_verify_state=$(rbuh_json_field_capture "${z_verify_infix}" '.state // "UNKNOWN"') || z_verify_state="UNKNOWN"
+      if test "${z_verify_state}" = "DELETED"; then
+        z_jilt_dissolved="DELETED"
+        break
+      fi
+    fi
+
+    test "${z_jilt_elapsed}" -lt "${RBGC_MAX_CONSISTENCY_SEC}" \
+      || buc_die "Jilt: pool ${z_pool_id} did not reach a dissolved state within ${RBGC_MAX_CONSISTENCY_SEC}s (last HTTP ${z_verify_code})"
+    buc_log_args "Pool still present at ${z_jilt_elapsed}s (HTTP ${z_verify_code}) — polling"
+  done
+
+  buc_step 'Manor jilted'
+  buc_success "Manor jilted: workforce pool ${z_pool_id} dissolved (${z_jilt_dissolved}) under ${z_org}"
+  buc_info "Provider cascaded with the pool; depot-scoped mantle bindings untouched"
+  buc_info "Recover within the ~30-day purge window via workforcePools.undelete, or re-affiance after purge"
+}
+
 rbgp_depot_levy() {
   zrbgp_sentinel
 
