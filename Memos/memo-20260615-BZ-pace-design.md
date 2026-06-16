@@ -123,3 +123,41 @@ split into two (a net-new affiance pace plus a reshaped levy/mantle-establishmen
 pace), taking movement 4 to eight paces.
 The one medium-confidence call — when federation personas must pass the suites — took
 the M7-coupled reading, with its residual risk recorded for Fable to overturn.
+
+## Colophon ground-truth inventory + homonym-guard vestige (260616)
+
+Opus grep inventory this session of the admission/cult verbs across code, specs, and tabtargets —
+the as-built reality against the paddock's mantle-homonym-guard (divergence #2 above),
+recorded for Fable's terminal review and the remaining M4 cult/admission paces.
+
+As-built:
+
+- The cult/legacy keyfile-SA colophons are live as enrobe/defrock and pervasive —
+  bash (rbgg_governor, rbgp_payor, rbgi_iam, rbgw_capabilities, rbcc_/rbgc_constants),
+  rbz_zipper, generated rbtdgc_consts.rs, seven theurge fixtures, both handbook wrappers,
+  the enrobe/defrock specs (RBSDK/RBSGM/RBSDD/RBSRD), and the five rbw-aE/adE/arE/adF/arF tabtargets.
+  ₢BZAAF [complete] is the rename that landed this; its brief confirms the cult sense of invest/divest/mantle was vacated repo-wide.
+- brevet/unseat have landed as RBS0 civic quoins (:rbtf_brevet:/:rbtf_unseat:), referenced across RBS0, RBSMA, RBSMF, RBSTR —
+  but not in code or tabtargets (no rbw-p*; the admission-verb pace ₢BZAAL is unbuilt).
+  The 260616 re-election moved the federation admission verbs invest/divest -> brevet/unseat in the paddock and these specs.
+- No live invest/divest cult residue (₢BZAAF cleared it).
+  The one straggler was a stale federation-verb reference in a derived context mirror —
+  claude-rbk-acronyms.md's RBSTR entry still said "invest/divest/rehearse wrappers" (the 260615 names), not the 260616 brevet/unseat;
+  fixed this session to brevet/unseat/rehearse to match RBSTR.
+  (A historical memo-filename citation in RBSCIP, "canonical-divest-delete-flap", is provenance, left as-is.)
+
+Homonym-guard vestige (extends divergence #2):
+
+- The guard names the cult family rbw-aM/arI/adI/arD/adD (mantle/invest/divest) — the PRE-₢BZAAF state.
+  That family no longer exists; it is enrobe/defrock now.
+- ₢BZAAF's stated purpose was to "discharge the homonym guard"; ₢BZAAF is complete, so the guard's resolution condition
+  ("deletes itself when the rename lands") is MET.
+  The guard survives only because the paddock froze before it could self-delete — a vestige the freeze pins in place.
+- Doubly moot: the 260616 invest/divest -> brevet/unseat re-election means even the words the guard protects are no longer the admission verbs;
+  brevet/unseat sit in the civic specs with no live cult collision.
+- Not corrected in the frozen paddock: there is no purely-factual fix (re-aim / rewrite / retire the guard is a vocabulary judgment, and the text is Fable's),
+  and the freeze routes corrections here.
+  Natural cleanup rides the M4 admission/cult work (where the guard was always meant to self-delete) or Fable's reconciliation.
+
+Note: line 80 above ("invest/divest/rehearse as thin RBS0-side wrappers") is the faithful 260615-trot record;
+it is superseded by the 260616 brevet/unseat re-election noted here, left as history rather than rewritten.
