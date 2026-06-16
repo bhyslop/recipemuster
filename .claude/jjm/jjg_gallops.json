@@ -9138,6 +9138,7 @@
         "₢BZAAF",
         "₢BZAAG",
         "₢BZAAM",
+        "₢BZAAX",
         "₢BZAAW",
         "₢BZAAU",
         "₢BZAAT",
@@ -9152,7 +9153,7 @@
         "₢BZAAQ",
         "₢BZAAN"
       ],
-      "jjghn_next_pace_seed": "AAX",
+      "jjghn_next_pace_seed": "AAY",
       "jjghn_paces": {
         "₢BZAAA": {
           "jjgpn_tacks": [
@@ -9554,6 +9555,17 @@
               "jjgtn_text": "Prove the affiance ceremony (rbgp_manor_affiance, colophon rbw-mA) end-to-end against the live org — the autonomous founding-ceremony proof, sibling to the levy-founding-proof.\nBoth tiers run autonomously under payor credentials; no human click.\nLive Leg-1 device-flow reachability is proven downstream by the citizen-attribution capstone — a citizen must compear against the affiance-seated provider to be attributed — and is not owned here.\n\nTier A — reconcile against the standing spike trust.\nRun rbw-mA and assert: the furnish enforced RBRF and skipped the depot/repo regimes (the pre-levy regime wiring), the org-level workforcePoolAdmin self-grant landed idempotently, the pool and provider GET clean, and the run exits clean leaving the standing trust in place.\n\nTier B — create-path de-risk: the only path that exercises the workforce-pool / provider create REST shapes, unrun since the original spike.\nRun affiance against a throwaway, unique pool + provider id — a test-seam overriding RBRF_WORKFORCE_POOL_ID / RBRF_PROVIDER_ID, plus a teardown delete.\nAssert pool, provider, and attribute mapping are created carrying the regime's field values, then delete the throwaway pool.\n\n## Done when\nBoth tiers pass against the live org under payor credentials.\nTier A leaves the standing spike trust intact; Tier B leaves no live throwaway pool (soft-delete debris accepted, per the depot-project graveyard precedent).\n\n## Cinched\nBoth tiers in scope.\nLeg-1 device-flow proof rides the downstream citizen-attribution capstone, not this pace.\nTier B uses throwaway unique ids and never touches the standing trust's pool.\nTier A's config-convergence assertion follows the resolved ensure-exists-vs-reconcile decision on the affiance impl (RBSMA).\n\n## Character\nAutonomous live-cloud proof.\nTier B is net-new test infrastructure — a tweak overriding the pool/provider ids plus a teardown delete gesture.",
               "jjgtn_silks": "affiance-proof",
               "jjgtn_basis": "4b4b38e"
+            }
+          ]
+        },
+        "₢BZAAX": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260616-1618",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "Build the manor jilt verb — the inverse of affiance: dissolve a workforce pool (break the manor↔IdP betrothal), payor-credentialed.\nColophon rbw-mJ, frontispiece PayorJiltsManor.\nContract-first per the documentation-strategy cinch: author the RBSMJ contract spec, then the impl.\n\nThe create-side mirror is rbgp_manor_affiance (RBSMA): jilt is its structural inverse, a payor DELETE on the workforce pool.\nThe delete-pattern precedent is depot unmake (rbw-dU, PayorUnmakesDepot): payor token, REST DELETE, LRO poll to terminal state, soft-delete graveyard.\nDelete the pool only — the provider is namespaced under it and cascades; undelete is the recovery path (per the RBSMA soft-delete NOTE).\nSeat jilt as a federation civic quoin in RBS0 alongside affiance; broadside registration rides the M6 narrative-docs movement.\n\n## Done when\nRBSMJ contract spec authored (M-seat, contract-first).\nrbw-mJ colophon enrolled in the zipper — consts and tabtarget-context regenerate from the build.\nThe verb dissolves a named workforce pool under payor credentials and exits clean on an already-absent pool (404 → idempotent no-op).\nGrep-clean: jilt carries one meaning repo-wide.\n\n## Cinched\nOperator-sanctioned in conversation (260616) as an in-heat manor verb beyond the paddock's frozen founding triad — recorded in the pace-design memo with the scope note for Fable.\njilt is a permanent operator verb (ashlar, broadside-eligible), not a test-only teardown gesture.\nPool-only delete; provider cascades; soft-delete debris accepted.\n\n## Character\nContract-first manor verb — affiance's create mirrored as its delete.\nIntricate-but-mechanical: the REST/LRO shape follows the depot-unmake precedent.",
+              "jjgtn_silks": "manor-jilt",
+              "jjgtn_basis": "c125835"
             }
           ]
         }
