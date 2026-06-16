@@ -12,6 +12,18 @@ Premise-touching ideas wait on Fable: any idea that would amend a cinched ₣BZ 
 Keep this catalog shape-shaped — each idea a named tension plus a current lean, never a running discussion log.
 Genuinely thin or orthogonal ideas belong in itches or the horizon roadmap, not here; this paddock is for ideas worth deliberating with heat context.
 
+## Idea — a noun for the configured federation (keystone vocabulary)
+
+Tension: the civic vocabulary names every actor and container in the federation story — the manor that founds, the depot that runs, the citizen who signs in, the mantle they don, the assize they open — but has no noun for the configured trust itself.
+A configured federation is referred to mechanically (the workforce pool plus provider plus attribute mapping) or with the overloaded word federation, which carries both the concept and the instance at once.
+
+Why it is the keystone: the healthy payor-governor model is only sayable as a relationship between named nouns, and three ideas below lean on it — multiple federations names instances of it, the governor-selects idea affiliates a depot with one, and the payor federation-setup guide configures one.
+With the noun the model collapses to four speakable lines: the payor founds one (affiance, org-scope); the payor sanctions a set of them as eligible (the bound); the governor affiliates a depot with a sanctioned one (depot-scope); a depot draws its citizens from the one it is affiliated with.
+
+Current lean: mint a civic noun in the affiance asterism — betrothal, pledged faith with an external sovereign, the diplomatic and feudal register.
+Illustrative candidates only, not a choice: concordat (a formal standing pact between a sovereign and an external authority — it names the agreement, which is what a configured federation civically is, while pool and provider stay the GCP mechanism beneath); or troth (the affiance-tight pledged-faith noun, shorter, but reads as the act more than the standing object).
+This sharpens RBS0 even in the single-federation case, so it is flagged for Fable's ₣BZ heat-review as a candidate RBS0 civic quoin; the mint is Fable's, owing the grep gate, the asterism check, and terminal exclusivity.
+
 ## Idea — payor federation-setup guide
 
 Tension: the identity-provider-side preconditions — standing up the external OIDC tenant and app registration, then authoring the federation regime from its values — are foreign-console human work with no operator guide today.
@@ -59,16 +71,23 @@ Two sub-questions, opposite verdicts on one scope test (creation is org-scoped; 
   That belongs to the org-owner (payor), not a depot-scoped steward.
   This one is settled: federation founding is a payor job.
 
-- Select which federation a depot is affiliated with — open.
-  Selection among already-founded trusts affects only the one depot, so it respects the cinch that cross-depot administration does not exist, and it mirrors admission (the governor already decides who is admitted; this adds which trust the depot draws from).
-  Guard: the eligible set must be payor-bounded, so a governor cannot repoint a production depot at a weak — or degenerate — pool.
-  Depends on the federation-regime-family idea.
+- Select which federation a depot is affiliated with — open, and this is the healthy model to aim for.
+  Stated in the keystone noun above: the payor founds the configured federations and sanctions which are eligible; the governor affiliates its own depot with one of the sanctioned ones.
+  Selection among already-founded, payor-sanctioned trusts affects only the one depot, so it respects the cinch that cross-depot administration does not exist, and it mirrors admission — the governor already decides who is admitted; this adds which trust the depot draws from.
+  Depends on the multiple-federations idea.
 
-Open mechanism sub-question: how is the hierarchy enforced rather than merely documented?
-The lean is that this is IAM-native, not bespoke cryptography — founding pools is an org-level permission the payor holds and governors structurally lack, and bounding a governor's selection is an IAM-condition or provider attribute-condition.
-The public-key-anchor-with-private-key-at-the-provider pattern is worth naming because it already is the model: the workforce provider holds the identity provider's public keys (JWKS) while the identity provider holds the private signing key.
-A bespoke payor keypair would re-introduce a durable private secret — against the zero-keys premise — and duplicate what IAM already enforces; flagged as the path to avoid.
-The exact GCP condition mechanism wants verification before this graduates.
+The bound — the sanctioned set: which configured federations are eligible for affiliation is a payor-controlled, manor-level artifact, an eligibility the payor sets and governors only read.
+This is the IT-department catalog of approved trusts.
+Guard: a degenerate or test federation is never eligible for a production depot, so a governor cannot repoint production at a weak or caged pool.
+
+The load-bearing distinction for how the hierarchy is enforced is authentication versus authorization:
+- Authentication is the crypto layer, and it already exists — the workforce provider holds the identity provider's public keys (JWKS) while the identity provider holds the private signing key.
+  A token is trusted iff signed by that private key; this answers only whether the token is genuinely from the trusted identity provider.
+- Authorization is where the payor-governor hierarchy lives, and it is IAM, not the signing key — may this governor admit this principal, and may this governor affiliate this depot with this federation, are IAM questions.
+  Founding a pool is an org-level permission the payor holds and a governor structurally lacks; bounding a governor's affiliation to the sanctioned set is an IAM-condition or a provider attribute-condition.
+
+A bespoke payor keypair issuing signed grants would re-introduce a durable private secret — against the zero-keys premise — and duplicate what IAM already enforces; flagged as the path to avoid.
+The exact GCP condition mechanism that bounds affiliation to the sanctioned set wants verification before this graduates.
 
 ## Idea — headless compearance (restrung in from the federation heat)
 
