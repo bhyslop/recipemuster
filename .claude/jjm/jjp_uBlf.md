@@ -45,6 +45,9 @@ It must therefore live in its own pool (depends on the federation-regime-family 
 
 Why deferred: it introduces a durable secret, against the federation heat's zero-keys premise; and that heat does not need unattended CI, so the cost buys nothing there.
 
+Detail and sources: the degenerate-federation test-personas memo records the live-doc confirmation of the programmatic STS flow (RFC 8693 token exchange; uploaded JWKS usable in the programmatic flow only), the two degenerate shapes (caged self-signed JWT vs a real test IdP on a non-interactive grant), the can-and-cannot-prove boundary, and the GCP / Keycloak / RFC URLs.
+Honesty caveat carried in the memo: the mechanism is doc-confirmed and spike-paper-confirmed, not yet live-run in our own harness.
+
 ## Idea — the governor's role in federation
 
 Frame under consideration: the payor as the IT department — founds federations and bounds what is permissible — and governors as more-trusted regional stewards who operate within those bounds, still subordinate to the payor's citizen-list and federation-set choices.
@@ -81,3 +84,4 @@ Touches a cinched federation-heat premise (human-present, and the headless fail-
 The office-federation heat ₣BZ is the parent; these ideas are its deliberate deferrals.
 Federation mechanism and the identity-provider-side console finding: the federation-legs spike findings memo.
 The pace-design and divergence record for the parent heat: its pace-design memo and its movement-4 review-findings memo.
+Degenerate-test-federation mechanism, sources, and the can-and-cannot-prove boundary: the degenerate-federation test-personas memo.
