@@ -593,30 +593,18 @@ rbgg_roster_directors() {
   zrbgg_roster_role "${RBCC_account_director}" "${RBCC_fact_ext_roster_director}"
 }
 
-rbgg_invest_retriever() {
+# Retriever capability-set — the role's resource-grant list as named code.
+# Applied to z_member_email: the invested retriever SA today, the retriever
+# mantle SA at levy. The member is the only per-call variable; the grant
+# sequence is the invest body's verbatim.
+zrbgg_grant_retriever_capabilities() {
   zrbgg_sentinel
 
-  local z_identity="${BUZ_FOLIO:-}"
+  local -r z_token="${1:-}"
+  local -r z_member_email="${2:-}"
 
-  buc_doc_brief "Invest a Retriever service account for an identity"
-  buc_doc_param "identity" "Identity (required) — composes ${RBCC_account_retriever}-<identity>"
-  buc_doc_shown || return 0
-
-  test -n "${z_identity}" || buc_die "Identity required"
-
-  local z_account_name="${RBCC_account_retriever}-${z_identity}"
-  local z_account_email="${z_account_name}@${RBGD_SA_EMAIL_FULL}"
-
-  buc_step "Investing Retriever service account: ${z_account_name}"
-
-  zrbgg_create_service_account_with_key                                          \
-    "${z_account_name}"                                                        \
-    "Recipe Bottle Retriever (${z_identity})"                                  \
-    "Read-only access to Google Artifact Registry - identity: ${z_identity}"   \
-    "${RBCC_role_retriever}" > /dev/null || buc_die "Failed to create Retriever SA"
-
-  local z_token
-  z_token=$(rba_token_capture governor) || buc_die "Failed to get admin token"
+  test -n "${z_token}"        || buc_die "zrbgg_grant_retriever_capabilities: token required"
+  test -n "${z_member_email}" || buc_die "zrbgg_grant_retriever_capabilities: member email required"
 
   buc_step 'Adding Artifact Registry Reader role'
   rbgi_add_project_iam_role                 \
@@ -624,7 +612,7 @@ rbgg_invest_retriever() {
     "Grant Artifact Registry Reader"        \
     "${RBGD_PROJECT_RESOURCE}"              \
     "${RBGC_ROLE_ARTIFACTREGISTRY_READER}"  \
-    "serviceAccount:${z_account_email}"     \
+    "serviceAccount:${z_member_email}"      \
     "retriever-reader"
 
   buc_step 'Adding Container Analysis Occurrences Viewer role'
@@ -633,42 +621,23 @@ rbgg_invest_retriever() {
     "Grant Container Analysis Occurrences Viewer"        \
     "${RBGD_PROJECT_RESOURCE}"                           \
     "${RBGC_ROLE_CONTAINERANALYSIS_OCCURRENCES_VIEWER}"  \
-    "serviceAccount:${z_account_email}"                  \
+    "serviceAccount:${z_member_email}"                   \
     "retriever-analysis"
-
-  buc_info "RBRA file written: ${RBDC_ASSAY_RBRA_FILE}"
-  buc_info ""
-  buc_info "Move the RBRA file to a safe place — typically delivered to the"
-  buc_info "operator who consumes this identity. When the invester is also the"
-  buc_info "consumer, the local role slot is the canonical destination:"
-  buc_bare "        mv ${RBDC_ASSAY_RBRA_FILE} ${RBDC_RETRIEVER_RBRA_FILE}"
 }
 
-rbgg_invest_director() {
+# Director capability-set — the role's resource-grant list as named code.
+# Applied to z_member_email: the invested director SA today, the director mantle
+# SA at levy. Heterogeneous by nature (project grants, Mason and self actAs, a
+# self-actAs read-back poll, the complete AR repo-policy ceremony) — which is why
+# it is a function, not a flat list. The member is the only per-call variable.
+zrbgg_grant_director_capabilities() {
   zrbgg_sentinel
 
-  local z_identity="${BUZ_FOLIO:-}"
+  local -r z_token="${1:-}"
+  local -r z_member_email="${2:-}"
 
-  buc_doc_brief "Invest a Director service account for an identity"
-  buc_doc_param "identity" "Identity (required) — composes ${RBCC_account_director}-<identity>"
-  buc_doc_shown || return 0
-
-  test -n "${z_identity}" || buc_die "Identity required"
-
-  local z_account_name="${RBCC_account_director}-${z_identity}"
-  local z_account_email="${z_account_name}@${RBGD_SA_EMAIL_FULL}"
-
-  buc_step "Investing Director service account: ${z_account_name}"
-
-  zrbgg_create_service_account_with_key                      \
-    "${z_account_name}"                                    \
-    "Recipe Bottle Director (${z_identity})"               \
-    "Create/destroy container images for ${z_identity}"    \
-    "${RBCC_role_director}" > /dev/null || buc_die "Failed to create Director SA"
-
-  buc_step 'Get OAuth token from admin'
-  local z_token
-  z_token=$(rba_token_capture governor) || buc_die "Failed to get admin token"
+  test -n "${z_token}"        || buc_die "zrbgg_grant_director_capabilities: token required"
+  test -n "${z_member_email}" || buc_die "zrbgg_grant_director_capabilities: member email required"
 
   buc_step 'Adding Cloud Build Editor role (project scope)'
   rbgi_add_project_iam_role                 \
@@ -676,7 +645,7 @@ rbgg_invest_director() {
     "Grant Cloud Build Editor"              \
     "${RBGD_PROJECT_RESOURCE}"              \
     "${RBGC_ROLE_CLOUDBUILD_BUILDS_EDITOR}" \
-    "serviceAccount:${z_account_email}"     \
+    "serviceAccount:${z_member_email}"      \
     "director-cb"
 
   rbgi_add_project_iam_role                 \
@@ -684,7 +653,7 @@ rbgg_invest_director() {
     "Grant Project Viewer"                  \
     "${RBGD_PROJECT_RESOURCE}"              \
     "roles/viewer"                          \
-    "serviceAccount:${z_account_email}"     \
+    "serviceAccount:${z_member_email}"      \
     "director-viewer"
 
   rbgi_add_project_iam_role                 \
@@ -692,11 +661,11 @@ rbgg_invest_director() {
     "Grant Worker Pool User"               \
     "${RBGD_PROJECT_RESOURCE}"              \
     "roles/cloudbuild.workerPoolUser"       \
-    "serviceAccount:${z_account_email}"     \
+    "serviceAccount:${z_member_email}"      \
     "director-pool"
 
   buc_step 'Grant serviceAccountUser on Mason'
-  rbgi_add_sa_iam_role "${z_token}" "${RBGD_MASON_EMAIL}" "${z_account_email}" "roles/iam.serviceAccountUser"
+  rbgi_add_sa_iam_role "${z_token}" "${RBGD_MASON_EMAIL}" "${z_member_email}" "roles/iam.serviceAccountUser"
 
   buc_step 'Grant serviceAccountUser on self (Director runs cloud-dispatched delete builds as itself)'
   # The cloud-dispatched banish/abjure delete build runs AS the Director SA — the
@@ -705,14 +674,14 @@ rbgg_invest_director() {
   # self-actAs binding that lets a SA run a build as itself. workerPoolUser and
   # builds.create (Cloud Build Editor) are already granted above; no new GAR grant
   # is needed because Director already holds repoAdmin.
-  rbgi_add_sa_iam_role "${z_token}" "${z_account_email}" "${z_account_email}" "roles/iam.serviceAccountUser"
+  rbgi_add_sa_iam_role "${z_token}" "${z_member_email}" "${z_member_email}" "roles/iam.serviceAccountUser"
 
   buc_step 'Read-back: confirm self-actAs binding visible before declaring invest complete'
   # The first post-invest builds.create exercises this binding (the spine
   # dispatch has no tolerance for a PERMISSION_DENIED actAs flap), so the
   # Class-C propagation wait is confined here, invest-side, rather than
   # spread to every spine rider's submit path.
-  rbgi_poll_sa_iam_binding "${z_token}" "${z_account_email}" "${z_account_email}" "roles/iam.serviceAccountUser"
+  rbgi_poll_sa_iam_binding "${z_token}" "${z_member_email}" "${z_member_email}" "roles/iam.serviceAccountUser"
 
   buc_step 'Grant Artifact Registry roles (complete expected policy)'
   # Complete policy: Director repoAdmin + Mason writer in one setIamPolicy.
@@ -763,7 +732,7 @@ rbgg_invest_director() {
     # Build complete expected policy: Director repoAdmin + Mason writer
     local z_gar_partial
     z_gar_partial=$(rbgi_jq_add_member_to_role_capture "${z_gar_get_infix}" \
-      "roles/artifactregistry.repoAdmin" "serviceAccount:${z_account_email}" "") \
+      "roles/artifactregistry.repoAdmin" "serviceAccount:${z_member_email}" "") \
       || buc_die "Failed to add Director repoAdmin to GAR IAM policy"
 
     local z_gar_intermediate="${BURD_TEMP_DIR}/rbuh_director_gar_complete_iam_u_resp.json"
@@ -798,6 +767,70 @@ rbgg_invest_director() {
     rbuh_require_ok "Set GAR repo IAM policy (complete)" "${z_gar_set_infix}"
     break
   done
+}
+
+rbgg_invest_retriever() {
+  zrbgg_sentinel
+
+  local z_identity="${BUZ_FOLIO:-}"
+
+  buc_doc_brief "Invest a Retriever service account for an identity"
+  buc_doc_param "identity" "Identity (required) — composes ${RBCC_account_retriever}-<identity>"
+  buc_doc_shown || return 0
+
+  test -n "${z_identity}" || buc_die "Identity required"
+
+  local z_account_name="${RBCC_account_retriever}-${z_identity}"
+  local z_account_email="${z_account_name}@${RBGD_SA_EMAIL_FULL}"
+
+  buc_step "Investing Retriever service account: ${z_account_name}"
+
+  zrbgg_create_service_account_with_key                                          \
+    "${z_account_name}"                                                        \
+    "Recipe Bottle Retriever (${z_identity})"                                  \
+    "Read-only access to Google Artifact Registry - identity: ${z_identity}"   \
+    "${RBCC_role_retriever}" > /dev/null || buc_die "Failed to create Retriever SA"
+
+  local z_token
+  z_token=$(rba_token_capture governor) || buc_die "Failed to get admin token"
+
+  zrbgg_grant_retriever_capabilities "${z_token}" "${z_account_email}"
+
+  buc_info "RBRA file written: ${RBDC_ASSAY_RBRA_FILE}"
+  buc_info ""
+  buc_info "Move the RBRA file to a safe place — typically delivered to the"
+  buc_info "operator who consumes this identity. When the invester is also the"
+  buc_info "consumer, the local role slot is the canonical destination:"
+  buc_bare "        mv ${RBDC_ASSAY_RBRA_FILE} ${RBDC_RETRIEVER_RBRA_FILE}"
+}
+
+rbgg_invest_director() {
+  zrbgg_sentinel
+
+  local z_identity="${BUZ_FOLIO:-}"
+
+  buc_doc_brief "Invest a Director service account for an identity"
+  buc_doc_param "identity" "Identity (required) — composes ${RBCC_account_director}-<identity>"
+  buc_doc_shown || return 0
+
+  test -n "${z_identity}" || buc_die "Identity required"
+
+  local z_account_name="${RBCC_account_director}-${z_identity}"
+  local z_account_email="${z_account_name}@${RBGD_SA_EMAIL_FULL}"
+
+  buc_step "Investing Director service account: ${z_account_name}"
+
+  zrbgg_create_service_account_with_key                      \
+    "${z_account_name}"                                    \
+    "Recipe Bottle Director (${z_identity})"               \
+    "Create/destroy container images for ${z_identity}"    \
+    "${RBCC_role_director}" > /dev/null || buc_die "Failed to create Director SA"
+
+  buc_step 'Get OAuth token from admin'
+  local z_token
+  z_token=$(rba_token_capture governor) || buc_die "Failed to get admin token"
+
+  zrbgg_grant_director_capabilities "${z_token}" "${z_account_email}"
 
   buc_info "RBRA file written: ${RBDC_ASSAY_RBRA_FILE}"
   buc_info ""
