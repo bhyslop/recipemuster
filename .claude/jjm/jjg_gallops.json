@@ -9124,9 +9124,10 @@
         "₢BZAAO",
         "₢BZAAP",
         "₢BZAAQ",
+        "₢BZAAS",
         "₢BZAAN"
       ],
-      "jjghn_next_pace_seed": "AAS",
+      "jjghn_next_pace_seed": "AAT",
       "jjghn_paces": {
         "₢BZAAA": {
           "jjgpn_tacks": [
@@ -9449,6 +9450,17 @@
               "jjgtn_text": "Run the credential-surface suites at heat HEAD and record their dispositions as the heat's known-good floor, before any movement-4 code lands.\nOnly `fast` is green at current HEAD; `service` and `complete` last ran before the regime-poison conversion and the sentry citation-collapses landed, so no verified floor exists on the very surface this heat rewires.\nRun `complete` then `dogfight` sequentially (never parallel — fixtures share regime and container state); `blockade` is optional at operator call.\nDepot is levied — the cloud-probe precondition — confirmed at slate.\n\n## Done when\n- `complete` and `dogfight` have run green at the heat-HEAD commit; the wrap summary records each suite's verdict and the commit SHA as the durable floor marker.\n- Any red result is dispositioned — fix-first or accept-and-note — before the movement-1 credential-accessor refactor mounts, never silently carried.\n\n## Cinched\n- This pace makes no code change; its sole deliverable is the recorded disposition in the wrap summary (the heat's journal, since the paddock is frozen).\n- A red baseline blocks the movement-1 mount until resolved.\n\n## Character\nVerification gate, not a change — run the suites, read the logs, record the floor. Mechanical; the only judgment is dispositioning a red.",
               "jjgtn_silks": "known-good-floor",
               "jjgtn_basis": "0521d1c"
+            }
+          ]
+        },
+        "₢BZAAS": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260616-1137",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "Reconsider whether compearance must gate on terminal-interactivity, or whether a headless run can open an assize by surfacing the device-flow prompt out-of-band and polling to completion.\n\nThe Leg-1+2 compearance step currently gates on TTY presence and fails loud when headless — the fail-fast membrane the human-present premise prescribes.\nThe operator's challenge: IdP-completion detection is already a headless HTTP poll loop, and RFC 8628 is asynchronous by design (the device polls while the human authenticates on a separate device), so terminal-interactivity is a policy choice, not a technical necessity.\nThe suspected design error: conflating \"a human authenticates each assize\" (the premise) with \"a human is at a controlling terminal\" (the current enforcement), which fails a headless-but-human-reachable caller — e.g. a long-running agent whose operator watches its output channel but holds no TTY.\n\nThe alternative to weigh: deliver the verification URI and user code through an out-of-band channel (emit, a known file, a notification), poll headlessly until completion or device-code expiry, and reserve fail-fast for the case where no channel and no human can be established.\nThe cost it trades: the fail-fast guard against a silent ~15-minute poll-until-expiry hang, and the obligation to answer \"which channel, and is someone watching it.\"\n\nThis touches cinched paddock material — the human-present premise and the headless fail-fast membrane (spike D2/D3) — so resolving it may require an operator-sanctioned paddock amendment rather than a pace-local decision.\n\n## Done when\nThe design question is settled either way, with rationale recorded in the pace-design memo.\nEither the TTY-gate-plus-fail-fast enforcement is reaffirmed — and the reason the premise requires a controlling terminal rather than merely a reachable human is written down — or a decoupled design is specified (out-of-band prompt delivery plus headless polling), with the human-present-premise / fail-fast-membrane cinch amended to match.\nThe rework this implies for the compearance accessor step and the Leg-1+2 pace is identified and slated or folded, not left implicit.\n\n## Cinched\nZero durable secrets beyond the payor's RBRO; no refresh token; the federated-token-only assize cache.\nThe device flow stays the compearance mechanism; a human still authenticates each assize.\nExplicitly under reconsideration: whether \"human present\" must mean \"controlling terminal present,\" and whether a headless miss fails loud unconditionally.\n\n## Character\nDesign reconsideration requiring judgment; touches a cinched premise, so it may surface a paddock amendment rather than land purely in code.",
+              "jjgtn_silks": "compearance-headless-reconsider",
+              "jjgtn_basis": "dc2dff3"
             }
           ]
         }
