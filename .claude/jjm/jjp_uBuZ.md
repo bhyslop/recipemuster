@@ -5,6 +5,8 @@ The working agents are now Opus-class; a first Opus read mistook load-bearing pr
 Until Fable is available to re-author, or the operator sanctions a change in conversation, this paddock is read-only.
 Corrections and tightenings — including over-treatments Opus believes it spots — are carried in the paces and in the pace-design memo, never folded back here.
 Live pace-design work and the Opus/Fable divergence record: `Memos/memo-20260615-BZ-pace-design.md`.
+A further routing, for evolution rather than correction: an idea that would change this paddock's cinched logic, or reach past this heat's scope, is not a correction — it goes to the holding heat for federation ideas deferred from this one (₣Bf), never folded back here.
+A mid-pace urge to re-architect is evolution — route it to ₣Bf, not into this frozen body.
 
 ## Boundary — single tier, mantle impersonation (cinched 260612)
 
