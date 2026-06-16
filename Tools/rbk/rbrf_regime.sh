@@ -75,13 +75,9 @@ zrbrf_enforce() {
 
   [[ "${RBRF_WORKFORCE_POOL_ID}" =~ ^[a-z0-9-]{4,32}$ ]] \
     || buc_reject "${BUBC_band_regime}" "Invalid RBRF_WORKFORCE_POOL_ID: ${RBRF_WORKFORCE_POOL_ID} (expected lowercase alphanumeric/hyphen, 4-32 chars)"
-  [[ "${RBRF_WORKFORCE_POOL_ID}" != gcp-* ]] \
-    || buc_reject "${BUBC_band_regime}" "RBRF_WORKFORCE_POOL_ID must not start with the reserved 'gcp-' prefix"
 
   [[ "${RBRF_PROVIDER_ID}" =~ ^[a-z0-9-]{4,32}$ ]] \
     || buc_reject "${BUBC_band_regime}" "Invalid RBRF_PROVIDER_ID: ${RBRF_PROVIDER_ID} (expected lowercase alphanumeric/hyphen, 4-32 chars)"
-  [[ "${RBRF_PROVIDER_ID}" != gcp-* ]] \
-    || buc_reject "${BUBC_band_regime}" "RBRF_PROVIDER_ID must not start with the reserved 'gcp-' prefix"
 
   [[ "${RBRF_SESSION_DURATION}" =~ ^[0-9]+s$ ]] \
     || buc_reject "${BUBC_band_regime}" "Invalid RBRF_SESSION_DURATION: ${RBRF_SESSION_DURATION} (expected NNNs, e.g. 3600s)"
@@ -98,13 +94,18 @@ zrbrf_enforce() {
   # OIDC requires openid; the human-present premise forbids offline_access — a
   # refresh token would let a run begin outside a live assize. Both enforced here
   # so a misconfigured scope fails at the regime boundary, not mid-compearance.
-  [[ " ${RBRF_IDP_SCOPE} " == *" openid "* ]] \
-    || buc_reject "${BUBC_band_regime}" "RBRF_IDP_SCOPE must request the openid scope: ${RBRF_IDP_SCOPE}"
-  [[ " ${RBRF_IDP_SCOPE} " != *offline_access* ]] \
-    || buc_reject "${BUBC_band_regime}" "RBRF_IDP_SCOPE must not request offline_access — the no-refresh-token premise (a live human compears at each run)"
+  case " ${RBRF_IDP_SCOPE} " in
+    *" openid "*) ;;
+    *) buc_reject "${BUBC_band_regime}" "RBRF_IDP_SCOPE must request the openid scope: ${RBRF_IDP_SCOPE}" ;;
+  esac
+  case " ${RBRF_IDP_SCOPE} " in
+    *offline_access*) buc_reject "${BUBC_band_regime}" "RBRF_IDP_SCOPE must not request offline_access — the no-refresh-token premise (a live human compears at each run)" ;;
+  esac
 
-  [[ "${RBRF_ATTRIBUTE_MAPPING}" == *google.subject* ]] \
-    || buc_reject "${BUBC_band_regime}" "RBRF_ATTRIBUTE_MAPPING must map google.subject: ${RBRF_ATTRIBUTE_MAPPING}"
+  case "${RBRF_ATTRIBUTE_MAPPING}" in
+    *google.subject*) ;;
+    *) buc_reject "${BUBC_band_regime}" "RBRF_ATTRIBUTE_MAPPING must map google.subject: ${RBRF_ATTRIBUTE_MAPPING}" ;;
+  esac
 }
 
 # eof

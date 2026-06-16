@@ -59,7 +59,23 @@ zrba_kindle() {
   readonly ZRBA_FED_STS_RESPONSE_FILE="${BURD_TEMP_DIR}/rba_fed_sts.json"
   readonly ZRBA_FED_CURL_STDERR_FILE="${BURD_TEMP_DIR}/rba_fed_curl_stderr.txt"
   readonly ZRBA_FED_JQ_STDERR_FILE="${BURD_TEMP_DIR}/rba_fed_jq_stderr.txt"
+  readonly ZRBA_FED_OPENSSL_STDERR_FILE="${BURD_TEMP_DIR}/rba_fed_openssl_stderr.txt"
   readonly ZRBA_FED_PROBE_STDERR_FILE="${BURD_TEMP_DIR}/rba_fed_probe_stderr.txt"
+
+  # Non-secret scalar fields parsed out of the leg responses land in these temp
+  # files: BCG bars $() on external commands, so jq/date write a file and the
+  # value is read back with $(<file). The federated, id, and access tokens are
+  # never among them — jq emits each straight to its function's stdout, so no
+  # token is added to BURD_TEMP_DIR beyond the curl responses above.
+  readonly ZRBA_FED_ASSIZE_EXPIRY_FILE="${BURD_TEMP_DIR}/rba_fed_assize_expiry.txt"
+  readonly ZRBA_FED_ASSIZE_NOW_FILE="${BURD_TEMP_DIR}/rba_fed_assize_now.txt"
+  readonly ZRBA_FED_COMPEAR_NOW_FILE="${BURD_TEMP_DIR}/rba_fed_compear_now.txt"
+  readonly ZRBA_FED_DEVICE_CODE_FILE="${BURD_TEMP_DIR}/rba_fed_device_code.txt"
+  readonly ZRBA_FED_USER_CODE_FILE="${BURD_TEMP_DIR}/rba_fed_user_code.txt"
+  readonly ZRBA_FED_VERIFY_URI_FILE="${BURD_TEMP_DIR}/rba_fed_verify_uri.txt"
+  readonly ZRBA_FED_INTERVAL_FILE="${BURD_TEMP_DIR}/rba_fed_interval.txt"
+  readonly ZRBA_FED_POLL_ERROR_FILE="${BURD_TEMP_DIR}/rba_fed_poll_error.txt"
+  readonly ZRBA_FED_EXPIRES_IN_FILE="${BURD_TEMP_DIR}/rba_fed_expires_in.txt"
 
   readonly ZRBA_KINDLED=1
 }
@@ -148,19 +164,20 @@ zrba_assize_read_capture() {
   z_path=$(zrba_assize_path_capture) || return 1
   test -f "${z_path}" || return 1
 
-  local z_token
-  z_token=$(jq -r '.federated_token // empty' "${z_path}" 2>"${ZRBA_FED_JQ_STDERR_FILE}") || return 1
-  test -n "${z_token}" || return 1
-
-  local z_expiry
-  z_expiry=$(jq -r '.expiry_epoch // 0' "${z_path}" 2>"${ZRBA_FED_JQ_STDERR_FILE}") || return 1
+  jq -r '.expiry_epoch // 0' "${z_path}" \
+     > "${ZRBA_FED_ASSIZE_EXPIRY_FILE}" 2>"${ZRBA_FED_JQ_STDERR_FILE}" || return 1
+  local -r z_expiry=$(<"${ZRBA_FED_ASSIZE_EXPIRY_FILE}")
   [[ "${z_expiry}" =~ ^[0-9]+$ ]] || return 1
 
-  local z_now
-  z_now=$(date +%s) || return 1
+  date +%s > "${ZRBA_FED_ASSIZE_NOW_FILE}" || return 1
+  local -r z_now=$(<"${ZRBA_FED_ASSIZE_NOW_FILE}")
+  test -n "${z_now}" || return 1
   test "${z_expiry}" -gt "$(( z_now + ZRBA_ASSIZE_SKEW_SEC ))" || return 1
 
-  printf '%s' "${z_token}"
+  # Federated token (secret): jq emits it straight to stdout. select(length > 0)
+  # makes an absent/empty token a non-zero jq exit, matching the prior test -n
+  # miss without the token ever passing through a shell var or temp file.
+  jq -er '.federated_token // empty | select(length > 0)' "${z_path}" 2>"${ZRBA_FED_JQ_STDERR_FILE}"
 }
 
 # A live (unexpired) assize is cached — status only, no output.
@@ -206,9 +223,12 @@ zrba_idtoken_subject_capture() {
     3) z_payload="${z_payload}="  ;;
   esac
 
-  local z_json
-  z_json=$(printf '%s' "${z_payload}" | openssl enc -base64 -d -A 2>"${ZRBA_FED_JQ_STDERR_FILE}") || return 1
-  printf '%s' "${z_json}" | jq -r '.oid // .sub // empty' 2>"${ZRBA_FED_JQ_STDERR_FILE}"
+  # Decode and select in one pipeline (capture-final): the decoded id_token
+  # payload exists only in the pipe, never in a var or temp file. pipefail makes
+  # a base64 or jq failure fail the pipeline, which the caller tolerates.
+  printf '%s' "${z_payload}" \
+    | openssl enc -base64 -d -A 2>"${ZRBA_FED_OPENSSL_STDERR_FILE}" \
+    | jq -r '.oid // .sub // empty' 2>"${ZRBA_FED_JQ_STDERR_FILE}"
 }
 
 # Leg 1 — device-flow compearance (RFC 8628). Requests a device + user code,
@@ -231,14 +251,18 @@ zrba_leg1_idtoken_capture() {
   test "${z_status}" -eq 0 \
     || { buc_log_args "Device-code request failed (curl ${z_status}); see ${ZRBA_FED_CURL_STDERR_FILE}"; return 1; }
 
-  local z_device_code
-  z_device_code=$(jq -r '.device_code // empty' "${ZRBA_FED_DEVICE_RESPONSE_FILE}" 2>"${ZRBA_FED_JQ_STDERR_FILE}") || return 1
-  local z_user_code
-  z_user_code=$(jq -r '.user_code // empty' "${ZRBA_FED_DEVICE_RESPONSE_FILE}" 2>"${ZRBA_FED_JQ_STDERR_FILE}") || return 1
-  local z_verification_uri
-  z_verification_uri=$(jq -r '.verification_uri // .verification_url // empty' "${ZRBA_FED_DEVICE_RESPONSE_FILE}" 2>"${ZRBA_FED_JQ_STDERR_FILE}") || return 1
-  local z_interval
-  z_interval=$(jq -r '.interval // 5' "${ZRBA_FED_DEVICE_RESPONSE_FILE}" 2>"${ZRBA_FED_JQ_STDERR_FILE}") || return 1
+  jq -r '.device_code // empty' "${ZRBA_FED_DEVICE_RESPONSE_FILE}" \
+     > "${ZRBA_FED_DEVICE_CODE_FILE}" 2>"${ZRBA_FED_JQ_STDERR_FILE}" || return 1
+  local -r z_device_code=$(<"${ZRBA_FED_DEVICE_CODE_FILE}")
+  jq -r '.user_code // empty' "${ZRBA_FED_DEVICE_RESPONSE_FILE}" \
+     > "${ZRBA_FED_USER_CODE_FILE}" 2>"${ZRBA_FED_JQ_STDERR_FILE}" || return 1
+  local -r z_user_code=$(<"${ZRBA_FED_USER_CODE_FILE}")
+  jq -r '.verification_uri // .verification_url // empty' "${ZRBA_FED_DEVICE_RESPONSE_FILE}" \
+     > "${ZRBA_FED_VERIFY_URI_FILE}" 2>"${ZRBA_FED_JQ_STDERR_FILE}" || return 1
+  local -r z_verification_uri=$(<"${ZRBA_FED_VERIFY_URI_FILE}")
+  jq -r '.interval // 5' "${ZRBA_FED_DEVICE_RESPONSE_FILE}" \
+     > "${ZRBA_FED_INTERVAL_FILE}" 2>"${ZRBA_FED_JQ_STDERR_FILE}" || return 1
+  local z_interval=$(<"${ZRBA_FED_INTERVAL_FILE}")
   test -n "${z_device_code}"      || return 1
   test -n "${z_user_code}"        || return 1
   test -n "${z_verification_uri}" || return 1
@@ -253,7 +277,6 @@ zrba_leg1_idtoken_capture() {
   buc_log_args "Compearance prompt surfaced to terminal; polling for sign-in"
 
   local z_elapsed=0
-  local z_idtoken=""
   local z_err=""
   while test "${z_elapsed}" -lt "${ZRBA_DEVICE_POLL_MAX_SEC}"; do
     sleep "${z_interval}" || return 1
@@ -274,13 +297,17 @@ zrba_leg1_idtoken_capture() {
       continue
     fi
 
-    z_idtoken=$(jq -r '.id_token // empty' "${ZRBA_FED_TOKEN_RESPONSE_FILE}" 2>"${ZRBA_FED_JQ_STDERR_FILE}") || z_idtoken=""
-    if test -n "${z_idtoken}"; then
-      printf '%s' "${z_idtoken}"
+    # id_token present → jq emits it (secret) straight to stdout and we finish.
+    # select(length > 0) keeps an absent/empty token on the polling path, matching
+    # the prior test -n guard, with no token landing in a var or temp file.
+    if jq -er '.id_token // empty | select(length > 0)' \
+         "${ZRBA_FED_TOKEN_RESPONSE_FILE}" 2>"${ZRBA_FED_JQ_STDERR_FILE}"; then
       return 0
     fi
 
-    z_err=$(jq -r '.error // empty' "${ZRBA_FED_TOKEN_RESPONSE_FILE}" 2>"${ZRBA_FED_JQ_STDERR_FILE}") || z_err=""
+    jq -r '.error // empty' "${ZRBA_FED_TOKEN_RESPONSE_FILE}" \
+       > "${ZRBA_FED_POLL_ERROR_FILE}" 2>"${ZRBA_FED_JQ_STDERR_FILE}" || : > "${ZRBA_FED_POLL_ERROR_FILE}"
+    z_err=$(<"${ZRBA_FED_POLL_ERROR_FILE}")
     case "${z_err}" in
       authorization_pending) ;;
       slow_down)             z_interval=$(( z_interval + 5 )) ;;
@@ -321,16 +348,22 @@ zrba_leg2_federated_capture() {
   test "${z_status}" -eq 0 \
     || { buc_log_args "STS exchange failed (curl ${z_status}); see ${ZRBA_FED_CURL_STDERR_FILE}"; return 1; }
 
-  local z_token
-  z_token=$(jq -r '.access_token // empty' "${ZRBA_FED_STS_RESPONSE_FILE}" 2>"${ZRBA_FED_JQ_STDERR_FILE}") || return 1
-  test -n "${z_token}" \
-    || { buc_log_args "STS exchange returned no access_token; see ${ZRBA_FED_STS_RESPONSE_FILE}"; return 1; }
-
-  local z_expires
-  z_expires=$(jq -r '.expires_in // 0' "${ZRBA_FED_STS_RESPONSE_FILE}" 2>"${ZRBA_FED_JQ_STDERR_FILE}") || return 1
+  jq -r '.expires_in // 0' "${ZRBA_FED_STS_RESPONSE_FILE}" \
+     > "${ZRBA_FED_EXPIRES_IN_FILE}" 2>"${ZRBA_FED_JQ_STDERR_FILE}" || return 1
+  local z_expires=$(<"${ZRBA_FED_EXPIRES_IN_FILE}")
   [[ "${z_expires}" =~ ^[0-9]+$ ]] || z_expires=0
 
-  printf '%s %s' "${z_token}" "${z_expires}"
+  # Federated access token (secret): jq emits "<token> <expires_in>" straight to
+  # stdout, the validated expiry passed in as a jq arg. select(length > 0) makes
+  # an absent/empty token a non-zero jq exit, matching the prior test -n guard;
+  # the token never passes through a shell var or temp file, and the forensic log
+  # rides the exit-status check.
+  local z_status=0
+  jq -er --argjson e "${z_expires}" \
+     '(.access_token // "") | select(length > 0) | "\(.) \($e)"' \
+     "${ZRBA_FED_STS_RESPONSE_FILE}" 2>"${ZRBA_FED_JQ_STDERR_FILE}" || z_status=$?
+  test "${z_status}" -eq 0 \
+    || { buc_log_args "STS exchange returned no access_token; see ${ZRBA_FED_STS_RESPONSE_FILE}"; return 1; }
 }
 
 # rba_compear — the compearance accessor step. Ensures a live assize; its side
@@ -369,8 +402,9 @@ rba_compear() {
   local -r z_expires_in="${z_fed##* }"
   [[ "${z_expires_in}" =~ ^[0-9]+$ ]] || buc_die "Leg 2 returned a non-numeric expiry: ${z_expires_in}"
 
-  local z_now
-  z_now=$(date +%s) || buc_die "Failed to read the clock"
+  date +%s > "${ZRBA_FED_COMPEAR_NOW_FILE}" || buc_die "Failed to read the clock"
+  local -r z_now=$(<"${ZRBA_FED_COMPEAR_NOW_FILE}")
+  test -n "${z_now}" || buc_die "Empty clock reading"
   local -r z_expiry_epoch=$(( z_now + z_expires_in ))
 
   local z_subject
