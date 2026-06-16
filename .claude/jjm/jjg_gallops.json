@@ -9283,6 +9283,13 @@
         "₢BZAAH": {
           "jjgpn_tacks": [
             {
+              "jjgtn_ts": "260616-1302",
+              "jjgtn_state": "jjgte_complete",
+              "jjgtn_text": "Fold mantle establishment and audit-log enablement into levy.\nEstablish the three mantle SAs beside mason and grant every resource binding to them once, behind the settle gate; the mantle SAs reuse the named capability-set grant definitions lifted into code earlier in the substrate work.\nEnable AR Data-Access audit logs at levy as a ceremony step.\nBoth gestures are depot-project-scoped, payor-authenticated, and share crash-leaves-visible-deficit, re-run semantics.\n\n## Done when\nLevy establishes the three mantle SAs with all resource IAM frozen behind the settle gate.\nAR audit logs are enabled at levy for both ADMIN_READ and DATA_READ on the using service — not on iamcredentials, which rejects service-level auditConfig (see the federation-legs-spike-findings memo, V3).\nA successor levy contract spec carries it, succeeding the live levy spec contract-first; acronym minted when firmed.\n\n## Cinched\nAll resource IAM freezes at levy; hot paths zero-IAM.\nMantle SAs instantiate the capability-sets at levy behind the settle gate.\n\n## Character\nFounding-ceremony assembly — long, payor-driven, settle gate cheap there.",
+              "jjgtn_silks": "levy-mantle-establishment",
+              "jjgtn_basis": "3740aa6"
+            },
+            {
               "jjgtn_ts": "260615-1758",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": "Fold mantle establishment and audit-log enablement into levy.\nEstablish the three mantle SAs beside mason and grant every resource binding to them once, behind the settle gate; the mantle SAs reuse the named capability-set grant definitions lifted into code earlier in the substrate work.\nEnable AR Data-Access audit logs at levy as a ceremony step.\nBoth gestures are depot-project-scoped, payor-authenticated, and share crash-leaves-visible-deficit, re-run semantics.\n\n## Done when\nLevy establishes the three mantle SAs with all resource IAM frozen behind the settle gate.\nAR audit logs are enabled at levy for both ADMIN_READ and DATA_READ on the using service — not on iamcredentials, which rejects service-level auditConfig (see the federation-legs-spike-findings memo, V3).\nA successor levy contract spec carries it, succeeding the live levy spec contract-first; acronym minted when firmed.\n\n## Cinched\nAll resource IAM freezes at levy; hot paths zero-IAM.\nMantle SAs instantiate the capability-sets at levy behind the settle gate.\n\n## Character\nFounding-ceremony assembly — long, payor-driven, settle gate cheap there.",
