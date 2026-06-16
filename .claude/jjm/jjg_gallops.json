@@ -9116,6 +9116,7 @@
         "₢BZAAF",
         "₢BZAAG",
         "₢BZAAM",
+        "₢BZAAU",
         "₢BZAAT",
         "₢BZAAH",
         "₢BZAAI",
@@ -9128,7 +9129,7 @@
         "₢BZAAS",
         "₢BZAAN"
       ],
-      "jjghn_next_pace_seed": "AAU",
+      "jjghn_next_pace_seed": "AAV",
       "jjghn_paces": {
         "₢BZAAA": {
           "jjgpn_tacks": [
@@ -9480,6 +9481,17 @@
               "jjgtn_text": "Walk the operator through the live, human-in-the-loop proof of federation compearance — the one thing the build paces cannot verify without a terminal and a browser click.\nEverything machine-verifiable (BCG, shellcheck, the credless and headless gates, the jq-emit expression checks) is already green in the build paces; this pace is only the live-trust + human-click portion they defer.\nAgent drives it as a trot: operator at a terminal, Leg 1 device flow (verification URL + user code, then browser approval), Leg 2 STS exchange, federated token cached per-assize; then confirm the headless cases consume that one compeared assize at suite head.\nRun against the trust affiance founds, not only the standing spike fixture.\n\n## Done when\nA live assize opens end to end: Leg 1 under a TTY, Leg 2 yields the federated token, that token alone is cached.\nThe suite-head seam is shown: one compeared assize fed at suite head, the otherwise-headless cases consume it thereafter.\n\n## Cinched\nAll human-in-the-loop federation proof consolidates here; the build paces wrap on machine-verifiable criteria and hand their live-proof obligation to this pace.\nRuns after affiance founds the trust.\n\n## Character\nOperator-paced live walkthrough — interactive, needs a terminal and browser, not autonomous.",
               "jjgtn_silks": "federation-live-proof",
               "jjgtn_basis": "10dbc1e"
+            }
+          ]
+        },
+        "₢BZAAU": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260616-1236",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "Prove the depot levy's federation-founding steps execute end to end on a real fresh levy — the runtime proof the levy code pace deferred.\nThe three mantle service-account establishments, their per-role capability-set grants, and the Artifact Registry Data-Access audit-log enablement (v3 setIamPolicy, updateMask auditConfigs,etag) all run against live GCP, not only shellcheck.\nThe gauntlet already levies a fresh project at canonical-establish; this pace adds the assertions that the founding gestures landed.\n\n## Done when\nA fresh gauntlet levy stands up the three rbma- mantle SAs with their capability-sets and the AR Data-Access audit config, each confirmed present against live GCP.\nThe v3 audit setIamPolicy round-trips the artifactregistry auditConfigs entry — the content gate fires by correctness, not luck.\n\n## Cinched\nAutonomous, machine-verifiable proof only — no human-in-the-loop step; the live federation walkthrough is a separate terminal-and-browser pace.\n\n## Character\nAutonomous gauntlet against live GCP: read the levy home (rbgp_depot_levy plus the rbgw capability-sets), then assert outcomes. Not interactive.",
+              "jjgtn_silks": "levy-founding-proof",
+              "jjgtn_basis": "f5aa622"
             }
           ]
         }
