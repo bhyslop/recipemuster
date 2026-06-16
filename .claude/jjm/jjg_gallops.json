@@ -9725,6 +9725,13 @@
         "₢BbAAN": {
           "jjgpn_tacks": [
             {
+              "jjgtn_ts": "260615-1830",
+              "jjgtn_state": "jjgte_complete",
+              "jjgtn_text": "## Character\nMinting — prefix-allocation judgment per the mint workflow, then small bounded linking.\nSelf-contained, single file.\n\n## Goal\nHome four under-quoined BUK test-framework concepts in BUS0\n(Tools/buk/vov_veiled/BUS0-BashUtilitiesSpec.adoc): Fixture, Suite, Workbench, Testbench.\nMint a quoin for each — mapping entry, anchor, definition — then point the introducing sites at it.\nFind sites: grep -i each word in BUS0.\n\n## Cinched\nScope is exactly these four concepts in BUS0 — not a wider BUK mint sweep (operator grab-bag).\nRunning-prose saturation beyond the introducing sites rides future auto-link, not this pace\n(see the link-coverage ledger entry in Memos/memo-20260209-diptych-vision.md).\n\n## Done when\nThe four concepts carry quoins in BUS0's mapping section with definitions,\ntheir introducing sites reference the quoins,\nand BUS0 validates.",
+              "jjgtn_silks": "buk-test-vocab-quoin-mint",
+              "jjgtn_basis": "e2ed020"
+            },
+            {
               "jjgtn_ts": "260610-1142",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": "## Character\nMinting — prefix-allocation judgment per the mint workflow, then small bounded linking.\nSelf-contained, single file.\n\n## Goal\nHome four under-quoined BUK test-framework concepts in BUS0\n(Tools/buk/vov_veiled/BUS0-BashUtilitiesSpec.adoc): Fixture, Suite, Workbench, Testbench.\nMint a quoin for each — mapping entry, anchor, definition — then point the introducing sites at it.\nFind sites: grep -i each word in BUS0.\n\n## Cinched\nScope is exactly these four concepts in BUS0 — not a wider BUK mint sweep (operator grab-bag).\nRunning-prose saturation beyond the introducing sites rides future auto-link, not this pace\n(see the link-coverage ledger entry in Memos/memo-20260209-diptych-vision.md).\n\n## Done when\nThe four concepts carry quoins in BUS0's mapping section with definitions,\ntheir introducing sites reference the quoins,\nand BUS0 validates.",
