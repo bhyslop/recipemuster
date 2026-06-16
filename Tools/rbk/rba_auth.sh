@@ -174,9 +174,9 @@ zrba_assize_read_capture() {
   test -n "${z_now}" || return 1
   test "${z_expiry}" -gt "$(( z_now + ZRBA_ASSIZE_SKEW_SEC ))" || return 1
 
-  # Federated token (secret): jq emits it straight to stdout. select(length > 0)
-  # makes an absent/empty token a non-zero jq exit, matching the prior test -n
-  # miss without the token ever passing through a shell var or temp file.
+  # Federated token (secret): jq emits it straight to stdout, never through a
+  # shell var or temp file. select(length > 0) yields no output and a non-zero jq
+  # exit when the token is absent or empty — the capture miss.
   jq -er '.federated_token // empty | select(length > 0)' "${z_path}" 2>"${ZRBA_FED_JQ_STDERR_FILE}"
 }
 
@@ -297,9 +297,9 @@ zrba_leg1_idtoken_capture() {
       continue
     fi
 
-    # id_token present → jq emits it (secret) straight to stdout and we finish.
-    # select(length > 0) keeps an absent/empty token on the polling path, matching
-    # the prior test -n guard, with no token landing in a var or temp file.
+    # id_token present → jq emits it (secret) straight to stdout and we finish,
+    # with no token landing in a var or temp file. select(length > 0) yields a
+    # non-zero jq exit for an absent/empty token, keeping it on the polling path.
     if jq -er '.id_token // empty | select(length > 0)' \
          "${ZRBA_FED_TOKEN_RESPONSE_FILE}" 2>"${ZRBA_FED_JQ_STDERR_FILE}"; then
       return 0
@@ -354,10 +354,9 @@ zrba_leg2_federated_capture() {
   [[ "${z_expires}" =~ ^[0-9]+$ ]] || z_expires=0
 
   # Federated access token (secret): jq emits "<token> <expires_in>" straight to
-  # stdout, the validated expiry passed in as a jq arg. select(length > 0) makes
-  # an absent/empty token a non-zero jq exit, matching the prior test -n guard;
-  # the token never passes through a shell var or temp file, and the forensic log
-  # rides the exit-status check.
+  # stdout, the validated expiry passed in as a jq arg, so the token never passes
+  # through a shell var or temp file. select(length > 0) yields a non-zero jq exit
+  # for an absent/empty token, and the forensic log rides that exit status.
   local z_status=0
   jq -er --argjson e "${z_expires}" \
      '(.access_token // "") | select(length > 0) | "\(.) \($e)"' \
