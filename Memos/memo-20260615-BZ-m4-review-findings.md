@@ -249,3 +249,15 @@ The places to scrutinize first, in order of leverage:
 The full workflow result (all five for/against/judge panels, the seven docket
 mount-readiness reviews, the sequencer output) is in the membrane pace's run
 transcript; this memo is the distilled, reviewable record.
+
+---
+
+## Addendum (260616): RBSMJ reserved — manor jilt verb
+
+Post-review, the operator sanctioned (in conversation) a new manor verb **jilt** —
+the affiance inverse, dissolving a workforce pool — arising from the affiance-proof
+pace's Tier B create/delete round-trip. Full mint + rationale + scope note: the
+pace-design memo (260616). Seat impact on the census above: **RBSMJ** is now
+reserved for the jilt contract spec — M-seat verified free for J, joining the seated
+RBSMF/RBSMA (RBSMC still free). jilt is its own contract-first build pace, ordered
+immediately before affiance-proof.

@@ -161,3 +161,41 @@ Homonym-guard vestige (extends divergence #2):
 
 Note: line 80 above ("invest/divest/rehearse as thin RBS0-side wrappers") is the faithful 260615-trot record;
 it is superseded by the 260616 brevet/unseat re-election noted here, left as history rather than rewritten.
+
+## Manor jilt verb — operator-sanctioned mint (260616)
+
+Operator sanctioned, in conversation 260616, a new manor verb: **jilt** —
+the inverse of affiance, dissolving a workforce pool (breaking the manor↔IdP betrothal).
+Colophon `rbw-mJ`, frontispiece PayorJiltsManor, payor-credentialed.
+An operator verb, not a test-only teardown gesture:
+the create/delete round-trip becomes test cases, so jilt earns first-class verb status with its own contract.
+
+Why jilt (MCM Word Selection):
+
+- **Asterism — the decider.** Affiance is the betrothal/diplomatic-marriage register
+  ("the pledged faith between manor and IdP; *fiancé* keeps it warm").
+  To jilt is to break off a betrothal — affiance ↔ jilt is a true antonym pair *inside the same asterism*,
+  mirroring create-trust ↔ dissolve-trust.
+  Sunder (the runner-up) severs any union; jilt severs *this* one — the tighter fit, chosen over sunder.
+- **Sibling initials — clean.** Manor demesne is Levy / Establish / Affiance (L/E/A);
+  +Jilt keeps all four distinct.
+  J also clears the polity Brevet/Unseat/Attaint/Rehearse and the cult-garment Enrobe/deFrock/roster.
+- **Grep gate:** 0 hits repo-wide (jilt, jilts). Clean landing.
+- **Vocabulary isolation:** courtship vocabulary, zero ambient software/cloud/CI presence — not a trodden word.
+- **Husbandry:** a pool teardown is rarer than affiance itself;
+  husbandry prescribes a rare, colorful word for such low-traffic ceremonies.
+
+Exposure: ashlar (operator-triggered; surfaces in error output).
+Unlike the transitional enrobe/defrock (doomed at M7), jilt is a permanent capability —
+so it IS broadside-eligible and registers with the federation vocabulary at the M6 narrative-docs movement.
+Contract spec: **RBSMJ** (M-seat, verified free), contract-first per the documentation-strategy cinch;
+RBS0 civic-quoin seat in the federation category alongside affiance.
+
+Scope note for Fable: this adds a permanent un-founding verb beyond the paddock's frozen
+founding triad (Levy / Establish / Affiance).
+The paddock does not cinch *against* a manor delete — it omits one (founding is rare; un-founding was outside the MVP first cut);
+the operator pulled it into ₣BZ in conversation because the affiance create-path de-risk needs a real delete and the round-trip is worth testing.
+A full manor-lifecycle re-architecture would route to ₣Bf; this single sanctioned verb stays in-heat.
+
+Pace structure: jilt gets its own contract-first build pace (silks manor-jilt),
+slated immediately before the affiance-proof pace, which depends on it for the Tier B teardown.
