@@ -1263,7 +1263,8 @@ rbgp_manor_affiance() {
 
   buc_step 'Manor affianced'
   buc_info "Manor affianced: pool=${z_pool_id} provider=${z_provider_id} org=${z_org}"
-  buc_info "Verify the trust by compearing — run tt/rbw-acf.CheckFederatedAccess.sh"
+  buyy_tt_yawp "${RBZ_CHECK_COMPEARANCE}"; local -r z_acf_tt="${z_buym_yelp}"
+  buc_info "Verify the trust by compearing — run ${z_acf_tt}"
 }
 
 rbgp_manor_jilt() {
