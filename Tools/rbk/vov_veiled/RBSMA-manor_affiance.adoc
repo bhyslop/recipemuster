@@ -78,16 +78,16 @@ link:https://cloud.google.com/iam/docs/reference/rest/v1/locations.workforcePool
 .. present (HTTP 200) → leave it in place, advance. Absent (HTTP 404) → create it:
 .. {rbbc_submit}
 link:https://cloud.google.com/iam/docs/reference/rest/v1/locations.workforcePools/create[workforcePools.create] with:
-... parent: `organizations/RBRF_ORG_ID`
-... workforcePoolId: `RBRF_WORKFORCE_POOL_ID`
+... `workforcePoolId=RBRF_WORKFORCE_POOL_ID` as the sole query parameter (the URL path parent is `locations/global`)
+... the org as the immutable body field `parent` — proven live: `parent` is rejected as a *query* parameter, and the pool's resource name carries no org (its GET is `locations/global/workforcePools/<id>`); the org scopes the pool solely through this body field
 ... body:
 +
 ----
 {
+  "parent": "organizations/RBRF_ORG_ID",
   "displayName": "RBRF_WORKFORCE_POOL_ID",
   "description": "Recipe Bottle manor federation pool",
-  "sessionDuration": "RBRF_SESSION_DURATION",
-  "disabled": false
+  "sessionDuration": "RBRF_SESSION_DURATION"
 }
 ----
 .. {rbbc_await}

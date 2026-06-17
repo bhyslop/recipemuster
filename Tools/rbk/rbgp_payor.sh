@@ -1168,18 +1168,25 @@ rbgp_manor_affiance() {
       buc_info "Workforce pool ${z_pool_id} already present — leaving in place (drift-reconcile is a named follow-up)"
       ;;
     404)
+      # The org parent is a body field, not a query parameter: workforcePools.create
+      # binds the URL path to locations/global and accepts only workforcePoolId on
+      # the query string. The pool's resource name carries no org (GET is
+      # locations/global/workforcePools/<id>); the org scopes the pool solely
+      # through the immutable body `parent`. (RBSMA create-shape.)
       local -r z_pool_body="${BURD_TEMP_DIR}/rbgp_affiance_pool.json"
       jq -n \
+        --arg parent          "${z_org}" \
         --arg displayName     "${z_pool_id}" \
         --arg description     "Recipe Bottle manor federation pool" \
         --arg sessionDuration "${RBRF_SESSION_DURATION}" \
         '{
+          parent: $parent,
           displayName: $displayName,
           description: $description,
           sessionDuration: $sessionDuration
         }' > "${z_pool_body}" || buc_die "Failed to build workforce pool body"
 
-      local -r z_pool_create_url="${z_pools_base}?workforcePoolId=${z_pool_id}&parent=${z_org}"
+      local -r z_pool_create_url="${z_pools_base}?workforcePoolId=${z_pool_id}"
       rbge_lro_ok \
         "Create workforce pool" \
         "${z_token}" \
