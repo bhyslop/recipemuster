@@ -30,7 +30,8 @@ That singularity makes it the natural hub for two things:
    A small window displaying a pushed image (the PlantUML SVGs a Recipe Bottle crucible renders),
    updating in place, with paneboard managing the viewer window instances.
 
-Both ride a single paneboard control channel. Build the overlay first, the viewer second.
+Both ride a single paneboard control channel. Build the **viewer first** — it is the lowest-risk slice
+and stands up the transport the overlay reuses — then the overlay (see the sequencing spine).
 
 ## Settled decisions
 
@@ -120,48 +121,49 @@ window; the UUID does not.
   viewer. The viewer must *also* accept direct connections (not only via paneboard) so the
   no-paneboard / Windows case keeps a bare viewer.
 
-## Sequencing spine (the coordination core)
+## Sequencing spine (the coordination core) — viewer-first
 
-Ordered to **de-risk the unknowns before committing the contract, then decouple the two sides.**
-Each item tagged with its repo. One honest fork is called out at 0a.
+Ordered so the **viewer leads** — it is the lowest-risk slice, delivers standalone value, and stands
+up the transport the overlay later reuses — while the overlay's one scary unknown is **spiked in
+parallel** so its fork is not deferred. Each item tagged with its repo.
 
-**Phase 0 — Spikes (no protocol, no commitment; three independent tracks).**
+**Phase 0 — Parallel spikes (no commitment).**
 
-- **0a [paneboard] — GUID→window spike (go/no-go for the overlay).** Prove paneboard can take a
+- **0a [paneboard] — GUID→window probe (go/no-go for the overlay).** Prove paneboard can take a
   session UUID and resolve it to an AX window handle via iTerm's scripting API, under the permission
   model paneboard runs in (Accessibility — which paneboard already holds — vs Automation, which the
   operator declined for System Events).
   **Fork:** success → session-id overlay as designed; failure → fall back to reading Claude Code's
-  existing per-session title (approximate, but free and portable). Everything downstream of the
-  overlay depends on this fork. **Do this first.**
-- **0b [paneboard] — Tier-0 title-collision color.** Pure paneboard, no protocol. Ships value
-  immediately and warms up the overlay-rendering code path. Independent of 0a.
-- **0c [paneboard, home-less] — Viewer render spike.** `egui`/`iced` + `resvg`: show one
-  `diagrams/*.svg`, prove `update` retains zoom+pan crisply. Pure viewer, no protocol. Throwaway
-  location; decide its keeper home (paneboard) after it feels right.
+  existing per-session title (approximate, but free and portable). This forks the whole overlay, so
+  run it early and in parallel even though the viewer leads.
+- **0b [paneboard] — Tier-0 title-collision color.** Pure paneboard, no protocol. Ships disambiguation
+  value immediately and warms up the overlay-rendering code path. Independent of everything.
 
-**Phase 1 — Draft the protocol [both repos, shared artifact].** Write the wire contract (above) down
-as the single thing both sides build against. Informed by 0a (if mapping failed, the correlation field
-changes).
+**Phase 1 — Build the standalone viewer [paneboard, but self-contained].** `egui`/`iced` + `resvg`
+(plus the `image` crate for raster) behind a *direct* socket: `fresh`/`update`, retain-zoom, format
+sniff. This both delivers standalone diagram-viewing (push by hand — no paneboard hub, no jjx) **and is
+the walking skeleton for the whole protocol** — it stands up the framing, the `fresh`/`update` verbs,
+and port-file discovery as working code.
 
-**Phase 2 — Walking skeleton [both repos, minimal].** paneboard: a socket listener that just *logs*
-received messages (a background thread alongside the CFRunLoop). vvx: on jjx engagement, send
-`register_label` best-effort. Validate end-to-end that the right `session_key` arrives.
-**Freeze the protocol once this round-trips.**
+**Phase 2 — Freeze the protocol [shared artifact].** With the transport proven by the viewer, write the
+wire contract down and freeze it. `fresh`/`update` are already exercised; this mainly nails down
+`register_label`'s shape, and is informed by 0a (if mapping failed, its correlation field changes).
 
-**Phase 3 — Thicken, decoupled [two independent tracks against the frozen protocol].**
+**Phase 3 — Overlay ("alt-tab help") [paneboard], on the proven channel.** vvx sends `register_label`
+best-effort; paneboard maps `session_key`→window (from 0a) and paints the label on the alt-tab overlay.
+Because the channel already exists, this is "add one verb + paneboard-internal rendering," not "build a
+protocol and the rendering."
 
-- **Track A — Overlay ("alt-tab help"), paneboard.** `register_label` → GUID→window (from 0a) → paint
-  the label on the alt-tab overlay. First feature delivered.
-- **Track B — Viewer ("the viewer stuff"), paneboard.** The viewer binary (from 0c) + paneboard's
-  `fresh`/`update` proxy + spawn/manage of instances. Second feature.
+**Phase 4 — Paneboard as conductor [paneboard].** Paneboard proxies `fresh`/`update` to viewer instances
+it spawns and places; the direct-socket viewer from Phase 1 keeps working for the no-paneboard / Windows
+case. Layers on once both the viewer and the overlay channel exist.
 
-The decoupling in Phase 3 is the payoff of a frozen protocol: A and B proceed in parallel, and the rbm
-side is done after Phase 2 (vvx only ever sends; it does not care how paneboard renders).
+The rbm side stays thin and lands late: vvx only ever *sends* — `register_label` in Phase 3, and the
+diagram bytes whenever something pushes them. It never cares how paneboard renders.
 
 ## Repo split (who owns what)
 
-- **rbm (`rbm_*recipemuster`) — thin, and finished early.** vvx changes only: read
+- **rbm (`rbm_*recipemuster`) — thin.** vvx changes only: read
   `ITERM_SESSION_ID`, discover paneboard's port-file, and on each jjx engagement send `register_label`
   best-effort / fail-soft. The diagram-push side (`fresh`/`update`) is sent by whatever regenerates the
   SVGs — also rbm-side, but a separate, later concern (see Open risks: regen loop). This slice is the
@@ -185,6 +187,35 @@ side is done after Phase 2 (vvx only ever sends; it does not care how paneboard 
   vector zoom; flagged because diagrams are zoom-heavy.
 - **Port-file discovery + lifecycle.** Define where the port-file lives and what vvx does on a
   stale/missing file (fail-soft).
+
+## Spec landing zones (where documentation lands)
+
+The two repos document at different formality levels; this records where each side's concept work goes
+(surveyed 2026-06-17 — verify, may drift).
+
+**rbm — formal, in JJS0** (`Tools/jjk/vov_veiled/JJS0_JobJockeySpec.adoc`; an MCM concept model with a
+quoin mapping section and a documented sub-letter legend). These features earn a full quoin treatment.
+Existing neighborhoods to coordinate with, not collide:
+
+- `jjdxo_` — officium / agent-session lifecycle.
+- `jjdxr_` (curia/fundus) + `jjdt_legatio` + `jjsodp_` — the remote-dispatch / IPC-protocol layer; our
+  control channel is adjacent.
+- `jjsa_` (presentation aliases) + `jjdyr_` (table) — display-side neighbors.
+- **New territory, clean to mint:** terminal-window / session-id correlation. Officium identity is
+  temporal (`YYMMDD-NNNN`), not terminal-based, so nothing collides.
+- **Word-selection hazard:** "session" is already overloaded — an officium *is* a session, the
+  chat-capture work keys on the *Claude Code session UUID*, and we add the *iTerm session id*. Three
+  distinct identities; MCM Word Selection forces distinct words rather than a reused "session."
+
+**paneboard — informal, in `poc/paneboard-poc.md`** (~1,260 lines, feature-organized, "rigorous
+developer notes" register — no quoins). New features slot in as new sections following its template
+(Intent → aspects → Logging Contract → Edge Cases). State today:
+
+- IPC / control-channel / session-id / cross-tool integration — **all greenfield.**
+- Window tracking by `(pid, window_id)` already exists — the AX handle the GUID→window mapping must
+  reach.
+- Overlays exist but are single-instance / minimalist (the alt-tab popup with its yellow highlight; the
+  tier-0 collision color extends exactly that).
 
 ## Entry points (paneboard repo, as surveyed — verify, may drift)
 
