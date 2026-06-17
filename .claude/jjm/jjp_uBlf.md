@@ -64,6 +64,23 @@ Why deferred: it introduces a durable secret, against the federation heat's zero
 Detail and sources: the degenerate-federation test-personas memo records the live-doc confirmation of the programmatic STS flow (RFC 8693 token exchange; uploaded JWKS usable in the programmatic flow only), the two degenerate shapes (caged self-signed JWT vs a real test IdP on a non-interactive grant), the can-and-cannot-prove boundary, and the GCP / Keycloak / RFC URLs.
 Honesty caveat carried in the memo: the mechanism is doc-confirmed and spike-paper-confirmed, not yet live-run in our own harness.
 
+## Idea — freeholds: durable reused test installations
+
+Tension: a federation test-bed is expensive to churn.
+A workforce pool soft-deletes for 30 days and counts against the 100-per-org cap the whole time, and a soft-deleted id cannot be re-created, only undeleted — the same churn-quota pain depots already carry (why the team runs skirmish over gauntlet).
+Recreating the trust and its citizens every run does not scale.
+
+Current lean: a freehold — a durable, deliberately-kept test installation reused day-to-day, set against the ephemeral create→destroy lifecycle fixture (the freehold/leasehold contrast).
+It cross-cuts depot and foedus, and the two are intertwined: a muniment binds a foedus principal to a depot mantle, so the standing-citizen roster is the join between them — the manor-wide roll is the foedus view, the per-polity slice the depot view — and post-impersonation a depot's mantles are donnable only through a foedus.
+
+Split across heats: the foedus-freehold (establish-if-absent + verify, reusing one durable pool via undelete, quota-flat) graduates to a ₣BZ pace, since its machinery — the terrier, brevet, and rehearse — lands there.
+The depot-freehold stays shape here: its nature under impersonation stature, its per-polity roster slice, and the canonical→freehold rename of the existing depot test infrastructure (blast radius across the gauntlet/skirmish/dogfight/onboarding suites), all gated on ₣BZ settling the citizen relationship.
+
+Composes with the ideas above: a freehold would be a named instance (the multiple-federations idea) and, for unattended runs, a degenerate federation; reuse-one-pool needs the affiance undelete-on-DELETED fix the workforce-pool-constraints memo records (affiance today treats a soft-deleted pool as present and skips create, leaving a dead trust reported live).
+
+Release-cadence refresh: when the quota-touching lifecycle does run (say at releases), it also refreshes the freehold — jilt then re-establish, ordered after the lifecycle's own create→jilt passes so cleanup is proven on a throwaway before it touches the durable pool.
+Buys isolation from stale freeholds.
+
 ## Idea — the governor's role in federation
 
 Frame under consideration: the payor as the IT department — founds federations and bounds what is permissible — and governors as more-trusted regional stewards who operate within those bounds, still subordinate to the payor's citizen-list and federation-set choices.
@@ -121,3 +138,4 @@ The office-federation heat ₣BZ is the parent; these ideas are its deliberate d
 Federation mechanism and the identity-provider-side console finding: the federation-legs spike findings memo.
 The pace-design and divergence record for the parent heat: its pace-design memo and its movement-4 review-findings memo.
 Degenerate-test-federation mechanism, sources, and the can-and-cannot-prove boundary: the degenerate-federation test-personas memo.
+Workforce-pool quota and soft-delete constraints (the freehold idea's load-bearing facts): Memos/memo-20260617-BZ-workforce-pool-constraints.md.
