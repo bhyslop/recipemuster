@@ -2062,11 +2062,11 @@ rbgp_depot_recognosce() {
 
   buc_step 'Confirm the three mantle service accounts exist'
   rbuh_json "GET" "${RBGD_API_BASE_IAM_PROJECT}/serviceAccounts/${z_gov_email}" "${z_token}" "recognosce_mantle_governor"
-  rbuh_require_ok "recognosce: governor mantle SA present (${z_gov_email})" "recognosce_mantle_governor"
+  rbuh_require_ok "recognosce: governor mantle SA (${z_gov_email})" "recognosce_mantle_governor"
   rbuh_json "GET" "${RBGD_API_BASE_IAM_PROJECT}/serviceAccounts/${z_dir_email}" "${z_token}" "recognosce_mantle_director"
-  rbuh_require_ok "recognosce: director mantle SA present (${z_dir_email})" "recognosce_mantle_director"
+  rbuh_require_ok "recognosce: director mantle SA (${z_dir_email})" "recognosce_mantle_director"
   rbuh_json "GET" "${RBGD_API_BASE_IAM_PROJECT}/serviceAccounts/${z_ret_email}" "${z_token}" "recognosce_mantle_retriever"
-  rbuh_require_ok "recognosce: retriever mantle SA present (${z_ret_email})" "recognosce_mantle_retriever"
+  rbuh_require_ok "recognosce: retriever mantle SA (${z_ret_email})" "recognosce_mantle_retriever"
 
   buc_step 'Read project IAM policy (v3) and require project-scoped capability-set bindings'
   local -r z_v3body="${BURD_TEMP_DIR}/rbgp_recognosce_v3body.json"
