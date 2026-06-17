@@ -10456,9 +10456,10 @@
       "jjghn_creation_time": "260616",
       "jjghn_status": "jjghe_stabled",
       "jjghn_order": [
-        "₢BfAAA"
+        "₢BfAAA",
+        "₢BfAAB"
       ],
-      "jjghn_next_pace_seed": "AAB",
+      "jjghn_next_pace_seed": "AAC",
       "jjghn_paces": {
         "₢BfAAA": {
           "jjgpn_tacks": [
@@ -10475,6 +10476,17 @@
               "jjgtn_text": "Reconsider whether compearance must gate on terminal-interactivity, or whether a headless run can open an assize by surfacing the device-flow prompt out-of-band and polling to completion.\n\nThe Leg-1+2 compearance step currently gates on TTY presence and fails loud when headless — the fail-fast membrane the human-present premise prescribes.\nThe operator's challenge: IdP-completion detection is already a headless HTTP poll loop, and RFC 8628 is asynchronous by design (the device polls while the human authenticates on a separate device), so terminal-interactivity is a policy choice, not a technical necessity.\nThe suspected design error: conflating \"a human authenticates each assize\" (the premise) with \"a human is at a controlling terminal\" (the current enforcement), which fails a headless-but-human-reachable caller — e.g. a long-running agent whose operator watches its output channel but holds no TTY.\n\nThe alternative to weigh: deliver the verification URI and user code through an out-of-band channel (emit, a known file, a notification), poll headlessly until completion or device-code expiry, and reserve fail-fast for the case where no channel and no human can be established.\nThe cost it trades: the fail-fast guard against a silent ~15-minute poll-until-expiry hang, and the obligation to answer \"which channel, and is someone watching it.\"\n\nThis touches cinched paddock material — the human-present premise and the headless fail-fast membrane (spike D2/D3) — so resolving it may require an operator-sanctioned paddock amendment rather than a pace-local decision.\n\n## Done when\nThe design question is settled either way, with rationale recorded in the pace-design memo.\nEither the TTY-gate-plus-fail-fast enforcement is reaffirmed — and the reason the premise requires a controlling terminal rather than merely a reachable human is written down — or a decoupled design is specified (out-of-band prompt delivery plus headless polling), with the human-present-premise / fail-fast-membrane cinch amended to match.\nThe rework this implies for the compearance accessor step and the Leg-1+2 pace is identified and slated or folded, not left implicit.\n\n## Cinched\nZero durable secrets beyond the payor's RBRO; no refresh token; the federated-token-only assize cache.\nThe device flow stays the compearance mechanism; a human still authenticates each assize.\nExplicitly under reconsideration: whether \"human present\" must mean \"controlling terminal present,\" and whether a headless miss fails loud unconditionally.\n\n## Character\nDesign reconsideration requiring judgment; touches a cinched premise, so it may surface a paddock amendment rather than land purely in code.",
               "jjgtn_silks": "compearance-headless-reconsider",
               "jjgtn_basis": "dc2dff3"
+            }
+          ]
+        },
+        "₢BfAAB": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260617-0819",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "Define the depot-freehold and its standing-citizen roster-verify, once ₣BZ has settled the citizen relationship under mantle-impersonation.\n\nThe freehold concept (minted in ₣BZ conversation, 260617): a freehold is the durable, deliberately-kept test installation we reuse day-to-day to dodge the create/destroy churn quota — the freehold/leasehold contrast against the ephemeral create→destroy lifecycle fixture.\nIt cross-cuts depot and foedus.\n\nThe foedus-freehold (org-level pool/provider trust) is nucleated in ₣BZ and carries no citizen roster: federation principals are the IdP's census, not a GCP-side list, so its verify is pool/provider/attribute-mapping config only.\n\nThe depot-freehold is this heat's work, deliberately deferred because its nature is unsettled until ₣BZ finishes redefining the citizen relationship under impersonation stature (mantle membership, not keyfile identity).\nThe standing-citizen roster lives here: muniments are (principal subject, mantle held), depot-scoped, read by the rehearse verb over the terrier — both built in ₣BZ.\nThis pace consumes that machinery ready-made; it does not rebuild it.\n\n## Done when\nThe depot-freehold is defined against the post-impersonation citizen model, and its verify iterates the standing-citizen roster (rehearse over the terrier muniments) to confirm the expected citizens are present and hold the expected mantles.\nThe freehold/leasehold vocabulary is grep-gated and seated wherever depot test infrastructure names it — including any canonical→freehold rename, which carries blast radius across the gauntlet/skirmish/dogfight/onboarding suites and is a deliberate decision for this heat.\n\n## Cinched\nThe roster head-count rides ₣BZ's rehearse/terrier/brevet; this heat does not rebuild the counting machinery.\nCitizens are depot-scoped (muniment = principal + mantle); the foedus-freehold has no roster.\nRationale: Memos/memo-20260617-BZ-workforce-pool-constraints.md and the ₣BZ pace-design memo.\n\n## Character\nDesign + fixture definition, gated on ₣BZ's citizen-relationship outcome; carries the cross-cutting freehold mint and the depot-side roster-verify.",
+              "jjgtn_silks": "depot-freehold-roster",
+              "jjgtn_basis": "7986108"
             }
           ]
         }
