@@ -102,6 +102,19 @@ Distinct from the degenerate-test-federation idea, which removes the human entir
 
 Touches a cinched federation-heat premise (human-present, and the headless fail-fast membrane), so it graduates only after Fable's federation-heat review, and may surface a paddock amendment rather than land purely in code.
 
+## Idea — heed: rename the compear sign-in verb (fair-faced remint)
+
+Tension: compear is an ashlar — the operator meets it in error output ("assize lapsed, compear") — yet it was minted as an obscure Scots-law term (to appear in answer to a summons).
+That inverts word-husbandry: the high-traffic, operator-facing sign-in verb is exactly the slot that wants the plainest, most guessable word, and compear spent its whole budget on rarity, so it never connects to "sign in."
+Distinct from the headless-compearance idea above, which is about the act's behavior — TTY gating — not its name.
+
+Current lean: heed — the grep-isolated twin of answer (both name responding to a summons), at zero repo hits where answer lands at 83.
+It sits on the fair-faced floor by construction — rare enough to grep clean, warm enough to guess on first contact: the system summons you, you heed it by signing in, and the assize opens.
+Runner-up proffer (the present-yourself frame, also grep-clean) reads slightly more as offering a thing than showing up; heed is the better fit.
+
+Carried to the remint: this is a Fable remint with an eviction sweep, not a paddock swap — compear is live (rbtf_compear, the credential accessor, the "assize lapsed, compear" error), so all forms move together (compear -> heed, compearing/compearance -> heeding; heed needs no -ance form, heeding covers every standing usage).
+Register note for the mint: heed is plain Old English where its siblings (affiance, compear, brevet) are Latinate — intentional, since husbandry gives the high-traffic error-output ashlar the plainest word, so it should not be re-elevated toward the Latinate family on register grounds.
+
 ## Sources
 
 The office-federation heat ₣BZ is the parent; these ideas are its deliberate deferrals.
