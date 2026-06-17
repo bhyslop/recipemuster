@@ -63,6 +63,13 @@ pub const RBTDRM_FIXTURE_WSL_LIFECYCLE: &str = "wsl-lifecycle";
 // Podvm-lifecycle fixture — fetched-side podvm disk-leaf capture against live GAR:
 // immure -> divine (cohort) -> augur (members + envelope) -> per-member jettison -> banish, restored.
 pub const RBTDRM_FIXTURE_PODVM_LIFECYCLE: &str = "podvm-lifecycle";
+// Foedus-lifecycle fixture — federation IdP-trust round-trip against the live org:
+// probe payor -> affiance a throwaway pool -> jilt (DELETED) -> re-jilt (no-op).
+// Quota-touching (a genuine create cannot reuse a soft-deleted id; soft-deleted
+// pools hold the 100-per-org cap ~30 days), so operator-invoked only — registered
+// for discovery, a member of no suite. The payor-credential gate fails loud, never
+// skips: this fixture is never a suite passenger (see the pace docket).
+pub const RBTDRM_FIXTURE_FOEDUS_LIFECYCLE: &str = "foedus-lifecycle";
 // Fast fixtures (no external dependencies)
 pub const RBTDRM_FIXTURE_ENROLLMENT_VALIDATION: &str = "enrollment-validation";
 pub const RBTDRM_FIXTURE_RECIPE_VALIDATION: &str = "recipe-validation";
@@ -171,6 +178,11 @@ pub fn rbtdrm_required_colophons(fixture: &str) -> Option<&'static [&'static str
             RBTDGC_LIST_IMAGES,
             RBTDGC_JETTISON_IMAGE,
             RBTDGC_BANISH_LODE,
+        ]),
+        RBTDRM_FIXTURE_FOEDUS_LIFECYCLE => Some(&[
+            RBTDGC_CHECK_PAYOR,
+            RBTDGC_AFFIANCE_MANOR,
+            RBTDGC_JILT_MANOR,
         ]),
         RBTDRM_FIXTURE_BATCH_VOUCH => Some(&[
             RBTDGC_ORDAIN_HALLMARK,

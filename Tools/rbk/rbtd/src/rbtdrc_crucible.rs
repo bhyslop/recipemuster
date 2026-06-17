@@ -35,6 +35,7 @@ use crate::rbtdri_invocation::{
     rbtdri_Context, rbtdri_invoke, rbtdri_invoke_env, rbtdri_invoke_global,
     rbtdri_parse_ifrit_verdict, rbtdri_read_burv_fact, rbtdri_read_burv_facts_multi,
     RBTDRI_BURE_CONFIRM_KEY, RBTDRI_BURE_CONFIRM_SKIP,
+    RBTDRI_BURE_TWEAK_NAME_KEY, RBTDRI_BURE_TWEAK_VALUE_KEY,
 };
 use crate::rbtdgc_consts::{
     RBTDGC_ABJURE_HALLMARK, RBTDGC_AUDIT_HALLMARKS, RBTDGC_CRUCIBLE_ACTIVE, RBTDGC_CRUCIBLE_BARK,
@@ -45,6 +46,7 @@ use crate::rbtdgc_consts::{
     RBTDGC_ENSCONCE_BOLE, RBTDGC_CONCLAVE_RELIQUARY, RBTDGC_UNDERPIN_WSL, RBTDGC_DIVINE_LODES,
     RBTDGC_AUGUR_LODE, RBTDGC_BANISH_LODE, RBTDGC_LIST_IMAGES, RBTDGC_JETTISON_IMAGE,
     RBTDGC_IMMURE_PODVM,
+    RBTDGC_CHECK_PAYOR, RBTDGC_AFFIANCE_MANOR, RBTDGC_JILT_MANOR, RBTDGC_TWEAK_REGIME_POISON,
 };
 use crate::rbtdrm_manifest::rbtdrm_credential_check_colophon;
 
@@ -2515,6 +2517,15 @@ pub static RBTDRC_FIXTURE_PODVM_LIFECYCLE: rbtdre_Fixture = rbtdre_Fixture {
     credless: false,
 };
 
+pub static RBTDRC_FIXTURE_FOEDUS_LIFECYCLE: rbtdre_Fixture = rbtdre_Fixture {
+    name: crate::rbtdrm_manifest::RBTDRM_FIXTURE_FOEDUS_LIFECYCLE,
+    disposition: rbtdre_Disposition::Independent,
+    setup: None,
+    teardown: None,
+    cases: RBTDRC_CASES_FOEDUS_LIFECYCLE,
+    credless: false,
+};
+
 pub static RBTDRC_FIXTURE_BATCH_VOUCH: rbtdre_Fixture = rbtdre_Fixture {
     name: crate::rbtdrm_manifest::RBTDRM_FIXTURE_BATCH_VOUCH,
     disposition: rbtdre_Disposition::Independent,
@@ -2547,6 +2558,9 @@ pub static RBTDRC_FIXTURES: &[&'static rbtdre_Fixture] = &[
     &RBTDRC_FIXTURE_RELIQUARY_LIFECYCLE,
     &RBTDRC_FIXTURE_WSL_LIFECYCLE,
     &RBTDRC_FIXTURE_PODVM_LIFECYCLE,
+    // foedus-lifecycle: discovery-registered, operator-invoked only — quota-touching,
+    // so a member of no suite (see RBTDRC_SUITES). Runnable via FixtureRun.
+    &RBTDRC_FIXTURE_FOEDUS_LIFECYCLE,
     &RBTDRC_FIXTURE_BATCH_VOUCH,
     &RBTDRC_FIXTURE_ACCESS_PROBE,
     &crate::rbtdrf_fast::RBTDRF_FIXTURE_ENROLLMENT_VALIDATION,
@@ -3578,6 +3592,152 @@ fn rbtdrc_reliquary_lifecycle(dir: &Path) -> rbtdre_Verdict {
 }
 
 pub static RBTDRC_CASES_RELIQUARY_LIFECYCLE: &[rbtdre_Case] = &[case!(rbtdrc_reliquary_lifecycle)];
+
+
+// Foedus-lifecycle fixture — federation IdP-trust round-trip against the live org.
+// The reliquary-lifecycle shape (single self-contained case, no charge/quench)
+// applied to the affiance→jilt create/destroy round-trip: probe the payor
+// credential, affiance the manor onto a fresh throwaway workforce pool, jilt it to
+// the soft-deleted terminal, then re-jilt to prove the idempotent no-op. Codifies
+// the manual proof the create-shape fix was found by.
+//
+// Quota-touching by nature — a genuine create cannot reuse a soft-deleted id, and
+// soft-deleted pools count against the 100-per-org cap for ~30 days
+// (workforce-pool-constraints memo) — so this fixture is operator-invoked only:
+// registered for discovery, a member of no auto-suite.
+
+/// RBRF field the throwaway-pool override targets through the regime-poison seam.
+const RBTDRC_RBRF_POOL_VAR: &str = "RBRF_WORKFORCE_POOL_ID";
+
+/// Drive the affiance→jilt→re-jilt round-trip on `pool_id`, asserting each
+/// terminal banner. Split from the case so the case can run a best-effort cleanup
+/// jilt on any failure (the round-trip's own jilt may not have been reached).
+fn zrbtdrc_foedus_roundtrip(ctx: &mut rbtdri_Context, dir: &Path, pool_id: &str) -> rbtdre_Verdict {
+    // The payor credential must be live. This fixture is operator-invoked only, so
+    // an absent or expired payor credential is a failure of the run — not a skip
+    // (Skip is suite-passenger protection, and this fixture is never a passenger).
+    let _ = std::fs::write(dir.join("01-payor-probe.txt"), "probing payor credential");
+    match rbtdri_invoke_global(ctx, RBTDGC_CHECK_PAYOR, &[], &[]) {
+        Ok(r) if r.exit_code == 0 => {}
+        Ok(r) => return rbtdre_Verdict::Fail(format!(
+            "payor credential probe not green (exit {}) — foedus-lifecycle is operator-invoked \
+             and requires a live payor credential; this is a failure of the run, not a skip\n\
+             stdout:\n{}\nstderr:\n{}",
+            r.exit_code, r.stdout, r.stderr
+        )),
+        Err(e) => return rbtdre_Verdict::Fail(format!("payor probe invocation: {}", e)),
+    }
+
+    // The throwaway pool id rides the regime-poison seam: RBRF_WORKFORCE_POOL_ID
+    // carries the RBRF_ enroll-scope prefix, so the tweak rewrites that one field
+    // at regime kindle and both affiance and jilt target the throwaway pool. Only
+    // the pool id is overridden — the provider is created beneath the fresh pool
+    // and cascades on jilt.
+    let poison = format!("{}={}", RBTDRC_RBRF_POOL_VAR, pool_id);
+
+    // Step 1: affiance the manor onto the fresh pool; assert the create banners.
+    let affiance = match rbtdri_invoke_global(ctx, RBTDGC_AFFIANCE_MANOR, &[], &[
+        (RBTDRI_BURE_TWEAK_NAME_KEY, RBTDGC_TWEAK_REGIME_POISON),
+        (RBTDRI_BURE_TWEAK_VALUE_KEY, poison.as_str()),
+    ]) {
+        Ok(r) if r.exit_code == 0 => r,
+        Ok(r) => return rbtdre_Verdict::Fail(format!("affiance failed (exit {})\n{}", r.exit_code, r.stderr)),
+        Err(e) => return rbtdre_Verdict::Fail(format!("affiance invocation: {}", e)),
+    };
+    let affiance_out = format!("{}\n{}", affiance.stdout, affiance.stderr);
+    let _ = std::fs::write(dir.join("02-affiance.txt"), &affiance_out);
+    // The create banner (not the already-present path) proves the seam overrode
+    // the regime pool with the throwaway id.
+    let created_banner = format!("Workforce pool {} created", pool_id);
+    if !affiance_out.contains(&created_banner) {
+        return rbtdre_Verdict::Fail(format!(
+            "affiance did not create the throwaway pool — missing banner '{}'\n{}",
+            created_banner, affiance_out
+        ));
+    }
+    let affianced_banner = format!("Manor affianced: pool={}", pool_id);
+    if !affiance_out.contains(&affianced_banner) {
+        return rbtdre_Verdict::Fail(format!(
+            "affiance did not reach the affianced terminal — missing banner '{}'\n{}",
+            affianced_banner, affiance_out
+        ));
+    }
+
+    // Step 2: jilt the pool — live dissolution to the DELETED (soft-delete) terminal.
+    let jilt = match rbtdri_invoke_global(ctx, RBTDGC_JILT_MANOR, &[], &[
+        (RBTDRI_BURE_TWEAK_NAME_KEY, RBTDGC_TWEAK_REGIME_POISON),
+        (RBTDRI_BURE_TWEAK_VALUE_KEY, poison.as_str()),
+        (RBTDRI_BURE_CONFIRM_KEY, RBTDRI_BURE_CONFIRM_SKIP),
+    ]) {
+        Ok(r) if r.exit_code == 0 => r,
+        Ok(r) => return rbtdre_Verdict::Fail(format!("jilt failed (exit {})\n{}", r.exit_code, r.stderr)),
+        Err(e) => return rbtdre_Verdict::Fail(format!("jilt invocation: {}", e)),
+    };
+    let jilt_out = format!("{}\n{}", jilt.stdout, jilt.stderr);
+    let _ = std::fs::write(dir.join("03-jilt.txt"), &jilt_out);
+    let dissolved_banner = format!("Manor jilted: workforce pool {} dissolved", pool_id);
+    if !jilt_out.contains(&dissolved_banner) {
+        return rbtdre_Verdict::Fail(format!(
+            "jilt did not reach the dissolved terminal — missing banner '{}'\n{}",
+            dissolved_banner, jilt_out
+        ));
+    }
+
+    // Step 3: re-jilt the soft-deleted pool — the idempotent no-op. Either no-op
+    // branch (already-soft-deleted or absent) names the pool and tags "(no-op)".
+    let rejilt = match rbtdri_invoke_global(ctx, RBTDGC_JILT_MANOR, &[], &[
+        (RBTDRI_BURE_TWEAK_NAME_KEY, RBTDGC_TWEAK_REGIME_POISON),
+        (RBTDRI_BURE_TWEAK_VALUE_KEY, poison.as_str()),
+        (RBTDRI_BURE_CONFIRM_KEY, RBTDRI_BURE_CONFIRM_SKIP),
+    ]) {
+        Ok(r) if r.exit_code == 0 => r,
+        Ok(r) => return rbtdre_Verdict::Fail(format!("re-jilt failed (exit {})\n{}", r.exit_code, r.stderr)),
+        Err(e) => return rbtdre_Verdict::Fail(format!("re-jilt invocation: {}", e)),
+    };
+    let rejilt_out = format!("{}\n{}", rejilt.stdout, rejilt.stderr);
+    let _ = std::fs::write(dir.join("04-rejilt.txt"), &rejilt_out);
+    if !(rejilt_out.contains(pool_id) && rejilt_out.contains("no-op")) {
+        return rbtdre_Verdict::Fail(format!(
+            "re-jilt was not the idempotent no-op — expected an 'already … (no-op)' banner naming {}\n{}",
+            pool_id, rejilt_out
+        ));
+    }
+
+    let _ = std::fs::write(dir.join("05-passed.txt"), "passed");
+    rbtdre_Verdict::Pass
+}
+
+fn rbtdrc_foedus_lifecycle(dir: &Path) -> rbtdre_Verdict {
+    rbtdrc_with_ctx(|ctx| {
+        // A unique throwaway id every run: a genuine create cannot reuse a
+        // soft-deleted id, and millis-since-epoch stays within the regime's
+        // [a-z0-9-]{4,32} regex while staying unique across back-to-back runs.
+        let pool_id = match std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH) {
+            Ok(d) => format!("foedus-{}", d.as_millis()),
+            Err(e) => return rbtdre_Verdict::Fail(format!("system clock before epoch: {}", e)),
+        };
+        let _ = std::fs::write(dir.join("00-pool-id.txt"), &pool_id);
+
+        let verdict = zrbtdrc_foedus_roundtrip(ctx, dir, &pool_id);
+
+        // Cleanup safety net: if the round-trip failed after affiance created the
+        // pool, a leaked LIVE pool counts against the org cap as active (worse than
+        // soft-deleted). Jilt is idempotent (no-op on absent/already-deleted), so a
+        // best-effort pass soft-deletes any leak. Result ignored — the round-trip
+        // verdict stands.
+        if matches!(verdict, rbtdre_Verdict::Fail(_)) {
+            let poison = format!("{}={}", RBTDRC_RBRF_POOL_VAR, pool_id);
+            let _ = rbtdri_invoke_global(ctx, RBTDGC_JILT_MANOR, &[], &[
+                (RBTDRI_BURE_TWEAK_NAME_KEY, RBTDGC_TWEAK_REGIME_POISON),
+                (RBTDRI_BURE_TWEAK_VALUE_KEY, poison.as_str()),
+                (RBTDRI_BURE_CONFIRM_KEY, RBTDRI_BURE_CONFIRM_SKIP),
+            ]);
+        }
+        verdict
+    })
+}
+
+pub static RBTDRC_CASES_FOEDUS_LIFECYCLE: &[rbtdre_Case] = &[case!(rbtdrc_foedus_lifecycle)];
 
 
 // Wsl-lifecycle fixture — fetched-side rootfs capture against live GAR. Single
