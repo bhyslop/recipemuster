@@ -2576,6 +2576,7 @@ pub static RBTDRC_FIXTURES: &[&'static rbtdre_Fixture] = &[
     &crate::rbtdrp_pristine::RBTDRP_FIXTURE_PRISTINE_LIFECYCLE,
     &crate::rbtdrk_canonical::RBTDRK_FIXTURE_CANONICAL_ESTABLISH,
     &crate::rbtdrk_canonical::RBTDRK_FIXTURE_CANONICAL_ENROBE,
+    &crate::rbtdrk_canonical::RBTDRK_FIXTURE_CANONICAL_CHURN,
     &crate::rbtdro_onboarding::RBTDRO_FIXTURE_ONBOARDING_SEQUENCE,
     &crate::rbtdro_onboarding::RBTDRO_FIXTURE_KLUDGE_TADMOR,
     &crate::rbtdrd_dogfight::RBTDRD_FIXTURE_DOGFIGHT,

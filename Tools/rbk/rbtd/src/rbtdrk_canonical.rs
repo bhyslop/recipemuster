@@ -37,8 +37,13 @@ use crate::rbtdrc_crucible::rbtdrc_with_ctx;
 use crate::rbtdre_engine::{rbtdre_Case, rbtdre_Disposition, rbtdre_Fixture, rbtdre_Verdict};
 use crate::rbtdrx_platform::rbtdrx_path_from_env;
 use crate::rbtdri_invocation::{
-    rbtdri_invoke_global, rbtdri_read_burv_fact, rbtdri_Context,
-    rbtdri_InvokeResult, RBTDRI_BURV_OUTPUT_SUBDIR,
+    RBTDRI_BURE_CONFIRM_KEY,
+    RBTDRI_BURE_CONFIRM_SKIP,
+    RBTDRI_BURV_OUTPUT_SUBDIR,
+    rbtdri_Context,
+    rbtdri_InvokeResult,
+    rbtdri_invoke_global,
+    rbtdri_read_burv_fact,
 };
 use crate::rbtdgc_consts::{
     RBTDGC_DEFROCK_DIRECTOR,
@@ -48,6 +53,7 @@ use crate::rbtdgc_consts::{
     RBTDGC_LEVY_DEPOT,
     RBTDGC_LIST_DEPOT,
     RBTDGC_RECOGNOSCE_DEPOT,
+    RBTDGC_UNMAKE_DEPOT,
     RBTDGC_ENROBE_GOVERNOR,
     RBTDGC_RBRA_FILE,
     RBTDGC_RBRD_FILE,
@@ -61,6 +67,7 @@ use crate::rbtdrm_manifest::{
     rbtdrm_credential_check_colophon,
     RBTDRM_FIXTURE_CANONICAL_ESTABLISH,
     RBTDRM_FIXTURE_CANONICAL_ENROBE,
+    RBTDRM_FIXTURE_CANONICAL_CHURN,
 };
 
 // ── Canonical-fixture identities ─────────────────────────────
@@ -106,6 +113,11 @@ const RBTDRK_FACT_EXT_DEPOT_PROJECT: &str = "depot-project";
 /// the current freehold's state fact against this; anything else (DELETE_REQUESTED,
 /// or no fact at all) is treated as "needs creation".
 const RBTDRK_DEPOT_STATE_COMPLETE: &str = "COMPLETE";
+/// Placeholder moniker installed into RBRD before unmaking the canonical
+/// freehold, so rbgp_depot_unmake's live-disqualify guard — which refuses the
+/// RBRD-selected project — releases the real one. The next canonical-establish
+/// run sees this placeholder as absent and takes the create path.
+const RBTDRK_CHURN_PLACEHOLDER_MONIKER: &str = "churned";
 const RBTDRK_FACT_GOVERNOR_SA_EMAIL: &str = "rbgp_fact_governor_sa_email";
 
 const RBTDRK_FIELD_RBRD_CLOUD_PREFIX: &str = "RBRD_CLOUD_PREFIX";
@@ -933,6 +945,97 @@ fn rbtdrk_depot_recognosce_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_
     rbtdre_Verdict::Pass
 }
 
+/// Canonical freehold churn — the deliberate teardown that makes room for a
+/// fresh levy. Reads the freehold RBRD names, rotates the moniker to a
+/// placeholder so rbgp_depot_unmake's live-disqualify guard releases the real
+/// project, unmakes it (confirm skipped via the test seam), and confirms it is
+/// no longer ACTIVE. A subsequent canonical-establish run then finds no ACTIVE
+/// freehold and takes the create path.
+fn rbtdrk_depot_churn(dir: &Path) -> rbtdre_Verdict {
+    let probe = rbtdrb_Probe {
+        name: "canonical depot moniker installed",
+        check: rbtdrk_probe_canonical_moniker,
+        remediation: "no canonical freehold to churn — install one via canonical-establish first",
+    };
+    if let Err(v) = rbtdrb_assert(&probe) {
+        return v;
+    }
+    rbtdrc_with_ctx(|ctx| rbtdrk_depot_churn_impl(ctx, dir))
+}
+
+fn rbtdrk_depot_churn_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_Verdict {
+    let root = ctx.project_root().to_path_buf();
+    let rbrd = root.join(RBTDGC_RBRD_FILE);
+
+    let moniker = match rbtdrk_read_env_value(&rbrd, RBTDRK_FIELD_RBRD_DEPOT_MONIKER) {
+        Some(m) if !m.is_empty() => m,
+        _ => {
+            return rbtdre_Verdict::Fail(
+                "RBRD_DEPOT_MONIKER blank — no canonical freehold to churn".to_string(),
+            )
+        }
+    };
+    let project_id = match rbtdrk_compose_project_id(&root, &moniker) {
+        Ok(p) => p,
+        Err(e) => return rbtdre_Verdict::Fail(format!("compose project_id: {}", e)),
+    };
+    let _ = std::fs::write(dir.join("churned-project-id.txt"), &project_id);
+
+    // Rotate the moniker off the live freehold so the unmake's live-disqualify
+    // guard releases it, then unmake with the confirm skipped via the test seam.
+    if let Err(e) = rbtdrk_install_depot_moniker(&root, RBTDRK_CHURN_PLACEHOLDER_MONIKER) {
+        return rbtdre_Verdict::Fail(format!("rotate moniker before unmake: {}", e));
+    }
+
+    let unmake = match rbtdrk_invoke_logged(
+        ctx,
+        RBTDGC_UNMAKE_DEPOT,
+        &[&project_id],
+        &[(RBTDRI_BURE_CONFIRM_KEY, RBTDRI_BURE_CONFIRM_SKIP)],
+        dir,
+        "churn-unmake",
+    ) {
+        Ok(r) => r,
+        Err(e) => return rbtdre_Verdict::Fail(format!("depot unmake: {}", e)),
+    };
+    if unmake.exit_code != 0 {
+        return rbtdre_Verdict::Fail(format!(
+            "depot unmake exit {}\n{}",
+            unmake.exit_code, unmake.stderr
+        ));
+    }
+
+    // Confirm the freehold is no longer ACTIVE: a fresh list's state fact for the
+    // churned moniker must read anything but COMPLETE (DELETE_REQUESTED is the
+    // soft-delete terminal; an absent fact means fully gone). Still ACTIVE means
+    // the unmake did not take.
+    let list_after = match rbtdrk_invoke_logged(ctx, RBTDGC_LIST_DEPOT, &[], &[], dir, "list-after") {
+        Ok(r) if r.exit_code == 0 => r,
+        Ok(r) => {
+            return rbtdre_Verdict::Fail(format!(
+                "depot list (after unmake) exit {}\n{}",
+                r.exit_code, r.stderr
+            ))
+        }
+        Err(e) => return rbtdre_Verdict::Fail(format!("depot list (after unmake): {}", e)),
+    };
+    let prefix_dir = match rbtdrk_cloud_prefix_subdir(&root) {
+        Ok(p) => p,
+        Err(e) => return rbtdre_Verdict::Fail(format!("resolve cloud_prefix subdir: {}", e)),
+    };
+    let state_fact = list_after
+        .burv_output
+        .join(RBTDRI_BURV_OUTPUT_SUBDIR)
+        .join(&prefix_dir)
+        .join(format!("{}.{}", moniker, RBTDRK_FACT_EXT_DEPOT));
+    if let Ok(s) = std::fs::read_to_string(&state_fact) {
+        if s.trim() == RBTDRK_DEPOT_STATE_COMPLETE {
+            return rbtdre_Verdict::Fail(format!("freehold {} still ACTIVE after unmake", project_id));
+        }
+    }
+    rbtdre_Verdict::Pass
+}
+
 // ── Section registry ─────────────────────────────────────────
 
 pub static RBTDRK_CASES_CANONICAL_ESTABLISH: &[rbtdre_Case] = &[
@@ -978,5 +1081,21 @@ pub static RBTDRK_FIXTURE_CANONICAL_ENROBE: rbtdre_Fixture = rbtdre_Fixture {
     setup: None,
     teardown: None,
     cases: RBTDRK_CASES_CANONICAL_ENROBE,
+    credless: false,
+};
+
+// canonical-churn — the deliberate teardown of the canonical freehold. Single
+// case: rotate the moniker off the live project, unmake it, confirm gone. Member
+// of no suite — operator-invoked, quota-reclaiming, never a suite passenger.
+pub static RBTDRK_CASES_CANONICAL_CHURN: &[rbtdre_Case] = &[
+    case!(rbtdrk_depot_churn),
+];
+
+pub static RBTDRK_FIXTURE_CANONICAL_CHURN: rbtdre_Fixture = rbtdre_Fixture {
+    name: RBTDRM_FIXTURE_CANONICAL_CHURN,
+    disposition: rbtdre_Disposition::Independent,
+    setup: None,
+    teardown: None,
+    cases: RBTDRK_CASES_CANONICAL_CHURN,
     credless: false,
 };

@@ -25,7 +25,10 @@ use crate::rbtdrk_canonical::{
     rbtdrk_install_canonical_prefixes, RBTDRK_CANONICAL_CLOUD_BASE,
     RBTDRK_CANONICAL_RUNTIME_BASE, RBTDRK_FAMILY_STEM_BASE,
 };
-use crate::rbtdrm_manifest::RBTDRM_FIXTURE_CANONICAL_ESTABLISH;
+use crate::rbtdrm_manifest::{
+    RBTDRM_FIXTURE_CANONICAL_CHURN,
+    RBTDRM_FIXTURE_CANONICAL_ESTABLISH,
+};
 use crate::rbtdth_helpers::rbtdth_scratch_root;
 
 /// Canonical-prefix base shape: lowercase letters, distinct cloud/runtime
@@ -142,6 +145,16 @@ fn rbtdtk_cases_registered() {
     assert!(names.iter().any(|n| n.contains("rbtdrk_retriever_enrobe")));
     assert!(names.iter().any(|n| n.contains("rbtdrk_director_enrobe")));
     assert!(names.iter().any(|n| n.contains("rbtdrk_depot_recognosce")));
+}
+
+/// Canonical-churn registers its single deliberate teardown case.
+#[test]
+fn rbtdtk_churn_case_registered() {
+    let fixture = rbtdrc_lookup_fixture(RBTDRM_FIXTURE_CANONICAL_CHURN)
+        .expect("canonical-churn is registered");
+    assert_eq!(fixture.cases.len(), 1, "expected one churn case");
+    let names: Vec<&str> = fixture.cases.iter().map(|c| c.name).collect();
+    assert!(names.iter().any(|n| n.contains("rbtdrk_depot_churn")));
 }
 
 /// install_canonical_prefixes refuses cleanly when rbrr.env is absent — the

@@ -108,6 +108,10 @@ pub const RBTDRM_FIXTURE_CANONICAL_ESTABLISH: &str = "canonical-establish";
 // by hand; omits depot-levy so the skirmish suite creates no GCP project per
 // run. Distinction from canonical-establish is precondition, not behavior.
 pub const RBTDRM_FIXTURE_CANONICAL_ENROBE: &str = "canonical-enrobe";
+// Canonical-churn fixture — the deliberate teardown of the canonical freehold
+// (rotate moniker off the live project, then unmake) that makes room for a fresh
+// levy. Member of no suite; operator-invoked, like the lifecycle round-trips.
+pub const RBTDRM_FIXTURE_CANONICAL_CHURN: &str = "canonical-churn";
 // Gauntlet onboarding-sequence fixture (§3: handbook-walked vessel
 // construction — conclave reliquary, ensconce bases, kludge tadmor/ccyolo,
 // plus one ordain-* case per director-mode handbook track, build-only)
@@ -246,6 +250,10 @@ pub fn rbtdrm_required_colophons(fixture: &str) -> Option<&'static [&'static str
             RBTDGC_ENROBE_DIRECTOR,
             RBTDGC_CHECK_RETRIEVER,
             RBTDGC_CHECK_DIRECTOR,
+        ]),
+        RBTDRM_FIXTURE_CANONICAL_CHURN => Some(&[
+            RBTDGC_UNMAKE_DEPOT,
+            RBTDGC_LIST_DEPOT,
         ]),
         // kludge-tadmor builds both vessels locally; only the two kludge
         // colophons are exercised (no charge/credential colophons here).
