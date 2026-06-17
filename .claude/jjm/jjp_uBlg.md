@@ -5,9 +5,9 @@ Downstream work is heavy specification-and-vocabulary authoring, not mechanical.
 
 ## Context
 
-This initiative builds a stateless inscription census — an "instant temporary database"
-re-derived on demand from repository source — that subsumes the ad-hoc grepping an agent
-does to answer naming questions.
+This initiative builds the Matricula — the chosen entity quoin for a transient inscription
+census, an "instant temporary database" re-derived on demand from repository source — that
+subsumes the ad-hoc grepping an agent does to answer naming questions.
 It serves three jobs: choosing an unused prefix, preventing a rename from creating a
 collision, and planning a re-mint.
 A fourth falls out: generating the acronym index that the claude-*.md files maintain by
@@ -16,7 +16,7 @@ hand today.
 The organizing reframe: every persistent identifier — what we informally call quoins,
 sprues, rivets, and filenames — is an Inscription under a Vesture in the VLS Liturgy
 vocabulary.
-The census is therefore one vesture-parameterized scanner, not many separate extractors.
+The Matricula is therefore one vesture-parameterized scanner, not many separate extractors.
 Its method is classify-by-subtraction: cast the widest net over `_`/`-`-shaped tokens,
 let each known grammar claim what it owns, and treat the unclaimed residue
 (ours-but-unclassified) as a product rather than waste — it surfaces misminting,
@@ -34,21 +34,25 @@ freshen operation, which regenerate CLAUDE.md's include region from the registry
 The inventory scanner DOES NOT EXIST — that is this heat: census every in-use inscription
 below the cipher tier, build the signet trie, surface residue, check collisions.
 
-The census is an additive sibling, not a rework.
+The Matricula is an additive sibling, not a rework.
 The distribution code (release / install / uninstall / freshen) is mature and
 load-bearing: the binary is `vvr` (`Tools/vok/src/vorm_main.rs`), installed as the
 canonical `vvx` that also serves the jjx MCP server, so it runs on every jjx call.
-The census inherits foundations: VOF as input grammar, a generalization of the release
+The Matricula inherits foundations: VOF as input grammar, a generalization of the release
 tree-walk (`vofr_collect`, which already walks the forge filtering by cipher and veiled),
 and emission through the voff managed-section rail.
 
 ## Cinched
 
-Stateless re-derivation is the architecture.
-Reading the whole tree is instant relative to an agent's grep laps, so the inventory is
-never stored — only the grammar (the small, stable, hand-held cipher and vesture set) is
-maintained; the inventory is always derived.
-Statelessness is what defers the heavier maintained-registry layer to ₣BF.
+Matricula is transient by design — hard lock.
+A matricula has no persistent existence; it lives only for the call that summons it,
+re-derived from source each time and discarded.
+Reading the whole tree is instant relative to an agent's grep laps, so nothing is stored —
+only the grammar (the small, stable, hand-held cipher and vesture set) is maintained.
+This decision holds for the long horizon: revisitable someday, but not for a long time.
+Scope is a clean Job Jockey concept, not a standing index — most jjx MCP interactions need
+no matricula at all; one is summoned only for the explicit naming interactions.
+Transience is also what defers the heavier maintained-registry layer to ₣BF.
 
 Additive sibling under the `vo` cipher, beside VOF and `vvr` — not a rework of the mature
 distribution code.
@@ -64,12 +68,12 @@ Two front doors, both proven by existing wiring: a `vvr` subcommand with a tabta
 The grammar/inventory split: grammar small and maintained, inventory large and derived.
 The ours/foreign gate is the project cipher, invariant across the `_` and `-` separators.
 
-The work strongly includes building out supportive quoins for the census concept and the
+The work strongly includes building out supportive quoins for the Matricula concept and the
 AsciiDoc subdoc operations that home them.
 
 ## Engagement and determinations
 
-The census surfaces through two determinations, not three — Brief and Report are collapsed.
+The Matricula surfaces through two determinations, not three — Brief and Report are collapsed.
 The ambient determination fires at officium granularity, joining the work-period probe the
 invitatory already runs, and surfaces naming health: residue count, mint-gaps, collision risks.
 A pace-scoped briefing — the former Brief — would require linking a pace or heat to the
@@ -82,22 +86,24 @@ exact quoin collision — in the precision exit-code band.
 
 A downstream consumer falls out: a paddock/docket integrity check at mount and groom,
 validating that an artifact's references still resolve.
-It is a join of two oracles — the census for naming and path references, the gallops for
-coronet and silks references — and it lives on the JJK side as a consumer of the census query,
-not as census machinery.
+It is a join of two oracles — the Matricula for naming and path references, the gallops for
+coronet and silks references — and it lives on the JJK side as a consumer of the Matricula
+query, not as Matricula machinery.
 
-Register seam (vocabulary not yet minted): operator-facing invocation verbs draw from the
-equestrian register, joining the existing engagement words; the VO-side concepts — the database
-entity and its determinations — draw from the ecclesiastical/inscriptional register, joining the
-Liturgy.
-Only one new invocation verb is actually needed, an on-demand probe; the ambient determination
-rides officium-open and the gate rides notch, so they mint no new verb.
+Register seam: both the entity and its operator-facing verbs draw from the Vox Obscura
+ecclesiastical/inscriptional register, deliberately distinct from the equestrian horse words
+that manage heats — register-as-domain-signal, joining the Liturgy and the diptych
+maintenance words.
+The entity quoin is chosen — Matricula; its part/facet quoins are deferred by operator
+decision; the operator-facing verbs are under active selection, kept mechanical and simple.
+The implicit determinations mint no verb — the ambient one rides officium-open, the gate
+rides notch; only the explicit interactions need verbs.
 
 ## Open questions
 
 Spec home — consolidate-and-complete the vesture catalog in VLS plus a new census/validator
 spec, versus growing it inside VOS0 as the diptych vision nominated.
-VLS is static grammar; VOS0 is distribution; the dynamic census fits neither cleanly today.
+VLS is static grammar; VOS0 is distribution; the dynamic Matricula fits neither cleanly today.
 
 File-selection scope — extensions may suffice now, but projects that build distributions
 produce trees we must not index (build outputs, parcels, vendored copies).
@@ -105,7 +111,7 @@ Whether a project-level wildcarding / ignore mechanism is needed, beyond the exi
 veiled-exclusion convention, is open.
 
 Cross-repo soundness — the cipher registry is global across the VO/VV ecosystem, but a
-census run in one repo sees only that repo's inscriptions.
+matricula run in one repo sees only that repo's inscriptions.
 Portable-kit inscriptions are authoritative in their forge (this repo); ciphers forged
 elsewhere are invisible, so collision-checking and choose-unused against those is unsound
 from here.
@@ -127,9 +133,10 @@ in-context wins for hot lookups, on-demand is the only scalable option for the l
 Vesture gaps — the sprue (wire-key) domain and the mixed-case rivet form (`RBr_`) are not
 covered by the current six-plus-one vestures.
 
-Naming — the database entity's quoin and the on-demand probe verb are unminted (see
-Engagement and determinations for the register seam).
-The entity word is choosable now; its signet waits on the spec-home decision.
+Naming — entity quoin chosen (Matricula); its part/facet quoins are deferred by operator
+decision; the operator-facing verbs are under active selection (see Engagement and
+determinations).
+All signets wait on the spec-home decision.
 
 ## Concerns
 
@@ -176,6 +183,5 @@ non-exhaustive).
 ## Done when
 
 Deferred to capability level; paces not yet identified.
-The base concept is delivered when the census answers its four queries — lexicon,
-candidate-probe, sites-of, residue — and the acronym index is generated rather than
-hand-maintained.
+The base concept is delivered when the Matricula answers its core interrogations and the
+acronym index is generated rather than hand-maintained.
