@@ -230,6 +230,7 @@ pub fn rbtdrm_required_colophons(fixture: &str) -> Option<&'static [&'static str
         RBTDRM_FIXTURE_CANONICAL_ESTABLISH => Some(&[
             RBTDGC_LEVY_DEPOT,
             RBTDGC_LIST_DEPOT,
+            RBTDGC_RECOGNOSCE_DEPOT,
             RBTDGC_ENROBE_GOVERNOR,
             RBTDGC_ENROBE_RETRIEVER,
             RBTDGC_ENROBE_DIRECTOR,

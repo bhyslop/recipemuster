@@ -130,17 +130,18 @@ fn rbtdtk_disposition_is_state_progressing() {
 }
 
 /// Case lookup binds the fixture name to the registry array and yields
-/// exactly the four expected cases.
+/// exactly the five expected cases.
 #[test]
 fn rbtdtk_cases_registered() {
     let fixture = rbtdrc_lookup_fixture(RBTDRM_FIXTURE_CANONICAL_ESTABLISH)
         .expect("canonical-establish is registered");
-    assert_eq!(fixture.cases.len(), 4, "expected four cases");
+    assert_eq!(fixture.cases.len(), 5, "expected five cases");
     let names: Vec<&str> = fixture.cases.iter().map(|c| c.name).collect();
     assert!(names.iter().any(|n| n.contains("rbtdrk_depot_levy")));
     assert!(names.iter().any(|n| n.contains("rbtdrk_governor_enrobe")));
     assert!(names.iter().any(|n| n.contains("rbtdrk_retriever_enrobe")));
     assert!(names.iter().any(|n| n.contains("rbtdrk_director_enrobe")));
+    assert!(names.iter().any(|n| n.contains("rbtdrk_depot_recognosce")));
 }
 
 /// install_canonical_prefixes refuses cleanly when rbrr.env is absent — the

@@ -47,6 +47,7 @@ use crate::rbtdgc_consts::{
     RBTDGC_ENROBE_RETRIEVER,
     RBTDGC_LEVY_DEPOT,
     RBTDGC_LIST_DEPOT,
+    RBTDGC_RECOGNOSCE_DEPOT,
     RBTDGC_ENROBE_GOVERNOR,
     RBTDGC_RBRA_FILE,
     RBTDGC_RBRD_FILE,
@@ -864,6 +865,45 @@ fn rbtdrk_role_enrobe_impl(
     rbtdre_Verdict::Pass
 }
 
+/// Case 5 — depot recognosce. Read-only proof that the levy's federation-founding
+/// gestures stand whole against live GCP: the three mantle SAs, their capability-
+/// sets, and the Artifact Registry Data-Access audit config. The rbw-dr verb does
+/// the entire check and dies fatally naming any absent piece; this case asserts
+/// only that it exits 0 — founding whole. Runs after the establish sequence, so a
+/// pass also confirms the enrobes left the mantle founding intact.
+fn rbtdrk_depot_recognosce(dir: &Path) -> rbtdre_Verdict {
+    let probe = rbtdrb_Probe {
+        name: "canonical depot moniker installed",
+        check: rbtdrk_probe_canonical_moniker,
+        remediation: "rerun rbtdrk_depot_levy or the full canonical-establish fixture",
+    };
+    if let Err(v) = rbtdrb_assert(&probe) {
+        return v;
+    }
+    rbtdrc_with_ctx(|ctx| rbtdrk_depot_recognosce_impl(ctx, dir))
+}
+
+fn rbtdrk_depot_recognosce_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_Verdict {
+    let recognosce = match rbtdrk_invoke_logged(
+        ctx,
+        RBTDGC_RECOGNOSCE_DEPOT,
+        &[],
+        &[],
+        dir,
+        "recognosce",
+    ) {
+        Ok(r) => r,
+        Err(e) => return rbtdre_Verdict::Fail(format!("depot recognosce: {}", e)),
+    };
+    if recognosce.exit_code != 0 {
+        return rbtdre_Verdict::Fail(format!(
+            "depot recognosce exit {} — founding not whole\n{}",
+            recognosce.exit_code, recognosce.stderr
+        ));
+    }
+    rbtdre_Verdict::Pass
+}
+
 // ── Section registry ─────────────────────────────────────────
 
 pub static RBTDRK_CASES_CANONICAL_ESTABLISH: &[rbtdre_Case] = &[
@@ -871,6 +911,7 @@ pub static RBTDRK_CASES_CANONICAL_ESTABLISH: &[rbtdre_Case] = &[
     case!(rbtdrk_governor_enrobe),
     case!(rbtdrk_retriever_enrobe),
     case!(rbtdrk_director_enrobe),
+    case!(rbtdrk_depot_recognosce),
 ];
 
 pub static RBTDRK_FIXTURE_CANONICAL_ESTABLISH: rbtdre_Fixture = rbtdre_Fixture {
