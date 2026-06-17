@@ -9153,9 +9153,10 @@
         "₢BZAAO",
         "₢BZAAP",
         "₢BZAAQ",
+        "₢BZAAZ",
         "₢BZAAN"
       ],
-      "jjghn_next_pace_seed": "AAZ",
+      "jjghn_next_pace_seed": "AAa",
       "jjghn_paces": {
         "₢BZAAA": {
           "jjgpn_tacks": [
@@ -9663,6 +9664,17 @@
               "jjgtn_text": "Nucleate the foedus-freehold fixture: the durable, quota-flat counterpart to the ephemeral create→destroy lifecycle fixture — establish-if-absent plus verify, reusing one standing pool rather than churning a throwaway.\n\nPrerequisite, in-pace: fix affiance to undelete-on-DELETED.\naffiance today treats a soft-deleted pool (GET returns 200 / state DELETED) as \"already present\" and skips create, leaving a dead trust reported live (workforce-pool-constraints memo).\nEstablish-if-absent needs affiance to undelete a soft-deleted same-id pool rather than skip it — the RBSMA soft-delete NOTE already anticipates this.\n\nEstablish-if-absent: ensure the one durable foedus pool exists — create when truly absent, undelete when soft-deleted, no-op when present — quota-flat, never churning the 100-per-org cap.\nVerify: read back the foedus's nature — pool config, provider(s), and the standing-citizen roster (the manor-wide admitted-citizen roll via rehearse over the manor-homed terrier).\nThe roster is the foedus×depot join; this pace verifies the foedus (manor-wide) view, the depot per-polity slice is the federation-ideas holding heat's.\n\n## Done when\nEstablish-if-absent is idempotent and quota-flat across repeated runs (create / undelete / no-op as the pool's state dictates), and verify confirms config, providers, and the standing-citizen roll.\naffiance undeletes a soft-deleted same-id pool rather than skipping it.\n\n## Cinched\nReuses one durable pool (quota-flat) — distinct from the ephemeral lifecycle fixture's churn.\nDepends on the terrier, brevet, and rehearse machinery built earlier in this heat; the depot-side roster slice is the holding heat's.\n\n## Character\nDurable establish + verify; the day-to-day federation test-bed counterpart to the lifecycle proof. Carries the affiance undelete fix as its prerequisite.",
               "jjgtn_silks": "foedus-freehold",
               "jjgtn_basis": "508014a"
+            }
+          ]
+        },
+        "₢BZAAZ": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260617-1350",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "Finish the collapse of the depot test-installation to a single freehold scheme — the cleanup the quota-driven reuse decision set in motion.\nThe proof pace realized the first pieces (idempotent reuse-or-create ensure, the deliberate churn fixture); two test-prefix schemes still coexist — the canonical canc-/canr- family and pristine's throwaway family — each with its own duplicated autoincrement pick-next.\nCollapse to one freehold scheme: one prefix family, one pick-next, no \"which scheme is live\" to track — the path-dependence that bit during the quota stall.\n\n## Done when\nOne depot test-prefix scheme remains and the duplicated autoincrement logic is unified.\nThe fixtures and the depot_levy function (which reuses-or-levies now, not just levies) are renamed to the freehold vocabulary — exact names minted at mount under MCM Word Selection.\nrbtdrk_canonical.rs (~1075 lines) is split at a natural seam, back under the RCG 800-line threshold.\nThe suites exercising these fixtures stay green.\n\n## Cinched\nCollapse to one freehold is the operator decision — the quota wound made two-scheme tracking too costly.\nChurn stays deliberate and a member of no suite; the safety property — a routine fixture never silently destroys the freehold — is preserved by that deliberate-churn separation, not by disjoint prefixes.\nEnrobe-idempotency is out of scope here: the keyfile enrobe is rewritten keyless by the RBRA-estate-retirement movement, which subsumes it.\n\n## Character\nTest-infra refactor — mostly mechanical rename/unify/split, but it touches shared fixture machinery; sequence against the RBRA-estate-retirement movement's keyless rewrite of the canonical credential-bootstrap fixture, since both touch the same fixtures.",
+              "jjgtn_silks": "freehold-collapse-cleanup",
+              "jjgtn_basis": "028cebc"
             }
           ]
         }
