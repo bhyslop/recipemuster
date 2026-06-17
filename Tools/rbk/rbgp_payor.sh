@@ -2018,6 +2018,114 @@ rbgp_depot_info() {
   buc_success 'Posture checks complete'
 }
 
+# Require one (role, member) binding present in a captured IAM policy, or die
+# naming the absent piece. Read-only — mutates nothing. See RBSDC.
+zrbgp_recognosce_require_binding() {
+  zrbgp_sentinel
+
+  local -r z_infix="${1:-}"
+  local -r z_role="${2:-}"
+  local -r z_member="${3:-}"
+  local -r z_where="${4:-}"
+
+  test -n "${z_infix}"  || buc_die "zrbgp_recognosce_require_binding: infix required"
+  test -n "${z_role}"   || buc_die "zrbgp_recognosce_require_binding: role required"
+  test -n "${z_member}" || buc_die "zrbgp_recognosce_require_binding: member required"
+
+  local z_hit=""
+  z_hit=$(rbuh_json_field_capture "${z_infix}" \
+    ".bindings[]? | select(.role==\"${z_role}\") | .members[]? | select(.==\"${z_member}\")") || z_hit=""
+  test -n "${z_hit}" \
+    || buc_die "recognosce: founding incomplete — ${z_member} missing ${z_role} on ${z_where}"
+}
+
+# Recognosce the depot founding (RBSDC): a read-only inspection that confirms,
+# against live GCP, that the three mantle SAs exist and carry their full
+# capability-sets and that the Artifact Registry Data-Access audit config is in
+# force. Exit 0 means, and only means, the founding is whole; any absent piece is
+# fatal and named. The expected bindings required below mirror the static grant
+# lists rbgw_grant_{governor,director,retriever}_capabilities apply at levy — a
+# change to any capability-set's roles must change the matching require here.
+rbgp_depot_recognosce() {
+  zrbgp_sentinel
+
+  buc_doc_brief "Recognosce the depot founding — confirm the three mantle SAs, their capability-sets, and the Artifact Registry Data-Access audit config against live GCP (read-only)"
+  buc_doc_shown || return 0
+
+  buc_step 'Authenticate as Payor'
+  local z_token
+  z_token=$(zrbgp_authenticate_capture) || buc_die "Failed to authenticate as Payor via OAuth"
+
+  local -r z_gov_email="${RBCC_account_mantle_governor}@${RBGD_SA_EMAIL_FULL}"
+  local -r z_dir_email="${RBCC_account_mantle_director}@${RBGD_SA_EMAIL_FULL}"
+  local -r z_ret_email="${RBCC_account_mantle_retriever}@${RBGD_SA_EMAIL_FULL}"
+
+  buc_step 'Confirm the three mantle service accounts exist'
+  rbuh_json "GET" "${RBGD_API_BASE_IAM_PROJECT}/serviceAccounts/${z_gov_email}" "${z_token}" "recognosce_mantle_governor"
+  rbuh_require_ok "recognosce: governor mantle SA present (${z_gov_email})" "recognosce_mantle_governor"
+  rbuh_json "GET" "${RBGD_API_BASE_IAM_PROJECT}/serviceAccounts/${z_dir_email}" "${z_token}" "recognosce_mantle_director"
+  rbuh_require_ok "recognosce: director mantle SA present (${z_dir_email})" "recognosce_mantle_director"
+  rbuh_json "GET" "${RBGD_API_BASE_IAM_PROJECT}/serviceAccounts/${z_ret_email}" "${z_token}" "recognosce_mantle_retriever"
+  rbuh_require_ok "recognosce: retriever mantle SA present (${z_ret_email})" "recognosce_mantle_retriever"
+
+  buc_step 'Read project IAM policy (v3) and require project-scoped capability-set bindings'
+  local -r z_v3body="${BURD_TEMP_DIR}/rbgp_recognosce_v3body.json"
+  printf '%s\n' '{"options":{"requestedPolicyVersion":3}}' > "${z_v3body}" \
+    || buc_die "Failed to write recognosce getIamPolicy body"
+
+  rbuh_json "POST" "${RBGD_API_CRM_GET_IAM_POLICY}" "${z_token}" "recognosce_project" "${z_v3body}"
+  rbuh_require_ok "recognosce: read project IAM policy" "recognosce_project"
+
+  zrbgp_recognosce_require_binding "recognosce_project" "roles/owner" \
+    "serviceAccount:${z_gov_email}" "project (governor capability-set)"
+  zrbgp_recognosce_require_binding "recognosce_project" "${RBGC_ROLE_ARTIFACTREGISTRY_READER}" \
+    "serviceAccount:${z_ret_email}" "project (retriever capability-set)"
+  zrbgp_recognosce_require_binding "recognosce_project" "${RBGC_ROLE_CONTAINERANALYSIS_OCCURRENCES_VIEWER}" \
+    "serviceAccount:${z_ret_email}" "project (retriever capability-set)"
+  zrbgp_recognosce_require_binding "recognosce_project" "${RBGC_ROLE_CLOUDBUILD_BUILDS_EDITOR}" \
+    "serviceAccount:${z_dir_email}" "project (director capability-set)"
+  zrbgp_recognosce_require_binding "recognosce_project" "roles/viewer" \
+    "serviceAccount:${z_dir_email}" "project (director capability-set)"
+  zrbgp_recognosce_require_binding "recognosce_project" "roles/cloudbuild.workerPoolUser" \
+    "serviceAccount:${z_dir_email}" "project (director capability-set)"
+
+  buc_step 'Require Artifact Registry Data-Access audit config'
+  local z_audit_admin=""
+  local z_audit_data=""
+  z_audit_admin=$(rbuh_json_field_capture "recognosce_project" \
+    '.auditConfigs[]? | select(.service=="artifactregistry.googleapis.com") | .auditLogConfigs[]? | select(.logType=="ADMIN_READ") | .logType') || z_audit_admin=""
+  test -n "${z_audit_admin}" \
+    || buc_die "recognosce: founding incomplete — artifactregistry.googleapis.com audit config missing ADMIN_READ"
+  z_audit_data=$(rbuh_json_field_capture "recognosce_project" \
+    '.auditConfigs[]? | select(.service=="artifactregistry.googleapis.com") | .auditLogConfigs[]? | select(.logType=="DATA_READ") | .logType') || z_audit_data=""
+  test -n "${z_audit_data}" \
+    || buc_die "recognosce: founding incomplete — artifactregistry.googleapis.com audit config missing DATA_READ"
+
+  buc_step 'Read GAR repository IAM policy and require director repoAdmin'
+  local -r z_repo_resource="projects/${RBDC_DEPOT_PROJECT_ID}/locations/${RBRD_GCP_REGION}/repositories/${RBDC_GAR_REPOSITORY}"
+  local -r z_repo_url="${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}/${z_repo_resource}:getIamPolicy?options.requestedPolicyVersion=3"
+  rbuh_json "GET" "${z_repo_url}" "${z_token}" "recognosce_repo"
+  rbuh_require_ok "recognosce: read GAR repository IAM policy" "recognosce_repo"
+  zrbgp_recognosce_require_binding "recognosce_repo" "roles/artifactregistry.repoAdmin" \
+    "serviceAccount:${z_dir_email}" "GAR repository (director capability-set)"
+
+  buc_step 'Read Mason SA IAM policy and require director actAs on Mason'
+  rbuh_json "POST" "${RBGD_API_BASE_IAM_PROJECT}/serviceAccounts/${RBGD_MASON_EMAIL}:getIamPolicy" \
+    "${z_token}" "recognosce_mason_policy" "${z_v3body}"
+  rbuh_require_ok "recognosce: read Mason SA IAM policy" "recognosce_mason_policy"
+  zrbgp_recognosce_require_binding "recognosce_mason_policy" "roles/iam.serviceAccountUser" \
+    "serviceAccount:${z_dir_email}" "Mason SA (director actAs)"
+
+  buc_step 'Read director SA IAM policy and require director self-actAs'
+  rbuh_json "POST" "${RBGD_API_BASE_IAM_PROJECT}/serviceAccounts/${z_dir_email}:getIamPolicy" \
+    "${z_token}" "recognosce_director_policy" "${z_v3body}"
+  rbuh_require_ok "recognosce: read director SA IAM policy" "recognosce_director_policy"
+  zrbgp_recognosce_require_binding "recognosce_director_policy" "roles/iam.serviceAccountUser" \
+    "serviceAccount:${z_dir_email}" "director SA (self-actAs)"
+
+  buc_success "Depot founding recognosced whole: three mantles, capability-sets, and AR Data-Access audit config confirmed against live GCP"
+}
+
 rbgp_payor_oauth_refresh() {
   zrbgp_sentinel
 
