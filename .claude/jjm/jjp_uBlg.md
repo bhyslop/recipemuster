@@ -67,6 +67,32 @@ The ours/foreign gate is the project cipher, invariant across the `_` and `-` se
 The work strongly includes building out supportive quoins for the census concept and the
 AsciiDoc subdoc operations that home them.
 
+## Engagement and determinations
+
+The census surfaces through two determinations, not three — Brief and Report are collapsed.
+The ambient determination fires at officium granularity, joining the work-period probe the
+invitatory already runs, and surfaces naming health: residue count, mint-gaps, collision risks.
+A pace-scoped briefing — the former Brief — would require linking a pace or heat to the
+prefixes it touches, wit the gallops do not yet carry; that linkage belongs to ₣BF (the
+deferred maintained project-context layer), so a scoped briefing is downstream of that heat,
+not this one.
+The gate determination fires at the durable-write boundary (notch, wrap): it warns loud on
+advisory findings and hard-blocks only the high-confidence ones — cipher terminal-exclusivity,
+exact quoin collision — in the precision exit-code band.
+
+A downstream consumer falls out: a paddock/docket integrity check at mount and groom,
+validating that an artifact's references still resolve.
+It is a join of two oracles — the census for naming and path references, the gallops for
+coronet and silks references — and it lives on the JJK side as a consumer of the census query,
+not as census machinery.
+
+Register seam (vocabulary not yet minted): operator-facing invocation verbs draw from the
+equestrian register, joining the existing engagement words; the VO-side concepts — the database
+entity and its determinations — draw from the ecclesiastical/inscriptional register, joining the
+Liturgy.
+Only one new invocation verb is actually needed, an on-demand probe; the ambient determination
+rides officium-open and the gate rides notch, so they mint no new verb.
+
 ## Open questions
 
 Spec home — consolidate-and-complete the vesture catalog in VLS plus a new census/validator
@@ -100,6 +126,10 @@ in-context wins for hot lookups, on-demand is the only scalable option for the l
 
 Vesture gaps — the sprue (wire-key) domain and the mixed-case rivet form (`RBr_`) are not
 covered by the current six-plus-one vestures.
+
+Naming — the database entity's quoin and the on-demand probe verb are unminted (see
+Engagement and determinations for the register seam).
+The entity word is choosable now; its signet waits on the spec-home decision.
 
 ## Concerns
 
