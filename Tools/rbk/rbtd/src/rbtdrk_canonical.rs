@@ -452,12 +452,12 @@ fn rbtdrk_probe_governor_rbra() -> Result<(), String> {
 // ── Cases ────────────────────────────────────────────────────
 
 /// Case 1 — canonical freehold ensure. Installs canc-/canr- prefixes, then
-/// REUSES the freehold RBRD already names when it is ACTIVE (no depot created —
-/// the quota fix), else mints a fresh canest moniker and levies. Cross-checks
+/// REUSES the freehold RBRD already names when it is ACTIVE (no depot is
+/// created), else mints a fresh canest moniker and levies. Cross-checks
 /// project_id against the RBDC compose derivation either way. Validity is the
 /// recognosce case's job (case 5), not this one — a stale-but-ACTIVE freehold is
-/// reused here and fails there, prompting a deliberate churn. (Fn name keeps
-/// `_levy` pending the collapse-cleanup rename.)
+/// reused here and fails there. The fn name retains `_levy` though it now
+/// reuses or levies.
 fn rbtdrk_depot_levy(dir: &Path) -> rbtdre_Verdict {
     let probe = rbtdrb_Probe {
         name: "rbrr.env present",
@@ -500,12 +500,12 @@ fn rbtdrk_depot_levy_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_Verdic
         Err(e) => return rbtdre_Verdict::Fail(format!("resolve cloud_prefix subdir: {}", e)),
     };
 
-    // Idempotent freehold ensure (the quota fix): reuse the freehold RBRD already
-    // names when it is ACTIVE — no depot is created on a routine run; otherwise
-    // (blank, absent, or DELETE_REQUESTED — a graveyarded id is treated as gone)
-    // mint a fresh moniker and levy. Validity is NOT judged here: recognosce (the
-    // unconditional fifth case) is the freehold's validity gate, so a stale-but-
-    // ACTIVE freehold is reused here and fails there, prompting a deliberate churn.
+    // Idempotent freehold ensure: reuse the freehold RBRD already names when it
+    // is ACTIVE — no depot is created on a routine run; otherwise (blank, absent,
+    // or DELETE_REQUESTED — a graveyarded id is treated as gone) mint a fresh
+    // moniker and levy. Validity is NOT judged here: recognosce (the unconditional
+    // fifth case) is the freehold's validity gate, so a stale-but-ACTIVE freehold
+    // is reused here and fails there, prompting a deliberate churn.
     let rbrd = root.join(RBTDGC_RBRD_FILE);
     let current =
         rbtdrk_read_env_value(&rbrd, RBTDRK_FIELD_RBRD_DEPOT_MONIKER).unwrap_or_default();
