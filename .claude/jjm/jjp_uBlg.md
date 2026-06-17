@@ -54,6 +54,20 @@ Scope is a clean Job Jockey concept, not a standing index — most jjx MCP inter
 no matricula at all; one is summoned only for the explicit naming interactions.
 Transience is also what defers the heavier maintained-registry layer to ₣BF.
 
+The Matricula is mechanical, never linguistic — hard constraint.
+It performs set operations over inscriptions — membership, enumeration, set-difference,
+vesture-grammar role-form expansion — and never generates words, fuzzy-matches, or interprets
+meaning.
+The principle: the Matricula reports the constraint space; the operator supplies the meaning.
+
+Cross-repo containment: reprefix is legal only in a signet's single writable home — the forge
+model, one writable repo per signet — and movements stay within a signet.
+This cleanly covers interior signets (private and repo-local names nothing external
+references), which are safe to act on locally.
+Exported signets (the public surface consumer repos reference) are out of scope today, handled
+by discipline; their rename rides the release/install pipeline, and the Matricula's verdict for
+them is "safe here; consumers require re-distribution", never a bare green light.
+
 Additive sibling under the `vo` cipher, beside VOF and `vvr` — not a rework of the mature
 distribution code.
 
@@ -99,6 +113,55 @@ decision; the operator-facing verbs are under active selection, kept mechanical 
 The implicit determinations mint no verb — the ambient one rides officium-open, the gate
 rides notch; only the explicit interactions need verbs.
 
+## Explicit interactions
+
+The operator-facing interactions are mechanical set-ops; the metaphor-aligned verb words are
+deferred — placeholders below are plain.
+Two primitives and one apex composition cover the explicit needs.
+
+CHECK — is a candidate token free and exclusivity-clean? Answers free, or taken-by-X.
+LIST — what is used at or under a prefix (or across the top signets)? The occupied set; the
+operator reads the gaps and supplies the word.
+TRACE — the full reach of a prefix: every source role-form (`x_`, `zx_`, `X_`, filenames) and
+every hierarchy level beneath it.
+
+SAFE-REPREFIX is the apex composition — CHECK(destination) plus TRACE(source) plus gestalt
+reconciliation — answering whether OLD can become NEW without breakage.
+"Safe" has three faces: conflict-free (the destination, in every form, collides with nothing),
+gestalt-coherent (the relocated meaning clashes with no meaning declared at the destination),
+and complete (every use is captured, none left orphaned).
+This is the use case that most justifies the Matricula over grep, because safe requires
+completeness and grep is always partial.
+
+Reprefix has a detect variant and a guarded execute variant.
+Detect is read-only: prove safety, emit the complete change-set.
+Execute is opt-in and guarded — fail unless the tree is fully committed; perform the rename;
+auto-notch it as one atomic, revertable commit; verify by an independent post-scan (zero OLD
+remains, NEW conflict-free), not by a self-generated report.
+Auto-execute is confined to the assertable cases — mechanical renames in known vestures; any
+change-set touching the advisory zone (gestalt semantic-fit, foreign namespaces, best-effort
+sprue/rivet) refuses to auto-run and drops back to detect.
+Clean-tree makes a rename recoverable, not correct — correctness rests on detection
+completeness, so the assertable-only rule is load-bearing.
+
+## Gestalt labels — concept, word TBD
+
+A gestalt label is the epithet of a non-terminal: the declared meaning of a signet that
+terminal exclusivity forbids from being a name.
+Deep hierarchies carry meaning at every interior level (AXLA runs `ax` → `axh` → `axhr` →
+`axhrg` → `axhrgc`), and today those meanings live only in rotting mapping-section comments
+(`// axhr*_: Axial Hierarchy Regime`) with no forcing function.
+The concept: an in-source, lexable markup that declares a level's gestalt — comment-host
+agnostic (strip comment-lead and whitespace, then match a signet + sub-letters + marker + label
+clue), so one mechanism documents both the quoin-prefix tree and the filename/directory tree.
+The Matricula harvests these and reconciles them — flagging missing labels where children
+exist, conflicting labels for one level, and drifted umbrellas.
+Two boundaries: declared collisions are assertable, semantic fit is advisory (the linguistic
+line); and labels must expose over-deep chains as a smell, not legitimize depth the minting
+discipline would flatten.
+The label is user-visible (ashlar) and needs its own MCM Word Selection mint, as Matricula
+got — "gestalt label" is the working descriptor only.
+
 ## Open questions
 
 Spec home — consolidate-and-complete the vesture catalog in VLS plus a new census/validator
@@ -110,12 +173,14 @@ produce trees we must not index (build outputs, parcels, vendored copies).
 Whether a project-level wildcarding / ignore mechanism is needed, beyond the existing
 veiled-exclusion convention, is open.
 
-Cross-repo soundness — the cipher registry is global across the VO/VV ecosystem, but a
-matricula run in one repo sees only that repo's inscriptions.
-Portable-kit inscriptions are authoritative in their forge (this repo); ciphers forged
-elsewhere are invisible, so collision-checking and choose-unused against those is unsound
-from here.
-Accept repo-local scope and declare it, or pursue multi-repo census.
+Cross-repo soundness — resolved for current scope: reprefix is confined to a signet's single
+writable home and stays within a signet, so interior reprefix is sound locally; exported-signet
+renames are deferred to discipline (see Cinched and Explicit interactions).
+A matricula still sees only its own repo, so multi-repo census remains a someday, not a now.
+
+Gestalt-label home — one authoritative declaration per level (the umbrella's `0` home) versus
+distributed declarations collected and reconciled across files.
+The "flag discrepancies" use case only earns its keep under the distributed model.
 
 v1 scan scope — quoins-only (high fidelity, fast) versus all classes (matches the full ask
 with honest coverage gaps on sprues and rivets).
@@ -123,9 +188,10 @@ with honest coverage gaps on sprues and rivets).
 Classifier growth — enumerate all classifiers up front versus bootstrap from the cipher
 gate plus a few and let residue drive which classifier to write next.
 
-Gloss handling — migrate the rich claude-*.md descriptions into a one-line artifact-header
-synopsis the scan extracts, versus leaving them hand-held; only the index half is
-mechanically derivable.
+Gloss handling — the gestalt-label concept is the emerging answer: declared gestalts give the
+hand-maintained claude-*.md descriptions an in-source home the scan harvests.
+Open residue: terminal-name glosses below the umbrella level, and whether any description
+stays hand-held.
 
 Access pattern — an always-`@`-included generated index versus an on-demand tool;
 in-context wins for hot lookups, on-demand is the only scalable option for the long tail.
@@ -133,9 +199,9 @@ in-context wins for hot lookups, on-demand is the only scalable option for the l
 Vesture gaps — the sprue (wire-key) domain and the mixed-case rivet form (`RBr_`) are not
 covered by the current six-plus-one vestures.
 
-Naming — entity quoin chosen (Matricula); its part/facet quoins are deferred by operator
-decision; the operator-facing verbs are under active selection (see Engagement and
-determinations).
+Naming — entity quoin chosen (Matricula); part/facet quoins deferred by operator decision.
+Still to mint, all user-visible (ashlar) and only after the use-case set settles: the explicit
+verb words (for CHECK / LIST / TRACE / reprefix) and the "gestalt label" word.
 All signets wait on the spec-home decision.
 
 ## Concerns
@@ -146,14 +212,16 @@ hosts, and we consume foreign schemas that carry no cipher.
 The gate is a good first cut, but collision-checking that trusts it risks false confidence;
 sprue/rivet checks must stay advisory, never assertions.
 
-Scope-creep toward recension's write side — re-mint *planning* is read-only and in scope;
-re-mint *execution* (tool-driven global rename) is the dangerous cross-universe half the
-diptych vision deferred.
-Hold the heat to the read-only census; resist the pull into rename machinery here.
+Execution amplifies detection's gaps — guarded reprefix-execution is now in scope (see Explicit
+interactions), so any detection blind spot (foreign namespaces, advisory gestalt-fit) becomes a
+committed change the moment it auto-runs.
+The guards are the clean-tree precondition, the atomic auto-notch, the independent post-scan
+invariant, and the assertable-only rule; never relax the last into auto-acting on advisory
+confidence.
 
-Gloss-migration is a hidden cost — promising to replace the hand-maintained acronym lists
-implicitly commits to migrating hundreds of curated descriptions into artifact headers,
-unless we accept index-only output.
+Gloss-migration is a hidden cost — declaring gestalts for the whole tree is the migration of
+hundreds of curated descriptions into in-source labels; real work, easy to under-estimate,
+unless we accept index-only output for a first pass.
 
 Recursive vocabulary care — this is a minting tool, so its own quoins set precedent and sit
 under maximum scrutiny, and the subdoc work touches already-dense quoined specs (VLS, VOS0)
@@ -183,5 +251,6 @@ non-exhaustive).
 ## Done when
 
 Deferred to capability level; paces not yet identified.
-The base concept is delivered when the Matricula answers its core interrogations and the
-acronym index is generated rather than hand-maintained.
+The base concept is delivered when the Matricula answers its core interrogations — CHECK,
+LIST, TRACE, and safe-reprefix — and the acronym index is generated rather than
+hand-maintained.
