@@ -199,3 +199,23 @@ A full manor-lifecycle re-architecture would route to ₣Bf; this single sanctio
 
 Pace structure: jilt gets its own contract-first build pace (silks manor-jilt),
 slated immediately before the affiance-proof pace, which depends on it for the Tier B teardown.
+
+## Freehold doctrine (260617 — post-freeze sharpening, operator-sanctioned)
+
+This section records design that landed after the paddock froze; per the freeze banner it lives here, not in the paddock. The terminal Fable heat-review reconciles it.
+
+A *freehold* (minted 260617, grep-clean) is the durable, deliberately-kept test installation reused day-to-day to dodge the create/destroy churn quota — the freehold/leasehold contrast against an ephemeral create→destroy lifecycle fixture. The concept cross-cuts depot and foedus. (The configured-federation noun *foedus* it builds on was already the ₣Bf working lean, flagged for Fable as an RBS0 civic quoin; this session re-derived it independently and adopted it.)
+
+Two foedus fixtures, mirroring the gauntlet(churn)/skirmish(reuse) split:
+- foedus-lifecycle (the reslated affiance-proof pace): ephemeral create→jilt round-trip, the repeatable autonomous proof of affiance+jilt. Quota-touching (a genuine create cannot reuse a soft-deleted id), so operator-invoked, never a routine auto-suite member; self-skips on the payor cred. The create-shape bug (the org parent is a body field, not a query param) was found and fixed proving this by hand. NOT YET BUILT — the fixture is staged but unwritten; this pace is where it gets authored.
+- foedus-freehold (its own pace): durable establish-if-absent + verify, reusing one standing pool (quota-flat). Carries the affiance undelete-on-DELETED fix as prerequisite.
+
+Quota constraint (memo-20260617-BZ-workforce-pool-constraints): 100 workforce pools per org; soft-deleted pools hold their id-namespace AND count against the cap for ~30 days; a soft-deleted id cannot be re-created, only undeleted. So fresh-per-run is quota-threatening (the depot-project pain, recurring); the durable freehold must reuse one pool via undelete.
+
+Latent affiance bug surfaced by the jilt proof: GET on a soft-deleted pool returns 200 / state DELETED, so affiance's "200 → already present, skip create" treats a dead pool as live. The fix (undelete-on-DELETED) is folded into the foedus-freehold pace as its prerequisite.
+
+The roster correction (retracting an earlier Opus claim, prompted by the operator): the foedus freehold is NOT roster-free. The IdP owns only who-can-authenticate; the *admitted* standing citizens are recorded in the manor-homed terrier and readable via rehearse. So the foedus-freehold verify head-counts a roster — and the machinery (terrier, brevet, rehearse) all lands in ₣BZ, making it a BZ-era capability. ("Providers are a roster" was a weak prop and is dropped — a pool's providers are an enumerable list but usually a singleton; the citizens are the substantive roster.)
+
+The freeholds are intertwined: a muniment binds a foedus principal to a depot mantle, so the standing-citizen roster IS the join — the manor-wide roll is the foedus view, the per-polity slice the depot view. Post-impersonation a depot's mantles are donnable only through a foedus, so a depot freehold presupposes a foedus freehold. The depot-side (per-polity slice, post-impersonation depot nature, the canonical→freehold rename of depot test infrastructure, and the parked multi-foedus-per-depot capability) is deferred to ₣Bf, captured there as the freehold paddock idea.
+
+Release-cadence refresh: when the quota-touching lifecycle does run (e.g. at releases), it also refreshes the freehold — jilt then re-establish, ordered after the lifecycle's own create→jilt passes, so cleanup is proven on a throwaway before it touches the durable pool. Buys staleness-isolation.
