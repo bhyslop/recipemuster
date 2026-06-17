@@ -132,6 +132,42 @@ Runner-up proffer (the present-yourself frame, also grep-clean) reads slightly m
 Carried to the remint: this is a Fable remint with an eviction sweep, not a paddock swap — compear is live (rbtf_compear, the credential accessor, the "assize lapsed, compear" error), so all forms move together (compear -> heed, compearing/compearance -> heeding; heed needs no -ance form, heeding covers every standing usage).
 Register note for the mint: heed is plain Old English where its siblings (affiance, compear, brevet) are Latinate — intentional, since husbandry gives the high-traffic error-output ashlar the plainest word, so it should not be re-elevated toward the Latinate family on register grounds.
 
+## Idea — rename the assize live-window noun (fair-faced remint)
+
+Tension: assize names the live sign-in window and is an ashlar — the operator meets it in cap prose and in the "assize lapsed, compear" error text — yet it fails the fair-faced bar on two axes at once.
+Register: the leading "ass-" sits at the head of an operator- and customer-visible word, an embedded-substring wart that undercuts the polish corporate adoption needs.
+Memorability: assize is an obscure medieval-legal term (a court sitting that is also a fixed measure), so beyond the substring it never connects to "the live sign-in window" on first contact.
+The double-miss — bad substring and unguessable — lands in the one slot that least tolerates either, which on its own is the case for retiring the word regardless of its replacement.
+Sibling to the heed/compear remint above: the same word-husbandry inversion (a high-traffic operator-facing ashlar minted for rarity), here compounded by the register wart.
+
+Current lean: retire assize; the replacement is Fable's mint with an eviction sweep — the word is live (RBRF_SESSION_DURATION as the cap, the zrba_assize_* identifiers and cache, the "assize opened / assize lapsed" surface), so all forms move together.
+Load-bearing fork carried to the mint: whether the concept keeps an operator-facing noun at all, or demotes to hearting with the error text going plain prose ("your sign-in expired — sign in again").
+Lean on the fork: the concept is recurring and precise enough to earn a noun (asterism coherence, cap prose like "the window is 15 min–12 h"), so keep a noun but the error text may soften — and either way the new word must clear register and memorability, which assize cannot.
+No word is picked here, per the heat's vocabulary-waits-on-Fable posture.
+
+## Idea — a verb to clear the live assize (force a fresh compearance)
+
+Tension: nothing discards a cached assize today — the rba accessor exposes only path/read/live/write, and no tabtarget clears the federation token.
+While an assize is live, every rbw-acf cache-hits and reuses the same federated token until natural expiry; the only way to force a fresh compearance now is to delete the cache file by hand.
+Demonstrated live (260617): after one compearance, repeated rbw-acf runs reused the single cached token byte-for-byte across the whole assize window — there was no on-demand path to re-mint.
+The gap is a capability (delete the per-assize cache file at the tmpfs path) plus a name; the capability is trivial and the name is the open part.
+
+Current lean: add the verb and a tabtarget.
+Naming is coupled to the assize-rename idea above — it clears the live-window thing, so it keys off whatever that noun becomes and wants the same vocabulary pass.
+Disposition left open: whether it rides the Fable vocabulary mint or lands sooner under a provisional name is undecided — too soon to call any Bf pace Fable-only.
+
+## Idea — one-click compearance via verification_uri_complete (IdP-agnostic)
+
+Tension: compearance makes the operator read a URL and type a short user_code, yet RFC 8628 defines verification_uri_complete — the verification URL with the code pre-embedded, often QR-rendered — for exactly this friction.
+The win is modest: it removes typing the code, not the approve-in-browser step the human-present premise requires, and it matters most for keyboardless devices, less on a dev terminal.
+
+Current lean: teach Leg 1 to prefer verification_uri_complete (optionally QR it) whenever the IdP returns it, with graceful fallback to today's URL+code when absent.
+IdP-agnostic by construction — it stays dark for an IdP that omits the field and lights up for any conformant one — so it fits the regime's IdP-agnostic design with no provider-specific hack.
+
+Entra finding (260617, empirical, not just docs): the live devicecode response from the standing trust omits verification_uri_complete entirely, and it is not a knob — no scope, param, or app-registration toggle turns it on; Microsoft's endpoint structurally lacks it.
+Declined fallback recorded: synthesizing a code-carrying URL ourselves (.../device?otc=<code>) is unsupported, Palisade-fragile, and rides the device-code-phishing pattern Microsoft's filters flag — and tried live, the prefill did not populate, so even the hack does not work.
+Revisit trigger: a new or migrated IdP that returns the field, or Microsoft adding it.
+
 ## Sources
 
 The office-federation heat ₣BZ is the parent; these ideas are its deliberate deferrals.
