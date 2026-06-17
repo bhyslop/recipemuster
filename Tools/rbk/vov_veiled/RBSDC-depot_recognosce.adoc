@@ -1,0 +1,72 @@
+//axhob_operation
+{rbtgo_depot_recognosce}
+
+NOTE: This operation recognosces the
+{rbtgi_depot}
+founding — a read-only inspection confirming the three
+{rbtf_mantle_s}
+stand with their full capability-sets and that the Artifact Registry Data-Access audit config is in force.
+It re-reads live state from a known, established
+{rbtgi_depot}
+rather than witnessing the
+{rbtgo_depot_levy}
+that created it, so it verifies the founding as it actually stands and reruns in isolation.
+The operation mutates nothing; a missing piece is fatal and names what is absent.
+
+//axhos_step
+. *Authenticate as
+{rbtr_payor}*:
+.. Execute
+{rbtoe_payor_authenticate}
+.. {rbbc_store}
+`«PAYOR_TOKEN»` from the resulting access token
+
+//axhos_step
+. *Confirm the three {rbtf_mantle_s} exist*:
+.. For each `«ROLE»` in `governor`, `director`, `retriever`, the mantle email is `${RBCC_account_mantle_«ROLE»}@${RBGD_SA_EMAIL_FULL}`:
+... {rbbc_call}
+link:https://cloud.google.com/iam/docs/reference/rest/v1/projects.serviceAccounts/get[iam.projects.serviceAccounts.get] with:
+.... method: `GET`
+.... endpoint: `https://iam.googleapis.com/v1/projects/{rbtgi_depot_project}/serviceAccounts/«mantle email»`
+.... header: `Authorization: Bearer «PAYOR_TOKEN»`
+... {rbbc_require}
+HTTP 200 — the mantle SA is present; a 404 is fatal, naming the absent mantle
+
+//axhos_step
+. *Read the project IAM policy; require the project-scoped capability-set bindings and the audit config*:
+.. {rbbc_call}
+link:https://cloud.google.com/resource-manager/reference/rest/v3/projects/getIamPolicy[cloudresourcemanager.googleapis.com/v3/projects:getIamPolicy]
+with body `{"options":{"requestedPolicyVersion":3}}` (v3 is load-bearing — `auditConfigs` are returned only at v3)
+.. {rbbc_store}
+`«PROJECT_POLICY»` from the response
+.. {rbbc_require}
+for each mantle, every *project-scoped* binding its capability-set grants is present in `«PROJECT_POLICY».bindings[]` for member `serviceAccount:«mantle email»`.
+The authoritative per-role lists are the capability-set functions `rbgw_grant_governor_capabilities`, `rbgw_grant_director_capabilities`, and `rbgw_grant_retriever_capabilities` (this spec names the scope, not the binding inventory — see those functions to avoid drift).
+At project scope that is: governor `roles/owner`; retriever `roles/artifactregistry.reader` and `roles/containeranalysis.occurrences.viewer`; director `roles/cloudbuild.builds.editor`, `roles/viewer`, and `roles/cloudbuild.workerPoolUser`.
+.. {rbbc_require}
+`«PROJECT_POLICY».auditConfigs[]` carries the `artifactregistry.googleapis.com` service with both `ADMIN_READ` and `DATA_READ` log types — the founding audit config established by
+{rbtgo_depot_levy}
+
+//axhos_step
+. *Read the resource-scoped policies; require the director's off-project capability-set bindings*:
+.. The director capability-set spans three resources beyond the project; confirm each via its own `getIamPolicy`:
+... {rbbc_call}
+`getIamPolicy` on the
+{rbtgi_depot}
+Artifact Registry repository; {rbbc_require} the director mantle holds `roles/artifactregistry.repoAdmin`
+... {rbbc_call}
+`getIamPolicy` on the
+{rbtr_mason}
+service account; {rbbc_require} the director mantle holds `roles/iam.serviceAccountUser` (actAs on
+{rbtr_mason})
+... {rbbc_call}
+`getIamPolicy` on the director mantle's own service account; {rbbc_require} the director mantle holds `roles/iam.serviceAccountUser` on itself (self-actAs)
+
+//axhoc_completion
+Successful execution confirms, against live GCP, that the
+{rbtgi_depot}
+founding stands whole: all three
+{rbtf_mantle_s}
+exist, each carries every binding of its capability-set across the project, the Artifact Registry repository, and the relevant service-account policies, and the Artifact Registry Data-Access audit config is in force.
+The operation is read-only; it creates and modifies nothing.
+Any absent mantle, missing binding, or absent audit entry is fatal and names the specific piece — exit 0 means, and only means, the founding is whole.

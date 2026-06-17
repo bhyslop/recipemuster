@@ -123,6 +123,7 @@
 :rbtgo_depot_levy:                <<rbtgo_depot_levy,rbgp_depot_levy>>
 :rbtgo_depot_unmake:              <<rbtgo_depot_unmake,rbgp_depot_unmake>>
 :rbtgo_depot_list:                <<rbtgo_depot_list,rbgp_depot_list>>
+:rbtgo_depot_recognosce:          <<rbtgo_depot_recognosce,rbgp_depot_recognosce>>
 :rbtgo_director_defrock:           <<rbtgo_director_defrock,rbgg_defrock_director>>
 :rbtgo_director_enrobe:           <<rbtgo_director_enrobe,rbgg_enrobe_director>>
 :rbtgo_director_roster:           <<rbtgo_director_roster,rbgg_roster_directors>>
@@ -1229,6 +1230,20 @@ instances
 ({rbtgog_depot}).
 
 include::RBSDL-depot_list.adoc[]
+
+[[rbtgo_depot_recognosce]]
+//axvo_method axd_transient axd_grouped
+=== {rbtgo_depot_recognosce}
+
+Recognosces
+{rbtgi_depot}
+founding
+({rbtgog_depot}):
+the three
+{rbtf_mantle_s},
+their capability-sets, and the Artifact Registry Data-Access audit config — read-only.
+
+include::RBSDC-depot_recognosce.adoc[]
 
 [[rbtgo_quota_build]]
 //axvo_method axd_transient axd_attended axd_grouped
