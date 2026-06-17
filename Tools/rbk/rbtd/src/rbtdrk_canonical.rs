@@ -101,6 +101,11 @@ const RBTDRK_FAMILY_NUMERIC_WIDTH: usize = 6;
 // cloud_prefixes.
 const RBTDRK_FACT_EXT_DEPOT: &str = "depot";
 const RBTDRK_FACT_EXT_DEPOT_PROJECT: &str = "depot-project";
+/// Depot lifecycle state string rbw-dl emits into the `.depot` fact for an ACTIVE
+/// project (mirrors the bash RBGP_DEPOT_STATE_COMPLETE). The reuse gate compares
+/// the current freehold's state fact against this; anything else (DELETE_REQUESTED,
+/// or no fact at all) is treated as "needs creation".
+const RBTDRK_DEPOT_STATE_COMPLETE: &str = "COMPLETE";
 const RBTDRK_FACT_GOVERNOR_SA_EMAIL: &str = "rbgp_fact_governor_sa_email";
 
 const RBTDRK_FIELD_RBRD_CLOUD_PREFIX: &str = "RBRD_CLOUD_PREFIX";
@@ -446,9 +451,13 @@ fn rbtdrk_probe_governor_rbra() -> Result<(), String> {
 
 // ── Cases ────────────────────────────────────────────────────
 
-/// Case 1 — canonical depot levy. Installs canc-/canr- prefixes, picks a
-/// fresh canest moniker, levies the depot, cross-checks project_id from
-/// fact-file against the RBDC compose derivation.
+/// Case 1 — canonical freehold ensure. Installs canc-/canr- prefixes, then
+/// REUSES the freehold RBRD already names when it is ACTIVE (no depot created —
+/// the quota fix), else mints a fresh canest moniker and levies. Cross-checks
+/// project_id against the RBDC compose derivation either way. Validity is the
+/// recognosce case's job (case 5), not this one — a stale-but-ACTIVE freehold is
+/// reused here and fails there, prompting a deliberate churn. (Fn name keeps
+/// `_levy` pending the collapse-cleanup rename.)
 fn rbtdrk_depot_levy(dir: &Path) -> rbtdre_Verdict {
     let probe = rbtdrb_Probe {
         name: "rbrr.env present",
@@ -486,60 +495,80 @@ fn rbtdrk_depot_levy_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_Verdic
         ));
     }
 
-    let tincture = match rbtdrk_burs_tincture() {
-        Ok(t) => t,
-        Err(e) => return rbtdre_Verdict::Fail(format!("read BURS_TINCTURE: {}", e)),
-    };
-    let family_stem = rbtdrk_family_stem(&tincture);
-    let moniker = match rbtdrk_pick_next_moniker(&list_pre, &root, &family_stem) {
-        Ok(m) => m,
-        Err(e) => return rbtdre_Verdict::Fail(format!("pick next moniker: {}", e)),
-    };
-    if let Err(e) = rbtdrk_install_depot_moniker(&root, &moniker) {
-        return rbtdre_Verdict::Fail(format!("install depot moniker: {}", e));
-    }
-
-    let levy = match rbtdrk_invoke_logged(
-        ctx,
-        RBTDGC_LEVY_DEPOT,
-        &[],
-        &[],
-        dir,
-        "levy",
-    ) {
-        Ok(r) => r,
-        Err(e) => return rbtdre_Verdict::Fail(format!("depot levy: {}", e)),
-    };
-    if levy.exit_code != 0 {
-        return rbtdre_Verdict::Fail(format!(
-            "depot levy exit {}\n{}",
-            levy.exit_code, levy.stderr
-        ));
-    }
-
-    let list_present = match rbtdrk_invoke_logged(
-        ctx,
-        RBTDGC_LIST_DEPOT,
-        &[],
-        &[],
-        dir,
-        "list-present",
-    ) {
-        Ok(r) => r,
-        Err(e) => return rbtdre_Verdict::Fail(format!("depot list (after levy): {}", e)),
-    };
-    if list_present.exit_code != 0 {
-        return rbtdre_Verdict::Fail(format!(
-            "depot list (after levy) exit {}\n{}",
-            list_present.exit_code, list_present.stderr
-        ));
-    }
-
     let prefix_dir = match rbtdrk_cloud_prefix_subdir(&root) {
         Ok(p) => p,
         Err(e) => return rbtdre_Verdict::Fail(format!("resolve cloud_prefix subdir: {}", e)),
     };
-    let fact_path = list_present
+
+    // Idempotent freehold ensure (the quota fix): reuse the freehold RBRD already
+    // names when it is ACTIVE — no depot is created on a routine run; otherwise
+    // (blank, absent, or DELETE_REQUESTED — a graveyarded id is treated as gone)
+    // mint a fresh moniker and levy. Validity is NOT judged here: recognosce (the
+    // unconditional fifth case) is the freehold's validity gate, so a stale-but-
+    // ACTIVE freehold is reused here and fails there, prompting a deliberate churn.
+    let rbrd = root.join(RBTDGC_RBRD_FILE);
+    let current =
+        rbtdrk_read_env_value(&rbrd, RBTDRK_FIELD_RBRD_DEPOT_MONIKER).unwrap_or_default();
+    let reuse = !current.is_empty() && {
+        let state_fact = list_pre
+            .burv_output
+            .join(RBTDRI_BURV_OUTPUT_SUBDIR)
+            .join(&prefix_dir)
+            .join(format!("{}.{}", current, RBTDRK_FACT_EXT_DEPOT));
+        std::fs::read_to_string(&state_fact)
+            .map(|s| s.trim() == RBTDRK_DEPOT_STATE_COMPLETE)
+            .unwrap_or(false)
+    };
+
+    let moniker = if reuse {
+        let _ =
+            std::fs::write(dir.join("freehold-decision.txt"), format!("reused {}", current));
+        current
+    } else {
+        let tincture = match rbtdrk_burs_tincture() {
+            Ok(t) => t,
+            Err(e) => return rbtdre_Verdict::Fail(format!("read BURS_TINCTURE: {}", e)),
+        };
+        let family_stem = rbtdrk_family_stem(&tincture);
+        let m = match rbtdrk_pick_next_moniker(&list_pre, &root, &family_stem) {
+            Ok(m) => m,
+            Err(e) => return rbtdre_Verdict::Fail(format!("pick next moniker: {}", e)),
+        };
+        if let Err(e) = rbtdrk_install_depot_moniker(&root, &m) {
+            return rbtdre_Verdict::Fail(format!("install depot moniker: {}", e));
+        }
+        let levy = match rbtdrk_invoke_logged(ctx, RBTDGC_LEVY_DEPOT, &[], &[], dir, "levy") {
+            Ok(r) => r,
+            Err(e) => return rbtdre_Verdict::Fail(format!("depot levy: {}", e)),
+        };
+        if levy.exit_code != 0 {
+            return rbtdre_Verdict::Fail(format!(
+                "depot levy exit {}\n{}",
+                levy.exit_code, levy.stderr
+            ));
+        }
+        let _ = std::fs::write(dir.join("freehold-decision.txt"), format!("levied {}", m));
+        m
+    };
+
+    // project-id cross-check (both paths): RBDC compose must equal the depot's
+    // actual id. Reuse reads the fact from list_pre (the freehold is already
+    // listed there); create re-lists so the fact reflects the just-levied project.
+    let fact_list = if reuse {
+        list_pre
+    } else {
+        match rbtdrk_invoke_logged(ctx, RBTDGC_LIST_DEPOT, &[], &[], dir, "list-present") {
+            Ok(r) if r.exit_code == 0 => r,
+            Ok(r) => {
+                return rbtdre_Verdict::Fail(format!(
+                    "depot list (after levy) exit {}\n{}",
+                    r.exit_code, r.stderr
+                ))
+            }
+            Err(e) => return rbtdre_Verdict::Fail(format!("depot list (after levy): {}", e)),
+        }
+    };
+    let fact_path = fact_list
         .burv_output
         .join(RBTDRI_BURV_OUTPUT_SUBDIR)
         .join(&prefix_dir)
