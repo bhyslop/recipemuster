@@ -9147,13 +9147,14 @@
         "₢BZAAJ",
         "₢BZAAK",
         "₢BZAAL",
+        "₢BZAAY",
         "₢BZAAV",
         "₢BZAAO",
         "₢BZAAP",
         "₢BZAAQ",
         "₢BZAAN"
       ],
-      "jjghn_next_pace_seed": "AAY",
+      "jjghn_next_pace_seed": "AAZ",
       "jjghn_paces": {
         "₢BZAAA": {
           "jjgpn_tacks": [
@@ -9608,6 +9609,17 @@
               "jjgtn_text": "Build the manor jilt verb — the inverse of affiance: dissolve a workforce pool (break the manor↔IdP betrothal), payor-credentialed.\nColophon rbw-mJ, frontispiece PayorJiltsManor.\nContract-first per the documentation-strategy cinch: author the RBSMJ contract spec, then the impl.\n\nThe create-side mirror is rbgp_manor_affiance (RBSMA): jilt is its structural inverse, a payor DELETE on the workforce pool.\nThe delete-pattern precedent is depot unmake (rbw-dU, PayorUnmakesDepot): payor token, REST DELETE, LRO poll to terminal state, soft-delete graveyard.\nDelete the pool only — the provider is namespaced under it and cascades; undelete is the recovery path (per the RBSMA soft-delete NOTE).\nSeat jilt as a federation civic quoin in RBS0 alongside affiance; broadside registration rides the M6 narrative-docs movement.\n\n## Done when\nRBSMJ contract spec authored (M-seat, contract-first).\nrbw-mJ colophon enrolled in the zipper — consts and tabtarget-context regenerate from the build.\nThe verb dissolves a named workforce pool under payor credentials and exits clean on an already-absent pool (404 → idempotent no-op).\nGrep-clean: jilt carries one meaning repo-wide.\n\n## Cinched\nOperator-sanctioned in conversation (260616) as an in-heat manor verb beyond the paddock's frozen founding triad — recorded in the pace-design memo with the scope note for Fable.\njilt is a permanent operator verb (ashlar, broadside-eligible), not a test-only teardown gesture.\nPool-only delete; provider cascades; soft-delete debris accepted.\n\n## Character\nContract-first manor verb — affiance's create mirrored as its delete.\nIntricate-but-mechanical: the REST/LRO shape follows the depot-unmake precedent.",
               "jjgtn_silks": "manor-jilt",
               "jjgtn_basis": "c125835"
+            }
+          ]
+        },
+        "₢BZAAY": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260617-0939",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "Nucleate the foedus-freehold fixture: the durable, quota-flat counterpart to the ephemeral create→destroy lifecycle fixture — establish-if-absent plus verify, reusing one standing pool rather than churning a throwaway.\n\nPrerequisite, in-pace: fix affiance to undelete-on-DELETED.\naffiance today treats a soft-deleted pool (GET returns 200 / state DELETED) as \"already present\" and skips create, leaving a dead trust reported live (workforce-pool-constraints memo).\nEstablish-if-absent needs affiance to undelete a soft-deleted same-id pool rather than skip it — the RBSMA soft-delete NOTE already anticipates this.\n\nEstablish-if-absent: ensure the one durable foedus pool exists — create when truly absent, undelete when soft-deleted, no-op when present — quota-flat, never churning the 100-per-org cap.\nVerify: read back the foedus's nature — pool config, provider(s), and the standing-citizen roster (the manor-wide admitted-citizen roll via rehearse over the manor-homed terrier).\nThe roster is the foedus×depot join; this pace verifies the foedus (manor-wide) view, the depot per-polity slice is the federation-ideas holding heat's.\n\n## Done when\nEstablish-if-absent is idempotent and quota-flat across repeated runs (create / undelete / no-op as the pool's state dictates), and verify confirms config, providers, and the standing-citizen roll.\naffiance undeletes a soft-deleted same-id pool rather than skipping it.\n\n## Cinched\nReuses one durable pool (quota-flat) — distinct from the ephemeral lifecycle fixture's churn.\nDepends on the terrier, brevet, and rehearse machinery built earlier in this heat; the depot-side roster slice is the holding heat's.\n\n## Character\nDurable establish + verify; the day-to-day federation test-bed counterpart to the lifecycle proof. Carries the affiance undelete fix as its prerequisite.",
+              "jjgtn_silks": "foedus-freehold",
+              "jjgtn_basis": "508014a"
             }
           ]
         }
