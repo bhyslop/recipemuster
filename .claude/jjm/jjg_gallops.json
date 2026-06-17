@@ -1,6 +1,6 @@
 {
   "jjgrn_schema_version": 4,
-  "jjgrn_next_heat_seed": "Bg",
+  "jjgrn_next_heat_seed": "Bh",
   "jjgrn_heat_order": [
     "₣BU",
     "₣Be",
@@ -33,7 +33,8 @@
     "₣BI",
     "₣BL",
     "₣Ba",
-    "₣Bc"
+    "₣Bc",
+    "₣Bg"
   ],
   "jjgrn_heats": {
     "₣A-": {
@@ -10566,6 +10567,14 @@
           ]
         }
       }
+    },
+    "₣Bg": {
+      "jjghn_silks": "jjk-v4-1-dynamic-database",
+      "jjghn_creation_time": "260617",
+      "jjghn_status": "jjghe_stabled",
+      "jjghn_order": [],
+      "jjghn_next_pace_seed": "AAA",
+      "jjghn_paces": {}
     }
   }
 }
