@@ -10134,10 +10134,11 @@
       "jjghn_creation_time": "260609",
       "jjghn_status": "jjghe_stabled",
       "jjghn_order": [
+        "₢BcAAC",
         "₢BcAAA",
         "₢BcAAB"
       ],
-      "jjghn_next_pace_seed": "AAC",
+      "jjghn_next_pace_seed": "AAD",
       "jjghn_paces": {
         "₢BcAAA": {
           "jjgpn_tacks": [
@@ -10214,6 +10215,17 @@
               "jjgtn_text": "## Character\nIntricate but mechanical — rewiring existing load/save machinery, not new validation logic.\n\n## What done looks like\n`jjx_validate` becomes a deliberate normalize-and-report pass over the gallops, replacing today's read-only behavior (which fatals on any non-canonical-but-valid file via the load round-trip check). It leans on the canonicalization that already exists latently in migration mode.\n\nTri-state outcome, exit code carries the verdict so a caller branches without scraping stdout:\n- **exit 0 / clean** — valid and already canonical; no write.\n- **exit 2 / normalized** — valid but non-canonical; validate rewrote it to canonical form and committed.\n- **exit 1 / broken** — could not load/validate (parse or invariant failure); file untouched.\n\n## Locked constraints\n- **Fix scope is normalization only** — key order, whitespace, `heat_order` population. Never invents or repairs missing/contradictory data; structural breakage is exit 1, never a silent fix.\n- **Idempotent** — re-running after a `2` yields `0`.\n- **Commit-on-normalize** (operator decision, additive-safe). validate is gallops-wide, affiliated with neither heat nor pace, so the standard identity-keyed persist path does not fit — needs its own commit path (action code + gallops-level or marker-style primitive).\n- **Correct under in-progress merge** — committing with `MERGE_HEAD` present must finalize the merge (two parents), not leave it dangling. This finalization is intended: validate is the post-merge gallops cleanup step.\n- **Self-describing stdout** — every outcome names its bucket and prints a census, so green is positive evidence, not mere silence.\n\n## Also in scope\nUpdate the JJK command-reference wording (CLAUDE.md JJK section / jjk core) so the entry states the three outcomes and the residual: *normalized ≠ semantically correct; eyeball the heat/pace inventory against both branches yourself.*\n\n## Sources\n`JJSCVL-validate.adoc` (rules), `JJSRLD-load.adoc` (round-trip + migration rewrite), `JJSRSV-save.adoc` (load-back validation), `JJSRPS-persist.adoc` (identity-keyed commit path this cannot reuse).",
               "jjgtn_silks": "validate-normalize-and-report",
               "jjgtn_basis": "156066f"
+            }
+          ]
+        },
+        "₢BcAAC": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260617-1639",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nInfrastructure — lift the schema-migration tolerance into a shared, cited, self-reporting mechanism ahead of the two changes that consume it.\nJudgment lives in the probe shape; mechanical once shaped.\n\n## Done when\n- A named rivet constant (RCG constant discipline) holds the inert forgiveness token, and every legacy site cites it in place of the firemark-and-silks now hand-copied across code and spec.\n- The migration-detection predicate inlined in jjdr_load (jjri_io.rs) is extracted to one pure read-only probe returning per-episode status — which forgivenesses are live versus dormant for the on-disk gallops; jjdr_load and the new open-time chatter are its only callers.\n- Detection is generalized from \"schema_version absent\" to \"schema_version differs from current\", driven by a per-episode registry, and the existing V3 to V4 tolerance becomes the first registered episode.\n- jjx_open emits a per-episode forgiveness status line carrying the rivet token: pending means still load-bearing here, dormant means candidate for removal once all clones agree.\n  The peek is read-only, best-effort, and never gating — jjx_open must still always succeed.\n- JJS0 seats a forgiveness quoin in the jjdz_ serialization category: the concept, the demolition condition (no pre-current-schema gallops survives in any operated clone, gated on jjdk_sole_operator), and the open-probe contract.\n  The scattered V3-legacy markers (jjrt_v3_types.rs, the JJS0 V3 Legacy Schema Reference section, jjdpe_bridled, jjdcm_direction, the jjdgm_version and jjdgm_order migration notes) re-cite the quoin in place of the firemark.\n- JJS0's \"open touches no persistent state\" property records the deliberate bend: a read-only diagnostic peek, non-gating.\n- Build tt/vow-b, test tt/vow-t.\n\n## Cinched\n- The rivet stays inert in shipped code — opaque token in the binary, rationale in the veiled spec; this is the RBr_ rivet doctrine made JJK-native, since JJK rust ships and the specs do not.\n- The probe is the single source of \"what counts as old-format\"; jjdr_load keeps no second copy.\n- Per-episode from the start — at strip time two forgivenesses are live (the V3 to V4 case and the tack rework), so the gate is \"all dormant\", never a single boolean.\n\n## Sources\nJJSRLD-load.adoc (migration mode), the jjx_open handler and jjdr_load / jjdr_save in the crate, RCG (constant discipline), ACG residue and MCM rivet (the cite-once pattern), CMK ROE Palisade membrane retirement (the demolition-date discipline).",
+              "jjgtn_silks": "forgiveness-rivet-and-probe",
+              "jjgtn_basis": "2d55f54"
             }
           ]
         }
