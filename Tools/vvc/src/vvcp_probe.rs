@@ -33,9 +33,11 @@ pub async fn vvcp_probe() -> Result<String, String> {
     let opus_future = probe_model_tier_raw("opus");
     let (haiku_raw, sonnet_raw, opus_raw) = tokio::join!(haiku_future, sonnet_future, opus_future);
 
-    let haiku_id = if haiku_raw.trim().is_empty() { "unavailable".to_string() } else { haiku_raw.trim().to_string() };
-    let sonnet_id = if sonnet_raw.trim().is_empty() { "unavailable".to_string() } else { sonnet_raw.trim().to_string() };
-    let opus_id = if opus_raw.trim().is_empty() { "unavailable".to_string() } else { opus_raw.trim().to_string() };
+    // Extract the canonical model-ID token from each reply (see zvvcp_extract_model_id); a chatty
+    // or refusing reply must not pollute the output or the jjx_open invitatory commit body.
+    let haiku_id = zvvcp_extract_model_id(&haiku_raw).unwrap_or_else(|| "unavailable".to_string());
+    let sonnet_id = zvvcp_extract_model_id(&sonnet_raw).unwrap_or_else(|| "unavailable".to_string());
+    let opus_id = zvvcp_extract_model_id(&opus_raw).unwrap_or_else(|| "unavailable".to_string());
 
     // Collect hostname
     let hostname = get_hostname().await;
@@ -71,6 +73,46 @@ async fn probe_model_tier_raw(tier: &str) -> String {
         Ok(output) if output.status.success() => String::from_utf8_lossy(&output.stdout).to_string(),
         _ => String::new(),
     }
+}
+
+/// Extract the canonical Claude model-ID token from a probe reply, ignoring surrounding prose.
+///
+/// The model is prompted for a bare ID, but a chatty or refusing reply embeds the ID in prose
+/// (or omits it). Trusting the raw reply pollutes the jjx_open invitatory commit body and breaks
+/// the fixed 5-line probe-output contract, so we extract the surveyed signature and treat anything
+/// else as unavailable.
+///
+/// Every released Claude model ID is `claude-` followed by lowercase alphanumerics, hyphens, and
+/// (rarely) dots, optionally trailed by a bracketed context-window suffix such as `[1m]`. This
+/// holds across the full history — `claude-2.1`, `claude-3-5-haiku-20241022`, `claude-opus-4-8`,
+/// `claude-opus-4-8[1m]`, `claude-fable-5`. Pattern references:
+///   https://platform.claude.com/docs/en/about-claude/models/model-ids-and-versions
+///   https://tygartmedia.com/claude-api-model/
+///   https://claudefa.st/blog/models
+fn zvvcp_extract_model_id(raw: &str) -> Option<String> {
+    let start = raw.find("claude-")?;
+    let bytes = raw.as_bytes();
+    let mut end = start;
+    while end < bytes.len() {
+        let c = bytes[end];
+        if c.is_ascii_alphanumeric() || c == b'-' || c == b'.' {
+            end += 1;
+        } else {
+            break;
+        }
+    }
+    // A real ID never ends in a dot, so drop a trailing sentence period ("...claude-opus-4-8.");
+    // claude-2.1 keeps its dot because it ends in a digit.
+    while end > start && bytes[end - 1] == b'.' {
+        end -= 1;
+    }
+    // Optional bracketed context-window suffix, e.g. the `[1m]` on `claude-opus-4-8[1m]`.
+    if raw[end..].starts_with('[') {
+        if let Some(close) = raw[end..].find(']') {
+            end += close + 1;
+        }
+    }
+    Some(raw[start..end].to_string())
 }
 
 /// Get hostname via std::env or hostname command
@@ -207,6 +249,43 @@ pub async fn vvcp_invitatory() -> Result<(), String> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn test_extract_model_id() {
+        // Bare ID.
+        assert_eq!(
+            zvvcp_extract_model_id("claude-opus-4-8"),
+            Some("claude-opus-4-8".to_string())
+        );
+        // Context-window bracket suffix is preserved.
+        assert_eq!(
+            zvvcp_extract_model_id("claude-opus-4-8[1m]"),
+            Some("claude-opus-4-8[1m]".to_string())
+        );
+        // Extracted from a refusing/chatty reply (the shape that flaked the suite).
+        assert_eq!(
+            zvvcp_extract_model_id(
+                "I will not read any project files for this.\n\nclaude-opus-4-8"
+            ),
+            Some("claude-opus-4-8".to_string())
+        );
+        // Trailing sentence period dropped; embedded dotted version kept.
+        assert_eq!(
+            zvvcp_extract_model_id("My model ID is claude-opus-4-8."),
+            Some("claude-opus-4-8".to_string())
+        );
+        assert_eq!(
+            zvvcp_extract_model_id("claude-2.1"),
+            Some("claude-2.1".to_string())
+        );
+        // Dated historical ID.
+        assert_eq!(
+            zvvcp_extract_model_id("claude-3-5-haiku-20241022"),
+            Some("claude-3-5-haiku-20241022".to_string())
+        );
+        // No model ID present.
+        assert_eq!(zvvcp_extract_model_id("I cannot help with that."), None);
+    }
 
     #[tokio::test]
     async fn test_probe_output_format() {
