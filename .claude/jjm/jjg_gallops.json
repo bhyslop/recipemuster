@@ -5905,8 +5905,7 @@
         "₢BBABN",
         "₢BBAAX",
         "₢BBABA",
-        "₢BBABP",
-        "₢BBABZ"
+        "₢BBABP"
       ],
       "jjghn_next_pace_seed": "ABa",
       "jjghn_paces": {
@@ -7955,17 +7954,6 @@
               "jjgtn_text": "## Character\n\nLow-risk cleanup of small, independent spec drifts surfaced by the BB audit —\nstale constant names, one-line cross-refs, one missing field, and one obsolete\nRBS0 orchestration pattern. Each edit is local and independent; this is a\nchecklist pace.\n\n## Items (source-of-truth code in parentheses)\n\n- **RBSDL-depot_list**: fact-ext constants `RBGP_FACT_EXT_DEPOT*` → `RBCC_fact_ext_depot*`; emit step omits the per-cloud_prefix subdir (`<cloud_prefix>/<moniker>.depot`). (`rbgp_depot_list`)\n- **RBSDI-depot_inscribe**: substitution `_RBGN_CLOUD_PREFIX` → `_RBGN_RELIQUARIES_ROOT`. (inscribe mirror script)\n- **RBSIA-image_audit, RBSIR-image_rekon**: stale kindle prose \"`RBRD_CLOUD_PREFIX` + hallmarks\"; actual tokens are `rbi_hm`/`rbi_rq`/`rbi_es` from `RBGC_GAR_CATEGORY_*`. Display-text linked-terms already correct — only the inline prose claim is stale. (`rbgl_GarLayout.sh`, `rbgc_Constants.sh`)\n- **RBSTB-trigger_build**: cites `RBGC_RUBRIC_TRIGGER_PREFIX`; confirm the live constant name and correct. (`rbfc_FoundryCore.sh`)\n- **RBSNX-network_connect**: remove the compose `priority 1000/500` route-selection claim; sentry-side default-route override is load-bearing. (`rbob_compose.yml`, `rbjs_sentry.sh`)\n- **RBSRV-RegimeVessel**: add the required `RBRV_RELIQUARY` field (Tool Image Reliquary group, 1–14 chars). (`rbrv_regime.sh`)\n- **RBSCIG-IamGrantContracts**: the \"Current Code vs Actual API Contract\" discrepancy table is pre-convergence; code now uses 409 (not 412), requires non-empty etag, GET+v3 everywhere. (`rbgi_IAM.sh`)\n- **RBS0 §rbtoe_depot_list_update**: replace the obsolete mechanism (Cloud-Billing-v1 enumerate + Mason-SA inspect, flat facts, payor_install invoker) with the shipped CRM-v3 projects:search displayName-anchor, cloud-prefix-namespaced facts, levy/unmake-only invokers. (`zrbgp_depot_list_update`)\n- **RBS0 §rbgc_depot_project_infix**: fix the cross-ref mis-attributing the displayName-discriminator role to the project-ID infix (discriminator is `RBGC_DEPOT_DISPLAY_PREFIX`).\n\n## Out of scope\n\nRBSRR, RBSAA, RBSAP — pre-existing drift independent of BB's changes; not swept here.\n\n## Wrap criterion\n\nEach listed item corrected against its source-of-truth code; the three\nout-of-scope specs untouched.",
               "jjgtn_silks": "rbs0-scattered-constant-sync",
               "jjgtn_basis": "1062840"
-            }
-          ]
-        },
-        "₢BBABZ": {
-          "jjgpn_tacks": [
-            {
-              "jjgtn_ts": "260618-1341",
-              "jjgtn_state": "jjgte_rough",
-              "jjgtn_text": "## Character\nReconfirm-then-mechanical: independently re-derive the design from sources, then a multi-site string + parameter edit.\nThe originating chat ran below Opus quality and manufactured a non-issue before being corrected — treat every claim in this docket as a hypothesis to verify, not as authority.\n\nSurface, per call site, the precise rationale for why `bug_require_clean_tree` (BUG, `Tools/buk/bug_git.sh`) demands a committed tree at that locale.\nRationale strings live as RB constants in `Tools/rbk/rbcc_constants.sh`; each call site passes its own as a new gate argument; BUG stays kit-agnostic and only displays the string it is handed.\n\n## Reconfirm first (origin chat was unreliable)\nVerify from sources, not from the claims here:\n- Enumerate the call sites and read each local why: `grep -rn --include='*.sh' 'bug_require_clean_tree' Tools/` (one definition lives in BUG; the rest are calls).\n- Confirm how many distinct rationales actually exist — the chat claimed two: a build/capture \"HEAD-as-provenance\" family and the depot-tripwire \"inscribed bytes must be a committed reference\" case. Correct it if the sites disagree.\n- Confirm BCG tinder vs kindle for the new constants (rbcc is tinder-heavy; these are pure string literals).\n- Settle what the chat left open: whether the rationale displays on the failure path only, or always.\n- Re-judge whether this needs anything beyond constants + param. The chat concluded the principle is already spec-homed (`rbtgo_lode_ensconce`, `rblv_git_commit` in RBS0, plus the tripwire statement in RBSRT/RBSMF) and warrants no new quoin or RBr_ rivet — an implementation detail, not a concept. Confirm or overturn.\n\n## Cinched\nRationale strings live in rbcc (RB-space), never inside BUG.\nThe gate gains a parameter; every call site supplies its locale's rationale.\n\n## Done when\nThe re-verified set of rationale constants exists in rbcc.\nEvery `bug_require_clean_tree` call passes its locale's rationale and the gate surfaces it to the operator.\nTripwire aside (separable, not required): its rationale is stated near-verbatim in both RBSRT and RBSMF — fold to one if you touch it.\n`tt/rbw-tl.Shellcheck.sh` clean and the fast suite green.",
-              "jjgtn_silks": "clean-tree-rationale-param",
-              "jjgtn_basis": "47fc5df"
             }
           ]
         }
@@ -10834,9 +10822,10 @@
         "₢BiAAE",
         "₢BiAAF",
         "₢BiAAG",
-        "₢BiAAH"
+        "₢BiAAH",
+        "₢BiAAI"
       ],
-      "jjghn_next_pace_seed": "AAI",
+      "jjghn_next_pace_seed": "AAJ",
       "jjghn_paces": {
         "₢BiAAA": {
           "jjgpn_tacks": [
@@ -10979,6 +10968,24 @@
               "jjgtn_text": "Rigorously determine whether the GCS build bucket is fully superseded by pouch-based build-context delivery, and retire the vestige if so.\n\nBuild context now ships to Cloud Build as the pouch — a FROM SCRATCH OCI image pushed to GAR before `builds.create`.\nSee RBS0's `{rbtga_ark_pouch}` definition and the pouch push in `rbfd_director.sh`; RBSCTD records the trigger-dispatch supersession that introduced it.\nThe older design staged source into the GCS build bucket; a kit-wide grep for `storageSource` and `objectCreator` lands empty today, so that staging path appears gone.\n\nCandidate residue, if the verdict is retire:\nthe build-bucket creation and its one-day lifecycle rule at depot levy in `rbgp_payor.sh`;\nMason's `roles/storage.objectViewer` grant on that bucket at levy;\nthe stale director-enrobe spec line (RBSDK) granting the director `storage.objectCreator`/`objectViewer`, which the director capability code grants nowhere;\nbucket-only constants in `rbgb_buckets.sh` / `rbgd_depot.sh` / `rbdc_derived.sh`.\n\n## Done when\nEvery reader and writer of the build bucket is enumerated from the live kit, yielding a verdict.\nEither a live consumer is found — keep the bucket and correct the specs to match — or none is, in which case the bucket, its levy creation, Mason's grant, and the stale RBSDK line retire together with the suites green.\nThe adjacent capability-spec drift is dispositioned in the same sweep: RBSRK omits the `containeranalysis.occurrencesViewer` role the retriever capability code actually grants.\n\n## Cinched\nPouch is the build-context delivery mechanism; this pace does not reopen that decision.\n\n## Character\nInvestigation-first ACG simplification — a hidden live consumer is the one risk, so the study gates the cut; mechanical once the verdict is in.",
               "jjgtn_silks": "build-bucket-vestige-scrub",
               "jjgtn_basis": "97cf0c4"
+            }
+          ]
+        },
+        "₢BiAAI": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260618-1528",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "Drafted from ₢BBABZ in ₣BB.\n\n## Character\nReconfirm-then-mechanical: independently re-derive the design from sources, then a multi-site string + parameter edit.\nThe originating chat ran below Opus quality and manufactured a non-issue before being corrected — treat every claim in this docket as a hypothesis to verify, not as authority.\n\nSurface, per call site, the precise rationale for why `bug_require_clean_tree` (BUG, `Tools/buk/bug_git.sh`) demands a committed tree at that locale.\nRationale strings live as RB constants in `Tools/rbk/rbcc_constants.sh`; each call site passes its own as a new gate argument; BUG stays kit-agnostic and only displays the string it is handed.\n\n## Reconfirm first (origin chat was unreliable)\nVerify from sources, not from the claims here:\n- Enumerate the call sites and read each local why: `grep -rn --include='*.sh' 'bug_require_clean_tree' Tools/` (one definition lives in BUG; the rest are calls).\n- Confirm how many distinct rationales actually exist — the chat claimed two: a build/capture \"HEAD-as-provenance\" family and the depot-tripwire \"inscribed bytes must be a committed reference\" case. Correct it if the sites disagree.\n- Confirm BCG tinder vs kindle for the new constants (rbcc is tinder-heavy; these are pure string literals).\n- Settle what the chat left open: whether the rationale displays on the failure path only, or always.\n- Re-judge whether this needs anything beyond constants + param. The chat concluded the principle is already spec-homed (`rbtgo_lode_ensconce`, `rblv_git_commit` in RBS0, plus the tripwire statement in RBSRT/RBSMF) and warrants no new quoin or RBr_ rivet — an implementation detail, not a concept. Confirm or overturn.\n\n## Cinched\nRationale strings live in rbcc (RB-space), never inside BUG.\nThe gate gains a parameter; every call site supplies its locale's rationale.\n\n## Done when\nThe re-verified set of rationale constants exists in rbcc.\nEvery `bug_require_clean_tree` call passes its locale's rationale and the gate surfaces it to the operator.\nTripwire aside (separable, not required): its rationale is stated near-verbatim in both RBSRT and RBSMF — fold to one if you touch it.\n`tt/rbw-tl.Shellcheck.sh` clean and the fast suite green.",
+              "jjgtn_silks": "clean-tree-rationale-param",
+              "jjgtn_basis": "616b022"
+            },
+            {
+              "jjgtn_ts": "260618-1341",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nReconfirm-then-mechanical: independently re-derive the design from sources, then a multi-site string + parameter edit.\nThe originating chat ran below Opus quality and manufactured a non-issue before being corrected — treat every claim in this docket as a hypothesis to verify, not as authority.\n\nSurface, per call site, the precise rationale for why `bug_require_clean_tree` (BUG, `Tools/buk/bug_git.sh`) demands a committed tree at that locale.\nRationale strings live as RB constants in `Tools/rbk/rbcc_constants.sh`; each call site passes its own as a new gate argument; BUG stays kit-agnostic and only displays the string it is handed.\n\n## Reconfirm first (origin chat was unreliable)\nVerify from sources, not from the claims here:\n- Enumerate the call sites and read each local why: `grep -rn --include='*.sh' 'bug_require_clean_tree' Tools/` (one definition lives in BUG; the rest are calls).\n- Confirm how many distinct rationales actually exist — the chat claimed two: a build/capture \"HEAD-as-provenance\" family and the depot-tripwire \"inscribed bytes must be a committed reference\" case. Correct it if the sites disagree.\n- Confirm BCG tinder vs kindle for the new constants (rbcc is tinder-heavy; these are pure string literals).\n- Settle what the chat left open: whether the rationale displays on the failure path only, or always.\n- Re-judge whether this needs anything beyond constants + param. The chat concluded the principle is already spec-homed (`rbtgo_lode_ensconce`, `rblv_git_commit` in RBS0, plus the tripwire statement in RBSRT/RBSMF) and warrants no new quoin or RBr_ rivet — an implementation detail, not a concept. Confirm or overturn.\n\n## Cinched\nRationale strings live in rbcc (RB-space), never inside BUG.\nThe gate gains a parameter; every call site supplies its locale's rationale.\n\n## Done when\nThe re-verified set of rationale constants exists in rbcc.\nEvery `bug_require_clean_tree` call passes its locale's rationale and the gate surfaces it to the operator.\nTripwire aside (separable, not required): its rationale is stated near-verbatim in both RBSRT and RBSMF — fold to one if you touch it.\n`tt/rbw-tl.Shellcheck.sh` clean and the fast suite green.",
+              "jjgtn_silks": "clean-tree-rationale-param",
+              "jjgtn_basis": "47fc5df"
             }
           ]
         }
