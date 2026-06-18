@@ -5902,17 +5902,10 @@
         "₢BBAA5",
         "₢BBABF",
         "₢BBABG",
-        "₢BBABL",
         "₢BBABN",
         "₢BBAAX",
         "₢BBABA",
         "₢BBABP",
-        "₢BBABT",
-        "₢BBABU",
-        "₢BBABV",
-        "₢BBABW",
-        "₢BBABX",
-        "₢BBABY",
         "₢BBABZ"
       ],
       "jjghn_next_pace_seed": "ABa",
@@ -7755,17 +7748,6 @@
             }
           ]
         },
-        "₢BBABL": {
-          "jjgpn_tacks": [
-            {
-              "jjgtn_ts": "260526-1825",
-              "jjgtn_state": "jjgte_rough",
-              "jjgtn_text": "## Character\nMechanical retry-tolerance extension; shape locked by the memo. Two touchpoints, one error class. Surfaced by dogfight verification (2 failures / 3 runs — transient).\n\n## Source\n`Memos/memo-20260527-account-state-invalid-reinvest-flap.md` — full 401/`ACCOUNT_STATE_INVALID` signature, two-host evidence, the prior-art gap, and the time-bound tolerance model to reuse.\n\n## Shape (locked)\n- `rbfc_FoundryCore.sh` build-status poll loop: absorb a transient `401 UNAUTHENTICATED` + `ACCOUNT_STATE_INVALID` with bounded backoff instead of counting it toward the consecutive-error fatal — a still-`WORKING` build must survive a director-SA auth flap.\n- `rbgo_OAuth.sh` consumer-retry token mint: extend the existing retry error-class to `ACCOUNT_STATE_INVALID`, covering the `rbfv` vouch path (Host B in the memo).\n- The retry budget is the discriminator (settling completes within budget; real denial waits it out and fails clean) — reuse the established propagation / access-probe time-bound model rather than minting new literals.\n\n## Done\nA director re-invest immediately followed by `ordain` survives the flap: the transient is logged and retried within budget, never fatal on a healthy build. Confirm the `rbfv` vouch failure body is the same class (memo caveat).",
-              "jjgtn_silks": "foundry-account-state-invalid-tolerance",
-              "jjgtn_basis": "5e63889"
-            }
-          ]
-        },
         "₢BBABM": {
           "jjgpn_tacks": [
             {
@@ -7973,72 +7955,6 @@
               "jjgtn_text": "## Character\n\nLow-risk cleanup of small, independent spec drifts surfaced by the BB audit —\nstale constant names, one-line cross-refs, one missing field, and one obsolete\nRBS0 orchestration pattern. Each edit is local and independent; this is a\nchecklist pace.\n\n## Items (source-of-truth code in parentheses)\n\n- **RBSDL-depot_list**: fact-ext constants `RBGP_FACT_EXT_DEPOT*` → `RBCC_fact_ext_depot*`; emit step omits the per-cloud_prefix subdir (`<cloud_prefix>/<moniker>.depot`). (`rbgp_depot_list`)\n- **RBSDI-depot_inscribe**: substitution `_RBGN_CLOUD_PREFIX` → `_RBGN_RELIQUARIES_ROOT`. (inscribe mirror script)\n- **RBSIA-image_audit, RBSIR-image_rekon**: stale kindle prose \"`RBRD_CLOUD_PREFIX` + hallmarks\"; actual tokens are `rbi_hm`/`rbi_rq`/`rbi_es` from `RBGC_GAR_CATEGORY_*`. Display-text linked-terms already correct — only the inline prose claim is stale. (`rbgl_GarLayout.sh`, `rbgc_Constants.sh`)\n- **RBSTB-trigger_build**: cites `RBGC_RUBRIC_TRIGGER_PREFIX`; confirm the live constant name and correct. (`rbfc_FoundryCore.sh`)\n- **RBSNX-network_connect**: remove the compose `priority 1000/500` route-selection claim; sentry-side default-route override is load-bearing. (`rbob_compose.yml`, `rbjs_sentry.sh`)\n- **RBSRV-RegimeVessel**: add the required `RBRV_RELIQUARY` field (Tool Image Reliquary group, 1–14 chars). (`rbrv_regime.sh`)\n- **RBSCIG-IamGrantContracts**: the \"Current Code vs Actual API Contract\" discrepancy table is pre-convergence; code now uses 409 (not 412), requires non-empty etag, GET+v3 everywhere. (`rbgi_IAM.sh`)\n- **RBS0 §rbtoe_depot_list_update**: replace the obsolete mechanism (Cloud-Billing-v1 enumerate + Mason-SA inspect, flat facts, payor_install invoker) with the shipped CRM-v3 projects:search displayName-anchor, cloud-prefix-namespaced facts, levy/unmake-only invokers. (`zrbgp_depot_list_update`)\n- **RBS0 §rbgc_depot_project_infix**: fix the cross-ref mis-attributing the displayName-discriminator role to the project-ID infix (discriminator is `RBGC_DEPOT_DISPLAY_PREFIX`).\n\n## Out of scope\n\nRBSRR, RBSAA, RBSAP — pre-existing drift independent of BB's changes; not swept here.\n\n## Wrap criterion\n\nEach listed item corrected against its source-of-truth code; the three\nout-of-scope specs untouched.",
               "jjgtn_silks": "rbs0-scattered-constant-sync",
               "jjgtn_basis": "1062840"
-            }
-          ]
-        },
-        "₢BBABT": {
-          "jjgpn_tacks": [
-            {
-              "jjgtn_ts": "260601-0750",
-              "jjgtn_state": "jjgte_rough",
-              "jjgtn_text": "## Character\nIntricate but mechanical.\n\n## Goal\nPull the RBK station regime (RBRS) off the active MVP surface. RBRS is dormant podman/VM\nstation config (RBRS_PODMAN_ROOT_DIR / _VMIMAGE_CACHE_DIR / _VM_PLATFORM) that self-skips in\nthe fast suite under the Docker MVP — noise for first MVP users. Preserve the payload intact\nfor the podman build-out (heat ₣BW).\n\n## Shape\nRelocate intact into Tools/rbk/vov_veiled/FUTURE/ (beside rbv_PodmanVM.sh): rbrs_regime.sh,\nrbrs_cli.sh, RBSRS-RegimeStation.adoc. Delete the active-surface hooks: rbw-rsr / rbw-rsv\ntabtargets, the rbtdrf_rs_rbrs test plus its rbrs-missing-platform negative case, the\nRBTDRM_MODULE_RBRS manifest entry, the RBTDGC_RBRS_* constants, the RBS0 TOC reference.\nDiscovery: grep -rn \"RBRS|RENDER_STATION|VALIDATE_STATION\" Tools/ (exclude burs, buk/).\n\n## Locked\nDo NOT touch the BUK station regime (BURC_STATION_FILE / BURD_STATION_FILE / burs) — it is\nload-bearing for every BUD dispatch and is a distinct regime from RBRS.\n\n## Done\nVerify rbv_cli.sh is not behind a live tabtarget before relocating it. Regenerate the\ngenerated context and rebuild theurge. Fast suite green with 0 skipped; no rbw-rs*\ntabtargets remain; RBRS payload intact under FUTURE/.",
-              "jjgtn_silks": "rbrs-relocate-to-future",
-              "jjgtn_basis": "0bb54c1"
-            }
-          ]
-        },
-        "₢BBABU": {
-          "jjgpn_tacks": [
-            {
-              "jjgtn_ts": "260601-0820",
-              "jjgtn_state": "jjgte_rough",
-              "jjgtn_text": "## Character\n\nMechanical lint cleanup with a security-boundary caveat. Most fixes are\nbehavior-neutral; the risk is concentrated in the jailer, where a quoting or\nword-splitting \"fix\" can change runtime behavior. Each jailer touch must be\ngated by appropriate crucible re-testing — not forbidden, but verified.\n\n## Goal\n\nBring the bash that lives outside `Tools/` — and is therefore un-gated today,\nsince the shellcheck root scans `Tools/` only — to shellcheck-clean, then widen\nthe release-tier shellcheck (`rbq_qualify_shellcheck`) to cover it so it stays\nclean by construction.\n\n## Scope\n\nDiscovery recipe (these are the currently-uncovered `.sh` files):\n\n  find . -name '*.sh' -type f -not -path './Tools/*' -not -path './tt/*' \\\n    -not -path './.git/*' -not -path '*/target/*'\n\nInclude the load-bearing ones: the moorings vessel jailer scripts under\n`rbmm_moorings/rbmv_vessels/common-sentry-context/` (sentry + pentacle),\n`MBS.STATION-reference.sh`, and the `rbnnh_post_charge.sh` charge hooks.\nExclude the same classes the release-tier gate already excludes: `Study/`\nscratch scripts and `rbmm_moorings/rbml_launchers/launcher.*.sh` trivial shims.\n\n## Jailer risk assessment — required, gating\n\nThe sentry and pentacle scripts run inside the crucible and define the security\nboundary (iptables, dnsmasq, enclave network). Before landing edits to them,\nclassify each finding as behavior-neutral vs behavior-affecting. For anything\nnot provably neutral, re-run the crucible security testing appropriately — at\nminimum the tadmor security fixture (`tt/rbw-ts.TestSuite.crucible.sh`, or the\ntadmor fixture directly), charging and quenching a crucible as the change\ndemands. RBSIP / the tadmor suite is the relevant containment contract.\n\n## Done looks like\n\n- The included outside-`Tools/` scripts are clean under `busc_shellcheckrc`.\n- `rbq_qualify_shellcheck` covers them (root widened beyond `Tools/` — multi-root\n  parameter vs explicit extra-file list is a mount-time call).\n- Jailer behavior verified intact by appropriate tadmor-tier testing after any\n  sentry/pentacle edit; the risk assessment is recorded in the commit trail.\n- The marshal-zero lint gate consequently refuses a dirty tree across the\n  widened set too.\n\n## Out of scope\n\n- `Study/` scratch and launcher shims.\n- Parallelizing shellcheck — settled out: serial is fine at release-prep cadence,\n  and `xargs -P` is non-POSIX / outside the allowed-command set.",
-              "jjgtn_silks": "shellcheck-cover-moorings-and-jailer",
-              "jjgtn_basis": "94adb0b"
-            }
-          ]
-        },
-        "₢BBABV": {
-          "jjgpn_tacks": [
-            {
-              "jjgtn_ts": "260604-2306",
-              "jjgtn_state": "jjgte_rough",
-              "jjgtn_text": "## Character\nMechanical — two stale-reference corrections in the Cloud Build specs; verify-then-edit, low risk.\n\n## Goal\nTwo dangling references in the Cloud Build specs name symbols that no longer exist. Correct each to a live referent so the specs cite only real files/functions. (Surfaced during a Cloud Build spec audit; left out-of-scope there.)\n\n## Items\n- **RBSCB broken acronym.** The authoritative-specs list (`RBSAC, RBSAV, RBSDC, RBSDN`) names `RBSDC`, which has no file — confirm via `ls Tools/rbk/vov_veiled/RBSD*-*.adoc`. Determine the intended spec from what that sentence asserts and correct it (likely `RBSDI` depot_inscribe, but confirm — don't guess-substitute).\n- **RBSCJ dead function name.** The trigger-era Decision section names `zrbf_stitch_build_json` (`grep -rn zrbf_stitch_build_json Tools/rbk/vov_veiled/RBSCJ-CloudBuildJson.adoc`); the live function is `zrbfd_stitch_build_json` (renamed in the foundry decomposition; RBSCB already cites it correctly). Repoint to the live name. Scope is the name only — a broader refresh of the trigger-era Decision section is a separate question, not this pace.\n\n## Done\nNeither `RBSDC` nor `zrbf_stitch_build_json` appears in the Cloud Build specs (RBSCB-CloudBuildPosture.adoc, RBSCJ-CloudBuildJson.adoc); each former reference now names a live spec/function.",
-              "jjgtn_silks": "cloudbuild-spec-stale-refs",
-              "jjgtn_basis": "98d64da"
-            }
-          ]
-        },
-        "₢BBABW": {
-          "jjgpn_tacks": [
-            {
-              "jjgtn_ts": "260604-2349",
-              "jjgtn_state": "jjgte_rough",
-              "jjgtn_text": "## Character\nStandalone tooling fix + one design addition; no dependency on this heat's release-qual gestalt. Goal: make scry a trustworthy, scriptable network-diagnostic primitive.\n\nscry (`rboo_observe.sh`, colophon `rbw-cs`) proved wanting during the ₣BV Docker-Desktop containment investigation (see `Memos/memo-20260604-conntrack-spoofed-ack-adjudication.md`). Four changes:\n\n- **Latent correctness bug — interface roles are hardcoded.** scry assumes sentry eth0=uplink / eth1=enclave. Docker's interface ordering is not guaranteed; on the WSL native-docker host the two are reversed, so scry captures the wrong sentry interface and mislabels its output. Discover interfaces by IP/role the way `rbjs_sentry.sh` already does (`ip -o addr`), never by hardcoded name.\n- **Add `-e`** to the tcpdump options so L2 source MACs show. Without MACs, off-path delivery (the whole DD finding) can only be inferred from absence, not demonstrated.\n- **Capture both sentry legs on docker** (currently enclave-only; the bridge leg is podman-only), so the full enclave↔uplink path is visible in one run.\n- **Bound-duration / non-interactive mode.** Today scry traps SIGINT and `wait`s forever, so nothing can drive it programmatically. Add an optional duration and optional tcpdump filter expression: when a duration is supplied, run the parallel captures under `timeout <dur>` (already present in the vessels), collect, and exit 0 — a scriptable capture primitive a fixture or operator one-liner can call. When no duration is given, preserve today's run-until-Ctrl+C behavior unchanged. The filter argument scopes the capture (e.g. one host) so output stays legible.\n\n## Done\nscry resolves interfaces by role (correct under either ordering), shows MACs, captures both sentry legs on docker, and supports a bounded non-interactive capture (duration + optional filter) that returns cleanly for scripted use — interactive behavior unchanged when no duration is passed.",
-              "jjgtn_silks": "scry-diagnostic-repairs",
-              "jjgtn_basis": "49c8d96"
-            }
-          ]
-        },
-        "₢BBABX": {
-          "jjgpn_tacks": [
-            {
-              "jjgtn_ts": "260608-2201",
-              "jjgtn_state": "jjgte_rough",
-              "jjgtn_text": "## Character\nSurgical bash change in one function, but gated on one genuine design question —\njudgment, not mechanical.\n\n## Goal\n`rbgo_get_token_capture` (Tools/rbk/rbgo_OAuth.sh) waits the full SA-propagation\nbudget (~104 s, 10 attempts) on credential failures that are deterministically\nterminal. Its \"Discriminate failure\" block retries exactly two OAuth error shapes —\n`invalid_grant` + `\"Invalid JWT Signature.\"` and `invalid_grant` +\n`\"Invalid grant: account not found\"` — because those are the post-mint\npropagation-race signals. The flaw: each shape is **ambiguous** — also the permanent\nsignal (key revoked / SA deleted with no mint pending). The response body alone\ncannot tell transient from terminal, so the loop retries both and burns the whole\nbudget on dead credentials. Make terminal failures fail fast without weakening\nlegitimate post-mint propagation tolerance.\n\n## Cinched\n- The string classifier is correct as far as it goes — do NOT \"repair\" by dropping\n  the retry. The propagation race is real immediately after invest/mantle.\n- The disambiguator is **call context** (did a mint just happen?), not the response\n  body. The fix lives on that axis.\n\n## Clarifying questions — resolve at mount before coding\n1. Parameterize the retry budget by caller? — `rbgo_get_token_capture` takes a\n   ceiling arg: post-mint consumers (first use after invest/mantle) pass the full\n   window; cold access probes (`rbgv_check_*` behind `rbw-ac*`) pass zero/small.\n   Is call-context the right axis, and is a function parameter the right shape?\n2. Does any access probe run as the FIRST use right after a mint (legitimately\n   needing the window)? Check whether invest/mantle self-verify via a probe — if so\n   the flag must be per-call-site, not a blanket \"probes fail fast.\"\n3. Probe-path ceiling: zero retry, or a small bounded one (a few seconds) to\n   tolerate a genuinely-just-established credential?\n4. Sequencing vs the in-flight ACCOUNT_STATE_INVALID work — the `TEMP-FORENSIC`\n   block in this same function (grep `TEMP-FORENSIC` in rbgo_OAuth.sh; memo-20260527,\n   the touchpoint-2 match it is gathering shape for) overlaps this code. Is this\n   repair the same change as that touchpoint-2 landing, or does it follow it?\n\n## Done when\n- Terminal credential failures (stale key / absent SA, no pending mint) fail fast\n  from access probes instead of waiting the full propagation budget.\n- Genuine post-mint propagation races still retry on the existing budget.\n- The chosen design (context axis) is recorded where the function lives.\n\n## Sources\n- Tools/rbk/rbgo_OAuth.sh — `rbgo_get_token_capture`, the \"Discriminate failure\"\n  block and the `RBGC_SA_KEY_CONSUMER_RETRY_*` constants; the `TEMP-FORENSIC` block\n  marks the related in-flight work.\n- memo-20260527 — Host-B capture gap / ACCOUNT_STATE_INVALID token-endpoint shape.\n- memo-20260608-lode-podvm-cerebro-experiment.md §6 — the empirical 104 s-wait\n  observation (stale Director key + deleted Governor SA, this session).",
-              "jjgtn_silks": "token-mint-failfast-terminal-iam",
-              "jjgtn_basis": "8ae3f26"
-            }
-          ]
-        },
-        "₢BBABY": {
-          "jjgpn_tacks": [
-            {
-              "jjgtn_ts": "260612-0915",
-              "jjgtn_state": "jjgte_rough",
-              "jjgtn_text": "## Character\nSingle-chokepoint bash change in the shared build wait loop;\nmechanical once the loop is read.\nSonnet-delegable body with driver verification.\n\n## Goal\nSplit the build-completion poll budget in the shared wait loop\n(`Tools/rbk/rbfcb_BuildHost.sh`, `zrbfc_wait_build_completion`) into two bounded clocks:\na shared, generous queue ceiling counting PENDING/QUEUED polls before the first WORKING,\nand the existing per-kind execution ceilings counting only from the QUEUED→WORKING transition.\nEvery op still terminates itself with success or failure:\nworst-case wall clock = queue ceiling + execution ceiling.\n\n## Cinched\n- Queue ceiling is one shared constant across kinds, sized ~15 minutes\n  (exact value and constant name are mount-time);\n  queue exhaustion dies loud as its own message — pool never took the build —\n  and keeps the quota-review tabtarget hint.\n- Per-kind execution ceilings (`ZRBFC_BUILD_POLL_CEILING_*`) keep current values;\n  their meaning narrows to execution-only.\n- The existing poll-20 queue-weather `buc_warn` survives\n  and repeats every ~20 queued polls instead of firing once.\n- One info line at the QUEUED→WORKING transition records the queued poll count,\n  so future log mining gets the queue/execution split for free.\n\n## Evidence\n`Memos/memo-20260611-heat-BH-vouch-poll-ceiling-queued-burst.md` —\ntrace plus the 2026-06-12 incidence addendum\n(2 timeouts + 1 near-miss in 531 builds over 8 weeks, all pure queue weather,\nconfined to the small-budget kinds).\nShape-sibling: the RBSHR progress-aware-convergence-deadline entry.\n\n## Done when\nTwo clocks live in the shared loop;\nqueue death and execution death are distinct loud messages;\nthe transition info line and repeating weather warning are observable in a log;\n`fast` is green and a service-tier run exercises at least one real build wait.",
-              "jjgtn_silks": "build-poll-two-clock-split",
-              "jjgtn_basis": "b977385"
             }
           ]
         },
@@ -10903,9 +10819,144 @@
       "jjghn_silks": "rbk-15-mvp-loose-ends",
       "jjghn_creation_time": "260618",
       "jjghn_status": "jjghe_stabled",
-      "jjghn_order": [],
-      "jjghn_next_pace_seed": "AAA",
-      "jjghn_paces": {}
+      "jjghn_order": [
+        "₢BiAAA",
+        "₢BiAAB",
+        "₢BiAAC",
+        "₢BiAAD",
+        "₢BiAAE",
+        "₢BiAAF",
+        "₢BiAAG"
+      ],
+      "jjghn_next_pace_seed": "AAH",
+      "jjghn_paces": {
+        "₢BiAAA": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260618-1358",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "Drafted from ₢BBABL in ₣BB.\n\n## Character\nMechanical retry-tolerance extension; shape locked by the memo. Two touchpoints, one error class. Surfaced by dogfight verification (2 failures / 3 runs — transient).\n\n## Source\n`Memos/memo-20260527-account-state-invalid-reinvest-flap.md` — full 401/`ACCOUNT_STATE_INVALID` signature, two-host evidence, the prior-art gap, and the time-bound tolerance model to reuse.\n\n## Shape (locked)\n- `rbfc_FoundryCore.sh` build-status poll loop: absorb a transient `401 UNAUTHENTICATED` + `ACCOUNT_STATE_INVALID` with bounded backoff instead of counting it toward the consecutive-error fatal — a still-`WORKING` build must survive a director-SA auth flap.\n- `rbgo_OAuth.sh` consumer-retry token mint: extend the existing retry error-class to `ACCOUNT_STATE_INVALID`, covering the `rbfv` vouch path (Host B in the memo).\n- The retry budget is the discriminator (settling completes within budget; real denial waits it out and fails clean) — reuse the established propagation / access-probe time-bound model rather than minting new literals.\n\n## Done\nA director re-invest immediately followed by `ordain` survives the flap: the transient is logged and retried within budget, never fatal on a healthy build. Confirm the `rbfv` vouch failure body is the same class (memo caveat).",
+              "jjgtn_silks": "foundry-account-state-invalid-tolerance",
+              "jjgtn_basis": "f5f6b2b"
+            },
+            {
+              "jjgtn_ts": "260526-1825",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nMechanical retry-tolerance extension; shape locked by the memo. Two touchpoints, one error class. Surfaced by dogfight verification (2 failures / 3 runs — transient).\n\n## Source\n`Memos/memo-20260527-account-state-invalid-reinvest-flap.md` — full 401/`ACCOUNT_STATE_INVALID` signature, two-host evidence, the prior-art gap, and the time-bound tolerance model to reuse.\n\n## Shape (locked)\n- `rbfc_FoundryCore.sh` build-status poll loop: absorb a transient `401 UNAUTHENTICATED` + `ACCOUNT_STATE_INVALID` with bounded backoff instead of counting it toward the consecutive-error fatal — a still-`WORKING` build must survive a director-SA auth flap.\n- `rbgo_OAuth.sh` consumer-retry token mint: extend the existing retry error-class to `ACCOUNT_STATE_INVALID`, covering the `rbfv` vouch path (Host B in the memo).\n- The retry budget is the discriminator (settling completes within budget; real denial waits it out and fails clean) — reuse the established propagation / access-probe time-bound model rather than minting new literals.\n\n## Done\nA director re-invest immediately followed by `ordain` survives the flap: the transient is logged and retried within budget, never fatal on a healthy build. Confirm the `rbfv` vouch failure body is the same class (memo caveat).",
+              "jjgtn_silks": "foundry-account-state-invalid-tolerance",
+              "jjgtn_basis": "5e63889"
+            }
+          ]
+        },
+        "₢BiAAB": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260618-1358",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "Drafted from ₢BBABX in ₣BB.\n\n## Character\nSurgical bash change in one function, but gated on one genuine design question —\njudgment, not mechanical.\n\n## Goal\n`rbgo_get_token_capture` (Tools/rbk/rbgo_OAuth.sh) waits the full SA-propagation\nbudget (~104 s, 10 attempts) on credential failures that are deterministically\nterminal. Its \"Discriminate failure\" block retries exactly two OAuth error shapes —\n`invalid_grant` + `\"Invalid JWT Signature.\"` and `invalid_grant` +\n`\"Invalid grant: account not found\"` — because those are the post-mint\npropagation-race signals. The flaw: each shape is **ambiguous** — also the permanent\nsignal (key revoked / SA deleted with no mint pending). The response body alone\ncannot tell transient from terminal, so the loop retries both and burns the whole\nbudget on dead credentials. Make terminal failures fail fast without weakening\nlegitimate post-mint propagation tolerance.\n\n## Cinched\n- The string classifier is correct as far as it goes — do NOT \"repair\" by dropping\n  the retry. The propagation race is real immediately after invest/mantle.\n- The disambiguator is **call context** (did a mint just happen?), not the response\n  body. The fix lives on that axis.\n\n## Clarifying questions — resolve at mount before coding\n1. Parameterize the retry budget by caller? — `rbgo_get_token_capture` takes a\n   ceiling arg: post-mint consumers (first use after invest/mantle) pass the full\n   window; cold access probes (`rbgv_check_*` behind `rbw-ac*`) pass zero/small.\n   Is call-context the right axis, and is a function parameter the right shape?\n2. Does any access probe run as the FIRST use right after a mint (legitimately\n   needing the window)? Check whether invest/mantle self-verify via a probe — if so\n   the flag must be per-call-site, not a blanket \"probes fail fast.\"\n3. Probe-path ceiling: zero retry, or a small bounded one (a few seconds) to\n   tolerate a genuinely-just-established credential?\n4. Sequencing vs the in-flight ACCOUNT_STATE_INVALID work — the `TEMP-FORENSIC`\n   block in this same function (grep `TEMP-FORENSIC` in rbgo_OAuth.sh; memo-20260527,\n   the touchpoint-2 match it is gathering shape for) overlaps this code. Is this\n   repair the same change as that touchpoint-2 landing, or does it follow it?\n\n## Done when\n- Terminal credential failures (stale key / absent SA, no pending mint) fail fast\n  from access probes instead of waiting the full propagation budget.\n- Genuine post-mint propagation races still retry on the existing budget.\n- The chosen design (context axis) is recorded where the function lives.\n\n## Sources\n- Tools/rbk/rbgo_OAuth.sh — `rbgo_get_token_capture`, the \"Discriminate failure\"\n  block and the `RBGC_SA_KEY_CONSUMER_RETRY_*` constants; the `TEMP-FORENSIC` block\n  marks the related in-flight work.\n- memo-20260527 — Host-B capture gap / ACCOUNT_STATE_INVALID token-endpoint shape.\n- memo-20260608-lode-podvm-cerebro-experiment.md §6 — the empirical 104 s-wait\n  observation (stale Director key + deleted Governor SA, this session).",
+              "jjgtn_silks": "token-mint-failfast-terminal-iam",
+              "jjgtn_basis": "f5f6b2b"
+            },
+            {
+              "jjgtn_ts": "260608-2201",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nSurgical bash change in one function, but gated on one genuine design question —\njudgment, not mechanical.\n\n## Goal\n`rbgo_get_token_capture` (Tools/rbk/rbgo_OAuth.sh) waits the full SA-propagation\nbudget (~104 s, 10 attempts) on credential failures that are deterministically\nterminal. Its \"Discriminate failure\" block retries exactly two OAuth error shapes —\n`invalid_grant` + `\"Invalid JWT Signature.\"` and `invalid_grant` +\n`\"Invalid grant: account not found\"` — because those are the post-mint\npropagation-race signals. The flaw: each shape is **ambiguous** — also the permanent\nsignal (key revoked / SA deleted with no mint pending). The response body alone\ncannot tell transient from terminal, so the loop retries both and burns the whole\nbudget on dead credentials. Make terminal failures fail fast without weakening\nlegitimate post-mint propagation tolerance.\n\n## Cinched\n- The string classifier is correct as far as it goes — do NOT \"repair\" by dropping\n  the retry. The propagation race is real immediately after invest/mantle.\n- The disambiguator is **call context** (did a mint just happen?), not the response\n  body. The fix lives on that axis.\n\n## Clarifying questions — resolve at mount before coding\n1. Parameterize the retry budget by caller? — `rbgo_get_token_capture` takes a\n   ceiling arg: post-mint consumers (first use after invest/mantle) pass the full\n   window; cold access probes (`rbgv_check_*` behind `rbw-ac*`) pass zero/small.\n   Is call-context the right axis, and is a function parameter the right shape?\n2. Does any access probe run as the FIRST use right after a mint (legitimately\n   needing the window)? Check whether invest/mantle self-verify via a probe — if so\n   the flag must be per-call-site, not a blanket \"probes fail fast.\"\n3. Probe-path ceiling: zero retry, or a small bounded one (a few seconds) to\n   tolerate a genuinely-just-established credential?\n4. Sequencing vs the in-flight ACCOUNT_STATE_INVALID work — the `TEMP-FORENSIC`\n   block in this same function (grep `TEMP-FORENSIC` in rbgo_OAuth.sh; memo-20260527,\n   the touchpoint-2 match it is gathering shape for) overlaps this code. Is this\n   repair the same change as that touchpoint-2 landing, or does it follow it?\n\n## Done when\n- Terminal credential failures (stale key / absent SA, no pending mint) fail fast\n  from access probes instead of waiting the full propagation budget.\n- Genuine post-mint propagation races still retry on the existing budget.\n- The chosen design (context axis) is recorded where the function lives.\n\n## Sources\n- Tools/rbk/rbgo_OAuth.sh — `rbgo_get_token_capture`, the \"Discriminate failure\"\n  block and the `RBGC_SA_KEY_CONSUMER_RETRY_*` constants; the `TEMP-FORENSIC` block\n  marks the related in-flight work.\n- memo-20260527 — Host-B capture gap / ACCOUNT_STATE_INVALID token-endpoint shape.\n- memo-20260608-lode-podvm-cerebro-experiment.md §6 — the empirical 104 s-wait\n  observation (stale Director key + deleted Governor SA, this session).",
+              "jjgtn_silks": "token-mint-failfast-terminal-iam",
+              "jjgtn_basis": "8ae3f26"
+            }
+          ]
+        },
+        "₢BiAAC": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260618-1358",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "Drafted from ₢BBABY in ₣BB.\n\n## Character\nSingle-chokepoint bash change in the shared build wait loop;\nmechanical once the loop is read.\nSonnet-delegable body with driver verification.\n\n## Goal\nSplit the build-completion poll budget in the shared wait loop\n(`Tools/rbk/rbfcb_BuildHost.sh`, `zrbfc_wait_build_completion`) into two bounded clocks:\na shared, generous queue ceiling counting PENDING/QUEUED polls before the first WORKING,\nand the existing per-kind execution ceilings counting only from the QUEUED→WORKING transition.\nEvery op still terminates itself with success or failure:\nworst-case wall clock = queue ceiling + execution ceiling.\n\n## Cinched\n- Queue ceiling is one shared constant across kinds, sized ~15 minutes\n  (exact value and constant name are mount-time);\n  queue exhaustion dies loud as its own message — pool never took the build —\n  and keeps the quota-review tabtarget hint.\n- Per-kind execution ceilings (`ZRBFC_BUILD_POLL_CEILING_*`) keep current values;\n  their meaning narrows to execution-only.\n- The existing poll-20 queue-weather `buc_warn` survives\n  and repeats every ~20 queued polls instead of firing once.\n- One info line at the QUEUED→WORKING transition records the queued poll count,\n  so future log mining gets the queue/execution split for free.\n\n## Evidence\n`Memos/memo-20260611-heat-BH-vouch-poll-ceiling-queued-burst.md` —\ntrace plus the 2026-06-12 incidence addendum\n(2 timeouts + 1 near-miss in 531 builds over 8 weeks, all pure queue weather,\nconfined to the small-budget kinds).\nShape-sibling: the RBSHR progress-aware-convergence-deadline entry.\n\n## Done when\nTwo clocks live in the shared loop;\nqueue death and execution death are distinct loud messages;\nthe transition info line and repeating weather warning are observable in a log;\n`fast` is green and a service-tier run exercises at least one real build wait.",
+              "jjgtn_silks": "build-poll-two-clock-split",
+              "jjgtn_basis": "f5f6b2b"
+            },
+            {
+              "jjgtn_ts": "260612-0915",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nSingle-chokepoint bash change in the shared build wait loop;\nmechanical once the loop is read.\nSonnet-delegable body with driver verification.\n\n## Goal\nSplit the build-completion poll budget in the shared wait loop\n(`Tools/rbk/rbfcb_BuildHost.sh`, `zrbfc_wait_build_completion`) into two bounded clocks:\na shared, generous queue ceiling counting PENDING/QUEUED polls before the first WORKING,\nand the existing per-kind execution ceilings counting only from the QUEUED→WORKING transition.\nEvery op still terminates itself with success or failure:\nworst-case wall clock = queue ceiling + execution ceiling.\n\n## Cinched\n- Queue ceiling is one shared constant across kinds, sized ~15 minutes\n  (exact value and constant name are mount-time);\n  queue exhaustion dies loud as its own message — pool never took the build —\n  and keeps the quota-review tabtarget hint.\n- Per-kind execution ceilings (`ZRBFC_BUILD_POLL_CEILING_*`) keep current values;\n  their meaning narrows to execution-only.\n- The existing poll-20 queue-weather `buc_warn` survives\n  and repeats every ~20 queued polls instead of firing once.\n- One info line at the QUEUED→WORKING transition records the queued poll count,\n  so future log mining gets the queue/execution split for free.\n\n## Evidence\n`Memos/memo-20260611-heat-BH-vouch-poll-ceiling-queued-burst.md` —\ntrace plus the 2026-06-12 incidence addendum\n(2 timeouts + 1 near-miss in 531 builds over 8 weeks, all pure queue weather,\nconfined to the small-budget kinds).\nShape-sibling: the RBSHR progress-aware-convergence-deadline entry.\n\n## Done when\nTwo clocks live in the shared loop;\nqueue death and execution death are distinct loud messages;\nthe transition info line and repeating weather warning are observable in a log;\n`fast` is green and a service-tier run exercises at least one real build wait.",
+              "jjgtn_silks": "build-poll-two-clock-split",
+              "jjgtn_basis": "b977385"
+            }
+          ]
+        },
+        "₢BiAAD": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260618-1358",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "Drafted from ₢BBABU in ₣BB.\n\n## Character\n\nMechanical lint cleanup with a security-boundary caveat. Most fixes are\nbehavior-neutral; the risk is concentrated in the jailer, where a quoting or\nword-splitting \"fix\" can change runtime behavior. Each jailer touch must be\ngated by appropriate crucible re-testing — not forbidden, but verified.\n\n## Goal\n\nBring the bash that lives outside `Tools/` — and is therefore un-gated today,\nsince the shellcheck root scans `Tools/` only — to shellcheck-clean, then widen\nthe release-tier shellcheck (`rbq_qualify_shellcheck`) to cover it so it stays\nclean by construction.\n\n## Scope\n\nDiscovery recipe (these are the currently-uncovered `.sh` files):\n\n  find . -name '*.sh' -type f -not -path './Tools/*' -not -path './tt/*' \\\n    -not -path './.git/*' -not -path '*/target/*'\n\nInclude the load-bearing ones: the moorings vessel jailer scripts under\n`rbmm_moorings/rbmv_vessels/common-sentry-context/` (sentry + pentacle),\n`MBS.STATION-reference.sh`, and the `rbnnh_post_charge.sh` charge hooks.\nExclude the same classes the release-tier gate already excludes: `Study/`\nscratch scripts and `rbmm_moorings/rbml_launchers/launcher.*.sh` trivial shims.\n\n## Jailer risk assessment — required, gating\n\nThe sentry and pentacle scripts run inside the crucible and define the security\nboundary (iptables, dnsmasq, enclave network). Before landing edits to them,\nclassify each finding as behavior-neutral vs behavior-affecting. For anything\nnot provably neutral, re-run the crucible security testing appropriately — at\nminimum the tadmor security fixture (`tt/rbw-ts.TestSuite.crucible.sh`, or the\ntadmor fixture directly), charging and quenching a crucible as the change\ndemands. RBSIP / the tadmor suite is the relevant containment contract.\n\n## Done looks like\n\n- The included outside-`Tools/` scripts are clean under `busc_shellcheckrc`.\n- `rbq_qualify_shellcheck` covers them (root widened beyond `Tools/` — multi-root\n  parameter vs explicit extra-file list is a mount-time call).\n- Jailer behavior verified intact by appropriate tadmor-tier testing after any\n  sentry/pentacle edit; the risk assessment is recorded in the commit trail.\n- The marshal-zero lint gate consequently refuses a dirty tree across the\n  widened set too.\n\n## Out of scope\n\n- `Study/` scratch and launcher shims.\n- Parallelizing shellcheck — settled out: serial is fine at release-prep cadence,\n  and `xargs -P` is non-POSIX / outside the allowed-command set.",
+              "jjgtn_silks": "shellcheck-cover-moorings-and-jailer",
+              "jjgtn_basis": "f5f6b2b"
+            },
+            {
+              "jjgtn_ts": "260601-0820",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\n\nMechanical lint cleanup with a security-boundary caveat. Most fixes are\nbehavior-neutral; the risk is concentrated in the jailer, where a quoting or\nword-splitting \"fix\" can change runtime behavior. Each jailer touch must be\ngated by appropriate crucible re-testing — not forbidden, but verified.\n\n## Goal\n\nBring the bash that lives outside `Tools/` — and is therefore un-gated today,\nsince the shellcheck root scans `Tools/` only — to shellcheck-clean, then widen\nthe release-tier shellcheck (`rbq_qualify_shellcheck`) to cover it so it stays\nclean by construction.\n\n## Scope\n\nDiscovery recipe (these are the currently-uncovered `.sh` files):\n\n  find . -name '*.sh' -type f -not -path './Tools/*' -not -path './tt/*' \\\n    -not -path './.git/*' -not -path '*/target/*'\n\nInclude the load-bearing ones: the moorings vessel jailer scripts under\n`rbmm_moorings/rbmv_vessels/common-sentry-context/` (sentry + pentacle),\n`MBS.STATION-reference.sh`, and the `rbnnh_post_charge.sh` charge hooks.\nExclude the same classes the release-tier gate already excludes: `Study/`\nscratch scripts and `rbmm_moorings/rbml_launchers/launcher.*.sh` trivial shims.\n\n## Jailer risk assessment — required, gating\n\nThe sentry and pentacle scripts run inside the crucible and define the security\nboundary (iptables, dnsmasq, enclave network). Before landing edits to them,\nclassify each finding as behavior-neutral vs behavior-affecting. For anything\nnot provably neutral, re-run the crucible security testing appropriately — at\nminimum the tadmor security fixture (`tt/rbw-ts.TestSuite.crucible.sh`, or the\ntadmor fixture directly), charging and quenching a crucible as the change\ndemands. RBSIP / the tadmor suite is the relevant containment contract.\n\n## Done looks like\n\n- The included outside-`Tools/` scripts are clean under `busc_shellcheckrc`.\n- `rbq_qualify_shellcheck` covers them (root widened beyond `Tools/` — multi-root\n  parameter vs explicit extra-file list is a mount-time call).\n- Jailer behavior verified intact by appropriate tadmor-tier testing after any\n  sentry/pentacle edit; the risk assessment is recorded in the commit trail.\n- The marshal-zero lint gate consequently refuses a dirty tree across the\n  widened set too.\n\n## Out of scope\n\n- `Study/` scratch and launcher shims.\n- Parallelizing shellcheck — settled out: serial is fine at release-prep cadence,\n  and `xargs -P` is non-POSIX / outside the allowed-command set.",
+              "jjgtn_silks": "shellcheck-cover-moorings-and-jailer",
+              "jjgtn_basis": "94adb0b"
+            }
+          ]
+        },
+        "₢BiAAE": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260618-1358",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "Drafted from ₢BBABT in ₣BB.\n\n## Character\nIntricate but mechanical.\n\n## Goal\nPull the RBK station regime (RBRS) off the active MVP surface. RBRS is dormant podman/VM\nstation config (RBRS_PODMAN_ROOT_DIR / _VMIMAGE_CACHE_DIR / _VM_PLATFORM) that self-skips in\nthe fast suite under the Docker MVP — noise for first MVP users. Preserve the payload intact\nfor the podman build-out (heat ₣BW).\n\n## Shape\nRelocate intact into Tools/rbk/vov_veiled/FUTURE/ (beside rbv_PodmanVM.sh): rbrs_regime.sh,\nrbrs_cli.sh, RBSRS-RegimeStation.adoc. Delete the active-surface hooks: rbw-rsr / rbw-rsv\ntabtargets, the rbtdrf_rs_rbrs test plus its rbrs-missing-platform negative case, the\nRBTDRM_MODULE_RBRS manifest entry, the RBTDGC_RBRS_* constants, the RBS0 TOC reference.\nDiscovery: grep -rn \"RBRS|RENDER_STATION|VALIDATE_STATION\" Tools/ (exclude burs, buk/).\n\n## Locked\nDo NOT touch the BUK station regime (BURC_STATION_FILE / BURD_STATION_FILE / burs) — it is\nload-bearing for every BUD dispatch and is a distinct regime from RBRS.\n\n## Done\nVerify rbv_cli.sh is not behind a live tabtarget before relocating it. Regenerate the\ngenerated context and rebuild theurge. Fast suite green with 0 skipped; no rbw-rs*\ntabtargets remain; RBRS payload intact under FUTURE/.",
+              "jjgtn_silks": "rbrs-relocate-to-future",
+              "jjgtn_basis": "f5f6b2b"
+            },
+            {
+              "jjgtn_ts": "260601-0750",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nIntricate but mechanical.\n\n## Goal\nPull the RBK station regime (RBRS) off the active MVP surface. RBRS is dormant podman/VM\nstation config (RBRS_PODMAN_ROOT_DIR / _VMIMAGE_CACHE_DIR / _VM_PLATFORM) that self-skips in\nthe fast suite under the Docker MVP — noise for first MVP users. Preserve the payload intact\nfor the podman build-out (heat ₣BW).\n\n## Shape\nRelocate intact into Tools/rbk/vov_veiled/FUTURE/ (beside rbv_PodmanVM.sh): rbrs_regime.sh,\nrbrs_cli.sh, RBSRS-RegimeStation.adoc. Delete the active-surface hooks: rbw-rsr / rbw-rsv\ntabtargets, the rbtdrf_rs_rbrs test plus its rbrs-missing-platform negative case, the\nRBTDRM_MODULE_RBRS manifest entry, the RBTDGC_RBRS_* constants, the RBS0 TOC reference.\nDiscovery: grep -rn \"RBRS|RENDER_STATION|VALIDATE_STATION\" Tools/ (exclude burs, buk/).\n\n## Locked\nDo NOT touch the BUK station regime (BURC_STATION_FILE / BURD_STATION_FILE / burs) — it is\nload-bearing for every BUD dispatch and is a distinct regime from RBRS.\n\n## Done\nVerify rbv_cli.sh is not behind a live tabtarget before relocating it. Regenerate the\ngenerated context and rebuild theurge. Fast suite green with 0 skipped; no rbw-rs*\ntabtargets remain; RBRS payload intact under FUTURE/.",
+              "jjgtn_silks": "rbrs-relocate-to-future",
+              "jjgtn_basis": "0bb54c1"
+            }
+          ]
+        },
+        "₢BiAAF": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260618-1358",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "Drafted from ₢BBABV in ₣BB.\n\n## Character\nMechanical — two stale-reference corrections in the Cloud Build specs; verify-then-edit, low risk.\n\n## Goal\nTwo dangling references in the Cloud Build specs name symbols that no longer exist. Correct each to a live referent so the specs cite only real files/functions. (Surfaced during a Cloud Build spec audit; left out-of-scope there.)\n\n## Items\n- **RBSCB broken acronym.** The authoritative-specs list (`RBSAC, RBSAV, RBSDC, RBSDN`) names `RBSDC`, which has no file — confirm via `ls Tools/rbk/vov_veiled/RBSD*-*.adoc`. Determine the intended spec from what that sentence asserts and correct it (likely `RBSDI` depot_inscribe, but confirm — don't guess-substitute).\n- **RBSCJ dead function name.** The trigger-era Decision section names `zrbf_stitch_build_json` (`grep -rn zrbf_stitch_build_json Tools/rbk/vov_veiled/RBSCJ-CloudBuildJson.adoc`); the live function is `zrbfd_stitch_build_json` (renamed in the foundry decomposition; RBSCB already cites it correctly). Repoint to the live name. Scope is the name only — a broader refresh of the trigger-era Decision section is a separate question, not this pace.\n\n## Done\nNeither `RBSDC` nor `zrbf_stitch_build_json` appears in the Cloud Build specs (RBSCB-CloudBuildPosture.adoc, RBSCJ-CloudBuildJson.adoc); each former reference now names a live spec/function.",
+              "jjgtn_silks": "cloudbuild-spec-stale-refs",
+              "jjgtn_basis": "f5f6b2b"
+            },
+            {
+              "jjgtn_ts": "260604-2306",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nMechanical — two stale-reference corrections in the Cloud Build specs; verify-then-edit, low risk.\n\n## Goal\nTwo dangling references in the Cloud Build specs name symbols that no longer exist. Correct each to a live referent so the specs cite only real files/functions. (Surfaced during a Cloud Build spec audit; left out-of-scope there.)\n\n## Items\n- **RBSCB broken acronym.** The authoritative-specs list (`RBSAC, RBSAV, RBSDC, RBSDN`) names `RBSDC`, which has no file — confirm via `ls Tools/rbk/vov_veiled/RBSD*-*.adoc`. Determine the intended spec from what that sentence asserts and correct it (likely `RBSDI` depot_inscribe, but confirm — don't guess-substitute).\n- **RBSCJ dead function name.** The trigger-era Decision section names `zrbf_stitch_build_json` (`grep -rn zrbf_stitch_build_json Tools/rbk/vov_veiled/RBSCJ-CloudBuildJson.adoc`); the live function is `zrbfd_stitch_build_json` (renamed in the foundry decomposition; RBSCB already cites it correctly). Repoint to the live name. Scope is the name only — a broader refresh of the trigger-era Decision section is a separate question, not this pace.\n\n## Done\nNeither `RBSDC` nor `zrbf_stitch_build_json` appears in the Cloud Build specs (RBSCB-CloudBuildPosture.adoc, RBSCJ-CloudBuildJson.adoc); each former reference now names a live spec/function.",
+              "jjgtn_silks": "cloudbuild-spec-stale-refs",
+              "jjgtn_basis": "98d64da"
+            }
+          ]
+        },
+        "₢BiAAG": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260618-1358",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "Drafted from ₢BBABW in ₣BB.\n\n## Character\nStandalone tooling fix + one design addition; no dependency on this heat's release-qual gestalt. Goal: make scry a trustworthy, scriptable network-diagnostic primitive.\n\nscry (`rboo_observe.sh`, colophon `rbw-cs`) proved wanting during the ₣BV Docker-Desktop containment investigation (see `Memos/memo-20260604-conntrack-spoofed-ack-adjudication.md`). Four changes:\n\n- **Latent correctness bug — interface roles are hardcoded.** scry assumes sentry eth0=uplink / eth1=enclave. Docker's interface ordering is not guaranteed; on the WSL native-docker host the two are reversed, so scry captures the wrong sentry interface and mislabels its output. Discover interfaces by IP/role the way `rbjs_sentry.sh` already does (`ip -o addr`), never by hardcoded name.\n- **Add `-e`** to the tcpdump options so L2 source MACs show. Without MACs, off-path delivery (the whole DD finding) can only be inferred from absence, not demonstrated.\n- **Capture both sentry legs on docker** (currently enclave-only; the bridge leg is podman-only), so the full enclave↔uplink path is visible in one run.\n- **Bound-duration / non-interactive mode.** Today scry traps SIGINT and `wait`s forever, so nothing can drive it programmatically. Add an optional duration and optional tcpdump filter expression: when a duration is supplied, run the parallel captures under `timeout <dur>` (already present in the vessels), collect, and exit 0 — a scriptable capture primitive a fixture or operator one-liner can call. When no duration is given, preserve today's run-until-Ctrl+C behavior unchanged. The filter argument scopes the capture (e.g. one host) so output stays legible.\n\n## Done\nscry resolves interfaces by role (correct under either ordering), shows MACs, captures both sentry legs on docker, and supports a bounded non-interactive capture (duration + optional filter) that returns cleanly for scripted use — interactive behavior unchanged when no duration is passed.",
+              "jjgtn_silks": "scry-diagnostic-repairs",
+              "jjgtn_basis": "f5f6b2b"
+            },
+            {
+              "jjgtn_ts": "260604-2349",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nStandalone tooling fix + one design addition; no dependency on this heat's release-qual gestalt. Goal: make scry a trustworthy, scriptable network-diagnostic primitive.\n\nscry (`rboo_observe.sh`, colophon `rbw-cs`) proved wanting during the ₣BV Docker-Desktop containment investigation (see `Memos/memo-20260604-conntrack-spoofed-ack-adjudication.md`). Four changes:\n\n- **Latent correctness bug — interface roles are hardcoded.** scry assumes sentry eth0=uplink / eth1=enclave. Docker's interface ordering is not guaranteed; on the WSL native-docker host the two are reversed, so scry captures the wrong sentry interface and mislabels its output. Discover interfaces by IP/role the way `rbjs_sentry.sh` already does (`ip -o addr`), never by hardcoded name.\n- **Add `-e`** to the tcpdump options so L2 source MACs show. Without MACs, off-path delivery (the whole DD finding) can only be inferred from absence, not demonstrated.\n- **Capture both sentry legs on docker** (currently enclave-only; the bridge leg is podman-only), so the full enclave↔uplink path is visible in one run.\n- **Bound-duration / non-interactive mode.** Today scry traps SIGINT and `wait`s forever, so nothing can drive it programmatically. Add an optional duration and optional tcpdump filter expression: when a duration is supplied, run the parallel captures under `timeout <dur>` (already present in the vessels), collect, and exit 0 — a scriptable capture primitive a fixture or operator one-liner can call. When no duration is given, preserve today's run-until-Ctrl+C behavior unchanged. The filter argument scopes the capture (e.g. one host) so output stays legible.\n\n## Done\nscry resolves interfaces by role (correct under either ordering), shows MACs, captures both sentry legs on docker, and supports a bounded non-interactive capture (duration + optional filter) that returns cleanly for scripted use — interactive behavior unchanged when no duration is passed.",
+              "jjgtn_silks": "scry-diagnostic-repairs",
+              "jjgtn_basis": "49c8d96"
+            }
+          ]
+        }
+      }
     }
   }
 }
