@@ -1640,7 +1640,7 @@ rbgp_depot_levy() {
   buc_log_args "CB service agent: ${z_cb_service_agent}"
 
   buc_step 'Enable Cloud Build service agent to impersonate Mason'
-  rbgi_add_sa_iam_role "${z_token}" "${z_mason_sa_email}" "${z_cb_service_agent}" "roles/iam.serviceAccountTokenCreator"
+  rbgi_add_sa_iam_role "${z_token}" "${z_mason_sa_email}" "${z_cb_service_agent}" "${RBGC_ROLE_IAM_SERVICE_ACCOUNT_TOKEN_CREATOR}"
 
   buc_step 'Establish the mantle service accounts'
   # The three federation mantles (governor/director/retriever) — the impersonatable

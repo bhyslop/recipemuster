@@ -85,6 +85,16 @@ zrbgi_kindle() {
   readonly ZRBGI_INFIX_REPO_REVOKE="repo_revoke"
   readonly ZRBGI_INFIX_REPO_REVOKE_SET="repo_revoke_set"
 
+  # Principal-member SA-binding infixes — the federated workforce principal
+  # (principal://) variants the polity admission verbs use. Distinct from the
+  # serviceAccount-member SA infixes so a brevet (add) and an unseat (revoke)
+  # response capture never collide in one process.
+  readonly ZRBGI_INFIX_SA_PRIN_VERIFY="sa_prin_iamverify"
+  readonly ZRBGI_INFIX_SA_PRIN_ROLE="sa_prin_role"
+  readonly ZRBGI_INFIX_SA_PRIN_ROLE_SET="sa_prin_role_set"
+  readonly ZRBGI_INFIX_SA_PRIN_REVOKE="sa_prin_revoke"
+  readonly ZRBGI_INFIX_SA_PRIN_REVOKE_SET="sa_prin_revoke_set"
+
   readonly ZRBGI_POSTFIX_JSON="_i_resp.json"
 
   readonly ZRBGI_KINDLED=1
@@ -549,6 +559,146 @@ rbgi_add_sa_iam_role() {
   test "${z_prop_succeeded}" = "1" || buc_die "SA IAM: propagation retry loop exited without success"
 
   buc_log_args 'Successfully granted SA role' "${z_role}"
+}
+
+# Add an SA-scoped IAM role binding whose MEMBER is a federated workforce
+# principal (principal://…), not a service account. Distinct canonical path from
+# rbgi_add_sa_iam_role (BCG Interface Contamination: one canonical member form
+# per entry point — no serviceAccount: prefix is applied here, the member is
+# passed verbatim). The polity admission verb brevet uses this to grant a
+# compeared citizen tokenCreator on a mantle SA. The propagation/etag machinery
+# mirrors the serviceAccount-member sibling; only the member-string formation and
+# the capture infixes differ.
+rbgi_add_sa_principal_iam_role() {
+  zrbgi_sentinel
+
+  local -r z_token="${1:-}"
+  local -r z_target_sa_email="${2:-}"
+  local -r z_member_principal="${3:-}"  # full principal://… member, passed verbatim
+  local -r z_role="${4:-}"
+
+  test -n "${z_token}"            || buc_die "Token required"
+  test -n "${z_target_sa_email}"  || buc_die "Target SA email required"
+  test -n "${z_member_principal}" || buc_die "Member principal required"
+  test -n "${z_role}"             || buc_die "Role required"
+
+  buc_log_args "Using admin token (value not logged)"
+  buc_log_args "Granting ${z_role} on SA ${z_target_sa_email} to ${z_member_principal}"
+
+  buc_log_args 'Verify target SA exists'
+  local z_target_encoded
+  z_target_encoded=$(rbuh_urlencode_capture "${z_target_sa_email}") \
+    || buc_die "Failed to encode SA email"
+
+  local z_verify_code
+  rbuh_json "GET" \
+    "${RBGC_API_ROOT_IAM}${RBGC_IAM_V1}/projects/-/serviceAccounts/${z_target_encoded}" \
+                            "${z_token}" "${ZRBGI_INFIX_SA_PRIN_VERIFY}"
+  z_verify_code=$(rbuh_code_capture "${ZRBGI_INFIX_SA_PRIN_VERIFY}") || buc_die "No HTTP code from SA verify"
+  test "${z_verify_code}" = "200" || \
+    buc_die "Target service account not accessible: ${z_target_sa_email} (HTTP ${z_verify_code})"
+
+  local -r z_sa_resource="${RBGC_API_ROOT_IAM}${RBGC_IAM_V1}/projects/-/serviceAccounts/${z_target_encoded}"
+
+  # Propagation retry — SA is resource-scope: member-visibility 400s plus
+  # caller-recently-empowered 403 from the resource-scope IAM cache.
+  local -ra z_tolerance=(
+    "400" "*does not exist*"
+    "400" "*is not deleted*"
+    "403" ""
+  )
+  local z_prop_delay=${RBGC_PROPAGATION_INITIAL_DELAY_SEC}
+  local z_prop_elapsed=0
+  local -r z_prop_deadline=${RBGC_PROPAGATION_DEADLINE_SEC}
+  local z_prop_attempt=0
+
+  local z_prop_succeeded=0
+
+  while :; do
+    z_prop_attempt=$((z_prop_attempt + 1))
+    local z_get_infix="${ZRBGI_INFIX_SA_PRIN_ROLE}-${z_prop_elapsed}s"
+
+    buc_log_args "1) GET SA IAM policy (v3) [attempt ${z_prop_attempt}]"
+    rbuh_json "POST" "${z_sa_resource}:getIamPolicy" "${z_token}" \
+      "${z_get_infix}" "${ZRBGI_VERSION3_BODY}"
+
+    local z_code
+    z_code=$(rbuh_code_capture "${z_get_infix}") || buc_die "No HTTP code from SA getIamPolicy"
+
+    if zrbgi_propagation_error_predicate "${z_get_infix}" "${z_code}" "${z_tolerance[@]}"; then
+      buc_log_args "SA getIamPolicy returned ${z_code} (propagation delay)"
+      test "${z_prop_elapsed}" -lt "${z_prop_deadline}" \
+        || buc_die "SA IAM: propagation timeout after ${z_prop_elapsed}s"
+      buc_log_args "Retry ${z_prop_attempt} at ${z_prop_elapsed}s (next delay ${z_prop_delay}s)"
+      sleep "${z_prop_delay}"
+      z_prop_elapsed=$((z_prop_elapsed + z_prop_delay))
+      z_prop_delay=$((z_prop_delay * 2))
+      test "${z_prop_delay}" -le "${RBGC_PROPAGATION_MAX_DELAY_SEC}" || z_prop_delay=${RBGC_PROPAGATION_MAX_DELAY_SEC}
+      continue
+    fi
+
+    rbuh_require_ok "Get SA IAM policy" "${z_get_infix}"
+
+    buc_log_args 'Extract etag; require non-empty'
+    local z_etag=""
+    z_etag=$(rbuh_json_field_capture "${z_get_infix}" ".etag") || buc_die "Missing SA etag"
+    test -n "${z_etag}" || buc_die "Empty SA etag"
+
+    buc_log_args "Using etag ${z_etag}"
+
+    buc_log_args '2) Build new policy JSON (bindings unique; version=3; keep etag)'
+    local z_updated_policy_json=""
+    z_updated_policy_json=$(rbgi_jq_add_member_to_role_capture "${z_get_infix}" \
+      "${z_role}" "${z_member_principal}" "${z_etag}") \
+      || buc_die "Failed to update SA IAM policy"
+
+    buc_log_args '3) setIamPolicy (fatal on 409 — etag mismatch)'
+    local z_set_body="${BURD_TEMP_DIR}/rbgi_sa_prin_set_policy_body.json"
+    printf '{"policy":%s}\n' "${z_updated_policy_json}" > "${z_set_body}" \
+      || buc_die "Failed to build SA setIamPolicy body"
+
+    local z_set_elapsed=0
+    local z_set_infix=""
+    local z_set_succeeded=0
+    while :; do
+      z_set_infix="${ZRBGI_INFIX_SA_PRIN_ROLE_SET}-${z_prop_elapsed}s-${z_set_elapsed}s"
+      rbuh_json "POST" "${z_sa_resource}:setIamPolicy" "${z_token}" \
+        "${z_set_infix}" "${z_set_body}"
+
+      local z_set_code=""
+      z_set_code=$(rbuh_code_capture "${z_set_infix}") || buc_die "No HTTP code from setIamPolicy"
+
+      if zrbgi_propagation_error_predicate "${z_set_infix}" "${z_set_code}" "${z_tolerance[@]}"; then
+        buc_log_args "SA setIamPolicy returned ${z_set_code} (propagation delay)"
+        break
+      fi
+
+      case "${z_set_code}" in
+        200)                 z_set_succeeded=1; break ;;
+        409)                 buc_die "SA IAM: HTTP 409 ABORTED (etag mismatch — concurrent policy change)" ;;
+        429|500|502|503|504) buc_log_args "Transient ${z_set_code} at ${z_set_elapsed}s; retry" ;;
+        *)                   rbuh_require_ok "Set SA IAM policy" "${z_set_infix}" "" ;;
+      esac
+
+      test "${z_set_elapsed}" -lt "${RBGC_MAX_CONSISTENCY_SEC}" || buc_die "SA IAM: timeout setting policy"
+      sleep "${RBGC_EVENTUAL_CONSISTENCY_SEC}"
+      z_set_elapsed=$((z_set_elapsed + RBGC_EVENTUAL_CONSISTENCY_SEC))
+    done
+
+    test "${z_set_succeeded}" != "1" || { z_prop_succeeded=1; break; }
+
+    test "${z_prop_elapsed}" -lt "${z_prop_deadline}" \
+      || buc_die "SA IAM: propagation timeout after ${z_prop_elapsed}s"
+    buc_log_args "Retry ${z_prop_attempt} at ${z_prop_elapsed}s (next delay ${z_prop_delay}s)"
+    sleep "${z_prop_delay}"
+    z_prop_elapsed=$((z_prop_elapsed + z_prop_delay))
+    z_prop_delay=$((z_prop_delay * 2))
+    test "${z_prop_delay}" -le "${RBGC_PROPAGATION_MAX_DELAY_SEC}" || z_prop_delay=${RBGC_PROPAGATION_MAX_DELAY_SEC}
+  done
+
+  test "${z_prop_succeeded}" = "1" || buc_die "SA IAM: propagation retry loop exited without success"
+
+  buc_log_args 'Successfully granted SA role to principal' "${z_role}"
 }
 
 # Read-back gate: poll a SA's IAM policy until a (role, member) binding is
@@ -1269,6 +1419,100 @@ rbgi_revoke_sa_member() {
   done
 
   buc_log_args 'Successfully revoked SA role' "${z_role}"
+}
+
+# Revoke an SA-scoped IAM binding whose MEMBER is a federated workforce principal
+# (principal://…) — inverse of rbgi_add_sa_principal_iam_role, federated-member
+# sibling of rbgi_revoke_sa_member. The member is passed verbatim (no
+# serviceAccount: prefix). unseat uses this to remove a citizen's tokenCreator on
+# a mantle SA; the depot-scoped serviceUsageConsumer binding is deliberately NOT
+# touched here — that survives as suspension and is swept only by attaint.
+rbgi_revoke_sa_principal_member() {
+  zrbgi_sentinel
+
+  local -r z_token="${1:-}"
+  local -r z_target_sa_email="${2:-}"
+  local -r z_member_principal="${3:-}"
+  local -r z_role="${4:-}"
+
+  test -n "${z_token}"            || buc_die "Token required"
+  test -n "${z_target_sa_email}"  || buc_die "Target SA email required"
+  test -n "${z_member_principal}" || buc_die "Member principal required"
+  test -n "${z_role}"             || buc_die "Role required"
+
+  buc_log_args "Using admin token (value not logged)"
+  buc_log_args "Revoking ${z_role} on SA ${z_target_sa_email} from ${z_member_principal}"
+
+  local z_target_encoded=""
+  z_target_encoded=$(rbuh_urlencode_capture "${z_target_sa_email}") || buc_die "Failed to encode SA email"
+  local -r z_sa_resource="${RBGC_API_ROOT_IAM}${RBGC_IAM_V1}/projects/-/serviceAccounts/${z_target_encoded}"
+
+  # GET with Class C (403) propagation retry only — a freshly-enrobed governor's
+  # read permission on this resource-scope target can lag the resource IAM cache.
+  # The member-visibility classes (400) cannot fire on a revoke.
+  local -ra z_tolerance=(
+    "403" ""
+  )
+  local z_prop_delay=${RBGC_PROPAGATION_INITIAL_DELAY_SEC}
+  local z_prop_elapsed=0
+  local z_get_infix=""
+  local z_get_code=""
+  while :; do
+    z_get_infix="${ZRBGI_INFIX_SA_PRIN_REVOKE}-${z_prop_elapsed}s"
+    buc_log_args "1) GET SA IAM policy (v3) [${z_prop_elapsed}s]"
+    rbuh_json "POST" "${z_sa_resource}:getIamPolicy" "${z_token}" "${z_get_infix}" "${ZRBGI_VERSION3_BODY}"
+    z_get_code=$(rbuh_code_capture "${z_get_infix}") || buc_die "No HTTP code from SA getIamPolicy"
+
+    if zrbgi_propagation_error_predicate "${z_get_infix}" "${z_get_code}" "${z_tolerance[@]}"; then
+      test "${z_prop_elapsed}" -lt "${RBGC_PROPAGATION_DEADLINE_SEC}" \
+        || buc_die "SA IAM: governor empowerment propagation timeout after ${z_prop_elapsed}s (last HTTP ${z_get_code})"
+      buc_log_args "SA getIamPolicy ${z_get_code} (caller-empowerment propagating); retry at ${z_prop_elapsed}s"
+      sleep "${z_prop_delay}"
+      z_prop_elapsed=$((z_prop_elapsed + z_prop_delay))
+      z_prop_delay=$((z_prop_delay * 2))
+      test "${z_prop_delay}" -le "${RBGC_PROPAGATION_MAX_DELAY_SEC}" || z_prop_delay=${RBGC_PROPAGATION_MAX_DELAY_SEC}
+      continue
+    fi
+
+    rbuh_require_ok "Get SA IAM policy" "${z_get_infix}"
+    break
+  done
+
+  local z_etag=""
+  z_etag=$(rbuh_json_field_capture "${z_get_infix}" ".etag") || buc_die "Missing SA etag"
+  test -n "${z_etag}" || buc_die "Empty SA etag"
+
+  local z_updated_policy_json=""
+  z_updated_policy_json=$(rbgi_jq_remove_member_from_role_capture "${z_get_infix}" \
+    "${z_role}" "${z_member_principal}" "${z_etag}") \
+    || buc_die "Failed to update SA IAM policy"
+
+  local -r z_set_body="${BURD_TEMP_DIR}/rbgi_sa_prin_revoke_set_policy_body.json"
+  printf '{"policy":%s}\n' "${z_updated_policy_json}" > "${z_set_body}" || buc_die "Failed to write SA setIamPolicy body"
+
+  buc_log_args '2) setIamPolicy (409 fatal — single-writer invariant; transient retried)'
+  local z_set_elapsed=0
+  local z_set_infix=""
+  local z_set_code=""
+  while :; do
+    z_set_infix="${ZRBGI_INFIX_SA_PRIN_REVOKE_SET}-${z_set_elapsed}s"
+    rbuh_json "POST" "${z_sa_resource}:setIamPolicy" "${z_token}" "${z_set_infix}" "${z_set_body}"
+
+    z_set_code=$(rbuh_code_capture "${z_set_infix}") || buc_die "No HTTP code from setIamPolicy"
+
+    case "${z_set_code}" in
+      200)                 break ;;
+      409)                 buc_die "SA IAM: HTTP 409 ABORTED (etag mismatch — concurrent policy change)" ;;
+      429|500|502|503|504) buc_log_args "SA IAM: transient ${z_set_code} at ${z_set_elapsed}s; retry" ;;
+      *)                   rbuh_require_ok "Set SA IAM policy" "${z_set_infix}" ;;
+    esac
+
+    test "${z_set_elapsed}" -lt "${RBGC_MAX_CONSISTENCY_SEC}" || buc_die "SA IAM: timeout setting policy"
+    sleep "${RBGC_EVENTUAL_CONSISTENCY_SEC}"
+    z_set_elapsed=$((z_set_elapsed + RBGC_EVENTUAL_CONSISTENCY_SEC))
+  done
+
+  buc_log_args 'Successfully revoked SA role from principal' "${z_role}"
 }
 
 # Compose service account email from name and project ID.

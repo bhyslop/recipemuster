@@ -416,6 +416,8 @@ zrbgc_kindle() {
   readonly RBGC_ROLE_CLOUDBUILD_BUILDS_EDITOR="roles/cloudbuild.builds.editor"
   readonly RBGC_ROLE_STORAGE_OBJECT_ADMIN="roles/storage.objectAdmin"
   readonly RBGC_ROLE_STORAGE_OBJECT_VIEWER="roles/storage.objectViewer"
+  readonly RBGC_ROLE_IAM_SERVICE_ACCOUNT_TOKEN_CREATOR="roles/iam.serviceAccountTokenCreator"
+  readonly RBGC_ROLE_SERVICEUSAGE_SERVICE_USAGE_CONSUMER="roles/serviceusage.serviceUsageConsumer"
 
   # Common API Base Paths (project-independent)
   readonly RBGC_API_BASE_GCS="${RBGC_API_ROOT_STORAGE}${RBGC_STORAGE_JSON_V1}"
