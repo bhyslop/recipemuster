@@ -184,7 +184,7 @@ exist, conflicting labels for one level, and drifted umbrellas.
 Two boundaries: declared collisions are assertable, semantic fit is advisory (the linguistic
 line); and labels must expose over-deep chains as a smell, not legitimize depth the minting
 discipline would flatten.
-The label is user-visible (ashlar) and needs its own MCM Word Selection mint, as Matricula
+The label is user-visible (ashlar) and needs its own MCM Lapidary mint, as Matricula
 got — "gestalt label" is the working descriptor only.
 
 ## Open questions
