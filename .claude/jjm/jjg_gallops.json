@@ -3,7 +3,6 @@
   "jjgrn_next_heat_seed": "Bj",
   "jjgrn_heat_order": [
     "₣Bc",
-    "₣BU",
     "₣Be",
     "₣Bd",
     "₣Bb",
@@ -11,6 +10,7 @@
     "₣BF",
     "₣BD",
     "₣BB",
+    "₣BU",
     "₣Bf",
     "₣BW",
     "₣BN",
@@ -9070,7 +9070,7 @@
     "₣BU": {
       "jjghn_silks": "rbk-15-mvp-final-release-prep",
       "jjghn_creation_time": "260601",
-      "jjghn_status": "jjghe_racing",
+      "jjghn_status": "jjghe_stabled",
       "jjghn_order": [
         "₢BUAAA",
         "₢BUAAB"
