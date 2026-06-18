@@ -256,7 +256,7 @@ No unit is slated: each waits until the conviction graduates from discuss to do,
 
 The spine, in dependency order:
 Spec-first, before any code — evolve the federation-regime and affiance specs to the core-plus-mechanism-gate shape and stand up the two new subdocs as contracts; contract before code is project doctrine, so this is a hard predecessor of every code unit below.
-Regime mechanism discriminator and mechanism-conditional affiance — depends on the spec unit, and is also the home for the affiance undelete-on-DELETED correction the durable caged fixture needs.
+Regime mechanism discriminator and mechanism-conditional affiance — depends on the spec unit. (The affiance undelete-on-DELETED fix the durable caged fixture relies on is not this heat's to home: ₣BZ's foedus-freehold work owns it as an in-pace prerequisite, so ₣Bf consumes it rather than re-homing it.)
 Marshal caged-establishment bash — depends on the spec unit and the discriminator; the durable replacement for the throwaway manual spike.
 Programmatic accessor (self-mint to STS) — depends on the discriminator and on a caged trust existing to acquire against.
 Per-vendor setup guide (Entra first) — depends only on the core-facts contract line, so it runs parallel to the three code units.
