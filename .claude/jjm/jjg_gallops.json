@@ -2,6 +2,7 @@
   "jjgrn_schema_version": 4,
   "jjgrn_next_heat_seed": "Bi",
   "jjgrn_heat_order": [
+    "₣Bc",
     "₣BU",
     "₣Be",
     "₣Bd",
@@ -32,7 +33,6 @@
     "₣BI",
     "₣BL",
     "₣Ba",
-    "₣Bc",
     "₣Bg",
     "₣Bh"
   ],
@@ -10121,9 +10121,9 @@
       }
     },
     "₣Bc": {
-      "jjghn_silks": "jjk-v4-1-isolated-schema-changes",
+      "jjghn_silks": "jjk-v4-0-isolated-schema-changes",
       "jjghn_creation_time": "260609",
-      "jjghn_status": "jjghe_stabled",
+      "jjghn_status": "jjghe_racing",
       "jjghn_order": [
         "₢BcAAC",
         "₢BcAAA",
