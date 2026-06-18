@@ -23,7 +23,7 @@ The open-time probe is read-only, best-effort, and never gating; officium open m
 Mechanism and episode are distinct lifetimes: the registry, probe, and nag are permanent because drift is the steady state; the per-version tolerances and frozen legacy types are transient and retire on convergence.
 The coda retires the spent episodes — this heat's tack-rework tolerance and the original V3-to-V4 tolerance with its frozen reference, consolidated here rather than left in a stale placeholder heat — and leaves the mechanism standing.
 An episode's demolition condition — no pre-its-schema gallops survives in any operated clone — is checkable rather than an act of faith because the operator is sole, so the operated clones are a finite, enumerable set.
-The durable "deep pattern" is not a torn-down cleverness but the standing mechanism plus its governing why — that we minimize the schemas we keep mutually readable (Zeroes Theory's version axis) — formalized cross-language in ₣Bb and consumed here.
+The durable "deep pattern" is not a torn-down cleverness but the standing mechanism plus its governing why, stated inline here: we minimize the schemas we keep mutually readable so the migration mechanism converges rather than accumulating (Zeroes Theory's version axis). The general cross-language statement of that why is a separate, independent formalization; this heat does not depend on it.
 
 ## Done when
 Every install runs a binary whose on-disk gallops is canonical at this heat's final schema and whose open-time nag reports every episode dormant;
