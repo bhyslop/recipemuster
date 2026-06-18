@@ -68,6 +68,15 @@ The Folio column shows how each tabtarget receives it:
 | `rbw-mA` | PayorAffiancesManor | — | Affiance the manor to its IdP — seat the org-level workforce pool, provider, and attribute mapping |
 | `rbw-mJ` | PayorJiltsManor | — | Jilt the manor from its IdP — dissolve the org-level workforce pool (provider cascades) |
 
+### Polity — federation admission (`rbw-p`)
+
+| Colophon | Frontispiece | Folio | Purpose |
+|----------|-------------|-------|---------|
+| `rbw-pB` | GovernorBrevetsCitizen | param1 | Brevet a citizen onto a mantle in this depot (governor-wielded admission; args: subject mantle) |
+| `rbw-pU` | GovernorUnseatsCitizen | param1 | Unseat a citizen from one mantle (suspension, not erasure; args: subject mantle) |
+| `rbw-pA` | GovernorAttaintsCitizen | param1 | Attaint a citizen — whole-person expulsion from this depot (args: subject) |
+| `rbw-pr` | GovernorRehearsesTerrier | — | Rehearse the manor terrier — recount every muniment, manor-wide (read-only) |
+
 ### Lode — Fetched-side universal capture (`rbw-l`)
 
 | Colophon | Frontispiece | Folio | Purpose |

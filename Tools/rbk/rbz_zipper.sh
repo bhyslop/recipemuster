@@ -90,6 +90,16 @@ zrbz_kindle() {
   buz_enroll RBZ_AFFIANCE_MANOR         "rbw-mA"  "${z_mod}" "rbgp_manor_affiance" ""  "Affiance the manor to its IdP — seat the org-level workforce pool, provider, and attribute mapping"
   buz_enroll RBZ_JILT_MANOR             "rbw-mJ"  "${z_mod}" "rbgp_manor_jilt"     ""  "Jilt the manor from its IdP — dissolve the org-level workforce pool (provider cascades)"
 
+  # Polity — federation admission (rbw-p, UPPER=mutates, lower=read). The
+  # operator-facing admission verbs over the manor terrier + mantle IAM; the
+  # mutating three are governor-wielded, rehearse is a manor-wide read.
+  buz_group RBZ__GROUP_POLITY     "rbw-p"   "Polity — federation admission"
+  z_mod="rbgp_cli.sh"
+  buz_enroll RBZ_BREVET_POLITY          "rbw-pB"  "${z_mod}" "rbgp_brevet"   "param1"  "Brevet a citizen onto a mantle in this depot (governor-wielded admission; args: subject mantle)"
+  buz_enroll RBZ_UNSEAT_POLITY          "rbw-pU"  "${z_mod}" "rbgp_unseat"   "param1"  "Unseat a citizen from one mantle (suspension, not erasure; args: subject mantle)"
+  buz_enroll RBZ_ATTAINT_POLITY         "rbw-pA"  "${z_mod}" "rbgp_attaint"  "param1"  "Attaint a citizen — whole-person expulsion from this depot (args: subject)"
+  buz_enroll RBZ_REHEARSE_POLITY        "rbw-pr"  "${z_mod}" "rbgp_rehearse" ""        "Rehearse the manor terrier — recount every muniment, manor-wide (read-only)"
+
   # Lode — fetched-side universal capture (rbw-l, UPPER=mutates GAR/cost, lower=read-only)
   buz_group RBZ__GROUP_LODE       "rbw-l"   "Lode — Fetched-side universal capture"
   z_mod="rbld0_cli.sh"
