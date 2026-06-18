@@ -65,6 +65,8 @@ zrbgp_kindle() {
   readonly ZRBGP_INFIX_GOV_DELETE_SA="gov_delete_sa"
   readonly ZRBGP_INFIX_GOV_CREATE_SA="gov_create_sa"
   readonly ZRBGP_INFIX_GOV_KEY="gov_key"
+  readonly ZRBGP_INFIX_TERRIER_BUCKET_IAM="terrier_bucket_iam"
+  readonly ZRBGP_INFIX_TERRIER_FOLDER_IAM="terrier_folder_iam"
 
   # Pool build await budget — applies to any Cloud Build dispatched against
   # one of the depot's worker pools (probe at levy, posture check at info).
@@ -80,6 +82,14 @@ zrbgp_kindle() {
   # public/Google reachability from inside a Cloud Build worker. Value is
   # interpolated host-side into the cloud-destined script.
   readonly ZRBGP_POSTURE_REQUEST_MAX_TIME_SEC=10
+
+  # Terrier bucket — manor-grain (the Manor is the Payor Project, RBS0), so the
+  # name derives from the payor project, not the depot. One terrier bucket per
+  # manor; durable, UBLA-enabled. Constant home is here (rbgp kindle runs after
+  # the RBRP regime is enforced; rbdc_derived runs before it and is depot-facet).
+  test -n "${RBRP_PAYOR_PROJECT_ID:-}" \
+    || buc_die "RBRP_PAYOR_PROJECT_ID not set — terrier bucket name cannot be derived"
+  readonly RBGP_TERRIER_BUCKET="${RBRP_PAYOR_PROJECT_ID}-terrier"
 
   readonly ZRBGP_KINDLED=1
 }
@@ -2125,6 +2135,65 @@ rbgp_depot_recognosce() {
     "serviceAccount:${z_dir_email}" "director SA (self-actAs)"
 
   buc_success "Depot founding recognosced whole: three mantles, capability-sets, and AR Data-Access audit config confirmed against live GCP"
+}
+
+# Interim scaffold (the permanent founding-home is ₣Bf's): stand up and
+# idempotently reset the freehold's terrier. Payor-credentialed — the terrier
+# bucket lives in the payor project (the Manor, RBS0), and the cross-project
+# grants name a depot's governor mantle SA. Reset is at folder grain (recreating
+# the whole bucket risks GCS same-name reuse lag), so the bucket persists and
+# only the polity managed folder is destroyed-then-created. A re-run reaches the
+# same clean state. Not registered on the README broadside; retired when ₣Bf
+# consolidates the founding-home.
+rbgp_terrier_scaffold() {
+  zrbgp_sentinel
+
+  buc_doc_brief "Provision and idempotently reset the freehold's terrier (interim scaffold; payor-credentialed)"
+  buc_doc_shown || return 0
+
+  buc_step 'Authenticate as Payor'
+  local z_token
+  z_token=$(zrbgp_authenticate_capture) || buc_die "Failed to authenticate as Payor via OAuth"
+
+  local -r z_gov_mantle_email="${RBCC_account_mantle_governor}@${RBGD_SA_EMAIL_FULL}"
+  local -r z_folder="${RBDC_DEPOT_PROJECT_ID}/"
+
+  buc_step "Ensure terrier bucket ${RBGP_TERRIER_BUCKET} in payor project ${RBRP_PAYOR_PROJECT_ID}"
+  rbgb_bucket_ensure "${z_token}" "${RBRP_PAYOR_PROJECT_ID}" "${RBGP_TERRIER_BUCKET}" "${RBRD_GCP_REGION}"
+
+  buc_step "Reset the polity managed folder ${z_folder} (destroy-then-create at folder grain)"
+  rbgb_managed_folder_purge  "${z_token}" "${RBGP_TERRIER_BUCKET}" "${z_folder}" \
+    || buc_die "Failed to reset terrier folder ${z_folder}"
+  rbgb_managed_folder_ensure "${z_token}" "${RBGP_TERRIER_BUCKET}" "${z_folder}"
+
+  buc_step "Grant folder-scoped write to the governor mantle (own-polity)"
+  rbgb_managed_folder_add_iam_role "${z_token}" "${RBGP_TERRIER_BUCKET}" "${z_folder}" \
+    "${z_gov_mantle_email}" "${RBGC_ROLE_STORAGE_OBJECT_ADMIN}"
+
+  buc_step "Grant bucket-level read to the governor mantle (manor-wide)"
+  rbgi_add_bucket_iam_role "${z_token}" "${RBGP_TERRIER_BUCKET}" "${z_gov_mantle_email}" "${RBGC_ROLE_STORAGE_OBJECT_VIEWER}"
+
+  buc_step 'Verify bucket-level read via getIamPolicy read-back'
+  rbuh_json "GET" \
+    "${RBGC_API_BASE_GCS}/b/${RBGP_TERRIER_BUCKET}/iam?optionsRequestedPolicyVersion=3" \
+    "${z_token}" "${ZRBGP_INFIX_TERRIER_BUCKET_IAM}"
+  rbuh_require_ok "Read terrier bucket IAM policy" "${ZRBGP_INFIX_TERRIER_BUCKET_IAM}"
+  zrbgp_recognosce_require_binding "${ZRBGP_INFIX_TERRIER_BUCKET_IAM}" \
+    "${RBGC_ROLE_STORAGE_OBJECT_VIEWER}" "serviceAccount:${z_gov_mantle_email}" \
+    "terrier bucket (governor manor-wide read)"
+
+  buc_step 'Verify folder-scoped write via getIamPolicy read-back'
+  local z_folder_enc
+  z_folder_enc=$(rbuh_urlencode_capture "${z_folder}") || buc_die "Failed to encode terrier folder"
+  rbuh_json "GET" \
+    "${RBGC_API_BASE_GCS}/b/${RBGP_TERRIER_BUCKET}/managedFolders/${z_folder_enc}/iam?optionsRequestedPolicyVersion=3" \
+    "${z_token}" "${ZRBGP_INFIX_TERRIER_FOLDER_IAM}"
+  rbuh_require_ok "Read terrier folder IAM policy" "${ZRBGP_INFIX_TERRIER_FOLDER_IAM}"
+  zrbgp_recognosce_require_binding "${ZRBGP_INFIX_TERRIER_FOLDER_IAM}" \
+    "${RBGC_ROLE_STORAGE_OBJECT_ADMIN}" "serviceAccount:${z_gov_mantle_email}" \
+    "terrier folder (governor own-polity write)"
+
+  buc_success "Terrier scaffolded on ${RBGP_TERRIER_BUCKET}: polity folder ${z_folder}, write+read IAM for ${z_gov_mantle_email}"
 }
 
 rbgp_payor_oauth_refresh() {

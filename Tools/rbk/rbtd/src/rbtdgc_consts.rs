@@ -30,6 +30,7 @@ pub const RBTDGC_UNMAKE_DEPOT: &str = "rbw-dU";
 pub const RBTDGC_LIST_DEPOT: &str = "rbw-dl";
 pub const RBTDGC_INFO_DEPOT: &str = "rbw-di";
 pub const RBTDGC_RECOGNOSCE_DEPOT: &str = "rbw-dr";
+pub const RBTDGC_TERRIER_SCAFFOLD: &str = "rbw-dt";
 pub const RBTDGC_AFFIANCE_MANOR: &str = "rbw-mA";
 pub const RBTDGC_JILT_MANOR: &str = "rbw-mJ";
 pub const RBTDGC_ENSCONCE_BOLE: &str = "rbw-lE";

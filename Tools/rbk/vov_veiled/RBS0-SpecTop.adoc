@@ -2027,10 +2027,16 @@ kept as
 {rbtf_muniment_s}
 in a Manor-homed bucket.
 +
-NOTE: Shell quoin.
-The noun's internals — object granularity, the
+The terrier's *resource* internals are settled (at the terrier-provision pace):
+the physical bucket is the payor project id suffixed `-terrier` — manor-grain, one per Manor, since the Manor is the Payor Project — homed in the `RBGP_TERRIER_BUCKET` kindle constant and created with Uniform Bucket-Level Access enabled (managed folders require it).
+The managed-folder grain is one managed folder per polity, keyed by the depot project id.
+A governor mantle's write is scoped to its own polity's folder (`roles/storage.objectAdmin` granted through managed-folder IAM); read is bucket-level for every governor mantle (`roles/storage.objectViewer` on the bucket) — write folder-scoped own-polity, read manor-wide.
+The payor reads inherently as owner of the payor project.
+The cross-project shape — a payor-project bucket written by a depot's governor mantle — is provisioned by an interim scaffold, never folded into a founding ceremony in this heat.
++
+NOTE: The terrier's *muniment* internals — object granularity (per-entry versus per-subject) and the
 {rbtf_muniment}
-JSON shape, the physical bucket name and where its constant is homed, and the managed-folder IAM grain that scopes a governor's write to its own polity — are settled at the terrier-live pace, not here.
+JSON shape — are settled at the terrier sub-operations pace, not here.
 Its access sub-operations (
 {rbtf_engross},
 {rbtf_expunge},

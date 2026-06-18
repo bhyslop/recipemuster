@@ -70,6 +70,14 @@ pub const RBTDRM_FIXTURE_PODVM_LIFECYCLE: &str = "podvm-lifecycle";
 // for discovery, a member of no suite. The payor-credential gate fails loud, never
 // skips: this fixture is never a suite passenger (see the pace docket).
 pub const RBTDRM_FIXTURE_FOEDUS_LIFECYCLE: &str = "foedus-lifecycle";
+// Terrier-scaffold fixture — interim terrier-provision proof against live GCP:
+// probe payor -> run the rbw-dt scaffold (ensure bucket + per-polity managed
+// folder + folder-scoped write / bucket-level read IAM to the governor mantle,
+// then getIamPolicy read-back verify) -> run it again to prove the idempotent
+// reset. Unlike the quota-touching foedus fixture, this is a service-suite member
+// and self-skips when the payor credential is unreachable (suite-passenger
+// protection); a levied freehold absent the governor mantle is a real failure.
+pub const RBTDRM_FIXTURE_TERRIER_SCAFFOLD: &str = "terrier-scaffold";
 // Fast fixtures (no external dependencies)
 pub const RBTDRM_FIXTURE_ENROLLMENT_VALIDATION: &str = "enrollment-validation";
 pub const RBTDRM_FIXTURE_RECIPE_VALIDATION: &str = "recipe-validation";
@@ -187,6 +195,10 @@ pub fn rbtdrm_required_colophons(fixture: &str) -> Option<&'static [&'static str
             RBTDGC_CHECK_PAYOR,
             RBTDGC_AFFIANCE_MANOR,
             RBTDGC_JILT_MANOR,
+        ]),
+        RBTDRM_FIXTURE_TERRIER_SCAFFOLD => Some(&[
+            RBTDGC_CHECK_PAYOR,
+            RBTDGC_TERRIER_SCAFFOLD,
         ]),
         RBTDRM_FIXTURE_BATCH_VOUCH => Some(&[
             RBTDGC_ORDAIN_HALLMARK,

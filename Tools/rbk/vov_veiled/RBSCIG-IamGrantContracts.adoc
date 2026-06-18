@@ -404,6 +404,31 @@ The service proto defines `additional_bindings` for regional secrets at both
 secrets, the IAM grant patterns would need to construct regional resource paths.
 Noting for completeness.
 
+===== Managed Folder IAM (GCS family — terrier, added after the 2026-03-11 sweep)
+
+Added for the terrier (RBSTR / RBS0 {rbtf_terrier}): a managed folder is a
+{gcs_service} sub-resource of a bucket, and its IAM rides the same Storage JSON
+contract as {rbtoe_iam_grant_bucket} — GET read with an
+`optionsRequestedPolicyVersion=3` query parameter, PUT write with the raw policy
+body (no `{"policy":...}` envelope), and an always-present etag whose mismatch is
+**412 Precondition Failed** (not the 409 of the IAM-mixin APIs).  The propagation
+tolerance is the resource-scope set — the two 400 member-visibility classes (A, B)
+plus the 403 caller-recently-empowered class (C) — identical to the bucket site.
+
+The single structural difference from the bucket grant is the resource path: the
+managed folder name is a slash-terminated prefix, URL-encoded into
+`.../b/«bucket»/managedFolders/«folder»/iam`.  The grant is realized by
+`rbgi_add_managed_folder_iam_role` (mirroring `rbgi_add_bucket_iam_role`'s loop
+and 412 handling) behind the module wrapper `rbgb_managed_folder_add_iam_role`
+(mirroring the AR repo-IAM module idiom).
+
+This contract is **expected from the {gcs_service} API family, not yet
+documentation-verified to the standard of the patterns above**; it is exercised
+live by the terrier-provision service fixture's getIamPolicy read-back, which is
+its verification of record until a documentation sweep folds it into the tables
+above.  This subsection is the "new resource type" re-review the introduction
+calls for.
+
 ===== Code Convergence onto the API Contract
 
 The implementation has converged onto the verified API contracts catalogued

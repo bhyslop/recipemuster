@@ -73,6 +73,8 @@ zrbgi_kindle() {
   readonly ZRBGI_INFIX_SA_BINDING_POLL="sa_binding_poll"
   readonly ZRBGI_INFIX_BUCKET_IAM="bucket_iam"
   readonly ZRBGI_INFIX_BUCKET_IAM_SET="bucket_iam_set"
+  readonly ZRBGI_INFIX_MF_IAM="managed_folder_iam"
+  readonly ZRBGI_INFIX_MF_IAM_SET="managed_folder_iam_set"
   readonly ZRBGI_INFIX_SECRET_IAM="secret_iam"
   readonly ZRBGI_INFIX_SECRET_IAM_SET="secret_iam_set"
 
@@ -735,6 +737,138 @@ rbgi_add_bucket_iam_role() {
   test "${z_prop_succeeded}" = "1" || buc_die "Bucket IAM: propagation retry loop exited without success"
 
   buc_log_args "Successfully added bucket role ${z_role}"
+}
+
+# Grant an IAM role binding on a GCS managed folder with optimistic concurrency
+# and propagation retry. Managed folders ride the same Storage JSON IAM family as
+# buckets (GET v3 + PUT raw policy, 412-fatal etag), so this mirrors
+# rbgi_add_bucket_iam_role exactly; only the resource path differs (the folder
+# name is a slash-terminated prefix and must be URL-encoded into the path).
+rbgi_add_managed_folder_iam_role() {
+  zrbgi_sentinel
+
+  local -r z_token="${1:-}"
+  local -r z_bucket_name="${2:-}"
+  local -r z_managed_folder="${3:-}"
+  local -r z_account_email="${4:-}"
+  local -r z_role="${5:-}"
+
+  test -n "${z_token}"          || buc_die "Token required"
+  test -n "${z_bucket_name}"    || buc_die "Bucket name required"
+  test -n "${z_managed_folder}" || buc_die "Managed folder required"
+  test -n "${z_account_email}"  || buc_die "Account email required"
+  test -n "${z_role}"           || buc_die "Role required"
+
+  buc_log_args "Using admin token (value not logged)"
+  buc_log_args "Adding managed-folder IAM role ${z_role} to ${z_account_email} on ${z_managed_folder}"
+
+  local z_mf_enc
+  z_mf_enc=$(rbuh_urlencode_capture "${z_managed_folder}") || buc_die "Failed to encode managed folder name"
+  local -r z_iam_url="${RBGC_API_ROOT_STORAGE}${RBGC_STORAGE_JSON_V1}/b/${z_bucket_name}/managedFolders/${z_mf_enc}/iam"
+
+  # Propagation retry — managed folder is resource-scope (same shape as bucket):
+  # member-visibility 400s plus caller-recently-empowered 403 from the cache.
+  local -ra z_tolerance=(
+    "400" "*does not exist*"
+    "400" "*is not deleted*"
+    "403" ""
+  )
+  local z_prop_delay=${RBGC_PROPAGATION_INITIAL_DELAY_SEC}
+  local z_prop_elapsed=0
+  local -r z_prop_deadline=${RBGC_PROPAGATION_DEADLINE_SEC}
+  local z_prop_attempt=0
+
+  local z_prop_succeeded=0
+
+  while :; do
+    z_prop_attempt=$((z_prop_attempt + 1))
+    local z_get_infix="${ZRBGI_INFIX_MF_IAM}-${z_prop_elapsed}s"
+
+    buc_log_args "1) GET managed-folder IAM policy (v3) [attempt ${z_prop_attempt}]"
+    rbuh_json "GET" "${z_iam_url}?optionsRequestedPolicyVersion=3" "${z_token}" "${z_get_infix}"
+
+    local z_code
+    z_code=$(rbuh_code_capture "${z_get_infix}") || buc_die "No HTTP code from managed-folder getIamPolicy"
+
+    # Check for propagation error on GET
+    if zrbgi_propagation_error_predicate "${z_get_infix}" "${z_code}" "${z_tolerance[@]}"; then
+      buc_log_args "Managed-folder getIamPolicy returned ${z_code} (propagation delay)"
+      test "${z_prop_elapsed}" -lt "${z_prop_deadline}" \
+        || buc_die "Managed-folder IAM: propagation timeout after ${z_prop_elapsed}s"
+      buc_log_args "Retry ${z_prop_attempt} at ${z_prop_elapsed}s (next delay ${z_prop_delay}s)"
+      sleep "${z_prop_delay}"
+      z_prop_elapsed=$((z_prop_elapsed + z_prop_delay))
+      z_prop_delay=$((z_prop_delay * 2))
+      test "${z_prop_delay}" -le "${RBGC_PROPAGATION_MAX_DELAY_SEC}" || z_prop_delay=${RBGC_PROPAGATION_MAX_DELAY_SEC}
+      continue
+    fi
+
+    # Not a propagation error on GET — require success
+    rbuh_require_ok "Get managed-folder IAM policy" "${z_get_infix}"
+
+    buc_log_args 'Extract etag; require non-empty'
+    local z_etag=""
+    z_etag=$(rbuh_json_field_capture "${z_get_infix}" ".etag") || buc_die "Missing managed-folder etag"
+    test -n "${z_etag}" || buc_die "Empty managed-folder etag"
+
+    buc_log_args "Using etag ${z_etag}"
+
+    buc_log_args '2) Build new policy JSON (bindings unique; keep etag)'
+    local z_updated_policy_json=""
+    z_updated_policy_json=$(rbgi_jq_add_member_to_role_capture "${z_get_infix}" \
+      "${z_role}" "serviceAccount:${z_account_email}" "${z_etag}") \
+      || buc_die "Failed to update managed-folder IAM policy"
+
+    buc_log_args '3) setIamPolicy (fatal on 412 — etag mismatch; Storage uses 412 not 409)'
+    local z_mf_set_body="${BURD_TEMP_DIR}/rbgi_managed_folder_set_policy_body.json"
+    printf '%s\n' "${z_updated_policy_json}" > "${z_mf_set_body}" \
+      || buc_die "Failed to write managed-folder policy body"
+
+    local z_set_elapsed=0
+    local z_set_infix=""
+    local z_set_succeeded=0
+    while :; do
+      z_set_infix="${ZRBGI_INFIX_MF_IAM_SET}-${z_prop_elapsed}s-${z_set_elapsed}s"
+      rbuh_json "PUT" "${z_iam_url}" "${z_token}" "${z_set_infix}" "${z_mf_set_body}"
+
+      local z_set_code=""
+      z_set_code=$(rbuh_code_capture "${z_set_infix}") || buc_die "No HTTP code from setIamPolicy"
+
+      # Check for propagation error on SET — break inner loop to retry outer
+      if zrbgi_propagation_error_predicate "${z_set_infix}" "${z_set_code}" "${z_tolerance[@]}"; then
+        buc_log_args "Managed-folder setIamPolicy returned ${z_set_code} (propagation delay)"
+        break
+      fi
+
+      case "${z_set_code}" in
+        200)                 z_set_succeeded=1; break ;;
+        412)                 buc_die "Managed-folder IAM: HTTP 412 Precondition Failed (etag mismatch)" ;;
+        409)                 buc_die "Managed-folder IAM: HTTP 409 ABORTED (defensive — unexpected for Storage)" ;;
+        429|500|502|503|504) buc_log_args "Transient ${z_set_code} at ${z_set_elapsed}s; retry" ;;
+        *)                   rbuh_require_ok "Set managed-folder IAM policy" "${z_set_infix}" "" ;;
+      esac
+
+      test "${z_set_elapsed}" -lt "${RBGC_MAX_CONSISTENCY_SEC}" || buc_die "Managed-folder IAM: timeout setting policy"
+      sleep "${RBGC_EVENTUAL_CONSISTENCY_SEC}"
+      z_set_elapsed=$((z_set_elapsed + RBGC_EVENTUAL_CONSISTENCY_SEC))
+    done
+
+    # If setIamPolicy succeeded, break outer propagation loop
+    test "${z_set_succeeded}" != "1" || { z_prop_succeeded=1; break; }
+
+    # setIamPolicy hit propagation error — retry outer loop with fresh getIamPolicy
+    test "${z_prop_elapsed}" -lt "${z_prop_deadline}" \
+      || buc_die "Managed-folder IAM: propagation timeout after ${z_prop_elapsed}s"
+    buc_log_args "Retry ${z_prop_attempt} at ${z_prop_elapsed}s (next delay ${z_prop_delay}s)"
+    sleep "${z_prop_delay}"
+    z_prop_elapsed=$((z_prop_elapsed + z_prop_delay))
+    z_prop_delay=$((z_prop_delay * 2))
+    test "${z_prop_delay}" -le "${RBGC_PROPAGATION_MAX_DELAY_SEC}" || z_prop_delay=${RBGC_PROPAGATION_MAX_DELAY_SEC}
+  done
+
+  test "${z_prop_succeeded}" = "1" || buc_die "Managed-folder IAM: propagation retry loop exited without success"
+
+  buc_log_args "Successfully added managed-folder role ${z_role}"
 }
 
 # Grant an IAM role binding on a Secret Manager secret with optimistic concurrency and propagation retry.

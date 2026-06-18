@@ -51,6 +51,7 @@ zrbgp_furnish() {
   source "${z_rbk_kit_dir}/rbge_rest.sh"
   source "${z_rbk_kit_dir}/rba_auth.sh"
   source "${z_rbk_kit_dir}/rbgi_iam.sh"
+  source "${z_rbk_kit_dir}/rbgb_buckets.sh"
   source "${z_rbk_kit_dir}/rbgw_capabilities.sh"
   source "${z_rbk_kit_dir}/rbrp_regime.sh"
   source "${z_rbk_kit_dir}/rbgp_payor.sh"
@@ -91,6 +92,7 @@ zrbgp_furnish() {
   zrbge_kindle
   zrba_kindle
   zrbgi_kindle
+  zrbgb_kindle
   zrbgw_kindle
   zrbgp_kindle
   zrbndb_kindle

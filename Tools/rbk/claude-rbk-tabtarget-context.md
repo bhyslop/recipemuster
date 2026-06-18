@@ -58,6 +58,7 @@ The Folio column shows how each tabtarget receives it:
 | `rbw-dl` | PayorListsDepots | — | List all active depots |
 | `rbw-di` | DepotInfo | — | Run egress posture checks against the live depot's worker pools |
 | `rbw-dr` | DepotRecognosce | — | Recognosce a depot's founding — confirm mantle SAs, capability-sets, and AR audit config against live GCP |
+| `rbw-dt` | TerrierScaffold | — | Provision and idempotently reset the freehold's terrier (interim scaffold) |
 
 ### Manor — IdP federation founding (`rbw-m`)
 
