@@ -19,7 +19,6 @@
     "₣Ap",
     "₣Ah",
     "₣A9",
-    "₣An",
     "₣Am",
     "₣AD",
     "₣AI",
@@ -5579,14 +5578,6 @@
           ]
         }
       }
-    },
-    "₣An": {
-      "jjghn_silks": "jjk-v4-5-release-and-legacy-removal",
-      "jjghn_creation_time": "260304",
-      "jjghn_status": "jjghe_stabled",
-      "jjghn_order": [],
-      "jjghn_next_pace_seed": "AAA",
-      "jjghn_paces": {}
     },
     "₣Ap": {
       "jjghn_silks": "rbk-91-deferred-add-bcg-remit-pattern",

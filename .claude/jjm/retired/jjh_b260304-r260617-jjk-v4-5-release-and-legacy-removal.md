@@ -1,3 +1,12 @@
+# Heat Trophy: jjk-v4-5-release-and-legacy-removal
+
+**Firemark:** ₣An
+**Created:** 260304
+**Retired:** 260617
+**Status:** retired
+
+## Paddock
+
 # Paddock: jjk-v4-release-and-legacy-removal
 
 ## Context
@@ -45,3 +54,34 @@ This heat inherits the migration discipline from ₣Ah's paddock. The key rule: 
 - V4 migration discipline: ₣Ah paddock, "V3→V4 Migration Discipline" section
 - V3 data model: `Tools/jjk/vov_veiled/JJS0-GallopsData.adoc`
 - Validation chain: `Tools/jjk/vov_veiled/src/jjri_io.rs` (`jjdr_load`, `jjdr_save`)
+
+## Paces
+
+## Commit Activity
+
+```
+File-touch bitmap: (no work file changes)
+```
+
+## Steeplechase
+
+### 2026-05-08 09:24 - Heat - f
+
+silks=jjk-v4-5-release-and-legacy-removal
+
+### 2026-03-17 18:52 - Heat - f
+
+silks=jjk-v4-2-release-and-legacy-removal
+
+### 2026-03-06 07:56 - Heat - f
+
+silks=jjk-v4-2-release-and-strip
+
+### 2026-03-04 15:03 - Heat - f
+
+stabled
+
+### 2026-03-04 15:03 - Heat - N
+
+jjk-v4-release-and-legacy-removal
+
