@@ -113,3 +113,6 @@ pub use jjrs_steeplechase::{jjrs_ReinArgs, jjrs_SteeplechaseEntry, jjrs_get_entr
 
 // Re-export new I/O routines
 pub use jjri_io::{jjdr_load, jjdr_save, jjdr_ValidatedGallops, jjri_persist};
+
+// Re-export the forgiveness mechanism (schema-migration tolerance: rivet, probe, status)
+pub use jjri_io::{jjdz_probe, jjdz_Status, JJDZ_CURRENT_SCHEMA, JJDZ_RIVET};

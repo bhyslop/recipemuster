@@ -265,8 +265,9 @@
 :jjds_stdout:           <<jjds_stdout,Stdout:>>
 
 // Serialization
-:jjdz_charset:  <<jjdz_charset,Charset>>
-:jjdz_encoding: <<jjdz_encoding,Identity Encoding>>
+:jjdz_charset:      <<jjdz_charset,Charset>>
+:jjdz_encoding:     <<jjdz_encoding,Identity Encoding>>
+:jjdz_forgiveness:  <<jjdz_forgiveness,Forgiveness>>
 
 // Upper API: verbs (equestrian vocabulary)
 :jjsuv_slate:      <<jjsuv_slate,slate>>
@@ -1293,7 +1294,7 @@ defining heat display and selection order.
 Serialized as `jjgrn_heat_order` in JSON.
 Populated from sorted
 {jjdgm_heats}
-keys on first load of old-format files (migration);
+keys on first load of an old-format file — the {jjdz_forgiveness} write-forward for the V3→V4 episode;
 thereafter maintained explicitly.
 Updated by:
 {jjdo_create}
@@ -1313,15 +1314,9 @@ key order.
 is the schema version number.
 Absent in V3 files; present in V4+ as an unsigned integer.
 Serialized as `jjgrn_schema_version` in JSON.
-{jjdr_load}
-detects migration mode when absent or when
-{jjdgm_order}
-is empty.
+A value differing from the current schema (absent included) is one signal the {jjdz_forgiveness} probe reads to detect an old on-disk shape.
 +
-NOTE: Schema changes recur across JJK's life.
-Each migrates through a converging mechanism, not an ad-hoc one-time path:
-the old shape is tolerated only with a demolition condition, retired once every operated clone converges,
-so the count of mutually-readable schemas is held to a floor rather than accumulating.
+NOTE: Schema changes recur across JJK's life; each registers an episode against {jjdz_forgiveness}, which tolerates the old shape under a demolition condition and converges it forward, holding the count of mutually-readable schemas to a floor rather than accumulating.
 
 * [[jjdgm_heats]]
 //axl_voices axr_member axd_required axt_map axd_property
@@ -1577,7 +1572,7 @@ Serialized as `jjgte_abandoned` in JSON.
 V3-legacy state: human-claimed for interactive work.
 Serialized as `jjgte_bridled` in JSON (serde alias: `primed`).
 Present in code but deprecated.
-Removal deferred to ₣An (jjk-v4-release-and-legacy-removal).
+Removal governed by {jjdz_forgiveness} (the V3→V4 episode's demolition condition).
 New operations MUST NOT produce this state.
 
 ==== State Classification Predicates
@@ -1654,7 +1649,7 @@ Format: 7-character abbreviated SHA, or `0000000` when basis cannot be determine
 {jjdcm_direction}
 is the plan or warrant text.
 V3-legacy: present only when state is {jjdpe_bridled}; absent otherwise.
-Will become vestigial when {jjdpe_bridled} is removed by ₣An.
+Will become vestigial when {jjdpe_bridled} is removed under {jjdz_forgiveness}.
 Serialized as `jjgtn_direction` in JSON.
 
 === {jjdyr_table}
@@ -1770,6 +1765,36 @@ values.
 CLI commands accept identities with or without prefix.
 Length determines type: 2 base64 chars = {jjdt_firemark}, 5 base64 chars = {jjdt_coronet}.
 Output always includes the prefix (`₣` or `₢`).
+
+[[jjdz_forgiveness]]
+//axve_entity
+{jjdz_forgiveness}::
+The permanent mechanism by which {jjdr_load} tolerates an on-disk {jjdgr_gallops} written under an older schema, converging it forward on the next save rather than rejecting it.
+Named in shipped code by the rivet token `JJr_forgiveness` — a single-defined, greppable handle that names the mechanism alone and carries no per-episode specific; `grep JJr_forgiveness` lands here and on every code and spec site the mechanism governs.
+This is the cited-constraint anchor pattern — one anchor, many citers — and the JJK-native form of the RBr_ rivet doctrine, since the rust ships and this veiled spec does not.
++
+*Three standing parts.*
+A per-episode _registry_, one entry per tolerated old shape.
+A single read-only _probe_ — the sole definition of "what counts as old-format" — that reads a parsed {jjdgr_gallops} and its on-disk bytes and reports, per episode, whether that episode's old shape is present (_pending_) or absent (_dormant_); {jjdr_load} consults the probe to decide migration mode and keeps no second copy of the detection.
+A _nag_ at {jjdo_open} that emits one status line per episode carrying the rivet token, so each install self-reports which tolerances are still load-bearing there.
++
+*Mechanism and episode are distinct lifetimes.*
+The registry, probe, and nag are permanent infrastructure and never retire.
+Multi-install schema drift is the steady state of the tool — there is always a leading clone where a schema-impacting change lands first and lagging clones not yet converged — so the count of mutually-readable schemas is held to a floor rather than accumulating (Zeroes Theory, version axis).
+Only individual episodes retire.
++
+*An episode's demolition condition* is that no {jjdgr_gallops} predating its schema survives in any operated clone.
+This is checkable rather than an act of faith because of {jjdk_sole_operator}: the operated clones are a finite, enumerable set.
+When an episode is dormant on every clone, its registry entry — and the now-dead write-forward and frozen reference it guards — are removed together; the mechanism stands.
++
+*Registering a new episode* is the standard procedure a future schema change follows.
+Raise {jjdgm_version} to the new current.
+Add a registry entry whose live-test detects the prior on-disk shape, and the write-forward that canonicalizes it on load.
+Cite the existing rivet token; never mint a per-episode rivet — per-episode specifics (old shape, schema number, demolition condition) are registry data, not new cited constraints.
++
+*The {jjdo_open} probe contract.*
+The peek is read-only, best-effort, and never gating: it reads the {jjdgr_gallops} without the commit lock and emits nothing on any read or parse failure, so {jjdo_open} always succeeds.
+The lockless read is safe because {jjdr_save} renames atomically — the peek sees only whole files — and it mutates nothing.
 
 == Arguments
 
@@ -2087,7 +2112,9 @@ Heat-affiliated commands supply a {jjdt_firemark} directly.
 Pace-affiliated commands supply a {jjdt_coronet}; the dispatcher derives the
 parent {jjdt_firemark}.
 +
-{jjdo_open} bypasses the {jjdgr_gallops} lifecycle entirely — it is infrastructure that does not touch persistent state.
+{jjdo_open} bypasses the {jjdgr_gallops} lifecycle entirely — it acquires no lock and mutates no persistent state.
+Its only contact with {jjdgr_gallops} is the {jjdz_forgiveness} nag: a read-only, best-effort, non-gating peek that emits per-episode status and never blocks open.
+This is the one deliberate softening of "open touches no persistent state" down to "open mutates nothing"; the peek is logged here rather than papered over.
 +
 *{jjsz_gazette} I/O wiring* (output and input operations):
 +
@@ -2319,7 +2346,7 @@ include::JJSCPD-parade.adoc[]
 
 Create a new {jjdxo_officium} for the calling agent session.
 Takes no parameters; returns the {jjdxo_officium} identity string.
-Does not touch {jjdgr_gallops}.
+Mutates no {jjdgr_gallops}; its only read is the {jjdz_forgiveness} nag (read-only, best-effort, non-gating).
 +
 {jjds_behavior}
 +
@@ -2332,6 +2359,7 @@ The returned identity becomes a required parameter on all subsequent {jjdx_tool}
 {jjds_stdout}
 +
 When {jjdxo_exsanguination} encounters prior officia, a summary line: `Exsanguination: N active, M reaped`.
+One {jjdz_forgiveness} status line per registered episode, each carrying the rivet token (`pending` or `dormant`).
 Then the {jjdxo_officium} identity string, prefixed with ☉.
 
 === Remote Dispatch Operations
@@ -2936,9 +2964,9 @@ include::JJSTF-test-fundus.adoc[]
 
 == V3 Legacy Schema Reference
 
-WARNING: This section is a frozen reference for V3→V4 migration.
+WARNING: This section is the frozen reference for the {jjdz_forgiveness} V3→V4 episode.
 It documents the V3 schema as implemented in `jjrt_v3_types.rs`.
-Do NOT modify — will be removed by ₣An (jjk-v4-release-and-legacy-removal).
+Do NOT modify — removed under {jjdz_forgiveness} once that episode is dormant on every operated clone.
 
 === V3 Pace Record
 
@@ -2978,8 +3006,8 @@ Migration is handled by {jjdr_load} in `jjri_io.rs`.
 Current behavior:
 
 . Deserialize JSON as current types
-. Detect migration mode: `schema_version` absent or `heat_order` empty
-. Set `schema_version` to 4
+. Detect migration mode via the {jjdz_forgiveness} probe (the V3→V4 episode reports live)
+. Set `schema_version` to the current schema
 . Populate `heat_order` from sorted BTreeMap keys
 . Next {jjdr_save} writes V4 format
 

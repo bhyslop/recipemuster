@@ -1,6 +1,6 @@
 // Frozen V3 types — DO NOT EDIT.
-// Reference for V3→V4 migration in jjdr_load.
-// Will be deleted by ₣An (jjk-v4-release-and-legacy-removal).
+// Reference for the V3→V4 forgiveness episode in jjdr_load.
+// Removal governed by the forgiveness mechanism — rivet JJr_forgiveness.
 
 #![allow(dead_code)]
 

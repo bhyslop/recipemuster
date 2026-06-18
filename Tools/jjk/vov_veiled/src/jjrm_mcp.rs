@@ -663,6 +663,29 @@ fn zjjrm_gazette_paths_block(
     )
 }
 
+/// Best-effort, read-only forgiveness nag for jjx_open.
+///
+/// Reads the on-disk Gallops without the commit lock and emits one status line per registered
+/// forgiveness episode, each carrying the rivet token (JJr_forgiveness): pending when the
+/// tolerance is still load-bearing on this install, dormant when the store is already canonical
+/// for that episode (a removal candidate once every clone agrees). Non-gating by contract — any
+/// read or parse failure is silently skipped so jjx_open always succeeds. The lockless peek sees
+/// only whole files (jjdr_save renames atomically) and mutates nothing.
+fn zjjrm_forgiveness_nag(output: &mut vvc::vvco_Output) {
+    let path = gallops_pathbuf();
+    let bytes = match std::fs::read(&path) {
+        Ok(b) => b,
+        Err(_) => return,
+    };
+    let gallops: crate::jjrt_types::jjrg_Gallops = match serde_json::from_slice(&bytes) {
+        Ok(g) => g,
+        Err(_) => return,
+    };
+    for status in crate::jjri_io::jjdz_probe(&gallops, &bytes) {
+        vvco_out!(output, "{} {}: {}", crate::jjri_io::JJDZ_RIVET, status.label, status.jjdz_verdict());
+    }
+}
+
 /// Handle jjx_open: create a new officium.
 async fn zjjrm_handle_open() -> Result<CallToolResult, McpError> {
     let cn = JJRM_CMD_NAME_OPEN;
@@ -770,6 +793,7 @@ async fn zjjrm_handle_open() -> Result<CallToolResult, McpError> {
     if reaped > 0 || active > 0 {
         vvco_out!(output, "Exsanguination: {} active, {} reaped", active, reaped);
     }
+    zjjrm_forgiveness_nag(&mut output);
     vvco_out!(output, "{}{}", OFFICIUM_SUN_PREFIX, id);
     vvco_out!(output, "{}", zjjrm_gazette_paths_block(
         &zjjrm_gazette_in_path(&id),

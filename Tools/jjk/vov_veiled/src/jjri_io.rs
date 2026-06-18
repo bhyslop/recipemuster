@@ -70,6 +70,87 @@ pub fn jjri_paddock_path(firemark: &str) -> String {
     format!(".claude/jjm/jjp_{}.md", encoded)
 }
 
+/// Current Gallops schema version. The loader migrates any on-disk Gallops whose
+/// `schema_version` differs from this toward it; detection lives in jjdz_probe.
+pub const JJDZ_CURRENT_SCHEMA: u32 = 4;
+
+/// Forgiveness mechanism rivet — the named cited token; rationale lives in JJS0
+/// `jjdz_forgiveness`.
+///
+/// Single source of the token string (String Boundary Discipline): the jjx_open nag emits
+/// it, and every code and spec site that tolerates an old on-disk schema cites it, so
+/// `grep JJr_forgiveness` lands on the spec quoin — the permanent registry/probe/nag operating
+/// manual. Named rather than opaque so a console reader of the nag understands it at sight; it
+/// names only the mechanism, never a per-episode specific (those are registry data). This is
+/// the RBr_ rivet doctrine made JJK-native — the rust ships, the veiled specs do not.
+pub const JJDZ_RIVET: &str = "JJr_forgiveness";
+
+/// Verdict words for the open-time nag, one per `jjdz_Status` live value.
+const ZJJDZ_PENDING: &str = "pending";
+const ZJJDZ_DORMANT: &str = "dormant";
+
+/// Per-episode forgiveness status for an on-disk Gallops (output of jjdz_probe).
+pub struct jjdz_Status {
+    /// Human label for the episode (e.g. "V3→V4").
+    pub label: &'static str,
+    /// true = pending: this episode's old shape is present, so its tolerance is
+    /// load-bearing on this install. false = dormant: the on-disk Gallops is already
+    /// canonical for this episode, so the tolerance is a removal candidate here.
+    pub live: bool,
+}
+
+impl jjdz_Status {
+    /// The nag verdict word for this status — pending when load-bearing, dormant otherwise.
+    pub fn jjdz_verdict(&self) -> &'static str {
+        if self.live { ZJJDZ_PENDING } else { ZJJDZ_DORMANT }
+    }
+}
+
+/// One registered forgiveness episode: a tolerated old on-disk shape with a live-test.
+/// The demolition condition and lifecycle are spec data (JJS0 `jjdz_forgiveness`), not here.
+struct zjjdz_Episode {
+    label: &'static str,
+    is_live: fn(&jjrg_Gallops, &[u8]) -> bool,
+}
+
+/// V3→V4 episode live-test — rivet JJr_forgiveness.
+///
+/// True when any pre-V4 residue is present:
+///   - heat_order absent (added in V4; BTreeMap sort order differs from original furlough order)
+///   - schema_version below current (absent in V3)
+///   - stale next_pensum_seed field (removed in v3.7; serde drops it on the next save)
+fn zjjdz_episode_v3_to_v4_live(gallops: &jjrg_Gallops, original_bytes: &[u8]) -> bool {
+    const PENSUM_SEED_KEY: &[u8] = b"\"next_pensum_seed\"";
+    let stale_pensum_seed = !gallops.heats.is_empty()
+        && original_bytes.windows(PENSUM_SEED_KEY.len()).any(|w| w == PENSUM_SEED_KEY);
+    gallops.heat_order.is_empty()
+        || gallops.schema_version.map_or(true, |v| v < JJDZ_CURRENT_SCHEMA)
+        || stale_pensum_seed
+}
+
+/// The forgiveness registry — every tolerated old on-disk schema, one entry per episode.
+/// Permanent infrastructure: episodes are appended as schema changes land and removed once
+/// dormant on every operated clone (the per-episode lifecycle in JJS0 `jjdz_forgiveness`).
+const ZJJDZ_REGISTRY: &[zjjdz_Episode] = &[
+    zjjdz_Episode { label: "V3→V4", is_live: zjjdz_episode_v3_to_v4_live },
+];
+
+/// Read-only forgiveness probe — the single source of "what counts as old-format".
+///
+/// Pure: reads the parsed Gallops and its on-disk bytes, mutates nothing. Returns one status
+/// per registered episode. jjdr_load consults it to decide migration mode (the loader keeps no
+/// second copy of detection); the jjx_open nag consults it to report, per install, which
+/// episodes are still load-bearing versus dormant.
+pub fn jjdz_probe(gallops: &jjrg_Gallops, original_bytes: &[u8]) -> Vec<jjdz_Status> {
+    ZJJDZ_REGISTRY
+        .iter()
+        .map(|ep| jjdz_Status {
+            label: ep.label,
+            live: (ep.is_live)(gallops, original_bytes),
+        })
+        .collect()
+}
+
 /// Load and validate Gallops from a file
 ///
 /// Performs these steps in order:
@@ -86,20 +167,11 @@ pub fn jjdr_load(path: &Path) -> Result<jjdr_ValidatedGallops, String> {
     let mut gallops: jjrg_Gallops = serde_json::from_slice(&original_bytes)
         .map_err(|e| format!("Failed to parse JSON: {}", e))?;
 
-    // Detect old-format files: heat_order absent or schema_version absent.
-    // Old-format files cannot pass round-trip check because BTreeMap serializes heats
-    // in sorted key order, which differs from original furlough-shuffled order.
-    //
-    // Also detect stale next_pensum_seed field (removed in v3.7 — pensum seeds moved
-    // to officium-local storage). Serde silently ignores the unknown field on read,
-    // but re-serialization omits it, causing round-trip byte mismatch until the next
-    // save writes the clean format back to disk.
-    const PENSUM_SEED_KEY: &[u8] = b"\"next_pensum_seed\"";
-    let needs_pensum_seed_removal = !gallops.heats.is_empty()
-        && original_bytes.windows(PENSUM_SEED_KEY.len()).any(|w| w == PENSUM_SEED_KEY);
-    let is_migration_mode = gallops.heat_order.is_empty()
-        || gallops.schema_version.is_none()
-        || needs_pensum_seed_removal;
+    // Forgiveness probe is the single source of old-format detection (rivet JJr_forgiveness).
+    // Any live episode means the on-disk shape is not yet canonical; tolerate the
+    // round-trip mismatch so the next save rewrites the clean format back to disk.
+    let forgiveness = jjdz_probe(&gallops, &original_bytes);
+    let is_migration_mode = forgiveness.iter().any(|s| s.live);
 
     if !is_migration_mode {
         let reserialized = serde_json::to_string_pretty(&gallops)
@@ -111,13 +183,14 @@ pub fn jjdr_load(path: &Path) -> Result<jjdr_ValidatedGallops, String> {
         }
     }
 
-    // Populate missing fields on first load of old-format file.
+    // V3→V4 forgiveness write-forward — rivet JJr_forgiveness. Populate fields missing in the
+    // old shape so the next jjdr_save lands canonical; serde already drops stale next_pensum_seed.
     // BTreeMap guarantees sorted key order for heat_order.
     if is_migration_mode {
         if gallops.heat_order.is_empty() {
             gallops.heat_order = gallops.heats.keys().cloned().collect();
         }
-        gallops.schema_version = Some(4);
+        gallops.schema_version = Some(JJDZ_CURRENT_SCHEMA);
     }
 
     // Semantic validation
