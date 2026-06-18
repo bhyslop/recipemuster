@@ -220,100 +220,37 @@ The freeholds are intertwined: a muniment binds a foedus principal to a depot ma
 
 Release-cadence refresh: when the quota-touching lifecycle does run (e.g. at releases), it also refreshes the freehold — jilt then re-establish, ordered after the lifecycle's own create→jilt passes, so cleanup is proven on a throwaway before it touches the durable pool. Buys staleness-isolation.
 
-## Terrier homing correction — levy is depots, the bucket is the manor's (260617, operator-sanctioned)
+## Terrier — settled design (260618)
 
-Surfaced in conversation 260617 while orienting the terrier-live pace around the operator's idempotent-tabtarget-then-graft strategy; the operator caught the slip and sanctioned the correction in-heat.
+Consolidates the terrier design settled across the 260617–18 conversation. Intermediate positions explored and withdrawn along the way — a levy/founding graft, then a dedicated manor-provision op — are not narrated here; git history holds them.
 
-The paddock's Terrier section says the per-polity terriers are "payor-created at levy." But levy creates a *depot* (`rbgp_depot_levy`; RBSMF is "Manor demesne — depot levy"), while the Terrier bucket is **Manor-homed** — one bucket shared across every depot under the manor (same paddock sentence). A manor-shared bucket cannot be born at depot levy: it would have no durable home (the build bucket lives in the depot project and dies with it), and a second depot's levy would collide with the first depot's bucket.
+Identity and home (RBS0-grounded, operator-sanctioned):
 
-The correction (a grain-sharpening, not an architecture change — stays in-heat per the freeze's correction/evolution split):
+- Manor ≡ Payor Project. RBS0 typedefs `:rbtgi_payor_project:` as an alias of `:rbtgi_manor:` (RBS0:70); the manor quoin (RBS0:2068) defines a single control-plane GCP project; establish (manual Console) creates it. The operator's long-held understanding was right.
+- The terrier bucket lives in the payor project. There is no separate manor project.
+- The `rbgp_payor.sh` "Cannot create Governor in Payor project" guard stays: it keeps depot-scoped SAs out of the control plane, and the terrier is manor-grain control-plane *data*, so it honors the guard rather than crossing it. (The guard may retire with the enrobe estate at M7, but the separation it encodes should survive.)
 
-- The **Manor-homed bucket** is an idempotent *ensure* grafted into **manor founding** (establish/affiance — the payor founding acts), not into levy.
-- The **per-polity managed folder + its managed-folder IAM** is depot-grain and grafts into **levy**, one folder added per depot founded.
-- Code consequence: the terrier bucket-create must NOT copy the build-bucket's 409-is-fatal pristine guard (the "Create build bucket" step in `rbgp_depot_levy`); a manor-shared bucket's second-depot founding legitimately finds it present.
+₣BZ scope vs ₣Bf:
 
-Why "at levy" reads true in the frozen paddock: for the MVP one-depot-per-manor freehold, manor founding and the single depot's levy coincide, so the grain distinction is invisible. It bites only at the second depot — exactly the multi-foedus / multi-depot-per-manor capability the freehold doctrine above already defers to ₣Bf. So the split is consistent: the homing *sharpening* is a BZ correction (recorded here); the multi-depot *generalization* that makes it load-bearing is ₣Bf.
+- ₣BZ builds the terrier capability — the three sub-ops, plus the net-new managed-folder layer: GCS `storage.managedFolders` REST (create/delete), a teardown that deletes folders (today's object-only emptying does not), and a managed-folder IAM wrapper mirroring the AR repo-IAM idiom over a new rbgi primitive shaped like the bucket-IAM one — and provisions the freehold's terrier via an interim scaffold tabtarget. ₣BZ's own paces (admission verbs, foedus-freehold roster, attribution proof) need only a working terrier on the freehold.
+- The terrier's permanent founding-home — dedicated op vs enlarged affiance vs folded into a foedus-shaped establishment — is deferred to ₣Bf, because it is entangled with affiance's own evolution there (the foedus verb-register question, multiple federations). Captured as the ₣Bf "terrier's permanent founding-home" idea; the interim scaffold stands until ₣Bf consolidates. Signposts against re-conflation are in place: the abandoned graft-pace tombstone, the build pace's Cinched boundary line, and that ₣Bf idea.
 
-Pace shape (260617): the terrier-live pace is reslated to build-and-verify-via-tabtarget — an idempotent destroy-then-create terrier provisioning tabtarget run against the freehold, so the noun internals (muniment shape, managed-folder grain, bucket name/home) settle through cheap iteration with zero depot/manor quota churn. A new graft-and-demolish pace folds the proven sequence into founding (bucket→manor founding, folder→levy) and deletes the scaffold tabtarget — the demolition condition as a committed pace. The tabtarget deliberately outlives the terrier-consuming dev paces (admission verbs, foedus-freehold) so they get cheap resets; demolition is last.
+Grain (settled):
 
-Net-new surface the build pace carries (grounded 260617): GCS `storage.managedFolders` REST (create/delete) is absent repo-wide; a managed-folder IAM wrapper mirrors the AR repo-IAM idiom in the registry module over a new rbgi primitive shaped like the bucket-IAM primitive; and teardown must delete managed folders, which today's object-only bucket-emptying does not.
+- Write is folder-scoped, own-polity — a governor's mantle writes only its own depot's managed folder (managed-folder IAM).
+- Read is bucket-level, manor-wide — every governor mantle reads all folders (operator ruling 260618: read across all terriers is fair at governor stature), so read is one bucket grant, not per-folder. The payor reads inherently as owner of the payor project (no grant).
 
-## Terrier pace review — confusions surfaced and ameliorations (260617)
+Open noun-internals (settle in the build pace, not blocking): object granularity (per-entry vs per-subject), the muniment JSON shape under a fresh terrier sprue, the bucket name and its constant home.
 
-A cold-read review of the two terrier dockets (the reslated build-and-verify pace and the new graft-and-demolish pace) surfaced gaps the first drafts papered over. Recorded here so the corrections survive the chat reset; the dockets were amended the same session.
+## Manor-identity divergence — for Fable's review (260618)
 
-Confusions found:
+Kept for the terminal Fable review to adjudicate; the terrier design above is otherwise settled.
 
-- **The bucket's hosting project was never settled, and the graft docket pre-committed a target it could not know.** "Manor-homed" implies a durable manor-scoped project, but the repo has only the payor project and per-depot projects (the build bucket dies with its depot). RBSTR and the paddock park "bucket name + constant home" yet never name "which project hosts it." The graft docket wrote "establish/affiance" as if decided — and affiance has no GCS project at all (org-level pool only), so it was simply wrong as a bucket target, while establish-vs-first-levy was an undecided fork. Amelioration: the build pace now carries the project-home as an explicit decision it must make and record (payor project vs a dedicated manor project — note the latter may be net-new infra), and the graft pace's target is written as contingent on that decision, with affiance excluded.
+RBS0 makes the Manor the Payor Project (a control-plane project — a building). The federation conversion introduced a second, org-level sense of "Manor" without reconciling RBS0: the paddock's "org anchor, a deed not a building" (grep-empty in the specs — paddock-only), and the federation machinery operating on an organization (`RBRF_ORG_ID`, affiance) rather than the project. The paddock body line was corrected in conversation under operator sanction (the freeze banner records it); this section is the divergence's standing record.
 
-- **The read-population grain was conflated with own-polity write.** The first Done-when paired "own-polity write IAM" with "read population governors-and-above" as one binding. They are two grains: write is folder-scoped, but the foedus-freehold roster head-count needs governors-and-above to read manor-wide across polities. There is also a latent source conflict (early design prose said governors read own-depot; the paddock says governors-and-above) and an unsettled payor read mechanism (OAuth user vs a mantle). Amelioration: the build pace's first criterion now asserts only own-polity write; the read grain is a named decision feeding the foedus-freehold pace.
+Provenance hypothesis (two candidates, neutral):
 
-- **The terminal Fable review did not list this divergence.** The homing-correction is a divergence from the frozen paddock's "payor-created at levy," but the Fable-review pace's reconciliation checklist did not name it, risking a silent paddock/code contradiction. Amelioration: the Fable-review pace is reslated to ratify-or-overturn the homing-correction and note its open questions.
+1. Fable confabulation — the federation-conversion author reconceived the manor as an org-level "deed," a polished-but-ungrounded reframing (the "deed not a building" coinage is the tell, nowhere in the specs).
+2. Editor spec/impl drift (the operator's own candidate) — conformance between spec, implementation, and paddock was not enforced, so the org-level sense accreted and the paddock voiced it.
 
-Smaller ameliorations folded into the dockets:
-
-- The provisioning tabtarget churns at folder-grain by default (delete the managed folder + its muniments, keep the bucket) — recreating the whole bucket each iteration risks GCS's same-name reuse lag, which would undercut the cheap-iteration premise.
-- "the standing freehold" disambiguated to the standing depot freehold (the one whose governor mantle the write IAM binds); the manor/foedus freehold is the later foedus-freehold pace.
-- The tabtarget's colophon is transitional ashlar, not broadside-registered (the enrobe/defrock precedent).
-- The graft pace's own verification (a fresh keyless founding) is quota-touching — a full manor+depot stand-up — so it is operator-invoked / release-cadence, never a routine auto-suite member; the build-pace fixture self-skips without service credentials.
-
-Load-bearing reconciliation note: the frozen paddock still reads "payor-created at levy." Because the paddock is read-only until the Fable review, that line contradicts the dockets on its face; the only bridge is the docket pointer to this memo's terrier-homing-correction. A reader who skips the memo will read the contradiction as real. This is unavoidable while the freeze holds — it resolves only when the Fable review re-authors the paddock.
-
-## Manor identity — the Manor IS the Payor Project (260618, operator-sanctioned; paddock corrected in conversation)
-
-Research this session (RBS0, RBSRF, RBSPE, RBSMA, source) resolved decision #1 (the terrier bucket's home) and surfaced a spec/paddock divergence the terminal Fable review must adjudicate.
-
-Finding — the authoritative noun model makes them one entity:
-
-- RBS0 typedefs `:rbtgi_payor_project:` as an ALIAS pointing at the same anchor as `:rbtgi_manor:` (RBS0:70) — Manor and Payor Project are the same entity, two names.
-- The manor quoin (RBS0:2068) defines it as "the singular administrative GCP project that hosts the Payor SA, the OAuth client, and the billing account ... the control plane from which depot projects are created." A project, not an org.
-- RBSPE's establish step 1 is titled "Create the Manor" and creates the payor project; the handbook says "creating the Manor's GCP project."
-- So Manor ≡ Payor Project (`RBRP_PAYOR_PROJECT_ID`). The operator's long-held understanding was correct.
-
-The divergence (for Fable review) — the federation conversion introduced a SECOND, org-level sense of "Manor" without reconciling RBS0:
-
-- The paddock asserted "every manor brings a domain (org anchor, a deed not a building), a Cloud Identity org ..." — calling the manor a deed (org-level), contradicting RBS0's "the building" (a project).
-- The phrase "org anchor, a deed not a building" exists ONLY in the paddock (grep-empty in the specs).
-- The federation regime (RBSRF) and affiance operate on an organization (`RBRF_ORG_ID`), never the payor project — consistent with the org-level sense, and never reconciled back to RBS0's project definition.
-
-Provenance hypothesis (two candidates, recorded neutrally for Fable to adjudicate):
-
-1. **Fable confabulation.** The federation-conversion paddock author (Fable-class) reconceived the manor as an org-level "deed" — a plausible-but-unspecified reframing not grounded in RBS0, of the kind a confident author introduces when the source is not re-read alongside the writing. The "deed not a building" coinage is the tell: rhetorically polished, load-bearing to the reframing, and nowhere in the specs.
-2. **Editor spec/impl drift (the operator's own candidate).** The editor did not enforce high spec↔implementation↔paddock conformance, so the org-level federation machinery (`RBRF_ORG_ID`, affiance) accreted a divergent "manor" sense that was never reconciled to RBS0's project definition; the paddock then voiced the drift.
-
-Both fit the evidence; the truth may be a blend — a confabulated coinage that lax conformance left unchallenged. The practical correction stands regardless of which; the provenance call is the Fable review's, and it bears on a process question (does paddock authoring need a spec-conformance gate) larger than this heat.
-
-Correction applied (operator-sanctioned in conversation, 260618):
-
-- The paddock Boundary line is corrected in place: the manor is the payor project (RBS0's control-plane project — a building, not a deed); federation additionally requires that project sit under a Cloud Identity org with an IdP, the org hosting the workforce pool but not itself being the manor. The freeze banner records the sanction.
-- This is the one paddock-body edit made under operator sanction; all other corrections remain memo/pace-homed per the freeze.
-
-Consequences settled:
-
-- **Decision #1 (terrier bucket home) resolves: the bucket lives in the payor project (= the manor).** No separate manor project exists or is warranted; "dedicated manor project" is rejected as net-new infra for no gain.
-- **The `rbgp_payor.sh` guard "Cannot create Governor in Payor project" is KEPT, not removed.** It enforces the control-plane/workload separation RBS0 intends: depot-scoped SAs (governors, and the mantles) belong in depot projects, never the control-plane manor project. The terrier does NOT conflict with it — the terrier is manor-grain control-plane *data*, not depot infra, so it lives in the manor/payor project honoring the guard. (The earlier "counter-precedent" flag was imprecise: the guard's spirit is "depot infra out of the control plane," and the terrier is control-plane, so it is aligned, not crossing.) The guard may retire with the enrobe estate at M7, but the separation it encodes should survive that retirement.
-
-Ceremony decision — a dedicated scriptable manor-provision step (project integrity):
-
-- The Manor (payor project) is created MANUALLY via Console (RBSPE). There is today NO scriptable operation that provisions the manor's programmatic cloud resources — establish is hand-done, affiance does only the org-level IdP trust, levy does depot resources.
-- The terrier bucket is the FIRST manor-grain cloud resource needing programmatic management, so it forces the question: (A) bolt the bucket-ensure onto affiance, or (B) mint a dedicated scriptable manor-provision operation.
-- **Chosen: (B), ruled by the operator as required for project integrity now.** Bolting onto affiance would make affiance lie about its scope (it is "establish the manor's IdP trust," not "...and provision its storage"), mixing org-work and project-work. A dedicated manor-provision operation is the honest home, fills the real gap (the manor has no scriptable resource-provisioning act), and is the seam where future manor-grain resources land. The MVP-surface cost — a new manor-demesne colophon, since L/E/A/J are taken — is outweighed by the integrity gain.
-- Shape: the manor-provision op is permanent (idempotent ensure of the terrier bucket in the payor project; payor-credentialed; run after the manual establish, joined to the onboarding founding sequence). It is NOT the demolished scaffold — what the graft pace retires is only the dev-only reset/destroy convenience used to iterate noun internals; the ensure op persists. The strategy's quota-flat iteration still holds: the reset capability rides alongside through the terrier-consuming dev paces and is retired at the graft.
-
-## Re-cut — affiance stays narrow in ₣BZ; the terrier's founding-home defers to ₣Bf (260618, operator-sanctioned)
-
-Supersedes the ceremony decision in the manor-identity section above (the dedicated manor-provision op, "option B"). That decision is withdrawn — not wrong, but premature for ₣BZ.
-
-Trigger: re-reading ₣Bf (rbk-14-mvp-federation-evolution, the federation-evolution holding heat). ₣Bf already holds the manor/affiance consolidation as deliberate deferrals — the foedus noun (with the open "do the verbs affiance/jilt migrate to match it" verb-register question, flagged for Fable), multiple federations (affiance keyed to named instances), and the payor-as-IT-department governor-selects model. So affiance's very shape and scope are Fable's call in ₣Bf.
-
-Consequence: enlarging affiance in ₣BZ — or even building a permanent dedicated manor-provision op — pre-empts that consolidation. The terrier's permanent founding-home (dedicated op vs enlarged affiance vs folded into a foedus-shaped manor establishment) IS the consolidation ₣Bf owns.
-
-The cut:
-
-- ₣BZ builds the terrier CAPABILITY (sub-ops, managed-folder REST + IAM) and provisions the freehold's terrier via the interim scaffold tabtarget. Its own paces (admission verbs, foedus-freehold roster, attribution proof) need only a working terrier on the freehold, which the scaffold gives. No permanent manor-provision op, no founding graft in ₣BZ.
-- The scaffold is interim — the standing terrier-provisioning tool until ₣Bf consolidates — retired there, not demolished in ₣BZ.
-- The graft-and-demolish pace (the former founding-integration pace) is abandoned in ₣BZ; its intent moves to ₣Bf as a named-tension idea ("the terrier's permanent founding-home"), entangled with foedus / multiple-federations / affiance-evolution so Fable decides the whole manor-establishment shape at once.
-
-Unchanged (RBS0-grounded ₣BZ corrections, not consolidation-entangled): manor ≡ payor project; the terrier bucket lives in the payor project; the `rbgp_payor.sh` guard stays.
-
-Anti-conflation note: the ₣BZ↔₣Bf boundary keeps blurring because the heats touch the same machinery and "MVP vs evolution" is fuzzy under pressure — it bit this session twice (the manor-provision op baked in, then withdrawn). The durable mitigation is signposting at the points of stumble, placed in the artifacts: the abandoned graft-pace tombstone (where a future groom asks "where is the founding-integration pace?"), the terrier build pace's Cinched boundary line ("provision via the interim scaffold; do not graft"), and the ₣Bf named-tension idea written so any re-derivation of "enlarge affiance now" lands on a ready answer rather than blank space. Deliberately NOT signposted into the frozen ₣BZ paddock — its banner already routes out-of-scope ideas to ₣Bf, and the specific deflection lives in the docket where it is read.
+Likely a blend. The practical correction stands regardless; the provenance call is Fable's, and it bears on a process question — whether paddock authoring needs a spec-conformance gate — larger than this heat.
