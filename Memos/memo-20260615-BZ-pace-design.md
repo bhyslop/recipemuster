@@ -170,7 +170,7 @@ Colophon `rbw-mJ`, frontispiece PayorJiltsManor, payor-credentialed.
 An operator verb, not a test-only teardown gesture:
 the create/delete round-trip becomes test cases, so jilt earns first-class verb status with its own contract.
 
-Why jilt (MCM Word Selection):
+Why jilt (MCM Lapidary):
 
 - **Asterism — the decider.** Affiance is the betrothal/diplomatic-marriage register
   ("the pledged faith between manor and IdP; *fiancé* keeps it warm").

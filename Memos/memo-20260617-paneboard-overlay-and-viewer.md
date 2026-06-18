@@ -205,7 +205,7 @@ Existing neighborhoods to coordinate with, not collide:
   temporal (`YYMMDD-NNNN`), not terminal-based, so nothing collides.
 - **Word-selection hazard:** "session" is already overloaded — an officium *is* a session, the
   chat-capture work keys on the *Claude Code session UUID*, and we add the *iTerm session id*. Three
-  distinct identities; MCM Word Selection forces distinct words rather than a reused "session."
+  distinct identities; MCM Lapidary forces distinct words rather than a reused "session."
 
 **paneboard — informal, in `poc/paneboard-poc.md`** (~1,260 lines, feature-organized, "rigorous
 developer notes" register — no quoins). New features slot in as new sections following its template

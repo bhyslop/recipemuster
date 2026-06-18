@@ -364,7 +364,7 @@ whole; nothing here invents role machinery:
   cannot block a chorister's Bedrock calls, only enrollment ceremonies.
 - **Civic verbs, not invest/divest.** ₣BZ retires invest/divest/mantle/roster; choristers are
   **enfranchised, enfeoffed, escheated, expelled** — the same verb set, second polity kind.
-  (Verb words re-minted 2026-06-10 under MCM Word Selection: enfeoff/escheat/recut replace the
+  (Verb words re-minted 2026-06-10 under MCM Lapidary: enfeoff/escheat/recut replace the
   trodden grant/revoke/rekey; ₣BZ paddock authoritative.) The
   AWS credential analog of recut rides whichever identity tier (§14) the Cloister runs.
 - **The precentor follows the governor's dissolution**: keeps its quoin, dissolves
@@ -550,7 +550,7 @@ rung exists.
   Terrier homing: the Terrier is per-polity ledger files in a **Manor bucket** (payor creates
   at levy; governor-writeable own-polity-only; admin-plane reads; working verbs never touch
   it); civic verbs (enfranchise/expel/enfeoff/escheat/recut — words per the paddock's 260610
-  re-mint under MCM Word Selection) replace invest/divest/mantle/roster;
+  re-mint under MCM Lapidary) replace invest/divest/mantle/roster;
   governor dissolves to citizen + capability-set. §12's civic homogenization and §14's middle
   tier ride these cinches.
 - curl/AWS, verified 2026-06-10 (§13 transport seam): curl native `--aws-sigv4` signing with

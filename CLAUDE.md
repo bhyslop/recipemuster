@@ -214,7 +214,7 @@ For MCM concept model specs, apply this discipline on top of the general minting
 
 See minting memo Pattern J (RBS0/JJS0 empirical study) for evidence.
 
-### Word Selection Discipline (MCM "Word Selection")
+### Word Selection Discipline (MCM "Lapidary")
 
 Prefix rules govern the left half of a name; these govern the word itself. When minting any persistent name — quoin word-parts, verbs, nouns, colophon words:
 
@@ -225,13 +225,13 @@ Prefix rules govern the left half of a name; these govern the word itself. When 
 - **Mint into an asterism** (`mcm_asterism`): join a coherent metaphor family with an audible register (equestrian, ecclesiastical, diplomatic, civic).
 - **Exposure ladder** (`mcm_ashlar`/`mcm_hearting`): hearting (interior, prefix-only) → quoin (catalogued default) → ashlar (operator-facing). An ashlar must be fair-faced (first-contact actionable; `mcm_cold_probe` tests it), draws from the coffer (bounded operator vocabulary), and registers on the project's broadside (RB's broadside is the README glossary). Words in error output are ashlar.
 
-Full doctrine: MCM "Word Selection". Constrains births, not the living.
+Full doctrine: MCM "Lapidary". Constrains births, not the living.
 
 ### Minting Workflow
 
 Before minting new prefixes:
 1. **Enumerate namespaces** — list every place this name will appear (code, refs, commands, env vars, target paths...)
-2. **Check word selection** — apply MCM Word Selection to the word part (grep gate, no trodden words, asterism fit)
+2. **Check word selection** — apply MCM Lapidary to the word part (grep gate, no trodden words, asterism fit)
 3. **Check reserved suffixes** — ensure the suffix matches intended type
 4. **Verify terminal exclusivity** — search existing trees, check the memo
 5. **Document the allocation** — add to prefix map in relevant heat/spec

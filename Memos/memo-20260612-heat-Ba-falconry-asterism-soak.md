@@ -3,7 +3,7 @@
 **Heat:** ₣Ba
 **Date:** 2026-06-12
 **Status:** SOAKING — register elected, anchors fixed, legend deliberately unminted.
-**Inputs:** MCM § Word Selection; CLAUDE.md Prefix Naming Discipline;
+**Inputs:** MCM § Lapidary; CLAUDE.md Prefix Naming Discipline;
 `Memos/memo-20260110-acronym-selection-study.md`; ₣Ba paddock (same-day revision).
 
 ---
@@ -82,5 +82,5 @@ exclusivity per CLAUDE.md minting workflow), and every verb.
 
 Manorial-rejection evidence: ₣BZ paddock (office-federation conversion, same day).
 Roman-family argument preserved above in case the soak fails and the runner-up
-returns. Asterism doctrine: MCM § Word Selection; model-side rationale precedent:
+returns. Asterism doctrine: MCM § Lapidary; model-side rationale precedent:
 `Memos/retired/memo-20260610-quoin-minting-introspection.md`.

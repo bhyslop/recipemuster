@@ -104,7 +104,7 @@ migration only, never an availability hedge.
 ## Open (resolved within ₣BZ)
 
 - Vocabulary re-mint for the new model — the office noun, the impersonation
-  act, login/session words — under MCM Word Selection (follow-on pace, mulled
+  act, login/session words — under MCM Lapidary (follow-on pace, mulled
   separately).
 - Test-rig synthetic-persona credential decision (per-run click vs caged
   test-org secret).
