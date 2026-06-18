@@ -299,3 +299,21 @@ Ceremony decision — a dedicated scriptable manor-provision step (project integ
 - The terrier bucket is the FIRST manor-grain cloud resource needing programmatic management, so it forces the question: (A) bolt the bucket-ensure onto affiance, or (B) mint a dedicated scriptable manor-provision operation.
 - **Chosen: (B), ruled by the operator as required for project integrity now.** Bolting onto affiance would make affiance lie about its scope (it is "establish the manor's IdP trust," not "...and provision its storage"), mixing org-work and project-work. A dedicated manor-provision operation is the honest home, fills the real gap (the manor has no scriptable resource-provisioning act), and is the seam where future manor-grain resources land. The MVP-surface cost — a new manor-demesne colophon, since L/E/A/J are taken — is outweighed by the integrity gain.
 - Shape: the manor-provision op is permanent (idempotent ensure of the terrier bucket in the payor project; payor-credentialed; run after the manual establish, joined to the onboarding founding sequence). It is NOT the demolished scaffold — what the graft pace retires is only the dev-only reset/destroy convenience used to iterate noun internals; the ensure op persists. The strategy's quota-flat iteration still holds: the reset capability rides alongside through the terrier-consuming dev paces and is retired at the graft.
+
+## Re-cut — affiance stays narrow in ₣BZ; the terrier's founding-home defers to ₣Bf (260618, operator-sanctioned)
+
+Supersedes the ceremony decision in the manor-identity section above (the dedicated manor-provision op, "option B"). That decision is withdrawn — not wrong, but premature for ₣BZ.
+
+Trigger: re-reading ₣Bf (rbk-14-mvp-federation-evolution, the federation-evolution holding heat). ₣Bf already holds the manor/affiance consolidation as deliberate deferrals — the foedus noun (with the open "do the verbs affiance/jilt migrate to match it" verb-register question, flagged for Fable), multiple federations (affiance keyed to named instances), and the payor-as-IT-department governor-selects model. So affiance's very shape and scope are Fable's call in ₣Bf.
+
+Consequence: enlarging affiance in ₣BZ — or even building a permanent dedicated manor-provision op — pre-empts that consolidation. The terrier's permanent founding-home (dedicated op vs enlarged affiance vs folded into a foedus-shaped manor establishment) IS the consolidation ₣Bf owns.
+
+The cut:
+
+- ₣BZ builds the terrier CAPABILITY (sub-ops, managed-folder REST + IAM) and provisions the freehold's terrier via the interim scaffold tabtarget. Its own paces (admission verbs, foedus-freehold roster, attribution proof) need only a working terrier on the freehold, which the scaffold gives. No permanent manor-provision op, no founding graft in ₣BZ.
+- The scaffold is interim — the standing terrier-provisioning tool until ₣Bf consolidates — retired there, not demolished in ₣BZ.
+- The graft-and-demolish pace (the former founding-integration pace) is abandoned in ₣BZ; its intent moves to ₣Bf as a named-tension idea ("the terrier's permanent founding-home"), entangled with foedus / multiple-federations / affiance-evolution so Fable decides the whole manor-establishment shape at once.
+
+Unchanged (RBS0-grounded ₣BZ corrections, not consolidation-entangled): manor ≡ payor project; the terrier bucket lives in the payor project; the `rbgp_payor.sh` guard stays.
+
+Anti-conflation note: the ₣BZ↔₣Bf boundary keeps blurring because the heats touch the same machinery and "MVP vs evolution" is fuzzy under pressure — it bit this session twice (the manor-provision op baked in, then withdrawn). The durable mitigation is signposting at the points of stumble, placed in the artifacts: the abandoned graft-pace tombstone (where a future groom asks "where is the founding-integration pace?"), the terrier build pace's Cinched boundary line ("provision via the interim scaffold; do not graft"), and the ₣Bf named-tension idea written so any re-derivation of "enlarge affiance now" lands on a ready answer rather than blank space. Deliberately NOT signposted into the frozen ₣BZ paddock — its banner already routes out-of-scope ideas to ₣Bf, and the specific deflection lives in the docket where it is read.
