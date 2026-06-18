@@ -1,6 +1,6 @@
 // Frozen V3 types — DO NOT EDIT.
 // Reference for the V3→V4 forgiveness episode in jjdr_load.
-// Removal governed by the forgiveness mechanism — rivet JJr_forgiveness.
+// Removal governed by the forgiveness mechanism — rivet JJr_a7c.
 
 #![allow(dead_code)]
 

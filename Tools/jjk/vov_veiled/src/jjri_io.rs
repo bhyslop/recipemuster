@@ -74,16 +74,20 @@ pub fn jjri_paddock_path(firemark: &str) -> String {
 /// `schema_version` differs from this toward it; detection lives in jjdz_probe.
 pub const JJDZ_CURRENT_SCHEMA: u32 = 4;
 
-/// Forgiveness mechanism rivet — the named cited token; rationale lives in JJS0
-/// `jjdz_forgiveness`.
+/// Forgiveness mechanism rivet — opaque cited token (MCM `mcm_rivet`); the proposition and
+/// rationale live in JJS0 `jjdz_forgiveness`.
 ///
-/// Single source of the token string (String Boundary Discipline): the jjx_open nag emits
-/// it, and every code and spec site that tolerates an old on-disk schema cites it, so
-/// `grep JJr_forgiveness` lands on the spec quoin — the permanent registry/probe/nag operating
-/// manual. Named rather than opaque so a console reader of the nag understands it at sight; it
-/// names only the mechanism, never a per-episode specific (those are registry data). This is
-/// the RBr_ rivet doctrine made JJK-native — the rust ships, the veiled specs do not.
-pub const JJDZ_RIVET: &str = "JJr_forgiveness";
+/// A rivet ID carries no meaning, unlike a quoin's readable name — the opaque tail leaks no
+/// semantics into the rust that ships without the veiled spec. Single source of the token string
+/// (String Boundary Discipline): one `grep JJr_a7c` returns the spec quoin (the permanent
+/// registry/probe/nag operating manual) and every code and spec site the mechanism governs. The
+/// jjx_open nag emits it beside the legible label below, so a console reader can grep straight to
+/// the spec — the census surface a jailer rivet rides on its phase announcement (JDG JDo_101).
+pub const JJDZ_RIVET_FORGIVENESS: &str = "JJr_a7c";
+
+/// Operator-facing label for the forgiveness mechanism — the readable form the jjx_open nag prints
+/// beside the opaque rivet token. The rivet stays meaningless; the human reads this.
+pub const JJDZ_LABEL_FORGIVENESS: &str = "forgiveness";
 
 /// Verdict words for the open-time nag, one per `jjdz_Status` live value.
 const ZJJDZ_PENDING: &str = "pending";
@@ -113,7 +117,7 @@ struct zjjdz_Episode {
     is_live: fn(&jjrg_Gallops, &[u8]) -> bool,
 }
 
-/// V3→V4 episode live-test — rivet JJr_forgiveness.
+/// V3→V4 episode live-test — rivet JJr_a7c.
 ///
 /// True when any pre-V4 residue is present:
 ///   - heat_order absent (added in V4; BTreeMap sort order differs from original furlough order)
@@ -167,7 +171,7 @@ pub fn jjdr_load(path: &Path) -> Result<jjdr_ValidatedGallops, String> {
     let mut gallops: jjrg_Gallops = serde_json::from_slice(&original_bytes)
         .map_err(|e| format!("Failed to parse JSON: {}", e))?;
 
-    // Forgiveness probe is the single source of old-format detection (rivet JJr_forgiveness).
+    // Forgiveness probe is the single source of old-format detection (rivet JJr_a7c).
     // Any live episode means the on-disk shape is not yet canonical; tolerate the
     // round-trip mismatch so the next save rewrites the clean format back to disk.
     let forgiveness = jjdz_probe(&gallops, &original_bytes);
@@ -183,7 +187,7 @@ pub fn jjdr_load(path: &Path) -> Result<jjdr_ValidatedGallops, String> {
         }
     }
 
-    // V3→V4 forgiveness write-forward — rivet JJr_forgiveness. Populate fields missing in the
+    // V3→V4 forgiveness write-forward — rivet JJr_a7c. Populate fields missing in the
     // old shape so the next jjdr_save lands canonical; serde already drops stale next_pensum_seed.
     // BTreeMap guarantees sorted key order for heat_order.
     if is_migration_mode {

@@ -666,11 +666,13 @@ fn zjjrm_gazette_paths_block(
 /// Best-effort, read-only forgiveness nag for jjx_open.
 ///
 /// Reads the on-disk Gallops without the commit lock and emits one status line per registered
-/// forgiveness episode, each carrying the rivet token (JJr_forgiveness): pending when the
-/// tolerance is still load-bearing on this install, dormant when the store is already canonical
-/// for that episode (a removal candidate once every clone agrees). Non-gating by contract — any
-/// read or parse failure is silently skipped so jjx_open always succeeds. The lockless peek sees
-/// only whole files (jjdr_save renames atomically) and mutates nothing.
+/// forgiveness episode — `<label> <episode>: <verdict> (<rivet>)`, e.g.
+/// `forgiveness V3→V4: dormant (JJr_a7c)` — carrying the opaque rivet token as a grep/census
+/// surface: pending when the tolerance is still load-bearing on this install, dormant when the
+/// store is already canonical for that episode (a removal candidate once every clone agrees).
+/// Non-gating by contract — any read or parse failure is silently skipped so jjx_open always
+/// succeeds. The lockless peek sees only whole files (jjdr_save renames atomically) and mutates
+/// nothing.
 fn zjjrm_forgiveness_nag(output: &mut vvc::vvco_Output) {
     let path = gallops_pathbuf();
     let bytes = match std::fs::read(&path) {
@@ -682,7 +684,16 @@ fn zjjrm_forgiveness_nag(output: &mut vvc::vvco_Output) {
         Err(_) => return,
     };
     for status in crate::jjri_io::jjdz_probe(&gallops, &bytes) {
-        vvco_out!(output, "{} {}: {}", crate::jjri_io::JJDZ_RIVET, status.label, status.jjdz_verdict());
+        // Legible label + opaque rivet token (JJr_a7c) — the rivet rides the emission as a grep
+        // surface; the label reads at sight (the jjx_open echo of JDG JDo_101).
+        vvco_out!(
+            output,
+            "{} {}: {} ({})",
+            crate::jjri_io::JJDZ_LABEL_FORGIVENESS,
+            status.label,
+            status.jjdz_verdict(),
+            crate::jjri_io::JJDZ_RIVET_FORGIVENESS
+        );
     }
 }
 

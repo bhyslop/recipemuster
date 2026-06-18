@@ -1770,8 +1770,8 @@ Output always includes the prefix (`₣` or `₢`).
 //axve_entity
 {jjdz_forgiveness}::
 The permanent mechanism by which {jjdr_load} tolerates an on-disk {jjdgr_gallops} written under an older schema, converging it forward on the next save rather than rejecting it.
-Named in shipped code by the rivet token `JJr_forgiveness` — a single-defined, greppable handle that names the mechanism alone and carries no per-episode specific; `grep JJr_forgiveness` lands here and on every code and spec site the mechanism governs.
-This is the cited-constraint anchor pattern — one anchor, many citers — and the JJK-native form of the RBr_ rivet doctrine, since the rust ships and this veiled spec does not.
+Cited in shipped code by the opaque rivet token `JJr_a7c` — a rivet's identifier carries no meaning, unlike this quoin's readable name, so it leaks no semantics into the rust that ships without this veiled spec; one `grep JJr_a7c` returns this definition and every code and spec site the mechanism governs.
+This is the cited-constraint anchor pattern — one anchor, many citers — the RBr_ rivet doctrine made JJK-native; the {jjdo_open} nag emits the token beside a legible label, the census surface a jailer rivet rides on its phase announcement.
 +
 *Three standing parts.*
 A per-episode _registry_, one entry per tolerated old shape.
