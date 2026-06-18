@@ -1998,3 +1998,34 @@ Allow users with Director credentials to:
 ### Context
 
 Identified 2026-01-28 during exploratory discussion. Motivating use case unclear — could be dev iteration speed, multi-platform builds, or cost savings. Worth clarifying before implementation.
+
+## buc-doc-param-req-opt
+Upgrade `buc_doc_param` to a `buc_doc_param_{req,opt}` pair that registers the doc *and* enforces presence in one call.
+
+### Problem
+
+Every public BUC-consuming function repeats a three-block ritual: bind each positional (`local -r z_x="${N:-}"`), document each (`buc_doc_param "x" "desc"`), then validate each (`test -n "${z_x}" || buc_die "X required"`). The doc and validate blocks are semantically parallel — same param list, same order — but split because `buc_doc_param` only knows the param *name*, never its *value*, so it structurally cannot enforce non-emptiness. The split is real today, not redundant, but it means a 5-param function carries 5 doc lines and 5 near-identical `test -n` lines that must be kept in lockstep by hand.
+
+### Proposed Direction
+
+Introduce a value-aware doc primitive so doc-registration and presence-enforcement collapse into one list:
+
+- `buc_doc_param_req "x" "${z_x}" "desc"` — registers `<<x>>` in the usage string + prints the doc line in doc-mode (as today), AND in execution mode dies with the canonical "X required" if the value is empty.
+- `buc_doc_param_opt "x" "${z_x}" "desc"` — registers `[<<x>>]`, prints the optional doc line, no presence enforcement.
+
+The existing `buc_doc_param` / `buc_doc_oparm` could remain for the rare value-less case, or be retired once consumers migrate.
+
+### Design Questions
+
+1. **Three-arg shape.** Passing the value as arg 2 couples doc-registration to the bound variable. Confirm this doesn't trip the doc-mode early-return ordering (the usage-string append must still run in execution mode, as `buc_doc_param` does today at `buc_command.sh:223`).
+2. **Error message form.** Current sites die with bespoke strings ("Bucket name required", "Token required"). A generic helper would emit something derived from the param name ("x required"). Decide whether the uniform message is acceptable or whether an optional override arg is warranted.
+3. **Scope of migration.** This touches every `rbg*` / `buc`-consuming public function in the codebase — large but mechanical. Likely a dedicated sweep heat, not a drive-by.
+
+### Trade-offs
+
+- **Win:** one list instead of two, kept in lockstep by construction; fewer hand-maintained `test -n` lines; presence-enforcement can't silently drift from the doc list.
+- **Cost:** a BUC API change touching every consumer's mental model; the call site grows a value argument; the bespoke-error-string nuance needs a decision.
+
+### Context
+
+Identified 2026-06-18 while reviewing the new `rbgb_managed_folder_add_iam_role` (mirrors the bucket-IAM grant idiom in `rbgb_buckets.sh`). The five-param doc+validate ritual prompted the question "can these consolidate?" — they can't with today's primitives, but a value-aware `buc_doc_param_req` would let them. Deliberately deferred as a whole-family BUC change rather than a local edit.
