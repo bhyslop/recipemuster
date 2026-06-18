@@ -18,12 +18,13 @@
 #
 # Recipe Bottle Federation Terrier - muniment access sub-operations
 #
-# The data layer over a provisioned terrier: the three atomic sub-operations
-# engross / expunge / peruse that touch the Manor-homed terrier bucket, each a
-# single conditioned REST call whose atomicity Cloud Storage adjudicates (no
+# The data layer over a provisioned terrier: the atomic sub-operations engross /
+# expunge / peruse / peruse_manor that touch the Manor-homed terrier bucket, each
+# a single conditioned REST call whose atomicity Cloud Storage adjudicates (no
 # external lock, no cloud-build invocation). brevet / unseat / rehearse are the
-# RBS0-side civic wrappers that compose these; this module carries no lock logic
-# and no IAM — it is glue over a service. Contract: RBSTR-Terrier.adoc.
+# RBS0-side civic wrappers that compose these — rehearse over the manor-wide read;
+# this module carries no lock logic and no IAM — it is glue over a service.
+# Contract: RBSTR-Terrier.adoc.
 #
 # A muniment is one GCS object per (principal subject, mantle held) pair — the
 # settled per-entry granularity. Its object name indexes the pair under the
@@ -62,6 +63,8 @@ zrbgft_kindle() {
   readonly ZRBGFT_INFIX_EXPUNGE="terrier_expunge"
   readonly ZRBGFT_INFIX_PERUSE_LIST="terrier_peruse_list"
   readonly ZRBGFT_INFIX_PERUSE_GET="terrier_peruse_get"
+  readonly ZRBGFT_INFIX_PERUSE_MANOR_LIST="terrier_peruse_manor_list"
+  readonly ZRBGFT_INFIX_PERUSE_MANOR_GET="terrier_peruse_manor_get"
 
   readonly ZRBGFT_KINDLED=1
 }
@@ -182,12 +185,87 @@ rbgft_expunge() {
   esac
 }
 
+# Shared list-and-fetch core for the muniment reads. Pages a GCS object listing
+# (prefix empty = the whole terrier, manor-wide; "<depot>/" = one polity slice),
+# fetches each object's body, and echoes one tab-separated "<mantle>\t<subject>"
+# line per muniment, read from the rbgft_ content fields (never the key). A
+# read-after-list 404 — an object expunged between the listing and its fetch — is
+# a benign vanish and is skipped, not fatal: a pure read must not crash because a
+# concurrent unseat withdrew an entry, and the wider the sweep the wider that
+# window. Any other list/fetch non-OK, or a body missing the rbgft_ fields, is
+# fatal. <list_infix> is suffixed with the page number; <get_infix> names the
+# per-object fetch capture.
+zrbgft_list_fetch_emit() {
+  zrbgft_sentinel
+
+  local -r z_token="${1}"
+  local -r z_bucket="${2}"
+  local -r z_prefix="${3}"   # may be empty — manor-wide read of the whole terrier
+  local -r z_list_infix="${4}"
+  local -r z_get_infix="${5}"
+
+  local z_prefix_param=""
+  if test -n "${z_prefix}"; then
+    local z_prefix_enc
+    z_prefix_enc=$(rbuh_urlencode_capture "${z_prefix}") || buc_die "Failed to encode list prefix"
+    z_prefix_param="prefix=${z_prefix_enc}"
+  fi
+
+  buc_log_args 'Page through the muniment listing, fetching each body'
+  local z_page_token=""
+  local z_page=0
+  while :; do
+    z_page=$((z_page + 1))
+    local z_query="${z_prefix_param}"
+    if test -n "${z_page_token}"; then
+      local z_tok_enc
+      z_tok_enc=$(rbuh_urlencode_capture "${z_page_token}") || buc_die "Failed to encode pageToken"
+      test -z "${z_query}" || z_query="${z_query}&"
+      z_query="${z_query}pageToken=${z_tok_enc}"
+    fi
+    local z_url="${RBGC_API_BASE_GCS}/b/${z_bucket}/o"
+    test -z "${z_query}" || z_url="${z_url}?${z_query}"
+
+    local z_list_infix_page="${z_list_infix}${z_page}"
+    rbuh_json "GET" "${z_url}" "${z_token}" "${z_list_infix_page}"
+    rbuh_require_ok "Terrier read: list muniments" "${z_list_infix_page}"
+
+    local z_list_file="${ZRBUH_PREFIX}${z_list_infix_page}${ZRBUH_POSTFIX_JSON}"
+    local z_names
+    z_names=$(jq -r '.items[]?.name // empty' "${z_list_file}") || buc_die "Failed to read muniment listing"
+
+    local z_name=""
+    while IFS= read -r z_name; do
+      test -n "${z_name}" || continue
+      local z_name_enc
+      z_name_enc=$(rbuh_urlencode_capture "${z_name}") || buc_die "Failed to encode muniment name"
+      rbuh_json "GET" "${RBGC_API_BASE_GCS}/b/${z_bucket}/o/${z_name_enc}?alt=media" \
+        "${z_token}" "${z_get_infix}"
+
+      local z_get_code
+      z_get_code=$(rbuh_code_capture "${z_get_infix}") || buc_die "Bad muniment fetch HTTP code"
+      case "${z_get_code}" in
+        200) : ;;
+        404) buc_info "Muniment ${z_name} vanished between list and fetch — skipped"; continue ;;
+        *)   rbuh_require_ok "Terrier read: fetch muniment ${z_name}" "${z_get_infix}" ;;
+      esac
+
+      local z_get_file="${ZRBUH_PREFIX}${z_get_infix}${ZRBUH_POSTFIX_JSON}"
+      jq -r '[.rbgft_mantle, .rbgft_subject] | @tsv' "${z_get_file}" \
+        || buc_die "Muniment ${z_name} missing rbgft_ fields"
+    done <<< "${z_names}"
+
+    z_page_token=$(jq -r '.nextPageToken // empty' "${z_list_file}") || buc_die "Failed to read nextPageToken"
+    test -n "${z_page_token}" || break
+  done
+}
+
 # rbgft_peruse <token> <bucket> <depot_project_id>
 # The pure list-and-fetch read of one polity's muniments — no precondition. Lists
-# every object under the polity folder prefix, fetches each object's content, and
-# echoes one tab-separated "<mantle>\t<subject>" line per muniment (read from the
-# rbgft_ content fields, never by parsing the key). The read side rehearse
-# composes and the read side of the reconciliation diff.
+# every object under the polity folder prefix, fetches each, and echoes one
+# tab-separated "<mantle>\t<subject>" line per muniment (read from the rbgft_
+# content fields, never by parsing the key). The read side rehearse composes for
+# one polity, and the read side of the reconciliation diff.
 rbgft_peruse() {
   zrbgft_sentinel
 
@@ -201,47 +279,31 @@ rbgft_peruse() {
 
   buc_step "Peruse muniments for polity ${z_depot}"
 
-  local -r z_prefix="${z_depot}/"
-  local z_prefix_enc
-  z_prefix_enc=$(rbuh_urlencode_capture "${z_prefix}") || buc_die "Failed to encode polity prefix"
+  zrbgft_list_fetch_emit "${z_token}" "${z_bucket}" "${z_depot}/" \
+    "${ZRBGFT_INFIX_PERUSE_LIST}" "${ZRBGFT_INFIX_PERUSE_GET}"
+}
 
-  buc_log_args 'Page through the polity prefix, fetching each muniment body'
-  local z_page_token=""
-  local z_page=0
-  while :; do
-    z_page=$((z_page + 1))
-    local z_url="${RBGC_API_BASE_GCS}/b/${z_bucket}/o?prefix=${z_prefix_enc}"
-    if test -n "${z_page_token}"; then
-      local z_tok_enc
-      z_tok_enc=$(rbuh_urlencode_capture "${z_page_token}") || buc_die "Failed to encode pageToken"
-      z_url="${z_url}&pageToken=${z_tok_enc}"
-    fi
+# rbgft_peruse_manor <token> <bucket>
+# The manor-wide read — every muniment in the terrier across all polities, no
+# prefix filter (read is bucket-level per RBS0). Echoes the same tab-separated
+# "<mantle>\t<subject>" line per muniment as the per-polity peruse; the depot
+# stays the object key's index, recoverable but deliberately unemitted (no
+# located consumer needs per-entry depot attribution — the muniment's placement
+# already is the (principal subject × depot mantle) join). The read rehearse
+# composes manor-wide.
+rbgft_peruse_manor() {
+  zrbgft_sentinel
 
-    local z_list_infix="${ZRBGFT_INFIX_PERUSE_LIST}${z_page}"
-    rbuh_json "GET" "${z_url}" "${z_token}" "${z_list_infix}"
-    rbuh_require_ok "Peruse: list polity muniments" "${z_list_infix}"
+  local -r z_token="${1:-}"
+  local -r z_bucket="${2:-}"
 
-    local z_list_file="${ZRBUH_PREFIX}${z_list_infix}${ZRBUH_POSTFIX_JSON}"
-    local z_names
-    z_names=$(jq -r '.items[]?.name // empty' "${z_list_file}") || buc_die "Failed to read muniment listing"
+  test -n "${z_token}"  || buc_die "Token required"
+  test -n "${z_bucket}" || buc_die "Bucket required"
 
-    local z_name=""
-    while IFS= read -r z_name; do
-      test -n "${z_name}" || continue
-      local z_name_enc
-      z_name_enc=$(rbuh_urlencode_capture "${z_name}") || buc_die "Failed to encode muniment name"
-      rbuh_json "GET" "${RBGC_API_BASE_GCS}/b/${z_bucket}/o/${z_name_enc}?alt=media" \
-        "${z_token}" "${ZRBGFT_INFIX_PERUSE_GET}"
-      rbuh_require_ok "Peruse: fetch muniment ${z_name}" "${ZRBGFT_INFIX_PERUSE_GET}"
+  buc_step "Peruse muniments manor-wide"
 
-      local z_get_file="${ZRBUH_PREFIX}${ZRBGFT_INFIX_PERUSE_GET}${ZRBUH_POSTFIX_JSON}"
-      jq -r '[.rbgft_mantle, .rbgft_subject] | @tsv' "${z_get_file}" \
-        || buc_die "Muniment ${z_name} missing rbgft_ fields"
-    done <<< "${z_names}"
-
-    z_page_token=$(jq -r '.nextPageToken // empty' "${z_list_file}") || buc_die "Failed to read nextPageToken"
-    test -n "${z_page_token}" || break
-  done
+  zrbgft_list_fetch_emit "${z_token}" "${z_bucket}" "" \
+    "${ZRBGFT_INFIX_PERUSE_MANOR_LIST}" "${ZRBGFT_INFIX_PERUSE_MANOR_GET}"
 }
 
 # eof
