@@ -1,6 +1,6 @@
 # Memo — Degenerate Federation for Test Personas (non-interactive assize acquisition)
 
-- **Date:** 2026-06-16
+- **Date:** 2026-06-16 (re-verified against live docs 2026-06-18)
 - **Author:** Claude Opus 4.8, in conversation with Brad
 - **Heat:** ₣Bf (compearance-headless / test-rig reconsideration)
 - **Status:** finding recorded; **approach not yet resolved** — this memo retains the
@@ -26,9 +26,14 @@ federated token with **no browser and no device flow**. STS validates only
 does not care *how* the JWT was minted. This confirms — now against live GCP docs —
 the spike's V5 paper-finding (`Memos/memo-20260612-federation-legs-spike-findings.md`).
 
-**Honesty caveat:** this is **doc-confirmed + spike-paper-confirmed**, not yet
-live-run in our own harness. The caged-JWT path below has not been exercised end to
-end against our pool; treat it as a strong design lead, not a proven recipe.
+**Honesty caveat:** as of the 2026-06-18 re-verification this is **confirmed against
+live GCP docs down to the exact gcloud flag** (`--jwk-json-path`, below) — no longer
+merely spike-paper-confirmed — but **not yet live-run in our own harness**. The
+caged-JWT path has not been exercised end to end against our pool; treat it as a
+strong design lead, not a proven recipe. The sole remaining unknown is the end-to-end
+composition (provider → minted JWT → STS → donned mantle), which no doc can close
+because from Google's vantage we are simply an IdP with an uploaded JWKS — see the
+spike gotcha under Shape 1.
 
 ## Mechanism — the programmatic flow
 
@@ -45,24 +50,42 @@ end against our pool; treat it as a strong design lead, not a proven recipe.
 
 Returns a short-lived (~1 h) Google access token scoped to the workforce pool.
 
-Doc-confirmed facts that make the degenerate path work:
+Doc-confirmed facts that make the degenerate path work (re-verified against live GCP
+docs 2026-06-18):
 
 - Locally **uploaded OIDC JWKS "can only be used in programmatic flow"** — i.e. the
   no-console path. Console / implicit / authorization-code sign-in **cannot** ride
   uploaded JWKS. This is precisely the asymmetry the spike's V5 flagged.
-- The flow is documented as working on **"headless machines"** via file-sourced,
-  URL-sourced, and executable-sourced credentials — fully non-interactive.
+  ([configure WIF](https://docs.cloud.google.com/iam/docs/configuring-workforce-identity-federation))
+- The caged provider's config door is the gcloud flag **`--jwk-json-path`** —
+  *"an optional path to a locally uploaded OIDC JWKs. If this parameter isn't supplied,
+  Google Cloud instead uses your IdP's `/.well-known/openid-configuration` path to
+  source the JWKs."* That flag is exactly what lets us hold the private key and stand
+  as our own issuer.
+  ([configure WIF](https://docs.cloud.google.com/iam/docs/configuring-workforce-identity-federation))
+- The docs **explicitly bless headless**: *"The methods that are described in this
+  guide can be used on headless machines."* Non-interactive credential sources are
+  file-sourced, URL-sourced, and executable-sourced.
+  ([obtain short-lived tokens](https://docs.cloud.google.com/iam/docs/workforce-obtaining-short-lived-credentials))
 - **No workforce-vs-workload constraint** blocks automated acquisition; the
   programmatic STS endpoint is identical in shape.
+- **The only validation gates are signature-against-JWKS + issuer + `aud`**, and
+  `--client-id` must equal the JWT's `aud` claim regardless of JWKS source. That
+  `aud`↔client-id match — plus issuer-URI format and `exp` skew — is the most likely
+  first-contact trip for a spike.
+  ([configure WIF](https://docs.cloud.google.com/iam/docs/configuring-workforce-identity-federation))
 
 ## Two degenerate shapes
 
 ### 1. Caged self-signed JWT (most degenerate — "R4's ghost")
 
 - Hold **one signing keypair**. Configure the workforce OIDC provider with that JWKS
-  (uploaded to the provider).
+  via `gcloud iam workforce-pools providers ... --jwk-json-path=<file>` (the
+  uploaded-JWKS door confirmed above).
 - The harness mints a JWT carrying the right `iss`/`aud`/`sub`/`exp` and posts it
-  straight to STS.
+  straight to STS. **Spike gotcha:** the provider's `--client-id` must equal the JWT's
+  `aud` claim, and the issuer-URI format and `exp` skew are the other first-contact
+  trips.
 - **No IdP server, no Keycloak, no human** — just a keypair and a signature GCP
   checks.
 - **Cost:** you own the signing key — it *is* a durable test secret. This is the one
@@ -73,10 +96,14 @@ Doc-confirmed facts that make the degenerate path work:
 ### 2. Real test IdP with a non-interactive grant (Keycloak)
 
 - Stand up Keycloak; configure the workforce provider to trust its issuer.
-- Obtain the `id_token` via ROPC / password grant, or client-credentials /
-  JWT-bearer (federated client auth is supported as of Keycloak 26.x).
-- More faithful ("a real IdP issued this"); heavier (a running IdP); the password
-  grant is deprecated under OAuth 2.1.
+- Obtain the `id_token` non-interactively. The clean current path is the **JWT
+  Authorization Grant (RFC 7523)**, **promoted from preview to supported in Keycloak
+  26.5 / 26.6** (Jan 2026): present a signed JWT assertion to the token endpoint and
+  get an access token with no interactive step. This supersedes the deprecated ROPC /
+  password grant the earlier note relied on.
+  ([Keycloak 26.5 announcement](https://www.keycloak.org/2026/01/jwt-authorization-grant),
+  [JWT Authorization Grant docs](https://www.keycloak.org/securing-apps/jwt-authorization-grant))
+- More faithful ("a real IdP issued this"); heavier (a running IdP).
 
 ## What degenerate testing CAN and CANNOT prove
 
@@ -132,10 +159,11 @@ GCP Workforce Identity Federation:
 - Troubleshoot — https://docs.cloud.google.com/iam/docs/troubleshooting-workforce-identity-federation
 
 Keycloak:
-- JWT Authorization Grant — https://www.keycloak.org/securing-apps/jwt-authorization-grant
+- JWT Authorization Grant — promoted preview→supported in 26.5/26.6 (2026-06-18 re-verify) — https://www.keycloak.org/2026/01/jwt-authorization-grant
+- JWT Authorization Grant (docs) — https://www.keycloak.org/securing-apps/jwt-authorization-grant
 - Federated client authentication (2026) — https://www.keycloak.org/2026/01/federated-client-authentication
 - Token exchange — https://www.keycloak.org/securing-apps/token-exchange
-- Password grant walkthrough — https://dulanjanwijesekara.medium.com/keycloak-generate-access-token-using-password-grant-and-oauth-2-0-credentials-eb082e7903f3
+- Password grant walkthrough (deprecated; superseded by JWT grant) — https://dulanjanwijesekara.medium.com/keycloak-generate-access-token-using-password-grant-and-oauth-2-0-credentials-eb082e7903f3
 
 IETF standards:
 - RFC 8628 (Device Authorization Grant) — https://datatracker.ietf.org/doc/html/rfc8628
