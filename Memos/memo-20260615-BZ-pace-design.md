@@ -249,7 +249,7 @@ Pace split (260618): the build work splits into two paces, each carrying its own
 
 Kept for the terminal Fable review to adjudicate; the terrier design above is otherwise settled.
 
-RBS0 makes the Manor the Payor Project (a control-plane project — a building). The federation conversion introduced a second, org-level sense of "Manor" without reconciling RBS0: the paddock's "org anchor, a deed not a building" (grep-empty in the specs — paddock-only), and the federation machinery operating on an organization (`RBRF_ORG_ID`, affiance) rather than the project. The paddock body line was corrected in conversation under operator sanction (the freeze banner records it); this section is the divergence's standing record.
+RBS0 makes the Manor the Payor Project (a control-plane project — a building). The federation conversion introduced a second, org-level sense of "Manor" without reconciling RBS0: the paddock's "org anchor, a deed not a building" (grep-empty in the specs — paddock-only), and the federation machinery operating on an organization (`RBRF_ORG_ID`, affiance) rather than the project. The paddock body line is left in Fable's original wording under the freeze; the divergence is flagged by a freeze-banner pointer to this memo, and the terminal Fable review reconciles it in the paddock body. This section is the divergence's standing record.
 
 Provenance hypothesis (two candidates, neutral):
 
