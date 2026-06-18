@@ -53,7 +53,7 @@ Enables the degenerate-test-federation idea and the governor-selects-federation 
 Tension: the federation heat runs its suites by compearing once at suite head — one human browser click per run.
 That is fine for operator-driven runs (the federation heat does not need unattended CI), but those suites cannot run unattended.
 
-Current lean (mechanism doc-confirmed): a caged self-signed JWT — hold a signing keypair, upload its public JWKS to a workforce provider, mint tokens locally, and POST straight to the STS token endpoint (the headless programmatic flow, no browser).
+Current lean (mechanism confirmed live to the exact gcloud flag): a caged self-signed JWT — hold a signing keypair, upload its public JWKS to a workforce provider, mint tokens locally, and POST straight to the STS token endpoint (the headless programmatic flow, no browser).
 Removes the human from the autonomous suite surface.
 
 Hard constraint: the caged signing key is a new durable secret and a root of trust over its pool.
@@ -62,7 +62,8 @@ It must therefore live in its own pool (depends on the federation-regime-family 
 Why deferred: it introduces a durable secret, against the federation heat's zero-keys premise; and that heat does not need unattended CI, so the cost buys nothing there.
 
 Detail and sources: the degenerate-federation test-personas memo records the live-doc confirmation of the programmatic STS flow (RFC 8693 token exchange; uploaded JWKS usable in the programmatic flow only), the two degenerate shapes (caged self-signed JWT vs a real test IdP on a non-interactive grant), the can-and-cannot-prove boundary, and the GCP / Keycloak / RFC URLs.
-Honesty caveat carried in the memo: the mechanism is doc-confirmed and spike-paper-confirmed, not yet live-run in our own harness.
+Honesty caveat carried in the memo (re-verified 2026-06-18): the mechanism is now confirmed against live GCP docs down to the `--jwk-json-path` config door and the `aud`/`client-id` validation gotcha, no longer merely spike-paper-confirmed.
+The sole remaining unknown is end-to-end composition in our own harness — which no doc can close, since from Google's vantage we are simply an IdP with an uploaded JWKS — so a thin spike (provider → minted JWT → STS → donned mantle) is the only step left to prove it.
 
 ## Idea — freeholds: durable reused test installations
 
