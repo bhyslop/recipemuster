@@ -10751,10 +10751,11 @@
       "jjghn_creation_time": "260616",
       "jjghn_status": "jjghe_stabled",
       "jjghn_order": [
+        "₢BfAAC",
         "₢BfAAA",
         "₢BfAAB"
       ],
-      "jjghn_next_pace_seed": "AAC",
+      "jjghn_next_pace_seed": "AAD",
       "jjghn_paces": {
         "₢BfAAA": {
           "jjgpn_tacks": [
@@ -10789,6 +10790,17 @@
               "jjgtn_text": "Define the depot-freehold and its standing-citizen roster-verify, once ₣BZ has settled the citizen relationship under mantle-impersonation.\n\nThe freehold concept (minted in ₣BZ conversation, 260617): a freehold is the durable, deliberately-kept test installation we reuse day-to-day to dodge the create/destroy churn quota — the freehold/leasehold contrast against the ephemeral create→destroy lifecycle fixture.\nIt cross-cuts depot and foedus.\n\nThe foedus-freehold (org-level pool/provider trust) is nucleated in ₣BZ and carries no citizen roster: federation principals are the IdP's census, not a GCP-side list, so its verify is pool/provider/attribute-mapping config only.\n\nThe depot-freehold is this heat's work, deliberately deferred because its nature is unsettled until ₣BZ finishes redefining the citizen relationship under impersonation stature (mantle membership, not keyfile identity).\nThe standing-citizen roster lives here: muniments are (principal subject, mantle held), depot-scoped, read by the rehearse verb over the terrier — both built in ₣BZ.\nThis pace consumes that machinery ready-made; it does not rebuild it.\n\n## Done when\nThe depot-freehold is defined against the post-impersonation citizen model, and its verify iterates the standing-citizen roster (rehearse over the terrier muniments) to confirm the expected citizens are present and hold the expected mantles.\nThe freehold/leasehold vocabulary is grep-gated and seated wherever depot test infrastructure names it — including any canonical→freehold rename, which carries blast radius across the gauntlet/skirmish/dogfight/onboarding suites and is a deliberate decision for this heat.\n\n## Cinched\nThe roster head-count rides ₣BZ's rehearse/terrier/brevet; this heat does not rebuild the counting machinery.\nCitizens are depot-scoped (muniment = principal + mantle); the foedus-freehold has no roster.\nRationale: Memos/memo-20260617-BZ-workforce-pool-constraints.md and the ₣BZ pace-design memo.\n\n## Character\nDesign + fixture definition, gated on ₣BZ's citizen-relationship outcome; carries the cross-cutting freehold mint and the depot-side roster-verify.",
               "jjgtn_silks": "depot-freehold-roster",
               "jjgtn_basis": "7986108"
+            }
+          ]
+        },
+        "₢BfAAC": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260618-1544",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "Two design forks the federation configuration model leaves open need collaborative resolution before the spec-first build unit can proceed; neither is doc-resolvable, so this pace holds them at the front of the heat as a reminder that they want a design conversation, not a lookup.\n\nFork one — the single-test-manor collision: can a synthetic test manor host both the preserved human-click proof and the headless caged suites on one active federation, or does the caged trust's own-pool requirement force the multiplicity axis (or per-run switching of the singleton regime)?\nThis is our test-rig topology, not a fact lookup — it turns on how the freehold and the device-flow proof are installed.\n\nFork two — the programmatic JWKS-source shape: is the JWKS source a programmatic-only uploaded field (fits the caged case alone), or a core field with two sub-modes (uploaded self-held versus issuer-discovered) so a real non-interactive IdP also fits?\nThis decides whether the mechanism gate is a clean two-value, and whether a Keycloak-style real-but-programmatic IdP is in scope for this heat.\n\n## Character\nDesign conversation requiring operator judgment, and Fable where it touches the premise; the blocker the spec-first work waits on.\n\n## Done when\nBoth forks are settled with rationale recorded in the config-model memo: the test-manor topology is chosen (single federation, or multiplicity, or per-run switch), and the JWKS-source shape is fixed (one field or two sub-modes, with the real-programmatic IdP scoped in or out).\nThe rework each implies for the spec-first build unit is named, not left implicit.\n\n## Cinched\nThe configuration model itself — vendor-agnostic core plus mechanism gate, mechanism-not-vendor, OIDC-only — is settled and not reopened here; these forks live within it.",
+              "jjgtn_silks": "settle-federation-config-design-forks",
+              "jjgtn_basis": "b8545e3"
             }
           ]
         }
