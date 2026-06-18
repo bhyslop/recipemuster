@@ -131,6 +131,10 @@ zrbgc_kindle() {
   readonly RBGC_OAUTH_AUTHORIZE_URL="https://accounts.google.com/o/oauth2/v2/auth"
   readonly RBGC_OAUTH_USERINFO_URL="https://www.googleapis.com/oauth2/v3/userinfo"
   readonly RBGC_API_ROOT_IAM="https://iam.googleapis.com"
+  # Distinct service from iam.googleapis.com — iamcredentials hosts the
+  # short-lived-credential mints (generateAccessToken, the Leg-3 don). The IAM
+  # policy ops (get/setIamPolicy, serviceAccounts CRUD) stay on RBGC_API_ROOT_IAM.
+  readonly RBGC_API_ROOT_IAMCREDENTIALS="https://iamcredentials.googleapis.com"
   readonly RBGC_API_ROOT_CRM="https://cloudresourcemanager.googleapis.com"
   readonly RBGC_API_ROOT_SERVICEUSAGE="https://serviceusage.googleapis.com"
   readonly RBGC_API_ROOT_ARTIFACTREGISTRY="https://artifactregistry.googleapis.com"
@@ -154,6 +158,7 @@ zrbgc_kindle() {
 
   # API Version Paths
   readonly RBGC_IAM_V1="/v1"
+  readonly RBGC_IAMCREDENTIALS_V1="/v1"
   readonly RBGC_CRM_V1="/v1"
   readonly RBGC_CRM_V3="/v3"
   readonly RBGC_SERVICEUSAGE_V1="/v1"
@@ -175,6 +180,7 @@ zrbgc_kindle() {
   # REST Operation Suffixes
   readonly RBGC_CRM_GET_IAM_POLICY_SUFFIX=":getIamPolicy"
   readonly RBGC_CRM_SET_IAM_POLICY_SUFFIX=":setIamPolicy"
+  readonly RBGC_IAMCREDENTIALS_GENERATE_ACCESS_TOKEN_SUFFIX=":generateAccessToken"
   readonly RBGC_SERVICEUSAGE_ENABLE_SUFFIX=":enable"
   readonly RBGC_SERVICEUSAGE_PATH_SERVICES="/services"
 

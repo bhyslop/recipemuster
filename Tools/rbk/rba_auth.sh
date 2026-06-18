@@ -57,16 +57,24 @@ zrba_kindle() {
   readonly ZRBA_FED_DEVICE_RESPONSE_FILE="${BURD_TEMP_DIR}/rba_fed_device.json"
   readonly ZRBA_FED_TOKEN_RESPONSE_FILE="${BURD_TEMP_DIR}/rba_fed_token.json"
   readonly ZRBA_FED_STS_RESPONSE_FILE="${BURD_TEMP_DIR}/rba_fed_sts.json"
+  readonly ZRBA_FED_DON_RESPONSE_FILE="${BURD_TEMP_DIR}/rba_fed_don.json"
   readonly ZRBA_FED_CURL_STDERR_FILE="${BURD_TEMP_DIR}/rba_fed_curl_stderr.txt"
   readonly ZRBA_FED_JQ_STDERR_FILE="${BURD_TEMP_DIR}/rba_fed_jq_stderr.txt"
   readonly ZRBA_FED_OPENSSL_STDERR_FILE="${BURD_TEMP_DIR}/rba_fed_openssl_stderr.txt"
   readonly ZRBA_FED_PROBE_STDERR_FILE="${BURD_TEMP_DIR}/rba_fed_probe_stderr.txt"
 
+  # The don's request body is non-secret JSON (the scope list); it is composed
+  # here rather than string-interpolated at the call site.
+  readonly ZRBA_FED_DON_BODY_FILE="${BURD_TEMP_DIR}/rba_fed_don_body.json"
+
   # Non-secret scalar fields parsed out of the leg responses land in these temp
   # files: BCG bars $() on external commands, so jq/date write a file and the
-  # value is read back with $(<file). The federated, id, and access tokens are
-  # never among them — jq emits each straight to its function's stdout, so no
-  # token is added to BURD_TEMP_DIR beyond the curl responses above.
+  # value is read back with $(<file). The id, federated, and mantle tokens are
+  # never among them — jq emits each straight to its function's stdout. The only
+  # token-bearing temp files are the STS and don curl responses above (the
+  # federated and mantle tokens respectively): both are per-invocation
+  # BURD_TEMP_DIR scratch, never the persistent assize cache, which holds the
+  # federated token alone — the mantle token is never cached anywhere.
   readonly ZRBA_FED_ASSIZE_EXPIRY_FILE="${BURD_TEMP_DIR}/rba_fed_assize_expiry.txt"
   readonly ZRBA_FED_ASSIZE_NOW_FILE="${BURD_TEMP_DIR}/rba_fed_assize_now.txt"
   readonly ZRBA_FED_COMPEAR_NOW_FILE="${BURD_TEMP_DIR}/rba_fed_compear_now.txt"
@@ -76,6 +84,8 @@ zrba_kindle() {
   readonly ZRBA_FED_INTERVAL_FILE="${BURD_TEMP_DIR}/rba_fed_interval.txt"
   readonly ZRBA_FED_POLL_ERROR_FILE="${BURD_TEMP_DIR}/rba_fed_poll_error.txt"
   readonly ZRBA_FED_EXPIRES_IN_FILE="${BURD_TEMP_DIR}/rba_fed_expires_in.txt"
+  readonly ZRBA_FED_DON_CODE_FILE="${BURD_TEMP_DIR}/rba_fed_don_code.txt"
+  readonly ZRBA_FED_DON_ERROR_FILE="${BURD_TEMP_DIR}/rba_fed_don_error.txt"
 
   readonly ZRBA_KINDLED=1
 }
@@ -413,6 +423,127 @@ rba_compear() {
     || buc_die "Compearance succeeded but caching the assize failed"
 
   buc_step "Assize opened (federated token expires in ${z_expires_in}s)"
+}
+
+######################################################################
+# Federation branch — the don (Leg 3)
+#
+# rba_don_capture — the impersonation act, as a capture. The federation-path
+# sibling of rba_token_capture: resolves a usable bearer token for an identity,
+# here by minting a mantle service-account access token from the cached federated
+# token via iamcredentials generateAccessToken. Emits the mantle token on stdout
+# once on success, or returns 1 — never buc_die, never stderr (BCG capture
+# contract); the consuming verb supplies the loud buc_die over the returned 1,
+# and the forensic lines below carry the operator instruction it dies with
+# (matching rba_compear's "failed at Leg N; see the transcript" division of
+# labor). The unknown-identity guard buc_dies — a caller bug, not a runtime
+# condition — exactly as rba_token_capture does.
+#
+# Custody: the mantle token reaches only this function's stdout (jq straight to
+# stdout, never a shell var) and the per-invocation curl response (BURD_TEMP_DIR,
+# process lifetime, like the Leg-2 STS response) — never the persistent assize
+# cache. It carries exactly one mantle's authority and self-expires (1 h default
+# ceiling, spike V1); donning again re-mints. A long run re-dons mid-flight while
+# the assize lives; the re-mint ceiling is the assize itself — the
+# cached-federated-token read below returns 1 once the assize lapses, carrying the
+# compear instruction.
+#
+# Single attempt by design. The Leg-3 403 is the structural admission-deficit
+# Palisade signature (spike F2): a workforce federated token carries no
+# API-consumer project, so a citizen not yet brevetted onto the mantle, or a
+# missing quota-project header, 403s with "Method doesn't allow unregistered
+# callers" — which reads like an API-key complaint, not an IAM denial, and no
+# propagation wait fixes it. It is logged as the admission deficit it is and
+# returned, NEVER retried as a propagation race, unlike the SA-propagation loops
+# the keyfile accessor carries.
+#
+# The fast-tier credless guard lives at the compearance entry (rba_compear): no
+# verb dons without a live assize, and the assize read below returns 1 when none
+# is cached, so a credless run never reaches the mint.
+rba_don_capture() {
+  zrba_sentinel
+  zrbrf_sentinel
+  zrbcc_sentinel
+  zrbgc_sentinel
+  zrbdc_sentinel
+
+  local -r z_identity="${1:-}"
+
+  local z_mantle_account
+  case "${z_identity}" in
+    governor)  z_mantle_account="${RBCC_account_mantle_governor}"  ;;
+    director)  z_mantle_account="${RBCC_account_mantle_director}"  ;;
+    retriever) z_mantle_account="${RBCC_account_mantle_retriever}" ;;
+    *) buc_die "rba_don_capture: unknown identity '${z_identity}' (expected governor | director | retriever)" ;;
+  esac
+
+  # The mantle SA lives in the depot project; the depot is also the quota project
+  # named in the x-goog-user-project header below (spike F2). Raw email in the
+  # path, matching the spike — the ':generateAccessToken' custom-method suffix
+  # must stay literal, so the email is not urlencoded here.
+  local -r z_mantle_email="${z_mantle_account}@${RBDC_DEPOT_PROJECT_ID}.${RBGC_SA_EMAIL_DOMAIN}"
+  local -r z_don_url="${RBGC_API_ROOT_IAMCREDENTIALS}${RBGC_IAMCREDENTIALS_V1}/projects/-/serviceAccounts/${z_mantle_email}${RBGC_IAMCREDENTIALS_GENERATE_ACCESS_TOKEN_SUFFIX}"
+  buc_log_args "Donning the ${z_identity} mantle: ${z_mantle_email}"
+
+  # The bearer is the cached federated token. A miss (absent or within skew of
+  # expiry) is the re-mint ceiling — the assize has lapsed; the forensic line
+  # carries the compear instruction and the caller fails loud on the return 1.
+  local z_federated
+  z_federated=$(zrba_assize_read_capture) || {
+    buc_log_args "Assize lapsed — no live federated token is cached; compear to open a fresh assize, then re-run (the mantle re-mint is capped by the assize, not by the mantle token's own lifetime)"
+    return 1
+  }
+
+  # Non-secret request body: cloud-platform scope, default lifetime (1 h ceiling).
+  jq -n --arg scope "${RBGC_SCOPE_CLOUD_PLATFORM}" '{scope: [$scope]}' \
+     > "${ZRBA_FED_DON_BODY_FILE}" 2>"${ZRBA_FED_JQ_STDERR_FILE}" || {
+    buc_log_args "Failed to compose the don request body; see ${ZRBA_FED_JQ_STDERR_FILE}"
+    return 1
+  }
+
+  # Single generateAccessToken call. -o writes the response (mantle token) to the
+  # curl-response scratch; -w prints the HTTP code to stdout, captured to a file.
+  local z_status=0
+  curl -sS -X POST "${z_don_url}"                        \
+    --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
+    --max-time        "${RBCC_CURL_MAX_TIME_SEC}"        \
+    -H "Authorization: Bearer ${z_federated}"            \
+    -H "x-goog-user-project: ${RBDC_DEPOT_PROJECT_ID}"   \
+    -H "Content-Type: application/json"                  \
+    --data "@${ZRBA_FED_DON_BODY_FILE}"                  \
+    -o "${ZRBA_FED_DON_RESPONSE_FILE}"                   \
+    -w '%{http_code}'                                    \
+    > "${ZRBA_FED_DON_CODE_FILE}" 2>"${ZRBA_FED_CURL_STDERR_FILE}" || z_status=$?
+  test "${z_status}" -eq 0 || {
+    buc_log_args "Leg 3 (don) curl failed (exit ${z_status}); see ${ZRBA_FED_CURL_STDERR_FILE}"
+    return 1
+  }
+
+  local -r z_code=$(<"${ZRBA_FED_DON_CODE_FILE}")
+  case "${z_code}" in
+    200) ;;
+    403)
+      jq -r '.error.message // empty' "${ZRBA_FED_DON_RESPONSE_FILE}" \
+         > "${ZRBA_FED_DON_ERROR_FILE}" 2>"${ZRBA_FED_JQ_STDERR_FILE}" \
+         || : > "${ZRBA_FED_DON_ERROR_FILE}"
+      local -r z_errmsg=$(<"${ZRBA_FED_DON_ERROR_FILE}")
+      buc_log_args "Leg 3 (don) denied (HTTP 403) for mantle ${z_mantle_email}: ${z_errmsg} — admission deficit, not a propagation race; brevet the compeared citizen onto the mantle (tokenCreator on the mantle SA + serviceUsageConsumer on the depot project); not retried"
+      return 1 ;;
+    *)
+      buc_log_args "Leg 3 (don) failed (HTTP ${z_code}) for mantle ${z_mantle_email}; see ${ZRBA_FED_DON_RESPONSE_FILE}"
+      return 1 ;;
+  esac
+
+  # Mantle access token (secret): jq emits it straight to stdout, never through a
+  # shell var or the persistent cache. select(length > 0) yields a non-zero jq
+  # exit for an absent/empty token, and the forensic line rides that exit status.
+  local z_jq_status=0
+  jq -er '.accessToken // empty | select(length > 0)' \
+     "${ZRBA_FED_DON_RESPONSE_FILE}" 2>"${ZRBA_FED_JQ_STDERR_FILE}" || z_jq_status=$?
+  test "${z_jq_status}" -eq 0 || {
+    buc_log_args "Leg 3 (don) returned no accessToken; see ${ZRBA_FED_DON_RESPONSE_FILE}"
+    return 1
+  }
 }
 
 rba_extract_json_to_rbra() {
