@@ -72,11 +72,15 @@ zrbgp_furnish() {
   # depot/repo regime. manor_affiance and manor_jilt are manor-level founding/
   # un-founding ops that work the federation trust independent of any one depot,
   # so they enforce the federation regime (RBRF) instead of the depot/repo
-  # regimes. Every other command works a specific depot.
+  # regimes. The polity admission verbs (brevet/unseat/attaint/rehearse) work a
+  # specific depot AND don the governor mantle, so they enforce the federation
+  # regime (the pool id + assize machinery) on top of the depot/repo regimes.
+  # Every other command works a specific depot.
   case "${z_command}" in
-    rbgp_depot_list)                     : ;;
-    rbgp_manor_affiance|rbgp_manor_jilt) zrbrf_enforce ;;
-    *)                                   zrbrr_enforce; zrbrd_enforce ;;
+    rbgp_depot_list)                                    : ;;
+    rbgp_manor_affiance|rbgp_manor_jilt)                zrbrf_enforce ;;
+    rbgp_brevet|rbgp_unseat|rbgp_attaint|rbgp_rehearse) zrbrf_enforce; zrbrr_enforce; zrbrd_enforce ;;
+    *)                                                  zrbrr_enforce; zrbrd_enforce ;;
   esac
   zrbdc_kindle
 

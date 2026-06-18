@@ -2255,6 +2255,259 @@ rbgp_terrier_proof() {
   buc_success "Terrier muniment atomicity proven on ${z_bucket}: engross/412-idempotent, peruse, expunge/404-idempotent"
 }
 
+######################################################################
+# Polity admission verbs (rbgp_brevet / rbgp_unseat / rbgp_attaint /
+# rbgp_rehearse) — the operator-facing federation admission surface under the
+# rbw-p launcher family. Each is a thin idempotent composition over the terrier
+# muniment sub-ops (rbgft_) and the two IAM binding types: tokenCreator on the
+# mantle SA (a principal:// member) and serviceUsageConsumer on the depot project
+# (spike F2). Intent-first ordering: the muniment write precedes every binding.
+#
+# The verbs run as a donned governor mantle (rba_compear then rba_don_capture
+# governor — this pace is that accessor's first consumer). The token-agnostic
+# *_core helpers carry the composition so the levy founding exception (the payor
+# breveting the first governor) and the interim proof can drive the same logic
+# payor-credentialed. Contract: the RBSP* polity-verb specs and the paddock
+# Verbs-and-orderings table.
+#
+# Bucket grain: the manor terrier is payor-project grain (RBGP_TERRIER_BUCKET);
+# a donned governor reaches it via the manor's payor-project id, which the MVP
+# draws from the enforced payor regime (a multi-operator successor would source
+# the manor id from federation/depot config instead).
+
+# Map a mantle name (governor|director|retriever) to its mantle SA email in the
+# current depot. Dies on an unknown mantle — the only accepted set anywhere.
+zrbgp_mantle_sa_email_capture() {
+  zrbgp_sentinel
+  local -r z_mantle="${1:-}"
+  local z_account=""
+  case "${z_mantle}" in
+    governor)  z_account="${RBCC_account_mantle_governor}"  ;;
+    director)  z_account="${RBCC_account_mantle_director}"  ;;
+    retriever) z_account="${RBCC_account_mantle_retriever}" ;;
+    *) return 1 ;;
+  esac
+  printf '%s@%s' "${z_account}" "${RBGD_SA_EMAIL_FULL}"
+}
+
+# Compose the workforce federated principal member for a subject — the grantable
+# identity in every depot under the manor (single home for the principal:// form).
+zrbgp_principal_member_capture() {
+  zrbgp_sentinel
+  local -r z_subject="${1:-}"
+  test -n "${z_subject}" || return 1
+  printf 'principal://iam.googleapis.com/locations/global/workforcePools/%s/subject/%s' \
+    "${RBRF_WORKFORCE_POOL_ID}" "${z_subject}"
+}
+
+# brevet core — token-agnostic admission composition. Ensures the muniment first,
+# then idempotently ensures both bindings: tokenCreator on the mantle SA and
+# serviceUsageConsumer on the depot project. First-vs-further admission differs
+# only in that the depot-scoped binding is already present on a further mantle —
+# the idempotent ensure absorbs it. Donned-governor verb and payor founding/proof
+# paths share this.
+zrbgp_brevet_core() {
+  zrbgp_sentinel
+
+  local -r z_token="${1:-}"
+  local -r z_mantle="${2:-}"
+  local -r z_subject="${3:-}"
+
+  test -n "${z_token}"   || buc_die "Token required"
+  test -n "${z_mantle}"  || buc_die "Mantle required"
+  test -n "${z_subject}" || buc_die "Subject required"
+
+  local -r z_bucket="${RBGP_TERRIER_BUCKET}"
+  local -r z_depot="${RBDC_DEPOT_PROJECT_ID}"
+  local z_mantle_email
+  z_mantle_email=$(zrbgp_mantle_sa_email_capture "${z_mantle}") \
+    || buc_die "Unknown mantle '${z_mantle}' (expected governor | director | retriever)"
+  local z_principal
+  z_principal=$(zrbgp_principal_member_capture "${z_subject}") || buc_die "Failed to compose principal member"
+
+  buc_step "Brevet ${z_subject} onto the ${z_mantle} mantle"
+
+  buc_log_args 'Intent-first: write the muniment before any binding'
+  rbgft_engross "${z_token}" "${z_bucket}" "${z_depot}" "${z_mantle}" "${z_subject}" >/dev/null
+
+  buc_log_args 'Ensure tokenCreator on the mantle SA (the don grant)'
+  rbgi_add_sa_principal_iam_role "${z_token}" "${z_mantle_email}" "${z_principal}" \
+    "${RBGC_ROLE_IAM_SERVICE_ACCOUNT_TOKEN_CREATOR}"
+
+  buc_log_args 'Ensure serviceUsageConsumer on the depot project (Leg-3 quota project)'
+  rbgi_add_project_iam_role "${z_token}" "Brevet serviceUsageConsumer for ${z_subject}" \
+    "projects/${z_depot}" "${RBGC_ROLE_SERVICEUSAGE_SERVICE_USAGE_CONSUMER}" \
+    "${z_principal}" "polity_brevet_suc"
+
+  buc_success "Breveted ${z_subject} onto the ${z_mantle} mantle"
+}
+
+# unseat core — token-agnostic withdrawal of one mantle. Withdraws the muniment,
+# then removes only the tokenCreator binding; the depot-scoped serviceUsageConsumer
+# stays in place — a citizen unseated of every mantle is suspended, not erased, and
+# cheap to re-brevet. attaint alone sweeps the depot-scoped binding.
+zrbgp_unseat_core() {
+  zrbgp_sentinel
+
+  local -r z_token="${1:-}"
+  local -r z_mantle="${2:-}"
+  local -r z_subject="${3:-}"
+
+  test -n "${z_token}"   || buc_die "Token required"
+  test -n "${z_mantle}"  || buc_die "Mantle required"
+  test -n "${z_subject}" || buc_die "Subject required"
+
+  local -r z_bucket="${RBGP_TERRIER_BUCKET}"
+  local -r z_depot="${RBDC_DEPOT_PROJECT_ID}"
+  local z_mantle_email
+  z_mantle_email=$(zrbgp_mantle_sa_email_capture "${z_mantle}") \
+    || buc_die "Unknown mantle '${z_mantle}' (expected governor | director | retriever)"
+  local z_principal
+  z_principal=$(zrbgp_principal_member_capture "${z_subject}") || buc_die "Failed to compose principal member"
+
+  buc_step "Unseat ${z_subject} from the ${z_mantle} mantle"
+
+  buc_log_args 'Intent-first: withdraw the muniment before removing the binding'
+  rbgft_expunge "${z_token}" "${z_bucket}" "${z_depot}" "${z_mantle}" "${z_subject}" >/dev/null
+
+  buc_log_args 'Remove tokenCreator on the mantle SA (depot-scoped binding stays: suspension)'
+  rbgi_revoke_sa_principal_member "${z_token}" "${z_mantle_email}" "${z_principal}" \
+    "${RBGC_ROLE_IAM_SERVICE_ACCOUNT_TOKEN_CREATOR}"
+
+  buc_success "Unseated ${z_subject} from the ${z_mantle} mantle"
+}
+
+# attaint core — token-agnostic whole-person expulsion from the depot. Unseats the
+# subject from every mantle (idempotent — a mantle not held is a no-op), then
+# sweeps the depot-scoped serviceUsageConsumer binding unseat leaves behind, then
+# notes the deregistration. A partial teardown lands as visible surplus, never a
+# resurrection. The IdP-side identity removal is the IdP admin's, out of scope here.
+zrbgp_attaint_core() {
+  zrbgp_sentinel
+
+  local -r z_token="${1:-}"
+  local -r z_subject="${2:-}"
+
+  test -n "${z_token}"   || buc_die "Token required"
+  test -n "${z_subject}" || buc_die "Subject required"
+
+  local -r z_depot="${RBDC_DEPOT_PROJECT_ID}"
+  local z_principal
+  z_principal=$(zrbgp_principal_member_capture "${z_subject}") || buc_die "Failed to compose principal member"
+
+  buc_step "Attaint ${z_subject} — whole-person expulsion from ${z_depot}"
+
+  buc_log_args 'Unseat every mantle (idempotent — an unheld mantle is a no-op)'
+  local z_mantle=""
+  for z_mantle in governor director retriever; do
+    zrbgp_unseat_core "${z_token}" "${z_mantle}" "${z_subject}"
+  done
+
+  buc_log_args 'Sweep the depot-scoped serviceUsageConsumer — attaint alone does this'
+  rbgi_revoke_project_member "${z_token}" "Attaint sweep serviceUsageConsumer for ${z_subject}" \
+    "projects/${z_depot}" "${RBGC_ROLE_SERVICEUSAGE_SERVICE_USAGE_CONSUMER}" \
+    "${z_principal}" "polity_attaint_suc"
+
+  buc_info "Deregistered ${z_subject} from ${z_depot}; IdP-side identity removal is the IdP admin's"
+  buc_success "Attainted ${z_subject} from ${z_depot}"
+}
+
+# rbgp_brevet <subject> <mantle> — admit a compeared citizen onto a mantle in this
+# depot. Wields the governor mantle.
+rbgp_brevet() {
+  zrbgp_sentinel
+
+  local -r z_subject="${BUZ_FOLIO:-}"
+  local -r z_mantle="${1:-}"
+
+  buc_doc_brief "Brevet a citizen onto a mantle in this depot (governor-wielded admission)"
+  buc_doc_param "subject" "The citizen's federated workforce subject (the IdP-asserted identity)"
+  buc_doc_param "mantle"  "Which mantle to admit onto: governor | director | retriever"
+  buc_doc_shown || return 0
+
+  test -n "${z_subject}" || buc_die "Subject required as the first argument"
+  test -n "${z_mantle}"  || buc_die "Mantle required as the second argument (governor | director | retriever)"
+
+  # Don the governor mantle — compear runs outside the capture (its device flow
+  # needs the terminal); only the mint is captured.
+  rba_compear
+  local z_token
+  z_token=$(rba_don_capture "governor") \
+    || buc_die "Failed to don the governor mantle — compear if the assize lapsed, or brevet this identity onto the governor mantle if admission is denied"
+
+  zrbgp_brevet_core "${z_token}" "${z_mantle}" "${z_subject}"
+}
+
+# rbgp_unseat <subject> <mantle> — remove a citizen from one mantle (suspension —
+# the depot-scoped binding survives). Wields the governor mantle.
+rbgp_unseat() {
+  zrbgp_sentinel
+
+  local -r z_subject="${BUZ_FOLIO:-}"
+  local -r z_mantle="${1:-}"
+
+  buc_doc_brief "Unseat a citizen from one mantle in this depot (suspension, not erasure)"
+  buc_doc_param "subject" "The citizen's federated workforce subject"
+  buc_doc_param "mantle"  "Which mantle to remove: governor | director | retriever"
+  buc_doc_shown || return 0
+
+  test -n "${z_subject}" || buc_die "Subject required as the first argument"
+  test -n "${z_mantle}"  || buc_die "Mantle required as the second argument (governor | director | retriever)"
+
+  rba_compear
+  local z_token
+  z_token=$(rba_don_capture "governor") \
+    || buc_die "Failed to don the governor mantle — compear if the assize lapsed, or brevet this identity onto the governor mantle if admission is denied"
+
+  zrbgp_unseat_core "${z_token}" "${z_mantle}" "${z_subject}"
+}
+
+# rbgp_attaint <subject> — expel a citizen wholly from this depot (every mantle,
+# then sweep the depot-scoped binding). Wields the governor mantle.
+rbgp_attaint() {
+  zrbgp_sentinel
+
+  local -r z_subject="${BUZ_FOLIO:-}"
+
+  buc_doc_brief "Attaint a citizen — whole-person expulsion from this depot"
+  buc_doc_param "subject" "The citizen's federated workforce subject"
+  buc_doc_shown || return 0
+
+  test -n "${z_subject}" || buc_die "Subject required as the first argument"
+
+  rba_compear
+  local z_token
+  z_token=$(rba_don_capture "governor") \
+    || buc_die "Failed to don the governor mantle — compear if the assize lapsed, or brevet this identity onto the governor mantle if admission is denied"
+
+  zrbgp_attaint_core "${z_token}" "${z_subject}"
+}
+
+# rbgp_rehearse — recount the manor-wide muniment roll (pure read, mutates
+# nothing). Wields the governor mantle (bucket-level read, manor-wide).
+rbgp_rehearse() {
+  zrbgp_sentinel
+
+  buc_doc_brief "Rehearse the manor terrier — recount every muniment (who holds what), read-only"
+  buc_doc_shown || return 0
+
+  rba_compear
+  local z_token
+  z_token=$(rba_don_capture "governor") \
+    || buc_die "Failed to don the governor mantle — compear if the assize lapsed, or brevet this identity onto the governor mantle if admission is denied"
+
+  buc_step 'Rehearse the manor terrier (manor-wide muniment roll)'
+  local z_muniments
+  z_muniments=$(rbgft_peruse_manor "${z_token}" "${RBGP_TERRIER_BUCKET}") \
+    || buc_die "Failed to rehearse the manor terrier"
+
+  if test -z "${z_muniments}"; then
+    buc_info "No muniments — the manor terrier holds no standing citizens"
+  else
+    printf '%s\n' "${z_muniments}"
+  fi
+}
+
 rbgp_payor_oauth_refresh() {
   zrbgp_sentinel
 
