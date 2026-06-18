@@ -258,3 +258,44 @@ Smaller ameliorations folded into the dockets:
 - The graft pace's own verification (a fresh keyless founding) is quota-touching — a full manor+depot stand-up — so it is operator-invoked / release-cadence, never a routine auto-suite member; the build-pace fixture self-skips without service credentials.
 
 Load-bearing reconciliation note: the frozen paddock still reads "payor-created at levy." Because the paddock is read-only until the Fable review, that line contradicts the dockets on its face; the only bridge is the docket pointer to this memo's terrier-homing-correction. A reader who skips the memo will read the contradiction as real. This is unavoidable while the freeze holds — it resolves only when the Fable review re-authors the paddock.
+
+## Manor identity — the Manor IS the Payor Project (260618, operator-sanctioned; paddock corrected in conversation)
+
+Research this session (RBS0, RBSRF, RBSPE, RBSMA, source) resolved decision #1 (the terrier bucket's home) and surfaced a spec/paddock divergence the terminal Fable review must adjudicate.
+
+Finding — the authoritative noun model makes them one entity:
+
+- RBS0 typedefs `:rbtgi_payor_project:` as an ALIAS pointing at the same anchor as `:rbtgi_manor:` (RBS0:70) — Manor and Payor Project are the same entity, two names.
+- The manor quoin (RBS0:2068) defines it as "the singular administrative GCP project that hosts the Payor SA, the OAuth client, and the billing account ... the control plane from which depot projects are created." A project, not an org.
+- RBSPE's establish step 1 is titled "Create the Manor" and creates the payor project; the handbook says "creating the Manor's GCP project."
+- So Manor ≡ Payor Project (`RBRP_PAYOR_PROJECT_ID`). The operator's long-held understanding was correct.
+
+The divergence (for Fable review) — the federation conversion introduced a SECOND, org-level sense of "Manor" without reconciling RBS0:
+
+- The paddock asserted "every manor brings a domain (org anchor, a deed not a building), a Cloud Identity org ..." — calling the manor a deed (org-level), contradicting RBS0's "the building" (a project).
+- The phrase "org anchor, a deed not a building" exists ONLY in the paddock (grep-empty in the specs).
+- The federation regime (RBSRF) and affiance operate on an organization (`RBRF_ORG_ID`), never the payor project — consistent with the org-level sense, and never reconciled back to RBS0's project definition.
+
+Provenance hypothesis (two candidates, recorded neutrally for Fable to adjudicate):
+
+1. **Fable confabulation.** The federation-conversion paddock author (Fable-class) reconceived the manor as an org-level "deed" — a plausible-but-unspecified reframing not grounded in RBS0, of the kind a confident author introduces when the source is not re-read alongside the writing. The "deed not a building" coinage is the tell: rhetorically polished, load-bearing to the reframing, and nowhere in the specs.
+2. **Editor spec/impl drift (the operator's own candidate).** The editor did not enforce high spec↔implementation↔paddock conformance, so the org-level federation machinery (`RBRF_ORG_ID`, affiance) accreted a divergent "manor" sense that was never reconciled to RBS0's project definition; the paddock then voiced the drift.
+
+Both fit the evidence; the truth may be a blend — a confabulated coinage that lax conformance left unchallenged. The practical correction stands regardless of which; the provenance call is the Fable review's, and it bears on a process question (does paddock authoring need a spec-conformance gate) larger than this heat.
+
+Correction applied (operator-sanctioned in conversation, 260618):
+
+- The paddock Boundary line is corrected in place: the manor is the payor project (RBS0's control-plane project — a building, not a deed); federation additionally requires that project sit under a Cloud Identity org with an IdP, the org hosting the workforce pool but not itself being the manor. The freeze banner records the sanction.
+- This is the one paddock-body edit made under operator sanction; all other corrections remain memo/pace-homed per the freeze.
+
+Consequences settled:
+
+- **Decision #1 (terrier bucket home) resolves: the bucket lives in the payor project (= the manor).** No separate manor project exists or is warranted; "dedicated manor project" is rejected as net-new infra for no gain.
+- **The `rbgp_payor.sh` guard "Cannot create Governor in Payor project" is KEPT, not removed.** It enforces the control-plane/workload separation RBS0 intends: depot-scoped SAs (governors, and the mantles) belong in depot projects, never the control-plane manor project. The terrier does NOT conflict with it — the terrier is manor-grain control-plane *data*, not depot infra, so it lives in the manor/payor project honoring the guard. (The earlier "counter-precedent" flag was imprecise: the guard's spirit is "depot infra out of the control plane," and the terrier is control-plane, so it is aligned, not crossing.) The guard may retire with the enrobe estate at M7, but the separation it encodes should survive that retirement.
+
+Ceremony decision — a dedicated scriptable manor-provision step (project integrity):
+
+- The Manor (payor project) is created MANUALLY via Console (RBSPE). There is today NO scriptable operation that provisions the manor's programmatic cloud resources — establish is hand-done, affiance does only the org-level IdP trust, levy does depot resources.
+- The terrier bucket is the FIRST manor-grain cloud resource needing programmatic management, so it forces the question: (A) bolt the bucket-ensure onto affiance, or (B) mint a dedicated scriptable manor-provision operation.
+- **Chosen: (B), ruled by the operator as required for project integrity now.** Bolting onto affiance would make affiance lie about its scope (it is "establish the manor's IdP trust," not "...and provision its storage"), mixing org-work and project-work. A dedicated manor-provision operation is the honest home, fills the real gap (the manor has no scriptable resource-provisioning act), and is the seam where future manor-grain resources land. The MVP-surface cost — a new manor-demesne colophon, since L/E/A/J are taken — is outweighed by the integrity gain.
+- Shape: the manor-provision op is permanent (idempotent ensure of the terrier bucket in the payor project; payor-credentialed; run after the manual establish, joined to the onboarding founding sequence). It is NOT the demolished scaffold — what the graft pace retires is only the dev-only reset/destroy convenience used to iterate noun internals; the ensure op persists. The strategy's quota-flat iteration still holds: the reset capability rides alongside through the terrier-consuming dev paces and is retired at the graft.
