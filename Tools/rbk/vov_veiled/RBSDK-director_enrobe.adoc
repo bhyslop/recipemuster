@@ -1,6 +1,24 @@
 //axhob_operation
 {rbtgo_director_enrobe}
 
+NOTE: *Bridge-legacy — superseded by federation admission.* This operation belongs to the
+keyfile credential estate: it mints a per-operator key-backed
+{giam_service_account}
+and delivers its RBRA bytes. Under the single-tier office-federation model it is superseded
+by the
+{rbtf_brevet}
+verb
+({rbtgo_citizen_brevet})
+— admitting a
+{rbtf_citizen}
+onto the standing
+{rbtr_director}
+{rbtf_mantle}
+the levy established, a binding only, with zero service-account keys. This spec stays live
+and authoritative while the keyfile estate rides under the credential accessor; it retires
+whole — not piecemeal — when that estate is decommissioned (the bridge's demolition
+condition). Documentation succession, not deletion.
+
 NOTE: This operation enrobes a
 {rbtr_director}
 {giam_service_account}

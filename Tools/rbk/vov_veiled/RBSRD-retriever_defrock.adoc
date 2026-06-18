@@ -1,6 +1,28 @@
 //axhob_operation
 {rbtgo_retriever_defrock}
 
+NOTE: *Bridge-legacy — superseded by federation admission.* This operation belongs to the
+keyfile credential estate: it tears down a per-operator key-backed
+{giam_service_account}.
+Under the single-tier office-federation model it is superseded by the
+{rbtf_unseat}
+verb
+({rbtgo_citizen_unseat})
+— withdrawing one
+{rbtf_mantle}
+from a
+{rbtf_citizen}
+— and, for whole-person expulsion, the
+{rbtf_attaint}
+verb
+({rbtgo_citizen_attaint});
+neither deletes a
+{giam_service_account},
+since the mantle accounts are standing depot singletons. This spec stays live and
+authoritative while the keyfile estate rides under the credential accessor; it retires whole
+when that estate is decommissioned (the bridge's demolition condition). Documentation
+succession, not deletion.
+
 NOTE: This operation tears down a
 {rbtr_retriever}
 {giam_service_account}

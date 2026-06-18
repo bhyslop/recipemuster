@@ -1,0 +1,77 @@
+//axhob_operation
+{rbtgo_terrier_rehearse}
+
+NOTE: This operation recounts the manor-wide muniment roll — the
+{rbtf_rehearse}
+act (medieval sense: to recount a record formally, in order). It reads every
+{rbtf_muniment}
+across the whole
+{rbtf_terrier}
+and emits the (mantle, subject) record. It mutates nothing: no muniment is written or
+withdrawn and no IAM binding is touched. Rehearse recounts what the record says; the
+spec-interior reconciliation diff — which checks the record against the live mantle-SA
+bindings — is a distinct, two-distinctions-apart concern and not this operator verb.
+
+NOTE: The
+{rbtr_governor}
+performs the rehearse, wielding the donned governor
+{rbtf_mantle}.
+The read is bucket-level and manor-wide: a governor mantle reads every polity's terrier
+folder (`roles/storage.objectViewer` on the bucket), so rehearse recounts the whole
+manor, not one depot. It takes no parameters.
+
+NOTE: *Depot-blind emission.* The manor-wide read factors the per-polity peruse's
+list-and-fetch into a shared lister whose manor-wide entry point reads the whole bucket
+prefix-blind. It emits the (mantle, subject) record per muniment; the depot stays the
+object-name index — recoverable from the key, but unemitted — because the muniment's
+folder placement already is the principal-by-depot join, and no consumer of the roll
+needs a per-entry depot column.
+
+NOTE: *Pure-read race tolerance.* The manor sweep is a list-then-fetch, so an object the
+listing named can be withdrawn by a concurrent
+{rbtf_unseat}
+before its fetch. A read-after-list `404` is a benign vanish — the lister skips that
+entry rather than failing — so a rehearsal never crashes on a holding torn out from
+under it.
+
+//axhos_step
+. *Don the governor
+{rbtf_mantle}*:
+.. {rbtf_compear}
+to open or reuse a live
+{rbtf_assize}
+— the device flow runs outside the token capture, since it needs the terminal
+.. {rbtf_don}
+the governor mantle and
+{rbbc_store}
+`«GOVERNOR_TOKEN»`
+.. {rbbc_fatal}
+if the don fails — compear if the assize lapsed, or this identity is not yet breveted
+onto the governor mantle
+
+//axhos_step
+. *Peruse the manor-wide
+{rbtf_terrier}*:
+.. {rbtf_peruse}
+the whole terrier bucket through the manor-wide lister — list every
+{rbtf_muniment}
+object, fetch each, and read the (subject, mantle) from its content
+.. a read-after-list `404` on any object is skipped (benign vanish), not fatal
+.. {rbbc_fatal}
+only on a read failure that is not the benign vanish
+
+//axhoot_typed_output
+{rbtf_muniment}
+. *Recount the roll*:
+.. {rbbc_show}
+the (mantle, subject) record for every muniment held across the manor; when the terrier
+holds no standing citizens, show that the roll is empty rather than emitting nothing
+silently
+
+//axhoc_completion
+Successful execution recounts the manor's standing citizenry: every
+{rbtf_muniment}
+across every polity is read and its (mantle, subject) emitted, with no muniment or
+binding changed. The roll is the manor view of who holds what; the per-polity slice is
+{rbtf_peruse}'s,
+and the record-versus-reality check is the reconciliation diff's — never rehearse's.

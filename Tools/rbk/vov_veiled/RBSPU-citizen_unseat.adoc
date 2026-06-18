@@ -1,0 +1,120 @@
+//axhob_operation
+{rbtgo_citizen_unseat}
+
+NOTE: This operation withdraws one
+{rbtf_mantle}
+from a
+{rbtf_citizen}
+in the
+{rbtgi_depot}
+— the
+{rbtf_unseat}
+act, the everyday removal verb and the structural inverse of
+{rbtf_brevet}.
+It withdraws the muniment, then removes only the `tokenCreator` binding on the mantle
+{giam_service_account};
+the depot-scoped `serviceUsageConsumer` binding is left in place. A citizen unseated of
+every mantle is therefore _suspended_, not erased — visible, recoverable, and cheap to
+re-admit with a fresh
+{rbtf_brevet}.
+{rbtf_attaint}
+alone sweeps the depot-scoped binding.
+
+NOTE: The
+{rbtr_governor}
+performs the unseat, wielding the donned governor
+{rbtf_mantle}.
+The citizen's federated workforce subject arrives as the param1 folio; the mantle to
+remove is the second positional argument (`governor` | `director` | `retriever`). The
+composition body is token-agnostic — the shared core the donned verb, the
+founding-exception path, and the interim proof all drive.
+
+NOTE: *Intent-first ordering.* The
+{rbtf_muniment}
+is withdrawn before the binding is removed. A crash after the muniment withdraw but
+before the revoke leaves a visible surplus — a live binding without its recorded
+holding — which the read-only reconciliation diff surfaces and a re-run of unseat
+clears; never a silent grant a rehearsal would miss.
+
+NOTE: *One canonical revoke path.* Unseat removes the `principal://` member from the
+`RBGC_ROLE_IAM_SERVICE_ACCOUNT_TOKEN_CREATOR` binding on the mantle
+{giam_service_account}
+via the SA-scope principal revoke — the inverse of the brevet SA-scope principal grant,
+the same distinct canonical path (never a normalizer over the `serviceAccount:`
+siblings). The depot `serviceUsageConsumer` binding is deliberately untouched: that is
+the suspension contract.
+
+//axhos_step
+. *Don the governor
+{rbtf_mantle}*:
+.. {rbtf_compear}
+to open or reuse a live
+{rbtf_assize}
+— the device flow runs outside the token capture, since it needs the terminal
+.. {rbtf_don}
+the governor mantle and
+{rbbc_store}
+`«GOVERNOR_TOKEN»`
+.. {rbbc_fatal}
+if the don fails — compear if the assize lapsed, or this identity is not yet breveted
+onto the governor mantle
+
+//axhos_step
+. *Compose the removal identity*:
+.. {rbbc_require}
+the subject folio (param1) non-empty and the mantle one of `governor` | `director` |
+`retriever`
+.. {rbbc_store}
+`«MANTLE_EMAIL»` as the mantle
+{giam_service_account}
+email for the named mantle in this depot
+.. {rbbc_store}
+`«PRINCIPAL»` as the workforce federated `principal://` member for the subject (the
+same member
+{rbtf_brevet}
+granted)
+
+//axhos_step
+. *Expunge the
+{rbtf_muniment}*
+(before the binding is removed):
+.. {rbtf_expunge}
+the muniment recording (subject, mantle) from the polity's terrier folder
+.. NOTE: the expunge carries the atomic write-semantics of the Terrier access subdoc —
+an already-absent muniment is idempotent success.
+
+//axhos_step
+. *Remove the `tokenCreator` binding on the mantle
+{giam_service_account}*:
+.. remove `«PRINCIPAL»` from the `RBGC_ROLE_IAM_SERVICE_ACCOUNT_TOKEN_CREATOR` binding
+on `«MANTLE_EMAIL»` via the SA-scope principal revoke — an idempotent
+read-modify-write, an already-absent member a no-op
+.. {rbbc_require}
+the member absent from that binding
+.. NOTE: the depot-scoped `serviceUsageConsumer` binding is *not* touched here — its
+survival is what makes unseat a suspension rather than an erasure.
+
+//axhoot_typed_output
+{rbtf_citizen}
+. *Confirm Unseat*:
+.. {rbbc_show}
+single-line success banner naming the unseated subject, the
+{rbtf_mantle}
+withdrawn, and that the depot-scoped binding remains (the citizen is suspended on this
+mantle, not erased).
+
+//axhoc_completion
+Successful execution withdraws the named
+{rbtf_mantle}
+from the
+{rbtf_citizen}:
+the
+{rbtf_muniment}
+is expunged and the mantle-SA `tokenCreator` binding removed, so the citizen can no
+longer
+{rbtf_don}
+that mantle. The depot `serviceUsageConsumer` binding survives, leaving the citizen
+suspended and cheap to re-admit by
+{rbtf_brevet}.
+Whole-person expulsion — which sweeps the surviving depot binding — is
+{rbtf_attaint}.

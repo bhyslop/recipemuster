@@ -156,6 +156,12 @@
 :rbtgo_lode_augur:               <<rbtgo_lode_augur,rbld_augur>>
 :rbtgo_lode_banish:              <<rbtgo_lode_banish,rbld_banish>>
 
+// Recipe Bottle Term Google Operations — Polity (federation admission)
+:rbtgo_citizen_brevet:           <<rbtgo_citizen_brevet,rbgp_brevet>>
+:rbtgo_citizen_unseat:           <<rbtgo_citizen_unseat,rbgp_unseat>>
+:rbtgo_citizen_attaint:          <<rbtgo_citizen_attaint,rbgp_attaint>>
+:rbtgo_terrier_rehearse:         <<rbtgo_terrier_rehearse,rbgp_rehearse>>
+
 // Recipe Bottle Term Google Operation Groups
 :rbtgog_access:                   <<rbtgog_access,Access Probe Group>>
 :rbtgog_ark:                      <<rbtgog_ark,Ark Group>>
@@ -1347,6 +1353,92 @@ via per-SA fact-file emission
 ({rbtgog_governor}).
 
 include::RBSRL-retriever_roster.adoc[]
+
+The federation admission verbs are the governor-wielded operator surface that admits and
+removes
+{rbtf_citizen_s}
+on the
+{rbtf_mantle_s}
+the levy established.
+Unlike the bridge-legacy cult triad above — which mints key-backed
+{giam_service_account_s}
+per operator — these write no resource IAM: brevet and unseat carry only the per-citizen
+`tokenCreator` binding on a mantle and, on first admission, the depot-scoped
+`serviceUsageConsumer`; attaint sweeps it; rehearse reads.
+Each wields the donned governor
+{rbtf_mantle}
+({rbtf_compear}
+then
+{rbtf_don})
+and each writes its
+{rbtf_muniment}
+before any binding.
+
+[[rbtgo_citizen_brevet]]
+//axvo_method axd_transient axd_grouped
+=== {rbtgo_citizen_brevet}
+
+Admits a
+{rbtf_citizen}
+onto a
+{rbtf_mantle}
+in this
+{rbtgi_depot}
+({rbtgog_governor}):
+the
+{rbtf_muniment},
+then the mantle-SA `tokenCreator` and (first admission) depot `serviceUsageConsumer`
+bindings, idempotently ensured.
+
+include::RBSPB-citizen_brevet.adoc[]
+
+[[rbtgo_citizen_unseat]]
+//axvo_method axd_transient axd_grouped
+=== {rbtgo_citizen_unseat}
+
+Withdraws one
+{rbtf_mantle}
+from a
+{rbtf_citizen}
+({rbtgog_governor}):
+the
+{rbtf_muniment}
+and the mantle-SA `tokenCreator` binding, leaving the depot-scoped binding in place
+({rbtf_unseat}
+is suspension, not erasure).
+
+include::RBSPU-citizen_unseat.adoc[]
+
+[[rbtgo_citizen_attaint]]
+//axvo_method axd_transient axd_grouped
+=== {rbtgo_citizen_attaint}
+
+Expels a
+{rbtf_citizen}
+wholly from this
+{rbtgi_depot}
+({rbtgog_governor}):
+unseats every
+{rbtf_mantle}
+and sweeps the depot-scoped `serviceUsageConsumer` binding
+{rbtf_unseat}
+leaves behind.
+
+include::RBSPA-citizen_attaint.adoc[]
+
+[[rbtgo_terrier_rehearse]]
+//axvo_method axd_transient axd_grouped
+=== {rbtgo_terrier_rehearse}
+
+Recounts the manor-wide
+{rbtf_muniment}
+roll
+({rbtgog_governor}):
+a pure read across the whole
+{rbtf_terrier}
+that mutates nothing.
+
+include::RBSPO-terrier_rehearse.adoc[]
 
 == {rbtr_director} Operations
 

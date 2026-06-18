@@ -1,0 +1,138 @@
+//axhob_operation
+{rbtgo_citizen_brevet}
+
+NOTE: This operation admits a
+{rbtf_citizen}
+onto a
+{rbtf_mantle}
+in the
+{rbtgi_depot}
+— the
+{rbtf_brevet}
+act, the everyday admission verb. It is a thin idempotent composition over the
+terrier muniment sub-ops and two IAM bindings, written muniment-first: the
+`tokenCreator` binding on the mantle
+{giam_service_account}
+(naming a `principal://` member — the don grant) and, on the citizen's first
+admission to the depot, the `serviceUsageConsumer` binding on the
+{rbtgi_depot_project}
+(the Leg-3 quota project). First-vs-further admission differs only in whether the
+depot-scoped binding is already present; the idempotent ensure absorbs the difference.
+
+NOTE: The
+{rbtr_governor}
+performs the everyday brevet, wielding the donned governor
+{rbtf_mantle}.
+The citizen's federated workforce subject arrives as the param1 folio; the mantle to
+admit onto is the second positional argument (`governor` | `director` | `retriever`).
+The composition body is token-agnostic, so the same core serves two payor-credentialed
+paths: the founding-exception brevet — the
+{rbtr_payor}
+breveting the first governor inside the levy, the one admission outside governor
+wielding — and the interim admission proof.
+
+NOTE: *Intent-first ordering.* The
+{rbtf_muniment}
+is engrossed before any IAM binding. A crash after the muniment but before a binding
+leaves a visible deficit — a recorded holding without its grant — corrected by
+re-running brevet (idempotent); never a silent surplus.
+
+NOTE: *Two distinct canonical IAM paths* (BCG Interface Contamination). The
+mantle-SA `tokenCreator` binding names a `principal://` member through the SA-scope
+principal grant, never the `serviceAccount:` member sibling; the depot
+`serviceUsageConsumer` binding uses the project-scope grant with that same
+`principal://` member verbatim. The role IDs are the named constants
+`RBGC_ROLE_IAM_SERVICE_ACCOUNT_TOKEN_CREATOR` and
+`RBGC_ROLE_SERVICEUSAGE_SERVICE_USAGE_CONSUMER` (the Canonical Role IDs block).
+
+//axhos_step
+. *Don the governor
+{rbtf_mantle}*:
+.. {rbtf_compear}
+to open or reuse a live
+{rbtf_assize}
+— the device flow runs outside the token capture, since it needs the terminal
+.. {rbtf_don}
+the governor mantle and
+{rbbc_store}
+`«GOVERNOR_TOKEN»` (the founding-exception and proof paths supply a payor-credentialed
+token to the shared core instead)
+.. {rbbc_fatal}
+if the don fails — compear if the assize lapsed, or this identity is not yet breveted
+onto the governor mantle
+
+//axhos_step
+. *Compose the admission identity*:
+.. {rbbc_require}
+the subject folio (param1) non-empty and the mantle one of `governor` | `director` |
+`retriever`
+.. {rbbc_store}
+`«MANTLE_EMAIL»` as the mantle
+{giam_service_account}
+email for the named mantle in this depot (`${RBCC_account_mantle_«MANTLE»}@…`)
+.. {rbbc_store}
+`«PRINCIPAL»` as the workforce federated `principal://` member for the subject —
+`principal://iam.googleapis.com/locations/global/workforcePools/«RBRF_WORKFORCE_POOL_ID»/subject/«SUBJECT»`
+— the single grantable identity, the same in every depot under the manor
+
+//axhos_step
+. *Engross the
+{rbtf_muniment}*
+(before any binding):
+.. {rbtf_engross}
+a muniment recording (subject, mantle) into the polity's terrier folder
+.. NOTE: the engross carries the atomic, server-adjudicated write-semantics of the
+Terrier access subdoc — an already-present identical muniment is idempotent success.
+
+//axhos_step
+. *Ensure the `tokenCreator` binding on the mantle
+{giam_service_account}*
+(the don grant):
+.. ensure `«PRINCIPAL»` holds `RBGC_ROLE_IAM_SERVICE_ACCOUNT_TOKEN_CREATOR` on
+`«MANTLE_EMAIL»` via the SA-scope principal grant — an idempotent read-modify-write,
+an already-present member a no-op
+.. {rbbc_require}
+the binding present
+.. NOTE: this is the grant that lets the citizen, having donned, mint a short-lived
+mantle token (Leg 3) against this mantle.
+
+//axhos_step
+. *Ensure the `serviceUsageConsumer` binding on the
+{rbtgi_depot_project}*
+(first admission per depot):
+.. {rbtoe_iam_grant_project}
+on the
+{rbtgi_depot_project}
+... Add `«PRINCIPAL»` with `RBGC_ROLE_SERVICEUSAGE_SERVICE_USAGE_CONSUMER`
+.. {rbbc_require}
+the binding present
+.. NOTE: Leg 3 names the depot as the quota project (`x-goog-user-project`); this
+binding is what lets the principal use it. A further admission to another mantle in
+the same depot finds it already present — the idempotent ensure is what makes
+first-vs-further admission differ only at this binding.
+
+//axhoot_typed_output
+{rbtf_citizen}
+. *Confirm Brevet*:
+.. {rbbc_show}
+single-line success banner naming the breveted subject, the
+{rbtf_mantle}
+admitted, and the
+{rbtgi_depot}.
+
+//axhoc_completion
+Successful execution admits the
+{rbtf_citizen}
+onto the named
+{rbtf_mantle}:
+the
+{rbtf_muniment}
+is engrossed, the mantle-SA `tokenCreator` and the depot `serviceUsageConsumer`
+bindings are in place, and the citizen may
+{rbtf_don}
+that mantle within a live
+{rbtf_assize}.
+Withdrawal of one mantle is the
+{rbtf_unseat}
+verb (suspension); whole-person expulsion is
+{rbtf_attaint}.

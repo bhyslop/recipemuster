@@ -1,0 +1,114 @@
+//axhob_operation
+{rbtgo_citizen_attaint}
+
+NOTE: This operation expels a
+{rbtf_citizen}
+wholly from the
+{rbtgi_depot}
+— the
+{rbtf_attaint}
+act, the rare whole-person expulsion (attainder: the old law's civic death). It
+unseats the subject from every
+{rbtf_mantle}
+the citizen could hold, then sweeps the depot-scoped `serviceUsageConsumer` binding
+that
+{rbtf_unseat}
+deliberately leaves behind, then notes the deregistration. Removal of the principal on
+the IdP side remains the IdP administrator's act, out of scope here.
+
+NOTE: The
+{rbtr_governor}
+performs the attaint, wielding the donned governor
+{rbtf_mantle}.
+The citizen's federated workforce subject arrives as the param1 folio; attaint takes no
+mantle argument — it acts across all mantles. The composition body is token-agnostic;
+the interim admission proof drives the same core payor-credentialed.
+
+NOTE: *Composed of unseat plus the sweep.* Attaint is definitionally
+{rbtf_unseat}-all
+followed by the depot-scoped sweep — the only verb that removes the
+`serviceUsageConsumer` binding. Unseating an unheld mantle is an idempotent no-op
+(absent muniment, absent binding), so the across-all-mantles loop is safe whatever the
+citizen actually held.
+
+NOTE: *Crash leaves surplus, never resurrection.* The teardown runs muniment-then-binding
+per mantle, then the sweep. A crash mid-teardown leaves a partial expulsion as visible
+surplus — some bindings still live without their muniments — which the read-only
+reconciliation diff surfaces and a re-run clears. No partial path re-grants anything.
+
+//axhos_step
+. *Don the governor
+{rbtf_mantle}*:
+.. {rbtf_compear}
+to open or reuse a live
+{rbtf_assize}
+— the device flow runs outside the token capture, since it needs the terminal
+.. {rbtf_don}
+the governor mantle and
+{rbbc_store}
+`«GOVERNOR_TOKEN»`
+.. {rbbc_fatal}
+if the don fails — compear if the assize lapsed, or this identity is not yet breveted
+onto the governor mantle
+
+//axhos_step
+. *Compose the expulsion identity*:
+.. {rbbc_require}
+the subject folio (param1) non-empty
+.. {rbbc_store}
+`«PRINCIPAL»` as the workforce federated `principal://` member for the subject
+
+//axhos_step
+. *Unseat every
+{rbtf_mantle}*:
+.. for each mantle in [`governor`, `director`, `retriever`]: perform the
+{rbtf_unseat}
+core — expunge the
+{rbtf_muniment},
+then remove the `tokenCreator` binding on that mantle
+{giam_service_account}
+.. NOTE: each per-mantle unseat is idempotent — a mantle the citizen never held
+contributes an absent-muniment and absent-binding no-op, so the fixed three-mantle loop
+needs no prior knowledge of what was held.
+
+//axhos_step
+. *Sweep the depot-scoped `serviceUsageConsumer` binding*:
+.. remove `«PRINCIPAL»` from the `RBGC_ROLE_SERVICEUSAGE_SERVICE_USAGE_CONSUMER`
+binding on the
+{rbtgi_depot_project}
+via the project-scope member revoke — an idempotent read-modify-write
+.. {rbbc_require}
+the member absent from that binding
+.. NOTE: this is the binding
+{rbtf_unseat}
+leaves in place as suspension; attaint alone sweeps it, completing the whole-person
+expulsion.
+
+//axhos_step
+. *Note the deregistration*:
+.. {rbbc_warn}
+that the subject is deregistered from this depot, and that IdP-side removal of the
+principal remains the IdP administrator's act (the
+{rbtf_census}
+is the IdP's, never RBK's)
+
+//axhoot_typed_output
+{rbtf_citizen}
+. *Confirm Attaint*:
+.. {rbbc_show}
+single-line success banner naming the attainted subject and the
+{rbtgi_depot}
+from which the whole person was expelled.
+
+//axhoc_completion
+Successful execution expels the
+{rbtf_citizen}
+wholly from the
+{rbtgi_depot}:
+every
+{rbtf_mantle}
+is unseated and the depot-scoped `serviceUsageConsumer` binding swept, so no muniment
+or binding for the subject survives in this depot. The subject still exists in the
+{rbtf_census}
+until the IdP administrator removes it; re-admission is a fresh
+{rbtf_brevet}.
