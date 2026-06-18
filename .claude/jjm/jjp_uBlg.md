@@ -116,7 +116,8 @@ rides notch; only the explicit interactions need verbs.
 ## Explicit interactions
 
 The operator-facing interactions are mechanical set-ops; the metaphor-aligned verb words are
-deferred — placeholders below are plain.
+roughcut-selected from the ecclesiastical register (see Verb roughcut), pending a settled
+operation set — the placeholders below stay plain until then.
 Two primitives and one apex composition cover the explicit needs.
 
 CHECK — is a candidate token free and exclusivity-clean? Answers free, or taken-by-X.
@@ -143,6 +144,30 @@ change-set touching the advisory zone (gestalt semantic-fit, foreign namespaces,
 sprue/rivet) refuses to auto-run and drops back to detect.
 Clean-tree makes a rename recoverable, not correct — correctness rests on detection
 completeness, so the assertable-only rule is load-bearing.
+
+## Verb roughcut — register-selected, operations unsettled
+
+The operator-facing verbs were drawn from the ecclesiastical/inscriptional register by a blind
+cold-probe pass over independently-generated candidates.
+The set of operations that will actually seed development is not yet settled, so these are
+recommendations, not commitments — the placeholders above keep their plain names until an
+operation set is fixed.
+- check (is a candidate token free and exclusivity-clean): scrutine — the teller's examination
+  of an entry before it is admitted to the roll; fresh readers recovered "check / validate",
+  and it landed clean on the grep gate.
+- trace (the full reach of a prefix, every form and level): perlustrate — to survey the whole
+  compass thoroughly, with completeness carried inside the word itself; the strongest result of
+  the pass, and the cleanest distinction from list.
+- reprefix (safe rename capturing every use): transume or rescript — an open choice between
+  separation and first-contact warmth: transume keeps the set's first letters distinct and
+  dodges the version-control rename register, while rescript read clean to fresh readers but
+  breaks the letter separation.
+- list (the occupied set at or under a prefix): open — the register-favoured recense is
+  withdrawn, because it collides with the diptych vision's recension (its candidate word for
+  tool-executed global renaming), so the census root is already spoken-for as rename in a
+  sibling tool.
+The three settled words keep first letters distinct — scrutine, perlustrate, transume — the
+separation the heightened care these operator-facing verbs warrant deliberately preserves.
 
 ## Gestalt labels — concept, word TBD
 
@@ -200,8 +225,9 @@ Vesture gaps — the sprue (wire-key) domain and the mixed-case rivet form (`RBr
 covered by the current six-plus-one vestures.
 
 Naming — entity quoin chosen (Matricula); part/facet quoins deferred by operator decision.
-Still to mint, all user-visible (ashlar) and only after the use-case set settles: the explicit
-verb words (for CHECK / LIST / TRACE / reprefix) and the "gestalt label" word.
+The explicit verb words are roughcut-selected from the ecclesiastical register (see Verb
+roughcut), pending a settled operation set; the "gestalt label" word is still to mint,
+user-visible (ashlar) and waiting on the use-case set.
 All signets wait on the spec-home decision.
 
 ## Concerns
