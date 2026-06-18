@@ -240,7 +240,10 @@ Grain (settled):
 - Write is folder-scoped, own-polity — a governor's mantle writes only its own depot's managed folder (managed-folder IAM).
 - Read is bucket-level, manor-wide — every governor mantle reads all folders (operator ruling 260618: read across all terriers is fair at governor stature), so read is one bucket grant, not per-folder. The payor reads inherently as owner of the payor project (no grant).
 
-Open noun-internals (settle in the build pace, not blocking): object granularity (per-entry vs per-subject), the muniment JSON shape under a fresh terrier sprue, the bucket name and its constant home.
+Pace split (260618): the build work splits into two paces, each carrying its own service-tier test. Testing is deliberately NOT a separate pace — these tests are service-tier and inseparable from their code (provisioning is tested by provisioning; sub-ops by running them against live GCS preconditions), so there is no unit seam worth deferring and a coding-only pace would carry no meaningful local test.
+
+- Provisioning pace (the reslated terrier build pace): idempotent bucket-ensure in the payor project, the net-new managed-folder REST (create/delete) and IAM wrapper (write folder-scoped, read bucket-wide), and the destroy-then-create scaffold tabtarget. Settles the bucket name + constant home and the managed-folder grain. Test: a service fixture that provisions via the scaffold and asserts bucket + per-polity folder + the write/read IAM, then asserts an idempotent reset; self-skips credless.
+- Sub-ops pace (new, immediately after): engross / expunge / peruse against the RBSTR atomic contract. Settles the muniment JSON shape under a fresh terrier sprue and object granularity (per-entry vs per-subject). Test: the atomicity fixture (ifGenerationMatch=0 create → 412-on-conflict treated as idempotent), charging the terrier via the provisioning scaffold; self-skips credless.
 
 ## Manor-identity divergence — for Fable's review (260618)
 
