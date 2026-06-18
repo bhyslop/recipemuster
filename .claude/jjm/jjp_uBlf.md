@@ -81,6 +81,19 @@ Composes with the ideas above: a freehold would be a named instance (the multipl
 Release-cadence refresh: when the quota-touching lifecycle does run (say at releases), it also refreshes the freehold — jilt then re-establish, ordered after the lifecycle's own create→jilt passes so cleanup is proven on a throwaway before it touches the durable pool.
 Buys isolation from stale freeholds.
 
+## Idea — the terrier's permanent founding-home
+
+Tension: ₣BZ builds the terrier (the manor's muniment store — the cloud bucket of who-holds-which-mantle records) and provisions it for the freehold via an interim scaffold tabtarget, but does not wire its creation into any founding ceremony.
+It is tempting to fold that provisioning into manor establishment during the MVP heat — most naturally by enlarging affiance to ensure the bucket alongside the workforce pool, or by minting a dedicated manor-provision op.
+That temptation is the ₣BZ↔₣Bf conflation: it was raised and withdrawn in ₣BZ conversation (260618), because the terrier's permanent home is entangled with the manor-establishment reshape this heat owns.
+
+Why it is this heat's: the bucket lives in the payor project (RBS0 makes the manor and the payor project one entity), but whether there is one terrier per manor or one per foedus turns on the multiple-federations idea; and whether affiance is the right home turns on the foedus verb-register question (affiance/jilt are monogamous betrothal verbs while a foedus pluralizes — "you do not betroth a foedus").
+Deciding the terrier's home before those settle would pre-commit them.
+
+Current lean: decide the terrier's permanent founding-home here, as one shape with foedus and multiple-federations — then wire the bucket-ensure and the per-depot folder into whatever that manor-establishment shape becomes, and retire the ₣BZ interim scaffold.
+
+Settled regardless (carried from ₣BZ, RBS0-grounded): the bucket lives in the payor project; the per-polity managed folder is depot-grain; manor establishment's project/OAuth half is manual Console and cannot be scripted, so any home is for the scriptable remainder.
+
 ## Idea — the governor's role in federation
 
 Frame under consideration: the payor as the IT department — founds federations and bounds what is permissible — and governors as more-trusted regional stewards who operate within those bounds, still subordinate to the payor's citizen-list and federation-set choices.
