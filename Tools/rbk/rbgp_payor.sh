@@ -2508,6 +2508,139 @@ rbgp_rehearse() {
   fi
 }
 
+# Assert a (role, member) binding is ABSENT from a fetched IAM policy — the
+# inverse of zrbgp_recognosce_require_binding, for the admission proof's
+# post-unseat / post-attaint absence checks.
+zrbgp_proof_forbid_binding() {
+  zrbgp_sentinel
+  local -r z_infix="${1:-}"
+  local -r z_role="${2:-}"
+  local -r z_member="${3:-}"
+  local -r z_where="${4:-}"
+
+  test -n "${z_infix}"  || buc_die "zrbgp_proof_forbid_binding: infix required"
+  test -n "${z_role}"   || buc_die "zrbgp_proof_forbid_binding: role required"
+  test -n "${z_member}" || buc_die "zrbgp_proof_forbid_binding: member required"
+
+  local z_hit=""
+  z_hit=$(rbuh_json_field_capture "${z_infix}" \
+    ".bindings[]? | select(.role==\"${z_role}\") | .members[]? | select(.==\"${z_member}\")") || z_hit=""
+  test -z "${z_hit}" \
+    || buc_die "Proof: ${z_member} still holds ${z_role} on ${z_where} (expected absent)"
+}
+
+# Fetch the mantle SA IAM policy (v3) into a capture infix for read-back.
+zrbgp_proof_fetch_sa_policy() {
+  zrbgp_sentinel
+  local -r z_token="${1:-}"
+  local -r z_sa_email="${2:-}"
+  local -r z_infix="${3:-}"
+
+  local z_sa_enc
+  z_sa_enc=$(rbuh_urlencode_capture "${z_sa_email}") || buc_die "Failed to encode mantle SA email"
+  rbuh_json "POST" \
+    "${RBGC_API_ROOT_IAM}${RBGC_IAM_V1}/projects/-/serviceAccounts/${z_sa_enc}:getIamPolicy" \
+    "${z_token}" "${z_infix}" "${ZRBGI_VERSION3_BODY}"
+  rbuh_require_ok "Proof: read mantle SA IAM policy" "${z_infix}"
+}
+
+# Fetch the depot project IAM policy (v3) into a capture infix for read-back.
+zrbgp_proof_fetch_project_policy() {
+  zrbgp_sentinel
+  local -r z_token="${1:-}"
+  local -r z_infix="${2:-}"
+
+  rbuh_json "POST" "${RBGD_API_CRM_GET_IAM_POLICY}" "${z_token}" "${z_infix}" "${ZRBGI_VERSION3_BODY}"
+  rbuh_require_ok "Proof: read depot project IAM policy" "${z_infix}"
+}
+
+# rbgp_admission_proof — prove the federation admission composition end-to-end
+# against a levied depot + scaffolded terrier. Payor-credentialed (the founding
+# authority the founding-exception brevet uses); the live-don payoff proof is
+# deferred to M7. Asserts, by getIamPolicy read-back plus peruse: brevet writes
+# the muniment AND both bindings; brevet is idempotent; unseat withdraws the
+# muniment and the tokenCreator but LEAVES the depot-scoped serviceUsageConsumer
+# (suspension); attaint sweeps that binding; the manor-wide read surfaces the
+# post-attaint reality. exit 0 IS the assertion (any deviation buc_dies). Read-back
+# is immediate after each write, mirroring the terrier scaffold's getIamPolicy
+# posture; a principal-member binding poll is a future hardening if IAM
+# propagation lag bites.
+rbgp_admission_proof() {
+  zrbgp_sentinel
+
+  buc_doc_brief "Prove federation admission composition (brevet/unseat/attaint) end-to-end against a levied depot + scaffolded terrier (interim; payor-credentialed)"
+  buc_doc_shown || return 0
+
+  buc_step 'Authenticate as Payor'
+  local z_token
+  z_token=$(zrbgp_authenticate_capture) || buc_die "Failed to authenticate as Payor via OAuth"
+
+  local -r z_bucket="${RBGP_TERRIER_BUCKET}"
+  local -r z_depot="${RBDC_DEPOT_PROJECT_ID}"
+  local -r z_mantle="governor"
+  local -r z_subject="rbgp-admission-proof-probe"
+  local -r z_pair="${z_mantle}"$'\t'"${z_subject}"
+  local z_mantle_email
+  z_mantle_email=$(zrbgp_mantle_sa_email_capture "${z_mantle}") \
+    || buc_die "Unknown mantle '${z_mantle}' (expected governor | director | retriever)"
+  local z_principal
+  z_principal=$(zrbgp_principal_member_capture "${z_subject}") || buc_die "Failed to compose principal member"
+
+  local -r z_tc_role="${RBGC_ROLE_IAM_SERVICE_ACCOUNT_TOKEN_CREATOR}"
+  local -r z_suc_role="${RBGC_ROLE_SERVICEUSAGE_SERVICE_USAGE_CONSUMER}"
+  local z_muniments
+
+  buc_step 'Pre-clean any admission a prior failed proof left behind'
+  zrbgp_attaint_core "${z_token}" "${z_subject}"
+
+  buc_step 'Brevet the probe onto the governor mantle'
+  zrbgp_brevet_core "${z_token}" "${z_mantle}" "${z_subject}"
+
+  buc_step 'Assert the muniment and both bindings are present after brevet'
+  z_muniments=$(rbgft_peruse "${z_token}" "${z_bucket}" "${z_depot}")
+  [[ "${z_muniments}" == *"${z_pair}"* ]] \
+    || buc_die "Proof: peruse did not surface the breveted muniment"
+  zrbgp_proof_fetch_sa_policy "${z_token}" "${z_mantle_email}" "admission_proof_sa"
+  zrbgp_recognosce_require_binding "admission_proof_sa" "${z_tc_role}" "${z_principal}" \
+    "governor mantle SA (tokenCreator after brevet)"
+  zrbgp_proof_fetch_project_policy "${z_token}" "admission_proof_project"
+  zrbgp_recognosce_require_binding "admission_proof_project" "${z_suc_role}" "${z_principal}" \
+    "depot project (serviceUsageConsumer after brevet)"
+
+  buc_step 'Re-brevet — assert idempotency (no error, muniment still present)'
+  zrbgp_brevet_core "${z_token}" "${z_mantle}" "${z_subject}"
+  z_muniments=$(rbgft_peruse "${z_token}" "${z_bucket}" "${z_depot}")
+  [[ "${z_muniments}" == *"${z_pair}"* ]] \
+    || buc_die "Proof: peruse lost the muniment after an idempotent re-brevet"
+
+  buc_step 'Unseat the governor mantle — assert suspension (tokenCreator gone, serviceUsageConsumer stays)'
+  zrbgp_unseat_core "${z_token}" "${z_mantle}" "${z_subject}"
+  z_muniments=$(rbgft_peruse "${z_token}" "${z_bucket}" "${z_depot}")
+  if [[ "${z_muniments}" == *"${z_pair}"* ]]; then
+    buc_die "Proof: peruse still surfaces the muniment after unseat"
+  fi
+  zrbgp_proof_fetch_sa_policy "${z_token}" "${z_mantle_email}" "admission_proof_sa"
+  zrbgp_proof_forbid_binding "admission_proof_sa" "${z_tc_role}" "${z_principal}" \
+    "governor mantle SA (tokenCreator after unseat)"
+  zrbgp_proof_fetch_project_policy "${z_token}" "admission_proof_project"
+  zrbgp_recognosce_require_binding "admission_proof_project" "${z_suc_role}" "${z_principal}" \
+    "depot project (serviceUsageConsumer survives unseat: suspension)"
+
+  buc_step 'Attaint the probe — assert the depot-scoped serviceUsageConsumer is swept'
+  zrbgp_attaint_core "${z_token}" "${z_subject}"
+  zrbgp_proof_fetch_project_policy "${z_token}" "admission_proof_project"
+  zrbgp_proof_forbid_binding "admission_proof_project" "${z_suc_role}" "${z_principal}" \
+    "depot project (serviceUsageConsumer after attaint sweep)"
+
+  buc_step 'Rehearse manor-wide — assert the read surfaces the post-attaint reality, mutating nothing'
+  z_muniments=$(rbgft_peruse_manor "${z_token}" "${z_bucket}")
+  if [[ "${z_muniments}" == *"${z_pair}"* ]]; then
+    buc_die "Proof: manor-wide read still surfaces the attainted probe"
+  fi
+
+  buc_success "Federation admission composition proven on ${z_depot}: brevet writes muniment+bindings (idempotent), unseat suspends (tokenCreator gone, serviceUsageConsumer stays), attaint sweeps, rehearse reads clean"
+}
+
 rbgp_payor_oauth_refresh() {
   zrbgp_sentinel
 

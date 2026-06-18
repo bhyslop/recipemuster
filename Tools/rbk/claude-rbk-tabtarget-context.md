@@ -76,6 +76,7 @@ The Folio column shows how each tabtarget receives it:
 | `rbw-pU` | GovernorUnseatsCitizen | param1 | Unseat a citizen from one mantle (suspension, not erasure; args: subject mantle) |
 | `rbw-pA` | GovernorAttaintsCitizen | param1 | Attaint a citizen — whole-person expulsion from this depot (args: subject) |
 | `rbw-pr` | GovernorRehearsesTerrier | — | Rehearse the manor terrier — recount every muniment, manor-wide (read-only) |
+| `rbw-pP` | AdmissionProof | — | Prove federation admission composition end-to-end against a levied depot + scaffolded terrier (interim) |
 
 ### Lode — Fetched-side universal capture (`rbw-l`)
 

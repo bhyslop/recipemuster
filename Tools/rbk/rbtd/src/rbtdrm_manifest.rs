@@ -86,6 +86,15 @@ pub const RBTDRM_FIXTURE_TERRIER_SCAFFOLD: &str = "terrier-scaffold";
 // assertion). Service-suite member; self-skips when the payor credential is
 // unreachable (suite-passenger protection), like terrier-scaffold.
 pub const RBTDRM_FIXTURE_TERRIER_ATOMICITY: &str = "terrier-atomicity";
+// Admission-proof fixture — the federation admission composition proof against
+// live GCP: probe payor -> charge the terrier via the rbw-dt scaffold -> run the
+// rbw-pP proof, which brevets a synthetic probe onto the governor mantle and
+// asserts (getIamPolicy read-back + peruse) the muniment and both bindings,
+// brevet idempotency, unseat suspension (tokenCreator gone, serviceUsageConsumer
+// stays), attaint sweep, and a clean manor-wide read (exit 0 IS that assertion).
+// Service-suite member; self-skips when the payor credential is unreachable, like
+// terrier-atomicity. Needs a levied depot — the mantle SAs are the binding targets.
+pub const RBTDRM_FIXTURE_ADMISSION_PROOF: &str = "admission-proof";
 // Fast fixtures (no external dependencies)
 pub const RBTDRM_FIXTURE_ENROLLMENT_VALIDATION: &str = "enrollment-validation";
 pub const RBTDRM_FIXTURE_RECIPE_VALIDATION: &str = "recipe-validation";
@@ -212,6 +221,11 @@ pub fn rbtdrm_required_colophons(fixture: &str) -> Option<&'static [&'static str
             RBTDGC_CHECK_PAYOR,
             RBTDGC_TERRIER_SCAFFOLD,
             RBTDGC_TERRIER_PROOF,
+        ]),
+        RBTDRM_FIXTURE_ADMISSION_PROOF => Some(&[
+            RBTDGC_CHECK_PAYOR,
+            RBTDGC_TERRIER_SCAFFOLD,
+            RBTDGC_PROOF_POLITY,
         ]),
         RBTDRM_FIXTURE_BATCH_VOUCH => Some(&[
             RBTDGC_ORDAIN_HALLMARK,

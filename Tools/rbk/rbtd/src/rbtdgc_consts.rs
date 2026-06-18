@@ -38,6 +38,7 @@ pub const RBTDGC_BREVET_POLITY: &str = "rbw-pB";
 pub const RBTDGC_UNSEAT_POLITY: &str = "rbw-pU";
 pub const RBTDGC_ATTAINT_POLITY: &str = "rbw-pA";
 pub const RBTDGC_REHEARSE_POLITY: &str = "rbw-pr";
+pub const RBTDGC_PROOF_POLITY: &str = "rbw-pP";
 pub const RBTDGC_ENSCONCE_BOLE: &str = "rbw-lE";
 pub const RBTDGC_CONCLAVE_RELIQUARY: &str = "rbw-lC";
 pub const RBTDGC_UNDERPIN_WSL: &str = "rbw-lU";

@@ -47,7 +47,7 @@ use crate::rbtdgc_consts::{
     RBTDGC_AUGUR_LODE, RBTDGC_BANISH_LODE, RBTDGC_LIST_IMAGES, RBTDGC_JETTISON_IMAGE,
     RBTDGC_IMMURE_PODVM,
     RBTDGC_CHECK_PAYOR, RBTDGC_AFFIANCE_MANOR, RBTDGC_JILT_MANOR, RBTDGC_TWEAK_REGIME_POISON,
-    RBTDGC_TERRIER_SCAFFOLD, RBTDGC_TERRIER_PROOF,
+    RBTDGC_TERRIER_SCAFFOLD, RBTDGC_TERRIER_PROOF, RBTDGC_PROOF_POLITY,
 };
 use crate::rbtdrm_manifest::rbtdrm_credential_check_colophon;
 
@@ -2563,6 +2563,15 @@ pub static RBTDRC_FIXTURE_TERRIER_ATOMICITY: rbtdre_Fixture = rbtdre_Fixture {
     credless: false,
 };
 
+pub static RBTDRC_FIXTURE_ADMISSION_PROOF: rbtdre_Fixture = rbtdre_Fixture {
+    name: crate::rbtdrm_manifest::RBTDRM_FIXTURE_ADMISSION_PROOF,
+    disposition: rbtdre_Disposition::Independent,
+    setup: None,
+    teardown: None,
+    cases: RBTDRC_CASES_ADMISSION_PROOF,
+    credless: false,
+};
+
 /// Registry of all fixtures known to theurge. Single source of truth: drives
 /// rbtdrc_lookup_fixture and the helpful "list valid fixtures" diagnostic the
 /// single-case tabtarget emits on missing/unknown fixture arg. Declaration
@@ -2584,6 +2593,7 @@ pub static RBTDRC_FIXTURES: &[&'static rbtdre_Fixture] = &[
     &RBTDRC_FIXTURE_ACCESS_PROBE,
     &RBTDRC_FIXTURE_TERRIER_SCAFFOLD,
     &RBTDRC_FIXTURE_TERRIER_ATOMICITY,
+    &RBTDRC_FIXTURE_ADMISSION_PROOF,
     &crate::rbtdrf_fast::RBTDRF_FIXTURE_ENROLLMENT_VALIDATION,
     &crate::rbtdrf_fast::RBTDRF_FIXTURE_REGIME_VALIDATION,
     &crate::rbtdrs_poison::RBTDRS_FIXTURE_REGIME_POISON,
@@ -2664,6 +2674,7 @@ pub static RBTDRC_SUITES: &[rbtdre_Suite] = &[
             &RBTDRC_FIXTURE_BATCH_VOUCH,
             &RBTDRC_FIXTURE_TERRIER_SCAFFOLD,
             &RBTDRC_FIXTURE_TERRIER_ATOMICITY,
+            &RBTDRC_FIXTURE_ADMISSION_PROOF,
         ],
     },
     // Crucible — fast + container-runtime crucible fixtures.
@@ -2710,6 +2721,7 @@ pub static RBTDRC_SUITES: &[rbtdre_Suite] = &[
             &RBTDRC_FIXTURE_BATCH_VOUCH,
             &RBTDRC_FIXTURE_TERRIER_SCAFFOLD,
             &RBTDRC_FIXTURE_TERRIER_ATOMICITY,
+            &RBTDRC_FIXTURE_ADMISSION_PROOF,
             &RBTDRC_FIXTURE_TADMOR,
             &RBTDRC_FIXTURE_SRJCL,
             &RBTDRC_FIXTURE_PLUML,
@@ -3916,6 +3928,70 @@ fn rbtdrc_terrier_atomicity(dir: &Path) -> rbtdre_Verdict {
 }
 
 pub static RBTDRC_CASES_TERRIER_ATOMICITY: &[rbtdre_Case] = &[case!(rbtdrc_terrier_atomicity)];
+
+// Admission-proof fixture — the federation admission composition proof. Probes the
+// payor (self-skip on no creds), charges the terrier via the rbw-dt scaffold, then
+// runs the rbw-pP proof, which brevets/unseats/attaints a synthetic probe and
+// asserts the muniment + tokenCreator + serviceUsageConsumer composition by
+// getIamPolicy read-back and peruse. exit 0 IS the assertion. Payor-credentialed
+// (the founding authority); needs a levied depot for the mantle SA binding targets.
+fn rbtdrc_admission_proof(dir: &Path) -> rbtdre_Verdict {
+    rbtdrc_with_ctx(|ctx| {
+        // Self-skip gate: stay green on a machine with no GCP credentials.
+        let _ = std::fs::write(dir.join("01-payor-probe.txt"), "probing payor credential");
+        match rbtdri_invoke_global(ctx, RBTDGC_CHECK_PAYOR, &[], &[]) {
+            Ok(r) if r.exit_code == 0 => {}
+            Ok(r) => {
+                return rbtdre_Verdict::Skip(format!(
+                    "payor credential not reachable (exit {}) — admission-proof requires service credentials",
+                    r.exit_code
+                ))
+            }
+            Err(e) => {
+                return rbtdre_Verdict::Skip(format!(
+                    "payor credential probe could not run ({}) — admission-proof requires service credentials",
+                    e
+                ))
+            }
+        }
+
+        // Charge the terrier — the proof brevets muniments into a provisioned bucket + polity folder.
+        let charge = match rbtdri_invoke_global(ctx, RBTDGC_TERRIER_SCAFFOLD, &[], &[]) {
+            Ok(r) => r,
+            Err(e) => {
+                return rbtdre_Verdict::Fail(format!("terrier scaffold (charge) invocation: {}", e))
+            }
+        };
+        let charge_out = format!("{}\n{}", charge.stdout, charge.stderr);
+        let _ = std::fs::write(dir.join("02-charge.txt"), &charge_out);
+        if charge.exit_code != 0 {
+            return rbtdre_Verdict::Fail(format!(
+                "terrier scaffold (charge) exit {} — terrier not provisioned for the proof\n{}",
+                charge.exit_code, charge_out
+            ));
+        }
+
+        // Run the admission-composition proof — exit 0 is the brevet/unseat/attaint
+        // round-trip plus the IAM read-back assertions (the verb dies on any deviation).
+        let proof = match rbtdri_invoke_global(ctx, RBTDGC_PROOF_POLITY, &[], &[]) {
+            Ok(r) => r,
+            Err(e) => return rbtdre_Verdict::Fail(format!("admission proof invocation: {}", e)),
+        };
+        let proof_out = format!("{}\n{}", proof.stdout, proof.stderr);
+        let _ = std::fs::write(dir.join("03-proof.txt"), &proof_out);
+        if proof.exit_code != 0 {
+            return rbtdre_Verdict::Fail(format!(
+                "admission proof exit {} — brevet/unseat/attaint composition not proven\n{}",
+                proof.exit_code, proof_out
+            ));
+        }
+
+        let _ = std::fs::write(dir.join("04-passed.txt"), "passed");
+        rbtdre_Verdict::Pass
+    })
+}
+
+pub static RBTDRC_CASES_ADMISSION_PROOF: &[rbtdre_Case] = &[case!(rbtdrc_admission_proof)];
 
 
 // Wsl-lifecycle fixture — fetched-side rootfs capture against live GAR. Single

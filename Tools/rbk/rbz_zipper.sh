@@ -99,6 +99,9 @@ zrbz_kindle() {
   buz_enroll RBZ_UNSEAT_POLITY          "rbw-pU"  "${z_mod}" "rbgp_unseat"   "param1"  "Unseat a citizen from one mantle (suspension, not erasure; args: subject mantle)"
   buz_enroll RBZ_ATTAINT_POLITY         "rbw-pA"  "${z_mod}" "rbgp_attaint"  "param1"  "Attaint a citizen — whole-person expulsion from this depot (args: subject)"
   buz_enroll RBZ_REHEARSE_POLITY        "rbw-pr"  "${z_mod}" "rbgp_rehearse" ""        "Rehearse the manor terrier — recount every muniment, manor-wide (read-only)"
+  # Transitional — interim admission-composition proof (payor-credentialed); the
+  # live-don payoff proof lands at M7. Not README-broadside-registered.
+  buz_enroll RBZ_PROOF_POLITY           "rbw-pP"  "${z_mod}" "rbgp_admission_proof" ""  "Prove federation admission composition end-to-end against a levied depot + scaffolded terrier (interim)"
 
   # Lode — fetched-side universal capture (rbw-l, UPPER=mutates GAR/cost, lower=read-only)
   buz_group RBZ__GROUP_LODE       "rbw-l"   "Lode — Fetched-side universal capture"

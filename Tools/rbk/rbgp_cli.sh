@@ -79,7 +79,7 @@ zrbgp_furnish() {
   case "${z_command}" in
     rbgp_depot_list)                                    : ;;
     rbgp_manor_affiance|rbgp_manor_jilt)                zrbrf_enforce ;;
-    rbgp_brevet|rbgp_unseat|rbgp_attaint|rbgp_rehearse) zrbrf_enforce; zrbrr_enforce; zrbrd_enforce ;;
+    rbgp_brevet|rbgp_unseat|rbgp_attaint|rbgp_rehearse|rbgp_admission_proof) zrbrf_enforce; zrbrr_enforce; zrbrd_enforce ;;
     *)                                                  zrbrr_enforce; zrbrd_enforce ;;
   esac
   zrbdc_kindle
