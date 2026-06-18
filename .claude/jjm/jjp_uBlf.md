@@ -12,6 +12,48 @@ Premise-touching ideas wait on Fable: any idea that would amend a cinched ₣BZ 
 Keep this catalog shape-shaped — each idea a named tension plus a current lean, never a running discussion log.
 Genuinely thin or orthogonal ideas belong in itches or the horizon roadmap, not here; this paddock is for ideas worth deliberating with heat context.
 
+## Conviction — the federation configuration model (settled modeling axis)
+
+The one settled shape in this paddock: the modeling axis is decided, even though the build is not.
+What is settled is HOW a federation is modeled; that it gets built is gated on the office-federation heat ₣BZ completing the single-federation case, and the vocabulary it needs is gated on Fable.
+
+The deciding finding: Google Workforce Identity Federation provider config is vendor-invariant — the same gcloud flags with identical semantics for Microsoft Entra, Okta, or generic OIDC, only the values differ (doc-confirmed against live GCP docs).
+So the regime must not enumerate vendors; enumerating them was reasoning from exactly two, and the docs settle that the shape generalizes.
+
+Variation sorts into three buckets, and only one belongs in the regime:
+IdP console setup (register the app, configure claims and scopes) is foreign-console human work — it belongs in a per-vendor guide, never a regime field or a tabtarget;
+opaque values (issuer URI, client-id, subject claim) belong in one vendor-agnostic core — already the federation regime's stated design, and the docs prove it generalizes past Entra;
+the token-acquisition mechanism (interactive device-flow versus programmatic self-supplied JWT) is the one real schema discriminator — the only thing that changes the required-field shape and the code path in affiance and the accessor.
+
+The discriminator is mechanism, not vendor.
+Vendors are open-ended but collapse onto a closed, tiny set of acquisition mechanisms; a new vendor never adds a mechanism, it slots into one, so adding a vendor is a guide plus values — no schema change, no code change.
+
+The landing model: the federation regime is a vendor-agnostic trust core plus an acquisition-mechanism gate.
+The core is always present — org, pool, provider, session-duration, client-id, attribute-mapping, issuer or JWKS source.
+The interactive arm carries the device-authorization and token endpoints and the device scope; the programmatic arm carries an uploaded public JWKS (the caged case); vendor identity is not a regime field at all.
+
+Scope of this model: it lands on a single active federation.
+Whether the manor ever holds several federations at once is the separate multiplicity axis below — orthogonal to this model, not decided here, and Fable-gated.
+The model is settled within that scope; the singleton is its boundary, not a second settled claim.
+
+The machinery is precedented in-tree: the vessel regime gates fields per mode via buv_enum_enroll plus buv_gate_enroll.
+The federation mechanism gate is the same pattern repurposed from a rejected vendor discriminator onto mechanism, where it is load-bearing.
+
+The 'ships committed, no secrets' invariant is preserved by exactly this seam: the programmatic arm carries the public JWKS (public keys commit fine), while the private signing key never enters the regime — it lives marshal-fenced.
+The discriminator splits public config from the one durable secret along the right line.
+
+Boundary: vendor-invariance holds for OIDC only.
+The one place a genuine per-protocol fork would reappear is OIDC versus SAML — a structurally different provider — but the manor is OIDC-only, so that is out of scope.
+
+Honesty: the caged programmatic path is confirmed against live GCP docs down to the --jwk-json-path flag and the client-id-equals-aud match, but it is not yet proven end-to-end in our own harness — a strong design lead, not a proven recipe.
+Decision economy (operator ruling): the throwaway manual spike is skipped — the establishment is written as durable BCG-compliant bash and that is what gets tested.
+
+Two forks this model deliberately leaves open are carried to a front-of-heat collaborative-design pace, since neither is doc-resolvable: whether a single test manor can host both the preserved human-click proof and the headless caged suites on one federation (or needs the multiplicity axis), and whether the programmatic JWKS source is one uploaded field or a core field with two sub-modes (uploaded self-held versus issuer-discovered, the latter fitting a real non-interactive IdP).
+
+Flagged for Fable: the mechanism discriminator wants a quoin and its value words want minting; the two new RBS0 subdocs this model calls for want acronym mints — all Fable's, owing the asterism check and the grep gate.
+
+Detail and reasoning trail: the federation-config-model memo (Memos/memo-20260618-Bf-federation-config-model.md).
+
 ## Idea — foedus, the configured-federation noun (keystone vocabulary)
 
 Tension: the civic vocabulary names every actor and container in the federation story — the manor that founds, the depot that runs, the citizen who signs in, the mantle they don, the assize they open — but has no noun for the configured trust itself.
@@ -27,14 +69,18 @@ So the noun claims no colophon family, which dissolves the earlier worry that a 
 Noted tradeoff carried to the mint: foedus is Latin and opaque, so a fresh operator may not parse it cold; the fair-faced cold-probe is the load-bearing gate before it hardens.
 This sharpens RBS0 even in the single-federation case, so it is flagged for Fable's ₣BZ heat-review as a candidate RBS0 civic quoin in the rbtf_ federation-civics category; the mint is Fable's, owing the asterism check, terminal exclusivity, and that cold-probe (the grep gate lands clean).
 The founding and un-founding verbs (affiance, jilt) are betrothal-register and monogamous while a foedus is a treaty that pluralizes; whether the verbs migrate to match the noun or the registers coexist is the verb-register question for Fable's mint — you do not betroth a foedus.
+The configuration-model conviction above sharpens what this noun denotes — a foedus is a vendor-agnostic trust core plus an acquisition-mechanism gate, with vendor identity deliberately not a field of it — so when the noun is minted it names that shape rather than the raw pool-plus-provider-plus-mapping mechanics; the mint, the asterism check, and the cold-probe remain Fable's.
 
-## Idea — payor federation-setup guide
+## Idea — payor federation-setup guides (one per vendor)
 
-Tension: the identity-provider-side preconditions — standing up the external OIDC tenant and app registration, then authoring the federation regime from its values — are foreign-console human work with no operator guide today.
-The affiance ceremony proves only the Google-side, autonomous half of founding; the human precondition half has no home.
+Tension: the IdP-side preconditions — standing up the external OIDC tenant and app registration, then authoring the regime from its values — are foreign-console human work with no operator guide today.
+Affiance proves only the Google-side, autonomous half of founding; the human precondition half has no home.
 
-Current lean: a guide-family procedure (colophon rbw-gPF, slotting into the payor-guide rbw-gP* family), capturing the federation spike's identity-provider-side manual steps.
-A guide, not a workbench command — the work is in a foreign console and cannot be driven by an API token, exactly as manor establishment (rbw-gPE) is a guide for the same reason.
+Under the conviction above, vendor work is wholly guide-plus-values, so this is not one guide but a guide per vendor.
+What unifies them is a contract rather than a shared body: each per-vendor guide must yield the vendor-agnostic core facts the regime reads, so the guides differ only in the console they walk and converge on the same handful of values.
+A guide, not a workbench command — the work is in a foreign console and cannot be driven by an API token, exactly as manor establishment is a guide for the same reason.
+
+Current lean: a guide-family procedure under the payor-guide family, with Entra first because it is the live IdP; further vendors are further guides under the same contract, no schema or code change.
 
 Source: the federation spike found the only console work was identity-provider-side; everything Google-side was payor-token REST.
 
@@ -43,6 +89,10 @@ Source: the federation spike found the only console work was identity-provider-s
 Tension: today one federation regime serves the whole manor — one workforce pool, one subject namespace.
 A single pool makes every provider a full root of trust over the whole namespace, so the pool's security floor is its weakest provider, and there is no way to isolate two real trust domains, or to isolate a test trust from a production trust.
 
+Distinct from the conviction above: that conviction governs one federation's shape (vendor-agnostic core plus mechanism gate, on a single active federation), whereas this idea is the orthogonal axis of how many federations the manor holds at once.
+The config model lands fully on the single federation; this axis stays Fable-gated.
+But the cleave is not as clean as it first looks: the degenerate-test idea's own-pool requirement may force this axis after all, because a manor cannot hold both the seeded interactive trust and a caged trust as its one federation — so whether a synthetic test manor truly needs nothing from this axis is itself an open question, carried to the front-of-heat design pace, not a settled boundary.
+
 Current lean: let the federation regime become a family of named instances (the pattern the nameplate and per-identity auth regimes already use), with affiance keyed to a named instance and each instance its own pool.
 Buys trust isolation between real identity providers, per-depot-group trust, and — the load-bearing one — test/production separation.
 
@@ -50,20 +100,22 @@ Enables the degenerate-test-federation idea and the governor-selects-federation 
 
 ## Idea — degenerate test federation
 
-Tension: the federation heat runs its suites by compearing once at suite head — one human browser click per run.
-That is fine for operator-driven runs (the federation heat does not need unattended CI), but those suites cannot run unattended.
+Tension: the federation suites compear once at suite head — one human browser click per run — which is fine for operator-driven runs but cannot run unattended.
 
-Current lean (mechanism confirmed live to the exact gcloud flag): a caged self-signed JWT — hold a signing keypair, upload its public JWKS to a workforce provider, mint tokens locally, and POST straight to the STS token endpoint (the headless programmatic flow, no browser).
-Removes the human from the autonomous suite surface.
+Modeling, folded into the conviction above: the caged path is not a vendor at all but a value of the mechanism gate — mechanism=programmatic, a self-held signing keypair, its public JWKS uploaded to a workforce provider, tokens minted locally and POSTed straight to the STS token endpoint.
+That much is settled by the conviction; what is NOT settled is whether to adopt a caged path at all — whether a test-org-only signing key is an acceptable quarantined exception or the per-run human click stays.
+That judgment is the heat's to settle, gated on the Fable review.
 
 Hard constraint: the caged signing key is a new durable secret and a root of trust over its pool.
-It must therefore live in its own pool (depends on the federation-regime-family idea) and never share a pool with real citizens, and it must never stand in for the paces whose whole purpose is to prove the real human-click path.
+It must live in its own pool and never share one with real citizens, and it must never stand in for the paces whose whole purpose is to prove the real human-click path.
+The private signing key never enters the federation regime — only the public JWKS commits, the conviction's public-commits / private-fenced seam — and the key lives marshal-fenced.
 
-Why deferred: it introduces a durable secret, against the federation heat's zero-keys premise; and that heat does not need unattended CI, so the cost buys nothing there.
+Open premise question this idea now surfaces: the own-pool constraint collides with the conviction's single-active-federation scope — the seeded interactive trust and a caged trust cannot both be the one federation, so a manor that must keep the human-click proof AND run headless caged suites may need the separate multiplicity axis after all; this is carried to the front-of-heat design pace.
 
-Detail and sources: the degenerate-federation test-personas memo records the live-doc confirmation of the programmatic STS flow (RFC 8693 token exchange; uploaded JWKS usable in the programmatic flow only), the two degenerate shapes (caged self-signed JWT vs a real test IdP on a non-interactive grant), the can-and-cannot-prove boundary, and the GCP / Keycloak / RFC URLs.
-Honesty caveat carried in the memo (re-verified 2026-06-18): the mechanism is now confirmed against live GCP docs down to the `--jwk-json-path` config door and the `aud`/`client-id` validation gotcha, no longer merely spike-paper-confirmed.
-The sole remaining unknown is end-to-end composition in our own harness — which no doc can close, since from Google's vantage we are simply an IdP with an uploaded JWKS — so a thin spike (provider → minted JWT → STS → donned mantle) is the only step left to prove it.
+Why deferred: it introduces a durable secret against the zero-keys premise, and the federation heat does not need unattended CI, so the cost buys nothing there.
+
+Detail and sources: the degenerate-federation test-personas memo records the two degenerate shapes (caged self-signed JWT; real test IdP on a non-interactive grant), the live-doc confirmation of the programmatic STS flow, the can/cannot-prove boundary, and the GCP / Keycloak / RFC URLs.
+Honesty: doc-confirmed down to the --jwk-json-path flag and the client-id=aud match; not yet harness-proven end-to-end.
 
 ## Idea — freeholds: durable reused test installations
 
@@ -94,6 +146,7 @@ Deciding the terrier's home before those settle would pre-commit them.
 Current lean: decide the terrier's permanent founding-home here, as one shape with foedus and multiple-federations — then wire the bucket-ensure and the per-depot folder into whatever that manor-establishment shape becomes, and retire the ₣BZ interim scaffold.
 
 Settled regardless (carried from ₣BZ, RBS0-grounded): the bucket lives in the payor project; the per-polity managed folder is depot-grain; manor establishment's project/OAuth half is manual Console and cannot be scripted, so any home is for the scriptable remainder.
+Cross-note (configuration model): the caged-federation establishment is another founding-time gesture a synthetic test manor would stand up, so this "what founding ensures" shape now has one more sibling to weigh — recorded as a coupling only, not a widening of the decision here.
 
 ## Idea — the governor's role in federation
 
@@ -145,6 +198,7 @@ It keeps the human-present premise — a human still authenticates each assize �
 Distinct from the degenerate-test-federation idea, which removes the human entirely.
 
 Touches a cinched federation-heat premise (human-present, and the headless fail-fast membrane), so it graduates only after Fable's federation-heat review, and may surface a paddock amendment rather than land purely in code.
+Under the configuration-model conviction this sharpens to a mechanism distinction: the programmatic mechanism is test-only and bypasses sign-in by construction, so it is not this fix — production headless stays an interactive-mechanism question with a human still present.
 
 ## Idea — heed: rename the compear sign-in verb (fair-faced remint)
 
@@ -195,10 +249,28 @@ Entra finding (260617, empirical, not just docs): the live devicecode response f
 Declined fallback recorded: synthesizing a code-carrying URL ourselves (.../device?otc=<code>) is unsupported, Palisade-fragile, and rides the device-code-phishing pattern Microsoft's filters flag — and tried live, the prefill did not populate, so even the hack does not work.
 Revisit trigger: a new or migrated IdP that returns the field, or Microsoft adding it.
 
+## Future build order (held as shape; gated on ₣BZ; not slated)
+
+The configuration-model conviction implies a sequence of buildable units; their dependency order is fixed even though none has graduated to a pace.
+No unit is slated: each waits until the conviction graduates from discuss to do, and graduation itself waits on the Fable review of ₣BZ's premise-touching pieces.
+
+The spine, in dependency order:
+Spec-first, before any code — evolve the federation-regime and affiance specs to the core-plus-mechanism-gate shape and stand up the two new subdocs as contracts; contract before code is project doctrine, so this is a hard predecessor of every code unit below.
+Regime mechanism discriminator and mechanism-conditional affiance — depends on the spec unit, and is also the home for the affiance undelete-on-DELETED correction the durable caged fixture needs.
+Marshal caged-establishment bash — depends on the spec unit and the discriminator; the durable replacement for the throwaway manual spike.
+Programmatic accessor (self-mint to STS) — depends on the discriminator and on a caged trust existing to acquire against.
+Per-vendor setup guide (Entra first) — depends only on the core-facts contract line, so it runs parallel to the three code units.
+Attach a caged subject to a test depot via the admission verbs — strictly last, since it consumes ₣BZ's admission-verb surface; it cannot be slated until ₣BZ lands.
+
+Fold and precedence: all these units stay in ₣Bf; none folds into ₣BZ — the configuration-model evolution and the synthetic test rig that rides on it are this holding paddock's work, while ₣BZ owns the admission verbs and the single-federation implementation, and the attach unit consumes those verbs without defining them.
+The spec-first unit is a hard predecessor of every code unit, not merely the first among equals — beginning any code before the specs are recast is a discipline breach, not a sequencing choice.
+
 ## Sources
 
 The office-federation heat ₣BZ is the parent; these ideas are its deliberate deferrals.
 Federation mechanism and the identity-provider-side console finding: the federation-legs spike findings memo.
 The pace-design and divergence record for the parent heat: its pace-design memo and its movement-4 review-findings memo.
 Degenerate-test-federation mechanism, sources, and the can-and-cannot-prove boundary: the degenerate-federation test-personas memo.
-Workforce-pool quota and soft-delete constraints (the freehold idea's load-bearing facts): Memos/memo-20260617-BZ-workforce-pool-constraints.md.
+Workforce-pool quota and soft-delete constraints (the freehold idea's load-bearing facts, and the affiance undelete-on-DELETED gap): Memos/memo-20260617-BZ-workforce-pool-constraints.md.
+Federation configuration model — the vendor-agnostic-core plus mechanism-gate conviction, full reasoning: Memos/memo-20260618-Bf-federation-config-model.md.
+Spec homes to evolve when this lands: RBSRF (RBSRF-RegimeFederation.adoc) and RBSMA (RBSMA-manor_affiance.adoc).
