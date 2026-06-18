@@ -29,8 +29,12 @@ Concept Model Kit (CMK) is installed for managing concept model documents.
 | **Variant** | `mcm_` | Suffix modifiers on attribute references: `_s` plural, `_p` possessive, `_ed` past, `_ing` progressive. |
 | **Annotation** | `mcm_` | An AsciiDoc comment line carrying structured metadata as space-separated prefix terms. Position determines role: primary motif first, dimensions following; the voices relationship is implicit. Example: `//axk_premise`. Legacy `//axl_voices …` form is read-only — never author it anew. |
 | **Ashlar** | `mcm_` | A quoin that faces the operator — must be fair-faced (first-contact actionable), draws from the coffer (bounded operator vocabulary), registers on the project's broadside. Words in error output are ashlar. Definition-site marker: `axd_ashlar`. |
+| **Bondstone** | `mcm_` | The few ashlars a user reasons *through* — the small set of operator-facing names that *constitute* the user's working model (vs. a name merely surfaced once in output). The through-stone binding the visible face to the unseen hearting. Every word-selection rule binds hardest here; earns first-letter separation across the set held at once. |
+| **Toothing** | `mcm_` | The verb-tier sibling of bondstone: the operator-facing acts performed *upon* the model-constituting names, and the operations those names visibly perform on one another so the system stays legible as it works. Draws the same heightened care as the bondstone it acts on. |
 | **Hearting** | `mcm_` | Interior names — uncatalogued, prefix discipline only. Deliberate plainness so ashlar care stays affordable. |
 | **Broadside** | `mcm_` | The project's single public sheet of ashlar vocabulary; registration there completes a mint. |
+
+**Two axes, not one.** The exposure ladder (hearting → quoin → ashlar) sorts names by *who must read them*. **Centrality** is a second, finer axis that cuts across it — *how much of the user's model a name carries*. A **bondstone** (noun) is a name the operator reasons *through*; a **toothing** (verb) is an act performed on those names. Both demand care beyond ordinary ashlar: a model is held by its bondstones, so a name that fails there fails the whole model, not a single reading. Full definitions: MCM `== Lapidary` → `=== Exposure`.
 
 ### AXLA Vocabulary
 
