@@ -5911,9 +5911,10 @@
         "₢BBABV",
         "₢BBABW",
         "₢BBABX",
-        "₢BBABY"
+        "₢BBABY",
+        "₢BBABZ"
       ],
-      "jjghn_next_pace_seed": "ABZ",
+      "jjghn_next_pace_seed": "ABa",
       "jjghn_paces": {
         "₢BBAA-": {
           "jjgpn_tacks": [
@@ -8037,6 +8038,17 @@
               "jjgtn_text": "## Character\nSingle-chokepoint bash change in the shared build wait loop;\nmechanical once the loop is read.\nSonnet-delegable body with driver verification.\n\n## Goal\nSplit the build-completion poll budget in the shared wait loop\n(`Tools/rbk/rbfcb_BuildHost.sh`, `zrbfc_wait_build_completion`) into two bounded clocks:\na shared, generous queue ceiling counting PENDING/QUEUED polls before the first WORKING,\nand the existing per-kind execution ceilings counting only from the QUEUED→WORKING transition.\nEvery op still terminates itself with success or failure:\nworst-case wall clock = queue ceiling + execution ceiling.\n\n## Cinched\n- Queue ceiling is one shared constant across kinds, sized ~15 minutes\n  (exact value and constant name are mount-time);\n  queue exhaustion dies loud as its own message — pool never took the build —\n  and keeps the quota-review tabtarget hint.\n- Per-kind execution ceilings (`ZRBFC_BUILD_POLL_CEILING_*`) keep current values;\n  their meaning narrows to execution-only.\n- The existing poll-20 queue-weather `buc_warn` survives\n  and repeats every ~20 queued polls instead of firing once.\n- One info line at the QUEUED→WORKING transition records the queued poll count,\n  so future log mining gets the queue/execution split for free.\n\n## Evidence\n`Memos/memo-20260611-heat-BH-vouch-poll-ceiling-queued-burst.md` —\ntrace plus the 2026-06-12 incidence addendum\n(2 timeouts + 1 near-miss in 531 builds over 8 weeks, all pure queue weather,\nconfined to the small-budget kinds).\nShape-sibling: the RBSHR progress-aware-convergence-deadline entry.\n\n## Done when\nTwo clocks live in the shared loop;\nqueue death and execution death are distinct loud messages;\nthe transition info line and repeating weather warning are observable in a log;\n`fast` is green and a service-tier run exercises at least one real build wait.",
               "jjgtn_silks": "build-poll-two-clock-split",
               "jjgtn_basis": "b977385"
+            }
+          ]
+        },
+        "₢BBABZ": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260618-1341",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nReconfirm-then-mechanical: independently re-derive the design from sources, then a multi-site string + parameter edit.\nThe originating chat ran below Opus quality and manufactured a non-issue before being corrected — treat every claim in this docket as a hypothesis to verify, not as authority.\n\nSurface, per call site, the precise rationale for why `bug_require_clean_tree` (BUG, `Tools/buk/bug_git.sh`) demands a committed tree at that locale.\nRationale strings live as RB constants in `Tools/rbk/rbcc_constants.sh`; each call site passes its own as a new gate argument; BUG stays kit-agnostic and only displays the string it is handed.\n\n## Reconfirm first (origin chat was unreliable)\nVerify from sources, not from the claims here:\n- Enumerate the call sites and read each local why: `grep -rn --include='*.sh' 'bug_require_clean_tree' Tools/` (one definition lives in BUG; the rest are calls).\n- Confirm how many distinct rationales actually exist — the chat claimed two: a build/capture \"HEAD-as-provenance\" family and the depot-tripwire \"inscribed bytes must be a committed reference\" case. Correct it if the sites disagree.\n- Confirm BCG tinder vs kindle for the new constants (rbcc is tinder-heavy; these are pure string literals).\n- Settle what the chat left open: whether the rationale displays on the failure path only, or always.\n- Re-judge whether this needs anything beyond constants + param. The chat concluded the principle is already spec-homed (`rbtgo_lode_ensconce`, `rblv_git_commit` in RBS0, plus the tripwire statement in RBSRT/RBSMF) and warrants no new quoin or RBr_ rivet — an implementation detail, not a concept. Confirm or overturn.\n\n## Cinched\nRationale strings live in rbcc (RB-space), never inside BUG.\nThe gate gains a parameter; every call site supplies its locale's rationale.\n\n## Done when\nThe re-verified set of rationale constants exists in rbcc.\nEvery `bug_require_clean_tree` call passes its locale's rationale and the gate surfaces it to the operator.\nTripwire aside (separable, not required): its rationale is stated near-verbatim in both RBSRT and RBSMF — fold to one if you touch it.\n`tt/rbw-tl.Shellcheck.sh` clean and the fast suite green.",
+              "jjgtn_silks": "clean-tree-rationale-param",
+              "jjgtn_basis": "47fc5df"
             }
           ]
         }
