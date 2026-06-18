@@ -9145,10 +9145,11 @@
         "₢BZAAO",
         "₢BZAAP",
         "₢BZAAQ",
+        "₢BZAAa",
         "₢BZAAZ",
         "₢BZAAN"
       ],
-      "jjghn_next_pace_seed": "AAa",
+      "jjghn_next_pace_seed": "AAb",
       "jjghn_paces": {
         "₢BZAAA": {
           "jjgpn_tacks": [
@@ -9695,6 +9696,17 @@
               "jjgtn_text": "Finish the collapse of the depot test-installation to a single freehold scheme — the cleanup the quota-driven reuse decision set in motion.\nThe proof pace realized the first pieces (idempotent reuse-or-create ensure, the deliberate churn fixture); two test-prefix schemes still coexist — the canonical canc-/canr- family and pristine's throwaway family — each with its own duplicated autoincrement pick-next.\nCollapse to one freehold scheme: one prefix family, one pick-next, no \"which scheme is live\" to track — the path-dependence that bit during the quota stall.\n\n## Done when\nOne depot test-prefix scheme remains and the duplicated autoincrement logic is unified.\nThe fixtures and the depot_levy function (which reuses-or-levies now, not just levies) are renamed to the freehold vocabulary — exact names minted at mount under MCM Word Selection.\nrbtdrk_canonical.rs (~1075 lines) is split at a natural seam, back under the RCG 800-line threshold.\nThe suites exercising these fixtures stay green.\n\n## Cinched\nCollapse to one freehold is the operator decision — the quota wound made two-scheme tracking too costly.\nChurn stays deliberate and a member of no suite; the safety property — a routine fixture never silently destroys the freehold — is preserved by that deliberate-churn separation, not by disjoint prefixes.\nEnrobe-idempotency is out of scope here: the keyfile enrobe is rewritten keyless by the RBRA-estate-retirement movement, which subsumes it.\n\n## Character\nTest-infra refactor — mostly mechanical rename/unify/split, but it touches shared fixture machinery; sequence against the RBRA-estate-retirement movement's keyless rewrite of the canonical credential-bootstrap fixture, since both touch the same fixtures.",
               "jjgtn_silks": "freehold-collapse-cleanup",
               "jjgtn_basis": "028cebc"
+            }
+          ]
+        },
+        "₢BZAAa": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260617-2123",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "Fold the proven Terrier provisioning sequence into the founding ceremonies, then demolish the scaffold.\nThe manor-homed bucket-ensure grafts into manor founding (establish/affiance, the payor founding acts); the per-polity managed folder and its IAM graft into depot levy, one folder per depot founded.\nThen delete the standalone provisioning tabtarget and its transitional colophon — the scaffold's demolition condition, executed.\nThe levy-vs-founding grain and the idempotent-ensure shape are settled in the predecessor build pace and the pace-design memo's terrier-homing-correction; graft to them, do not re-derive.\n\n## Done when\nManor founding provisions the Terrier bucket idempotently; depot levy adds the founded depot's managed folder and write IAM.\nA fresh keyless founding yields a working Terrier with no separate provisioning step.\nThe provisioning tabtarget and its colophon no longer exist (grep-clean).\n\n## Cinched\nBucket is manor-grain (founding), folder is depot-grain (levy) — the homing correction in the pace-design memo.\nA working fresh founding presupposes the keyless credential-bootstrap rewrite (the RBRA-estate-retirement movement); the live no-keys org policy blocks fresh enrobe until then, which is why this pace lands after it.\nMulti-depot-per-manor generalization is out of scope — deferred to ₣Bf.\n\n## Character\nMechanical graft of a proven sequence plus a scaffold deletion; the judgment was settled upstream, this executes it.",
+              "jjgtn_silks": "terrier-graft-demolish",
+              "jjgtn_basis": "b5c2b38"
             }
           ]
         }
