@@ -2235,7 +2235,7 @@ rbgp_terrier_proof() {
   buc_step 'Peruse — expect the engrossed muniment present'
   local z_muniments
   z_muniments=$(rbgft_peruse "${z_token}" "${z_bucket}" "${z_depot}")
-  printf '%s\n' "${z_muniments}" | grep -qF "${z_pair}" \
+  [[ "${z_muniments}" == *"${z_pair}"* ]] \
     || buc_die "Proof: peruse did not surface the engrossed muniment"
 
   buc_step 'Expunge — expect a delete'
@@ -2248,7 +2248,7 @@ rbgp_terrier_proof() {
 
   buc_step 'Peruse — expect the muniment gone'
   z_muniments=$(rbgft_peruse "${z_token}" "${z_bucket}" "${z_depot}")
-  if printf '%s\n' "${z_muniments}" | grep -qF "${z_pair}"; then
+  if [[ "${z_muniments}" == *"${z_pair}"* ]]; then
     buc_die "Proof: peruse still surfaces the muniment after expunge"
   fi
 
