@@ -7,6 +7,7 @@ Corrections and tightenings — including over-treatments Opus believes it spots
 Live pace-design work and the Opus/Fable divergence record: `Memos/memo-20260615-BZ-pace-design.md`.
 A further routing, for evolution rather than correction: an idea that would change this paddock's cinched logic, or reach past this heat's scope, is not a correction — it goes to the holding heat for federation ideas deferred from this one (₣Bf), never folded back here.
 A mid-pace urge to re-architect is evolution — route it to ₣Bf, not into this frozen body.
+One operator-sanctioned body correction has been made under this freeze (260618, in conversation): the Boundary section's manor-prerequisite line now states plainly that the manor IS the payor project (RBS0's control-plane project), not an org-level "deed." Provenance (Fable confabulation vs editor spec/impl drift) and evidence are in the pace-design memo's manor-identity section, for the terminal Fable review.
 
 ## Boundary — single tier, mantle impersonation (cinched 260612)
 
@@ -16,8 +17,8 @@ The keyfile citizen tier is **canceled unbuilt** —
 no mode enum, no second tier, no migration machinery
 (decision record: `Memos/memo-20260612-office-federation-conversion.md`;
 canon banner updated same day).
-Prerequisite ladder accepted: every manor brings a domain (org anchor, a deed not a building),
-a Cloud Identity org, and a conformant external OIDC IdP.
+Prerequisite ladder accepted: the manor is the payor project itself (per RBS0 the singular control-plane GCP project — a building, not a deed);
+federation additionally requires that project sit under a Cloud Identity org with a conformant external OIDC IdP — the org hosts the workforce pool but is not itself the manor.
 Today's keyfile machinery is **bridge legacy**:
 untouched, riding under the accessor seam, suites stay green on it
 until federation personas pass the same suites —
