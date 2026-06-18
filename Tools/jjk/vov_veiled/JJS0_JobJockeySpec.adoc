@@ -1317,6 +1317,11 @@ Serialized as `jjgrn_schema_version` in JSON.
 detects migration mode when absent or when
 {jjdgm_order}
 is empty.
++
+NOTE: Schema changes recur across JJK's life.
+Each migrates through a converging mechanism, not an ad-hoc one-time path:
+the old shape is tolerated only with a demolition condition, retired once every operated clone converges,
+so the count of mutually-readable schemas is held to a floor rather than accumulating.
 
 * [[jjdgm_heats]]
 //axl_voices axr_member axd_required axt_map axd_property
