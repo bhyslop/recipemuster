@@ -51,10 +51,13 @@
 :mcm_ashlar_s:               <<mcm_ashlar,Ashlars>>
 :mcm_asterism:               <<mcm_asterism,Asterism>>
 :mcm_asterism_s:             <<mcm_asterism,Asterisms>>
+:mcm_bondstone:              <<mcm_bondstone,Bondstone>>
+:mcm_bondstone_s:            <<mcm_bondstone,Bondstones>>
 :mcm_broadside:              <<mcm_broadside,Broadside>>
 :mcm_coffer:                 <<mcm_coffer,Coffer>>
 :mcm_fair_faced:             <<mcm_fair_faced,Fair-Faced>>
 :mcm_hearting:               <<mcm_hearting,Hearting>>
+:mcm_toothing:               <<mcm_toothing,Toothing>>
 
 :mcm_definition_section:     <<mcm_definition_section,Definition Section>>
 :mcm_definition_section_s:   <<mcm_definition_section,Definition Sections>>
@@ -916,7 +919,7 @@ enables the
 {mcm_editor}
 to identify issues requiring attention.
 
-== Word Selection
+== Lapidary
 
 Vocabulary is the primary interface of every system the
 {mcm_editor}
@@ -1030,6 +1033,20 @@ but is unmarked skips the stricter tests —
 so when a word surfaces in operator output, ask whether it belongs on the
 {mcm_broadside}.
 
+The ladder sorts by exposure — who must read the name.
+A second, finer mark cuts across it: *centrality*, how much of the user's model a name carries.
+The few
+{mcm_ashlar_s}
+a user reasons *through* are
+{mcm_bondstone_s};
+the verbs that work them are
+{mcm_toothing}.
+Both draw a care beyond the ordinary
+{mcm_ashlar}:
+a model is held by its
+{mcm_bondstone_s},
+and a name that fails there fails the whole model, not a single reading.
+
 [[mcm_ashlar]]
 {mcm_ashlar}::
 A
@@ -1052,6 +1069,44 @@ Verbs name what the operator does or sees, never the mechanism beneath.
 Words appearing in failure output are
 {mcm_ashlar_s}
 even when the operator never invokes them.
+
+[[mcm_bondstone]]
+{mcm_bondstone}::
+The few
+{mcm_ashlar_s}
+a user reasons *through* — the small set of operator-facing names that constitute the user's working model of the system, as against a name merely surfaced once in output.
+The through-stone of the wall: dressed on the face like any
+{mcm_ashlar},
+yet reaching the wall's full thickness to bind the visible face to the unseen
+{mcm_hearting} —
+so a
+{mcm_bondstone}
+ties what the operator sees to what the system is.
+Distinguished from a plain
+{mcm_ashlar}
+not by exposure — both face out — but by centrality: an
+{mcm_ashlar}
+in a rare error message faces the operator yet bears no model, where a
+{mcm_bondstone}
+is the name the user's whole model hangs on.
+Every rule above binds hardest here.
+It must above all be
+{mcm_fair_faced}
+and lodge unaided; it must dodge overloading in both general software prose and the system's own adjacent domain; and it earns first-letter separation from its siblings, so the set an operator holds at once stays distinct in the hand and the head.
+
+[[mcm_toothing]]
+{mcm_toothing}::
+The verb-tier sibling of the
+{mcm_bondstone}:
+the operator-facing acts performed upon the model-constituting names, and the operations those names visibly perform upon one another so the system stays legible as it works.
+The toothing-stones left projecting at a wall's end, the worked interlock by which a later course keys in — so a growing system's new names bond into the standing set rather than abutting it loose.
+A
+{mcm_toothing}
+verb draws the same heightened care as the
+{mcm_bondstone}
+it acts on: it must be
+{mcm_fair_faced}
+and lodge unaided, dodge overloading in software prose and the adjacent domain, and hold first-letter separation across the set an operator wields at once.
 
 [[mcm_hearting]]
 {mcm_hearting}::

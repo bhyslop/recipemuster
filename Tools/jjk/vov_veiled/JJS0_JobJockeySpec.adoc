@@ -845,7 +845,7 @@ is ever attempted.
 
 Job Jockey's terminology is drawn entirely from equestrianism.
 This is not decoration — it is a namespace discipline applied to human cognition and language model disambiguation.
-The general doctrine — vocabulary isolation, the grep gate, rare-but-real sensory words, the metaphor-family gestalt — lives in MCM's Word Selection section (`mcm_asterism`, `mcm_trodden_word`), with this vocabulary as its founding specimen;
+The general doctrine — vocabulary isolation, the grep gate, rare-but-real sensory words, the metaphor-family gestalt — lives in MCM's Lapidary section (`mcm_asterism`, `mcm_trodden_word`), with this vocabulary as its founding specimen;
 JJS0 states only what is Job Jockey's own.
 
 Planning vocabulary is maximally exposed to the trodden-word hazard:
