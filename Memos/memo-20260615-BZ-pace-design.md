@@ -219,3 +219,21 @@ The roster correction (retracting an earlier Opus claim, prompted by the operato
 The freeholds are intertwined: a muniment binds a foedus principal to a depot mantle, so the standing-citizen roster IS the join — the manor-wide roll is the foedus view, the per-polity slice the depot view. Post-impersonation a depot's mantles are donnable only through a foedus, so a depot freehold presupposes a foedus freehold. The depot-side (per-polity slice, post-impersonation depot nature, the canonical→freehold rename of depot test infrastructure, and the parked multi-foedus-per-depot capability) is deferred to ₣Bf, captured there as the freehold paddock idea.
 
 Release-cadence refresh: when the quota-touching lifecycle does run (e.g. at releases), it also refreshes the freehold — jilt then re-establish, ordered after the lifecycle's own create→jilt passes, so cleanup is proven on a throwaway before it touches the durable pool. Buys staleness-isolation.
+
+## Terrier homing correction — levy is depots, the bucket is the manor's (260617, operator-sanctioned)
+
+Surfaced in conversation 260617 while orienting the terrier-live pace around the operator's idempotent-tabtarget-then-graft strategy; the operator caught the slip and sanctioned the correction in-heat.
+
+The paddock's Terrier section says the per-polity terriers are "payor-created at levy." But levy creates a *depot* (`rbgp_depot_levy`; RBSMF is "Manor demesne — depot levy"), while the Terrier bucket is **Manor-homed** — one bucket shared across every depot under the manor (same paddock sentence). A manor-shared bucket cannot be born at depot levy: it would have no durable home (the build bucket lives in the depot project and dies with it), and a second depot's levy would collide with the first depot's bucket.
+
+The correction (a grain-sharpening, not an architecture change — stays in-heat per the freeze's correction/evolution split):
+
+- The **Manor-homed bucket** is an idempotent *ensure* grafted into **manor founding** (establish/affiance — the payor founding acts), not into levy.
+- The **per-polity managed folder + its managed-folder IAM** is depot-grain and grafts into **levy**, one folder added per depot founded.
+- Code consequence: the terrier bucket-create must NOT copy the build-bucket's 409-is-fatal pristine guard (the "Create build bucket" step in `rbgp_depot_levy`); a manor-shared bucket's second-depot founding legitimately finds it present.
+
+Why "at levy" reads true in the frozen paddock: for the MVP one-depot-per-manor freehold, manor founding and the single depot's levy coincide, so the grain distinction is invisible. It bites only at the second depot — exactly the multi-foedus / multi-depot-per-manor capability the freehold doctrine above already defers to ₣Bf. So the split is consistent: the homing *sharpening* is a BZ correction (recorded here); the multi-depot *generalization* that makes it load-bearing is ₣Bf.
+
+Pace shape (260617): the terrier-live pace is reslated to build-and-verify-via-tabtarget — an idempotent destroy-then-create terrier provisioning tabtarget run against the freehold, so the noun internals (muniment shape, managed-folder grain, bucket name/home) settle through cheap iteration with zero depot/manor quota churn. A new graft-and-demolish pace folds the proven sequence into founding (bucket→manor founding, folder→levy) and deletes the scaffold tabtarget — the demolition condition as a committed pace. The tabtarget deliberately outlives the terrier-consuming dev paces (admission verbs, foedus-freehold) so they get cheap resets; demolition is last.
+
+Net-new surface the build pace carries (grounded 260617): GCS `storage.managedFolders` REST (create/delete) is absent repo-wide; a managed-folder IAM wrapper mirrors the AR repo-IAM idiom in the registry module over a new rbgi primitive shaped like the bucket-IAM primitive; and teardown must delete managed folders, which today's object-only bucket-emptying does not.
