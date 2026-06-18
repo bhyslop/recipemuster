@@ -1,18 +1,20 @@
-## Status — scope narrowed (260601)
+## Status — complete; residuals restrung (260618)
 
-The release-qualification **machinery is built**: `rbw-tP` QualifyPristine, the
-gauntlet suite, and the marshal-zero signature gate all shipped. What remained —
-the actual pristine **runs**, the RELEASE.md **revision**, and the post-success
-**cleanup-ceremony documentation** — was gated on "are we actually releasing,"
-which is deferred. Those ideas now live in **₣BU rbk-mvp-final-release-prep**
-(stabled, paddock-only) and will be slated fresh when release time comes.
+The release-qualification **machinery is built and shipped**: `rbw-tP` QualifyPristine,
+the gauntlet suite, and the marshal-zero signature gate all landed. This heat's goal is
+**complete**.
 
-₣BB stays racing for **three tail items only** — ordinary engineering that gates
-a clean pristine run but is not release ceremony:
+The actual pristine **runs**, the RELEASE.md **revision**, and the post-success
+**cleanup-ceremony documentation** were always gated on "are we actually releasing,"
+which is deferred — those live in **₣BU** (stabled, paddock-only), slated fresh when
+release time comes.
 
-- Foundry account-state-invalid retry-tolerance bug fix (401/`ACCOUNT_STATE_INVALID` flap)
-- Fast-tier shellcheck fold + parallelization + marshal-zero gate
-- RBS0 spec-sync sweep (known sync point: RBSAJ probe semantic)
+The ordinary-engineering tail that had collected here — a foundry account-state-invalid
+flap fix, an OAuth terminal-failure fail-fast, a build-poll clock split, a shellcheck-coverage
+widening, a station-regime relocate, two stale-spec corrections, and a network-diagnostic
+repair — was **restrung to ₣Bi** as small pre-MVP loose ends, never release ceremony. The
+named RBS0 spec-sync sweep and the fast-tier shellcheck fold both **landed** before the
+restring.
 
 Everything below is the design record of the machinery as built — retained as
 the authoritative account of what shipped, not as open scope.
@@ -161,9 +163,10 @@ Downstream consumption — bash testbench, manifest-coverage runtime checks, cov
 
 ## References
 
-- ₣BU rbk-mvp-final-release-prep — the release runs, RELEASE.md revision, and cleanup-ceremony docs now live here (stabled until release time)
-- ₣A_ rbk-mvp-3-resource-prefix-and-depot-regen — surfaced the gap
-- ₣BC rbk-mvp-3-theurge-self-test — calibrant downstream consumers
+- ₣Bi — the restrung pre-MVP loose-ends (foundry flap fix, OAuth fail-fast, build-poll split, shellcheck widening, station relocate, stale-spec fixes, scry repair)
+- ₣BU — the deferred release runs, RELEASE.md revision, and cleanup-ceremony docs (stabled until release time)
+- ₣A_ — surfaced the release-qualification gap
+- ₣BC — calibrant downstream consumers
 - `tt/rbw-tr.QualifyRelease.sh` — current release qualify; layered alongside, not replaced
 - `Tools/rbk/rblm_cli.sh` — `rbw-MZ` zeroes local regime; marshal-zero signature baked here per BBAAB
 - `.claude/commands/rbk-prep-release.md` — upstream contribution ceremony; pristine-pass becomes a precondition
