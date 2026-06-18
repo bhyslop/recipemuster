@@ -8086,9 +8086,10 @@
         "₢BDAAS",
         "₢BDAAT",
         "₢BDAAV",
-        "₢BDAAW"
+        "₢BDAAW",
+        "₢BDAAZ"
       ],
-      "jjghn_next_pace_seed": "AAZ",
+      "jjghn_next_pace_seed": "AAa",
       "jjghn_paces": {
         "₢BDAAA": {
           "jjgpn_tacks": [
@@ -8725,6 +8726,17 @@
               "jjgtn_text": "## Character\nThe recurring capture mechanism in jjx (Rust), built on the store the prior pace establishes.\nIdempotent and additive.\n\n## Goal\nAutomatically augment the chat-log store on the frequent orientation ceremonies,\nso new sessions and the growth of existing ones are captured with no manual action —\nnever forgetting, only adding.\n\n## Cinched\n- Triggers: mount, groom, and muster.\n- Never-forget but update — additive sync: pick up new session files and the growth of existing ones;\n  never delete from the store even when the source disappears (git history carries never-forget).\n- Idempotent — an unchanged run is a no-op, no empty commit.\n- Wholesale, per-project boundary (the transcript dir matching this repo's working directory);\n  git's own compression; the `.claude/jjm/` store the prior pace establishes.\n- Recurring capture is local-only — cerebro-alpha is swept by the backfill pace and periodic manual\n  runs, not on every ceremony (an ssh pull per muster is too heavy).\n\n## Mount-time decisions\n- The commit: do the (today read-only) mount/groom/muster handlers gain a scoped capture commit,\n  or stage-and-defer? A commit scoped to store paths matches the orthogonal-commit discipline.\n- Change-detection for idempotency (size+mtime vs content hash).\n- Coordinate with the mount/groom firemark-from-gazette rework already enrolled in ₣BD —\n  both add work to the same ceremonies (coordinate, don't block).\n\n## Done when\n- A mount, groom, or muster commits any new or grown local sessions to the store;\n  an unchanged run is a no-op.\n- All three ceremonies carry the hook.",
               "jjgtn_silks": "chat-capture-auto-recurring",
               "jjgtn_basis": "55e6119"
+            }
+          ]
+        },
+        "₢BDAAZ": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260618-1535",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "Design a wrap-time friction-audit channel.\nAt close, the agent records a short structured grep-extractable line into the wrap commit message,\nreporting friction it hit during the chat,\nbuilding a git-resident corpus that can later inform JJK affordance tuning.\n\n## Character\nCollaborative design conversation requiring judgment — not mechanical.\nThe concept is partial: mounting this pace resumes the design, it does not execute a settled spec.\nLikely punted from fast-tweaks once worked; mount is the moment to reconsider that call.\n\n## Cinched\nRefine these, do not re-litigate.\n- Collect friction, not praise — negatively framed; rides the existing spook concept.\n- Report vs. counterfactual attribution is the reliability boundary: a first-person report of in-chat events\n  (re-reads, a docket pointing at a renamed file, a confusing paddock) is actionable;\n  a claim that an affordance *helped* is a counterfactual the agent cannot run — that is an ablation\n  question, outside self-report.\n- Mechanism candidate: one structured line in the wrap commit message — git as the ledger, no side file\n  that calcifies, self-validating against the commit's own diff and transcript later.\n- \"Nothing snagged\" is a first-class sentinel answer — required-to-answer, never required-to-find-something.\n\n## Open threads\n- Line format and sentinel token — settle early, since extractability is the whole point.\n- Selection bias: wrap only fires on chats that reach wrap, so the corpus is happy-path-weighted;\n  decide whether that is acceptable or wants a second capture point.\n- The motivating example — whether the mount commit-lookup bitmap is signal or noise — is itself an\n  ablation sub-thread, possibly its own itch rather than part of this pace.\n\n## Done when\nThe concept is fully worked — mechanism, line format, scope — and either lands in a spec home\nor is filed as an itch, with an explicit build-now-or-defer decision recorded.",
+              "jjgtn_silks": "wrap-friction-audit",
+              "jjgtn_basis": "a785eb2"
             }
           ]
         }
