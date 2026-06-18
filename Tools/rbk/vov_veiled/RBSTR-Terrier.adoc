@@ -17,7 +17,9 @@
 // section under the rbtf_ federation category, and this file is `include::`'d
 // into RBS0 proximal to the terrier noun quoin (the standard operation-fragment
 // treatment). Settled: this subdoc's identity, the atomic-write contract, and the
-// three sub-operation quoins (engross / expunge / peruse).
+// three sub-operation quoins (engross / expunge / peruse). The terrier noun
+// internals (granularity, muniment shape + rbgft_ sprue, bucket, folder IAM) are
+// settled in the RBS0 terrier quoin; the former Forthcoming section is retired.
 
 == Terrier access
 
@@ -90,18 +92,23 @@ atomicity, the caller adds one query parameter and checks the HTTP code. This is
 within bash's good case under BCG — glue over a service, carrying no lock logic
 of its own.
 
-=== Forthcoming — settled when the terrier noun's internals land
+=== Settled — the terrier noun's internals (in RBS0)
 
-Properties of the Terrier *noun*, not of its access; the noun is seated as a shell
-civic quoin in RBS0, but these internals are parked to the terrier-live pace and
-settle there:
+The Terrier *noun* internals — object granularity, the muniment JSON shape and its
+`rbgft_` sprue, the physical bucket name and its constant home, and the
+managed-folder IAM grain — are settled in the RBS0 terrier quoin. They are
+properties of the noun, not of this access subdoc, so they are not restated here
+(ACG: reference the home).
 
-* object granularity — per-entry versus per-subject — and the JSON shape of a
-  muniment under a freshly-minted terrier sprue (this also fixes whether the
-  generation-conditional update clause above is ever exercised, or whether
-  writes are create-and-delete only);
-* the physical bucket name, and where its constant is homed;
-* the managed-folder grain and the IAM that scopes a governor's write to its own
-  polity (today's `rbgb_` carries bucket-level IAM only).
+One resolution bears on the write semantics above: granularity is per-entry — one
+object per (principal subject,
+{rbtf_mantle}
+held) pair — so a muniment is immutable: a holding exists or it does not. Writes
+are therefore create-and-delete only (
+{rbtf_engross}
+then
+{rbtf_expunge});
+the generation-conditional update clause stands as contract but is unexercised
+under this granularity.
 
 // eof

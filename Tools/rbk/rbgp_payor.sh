@@ -2196,6 +2196,65 @@ rbgp_terrier_scaffold() {
   buc_success "Terrier scaffolded on ${RBGP_TERRIER_BUCKET}: polity folder ${z_folder}, write+read IAM for ${z_gov_mantle_email}"
 }
 
+# Interim proof (retires with the scaffold when ₣Bf consolidates): drive the
+# terrier muniment sub-operations against a scaffold-provisioned terrier and
+# assert the RBSTR atomic contract end-to-end. Payor-credentialed — the payor
+# reads/writes the payor-project bucket as project owner, which proves the GCS
+# precondition mechanics (the 412-on-conflict idempotency) without mantle
+# impersonation; donning the governor mantle to prove own-folder-only write
+# belongs to the admission paces, not here. Synthetic muniment, self-cleaning.
+# Not registered on the README broadside.
+rbgp_terrier_proof() {
+  zrbgp_sentinel
+
+  buc_doc_brief "Prove terrier muniment atomicity end-to-end against the scaffolded terrier (interim; payor-credentialed)"
+  buc_doc_shown || return 0
+
+  buc_step 'Authenticate as Payor'
+  local z_token
+  z_token=$(zrbgp_authenticate_capture) || buc_die "Failed to authenticate as Payor via OAuth"
+
+  local -r z_bucket="${RBGP_TERRIER_BUCKET}"
+  local -r z_depot="${RBDC_DEPOT_PROJECT_ID}"
+  local -r z_mantle="governor"
+  local -r z_subject="rbgft-proof-probe"
+  local -r z_pair="${z_mantle}"$'\t'"${z_subject}"
+
+  buc_step 'Pre-clean any muniment a prior failed proof left behind'
+  rbgft_expunge "${z_token}" "${z_bucket}" "${z_depot}" "${z_mantle}" "${z_subject}" >/dev/null
+
+  buc_step 'Engross fresh — expect a created write'
+  local z_disp
+  z_disp=$(rbgft_engross "${z_token}" "${z_bucket}" "${z_depot}" "${z_mantle}" "${z_subject}")
+  test "${z_disp}" = "created" || buc_die "Proof: first engross expected 'created', got '${z_disp}'"
+
+  buc_step 'Engross the duplicate — expect the 412 precondition, treated as idempotent'
+  z_disp=$(rbgft_engross "${z_token}" "${z_bucket}" "${z_depot}" "${z_mantle}" "${z_subject}")
+  test "${z_disp}" = "present" || buc_die "Proof: duplicate engross expected 412 'present', got '${z_disp}'"
+
+  buc_step 'Peruse — expect the engrossed muniment present'
+  local z_muniments
+  z_muniments=$(rbgft_peruse "${z_token}" "${z_bucket}" "${z_depot}")
+  printf '%s\n' "${z_muniments}" | grep -qF "${z_pair}" \
+    || buc_die "Proof: peruse did not surface the engrossed muniment"
+
+  buc_step 'Expunge — expect a delete'
+  z_disp=$(rbgft_expunge "${z_token}" "${z_bucket}" "${z_depot}" "${z_mantle}" "${z_subject}")
+  test "${z_disp}" = "deleted" || buc_die "Proof: expunge expected 'deleted', got '${z_disp}'"
+
+  buc_step 'Expunge the absent — expect 404, treated as idempotent'
+  z_disp=$(rbgft_expunge "${z_token}" "${z_bucket}" "${z_depot}" "${z_mantle}" "${z_subject}")
+  test "${z_disp}" = "absent" || buc_die "Proof: re-expunge expected 404 'absent', got '${z_disp}'"
+
+  buc_step 'Peruse — expect the muniment gone'
+  z_muniments=$(rbgft_peruse "${z_token}" "${z_bucket}" "${z_depot}")
+  if printf '%s\n' "${z_muniments}" | grep -qF "${z_pair}"; then
+    buc_die "Proof: peruse still surfaces the muniment after expunge"
+  fi
+
+  buc_success "Terrier muniment atomicity proven on ${z_bucket}: engross/412-idempotent, peruse, expunge/404-idempotent"
+}
+
 rbgp_payor_oauth_refresh() {
   zrbgp_sentinel
 

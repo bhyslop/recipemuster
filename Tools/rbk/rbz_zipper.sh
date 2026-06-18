@@ -80,6 +80,8 @@ zrbz_kindle() {
   buz_enroll RBZ_RECOGNOSCE_DEPOT       "rbw-dr"  "${z_mod}" "rbgp_depot_recognosce"  ""  "Recognosce a depot's founding — confirm mantle SAs, capability-sets, and AR audit config against live GCP"
   # Transitional — interim terrier scaffold; ₣Bf owns the permanent founding-home and retires this colophon. Not README-broadside-registered.
   buz_enroll RBZ_TERRIER_SCAFFOLD       "rbw-dt"  "${z_mod}" "rbgp_terrier_scaffold"  ""  "Provision and idempotently reset the freehold's terrier (interim scaffold)"
+  # Transitional — interim terrier muniment-atomicity proof; retires with the scaffold when ₣Bf consolidates. Not README-broadside-registered.
+  buz_enroll RBZ_TERRIER_PROOF          "rbw-dT"  "${z_mod}" "rbgp_terrier_proof"     ""  "Prove terrier muniment atomicity end-to-end against the scaffolded terrier (interim)"
 
   # Manor — IdP federation founding (rbw-m). Seeds the elected manor colophon
   # family; the M5 colophon regroup later gathers levy/establish into it.

@@ -2034,9 +2034,13 @@ A governor mantle's write is scoped to its own polity's folder (`roles/storage.o
 The payor reads inherently as owner of the payor project.
 The cross-project shape — a payor-project bucket written by a depot's governor mantle — is provisioned by an interim scaffold, never folded into a founding ceremony in this heat.
 +
-NOTE: The terrier's *muniment* internals — object granularity (per-entry versus per-subject) and the
-{rbtf_muniment}
-JSON shape — are settled at the terrier sub-operations pace, not here.
+The terrier's *muniment* internals are settled (at the terrier sub-operations pace):
+granularity is per-entry — one object per (principal subject,
+{rbtf_mantle}
+held) pair — so a holding is recorded by a muniment's presence and erased by its absence.
+The object name indexes the pair under the polity managed folder as `«depot-project-id»/«mantle»/«principal-subject»`;
+the object content is the authoritative muniment JSON, `{ rbgft_subject, rbgft_mantle }` under the `rbgft_` sprue, and the holding is read from that content — the object name is only the index.
+Per-entry muniments are immutable, so writes are create-and-delete only: the generation-conditional update path of the access contract is unexercised under this granularity.
 Its access sub-operations (
 {rbtf_engross},
 {rbtf_expunge},

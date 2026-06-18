@@ -29,6 +29,7 @@
 - **RBGB** → `rbk/rbgb_buckets.sh`
 - **RBGC** → `rbk/rbgc_constants.sh`
 - **RBGE** → `rbk/rbge_rest.sh` (Google REST — LRO polling + API-enable patterns over rbuh)
+- **RBGFT** → `rbk/rbgft_terrier.sh` (Federation Terrier — the muniment access data layer: the three atomic sub-ops `rbgft_engross` / `rbgft_expunge` / `rbgft_peruse` over GCS object preconditions (ifGenerationMatch=0 create / DELETE / list-and-fetch), composed by the future brevet/unseat/rehearse civic wrappers. Caller-authenticates (token-first, like `rbgb_`); carries no lock logic and no IAM. Muniment wire keys under the `rbgft_` sprue (`rbgft_subject`, `rbgft_mantle`), per-entry granularity (one object per (subject, mantle) pair). Contract: RBSTR. The interim payor-credentialed atomicity proof is `rbgp_terrier_proof` (`rbw-dT`), driven by the `terrier-atomicity` service fixture.)
 - **RBGG** → `rbk/rbgg_governor.sh`
 - **RBGI** → `rbk/rbgi_iam.sh`
 - **RBGO** → `rbk/rbgo_oauth.sh` (also owns the stateless `rbgo_curl_status_is_transient_predicate` transient-curl-exit classifier)

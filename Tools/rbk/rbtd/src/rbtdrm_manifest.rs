@@ -78,6 +78,14 @@ pub const RBTDRM_FIXTURE_FOEDUS_LIFECYCLE: &str = "foedus-lifecycle";
 // and self-skips when the payor credential is unreachable (suite-passenger
 // protection); a levied freehold absent the governor mantle is a real failure.
 pub const RBTDRM_FIXTURE_TERRIER_SCAFFOLD: &str = "terrier-scaffold";
+// Terrier-atomicity fixture — the muniment sub-operation proof against live GCP:
+// probe payor -> charge the terrier via the rbw-dt scaffold -> run the rbw-dT
+// proof, which engrosses a synthetic muniment, re-engrosses it to assert the
+// 412-on-conflict idempotency, peruses it present, expunges it, re-expunges to
+// assert the 404 idempotency, and peruses it gone (exit 0 IS that atomicity
+// assertion). Service-suite member; self-skips when the payor credential is
+// unreachable (suite-passenger protection), like terrier-scaffold.
+pub const RBTDRM_FIXTURE_TERRIER_ATOMICITY: &str = "terrier-atomicity";
 // Fast fixtures (no external dependencies)
 pub const RBTDRM_FIXTURE_ENROLLMENT_VALIDATION: &str = "enrollment-validation";
 pub const RBTDRM_FIXTURE_RECIPE_VALIDATION: &str = "recipe-validation";
@@ -199,6 +207,11 @@ pub fn rbtdrm_required_colophons(fixture: &str) -> Option<&'static [&'static str
         RBTDRM_FIXTURE_TERRIER_SCAFFOLD => Some(&[
             RBTDGC_CHECK_PAYOR,
             RBTDGC_TERRIER_SCAFFOLD,
+        ]),
+        RBTDRM_FIXTURE_TERRIER_ATOMICITY => Some(&[
+            RBTDGC_CHECK_PAYOR,
+            RBTDGC_TERRIER_SCAFFOLD,
+            RBTDGC_TERRIER_PROOF,
         ]),
         RBTDRM_FIXTURE_BATCH_VOUCH => Some(&[
             RBTDGC_ORDAIN_HALLMARK,
