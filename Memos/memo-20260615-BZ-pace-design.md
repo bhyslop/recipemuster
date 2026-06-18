@@ -237,3 +237,24 @@ Why "at levy" reads true in the frozen paddock: for the MVP one-depot-per-manor 
 Pace shape (260617): the terrier-live pace is reslated to build-and-verify-via-tabtarget — an idempotent destroy-then-create terrier provisioning tabtarget run against the freehold, so the noun internals (muniment shape, managed-folder grain, bucket name/home) settle through cheap iteration with zero depot/manor quota churn. A new graft-and-demolish pace folds the proven sequence into founding (bucket→manor founding, folder→levy) and deletes the scaffold tabtarget — the demolition condition as a committed pace. The tabtarget deliberately outlives the terrier-consuming dev paces (admission verbs, foedus-freehold) so they get cheap resets; demolition is last.
 
 Net-new surface the build pace carries (grounded 260617): GCS `storage.managedFolders` REST (create/delete) is absent repo-wide; a managed-folder IAM wrapper mirrors the AR repo-IAM idiom in the registry module over a new rbgi primitive shaped like the bucket-IAM primitive; and teardown must delete managed folders, which today's object-only bucket-emptying does not.
+
+## Terrier pace review — confusions surfaced and ameliorations (260617)
+
+A cold-read review of the two terrier dockets (the reslated build-and-verify pace and the new graft-and-demolish pace) surfaced gaps the first drafts papered over. Recorded here so the corrections survive the chat reset; the dockets were amended the same session.
+
+Confusions found:
+
+- **The bucket's hosting project was never settled, and the graft docket pre-committed a target it could not know.** "Manor-homed" implies a durable manor-scoped project, but the repo has only the payor project and per-depot projects (the build bucket dies with its depot). RBSTR and the paddock park "bucket name + constant home" yet never name "which project hosts it." The graft docket wrote "establish/affiance" as if decided — and affiance has no GCS project at all (org-level pool only), so it was simply wrong as a bucket target, while establish-vs-first-levy was an undecided fork. Amelioration: the build pace now carries the project-home as an explicit decision it must make and record (payor project vs a dedicated manor project — note the latter may be net-new infra), and the graft pace's target is written as contingent on that decision, with affiance excluded.
+
+- **The read-population grain was conflated with own-polity write.** The first Done-when paired "own-polity write IAM" with "read population governors-and-above" as one binding. They are two grains: write is folder-scoped, but the foedus-freehold roster head-count needs governors-and-above to read manor-wide across polities. There is also a latent source conflict (early design prose said governors read own-depot; the paddock says governors-and-above) and an unsettled payor read mechanism (OAuth user vs a mantle). Amelioration: the build pace's first criterion now asserts only own-polity write; the read grain is a named decision feeding the foedus-freehold pace.
+
+- **The terminal Fable review did not list this divergence.** The homing-correction is a divergence from the frozen paddock's "payor-created at levy," but the Fable-review pace's reconciliation checklist did not name it, risking a silent paddock/code contradiction. Amelioration: the Fable-review pace is reslated to ratify-or-overturn the homing-correction and note its open questions.
+
+Smaller ameliorations folded into the dockets:
+
+- The provisioning tabtarget churns at folder-grain by default (delete the managed folder + its muniments, keep the bucket) — recreating the whole bucket each iteration risks GCS's same-name reuse lag, which would undercut the cheap-iteration premise.
+- "the standing freehold" disambiguated to the standing depot freehold (the one whose governor mantle the write IAM binds); the manor/foedus freehold is the later foedus-freehold pace.
+- The tabtarget's colophon is transitional ashlar, not broadside-registered (the enrobe/defrock precedent).
+- The graft pace's own verification (a fresh keyless founding) is quota-touching — a full manor+depot stand-up — so it is operator-invoked / release-cadence, never a routine auto-suite member; the build-pace fixture self-skips without service credentials.
+
+Load-bearing reconciliation note: the frozen paddock still reads "payor-created at levy." Because the paddock is read-only until the Fable review, that line contradicts the dockets on its face; the only bridge is the docket pointer to this memo's terrier-homing-correction. A reader who skips the memo will read the contradiction as real. This is unavoidable while the freeze holds — it resolves only when the Fable review re-authors the paddock.
