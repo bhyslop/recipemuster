@@ -10228,9 +10228,10 @@
         "₢BcAAC",
         "₢BcAAA",
         "₢BcAAB",
-        "₢BcAAD"
+        "₢BcAAD",
+        "₢BcAAE"
       ],
-      "jjghn_next_pace_seed": "AAE",
+      "jjghn_next_pace_seed": "AAF",
       "jjghn_paces": {
         "₢BcAAA": {
           "jjgpn_tacks": [
@@ -10385,6 +10386,17 @@
               "jjgtn_text": "## Character\nOperations plus cleanup — propagate this heat's schema changes to every JJK install, then retire the forgiveness scaffolding once all installs confirm dormant.\nProcedural across machines; the load-bearing risk is stripping a forgiveness before a remote has actually converted.\n\n## The installs\nThree exist: this source clone, paneboard, and the obsidian/jupyter clone.\nThe latter two are binary-only — they receive a built vvx, not source, so they cannot self-convert by being edited.\nDiscovery: the vvx delivery path to the remotes (the VVK install/parcel mechanism) is the operator's to name at mount.\n\n## Per binary-only remote — two passes, a gate between them\n1. Deliver the forgiveness-bearing vvx; run the normalize-and-commit jjx_validate built earlier in this heat to force migration and persist the converted gallops; confirm via the open-time probe that every episode reads dormant on that clone.\n2. Only then deliver the stripped vvx with the forgiveness removed.\nDelivering pass 2 before pass 1's confirmation would leave a binary that cannot read a still-old gallops — that is the failure to avoid.\n\n## Coordinate with ₣An\n₣An is the standing heat that owns removing the V3 to V4 legacy era.\nDecide at mount whether this coda subsumes it (one strip vehicle for every episode) or strips only this heat's tack-rework forgiveness and leaves the V3 to V4 frozen reference to ₣An.\nThe forgiveness quoin's demolition condition points at whichever heat owns the strip.\n\n## Cinched\nThe strip gate is \"all episodes dormant on every operated clone\" — never strip on a single dormant reading.\nPer jjdk_sole_operator the operated clones are a finite, enumerable set, which is what makes \"all instances in the world\" a checkable condition rather than an act of faith.\n\n## Done when\nAll three installs run a binary whose on-disk gallops is canonical at this heat's schema and whose open-time probe reports every episode dormant; the forgiveness scaffolding this heat seated (the registry entries, the deserialize-boundary tolerance, the open-time display, the rivet citations) is removed from source; the forgiveness quoin's demolition condition is satisfied and the quoin retired or marked discharged; build tt/vow-b, test tt/vow-t green after removal.",
               "jjgtn_silks": "propagate-and-retire-forgiveness",
               "jjgtn_basis": "6e0ea87"
+            }
+          ]
+        },
+        "₢BcAAE": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260618-1425",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nCleanup — mechanical, with a verify-dead gate before each removal.\n\n## Done when\nThe four V3-legacy MCP-argument quoins — jjda_state, jjda_pace, jjda_created, jjda_direction — and their residual Rust arg-struct fields are removed,\neliminating the last hand-copied ₣An firemark references in JJS0.\nEach is confirmed unexposed as a jjx_tool parameter and unread before removal;\na field still wired to a live V3-compat path stays until that path is gone.\nBuild tt/vow-b, test tt/vow-t green.\n\n## Cinched\nThese are dead parameters, not schema tolerances — removable independent of the forgiveness episodes' demolition condition.\nThis pace does not touch the forgiveness mechanism, its episodes, or the V3→V4 frozen reference; the coda owns those.\nLands after the coda so any bridled/direction entanglement the coda resolves is already settled.\n\n## Sources\nDiscovery: grep '₣An' Tools/jjk/vov_veiled/JJS0_JobJockeySpec.adoc (the survivors after the forgiveness re-cite);\nthe jjda_* quoins in the JJS0 Arguments section; their arg-struct fields in jjrt_types.rs.",
+              "jjgtn_silks": "retire-v3-legacy-arg-quoins",
+              "jjgtn_basis": "bfdf91f"
             }
           ]
         }
