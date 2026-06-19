@@ -89,7 +89,7 @@ rbfk_kludge() {
   buc_doc_shown || return 0
 
   # Dirty-tree guard — kludge images must correspond to a committed state
-  bug_require_clean_tree "kludge"
+  bug_require_clean_tree "${RBCC_verb_kludge}"
 
   # Resolve vessel argument (sigil or path)
   zrbfc_resolve_vessel "${BUZ_FOLIO:-}"

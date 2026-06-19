@@ -109,7 +109,7 @@ rbld_conclave() {
 
   # Dirty-tree guard — capture composes its cloud step bodies from the working
   # tree; the Lode's provenance envelope must be the product of committed code.
-  bug_require_clean_tree "conclave"
+  bug_require_clean_tree "${RBCC_verb_conclave}"
 
   buc_step "Loading Director RBRA credentials"
   source "${RBDC_DIRECTOR_RBRA_FILE}" || buc_die "Failed to source Director RBRA"

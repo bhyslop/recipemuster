@@ -1065,7 +1065,7 @@ rbfd_build() {
   # Dirty-tree guard — conjure stamps HEAD into the image (git.commit label,
   # build_info) and ships working-tree bytes (pouch context, step scripts), so
   # the tree must match a commit before anything leaves the host.
-  bug_require_clean_tree "conjuring"
+  bug_require_clean_tree "${RBCC_verb_conjure}"
 
   # Derived-pull base-anchor election: the one sanctioned post-gate write. It
   # rewrites at most one RBRV_IMAGE_n_ANCHOR line, machine-derived from an
@@ -1264,7 +1264,7 @@ rbfd_mirror() {
 
   # Dirty-tree guard — mirror stamps HEAD into the about metadata and composes
   # its cloud step bodies from the working tree; both must match a commit.
-  bug_require_clean_tree "mirroring"
+  bug_require_clean_tree "${RBCC_verb_mirror}"
 
   # Authenticate as Director
   buc_step "Loading Director RBRA credentials"

@@ -73,11 +73,11 @@ zrbrf_enforce() {
   [[ "${RBRF_ORG_ID}" =~ ^[0-9]{6,}$ ]] \
     || buc_reject "${BUBC_band_regime}" "RBRF_ORG_ID must be a numeric GCP organization ID: ${RBRF_ORG_ID}"
 
-  [[ "${RBRF_WORKFORCE_POOL_ID}" =~ ^[a-z0-9-]{4,32}$ ]] \
-    || buc_reject "${BUBC_band_regime}" "Invalid RBRF_WORKFORCE_POOL_ID: ${RBRF_WORKFORCE_POOL_ID} (expected lowercase alphanumeric/hyphen, 4-32 chars)"
+  [[ "${RBRF_WORKFORCE_POOL_ID}" =~ ^[a-z][a-z0-9-]{2,30}[a-z0-9]$ ]] \
+    || buc_reject "${BUBC_band_regime}" "Invalid RBRF_WORKFORCE_POOL_ID: ${RBRF_WORKFORCE_POOL_ID} (GCP workforce-pool id: lowercase letter-led, [a-z0-9-], no trailing hyphen, 4-32 chars)"
 
-  [[ "${RBRF_PROVIDER_ID}" =~ ^[a-z0-9-]{4,32}$ ]] \
-    || buc_reject "${BUBC_band_regime}" "Invalid RBRF_PROVIDER_ID: ${RBRF_PROVIDER_ID} (expected lowercase alphanumeric/hyphen, 4-32 chars)"
+  [[ "${RBRF_PROVIDER_ID}" =~ ^[a-z][a-z0-9-]{2,30}[a-z0-9]$ ]] \
+    || buc_reject "${BUBC_band_regime}" "Invalid RBRF_PROVIDER_ID: ${RBRF_PROVIDER_ID} (GCP provider id: lowercase letter-led, [a-z0-9-], no trailing hyphen, 4-32 chars)"
 
   [[ "${RBRF_SESSION_DURATION}" =~ ^[0-9]+s$ ]] \
     || buc_reject "${BUBC_band_regime}" "Invalid RBRF_SESSION_DURATION: ${RBRF_SESSION_DURATION} (expected NNNs, e.g. 3600s)"

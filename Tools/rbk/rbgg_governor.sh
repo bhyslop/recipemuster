@@ -904,7 +904,7 @@ rbgg_restore_project() {
 
     z_lifecycle_state=$(rbuh_json_field_capture "${ZRBGG_INFIX_PROJECT_STATE}" '.lifecycleState // "UNKNOWN"') || buc_die "Failed to parse restored project state"
 
-    if test "${z_lifecycle_state}" = "ACTIVE"; then
+    if test "${z_lifecycle_state}" = "${RBGC_STATE_ACTIVE}"; then
       buc_success "Project successfully restored to ACTIVE state"
       buc_log_args "Project Status: ${z_lifecycle_state}"
       buc_log_args "Project is now usable again"

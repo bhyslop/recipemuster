@@ -299,7 +299,7 @@ zrbgp_depot_state_emit() {
 
       if test "${z_crm_state}" = "DELETE_REQUESTED"; then
         z_state="${RBGP_DEPOT_STATE_DELETE_REQUESTED}"
-      elif test "${z_crm_state}" = "ACTIVE"; then
+      elif test "${z_crm_state}" = "${RBGC_STATE_ACTIVE}"; then
         z_state="${RBGP_DEPOT_STATE_COMPLETE}"
       else
         buc_log_args "Skipping project ${z_project_id} with unrecognized state: ${z_crm_state}"
@@ -987,7 +987,7 @@ rbgp_payor_install() {
   
   local z_project_state
   z_project_state=$(rbuh_json_field_capture "payor_verify" '.lifecycleState') || buc_die "Failed to get project state"
-  test "${z_project_state}" = "ACTIVE" || buc_die "Payor project is not ACTIVE (state: ${z_project_state})"
+  test "${z_project_state}" = "${RBGC_STATE_ACTIVE}" || buc_die "Payor project is not ACTIVE (state: ${z_project_state})"
 
   buc_success "Payor OAuth installation completed successfully"
   buc_info "Credentials stored: ${z_rbro_file}"
@@ -1133,6 +1133,11 @@ rbgp_manor_affiance() {
   buc_doc_brief "Affiance the manor to its external OIDC IdP — seat the org-level workforce pool, provider, and attribute mapping (RBSMA)"
   buc_doc_shown || return 0
 
+  # Dirty-tree guard — affiance's pool id is the committed RBRF value, and the IdP
+  # redirect-URI and every admission-binding key thread through it; the pool it
+  # creates must answer to a committed name.
+  bug_require_clean_tree "${RBCC_verb_affiance}"
+
   buc_step 'Authenticate as Payor'
   local z_token
   z_token=$(zrbgp_authenticate_capture) || buc_die "Failed to authenticate as Payor via OAuth"
@@ -1162,7 +1167,9 @@ rbgp_manor_affiance() {
     "user:${RBRP_OPERATOR_EMAIL}" \
     "affiance_org_grant"
 
-  # Ensure the workforce identity pool (idempotent: GET, create only if absent).
+  # Ensure the workforce identity pool: create when the id is free (404), leave a
+  # live pool in place (200), refuse a soft-deleted one (200, state DELETED — see
+  # the 200 branch below).
   # NOTE: workforce-pool REST shape is per the IAM v1 docs; the live device-flow
   # proof against the standing spike trust rides tt/rbw-acf (needs a human click)
   # and has not yet exercised these create calls. Drift-reconcile on an existing
@@ -1175,7 +1182,30 @@ rbgp_manor_affiance() {
 
   case "${z_pool_code}" in
     200)
-      buc_info "Workforce pool ${z_pool_id} already present — leaving in place (drift-reconcile is a named follow-up)"
+      # A soft-deleted pool returns 200 with state DELETED (live-verified): the id
+      # is squatting its namespace through the ~30-day purge window. Affiance is
+      # ensure-exists, never undelete — a live pool (state not DELETED) is left in
+      # place, but a dissolved one is refused, not resurrected. Lifecycle certainty:
+      # a fresh trust takes a fresh name, so the operator bumps RBRF_WORKFORCE_POOL_ID
+      # to a free id and re-affiances (RBSMA soft-delete NOTE; workforce-pool-
+      # constraints memo).
+      local z_pool_state
+      z_pool_state=$(rbuh_json_field_capture "affiance_pool_get" ".state // \"${RBGC_STATE_UNSPECIFIED}\"") \
+        || z_pool_state="${RBGC_STATE_UNSPECIFIED}"
+      if test "${z_pool_state}" = "${RBGC_STATE_DELETED}"; then
+        local z_next_pool_id=""
+        if [[ "${z_pool_id}" =~ ^(.+)-([0-9]+)$ ]]; then
+          z_next_pool_id="${BASH_REMATCH[1]}-$((BASH_REMATCH[2] + 1))"
+        else
+          z_next_pool_id="${z_pool_id}-1000"
+        fi
+        buc_warn "Workforce pool ${z_pool_id} is soft-deleted (state DELETED) — squatting its id through the ~30-day purge window"
+        buc_info "Affiance will not resurrect a dissolved trust. Set a free pool id and re-affiance:"
+        buc_code "sed -i '' 's|^RBRF_WORKFORCE_POOL_ID=.*|RBRF_WORKFORCE_POOL_ID=${z_next_pool_id}|' ${RBCC_rbrf_file}"
+        buc_info "Then commit, point the IdP provider redirect-URI at the new id, and re-brevet any standing citizens."
+        buc_die "Workforce pool ${z_pool_id} soft-deleted — set a free RBRF_WORKFORCE_POOL_ID and re-affiance (see above)"
+      fi
+      buc_info "Workforce pool ${z_pool_id} already present (state ${z_pool_state}) — leaving in place (drift-reconcile is a named follow-up)"
       ;;
     404)
       # The org parent is a body field, not a query parameter: workforcePools.create
@@ -1317,7 +1347,7 @@ rbgp_manor_jilt() {
     200)
       local z_pool_state
       z_pool_state=$(rbuh_json_field_capture "jilt_pool_get" '.state // "UNKNOWN"') || z_pool_state="UNKNOWN"
-      if test "${z_pool_state}" = "DELETED"; then
+      if test "${z_pool_state}" = "${RBGC_STATE_DELETED}"; then
         buc_success "Workforce pool ${z_pool_id} already soft-deleted (state DELETED) — already dissolved (no-op)"
         buc_info "Recover within the purge window via workforcePools.undelete, or re-affiance after purge"
         return 0
@@ -1358,8 +1388,8 @@ rbgp_manor_jilt() {
     if test "${z_verify_code}" = "200"; then
       local z_verify_state
       z_verify_state=$(rbuh_json_field_capture "${z_verify_infix}" '.state // "UNKNOWN"') || z_verify_state="UNKNOWN"
-      if test "${z_verify_state}" = "DELETED"; then
-        z_jilt_dissolved="DELETED"
+      if test "${z_verify_state}" = "${RBGC_STATE_DELETED}"; then
+        z_jilt_dissolved="${RBGC_STATE_DELETED}"
         break
       fi
     fi
@@ -1735,7 +1765,7 @@ rbgp_depot_unmake() {
   local z_lifecycle_state
   z_lifecycle_state=$(rbuh_json_field_capture "depot_destroy_validate" '.state // "UNKNOWN"') || buc_die "Failed to parse project state"
 
-  if test "${z_lifecycle_state}" != "ACTIVE"; then
+  if test "${z_lifecycle_state}" != "${RBGC_STATE_ACTIVE}"; then
     if test "${z_lifecycle_state}" = "DELETE_REQUESTED"; then
       buc_die "Project already marked for deletion"
     else
@@ -2707,7 +2737,7 @@ rbgp_enrobe_governor() {
 
   local z_lifecycle_state
   z_lifecycle_state=$(rbuh_json_field_capture "${ZRBGP_INFIX_PROJECT_INFO}" '.state') || buc_die "Failed to get project state"
-  test "${z_lifecycle_state}" = "ACTIVE" || buc_die "Depot project is not ACTIVE (state: ${z_lifecycle_state})"
+  test "${z_lifecycle_state}" = "${RBGC_STATE_ACTIVE}" || buc_die "Depot project is not ACTIVE (state: ${z_lifecycle_state})"
 
   test "${z_depot_project_id}" != "${RBRP_PAYOR_PROJECT_ID}" || buc_die "Cannot create Governor in Payor project"
 

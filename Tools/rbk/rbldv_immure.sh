@@ -205,7 +205,7 @@ rbld_immure() {
 
   # Dirty-tree guard — capture composes its cloud step bodies from the working
   # tree; the Lode's provenance envelope must be the product of committed code.
-  bug_require_clean_tree "immure"
+  bug_require_clean_tree "${RBCC_verb_immure}"
 
   # BUZ_FOLIO carries the family argument (param1 channel). $1 is either the
   # version (fresh) or the literal '--refresh' (refresh mode) with $2 as the

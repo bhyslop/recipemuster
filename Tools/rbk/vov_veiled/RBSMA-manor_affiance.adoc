@@ -75,7 +75,7 @@ the role into effect — re-read the policy at `RBGC_EVENTUAL_CONSISTENCY_SEC` i
 . *Ensure the workforce identity pool*:
 .. {rbbc_call}
 link:https://cloud.google.com/iam/docs/reference/rest/v1/locations.workforcePools/get[workforcePools.get] for `RBRF_WORKFORCE_POOL_ID` under `organizations/RBRF_ORG_ID`
-.. present (HTTP 200) → leave it in place, advance. Absent (HTTP 404) → create it:
+.. present and live (HTTP 200, `state` not `DELETED`) → leave it in place, advance. Soft-deleted (HTTP 200, `state: DELETED`) → refuse, never undelete (see NOTE). Absent (HTTP 404) → create it:
 .. {rbbc_submit}
 link:https://cloud.google.com/iam/docs/reference/rest/v1/locations.workforcePools/create[workforcePools.create] with:
 ... `workforcePoolId=RBRF_WORKFORCE_POOL_ID` as the sole query parameter (the URL path parent is `locations/global`)
@@ -93,8 +93,9 @@ link:https://cloud.google.com/iam/docs/reference/rest/v1/locations.workforcePool
 .. {rbbc_await}
 the returned operation to done
 .. {rbbc_require}
-the pool present. Ensure-exists only: an already-present pool is left as it stands — not recreated, not patched, not failed. Drift reconciliation of `sessionDuration` is the deferred follow-up noted above.
-.. NOTE: `sessionDuration` is the assize cap (900s–43200s; the regime validator bounds it). A `404` GET followed by a `409` create signals a soft-deleted pool of the same id holding the namespace for a purge window — restored via link:https://cloud.google.com/iam/docs/reference/rest/v1/locations.workforcePools/undelete[workforcePools.undelete] rather than re-created, the workforce-pool analogue of the depot project's soft-delete graveyard.
+the pool present and live. Ensure-exists only: an already-present *live* pool is left as it stands — not recreated, not patched. A *soft-deleted* same-id pool is refused, not resurrected (see NOTE). Drift reconciliation of `sessionDuration` is the deferred follow-up noted above.
+.. NOTE: `sessionDuration` is the assize cap (900s–43200s; the regime validator bounds it).
+.. NOTE: A soft-deleted pool of the same id returns `200` with `state: DELETED` (live-verified) and holds its id-namespace through the ~30-day purge window — the workforce-pool analogue of the depot project's soft-delete graveyard. Affiance is *ensure-exists, not undelete*: it refuses a soft-deleted pool rather than resurrecting it — lifecycle certainty, a dissolved trust never commingles with its replacement and a fresh trust takes a fresh name. It directs the operator to set a free `RBRF_WORKFORCE_POOL_ID` and re-affiance, which also requires pointing the IdP provider redirect-URI at the new id and re-breveting standing citizens (the pool id threads through both).
 
 //axhos_step
 . *Ensure the pool provider and its attribute mapping*:

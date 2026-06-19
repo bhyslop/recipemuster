@@ -107,6 +107,18 @@ RBCC_verb_inscribe="inscribe"
 RBCC_verb_kludge="kludge"
 RBCC_verb_ordain="ordain"
 RBCC_verb_yoke="yoke"
+#
+#   Clean-tree-gated operation verbs (the federation founding verb affiance, the
+#   Lode captures conclave/ensconce/immure/underpin, and the Director builds
+#   conjure/mirror) — each announces its name through bug_require_clean_tree;
+#   homed here so the guard sites reference the verb rather than a bare literal.
+RBCC_verb_affiance="affiance"
+RBCC_verb_conclave="conclave"
+RBCC_verb_conjure="conjure"
+RBCC_verb_ensconce="ensconce"
+RBCC_verb_immure="immure"
+RBCC_verb_mirror="mirror"
+RBCC_verb_underpin="underpin"
 
 # Fact-file extension tinder — multi-fact registry for buf_write_fact_multi.
 # Producers emit "<basename>.<extension>" via filesystem-as-data-bus pattern;

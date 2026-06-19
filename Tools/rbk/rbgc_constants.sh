@@ -392,6 +392,14 @@ zrbgc_kindle() {
   readonly RBGP_DEPOT_STATE_COMPLETE="COMPLETE"
   readonly RBGP_DEPOT_STATE_DELETE_REQUESTED="DELETE_REQUESTED"
 
+  # GCP resource-lifecycle state enum — the raw `state` field values read from
+  # CRM projects and IAM workforce pools. ACTIVE and STATE_UNSPECIFIED are shared
+  # across both resource kinds; DELETED is the workforce-pool soft-delete terminal
+  # (a project's distinct DELETE_REQUESTED is homed as RBGP_DEPOT_STATE_* above).
+  readonly RBGC_STATE_ACTIVE="ACTIVE"
+  readonly RBGC_STATE_DELETED="DELETED"
+  readonly RBGC_STATE_UNSPECIFIED="STATE_UNSPECIFIED"
+
   # DisplayName anchor used across depot-creation sites (depot project,
   # Mason SA, Governor SA). Search backend filters CRM v3 projects:search
   # by displayName starting with this anchor. Distinct, unmistakable string

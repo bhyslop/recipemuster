@@ -153,7 +153,7 @@ rbld_ensconce() {
 
   # Dirty-tree guard — capture composes its cloud step bodies from the working
   # tree; the Lode's provenance envelope must be the product of committed code.
-  bug_require_clean_tree "ensconce"
+  bug_require_clean_tree "${RBCC_verb_ensconce}"
 
   # Resolve vessel argument (sigil or path) and load.
   zrbfc_resolve_vessel "${BUZ_FOLIO:-}"
