@@ -206,6 +206,10 @@ zrbgv_furnish() {
 
   source "${RBCC_rbrr_file}" || buc_die "Failed to source ${RBCC_rbrr_file}"
   source "${RBCC_rbrd_file}" || buc_die "Failed to source RBRD: ${RBCC_rbrd_file}"
+  # RBRP values load here too so zrbgp_kindle can derive RBGP_TERRIER_BUCKET from
+  # RBRP_PAYOR_PROJECT_ID; rbrp's kindle+enforce stay per-probe (rbgv_check_payor),
+  # since the payor probe enforces RBRP while the depot probes enforce RBRR/RBRD.
+  source "${RBCC_rbrp_file}" || buc_die "Failed to source RBRP: ${RBCC_rbrp_file}"
   zrbrr_kindle
   zrbrd_kindle
 
