@@ -74,14 +74,54 @@ pub struct jjrg_Tack {
     pub ts: String,
     #[serde(rename = "jjgtn_state")]
     pub state: jjrg_PaceState,
-    #[serde(rename = "jjgtn_text")]
-    pub text: String,
+    /// Docket text as a line array — one element per physical line, so pretty-JSON
+    /// decomposes the docket line-by-line and git merges it at line granularity.
+    /// Custom deserialize tolerates the legacy string shape (the tack-text→lines
+    /// forgiveness episode — rivet JJr_a7c, JJS0 jjdz_forgiveness): an on-disk
+    /// string is split on '\n' into the array, an array is taken verbatim. Serialize
+    /// is the default array form. Round-trip is lossless under the
+    /// jjrg_text_to_lines / jjrg_lines_to_text pair (split('\n') ⇔ join('\n')).
+    #[serde(rename = "jjgtn_text", deserialize_with = "zjjrg_deserialize_text")]
+    pub text: Vec<String>,
     #[serde(rename = "jjgtn_silks")]
     pub silks: String,
     #[serde(rename = "jjgtn_basis")]
     pub basis: String,
     #[serde(skip_serializing_if = "Option::is_none", rename = "jjgtn_direction")]
     pub direction: Option<String>,
+}
+
+/// Split docket text into the stored line array — the write-side boundary.
+/// `split('\n')` (not `lines()`) so the array round-trips losslessly under
+/// `jjrg_lines_to_text`: an empty string yields `[""]`, a trailing newline a
+/// trailing empty element, consecutive newlines empty interior elements.
+pub fn jjrg_text_to_lines(text: &str) -> Vec<String> {
+    text.split('\n').map(String::from).collect()
+}
+
+/// Join the stored line array back into flat text — the read-side boundary,
+/// the exact inverse of `jjrg_text_to_lines`.
+pub fn jjrg_lines_to_text(lines: &[String]) -> String {
+    lines.join("\n")
+}
+
+/// Deserialize tack docket text, tolerating both on-disk shapes (rivet JJr_a7c).
+/// A JSON string is the legacy shape (split into lines); a JSON array is the
+/// current shape (taken verbatim). Anything else fails fast at the parse boundary.
+fn zjjrg_deserialize_text<'de, D>(deserializer: D) -> Result<Vec<String>, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    #[derive(Deserialize)]
+    #[serde(untagged)]
+    enum zjjrg_TextShape {
+        Legacy(String),
+        Lines(Vec<String>),
+    }
+    Ok(match zjjrg_TextShape::deserialize(deserializer)? {
+        zjjrg_TextShape::Legacy(s) => jjrg_text_to_lines(&s),
+        zjjrg_TextShape::Lines(v) => v,
+    })
 }
 
 /// Pace record - discrete action within a Heat

@@ -74,7 +74,9 @@ pub fn jjrg_make_tack(
     jjrg_Tack {
         ts: timestamp_full(),
         state,
-        text,
+        // Split at the write boundary: callers hand flat text (MCP args, stdin,
+        // composed notes); storage is the line array.
+        text: jjrg_text_to_lines(&text),
         silks,
         basis: jjrg_capture_commit_sha(),
         direction,

@@ -8,7 +8,13 @@
 
 use crate::jjrf_favor::jjrf_Firemark as Firemark;
 use crate::jjrf_favor::jjrf_Coronet as Coronet;
-use crate::jjrg_gallops::{jjrg_Gallops as Gallops, jjrg_Heat as Heat, jjrg_HeatStatus as HeatStatus, jjrg_PaceState as PaceState};
+use crate::jjrg_gallops::{
+    jjrg_Gallops as Gallops,
+    jjrg_Heat as Heat,
+    jjrg_HeatStatus as HeatStatus,
+    jjrg_lines_to_text,
+    jjrg_PaceState as PaceState,
+};
 use crate::jjri_io::jjri_paddock_path;
 use crate::jjrp_print::{jjrp_Table, jjrp_Column, jjrp_Align};
 use crate::jjrq_query::{jjrq_files_for_pace, jjrq_file_touches_for_heat, zjjrq_files_for_commit, zjjrq_bare_filename, zjjrq_is_infra_file};
@@ -146,7 +152,7 @@ pub fn jjrpd_run_parade(args: jjrpd_ParadeArgs, gazette: &mut jjrz_Gazette) -> (
                     }
                     vvco_out!(output, "");
                     // Indent docket text
-                    for line in tack.text.lines() {
+                    for line in &tack.text {
                         vvco_out!(output, "    {}", line);
                     }
                     vvco_out!(output, "");
@@ -157,7 +163,7 @@ pub fn jjrpd_run_parade(args: jjrpd_ParadeArgs, gazette: &mut jjrz_Gazette) -> (
                     vvco_out!(output, "Warrant: {}", direction);
                     vvco_out!(output, "");
                 }
-                for line in current_tack.text.lines() {
+                for line in &current_tack.text {
                     vvco_out!(output, "{}", line);
                 }
                 vvco_out!(output, "");
@@ -223,7 +229,7 @@ pub fn jjrpd_run_parade(args: jjrpd_ParadeArgs, gazette: &mut jjrz_Gazette) -> (
                         let state_str = zjjrpd_pace_state_str(&tack.state);
                         vvco_out!(output, "### {} ({}) [{}]", tack.silks, coronet_key, state_str);
                         vvco_out!(output, "");
-                        vvco_out!(output, "{}", tack.text);
+                        vvco_out!(output, "{}", jjrg_lines_to_text(&tack.text));
                         if let Some(ref direction) = tack.direction {
                             vvco_out!(output, "");
                             vvco_out!(output, "**Warrant:** {}", direction);
@@ -394,7 +400,8 @@ pub fn jjrpd_run_parade(args: jjrpd_ParadeArgs, gazette: &mut jjrz_Gazette) -> (
                 if let Some(pace) = heat.paces.get(coronet_key) {
                     if let Some(tack) = pace.tacks.first() {
                         if !args.remaining || (tack.state != PaceState::Complete && tack.state != PaceState::Abandoned) {
-                            gazette.jjrz_add(jjrz_Slug::Pace, coronet_key, &tack.text).ok();
+                            let pace_text = jjrg_lines_to_text(&tack.text);
+                            gazette.jjrz_add(jjrz_Slug::Pace, coronet_key, &pace_text).ok();
                         }
                     }
                 }

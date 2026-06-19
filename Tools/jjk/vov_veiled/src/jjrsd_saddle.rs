@@ -11,7 +11,12 @@ use vvc::{vvco_out, vvco_err, vvco_Output};
 
 use crate::jjrf_favor::jjrf_Firemark as Firemark;
 use crate::jjrf_favor::jjrf_Coronet as Coronet;
-use crate::jjrg_gallops::{jjrg_Gallops as Gallops, jjrg_HeatStatus as HeatStatus, jjrg_PaceState as PaceState};
+use crate::jjrg_gallops::{
+    jjrg_Gallops as Gallops,
+    jjrg_HeatStatus as HeatStatus,
+    jjrg_lines_to_text,
+    jjrg_PaceState as PaceState,
+};
 use crate::jjri_io::jjri_paddock_path;
 use crate::jjrp_print::{jjrp_Table, jjrp_Column, jjrp_Align};
 use crate::jjrs_steeplechase::{jjrs_get_entries, jjrs_ReinArgs};
@@ -225,7 +230,7 @@ pub async fn jjrsd_run_saddle(args: jjrsd_SaddleArgs, gazette: &mut jjrz_Gazette
                                 PaceState::Bridled => "bridled".to_string(),
                                 _ => unreachable!(),
                             });
-                            spec = Some(tack.text.clone());
+                            spec = Some(jjrg_lines_to_text(&tack.text));
                             if tack.state == PaceState::Bridled {
                                 direction = tack.direction.clone();
                             }
@@ -263,7 +268,7 @@ pub async fn jjrsd_run_saddle(args: jjrsd_SaddleArgs, gazette: &mut jjrz_Gazette
                                 PaceState::Bridled => "bridled".to_string(),
                                 _ => unreachable!(),
                             });
-                            spec = Some(tack.text.clone());
+                            spec = Some(jjrg_lines_to_text(&tack.text));
                             if tack.state == PaceState::Bridled {
                                 direction = tack.direction.clone();
                             }

@@ -264,8 +264,9 @@ fn zjjrg_validate_tack(pace_ctx: &str, index: usize, tack: &jjrg_Tack, errors: &
         ));
     }
 
-    // Rule 8: text must be non-empty
-    if tack.text.is_empty() {
+    // Rule 8: text must be non-empty — the line array holds no content when it is
+    // empty or every line is empty (an empty docket splits to [""], not []).
+    if tack.text.iter().all(|line| line.is_empty()) {
         errors.push(format!("{}: text must not be empty", tack_ctx));
     }
 

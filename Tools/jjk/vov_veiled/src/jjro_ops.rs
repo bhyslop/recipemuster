@@ -356,7 +356,7 @@ pub fn jjrg_tally(gallops: &mut jjrg_Gallops, args: jjrg_TallyArgs) -> Result<()
     };
 
     // Determine new text
-    let new_text = args.text.unwrap_or_else(|| current_tack.text.clone());
+    let new_text = args.text.unwrap_or_else(|| jjrg_lines_to_text(&current_tack.text));
     if new_text.is_empty() {
         return Err("text must not be empty".to_string());
     }
@@ -372,8 +372,8 @@ pub fn jjrg_tally(gallops: &mut jjrg_Gallops, args: jjrg_TallyArgs) -> Result<()
         new_direction,
     );
 
-    // Prepend to tacks array
-    pace.tacks.insert(0, new_tack);
+    // Replace the pace's single current tack (tack evolution lives in git)
+    pace.tacks = vec![new_tack];
 
     Ok(())
 }
@@ -465,9 +465,9 @@ pub fn jjrg_draft(gallops: &mut jjrg_Gallops, args: jjrg_DraftArgs) -> Result<jj
 
     // Create new tack recording the draft
     let first_tack = pace_data.tacks.first();
+    let prior_text = first_tack.map(|t| jjrg_lines_to_text(&t.text)).unwrap_or_default();
     let draft_note = format!("Drafted from {} in {}.\n\n{}",
-        source_coronet_key, source_firemark_key,
-        first_tack.map(|t| t.text.as_str()).unwrap_or(""));
+        source_coronet_key, source_firemark_key, prior_text);
 
     let draft_tack = jjrg_make_tack(
         first_tack.map(|t| t.state.clone()).unwrap_or(jjrg_PaceState::Rough),
@@ -476,12 +476,10 @@ pub fn jjrg_draft(gallops: &mut jjrg_Gallops, args: jjrg_DraftArgs) -> Result<jj
         first_tack.and_then(|t| t.direction.clone()),
     );
 
-    // Build new pace with draft tack prepended
-    let mut new_tacks = vec![draft_tack];
-    new_tacks.extend(pace_data.tacks);
-
+    // A pace holds a single current tack; the draft note captures the prior
+    // docket, and tack history lives in git (JJS0 Git-as-Journal).
     let new_pace = jjrg_Pace {
-        tacks: new_tacks,
+        tacks: vec![draft_tack],
     };
 
     // Insert into destination heat
@@ -636,7 +634,7 @@ fn zjjrg_build_trophy_content(
                 pace_silks, coronet_key, final_state
             ));
 
-            // Tack history (newest first, as stored)
+            // The pace's single current tack (tack history lives in git)
             for tack in &pace.tacks {
                 let state_str = match tack.state {
                     jjrg_PaceState::Rough => "rough",
@@ -645,8 +643,9 @@ fn zjjrg_build_trophy_content(
                     jjrg_PaceState::Abandoned => "abandoned",
                 };
                 content.push_str(&format!("**[{}] {}**\n\n", tack.ts, state_str));
-                content.push_str(&tack.text);
-                if !tack.text.ends_with('\n') {
+                let body = jjrg_lines_to_text(&tack.text);
+                content.push_str(&body);
+                if !body.ends_with('\n') {
                     content.push('\n');
                 }
                 if let Some(ref direction) = tack.direction {
@@ -917,7 +916,7 @@ pub fn jjrg_restring(gallops: &mut jjrg_Gallops, args: jjrg_RestringArgs) -> Res
         let first_tack = pace.tacks.first();
         let silks = first_tack.map(|t| t.silks.clone()).unwrap_or_default();
         let state = first_tack.map(|t| t.state.clone()).unwrap_or(jjrg_PaceState::Rough);
-        let spec_full = first_tack.map(|t| t.text.clone()).unwrap_or_default();
+        let spec_full = first_tack.map(|t| jjrg_lines_to_text(&t.text)).unwrap_or_default();
         let spec_preview = if spec_full.len() > 80 {
             format!("{}...", &spec_full[..77])
         } else {

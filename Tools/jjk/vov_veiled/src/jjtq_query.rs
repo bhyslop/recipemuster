@@ -16,7 +16,7 @@ fn create_test_gallops() -> Gallops {
             tacks: vec![Tack {
                 ts: "260101-1200".to_string(),
                 state: PaceState::Rough,
-                text: "First pace rough plan".to_string(),
+                text: vec!["First pace rough plan".to_string()],
                 silks: "test-pace-one".to_string(),
                 basis: JJRG_UNKNOWN_BASIS.to_string(),
                 direction: None,
@@ -29,7 +29,7 @@ fn create_test_gallops() -> Gallops {
             tacks: vec![Tack {
                 ts: "260101-1300".to_string(),
                 state: PaceState::Complete,
-                text: "Completed pace".to_string(),
+                text: vec!["Completed pace".to_string()],
                 silks: "test-pace-two".to_string(),
                 basis: JJRG_UNKNOWN_BASIS.to_string(),
                 direction: None,
@@ -140,7 +140,7 @@ fn jjtq_get_spec_extracts_tack_text() {
     let heat = gallops.heats.get("₣AB").unwrap();
     let pace = heat.paces.get("₢ABAAA").unwrap();
     let spec = pace.tacks.first().map(|t| t.text.clone());
-    assert_eq!(spec, Some("First pace rough plan".to_string()));
+    assert_eq!(spec, Some(vec!["First pace rough plan".to_string()]));
 }
 
 #[test]
@@ -149,7 +149,7 @@ fn jjtq_get_spec_second_pace() {
     let heat = gallops.heats.get("₣AB").unwrap();
     let pace = heat.paces.get("₢ABAAB").unwrap();
     let spec = pace.tacks.first().map(|t| t.text.clone());
-    assert_eq!(spec, Some("Completed pace".to_string()));
+    assert_eq!(spec, Some(vec!["Completed pace".to_string()]));
 }
 
 // ============================================================================
@@ -164,7 +164,7 @@ fn create_test_gallops_with_mixed_states() -> Gallops {
             tacks: vec![Tack {
                 ts: "260101-1200".to_string(),
                 state: PaceState::Complete,
-                text: "Done".to_string(),
+                text: vec!["Done".to_string()],
                 silks: "pace-complete".to_string(),
                 basis: JJRG_UNKNOWN_BASIS.to_string(),
                 direction: None,
@@ -177,7 +177,7 @@ fn create_test_gallops_with_mixed_states() -> Gallops {
             tacks: vec![Tack {
                 ts: "260101-1300".to_string(),
                 state: PaceState::Rough,
-                text: "Needs work".to_string(),
+                text: vec!["Needs work".to_string()],
                 silks: "pace-rough".to_string(),
                 basis: JJRG_UNKNOWN_BASIS.to_string(),
                 direction: None,
@@ -190,7 +190,7 @@ fn create_test_gallops_with_mixed_states() -> Gallops {
             tacks: vec![Tack {
                 ts: "260101-1400".to_string(),
                 state: PaceState::Bridled,
-                text: "Ready to fly".to_string(),
+                text: vec!["Ready to fly".to_string()],
                 silks: "pace-bridled".to_string(),
                 basis: JJRG_UNKNOWN_BASIS.to_string(),
                 direction: Some("Execute with sonnet".to_string()),
@@ -203,7 +203,7 @@ fn create_test_gallops_with_mixed_states() -> Gallops {
             tacks: vec![Tack {
                 ts: "260101-1500".to_string(),
                 state: PaceState::Abandoned,
-                text: "Gave up".to_string(),
+                text: vec!["Gave up".to_string()],
                 silks: "pace-abandoned".to_string(),
                 basis: JJRG_UNKNOWN_BASIS.to_string(),
                 direction: None,

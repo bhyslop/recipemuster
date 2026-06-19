@@ -21,7 +21,7 @@ fn make_valid_tack(state: jjrg_PaceState, silks: &str, direction: Option<String>
     jjrg_Tack {
         ts: "260101-1200".to_string(),
         state,
-        text: "Test tack text".to_string(),
+        text: vec!["Test tack text".to_string()],
         silks: silks.to_string(),
         basis: JJRG_UNKNOWN_BASIS.to_string(),
         direction,
@@ -374,11 +374,12 @@ fn jjtrs_restring_preserves_pace_state_and_direction() {
     let new_coronet = &result.drafted[0].new_coronet;
     let transferred_pace = dest_heat.paces.get(new_coronet).unwrap();
 
-    // First tack is the draft note, second is the original
-    assert!(transferred_pace.tacks.len() >= 2);
-    let original_tack = &transferred_pace.tacks[1];
-    assert_eq!(original_tack.state, jjrg_PaceState::Bridled);
-    assert_eq!(original_tack.direction.as_ref().unwrap(), "Execute autonomously");
+    // The single draft tack inherits the source pace's state and direction
+    // (tack history lives in git, not in the JSON).
+    assert_eq!(transferred_pace.tacks.len(), 1);
+    let draft_tack = &transferred_pace.tacks[0];
+    assert_eq!(draft_tack.state, jjrg_PaceState::Bridled);
+    assert_eq!(draft_tack.direction.as_ref().unwrap(), "Execute autonomously");
 }
 
 #[test]
@@ -408,14 +409,15 @@ fn jjtrs_restring_creates_draft_note_tack() {
     let new_coronet = &result.drafted[0].new_coronet;
     let transferred_pace = dest_heat.paces.get(new_coronet).unwrap();
 
-    // Should have 2 tacks: draft note + original
-    assert_eq!(transferred_pace.tacks.len(), 2);
+    // Should have 1 tack: the draft note (tack history lives in git)
+    assert_eq!(transferred_pace.tacks.len(), 1);
 
-    // First tack should contain draft note
+    // The single tack should contain the draft note
     let draft_tack = &transferred_pace.tacks[0];
-    assert!(draft_tack.text.contains("Drafted from"));
-    assert!(draft_tack.text.contains(&pace_key));
-    assert!(draft_tack.text.contains("₣AB"));
+    let draft_text = jjrg_lines_to_text(&draft_tack.text);
+    assert!(draft_text.contains("Drafted from"));
+    assert!(draft_text.contains(&pace_key));
+    assert!(draft_text.contains("₣AB"));
 }
 
 #[test]
@@ -488,7 +490,7 @@ fn jjtrs_restring_spec_preview_truncates_long_text() {
     // Create a pace with very long text
     let pace_key = source_heat.order[0].clone();
     let long_text = "a".repeat(100);  // 100 chars, should be truncated to 80
-    source_heat.paces.get_mut(&pace_key).unwrap().tacks[0].text = long_text;
+    source_heat.paces.get_mut(&pace_key).unwrap().tacks[0].text = vec![long_text];
 
     gallops.heats.insert(source_key, source_heat);
     gallops.heats.insert(dest_key, dest_heat);

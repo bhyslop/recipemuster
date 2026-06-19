@@ -127,29 +127,30 @@ impl jjrg_Gallops {
             coronet_key,
             firemark_key,
             state: current.state.clone(),
-            text: current.text.clone(),
+            text: jjrg_lines_to_text(&current.text),
             silks: current.silks.clone(),
             direction: current.direction.clone(),
         })
     }
 
-    /// Prepend Tack — shared write primitive
+    /// Set Tack — shared write primitive
     ///
-    /// Insert a new tack at position zero of a pace's tack history.
+    /// Replace a pace's tack with the given one. A pace holds a single current tack;
+    /// tack evolution lives in git (JJS0 Git-as-Journal), not in an in-JSON history.
     /// Takes a PaceContext (from resolve_pace) so the coronet is parsed exactly once.
-    pub fn jjrg_prepend_tack(&mut self, ctx: &jjrg_PaceContext, tack: jjrg_Tack) -> Result<(), String> {
+    pub fn jjrg_set_tack(&mut self, ctx: &jjrg_PaceContext, tack: jjrg_Tack) -> Result<(), String> {
         let heat = self.heats.get_mut(&ctx.firemark_key)
             .ok_or_else(|| format!("Heat '{}' not found", ctx.firemark_key))?;
         let pace = heat.paces.get_mut(&ctx.coronet_key)
             .ok_or_else(|| format!("Pace '{}' not found", ctx.coronet_key))?;
 
-        pace.tacks.insert(0, tack);
+        pace.tacks = vec![tack];
         Ok(())
     }
 
     /// Revise Docket — composed method
     ///
-    /// Pure state transform: resolve_pace → update docket → prepend_tack.
+    /// Pure state transform: resolve_pace → update docket → set_tack (replace).
     /// Takes basis and ts from caller (procedure layer captures I/O).
     /// Returns PaceContext so calling procedure has firemark/silks for commit message.
     pub fn jjrg_revise_docket(&mut self, coronet: &str, docket: &str, basis: &str, ts: &str) -> Result<jjrg_PaceContext, String> {
@@ -162,13 +163,13 @@ impl jjrg_Gallops {
         let tack = jjrg_Tack {
             ts: ts.to_string(),
             state: ctx.state.clone(),
-            text: docket.to_string(),
+            text: jjrg_text_to_lines(docket),
             silks: ctx.silks.clone(),
             basis: basis.to_string(),
             direction: None,
         };
 
-        self.jjrg_prepend_tack(&ctx, tack)?;
+        self.jjrg_set_tack(&ctx, tack)?;
 
         Ok(ctx)
     }
@@ -187,7 +188,7 @@ mod tests {
         let tack = jjrg_Tack {
             ts: "20260318T120000Z".to_string(),
             state,
-            text: text.to_string(),
+            text: jjrg_text_to_lines(text),
             silks: silks.to_string(),
             basis: "0000000".to_string(),
             direction: None,
@@ -234,14 +235,13 @@ mod tests {
         // Context returns pre-mutation state
         assert_eq!(ctx.text, "original docket");
 
-        // Gallops now has new tack prepended with caller-provided basis+ts
+        // Gallops now holds the single replacement tack with caller-provided basis+ts
         let pace = gallops.heats["₣AA"].paces.get("₢AAAAA").unwrap();
-        assert_eq!(pace.tacks.len(), 2);
-        assert_eq!(pace.tacks[0].text, "updated docket");
+        assert_eq!(pace.tacks.len(), 1);
+        assert_eq!(pace.tacks[0].text, vec!["updated docket".to_string()]);
         assert_eq!(pace.tacks[0].state, jjrg_PaceState::Rough);
         assert_eq!(pace.tacks[0].basis, "abc1234");
         assert_eq!(pace.tacks[0].ts, "20260318T130000Z");
-        assert_eq!(pace.tacks[1].text, "original docket");
     }
 
     #[test]

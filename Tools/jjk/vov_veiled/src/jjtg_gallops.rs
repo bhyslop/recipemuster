@@ -15,6 +15,83 @@ fn jjtg_pace_state_serialization() {
     assert_eq!(json, "\"jjgte_rough\"");
 }
 
+#[test]
+fn jjtg_tack_text_deserialize_tolerates_both_shapes() {
+    // Legacy string docket splits on '\n' into the line array.
+    let legacy = r#"{"jjgtn_ts":"260101-1200","jjgtn_state":"jjgte_rough","jjgtn_text":"a\nb","jjgtn_silks":"x","jjgtn_basis":"0000000"}"#;
+    let tack: jjrg_Tack = serde_json::from_str(legacy).unwrap();
+    assert_eq!(tack.text, vec!["a".to_string(), "b".to_string()]);
+
+    // Current array docket is taken verbatim.
+    let current = r#"{"jjgtn_ts":"260101-1200","jjgtn_state":"jjgte_rough","jjgtn_text":["a","b"],"jjgtn_silks":"x","jjgtn_basis":"0000000"}"#;
+    let tack: jjrg_Tack = serde_json::from_str(current).unwrap();
+    assert_eq!(tack.text, vec!["a".to_string(), "b".to_string()]);
+}
+
+#[test]
+fn jjtg_text_lines_round_trip_is_lossless() {
+    for s in ["", "single", "two\nlines", "blank\n\nbetween", "trailing\n", "\nleading"] {
+        assert_eq!(jjrg_lines_to_text(&jjrg_text_to_lines(s)), s);
+    }
+}
+
+#[test]
+fn jjtg_load_legacy_string_text_converts_and_collapses() {
+    // A pre-conversion gallops: docket text is a string, and the pace carries a
+    // multi-tack history. Loading must split the text to a line array and collapse
+    // the history to the single newest tack (tacks[0]).
+    let dir = JjkTestDir::new("jjtg_legacy_text_convert");
+    let path = dir.path().join("jjg_gallops.json");
+    let legacy = r#"{
+  "jjgrn_next_heat_seed": "AD",
+  "jjgrn_heat_order": ["₣AC"],
+  "jjgrn_heats": {
+    "₣AC": {
+      "jjghn_silks": "my-heat",
+      "jjghn_creation_time": "260101",
+      "jjghn_status": "jjghe_racing",
+      "jjghn_order": ["₢ACAAA"],
+      "jjghn_next_pace_seed": "AAB",
+      "jjghn_paces": {
+        "₢ACAAA": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260101-1200",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "first line\nsecond line",
+              "jjgtn_silks": "my-pace",
+              "jjgtn_basis": "0000000"
+            },
+            {
+              "jjgtn_ts": "260101-1100",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "older docket",
+              "jjgtn_silks": "my-pace",
+              "jjgtn_basis": "0000000"
+            }
+          ]
+        }
+      }
+    }
+  }
+}"#;
+    std::fs::write(&path, legacy).unwrap();
+
+    let gallops = jjrg_Gallops::jjrg_load(&path).expect("legacy gallops should load and convert");
+    let pace = gallops.heats["₣AC"].paces.get("₢ACAAA").unwrap();
+    assert_eq!(pace.tacks.len(), 1);
+    assert_eq!(pace.tacks[0].text, vec!["first line".to_string(), "second line".to_string()]);
+
+    // Idempotent: persist the converted form, then reload. The store is now canonical
+    // (array text, single tack), so no episode is live and the round-trip gate — active
+    // again — must pass.
+    gallops.jjrg_save(&path).expect("save converted gallops");
+    let reloaded = jjrg_Gallops::jjrg_load(&path).expect("canonical gallops round-trips");
+    let pace = reloaded.heats["₣AC"].paces.get("₢ACAAA").unwrap();
+    assert_eq!(pace.tacks.len(), 1);
+    assert_eq!(pace.tacks[0].text, vec!["first line".to_string(), "second line".to_string()]);
+}
+
 // Helper to create a minimal valid Gallops structure
 fn make_valid_gallops() -> jjrg_Gallops {
     jjrg_Gallops {
@@ -29,7 +106,7 @@ fn make_valid_tack(state: jjrg_PaceState, silks: &str, direction: Option<String>
     jjrg_Tack {
         ts: "260101-1200".to_string(),
         state,
-        text: "Test tack text".to_string(),
+        text: vec!["Test tack text".to_string()],
         silks: silks.to_string(),
         basis: JJRG_UNKNOWN_BASIS.to_string(),
         direction,
@@ -272,7 +349,7 @@ fn jjtg_validate_tack_empty_text() {
     let mut gallops = make_valid_gallops();
     let (heat_key, mut heat) = make_valid_heat("AB", "my-heat");
     if let Some(pace) = heat.paces.values_mut().next() {
-        pace.tacks[0].text = "".to_string();
+        pace.tacks[0].text = vec!["".to_string()];
     }
     gallops.heats.insert(heat_key, heat);
     let errors = gallops.jjrg_validate().unwrap_err();
@@ -498,7 +575,7 @@ fn jjtg_slate_creates_pace() {
     assert_eq!(pace.tacks.len(), 1);
     assert_eq!(pace.tacks[0].silks, "test-pace");
     assert_eq!(pace.tacks[0].state, jjrg_PaceState::Rough);
-    assert_eq!(pace.tacks[0].text, "Do something useful");
+    assert_eq!(pace.tacks[0].text, vec!["Do something useful".to_string()]);
 
     // Check order was updated
     assert!(heat.order.contains(&result.coronet));
@@ -1003,9 +1080,9 @@ fn jjtg_tally_state_transition() {
 
     let heat = gallops.heats.get(&heat_key).unwrap();
     let pace = heat.paces.get(&pace_key).unwrap();
-    assert_eq!(pace.tacks.len(), 2); // Original + new
+    assert_eq!(pace.tacks.len(), 1); // Replaced — single current tack
     assert_eq!(pace.tacks[0].state, jjrg_PaceState::Complete);
-    assert_eq!(pace.tacks[0].text, "Work completed successfully");
+    assert_eq!(pace.tacks[0].text, vec!["Work completed successfully".to_string()]);
 }
 
 #[test]
@@ -1074,7 +1151,7 @@ fn jjtg_tally_inherit_state() {
     let heat = gallops.heats.get(&heat_key).unwrap();
     let pace = heat.paces.get(&pace_key).unwrap();
     assert_eq!(pace.tacks[0].state, jjrg_PaceState::Rough); // Inherited
-    assert_eq!(pace.tacks[0].text, "Updated plan text");
+    assert_eq!(pace.tacks[0].text, vec!["Updated plan text".to_string()]);
 }
 
 #[test]

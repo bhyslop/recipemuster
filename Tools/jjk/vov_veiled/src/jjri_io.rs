@@ -136,12 +136,27 @@ fn zjjdz_episode_schema_version_drop_live(_gallops: &jjrg_Gallops, original_byte
     original_bytes.windows(SCHEMA_VERSION_KEY.len()).any(|w| w == SCHEMA_VERSION_KEY)
 }
 
+/// tack-text→lines episode live-test — rivet JJr_a7c.
+///
+/// True when the on-disk bytes still carry a string-valued `jjgtn_text` (the legacy docket
+/// shape). The pretty serializer emits `"jjgtn_text": "` only for a string value; an array
+/// value reads `"jjgtn_text": [`. The custom field deserializer has already normalized both
+/// shapes to the line array in the parsed struct (so the struct alone cannot tell them apart),
+/// which is why detection sniffs the raw bytes. When live, jjdr_load stands the round-trip gate
+/// down — a string→array reserialization would otherwise mismatch — and the write-forward
+/// collapses any legacy multi-tack history to its newest element.
+fn zjjdz_episode_tack_text_to_lines_live(_gallops: &jjrg_Gallops, original_bytes: &[u8]) -> bool {
+    const TACK_TEXT_STRING_KEY: &[u8] = b"\"jjgtn_text\": \"";
+    original_bytes.windows(TACK_TEXT_STRING_KEY.len()).any(|w| w == TACK_TEXT_STRING_KEY)
+}
+
 /// The forgiveness registry — every tolerated old on-disk schema, one entry per episode.
 /// Permanent infrastructure: episodes are appended as schema changes land and removed once
 /// dormant on every operated clone (the per-episode lifecycle in JJS0 `jjdz_forgiveness`).
 const ZJJDZ_REGISTRY: &[zjjdz_Episode] = &[
     zjjdz_Episode { label: "V3→V4", is_live: zjjdz_episode_v3_to_v4_live },
     zjjdz_Episode { label: "schema_version drop", is_live: zjjdz_episode_schema_version_drop_live },
+    zjjdz_Episode { label: "tack text→lines", is_live: zjjdz_episode_tack_text_to_lines_live },
 ];
 
 /// Read-only forgiveness probe — the single source of "what counts as old-format".
@@ -198,6 +213,17 @@ pub fn jjdr_load(path: &Path) -> Result<jjdr_ValidatedGallops, String> {
     if is_migration_mode {
         if gallops.heat_order.is_empty() {
             gallops.heat_order = gallops.heats.keys().cloned().collect();
+        }
+        // tack-text→lines episode write-forward (rivet JJr_a7c): the line array itself is
+        // produced by the jjgtn_text field deserializer; here we collapse any legacy multi-tack
+        // history to the single newest tack (tacks[0]) — tack evolution now lives in git, per
+        // JJS0 Git-as-Journal. Idempotent: a store already at one tack per pace is untouched.
+        for heat in gallops.heats.values_mut() {
+            for pace in heat.paces.values_mut() {
+                if pace.tacks.len() > 1 {
+                    pace.tacks.truncate(1);
+                }
+            }
         }
     }
 

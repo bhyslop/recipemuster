@@ -29,7 +29,7 @@ fn jjtsc_make_tack(state: jjrg_PaceState, silks: &str, text: &str, direction: Op
     jjrg_Tack {
         ts: "20260612T120000Z".to_string(),
         state,
-        text: text.to_string(),
+        text: vec![text.to_string()],
         silks: silks.to_string(),
         basis: "0000000".to_string(),
         direction: direction.map(|d| d.to_string()),

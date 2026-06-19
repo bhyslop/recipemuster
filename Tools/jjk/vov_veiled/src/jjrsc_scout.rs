@@ -28,6 +28,7 @@ const JJRSC_CMD_NAME_SCOUT: &str = "jjx_scout";
 
 use crate::jjrg_gallops::{
     jjrg_Gallops as Gallops,
+    jjrg_lines_to_text,
     jjrg_PaceState as PaceState,
 };
 use crate::jjri_io::jjri_paddock_path;
@@ -163,9 +164,10 @@ pub(crate) fn zjjrsc_search(
                 continue;
             }
 
+            let docket = jjrg_lines_to_text(&tack.text);
             let fields: [(&str, Option<&str>); 3] = [
                 ("silks", Some(tack.silks.as_str())),
-                ("docket", Some(tack.text.as_str())),
+                ("docket", Some(docket.as_str())),
                 ("warrant", tack.direction.as_deref()),
             ];
 

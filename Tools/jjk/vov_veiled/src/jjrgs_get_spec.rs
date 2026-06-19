@@ -13,7 +13,12 @@ use clap::Args;
 use vvc::{vvco_out, vvco_err, vvco_Output};
 
 use crate::jjrf_favor::jjrf_Coronet as Coronet;
-use crate::jjrg_gallops::{jjrg_Gallops as Gallops, jjrg_PaceState as PaceState, JJRG_STATE_ABANDONED};
+use crate::jjrg_gallops::{
+    jjrg_Gallops as Gallops,
+    jjrg_lines_to_text,
+    jjrg_PaceState as PaceState,
+    JJRG_STATE_ABANDONED,
+};
 
 const JJRGS_CMD_NAME_GET_SPEC: &str = "jjx_get_spec";
 
@@ -78,7 +83,7 @@ pub fn jjrgs_run_get_spec(args: jjrgs_GetSpecArgs) -> (i32, String) {
             vvco_out!(output, "[{}]", JJRG_STATE_ABANDONED);
             vvco_out!(output, "");
         }
-        vvco_out!(output, "{}", tack.text);
+        vvco_out!(output, "{}", jjrg_lines_to_text(&tack.text));
         (0, output.vvco_finish())
     } else {
         vvco_err!(output, "{}: error: Pace '{}' has no tacks", cn, coronet_key);
