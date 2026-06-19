@@ -1,5 +1,4 @@
 {
-  "jjgrn_schema_version": 4,
   "jjgrn_next_heat_seed": "Bj",
   "jjgrn_heat_order": [
     "₣Bc",
@@ -8290,6 +8289,13 @@
         },
         "₢BcAAF": {
           "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260619-0749",
+              "jjgtn_state": "jjgte_complete",
+              "jjgtn_text": "## Character\nImplementation — remove a serialized field and reframe detection as structural, plus one spec cinch.\nMechanical deletions; the load-bearing part is the doctrine, not the edits.\nA schema-change window — it drops a gallops field and is itself a (self-describing) forgiveness episode.\n\n## Cinched\nRemove the schema_version field.\nIt is a redundant second source of truth — the on-disk shape already carries the version, and the V3→V4 live-test already detects structurally rather than trusting the number.\nDetection becomes per-episode structural: each live-test sniffs the actual old shape, not a version compare.\nThat fits concurrent episodes — independent, order-free — better than a single monotonic integer.\nCinch in JJS0 jjdz_forgiveness: every schema change must be self-detectable — shape-changing or self-marked; an idempotent normalization needs no episode (normalize at point of use); a non-idempotent shape-preserving change must carry its own marker, since there is no global version oracle.\nIts own removal is a self-describing episode: serde ignores the now-unknown key on old files.\nBring the uncited primed alias (jjrt_types.rs) under the mechanism in the same motion: if any operated clone still holds a \"primed\" pace state on disk, register it as a tracked episode with the rivet cited at the code site; if dormant everywhere, delete the alias. Either way it stops being an untracked tolerance.\n\n## Consumer reconciliation\nEvery reader/writer of the version. Discovery: grep schema_version and JJDZ_CURRENT_SCHEMA across the crate.\nThe V3→V4 live-test loses its version clause — confirm its remaining structural signals still distinguish V3.\n\n## Done when\nThe schema_version field is gone from the type, the validate gate, and all construction sites; the V3→V4 episode detects structurally without it; the primed alias is tracked or removed (no untracked tolerance remains); JJS0 cinches the self-detectable discipline; build tt/vow-b, test tt/vow-t green.",
+              "jjgtn_silks": "drop-gallops-schema-version",
+              "jjgtn_basis": "f8efe10"
+            },
             {
               "jjgtn_ts": "260619-0647",
               "jjgtn_state": "jjgte_rough",
