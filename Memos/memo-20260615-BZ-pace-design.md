@@ -257,3 +257,32 @@ Provenance hypothesis (two candidates, neutral):
 2. Editor spec/impl drift (the operator's own candidate) — conformance between spec, implementation, and paddock was not enforced, so the org-level sense accreted and the paddock voiced it.
 
 Likely a blend. The practical correction stands regardless; the provenance call is Fable's, and it bears on a process question — whether paddock authoring needs a spec-conformance gate — larger than this heat.
+
+## Test-rig doctrine — static admission, no in-test IAM churn (260619)
+
+Settled in conversation 260619 (a long design walk during the ₢BZAAY mount). This is the conclusion the freehold test rig is built on; it supersedes the in-test grant/revoke ambition the same conversation briefly entertained. Per the freeze, it lives here, not in the paddock.
+
+The scar that drove it: revocation-propagation pain. `setIamPolicy` is eventually consistent and the team has been bitten hard by it; the operator is very reluctant to make in-test role changes depend on propagation, now or ever.
+
+The reframe that makes the static model strong (not a retreat):
+
+- Propagation races live entirely in the TRANSITION (the moment of grant or revoke). A standing state — always-granted or never-granted — has no transition and is race-free.
+- Negatives are therefore tested as NEVER-GRANTED standing states, not as revocation transitions. "Can't do X" = a principal that was never granted X — the strong, deterministic form; revocation-as-a-test was always the weak form.
+- Revocation CORRECTNESS (did unseat issue the right delete?) is asserted by IAM read-back — `getIamPolicy` shows the binding gone, the `rbgp_admission_proof` pattern — never by attempting a don and waiting for a 403. Whether a removed binding eventually denies is Google's propagation: a Palisade, not our code's contract.
+- "Sleep once" is really "absorb the grant-direction propagation once at freehold setup" via the existing poll-until-200 budget (the `rbgv` 60×3s pattern, the direction proven at spike F2). The unreliable revoke direction never appears.
+
+Why this mirrors the architecture: the mantle design already pulls IAM mutation out of hot paths (frozen-at-levy + admission-only) and bounds exposure by token self-expiry. The historical propagation pain was the hot-path version; the test rig should mirror the architecture and keep all IAM mutation at provisioning time, never per-test.
+
+The identity-layers model (the clarifying frame) — three layers, three durabilities, three homes:
+
+- Citizen definition (name → Entra subject + mantle): PERMANENT, bare, pool-independent → `rbpc`.
+- Foedus instance (workforce pool id + provider): EVOLVING, bumped on re-mint → `rbrf.env`.
+- Depot instance (moniker + prefix): EVOLVING, rotated by churn → `rbrd.env`.
+
+A citizen's definition is pool-independent (pinned to the Entra `oid` + a mantle), but its live admission is pool-scoped — the grantable `principal://…/workforcePools/{POOL_ID}/subject/{oid}` embeds the live pool id, so a foedus re-mint re-brevets the same permanent citizens into the new instance. Definitions survive; bindings re-establish.
+
+Consequence — ₢BZAAY collapses to its invariant kernel (reslated 260619): `rbpc` homes a SINGLE durable freehold subject (the operator's standing Entra `oid` `9657166c-8a2d-4f5d-bcd1-ef481ee31f3e`, recorded at the federation-legs spike) projected to `RBTDGC_FREEHOLD_*`, plus one parameterized don-mantle probe (compear as the subject, don a named mantle, or surface the admission-deficit 403). The multi-citizen roster and the freehold depot moniker are DROPPED: with one real federated identity a roster is fiction, and depot identity is `rbrd.env`'s evolving concern (the depot-freehold is ₣Bf). The mantles are already RBCC constants.
+
+Consequence — the next pace (the freehold fixture) carries the provision-once / standing-don / never-granted-negatives / read-back-revocation pattern. The full grant/revoke scenario matrix is NOT built; it is replaced by standing differentiated admission.
+
+₣Bf coupling: full inter-mantle negative differentiation (a director-mantle citizen denied governor work) needs multiple standing subjects, which needs the degenerate/headless IdP — ₣Bf work, where the same static-no-churn doctrine applies. Recorded in `memo-20260619-Bf-static-negative-test-rig.md`.
