@@ -886,8 +886,9 @@ async fn zjjrm_handle_open(size_limit: u64) -> Result<CallToolResult, McpError> 
             if let Err(e) = vvc::machine_commit(&lock, &commit_args, &mut commit_out) {
                 zjjrm_revert_managed(&path_str);
                 let _ = std::fs::remove_dir_all(&exchange);
+                let detail = commit_out.vvco_finish();
                 return Ok(CallToolResult::error(vec![Content::text(
-                    format!("{}: convergence over budget, reverted — {}", cn, e),
+                    format!("{}: convergence over budget, reverted, no officium — {}\n{}", cn, e, detail),
                 )]));
             }
             converged = true;

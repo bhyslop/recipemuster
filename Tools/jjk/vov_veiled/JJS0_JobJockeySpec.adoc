@@ -1788,9 +1788,14 @@ An additive or removed field needs only serde's defaults and ignored-unknown han
 Add a registry entry whose live-test detects the prior on-disk shape from the parsed value or its raw bytes, and the write-forward that canonicalizes it on load — which may be empty when serde's own omission already drops the old residue.
 Cite the existing rivet token; never mint a per-episode rivet — per-episode specifics (old shape, demolition condition) are registry data, not new cited constraints.
 +
-*The {jjdo_open} probe contract.*
-The peek is read-only, best-effort, and never gating: it reads the {jjdgr_gallops} without the commit lock and emits nothing on any read or parse failure, so {jjdo_open} always succeeds.
-The lockless read is safe because {jjdr_save} renames atomically — the peek sees only whole files — and it mutates nothing.
+*The {jjdo_open} ceremony contract.*
+The nag peek is read-only, best-effort, and never gating: it reads the {jjdgr_gallops} without the commit lock, emits nothing on any read or parse failure, and mutates nothing — the lockless read is safe because {jjdr_save} renames atomically, so the peek sees only whole files.
+Open also carries a `size_limit` convergence budget, default 0.
+At 0 the ceremony mutates nothing beyond its invitatory marker — the standing read-only open.
+Above 0 it opts into a bulk-authorized convergence commit: load (running any pending write-forward), save, and commit the managed store under that budget as the invitatory, so a forgiveness conversion self-persists at the next session start (chat capture rides the same path later).
+A convergence over budget hard-fails: the required size is reported, the store is reverted to HEAD, and the freshly-claimed officium is rolled back — no officium delivered, no staged store left behind — with no internal retries (a wedged commit lock is broken out-of-band).
+An always-gate guards both paths: open refuses unless every managed file is pristine (neither staged nor conflicted), since a non-pristine managed store is never legitimate and must be resolved by hand.
+So {jjdo_open} no longer "always succeeds"; it succeeds iff its managed store is clean — the nag alone still never causes failure.
 
 == Arguments
 
