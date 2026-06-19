@@ -109,6 +109,69 @@ rbgv_check_compearance() {
   buc_success "Federated assize live — federated token obtained (${#z_token} chars)"
 }
 
+# Don-mantle probe — exercises the freehold rig end to end: resolve the freehold
+# subject (the operator's standing Entra oid, RBPC_freehold_subject), compear as
+# that identity to open or reuse an assize, then don the named mantle (Leg 3).
+# Reports the minted mantle token, or surfaces the admission deficit the accessor
+# already characterized (the Leg-3 403: a citizen not brevetted onto the mantle,
+# or a missing depot serviceUsageConsumer — a standing state, not a propagation
+# race). Depot-coupled, unlike the depot-agnostic compearance probe: the don
+# derives the depot project (RBDC_DEPOT_PROJECT_ID), so furnish enforces RBRR/RBRD
+# for this command; the RBRF trust is sourced here as compearance does.
+rbgv_check_mantle() {
+  zrbgv_sentinel
+
+  local -r z_mantle="${1:-}"
+
+  buc_doc_brief "Don a mantle as the freehold subject — compear, then don the named mantle (or surface the admission deficit)"
+  buc_doc_param "mantle" "Mantle to don: governor | director | retriever"
+  buc_doc_shown || return 0
+
+  case "${z_mantle}" in
+    governor|director|retriever) ;;
+    *) buc_die "rbgv_check_mantle: mantle parameter required (governor | director | retriever), got '${z_mantle:-<empty>}'" ;;
+  esac
+
+  buc_step "Don-mantle probe — ${z_mantle} mantle as the freehold subject"
+
+  buc_step "Resolve the freehold subject"
+  test -n "${RBPC_freehold_subject:-}" || buc_die "RBPC_freehold_subject is not set — rbpc_constants.sh must be sourced"
+  buc_info "Freehold subject (compear as this identity): ${RBPC_freehold_subject}"
+
+  buc_step "Compear against the RBRF trust to open or reuse the assize"
+  source "${RBCC_rbrf_file}" || buc_die "Failed to source RBRF: ${RBCC_rbrf_file}"
+  zrbrf_kindle
+  zrbrf_enforce
+
+  rba_compear
+
+  # Confirm the human compeared as the freehold subject. The cached subject is
+  # the decoded oid (best-effort, informational per the accessor): a mismatch
+  # warns — the rig is being exercised under a different identity — but does not
+  # gate the don; an undecodable subject is skipped with a log note.
+  local z_cached_subject=""
+  z_cached_subject=$(zrba_assize_subject_capture) || z_cached_subject=""
+  if test -z "${z_cached_subject}"; then
+    buc_log_args "Compeared subject not decodable from the assize cache — skipping the freehold-identity confirmation (informational only)"
+  elif test "${z_cached_subject}" = "${RBPC_freehold_subject}"; then
+    buc_info "Compeared subject matches the freehold subject"
+  else
+    buc_warn "Compeared subject '${z_cached_subject}' is NOT the freehold subject '${RBPC_freehold_subject}' — donning anyway, but this is not the freehold identity"
+  fi
+
+  buc_step "Don the ${z_mantle} mantle (Leg 3)"
+  # rba_don_capture emits the mantle token on success or returns 1 having already
+  # logged the admission-deficit / lapsed-assize forensic line; the probe surfaces
+  # that as its verdict (the accessor owns the diagnosis). The token is held in a
+  # process-local var, never persisted, and only its length is reported.
+  local z_mantle_token
+  z_mantle_token=$(rba_don_capture "${z_mantle}") \
+    || buc_die "Don of the ${z_mantle} mantle failed — see the transcript (admission deficit or lapsed assize)"
+  test -n "${z_mantle_token}" || buc_die "Don of the ${z_mantle} mantle returned an empty token"
+
+  buc_success "Donned the ${z_mantle} mantle — mantle token minted (${#z_mantle_token} chars)"
+}
+
 ######################################################################
 # Furnish and Main
 
@@ -127,6 +190,7 @@ zrbgv_furnish() {
   source "${z_rbk}/rbrp_regime.sh"
   source "${z_rbk}/rbrf_regime.sh"
   source "${z_rbk}/rbcc_constants.sh"
+  source "${z_rbk}/rbpc_constants.sh"
   source "${z_rbk}/rbgc_constants.sh"
   source "${z_rbk}/rbdc_derived.sh"
   source "${z_rbk}/rbgo_oauth.sh"

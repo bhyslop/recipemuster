@@ -41,6 +41,7 @@ zrbte_furnish() {
   source "${BURD_BUK_DIR}/burd_regime.sh"
   source "${BURD_BUK_DIR}/buz_zipper.sh"
   source "${z_cli_dir}/../rbcc_constants.sh"
+  source "${z_cli_dir}/../rbpc_constants.sh"
   source "${z_cli_dir}/../rbz_zipper.sh"
   source "${z_cli_dir}/rbte_engine.sh"
 

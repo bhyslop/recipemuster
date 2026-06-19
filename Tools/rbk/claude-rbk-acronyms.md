@@ -57,6 +57,7 @@
 - **RBLM** → `rbk/rblm_cli.sh` (Lifecycle Marshal - zero regime to blank template, proof repo for release testing)
 - **RBNNH** → `rbnnh_` prefix family — optional per-nameplate customization files in `.rbk/{moniker}/`: `rbnnh_compose.yml` (Compose overlay fragment) and `rbnnh_post_charge.sh` (post-charge hook script). Contract: `Tools/rbk/vov_veiled/RBSCH-charge_hook.adoc`.
 - **RBOB** → `rbk/rbob_bottle.sh`
+- **RBPC** → `rbk/rbpc_constants.sh` (Proving Constants — freehold test-rig constants, segregated from RBCC by operator ruling. Homes the single durable freehold subject (the operator's standing Entra oid — the citizen-definition layer of the identity-layers model: PERMANENT, pool-independent, vs the EVOLVING foedus/depot instances in rbrf.env/rbrd.env). Projects to RBTDGC_FREEHOLD_* as the third peer emit source in rbz_emit_consts, after the colophons and rbcc_emit_consts.)
 - **RBYC** → `rbk/rbyc_common.sh` (Common vocabulary — linked term constants for handbook yelp fragments)
 - **RBQ**  → `rbk/rbq_qualify.sh` (Qualification orchestrator - tabtarget/colophon/nameplate health)
 - **RBTD** → `rbk/rbtd/` (Theurge — crucible test orchestrator)

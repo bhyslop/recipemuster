@@ -190,6 +190,21 @@ zrba_assize_read_capture() {
   jq -er '.federated_token // empty | select(length > 0)' "${z_path}" 2>"${ZRBA_FED_JQ_STDERR_FILE}"
 }
 
+# Echo the cached assize subject (the compeared oid) if present; return 1 on any
+# miss. Informational mirror of zrba_assize_read_capture — the muniment-trail
+# subject (decoded best-effort at compearance, non-load-bearing), not a
+# credential, so no expiry gate: identity, not a token. select(length > 0) yields
+# a non-zero jq exit for an absent/empty subject — the capture miss.
+zrba_assize_subject_capture() {
+  zrba_sentinel
+
+  local z_path
+  z_path=$(zrba_assize_path_capture) || return 1
+  test -f "${z_path}" || return 1
+
+  jq -er '.subject // empty | select(length > 0)' "${z_path}" 2>"${ZRBA_FED_JQ_STDERR_FILE}"
+}
+
 # A live (unexpired) assize is cached — status only, no output.
 zrba_assize_live_predicate() {
   zrba_sentinel
