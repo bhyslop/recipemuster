@@ -8782,6 +8782,7 @@
       "jjghn_creation_time": "260618",
       "jjghn_status": "jjghe_stabled",
       "jjghn_order": [
+        "₢BiAAJ",
         "₢BiAAA",
         "₢BiAAB",
         "₢BiAAC",
@@ -8792,7 +8793,7 @@
         "₢BiAAH",
         "₢BiAAI"
       ],
-      "jjghn_next_pace_seed": "AAJ",
+      "jjghn_next_pace_seed": "AAK",
       "jjghn_paces": {
         "₢BiAAA": {
           "jjgpn_tacks": [
@@ -8953,6 +8954,17 @@
               "jjgtn_text": "## Character\nReconfirm-then-mechanical: independently re-derive the design from sources, then a multi-site string + parameter edit.\nThe originating chat ran below Opus quality and manufactured a non-issue before being corrected — treat every claim in this docket as a hypothesis to verify, not as authority.\n\nSurface, per call site, the precise rationale for why `bug_require_clean_tree` (BUG, `Tools/buk/bug_git.sh`) demands a committed tree at that locale.\nRationale strings live as RB constants in `Tools/rbk/rbcc_constants.sh`; each call site passes its own as a new gate argument; BUG stays kit-agnostic and only displays the string it is handed.\n\n## Reconfirm first (origin chat was unreliable)\nVerify from sources, not from the claims here:\n- Enumerate the call sites and read each local why: `grep -rn --include='*.sh' 'bug_require_clean_tree' Tools/` (one definition lives in BUG; the rest are calls).\n- Confirm how many distinct rationales actually exist — the chat claimed two: a build/capture \"HEAD-as-provenance\" family and the depot-tripwire \"inscribed bytes must be a committed reference\" case. Correct it if the sites disagree.\n- Confirm BCG tinder vs kindle for the new constants (rbcc is tinder-heavy; these are pure string literals).\n- Settle what the chat left open: whether the rationale displays on the failure path only, or always.\n- Re-judge whether this needs anything beyond constants + param. The chat concluded the principle is already spec-homed (`rbtgo_lode_ensconce`, `rblv_git_commit` in RBS0, plus the tripwire statement in RBSRT/RBSMF) and warrants no new quoin or RBr_ rivet — an implementation detail, not a concept. Confirm or overturn.\n\n## Cinched\nRationale strings live in rbcc (RB-space), never inside BUG.\nThe gate gains a parameter; every call site supplies its locale's rationale.\n\n## Done when\nThe re-verified set of rationale constants exists in rbcc.\nEvery `bug_require_clean_tree` call passes its locale's rationale and the gate surfaces it to the operator.\nTripwire aside (separable, not required): its rationale is stated near-verbatim in both RBSRT and RBSMF — fold to one if you touch it.\n`tt/rbw-tl.Shellcheck.sh` clean and the fast suite green.",
               "jjgtn_silks": "clean-tree-rationale-param",
               "jjgtn_basis": "47fc5df"
+            }
+          ]
+        },
+        "₢BiAAJ": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260619-1007",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "The payor-install verb closes by prescribing one hard-coded next step — \"Next: levy the depot\" — and the fix is to make its tail point the operator at finishing the manor rather than at a single federation/depot command.\n\n## Character\nReconfirm-then-shape, deferred on purpose: the mechanical change is small, but the canonical manor-completion sequence it must point at is mid-evolution in the federation heats and gated on Fable's vocabulary mints, so every premise below is a hypothesis to re-derive from the live tree at mount, not authority. The timing is the whole point of parking it here.\n\n## The need\n`rbgp_payor_install` (Tools/rbk/rbgp_payor.sh) ends by hard-coding a pointer at the depot-levy tabtarget.\nA leaf credential verb should not route workflow: the pointer is blind to the credential-refresh path (where depots already exist), it skips the manor-affiance step that actually finishes a manor, and levy is a per-depot act, not a manor-completion act.\nThe operator finishing payor-install wants \"here is how to finish setting up your manor\" — not federation-flavored, not a single command.\n\n## Shape (verify before adopting — see Reconfirm)\n- Stop the verb prescribing levy; have its tail report state and point at the manor onboarding handbook (rbw-Op) as the sequence of record — the not-federation-dedicated \"finish your manor\" home.\n- Clean the post-success \"Verifying ... rbrp.env\" tail in the same pass: give it an honest label (it reconciles the committed manor-identity regime against what the install just discovered), and drop any arm an earlier step already enforces with a hard die — suspected unreachable: the billing and client-id checks. Confirm, do not assume.\n- Separable, larger: weave the affiance step into the manor onboarding handbook (Tools/rbk/rbh0/rbhopw_payor_wrapper.sh) as a manor-completion step — \"connect your manor to its identity provider\" — sequenced establish → install → affiance → then provision depots.\n\n## Reconfirm premises first\nThe federation surface this points at is mid-evolution in ₣Bf and ₣BZ, with vocabulary gated on Fable.\nBefore writing any guidance prose, re-derive from the live tree:\n- Does the affiance verb still exist by that name and colophon, or did a Fable mint rename it (the affiance/heed and assize remints are live ideas in ₣Bf)?\n- Has the manor-establishment reshape landed — is there now a unified manor-provision op (the terrier founding-home shape in ₣Bf) instead of a bare affiance, changing what \"finish the manor\" means?\n- What is the canonical manor-completion sequence at mount, and does the handbook already reflect it?\nDo not wire prose that contradicts whatever ₣Bf/₣BZ landed; if the sequence is still unsettled, the safe subset is the leaf-verb-stops-routing move alone.\n\n## Cinched\nThe leaf verb must not hard-code \"the next command\"; the manor handbook is the sequence of record.\nThe post-install guidance is framed as manor-completion, never as a federation-specialist detour.\n\n## Done when\nPayor-install no longer prescribes levy; its tail reports state and points the operator at finishing the manor, with the \"Verifying\" block honestly labelled and free of unreachable checks.\nThe manor-completion sequence pointed at is confirmed against the live tree at mount, not taken from this docket.\nWhether the handbook affiance-weave lands here or splits to its own pace is decided at mount.\nFast suite green.",
+              "jjgtn_silks": "payor-install-finish-manor-guidance",
+              "jjgtn_basis": "8699a3e"
             }
           ]
         }
