@@ -295,7 +295,7 @@
 // Gallops methods
 :jjsgmrd_revise_docket:  <<jjsgmrd_revise_docket,Revise Docket Method>>
 :jjsgmrp_resolve_pace:   <<jjsgmrp_resolve_pace,Resolve Pace>>
-:jjsgmpt_prepend_tack:   <<jjsgmpt_prepend_tack,Prepend Tack>>
+:jjsgmst_set_tack:       <<jjsgmst_set_tack,Set Tack>>
 
 // Operation procedures
 :jjsoprd_revise_docket:  <<jjsoprd_revise_docket,Revise Docket>>
@@ -1520,14 +1520,16 @@ no separate property name.
 * [[jjdpm_tacks]]
 //axl_voices axr_member axd_required axd_repeated axd_property
 {jjdpm_tacks}
-is the ordered history of state snapshots for this
-{jjdpr_pace}.
+holds the single current state snapshot for this
+{jjdpr_pace}
+at index 0.
 Element type:
 {jjdcr_tack}.
-Index 0 is the current (most recent) tack;
-{jjsgmpt_prepend_tack}
-inserts at position zero.
-Serialized as `jjgpn_tacks` in JSON.
+A pace keeps one tack, edited in place;
+{jjsgmst_set_tack}
+replaces it.
+Tack evolution is git history (Git as Journal), not an in-JSON array.
+Serialized as `jjgpn_tacks` in JSON, a single-element array.
 
 ==== State Values
 
@@ -1587,12 +1589,12 @@ Future states declare their predicate values when added. Query logic uses predic
 {jjdcr_tack}::
 A state snapshot within a
 {jjdpr_pace}.
-Each mutation to a pace prepends a new
+Each mutation to a pace replaces its single
 {jjdcr_tack}
-to the
+in the
 {jjdpm_tacks}
 array, capturing the complete state at that point.
-The tack at index 0 is always the current state.
+The prior tack is not retained in JSON; its evolution is git history (Git as Journal).
 
 ==== Members
 
@@ -1614,10 +1616,11 @@ Values:
 Serialized as `jjgtn_state` in JSON.
 
 * [[jjdcm_text]]
-//axl_voices axr_member axd_required axt_string axd_property
+//axl_voices axr_member axd_required axd_repeated axd_property
 {jjdcm_text}
-is the docket text at this snapshot.
-Serialized as `jjgtn_text` in JSON.
+is the docket text at this snapshot, as a line array — one element per physical line,
+so the docket merges at line granularity in git.
+Serialized as `jjgtn_text` in JSON, an array of strings.
 
 * [[jjdcm_silks]]
 //axl_voices axr_member axd_required axt_string axd_property
@@ -2167,11 +2170,11 @@ Navigate {jjdgr_gallops} from a {jjdt_coronet} to the target {jjdpr_pace} and it
 Returns pace context: parsed coronet, firemark key, current state, text, silks, and direction.
 Used by all pace-targeting composed methods as the shared read primitive.
 
-[[jjsgmpt_prepend_tack]]
+[[jjsgmst_set_tack]]
 //axvo_method axd_transient
-{jjsgmpt_prepend_tack}::
-Insert a new tack at position zero of a {jjdpr_pace_p} tack history within {jjdgr_gallops}.
-Used by all pace-mutating composed methods as the shared write primitive.
+{jjsgmst_set_tack}::
+Replace a {jjdpr_pace_p} single current tack within {jjdgr_gallops}.
+Used by all pace-mutating composed methods as the shared write primitive; tack evolution is git history (Git as Journal), not an in-JSON array.
 
 [[jjsgmrd_revise_docket]]
 //axvo_method axd_transient
@@ -2183,7 +2186,7 @@ Takes caller-provided basis SHA and timestamp (I/O captured at procedure boundar
 +
 . {jjsgmrp_resolve_pace} — obtain current pace context
 . Create new tack with updated text, inherited state and silks, caller-provided basis and timestamp
-. {jjsgmpt_prepend_tack} — commit to pace history
+. {jjsgmst_set_tack} — replace the pace's current tack
 +
 Returns pace context for the calling procedure.
 
