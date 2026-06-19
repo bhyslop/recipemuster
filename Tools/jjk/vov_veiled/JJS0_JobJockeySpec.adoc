@@ -1785,10 +1785,12 @@ Only individual episodes retire.
 +
 *An episode's demolition condition* is that no {jjdgr_gallops} predating its schema survives in any operated clone.
 This is checkable rather than an act of faith because of {jjdk_sole_operator}: the operated clones are a finite, enumerable set.
-When an episode is dormant on every clone, its registry entry — and the now-dead write-forward and frozen reference it guards — are removed together; the mechanism stands.
+When an episode is dormant on every clone, its registry entry — and the now-dead write-forward and old-shape tolerance it guards (a custom deserialize, a frozen reference type, or both) — are removed together; the mechanism stands.
 +
 *Registering a new episode* is the standard procedure a future schema change follows.
 Raise {jjdgm_version} to the new current.
+Ensure the new types tolerate the old on-disk shape at the deserialize boundary, so the parse succeeds and the probe and write-forward run rather than the parse rejecting the old file first.
+An additive or removed field needs only serde's defaults and ignored-unknown handling; a retyped field needs an explicit tolerance — a custom deserialize accepting either shape, or a frozen reference type converted in a second step.
 Add a registry entry whose live-test detects the prior on-disk shape, and the write-forward that canonicalizes it on load.
 Cite the existing rivet token; never mint a per-episode rivet — per-episode specifics (old shape, schema number, demolition condition) are registry data, not new cited constraints.
 +

@@ -108,3 +108,18 @@ pull: a trot serializes a *multi-part* deliverable, re-grounding at every
 step for a tired reader. Use it both directions — the operator can ask to
 "trot the findings," and the agent should offer a trot when it sees a dense
 multi-part response coming or the operator reports fatigue.
+
+### E. Gallops schema changes are gated on a forgiveness episode (JJK crate)
+
+Changing the on-disk gallops shape — adding, removing, renaming, or retyping a
+serialized field, or changing how one serializes — is a schema change, and a schema
+change **must** register a forgiveness episode. Skipping it silently breaks reading
+of every older-format gallops on disk. These changes are rare and easy to get wrong;
+do not improvise. Before touching the schema, read `jjdz_forgiveness` in JJS0 and
+follow its "Registering a new episode" procedure.
+
+`JJr_a7c` (any `JJr_` token) in the crate is the cited forgiveness rivet —
+`grep JJr_a7c` to that quoin for the rationale. The code it guards (the V3→V4
+write-forward, frozen `jjrt_v3_types.rs`) is deliberately temporary, removed only
+under the episode's demolition condition: do not clean it up or re-explain it beside
+the marker. RBK's `RBr_` conduct rule, JJK-native.
