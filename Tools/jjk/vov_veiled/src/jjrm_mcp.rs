@@ -697,8 +697,49 @@ fn zjjrm_forgiveness_nag(output: &mut vvc::vvco_Output) {
     }
 }
 
+/// The jj-lifecycle files whose git state the open ceremony manages. For now the gallops
+/// alone; the chat-history store joins this set when capture lands. Open requires every
+/// managed file to be pristine before it proceeds — a staged or conflicted store is never
+/// legitimate and must be resolved by hand, not ridden over.
+fn zjjrm_managed_files() -> Vec<String> {
+    vec![gallops_pathbuf().to_string_lossy().to_string()]
+}
+
+/// Always-gate: refuse the open ceremony if any managed file is dirty versus HEAD.
+///
+/// Determination is `git status --porcelain` per managed path: any output means a staged,
+/// unstaged, or conflicted change, so open refuses with the porcelain shown. Fail-safe — if
+/// the status command itself cannot run, the gate passes, so it only ever refuses on a
+/// positively-determined dirty file (a plumbing failure must never brick officium open).
+fn zjjrm_managed_clean() -> Result<(), String> {
+    for path in zjjrm_managed_files() {
+        let out = match vvc::vvce_git_command(&["status", "--porcelain", "--", path.as_str()]).output() {
+            Ok(o) if o.status.success() => o,
+            _ => continue,
+        };
+        let status = String::from_utf8_lossy(&out.stdout);
+        if !status.trim().is_empty() {
+            return Err(format!("managed store not pristine ({}): {}", path, status.trim()));
+        }
+    }
+    Ok(())
+}
+
+/// Restore a managed file to HEAD and unstage it — the revert after an over-budget open
+/// commit, so a blocked convergence never leaves the store staged-but-uncommitted.
+fn zjjrm_revert_managed(path: &str) {
+    let _ = vvc::vvce_git_command(&["checkout", "HEAD", "--", path]).output();
+    let _ = vvc::vvce_git_command(&["reset", "--quiet", "--", path]).output();
+}
+
 /// Handle jjx_open: create a new officium.
-async fn zjjrm_handle_open() -> Result<CallToolResult, McpError> {
+///
+/// `size_limit` is the convergence budget. 0 (the standing default) means no mutation — the
+/// lockless empty-invitatory open we have by default. A value > 0 opts the ceremony into a
+/// bulk-authorized convergence commit (forgiveness conversions now; chat capture later),
+/// gated by that budget; over budget hard-fails with the required size, reverts, and delivers
+/// no officium.
+async fn zjjrm_handle_open(size_limit: u64) -> Result<CallToolResult, McpError> {
     let cn = JJRM_CMD_NAME_OPEN;
     let mut output = vvc::vvco_Output::buffer();
 
@@ -706,6 +747,14 @@ async fn zjjrm_handle_open() -> Result<CallToolResult, McpError> {
     match crate::jjrdk_diskcheck::jjrdk_check_disk_space() {
         Ok(survey) => vvco_out!(output, "{}", survey),
         Err(msg) => return Ok(CallToolResult::error(vec![Content::text(msg)])),
+    }
+
+    // Always-gate: a staged or conflicted managed store is never legitimate — refuse before
+    // creating any officium, so the failure is clean and no officium is delivered.
+    if let Err(e) = zjjrm_managed_clean() {
+        return Ok(CallToolResult::error(vec![Content::text(
+            format!("{}: refusing open — {}", cn, e),
+        )]));
     }
 
     let officia = PathBuf::from(OFFICIA_DIR);
@@ -789,16 +838,75 @@ async fn zjjrm_handle_open() -> Result<CallToolResult, McpError> {
         Some(&body),
     );
 
-    let marker_args = vvc::vvcc_MarkerArgs {
-        prefix: None,
-        message,
-    };
+    // size_limit > 0 opts this open into a bulk-authorized convergence commit: load (running any
+    // pending forgiveness conversion), save, and commit the gallops under the budget as the
+    // invitatory. Over budget hard-fails — required size in the message, the store reverted, the
+    // freshly-claimed officium rolled back — so a blocked convergence leaves no staged store.
+    // size_limit == 0 keeps the default lockless empty-invitatory marker (open mutates nothing).
+    let mut converged = false;
+    if size_limit > 0 {
+        let gallops_path = gallops_pathbuf();
+        let lock = match vvc::vvcc_CommitLock::vvcc_acquire() {
+            Ok(l) => l,
+            Err(e) => {
+                let _ = std::fs::remove_dir_all(&exchange);
+                return Ok(CallToolResult::error(vec![Content::text(
+                    format!("{}: commit lock held: {} (break with `vvx vvx_unlock` in extremis)", cn, e),
+                )]));
+            }
+        };
+        let gallops = match crate::jjrg_gallops::jjrg_Gallops::jjrg_load(&gallops_path) {
+            Ok(g) => g,
+            Err(e) => {
+                let _ = std::fs::remove_dir_all(&exchange);
+                return Ok(CallToolResult::error(vec![Content::text(
+                    format!("{}: convergence load error: {}", cn, e),
+                )]));
+            }
+        };
+        if let Err(e) = crate::jjri_io::jjdr_save(&gallops, &gallops_path) {
+            let _ = std::fs::remove_dir_all(&exchange);
+            return Ok(CallToolResult::error(vec![Content::text(
+                format!("{}: convergence save error: {}", cn, e),
+            )]));
+        }
+        let path_str = gallops_path.to_string_lossy().to_string();
+        let dirty = vvc::vvce_git_command(&["status", "--porcelain", "--", path_str.as_str()])
+            .output()
+            .map(|o| !o.stdout.is_empty())
+            .unwrap_or(true);
+        if dirty {
+            let commit_args = vvc::vvcm_CommitArgs {
+                files: vec![path_str.clone()],
+                message: message.clone(),
+                size_limit,
+                warn_limit: vvc::VVCG_WARN_LIMIT,
+            };
+            let mut commit_out = vvc::vvco_Output::buffer();
+            if let Err(e) = vvc::machine_commit(&lock, &commit_args, &mut commit_out) {
+                zjjrm_revert_managed(&path_str);
+                let _ = std::fs::remove_dir_all(&exchange);
+                return Ok(CallToolResult::error(vec![Content::text(
+                    format!("{}: convergence over budget, reverted — {}", cn, e),
+                )]));
+            }
+            converged = true;
+        }
+        // lock drops here
+    }
 
-    let mut marker_output = vvc::vvco_Output::buffer();
-    if vvc::marker(&marker_args, &mut marker_output) != 0 {
-        return Ok(CallToolResult::error(vec![Content::text(
-            format!("{}: invitatory commit error: {}", cn, marker_output.vvco_finish()),
-        )]));
+    if !converged {
+        let marker_args = vvc::vvcc_MarkerArgs {
+            prefix: None,
+            message,
+        };
+
+        let mut marker_output = vvc::vvco_Output::buffer();
+        if vvc::marker(&marker_args, &mut marker_output) != 0 {
+            return Ok(CallToolResult::error(vec![Content::text(
+                format!("{}: invitatory commit error: {}", cn, marker_output.vvco_finish()),
+            )]));
+        }
     }
 
     if reaped > 0 || active > 0 {
@@ -876,9 +984,11 @@ impl jjrm_McpServer {
         }
         eprintln!("jjx {}: model={}", cmd, p.model);
 
-        // jjx_open creates the officium — handle before officium validation
+        // jjx_open creates the officium — handle before officium validation.
+        // size_limit (default 0) is the convergence budget; 0 means open mutates nothing.
         if cmd == JJRM_CMD_NAME_OPEN {
-            return zjjrm_handle_open().await;
+            let size_limit = p.params.get("size_limit").and_then(|x| x.as_u64()).unwrap_or(0);
+            return zjjrm_handle_open(size_limit).await;
         }
 
         // Officium envelope: required on all commands except jjx_open
