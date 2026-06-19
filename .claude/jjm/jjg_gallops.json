@@ -15187,11 +15187,12 @@
         "₢BcAAC",
         "₢BcAAF",
         "₢BcAAA",
+        "₢BcAAG",
         "₢BcAAB",
         "₢BcAAD",
         "₢BcAAE"
       ],
-      "jjghn_next_pace_seed": "AAG",
+      "jjghn_next_pace_seed": "AAH",
       "jjghn_paces": {
         "₢BcAAA": {
           "jjgpn_tacks": [
@@ -15419,6 +15420,36 @@
               ],
               "jjgtn_silks": "drop-gallops-schema-version",
               "jjgtn_basis": "f8efe10"
+            }
+          ]
+        },
+        "₢BcAAG": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260619-1158",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "Schema change — remove the tack `direction` field.",
+                "Mechanical; the one judgment is whether it needs a forgiveness episode at all.",
+                "",
+                "## Why (slate-time inspection)",
+                "`direction` — the bridled-state \"warrant\" — has no live producer: every production `jjrg_tally` caller (relabel, drop, wrap) passes `direction: None`, and no MCP-exposed verb sets state=bridled (the `jjx_arm` that orient/saddle recommends is unimplemented, not in the dispatch's command set).",
+                "It survives only in the type, validate Rule 9, the tally bridled-branch, and display readers (parade/scout/saddle/trophy), exercised only by unit tests — the spine of an unbuilt bridle/warrant surface.",
+                "",
+                "## On-disk footprint — decide first",
+                "The field is `Option<String>` + `skip_serializing_if = Option::is_none`, so a never-set field leaves nothing on disk: removal likely round-trips clean with no episode.",
+                "Confirm whether `jjgtn_direction` appears in any on-disk gallops: none → no episode (serde already omits it); a stray key → serde ignores it on parse but the round-trip gate then mismatches, so register a structural episode sniffing `jjgtn_direction` per JJS0 jjdz_forgiveness.",
+                "",
+                "## Weigh at mount",
+                "Removing the field makes validate Rule 9 and the tally bridled-branch vacuous — decide whether the bridled *state*, the warrant display, and the dangling `jjx_arm` recommendation also retire or stay as harmless vestige (out of scope unless trivially entailed).",
+                "Discovery: `grep -n direction *.rs`.",
+                "",
+                "## Done when",
+                "The `direction` field is gone from the tack type and all readers; the bridled-direction logic it fed is resolved; build tt/vow-b and test tt/vow-t green; and — only if an on-disk key was found — an episode detects and converts it idempotently."
+              ],
+              "jjgtn_silks": "remove-tack-direction-field",
+              "jjgtn_basis": "2c2c59f"
             }
           ]
         }
