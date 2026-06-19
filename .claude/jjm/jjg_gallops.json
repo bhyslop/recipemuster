@@ -8732,11 +8732,12 @@
       "jjghn_creation_time": "260616",
       "jjghn_status": "jjghe_stabled",
       "jjghn_order": [
+        "₢BfAAD",
         "₢BfAAC",
         "₢BfAAA",
         "₢BfAAB"
       ],
-      "jjghn_next_pace_seed": "AAD",
+      "jjghn_next_pace_seed": "AAE",
       "jjghn_paces": {
         "₢BfAAA": {
           "jjgpn_tacks": [
@@ -8782,6 +8783,17 @@
               "jjgtn_text": "Two design forks the federation configuration model leaves open need collaborative resolution before the spec-first build unit can proceed; neither is doc-resolvable, so this pace holds them at the front of the heat as a reminder that they want a design conversation, not a lookup.\n\nFork one — the single-test-manor collision: can a synthetic test manor host both the preserved human-click proof and the headless caged suites on one active federation, or does the caged trust's own-pool requirement force the multiplicity axis (or per-run switching of the singleton regime)?\nThis is our test-rig topology, not a fact lookup — it turns on how the freehold and the device-flow proof are installed.\n\nFork two — the programmatic JWKS-source shape: is the JWKS source a programmatic-only uploaded field (fits the caged case alone), or a core field with two sub-modes (uploaded self-held versus issuer-discovered) so a real non-interactive IdP also fits?\nThis decides whether the mechanism gate is a clean two-value, and whether a Keycloak-style real-but-programmatic IdP is in scope for this heat.\n\n## Character\nDesign conversation requiring operator judgment, and Fable where it touches the premise; the blocker the spec-first work waits on.\n\n## Done when\nBoth forks are settled with rationale recorded in the config-model memo: the test-manor topology is chosen (single federation, or multiplicity, or per-run switch), and the JWKS-source shape is fixed (one field or two sub-modes, with the real-programmatic IdP scoped in or out).\nThe rework each implies for the spec-first build unit is named, not left implicit.\n\n## Cinched\nThe configuration model itself — vendor-agnostic core plus mechanism gate, mechanism-not-vendor, OIDC-only — is settled and not reopened here; these forks live within it.",
               "jjgtn_silks": "settle-federation-config-design-forks",
               "jjgtn_basis": "b8545e3"
+            }
+          ]
+        },
+        "₢BfAAD": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260619-1126",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Explore: replace the /dev/tty compearance channel with a yawp\n\nCompearance (rba_compear, the accessor's federation Leg-1, Tools/rbk/rba_auth.sh) writes the device-flow prompt (verification URL + user code) to /dev/tty and gates its headless fail-fast on a `: >/dev/tty` presence proxy.\nThat proxy blocks compearance from every non-tty channel (Claude Code's `!`, an agent relay, CI) — yet the device flow reads NOTHING from the terminal: it writes the prompt, then polls the IdP over the network; approval is out-of-band in a browser.\n\nThe tty is NOT needed for visibility — buc_step/buc_info already reach the screen (the tabtarget tees output to both screen and ../logs-buk/).\nIts two real purposes: keeping the single-use code off the persistent log (the tee writes buc output to disk; /dev/tty reaches the screen only), and serving as a presence proxy for the fail-fast.\n\nExplore emitting the prompt as a yawp (BUYM diastema wire format) so a relay can surface it and open an assize without a controlling terminal — preserving the spike's human-present guarantee (canon D2/D3) through the new channel rather than the tty proxy.\n\n## Done when\nCompearance can open an assize from a non-tty context by surfacing its prompt as a yawp a relay completes, the human-present guarantee preserved through the new channel — or a recorded decision to keep the tty with documented rationale.\n\n## Character\nDesign exploration at the shared accessor membrane (rba_compear, used by every cloud tabtarget) and the BUYM yawp wire format.",
+              "jjgtn_silks": "compear-tty-to-yawp",
+              "jjgtn_basis": "ca67bc6"
             }
           ]
         }
