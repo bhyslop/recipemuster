@@ -5925,6 +5925,7 @@
       "jjghn_creation_time": "260507",
       "jjghn_status": "jjghe_racing",
       "jjghn_order": [
+        "₢BDAAa",
         "₢BDAAA",
         "₢BDAAB",
         "₢BDAAC",
@@ -5950,7 +5951,7 @@
         "₢BDAAW",
         "₢BDAAZ"
       ],
-      "jjghn_next_pace_seed": "AAa",
+      "jjghn_next_pace_seed": "AAb",
       "jjghn_paces": {
         "₢BDAAA": {
           "jjgpn_tacks": [
@@ -6598,6 +6599,17 @@
               "jjgtn_text": "Design a wrap-time friction-audit channel.\nAt close, the agent records a short structured grep-extractable line into the wrap commit message,\nreporting friction it hit during the chat,\nbuilding a git-resident corpus that can later inform JJK affordance tuning.\n\n## Character\nCollaborative design conversation requiring judgment — not mechanical.\nThe concept is partial: mounting this pace resumes the design, it does not execute a settled spec.\nLikely punted from fast-tweaks once worked; mount is the moment to reconsider that call.\n\n## Cinched\nRefine these, do not re-litigate.\n- Collect friction, not praise — negatively framed; rides the existing spook concept.\n- Report vs. counterfactual attribution is the reliability boundary: a first-person report of in-chat events\n  (re-reads, a docket pointing at a renamed file, a confusing paddock) is actionable;\n  a claim that an affordance *helped* is a counterfactual the agent cannot run — that is an ablation\n  question, outside self-report.\n- Mechanism candidate: one structured line in the wrap commit message — git as the ledger, no side file\n  that calcifies, self-validating against the commit's own diff and transcript later.\n- \"Nothing snagged\" is a first-class sentinel answer — required-to-answer, never required-to-find-something.\n\n## Open threads\n- Line format and sentinel token — settle early, since extractability is the whole point.\n- Selection bias: wrap only fires on chats that reach wrap, so the corpus is happy-path-weighted;\n  decide whether that is acceptable or wants a second capture point.\n- The motivating example — whether the mount commit-lookup bitmap is signal or noise — is itself an\n  ablation sub-thread, possibly its own itch rather than part of this pace.\n\n## Done when\nThe concept is fully worked — mechanism, line format, scope — and either lands in a spec home\nor is filed as an itch, with an explicit build-now-or-defer decision recorded.",
               "jjgtn_silks": "wrap-friction-audit",
               "jjgtn_basis": "a785eb2"
+            }
+          ]
+        },
+        "₢BDAAa": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260619-0800",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nMechanical — rebind one match arm and delete dead plumbing.\nLow risk; the win is removal, not addition.\n\n## Problem\njjx_close (jjrwp_wrap.rs) prints a commit hash that is never its own `:W:` chalk commit — the commit recording the pace-to-complete transition, and (when the store is mid-migration) the schema convergence.\nmachine_commit already returns that hash, but the wrap discards it with `Ok(_)` and instead prints one captured earlier from a separate `git rev-parse HEAD`: the no-staged-changes path prints the pre-wrap HEAD (an unrelated officium invitatory commit), the staged path prints the work commit.\nSymptom: verifying a wrap by its printed hash lands on the wrong commit and reads as uncommitted — a real verification detour.\n\n## Done when\njjx_close prints the hash of its own `:W:` chalk commit, taken from machine_commit's return value;\nboth `git rev-parse HEAD` blocks (whose only consumer was the stale print) are removed;\nbuild tt/vow-b and test tt/vow-t green.\n\n## Cinched\nThe reported hash is uniformly the `:W:` commit across both paths — not the work commit, not pre-wrap HEAD;\nany staged work commit remains reachable as its parent.\n\n## Discovery\ngrep `rev-parse`, `commit_hash`, `machine_commit` in `Tools/jjk/vov_veiled/src/jjrwp_wrap.rs`",
+              "jjgtn_silks": "wrap-echoes-stale-commit-hash",
+              "jjgtn_basis": "6e54c59"
             }
           ]
         }
