@@ -6892,6 +6892,7 @@
         "₢BZAAb",
         "₢BZAAL",
         "₢BZAAY",
+        "₢BZAAc",
         "₢BZAAV",
         "₢BZAAO",
         "₢BZAAP",
@@ -6900,7 +6901,7 @@
         "₢BZAAZ",
         "₢BZAAN"
       ],
-      "jjghn_next_pace_seed": "AAc",
+      "jjghn_next_pace_seed": "AAd",
       "jjghn_paces": {
         "₢BZAAA": {
           "jjgpn_tacks": [
@@ -7623,6 +7624,17 @@
               "jjgtn_text": "Realize the three muniment sub-operations against the provisioned terrier: engross (write), expunge (withdraw), and peruse (read), atomic per the GCS-precondition contract RBSTR settles.\nEach mutation is a single conditioned REST call — ifGenerationMatch=0 create, generation-conditional update — with the bucket adjudicating atomicity; peruse is the unconditioned list-and-fetch.\nThis pace acts on a terrier the provisioning pace's scaffold has already stood up; it provisions nothing itself.\nThe atomic contract is settled in RBSTR; the muniment shape is this pace's to settle. Grounding: the pace-design memo's terrier-settled-design section.\n\n## Done when\nengross / expunge / peruse work against a scaffold-provisioned terrier and are atomic per the RBSTR contract.\nAn atomicity fixture asserts the 412-on-conflict precondition (a duplicate create receives HTTP 412 and is treated as idempotent success), charging the terrier via the provisioning scaffold; it self-skips without service credentials.\nThe noun internals this pace owns are settled and recorded in the RBS0 Terrier noun quoin: the muniment JSON shape under a fresh terrier sprue, and object granularity (per-entry versus per-subject).\n\n## Cinched\nAtomicity is GCS object preconditions per RBSTR — no external lock, no cloud invocation.\nThe sub-ops only read and write muniments; they never provision (that is the predecessor pace) and never touch founding.\n\n## Character\nThe data layer over the provisioned resource: glue over a conditioned REST call, carrying no lock logic of its own.",
               "jjgtn_silks": "terrier-subops",
               "jjgtn_basis": "e2dcd36"
+            }
+          ]
+        },
+        "₢BZAAc": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260619-0745",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "Nucleate the foedus-freehold fixture: durable, quota-flat verification that the standing freehold trust stands and carries its known citizen roster — the counterpart to the ephemeral foedus-lifecycle round-trip.\n\nConsumes the freehold rbpc substrate (the preceding pace): the well-known citizens (RBTDGC_FREEHOLD_*) are the roster this fixture asserts.\n\nAutomatable scope (payor-credentialed, headless, self-skips credless):\n- Establish-if-absent: affiance against the standing pool, asserting the idempotent no-op on the live pool (affiance is now fail-fast on soft-delete) plus pool/provider config.\n- Seed: ensure the well-known citizens are breveted onto the freehold mantles, payor-credentialed through the token-agnostic cores (the admission-proof precedent — no compearance).\n- Roster: read the manor-wide muniment roll payor-credentialed (the terrier is payor-project data, as admission-proof does — NOT the governor-donned rehearse verb, which needs compearance) and assert the well-known (subject, mantle) pairs are present.\n- Service + complete suite member.\n\nOut of scope — a genuine hole, owned by ₣Bf: the runtime/sign-in proof (a citizen compearing, donning a mantle, making an attributed call) needs headless compearance, which is open in ₣Bf (the compearance-headless reconsideration and the caged test-manor topology forks). Live runtime attribution is the separate operator-paced attribution-verification pace.\n\n## Done when\nThe fixture verifies the standing freehold headless: affiance no-op + config, well-known citizens ensured-breveted (payor-credentialed), and the manor-wide roster asserted to carry them; it self-skips credless; the service and complete suites stay green.\n\n## Cinched\nReuses one durable standing pool (quota-flat) — distinct from foedus-lifecycle's throwaway churn.\nThe roster read is payor-credentialed, not the rehearse verb (compearance-free).\nRuntime/compearance verification is out of scope — it is the ₣Bf hole and the operator-paced attribution pace.\n\n## Character\nRust fixture authoring on settled design; consumes and sequences after the substrate pace. Sources: the config-model and pace-design memos.",
+              "jjgtn_silks": "foedus-freehold",
+              "jjgtn_basis": "94407ef"
             }
           ]
         }
