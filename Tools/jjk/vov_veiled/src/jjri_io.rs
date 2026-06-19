@@ -70,10 +70,6 @@ pub fn jjri_paddock_path(firemark: &str) -> String {
     format!(".claude/jjm/jjp_{}.md", encoded)
 }
 
-/// Current Gallops schema version. The loader migrates any on-disk Gallops whose
-/// `schema_version` differs from this toward it; detection lives in jjdz_probe.
-pub const JJDZ_CURRENT_SCHEMA: u32 = 4;
-
 /// Forgiveness mechanism rivet — opaque cited token (MCM `mcm_rivet`); the proposition and
 /// rationale live in JJS0 `jjdz_forgiveness`.
 ///
@@ -121,15 +117,23 @@ struct zjjdz_Episode {
 ///
 /// True when any pre-V4 residue is present:
 ///   - heat_order absent (added in V4; BTreeMap sort order differs from original furlough order)
-///   - schema_version below current (absent in V3)
 ///   - stale next_pensum_seed field (removed in v3.7; serde drops it on the next save)
 fn zjjdz_episode_v3_to_v4_live(gallops: &jjrg_Gallops, original_bytes: &[u8]) -> bool {
     const PENSUM_SEED_KEY: &[u8] = b"\"next_pensum_seed\"";
     let stale_pensum_seed = !gallops.heats.is_empty()
         && original_bytes.windows(PENSUM_SEED_KEY.len()).any(|w| w == PENSUM_SEED_KEY);
-    gallops.heat_order.is_empty()
-        || gallops.schema_version.map_or(true, |v| v < JJDZ_CURRENT_SCHEMA)
-        || stale_pensum_seed
+    gallops.heat_order.is_empty() || stale_pensum_seed
+}
+
+/// schema_version-drop episode live-test — rivet JJr_a7c.
+///
+/// True when the on-disk bytes still carry the now-removed `jjgrn_schema_version` key. No
+/// write-forward body is needed: the field is gone from the type, so the next save omits the
+/// key on its own; the episode exists only to flag the file as a known old shape, standing the
+/// round-trip gate down so that first save can land (JJS0 `jjdz_forgiveness`).
+fn zjjdz_episode_schema_version_drop_live(_gallops: &jjrg_Gallops, original_bytes: &[u8]) -> bool {
+    const SCHEMA_VERSION_KEY: &[u8] = b"\"jjgrn_schema_version\"";
+    original_bytes.windows(SCHEMA_VERSION_KEY.len()).any(|w| w == SCHEMA_VERSION_KEY)
 }
 
 /// The forgiveness registry — every tolerated old on-disk schema, one entry per episode.
@@ -137,6 +141,7 @@ fn zjjdz_episode_v3_to_v4_live(gallops: &jjrg_Gallops, original_bytes: &[u8]) ->
 /// dormant on every operated clone (the per-episode lifecycle in JJS0 `jjdz_forgiveness`).
 const ZJJDZ_REGISTRY: &[zjjdz_Episode] = &[
     zjjdz_Episode { label: "V3→V4", is_live: zjjdz_episode_v3_to_v4_live },
+    zjjdz_Episode { label: "schema_version drop", is_live: zjjdz_episode_schema_version_drop_live },
 ];
 
 /// Read-only forgiveness probe — the single source of "what counts as old-format".
@@ -187,14 +192,13 @@ pub fn jjdr_load(path: &Path) -> Result<jjdr_ValidatedGallops, String> {
         }
     }
 
-    // V3→V4 forgiveness write-forward — rivet JJr_a7c. Populate fields missing in the
-    // old shape so the next jjdr_save lands canonical; serde already drops stale next_pensum_seed.
-    // BTreeMap guarantees sorted key order for heat_order.
+    // Forgiveness write-forward — rivet JJr_a7c. Populate fields missing in the old shape so the
+    // next jjdr_save lands canonical; serde already drops the now-removed schema_version key and
+    // any stale next_pensum_seed on its own. BTreeMap guarantees sorted key order for heat_order.
     if is_migration_mode {
         if gallops.heat_order.is_empty() {
             gallops.heat_order = gallops.heats.keys().cloned().collect();
         }
-        gallops.schema_version = Some(JJDZ_CURRENT_SCHEMA);
     }
 
     // Semantic validation

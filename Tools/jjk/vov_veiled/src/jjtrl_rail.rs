@@ -8,7 +8,6 @@ use std::collections::BTreeMap;
 
 fn make_gallops() -> jjrg_Gallops {
     jjrg_Gallops {
-        schema_version: Some(4),
         next_heat_seed: "AB".to_string(),
         heat_order: vec![],
         heats: BTreeMap::new(),

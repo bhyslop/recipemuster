@@ -51,7 +51,6 @@ fn create_test_gallops() -> Gallops {
     );
 
     Gallops {
-        schema_version: Some(4),
         next_heat_seed: "AC".to_string(),
         heat_order: vec![],
         heats,
@@ -231,7 +230,6 @@ fn create_test_gallops_with_mixed_states() -> Gallops {
     );
 
     Gallops {
-        schema_version: Some(4),
         next_heat_seed: "AD".to_string(),
         heat_order: vec![],
         heats,

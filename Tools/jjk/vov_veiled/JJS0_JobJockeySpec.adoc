@@ -71,7 +71,6 @@
 :jjdgm_heats:       <<jjdgm_heats,heats>>
 :jjdgm_order:       <<jjdgm_order,heat_order>>
 :jjdgm_seed:        <<jjdgm_seed,next_heat_seed>>
-:jjdgm_version:     <<jjdgm_version,schema_version>>
 :jjdgr_gallops:     <<jjdgr_gallops,Gallops>>
 :jjdgr_gallops_p:   <<jjdgr_gallops,Gallops'>>
 
@@ -1308,16 +1307,6 @@ is the authoritative source for display and selection order, not
 {jjdgm_heats}
 key order.
 
-* [[jjdgm_version]]
-//axl_voices axr_member axd_optional axt_number axd_property
-{jjdgm_version}
-is the schema version number.
-Absent in V3 files; present in V4+ as an unsigned integer.
-Serialized as `jjgrn_schema_version` in JSON.
-A value differing from the current schema (absent included) is one signal the {jjdz_forgiveness} probe reads to detect an old on-disk shape.
-+
-NOTE: Schema changes recur across JJK's life; each registers an episode against {jjdz_forgiveness}, which tolerates the old shape under a demolition condition and converges it forward, holding the count of mutually-readable schemas to a floor rather than accumulating.
-
 * [[jjdgm_heats]]
 //axl_voices axr_member axd_required axt_map axd_property
 {jjdgm_heats}
@@ -1788,11 +1777,13 @@ This is checkable rather than an act of faith because of {jjdk_sole_operator}: t
 When an episode is dormant on every clone, its registry entry — and the now-dead write-forward and old-shape tolerance it guards (a custom deserialize, a frozen reference type, or both) — are removed together; the mechanism stands.
 +
 *Registering a new episode* is the standard procedure a future schema change follows.
-Raise {jjdgm_version} to the new current.
+Every schema change must be self-detectable from the on-disk artifact itself; there is no global version oracle to consult.
+A shape-changing edit — an added, removed, or retyped field — is recognizable from the shape; a shape-preserving but non-idempotent edit must carry its own marker so the old form stays recognizable.
+An idempotent normalization needs no episode at all — normalize at the point of use instead.
 Ensure the new types tolerate the old on-disk shape at the deserialize boundary, so the parse succeeds and the probe and write-forward run rather than the parse rejecting the old file first.
 An additive or removed field needs only serde's defaults and ignored-unknown handling; a retyped field needs an explicit tolerance — a custom deserialize accepting either shape, or a frozen reference type converted in a second step.
-Add a registry entry whose live-test detects the prior on-disk shape, and the write-forward that canonicalizes it on load.
-Cite the existing rivet token; never mint a per-episode rivet — per-episode specifics (old shape, schema number, demolition condition) are registry data, not new cited constraints.
+Add a registry entry whose live-test detects the prior on-disk shape from the parsed value or its raw bytes, and the write-forward that canonicalizes it on load — which may be empty when serde's own omission already drops the old residue.
+Cite the existing rivet token; never mint a per-episode rivet — per-episode specifics (old shape, demolition condition) are registry data, not new cited constraints.
 +
 *The {jjdo_open} probe contract.*
 The peek is read-only, best-effort, and never gating: it reads the {jjdgr_gallops} without the commit lock and emits nothing on any read or parse failure, so {jjdo_open} always succeeds.
@@ -3009,7 +3000,6 @@ Current behavior:
 
 . Deserialize JSON as current types
 . Detect migration mode via the {jjdz_forgiveness} probe (the V3→V4 episode reports live)
-. Set `schema_version` to the current schema
 . Populate `heat_order` from sorted BTreeMap keys
 . Next {jjdr_save} writes V4 format
 

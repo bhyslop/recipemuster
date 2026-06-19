@@ -59,7 +59,6 @@ fn jjtsc_make_gallops(heats: Vec<(&str, jjrg_Heat)>) -> jjrg_Gallops {
         heat_map.insert(key.to_string(), heat);
     }
     jjrg_Gallops {
-        schema_version: Some(4),
         next_heat_seed: "ZZ".to_string(),
         heat_order,
         heats: heat_map,

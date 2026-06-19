@@ -29,6 +29,8 @@ pub const JJRG_STATE_ABANDONED: &str = "abandoned";
 pub enum jjrg_PaceState {
     #[serde(rename = "jjgte_rough")]
     Rough,
+    // Forgiveness JJr_a7c — `primed` is the legacy on-disk alias; its old-shape
+    // tolerance rides the V3→V4 episode (governed in JJS0 jjdpe_bridled).
     #[serde(rename = "jjgte_bridled", alias = "primed")]
     Bridled,
     #[serde(rename = "jjgte_complete")]
@@ -112,8 +114,6 @@ pub struct jjrg_Heat {
 /// Root Gallops structure
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct jjrg_Gallops {
-    #[serde(default, rename = "jjgrn_schema_version")]
-    pub schema_version: Option<u32>,
     #[serde(rename = "jjgrn_next_heat_seed")]
     pub next_heat_seed: String,
     #[serde(default, skip_serializing_if = "Vec::is_empty", rename = "jjgrn_heat_order")]
