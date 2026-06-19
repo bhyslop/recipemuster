@@ -15197,8 +15197,8 @@
         "₢BcAAA": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260619-0823",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260619-1201",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "## Character",
                 "Implementation — wire-format-breaking tack-text change plus a one-time live-gallops conversion, riding the forgiveness mechanism.",
@@ -15246,7 +15246,7 @@
                 "Tack text serializes one element per physical line; each pace holds a single edited tack with no in-JSON history; redocket overwrites; the episode detects the old string shape structurally and converts the live gallops on next load, idempotent thereafter; round-trip passes; build tt/vow-b, test tt/vow-t."
               ],
               "jjgtn_silks": "tack-data-model-rework",
-              "jjgtn_basis": "8c57639"
+              "jjgtn_basis": "ee20842"
             }
           ]
         },
