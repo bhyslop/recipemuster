@@ -2718,6 +2718,103 @@ rbgp_freehold_proof() {
   buc_success "Freehold standing admission proven on ${z_depot}: the freehold subject holds governor+director+retriever, and the manor-wide roster carries all three"
 }
 
+# rbgp_attribution_trail — print the depot's Artifact Registry Data-Access
+# attribution trail: the recent audit entries that name WHO acted. Payor-
+# credentialed because Cloud Logging Data-Access entries are private-read
+# (roles/logging.privateLogViewer) — the mantles deliberately cannot read them.
+# Per entry it surfaces the acting principalEmail (the mantle SA) and the
+# serviceAccountDelegationInfo[].principalSubject (the human federate, by
+# immutable IdP claim — spike V3). Both hops are shown so the spike's quirk is
+# visible on screen: the iamcredentials mint hop names the SA with NO subject
+# (always-on, correct — never a failure); the artifactregistry use hop carries
+# the subject. MVP dumps the most recent entries; time-window and principal
+# filters are deferred (docket: someday parameterize).
+rbgp_attribution_trail() {
+  zrbgp_sentinel
+
+  buc_doc_brief "Print the depot's AR Data-Access attribution trail — recent audit entries naming the acting mantle SA and the human federate subject"
+  buc_doc_shown || return 0
+
+  buc_step 'Authenticate as Payor'
+  local z_token
+  z_token=$(zrbgp_authenticate_capture) || buc_die "Failed to authenticate as Payor via OAuth"
+
+  local -r z_depot="${RBDC_DEPOT_PROJECT_ID}"
+  test -n "${z_depot}" || buc_die "RBDC_DEPOT_PROJECT_ID is empty — set RBRD_CLOUD_PREFIX and RBRD_DEPOT_MONIKER in rbrd.env"
+
+  buc_step "Read the Data-Access audit trail on ${z_depot}"
+  local -r z_log_name="projects/${z_depot}/logs/${RBGC_AUDIT_LOG_DATA_ACCESS}"
+  local -r z_body_file="${BURD_TEMP_DIR}/rbgp_attribution_body.json"
+  jq -n                                        \
+     --arg proj   "projects/${z_depot}"        \
+     --arg filter "logName=\"${z_log_name}\""  \
+     '{resourceNames: [$proj], filter: $filter, orderBy: "timestamp desc", pageSize: 25}' \
+     > "${z_body_file}" || buc_die "Failed to build entries:list request body"
+
+  local -r z_url="${RBGC_API_ROOT_LOGGING}${RBGC_LOGGING_V2}${RBGC_LOGGING_ENTRIES_LIST_SUFFIX}"
+  rbuh_json "POST" "${z_url}" "${z_token}" "attribution_list" "${z_body_file}"
+
+  local z_code
+  z_code=$(rbuh_code_capture "attribution_list") || buc_die "Failed to read entries:list HTTP code"
+  case "${z_code}" in
+    200) : ;;
+    403)
+      buc_die "Attribution read denied (HTTP 403): the Payor lacks roles/logging.privateLogViewer on ${z_depot}. Data-Access audit entries are private — grant the Payor that role on the depot, then re-run."
+      ;;
+    *)
+      local z_err
+      z_err=$(rbge_error_message_capture "attribution_list") || z_err="(no error message)"
+      buc_die "Attribution read failed (HTTP ${z_code}): ${z_err}"
+      ;;
+  esac
+
+  local z_count
+  z_count=$(rbuh_json_field_capture "attribution_list" '(.entries // []) | length') \
+    || buc_die "Failed to count attribution entries"
+
+  test "${z_count}" -gt 0 || {
+    buc_warn "No Data-Access audit entries on ${z_depot} yet. Has a mantle made an Artifact Registry call? Run 'rbw-acm retriever' (compear + don + AR call) first, allow a few seconds for log ingestion, then re-run."
+    return 0
+  }
+
+  buc_step "Attribution trail — ${z_count} most-recent Data-Access entries (use hop carries the federate subject; mint hop carries none, by design)"
+
+  # Render to a temp file (BCG: external command output via temp file, never
+  # captured through $()), then emit each line through buc. Columns: timestamp,
+  # service, method, acting principalEmail (the mantle SA), and the delegation
+  # principalSubject. The rightmost column has three honest cases: the human
+  # federate on a federated use hop (delegation present); "(mint hop …)" on the
+  # always-on iamcredentials GenerateAccessToken, which names only the SA by
+  # design; and "(direct SA …)" on a use hop made by a non-impersonated SA (e.g.
+  # a keyfile credential), which carries no delegation and so no human — the very
+  # gap federation closes. Only the first is the attribution this pace proves.
+  local -r z_resp_file="${ZRBUH_PREFIX}attribution_list${ZRBUH_POSTFIX_JSON}"
+  local -r z_render_file="${BURD_TEMP_DIR}/rbgp_attribution_render.txt"
+  jq -r '
+    .entries[]?
+    | (.protoPayload.serviceName // "-") as $svc
+    | ( (.protoPayload.authenticationInfo.serviceAccountDelegationInfo // [])
+          | map(.principalSubject // empty) | join(",") ) as $subj
+    | [ (.timestamp // "-"),
+        $svc,
+        ((.protoPayload.methodName // "-") | sub(".*\\."; "")),
+        (.protoPayload.authenticationInfo.principalEmail // "-"),
+        ( if   $subj != ""                            then $subj
+          elif $svc == "iamcredentials.googleapis.com" then "(mint hop — names the SA, no subject by design)"
+          else                                              "(direct SA — no delegation, no human)" end )
+      ]
+    | @tsv
+  ' "${z_resp_file}" > "${z_render_file}" \
+    || buc_die "Failed to render attribution entries"
+
+  local z_line=""
+  while IFS= read -r z_line || test -n "${z_line}"; do
+    buc_info "${z_line}"
+  done < "${z_render_file}"
+
+  buc_success "Attribution trail rendered for ${z_depot}: find the freehold subject (${RBPC_freehold_subject:-<rbpc not sourced>}) in the rightmost column on artifactregistry rows — that is the human, by immutable IdP claim"
+}
+
 rbgp_payor_oauth_refresh() {
   zrbgp_sentinel
 

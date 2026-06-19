@@ -31,6 +31,7 @@ pub const RBTDGC_UNMAKE_DEPOT: &str = "rbw-dU";
 pub const RBTDGC_LIST_DEPOT: &str = "rbw-dl";
 pub const RBTDGC_INFO_DEPOT: &str = "rbw-di";
 pub const RBTDGC_RECOGNOSCE_DEPOT: &str = "rbw-dr";
+pub const RBTDGC_ATTRIBUTION_DEPOT: &str = "rbw-da";
 pub const RBTDGC_TERRIER_SCAFFOLD: &str = "rbw-dt";
 pub const RBTDGC_TERRIER_PROOF: &str = "rbw-dT";
 pub const RBTDGC_AFFIANCE_MANOR: &str = "rbw-mA";

@@ -121,10 +121,12 @@ rbgv_check_compearance() {
 rbgv_check_mantle() {
   zrbgv_sentinel
 
-  local -r z_mantle="${1:-}"
+  # The mantle operand arrives via the BUZ_FOLIO env channel (param1 colophon —
+  # buz_exec_lookup shifts the folio off the positional args and exports it), NOT
+  # as a positional. Documented in zrbgv_furnish's buc_doc_env block.
+  local -r z_mantle="${BUZ_FOLIO:-}"
 
   buc_doc_brief "Don a mantle as the freehold subject — compear, then don the named mantle (or surface the admission deficit)"
-  buc_doc_param "mantle" "Mantle to don: governor | director | retriever"
   buc_doc_shown || return 0
 
   case "${z_mantle}" in
@@ -169,7 +171,28 @@ rbgv_check_mantle() {
     || buc_die "Don of the ${z_mantle} mantle failed — see the transcript (admission deficit or lapsed assize)"
   test -n "${z_mantle_token}" || buc_die "Don of the ${z_mantle} mantle returned an empty token"
 
-  buc_success "Donned the ${z_mantle} mantle — mantle token minted (${#z_mantle_token} chars)"
+  # Exercise the minted token against Artifact Registry (repositories.list). This
+  # proves the donned token actually REACHES AR — not merely that it minted — and
+  # writes the spike-V3 use-hop Data-Access audit entry that attributes the act to
+  # the human (serviceAccountDelegationInfo[].principalSubject). Read that trail
+  # back with rbw-da to see the freehold subject named at the using service.
+  buc_step "Exercise the ${z_mantle} mantle token against Artifact Registry (repositories.list)"
+  local z_ar_code
+  z_ar_code=$(zrbgv_mantle_ar_call_capture "${z_mantle_token}") \
+    || buc_die "Mantle AR call failed for the ${z_mantle} mantle"
+  case "${z_ar_code}" in
+    200|206)
+      buc_info "Artifact Registry reachable under the ${z_mantle} mantle (HTTP ${z_ar_code})"
+      ;;
+    403)
+      buc_die "The ${z_mantle} mantle donned but Artifact Registry denied access (HTTP 403) — the mantle SA lacks artifactregistry.reader, or its capability-set was not granted at levy"
+      ;;
+    *)
+      buc_die "Mantle AR call: unexpected HTTP ${z_ar_code} for the ${z_mantle} mantle"
+      ;;
+  esac
+
+  buc_success "Donned the ${z_mantle} mantle, minted a token (${#z_mantle_token} chars), and reached Artifact Registry — the attributed use-hop audit entry is written; read it with rbw-da"
 }
 
 ######################################################################
@@ -180,6 +203,7 @@ zrbgv_furnish() {
 
   buc_doc_env "BURD_BUK_DIR          " "BUK module directory (dispatch-provided)"
   buc_doc_env "BURD_TEMP_DIR         " "Bash Dispatch Utility provided temporary directory, empty at start of command"
+  buc_doc_env "BUZ_FOLIO             " "Mantle to don (rbgv_check_mantle only): governor | director | retriever"
   buc_doc_env_done || return 0
 
   local z_rbk="${BASH_SOURCE[0]%/*}"

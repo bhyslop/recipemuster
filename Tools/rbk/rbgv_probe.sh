@@ -189,6 +189,40 @@ zrbgv_jwt_ar_probe_once_capture() {
   printf '%s\n' "${z_code}"
 }
 
+# Execute one Artifact Registry repositories.list call under an already-minted
+# mantle token (the donned Leg-3 token, not a JWT-SA token). This is the
+# spike-V3-proven attributable call (ADMIN_READ): it both confirms the donned
+# token reaches AR and writes the use-hop Data-Access audit entry that carries
+# the federate's principalSubject — the entry rbgp_attribution_trail reads back.
+# Pure observation: reuses the kindle-constant ZRBGV_AR_* forensic files and
+# prints the resulting HTTP code; the verdict lives in the caller.
+zrbgv_mantle_ar_call_capture() {
+  zrbgv_sentinel
+
+  local -r z_token="${1}"
+  test -n "${z_token}" || buc_die "zrbgv_mantle_ar_call_capture: mantle token required"
+
+  test -n "${RBDC_DEPOT_PROJECT_ID:-}" || buc_die "RBDC_DEPOT_PROJECT_ID is not set"
+  test -n "${RBRD_GCP_REGION:-}"       || buc_die "RBRD_GCP_REGION is not set"
+
+  local -r z_url="${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}/projects/${RBDC_DEPOT_PROJECT_ID}/locations/${RBRD_GCP_REGION}${RBGC_PATH_REPOSITORIES}"
+
+  buc_log_args "Mantle AR repositories.list against ${RBDC_DEPOT_PROJECT_ID}/${RBRD_GCP_REGION}"
+  zrbgv_http_get_with_5xx_retry        \
+    "Mantle AR repositories.list"      \
+    "${z_url}"                         \
+    "${z_token}"                       \
+    "${ZRBGV_AR_RESP_FILE}"            \
+    "${ZRBGV_AR_CODE_FILE}"            \
+    "${ZRBGV_AR_STDERR_FILE}"
+
+  local z_code
+  z_code=$(<"${ZRBGV_AR_CODE_FILE}") || buc_die "Failed to read mantle AR HTTP code file"
+  test -n "${z_code}"                || buc_die "Empty HTTP code from mantle AR curl"
+
+  printf '%s\n' "${z_code}"
+}
+
 # Execute one CRM projects.get probe iteration for the Payor OAuth flow.
 # Writes response to ZRBGV_CRM_RESP_FILE, HTTP code to ZRBGV_CRM_CODE_FILE,
 # and stderr to ZRBGV_CRM_STDERR_FILE (kindle-constant paths for forensic visibility).
