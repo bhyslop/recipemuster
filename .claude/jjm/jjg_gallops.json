@@ -5949,9 +5949,10 @@
         "₢BDAAT",
         "₢BDAAV",
         "₢BDAAW",
-        "₢BDAAZ"
+        "₢BDAAZ",
+        "₢BDAAb"
       ],
-      "jjghn_next_pace_seed": "AAb",
+      "jjghn_next_pace_seed": "AAc",
       "jjghn_paces": {
         "₢BDAAA": {
           "jjgpn_tacks": [
@@ -6610,6 +6611,17 @@
               "jjgtn_text": "## Character\nMechanical — rebind one match arm and delete dead plumbing.\nLow risk; the win is removal, not addition.\n\n## Problem\njjx_close (jjrwp_wrap.rs) prints a commit hash that is never its own `:W:` chalk commit — the commit recording the pace-to-complete transition, and (when the store is mid-migration) the schema convergence.\nmachine_commit already returns that hash, but the wrap discards it with `Ok(_)` and instead prints one captured earlier from a separate `git rev-parse HEAD`: the no-staged-changes path prints the pre-wrap HEAD (an unrelated officium invitatory commit), the staged path prints the work commit.\nSymptom: verifying a wrap by its printed hash lands on the wrong commit and reads as uncommitted — a real verification detour.\n\n## Done when\njjx_close prints the hash of its own `:W:` chalk commit, taken from machine_commit's return value;\nboth `git rev-parse HEAD` blocks (whose only consumer was the stale print) are removed;\nbuild tt/vow-b and test tt/vow-t green.\n\n## Cinched\nThe reported hash is uniformly the `:W:` commit across both paths — not the work commit, not pre-wrap HEAD;\nany staged work commit remains reachable as its parent.\n\n## Discovery\ngrep `rev-parse`, `commit_hash`, `machine_commit` in `Tools/jjk/vov_veiled/src/jjrwp_wrap.rs`",
               "jjgtn_silks": "wrap-echoes-stale-commit-hash",
               "jjgtn_basis": "6e54c59"
+            }
+          ]
+        },
+        "₢BDAAb": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260619-0818",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nWording polish — output strings plus a matching spec line. Low risk.\n\n## Why\nThe jjx_open forgiveness nag prints one terse line per episode ending in `pending` or `dormant`.\nDecoding those words needs the code or spec, so the nag risks reading as noise instead of as the standing reminder that an episode is a transient tolerance to remove once resolved everywhere.\n\n## Done when\nEach nag line states inline what its verdict means and the removal rule — pending: old shape still present here, tolerance load-bearing; dormant: store canonical here, episode removable once dormant on every clone — so a reader acts without opening code or spec.\nThe JJS0 jjdz_forgiveness nag contract describes this self-documenting line rather than the bare tokens.\nBuild tt/vow-b and test tt/vow-t green.\n\n## Cinched\nStays plain MCP-compliant stdout, no severity escalation: the pending/dormant pair already encodes the migration-vs-strict-comparison distinction, and this pace makes that legible in words rather than adding a new signal.\nKeep the opaque rivet token on each line as the grep/census surface.\n\n## Discovery\nzjjrm_forgiveness_nag (Tools/jjk/vov_veiled/src/jjrm_mcp.rs), jjdz_Status verdict (jjri_io.rs), nag contract in JJS0 jjdz_forgiveness.",
+              "jjgtn_silks": "forgiveness-nag-self-documenting",
+              "jjgtn_basis": "30a1645"
             }
           ]
         }
