@@ -987,7 +987,14 @@ impl jjrm_McpServer {
         // jjx_open creates the officium — handle before officium validation.
         // size_limit (default 0) is the convergence budget; 0 means open mutates nothing.
         if cmd == JJRM_CMD_NAME_OPEN {
-            let size_limit = p.params.get("size_limit").and_then(|x| x.as_u64()).unwrap_or(0);
+            // params may arrive stringified (the documented MCP quirk) — normalize before reading.
+            let pv = match &p.params {
+                serde_json::Value::String(s) => {
+                    serde_json::from_str::<serde_json::Value>(s).unwrap_or_else(|_| p.params.clone())
+                }
+                _ => p.params.clone(),
+            };
+            let size_limit = pv.get("size_limit").and_then(|x| x.as_u64()).unwrap_or(0);
             return zjjrm_handle_open(size_limit).await;
         }
 
