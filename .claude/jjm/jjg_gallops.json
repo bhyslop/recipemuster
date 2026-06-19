@@ -8102,9 +8102,10 @@
         "₢BcAAA",
         "₢BcAAB",
         "₢BcAAD",
-        "₢BcAAE"
+        "₢BcAAE",
+        "₢BcAAF"
       ],
-      "jjghn_next_pace_seed": "AAF",
+      "jjghn_next_pace_seed": "AAG",
       "jjghn_paces": {
         "₢BcAAA": {
           "jjgpn_tacks": [
@@ -8277,6 +8278,17 @@
               "jjgtn_text": "## Character\nCleanup — mechanical, with a verify-dead gate before each removal.\n\n## Done when\nThe four V3-legacy MCP-argument quoins — jjda_state, jjda_pace, jjda_created, jjda_direction — and their residual Rust arg-struct fields are removed,\neliminating the last hand-copied ₣An firemark references in JJS0.\nEach is confirmed unexposed as a jjx_tool parameter and unread before removal;\na field still wired to a live V3-compat path stays until that path is gone.\nBuild tt/vow-b, test tt/vow-t green.\n\n## Cinched\nThese are dead parameters, not schema tolerances — removable independent of the forgiveness episodes' demolition condition.\nThis pace does not touch the forgiveness mechanism, its episodes, or the V3→V4 frozen reference; the coda owns those.\nLands after the coda so any bridled/direction entanglement the coda resolves is already settled.\n\n## Sources\nDiscovery: grep '₣An' Tools/jjk/vov_veiled/JJS0_JobJockeySpec.adoc (the survivors after the forgiveness re-cite);\nthe jjda_* quoins in the JJS0 Arguments section; their arg-struct fields in jjrt_types.rs.",
               "jjgtn_silks": "retire-v3-legacy-arg-quoins",
               "jjgtn_basis": "bfdf91f"
+            }
+          ]
+        },
+        "₢BcAAF": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260619-0643",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": "## Character\nImplementation — remove a serialized field and reframe detection as structural, plus one spec cinch.\nMechanical deletions; the load-bearing part is the doctrine, not the edits.\nA schema-change window — it drops a gallops field and is itself a (self-describing) forgiveness episode.\n\n## Cinched\nRemove the schema_version field.\nIt is a redundant second source of truth — the on-disk shape already carries the version, and the V3→V4 live-test already detects structurally rather than trusting the number.\nDetection becomes per-episode structural: each live-test sniffs the actual old shape, not a version compare.\nThat fits concurrent episodes — independent, order-free — better than a single monotonic integer.\nCinch in JJS0 jjdz_forgiveness: every schema change must be self-detectable — shape-changing or self-marked; an idempotent normalization needs no episode (normalize at point of use); a non-idempotent shape-preserving change must carry its own marker, since there is no global version oracle.\nIts own removal is a self-describing episode: serde ignores the now-unknown key on old files.\n\n## Consumer reconciliation\nEvery reader/writer of the version. Discovery: grep schema_version and JJDZ_CURRENT_SCHEMA across the crate.\nThe V3→V4 live-test loses its version clause — confirm its remaining structural signals still distinguish V3.\n\n## Weigh at mount\nThe uncited primed alias (jjrt_types.rs) is a sibling untracked tolerance — decide whether to fold it here or leave it to its own pace.\nWhether this should precede or reshape the pace that rewrites tack text into a line array, whose docket assumes a schema bump this deletes.\n\n## Done when\nThe schema_version field is gone from the type, the validate gate, and all construction sites; the V3→V4 episode detects structurally without it; JJS0 cinches the self-detectable discipline; build tt/vow-b, test tt/vow-t green.",
+              "jjgtn_silks": "drop-gallops-schema-version",
+              "jjgtn_basis": "3a83faf"
             }
           ]
         }
