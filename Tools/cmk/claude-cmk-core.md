@@ -32,7 +32,7 @@ Concept Model Kit (CMK) is installed for managing concept model documents.
 | **Toothing** | `mcm_` | The verb-tier sibling of bondstone: the operator-facing acts performed *upon* the model-constituting names, and the operations those names visibly perform on one another so the system stays legible as it works. Draws the same heightened care as the bondstone it acts on. |
 | **Hearting** | `mcm_` | Interior names — uncatalogued, prefix discipline only. Deliberate plainness so ashlar care stays affordable. |
 
-**Two axes, not one.** The exposure ladder (hearting → quoin → ashlar) sorts names by *who must read them*. **Centrality** is a second, finer axis that cuts across it — *how much of the user's model a name carries*. A **bondstone** (noun) is a name the operator reasons *through*; a **toothing** (verb) is an act performed on those names. Both demand care beyond ordinary ashlar: a model is held by its bondstones, so a name that fails there fails the whole model, not a single reading. Full definitions: MCM `== Lapidary` → `=== Exposure`.
+**Centrality cuts across exposure.** Bondstone and toothing are not higher rungs on the hearting → quoin → ashlar ladder — they are a second, finer axis: *how much of the user's model a name carries*. Full framing: MCM `== Lapidary` → `=== Exposure`.
 
 ### AXLA Vocabulary
 
