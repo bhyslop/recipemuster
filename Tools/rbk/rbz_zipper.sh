@@ -103,6 +103,10 @@ zrbz_kindle() {
   # Transitional — interim admission-composition proof (payor-credentialed); the
   # live-don payoff proof lands at M7. Not README-broadside-registered.
   buz_enroll RBZ_PROOF_POLITY           "rbw-pP"  "${z_mod}" "rbgp_admission_proof" ""  "Prove federation admission composition end-to-end against a levied depot + scaffolded terrier (interim)"
+  # Transitional — interim freehold standing-admission proof (payor-credentialed):
+  # ensures the freehold subject holds every mantle, then asserts the manor-wide
+  # roster carries it. Retires with rbw-pP. Not README-broadside-registered.
+  buz_enroll RBZ_PROOF_FREEHOLD         "rbw-pF"  "${z_mod}" "rbgp_freehold_proof"  ""  "Prove the freehold's standing admission — ensure the freehold subject holds every mantle, then assert the manor-wide roster carries it (interim)"
 
   # Lode — fetched-side universal capture (rbw-l, UPPER=mutates GAR/cost, lower=read-only)
   buz_group RBZ__GROUP_LODE       "rbw-l"   "Lode — Fetched-side universal capture"

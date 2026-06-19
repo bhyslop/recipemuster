@@ -2671,6 +2671,53 @@ rbgp_admission_proof() {
   buc_success "Federation admission composition proven on ${z_depot}: brevet writes muniment+bindings (idempotent), unseat suspends (tokenCreator gone, serviceUsageConsumer stays), attaint sweeps, rehearse reads clean"
 }
 
+# rbgp_freehold_proof — prove the freehold's STANDING admission against the durable
+# freehold. Payor-credentialed (the founding authority), it ensures the single
+# freehold subject (RBPC_freehold_subject — the operator's standing Entra oid) holds
+# every mantle, then asserts the manor-wide muniment roll carries each (mantle,
+# subject) pair. Unlike admission_proof — a throwaway subject the lifecycle
+# brevets/unseats/attaints and cleans up — this LEAVES the freehold subject seeded:
+# that standing, idempotently-reusable installation is the whole point of the
+# freehold, and the quota-flat foedus-freehold fixture re-verifies it run after run.
+# Brevet is the idempotent ensure (the static-admission doctrine: absorb the
+# grant-direction propagation once at setup, never per-test), so a re-run on a
+# healthy freehold mutates nothing. exit 0 IS the assertion (any deviation buc_dies).
+# Read-back is immediate after the ensure, mirroring admission_proof's peruse posture.
+rbgp_freehold_proof() {
+  zrbgp_sentinel
+
+  buc_doc_brief "Prove the freehold's standing admission — ensure the freehold subject holds every mantle, then assert the manor-wide roster carries it (interim; payor-credentialed)"
+  buc_doc_shown || return 0
+
+  buc_step 'Authenticate as Payor'
+  local z_token
+  z_token=$(zrbgp_authenticate_capture) || buc_die "Failed to authenticate as Payor via OAuth"
+
+  local -r z_bucket="${RBGP_TERRIER_BUCKET}"
+  local -r z_depot="${RBDC_DEPOT_PROJECT_ID}"
+  local -r z_subject="${RBPC_freehold_subject:-}"
+  test -n "${z_subject}" || buc_die "RBPC_freehold_subject is empty — rbpc_constants.sh not sourced?"
+
+  buc_step "Seed ${z_subject} onto every mantle (idempotent ensure — provision-once, not per-test churn)"
+  local z_mantle=""
+  for z_mantle in governor director retriever; do
+    zrbgp_brevet_core "${z_token}" "${z_mantle}" "${z_subject}"
+  done
+
+  buc_step 'Assert the manor-wide roster carries the freehold subject on every mantle'
+  local z_muniments
+  z_muniments=$(rbgft_peruse_manor "${z_token}" "${z_bucket}") \
+    || buc_die "Failed to read the manor-wide muniment roll"
+  local z_pair=""
+  for z_mantle in governor director retriever; do
+    z_pair="${z_mantle}"$'\t'"${z_subject}"
+    [[ "${z_muniments}" == *"${z_pair}"* ]] \
+      || buc_die "Proof: manor-wide roster missing the ${z_mantle} muniment for the freehold subject ${z_subject}"
+  done
+
+  buc_success "Freehold standing admission proven on ${z_depot}: the freehold subject holds governor+director+retriever, and the manor-wide roster carries all three"
+}
+
 rbgp_payor_oauth_refresh() {
   zrbgp_sentinel
 

@@ -37,6 +37,7 @@ zrbgp_furnish() {
   source "${BURD_BUK_DIR}/buf_fact.sh"
   source "${z_rbk_kit_dir}/rbgc_constants.sh"
   source "${z_rbk_kit_dir}/rbcc_constants.sh"
+  source "${z_rbk_kit_dir}/rbpc_constants.sh"
   source "${z_rbk_kit_dir}/rbrr_regime.sh"
   source "${z_rbk_kit_dir}/rbrd_regime.sh"
   source "${z_rbk_kit_dir}/rbrf_regime.sh"
@@ -79,7 +80,7 @@ zrbgp_furnish() {
   case "${z_command}" in
     rbgp_depot_list)                                    : ;;
     rbgp_manor_affiance|rbgp_manor_jilt)                zrbrf_enforce ;;
-    rbgp_brevet|rbgp_unseat|rbgp_attaint|rbgp_rehearse|rbgp_admission_proof) zrbrf_enforce; zrbrr_enforce; zrbrd_enforce ;;
+    rbgp_brevet|rbgp_unseat|rbgp_attaint|rbgp_rehearse|rbgp_admission_proof|rbgp_freehold_proof) zrbrf_enforce; zrbrr_enforce; zrbrd_enforce ;;
     *)                                                  zrbrr_enforce; zrbrd_enforce ;;
   esac
   zrbdc_kindle
