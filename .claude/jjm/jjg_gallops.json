@@ -12787,23 +12787,32 @@
         "₢BDAAY": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260615-1214",
+              "jjgtn_ts": "260620-0840",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "## Character",
                 "The recurring capture mechanism in jjx (Rust), built on the store the backfill established.",
                 "Idempotent and additive.",
+                "As of this reslate it is also conditional: capture is gated on the retention config from ₢BcAAH — opt-in, not compulsory.",
                 "The store shape, the provenance model, and the git-sync topology are now settled (this design session);",
                 "the sync mechanics stay open and settle when this pace is mounted.",
                 "",
                 "## Goal",
-                "Automatically augment the chat-log store on the frequent orientation ceremonies,",
+                "When retention is configured (₢BcAAH), augment the chat-log store on the frequent orientation ceremonies,",
                 "so new sessions and the growth of existing ones are captured with no manual action —",
                 "never forgetting, only adding.",
                 "",
+                "## Cinched — retention gate (precedent ₢BcAAH)",
+                "- Capture is gated on the retention field ₢BcAAH adds to the gallops;",
+                "  absent or empty date is off and capture is a no-op — what lets the binary be shared without absorbing a friend's chat history.",
+                "- A valid date sweeps sessions touched after it; the date is the coarse front filter, upstream of the size+mtime change-detection below.",
+                "- A malformed date disables capture, and ₢BcAAH's monitum reports it loud at open.",
+                "- This pace owns the operator-facing setter for the retention date —",
+                "  ₢BcAAH ships only the field, read, and monitum, because setting is inert until capture exists.",
+                "",
                 "## Cinched — capture behavior",
                 "- Triggers: mount, groom, and muster. Capture rides along with these orientation ceremonies — no",
-                "  separate command; it happens as you orient.",
+                "  separate command; it happens as you orient, when retention is on.",
                 "- Additive, never-forget — pick up new session files and the growth of existing ones;",
                 "  never delete from the store even when the source disappears (git history carries never-forget).",
                 "- Idempotent — an unchanged run is a no-op, no empty commit.",
@@ -12859,14 +12868,16 @@
                 "  work to the same ceremonies (coordinate, don't block).",
                 "",
                 "## Done when",
-                "- A mount, groom, or muster commits any new or grown local sessions to the flat pool, stamping each with",
-                "  its per-UUID provenance brand; an unchanged run (no live-session growth) is a no-op.",
-                "- All three ceremonies carry the capture step.",
+                "- When retention is on, a mount, groom, or muster commits any new or grown local session touched after",
+                "  the configured date to the flat pool, stamping each with its per-UUID provenance brand;",
+                "  an unchanged run (no live-session growth), or retention off, is a no-op.",
+                "- The operator-facing setter for the retention date exists.",
+                "- All three ceremonies carry the gated capture step.",
                 "- The existing host-separated backfill has been migrated into the flat pool with per-UUID brands, losslessly.",
                 "- The sweep covers the full transcript-dir family recursively."
               ],
               "jjgtn_silks": "chat-capture-auto-recurring",
-              "jjgtn_basis": "ed39db5"
+              "jjgtn_basis": "41acac0"
             }
           ]
         },
