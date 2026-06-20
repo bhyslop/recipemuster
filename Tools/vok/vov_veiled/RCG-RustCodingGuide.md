@@ -224,6 +224,9 @@ All naming follows the project's minting rules. Key constraints:
 1. **Terminal exclusivity**: A prefix either IS a name or HAS children, never both
 2. **Cipher ownership**: All identifiers derive from their project's cipher
 3. **Grep-ability**: `grep jjrg_` finds all declarations from that module
+4. **Greppable definitions**: A minted name must appear verbatim in source at its declaration. A macro may receive an already-spelled identifier as a whole token (as `case!` takes a `$func:path` and `stringify!`s it), but must never synthesize a minted name by concatenating fragments (`paste!`, `concat_idents!`, and the like).
+
+The registry *is* grep — `grep jjrg_` is the census, and rivets are opaque yet greppable at their definition. Identifier-synthesis breaks that axiom by creating a name no grep finds at birth: a Zeroes-Theory violation, a new and invisible path by which names enter existence. If code generation is ever genuinely required, the generated name must stay greppable back to its source via an immediate, greppable tag at the generation site — never silently pasted. (This is the declaration-side twin of the rivet rule: opaque or readable, every minted name is greppable where it is born.)
 
 Reference: CLAUDE.md "Prefix Naming Discipline" section.
 
@@ -642,7 +645,7 @@ Trust Claude's Rust idioms for:
 - Lifetime annotations
 - Generic patterns
 - Async patterns
-- Macro design
+- Macro design (except: minted names must be greppable at their definition — no identifier synthesis; see Minting Discipline)
 
 ## Quick Reference
 

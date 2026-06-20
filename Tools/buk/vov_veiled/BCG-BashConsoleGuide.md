@@ -1534,6 +1534,10 @@ eval "${z_varname}=\${z_new_value}"
 eval "local z_val=\${${z_varname}:-}"
 ```
 
+### Never Synthesize a Minted Name
+
+The indirection above *dereferences* a variable whose name is already declared verbatim elsewhere; it must never *create* a minted identifier — function, variable, or constant — by pasting fragments. A name like `rbv_${z_suffix}` brought into existence by `eval` or `printf -v` is invisible to grep at its birth, which breaks the minting registry: grep *is* the registry (cf. the exit-code band's "no band code is minted outside the tinder block"). If a name must be reached dynamically, the name itself still appears verbatim at its declaration — only the *access* is computed. Dynamic families belong in flat registries with foreign-key columns (see Two-level registries), never in synthesized identifiers.
+
 ## Command Dependency Discipline
 
 External commands are potential failure points, portability hazards, and supply-chain surface area. Every command invocation outside of bash builtins must earn its place.
