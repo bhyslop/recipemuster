@@ -12573,8 +12573,8 @@
         "₢BDAAS": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260606-1208",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260620-1544",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "## Character",
                 "Design settled in conversation — mechanical implementation against cinched decisions plus a doc deliverable. Live read path: orient shares the gazette plumbing, so verify it survives.",
@@ -12601,7 +12601,7 @@
                 "jjrpd_parade.rs (target dispatch + gazette population), jjrz_gazette.rs (slug vocabulary + read-output builder)."
               ],
               "jjgtn_silks": "show-target-list-and-round-trip-bridge",
-              "jjgtn_basis": "b85e6fc"
+              "jjgtn_basis": "4e6e942"
             }
           ]
         },
