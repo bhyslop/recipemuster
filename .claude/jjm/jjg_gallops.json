@@ -16312,7 +16312,7 @@
         "₢BgAAA": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260620-0843",
+              "jjgtn_ts": "260620-1129",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "## Character",
@@ -16321,16 +16321,16 @@
                 "",
                 "## Done when",
                 "",
-                "A vo subdoc exists — VLS extension or a new vo census spec, pick the file at mount — that lays out the Matricula entity nature (the transient raise→freeze→query→discard census), the four-tier decomposition, and the MVP method set: the scan, the two seating-invariant validators (terminal-exclusivity, exact collision), and the report render plus acronym-index generation.",
-                "CHECK is specced but not built; LIST and TRACE are named; SAFE-REPREFIX is noted as the deferred apex.",
+                "A vo subdoc exists — VLS extension or a new vo census spec, pick the file at mount — homing the Matricula entity nature (the transient raise→freeze→query→discard census), the four-tier decomposition, and the MVP method set: the scan, the two seating-invariant validators (terminal-exclusivity, exact collision), and the report render plus acronym-index generation.",
+                "The subdoc cites CMK/MCM as the doctrine home for the minting rules rather than restating them, and points to ₣Bj for the deferred widening (CHECK / LIST / TRACE, SAFE-REPREFIX, the engagement determinations, gestalt labels).",
                 "Parts reuse the existing VLS quoins (Inscription, Signet, Vesture, Cipher, Epithet); the subdoc mints only the three new vo quoins it needs — Residue, Finding, and a register-aligned freeze verb — each through the grep gate and MCM Lapidary.",
                 "",
                 "## Cinched",
                 "",
-                "See the paddock for full shape: vo/vv placement, tabtarget-only MVP, the freeze/builder object pattern, and mechanical-never-linguistic."
+                "See the paddock for full shape: VOK standalone-binary placement (source veiled, binary gitignored in target), CMK-cited doctrine, tabtarget-only MVP, the freeze/builder object pattern, mechanical-never-linguistic, and the structural-secrecy boundary."
               ],
               "jjgtn_silks": "vo-matricula-mvp-subdoc",
-              "jjgtn_basis": "8ddb7ea"
+              "jjgtn_basis": "d184403"
             }
           ]
         }
