@@ -324,3 +324,70 @@ The as-built inversion (why M6 exceeds its one-liner). The README still frames k
 Scope — one coherent narrative pace (not a split). (a) invert the credential story / collapse the two tiers; (b) broadside glossary — register the permanent elected words (mantle, compear/compearance, assize, don, brevet, unseat, attaint, affiance, jilt, rehearse, muniment, citizen, census; never the transitional enrobe/defrock, doomed at M7 and never broadside-registered), flip the mantle homonym, retire the RBRA entry; (c) diagrams — retire rbdgk, fix the rbdgm mode-enum caption, reframe the federation trio (rbdgl/rbdgs/rbdgm) from planned to the model; (d) cold-probe verify.
 
 The sequencing fix. The narrative asserts the keyless end-state ("every key file no longer exists"), true only once the estate demolition lands — yet the placeholder sat first in the tail, before even the keyless bootstrap. Railed to after the estate-demolition pace (260620, operator-accepted), giving: keyless bootstrap → freehold collapse → estate demolition → narrative docs → terminal Fable review. The narrative is written against the real final state; Fable's terminal review sees the completed public story.
+
+## Gird verb — payor founding first-governor brevet, operator-sanctioned mint (260620)
+
+Operator sanctioned, in conversation 260620, a new payor verb: **gird** — the founding
+exception the paddock cinches ("levy's last act is the payor breveting the first governor —
+the one admission gesture outside governor wielding"), built at last because the
+keyless-canonical-bootstrap pace (₢BZAAQ) hit the gap the cinch left unbuilt.
+
+The gap. A fresh-levy depot has the three mantle SAs but no admitted citizen. The built
+brevet verb (rbw-pB) wields the *donned governor mantle* to admit — chicken-and-egg for the
+FIRST governor, since you must already be a governor to brevet one. zrbgp_brevet_core was
+written token-agnostic precisely so the payor founding exception could drive it
+payor-credentialed (the brevet spec RBSPB already names this path), but no verb ever wired
+it; the standing freehold's first governor was seated out-of-band, by hand. An autonomous
+fresh-levy gauntlet cannot lean on a manual step, so the verb is forced now.
+
+Shape (operator-cinched). One payor verb, governor-only — it seats the first governor and
+nothing else. The payor girds the freehold subject into the governorship, then switches to
+ordinary governor-wielded brevet for directors, retrievers, and further governors. Not a
+parallel payor-can-admit-anyone power; a single founding door. Toothing discipline: brevet
+already ranges over the mantle bondstone (governor|director|retriever), so gird stays
+single-target (governor) — no second multi-mantle verb is minted. Body: payor-credentialed
+(mirrors affiance's zrbgp_authenticate_capture OAuth path), drives zrbgp_brevet_core with the
+payor token and the governor mantle, no clean-tree gate (runtime bindings, not committed
+config, like brevet). Colophon rbw-pE, frontispiece PayorGirdsGovernor, param1 (subject).
+Contract spec RBSPG (P-seat verified free); RBS0 civic-quoin seat in the federation category.
+
+Why gird (MCM Lapidary):
+- **Asterism.** Investiture register — to gird is to belt on the sword/girdle of office, the
+  founding-investiture act; the same robing imagery as *mantle*, the conferral register of
+  *brevet* and *affiance*.
+- **Sibling initials.** G is free in the polity demesne (Brevet/Unseat/Attaint/Rehearse →
+  B/U/A/R) where gird seats — it admits onto a mantle — and free against every payor
+  frontispiece-initial in use (E/A/J/L/U/I/R/Q). The first cut chose **enfeoff** (E); the
+  operator ruled E too close to **Establish**. Formally enfeoff (polity) and Establish (manor)
+  are different demesnes and E-across-demesnes is sanctioned (Affiance/Attaint share A), but
+  the frontispiece convention front-loads the *issuer* ("Payor…"), so two Payor-E… verbs read
+  as siblings in the operator's scan. gird (G) dissolves the felt collision on both keyings.
+- **Grep gate.** 0 hits repo-wide (gird, girds). Clean.
+- **Vocabulary isolation.** Investiture/heraldic vocabulary, no ambient software presence —
+  not a trodden word.
+- **Husbandry.** Founding a first governor is rare — once per depot — so a rare, colorful word
+  is the prescribed register, as with affiance and attaint.
+
+Bondstone/toothing clarification this mint surfaced (recorded for the term rules). The
+toothing definition spans both directions — acts performed UPON a bondstone (clause 1: the
+operator brevets a citizen) AND operations bondstones perform on one another (clause 2: the
+payor girds the governor). "Payor establishes the manor" is clause 2, not a misstatement. The
+sibling-initial demesnes are keyed to the RECIPIENT realm (manor demesne acts upon the manor;
+polity demesne acts upon the citizenry), so gird (acts on the citizen → polity) and Establish
+(acts on the manor → manor) are different demesnes. But the frontispiece front-loads the
+ISSUER, the layer the operator's scan groups by — so the felt collision is load-bearing even
+where the formal rule permits the reuse. The lesson: collision analysis is recipient-keyed by
+the demesne, but operator comfort is issuer-keyed by the frontispiece, and both bind.
+
+Exposure: ashlar (operator-triggered; surfaces in error/narrative output). Unlike the
+transitional enrobe/defrock (doomed at M7), gird is a founding capability the federation model
+keeps — so it IS broadside-eligible, registering with the federation vocabulary at the M6
+narrative-docs movement. It is the federation successor to the retiring rbw-aE
+PayorEnrobesGovernor (the keyfile "payor makes the first governor"), inheriting that role —
+and that E-slot — as the keyless estate demolition (Pace 2) removes the enrobe family.
+
+Flagged for Fable's terminal review (the jilt precedent): the asterism check, terminal
+exclusivity, and especially the fair-faced cold-probe — gird is evocative but oblique ("gird
+the governor" may not parse as "appoint" on first contact), the load-bearing gate — plus the
+RBSPG and RBS0 {rbtf_gird} quoin mints are Fable's to ratify, per the heat's
+vocabulary-waits-on-Fable posture.

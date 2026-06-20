@@ -17,11 +17,23 @@
 // RBTDRK — gauntlet canonical-establish fixture (§2 of release qualification)
 //
 // Establishes long-lived canonical state the gauntlet's downstream fixtures
-// inherit:
-//   1. depot_levy        — install canonical RBRR prefixes; levy a fresh canest depot
-//   2. governor_enrobe   — enrobe governor against the canonical depot
-//   3. retriever_enrobe  — enrobe a canonical retriever SA + access-probe
-//   4. director_enrobe   — enrobe a canonical director SA + access-probe
+// inherit. canonical-establish admits FEDERATION PERSONAS — the no-keys org enforces
+// disableServiceAccountKeyCreation, so the keyfile enrobe 400s on a fresh levy:
+//   1. depot_levy            — install canonical RBRR prefixes; levy a fresh canest depot
+//                              (the levy establishes the three mantle SAs with frozen IAM)
+//   2. compear               — open/confirm a live assize against the RBRF trust (rbw-acf):
+//                              one device-flow click at suite head, then the cases below
+//                              ride the cached federated token headless
+//   3. gird_governor         — the payor (OAuth) seats the freehold subject as the first
+//                              governor (rbw-pE) — the founding door a fresh levy needs
+//   4. brevet_don_director   — the girded governor brevets the freehold subject onto the
+//                              director mantle, then dons it and reaches AR (rbw-pB + rbw-acm)
+//   5. brevet_don_retriever  — same for the retriever mantle
+//   6. depot_recognosce      — read-only proof the levy's founding stands whole
+//
+// The keyfile enrobe cases (rbtdrk_governor_enrobe / role_enrobe / role_defrock) are
+// retained below for the canonical-ENROBE fixture (skirmish/dogfight/blockade), which still
+// exercises the bridge-legacy keyfile estate; only canonical-ESTABLISH moved to personas.
 //
 // Disposition: StateProgressing. Each case carries a precondition probe via
 // rbtdrb_Probe so a-la-carte single-case rerun fails cleanly when an earlier
@@ -62,6 +74,11 @@ use crate::rbtdgc_consts::{
     RBTDGC_ACCOUNT_DIRECTOR,
     RBTDGC_ACCOUNT_GOVERNOR,
     RBTDGC_ACCOUNT_RETRIEVER,
+    RBTDGC_GIRD_POLITY,
+    RBTDGC_BREVET_POLITY,
+    RBTDGC_CHECK_MANTLE,
+    RBTDGC_CHECK_COMPEARANCE,
+    RBTDGC_FREEHOLD_SUBJECT,
 };
 use crate::rbtdrm_manifest::{
     rbtdrm_credential_check_colophon,
@@ -1036,13 +1053,150 @@ fn rbtdrk_depot_churn_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_Verdi
     rbtdre_Verdict::Pass
 }
 
+// ── Federation-persona cases (canonical-establish) ───────────
+//
+// canonical-establish admits federation personas on the no-keys org. The freehold
+// subject (the operator's standing Entra oid, RBTDGC_FREEHOLD_SUBJECT) is compeared,
+// girded as the first governor by the payor, then breveted onto the director and
+// retriever mantles and donned — replacing the keyfile governor/retriever/director
+// enrobe + JWT-probe cases (which stay live below for canonical-ENROBE).
+
+/// Suite-head compearance. Opens or confirms a live assize against the RBRF trust
+/// (rbw-acf): a cache-hit when the operator pre-compeared, an inline device-flow prompt
+/// when a TTY is present, a loud headless failure otherwise. The admission cases below
+/// ride the cached federated token, so the human clicks once here, not per case.
+fn rbtdrk_compear(dir: &Path) -> rbtdre_Verdict {
+    let probe = rbtdrb_Probe {
+        name: "canonical depot moniker installed",
+        check: rbtdrk_probe_canonical_moniker,
+        remediation: "rerun rbtdrk_depot_levy or the full canonical-establish fixture",
+    };
+    if let Err(v) = rbtdrb_assert(&probe) {
+        return v;
+    }
+    rbtdrc_with_ctx(|ctx| {
+        let r = match rbtdrk_invoke_logged(ctx, RBTDGC_CHECK_COMPEARANCE, &[], &[], dir, "compear") {
+            Ok(r) => r,
+            Err(e) => return rbtdre_Verdict::Fail(format!("compearance probe: {}", e)),
+        };
+        if r.exit_code != 0 {
+            return rbtdre_Verdict::Fail(format!(
+                "compearance failed (exit {}) — open an assize before the run with rbw-acf \
+                 (one device-flow click), or launch from a terminal so the prompt can surface\n{}",
+                r.exit_code, r.stderr
+            ));
+        }
+        rbtdre_Verdict::Pass
+    })
+}
+
+/// Gird the founding governor. The payor (OAuth) seats the freehold subject as this depot's
+/// first governor (rbw-pE) — the one admission outside governor wielding, the founding door a
+/// fresh levy needs before any mantle can be donned. Payor-credentialed, so it needs no
+/// assize. Replaces the keyfile governor-enrobe's admin-credential step.
+fn rbtdrk_gird_governor(dir: &Path) -> rbtdre_Verdict {
+    let probe = rbtdrb_Probe {
+        name: "canonical depot moniker installed",
+        check: rbtdrk_probe_canonical_moniker,
+        remediation: "rerun rbtdrk_depot_levy or the full canonical-establish fixture",
+    };
+    if let Err(v) = rbtdrb_assert(&probe) {
+        return v;
+    }
+    rbtdrc_with_ctx(|ctx| {
+        let gird = match rbtdrk_invoke_logged(
+            ctx,
+            RBTDGC_GIRD_POLITY,
+            &[RBTDGC_FREEHOLD_SUBJECT],
+            &[],
+            dir,
+            "gird-governor",
+        ) {
+            Ok(r) => r,
+            Err(e) => return rbtdre_Verdict::Fail(format!("gird governor: {}", e)),
+        };
+        if gird.exit_code != 0 {
+            return rbtdre_Verdict::Fail(format!(
+                "gird governor exit {}\n{}",
+                gird.exit_code, gird.stderr
+            ));
+        }
+        rbtdre_Verdict::Pass
+    })
+}
+
+/// Shared federation-admission body for director and retriever: the girded governor brevets
+/// the freehold subject onto the named mantle (rbw-pB, governor-wielded — rides the assize),
+/// then dons that mantle and reaches Artifact Registry (rbw-acm: compear cache-hit → don →
+/// repositories.list). The don is the federation analog of the keyfile JWT access-probe.
+fn rbtdrk_brevet_don_impl(ctx: &mut rbtdri_Context, dir: &Path, mantle: &str) -> rbtdre_Verdict {
+    let label_brevet = format!("brevet-{}", mantle);
+    let brevet = match rbtdrk_invoke_logged(
+        ctx,
+        RBTDGC_BREVET_POLITY,
+        &[RBTDGC_FREEHOLD_SUBJECT, mantle],
+        &[],
+        dir,
+        &label_brevet,
+    ) {
+        Ok(r) => r,
+        Err(e) => return rbtdre_Verdict::Fail(format!("brevet {}: {}", mantle, e)),
+    };
+    if brevet.exit_code != 0 {
+        return rbtdre_Verdict::Fail(format!(
+            "brevet {} exit {}\n{}",
+            mantle, brevet.exit_code, brevet.stderr
+        ));
+    }
+
+    let label_don = format!("don-{}", mantle);
+    let don = match rbtdrk_invoke_logged(ctx, RBTDGC_CHECK_MANTLE, &[mantle], &[], dir, &label_don) {
+        Ok(r) => r,
+        Err(e) => return rbtdre_Verdict::Fail(format!("don {}: {}", mantle, e)),
+    };
+    if don.exit_code != 0 {
+        return rbtdre_Verdict::Fail(format!(
+            "don {} exit {} — mantle not donnable or AR unreachable\n{}",
+            mantle, don.exit_code, don.stderr
+        ));
+    }
+    rbtdre_Verdict::Pass
+}
+
+/// Case 4 — brevet + don the director mantle for the freehold subject.
+fn rbtdrk_brevet_don_director(dir: &Path) -> rbtdre_Verdict {
+    let probe = rbtdrb_Probe {
+        name: "canonical depot moniker installed",
+        check: rbtdrk_probe_canonical_moniker,
+        remediation: "rerun the full canonical-establish fixture (levy → compear → gird) first",
+    };
+    if let Err(v) = rbtdrb_assert(&probe) {
+        return v;
+    }
+    rbtdrc_with_ctx(|ctx| rbtdrk_brevet_don_impl(ctx, dir, "director"))
+}
+
+/// Case 5 — brevet + don the retriever mantle for the freehold subject.
+fn rbtdrk_brevet_don_retriever(dir: &Path) -> rbtdre_Verdict {
+    let probe = rbtdrb_Probe {
+        name: "canonical depot moniker installed",
+        check: rbtdrk_probe_canonical_moniker,
+        remediation: "rerun the full canonical-establish fixture (levy → compear → gird) first",
+    };
+    if let Err(v) = rbtdrb_assert(&probe) {
+        return v;
+    }
+    rbtdrc_with_ctx(|ctx| rbtdrk_brevet_don_impl(ctx, dir, "retriever"))
+}
+
 // ── Section registry ─────────────────────────────────────────
 
 pub static RBTDRK_CASES_CANONICAL_ESTABLISH: &[rbtdre_Case] = &[
     case!(rbtdrk_depot_levy),
-    case!(rbtdrk_governor_enrobe),
-    case!(rbtdrk_retriever_enrobe),
-    case!(rbtdrk_director_enrobe),
+    case!(rbtdrk_compear),
+    case!(rbtdrk_gird_governor),
+    case!(rbtdrk_brevet_don_director),
+    case!(rbtdrk_brevet_don_retriever),
     case!(rbtdrk_depot_recognosce),
 ];
 

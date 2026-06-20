@@ -74,6 +74,7 @@ The Folio column shows how each tabtarget receives it:
 
 | Colophon | Frontispiece | Folio | Purpose |
 |----------|-------------|-------|---------|
+| `rbw-pE` | PayorGirdsGovernor | param1 | Gird the first governor — payor seats a citizen as this depot's founding governor (args: subject) |
 | `rbw-pB` | GovernorBrevetsCitizen | param1 | Brevet a citizen onto a mantle in this depot (governor-wielded admission; args: subject mantle) |
 | `rbw-pU` | GovernorUnseatsCitizen | param1 | Unseat a citizen from one mantle (suspension, not erasure; args: subject mantle) |
 | `rbw-pA` | GovernorAttaintsCitizen | param1 | Attaint a citizen — whole-person expulsion from this depot (args: subject) |

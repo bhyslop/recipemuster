@@ -1,0 +1,100 @@
+//axhob_operation
+{rbtgo_governor_gird}
+
+NOTE: This operation seats the FIRST
+{rbtf_citizen}
+of a fresh
+{rbtgi_depot}
+onto the governor
+{rbtf_mantle}
+— the
+{rbtf_gird}
+act, the founding admission. It is the one admission the
+{rbtr_payor}
+performs rather than a wielded
+{rbtr_governor}: a fresh-levied depot carries its mantle
+{giam_service_account_s}
+but no admitted citizen, so no governor yet exists to
+{rbtf_brevet}
+the first one. Once a governor is girded, every further admission — directors, retrievers,
+and further governors — flows through governor-wielded
+{rbtf_brevet}.
+
+NOTE: *Governor-only by construction.* Unlike
+{rbtgo_citizen_brevet},
+which ranges over `governor` | `director` | `retriever`, gird admits onto the governor mantle
+alone and takes no mantle argument; the citizen's federated workforce subject arrives as the
+param1 folio. It is a single founding door, not a parallel payor-can-admit-anyone power.
+
+NOTE: *The body IS
+{rbtgo_citizen_brevet}'s
+core* (ACG — reference the home, don't recreate), driven by the
+{rbtr_payor}'s
+own OAuth credential instead of a donned governor token: the founding-exception path the
+brevet contract already names. The muniment-first composition, the two canonical IAM binding
+paths, and the intent-first ordering are exactly as
+{rbtgo_citizen_brevet}
+specifies and are not restated here; this operation differs only in the wielder (payor, not
+governor) and the fixed mantle (governor). Because the founding admission is by definition a
+depot's first, the depot-scoped `serviceUsageConsumer` binding is always written here.
+
+//axhos_step
+. *Authenticate as
+{rbtr_payor}*:
+.. obtain the payor OAuth access token from the loaded RBRO credential — no
+{rbtf_compear}
+and no
+{rbtf_don}, since the founding act predates any
+{rbtf_mantle}
+the actor could wear
+.. {rbbc_fatal}
+if the payor credential is absent or expired
+
+//axhos_step
+. *Compose the founding admission identity*:
+.. {rbbc_require}
+the subject folio (param1) non-empty
+.. {rbbc_store}
+`«MANTLE_EMAIL»` as the governor mantle
+{giam_service_account}
+email in this depot (`${RBCC_account_mantle_governor}@…`)
+.. {rbbc_store}
+`«PRINCIPAL»` as the workforce federated `principal://` member for the subject — the single
+grantable identity, the same in every depot under the manor
+
+//axhos_step
+. *Drive the shared admission core* (governor mantle, payor token):
+.. {rbtf_engross}
+the
+{rbtf_muniment}
+recording (subject, governor) before any binding, then idempotently ensure the mantle-SA
+`tokenCreator` and the depot-scoped `serviceUsageConsumer` bindings — per the
+{rbtgo_citizen_brevet}
+binding contract, verbatim
+
+//axhoot_typed_output
+{rbtf_citizen}
+. *Confirm Gird*:
+.. {rbbc_show}
+single-line success banner naming the girded subject, the governor
+{rbtf_mantle},
+and the
+{rbtgi_depot}.
+
+//axhoc_completion
+Successful execution seats the
+{rbtf_citizen}
+as the founding
+{rbtr_governor}
+of this
+{rbtgi_depot}:
+the
+{rbtf_muniment}
+is engrossed and both bindings are in place, so the citizen may
+{rbtf_compear},
+{rbtf_don}
+the governor
+{rbtf_mantle},
+and thereafter wield
+{rbtf_brevet}
+to admit the rest of the polity.

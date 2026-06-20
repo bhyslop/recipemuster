@@ -76,10 +76,13 @@ zrbgp_furnish() {
   # regimes. The polity admission verbs (brevet/unseat/attaint/rehearse) work a
   # specific depot AND don the governor mantle, so they enforce the federation
   # regime (the pool id + assize machinery) on top of the depot/repo regimes.
+  # Gird (the payor-wielded founding first-governor admission) rides the same
+  # enforce set but drives the shared core with the payor credential, not a don.
   # Every other command works a specific depot.
   case "${z_command}" in
     rbgp_depot_list)                                    : ;;
     rbgp_manor_affiance|rbgp_manor_jilt)                zrbrf_enforce ;;
+    rbgp_gird)                                          zrbrf_enforce; zrbrr_enforce; zrbrd_enforce ;;
     rbgp_brevet|rbgp_unseat|rbgp_attaint|rbgp_rehearse) zrbrf_enforce; zrbrr_enforce; zrbrd_enforce ;;
     *)                                                  zrbrr_enforce; zrbrd_enforce ;;
   esac

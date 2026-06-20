@@ -157,6 +157,7 @@
 :rbtgo_lode_banish:              <<rbtgo_lode_banish,rbld_banish>>
 
 // Recipe Bottle Term Google Operations — Polity (federation admission)
+:rbtgo_governor_gird:            <<rbtgo_governor_gird,rbgp_gird>>
 :rbtgo_citizen_brevet:           <<rbtgo_citizen_brevet,rbgp_brevet>>
 :rbtgo_citizen_unseat:           <<rbtgo_citizen_unseat,rbgp_unseat>>
 :rbtgo_citizen_attaint:          <<rbtgo_citizen_attaint,rbgp_attaint>>
@@ -607,6 +608,7 @@
 :rbtf_assize:                <<rbtf_assize,Assize>>
 :rbtf_don:                   <<rbtf_don,Don>>
 :rbtf_brevet:                <<rbtf_brevet,Brevet>>
+:rbtf_gird:                  <<rbtf_gird,Gird>>
 :rbtf_unseat:                <<rbtf_unseat,Unseat>>
 :rbtf_attaint:               <<rbtf_attaint,Attaint>>
 :rbtf_affiance:              <<rbtf_affiance,Affiance>>
@@ -1354,6 +1356,30 @@ via per-SA fact-file emission
 
 include::RBSRL-retriever_roster.adoc[]
 
+[[rbtgo_governor_gird]]
+//axvo_method axd_transient axd_grouped
+=== {rbtgo_governor_gird}
+
+Seats the first
+{rbtf_citizen}
+of a fresh
+{rbtgi_depot}
+onto the governor
+{rbtf_mantle}
+({rbtr_payor}):
+the
+{rbtf_gird}
+act — the one admission the payor performs rather than a wielded governor, since a
+fresh-levied depot has no governor yet to
+{rbtf_brevet}
+the first one.
+The federation successor to the bridge-legacy
+{rbtgo_governor_enrobe};
+once a governor is girded, every further admission flows through the governor-wielded verbs
+below.
+
+include::RBSPG-governor_gird.adoc[]
+
 The federation admission verbs are the governor-wielded operator surface that admits and
 removes
 {rbtf_citizen_s}
@@ -2039,6 +2065,28 @@ plus — on the citizen's first admission to a depot — the depot-scoped `servi
 The
 {rbtf_muniment}
 is written first, before the binding.
+
+[[rbtf_gird]]
+{rbtf_gird}::
+The founding admission act that seats the first
+{rbtf_citizen}
+of a fresh depot onto the governor
+{rbtf_mantle}:
+the one admission performed by the
+{rbtr_payor}
+rather than a wielded governor, since a fresh-levied depot has no governor yet to
+{rbtf_brevet}
+the first one.
+It composes exactly as
+{rbtf_brevet}
+does — the
+{rbtf_muniment}
+first, then the `tokenCreator` and first-admission `serviceUsageConsumer` bindings — but driven by the payor's own credential and fixed to the governor mantle.
+Once a governor is girded, every further admission flows through governor-wielded
+{rbtf_brevet}.
+The federation successor to the bridge-legacy
+{rbtgo_governor_enrobe},
+retiring with that estate's keyfile founding.
 
 [[rbtf_unseat]]
 {rbtf_unseat}::

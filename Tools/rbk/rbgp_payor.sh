@@ -2442,6 +2442,31 @@ zrbgp_attaint_core() {
   buc_success "Attainted ${z_subject} from ${z_depot}"
 }
 
+# rbgp_gird <subject> — the founding exception: the payor seats the FIRST governor of this
+# depot, the one admission gesture outside governor wielding. A fresh-levied depot carries
+# its mantle SAs but no admitted citizen, so no governor yet exists to brevet one; the
+# payor's own OAuth credential drives the shared admission core (zrbgp_brevet_core) instead
+# of a donned governor token. Governor-only by construction (no mantle parameter) — once a
+# governor is girded, every further admission flows through governor-wielded rbgp_brevet.
+# Contract: RBSPG.
+rbgp_gird() {
+  zrbgp_sentinel
+
+  local -r z_subject="${BUZ_FOLIO:-}"
+
+  buc_doc_brief "Gird the first governor — the payor seats a citizen as this depot's founding governor (payor-wielded founding admission)"
+  buc_doc_param "subject" "The citizen's federated workforce subject (the IdP-asserted identity) to seat as the first governor"
+  buc_doc_shown || return 0
+
+  test -n "${z_subject}" || buc_die "Subject required as the first argument"
+
+  buc_step 'Authenticate as Payor'
+  local z_token
+  z_token=$(zrbgp_authenticate_capture) || buc_die "Failed to authenticate as Payor via OAuth"
+
+  zrbgp_brevet_core "${z_token}" "governor" "${z_subject}"
+}
+
 # rbgp_brevet <subject> <mantle> — admit a compeared citizen onto a mantle in this
 # depot. Wields the governor mantle.
 rbgp_brevet() {

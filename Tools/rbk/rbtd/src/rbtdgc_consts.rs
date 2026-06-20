@@ -36,6 +36,7 @@ pub const RBTDGC_TERRIER_SCAFFOLD: &str = "rbw-dt";
 pub const RBTDGC_TERRIER_PROOF: &str = "rbw-dT";
 pub const RBTDGC_AFFIANCE_MANOR: &str = "rbw-mA";
 pub const RBTDGC_JILT_MANOR: &str = "rbw-mJ";
+pub const RBTDGC_GIRD_POLITY: &str = "rbw-pE";
 pub const RBTDGC_BREVET_POLITY: &str = "rbw-pB";
 pub const RBTDGC_UNSEAT_POLITY: &str = "rbw-pU";
 pub const RBTDGC_ATTAINT_POLITY: &str = "rbw-pA";
