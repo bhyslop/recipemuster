@@ -24,6 +24,8 @@ Mechanism and episode are distinct lifetimes: the registry, probe, and nag are p
 The coda retires the spent episodes — this heat's tack-rework tolerance and the original V3-to-V4 tolerance with its frozen reference, consolidated here rather than left in a stale placeholder heat — and leaves the mechanism standing.
 An episode's demolition condition — no pre-its-schema gallops survives in any operated clone — is checkable rather than an act of faith because the operator is sole, so the operated clones are a finite, enumerable set.
 The durable "deep pattern" is not a torn-down cleverness but the standing mechanism plus its governing why, stated inline here: we minimize the schemas we keep mutually readable so the migration mechanism converges rather than accumulating (Zeroes Theory's version axis). The general cross-language statement of that why is a separate, independent formalization; this heat does not depend on it.
+Schema-change paces are delivered source-only on a date-and-identity-named branch and never commit a gallops conversion; the forgiveness episode makes the new binary tolerant of the old store, so the conversion stays deferred until the coda — the sole coordinated convergence — forces and commits it across every install at once.
+Keeping schema-change source off the shared main until that convergence is what prevents a stray gallops-saving command on a freshly-built binary from persisting the conversion prematurely, ahead of the cross-install coordination.
 
 ## Done when
 Every install runs a binary whose on-disk gallops is canonical at this heat's final schema and whose open-time nag reports every episode dormant;
