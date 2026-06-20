@@ -2046,20 +2046,3 @@ The terrier-atomicity items (the `terrier-atomicity` theurge fixture and the `rb
 ### Context
 
 Raised 2026-06-20 by the operator immediately after accepting the cut of the admission/freehold payor-proofs (path "b": cut the two faked-don proofs, keep terrier-atomicity). Sequenced explicitly AFTER the work of that pace, not during it. The terrier's permanent home is already routed to ₣Bf per the ₣BZ docket ("the terrier scaffold rbw-dt stays until ₣Bf homes the terrier permanently").
-
-## bf-authentic-federation-green-target
-Build the compearance-driven federation test target deferred from ₣BZ; reserve the suite word "parley".
-
-### Problem
-
-₣BZ's payor-credentialed proofs (admission-proof, foedus-freehold) tested only the admission WRITE-side via the payor's god-authority, deliberately bypassing the compear→don→act runtime path that IS the federation thesis. During ₣BZ (2026-06-20) those two faked-don proofs were cut as spent construction scaffolding (the verbs `rbgp_admission_proof`/`rbgp_freehold_proof`, the `rbw-pP`/`rbw-pF` tabtargets, and their theurge fixtures). The authentic green target — a human compears once, dons the relevant mantle, runs the real production verbs (brevet/unseat/attaint/rehearse) as a donned actor, and asserts — was deferred to ₣Bf, where runtime/compearance work is already routed.
-
-### Scope
-
-- Build compearance-driven federation fixtures that exercise the real don path (Leg 1 device flow → Leg 2 STS → Leg 3 don), per the paddock premise "a human compears at the kickoff of every run". The accepted test posture is manual compearance before a test session (a 12 h assize on the project test org — the paddock Test-rig section's "per-run human click" option).
-- Compose them into a named green-able suite that excludes the keyfile-broken estate. **Reserve the suite word `parley`** (operator-elected 2026-06-20 for exactly this suite, before the scope pivot deferred it here; grep-gated clean at the time).
-- **Coverage debt to repay:** the deleted `rbgp_admission_proof` was the ONLY automated check of the suspension-vs-erasure property (unseat leaves `serviceUsageConsumer`, attaint sweeps it) and brevet binding-composition/idempotency. The authentic suite must re-establish that write-side coverage in addition to the new use-side (don→act) coverage.
-
-### Context
-
-Raised/decided 2026-06-20 in conversation during ₣BZ pace work. The operator judged the payor-proofs "a poorly chosen workaround, a too-small baby step" and accepted not enshrining them as the federation green target. Deleted-proof reference logic survives in git history (the ₣BZ commits that built admission-proof/foedus-freehold) — point there rather than reconstructing. Related: the live-don payoff proof the paddock defers to "M7", and the operator-paced attribution pace.
