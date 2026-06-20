@@ -15,6 +15,22 @@ Both ends share one wire protocol, frozen once the viewer's walking skeleton val
 the rbm-side concepts land formally in JJS0.
 The whole feature is driven from one control console in rbm — see Cross-repo operation.
 
+## Pane-label overlay shape
+
+The pane label renders on the yellow highlight box paneboard already draws around a window during alt-tab.
+Cinched decisions:
+
+- The session's identity — coronet when mounted on a pace, else the heat firemark — renders large in all four corners, full identity, never abbreviated.
+- A center block shows a general array of lines, centered; the first two are the pace-or-heat silks and the working directory.
+- Each corner badge and the center block sit on a fixed black backing pill; the backing is not tunable.
+- The wire carries semantic data plus optional per-element style — corner and center each take a font size and color; style fields are optional, and paneboard falls back to built-in defaults when any is absent.
+- Style values are sourced from an rbm-side config that vvx reads at send time, never compiled into the binary, so tuning is: edit config, run any jjx engagement to re-send, see the change on the next alt-tab — no rebuild, no paneboard restart.
+
+Accepted tradeoff: presentation lives partly on the wire rather than solely in paneboard — bought deliberately for iteration velocity, and free to retract into paneboard defaults if the sizes ever stabilize.
+
+This richer in-place overlay presumes the session-id-to-window mapping succeeds (the seed memo's still-unverified spike).
+If that mapping fails, the same data degrades to a richer alt-tab list entry rather than corner-and-center boxes.
+
 ## References
 
 - `Memos/memo-20260617-paneboard-overlay-and-viewer.md` — seed memo:
