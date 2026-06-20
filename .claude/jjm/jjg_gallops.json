@@ -15590,8 +15590,8 @@
         "₢BcAAG": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260619-1158",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260620-1353",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "## Character",
                 "Schema change — remove the tack `direction` field.",
@@ -15613,7 +15613,7 @@
                 "The `direction` field is gone from the tack type and all readers; the bridled-direction logic it fed is resolved; build tt/vow-b and test tt/vow-t green; and — only if an on-disk key was found — an episode detects and converts it idempotently."
               ],
               "jjgtn_silks": "remove-tack-direction-field",
-              "jjgtn_basis": "2c2c59f"
+              "jjgtn_basis": "fe0d95a"
             }
           ]
         },
