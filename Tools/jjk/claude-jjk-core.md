@@ -5,7 +5,7 @@ Job Jockey (JJ) is installed for managing project initiatives.
 **Concepts:**
 - **Heat**: Bounded initiative with coherent goals that are clear and present (3-50 officia). Status: `racing` (active execution) or `stabled` (paused for planning). Location: `current/` or `retired/` (done).
 - **Pace**: Discrete action within a heat.
-- **Itch**: Future work (any detail level), lives in jji_itch.md
+- **Itch**: Future work (any detail level), lives in jji_itch.md. A **human reminder only** — never load-bearing. The operator reads it and decides whether it graduates to work; an agent must not cut paces or implement against itch content as if it were authority. Load-bearing guidance belongs where agents read it as authority — heat-shape in a paddock, durable facts in a spec — not in an itch (same posture as memos: a nudge, never authority).
 - **Scar**: Closed work with lessons learned, lives in jjs_scar.md
 - **Spook**: Team infrastructure stumble — any workflow failure improvable with deft attention. Capture as a pace when encountered, don't lose the current thread.
 - **Cinch**: A decision settled in a paddock or docket and not to be re-litigated — both noun and verb ("cinch the approach," "the inscribe-skip is cinched"). Distinct from a *lock* in the concurrency sense (JJK's git-ref commit lock), which keeps that word.
