@@ -121,7 +121,7 @@ zrbz_kindle() {
   z_mod="rbh0/rbhp0_cli.sh"
   buz_enroll RBZ_PAYOR_ESTABLISH        "rbw-gPE" "${z_mod}" "rbhp_establish"       ""  "Guided Manor establishment — GCP project + OAuth consent screen"
   buz_enroll RBZ_PAYOR_REFRESH          "rbw-gPR" "${z_mod}" "rbhp_refresh"         ""  "Refresh expired OAuth tokens"
-  buz_enroll RBZ_QUOTA_BUILD            "rbw-gq"  "${z_mod}" "rbhp_quota_build"     ""  "Display Cloud Build capacity review procedure"
+  buz_enroll RBZ_QUOTA_BUILD            "rbw-gPQ" "${z_mod}" "rbhp_quota_build"     ""  "Display Cloud Build capacity review procedure"
   # Onboarding — handbook tracks (rbw-o terminal + rbw-O* family, see ₣A6 paddock)
   buz_group RBZ__GROUP_ONBOARDING "rbw-o"   "Onboarding — Handbook restart"
   z_mod="rbh0/rbho0_cli.sh"
