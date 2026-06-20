@@ -36,9 +36,8 @@ NUL
 .*drawio*.bkp
 .*drawio*.dtmp
 
-# Claude Code - ignore machine-specific settings
+# Claude Code - ignore machine-specific settings (settings.json IS tracked as shared project config)
 .claude/settings.local.json
-.claude/settings.json
 .claude/scheduled_tasks.lock
 
 ### Python ###
