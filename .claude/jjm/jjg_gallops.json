@@ -13946,8 +13946,8 @@
         "₢BZAAO": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260620-0842",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260620-0959",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "Regroup the orphan rbw-gq (QuotaBuild) colophon under the Payor guide subfamily as rbw-gPQ.",
                 "Cloud Build quota/capacity is a Payor concern — the Payor owns the project, billing, and quota; the Director only consumes builds — so QuotaBuild joins rbw-gPE/gPI/gPR.",
@@ -13972,7 +13972,7 @@
                 "Mechanical colophon rename — one zipper line, one file rename, a build, a grep gate."
               ],
               "jjgtn_silks": "quotabuild-payor-regroup",
-              "jjgtn_basis": "63cf0ee"
+              "jjgtn_basis": "b403e68"
             }
           ]
         },
