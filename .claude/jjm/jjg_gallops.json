@@ -13486,9 +13486,10 @@
         "₢BZAAQ",
         "₢BZAAa",
         "₢BZAAZ",
+        "₢BZAAe",
         "₢BZAAN"
       ],
-      "jjghn_next_pace_seed": "AAe",
+      "jjghn_next_pace_seed": "AAf",
       "jjghn_paces": {
         "₢BZAAA": {
           "jjgpn_tacks": [
@@ -14403,6 +14404,40 @@
               ],
               "jjgtn_silks": "payor-cred-federation-suite",
               "jjgtn_basis": "410e2b9"
+            }
+          ]
+        },
+        "₢BZAAe": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260620-0903",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Retire the RBRA keyfile-credential estate whole — the bridge's demolition condition executed, the heat's \"zero SA keys, RBRA estate deleted whole\" done-criterion.",
+                "Runs after the keyless canonical bootstrap has proven federation personas pass the suites, so the keyfile path is dead bridge legacy by the time this sweeps it.",
+                "",
+                "The five teardown clusters (full estate map + sizing in the pace-design memo's M7 record; rediscover live with grep RBRA_FILE and grep create_service_account_with_key):",
+                "- the accessor keyfile branch (rba_token_capture) + RBDC_*_RBRA_FILE constants/derivation + the rbra regime and CLI + the ~20 consumer test-f/source guards;",
+                "- the enrobe/defrock cult verbs (rbw-aE/adE/arE/adF/arF) and their bodies + the key-creation engine zrbgg_create_service_account_with_key;",
+                "- the keyfile JWT probes (rbw-acg/acr/acd) and their rbgv bodies + the RBSAJ spec — the federated rbw-acm/acf already replace them;",
+                "- RBSRA and the RBS0 quoin seats/includes for the retired specs;",
+                "- the Rust fixture keyfile coupling (the pristine full-SA-cycle case, the fast-tier credless guard, manifest/consts).",
+                "",
+                "## Done when",
+                "grep RBRA_FILE and grep create_service_account_with_key land clean repo-wide; no SA key mints anywhere in the kit.",
+                "The enrobe/defrock verbs, the keyfile JWT probes, and RBSRA/RBSAJ are gone; RBS0 is internally consistent with the seats removed.",
+                "The theurge build regenerates the consts and tabtarget-context; shellcheck and the suites (now wholly on federation personas) stay green; complete green before the heat closes.",
+                "",
+                "## Cinched",
+                "Runs only after the keyless bootstrap proves the gate — teardown of dead bridge legacy, not a live credential swap.",
+                "The rbgw capability-set definitions stay (they realize the mantle grant lists, not keyfile machinery).",
+                "Decide at mount whether the cult roster verbs (rbw-adr/arr) retire here or survive — federation's rehearse may already replace them.",
+                "",
+                "## Character",
+                "Large mechanical-but-wide demolition — one credential estate across bash, theurge-Rust, specs, and zipper; the risk is reach, not depth."
+              ],
+              "jjgtn_silks": "rbra-estate-demolition",
+              "jjgtn_basis": "b7d51f0"
             }
           ]
         }
