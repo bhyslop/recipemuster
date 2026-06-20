@@ -16438,8 +16438,8 @@
         "₢BgAAA": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260620-1129",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260620-1547",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "## Character",
                 "",
@@ -16456,7 +16456,7 @@
                 "See the paddock for full shape: VOK standalone-binary placement (source veiled, binary gitignored in target), CMK-cited doctrine, tabtarget-only MVP, the freeze/builder object pattern, mechanical-never-linguistic, and the structural-secrecy boundary."
               ],
               "jjgtn_silks": "vo-matricula-mvp-subdoc",
-              "jjgtn_basis": "d184403"
+              "jjgtn_basis": "1ba38d1"
             }
           ]
         },
