@@ -98,6 +98,7 @@
 :axd_algebraic:                       <<axd_algebraic,Algebraic>>
 :axd_temporal:                        <<axd_temporal,Temporal>>
 :axd_transient:                       <<axd_transient,Transient>>
+:axd_petrify:                         <<axd_petrify,Petrify>>
 :axd_wire_type:                       <<axd_wire_type,Wire Type>>
 :axd_xml_form:                        <<axd_xml_form,XML Form>>
 
@@ -1684,6 +1685,35 @@ section.
 May include
 {axhos_step} (idempotency, overlap)
 sections.
+
+=== Seal Dimensions
+
+These
+{axd_dimension_s}
+qualify
+{axr_record}
+and
+{axo_entity}
+voicings to specify a build-then-freeze lifecycle.
+Optional; a structure carries one only if it hardens.
+
+[[axd_petrify]]
+{axd_petrify}::
+A
+{axd_dimension}
+marking an
+{axr_record}
+or
+{axo_entity}
+that is raised mutable and then turns, irrevocably, to stone on being seen.
+The seal is triggered by disclosure: the structure accepts mutation only while it is being raised, and the first time anything outside reads its interior it petrifies — observation is what makes it permanent.
+Mutation after it petrifies is fatal.
+Construction constants — values fixed before any disclosure — may be read without petrifying it.
+A term carrying
+{axd_petrify}
+has two phases, builder (mutable) and petrified (frozen); its definition names the act that petrifies it.
+In a compiled language the two phases are a typestate (a Builder consumed into a frozen value); in a dynamic one, a runtime guard — the dimension is the language-neutral declaration both implement.
+Worked instances: the JJK gazette (freeze-on-disclosure) and the Vox Matricula (raise, seal, query).
 
 === Regime Dimensions
 
