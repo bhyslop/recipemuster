@@ -14398,8 +14398,8 @@
         "₢BZAAZ": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260617-1350",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260620-1546",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "Finish the collapse of the depot test-installation to a single freehold scheme — the cleanup the quota-driven reuse decision set in motion.",
                 "The proof pace realized the first pieces (idempotent reuse-or-create ensure, the deliberate churn fixture); two test-prefix schemes still coexist — the canonical canc-/canr- family and pristine's throwaway family — each with its own duplicated autoincrement pick-next.",
@@ -14420,7 +14420,7 @@
                 "Test-infra refactor — mostly mechanical rename/unify/split, but it touches shared fixture machinery; sequence against the RBRA-estate-retirement movement's keyless rewrite of the canonical credential-bootstrap fixture, since both touch the same fixtures."
               ],
               "jjgtn_silks": "freehold-collapse-cleanup",
-              "jjgtn_basis": "028cebc"
+              "jjgtn_basis": "a394e06"
             }
           ]
         },
