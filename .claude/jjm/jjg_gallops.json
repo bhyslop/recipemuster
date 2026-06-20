@@ -14355,8 +14355,8 @@
         "₢BZAAd": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260619-1108",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260620-0756",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "Add a named theurge test-suite composing the payor-credentialed federation fixtures, so a federation pace has a green-able confirmation target that excludes the bridge-legacy keyfile estate — then retire the standalone proof tabtargets the suite renders redundant.",
                 "",
@@ -14385,7 +14385,7 @@
                 "Sources: the foedus-freehold wrap rationale and the live keyfile-estate finding recorded in the RBRA-estate-retirement pace's docket."
               ],
               "jjgtn_silks": "payor-cred-federation-suite",
-              "jjgtn_basis": "e57bd6e"
+              "jjgtn_basis": "410e2b9"
             }
           ]
         }
