@@ -13982,25 +13982,30 @@
         "₢BZAAP": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260615-1807",
+              "jjgtn_ts": "260620-0911",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
-                "PLACEHOLDER — movement 6 (narrative docs) is not yet designed; reslate to firm when known.",
-                "Scope from the paddock Ordering: the federation narrative docs trail as their own movement, plus broadside registration of the elected federation words (the README glossary); post-build cold-probe verifies.",
-                "Holds the slot before the terminal Fable-review pace.",
+                "Invert the README federation narrative and register the elected vocabulary on the broadside (the README glossary). Today the README frames keyfile as the whole current system and federation as a planned future tier; this pace flips it — federation is the model, keyfile is retired bridge legacy now gone, the two-tier framing collapses to one. Scope: README + broadside glossary + diagrams; the handbook rework is ₣A6, not here.",
+                "",
+                "Findings, full elected-word list, and rationale are in the pace-design memo's M6 record. Rediscover live: grep the README for the keyfile/RBRA/\"planned\" framing, the elected words, and the diagrams/ embeds.",
+                "",
+                "Two traps a vocabulary top-up would miss: the glossary's \"Mantle — create the Governor service account\" is the cult verb sense and must flip to the federation standing-role noun (meaning and part of speech); the federation-seam diagram's \"mode-enum branch\" caption is stale — the mode enum was canceled (single tier).",
                 "",
                 "## Done when",
-                "Movement 6 is designed and this placeholder is reslated into firm docket(s) covering the federation narrative docs and broadside registration.",
+                "The README tells federation as the model — no keyfile tier presented as current, no two-tier framing.",
+                "The broadside registers the permanent elected words (mantle, compear, assize, don, brevet, unseat, attaint, affiance, jilt, rehearse, muniment, citizen, census) and retires the keyfile entries (RBRA, the cult Mantle verb); transitional enrobe/defrock never reach the broadside; RBRO stays.",
+                "The keyfile-login diagram (rbdgk) is gone and the federation-seam diagram drops the mode-enum claim; the pluml fixture re-renders the diagram set.",
+                "A post-build cold-probe confirms the elected words read first-contact actionable.",
                 "",
                 "## Cinched",
-                "Placeholder only — not yet mountable; reslate to firm before mounting.",
-                "Broadside registration of the elected words rides here, per the paddock Documentation strategy.",
+                "One narrative pace — README, broadside, diagrams; not split.",
+                "Runs after the estate demolition so the narrative describes the real keyless state; handbook rework stays in ₣A6.",
                 "",
                 "## Character",
-                "Unfirmed placeholder — carries scope and source, not a mountable plan."
+                "Wide rewrite of one public document and its diagrams — judgment in prose and vocabulary, mechanical in the glossary/diagram plumbing."
               ],
               "jjgtn_silks": "placeholder-m6-narrative-docs",
-              "jjgtn_basis": "381d25b"
+              "jjgtn_basis": "1998743"
             }
           ]
         },
