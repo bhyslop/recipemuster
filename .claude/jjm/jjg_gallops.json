@@ -14550,7 +14550,7 @@
         "₢BZAAe": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260620-0903",
+              "jjgtn_ts": "260620-1542",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "Retire the RBRA keyfile-credential estate whole — the bridge's demolition condition executed, the heat's \"zero SA keys, RBRA estate deleted whole\" done-criterion.",
@@ -14561,12 +14561,13 @@
                 "- the enrobe/defrock cult verbs (rbw-aE/adE/arE/adF/arF) and their bodies + the key-creation engine zrbgg_create_service_account_with_key;",
                 "- the keyfile JWT probes (rbw-acg/acr/acd) and their rbgv bodies + the RBSAJ spec — the federated rbw-acm/acf already replace them;",
                 "- RBSRA and the RBS0 quoin seats/includes for the retired specs;",
-                "- the Rust fixture keyfile coupling (the pristine full-SA-cycle case, the fast-tier credless guard, manifest/consts).",
+                "- the Rust fixture keyfile coupling — the freehold-enrobe fixture, now isolated whole in the rbtdrk_enrobe module as a clean file-delete target; the depot-lifecycle full-SA-cycle case (rbtdrp_sa_cycle in rbtdrp_lifecycle); the fast-tier credless guard; manifest/consts.",
                 "",
                 "## Done when",
                 "grep RBRA_FILE and grep create_service_account_with_key land clean repo-wide; no SA key mints anywhere in the kit.",
                 "The enrobe/defrock verbs, the keyfile JWT probes, and RBSRA/RBSAJ are gone; RBS0 is internally consistent with the seats removed.",
                 "The theurge build regenerates the consts and tabtarget-context; shellcheck and the suites (now wholly on federation personas) stay green; complete green before the heat closes.",
+                "`complete` excludes the depot test-infra fixtures — depot-lifecycle, freehold-establish, and freehold-enrobe ride the gauntlet/skirmish/dogfight/blockade ladders only — so a live gauntlet run on federation personas, plus skirmish for freehold-enrobe, verifies the freehold-collapse rename and this demolition before close, never assumed from complete-green.",
                 "",
                 "## Cinched",
                 "Runs only after the keyless bootstrap proves the gate — teardown of dead bridge legacy, not a live credential swap.",
@@ -14577,7 +14578,7 @@
                 "Large mechanical-but-wide demolition — one credential estate across bash, theurge-Rust, specs, and zipper; the risk is reach, not depth."
               ],
               "jjgtn_silks": "rbra-estate-demolition",
-              "jjgtn_basis": "b7d51f0"
+              "jjgtn_basis": "dd628c0"
             }
           ]
         }
