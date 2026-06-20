@@ -17,7 +17,7 @@ use crate::jjrg_gallops::{
 };
 use crate::jjri_io::jjri_paddock_path;
 use crate::jjrp_print::{jjrp_Table, jjrp_Column, jjrp_Align};
-use crate::jjrq_query::{jjrq_files_for_pace, jjrq_file_touches_for_heat, zjjrq_files_for_commit, zjjrq_bare_filename, zjjrq_is_infra_file};
+use crate::jjrq_query::{jjrq_files_for_pace, jjrq_file_touches_for_heat};
 use crate::jjrs_steeplechase::{jjrs_ReinArgs, jjrs_get_entries, jjrs_SteeplechaseEntry};
 use crate::jjrz_gazette::{jjrz_Gazette, jjrz_Slug};
 use std::collections::BTreeMap;
@@ -36,19 +36,22 @@ pub struct jjrpd_ParadeArgs {
     #[arg(long, short = 'f', default_value = ".claude/jjm/jjg_gallops.json")]
     pub file: std::path::PathBuf,
 
-    /// Target: Firemark (heat view) or Coronet (pace view). If omitted, uses first racing heat.
-    pub target: Option<String>,
+    /// Heterogeneous target list; each element self-types by length (Firemark
+    /// -> heat expansion, Coronet -> single pace). Empty -> first racing heat.
+    pub targets: Vec<String>,
 
-    /// Show paddock and full dockets (heat mode only)
-    #[arg(long)]
-    pub detail: bool,
-
-    /// Show only remaining paces (exclude complete/abandoned)
+    /// Show only remaining paces (exclude complete/abandoned). Affects firemark
+    /// expansion only; a directly-named coronet returns regardless of state.
     #[arg(long)]
     pub remaining: bool,
 }
 
-/// Run the show command - display comprehensive Heat status
+/// Run the show command — terse tool-result table(s) plus an always-populated
+/// gazette. `targets` is a heterogeneous list; each element self-types by
+/// length (Firemark -> heat expansion, Coronet -> single pace). An empty list
+/// auto-selects the first racing heat (the orient/mount/groom default). Pace
+/// and paddock bodies reach the caller only through the gazette — never the
+/// tool-result.
 pub fn jjrpd_run_parade(args: jjrpd_ParadeArgs, gazette: &mut jjrz_Gazette) -> (i32, String) {
     let cn = JJRPD_CMD_NAME_SHOW;
     let mut output = vvco_Output::buffer();
@@ -70,167 +73,135 @@ pub fn jjrpd_run_parade(args: jjrpd_ParadeArgs, gazette: &mut jjrz_Gazette) -> (
         }
     };
 
-    // Resolve target: use provided value or auto-select first racing heat
-    let target = match args.target {
-        Some(t) => t,
-        None => {
-            // Load gallops to resolve default heat
-            match zjjrpd_resolve_default_heat(&gallops) {
-                Ok(fm) => fm,
-                Err(e) => {
-                    vvco_err!(output, "{}: error: {}", cn, e);
-                    return (1, output.vvco_finish());
-                }
+    // Resolve target list: an empty list auto-selects the first racing heat,
+    // preserving the singular orient/mount/groom default.
+    let targets: Vec<String> = if args.targets.is_empty() {
+        match zjjrpd_resolve_default_heat(&gallops) {
+            Ok(fm) => vec![fm],
+            Err(e) => {
+                vvco_err!(output, "{}: error: {}", cn, e);
+                return (1, output.vvco_finish());
             }
         }
+    } else {
+        args.targets.clone()
     };
 
-    // Determine target type by length
-    let target_str = target.strip_prefix('₢').or_else(|| target.strip_prefix('₣')).unwrap_or(&target);
+    // The file-touch bitmap and commit swim lanes assume a single heat; render
+    // them only when the request resolves to exactly one firemark target.
+    let single_firemark = targets.len() == 1 && zjjrpd_strip_glyph(&targets[0]).len() == 2;
 
-    if target_str.len() == 5 {
-        // Coronet - pace view
-        let coronet = match Coronet::jjrf_parse(&target) {
-            Ok(c) => c,
-            Err(e) => {
-                vvco_err!(output, "{}: error: {}", cn, e);
-                return (1, output.vvco_finish());
-            }
+    let mut added_paddocks: std::collections::HashSet<String> = std::collections::HashSet::new();
+    let mut added_paces: std::collections::HashSet<String> = std::collections::HashSet::new();
+
+    for target in &targets {
+        let target_str = zjjrpd_strip_glyph(target);
+        let res = match target_str.len() {
+            5 => zjjrpd_emit_coronet(&mut output, &gallops, target, gazette, &mut added_paddocks, &mut added_paces),
+            2 => zjjrpd_emit_firemark(&mut output, &gallops, target, args.remaining, single_firemark, gazette, &mut added_paddocks, &mut added_paces),
+            n => Err(format!(
+                "{}: error: target '{}' must be Firemark (2 chars) or Coronet (5 chars), got {} chars",
+                cn, target, n
+            )),
         };
-
-        // Extract parent firemark
-        let firemark = coronet.jjrf_parent_firemark();
-        let heat_key = firemark.jjrf_display();
-        let heat = match gallops.heats.get(&heat_key) {
-            Some(h) => h,
-            None => {
-                vvco_err!(output, "{}: error: Heat '{}' not found", cn, heat_key);
-                return (1, output.vvco_finish());
-            }
-        };
-
-        // Find pace
-        let coronet_key = coronet.jjrf_display();
-        let pace = match heat.paces.get(&coronet_key) {
-            Some(p) => p,
-            None => {
-                vvco_err!(output, "{}: error: Pace '{}' not found in Heat '{}'", cn, coronet_key, heat_key);
-                return (1, output.vvco_finish());
-            }
-        };
-
-        // Display pace view
-        if !pace.tacks.is_empty() {
-            // Write header with current state from tacks[0]
-            let current_tack = &pace.tacks[0];
-            vvco_out!(output, "Pace: {} ({}) [{}]", current_tack.silks, coronet_key, zjjrpd_pace_state_str(&current_tack.state));
-            vvco_out!(output, "Heat: {}", heat_key);
-
-            // Show work files touched by this pace's commits
-            match jjrq_files_for_pace(firemark.jjrf_as_str(), &coronet_key) {
-                Ok(files) if !files.is_empty() => {
-                    vvco_out!(output, "Work files: {}", files.join(", "));
-                }
-                _ => {}
-            }
-            vvco_out!(output, "");
-
-            if args.detail {
-                // Detail view: full tack history in reverse order (oldest first)
-                for (index, tack) in pace.tacks.iter().rev().enumerate() {
-                    let state_str = zjjrpd_pace_state_str(&tack.state);
-                    let basis_str = if tack.basis == "0000000" {
-                        "(no basis)".to_string()
-                    } else {
-                        tack.basis.clone()
-                    };
-
-                    vvco_out!(output, "[{}] {} (basis: {})", index, state_str, basis_str);
-                    vvco_out!(output, "    Silks: {}", tack.silks);
-                    vvco_out!(output, "");
-                    // Indent docket text
-                    for line in &tack.text {
-                        vvco_out!(output, "    {}", line);
-                    }
-                    vvco_out!(output, "");
-                }
-            } else {
-                // Default view: latest tack docket only
-                for line in &current_tack.text {
-                    vvco_out!(output, "{}", line);
-                }
-                vvco_out!(output, "");
-            }
-
-            // Append files-per-commit bitmap
-            zjjrpd_write_pace_commits(&mut output, &firemark, &coronet_key);
+        if let Err(e) = res {
+            vvco_err!(output, "{}", e);
+            return (1, output.vvco_finish());
         }
-    } else if target_str.len() == 2 {
-        // Firemark - heat view
-        let firemark = match Firemark::jjrf_parse(&target) {
-            Ok(fm) => fm,
-            Err(e) => {
-                vvco_err!(output, "{}: error: {}", cn, e);
-                return (1, output.vvco_finish());
-            }
-        };
+    }
 
-        let heat_key = firemark.jjrf_display();
-        let heat = match gallops.heats.get(&heat_key) {
-            Some(h) => h,
-            None => {
-                vvco_err!(output, "{}: error: Heat '{}' not found", cn, heat_key);
-                return (1, output.vvco_finish());
-            }
-        };
+    (0, output.vvco_finish())
+}
 
-        let mut gazette_paddock: Option<String> = None;
+/// Strip an optional ₢/₣ identity glyph, returning the bare base64 tail.
+fn zjjrpd_strip_glyph(target: &str) -> &str {
+    target.strip_prefix('₢').or_else(|| target.strip_prefix('₣')).unwrap_or(target)
+}
 
-        if args.detail {
-            // Detail view: paddock + all dockets
-            let paddock_path = jjri_paddock_path(firemark.jjrf_as_str());
-            let paddock_content = match fs::read_to_string(&paddock_path) {
-                Ok(content) => content,
-                Err(e) => {
-                    vvco_err!(output, "{}: error reading paddock file '{}': {}", cn, paddock_path, e);
-                    return (1, output.vvco_finish());
-                }
-            };
+/// Add a heat's paddock to the gazette at most once per heat. Best-effort: a
+/// missing paddock file is skipped (the pace dockets are the round-trip payload).
+fn zjjrpd_gazette_paddock_once(
+    gazette: &mut jjrz_Gazette,
+    added: &mut std::collections::HashSet<String>,
+    firemark: &Firemark,
+) {
+    let heat_key = firemark.jjrf_display();
+    if added.insert(heat_key.clone()) {
+        let paddock_path = jjri_paddock_path(firemark.jjrf_as_str());
+        if let Ok(content) = fs::read_to_string(&paddock_path) {
+            gazette.jjrz_add(jjrz_Slug::Paddock, &heat_key, &content).ok();
+        }
+    }
+}
 
-            let status_str = match heat.status {
-                HeatStatus::Racing => "racing",
-                HeatStatus::Stabled => "stabled",
-                HeatStatus::Retired => "retired",
-            };
+/// Emit one coronet target: a terse pace header to the tool-result, the pace
+/// docket plus its parent paddock to the gazette. A directly-named coronet
+/// returns regardless of pace state.
+fn zjjrpd_emit_coronet(
+    output: &mut vvco_Output,
+    gallops: &Gallops,
+    target: &str,
+    gazette: &mut jjrz_Gazette,
+    added_paddocks: &mut std::collections::HashSet<String>,
+    added_paces: &mut std::collections::HashSet<String>,
+) -> Result<(), String> {
+    let cn = JJRPD_CMD_NAME_SHOW;
+    let coronet = Coronet::jjrf_parse(target).map_err(|e| format!("{}: error: {}", cn, e))?;
+    let firemark = coronet.jjrf_parent_firemark();
+    let heat_key = firemark.jjrf_display();
+    let heat = gallops.heats.get(&heat_key)
+        .ok_or_else(|| format!("{}: error: Heat '{}' not found", cn, heat_key))?;
+    let coronet_key = coronet.jjrf_display();
+    let pace = heat.paces.get(&coronet_key)
+        .ok_or_else(|| format!("{}: error: Pace '{}' not found in Heat '{}'", cn, coronet_key, heat_key))?;
 
-            vvco_out!(output, "Heat: {} ({})", heat.silks, heat_key);
-            vvco_out!(output, "Status: {}", status_str);
-            vvco_out!(output, "Created: {}", heat.creation_time);
-            vvco_out!(output, "");
-            gazette_paddock = Some(paddock_content);
-            vvco_out!(output, "");
-            vvco_out!(output, "## Paces");
-            vvco_out!(output, "");
+    let current_tack = match pace.tacks.first() {
+        Some(t) => t,
+        None => return Ok(()),
+    };
 
-            for coronet_key in &heat.order {
-                if let Some(pace) = heat.paces.get(coronet_key) {
-                    if let Some(tack) = pace.tacks.first() {
-                        // Skip complete/abandoned if --remaining
-                        if args.remaining && (tack.state == PaceState::Complete || tack.state == PaceState::Abandoned) {
-                            continue;
-                        }
-                        let state_str = zjjrpd_pace_state_str(&tack.state);
-                        vvco_out!(output, "### {} ({}) [{}]", tack.silks, coronet_key, state_str);
-                        vvco_out!(output, "");
-                        vvco_out!(output, "{}", jjrg_lines_to_text(&tack.text));
-                        vvco_out!(output, "");
-                    }
-                }
-            }
-        } else {
+    // Terse header only — the docket body reaches context through the gazette.
+    vvco_out!(output, "Pace: {} ({}) [{}]", current_tack.silks, coronet_key, zjjrpd_pace_state_str(&current_tack.state));
+    vvco_out!(output, "Heat: {}", heat_key);
+    if let Ok(files) = jjrq_files_for_pace(firemark.jjrf_as_str(), &coronet_key) {
+        if !files.is_empty() {
+            vvco_out!(output, "Work files: {}", files.join(", "));
+        }
+    }
+    vvco_out!(output, "");
+
+    zjjrpd_gazette_paddock_once(gazette, added_paddocks, &firemark);
+    if added_paces.insert(coronet_key.clone()) {
+        let pace_text = jjrg_lines_to_text(&current_tack.text);
+        gazette.jjrz_add(jjrz_Slug::Pace, &coronet_key, &pace_text).ok();
+    }
+    Ok(())
+}
+
+/// Emit one firemark target: the terse numbered pace table to the tool-result
+/// (remaining-filtered when requested), the paddock plus per-pace dockets to
+/// the gazette. Bitmap and swim lanes are appended only when `with_bitmaps`.
+fn zjjrpd_emit_firemark(
+    output: &mut vvco_Output,
+    gallops: &Gallops,
+    target: &str,
+    remaining: bool,
+    with_bitmaps: bool,
+    gazette: &mut jjrz_Gazette,
+    added_paddocks: &mut std::collections::HashSet<String>,
+    added_paces: &mut std::collections::HashSet<String>,
+) -> Result<(), String> {
+    let cn = JJRPD_CMD_NAME_SHOW;
+    let firemark = Firemark::jjrf_parse(target).map_err(|e| format!("{}: error: {}", cn, e))?;
+    let heat_key = firemark.jjrf_display();
+    let heat = gallops.heats.get(&heat_key)
+        .ok_or_else(|| format!("{}: error: Heat '{}' not found", cn, heat_key))?;
+
+    {
+        {
             // List view: numbered paces
             // If --remaining, output markdown format
-            if args.remaining {
+            if remaining {
                 let mut complete_count = 0;
                 let mut abandoned_count = 0;
                 let mut rough_count = 0;
@@ -293,14 +264,14 @@ pub fn jjrpd_run_parade(args: jjrpd_ParadeArgs, gazette: &mut jjrz_Gazette) -> (
                     }
 
                     // Write header and separator
-                    table.jjrp_write_header(&mut output);
-                    table.jjrp_write_separator(&mut output);
+                    table.jjrp_write_header(output);
+                    table.jjrp_write_separator(output);
 
                     // Write data rows
                     for (idx, (coronet_key, pace)) in remaining_paces.iter().enumerate() {
                         if let Some(tack) = pace.tacks.first() {
                             let state_str = zjjrpd_pace_state_str(&tack.state);
-                            table.jjrp_write_row(&mut output, &[
+                            table.jjrp_write_row(output, &[
                                 &(idx + 1).to_string(),
                                 state_str,
                                 &tack.silks,
@@ -348,8 +319,8 @@ pub fn jjrpd_run_parade(args: jjrpd_ParadeArgs, gazette: &mut jjrz_Gazette) -> (
                 }
 
                 // Write header and separator
-                table.jjrp_write_header(&mut output);
-                table.jjrp_write_separator(&mut output);
+                table.jjrp_write_header(output);
+                table.jjrp_write_separator(output);
 
                 // Write data rows
                 let mut num = 0;
@@ -358,7 +329,7 @@ pub fn jjrpd_run_parade(args: jjrpd_ParadeArgs, gazette: &mut jjrz_Gazette) -> (
                         if let Some(tack) = pace.tacks.first() {
                             num += 1;
                             let state_str = zjjrpd_pace_state_str(&tack.state);
-                            table.jjrp_write_row(&mut output, &[
+                            table.jjrp_write_row(output, &[
                                 &num.to_string(),
                                 state_str,
                                 &tack.silks,
@@ -370,30 +341,31 @@ pub fn jjrpd_run_parade(args: jjrpd_ParadeArgs, gazette: &mut jjrz_Gazette) -> (
             }
         }
 
-        // Always show file-touch bitmap and commit swim lanes after pace listing
-        jjrpd_write_file_bitmap(&mut output, &firemark, heat);
-        jjrpd_write_commit_swimlanes(&mut output, &firemark, heat);
+            // The bitmap and swim lanes assume a single heat — render only for
+            // a lone firemark target.
+            if with_bitmaps {
+                jjrpd_write_file_bitmap(output, &firemark, heat);
+                jjrpd_write_commit_swimlanes(output, &firemark, heat);
+            }
+        }
 
-        // Add gazette notices for downstream consumption (detail mode only)
-        if let Some(ref paddock_text) = gazette_paddock {
-            gazette.jjrz_add(jjrz_Slug::Paddock, &heat_key, paddock_text).ok();
-            for coronet_key in &heat.order {
-                if let Some(pace) = heat.paces.get(coronet_key) {
-                    if let Some(tack) = pace.tacks.first() {
-                        if !args.remaining || (tack.state != PaceState::Complete && tack.state != PaceState::Abandoned) {
-                            let pace_text = jjrg_lines_to_text(&tack.text);
-                            gazette.jjrz_add(jjrz_Slug::Pace, coronet_key, &pace_text).ok();
-                        }
-                    }
+    // Always populate the gazette: paddock once, then each pace docket
+    // (remaining-filtered to match the table).
+    zjjrpd_gazette_paddock_once(gazette, added_paddocks, &firemark);
+    for coronet_key in &heat.order {
+        if let Some(pace) = heat.paces.get(coronet_key) {
+            if let Some(tack) = pace.tacks.first() {
+                if remaining && (tack.state == PaceState::Complete || tack.state == PaceState::Abandoned) {
+                    continue;
+                }
+                if added_paces.insert(coronet_key.clone()) {
+                    let pace_text = jjrg_lines_to_text(&tack.text);
+                    gazette.jjrz_add(jjrz_Slug::Pace, coronet_key, &pace_text).ok();
                 }
             }
         }
-    } else {
-        vvco_err!(output, "{}: error: target must be Firemark (2 chars) or Coronet (5 chars), got {} chars", cn, target_str.len());
-        return (1, output.vvco_finish());
     }
-
-    (0, output.vvco_finish())
+    Ok(())
 }
 
 /// Format the file-touch bitmap for a heat as a String.
@@ -504,7 +476,7 @@ pub(crate) fn jjrpd_write_file_bitmap(output: &mut vvco_Output, firemark: &Firem
 }
 
 /// Helper to convert PaceState to display string
-pub(crate) fn zjjrpd_pace_state_str(state: &PaceState) -> &'static str {
+fn zjjrpd_pace_state_str(state: &PaceState) -> &'static str {
     match state {
         PaceState::Rough => "rough",
         PaceState::Complete => "complete",
@@ -513,7 +485,7 @@ pub(crate) fn zjjrpd_pace_state_str(state: &PaceState) -> &'static str {
 }
 
 /// Resolve the default heat (first racing heat) when no target is specified
-pub(crate) fn zjjrpd_resolve_default_heat(gallops: &Gallops) -> Result<String, String> {
+fn zjjrpd_resolve_default_heat(gallops: &Gallops) -> Result<String, String> {
     for (heat_key, heat) in &gallops.heats {
         if heat.status == HeatStatus::Racing {
             return Ok(heat_key.clone());
@@ -642,97 +614,5 @@ pub(crate) fn jjrpd_write_commit_swimlanes(output: &mut vvco_Output, firemark: &
             }
         }
         Err(e) => vvco_err!(output, "{}: error getting steeplechase entries: {}", cn, e),
-    }
-}
-
-/// Write files-per-commit bitmap for a single pace to output.
-///
-/// Shows which files each commit in this pace touched.
-/// Called after tack history in pace parade.
-fn zjjrpd_write_pace_commits(output: &mut vvco_Output, firemark: &Firemark, coronet_key: &str) {
-    let cn = JJRPD_CMD_NAME_SHOW;
-    let rein_args = jjrs_ReinArgs {
-        firemark: firemark.jjrf_as_str().to_string(),
-        limit: 10000,
-    };
-
-    let entries = match jjrs_get_entries(&rein_args) {
-        Ok(e) => e,
-        Err(e) => {
-            vvco_err!(output, "{}: error getting steeplechase entries: {}", cn, e);
-            return;
-        }
-    };
-
-    // Filter by coronet, then reverse for chronological order
-    let pace_entries: Vec<&jjrs_SteeplechaseEntry> = entries
-        .iter()
-        .filter(|e| e.coronet.as_deref() == Some(coronet_key))
-        .collect::<Vec<_>>()
-        .into_iter()
-        .rev()
-        .collect();
-
-    if pace_entries.is_empty() {
-        return;
-    }
-
-    // Get files for each commit
-    let num_commits = pace_entries.len();
-    let mut file_touches: BTreeMap<String, Vec<bool>> = BTreeMap::new();
-
-    for (col, entry) in pace_entries.iter().enumerate() {
-        let files = zjjrq_files_for_commit(&entry.commit);
-        for path in files {
-            if zjjrq_is_infra_file(&path) {
-                continue;
-            }
-            let bare = zjjrq_bare_filename(&path);
-            let row = file_touches.entry(bare).or_insert_with(|| vec![false; num_commits]);
-            row[col] = true;
-        }
-    }
-
-    if file_touches.is_empty() {
-        vvco_out!(output, "");
-        vvco_out!(output, "Pace commits: (no project file commits)");
-        return;
-    }
-
-    vvco_out!(output, "");
-    vvco_out!(output, "Pace commits (x = commit touched file):");
-    vvco_out!(output, "");
-
-    // Legend: commit index char, SHA, subject
-    for (i, entry) in pace_entries.iter().enumerate() {
-        let ch = zjjrpd_commit_index_char(i).unwrap_or('?');
-        vvco_out!(output, "  {} {}  {}", ch, entry.commit, entry.subject);
-    }
-    vvco_out!(output, "");
-
-    // Column header line
-    let header: String = (0..num_commits).filter_map(zjjrpd_commit_index_char).collect();
-    vvco_out!(output, "{}", header);
-
-    // Group by identical touch pattern
-    let mut pattern_groups: BTreeMap<Vec<bool>, Vec<String>> = BTreeMap::new();
-    for (filename, pattern) in &file_touches {
-        pattern_groups.entry(pattern.clone()).or_default().push(filename.clone());
-    }
-    for files in pattern_groups.values_mut() {
-        files.sort();
-    }
-
-    // Sort: more touches first, then lexicographic
-    let mut sorted: Vec<(Vec<bool>, Vec<String>)> = pattern_groups.into_iter().collect();
-    sorted.sort_by(|(a, _), (b, _)| {
-        let ca: usize = a.iter().filter(|&&v| v).count();
-        let cb: usize = b.iter().filter(|&&v| v).count();
-        cb.cmp(&ca).then_with(|| a.cmp(b))
-    });
-
-    for (pattern, files) in &sorted {
-        let bits: String = pattern.iter().map(|&b| if b { 'x' } else { '·' }).collect();
-        vvco_out!(output, "{} {}", bits, files.join(", "));
     }
 }

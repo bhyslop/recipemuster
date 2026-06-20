@@ -2,9 +2,16 @@
 // SPDX-License-Identifier: LicenseRef-Proprietary
 
 //! Tests for jjx_parade command (heat/pace display)
+//!
+//! Module-private helpers (`zjjrpd_*`) are deliberately NOT reached from this
+//! sibling test module — `z` means private, never widened for test access (RCG).
+//! Their behavior is covered through the public `jjrpd_run_parade` boundary
+//! below: length dispatch, auto-select, the always-on gazette, and the
+//! remaining filter all exercise the private helpers as a side effect.
 
-use super::jjrpd_parade::{zjjrpd_pace_state_str, zjjrpd_resolve_default_heat};
+use super::jjrpd_parade::{jjrpd_run_parade, jjrpd_ParadeArgs};
 use super::jjrg_gallops::{jjrg_Gallops, jjrg_Heat, jjrg_Pace, jjrg_Tack, jjrg_HeatStatus, jjrg_PaceState, JJRG_UNKNOWN_BASIS};
+use super::jjrz_gazette::{jjrz_Gazette, jjrz_Slug, jjrz_parse_reslate_input};
 use std::collections::BTreeMap;
 
 // ===== Helper functions =====
@@ -17,32 +24,26 @@ fn make_valid_gallops() -> jjrg_Gallops {
     }
 }
 
-fn make_valid_tack(state: jjrg_PaceState, silks: &str) -> jjrg_Tack {
-    jjrg_Tack {
+/// Build a heat with one pace carrying a specific docket and pace state.
+fn make_heat_with_docket(
+    heat_id: &str,
+    status: jjrg_HeatStatus,
+    state: jjrg_PaceState,
+    docket: &str,
+) -> (String, jjrg_Heat) {
+    let heat_key = format!("₣{}", heat_id);
+    let pace_key = format!("₢{}AAA", heat_id);
+    let tack = jjrg_Tack {
         ts: "260101-1200".to_string(),
         state,
-        text: vec!["Test tack text".to_string()],
-        silks: silks.to_string(),
+        text: docket.lines().map(|l| l.to_string()).collect(),
+        silks: format!("pace-{}", heat_id),
         basis: JJRG_UNKNOWN_BASIS.to_string(),
-    }
-}
-
-fn make_valid_pace(heat_id: &str) -> (String, jjrg_Pace) {
-    let pace_key = format!("₢{}AAA", heat_id);
-    let pace = jjrg_Pace {
-        tacks: vec![make_valid_tack(jjrg_PaceState::Rough, "test-pace")],
     };
-    (pace_key, pace)
-}
-
-fn make_valid_heat(heat_id: &str, silks: &str, status: jjrg_HeatStatus) -> (String, jjrg_Heat) {
-    let heat_key = format!("₣{}", heat_id);
-    let (pace_key, pace) = make_valid_pace(heat_id);
     let mut paces = BTreeMap::new();
-    paces.insert(pace_key.clone(), pace);
-
+    paces.insert(pace_key.clone(), jjrg_Pace { tacks: vec![tack] });
     let heat = jjrg_Heat {
-        silks: silks.to_string(),
+        silks: format!("heat-{}", heat_id),
         creation_time: "260101".to_string(),
         status,
         order: vec![pace_key],
@@ -52,102 +53,69 @@ fn make_valid_heat(heat_id: &str, silks: &str, status: jjrg_HeatStatus) -> (Stri
     (heat_key, heat)
 }
 
-// ===== zjjrpd_pace_state_str tests =====
-
-#[test]
-fn jjtpd_pace_state_str_rough() {
-    let result = zjjrpd_pace_state_str(&jjrg_PaceState::Rough);
-    assert_eq!(result, "rough");
+/// Persist a gallops to a per-test temp directory so `jjrpd_run_parade`
+/// (which loads from disk) can be driven at its public boundary. Each test
+/// gets its OWN directory: jjrg_save writes a `.tmp.<pid>.json` alongside the
+/// target, and since parallel tests share one pid, a shared directory would
+/// race that temp name across saves. The unique `name` isolates each test.
+fn write_temp_gallops(name: &str, gallops: &jjrg_Gallops) -> std::path::PathBuf {
+    let dir = std::env::temp_dir().join(format!("jjtpd_{}_{}", name, std::process::id()));
+    std::fs::create_dir_all(&dir).unwrap();
+    let path = dir.join("gallops.json");
+    gallops.jjrg_save(&path).unwrap();
+    path
 }
 
-#[test]
-fn jjtpd_pace_state_str_complete() {
-    let result = zjjrpd_pace_state_str(&jjrg_PaceState::Complete);
-    assert_eq!(result, "complete");
+/// Read the current (latest tack) docket lines for one pace.
+fn current_docket_lines(gallops: &jjrg_Gallops, heat_key: &str, coronet_key: &str) -> Vec<String> {
+    gallops.heats.get(heat_key).expect("heat present")
+        .paces.get(coronet_key).expect("pace present")
+        .tacks.first().expect("tack present")
+        .text.clone()
 }
 
-#[test]
-fn jjtpd_pace_state_str_abandoned() {
-    let result = zjjrpd_pace_state_str(&jjrg_PaceState::Abandoned);
-    assert_eq!(result, "abandoned");
+/// Model the operator's bash bridge over a shown gazette: drop the paddock
+/// notices, rewrite the output-typed `jjezs_pace` slug to the input-typed
+/// `jjezs_reslate`, and apply the transformable heading renames this round-trip
+/// was born to carry (`## Locked` -> `## Cinched`, `## Done` -> `## Done when`).
+fn bridge_show_to_reslate(shown: &str) -> String {
+    let mut out = String::new();
+    let mut in_paddock = false;
+    for line in shown.lines() {
+        if line.starts_with("# jjezs_paddock") {
+            in_paddock = true;
+            continue;
+        }
+        if let Some(rest) = line.strip_prefix("# jjezs_pace ") {
+            in_paddock = false;
+            out.push_str("# jjezs_reslate ");
+            out.push_str(rest);
+            out.push('\n');
+            continue;
+        }
+        if line.starts_with("# jjezs_") {
+            in_paddock = false;
+        }
+        if in_paddock {
+            continue;
+        }
+        let rewritten = match line.trim_end() {
+            "## Locked" => "## Cinched",
+            "## Done" => "## Done when",
+            _ => line,
+        };
+        out.push_str(rewritten);
+        out.push('\n');
+    }
+    out
 }
 
-// ===== zjjrpd_resolve_default_heat tests =====
-
-#[test]
-fn jjtpd_resolve_default_heat_with_racing() {
-    let mut gallops = make_valid_gallops();
-    let (heat_key, heat) = make_valid_heat("AB", "my-racing-heat", jjrg_HeatStatus::Racing);
-    gallops.heats.insert(heat_key.clone(), heat);
-
-    let result = zjjrpd_resolve_default_heat(&gallops);
-    assert!(result.is_ok());
-    assert_eq!(result.unwrap(), heat_key);
-}
-
-#[test]
-fn jjtpd_resolve_default_heat_no_racing() {
-    let mut gallops = make_valid_gallops();
-    let (heat_key, heat) = make_valid_heat("AB", "my-stabled-heat", jjrg_HeatStatus::Stabled);
-    gallops.heats.insert(heat_key, heat);
-
-    let result = zjjrpd_resolve_default_heat(&gallops);
-    assert!(result.is_err());
-    assert!(result.unwrap_err().contains("No racing heats found"));
-}
-
-#[test]
-fn jjtpd_resolve_default_heat_empty_gallops() {
-    let gallops = make_valid_gallops();
-
-    let result = zjjrpd_resolve_default_heat(&gallops);
-    assert!(result.is_err());
-    assert!(result.unwrap_err().contains("No racing heats found"));
-}
-
-#[test]
-fn jjtpd_resolve_default_heat_multiple_heats_first_racing() {
-    let mut gallops = make_valid_gallops();
-
-    // First heat is racing
-    let (key_ab, heat_ab) = make_valid_heat("AB", "first-racing", jjrg_HeatStatus::Racing);
-    // Second heat is stabled
-    let (key_cd, heat_cd) = make_valid_heat("CD", "second-stabled", jjrg_HeatStatus::Stabled);
-    // Third heat is also racing
-    let (key_ef, heat_ef) = make_valid_heat("EF", "third-racing", jjrg_HeatStatus::Racing);
-
-    gallops.heats.insert(key_ab.clone(), heat_ab);
-    gallops.heats.insert(key_cd, heat_cd);
-    gallops.heats.insert(key_ef, heat_ef);
-
-    // Should return first racing heat in iteration order
-    let result = zjjrpd_resolve_default_heat(&gallops);
-    assert!(result.is_ok());
-    assert_eq!(result.unwrap(), key_ab);
-}
-
-#[test]
-fn jjtpd_resolve_default_heat_only_stabled_and_retired() {
-    let mut gallops = make_valid_gallops();
-
-    let (key_ab, heat_ab) = make_valid_heat("AB", "stabled-heat", jjrg_HeatStatus::Stabled);
-    let (key_cd, heat_cd) = make_valid_heat("CD", "retired-heat", jjrg_HeatStatus::Retired);
-
-    gallops.heats.insert(key_ab, heat_ab);
-    gallops.heats.insert(key_cd, heat_cd);
-
-    let result = zjjrpd_resolve_default_heat(&gallops);
-    assert!(result.is_err());
-    assert!(result.unwrap_err().contains("No racing heats found"));
-}
-
-// ===== Target length validation tests =====
-// These test the target validation logic that appears in jjrpd_run_parade
-// Since CLI output capture is not available, we verify the logic patterns
+// ===== Target length validation (pure string contract) =====
+// The length classifier that drives jjrpd_run_parade dispatch: a firemark is
+// 2 chars, a coronet 5, both with an optional ₢/₣ glyph stripped first.
 
 #[test]
 fn jjtpd_target_length_firemark_valid() {
-    // A valid firemark (without prefix) should be 2 characters
     let target = "AB";
     let target_str = target.strip_prefix('₢').or_else(|| target.strip_prefix('₣')).unwrap_or(target);
     assert_eq!(target_str.len(), 2);
@@ -155,7 +123,6 @@ fn jjtpd_target_length_firemark_valid() {
 
 #[test]
 fn jjtpd_target_length_firemark_with_prefix_valid() {
-    // A valid firemark with prefix
     let target = "₣AB";
     let target_str = target.strip_prefix('₢').or_else(|| target.strip_prefix('₣')).unwrap_or(target);
     assert_eq!(target_str.len(), 2);
@@ -163,7 +130,6 @@ fn jjtpd_target_length_firemark_with_prefix_valid() {
 
 #[test]
 fn jjtpd_target_length_coronet_valid() {
-    // A valid coronet (without prefix) should be 5 characters
     let target = "ABAAA";
     let target_str = target.strip_prefix('₢').or_else(|| target.strip_prefix('₣')).unwrap_or(target);
     assert_eq!(target_str.len(), 5);
@@ -171,64 +137,186 @@ fn jjtpd_target_length_coronet_valid() {
 
 #[test]
 fn jjtpd_target_length_coronet_with_prefix_valid() {
-    // A valid coronet with prefix
     let target = "₢ABAAA";
     let target_str = target.strip_prefix('₢').or_else(|| target.strip_prefix('₣')).unwrap_or(target);
     assert_eq!(target_str.len(), 5);
 }
 
 #[test]
-fn jjtpd_target_length_invalid_too_short() {
-    // A target that is too short (1 char)
-    let target = "A";
-    let target_str = target.strip_prefix('₢').or_else(|| target.strip_prefix('₣')).unwrap_or(target);
-    // Should not be 2 or 5
-    assert!(target_str.len() != 2 && target_str.len() != 5);
-}
-
-#[test]
-fn jjtpd_target_length_invalid_too_long() {
-    // A target that is too long (6 chars)
-    let target = "ABAAAA";
-    let target_str = target.strip_prefix('₢').or_else(|| target.strip_prefix('₣')).unwrap_or(target);
-    // Should not be 2 or 5
-    assert!(target_str.len() != 2 && target_str.len() != 5);
-}
-
-#[test]
 fn jjtpd_target_length_invalid_three_chars() {
-    // A target that is 3 chars (between valid lengths)
     let target = "ABC";
     let target_str = target.strip_prefix('₢').or_else(|| target.strip_prefix('₣')).unwrap_or(target);
-    // Should not be 2 or 5
     assert!(target_str.len() != 2 && target_str.len() != 5);
 }
 
-#[test]
-fn jjtpd_target_length_invalid_four_chars() {
-    // A target that is 4 chars (between valid lengths)
-    let target = "ABCD";
-    let target_str = target.strip_prefix('₢').or_else(|| target.strip_prefix('₣')).unwrap_or(target);
-    // Should not be 2 or 5
-    assert!(target_str.len() != 2 && target_str.len() != 5);
-}
-
-// ===== Edge case tests =====
+// ===== Public-boundary dispatch tests (jjrpd_run_parade) =====
 
 #[test]
-fn jjtpd_resolve_default_heat_finds_racing_not_first() {
+fn jjtpd_autoselect_picks_racing_heat_when_no_target() {
+    // Empty targets must keep auto-selecting the first racing heat (orient/mount
+    // depend on this) — covers the private resolve-default-heat helper.
     let mut gallops = make_valid_gallops();
+    let (k, h) = make_heat_with_docket("AB", jjrg_HeatStatus::Racing, jjrg_PaceState::Rough, "## Goal\nalpha");
+    gallops.heats.insert(k, h);
+    let path = write_temp_gallops("autoselect_racing", &gallops);
 
-    // Add stabled heat first
-    let (key_ab, heat_ab) = make_valid_heat("AB", "stabled-first", jjrg_HeatStatus::Stabled);
-    // Then racing heat
-    let (key_cd, heat_cd) = make_valid_heat("CD", "racing-second", jjrg_HeatStatus::Racing);
+    let mut gz = jjrz_Gazette::jjrz_build(&[jjrz_Slug::Paddock, jjrz_Slug::Pace]);
+    let (code, _out) = jjrpd_run_parade(
+        jjrpd_ParadeArgs { file: path.clone(), targets: vec![], remaining: false },
+        &mut gz,
+    );
+    assert_eq!(code, 0);
+    assert!(gz.jjrz_emit().contains("₢ABAAA"), "auto-selected heat's pace should populate the gazette");
+    let _ = std::fs::remove_file(&path);
+}
 
-    gallops.heats.insert(key_ab, heat_ab);
-    gallops.heats.insert(key_cd.clone(), heat_cd);
+#[test]
+fn jjtpd_autoselect_errors_when_no_racing_heat() {
+    let mut gallops = make_valid_gallops();
+    let (k, h) = make_heat_with_docket("AB", jjrg_HeatStatus::Stabled, jjrg_PaceState::Rough, "## Goal\nx");
+    gallops.heats.insert(k, h);
+    let path = write_temp_gallops("autoselect_none", &gallops);
 
-    // Should find the racing heat even though it's not first
-    let result = zjjrpd_resolve_default_heat(&gallops);
-    assert!(result.is_ok());
-    assert_eq!(result.unwrap(), key_cd);
+    let mut gz = jjrz_Gazette::jjrz_build(&[jjrz_Slug::Paddock, jjrz_Slug::Pace]);
+    let (code, out) = jjrpd_run_parade(
+        jjrpd_ParadeArgs { file: path.clone(), targets: vec![], remaining: false },
+        &mut gz,
+    );
+    assert_eq!(code, 1);
+    assert!(out.contains("No racing heats"), "got: {}", out);
+    let _ = std::fs::remove_file(&path);
+}
+
+#[test]
+fn jjtpd_heterogeneous_list_populates_gazette_for_each_target() {
+    // Firemark target expands; coronet target returns its single pace. Both land
+    // in one gazette while the tool-result stays terse (bodies only in gazette).
+    let mut gallops = make_valid_gallops();
+    let (k_ab, h_ab) = make_heat_with_docket("AB", jjrg_HeatStatus::Racing, jjrg_PaceState::Rough, "## Goal\nalpha");
+    let (k_cd, h_cd) = make_heat_with_docket("CD", jjrg_HeatStatus::Racing, jjrg_PaceState::Rough, "## Goal\nbeta");
+    gallops.heats.insert(k_ab, h_ab);
+    gallops.heats.insert(k_cd, h_cd);
+    let path = write_temp_gallops("heterogeneous", &gallops);
+
+    let mut gz = jjrz_Gazette::jjrz_build(&[jjrz_Slug::Paddock, jjrz_Slug::Pace]);
+    let (code, out) = jjrpd_run_parade(
+        jjrpd_ParadeArgs {
+            file: path.clone(),
+            targets: vec!["₣AB".to_string(), "₢CDAAA".to_string()],
+            remaining: false,
+        },
+        &mut gz,
+    );
+    assert_eq!(code, 0);
+    let emitted = gz.jjrz_emit();
+    assert!(emitted.contains("₢ABAAA"), "firemark expansion missing from gazette: {}", emitted);
+    assert!(emitted.contains("alpha"));
+    assert!(emitted.contains("₢CDAAA"), "coronet target missing from gazette: {}", emitted);
+    assert!(emitted.contains("beta"));
+    // Terse result carries the coronet header + state string (covers pace-state-str).
+    assert!(out.contains("[rough]"), "terse result should render pace state: {}", out);
+    let _ = std::fs::remove_file(&path);
+}
+
+#[test]
+fn jjtpd_bad_target_length_errors() {
+    let mut gallops = make_valid_gallops();
+    let (k, h) = make_heat_with_docket("AB", jjrg_HeatStatus::Racing, jjrg_PaceState::Rough, "## Goal\nx");
+    gallops.heats.insert(k, h);
+    let path = write_temp_gallops("bad_length", &gallops);
+
+    let mut gz = jjrz_Gazette::jjrz_build(&[jjrz_Slug::Paddock, jjrz_Slug::Pace]);
+    let (code, out) = jjrpd_run_parade(
+        jjrpd_ParadeArgs { file: path.clone(), targets: vec!["ABC".to_string()], remaining: false },
+        &mut gz,
+    );
+    assert_eq!(code, 1);
+    assert!(out.contains("must be Firemark"), "got: {}", out);
+    let _ = std::fs::remove_file(&path);
+}
+
+#[test]
+fn jjtpd_remaining_filters_firemark_but_coronet_returns_regardless() {
+    // remaining affects firemark expansion only; a directly-named coronet returns
+    // whatever its state.
+    let mut gallops = make_valid_gallops();
+    let (k, h) = make_heat_with_docket("AB", jjrg_HeatStatus::Racing, jjrg_PaceState::Complete, "## Goal\ndone-work");
+    gallops.heats.insert(k, h);
+    let path = write_temp_gallops("remaining", &gallops);
+
+    // Firemark + remaining: the complete pace is excluded from the gazette.
+    let mut gz_heat = jjrz_Gazette::jjrz_build(&[jjrz_Slug::Paddock, jjrz_Slug::Pace]);
+    let (c1, _) = jjrpd_run_parade(
+        jjrpd_ParadeArgs { file: path.clone(), targets: vec!["₣AB".to_string()], remaining: true },
+        &mut gz_heat,
+    );
+    assert_eq!(c1, 0);
+    assert!(!gz_heat.jjrz_emit().contains("₢ABAAA"), "remaining should exclude the complete pace from firemark expansion");
+
+    // Coronet target: returned regardless of remaining.
+    let mut gz_pace = jjrz_Gazette::jjrz_build(&[jjrz_Slug::Paddock, jjrz_Slug::Pace]);
+    let (c2, _) = jjrpd_run_parade(
+        jjrpd_ParadeArgs { file: path.clone(), targets: vec!["₢ABAAA".to_string()], remaining: true },
+        &mut gz_pace,
+    );
+    assert_eq!(c2, 0);
+    assert!(gz_pace.jjrz_emit().contains("₢ABAAA"), "a directly-named coronet must return regardless of state");
+    let _ = std::fs::remove_file(&path);
+}
+
+// ===== End-to-end round-trip scenario (the pace's own origin) =====
+
+#[test]
+fn jjtpd_round_trip_show_to_reslate_migrates_headings_per_docket() {
+    // Cross-heat, transformable heading renames driven end-to-end: show ->
+    // bash bridge -> mass reslate, asserting faithful per-docket change. The
+    // fixture constructs its own dockets — no dependence on any live docket.
+    let docket_ab = "## Goal\nbuild the thing\n\n## Locked\nno new verb\n\n## Done\ncriterion A";
+    let docket_cd = "## Locked\nsingle home\n\n## Done\ncriterion C";
+
+    let mut gallops = make_valid_gallops();
+    let (k_ab, h_ab) = make_heat_with_docket("AB", jjrg_HeatStatus::Racing, jjrg_PaceState::Rough, docket_ab);
+    let (k_cd, h_cd) = make_heat_with_docket("CD", jjrg_HeatStatus::Racing, jjrg_PaceState::Rough, docket_cd);
+    gallops.heats.insert(k_ab, h_ab);
+    gallops.heats.insert(k_cd, h_cd);
+
+    // 1. SHOW emits paddock(s) + pace dockets into the gazette (modeled via the
+    //    same gazette API jjrpd_run_parade uses to populate it).
+    let mut shown = jjrz_Gazette::jjrz_build(&[jjrz_Slug::Paddock, jjrz_Slug::Pace]);
+    shown.jjrz_add(jjrz_Slug::Paddock, "AB", "paddock-ab body").unwrap();
+    shown.jjrz_add(jjrz_Slug::Paddock, "CD", "paddock-cd body").unwrap();
+    shown.jjrz_add(jjrz_Slug::Pace, "₢ABAAA", docket_ab).unwrap();
+    shown.jjrz_add(jjrz_Slug::Pace, "₢CDAAA", docket_cd).unwrap();
+    let shown_md = shown.jjrz_emit();
+
+    // 2. The deliberate bash bridge: drop paddocks, rewrite slug, rename headings.
+    let bridged = bridge_show_to_reslate(&shown_md);
+    assert!(bridged.contains("# jjezs_reslate ₢ABAAA"));
+    assert!(bridged.contains("# jjezs_reslate ₢CDAAA"));
+    assert!(!bridged.contains("jjezs_paddock"), "paddocks must be dropped by the bridge");
+    assert!(!bridged.contains("jjezs_pace"), "output-typed slug must be rewritten");
+
+    // 3. RESLATE parses the bridged gazette into per-coronet dockets.
+    let pairs = jjrz_parse_reslate_input(&bridged).expect("bridged gazette parses as reslate input");
+    assert_eq!(pairs.len(), 2);
+
+    // 4. APPLY each docket back to the gallops (pure revise path).
+    for (coronet, docket) in &pairs {
+        gallops
+            .jjrg_revise_docket(coronet, docket, "0000000", "260101-1200")
+            .unwrap_or_else(|e| panic!("revise {} failed: {}", coronet, e));
+    }
+
+    // 5. Each docket migrated faithfully and independently.
+    let ab = current_docket_lines(&gallops, "₣AB", "₢ABAAA");
+    assert!(ab.iter().any(|l| l == "## Cinched"), "AB: Locked -> Cinched");
+    assert!(ab.iter().any(|l| l == "## Done when"), "AB: Done -> Done when");
+    assert!(!ab.iter().any(|l| l == "## Locked"));
+    assert!(!ab.iter().any(|l| l == "## Done"));
+    assert!(ab.iter().any(|l| l == "build the thing"), "AB body preserved");
+
+    let cd = current_docket_lines(&gallops, "₣CD", "₢CDAAA");
+    assert!(cd.iter().any(|l| l == "## Cinched"), "CD: Locked -> Cinched");
+    assert!(cd.iter().any(|l| l == "## Done when"), "CD: Done -> Done when");
+    assert!(cd.iter().any(|l| l == "single home"), "CD body preserved");
 }

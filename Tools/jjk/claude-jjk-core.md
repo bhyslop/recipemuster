@@ -107,7 +107,7 @@ All params are JSON objects. `?` = optional, `[]` = array. Booleans default to f
 
 ```
 jjx_open           {}
-jjx_show           {target?, detail?, remaining?}
+jjx_show           {targets?, remaining}                            # targets: list, each firemark|coronet by length; empty -> first racing heat. result terse, gazette always populated
 jjx_list           {status?}
 jjx_orient         {firemark}
 jjx_create         {silks}
@@ -139,13 +139,14 @@ jjx_fetch          {legatio, path}                                  # remote: re
 ```
 
 **Key points:**
-- `jjx_show` takes firemark OR coronet in the `target` param
-  - Heat overview: `{"target": "AF"}`
-  - Single pace: `{"target": "AFAAb"}`
-  - Additional params: `detail`, `remaining` only
+- `jjx_show` takes a heterogeneous `targets` **list**; each element self-types by length (firemark -> heat expansion, coronet -> single pace). Omit or empty auto-selects the first racing heat (the orient/mount default).
+  - Heat overview: `{"targets": ["AF"], "remaining": false}`
+  - Single pace: `{"targets": ["AFAAb"], "remaining": false}`
+  - Mixed pull: `{"targets": ["AF", "AFAAb"], "remaining": false}`
+  - `remaining` is **required**; it filters firemark expansion only (a directly-named coronet returns regardless of state). The tool-result is always the terse table; paddock(s) + pace dockets always land in `gazette_out.md` — Read it for the bodies. There is no `detail` param.
 - `jjx_orient` output includes next actionable pace — no separate show call needed
 - **`jjx_validate` is normalize-and-report, not a read-only check.** The verdict rides the exit code: **0 clean** (valid and already canonical; no write), **2 normalized** (valid but non-canonical — validate rewrote it to canonical form and committed, finalizing any in-progress merge), **1 broken** (parse or invariant failure; file untouched, never a silent fix). Residual: *normalized is a structural verdict, not a semantic blessing* — a `2` means the bytes are canonical, not that the heat/pace inventory is right. After a merge convergence, eyeball the inventory against both branches yourself.
-- **Gazette output**: `jjx_orient`, `jjx_show` (with detail), and `jjx_paddock` (getter) write `gazette_out.md` with paddock and pace docket notices. Read the gazette file after these commands to get full content.
+- **Gazette output**: `jjx_orient`, `jjx_show`, and `jjx_paddock` (getter) write `gazette_out.md` with paddock and pace docket notices. Read the gazette file after these commands to get full content.
 - **Never reach past the JJK interface to raw storage — NO exceptions.** Do not parse the harness's persisted tool-result files or the gallops JSON (`.claude/jjm/jjg_gallops.json`) directly. To read one pace's docket, call `jjx_brief {coronet}` (returns inline). To read full paddock/dockets after `jjx_show`/`jjx_orient`, read the `gazette_out.md` file directly. When a large `jjx_show` overflows the display and the harness persists the tool result, re-read `gazette_out.md` or loop `jjx_brief` per pace — never scrape the persisted blob. Same discipline as "never read regime files directly, go through the CLI."
 - **Gazette input**: `jjx_enroll`, `jjx_redocket`, and `jjx_paddock` (setter) read docket/content from `gazette_in.md`. Gazette is the sole input path for docket content — no JSON param fallback.
 - `jjx_redocket` supports **mass reslate**: multiple `# jjezs_reslate <coronet>` notices in a single `gazette_in.md`, each with its own docket body. All paces updated in one call.
@@ -171,7 +172,7 @@ Gazette file exchange uses two directional files in the officium exchange direct
 - **`gazette_in.md`** (agent → server): write before calling a setter command (`jjx_enroll`, `jjx_redocket`, `jjx_paddock` setter).
 - **`gazette_out.md`** (server → agent): written by getter commands, read after they return. The next jjx call of any kind deletes it.
   - `jjx_orient` → `# jjezs_paddock <firemark>` + paddock content, `# jjezs_pace <coronet>` + docket content (for next actionable pace)
-  - `jjx_show` (with detail) → `# jjezs_paddock <firemark>` + paddock content, `# jjezs_pace <coronet>` + docket per pace
+  - `jjx_show` → `# jjezs_paddock <firemark>` (one per distinct heat in the target set) + paddock content, `# jjezs_pace <coronet>` + docket per resolved pace
   - `jjx_paddock` (getter) → `# jjezs_paddock <firemark>` + paddock content
 
 **Gazette wire format (setter commands):**
@@ -211,6 +212,29 @@ Gazette paths are **emitted by the server**: `jjx_open` and `jjx_orient` return 
 2. Rename `gazette_out.md` → `gazette_in.md`, edit content
 3. Call `jjx_paddock` setter
 
+**Show → reslate round-trip** (batch docket editing — the show output *is* the reslate input, bridged):
+`jjx_show` always populates `gazette_out.md` with the resolved set (paddock[s] + every pace docket); `jjx_redocket` consumes `gazette_in.md` as `jjezs_reslate` notices. A small bash bridge turns one into the other, so a batch of dockets can be pulled, edited in place, and replumbed in a single mass reslate — without a new verb.
+
+1. **Pull**: `jjx_show {"targets": ["₣XX"], "remaining": true}` (or a heterogeneous target list), then read the emitted `gazette_out.md`.
+2. **Bridge**: drop the `# jjezs_paddock …` notices (and their bodies) and rewrite each output-typed `# jjezs_pace <coronet>` header to the input-typed `# jjezs_reslate <coronet>`. The pace *bodies* are already valid reslate dockets — only the slug changes:
+   ```
+   # keep the pace notices, drop the paddocks, rename the slug
+   awk '/^# jjezs_paddock /{skip=1;next} /^# jjezs_/{skip=0} !skip' gazette_out.md \
+     | sed 's/^# jjezs_pace /# jjezs_reslate /' > gazette_in.md
+   ```
+3. **Edit**: apply the actual docket change to `gazette_in.md`. For a *transformable* edit — a uniform mechanical rewrite across many dockets — this is one more pass, e.g. the heading migrations this surface was born from (portable in-place form, no GNU/BSD `-i` divergence):
+   ```
+   sed -e 's/^## Locked$/## Cinched/' -e 's/^## Done$/## Done when/' \
+     gazette_in.md > gazette_in.tmp && mv gazette_in.tmp gazette_in.md
+   ```
+4. **Replumb**: `jjx_redocket {}` — mass reslate consumes every `jjezs_reslate` notice in one call, echoing a per-coronet diff.
+
+**When to reach for the bridge — the axis is *transformable vs. bespoke*:**
+- **Transformable wins the bridge.** When the edit is the same mechanical shape across N dockets (rename a heading, retag a term, normalize a phrase), the show→sed→reslate round-trip does all N in one pass with a diff you can eyeball. This is its home.
+- **Bespoke authors per-pace.** When each docket needs its own novel prose — a different rewrite per pace, judgment per docket — there is no transform to express; author each `# jjezs_reslate <coronet>` notice by hand (one `gazette_in.md`, single `jjx_redocket`). The bridge buys nothing there and the sed is just friction.
+
+The round-trip is a *deliberate* bash bridge, not a permissive parser: nothing in jjx emits reslate-shaped output, and the type wall holds — `jjx_show` emits the output-typed `jjezs_pace`, and you rewrite it to `jjezs_reslate` on purpose. There is no reslate dry-run; trust the per-coronet diff `jjx_redocket` echoes.
+
 ### Parallel Tool Batch Discipline
 
 When several tool calls share one parallel block and one of them exits non-zero, the harness **cancels the still-queued siblings** ("Cancelled: parallel tool call … errored"). A screenful of cancellations therefore almost always traces to *one* real error upstream — diagnose that single failure, don't react to the cascade. Two rules keep jjx work out of this trap:
@@ -234,7 +258,7 @@ When user says "mount" or you need to engage the next pace:
 
 When user says "groom":
 
-1. Run `jjx_show` command with `{target: FIREMARK, detail: true, remaining: true}`
+1. Run `jjx_show` command with `{targets: [FIREMARK], remaining: true}` (paddock + remaining dockets land in `gazette_out.md`)
 2. Read `gazette_out.md` directly for full paddock and pace docket content — never the persisted tool-result blob or `jjg_gallops.json` (see "Never reach past the JJK interface" under Key points)
 3. Display overview: heat silks, progress, remaining paces with dockets (from gazette)
 4. Enter planning mode: suggest structural operations (slate new paces, rail to reorder, reslate to refine dockets, paddock review)

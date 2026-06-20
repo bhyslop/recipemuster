@@ -257,10 +257,12 @@ pub struct jjrm_OrientParams {
 
 #[derive(Debug, serde::Deserialize, schemars::JsonSchema)]
 pub struct jjrm_ShowParams {
-    pub target: Option<String>,
-    #[serde(default)]
-    pub detail: bool,
-    #[serde(default)]
+    /// Heterogeneous target list; each element self-types by length
+    /// (firemark -> heat expansion, coronet -> single pace). Omit or
+    /// empty to auto-select the first racing heat (orient/mount path).
+    pub targets: Option<Vec<String>>,
+    /// REQUIRED. Affects firemark expansion only (exclude complete/abandoned);
+    /// coronet-named targets return regardless of state.
     pub remaining: bool,
 }
 
@@ -1107,15 +1109,28 @@ impl jjrm_McpServer {
             JJRM_CMD_NAME_SHOW => {
                 let p = deser!(jjrm_ShowParams);
                 let mut gazette = jjrz_Gazette::jjrz_build(&[jjrz_Slug::Paddock, jjrz_Slug::Pace]);
-                let result = jjrpd_run_parade(jjrpd_ParadeArgs {
+                let (code, mut output) = jjrpd_run_parade(jjrpd_ParadeArgs {
                     file: gallops_pathbuf(),
-                    target: p.target,
-                    detail: p.detail,
+                    targets: p.targets.unwrap_or_default(),
                     remaining: p.remaining,
                 }, &mut gazette);
-                let md = gazette.jjrz_emit();
-                if !md.is_empty() { std::fs::write(&gazette_out_path, md.as_bytes()).ok(); }
-                jjrm_result(result)
+                // The gazette is now show's load-bearing payload (the round-trip
+                // surface), not an optional convenience. Crash-fast on a failed
+                // write rather than inherit the historical .ok() silence — a
+                // missing officium dir must surface, not no-op.
+                if code == 0 {
+                    let md = gazette.jjrz_emit();
+                    if let Err(e) = std::fs::write(&gazette_out_path, md.as_bytes()) {
+                        return jjrm_result((1, format!(
+                            "{}: error: failed writing gazette_out {}: {}",
+                            cmd, gazette_out_path.display(), e,
+                        )));
+                    }
+                    output.push('\n');
+                    output.push_str(&zjjrm_gazette_paths_block(&gazette_in_path, &gazette_out_path));
+                    output.push('\n');
+                }
+                jjrm_result((code, output))
             }
             JJRM_CMD_NAME_ARCHIVE => {
                 let p = deser!(jjrm_ArchiveParams);
