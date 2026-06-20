@@ -48,8 +48,10 @@ The theurge crate (`rbtd`) is the precedent: its own build/test/run tabtargets, 
 This supersedes the earlier cinch that the runtime would ship as a `vvr` subcommand inside `vvx`.
 
 Structural secrecy is the distribution boundary, and it is load-bearing security.
-The Matricula never becomes a `vvr` dependency and never enters the release parcel: its source never ships because VOK is unmanaged, and its compiled behavior never ships because it is not linked into `vvx`.
-Inclusion would require a deliberate, auditable file-copy into the parcel — never a silent compile flag — which is the whole point of the standalone-binary choice over a feature-stripped subcommand.
+The Matricula source lives committed under a veiled directory (`Tools/vok/vov_veiled/<crate>/`): version-controlled, but excluded from the parcel by the veil and by VOK being unmanaged.
+The built binary lands in that crate's gitignored `target/release/` — itself a subdirectory of the veil, already covered by the `**/target/` rule — and its tabtarget execs it directly from there (the `vow-r` precedent), never copying it to a committed `bin/`.
+So the boundary stands on four independent guards: the source is not collected (VOK unmanaged + veiled), the behavior is not linked into `vvx` (never a `vvr` dependency), and the binary is never even committed (gitignored).
+Inclusion would require a deliberate, auditable act — a new managed-kit entry, a new `vvr` dependency, or an explicit file-copy into the parcel — never a silent compile flag, which is the whole point of the standalone-binary choice over a feature-stripped subcommand.
 This boundary is a candidate for a normative rivet in the subdoc.
 
 The organizing principle is: share libraries, ship only the substrate.
