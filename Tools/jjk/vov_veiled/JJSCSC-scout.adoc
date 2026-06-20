@@ -16,8 +16,6 @@ otherwise plain mode.
 //axd_optional
 * `--actionable` — limit results to
 {jjdpe_rough}
-or
-{jjdpe_bridled}
 paces only;
 suppresses heat-level rows.
 
@@ -33,7 +31,6 @@ Matches:
   [whole] paddock: ...match excerpt...
   ₢XXXXX [state] [whole] docket: ...match excerpt...
 ₣YY another-heat
-  ₢YYYYY [state] [prefix] warrant: ...match excerpt...
   ₢YYYYZ [state] [substring] silks: ...match excerpt...
 ----
 
@@ -58,10 +55,8 @@ Pace rows lead with the
 and state;
 their field label is `silks`
 ({jjdcm_silks}),
-`docket`
-({jjdcm_text}),
-or `warrant`
-({jjdcm_direction}).
+or `docket`
+({jjdcm_text}).
 In plain mode every row carries a tier provenance marker:
 `[whole]` (`\bWORD\b`),
 `[prefix]` (`\bWORD`),
@@ -103,8 +98,6 @@ in
 {jjdhm_order}:
 ... If `--actionable` specified, skip paces not in
 {jjdpe_rough}
-or
-{jjdpe_bridled}
 state
 ... Search tier-major, field-minor —
 the strongest tier wins across fields;
@@ -113,8 +106,6 @@ within a tier, the first field in this order wins:
 (from `tacks[0].silks`)
 .... {jjdcm_text}
 (docket from `tacks[0].text`)
-.... {jjdcm_direction}
-(from `tacks[0].direction` if present)
 ... On match emit one pace row
 . Order output by tier:
 rows within a heat group sort strongest-tier first;
@@ -133,8 +124,7 @@ the
 and the file at the
 {jjdhm_paddock}
 at heat level;
-{jjdcm_silks},
-{jjdcm_text},
+{jjdcm_silks}
 and
-{jjdcm_direction}
+{jjdcm_text}
 per pace.

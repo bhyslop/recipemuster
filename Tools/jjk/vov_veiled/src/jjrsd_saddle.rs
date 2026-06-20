@@ -212,7 +212,6 @@ pub async fn jjrsd_run_saddle(args: jjrsd_SaddleArgs, gazette: &mut jjrz_Gazette
     let mut pace_silks: Option<String> = None;
     let mut pace_state: Option<String> = None;
     let mut spec: Option<String> = None;
-    let mut direction: Option<String> = None;
 
     if let Some(ref coronet) = target_coronet {
         // Specific coronet requested - look it up directly
@@ -222,18 +221,11 @@ pub async fn jjrsd_run_saddle(args: jjrsd_SaddleArgs, gazette: &mut jjrz_Gazette
             Some(pace) => {
                 if let Some(tack) = pace.tacks.first() {
                     match tack.state {
-                        PaceState::Rough | PaceState::Bridled => {
+                        PaceState::Rough => {
                             pace_coronet = Some(coronet_key.clone());
                             pace_silks = Some(tack.silks.clone());
-                            pace_state = Some(match tack.state {
-                                PaceState::Rough => "rough".to_string(),
-                                PaceState::Bridled => "bridled".to_string(),
-                                _ => unreachable!(),
-                            });
+                            pace_state = Some("rough".to_string());
                             spec = Some(jjrg_lines_to_text(&tack.text));
-                            if tack.state == PaceState::Bridled {
-                                direction = tack.direction.clone();
-                            }
                         }
                         PaceState::Complete => {
                             vvco_err!(output, "{}: error: Pace '{}' is already complete", cn, coronet_key);
@@ -255,23 +247,16 @@ pub async fn jjrsd_run_saddle(args: jjrsd_SaddleArgs, gazette: &mut jjrz_Gazette
             }
         }
     } else {
-        // Find first actionable pace (rough or bridled)
+        // Find first actionable pace (rough)
         for coronet_key in &heat.order {
             if let Some(pace) = heat.paces.get(coronet_key) {
                 if let Some(tack) = pace.tacks.first() {
                     match tack.state {
-                        PaceState::Rough | PaceState::Bridled => {
+                        PaceState::Rough => {
                             pace_coronet = Some(coronet_key.clone());
                             pace_silks = Some(tack.silks.clone());
-                            pace_state = Some(match tack.state {
-                                PaceState::Rough => "rough".to_string(),
-                                PaceState::Bridled => "bridled".to_string(),
-                                _ => unreachable!(),
-                            });
+                            pace_state = Some("rough".to_string());
                             spec = Some(jjrg_lines_to_text(&tack.text));
-                            if tack.state == PaceState::Bridled {
-                                direction = tack.direction.clone();
-                            }
                             break;
                         }
                         _ => continue,
@@ -309,19 +294,8 @@ pub async fn jjrsd_run_saddle(args: jjrsd_SaddleArgs, gazette: &mut jjrz_Gazette
                     }
                     vvco_out!(output, "");
                 }
-                if let Some(dir_text) = direction {
-                    vvco_out!(output, "Warrant:");
-                    for line in dir_text.lines() {
-                        vvco_out!(output, "  {}", line);
-                    }
-                    vvco_out!(output, "");
-                }
                 vvco_out!(output, "");
-                if state == "bridled" {
-                    vvco_out!(output, "Recommended: mount {} to execute", firemark.jjrf_as_str());
-                } else {
-                    vvco_out!(output, "Recommended: `jjx_arm` \u{20a2}{} or mount {}", coronet, firemark.jjrf_as_str());
-                }
+                vvco_out!(output, "Recommended: mount {}", firemark.jjrf_as_str());
             }
         }
     }

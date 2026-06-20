@@ -7,7 +7,7 @@
 //! A pattern containing regex metacharacters runs as a single regex pass;
 //! a plain pattern runs a three-tier word search (whole, prefix, substring).
 //! Heats are searched at the heat level (heat silks + paddock) independent
-//! of pace count, then per-pace (silks, docket text, warrant direction).
+//! of pace count, then per-pace (silks, docket text).
 
 use clap::Args;
 use regex::{
@@ -49,7 +49,7 @@ pub struct jjrsc_ScoutArgs {
     /// Search pattern (regex mode if metacharacters present, else plain word)
     pub pattern: String,
 
-    /// Limit to actionable paces only (rough/bridled); suppresses heat-level rows
+    /// Limit to actionable paces only (rough); suppresses heat-level rows
     #[arg(long)]
     pub actionable: bool,
 }
@@ -160,15 +160,14 @@ pub(crate) fn zjjrsc_search(
             let Some(pace) = heat.paces.get(coronet_key) else { continue };
             let Some(tack) = pace.tacks.first() else { continue };
 
-            if actionable && !matches!(tack.state, PaceState::Rough | PaceState::Bridled) {
+            if actionable && !matches!(tack.state, PaceState::Rough) {
                 continue;
             }
 
             let docket = jjrg_lines_to_text(&tack.text);
-            let fields: [(&str, Option<&str>); 3] = [
+            let fields: [(&str, Option<&str>); 2] = [
                 ("silks", Some(tack.silks.as_str())),
                 ("docket", Some(docket.as_str())),
-                ("warrant", tack.direction.as_deref()),
             ];
 
             for (_, content) in &fields {

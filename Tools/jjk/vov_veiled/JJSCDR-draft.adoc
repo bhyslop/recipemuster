@@ -21,7 +21,6 @@ state.
 {jjdpr_pace}
 states remain:
 {jjdpe_rough},
-{jjdpe_bridled},
 {jjdpe_complete},
 {jjdpe_abandoned}.
 Relocate is an operation that moves

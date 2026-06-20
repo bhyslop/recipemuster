@@ -2,7 +2,7 @@
 // All rights reserved.
 // SPDX-License-Identifier: LicenseRef-Proprietary
 
-use crate::jjrg_gallops::{jjrg_Heat as Heat, jjrg_Pace as Pace, jjrg_Tack as Tack, jjrg_Gallops as Gallops, jjrg_HeatStatus as HeatStatus, jjrg_PaceState as PaceState, JJRG_UNKNOWN_BASIS, JJRG_STATE_ROUGH, JJRG_STATE_BRIDLED, JJRG_STATE_COMPLETE, JJRG_STATE_ABANDONED};
+use crate::jjrg_gallops::{jjrg_Heat as Heat, jjrg_Pace as Pace, jjrg_Tack as Tack, jjrg_Gallops as Gallops, jjrg_HeatStatus as HeatStatus, jjrg_PaceState as PaceState, JJRG_UNKNOWN_BASIS, JJRG_STATE_ROUGH, JJRG_STATE_COMPLETE, JJRG_STATE_ABANDONED};
 use crate::jjtu_testdir::JjkTestDir;
 use crate::jjrgc_get_coronets::{jjrgc_run_get_coronets, jjrgc_GetCoronetsArgs};
 use crate::jjrgs_get_spec::{jjrgs_run_get_spec, jjrgs_GetSpecArgs};
@@ -19,7 +19,6 @@ fn create_test_gallops() -> Gallops {
                 text: vec!["First pace rough plan".to_string()],
                 silks: "test-pace-one".to_string(),
                 basis: JJRG_UNKNOWN_BASIS.to_string(),
-                direction: None,
             }],
         },
     );
@@ -32,7 +31,6 @@ fn create_test_gallops() -> Gallops {
                 text: vec!["Completed pace".to_string()],
                 silks: "test-pace-two".to_string(),
                 basis: JJRG_UNKNOWN_BASIS.to_string(),
-                direction: None,
             }],
         },
     );
@@ -101,7 +99,6 @@ fn jjtq_heat_status_filter_retired() {
 #[test]
 fn jjtq_pace_state_as_str() {
     assert_eq!(PaceState::Rough.jjrg_as_str(), JJRG_STATE_ROUGH);
-    assert_eq!(PaceState::Bridled.jjrg_as_str(), JJRG_STATE_BRIDLED);
     assert_eq!(PaceState::Complete.jjrg_as_str(), JJRG_STATE_COMPLETE);
     assert_eq!(PaceState::Abandoned.jjrg_as_str(), JJRG_STATE_ABANDONED);
 }
@@ -117,7 +114,7 @@ fn jjtq_find_first_actionable_pace() {
         if let Some(pace) = heat.paces.get(coronet_key) {
             if let Some(tack) = pace.tacks.first() {
                 match tack.state {
-                    PaceState::Rough | PaceState::Bridled => {
+                    PaceState::Rough => {
                         found_coronet = Some(coronet_key.clone());
                         break;
                     }
@@ -167,7 +164,6 @@ fn create_test_gallops_with_mixed_states() -> Gallops {
                 text: vec!["Done".to_string()],
                 silks: "pace-complete".to_string(),
                 basis: JJRG_UNKNOWN_BASIS.to_string(),
-                direction: None,
             }],
         },
     );
@@ -180,7 +176,6 @@ fn create_test_gallops_with_mixed_states() -> Gallops {
                 text: vec!["Needs work".to_string()],
                 silks: "pace-rough".to_string(),
                 basis: JJRG_UNKNOWN_BASIS.to_string(),
-                direction: None,
             }],
         },
     );
@@ -189,11 +184,10 @@ fn create_test_gallops_with_mixed_states() -> Gallops {
         Pace {
             tacks: vec![Tack {
                 ts: "260101-1400".to_string(),
-                state: PaceState::Bridled,
+                state: PaceState::Rough,
                 text: vec!["Ready to fly".to_string()],
-                silks: "pace-bridled".to_string(),
+                silks: "pace-rough-two".to_string(),
                 basis: JJRG_UNKNOWN_BASIS.to_string(),
-                direction: Some("Execute with sonnet".to_string()),
             }],
         },
     );
@@ -206,7 +200,6 @@ fn create_test_gallops_with_mixed_states() -> Gallops {
                 text: vec!["Gave up".to_string()],
                 silks: "pace-abandoned".to_string(),
                 basis: JJRG_UNKNOWN_BASIS.to_string(),
-                direction: None,
             }],
         },
     );
@@ -263,7 +256,7 @@ fn jjtq_get_coronets_remaining_filter() {
 
     assert_eq!(remaining.len(), 2);
     assert!(remaining.contains(&&"₢ACAAB".to_string())); // rough
-    assert!(remaining.contains(&&"₢ACAAC".to_string())); // bridled
+    assert!(remaining.contains(&&"₢ACAAC".to_string())); // rough
 }
 
 #[test]
@@ -281,8 +274,9 @@ fn jjtq_get_coronets_rough_filter() {
         false
     }).collect();
 
-    assert_eq!(rough.len(), 1);
-    assert_eq!(rough[0], "₢ACAAB");
+    assert_eq!(rough.len(), 2);
+    assert!(rough.contains(&&"₢ACAAB".to_string()));
+    assert!(rough.contains(&&"₢ACAAC".to_string()));
 }
 
 // ============================================================================
@@ -315,7 +309,7 @@ fn jjtq_coronets_default_tags_abandoned() {
     // Live paces remain bare (unchanged contract) — exact-line match proves no tag leaked.
     assert!(out.lines().any(|l| l == "₢ACAAA")); // complete
     assert!(out.lines().any(|l| l == "₢ACAAB")); // rough
-    assert!(out.lines().any(|l| l == "₢ACAAC")); // bridled
+    assert!(out.lines().any(|l| l == "₢ACAAC")); // rough
 }
 
 #[test]

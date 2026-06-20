@@ -23,7 +23,6 @@ fn make_valid_tack(state: jjrg_PaceState, silks: &str) -> jjrg_Tack {
         text: vec!["Test tack text".to_string()],
         silks: silks.to_string(),
         basis: JJRG_UNKNOWN_BASIS.to_string(),
-        direction: None,
     }
 }
 

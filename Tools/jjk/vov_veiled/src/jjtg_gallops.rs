@@ -92,6 +92,61 @@ fn jjtg_load_legacy_string_text_converts_and_collapses() {
     assert_eq!(pace.tacks[0].text, vec!["first line".to_string(), "second line".to_string()]);
 }
 
+#[test]
+fn jjtg_load_legacy_bridle_demotes_and_drops_direction() {
+    // A pre-retirement gallops: a pace is bridled and carries a direction warrant.
+    // Loading must demote the state to rough (serde alias) and drop the direction key,
+    // the bridle-retirement forgiveness episode standing the round-trip gate down so the
+    // bridled→rough reserialization and dropped warrant key land on the next save.
+    let dir = JjkTestDir::new("jjtg_legacy_bridle_retire");
+    let path = dir.path().join("jjg_gallops.json");
+    let legacy = r#"{
+  "jjgrn_next_heat_seed": "AD",
+  "jjgrn_heat_order": ["₣AC"],
+  "jjgrn_heats": {
+    "₣AC": {
+      "jjghn_silks": "my-heat",
+      "jjghn_creation_time": "260101",
+      "jjghn_status": "jjghe_racing",
+      "jjghn_order": ["₢ACAAA"],
+      "jjghn_next_pace_seed": "AAB",
+      "jjghn_paces": {
+        "₢ACAAA": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260101-1200",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_text": ["execute this"],
+              "jjgtn_silks": "my-pace",
+              "jjgtn_basis": "0000000",
+              "jjgtn_direction": "Execute autonomously"
+            }
+          ]
+        }
+      }
+    }
+  }
+}"#;
+    std::fs::write(&path, legacy).unwrap();
+
+    let gallops = jjrg_Gallops::jjrg_load(&path).expect("legacy bridled gallops should load and convert");
+    let pace = gallops.heats["₣AC"].paces.get("₢ACAAA").unwrap();
+    // The retired bridled state is demoted to rough at the deserialize boundary.
+    assert_eq!(pace.tacks[0].state, jjrg_PaceState::Rough);
+
+    // Idempotent: the saved form is canonical (rough state, no direction key), so no
+    // episode is live and the round-trip gate — active again — must pass.
+    gallops.jjrg_save(&path).expect("save converted gallops");
+    let reloaded = jjrg_Gallops::jjrg_load(&path).expect("canonical gallops round-trips");
+    let pace = reloaded.heats["₣AC"].paces.get("₢ACAAA").unwrap();
+    assert_eq!(pace.tacks[0].state, jjrg_PaceState::Rough);
+
+    // The persisted bytes carry neither the retired state token nor the warrant key.
+    let text = std::fs::read_to_string(&path).unwrap();
+    assert!(!text.contains("jjgte_bridled"));
+    assert!(!text.contains("jjgtn_direction"));
+}
+
 // Helper to create a minimal valid Gallops structure
 fn make_valid_gallops() -> jjrg_Gallops {
     jjrg_Gallops {
@@ -102,14 +157,13 @@ fn make_valid_gallops() -> jjrg_Gallops {
 }
 
 // Helper to create a valid Tack (uses JJRG_UNKNOWN_BASIS for consistent basis format)
-fn make_valid_tack(state: jjrg_PaceState, silks: &str, direction: Option<String>) -> jjrg_Tack {
+fn make_valid_tack(state: jjrg_PaceState, silks: &str) -> jjrg_Tack {
     jjrg_Tack {
         ts: "260101-1200".to_string(),
         state,
         text: vec!["Test tack text".to_string()],
         silks: silks.to_string(),
         basis: JJRG_UNKNOWN_BASIS.to_string(),
-        direction,
     }
 }
 
@@ -117,7 +171,7 @@ fn make_valid_tack(state: jjrg_PaceState, silks: &str, direction: Option<String>
 fn make_valid_pace(heat_id: &str, silks: &str) -> (String, jjrg_Pace) {
     let pace_key = format!("₢{}AAA", heat_id);
     let pace = jjrg_Pace {
-        tacks: vec![make_valid_tack(jjrg_PaceState::Rough, silks, None)],
+        tacks: vec![make_valid_tack(jjrg_PaceState::Rough, silks)],
     };
     (pace_key, pace)
 }
@@ -296,7 +350,7 @@ fn jjtg_validate_pace_key_wrong_heat_identity() {
     heat.order.clear();
     let bad_pace_key = "₢CDAAA".to_string(); // CD instead of AB
     let pace = jjrg_Pace {
-        tacks: vec![make_valid_tack(jjrg_PaceState::Rough, "bad-pace", None)],
+        tacks: vec![make_valid_tack(jjrg_PaceState::Rough, "bad-pace")],
     };
     heat.paces.insert(bad_pace_key.clone(), pace);
     heat.order.push(bad_pace_key);
@@ -357,63 +411,11 @@ fn jjtg_validate_tack_empty_text() {
 }
 
 #[test]
-fn jjtg_validate_bridled_without_direction() {
-    let mut gallops = make_valid_gallops();
-    let (heat_key, mut heat) = make_valid_heat("AB", "my-heat");
-    if let Some(pace) = heat.paces.values_mut().next() {
-        pace.tacks[0].state = jjrg_PaceState::Bridled;
-        pace.tacks[0].direction = None;
-    }
-    gallops.heats.insert(heat_key, heat);
-    let errors = gallops.jjrg_validate().unwrap_err();
-    assert!(errors.iter().any(|e| e.contains("direction is required when state is 'bridled'")));
-}
-
-#[test]
-fn jjtg_validate_bridled_with_empty_direction() {
-    let mut gallops = make_valid_gallops();
-    let (heat_key, mut heat) = make_valid_heat("AB", "my-heat");
-    if let Some(pace) = heat.paces.values_mut().next() {
-        pace.tacks[0].state = jjrg_PaceState::Bridled;
-        pace.tacks[0].direction = Some("".to_string());
-    }
-    gallops.heats.insert(heat_key, heat);
-    let errors = gallops.jjrg_validate().unwrap_err();
-    assert!(errors.iter().any(|e| e.contains("direction must not be empty when state is 'bridled'")));
-}
-
-#[test]
-fn jjtg_validate_bridled_with_direction_valid() {
-    let mut gallops = make_valid_gallops();
-    let (heat_key, mut heat) = make_valid_heat("AB", "my-heat");
-    if let Some(pace) = heat.paces.values_mut().next() {
-        pace.tacks[0].state = jjrg_PaceState::Bridled;
-        pace.tacks[0].direction = Some("Execute autonomously".to_string());
-    }
-    gallops.heats.insert(heat_key, heat);
-    assert!(gallops.jjrg_validate().is_ok());
-}
-
-#[test]
-fn jjtg_validate_non_bridled_with_direction() {
-    let mut gallops = make_valid_gallops();
-    let (heat_key, mut heat) = make_valid_heat("AB", "my-heat");
-    if let Some(pace) = heat.paces.values_mut().next() {
-        pace.tacks[0].state = jjrg_PaceState::Rough;
-        pace.tacks[0].direction = Some("Should not be here".to_string());
-    }
-    gallops.heats.insert(heat_key, heat);
-    let errors = gallops.jjrg_validate().unwrap_err();
-    assert!(errors.iter().any(|e| e.contains("direction must be absent when state is not 'bridled'")));
-}
-
-#[test]
 fn jjtg_validate_complete_state_valid() {
     let mut gallops = make_valid_gallops();
     let (heat_key, mut heat) = make_valid_heat("AB", "my-heat");
     if let Some(pace) = heat.paces.values_mut().next() {
         pace.tacks[0].state = jjrg_PaceState::Complete;
-        pace.tacks[0].direction = None;
     }
     gallops.heats.insert(heat_key, heat);
     assert!(gallops.jjrg_validate().is_ok());
@@ -425,7 +427,6 @@ fn jjtg_validate_abandoned_state_valid() {
     let (heat_key, mut heat) = make_valid_heat("AB", "my-heat");
     if let Some(pace) = heat.paces.values_mut().next() {
         pace.tacks[0].state = jjrg_PaceState::Abandoned;
-        pace.tacks[0].direction = None;
     }
     gallops.heats.insert(heat_key, heat);
     assert!(gallops.jjrg_validate().is_ok());
@@ -673,7 +674,7 @@ fn jjtg_slate_with_before_inserts_at_position() {
     // Add a second pace
     let pace2_key = "₢ABAAB".to_string();
     let pace2 = jjrg_Pace {
-        tacks: vec![make_valid_tack(jjrg_PaceState::Rough, "second-pace", None)],
+        tacks: vec![make_valid_tack(jjrg_PaceState::Rough, "second-pace")],
     };
     heat.paces.insert(pace2_key.clone(), pace2);
     heat.order.push(pace2_key.clone());
@@ -708,7 +709,7 @@ fn jjtg_slate_with_after_inserts_at_position() {
     // Add a second pace
     let pace2_key = "₢ABAAB".to_string();
     let pace2 = jjrg_Pace {
-        tacks: vec![make_valid_tack(jjrg_PaceState::Rough, "second-pace", None)],
+        tacks: vec![make_valid_tack(jjrg_PaceState::Rough, "second-pace")],
     };
     heat.paces.insert(pace2_key.clone(), pace2);
     heat.order.push(pace2_key.clone());
@@ -794,13 +795,13 @@ fn jjtg_rail_move_first() {
     let pace3_key = "₢ABAAC".to_string();
     let pace4_key = "₢ABAAD".to_string();
     heat.paces.insert(pace2_key.clone(), jjrg_Pace {
-        tacks: vec![make_valid_tack(jjrg_PaceState::Complete, "second-pace", None)],
+        tacks: vec![make_valid_tack(jjrg_PaceState::Complete, "second-pace")],
     });
     heat.paces.insert(pace3_key.clone(), jjrg_Pace {
-        tacks: vec![make_valid_tack(jjrg_PaceState::Rough, "third-pace", None)],
+        tacks: vec![make_valid_tack(jjrg_PaceState::Rough, "third-pace")],
     });
     heat.paces.insert(pace4_key.clone(), jjrg_Pace {
-        tacks: vec![make_valid_tack(jjrg_PaceState::Rough, "fourth-pace", None)],
+        tacks: vec![make_valid_tack(jjrg_PaceState::Rough, "fourth-pace")],
     });
     heat.order.push(pace2_key.clone());
     heat.order.push(pace3_key.clone());
@@ -846,10 +847,10 @@ fn jjtg_rail_move_first_all_complete() {
     let pace2_key = "₢ABAAB".to_string();
     let pace3_key = "₢ABAAC".to_string();
     heat.paces.insert(pace2_key.clone(), jjrg_Pace {
-        tacks: vec![make_valid_tack(jjrg_PaceState::Complete, "second-pace", None)],
+        tacks: vec![make_valid_tack(jjrg_PaceState::Complete, "second-pace")],
     });
     heat.paces.insert(pace3_key.clone(), jjrg_Pace {
-        tacks: vec![make_valid_tack(jjrg_PaceState::Complete, "third-pace", None)],
+        tacks: vec![make_valid_tack(jjrg_PaceState::Complete, "third-pace")],
     });
     heat.order.push(pace2_key.clone());
     heat.order.push(pace3_key.clone());
@@ -886,7 +887,7 @@ fn jjtg_rail_move_last() {
 
     let pace2_key = "₢ABAAB".to_string();
     heat.paces.insert(pace2_key.clone(), jjrg_Pace {
-        tacks: vec![make_valid_tack(jjrg_PaceState::Rough, "second-pace", None)],
+        tacks: vec![make_valid_tack(jjrg_PaceState::Rough, "second-pace")],
     });
     heat.order.push(pace2_key.clone());
     heat.next_pace_seed = "AAC".to_string();
@@ -921,10 +922,10 @@ fn jjtg_rail_move_before() {
     let pace2_key = "₢ABAAB".to_string();
     let pace3_key = "₢ABAAC".to_string();
     heat.paces.insert(pace2_key.clone(), jjrg_Pace {
-        tacks: vec![make_valid_tack(jjrg_PaceState::Rough, "second-pace", None)],
+        tacks: vec![make_valid_tack(jjrg_PaceState::Rough, "second-pace")],
     });
     heat.paces.insert(pace3_key.clone(), jjrg_Pace {
-        tacks: vec![make_valid_tack(jjrg_PaceState::Rough, "third-pace", None)],
+        tacks: vec![make_valid_tack(jjrg_PaceState::Rough, "third-pace")],
     });
     heat.order.push(pace2_key.clone());
     heat.order.push(pace3_key.clone());
@@ -961,10 +962,10 @@ fn jjtg_rail_move_after() {
     let pace2_key = "₢ABAAB".to_string();
     let pace3_key = "₢ABAAC".to_string();
     heat.paces.insert(pace2_key.clone(), jjrg_Pace {
-        tacks: vec![make_valid_tack(jjrg_PaceState::Rough, "second-pace", None)],
+        tacks: vec![make_valid_tack(jjrg_PaceState::Rough, "second-pace")],
     });
     heat.paces.insert(pace3_key.clone(), jjrg_Pace {
-        tacks: vec![make_valid_tack(jjrg_PaceState::Rough, "third-pace", None)],
+        tacks: vec![make_valid_tack(jjrg_PaceState::Rough, "third-pace")],
     });
     heat.order.push(pace2_key.clone());
     heat.order.push(pace3_key.clone());
@@ -1070,7 +1071,6 @@ fn jjtg_tally_state_transition() {
     let args = jjrg_TallyArgs {
         coronet: pace_key.clone(),
         state: Some(jjrg_PaceState::Complete),
-        direction: None,
         text: Some("Work completed successfully".to_string()),
         silks: None,
     };
@@ -1086,50 +1086,6 @@ fn jjtg_tally_state_transition() {
 }
 
 #[test]
-fn jjtg_tally_bridled_requires_direction() {
-    let mut gallops = make_valid_gallops();
-    let (heat_key, heat) = make_valid_heat("AB", "my-heat");
-    let pace_key = heat.order[0].clone();
-    gallops.heats.insert(heat_key, heat);
-
-    let args = jjrg_TallyArgs {
-        coronet: pace_key,
-        state: Some(jjrg_PaceState::Bridled),
-        direction: None, // Missing!
-        text: Some("Ready for execution".to_string()),
-        silks: None,
-    };
-
-    let result = gallops.jjrg_tally(args);
-    assert!(result.is_err());
-    assert!(result.unwrap_err().contains("direction is required"));
-}
-
-#[test]
-fn jjtg_tally_bridled_with_direction() {
-    let mut gallops = make_valid_gallops();
-    let (heat_key, heat) = make_valid_heat("AB", "my-heat");
-    let pace_key = heat.order[0].clone();
-    gallops.heats.insert(heat_key.clone(), heat);
-
-    let args = jjrg_TallyArgs {
-        coronet: pace_key.clone(),
-        state: Some(jjrg_PaceState::Bridled),
-        direction: Some("Execute autonomously".to_string()),
-        text: Some("Ready for execution".to_string()),
-        silks: None,
-    };
-
-    let result = gallops.jjrg_tally(args);
-    assert!(result.is_ok());
-
-    let heat = gallops.heats.get(&heat_key).unwrap();
-    let pace = heat.paces.get(&pace_key).unwrap();
-    assert_eq!(pace.tacks[0].state, jjrg_PaceState::Bridled);
-    assert_eq!(pace.tacks[0].direction.as_ref().unwrap(), "Execute autonomously");
-}
-
-#[test]
 fn jjtg_tally_inherit_state() {
     let mut gallops = make_valid_gallops();
     let (heat_key, heat) = make_valid_heat("AB", "my-heat");
@@ -1140,7 +1096,6 @@ fn jjtg_tally_inherit_state() {
     let args = jjrg_TallyArgs {
         coronet: pace_key.clone(),
         state: None, // Inherit
-        direction: None,
         text: Some("Updated plan text".to_string()),
         silks: None,
     };
@@ -1166,7 +1121,6 @@ fn jjtg_tally_inherit_text() {
     let args = jjrg_TallyArgs {
         coronet: pace_key.clone(),
         state: Some(jjrg_PaceState::Complete),
-        direction: None,
         text: None, // Inherit
         silks: None,
     };
@@ -1178,24 +1132,4 @@ fn jjtg_tally_inherit_text() {
     let pace = heat.paces.get(&pace_key).unwrap();
     assert_eq!(pace.tacks[0].state, jjrg_PaceState::Complete);
     assert_eq!(pace.tacks[0].text, original_text); // Inherited
-}
-
-#[test]
-fn jjtg_tally_non_bridled_forbids_direction() {
-    let mut gallops = make_valid_gallops();
-    let (heat_key, heat) = make_valid_heat("AB", "my-heat");
-    let pace_key = heat.order[0].clone();
-    gallops.heats.insert(heat_key, heat);
-
-    let args = jjrg_TallyArgs {
-        coronet: pace_key,
-        state: Some(jjrg_PaceState::Complete),
-        direction: Some("Should not be here".to_string()), // Not allowed!
-        text: Some("Done".to_string()),
-        silks: None,
-    };
-
-    let result = gallops.jjrg_tally(args);
-    assert!(result.is_err());
-    assert!(result.unwrap_err().contains("direction must be absent"));
 }

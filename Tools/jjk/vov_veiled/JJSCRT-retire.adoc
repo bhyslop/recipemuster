@@ -68,9 +68,6 @@ internally to get steeplechase entries
 
 {tack text}
 
-{if tack has warrant:}
-*Warrant:* {warrant}
-
 ## Commit Activity
 
 ```

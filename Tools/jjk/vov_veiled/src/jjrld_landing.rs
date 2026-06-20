@@ -5,7 +5,7 @@
 //! Landing command - record agent landing after autonomous execution
 //!
 //! The landing command creates an empty commit recording when an autonomous agent
-//! completes execution of a bridled pace. The commit message uses the L (landing)
+//! completes execution of a dispatched pace. The commit message uses the L (landing)
 //! marker in the steeplechase format.
 
 use clap::Args;
@@ -28,7 +28,7 @@ pub struct jjrld_LandingArgs {
 /// Execute the landing command
 ///
 /// Creates an empty commit with L marker recording when an agent completes
-/// execution of a bridled pace. Content is the agent completion report.
+/// execution of a dispatched pace. Content is the agent completion report.
 ///
 /// Returns exit code (0 for success, non-zero for failure).
 pub fn jjrld_run_landing(args: jjrld_LandingArgs, content: String) -> (i32, String) {

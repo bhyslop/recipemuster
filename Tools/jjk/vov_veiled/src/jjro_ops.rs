@@ -134,7 +134,6 @@ pub fn jjrg_slate(gallops: &mut jjrg_Gallops, args: jjrg_SlateArgs) -> Result<jj
         jjrg_PaceState::Rough,
         args.text,
         args.silks,
-        None,
     );
     let pace = jjrg_Pace {
         tacks: vec![tack],
@@ -210,12 +209,12 @@ pub fn jjrg_rail(gallops: &mut jjrg_Gallops, args: jjrg_RailArgs) -> Result<Vec<
             .ok_or_else(|| format!("Pace {} not in order array", move_key))?;
 
         let new_pos = if args.first {
-            // Find first actionable pace (rough or bridled)
+            // Find first actionable pace (rough)
             // If none found, use end of array (nothing actionable to precede)
             let first_actionable_idx = heat.order.iter().position(|coronet| {
                 if let Some(pace) = heat.paces.get(coronet) {
                     if let Some(tack) = pace.tacks.first() {
-                        matches!(tack.state, jjrg_PaceState::Rough | jjrg_PaceState::Bridled)
+                        matches!(tack.state, jjrg_PaceState::Rough)
                     } else {
                         false
                     }
@@ -314,46 +313,8 @@ pub fn jjrg_tally(gallops: &mut jjrg_Gallops, args: jjrg_TallyArgs) -> Result<()
     let current_tack = pace.tacks.first()
         .ok_or_else(|| "Pace has no tacks (should never happen)".to_string())?;
 
-    // Check for the new-spec-invalidates-bridled condition:
-    // If pace is currently bridled AND new spec text is provided AND no explicit --state,
-    // then auto-reset to rough (new spec invalidates old direction)
-    let auto_reset_to_rough = args.state.is_none()
-        && matches!(current_tack.state, jjrg_PaceState::Bridled)
-        && args.text.is_some();
-
-    // Determine new state
-    let new_state = if auto_reset_to_rough {
-        jjrg_PaceState::Rough
-    } else {
-        args.state.clone().unwrap_or_else(|| current_tack.state.clone())
-    };
-
-    // Determine new direction
-    let new_direction = match (&args.state, &new_state) {
-        // State explicitly set to bridled: direction required
-        (Some(jjrg_PaceState::Bridled), _) => {
-            match &args.direction {
-                Some(d) if !d.is_empty() => Some(d.clone()),
-                Some(_) => return Err("direction must not be empty when state is bridled".to_string()),
-                None => return Err("direction is required when state is bridled".to_string()),
-            }
-        }
-        // State explicitly set to something other than bridled: direction forbidden
-        (Some(_), _) => {
-            if args.direction.is_some() {
-                return Err("direction must be absent when state is not bridled".to_string());
-            }
-            None
-        }
-        // Auto-reset to rough: no direction
-        _ if auto_reset_to_rough => None,
-        // State inherited and was bridled: inherit direction
-        (None, jjrg_PaceState::Bridled) => {
-            args.direction.or_else(|| current_tack.direction.clone())
-        }
-        // State inherited and was not bridled: no direction
-        (None, _) => None,
-    };
+    // Determine new state — explicit override, else inherit the current state
+    let new_state = args.state.clone().unwrap_or_else(|| current_tack.state.clone());
 
     // Determine new text
     let new_text = args.text.unwrap_or_else(|| jjrg_lines_to_text(&current_tack.text));
@@ -369,7 +330,6 @@ pub fn jjrg_tally(gallops: &mut jjrg_Gallops, args: jjrg_TallyArgs) -> Result<()
         new_state,
         new_text,
         new_silks,
-        new_direction,
     );
 
     // Replace the pace's single current tack (tack evolution lives in git)
@@ -473,7 +433,6 @@ pub fn jjrg_draft(gallops: &mut jjrg_Gallops, args: jjrg_DraftArgs) -> Result<jj
         first_tack.map(|t| t.state.clone()).unwrap_or(jjrg_PaceState::Rough),
         draft_note,
         first_tack.map(|t| t.silks.clone()).unwrap_or_default(),
-        first_tack.and_then(|t| t.direction.clone()),
     );
 
     // A pace holds a single current tack; the draft note captures the prior
@@ -638,7 +597,6 @@ fn zjjrg_build_trophy_content(
             for tack in &pace.tacks {
                 let state_str = match tack.state {
                     jjrg_PaceState::Rough => "rough",
-                    jjrg_PaceState::Bridled => "bridled",
                     jjrg_PaceState::Complete => "complete",
                     jjrg_PaceState::Abandoned => "abandoned",
                 };
@@ -647,9 +605,6 @@ fn zjjrg_build_trophy_content(
                 content.push_str(&body);
                 if !body.ends_with('\n') {
                     content.push('\n');
-                }
-                if let Some(ref direction) = tack.direction {
-                    content.push_str(&format!("\n*Direction:* {}\n", direction));
                 }
                 content.push('\n');
             }

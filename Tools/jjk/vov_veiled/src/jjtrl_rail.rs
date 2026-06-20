@@ -21,7 +21,6 @@ fn make_tack(state: jjrg_PaceState, silks: &str) -> jjrg_Tack {
         text: vec!["Test tack".to_string()],
         silks: silks.to_string(),
         basis: JJRG_UNKNOWN_BASIS.to_string(),
-        direction: None,
     }
 }
 

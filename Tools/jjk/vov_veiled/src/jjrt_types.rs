@@ -20,19 +20,19 @@ pub const JJRG_UNKNOWN_BASIS: &str = "0000000";
 /// confirmation). Distinct from the persisted serde wire tokens (`jjgte_*`
 /// per-variant renames below); these are the operator-facing labels.
 pub const JJRG_STATE_ROUGH: &str = "rough";
-pub const JJRG_STATE_BRIDLED: &str = "bridled";
 pub const JJRG_STATE_COMPLETE: &str = "complete";
 pub const JJRG_STATE_ABANDONED: &str = "abandoned";
 
 /// Pace state values
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum jjrg_PaceState {
-    #[serde(rename = "jjgte_rough")]
+    // Forgiveness JJr_a7c — `jjgte_bridled` (and its V3 alias `primed`) are the
+    // retired bridled state's legacy on-disk tokens; the bridle-retirement episode
+    // demotes them to Rough at the deserialize boundary so a pre-retirement gallops
+    // still parses, then the round-trip gate stand-down lets the next save rewrite
+    // `jjgte_rough`. See jjri_io ZJJDZ_REGISTRY and JJS0 jjdz_forgiveness.
+    #[serde(rename = "jjgte_rough", alias = "jjgte_bridled", alias = "primed")]
     Rough,
-    // Forgiveness JJr_a7c — `primed` is the legacy on-disk alias; its old-shape
-    // tolerance rides the V3→V4 episode (governed in JJS0 jjdpe_bridled).
-    #[serde(rename = "jjgte_bridled", alias = "primed")]
-    Bridled,
     #[serde(rename = "jjgte_complete")]
     Complete,
     #[serde(rename = "jjgte_abandoned")]
@@ -46,7 +46,6 @@ impl jjrg_PaceState {
     pub fn jjrg_as_str(&self) -> &'static str {
         match self {
             jjrg_PaceState::Rough => JJRG_STATE_ROUGH,
-            jjrg_PaceState::Bridled => JJRG_STATE_BRIDLED,
             jjrg_PaceState::Complete => JJRG_STATE_COMPLETE,
             jjrg_PaceState::Abandoned => JJRG_STATE_ABANDONED,
         }
@@ -87,8 +86,6 @@ pub struct jjrg_Tack {
     pub silks: String,
     #[serde(rename = "jjgtn_basis")]
     pub basis: String,
-    #[serde(skip_serializing_if = "Option::is_none", rename = "jjgtn_direction")]
-    pub direction: Option<String>,
 }
 
 /// Split docket text into the stored line array — the write-side boundary.
@@ -218,7 +215,6 @@ pub struct jjrg_RailArgs {
 pub struct jjrg_TallyArgs {
     pub coronet: String,
     pub state: Option<jjrg_PaceState>,
-    pub direction: Option<String>,
     pub text: Option<String>,
     pub silks: Option<String>,
 }
@@ -326,6 +322,4 @@ pub struct jjrg_PaceContext {
     pub text: String,
     /// Current silks
     pub silks: String,
-    /// Current direction (if bridled)
-    pub direction: Option<String>,
 }
