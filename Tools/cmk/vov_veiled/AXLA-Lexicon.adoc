@@ -871,6 +871,16 @@ A
 {axl_motif}
 representing a named collection of typed
 {axr_member_s}.
+A
+{axr_record}
+is immutable: once constructed, its
+{axr_member_s}
+never change, and a reader may treat its values as fixed for the life of the program.
+The sole mutability a
+{axr_record}
+admits is a bounded build phase, marked by
+{axd_petrify}
+and ended by sealing; absent that dimension, immutability is total from construction.
 Abstract pattern that format-specific variants voice with serialization semantics.
 Use format-specific variants (
 {axr_record_json},
