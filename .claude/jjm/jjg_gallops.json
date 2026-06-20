@@ -11913,9 +11913,10 @@
         "₢BDAAV",
         "₢BDAAW",
         "₢BDAAZ",
-        "₢BDAAb"
+        "₢BDAAb",
+        "₢BDAAc"
       ],
-      "jjghn_next_pace_seed": "AAc",
+      "jjghn_next_pace_seed": "AAd",
       "jjghn_paces": {
         "₢BDAAA": {
           "jjgpn_tacks": [
@@ -12980,6 +12981,44 @@
               ],
               "jjgtn_silks": "forgiveness-nag-self-documenting",
               "jjgtn_basis": "30a1645"
+            }
+          ]
+        },
+        "₢BDAAc": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260620-1108",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Goal",
+                "One gazette setter applies a heterogeneous single-heat batch — paddock + reslate + slate notices mixed in one gazette_in.md — and emits exactly one commit.",
+                "The pattern it serves: reslate paces and revise the paddock (and optionally slate new paces) in a single call instead of three sequential ones, each rewriting the gazette.",
+                "",
+                "## Cinched",
+                "- Single heat only — multi-heat batching is abandoned by operator ruling, not deferred.",
+                "- Same-firemark guard: every coronet, the paddock firemark, and any slate target must share one heat, else the batch is rejected.",
+                "  Apply the same guard to the existing mass-reslate path, which lacks it and today silently misattributes a cross-heat reslate to the first coronet's heat (a latent bug this ruling makes worth closing).",
+                "- One cursor placement per batch: the out-of-band before/after/first positions the first slate; flagless slates fold in after it in file order (notice order = pace order); reslate and paddock never move the cursor.",
+                "  No per-notice positioning, no random access.",
+                "- Atomic: validate every notice, apply to one in-memory gallops, commit once; any failure leaves no commit.",
+                "",
+                "## Done when",
+                "- A mixed gazette_in.md (paddock + N reslate + M slate) applies in one call as a single commit affiliated to the heat.",
+                "- A cross-heat batch is rejected with a clear error, and the existing mass-reslate cross-heat misattribution is closed by the same guard.",
+                "- The paddock setter no longer self-commits on its own path — its mutation joins the shared dispatcher/persist lifecycle that enroll and redocket already use.",
+                "- tt/vow-b and tt/vow-t green.",
+                "",
+                "## Discovery",
+                "The compose-then-commit-once precedent is the mass-reslate arm: the jjrm_mcp.rs dispatcher loops per-notice jjrtl_run_revise_docket as pure in-memory transforms, then commits once via the shared dispatch.",
+                "The divergence to heal: jjrg_curry (jjro_ops.rs, reached via jjrcu_run_curry) self-locks and self-commits, bypassing jjri_persist, and writes only the paddock file.",
+                "Gazette parser and slug dispatch live in jjrz_gazette.rs; the positioning resolver is jjrg_slate (jjro_ops.rs), whose no-flag default is append.",
+                "",
+                "## Character",
+                "Settled design, small-cluster refactor in the gazette/dispatch subsystem.",
+                "The shape is fixed; the command surface — a new verb versus extending redocket to accept mixed slugs — is a mount-time mechanical choice, not an open design fork."
+              ],
+              "jjgtn_silks": "gazette-mixed-notice-batch",
+              "jjgtn_basis": "09ce0a4"
             }
           ]
         }
