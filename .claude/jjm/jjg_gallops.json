@@ -16404,9 +16404,10 @@
       "jjghn_creation_time": "260617",
       "jjghn_status": "jjghe_racing",
       "jjghn_order": [
-        "₢BgAAA"
+        "₢BgAAA",
+        "₢BgAAB"
       ],
-      "jjghn_next_pace_seed": "AAB",
+      "jjghn_next_pace_seed": "AAC",
       "jjghn_paces": {
         "₢BgAAA": {
           "jjgpn_tacks": [
@@ -16430,6 +16431,30 @@
               ],
               "jjgtn_silks": "vo-matricula-mvp-subdoc",
               "jjgtn_basis": "d184403"
+            }
+          ]
+        },
+        "₢BgAAB": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260620-1544",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "",
+                "Mechanical line-break reflow; low judgment.",
+                "",
+                "## Done when",
+                "",
+                "VMS-VoxMatriculaSpec.adoc is reflowed to the MCM heavy line-break style its siblings VLS/VOS0/AXLA use — linked terms broken onto their own lines per MCM Term Integration Patterns — for diff and blame granularity.",
+                "Line-break only: every word, marker, and attribute-reference preserved; lands as its own commit.",
+                "",
+                "## Cinched",
+                "",
+                "The .adoc house rule is MCM line-break discipline, not the gazette semantic-linefeed rule (which governs paddocks and dockets only)."
+              ],
+              "jjgtn_silks": "vms-mcm-linebreak-reflow",
+              "jjgtn_basis": "be067a8"
             }
           ]
         }
