@@ -11916,9 +11916,10 @@
         "₢BDAAZ",
         "₢BDAAb",
         "₢BDAAc",
-        "₢BDAAd"
+        "₢BDAAd",
+        "₢BDAAe"
       ],
-      "jjghn_next_pace_seed": "AAe",
+      "jjghn_next_pace_seed": "AAf",
       "jjghn_paces": {
         "₢BDAAA": {
           "jjgpn_tacks": [
@@ -13051,6 +13052,36 @@
               ],
               "jjgtn_silks": "vvx-tabtarget-runner",
               "jjgtn_basis": "b251e70"
+            }
+          ]
+        },
+        "₢BDAAe": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260620-1246",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "Implementation against a cinched shape — the interface design was settled in conversation (260620) and captured below; the remaining work is building to it.",
+                "",
+                "## Goal",
+                "A jjx-family read-only MCP tool that surveys the version-control substrate (working state and history), so ad-hoc git inspection stops triggering Bash prompts — and seeds JJK's multi-repo / planned-worktrees future.",
+                "",
+                "## Done when",
+                "Read-only substrate inspection is available as an MCP call returning labeled, substrate-honest, multi-repo-shaped output, with no Bash permission prompt.",
+                "",
+                "## Cinched",
+                "Neutral interface vocabulary — the verb name and output schema name no specific RCS, so adopting jj / worktrees / repo later does not churn the interface.",
+                "Substrate-honest payload — the output DOES name the RCS and repo identity; it does NOT hide the underlying from the LLM, which operates the substrate and needs it named (consumer-determines-disclosure).",
+                "Multi-repo is structural, not a prose hint — a repos list that is length-1 today and length-N once submodules / worktrees land.",
+                "jjx-homed — the substrate is JJK domain (it already commits via jjx_record / close).",
+                "",
+                "## Discovery",
+                "MCP tool registration pattern: Tools/jjk/vov_veiled/src/jjrm_mcp.rs.",
+                "Existing heat-scoped git read: jjx_log. Design rationale: Memos/memo-20260620-claude-permission-stalls-and-mcp-absorption.md."
+              ],
+              "jjgtn_silks": "revision-substrate-surveyor",
+              "jjgtn_basis": "30d01f2"
             }
           ]
         }
