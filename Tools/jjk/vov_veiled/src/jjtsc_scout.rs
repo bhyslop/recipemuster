@@ -25,14 +25,13 @@ use crate::jjrsc_scout::{
 // Test fixture builders — in-memory Gallops, no disk, no git
 // ============================================================================
 
-fn jjtsc_make_tack(state: jjrg_PaceState, silks: &str, text: &str, direction: Option<&str>) -> jjrg_Tack {
+fn jjtsc_make_tack(state: jjrg_PaceState, silks: &str, text: &str) -> jjrg_Tack {
     jjrg_Tack {
         ts: "20260612T120000Z".to_string(),
         state,
         text: vec![text.to_string()],
         silks: silks.to_string(),
         basis: "0000000".to_string(),
-        direction: direction.map(|d| d.to_string()),
     }
 }
 
@@ -92,9 +91,9 @@ fn jjtsc_plain_mode_builds_three_tiers() {
     let m = zjjrsc_build_matchers("ark").unwrap();
     let gallops = jjtsc_make_gallops(vec![
         ("₣AA", jjtsc_make_heat("h-one", jjrg_HeatStatus::Racing, vec![
-            ("₢AAAAA", jjtsc_make_tack(jjrg_PaceState::Rough, "p-one", "the ark itself", None)),
-            ("₢AAAAB", jjtsc_make_tack(jjrg_PaceState::Rough, "p-two", "several arks here", None)),
-            ("₢AAAAC", jjtsc_make_tack(jjrg_PaceState::Rough, "p-three", "a hallmark word", None)),
+            ("₢AAAAA", jjtsc_make_tack(jjrg_PaceState::Rough, "p-one", "the ark itself")),
+            ("₢AAAAB", jjtsc_make_tack(jjrg_PaceState::Rough, "p-two", "several arks here")),
+            ("₢AAAAC", jjtsc_make_tack(jjrg_PaceState::Rough, "p-three", "a hallmark word")),
         ])),
     ]);
     let (blocks, _) = zjjrsc_search(&gallops, &m, false, jjtsc_no_paddock);
@@ -110,8 +109,8 @@ fn jjtsc_regex_mode_single_pass_no_marker() {
     let m = zjjrsc_build_matchers(r"\bark\b").unwrap();
     let gallops = jjtsc_make_gallops(vec![
         ("₣AA", jjtsc_make_heat("h-one", jjrg_HeatStatus::Racing, vec![
-            ("₢AAAAA", jjtsc_make_tack(jjrg_PaceState::Rough, "p-one", "the ark itself", None)),
-            ("₢AAAAB", jjtsc_make_tack(jjrg_PaceState::Rough, "p-two", "several arks here", None)),
+            ("₢AAAAA", jjtsc_make_tack(jjrg_PaceState::Rough, "p-one", "the ark itself")),
+            ("₢AAAAB", jjtsc_make_tack(jjrg_PaceState::Rough, "p-two", "several arks here")),
         ])),
     ]);
     let (blocks, _) = zjjrsc_search(&gallops, &m, false, jjtsc_no_paddock);
@@ -154,12 +153,12 @@ fn jjtsc_zero_pace_heat_silks_match_yields_heat_row() {
 }
 
 #[test]
-fn jjtsc_nonmatching_direction_no_longer_blocks_paddock() {
-    // Old bug: a pace with present-but-nonmatching direction skipped the paddock fallback
+fn jjtsc_nonmatching_pace_no_longer_blocks_paddock() {
+    // Old bug: a pace with present-but-nonmatching fields skipped the paddock fallback
     let m = zjjrsc_build_matchers("ark").unwrap();
     let gallops = jjtsc_make_gallops(vec![
         ("₣AA", jjtsc_make_heat("h-one", jjrg_HeatStatus::Racing, vec![
-            ("₢AAAAA", jjtsc_make_tack(jjrg_PaceState::Rough, "p-one", "no match here", Some("nor here"))),
+            ("₢AAAAA", jjtsc_make_tack(jjrg_PaceState::Rough, "p-one", "no match here")),
         ])),
     ]);
     let (blocks, _) = zjjrsc_search(&gallops, &m, false, |_| {
@@ -176,7 +175,7 @@ fn jjtsc_self_matching_paces_do_not_mask_paddock() {
     let m = zjjrsc_build_matchers("ark").unwrap();
     let gallops = jjtsc_make_gallops(vec![
         ("₣AA", jjtsc_make_heat("h-one", jjrg_HeatStatus::Racing, vec![
-            ("₢AAAAA", jjtsc_make_tack(jjrg_PaceState::Rough, "ark-pace", "ark in docket", None)),
+            ("₢AAAAA", jjtsc_make_tack(jjrg_PaceState::Rough, "ark-pace", "ark in docket")),
         ])),
     ]);
     let (blocks, _) = zjjrsc_search(&gallops, &m, false, |_| {
@@ -192,8 +191,8 @@ fn jjtsc_actionable_suppresses_heat_rows_and_filters_paces() {
     let m = zjjrsc_build_matchers("ark").unwrap();
     let gallops = jjtsc_make_gallops(vec![
         ("₣AA", jjtsc_make_heat("ark-heat", jjrg_HeatStatus::Racing, vec![
-            ("₢AAAAA", jjtsc_make_tack(jjrg_PaceState::Complete, "p-done", "ark done", None)),
-            ("₢AAAAB", jjtsc_make_tack(jjrg_PaceState::Rough, "p-open", "ark open", None)),
+            ("₢AAAAA", jjtsc_make_tack(jjrg_PaceState::Complete, "p-done", "ark done")),
+            ("₢AAAAB", jjtsc_make_tack(jjrg_PaceState::Rough, "p-open", "ark open")),
         ])),
     ]);
     let (blocks, _) = zjjrsc_search(&gallops, &m, true, |_| {
@@ -226,8 +225,7 @@ fn jjtsc_pace_row_drops_silks_and_uses_spec_labels() {
     let m = zjjrsc_build_matchers("ark").unwrap();
     let gallops = jjtsc_make_gallops(vec![
         ("₣AA", jjtsc_make_heat("h-one", jjrg_HeatStatus::Racing, vec![
-            ("₢AAAAA", jjtsc_make_tack(jjrg_PaceState::Rough, "my-distinctive-silks", "ark in docket", None)),
-            ("₢AAAAB", jjtsc_make_tack(jjrg_PaceState::Bridled, "other-silks", "no match", Some("ark in warrant"))),
+            ("₢AAAAA", jjtsc_make_tack(jjrg_PaceState::Rough, "my-distinctive-silks", "ark in docket")),
         ])),
     ]);
     let (blocks, _) = zjjrsc_search(&gallops, &m, false, jjtsc_no_paddock);
@@ -235,7 +233,6 @@ fn jjtsc_pace_row_drops_silks_and_uses_spec_labels() {
     assert!(lines[0].contains("docket:"), "spec label is docket, not spec: {:?}", lines);
     assert!(!lines[0].contains("my-distinctive-silks"), "pace silks dropped from row: {:?}", lines);
     assert!(lines[0].contains("[rough]"));
-    assert!(lines[1].contains("warrant:"), "spec label is warrant, not direction: {:?}", lines);
 }
 
 #[test]
@@ -244,10 +241,10 @@ fn jjtsc_blocks_sort_by_strongest_tier() {
     // ₣AA matches only at substring tier; ₣AB at whole tier — ₣AB sorts first
     let gallops = jjtsc_make_gallops(vec![
         ("₣AA", jjtsc_make_heat("h-weak", jjrg_HeatStatus::Racing, vec![
-            ("₢AAAAA", jjtsc_make_tack(jjrg_PaceState::Rough, "p", "a hallmark word", None)),
+            ("₢AAAAA", jjtsc_make_tack(jjrg_PaceState::Rough, "p", "a hallmark word")),
         ])),
         ("₣AB", jjtsc_make_heat("h-strong", jjrg_HeatStatus::Racing, vec![
-            ("₢ABAAA", jjtsc_make_tack(jjrg_PaceState::Rough, "p", "the ark itself", None)),
+            ("₢ABAAA", jjtsc_make_tack(jjrg_PaceState::Rough, "p", "the ark itself")),
         ])),
     ]);
     let (blocks, _) = zjjrsc_search(&gallops, &m, false, jjtsc_no_paddock);
@@ -261,7 +258,7 @@ fn jjtsc_tier_major_field_minor_within_pace() {
     let m = zjjrsc_build_matchers("ark").unwrap();
     let gallops = jjtsc_make_gallops(vec![
         ("₣AA", jjtsc_make_heat("h-one", jjrg_HeatStatus::Racing, vec![
-            ("₢AAAAA", jjtsc_make_tack(jjrg_PaceState::Rough, "hallmark-silks", "the ark itself", None)),
+            ("₢AAAAA", jjtsc_make_tack(jjrg_PaceState::Rough, "hallmark-silks", "the ark itself")),
         ])),
     ]);
     let (blocks, _) = zjjrsc_search(&gallops, &m, false, jjtsc_no_paddock);
@@ -278,7 +275,7 @@ fn jjtsc_frequency_counts_containing_words_plain_mode() {
     let m = zjjrsc_build_matchers("ark").unwrap();
     let gallops = jjtsc_make_gallops(vec![
         ("₣AA", jjtsc_make_heat("h-one", jjrg_HeatStatus::Racing, vec![
-            ("₢AAAAA", jjtsc_make_tack(jjrg_PaceState::Rough, "p", "ark and arks and hallmark and Ark", None)),
+            ("₢AAAAA", jjtsc_make_tack(jjrg_PaceState::Rough, "p", "ark and arks and hallmark and Ark")),
         ])),
     ]);
     let (_, freq) = zjjrsc_search(&gallops, &m, false, jjtsc_no_paddock);
@@ -305,7 +302,7 @@ fn jjtsc_frequency_regex_mode_counts_spans() {
     let m = zjjrsc_build_matchers(r"ark\w*").unwrap();
     let gallops = jjtsc_make_gallops(vec![
         ("₣AA", jjtsc_make_heat("h-one", jjrg_HeatStatus::Racing, vec![
-            ("₢AAAAA", jjtsc_make_tack(jjrg_PaceState::Rough, "p", "ark arks arkive", None)),
+            ("₢AAAAA", jjtsc_make_tack(jjrg_PaceState::Rough, "p", "ark arks arkive")),
         ])),
     ]);
     let (_, freq) = zjjrsc_search(&gallops, &m, false, jjtsc_no_paddock);

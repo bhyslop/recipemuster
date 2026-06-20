@@ -130,7 +130,6 @@ pub fn jjrrs_run(args: jjrrs_RestringArgs, coronets: String) -> (i32, String) {
             "silks": m.silks,
             "state": match m.state {
                 jjrg_PaceState::Rough => "rough",
-                jjrg_PaceState::Bridled => "bridled",
                 jjrg_PaceState::Complete => "complete",
                 jjrg_PaceState::Abandoned => "abandoned",
             },

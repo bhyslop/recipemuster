@@ -17,14 +17,13 @@ fn make_valid_gallops() -> jjrg_Gallops {
     }
 }
 
-fn make_valid_tack(state: jjrg_PaceState, silks: &str, direction: Option<String>) -> jjrg_Tack {
+fn make_valid_tack(state: jjrg_PaceState, silks: &str) -> jjrg_Tack {
     jjrg_Tack {
         ts: "260101-1200".to_string(),
         state,
         text: vec!["Test tack text".to_string()],
         silks: silks.to_string(),
         basis: JJRG_UNKNOWN_BASIS.to_string(),
-        direction,
     }
 }
 
@@ -42,7 +41,7 @@ fn make_heat_with_paces(heat_id: &str, silks: &str, pace_count: usize) -> (Strin
         let pace_silks = format!("pace-{}", i + 1);
 
         let pace = jjrg_Pace {
-            tacks: vec![make_valid_tack(jjrg_PaceState::Rough, &pace_silks, None)],
+            tacks: vec![make_valid_tack(jjrg_PaceState::Rough, &pace_silks)],
         };
 
         order.push(pace_key.clone());
@@ -344,15 +343,14 @@ fn jjtrs_restring_accepts_coronets_without_prefix() {
 }
 
 #[test]
-fn jjtrs_restring_preserves_pace_state_and_direction() {
+fn jjtrs_restring_preserves_pace_state() {
     let mut gallops = make_valid_gallops();
     let (source_key, mut source_heat) = make_heat_with_paces("AB", "source-heat", 1);
     let (dest_key, dest_heat) = make_heat_with_paces("AC", "dest-heat", 0);
 
-    // Set the pace to bridled with direction
+    // Set the pace to a distinctive (non-default) state to prove preservation.
     let pace_key = source_heat.order[0].clone();
-    source_heat.paces.get_mut(&pace_key).unwrap().tacks[0].state = jjrg_PaceState::Bridled;
-    source_heat.paces.get_mut(&pace_key).unwrap().tacks[0].direction = Some("Execute autonomously".to_string());
+    source_heat.paces.get_mut(&pace_key).unwrap().tacks[0].state = jjrg_PaceState::Complete;
 
     gallops.heats.insert(source_key, source_heat);
     gallops.heats.insert(dest_key.clone(), dest_heat);
@@ -367,19 +365,18 @@ fn jjtrs_restring_preserves_pace_state_and_direction() {
     assert!(result.is_ok());
 
     let result = result.unwrap();
-    assert_eq!(result.drafted[0].state, jjrg_PaceState::Bridled);
+    assert_eq!(result.drafted[0].state, jjrg_PaceState::Complete);
 
-    // Verify the transferred pace retains bridled state and direction
+    // Verify the transferred pace retains its state.
     let dest_heat = gallops.heats.get(&dest_key).unwrap();
     let new_coronet = &result.drafted[0].new_coronet;
     let transferred_pace = dest_heat.paces.get(new_coronet).unwrap();
 
-    // The single draft tack inherits the source pace's state and direction
+    // The single draft tack inherits the source pace's state
     // (tack history lives in git, not in the JSON).
     assert_eq!(transferred_pace.tacks.len(), 1);
     let draft_tack = &transferred_pace.tacks[0];
-    assert_eq!(draft_tack.state, jjrg_PaceState::Bridled);
-    assert_eq!(draft_tack.direction.as_ref().unwrap(), "Execute autonomously");
+    assert_eq!(draft_tack.state, jjrg_PaceState::Complete);
 }
 
 #[test]

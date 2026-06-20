@@ -147,9 +147,6 @@ pub fn jjrpd_run_parade(args: jjrpd_ParadeArgs, gazette: &mut jjrz_Gazette) -> (
 
                     vvco_out!(output, "[{}] {} (basis: {})", index, state_str, basis_str);
                     vvco_out!(output, "    Silks: {}", tack.silks);
-                    if let Some(ref direction) = tack.direction {
-                        vvco_out!(output, "    Warrant: {}", direction);
-                    }
                     vvco_out!(output, "");
                     // Indent docket text
                     for line in &tack.text {
@@ -159,10 +156,6 @@ pub fn jjrpd_run_parade(args: jjrpd_ParadeArgs, gazette: &mut jjrz_Gazette) -> (
                 }
             } else {
                 // Default view: latest tack docket only
-                if let Some(ref direction) = current_tack.direction {
-                    vvco_out!(output, "Warrant: {}", direction);
-                    vvco_out!(output, "");
-                }
                 for line in &current_tack.text {
                     vvco_out!(output, "{}", line);
                 }
@@ -230,10 +223,6 @@ pub fn jjrpd_run_parade(args: jjrpd_ParadeArgs, gazette: &mut jjrz_Gazette) -> (
                         vvco_out!(output, "### {} ({}) [{}]", tack.silks, coronet_key, state_str);
                         vvco_out!(output, "");
                         vvco_out!(output, "{}", jjrg_lines_to_text(&tack.text));
-                        if let Some(ref direction) = tack.direction {
-                            vvco_out!(output, "");
-                            vvco_out!(output, "**Warrant:** {}", direction);
-                        }
                         vvco_out!(output, "");
                     }
                 }
@@ -245,7 +234,6 @@ pub fn jjrpd_run_parade(args: jjrpd_ParadeArgs, gazette: &mut jjrz_Gazette) -> (
                 let mut complete_count = 0;
                 let mut abandoned_count = 0;
                 let mut rough_count = 0;
-                let mut bridled_count = 0;
                 let mut remaining_paces: Vec<(&String, &crate::jjrg_gallops::jjrg_Pace)> = Vec::new();
                 let mut first_remaining_pace: Option<(&String, &crate::jjrg_gallops::jjrg_Pace)> = None;
 
@@ -262,13 +250,6 @@ pub fn jjrpd_run_parade(args: jjrpd_ParadeArgs, gazette: &mut jjrz_Gazette) -> (
                                         first_remaining_pace = Some((coronet_key, pace));
                                     }
                                 }
-                                PaceState::Bridled => {
-                                    bridled_count += 1;
-                                    remaining_paces.push((coronet_key, pace));
-                                    if first_remaining_pace.is_none() {
-                                        first_remaining_pace = Some((coronet_key, pace));
-                                    }
-                                }
                             }
                         }
                     }
@@ -280,12 +261,12 @@ pub fn jjrpd_run_parade(args: jjrpd_ParadeArgs, gazette: &mut jjrz_Gazette) -> (
                     HeatStatus::Retired => "retired",
                 };
 
-                let remaining_count = rough_count + bridled_count;
+                let remaining_count = rough_count;
 
                 // Header line with heat info
                 vvco_out!(output, "Heat: {} ({}) [{}]", heat.silks, heat_key, status_str);
-                vvco_out!(output, "Progress: {} complete | {} abandoned | {} remaining ({} rough, {} bridled)",
-                    complete_count, abandoned_count, remaining_count, rough_count, bridled_count);
+                vvco_out!(output, "Progress: {} complete | {} abandoned | {} remaining ({} rough)",
+                    complete_count, abandoned_count, remaining_count, rough_count);
                 vvco_out!(output, "");
 
                 // Table with remaining paces
@@ -526,7 +507,6 @@ pub(crate) fn jjrpd_write_file_bitmap(output: &mut vvco_Output, firemark: &Firem
 pub(crate) fn zjjrpd_pace_state_str(state: &PaceState) -> &'static str {
     match state {
         PaceState::Rough => "rough",
-        PaceState::Bridled => "bridled",
         PaceState::Complete => "complete",
         PaceState::Abandoned => "abandoned",
     }

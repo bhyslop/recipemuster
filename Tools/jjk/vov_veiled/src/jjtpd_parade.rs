@@ -24,7 +24,6 @@ fn make_valid_tack(state: jjrg_PaceState, silks: &str) -> jjrg_Tack {
         text: vec!["Test tack text".to_string()],
         silks: silks.to_string(),
         basis: JJRG_UNKNOWN_BASIS.to_string(),
-        direction: None,
     }
 }
 
@@ -59,12 +58,6 @@ fn make_valid_heat(heat_id: &str, silks: &str, status: jjrg_HeatStatus) -> (Stri
 fn jjtpd_pace_state_str_rough() {
     let result = zjjrpd_pace_state_str(&jjrg_PaceState::Rough);
     assert_eq!(result, "rough");
-}
-
-#[test]
-fn jjtpd_pace_state_str_bridled() {
-    let result = zjjrpd_pace_state_str(&jjrg_PaceState::Bridled);
-    assert_eq!(result, "bridled");
 }
 
 #[test]

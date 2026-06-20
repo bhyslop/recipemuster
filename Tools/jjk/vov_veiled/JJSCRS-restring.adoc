@@ -76,7 +76,7 @@ plus paddock moves for N
       "old_coronet": "AFAAb",
       "new_coronet": "AGABd",
       "silks": "implement-bulk-relocate",
-      "state": "bridled",
+      "state": "rough",
       "docket": "Implement jjx_transfer operation following jjx_relocate pattern..."
     },
     {

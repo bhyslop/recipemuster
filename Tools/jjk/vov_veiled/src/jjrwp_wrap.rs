@@ -266,7 +266,6 @@ pub fn zjjrx_run_wrap(args: jjrx_WrapArgs, summary: Option<String>) -> (i32, Str
     let tally_args = LibTallyArgs {
         coronet: args.coronet.clone(),
         state: Some(jjrg_PaceState::Complete),
-        direction: None,
         text: None,
         silks: None,
     };
@@ -323,7 +322,7 @@ pub fn zjjrx_run_wrap(args: jjrx_WrapArgs, summary: Option<String>) -> (i32, Str
                     heat.paces.get(c.as_str()).and_then(|pace| {
                         pace.tacks.first().and_then(|tack| {
                             match tack.state {
-                                jjrg_PaceState::Rough | jjrg_PaceState::Bridled => {
+                                jjrg_PaceState::Rough => {
                                     Some((c.clone(), tack.silks.clone()))
                                 }
                                 _ => None,

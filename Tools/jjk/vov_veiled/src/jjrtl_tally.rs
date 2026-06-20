@@ -151,7 +151,6 @@ pub fn jjrtl_run_relabel(args: jjrtl_RelabelArgs) -> (i32, String) {
     let tally_args = LibTallyArgs {
         coronet: args.coronet,
         state: None,
-        direction: None,
         text: None,
         silks: Some(args.silks),
     };
@@ -239,7 +238,6 @@ pub fn jjrtl_run_drop(args: jjrtl_DropArgs) -> (i32, String) {
     let tally_args = LibTallyArgs {
         coronet: args.coronet,
         state: Some(PaceState::Abandoned),
-        direction: None,
         text: None,
         silks: None,
     };

@@ -104,7 +104,6 @@
 :jjdpe_rough:     <<jjdpe_rough,rough>>
 :jjdpe_defined:   <<jjdpe_defined,defined>>
 :jjdpe_resolved:  <<jjdpe_resolved,resolved>>
-:jjdpe_bridled:   <<jjdpe_bridled,bridled>>
 
 // Tack record and members
 :jjdcr_tack:        <<jjdcr_tack,Tack>>
@@ -115,7 +114,6 @@
 :jjdcm_text:        <<jjdcm_text,text>>
 :jjdcm_silks:       <<jjdcm_silks,silks>>
 :jjdcm_basis:       <<jjdcm_basis,commit>>
-:jjdcm_direction:   <<jjdcm_direction,direction>>
 
 // Column Table record and members
 :jjdyr_table:  <<jjdyr_table,Column Table>>
@@ -141,7 +139,6 @@
 :jjda_after:          <<jjda_after,--after>>
 :jjda_before:         <<jjda_before,--before>>
 :jjda_created:        <<jjda_created,--created>>
-:jjda_direction:      <<jjda_direction,--direction>>
 :jjda_file:           <<jjda_file,--file>>
 :jjda_first:          <<jjda_first,--first>>
 :jjda_intent:         <<jjda_intent,--intent>>
@@ -1557,15 +1554,6 @@ The
 was stopped without completion.
 Serialized as `jjgte_abandoned` in JSON.
 
-[[jjdpe_bridled]]
-//axl_voices axt_enum_value axd_string axd_internal
-{jjdpe_bridled}::
-V3-legacy state: human-claimed for interactive work.
-Serialized as `jjgte_bridled` in JSON (serde alias: `primed`).
-Present in code but deprecated.
-Removal governed by {jjdz_forgiveness} (the V3→V4 episode's demolition condition).
-New operations MUST NOT produce this state.
-
 ==== State Classification Predicates
 
 Predicates for querying pace states by semantic category.
@@ -1611,9 +1599,9 @@ is the pace state at this snapshot.
 Values:
 {jjdpe_rough},
 {jjdpe_complete},
-{jjdpe_abandoned},
-{jjdpe_bridled} (V3-legacy, deprecated).
+{jjdpe_abandoned}.
 Serialized as `jjgtn_state` in JSON.
+A pre-retirement on-disk `jjgte_bridled` value (V3 alias `primed`) is demoted to {jjdpe_rough} under {jjdz_forgiveness} (the bridle-retirement episode).
 
 * [[jjdcm_text]]
 //axl_voices axr_member axd_required axd_repeated axd_property
@@ -1635,14 +1623,6 @@ Serialized as `jjgtn_silks` in JSON.
 is the basis commit SHA at the time of this snapshot.
 Serialized as `jjgtn_basis` in JSON.
 Format: 7-character abbreviated SHA, or `0000000` when basis cannot be determined.
-
-* [[jjdcm_direction]]
-//axl_voices axr_member axd_optional axt_string axd_property
-{jjdcm_direction}
-is the plan or warrant text.
-V3-legacy: present only when state is {jjdpe_bridled}; absent otherwise.
-Will become vestigial when {jjdpe_bridled} is removed under {jjdz_forgiveness}.
-Serialized as `jjgtn_direction` in JSON.
 
 === {jjdyr_table}
 
@@ -1976,14 +1956,6 @@ do not accept this argument; their commit deltas are bounded by fixed-shape
 {jjdgr_gallops}
 mutations.
 
-[[jjda_direction]]
-//axl_voices axa_keyword axd_internal
-{jjda_direction}::
-V3-legacy.
-Plan or warrant text for {jjdpe_bridled} state.
-Not exposed as an {jjdx_tool} parameter.
-Removal deferred to ₣An.
-
 == Section Headers
 
 [[jjds_arguments]]
@@ -2172,7 +2144,7 @@ Runs within {jjsodp_command_lifecycle} (pace-affiliated).
 //axvo_method axd_transient
 {jjsgmrp_resolve_pace}::
 Navigate {jjdgr_gallops} from a {jjdt_coronet} to the target {jjdpr_pace} and its current tack state.
-Returns pace context: parsed coronet, firemark key, current state, text, silks, and direction.
+Returns pace context: parsed coronet, firemark key, current state, text, and silks.
 Used by all pace-targeting composed methods as the shared read primitive.
 
 [[jjsgmst_set_tack]]

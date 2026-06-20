@@ -150,6 +150,25 @@ fn zjjdz_episode_tack_text_to_lines_live(_gallops: &jjrg_Gallops, original_bytes
     original_bytes.windows(TACK_TEXT_STRING_KEY.len()).any(|w| w == TACK_TEXT_STRING_KEY)
 }
 
+/// bridle-retirement episode live-test — rivet JJr_a7c.
+///
+/// True when the on-disk bytes still carry the retired bridle/warrant surface: the
+/// `jjgte_bridled` pace-state token, or the removed `jjgtn_direction` warrant key. The
+/// `jjrg_PaceState` deserializer already demotes a legacy bridled value to Rough via serde
+/// alias, and serde drops the unknown `jjgtn_direction` key on parse — so the parsed struct
+/// alone cannot tell an old file apart, which is why detection sniffs the raw bytes. When
+/// live, jjdr_load stands the round-trip gate down (a bridled→rough reserialization, and the
+/// dropped direction key, would otherwise mismatch); no write-forward body is needed, since
+/// the next jjdr_save emits `jjgte_rough` and omits `jjgtn_direction` on its own. The V3 state
+/// alias `primed` needs no detection here: a `primed` store predates V4's `heat_order`, so the
+/// V3→V4 episode already flags it (and a bridled V3 pace also carries `jjgtn_direction`).
+fn zjjdz_episode_bridle_retirement_live(_gallops: &jjrg_Gallops, original_bytes: &[u8]) -> bool {
+    const BRIDLED_STATE_TOKEN: &[u8] = b"\"jjgte_bridled\"";
+    const DIRECTION_KEY: &[u8] = b"\"jjgtn_direction\"";
+    original_bytes.windows(BRIDLED_STATE_TOKEN.len()).any(|w| w == BRIDLED_STATE_TOKEN)
+        || original_bytes.windows(DIRECTION_KEY.len()).any(|w| w == DIRECTION_KEY)
+}
+
 /// The forgiveness registry — every tolerated old on-disk schema, one entry per episode.
 /// Permanent infrastructure: episodes are appended as schema changes land and removed once
 /// dormant on every operated clone (the per-episode lifecycle in JJS0 `jjdz_forgiveness`).
@@ -157,6 +176,7 @@ const ZJJDZ_REGISTRY: &[zjjdz_Episode] = &[
     zjjdz_Episode { label: "V3→V4", is_live: zjjdz_episode_v3_to_v4_live },
     zjjdz_Episode { label: "schema_version drop", is_live: zjjdz_episode_schema_version_drop_live },
     zjjdz_Episode { label: "tack text→lines", is_live: zjjdz_episode_tack_text_to_lines_live },
+    zjjdz_Episode { label: "bridle retirement", is_live: zjjdz_episode_bridle_retirement_live },
 ];
 
 /// Read-only forgiveness probe — the single source of "what counts as old-format".

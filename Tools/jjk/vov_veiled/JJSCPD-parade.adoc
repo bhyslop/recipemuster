@@ -48,7 +48,7 @@ and
 *Example output — heat list with `--remaining`:*
 ----
 Heat: my-heat (₣AA) [racing]
-Progress: 1 complete | 1 abandoned | 1 remaining (1 rough, 0 bridled)
+Progress: 1 complete | 1 abandoned | 1 remaining (1 rough)
 
  No  State     Pace                Coronet
 -------------------------------------------
@@ -123,8 +123,6 @@ Created: 260119
 ### pace-silks (₢AAAAJ) [rough]
 
 [full tack text...]
-
-Warrant: [if bridled]
 ----
 
 *Example output — pace detail (single tack):*
@@ -150,11 +148,10 @@ Heat: ₣AA
 
     Initial docket text here...
 
-[1] bridled (def456a)
+[1] rough (def456a)
     Silks: feature-name
-    Warrant: Agent: sonnet...
 
-    Ready for autonomous execution.
+    Refined docket text here...
 
 [2] complete (abc123f)
     Silks: feature-name
@@ -164,7 +161,7 @@ Heat: ₣AA
 
 In `--detail` mode, tacks are displayed in chronological order (oldest first).
 Each tack is numbered with a display index starting from `[0]` (oldest) through `[N]` (most recent).
-Each tack shows its display index, state, commit hash, silks (which may change over time), optional warrant (if bridled), and the full docket text.
+Each tack shows its display index, state, commit hash, silks (which may change over time), and the full docket text.
 Note: display indices are chronological position, not storage position.
 Commit hash displays "(no commit)" for placeholder value `0000000`.
 
@@ -205,5 +202,4 @@ extract parent
 .. Query steeplechase entries for parent heat, filter by coronet, run `git diff-tree` per commit, collect unique work file names (excluding `.claude/jjm/*`), display as "Work files:" line (bare filenames, sorted)
 .. Print pace header (silks, coronet, state, heat)
 .. Print docket text from the latest tack (storage `tacks[0]`, i.e. most recent) as plain text, without display index prefix
-.. If bridled, print warrant from the latest tack
 .. After tack history, always append pace commits bitmap: query steeplechase entries for heat, filter by coronet, reverse for chronological order; run `git diff-tree` per commit to get work files (excluding `.claude/jjm/*`); group files by identical touch pattern; legend shows commit SHA and subject; column-header line above bitmap rows

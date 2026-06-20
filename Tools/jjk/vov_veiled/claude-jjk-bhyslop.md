@@ -123,3 +123,34 @@ follow its "Registering a new episode" procedure.
 write-forward, frozen `jjrt_v3_types.rs`) is deliberately temporary, removed only
 under the episode's demolition condition: do not clean it up or re-explain it beside
 the marker. RBK's `RBr_` conduct rule, JJK-native.
+
+### F. Branch Naming Discipline
+
+Name every git branch with a uniform, age-sortable, identity-bearing shape, so the
+branch list reads as a chronological ledger and each branch ties back to the heat or
+pace it serves. Canonical form:
+
+```
+bhyslop-{YYMMDD}-{coronet-or-firemark}-{short-topic}
+```
+
+Example: this heat's bridle-retirement pace ₢BcAAG, on 2026-06-20, became branch
+`bhyslop-260620-BcAAG-bridle-retirement`.
+
+Segment rules:
+
+- **`bhyslop-` prefix on every branch.** The operator namespace — reserved now so a
+  future team's branches sort apart from the operator's.
+- **`{YYMMDD}` second, before the topic.** Date-early so `git branch` sorts the
+  namespace by age. Short `YYMMDD` (`260620`), never ISO `YYYYMMDD`.
+- **`{coronet-or-firemark}` — the JJK identity the work belongs to, bare.** The
+  base64 characters only (`BcAAG`, `Bc`) — **never** the ₢/₣ glyph: a glyph in a git
+  ref is fragile across tab-completion, tooling, and platforms (the `pym-₢A_AAP`
+  branches are the anti-pattern). **Preserve the identity's case** (`Bc`, not `bc`):
+  lowercasing destroys the firemark — `bc` could be `Bc`, `BC`, `bC`, or `bc`, four
+  distinct heats (the `bc-*` branches are that anti-pattern). Case-collision on a
+  case-insensitive filesystem (macOS APFS) is a theoretical hazard only for two
+  coronets differing solely in case; with a sole operator it does not arise, and if
+  it ever did, disambiguate in the topic — never by lowercasing the identity. Omit
+  this segment only when no pace or heat applies.
+- **`{short-topic}` — kebab-case, a few words.**

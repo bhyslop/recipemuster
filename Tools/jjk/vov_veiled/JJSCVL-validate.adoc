@@ -53,7 +53,6 @@ must have:
 (YYMMDD-HHMM),
 {jjdkm_state}
 ({jjdpe_rough},
-{jjdpe_bridled},
 {jjdpe_complete},
 or
 {jjdpe_abandoned}),
@@ -63,11 +62,3 @@ or
 (non-empty kebab-case),
 {jjdkm_commit}
 (valid {jjdkm_commit} format)
-. If
-{jjdkm_state}
-is
-{jjdpe_bridled},
-{jjdkm_warrant}
-must be present (non-empty string); otherwise
-{jjdkm_warrant}
-must be absent

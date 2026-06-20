@@ -129,7 +129,6 @@ impl jjrg_Gallops {
             state: current.state.clone(),
             text: jjrg_lines_to_text(&current.text),
             silks: current.silks.clone(),
-            direction: current.direction.clone(),
         })
     }
 
@@ -166,7 +165,6 @@ impl jjrg_Gallops {
             text: jjrg_text_to_lines(docket),
             silks: ctx.silks.clone(),
             basis: basis.to_string(),
-            direction: None,
         };
 
         self.jjrg_set_tack(&ctx, tack)?;
@@ -191,7 +189,6 @@ mod tests {
             text: jjrg_text_to_lines(text),
             silks: silks.to_string(),
             basis: "0000000".to_string(),
-            direction: None,
         };
         let pace = jjrg_Pace {
             tacks: vec![tack],
@@ -224,7 +221,6 @@ mod tests {
         assert_eq!(ctx.state, jjrg_PaceState::Rough);
         assert_eq!(ctx.text, "original docket");
         assert_eq!(ctx.silks, "test-pace");
-        assert_eq!(ctx.direction, None);
     }
 
     #[test]

@@ -285,33 +285,4 @@ fn zjjrg_validate_tack(pace_ctx: &str, index: usize, tack: &jjrg_Tack, errors: &
             tack_ctx, tack.basis
         ));
     }
-
-    // Rule 9: direction presence depends on state
-    match tack.state {
-        jjrg_PaceState::Bridled => {
-            match &tack.direction {
-                None => {
-                    errors.push(format!(
-                        "{}: direction is required when state is 'bridled'",
-                        tack_ctx
-                    ));
-                }
-                Some(d) if d.is_empty() => {
-                    errors.push(format!(
-                        "{}: direction must not be empty when state is 'bridled'",
-                        tack_ctx
-                    ));
-                }
-                _ => {}
-            }
-        }
-        _ => {
-            if tack.direction.is_some() {
-                errors.push(format!(
-                    "{}: direction must be absent when state is not 'bridled'",
-                    tack_ctx
-                ));
-            }
-        }
-    }
 }

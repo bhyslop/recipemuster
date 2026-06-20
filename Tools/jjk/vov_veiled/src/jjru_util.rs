@@ -69,7 +69,6 @@ pub fn jjrg_make_tack(
     state: jjrg_PaceState,
     text: String,
     silks: String,
-    direction: Option<String>,
 ) -> jjrg_Tack {
     jjrg_Tack {
         ts: timestamp_full(),
@@ -79,7 +78,6 @@ pub fn jjrg_make_tack(
         text: jjrg_text_to_lines(&text),
         silks,
         basis: jjrg_capture_commit_sha(),
-        direction,
     }
 }
 
