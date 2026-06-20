@@ -1,0 +1,267 @@
+= Vox Matricula Specification
+:doctype: book
+
+// tag::mapping-section[]
+//
+// Category declarations:
+// vosmm_:  Matricula entity (the transient census roll)
+// vosme_:  Matricula Estray (ours-but-unclassified product)
+// vosmp_:  Matricula Presentment (a seating validator's output record)
+// vosms_:  Matricula Seal (the freeze verb: builder -> immutable)
+//
+// Imported, never re-homed:
+//   vosl* (Liturgy vocabulary) defined in VLS-VoxLiturgicalSpec.adoc
+//   vosk_prefix_validation defined in VOS0-VoxObscuraSpec.adoc
+//   minting doctrine (terminal-exclusivity, collision, Lapidary) defined in CMK/MCM + CLAUDE.md
+//
+// Cited-constraint rivets (VOr_ opaque IDs, kind by axvc_ voicing):
+//   VOr_k3p  axvc_dictum   Transient by design
+//   VOr_m7w  axvc_dictum   Mechanical, never linguistic
+//   VOr_q4f  axvc_dictum   Never ships (structural secrecy)
+//
+// Variant patterns:
+//   _s: plural form
+//   _p: possessive form
+//
+
+// Matricula vocabulary (this spec)
+:vosmm_matricula:       <<vosmm_matricula,Matricula>>
+:vosmm_matricula_s:     <<vosmm_matricula,Matriculae>>
+:vosmm_matricula_p:     <<vosmm_matricula,Matricula's>>
+:vosme_estray:          <<vosme_estray,Estray>>
+:vosme_estray_s:        <<vosme_estray,Estrays>>
+:vosmp_presentment:     <<vosmp_presentment,Presentment>>
+:vosmp_presentment_s:   <<vosmp_presentment,Presentments>>
+:vosms_seal:            <<vosms_seal,Seal>>
+:vosms_seal_ed:         <<vosms_seal,Sealed>>
+
+// Liturgy vocabulary — imported from VLS, cited never restated
+:voslc_cipher:          <<voslc_cipher,Cipher>>
+:voslc_cipher_s:        <<voslc_cipher,Ciphers>>
+:vosls_signet:          <<vosls_signet,Signet>>
+:vosls_signet_s:        <<vosls_signet,Signets>>
+:vosle_epithet:         <<vosle_epithet,Epithet>>
+:vosli_inscription:     <<vosli_inscription,Inscription>>
+:vosli_inscription_s:   <<vosli_inscription,Inscriptions>>
+:voslv_vesture:         <<voslv_vesture,Vesture>>
+:voslv_vesture_s:       <<voslv_vesture,Vestures>>
+
+// Distribution vocabulary — imported from VOS0, cited never restated
+:vosk_prefix_validation: <<vosk_prefix_validation,Prefix Validation>>
+:vosp_veiled:           <<vosp_veiled,Veiled>>
+
+// Lifecycle dimension — imported from AXLA, cited never restated
+:axd_petrify:           <<axd_petrify,Petrify>>
+
+// end::mapping-section[]
+
+== Overview
+
+The {vosmm_matricula} is a transient census of every {vosli_inscription} in use across the repository below the {voslc_cipher} tier.
+It is an instant temporary database — raised on demand from repository source, queried, and discarded — that subsumes the ad-hoc grepping an agent does to answer naming questions.
+
+It serves three jobs the operator asks of the naming system, and a fourth that falls out of the same frozen census:
+
+. Choose an unused {vosls_signet} — what is free under a {voslc_cipher}.
+. Prevent a rename from creating a collision — what a proposed {vosli_inscription} would clash with.
+. Plan a re-mint — what a {vosls_signet} currently owns before it is moved.
+. Generate the acronym index the `claude-*.md` files maintain by hand today.
+
+The organizing reframe is that every persistent identifier the project mints — what we informally call quoins, sprues, rivets, and filenames — is an {vosli_inscription} dressed by a {voslv_vesture}.
+The {vosmm_matricula} is therefore one vesture-parameterized scanner, not a family of separate extractors.
+Its method is classify-by-subtraction: cast the widest net over `_`- and `-`-shaped tokens, let each known {voslv_vesture} claim what it owns, and treat the unclaimed-but-ours remainder — the {vosme_estray_s} — as a product rather than waste.
+
+The minting rules the {vosmm_matricula} enforces are not defined here.
+Terminal-exclusivity, exact collision, and the MCM Lapidary word-selection discipline are CMK/MCM doctrine (CLAUDE.md "Prefix Naming Discipline"); this spec cites them as the authority and the {vosmm_matricula} mechanizes them.
+This spec mints only the vocabulary the census itself needs.
+
+This spec is the design-time home for the architecture and decomposition below.
+Earlier, that knowledge lived in a Job Jockey paddock as a way-station; it is migrated here so it survives the heat that authored it.
+
+== The Matricula
+
+[[vosmm_matricula]]
+//axve_entity axd_petrify
+{vosmm_matricula}::
+A transient, frozen census of the repository's {vosli_inscription_s} below the {voslc_cipher} tier, built from source on demand and discarded after the call that summoned it.
+The {vosmm_matricula} carries the {vosls_signet} trie (each node holding its prefix, its {vosle_epithet}, its terminal-versus-container status, and the {vosli_inscription_s} seated under it), the {vosme_estray} set, and the query indices read by its jobs.
+It has both structure and behavior: a builder raises it, {vosms_seal} freezes it, and a pure query interface reads it.
++
+The {vosmm_matricula} performs set operations over {vosli_inscription_s} — membership, enumeration, set-difference, vesture-grammar role-form expansion — and reports the constraint space.
+It never generates words, fuzzy-matches, or interprets meaning; the operator supplies the meaning (see {vosms_seal} and the {vosmm_matricula_p} invariants).
+
+The {vosmm_matricula} is an additive sibling to the existing `vof` library, never a rework of it.
+It reuses `vof` as a path dependency: the {voslc_cipher} registry (`vofc_registry`) is its input grammar, the release tree-walk (`vofr_collect`) generalizes into its candidate gate, and emission rides the managed-section rail (`voff_freshen`).
+
+=== Census Lifecycle
+
+The {vosmm_matricula} is {axd_petrify} (AXLA): raised as a mutable Builder, it petrifies on first disclosure into an immutable census, then is queried and discarded.
+{vosms_seal} is the Matricula's name for the petrifying act; the build-then-freeze semantics are AXLA's, cited not restated here.
+In Rust the two phases are a typestate — a Builder the scan owns, consumed by {vosms_seal} into a frozen struct safe to read concurrently.
+The reference shape is the operator's freezable/immutable collection library (`Memos/memo-20260620-freeze-builder-pattern/`, provenance only).
+
+//axheb_entity
+{vosmm_matricula}
+
+==== Fields
+
+//axheft_typed_field axd_required
+{vosls_signet} trie — every in-use {vosls_signet}, each node carrying its prefix, {vosle_epithet}, terminal-versus-container status, and the {vosli_inscription_s} seated at it.
+
+//axheft_typed_field axd_required
+{vosme_estray} set — the ours-but-unclassified tokens, surfaced as a product.
+
+//axhefm_motif_field axd_required
+Query indices — the lookup structures the three jobs read, derived once at {vosms_seal} time.
+
+==== Methods
+
+//axhems_scoped_method
+=== raise
+
+Construct an empty, mutable Builder over a fixed grammar (the {voslc_cipher} registry, the {voslv_vesture} set, and the file-selection allowlist).
+The grammar is frozen at load; the census it accumulates is not yet.
+
+//axhems_scoped_method
+=== seat
+
+Walk the candidate corpus (git-tracked files intersected with the allowlist), tokenize on the widest `_`- and `-`-shaped net, let each {voslv_vesture} claim its declarations, and seat every claimed {vosli_inscription} into the {vosls_signet} trie.
+Each unclaimed-but-ours token becomes an {vosme_estray}.
+A second declaration of an already-seated token at a conflicting site is recorded as a collision {vosmp_presentment} at seat time.
+
+//axhems_scoped_method
+=== {vosms_seal}
+
+Consume the Builder and return the immutable {vosmm_matricula}.
+After {vosms_seal}, the census accepts queries and no mutation; the seating invariants (terminal-exclusivity, exact collision) are read as properties of the frozen structure.
+
+//axhems_scoped_method
+=== render
+
+Produce the operator-facing report — the {vosmp_presentment_s} and the {vosme_estray} section — and the regenerated acronym index, both pure over the frozen census.
+
+== Invariants
+
+The three propositions below are load-bearing.
+Each is defined here once under an opaque `VOr_` identifier and cited from code and tests by that identifier; the rationale lives here and is never restated beside the marker (ACG "residue", MCM `mcm_rivet`).
+
+[[VOr_k3p]]
+//axvc_dictum
+*Transient by design.*
+A {vosmm_matricula} has no persistent existence.
+It lives only for the call that summons it, is re-derived from source each time, and is discarded.
+Reading the whole tree is instant relative to an agent's grep laps, so nothing is stored — only the grammar (the small, stable {voslc_cipher} and {voslv_vesture} set) is maintained.
+Transience is what defers the heavier maintained-registry layer; a future maintained census would supersede this invariant deliberately, never by drift.
+
+[[VOr_m7w]]
+//axvc_dictum
+*Mechanical, never linguistic.*
+The {vosmm_matricula} performs set operations over {vosli_inscription_s} and never generates words, fuzzy-matches, or interprets meaning.
+It reports the constraint space; the operator supplies the meaning.
+A consequence binds the {vosmp_presentment}: a {voslc_cipher}-gate that trusts foreign namespaces is fallible, so sprue and rivet checks stay advisory, never assertions (see Seating Validators).
+
+[[VOr_q4f]]
+//axvc_dictum
+*Never ships.*
+The {vosmm_matricula} is operator-only infrastructure and must never enter the distributed substrate.
+The boundary stands on four independent guards: its source is not collected (VOK is unmanaged and the source is {vosp_veiled}), its behavior is not linked into the shipped `vvx` (never a `vof`/`vvr` dependency), and its built binary is never committed (it lands in a gitignored `target/release/` under the veil).
+Inclusion would require a deliberate, auditable act — a new managed-kit entry, a new `vvr` dependency, or an explicit copy into the parcel — never a silent compile flag.
+This is the whole reason the runtime is a standalone binary rather than a feature-stripped subcommand of a shipped tool.
+
+== Decomposition
+
+Four tiers, with the {vosms_seal} line falling between Tier 1 and Tier 2.
+
+Tier 0 — Grammar (maintained, frozen at load): the {voslc_cipher} registry (VOF, exists), the {voslv_vesture} set (VLS, exists), and the file-selection allowlist (new — an explicit allowlist in a distinct file, `.md`/`.adoc`/`.rs`/`.sh` at minimum, recursive, narrowed by a git-tracked-only gate and the cipher/veiled gate).
+
+Tier 1 — Raising the census (mutable Builder): walk -> tokenize -> classify-by-subtraction -> seat each {vosli_inscription} into the {vosls_signet} trie; then {vosms_seal}.
+
+Tier 2 — The frozen {vosmm_matricula} (immutable): the {vosls_signet} trie, the {vosme_estray} set, and the query indices.
+
+Tier 3 — Reading it (pure over the frozen census): the MVP validators and the report render plus acronym-index generation.
+
+The parts are mostly allocation, not new minting.
+{vosli_inscription}, {vosls_signet}, {voslv_vesture}, {voslc_cipher}, and {vosle_epithet} are existing VLS quoins, reused by reference.
+Only three quoins are new vo work: {vosme_estray}, {vosmp_presentment}, and {vosms_seal}.
+
+== Classify by Subtraction
+
+The ours-or-foreign gate is the project {voslc_cipher}, invariant across the `_` and `-` separators.
+Each known {voslv_vesture} claims the declarations it owns; whatever carries our {voslc_cipher} yet no {voslv_vesture} claims is an {vosme_estray}.
+
+[[vosme_estray]]
+//axr_record
+{vosme_estray}::
+A token that carries the project {voslc_cipher} but that no {voslv_vesture} claims — ours by namespace, unclaimed by any known grammar.
+An {vosme_estray} is a product of the census, never an error and never folded into the validator {vosmp_presentment_s}: it surfaces misminting, mint-gaps, and forgotten {voslv_vesture} categories, and it is reported in its own section.
+The metaphor is manorial: an estray is an ownerless thing found within the demesne whose owner is unknown — the census records it and presents it to the operator, who alone decides whether it is a stray to reclaim or a category yet to be minted.
+
+== Seating Validators
+
+The MVP validators fall out of the {vosms_seal} invariants rather than being separate passes.
+Both are mechanical, honoring the never-linguistic invariant (VOr_m7w).
+
+*Exact collision* is the frozen-map "same key, different value" conflict observed at seat time: two distinct declarations of one token.
+It is a count-blind property — two declaration sites, never an occurrence count.
+
+*Terminal-exclusivity* is a {vosls_signet} that is both seated and has children: a property of a trie node read after {vosms_seal}.
+The rule itself is CMK/MCM doctrine; this validator mechanizes it.
+
+[[vosmp_presentment]]
+//axr_record
+{vosmp_presentment}::
+A seating validator's output record: a formal report of one minting violation the census observed directly.
+The metaphor is the inquest's presentment — an offense reported from the body's own knowledge, not an accusation imported from elsewhere.
+A {vosmp_presentment} carries the violating {vosli_inscription_s}, the declaration sites, and the violated rule (cited to its CMK/MCM home, never restated).
+{vosmp_presentment_s} validate *declarations* only; reference sites feed later interrogations that are out of MVP scope.
+Per VOr_m7w, a {vosmp_presentment} over a fallible gate (sprue, rivet) is advisory, not an assertion.
+
+This {vosmp_presentment} set widens VOS0's {vosk_prefix_validation}, which validates prefix-derivation for *file names only* at release time.
+The {vosmm_matricula} generalizes that narrow, release-time, filename gate to the whole-environment declaration census across every {voslv_vesture}.
+
+== Report and Acronym Index
+
+The MVP delivery is a whole-environment scan run as a standalone VOK executable through its own tabtarget, with no MCP surface.
+It reports the {vosmp_presentment_s} (the two minting violations) and the {vosme_estray} section, and it regenerates the acronym index from the same frozen census rather than leaving it hand-maintained.
+
+The report is execution-time output to a terminal (ACG three-homes: execution-time).
+It carries no sprue, because it is not a wire format.
+Should a downstream consumer ever parse a structured census output, that output becomes an RB-authored wire format and its keys must carry a sprue (ACG fourth clause) — but that consumer and its envelope are out of MVP scope (see Deferred Scope).
+
+== Scan Mechanics
+
+The scan distinguishes declaration sites from reference sites; this axis, not name-resolution, is what the validators ride.
+A file bears declarations, references, or both: code (`.rs`/`.sh`) and specs (`.adoc`) bear both; Memos and prose `.md` bear references only.
+Collision and terminal-exclusivity validate declarations; references feed later interrogations (out of MVP scope).
+
+Declaration recognition is structural and per-{voslv_vesture} — each {voslv_vesture} carries its own declaration-site recognizer (`fn prefix_…`, `prefix_…() {`, `[[anchor]]`) — never whole-program name-resolution.
+There is no semantic analyzer: the hard part of language tooling is resolution, which the census does not need, and the transience invariant (VOr_k3p) prices a per-call semantic build out of the "instant" budget.
+The tooling ladder is per-{voslv_vesture} line patterns for the MVP (the codebase's RCG/BCG discipline keeps declaration sites pattern-clean), with tree-sitter adopted incrementally where a {voslv_vesture} needs real structure — never syn (rust-only).
+
+Correctness rests on the grep-as-registry axiom: a minted name must be textually present at its declaration.
+A name synthesized by a macro (`paste!`/`concat_idents!`) or bash `eval` is invisible to a structural scan; a referenced-but-never-declared token is therefore itself a {vosmp_presentment}, not something to chase with an expander.
+RCG and BCG already forbid identifier-synthesis, which is what makes this axiom safe to lean on.
+
+A file-role layer sits atop the allowlist and git-tracked gate: a path is declaration-bearing, reference-only, index-of-record (the `claude-*.md` acronym tables the MVP regenerates), or generated.
+Memos are the first reference-only case — excluded from the MVP declaration scan, with a removal condition: they re-enter as a reference corpus when reference-tracing lands later, because a memo citing an old name is a reference a rename should know about.
+
+== Deferred Scope
+
+The MVP is the scan plus the two seating validators plus the {vosme_estray} report plus acronym-index generation.
+The concept widens later, and that widening is out of scope for this spec:
+
+* The richer interrogations — what-owns / what-is-free / who-references.
+* Safe-reprefix — the cross-repo-contained rename apex, legal only within a {vosls_signet}'s single writable home.
+* The engagement determinations — when an ambient check runs, when a gate blocks.
+* The gestalt-label subsystem.
+* A maintained (non-transient) census, which would deliberately supersede VOr_k3p.
+
+Each is named here only to bound the MVP; none is specified here.
+
+== Doctrine Homes — Cite, Never Restate
+
+* Minting rules (terminal-exclusivity, exact collision, MCM Lapidary word-selection): CMK/MCM and CLAUDE.md "Prefix Naming Discipline". The {vosmm_matricula} mechanizes them; it does not redefine them.
+* Naming vocabulary ({voslc_cipher}, {vosls_signet}, {vosle_epithet}, {vosli_inscription}, {voslv_vesture}): VLS-VoxLiturgicalSpec.adoc.
+* The narrow filename-only precedent this census widens: VOS0 {vosk_prefix_validation}.
+* The freeze/builder lifecycle reference shape: `Memos/memo-20260620-freeze-builder-pattern/` (provenance only).
+* Rivet citation discipline (the `VOr_` opaque ID, kind by `axvc_` voicing): MCM `mcm_rivet`, ACG "residue".
