@@ -13948,25 +13948,33 @@
         "₢BZAAO": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260615-1806",
+              "jjgtn_ts": "260620-0842",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
-                "PLACEHOLDER — movement 5 (manor colophon regroup) is not yet designed; reslate this docket to firm it when the movement is known.",
-                "Scope from the paddock Ordering: regroup the manor colophon family and fold in the new founding gestures (affiance, mantle establishment); the orphan rbw-gq (QuotaBuild) regroups under Payor as rbw-gPQ here — see the pace-design memo.",
-                "This placeholder holds the slot before the terminal Fable-review pace so the remaining movements stay visible and correctly ordered; the terminal pace never needs railing.",
+                "Regroup the orphan rbw-gq (QuotaBuild) colophon under the Payor guide subfamily as rbw-gPQ.",
+                "Cloud Build quota/capacity is a Payor concern — the Payor owns the project, billing, and quota; the Director only consumes builds — so QuotaBuild joins rbw-gPE/gPI/gPR.",
+                "Source: the resolved slate-pick in Memos/memo-20260615-BZ-pace-design.md (\"rbw-gq (QuotaBuild)\" disposition).",
+                "",
+                "The colophon string is hand-edited in one place — the rbz_zipper.sh enrollment — plus the tabtarget filename; rbtdgc_consts.rs and claude-rbk-tabtarget-context.md re-derive from the theurge build, never hand-edited.",
+                "The op/function name rbhp_quota_build and the RBSQB / RBS0 references key on the function, not the colophon, so they do not move.",
+                "Discovery gate: grep rbw-gq repo-wide before finishing — catch any operator-facing literal hints in guide/handbook output.",
+                "",
+                "Out of scope, routed away: the manor-demesne consolidation movement 5 also originally implied — pulling levy and establish into rbw-m beside affiance/jilt — is a contested which-axis legibility call handed to the terminal Fable review, recorded as a divergence in the pace-design memo. Do not undertake it here.",
                 "",
                 "## Done when",
-                "Movement 5 is designed and this placeholder is reslated into one or more firm dockets covering the manor colophon regroup.",
+                "rbw-gq is renamed to rbw-gPQ: tabtarget file renamed, zipper enrollment updated, theurge build re-run so the generated consts and tabtarget-context re-derive.",
+                "grep rbw-gq lands clean repo-wide.",
+                "Fast-qualify (rbw-tq) green.",
                 "",
                 "## Cinched",
-                "Placeholder only — not yet mountable; reslate to firm before mounting.",
-                "Sits before the terminal Fable-review pace by construction.",
+                "Scope is the gq->gPQ rename only; the manor-demesne (levy/establish) consolidation is routed to the terminal Fable review, not executed here.",
+                "QuotaBuild stays a guide — rbhp_quota_build body unchanged; only its colophon home moves.",
                 "",
                 "## Character",
-                "Unfirmed placeholder — carries scope and source, not a mountable plan."
+                "Mechanical colophon rename — one zipper line, one file rename, a build, a grep gate."
               ],
               "jjgtn_silks": "placeholder-m5-manor-regroup",
-              "jjgtn_basis": "8bc30f5"
+              "jjgtn_basis": "4e1e5af"
             }
           ]
         },
