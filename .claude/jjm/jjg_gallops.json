@@ -14049,30 +14049,35 @@
         "₢BZAAQ": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260620-0903",
+              "jjgtn_ts": "260620-1224",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
-                "Rewrite the canonical credential-bootstrap fixture (rbtdrk_canonical.rs) so a fresh levy admits federation personas — affiance, brevet each mantle, compear, don — instead of enrobing keyfile SAs. This makes canonical-establish pass on the no-keys org and meets the paddock's \"federation personas pass the suites\" gate.",
+                "Rewrite the canonical credential-bootstrap fixture (rbtdrk_canonical.rs) so a fresh levy admits federation personas — compear, gird the first governor, brevet+don each mantle — instead of enrobing keyfile SAs.",
+                "This makes canonical-establish pass on the no-keys org and meets the paddock's \"federation personas pass the suites\" gate.",
                 "",
-                "Forced now, ahead of M7's gate: the org enforces disableServiceAccountKeyCreation, so the keyfile governor-enrobe case 400s on any fresh levy and canonical-establish dies there. This is the M4/M7 review's named revisit trigger firing from an external policy change — Memos/memo-20260615-BZ-m4-review-findings.md (THE OPEN QUESTION) and the pace-design memo's M7 record carry the reasoning and the estate map.",
+                "Forced now, ahead of M7's gate: the org enforces disableServiceAccountKeyCreation, so the keyfile governor-enrobe case 400s on any fresh levy and canonical-establish dies there (live-reproduced: \"Key creation is not allowed on this service account\").",
+                "This is the M4/M7 review's named revisit trigger firing from an external policy change — Memos/memo-20260615-BZ-m4-review-findings.md (THE OPEN QUESTION) and the pace-design memo's M7 record carry the reasoning and the estate map.",
                 "",
-                "The replacement verbs already exist and are enrolled — affiance (rbw-mA), brevet (rbw-pB), compear (rbw-acf), don-the-mantle (rbw-acm, replacing the per-role keyfile probe rbw-acg/acr/acd); the freehold rig (rbpc subject, terrier scaffold) and the citizen-attribution proof already stand. Watch the test-rig compearance step: the rig doctrine is per-run human click (memo-20260619), a live wrinkle for an autonomous gauntlet.",
+                "As built, the chicken-and-egg the docket's \"replacement verbs already enrolled\" premise missed: brevet wields a donned governor, so it cannot seat the FIRST governor on a fresh depot.",
+                "The founding verb gird (rbw-pE, contract RBSPG) was minted to fill it — the payor seats the first governor with no key, driving the shared brevet core with the payor's OAuth token; mint recorded in the pace-design memo, flagged for the terminal Fable review.",
+                "The other replacement verbs were already enrolled — affiance (rbw-mA), brevet (rbw-pB), compear (rbw-acf), don (rbw-acm).",
                 "",
                 "## Done when",
-                "The canonical-establish enrobe cases admit federation personas (affiance/brevet/compear/don), not keyfile enrobe + JWT probe.",
-                "A fresh-levy canonical-establish — and the gauntlet riding it — completes on the no-keys org.",
-                "The keyfile estate stays present and any suite still exercising it stays green.",
+                "The canonical-establish enrobe cases admit federation personas (compear / gird / brevet / don), not keyfile enrobe + JWT probe.",
+                "A fresh-levy canonical-establish completes on the no-keys org — proven 6/6: levy → compear → gird governor → brevet+don director → brevet+don retriever → recognosce.",
+                "The keyfile estate stays present and untouched — canonical-enrobe keeps the keyfile cases for skirmish/dogfight/blockade.",
                 "",
                 "## Cinched",
-                "Keyless rewrite only; the estate teardown is the following pace (RBRA estate demolition).",
+                "Keyless rewrite only; the estate teardown is the following movement (RBRA estate demolition).",
+                "The full gauntlet greening on the no-keys org is NOT this pace's gate — the gauntlet's downstream foundry runtime still authenticates director/retriever through the keyfile accessor branch (rba_token_capture), which the RBRA estate demolition retires; that movement owns \"complete green,\" and it surfaces first at hallmark-lifecycle.",
                 "Federation personas passing canonical-establish IS the paddock's M7 gate — this pace meets it, retiring the review's recorded residual risk early.",
                 "Composes with the freehold-collapse pace (disjoint regions of the same fixture), which defers its enrobe-idempotency here and follows this pace.",
                 "",
                 "## Character",
-                "Behavior-changing fixture rewrite over already-built replacement verbs; the compearance step is the one live wrinkle."
+                "Behavior-changing fixture rewrite plus a founding-verb mint (gird); credless-green, federation path proven 6/6 live on the no-keys org."
               ],
               "jjgtn_silks": "keyless-canonical-bootstrap",
-              "jjgtn_basis": "a5763a1"
+              "jjgtn_basis": "6229a73"
             }
           ]
         },
