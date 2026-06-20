@@ -195,6 +195,30 @@ pub fn jjdz_probe(gallops: &jjrg_Gallops, original_bytes: &[u8]) -> Vec<jjdz_Sta
         .collect()
 }
 
+/// Migration write-forward — rivet JJr_a7c. The canonical-form struct transform the forgiveness
+/// mechanism applies once a legacy shape is detected: populate heat_order from the heat keys when
+/// absent (V3→V4; BTreeMap guarantees sorted order), and collapse any legacy multi-tack history to
+/// the single newest tack (tacks[0]) — tack evolution now lives in git per JJS0 Git-as-Journal.
+/// serde already drops the removed schema_version key and any stale next_pensum_seed on its own, so
+/// those episodes need no body here.
+///
+/// The single source of the forward transform: jjdr_load applies it in migration mode, and
+/// validate-normalize (JJSCVL) applies it as its canonicalizer — neither keeps a second copy.
+/// Idempotent: a store already canonical for these is untouched, so an unconditional application is
+/// safe.
+pub fn jjdz_write_forward(gallops: &mut jjrg_Gallops) {
+    if gallops.heat_order.is_empty() {
+        gallops.heat_order = gallops.heats.keys().cloned().collect();
+    }
+    for heat in gallops.heats.values_mut() {
+        for pace in heat.paces.values_mut() {
+            if pace.tacks.len() > 1 {
+                pace.tacks.truncate(1);
+            }
+        }
+    }
+}
+
 /// Load and validate Gallops from a file
 ///
 /// Performs these steps in order:
@@ -227,24 +251,12 @@ pub fn jjdr_load(path: &Path) -> Result<jjdr_ValidatedGallops, String> {
         }
     }
 
-    // Forgiveness write-forward — rivet JJr_a7c. Populate fields missing in the old shape so the
-    // next jjdr_save lands canonical; serde already drops the now-removed schema_version key and
-    // any stale next_pensum_seed on its own. BTreeMap guarantees sorted key order for heat_order.
+    // Forgiveness write-forward — rivet JJr_a7c. In migration mode, run the shared canonical-form
+    // transform (the single source jjdz_write_forward, also driven by validate-normalize) so the
+    // next jjdr_save lands clean. The loader keeps no second copy of the transform; serde already
+    // drops the removed schema_version key and any stale next_pensum_seed on its own.
     if is_migration_mode {
-        if gallops.heat_order.is_empty() {
-            gallops.heat_order = gallops.heats.keys().cloned().collect();
-        }
-        // tack-text→lines episode write-forward (rivet JJr_a7c): the line array itself is
-        // produced by the jjgtn_text field deserializer; here we collapse any legacy multi-tack
-        // history to the single newest tack (tacks[0]) — tack evolution now lives in git, per
-        // JJS0 Git-as-Journal. Idempotent: a store already at one tack per pace is untouched.
-        for heat in gallops.heats.values_mut() {
-            for pace in heat.paces.values_mut() {
-                if pace.tacks.len() > 1 {
-                    pace.tacks.truncate(1);
-                }
-            }
-        }
+        jjdz_write_forward(&mut gallops);
     }
 
     // Semantic validation
@@ -327,4 +339,68 @@ pub fn jjri_persist(
     };
 
     vvc::machine_commit(lock, &commit_args, output)
+}
+
+/// Commit the gallops alone — the gallops-wide persist path.
+///
+/// validate-normalize (JJSCVL) is the consumer. Unlike jjri_persist, which co-commits a heat's
+/// paddock under a firemark identity, this commits only the gallops file and carries no heat/pace
+/// affiliation, because validate is gallops-wide. The caller holds the commit lock (compile-time
+/// proof via `_lock`). Saves the canonical gallops, then commits it under `size_limit`.
+///
+/// Returns `Ok(Some(hash))` when a commit landed, `Ok(None)` when the saved canonical form already
+/// matched the committed store and no merge was pending (nothing to commit — the working tree was
+/// re-canonicalized but HEAD was already clean), and `Err` on failure. On commit failure the
+/// working-tree gallops is reverted to HEAD so a blocked commit (e.g. over budget) leaves the store
+/// byte-for-byte as it was found — validate's "file untouched" contract for a non-clean exit.
+///
+/// Merge finalization rides for free: when a merge is in progress (MERGE_HEAD present) the
+/// underlying `git commit` finalizes it with two parents — validate is the post-merge gallops
+/// cleanup step.
+pub fn jjri_consign(
+    lock: &vvc::vvcc_CommitLock,
+    gallops: &jjrg_Gallops,
+    file: &Path,
+    message: String,
+    size_limit: u64,
+    output: &mut vvc::vvco_Output,
+) -> Result<Option<String>, String> {
+    // Save the canonical gallops first (atomic write + load-back validation).
+    jjdr_save(gallops, file)?;
+
+    let path_str = file.to_string_lossy().to_string();
+
+    // Commit when the gallops differs from HEAD, or when a merge is mid-flight (the commit
+    // finalizes it). When neither holds, the saved form already matches the committed store, so
+    // there is nothing to commit and no merge to seal — report Ok(None).
+    let dirty = vvc::vvce_git_command(&["status", "--porcelain", "--", path_str.as_str()])
+        .output()
+        .map(|o| !o.stdout.is_empty())
+        .unwrap_or(true);
+    let merging = vvc::vvce_git_command(&["rev-parse", "--verify", "--quiet", "MERGE_HEAD"])
+        .output()
+        .map(|o| o.status.success())
+        .unwrap_or(false);
+    if !dirty && !merging {
+        return Ok(None);
+    }
+
+    let commit_args = vvc::vvcm_CommitArgs {
+        files: vec![path_str.clone()],
+        message,
+        size_limit,
+        warn_limit: vvc::VVCG_WARN_LIMIT,
+    };
+
+    match vvc::machine_commit(lock, &commit_args, output) {
+        Ok(hash) => Ok(Some(hash)),
+        Err(e) => {
+            // Revert the working-tree gallops to HEAD and unstage it, so a blocked commit leaves
+            // the store untouched. (Tool-internal git restoring its own uncommitted write — the
+            // same gesture jjx_open's convergence uses after an over-budget commit.)
+            let _ = vvc::vvce_git_command(&["checkout", "HEAD", "--", path_str.as_str()]).output();
+            let _ = vvc::vvce_git_command(&["reset", "--quiet", "--", path_str.as_str()]).output();
+            Err(e)
+        }
+    }
 }

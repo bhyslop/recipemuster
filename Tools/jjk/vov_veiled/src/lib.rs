@@ -112,7 +112,7 @@ pub use jjrn_notch::{jjrn_ChalkMarker, jjrn_HeatAction, jjrn_format_notch_prefix
 pub use jjrs_steeplechase::{jjrs_ReinArgs, jjrs_SteeplechaseEntry, jjrs_get_entries};
 
 // Re-export new I/O routines
-pub use jjri_io::{jjdr_load, jjdr_save, jjdr_ValidatedGallops, jjri_persist};
+pub use jjri_io::{jjdr_load, jjdr_save, jjdr_ValidatedGallops, jjri_persist, jjri_consign};
 
-// Re-export the forgiveness mechanism (schema-migration tolerance: rivet, probe, status)
-pub use jjri_io::{jjdz_probe, jjdz_Status, JJDZ_LABEL_FORGIVENESS, JJDZ_RIVET_FORGIVENESS};
+// Re-export the forgiveness mechanism (schema-migration tolerance: rivet, probe, status, transform)
+pub use jjri_io::{jjdz_probe, jjdz_Status, jjdz_write_forward, JJDZ_LABEL_FORGIVENESS, JJDZ_RIVET_FORGIVENESS};

@@ -117,6 +117,20 @@ fn jjrm_result(result: (i32, String)) -> Result<CallToolResult, McpError> {
     }
 }
 
+/// Convert the validate handler's tri-state (exit_code, output) to an MCP CallToolResult.
+///
+/// validate's enumerated verdict (JJSCVL) is 0 clean / 2 normalized / 1 broken. Both 0 and 2 are
+/// valid outcomes — a normalized store is a success, not a failure — so only the broken code maps
+/// to an MCP error. The exact bucket is named in the self-describing stdout either way.
+fn zjjrm_validate_result(result: (i32, String)) -> Result<CallToolResult, McpError> {
+    let (code, output) = result;
+    if code == 1 {
+        Ok(CallToolResult::error(vec![Content::text(output)]))
+    } else {
+        Ok(CallToolResult::success(vec![Content::text(output)]))
+    }
+}
+
 
 /// Return deserialization error as MCP error result.
 fn jjrm_deser_error(cmd: &str, e: serde_json::Error) -> Result<CallToolResult, McpError> {
@@ -1062,8 +1076,9 @@ impl jjrm_McpServer {
             }
             JJRM_CMD_NAME_VALIDATE => {
                 let _p = deser!(jjrm_ValidateParams);
-                jjrm_result(jjrvl_run_validate(jjrvl_ValidateArgs {
+                zjjrm_validate_result(jjrvl_run_validate(jjrvl_ValidateArgs {
                     file: gallops_pathbuf(),
+                    size_limit: vvc::VVCG_SIZE_LIMIT,
                 }))
             }
             JJRM_CMD_NAME_LIST => {

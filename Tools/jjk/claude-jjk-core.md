@@ -129,7 +129,7 @@ jjx_drop           {coronet}
 jjx_brief      {coronet}                                            # raw docket text for ONE pace, returned inline (no gazette) — the clean single-docket read; an abandoned pace's docket leads with an [abandoned] marker line
 jjx_coronets   {firemark, remaining?, rough?}                       # coronet IDs in heat order, one per line, inline — no silks, no docket; the default listing tags an abandoned pace as "<coronet>  [abandoned]" (coronet stays the first token; remaining/rough still exclude abandoned)
 jjx_landing        {coronet, agent, content?}
-jjx_validate       {}
+jjx_validate       {}                                                # normalize-and-report — exit 0 clean / 2 normalized (rewrote+committed) / 1 broken (untouched)
 jjx_bind           {alias, reldir}                                  # remote: create legatio session (alias resolves BURN profile)
 jjx_send           {legatio, command}                               # remote: synchronous exec on fundus
 jjx_plant          {legatio, commit}                                # remote: reset fundus to exact commit
@@ -144,6 +144,7 @@ jjx_fetch          {legatio, path}                                  # remote: re
   - Single pace: `{"target": "AFAAb"}`
   - Additional params: `detail`, `remaining` only
 - `jjx_orient` output includes next actionable pace — no separate show call needed
+- **`jjx_validate` is normalize-and-report, not a read-only check.** The verdict rides the exit code: **0 clean** (valid and already canonical; no write), **2 normalized** (valid but non-canonical — validate rewrote it to canonical form and committed, finalizing any in-progress merge), **1 broken** (parse or invariant failure; file untouched, never a silent fix). Residual: *normalized is a structural verdict, not a semantic blessing* — a `2` means the bytes are canonical, not that the heat/pace inventory is right. After a merge convergence, eyeball the inventory against both branches yourself.
 - **Gazette output**: `jjx_orient`, `jjx_show` (with detail), and `jjx_paddock` (getter) write `gazette_out.md` with paddock and pace docket notices. Read the gazette file after these commands to get full content.
 - **Never reach past the JJK interface to raw storage — NO exceptions.** Do not parse the harness's persisted tool-result files or the gallops JSON (`.claude/jjm/jjg_gallops.json`) directly. To read one pace's docket, call `jjx_brief {coronet}` (returns inline). To read full paddock/dockets after `jjx_show`/`jjx_orient`, read the `gazette_out.md` file directly. When a large `jjx_show` overflows the display and the harness persists the tool result, re-read `gazette_out.md` or loop `jjx_brief` per pace — never scrape the persisted blob. Same discipline as "never read regime files directly, go through the CLI."
 - **Gazette input**: `jjx_enroll`, `jjx_redocket`, and `jjx_paddock` (setter) read docket/content from `gazette_in.md`. Gazette is the sole input path for docket content — no JSON param fallback.

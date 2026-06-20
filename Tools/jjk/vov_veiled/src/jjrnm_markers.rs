@@ -46,6 +46,9 @@ pub const JJRNM_INVITATORY: char = 'i';
 /// Officium Procedure: Compline - reserved-unused (sessions end without ceremony)
 pub const JJRNM_COMPLINE: char = 'o';
 
+/// Gallops Procedure: Validate - normalize-and-report commit (gallops-wide, no heat/pace identity)
+pub const JJRNM_VALIDATE: char = 'v';
+
 /// Registry of all marker codes with their names
 ///
 /// This array provides a central registry for validation and documentation.
@@ -65,5 +68,6 @@ pub const fn jjrnm_all_codes() -> &'static [(char, &'static str)] {
         (JJRNM_LANDING, "Landing"),
         (JJRNM_INVITATORY, "Invitatory"),
         (JJRNM_COMPLINE, "Compline"),
+        (JJRNM_VALIDATE, "Validate"),
     ]
 }

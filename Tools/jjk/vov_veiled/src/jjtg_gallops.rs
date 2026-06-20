@@ -5,6 +5,7 @@
 use super::jjrg_gallops::*;
 use super::jjrv_validate::{zjjrg_is_base64, zjjrg_is_kebab_case, zjjrg_is_yymmdd, zjjrg_is_yymmdd_hhmm};
 use super::jjru_util::zjjrg_increment_seed;
+use super::jjrvl_validate::{jjrvl_run_validate, jjrvl_ValidateArgs, zjjrvl_appraise, zjjrvl_Appraisal};
 use super::jjtu_testdir::JjkTestDir;
 use std::collections::BTreeMap;
 
@@ -145,6 +146,145 @@ fn jjtg_load_legacy_bridle_demotes_and_drops_direction() {
     let text = std::fs::read_to_string(&path).unwrap();
     assert!(!text.contains("jjgte_bridled"));
     assert!(!text.contains("jjgtn_direction"));
+}
+
+// ===== validate normalize-and-report (zjjrvl_appraise) =====
+
+/// A single-heat gallops already canonical at the current schema: heat_order populated, one tack
+/// per pace, array-shaped docket text.
+fn canonical_gallops() -> jjrg_Gallops {
+    let (hk, heat) = make_valid_heat("AC", "my-heat");
+    let mut heats = BTreeMap::new();
+    heats.insert(hk.clone(), heat);
+    jjrg_Gallops {
+        next_heat_seed: "AB".to_string(),
+        heat_order: vec![hk],
+        heats,
+    }
+}
+
+/// Variant name for assertion-failure messages.
+fn appraisal_name(a: &zjjrvl_Appraisal) -> &'static str {
+    match a {
+        zjjrvl_Appraisal::Canonical(_) => "Canonical",
+        zjjrvl_Appraisal::Normalize(..) => "Normalize",
+        zjjrvl_Appraisal::Broken(_) => "Broken",
+    }
+}
+
+#[test]
+fn jjtg_validate_appraise_canonical_is_clean() {
+    let bytes = serde_json::to_string_pretty(&canonical_gallops()).unwrap().into_bytes();
+    match zjjrvl_appraise(&bytes) {
+        zjjrvl_Appraisal::Canonical(_) => {}
+        other => panic!("canonical gallops must appraise Canonical, got {}", appraisal_name(&other)),
+    }
+}
+
+#[test]
+fn jjtg_validate_appraise_compact_whitespace_normalizes() {
+    // Same data, non-canonical formatting (compact, no pretty indentation) — valid but not
+    // canonical, so it normalizes and the canonical struct preserves the data.
+    let compact = serde_json::to_string(&canonical_gallops()).unwrap().into_bytes();
+    match zjjrvl_appraise(&compact) {
+        zjjrvl_Appraisal::Normalize(canon, _census) => {
+            let pace = canon.heats["₣AC"].paces.get("₢ACAAA").unwrap();
+            assert_eq!(pace.tacks.len(), 1);
+        }
+        other => panic!("compact valid gallops must Normalize, got {}", appraisal_name(&other)),
+    }
+}
+
+#[test]
+fn jjtg_validate_appraise_idempotent_after_normalize() {
+    // Re-running validate after a normalization yields clean (exit 2, then 0).
+    let compact = serde_json::to_string(&canonical_gallops()).unwrap().into_bytes();
+    let canon = match zjjrvl_appraise(&compact) {
+        zjjrvl_Appraisal::Normalize(c, _) => *c,
+        other => panic!("expected Normalize, got {}", appraisal_name(&other)),
+    };
+    let canon_bytes = serde_json::to_string_pretty(&canon).unwrap().into_bytes();
+    assert!(
+        matches!(zjjrvl_appraise(&canon_bytes), zjjrvl_Appraisal::Canonical(_)),
+        "appraising the normalized form must be Canonical (idempotent)"
+    );
+}
+
+#[test]
+fn jjtg_validate_appraise_legacy_text_normalizes_and_collapses() {
+    // A pre-conversion store: string-valued docket text and a multi-tack history. The forgiveness
+    // write-forward splits text to lines and collapses to the single newest tack → Normalize.
+    let legacy = r#"{
+  "jjgrn_next_heat_seed": "AD",
+  "jjgrn_heat_order": ["₣AC"],
+  "jjgrn_heats": {
+    "₣AC": {
+      "jjghn_silks": "my-heat",
+      "jjghn_creation_time": "260101",
+      "jjghn_status": "jjghe_racing",
+      "jjghn_order": ["₢ACAAA"],
+      "jjghn_next_pace_seed": "AAB",
+      "jjghn_paces": {
+        "₢ACAAA": {
+          "jjgpn_tacks": [
+            {"jjgtn_ts": "260101-1200", "jjgtn_state": "jjgte_rough", "jjgtn_text": "first line\nsecond line", "jjgtn_silks": "my-pace", "jjgtn_basis": "0000000"},
+            {"jjgtn_ts": "260101-1100", "jjgtn_state": "jjgte_rough", "jjgtn_text": "older", "jjgtn_silks": "my-pace", "jjgtn_basis": "0000000"}
+          ]
+        }
+      }
+    }
+  }
+}"#;
+    match zjjrvl_appraise(legacy.as_bytes()) {
+        zjjrvl_Appraisal::Normalize(canon, _census) => {
+            let pace = canon.heats["₣AC"].paces.get("₢ACAAA").unwrap();
+            assert_eq!(pace.tacks.len(), 1, "multi-tack history collapses to one");
+            assert_eq!(
+                pace.tacks[0].text,
+                vec!["first line".to_string(), "second line".to_string()]
+            );
+        }
+        other => panic!("legacy store must Normalize, got {}", appraisal_name(&other)),
+    }
+}
+
+#[test]
+fn jjtg_validate_appraise_garbage_is_broken() {
+    assert!(matches!(zjjrvl_appraise(b"not json at all"), zjjrvl_Appraisal::Broken(_)));
+}
+
+#[test]
+fn jjtg_validate_appraise_invariant_violation_is_broken() {
+    // Parses, but next_heat_seed is 3 chars (must be 2) → semantic invariant failure → Broken,
+    // never a silent fix.
+    let mut g = canonical_gallops();
+    g.next_heat_seed = "ABC".to_string();
+    let bytes = serde_json::to_string_pretty(&g).unwrap().into_bytes();
+    assert!(matches!(zjjrvl_appraise(&bytes), zjjrvl_Appraisal::Broken(_)));
+}
+
+#[test]
+fn jjtg_validate_run_clean_returns_exit0_and_leaves_file() {
+    // The clean path neither locks nor commits, so it runs without a git repo. The file must be
+    // byte-identical afterward.
+    let dir = JjkTestDir::new("jjtg_validate_clean");
+    let path = dir.path().join("jjg_gallops.json");
+    let bytes = serde_json::to_string_pretty(&canonical_gallops()).unwrap().into_bytes();
+    std::fs::write(&path, &bytes).unwrap();
+    let (code, _out) = jjrvl_run_validate(jjrvl_ValidateArgs { file: path.clone(), size_limit: 50_000 });
+    assert_eq!(code, 0, "canonical file is clean");
+    assert_eq!(std::fs::read(&path).unwrap(), bytes, "clean path must not touch the file");
+}
+
+#[test]
+fn jjtg_validate_run_broken_returns_exit1_and_leaves_file() {
+    let dir = JjkTestDir::new("jjtg_validate_broken");
+    let path = dir.path().join("jjg_gallops.json");
+    let garbage = b"{ not valid".to_vec();
+    std::fs::write(&path, &garbage).unwrap();
+    let (code, _out) = jjrvl_run_validate(jjrvl_ValidateArgs { file: path.clone(), size_limit: 50_000 });
+    assert_eq!(code, 1, "unparseable file is broken");
+    assert_eq!(std::fs::read(&path).unwrap(), garbage, "broken path must not touch the file");
 }
 
 // Helper to create a minimal valid Gallops structure

@@ -1,13 +1,42 @@
 
-Check that
+Normalize the
 {jjdgr_gallops}
-JSON conforms to schema.
+to canonical form and report the verdict.
+
+A deliberate normalize-and-report pass, not a read-only check: a valid but
+non-canonical store is rewritten to canonical form and committed rather than
+fataled.
+Canonicalization is the same write-forward the
+{jjdz_forgiveness}
+mechanism drives in migration mode, plus key-order and whitespace
+normalization.
+It never invents or repairs missing or contradictory data — structural or
+invariant breakage is reported and the file left untouched, never a silent fix.
 
 {jjds_arguments}
 
-{jjds_stdout} None
+{jjds_stdout}
+Every outcome names its bucket and prints a per-episode
+{jjdz_forgiveness}
+census, so a clean result is positive evidence rather than mere silence.
 
-{jjds_exit_uniform} 0 success, non-zero error.
+{jjds_exit_enumerated}
+
+* 0 — clean: valid and already canonical; no write.
+* 2 — normalized: valid but non-canonical; rewritten to canonical form and committed under {jjda_size_limit}.
+* 1 — broken: parse or invariant failure; file untouched.
+
+{jjds_behavior}
+
+The normalize commit is gallops-wide, affiliated with neither
+{jjdhr_heat}
+nor
+{jjdpr_pace}.
+When a merge is in progress it finalizes that merge (two parents) — validate is
+the post-merge
+{jjdgr_gallops}
+cleanup step.
+Re-running after a normalize yields clean (idempotent).
 
 *Validation Rules:*
 
