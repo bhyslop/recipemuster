@@ -158,7 +158,7 @@ zrbob_furnish() {
   # Differential enforce: nameplate-keyed kludge commands write
   # RBRN_*_HALLMARK, so zrbrn_enforce would self-veto on marshal-zero
   # state where those fields are blank by design (rblm zeroes them;
-  # rbtdrp_pristine treats them as RBTDRP_RBRN_BLANK_FIELDS). Strict
+  # rbtdrp_lifecycle treats them as RBTDRP_RBRN_BLANK_FIELDS). Strict
   # validation lives in rbw-rnv (rbrn_cli.sh). Mirrors the yoke/RBRV
   # split (rbfl_cli vs rbrv_cli). rbob_ordain (rbw-tO) keeps enforce —
   # it is the nameplate-keyed gate before incurring Cloud Build spend;

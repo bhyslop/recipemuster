@@ -47,7 +47,7 @@ use crate::rbtdri_invocation::{
     rbtdri_invoke_global, rbtdri_read_burv_fact, rbtdri_Context, rbtdri_InvokeResult,
     RBTDRI_BURE_CONFIRM_KEY, RBTDRI_BURE_CONFIRM_SKIP,
 };
-use crate::rbtdrk_canonical::rbtdrk_canonical_rbra;
+use crate::rbtdrk_freehold::rbtdrk_freehold_rbra;
 use crate::rbtdgc_consts::{
     RBTDGC_ABJURE_HALLMARK,
     RBTDGC_ANOINT_GRAFT,
@@ -204,11 +204,11 @@ fn rbtdro_read_env_value(path: &Path, key: &str) -> Option<String> {
     None
 }
 
-/// Cases 1, 2, 8, 9 probe: governor RBRA present at the canonical secrets path.
-/// Established by canonical-establish §2 (rbtdrk_governor_enrobe).
+/// Cases 1, 2, 8, 9 probe: governor RBRA present at the freehold secrets path.
+/// Established by the governor enrobe (rbtdrk_governor_enrobe, freehold-enrobe).
 fn rbtdro_probe_governor_rbra() -> Result<(), String> {
     let root = rbtdro_probe_root()?;
-    let path = rbtdrk_canonical_rbra(&root, RBTDGC_ACCOUNT_GOVERNOR)?;
+    let path = rbtdrk_freehold_rbra(&root, RBTDGC_ACCOUNT_GOVERNOR)?;
     if !path.exists() {
         return Err(format!("governor RBRA absent at {}", path.display()));
     }
@@ -721,7 +721,7 @@ fn rbtdro_onboarding_conclave_reliquary(dir: &Path) -> rbtdre_Verdict {
     let probe = rbtdrb_Probe {
         name: "governor RBRA present",
         check: rbtdro_probe_governor_rbra,
-        remediation: "rerun canonical-establish (rbtdrk_governor_enrobe) before this fixture",
+        remediation: "rerun freehold-enrobe (rbtdrk_governor_enrobe) before this fixture",
     };
     if let Err(v) = rbtdrb_assert(&probe) {
         return v;

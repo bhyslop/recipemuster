@@ -113,21 +113,24 @@ pub const RBTDRM_FIXTURE_PODVM_RESOLVE: &str = "podvm-resolve";
 // Cupel — BCG command-dependency static analysis over all Tools/ bash. No
 // external dependency; partitions kit-bash (strict) from GCB-bash (looser).
 pub const RBTDRM_FIXTURE_CUPEL: &str = "cupel";
-// Pristine-lifecycle fixture (gate + SA/depot lifecycle cases)
-pub const RBTDRM_FIXTURE_PRISTINE_LIFECYCLE: &str = "pristine-lifecycle";
-// Gauntlet canonical-establish fixture (§2: canonical depot levy + governor
-// enrobe + retriever/director enrobe with per-case precondition probes)
-pub const RBTDRM_FIXTURE_CANONICAL_ESTABLISH: &str = "canonical-establish";
-// Skirmish canonical-enrobe fixture — the no-levy variant of
-// canonical-establish. Reuses the three enrobe cases (governor enrobe +
-// retriever/director enrobe) against a depot the operator has already levied
-// by hand; omits depot-levy so the skirmish suite creates no GCP project per
-// run. Distinction from canonical-establish is precondition, not behavior.
-pub const RBTDRM_FIXTURE_CANONICAL_ENROBE: &str = "canonical-enrobe";
-// Canonical-churn fixture — the deliberate teardown of the canonical freehold
+// Depot-lifecycle fixture (marshal-zero gate + ephemeral create→destroy arc).
+// Shares the freehold scheme with the durable fixtures; tears down only the
+// fresh leasehold it mints, never the standing freehold.
+pub const RBTDRM_FIXTURE_DEPOT_LIFECYCLE: &str = "depot-lifecycle";
+// Gauntlet freehold-establish fixture (§2: freehold ensure (reuse-or-levy) +
+// federation-persona admission — compear, gird, brevet+don director/retriever,
+// recognosce — with per-case precondition probes)
+pub const RBTDRM_FIXTURE_FREEHOLD_ESTABLISH: &str = "freehold-establish";
+// Skirmish freehold-enrobe fixture — the no-levy bridge-legacy keyfile estate.
+// Reuses the enrobe/defrock cases (governor enrobe + retriever/director defrock +
+// re-enrobe) against a depot the operator has already levied by hand; omits
+// depot-ensure so the skirmish suite creates no GCP project per run. Retired
+// whole when keyfile credentials (the RBRA estate) are removed from the system.
+pub const RBTDRM_FIXTURE_FREEHOLD_ENROBE: &str = "freehold-enrobe";
+// Freehold-churn fixture — the deliberate teardown of the standing freehold
 // (rotate moniker off the live project, then unmake) that makes room for a fresh
 // levy. Member of no suite; operator-invoked, like the lifecycle round-trips.
-pub const RBTDRM_FIXTURE_CANONICAL_CHURN: &str = "canonical-churn";
+pub const RBTDRM_FIXTURE_FREEHOLD_CHURN: &str = "freehold-churn";
 // Gauntlet onboarding-sequence fixture (§3: handbook-walked vessel
 // construction — conclave reliquary, ensconce bases, kludge tadmor/ccyolo,
 // plus one ordain-* case per director-mode handbook track, build-only)
@@ -138,7 +141,7 @@ pub const RBTDRM_FIXTURE_ONBOARDING_SEQUENCE: &str = "onboarding-sequence";
 // its reliquary-touchmark witness probe — local kludge has no GCP/reliquary dep.
 pub const RBTDRM_FIXTURE_KLUDGE_TADMOR: &str = "kludge-tadmor";
 // Dogfight cloud-build viability fixture — standing-depot sibling to
-// canonical-enrobe, proving the cloud-build → summon → run path yields a
+// freehold-enrobe, proving the cloud-build → summon → run path yields a
 // runnable artifact with NO crucible charged (the orthogonal axis skirmish
 // covers). Ordains conjure-mode busybox, summons it, runs a degenerate
 // container-runtime command proving executability, then abjures.
@@ -244,7 +247,7 @@ pub fn rbtdrm_required_colophons(fixture: &str) -> Option<&'static [&'static str
             RBTDGC_HYGIENE_CHECK_DOCKERFILE,
             RBTDGC_HYGIENE_CHECK_VESSEL,
         ]),
-        RBTDRM_FIXTURE_PRISTINE_LIFECYCLE => Some(&[
+        RBTDRM_FIXTURE_DEPOT_LIFECYCLE => Some(&[
             RBTDGC_LEVY_DEPOT,
             RBTDGC_LIST_DEPOT,
             RBTDGC_UNMAKE_DEPOT,
@@ -256,7 +259,7 @@ pub fn rbtdrm_required_colophons(fixture: &str) -> Option<&'static [&'static str
             RBTDGC_CHECK_RETRIEVER,
             RBTDGC_CHECK_DIRECTOR,
         ]),
-        RBTDRM_FIXTURE_CANONICAL_ESTABLISH => Some(&[
+        RBTDRM_FIXTURE_FREEHOLD_ESTABLISH => Some(&[
             RBTDGC_LEVY_DEPOT,
             RBTDGC_LIST_DEPOT,
             RBTDGC_RECOGNOSCE_DEPOT,
@@ -266,9 +269,9 @@ pub fn rbtdrm_required_colophons(fixture: &str) -> Option<&'static [&'static str
             RBTDGC_CHECK_RETRIEVER,
             RBTDGC_CHECK_DIRECTOR,
         ]),
-        // canonical-enrobe reuses canonical-establish's enrobe cases sans
+        // freehold-enrobe reuses freehold-establish's enrobe cases sans
         // levy — same colophons minus LEVY_DEPOT (depot is operator-provided).
-        RBTDRM_FIXTURE_CANONICAL_ENROBE => Some(&[
+        RBTDRM_FIXTURE_FREEHOLD_ENROBE => Some(&[
             RBTDGC_LIST_DEPOT,
             RBTDGC_ENROBE_GOVERNOR,
             RBTDGC_ENROBE_RETRIEVER,
@@ -276,7 +279,7 @@ pub fn rbtdrm_required_colophons(fixture: &str) -> Option<&'static [&'static str
             RBTDGC_CHECK_RETRIEVER,
             RBTDGC_CHECK_DIRECTOR,
         ]),
-        RBTDRM_FIXTURE_CANONICAL_CHURN => Some(&[
+        RBTDRM_FIXTURE_FREEHOLD_CHURN => Some(&[
             RBTDGC_UNMAKE_DEPOT,
             RBTDGC_LIST_DEPOT,
         ]),

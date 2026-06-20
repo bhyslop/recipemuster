@@ -46,12 +46,15 @@ pub mod rbtdrf_fast;
 pub mod rbtdrf_handbook;
 pub mod rbtdrg_log;
 pub mod rbtdri_invocation;
-pub mod rbtdrk_canonical;
+pub mod rbtdrk_depot;
+pub mod rbtdrk_enrobe;
+pub mod rbtdrk_freehold;
 pub mod rbtdrl_calibrant;
 pub mod rbtdrm_manifest;
 pub mod rbtdrn_conformance;
 pub mod rbtdro_onboarding;
-pub mod rbtdrp_pristine;
+pub mod rbtdrp_attest;
+pub mod rbtdrp_lifecycle;
 pub mod rbtdrs_poison;
 pub mod rbtdru_bash;
 pub mod rbtdru_cupel;
@@ -67,7 +70,7 @@ mod rbtdte_engine;
 #[cfg(test)]
 mod rbtdti_invocation;
 #[cfg(test)]
-mod rbtdtk_canonical;
+mod rbtdtk_freehold;
 #[cfg(test)]
 mod rbtdtl_calibrant;
 #[cfg(test)]
@@ -75,7 +78,7 @@ mod rbtdtm_manifest;
 #[cfg(test)]
 mod rbtdto_onboarding;
 #[cfg(test)]
-mod rbtdtp_pristine;
+mod rbtdtp_lifecycle;
 #[cfg(test)]
 mod rbtdtu_cupel;
 #[cfg(test)]

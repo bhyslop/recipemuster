@@ -14,62 +14,63 @@
 //
 // Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 //
-// Tests for rbtdrk_canonical — gauntlet canonical-establish fixture.
+// Tests for rbtdrk_freehold — the shared freehold-scheme machinery and the
+// keyless freehold-establish / freehold-churn fixtures.
 
 use std::path::PathBuf;
 
 use crate::rbtdrc_crucible::rbtdrc_lookup_fixture;
 use crate::rbtdre_engine::rbtdre_Disposition;
-use crate::rbtdrk_canonical::{
-    rbtdrk_canonical_cloud_prefix, rbtdrk_canonical_runtime_prefix, rbtdrk_family_stem,
-    rbtdrk_install_canonical_prefixes, RBTDRK_CANONICAL_CLOUD_BASE,
-    RBTDRK_CANONICAL_RUNTIME_BASE, RBTDRK_FAMILY_STEM_BASE,
+use crate::rbtdrk_freehold::{
+    rbtdrk_family_stem, rbtdrk_freehold_cloud_prefix, rbtdrk_freehold_runtime_prefix,
+    rbtdrk_install_freehold_prefixes, RBTDRK_FREEHOLD_CLOUD_BASE, RBTDRK_FREEHOLD_RUNTIME_BASE,
+    RBTDRK_FREEHOLD_STEM_BASE,
 };
 use crate::rbtdrm_manifest::{
-    RBTDRM_FIXTURE_CANONICAL_CHURN,
-    RBTDRM_FIXTURE_CANONICAL_ESTABLISH,
+    RBTDRM_FIXTURE_FREEHOLD_CHURN,
+    RBTDRM_FIXTURE_FREEHOLD_ESTABLISH,
 };
 use crate::rbtdth_helpers::rbtdth_scratch_root;
 
-/// Canonical-prefix base shape: lowercase letters, distinct cloud/runtime
-/// pair, no trailing hyphen (the composer adds it). Cases 2-4 rely on the
+/// Freehold-prefix base shape: lowercase letters, distinct cloud/runtime
+/// pair, no trailing hyphen (the composer adds it). The cases rely on the
 /// composed form for state detection in rbrr.env.
 #[test]
-fn rbtdtk_canonical_base_shape() {
-    assert_ne!(RBTDRK_CANONICAL_CLOUD_BASE, RBTDRK_CANONICAL_RUNTIME_BASE);
-    assert!(!RBTDRK_CANONICAL_CLOUD_BASE.ends_with('-'));
-    assert!(!RBTDRK_CANONICAL_RUNTIME_BASE.ends_with('-'));
-    assert!(RBTDRK_CANONICAL_CLOUD_BASE
+fn rbtdtk_freehold_base_shape() {
+    assert_ne!(RBTDRK_FREEHOLD_CLOUD_BASE, RBTDRK_FREEHOLD_RUNTIME_BASE);
+    assert!(!RBTDRK_FREEHOLD_CLOUD_BASE.ends_with('-'));
+    assert!(!RBTDRK_FREEHOLD_RUNTIME_BASE.ends_with('-'));
+    assert!(RBTDRK_FREEHOLD_CLOUD_BASE
         .chars()
         .all(|c| c.is_ascii_lowercase()));
-    assert!(RBTDRK_CANONICAL_RUNTIME_BASE
+    assert!(RBTDRK_FREEHOLD_RUNTIME_BASE
         .chars()
         .all(|c| c.is_ascii_lowercase()));
 }
 
-/// Composed canonical prefix shape: tinctured base ends with a hyphen and
+/// Composed freehold prefix shape: tinctured base ends with a hyphen and
 /// stays disjoint between cloud and runtime.
 #[test]
-fn rbtdtk_canonical_prefix_compose() {
-    let cloud = rbtdrk_canonical_cloud_prefix("xyz");
-    let runtime = rbtdrk_canonical_runtime_prefix("xyz");
+fn rbtdtk_freehold_prefix_compose() {
+    let cloud = rbtdrk_freehold_cloud_prefix("xyz");
+    let runtime = rbtdrk_freehold_runtime_prefix("xyz");
     assert!(cloud.ends_with('-'));
     assert!(runtime.ends_with('-'));
     assert_ne!(cloud, runtime);
-    assert!(cloud.starts_with(RBTDRK_CANONICAL_CLOUD_BASE));
-    assert!(runtime.starts_with(RBTDRK_CANONICAL_RUNTIME_BASE));
+    assert!(cloud.starts_with(RBTDRK_FREEHOLD_CLOUD_BASE));
+    assert!(runtime.starts_with(RBTDRK_FREEHOLD_RUNTIME_BASE));
     assert!(cloud.contains("xyz"));
     assert!(runtime.contains("xyz"));
 }
 
 /// Composed family stems are the base stem followed verbatim by the tincture.
-/// Tied to RBTDRK_FAMILY_STEM_BASE rather than a literal so an era-bump of the
+/// Tied to RBTDRK_FREEHOLD_STEM_BASE rather than a literal so an era-bump of the
 /// base (canest -> canest2 -> canest3 ...) can't silently desync this test.
 #[test]
 fn rbtdtk_family_stem_value() {
     assert_eq!(
         rbtdrk_family_stem("xyz"),
-        format!("{}xyz", RBTDRK_FAMILY_STEM_BASE)
+        format!("{}xyz", RBTDRK_FREEHOLD_STEM_BASE)
     );
 }
 
@@ -77,27 +78,26 @@ fn rbtdtk_family_stem_value() {
 /// stems) — the load-bearing disjointness property for parallel-station
 /// runs on a shared payor manor.
 #[test]
-fn rbtdtk_canonical_disjoint_per_tincture() {
+fn rbtdtk_freehold_disjoint_per_tincture() {
     assert_ne!(
-        rbtdrk_canonical_cloud_prefix("aa"),
-        rbtdrk_canonical_cloud_prefix("bb")
+        rbtdrk_freehold_cloud_prefix("aa"),
+        rbtdrk_freehold_cloud_prefix("bb")
     );
     assert_ne!(
-        rbtdrk_canonical_runtime_prefix("aa"),
-        rbtdrk_canonical_runtime_prefix("bb")
+        rbtdrk_freehold_runtime_prefix("aa"),
+        rbtdrk_freehold_runtime_prefix("bb")
     );
     assert_ne!(rbtdrk_family_stem("aa"), rbtdrk_family_stem("bb"));
 }
 
-/// Dual-station dry-run for the canonical fixture: two distinct tinctures
+/// Dual-station dry-run for the freehold scheme: two distinct tinctures
 /// produce disjoint depot project IDs, GAR repos, GCS buckets, and SA
-/// emails — the wrap criterion for ₢BBABB. Mirrors RBDC composition rules
-/// (rbdc_derived.sh) without invoking GCP.
+/// emails. Mirrors RBDC composition rules (rbdc_derived.sh) without invoking GCP.
 #[test]
-fn rbtdtk_canonical_dual_station_disjoint() {
+fn rbtdtk_freehold_dual_station_disjoint() {
     let (a, b) = ("aaa", "bbb");
-    let cloud_a = rbtdrk_canonical_cloud_prefix(a);
-    let cloud_b = rbtdrk_canonical_cloud_prefix(b);
+    let cloud_a = rbtdrk_freehold_cloud_prefix(a);
+    let cloud_b = rbtdrk_freehold_cloud_prefix(b);
     let moniker_a = format!("{}100000", rbtdrk_family_stem(a));
     let moniker_b = format!("{}100000", rbtdrk_family_stem(b));
 
@@ -123,48 +123,49 @@ fn rbtdtk_canonical_dual_station_disjoint() {
     );
 }
 
-/// Canonical-establish is StateProgressing — the engine's keep-going
+/// freehold-establish is StateProgressing — the engine's keep-going
 /// refusal applies to this fixture too, by design (per BBAAd policy gate).
 #[test]
 fn rbtdtk_disposition_is_state_progressing() {
-    let fixture = rbtdrc_lookup_fixture(RBTDRM_FIXTURE_CANONICAL_ESTABLISH)
-        .expect("canonical-establish is registered");
+    let fixture = rbtdrc_lookup_fixture(RBTDRM_FIXTURE_FREEHOLD_ESTABLISH)
+        .expect("freehold-establish is registered");
     assert_eq!(fixture.disposition, rbtdre_Disposition::StateProgressing);
 }
 
 /// Case lookup binds the fixture name to the registry array and yields
-/// exactly the five expected cases.
+/// exactly the six federation-persona cases.
 #[test]
 fn rbtdtk_cases_registered() {
-    let fixture = rbtdrc_lookup_fixture(RBTDRM_FIXTURE_CANONICAL_ESTABLISH)
-        .expect("canonical-establish is registered");
-    assert_eq!(fixture.cases.len(), 5, "expected five cases");
+    let fixture = rbtdrc_lookup_fixture(RBTDRM_FIXTURE_FREEHOLD_ESTABLISH)
+        .expect("freehold-establish is registered");
+    assert_eq!(fixture.cases.len(), 6, "expected six cases");
     let names: Vec<&str> = fixture.cases.iter().map(|c| c.name).collect();
-    assert!(names.iter().any(|n| n.contains("rbtdrk_depot_levy")));
-    assert!(names.iter().any(|n| n.contains("rbtdrk_governor_enrobe")));
-    assert!(names.iter().any(|n| n.contains("rbtdrk_retriever_enrobe")));
-    assert!(names.iter().any(|n| n.contains("rbtdrk_director_enrobe")));
+    assert!(names.iter().any(|n| n.contains("rbtdrk_freehold_ensure")));
+    assert!(names.iter().any(|n| n.contains("rbtdrk_compear")));
+    assert!(names.iter().any(|n| n.contains("rbtdrk_gird_governor")));
+    assert!(names.iter().any(|n| n.contains("rbtdrk_brevet_don_director")));
+    assert!(names.iter().any(|n| n.contains("rbtdrk_brevet_don_retriever")));
     assert!(names.iter().any(|n| n.contains("rbtdrk_depot_recognosce")));
 }
 
-/// Canonical-churn registers its single deliberate teardown case.
+/// freehold-churn registers its single deliberate teardown case.
 #[test]
 fn rbtdtk_churn_case_registered() {
-    let fixture = rbtdrc_lookup_fixture(RBTDRM_FIXTURE_CANONICAL_CHURN)
-        .expect("canonical-churn is registered");
+    let fixture = rbtdrc_lookup_fixture(RBTDRM_FIXTURE_FREEHOLD_CHURN)
+        .expect("freehold-churn is registered");
     assert_eq!(fixture.cases.len(), 1, "expected one churn case");
     let names: Vec<&str> = fixture.cases.iter().map(|c| c.name).collect();
     assert!(names.iter().any(|n| n.contains("rbtdrk_depot_churn")));
 }
 
-/// install_canonical_prefixes refuses cleanly when rbrr.env is absent — the
+/// install_freehold_prefixes refuses cleanly when rbrr.env is absent — the
 /// helper does not silently succeed against a missing regime file.
 #[test]
-fn rbtdtk_install_canonical_prefixes_rejects_missing_rbrr() {
+fn rbtdtk_install_freehold_prefixes_rejects_missing_rbrr() {
     let tmp: PathBuf = rbtdth_scratch_root().join("rbtdtk-nonexistent-root-xyz");
     let _ = std::fs::remove_dir_all(&tmp);
     std::fs::create_dir_all(&tmp).expect("create tempdir");
-    let result = rbtdrk_install_canonical_prefixes(&tmp);
+    let result = rbtdrk_install_freehold_prefixes(&tmp);
     let _ = std::fs::remove_dir_all(&tmp);
     assert!(result.is_err(), "expected Err when {}/rbrr.env is absent", crate::rbtdgc_consts::RBTDGC_MOORINGS_DIR);
 }

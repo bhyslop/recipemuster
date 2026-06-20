@@ -106,9 +106,9 @@ network posture, not dependency tier:
 
 | Suite | Tabtarget | Precondition | What it covers |
 |-------|-----------|-------------|----------------|
-| `gauntlet` | `tt/rbw-ts.TestSuite.gauntlet.sh` | None (levies fresh projects) | Release-qualification ladder: marshal-zero state → canonical-establish → onboarding-sequence → fast fixtures → crucibles |
-| `skirmish` | `tt/rbw-ts.TestSuite.skirmish.sh` | Canonical depot already levied | Mini-gauntlet: depot→build→crucible chain without project churn |
-| `dogfight` | `tt/rbw-ts.TestSuite.dogfight.sh` | Canonical depot already levied | Cloud-build viability probe: ordain → summon → run, no crucible |
+| `gauntlet` | `tt/rbw-ts.TestSuite.gauntlet.sh` | None (levies fresh projects) | Release-qualification ladder: marshal-zero state → depot-lifecycle → freehold-establish → onboarding-sequence → fast fixtures → crucibles |
+| `skirmish` | `tt/rbw-ts.TestSuite.skirmish.sh` | Freehold depot already levied | Mini-gauntlet: depot→build→crucible chain without project churn |
+| `dogfight` | `tt/rbw-ts.TestSuite.dogfight.sh` | Freehold depot already levied | Cloud-build viability probe: ordain → summon → run, no crucible |
 | `siege` | `tt/rbw-ts.TestSuite.siege.sh` | None (fully local) | Tadmor self-contained: kludge both vessels + security cases |
 | `blockade` | `tt/rbw-ts.TestSuite.blockade.sh` | Depot levied + moriah hallmark ordained | Airgap moriah crucible with credential self-heal |
 

@@ -75,7 +75,7 @@ zrbrd_enforce() {
   # Joint-length cap: GCP project IDs max 30 chars. RBDC_DEPOT_PROJECT_ID
   # composes as "${RBRD_CLOUD_PREFIX}d-${RBRD_DEPOT_MONIKER}".
   #
-  # Test fixtures (rbtdrp_pristine, rbtdrk_canonical) compose BURS_TINCTURE
+  # Test fixtures (rbtdrp_lifecycle, rbtdrk_freehold) compose BURS_TINCTURE
   # (1-3 chars) into BOTH the prefix and the moniker before writing rbrd.env
   # for parallel-station disjointness on a shared payor manor. The cap below
   # applies to whatever is in rbrd.env at validation time — production-

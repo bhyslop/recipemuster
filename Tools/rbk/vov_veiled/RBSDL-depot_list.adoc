@@ -24,7 +24,7 @@ with `query=displayName:«RBGC_DEPOT_DISPLAY_PREFIX»*`
 `«SEARCH_RESULTS»` — paginated list of matching projects; follow `nextPageToken` until exhausted
 .. NOTE: CRM v3 search returns both `ACTIVE` and `DELETE_REQUESTED` projects in the default response — no state filter is applied.
 This means soft-deleted depots within their 30-day retention window (ghost depots) are visible alongside active ones.
-This visibility is load-bearing: the canonical-establish fixture's auto-pick logic must see `DELETE_REQUESTED` projects to
+This visibility is load-bearing: the freehold-establish fixture's auto-pick logic must see `DELETE_REQUESTED` projects to
 avoid re-selecting a moniker that is still in the soft-delete graveyard.
 
 //axhos_step

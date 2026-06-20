@@ -18,7 +18,7 @@
 //
 // Proves the cloud-depot build-and-retrieve path yields a *runnable*
 // artifact, with no crucible apparatus. Standing-depot scenario fixture,
-// sibling to canonical-enrobe in the operator-precondition family: it reuses
+// sibling to freehold-enrobe in the operator-precondition family: it reuses
 // a depot the operator has levied by hand (no levy, no unmake) and assumes a
 // director + retriever already enrobed. It differs from the skirmish chain
 // on the crucible axis — dogfight charges NO crucible. It proves only
@@ -47,7 +47,7 @@ use crate::rbtdri_invocation::{
     rbtdri_invoke_global, rbtdri_read_burv_fact, rbtdri_Context, RBTDRI_BURE_CONFIRM_KEY,
     RBTDRI_BURE_CONFIRM_SKIP,
 };
-use crate::rbtdrk_canonical::rbtdrk_canonical_rbra;
+use crate::rbtdrk_freehold::rbtdrk_freehold_rbra;
 use crate::rbtdgc_consts::{
     RBTDGC_ABJURE_HALLMARK, RBTDGC_ORDAIN_HALLMARK, RBTDGC_ACCOUNT_DIRECTOR, RBTDGC_SUMMON_HALLMARK,
 };
@@ -73,14 +73,14 @@ fn rbtdrd_probe_root() -> Result<PathBuf, String> {
     std::env::current_dir().map_err(|e| format!("cannot resolve project root: {}", e))
 }
 
-/// Precondition: director RBRA present at the canonical secrets path —
+/// Precondition: director RBRA present at the freehold secrets path —
 /// evidence an operator has levied the standing depot and enrobed a director
 /// (the role that ordains and abjures). Mirrors onboarding's governor-RBRA
 /// probe shape. The retriever credential summon needs is not separately
 /// probed; summon fails loud if it is absent.
 fn rbtdrd_probe_director_rbra() -> Result<(), String> {
     let root = rbtdrd_probe_root()?;
-    let path = rbtdrk_canonical_rbra(&root, RBTDGC_ACCOUNT_DIRECTOR)?;
+    let path = rbtdrk_freehold_rbra(&root, RBTDGC_ACCOUNT_DIRECTOR)?;
     if !path.exists() {
         return Err(format!("director RBRA absent at {}", path.display()));
     }
@@ -118,7 +118,7 @@ fn rbtdrd_build_run_lifecycle(dir: &Path) -> rbtdre_Verdict {
         name: "director RBRA present",
         check: rbtdrd_probe_director_rbra,
         remediation:
-            "levy a standing depot and enrobe a director (canonical-enrobe or rbw-adE) before this fixture",
+            "levy a standing depot and enrobe a director (freehold-enrobe or rbw-adE) before this fixture",
     };
     if let Err(v) = rbtdrb_assert(&probe) {
         return v;

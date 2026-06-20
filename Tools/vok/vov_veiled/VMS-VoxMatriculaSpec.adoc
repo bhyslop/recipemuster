@@ -50,8 +50,9 @@
 :vosk_prefix_validation: <<vosk_prefix_validation,Prefix Validation>>
 :vosp_veiled:           <<vosp_veiled,Veiled>>
 
-// Lifecycle dimension — imported from AXLA, cited never restated
+// Mutability dimensions — imported from AXLA, cited never restated
 :axd_petrify:           <<axd_petrify,Petrify>>
+:axd_immutable:         <<axd_immutable,Immutable>>
 
 // end::mapping-section[]
 
@@ -190,7 +191,7 @@ The ours-or-foreign gate is the project {voslc_cipher}, invariant across the `_`
 Each known {voslv_vesture} claims the declarations it owns; whatever carries our {voslc_cipher} yet no {voslv_vesture} claims is an {vosme_estray}.
 
 [[vosme_estray]]
-//axr_record
+//axr_record axd_immutable
 {vosme_estray}::
 A token that carries the project {voslc_cipher} but that no {voslv_vesture} claims — ours by namespace, unclaimed by any known grammar.
 An {vosme_estray} is a product of the census, never an error and never folded into the validator {vosmp_presentment_s}: it surfaces misminting, mint-gaps, and forgotten {voslv_vesture} categories, and it is reported in its own section.
@@ -208,7 +209,7 @@ It is a count-blind property — two declaration sites, never an occurrence coun
 The rule itself is CMK/MCM doctrine; this validator mechanizes it.
 
 [[vosmp_presentment]]
-//axr_record
+//axr_record axd_immutable
 {vosmp_presentment}::
 A seating validator's output record: a formal report of one minting violation the census observed directly.
 The metaphor is the inquest's presentment — an offense reported from the body's own knowledge, not an accusation imported from elsewhere.
