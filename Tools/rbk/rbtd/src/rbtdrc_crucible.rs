@@ -47,7 +47,7 @@ use crate::rbtdgc_consts::{
     RBTDGC_AUGUR_LODE, RBTDGC_BANISH_LODE, RBTDGC_LIST_IMAGES, RBTDGC_JETTISON_IMAGE,
     RBTDGC_IMMURE_PODVM,
     RBTDGC_CHECK_PAYOR, RBTDGC_AFFIANCE_MANOR, RBTDGC_JILT_MANOR, RBTDGC_TWEAK_REGIME_POISON,
-    RBTDGC_TERRIER_SCAFFOLD, RBTDGC_TERRIER_PROOF, RBTDGC_PROOF_POLITY, RBTDGC_PROOF_FREEHOLD,
+    RBTDGC_TERRIER_SCAFFOLD, RBTDGC_TERRIER_PROOF,
 };
 use crate::rbtdrm_manifest::rbtdrm_credential_check_colophon;
 
@@ -2563,23 +2563,6 @@ pub static RBTDRC_FIXTURE_TERRIER_ATOMICITY: rbtdre_Fixture = rbtdre_Fixture {
     credless: false,
 };
 
-pub static RBTDRC_FIXTURE_ADMISSION_PROOF: rbtdre_Fixture = rbtdre_Fixture {
-    name: crate::rbtdrm_manifest::RBTDRM_FIXTURE_ADMISSION_PROOF,
-    disposition: rbtdre_Disposition::Independent,
-    setup: None,
-    teardown: None,
-    cases: RBTDRC_CASES_ADMISSION_PROOF,
-    credless: false,
-};
-
-pub static RBTDRC_FIXTURE_FOEDUS_FREEHOLD: rbtdre_Fixture = rbtdre_Fixture {
-    name: crate::rbtdrm_manifest::RBTDRM_FIXTURE_FOEDUS_FREEHOLD,
-    disposition: rbtdre_Disposition::Independent,
-    setup: None,
-    teardown: None,
-    cases: RBTDRC_CASES_FOEDUS_FREEHOLD,
-    credless: false,
-};
 
 /// Registry of all fixtures known to theurge. Single source of truth: drives
 /// rbtdrc_lookup_fixture and the helpful "list valid fixtures" diagnostic the
@@ -2602,8 +2585,6 @@ pub static RBTDRC_FIXTURES: &[&'static rbtdre_Fixture] = &[
     &RBTDRC_FIXTURE_ACCESS_PROBE,
     &RBTDRC_FIXTURE_TERRIER_SCAFFOLD,
     &RBTDRC_FIXTURE_TERRIER_ATOMICITY,
-    &RBTDRC_FIXTURE_ADMISSION_PROOF,
-    &RBTDRC_FIXTURE_FOEDUS_FREEHOLD,
     &crate::rbtdrf_fast::RBTDRF_FIXTURE_ENROLLMENT_VALIDATION,
     &crate::rbtdrf_fast::RBTDRF_FIXTURE_REGIME_VALIDATION,
     &crate::rbtdrs_poison::RBTDRS_FIXTURE_REGIME_POISON,
@@ -2684,8 +2665,6 @@ pub static RBTDRC_SUITES: &[rbtdre_Suite] = &[
             &RBTDRC_FIXTURE_BATCH_VOUCH,
             &RBTDRC_FIXTURE_TERRIER_SCAFFOLD,
             &RBTDRC_FIXTURE_TERRIER_ATOMICITY,
-            &RBTDRC_FIXTURE_ADMISSION_PROOF,
-            &RBTDRC_FIXTURE_FOEDUS_FREEHOLD,
         ],
     },
     // Crucible — fast + container-runtime crucible fixtures.
@@ -2732,8 +2711,6 @@ pub static RBTDRC_SUITES: &[rbtdre_Suite] = &[
             &RBTDRC_FIXTURE_BATCH_VOUCH,
             &RBTDRC_FIXTURE_TERRIER_SCAFFOLD,
             &RBTDRC_FIXTURE_TERRIER_ATOMICITY,
-            &RBTDRC_FIXTURE_ADMISSION_PROOF,
-            &RBTDRC_FIXTURE_FOEDUS_FREEHOLD,
             &RBTDRC_FIXTURE_TADMOR,
             &RBTDRC_FIXTURE_SRJCL,
             &RBTDRC_FIXTURE_PLUML,
@@ -3940,173 +3917,6 @@ fn rbtdrc_terrier_atomicity(dir: &Path) -> rbtdre_Verdict {
 }
 
 pub static RBTDRC_CASES_TERRIER_ATOMICITY: &[rbtdre_Case] = &[case!(rbtdrc_terrier_atomicity)];
-
-// Admission-proof fixture — the federation admission composition proof. Probes the
-// payor (self-skip on no creds), charges the terrier via the rbw-dt scaffold, then
-// runs the rbw-pP proof, which brevets/unseats/attaints a synthetic probe and
-// asserts the muniment + tokenCreator + serviceUsageConsumer composition by
-// getIamPolicy read-back and peruse. exit 0 IS the assertion. Payor-credentialed
-// (the founding authority); needs a levied depot for the mantle SA binding targets.
-fn rbtdrc_admission_proof(dir: &Path) -> rbtdre_Verdict {
-    rbtdrc_with_ctx(|ctx| {
-        // Self-skip gate: stay green on a machine with no GCP credentials.
-        let _ = std::fs::write(dir.join("01-payor-probe.txt"), "probing payor credential");
-        match rbtdri_invoke_global(ctx, RBTDGC_CHECK_PAYOR, &[], &[]) {
-            Ok(r) if r.exit_code == 0 => {}
-            Ok(r) => {
-                return rbtdre_Verdict::Skip(format!(
-                    "payor credential not reachable (exit {}) — admission-proof requires service credentials",
-                    r.exit_code
-                ))
-            }
-            Err(e) => {
-                return rbtdre_Verdict::Skip(format!(
-                    "payor credential probe could not run ({}) — admission-proof requires service credentials",
-                    e
-                ))
-            }
-        }
-
-        // Charge the terrier — the proof brevets muniments into a provisioned bucket + polity folder.
-        let charge = match rbtdri_invoke_global(ctx, RBTDGC_TERRIER_SCAFFOLD, &[], &[]) {
-            Ok(r) => r,
-            Err(e) => {
-                return rbtdre_Verdict::Fail(format!("terrier scaffold (charge) invocation: {}", e))
-            }
-        };
-        let charge_out = format!("{}\n{}", charge.stdout, charge.stderr);
-        let _ = std::fs::write(dir.join("02-charge.txt"), &charge_out);
-        if charge.exit_code != 0 {
-            return rbtdre_Verdict::Fail(format!(
-                "terrier scaffold (charge) exit {} — terrier not provisioned for the proof\n{}",
-                charge.exit_code, charge_out
-            ));
-        }
-
-        // Run the admission-composition proof — exit 0 is the brevet/unseat/attaint
-        // round-trip plus the IAM read-back assertions (the verb dies on any deviation).
-        let proof = match rbtdri_invoke_global(ctx, RBTDGC_PROOF_POLITY, &[], &[]) {
-            Ok(r) => r,
-            Err(e) => return rbtdre_Verdict::Fail(format!("admission proof invocation: {}", e)),
-        };
-        let proof_out = format!("{}\n{}", proof.stdout, proof.stderr);
-        let _ = std::fs::write(dir.join("03-proof.txt"), &proof_out);
-        if proof.exit_code != 0 {
-            return rbtdre_Verdict::Fail(format!(
-                "admission proof exit {} — brevet/unseat/attaint composition not proven\n{}",
-                proof.exit_code, proof_out
-            ));
-        }
-
-        let _ = std::fs::write(dir.join("04-passed.txt"), "passed");
-        rbtdre_Verdict::Pass
-    })
-}
-
-pub static RBTDRC_CASES_ADMISSION_PROOF: &[rbtdre_Case] = &[case!(rbtdrc_admission_proof)];
-
-// Foedus-freehold fixture — durable, quota-flat verification that the STANDING
-// freehold trust stands and carries its known citizen roster (the static
-// counterpart to the ephemeral foedus-lifecycle round-trip). Reuses the one durable
-// standing pool — no throwaway churn, no quota cost — and self-skips credless
-// (service-suite passenger protection). Probes the payor, affiances the standing
-// pool with NO regime-poison (the real RBRF pool) and asserts the idempotent no-op
-// (already-present + affianced terminal; affiance fail-fast-dies only on a
-// soft-deleted pool), charges the terrier via the rbw-dt scaffold, then runs the
-// rbw-pF freehold proof — which ensure-brevets the freehold subject onto every
-// mantle (payor-credentialed, via the token-agnostic cores, no compearance) and
-// asserts the manor-wide roster carries it. exit 0 of the proof IS the roster
-// assertion. Needs a levied depot for the mantle SA binding targets, like
-// admission-proof. Runtime/compearance attribution is out of scope — that hole is
-// owned by the federation-evolution heat and the operator-paced attribution pace.
-fn rbtdrc_foedus_freehold(dir: &Path) -> rbtdre_Verdict {
-    rbtdrc_with_ctx(|ctx| {
-        // Self-skip gate: stay green on a machine with no GCP credentials.
-        let _ = std::fs::write(dir.join("01-payor-probe.txt"), "probing payor credential");
-        match rbtdri_invoke_global(ctx, RBTDGC_CHECK_PAYOR, &[], &[]) {
-            Ok(r) if r.exit_code == 0 => {}
-            Ok(r) => {
-                return rbtdre_Verdict::Skip(format!(
-                    "payor credential not reachable (exit {}) — foedus-freehold requires service credentials",
-                    r.exit_code
-                ))
-            }
-            Err(e) => {
-                return rbtdre_Verdict::Skip(format!(
-                    "payor credential probe could not run ({}) — foedus-freehold requires service credentials",
-                    e
-                ))
-            }
-        }
-
-        // Establish-if-absent: affiance the STANDING pool with NO regime-poison — the
-        // real RBRF pool. On the durable freehold the pool and provider are already
-        // present and ACTIVE, so affiance is the idempotent no-op; it fail-fast-dies
-        // only on a soft-deleted pool. Assert both the no-op path (already-present)
-        // and the affianced terminal.
-        let affiance = match rbtdri_invoke_global(ctx, RBTDGC_AFFIANCE_MANOR, &[], &[]) {
-            Ok(r) => r,
-            Err(e) => return rbtdre_Verdict::Fail(format!("affiance invocation: {}", e)),
-        };
-        let affiance_out = format!("{}\n{}", affiance.stdout, affiance.stderr);
-        let _ = std::fs::write(dir.join("02-affiance.txt"), &affiance_out);
-        if affiance.exit_code != 0 {
-            return rbtdre_Verdict::Fail(format!(
-                "affiance exit {} — the standing freehold pool did not affiance clean \
-                 (a soft-deleted pool fails fast: bump RBRF_WORKFORCE_POOL_ID and re-affiance)\n{}",
-                affiance.exit_code, affiance_out
-            ));
-        }
-        if !affiance_out.contains("already present") {
-            return rbtdre_Verdict::Fail(format!(
-                "affiance was not the idempotent no-op — expected the standing pool 'already present', \
-                 got a create or refusal\n{}",
-                affiance_out
-            ));
-        }
-        if !affiance_out.contains("Manor affianced") {
-            return rbtdre_Verdict::Fail(format!(
-                "affiance did not reach the affianced terminal\n{}",
-                affiance_out
-            ));
-        }
-
-        // Charge the terrier — the proof seeds muniments into a provisioned bucket + polity folder.
-        let charge = match rbtdri_invoke_global(ctx, RBTDGC_TERRIER_SCAFFOLD, &[], &[]) {
-            Ok(r) => r,
-            Err(e) => return rbtdre_Verdict::Fail(format!("terrier scaffold (charge) invocation: {}", e)),
-        };
-        let charge_out = format!("{}\n{}", charge.stdout, charge.stderr);
-        let _ = std::fs::write(dir.join("03-charge.txt"), &charge_out);
-        if charge.exit_code != 0 {
-            return rbtdre_Verdict::Fail(format!(
-                "terrier scaffold (charge) exit {} — terrier not provisioned for the proof\n{}",
-                charge.exit_code, charge_out
-            ));
-        }
-
-        // Run the freehold proof — exit 0 is the ensure-brevet of the freehold subject
-        // onto every mantle plus the manor-wide roster assertion (the verb dies on any
-        // deviation).
-        let proof = match rbtdri_invoke_global(ctx, RBTDGC_PROOF_FREEHOLD, &[], &[]) {
-            Ok(r) => r,
-            Err(e) => return rbtdre_Verdict::Fail(format!("freehold proof invocation: {}", e)),
-        };
-        let proof_out = format!("{}\n{}", proof.stdout, proof.stderr);
-        let _ = std::fs::write(dir.join("04-proof.txt"), &proof_out);
-        if proof.exit_code != 0 {
-            return rbtdre_Verdict::Fail(format!(
-                "freehold proof exit {} — standing admission / manor-wide roster not proven\n{}",
-                proof.exit_code, proof_out
-            ));
-        }
-
-        let _ = std::fs::write(dir.join("05-passed.txt"), "passed");
-        rbtdre_Verdict::Pass
-    })
-}
-
-pub static RBTDRC_CASES_FOEDUS_FREEHOLD: &[rbtdre_Case] = &[case!(rbtdrc_foedus_freehold)];
 
 
 // Wsl-lifecycle fixture — fetched-side rootfs capture against live GAR. Single

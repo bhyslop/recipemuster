@@ -2029,3 +2029,37 @@ The existing `buc_doc_param` / `buc_doc_oparm` could remain for the rare value-l
 ### Context
 
 Identified 2026-06-18 while reviewing the new `rbgb_managed_folder_add_iam_role` (mirrors the bucket-IAM grant idiom in `rbgb_buckets.sh`). The five-param doc+validate ritual prompted the question "can these consolidate?" — they can't with today's primitives, but a value-aware `buc_doc_param_req` would let them. Deliberately deferred as a whole-family BUC change rather than a local edit.
+
+## terrier-atomicity-nature-discussion
+Operator wants to revisit what the terrier-atomicity fixture/proof actually is and why, before treating it as settled.
+
+### Problem
+
+The terrier-atomicity items (the `terrier-atomicity` theurge fixture and the `rbgp_terrier_proof` verb behind `rbw-dT`) came into existence in agent-to-agent work (Opus + Fable) without the operator holding the full issue set in his head. During the ₣BZ payor-proof retirement (2026-06-20) the operator and agent agreed terrier-atomicity is the one *honest* survivor of the payor-credentialed proofs — its claim (GCS precondition atomicity: engross/expunge/peruse with 412-on-conflict and 404-on-absent idempotency) is credential-path-agnostic, so it reads as a real data-layer unit test rather than a faked-don federation proof. But the operator explicitly flagged he has not internalized the design issues and wants a deliberate discussion, NOT a silent acceptance.
+
+### Scope
+
+- Walk the operator through what `rbgp_terrier_proof` asserts and why (the muniment sub-op contract: RBSTR / RBGFT), grounding the artifact from scratch (a trot — he did not line-author it).
+- Decide whether terrier-atomicity stays as-is, gets reframed, or folds into the terrier permanent-home work owned by ₣Bf (the federation-evolution heat).
+- Reconcile with the open paddock items: terrier file format, physical bucket name, `rbgb_` allocation (all listed Open in the ₣BZ paddock).
+
+### Context
+
+Raised 2026-06-20 by the operator immediately after accepting the cut of the admission/freehold payor-proofs (path "b": cut the two faked-don proofs, keep terrier-atomicity). Sequenced explicitly AFTER the work of that pace, not during it. The terrier's permanent home is already routed to ₣Bf per the ₣BZ docket ("the terrier scaffold rbw-dt stays until ₣Bf homes the terrier permanently").
+
+## bf-authentic-federation-green-target
+Build the compearance-driven federation test target deferred from ₣BZ; reserve the suite word "parley".
+
+### Problem
+
+₣BZ's payor-credentialed proofs (admission-proof, foedus-freehold) tested only the admission WRITE-side via the payor's god-authority, deliberately bypassing the compear→don→act runtime path that IS the federation thesis. During ₣BZ (2026-06-20) those two faked-don proofs were cut as spent construction scaffolding (the verbs `rbgp_admission_proof`/`rbgp_freehold_proof`, the `rbw-pP`/`rbw-pF` tabtargets, and their theurge fixtures). The authentic green target — a human compears once, dons the relevant mantle, runs the real production verbs (brevet/unseat/attaint/rehearse) as a donned actor, and asserts — was deferred to ₣Bf, where runtime/compearance work is already routed.
+
+### Scope
+
+- Build compearance-driven federation fixtures that exercise the real don path (Leg 1 device flow → Leg 2 STS → Leg 3 don), per the paddock premise "a human compears at the kickoff of every run". The accepted test posture is manual compearance before a test session (a 12 h assize on the project test org — the paddock Test-rig section's "per-run human click" option).
+- Compose them into a named green-able suite that excludes the keyfile-broken estate. **Reserve the suite word `parley`** (operator-elected 2026-06-20 for exactly this suite, before the scope pivot deferred it here; grep-gated clean at the time).
+- **Coverage debt to repay:** the deleted `rbgp_admission_proof` was the ONLY automated check of the suspension-vs-erasure property (unseat leaves `serviceUsageConsumer`, attaint sweeps it) and brevet binding-composition/idempotency. The authentic suite must re-establish that write-side coverage in addition to the new use-side (don→act) coverage.
+
+### Context
+
+Raised/decided 2026-06-20 in conversation during ₣BZ pace work. The operator judged the payor-proofs "a poorly chosen workaround, a too-small baby step" and accepted not enshrining them as the federation green target. Deleted-proof reference logic survives in git history (the ₣BZ commits that built admission-proof/foedus-freehold) — point there rather than reconstructing. Related: the live-don payoff proof the paddock defers to "M7", and the operator-paced attribution pace.
