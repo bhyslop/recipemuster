@@ -313,6 +313,12 @@ The decomposition (operator-accepted). M7 splits along the gate sentence's own s
 
 Sequencing with the freehold-collapse pace. Both the keyless bootstrap and the freehold-collapse pace rewrite rbtdrk_canonical.rs, but in disjoint regions (collapse owns Case 1 + the prefix/moniker helpers; the bootstrap owns the enrobe cases), so they compose. The freehold-collapse docket defers its enrobe-idempotency to this keyless rewrite, so order is keyless bootstrap → freehold collapse → estate demolition → terminal Fable review.
 
+Freehold-collapse as-built + two BZAAQ-era findings handed to the demolition (260620).
+The collapse landed: rbtdrk_canonical.rs split into rbtdrk_freehold (machinery) / rbtdrk_depot (keyless establish+churn) / rbtdrk_enrobe (the keyfile estate, isolated whole as a clean delete target); rbtdrp_pristine.rs split into rbtdrp_attest (marshal-zero gate) / rbtdrp_lifecycle (the arc); fixtures renamed to freehold vocabulary; deployed prefix/stem VALUES kept as canc/canr/canest3 (operator option A, zero churn).
+Two correctness gaps surfaced during the collapse but were left untouched as out-of-scope — both belong to the keyless/federation work this demolition completes, and the demolition's gauntlet/skirmish verification is where they bite:
+- the manifest's freehold-establish required-colophon list still names the keyfile enrobe colophons (ENROBE_GOVERNOR/RETRIEVER/DIRECTOR), not the federation colophons the cases now invoke (gird/brevet/check-mantle/compearance) — harmless today (the manifest is an existence check, and the federation colophons are compile-referenced), but reconcile it when the keyfile colophons are swept;
+- onboarding's governor-RBRA precondition expects a key file that keyless federation freehold-establish no longer writes (it dons mantles), so a fresh-levy gauntlet may not satisfy onboarding's gate — a federation-correctness call (rework onboarding's precondition keyless, or have establish drop a governor credential) the demolition's gauntlet run forces into the open.
+
 ## Narrative docs (M6) — the README is pre-federation; a story inversion that must trail the demolition (260620)
 
 Groom of the M6 placeholder (₢BZAAP), closing the 260620 grooming session. Recovered intent, the as-built inversion finding, the scope, and the sequencing fix — recorded for the terminal Fable review and the narrative pace's mount agent.
