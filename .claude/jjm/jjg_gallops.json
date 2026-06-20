@@ -11915,9 +11915,10 @@
         "₢BDAAW",
         "₢BDAAZ",
         "₢BDAAb",
-        "₢BDAAc"
+        "₢BDAAc",
+        "₢BDAAd"
       ],
-      "jjghn_next_pace_seed": "AAd",
+      "jjghn_next_pace_seed": "AAe",
       "jjghn_paces": {
         "₢BDAAA": {
           "jjgpn_tacks": [
@@ -13020,6 +13021,36 @@
               ],
               "jjgtn_silks": "gazette-mixed-notice-batch",
               "jjgtn_basis": "09ce0a4"
+            }
+          ]
+        },
+        "₢BDAAd": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260620-1245",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "Mechanical — a bounded MCP tool wrapping the existing curated launcher surface.",
+                "",
+                "## Goal",
+                "A vvx-surface MCP tool that execs tt/*.sh tabtargets, so tabtarget runs stop triggering Bash permission prompts — one MCP approval replacing the per-invocation sediment.",
+                "Why the settings matcher cannot do this: Memos/memo-20260620-claude-permission-stalls-and-mcp-absorption.md.",
+                "",
+                "## Done when",
+                "A tabtarget runs through the tool with no Bash permission prompt, returning its exit status and the path of its self-logged ../logs-buk/ output.",
+                "",
+                "## Cinched",
+                "vvx surface, sibling to jjx — not a jjx command (this is not heat/pace work).",
+                "Bounded to tt/*.sh; no arbitrary-command path.",
+                "Enforces the tabtarget discipline the agent currently must remember: run from repo root, never pipe to tail/head, point the caller at the log.",
+                "",
+                "## Discovery",
+                "MCP tool registration pattern: Tools/jjk/vov_veiled/src/jjrm_mcp.rs.",
+                "Tabtarget self-logging and the pipe hazard: CLAUDE.md \"TabTarget Invocation Discipline\"."
+              ],
+              "jjgtn_silks": "vvx-tabtarget-runner",
+              "jjgtn_basis": "b251e70"
             }
           ]
         }
