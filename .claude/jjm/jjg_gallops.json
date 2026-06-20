@@ -15447,8 +15447,8 @@
         "₢BcAAB": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260620-0908",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260620-1546",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "## Character",
                 "Intricate but mechanical — rewiring existing load/save machinery, not new validation logic.",
@@ -15482,7 +15482,7 @@
                 "JJSCVL-validate.adoc (rules), JJSRLD-load.adoc (round-trip plus the migration rewrite the probe now governs), JJSRSV-save.adoc (load-back validation), JJSRPS-persist.adoc (identity-keyed commit path this cannot reuse)."
               ],
               "jjgtn_silks": "validate-normalize-and-report",
-              "jjgtn_basis": "b0945d5"
+              "jjgtn_basis": "66688a2"
             }
           ]
         },
