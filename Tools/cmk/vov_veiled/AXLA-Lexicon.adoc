@@ -99,6 +99,8 @@
 :axd_temporal:                        <<axd_temporal,Temporal>>
 :axd_transient:                       <<axd_transient,Transient>>
 :axd_petrify:                         <<axd_petrify,Petrify>>
+:axd_immutable:                       <<axd_immutable,Immutable>>
+:axd_mutable:                         <<axd_mutable,Mutable>>
 :axd_wire_type:                       <<axd_wire_type,Wire Type>>
 :axd_xml_form:                        <<axd_xml_form,XML Form>>
 
@@ -871,16 +873,10 @@ A
 {axl_motif}
 representing a named collection of typed
 {axr_member_s}.
-A
+An
 {axr_record}
-is immutable: once constructed, its
-{axr_member_s}
-never change, and a reader may treat its values as fixed for the life of the program.
-The sole mutability a
-{axr_record}
-admits is a bounded build phase, marked by
-{axd_petrify}
-and ended by sealing; absent that dimension, immutability is total from construction.
+declares its mutability phase — its lifecycle across construction and use — through a Mutability Dimension (see Mutability Dimensions); the prevailing case is
+{axd_immutable}.
 Abstract pattern that format-specific variants voice with serialization semantics.
 Use format-specific variants (
 {axr_record_json},
@@ -1696,7 +1692,7 @@ May include
 {axhos_step} (idempotency, overlap)
 sections.
 
-=== Seal Dimensions
+=== Mutability Dimensions
 
 These
 {axd_dimension_s}
@@ -1704,8 +1700,34 @@ qualify
 {axr_record}
 and
 {axo_entity}
-voicings to specify a build-then-freeze lifecycle.
-Optional; a structure carries one only if it hardens.
+voicings to declare a mutability phase — the lifecycle of the structure's contents across construction and use.
+Every
+{axr_record}
+voicing is expected to carry exactly one phase, and the phases are mutually exclusive — the same discipline the Lifecycle Dimensions impose on
+{axo_procedure}
+voicings.
+The expectation is newly established and its enforcement is staged: it begins advisory, and the type-scheme linter tightens it toward required as existing voicings are retrofitted; until a voicing declares, it is read as
+{axd_immutable},
+the prevailing case.
+An
+{axo_entity}
+may carry a phase but is not yet held to the exactly-one rule; an unmarked
+{axo_entity}
+is mutable, its default.
+
+[[axd_immutable]]
+{axd_immutable}::
+A
+{axd_dimension}
+marking an
+{axr_record}
+or
+{axo_entity}
+whose contents are fixed from construction: its
+{axr_member_s}
+never change for the life of the value.
+The prevailing phase for an
+{axr_record}; a reader may rely on its values being constant.
 
 [[axd_petrify]]
 {axd_petrify}::
@@ -1724,6 +1746,24 @@ A term carrying
 has two phases, builder (mutable) and petrified (frozen); its definition names the act that petrifies it.
 In a compiled language the two phases are a typestate (a Builder consumed into a frozen value); in a dynamic one, a runtime guard — the dimension is the language-neutral declaration both implement.
 Worked instances: the JJK gazette (freeze-on-disclosure) and the Vox Matricula (raise, seal, query).
+
+[[axd_mutable]]
+{axd_mutable}::
+A
+{axd_dimension}
+marking an
+{axr_record}
+or
+{axo_entity}
+whose
+{axr_member_s}
+are updated in place over its lifetime — persistent state edited by operations rather than rebuilt or resealed.
+Distinct from
+{axd_petrify}:
+a
+{axd_mutable}
+structure never seals, and mutation is its standing condition rather than a bounded build phase.
+Worked instances: the Job Jockey gallops records — gallops, heat, pace, tack — whose members are incremented, appended, and updated by the jjx operations.
 
 === Regime Dimensions
 
