@@ -15718,9 +15718,10 @@
       "jjghn_status": "jjghe_racing",
       "jjghn_order": [
         "₢BdAAA",
-        "₢BdAAB"
+        "₢BdAAB",
+        "₢BdAAC"
       ],
-      "jjghn_next_pace_seed": "AAC",
+      "jjghn_next_pace_seed": "AAD",
       "jjghn_paces": {
         "₢BdAAA": {
           "jjgpn_tacks": [
@@ -15776,6 +15777,31 @@
               ],
               "jjgtn_silks": "evict-legacy-axl-voices-form",
               "jjgtn_basis": "1b13c7c"
+            }
+          ]
+        },
+        "₢BdAAC": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260620-1545",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "",
+                "Cross-cutting migration plus linter work; staged, judgment lives in the triage.",
+                "",
+                "## Done when",
+                "",
+                "The AXLA mutability-phase trichotomy moves from advisory toward enforced: existing axr_record voicings repo-wide are retrofitted to declare exactly one phase (axd_immutable / axd_petrify / axd_mutable), and the type-scheme linter is tightened to require it.",
+                "First retrofit targets are the JJK gallops family (gallops, heat, pace, tack — axd_mutable, per their members' in-place updates).",
+                "",
+                "## Cinched",
+                "",
+                "The rule and its staged-enforcement clause are already stated at axr_record and the Mutability Dimensions subsection (commit b2799a72e); this pace executes the rollout that clause defers.",
+                "Retrofit is incremental — tighten the lint screws as coverage grows, never a single big-bang sweep."
+              ],
+              "jjgtn_silks": "axla-mutability-phase-rollout",
+              "jjgtn_basis": "275df9e"
             }
           ]
         }
