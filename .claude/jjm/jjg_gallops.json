@@ -14049,8 +14049,8 @@
         "₢BZAAQ": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260620-1224",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260620-1225",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "Rewrite the canonical credential-bootstrap fixture (rbtdrk_canonical.rs) so a fresh levy admits federation personas — compear, gird the first governor, brevet+don each mantle — instead of enrobing keyfile SAs.",
                 "This makes canonical-establish pass on the no-keys org and meets the paddock's \"federation personas pass the suites\" gate.",
@@ -14077,7 +14077,7 @@
                 "Behavior-changing fixture rewrite plus a founding-verb mint (gird); credless-green, federation path proven 6/6 live on the no-keys org."
               ],
               "jjgtn_silks": "keyless-canonical-bootstrap",
-              "jjgtn_basis": "6229a73"
+              "jjgtn_basis": "d9ff109"
             }
           ]
         },
