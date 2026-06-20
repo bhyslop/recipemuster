@@ -135,6 +135,11 @@ all mismatch. Discussion ongoing.
   does alpha's auto-capture also sweep beta, or does beta self-capture? The one-time
   backfill rescues beta's _existing_ history into the store regardless; only beta's
   _future_ turns on this.
+  **Resolved (260620, in the ₢BDAAY docket):** beta self-captures. The recurring
+  mechanism is per-project and local-only, so alpha never sweeps beta — each machine
+  runs its own capture. Surfaces a follow-on the docket now names: a chat that appears
+  on a machine and is GC-reaped before that machine's first recurring run is in neither
+  the rough backfill nor any live dir, hence irrecoverable (the "appeared-since seam").
 - **Cost-analytics pace** deferred until the corpus is captured.
 - **State-gestalt naming** — open (above).
 
