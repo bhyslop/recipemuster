@@ -12929,8 +12929,8 @@
         "₢BDAAa": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260619-0800",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260620-1410",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "## Character",
                 "Mechanical — rebind one match arm and delete dead plumbing.",
@@ -12954,7 +12954,7 @@
                 "grep `rev-parse`, `commit_hash`, `machine_commit` in `Tools/jjk/vov_veiled/src/jjrwp_wrap.rs`"
               ],
               "jjgtn_silks": "wrap-echoes-stale-commit-hash",
-              "jjgtn_basis": "6e54c59"
+              "jjgtn_basis": "f57dfba"
             }
           ]
         },
