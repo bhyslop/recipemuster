@@ -15189,10 +15189,11 @@
         "₢BcAAA",
         "₢BcAAG",
         "₢BcAAB",
+        "₢BcAAH",
         "₢BcAAD",
         "₢BcAAE"
       ],
-      "jjghn_next_pace_seed": "AAH",
+      "jjghn_next_pace_seed": "AAI",
       "jjghn_paces": {
         "₢BcAAA": {
           "jjgpn_tacks": [
@@ -15450,6 +15451,68 @@
               ],
               "jjgtn_silks": "remove-tack-direction-field",
               "jjgtn_basis": "2c2c59f"
+            }
+          ]
+        },
+        "₢BcAAH": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260620-0838",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "Schema change plus a small open-time read — mostly mechanical.",
+                "The one judgment is whether the new field needs a forgiveness episode.",
+                "",
+                "## Goal",
+                "Make chat-history retention opt-in rather than compulsory:",
+                "add a gallops field that gates capture, surfaced through a monitum at open.",
+                "This is the precedent the chat-capture pace in ₣BD (₢BDAAY) consumes —",
+                "without it, capture cannot be made conditional.",
+                "",
+                "## Cinched",
+                "- A top-level gallops field, optional; absent or empty means off.",
+                "That default is load-bearing, not convenient:",
+                "it lets the binary be shared with friends without absorbing their chat history.",
+                "- Gallops field deliberately — it rides clone-sync as one global policy applied",
+                "locally to each machine's own transcripts, which is what makes it a schema change",
+                "and homes it in this heat.",
+                "- The field is surfaced by a monitum at open: the generalized forgiveness-nag —",
+                "read-only, best-effort, never gating — in three states:",
+                "off (quiet), on-since-DATE, and MALFORMED/capture-disabled (loud).",
+                "- The monitum is the fail-loud: a typo'd date is a loud line every open, never a",
+                "hard gate, because bad config never makes the gallops illegitimate.",
+                "- Scope is field + read accessor + date validation + the monitum.",
+                "Scan-and-copy and the operator-facing setter stay with ₢BDAAY —",
+                "setting the date is inert until capture consumes it.",
+                "- Name the monitum concept in JJS0 near jjdz_forgiveness, with forgiveness its",
+                "first instance.",
+                "No forgiveness-code refactor, no monitum registry, no gate-side (interdict) word —",
+                "those wait for a third instance.",
+                "",
+                "## Weigh at mount",
+                "Whether the field needs a forgiveness episode",
+                "(lean: no — an optional field absent on old gallops round-trips clean,",
+                "the mirror of this heat's direction-field removal),",
+                "and the matching old-binary clone-sync tolerance (does the parse reject unknown fields?).",
+                "Field and quoin identifiers are a slate-time mint left to mount.",
+                "",
+                "## Sources",
+                "Monitum exemplar: zjjrm_forgiveness_nag (jjrm_mcp.rs); gate sibling zjjrm_managed_clean.",
+                "Concept home: JJS0 jjdz_forgiveness (registry/probe/nag);",
+                "the ambient/gate determination umbrella in ₣Bg's paddock.",
+                "Provenance: Memos/memo-20260615-chat-capture-and-cost-reconstruction.md.",
+                "",
+                "## Done when",
+                "The gallops carries the optional retention field;",
+                "open emits the monitum in all three states;",
+                "a malformed date reads loud and disables capture without gating open;",
+                "the monitum concept is homed in JJS0 with forgiveness named its first instance;",
+                "capture itself stays untouched (₢BDAAY's);",
+                "tt/vow-b and tt/vow-t green."
+              ],
+              "jjgtn_silks": "chat-retention-config",
+              "jjgtn_basis": "38256b0"
             }
           ]
         }
