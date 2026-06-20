@@ -145,7 +145,7 @@ pub fn zjjrx_run_wrap(args: jjrx_WrapArgs, summary: Option<String>) -> (i32, Str
     let has_staged_changes = !numstat_str.trim().is_empty();
 
     // Only generate commit message and commit if there are staged changes
-    let commit_hash = if has_staged_changes {
+    if has_staged_changes {
         // Generate commit message using Claude CLI
         let diff_content = match vvc::vvce_git_command(&["diff", "--cached"])
             .output()
@@ -223,35 +223,10 @@ pub fn zjjrx_run_wrap(args: jjrx_WrapArgs, summary: Option<String>) -> (i32, Str
             return (1, output.vvco_finish());
         }
 
-        // Get commit hash
-        let hash_output = match vvc::vvce_git_command(&["rev-parse", "HEAD"])
-            .output()
-        {
-            Ok(o) => o,
-            Err(e) => {
-                vvco_err!(output, "{}: error: failed to get commit hash: {}", cn, e);
-                return (1, output.vvco_finish());
-            }
-        };
-
-        String::from_utf8_lossy(&hash_output.stdout).trim().to_string()
     } else {
         // No staged changes - this is valid for verification-only paces
         vvco_out!(output, "{}: no staged changes, proceeding with state transition only", cn);
-
-        // Get current HEAD as reference (no new work commit created)
-        let hash_output = match vvc::vvce_git_command(&["rev-parse", "HEAD"])
-            .output()
-        {
-            Ok(o) => o,
-            Err(e) => {
-                vvco_err!(output, "{}: error: failed to get commit hash: {}", cn, e);
-                return (1, output.vvco_finish());
-            }
-        };
-
-        String::from_utf8_lossy(&hash_output.stdout).trim().to_string()
-    };
+    }
 
     // Transition pace state to complete
     let gallops_path = PathBuf::from(".claude/jjm/jjg_gallops.json");
@@ -310,8 +285,8 @@ pub fn zjjrx_run_wrap(args: jjrx_WrapArgs, summary: Option<String>) -> (i32, Str
     };
 
     match vvc::machine_commit(&_lock, &chalk_commit_args, &mut output) {
-        Ok(_) => {
-            vvco_out!(output, "{}", commit_hash);
+        Ok(chalk_hash) => {
+            vvco_out!(output, "{}", chalk_hash);
             let fm = coronet.jjrf_parent_firemark();
             let fm_key = fm.jjrf_display();
             let fm_str = fm.jjrf_as_str();
