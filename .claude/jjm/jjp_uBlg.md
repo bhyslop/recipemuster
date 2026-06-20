@@ -82,6 +82,27 @@ The MVP validators fall out of the freeze invariants rather than being separate 
 Exact collision is the frozen-map "same key, different value" conflict observed at seat-time (the reference library's IceDictionary invariant).
 Terminal-exclusivity is a Signet that is both seated and has children — a property of the trie node read after freeze.
 
+## Scan mechanics — declaration recognition
+
+The scan distinguishes declaration sites from reference sites; this axis, not name-resolution, is what the validators ride.
+A file bears declarations, references, or both: code (`.rs`/`.sh`) and specs (`.adoc`) bear both; Memos and prose `.md` bear references only.
+Collision and terminal-exclusivity validate declarations (collision is two distinct declarations of one token, never an occurrence count); references feed TRACE later.
+
+Declaration recognition is structural and per-Vesture — each Vesture carries its own decl-site recognizer (`fn prefix_…`, `prefix_…() {`, `[[anchor]]`), never whole-program name-resolution.
+No semantic analyzer (rust-analyzer / `rustc_private`): the hard part of language tooling is resolution, which the Matricula does not need, and the transience lock prices a per-call semantic build out of the "instant" budget.
+Tooling ladder: per-Vesture line patterns suffice for the MVP (the codebase's RCG/BCG discipline keeps decl sites pattern-clean); adopt tree-sitter (rust + bash, one model across file types) incrementally where a Vesture needs real structure; not syn (rust-only).
+
+Reference-finding is not a resolution problem here: global-uniqueness (one meaning per word, repo-wide) makes "find every reference" an exact-token search, complete by construction.
+Grep's real partiality is role-form coverage — the same name as `x_`, `zx_`, `X_`, filename, anchor, attribute — which the Vesture grammar owns; that, not resolution, is the Matricula's edge over grep.
+
+Correctness rests on the grep-as-registry axiom: a minted name must be textually present at its declaration.
+A name born from a macro (`paste!`/`concat_idents!`) or bash `eval` is invisible to a structural scan, so a referenced-but-never-declared token is itself a Finding, not something to chase with an expander.
+The codebase empirically already honors this (zero identifier-synthesis); whether RCG/BCG should codify it is open.
+
+File-role layer: atop the allowlist + git-tracked candidate gate, a path carries a role — declaration-bearing, reference-only, index-of-record (CLAUDE.md acronym tables, which the MVP will generate), or generated (e.g. the tabtarget-context).
+Memos are the first reference-only case: excluded from the MVP declaration scan, with a removal condition — they re-enter as a reference corpus when TRACE lands, because a memo citing an old name is a reference a rename should know about.
+`.md` is the heterogeneous class that forces this layer — prose, index-of-record, and generated output cannot be scanned as one thing.
+
 ## Engagement and determinations
 
 The Matricula surfaces through two determinations, not three — Brief and Report are collapsed.
@@ -143,6 +164,9 @@ Gestalt-label home — one authoritative declaration per level (the umbrella's `
 Gloss handling — the gestalt-label concept is the emerging answer; open residue is terminal-name glosses below the umbrella level, and whether any description stays hand-held.
 Vesture gaps — the sprue (wire-key) domain and the mixed-case rivet form (`RBr_`) are not covered by the current six-plus-one vestures.
 Naming — entity quoin chosen (Matricula); parts reuse VLS (Inscription, Signet, Vesture, Cipher, Epithet); the subdoc must still mint Residue, Finding, and the freeze verb, plus the deferred operator-facing verbs and the gestalt-label word, each through the grep gate and MCM Lapidary.
+Declaration-recognition fidelity — per-Vesture line patterns (MVP-cheap, leans on RCG/BCG discipline) versus a tree-sitter threshold; when does a Vesture's structure defeat a regex?
+File-role classification — the path-role layer (declaration-bearing / reference-only / index-of-record / generated) is the right model, but its declaration mechanism is open, and `.md` heterogeneity drives it.
+Macro/eval greppability enforcement — whether RCG and BCG should add a narrow rule forbidding identifier-synthesis, now that the Matricula's correctness leans on the grep-as-registry axiom.
 
 ## Concerns
 
