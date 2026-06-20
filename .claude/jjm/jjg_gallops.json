@@ -9295,7 +9295,7 @@
           "jjgpn_tacks": [
             {
               "jjgtn_ts": "260123-0829",
-              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "VOS cleanup: update legacy vost_cipher references.",
                 "",
@@ -9323,8 +9323,7 @@
                 "Bridleable - mechanical find/replace with verification."
               ],
               "jjgtn_silks": "vos-cleanup-legacy-refs",
-              "jjgtn_basis": "2897d3f",
-              "jjgtn_direction": "Agent: sonnet\nCardinality: 1 sequential\nFiles: Tools/vok/vov_veiled/VOS0-VoxObscuraSpec.adoc (1 file)\nSteps:\n1. Search body text (below mapping section) for {vost_cipher} usage\n2. Replace body references with {voslc_cipher} (keep mapping aliases for backward compat)\n3. Verify no orphaned vost_cipher references remain in body\nVerify: grep -c 'vost_cipher' in body section should be 0"
+              "jjgtn_basis": "2897d3f"
             }
           ]
         },
@@ -9332,7 +9331,7 @@
           "jjgpn_tacks": [
             {
               "jjgtn_ts": "260123-0829",
-              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "VLS cleanup: fix vesture definitions extracted from VOS.",
                 "",
@@ -9357,8 +9356,7 @@
                 "Bridleable - mechanical edits with clear targets."
               ],
               "jjgtn_silks": "vls-vesture-cleanup",
-              "jjgtn_basis": "1e411bc",
-              "jjgtn_direction": "Agent: sonnet\nCardinality: 1 sequential\nFiles: Tools/vok/vov_veiled/VLS-VoxLiturgicalSpec.adoc (1 file)\nSteps:\n1. In vosldr_rust definition, change 'signet_case: snake_case' to 'signet_case: lowercase'\n2. Verify voslda_asciidoc already clarifies attribute vs anchor envelope (no change needed if correct)\nVerify: Manual review of vesture definitions"
+              "jjgtn_basis": "1e411bc"
             }
           ]
         },
@@ -9366,7 +9364,7 @@
           "jjgpn_tacks": [
             {
               "jjgtn_ts": "260123-0829",
-              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "BUS cleanup: fix dispatch definitions extracted from VOS.",
                 "",
@@ -9394,8 +9392,7 @@
                 "Bridleable - editorial fixes with clear targets."
               ],
               "jjgtn_silks": "bus-dispatch-cleanup",
-              "jjgtn_basis": "eec88d6",
-              "jjgtn_direction": "Agent: sonnet\nCardinality: 1 sequential\nFiles: Tools/buk/vov_veiled/BUS-BashUtilitiesSpec.adoc (1 file)\nSteps:\n1. In colophon examples, fix 'jjw- routes to JJK workbench' to 'JJW workbench'\n2. Add clarification that colophon includes full routing prefix (e.g., 'rbw-B' not just 'rbw-')\n3. Review signet_case description for clarity\nVerify: Manual review of dispatch definitions"
+              "jjgtn_basis": "eec88d6"
             }
           ]
         },
