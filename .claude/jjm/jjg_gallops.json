@@ -15311,7 +15311,7 @@
         "₢BcAAB": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260617-1639",
+              "jjgtn_ts": "260620-0908",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "## Character",
@@ -15333,10 +15333,11 @@
                 "- Correct under in-progress merge — committing with MERGE_HEAD present must finalize the merge (two parents), not leave it dangling. This finalization is intended: validate is the post-merge gallops cleanup step.",
                 "- Self-describing stdout — every outcome names its bucket and prints a census, so green is positive evidence, not mere silence.",
                 "- Reuse the shared forgiveness detection probe the infra pace extracts; validate-normalize and the open-time probe are the two consumers of that one predicate. Do not reimplement migration-mode detection.",
+                "- Delivered source-only per the heat's branch-delivery posture: build and unit-test the canonicalizer against temp fixtures; never run it against a live gallops. Forcing real conversions across installs is the coda's job, not this pace's.",
                 "",
-                "## Sequence after the tack data-model rework",
-                "The canonical form this normalizes is about to change — the tack data-model rework earlier in this heat converts docket text to a line array and collapses tack history (one schema bump).",
-                "Land that first, or this pace's canonicalizer must be written for the NEW tack form; don't normalize against the old shape.",
+                "## Canonicalize against the current heat schema",
+                "The canonical form has already moved twice in this heat: the tack data-model rework (docket text to a line array, tack history collapsed to one) and bridle retirement (the `bridled` pace state retired, the `jjgtn_direction` key dropped — `jjgte_bridled`/`primed` demote to rough).",
+                "Write the canonicalizer against that current form; never normalize toward an earlier shape.",
                 "",
                 "## Also in scope",
                 "Update the JJK command-reference wording (CLAUDE.md JJK section / jjk core) so the entry states the three outcomes and the residual: normalized is not semantically correct; eyeball the heat/pace inventory against both branches yourself.",
@@ -15345,7 +15346,7 @@
                 "JJSCVL-validate.adoc (rules), JJSRLD-load.adoc (round-trip plus the migration rewrite the probe now governs), JJSRSV-save.adoc (load-back validation), JJSRPS-persist.adoc (identity-keyed commit path this cannot reuse)."
               ],
               "jjgtn_silks": "validate-normalize-and-report",
-              "jjgtn_basis": "8a45d55"
+              "jjgtn_basis": "b0945d5"
             }
           ]
         },
@@ -15422,15 +15423,15 @@
         "₢BcAAE": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260618-1425",
+              "jjgtn_ts": "260620-0908",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "## Character",
                 "Cleanup — mechanical, with a verify-dead gate before each removal.",
                 "",
                 "## Done when",
-                "The four V3-legacy MCP-argument quoins — jjda_state, jjda_pace, jjda_created, jjda_direction — and their residual Rust arg-struct fields are removed,",
-                "eliminating the last hand-copied ₣An firemark references in JJS0.",
+                "The three remaining V3-legacy MCP-argument quoins — jjda_state, jjda_pace, jjda_created — and their residual Rust arg-struct fields are removed, eliminating the last hand-copied ₣An firemark references in JJS0.",
+                "(jjda_direction was already retired with the tack `direction` field in the bridle-retirement pace.)",
                 "Each is confirmed unexposed as a jjx_tool parameter and unread before removal;",
                 "a field still wired to a live V3-compat path stays until that path is gone.",
                 "Build tt/vow-b, test tt/vow-t green.",
@@ -15445,7 +15446,7 @@
                 "the jjda_* quoins in the JJS0 Arguments section; their arg-struct fields in jjrt_types.rs."
               ],
               "jjgtn_silks": "retire-v3-legacy-arg-quoins",
-              "jjgtn_basis": "bfdf91f"
+              "jjgtn_basis": "b0945d5"
             }
           ]
         },
