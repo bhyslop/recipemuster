@@ -315,8 +315,10 @@ propagation succeeds within the `RBGC_PROPAGATION_DEADLINE_SEC` budget;
 real denial waits the budget and fails cleanly.  This avoids the trap of
 treating "denied because forbidden" as "denied because lagging" — the
 distinction is observational, not parseable from the 403 response.  The
-same time-bound discriminator is already proven in
-{rbtgo_access_jwt_probe}'s `invalid_grant` retry harness.
+same time-bound discriminator was also proven in the retired keyfile JWT
+access-probe's `invalid_grant` retry harness.
+
+// FABLE-REANCHOR (₣BZ terminal review): the keyfile JWT access-probe cited here as the time-bound discriminator's second proof point was demolished with the RBRA estate — its `invalid_grant` JWT-signature race dies with the keys. Fable confirms whether a surviving federation proof point (the compearance STS exchange / mantle don) re-anchors this evidence, or prunes the now-dangling citation. See the M7 record in memo-20260615-BZ-pace-design.md.
 
 Class C tolerance is **scope-discriminated**: project-scope grant sites
 ({rbtoe_iam_grant_project}) do not declare 403 tolerance because the

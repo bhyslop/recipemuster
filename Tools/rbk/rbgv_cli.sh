@@ -19,14 +19,13 @@
 # RBGV CLI - Recipe Bottle Access Probe command-line interface
 #
 # Surfaces the credential access probes implemented by the rbgv library
-# module as four operator tabtargets (one per role). Theurge consumes these
-# as plain subprocesses, owning no colophons of its own.
+# module as operator tabtargets. Theurge consumes these as plain
+# subprocesses, owning no colophons of its own.
 #
 # Commands:
-#   check_governor   JWT SA access probe for the governor credential
-#   check_retriever  JWT SA access probe for the retriever credential
-#   check_director   JWT SA access probe for the director credential
-#   check_payor      OAuth access probe for the payor credential
+#   check_payor        OAuth access probe for the payor credential
+#   check_compearance  Federated access probe — open or reuse an assize (Legs 1+2)
+#   check_mantle       Don a mantle as the freehold subject (Leg 3)
 
 set -euo pipefail
 
@@ -35,40 +34,6 @@ source "${BURD_BUK_DIR}/buym_yelp.sh"
 
 ######################################################################
 # CLI Commands
-
-# JWT SA propagation-absorbing budget: 60 attempts × 3000ms ≈ 180s worst case.
-# Happy path exits on first 2xx; budget consumed only when post-mint IAM
-# propagation lags. Each retry mints a fresh JWT-OAuth token, so the inner
-# rbgo_get_token_capture race (BBAAp) is exercised independently per attempt.
-zrbgv_jwt_check() {
-  local -r z_role="$1"
-  local -r z_iterations=60
-  local -r z_delay_ms=3000
-  buc_step "JWT SA access probe: ${z_role}"
-  rbgv_jwt_sa_probe "${z_role}" "${z_iterations}" "${z_delay_ms}"
-  buc_success "${z_role} JWT access probe passed"
-}
-
-rbgv_check_governor() {
-  zrbgv_sentinel
-  buc_doc_brief "Check the governor credential reaches Google Cloud (JWT SA access probe)"
-  buc_doc_shown || return 0
-  zrbgv_jwt_check "governor"
-}
-
-rbgv_check_retriever() {
-  zrbgv_sentinel
-  buc_doc_brief "Check the retriever credential reaches Google Cloud (JWT SA access probe)"
-  buc_doc_shown || return 0
-  zrbgv_jwt_check "retriever"
-}
-
-rbgv_check_director() {
-  zrbgv_sentinel
-  buc_doc_brief "Check the director credential reaches Google Cloud (JWT SA access probe)"
-  buc_doc_shown || return 0
-  zrbgv_jwt_check "director"
-}
 
 rbgv_check_payor() {
   zrbgv_sentinel

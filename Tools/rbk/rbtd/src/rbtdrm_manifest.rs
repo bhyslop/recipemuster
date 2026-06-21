@@ -29,13 +29,12 @@ use crate::rbtdgc_consts::*;
 // probe surface. The former hand-written RBTDRM_ROLE_* mirror is retired.
 
 /// Map a credential role to its access-probe colophon. Returns None for
-/// unknown roles. Replaces the former role-as-imprint scheme: each role now
-/// names its own global tabtarget under the rbw-ac* family.
+/// unknown roles. Only the payor OAuth probe survives the keyfile JWT-probe
+/// demolition; the governor/director/retriever JWT probes retired with the
+/// RBRA estate (their federation persona readiness rides compearance + the
+/// mantle don under freehold-establish, not this map).
 pub fn rbtdrm_credential_check_colophon(role: &str) -> Option<&'static str> {
     match role {
-        RBTDGC_ACCOUNT_GOVERNOR => Some(RBTDGC_CHECK_GOVERNOR),
-        RBTDGC_ACCOUNT_RETRIEVER => Some(RBTDGC_CHECK_RETRIEVER),
-        RBTDGC_ACCOUNT_DIRECTOR => Some(RBTDGC_CHECK_DIRECTOR),
         RBTDGC_ACCOUNT_PAYOR => Some(RBTDGC_CHECK_PAYOR),
         _ => None,
     }
@@ -218,9 +217,6 @@ pub fn rbtdrm_required_colophons(fixture: &str) -> Option<&'static [&'static str
             RBTDGC_TALLY_HALLMARKS,
         ]),
         RBTDRM_FIXTURE_ACCESS_PROBE => Some(&[
-            RBTDGC_CHECK_GOVERNOR,
-            RBTDGC_CHECK_RETRIEVER,
-            RBTDGC_CHECK_DIRECTOR,
             RBTDGC_CHECK_PAYOR,
         ]),
         RBTDRM_FIXTURE_ENROLLMENT_VALIDATION

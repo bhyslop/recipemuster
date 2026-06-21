@@ -41,7 +41,7 @@ use crate::rbtdgc_consts::{
     RBTDGC_ABJURE_HALLMARK, RBTDGC_AUDIT_HALLMARKS, RBTDGC_CRUCIBLE_ACTIVE, RBTDGC_CRUCIBLE_BARK,
     RBTDGC_CRUCIBLE_CHARGE, RBTDGC_CRUCIBLE_FIAT, RBTDGC_CRUCIBLE_QUENCH, RBTDGC_CRUCIBLE_WRIT,
     RBTDGC_JETTISON_HALLMARK_IMAGE, RBTDGC_ORDAIN_HALLMARK, RBTDGC_REKON_HALLMARK,
-    RBTDGC_ACCOUNT_DIRECTOR, RBTDGC_ACCOUNT_GOVERNOR, RBTDGC_ACCOUNT_PAYOR, RBTDGC_ACCOUNT_RETRIEVER,
+    RBTDGC_ACCOUNT_PAYOR,
     RBTDGC_TALLY_HALLMARKS, RBTDGC_VOUCH_HALLMARKS,
     RBTDGC_ENSCONCE_BOLE, RBTDGC_CONCLAVE_RELIQUARY, RBTDGC_UNDERPIN_WSL, RBTDGC_DIVINE_LODES,
     RBTDGC_AUGUR_LODE, RBTDGC_BANISH_LODE, RBTDGC_LIST_IMAGES, RBTDGC_JETTISON_IMAGE,
@@ -4394,26 +4394,11 @@ fn rbtdrc_access_probe_role(ctx: &mut rbtdri_Context, role: &str, dir: &Path) ->
     rbtdre_Verdict::Pass
 }
 
-fn rbtdrc_jwt_governor(dir: &Path) -> rbtdre_Verdict {
-    rbtdrc_with_ctx(|ctx| rbtdrc_access_probe_role(ctx, RBTDGC_ACCOUNT_GOVERNOR, dir))
-}
-
-fn rbtdrc_jwt_director(dir: &Path) -> rbtdre_Verdict {
-    rbtdrc_with_ctx(|ctx| rbtdrc_access_probe_role(ctx, RBTDGC_ACCOUNT_DIRECTOR, dir))
-}
-
-fn rbtdrc_jwt_retriever(dir: &Path) -> rbtdre_Verdict {
-    rbtdrc_with_ctx(|ctx| rbtdrc_access_probe_role(ctx, RBTDGC_ACCOUNT_RETRIEVER, dir))
-}
-
 fn rbtdrc_oauth_payor(dir: &Path) -> rbtdre_Verdict {
     rbtdrc_with_ctx(|ctx| rbtdrc_access_probe_role(ctx, RBTDGC_ACCOUNT_PAYOR, dir))
 }
 
 pub static RBTDRC_CASES_ACCESS_PROBE: &[rbtdre_Case] = &[
-    case!(rbtdrc_jwt_governor),
-    case!(rbtdrc_jwt_director),
-    case!(rbtdrc_jwt_retriever),
     case!(rbtdrc_oauth_payor),
 ];
 

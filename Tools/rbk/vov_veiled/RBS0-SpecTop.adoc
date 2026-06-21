@@ -137,7 +137,6 @@
 :rbtgo_payor_refresh:             <<rbtgo_payor_refresh,rbhp_refresh>>
 :rbtgo_quota_build:               <<rbtgo_quota_build,rbhp_quota_build>>
 :rbtgo_trigger_build:             <<rbtgo_trigger_build,rbfd_build>>
-:rbtgo_access_jwt_probe:          <<rbtgo_access_jwt_probe,rbgv_jwt_sa_probe>>
 :rbtgo_access_oauth_probe:        <<rbtgo_access_oauth_probe,rbgv_payor_oauth_probe>>
 
 // Recipe Bottle Term Google Operations — Lode (fetched-side universal capture)
@@ -1661,20 +1660,6 @@ displaying trust posture from locally-present about and vouch artifacts.
 Two modes: {rbtc_plumb_full} (full detail) and {rbtc_plumb_compact} (summary).
 
 include::RBSAP-ark_plumb.adoc[]
-
-== Multi Role Operations
-
-[[rbtgo_access_jwt_probe]]
-//axvo_method axd_transient axd_grouped
-=== {rbtgo_access_jwt_probe}
-
-Probes
-{rbtr_role}
-Artifact Registry read access
-({rbtgog_access})
-by performing a JWT-to-OAuth token exchange and calling the packages.list API, with optional iteration and delay for sustained verification.
-
-include::RBSAJ-access_jwt_probe.adoc[]
 
 == Local Operations
 

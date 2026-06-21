@@ -419,3 +419,15 @@ These sites were unlinked to plain text to keep qualify green; they were NOT re-
 
 Release-suite credential-heal deferral (recorded in ₣Bf's paddock, not repeated here): freehold-enrobe was demolished and stripped from gauntlet/skirmish/dogfight/blockade; those suites' federation credential-readiness (standing-freehold compear + don) is ₣Bf test-rig work.
 Two further inherited remnants for ₣A6, left as-is because they are neither build-breaking nor grep-gate violations: the onboarding credential-install tracks (rbw-Ocr/Ocd, "place RBRA key file") and the onboarding menu-intro keyfile prose.
+
+### M7 Task 2 — keyfile JWT probes (260621, second demolition session)
+
+Demolished the keyfile JWT access-probes (governor/director/retriever) — the federated rbw-acm (mantle don) and rbw-acf (compearance) already replace them; the payor OAuth probe rbw-acp survives.
+Code: deleted tabtargets rbw-acg/acr/acd + their zipper enrollments (RBZ_CHECK_GOVERNOR/RETRIEVER/DIRECTOR); stripped the JWT-probe bodies from rbgv_probe.sh (rbgv_jwt_sa_probe, zrbgv_jwt_ar_probe_once_capture, and the JWT-only zrbgv_jq_error_message_capture) and rbgv_cli.sh (zrbgv_jwt_check + the three rbgv_check_{governor,retriever,director} dispatch wrappers), keeping the payor/compearance/mantle surface and the shared helpers (zrbgv_ms_to_sleep_capture, zrbgv_http_get_with_5xx_retry, the mantle/payor capture pair).
+Manifest: rbtdrm_credential_check_colophon collapsed to the single payor row; the access-probe fixture reduced to its one surviving case (oauth_payor) — RBTDRC_CASES_ACCESS_PROBE and the RBTDRM_FIXTURE_ACCESS_PROBE colophon list both drop the three JWT roles, and the now-unused RBTDGC_ACCOUNT_{GOVERNOR,DIRECTOR,RETRIEVER} imports leave rbtdrc_crucible.rs (federation persona readiness rides compearance + the mantle don under freehold-establish, not access-probe).
+Spec: deleted RBSAJ-access_jwt_probe.adoc whole + its RBS0 mapping quoin, the rbtgo_access_jwt_probe definition, and the now-empty `== Multi Role Operations` section header (pure-dead, no marker — its compearance/don successors have their own homes); removed the stale RBSAJ acronym-map entry.
+Theurge rebuilt (rbtdgc_consts.rs drops the three RBTDGC_CHECK_* consts; tabtarget-context re-derived); 159 unit tests, shellcheck 216 clean, fast-qualify green.
+
+Two NEW FABLE-REANCHOR sites added to the worklist above — both cited the now-deleted JWT probe as the time-bound-discriminator's second proof point:
+- RBSCIG class-C propagation discussion (marker in place): unlinked to "the same time-bound discriminator was also proven in the retired keyfile JWT access-probe's `invalid_grant` retry harness" — that JWT-signature invalid_grant race dies with the keys; Fable confirms whether a surviving federation proof point (compearance STS / mantle don) re-anchors the evidence or prunes the citation.
+- RBSCIP class-C decision paragraph (marker in place): unlinked to "the same model was also proven in the retired keyfile JWT access-probe" — same disposition; the marker sits at the paragraph→bullet boundary, alongside the keyfile-churn race bullets already flagged in this worklist.
