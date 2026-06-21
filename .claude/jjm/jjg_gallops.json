@@ -12608,8 +12608,8 @@
         "₢BDAAT": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260621-0903",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260621-0942",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "## Character",
                 "Intricate but mechanical — gazette-input rewiring across two read commands plus spec/doc sync; the design is settled, nothing left to choose.",
@@ -12634,7 +12634,7 @@
                 "- `claude-jjk-core.md` synced — Mount Protocol, Groom Protocol, the Officium Protocol gazette tables (new input slug; orient/show now read-input), the `jjx_orient`/`jjx_show` Command Reference param surface, and the show→reslate bridge recipe (it now opens with a selection-notice write)."
               ],
               "jjgtn_silks": "mount-groom-gazette-heat-selection",
-              "jjgtn_basis": "b5203ba"
+              "jjgtn_basis": "e78aa53"
             }
           ]
         },
