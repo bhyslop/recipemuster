@@ -12608,28 +12608,33 @@
         "₢BDAAT": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260606-1145",
+              "jjgtn_ts": "260621-0903",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "## Character",
-                "Intricate but mechanical — server change plus spec/doc sync; the decisions are cinched, nothing left to design.",
+                "Intricate but mechanical — gazette-input rewiring across two read commands plus spec/doc sync; the design is settled, nothing left to choose.",
                 "",
                 "## Goal",
-                "Make `jjx_orient` (mount) and the heat-overview form of `jjx_show` (groom) take their heat firemark **solely from `gazette_in.md`**, never from params. Writing the gazette becomes a required first step of mount/groom, so the Claude Code `Write` permission fires at ceremony start instead of silently stalling a chat at the first later slate/reslate/paddock-set. Single-pace parade (`jjx_show {target: <coronet>}`) stays param-based.",
+                "Make `jjx_orient` (mount) and `jjx_show` (groom/parade) take their target selection solely from `gazette_in.md`, never from params.",
+                "The agent writes one body-less selection notice per target under a single new input slug; each notice's lede is a firemark (expand the heat) or a coronet (single pace), self-typed by length, exactly as today's param list dispatches.",
+                "At least one notice is required — an absent or empty gazette is a loud error.",
+                "This drags the agent's first gazette write to the start of the mount/groom ceremony, so the Claude Code `Write` permission fires while the operator is present, instead of silently stalling the chat at the first later slate/reslate.",
                 "",
                 "## Cinched",
-                "- **Hard / sole input** — a param firemark on these two paths is *rejected*, not a fallback. Soft conventions slip unnoticed; that silent stall is exactly what this fixes.",
-                "- **Scope = mount + groom-form only.** Single-pace parade stays param-based and cheap.",
-                "- **Deliberate override of getter/setter orthodoxy** — the gazette normally carries content, not identities; here it carries a body-less firemark notice on purpose, to make the ceremony `Write` load-bearing. Operator decision; do not re-litigate.",
+                "- Hard / sole input — a param firemark or targets list on these two paths is *rejected*, not a fallback; the forced write is the whole point and a soft convention would let it slip.",
+                "- One shared input slug serves both commands, minted per the minting rules + Quoin discipline; wire it into the gazette parser beside the existing input slugs.",
+                "- `remaining` stays a param on show — it is a display mode, not a target.",
+                "- `show`'s empty-targets → first-racing-heat auto-select is removed; you always name the target (aligning show with orient, which already requires one). A zero-write path would reintroduce the stall.",
+                "- No gallops schema change — the slug is ephemeral gazette wire, not serialized state — so no reprieve episode.",
+                "- Two-phase open was weighed and rejected: it adds an MCP round-trip to every chat; this design adds only the local gazette write that slate/reslate/paddock already use.",
                 "",
-                "## Done looks like",
-                "- New read-command input slug(s) minted (minting rules + Quoin discipline) and wired into the gazette parser; both paths require + parse the gazette firemark and reject a param firemark with a loud error.",
-                "- CLAUDE.md synced: Mount Protocol, Groom Protocol, and the Officium Protocol gazette tables/notes (input-slug table, getter/setter line).",
-                "- **JJS0 spec family updated** — the main spec plus every affected command spec and the gazette wire-format section. Discovery: `grep -rln 'jjx_orient\\|jjx_show\\|jjezs_' Tools/jjk/vov_veiled/JJS*.adoc`.",
-                "- Param callers of these two paths reconciled to write the gazette first (Hard enforcement breaks them). Discovery: grep the JJK crate + tests for orient/show invocations."
+                "## Done when",
+                "- Slug minted and wired into the gazette parser; both commands require + parse the selection notices and reject a param target loudly. Entry points: `jjrz_gazette.rs` (slug + parser), `jjrm_mcp.rs` (orient + show arms), `jjrpd_parade.rs` (show), `jjrsd_saddle.rs` (orient); public-boundary tests in `jjtz_gazette.rs` and `jjtpd_parade.rs`.",
+                "- JJS0 family synced — gazette wire format, the parade and saddle command specs, the main spec. Discovery: `grep -rln 'jjx_orient\\|jjx_show\\|jjezs_' Tools/jjk/vov_veiled/JJS*.adoc`; the wire-format home is `JJSCGZ-gazette.adoc`, the orient home is `JJSCSD-saddle.adoc`.",
+                "- `claude-jjk-core.md` synced — Mount Protocol, Groom Protocol, the Officium Protocol gazette tables (new input slug; orient/show now read-input), the `jjx_orient`/`jjx_show` Command Reference param surface, and the show→reslate bridge recipe (it now opens with a selection-notice write)."
               ],
               "jjgtn_silks": "mount-groom-gazette-heat-selection",
-              "jjgtn_basis": "33098e5"
+              "jjgtn_basis": "b5203ba"
             }
           ]
         },
