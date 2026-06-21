@@ -64,7 +64,7 @@ member.
   no long-running-operation handle (AIP-151 defines such a terminal-completion contract but it is not
   applied to this operation), so there is no pollable "deletion settled" signal at all — consecutive-404
   confirmation is the only available proxy.  A same-name recreate
-  ({rbtgo_retriever_enrobe} / {rbtgo_director_enrobe}) racing a still-lagging replica then trips the
+  (retriever / director re-enrobe) racing a still-lagging replica then trips the
   enrobe existence preflight (200 → fail-loud "already exists").  Empirically observed where
   `rbuh_poll_until_gone` saw GET 200,200,404 and declared gone at 6s, then the recreate's preflight GET
   returned 200 two seconds later.  Mitigation: `rbuh_poll_until_gone` requires `RBGC_GONE_CONFIRM_STREAK`
@@ -73,8 +73,8 @@ member.
   create-side flap (multi-replica read convergence after a parent mutation).  See evidence row below.
 
 * **Lifecycle split relocates both SA-churn races (keyfile tier)**: the
-  idempotent establish / re-key split (see {rbtgo_retriever_enrobe} and
-  {rbtgo_director_enrobe}) changes *when* the two races can fire.  The
+  idempotent establish / re-key split (see retriever and director re-enrobe)
+  changes *when* the two races can fire.  The
   **create→grant race** (Class A forward member-visibility, plus the org's
   Domain-Restricted-Sharing lag on a brand-new SA member) now fires only at
   *first establish* — once per identity, off the re-key hot path — because a
@@ -83,8 +83,8 @@ member.
   *structurally eliminated* for re-key: the SA is no longer deleted and
   recreated, so there is no same-name recreate to race a lagging replica.  The
   `RBGC_GONE_CONFIRM_STREAK` mitigation survives only for the path that still
-  deletes-then-re-enrobes — a genuine teardown ({rbtgo_retriever_defrock} /
-  {rbtgo_director_defrock}) followed later by a fresh enrobe — now rare rather
+  deletes-then-re-enrobes — a genuine teardown (retriever / director defrock)
+  followed later by a fresh enrobe — now rare rather
   than per-cycle.  See
   `Memos/memo-20260604-credential-churn-leak-and-propagation-races.md`.
 

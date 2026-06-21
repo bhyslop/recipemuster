@@ -272,7 +272,7 @@ profile):
 |C — caller-recently-empowered
 |403
 |`""` (empty — match any body)
-|Resource-scope sites only ({rbtoe_iam_grant_repo}, {rbtoe_iam_grant_sa}, {rbtoe_iam_grant_bucket}, {rbtoe_iam_grant_secret}, plus the inline GAR retry in {rbtgo_director_enrobe})
+|Resource-scope sites only ({rbtoe_iam_grant_repo}, {rbtoe_iam_grant_sa}, {rbtoe_iam_grant_bucket}, {rbtoe_iam_grant_secret})
 |Time-bound only; no body fingerprinting
 |===
 
@@ -350,7 +350,7 @@ times with `RBGC_SA_KEY_CREATE_RETRY_DELAY_SEC` delay between attempts.
 
 ===== Member Removal (Revoke) Contract
 
-The teardown path ({rbtgo_retriever_defrock}, {rbtgo_director_defrock}) removes a
+The teardown path (the retired keyfile defrock) removes a
 service-account member from each binding it was granted — the inverse of the
 grant trio above.  The contract:
 

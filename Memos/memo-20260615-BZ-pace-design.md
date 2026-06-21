@@ -397,3 +397,25 @@ exclusivity, and especially the fair-faced cold-probe — gird is evocative but 
 the governor" may not parse as "appoint" on first contact), the load-bearing gate — plus the
 RBSPG and RBS0 {rbtf_gird} quoin mints are Fable's to ratify, per the heat's
 vocabulary-waits-on-Fable posture.
+
+## M7 estate demolition — as-built + Fable terminal-review worklist (260621)
+
+Executed the M7 estate demolition (the ₢BZAAe pace).
+Code half committed at 4f2f1834 (cult-verb estate: enrobe/defrock/roster verbs + the zrbgg_create_service_account_with_key key engine + governor onboarding handbook + zipper Accounts group + 7 tabtargets + the Rust fixtures freehold-enrobe and depot-lifecycle sa_cycle + suite registrations + the freehold-establish manifest colophon-list finding-fix), all local gates green (theurge build, 159 unit tests, shellcheck 216, fast-qualify).
+Spec half: deleted the seven cult-triad spec files (RBSDK/RBSRK/RBSDD/RBSRD/RBSDR/RBSRL/RBSGM); removed their RBS0 mapping-section quoins, verb-definition subsections, includes, and the rbsk_enrobe_serialized assay premise; unlinked or re-pointed every surviving cult-quoin reference repo-wide.
+
+Operator rulings absorbed: roster verbs retire with the triad (the mount decision — RBS0 itself framed enrobe/defrock/roster as one cult-verb triad, and rehearse is the federation read surface); the keyfile governor onboarding handbook is demolished whole, ₣A6 authoring the federation governor track fresh; the surviving-spec IAM-model reframing is deferred to Fable's terminal review rather than authored by Opus, per the paddock freeze.
+
+Clean re-points (a federation successor quoin exists; no Fable action needed): RBSMF's two post-levy governor-enrobe references → {rbtgo_governor_gird}; the RBS0 gird-prose and rbtf_gird-definition successor references → plain text "keyfile governor-enrobe"; RBSGS's payor governor-creation passage → gird (the key-file prose dropped, since gird mints no key).
+
+Fable terminal-review worklist — the FABLE-REANCHOR markers point here.
+These sites were unlinked to plain text to keep qualify green; they were NOT re-anchored, because the federation IAM-model authoring is Fable's:
+- RBS0 `== {rbtr_governor} Operations` (marker in place): the section lost its cult-verb-triad intro and now holds the gird founding act plus the federation admission verbs (brevet/unseat/attaint/rehearse); its title and intro framing want a federation pass (gird is a payor founding act, not a governor operation).
+- RBS0 Vouch-architecture IAM grant: the director's `cloudbuild.workerPoolUser` grant, re-attributed from director-enrobe to "granted at levy" — confirm it rides the director mantle capability-set.
+- RBSCIG Member-Removal (Revoke) Contract + the class-C resource-scope retry-site list: the defrock teardown was unlinked to "the retired keyfile defrock"; its federation successor is unseat/attaint, and the revoke-race contract should re-anchor to that path; the dropped director-enrobe GAR-retry site may have a levy-time equivalent.
+- RBSCIP keyfile-churn race bullets (SA keys-subresource, SA delete read-path flap, lifecycle-split): the re-key churn genuinely dies with the keys, but the SA-create / SA-delete flap PHYSICS relocate to mantle-SA lifecycle at levy / depot-unmake (the paddock's "SA-lifecycle flap family confines to levy") — these bullets were unlinked to plain text, not re-anchored; Fable re-anchors the surviving physics and prunes the dead re-key churn.
+- RBSMF levy preflight NOTE: the resource-scope cache-lag absorption, unlinked from director-enrobe to "a director"; in federation the grant is at levy, so the lag absorption re-anchors there.
+- RBSGS getting-started narrative (two markers): the keyfile credential-administration and rotation/revocation passages were demolished; ₣A6 authors the federation getting-started (brevet/unseat/attaint, IdP-owned rotation, citizens from the foedus).
+
+Release-suite credential-heal deferral (recorded in ₣Bf's paddock, not repeated here): freehold-enrobe was demolished and stripped from gauntlet/skirmish/dogfight/blockade; those suites' federation credential-readiness (standing-freehold compear + don) is ₣Bf test-rig work.
+Two further inherited remnants for ₣A6, left as-is because they are neither build-breaking nor grep-gate violations: the onboarding credential-install tracks (rbw-Ocr/Ocd, "place RBRA key file") and the onboarding menu-intro keyfile prose.

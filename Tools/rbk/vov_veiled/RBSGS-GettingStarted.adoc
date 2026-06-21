@@ -109,57 +109,18 @@ permanently removes a {rbtgi_depot} and all its resources.
 The
 {rbtr_payor}
 then executes
-{rbtgo_governor_enrobe}
-to create the
+{rbtgo_governor_gird}
+to seat the founding
 {rbtr_governor}
-service account within the
+of the
 {rbtgi_depot}.
-This {rbtr_payor} operation produces an
-{rbtgi_rbra_file},
-stored at the path specified by
-{rbrr_governor_rbra_file}.
 The
 {rbtr_governor}
 can now operate independently of the
 {rbtr_payor}.
 
 == Credential Administration
-
-The
-{rbtr_governor}
-manages the roster of credentialed users throughout the
-{rbtgi_depot}
-lifecycle.
-While credential creation is typically infrequent, this administrative function remains active.
-
-{rbtgo_director_enrobe}
-provisions a
-{rbtr_director}
-service account, producing an
-{rbtgi_rbra_file}
-at the path specified by
-{rbrr_director_rbra_file}.
-Directors submit builds and manage images.
-
-{rbtgo_retriever_enrobe}
-provisions a
-{rbtr_retriever}
-service account, producing an
-{rbtgi_rbra_file}
-at the path specified by
-{rbrr_retriever_rbra_file}.
-Retrievers pull images for local use.
-
-The
-{rbtr_governor}
-also maintains visibility into issued credentials through
-{rbtgo_director_roster}
-and
-{rbtgo_retriever_roster},
-and can revoke access through
-{rbtgo_director_defrock}
-or
-{rbtgo_retriever_defrock}.
+// FABLE-REANCHOR (₣BZ terminal review / ₣A6 handbook): the keyfile cult-verb-triad credential administration (enrobe/roster/defrock over per-identity SAs) was demolished here; the federation account is governor-wielded admission — brevet and unseat over the levy-established mantles, citizens drawn from the foedus, attaint for whole-person expulsion. Author the federation getting-started narrative here. See the M7 record in memo-20260615-BZ-pace-design.md.
 
 == Credential Files
 
@@ -258,23 +219,4 @@ If OAuth tokens expire,
 {rbtgo_payor_refresh}
 obtains fresh credentials.
 
-If
-{rbtr_governor}
-credentials are compromised or need rotation, the
-{rbtr_payor}
-executes
-{rbtgo_governor_enrobe}
-to replace the existing
-{rbtr_governor}
-service account with a fresh one, generating new
-{rbtgi_rbra_file}
-credentials.
-
-To revoke a user's access, the
-{rbtr_governor}
-executes
-{rbtgo_director_defrock}
-or
-{rbtgo_retriever_defrock}
-for the target service account, invalidating the corresponding
-{rbtgi_rbra_file}.
+// FABLE-REANCHOR (₣BZ terminal review / ₣A6 handbook): the keyfile credential rotation/revocation narrative (governor-enrobe re-key, defrock) was demolished here. In federation there is no Google-side key to rotate — the IdP owns credential rotation — and access is withdrawn by governor-wielded unseat (one mantle) or attaint (whole citizen). Author the federation account here. See the M7 record in memo-20260615-BZ-pace-design.md.
