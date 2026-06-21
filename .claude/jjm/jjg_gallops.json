@@ -16496,9 +16496,10 @@
         "₢BhAAC",
         "₢BhAAD",
         "₢BhAAE",
-        "₢BhAAF"
+        "₢BhAAF",
+        "₢BhAAG"
       ],
-      "jjghn_next_pace_seed": "AAG",
+      "jjghn_next_pace_seed": "AAH",
       "jjghn_paces": {
         "₢BhAAA": {
           "jjgpn_tacks": [
@@ -16647,6 +16648,30 @@
               ],
               "jjgtn_silks": "vvx-label-frame-sender",
               "jjgtn_basis": "9b8d1c0"
+            }
+          ]
+        },
+        "₢BhAAG": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260621-0848",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Paint the overlay on the proven channel:",
+                "paneboard maps the frame's session key to its AX window (the mapping the probe spike settled)",
+                "and renders the three-region overlay on the alt-tab highlight box it already draws.",
+                "",
+                "See the seed memo's Phase 3 and its entry-points section for the overlay FFI and window-tracking surfaces.",
+                "",
+                "## Cinched",
+                "Three stacked multi-line regions on fixed black backing pills, identity-led; per-region style from the frame with built-in defaults when absent (paddock \"Pane-label overlay shape\").",
+                "",
+                "## Done when",
+                "- A received frame paints the correct window's highlight with all populated regions.",
+                "- A late-arriving frame still lands on the right window — latency-immune by session key — never the wrong one."
+              ],
+              "jjgtn_silks": "pb-overlay-render-and-mapping",
+              "jjgtn_basis": "4b3243f"
             }
           ]
         }
