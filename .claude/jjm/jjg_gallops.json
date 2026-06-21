@@ -12916,8 +12916,8 @@
         "₢BDAAZ": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260618-1535",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260621-1715",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "Design a wrap-time friction-audit channel.",
                 "At close, the agent records a short structured grep-extractable line into the wrap commit message,",
@@ -12952,7 +12952,7 @@
                 "or is filed as an itch, with an explicit build-now-or-defer decision recorded."
               ],
               "jjgtn_silks": "wrap-friction-audit",
-              "jjgtn_basis": "a785eb2"
+              "jjgtn_basis": "fea2b14"
             }
           ]
         },
