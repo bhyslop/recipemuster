@@ -16491,9 +16491,10 @@
       "jjghn_creation_time": "260617",
       "jjghn_status": "jjghe_stabled",
       "jjghn_order": [
-        "₢BhAAA"
+        "₢BhAAA",
+        "₢BhAAB"
       ],
-      "jjghn_next_pace_seed": "AAB",
+      "jjghn_next_pace_seed": "AAC",
       "jjghn_paces": {
         "₢BhAAA": {
           "jjgpn_tacks": [
@@ -16516,6 +16517,31 @@
               ],
               "jjgtn_silks": "pb-guid-window-probe",
               "jjgtn_basis": "2f23519"
+            }
+          ]
+        },
+        "₢BhAAB": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260621-0847",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "The first rbm-side slice, standalone and dependency-free:",
+                "vvx reads its own ITERM_SESSION_ID and discovers paneboard's port-file,",
+                "failing soft on a missing or stale file.",
+                "",
+                "See the seed memo's correlation-mechanism section (match the UUID after the colon, never the wNtNpN prefix) and its protocol section (port-file discovery).",
+                "",
+                "## Cinched",
+                "Match the UUID, not the position prefix — the prefix goes stale when a tab is dragged to another window.",
+                "Fail-soft: a missing or unreadable port-file means paneboard is absent, so vvx silently skips.",
+                "",
+                "## Done when",
+                "- vvx extracts the correct session key from its own environment.",
+                "- vvx reads paneboard's port-file when present and skips cleanly when absent."
+              ],
+              "jjgtn_silks": "vvx-session-key-and-port-discovery",
+              "jjgtn_basis": "c9310a4"
             }
           ]
         }
