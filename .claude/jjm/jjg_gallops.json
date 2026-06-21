@@ -16498,9 +16498,10 @@
         "₢BhAAE",
         "₢BhAAF",
         "₢BhAAG",
-        "₢BhAAH"
+        "₢BhAAH",
+        "₢BhAAI"
       ],
-      "jjghn_next_pace_seed": "AAI",
+      "jjghn_next_pace_seed": "AAJ",
       "jjghn_paces": {
         "₢BhAAA": {
           "jjgpn_tacks": [
@@ -16697,6 +16698,30 @@
               ],
               "jjgtn_silks": "pb-viewer-conductor",
               "jjgtn_basis": "549633f"
+            }
+          ]
+        },
+        "₢BhAAI": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260621-0848",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "The latest, separable rbm slice:",
+                "a regen loop that pushes fresh/update diagram bytes when the SVGs change —",
+                "the \"who pushes, and when\" that does not exist today (the SVGs currently change only on a pluml crucible fixture run).",
+                "",
+                "See the seed memo's open-risks section (regen loop) and its references (diagrams/rbdg*.svg).",
+                "",
+                "## Character",
+                "Independent and deferrable — the viewer is useful without it via a manual fresh.",
+                "",
+                "## Done when",
+                "- Something rbm-side detects regenerated diagrams and pushes fresh/update to the viewer.",
+                "- The trigger — hook, fixture, or manual command — is chosen and recorded."
+              ],
+              "jjgtn_silks": "rbm-diagram-push-regen-loop",
+              "jjgtn_basis": "c17247a"
             }
           ]
         }
