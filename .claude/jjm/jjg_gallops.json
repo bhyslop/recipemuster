@@ -13616,11 +13616,12 @@
         "₢BZAAa",
         "₢BZAAZ",
         "₢BZAAf",
+        "₢BZAAg",
         "₢BZAAe",
         "₢BZAAP",
         "₢BZAAN"
       ],
-      "jjghn_next_pace_seed": "AAg",
+      "jjghn_next_pace_seed": "AAh",
       "jjghn_paces": {
         "₢BZAAA": {
           "jjgpn_tacks": [
@@ -14608,6 +14609,36 @@
               ],
               "jjgtn_silks": "accessor-don-rewire",
               "jjgtn_basis": "5b204a4"
+            }
+          ]
+        },
+        "₢BZAAg": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260621-1249",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Bump the assize cap from 1h to 12h so a long suite run (gauntlet, skirmish, service) completes on a single morning compearance — no mid-run re-compear to babysit.",
+                "",
+                "The 1h cap is the workforce pool's `sessionDuration`, not a runtime token lifetime: the STS leg requests no lifetime, so the assize equals whatever the pool was provisioned with at create (currently `RBRF_SESSION_DURATION=3600s`).",
+                "",
+                "Two parts, and the second is the catch:",
+                "- Bump `RBRF_SESSION_DURATION` in rbrf.env to 43200s (12h — the pool `sessionDuration` ceiling).",
+                "- PATCH the *existing* pool's `sessionDuration` to match. Affiance is ensure-exists-only and leaves a live pool unpatched — the pool-PATCH-`sessionDuration` reconciliation is a named-deferred follow-up (grep `sessionDuration` in rbgp_payor.sh). Apply a one-shot PATCH to the standing test-trust pool, or wire the deferred reconciliation.",
+                "",
+                "## Done when",
+                "A long suite run on the standing test trust completes on one compearance — the assize outlives the run, no mid-flight re-compear.",
+                "`rbw-acf` reports the federated token expiring in ~12h, not ~1h.",
+                "",
+                "## Cinched",
+                "12h is within the already-cinched assize range (900s–43200s) — a config bump, not a design change.",
+                "The minimal form (regime bump + one-shot pool PATCH of the standing trust) is this pace; generalizing affiance to reconcile `sessionDuration` drift is affiance-evolution — route that to ₣Bf.",
+                "",
+                "## Character",
+                "Small config pace with one wrinkle — the live pool needs a `sessionDuration` PATCH that affiance won't apply to an existing pool."
+              ],
+              "jjgtn_silks": "assize-duration-12h",
+              "jjgtn_basis": "bedce52"
             }
           ]
         }
