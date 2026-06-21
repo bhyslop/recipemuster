@@ -16495,13 +16495,14 @@
         "₢BhAAB",
         "₢BhAAC",
         "₢BhAAD",
+        "₢BhAAJ",
         "₢BhAAE",
         "₢BhAAF",
         "₢BhAAG",
         "₢BhAAH",
         "₢BhAAI"
       ],
-      "jjghn_next_pace_seed": "AAJ",
+      "jjghn_next_pace_seed": "AAK",
       "jjghn_paces": {
         "₢BhAAA": {
           "jjgpn_tacks": [
@@ -16722,6 +16723,32 @@
               ],
               "jjgtn_silks": "rbm-diagram-push-regen-loop",
               "jjgtn_basis": "c17247a"
+            }
+          ]
+        },
+        "₢BhAAJ": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260621-0900",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Stand up paneboard's IPC listener:",
+                "the daemon accepts control frames on its existing CFRunLoop and writes its listen port to the discovery port-file vvx reads.",
+                "Shared infrastructure for both the overlay (register_label) and the conductor (fresh/update).",
+                "",
+                "See the seed memo's protocol section (port-file discovery, framing) and the paddock's \"Paneboard run-loop integration\".",
+                "Entry point: the CFRunLoop in paneboard's event-tap module, where the event tap already attaches as a run-loop source.",
+                "",
+                "## Cinched",
+                "The listener attaches as a run-loop source on the existing thread — never a background thread (paddock \"Paneboard run-loop integration\").",
+                "Control frames are read inline; the large-payload offload is the conductor's concern, not this pace.",
+                "",
+                "## Done when",
+                "- Paneboard accepts a connection and parses a control frame on its run loop, with no new thread.",
+                "- The listen port is written to the discovery port-file, and a received register_label frame reaches the overlay code path."
+              ],
+              "jjgtn_silks": "pb-ipc-listener",
+              "jjgtn_basis": "c162475"
             }
           ]
         }
