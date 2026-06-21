@@ -14552,7 +14552,7 @@
         "₢BZAAe": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260621-1047",
+              "jjgtn_ts": "260621-1301",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "Sweep the orphaned RBRA keyfile estate once the foundry mints via the federation don — the bridge's demolition condition, executed.",
@@ -14573,12 +14573,13 @@
                 "## Cinched",
                 "Runs only after the preceding pace proves the foundry mints via the don — teardown of now-dead keyfile machinery, not a credential swap (the swap is that preceding pace).",
                 "The rbgw capability-set definitions stay (they realize the mantle grant lists, not keyfile machinery).",
+                "Bash edits follow BCG (Tools/buk/vov_veiled/BCG-BashConsoleGuide.md) — read it before authoring; shellcheck-green is necessary but not sufficient (it cannot see capture-purity, $()-on-externals, heredoc avoidance, or commit-message comments).",
                 "",
                 "## Character",
                 "Large mechanical-but-wide demolition of an orphaned estate across bash, theurge-Rust, and specs; the risk is reach, not depth — the preceding rewire has already de-risked the live behavior."
               ],
               "jjgtn_silks": "rbra-estate-demolition",
-              "jjgtn_basis": "67728a1"
+              "jjgtn_basis": "bd60959"
             }
           ]
         },
@@ -14615,7 +14616,7 @@
         "₢BZAAg": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260621-1249",
+              "jjgtn_ts": "260621-1301",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "Bump the assize cap from 1h to 12h so a long suite run (gauntlet, skirmish, service) completes on a single morning compearance — no mid-run re-compear to babysit.",
@@ -14633,12 +14634,13 @@
                 "## Cinched",
                 "12h is within the already-cinched assize range (900s–43200s) — a config bump, not a design change.",
                 "The minimal form (regime bump + one-shot pool PATCH of the standing trust) is this pace; generalizing affiance to reconcile `sessionDuration` drift is affiance-evolution — route that to ₣Bf.",
+                "If wiring the deferred reconciliation (bash in rbgp_payor.sh), it follows BCG (Tools/buk/vov_veiled/BCG-BashConsoleGuide.md) — read it first; shellcheck-green is necessary but not sufficient. The one-shot PATCH form touches no committed bash.",
                 "",
                 "## Character",
                 "Small config pace with one wrinkle — the live pool needs a `sessionDuration` PATCH that affiance won't apply to an existing pool."
               ],
               "jjgtn_silks": "assize-duration-12h",
-              "jjgtn_basis": "bedce52"
+              "jjgtn_basis": "bd60959"
             }
           ]
         }
