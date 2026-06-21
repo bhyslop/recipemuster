@@ -206,7 +206,7 @@ fn rbtdro_read_env_value(path: &Path, key: &str) -> Option<String> {
 /// Case 1's yoke fan-out writes RBRV_RELIQUARY into every ordain-path vessel
 /// and commits; reading the witness vessel's committed value is the cross-case
 /// evidence that case 1 ran. No out-of-source-tree scratch state.
-/// Kludge is local-only (no GCP), so governor RBRA is not a load-bearing
+/// Kludge is local-only (no GCP), so governor compearance is not a load-bearing
 /// precondition for kludge; the witness presence confirms case 1 completed.
 fn rbtdro_probe_reliquary_touchmark() -> Result<(), String> {
     let root = rbtdro_probe_root()?;
