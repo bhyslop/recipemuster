@@ -15377,6 +15377,7 @@
       "jjghn_creation_time": "260609",
       "jjghn_status": "jjghe_racing",
       "jjghn_order": [
+        "₢BcAAI",
         "₢BcAAC",
         "₢BcAAF",
         "₢BcAAA",
@@ -15386,7 +15387,7 @@
         "₢BcAAD",
         "₢BcAAE"
       ],
-      "jjghn_next_pace_seed": "AAI",
+      "jjghn_next_pace_seed": "AAJ",
       "jjghn_paces": {
         "₢BcAAA": {
           "jjgpn_tacks": [
@@ -15707,6 +15708,46 @@
               ],
               "jjgtn_silks": "chat-retention-config",
               "jjgtn_basis": "38256b0"
+            }
+          ]
+        },
+        "₢BcAAI": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260621-0835",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "A vocabulary rename wrapped around one piece of new doctrine prose — mostly mechanical.",
+                "Not a schema change: no on-disk gallops shape moves, so it lands on main via jjx_record without the branch quarantine or a reprieve episode.",
+                "The judgment is the subdoc's doctrine prose; the rest is a grep-sweep.",
+                "",
+                "## Goal",
+                "Rename the schema-tolerance mechanism forgiveness -> reprieve across spec and code,",
+                "and home the schema-change delivery and convergence doctrine —",
+                "today stranded in the ₣Bc paddock and the coda docket —",
+                "in a new JJS0-included subdoc,",
+                "so the policy outlives heat retirement and stays in-context during future schema work.",
+                "",
+                "## Cinched",
+                "- The word is reprieve: it encodes an episode's temporary-stay-meant-to-end lifecycle and reads fair-faced in the open nag.",
+                "- The doctrine lives as a JJS0 include:: subdoc (the gazette-concept-subdoc precedent),",
+                "  spliced where the mechanism block sits in == Serialization;",
+                "  it absorbs the delivery posture and the two-pass cross-clone convergence protocol from their perishable paddock and coda homes,",
+                "  beside the mechanism and the register-an-episode procedure lifted from JJS0.",
+                "- Not a schema change: pure identifier rename plus doc move, zero on-disk impact —",
+                "  this pace is the doctrine's own counter-example, the rule it documents does not bind it.",
+                "- The opaque rivet JJr_a7c is untouched by the readable-name change.",
+                "",
+                "## Done when",
+                "The reprieve subdoc is authored and included in JJS0;",
+                "every forgiveness site (spec prose and code identifiers) reads reprieve;",
+                "the delivery posture and convergence protocol live in the subdoc rather than only the paddock and coda;",
+                "the conduct file cites the subdoc and the new word;",
+                "tt/vow-b and tt/vow-t green."
+              ],
+              "jjgtn_silks": "home-reprieve-doctrine",
+              "jjgtn_basis": "a4b2220"
             }
           ]
         }
