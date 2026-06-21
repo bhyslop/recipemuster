@@ -16490,9 +16490,36 @@
       "jjghn_silks": "jjk-v4-1-svg-viewer-and-pane-labels",
       "jjghn_creation_time": "260617",
       "jjghn_status": "jjghe_stabled",
-      "jjghn_order": [],
-      "jjghn_next_pace_seed": "AAA",
-      "jjghn_paces": {}
+      "jjghn_order": [
+        "₢BhAAA"
+      ],
+      "jjghn_next_pace_seed": "AAB",
+      "jjghn_paces": {
+        "₢BhAAA": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260621-0847",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "The go/no-go spike for the whole overlay:",
+                "prove paneboard can resolve an iTerm session UUID to an AX window handle via iTerm's own scripting API,",
+                "under the Accessibility grant paneboard already holds — not Automation, which the operator declined for System Events.",
+                "",
+                "See the seed memo's Phase 0a and its correlation-mechanism section for the proven session-id basis and the AX entry points.",
+                "",
+                "## Character",
+                "Throwaway spike — answer the question, do not build the overlay.",
+                "",
+                "## Done when",
+                "- A paneboard-side probe takes a session UUID and returns the matching AX window handle, or proves it cannot.",
+                "- The overlay's fork is settled and recorded: success -> session-id overlay as designed; failure -> fall back to Claude Code's existing per-session title."
+              ],
+              "jjgtn_silks": "pb-guid-window-probe",
+              "jjgtn_basis": "2f23519"
+            }
+          ]
+        }
+      }
     },
     "₣Bi": {
       "jjghn_silks": "rbk-15-mvp-loose-ends",
