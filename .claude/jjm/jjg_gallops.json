@@ -15389,10 +15389,11 @@
         "₢BcAAG",
         "₢BcAAB",
         "₢BcAAH",
+        "₢BcAAJ",
         "₢BcAAD",
         "₢BcAAE"
       ],
-      "jjghn_next_pace_seed": "AAJ",
+      "jjghn_next_pace_seed": "AAK",
       "jjghn_paces": {
         "₢BcAAA": {
           "jjgpn_tacks": [
@@ -15753,6 +15754,39 @@
               ],
               "jjgtn_silks": "home-reprieve-doctrine",
               "jjgtn_basis": "6eb7ad5"
+            }
+          ]
+        },
+        "₢BcAAJ": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260621-1009",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "Mechanical and crate-wide — a pure, behavior-preserving rename.",
+                "Per-file independent, so it fans out cleanly to parallel sonnet/haiku agents.",
+                "",
+                "## Goal",
+                "Bring the JJK crate into conformance with RCG's new Alias Discipline:",
+                "de-alias every `use … as` that strips a project cipher prefix, rewriting the body use sites back to the canonical prefixed name.",
+                "",
+                "## Cinched",
+                "- Project-owned (jjr*/JJR*) identifiers only.",
+                "Foreign-crate boundary aliases stay — RCG permits them (`rmcp::ErrorData as McpError`, `std::io::Read as IoRead`).",
+                "- Pure rename: no logic, signature, or test-semantics change; each file stays behaviorally identical.",
+                "- The fan-out unit is one source file; there is no cross-file coupling.",
+                "",
+                "## Sources",
+                "The rule and its rationale: RCG \"Alias Discipline\".",
+                "Offender census (the work list): `rg ' as ' Tools/jjk/vov_veiled/src --type rust`, filtered to a jjr*/JJR* left-hand side.",
+                "",
+                "## Done when",
+                "No `use` alias in the crate strips a project cipher prefix — the census grep returns only foreign-boundary cases.",
+                "tt/vow-b clean and tt/vow-t green; the rename is behavior-preserving, so the existing suite is the proof."
+              ],
+              "jjgtn_silks": "jjk-dealias-cipher-imports",
+              "jjgtn_basis": "a71eea0"
             }
           ]
         }
