@@ -39,7 +39,7 @@ use crate::jjrgc_get_coronets::{jjrgc_GetCoronetsArgs, jjrgc_run_get_coronets};
 use crate::jjrcu_curry::{jjrcu_CurryArgs, jjrcu_run_curry};
 use crate::jjrrs_restring::{jjrrs_RestringArgs, jjrrs_run};
 use crate::jjrld_landing::{jjrld_LandingArgs, jjrld_run_landing};
-use crate::jjrz_gazette::{jjrz_Gazette, jjrz_Slug, jjrz_parse_slate_input, jjrz_parse_reslate_input, jjrz_parse_paddock_input};
+use crate::jjrz_gazette::{jjrz_Gazette, jjrz_Slug, JJRZ_SLUG_HALTER, jjrz_parse_slate_input, jjrz_parse_reslate_input, jjrz_parse_paddock_input, jjrz_parse_halter_input};
 
 const GALLOPS_PATH: &str = ".claude/jjm/jjg_gallops.json";
 const OFFICIA_DIR: &str = ".claude/jjm/officia";
@@ -250,19 +250,15 @@ pub struct jjrm_ListParams {
     pub status: Option<String>,
 }
 
-#[derive(Debug, serde::Deserialize, schemars::JsonSchema)]
-pub struct jjrm_OrientParams {
-    pub firemark: String,
-}
+// jjx_orient takes no params — its single target arrives solely through the
+// gazette halter notice (one lede = one firemark or coronet). A `firemark`
+// param is rejected, not honored, by zjjrm_rejected_target_param.
 
 #[derive(Debug, serde::Deserialize, schemars::JsonSchema)]
 pub struct jjrm_ShowParams {
-    /// Heterogeneous target list; each element self-types by length
-    /// (firemark -> heat expansion, coronet -> single pace). Omit or
-    /// empty to auto-select the first racing heat (orient/mount path).
-    pub targets: Option<Vec<String>>,
     /// REQUIRED. Affects firemark expansion only (exclude complete/abandoned);
-    /// coronet-named targets return regardless of state.
+    /// coronet-named targets return regardless of state. Target selection itself
+    /// comes solely from the gazette halter notices, never a param.
     pub remaining: bool,
 }
 
@@ -679,6 +675,24 @@ fn zjjrm_gazette_paths_block(
     )
 }
 
+/// Reject a param-supplied target on the gazette-only read paths (orient, show).
+///
+/// Target selection on these two commands now comes solely from `gazette_in.md`
+/// via halter notices — the forced gazette write is the whole point, dragging the
+/// agent's first `Write` permission to the start of the mount/groom ceremony. A
+/// `firemark` or `targets` param is therefore *rejected*, not a silent fallback;
+/// a soft convention would let the write slip. Returns the offending key (presence
+/// alone, value irrelevant) so the caller can name it in the refusal.
+fn zjjrm_rejected_target_param(v: &serde_json::Value) -> Option<&'static str> {
+    if v.get("firemark").is_some() {
+        Some("firemark")
+    } else if v.get("targets").is_some() {
+        Some("targets")
+    } else {
+        None
+    }
+}
+
 /// Best-effort, read-only reprieve nag for jjx_open.
 ///
 /// Reads the on-disk Gallops without the commit lock and emits one status line per registered
@@ -1091,11 +1105,35 @@ impl jjrm_McpServer {
                 }).await)
             }
             JJRM_CMD_NAME_ORIENT => {
-                let p = deser!(jjrm_OrientParams);
+                // Target selection is gazette-only — a param target is rejected, not a fallback.
+                if let Some(bad) = zjjrm_rejected_target_param(&v) {
+                    return Ok(CallToolResult::error(vec![Content::text(format!(
+                        "{}: target selection moved to gazette_in.md — write a single `{}` notice (lede = firemark or coronet) and retry; the '{}' param is rejected, not a fallback.",
+                        cmd, JJRZ_SLUG_HALTER, bad,
+                    ))]));
+                }
+                // Require the gazette halter notice; orient saddles exactly one target.
+                let targets = match gazette_in_content {
+                    Some(ref content) => match jjrz_parse_halter_input(content) {
+                        Ok(t) => t,
+                        Err(e) => return Ok(CallToolResult::error(vec![Content::text(
+                            format!("{}: gazette input error: {}", cmd, e),
+                        )])),
+                    },
+                    None => return Ok(CallToolResult::error(vec![Content::text(
+                        format!("{}: requires gazette_in.md with a {} notice (lede = firemark or coronet); checked {}", cmd, JJRZ_SLUG_HALTER, gazette_in_path.display()),
+                    )])),
+                };
+                if targets.len() != 1 {
+                    return Ok(CallToolResult::error(vec![Content::text(format!(
+                        "{}: orient saddles one target — expected exactly one {} notice, got {}", cmd, JJRZ_SLUG_HALTER, targets.len(),
+                    ))]));
+                }
+                let firemark = targets.into_iter().next().unwrap();
                 let mut gazette = jjrz_Gazette::jjrz_build(&[jjrz_Slug::Paddock, jjrz_Slug::Pace]);
                 let (code, mut output) = jjrsd_run_saddle(jjrsd_SaddleArgs {
                     file: gallops_pathbuf(),
-                    firemark: p.firemark,
+                    firemark,
                 }, &mut gazette).await;
                 let md = gazette.jjrz_emit();
                 if !md.is_empty() { std::fs::write(&gazette_out_path, md.as_bytes()).ok(); }
@@ -1107,11 +1145,30 @@ impl jjrm_McpServer {
                 jjrm_result((code, output))
             }
             JJRM_CMD_NAME_SHOW => {
+                // Target selection is gazette-only — a param target is rejected, not a fallback.
+                if let Some(bad) = zjjrm_rejected_target_param(&v) {
+                    return Ok(CallToolResult::error(vec![Content::text(format!(
+                        "{}: target selection moved to gazette_in.md — write one `{}` notice per target (lede = firemark or coronet) and retry; the '{}' param is rejected, not a fallback.",
+                        cmd, JJRZ_SLUG_HALTER, bad,
+                    ))]));
+                }
                 let p = deser!(jjrm_ShowParams);
+                // Require the gazette halter notice(s); show accepts the heterogeneous set.
+                let targets = match gazette_in_content {
+                    Some(ref content) => match jjrz_parse_halter_input(content) {
+                        Ok(t) => t,
+                        Err(e) => return Ok(CallToolResult::error(vec![Content::text(
+                            format!("{}: gazette input error: {}", cmd, e),
+                        )])),
+                    },
+                    None => return Ok(CallToolResult::error(vec![Content::text(
+                        format!("{}: requires gazette_in.md with {} notice(s) (one lede = firemark or coronet per target); checked {}", cmd, JJRZ_SLUG_HALTER, gazette_in_path.display()),
+                    )])),
+                };
                 let mut gazette = jjrz_Gazette::jjrz_build(&[jjrz_Slug::Paddock, jjrz_Slug::Pace]);
                 let (code, mut output) = jjrpd_run_parade(jjrpd_ParadeArgs {
                     file: gallops_pathbuf(),
-                    targets: p.targets.unwrap_or_default(),
+                    targets,
                     remaining: p.remaining,
                 }, &mut gazette);
                 // The gazette is now show's load-bearing payload (the round-trip

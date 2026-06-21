@@ -19,6 +19,7 @@ pub(crate) const JJRZ_SLUG_SLATE: &str = "jjezs_slate";
 pub(crate) const JJRZ_SLUG_RESLATE: &str = "jjezs_reslate";
 pub(crate) const JJRZ_SLUG_PADDOCK: &str = "jjezs_paddock";
 pub(crate) const JJRZ_SLUG_PACE: &str = "jjezs_pace";
+pub(crate) const JJRZ_SLUG_HALTER: &str = "jjezs_halter";
 
 /// Slug direction — metadata for how each slug is used in operations
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -35,6 +36,7 @@ pub enum jjrz_Slug {
     Reslate,
     Paddock,
     Pace,
+    Halter,
 }
 
 /// All defined slug values
@@ -43,6 +45,7 @@ pub const JJRZ_ALL_SLUGS: &[jjrz_Slug] = &[
     jjrz_Slug::Reslate,
     jjrz_Slug::Paddock,
     jjrz_Slug::Pace,
+    jjrz_Slug::Halter,
 ];
 
 impl jjrz_Slug {
@@ -53,6 +56,7 @@ impl jjrz_Slug {
             Self::Reslate => JJRZ_SLUG_RESLATE,
             Self::Paddock => JJRZ_SLUG_PADDOCK,
             Self::Pace => JJRZ_SLUG_PACE,
+            Self::Halter => JJRZ_SLUG_HALTER,
         }
     }
 
@@ -63,6 +67,7 @@ impl jjrz_Slug {
             JJRZ_SLUG_RESLATE => Some(Self::Reslate),
             JJRZ_SLUG_PADDOCK => Some(Self::Paddock),
             JJRZ_SLUG_PACE => Some(Self::Pace),
+            JJRZ_SLUG_HALTER => Some(Self::Halter),
             _ => None,
         }
     }
@@ -74,6 +79,7 @@ impl jjrz_Slug {
             Self::Reslate => jjrz_Direction::Input,
             Self::Paddock => jjrz_Direction::Bidirectional,
             Self::Pace => jjrz_Direction::Output,
+            Self::Halter => jjrz_Direction::Input,
         }
     }
 }
@@ -295,6 +301,30 @@ pub fn jjrz_parse_reslate_input(markdown: &str) -> Result<Vec<(String, String)>,
         }
     }
     Ok(entries)
+}
+
+/// Parse gazette input for the read-path target selection (orient, show).
+/// Returns the Vec of target ledes — each a firemark (heat) or coronet (pace),
+/// self-typed downstream by length. Bodies are ignored: a halter notice is
+/// body-less, its lede carrying the whole signal.
+/// Validates: at least one halter notice, every lede non-empty.
+/// Cardinality beyond "at least one" is the caller's to enforce — orient
+/// saddles exactly one target, show accepts the heterogeneous set.
+pub fn jjrz_parse_halter_input(markdown: &str) -> Result<Vec<String>, String> {
+    let g = jjrz_Gazette::jjrz_parse(&[jjrz_Slug::Halter], markdown)
+        .map_err(|diags| diags.join("\n"))?;
+    let entries = g.jjrz_query_by_slug(jjrz_Slug::Halter);
+    if entries.is_empty() {
+        return Err("No halter notice found in gazette input".to_string());
+    }
+    let mut targets = Vec::with_capacity(entries.len());
+    for (lede, _body) in entries {
+        if lede.is_empty() {
+            return Err("Halter notice missing lede (firemark or coronet)".to_string());
+        }
+        targets.push(lede);
+    }
+    Ok(targets)
 }
 
 /// Parse gazette input for paddock setter operation.

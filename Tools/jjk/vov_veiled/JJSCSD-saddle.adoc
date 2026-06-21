@@ -12,17 +12,22 @@ details.
 
 {jjds_arguments}
 
-//axd_optional axd_defaulted
-* {jjdt_firemark}
-— target
-{jjdhr_heat}.
-If omitted, iterates
-{jjdgm_order}
-and uses the first
+//axd_required
+* Target — the
 {jjdhr_heat}
-with status
-{jjdhe_racing}.
-Returns error if no racing heats exist.
+({jjdt_firemark})
+or
+{jjdpr_pace}
+({jjdt_coronet})
+to saddle, self-typed by length.
+Provided solely via a single {jjezs_halter} notice in `gazette_in.md` (lede = firemark or coronet); there is no target parameter.
+{jjdo_orient}
+saddles exactly one target — an absent gazette, an empty lede, or more than one
+{jjezs_halter}
+notice is a loud error, never a silent default.
+This forces the agent's first gazette write to the start of the mount ceremony, where its
+{jjdx_tool_s}
+`Write` permission surfaces while the operator is present.
 
 {jjds_stdout} Plain text format with labeled sections,
 consumed by
@@ -128,6 +133,9 @@ Render column-aligned table using same format as
 Output as `Racing-heats:` section.
 . Read
 {jjdgr_gallops}
+. Resolve the target from the single
+{jjezs_halter}
+notice in `gazette_in.md` (firemark or coronet, self-typed by length); error if the gazette is absent, the lede empty, or more than one notice is present
 . Verify
 {jjdhr_heat}
 exists with given

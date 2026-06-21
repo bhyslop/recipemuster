@@ -7,22 +7,20 @@ Output varies by target type.
 
 *Invocation:*
 ----
-vvx jjx_show [<TARGET>] [--detail] [--remaining]
+vvx jjx_show [--detail] [--remaining]
 ----
+Targets are not parameters — they are supplied via {jjezs_halter} notices in `gazette_in.md`.
 
 {jjds_arguments}
 
-//axd_optional axd_defaulted
-* TARGET —
+//axd_required
+* Targets — one or more {jjezs_halter} notices in `gazette_in.md`, each lede a
 {jjdt_firemark}
 (heat view) or
 {jjdt_coronet}
-(pace view).
-Target type detected by length: 2 base64 chars = heat, 5 base64 chars = pace.
-If omitted, uses first
-{jjdhe_racing}
-heat.
-Returns error if no racing heats exist.
+(pace view), self-typed by length (2 base64 chars = heat, 5 base64 chars = pace).
+At least one notice is required; there is no auto-select — an absent gazette is a loud error, never a silent first-racing-heat default.
+A `targets` or `firemark` parameter is rejected, not honored — the forced gazette write is the point.
 
 //axd_optional
 * `--detail` — Show paddock and full pace dockets (heat mode only)
@@ -171,7 +169,10 @@ Commit hash displays "(no commit)" for placeholder value `0000000`.
 
 . Read
 {jjdgr_gallops}
-. Detect target type by length (strip prefix if present):
+. Resolve the target set from the
+{jjezs_halter}
+notices in `gazette_in.md` — at least one required, each lede a firemark or coronet; error on an absent gazette or a rejected `targets`/`firemark` parameter
+. For each resolved target, detect type by length (strip prefix if present):
 .. 2 chars → heat view
 .. 5 chars → pace view
 .. Otherwise: error "target must be Firemark (2 chars) or Coronet (5 chars)"

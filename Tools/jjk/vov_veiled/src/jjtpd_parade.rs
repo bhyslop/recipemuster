@@ -6,8 +6,8 @@
 //! Module-private helpers (`zjjrpd_*`) are deliberately NOT reached from this
 //! sibling test module — `z` means private, never widened for test access (RCG).
 //! Their behavior is covered through the public `jjrpd_run_parade` boundary
-//! below: length dispatch, auto-select, the always-on gazette, and the
-//! remaining filter all exercise the private helpers as a side effect.
+//! below: length dispatch, the empty-targets error, the always-on gazette, and
+//! the remaining filter all exercise the private helpers as a side effect.
 
 use super::jjrpd_parade::{jjrpd_run_parade, jjrpd_ParadeArgs};
 use super::jjrg_gallops::{jjrg_Gallops, jjrg_Heat, jjrg_Pace, jjrg_Tack, jjrg_HeatStatus, jjrg_PaceState, JJRG_UNKNOWN_BASIS};
@@ -152,30 +152,16 @@ fn jjtpd_target_length_invalid_three_chars() {
 // ===== Public-boundary dispatch tests (jjrpd_run_parade) =====
 
 #[test]
-fn jjtpd_autoselect_picks_racing_heat_when_no_target() {
-    // Empty targets must keep auto-selecting the first racing heat (orient/mount
-    // depend on this) — covers the private resolve-default-heat helper.
+fn jjtpd_empty_targets_errors() {
+    // The auto-select is gone: target selection now arrives solely via the
+    // gazette halter notice the MCP arm parses, so an empty target list is a
+    // caller bug (the zero-write path the move was made to close) and errors
+    // rather than silently picking a racing heat. A live racing heat is present
+    // precisely to prove it is NOT auto-selected.
     let mut gallops = make_valid_gallops();
     let (k, h) = make_heat_with_docket("AB", jjrg_HeatStatus::Racing, jjrg_PaceState::Rough, "## Goal\nalpha");
     gallops.heats.insert(k, h);
-    let path = write_temp_gallops("autoselect_racing", &gallops);
-
-    let mut gz = jjrz_Gazette::jjrz_build(&[jjrz_Slug::Paddock, jjrz_Slug::Pace]);
-    let (code, _out) = jjrpd_run_parade(
-        jjrpd_ParadeArgs { file: path.clone(), targets: vec![], remaining: false },
-        &mut gz,
-    );
-    assert_eq!(code, 0);
-    assert!(gz.jjrz_emit().contains("₢ABAAA"), "auto-selected heat's pace should populate the gazette");
-    let _ = std::fs::remove_file(&path);
-}
-
-#[test]
-fn jjtpd_autoselect_errors_when_no_racing_heat() {
-    let mut gallops = make_valid_gallops();
-    let (k, h) = make_heat_with_docket("AB", jjrg_HeatStatus::Stabled, jjrg_PaceState::Rough, "## Goal\nx");
-    gallops.heats.insert(k, h);
-    let path = write_temp_gallops("autoselect_none", &gallops);
+    let path = write_temp_gallops("empty_targets", &gallops);
 
     let mut gz = jjrz_Gazette::jjrz_build(&[jjrz_Slug::Paddock, jjrz_Slug::Pace]);
     let (code, out) = jjrpd_run_parade(
@@ -183,7 +169,8 @@ fn jjtpd_autoselect_errors_when_no_racing_heat() {
         &mut gz,
     );
     assert_eq!(code, 1);
-    assert!(out.contains("No racing heats"), "got: {}", out);
+    assert!(out.contains("no target specified"), "got: {}", out);
+    assert!(!gz.jjrz_emit().contains("₢ABAAA"), "no racing heat may be auto-selected on empty targets");
     let _ = std::fs::remove_file(&path);
 }
 

@@ -253,6 +253,7 @@ fn jjtz_slug_directions() {
     assert_eq!(jjrz_Slug::Reslate.jjrz_direction(), jjrz_Direction::Input);
     assert_eq!(jjrz_Slug::Paddock.jjrz_direction(), jjrz_Direction::Bidirectional);
     assert_eq!(jjrz_Slug::Pace.jjrz_direction(), jjrz_Direction::Output);
+    assert_eq!(jjrz_Slug::Halter.jjrz_direction(), jjrz_Direction::Input);
 }
 
 #[test]
@@ -446,6 +447,61 @@ fn jjtz_parse_paddock_input_multiple_notices() {
     let md = format!("# {} AF\n\nC1\n\n# {} AG\n\nC2\n", JJRZ_SLUG_PADDOCK, JJRZ_SLUG_PADDOCK);
     let err = jjrz_parse_paddock_input(&md).unwrap_err();
     assert!(err.contains("Expected one"));
+}
+
+// --- Halter (read-path target selection) input parsing ---
+
+#[test]
+fn jjtz_parse_halter_input_single_firemark() {
+    let md = format!("# {} ₣BD\n", JJRZ_SLUG_HALTER);
+    let targets = jjrz_parse_halter_input(&md).unwrap();
+    assert_eq!(targets, vec!["₣BD".to_string()]);
+}
+
+#[test]
+fn jjtz_parse_halter_input_single_coronet() {
+    let md = format!("# {} ₢BDAAT\n", JJRZ_SLUG_HALTER);
+    let targets = jjrz_parse_halter_input(&md).unwrap();
+    assert_eq!(targets, vec!["₢BDAAT".to_string()]);
+}
+
+#[test]
+fn jjtz_parse_halter_input_heterogeneous_set() {
+    // Show's many-target case: a firemark and a coronet in one gazette. Order is
+    // by-lede (BTreeMap), not insertion — each target is independent, so the set
+    // is what matters, not the sequence.
+    let md = format!("# {} ₣AB\n\n# {} ₢CDAAA\n", JJRZ_SLUG_HALTER, JJRZ_SLUG_HALTER);
+    let mut targets = jjrz_parse_halter_input(&md).unwrap();
+    targets.sort();
+    assert_eq!(targets, vec!["₢CDAAA".to_string(), "₣AB".to_string()]);
+}
+
+#[test]
+fn jjtz_parse_halter_input_ignores_body() {
+    // A stray body is tolerated — the lede carries the whole signal.
+    let md = format!("# {} ₣BD\n\nstray text the agent should not have written\n", JJRZ_SLUG_HALTER);
+    let targets = jjrz_parse_halter_input(&md).unwrap();
+    assert_eq!(targets, vec!["₣BD".to_string()]);
+}
+
+#[test]
+fn jjtz_parse_halter_input_no_notices() {
+    let err = jjrz_parse_halter_input("").unwrap_err();
+    assert!(err.contains("No halter notice"));
+}
+
+#[test]
+fn jjtz_parse_halter_input_missing_lede() {
+    let md = format!("# {}\n\nbody only\n", JJRZ_SLUG_HALTER);
+    let err = jjrz_parse_halter_input(&md).unwrap_err();
+    assert!(err.contains("missing lede"));
+}
+
+#[test]
+fn jjtz_parse_halter_input_wrong_slug() {
+    let md = format!("# {} ₣BD\n", JJRZ_SLUG_PADDOCK);
+    let err = jjrz_parse_halter_input(&md).unwrap_err();
+    assert!(err.contains("not in vocabulary"));
 }
 
 // --- Output round-trip tests ---

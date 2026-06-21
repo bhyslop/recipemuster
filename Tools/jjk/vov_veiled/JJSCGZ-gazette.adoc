@@ -65,6 +65,17 @@ Lede: {jjdt_coronet} of the target pace.
 Content: operation-specific per-pace text.
 Serialized as `jjezs_pace` in gazette markdown.
 
+[[jjezs_halter]]
+//axl_voices axt_enum_value axd_string
+{jjezs_halter}::
+Read-path target selection for {jjdo_orient} and {jjdo_show}.
+Direction: input.
+Lede: {jjdt_firemark} (expand the heat) or {jjdt_coronet} (single pace), self-typed downstream by length.
+Content: none — a halter notice is body-less, its lede carrying the whole signal.
+One notice per target: {jjdo_orient} saddles exactly one; {jjdo_show} accepts the heterogeneous set.
+At least one notice is required — an absent gazette is a loud error, never a silent default.
+Serialized as `jjezs_halter` in gazette markdown.
+
 == File Exchange Protocol
 
 Gazette file exchange uses two directional files within the {jjdxo_exchange}:

@@ -73,19 +73,15 @@ pub fn jjrpd_run_parade(args: jjrpd_ParadeArgs, gazette: &mut jjrz_Gazette) -> (
         }
     };
 
-    // Resolve target list: an empty list auto-selects the first racing heat,
-    // preserving the singular orient/mount/groom default.
-    let targets: Vec<String> = if args.targets.is_empty() {
-        match zjjrpd_resolve_default_heat(&gallops) {
-            Ok(fm) => vec![fm],
-            Err(e) => {
-                vvco_err!(output, "{}: error: {}", cn, e);
-                return (1, output.vvco_finish());
-            }
-        }
-    } else {
-        args.targets.clone()
-    };
+    // Target selection now arrives solely through the gazette halter notice the
+    // MCP arm parses — there is no empty-targets auto-select. An empty list is a
+    // caller bug (the zero-write path the move was made to close), so it errors
+    // rather than silently picking a heat.
+    let targets: Vec<String> = args.targets.clone();
+    if targets.is_empty() {
+        vvco_err!(output, "{}: error: no target specified — name at least one firemark or coronet", cn);
+        return (1, output.vvco_finish());
+    }
 
     // The file-touch bitmap and commit swim lanes assume a single heat; render
     // them only when the request resolves to exactly one firemark target.
@@ -482,16 +478,6 @@ fn zjjrpd_pace_state_str(state: &PaceState) -> &'static str {
         PaceState::Complete => "complete",
         PaceState::Abandoned => "abandoned",
     }
-}
-
-/// Resolve the default heat (first racing heat) when no target is specified
-fn zjjrpd_resolve_default_heat(gallops: &Gallops) -> Result<String, String> {
-    for (heat_key, heat) in &gallops.heats {
-        if heat.status == HeatStatus::Racing {
-            return Ok(heat_key.clone());
-        }
-    }
-    Err("No racing heats found".to_string())
 }
 
 /// Encode a column index as a dense character: 1-9 then a-z then A-Z (61 max)
