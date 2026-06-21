@@ -15719,8 +15719,8 @@
         "₢BcAAI": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260621-0835",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260621-0917",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "## Character",
                 "A vocabulary rename wrapped around one piece of new doctrine prose — mostly mechanical.",
@@ -15752,7 +15752,7 @@
                 "tt/vow-b and tt/vow-t green."
               ],
               "jjgtn_silks": "home-reprieve-doctrine",
-              "jjgtn_basis": "a4b2220"
+              "jjgtn_basis": "6eb7ad5"
             }
           ]
         }
