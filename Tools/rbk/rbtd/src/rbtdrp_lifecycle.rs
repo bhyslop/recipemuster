@@ -36,25 +36,20 @@ use crate::rbtdrb_probe::{rbtdrb_assert, rbtdrb_Probe};
 use crate::rbtdrc_crucible::rbtdrc_with_ctx;
 use crate::rbtdre_engine::{rbtdre_Case, rbtdre_Disposition, rbtdre_Fixture, rbtdre_Verdict};
 use crate::rbtdri_invocation::{
-    rbtdri_invoke_global, rbtdri_read_burv_fact, rbtdri_Context,
+    rbtdri_Context,
     RBTDRI_BURE_CONFIRM_KEY, RBTDRI_BURE_CONFIRM_SKIP, RBTDRI_BURV_OUTPUT_SUBDIR,
 };
 use crate::rbtdgc_consts::{
-    RBTDGC_CHECK_DIRECTOR, RBTDGC_CHECK_RETRIEVER, RBTDGC_DEFROCK_DIRECTOR,
-    RBTDGC_DEFROCK_RETRIEVER, RBTDGC_ENROBE_DIRECTOR, RBTDGC_ENROBE_RETRIEVER,
-    RBTDGC_LEVY_DEPOT, RBTDGC_LIST_DEPOT, RBTDGC_ENROBE_GOVERNOR, RBTDGC_RBRD_FILE,
-    RBTDGC_ACCOUNT_ASSAY, RBTDGC_ACCOUNT_DIRECTOR, RBTDGC_ACCOUNT_GOVERNOR, RBTDGC_ACCOUNT_RETRIEVER,
-    RBTDGC_UNMAKE_DEPOT,
+    RBTDGC_LEVY_DEPOT, RBTDGC_LIST_DEPOT, RBTDGC_RBRD_FILE, RBTDGC_UNMAKE_DEPOT,
 };
 use crate::rbtdrm_manifest::RBTDRM_FIXTURE_DEPOT_LIFECYCLE;
 use crate::rbtdrp_attest::rbtdrp_marshal_zero_attestation;
 use crate::rbtdrk_freehold::{
     rbtdrk_burs_tincture, rbtdrk_cloud_prefix_subdir, rbtdrk_compose_project_id,
-    rbtdrk_family_stem, rbtdrk_freehold_rbra, rbtdrk_install_depot_moniker,
+    rbtdrk_family_stem, rbtdrk_install_depot_moniker,
     rbtdrk_install_freehold_prefixes, rbtdrk_invoke_logged, rbtdrk_pick_next_moniker,
     rbtdrk_read_env_value, RBTDRK_FACT_EXT_DEPOT, RBTDRK_FACT_EXT_DEPOT_PROJECT,
     RBTDRK_FIELD_RBRD_CLOUD_PREFIX, RBTDRK_FIELD_RBRD_DEPOT_MONIKER,
-    RBTDRK_IDENTITY_DIRECTOR, RBTDRK_IDENTITY_RETRIEVER,
 };
 
 /// Placeholder moniker installed by tear_down before invoking rbw-dU. With the
@@ -68,11 +63,6 @@ const RBTDRP_TEAR_DOWN_PLACEHOLDER_MONIKER: &str = "torndown";
 /// `DELETE_REQUESTED` lifecycle state — appears in `rbgp_depot_list` output
 /// after a soft-delete, used by tear-down to relax the post-unmake assertion.
 const RBTDRP_DELETE_REQUESTED: &str = "DELETE_REQUESTED";
-
-/// Fact-file name for the governor SA email (mirror of
-/// RBGP_FACT_GOVERNOR_SA_EMAIL from rbgc_constants.sh). Read from the enrobe
-/// invocation's BURV output.
-const RBTDRP_FACT_GOVERNOR_SA_EMAIL: &str = "rbgp_fact_governor_sa_email";
 
 // ── Probe ────────────────────────────────────────────────────
 //
@@ -107,12 +97,6 @@ fn rbtdrp_probe_depot_levied() -> Result<(), String> {
     }
 
     Ok(())
-}
-
-/// Resolve the freehold RBRA path for a role. Thin alias of the shared helper
-/// so this fixture's call sites read locally.
-fn rbtdrp_rbra(root: &Path, role: &str) -> Result<std::path::PathBuf, String> {
-    rbtdrk_freehold_rbra(root, role)
 }
 
 // ── Case 2: depot stand-up ───────────────────────────────────
@@ -237,282 +221,6 @@ fn rbtdrp_depot_stand_up_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_Ve
              (RBDC kindle derivation diverged from payor creation)",
             composed_project_id, fact_project_id
         ));
-    }
-
-    rbtdre_Verdict::Pass
-}
-
-// ── Case 3: SA cycle ─────────────────────────────────────────
-
-/// Case 3 — SA cycle. Pre-condition: depot stood up (moniker in rbrd.env).
-/// Enrobes governor (RBRA lands in BURV output; copy to freehold path), then
-/// for each role: enrobe → copy assay → freehold → access-probe. Defrocks both
-/// roles in reverse order, verifies BBAAN's defrock-deletes-production-RBRA
-/// contract via freehold-path absence checks. Best-effort cleanup of assay file
-/// at the end.
-fn rbtdrp_sa_cycle(dir: &Path) -> rbtdre_Verdict {
-    rbtdrc_with_ctx(|ctx| rbtdrp_sa_cycle_impl(ctx, dir))
-}
-
-fn rbtdrp_sa_cycle_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_Verdict {
-    let root = ctx.project_root().to_path_buf();
-
-    let rbrd = root.join(RBTDGC_RBRD_FILE);
-    let moniker = match rbtdrk_read_env_value(&rbrd, RBTDRK_FIELD_RBRD_DEPOT_MONIKER) {
-        Some(m) if !m.is_empty() => m,
-        _ => {
-            return rbtdre_Verdict::Fail(
-                "stand-up did not run or rbrd.env is missing the moniker \
-                 (RBRD_DEPOT_MONIKER is blank)"
-                    .to_string(),
-            )
-        }
-    };
-    let _ = std::fs::write(dir.join("moniker.txt"), &moniker);
-
-    let enrobe = match rbtdrk_invoke_logged(
-        ctx,
-        RBTDGC_ENROBE_GOVERNOR,
-        &[],
-        &[],
-        dir,
-        "enrobe",
-    ) {
-        Ok(r) => r,
-        Err(e) => return rbtdre_Verdict::Fail(format!("governor enrobe: {}", e)),
-    };
-    if enrobe.exit_code != 0 {
-        return rbtdre_Verdict::Fail(format!(
-            "governor enrobe exit {}\n{}",
-            enrobe.exit_code, enrobe.stderr
-        ));
-    }
-
-    let governor_email = match rbtdri_read_burv_fact(&enrobe, RBTDRP_FACT_GOVERNOR_SA_EMAIL) {
-        Ok(s) => s,
-        Err(e) => return rbtdre_Verdict::Fail(format!("read governor SA email fact: {}", e)),
-    };
-    let _ = std::fs::write(dir.join("governor-sa-email.txt"), &governor_email);
-
-    let assay_rbra = match rbtdrp_rbra(&root, RBTDGC_ACCOUNT_ASSAY) {
-        Ok(p) => p,
-        Err(e) => return rbtdre_Verdict::Fail(format!("freehold assay RBRA path: {}", e)),
-    };
-
-    if !assay_rbra.exists() {
-        return rbtdre_Verdict::Fail(format!(
-            "assay RBRA absent after governor enrobe: {}",
-            assay_rbra.display()
-        ));
-    }
-
-    let governor_rbra = match rbtdrp_rbra(&root, RBTDGC_ACCOUNT_GOVERNOR) {
-        Ok(p) => p,
-        Err(e) => return rbtdre_Verdict::Fail(format!("freehold governor RBRA path: {}", e)),
-    };
-    if let Some(parent) = governor_rbra.parent() {
-        if let Err(e) = std::fs::create_dir_all(parent) {
-            return rbtdre_Verdict::Fail(format!(
-                "create governor RBRA dir {}: {}",
-                parent.display(),
-                e
-            ));
-        }
-    }
-    if let Err(e) = std::fs::copy(&assay_rbra, &governor_rbra) {
-        return rbtdre_Verdict::Fail(format!(
-            "copy assay RBRA → governor freehold {}: {}",
-            governor_rbra.display(),
-            e
-        ));
-    }
-
-    // Retriever: enrobe → assay → freehold → access-probe.
-    let enrobe_ret = match rbtdrk_invoke_logged(
-        ctx,
-        RBTDGC_ENROBE_RETRIEVER,
-        &[RBTDRK_IDENTITY_RETRIEVER],
-        &[],
-        dir,
-        "enrobe-retriever",
-    ) {
-        Ok(r) => r,
-        Err(e) => return rbtdre_Verdict::Fail(format!("enrobe retriever: {}", e)),
-    };
-    if enrobe_ret.exit_code != 0 {
-        return rbtdre_Verdict::Fail(format!(
-            "enrobe retriever exit {}\n{}",
-            enrobe_ret.exit_code, enrobe_ret.stderr
-        ));
-    }
-
-    if !assay_rbra.exists() {
-        return rbtdre_Verdict::Fail(format!(
-            "assay RBRA absent after enrobe-retriever: {}",
-            assay_rbra.display()
-        ));
-    }
-
-    let retriever_rbra = match rbtdrp_rbra(&root, RBTDGC_ACCOUNT_RETRIEVER) {
-        Ok(p) => p,
-        Err(e) => return rbtdre_Verdict::Fail(format!("freehold retriever RBRA path: {}", e)),
-    };
-    if let Some(parent) = retriever_rbra.parent() {
-        if let Err(e) = std::fs::create_dir_all(parent) {
-            return rbtdre_Verdict::Fail(format!(
-                "create retriever RBRA dir {}: {}",
-                parent.display(),
-                e
-            ));
-        }
-    }
-    if let Err(e) = std::fs::copy(&assay_rbra, &retriever_rbra) {
-        return rbtdre_Verdict::Fail(format!(
-            "copy assay RBRA → retriever freehold {}: {}",
-            retriever_rbra.display(),
-            e
-        ));
-    }
-
-    let probe_ret = match rbtdri_invoke_global(
-        ctx,
-        RBTDGC_CHECK_RETRIEVER,
-        &[],
-        &[],
-    ) {
-        Ok(r) => r,
-        Err(e) => {
-            return rbtdre_Verdict::Fail(format!("access-probe retriever invocation: {}", e))
-        }
-    };
-    let _ = std::fs::write(dir.join("probe-retriever-stdout.txt"), &probe_ret.stdout);
-    let _ = std::fs::write(dir.join("probe-retriever-stderr.txt"), &probe_ret.stderr);
-    if probe_ret.exit_code != 0 {
-        return rbtdre_Verdict::Fail(format!(
-            "access-probe retriever exit {}\n{}",
-            probe_ret.exit_code, probe_ret.stderr
-        ));
-    }
-
-    // Director: enrobe → assay → freehold → access-probe.
-    let enrobe_dir = match rbtdrk_invoke_logged(
-        ctx,
-        RBTDGC_ENROBE_DIRECTOR,
-        &[RBTDRK_IDENTITY_DIRECTOR],
-        &[],
-        dir,
-        "enrobe-director",
-    ) {
-        Ok(r) => r,
-        Err(e) => return rbtdre_Verdict::Fail(format!("enrobe director: {}", e)),
-    };
-    if enrobe_dir.exit_code != 0 {
-        return rbtdre_Verdict::Fail(format!(
-            "enrobe director exit {}\n{}",
-            enrobe_dir.exit_code, enrobe_dir.stderr
-        ));
-    }
-
-    if !assay_rbra.exists() {
-        return rbtdre_Verdict::Fail(format!(
-            "assay RBRA absent after enrobe-director: {}",
-            assay_rbra.display()
-        ));
-    }
-    let director_rbra = match rbtdrp_rbra(&root, RBTDGC_ACCOUNT_DIRECTOR) {
-        Ok(p) => p,
-        Err(e) => return rbtdre_Verdict::Fail(format!("freehold director RBRA path: {}", e)),
-    };
-    if let Some(parent) = director_rbra.parent() {
-        if let Err(e) = std::fs::create_dir_all(parent) {
-            return rbtdre_Verdict::Fail(format!(
-                "create director RBRA dir {}: {}",
-                parent.display(),
-                e
-            ));
-        }
-    }
-    if let Err(e) = std::fs::copy(&assay_rbra, &director_rbra) {
-        return rbtdre_Verdict::Fail(format!(
-            "copy assay RBRA → director freehold {}: {}",
-            director_rbra.display(),
-            e
-        ));
-    }
-
-    let probe_dir = match rbtdri_invoke_global(
-        ctx,
-        RBTDGC_CHECK_DIRECTOR,
-        &[],
-        &[],
-    ) {
-        Ok(r) => r,
-        Err(e) => {
-            return rbtdre_Verdict::Fail(format!("access-probe director invocation: {}", e))
-        }
-    };
-    let _ = std::fs::write(dir.join("probe-director-stdout.txt"), &probe_dir.stdout);
-    let _ = std::fs::write(dir.join("probe-director-stderr.txt"), &probe_dir.stderr);
-    if probe_dir.exit_code != 0 {
-        return rbtdre_Verdict::Fail(format!(
-            "access-probe director exit {}\n{}",
-            probe_dir.exit_code, probe_dir.stderr
-        ));
-    }
-
-    // Defrocks in reverse order.
-    let defrock_dir = match rbtdrk_invoke_logged(
-        ctx,
-        RBTDGC_DEFROCK_DIRECTOR,
-        &[RBTDRK_IDENTITY_DIRECTOR],
-        &[],
-        dir,
-        "defrock-director",
-    ) {
-        Ok(r) => r,
-        Err(e) => return rbtdre_Verdict::Fail(format!("defrock director: {}", e)),
-    };
-    if defrock_dir.exit_code != 0 {
-        return rbtdre_Verdict::Fail(format!(
-            "defrock director exit {}\n{}",
-            defrock_dir.exit_code, defrock_dir.stderr
-        ));
-    }
-    if director_rbra.exists() {
-        return rbtdre_Verdict::Fail(format!(
-            "director freehold RBRA still present after defrock: {} \
-             (BBAAN defrock-deletes-production-RBRA contract violated)",
-            director_rbra.display()
-        ));
-    }
-
-    let defrock_ret = match rbtdrk_invoke_logged(
-        ctx,
-        RBTDGC_DEFROCK_RETRIEVER,
-        &[RBTDRK_IDENTITY_RETRIEVER],
-        &[],
-        dir,
-        "defrock-retriever",
-    ) {
-        Ok(r) => r,
-        Err(e) => return rbtdre_Verdict::Fail(format!("defrock retriever: {}", e)),
-    };
-    if defrock_ret.exit_code != 0 {
-        return rbtdre_Verdict::Fail(format!(
-            "defrock retriever exit {}\n{}",
-            defrock_ret.exit_code, defrock_ret.stderr
-        ));
-    }
-    if retriever_rbra.exists() {
-        return rbtdre_Verdict::Fail(format!(
-            "retriever freehold RBRA still present after defrock: {} \
-             (BBAAN defrock-deletes-production-RBRA contract violated)",
-            retriever_rbra.display()
-        ));
-    }
-
-    if assay_rbra.exists() {
-        let _ = std::fs::remove_file(&assay_rbra);
     }
 
     rbtdre_Verdict::Pass
@@ -717,7 +425,6 @@ fn rbtdrp_depot_tear_down_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_V
 pub static RBTDRP_CASES_DEPOT_LIFECYCLE: &[rbtdre_Case] = &[
     case!(rbtdrp_marshal_zero_attestation),
     case!(rbtdrp_depot_stand_up),
-    case!(rbtdrp_sa_cycle),
     case!(rbtdrp_depot_live_disqualify),
     case!(rbtdrp_depot_tear_down),
 ];

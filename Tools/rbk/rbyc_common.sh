@@ -77,9 +77,6 @@ zrbyc_kindle() {
   zrbyc_yk RBYC_CHARGE    "${z_docs}" "Charge"
   zrbyc_yk RBYC_CHARGE_D  "${z_docs}" "Charge"  "Charged"
   zrbyc_yk RBYC_QUENCH    "${z_docs}" "Quench"
-  zrbyc_yk RBYC_ENROBE    "${z_docs}" "Enrobe"
-  zrbyc_yk RBYC_DEFROCK    "${z_docs}" "Defrock"
-  zrbyc_yk RBYC_ROSTER    "${z_docs}" "Roster"
 
   # Artifacts and infrastructure
   zrbyc_yk RBYC_VESSEL    "${z_docs}" "Vessel"

@@ -113,9 +113,6 @@ rbho_start_here() {
   buh_line "    ${RBYC_PAYOR} — establish a ${RBYC_MANOR} and provision the ${RBYC_DEPOT} (~30 min)"
   buh_tt   "        " "${RBZ_ONBOARD_PAYOR_HB}"
   buh_e
-  buh_line "    ${RBYC_GOVERNOR} — administer service accounts for ${RBYC_DIRECTORS} and ${RBYC_RETRIEVERS} (~10 min)"
-  buh_tt   "        " "${RBZ_ONBOARD_GOVERNOR_HB}"
-  buh_e
 
   buh_section "Director Subtracks"
   buh_e

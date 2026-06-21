@@ -2597,7 +2597,6 @@ pub static RBTDRC_FIXTURES: &[&'static rbtdre_Fixture] = &[
     &crate::rbtdrf_handbook::RBTDRF_FIXTURE_HANDBOOK_RENDER,
     &crate::rbtdrp_lifecycle::RBTDRP_FIXTURE_DEPOT_LIFECYCLE,
     &crate::rbtdrk_depot::RBTDRK_FIXTURE_FREEHOLD_ESTABLISH,
-    &crate::rbtdrk_enrobe::RBTDRK_FIXTURE_FREEHOLD_ENROBE,
     &crate::rbtdrk_depot::RBTDRK_FIXTURE_FREEHOLD_CHURN,
     &crate::rbtdro_onboarding::RBTDRO_FIXTURE_ONBOARDING_SEQUENCE,
     &crate::rbtdro_onboarding::RBTDRO_FIXTURE_KLUDGE_TADMOR,
@@ -2749,19 +2748,20 @@ pub static RBTDRC_SUITES: &[rbtdre_Suite] = &[
         ],
     },
     // Skirmish — the "mini gauntlet": the depot→build→crucible chain WITHOUT
-    // project-ID churn. freehold-enrobe reuses a standing operator-levied depot
-    // (no levy, no unmake) where the gauntlet's depot-lifecycle/freehold-
-    // establish each levy a fresh project; the lifecycle fixture is dropped
-    // entirely. onboarding-sequence then builds the crucible images (local
-    // kludge + cloud ordain into the standing depot) and the four crucibles
-    // charge+run. OPERATOR PRECONDITION: a freehold depot already levied —
-    // install freehold prefixes and run rbw-dL by hand before this suite.
-    // Spends cloud build/GAR but creates no GCP project per run.
+    // project-ID churn, against a standing operator-levied depot (no levy, no
+    // unmake) where the gauntlet's depot-lifecycle/freehold-establish each levy a
+    // fresh project; the lifecycle fixture is dropped entirely. onboarding-sequence
+    // builds the crucible images (local kludge + cloud ordain into the standing
+    // depot) and the four crucibles charge+run. OPERATOR PRECONDITION: a freehold
+    // depot already levied (install freehold prefixes and run rbw-dL by hand) AND
+    // federation credentials ready — a live assize with the depot's mantles
+    // donnable (the standing-freehold credential step is federation test-rig work,
+    // no longer a keyfile re-enrobe preamble). Spends cloud build/GAR but creates
+    // no GCP project per run.
     rbtdre_Suite {
         name: "skirmish",
         fixtures: &[
             &crate::rbtdrf_fast::RBTDRF_FIXTURE_ENROLLMENT_VALIDATION,
-            &crate::rbtdrk_enrobe::RBTDRK_FIXTURE_FREEHOLD_ENROBE,
             &crate::rbtdro_onboarding::RBTDRO_FIXTURE_ONBOARDING_SEQUENCE,
             &crate::rbtdrf_fast::RBTDRF_FIXTURE_REGIME_VALIDATION,
             &crate::rbtdrf_fast::RBTDRF_FIXTURE_REGIME_SMOKE,
@@ -2781,16 +2781,13 @@ pub static RBTDRC_SUITES: &[rbtdre_Suite] = &[
     // Dogfight — standing-depot cloud-build viability probe. Sibling to skirmish
     // in the operator-precondition family (reuses a hand-levied depot, no levy,
     // no unmake) but charges NO crucible: it proves only the cloud-build →
-    // summon → run path yields a runnable artifact. freehold-enrobe leads
-    // exactly as it does in skirmish — re-mantling the governor and defrock/re-
-    // enrobing retriever + director so the dogfight fixture finds fresh
-    // credentials; the dogfight fixture itself stays crucible-free. OPERATOR
-    // PRECONDITION: a freehold depot already levied (the standing-depot setup
-    // skirmish assumes).
+    // summon → run path yields a runnable artifact; the fixture stays
+    // crucible-free. OPERATOR PRECONDITION: a freehold depot already levied AND
+    // federation credentials ready (a live assize, the depot's mantles donnable),
+    // exactly as skirmish assumes.
     rbtdre_Suite {
         name: "dogfight",
         fixtures: &[
-            &crate::rbtdrk_enrobe::RBTDRK_FIXTURE_FREEHOLD_ENROBE,
             &crate::rbtdrd_dogfight::RBTDRD_FIXTURE_DOGFIGHT,
         ],
     },
@@ -2809,26 +2806,19 @@ pub static RBTDRC_SUITES: &[rbtdre_Suite] = &[
             &RBTDRC_FIXTURE_TADMOR,
         ],
     },
-    // Blockade - moriah airgap crucible with credential self-heal. Sibling to
-    // siege on the network-posture axis (siege = tether bottle, blockade =
-    // airgap bottle), but unlike siege it is NOT fully local: moriah is
-    // conjure-mode and auto-summons its hallmarks from the depot's GAR, so the
-    // charge needs a live Retriever SA. freehold-enrobe leads (exactly as in
-    // skirmish/dogfight) to re-enrobe the Governor and re-enrobe Retriever +
-    // Director against the standing operator-levied depot, so a shared-depot
-    // host that has obsoleted this station's SAs no longer walls the summon
-    // with a persistent Invalid JWT Signature. Then the moriah crucible charges
-    // (auto-summoning its already-ordained conjure hallmarks), runs the security
-    // cases, quenches. No kludge predecessor - conjure hallmarks come from GAR,
-    // not a local build. NOTE: like skirmish/dogfight, the governor enrobe
-    // re-enrobes the SHARED governor, which in turn obsoletes Retriever/Director
-    // SAs on other hosts until they re-enrobe. OPERATOR PRECONDITION: freehold
-    // depot levied AND the moriah conjure hallmark already ordained into its GAR
-    // (freehold-enrobe heals credentials, not a missing hallmark).
+    // Blockade - moriah airgap crucible. Sibling to siege on the network-posture
+    // axis (siege = tether bottle, blockade = airgap bottle), but unlike siege it
+    // is NOT fully local: moriah is conjure-mode and auto-summons its hallmarks
+    // from the depot's GAR, so the charge needs a live Retriever mantle. The
+    // moriah crucible charges (auto-summoning its already-ordained conjure
+    // hallmarks), runs the security cases, quenches. No kludge predecessor —
+    // conjure hallmarks come from GAR, not a local build. OPERATOR PRECONDITION:
+    // freehold depot levied, federation credentials ready (a live assize, the
+    // retriever mantle donnable), AND the moriah conjure hallmark already ordained
+    // into its GAR.
     rbtdre_Suite {
         name: "blockade",
         fixtures: &[
-            &crate::rbtdrk_enrobe::RBTDRK_FIXTURE_FREEHOLD_ENROBE,
             &RBTDRC_FIXTURE_MORIAH,
         ],
     },

@@ -17,7 +17,7 @@
 // RBTDRK — shared freehold-scheme machinery for the depot test fixtures
 //
 // One depot test-prefix scheme — the freehold — serves every depot fixture:
-// the durable freehold operations (rbtdrk_depot / rbtdrk_enrobe) and the
+// the durable freehold operations (rbtdrk_depot) and the
 // ephemeral depot-lifecycle (rbtdrp_lifecycle). This module is the single home
 // for the scheme: prefix bases, family stem, static SA identities, the env-file
 // install/rewrite helpers, the auto-increment moniker picker, and the case
@@ -43,7 +43,6 @@ use crate::rbtdri_invocation::{
     rbtdri_invoke_global,
 };
 use crate::rbtdgc_consts::{
-    RBTDGC_ACCOUNT_GOVERNOR,
     RBTDGC_RBRA_FILE,
     RBTDGC_RBRD_FILE,
     RBTDGC_RBRR_FILE,
@@ -70,12 +69,6 @@ pub(crate) const RBTDRK_FREEHOLD_RUNTIME_BASE: &str = "canr";
 /// can neither see nor own. (Deployed VALUE retained from the former canonical
 /// scheme.)
 pub(crate) const RBTDRK_FREEHOLD_STEM_BASE: &str = "canest3";
-
-/// Static identities for the SA cycle. Stable across runs because each run uses
-/// a fresh depot project. (Deployed VALUES retained from the former canonical
-/// scheme.)
-pub(crate) const RBTDRK_IDENTITY_RETRIEVER: &str = "canest-ret";
-pub(crate) const RBTDRK_IDENTITY_DIRECTOR: &str = "canest-dir";
 
 const RBTDRK_FAMILY_NUMERIC_FLOOR: u32 = 100000;
 const RBTDRK_FAMILY_NUMERIC_WIDTH: usize = 6;
@@ -427,17 +420,6 @@ pub(crate) fn rbtdrk_probe_freehold_moniker() -> Result<(), String> {
             "{}={:?} does not begin with '{}' — freehold depot moniker not installed",
             RBTDRK_FIELD_RBRD_DEPOT_MONIKER, moniker, family_stem
         ));
-    }
-    Ok(())
-}
-
-/// Governor RBRA file present at the freehold path. Established by the enrobe
-/// fixture's governor-enrobe + copy step.
-pub(crate) fn rbtdrk_probe_governor_rbra() -> Result<(), String> {
-    let root = rbtdrk_probe_root()?;
-    let path = rbtdrk_freehold_rbra(&root, RBTDGC_ACCOUNT_GOVERNOR)?;
-    if !path.exists() {
-        return Err(format!("governor RBRA absent at {}", path.display()));
     }
     Ok(())
 }

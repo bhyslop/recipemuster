@@ -10,18 +10,6 @@ The Folio column shows how each tabtarget receives it:
 - **param1**: Folio is passed as a command-line argument (e.g., `tt/rbw-cKB.KludgeBottle.sh tadmor`)
 - **—**: No folio needed — standalone command
 
-### Accounts — Service account management (`rbw-a`)
-
-| Colophon | Frontispiece | Folio | Purpose |
-|----------|-------------|-------|---------|
-| `rbw-aE` | PayorEnrobesGovernor | — | Enrobe (create/replace) governor service account |
-| `rbw-arE` | GovernorEnrobesRetriever | param1 | Enrobe a Retriever service account for an identity |
-| `rbw-adE` | GovernorEnrobesDirector | param1 | Enrobe a Director service account for an identity |
-| `rbw-arF` | GovernorDefrocksRetriever | param1 | Defrock a Retriever service account by identity |
-| `rbw-adF` | GovernorDefrocksDirector | param1 | Defrock a Director service account by identity |
-| `rbw-arr` | GovernorRostersRetrievers | — | Roster Retriever service accounts (emit per-identity fact files) |
-| `rbw-adr` | GovernorRostersDirectors | — | Roster Director service accounts (emit per-identity fact files) |
-
 ### Access — Credential access probes (`rbw-ac`)
 
 | Colophon | Frontispiece | Folio | Purpose |
@@ -117,7 +105,6 @@ The Folio column shows how each tabtarget receives it:
 | `rbw-Odb` | OnboardingDirectorBind | — | Bind Cloud Build — pin upstream image by digest, mode-mixture pluml Crucible |
 | `rbw-Odg` | OnboardingDirectorGraft | — | Graft Cloud Build — push locally-built image, inspect GRAFTED Vouch verdict |
 | `rbw-Op` | OnboardingPayor | — | Payor — establish a Manor and provision the Depot |
-| `rbw-Og` | OnboardingGovernor | — | Governor — administer service accounts for directors and retrievers |
 
 ### Foundry — Registry artifact lifecycle (`rbw-f`)
 
