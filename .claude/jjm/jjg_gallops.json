@@ -16657,48 +16657,56 @@
         "₢BhAAG": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260621-0848",
+              "jjgtn_ts": "260621-0900",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "Paint the overlay on the proven channel:",
-                "paneboard maps the frame's session key to its AX window (the mapping the probe spike settled)",
+                "paneboard maps a received frame's session key to its AX window (the mapping the probe spike settled)",
                 "and renders the three-region overlay on the alt-tab highlight box it already draws.",
+                "Frames arrive via the IPC listener; this pace is mapping plus rendering only.",
                 "",
-                "See the seed memo's Phase 3 and its entry-points section for the overlay FFI and window-tracking surfaces.",
+                "See the seed memo's Phase 3 and its entry-points section (overlay FFI, window tracking).",
                 "",
                 "## Cinched",
                 "Three stacked multi-line regions on fixed black backing pills, identity-led; per-region style from the frame with built-in defaults when absent (paddock \"Pane-label overlay shape\").",
+                "No-frame fallback: a window with no frame paints exactly today's highlight, so this pace never regresses the current alt-tab overlay even before the sender lands.",
                 "",
                 "## Done when",
                 "- A received frame paints the correct window's highlight with all populated regions.",
-                "- A late-arriving frame still lands on the right window — latency-immune by session key — never the wrong one."
+                "- A late-arriving frame still lands on the right window — latency-immune by session key — never the wrong one.",
+                "- A window with no frame is unchanged from today's behavior."
               ],
               "jjgtn_silks": "pb-overlay-render-and-mapping",
-              "jjgtn_basis": "4b3243f"
+              "jjgtn_basis": "da6b902"
             }
           ]
         },
         "₢BhAAH": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260621-0848",
+              "jjgtn_ts": "260621-0900",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "Layer paneboard over the viewer:",
                 "it proxies fresh/update to viewer instances it spawns and places,",
                 "while the direct-socket viewer keeps working for the no-paneboard / Windows case.",
                 "",
-                "See the seed memo's Phase 4.",
+                "See the seed memo's Phase 4 and the paddock's \"Paneboard run-loop integration\".",
+                "",
+                "## Cinched",
+                "The viewer payload path is the one sanctioned offload: a multi-megabyte fresh/update read must not block the shared run-loop thread (macOS disables a slow event tap), so the byte read runs off-thread and hands the result back to the main thread.",
+                "The direct-socket viewer keeps working unchanged.",
                 "",
                 "## Character",
                 "Layering, not new risk — both the viewer and the overlay channel already exist by this point.",
                 "",
                 "## Done when",
                 "- Paneboard spawns and places a viewer instance and forwards fresh/update to it by id.",
+                "- Large payload reads do not stall the run loop or trip the event-tap slow-callback disable.",
                 "- The direct-socket path from the standalone viewer still works unchanged."
               ],
               "jjgtn_silks": "pb-viewer-conductor",
-              "jjgtn_basis": "549633f"
+              "jjgtn_basis": "da6b902"
             }
           ]
         },
