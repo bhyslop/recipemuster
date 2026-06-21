@@ -15786,8 +15786,8 @@
         "₢BcAAH": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260620-0838",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260621-1354",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "## Character",
                 "Schema change plus a small open-time read — mostly mechanical.",
@@ -15841,7 +15841,7 @@
                 "tt/vow-b and tt/vow-t green."
               ],
               "jjgtn_silks": "chat-retention-config",
-              "jjgtn_basis": "38256b0"
+              "jjgtn_basis": "e6c4731"
             }
           ]
         },
