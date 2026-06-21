@@ -219,6 +219,49 @@ pub fn jjdz_write_forward(gallops: &mut jjrg_Gallops) {
     }
 }
 
+// ============================================================================
+// Retention — chat-history capture policy (read + classify)
+//
+// An instance of the open-time monitum (JJS0 `jjdz_monitum`): a read-only, best-effort,
+// never-gating self-report at officium open. Sibling to the reprieve nag, deliberately kept
+// independent — no shared monitum abstraction until a third instance earns it. The field is read
+// here and surfaced by the open monitum; the value is consumed by the capture mechanism and set by
+// its operator-facing setter, both of which land separately.
+// ============================================================================
+
+/// The ISO date format the retention field is validated against — operator-typeable and
+/// unambiguous. A non-empty value that does not parse against this is malformed.
+pub const JJRI_RETENTION_DATE_FORMAT: &str = "%Y-%m-%d";
+
+/// Classified retention policy read from a Gallops — the three states the open monitum reports.
+pub enum jjri_RetentionState {
+    /// Field absent or empty — retention off, capture is a no-op. The shareable default.
+    Off,
+    /// A valid `YYYY-MM-DD` — retention on since this date (the trimmed value).
+    On(String),
+    /// Non-empty but unparseable — capture disabled; the monitum reports it loud at open. The raw
+    /// value is carried so the operator sees their own typo.
+    Malformed(String),
+}
+
+/// Read and classify the retention policy from a Gallops. Pure, total, never fails — validation is
+/// a read-time classification, never a parse gate, so a malformed date can never make the store
+/// illegitimate (it lands as `Malformed`, not a load error). Single source of the three-state
+/// determination, shared by the open monitum and the capture gate.
+pub fn jjri_retention_state(gallops: &jjrg_Gallops) -> jjri_RetentionState {
+    let raw = match &gallops.retention_since {
+        Some(s) => s.trim(),
+        None => return jjri_RetentionState::Off,
+    };
+    if raw.is_empty() {
+        return jjri_RetentionState::Off;
+    }
+    match chrono::NaiveDate::parse_from_str(raw, JJRI_RETENTION_DATE_FORMAT) {
+        Ok(_) => jjri_RetentionState::On(raw.to_string()),
+        Err(_) => jjri_RetentionState::Malformed(raw.to_string()),
+    }
+}
+
 /// Load and validate Gallops from a file
 ///
 /// Performs these steps in order:

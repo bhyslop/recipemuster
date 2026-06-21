@@ -21,6 +21,7 @@ fn make_valid_gallops() -> jjrg_Gallops {
         next_heat_seed: "AB".to_string(),
         heat_order: vec![],
         heats: BTreeMap::new(),
+        retention_since: None,
     }
 }
 

@@ -727,6 +727,37 @@ fn zjjrm_reprieve_nag(output: &mut vvc::vvco_Output) {
     }
 }
 
+/// Best-effort, read-only retention monitum for jjx_open — the second instance of the open-time
+/// monitum (JJS0 `jjdz_monitum`), sibling to the reprieve nag above and deliberately independent of
+/// it (no shared monitum abstraction until a third instance earns it).
+///
+/// Reads the on-disk Gallops without the commit lock and reports the chat-history retention policy
+/// in three states (`jjri_retention_state`): Off emits nothing (the quiet shareable default), On
+/// prints the since-date, Malformed prints loud and notes capture is disabled. Non-gating by
+/// contract — any read or parse failure is silently skipped and bad config never blocks open, since
+/// a malformed date is a read-time classification, not a parse error. The lockless peek sees only
+/// whole files (jjdr_save renames atomically) and mutates nothing.
+fn zjjrm_retention_monitum(output: &mut vvc::vvco_Output) {
+    let path = gallops_pathbuf();
+    let bytes = match std::fs::read(&path) {
+        Ok(b) => b,
+        Err(_) => return,
+    };
+    let gallops: crate::jjrt_types::jjrg_Gallops = match serde_json::from_slice(&bytes) {
+        Ok(g) => g,
+        Err(_) => return,
+    };
+    match crate::jjri_io::jjri_retention_state(&gallops) {
+        crate::jjri_io::jjri_RetentionState::Off => {}
+        crate::jjri_io::jjri_RetentionState::On(date) => {
+            vvco_out!(output, "retention: on since {}", date);
+        }
+        crate::jjri_io::jjri_RetentionState::Malformed(raw) => {
+            vvco_out!(output, "retention: MALFORMED date \"{}\" — capture disabled", raw);
+        }
+    }
+}
+
 /// The jj-lifecycle files whose git state the open ceremony manages. For now the gallops
 /// alone; the chat-history store joins this set when capture lands. Open requires every
 /// managed file to be pristine before it proceeds — a staged or conflicted store is never
@@ -944,6 +975,7 @@ async fn zjjrm_handle_open(size_limit: u64) -> Result<CallToolResult, McpError> 
         vvco_out!(output, "Exsanguination: {} active, {} reaped", active, reaped);
     }
     zjjrm_reprieve_nag(&mut output);
+    zjjrm_retention_monitum(&mut output);
     vvco_out!(output, "{}{}", OFFICIUM_SUN_PREFIX, id);
     vvco_out!(output, "{}", zjjrm_gazette_paths_block(
         &zjjrm_gazette_in_path(&id),

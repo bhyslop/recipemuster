@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: LicenseRef-Proprietary
 
 use super::jjrg_gallops::*;
+use super::jjri_io::{jjri_RetentionState, jjri_retention_state};
 use super::jjrv_validate::{zjjrg_is_base64, zjjrg_is_kebab_case, zjjrg_is_yymmdd, zjjrg_is_yymmdd_hhmm};
 use super::jjru_util::zjjrg_increment_seed;
 use super::jjrvl_validate::{jjrvl_run_validate, jjrvl_ValidateArgs, zjjrvl_appraise, zjjrvl_Appraisal};
@@ -160,6 +161,7 @@ fn canonical_gallops() -> jjrg_Gallops {
         next_heat_seed: "AB".to_string(),
         heat_order: vec![hk],
         heats,
+        retention_since: None,
     }
 }
 
@@ -293,6 +295,7 @@ fn make_valid_gallops() -> jjrg_Gallops {
         next_heat_seed: "AB".to_string(),
         heat_order: vec![],
         heats: BTreeMap::new(),
+        retention_since: None,
     }
 }
 
@@ -593,6 +596,7 @@ fn jjtg_multiple_errors_collected() {
         next_heat_seed: "!!!".to_string(), // Wrong length and chars
         heat_order: vec![],
         heats: BTreeMap::new(),
+        retention_since: None,
     };
     let (_, mut heat) = make_valid_heat("AB", "my-heat");
     heat.silks = "Invalid_Silks".to_string(); // Has underscore
@@ -1272,4 +1276,80 @@ fn jjtg_tally_inherit_text() {
     let pace = heat.paces.get(&pace_key).unwrap();
     assert_eq!(pace.tacks[0].state, jjrg_PaceState::Complete);
     assert_eq!(pace.tacks[0].text, original_text); // Inherited
+}
+
+// ---------------------------------------------------------------------------
+// Retention field (jjgrn_retention_since) + its open-time monitum classifier.
+// ---------------------------------------------------------------------------
+
+#[test]
+fn jjtg_retention_field_omitted_when_off() {
+    // An off store carries no value, and skip_serializing_if omits the key entirely —
+    // so an off store is byte-identical with or without the field. This is the proof
+    // that adding the field needed no reprieve episode: the on-disk bytes are unchanged.
+    let gallops = make_valid_gallops();
+    assert!(gallops.retention_since.is_none());
+    let json = serde_json::to_string(&gallops).unwrap();
+    assert!(!json.contains("jjgrn_retention_since"), "off store must omit the key");
+}
+
+#[test]
+fn jjtg_retention_field_absent_reads_as_none() {
+    // A new binary reading an old store that predates the field: serde default → None,
+    // and the round-trip is clean (the field never appears).
+    let gallops = make_valid_gallops();
+    let json = serde_json::to_string(&gallops).unwrap();
+    let back: jjrg_Gallops = serde_json::from_str(&json).unwrap();
+    assert!(back.retention_since.is_none());
+}
+
+#[test]
+fn jjtg_retention_field_persists_when_set() {
+    let mut gallops = make_valid_gallops();
+    gallops.retention_since = Some("2026-06-15".to_string());
+    let json = serde_json::to_string(&gallops).unwrap();
+    assert!(json.contains("jjgrn_retention_since"));
+    let back: jjrg_Gallops = serde_json::from_str(&json).unwrap();
+    assert_eq!(back.retention_since, Some("2026-06-15".to_string()));
+}
+
+#[test]
+fn jjtg_retention_state_off_when_absent_or_empty() {
+    let mut gallops = make_valid_gallops();
+    gallops.retention_since = None;
+    assert!(matches!(jjri_retention_state(&gallops), jjri_RetentionState::Off));
+    gallops.retention_since = Some(String::new());
+    assert!(matches!(jjri_retention_state(&gallops), jjri_RetentionState::Off));
+    gallops.retention_since = Some("   ".to_string());
+    assert!(matches!(jjri_retention_state(&gallops), jjri_RetentionState::Off));
+}
+
+#[test]
+fn jjtg_retention_state_on_when_valid_iso_date() {
+    let mut gallops = make_valid_gallops();
+    gallops.retention_since = Some("2026-06-15".to_string());
+    match jjri_retention_state(&gallops) {
+        jjri_RetentionState::On(date) => assert_eq!(date, "2026-06-15"),
+        _ => panic!("expected On for a valid ISO date"),
+    }
+    // Surrounding whitespace is trimmed to the bare date.
+    gallops.retention_since = Some("  2026-06-15  ".to_string());
+    match jjri_retention_state(&gallops) {
+        jjri_RetentionState::On(date) => assert_eq!(date, "2026-06-15"),
+        _ => panic!("expected On after trimming whitespace"),
+    }
+}
+
+#[test]
+fn jjtg_retention_state_malformed_when_unparseable() {
+    // Non-empty but not a valid YYYY-MM-DD — classified Malformed (never a parse error),
+    // carrying the raw value so the operator sees their own typo.
+    for bad in ["not-a-date", "2026-13-01", "06/15/2026", "20260615", "2026-02-30"] {
+        let mut gallops = make_valid_gallops();
+        gallops.retention_since = Some(bad.to_string());
+        match jjri_retention_state(&gallops) {
+            jjri_RetentionState::Malformed(raw) => assert_eq!(raw, bad),
+            _ => panic!("expected Malformed for {:?}", bad),
+        }
+    }
 }
