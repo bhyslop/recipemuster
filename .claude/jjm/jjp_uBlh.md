@@ -54,6 +54,24 @@ Accepted tradeoff: presentation lives partly on the wire rather than solely in p
 This richer in-place overlay presumes the session-id-to-window mapping succeeds (the seed memo's still-unverified spike).
 If that mapping fails, the same data degrades to a richer alt-tab list entry rather than stacked regions.
 
+## Paneboard run-loop integration
+
+Paneboard's IPC listener attaches to the existing CFRunLoop as a run-loop source — never a background thread.
+Cinched, with the rationale grounded in paneboard's current code:
+
+- The keyboard event tap is already a CFMachPort run-loop source (CGEventTapCreate -> CFMachPortCreateRunLoopSource -> CFRunLoopAddSource);
+  a listening socket attaches the identical way (a CFSocket / CFFileDescriptor source, or a poll timer matching the existing tap-health-check timer), and its callback fires on the same main thread.
+- The overlay and AX render path is already main-thread-only — every paint is marshalled back via CFRunLoopPerformBlock + CFRunLoopWakeUp;
+  a listener thread would have to marshal each received frame back to the main thread anyway, so it adds boilerplate and removes nothing.
+- Tiny control frames (register_label) parse in microseconds and are read inline on the run-loop thread.
+
+The one sanctioned offload is the viewer payload path (fresh/update image bytes), and only there:
+the run loop is single-threaded, and macOS disables an event tap whose callback runs slow (paneboard already auto-recovers from exactly this),
+so a multi-megabyte read must not block the shared run-loop thread.
+That offload — a worker that does only the byte read, then hands the decoded image to the main thread — lands with the conductor work, not the control-frame listener.
+
+This is heat shape today; it lands durably in paneboard's PoC spec when the listener work is done.
+
 ## References
 
 - `Memos/memo-20260617-paneboard-overlay-and-viewer.md` — seed memo:
