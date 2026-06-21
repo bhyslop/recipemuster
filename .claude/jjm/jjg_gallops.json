@@ -16495,9 +16495,10 @@
         "₢BhAAB",
         "₢BhAAC",
         "₢BhAAD",
-        "₢BhAAE"
+        "₢BhAAE",
+        "₢BhAAF"
       ],
-      "jjghn_next_pace_seed": "AAF",
+      "jjghn_next_pace_seed": "AAG",
       "jjghn_paces": {
         "₢BhAAA": {
           "jjgpn_tacks": [
@@ -16621,6 +16622,31 @@
               ],
               "jjgtn_silks": "jjs0-overlay-concept-landing",
               "jjgtn_basis": "a922984"
+            }
+          ]
+        },
+        "₢BhAAF": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260621-0848",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "The core rbm-side overlay sender:",
+                "on each jjx engagement, vvx composes the region frame from the window's current identity, silks, repo, and working directory,",
+                "reads per-region style from an rbm-side config,",
+                "and sends best-effort / fail-soft to paneboard's port.",
+                "",
+                "Starting band layout (soft, tweak freely): top = identity + silks; middle = repo + cwd; bottom = reserved.",
+                "",
+                "## Cinched",
+                "Style lives in an rbm-side config vvx reads at send time, never compiled in — edit the config, re-send on any engagement, see it on the next alt-tab.",
+                "",
+                "## Done when",
+                "- vvx sends a well-formed region frame on jjx engagement, failing soft when paneboard is absent.",
+                "- Per-region style is read from the config with paneboard-default fallback when a field is absent."
+              ],
+              "jjgtn_silks": "vvx-label-frame-sender",
+              "jjgtn_basis": "9b8d1c0"
             }
           ]
         }
