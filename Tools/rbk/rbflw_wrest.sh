@@ -46,8 +46,6 @@ rbfl_wrest() {
   test -n "${z_tag}"      || buc_die "Tag is empty in locator"
 
   buc_step "Authenticating as Director"
-  test -f "${RBDC_DIRECTOR_RBRA_FILE}" \
-    || buc_die "Director credential not found: ${RBDC_DIRECTOR_RBRA_FILE}"
   local z_token
   z_token=$(rba_token_capture director) \
     || buc_die "Failed to get OAuth token"

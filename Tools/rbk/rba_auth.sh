@@ -98,33 +98,35 @@ zrba_sentinel() {
 # External / RBTOE Pattern Functions
 
 # The credential accessor — the single place credential material is resolved.
-# Keyed by identity (governor | director | retriever): maps the identity to its
-# RBDC_<ROLE>_RBRA_FILE and mints through rbgo. No call site outside this
-# function touches credential material (source-side grep-gated). The keyfile mint
-# here is bridge scaffolding; the federated-token path will branch in this one
-# function when it lands.
+# Keyed by identity (governor | director | retriever): ensures a live assize
+# (compearance) then dons the matching mantle SA, minting a short-lived mantle
+# access token. No call site outside this function touches credential material
+# (source-side grep-gated); the production callers and their bearer-blind
+# downstream are unchanged — the keyfile→federation swap lives entirely here.
+#
+# Deliberately NOT a pure _capture: rba_compear is folded in so callers never
+# learn the compearance dance, so this accessor emits rba_compear's buc_step
+# progress to stderr and may buc_die on a headless miss. The stdout contract
+# still holds — only the mantle token reaches stdout (compear writes stderr and
+# /dev/tty only; the don emits the token straight to stdout) — and the fast-tier
+# credless guard's in-band buc_reject still propagates: compear's exit
+# terminates the caller's command substitution with the credless band code,
+# which the caller's `|| buc_die` re-exits through the band membrane. The assize
+# cache rba_compear writes is a file, so it survives this command-substitution
+# subshell and the next caller takes the cache-hit path.
 rba_token_capture() {
   zrba_sentinel
 
   local -r z_identity="${1:-}"
 
-  local z_rbra_file
+  # Validate up front so a typo'd identity dies before an interactive compearance.
   case "${z_identity}" in
-    governor)  z_rbra_file="${RBDC_GOVERNOR_RBRA_FILE:-}"  ;;
-    director)  z_rbra_file="${RBDC_DIRECTOR_RBRA_FILE:-}"  ;;
-    retriever) z_rbra_file="${RBDC_RETRIEVER_RBRA_FILE:-}" ;;
+    governor|director|retriever) ;;
     *) buc_die "rba_token_capture: unknown identity '${z_identity}' (expected governor | director | retriever)" ;;
   esac
 
-  test -n "${z_rbra_file}" || return 1
-
-  # return $? not 1: an in-band rejection from the mint (credless guard) must
-  # survive this accessor so the buc_die membrane upstream re-exits it precisely.
-  local z_token
-  z_token=$(rbgo_get_token_capture "${z_rbra_file}") || return $?
-
-  test -n "${z_token}" || return 1
-  echo    "${z_token}"
+  rba_compear
+  rba_don_capture "${z_identity}"
 }
 
 ######################################################################

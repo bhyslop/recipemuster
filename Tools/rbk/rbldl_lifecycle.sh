@@ -33,8 +33,6 @@ rbld_divine() {
   buc_doc_shown || return 0
 
   buc_step "Authenticating as Director"
-  test -f "${RBDC_DIRECTOR_RBRA_FILE}" \
-    || buc_die "Director credential not found: ${RBDC_DIRECTOR_RBRA_FILE}"
   local z_token=""
   z_token=$(rba_token_capture director) \
     || buc_die "Failed to get Director OAuth token"
@@ -137,8 +135,6 @@ rbld_augur() {
     || buc_die "Touchmark format invalid: '${z_touchmark}' (expected <kind><YYMMDDHHMMSS>, e.g. b260602120000)"
 
   buc_step "Authenticating as Director"
-  test -f "${RBDC_DIRECTOR_RBRA_FILE}" \
-    || buc_die "Director credential not found: ${RBDC_DIRECTOR_RBRA_FILE}"
   local z_token=""
   z_token=$(rba_token_capture director) \
     || buc_die "Failed to get Director OAuth token"

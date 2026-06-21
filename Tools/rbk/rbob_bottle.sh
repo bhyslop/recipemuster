@@ -297,7 +297,6 @@ zrbob_summon_full_hallmark() {
   local z_vouch_ref="${z_gar_base}/${RBGL_HALLMARKS_ROOT}/${z_hallmark}/${RBGC_ARK_BASENAME_VOUCH}:${z_hallmark}"
 
   local z_registry_host="${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}"
-  test -f "${RBDC_RETRIEVER_RBRA_FILE}" || buc_die "Retriever credential not found: ${RBDC_RETRIEVER_RBRA_FILE}"
 
   local z_token
   z_token=$(rba_token_capture retriever) || buc_die "Failed to get OAuth token for auto-summon"
@@ -328,7 +327,6 @@ zrbob_vouch_gate_and_summon() {
   test -n "${z_image_ref}"    || buc_die "zrbob_vouch_gate_and_summon: image_ref required"
 
   local z_registry_host="${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}"
-  test -f "${RBDC_RETRIEVER_RBRA_FILE}" || buc_die "Retriever credential not found: ${RBDC_RETRIEVER_RBRA_FILE}"
 
   local z_token
   z_token=$(rba_token_capture retriever) || buc_die "Failed to get OAuth token for auto-summon"

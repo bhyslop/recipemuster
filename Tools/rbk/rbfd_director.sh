@@ -39,10 +39,6 @@ zrbfd_kindle() {
   buc_log_args 'Kindle shared Foundry Core infrastructure'
   zrbfc_kindle
 
-  buc_log_args 'Verify service account files'
-  test -n "${RBDC_DIRECTOR_RBRA_FILE:-}" || buc_die "RBDC_DIRECTOR_RBRA_FILE not set"
-  test -f "${RBDC_DIRECTOR_RBRA_FILE}"   || buc_die "GCB service env file not found: ${RBDC_DIRECTOR_RBRA_FILE}"
-
   buc_log_args 'RBGJ files in same Tools directory as this implementation'
   # Acronym: rbgjb = Recipe Bottle Google Json Build (step scripts in rbgjb/ dir)
   local z_self_dir="${BASH_SOURCE[0]%/*}"
@@ -1094,10 +1090,6 @@ rbfd_build() {
   # Resolve tool images from reliquary (required for step image references)
   zrbfc_resolve_tool_images
 
-  # Source Director RBRA for credentials
-  buc_step "Loading Director RBRA credentials"
-  source "${RBDC_DIRECTOR_RBRA_FILE}" || buc_die "Failed to source Director RBRA"
-
   # Authenticate as Director
   buc_step "Authenticating as Director"
   local z_token=""
@@ -1267,9 +1259,6 @@ rbfd_mirror() {
   bug_require_clean_tree "${RBCC_verb_mirror}"
 
   # Authenticate as Director
-  buc_step "Loading Director RBRA credentials"
-  source "${RBDC_DIRECTOR_RBRA_FILE}" || buc_die "Failed to source Director RBRA"
-
   buc_step "Authenticating as Director"
   local z_token
   z_token=$(rba_token_capture director) \
@@ -1560,9 +1549,6 @@ rbfd_graft() {
   local -r z_graft_ts="${RBGC_HALLMARK_PREFIX_GRAFT}${z_cdate:2:2}${z_cdate:5:2}${z_cdate:8:2}${z_ctime:0:2}${z_ctime:3:2}${z_ctime:6:2}"
 
   # Authenticate as Director
-  buc_step "Loading Director RBRA credentials"
-  source "${RBDC_DIRECTOR_RBRA_FILE}" || buc_die "Failed to source Director RBRA"
-
   buc_step "Authenticating as Director"
   local z_token
   z_token=$(rba_token_capture director) \

@@ -144,9 +144,6 @@ rbld_underpin() {
   printf -v z_url "${RBGC_LODE_WSL_URL_TEMPLATE}" "${z_release}" "${z_fullver}" "${z_arch}"
   buc_info "Underpin source: ${z_url}"
 
-  buc_step "Loading Director RBRA credentials"
-  source "${RBDC_DIRECTOR_RBRA_FILE}" || buc_die "Failed to source Director RBRA"
-
   buc_step "Authenticating as Director"
   local z_token=""
   z_token=$(rba_token_capture director) \

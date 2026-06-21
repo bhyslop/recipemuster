@@ -62,16 +62,8 @@ zrbld_cloud_delete_dispatch() {
   test "$#" -ge 1 || buc_die "zrbld_cloud_delete_dispatch: at least one package required"
   local -r z_packages="$*"
 
-  buc_log_args "Resolving Director service-account email for the delete build run-as identity"
-  test -f "${RBDC_DIRECTOR_RBRA_FILE}" \
-    || buc_die "Director credential not found: ${RBDC_DIRECTOR_RBRA_FILE}"
-  local z_director_sa=""
-  z_director_sa=$(
-    source "${RBDC_DIRECTOR_RBRA_FILE}" || exit 1
-    printf '%s' "${RBRA_CLIENT_EMAIL:-}"
-  ) || buc_die "Failed to source Director RBRA: ${RBDC_DIRECTOR_RBRA_FILE}"
-  test -n "${z_director_sa}" \
-    || buc_die "Director RBRA missing RBRA_CLIENT_EMAIL: ${RBDC_DIRECTOR_RBRA_FILE}"
+  buc_log_args "Deriving Director mantle service-account email for the delete build run-as identity"
+  local -r z_director_sa="${RBCC_account_mantle_director}@${RBDC_DEPOT_PROJECT_ID}.${RBGC_SA_EMAIL_DOMAIN}"
 
   local -r z_step_path="${BASH_SOURCE[0]%/*}/rbgjl/rbgjl06-package-delete.py"
   test -f "${z_step_path}" || buc_die "Delete step script not found: ${z_step_path}"

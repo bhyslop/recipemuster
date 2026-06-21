@@ -36,10 +36,6 @@ zrbfv_kindle() {
   buc_log_args 'Validate Foundry Core is kindled'
   zrbfc_sentinel
 
-  buc_log_args 'Verify Director RBRA file'
-  test -n "${RBDC_DIRECTOR_RBRA_FILE:-}" || buc_die "RBDC_DIRECTOR_RBRA_FILE not set"
-  test -f "${RBDC_DIRECTOR_RBRA_FILE}"   || buc_die "GCB service env file not found: ${RBDC_DIRECTOR_RBRA_FILE}"
-
   buc_log_args 'Define vouch operation file prefix'
   readonly ZRBFV_VOUCH_PREFIX="${BURD_TEMP_DIR}/rbfv_vouch_"
 
@@ -120,9 +116,6 @@ rbfv_about() {
   zrbfc_load_vessel "${z_vessel_dir}"
   test -n "${z_hallmark}" || buc_die "Hallmark parameter required"
 
-  buc_step "Loading Director RBRA credentials"
-  source "${RBDC_DIRECTOR_RBRA_FILE}" || buc_die "Failed to source Director RBRA"
-
   buc_step "Authenticating as Director"
   local z_token=""
   z_token=$(rba_token_capture director) \
@@ -195,9 +188,6 @@ zrbfv_graft_metadata_submit() {
   # Load vessel (follows reload pattern used by rbfv_about/rbfv_vouch)
   zrbfc_load_vessel "${z_vessel_dir}"
   test -n "${z_hallmark}" || buc_die "Hallmark parameter required"
-
-  buc_step "Loading Director RBRA credentials"
-  source "${RBDC_DIRECTOR_RBRA_FILE}" || buc_die "Failed to source Director RBRA"
 
   buc_step "Authenticating as Director"
   local z_token=""
@@ -599,9 +589,6 @@ rbfv_vouch() {
   # Resolve tool images from reliquary (vouch steps use tool images)
   zrbfc_resolve_tool_images
 
-  buc_step "Loading Director RBRA credentials"
-  source "${RBDC_DIRECTOR_RBRA_FILE}" || buc_die "Failed to source Director RBRA"
-
   buc_step "Authenticating as Director"
   local z_token=""
   z_token=$(rba_token_capture director) \
@@ -814,9 +801,6 @@ rbfv_batch_vouch() {
 
   buc_doc_brief "Vouch every pending hallmark (image+about present, vouch absent)"
   buc_doc_shown || return 0
-
-  buc_step "Loading Director RBRA credentials"
-  source "${RBDC_DIRECTOR_RBRA_FILE}" || buc_die "Failed to source Director RBRA"
 
   buc_step "Authenticating as Director"
   local z_token=""

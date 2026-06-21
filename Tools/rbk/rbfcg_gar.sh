@@ -267,8 +267,6 @@ rbfc_vessel_for_hallmark_capture() {
 
   local -r z_hallmark="${1:?Hallmark required}"
 
-  test -f "${RBDC_RETRIEVER_RBRA_FILE}" \
-    || buc_die "Retriever credential not found: ${RBDC_RETRIEVER_RBRA_FILE}"
   local z_token=""
   z_token=$(rba_token_capture retriever) \
     || buc_die "Failed to get Retriever OAuth token"

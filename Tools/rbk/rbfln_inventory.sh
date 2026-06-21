@@ -32,8 +32,6 @@ rbfl_tally() {
   buc_doc_shown || return 0
 
   buc_step "Authenticating as Retriever"
-  test -f "${RBDC_RETRIEVER_RBRA_FILE}" \
-    || buc_die "Retriever credential not found: ${RBDC_RETRIEVER_RBRA_FILE}"
   local z_token=""
   z_token=$(rba_token_capture retriever) \
     || buc_die "Failed to get Retriever OAuth token"
@@ -148,8 +146,6 @@ rbfl_rekon_hallmark() {
   test -n "${z_hallmark}" || buc_die "Usage: rbw-irh <hallmark>"
 
   buc_step "Authenticating as Director"
-  test -f "${RBDC_DIRECTOR_RBRA_FILE}" \
-    || buc_die "Director credential not found: ${RBDC_DIRECTOR_RBRA_FILE}"
   local z_token=""
   z_token=$(rba_token_capture director) \
     || buc_die "Failed to get Director OAuth token"
@@ -210,8 +206,6 @@ rbfl_audit_hallmarks() {
   buc_doc_shown || return 0
 
   buc_step "Authenticating as Director"
-  test -f "${RBDC_DIRECTOR_RBRA_FILE}" \
-    || buc_die "Director credential not found: ${RBDC_DIRECTOR_RBRA_FILE}"
   local z_token=""
   z_token=$(rba_token_capture director) \
     || buc_die "Failed to get Director OAuth token"
@@ -275,8 +269,6 @@ rbfl_list() {
   esac
 
   buc_step "Authenticating as Director"
-  test -f "${RBDC_DIRECTOR_RBRA_FILE}" \
-    || buc_die "Director credential not found: ${RBDC_DIRECTOR_RBRA_FILE}"
   local z_token=""
   z_token=$(rba_token_capture director) \
     || buc_die "Failed to get Director OAuth token"
