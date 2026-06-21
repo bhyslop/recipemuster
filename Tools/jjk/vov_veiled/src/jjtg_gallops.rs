@@ -97,7 +97,7 @@ fn jjtg_load_legacy_string_text_converts_and_collapses() {
 fn jjtg_load_legacy_bridle_demotes_and_drops_direction() {
     // A pre-retirement gallops: a pace is bridled and carries a direction warrant.
     // Loading must demote the state to rough (serde alias) and drop the direction key,
-    // the bridle-retirement forgiveness episode standing the round-trip gate down so the
+    // the bridle-retirement reprieve episode standing the round-trip gate down so the
     // bridled→rough reserialization and dropped warrant key land on the next save.
     let dir = JjkTestDir::new("jjtg_legacy_bridle_retire");
     let path = dir.path().join("jjg_gallops.json");
@@ -212,7 +212,7 @@ fn jjtg_validate_appraise_idempotent_after_normalize() {
 
 #[test]
 fn jjtg_validate_appraise_legacy_text_normalizes_and_collapses() {
-    // A pre-conversion store: string-valued docket text and a multi-tack history. The forgiveness
+    // A pre-conversion store: string-valued docket text and a multi-tack history. The reprieve
     // write-forward splits text to lines and collapses to the single newest tack → Normalize.
     let legacy = r#"{
   "jjgrn_next_heat_seed": "AD",

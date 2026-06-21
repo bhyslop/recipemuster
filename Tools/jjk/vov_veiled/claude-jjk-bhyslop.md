@@ -17,6 +17,7 @@ distributed to consumer projects.
 - **JJSCPD** → `jjk/vov_veiled/JJSCPD-parade.adoc`
 - **JJSCRL** → `jjk/vov_veiled/JJSCRL-rail.adoc`
 - **JJSCRN** → `jjk/vov_veiled/JJSCRN-rein.adoc`
+- **JJSCRP** → `jjk/vov_veiled/JJSCRP-reprieve.adoc` (Reprieve — schema-change tolerance doctrine: the mechanism, the multi-install convergence model, schema-change delivery, and episode registration; `include::`d into JJS0 `== Serialization` at `jjdz_reprieve`)
 - **JJSCRT** → `jjk/vov_veiled/JJSCRT-retire.adoc`
 - **JJSCSC** → `jjk/vov_veiled/JJSCSC-scout.adoc`
 - **JJSCSD** → `jjk/vov_veiled/JJSCSD-saddle.adoc`
@@ -109,16 +110,25 @@ step for a tired reader. Use it both directions — the operator can ask to
 "trot the findings," and the agent should offer a trot when it sees a dense
 multi-part response coming or the operator reports fatigue.
 
-### E. Gallops schema changes are gated on a forgiveness episode (JJK crate)
+### E. Gallops schema changes are gated on a reprieve episode (JJK crate)
 
 Changing the on-disk gallops shape — adding, removing, renaming, or retyping a
 serialized field, or changing how one serializes — is a schema change, and a schema
-change **must** register a forgiveness episode. Skipping it silently breaks reading
+change **must** register a reprieve episode. Skipping it silently breaks reading
 of every older-format gallops on disk. These changes are rare and easy to get wrong;
-do not improvise. Before touching the schema, read `jjdz_forgiveness` in JJS0 and
+do not improvise. Before touching the schema, read `jjdz_reprieve` in JJS0 and
 follow its "Registering a new episode" procedure.
 
-`JJr_a7c` (any `JJr_` token) in the crate is the cited forgiveness rivet —
+The full doctrine — the mechanism, the multi-install convergence model, how a
+schema change is delivered, and how the clones converge — lives in the JJS0
+subdocument `JJSCRP-reprieve.adoc` (the `jjdz_reprieve` quoin). The agent rule it
+imposes: a schema change is delivered source-only on a date-and-identity branch
+(per §F) and never commits a gallops conversion — the reprieve makes the new
+binary tolerant of the old store, so the conversion is deferred to the single
+coordinated convergence that forces and commits it across every install at once.
+The branch is the quarantine; the episode is what makes holding it safe.
+
+`JJr_a7c` (any `JJr_` token) in the crate is the cited reprieve rivet —
 `grep JJr_a7c` to that quoin for the rationale. The code it guards (the V3→V4
 write-forward, frozen `jjrt_v3_types.rs`) is deliberately temporary, removed only
 under the episode's demolition condition: do not clean it up or re-explain it beside

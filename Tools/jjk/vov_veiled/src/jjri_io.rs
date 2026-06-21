@@ -70,8 +70,8 @@ pub fn jjri_paddock_path(firemark: &str) -> String {
     format!(".claude/jjm/jjp_{}.md", encoded)
 }
 
-/// Forgiveness mechanism rivet — opaque cited token (MCM `mcm_rivet`); the proposition and
-/// rationale live in JJS0 `jjdz_forgiveness`.
+/// Reprieve mechanism rivet — opaque cited token (MCM `mcm_rivet`); the proposition and
+/// rationale live in JJS0 `jjdz_reprieve`.
 ///
 /// A rivet ID carries no meaning, unlike a quoin's readable name — the opaque tail leaks no
 /// semantics into the rust that ships without the veiled spec. Single source of the token string
@@ -79,17 +79,17 @@ pub fn jjri_paddock_path(firemark: &str) -> String {
 /// registry/probe/nag operating manual) and every code and spec site the mechanism governs. The
 /// jjx_open nag emits it beside the legible label below, so a console reader can grep straight to
 /// the spec — the census surface a jailer rivet rides on its phase announcement (JDG JDo_101).
-pub const JJDZ_RIVET_FORGIVENESS: &str = "JJr_a7c";
+pub const JJDZ_RIVET_REPRIEVE: &str = "JJr_a7c";
 
-/// Operator-facing label for the forgiveness mechanism — the readable form the jjx_open nag prints
+/// Operator-facing label for the reprieve mechanism — the readable form the jjx_open nag prints
 /// beside the opaque rivet token. The rivet stays meaningless; the human reads this.
-pub const JJDZ_LABEL_FORGIVENESS: &str = "forgiveness";
+pub const JJDZ_LABEL_REPRIEVE: &str = "reprieve";
 
 /// Verdict words for the open-time nag, one per `jjdz_Status` live value.
 const ZJJDZ_PENDING: &str = "pending";
 const ZJJDZ_DORMANT: &str = "dormant";
 
-/// Per-episode forgiveness status for an on-disk Gallops (output of jjdz_probe).
+/// Per-episode reprieve status for an on-disk Gallops (output of jjdz_probe).
 pub struct jjdz_Status {
     /// Human label for the episode (e.g. "V3→V4").
     pub label: &'static str,
@@ -106,8 +106,8 @@ impl jjdz_Status {
     }
 }
 
-/// One registered forgiveness episode: a tolerated old on-disk shape with a live-test.
-/// The demolition condition and lifecycle are spec data (JJS0 `jjdz_forgiveness`), not here.
+/// One registered reprieve episode: a tolerated old on-disk shape with a live-test.
+/// The demolition condition and lifecycle are spec data (JJS0 `jjdz_reprieve`), not here.
 struct zjjdz_Episode {
     label: &'static str,
     is_live: fn(&jjrg_Gallops, &[u8]) -> bool,
@@ -130,7 +130,7 @@ fn zjjdz_episode_v3_to_v4_live(gallops: &jjrg_Gallops, original_bytes: &[u8]) ->
 /// True when the on-disk bytes still carry the now-removed `jjgrn_schema_version` key. No
 /// write-forward body is needed: the field is gone from the type, so the next save omits the
 /// key on its own; the episode exists only to flag the file as a known old shape, standing the
-/// round-trip gate down so that first save can land (JJS0 `jjdz_forgiveness`).
+/// round-trip gate down so that first save can land (JJS0 `jjdz_reprieve`).
 fn zjjdz_episode_schema_version_drop_live(_gallops: &jjrg_Gallops, original_bytes: &[u8]) -> bool {
     const SCHEMA_VERSION_KEY: &[u8] = b"\"jjgrn_schema_version\"";
     original_bytes.windows(SCHEMA_VERSION_KEY.len()).any(|w| w == SCHEMA_VERSION_KEY)
@@ -169,9 +169,9 @@ fn zjjdz_episode_bridle_retirement_live(_gallops: &jjrg_Gallops, original_bytes:
         || original_bytes.windows(DIRECTION_KEY.len()).any(|w| w == DIRECTION_KEY)
 }
 
-/// The forgiveness registry — every tolerated old on-disk schema, one entry per episode.
+/// The reprieve registry — every tolerated old on-disk schema, one entry per episode.
 /// Permanent infrastructure: episodes are appended as schema changes land and removed once
-/// dormant on every operated clone (the per-episode lifecycle in JJS0 `jjdz_forgiveness`).
+/// dormant on every operated clone (the per-episode lifecycle in JJS0 `jjdz_reprieve`).
 const ZJJDZ_REGISTRY: &[zjjdz_Episode] = &[
     zjjdz_Episode { label: "V3→V4", is_live: zjjdz_episode_v3_to_v4_live },
     zjjdz_Episode { label: "schema_version drop", is_live: zjjdz_episode_schema_version_drop_live },
@@ -179,7 +179,7 @@ const ZJJDZ_REGISTRY: &[zjjdz_Episode] = &[
     zjjdz_Episode { label: "bridle retirement", is_live: zjjdz_episode_bridle_retirement_live },
 ];
 
-/// Read-only forgiveness probe — the single source of "what counts as old-format".
+/// Read-only reprieve probe — the single source of "what counts as old-format".
 ///
 /// Pure: reads the parsed Gallops and its on-disk bytes, mutates nothing. Returns one status
 /// per registered episode. jjdr_load consults it to decide migration mode (the loader keeps no
@@ -195,7 +195,7 @@ pub fn jjdz_probe(gallops: &jjrg_Gallops, original_bytes: &[u8]) -> Vec<jjdz_Sta
         .collect()
 }
 
-/// Migration write-forward — rivet JJr_a7c. The canonical-form struct transform the forgiveness
+/// Migration write-forward — rivet JJr_a7c. The canonical-form struct transform the reprieve
 /// mechanism applies once a legacy shape is detected: populate heat_order from the heat keys when
 /// absent (V3→V4; BTreeMap guarantees sorted order), and collapse any legacy multi-tack history to
 /// the single newest tack (tacks[0]) — tack evolution now lives in git per JJS0 Git-as-Journal.
@@ -235,11 +235,11 @@ pub fn jjdr_load(path: &Path) -> Result<jjdr_ValidatedGallops, String> {
     let mut gallops: jjrg_Gallops = serde_json::from_slice(&original_bytes)
         .map_err(|e| format!("Failed to parse JSON: {}", e))?;
 
-    // Forgiveness probe is the single source of old-format detection (rivet JJr_a7c).
+    // Reprieve probe is the single source of old-format detection (rivet JJr_a7c).
     // Any live episode means the on-disk shape is not yet canonical; tolerate the
     // round-trip mismatch so the next save rewrites the clean format back to disk.
-    let forgiveness = jjdz_probe(&gallops, &original_bytes);
-    let is_migration_mode = forgiveness.iter().any(|s| s.live);
+    let reprieve = jjdz_probe(&gallops, &original_bytes);
+    let is_migration_mode = reprieve.iter().any(|s| s.live);
 
     if !is_migration_mode {
         let reserialized = serde_json::to_string_pretty(&gallops)
@@ -251,7 +251,7 @@ pub fn jjdr_load(path: &Path) -> Result<jjdr_ValidatedGallops, String> {
         }
     }
 
-    // Forgiveness write-forward — rivet JJr_a7c. In migration mode, run the shared canonical-form
+    // Reprieve write-forward — rivet JJr_a7c. In migration mode, run the shared canonical-form
     // transform (the single source jjdz_write_forward, also driven by validate-normalize) so the
     // next jjdr_save lands clean. The loader keeps no second copy of the transform; serde already
     // drops the removed schema_version key and any stale next_pensum_seed on its own.

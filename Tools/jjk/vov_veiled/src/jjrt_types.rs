@@ -26,11 +26,11 @@ pub const JJRG_STATE_ABANDONED: &str = "abandoned";
 /// Pace state values
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum jjrg_PaceState {
-    // Forgiveness JJr_a7c — `jjgte_bridled` (and its V3 alias `primed`) are the
+    // Reprieve JJr_a7c — `jjgte_bridled` (and its V3 alias `primed`) are the
     // retired bridled state's legacy on-disk tokens; the bridle-retirement episode
     // demotes them to Rough at the deserialize boundary so a pre-retirement gallops
     // still parses, then the round-trip gate stand-down lets the next save rewrite
-    // `jjgte_rough`. See jjri_io ZJJDZ_REGISTRY and JJS0 jjdz_forgiveness.
+    // `jjgte_rough`. See jjri_io ZJJDZ_REGISTRY and JJS0 jjdz_reprieve.
     #[serde(rename = "jjgte_rough", alias = "jjgte_bridled", alias = "primed")]
     Rough,
     #[serde(rename = "jjgte_complete")]
@@ -76,7 +76,7 @@ pub struct jjrg_Tack {
     /// Docket text as a line array — one element per physical line, so pretty-JSON
     /// decomposes the docket line-by-line and git merges it at line granularity.
     /// Custom deserialize tolerates the legacy string shape (the tack-text→lines
-    /// forgiveness episode — rivet JJr_a7c, JJS0 jjdz_forgiveness): an on-disk
+    /// reprieve episode — rivet JJr_a7c, JJS0 jjdz_reprieve): an on-disk
     /// string is split on '\n' into the array, an array is taken verbatim. Serialize
     /// is the default array form. Round-trip is lossless under the
     /// jjrg_text_to_lines / jjrg_lines_to_text pair (split('\n') ⇔ join('\n')).

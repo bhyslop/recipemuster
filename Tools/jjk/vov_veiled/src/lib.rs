@@ -114,5 +114,5 @@ pub use jjrs_steeplechase::{jjrs_ReinArgs, jjrs_SteeplechaseEntry, jjrs_get_entr
 // Re-export new I/O routines
 pub use jjri_io::{jjdr_load, jjdr_save, jjdr_ValidatedGallops, jjri_persist, jjri_consign};
 
-// Re-export the forgiveness mechanism (schema-migration tolerance: rivet, probe, status, transform)
-pub use jjri_io::{jjdz_probe, jjdz_Status, jjdz_write_forward, JJDZ_LABEL_FORGIVENESS, JJDZ_RIVET_FORGIVENESS};
+// Re-export the reprieve mechanism (schema-migration tolerance: rivet, probe, status, transform)
+pub use jjri_io::{jjdz_probe, jjdz_Status, jjdz_write_forward, JJDZ_LABEL_REPRIEVE, JJDZ_RIVET_REPRIEVE};

@@ -7,7 +7,7 @@ A deliberate normalize-and-report pass, not a read-only check: a valid but
 non-canonical store is rewritten to canonical form and committed rather than
 fataled.
 Canonicalization is the same write-forward the
-{jjdz_forgiveness}
+{jjdz_reprieve}
 mechanism drives in migration mode, plus key-order and whitespace
 normalization.
 It never invents or repairs missing or contradictory data — structural or
@@ -17,7 +17,7 @@ invariant breakage is reported and the file left untouched, never a silent fix.
 
 {jjds_stdout}
 Every outcome names its bucket and prints a per-episode
-{jjdz_forgiveness}
+{jjdz_reprieve}
 census, so a clean result is positive evidence rather than mere silence.
 
 {jjds_exit_enumerated}

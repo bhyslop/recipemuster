@@ -263,7 +263,7 @@
 // Serialization
 :jjdz_charset:      <<jjdz_charset,Charset>>
 :jjdz_encoding:     <<jjdz_encoding,Identity Encoding>>
-:jjdz_forgiveness:  <<jjdz_forgiveness,Forgiveness>>
+:jjdz_reprieve:     <<jjdz_reprieve,Reprieve>>
 
 // Upper API: verbs (equestrian vocabulary)
 :jjsuv_slate:      <<jjsuv_slate,slate>>
@@ -1290,7 +1290,7 @@ defining heat display and selection order.
 Serialized as `jjgrn_heat_order` in JSON.
 Populated from sorted
 {jjdgm_heats}
-keys on first load of an old-format file — the {jjdz_forgiveness} write-forward for the V3→V4 episode;
+keys on first load of an old-format file — the {jjdz_reprieve} write-forward for the V3→V4 episode;
 thereafter maintained explicitly.
 Updated by:
 {jjdo_create}
@@ -1601,7 +1601,7 @@ Values:
 {jjdpe_complete},
 {jjdpe_abandoned}.
 Serialized as `jjgtn_state` in JSON.
-A pre-retirement on-disk `jjgte_bridled` value (V3 alias `primed`) is demoted to {jjdpe_rough} under {jjdz_forgiveness} (the bridle-retirement episode).
+A pre-retirement on-disk `jjgte_bridled` value (V3 alias `primed`) is demoted to {jjdpe_rough} under {jjdz_reprieve} (the bridle-retirement episode).
 
 * [[jjdcm_text]]
 //axl_voices axr_member axd_required axd_repeated axd_property
@@ -1738,41 +1738,25 @@ CLI commands accept identities with or without prefix.
 Length determines type: 2 base64 chars = {jjdt_firemark}, 5 base64 chars = {jjdt_coronet}.
 Output always includes the prefix (`₣` or `₢`).
 
-[[jjdz_forgiveness]]
+=== {jjdz_reprieve}
+
+[[jjdz_reprieve]]
 //axve_entity
-{jjdz_forgiveness}::
-The permanent mechanism by which {jjdr_load} tolerates an on-disk {jjdgr_gallops} written under an older schema, converging it forward on the next save rather than rejecting it.
+{jjdz_reprieve}::
+The permanent mechanism by which {jjdr_load} tolerates an on-disk {jjdgr_gallops} written under an older schema, converging it forward on the next save rather than rejecting it — a temporary stay for the old shape, granted until every clone converges and then retired.
 Cited in shipped code by the opaque rivet token `JJr_a7c` — a rivet's identifier carries no meaning, unlike this quoin's readable name, so it leaks no semantics into the rust that ships without this veiled spec; one `grep JJr_a7c` returns this definition and every code and spec site the mechanism governs.
 This is the cited-constraint anchor pattern — one anchor, many citers — the RBr_ rivet doctrine made JJK-native; the {jjdo_open} nag emits the token beside a legible label, the census surface a jailer rivet rides on its phase announcement.
 +
-*Three standing parts.*
-A per-episode _registry_, one entry per tolerated old shape.
-A single read-only _probe_ — the sole definition of "what counts as old-format" — that reads a parsed {jjdgr_gallops} and its on-disk bytes and reports, per episode, whether that episode's old shape is present (_pending_) or absent (_dormant_); {jjdr_load} consults the probe to decide migration mode and keeps no second copy of the detection.
-A _nag_ at {jjdo_open} that emits one status line per episode carrying the rivet token, so each install self-reports which tolerances are still load-bearing there.
-+
-*Mechanism and episode are distinct lifetimes.*
-The registry, probe, and nag are permanent infrastructure and never retire.
-Multi-install schema drift is the steady state of the tool — there is always a leading clone where a schema-impacting change lands first and lagging clones not yet converged — so the count of mutually-readable schemas is held to a floor rather than accumulating (Zeroes Theory, version axis).
-Only individual episodes retire.
-+
-*An episode's demolition condition* is that no {jjdgr_gallops} predating its schema survives in any operated clone.
-This is checkable rather than an act of faith because of {jjdk_sole_operator}: the operated clones are a finite, enumerable set.
-When an episode is dormant on every clone, its registry entry — and the now-dead write-forward and old-shape tolerance it guards (a custom deserialize, a frozen reference type, or both) — are removed together; the mechanism stands.
-+
-*Registering a new episode* is the standard procedure a future schema change follows.
-Every schema change must be self-detectable from the on-disk artifact itself; there is no global version oracle to consult.
-A shape-changing edit — an added, removed, or retyped field — is recognizable from the shape; a shape-preserving but non-idempotent edit must carry its own marker so the old form stays recognizable.
-An idempotent normalization needs no episode at all — normalize at the point of use instead.
-Ensure the new types tolerate the old on-disk shape at the deserialize boundary, so the parse succeeds and the probe and write-forward run rather than the parse rejecting the old file first.
-An additive or removed field needs only serde's defaults and ignored-unknown handling; a retyped field needs an explicit tolerance — a custom deserialize accepting either shape, or a frozen reference type converted in a second step.
-Add a registry entry whose live-test detects the prior on-disk shape from the parsed value or its raw bytes, and the write-forward that canonicalizes it on load — which may be empty when serde's own omission already drops the old residue.
-Cite the existing rivet token; never mint a per-episode rivet — per-episode specifics (old shape, demolition condition) are registry data, not new cited constraints.
-+
-*The {jjdo_open} ceremony contract.*
-The nag peek is read-only, best-effort, and never gating: it reads the {jjdgr_gallops} without the commit lock, emits nothing on any read or parse failure, and mutates nothing — the lockless read is safe because {jjdr_save} renames atomically, so the peek sees only whole files.
+Doctrine elaborated in subdocument:
+
+include::JJSCRP-reprieve.adoc[leveloffset=+2]
+
+=== Open Ceremony Contract
+
+The {jjdo_open} nag peek is read-only, best-effort, and never gating: it reads the {jjdgr_gallops} without the commit lock, emits nothing on any read or parse failure, and mutates nothing — the lockless read is safe because {jjdr_save} renames atomically, so the peek sees only whole files.
 Open also carries a `size_limit` convergence budget, default 0.
 At 0 the ceremony mutates nothing beyond its invitatory marker — the standing read-only open.
-Above 0 it opts into a bulk-authorized convergence commit: load (running any pending write-forward), save, and commit the managed store under that budget as the invitatory, so a forgiveness conversion self-persists at the next session start (chat capture rides the same path later).
+Above 0 it opts into a bulk-authorized convergence commit: load (running any pending write-forward), save, and commit the managed store under that budget as the invitatory, so a {jjdz_reprieve} conversion self-persists at the next session start (chat capture rides the same path later).
 A convergence over budget hard-fails: the required size is reported, the store is reverted to HEAD, and the freshly-claimed officium is rolled back — no officium delivered, no staged store left behind — with no internal retries (a wedged commit lock is broken out-of-band).
 An always-gate guards both paths: open refuses unless every managed file is pristine (neither staged nor conflicted), since a non-pristine managed store is never legitimate and must be resolved by hand.
 So {jjdo_open} no longer "always succeeds"; it succeeds iff its managed store is clean — the nag alone still never causes failure.
@@ -2086,7 +2070,7 @@ Pace-affiliated commands supply a {jjdt_coronet}; the dispatcher derives the
 parent {jjdt_firemark}.
 +
 {jjdo_open} bypasses the {jjdgr_gallops} lifecycle entirely — it acquires no lock and mutates no persistent state.
-Its only contact with {jjdgr_gallops} is the {jjdz_forgiveness} nag: a read-only, best-effort, non-gating peek that emits per-episode status and never blocks open.
+Its only contact with {jjdgr_gallops} is the {jjdz_reprieve} nag: a read-only, best-effort, non-gating peek that emits per-episode status and never blocks open.
 This is the one deliberate softening of "open touches no persistent state" down to "open mutates nothing"; the peek is logged here rather than papered over.
 +
 *{jjsz_gazette} I/O wiring* (output and input operations):
@@ -2319,7 +2303,7 @@ include::JJSCPD-parade.adoc[]
 
 Create a new {jjdxo_officium} for the calling agent session.
 Takes no parameters; returns the {jjdxo_officium} identity string.
-Mutates no {jjdgr_gallops}; its only read is the {jjdz_forgiveness} nag (read-only, best-effort, non-gating).
+Mutates no {jjdgr_gallops}; its only read is the {jjdz_reprieve} nag (read-only, best-effort, non-gating).
 +
 {jjds_behavior}
 +
@@ -2332,7 +2316,7 @@ The returned identity becomes a required parameter on all subsequent {jjdx_tool}
 {jjds_stdout}
 +
 When {jjdxo_exsanguination} encounters prior officia, a summary line: `Exsanguination: N active, M reaped`.
-One {jjdz_forgiveness} status line per registered episode, each carrying the rivet token (`pending` or `dormant`).
+One {jjdz_reprieve} status line per registered episode, each carrying the rivet token (`pending` or `dormant`).
 Then the {jjdxo_officium} identity string, prefixed with ☉.
 
 === Remote Dispatch Operations
@@ -2937,9 +2921,9 @@ include::JJSTF-test-fundus.adoc[]
 
 == V3 Legacy Schema Reference
 
-WARNING: This section is the frozen reference for the {jjdz_forgiveness} V3→V4 episode.
+WARNING: This section is the frozen reference for the {jjdz_reprieve} V3→V4 episode.
 It documents the V3 schema as implemented in `jjrt_v3_types.rs`.
-Do NOT modify — removed under {jjdz_forgiveness} once that episode is dormant on every operated clone.
+Do NOT modify — removed under {jjdz_reprieve} once that episode is dormant on every operated clone.
 
 === V3 Pace Record
 
@@ -2979,7 +2963,7 @@ Migration is handled by {jjdr_load} in `jjri_io.rs`.
 Current behavior:
 
 . Deserialize JSON as current types
-. Detect migration mode via the {jjdz_forgiveness} probe (the V3→V4 episode reports live)
+. Detect migration mode via the {jjdz_reprieve} probe (the V3→V4 episode reports live)
 . Populate `heat_order` from sorted BTreeMap keys
 . Next {jjdr_save} writes V4 format
 

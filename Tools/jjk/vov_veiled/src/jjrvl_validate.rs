@@ -12,7 +12,7 @@
 //!   2 / normalized  — valid but non-canonical; rewritten to canonical form and committed.
 //!   1 / broken      — could not parse/validate (structural or invariant failure); file untouched.
 //!
-//! Normalization is the same canonicalization the forgiveness mechanism drives in migration mode
+//! Normalization is the same canonicalization the reprieve mechanism drives in migration mode
 //! (the shared jjdz_write_forward transform), plus the serializer's key-order/whitespace
 //! normalization. It never invents or repairs missing/contradictory data — structural breakage is
 //! exit 1, never a silent fix.
@@ -47,7 +47,7 @@ pub struct jjrvl_ValidateArgs {
 
 /// Verdict of appraising the on-disk gallops bytes — the pure outcome, no I/O beyond the bytes in.
 pub(crate) enum zjjrvl_Appraisal {
-    /// Valid and already canonical — exit 0, no write. Carries the forgiveness census.
+    /// Valid and already canonical — exit 0, no write. Carries the reprieve census.
     Canonical(String),
     /// Valid but non-canonical — exit 2 once the canonical form is saved and committed. Carries the
     /// canonical struct to persist and the census. Boxed: the struct dwarfs the other variants.
@@ -58,7 +58,7 @@ pub(crate) enum zjjrvl_Appraisal {
 
 /// Appraise raw gallops bytes against the current schema — the pure canonicalizer verdict.
 ///
-/// Parse, run the shared forgiveness probe (rivet JJr_a7c), apply the migration write-forward when
+/// Parse, run the shared reprieve probe (rivet JJr_a7c), apply the migration write-forward when
 /// any episode is live, semantic-validate, then compare the canonical reserialization against the
 /// bytes as found. No disk, no git, no lock — so it is exhaustively unit-testable on fixtures and
 /// never touches a live store.
@@ -68,10 +68,10 @@ pub(crate) fn zjjrvl_appraise(original_bytes: &[u8]) -> zjjrvl_Appraisal {
         Err(e) => return zjjrvl_Appraisal::Broken(format!("parse failed: {}", e)),
     };
 
-    // Forgiveness probe — the shared single source of old-format detection, consumed here and by
+    // Reprieve probe — the shared single source of old-format detection, consumed here and by
     // the jjx_open nag. It feeds the census and gates the write-forward.
-    let forgiveness = jjdz_probe(&gallops, original_bytes);
-    if forgiveness.iter().any(|s| s.live) {
+    let reprieve = jjdz_probe(&gallops, original_bytes);
+    if reprieve.iter().any(|s| s.live) {
         // Migration mode: run the same canonicalizer jjdr_load drives, so a legacy on-disk shape
         // normalizes to the current schema rather than tripping the comparison below.
         jjdz_write_forward(&mut gallops);
@@ -90,7 +90,7 @@ pub(crate) fn zjjrvl_appraise(original_bytes: &[u8]) -> zjjrvl_Appraisal {
         Ok(s) => s,
         Err(e) => return zjjrvl_Appraisal::Broken(format!("reserialize failed: {}", e)),
     };
-    let census = zjjrvl_census(&forgiveness);
+    let census = zjjrvl_census(&reprieve);
 
     if canonical.as_bytes() == original_bytes {
         zjjrvl_Appraisal::Canonical(census)
@@ -104,7 +104,7 @@ pub fn jjrvl_run_validate(args: jjrvl_ValidateArgs) -> (i32, String) {
     let cn = JJRVL_CMD_NAME_VALIDATE;
     let mut output = vvco_Output::buffer();
 
-    // Read the on-disk bytes directly — the canonical comparison and the forgiveness probe both
+    // Read the on-disk bytes directly — the canonical comparison and the reprieve probe both
     // need the stored form, and we deliberately do not go through jjdr_load: its round-trip gate is
     // exactly the fatal-on-non-canonical behavior this pass replaces.
     let original_bytes = match std::fs::read(&args.file) {
@@ -194,16 +194,16 @@ fn zjjrvl_commit_normalization(
     }
 }
 
-/// One-line forgiveness census for the outcome stdout — names each registered episode's verdict
+/// One-line reprieve census for the outcome stdout — names each registered episode's verdict
 /// against the on-disk store, so a normalized result says *what* shape it migrated and a clean
 /// result is positive evidence rather than bare silence (the self-describing-stdout cinch).
-fn zjjrvl_census(forgiveness: &[jjdz_Status]) -> String {
-    if forgiveness.is_empty() {
-        return "no forgiveness episodes registered.".to_string();
+fn zjjrvl_census(reprieve: &[jjdz_Status]) -> String {
+    if reprieve.is_empty() {
+        return "no reprieve episodes registered.".to_string();
     }
-    let parts: Vec<String> = forgiveness
+    let parts: Vec<String> = reprieve
         .iter()
         .map(|s| format!("{} {}", s.label, s.jjdz_verdict()))
         .collect();
-    format!("forgiveness: {}.", parts.join(", "))
+    format!("reprieve: {}.", parts.join(", "))
 }

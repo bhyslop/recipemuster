@@ -1,0 +1,61 @@
+
+//axve_entity
+{jjdz_reprieve}
+
+The elaborated doctrine of the {jjdz_reprieve} mechanism: its three standing parts, the multi-install convergence model it serves, how a schema change is delivered and converged across clones, and how a new episode is registered.
+Needed in context only during schema modifications.
+
+== Three standing parts
+
+A per-episode _registry_, one entry per tolerated old shape.
+
+A single read-only _probe_ — the sole definition of "what counts as old-format" — that reads a parsed {jjdgr_gallops} and its on-disk bytes and reports, per episode, whether that episode's old shape is present (_pending_) or absent (_dormant_).
+{jjdr_load} consults the probe to decide migration mode and keeps no second copy of the detection.
+
+A _nag_ at {jjdo_open} that emits one status line per episode carrying the rivet token, so each install self-reports which tolerances are still load-bearing there.
+
+== Mechanism and episode lifetimes
+
+The registry, probe, and nag are permanent infrastructure and never retire.
+Only individual episodes retire.
+A {jjdz_reprieve} is by its nature a temporary stay: the old shape it tolerates is already slated for removal, and the stay is granted only until every clone converges.
+
+*Multi-install drift is the steady state.*
+There is always a leading clone where a schema-impacting change lands first and lagging clones not yet converged.
+This is the tool's normal condition under a {jjdk_sole_operator} who edits across several clones, not a transition to be ended.
+The count of mutually-readable schemas is therefore held to a floor rather than allowed to accumulate (Zeroes Theory, version axis): each episode exists to be retired, so the set of old shapes the current binary must still read stays small.
+
+*An episode's demolition condition* is that no {jjdgr_gallops} predating its schema survives in any operated clone.
+This is checkable rather than an act of faith because of {jjdk_sole_operator}: the operated clones are a finite, enumerable set.
+When an episode is dormant on every clone, its registry entry — and the now-dead write-forward and old-shape tolerance it guards (a custom deserialize, a frozen reference type, or both) — are removed together; the mechanism stands.
+
+== Delivering a schema change
+
+A schema-impacting change is delivered source-only on a date-and-identity-named branch and never commits a {jjdgr_gallops} conversion.
+The episode makes the new binary tolerant of the old store, so the conversion stays deferred until the single coordinated convergence forces and commits it across every install at once.
+
+Keeping schema-change source off the shared main until that convergence is what prevents a stray store-saving command on a freshly-built binary from persisting the conversion prematurely, ahead of the cross-install coordination.
+The branch is the quarantine; the episode is the tolerance that makes the quarantine safe to hold.
+
+== Converging the clones
+
+Convergence is a single coordinated pass, owned by one dedicated step rather than scattered across the schema-change paces.
+The installs are a {jjdk_sole_operator}'s finite set: one source clone plus the binary-only remotes that receive a built binary, not source, and so cannot self-convert by being edited.
+
+*Per binary-only remote, two passes with a gate between them.*
+
+. Deliver the episode-bearing binary; run the normalize-and-commit validate to force migration and persist the converted store; confirm via the {jjdo_open} probe that every episode reads _dormant_ on that clone.
+. Only then deliver the binary with the converged episodes' tolerances stripped — the mechanism stays.
+
+Delivering pass two before pass one's confirmation would leave a binary that cannot read a still-old store — the failure the gate exists to prevent.
+
+== Registering a new episode
+
+This is the standard procedure a future schema change follows.
+Every schema change must be self-detectable from the on-disk artifact itself; there is no global version oracle to consult.
+A shape-changing edit — an added, removed, or retyped field — is recognizable from the shape; a shape-preserving but non-idempotent edit must carry its own marker so the old form stays recognizable.
+An idempotent normalization needs no episode at all — normalize at the point of use instead.
+Ensure the new types tolerate the old on-disk shape at the deserialize boundary, so the parse succeeds and the probe and write-forward run rather than the parse rejecting the old file first.
+An additive or removed field needs only serde's defaults and ignored-unknown handling; a retyped field needs an explicit tolerance — a custom deserialize accepting either shape, or a frozen reference type converted in a second step.
+Add a registry entry whose live-test detects the prior on-disk shape from the parsed value or its raw bytes, and the write-forward that canonicalizes it on load — which may be empty when serde's own omission already drops the old residue.
+Cite the existing rivet token; never mint a per-episode rivet — per-episode specifics (old shape, demolition condition) are registry data, not new cited constraints.

@@ -679,17 +679,17 @@ fn zjjrm_gazette_paths_block(
     )
 }
 
-/// Best-effort, read-only forgiveness nag for jjx_open.
+/// Best-effort, read-only reprieve nag for jjx_open.
 ///
 /// Reads the on-disk Gallops without the commit lock and emits one status line per registered
-/// forgiveness episode — `<label> <episode>: <verdict> (<rivet>)`, e.g.
-/// `forgiveness V3→V4: dormant (JJr_a7c)` — carrying the opaque rivet token as a grep/census
+/// reprieve episode — `<label> <episode>: <verdict> (<rivet>)`, e.g.
+/// `reprieve V3→V4: dormant (JJr_a7c)` — carrying the opaque rivet token as a grep/census
 /// surface: pending when the tolerance is still load-bearing on this install, dormant when the
 /// store is already canonical for that episode (a removal candidate once every clone agrees).
 /// Non-gating by contract — any read or parse failure is silently skipped so jjx_open always
 /// succeeds. The lockless peek sees only whole files (jjdr_save renames atomically) and mutates
 /// nothing.
-fn zjjrm_forgiveness_nag(output: &mut vvc::vvco_Output) {
+fn zjjrm_reprieve_nag(output: &mut vvc::vvco_Output) {
     let path = gallops_pathbuf();
     let bytes = match std::fs::read(&path) {
         Ok(b) => b,
@@ -705,10 +705,10 @@ fn zjjrm_forgiveness_nag(output: &mut vvc::vvco_Output) {
         vvco_out!(
             output,
             "{} {}: {} ({})",
-            crate::jjri_io::JJDZ_LABEL_FORGIVENESS,
+            crate::jjri_io::JJDZ_LABEL_REPRIEVE,
             status.label,
             status.jjdz_verdict(),
-            crate::jjri_io::JJDZ_RIVET_FORGIVENESS
+            crate::jjri_io::JJDZ_RIVET_REPRIEVE
         );
     }
 }
@@ -752,7 +752,7 @@ fn zjjrm_revert_managed(path: &str) {
 ///
 /// `size_limit` is the convergence budget. 0 (the standing default) means no mutation — the
 /// lockless empty-invitatory open we have by default. A value > 0 opts the ceremony into a
-/// bulk-authorized convergence commit (forgiveness conversions now; chat capture later),
+/// bulk-authorized convergence commit (reprieve conversions now; chat capture later),
 /// gated by that budget; over budget hard-fails with the required size, reverts, and delivers
 /// no officium.
 async fn zjjrm_handle_open(size_limit: u64) -> Result<CallToolResult, McpError> {
@@ -855,7 +855,7 @@ async fn zjjrm_handle_open(size_limit: u64) -> Result<CallToolResult, McpError> 
     );
 
     // size_limit > 0 opts this open into a bulk-authorized convergence commit: load (running any
-    // pending forgiveness conversion), save, and commit the gallops under the budget as the
+    // pending reprieve conversion), save, and commit the gallops under the budget as the
     // invitatory. Over budget hard-fails — required size in the message, the store reverted, the
     // freshly-claimed officium rolled back — so a blocked convergence leaves no staged store.
     // size_limit == 0 keeps the default lockless empty-invitatory marker (open mutates nothing).
@@ -929,7 +929,7 @@ async fn zjjrm_handle_open(size_limit: u64) -> Result<CallToolResult, McpError> 
     if reaped > 0 || active > 0 {
         vvco_out!(output, "Exsanguination: {} active, {} reaped", active, reaped);
     }
-    zjjrm_forgiveness_nag(&mut output);
+    zjjrm_reprieve_nag(&mut output);
     vvco_out!(output, "{}{}", OFFICIUM_SUN_PREFIX, id);
     vvco_out!(output, "{}", zjjrm_gazette_paths_block(
         &zjjrm_gazette_in_path(&id),
