@@ -65,7 +65,6 @@ rbfr_summon() {
   test -n "${z_hallmark}" || buc_die "Hallmark parameter required (use rbw-ft to tally vouched hallmarks)"
 
   buc_step "Authenticating for retrieval"
-  test -f "${RBDC_RETRIEVER_RBRA_FILE}" || buc_die "Retriever credential not found: ${RBDC_RETRIEVER_RBRA_FILE}"
   local z_token
   z_token=$(rba_token_capture retriever) || buc_die "Failed to get OAuth token"
 

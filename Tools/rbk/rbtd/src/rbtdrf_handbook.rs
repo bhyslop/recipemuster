@@ -29,7 +29,7 @@ use crate::rbtdgc_consts::{
     RBTDGC_HW_DOCKER_CONTEXT, RBTDGC_HW_DOCKER_DESKTOP,
     RBTDGC_ONBOARD_CRASH_COURSE, RBTDGC_ONBOARD_CRED_DIRECTOR,
     RBTDGC_ONBOARD_CRED_RETRIEVER, RBTDGC_ONBOARD_DIR_FIRST_BUILD,
-    RBTDGC_ONBOARD_FIRST_CRUCIBLE, RBTDGC_ONBOARD_GOVERNOR_HB,
+    RBTDGC_ONBOARD_FIRST_CRUCIBLE,
     RBTDGC_ONBOARD_PAYOR_HB, RBTDGC_ONBOARD_START_HERE,
     RBTDGC_PAYOR_ESTABLISH, RBTDGC_PAYOR_REFRESH,
     RBTDGC_QUOTA_BUILD,
@@ -109,10 +109,6 @@ fn rbtdrf_hb_onboard_payor_hb(dir: &Path) -> rbtdre_Verdict {
     rbtdrf_hb_render(dir, RBTDGC_ONBOARD_PAYOR_HB, "onboard-payor-hb")
 }
 
-fn rbtdrf_hb_onboard_governor_hb(dir: &Path) -> rbtdre_Verdict {
-    rbtdrf_hb_render(dir, RBTDGC_ONBOARD_GOVERNOR_HB, "onboard-governor-hb")
-}
-
 // ── Windows cases ───────────────────────────────────────────
 
 fn rbtdrf_hb_handbook_top(dir: &Path) -> rbtdre_Verdict {
@@ -155,7 +151,6 @@ pub static RBTDRF_CASES_HANDBOOK_RENDER: &[rbtdre_Case] = &[
     case!(rbtdrf_hb_onboard_first_crucible),
     case!(rbtdrf_hb_onboard_dir_first_build),
     case!(rbtdrf_hb_onboard_payor_hb),
-    case!(rbtdrf_hb_onboard_governor_hb),
     case!(rbtdrf_hb_handbook_top),
     case!(rbtdrf_hb_handbook_windows),
     case!(rbtdrf_hb_hw_docker_desktop),

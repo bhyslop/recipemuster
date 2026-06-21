@@ -51,10 +51,6 @@ zrbld_kindle() {
   buc_log_args 'Validate Foundry Core is kindled'
   zrbfc_sentinel
 
-  buc_log_args 'Verify Director RBRA file'
-  test -n "${RBDC_DIRECTOR_RBRA_FILE:-}" || buc_die "RBDC_DIRECTOR_RBRA_FILE not set"
-  test -f "${RBDC_DIRECTOR_RBRA_FILE}"   || buc_die "GCB service env file not found: ${RBDC_DIRECTOR_RBRA_FILE}"
-
   buc_log_args 'RBGJL ensconce step scripts (same Tools directory)'
   local z_self_dir="${BASH_SOURCE[0]%/*}"
   readonly ZRBLD_RBGJL_STEPS_DIR="${z_self_dir}/rbgjl"

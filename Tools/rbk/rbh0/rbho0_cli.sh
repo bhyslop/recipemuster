@@ -72,7 +72,6 @@ zrbho_furnish() {
   source "${z_rbh0_dir}/rbhodb_director_bind.sh"        || buc_die "Failed to source rbhodb_director_bind.sh"
   source "${z_rbh0_dir}/rbhodg_director_graft.sh"       || buc_die "Failed to source rbhodg_director_graft.sh"
   source "${z_rbh0_dir}/rbhopw_payor_wrapper.sh"        || buc_die "Failed to source rbhopw_payor_wrapper.sh"
-  source "${z_rbh0_dir}/rbhogw_governor_wrapper.sh"     || buc_die "Failed to source rbhogw_governor_wrapper.sh"
   zrbho_kindle
 }
 

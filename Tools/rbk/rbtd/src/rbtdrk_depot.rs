@@ -33,9 +33,7 @@
 //   6. depot_recognosce      — read-only proof the levy's founding stands whole
 //
 // freehold-churn is the deliberate teardown that makes room for a fresh levy —
-// member of no suite, operator-invoked. The keyfile enrobe cases live in the
-// sibling rbtdrk_enrobe module (the bridge-legacy keyfile credential estate,
-// retired whole when keyfile credentials are removed from the system).
+// member of no suite, operator-invoked.
 //
 // Disposition: StateProgressing. Each case carries a precondition probe via
 // rbtdrb_Probe so a-la-carte single-case rerun fails cleanly when an earlier
@@ -382,8 +380,8 @@ fn rbtdrk_depot_churn_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_Verdi
 // freehold-establish admits federation personas on the no-keys org. The freehold
 // subject (the operator's standing Entra oid, RBTDGC_FREEHOLD_SUBJECT) is compeared,
 // girded as the first governor by the payor, then breveted onto the director and
-// retriever mantles and donned — replacing the keyfile governor/retriever/director
-// enrobe + JWT-probe cases (which live in rbtdrk_enrobe for freehold-enrobe).
+// retriever mantles and donned — the federation replacement for the retired keyfile
+// governor/retriever/director enrobe + JWT-probe cases.
 
 /// Suite-head compearance. Opens or confirms a live assize against the RBRF trust
 /// (rbw-acf): a cache-hit when the operator pre-compeared, an inline device-flow prompt

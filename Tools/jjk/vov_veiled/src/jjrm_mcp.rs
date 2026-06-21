@@ -39,7 +39,10 @@ use crate::jjrgc_get_coronets::{jjrgc_GetCoronetsArgs, jjrgc_run_get_coronets};
 use crate::jjrcu_curry::{jjrcu_CurryArgs, jjrcu_run_curry};
 use crate::jjrrs_restring::{jjrrs_RestringArgs, jjrrs_run};
 use crate::jjrld_landing::{jjrld_LandingArgs, jjrld_run_landing};
-use crate::jjrz_gazette::{jjrz_Gazette, jjrz_Slug, JJRZ_SLUG_HALTER, jjrz_parse_slate_input, jjrz_parse_reslate_input, jjrz_parse_paddock_input, jjrz_parse_halter_input};
+use crate::jjrz_gazette::{jjrz_Gazette, jjrz_Slug, JJRZ_SLUG_HALTER, jjrz_parse_slate_input, jjrz_parse_paddock_input, jjrz_parse_halter_input, jjrz_parse_batch_input};
+use crate::jjrg_gallops::{jjrg_slate, jjrg_curry_apply};
+use crate::jjrt_types::jjrg_SlateArgs;
+use crate::jjrn_notch::jjrn_format_heat_discussion;
 
 const GALLOPS_PATH: &str = ".claude/jjm/jjg_gallops.json";
 const OFFICIA_DIR: &str = ".claude/jjm/officia";
@@ -145,11 +148,15 @@ fn jjrm_deser_error(cmd: &str, e: serde_json::Error) -> Result<CallToolResult, M
 ///
 /// Per jjdk_sole_operator, every operation locks and persists unconditionally.
 /// The handler returns output text on success — it has no knowledge of locks,
-/// persistence, or commit messages.
-fn zjjrm_dispatch_inner(
+/// persistence, or commit messages. The caller supplies the commit message:
+/// heat-affiliated gazette ops (paddock revision, mixed batch) pass a branded
+/// heat-discussion message so the single commit carries the ₣XX chalk and any
+/// note.
+fn zjjrm_dispatch_inner_msg(
     cmd: &str,
     firemark: &crate::jjrf_favor::jjrf_Firemark,
     size_limit: u64,
+    message: String,
     handler: impl FnOnce(&mut crate::jjrg_gallops::jjrg_Gallops) -> Result<String, String>,
 ) -> Result<CallToolResult, McpError> {
     use vvc::vvco_Output;
@@ -188,7 +195,7 @@ fn zjjrm_dispatch_inner(
         &gallops,
         &gallops_path,
         firemark,
-        format!("jjx: {}", cmd),
+        message,
         size_limit,
         &mut persist_output,
     ) {
@@ -203,24 +210,104 @@ fn zjjrm_dispatch_inner(
     Ok(CallToolResult::success(vec![Content::text(output)]))
 }
 
-
-/// Dispatch a pace-affiliated command. Coronet supplied from params; parent firemark derived.
-fn jjrm_dispatch_pace(
-    cmd: &str,
-    coronet_str: &str,
-    size_limit: u64,
-    handler: impl FnOnce(&mut crate::jjrg_gallops::jjrg_Gallops) -> Result<String, String>,
-) -> Result<CallToolResult, McpError> {
-    let coronet = match crate::jjrf_favor::jjrf_Coronet::jjrf_parse(coronet_str) {
-        Ok(c) => c,
-        Err(e) => {
-            return Ok(CallToolResult::error(vec![Content::text(
-                format!("jjx {}: error: {}", cmd, e),
-            )]));
+/// Resolve the single heat firemark a mixed batch targets, enforcing the
+/// same-firemark guard: every reslate coronet's parent and the paddock firemark
+/// (if present) must name one heat. Slates carry silks, not a firemark — they
+/// inherit the resolved heat. A slate-only batch has no anchor and is rejected.
+/// This guard also closes the legacy mass-reslate cross-heat misattribution,
+/// which keyed the whole batch off the first coronet's heat with no check.
+///
+/// Public so coverage lands on a real run-boundary rather than a `z` helper
+/// (RCG: a `z` private never goes public for a test).
+pub fn jjrm_resolve_batch_firemark(
+    batch: &crate::jjrz_gazette::jjrz_BatchInput,
+) -> Result<crate::jjrf_favor::jjrf_Firemark, String> {
+    use crate::jjrf_favor::{jjrf_Firemark as Firemark, jjrf_Coronet as Coronet};
+    let mut candidates: Vec<Firemark> = Vec::new();
+    if let Some((fm_str, _)) = &batch.paddock {
+        candidates.push(Firemark::jjrf_parse(fm_str).map_err(|e| format!("paddock firemark: {}", e))?);
+    }
+    for (coronet_str, _) in &batch.reslates {
+        let coronet = Coronet::jjrf_parse(coronet_str)
+            .map_err(|e| format!("reslate coronet '{}': {}", coronet_str, e))?;
+        candidates.push(coronet.jjrf_parent_firemark());
+    }
+    let first = candidates.first()
+        .ok_or_else(|| "slate-only batch has no heat anchor; include a paddock or reslate notice, or use jjx_enroll".to_string())?
+        .clone();
+    for fm in &candidates[1..] {
+        if fm.jjrf_display() != first.jjrf_display() {
+            return Err(format!(
+                "cross-heat batch rejected: notices span heats {} and {} (a batch is single-heat)",
+                first.jjrf_display(), fm.jjrf_display()
+            ));
         }
-    };
-    let firemark = coronet.jjrf_parent_firemark();
-    zjjrm_dispatch_inner(cmd, &firemark, size_limit, handler)
+    }
+    Ok(first)
+}
+
+/// Apply a resolved single-heat batch to the in-memory gallops: paddock revision
+/// (writes the paddock file), then reslates (order-free), then slates in file
+/// order with only the first taking the cursor (before/after/first). Pure
+/// transform over gallops + one paddock-file side effect — no lock, no commit;
+/// the shared dispatch lifecycle persists the result in one commit. Returns the
+/// human-readable per-notice summary. Public so tests exercise it directly.
+pub fn jjrm_apply_batch(
+    gallops: &mut crate::jjrg_gallops::jjrg_Gallops,
+    batch: &crate::jjrz_gazette::jjrz_BatchInput,
+    firemark: &crate::jjrf_favor::jjrf_Firemark,
+    before: Option<String>,
+    after: Option<String>,
+    first: bool,
+) -> Result<String, String> {
+    let mut lines: Vec<String> = Vec::new();
+    // Paddock first — write the paddock file; jjri_persist co-commits it.
+    if let Some((_, content)) = &batch.paddock {
+        jjrg_curry_apply(gallops, firemark, content)?;
+        lines.push("paddock revised".to_string());
+    }
+    // Reslates — order irrelevant, each targets its own coronet.
+    for (coronet, docket) in &batch.reslates {
+        let diff = jjrtl_run_revise_docket(gallops, coronet, docket)?;
+        if !diff.is_empty() {
+            lines.push(format!("--- ₢{} reslate diff ---\n{}", coronet, diff));
+        }
+    }
+    // Slates — file order is pace order; only the first takes the cursor.
+    for (idx, (silks, docket)) in batch.slates.iter().enumerate() {
+        let (b, a, f) = if idx == 0 {
+            (before.clone(), after.clone(), first)
+        } else {
+            (None, None, false)
+        };
+        let res = jjrg_slate(gallops, jjrg_SlateArgs {
+            firemark: firemark.jjrf_display(),
+            silks: silks.clone(),
+            text: docket.clone(),
+            before: b,
+            after: a,
+            first: f,
+        })?;
+        lines.push(format!("slated ₢{}", res.coronet));
+    }
+    let mut output = format!(
+        "Batch applied: {} paddock, {} reslate, {} slate",
+        batch.paddock.is_some() as usize, batch.reslates.len(), batch.slates.len()
+    );
+    if !lines.is_empty() {
+        output.push_str("\n\n");
+        output.push_str(&lines.join("\n"));
+    }
+    Ok(output)
+}
+
+/// One-line description of a mixed batch for the branded heat-discussion commit.
+fn zjjrm_batch_description(batch: &crate::jjrz_gazette::jjrz_BatchInput) -> String {
+    let mut parts = Vec::new();
+    if batch.paddock.is_some() { parts.push("paddock".to_string()); }
+    if !batch.reslates.is_empty() { parts.push(format!("{} reslate", batch.reslates.len())); }
+    if !batch.slates.is_empty() { parts.push(format!("{} slate", batch.slates.len())); }
+    format!("batch: {}", parts.join(", "))
 }
 
 // ============================================================================
@@ -298,6 +385,14 @@ pub struct jjrm_ReorderParams {
 #[derive(Debug, serde::Deserialize, schemars::JsonSchema)]
 pub struct jjrm_ReviseDocketParams {
     pub size_limit: Option<u64>,
+    /// Position the FIRST slate notice before this coronet (mixed batch only;
+    /// mutually exclusive with after/first). Reslate/paddock never move the cursor.
+    pub before: Option<String>,
+    /// Position the FIRST slate notice after this coronet (mixed batch only).
+    pub after: Option<String>,
+    /// Position the FIRST slate notice at the head of the heat (mixed batch only).
+    #[serde(default)]
+    pub first: bool,
 }
 
 
@@ -337,6 +432,7 @@ pub struct jjrm_AlterParams {
 pub struct jjrm_CloseParams {
     pub coronet: String,
     pub summary: Option<String>,
+    pub spook: Option<String>,
     pub size_limit: Option<u64>,
 }
 
@@ -442,6 +538,136 @@ pub struct jjrm_JjxParams {
     pub officium: Option<String>,
     #[schemars(description = "Agent model ID string (e.g. 'claude-opus-4-6[1m]'). Required on all commands.")]
     pub model: String,
+}
+
+// ============================================================================
+// vvx_tt — tabtarget runner (vvx-surface sibling tool, NOT a jjx command)
+// ============================================================================
+//
+// A second MCP tool on the vvx server: execs a tt/*.sh tabtarget so tabtarget
+// runs stop drawing a per-invocation Bash permission prompt — one MCP approval
+// absorbs the sediment. Bounded to tt/*.sh (no arbitrary-command path), and it
+// enforces the tabtarget discipline the agent otherwise has to remember: run
+// from the repo root, never pipe to tail/head/grep (output is captured, so the
+// exit code is preserved — the pipe hazard that silently masks failures cannot
+// arise), and point the caller at the self-logged ../logs-buk/ record.
+
+/// Tabtarget directory, relative to the repo root (the server's cwd).
+const VVX_TT_DIR: &str = "tt";
+/// Conventional self-log of the most recent invocation (BURS_LOG_DIR default).
+/// Stable across runs and — under the sequential-only test discipline — always
+/// this run, so we point the caller here rather than re-derive the fragile,
+/// station-configurable per-tabtarget log tag.
+const VVX_TT_LOG_HINT: &str = "../logs-buk/last.txt";
+/// Inline-output ceiling: return the last N bytes of captured output and defer
+/// the full record to the log, so a long test suite cannot flood the response.
+const VVX_TT_OUTPUT_TAIL_BYTES: usize = 60_000;
+
+#[derive(Debug, serde::Deserialize, schemars::JsonSchema)]
+pub struct jjrm_VvxTtParams {
+    #[schemars(description = "Tabtarget script to run, e.g. \"rbw-ts.TestSuite.fast.sh\". A leading \"tt/\" is accepted and stripped. Must be a bare filename ending in .sh (no path separators, no \"..\") — the tool is bounded to tt/*.sh and refuses anything else.")]
+    pub tabtarget: String,
+    #[schemars(description = "Positional arguments forwarded to the tabtarget unchanged (e.g. a fixture name for rbw-tf.FixtureRun.sh). Optional.")]
+    #[serde(default)]
+    pub args: Vec<String>,
+}
+
+/// Validate + normalize a tabtarget name to the bare `<name>.sh` form the tool
+/// is bounded to. A leading `tt/` is stripped; the result must be a single path
+/// component ending in `.sh`. This is the no-arbitrary-command guard — the tool
+/// runs only `tt/*.sh`, never a free command or a path that escapes the dir.
+fn zjjrm_normalize_tabtarget(raw: &str) -> Result<String, String> {
+    let trimmed = raw.trim();
+    let name = trimmed.strip_prefix("tt/").unwrap_or(trimmed);
+    if name.is_empty() {
+        return Err("tabtarget is empty".to_string());
+    }
+    if name.contains('/') || name.contains("..") {
+        return Err(format!(
+            "tabtarget '{}' must be a bare filename under tt/ (no path separators, no '..')",
+            raw
+        ));
+    }
+    if !name.ends_with(".sh") {
+        return Err(format!("tabtarget '{}' must end in .sh", raw));
+    }
+    Ok(name.to_string())
+}
+
+/// Return the last `max_bytes` of `s` on a char boundary, with a truncation flag.
+fn zjjrm_tail(s: &str, max_bytes: usize) -> (&str, bool) {
+    if s.len() <= max_bytes {
+        return (s, false);
+    }
+    let mut start = s.len() - max_bytes;
+    while start < s.len() && !s.is_char_boundary(start) {
+        start += 1;
+    }
+    (&s[start..], true)
+}
+
+/// Run a tt/ tabtarget as a subprocess from the repo root, capturing combined
+/// stdout+stderr. Returns (exit_code, report). Blocking std::process — the MCP
+/// server serves one client and tabtargets run sequentially by discipline, and
+/// the sibling jjx handlers already block on git subprocesses, so no async
+/// process machinery is warranted. The report leads with the exit status and
+/// the self-logged output path, then a tail of the captured output.
+fn zjjrm_run_tabtarget(params: jjrm_VvxTtParams) -> (i32, String) {
+    let name = match zjjrm_normalize_tabtarget(&params.tabtarget) {
+        Ok(n) => n,
+        Err(e) => return (1, format!("vvx_tt: {}", e)),
+    };
+    let rel_path = format!("{}/{}", VVX_TT_DIR, name);
+    if !Path::new(&rel_path).is_file() {
+        return (1, format!(
+            "vvx_tt: no tabtarget at {} — vvx_tt runs from the repo root and is bounded to tt/*.sh",
+            rel_path
+        ));
+    }
+
+    // bash <script> <args…>: byte-identical argv to a direct `./tt/<name>` run
+    // ($0 -> tt/<name>, so the z-launcher basename/dir logic is unchanged), and
+    // robust to a missing executable bit. We exec directly — never via a shell
+    // string — so the args cannot be reinterpreted as a command.
+    let output = match std::process::Command::new("bash")
+        .arg(&rel_path)
+        .args(&params.args)
+        .output()
+    {
+        Ok(o) => o,
+        Err(e) => return (1, format!("vvx_tt: failed to launch {}: {}", rel_path, e)),
+    };
+
+    let code = output.status.code().unwrap_or(-1);
+    let mut combined = String::from_utf8_lossy(&output.stdout).into_owned();
+    let stderr = String::from_utf8_lossy(&output.stderr);
+    if !stderr.is_empty() {
+        if !combined.is_empty() {
+            combined.push('\n');
+        }
+        combined.push_str(&stderr);
+    }
+
+    let args_suffix = if params.args.is_empty() {
+        String::new()
+    } else {
+        format!(" {}", params.args.join(" "))
+    };
+    let mut report = format!(
+        "vvx_tt {}{}: exit {}\nlog: {} (self-logged full record; read it directly, never pipe to tail/head/grep)\n",
+        name, args_suffix, code, VVX_TT_LOG_HINT,
+    );
+    let (shown, truncated) = zjjrm_tail(&combined, VVX_TT_OUTPUT_TAIL_BYTES);
+    if truncated {
+        report.push_str(&format!(
+            "--- output (last {} bytes; full record in log) ---\n",
+            VVX_TT_OUTPUT_TAIL_BYTES
+        ));
+    } else {
+        report.push_str("--- output ---\n");
+    }
+    report.push_str(shown);
+    (code, report)
 }
 
 // ============================================================================
@@ -714,14 +940,16 @@ fn zjjrm_reprieve_nag(output: &mut vvc::vvco_Output) {
         Err(_) => return,
     };
     for status in crate::jjri_io::jjdz_probe(&gallops, &bytes) {
-        // Legible label + opaque rivet token (JJr_a7c) — the rivet rides the emission as a grep
-        // surface; the label reads at sight (the jjx_open echo of JDG JDo_101).
+        // Legible label + inline gloss + opaque rivet token (JJr_a7c) — the rivet rides the
+        // emission as a grep surface; the label and gloss read at sight (the jjx_open echo of
+        // JDG JDo_101), so the verdict is actionable without opening code or spec.
         vvco_out!(
             output,
-            "{} {}: {} ({})",
+            "{} {}: {} — {} ({})",
             crate::jjri_io::JJDZ_LABEL_REPRIEVE,
             status.label,
             status.jjdz_verdict(),
+            status.jjdz_gloss(),
             crate::jjri_io::JJDZ_RIVET_REPRIEVE
         );
     }
@@ -1242,33 +1470,32 @@ impl jjrm_McpServer {
             }
             JJRM_CMD_NAME_REDOCKET => {
                 let p = deser!(jjrm_ReviseDocketParams);
-                let pairs = match gazette_in_content {
-                    Some(ref content) => match jjrz_parse_reslate_input(content) {
-                        Ok(p) => p,
+                let batch = match gazette_in_content {
+                    Some(ref content) => match jjrz_parse_batch_input(content) {
+                        Ok(b) => b,
                         Err(e) => return Ok(CallToolResult::error(vec![Content::text(
                             format!("{}: gazette input error: {}", cmd, e),
                         )])),
                     },
                     None => return Ok(CallToolResult::error(vec![Content::text(
-                        format!("{}: requires gazette_in.md with jjezs_reslate notice(s); checked {}", cmd, gazette_in_path.display()),
+                        format!("{}: requires gazette_in.md with jjezs_reslate/jjezs_slate/jjezs_paddock notice(s); checked {}", cmd, gazette_in_path.display()),
                     )])),
                 };
-                let first_coronet = pairs[0].0.clone();
+                // Resolve + guard the single heat firemark across all notices.
+                let firemark = match jjrm_resolve_batch_firemark(&batch) {
+                    Ok(fm) => fm,
+                    Err(e) => return Ok(CallToolResult::error(vec![Content::text(
+                        format!("{}: {}", cmd, e),
+                    )])),
+                };
                 let size_limit = p.size_limit.unwrap_or(vvc::VVCG_SIZE_LIMIT);
-                jjrm_dispatch_pace(cmd, &first_coronet, size_limit, |gallops| {
-                    let mut diffs = Vec::new();
-                    for (coronet, docket) in &pairs {
-                        let diff = jjrtl_run_revise_docket(gallops, coronet, docket)?;
-                        if !diff.is_empty() {
-                            diffs.push(format!("--- ₢{} reslate diff ---\n{}", coronet, diff));
-                        }
-                    }
-                    let mut output = format!("Revised {} pace(s)", pairs.len());
-                    if !diffs.is_empty() {
-                        output.push_str("\n\n");
-                        output.push_str(&diffs.join("\n"));
-                    }
-                    Ok(output)
+                let message = jjrn_format_heat_discussion(&firemark, &zjjrm_batch_description(&batch));
+                let firemark_for_handler = firemark.clone();
+                let before = p.before.clone();
+                let after = p.after.clone();
+                let first = p.first;
+                zjjrm_dispatch_inner_msg(cmd, &firemark, size_limit, message, move |gallops| {
+                    jjrm_apply_batch(gallops, &batch, &firemark_for_handler, before, after, first)
                 })
             }
             JJRM_CMD_NAME_RELABEL => {
@@ -1313,7 +1540,7 @@ impl jjrm_McpServer {
                 jjrm_result(zjjrx_run_wrap(jjrx_WrapArgs {
                     coronet: p.coronet,
                     size_limit: p.size_limit,
-                }, p.summary))
+                }, p.summary, p.spook))
             }
             JJRM_CMD_NAME_SEARCH => {
                 let p = deser!(jjrm_SearchParams);
@@ -1342,23 +1569,33 @@ impl jjrm_McpServer {
             JJRM_CMD_NAME_PADDOCK => {
                 let p = deser!(jjrm_PaddockParams);
                 if let Some(ref content) = gazette_in_content {
-                    // Setter mode: gazette_in.md had paddock content
-                    let (firemark, paddock_content) = match jjrz_parse_paddock_input(content) {
+                    // Setter mode: gazette_in.md had paddock content. The paddock
+                    // revision now joins the shared dispatch/persist lifecycle
+                    // (jjri_persist co-commits gallops + paddock under the firemark),
+                    // rather than self-committing on the old curry path.
+                    let (firemark_str, paddock_content) = match jjrz_parse_paddock_input(content) {
                         Ok(pair) => pair,
                         Err(e) => return Ok(CallToolResult::error(vec![Content::text(
                             format!("{}: gazette input error: {}", cmd, e),
                         )])),
                     };
-                    let mut gazette = jjrz_Gazette::jjrz_build(&[jjrz_Slug::Paddock, jjrz_Slug::Pace]);
-                    let result = jjrcu_run_curry(jjrcu_CurryArgs {
-                        file: gallops_pathbuf(),
-                        firemark,
-                        note: p.note,
-                        size_limit: p.size_limit,
-                    }, Some(paddock_content), &mut gazette);
-                    let md = gazette.jjrz_emit();
-                    if !md.is_empty() { std::fs::write(&gazette_out_path, md.as_bytes()).ok(); }
-                    jjrm_result(result)
+                    let firemark = match crate::jjrf_favor::jjrf_Firemark::jjrf_parse(&firemark_str) {
+                        Ok(fm) => fm,
+                        Err(e) => return Ok(CallToolResult::error(vec![Content::text(
+                            format!("{}: error: {}", cmd, e),
+                        )])),
+                    };
+                    let description = match &p.note {
+                        Some(n) => format!("paddock curried: {}", n),
+                        None => "paddock curried".to_string(),
+                    };
+                    let message = jjrn_format_heat_discussion(&firemark, &description);
+                    let size_limit = p.size_limit.unwrap_or(vvc::VVCG_SIZE_LIMIT);
+                    let firemark_for_handler = firemark.clone();
+                    zjjrm_dispatch_inner_msg(cmd, &firemark, size_limit, message, move |gallops| {
+                        jjrg_curry_apply(gallops, &firemark_for_handler, &paddock_content)?;
+                        Ok(format!("{}: paddock updated", cmd))
+                    })
                 } else {
                     // Getter mode: no gazette_in.md — read paddock to gazette_out.md
                     let firemark = match p.firemark {
@@ -1373,7 +1610,7 @@ impl jjrm_McpServer {
                         firemark,
                         note: p.note,
                         size_limit: p.size_limit,
-                    }, None, &mut gazette);
+                    }, &mut gazette);
                     let md = gazette.jjrz_emit();
                     if !md.is_empty() { std::fs::write(&gazette_out_path, md.as_bytes()).ok(); }
                     if code == 0 {
@@ -1475,6 +1712,16 @@ impl jjrm_McpServer {
             }
         }
     }
+
+    /// vvx_tt — run a tt/*.sh tabtarget. Sibling to `jjx` on the vvx surface,
+    /// not a jjx command: no officium, no model gate, no Gallops lock — it
+    /// touches no heat/pace state, it just execs a curated launcher.
+    #[tool(name = "vvx_tt", description = "Run a tt/*.sh tabtarget from the repo root and return its exit status, self-logged ../logs-buk/ output path, and a tail of its output. Bounded to tt/*.sh — no arbitrary commands. Absorbs the tabtarget discipline so it need not be remembered: runs from the repo root, captures output (the exit code is preserved, never eaten by a tail/head/grep pipe), and points at the self-logged record for the full text.")]
+    async fn vvx_tt(&self, Parameters(p): Parameters<jjrm_VvxTtParams>) -> Result<CallToolResult, McpError> {
+        let (code, report) = zjjrm_run_tabtarget(p);
+        eprintln!("vvx_tt: exit={}", code);
+        jjrm_result((code, report))
+    }
 }
 
 #[tool_handler]
@@ -1559,6 +1806,46 @@ mod tests {
             id
         );
         let _ = std::fs::remove_dir_all(&officia);
+    }
+
+    #[test]
+    fn normalize_tabtarget_accepts_bare_and_tt_prefixed() {
+        assert_eq!(
+            zjjrm_normalize_tabtarget("rbw-ts.TestSuite.fast.sh").unwrap(),
+            "rbw-ts.TestSuite.fast.sh"
+        );
+        assert_eq!(
+            zjjrm_normalize_tabtarget("tt/rbw-ts.TestSuite.fast.sh").unwrap(),
+            "rbw-ts.TestSuite.fast.sh"
+        );
+        assert_eq!(
+            zjjrm_normalize_tabtarget("  tt/foo.sh  ").unwrap(),
+            "foo.sh"
+        );
+    }
+
+    #[test]
+    fn normalize_tabtarget_rejects_arbitrary_paths_and_non_sh() {
+        // Path escape, nested path, traversal, and non-.sh all refuse — the
+        // no-arbitrary-command guard.
+        assert!(zjjrm_normalize_tabtarget("/etc/passwd").is_err());
+        assert!(zjjrm_normalize_tabtarget("tt/../secrets.sh").is_err());
+        assert!(zjjrm_normalize_tabtarget("sub/dir/foo.sh").is_err());
+        assert!(zjjrm_normalize_tabtarget("rbw-ts.TestSuite.fast").is_err());
+        assert!(zjjrm_normalize_tabtarget("").is_err());
+        assert!(zjjrm_normalize_tabtarget("tt/").is_err());
+    }
+
+    #[test]
+    fn tail_returns_whole_under_limit_and_suffix_over() {
+        let (s, trunc) = zjjrm_tail("short", 60_000);
+        assert_eq!(s, "short");
+        assert!(!trunc);
+
+        let big = "x".repeat(100);
+        let (s, trunc) = zjjrm_tail(&big, 10);
+        assert_eq!(s.len(), 10);
+        assert!(trunc);
     }
 
     #[test]

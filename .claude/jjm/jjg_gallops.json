@@ -2923,7 +2923,7 @@
       }
     },
     "₣A6": {
-      "jjghn_silks": "rbk-12-mvp-FABLE-handbook-restart",
+      "jjghn_silks": "rbk-13-mvp-FABLE-handbook-restart",
       "jjghn_creation_time": "260409",
       "jjghn_status": "jjghe_racing",
       "jjghn_order": [
@@ -11918,9 +11918,11 @@
         "₢BDAAc",
         "₢BDAAd",
         "₢BDAAe",
-        "₢BDAAY"
+        "₢BDAAY",
+        "₢BDAAf",
+        "₢BDAAg"
       ],
-      "jjghn_next_pace_seed": "AAf",
+      "jjghn_next_pace_seed": "AAh",
       "jjghn_paces": {
         "₢BDAAA": {
           "jjgpn_tacks": [
@@ -12921,8 +12923,8 @@
         "₢BDAAZ": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260618-1535",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260621-1715",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "Design a wrap-time friction-audit channel.",
                 "At close, the agent records a short structured grep-extractable line into the wrap commit message,",
@@ -12957,7 +12959,7 @@
                 "or is filed as an itch, with an explicit build-now-or-defer decision recorded."
               ],
               "jjgtn_silks": "wrap-friction-audit",
-              "jjgtn_basis": "a785eb2"
+              "jjgtn_basis": "fea2b14"
             }
           ]
         },
@@ -12996,8 +12998,8 @@
         "₢BDAAb": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260619-0818",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260621-1726",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "## Character",
                 "Wording polish — output strings plus a matching spec line. Low risk.",
@@ -13019,15 +13021,15 @@
                 "zjjrm_forgiveness_nag (Tools/jjk/vov_veiled/src/jjrm_mcp.rs), jjdz_Status verdict (jjri_io.rs), nag contract in JJS0 jjdz_forgiveness."
               ],
               "jjgtn_silks": "forgiveness-nag-self-documenting",
-              "jjgtn_basis": "30a1645"
+              "jjgtn_basis": "7505fc8"
             }
           ]
         },
         "₢BDAAc": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260620-1108",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260621-1822",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "## Goal",
                 "One gazette setter applies a heterogeneous single-heat batch — paddock + reslate + slate notices mixed in one gazette_in.md — and emits exactly one commit.",
@@ -13057,15 +13059,15 @@
                 "The shape is fixed; the command surface — a new verb versus extending redocket to accept mixed slugs — is a mount-time mechanical choice, not an open design fork."
               ],
               "jjgtn_silks": "gazette-mixed-notice-batch",
-              "jjgtn_basis": "09ce0a4"
+              "jjgtn_basis": "e3fbd1e"
             }
           ]
         },
         "₢BDAAd": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260620-1245",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260621-1843",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "## Character",
                 "Mechanical — a bounded MCP tool wrapping the existing curated launcher surface.",
@@ -13087,7 +13089,7 @@
                 "Tabtarget self-logging and the pipe hazard: CLAUDE.md \"TabTarget Invocation Discipline\"."
               ],
               "jjgtn_silks": "vvx-tabtarget-runner",
-              "jjgtn_basis": "b251e70"
+              "jjgtn_basis": "6df0fc2"
             }
           ]
         },
@@ -13118,6 +13120,70 @@
               ],
               "jjgtn_silks": "revision-substrate-surveyor",
               "jjgtn_basis": "30d01f2"
+            }
+          ]
+        },
+        "₢BDAAf": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260621-1820",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "Spec-sync, mechanical-to-moderate.",
+                "The behavior is shipped and tested; this transcribes it into the spec family under ACG/MCM discipline — no design.",
+                "",
+                "## Goal",
+                "Sync the JJK spec family to the mixed-batch redocket surface and the paddock-setter commit-lifecycle convergence already shipped in the jjk crate.",
+                "The specs must describe the shipped behavior; the landed code is the source of truth, not this docket.",
+                "",
+                "## Cinched",
+                "ACG governs the edit: reference the home, do not recreate.",
+                "The batch operation earns ONE contract home (the gazette wire-format spec); the command specs cross-ref it rather than restating.",
+                "The behavior is frozen by the landed code — do not redesign during the sync.",
+                "",
+                "## Done when",
+                "- The gazette wire-format spec documents the mixed-slug batch input (one paddock + N reslate + M slate in a single gazette), the file-order slate semantics (notice order = pace order), and the same-firemark guard.",
+                "- The redocket / revise-docket command spec describes the batch surface and the before/after/first first-slate positioning.",
+                "- The paddock / curry spec reflects that the setter joins the shared dispatch/persist lifecycle and no longer self-commits.",
+                "- The slate spec notes slate is also reachable via the redocket batch.",
+                "- JJS0 registers the batch operation in its operation taxonomy.",
+                "- The whole affected family is covered, not just JJS0 — discovery: `grep -rln 'jjx_redocket\\|jjx_paddock\\|jjezs_\\|jjx_curry' Tools/jjk/vov_veiled/JJS*.adoc`.",
+                "",
+                "## Discovery",
+                "The shipped contract lives in the jjk crate: `jjrz_parse_batch_input` + `jjrz_query_by_slug_ordered` (jjrz_gazette.rs), `jjrm_resolve_batch_firemark` + `jjrm_apply_batch` (jjrm_mcp.rs), `jjrg_curry_apply` (jjro_ops.rs).",
+                "Read those for the behavior to transcribe."
+              ],
+              "jjgtn_silks": "jjk-spec-sync-mixed-batch",
+              "jjgtn_basis": "4909753"
+            }
+          ]
+        },
+        "₢BDAAg": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260621-1843",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "Spook fix, clear repair — a few-line change to one install step.",
+                "",
+                "## Goal",
+                "Make the VOW build install the vvr binary via a temp-file-then-atomic-rename, so installing while the vvx MCP server is running no longer fails `Text file busy` (ETXTBSY).",
+                "An in-place `cp` over `Tools/vvk/bin/vvx` truncates the file the live server holds open; a rename repoints the directory entry while the running process keeps its old inode.",
+                "",
+                "## Done when",
+                "`tt/vow-b.Build.sh` installs cleanly while the MCP server is live — no ETXTBSY — and a subsequent Claude Code restart picks up the new binary.",
+                "",
+                "## Discovery",
+                "The failing install step prints `[vob_build] Failed to copy binary`.",
+                "Locate it: `grep -rln 'Failed to copy binary\\|vvk/bin/vvx' Tools/`.",
+                "",
+                "## Origin",
+                "Surfaced as the wrap spook of ₢BDAAd (vvx_tt tabtarget-runner): every vvx-binary change hits ETXTBSY because the running server holds the binary open; that pace worked around it by hand with temp+mv."
+              ],
+              "jjgtn_silks": "vow-build-atomic-binary-install",
+              "jjgtn_basis": "6f7d59d"
             }
           ]
         }
@@ -13620,11 +13686,13 @@
         "₢BZAAQ",
         "₢BZAAa",
         "₢BZAAZ",
+        "₢BZAAf",
+        "₢BZAAg",
         "₢BZAAe",
         "₢BZAAP",
         "₢BZAAN"
       ],
-      "jjghn_next_pace_seed": "AAf",
+      "jjghn_next_pace_seed": "AAh",
       "jjghn_paces": {
         "₢BZAAA": {
           "jjgpn_tacks": [
@@ -14555,35 +14623,95 @@
         "₢BZAAe": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260620-1542",
+              "jjgtn_ts": "260621-1301",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
-                "Retire the RBRA keyfile-credential estate whole — the bridge's demolition condition executed, the heat's \"zero SA keys, RBRA estate deleted whole\" done-criterion.",
-                "Runs after the keyless canonical bootstrap has proven federation personas pass the suites, so the keyfile path is dead bridge legacy by the time this sweeps it.",
+                "Sweep the orphaned RBRA keyfile estate once the foundry mints via the federation don — the bridge's demolition condition, executed.",
+                "The dead-legacy half of this estate is already done (the cult-verb estate and the keyfile JWT probes); the live half waited on the preceding pace, which reroutes rba_token_capture and the foundry consumers onto the don and leaves the estate below unreferenced.",
                 "",
-                "The five teardown clusters (full estate map + sizing in the pace-design memo's M7 record; rediscover live with grep RBRA_FILE and grep create_service_account_with_key):",
-                "- the accessor keyfile branch (rba_token_capture) + RBDC_*_RBRA_FILE constants/derivation + the rbra regime and CLI + the ~20 consumer test-f/source guards;",
-                "- the enrobe/defrock cult verbs (rbw-aE/adE/arE/adF/arF) and their bodies + the key-creation engine zrbgg_create_service_account_with_key;",
-                "- the keyfile JWT probes (rbw-acg/acr/acd) and their rbgv bodies + the RBSAJ spec — the federated rbw-acm/acf already replace them;",
-                "- RBSRA and the RBS0 quoin seats/includes for the retired specs;",
-                "- the Rust fixture keyfile coupling — the freehold-enrobe fixture, now isolated whole in the rbtdrk_enrobe module as a clean file-delete target; the depot-lifecycle full-SA-cycle case (rbtdrp_sa_cycle in rbtdrp_lifecycle); the fast-tier credless guard; manifest/consts.",
+                "Remaining estate (rediscover with grep RBRA_FILE and grep rbgo_get_token_capture):",
+                "- the keyfile JWT mint rbgo_get_token_capture + its rbgo keyfile machinery, now caller-less;",
+                "- the RBDC_*_RBRA_FILE constants + derivation (rbdc_derived.sh), the rbra regime + rbra_cli.sh, and the rbra regime file;",
+                "- RBSRA + its RBS0 quoin seats/includes, and the rbtoe_*_authenticate keyfile JWT-auth patterns in RBS0 (+ the RBSAP ref);",
+                "- the Rust remainder — rbtdgc_consts RBTDGC_RBRA_FILE, the rbtdrk_freehold_rbra helper + its import, rbtdrp_attest RBRA refs, the fast-tier credless guard's keyfile aspect, and the dogfight/onboarding RBRA-presence probes (likely removed — those suites' federation credential-readiness is already deferred to the test-rig heat; confirm at mount).",
                 "",
                 "## Done when",
-                "grep RBRA_FILE and grep create_service_account_with_key land clean repo-wide; no SA key mints anywhere in the kit.",
-                "The enrobe/defrock verbs, the keyfile JWT probes, and RBSRA/RBSAJ are gone; RBS0 is internally consistent with the seats removed.",
-                "The theurge build regenerates the consts and tabtarget-context; shellcheck and the suites (now wholly on federation personas) stay green; complete green before the heat closes.",
-                "`complete` excludes the depot test-infra fixtures — depot-lifecycle, freehold-establish, and freehold-enrobe ride the gauntlet/skirmish/dogfight/blockade ladders only — so a live gauntlet run on federation personas, plus skirmish for freehold-enrobe, verifies the freehold-collapse rename and this demolition before close, never assumed from complete-green.",
+                "grep RBRA_FILE and grep rbgo_get_token_capture land clean repo-wide; no keyfile mint and no RBRA estate anywhere in the kit.",
+                "RBSRA is gone and RBS0 is internally consistent with the seats removed.",
+                "The theurge build regenerates the consts and tabtarget-context; shellcheck and the suites stay green; complete green before the heat closes.",
+                "A live gauntlet plus skirmish on federation personas verifies the rewire and this teardown together before close, never assumed from complete-green.",
                 "",
                 "## Cinched",
-                "Runs only after the keyless bootstrap proves the gate — teardown of dead bridge legacy, not a live credential swap.",
+                "Runs only after the preceding pace proves the foundry mints via the don — teardown of now-dead keyfile machinery, not a credential swap (the swap is that preceding pace).",
                 "The rbgw capability-set definitions stay (they realize the mantle grant lists, not keyfile machinery).",
-                "Decide at mount whether the cult roster verbs (rbw-adr/arr) retire here or survive — federation's rehearse may already replace them.",
+                "Bash edits follow BCG (Tools/buk/vov_veiled/BCG-BashConsoleGuide.md) — read it before authoring; shellcheck-green is necessary but not sufficient (it cannot see capture-purity, $()-on-externals, heredoc avoidance, or commit-message comments).",
                 "",
                 "## Character",
-                "Large mechanical-but-wide demolition — one credential estate across bash, theurge-Rust, specs, and zipper; the risk is reach, not depth."
+                "Large mechanical-but-wide demolition of an orphaned estate across bash, theurge-Rust, and specs; the risk is reach, not depth — the preceding rewire has already de-risked the live behavior."
               ],
               "jjgtn_silks": "rbra-estate-demolition",
-              "jjgtn_basis": "dd628c0"
+              "jjgtn_basis": "bd60959"
+            }
+          ]
+        },
+        "₢BZAAf": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260621-1307",
+              "jjgtn_state": "jjgte_complete",
+              "jjgtn_text": [
+                "Wire the production credential accessor onto the federation don, so the foundry/lode/bottle surface mints mantle tokens instead of keyfile JWTs.",
+                "This is the accessor federation branch the paddock's movement-4 ordering expected (\"the federation branch lands at movement 4\") but movement 4 left unbuilt — and it must land before the RBRA estate can be torn down.",
+                "",
+                "`rba_token_capture` (rba_auth.sh) is today a keyfile-only bridge with 55 production callers; `rba_don_capture` + `rba_compear` exist but reach only the polity admission verbs (rbgp_payor.sh) and the two access probes — no foundry path dons.",
+                "Route `rba_token_capture`'s body through `rba_compear` (ensure-assize) then `rba_don_capture <identity>`, leaving the 55 callers and their bearer-blind downstream unchanged.",
+                "Reconcile the direct keyfile reads (the `source RBDC_DIRECTOR_RBRA_FILE` SA-identity loads in rbfd_director.sh) and the consumer `test -f RBRA_FILE` precondition guards onto mantle-SA derivation (RBCC_account_mantle_* in the depot project), and re-kindle the foundry furnish graphs that source only rbgo/rba for the keyfile mint.",
+                "Discovery: `git grep -n 'rba_token_capture\\|RBRA_FILE' Tools/rbk/`, minus the RBRA estate files the successor teardown owns (RBDC_*_RBRA_FILE derivation, rbra regime/CLI, RBSRA).",
+                "",
+                "## Done when",
+                "The foundry mints via the don: `rba_token_capture` reads no keyfile, `rbgo_get_token_capture` has no live caller, and a service-tier run plus a live dogfight (ordain → summon under a donned director mantle) is green on federation personas.",
+                "The RBRA estate constants/regime/spec stay standing — grep RBRA_FILE clean is the successor teardown's gate, not this pace's.",
+                "",
+                "## Cinched",
+                "The live credential swap the estate-demolition pace explicitly is not — its own movement, proven by its own live run before the teardown sweeps the now-dead keyfile path.",
+                "The mantle-SA identity model (RBCC_account_mantle_* in the depot) is settled; this pace wires the foundry to it, mints no new credential concept.",
+                "",
+                "## Character",
+                "Architectural and wide: production blast radius — every foundry op's credential path changes — proven only by a live run."
+              ],
+              "jjgtn_silks": "accessor-don-rewire",
+              "jjgtn_basis": "3ce07c5"
+            }
+          ]
+        },
+        "₢BZAAg": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260621-1301",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Bump the assize cap from 1h to 12h so a long suite run (gauntlet, skirmish, service) completes on a single morning compearance — no mid-run re-compear to babysit.",
+                "",
+                "The 1h cap is the workforce pool's `sessionDuration`, not a runtime token lifetime: the STS leg requests no lifetime, so the assize equals whatever the pool was provisioned with at create (currently `RBRF_SESSION_DURATION=3600s`).",
+                "",
+                "Two parts, and the second is the catch:",
+                "- Bump `RBRF_SESSION_DURATION` in rbrf.env to 43200s (12h — the pool `sessionDuration` ceiling).",
+                "- PATCH the *existing* pool's `sessionDuration` to match. Affiance is ensure-exists-only and leaves a live pool unpatched — the pool-PATCH-`sessionDuration` reconciliation is a named-deferred follow-up (grep `sessionDuration` in rbgp_payor.sh). Apply a one-shot PATCH to the standing test-trust pool, or wire the deferred reconciliation.",
+                "",
+                "## Done when",
+                "A long suite run on the standing test trust completes on one compearance — the assize outlives the run, no mid-flight re-compear.",
+                "`rbw-acf` reports the federated token expiring in ~12h, not ~1h.",
+                "",
+                "## Cinched",
+                "12h is within the already-cinched assize range (900s–43200s) — a config bump, not a design change.",
+                "The minimal form (regime bump + one-shot pool PATCH of the standing trust) is this pace; generalizing affiance to reconcile `sessionDuration` drift is affiance-evolution — route that to ₣Bf.",
+                "If wiring the deferred reconciliation (bash in rbgp_payor.sh), it follows BCG (Tools/buk/vov_veiled/BCG-BashConsoleGuide.md) — read it first; shellcheck-green is necessary but not sufficient. The one-shot PATCH form touches no committed bash.",
+                "",
+                "## Character",
+                "Small config pace with one wrinkle — the live pool needs a `sessionDuration` PATCH that affiance won't apply to an existing pool."
+              ],
+              "jjgtn_silks": "assize-duration-12h",
+              "jjgtn_basis": "bd60959"
             }
           ]
         }
@@ -16365,7 +16493,7 @@
       }
     },
     "₣Bf": {
-      "jjghn_silks": "rbk-14-mvp-FABLE-federation-evolution",
+      "jjghn_silks": "rbk-12-mvp-FABLE-federation-evolution",
       "jjghn_creation_time": "260616",
       "jjghn_status": "jjghe_stabled",
       "jjghn_order": [
@@ -16511,9 +16639,10 @@
       "jjghn_status": "jjghe_racing",
       "jjghn_order": [
         "₢BgAAA",
-        "₢BgAAB"
+        "₢BgAAB",
+        "₢BgAAC"
       ],
-      "jjghn_next_pace_seed": "AAC",
+      "jjghn_next_pace_seed": "AAD",
       "jjghn_paces": {
         "₢BgAAA": {
           "jjgpn_tacks": [
@@ -16563,6 +16692,51 @@
               "jjgtn_basis": "be067a8"
             }
           ]
+        },
+        "₢BgAAC": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260621-1132",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "",
+                "Design decision; high-stakes naming-system architecture, resolved at mount through judgment.",
+                "Gates the build-out pace — VMS cannot be authored to final form until this is cinched.",
+                "",
+                "## Done when",
+                "",
+                "The vo-family gestalt direction is decided and cinched, answering:",
+                "whether to re-gestalt the `vo` cipher around the Vox naming-system whole;",
+                "how Liturgical / Obscura / Matricula relate — peers, or an umbrella plus branches;",
+                "where VLS belongs — a branch of Vox, or a foundation beneath it and beneath BUK/JJK;",
+                "and how much of the Matricula method VMS may document, given the secrecy gradient.",
+                "If the resolution implies a large vo-family restructure, that execution may spawn its own paces or tilt to ₣Bj — a mount-time call, not pre-decided here.",
+                "",
+                "## Findings to resolve against",
+                "",
+                "Discovered in the slate conversation; homeless until this pace cinches them.",
+                "",
+                "`vo` is ALREADY one cipher — fossil-named \"Vox Obscura\" in `Tools/vok/vof/src/vofc_registry.rs`, after its first branch.",
+                "VLS (`vosl*`), Obscura (`voso*`), and Matricula (`vosm*`) already share it.",
+                "So unification is a rename of the cipher's gestalt plus a true Vox SpecTop/cosmology plus fixing VOS0's over-claiming `0` — NOT a re-cipher.",
+                "",
+                "Cipher and distribution are orthogonal axes.",
+                "`DISTRIBUTABLE_KITS` is a separate registry construct; AXL ships via CMK though it is its own cipher.",
+                "The Matricula's secrecy rests on the four paddock guards (uncollected, veiled, unlinked, gitignored), never on the cipher — earlier \"secrecy rests on vo-not-shipping\" was a fragile-base-class flaw, retracted.",
+                "",
+                "`vof` is the shared seam: linked by `vvr`/`vvx` (ships) and depended on by the Matricula.",
+                "It cannot move into the never-shipped Matricula executable; the Matricula depends on it, never contains it.",
+                "",
+                "Secrecy gradient: the binary is gitignore-strength (never travels); VMS is veil-strength (committed, travels to the test fleet — cerebro, rocket).",
+                "\"Keep it on the machine\" holds for the code but not for the method-as-documented — hence the threat-model call on how much method VMS writes down versus leaves to the gitignored crate.",
+                "",
+                "VLS placement is open on cognitive grounds only — no distribution constraint forces it either way; AXL is prior art for the separate-vocabulary-anchor option."
+              ],
+              "jjgtn_silks": "vo-cipher-gestalt-decision",
+              "jjgtn_basis": "6b65d15"
+            }
+          ]
         }
       }
     },
@@ -16570,9 +16744,277 @@
       "jjghn_silks": "jjk-v4-1-svg-viewer-and-pane-labels",
       "jjghn_creation_time": "260617",
       "jjghn_status": "jjghe_stabled",
-      "jjghn_order": [],
-      "jjghn_next_pace_seed": "AAA",
-      "jjghn_paces": {}
+      "jjghn_order": [
+        "₢BhAAA",
+        "₢BhAAB",
+        "₢BhAAC",
+        "₢BhAAD",
+        "₢BhAAJ",
+        "₢BhAAE",
+        "₢BhAAF",
+        "₢BhAAG",
+        "₢BhAAH",
+        "₢BhAAI"
+      ],
+      "jjghn_next_pace_seed": "AAK",
+      "jjghn_paces": {
+        "₢BhAAA": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260621-0847",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "The go/no-go spike for the whole overlay:",
+                "prove paneboard can resolve an iTerm session UUID to an AX window handle via iTerm's own scripting API,",
+                "under the Accessibility grant paneboard already holds — not Automation, which the operator declined for System Events.",
+                "",
+                "See the seed memo's Phase 0a and its correlation-mechanism section for the proven session-id basis and the AX entry points.",
+                "",
+                "## Character",
+                "Throwaway spike — answer the question, do not build the overlay.",
+                "",
+                "## Done when",
+                "- A paneboard-side probe takes a session UUID and returns the matching AX window handle, or proves it cannot.",
+                "- The overlay's fork is settled and recorded: success -> session-id overlay as designed; failure -> fall back to Claude Code's existing per-session title."
+              ],
+              "jjgtn_silks": "pb-guid-window-probe",
+              "jjgtn_basis": "2f23519"
+            }
+          ]
+        },
+        "₢BhAAB": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260621-0847",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "The first rbm-side slice, standalone and dependency-free:",
+                "vvx reads its own ITERM_SESSION_ID and discovers paneboard's port-file,",
+                "failing soft on a missing or stale file.",
+                "",
+                "See the seed memo's correlation-mechanism section (match the UUID after the colon, never the wNtNpN prefix) and its protocol section (port-file discovery).",
+                "",
+                "## Cinched",
+                "Match the UUID, not the position prefix — the prefix goes stale when a tab is dragged to another window.",
+                "Fail-soft: a missing or unreadable port-file means paneboard is absent, so vvx silently skips.",
+                "",
+                "## Done when",
+                "- vvx extracts the correct session key from its own environment.",
+                "- vvx reads paneboard's port-file when present and skips cleanly when absent."
+              ],
+              "jjgtn_silks": "vvx-session-key-and-port-discovery",
+              "jjgtn_basis": "c9310a4"
+            }
+          ]
+        },
+        "₢BhAAC": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260621-0847",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Build the standalone viewer and, with it, the walking skeleton for the whole wire protocol:",
+                "an egui/iced window over a direct socket, fresh/update verbs with retained zoom,",
+                "format dispatch by magic-byte sniff (SVG via resvg, raster via the image crate).",
+                "",
+                "See the seed memo's Phase 1 and its settled-decisions section (push-not-watch, the two verbs, format dispatch).",
+                "Sample payloads live at diagrams/rbdg*.svg.",
+                "",
+                "## Cinched",
+                "Paneboard conducts viewer instances; it does not contain them.",
+                "update retains the held zoom+pan and re-rasterizes — crisp for SVG, native-limited for raster.",
+                "The viewer accepts direct connections, not only via paneboard, so the no-paneboard / Windows case keeps a bare viewer.",
+                "",
+                "## Done when",
+                "- A pushed SVG or raster renders in a window; fresh opens/replaces fit-to-window; update replaces content at the held zoom.",
+                "- The framing and verbs exist as working code — the skeleton the protocol freeze will ratify."
+              ],
+              "jjgtn_silks": "pb-standalone-image-viewer",
+              "jjgtn_basis": "ef40ae7"
+            }
+          ]
+        },
+        "₢BhAAD": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260621-0847",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "With the transport proven by the viewer skeleton, write the shared wire contract down and freeze it:",
+                "the atomic region-frame for register_label, and the fresh/update payload framing.",
+                "",
+                "See the seed memo's Phase 2 and its protocol section, and the paddock's \"Pane-label overlay shape\" for the region-frame shape cinched here.",
+                "",
+                "## Cinched",
+                "register_label carries one atomic frame per window — session key plus the full region set, each region {slot, lines, style} — never one message per region.",
+                "Transport is localhost TCP, connect-per-message, best-effort / fail-soft.",
+                "",
+                "## Done when",
+                "- The contract is written in both repos' homes (paneboard PoC spec; rbm formal landing tracked separately) and marked frozen.",
+                "- fresh/update and register_label shapes are pinned against the working skeleton."
+              ],
+              "jjgtn_silks": "wire-protocol-freeze",
+              "jjgtn_basis": "fdb50b2"
+            }
+          ]
+        },
+        "₢BhAAE": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260621-0848",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Land the rbm-side concepts formally in JJS0 as quoins:",
+                "terminal-window / session-id correlation (clean new territory),",
+                "the control-channel's adjacency to the remote-dispatch layer,",
+                "and the disambiguation of the three distinct \"session\" identities.",
+                "",
+                "See the seed memo's spec-landing-zones section for the neighborhoods to coordinate with and the word-selection hazard.",
+                "Mint per MCM Lapidary and the Quoin Sub-Letter Discipline.",
+                "",
+                "## Cinched",
+                "\"session\" is overloaded across three identities — officium, Claude Code session UUID, iTerm session id — so Lapidary forces three distinct words, not a reused \"session\".",
+                "",
+                "## Done when",
+                "- The new concepts are minted as JJS0 quoins with mapping-section entries and a sub-letter legend, not colliding with the existing officium / remote-dispatch / display neighborhoods."
+              ],
+              "jjgtn_silks": "jjs0-overlay-concept-landing",
+              "jjgtn_basis": "a922984"
+            }
+          ]
+        },
+        "₢BhAAF": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260621-0848",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "The core rbm-side overlay sender:",
+                "on each jjx engagement, vvx composes the region frame from the window's current identity, silks, repo, and working directory,",
+                "reads per-region style from an rbm-side config,",
+                "and sends best-effort / fail-soft to paneboard's port.",
+                "",
+                "Starting band layout (soft, tweak freely): top = identity + silks; middle = repo + cwd; bottom = reserved.",
+                "",
+                "## Cinched",
+                "Style lives in an rbm-side config vvx reads at send time, never compiled in — edit the config, re-send on any engagement, see it on the next alt-tab.",
+                "",
+                "## Done when",
+                "- vvx sends a well-formed region frame on jjx engagement, failing soft when paneboard is absent.",
+                "- Per-region style is read from the config with paneboard-default fallback when a field is absent."
+              ],
+              "jjgtn_silks": "vvx-label-frame-sender",
+              "jjgtn_basis": "9b8d1c0"
+            }
+          ]
+        },
+        "₢BhAAG": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260621-0900",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Paint the overlay on the proven channel:",
+                "paneboard maps a received frame's session key to its AX window (the mapping the probe spike settled)",
+                "and renders the three-region overlay on the alt-tab highlight box it already draws.",
+                "Frames arrive via the IPC listener; this pace is mapping plus rendering only.",
+                "",
+                "See the seed memo's Phase 3 and its entry-points section (overlay FFI, window tracking).",
+                "",
+                "## Cinched",
+                "Three stacked multi-line regions on fixed black backing pills, identity-led; per-region style from the frame with built-in defaults when absent (paddock \"Pane-label overlay shape\").",
+                "No-frame fallback: a window with no frame paints exactly today's highlight, so this pace never regresses the current alt-tab overlay even before the sender lands.",
+                "",
+                "## Done when",
+                "- A received frame paints the correct window's highlight with all populated regions.",
+                "- A late-arriving frame still lands on the right window — latency-immune by session key — never the wrong one.",
+                "- A window with no frame is unchanged from today's behavior."
+              ],
+              "jjgtn_silks": "pb-overlay-render-and-mapping",
+              "jjgtn_basis": "da6b902"
+            }
+          ]
+        },
+        "₢BhAAH": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260621-0900",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Layer paneboard over the viewer:",
+                "it proxies fresh/update to viewer instances it spawns and places,",
+                "while the direct-socket viewer keeps working for the no-paneboard / Windows case.",
+                "",
+                "See the seed memo's Phase 4 and the paddock's \"Paneboard run-loop integration\".",
+                "",
+                "## Cinched",
+                "The viewer payload path is the one sanctioned offload: a multi-megabyte fresh/update read must not block the shared run-loop thread (macOS disables a slow event tap), so the byte read runs off-thread and hands the result back to the main thread.",
+                "The direct-socket viewer keeps working unchanged.",
+                "",
+                "## Character",
+                "Layering, not new risk — both the viewer and the overlay channel already exist by this point.",
+                "",
+                "## Done when",
+                "- Paneboard spawns and places a viewer instance and forwards fresh/update to it by id.",
+                "- Large payload reads do not stall the run loop or trip the event-tap slow-callback disable.",
+                "- The direct-socket path from the standalone viewer still works unchanged."
+              ],
+              "jjgtn_silks": "pb-viewer-conductor",
+              "jjgtn_basis": "da6b902"
+            }
+          ]
+        },
+        "₢BhAAI": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260621-0848",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "The latest, separable rbm slice:",
+                "a regen loop that pushes fresh/update diagram bytes when the SVGs change —",
+                "the \"who pushes, and when\" that does not exist today (the SVGs currently change only on a pluml crucible fixture run).",
+                "",
+                "See the seed memo's open-risks section (regen loop) and its references (diagrams/rbdg*.svg).",
+                "",
+                "## Character",
+                "Independent and deferrable — the viewer is useful without it via a manual fresh.",
+                "",
+                "## Done when",
+                "- Something rbm-side detects regenerated diagrams and pushes fresh/update to the viewer.",
+                "- The trigger — hook, fixture, or manual command — is chosen and recorded."
+              ],
+              "jjgtn_silks": "rbm-diagram-push-regen-loop",
+              "jjgtn_basis": "c17247a"
+            }
+          ]
+        },
+        "₢BhAAJ": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260621-0900",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Stand up paneboard's IPC listener:",
+                "the daemon accepts control frames on its existing CFRunLoop and writes its listen port to the discovery port-file vvx reads.",
+                "Shared infrastructure for both the overlay (register_label) and the conductor (fresh/update).",
+                "",
+                "See the seed memo's protocol section (port-file discovery, framing) and the paddock's \"Paneboard run-loop integration\".",
+                "Entry point: the CFRunLoop in paneboard's event-tap module, where the event tap already attaches as a run-loop source.",
+                "",
+                "## Cinched",
+                "The listener attaches as a run-loop source on the existing thread — never a background thread (paddock \"Paneboard run-loop integration\").",
+                "Control frames are read inline; the large-payload offload is the conductor's concern, not this pace.",
+                "",
+                "## Done when",
+                "- Paneboard accepts a connection and parses a control frame on its run loop, with no new thread.",
+                "- The listen port is written to the discovery port-file, and a received register_label frame reaches the overlay code path."
+              ],
+              "jjgtn_silks": "pb-ipc-listener",
+              "jjgtn_basis": "c162475"
+            }
+          ]
+        }
+      }
     },
     "₣Bi": {
       "jjghn_silks": "rbk-15-mvp-loose-ends",
@@ -16588,9 +17030,10 @@
         "₢BiAAF",
         "₢BiAAG",
         "₢BiAAH",
-        "₢BiAAI"
+        "₢BiAAI",
+        "₢BiAAK"
       ],
-      "jjghn_next_pace_seed": "AAK",
+      "jjghn_next_pace_seed": "AAL",
       "jjghn_paces": {
         "₢BiAAA": {
           "jjgpn_tacks": [
@@ -17005,6 +17448,47 @@
               ],
               "jjgtn_silks": "payor-install-finish-manor-guidance",
               "jjgtn_basis": "8699a3e"
+            }
+          ]
+        },
+        "₢BiAAK": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260621-1158",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "",
+                "Small, well-precedented change — both halves of the pattern already ship.",
+                "",
+                "## Goal",
+                "",
+                "Make the reliquary yoke (`rbfl_yoke` in `rbfly_yoke.sh`, colophon `rbw-rvy`) accept no touchmark",
+                "and fall back to the chained conclave capture,",
+                "so a conclave→yoke run needs no hand-copied touchmark.",
+                "",
+                "The conclave already emits the touchmark as the depth-1 chaining fact",
+                "(`RBF_FACT_LODE_TOUCHMARK` plus `RBF_FACT_LODE_BRAND`, written by the capture spine);",
+                "read it via `buf_read_fact`, the way ordain's `zrbfd_elect_base_anchor` and anoint's `rbfl_anoint` already read prior-dispatch facts.",
+                "Yoke's CLI already sources `buf_fact.sh`, so there is no new wiring.",
+                "",
+                "## Cinched",
+                "",
+                "- Param1 present keeps today's behavior, unchanged.",
+                "- Param1 absent reads the chained touchmark and requires its brand be `RBGC_LODE_BRAND_RELIQUARY`;",
+                "  a bole/wsl capture or an empty chain refuses with a diagnostic pointing at the explicit-param path —",
+                "  a non-reliquary touchmark must never silently yoke into `RBRV_RELIQUARY`.",
+                "- The depth-1 chain resolves only immediately after a conclave; that adjacency is the intended ergonomic, not a gap to widen.",
+                "- Spec RBSDY makes the touchmark a hard require — relax it to optional-with-fallback alongside the code.",
+                "",
+                "## Done when",
+                "",
+                "A no-arg `rbw-rvy` immediately after a conclave yokes the just-captured reliquary;",
+                "a non-reliquary or empty chain refuses diagnostically;",
+                "RBSDY reflects the optional-with-fallback contract."
+              ],
+              "jjgtn_silks": "yoke-touchmark-fact-fallback",
+              "jjgtn_basis": "0da21c0"
             }
           ]
         }

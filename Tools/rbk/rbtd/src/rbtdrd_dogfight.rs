@@ -17,10 +17,10 @@
 // RBTDRD — dogfight cloud-build viability fixture
 //
 // Proves the cloud-depot build-and-retrieve path yields a *runnable*
-// artifact, with no crucible apparatus. Standing-depot scenario fixture,
-// sibling to freehold-enrobe in the operator-precondition family: it reuses
-// a depot the operator has levied by hand (no levy, no unmake) and assumes a
-// director + retriever already enrobed. It differs from the skirmish chain
+// artifact, with no crucible apparatus. Standing-depot scenario fixture in
+// the operator-precondition family: it reuses a depot the operator has levied
+// by hand (no levy, no unmake) and assumes director + retriever credentials
+// already in place. It differs from the skirmish chain
 // on the crucible axis — dogfight charges NO crucible. It proves only
 // build → summon → run viability, not containment (the crucible's orthogonal
 // concern).
@@ -118,7 +118,7 @@ fn rbtdrd_build_run_lifecycle(dir: &Path) -> rbtdre_Verdict {
         name: "director RBRA present",
         check: rbtdrd_probe_director_rbra,
         remediation:
-            "levy a standing depot and enrobe a director (freehold-enrobe or rbw-adE) before this fixture",
+            "levy a standing depot and ready director credentials at the freehold secrets path before this fixture",
     };
     if let Err(v) = rbtdrb_assert(&probe) {
         return v;

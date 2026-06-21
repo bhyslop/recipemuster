@@ -43,9 +43,11 @@ zrbgg_furnish() {
   source "${z_rbk_kit_dir}/rbgi_iam.sh"
   source "${z_rbk_kit_dir}/rbrr_regime.sh"
   source "${z_rbk_kit_dir}/rbrd_regime.sh"
+  source "${z_rbk_kit_dir}/rbrf_regime.sh"
   source "${z_rbk_kit_dir}/rbdc_derived.sh"
   source "${RBCC_rbrr_file}"
   source "${RBCC_rbrd_file}"
+  source "${RBCC_rbrf_file}"
   source "${z_rbk_kit_dir}/rbgg_governor.sh"
   source "${z_rbk_kit_dir}/rbgw_capabilities.sh"
 
@@ -55,8 +57,10 @@ zrbgg_furnish() {
 
   zrbrr_kindle
   zrbrd_kindle
+  zrbrf_kindle
   zrbrr_enforce
   zrbrd_enforce
+  zrbrf_enforce
   zrbdc_kindle
 
   zrbgc_kindle

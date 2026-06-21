@@ -580,3 +580,75 @@ fn jjtz_output_with_preamble_parses() {
     assert_eq!(paddock[0].0, "Aw");
     assert_eq!(paddock[0].1, "Paddock text");
 }
+
+// --- File-order access + mixed batch parsing ---
+
+#[test]
+fn jjtz_query_by_slug_ordered_preserves_file_order() {
+    // Ledes deliberately authored in NON-lexical order. The default by-slug query
+    // sorts by lede; the ordered query must return file order instead.
+    let md = format!(
+        "# {0} zebra\n\nfirst authored\n\n# {0} alpha\n\nsecond authored\n\n# {0} mango\n\nthird authored\n",
+        JJRZ_SLUG_SLATE);
+    let g = jjrz_Gazette::jjrz_parse(&[jjrz_Slug::Slate], &md).unwrap();
+
+    let lexical: Vec<String> = g.jjrz_query_by_slug(jjrz_Slug::Slate)
+        .into_iter().map(|(l, _)| l).collect();
+    assert_eq!(lexical, vec!["alpha", "mango", "zebra"], "by-slug query is lede-sorted");
+
+    let g2 = jjrz_Gazette::jjrz_parse(&[jjrz_Slug::Slate], &md).unwrap();
+    let filed: Vec<String> = g2.jjrz_query_by_slug_ordered(jjrz_Slug::Slate)
+        .into_iter().map(|(l, _)| l).collect();
+    assert_eq!(filed, vec!["zebra", "alpha", "mango"], "ordered query is file order");
+}
+
+#[test]
+fn jjtz_query_by_slug_ordered_builder_uses_insertion_order() {
+    let mut g = jjrz_Gazette::jjrz_build(&[jjrz_Slug::Slate]);
+    g.jjrz_add(jjrz_Slug::Slate, "zulu", "c1").unwrap();
+    g.jjrz_add(jjrz_Slug::Slate, "delta", "c2").unwrap();
+    let filed: Vec<String> = g.jjrz_query_by_slug_ordered(jjrz_Slug::Slate)
+        .into_iter().map(|(l, _)| l).collect();
+    assert_eq!(filed, vec!["zulu", "delta"]);
+}
+
+#[test]
+fn jjtz_parse_batch_input_mixed() {
+    let md = format!(
+        "# {} BD\n\npaddock body\n\n# {} ₢BDAAb\n\nreslate body\n\n# {} new-pace\n\nslate body\n",
+        JJRZ_SLUG_PADDOCK, JJRZ_SLUG_RESLATE, JJRZ_SLUG_SLATE);
+    let batch = jjrz_parse_batch_input(&md).unwrap();
+    assert_eq!(batch.paddock.as_ref().unwrap().0, "BD");
+    assert_eq!(batch.paddock.as_ref().unwrap().1, "paddock body");
+    assert_eq!(batch.reslates.len(), 1);
+    assert_eq!(batch.reslates[0].0, "₢BDAAb");
+    assert_eq!(batch.slates.len(), 1);
+    assert_eq!(batch.slates[0].0, "new-pace");
+}
+
+#[test]
+fn jjtz_parse_batch_input_slates_in_file_order_not_silks_order() {
+    // The cinch: notice order is pace order. Silks authored non-alphabetically
+    // must come back in file order, NOT sorted by silks.
+    let md = format!(
+        "# {0} yankee\n\nd1\n\n# {0} bravo\n\nd2\n\n# {0} mike\n\nd3\n",
+        JJRZ_SLUG_SLATE);
+    let batch = jjrz_parse_batch_input(&md).unwrap();
+    let silks: Vec<String> = batch.slates.iter().map(|(s, _)| s.clone()).collect();
+    assert_eq!(silks, vec!["yankee", "bravo", "mike"]);
+}
+
+#[test]
+fn jjtz_parse_batch_input_rejects_two_paddocks() {
+    let md = format!(
+        "# {0} BD\n\nbody one\n\n# {0} BE\n\nbody two\n",
+        JJRZ_SLUG_PADDOCK);
+    let err = jjrz_parse_batch_input(&md).unwrap_err();
+    assert!(err.contains("at most one paddock"), "got: {}", err);
+}
+
+#[test]
+fn jjtz_parse_batch_input_rejects_empty() {
+    let err = jjrz_parse_batch_input("no notices here\n").unwrap_err();
+    assert!(err.contains("no notices"), "got: {}", err);
+}

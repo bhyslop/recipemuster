@@ -17,6 +17,11 @@ routine.
 If absent, defaults to "pace {silks} complete".
 
 //axd_optional
+* `spook` (string) — wrap-time friction report.
+Rides the W chalk commit as a single-line `Spook:` trailer (internal newlines collapse to spaces).
+If absent or empty, the trailer is `Spook: none`, so every wrap carries the line as a grep-extractable surface for later affordance tuning.
+
+//axd_optional
 * {jjda_size_limit}
 
 {jjds_stdout} Commit hash.

@@ -111,9 +111,6 @@ rbld_conclave() {
   # tree; the Lode's provenance envelope must be the product of committed code.
   bug_require_clean_tree "${RBCC_verb_conclave}"
 
-  buc_step "Loading Director RBRA credentials"
-  source "${RBDC_DIRECTOR_RBRA_FILE}" || buc_die "Failed to source Director RBRA"
-
   buc_step "Authenticating as Director"
   local z_token=""
   z_token=$(rba_token_capture director) \

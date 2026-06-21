@@ -91,10 +91,17 @@ impl fmt::Display for jjrz_Slug {
 }
 
 /// Two-level map gazette with freeze-on-disclosure semantics
+///
+/// `notices` keys notices by (slug, lede) for dedup and content lookup; that
+/// keying sorts ledes lexically and so DROPS the order in which notices arrived.
+/// `order` is the companion record of (slug, lede) in file/insertion order, so
+/// callers that need the authored sequence — multi-slate batches, where notice
+/// order is pace order — can recover it via jjrz_query_by_slug_ordered.
 #[derive(Debug)]
 pub struct jjrz_Gazette {
     vocabulary: Vec<jjrz_Slug>,
     notices: BTreeMap<jjrz_Slug, BTreeMap<String, String>>,
+    order: Vec<(jjrz_Slug, String)>,
     frozen: Cell<bool>,
 }
 
@@ -106,6 +113,7 @@ impl jjrz_Gazette {
     pub fn jjrz_parse(vocabulary: &[jjrz_Slug], markdown: &str) -> Result<jjrz_Gazette, Vec<String>> {
         let mut diagnostics: Vec<String> = Vec::new();
         let mut notices: BTreeMap<jjrz_Slug, BTreeMap<String, String>> = BTreeMap::new();
+        let mut order: Vec<(jjrz_Slug, String)> = Vec::new();
         let vocab_set: std::collections::HashSet<jjrz_Slug> = vocabulary.iter().copied().collect();
 
         // (slug, lede, content_lines, header_line_number)
@@ -121,7 +129,7 @@ impl jjrz_Gazette {
 
             if !in_fence && zjjrz_is_notice_boundary(line) {
                 if let Some((slug, lede, content_lines, hdr_line)) = current.take() {
-                    zjjrz_finalize_notice(slug, &lede, &content_lines, hdr_line, &mut notices, &mut diagnostics);
+                    zjjrz_finalize_notice(slug, &lede, &content_lines, hdr_line, &mut notices, &mut order, &mut diagnostics);
                 }
 
                 let after_hash = line[1..].trim();
@@ -158,13 +166,14 @@ impl jjrz_Gazette {
         }
 
         if let Some((slug, lede, content_lines, hdr_line)) = current.take() {
-            zjjrz_finalize_notice(slug, &lede, &content_lines, hdr_line, &mut notices, &mut diagnostics);
+            zjjrz_finalize_notice(slug, &lede, &content_lines, hdr_line, &mut notices, &mut order, &mut diagnostics);
         }
 
         if diagnostics.is_empty() {
             Ok(jjrz_Gazette {
                 vocabulary: vocabulary.to_vec(),
                 notices,
+                order,
                 frozen: Cell::new(true),
             })
         } else {
@@ -177,6 +186,7 @@ impl jjrz_Gazette {
         jjrz_Gazette {
             vocabulary: vocabulary.to_vec(),
             notices: BTreeMap::new(),
+            order: Vec::new(),
             frozen: Cell::new(false),
         }
     }
@@ -200,16 +210,32 @@ impl jjrz_Gazette {
             return Err(format!("Duplicate key ({}, {:?})", slug, lede_display));
         }
         inner.insert(lede.to_string(), content.to_string());
+        self.order.push((slug, lede.to_string()));
         Ok(())
     }
 
-    /// Retrieve all notices with the given slug.
+    /// Retrieve all notices with the given slug, in lede (lexical) order.
     /// Discloses notice map contents (freezes gazette permanently).
     pub fn jjrz_query_by_slug(&self, slug: jjrz_Slug) -> Vec<(String, String)> {
         self.frozen.set(true);
         self.notices.get(&slug)
             .map(|inner| inner.iter().map(|(l, c)| (l.clone(), c.clone())).collect())
             .unwrap_or_default()
+    }
+
+    /// Retrieve all notices with the given slug, in file/insertion order.
+    /// Use when authored sequence is load-bearing — multi-slate batches, where
+    /// notice order is pace order. Discloses notice map contents (freezes).
+    pub fn jjrz_query_by_slug_ordered(&self, slug: jjrz_Slug) -> Vec<(String, String)> {
+        self.frozen.set(true);
+        let inner = match self.notices.get(&slug) {
+            Some(m) => m,
+            None => return Vec::new(),
+        };
+        self.order.iter()
+            .filter(|(s, _)| *s == slug)
+            .filter_map(|(_, lede)| inner.get(lede).map(|c| (lede.clone(), c.clone())))
+            .collect()
     }
 
     /// Retrieve all notices.
@@ -347,6 +373,66 @@ pub fn jjrz_parse_paddock_input(markdown: &str) -> Result<(String, String), Stri
     Ok((firemark, content))
 }
 
+/// A heterogeneous single-heat gazette batch: at most one paddock revision,
+/// zero-or-more reslates (order irrelevant — each targets a coronet), and
+/// zero-or-more slates in file order (notice order = pace order). The
+/// same-heat guard is the caller's (firemarks are resolved in jjrm_mcp); this
+/// parser only shapes and shallow-validates the notices.
+#[derive(Debug)]
+pub struct jjrz_BatchInput {
+    /// (firemark, content) of the lone paddock notice, if present.
+    pub paddock: Option<(String, String)>,
+    /// (coronet, docket) reslate pairs.
+    pub reslates: Vec<(String, String)>,
+    /// (silks, docket) slate pairs, in file order.
+    pub slates: Vec<(String, String)>,
+}
+
+/// Parse gazette input for a mixed single-heat batch (jjx_redocket extended).
+/// Accepts paddock + reslate + slate notices in one gazette_in.md.
+/// Validates: at most one paddock notice; all ledes non-empty; at least one
+/// notice overall. Slate order is file order so notice order is pace order.
+pub fn jjrz_parse_batch_input(markdown: &str) -> Result<jjrz_BatchInput, String> {
+    let g = jjrz_Gazette::jjrz_parse(
+        &[jjrz_Slug::Slate, jjrz_Slug::Reslate, jjrz_Slug::Paddock],
+        markdown,
+    ).map_err(|diags| diags.join("\n"))?;
+
+    let paddock_entries = g.jjrz_query_by_slug(jjrz_Slug::Paddock);
+    if paddock_entries.len() > 1 {
+        return Err(format!("Expected at most one paddock notice, got {}", paddock_entries.len()));
+    }
+    let paddock = match paddock_entries.into_iter().next() {
+        Some((firemark, content)) => {
+            if firemark.is_empty() {
+                return Err("Paddock notice missing lede (firemark)".to_string());
+            }
+            Some((firemark, content))
+        }
+        None => None,
+    };
+
+    let reslates = g.jjrz_query_by_slug(jjrz_Slug::Reslate);
+    for (coronet, _) in &reslates {
+        if coronet.is_empty() {
+            return Err("Reslate notice missing lede (coronet)".to_string());
+        }
+    }
+
+    let slates = g.jjrz_query_by_slug_ordered(jjrz_Slug::Slate);
+    for (silks, _) in &slates {
+        if silks.is_empty() {
+            return Err("Slate notice missing lede (silks)".to_string());
+        }
+    }
+
+    if paddock.is_none() && reslates.is_empty() && slates.is_empty() {
+        return Err("Batch gazette has no notices (expected paddock, reslate, or slate)".to_string());
+    }
+
+    Ok(jjrz_BatchInput { paddock, reslates, slates })
+}
+
 // --- Operation output building ---
 
 /// Build gazette output for read operations (orient, parade detail, paddock getter).
@@ -378,6 +464,7 @@ fn zjjrz_finalize_notice(
     content_lines: &[String],
     header_line: usize,
     notices: &mut BTreeMap<jjrz_Slug, BTreeMap<String, String>>,
+    order: &mut Vec<(jjrz_Slug, String)>,
     diagnostics: &mut Vec<String>,
 ) {
     let content = zjjrz_trim_blank_lines(content_lines);
@@ -390,6 +477,7 @@ fn zjjrz_finalize_notice(
         ));
     } else {
         inner.insert(lede.to_string(), content);
+        order.push((slug, lede.to_string()));
     }
 }
 

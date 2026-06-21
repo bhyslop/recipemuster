@@ -89,6 +89,11 @@ pub const JJDZ_LABEL_REPRIEVE: &str = "reprieve";
 const ZJJDZ_PENDING: &str = "pending";
 const ZJJDZ_DORMANT: &str = "dormant";
 
+/// Inline gloss per verdict — what the word means and when the episode is removable, so the nag
+/// line is actionable without opening code or spec. One per `jjdz_Status` live value.
+const ZJJDZ_GLOSS_PENDING: &str = "old shape still present here, tolerance load-bearing";
+const ZJJDZ_GLOSS_DORMANT: &str = "store canonical here, episode removable once dormant on every clone";
+
 /// Per-episode reprieve status for an on-disk Gallops (output of jjdz_probe).
 pub struct jjdz_Status {
     /// Human label for the episode (e.g. "V3→V4").
@@ -103,6 +108,12 @@ impl jjdz_Status {
     /// The nag verdict word for this status — pending when load-bearing, dormant otherwise.
     pub fn jjdz_verdict(&self) -> &'static str {
         if self.live { ZJJDZ_PENDING } else { ZJJDZ_DORMANT }
+    }
+
+    /// The inline gloss for this status — the verdict's meaning and removal rule, so the nag line
+    /// reads as a standing reminder rather than an opaque token.
+    pub fn jjdz_gloss(&self) -> &'static str {
+        if self.live { ZJJDZ_GLOSS_PENDING } else { ZJJDZ_GLOSS_DORMANT }
     }
 }
 

@@ -47,7 +47,6 @@ pub mod rbtdrf_handbook;
 pub mod rbtdrg_log;
 pub mod rbtdri_invocation;
 pub mod rbtdrk_depot;
-pub mod rbtdrk_enrobe;
 pub mod rbtdrk_freehold;
 pub mod rbtdrl_calibrant;
 pub mod rbtdrm_manifest;

@@ -233,9 +233,6 @@ rbld_immure() {
   zrbld_immure_resolve_family "${z_brand}"
   buc_info "Immure family resolved: ${z_brand} -> ${z_quay_family} (kind ${z_kind}), leaves: ${z_selection}"
 
-  buc_step "Loading Director RBRA credentials"
-  source "${RBDC_DIRECTOR_RBRA_FILE}" || buc_die "Failed to source Director RBRA"
-
   buc_step "Authenticating as Director"
   local z_token=""
   z_token=$(rba_token_capture director) \

@@ -17,8 +17,6 @@ use crate::jjrt_types::*;
 use crate::jjru_util::{zjjrg_increment_seed, jjrg_make_tack};
 use crate::jjrv_validate::{zjjrg_is_kebab_case, zjjrg_is_yymmdd};
 
-const JJRO_CMD_NAME_CURRY: &str = "jjx_curry";
-
 /// Nominate a new Heat
 ///
 /// Creates a new Heat with empty Pace structure and creates the paddock file.
@@ -648,65 +646,27 @@ fn zjjrg_build_trophy_content(
     Ok(content)
 }
 
-/// Curry - update Heat paddock with chalk entry
+/// Curry-apply - write Heat paddock content as an in-memory-phase side effect.
 ///
-/// Writes new paddock content and creates a chalk commit recording the change.
-pub fn jjrg_curry(
-    gallops_path: &std::path::Path,
+/// The pure-transform half of the old self-committing `jjrg_curry`: verifies the
+/// heat exists in the already-loaded gallops and writes the paddock file. It does
+/// NOT load, lock, or commit — the shared dispatch lifecycle (jjri_persist, which
+/// co-commits `[gallops, paddock]` under the heat firemark) owns persistence, so a
+/// paddock revision folds into the same single commit as any batched reslate/slate.
+pub fn jjrg_curry_apply(
+    gallops: &jjrg_Gallops,
     firemark: &Firemark,
     new_content: &str,
-    note: Option<&str>,
-    size_limit: Option<u64>,
-    output: &mut vvc::vvco_Output,
 ) -> Result<(), String> {
-    use std::fs;
-
-    // Load gallops
-    let gallops = jjrg_Gallops::jjrg_load(gallops_path)
-        .map_err(|e| format!("Failed to load Gallops: {}", e))?;
-
-    // Verify heat exists
     let firemark_key = firemark.jjrf_display();
     if !gallops.heats.contains_key(&firemark_key) {
         return Err(format!("Heat '{}' not found", firemark_key));
     }
 
-    // Write new paddock content
     let paddock_path_string = jjri_paddock_path(firemark.jjrf_as_str());
-    let paddock_path = std::path::Path::new(&paddock_path_string);
-    fs::write(paddock_path, new_content)
+    fs::write(&paddock_path_string, new_content)
         .map_err(|e| format!("Failed to write paddock file: {}", e))?;
-
-    // Build chalk message
-    let description = if let Some(n) = note {
-        format!("paddock curried: {}", n)
-    } else {
-        "paddock curried".to_string()
-    };
-
-    // Create chalk commit using vvc
-    use crate::jjrn_notch::jjrn_format_heat_discussion;
-    let message = jjrn_format_heat_discussion(firemark, &description);
-
-    let commit_args = vvc::vvcm_CommitArgs {
-        files: vec![paddock_path.to_string_lossy().to_string()],
-        message,
-        size_limit: size_limit.unwrap_or(vvc::VVCG_SIZE_LIMIT),
-        warn_limit: vvc::VVCG_WARN_LIMIT,
-    };
-
-    // Acquire lock for commit
-    let lock = vvc::vvcc_CommitLock::vvcc_acquire()
-        .map_err(|e| format!("Failed to acquire commit lock: {}", e))?;
-
-    match vvc::machine_commit(&lock, &commit_args, output) {
-        Ok(hash) => {
-            vvc::vvco_out!(output, "{}: committed {}", JJRO_CMD_NAME_CURRY, &hash[..8]);
-            Ok(())
-        }
-        Err(e) => Err(format!("Commit failed: {}", e)),
-    }
-    // lock released here
+    Ok(())
 }
 
 /// Furlough a Heat - change status or rename

@@ -13,6 +13,7 @@ A single read-only _probe_ — the sole definition of "what counts as old-format
 {jjdr_load} consults the probe to decide migration mode and keeps no second copy of the detection.
 
 A _nag_ at {jjdo_open} that emits one status line per episode carrying the rivet token, so each install self-reports which tolerances are still load-bearing there.
+Each line is self-documenting: it states inline what its verdict means and the removal rule — _pending_: old shape still present here, tolerance load-bearing; _dormant_: store canonical here, episode removable once dormant on every clone — so a reader acts on it without opening code or spec.
 
 == Mechanism and episode lifetimes
 

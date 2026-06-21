@@ -205,7 +205,7 @@ fn rbtdro_read_env_value(path: &Path, key: &str) -> Option<String> {
 }
 
 /// Cases 1, 2, 8, 9 probe: governor RBRA present at the freehold secrets path.
-/// Established by the governor enrobe (rbtdrk_governor_enrobe, freehold-enrobe).
+/// Established by readying governor credentials at the freehold secrets path.
 fn rbtdro_probe_governor_rbra() -> Result<(), String> {
     let root = rbtdro_probe_root()?;
     let path = rbtdrk_freehold_rbra(&root, RBTDGC_ACCOUNT_GOVERNOR)?;
@@ -721,7 +721,7 @@ fn rbtdro_onboarding_conclave_reliquary(dir: &Path) -> rbtdre_Verdict {
     let probe = rbtdrb_Probe {
         name: "governor RBRA present",
         check: rbtdro_probe_governor_rbra,
-        remediation: "rerun freehold-enrobe (rbtdrk_governor_enrobe) before this fixture",
+        remediation: "ready governor credentials at the freehold secrets path before this fixture",
     };
     if let Err(v) = rbtdrb_assert(&probe) {
         return v;

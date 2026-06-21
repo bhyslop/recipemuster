@@ -53,10 +53,6 @@ zrbfl_kindle() {
   buc_log_args 'Validate Foundry Core is kindled'
   zrbfc_sentinel
 
-  buc_log_args 'Verify Director RBRA file'
-  test -n "${RBDC_DIRECTOR_RBRA_FILE:-}" || buc_die "RBDC_DIRECTOR_RBRA_FILE not set"
-  test -f "${RBDC_DIRECTOR_RBRA_FILE}"   || buc_die "GCB service env file not found: ${RBDC_DIRECTOR_RBRA_FILE}"
-
   buc_log_args 'Define delete operation file prefix'
   readonly ZRBFL_DELETE_PREFIX="${BURD_TEMP_DIR}/rbfl_delete_"
 

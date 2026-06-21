@@ -34,17 +34,15 @@ fn rbtdtp_disposition_is_state_progressing() {
 }
 
 /// Case lookup binds the fixture name to the registry array and yields exactly
-/// the five lifecycle cases (gate → stand-up → SA cycle → live-disqualify →
-/// tear-down).
+/// the four lifecycle cases (gate → stand-up → live-disqualify → tear-down).
 #[test]
 fn rbtdtp_cases_registered() {
     let fixture = rbtdrc_lookup_fixture(RBTDRM_FIXTURE_DEPOT_LIFECYCLE)
         .expect("depot-lifecycle is registered");
-    assert_eq!(fixture.cases.len(), 5, "expected five cases");
+    assert_eq!(fixture.cases.len(), 4, "expected four cases");
     let names: Vec<&str> = fixture.cases.iter().map(|c| c.name).collect();
     assert!(names.iter().any(|n| n.contains("rbtdrp_marshal_zero_attestation")));
     assert!(names.iter().any(|n| n.contains("rbtdrp_depot_stand_up")));
-    assert!(names.iter().any(|n| n.contains("rbtdrp_sa_cycle")));
     assert!(names.iter().any(|n| n.contains("rbtdrp_depot_live_disqualify")));
     assert!(names.iter().any(|n| n.contains("rbtdrp_depot_tear_down")));
 }

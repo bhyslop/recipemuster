@@ -2323,7 +2323,7 @@ The returned identity becomes a required parameter on all subsequent {jjdx_tool}
 {jjds_stdout}
 +
 When {jjdxo_exsanguination} encounters prior officia, a summary line: `Exsanguination: N active, M reaped`.
-One {jjdz_reprieve} status line per registered episode, each carrying the rivet token (`pending` or `dormant`).
+One {jjdz_reprieve} status line per registered episode, each carrying the rivet token and a `pending`/`dormant` verdict with its inline gloss (the self-documenting nag line — see {jjdz_reprieve}).
 Then the {jjdxo_officium} identity string, prefixed with ☉.
 
 === Remote Dispatch Operations

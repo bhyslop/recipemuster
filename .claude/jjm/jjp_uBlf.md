@@ -12,6 +12,9 @@ Premise-touching ideas wait on Fable: any idea that would amend a cinched ₣BZ 
 Keep this catalog shape-shaped — each idea a named tension plus a current lean, never a running discussion log.
 Genuinely thin or orthogonal ideas belong in itches or the horizon roadmap, not here; this paddock is for ideas worth deliberating with heat context.
 
+Vocabulary-remint dingleberry doctrine: a word this heat flags for remint retires by a tree-wide grep eviction sweep, run only after ₣BZ and its M6 narrative settle, so every site they add is present to be swept.
+Using the current canonical word meanwhile is therefore never a dingleberry — only a non-canonical paraphrase escapes the grep — so demolition and narrative work use the canonical word and never coin a variant.
+
 ## Conviction — the federation configuration model (settled modeling axis)
 
 The one settled shape in this paddock: the modeling axis is decided, even though the build is not.
@@ -161,6 +164,16 @@ Trap to avoid: the lazy collapse — relocating rbw-dt/rbw-dT into an rbw-t* tes
 Honest residual: real verbs swallow the engross/expunge disposition, so asserting the precise 412/404 idempotency may still want a small rbgft data-layer unit test — homed honestly in test-infra, never a production-family verb.
 
 Composes with the founding-home idea and the build spine's attach-via-admission-verbs unit (this is that unit's operator-compearance sibling); not premise-touching and needs no new vocabulary, so it can graduate without the Fable gate.
+
+## Idea — release suites lost their credential-heal preamble
+
+Tension: skirmish, dogfight, and blockade each led with the freehold-enrobe fixture as a keyfile credential-heal — re-mantling the governor and defrock/re-enrobing retriever and director so the real fixture found fresh service-account keys against a standing operator-levied depot.
+The ₣BZ estate demolition removed freehold-enrobe whole (it minted keys, already dead on the no-keys org) and stripped its leader from those three suites, which now carry no credential-readiness step.
+
+Current lean: the federation replacement is not a re-enrobe dance but a standing-freehold compear-plus-don — open an assize and confirm the donnable mantles — so the three suites are one more consumer of whatever test-rig credential step the config-model forks and the compearance ideas above settle, not separate machinery.
+Until that lands skirmish/dogfight/blockade are credential-incomplete; they were already non-functional on the no-keys org, so this surfaces an existing gap rather than regressing a working state.
+
+Source: the ₣BZ estate-demolition pace and its M7 record in the pace-design memo.
 
 ## Idea — the governor's role in federation
 

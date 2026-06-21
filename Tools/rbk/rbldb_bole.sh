@@ -195,9 +195,6 @@ rbld_ensconce() {
   # auths GAR ambiently whether pulled from gcr.io or our AR.
   zrbfc_resolve_tool_images
 
-  buc_step "Loading Director RBRA credentials"
-  source "${RBDC_DIRECTOR_RBRA_FILE}" || buc_die "Failed to source Director RBRA"
-
   buc_step "Authenticating as Director"
   local z_token=""
   z_token=$(rba_token_capture director) \

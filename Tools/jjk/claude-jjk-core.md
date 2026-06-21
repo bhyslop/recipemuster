@@ -115,7 +115,7 @@ jjx_enroll         {firemark, before?, after?, first?, size_limit?} # silks+dock
 jjx_reorder        {firemark, move?, before?, after?, first?, last?}
 jjx_alter          {firemark, racing?, stabled?, silks?}
 jjx_record         {identity, files[], size_limit?, intent?}
-jjx_close          {coronet, summary?, size_limit?}
+jjx_close          {coronet, summary?, spook?, size_limit?}     # spook: wrap-time friction report -> Spook: trailer on the W commit
 jjx_log            {firemark, limit?}
 jjx_search         {pattern, actionable?}
 jjx_archive        {firemark, size_limit?}
@@ -123,7 +123,7 @@ jjx_transfer       {firemark, to, coronets, size_limit?}
 jjx_continue       {firemark}
 jjx_paddock        {firemark?, note?, size_limit?}                  # gazette_in.md to set, gazette_out.md to get
 jjx_relocate       {coronet, to, before?, after?, first?}
-jjx_redocket       {size_limit?}                                    # docket via gazette_in.md only; supports mass reslate
+jjx_redocket       {size_limit?, before?, after?, first?}           # gazette_in.md only; mixed single-heat batch (paddock + reslate + slate); before/after/first position the FIRST slate
 jjx_relabel        {coronet, silks}
 jjx_drop           {coronet}
 jjx_brief      {coronet}                                            # raw docket text for ONE pace, returned inline (no gazette) — the clean single-docket read; an abandoned pace's docket leads with an [abandoned] marker line
@@ -148,9 +148,10 @@ jjx_fetch          {legatio, path}                                  # remote: re
 - **Gazette output**: `jjx_orient`, `jjx_show`, and `jjx_paddock` (getter) write `gazette_out.md` with paddock and pace docket notices. Read the gazette file after these commands to get full content.
 - **Never reach past the JJK interface to raw storage — NO exceptions.** Do not parse the harness's persisted tool-result files or the gallops JSON (`.claude/jjm/jjg_gallops.json`) directly. To read one pace's docket, call `jjx_brief {coronet}` (returns inline). To read full paddock/dockets after `jjx_show`/`jjx_orient`, read the `gazette_out.md` file directly. When a large `jjx_show` overflows the display and the harness persists the tool result, re-read `gazette_out.md` or loop `jjx_brief` per pace — never scrape the persisted blob. Same discipline as "never read regime files directly, go through the CLI."
 - **Gazette input**: `jjx_enroll`, `jjx_redocket`, and `jjx_paddock` (setter) read docket/content from `gazette_in.md`; `jjx_orient` and `jjx_show` read their target selection from `gazette_in.md` (`jjezs_halter` notices). Gazette is the sole input path — no JSON param fallback on any of them.
-- `jjx_redocket` supports **mass reslate**: multiple `# jjezs_reslate <coronet>` notices in a single `gazette_in.md`, each with its own docket body. All paces updated in one call.
+- `jjx_redocket` applies a **mixed single-heat batch**: any combination of one `# jjezs_paddock <firemark>`, multiple `# jjezs_reslate <coronet>`, and multiple `# jjezs_slate <silks>` notices in one `gazette_in.md`, applied as a single commit affiliated to the heat. Mass reslate (reslate-only) is the common special case. Constraints: **one heat only** — every reslate coronet's parent and the paddock firemark must name the same heat, else the batch is rejected (this same guard closed a latent cross-heat misattribution in the old reslate-only path); a slate-only batch has no heat anchor and is rejected (use `jjx_enroll`). Slate notices apply in **file order** (notice order = pace order); the `before`/`after`/`first` params position only the FIRST slate, the rest fold in after it; reslate and paddock never move the cursor.
 - `jjx_paddock` `note` param: optional short string appended to the paddock discussion commit message (e.g., `{"note": "updated after spook fix"}`)
 - `jjx_close` takes `summary` as a string param (not stdin pipe)
+- `jjx_close` takes `spook` as an optional string param — the wrap-time friction report (see Wrap Discipline). It rides the W chalk commit as a single-line `Spook:` trailer; absent or empty becomes `Spook: none`, so every wrap carries the line. Grep the corpus with `git log --all --format='%b' | grep '^Spook:'`
 - `jjx_record` takes `files` as a native JSON array: `["file1.rs", "file2.rs"]`
 - `jjx_transfer` takes `coronets` as a JSON-encoded string (not a native array): `"[\"AYAAA\", \"AYAAB\"]"`
 
@@ -202,6 +203,7 @@ body...
 | `jjx_enroll` | `# jjezs_slate <silks>` + docket body | `{"firemark": "XX", "before?": ..., "after?": ..., "first?": ...}` |
 | `jjx_redocket` | `# jjezs_reslate <coronet>` + docket body | `{}` (coronet is in gazette lede) |
 | `jjx_redocket` (mass) | Multiple `# jjezs_reslate <coronet>` notices, each with docket body | `{}` |
+| `jjx_redocket` (batch) | Mixed `# jjezs_paddock <firemark>` + `# jjezs_reslate <coronet>` + `# jjezs_slate <silks>` notices, one heat | `{"before?": ..., "after?": ..., "first?": ...}` (position the first slate) |
 | `jjx_paddock` (set) | `# jjezs_paddock <firemark>` + content body | `{"note?": "commit annotation"}` |
 
 Gazette paths are **emitted by the server**: `jjx_open` and `jjx_orient` return the absolute `gazette_in` / `gazette_out` paths in their output. Use those exactly as given. They resolve to `.claude/jjm/officia/<id>/gazette_in.md` and `gazette_out.md`, where **`<id>` is the officium id with the ☉ prefix stripped** (the dispatcher strips it; on disk the directory is `260327-1000`, never `☉260327-1000`) — which is precisely why hand-substituting the returned ☉-id into that template lands you in a glyph-named sibling that does not exist. Take the emitted path; do not rebuild it.
@@ -345,6 +347,9 @@ When work is complete, report outcomes and ask. Do not wrap.
 
 When wrapping (after user confirms), always include a summary of the work:
 Use `jjx_close` with `{coronet: "CORONET", summary: "Added bitmap displays to orient output"}`
+
+**Always answer the spook (friction) question at wrap.** Alongside `summary`, pass `spook` — a short, grep-friendly report of friction *you* hit during this chat: re-reads forced by a missing pointer, a docket aimed at a renamed file, a confusing paddock, a verb that fought you. Ask yourself "what snagged?" assuming something did, not "did anything snag?" — at wrap the pull is to tidy up and under-report, and that bias is the failure mode this channel exists to resist. Report only first-person in-chat events you observed (actionable), never a counterfactual claim that some affordance *helped* (an ablation you cannot run). "Nothing snagged" is a first-class answer: pass `spook: "none"` (or omit it) — required to answer, never required to invent. The reports accrete into a git-resident corpus (`Spook:` trailers) for later JJK affordance tuning; each line is a flag to verify against its own transcript, not authoritative data.
+Use `jjx_close` with `{coronet: "CORONET", summary: "...", spook: "docket pointed at rbf_Foundry.sh but it was decomposed; cost two greps to relocate"}`
 The agent always has context about what was accomplished — include it.
 
 **Wrap is unscoped — known JJK bug, do NOT "fix" it.** Unlike `notch`/`jjx_record` (explicit file list), `jjx_close` (wrap) stages and commits **every** dirty file in the tree — your code, the gallops state, and anything another officium left uncommitted. Wrap is not yet as file-specific as notch; that gap is a known bug, deferred pending the planned git-worktrees switch — do not attempt to repair it. For now: before wrapping, make sure the tree holds only your work, or expect wrap to sweep all of it into one commit.

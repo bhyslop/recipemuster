@@ -33,24 +33,9 @@ zrbz_kindle() {
   # Verify buz zipper is kindled (CLI furnish must kindle buz first)
   zbuz_sentinel
 
-  # Accounts — Google Cloud service accounts (rbw-a)
-  buz_group RBZ__GROUP_ACCOUNTS   "rbw-a"   "Accounts — Service account management"
-  local z_mod="rbgp_cli.sh"
-  buz_enroll RBZ_ENROBE_GOVERNOR         "rbw-aE"  "${z_mod}" "rbgp_enrobe_governor"       ""        "Enrobe (create/replace) governor service account"
-  z_mod="rbgg_cli.sh"
-  buz_enroll RBZ_ENROBE_RETRIEVER        "rbw-arE" "${z_mod}" "rbgg_enrobe_retriever"      "param1"  "Enrobe a Retriever service account for an identity"
-  buz_enroll RBZ_ENROBE_DIRECTOR         "rbw-adE" "${z_mod}" "rbgg_enrobe_director"       "param1"  "Enrobe a Director service account for an identity"
-  buz_enroll RBZ_DEFROCK_RETRIEVER       "rbw-arF" "${z_mod}" "rbgg_defrock_retriever"     "param1"  "Defrock a Retriever service account by identity"
-  buz_enroll RBZ_DEFROCK_DIRECTOR        "rbw-adF" "${z_mod}" "rbgg_defrock_director"      "param1"  "Defrock a Director service account by identity"
-  buz_enroll RBZ_ROSTER_RETRIEVERS       "rbw-arr" "${z_mod}" "rbgg_roster_retrievers"     ""        "Roster Retriever service accounts (emit per-identity fact files)"
-  buz_enroll RBZ_ROSTER_DIRECTORS        "rbw-adr" "${z_mod}" "rbgg_roster_directors"      ""        "Roster Director service accounts (emit per-identity fact files)"
-
-  # Access — credential access probes (rbw-ac), one colophon per role
+  # Access — credential access probes (rbw-ac): payor OAuth, federated compearance, mantle don
   buz_group RBZ__GROUP_ACCESS     "rbw-ac"  "Access — Credential access probes"
-  z_mod="rbgv_cli.sh"
-  buz_enroll RBZ_CHECK_GOVERNOR          "rbw-acg" "${z_mod}" "rbgv_check_governor"        ""        "Check the governor credential reaches Google Cloud (JWT SA access probe)"
-  buz_enroll RBZ_CHECK_RETRIEVER         "rbw-acr" "${z_mod}" "rbgv_check_retriever"       ""        "Check the retriever credential reaches Google Cloud (JWT SA access probe)"
-  buz_enroll RBZ_CHECK_DIRECTOR          "rbw-acd" "${z_mod}" "rbgv_check_director"        ""        "Check the director credential reaches Google Cloud (JWT SA access probe)"
+  local z_mod="rbgv_cli.sh"
   buz_enroll RBZ_CHECK_PAYOR             "rbw-acp" "${z_mod}" "rbgv_check_payor"           ""        "Check the payor credential reaches Google Cloud (OAuth access probe)"
   buz_enroll RBZ_CHECK_COMPEARANCE       "rbw-acf" "${z_mod}" "rbgv_check_compearance"     ""        "Check federated access — open or reuse an assize via device flow + STS (Legs 1+2) against the RBRF trust"
   buz_enroll RBZ_CHECK_MANTLE            "rbw-acm" "${z_mod}" "rbgv_check_mantle"          "param1"  "Don a mantle as the freehold subject — compear then don the named mantle (governor|director|retriever), or surface the admission deficit"
@@ -138,7 +123,6 @@ zrbz_kindle() {
   buz_enroll RBZ_ONBOARD_DIR_BIND       "rbw-Odb" "${z_mod}" "rbho_director_bind"        ""  "Bind Cloud Build — pin upstream image by digest, mode-mixture pluml Crucible"
   buz_enroll RBZ_ONBOARD_DIR_GRAFT      "rbw-Odg" "${z_mod}" "rbho_director_graft"       ""  "Graft Cloud Build — push locally-built image, inspect GRAFTED Vouch verdict"
   buz_enroll RBZ_ONBOARD_PAYOR_HB      "rbw-Op"  "${z_mod}" "rbho_payor_handbook"       ""  "Payor — establish a Manor and provision the Depot"
-  buz_enroll RBZ_ONBOARD_GOVERNOR_HB   "rbw-Og"  "${z_mod}" "rbho_governor_handbook"    ""  "Governor — administer service accounts for directors and retrievers"
 
   # Foundry — registry artifact lifecycle (rbw-f, UPPER=mutates GAR, lower=read/local)
   buz_group RBZ__GROUP_FOUNDRY    "rbw-f"   "Foundry — Registry artifact lifecycle"
