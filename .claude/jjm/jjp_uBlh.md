@@ -2,15 +2,18 @@
 
 ## Context
 
-This heat is the rbm-side slice and coordination spine for a two-repo feature:
+This heat carries the whole two-repo feature as one interleaved pace stream:
 a paneboard-hosted overlay that labels each Claude Code window with its JJK pace,
 and a standalone SVG/raster diagram viewer that paneboard conducts.
 Provenance and the one proven mechanism (iTerm session-id correlation) are in the seed memo.
 
-The repo split is load-bearing.
+The repo split is load-bearing for code ownership, not for pace ownership.
 The viewer binary and the paneboard hub are paneboard-owned;
 the rbm side is thin — vvx reads its iTerm session id, discovers paneboard's port-file,
 and sends label/diagram messages best-effort, fail-soft.
+Both repos' paces nonetheless live in this single heat and advance interleaved —
+the two ends are too tightly coupled across the shared wire to sequence as separate heats —
+with paneboard-side paces committed via `git -C` (see Cross-repo operation).
 Both ends share one wire protocol, frozen once the viewer's walking skeleton validates it;
 the rbm-side concepts land formally in JJS0.
 The whole feature is driven from one control console in rbm — see Cross-repo operation.
