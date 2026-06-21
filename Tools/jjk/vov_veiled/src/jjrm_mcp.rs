@@ -341,6 +341,7 @@ pub struct jjrm_AlterParams {
 pub struct jjrm_CloseParams {
     pub coronet: String,
     pub summary: Option<String>,
+    pub spook: Option<String>,
     pub size_limit: Option<u64>,
 }
 
@@ -1256,7 +1257,7 @@ impl jjrm_McpServer {
                 jjrm_result(zjjrx_run_wrap(jjrx_WrapArgs {
                     coronet: p.coronet,
                     size_limit: p.size_limit,
-                }, p.summary))
+                }, p.summary, p.spook))
             }
             JJRM_CMD_NAME_SEARCH => {
                 let p = deser!(jjrm_SearchParams);

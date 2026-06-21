@@ -115,7 +115,7 @@ jjx_enroll         {firemark, before?, after?, first?, size_limit?} # silks+dock
 jjx_reorder        {firemark, move?, before?, after?, first?, last?}
 jjx_alter          {firemark, racing?, stabled?, silks?}
 jjx_record         {identity, files[], size_limit?, intent?}
-jjx_close          {coronet, summary?, size_limit?}
+jjx_close          {coronet, summary?, spook?, size_limit?}     # spook: wrap-time friction report -> Spook: trailer on the W commit
 jjx_log            {firemark, limit?}
 jjx_search         {pattern, actionable?}
 jjx_archive        {firemark, size_limit?}
@@ -152,6 +152,7 @@ jjx_fetch          {legatio, path}                                  # remote: re
 - `jjx_redocket` supports **mass reslate**: multiple `# jjezs_reslate <coronet>` notices in a single `gazette_in.md`, each with its own docket body. All paces updated in one call.
 - `jjx_paddock` `note` param: optional short string appended to the paddock discussion commit message (e.g., `{"note": "updated after spook fix"}`)
 - `jjx_close` takes `summary` as a string param (not stdin pipe)
+- `jjx_close` takes `spook` as an optional string param — the wrap-time friction report (see Wrap Discipline). It rides the W chalk commit as a single-line `Spook:` trailer; absent or empty becomes `Spook: none`, so every wrap carries the line. Grep the corpus with `git log --all --format='%b' | grep '^Spook:'`
 - `jjx_record` takes `files` as a native JSON array: `["file1.rs", "file2.rs"]`
 - `jjx_transfer` takes `coronets` as a JSON-encoded string (not a native array): `"[\"AYAAA\", \"AYAAB\"]"`
 
@@ -344,6 +345,9 @@ When work is complete, report outcomes and ask. Do not wrap.
 
 When wrapping (after user confirms), always include a summary of the work:
 Use `jjx_close` with `{coronet: "CORONET", summary: "Added bitmap displays to orient output"}`
+
+**Always answer the spook (friction) question at wrap.** Alongside `summary`, pass `spook` — a short, grep-friendly report of friction *you* hit during this chat: re-reads forced by a missing pointer, a docket aimed at a renamed file, a confusing paddock, a verb that fought you. Ask yourself "what snagged?" assuming something did, not "did anything snag?" — at wrap the pull is to tidy up and under-report, and that bias is the failure mode this channel exists to resist. Report only first-person in-chat events you observed (actionable), never a counterfactual claim that some affordance *helped* (an ablation you cannot run). "Nothing snagged" is a first-class answer: pass `spook: "none"` (or omit it) — required to answer, never required to invent. The reports accrete into a git-resident corpus (`Spook:` trailers) for later JJK affordance tuning; each line is a flag to verify against its own transcript, not authoritative data.
+Use `jjx_close` with `{coronet: "CORONET", summary: "...", spook: "docket pointed at rbf_Foundry.sh but it was decomposed; cost two greps to relocate"}`
 The agent always has context about what was accomplished — include it.
 
 **Wrap is unscoped — known JJK bug, do NOT "fix" it.** Unlike `notch`/`jjx_record` (explicit file list), `jjx_close` (wrap) stages and commits **every** dirty file in the tree — your code, the gallops state, and anything another officium left uncommitted. Wrap is not yet as file-specific as notch; that gap is a known bug, deferred pending the planned git-worktrees switch — do not attempt to repair it. For now: before wrapping, make sure the tree holds only your work, or expect wrap to sweep all of it into one commit.

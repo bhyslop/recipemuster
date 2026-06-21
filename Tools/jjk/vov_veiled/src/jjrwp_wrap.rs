@@ -45,8 +45,14 @@ fn get_pace_silks_or_default(gallops: &Gallops, firemark_key: &str, coronet_key:
 /// creates the work commit, then transitions pace to complete state with
 /// chalk marker commit.
 ///
+/// The `spook` argument carries the agent's wrap-time friction report (in-chat
+/// stumbles: re-reads, a docket pointing at a renamed file, a confusing paddock).
+/// It rides the W chalk commit as a single-line `Spook:` trailer, building a
+/// grep-extractable corpus for later affordance tuning. Absent or empty becomes
+/// `Spook: none`, so every wrap carries the line as a reliable grep surface.
+///
 /// Returns exit code (0 for success, non-zero for failure).
-pub fn zjjrx_run_wrap(args: jjrx_WrapArgs, summary: Option<String>) -> (i32, String) {
+pub fn zjjrx_run_wrap(args: jjrx_WrapArgs, summary: Option<String>, spook: Option<String>) -> (i32, String) {
     let cn = JJRWP_CMD_NAME_WRAP;
     let mut output = vvco_Output::buffer();
 
@@ -274,8 +280,21 @@ pub fn zjjrx_run_wrap(args: jjrx_WrapArgs, summary: Option<String>) -> (i32, Str
         get_pace_silks_or_default(&gallops, &firemark_key, &coronet_key)
     };
 
-    // Create W chalk marker commit with gallops state change
-    let chalk_message = jjrn_format_chalk_message(&coronet, jjrn_ChalkMarker::Wrap, &chalk_description);
+    // Create W chalk marker commit with gallops state change.
+    // Append the wrap-time friction report as a single-line `Spook:` trailer:
+    // absent/empty becomes "none", and internal newlines collapse to spaces so
+    // the trailer stays one grep-extractable line.
+    let spook_line = spook
+        .as_deref()
+        .map(str::trim)
+        .filter(|s| !s.is_empty())
+        .unwrap_or("none")
+        .replace('\n', " ");
+    let chalk_message = format!(
+        "{}\n\nSpook: {}",
+        jjrn_format_chalk_message(&coronet, jjrn_ChalkMarker::Wrap, &chalk_description),
+        spook_line
+    );
 
     let chalk_commit_args = vvc::vvcm_CommitArgs {
         files: vec![".claude/jjm/jjg_gallops.json".to_string()],
