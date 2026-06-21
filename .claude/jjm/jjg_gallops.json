@@ -12991,8 +12991,8 @@
         "₢BDAAb": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260619-0818",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260621-1726",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "## Character",
                 "Wording polish — output strings plus a matching spec line. Low risk.",
@@ -13014,7 +13014,7 @@
                 "zjjrm_forgiveness_nag (Tools/jjk/vov_veiled/src/jjrm_mcp.rs), jjdz_Status verdict (jjri_io.rs), nag contract in JJS0 jjdz_forgiveness."
               ],
               "jjgtn_silks": "forgiveness-nag-self-documenting",
-              "jjgtn_basis": "30a1645"
+              "jjgtn_basis": "7505fc8"
             }
           ]
         },
