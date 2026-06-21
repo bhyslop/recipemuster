@@ -14687,8 +14687,8 @@
         "₢BZAAg": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260621-1301",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260621-1447",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "Bump the assize cap from 1h to 12h so a long suite run (gauntlet, skirmish, service) completes on a single morning compearance — no mid-run re-compear to babysit.",
                 "",
@@ -14711,7 +14711,7 @@
                 "Small config pace with one wrinkle — the live pool needs a `sessionDuration` PATCH that affiance won't apply to an existing pool."
               ],
               "jjgtn_silks": "assize-duration-12h",
-              "jjgtn_basis": "bd60959"
+              "jjgtn_basis": "2e08427"
             }
           ]
         }
