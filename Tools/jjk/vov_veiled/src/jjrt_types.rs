@@ -157,6 +157,17 @@ pub struct jjrg_Gallops {
     pub heat_order: Vec<String>,
     #[serde(rename = "jjgrn_heats")]
     pub heats: BTreeMap<String, jjrg_Heat>,
+    /// Chat-history retention policy — the ISO date (YYYY-MM-DD) since which this install is
+    /// permitted to capture its own chat transcripts into the project. Absent or empty means off
+    /// (the shareable default: the binary can be handed to a friend without absorbing their chat
+    /// history). Held as a RAW string and never serde-typed: a malformed date must not make the
+    /// gallops fail to parse — bad config never makes the store illegitimate. Classification and
+    /// validation happen at read via `jjri_retention_state`; the value is consumed by the capture
+    /// mechanism and set by its operator-facing setter, both of which land separately. Optional +
+    /// skip-when-None keeps an off store byte-identical, so adding this field needs no reprieve
+    /// episode (the easy mirror of a field removal).
+    #[serde(default, skip_serializing_if = "Option::is_none", rename = "jjgrn_retention_since")]
+    pub retention_since: Option<String>,
 }
 
 /// Arguments for the nominate operation

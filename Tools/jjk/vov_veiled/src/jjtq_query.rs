@@ -52,6 +52,7 @@ fn create_test_gallops() -> Gallops {
         next_heat_seed: "AC".to_string(),
         heat_order: vec![],
         heats,
+        retention_since: None,
     }
 }
 
@@ -226,6 +227,7 @@ fn create_test_gallops_with_mixed_states() -> Gallops {
         next_heat_seed: "AD".to_string(),
         heat_order: vec![],
         heats,
+        retention_since: None,
     }
 }
 

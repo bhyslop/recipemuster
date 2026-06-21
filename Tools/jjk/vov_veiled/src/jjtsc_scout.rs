@@ -61,6 +61,7 @@ fn jjtsc_make_gallops(heats: Vec<(&str, jjrg_Heat)>) -> jjrg_Gallops {
         next_heat_seed: "ZZ".to_string(),
         heat_order,
         heats: heat_map,
+        retention_since: None,
     }
 }
 

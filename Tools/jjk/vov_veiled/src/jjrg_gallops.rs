@@ -209,6 +209,7 @@ mod tests {
             next_heat_seed: "AB".to_string(),
             heat_order: vec![firemark_key],
             heats,
+            retention_since: None,
         }
     }
 

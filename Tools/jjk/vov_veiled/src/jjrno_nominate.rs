@@ -65,6 +65,7 @@ pub fn jjrx_run_nominate(args: jjrx_NominateArgs) -> (i32, String) {
             next_heat_seed: "AA".to_string(),
             heat_order: vec![],
             heats: BTreeMap::new(),
+            retention_since: None,
         }
     };
 
@@ -119,6 +120,7 @@ mod tests {
             next_heat_seed: "AA".to_string(),
             heat_order: vec![],
             heats: BTreeMap::new(),
+            retention_since: None,
         };
         let args = jjrg_NominateArgs {
             silks: "test-heat".to_string(),

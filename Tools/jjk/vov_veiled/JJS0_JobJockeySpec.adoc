@@ -70,6 +70,7 @@
 // Gallops record and members
 :jjdgm_heats:       <<jjdgm_heats,heats>>
 :jjdgm_order:       <<jjdgm_order,heat_order>>
+:jjdgm_retention:   <<jjdgm_retention,retention>>
 :jjdgm_seed:        <<jjdgm_seed,next_heat_seed>>
 :jjdgr_gallops:     <<jjdgr_gallops,Gallops>>
 :jjdgr_gallops_p:   <<jjdgr_gallops,Gallops'>>
@@ -264,6 +265,7 @@
 // Serialization
 :jjdz_charset:      <<jjdz_charset,Charset>>
 :jjdz_encoding:     <<jjdz_encoding,Identity Encoding>>
+:jjdz_monitum:      <<jjdz_monitum,Monitum>>
 :jjdz_reprieve:     <<jjdz_reprieve,Reprieve>>
 
 // Upper API: verbs (equestrian vocabulary)
@@ -1321,6 +1323,16 @@ Display and selection order governed by
 {jjdgm_order},
 not key order.
 
+* [[jjdgm_retention]]
+//axl_voices axr_member axd_optional axd_property
+{jjdgm_retention}
+is the chat-history retention policy: the ISO date (`YYYY-MM-DD`) since which this install is permitted to capture its own chat transcripts into the project.
+Serialized as `jjgrn_retention_since` in JSON, and omitted entirely when off.
+Absent or empty means retention is off — the shareable default, so the binary can be handed to another operator without absorbing their chat history.
+Held as a raw string and never deserialized into a date type: a malformed value must not make the {jjdgr_gallops} fail to parse, because bad config never makes the store illegitimate.
+Because it is optional and skip-when-off, an off store is byte-identical with or without the field, so adding it required no {jjdz_reprieve} episode — the easy mirror of a field removal.
+Read and classified at {jjdo_open} by the retention {jjdz_monitum} into three states (off, on-since-date, malformed); the value is consumed by the capture mechanism and set by its operator-facing setter, both of which land separately.
+
 === {jjdhr_heat}
 
 [[jjdhr_heat]]
@@ -1753,15 +1765,27 @@ Doctrine elaborated in subdocument:
 
 include::JJSCRP-reprieve.adoc[leveloffset=+2]
 
+=== {jjdz_monitum}
+
+[[jjdz_monitum]]
+//axve_entity
+{jjdz_monitum}::
+An open-time self-report: a line {jjdo_open} emits about a standing condition of this install — read-only, best-effort, and never gating.
+A {jjdz_monitum} reads on-disk state without the commit lock, emits nothing on any read or parse failure, and can never cause open to fail: it reports a condition, it does not enforce one.
+Two instances exist, kept deliberately independent in code — no shared {jjdz_monitum} abstraction until a third instance earns it:
+the {jjdz_reprieve} nag, the first instance, reporting per-episode schema-tolerance status, one line each carrying the rivet token;
+and the retention {jjdz_monitum}, the second, reporting the {jjdgm_retention} chat-history policy in three states — off is quiet (no line), on prints the since-date, and a malformed date prints loud and notes capture is disabled.
+That malformed case is the {jjdz_monitum}'s fail-loud: a typo'd date is a loud line at every open, never a hard gate, because bad config never makes the {jjdgr_gallops} illegitimate.
+
 === Open Ceremony Contract
 
-The {jjdo_open} nag peek is read-only, best-effort, and never gating: it reads the {jjdgr_gallops} without the commit lock, emits nothing on any read or parse failure, and mutates nothing — the lockless read is safe because {jjdr_save} renames atomically, so the peek sees only whole files.
+Each {jjdo_open} {jjdz_monitum} peek is read-only, best-effort, and never gating: it reads the {jjdgr_gallops} without the commit lock, emits nothing on any read or parse failure, and mutates nothing — the lockless read is safe because {jjdr_save} renames atomically, so the peek sees only whole files.
 Open also carries a `size_limit` convergence budget, default 0.
 At 0 the ceremony mutates nothing beyond its invitatory marker — the standing read-only open.
 Above 0 it opts into a bulk-authorized convergence commit: load (running any pending write-forward), save, and commit the managed store under that budget as the invitatory, so a {jjdz_reprieve} conversion self-persists at the next session start (chat capture rides the same path later).
 A convergence over budget hard-fails: the required size is reported, the store is reverted to HEAD, and the freshly-claimed officium is rolled back — no officium delivered, no staged store left behind — with no internal retries (a wedged commit lock is broken out-of-band).
 An always-gate guards both paths: open refuses unless every managed file is pristine (neither staged nor conflicted), since a non-pristine managed store is never legitimate and must be resolved by hand.
-So {jjdo_open} no longer "always succeeds"; it succeeds iff its managed store is clean — the nag alone still never causes failure.
+So {jjdo_open} no longer "always succeeds"; it succeeds iff its managed store is clean — the {jjdz_monitum}s alone still never cause failure.
 
 == Arguments
 
@@ -2310,7 +2334,7 @@ include::JJSCPD-parade.adoc[]
 
 Create a new {jjdxo_officium} for the calling agent session.
 Takes no parameters; returns the {jjdxo_officium} identity string.
-Mutates no {jjdgr_gallops}; its only read is the {jjdz_reprieve} nag (read-only, best-effort, non-gating).
+Mutates no {jjdgr_gallops}; its only reads are the open-time {jjdz_monitum}s — the {jjdz_reprieve} nag and the retention {jjdz_monitum} — each read-only, best-effort, non-gating.
 +
 {jjds_behavior}
 +
@@ -2324,6 +2348,7 @@ The returned identity becomes a required parameter on all subsequent {jjdx_tool}
 +
 When {jjdxo_exsanguination} encounters prior officia, a summary line: `Exsanguination: N active, M reaped`.
 One {jjdz_reprieve} status line per registered episode, each carrying the rivet token and a `pending`/`dormant` verdict with its inline gloss (the self-documenting nag line — see {jjdz_reprieve}).
+Then, when retention is configured, one retention {jjdz_monitum} line: the since-date when on, or a loud capture-disabled line when the date is malformed (nothing when off).
 Then the {jjdxo_officium} identity string, prefixed with ☉.
 
 === Remote Dispatch Operations

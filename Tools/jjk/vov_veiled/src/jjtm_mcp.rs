@@ -94,6 +94,7 @@ fn jjtm_apply_batch_reslates_and_slates_in_file_order() {
         next_heat_seed: "AB".to_string(),
         heat_order: vec![],
         heats: BTreeMap::new(),
+        retention_since: None,
     };
     let (k, h) = make_heat_with_docket("BD", "## Goal\nold goal");
     gallops.heats.insert(k, h);
