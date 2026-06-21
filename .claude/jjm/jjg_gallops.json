@@ -16493,9 +16493,10 @@
       "jjghn_order": [
         "₢BhAAA",
         "₢BhAAB",
-        "₢BhAAC"
+        "₢BhAAC",
+        "₢BhAAD"
       ],
-      "jjghn_next_pace_seed": "AAD",
+      "jjghn_next_pace_seed": "AAE",
       "jjghn_paces": {
         "₢BhAAA": {
           "jjgpn_tacks": [
@@ -16570,6 +16571,30 @@
               ],
               "jjgtn_silks": "pb-standalone-image-viewer",
               "jjgtn_basis": "ef40ae7"
+            }
+          ]
+        },
+        "₢BhAAD": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260621-0847",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "With the transport proven by the viewer skeleton, write the shared wire contract down and freeze it:",
+                "the atomic region-frame for register_label, and the fresh/update payload framing.",
+                "",
+                "See the seed memo's Phase 2 and its protocol section, and the paddock's \"Pane-label overlay shape\" for the region-frame shape cinched here.",
+                "",
+                "## Cinched",
+                "register_label carries one atomic frame per window — session key plus the full region set, each region {slot, lines, style} — never one message per region.",
+                "Transport is localhost TCP, connect-per-message, best-effort / fail-soft.",
+                "",
+                "## Done when",
+                "- The contract is written in both repos' homes (paneboard PoC spec; rbm formal landing tracked separately) and marked frozen.",
+                "- fresh/update and register_label shapes are pinned against the working skeleton."
+              ],
+              "jjgtn_silks": "wire-protocol-freeze",
+              "jjgtn_basis": "fdb50b2"
             }
           ]
         }
