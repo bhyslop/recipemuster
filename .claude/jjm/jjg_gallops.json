@@ -14551,35 +14551,33 @@
         "₢BZAAe": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260620-1542",
+              "jjgtn_ts": "260621-1047",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
-                "Retire the RBRA keyfile-credential estate whole — the bridge's demolition condition executed, the heat's \"zero SA keys, RBRA estate deleted whole\" done-criterion.",
-                "Runs after the keyless canonical bootstrap has proven federation personas pass the suites, so the keyfile path is dead bridge legacy by the time this sweeps it.",
+                "Sweep the orphaned RBRA keyfile estate once the foundry mints via the federation don — the bridge's demolition condition, executed.",
+                "The dead-legacy half of this estate is already done (the cult-verb estate and the keyfile JWT probes); the live half waited on the preceding pace, which reroutes rba_token_capture and the foundry consumers onto the don and leaves the estate below unreferenced.",
                 "",
-                "The five teardown clusters (full estate map + sizing in the pace-design memo's M7 record; rediscover live with grep RBRA_FILE and grep create_service_account_with_key):",
-                "- the accessor keyfile branch (rba_token_capture) + RBDC_*_RBRA_FILE constants/derivation + the rbra regime and CLI + the ~20 consumer test-f/source guards;",
-                "- the enrobe/defrock cult verbs (rbw-aE/adE/arE/adF/arF) and their bodies + the key-creation engine zrbgg_create_service_account_with_key;",
-                "- the keyfile JWT probes (rbw-acg/acr/acd) and their rbgv bodies + the RBSAJ spec — the federated rbw-acm/acf already replace them;",
-                "- RBSRA and the RBS0 quoin seats/includes for the retired specs;",
-                "- the Rust fixture keyfile coupling — the freehold-enrobe fixture, now isolated whole in the rbtdrk_enrobe module as a clean file-delete target; the depot-lifecycle full-SA-cycle case (rbtdrp_sa_cycle in rbtdrp_lifecycle); the fast-tier credless guard; manifest/consts.",
+                "Remaining estate (rediscover with grep RBRA_FILE and grep rbgo_get_token_capture):",
+                "- the keyfile JWT mint rbgo_get_token_capture + its rbgo keyfile machinery, now caller-less;",
+                "- the RBDC_*_RBRA_FILE constants + derivation (rbdc_derived.sh), the rbra regime + rbra_cli.sh, and the rbra regime file;",
+                "- RBSRA + its RBS0 quoin seats/includes, and the rbtoe_*_authenticate keyfile JWT-auth patterns in RBS0 (+ the RBSAP ref);",
+                "- the Rust remainder — rbtdgc_consts RBTDGC_RBRA_FILE, the rbtdrk_freehold_rbra helper + its import, rbtdrp_attest RBRA refs, the fast-tier credless guard's keyfile aspect, and the dogfight/onboarding RBRA-presence probes (likely removed — those suites' federation credential-readiness is already deferred to the test-rig heat; confirm at mount).",
                 "",
                 "## Done when",
-                "grep RBRA_FILE and grep create_service_account_with_key land clean repo-wide; no SA key mints anywhere in the kit.",
-                "The enrobe/defrock verbs, the keyfile JWT probes, and RBSRA/RBSAJ are gone; RBS0 is internally consistent with the seats removed.",
-                "The theurge build regenerates the consts and tabtarget-context; shellcheck and the suites (now wholly on federation personas) stay green; complete green before the heat closes.",
-                "`complete` excludes the depot test-infra fixtures — depot-lifecycle, freehold-establish, and freehold-enrobe ride the gauntlet/skirmish/dogfight/blockade ladders only — so a live gauntlet run on federation personas, plus skirmish for freehold-enrobe, verifies the freehold-collapse rename and this demolition before close, never assumed from complete-green.",
+                "grep RBRA_FILE and grep rbgo_get_token_capture land clean repo-wide; no keyfile mint and no RBRA estate anywhere in the kit.",
+                "RBSRA is gone and RBS0 is internally consistent with the seats removed.",
+                "The theurge build regenerates the consts and tabtarget-context; shellcheck and the suites stay green; complete green before the heat closes.",
+                "A live gauntlet plus skirmish on federation personas verifies the rewire and this teardown together before close, never assumed from complete-green.",
                 "",
                 "## Cinched",
-                "Runs only after the keyless bootstrap proves the gate — teardown of dead bridge legacy, not a live credential swap.",
+                "Runs only after the preceding pace proves the foundry mints via the don — teardown of now-dead keyfile machinery, not a credential swap (the swap is that preceding pace).",
                 "The rbgw capability-set definitions stay (they realize the mantle grant lists, not keyfile machinery).",
-                "Decide at mount whether the cult roster verbs (rbw-adr/arr) retire here or survive — federation's rehearse may already replace them.",
                 "",
                 "## Character",
-                "Large mechanical-but-wide demolition — one credential estate across bash, theurge-Rust, specs, and zipper; the risk is reach, not depth."
+                "Large mechanical-but-wide demolition of an orphaned estate across bash, theurge-Rust, and specs; the risk is reach, not depth — the preceding rewire has already de-risked the live behavior."
               ],
               "jjgtn_silks": "rbra-estate-demolition",
-              "jjgtn_basis": "dd628c0"
+              "jjgtn_basis": "67728a1"
             }
           ]
         },
