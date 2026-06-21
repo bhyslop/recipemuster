@@ -16494,9 +16494,10 @@
         "₢BhAAA",
         "₢BhAAB",
         "₢BhAAC",
-        "₢BhAAD"
+        "₢BhAAD",
+        "₢BhAAE"
       ],
-      "jjghn_next_pace_seed": "AAE",
+      "jjghn_next_pace_seed": "AAF",
       "jjghn_paces": {
         "₢BhAAA": {
           "jjgpn_tacks": [
@@ -16595,6 +16596,31 @@
               ],
               "jjgtn_silks": "wire-protocol-freeze",
               "jjgtn_basis": "fdb50b2"
+            }
+          ]
+        },
+        "₢BhAAE": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260621-0848",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Land the rbm-side concepts formally in JJS0 as quoins:",
+                "terminal-window / session-id correlation (clean new territory),",
+                "the control-channel's adjacency to the remote-dispatch layer,",
+                "and the disambiguation of the three distinct \"session\" identities.",
+                "",
+                "See the seed memo's spec-landing-zones section for the neighborhoods to coordinate with and the word-selection hazard.",
+                "Mint per MCM Lapidary and the Quoin Sub-Letter Discipline.",
+                "",
+                "## Cinched",
+                "\"session\" is overloaded across three identities — officium, Claude Code session UUID, iTerm session id — so Lapidary forces three distinct words, not a reused \"session\".",
+                "",
+                "## Done when",
+                "- The new concepts are minted as JJS0 quoins with mapping-section entries and a sub-letter legend, not colliding with the existing officium / remote-dispatch / display neighborhoods."
+              ],
+              "jjgtn_silks": "jjs0-overlay-concept-landing",
+              "jjgtn_basis": "a922984"
             }
           ]
         }
