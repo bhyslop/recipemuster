@@ -154,8 +154,8 @@ zrbgp_refresh_capture() {
 zrbgp_authenticate_capture() {
   zrbgp_sentinel
 
-  # Credless guard gate — first, before the RBRO credential load, mirroring the
-  # rbgo_get_token_capture gate (the JWT-SA sibling membrane).
+  # Credless guard gate — first, before the RBRO credential load, so a guarded
+  # run rejects before any credential touch (fast cases must never reach creds).
   test "${BURE_TWEAK_NAME:-}" != "${RBCC_tweak_credless_guard}" \
     || buc_reject "${BUBC_band_credless}" "Credless guard: Payor OAuth token mint refused — this run carries the fast-tier guard (fast cases must never reach credentials)"
 

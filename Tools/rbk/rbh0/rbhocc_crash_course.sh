@@ -164,8 +164,6 @@ rbho_crash_course() {
   buyy_tt_yawp "${RBZ_VALIDATE_VESSEL}";   local -r z_rv_v="${z_buym_yelp}"
   buyy_tt_yawp "${RBZ_RENDER_NAMEPLATE}";  local -r z_rn_r="${z_buym_yelp}"
   buyy_tt_yawp "${RBZ_VALIDATE_NAMEPLATE}";local -r z_rn_v="${z_buym_yelp}"
-  buyy_tt_yawp "${RBZ_RENDER_AUTH}";       local -r z_ra_r="${z_buym_yelp}"
-  buyy_tt_yawp "${RBZ_VALIDATE_AUTH}";     local -r z_ra_v="${z_buym_yelp}"
   buh_line "   c  ${RBYC_BURC}  ${z_rc_r}   ${z_rc_v}"
   buh_line "   s  ${RBYC_BURS}  ${z_rs_r}  ${z_rs_v}"
   buh_line "   r  ${RBYC_RBRR}  ${z_rr_r}     ${z_rr_v}"
@@ -173,11 +171,10 @@ rbho_crash_course() {
   buh_line "   p  ${RBYC_RBRP}  ${z_rp_r}    ${z_rp_v}"
   buh_line "   o  ${RBYC_RBRO}  ${z_ro_r}    ${z_ro_v}"
   buh_e
-  buh_line "These take a target name (vessel, nameplate, or role):"
+  buh_line "These take a target name (vessel or nameplate):"
   buh_e
   buh_line "   v  ${RBYC_RBRV}  ${z_rv_r}     ${z_rv_v}"
   buh_line "   n  ${RBYC_RBRN}  ${z_rn_r}  ${z_rn_v}"
-  buh_line "   a  ${RBYC_RBRA}  ${z_ra_r}       ${z_ra_v}"
   buh_e
   buh_line "Learn the letter — you can find any regime's tools from it."
   buh_e

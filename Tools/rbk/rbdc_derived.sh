@@ -31,21 +31,13 @@ zrbdc_kindle() {
   test -z "${ZRBDC_KINDLED:-}" || buc_die "Module rbdc already kindled"
   zrbrr_sentinel
 
-  # Ensure secrets directory and account subdirectories exist (bare-named:
-  # secret dirs are derived resource-name strings, not the minted role enum)
-  mkdir -p "${RBRR_SECRETS_DIR}/${RBCC_account_governor}" \
-           "${RBRR_SECRETS_DIR}/${RBCC_account_retriever}" \
-           "${RBRR_SECRETS_DIR}/${RBCC_account_director}" \
-           "${RBRR_SECRETS_DIR}/${RBCC_account_payor}" \
-           "${RBRR_SECRETS_DIR}/${RBCC_account_assay}" \
+  # Ensure the payor secrets subdirectory exists — the sole durable secret is the
+  # payor's RBRO refresh token (bare-named: a derived resource-name string).
+  mkdir -p "${RBRR_SECRETS_DIR}/${RBCC_account_payor}" \
     || buc_die "Failed to create secrets directories under: ${RBRR_SECRETS_DIR}"
 
-  # Derive credential file paths from RBRR_SECRETS_DIR
-  readonly RBDC_GOVERNOR_RBRA_FILE="${RBRR_SECRETS_DIR}/${RBCC_account_governor}/${RBCC_rbra_file}"
-  readonly RBDC_RETRIEVER_RBRA_FILE="${RBRR_SECRETS_DIR}/${RBCC_account_retriever}/${RBCC_rbra_file}"
-  readonly RBDC_DIRECTOR_RBRA_FILE="${RBRR_SECRETS_DIR}/${RBCC_account_director}/${RBCC_rbra_file}"
+  # Derive the payor credential file path from RBRR_SECRETS_DIR
   readonly RBDC_PAYOR_RBRO_FILE="${RBRR_SECRETS_DIR}/${RBCC_account_payor}/${RBCC_rbro_file}"
-  readonly RBDC_ASSAY_RBRA_FILE="${RBRR_SECRETS_DIR}/${RBCC_account_assay}/${RBCC_rbra_file}"
 
   # Derive depot identity from (RBRD_CLOUD_PREFIX, RBRD_DEPOT_MONIKER).
   # Project ID, GAR repository, pool stem, and bucket fall out at kindle.

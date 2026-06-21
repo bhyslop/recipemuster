@@ -954,8 +954,8 @@ fn rbtdrf_rs_burs(dir: &Path) -> rbtdre_Verdict {
 // repo-baseline regimes above it self-skips when absent, so the fast suite
 // stays green on a fresh checkout while a configured station validates for
 // real. This is the surviving slice of the orphaned regime-credentials suite;
-// its RBRA/RBRO siblings are covered more strongly by the service-tier
-// access-probe, which mints real tokens against those credentials.
+// its RBRO sibling is covered more strongly by the service-tier access-probe,
+// which mints real tokens against the payor credential.
 fn rbtdrf_rs_rbrs(dir: &Path) -> rbtdre_Verdict {
     let root = match std::env::current_dir() {
         Ok(r) => r,
@@ -1230,7 +1230,7 @@ fn rbtdrf_rs_unmake_empty_arg_refusal(dir: &Path) -> rbtdre_Verdict {
 /// verb (rbw-iJ, registry delete) invoked from a fast-tier fixture must die
 /// at the token-mint chokepoint with the credless band code: the guard env
 /// arrives via `rbtdri_tabtarget_command` because this fixture is
-/// `credless: true`, and `rbgo_get_token_capture` rejects before touching
+/// `credless: true`, and `rba_compear` rejects before touching the IdP or
 /// any credential — so the verdict is identical on credentialed and bare
 /// machines. The junk ref names a nonexistent namespace and the verb's
 /// interactive confirm sits after the mint, so even a broken guard cannot

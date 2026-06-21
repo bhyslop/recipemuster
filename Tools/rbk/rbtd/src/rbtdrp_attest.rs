@@ -17,7 +17,7 @@
 // RBTDRP — marshal-zero attestation gate (case 1 of the depot-lifecycle fixture)
 //
 // The entry gate for the gauntlet suite. It asserts that the working tree was
-// just zeroed by `rbw-MZ` (rblm_zero): five violation classes are checked and
+// just zeroed by `rbw-MZ` (rblm_zero): four violation classes are checked and
 // ALL surfaced in one aggregated diagnostic. Failure short-circuits the rest of
 // the depot-lifecycle arc (rbtdrp_lifecycle) via the per-fixture fail_fast switch.
 //
@@ -28,8 +28,7 @@ use std::path::Path;
 
 use crate::rbtdre_engine::{rbtdre_tree_clean, rbtdre_Verdict};
 use crate::rbtdgc_consts::{
-    RBTDGC_MOORINGS_DIR, RBTDGC_RBRA_FILE, RBTDGC_RBRD_FILE, RBTDGC_RBRN_FILE, RBTDGC_RBRR_FILE,
-    RBTDGC_ACCOUNT_ASSAY, RBTDGC_ACCOUNT_DIRECTOR, RBTDGC_ACCOUNT_GOVERNOR, RBTDGC_ACCOUNT_RETRIEVER,
+    RBTDGC_MOORINGS_DIR, RBTDGC_RBRD_FILE, RBTDGC_RBRN_FILE, RBTDGC_RBRR_FILE,
 };
 use crate::rbtdrk_freehold::{
     rbtdrk_read_env_value, rbtdrk_resolve, RBTDRK_FIELD_RBRD_CLOUD_PREFIX,
@@ -49,15 +48,6 @@ const RBTDRP_RBRR_BLANK_FIELDS: &[&str] = &[
 const RBTDRP_RBRD_BLANK_FIELDS: &[&str] = &[
     RBTDRK_FIELD_RBRD_CLOUD_PREFIX,
     RBTDRK_FIELD_RBRD_DEPOT_MONIKER,
-];
-
-/// Roles whose RBRA credential files rblm_zero deletes, including the assay
-/// enrobe-drop slot — all projected from rbcc_constants.sh.
-const RBTDRP_RBRA_ROLES: &[&str] = &[
-    RBTDGC_ACCOUNT_GOVERNOR,
-    RBTDGC_ACCOUNT_DIRECTOR,
-    RBTDGC_ACCOUNT_RETRIEVER,
-    RBTDGC_ACCOUNT_ASSAY,
 ];
 
 /// Nameplate hallmark fields rblm_zero blanks.
@@ -110,24 +100,7 @@ fn rbtdrp_check_rbrd_fields(rbrd: &Path, violations: &mut Vec<String>) {
     }
 }
 
-/// Class C — no RBRA credential files at the four role paths.
-fn rbtdrp_check_rbra_files(root: &Path, secrets_dir: &str, violations: &mut Vec<String>) {
-    if secrets_dir.is_empty() {
-        violations.push(
-            "RBRR_SECRETS_DIR is blank — cannot resolve credential paths".to_string(),
-        );
-        return;
-    }
-    let secrets = rbtdrk_resolve(root, secrets_dir);
-    for role in RBTDRP_RBRA_ROLES {
-        let path = secrets.join(role).join(RBTDGC_RBRA_FILE);
-        if path.exists() {
-            violations.push(format!("RBRA credential present: {}", path.display()));
-        }
-    }
-}
-
-/// Class D — every nameplate's RBRN_SENTRY_HALLMARK and RBRN_BOTTLE_HALLMARK
+/// Class C — every nameplate's RBRN_SENTRY_HALLMARK and RBRN_BOTTLE_HALLMARK
 /// is blank.
 fn rbtdrp_check_nameplate_hallmarks(root: &Path, violations: &mut Vec<String>) {
     let dot_dir = root.join(RBTDGC_MOORINGS_DIR);
@@ -162,7 +135,7 @@ fn rbtdrp_check_nameplate_hallmarks(root: &Path, violations: &mut Vec<String>) {
     }
 }
 
-/// Class E — every vessel rbrv.env has RBRV_RELIQUARY blank and every
+/// Class D — every vessel rbrv.env has RBRV_RELIQUARY blank and every
 /// RBRV_IMAGE_*_ANCHOR field blank.
 fn rbtdrp_check_vessel_depot_fields(
     root: &Path,
@@ -228,7 +201,7 @@ fn rbtdrp_scan_rbrv_file(rbrv: &Path, violations: &mut Vec<String>) {
 
 // ── Case 1: marshal-zero attestation ─────────────────────────
 
-/// Case 1 — marshal-zero attestation. Aggregates all five violation classes
+/// Case 1 — marshal-zero attestation. Aggregates all four violation classes
 /// into a single diagnostic. A passing run is the proof that `rbw-MZ` was
 /// just executed and committed.
 pub(crate) fn rbtdrp_marshal_zero_attestation(_dir: &Path) -> rbtdre_Verdict {
@@ -246,7 +219,6 @@ pub(crate) fn rbtdrp_marshal_zero_attestation(_dir: &Path) -> rbtdre_Verdict {
         return rbtdre_Verdict::Fail(format!("RBRD file not found: {}", rbrd.display()));
     }
 
-    let secrets_dir = rbtdrk_read_env_value(&rbrr, "RBRR_SECRETS_DIR").unwrap_or_default();
     let vessel_dir = rbtdrk_read_env_value(&rbrr, "RBRR_VESSEL_DIR").unwrap_or_default();
 
     let mut violations: Vec<String> = Vec::new();
@@ -254,7 +226,6 @@ pub(crate) fn rbtdrp_marshal_zero_attestation(_dir: &Path) -> rbtdre_Verdict {
     rbtdrp_check_tree_clean(&root, &mut violations);
     rbtdrp_check_rbrr_fields(&rbrr, &mut violations);
     rbtdrp_check_rbrd_fields(&rbrd, &mut violations);
-    rbtdrp_check_rbra_files(&root, &secrets_dir, &mut violations);
     rbtdrp_check_nameplate_hallmarks(&root, &mut violations);
     rbtdrp_check_vessel_depot_fields(&root, &vessel_dir, &mut violations);
 

@@ -48,7 +48,7 @@ ZRBLDD_SOURCED=1
 # packages, blocking until terminal. The build runs the rbgjl06 step, which
 # loops the package list in-pool — one build per call, never one build per
 # package (so an N-package abjure is a single build). The Director SA email (the
-# build's run-as identity) is read from the installed Director RBRA; the step
+# build's run-as identity) is derived from the Director mantle SA; the step
 # path is resolved relative to this file so it works in either furnishing process
 # without depending on a kindle constant. The caller supplies its own forensic
 # temp prefix so files land in the caller's namespace.

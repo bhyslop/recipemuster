@@ -49,9 +49,11 @@ The
 stands apart--requires manual console work and OAuth authentication for both {rbtgi_depot} and {rbtr_governor} lifecycle operations.
 The
 {rbtr_governor}
-and all downstream roles authenticate via
-{rbtgi_rbra_file}
-credentials, enabling automation without human interaction.
+and all downstream roles authenticate by donning their
+{rbtf_mantle_s}
+through federated
+{rbtf_compear}ance,
+minting short-lived tokens with no on-disk credential.
 
 == Phase 1: Establish
 
@@ -124,8 +126,8 @@ can now operate independently of the
 
 == Credential Files
 
-Each {rbtr_role} maintains its own credential file.
-Understanding these files helps administrators plan secure handling.
+The {rbtr_payor} maintains an OAuth credential file; the operational roles hold none — they don mantles through federated compearance.
+Understanding this file helps administrators plan secure handling.
 
 The
 {rbtr_payor}
@@ -141,16 +143,11 @@ The
 {rbtr_director},
 and
 {rbtr_retriever}
-each have an
-{rbtgi_rbra_file}
-at paths defined in the repository configuration.
-Each file contains
-{giam_service_account}
-credentials scoped to one role within one
+hold no on-disk credential: the operator dons each role's mantle service account through federated
+{rbtf_compear}ance,
+minting a short-lived token scoped to one role within one
 {rbtgi_depot}.
-
-All credential files require `600` permissions, exclusion from version control, and secure distribution to authorized users.
-A credential file cannot operate outside its designated role and {rbtgi_depot}.
+A donned mantle's token cannot operate outside its designated role and {rbtgi_depot}.
 
 == Day-to-Day Operations
 

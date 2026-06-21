@@ -44,7 +44,6 @@ use crate::rbtdgc_consts::{
     RBTDGC_BAND_ENROLL,
     RBTDGC_BAND_REGIME,
     RBTDGC_TWEAK_REGIME_POISON,
-    RBTDGC_VALIDATE_AUTH,
     RBTDGC_VALIDATE_DEPOT,
     RBTDGC_VALIDATE_NAMEPLATE,
     RBTDGC_VALIDATE_OAUTH,
@@ -383,13 +382,6 @@ fn rbtdrs_rbro_missing_refresh_token(dir: &Path) -> rbtdre_Verdict {
         RBTDGC_BAND_ENROLL, "rbro-missing-refresh-token")
 }
 
-fn rbtdrs_rbra_bad_private_key(dir: &Path) -> rbtdre_Verdict {
-    // Non-PEM material clears the secret-length enroll but fails the
-    // zrbra_enforce BEGIN check → regime. Folio is a configured credential role.
-    rbtdrs_poison_optional(dir, RBTDGC_VALIDATE_AUTH, &["rbnae_retriever"],
-        "RBRA_PRIVATE_KEY=no-pem-material", RBTDGC_BAND_REGIME, "rbra-bad-private-key")
-}
-
 fn rbtdrs_burs_bad_tincture(dir: &Path) -> rbtdre_Verdict {
     // Uppercase clears the length enroll but fails the zburs_enforce regex → regime.
     rbtdrs_poison_optional(dir, RBTDRS_VALIDATE_BURS, &[], "BURS_TINCTURE=A1",
@@ -439,7 +431,6 @@ pub static RBTDRS_CASES_REGIME_POISON: &[rbtdre_Case] = &[
     case!(rbtdrs_rbrv_no_bind_image),
     case!(rbtdrs_rbrs_missing_platform),
     case!(rbtdrs_rbro_missing_refresh_token),
-    case!(rbtdrs_rbra_bad_private_key),
     case!(rbtdrs_burs_bad_tincture),
     case!(rbtdrs_burn_bad_platform),
     case!(rbtdrs_burp_missing_workload_key),

@@ -51,28 +51,14 @@ rbho_start_here() {
 
   buh_section "Foundation"
   buh_e
-  buh_line "  Foundation sets up three things on your workstation: the repository"
-  buh_line "  ${RBYC_REGIME} (${RBYC_RBRR}, shared project settings), the station ${RBYC_REGIME}"
-  buh_line "  (${RBYC_BURS}, per-developer local settings), and credentials (${RBYC_RBRA}, the"
-  buh_line "  role key a ${RBYC_GOVERNOR} hands you). Local-only — no cloud ceremony yet."
+  buh_line "  Foundation sets up two things on your workstation: the repository"
+  buh_line "  ${RBYC_REGIME} (${RBYC_RBRR}, shared project settings) and the station ${RBYC_REGIME}"
+  buh_line "  (${RBYC_BURS}, per-developer local settings). Local-only — no cloud ceremony yet."
   buh_e
   buh_line "    Configure your Repo's Environment (~5 min)"
   buh_line "      Universal prerequisite. ${RBYC_TABTARGETS}, ${RBYC_REGIMES},"
   buh_line "      ${RBYC_BURS} setup, validation, ${RBYC_LOGS}. Local-only, no cloud."
   buh_tt   "        " "${RBZ_ONBOARD_CRASH_COURSE}"
-  buh_e
-  buh_line "    Install ${RBYC_RETRIEVER} Credentials (existing projects only, ~5 min)"
-  buh_line "      A ${RBYC_RETRIEVER} retrieves assets from the ${RBYC_DEPOT} for an"
-  buh_line "      established project — read-only access to pull existing images from"
-  buh_line "      the project's registry; no build, no publish."
-  buh_line "      Place your ${RBYC_RBRA} credential file, verify, confirm you can pull images."
-  buh_tt   "        " "${RBZ_ONBOARD_CRED_RETRIEVER}"
-  buh_e
-  buh_line "    Install ${RBYC_DIRECTOR} Credentials (existing projects only, ~5 min)"
-  buh_line "      A ${RBYC_DIRECTOR} conducts cloud operations on an established project —"
-  buh_line "      submits Cloud Builds, publishes and manages images in the ${RBYC_DEPOT}."
-  buh_line "      Place your ${RBYC_RBRA} credential file, verify, confirm you can build and publish."
-  buh_tt   "        " "${RBZ_ONBOARD_CRED_DIRECTOR}"
   buh_e
 
   buh_section "Kludged ${RBYC_CRUCIBLES}"

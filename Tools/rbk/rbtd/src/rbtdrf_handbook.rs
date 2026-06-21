@@ -27,8 +27,7 @@ use crate::rbtdri_invocation::{rbtdri_find_tabtarget_global, rbtdri_tabtarget_co
 use crate::rbtdgc_consts::{
     RBTDGC_HANDBOOK_TOP, RBTDGC_HANDBOOK_WINDOWS,
     RBTDGC_HW_DOCKER_CONTEXT, RBTDGC_HW_DOCKER_DESKTOP,
-    RBTDGC_ONBOARD_CRASH_COURSE, RBTDGC_ONBOARD_CRED_DIRECTOR,
-    RBTDGC_ONBOARD_CRED_RETRIEVER, RBTDGC_ONBOARD_DIR_FIRST_BUILD,
+    RBTDGC_ONBOARD_CRASH_COURSE, RBTDGC_ONBOARD_DIR_FIRST_BUILD,
     RBTDGC_ONBOARD_FIRST_CRUCIBLE,
     RBTDGC_ONBOARD_PAYOR_HB, RBTDGC_ONBOARD_START_HERE,
     RBTDGC_PAYOR_ESTABLISH, RBTDGC_PAYOR_REFRESH,
@@ -89,14 +88,6 @@ fn rbtdrf_hb_onboard_crash_course(dir: &Path) -> rbtdre_Verdict {
     rbtdrf_hb_render(dir, RBTDGC_ONBOARD_CRASH_COURSE, "onboard-crash-course")
 }
 
-fn rbtdrf_hb_onboard_cred_retriever(dir: &Path) -> rbtdre_Verdict {
-    rbtdrf_hb_render(dir, RBTDGC_ONBOARD_CRED_RETRIEVER, "onboard-cred-retriever")
-}
-
-fn rbtdrf_hb_onboard_cred_director(dir: &Path) -> rbtdre_Verdict {
-    rbtdrf_hb_render(dir, RBTDGC_ONBOARD_CRED_DIRECTOR, "onboard-cred-director")
-}
-
 fn rbtdrf_hb_onboard_first_crucible(dir: &Path) -> rbtdre_Verdict {
     rbtdrf_hb_render(dir, RBTDGC_ONBOARD_FIRST_CRUCIBLE, "onboard-first-crucible")
 }
@@ -146,8 +137,6 @@ fn rbtdrf_hb_quota_build(dir: &Path) -> rbtdre_Verdict {
 pub static RBTDRF_CASES_HANDBOOK_RENDER: &[rbtdre_Case] = &[
     case!(rbtdrf_hb_onboard_start_here),
     case!(rbtdrf_hb_onboard_crash_course),
-    case!(rbtdrf_hb_onboard_cred_retriever),
-    case!(rbtdrf_hb_onboard_cred_director),
     case!(rbtdrf_hb_onboard_first_crucible),
     case!(rbtdrf_hb_onboard_dir_first_build),
     case!(rbtdrf_hb_onboard_payor_hb),

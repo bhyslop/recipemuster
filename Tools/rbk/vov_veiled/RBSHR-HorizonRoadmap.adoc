@@ -190,7 +190,7 @@ _Reference_: `Memos/memo-20260415-crucible-conduit-architecture.md` (approach A 
 Move the service secrets a bottle workload uses — cloud API keys, IAM keys, SSH keys — off the operator's workstation and into the bottle itself, injected at charge time via nameplate/regime configuration rather than baked into the bottle image (a published image must never carry a live secret).
 The workstation starts the crucible but never holds the service secret; its only credential becomes permission to charge.
 This blocks credential theft from a compromised workstation — the one threat the sentry allowlist and the encrypted tunnel do not already close — by shrinking the secret's resting place to the contained bottle.
-The existing RBRA file regime-path pattern provides the model.
+The existing credential regime-path pattern provides the model.
 Orthogonal to but naturally paired with the encrypted tunnel conduit: the tunnel grants the bottle network reach to a cloud service and the sentry custodies the tunnel key, while this item custodies the service secret inside the bottle — network access and the credential to use it configured together.
 _Trigger_: alongside the conduit nameplate work.
 _Reference_: `Memos/memo-20260415-crucible-conduit-architecture.md` (Credential Confinement section; the `Credential theft from workstation` row of the threat-model table); the Bedrock instance of this pattern is the Quire's confined-credential identity layer (`Memos/memo-20260609-bedrock-quire-shaping.md` §6).
@@ -329,9 +329,7 @@ _Reference_: RBSCB-CloudBuildPosture.adoc (Deferred Items: Reproducibility).
 Recipe Bottle grants
 {rbtgi_depot}
 capabilities to identities the depot's IAM recognizes.
-The shipping model is the keyfile tier: each operator role holds a service-account key file (the
-{rbtgi_rbra_file})
-on disk, possession of the key is the identity, and no GCP organization is required.
+The shipping model is the keyfile tier: each operator role holds a service-account key file on disk, possession of the key is the identity, and no GCP organization is required.
 Operator federation is the heavyweight successor tier for installations that cannot accept an operator secret on disk.
 The depot owner configures the
 {rbtgi_depot}

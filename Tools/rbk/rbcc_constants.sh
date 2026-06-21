@@ -55,26 +55,16 @@ RBCC_rbrd_file="${RBCC_moorings_dir}/${RBCC_rbrd_basename}"
 # Literal constants (pure string literals, no variable expansion — available at source time)
 RBCC_rbrs_file="../station-files/rbrs.env"
 RBCC_rbrn_file="rbrn.env"
-RBCC_rbra_file="rbra.env"
 RBCC_rbro_file="rbro.env"
-# Auth-role enum (rbnae_): the RBRA_ROLE value — minted sprue, RBRA_ROLE domain
-# (3 members). Written into credential files, validated, carried as the auth
-# folio, swizzle-checked against BUZ_FOLIO. Distinct axis from RBCC_account_*
-# below: that one is the bare composition label.
-RBCC_role_governor="rbnae_governor"
-RBCC_role_retriever="rbnae_retriever"
-RBCC_role_director="rbnae_director"
 
 # Account composition labels — bare fragments that compose GCP SA account-ids/
-# emails AND local secret-directory names (6 members, superset of the 3 roles
-# plus payor/assay/mason which are NEVER RBRA_ROLE values). These stay bare:
-# a derived resource-name string in cloud/filesystem space, structurally like
-# the SA email and the -tether/-airgap pool suffixes the heat keeps bare.
+# emails AND local secret-directory names. These stay bare: a derived
+# resource-name string in cloud/filesystem space, structurally like the SA
+# email and the -tether/-airgap pool suffixes the heat keeps bare.
 RBCC_account_governor="governor"
 RBCC_account_retriever="retriever"
 RBCC_account_director="director"
 RBCC_account_payor="payor"
-RBCC_account_assay="assay"
 RBCC_account_mason="mason"
 
 # Mantle service-account names — the three impersonatable federation identities
@@ -132,18 +122,17 @@ RBCC_fact_ext_audit_hallmark="audit-hallmark"
 
 # Tweak-name tinder — RB-owned BURE_TWEAK_NAME values (buo sprue, BUS0 Tweak
 # Mechanism). The credless guard is the fast-tier slot reservation: theurge
-# sets it on every tabtarget a fast-tier fixture spawns, and the token-mint
-# membranes (rbgo_get_token_capture, zrbgp_authenticate_capture) reject under
-# it with BUBC_band_credless — a passing fast run can never use credentials.
+# sets it on every tabtarget a fast-tier fixture spawns, and the Payor OAuth
+# token-mint membrane (zrbgp_authenticate_capture) rejects under it with
+# BUBC_band_credless — a passing fast run can never use credentials.
 RBCC_tweak_credless_guard="buorb_credless_guard"
 
 # Container-role tinder — the canonical bash home for the crucible's container
 # roles. Bare role tokens; the crucible is sentry + pentacle + bottle and every
 # container name / compose service derives from these. Distinct from the
-# credential auth-role axis above, which itself splits in two: RBCC_role_*
-# (minted enum, the RBRA_ROLE value) and RBCC_account_* (bare composition label
-# for SA names + secret dirs). None of these words are reused across families,
-# keeping each token monosemous.
+# RBCC_account_* composition labels above (bare fragments for SA names + secret
+# dirs). None of these words are reused across families, keeping each token
+# monosemous.
 RBCC_container_bottle="bottle"
 RBCC_container_pentacle="pentacle"
 RBCC_container_sentry="sentry"
@@ -181,7 +170,6 @@ rbcc_emit_consts() {
     RBCC_account_retriever  \
     RBCC_account_director   \
     RBCC_account_payor      \
-    RBCC_account_assay      \
     RBCC_account_mason      \
     RBCC_rbrr_file       \
     RBCC_rbrp_file       \
@@ -191,7 +179,6 @@ rbcc_emit_consts() {
     RBCC_rbrd_file       \
     RBCC_rbrs_file       \
     RBCC_rbrn_file       \
-    RBCC_rbra_file       \
     RBCC_rbro_file       \
     RBCC_verb_defrock     \
     RBCC_verb_enrobe     \

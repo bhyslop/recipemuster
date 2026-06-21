@@ -40,15 +40,6 @@ rbho_director_bind() {
   local -r z_vessel_rbrv="${RBRR_VESSEL_DIR}/${z_vessel}/rbrv.env"
   local -r z_pluml_rbrn="${RBCC_moorings_dir}/${z_moniker}/${RBCC_rbrn_file}"
 
-  local z_has_director=0
-  local z_secrets_dir=""
-  if test -f "${RBCC_rbrr_file}"; then
-    z_secrets_dir=$(zrbho_po_extract_capture "${RBCC_rbrr_file}" "RBRR_SECRETS_DIR") || z_secrets_dir=""
-  fi
-  if test -n "${z_secrets_dir}" && \
-     test -f "${z_secrets_dir}/${RBCC_account_director}/${RBCC_rbra_file}"; then
-    z_has_director=1
-  fi
 
   local z_has_depot=0
   if test -f "${RBCC_rbrd_file}"; then
@@ -105,12 +96,6 @@ rbho_director_bind() {
 
   buh_line "Prerequisites:"
   buh_e
-  if test "${z_has_director}" = "1"; then
-    buh_line "${RBYC_PROBE_YES}${RBYC_DIRECTOR} credential installed"
-  else
-    buh_line "${RBYC_PROBE_NO}${RBYC_DIRECTOR} credential missing — run:"
-    buh_tt "      " "${RBZ_ONBOARD_CRED_DIRECTOR}"
-  fi
   if test "${z_has_depot}" = "1"; then
     buh_line "${RBYC_PROBE_YES}${RBYC_DEPOT} configured (RBRD_DEPOT_MONIKER populated)"
   else
@@ -119,7 +104,7 @@ rbho_director_bind() {
   fi
   buh_e
 
-  if test "${z_has_director}" = "0" || test "${z_has_depot}" = "0"; then
+  if test "${z_has_depot}" = "0"; then
     buh_error "Complete the prerequisites above before continuing."
     buh_e
     buh_tt "Return to start: " "${RBZ_ONBOARD_START_HERE}"

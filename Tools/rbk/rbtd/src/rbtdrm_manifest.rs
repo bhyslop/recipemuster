@@ -286,8 +286,6 @@ pub fn rbtdrm_required_colophons(fixture: &str) -> Option<&'static [&'static str
         RBTDRM_FIXTURE_HANDBOOK_RENDER => Some(&[
             RBTDGC_ONBOARD_START_HERE,
             RBTDGC_ONBOARD_CRASH_COURSE,
-            RBTDGC_ONBOARD_CRED_RETRIEVER,
-            RBTDGC_ONBOARD_CRED_DIRECTOR,
             RBTDGC_ONBOARD_FIRST_CRUCIBLE,
             RBTDGC_ONBOARD_DIR_FIRST_BUILD,
             RBTDGC_ONBOARD_PAYOR_HB,

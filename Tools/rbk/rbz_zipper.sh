@@ -114,8 +114,6 @@ zrbz_kindle() {
   z_mod="rbh0/rbho0_cli.sh"
   buz_enroll RBZ_ONBOARD_START_HERE    "rbw-o"   "${z_mod}" "rbho_start_here"            ""  "Onboarding start — probe-aware menu into handbook tracks"
   buz_enroll RBZ_ONBOARD_CRASH_COURSE  "rbw-Occ" "${z_mod}" "rbho_crash_course"          ""  "Crash Course — universal prerequisite: tabtargets, regimes, diagnostic failure"
-  buz_enroll RBZ_ONBOARD_CRED_RETRIEVER "rbw-Ocr" "${z_mod}" "rbho_credential_retriever" ""  "Install retriever credentials — place RBRA key file"
-  buz_enroll RBZ_ONBOARD_CRED_DIRECTOR  "rbw-Ocd" "${z_mod}" "rbho_credential_director"  ""  "Install director credentials — place RBRA key file"
   buz_enroll RBZ_ONBOARD_FIRST_CRUCIBLE "rbw-Ofc" "${z_mod}" "rbho_first_crucible"       ""  "Start a Crucible using local builds — kludge, charge, rack"
   buz_enroll RBZ_ONBOARD_TADMOR_SECURITY "rbw-Ots" "${z_mod}" "rbho_tadmor_security"     ""  "Verify Crucible containment under attack — charge tadmor and run the adversarial suite"
   buz_enroll RBZ_ONBOARD_DIR_FIRST_BUILD "rbw-Odf" "${z_mod}" "rbho_director_first_build" "" "Your First Cloud Build — conclave, conjure, tour, summon, abjure"
@@ -215,10 +213,6 @@ zrbz_kindle() {
   z_mod="rbrs_cli.sh"
   buz_enroll RBZ_RENDER_STATION         "rbw-rsr" "${z_mod}" "rbrs_render"    ""  "Render station regime"
   buz_enroll RBZ_VALIDATE_STATION       "rbw-rsv" "${z_mod}" "rbrs_validate"  ""  "Validate station regime"
-  z_mod="rbra_cli.sh"
-  buz_enroll RBZ_RENDER_AUTH            "rbw-rar" "${z_mod}" "rbra_render"    "param1"  "Render auth regime"
-  buz_enroll RBZ_VALIDATE_AUTH          "rbw-rav" "${z_mod}" "rbra_validate"  "param1"  "Validate auth regime"
-  buz_enroll RBZ_LIST_AUTH              "rbw-ral" "${z_mod}" "rbra_list"      ""        "List auth regimes"
 
   # Theurge — test infrastructure (rbw-t). One pipeline: the theurge engine
   # (build/test/run/suite/single) dispatches through rbw_workbench like every

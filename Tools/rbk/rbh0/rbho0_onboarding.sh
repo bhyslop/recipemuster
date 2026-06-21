@@ -42,8 +42,6 @@ zrbho_kindle() {
   # Handbook track display names — plain strings, not linked-term yelps.
   # Used where tracks cross-reference each other and in the start-here menu.
   readonly RBHO_TRACK_CRASH_COURSE="Crash Course"
-  readonly RBHO_TRACK_RET_CREDS="Install Retriever Credentials"
-  readonly RBHO_TRACK_DIR_CREDS="Install Director Credentials"
   readonly RBHO_TRACK_FIRST_CRUCIBLE="Your First Crucible"
   readonly RBHO_TRACK_TADMOR="Tadmor Security"
   readonly RBHO_TRACK_FIRST_BUILD="Your First Cloud Build"
@@ -82,67 +80,6 @@ zrbho_po_extract_capture() {
     case "${z_line}" in "${z_key}="*) echo "${z_line#"${z_key}="}"; return 0 ;; esac
   done < "${z_file}"
   return 1
-}
-
-zrbho_credential_install() {
-  # The auth role splits across two axes here: z_account_label is the bare
-  # secret-directory name; z_role_folio is the minted rbnae_ sprue passed as
-  # the rbw-rav folio.
-  local -r z_account_label="${1}"
-  local -r z_role_folio="${2}"
-
-  local z_secrets_dir=""
-  if test -f "${RBCC_rbrr_file}"; then
-    z_secrets_dir=$(zrbho_po_extract_capture "${RBCC_rbrr_file}" "RBRR_SECRETS_DIR") || z_secrets_dir=""
-  fi
-
-  local z_cred_present=0
-  if test -n "${z_secrets_dir}" \
-     && test -f "${z_secrets_dir}/${z_account_label}/${RBCC_rbra_file}"; then
-    z_cred_present=1
-  fi
-
-  buh_step_style "Step " " — "
-
-  buh_step1 "Get the key file"
-  buh_e
-  buh_line "A ${RBYC_GOVERNOR} produces ${RBYC_RBRA} credential files for ${RBYC_DIRECTORS} and ${RBYC_RETRIEVERS}."
-  buh_line "Your ${RBYC_GOVERNOR} hands you this file out-of-band — it is a"
-  buh_line "secret, never committed to the repo."
-  buh_e
-
-  buh_step1 "Install the key file"
-  buh_e
-  if test -n "${z_secrets_dir}"; then
-    buh_line "Place the file at the path derived from ${RBYC_RBRR}:"
-    buh_e
-    buh_code "   ${z_secrets_dir}/${z_account_label}/${RBCC_rbra_file}"
-    buh_e
-    buh_line "Create the directory if it does not exist."
-  else
-    buh_warn "RBRR not populated — cannot determine credential path."
-    buyy_link_yawp "${RBRR_PUBLIC_DOCS_URL}" "BURC" "Configure your Repo's Environment"; local -r z_env_link="${z_buym_yelp}"
-    buh_line "Run ${z_env_link} first."
-  fi
-  buh_e
-  if test "${z_cred_present}" = "1"; then
-    zrbho_po_status 1 "Credential file present"
-  else
-    zrbho_po_status 0 "Credential file not found"
-  fi
-  buh_e
-
-  buh_step1 "Validate"
-  buh_e
-  buh_line "Run the ${RBYC_RBRA} validator for your role:"
-  buh_e
-  buh_tt   "   " "${RBZ_VALIDATE_AUTH}" "" " ${z_role_folio}"
-  buh_e
-  buh_line "Read the output — it checks the file format and reports"
-  buh_line "what the credential grants."
-  buh_e
-
-  # Callers append role-specific verification and closing steps
 }
 
 # eof

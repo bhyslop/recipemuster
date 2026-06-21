@@ -43,7 +43,6 @@ use crate::rbtdri_invocation::{
     rbtdri_invoke_global,
 };
 use crate::rbtdgc_consts::{
-    RBTDGC_RBRA_FILE,
     RBTDGC_RBRD_FILE,
     RBTDGC_RBRR_FILE,
 };
@@ -89,7 +88,6 @@ pub(crate) const RBTDRK_DEPOT_STATE_COMPLETE: &str = "COMPLETE";
 pub(crate) const RBTDRK_FIELD_RBRD_CLOUD_PREFIX: &str = "RBRD_CLOUD_PREFIX";
 pub(crate) const RBTDRK_FIELD_RBRR_RUNTIME_PREFIX: &str = "RBRR_RUNTIME_PREFIX";
 pub(crate) const RBTDRK_FIELD_RBRD_DEPOT_MONIKER: &str = "RBRD_DEPOT_MONIKER";
-const RBTDRK_FIELD_RBRR_SECRETS_DIR: &str = "RBRR_SECRETS_DIR";
 
 /// BURS station-file env var (exported by bul_launcher.sh) — absolute path
 /// to the developer's burs.env. Source for BURS_TINCTURE.
@@ -203,19 +201,6 @@ fn rbtdrk_git_add_and_commit_paths(
         ));
     }
     Ok(())
-}
-
-/// Resolve the freehold RBRA path for a role: <RBRR_SECRETS_DIR>/<role>/rbra.env.
-pub(crate) fn rbtdrk_freehold_rbra(root: &Path, role: &str) -> Result<PathBuf, String> {
-    let rbrr = root.join(RBTDGC_RBRR_FILE);
-    let secrets_dir = rbtdrk_read_env_value(&rbrr, RBTDRK_FIELD_RBRR_SECRETS_DIR)
-        .ok_or_else(|| format!("RBRR_SECRETS_DIR missing from {}", rbrr.display()))?;
-    if secrets_dir.is_empty() {
-        return Err(format!("RBRR_SECRETS_DIR is blank in {}", rbrr.display()));
-    }
-    Ok(rbtdrk_resolve(root, &secrets_dir)
-        .join(role)
-        .join(RBTDGC_RBRA_FILE))
 }
 
 // ── Freehold-prefix install ──────────────────────────────────

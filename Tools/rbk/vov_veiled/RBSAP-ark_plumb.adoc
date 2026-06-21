@@ -32,10 +32,8 @@ The plumb operation:
 //axhos_step
 . *Authenticate as
 {rbtr_retriever}*:
-.. {rbbc_require}
-Retriever credential file present (`RBDC_RETRIEVER_RBRA_FILE`)
 .. Execute
-{rbtoe_jwt_oauth_exchange}
+{rbtoe_retriever_authenticate}
 .. {rbbc_store}
 `«RETRIEVER_TOKEN»` for subsequent API calls
 

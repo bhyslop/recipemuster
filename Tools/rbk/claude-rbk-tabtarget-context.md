@@ -93,8 +93,6 @@ The Folio column shows how each tabtarget receives it:
 |----------|-------------|-------|---------|
 | `rbw-o` | ONBOARDING | — | Onboarding start — probe-aware menu into handbook tracks |
 | `rbw-Occ` | OnboardingConfigureEnvironment | — | Crash Course — universal prerequisite: tabtargets, regimes, diagnostic failure |
-| `rbw-Ocr` | OnboardingCredentialRetriever | — | Install retriever credentials — place RBRA key file |
-| `rbw-Ocd` | OnboardingCredentialDirector | — | Install director credentials — place RBRA key file |
 | `rbw-Ofc` | OnboardingFirstCrucible | — | Start a Crucible using local builds — kludge, charge, rack |
 | `rbw-Ots` | OnboardingTadmorSecurity | — | Verify Crucible containment under attack — charge tadmor and run the adversarial suite |
 | `rbw-Odf` | OnboardingDirectorFirstBuild | — | Your First Cloud Build — conclave, conjure, tour, summon, abjure |
@@ -176,9 +174,6 @@ The Folio column shows how each tabtarget receives it:
 | `rbw-rov` | ValidateOauthRegime | — | Validate OAuth regime |
 | `rbw-rsr` | RenderStationRegime | — | Render station regime |
 | `rbw-rsv` | ValidateStationRegime | — | Validate station regime |
-| `rbw-rar` | RenderAuthRegime | param1 | Render auth regime |
-| `rbw-rav` | ValidateAuthRegime | param1 | Validate auth regime |
-| `rbw-ral` | ListAuthRegimes | — | List auth regimes |
 
 ### Theurge — Test infrastructure (`rbw-t`)
 

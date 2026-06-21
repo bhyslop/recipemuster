@@ -33,11 +33,10 @@
 // reason. This fixture IS hallmark_lifecycle with the registry-inventory
 // middle (audit/rekon) swapped for summon + a bare container-runtime run.
 
-use std::path::{Path, PathBuf};
+use std::path::Path;
 use std::process::Command;
 
 use crate::case;
-use crate::rbtdrb_probe::{rbtdrb_assert, rbtdrb_Probe};
 use crate::rbtdrc_crucible::{
     rbtdrc_docker_inspect, rbtdrc_with_ctx, RBTDRC_ARK_BASENAME_IMAGE, RBTDRC_BUSYBOX_VESSEL_DIR,
     RBTDRC_FACT_ARK_STEM, RBTDRC_FACT_GAR_ROOT, RBTDRC_FACT_HALLMARK,
@@ -47,9 +46,8 @@ use crate::rbtdri_invocation::{
     rbtdri_invoke_global, rbtdri_read_burv_fact, rbtdri_Context, RBTDRI_BURE_CONFIRM_KEY,
     RBTDRI_BURE_CONFIRM_SKIP,
 };
-use crate::rbtdrk_freehold::rbtdrk_freehold_rbra;
 use crate::rbtdgc_consts::{
-    RBTDGC_ABJURE_HALLMARK, RBTDGC_ORDAIN_HALLMARK, RBTDGC_ACCOUNT_DIRECTOR, RBTDGC_SUMMON_HALLMARK,
+    RBTDGC_ABJURE_HALLMARK, RBTDGC_ORDAIN_HALLMARK, RBTDGC_SUMMON_HALLMARK,
 };
 
 /// Container runtime for the bare executability proof. Hardcoded to docker;
@@ -62,30 +60,6 @@ const RBTDRD_RUNTIME: &str = "docker";
 /// default cmd is `sh`; passing an explicit `true` yields a clean exit-0
 /// executability proof without spawning an interactive shell.
 const RBTDRD_PROOF_CMD: &str = "true";
-
-// ── Probe ────────────────────────────────────────────────────
-//
-// Probes are pure `fn() -> Result<(), String>` per the rbtdrb_Probe shape and
-// have no context, so they read the project root from current_dir() — theurge
-// always launches from the project root.
-
-fn rbtdrd_probe_root() -> Result<PathBuf, String> {
-    std::env::current_dir().map_err(|e| format!("cannot resolve project root: {}", e))
-}
-
-/// Precondition: director RBRA present at the freehold secrets path —
-/// evidence an operator has levied the standing depot and enrobed a director
-/// (the role that ordains and abjures). Mirrors onboarding's governor-RBRA
-/// probe shape. The retriever credential summon needs is not separately
-/// probed; summon fails loud if it is absent.
-fn rbtdrd_probe_director_rbra() -> Result<(), String> {
-    let root = rbtdrd_probe_root()?;
-    let path = rbtdrk_freehold_rbra(&root, RBTDGC_ACCOUNT_DIRECTOR)?;
-    if !path.exists() {
-        return Err(format!("director RBRA absent at {}", path.display()));
-    }
-    Ok(())
-}
 
 // ── Runtime run helper ───────────────────────────────────────
 
@@ -114,15 +88,6 @@ fn rbtdrd_runtime_run(image_ref: &str, cmd: &str, dir: &Path) -> Result<(), Stri
 // ── Case ─────────────────────────────────────────────────────
 
 fn rbtdrd_build_run_lifecycle(dir: &Path) -> rbtdre_Verdict {
-    let probe = rbtdrb_Probe {
-        name: "director RBRA present",
-        check: rbtdrd_probe_director_rbra,
-        remediation:
-            "levy a standing depot and ready director credentials at the freehold secrets path before this fixture",
-    };
-    if let Err(v) = rbtdrb_assert(&probe) {
-        return v;
-    }
     rbtdrc_with_ctx(|ctx| rbtdrd_build_run_lifecycle_impl(ctx, dir))
 }
 

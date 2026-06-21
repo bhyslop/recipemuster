@@ -131,7 +131,6 @@
 - **RBSPT** → `rbk/vov_veiled/RBSPT-port_setup.adoc`
 - **RBSPU** → `rbk/vov_veiled/RBSPU-citizen_unseat.adoc` (Polity demesne — unseat: everyday withdrawal of one mantle from a citizen — expunge the muniment + revoke `tokenCreator`, leaving the depot-scoped binding in place (suspension, not erasure). Verb body `rbgp_unseat`, colophon `rbw-pU`. Federation successor to the bridge-legacy defrock specs RBSDD/RBSRD.)
 - **RBSQB** → `rbk/vov_veiled/RBSQB-quota_build.adoc`
-- **RBSRA** → `rbk/vov_veiled/RBSRA-CredentialFormat.adoc`
 - **RBSRD** → `rbk/vov_veiled/RBSRD-retriever_defrock.adoc` (Governor defrocks a retriever SA — zero-arg by-role lookup)
 - **RBSRF** → `rbk/vov_veiled/RBSRF-RegimeFederation.adoc` (Regime Federation — manor-scoped, org-level IdP trust + workforce-pool identity; the config home the accessor's federation legs read. One pool serves every depot under the manor. Carries no secrets, ships committed; affiance rewrites the values when founding a fresh trust.)
 - **RBSRG** → `rbk/vov_veiled/RBSRG-RegimeGcbPins.adoc`

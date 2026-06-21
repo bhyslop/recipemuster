@@ -16,7 +16,7 @@
 #
 # Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 #
-# Recipe Bottle Auth - RBRA/RBRO credential load and role token mint
+# Recipe Bottle Auth - RBRO credential load and mantle role token mint
 
 set -euo pipefail
 
@@ -563,97 +563,11 @@ rba_don_capture() {
   }
 }
 
-rba_extract_json_to_rbra() {
-  zrba_sentinel
-
-  local -r z_json_path="$1"
-  local -r z_rbra_path="$2"
-  local -r z_lifetime_sec="$3"
-  local -r z_expected_project_id="${4:-}"
-
-  test -f "${z_json_path}" || buc_die "Service account JSON not found: ${z_json_path}"
-
-  buc_info "Extracting service account credentials from JSON"
-
-  buc_log_args 'Extract fields'
-  local z_client_email
-  z_client_email=$(jq -r '.client_email' "${z_json_path}") \
-                                        || buc_die "Failed to extract client_email"
-  test -n "${z_client_email}"           || buc_die "Empty client_email in JSON"
-  test    "${z_client_email}" != "null" || buc_die "Null client_email in JSON"
-
-  local z_private_key
-  z_private_key=$(jq -r '.private_key' "${z_json_path}") \
-                                       || buc_die "Failed to extract private_key"
-  test -n "${z_private_key}"           || buc_die "Empty private_key in JSON"
-  test    "${z_private_key}" != "null" || buc_die "Null private_key in JSON"
-
-  local z_project_id
-  z_project_id=$(jq -r '.project_id' "${z_json_path}") \
-                                      || buc_die "Failed to extract project_id"
-  test -n "${z_project_id}"           || buc_die "Empty project_id in JSON"
-  test    "${z_project_id}" != "null" || buc_die "Null project_id in JSON"
-
-  if test -n "${z_expected_project_id}"; then
-    buc_log_args "Verify project matches expected: ${z_expected_project_id}"
-    test "${z_project_id}" = "${z_expected_project_id}" \
-      || buc_die "Project mismatch: JSON has '${z_project_id}', expected '${z_expected_project_id}'"
-  else
-    buc_log_args "No project validation - accepting JSON project_id: ${z_project_id}"
-  fi
-
-  buc_log_args 'Write RBRA file'
-  # CAUTION: jq -r unescapes JSON \n to real newlines, so z_private_key holds a
-  # multi-line PEM string. printf '%s' below preserves real newlines into the
-  # RBRA file. Consumer (rbgo_oauth.sh:zrbgo_build_jwt_capture) tolerates either
-  # real-newline or '\n'-escape form via printf '%b'; do not "normalize" to one
-  # form without auditing the consumer.
-  {
-    printf 'RBRA_CLIENT_EMAIL="%s"\n'      "${z_client_email}"
-    printf 'RBRA_PRIVATE_KEY="'; printf '%s' "${z_private_key}"; printf '"\n'
-    printf 'RBRA_PROJECT_ID="%s"\n'        "${z_project_id}"
-    printf 'RBRA_TOKEN_LIFETIME_SEC=%s\n'  "${z_lifetime_sec}"
-  } > "${z_rbra_path}" || buc_die "Failed to write RBRA file ${z_rbra_path}"
-
-  test -f "${z_rbra_path}" || buc_die "Failed to write RBRA file: ${z_rbra_path}"
-
-  buc_warn "Consider deleting source JSON after verification: ${z_json_path}"
-}
-
-# RBTOE: RBRA Load Pattern
-# Sources an RBRA file and validates required fields
-rba_rbra_load() {
-  zrba_sentinel
-
-  local -r z_rbra_file="${1}"
-
-  test -n "${z_rbra_file}" || buc_die "rba_rbra_load: RBRA file path required"
-  test -f "${z_rbra_file}" || buc_die "rba_rbra_load: RBRA file not found: ${z_rbra_file}"
-
-  buc_log_args "Loading and validating RBRA credentials from ${z_rbra_file}"
-
-  # Source the RBRA file
-  source "${z_rbra_file}" || buc_die "rba_rbra_load: failed to source RBRA file"
-
-  # Validate required fields
-  test -n "${RBRA_CLIENT_EMAIL:-}" || buc_die "rba_rbra_load: RBRA_CLIENT_EMAIL missing from ${z_rbra_file}"
-  test -n "${RBRA_PRIVATE_KEY:-}" || buc_die "rba_rbra_load: RBRA_PRIVATE_KEY missing from ${z_rbra_file}"
-  test -n "${RBRA_PROJECT_ID:-}" || buc_die "rba_rbra_load: RBRA_PROJECT_ID missing from ${z_rbra_file}"
-
-  # Check for null values
-  test "${RBRA_CLIENT_EMAIL}" != "null" || buc_die "rba_rbra_load: RBRA_CLIENT_EMAIL is null in ${z_rbra_file}"
-  test "${RBRA_PRIVATE_KEY}" != "null" || buc_die "rba_rbra_load: RBRA_PRIVATE_KEY is null in ${z_rbra_file}"
-  test "${RBRA_PROJECT_ID}" != "null" || buc_die "rba_rbra_load: RBRA_PROJECT_ID is null in ${z_rbra_file}"
-
-  buc_log_args "RBRA validation successful: ${RBRA_CLIENT_EMAIL} in project ${RBRA_PROJECT_ID}"
-}
-
 # RBTOE: RBRO Load Pattern
 # Thin wrapper: defensively sources rbro_regime.sh (callers don't need to know
 # its path, which moved under AAD's payor/ subdirectory migration), then
-# delegates to rbro_load. Parallels rba_rbra_load at the call-signature level
-# even though that function carries its own validation; the uniform rba_*
-# load-through-utility convention is the load-bearing reason this wrapper exists.
+# delegates to rbro_load. The uniform rba_* load-through-utility convention is
+# the load-bearing reason this wrapper exists.
 rba_rbro_load() {
   zrba_sentinel
 

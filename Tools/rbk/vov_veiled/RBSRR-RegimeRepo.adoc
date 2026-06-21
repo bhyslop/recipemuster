@@ -25,45 +25,17 @@ Prefix prepended to machine-local resource names: container names, Docker networ
 //axhrgb_group
 {rbrr_group_service_accounts}
 
-Credential file paths derived from a single enrolled directory for each operational role.
-Each RBRA file contains the minimum identity and signing material needed for authentication to
-{gcp_service}
-via service account.
+The payor credential path derived from a single enrolled directory.
 The payor RBRO file contains OAuth refresh credentials for
 {rbtr_payor}
-operations.
+operations — the system's sole durable secret.
+The operational roles (governor, director, retriever) hold no on-disk credential: the operator dons their mantles through federated compearance, minting short-lived tokens.
 
 //axhrgv_variable
 {rbrr_secrets_dir}
 
-Directory on the operator's local filesystem outside the source repository that contains all credential files.
-Enrolled and validated to exist; individual file paths are derived from this directory at lock time.
-
-//axhrgv_variable
-{rbrr_retriever_rbra_file}
-
-Path derived from
-{rbrr_secrets_dir}
-as `retriever/rbra.env`.
-Enables the operator to assume the retriever role for container image operations.
-
-//axhrgv_variable
-{rbrr_director_rbra_file}
-
-Path derived from
-{rbrr_secrets_dir}
-as `director/rbra.env`.
-Enables the operator to assume the director role for build submission and image management operations.
-
-//axhrgv_variable
-{rbrr_governor_rbra_file}
-
-Path derived from
-{rbrr_secrets_dir}
-as `governor/rbra.env`.
-Enables the operator to assume the governor role for
-{gcp_project_id}
-administration operations.
+Directory on the operator's local filesystem outside the source repository that contains the payor credential file.
+Enrolled and validated to exist; the payor file path is derived from this directory at lock time.
 
 //axhrgv_variable
 {rbrr_payor_rbro_file}

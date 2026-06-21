@@ -61,8 +61,6 @@ zrbho_furnish() {
   source "${z_rbh0_dir}/rbho0_onboarding.sh"            || buc_die "Failed to source rbho0_onboarding.sh"
   source "${z_rbh0_dir}/rbho0_start_here.sh"            || buc_die "Failed to source rbho0_start_here.sh"
   source "${z_rbh0_dir}/rbhocc_crash_course.sh"         || buc_die "Failed to source rbhocc_crash_course.sh"
-  source "${z_rbh0_dir}/rbhocr_credential_retriever.sh" || buc_die "Failed to source rbhocr_credential_retriever.sh"
-  source "${z_rbh0_dir}/rbhocd_credential_director.sh"  || buc_die "Failed to source rbhocd_credential_director.sh"
   source "${z_rbh0_dir}/rbhoct_crucible_trunk.sh"       || buc_die "Failed to source rbhoct_crucible_trunk.sh"
   source "${z_rbh0_dir}/rbhocq_crucible_quench.sh"      || buc_die "Failed to source rbhocq_crucible_quench.sh"
   source "${z_rbh0_dir}/rbhofc_first_crucible.sh"       || buc_die "Failed to source rbhofc_first_crucible.sh"

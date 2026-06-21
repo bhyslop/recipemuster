@@ -51,7 +51,6 @@ zrbhp_furnish() {
   source "${z_rbk_kit_dir}/rbge_rest.sh"                   || buc_die "Failed to source rbge_rest.sh"
   source "${z_rbk_kit_dir}/rba_auth.sh"                    || buc_die "Failed to source rba_auth.sh"
   source "${z_rbk_kit_dir}/rbgi_iam.sh"                    || buc_die "Failed to source rbgi_iam.sh"
-  source "${z_rbk_kit_dir}/rbra_regime.sh"                 || buc_die "Failed to source rbra_regime.sh"
   source "${z_rbh0_dir}/rbhp0_payor.sh"       || buc_die "Failed to source rbhp0_payor.sh"
   source "${z_rbh0_dir}/rbhpe_establish.sh"   || buc_die "Failed to source rbhpe_establish.sh"
   source "${z_rbh0_dir}/rbhpr_refresh.sh"     || buc_die "Failed to source rbhpr_refresh.sh"

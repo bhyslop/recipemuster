@@ -47,7 +47,6 @@ use crate::rbtdri_invocation::{
     rbtdri_invoke_global, rbtdri_read_burv_fact, rbtdri_Context, rbtdri_InvokeResult,
     RBTDRI_BURE_CONFIRM_KEY, RBTDRI_BURE_CONFIRM_SKIP,
 };
-use crate::rbtdrk_freehold::rbtdrk_freehold_rbra;
 use crate::rbtdgc_consts::{
     RBTDGC_ABJURE_HALLMARK,
     RBTDGC_ANOINT_GRAFT,
@@ -62,7 +61,6 @@ use crate::rbtdgc_consts::{
     RBTDGC_PLUMB_COMPACT,
     RBTDGC_PLUMB_FULL,
     RBTDGC_REKON_HALLMARK,
-    RBTDGC_ACCOUNT_GOVERNOR,
     RBTDGC_SUMMON_HALLMARK,
     RBTDGC_VERB_ANOINT,
     RBTDGC_VERB_KLUDGE,
@@ -202,17 +200,6 @@ fn rbtdro_read_env_value(path: &Path, key: &str) -> Option<String> {
         }
     }
     None
-}
-
-/// Cases 1, 2, 8, 9 probe: governor RBRA present at the freehold secrets path.
-/// Established by readying governor credentials at the freehold secrets path.
-fn rbtdro_probe_governor_rbra() -> Result<(), String> {
-    let root = rbtdro_probe_root()?;
-    let path = rbtdrk_freehold_rbra(&root, RBTDGC_ACCOUNT_GOVERNOR)?;
-    if !path.exists() {
-        return Err(format!("governor RBRA absent at {}", path.display()));
-    }
-    Ok(())
 }
 
 /// Cases 3-7 probe: reliquary touchmark yoked into the witness vessel's rbrv.env.
@@ -718,14 +705,6 @@ fn rbtdro_kludge_nameplate(
 /// touchmark from BURV fact, persists it to the fixture scratch file, then
 /// yokes the touchmark into all ordain-side vessels in one pass and auto-commits.
 fn rbtdro_onboarding_conclave_reliquary(dir: &Path) -> rbtdre_Verdict {
-    let probe = rbtdrb_Probe {
-        name: "governor RBRA present",
-        check: rbtdro_probe_governor_rbra,
-        remediation: "ready governor credentials at the freehold secrets path before this fixture",
-    };
-    if let Err(v) = rbtdrb_assert(&probe) {
-        return v;
-    }
     rbtdrc_with_ctx(|ctx| rbtdro_onboarding_conclave_reliquary_impl(ctx, dir))
 }
 

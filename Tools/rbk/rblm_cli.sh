@@ -88,21 +88,6 @@ rblm_zero() {
   buh_line "  RBRD fields pre-filled to defaults:"
   buh_line "    RBRD_GCP_REGION, RBRD_GCB_MACHINE_TYPE"
   buh_e
-  buh_line "  Depot credentials DELETED (tied to prior depot):"
-  if test -n "${z_secrets_dir}"; then
-    local z_preview=""
-    local z_any_cred=0
-    for z_preview in "${RBCC_account_governor}/${RBCC_rbra_file}" "${RBCC_account_director}/${RBCC_rbra_file}" "${RBCC_account_retriever}/${RBCC_rbra_file}" "${RBCC_account_assay}/${RBCC_rbra_file}"; do
-      if test -f "${z_secrets_dir}/${z_preview}"; then
-        buh_line "    ${z_secrets_dir}/${z_preview}"
-        z_any_cred=1
-      fi
-    done
-    test "${z_any_cred}" = "1" || buh_line "    (none present)"
-  else
-    buh_line "    (secrets dir not configured)"
-  fi
-  buh_e
   buh_line "  Vessel hallmarks BLANKED (stale after depot change):"
   local z_np_preview=""
   local z_any_np=0
@@ -167,18 +152,6 @@ rblm_zero() {
     esac
   done < "${z_rbrd}" > "${z_rbrd_tmp}" && mv "${z_rbrd_tmp}" "${z_rbrd}"
 
-  # Remove depot-scoped RBRA files (governor, director, retriever).
-  # z_secrets_dir already extracted above for pre-confirmation inventory.
-  if test -n "${z_secrets_dir}"; then
-    local z_rbra=""
-    for z_rbra in "${RBCC_account_governor}/${RBCC_rbra_file}" "${RBCC_account_director}/${RBCC_rbra_file}" "${RBCC_account_retriever}/${RBCC_rbra_file}" "${RBCC_account_assay}/${RBCC_rbra_file}"; do
-      if test -f "${z_secrets_dir}/${z_rbra}"; then
-        rm "${z_secrets_dir}/${z_rbra}" || buc_die "Failed to remove: ${z_secrets_dir}/${z_rbra}"
-        buh_line "  Removed stale depot credential: ${z_rbra}"
-      fi
-    done
-  fi
-
   # Blank hallmark values in all vessel nameplates.
   # Hallmarks reference images built against the prior depot — they
   # become stale after reset.  Blanking them causes the onboarding guide
@@ -224,7 +197,7 @@ rblm_zero() {
   buh_e
 
   # Auto-commit the in-tree mutations so post-zero state is captured as a single
-  # commit. RBRA deletions (outside repo) are not staged.
+  # commit.
   buc_step "Committing marshal-zero state"
   git add "${z_rbrr}" || buc_die "Failed to stage RBRR file"
   git add "${z_rbrd}" || buc_die "Failed to stage RBRD file"

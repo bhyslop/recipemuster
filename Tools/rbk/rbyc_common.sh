@@ -127,7 +127,6 @@ zrbyc_kindle() {
 
   zrbyc_yk RBYC_RACK      "${z_docs}" "Rack"
   zrbyc_yk RBYC_MANOR     "${z_docs}" "Manor"
-  zrbyc_yk RBYC_RBRA      "${z_docs}" "RBRA"
   zrbyc_yk RBYC_CCYOLO    "${z_docs}" "ccyolo"
   zrbyc_yk RBYC_IFRIT     "${z_docs}" "Ifrit"
   zrbyc_yk RBYC_THEURGE   "${z_docs}" "Theurge"
