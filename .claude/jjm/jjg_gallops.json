@@ -16851,9 +16851,10 @@
         "₢BiAAF",
         "₢BiAAG",
         "₢BiAAH",
-        "₢BiAAI"
+        "₢BiAAI",
+        "₢BiAAK"
       ],
-      "jjghn_next_pace_seed": "AAK",
+      "jjghn_next_pace_seed": "AAL",
       "jjghn_paces": {
         "₢BiAAA": {
           "jjgpn_tacks": [
@@ -17268,6 +17269,47 @@
               ],
               "jjgtn_silks": "payor-install-finish-manor-guidance",
               "jjgtn_basis": "8699a3e"
+            }
+          ]
+        },
+        "₢BiAAK": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260621-1158",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "",
+                "Small, well-precedented change — both halves of the pattern already ship.",
+                "",
+                "## Goal",
+                "",
+                "Make the reliquary yoke (`rbfl_yoke` in `rbfly_yoke.sh`, colophon `rbw-rvy`) accept no touchmark",
+                "and fall back to the chained conclave capture,",
+                "so a conclave→yoke run needs no hand-copied touchmark.",
+                "",
+                "The conclave already emits the touchmark as the depth-1 chaining fact",
+                "(`RBF_FACT_LODE_TOUCHMARK` plus `RBF_FACT_LODE_BRAND`, written by the capture spine);",
+                "read it via `buf_read_fact`, the way ordain's `zrbfd_elect_base_anchor` and anoint's `rbfl_anoint` already read prior-dispatch facts.",
+                "Yoke's CLI already sources `buf_fact.sh`, so there is no new wiring.",
+                "",
+                "## Cinched",
+                "",
+                "- Param1 present keeps today's behavior, unchanged.",
+                "- Param1 absent reads the chained touchmark and requires its brand be `RBGC_LODE_BRAND_RELIQUARY`;",
+                "  a bole/wsl capture or an empty chain refuses with a diagnostic pointing at the explicit-param path —",
+                "  a non-reliquary touchmark must never silently yoke into `RBRV_RELIQUARY`.",
+                "- The depth-1 chain resolves only immediately after a conclave; that adjacency is the intended ergonomic, not a gap to widen.",
+                "- Spec RBSDY makes the touchmark a hard require — relax it to optional-with-fallback alongside the code.",
+                "",
+                "## Done when",
+                "",
+                "A no-arg `rbw-rvy` immediately after a conclave yokes the just-captured reliquary;",
+                "a non-reliquary or empty chain refuses diagnostically;",
+                "RBSDY reflects the optional-with-fallback contract."
+              ],
+              "jjgtn_silks": "yoke-touchmark-fact-fallback",
+              "jjgtn_basis": "0da21c0"
             }
           ]
         }
