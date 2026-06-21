@@ -71,6 +71,45 @@ Net: until a nightly `cargo fmt` is adopted (a larger decision — rustfmt has n
 
 If a single `use` line carries more than one imported item, or the items are not in sorted order, split and sort.
 
+## Alias Discipline
+
+`use … as` renames are the use-site twin of Minting Discipline: they decide what name an identifier wears *throughout a file*, not just where it is born. A rename that drops a project cipher prefix makes the body speak a private dialect the census cannot see.
+
+### Rule
+
+A `use` import must never alias a **project-owned, cipher-prefixed** identifier to a name that drops or alters its prefix. The cipher name is the only name the identifier has — at its declaration **and** at every use site.
+
+```rust
+// ❌ Strips the jjr* cipher. `grep jjrg_Gallops` finds this import line but
+//    NOT the `Gallops { … }` constructions below it — the body is uncensused.
+use crate::jjrg_gallops::{jjrg_Gallops as Gallops, jjrg_NominateArgs as LibNominateArgs};
+let g = Gallops { /* … */ };
+
+// ✅ Canonical cipher name throughout — every site greppable.
+use crate::jjrg_gallops::{
+    jjrg_Gallops,
+    jjrg_NominateArgs,
+};
+let g = jjrg_Gallops { /* … */ };
+```
+
+**Collisions do not justify a strip.** The cipher prefix exists precisely so that two project modules cannot export the same name — disambiguate with the full cipher names, which already cannot collide. If a rename is ever genuinely forced, the alias must itself be a properly-minted cipher-prefixed name, never a bare strip.
+
+**Foreign types are out of scope.** A non-project import carries no cipher to strip; aliasing it at the boundary is Palisade-edge clarification, not internal prefix-stripping, and is permitted (kept rare):
+
+```rust
+use rmcp::ErrorData as McpError;   // foreign type — fine
+use std::io::Read as IoRead;       // foreign, collision-avoidance — fine
+```
+
+### Rationale
+
+Minting Discipline makes `grep {cipher}` the census of a name. An `as`-rename that drops the prefix keeps the *declaration* greppable while making every *use site* invisible to that census — the import line still contains `jjrg_Gallops`, but the constructions beneath read bare `Gallops { … }`. The census axiom is meant to hold everywhere a name appears, not only at its declaration. The cost is not hypothetical: a site-enumeration grep silently undercounts (a `grep 'jjrg_Gallops {'` that misses every aliased construction can green-light a non-compiling change), and a name's true reach across the crate becomes unauditable. One canonical name, greppable at every site.
+
+### Smell Test
+
+If a `use` line reads `{cipher-prefixed-name} as {anything}`, it is stripping the cipher — reject it. If a file constructs or calls a project type by a name that `grep {cipher}` would not find at that line, the import has contaminated the body.
+
 ## File Naming
 
 ### Source Files
@@ -763,6 +802,11 @@ When extracting inline tests from `{cipher}r{x}_{name}.rs` to `{cipher}t{x}_{nam
 - [ ] All internal traits/aliases: `z{prefix}_Name` with `pub(crate)`
 - [ ] All test functions: `{cipher}t{x}_test_name`
 - [ ] Local variables: normal names (no z-prefix — Rust block scoping suffices)
+
+### Alias Discipline
+- [ ] No `use … as` aliases a cipher-prefixed (project-owned) identifier to a prefix-stripped name
+- [ ] Body use sites construct/call project types by their canonical cipher name (greppable by `{cipher}`)
+- [ ] Foreign-crate boundary aliases only (and rare); never a project-name strip
 
 ### Visibility Discipline
 - [ ] Public API uses `pub`
