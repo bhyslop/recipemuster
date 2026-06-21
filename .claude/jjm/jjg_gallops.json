@@ -16460,9 +16460,10 @@
       "jjghn_status": "jjghe_racing",
       "jjghn_order": [
         "₢BgAAA",
-        "₢BgAAB"
+        "₢BgAAB",
+        "₢BgAAC"
       ],
-      "jjghn_next_pace_seed": "AAC",
+      "jjghn_next_pace_seed": "AAD",
       "jjghn_paces": {
         "₢BgAAA": {
           "jjgpn_tacks": [
@@ -16510,6 +16511,51 @@
               ],
               "jjgtn_silks": "vms-mcm-linebreak-reflow",
               "jjgtn_basis": "be067a8"
+            }
+          ]
+        },
+        "₢BgAAC": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260621-1132",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "",
+                "Design decision; high-stakes naming-system architecture, resolved at mount through judgment.",
+                "Gates the build-out pace — VMS cannot be authored to final form until this is cinched.",
+                "",
+                "## Done when",
+                "",
+                "The vo-family gestalt direction is decided and cinched, answering:",
+                "whether to re-gestalt the `vo` cipher around the Vox naming-system whole;",
+                "how Liturgical / Obscura / Matricula relate — peers, or an umbrella plus branches;",
+                "where VLS belongs — a branch of Vox, or a foundation beneath it and beneath BUK/JJK;",
+                "and how much of the Matricula method VMS may document, given the secrecy gradient.",
+                "If the resolution implies a large vo-family restructure, that execution may spawn its own paces or tilt to ₣Bj — a mount-time call, not pre-decided here.",
+                "",
+                "## Findings to resolve against",
+                "",
+                "Discovered in the slate conversation; homeless until this pace cinches them.",
+                "",
+                "`vo` is ALREADY one cipher — fossil-named \"Vox Obscura\" in `Tools/vok/vof/src/vofc_registry.rs`, after its first branch.",
+                "VLS (`vosl*`), Obscura (`voso*`), and Matricula (`vosm*`) already share it.",
+                "So unification is a rename of the cipher's gestalt plus a true Vox SpecTop/cosmology plus fixing VOS0's over-claiming `0` — NOT a re-cipher.",
+                "",
+                "Cipher and distribution are orthogonal axes.",
+                "`DISTRIBUTABLE_KITS` is a separate registry construct; AXL ships via CMK though it is its own cipher.",
+                "The Matricula's secrecy rests on the four paddock guards (uncollected, veiled, unlinked, gitignored), never on the cipher — earlier \"secrecy rests on vo-not-shipping\" was a fragile-base-class flaw, retracted.",
+                "",
+                "`vof` is the shared seam: linked by `vvr`/`vvx` (ships) and depended on by the Matricula.",
+                "It cannot move into the never-shipped Matricula executable; the Matricula depends on it, never contains it.",
+                "",
+                "Secrecy gradient: the binary is gitignore-strength (never travels); VMS is veil-strength (committed, travels to the test fleet — cerebro, rocket).",
+                "\"Keep it on the machine\" holds for the code but not for the method-as-documented — hence the threat-model call on how much method VMS writes down versus leaves to the gitignored crate.",
+                "",
+                "VLS placement is open on cognitive grounds only — no distribution constraint forces it either way; AXL is prior art for the separate-vocabulary-anchor option."
+              ],
+              "jjgtn_silks": "vo-cipher-gestalt-decision",
+              "jjgtn_basis": "6b65d15"
             }
           ]
         }
