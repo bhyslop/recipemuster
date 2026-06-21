@@ -123,7 +123,7 @@ jjx_transfer       {firemark, to, coronets, size_limit?}
 jjx_continue       {firemark}
 jjx_paddock        {firemark?, note?, size_limit?}                  # gazette_in.md to set, gazette_out.md to get
 jjx_relocate       {coronet, to, before?, after?, first?}
-jjx_redocket       {size_limit?}                                    # docket via gazette_in.md only; supports mass reslate
+jjx_redocket       {size_limit?, before?, after?, first?}           # gazette_in.md only; mixed single-heat batch (paddock + reslate + slate); before/after/first position the FIRST slate
 jjx_relabel        {coronet, silks}
 jjx_drop           {coronet}
 jjx_brief      {coronet}                                            # raw docket text for ONE pace, returned inline (no gazette) — the clean single-docket read; an abandoned pace's docket leads with an [abandoned] marker line
@@ -149,7 +149,7 @@ jjx_fetch          {legatio, path}                                  # remote: re
 - **Gazette output**: `jjx_orient`, `jjx_show`, and `jjx_paddock` (getter) write `gazette_out.md` with paddock and pace docket notices. Read the gazette file after these commands to get full content.
 - **Never reach past the JJK interface to raw storage — NO exceptions.** Do not parse the harness's persisted tool-result files or the gallops JSON (`.claude/jjm/jjg_gallops.json`) directly. To read one pace's docket, call `jjx_brief {coronet}` (returns inline). To read full paddock/dockets after `jjx_show`/`jjx_orient`, read the `gazette_out.md` file directly. When a large `jjx_show` overflows the display and the harness persists the tool result, re-read `gazette_out.md` or loop `jjx_brief` per pace — never scrape the persisted blob. Same discipline as "never read regime files directly, go through the CLI."
 - **Gazette input**: `jjx_enroll`, `jjx_redocket`, and `jjx_paddock` (setter) read docket/content from `gazette_in.md`. Gazette is the sole input path for docket content — no JSON param fallback.
-- `jjx_redocket` supports **mass reslate**: multiple `# jjezs_reslate <coronet>` notices in a single `gazette_in.md`, each with its own docket body. All paces updated in one call.
+- `jjx_redocket` applies a **mixed single-heat batch**: any combination of one `# jjezs_paddock <firemark>`, multiple `# jjezs_reslate <coronet>`, and multiple `# jjezs_slate <silks>` notices in one `gazette_in.md`, applied as a single commit affiliated to the heat. Mass reslate (reslate-only) is the common special case. Constraints: **one heat only** — every reslate coronet's parent and the paddock firemark must name the same heat, else the batch is rejected (this same guard closed a latent cross-heat misattribution in the old reslate-only path); a slate-only batch has no heat anchor and is rejected (use `jjx_enroll`). Slate notices apply in **file order** (notice order = pace order); the `before`/`after`/`first` params position only the FIRST slate, the rest fold in after it; reslate and paddock never move the cursor.
 - `jjx_paddock` `note` param: optional short string appended to the paddock discussion commit message (e.g., `{"note": "updated after spook fix"}`)
 - `jjx_close` takes `summary` as a string param (not stdin pipe)
 - `jjx_close` takes `spook` as an optional string param — the wrap-time friction report (see Wrap Discipline). It rides the W chalk commit as a single-line `Spook:` trailer; absent or empty becomes `Spook: none`, so every wrap carries the line. Grep the corpus with `git log --all --format='%b' | grep '^Spook:'`
@@ -202,6 +202,7 @@ body...
 | `jjx_enroll` | `# jjezs_slate <silks>` + docket body | `{"firemark": "XX", "before?": ..., "after?": ..., "first?": ...}` |
 | `jjx_redocket` | `# jjezs_reslate <coronet>` + docket body | `{}` (coronet is in gazette lede) |
 | `jjx_redocket` (mass) | Multiple `# jjezs_reslate <coronet>` notices, each with docket body | `{}` |
+| `jjx_redocket` (batch) | Mixed `# jjezs_paddock <firemark>` + `# jjezs_reslate <coronet>` + `# jjezs_slate <silks>` notices, one heat | `{"before?": ..., "after?": ..., "first?": ...}` (position the first slate) |
 | `jjx_paddock` (set) | `# jjezs_paddock <firemark>` + content body | `{"note?": "commit annotation"}` |
 
 Gazette paths are **emitted by the server**: `jjx_open` and `jjx_orient` return the absolute `gazette_in` / `gazette_out` paths in their output. Use those exactly as given. They resolve to `.claude/jjm/officia/<id>/gazette_in.md` and `gazette_out.md`, where **`<id>` is the officium id with the ☉ prefix stripped** (the dispatcher strips it; on disk the directory is `260327-1000`, never `☉260327-1000`) — which is precisely why hand-substituting the returned ☉-id into that template lands you in a glyph-named sibling that does not exist. Take the emitted path; do not rebuild it.

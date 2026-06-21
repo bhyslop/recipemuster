@@ -39,7 +39,10 @@ use crate::jjrgc_get_coronets::{jjrgc_GetCoronetsArgs, jjrgc_run_get_coronets};
 use crate::jjrcu_curry::{jjrcu_CurryArgs, jjrcu_run_curry};
 use crate::jjrrs_restring::{jjrrs_RestringArgs, jjrrs_run};
 use crate::jjrld_landing::{jjrld_LandingArgs, jjrld_run_landing};
-use crate::jjrz_gazette::{jjrz_Gazette, jjrz_Slug, jjrz_parse_slate_input, jjrz_parse_reslate_input, jjrz_parse_paddock_input};
+use crate::jjrz_gazette::{jjrz_Gazette, jjrz_Slug, jjrz_parse_slate_input, jjrz_parse_paddock_input, jjrz_parse_batch_input};
+use crate::jjrg_gallops::{jjrg_slate, jjrg_curry_apply};
+use crate::jjrt_types::jjrg_SlateArgs;
+use crate::jjrn_notch::jjrn_format_heat_discussion;
 
 const GALLOPS_PATH: &str = ".claude/jjm/jjg_gallops.json";
 const OFFICIA_DIR: &str = ".claude/jjm/officia";
@@ -145,11 +148,15 @@ fn jjrm_deser_error(cmd: &str, e: serde_json::Error) -> Result<CallToolResult, M
 ///
 /// Per jjdk_sole_operator, every operation locks and persists unconditionally.
 /// The handler returns output text on success — it has no knowledge of locks,
-/// persistence, or commit messages.
-fn zjjrm_dispatch_inner(
+/// persistence, or commit messages. The caller supplies the commit message:
+/// heat-affiliated gazette ops (paddock revision, mixed batch) pass a branded
+/// heat-discussion message so the single commit carries the ₣XX chalk and any
+/// note.
+fn zjjrm_dispatch_inner_msg(
     cmd: &str,
     firemark: &crate::jjrf_favor::jjrf_Firemark,
     size_limit: u64,
+    message: String,
     handler: impl FnOnce(&mut crate::jjrg_gallops::jjrg_Gallops) -> Result<String, String>,
 ) -> Result<CallToolResult, McpError> {
     use vvc::vvco_Output;
@@ -188,7 +195,7 @@ fn zjjrm_dispatch_inner(
         &gallops,
         &gallops_path,
         firemark,
-        format!("jjx: {}", cmd),
+        message,
         size_limit,
         &mut persist_output,
     ) {
@@ -203,24 +210,104 @@ fn zjjrm_dispatch_inner(
     Ok(CallToolResult::success(vec![Content::text(output)]))
 }
 
-
-/// Dispatch a pace-affiliated command. Coronet supplied from params; parent firemark derived.
-fn jjrm_dispatch_pace(
-    cmd: &str,
-    coronet_str: &str,
-    size_limit: u64,
-    handler: impl FnOnce(&mut crate::jjrg_gallops::jjrg_Gallops) -> Result<String, String>,
-) -> Result<CallToolResult, McpError> {
-    let coronet = match crate::jjrf_favor::jjrf_Coronet::jjrf_parse(coronet_str) {
-        Ok(c) => c,
-        Err(e) => {
-            return Ok(CallToolResult::error(vec![Content::text(
-                format!("jjx {}: error: {}", cmd, e),
-            )]));
+/// Resolve the single heat firemark a mixed batch targets, enforcing the
+/// same-firemark guard: every reslate coronet's parent and the paddock firemark
+/// (if present) must name one heat. Slates carry silks, not a firemark — they
+/// inherit the resolved heat. A slate-only batch has no anchor and is rejected.
+/// This guard also closes the legacy mass-reslate cross-heat misattribution,
+/// which keyed the whole batch off the first coronet's heat with no check.
+///
+/// Public so coverage lands on a real run-boundary rather than a `z` helper
+/// (RCG: a `z` private never goes public for a test).
+pub fn jjrm_resolve_batch_firemark(
+    batch: &crate::jjrz_gazette::jjrz_BatchInput,
+) -> Result<crate::jjrf_favor::jjrf_Firemark, String> {
+    use crate::jjrf_favor::{jjrf_Firemark as Firemark, jjrf_Coronet as Coronet};
+    let mut candidates: Vec<Firemark> = Vec::new();
+    if let Some((fm_str, _)) = &batch.paddock {
+        candidates.push(Firemark::jjrf_parse(fm_str).map_err(|e| format!("paddock firemark: {}", e))?);
+    }
+    for (coronet_str, _) in &batch.reslates {
+        let coronet = Coronet::jjrf_parse(coronet_str)
+            .map_err(|e| format!("reslate coronet '{}': {}", coronet_str, e))?;
+        candidates.push(coronet.jjrf_parent_firemark());
+    }
+    let first = candidates.first()
+        .ok_or_else(|| "slate-only batch has no heat anchor; include a paddock or reslate notice, or use jjx_enroll".to_string())?
+        .clone();
+    for fm in &candidates[1..] {
+        if fm.jjrf_display() != first.jjrf_display() {
+            return Err(format!(
+                "cross-heat batch rejected: notices span heats {} and {} (a batch is single-heat)",
+                first.jjrf_display(), fm.jjrf_display()
+            ));
         }
-    };
-    let firemark = coronet.jjrf_parent_firemark();
-    zjjrm_dispatch_inner(cmd, &firemark, size_limit, handler)
+    }
+    Ok(first)
+}
+
+/// Apply a resolved single-heat batch to the in-memory gallops: paddock revision
+/// (writes the paddock file), then reslates (order-free), then slates in file
+/// order with only the first taking the cursor (before/after/first). Pure
+/// transform over gallops + one paddock-file side effect — no lock, no commit;
+/// the shared dispatch lifecycle persists the result in one commit. Returns the
+/// human-readable per-notice summary. Public so tests exercise it directly.
+pub fn jjrm_apply_batch(
+    gallops: &mut crate::jjrg_gallops::jjrg_Gallops,
+    batch: &crate::jjrz_gazette::jjrz_BatchInput,
+    firemark: &crate::jjrf_favor::jjrf_Firemark,
+    before: Option<String>,
+    after: Option<String>,
+    first: bool,
+) -> Result<String, String> {
+    let mut lines: Vec<String> = Vec::new();
+    // Paddock first — write the paddock file; jjri_persist co-commits it.
+    if let Some((_, content)) = &batch.paddock {
+        jjrg_curry_apply(gallops, firemark, content)?;
+        lines.push("paddock revised".to_string());
+    }
+    // Reslates — order irrelevant, each targets its own coronet.
+    for (coronet, docket) in &batch.reslates {
+        let diff = jjrtl_run_revise_docket(gallops, coronet, docket)?;
+        if !diff.is_empty() {
+            lines.push(format!("--- ₢{} reslate diff ---\n{}", coronet, diff));
+        }
+    }
+    // Slates — file order is pace order; only the first takes the cursor.
+    for (idx, (silks, docket)) in batch.slates.iter().enumerate() {
+        let (b, a, f) = if idx == 0 {
+            (before.clone(), after.clone(), first)
+        } else {
+            (None, None, false)
+        };
+        let res = jjrg_slate(gallops, jjrg_SlateArgs {
+            firemark: firemark.jjrf_display(),
+            silks: silks.clone(),
+            text: docket.clone(),
+            before: b,
+            after: a,
+            first: f,
+        })?;
+        lines.push(format!("slated ₢{}", res.coronet));
+    }
+    let mut output = format!(
+        "Batch applied: {} paddock, {} reslate, {} slate",
+        batch.paddock.is_some() as usize, batch.reslates.len(), batch.slates.len()
+    );
+    if !lines.is_empty() {
+        output.push_str("\n\n");
+        output.push_str(&lines.join("\n"));
+    }
+    Ok(output)
+}
+
+/// One-line description of a mixed batch for the branded heat-discussion commit.
+fn zjjrm_batch_description(batch: &crate::jjrz_gazette::jjrz_BatchInput) -> String {
+    let mut parts = Vec::new();
+    if batch.paddock.is_some() { parts.push("paddock".to_string()); }
+    if !batch.reslates.is_empty() { parts.push(format!("{} reslate", batch.reslates.len())); }
+    if !batch.slates.is_empty() { parts.push(format!("{} slate", batch.slates.len())); }
+    format!("batch: {}", parts.join(", "))
 }
 
 // ============================================================================
@@ -302,6 +389,14 @@ pub struct jjrm_ReorderParams {
 #[derive(Debug, serde::Deserialize, schemars::JsonSchema)]
 pub struct jjrm_ReviseDocketParams {
     pub size_limit: Option<u64>,
+    /// Position the FIRST slate notice before this coronet (mixed batch only;
+    /// mutually exclusive with after/first). Reslate/paddock never move the cursor.
+    pub before: Option<String>,
+    /// Position the FIRST slate notice after this coronet (mixed batch only).
+    pub after: Option<String>,
+    /// Position the FIRST slate notice at the head of the heat (mixed batch only).
+    #[serde(default)]
+    pub first: bool,
 }
 
 
@@ -1188,33 +1283,32 @@ impl jjrm_McpServer {
             }
             JJRM_CMD_NAME_REDOCKET => {
                 let p = deser!(jjrm_ReviseDocketParams);
-                let pairs = match gazette_in_content {
-                    Some(ref content) => match jjrz_parse_reslate_input(content) {
-                        Ok(p) => p,
+                let batch = match gazette_in_content {
+                    Some(ref content) => match jjrz_parse_batch_input(content) {
+                        Ok(b) => b,
                         Err(e) => return Ok(CallToolResult::error(vec![Content::text(
                             format!("{}: gazette input error: {}", cmd, e),
                         )])),
                     },
                     None => return Ok(CallToolResult::error(vec![Content::text(
-                        format!("{}: requires gazette_in.md with jjezs_reslate notice(s); checked {}", cmd, gazette_in_path.display()),
+                        format!("{}: requires gazette_in.md with jjezs_reslate/jjezs_slate/jjezs_paddock notice(s); checked {}", cmd, gazette_in_path.display()),
                     )])),
                 };
-                let first_coronet = pairs[0].0.clone();
+                // Resolve + guard the single heat firemark across all notices.
+                let firemark = match jjrm_resolve_batch_firemark(&batch) {
+                    Ok(fm) => fm,
+                    Err(e) => return Ok(CallToolResult::error(vec![Content::text(
+                        format!("{}: {}", cmd, e),
+                    )])),
+                };
                 let size_limit = p.size_limit.unwrap_or(vvc::VVCG_SIZE_LIMIT);
-                jjrm_dispatch_pace(cmd, &first_coronet, size_limit, |gallops| {
-                    let mut diffs = Vec::new();
-                    for (coronet, docket) in &pairs {
-                        let diff = jjrtl_run_revise_docket(gallops, coronet, docket)?;
-                        if !diff.is_empty() {
-                            diffs.push(format!("--- ₢{} reslate diff ---\n{}", coronet, diff));
-                        }
-                    }
-                    let mut output = format!("Revised {} pace(s)", pairs.len());
-                    if !diffs.is_empty() {
-                        output.push_str("\n\n");
-                        output.push_str(&diffs.join("\n"));
-                    }
-                    Ok(output)
+                let message = jjrn_format_heat_discussion(&firemark, &zjjrm_batch_description(&batch));
+                let firemark_for_handler = firemark.clone();
+                let before = p.before.clone();
+                let after = p.after.clone();
+                let first = p.first;
+                zjjrm_dispatch_inner_msg(cmd, &firemark, size_limit, message, move |gallops| {
+                    jjrm_apply_batch(gallops, &batch, &firemark_for_handler, before, after, first)
                 })
             }
             JJRM_CMD_NAME_RELABEL => {
@@ -1288,23 +1382,33 @@ impl jjrm_McpServer {
             JJRM_CMD_NAME_PADDOCK => {
                 let p = deser!(jjrm_PaddockParams);
                 if let Some(ref content) = gazette_in_content {
-                    // Setter mode: gazette_in.md had paddock content
-                    let (firemark, paddock_content) = match jjrz_parse_paddock_input(content) {
+                    // Setter mode: gazette_in.md had paddock content. The paddock
+                    // revision now joins the shared dispatch/persist lifecycle
+                    // (jjri_persist co-commits gallops + paddock under the firemark),
+                    // rather than self-committing on the old curry path.
+                    let (firemark_str, paddock_content) = match jjrz_parse_paddock_input(content) {
                         Ok(pair) => pair,
                         Err(e) => return Ok(CallToolResult::error(vec![Content::text(
                             format!("{}: gazette input error: {}", cmd, e),
                         )])),
                     };
-                    let mut gazette = jjrz_Gazette::jjrz_build(&[jjrz_Slug::Paddock, jjrz_Slug::Pace]);
-                    let result = jjrcu_run_curry(jjrcu_CurryArgs {
-                        file: gallops_pathbuf(),
-                        firemark,
-                        note: p.note,
-                        size_limit: p.size_limit,
-                    }, Some(paddock_content), &mut gazette);
-                    let md = gazette.jjrz_emit();
-                    if !md.is_empty() { std::fs::write(&gazette_out_path, md.as_bytes()).ok(); }
-                    jjrm_result(result)
+                    let firemark = match crate::jjrf_favor::jjrf_Firemark::jjrf_parse(&firemark_str) {
+                        Ok(fm) => fm,
+                        Err(e) => return Ok(CallToolResult::error(vec![Content::text(
+                            format!("{}: error: {}", cmd, e),
+                        )])),
+                    };
+                    let description = match &p.note {
+                        Some(n) => format!("paddock curried: {}", n),
+                        None => "paddock curried".to_string(),
+                    };
+                    let message = jjrn_format_heat_discussion(&firemark, &description);
+                    let size_limit = p.size_limit.unwrap_or(vvc::VVCG_SIZE_LIMIT);
+                    let firemark_for_handler = firemark.clone();
+                    zjjrm_dispatch_inner_msg(cmd, &firemark, size_limit, message, move |gallops| {
+                        jjrg_curry_apply(gallops, &firemark_for_handler, &paddock_content)?;
+                        Ok(format!("{}: paddock updated", cmd))
+                    })
                 } else {
                     // Getter mode: no gazette_in.md — read paddock to gazette_out.md
                     let firemark = match p.firemark {
@@ -1319,7 +1423,7 @@ impl jjrm_McpServer {
                         firemark,
                         note: p.note,
                         size_limit: p.size_limit,
-                    }, None, &mut gazette);
+                    }, &mut gazette);
                     let md = gazette.jjrz_emit();
                     if !md.is_empty() { std::fs::write(&gazette_out_path, md.as_bytes()).ok(); }
                     if code == 0 {
