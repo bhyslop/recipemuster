@@ -18,18 +18,38 @@ The whole feature is driven from one control console in rbm — see Cross-repo o
 ## Pane-label overlay shape
 
 The pane label renders on the yellow highlight box paneboard already draws around a window during alt-tab.
+
+The overlay is three stacked regions — top, middle, bottom — replacing the earlier four-corners-plus-center scheme.
 Cinched decisions:
 
-- The session's identity — coronet when mounted on a pace, else the heat firemark — renders large in all four corners, full identity, never abbreviated.
-- A center block shows a general array of lines, centered; the first two are the pace-or-heat silks and the working directory.
-- Each corner badge and the center block sit on a fixed black backing pill; the backing is not tunable.
-- The wire carries semantic data plus optional per-element style — corner and center each take a font size and color; style fields are optional, and paneboard falls back to built-in defaults when any is absent.
-- Style values are sourced from an rbm-side config that vvx reads at send time, never compiled into the binary, so tuning is: edit config, run any jjx engagement to re-send, see the change on the next alt-tab — no rebuild, no paneboard restart.
+- Every region is uniform and multi-line: an ordered list of lines plus an optional style.
+  The earlier asymmetry — a scalar identity in the corners against an array of lines in the center — is gone;
+  each region is now the same shape, so the model carries one region concept rather than two.
+- Each region sits on a fixed black backing pill; the backing is not tunable.
+- The session identity is the primary glance datum — coronet when mounted on a pace, else the heat firemark, full identity, never abbreviated.
+- vvx sends one atomic frame per window: the session key plus the full set of regions in a single message, each region carrying its slot (top/middle/bottom), its lines, and its optional style.
+  The overlay is never split into one-message-per-region.
+  The transport is best-effort and fail-soft, so a multi-message overlay could tear — a stale band left beside a fresh one, with no way for the operator to tell which —
+  the session key would repeat needlessly across the messages,
+  and the producer recomputes the whole label on each engagement anyway.
+  The slot enumeration rides the region, not the message boundary.
+- Style is optional per region — a font size and a color — and paneboard falls back to built-in defaults when any field is absent.
+- Style values are sourced from an rbm-side config that vvx reads at send time, never compiled into the binary;
+  tuning is edit the config, run any jjx engagement to re-send, see the change on the next alt-tab — no rebuild, no paneboard restart.
+
+Open, not yet cinched: which lines land in which band.
+The identity leads the top region by default;
+the repo, the working directory, and the pace-or-heat silks are the other high-value lines awaiting assignment.
+This is the next layout musing.
+
+Named fork, not designed now: a second independent producer — something other than vvx pushing into one band on its own clock — would justify genuine one-message-per-region framing.
+vvx is the sole label producer today, so the overlay stays a single atomic frame;
+the fork is recorded only so it is not reflexively foreclosed.
 
 Accepted tradeoff: presentation lives partly on the wire rather than solely in paneboard — bought deliberately for iteration velocity, and free to retract into paneboard defaults if the sizes ever stabilize.
 
 This richer in-place overlay presumes the session-id-to-window mapping succeeds (the seed memo's still-unverified spike).
-If that mapping fails, the same data degrades to a richer alt-tab list entry rather than corner-and-center boxes.
+If that mapping fails, the same data degrades to a richer alt-tab list entry rather than stacked regions.
 
 ## References
 
