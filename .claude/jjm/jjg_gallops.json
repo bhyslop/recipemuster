@@ -11918,9 +11918,10 @@
         "₢BDAAc",
         "₢BDAAd",
         "₢BDAAe",
-        "₢BDAAY"
+        "₢BDAAY",
+        "₢BDAAf"
       ],
-      "jjghn_next_pace_seed": "AAf",
+      "jjghn_next_pace_seed": "AAg",
       "jjghn_paces": {
         "₢BDAAA": {
           "jjgpn_tacks": [
@@ -13113,6 +13114,42 @@
               ],
               "jjgtn_silks": "revision-substrate-surveyor",
               "jjgtn_basis": "30d01f2"
+            }
+          ]
+        },
+        "₢BDAAf": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260621-1820",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "Spec-sync, mechanical-to-moderate.",
+                "The behavior is shipped and tested; this transcribes it into the spec family under ACG/MCM discipline — no design.",
+                "",
+                "## Goal",
+                "Sync the JJK spec family to the mixed-batch redocket surface and the paddock-setter commit-lifecycle convergence already shipped in the jjk crate.",
+                "The specs must describe the shipped behavior; the landed code is the source of truth, not this docket.",
+                "",
+                "## Cinched",
+                "ACG governs the edit: reference the home, do not recreate.",
+                "The batch operation earns ONE contract home (the gazette wire-format spec); the command specs cross-ref it rather than restating.",
+                "The behavior is frozen by the landed code — do not redesign during the sync.",
+                "",
+                "## Done when",
+                "- The gazette wire-format spec documents the mixed-slug batch input (one paddock + N reslate + M slate in a single gazette), the file-order slate semantics (notice order = pace order), and the same-firemark guard.",
+                "- The redocket / revise-docket command spec describes the batch surface and the before/after/first first-slate positioning.",
+                "- The paddock / curry spec reflects that the setter joins the shared dispatch/persist lifecycle and no longer self-commits.",
+                "- The slate spec notes slate is also reachable via the redocket batch.",
+                "- JJS0 registers the batch operation in its operation taxonomy.",
+                "- The whole affected family is covered, not just JJS0 — discovery: `grep -rln 'jjx_redocket\\|jjx_paddock\\|jjezs_\\|jjx_curry' Tools/jjk/vov_veiled/JJS*.adoc`.",
+                "",
+                "## Discovery",
+                "The shipped contract lives in the jjk crate: `jjrz_parse_batch_input` + `jjrz_query_by_slug_ordered` (jjrz_gazette.rs), `jjrm_resolve_batch_firemark` + `jjrm_apply_batch` (jjrm_mcp.rs), `jjrg_curry_apply` (jjro_ops.rs).",
+                "Read those for the behavior to transcribe."
+              ],
+              "jjgtn_silks": "jjk-spec-sync-mixed-batch",
+              "jjgtn_basis": "4909753"
             }
           ]
         }
