@@ -16497,9 +16497,10 @@
         "₢BhAAD",
         "₢BhAAE",
         "₢BhAAF",
-        "₢BhAAG"
+        "₢BhAAG",
+        "₢BhAAH"
       ],
-      "jjghn_next_pace_seed": "AAH",
+      "jjghn_next_pace_seed": "AAI",
       "jjghn_paces": {
         "₢BhAAA": {
           "jjgpn_tacks": [
@@ -16672,6 +16673,30 @@
               ],
               "jjgtn_silks": "pb-overlay-render-and-mapping",
               "jjgtn_basis": "4b3243f"
+            }
+          ]
+        },
+        "₢BhAAH": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260621-0848",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Layer paneboard over the viewer:",
+                "it proxies fresh/update to viewer instances it spawns and places,",
+                "while the direct-socket viewer keeps working for the no-paneboard / Windows case.",
+                "",
+                "See the seed memo's Phase 4.",
+                "",
+                "## Character",
+                "Layering, not new risk — both the viewer and the overlay channel already exist by this point.",
+                "",
+                "## Done when",
+                "- Paneboard spawns and places a viewer instance and forwards fresh/update to it by id.",
+                "- The direct-socket path from the standalone viewer still works unchanged."
+              ],
+              "jjgtn_silks": "pb-viewer-conductor",
+              "jjgtn_basis": "549633f"
             }
           ]
         }
