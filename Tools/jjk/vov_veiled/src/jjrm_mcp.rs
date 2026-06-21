@@ -701,14 +701,16 @@ fn zjjrm_forgiveness_nag(output: &mut vvc::vvco_Output) {
         Err(_) => return,
     };
     for status in crate::jjri_io::jjdz_probe(&gallops, &bytes) {
-        // Legible label + opaque rivet token (JJr_a7c) — the rivet rides the emission as a grep
-        // surface; the label reads at sight (the jjx_open echo of JDG JDo_101).
+        // Legible label + inline gloss + opaque rivet token (JJr_a7c) — the rivet rides the
+        // emission as a grep surface; the label and gloss read at sight (the jjx_open echo of
+        // JDG JDo_101), so the verdict is actionable without opening code or spec.
         vvco_out!(
             output,
-            "{} {}: {} ({})",
+            "{} {}: {} — {} ({})",
             crate::jjri_io::JJDZ_LABEL_FORGIVENESS,
             status.label,
             status.jjdz_verdict(),
+            status.jjdz_gloss(),
             crate::jjri_io::JJDZ_RIVET_FORGIVENESS
         );
     }
