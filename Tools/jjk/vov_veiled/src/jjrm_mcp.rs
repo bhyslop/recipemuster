@@ -545,6 +545,136 @@ pub struct jjrm_JjxParams {
 }
 
 // ============================================================================
+// vvx_tt — tabtarget runner (vvx-surface sibling tool, NOT a jjx command)
+// ============================================================================
+//
+// A second MCP tool on the vvx server: execs a tt/*.sh tabtarget so tabtarget
+// runs stop drawing a per-invocation Bash permission prompt — one MCP approval
+// absorbs the sediment. Bounded to tt/*.sh (no arbitrary-command path), and it
+// enforces the tabtarget discipline the agent otherwise has to remember: run
+// from the repo root, never pipe to tail/head/grep (output is captured, so the
+// exit code is preserved — the pipe hazard that silently masks failures cannot
+// arise), and point the caller at the self-logged ../logs-buk/ record.
+
+/// Tabtarget directory, relative to the repo root (the server's cwd).
+const VVX_TT_DIR: &str = "tt";
+/// Conventional self-log of the most recent invocation (BURS_LOG_DIR default).
+/// Stable across runs and — under the sequential-only test discipline — always
+/// this run, so we point the caller here rather than re-derive the fragile,
+/// station-configurable per-tabtarget log tag.
+const VVX_TT_LOG_HINT: &str = "../logs-buk/last.txt";
+/// Inline-output ceiling: return the last N bytes of captured output and defer
+/// the full record to the log, so a long test suite cannot flood the response.
+const VVX_TT_OUTPUT_TAIL_BYTES: usize = 60_000;
+
+#[derive(Debug, serde::Deserialize, schemars::JsonSchema)]
+pub struct jjrm_VvxTtParams {
+    #[schemars(description = "Tabtarget script to run, e.g. \"rbw-ts.TestSuite.fast.sh\". A leading \"tt/\" is accepted and stripped. Must be a bare filename ending in .sh (no path separators, no \"..\") — the tool is bounded to tt/*.sh and refuses anything else.")]
+    pub tabtarget: String,
+    #[schemars(description = "Positional arguments forwarded to the tabtarget unchanged (e.g. a fixture name for rbw-tf.FixtureRun.sh). Optional.")]
+    #[serde(default)]
+    pub args: Vec<String>,
+}
+
+/// Validate + normalize a tabtarget name to the bare `<name>.sh` form the tool
+/// is bounded to. A leading `tt/` is stripped; the result must be a single path
+/// component ending in `.sh`. This is the no-arbitrary-command guard — the tool
+/// runs only `tt/*.sh`, never a free command or a path that escapes the dir.
+fn zjjrm_normalize_tabtarget(raw: &str) -> Result<String, String> {
+    let trimmed = raw.trim();
+    let name = trimmed.strip_prefix("tt/").unwrap_or(trimmed);
+    if name.is_empty() {
+        return Err("tabtarget is empty".to_string());
+    }
+    if name.contains('/') || name.contains("..") {
+        return Err(format!(
+            "tabtarget '{}' must be a bare filename under tt/ (no path separators, no '..')",
+            raw
+        ));
+    }
+    if !name.ends_with(".sh") {
+        return Err(format!("tabtarget '{}' must end in .sh", raw));
+    }
+    Ok(name.to_string())
+}
+
+/// Return the last `max_bytes` of `s` on a char boundary, with a truncation flag.
+fn zjjrm_tail(s: &str, max_bytes: usize) -> (&str, bool) {
+    if s.len() <= max_bytes {
+        return (s, false);
+    }
+    let mut start = s.len() - max_bytes;
+    while start < s.len() && !s.is_char_boundary(start) {
+        start += 1;
+    }
+    (&s[start..], true)
+}
+
+/// Run a tt/ tabtarget as a subprocess from the repo root, capturing combined
+/// stdout+stderr. Returns (exit_code, report). Blocking std::process — the MCP
+/// server serves one client and tabtargets run sequentially by discipline, and
+/// the sibling jjx handlers already block on git subprocesses, so no async
+/// process machinery is warranted. The report leads with the exit status and
+/// the self-logged output path, then a tail of the captured output.
+fn zjjrm_run_tabtarget(params: jjrm_VvxTtParams) -> (i32, String) {
+    let name = match zjjrm_normalize_tabtarget(&params.tabtarget) {
+        Ok(n) => n,
+        Err(e) => return (1, format!("vvx_tt: {}", e)),
+    };
+    let rel_path = format!("{}/{}", VVX_TT_DIR, name);
+    if !Path::new(&rel_path).is_file() {
+        return (1, format!(
+            "vvx_tt: no tabtarget at {} — vvx_tt runs from the repo root and is bounded to tt/*.sh",
+            rel_path
+        ));
+    }
+
+    // bash <script> <args…>: byte-identical argv to a direct `./tt/<name>` run
+    // ($0 -> tt/<name>, so the z-launcher basename/dir logic is unchanged), and
+    // robust to a missing executable bit. We exec directly — never via a shell
+    // string — so the args cannot be reinterpreted as a command.
+    let output = match std::process::Command::new("bash")
+        .arg(&rel_path)
+        .args(&params.args)
+        .output()
+    {
+        Ok(o) => o,
+        Err(e) => return (1, format!("vvx_tt: failed to launch {}: {}", rel_path, e)),
+    };
+
+    let code = output.status.code().unwrap_or(-1);
+    let mut combined = String::from_utf8_lossy(&output.stdout).into_owned();
+    let stderr = String::from_utf8_lossy(&output.stderr);
+    if !stderr.is_empty() {
+        if !combined.is_empty() {
+            combined.push('\n');
+        }
+        combined.push_str(&stderr);
+    }
+
+    let args_suffix = if params.args.is_empty() {
+        String::new()
+    } else {
+        format!(" {}", params.args.join(" "))
+    };
+    let mut report = format!(
+        "vvx_tt {}{}: exit {}\nlog: {} (self-logged full record; read it directly, never pipe to tail/head/grep)\n",
+        name, args_suffix, code, VVX_TT_LOG_HINT,
+    );
+    let (shown, truncated) = zjjrm_tail(&combined, VVX_TT_OUTPUT_TAIL_BYTES);
+    if truncated {
+        report.push_str(&format!(
+            "--- output (last {} bytes; full record in log) ---\n",
+            VVX_TT_OUTPUT_TAIL_BYTES
+        ));
+    } else {
+        report.push_str("--- output ---\n");
+    }
+    report.push_str(shown);
+    (code, report)
+}
+
+// ============================================================================
 // Officium lifecycle — jjdxo_* (Officium Lifecycle in JJS0)
 // ============================================================================
 
@@ -1525,6 +1655,16 @@ impl jjrm_McpServer {
             }
         }
     }
+
+    /// vvx_tt — run a tt/*.sh tabtarget. Sibling to `jjx` on the vvx surface,
+    /// not a jjx command: no officium, no model gate, no Gallops lock — it
+    /// touches no heat/pace state, it just execs a curated launcher.
+    #[tool(name = "vvx_tt", description = "Run a tt/*.sh tabtarget from the repo root and return its exit status, self-logged ../logs-buk/ output path, and a tail of its output. Bounded to tt/*.sh — no arbitrary commands. Absorbs the tabtarget discipline so it need not be remembered: runs from the repo root, captures output (the exit code is preserved, never eaten by a tail/head/grep pipe), and points at the self-logged record for the full text.")]
+    async fn vvx_tt(&self, Parameters(p): Parameters<jjrm_VvxTtParams>) -> Result<CallToolResult, McpError> {
+        let (code, report) = zjjrm_run_tabtarget(p);
+        eprintln!("vvx_tt: exit={}", code);
+        jjrm_result((code, report))
+    }
 }
 
 #[tool_handler]
@@ -1609,6 +1749,46 @@ mod tests {
             id
         );
         let _ = std::fs::remove_dir_all(&officia);
+    }
+
+    #[test]
+    fn normalize_tabtarget_accepts_bare_and_tt_prefixed() {
+        assert_eq!(
+            zjjrm_normalize_tabtarget("rbw-ts.TestSuite.fast.sh").unwrap(),
+            "rbw-ts.TestSuite.fast.sh"
+        );
+        assert_eq!(
+            zjjrm_normalize_tabtarget("tt/rbw-ts.TestSuite.fast.sh").unwrap(),
+            "rbw-ts.TestSuite.fast.sh"
+        );
+        assert_eq!(
+            zjjrm_normalize_tabtarget("  tt/foo.sh  ").unwrap(),
+            "foo.sh"
+        );
+    }
+
+    #[test]
+    fn normalize_tabtarget_rejects_arbitrary_paths_and_non_sh() {
+        // Path escape, nested path, traversal, and non-.sh all refuse — the
+        // no-arbitrary-command guard.
+        assert!(zjjrm_normalize_tabtarget("/etc/passwd").is_err());
+        assert!(zjjrm_normalize_tabtarget("tt/../secrets.sh").is_err());
+        assert!(zjjrm_normalize_tabtarget("sub/dir/foo.sh").is_err());
+        assert!(zjjrm_normalize_tabtarget("rbw-ts.TestSuite.fast").is_err());
+        assert!(zjjrm_normalize_tabtarget("").is_err());
+        assert!(zjjrm_normalize_tabtarget("tt/").is_err());
+    }
+
+    #[test]
+    fn tail_returns_whole_under_limit_and_suffix_over() {
+        let (s, trunc) = zjjrm_tail("short", 60_000);
+        assert_eq!(s, "short");
+        assert!(!trunc);
+
+        let big = "x".repeat(100);
+        let (s, trunc) = zjjrm_tail(&big, 10);
+        assert_eq!(s.len(), 10);
+        assert!(trunc);
     }
 
     #[test]
