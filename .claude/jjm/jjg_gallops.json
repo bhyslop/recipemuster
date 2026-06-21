@@ -11919,9 +11919,10 @@
         "₢BDAAd",
         "₢BDAAe",
         "₢BDAAY",
-        "₢BDAAf"
+        "₢BDAAf",
+        "₢BDAAg"
       ],
-      "jjghn_next_pace_seed": "AAg",
+      "jjghn_next_pace_seed": "AAh",
       "jjghn_paces": {
         "₢BDAAA": {
           "jjgpn_tacks": [
@@ -13150,6 +13151,34 @@
               ],
               "jjgtn_silks": "jjk-spec-sync-mixed-batch",
               "jjgtn_basis": "4909753"
+            }
+          ]
+        },
+        "₢BDAAg": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260621-1843",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "Spook fix, clear repair — a few-line change to one install step.",
+                "",
+                "## Goal",
+                "Make the VOW build install the vvr binary via a temp-file-then-atomic-rename, so installing while the vvx MCP server is running no longer fails `Text file busy` (ETXTBSY).",
+                "An in-place `cp` over `Tools/vvk/bin/vvx` truncates the file the live server holds open; a rename repoints the directory entry while the running process keeps its old inode.",
+                "",
+                "## Done when",
+                "`tt/vow-b.Build.sh` installs cleanly while the MCP server is live — no ETXTBSY — and a subsequent Claude Code restart picks up the new binary.",
+                "",
+                "## Discovery",
+                "The failing install step prints `[vob_build] Failed to copy binary`.",
+                "Locate it: `grep -rln 'Failed to copy binary\\|vvk/bin/vvx' Tools/`.",
+                "",
+                "## Origin",
+                "Surfaced as the wrap spook of ₢BDAAd (vvx_tt tabtarget-runner): every vvx-binary change hits ETXTBSY because the running server holds the binary open; that pace worked around it by hand with temp+mv."
+              ],
+              "jjgtn_silks": "vow-build-atomic-binary-install",
+              "jjgtn_basis": "6f7d59d"
             }
           ]
         }
