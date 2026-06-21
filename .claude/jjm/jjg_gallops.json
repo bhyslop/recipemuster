@@ -13615,11 +13615,12 @@
         "₢BZAAQ",
         "₢BZAAa",
         "₢BZAAZ",
+        "₢BZAAf",
         "₢BZAAe",
         "₢BZAAP",
         "₢BZAAN"
       ],
-      "jjghn_next_pace_seed": "AAf",
+      "jjghn_next_pace_seed": "AAg",
       "jjghn_paces": {
         "₢BZAAA": {
           "jjgpn_tacks": [
@@ -14579,6 +14580,36 @@
               ],
               "jjgtn_silks": "rbra-estate-demolition",
               "jjgtn_basis": "dd628c0"
+            }
+          ]
+        },
+        "₢BZAAf": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260621-1046",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Wire the production credential accessor onto the federation don, so the foundry/lode/bottle surface mints mantle tokens instead of keyfile JWTs.",
+                "This is the accessor federation branch the paddock's movement-4 ordering expected (\"the federation branch lands at movement 4\") but movement 4 left unbuilt — and it must land before the RBRA estate can be torn down.",
+                "",
+                "`rba_token_capture` (rba_auth.sh) is today a keyfile-only bridge with 55 production callers; `rba_don_capture` + `rba_compear` exist but reach only the polity admission verbs (rbgp_payor.sh) and the two access probes — no foundry path dons.",
+                "Route `rba_token_capture`'s body through `rba_compear` (ensure-assize) then `rba_don_capture <identity>`, leaving the 55 callers and their bearer-blind downstream unchanged.",
+                "Reconcile the direct keyfile reads (the `source RBDC_DIRECTOR_RBRA_FILE` SA-identity loads in rbfd_director.sh) and the consumer `test -f RBRA_FILE` precondition guards onto mantle-SA derivation (RBCC_account_mantle_* in the depot project), and re-kindle the foundry furnish graphs that source only rbgo/rba for the keyfile mint.",
+                "Discovery: `git grep -n 'rba_token_capture\\|RBRA_FILE' Tools/rbk/`, minus the RBRA estate files the successor teardown owns (RBDC_*_RBRA_FILE derivation, rbra regime/CLI, RBSRA).",
+                "",
+                "## Done when",
+                "The foundry mints via the don: `rba_token_capture` reads no keyfile, `rbgo_get_token_capture` has no live caller, and a service-tier run plus a live dogfight (ordain → summon under a donned director mantle) is green on federation personas.",
+                "The RBRA estate constants/regime/spec stay standing — grep RBRA_FILE clean is the successor teardown's gate, not this pace's.",
+                "",
+                "## Cinched",
+                "The live credential swap the estate-demolition pace explicitly is not — its own movement, proven by its own live run before the teardown sweeps the now-dead keyfile path.",
+                "The mantle-SA identity model (RBCC_account_mantle_* in the depot) is settled; this pace wires the foundry to it, mints no new credential concept.",
+                "",
+                "## Character",
+                "Architectural and wide: production blast radius — every foundry op's credential path changes — proven only by a live run."
+              ],
+              "jjgtn_silks": "accessor-don-rewire",
+              "jjgtn_basis": "5b204a4"
             }
           ]
         }
