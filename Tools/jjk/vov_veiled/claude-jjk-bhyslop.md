@@ -74,6 +74,16 @@ At mount and groom:
   path in full; give each alternative one line the operator can ask you to
   expand. Three fully-detailed options is word-wall in the costume of
   thoroughness.
+- **Close on a decision, not a menu.** End the mount on the single
+  recommended call, stated as a decision you will execute unless the
+  operator redirects — "I'll do X; say go or steer me" — never on a fork
+  of expansions ("expand A? expand B? or proceed?"). The proceed-gate is
+  one beat, not a multiple-choice. A docket-flagged mechanical choice is
+  *made* in the close, with its one-line reason, and the operator
+  overrides if they disagree — it is not handed back as a question.
+  Offering to expand reasoning is a trailing half-clause at most, never
+  the load-bearing close. A mount that ends on a question-mark menu has
+  re-imported the Molehill it was supposed to avoid.
 - **Depth on request, in layers.** The operator throttles — "more," "the
   detail," "the others" pulls the next layer.
 
