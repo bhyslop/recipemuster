@@ -12,6 +12,9 @@ Premise-touching ideas wait on Fable: any idea that would amend a cinched ₣BZ 
 Keep this catalog shape-shaped — each idea a named tension plus a current lean, never a running discussion log.
 Genuinely thin or orthogonal ideas belong in itches or the horizon roadmap, not here; this paddock is for ideas worth deliberating with heat context.
 
+Vocabulary-remint dingleberry doctrine: a word this heat flags for remint retires by a tree-wide grep eviction sweep, run only after ₣BZ and its M6 narrative settle, so every site they add is present to be swept.
+Using the current canonical word meanwhile is therefore never a dingleberry — only a non-canonical paraphrase escapes the grep — so demolition and narrative work use the canonical word and never coin a variant.
+
 ## Conviction — the federation configuration model (settled modeling axis)
 
 The one settled shape in this paddock: the modeling axis is decided, even though the build is not.
