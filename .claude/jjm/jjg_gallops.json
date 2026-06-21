@@ -17064,9 +17064,10 @@
         "₢BiAAG",
         "₢BiAAH",
         "₢BiAAI",
-        "₢BiAAK"
+        "₢BiAAK",
+        "₢BiAAL"
       ],
-      "jjghn_next_pace_seed": "AAL",
+      "jjghn_next_pace_seed": "AAM",
       "jjghn_paces": {
         "₢BiAAA": {
           "jjgpn_tacks": [
@@ -17522,6 +17523,41 @@
               ],
               "jjgtn_silks": "yoke-touchmark-fact-fallback",
               "jjgtn_basis": "0da21c0"
+            }
+          ]
+        },
+        "₢BiAAL": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260621-1608",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Goal",
+                "buwz (BUK workbench) colophons become generated Rust consts — first-class peers of RB's RBTDGC_ set —",
+                "retiring the hand-minted BUK colophon consts and bare \"buw-\" literals in the theurge crate.",
+                "",
+                "## Cinched",
+                "- New \"division\" tier above buz_group: a start-index marker recording which zipper owns each run of the",
+                "  shared registry roll (buz_enroll itself is unchanged — same trick buz_group uses).",
+                "- The colophon-consts emitter iterates divisions, each carrying its own add/strip prefix; this retires the",
+                "  single-zipper signature of buz_emit_colophon_consts (whose sole caller is rbz_emit_consts).",
+                "- The context emitter scopes to one named division, so BUK colophons never leak into RB's",
+                "  tabtarget-context.md (the hazard: buz_emit_context emits one row per whole-roll entry).",
+                "- Project ALL buwz colophons (parity with RB's total projection), not just the few theurge consumes.",
+                "- Mints, operator may override: buz_tome (the division), BUWGC_ (the BUK const prefix).",
+                "- All new/edited bash (buz_tome, the two emitters, the rbz/buwz tome declarations) holds BCG discipline",
+                "  — kindle/sentinel shape, prefix rules, shellcheck clean via rbw-tl (no inline suppressions without cause).",
+                "",
+                "## Done when",
+                "A build regenerates rbtdgc_consts.rs with the existing RBTDGC_ lines byte-identical and a new BUWGC_ block;",
+                "the theurge crate carries no bare \"buw-\" literals and no hand-mint BUK colophon consts",
+                "(grep '\"buw-' over Tools/rbk/rbtd/src/ is clean); rbq is green; tabtarget-context.md is unchanged.",
+                "",
+                "## Character",
+                "Intricate but mechanical — a shared-buz refactor with a clear verification gate and one concept mint."
+              ],
+              "jjgtn_silks": "buk-colophon-projection-division",
+              "jjgtn_basis": "545de03"
             }
           ]
         }
