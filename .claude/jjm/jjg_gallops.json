@@ -14586,8 +14586,8 @@
         "₢BZAAf": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260621-1046",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260621-1307",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "Wire the production credential accessor onto the federation don, so the foundry/lode/bottle surface mints mantle tokens instead of keyfile JWTs.",
                 "This is the accessor federation branch the paddock's movement-4 ordering expected (\"the federation branch lands at movement 4\") but movement 4 left unbuilt — and it must land before the RBRA estate can be torn down.",
@@ -14609,7 +14609,7 @@
                 "Architectural and wide: production blast radius — every foundry op's credential path changes — proven only by a live run."
               ],
               "jjgtn_silks": "accessor-don-rewire",
-              "jjgtn_basis": "5b204a4"
+              "jjgtn_basis": "3ce07c5"
             }
           ]
         },
