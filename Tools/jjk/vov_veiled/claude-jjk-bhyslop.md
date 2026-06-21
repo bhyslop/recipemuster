@@ -134,6 +134,12 @@ write-forward, frozen `jjrt_v3_types.rs`) is deliberately temporary, removed onl
 under the episode's demolition condition: do not clean it up or re-explain it beside
 the marker. RBK's `RBr_` conduct rule, JJK-native.
 
+**Slate-time schema-impact check.** When slating a pace that touches the JJK crate,
+check whether it changes the gallops on-disk schema (add, remove, rename, or retype a
+serialized field, or change how one serializes). If it does, the docket must point the
+mount agent at §E, §F, and `JJSCRP` (`jjdz_reprieve`) for the branch-delivery and the
+reprieve-episode determination.
+
 ### F. Branch Naming Discipline
 
 Name every git branch with a uniform, age-sortable, identity-bearing shape, so the
