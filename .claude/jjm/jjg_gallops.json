@@ -14623,8 +14623,8 @@
         "₢BZAAe": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260621-1301",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260621-1544",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "Sweep the orphaned RBRA keyfile estate once the foundry mints via the federation don — the bridge's demolition condition, executed.",
                 "The dead-legacy half of this estate is already done (the cult-verb estate and the keyfile JWT probes); the live half waited on the preceding pace, which reroutes rba_token_capture and the foundry consumers onto the don and leaves the estate below unreferenced.",
@@ -14650,7 +14650,7 @@
                 "Large mechanical-but-wide demolition of an orphaned estate across bash, theurge-Rust, and specs; the risk is reach, not depth — the preceding rewire has already de-risked the live behavior."
               ],
               "jjgtn_silks": "rbra-estate-demolition",
-              "jjgtn_basis": "bd60959"
+              "jjgtn_basis": "590d4bd"
             }
           ]
         },
