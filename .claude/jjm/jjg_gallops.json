@@ -16492,9 +16492,10 @@
       "jjghn_status": "jjghe_stabled",
       "jjghn_order": [
         "₢BhAAA",
-        "₢BhAAB"
+        "₢BhAAB",
+        "₢BhAAC"
       ],
-      "jjghn_next_pace_seed": "AAC",
+      "jjghn_next_pace_seed": "AAD",
       "jjghn_paces": {
         "₢BhAAA": {
           "jjgpn_tacks": [
@@ -16542,6 +16543,33 @@
               ],
               "jjgtn_silks": "vvx-session-key-and-port-discovery",
               "jjgtn_basis": "c9310a4"
+            }
+          ]
+        },
+        "₢BhAAC": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260621-0847",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Build the standalone viewer and, with it, the walking skeleton for the whole wire protocol:",
+                "an egui/iced window over a direct socket, fresh/update verbs with retained zoom,",
+                "format dispatch by magic-byte sniff (SVG via resvg, raster via the image crate).",
+                "",
+                "See the seed memo's Phase 1 and its settled-decisions section (push-not-watch, the two verbs, format dispatch).",
+                "Sample payloads live at diagrams/rbdg*.svg.",
+                "",
+                "## Cinched",
+                "Paneboard conducts viewer instances; it does not contain them.",
+                "update retains the held zoom+pan and re-rasterizes — crisp for SVG, native-limited for raster.",
+                "The viewer accepts direct connections, not only via paneboard, so the no-paneboard / Windows case keeps a bare viewer.",
+                "",
+                "## Done when",
+                "- A pushed SVG or raster renders in a window; fresh opens/replaces fit-to-window; update replaces content at the held zoom.",
+                "- The framing and verbs exist as working code — the skeleton the protocol freeze will ratify."
+              ],
+              "jjgtn_silks": "pb-standalone-image-viewer",
+              "jjgtn_basis": "ef40ae7"
             }
           ]
         }
