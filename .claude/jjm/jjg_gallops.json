@@ -11920,9 +11920,10 @@
         "₢BDAAe",
         "₢BDAAY",
         "₢BDAAf",
-        "₢BDAAg"
+        "₢BDAAg",
+        "₢BDAAh"
       ],
-      "jjghn_next_pace_seed": "AAh",
+      "jjghn_next_pace_seed": "AAi",
       "jjghn_paces": {
         "₢BDAAA": {
           "jjgpn_tacks": [
@@ -13184,6 +13185,38 @@
               ],
               "jjgtn_silks": "vow-build-atomic-binary-install",
               "jjgtn_basis": "6f7d59d"
+            }
+          ]
+        },
+        "₢BDAAh": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260621-2208",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Introduce an output module for the vok crate so the stdout-vs-stderr split is",
+                "enforced by construction, not by author vigilance.",
+                "Closes the latent MCP-transport hazard and satisfies RCG output discipline.",
+                "",
+                "Context and full hazard analysis: `Memos/memo-20260621-coding-guide-conformance-audit.md`",
+                "§ \"The one item worth eventual action: vok output discipline\" (provenance, not authority).",
+                "",
+                "## Done when",
+                "- The vok crate routes all emission through an output module, mirroring vvc's `vvco_Output` (which `vorm_main.rs` already imports and uses) — no naked `println!`/`eprintln!` outside that module's own implementation.",
+                "- The MCP stdio path (`vvx mcp` → `run_mcp` → jjk `jjrm_serve_stdio`) reserves stdout for the JSON-RPC protocol structurally; all diagnostics route to stderr by construction.",
+                "- RCG-23/24 met for the crate: the output module plus the grep-able output-discipline sentinel above each emitting site's import.",
+                "- `cargo` build and test green for the affected crate (build via the VOW tabtargets, not raw cargo).",
+                "",
+                "## Cinched",
+                "- Latent, not live: the current MCP path is already stderr-correct, so this is regression-proofing, not a bugfix — schedule it when the vok crate is quiescent to avoid collision with active work.",
+                "- The discipline is \"stdout = protocol/result, stderr = diagnostics,\" not \"no stdout\": CLI subcommands that emit machine-readable JSON results to stdout keep doing so.",
+                "- Mirror vvc's `vvco_Output`; do not invent a parallel surface. Whether RCG-25's fuller level-surface is warranted here is a mount-time judgment call — vvc's narrower console/buffer router may be the right model.",
+                "",
+                "## Character",
+                "Mechanical, contained to the vok crate, with one routing-judgment call at mount."
+              ],
+              "jjgtn_silks": "vok-output-discipline-module",
+              "jjgtn_basis": "951563c"
             }
           ]
         }
