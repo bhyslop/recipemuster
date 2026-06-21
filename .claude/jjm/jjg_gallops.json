@@ -13022,8 +13022,8 @@
         "₢BDAAc": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260620-1108",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260621-1822",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "## Goal",
                 "One gazette setter applies a heterogeneous single-heat batch — paddock + reslate + slate notices mixed in one gazette_in.md — and emits exactly one commit.",
@@ -13053,7 +13053,7 @@
                 "The shape is fixed; the command surface — a new verb versus extending redocket to accept mixed slugs — is a mount-time mechanical choice, not an open design fork."
               ],
               "jjgtn_silks": "gazette-mixed-notice-batch",
-              "jjgtn_basis": "09ce0a4"
+              "jjgtn_basis": "e3fbd1e"
             }
           ]
         },
