@@ -17197,8 +17197,8 @@
         "₢BhAAF": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260622-0554",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260622-1124",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "The core rbm-side emblem writer:",
                 "on each jjx engagement, vvx composes its window's emblem (identity, pace name, repo, working directory), reads per-region style from an rbm-side config, and atomically writes the emblem file for its window reference — best-effort, fail-soft.",
@@ -17217,7 +17217,7 @@
                 "- A jjx engagement returns its normal result with no added latency or error when the write path is disabled or fails — the no-paneboard non-regression, verified explicitly, including a refused/absent emblem directory."
               ],
               "jjgtn_silks": "vvx-emblem-writer",
-              "jjgtn_basis": "a4a4231"
+              "jjgtn_basis": "803c2a9"
             }
           ]
         },
