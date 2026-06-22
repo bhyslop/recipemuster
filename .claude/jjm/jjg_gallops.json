@@ -17024,8 +17024,8 @@
         "₢BhAAJ": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260621-0900",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260622-0552",
+              "jjgtn_state": "jjgte_abandoned",
               "jjgtn_text": [
                 "Stand up paneboard's IPC listener:",
                 "the daemon accepts control frames on its existing CFRunLoop and writes its listen port to the discovery port-file vvx reads.",
@@ -17043,7 +17043,7 @@
                 "- The listen port is written to the discovery port-file, and a received register_label frame reaches the overlay code path."
               ],
               "jjgtn_silks": "pb-ipc-listener",
-              "jjgtn_basis": "c162475"
+              "jjgtn_basis": "0e37731"
             }
           ]
         }
