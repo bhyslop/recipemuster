@@ -6,9 +6,9 @@
     "₣Be",
     "₣Bd",
     "₣Bb",
-    "₣BZ",
     "₣BF",
     "₣BD",
+    "₣BZ",
     "₣Bk",
     "₣Bj",
     "₣Bf",
@@ -13690,7 +13690,7 @@
     "₣BZ": {
       "jjghn_silks": "rbk-11-mvp-FABLE-federation-create",
       "jjghn_creation_time": "260604",
-      "jjghn_status": "jjghe_racing",
+      "jjghn_status": "jjghe_stabled",
       "jjghn_order": [
         "₢BZAAR",
         "₢BZAAA",
