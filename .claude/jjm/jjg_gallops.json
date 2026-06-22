@@ -16814,8 +16814,8 @@
         "₢BgAAE": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260622-0617",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260622-0731",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "## Character",
                 "",
@@ -16831,7 +16831,7 @@
                 "Runs after the re-gestalt surgery lands, against whatever final names that pace settles."
               ],
               "jjgtn_silks": "vox-citation-memo-sweep",
-              "jjgtn_basis": "48bdad4"
+              "jjgtn_basis": "200c0bf"
             }
           ]
         }
