@@ -16683,9 +16683,10 @@
         "₢BgAAA",
         "₢BgAAB",
         "₢BgAAC",
-        "₢BgAAD"
+        "₢BgAAD",
+        "₢BgAAE"
       ],
-      "jjghn_next_pace_seed": "AAE",
+      "jjghn_next_pace_seed": "AAF",
       "jjghn_paces": {
         "₢BgAAA": {
           "jjgpn_tacks": [
@@ -16807,6 +16808,30 @@
               ],
               "jjgtn_silks": "vox-cosmology-regestalt-consolidation",
               "jjgtn_basis": "1361bac"
+            }
+          ]
+        },
+        "₢BgAAE": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260622-0617",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "",
+                "Mechanical sweep.",
+                "",
+                "## Done when",
+                "",
+                "By-name references to the dissolved/renamed specs are repointed to the Vox cosmology top (BUS0's `VLS-VoxLiturgicalSpec.adoc` citation is the known one), and stale memos that only referenced the old `vo`/Obscura gestalt are retired to `Memos/retired/`.",
+                "Discovery: `grep -rE 'VLS-Vox|VOS0-Vox|Vox Obscura' Tools/ Memos/`.",
+                "",
+                "## Cinched",
+                "",
+                "Runs after the re-gestalt surgery lands, against whatever final names that pace settles."
+              ],
+              "jjgtn_silks": "vox-citation-memo-sweep",
+              "jjgtn_basis": "48bdad4"
             }
           ]
         }
