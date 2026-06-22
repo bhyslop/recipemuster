@@ -279,3 +279,99 @@ rather than inventing a marker recipe. Three facts to carry:
   `Memos/memo-20260612-federation-legs-spike-findings.md`
 - Spec homes to evolve: RBSRF (`RBSRF-RegimeFederation.adoc`), RBSMA
   (`RBSMA-manor_affiance.adoc`).
+
+## Fork resolution (2026-06-22) — both config-forks settled
+
+Recorded under operator decision (strong mutual agreement, no further review). The two design
+forks this model left open — the single-test-manor topology and the programmatic JWKS-source
+shape, carried to the ₣Bf front-of-heat design pace — are settled below. The *design* is decided
+here; the *words* (mechanism value-names, the two subdoc acronyms, any foedus-register verb)
+remain Fable's to mint, and the premise-touching graduation of the multiplicity build still owes
+Fable's ₣BZ-review nod — but the direction is no longer open.
+
+### Fork one (test-manor topology) — MULTIPLICITY IS THE GOAL
+
+The earlier framing treated multiplicity (a manor holding several foedera at once) as an
+orthogonal, deferred, Fable-gated axis, and scoped this config model to a single active
+federation. That is overturned: **swapping foedera in and out — a manor holding several and a
+depot drawing from a chosen one — is a primary aim of the heat, not a deferred axis.** The test
+manor stands up the real Entra foedus (interactive) and a Keycloak test foedus (programmatic)
+side by side, each its own pool; the own-pool requirement is *satisfied* by multiplicity, not
+violated by it.
+
+- Per-run switching of a singleton (jilt/affiance to swap the active federation) is REJECTED:
+  it churns pools against the soft-delete / 100-cap and adds a stateful mutable pointer for no
+  gain.
+- A dedicated second org (each org single-foedus) is noted but unneeded, since multiplicity
+  within one manor is the aim regardless.
+
+Rework named for the spec-first unit: the federation regime becomes a family of named instances
+(each its own pool); affiance keys to a named instance; the depot-attaches-to-a-named-foedus
+selection (the governor-selects-federation feature) is in scope. The civic-hierarchy nod for
+governor-selects and the attach/swap verb wording are Fable's; the design is decided. The config
+model's per-foedus shape (vendor-agnostic core + mechanism gate) is unchanged — multiplicity is
+the *count* axis, orthogonal to and on top of it.
+
+### Fork two (programmatic JWKS-source) — UPLOADED, SINGLE FIELD
+
+The programmatic arm's JWKS source is a single **uploaded-JWKS** field. The test IdP (Keycloak)
+runs as a LOCAL crucible, unreachable from Google's servers, so issuer-discovery (GCP fetching
+keys from a public `/.well-known`) cannot serve it — its public JWKS must be uploaded regardless.
+
+- The token *behind* the uploaded JWKS may be Keycloak-minted (preferred — the "full mechanism
+  without hacks" path) or hand-rolled self-signed (fallback only if Keycloak's grant
+  disappoints). This minter choice is **below the regime**: Google sees the identical
+  uploaded-JWKS provider either way, so it costs the schema nothing.
+- Issuer-discovered JWKS is NOT modeled (no publicly-reachable automated IdP is in scope).
+  Rework named (deferred, cheap): if a publicly-hosted automated IdP ever enters, the JWKS source
+  re-cuts to uploaded|discovered sub-modes. The issuer field's validation already degrades under
+  the programmatic arm (a self-declared `iss`-matching string, not a resolvable URI) — per the
+  S1 subdoc plan above.
+
+### Keycloak supersedes self-signed-caged as the automated lean
+
+The corpus consistently presented the degenerate IdP as a *spectrum* (self-signed-caged for max
+control vs Keycloak for max realism), and the ₣Bf paddock carried self-signed-caged ("R4's
+ghost") as the lean. That lean is **flipped**: Keycloak (a real conformant OIDC server) is the
+preferred automated path; self-signed-caged demotes to fallback. Reason: Keycloak exercises the
+genuine token-endpoint + signature path, so routine automated runs test the real mechanism
+rather than an impersonation of one. Two corpus drifts to fix on the spec recast: the
+static-negative-test-rig memo still names Keycloak's "password / client-credentials" grant —
+superseded by the supported **RFC 7523 JWT Authorization Grant** (Keycloak 26.5/26.6) per the
+personas memo; and the "undelete-on-DELETED" affiance language here and in the constraints memo
+is superseded by the 260622 **refuse-and-rotate** ruling.
+
+### Test layering (release vs routine)
+
+- RELEASE gate (rare, human-present): real commercial IdPs — Entra plus any freely-available real
+  federation (Okta dev tier, Google, generic OIDC) — interactive device-flow, a human click
+  each. Proves the interactive arm AND real-IdP compatibility.
+- ROUTINE automated (frequent, unattended): the Keycloak crucible — programmatic arm, no human.
+  Covers every run.
+
+Boundary (unchanged, from the personas memo): Keycloak automates everything downstream of the
+federated token; it CANNOT prove the real human device-flow, so exactly one thin human-present
+pace stays for the interactive leg. Keycloak's automated value is specifically the *programmatic*
+arm; the interactive code path (device-flow polling, the human-present membrane) is exercised
+only when a human is in the loop.
+
+### Is uploaded-JWKS still load-bearing? Yes.
+
+Uploading Keycloak's keys changes exactly one thing: Google validates against a static key
+snapshot instead of re-fetching from Keycloak's URL. Everything we own is exercised for real — a
+real Keycloak-minted OIDC token, signature / `iss` / `aud` / subject validation, the STS
+exchange, the don, the admission verbs, IAM. The ONLY un-exercised behavior is Google's own
+key-discovery / rotation loop, which (a) is Google's code, not ours, and (b) the release gate
+covers for real against Entra. Operational coupling: when Keycloak's signing key changes, the
+uploaded snapshot must be refreshed (pin Keycloak's key across runs, or re-upload at each
+charge).
+
+### Groom finding — why this took so long to surface
+
+The Keycloak-uploaded-JWKS path was raised at least four times — the ₣BZ paddock test-rig line
+(Keycloak-or-caged), ₢BZAAA's done-when (Keycloak-uploaded-JWKS viability, "paper answer
+acceptable"), the degenerate-personas memo (Shape 2), and the static-negative-test-rig memo (the
+control-vs-realism spectrum) — but was never ELEVATED from "one option on a spectrum" to "the
+preferred automated lean," and its end-to-end viability was only ever PAPER-confirmed (₢BZAAA
+explicitly accepted a paper answer; it was never harness-run). That is the gap the ride-or-die
+proof pace now closes.
