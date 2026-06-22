@@ -16543,9 +16543,10 @@
         "₢BfAAC",
         "₢BfAAA",
         "₢BfAAB",
-        "₢BfAAE"
+        "₢BfAAE",
+        "₢BfAAF"
       ],
-      "jjghn_next_pace_seed": "AAF",
+      "jjghn_next_pace_seed": "AAG",
       "jjghn_paces": {
         "₢BfAAA": {
           "jjgpn_tacks": [
@@ -16697,6 +16698,32 @@
               ],
               "jjgtn_silks": "rbs0-manor-org-canon-scrub",
               "jjgtn_basis": "1fd6742"
+            }
+          ]
+        },
+        "₢BfAAF": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260622-0739",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Build the terrier's permanent founding-home — a single idempotent \"post-payor-guide manor-setup finisher\" that ensures the terrier bucket + per-polity folders, retiring the interim scaffold.",
+                "",
+                "The terminal Fable review resolved the founding-home to OPTION B: the Manor provisions the terrier (affiance touches it nowhere — the bucket name is foedus-independent, its IAM binds the depot-born governor mantle SA, not a foedus principal). Operator cinched the shape: ONE idempotent tabtarget, run after the manual manor setup (console project + OAuth), finishing all scriptable manor-setup steps including the terrier-bucket-ensure.",
+                "",
+                "Full reasoning + grain: the review ledger (chunk 3) and Memos/memo-20260622-fable-review-queue.md (terrier-fork-b-resolution, terrier-b-shape-finisher). As-built to fold in + retire: the rbw-dt / rbw-dT scaffold, plus the two theurge fixtures (terrier-scaffold, terrier-atomicity) in the service/complete suites.",
+                "",
+                "## Done when",
+                "A standing manor-setup-finisher tabtarget idempotently ensures the terrier bucket (payor-project-grain) + per-polity managed folders (depot-grain) + the grain IAM (write folder-scoped own-polity, read bucket-level manor-wide); the interim scaffold and its two fixtures are retired or migrated onto it; the gauntlet ladder stays green (it carries no terrier fixture).",
+                "",
+                "## Cinched",
+                "Founding-home = Option B (Manor, not affiance); the finisher is a dedicated standing op run after the manual manor setup. One terrier per Manor (per-foedus cardinality is Fable-gated, out of scope here).",
+                "",
+                "## Character",
+                "Implementation over a settled design; the B-variant (standing op vs manor-establish enlargement) and the folder-step credential boundary (folder lives in the payor-project bucket) are the in-pace judgment calls."
+              ],
+              "jjgtn_silks": "terrier-founding-home-finisher",
+              "jjgtn_basis": "3936dc6"
             }
           ]
         }
