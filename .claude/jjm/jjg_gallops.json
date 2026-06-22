@@ -17336,27 +17336,29 @@
         "₢BhAAK": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260622-0552",
+              "jjgtn_ts": "260622-1227",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "The first emblem render, on the cheapest surface:",
                 "paneboard puts each window's emblem on its alt-tab LIST entry — which already renders text — reusing the existing list-row drawing rather than the text-less box.",
-                "This validates the whole pipeline end to end (resolver -> emblem-file read -> display) with almost no new drawing, and gives the all-windows-at-a-glance view that is the seed memo's actual goal.",
+                "This validates the whole pipeline end to end (writer resolves and writes the file -> paneboard reads by window-id -> display) with almost no new drawing, and gives the all-windows-at-a-glance view that is the seed memo's actual goal.",
                 "",
                 "See paddock \"Overlay surface\" and seed memo Phase 3.",
-                "Entry point: the list-row text drawing in pbmbo_observer.swift (OverlayContentView drawAltTabEntries); the emblem is found by the resolver's window reference (the iterm-session scheme from the probe).",
+                "Entry point: the list-row text drawing in pbmbo_observer.swift (OverlayContentView drawAltTabEntries).",
+                "paneboard reads `<emblem-root>/iterm-session/<window-id>.emblem`, keyed by the CGWindowID it already enumerates for each row; the writer resolved and wrote that file, so paneboard holds no resolver and never touches the sandbox question.",
                 "",
                 "## Cinched",
-                "Resolver-gated: a list entry whose window resolves to an emblem file shows it; one that does not shows today's plain entry (never regresses).",
+                "Text render only: the emblem's text lines, identity-led, drawn with the row's existing text rendering — no per-region pills or styling, which are the box-render pace's net-new drawing, not this one's.",
+                "File-gated: a row whose enumerated window-id has an emblem file shows it; one that does not shows today's plain entry (never regresses).",
                 "Read the emblem file at paint time — no stored frame state in paneboard.",
                 "",
                 "## Done when",
-                "- Each alt-tab list entry whose window resolves shows its emblem content, identity-led, read fresh from the emblem file.",
+                "- Each alt-tab list entry whose window has an emblem file shows that emblem's text content, identity-led, read fresh from the file.",
                 "- A window with no emblem file shows exactly today's list entry.",
                 "- A malformed or half-written emblem file degrades to the plain entry, never a crash or a torn render."
               ],
               "jjgtn_silks": "pb-list-entry-emblems",
-              "jjgtn_basis": "782dc49"
+              "jjgtn_basis": "d3ff196"
             }
           ]
         },
