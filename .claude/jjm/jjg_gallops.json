@@ -17753,9 +17753,38 @@
       "jjghn_silks": "rbk-15-theurge-cosmology-spec",
       "jjghn_creation_time": "260622",
       "jjghn_status": "jjghe_stabled",
-      "jjghn_order": [],
-      "jjghn_next_pace_seed": "AAA",
-      "jjghn_paces": {}
+      "jjghn_order": [
+        "₢BlAAA"
+      ],
+      "jjghn_next_pace_seed": "AAB",
+      "jjghn_paces": {
+        "₢BlAAA": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260622-0755",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Create a skimpy proper RBS0 SUBDOC for the theurge test-cosmology — base quoins only, include'd into RBS0, Fable inflates later.",
+                "",
+                "The test-orchestration cosmology (theurge / fixture / case / suite / freehold / leasehold / cupel) has no spec home — it lives in code comments + CLAUDE.md tables + memos. Operator-settled: a proper RBS0 SUBDOC (include'd into RBS0, for free production-quoin reference), NOT a sibling top-spec — so it is named per the subdoc convention (RBS + tail, like RBSTR / RBSMA), NEVER a \"0\"-suffixed name (the \"0\" suffix is the top-spec convention).",
+                "",
+                "Full scope + the five membranes + the placement reasoning: Memos/memo-20260622-fable-review-queue.md (the rbst0-theurge-subdoc item) and the theurge-spec-gap analysis it cites.",
+                "",
+                "## Done when",
+                "A skimpy RBS0 subdoc (RBS+tail acronym, NOT \"0\"-suffixed) is include'd into RBS0, seating base quoins for the core test-cosmology nouns under a FRESH quoin stem (rbst_ is TAKEN — 14 production quoins at RBS0:492-506 — so a provisional, operator-sanctioned, eviction-sweepable stem; Fable later ratifies/sweeps the stem, the \"theurge\" word, and the asterism call). The five membranes hold: reference BUS0's busr_fixture/busr_suite + dependency-tier axis + tweak mechanism (do not re-mint); point at RBTDRC_SUITES for suite membership (never transcribe member lists); cite the crucible-security specs; split the identity-layers model (the permanent-vs-pool citizen fact stays production-side in RBS0/RBSRF, only the freehold-subject pinning is the subdoc's); thin the CLAUDE.md suites table toward a pointer.",
+                "",
+                "## Cinched",
+                "A SUBDOC of RBS0 (not a sibling top-spec); skimpy (base quoins, Fable inflates later); a fresh quoin stem (not rbst_). One subdoc probably enough — split only if conviction emerges.",
+                "",
+                "## Character",
+                "Spec authoring over operator-settled structure; the fresh-stem + theurge-word + asterism are provisional-now / Fable-ratified-later (carried in the Fable queue)."
+              ],
+              "jjgtn_silks": "create-skimpy-theurge-subdoc",
+              "jjgtn_basis": "7b47b60"
+            }
+          ]
+        }
+      }
     }
   }
 }
