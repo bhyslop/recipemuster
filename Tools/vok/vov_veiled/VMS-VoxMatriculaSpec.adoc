@@ -10,7 +10,7 @@
 // vosms_:  Matricula Seal (the freeze verb: builder -> immutable)
 //
 // Imported, never re-homed:
-//   vosl* (Liturgy vocabulary) defined in VLS-VoxLiturgicalSpec.adoc
+//   vosl* (Liturgy vocabulary) defined in VOS0-VoxObscuraSpec.adoc (Vox cosmology SpecTop)
 //   vosk_prefix_validation defined in VOS0-VoxObscuraSpec.adoc
 //   minting doctrine (terminal-exclusivity, collision, Lapidary) defined in CMK/MCM + CLAUDE.md
 //
@@ -462,7 +462,7 @@ mechanizes them; it does not redefine them.
 {vosle_epithet},
 {vosli_inscription},
 {voslv_vesture}
-): VLS-VoxLiturgicalSpec.adoc.
+): the Liturgy section of VOS0-VoxObscuraSpec.adoc (the Vox cosmology SpecTop).
 * The narrow filename-only precedent this census widens: VOS0
 {vosk_prefix_validation}.
 * The freeze/builder lifecycle reference shape: `Memos/memo-20260620-freeze-builder-pattern/` (provenance only).
