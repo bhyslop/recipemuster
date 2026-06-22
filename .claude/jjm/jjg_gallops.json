@@ -16785,8 +16785,8 @@
         "₢BgAAD": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260622-0616",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260622-0720",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "## Character",
                 "",
@@ -16807,7 +16807,7 @@
                 "Use RBS0-SpecTop.adoc as the structural exemplar (its subdocs define zero quoins — purely consume)."
               ],
               "jjgtn_silks": "vox-cosmology-regestalt-consolidation",
-              "jjgtn_basis": "1361bac"
+              "jjgtn_basis": "d17526a"
             }
           ]
         },
