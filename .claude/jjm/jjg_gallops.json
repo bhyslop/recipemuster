@@ -17397,8 +17397,8 @@
         "₢BhAAM": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260622-1224",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260622-1232",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "The writer half of the emblem resolver — the prerequisite both paneboard emblem paces consume.",
                 "vvx resolves its own iTerm session to its containing window's CGWindowID by asking iTerm over AppleScript (osascript), and keys the emblem file by that window-id (`iterm-session/<window-id>.emblem`), so the sandboxed reader reads by the handle it already enumerates.",
@@ -17418,7 +17418,7 @@
                 "- The resolved window-id is confirmed equal to the CGWindowID the reader enumerates."
               ],
               "jjgtn_silks": "vvx-window-id-resolver",
-              "jjgtn_basis": "c32f125"
+              "jjgtn_basis": "843a275"
             }
           ]
         }
