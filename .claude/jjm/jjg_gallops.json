@@ -17173,8 +17173,8 @@
         "₢BhAAE": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260622-0554",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260622-1047",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "Land the rbm-side concepts formally in JJS0 as quoins:",
                 "the emblem (the displayed label), the typed window reference (how an emblem binds to a window), and the iterm-session scheme as the one resolver — and disambiguate the three overloaded \"session\" identities.",
@@ -17190,7 +17190,7 @@
                 "- emblem, typed window reference, and the iterm-session scheme are minted as JJS0 quoins in a new transport-band subsection, with mapping-section entries and the legend comment updated, colliding with no existing neighborhood and never reusing \"session\"."
               ],
               "jjgtn_silks": "jjs0-overlay-concept-landing",
-              "jjgtn_basis": "a4a4231"
+              "jjgtn_basis": "80a1280"
             }
           ]
         },
