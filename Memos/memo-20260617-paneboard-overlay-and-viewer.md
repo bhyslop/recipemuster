@@ -1,5 +1,15 @@
 # Memo — Paneboard as window hub: pace overlay + diagram viewer
 
+> **Superseded on transport (2026-06-22).** The wire design below — `register_label`
+> and image bytes pushed over localhost TCP *into* paneboard — was reshaped during
+> heat `₣Bh` grooming. Current authority is the `₣Bh` paddock
+> (`jjk-v4-1-svg-viewer-and-pane-labels`): paneboard hard-denies all network to itself,
+> so **labels now ride a file transport** paneboard reads (no socket into the sandboxed
+> daemon), and **viewer image bytes go direct to the standalone viewer over TCP**, never
+> through paneboard. Still accurate below: the session-id correlation mechanism, the
+> dead-ends, format dispatch, and push-not-watch. **Historical: the protocol / transport
+> sections** (the `register_label` wire verb and the paneboard-side listener).
+
 - **Date:** 2026-06-17
 - **Participants:** Brad + Claude Opus 4.8 (1M context), in `rbm_beta_recipemuster`
 - **Status:** Design settled; the one hard mechanism proven empirically today (see below); implementation not started.
