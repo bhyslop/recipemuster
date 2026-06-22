@@ -17147,8 +17147,8 @@
         "₢BhAAD": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260622-0554",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260622-1017",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "With the viewer skeleton proving the TCP path, write down and freeze the two contracts:",
                 "the emblem FILE format (the atomic per-window file) and the viewer fresh/update TCP wire.",
@@ -17166,7 +17166,7 @@
                 "- The emblem-file schema and the fresh/update wire are pinned; the spec pace transcribes the emblem schema, it does not re-decide it."
               ],
               "jjgtn_silks": "wire-protocol-freeze",
-              "jjgtn_basis": "a4a4231"
+              "jjgtn_basis": "964a352"
             }
           ]
         },
