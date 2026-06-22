@@ -37,11 +37,11 @@ An emblem is the displayed label: an ordered set of stacked regions (top / middl
 The session identity is the primary glance datum — coronet when mounted on a pace, else the heat firemark, full identity, never abbreviated.
 
 An emblem binds to a window through a TYPED window reference, not a bare session id.
-The key is scheme-qualified — $HOME/.config/paneboard/emblems/<scheme>/<value>.json — so emblems generalize to other window types later.
+The key is scheme-qualified — $HOME/.config/paneboard/emblems/<scheme>/<value>.emblem — so emblems generalize to other window types later.
 The root is a fixed, paneboard-owned per-user path, matching paneboard's existing ~/.config/paneboard/ config home: a by-convention rendezvous needing no handshake, with paneboard's PoC spec as its authority and rbm mirroring the literal with a citation.
 The writer mkdir's the tree and fails soft; the reader treats an absent or empty tree as no emblem (never world-writable /tmp, so the overlay cannot be spoofed by another local user).
 The one resolver (UUID -> window) lives in the WRITER, not paneboard (see Resolver for why); vvx resolves and keys the emblem by the window handle paneboard already holds (the CGWindowID), and paneboard reads by that handle.
-The exact key — the window-id directly, or the UUID with a writer-written window-id index — is a grooming open point (window-handle recycling, see Resolver).
+The exact key is decided: the window-id directly (the CGWindowID), not the UUID and not a UUID-plus-index — see Resolver for the recycling defense and why the operator's one-session-per-window posture makes it safe.
 Emblems on non-Claude-Code windows are a named fork, not designed now: adopt the typed namespace, build only the one resolver.
 Remote Claude Code sessions are a second named fork, not solved here: when Claude Code runs on another host (e.g. cerebro over SSH) shown in a LOCAL iTerm window, the writer (vvx) runs remote and has none of the local handles (no AppleScript, no CGWindowID, no ITERM_SESSION_ID since SSH does not forward it, no local emblem dir), so it can neither resolve nor write the emblem.
 This is inherent to the writer-and-window co-location the whole design assumes — the abandoned loopback socket failed it too (loopback is not cross-host, and a cross-host listener is exactly what the sandbox forbids).
@@ -79,8 +79,9 @@ vvx is not sandboxed and IS an iTerm descendant, so the same AppleScript self-sc
 So vvx resolves its own UUID -> CGWindowID and keys the emblem by that window handle; paneboard reads the emblem by the window-id it already enumerates and holds NO resolver, no AppleScript, and never touches the sandbox question.
 The file transport is the sandbox-crossing membrane, exactly as designed.
 
-Open for grooming: window-handle key stability.
-A CGWindowID is stable for a window's life but can be recycled after a window closes, and changes if a tab is dragged to a new window; vvx rewriting on each engagement plus cleanup of its prior key is the likely handling, but the exact scheme (key by window-id, or keep UUID-keying with a vvx-written window-id -> UUID index) is undecided.
+Window-handle key stability — decided: key by window-id direct (the CGWindowID), the UUID kept only as the transient AppleScript lookup, never persisted.
+A CGWindowID is stable for a window's life but can be recycled after a window closes, and changes if a tab is dragged to a new window; the recycling defense is the write-stamp plus paneboard's live-set intersection plus vvx rewriting on each engagement, with manual cleanup between runs as the backstop.
+The multi-session-per-window clobber that UUID-keying would have guarded against does not arise: the operator runs one Claude session per iTerm window (and does not drag tabs between windows), so the window-id is a faithful per-window key.
 
 Box-text is PROVEN: the yellow selection box can carry drawn text (a one-line NSString.draw poke rendered white-on-black on the box), so the box-render pace is de-risked.
 
