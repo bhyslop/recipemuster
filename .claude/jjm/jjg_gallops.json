@@ -27,7 +27,6 @@
     "₣AJ",
     "₣AN",
     "₣A6",
-    "₣AQ",
     "₣AZ",
     "₣Au",
     "₣BC",
@@ -9983,30 +9982,6 @@
               ],
               "jjgtn_silks": "trophy-bitmap-displays",
               "jjgtn_basis": "ce0e1ed"
-            }
-          ]
-        }
-      }
-    },
-    "₣AQ": {
-      "jjghn_silks": "rbw-gcb-builder-control",
-      "jjghn_creation_time": "260125",
-      "jjghn_status": "jjghe_stabled",
-      "jjghn_order": [
-        "₢AQAAA"
-      ],
-      "jjghn_next_pace_seed": "AAB",
-      "jjghn_paces": {
-        "₢AQAAA": {
-          "jjgpn_tacks": [
-            {
-              "jjgtn_ts": "260125-1410",
-              "jjgtn_state": "jjgte_rough",
-              "jjgtn_text": [
-                "Design and implement digest-pinned GCB builder images. Research options: (A) pre-built jq image with digest pin, (B) alpine with digest pin + runtime apk install, (C) custom tool image in depot. Document in RBAGS, update RBSTB spec to include _RBGY_JQ_REF and _RBGY_SYFT_REF substitutions. Ensure validation (buv_env_odref) aligns with chosen approach."
-              ],
-              "jjgtn_silks": "design-gcb-builder-pinning",
-              "jjgtn_basis": "de5fd84"
             }
           ]
         }
