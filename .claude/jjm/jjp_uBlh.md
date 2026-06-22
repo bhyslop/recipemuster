@@ -60,6 +60,21 @@ Sequenced by rendering cost:
 This presumes the resolver succeeds.
 If it fails, emblems live on the enriched list only — still useful — never on the box; the same code path, so a failed resolver never leaves the operator empty-handed.
 
+## Resolver — exact join proven, sandbox permission open (interim, 2026-06-22)
+
+Interim spike findings, ahead of a recorded fork verdict.
+
+The window -> iTerm-session-UUID mechanism is iTerm's own scripting API (AppleEvents), and the join is EXACT, not heuristic.
+iTerm's AppleScript window id is the very CGWindowID paneboard already keys on (its AX _AXUIElementGetWindow value), confirmed by matching paneboard's live window enumeration against iTerm's session list — every window's id identical across both.
+So the resolver reduces to: emblem-file UUID -> iTerm window id == paneboard's existing window_id -> the AX rect paneboard already computes; no rect-matching, no fuzzy correlation.
+
+The open gate is PERMISSION under the seatbelt sandbox.
+Scripting iTerm from a bare iTerm-descendant process succeeds silently (self-scripting, no prompt), but the same call under paneboard's exact seatbelt profile ((allow default)(deny network*)) fails with AppleEvents privilege violation -10004.
+This is either a faithful no-go (the seatbelt blocks appleevent-send) or an artifact of how the sandbox-exec harness re-attributes the TCC responsible process; only an in-paneboard probe disambiguates, and that is the next spike step.
+Any fix must preserve the no-network posture — a rule permitting appleevent-send to iTerm is not a network relaxation, but it is a sandbox change and is not yet decided.
+
+Still unproven: whether the yellow selection box can carry drawn text at all (the box-text poke, paused before running).
+
 ## Paneboard internals (grounded in current code)
 
 The overlay and AX render path is main-thread-only: every paint is marshalled to the main run loop via CFRunLoopPerformBlock + CFRunLoopWakeUp, and the yellow box is repositioned per tab-press.
@@ -67,6 +82,23 @@ Reading a tiny emblem file at paint time rides that same path — a microsecond 
 The viewer conductor spawns and AX-places viewer windows; because paneboard never reads the image bytes, the earlier multi-megabyte off-thread-read concern does not arise on the paneboard side.
 Open, to verify at conductor time: whether a paneboard-spawned child inherits the network-deny sandbox.
 If it does, the viewer is launched independently and paneboard only positions its window.
+
+## Platform surface — macOS pins and the portability seam
+
+Paneboard has never been ported off macOS, but cross-OS portability is a preserved direction, so this section keeps tabs on what is macOS-bound.
+
+Paneboard's core is already macOS-native and predates this heat: the CGEventTap keyboard intercept, the Accessibility API (window enumeration, rects, focus, the CGWindowID identity), the CFRunLoop, the AppKit overlay rendering (the Swift shim), NSWorkspace app identity, NSPasteboard, and the seatbelt sandbox.
+This heat adds essentially ONE new platform dependency: the window -> session-key RESOLVER, which is macOS AND iTerm specific (AppleEvents to iTerm's scripting API).
+The box-text the emblem feature draws is not new lock-in — it rides the AppKit overlay paneboard already has.
+
+The resolver is the per-platform-AND-per-terminal SEAM, and portability survives iff one boundary holds:
+everything upstream and downstream of the resolver stays platform-neutral — the emblem the writer produces, the JSON file format, the scheme/value namespace, and the standalone viewer.
+No macOS concept (CGWindowID, AppleScript specifics, error -10004) may leak into the emblem file schema or the writer.
+Then a port is: write one new resolver and register one new scheme, nothing else.
+
+The lock is two-axis, which the typed scheme namespace already anticipates: OS (macOS / Windows / Linux) times terminal (iTerm / Terminal.app / Windows Terminal / ...).
+iterm-session is one cell; even a macOS switch from iTerm to Terminal.app would need a different resolver.
+The Accessibility-API window access is the hardest port target — Win32 has direct equivalents, but Wayland deliberately restricts cross-window introspection.
 
 ## References
 
@@ -87,3 +119,18 @@ JJK cannot commit paneboard code — notch commits into rbm's git only.
 Commit paneboard work from this console with git -C ../pb_paneboard02 add <explicit files> then git -C ../pb_paneboard02 commit.
 Same additive, explicit-file-list discipline as notch; the forbidden git commands still apply — -C does not make them safe.
 Respect paneboard's own branching, not rbm's.
+
+## Testing harness — direct process control
+
+Paneboard is a singleton (an exclusive file-lock at /tmp/paneboard.lock, released automatically when the process exits).
+So a trial means displacing the operator's running instance, then restoring it.
+The proven loop, drivable entirely from this console:
+
+- Kill the running paneboard-poc process (the lock releases on death — no stale-file hazard).
+- Run the timed tabtarget ../pb_paneboard02/tt/pbw-t.ProofOfConceptTimed.10.sh, which builds, runs ~10s, and self-exits via its own auto-exit timer — so a trial cannot run away with the operator's alt-tab.
+- Relaunch the operator's normal instance (../pb_paneboard02/tt/pbw-p.ProofOfConcept.sh).
+
+For a throwaway source probe, edit between the kill and the timed run, then revert after.
+build.rs recompiles the Swift shim on change, so a Swift-side poke is picked up.
+A poke that must be SEEN (e.g. box rendering) needs the operator to alt-tab during the live window; a poke that only emits to stdout does not.
+A relaunch driven from an agent session is a child of that session and dies with it — for durability the operator re-homes it to their own terminal.
