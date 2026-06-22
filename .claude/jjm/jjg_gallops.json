@@ -16544,9 +16544,10 @@
         "₢BfAAA",
         "₢BfAAB",
         "₢BfAAE",
-        "₢BfAAF"
+        "₢BfAAF",
+        "₢BfAAG"
       ],
-      "jjghn_next_pace_seed": "AAG",
+      "jjghn_next_pace_seed": "AAH",
       "jjghn_paces": {
         "₢BfAAA": {
           "jjgpn_tacks": [
@@ -16724,6 +16725,32 @@
               ],
               "jjgtn_silks": "terrier-founding-home-finisher",
               "jjgtn_basis": "3936dc6"
+            }
+          ]
+        },
+        "₢BfAAG": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260622-0740",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## TERMINAL pace — model Fable works through the standing Fable-review queue: ratify-or-sweep every provisional mint made in her absence, and answer every deferred vocabulary/premise question.",
+                "",
+                "This is the ₣Bf analogue of ₣BZ's terminal Fable review. The federation-evolution work proceeded under operator sanction while Fable was unavailable; the names and premise-touching calls made meanwhile are PROVISIONAL and eviction-sweepable.",
+                "",
+                "Entry point: Memos/memo-20260622-fable-review-queue.md — Bucket 1 (provisional decisions to ratify-or-sweep) and Bucket 2 (open questions deferred to Fable: the foedus mint + cold-probe, the heed/assize remints, the mechanism-discriminator quoin, the RBST0 fresh quoin stem + theurge word + asterism call, the FABLE-REANCHOR worklist, jilt/gird ratification, the federation premise calls).",
+                "",
+                "## Done when",
+                "Fable has worked through the queue memo: every Bucket-1 provisional decision is ratified or eviction-swept; every Bucket-2 question is answered; confirmed outcomes land in their spec homes; the queue memo retires.",
+                "",
+                "## Cinched",
+                "Requires model Fable (the queue was assembled at provisional, operator-sanctioned density). Runs LAST — every other ₣Bf movement slates before it.",
+                "",
+                "## Character",
+                "Terminal reconciliation under Fable; the pace that lifts the provisional-mint posture for ₣Bf. Requires model Fable."
+              ],
+              "jjgtn_silks": "fable-terminal-review",
+              "jjgtn_basis": "58a4aab"
             }
           ]
         }
