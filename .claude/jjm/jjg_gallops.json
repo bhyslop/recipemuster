@@ -16714,8 +16714,8 @@
         "₢BgAAB": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260620-1544",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260622-0525",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "## Character",
                 "",
@@ -16731,7 +16731,7 @@
                 "The .adoc house rule is MCM line-break discipline, not the gazette semantic-linefeed rule (which governs paddocks and dockets only)."
               ],
               "jjgtn_silks": "vms-mcm-linebreak-reflow",
-              "jjgtn_basis": "be067a8"
+              "jjgtn_basis": "d6f4d98"
             }
           ]
         },
