@@ -16564,6 +16564,7 @@
       "jjghn_creation_time": "260616",
       "jjghn_status": "jjghe_racing",
       "jjghn_order": [
+        "₢BfAAI",
         "₢BfAAC",
         "₢BfAAA",
         "₢BfAAD",
@@ -16573,7 +16574,7 @@
         "₢BfAAG",
         "₢BfAAH"
       ],
-      "jjghn_next_pace_seed": "AAI",
+      "jjghn_next_pace_seed": "AAJ",
       "jjghn_paces": {
         "₢BfAAA": {
           "jjgpn_tacks": [
@@ -16808,6 +16809,48 @@
               ],
               "jjgtn_silks": "keycloak-programmatic-foedus-proof",
               "jjgtn_basis": "ac9cccd"
+            }
+          ]
+        },
+        "₢BfAAI": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260622-1252",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "A reminder-and-convene pace: before any federation build-unit is cut, the operator and agent reach shared understanding of the work the ride-or-die proof left open.",
+                "Mount this fresh — it is orientation and design conversation, not implementation.",
+                "",
+                "The proven ground (read first): the ride-or-die Keycloak->GCP->don chain is harness-proven green; the full result, the empirical Palisade findings, the JWKS-refresh coupling, and the three-layer architecture are recorded in the config-model memo's \"Proof result\" section (Memos/memo-20260618-Bf-federation-config-model.md).",
+                "The working artifacts are the fdkyclk crucible (vessel rbev-bottle-fdkyclk + nameplate rbmm_moorings/fdkyclk/) and the idempotent POC driver + teardown (rbmm_moorings/fdkyclk/fdkyclk-proof.sh, fdkyclk-teardown.sh).",
+                "",
+                "Two deferrals the proof consciously made — the \"wrap issues\" to understand:",
+                "1. Grant mechanism — the proof minted the Keycloak id_token via the PASSWORD grant as a de-risk stepping-stone, NOT the RFC 7523 JWT Authorization Grant the proof was meant to use.",
+                "   GCP cannot distinguish the grant (it validates the resulting id_token's signature / iss / aud / sub), so the cloud chain is proven regardless — but the durable rig must mint via RFC 7523, whose Keycloak-side setup (a trusted asserting key) is un-built and un-understood here.",
+                "2. Implementation form — the proof was driven by a gcloud POC, not durable code.",
+                "   The operator cinch is that the durable establishment + accessor are REST-only (the payor OAuth token + rbuh/rbge patterns + the rba STS/don shapes), NO direct gcloud.",
+                "   Every gcloud call in the POC has a REST sibling already in-tree (affiance for the pool/provider, rbgp_brevet for the IAM), so the transform is assembly not invention — but it is the establishment/accessor build-units, gated on the spec-first recast, which is Fable-gated.",
+                "",
+                "The open design question to settle here — Keycloak control: how is the IdP configured durably?",
+                "The proof applied the realm config (client, subject, frontendUrl, eventually the RFC 7523 grant) live via station admin-REST.",
+                "Its proper home is one of: baked vessel realm-import JSON (config data), a rbw-* tabtarget family for Keycloak control, or a station BCG module — and the choice cuts across the three-layer split (vessel data vs station orchestration).",
+                "This is the BCG / gcloud / tabtargets-for-Keycloak-control question flagged at wrap.",
+                "",
+                "## Done when",
+                "The operator and agent have walked the proven state and the two deferrals to shared understanding.",
+                "The Keycloak-control approach (realm-config home) is decided, or its decision-owner (operator vs Fable) is named.",
+                "The next concrete federation build pace(s) are slated — or explicitly deferred behind the spec-first / Fable gate, with that gate named.",
+                "",
+                "## Cinched",
+                "The durable establishment + accessor are REST-only — no direct gcloud (operator cinch).",
+                "The build-units sit behind the spec-first recast (contract-before-code doctrine), Fable-gated for vocabulary; this pace plans, it does not jump that gate.",
+                "",
+                "## Character",
+                "Orientation and design conversation; mount fresh, with the operator present.",
+                "Not implementation — its output is shared understanding plus slated next paces."
+              ],
+              "jjgtn_silks": "federation-buildout-orientation",
+              "jjgtn_basis": "bd2ff08"
             }
           ]
         }
