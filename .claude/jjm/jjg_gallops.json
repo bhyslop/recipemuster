@@ -17066,6 +17066,7 @@
         "₢BiAAA",
         "₢BiAAC",
         "₢BiAAK",
+        "₢BiAAM",
         "₢BiAAL",
         "₢BiAAE",
         "₢BiAAD",
@@ -17074,9 +17075,12 @@
         "₢BiAAG",
         "₢BiAAI",
         "₢BiAAH",
-        "₢BiAAJ"
+        "₢BiAAJ",
+        "₢BiAAN",
+        "₢BiAAO",
+        "₢BiAAP"
       ],
-      "jjghn_next_pace_seed": "AAM",
+      "jjghn_next_pace_seed": "AAQ",
       "jjghn_paces": {
         "₢BiAAA": {
           "jjgpn_tacks": [
@@ -17497,48 +17501,43 @@
         "₢BiAAK": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260622-1235",
+              "jjgtn_ts": "260622-1300",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
-                "Broaden the chaining-fact fallback from yoke alone to the family of non-destructive inspect/use verbs:",
-                "each accepts an express identifier or, when absent, reads the depth-1 chain the prior dispatch emitted, then typechecks the resolved value.",
+                "Yoke gains the express-or-chain fallback for its reliquary touchmark, and lays the two shared footings the sibling verbs will reuse.",
                 "",
                 "## Character",
-                "Uniform pattern applied across a verb family — mechanical once the shared validator and fallback shape are settled.",
-                "The only real judgment is the typecheck design; the per-verb edits are repetitive.",
+                "First-consumer pace: it introduces shared hearting plumbing (a fact resolver and a touchmark-kind decoder) and makes yoke its first caller — modeled on zrbfc_resolve_vessel, the established one-resolver-many-verbs precedent.",
+                "Mechanical once the footings' contracts are set; the footings are the reusable part, yoke is one thin client.",
                 "",
-                "## The shape",
-                "Each verb: express param wins and overrides any fact; absent → buf_read_fact the prior dispatch's value; then typecheck the resolved value at one site, regardless of source.",
-                "Precedent already in tree: anoint and ordain's base-anchor election read the chain in the always-chain form — this pace adds the backward-compatible optional-with-fallback variant, so a present param behaves exactly as today.",
-                "buf_read_fact fails hard on a broken chain, so a no-arg call with no prior dispatch refuses cleanly.",
+                "## The footings (cinched plumbing — hearting, never a parent)",
+                "An express-or-chain resolver: a BUK fact primitive in buf_fact.sh, BCG _capture shape (stdout-once / return-1, caller guards with || buc_die), generic over any fact constant — returns the folio if set, else the chained fact, fails on a broken chain.",
+                "A touchmark-kind decoder: Lode hearting (z-prefixed), the single home for the RBGC_LODE_KIND_* decode, handling 1-char prefixes (b/r/w) and 2-char (vw/vn).",
+                "Both are parameterized so each verb stays a unique caller; final names are a mint to settle.",
                 "",
-                "## Scope",
-                "Five non-destructive verbs gain the fallback:",
-                "augur reading the lode-touchmark fact; summon, plumb, and rekon reading the hallmark fact; vouch's already-optional conjure-build-id (rbfv_verify) reading the build-id fact.",
-                "Destructive verbs are excluded by decision — abjure and banish keep their required explicit param and never chain, because deleting a freshly-minted artifact is the wrong default and a footgun.",
-                "Discovery recipe for the existing guards: grep the verb files for `required (param1)` / `BUZ_FOLIO`.",
+                "## BCG conformance (required)",
+                "buf_read_fact is read via $() at every call site but lacks the _capture/_recite suffix BCG line 566 keys that permission to, and no fact exception is documented — suffix it (a mint) or document the exception so the fact stack reads clean.",
+                "All bash holds BCG (kindle/sentinel, prefix rules, no inline shellcheck suppressions without cause) and lands shellcheck-clean via rbw-tl.",
                 "",
-                "## Type safety — by kind-prefix, not first char",
-                "The Lode kind is encoded in the touchmark itself as a leading prefix (RBGC_LODE_KIND_*): b/r/w are one char, but the podvm pair is vw/vn — two chars — so never assume char[0].",
-                "Typecheck the resolved touchmark by prefix-match against the verb's accepted kind set (yoke = reliquary only; augur = any known kind); this gives the express path the same safety as the fact path, and closes a live gap — yoke today does not typecheck its express touchmark and fails late at GAR cohort validation.",
-                "augur already shape-validates the touchmark; tighten it to assert a known kind prefix.",
-                "Factor a single shared touchmark→kind validator that both paths and both verbs call; reuse an existing decoder if one is present, since the stamp constructors all reference RBGC_LODE_KIND_*.",
-                "Hallmarks carry no sub-kind the consumers discriminate — their typecheck is a shape check only, uniform across express and fact.",
+                "## Yoke itself",
+                "Express touchmark wins; absent → the resolver reads the chained reliquary touchmark; then assert kind=reliquary via the decoder.",
+                "This closes a live gap: yoke today never typechecks its express touchmark and fails late at GAR cohort validation.",
+                "Relax spec RBSDY from hard-require to optional-with-fallback alongside the code.",
                 "",
                 "## Cinched",
                 "Express identifier always overrides the fact; the fact is the no-arg fallback only.",
-                "Destructive verbs (abjure, banish) never chain.",
-                "Kind discrimination is by touchmark kind-prefix matched as a prefix, never by char[0].",
-                "All bash written or touched in this pace holds BCG discipline — kindle/sentinel shape, prefix rules, no inline shellcheck suppressions without cause — and lands shellcheck-clean via rbw-tl.",
+                "The resolver and decoder are shared hearting parameterized per verb — never a parent verb, never spanning bondstones.",
+                "Kind discrimination is by touchmark kind-prefix, matched as a prefix, never char[0].",
                 "",
                 "## Done when",
-                "Each of the five verbs resolves its identifier from express-or-chain and typechecks the resolved value at one site; destructive verbs remain required-param.",
-                "A no-arg call with no valid prior dispatch refuses cleanly, and an express call behaves exactly as today.",
-                "Kind discrimination lives in one shared touchmark-kind validator.",
-                "rbw-tl is clean and the fast suite is green."
+                "The resolver and touchmark-kind decoder exist as reusable helpers with the contracts above.",
+                "Yoke resolves express-or-chain, asserts reliquary, and refuses a non-reliquary or broken chain cleanly; an express call behaves as today.",
+                "buf_read_fact satisfies BCG line 566 (suffix or documented exception).",
+                "RBSDY reflects optional-with-fallback.",
+                "rbw-tl clean and the fast suite green."
               ],
               "jjgtn_silks": "yoke-touchmark-fact-fallback",
-              "jjgtn_basis": "b7a2207"
+              "jjgtn_basis": "c8dd2c9"
             }
           ]
         },
@@ -17574,6 +17573,128 @@
               ],
               "jjgtn_silks": "buk-colophon-projection-division",
               "jjgtn_basis": "545de03"
+            }
+          ]
+        },
+        "₢BiAAM": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260622-1300",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Augur gains the express-or-chain fallback for its lode touchmark — the second consumer of the shared footings.",
+                "",
+                "## Character",
+                "Thin adopter of the shared footings; mechanical.",
+                "Also tightens augur's existing shape-only check into a real kind assertion.",
+                "",
+                "## Shape",
+                "Express touchmark wins; absent → the shared resolver reads the chained touchmark of any Lode kind; augur accepts any known kind via the shared decoder.",
+                "Augur today shape-validates the touchmark with a regex but never asserts a known kind — replace that with the decoder's known-kind assertion.",
+                "The footings are introduced earlier in this heat; reuse them, do not reimplement.",
+                "",
+                "## Cinched",
+                "Reuses the shared resolver and touchmark-kind decoder — no second implementation.",
+                "Accepts any known Lode kind, unlike yoke's reliquary-only.",
+                "",
+                "## Done when",
+                "A no-arg augur after any capture inspects the just-captured Lode; an express touchmark behaves as today; an unknown-kind or broken chain refuses cleanly.",
+                "rbw-tl clean and the fast suite green."
+              ],
+              "jjgtn_silks": "augur-chaining-fact-fallback",
+              "jjgtn_basis": "c8dd2c9"
+            }
+          ]
+        },
+        "₢BiAAN": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260622-1300",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Summon, plumb, and rekon each gain the express-or-chain fallback for their hallmark, reusing the shared resolver.",
+                "",
+                "## Character",
+                "Thin, near-identical adopter applied to three hallmark verbs; mechanical.",
+                "Bundled because the edit is the same across them — they remain three distinct toothings, not a family.",
+                "",
+                "## Shape",
+                "Each verb: express hallmark wins; absent → the shared resolver reads the chained hallmark fact written by the prior build (ordain or kludge).",
+                "Hallmarks carry no sub-kind these verbs discriminate, so the typecheck is a shape check only — no kind decode; keep it minimal, shared only if a hallmark-shape predicate earns it.",
+                "The footings are introduced earlier in this heat; reuse the resolver, do not reimplement per verb.",
+                "",
+                "## Cinched",
+                "Three distinct verbs, one shared resolver, no parent.",
+                "Hallmark needs shape-validation only, never kind discrimination.",
+                "",
+                "## Done when",
+                "A no-arg summon, plumb, or rekon after a build acts on the just-built hallmark; an express hallmark behaves as today; a broken chain refuses cleanly.",
+                "rbw-tl clean and the fast suite green."
+              ],
+              "jjgtn_silks": "hallmark-verbs-chaining-fact-fallback",
+              "jjgtn_basis": "c8dd2c9"
+            }
+          ]
+        },
+        "₢BiAAO": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260622-1300",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Vouch's already-optional conjure build-id falls back to the chained build-id fact when omitted.",
+                "",
+                "## Character",
+                "Smallest adopter — the parameter is already optional, so this is a pure fallback wire-up with no signature change.",
+                "Mechanical.",
+                "",
+                "## Shape",
+                "When the conjure build-id argument is omitted, read the build-id fact via the shared resolver, written by the prior conjure; an explicit argument behaves exactly as today.",
+                "Confirm the build-id fact is emitted by the conjure path vouch targets (rbfd_director writes it).",
+                "The footing is introduced earlier in this heat.",
+                "",
+                "## Cinched",
+                "The build-id stays optional; the fact is the omitted-argument fallback only.",
+                "Reuses the shared resolver.",
+                "",
+                "## Done when",
+                "A vouch immediately after a conjure resolves the build-id from the chain when omitted; an explicit build-id behaves as today.",
+                "rbw-tl clean and the fast suite green."
+              ],
+              "jjgtn_silks": "vouch-build-id-chaining-fallback",
+              "jjgtn_basis": "c8dd2c9"
+            }
+          ]
+        },
+        "₢BiAAP": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260622-1300",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Retrofit the two pre-existing hand-rolled fact consumers — anoint and ordain's base-anchor election — onto the shared footings, retiring the divergent implementations.",
+                "",
+                "## Character",
+                "Drift-killing cleanup; mechanical, with care on the security-relevant base-anchor path.",
+                "The footings exist precisely so there is one implementation — this folds the two that predate them.",
+                "",
+                "## Shape",
+                "anoint reads three build facts, and ordain's base-anchor election reads the lode brand plus touchmark, each with its own hand-rolled buf_read_fact and buc_die phrasing.",
+                "Route both through the shared resolver, and switch the base-anchor's kind discrimination to the shared touchmark-kind decoder where it applies.",
+                "Discovery: grep buf_read_fact across Tools/rbk/.",
+                "",
+                "## Cinched",
+                "After this pace, every fact consumer routes through the shared resolver; no hand-rolled buf_read_fact + buc_die dance remains outside the footing (the BUK self-test fact case excepted).",
+                "Behavior is unchanged — this is a refactor onto the footings, not a contract change.",
+                "",
+                "## Done when",
+                "anoint and the base-anchor election use the shared resolver, and the decoder where applicable.",
+                "A grep for hand-rolled buf_read_fact dances returns only the footing and the tests.",
+                "The ordain conjure/bind/graft paths and anoint behave identically, verified by the relevant fixtures.",
+                "rbw-tl clean; the fast suite green, plus a build-exercising tier for the base-anchor path."
+              ],
+              "jjgtn_silks": "chaining-fact-footing-convergence",
+              "jjgtn_basis": "c8dd2c9"
             }
           ]
         }
