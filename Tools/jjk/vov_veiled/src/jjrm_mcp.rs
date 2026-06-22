@@ -841,9 +841,10 @@ fn zjjrm_resolve_session_uuid(cwd: &Path) -> Result<String, String> {
 
 /// iTerm window-reference scheme — the typed namespace under which an emblem
 /// keys to its window. The reference is always scheme-qualified
-/// (`iterm-session/<uuid>`); the bare UUID is never the key, so the namespace
-/// generalizes to other window types (Terminal.app, Windows Terminal, ...) by
-/// adding a sibling scheme rather than overloading this one.
+/// (`iterm-session/<window-id>`, the value being the iTerm window's CGWindowID
+/// — the same integer paneboard enumerates, so paneboard reads the emblem by
+/// it). The namespace generalizes to other window types (Terminal.app, Windows
+/// Terminal, ...) by adding a sibling scheme rather than overloading this one.
 pub const JJRM_ITERM_SCHEME: &str = "iterm-session";
 
 /// Emblem root tail, relative to `$HOME`: the paneboard-owned per-user
@@ -855,35 +856,104 @@ pub const JJRM_ITERM_SCHEME: &str = "iterm-session";
 /// deliberate mirror, not a second source.
 pub const JJRM_EMBLEM_ROOT_TAIL: &str = ".config/paneboard/emblems";
 
-/// Parse an `ITERM_SESSION_ID` value into a scheme-qualified window reference.
+/// Extract the bare session UUID from an `ITERM_SESSION_ID` value.
 ///
-/// iTerm sets the variable as `<wNtNpN-position-prefix>:<UUID>`. We key on the
-/// UUID after the colon and DISCARD the position prefix: the prefix restamps
-/// when a tab is dragged into another window, so it is stale as a durable
-/// window handle, while the UUID rides with the session for its life.
+/// iTerm sets the variable as `<wNtNpN-position-prefix>:<UUID>`. We take the
+/// UUID after the colon and discard the position prefix (it restamps on
+/// tab-drag, and the index it carries is not the CGWindowID anyway). The UUID
+/// is NOT the emblem key — it is the *question* vvx puts to iTerm to learn its
+/// window id (`zjjrm_resolve_iterm_window_id`); the resolved window id is the
+/// key, because that is the handle the sandboxed reader (paneboard) holds.
 ///
 /// Pure (no env access) so the parse is unit-testable; `jjrm_iterm_window_ref`
 /// wraps it with the environment read. Returns `None` on a value with no colon
 /// or an empty UUID — fail-soft, treated as "not a usable iTerm session".
-fn zjjrm_parse_iterm_session(raw: &str) -> Option<String> {
+fn zjjrm_parse_iterm_uuid(raw: &str) -> Option<String> {
     let (_position_prefix, uuid) = raw.split_once(':')?;
     if uuid.is_empty() {
         return None;
     }
-    Some(format!("{}/{}", JJRM_ITERM_SCHEME, uuid))
+    Some(uuid.to_string())
 }
 
-/// Derive this process's scheme-qualified iTerm window reference from its own
-/// environment (`ITERM_SESSION_ID`). Returns `iterm-session/<uuid>`.
+/// A session UUID is hex digits and hyphens only. Guard before interpolating it
+/// into the AppleScript text so a hostile `ITERM_SESSION_ID` cannot break out of
+/// the quoted string; anything else folds to "not resolvable" (fail-soft).
+fn zjjrm_is_plausible_uuid(s: &str) -> bool {
+    !s.is_empty() && s.chars().all(|c| c.is_ascii_hexdigit() || c == '-')
+}
+
+/// Build the AppleScript that maps a session UUID to its containing window's id.
+/// Pure (returns the script text) so the incantation is unit-testable without
+/// spawning `osascript`. iTerm's AppleScript window id IS the CGWindowID
+/// paneboard enumerates (confirmed by the grooming spike, 2026-06-22), so the
+/// integer this resolves is exactly the key paneboard reads the emblem by.
+fn zjjrm_iterm_resolve_script(session_uuid: &str) -> String {
+    format!(
+        "tell application \"iTerm2\"\n\
+         repeat with w in windows\n\
+         repeat with t in tabs of w\n\
+         repeat with s in sessions of t\n\
+         if (id of s) is \"{session_uuid}\" then return (id of w)\n\
+         end repeat\n\
+         end repeat\n\
+         end repeat\n\
+         end tell"
+    )
+}
+
+/// Resolve, and cache, this process's iTerm window id by asking iTerm over
+/// AppleScript. vvx is a non-sandboxed iTerm descendant, so this self-scripts
+/// with no prompt — which is the whole reason the resolver lives here on the
+/// writer and not in paneboard, whose sandbox forbids AppleEvents (paddock
+/// "Resolver", JSS0 `jjdxw_marque`).
 ///
-/// Fail-soft: an unset `ITERM_SESSION_ID` means this process is not running
-/// under iTerm, so the caller writes no emblem and skips silently; a malformed
-/// value folds into the same `None`. Sibling to `zjjrm_resolve_session_uuid`
-/// (the Claude Code session reader); the env-read/parse/fallback idiom follows
-/// `jjrc_core`.
+/// vvx is a long-running MCP server and a Claude Code session lives in one
+/// window for its life, so the UUID->window-id map is stable: resolve once and
+/// reuse, keeping the `osascript` round-trip off the per-command path. Only a
+/// *success* is cached, so a transient failure retries on the next engagement.
+/// Fail-soft: an implausible UUID or any `osascript` failure yields `None`.
+fn zjjrm_resolve_iterm_window_id(session_uuid: &str) -> Option<u32> {
+    static WINDOW_ID: std::sync::OnceLock<u32> = std::sync::OnceLock::new();
+    if let Some(v) = WINDOW_ID.get() {
+        return Some(*v);
+    }
+    if !zjjrm_is_plausible_uuid(session_uuid) {
+        return None;
+    }
+    let out = std::process::Command::new("osascript")
+        .arg("-e")
+        .arg(zjjrm_iterm_resolve_script(session_uuid))
+        .output()
+        .ok()?;
+    if !out.status.success() {
+        return None;
+    }
+    let wid = String::from_utf8(out.stdout)
+        .ok()?
+        .trim()
+        .parse::<u32>()
+        .ok()?;
+    let _ = WINDOW_ID.set(wid);
+    Some(wid)
+}
+
+/// Derive this process's scheme-qualified iTerm window reference:
+/// `iterm-session/<window-id>`, the value being the iTerm window's CGWindowID.
+/// That is the handle paneboard enumerates, so it reads the emblem by the same
+/// integer; the session UUID is used only transiently to ask iTerm and is never
+/// persisted (see `zjjrm_resolve_iterm_window_id`).
+///
+/// Fail-soft: an unset `ITERM_SESSION_ID` (not under iTerm), a malformed value,
+/// or an unresolvable window (osascript denied/failed) all fold to the same
+/// `None`, and the caller writes no emblem and skips silently. Sibling to
+/// `zjjrm_resolve_session_uuid` (the Claude Code session reader); the
+/// env-read/parse/fallback idiom follows `jjrc_core`.
 pub fn jjrm_iterm_window_ref() -> Option<String> {
     let raw = std::env::var("ITERM_SESSION_ID").ok()?;
-    zjjrm_parse_iterm_session(&raw)
+    let uuid = zjjrm_parse_iterm_uuid(&raw)?;
+    let window_id = zjjrm_resolve_iterm_window_id(&uuid)?;
+    Some(format!("{}/{}", JJRM_ITERM_SCHEME, window_id))
 }
 
 /// Resolve the emblem root directory this process writes emblems into:
@@ -919,9 +989,9 @@ const SADDLE_MARKER_FILE: &str = "saddle";
 
 /// Compose the per-window emblem file path from the emblem root and a
 /// scheme-qualified window reference. The reference carries its own `/`
-/// (`iterm-session/<uuid>`), so the join lands the file under the scheme
-/// subdirectory: `<root>/iterm-session/<uuid>.emblem`. One home for the path
-/// literal, shared by the writer and the `vvx_emblem_probe` diagnostic.
+/// (`iterm-session/<window-id>`), so the join lands the file under the scheme
+/// subdirectory: `<root>/iterm-session/<window-id>.emblem`. One home for the
+/// path literal, shared by the writer and the `vvx_emblem_probe` diagnostic.
 pub fn jjrm_emblem_path(root: &Path, window_ref: &str) -> PathBuf {
     root.join(format!("{}.{}", window_ref, JJRM_EMBLEM_SUFFIX))
 }
@@ -2174,25 +2244,46 @@ mod tests {
     }
 
     #[test]
-    fn parse_iterm_session_keys_on_uuid_and_discards_position_prefix() {
-        // Real iTerm shape: <wNtNpN>:<UUID>. The UUID is the key; w4t0p0 is
-        // discarded because it restamps on tab-drag.
+    fn parse_iterm_uuid_extracts_uuid_and_discards_position_prefix() {
+        // Real iTerm shape: <wNtNpN>:<UUID>. We take the UUID; w4t0p0 is
+        // discarded (it restamps on tab-drag). The UUID is the question vvx puts
+        // to iTerm, not the emblem key — the resolved window id is the key.
         assert_eq!(
-            zjjrm_parse_iterm_session("w4t0p0:AA97D5ED-F633-4513-95B2-2A930EBB7365"),
-            Some("iterm-session/AA97D5ED-F633-4513-95B2-2A930EBB7365".to_string())
+            zjjrm_parse_iterm_uuid("w4t0p0:AA97D5ED-F633-4513-95B2-2A930EBB7365"),
+            Some("AA97D5ED-F633-4513-95B2-2A930EBB7365".to_string())
         );
-        // A different position prefix, same UUID, must yield the same key.
+        // A different position prefix, same UUID, must yield the same UUID.
         assert_eq!(
-            zjjrm_parse_iterm_session("w0t9p3:AA97D5ED-F633-4513-95B2-2A930EBB7365"),
-            zjjrm_parse_iterm_session("w4t0p0:AA97D5ED-F633-4513-95B2-2A930EBB7365")
+            zjjrm_parse_iterm_uuid("w0t9p3:AA97D5ED-F633-4513-95B2-2A930EBB7365"),
+            zjjrm_parse_iterm_uuid("w4t0p0:AA97D5ED-F633-4513-95B2-2A930EBB7365")
         );
     }
 
     #[test]
-    fn parse_iterm_session_fails_soft_on_malformed() {
-        assert_eq!(zjjrm_parse_iterm_session("no-colon-here"), None);
-        assert_eq!(zjjrm_parse_iterm_session("w4t0p0:"), None);
-        assert_eq!(zjjrm_parse_iterm_session(""), None);
+    fn parse_iterm_uuid_fails_soft_on_malformed() {
+        assert_eq!(zjjrm_parse_iterm_uuid("no-colon-here"), None);
+        assert_eq!(zjjrm_parse_iterm_uuid("w4t0p0:"), None);
+        assert_eq!(zjjrm_parse_iterm_uuid(""), None);
+    }
+
+    #[test]
+    fn plausible_uuid_guards_applescript_interpolation() {
+        // Real iTerm session UUID: hex digits and hyphens — accepted.
+        assert!(zjjrm_is_plausible_uuid("AA97D5ED-F633-4513-95B2-2A930EBB7365"));
+        // Empty, or anything that could break out of the quoted AppleScript
+        // string (quote, space, paren, backslash), is rejected.
+        assert!(!zjjrm_is_plausible_uuid(""));
+        assert!(!zjjrm_is_plausible_uuid("AA\" & (do shell script \"x\")"));
+        assert!(!zjjrm_is_plausible_uuid("has space"));
+    }
+
+    #[test]
+    fn iterm_resolve_script_embeds_uuid_and_returns_window_id() {
+        let script = zjjrm_iterm_resolve_script("AA97D5ED-F633-4513-95B2-2A930EBB7365");
+        // The UUID is the match target, and the script returns the window id.
+        assert!(script.contains("is \"AA97D5ED-F633-4513-95B2-2A930EBB7365\""));
+        assert!(script.contains("return (id of w)"));
+        assert!(script.contains("tell application \"iTerm2\""));
     }
 
     #[test]
@@ -2252,7 +2343,7 @@ mod tests {
             bottom: jjrm_RegionStyle::default(),
         };
         let out = zjjrm_compose_emblem(
-            "iterm-session/AA97D5ED-F633-4513-95B2-2A930EBB7365",
+            "iterm-session/121",
             "₣Bh",
             "rbm_beta_recipemuster",
             "/Users/x/projects/rbm_beta_recipemuster",
@@ -2260,7 +2351,7 @@ mod tests {
         );
         let expected = "\
 # pbge_emblem
-## pbge_pane iterm-session/AA97D5ED-F633-4513-95B2-2A930EBB7365
+## pbge_pane iterm-session/121
 ### pbge_region {pbge_location=pbge_top, pbge_color=#ffffff, pbge_size=14}
 ₣Bh
 ### pbge_region {pbge_location=pbge_middle}
