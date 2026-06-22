@@ -183,7 +183,7 @@
 :vosk_burc_prerequisite: <<vosk_burc_prerequisite,BURC Prerequisite>>
 :vosk_default_routing:   <<vosk_default_routing,Default Routing>>
 
-// Matricula vocabulary (transient inscription census; method prose in VMS-VoxMatriculaSpec.adoc)
+// Matricula vocabulary (transient inscription census; method prose in VOSMM-entity.adoc)
 :vosmm_matricula:       <<vosmm_matricula,Matricula>>
 :vosmm_matricula_s:     <<vosmm_matricula,Matriculae>>
 :vosmm_matricula_p:     <<vosmm_matricula,Matricula's>>
@@ -204,7 +204,7 @@
 
 The Vox Obscura Specification is the cosmology top for the Vox Obscura naming system — the `vo` cipher as a whole.
 It centralizes the Liturgy vocabulary (Cipher, Signet, Epithet, Inscription, Vesture and the domain vestures), then hosts its branches as `include::` subdocs that purely consume that centralized vocabulary, following the RBS0/JJS0/BUS0 SpecTop precedent.
-Its branches are the Obscura distribution machinery (release, install, uninstall, freshen — see VOSO-distribution.adoc), the commit/lock routine family (the VOSR* subdocs), and the Matricula transient inscription census (VMS-VoxMatriculaSpec.adoc).
+Its branches are the Obscura distribution machinery (release, install, uninstall, freshen — see VOSO-distribution.adoc), the commit/lock routine family (the VOSR* subdocs), and the Matricula transient inscription census (VOSMM-entity.adoc).
 
 The remainder of this document defines the centralized vocabulary; the branches consume it.
 
@@ -1520,7 +1520,7 @@ must be a const registered in the cipher registry.
 == Matricula
 
 The Matricula branch is the transient inscription census over the naming system.
-Its vocabulary is defined here at the cosmology top; its method, decomposition, invariants, and scan mechanics live in the consuming subdoc VMS-VoxMatriculaSpec.adoc, included below.
+Its vocabulary is defined here at the cosmology top; its method, decomposition, invariants, and scan mechanics live in the consuming subdoc VOSMM-entity.adoc, included below.
 
 [[vosmm_matricula]]
 //axve_entity axd_petrify
@@ -1597,5 +1597,5 @@ Per VOr_m7w, a
 {vosmp_presentment}
 over a fallible gate (sprue, rivet) is advisory, not an assertion.
 
-include::VMS-VoxMatriculaSpec.adoc[leveloffset=+1]
+include::VOSMM-entity.adoc[leveloffset=+1]
 

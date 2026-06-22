@@ -1,4 +1,4 @@
-// VMS-VoxMatriculaSpec — Vox Matricula method subdoc.
+// VOSMM-entity — Vox Matricula entity subdoc.
 //
 // This is a pure-consumer subdoc of VOS0-VoxObscuraSpec.adoc (the Vox Obscura cosmology
 // SpecTop), include::'d under its == Matricula branch. It defines NO quoins: the
@@ -221,7 +221,7 @@ Tier 0 — Grammar (maintained, frozen at load): the
 {voslc_cipher}
 registry (VOF, exists), the
 {voslv_vesture}
-set (VLS, exists), and the file-selection allowlist (new — an explicit allowlist in a distinct file, `.md`/`.adoc`/`.rs`/`.sh` at minimum, recursive, narrowed by a git-tracked-only gate and the cipher/veiled gate).
+set (the Liturgy, exists), and the file-selection allowlist (new — an explicit allowlist in a distinct file, `.md`/`.adoc`/`.rs`/`.sh` at minimum, recursive, narrowed by a git-tracked-only gate and the cipher/veiled gate).
 
 Tier 1 — Raising the census (mutable Builder): walk -> tokenize -> classify-by-subtraction -> seat each
 {vosli_inscription}
@@ -247,7 +247,7 @@ The parts are mostly allocation, not new minting.
 {voslc_cipher},
 and
 {vosle_epithet}
-are existing VLS quoins, reused by reference.
+are existing Liturgy quoins, reused by reference.
 Only three quoins are new vo work:
 {vosme_estray},
 {vosmp_presentment},
