@@ -16682,9 +16682,10 @@
       "jjghn_order": [
         "₢BgAAA",
         "₢BgAAB",
-        "₢BgAAC"
+        "₢BgAAC",
+        "₢BgAAD"
       ],
-      "jjghn_next_pace_seed": "AAD",
+      "jjghn_next_pace_seed": "AAE",
       "jjghn_paces": {
         "₢BgAAA": {
           "jjgpn_tacks": [
@@ -16777,6 +16778,35 @@
               ],
               "jjgtn_silks": "vo-cipher-gestalt-decision",
               "jjgtn_basis": "131d917"
+            }
+          ]
+        },
+        "₢BgAAD": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260622-0616",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "",
+                "Intricate spec surgery requiring judgment, not mechanical.",
+                "Touches dense quoined specs (VOS0, VLS) under sub-letter discipline and terminal exclusivity, with no Matricula yet to mechanically catch a collision introduced by the mass rename — eyeball care required.",
+                "",
+                "## Done when",
+                "",
+                "VOS0 is the Vox cosmology SpecTop on the RBS0/JJS0/BUS0 `0`-top + `include::` pattern:",
+                "all Liturgy quoins centralized in its mapping section and definition sites (VLS-the-file dissolved into it);",
+                "\"Obscura\" demoted from claiming the whole to one branch or retired;",
+                "the commit/lock (VOSR*) family and the Matricula spec re-homed as `include::` subdocs that purely consume the centralized quoins;",
+                "Matricula-specific quoins (Residue, Finding, the freeze verb) defined at the top.",
+                "",
+                "## Cinched",
+                "",
+                "The gestalt direction is fixed in the ₣Bg paddock Cinched section — read it first; do not re-litigate.",
+                "Use RBS0-SpecTop.adoc as the structural exemplar (its subdocs define zero quoins — purely consume)."
+              ],
+              "jjgtn_silks": "vox-cosmology-regestalt-consolidation",
+              "jjgtn_basis": "1361bac"
             }
           ]
         }
