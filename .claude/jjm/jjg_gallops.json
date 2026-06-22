@@ -1,5 +1,5 @@
 {
-  "jjgrn_next_heat_seed": "Bl",
+  "jjgrn_next_heat_seed": "Bm",
   "jjgrn_heat_order": [
     "₣Bf",
     "₣Bg",
@@ -34,7 +34,8 @@
     "₣BL",
     "₣Ba",
     "₣Bh",
-    "₣Bi"
+    "₣Bi",
+    "₣Bl"
   ],
   "jjgrn_heats": {
     "₣A-": {
@@ -17743,6 +17744,14 @@
     "₣Bk": {
       "jjghn_silks": "jjk-v4-3-standalone-state-repo",
       "jjghn_creation_time": "260620",
+      "jjghn_status": "jjghe_stabled",
+      "jjghn_order": [],
+      "jjghn_next_pace_seed": "AAA",
+      "jjghn_paces": {}
+    },
+    "₣Bl": {
+      "jjghn_silks": "rbk-15-theurge-cosmology-spec",
+      "jjghn_creation_time": "260622",
       "jjghn_status": "jjghe_stabled",
       "jjghn_order": [],
       "jjghn_next_pace_seed": "AAA",
