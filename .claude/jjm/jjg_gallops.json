@@ -16795,8 +16795,8 @@
         "₢BhAAA": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260622-0554",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260622-0736",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "The go/no-go spike for the whole emblem overlay:",
                 "prove paneboard can resolve a live on-screen window to its iTerm session UUID via iTerm's own scripting API, under the Accessibility grant paneboard already holds — not Automation, which the operator declined for System Events.",
@@ -16814,7 +16814,7 @@
                 "- The fork is recorded as heat shape: resolver works -> emblems on list + box as designed; resolver fails -> emblems on the enriched list only, never the box, and the writer, render, and spec paces narrow accordingly."
               ],
               "jjgtn_silks": "pb-guid-window-probe",
-              "jjgtn_basis": "a4a4231"
+              "jjgtn_basis": "119dc2a"
             }
           ]
         },
