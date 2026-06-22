@@ -45,7 +45,7 @@ One dependency note for evaluators: [Recipe Bottle's](#RecipeBottle) regression 
 
 <a id="Regime"></a>All configuration flows through [Regimes](#Regime) — structured `.env` files with typed validation, each with its own render and validate commands.
 Some regimes are committed in the repo: [Vessel](#Vessel) definitions ([RBRV](#RBRV)), [Nameplate](#Nameplate) configurations ([RBRN](#RBRN)), [Depot](#Depot) identity ([RBRD](#RBRD)), repository-wide settings ([RBRR](#RBRR)), and [Payor](#Payor) identity ([RBRP](#RBRP)).
-Others live on the filesystem outside revision control: OAuth credentials ([RBRO](#RBRO)), role credentials ([RBRA](#RBRA)), and developer workstation paths ([BURS](#BURS)).
+Others live on the filesystem outside revision control: [Payor](#Payor) OAuth credentials ([RBRO](#RBRO)) and developer workstation paths ([BURS](#BURS)).
 
 <a id="Tabtarget"></a>Every operation is launched through a [Tabtarget](#Tabtarget) — a shell script in the `tt/` directory.
 The critical property: tab completion finds the command you want.
@@ -98,18 +98,19 @@ See [Build Isolation](#BuildIsolation) for the security rationale behind these p
 The [Payor's](#Payor) administrative seat — holds the billing account, OAuth client, and operator identity.
 [Depot](#Depot) projects are created and funded under the [Manor's](#Manor) authority.
 The [Manor](#Manor) has its own GCP project, distinct from any [Depot](#Depot) project.
+From the [Manor](#Manor) the [Payor](#Payor) [Affiances](#Affiance) an external identity provider — seating the organization-level workforce pool that every [Depot's](#Depot) federated sign-in trusts — and the [Manor](#Manor) homes the [Terrier](#Terrier) that records which [Citizens](#Citizen) hold which [Mantles](#Mantle).
 
 ### <a id="Payor"></a>Payor
 
 [Establishes](#Establish) a [Manor](#Manor) and funds [Depot](#Depot) projects through it; authenticates via OAuth.
 The [Payor](#Payor) is the only role requiring manual Google Cloud Console interaction — [Establishing](#Establish) the [Manor](#Manor), configuring OAuth, and [Installing](#Install) credentials via browser flow.
-All other roles descend from credentials the [Payor's](#Payor) infrastructure creates.
+All other roles are [Mantles](#Mantle) worn by federated [Citizens](#Citizen): the [Payor](#Payor) founds the identity trust they sign in against and [Girds](#Gird) the first [Governor](#Governor).
 
 ### <a id="Governor"></a>Governor
 
-Administers a [Depot](#Depot): creates service accounts, manages access.
-The [Governor](#Governor) is [Mantled](#Mantle) by the [Payor](#Payor) and holds the administrative credential for the [Depot](#Depot).
-The [Governor](#Governor) [Invests](#Invest) [Directors](#Director) and [Retrievers](#Retriever) with credentials, [Divests](#Divest) credentials no longer needed, and [Rosters](#Roster) issued credentials.
+Administers a [Depot](#Depot): admits operators and manages access.
+The [Governor](#Governor) is a [Mantle](#Mantle) — a federated [Citizen](#Citizen) wears it, [Girded](#Gird) by the [Payor](#Payor) as the [Depot's](#Depot) founding act or [Brevetted](#Brevet) by a standing governor thereafter.
+The [Governor](#Governor) [Brevets](#Brevet) [Citizens](#Citizen) onto [Director](#Director) and [Retriever](#Retriever) [Mantles](#Mantle), [Unseats](#Unseat) a [Mantle](#Mantle) no longer needed, [Attaints](#Attaint) a [Citizen](#Citizen) entirely, and [Rehearses](#Rehearse) the [Terrier](#Terrier) roster.
 
 ### <a id="Director"></a>Director
 
@@ -153,29 +154,54 @@ The shared `-mark` ending signals the kinship: a [Hallmark](#Hallmark) names wha
 
 | Role | Authenticates via | Purpose |
 |------|-------------------|---------|
-| [**Payor**](#Payor) | OAuth (browser flow) | Creates/funds GCP infrastructure, manages [Governor](#Governor) lifecycle |
-| [**Governor**](#Governor) | Service account credential | Administers [Director](#Director) and [Retriever](#Retriever) credentials within a [Depot](#Depot) |
-| [**Director**](#Director) | Service account credential | Submits builds, manages images, verifies [provenance](#Provenance) |
-| [**Retriever**](#Retriever) | Service account credential | Pulls images for local use |
+| [**Payor**](#Payor) | OAuth (browser flow) | Creates/funds GCP infrastructure, founds the [Manor](#Manor), [Girds](#Gird) the first [Governor](#Governor) |
+| [**Governor**](#Governor) | Federated sign-in → [Governor](#Governor) [Mantle](#Mantle) | Admits [Citizens](#Citizen) to [Director](#Director) and [Retriever](#Retriever) mantles within a [Depot](#Depot) |
+| [**Director**](#Director) | Federated sign-in → [Director](#Director) [Mantle](#Mantle) | Submits builds, manages images, verifies [provenance](#Provenance) |
+| [**Retriever**](#Retriever) | Federated sign-in → [Retriever](#Retriever) [Mantle](#Mantle) | Pulls images for local use |
 
-The [Payor](#Payor) stands apart — it requires manual Google Cloud Console work and OAuth authentication.
-All downstream roles authenticate via credential files, enabling full automation.
-Every role's credential is an on-disk service-account key, and **no GCP organization is required** — which makes this tier ideal for evaluating [Recipe Bottle](#RecipeBottle) and for running it at small-team scale. The tradeoff is honest: that key is long-lived, does not expire on its own, and stays valid until a human revokes it by hand (deleting the account) — there is no central or automatic revocation. That posture is unlikely to clear a corporate security bar in the long run — which is why admitting operators through a full external identity provider (short-lived sign-in, central revocation, no static key on disk) is the planned [Operator Federation](#OperatorFederation) tier.
+The [Payor](#Payor) stands apart — it authenticates with its own OAuth refresh token, the system's sole durable secret.
+Every other role is a [Mantle](#Mantle): a standing office — governor, director, retriever — realized as a Google service account whose authority is granted once, at [Levy](#Levy), and frozen there.
+No role keeps a credential file on disk.
+An operator [Compears](#Compear) — a fresh federated sign-in against the [Manor's](#Manor) identity provider, one device-flow click that opens a time-bounded [Assize](#Assize) — and then [Dons](#Don) the [Mantle](#Mantle) the work needs.
+A donned mantle mints a short-lived, self-expiring token; when the [Assize](#Assize) lapses the next mint fails loud and the operator simply compears again.
+**Zero service-account keys exist anywhere in the system.**
+
+This model **requires a GCP organization and an external OIDC identity provider** — the founding cost of corporate-acceptable identity, and the one prerequisite federation does not waive.
+A qualifying organization is free via Google Cloud Identity once you verify ownership of a **DNS domain**, and a conformant IdP tenant (Microsoft Entra, Keycloak, Okta, …) provisions in minutes — so the real prerequisite is controlling a domain, not paying Google.
+That one-time founding hour buys short-lived sign-in, central revocation at the identity provider, and no static secret at rest.
+
+Critical sequences, rendered from committed PlantUML source through the [pluml](#pluml) [Crucible](#Crucible) — each diagram tracks your light/dark color scheme (click any to expand):
+
+  <details>
+  <summary><strong>Operator login</strong> — two-leg device-flow + STS exchange</summary>
+  <picture><source media="(prefers-color-scheme: dark)" srcset="diagrams/rbdgl_federation-login-dark.svg"><img alt="Operator login — two-leg device-flow + STS exchange" src="diagrams/rbdgl_federation-login.svg"></picture>
+  </details>
+
+  <details>
+  <summary><strong>Federation setup</strong> — Payor-side workforce pool + provider</summary>
+  <picture><source media="(prefers-color-scheme: dark)" srcset="diagrams/rbdgs_federation-setup-dark.svg"><img alt="Federation setup — Payor-side workforce pool + provider" src="diagrams/rbdgs_federation-setup.svg"></picture>
+  </details>
+
+  <details>
+  <summary><strong>The single code seam</strong> — one accessor, every call site model-blind</summary>
+  <picture><source media="(prefers-color-scheme: dark)" srcset="diagrams/rbdgm_federation-seam-dark.svg"><img alt="The single code seam — one accessor, every call site model-blind" src="diagrams/rbdgm_federation-seam.svg"></picture>
+  </details>
 
 #### Establishment and Provisioning
 
 The [Payor](#Payor) begins by [Establishing](#Establish) a GCP project and configuring an OAuth consent screen through the Google Cloud Console.
 After downloading the OAuth client credentials, the [Payor](#Payor) [Installs](#Install) them via a browser authorization flow — the resulting refresh token is stored locally with restrictive permissions and does not need to be repeated.
 
-With [Payor](#Payor) credentials in place, the [Payor](#Payor) [Levies](#Levy) a [Depot](#Depot), provisioning it with build infrastructure, artifact registry, and secrets storage.
-The [Payor](#Payor) then [Mantles](#Mantle) a [Governor](#Governor) service account to administer the [Depot](#Depot).
+With [Payor](#Payor) credentials in place, the [Payor](#Payor) [Affiances](#Affiance) the [Manor](#Manor) to its external identity provider, then [Levies](#Levy) a [Depot](#Depot) — provisioning its build infrastructure, artifact registry, and secrets storage, and raising the three [Mantle](#Mantle) service accounts (governor, director, retriever) with their resource authority granted and frozen in the same ceremony.
+The [Payor's](#Payor) last founding act is to [Gird](#Gird) the first [Governor](#Governor) — seating a federated [Citizen](#Citizen) in the governor mantle, the one admission made outside governor wielding.
 
 Before the first build can run, the [Depot](#Depot) needs its supply-chain infrastructure in place: upstream base images and the cohort of builder tool images must be [Captured](#Capture) into the registry as [Lodes](#Lode).
 
-#### Credential Distribution
+#### Admission and Access
 
-The [Governor](#Governor) [Invests](#Invest) downstream credentials: a [Director](#Director) for build operations and a [Retriever](#Retriever) for image pull access.
-Each credential is scoped to a single role within a single [Depot](#Depot).
+A standing [Governor](#Governor) populates the [Depot](#Depot): it [Brevets](#Brevet) a [Citizen](#Citizen) onto a [Director](#Director) mantle for build operations and onto a [Retriever](#Retriever) mantle for image pull access, [Unseating](#Unseat) a mantle when it is no longer needed.
+A brevet grants a federated principal the right to [Don](#Don) a mantle — no credential file is created or handed out; the grant is recorded as a [Muniment](#Muniment) in the [Manor's](#Manor) [Terrier](#Terrier).
+At runtime each operator [Compears](#Compear) once to open an [Assize](#Assize), then [Dons](#Don) whichever mantle the operation calls for.
 
 #### Build and Retrieve
 
@@ -245,7 +271,7 @@ Each pairs a [Sentry](#Sentry) with a [Bottle](#Bottle) [Vessel](#Vessel) and de
 
 <a id="ccyolo"></a>**[ccyolo](#ccyolo)** — Claude Code sandbox for network-contained AI development.
 The [ccyolo](#ccyolo) [Nameplate](#Nameplate) pairs the [Sentry](#Sentry) with a Claude Code [Bottle](#Bottle) under an Anthropic-only network allowlist — SSH entry from the workstation, OAuth authentication via copy/paste, everything else blocked.
-[Kludge](#Kludge)-only development target: no cloud account, no service account credentials, fully self-contained on the developer's workstation.
+[Kludge](#Kludge)-only development target: no cloud account, no [Manor](#Manor) or [Depot](#Depot) — fully self-contained on the developer's workstation.
 The onboarding handbook's first hands-on track teaches the full [Crucible](#Crucible) lifecycle using [ccyolo](#ccyolo).
 
 <a id="tadmor"></a>**[tadmor](#tadmor)** — Adversarial security testing [Nameplate](#Nameplate) for daily iteration.
@@ -311,22 +337,60 @@ Run when [Payor](#Payor) operations fail with authentication errors.
 <a id="Quota"></a>**[Quota](#Quota)** — Review Cloud Build capacity and usage.
 [Quota](#Quota) displays the current build minute allocation, consumption, and any throttling in effect for the [Depot's](#Depot) GCP project.
 
-### Credentials
+### Identity and Admission
 
-<a id="Mantle"></a>**[Mantle](#Mantle)** — Create or replace the [Governor](#Governor) service account for a [Depot](#Depot).
-[Mantling](#Mantle) is a [Payor](#Payor) operation that provisions the administrative credential — the [Governor](#Governor) inherits the [Payor's](#Payor) authority to manage the [Depot](#Depot) but authenticates via service account key rather than OAuth.
+Operators reach a [Depot](#Depot) by federated sign-in, not by credential files. The terms below name the standing roles, the per-session access acts, and the admission verbs that grant and withdraw them.
 
-<a id="Invest"></a>**[Invest](#Invest)** — Create a [Director](#Director) or [Retriever](#Retriever) service account.
-[Investing](#Invest) provisions a new credential scoped to a single role within a single [Depot](#Depot) and emits its credential file in one step.
-This is a [Governor](#Governor) operation; investing fails if the named credential already exists, so re-keying requires [Divesting](#Divest) first.
+<a id="Mantle"></a>**[Mantle](#Mantle)** — A standing administrative office — [Governor](#Governor), [Director](#Director), or [Retriever](#Retriever) — realized as a Google service account whose resource authority is granted once at [Levy](#Levy) and frozen there.
+A [Citizen](#Citizen) [Dons](#Don) one mantle at a time, and the mantle worn is that token's entire blast radius.
+A mantle is worn, never issued as a file — there is no key to leak.
 
-<a id="Divest"></a>**[Divest](#Divest)** — Revoke a [Director](#Director) or [Retriever](#Retriever) service account.
-[Divesting](#Divest) deletes the service account and removes the local credential file — the credential becomes permanently unusable.
-This is a [Governor](#Governor) operation used when a credential is compromised, no longer needed, or being rotated.
+<a id="Citizen"></a>**[Citizen](#Citizen)** — A federated operator within a [Depot](#Depot): a principal asserted by the [Manor's](#Manor) identity provider, never a per-user Google account.
+The [Citizen](#Citizen) is the grantable subject — the same identity is grantable in every [Depot](#Depot) under the [Manor](#Manor).
 
-<a id="Roster"></a>**[Roster](#Roster)** — Inventory [Director](#Director) or [Retriever](#Retriever) service accounts within a [Depot](#Depot).
-[Rostering](#Roster) shows credentials issued under each role with their creation dates and status.
-This is a [Governor](#Governor) operation; observation-only, no cloud mutation.
+<a id="Compear"></a>**[Compear](#Compear)** — Sign in for a session.
+Compearing is a fresh federated authentication against the [Manor's](#Manor) identity provider — one device-flow click — that opens an [Assize](#Assize).
+It is not a [Tabtarget](#Tabtarget): any cloud operation finding no live [Assize](#Assize) compears inline when run interactively, and fails loud when headless.
+
+<a id="Assize"></a>**[Assize](#Assize)** — The time-bounded session a [Compearance](#Compear) opens — the workforce-pool window (15 minutes to 12 hours) within which [Mantles](#Mantle) can be [Donned](#Don).
+No operation runs outside a live [Assize](#Assize); when one lapses the next token mint fails loud rather than reaching for a stored secret.
+
+<a id="Don"></a>**[Don](#Don)** — Assume a [Mantle](#Mantle).
+Having [Compeared](#Compear), an operator dons a named mantle to mint the short-lived service-account token that operation needs; exactly one mantle is worn per token.
+[Check Mantle Don](#CheckMantleDon) reports whether a given mantle can be donned, or surfaces the admission deficit.
+
+<a id="Affiance"></a>**[Affiance](#Affiance)** — Betroth the [Manor](#Manor) to an external identity provider — seat the organization-level workforce pool, its provider, and the attribute mapping that names trusted principals.
+A [Payor](#Payor) ceremony with founding gravity, run once per provider; it is the trust every federated sign-in depends on.
+
+<a id="Jilt"></a>**[Jilt](#Jilt)** — The inverse of [Affiance](#Affiance): dissolve the organization-level workforce pool, ending federated access for every [Depot](#Depot) under the [Manor](#Manor) at once.
+A [Payor](#Payor) ceremony, founding-rare and deliberately confirmed; the pool soft-deletes (recoverable within a purge window), and depot-scoped [Mantle](#Mantle) service accounts are left untouched.
+
+<a id="Gird"></a>**[Gird](#Gird)** — Seat the first [Governor](#Governor) of a freshly [Levied](#Levy) [Depot](#Depot).
+A fresh depot has [Mantle](#Mantle) service accounts but no admitted [Citizen](#Citizen), so no governor yet exists to admit one; girding is the [Payor's](#Payor) single founding admission, the one made outside governor wielding.
+Thereafter ordinary governor-wielded [Brevets](#Brevet) take over.
+
+<a id="Brevet"></a>**[Brevet](#Brevet)** — Admit a [Citizen](#Citizen) onto a [Mantle](#Mantle) in a [Depot](#Depot).
+The everyday admission act, wielded by a [Governor](#Governor): it records the grant as a [Muniment](#Muniment), then ensures the cloud binding that lets the principal [Don](#Don) that mantle.
+No credential file is created, and re-running a brevet is safe (idempotent).
+
+<a id="Unseat"></a>**[Unseat](#Unseat)** — Withdraw one [Mantle](#Mantle) from a [Citizen](#Citizen).
+A [Governor](#Governor) operation that removes the don binding but leaves the [Citizen's](#Citizen) standing in the [Depot](#Depot) intact — a [Citizen](#Citizen) unseated of every mantle is suspended, not erased, and cheap to re-[Brevet](#Brevet).
+
+<a id="Attaint"></a>**[Attaint](#Attaint)** — Expel a [Citizen](#Citizen) from a [Depot](#Depot) entirely.
+The maximal withdrawal, wielded by a [Governor](#Governor): it [Unseats](#Unseat) every mantle the [Citizen](#Citizen) holds and sweeps the depot-scoped grant that [Unseat](#Unseat) leaves behind.
+Removing the principal at the identity provider remains the IdP administrator's act.
+
+<a id="Rehearse"></a>**[Rehearse](#Rehearse)** — Recount the [Terrier](#Terrier).
+A read-only [Governor](#Governor) operation that lists every [Muniment](#Muniment) — which [Citizens](#Citizen) hold which [Mantles](#Mantle) — across the whole [Manor](#Manor), mutating nothing.
+
+<a id="Terrier"></a>**[Terrier](#Terrier)** — The [Manor's](#Manor) register of who holds what: one [Muniment](#Muniment) per ([Citizen](#Citizen), [Mantle](#Mantle)) pair, across every [Depot](#Depot).
+Read by [Rehearse](#Rehearse); written by [Brevet](#Brevet) and [Unseat](#Unseat).
+
+<a id="Muniment"></a>**[Muniment](#Muniment)** — One [Terrier](#Terrier) entry: the record that a given [Citizen](#Citizen) holds a given [Mantle](#Mantle) (the old sense — a deed kept as proof of a right).
+A muniment names a holding, not a secret; with no keys minted, there is nothing secret to store.
+
+<a id="Census"></a>**[Census](#Census)** — The identity provider regarded as the authoritative population of [Citizens](#Citizen) — who exists, as distinct from the [Terrier's](#Terrier) record of who holds what.
+A concept of the model rather than an operation: [Recipe Bottle](#RecipeBottle) never enumerates the [Census](#Census) itself; that roll lives in the IdP.
 
 ### Supply Chain
 
@@ -408,13 +472,16 @@ Used for cleanup of individual registry entries.
 <a id="ListDepots"></a>**[List Depots](#ListDepots)** — Inventory all active [Depots](#Depot) visible to the current [Payor](#Payor) credentials.
 Shows project IDs, regions, and provisioning status.
 
-<a id="JWTProbe"></a>**[JWT Probe](#JWTProbe)** — Test service account authentication.
-The [JWT Probe](#JWTProbe) verifies that a [Governor](#Governor), [Director](#Director), or [Retriever](#Retriever) credential can successfully authenticate to the [Depot's](#Depot) GCP project — useful for diagnosing access failures after credential creation or rotation.
+<a id="CheckFederatedAccess"></a>**[Check Federated Access](#CheckFederatedAccess)** — Open or reuse an [Assize](#Assize) and confirm the federated sign-in reaches Google.
+Runs the device-flow [Compearance](#Compear) and STS exchange against the [Manor's](#Manor) trust — the first thing to run when sign-in is failing.
+
+<a id="CheckMantleDon"></a>**[Check Mantle Don](#CheckMantleDon)** — [Don](#Don) a named [Mantle](#Mantle) as the current [Citizen](#Citizen).
+Confirms the [Citizen](#Citizen) can assume the [Governor](#Governor), [Director](#Director), or [Retriever](#Retriever) mantle in the [Depot](#Depot), or surfaces the admission deficit — useful for diagnosing access failures after a [Brevet](#Brevet).
 
 <a id="OAuthProbe"></a>**[OAuth Probe](#OAuthProbe)** — Test [Payor](#Payor) OAuth authentication.
 The [OAuth Probe](#OAuthProbe) verifies that the stored refresh token can obtain a valid access token — useful for diagnosing [Payor](#Payor) operation failures before attempting a full [Refresh](#Refresh).
 
-<a id="StaleDeleteRead"></a>**["Already Exists" After a Delete](#StaleDeleteRead)** — An operation that fails with "already exists" immediately after you [Divested](#Divest) or deleted the same-named resource is almost always GCP's [post-delete read flap](#EventualConsistency), not leftover local state.
+<a id="StaleDeleteRead"></a>**["Already Exists" After a Delete](#StaleDeleteRead)** — An operation that fails with "already exists" immediately after you deleted the same-named resource — a service account, a [Depot](#Depot) project — is almost always GCP's [post-delete read flap](#EventualConsistency), not leftover local state.
 Wait a few seconds and retry rather than hunting for a stale resource.
 
 ## Appendix: Crucible Operations
@@ -515,7 +582,7 @@ No framework mandates build-time network blocking by name, but egress-locked bui
 
 ## <a id="EventualConsistency"></a>Appendix: Eventual Consistency and the Missing Completion Contract
 
-[Recipe Bottle](#RecipeBottle) is built on cloud APIs, and cloud APIs are *eventually consistent*: when you mutate state — grant a role, delete a [service account](#Governor), link billing — the change does not take effect everywhere at once.
+[Recipe Bottle](#RecipeBottle) is built on cloud APIs, and cloud APIs are *eventually consistent*: when you mutate state — grant a role, delete a [service account](#Mantle), link billing — the change does not take effect everywhere at once.
 It propagates across replicas over seconds, occasionally minutes.
 For systems that are read on essentially every API call across the globe, choosing fast, always-available reads over instantly-consistent ones is a defensible engineering tradeoff, and we grant it without complaint.
 
@@ -534,7 +601,7 @@ The honest version of that scaffolding polls for an *observable terminal state*;
 The sharpest instance is service-account deletion.
 The delete returns an empty success with no operation handle, and the account is not actually removed — it is *soft-deleted*, recoverable for thirty days.
 So even the simplest question, "is it gone; can I reuse the name?", has no clean answer: a read of the just-deleted account flaps between "present" and "absent" across replicas while the tombstone propagates, and no API will tell you when the name is safe to reuse.
-[Recipe Bottle's](#RecipeBottle) [Divest](#Divest) path copes by treating the account as durably gone only after several consecutive "not found" reads — see the ["already exists" after a delete](#StaleDeleteRead) diagnostic for the symptom this produces.
+[Recipe Bottle](#RecipeBottle) copes by treating a deleted service account as durably gone only after several consecutive "not found" reads — see the ["already exists" after a delete](#StaleDeleteRead) diagnostic for the symptom this produces.
 
 Plainly: this is not a hard distributed-systems problem.
 It is a completion contract the vendors chose not to provide, dressed in distributed-systems vocabulary.
@@ -559,31 +626,6 @@ The tunnel adds defense-in-depth for PrivateLink-capable services; SaaS endpoint
 - <a id="BottleCredentialCustody"></a>**[Bottle Credential Custody](#BottleCredentialCustody)** - Move the service secrets a [Bottle](#Bottle) workload uses (cloud API keys, IAM keys, SSH keys) off the operator's workstation and into the [Bottle](#Bottle) itself, injected at [Charge](#Charge) time via [Nameplate](#Nameplate) [Regime](#Regime) configuration — never baked into the image.
 The workstation [Charges](#Charge) the [Crucible](#Crucible) but never holds the secret; its only credential becomes permission to charge, which blocks credential theft from a compromised workstation.
 Orthogonal to but paired with the [Crucible Conduit](#CrucibleConduit): the conduit gives the [Bottle](#Bottle) network reach to a cloud service while the [Sentry](#Sentry) holds the tunnel key, and this holds the service secret inside the [Bottle](#Bottle).
-
-- <a id="OperatorFederation"></a>**[Operator Federation](#OperatorFederation)** - The path to corporate-acceptable identity — admit operators through an external identity provider (OIDC/SAML) instead of long-lived service-account keys on disk, with identity proved by a fresh sign-in and capabilities granted to a federated principal, no secret at rest.
-This tier **requires a GCP organization**, which is the dividing line from today's keyfile model (which needs none): a qualifying organization is free via Google Cloud Identity once you verify ownership of a **DNS domain**, so the real prerequisite is controlling a domain, not paying Google.
-Revocation becomes central at the identity provider rather than a manual, per-key [Divest](#Divest).
-Critical sequences, rendered from committed PlantUML source through the [pluml](#pluml) [Crucible](#Crucible) — each diagram tracks your light/dark color scheme (click any to expand):
-
-  <details>
-  <summary><strong>Federation login</strong> — two-leg device-flow + STS exchange</summary>
-  <picture><source media="(prefers-color-scheme: dark)" srcset="diagrams/rbdgl_federation-login-dark.svg"><img alt="Federation login — two-leg device-flow + STS exchange" src="diagrams/rbdgl_federation-login.svg"></picture>
-  </details>
-
-  <details>
-  <summary><strong>Federation setup</strong> — Payor-side workforce pool + provider</summary>
-  <picture><source media="(prefers-color-scheme: dark)" srcset="diagrams/rbdgs_federation-setup-dark.svg"><img alt="Federation setup — Payor-side workforce pool + provider" src="diagrams/rbdgs_federation-setup.svg"></picture>
-  </details>
-
-  <details>
-  <summary><strong>Keyfile login</strong> — today's tier, for contrast</summary>
-  <picture><source media="(prefers-color-scheme: dark)" srcset="diagrams/rbdgk_keyfile-login-dark.svg"><img alt="Keyfile login — today's tier, for contrast" src="diagrams/rbdgk_keyfile-login.svg"></picture>
-  </details>
-
-  <details>
-  <summary><strong>The single code seam</strong> — one accessor, mode-enum branch, the structural payoff</summary>
-  <picture><source media="(prefers-color-scheme: dark)" srcset="diagrams/rbdgm_federation-seam-dark.svg"><img alt="The single code seam — one accessor, mode-enum branch" src="diagrams/rbdgm_federation-seam.svg"></picture>
-  </details>
 
 - <a id="VpcServiceControls"></a>**[VPC Service Controls](#VpcServiceControls)** - Google Cloud security perimeters that prevent data from being copied out of a project even if an attacker holds valid credentials.
 [Recipe Bottle's](#RecipeBottle) Cloud Build architecture uses private pools, which are the prerequisite for VPC enforcement; enabling the controls themselves is deferred until organizational policy or external distribution requires them.
@@ -682,9 +724,6 @@ In the repo.
 
 <a id="RBRO"></a>**[RBRO](#RBRO)** — [Payor](#Payor) OAuth credentials — client secret and refresh token.
 Not in the repo.
-
-<a id="RBRA"></a>**[RBRA](#RBRA)** — Role credentials resident on user workstation, enabling [Governor](#Governor), [Director](#Director), or [Retriever](#Retriever) operations.
-One credential file per role per [Depot](#Depot).
 
 <a id="RBRV"></a>**[RBRV](#RBRV)** — [Vessel](#Vessel) configuration specifying [Bind](#Bind), [Conjure](#Conjure), or [Graft](#Graft) mode for creating [Hallmarks](#Hallmark).
 

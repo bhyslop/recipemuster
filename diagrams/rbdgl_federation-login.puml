@@ -1,5 +1,5 @@
 @startuml
-title Federation Tier - Operator Login (two-leg, curl-native)\nSource: memo-20260527-operator-credential-models.md
+title Operator Login - federated, two-leg, curl-native\nSource: memo-20260527-operator-credential-models.md
 
 actor "Operator\n(human)" as OP
 participant "RBK Tool\n(workstation)" as TOOL
