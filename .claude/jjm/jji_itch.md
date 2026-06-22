@@ -1,5 +1,23 @@
 # Itches
 
+## rbst0-theurge-test-cosmology-spec
+Give the test-orchestration cosmology (theurge / fixture / case / suite / freehold / leasehold / cupel) a spec home — currently homeless (code comments + CLAUDE.md tables + memos only). Heat-sized; likely wants its own heat.
+
+### Problem
+
+RBS0 specs the PRODUCTION cosmology richly but the TEST cosmology has no spec home. Verified 260622: zero quoin/attr-ref definitions for theurge/fixture/case/suite/freehold/leasehold/cupel across the ~80-spec RBS corpus. The vocabulary lives only in Rust doc-comments (rbtdrc_crucible.rs RBTDRC_SUITES), one bash comment block (rbpc_constants.sh identity-layers), and the CLAUDE.md suites table (which self-describes as drift-prone and already drifted — "18 vs 20"). CLAUDE.md's own rule fires: durable knowledge tempted into the wrong backer is the signal a spec is due.
+
+### Scope (operator decisions taken 260622)
+
+- Genre: a full MCM concept model (quoins), peer to BUS0's test-infra concept model one tier up.
+- Placement: a SUBDOC of RBS0 (operator call — for free production-quoin reference / terse spec-speak), file acronym RBST0. NOT a sibling. Reversible to sibling later if multi-workstation testing inflates it.
+- Quoin sub-stem: `rbst_` IS taken (14 production quoins, RBS0:492-506) — a FRESH stem must be minted (Fable's, with the "theurge" word-mint and the asterism unify-vs-split call). The file acronym RBST0 stays clean.
+- Five membranes (stay-out): reference BUS0's busr_fixture/busr_suite + the dependency-tier axis + the tweak mechanism; point at RBTDRC_SUITES for membership (never transcribe); cite the crucible-security specs; the identity-layers model SPLITS (the permanent-vs-pool-scoped citizen fact is a PRODUCTION truth for RBS0/RBSRF, only the freehold-subject pinning is RBST0's); CLAUDE.md stays operator quickref (thin its suite table to a pointer).
+
+### Context
+
+Surfaced during the ₣BZ terminal Fable review (260622) from the freehold spec-home question. Full analysis in Memos/memo-20260622-fable-review-queue.md (rbst0-theurge-subdoc). The fresh-stem + theurge word + asterism are Fable's (in the Fable queue); the structure/placement is operator-settled. Promote to a heat when ready.
+
 ## burc-acronym-config-collision
 Rename BURC to avoid "Configuration" confusion with Config Regimes.
 
