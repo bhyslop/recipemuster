@@ -16944,7 +16944,7 @@
         "₢BhAAG": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260621-0900",
+              "jjgtn_ts": "260622-0552",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "Paint the overlay on the proven channel:",
@@ -16963,8 +16963,8 @@
                 "- A late-arriving frame still lands on the right window — latency-immune by session key — never the wrong one.",
                 "- A window with no frame is unchanged from today's behavior."
               ],
-              "jjgtn_silks": "pb-overlay-render-and-mapping",
-              "jjgtn_basis": "da6b902"
+              "jjgtn_silks": "pb-box-emblems",
+              "jjgtn_basis": "b34d7d4"
             }
           ]
         },
