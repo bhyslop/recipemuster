@@ -2,7 +2,7 @@
 // All rights reserved.
 // SPDX-License-Identifier: LicenseRef-Proprietary
 
-//! VOF - Vox Obscura Foundation
+//! VOF - Vox Foundation
 //!
 //! Shared types and utilities for the VOK ecosystem. Provides:
 //! - Cipher registry: typed project prefixes with validation

@@ -75,8 +75,9 @@ impl vofc_Cipher {
 /// VV: Voce Viva - the universal kit present in every target repo
 pub const VV: vofc_Cipher = vofc_Cipher::new("vv", "Voce Viva");
 
-/// VO: Vox Obscura - the kit forge infrastructure (never distributed)
-pub const VO: vofc_Cipher = vofc_Cipher::new("vo", "Vox Obscura");
+/// VO: Vox - the naming-system cosmology and kit forge infrastructure (never distributed).
+/// "Obscura" demoted from naming the whole to the distribution/secrecy branch (see VOS0).
+pub const VO: vofc_Cipher = vofc_Cipher::new("vo", "Vox");
 
 // -----------------------------------------------------------------------------
 // Portable Kits
