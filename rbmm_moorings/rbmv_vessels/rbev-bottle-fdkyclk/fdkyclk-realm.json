@@ -1,0 +1,51 @@
+{
+  "_comment": "fdkyclk synthetic federation test IdP realm. First cut — the RFC 7523 JWT Authorization Grant config is tuned live in Stage A, then exported and re-baked here. directAccessGrants is enabled as a fast bootstrap to validate the GCP STS half independently of the grant mechanism. The id_token aud is forced to match the GCP workforce provider --client-id via the audience mapper.",
+  "realm": "fdkyclk",
+  "enabled": true,
+  "accessTokenLifespan": 300,
+  "ssoSessionIdleTimeout": 1800,
+  "ssoSessionMaxLifespan": 36000,
+  "clients": [
+    {
+      "clientId": "fdkyclk-gcp",
+      "name": "GCP Workforce Federation (caged programmatic arm)",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": false,
+      "secret": "fdkyclk-test-secret",
+      "standardFlowEnabled": false,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": true,
+      "serviceAccountsEnabled": true,
+      "fullScopeAllowed": true,
+      "attributes": {
+        "use.refresh.tokens": "false"
+      },
+      "protocolMappers": [
+        {
+          "name": "gcp-workforce-audience",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "config": {
+            "included.custom.audience": "fdkyclk-gcp",
+            "id.token.claim": "true",
+            "access.token.claim": "false"
+          }
+        }
+      ]
+    }
+  ],
+  "users": [
+    {
+      "username": "federate",
+      "enabled": true,
+      "email": "federate@fdkyclk.test",
+      "emailVerified": true,
+      "firstName": "Federate",
+      "lastName": "Subject",
+      "credentials": [
+        { "type": "password", "value": "federate", "temporary": false }
+      ]
+    }
+  ]
+}
