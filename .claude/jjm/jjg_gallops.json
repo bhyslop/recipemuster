@@ -16788,9 +16788,10 @@
         "₢BhAAK",
         "₢BhAAG",
         "₢BhAAH",
-        "₢BhAAI"
+        "₢BhAAI",
+        "₢BhAAL"
       ],
-      "jjghn_next_pace_seed": "AAL",
+      "jjghn_next_pace_seed": "AAM",
       "jjghn_paces": {
         "₢BhAAA": {
           "jjgpn_tacks": [
@@ -17084,6 +17085,38 @@
               ],
               "jjgtn_silks": "pb-list-entry-emblems",
               "jjgtn_basis": "782dc49"
+            }
+          ]
+        },
+        "₢BhAAL": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260622-0902",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Fold the standalone viewer crate into paneboard's build so the existing",
+                "paneboard build tabtargets build it — the viewer must never have its own build",
+                "script.",
+                "",
+                "The viewer currently builds only via raw cargo against viewer/Cargo.toml; the",
+                "daemon builds via pbw_workbench.sh's bare cargo behind the pbw-p / pbw-t",
+                "tabtargets (poc/ crate).",
+                "",
+                "## Cinched",
+                "No individual viewer build tabtarget (operator ruling, 2026-06-22): the viewer",
+                "builds inside pbw-p and pbw-t, alongside the daemon, never via a separate script.",
+                "Keep the two crates dependency-isolated — separate [dependencies], so the",
+                "sandboxed network-denied daemon never links egui/resvg/image.",
+                "",
+                "## Done when",
+                "- pbw-p and pbw-t build both the daemon and the viewer crate.",
+                "- Those tabtargets still launch the daemon (a workspace makes a bare `cargo run`",
+                "  ambiguous across two packages, so the run leg must name the daemon package/bin).",
+                "- No standalone viewer build tabtarget or script exists.",
+                "- The viewer's run/launch path is out of scope here — this pace is the build only."
+              ],
+              "jjgtn_silks": "viewer-build-folds-into-paneboard-tabtargets",
+              "jjgtn_basis": "23d4674"
             }
           ]
         }
