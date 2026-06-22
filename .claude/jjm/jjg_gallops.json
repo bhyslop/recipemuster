@@ -17056,13 +17056,14 @@
         "₢BhAAJ",
         "₢BhAAE",
         "₢BhAAF",
+        "₢BhAAM",
         "₢BhAAK",
         "₢BhAAG",
         "₢BhAAH",
         "₢BhAAI",
         "₢BhAAL"
       ],
-      "jjghn_next_pace_seed": "AAM",
+      "jjghn_next_pace_seed": "AAN",
       "jjghn_paces": {
         "₢BhAAA": {
           "jjgpn_tacks": [
@@ -17388,6 +17389,34 @@
               ],
               "jjgtn_silks": "viewer-build-folds-into-paneboard-tabtargets",
               "jjgtn_basis": "23d4674"
+            }
+          ]
+        },
+        "₢BhAAM": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260622-1224",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "The writer half of the emblem resolver — the prerequisite both paneboard emblem paces consume.",
+                "vvx resolves its own iTerm session to its containing window's CGWindowID by asking iTerm over AppleScript (osascript), and keys the emblem file by that window-id (`iterm-session/<window-id>.emblem`), so the sandboxed reader reads by the handle it already enumerates.",
+                "The session UUID is used only transiently as the AppleScript lookup key and is never persisted; the resolution is cached per vvx process (one window per session for its life).",
+                "",
+                "See paddock \"Resolver\" and \"Emblem and window reference\".",
+                "",
+                "## Cinched",
+                "Key = window-id direct: the emblem value is the CGWindowID, not the UUID, not a UUID-plus-index.",
+                "Operator confirmed one Claude session per iTerm window, so the multi-session-per-window clobber the UUID scheme would have guarded against does not arise.",
+                "The resolver lives in the writer, never the reader, whose sandbox forbids AppleEvents.",
+                "Fail-soft: not under iTerm, a malformed env value, or osascript denied/failed all write no emblem.",
+                "",
+                "## Done when",
+                "- vvx writes `iterm-session/<window-id>.emblem`, the window-id resolved from the session UUID via iTerm AppleScript.",
+                "- The resolution is cached per process and degrades silently on any failure.",
+                "- The resolved window-id is confirmed equal to the CGWindowID the reader enumerates."
+              ],
+              "jjgtn_silks": "vvx-window-id-resolver",
+              "jjgtn_basis": "c32f125"
             }
           ]
         }
