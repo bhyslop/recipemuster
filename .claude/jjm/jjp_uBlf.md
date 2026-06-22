@@ -35,9 +35,9 @@ The landing model: the federation regime is a vendor-agnostic trust core plus an
 The core is always present — org, pool, provider, session-duration, client-id, attribute-mapping, issuer or JWKS source.
 The interactive arm carries the device-authorization and token endpoints and the device scope; the programmatic arm carries an uploaded public JWKS (the caged case); vendor identity is not a regime field at all.
 
-Scope of this model: it lands on a single active federation.
-Whether the manor ever holds several federations at once is the separate multiplicity axis below — orthogonal to this model, not decided here, and Fable-gated.
-The model is settled within that scope; the singleton is its boundary, not a second settled claim.
+Scope of this model: it governs one foedus's shape (vendor-agnostic core plus mechanism gate).
+How MANY foedera the manor holds at once is the separate multiplicity axis below — orthogonal to this per-foedus shape, and now (260622) settled as a GOAL of the heat, not a deferred axis: the manor holds several foedera and a depot draws from a chosen one.
+The singleton is no longer the model's boundary; multiplicity rides on top of the per-foedus shape, which is unchanged.
 
 The machinery is precedented in-tree: the vessel regime gates fields per mode via buv_enum_enroll plus buv_gate_enroll.
 The federation mechanism gate is the same pattern repurposed from a rejected vendor discriminator onto mechanism, where it is load-bearing.
@@ -51,7 +51,9 @@ The one place a genuine per-protocol fork would reappear is OIDC versus SAML —
 Honesty: the caged programmatic path is confirmed against live GCP docs down to the --jwk-json-path flag and the client-id-equals-aud match, but it is not yet proven end-to-end in our own harness — a strong design lead, not a proven recipe.
 Decision economy (operator ruling): the throwaway manual spike is skipped — the establishment is written as durable BCG-compliant bash and that is what gets tested.
 
-Two forks this model deliberately leaves open are carried to a front-of-heat collaborative-design pace, since neither is doc-resolvable: whether a single test manor can host both the preserved human-click proof and the headless caged suites on one federation (or needs the multiplicity axis), and whether the programmatic JWKS source is one uploaded field or a core field with two sub-modes (uploaded self-held versus issuer-discovered, the latter fitting a real non-interactive IdP).
+RESOLVED (260622, operator decision — see the config-model memo's "Fork resolution" section): both forks settled.
+Fork one (test-manor topology) — MULTIPLICITY IS THE GOAL: the test manor stands up the real Entra foedus (interactive) and a Keycloak test foedus (programmatic) side by side, each its own pool; per-run-switching is rejected, a dedicated second org is noted-unneeded.
+Fork two (programmatic JWKS source) — a single UPLOADED field: the local Keycloak crucible is unreachable from Google so its public JWKS must be uploaded regardless; the token behind it may be Keycloak-minted (preferred) or self-signed (fallback), a choice below the regime; issuer-discovered is not modeled (re-cut named if a publicly-hosted automated IdP ever enters).
 
 Flagged for Fable: the mechanism discriminator wants a quoin and its value words want minting; the two new RBS0 subdocs this model calls for want acronym mints — all Fable's, owing the asterism check and the grep gate.
 
@@ -93,8 +95,9 @@ Tension: today one federation regime serves the whole manor — one workforce po
 A single pool makes every provider a full root of trust over the whole namespace, so the pool's security floor is its weakest provider, and there is no way to isolate two real trust domains, or to isolate a test trust from a production trust.
 
 Distinct from the conviction above: that conviction governs one federation's shape (vendor-agnostic core plus mechanism gate, on a single active federation), whereas this idea is the orthogonal axis of how many federations the manor holds at once.
-The config model lands fully on the single federation; this axis stays Fable-gated.
-But the cleave is not as clean as it first looks: the degenerate-test idea's own-pool requirement may force this axis after all, because a manor cannot hold both the seeded interactive trust and a caged trust as its one federation — so whether a synthetic test manor truly needs nothing from this axis is itself an open question, carried to the front-of-heat design pace, not a settled boundary.
+SETTLED (260622): this axis is no longer deferred — it is a GOAL of the heat (the operator's swap-foedera-in-and-out aim).
+The degenerate-test idea's own-pool requirement made the cleave moot: a test manor must hold both the interactive Entra trust and a programmatic test trust at once, so multiplicity is required and adopted, not merely possible.
+The civic-hierarchy nod for the governor-selects feature and the attach/swap verb wording remain Fable's; the design direction is decided.
 
 Current lean: let the federation regime become a family of named instances (the pattern the nameplate and per-identity auth regimes already use), with affiance keyed to a named instance and each instance its own pool.
 Buys trust isolation between real identity providers, per-depot-group trust, and — the load-bearing one — test/production separation.
@@ -105,6 +108,11 @@ Enables the degenerate-test-federation idea and the governor-selects-federation 
 
 Tension: the federation suites compear once at suite head — one human browser click per run — which is fine for operator-driven runs but cannot run unattended.
 
+LEAN FLIPPED (260622): Keycloak (a real conformant OIDC server, run as a local crucible) is the PREFERRED automated path — it exercises the genuine token-endpoint + signature mechanism, no hack.
+The self-signed-caged JWT ("R4's ghost", below) demotes to a fallback used only if Keycloak's non-interactive grant disappoints.
+The corpus carried these even-handedly as a control-vs-realism spectrum and leaned caged; realism wins for routine automated runs.
+The ride-or-die end-to-end proof of the Keycloak→GCP→don chain (via uploaded JWKS) is now slated — the link the corpus only ever paper-confirmed, never harness-ran.
+
 Modeling, folded into the conviction above: the caged path is not a vendor at all but a value of the mechanism gate — mechanism=programmatic, a self-held signing keypair, its public JWKS uploaded to a workforce provider, tokens minted locally and POSTed straight to the STS token endpoint.
 That much is settled by the conviction; what is NOT settled is whether to adopt a caged path at all — whether a test-org-only signing key is an acceptable quarantined exception or the per-run human click stays.
 That judgment is the heat's to settle, gated on the Fable review.
@@ -113,9 +121,10 @@ Hard constraint: the caged signing key is a new durable secret and a root of tru
 It must live in its own pool and never share one with real citizens, and it must never stand in for the paces whose whole purpose is to prove the real human-click path.
 The private signing key never enters the federation regime — only the public JWKS commits, the conviction's public-commits / private-fenced seam — and the key lives marshal-fenced.
 
-Open premise question this idea now surfaces: the own-pool constraint collides with the conviction's single-active-federation scope — the seeded interactive trust and a caged trust cannot both be the one federation, so a manor that must keep the human-click proof AND run headless caged suites may need the separate multiplicity axis after all; this is carried to the front-of-heat design pace.
+Premise question RESOLVED (260622): the own-pool constraint settles the multiplicity axis as a GOAL — a test manor holds the interactive trust and the programmatic test trust at once, each its own pool, so no collision remains.
 
-Why deferred: it introduces a durable secret against the zero-keys premise, and the federation heat does not need unattended CI, so the cost buys nothing there.
+Why the durable-secret worry relaxed (260622): with Keycloak holding its own key in a test crucible, the key is test scaffolding outside the shipped zero-keys design — not a production secret we hold — so the premise tension that drove the deferral largely dissolves (Fable ratifies the wording).
+The interactive human-click proof still cannot be automated away; exactly one thin human-present pace stays for the device-flow leg.
 
 Detail and sources: the degenerate-federation test-personas memo records the two degenerate shapes (caged self-signed JWT; real test IdP on a non-interactive grant), the live-doc confirmation of the programmatic STS flow, the can/cannot-prove boundary, and the GCP / Keycloak / RFC URLs.
 Honesty: doc-confirmed down to the --jwk-json-path flag and the client-id=aud match; not yet harness-proven end-to-end.
@@ -283,8 +292,8 @@ No unit is slated: each waits until the conviction graduates from discuss to do,
 The spine, in dependency order:
 Spec-first, before any code — evolve the federation-regime and affiance specs to the core-plus-mechanism-gate shape and stand up the two new subdocs as contracts; contract before code is project doctrine, so this is a hard predecessor of every code unit below.
 Regime mechanism discriminator and mechanism-conditional affiance — depends on the spec unit. (The affiance soft-deleted-pool handling was settled in ₣BZ as refuse-and-rotate, NOT undelete — the "undelete-on-DELETED fix" this once anticipated is moot; quota-flatness rides never-jilting the durable pool.)
-Marshal caged-establishment bash — depends on the spec unit and the discriminator; the durable replacement for the throwaway manual spike.
-Programmatic accessor (self-mint to STS) — depends on the discriminator and on a caged trust existing to acquire against.
+Programmatic-trust establishment bash — depends on the spec unit and the discriminator; stands up the Keycloak test crucible (preferred) or a self-signed caged trust (fallback) and uploads its public JWKS; the durable replacement for the throwaway manual spike.
+Programmatic accessor (token → STS) — depends on the discriminator and on a programmatic trust existing to acquire against; obtains a token from Keycloak's non-interactive RFC 7523 grant (or self-mints, fallback) and exchanges at STS.
 Per-vendor setup guide (Entra first) — depends only on the core-facts contract line, so it runs parallel to the three code units.
 Attach a caged subject to a test depot via the admission verbs — strictly last, since it consumes ₣BZ's admission-verb surface; it cannot be slated until ₣BZ lands.
 
