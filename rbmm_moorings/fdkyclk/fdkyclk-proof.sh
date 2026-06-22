@@ -108,8 +108,11 @@ configure_realm() {
 }
 
 fetch_jwks() {
+  # GCP's uploaded-JWKS parser is strict — strip Keycloak's x5c/x5t cert fields
+  # down to the standard RSA public-key JWK members (kty/kid/use/alg/n/e), else
+  # GCP rejects with a misleading "Only RSA, EC key types are supported".
   curl -s "$KC/realms/$REALM/protocol/openid-connect/certs" \
-    | jq '{keys: [.keys[] | select(.use=="sig")]}' > "$JWKS_FILE"
+    | jq '{keys: [.keys[] | select(.use=="sig") | {kty, use, kid, alg, n, e}]}' > "$JWKS_FILE"
   jq -c '.keys[] | {kid,alg,use}' "$JWKS_FILE"
 }
 
