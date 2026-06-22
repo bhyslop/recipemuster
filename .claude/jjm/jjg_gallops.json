@@ -14178,8 +14178,8 @@
         "₢BZAAN": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260622-0449",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260622-0759",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "Full review by model Fable of heat ₣BZ as executed — reconcile the frozen paddock against what was built, with the movement-4 review-findings memo as the divergence record and entry point.",
                 "The paddock was frozen through execution under the Opus-stewardship banner; this is where the freeze lifts — Fable re-reads the paddock against the landed paces and the findings memo, then re-authors the paddock or ratifies the divergences.",
@@ -14212,7 +14212,7 @@
                 "Terminal reconciliation under Fable; the one pace that lifts the paddock freeze."
               ],
               "jjgtn_silks": "fable-heat-review",
-              "jjgtn_basis": "af0e08e"
+              "jjgtn_basis": "bd4493e"
             }
           ]
         },
