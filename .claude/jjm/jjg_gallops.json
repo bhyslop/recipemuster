@@ -16649,8 +16649,8 @@
         "₢BfAAC": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260618-1544",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260622-1008",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "Two design forks the federation configuration model leaves open need collaborative resolution before the spec-first build unit can proceed; neither is doc-resolvable, so this pace holds them at the front of the heat as a reminder that they want a design conversation, not a lookup.",
                 "",
@@ -16671,7 +16671,7 @@
                 "The configuration model itself — vendor-agnostic core plus mechanism gate, mechanism-not-vendor, OIDC-only — is settled and not reopened here; these forks live within it."
               ],
               "jjgtn_silks": "settle-federation-config-design-forks",
-              "jjgtn_basis": "b8545e3"
+              "jjgtn_basis": "2cfb52d"
             }
           ]
         },
