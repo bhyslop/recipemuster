@@ -16542,9 +16542,10 @@
         "₢BfAAD",
         "₢BfAAC",
         "₢BfAAA",
-        "₢BfAAB"
+        "₢BfAAB",
+        "₢BfAAE"
       ],
-      "jjghn_next_pace_seed": "AAE",
+      "jjghn_next_pace_seed": "AAF",
       "jjghn_paces": {
         "₢BfAAA": {
           "jjgpn_tacks": [
@@ -16670,6 +16671,32 @@
               ],
               "jjgtn_silks": "compear-tty-to-yawp",
               "jjgtn_basis": "ca67bc6"
+            }
+          ]
+        },
+        "₢BfAAE": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260622-0739",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Scrub canonical RBS0 of the org-level \"manor\" leak — disambiguate Manor (the holding / payor project) from the GCP organization it commands.",
+                "",
+                "The terminal Fable review ratified the composite-Manor model (Manor = a holding that has-a payor/manor project + clustered resources + commands-an-org; the \"deed / pure-org\" sense is overturned). That overturned sense already leaked into canonical RBS0 prose, leaving the spec self-contradictory: one definition says Manor = one project, while other sites say \"Manor-scoped (org-level)\" / \"every depot under the manor.\"",
+                "",
+                "Authoritative model + leak-site list: Memos/memo-20260622-fable-review-queue.md (composite-manor-model, rbs0-canon-scrub-framing) and the review ledger. The ledger's site enumeration (RBS0 lines near 1890/1971/1980/1985/1331/2030/3486/3497 + RBSRF + claude-rbk-acronyms) is provenance — re-grep before trusting.",
+                "",
+                "## Done when",
+                "Each leaked site reads \"Manor\" where it means the project/holding and \"organization\"/\"org-scoped\" where it means the org; the formal Manor quoin carries the composite framing (has-a-project + commands-an-org); the Depot↔Manor cardinality (each Depot belongs to exactly one Manor; a Manor owns zero-or-more Depots) is stated; and the RBS0:1774 \"payor manages infra without org-level permissions\" contradiction is reconciled against the federation layer's org-admin requirement.",
+                "",
+                "## Cinched",
+                "The composite-Manor model is ratified (operator-sanctioned 260622) and not reopened here — this is mechanical disambiguation, not a re-decision.",
+                "",
+                "## Character",
+                "Mechanical spec disambiguation over a settled model; coordinate with the FABLE-REANCHOR-RBS0 worklist (same federation quoins) to avoid dangling citations."
+              ],
+              "jjgtn_silks": "rbs0-manor-org-canon-scrub",
+              "jjgtn_basis": "1fd6742"
             }
           ]
         }
