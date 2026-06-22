@@ -375,3 +375,71 @@ control-vs-realism spectrum) — but was never ELEVATED from "one option on a sp
 preferred automated lean," and its end-to-end viability was only ever PAPER-confirmed (₢BZAAA
 explicitly accepted a paper answer; it was never harness-run). That is the gap the ride-or-die
 proof pace now closes.
+
+## Proof result (2026-06-22) — ride-or-die chain harness-proven
+
+The ride-or-die proof (pace ₢BfAAH) ran the full chain GREEN, end to end, from a clean
+headless shell with no human: a Keycloak-minted OIDC id_token, via uploaded JWKS, federated
+into GCP (STS), donned a mantle, and made an authorized depot-API (Artifact Registry) call.
+The honesty caveat above — "doc-confirmed … not yet harness-proven end-to-end" — is RESOLVED:
+the path is now harness-proven, not merely paper-confirmed.
+
+### Conscious deferrals (operator-authorized; carried to the build-units, NOT blockers)
+
+- Minting used Keycloak's **password grant** as a de-risk stepping-stone, not the docket-named
+  **RFC 7523 JWT Authorization Grant**. GCP cannot distinguish the grant — it validates the
+  resulting id_token's signature / `iss` / `aud` / `sub` — so the GCP chain is proven
+  grant-agnostically; the RFC 7523 hardening is a Keycloak-side detail for the establishment unit.
+- The proof was driven by a POC script using **gcloud** (`fdkyclk-proof.sh`), not the durable
+  REST/OAuth modules. **Operator cinch: the durable establishment + accessor transform is
+  REST-only — NO direct gcloud.** gcloud lived only in the throwaway POC.
+
+### Empirical Palisade findings (so the spec-first / establishment units start de-risked)
+
+- **GCP requires an https issuer scheme.** Keycloak dev-mode's `http://localhost` issuer is
+  rejected (`INVALID_OIDC_ISSUER_SCHEME`). Set the realm's `frontendUrl` attribute to a fictional
+  https value (`https://fdkyclk.test`) — GCP never resolves it (uploaded JWKS), it only
+  string-matches the token `iss`. `frontendUrl` rides in the realm export, so it is the durable
+  home (no server env needed).
+- **GCP's uploaded-JWKS parser is strict.** Keycloak's certs carry `x5c`/`x5t` cert fields that GCP
+  rejects with a misleading `Only RSA, EC key types are supported`. Strip the JWK to standard RSA
+  public-key members (`kty/kid/use/alg/n/e`).
+- **gcloud `providers create-oidc` requires the web-sso flags even with `--jwk-json-path`.** Uploaded
+  JWKS and `webSsoConfig` coexist (web-sso is inert for the programmatic STS flow). So S2's
+  "programmatic omits webSsoConfig" is a REST-body nicety, not a hard constraint — confirm the REST
+  body actually omits it at impl.
+- **The uploaded-JWKS REST field name is confirmed: `oidc.jwksJson`** (the `--jwk-json-path` target).
+  The S1/S2 plan had flagged this as unconfirmed.
+- **IAM propagation after brevet ~70s.** The don (`generateAccessToken`) succeeded only after a retry
+  loop — the standing RBSCIP propagation delay; the durable accessor must tolerate it.
+
+### JWKS-refresh coupling (docket Done-when)
+
+Uploading Keycloak's public JWKS pins a static key snapshot in GCP. When Keycloak's realm signing
+key rotates, the snapshot goes stale and federation breaks until re-uploaded. Two dispositions for
+the durable rig: pin the realm key across runs (no rotation), or re-upload the JWKS at each
+charge/establish. The release gate covers Google's own key-discovery loop against a real IdP (Entra),
+so the uploaded-snapshot path's only un-exercised behavior stays Google's, not ours.
+
+### Three-layer architecture (where each piece homes)
+
+- **Vessel (in-container):** the Keycloak upstream image + a baked realm-import JSON. The realm
+  definition (client, subject, `frontendUrl`, eventually the RFC 7523 grant) is config DATA baked
+  into the vessel, not orchestration code.
+- **Orchestration (station, BCG domain):** the GCP establishment (pool + programmatic provider +
+  brevet) and the accessor (token → STS → don). These become two durable BCG modules — establishment
+  = an affiance sibling (build-unit #3); accessor = an `rba` sibling (build-unit #4) — REST-only.
+
+### Artifacts (committed; recreate the whole proven chain)
+
+- Crucible: vessel `rbev-bottle-fdkyclk` (conjure, quay keycloak 26.6.3 digest-pinned, direct
+  upstream) + nameplate `rbmm_moorings/fdkyclk/` (boring tether sentry, enclave `10.242.5.0/24`,
+  host 8088 → 8080).
+- POC driver `rbmm_moorings/fdkyclk/fdkyclk-proof.sh` (idempotent: realm config → GCP establishment
+  → mint → STS → brevet → don → AR call) and teardown `fdkyclk-teardown.sh` (idempotent: attaint
+  bindings → jilt pool → quench), the teardown header mapping the sequence onto the real federation
+  verbs. Recreate = charge tabtarget + run proof; tear down = run teardown.
+
+Provenance: pace ₢BfAAH transcript and commits (2026-06-22). Durable facts here belong in RBSRF /
+RBSMA and the new establishment/accessor subdocs when the spec-first unit lands; this memo is the
+staging ground.
