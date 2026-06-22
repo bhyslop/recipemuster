@@ -136,8 +136,10 @@ So a trial means displacing the running instance, then restoring it.
 The proven loop, drivable entirely from this console:
 
 - Kill the running paneboard-poc process (the lock releases on death — no stale-file hazard).
-- Run the timed tabtarget ../pb_paneboard02/tt/pbw-t.ProofOfConceptTimed.10.sh, which builds, runs ~10s, and self-exits via its own auto-exit timer — so a trial cannot run away with the operator's alt-tab.
-- Relaunch the standing instance in the background (../pb_paneboard02/tt/pbw-p.ProofOfConcept.sh).
+- Run the timed tabtarget ../pb_paneboard02/tt/pbw-t.ProofOfConceptTimed.10.sh, which builds BOTH crates (the viewer and the PoC), runs ~10s, and self-exits via its own auto-exit timer — so a trial cannot run away with the operator's alt-tab.
+- Relaunch the standing instance in the background (../pb_paneboard02/tt/pbw-b.BuildProof.sh, which likewise builds both crates then launches).
+
+Both build tabtargets (pbw-b standing, pbw-t timed) build the viewer alongside the PoC, so the harness exercises the viewer build too; pbw-p is retired.
 
 For a throwaway source probe, edit between the kill and the timed run, then revert after (grep a unique marker to prove a full revert; git diff the touched files should be empty).
 build.rs recompiles the Swift shim on change, so a Swift-side poke is picked up.
