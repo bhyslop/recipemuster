@@ -14153,7 +14153,7 @@
         "₢BZAAN": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260618-1153",
+              "jjgtn_ts": "260622-0449",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "Full review by model Fable of heat ₣BZ as executed — reconcile the frozen paddock against what was built, with the movement-4 review-findings memo as the divergence record and entry point.",
@@ -14174,11 +14174,20 @@
                 "The entry point is Memos/memo-20260615-BZ-m4-review-findings.md; it carries the five movement-4 decisions, the M4-vs-M7 reading, and the per-docket divergences for cold review.",
                 "Also read, in the pace-design memo, the freehold doctrine, the terrier-settled-design section, and the manor-identity section, plus Memos/memo-20260617-BZ-workforce-pool-constraints.md — the post-freeze sharpenings the paddock does not yet fully reflect.",
                 "",
+                "## As-built baseline (shelved 260622)",
+                "The heat was shelved (stabled, not retired) before this Fable review, so work continues on the repo meanwhile — read the federation surface as it stood at shelve time, not as later commits leave it.",
+                "Baseline HEAD at shelve: af0e08eee (the silks-rename commit; the federation surface itself landed through ₢BZAAP at 28ed94a0a).",
+                "Recover the full affiliated commit set with `jjx_log ₣BZ` — the heat→commit affiliation is committed gallops state and survives the shelving immutably; do not trust any hand-copied enumeration over it.",
+                "As-built caveats not captured durably in any spec (carried only in commit-message PENDING notes, pinned here against erosion):",
+                "- The pluml SVG re-renders (rbdgl / rbdgm / rbdgs) are stale — blocked on an interactive compearance this headless work could not perform; the README still displays the pre-rewrite federation diagrams until someone runs `tt/rbw-tf.FixtureRun.sh pluml` after a compearance on a clean tree.",
+                "- The 12h assize cap (RBRF_SESSION_DURATION 43200s) is live in regime and on the standing test pool, but only a fresh compearance picks it up.",
+                "- `rbw-acf` federated-access verification is deferred — it needs a human device-flow click, not run during this work.",
+                "",
                 "## Character",
                 "Terminal reconciliation under Fable; the one pace that lifts the paddock freeze."
               ],
               "jjgtn_silks": "fable-heat-review",
-              "jjgtn_basis": "51911ea"
+              "jjgtn_basis": "af0e08e"
             }
           ]
         },
