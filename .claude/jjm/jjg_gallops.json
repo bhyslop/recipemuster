@@ -16738,8 +16738,8 @@
         "₢BgAAC": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260621-1132",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260622-0616",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "## Character",
                 "",
@@ -16776,7 +16776,7 @@
                 "VLS placement is open on cognitive grounds only — no distribution constraint forces it either way; AXL is prior art for the separate-vocabulary-anchor option."
               ],
               "jjgtn_silks": "vo-cipher-gestalt-decision",
-              "jjgtn_basis": "6b65d15"
+              "jjgtn_basis": "131d917"
             }
           ]
         }
