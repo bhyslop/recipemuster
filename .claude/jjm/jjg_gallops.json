@@ -1,5 +1,5 @@
 {
-  "jjgrn_next_heat_seed": "Bl",
+  "jjgrn_next_heat_seed": "Bm",
   "jjgrn_heat_order": [
     "₣Bi",
     "₣Bf",
@@ -34,7 +34,8 @@
     "₣BI",
     "₣BL",
     "₣Ba",
-    "₣Bh"
+    "₣Bh",
+    "₣Bl"
   ],
   "jjgrn_heats": {
     "₣A-": {
@@ -2987,9 +2988,10 @@
         "₢A6AAL",
         "₢A6AAy",
         "₢A6AAz",
-        "₢A6AA9"
+        "₢A6AA9",
+        "₢A6ABA"
       ],
-      "jjghn_next_pace_seed": "ABA",
+      "jjghn_next_pace_seed": "ABB",
       "jjghn_paces": {
         "₢A6AA-": {
           "jjgpn_tacks": [
@@ -6963,6 +6965,29 @@
               ],
               "jjgtn_silks": "replace-example-com-with-internic",
               "jjgtn_basis": "c01eb86"
+            }
+          ]
+        },
+        "₢A6ABA": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260622-0740",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Reconcile the onboarding handbook to the keyless federation model — it still expects a governor-RBRA key file the keyless path no longer writes.",
+                "",
+                "The ₣BZ terminal review (divergence triage) found: keyless freehold-establish dons mantles and writes NO governor-RBRA key file, but onboarding's credential-install prose + start-here menu still expect one, so a fresh-levy gauntlet may not satisfy onboarding's gate.",
+                "",
+                "Entry point: rbho0_onboarding.sh (the start-here menu) + the rbw-Op payor track. NOTE: the review's source named tracks \"rbw-Ocr/Ocd\" — those tabtargets DO NOT EXIST (live rbw-O* = Occ/Oda/Odb/Odf/Odg/Ofc/Op/Ots); locate the real keyfile-expecting prose before editing. Full context: Memos/memo-20260622-fable-review-queue.md (m7-onboarding-keyless-gap).",
+                "",
+                "## Done when",
+                "Onboarding's credential-readiness prose matches the keyless federation reality (mantle don, not a key file); a fresh-levy gauntlet satisfies whatever onboarding gate remains.",
+                "",
+                "## Character",
+                "Handbook reconciliation; a federation-correctness fix, not a vocabulary one. Find the real entry point first — the named tracks are stale."
+              ],
+              "jjgtn_silks": "onboarding-keyless-precondition-gap",
+              "jjgtn_basis": "3eb5366"
             }
           ]
         }
@@ -14153,8 +14178,8 @@
         "₢BZAAN": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260622-0449",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260622-0759",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "Full review by model Fable of heat ₣BZ as executed — reconcile the frozen paddock against what was built, with the movement-4 review-findings memo as the divergence record and entry point.",
                 "The paddock was frozen through execution under the Opus-stewardship banner; this is where the freeze lifts — Fable re-reads the paddock against the landed paces and the findings memo, then re-authors the paddock or ratifies the divergences.",
@@ -14187,7 +14212,7 @@
                 "Terminal reconciliation under Fable; the one pace that lifts the paddock freeze."
               ],
               "jjgtn_silks": "fable-heat-review",
-              "jjgtn_basis": "af0e08e"
+              "jjgtn_basis": "bd4493e"
             }
           ]
         },
@@ -16542,9 +16567,12 @@
         "₢BfAAC",
         "₢BfAAA",
         "₢BfAAD",
-        "₢BfAAB"
+        "₢BfAAB",
+        "₢BfAAE",
+        "₢BfAAF",
+        "₢BfAAG"
       ],
-      "jjghn_next_pace_seed": "AAE",
+      "jjghn_next_pace_seed": "AAH",
       "jjghn_paces": {
         "₢BfAAA": {
           "jjgpn_tacks": [
@@ -16672,6 +16700,84 @@
               "jjgtn_basis": "ca67bc6"
             }
           ]
+        },
+        "₢BfAAE": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260622-0739",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Scrub canonical RBS0 of the org-level \"manor\" leak — disambiguate Manor (the holding / payor project) from the GCP organization it commands.",
+                "",
+                "The terminal Fable review ratified the composite-Manor model (Manor = a holding that has-a payor/manor project + clustered resources + commands-an-org; the \"deed / pure-org\" sense is overturned). That overturned sense already leaked into canonical RBS0 prose, leaving the spec self-contradictory: one definition says Manor = one project, while other sites say \"Manor-scoped (org-level)\" / \"every depot under the manor.\"",
+                "",
+                "Authoritative model + leak-site list: Memos/memo-20260622-fable-review-queue.md (composite-manor-model, rbs0-canon-scrub-framing) and the review ledger. The ledger's site enumeration (RBS0 lines near 1890/1971/1980/1985/1331/2030/3486/3497 + RBSRF + claude-rbk-acronyms) is provenance — re-grep before trusting.",
+                "",
+                "## Done when",
+                "Each leaked site reads \"Manor\" where it means the project/holding and \"organization\"/\"org-scoped\" where it means the org; the formal Manor quoin carries the composite framing (has-a-project + commands-an-org); the Depot↔Manor cardinality (each Depot belongs to exactly one Manor; a Manor owns zero-or-more Depots) is stated; and the RBS0:1774 \"payor manages infra without org-level permissions\" contradiction is reconciled against the federation layer's org-admin requirement.",
+                "",
+                "## Cinched",
+                "The composite-Manor model is ratified (operator-sanctioned 260622) and not reopened here — this is mechanical disambiguation, not a re-decision.",
+                "",
+                "## Character",
+                "Mechanical spec disambiguation over a settled model; coordinate with the FABLE-REANCHOR-RBS0 worklist (same federation quoins) to avoid dangling citations."
+              ],
+              "jjgtn_silks": "rbs0-manor-org-canon-scrub",
+              "jjgtn_basis": "1fd6742"
+            }
+          ]
+        },
+        "₢BfAAF": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260622-0739",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Build the terrier's permanent founding-home — a single idempotent \"post-payor-guide manor-setup finisher\" that ensures the terrier bucket + per-polity folders, retiring the interim scaffold.",
+                "",
+                "The terminal Fable review resolved the founding-home to OPTION B: the Manor provisions the terrier (affiance touches it nowhere — the bucket name is foedus-independent, its IAM binds the depot-born governor mantle SA, not a foedus principal). Operator cinched the shape: ONE idempotent tabtarget, run after the manual manor setup (console project + OAuth), finishing all scriptable manor-setup steps including the terrier-bucket-ensure.",
+                "",
+                "Full reasoning + grain: the review ledger (chunk 3) and Memos/memo-20260622-fable-review-queue.md (terrier-fork-b-resolution, terrier-b-shape-finisher). As-built to fold in + retire: the rbw-dt / rbw-dT scaffold, plus the two theurge fixtures (terrier-scaffold, terrier-atomicity) in the service/complete suites.",
+                "",
+                "## Done when",
+                "A standing manor-setup-finisher tabtarget idempotently ensures the terrier bucket (payor-project-grain) + per-polity managed folders (depot-grain) + the grain IAM (write folder-scoped own-polity, read bucket-level manor-wide); the interim scaffold and its two fixtures are retired or migrated onto it; the gauntlet ladder stays green (it carries no terrier fixture).",
+                "",
+                "## Cinched",
+                "Founding-home = Option B (Manor, not affiance); the finisher is a dedicated standing op run after the manual manor setup. One terrier per Manor (per-foedus cardinality is Fable-gated, out of scope here).",
+                "",
+                "## Character",
+                "Implementation over a settled design; the B-variant (standing op vs manor-establish enlargement) and the folder-step credential boundary (folder lives in the payor-project bucket) are the in-pace judgment calls."
+              ],
+              "jjgtn_silks": "terrier-founding-home-finisher",
+              "jjgtn_basis": "3936dc6"
+            }
+          ]
+        },
+        "₢BfAAG": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260622-0740",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## TERMINAL pace — model Fable works through the standing Fable-review queue: ratify-or-sweep every provisional mint made in her absence, and answer every deferred vocabulary/premise question.",
+                "",
+                "This is the ₣Bf analogue of ₣BZ's terminal Fable review. The federation-evolution work proceeded under operator sanction while Fable was unavailable; the names and premise-touching calls made meanwhile are PROVISIONAL and eviction-sweepable.",
+                "",
+                "Entry point: Memos/memo-20260622-fable-review-queue.md — Bucket 1 (provisional decisions to ratify-or-sweep) and Bucket 2 (open questions deferred to Fable: the foedus mint + cold-probe, the heed/assize remints, the mechanism-discriminator quoin, the RBST0 fresh quoin stem + theurge word + asterism call, the FABLE-REANCHOR worklist, jilt/gird ratification, the federation premise calls).",
+                "",
+                "## Done when",
+                "Fable has worked through the queue memo: every Bucket-1 provisional decision is ratified or eviction-swept; every Bucket-2 question is answered; confirmed outcomes land in their spec homes; the queue memo retires.",
+                "",
+                "## Cinched",
+                "Requires model Fable (the queue was assembled at provisional, operator-sanctioned density). Runs LAST — every other ₣Bf movement slates before it.",
+                "",
+                "## Character",
+                "Terminal reconciliation under Fable; the pace that lifts the provisional-mint posture for ₣Bf. Requires model Fable."
+              ],
+              "jjgtn_silks": "fable-terminal-review",
+              "jjgtn_basis": "58a4aab"
+            }
+          ]
         }
       }
     },
@@ -16682,9 +16788,11 @@
       "jjghn_order": [
         "₢BgAAA",
         "₢BgAAB",
-        "₢BgAAC"
+        "₢BgAAC",
+        "₢BgAAD",
+        "₢BgAAE"
       ],
-      "jjghn_next_pace_seed": "AAD",
+      "jjghn_next_pace_seed": "AAF",
       "jjghn_paces": {
         "₢BgAAA": {
           "jjgpn_tacks": [
@@ -16714,8 +16822,8 @@
         "₢BgAAB": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260620-1544",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260622-0525",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "## Character",
                 "",
@@ -16731,15 +16839,15 @@
                 "The .adoc house rule is MCM line-break discipline, not the gazette semantic-linefeed rule (which governs paddocks and dockets only)."
               ],
               "jjgtn_silks": "vms-mcm-linebreak-reflow",
-              "jjgtn_basis": "be067a8"
+              "jjgtn_basis": "d6f4d98"
             }
           ]
         },
         "₢BgAAC": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260621-1132",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260622-0616",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "## Character",
                 "",
@@ -16776,7 +16884,60 @@
                 "VLS placement is open on cognitive grounds only — no distribution constraint forces it either way; AXL is prior art for the separate-vocabulary-anchor option."
               ],
               "jjgtn_silks": "vo-cipher-gestalt-decision",
-              "jjgtn_basis": "6b65d15"
+              "jjgtn_basis": "131d917"
+            }
+          ]
+        },
+        "₢BgAAD": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260622-0720",
+              "jjgtn_state": "jjgte_complete",
+              "jjgtn_text": [
+                "## Character",
+                "",
+                "Intricate spec surgery requiring judgment, not mechanical.",
+                "Touches dense quoined specs (VOS0, VLS) under sub-letter discipline and terminal exclusivity, with no Matricula yet to mechanically catch a collision introduced by the mass rename — eyeball care required.",
+                "",
+                "## Done when",
+                "",
+                "VOS0 is the Vox cosmology SpecTop on the RBS0/JJS0/BUS0 `0`-top + `include::` pattern:",
+                "all Liturgy quoins centralized in its mapping section and definition sites (VLS-the-file dissolved into it);",
+                "\"Obscura\" demoted from claiming the whole to one branch or retired;",
+                "the commit/lock (VOSR*) family and the Matricula spec re-homed as `include::` subdocs that purely consume the centralized quoins;",
+                "Matricula-specific quoins (Residue, Finding, the freeze verb) defined at the top.",
+                "",
+                "## Cinched",
+                "",
+                "The gestalt direction is fixed in the ₣Bg paddock Cinched section — read it first; do not re-litigate.",
+                "Use RBS0-SpecTop.adoc as the structural exemplar (its subdocs define zero quoins — purely consume)."
+              ],
+              "jjgtn_silks": "vox-cosmology-regestalt-consolidation",
+              "jjgtn_basis": "d17526a"
+            }
+          ]
+        },
+        "₢BgAAE": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260622-0731",
+              "jjgtn_state": "jjgte_complete",
+              "jjgtn_text": [
+                "## Character",
+                "",
+                "Mechanical sweep.",
+                "",
+                "## Done when",
+                "",
+                "By-name references to the dissolved/renamed specs are repointed to the Vox cosmology top (BUS0's `VLS-VoxLiturgicalSpec.adoc` citation is the known one), and stale memos that only referenced the old `vo`/Obscura gestalt are retired to `Memos/retired/`.",
+                "Discovery: `grep -rE 'VLS-Vox|VOS0-Vox|Vox Obscura' Tools/ Memos/`.",
+                "",
+                "## Cinched",
+                "",
+                "Runs after the re-gestalt surgery lands, against whatever final names that pace settles."
+              ],
+              "jjgtn_silks": "vox-citation-memo-sweep",
+              "jjgtn_basis": "200c0bf"
             }
           ]
         }
@@ -17719,6 +17880,43 @@
       "jjghn_order": [],
       "jjghn_next_pace_seed": "AAA",
       "jjghn_paces": {}
+    },
+    "₣Bl": {
+      "jjghn_silks": "rbk-15-theurge-cosmology-spec",
+      "jjghn_creation_time": "260622",
+      "jjghn_status": "jjghe_stabled",
+      "jjghn_order": [
+        "₢BlAAA"
+      ],
+      "jjghn_next_pace_seed": "AAB",
+      "jjghn_paces": {
+        "₢BlAAA": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260622-0755",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Create a skimpy proper RBS0 SUBDOC for the theurge test-cosmology — base quoins only, include'd into RBS0, Fable inflates later.",
+                "",
+                "The test-orchestration cosmology (theurge / fixture / case / suite / freehold / leasehold / cupel) has no spec home — it lives in code comments + CLAUDE.md tables + memos. Operator-settled: a proper RBS0 SUBDOC (include'd into RBS0, for free production-quoin reference), NOT a sibling top-spec — so it is named per the subdoc convention (RBS + tail, like RBSTR / RBSMA), NEVER a \"0\"-suffixed name (the \"0\" suffix is the top-spec convention).",
+                "",
+                "Full scope + the five membranes + the placement reasoning: Memos/memo-20260622-fable-review-queue.md (the rbst0-theurge-subdoc item) and the theurge-spec-gap analysis it cites.",
+                "",
+                "## Done when",
+                "A skimpy RBS0 subdoc (RBS+tail acronym, NOT \"0\"-suffixed) is include'd into RBS0, seating base quoins for the core test-cosmology nouns under a FRESH quoin stem (rbst_ is TAKEN — 14 production quoins at RBS0:492-506 — so a provisional, operator-sanctioned, eviction-sweepable stem; Fable later ratifies/sweeps the stem, the \"theurge\" word, and the asterism call). The five membranes hold: reference BUS0's busr_fixture/busr_suite + dependency-tier axis + tweak mechanism (do not re-mint); point at RBTDRC_SUITES for suite membership (never transcribe member lists); cite the crucible-security specs; split the identity-layers model (the permanent-vs-pool citizen fact stays production-side in RBS0/RBSRF, only the freehold-subject pinning is the subdoc's); thin the CLAUDE.md suites table toward a pointer.",
+                "",
+                "## Cinched",
+                "A SUBDOC of RBS0 (not a sibling top-spec); skimpy (base quoins, Fable inflates later); a fresh quoin stem (not rbst_). One subdoc probably enough — split only if conviction emerges.",
+                "",
+                "## Character",
+                "Spec authoring over operator-settled structure; the fresh-stem + theurge-word + asterism are provisional-now / Fable-ratified-later (carried in the Fable queue)."
+              ],
+              "jjgtn_silks": "create-skimpy-theurge-subdoc",
+              "jjgtn_basis": "7b47b60"
+            }
+          ]
+        }
+      }
     }
   }
 }

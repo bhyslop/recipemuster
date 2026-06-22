@@ -1,13 +1,10 @@
-## Freeze — Opus stewarding a Fable-authored paddock (260615)
+## Freeze LIFTED — operator-sanctioned reconciliation (260622)
 
-This paddock was authored at Fable density and calibration.
-The working agents are now Opus-class; a first Opus read mistook load-bearing precision for over-treatment.
-Until Fable is available to re-author, or the operator sanctions a change in conversation, this paddock is read-only.
-Corrections and tightenings — including over-treatments Opus believes it spots — are carried in the paces and in the pace-design memo, never folded back here.
-Live pace-design work and the Opus/Fable divergence record: `Memos/memo-20260615-BZ-pace-design.md`.
-A further routing, for evolution rather than correction: an idea that would change this paddock's cinched logic, or reach past this heat's scope, is not a correction — it goes to the holding heat for federation ideas deferred from this one (₣Bf), never folded back here.
-A mid-pace urge to re-architect is evolution — route it to ₣Bf, not into this frozen body.
-Note (260618): the manor-prerequisite line below is a known divergence under review — RBS0 makes the manor the payor project (a building), not an org-level "deed"; see the pace-design memo's manor-identity section, which the terminal Fable review reconciles. Left in Fable's original wording per the freeze; not corrected in place.
+The freeze is RESOLVED. The terminal Fable review (the heat's last pace) ran under OPERATOR SANCTION in Fable's absence (the freeze always lifted to "Fable's re-authoring OR operator sanction in conversation").
+The review affirmed this heat's build sound — 17 recorded Opus/Fable divergences, ZERO overturns — and applied the record corrections below in place.
+Full reconciliation lives in the review ledger and `Memos/memo-20260622-fable-review-queue.md` (the standing Fable terminal-review queue; every mint made meanwhile is provisional and eviction-sweepable).
+Manor-identity divergence RESOLVED: the Manor is a COMPOSITE HOLDING — a payor/manor GCP project plus clustered resources plus a commanded organization — not an org-level "deed"; that sense was confabulated (paddock-only, zero spec/code) and is overturned. The federation-quoin scrub of canonical RBS0 is tracked as its own pace.
+Historical freeze regime (260615, retained for the record): this paddock was authored at Fable density; a first Opus read mistook load-bearing precision for over-treatment; corrections rode the paces and `Memos/memo-20260615-BZ-pace-design.md` rather than being folded back. Evolution still routes to ₣Bf, never into this body.
 
 ## Boundary — single tier, mantle impersonation (cinched 260612)
 
@@ -17,8 +14,8 @@ The keyfile citizen tier is **canceled unbuilt** —
 no mode enum, no second tier, no migration machinery
 (decision record: `Memos/memo-20260612-office-federation-conversion.md`;
 canon banner updated same day).
-Prerequisite ladder accepted: every manor brings a domain (org anchor, a deed not a building),
-a Cloud Identity org, and a conformant external OIDC IdP.
+Prerequisite ladder accepted: every manor (its one payor/control-plane project) sits under a Cloud Identity organization — the organization brings the domain and is the federation anchor the manor commands; the manor is the project it governs.
+Required: that Cloud Identity org, and a conformant external OIDC IdP.
 Today's keyfile machinery is **bridge legacy**:
 untouched, riding under the accessor seam, suites stay green on it
 until federation personas pass the same suites —
@@ -115,7 +112,7 @@ never as an availability hedge; live tokens already ride out IdP outages within 
 ## The Terrier (carried forward; entries recast)
 
 Per-polity terriers in the Manor-homed Terrier bucket, managed-folder grain,
-payor-created at levy, governor-writeable own-terrier-only,
+payor-created by an interim scaffold (NOT at levy — the permanent founding-home is ₣Bf's, via a post-payor-guide manor-setup finisher; the rbw-dt/dT scaffold retires when it lands), governor-writeable own-terrier-only,
 read population governors-and-above — all unchanged.
 Entries — **muniments** — record (principal subject, mantle held);
 key IDs vanish with the keys.

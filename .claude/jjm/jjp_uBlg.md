@@ -37,7 +37,17 @@ The Matricula inherits these foundations: VOF as input grammar, a generalization
 
 ## Cinched
 
-Placement is VOK — entity, grammar, and spec under the `vo` cipher (VLS or a new vo census subdoc), code as a standalone VOK executable over the `vof` library.
+The vo-family gestalt is force-consolidated under Vox now — re-gestalt the `vo` cipher as Vox, the naming-system whole, cleaning up the fossil thought for a better forward springboard.
+VOS0 becomes the true Vox cosmology SpecTop following the RBS0/JJS0/BUS0 precedent — a `0`-top plus `include::` subdocs.
+"Obscura" demotes from claiming the whole to one branch (or retires), fixing VOS0's over-claiming `0`.
+Fully embrace the Liturgy on the RBS0 pattern: ALL quoins centralize at the cosmology top (top defines attribute refs, anchors, and definition text; subdocs purely consume linked terms — verified against RBS0, whose subdocs define zero quoins).
+VLS-as-separate-file dissolves into the top's vocabulary; the Matricula, the commit/lock family (the VOSR* specs), and any future branches become subdocs consuming it.
+Matricula-specific quoins (Residue, Finding, the freeze verb) are defined at the cosmology top too, not in the subdoc.
+The secrecy gradient is preserved by tier, not by file: vocabulary lives at the top (veil-strength, already travels to the test fleet), method lives in the Matricula subdoc (veil-strength), and the exploit lives in the binary (gitignore-strength, never travels) — so BUK citing the cosmology top for vocabulary (BUS0 already does, by name) touches only the vocabulary layer, never the method.
+JJK contains no Vox implementation — JJK↔Vox couplings are purpose-built JJK operations with subtle Vox interactions, designed per-need (the paddock/docket integrity check is the first instance, not a template), never a blanket proxy of the whole Vox interface; much of that design likely lands in ₣Bj or future JJK heats.
+The re-gestalt-plus-consolidation surgery is its own slated pace(s), not absorbed into the authoring pace; the bootstrap-collision risk during the mass rename is accepted as bounded — the Liturgy is barely adopted yet (it was a distillation of a prior conversation, not yet in use), so repair is iterative as intimate problems surface, and the Matricula itself becomes the eventual net.
+
+Placement is VOK — entity, grammar, and spec under the `vo` cipher, homed in the re-gestalted Vox cosmology (VOS0 top plus a Matricula subdoc), code as a standalone VOK executable over the `vof` library.
 The verified build structure decides this: VOK ships nothing as source (it is not in the managed-kit list, so its tree is never collected into a parcel), which makes it a tighter vault than CMK — CMK ships through two outbound pipelines (the parcel and the open-source upstream) and is doc-only with no crate.
 
 CMK is the doctrine home, cited and never re-homed.

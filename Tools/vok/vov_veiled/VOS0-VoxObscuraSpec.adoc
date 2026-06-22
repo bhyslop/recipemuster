@@ -183,11 +183,34 @@
 :vosk_burc_prerequisite: <<vosk_burc_prerequisite,BURC Prerequisite>>
 :vosk_default_routing:   <<vosk_default_routing,Default Routing>>
 
+// Matricula vocabulary (transient inscription census; method prose in VOSMM-entity.adoc)
+:vosmm_matricula:       <<vosmm_matricula,Matricula>>
+:vosmm_matricula_s:     <<vosmm_matricula,Matriculae>>
+:vosmm_matricula_p:     <<vosmm_matricula,Matricula's>>
+:vosms_seal:            <<vosms_seal,Seal>>
+:vosms_seal_ed:         <<vosms_seal,Sealed>>
+:vosme_estray:          <<vosme_estray,Estray>>
+:vosme_estray_s:        <<vosme_estray,Estrays>>
+:vosmp_presentment:     <<vosmp_presentment,Presentment>>
+:vosmp_presentment_s:   <<vosmp_presentment,Presentments>>
+
+// Mutability dimensions — imported from AXLA, cited never restated (used by the Matricula vocabulary)
+:axd_petrify:           <<axd_petrify,Petrify>>
+:axd_immutable:         <<axd_immutable,Immutable>>
+
 // end::mapping-section[]
 
 == Overview
 
-The Vox Obscura Specification defines the release and installation infrastructure for Claude Code
+The Vox Obscura Specification is the cosmology top for the Vox Obscura naming system — the `vo` cipher as a whole.
+It centralizes the Liturgy vocabulary (Cipher, Signet, Epithet, Inscription, Vesture and the domain vestures), then hosts its branches as `include::` subdocs that purely consume that centralized vocabulary, following the RBS0/JJS0/BUS0 SpecTop precedent.
+Its branches are the Obscura distribution machinery (release, install, uninstall, freshen — see VOSO-distribution.adoc), the commit/lock routine family (the VOSR* subdocs), and the Matricula transient inscription census (VOSMM-entity.adoc).
+
+The remainder of this document defines the centralized vocabulary; the branches consume it.
+
+=== Obscura Distribution
+
+The Obscura branch defines the release and installation infrastructure for Claude Code
 {vose_kit_s}.
 {vose_kit_s}
 are developed in a
@@ -244,8 +267,323 @@ enabling rapid iteration during development.
 
 **Related Specifications:**
 
-* **VLS-VoxLiturgicalSpec.adoc** — Universal naming vocabulary (Cipher, Signet, Epithet, Inscription, Vesture)
 * **BUS0-BashUtilitiesSpec.adoc** — Tabtarget dispatch vocabulary (Colophon, Frontispiece, Imprint, Formulary, Launcher)
+
+== Liturgy
+
+The Liturgy is the universal naming vocabulary for artifacts across all specifications.
+A
+{voslc_cipher}
+seeds the namespace;
+{vosls_signet_s}
+build on it;
+{vosle_epithet_s}
+provide human-readable descriptions;
+{vosli_inscription_s}
+are complete names;
+{voslv_vesture_s}
+define domain-specific construction rules.
+
+This vocabulary applies to ALL specifications — the Obscura distribution branch below, BUS (bash dispatch), JJSA (gallops data), and others.
+The Liturgy is the shared language for naming things.
+For tabtarget dispatch vocabulary (Colophon, Frontispiece, Imprint, Formulary, Launcher), see BUS0-BashUtilitiesSpec.adoc.
+
+=== Core Liturgy Terms
+
+[[voslc_cipher]]
+//axl_voices axt_string
+{voslc_cipher}::
+A 2-5 character project root that seeds the namespace.
+The
+{voslc_cipher}
+is globally unique across all projects and serves as the foundation for all derived
+{vosls_signet_s}.
+Lowercase letters only; no
+{voslc_cipher}
+may be a prefix of another (terminal exclusivity).
++
+Single source of truth: `Tools/vok/vof/src/vofc_registry.rs`
++
+See <<cipher_registry>> for declaration pattern and the complete list.
+
+[[vosls_signet]]
+//axl_voices axt_string
+{vosls_signet}::
+The complete prefix before the separator in an
+{vosli_inscription}.
+A
+{vosls_signet}
+is derived from a
+{voslc_cipher}
+by extending with additional characters that respect terminal exclusivity.
+The
+{vosls_signet}
+is the identity stamp that binds an artifact to its owning project.
++
+Examples: `jjk` (kit), `jjc` (command prefix), `voslc` (this term's signet).
++
+A
+{vosls_signet}
+is extended from its
+{voslc_cipher}
+using either an
+{vosln_ensign}
+(classification marker) or a
+{voslm_monogram}
+(epithet-initial binding).
+
+[[vosln_ensign]]
+//axl_voices axt_string
+{vosln_ensign}::
+A
+{vosls_signet}
+extension that classifies artifact category.
+The terminal character(s) mark a type or role, independent of the
+{vosle_epithet}.
++
+Examples:
++
+* `axt_string` — `t` = type classification, `string` = epithet
+* `burc_regime` — `rc` = regime-config classification, `regime` = epithet
+* `axtu_path` — `tu` = type-universal sub-classification, `path` = epithet
++
+{vosln_ensign_s}
+enable hierarchical categorization within a
+{voslc_cipher}
+namespace.
+
+[[voslm_monogram]]
+//axl_voices axt_string
+{voslm_monogram}::
+A
+{vosls_signet}
+extension where the terminal character binds to the
+{vosle_epithet}
+initial.
+Creates a mnemonic connection between
+{vosls_signet}
+and
+{vosle_epithet}.
++
+Examples:
++
+* `buc_command` — `c` = first letter of `command`
+* `jjw_workbench` — `w` = first letter of `workbench`
+* `voslc_cipher` — `c` = first letter of `cipher`
++
+{voslm_monogram_s}
+create tight signet-epithet binding but limit each terminal letter to one artifact.
+
+[[vosle_epithet]]
+//axl_voices axt_string
+{vosle_epithet}::
+The descriptive word after the separator in an
+{vosli_inscription}.
+Provides human-readable meaning while the
+{vosls_signet}
+provides machine-parseable identity.
++
+Examples: `cipher` in `voslc_cipher`, `heat` in `jjc-heat-mount`.
+
+[[vosli_inscription]]
+//axl_voices axt_string
+{vosli_inscription}::
+The full artifact name combining
+{vosls_signet},
+separator, and
+{vosle_epithet}.
+An
+{vosli_inscription}
+is the complete, unambiguous identifier for any named artifact.
++
+Structure: `{signet}{separator}{epithet}`
++
+Examples: `voslc_cipher` (underscore separator), `jjc-heat-mount` (hyphen separator).
+Domain
+{voslv_vesture_s}
+may specify additional completion rules (see individual domain definitions).
+
+[[voslv_vesture]]
+//axl_voices axo_entity
+{voslv_vesture}::
+Domain-specific construction rules for
+{vosli_inscription_s}.
+Each
+{voslv_vesture}
+defines signet_case, separator, epithet_case, and envelope for its domain.
+Different domains (Rust, Bash, AsciiDoc, etc.) have different naming conventions.
++
+A
+{voslv_vesture}
+is like clothing for a domain — it dresses the abstract naming concepts in domain-appropriate form.
+
+=== Liturgy Domains
+
+[[vosldr_rust]]
+//axl_voices axo_entity
+{vosldr_rust}::
+{voslv_vesture}
+for Rust source identifiers.
++
+* signet_case: snake_case
+* separator: `_`
+* epithet_case: PascalCase for types, snake_case for functions
+* envelope: none
+
+[[vosldb_bash]]
+//axl_voices axo_entity
+{vosldb_bash}::
+{voslv_vesture}
+for Bash source identifiers.
++
+* signet_case: lowercase
+* separator: `_`
+* epithet_case: snake_case
+* envelope: `.sh` for files
+
+[[voslda_asciidoc]]
+//axl_voices axo_entity
+{voslda_asciidoc}::
+{voslv_vesture}
+for AsciiDoc attribute identifiers.
++
+* signet_case: lowercase
+* separator: `_`
+* epithet_case: snake_case
+* envelope: none (attributes), `[[` `]]` for anchors
+
+[[vosldp_publication]]
+//axl_voices axo_entity
+{vosldp_publication}::
+{voslv_vesture}
+for publication and specification files.
++
+* signet_case: UPPERCASE
+* separator: `-`
+* epithet_case: PascalCase
+* envelope: `.adoc`, `.md`
+
+[[vosldg_git]]
+//axl_voices axo_entity
+{vosldg_git}::
+{voslv_vesture}
+for git refs.
++
+* signet_case: lowercase
+* separator: `/`
+* epithet_case: kebab-case
+* envelope: none
+
+[[voslds_slash]]
+//axl_voices axo_entity
+{voslds_slash}::
+{voslv_vesture}
+for slash command identifiers.
++
+* signet_case: lowercase
+* separator: `-`
+* epithet_case: kebab-case
+* envelope: `.md` for files
+
+[[vosldt_tabtarget]]
+//axl_voices axo_entity
+{vosldt_tabtarget}::
+{voslv_vesture}
+for tabtarget launcher files.
+The tabtarget is a colophon referencing the primary universe; its full dispatch vocabulary (Colophon, Frontispiece, Imprint, Formulary, Launcher) is defined in BUS0-BashUtilitiesSpec.adoc.
++
+* signet_case: lowercase
+* separator: `-`
+* epithet_case: PascalCase (Frontispiece)
+* envelope: `.sh`
+
+=== Terminal Exclusivity
+
+A fundamental constraint on
+{voslc_cipher_s}
+and
+{vosls_signet_s}:
+a prefix either IS a name or HAS children, never both.
+
+Examples:
+
+* `rbg` has children (`rbga`, `rbgb`...) → `rbg` cannot name a thing
+* `rbi` names Image module → `rbia`, `rbib` forbidden
+
+This rule ensures unambiguous prefix matching for operations like uninstall (which removes all files matching a
+{vosls_signet}).
+
+Validated at runtime by `vofc_validate_terminal_exclusivity()` in `vofc_registry.rs`.
+
+=== Minting Workflow
+
+Before minting new prefixes:
+
+1. **Enumerate namespaces** — list every place this name will appear (code, refs, commands, env vars, target paths...)
+2. **Check reserved suffixes** — ensure the suffix matches intended type within the kit
+3. **Verify terminal exclusivity** — search existing trees, ensure no conflicts
+4. **Document the allocation** — add to prefix map in relevant spec or CLAUDE.md
+
+[[cipher_registry]]
+=== Cipher Registry
+
+{voslc_cipher_s}
+are declared as const values in `Tools/vok/vof/src/vofc_registry.rs`.
+The VOF crate (Vox Obscura Foundation) is the single source of truth for all project prefixes across the entire VO/VV ecosystem.
+
+==== Declaration Pattern
+
+[source,rust]
+----
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct vofc_Cipher {
+    prefix: &'static str,
+    project: &'static str,
+}
+
+impl vofc_Cipher {
+    pub const fn new(prefix: &'static str, project: &'static str) -> Self {
+        Self { prefix, project }
+    }
+}
+
+// Example declarations
+pub const JJ: vofc_Cipher = vofc_Cipher::new("jj", "Job Jockey");
+pub const BU: vofc_Cipher = vofc_Cipher::new("bu", "Bash Utilities");
+----
+
+==== Uniqueness Guarantees
+
+* **Compile-time**: duplicate const names are compilation errors
+* **Runtime**: `vofc_validate_terminal_exclusivity()` verifies no prefix is a prefix of another
+* **Convention**: new ciphers require coordinated addition to `vofc_registry.rs`
+
+==== Complete Registry
+
+See `Tools/vok/vof/src/vofc_registry.rs` for the authoritative list of all
+{voslc_cipher_s}.
+The registry is organized by domain:
+
+* Voce Viva Ecosystem (VV, VO)
+* Portable Kits (JJ, BU, CM, HM)
+* Recipe Bottle Domain (RB, CRG)
+* Tools and Utilities (GAD, CCC, LMCI, VSL)
+* Concept Model Vocabulary (MCM, AXL)
+* Other Projects (PB, WRS, SRF)
+
+==== Utility Functions
+
+[source,rust]
+----
+// Find cipher by prefix
+pub fn vofc_find_by_prefix(prefix: &str) -> Option<&'static vofc_Cipher>;
+
+// Check if prefix is registered
+pub fn vofc_is_registered(prefix: &str) -> bool;
+
+// Validate terminal exclusivity
+pub fn vofc_validate_terminal_exclusivity() -> Option<(&'static vofc_Cipher, &'static vofc_Cipher)>;
+----
 
 == Key Premises
 
@@ -948,614 +1286,53 @@ maintained manually or by the build tabtarget.
 
 == Operations
 
+The four Obscura distribution operations are defined here at the cosmology top; their procedure bodies live in the consuming subdoc VOSO-distribution.adoc, included below.
+
 [[vosor_release]]
 //axvo_procedure axd_transient
-=== {vosor_release}
-
+{vosor_release}::
 Creates a
 {vose_parcel}
 from the
 {vosp_kit_forge}.
-
-//axd_none
-No external inputs. Operates on current
-{vosp_kit_forge}
-state.
-
-//axhos_step
-. *Collect kit declarations*:
-.. {vosc_call}
-read `BURC_MANAGED_KITS` from kit forge's `.buk/burc.env`
-.. {vosc_fatal}
-if missing or empty: "burc.env missing required variable: BURC_MANAGED_KITS"
-.. {vosc_store}
-kit list for processing (only kits in BURC_MANAGED_KITS)
-
-//axhos_step
-. *Validate prefix compliance*:
-.. For each
-{vose_kit}:
-{vosc_require}
-all asset
-{vosls_signet_s}
-derive from
-{voslc_cipher}
-.. {vosc_fatal}
-if any violations: list non-compliant
-{vosli_inscription_s}
-
-//axhos_step
-. *Run testbenches*:
-.. {vosc_call}
-each kit's testbench
-.. {vosc_fatal}
-if any tests fail
-
-//axhos_step
-. *Build binaries*:
-.. {vosc_call}
-cargo build for each target platform
-.. {vosc_store}
-binary paths
-
-//axhos_step
-. *Collect assets*:
-.. For each
-{vose_kit}:
-collect files excluding
-{vosp_veiled}
-.. For each
-{voslc_cipher}
-from kit list:
-... Scan kit forge `.claude/commands/` for files matching `{cipher}c-*.md`
-... Scan kit forge `.claude/hooks/` for files matching `{cipher}h-*.md`
-... Copy matching files to parcel `claude/commands/` and `claude/hooks/` respectively
-.. {vosc_step}
-"Claude config assets collected by cipher pattern"
-
-//axhos_step
-. *Generate sigil*:
-.. {vosc_store}
-{vost_sigil}
-as current timestamp (YYMMDD-HHMM)
-
-//axhos_step
-. *Compute brand identity*:
-.. {vosc_call}
-compute order-independent super-SHA:
-... Sort all parcel files by path
-... Hash each file's path + content
-... Combine hashes
-... Exclude
-{vose_brand_file}
-from computation
-.. {vosc_store}
-super-SHA for registry lookup
-
-//axhos_step
-. *Allocate brand*:
-.. {vosc_call}
-read
-{vose_registry}
-.. If super-SHA exists in registry:
-{vosc_store}
-existing
-{vost_brand}
-.. If super-SHA is new:
-... {vosc_store}
-next sequential
-{vost_brand}
-(max + 1, starting at 1000)
-... {vosc_call}
-update
-{vose_registry}
-with new entry
-... {vosc_call}
-commit registry change
-
-//axhos_step
-. *Write brand file*:
-.. {vosc_call}
-create
-{vose_brand_file}
-at parcel root with
-{vosem_brand},
-{vosem_brand_date},
-{vosem_brand_sha},
-{vosem_brand_commit}
-(current git HEAD),
-{vosem_brand_kits}
-(list of kit identifiers)
-
-//axhos_step
-. *Package parcel*:
-.. Create `vvk-parcel-{brand}.tar.gz` with structure:
-... `vvi_install.sh` — install script (bootstrap, not installed)
-... `vvbf_brand.json` —
-{vose_brand_file}
-at parcel root
-... `kits/` — all kit assets by directory (including VVK with binaries)
-... `claude/` — commands and hooks collected by cipher pattern
-
-//axhoom_motif_output
-* {vose_parcel}
-archive: `vvk-parcel-{brand}.tar.gz`
-* {vose_brand_file}
-at parcel root
-
-//axhoc_completion
-{vose_parcel}
-created with all validated
-{vose_kit}
-assets and platform binaries.
-
+Procedure: see VOSO-distribution.adoc.
 
 [[vosoi_install]]
 //axvo_procedure axd_transient
-=== {vosoi_install}
-
+{vosoi_install}::
 Deploys a
 {vose_parcel}
 to a
 {vosp_target_repo}.
-Nuclear replacement: deletes existing installation before copying fresh.
-Handles both first-time install and reinstall identically.
-
-Invocation (from extracted parcel):
-
-----
-./vvi_install.sh /path/to/target/.buk/burc.env
-----
-
-The bash script is a thin bootstrap: detect platform, exec `vvx_emplace`.
-All logic is implemented in Rust for path safety and testability.
-
-//axd_required
-* Path to target repository's `burc.env` file (positional argument)
-
-//axhos_step
-. *Validate burc.env*:
-.. {vosc_require}
-burc.env exists and is readable
-.. {vosc_call}
-parse burc.env as KEY=VALUE pairs
-.. {vosc_require}
-`BURC_PROJECT_ROOT` is defined and non-empty
-.. {vosc_require}
-`BURC_TOOLS_DIR` is defined and non-empty
-.. {vosc_require}
-`BURC_MANAGED_KITS` is defined and non-empty
-.. {vosc_fatal}
-if missing or empty: "burc.env missing required variable: {name}"
-.. {vosc_call}
-resolve `BURC_PROJECT_ROOT` as path from burc.env's location to project root
-.. {vosc_call}
-resolve `BURC_TOOLS_DIR` relative to resolved project_root (per BURC spec)
-.. {vosc_store}
-absolute paths for tools_dir and project_root, kit list from BURC_MANAGED_KITS
-
-//axhos_step
-. *Validate git state*:
-.. {vosc_require}
-project_root is a git repository
-.. {vosc_fatal}
-if not: "Target is not a git repository"
-.. {vosc_require}
-working tree is clean (no uncommitted changes)
-.. {vosc_fatal}
-if dirty: "Target repo has uncommitted changes. Commit or stash before install."
-
-//axhos_step
-. *Read brand identity*:
-.. {vosc_call}
-parse
-{vose_brand_file}
-from parcel root
-.. {vosc_store}
-{vosem_brand}
-and
-{vosem_brand_kits}
-
-//axhos_step
-. *Validate kit match*:
-.. {vosc_require}
-`BURC_MANAGED_KITS` exactly matches
-{vosem_brand_kits}
-(same kits, order independent)
-.. {vosc_fatal}
-if mismatch: "Target requests kits [{target_kits}] but parcel contains [{parcel_kits}]"
-
-//axhos_step
-. *Nuclear cleanup*:
-.. If `.vvk/` exists:
-{vosc_call}
-delete recursively
-.. If `.vvk/` absent: no action (first-time install)
-.. For each kit in `BURC_MANAGED_KITS`:
-... If `${BURC_TOOLS_DIR}/{kit}/` exists:
-{vosc_call}
-delete recursively
-... If absent: no action
-.. {vosc_step}
-"Previous installation removed" or "Clean target (first-time install)"
-
-//axhos_step
-. *Create brand directory*:
-.. {vosc_call}
-create `.vvk/` directory
-.. {vosc_call}
-copy
-{vose_brand_file}
-to `.vvk/vvbf_brand.json`
-
-//axhos_step
-. *Install kits*:
-.. For each kit in `BURC_MANAGED_KITS`:
-... {vosc_call}
-copy `kits/{kit}/` to `${BURC_TOOLS_DIR}/{kit}/`
-.. {vosc_step}
-"{n} kits installed"
-
-//axhos_step
-. *Emplace canonical binary*:
-.. {vosc_call}
-detect host platform via `uname -s` and `uname -m`
-.. {vosc_require}
-platform-suffixed binary exists in `kits/vvk/bin/vvx-{platform}`
-.. {vosc_fatal}
-if missing: "No binary for platform {platform}"
-.. {vosc_call}
-copy `kits/vvk/bin/vvx-{platform}` to `${BURC_TOOLS_DIR}/vvk/bin/vvx`
-.. {vosc_call}
-remove all `vvx-*` platform-suffixed binaries from `${BURC_TOOLS_DIR}/vvk/bin/`
-.. {vosc_step}
-"vvx binary emplaced for {platform}"
-
-//axhos_step
-. *Install Claude config assets*:
-.. {vosc_call}
-copy `claude/commands/*` to `.claude/commands/`
-.. {vosc_call}
-copy `claude/hooks/*` to `.claude/hooks/`
-.. {vosc_step}
-"{m} commands installed, {p} hooks installed"
-
-//axhos_step
-. *Freshen CLAUDE.md*:
-.. If CLAUDE.md absent:
-{vosc_call}
-create with header `# Claude Code Project Memory`
-.. {vosc_call}
-sweep any legacy per-kit
-{vose_marker_s}
-left by the retired inline mechanism
-.. {vosc_call}
-build the
-{vose_include_region}
-body: one `@`-include line per
-{vose_kit_include}
-of each installed
-{vose_kit},
-in registry order
-.. Upsert the
-{vose_include_region}:
-... If its
-{vose_marker_s}
-exist: replace content between markers
-... Else if the
-{vose_uninstalled_marker}
-exists: expand at that location
-... Else: append at end of file
-.. {vosc_step}
-"CLAUDE.md include region updated"
-+
-NOTE: This is a deterministic text transformation implemented in Rust.
-No LLM assistance required for marker manipulation.
-
-//axhos_step
-. *Write MCP configuration*:
-.. {vosc_call}
-write
-{vosa_mcp_config}
-at project root (`.mcp.json`)
-.. {vosc_step}
-"MCP server configured"
-
-//axhos_step
-. *Commit installation*:
-.. {vosc_call}
-`git add -A`
-.. {vosc_call}
-`git commit -m "VVK install: brand {brand}"`
-.. {vosc_step}
-"Installation committed"
-
-//axhoom_motif_output
-* Kit assets under `${BURC_TOOLS_DIR}/`
-* {vose_canonical_binary}
-at `${BURC_TOOLS_DIR}/vvk/bin/vvx`
-* {vosa_mcp_config}
-at `.mcp.json`
-* Commands in `.claude/commands/`
-* Hooks in `.claude/hooks/`
-* Brand file at `.vvk/vvbf_brand.json`
-* Updated CLAUDE.md with the
-{vose_include_region}
-* Single git commit
-
-//axhoc_completion
-All
-{vose_kit_s}
-installed atomically.
-Clean git history with single install commit.
-
+Procedure: see VOSO-distribution.adoc.
 
 [[vosou_uninstall]]
 //axvo_procedure axd_transient
-=== {vosou_uninstall}
-
-Removes Claude Code integration from
-{vosp_target_repo}
-while preserving
+{vosou_uninstall}::
+Removes Claude Code integration (commands, hooks, the CLAUDE.md
+{vose_include_region},
+the vvx binary) while preserving
 {vose_kit}
-directories.
-Unveiled kit content is typically open-source and remains functional outside Claude Code; vacate removes only the Claude-specific layer (commands, hooks, the CLAUDE.md include region, vvx binary).
-Uses brand file to enumerate what to remove.
-
-Invocation (from target repo root):
-
-----
-./Tools/vvk/vvu_uninstall.sh
-----
-
-The bash script is a thin bootstrap: exec `vvx_vacate`.
-All logic is implemented in Rust.
-
-//axd_none
-No arguments. Operates on current repository using `.buk/burc.env`.
-
-//axhos_step
-. *Validate burc.env*:
-.. {vosc_require}
-`.buk/burc.env` exists and is readable
-.. {vosc_call}
-parse burc.env as KEY=VALUE pairs
-.. {vosc_require}
-`BURC_PROJECT_ROOT` is defined and non-empty
-.. {vosc_require}
-`BURC_TOOLS_DIR` is defined and non-empty
-.. {vosc_require}
-`BURC_MANAGED_KITS` is defined and non-empty
-.. {vosc_fatal}
-if missing or empty: "burc.env missing required variable: {name}"
-.. {vosc_call}
-resolve `BURC_PROJECT_ROOT` as path from burc.env's location to project root
-.. {vosc_call}
-resolve `BURC_TOOLS_DIR` relative to resolved project_root (per BURC spec)
-+
-NOTE: `BURC_MANAGED_KITS` is required for defense in depth; any VVK-managed repo should declare its kit inventory.
-
-//axhos_step
-. *Validate git state*:
-.. {vosc_require}
-working tree is clean
-.. {vosc_fatal}
-if dirty: "Repo has uncommitted changes. Commit or stash before uninstall."
-
-//axhos_step
-. *Read brand file*:
-.. {vosc_require}
-`.vvk/vvbf_brand.json` exists
-.. {vosc_fatal}
-if absent: "No VVK installation found (.vvk/vvbf_brand.json missing)"
-.. {vosc_call}
-parse brand file
-.. {vosc_require}
-{vosem_brand_kits}
-is present and non-empty
-.. {vosc_fatal}
-if malformed: "Brand file malformed: {details}"
-.. {vosc_store}
-kit list and their
-{voslc_cipher_s}
-
-//axhos_step
-. *Remove commands and hooks*:
-.. For each
-{voslc_cipher}
-from kit list:
-... {vosc_call}
-remove files matching `{cipher}c-*.md` from `.claude/commands/`
-... {vosc_call}
-remove files matching `{cipher}h-*.md` from `.claude/hooks/`
-.. {vosc_step}
-"{n} commands removed, {m} hooks removed"
-
-//axhos_step
-. *Collapse CLAUDE.md region*:
-.. If CLAUDE.md exists:
-... {vosc_call}
-sweep any legacy per-kit
-{vose_marker_s}
-left by the retired inline mechanism
-... If the
-{vose_include_region}
-{vose_marker_s}
-exist: replace with a single
-{vose_uninstalled_marker}
-... If markers absent: no action (region was never added or already collapsed)
-.. {vosc_step}
-"CLAUDE.md include region collapsed"
-+
-NOTE: Preserves the region's position for future reinstall.
-
-//axhos_step
-. *Remove vvx binary*:
-.. {vosc_call}
-delete
-{vose_canonical_binary}
-at `${BURC_TOOLS_DIR}/vvk/bin/vvx` if exists
-.. {vosc_step}
-"vvx binary removed"
-
-//axhos_step
-. *Remove MCP configuration*:
-.. {vosc_call}
-delete `.mcp.json` at project root if exists
-.. {vosc_step}
-"MCP configuration removed"
-+
-NOTE: Kit directories (`buk/`, `jjk/`, etc.) are intentionally *preserved*.
-Unveiled kit content is typically open-source and remains functional outside Claude Code.
-Vacate removes Claude-specific integration while retaining underlying functionality.
-
-//axhos_step
-. *Remove brand infrastructure*:
-.. {vosc_call}
-delete `.vvk/vvbf_brand.json`
-.. {vosc_call}
-delete `.vvk/` directory if empty
-.. {vosc_step}
-"Brand file removed"
-
-//axhos_step
-. *Commit uninstallation*:
-.. {vosc_call}
-`git add -A`
-.. {vosc_call}
-`git commit -m "VVK uninstall"`
-.. {vosc_step}
-"Uninstallation committed"
-
-//axhoom_motif_output
-* {vose_canonical_binary}
-removed from `${BURC_TOOLS_DIR}/vvk/bin/vvx`
-* {vosa_mcp_config}
-removed from `.mcp.json`
-* Commands removed from `.claude/commands/`
-* Hooks removed from `.claude/hooks/`
-* CLAUDE.md include region collapsed to a single
-{vose_uninstalled_marker}
-* Brand file and `.vvk/` removed
-* Kit directories *preserved* (unveiled content remains functional)
-* Single git commit
-
-//axhoc_completion
-Claude Code integration cleanly removed.
-Kit directories remain for continued use outside Claude Code.
-The
-{vose_uninstalled_marker}
-preserves the region's position for future reinstall.
-
+directories; uses
+{vosls_signet}
+-based prefix matching for command/hook removal.
+Procedure: see VOSO-distribution.adoc.
 
 [[vosof_freshen]]
 //axvo_procedure axd_transient
-=== {vosof_freshen}
-
+{vosof_freshen}::
 Rebuilds CLAUDE.md's
 {vose_include_region}
-from the kit
-{vose_conclave},
-bypassing the
-{vose_parcel}
-pipeline.
-Operates directly within the
-{vosp_kit_forge}
-itself.
-
-This is a development-time operation for use in the
-{vosp_kit_forge}
-when the kit
-{vose_conclave}
-has changed — kits added or removed, or a
-{vose_kit_include}
-list edited — and CLAUDE.md's
-{vose_include_region}
-needs to match without a full
-{vosor_release}
-and
-{vosoi_install}
-cycle.
-
-Invocation (via tabtarget):
-
-----
-tt/vow-F.Freshen.sh
-----
-
-Or directly:
-
-----
-vvx_freshen --burc .buk/burc.env
-----
-
-//axd_required
-* Path to `burc.env` file (`--burc` argument)
-
-//axhos_step
-. *Parse burc.env*:
-.. {vosc_call}
-parse burc.env for `BURC_PROJECT_ROOT`, `BURC_TOOLS_DIR`, `BURC_MANAGED_KITS`
-.. {vosc_fatal}
-if missing or empty: "burc.env missing required variable: {name}"
-
-//axhos_step
-. *Build include region body*:
-.. For each kit in `BURC_MANAGED_KITS`:
-... {vosc_call}
-look up the
-{vose_kit}
-{vose_whisper}
 in the
-{vose_conclave}
-... For each
-{vose_kit_include}
-of the
-{vose_kit}:
-{vosc_call}
-emit one `@`-include line, project-root-relative to the kit's installed directory
+{vosp_kit_forge}
+from the kit
+{vose_registry}
+without a
+{vose_parcel},
+enabling rapid iteration during development.
+Procedure: see VOSO-distribution.adoc.
 
-//axhos_step
-. *Freshen CLAUDE.md*:
-.. If CLAUDE.md absent:
-{vosc_call}
-create with header `# Claude Code Project Memory`
-.. {vosc_call}
-sweep any legacy per-kit
-{vose_marker_s}
-left by the retired inline mechanism
-.. Upsert the
-{vose_include_region}:
-... If its
-{vose_marker_s}
-exist: replace content between markers
-... Else if the
-{vose_uninstalled_marker}
-exists: expand at that location
-... Else: append at end of file
-.. {vosc_step}
-report the
-{vose_include_region}
-as updated, expanded, or appended
-
-NOTE: No git commit is performed.
-The caller decides when to commit, enabling
-{vosof_freshen}
-to be composed with other operations.
-
-//axhoom_motif_output
-* Updated CLAUDE.md with the
-{vose_include_region}
-rebuilt from the kit
-{vose_conclave}
-
-//axhoc_completion
-CLAUDE.md's
-{vose_include_region}
-reflects the current kit
-{vose_conclave}.
-No other files modified.
-
+include::VOSO-distribution.adoc[leveloffset=+1]
 
 == Routines
 
@@ -1739,4 +1516,86 @@ via `cipher.kit_id()`.
 {vost_cipher}
 must be a const registered in the cipher registry.
 * Terminal exclusivity holds across all ciphers — no cipher is a prefix of another (`vofc_validate_terminal_exclusivity`).
+
+== Matricula
+
+The Matricula branch is the transient inscription census over the naming system.
+Its vocabulary is defined here at the cosmology top; its method, decomposition, invariants, and scan mechanics live in the consuming subdoc VOSMM-entity.adoc, included below.
+
+[[vosmm_matricula]]
+//axve_entity axd_petrify
+{vosmm_matricula}::
+A transient, frozen census of the repository's
+{vosli_inscription_s}
+below the
+{voslc_cipher}
+tier, built from source on demand and discarded after the call that summoned it.
+The
+{vosmm_matricula}
+carries the
+{vosls_signet}
+trie (each node holding its prefix, its
+{vosle_epithet},
+its terminal-versus-container status, and the
+{vosli_inscription_s}
+seated under it), the
+{vosme_estray}
+set, and the query indices read by its jobs.
+It has both structure and behavior: a builder raises it,
+{vosms_seal}
+freezes it, and a pure query interface reads it.
++
+The
+{vosmm_matricula}
+performs set operations over
+{vosli_inscription_s}
+— membership, enumeration, set-difference, vesture-grammar role-form expansion — and reports the constraint space.
+It never generates words, fuzzy-matches, or interprets meaning; the operator supplies the meaning.
+
+[[vosms_seal]]
+//axve_entity axd_petrify
+{vosms_seal}::
+The freeze verb of the
+{vosmm_matricula}:
+the act that consumes the mutable Builder and returns the immutable census.
+{vosms_seal}
+is the Matricula's name for the AXLA petrifying act ({axd_petrify}); the build-then-freeze semantics are AXLA's, cited not restated.
+After
+{vosms_seal},
+the census accepts queries and no mutation, and the seating invariants (terminal-exclusivity, exact collision) are read as properties of the frozen structure.
+
+[[vosme_estray]]
+//axr_record axd_immutable
+{vosme_estray}::
+A token that carries the project
+{voslc_cipher}
+but that no
+{voslv_vesture}
+claims — ours by namespace, unclaimed by any known grammar.
+An
+{vosme_estray}
+is a product of the census, never an error and never folded into the validator
+{vosmp_presentment_s}:
+it surfaces misminting, mint-gaps, and forgotten
+{voslv_vesture}
+categories, and it is reported in its own section.
+The metaphor is manorial: an estray is an ownerless thing found within the demesne whose owner is unknown — the census records it and presents it to the operator, who alone decides whether it is a stray to reclaim or a category yet to be minted.
+
+[[vosmp_presentment]]
+//axr_record axd_immutable
+{vosmp_presentment}::
+A seating validator's output record: a formal report of one minting violation the census observed directly.
+The metaphor is the inquest's presentment — an offense reported from the body's own knowledge, not an accusation imported from elsewhere.
+A
+{vosmp_presentment}
+carries the violating
+{vosli_inscription_s},
+the declaration sites, and the violated rule (cited to its CMK/MCM home, never restated).
+{vosmp_presentment_s}
+validate *declarations* only; reference sites feed later interrogations that are out of MVP scope.
+Per VOr_m7w, a
+{vosmp_presentment}
+over a fallible gate (sprue, rivet) is advisory, not an assertion.
+
+include::VOSMM-entity.adoc[leveloffset=+1]
 
