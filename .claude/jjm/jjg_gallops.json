@@ -16821,8 +16821,8 @@
         "₢BhAAB": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260622-0554",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260622-0803",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "The first rbm-side slice, standalone and dependency-free:",
                 "vvx derives its own typed window reference (the iterm-session scheme: read ITERM_SESSION_ID, take the UUID after the colon) and resolves the fixed emblem-directory path it will write into.",
@@ -16841,7 +16841,7 @@
                 "- vvx resolves the emblem-directory path and skips cleanly when it cannot, with the env-var inheritance confirmed by running the built vvx, not assumed from the proof."
               ],
               "jjgtn_silks": "vvx-window-reference",
-              "jjgtn_basis": "a4a4231"
+              "jjgtn_basis": "fe9e8ee"
             }
           ]
         },
