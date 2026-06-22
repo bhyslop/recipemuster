@@ -17336,6 +17336,7 @@
         "₢BiAAN",
         "₢BiAAO",
         "₢BiAAP",
+        "₢BiAAR",
         "₢BiAAL",
         "₢BiAAE",
         "₢BiAAD",
@@ -17347,7 +17348,7 @@
         "₢BiAAJ",
         "₢BiAAA"
       ],
-      "jjghn_next_pace_seed": "AAR",
+      "jjghn_next_pace_seed": "AAS",
       "jjghn_paces": {
         "₢BiAAA": {
           "jjgpn_tacks": [
@@ -18005,6 +18006,42 @@
               ],
               "jjgtn_silks": "feoff-base-anchor-split",
               "jjgtn_basis": "a4163db"
+            }
+          ]
+        },
+        "₢BiAAR": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260622-1205",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Chaining-fact tests — permutation and negative coverage with named precision-band exit codes, proving a bad chain attempt cannot corrupt a good one.",
+                "",
+                "## Character",
+                "Test infrastructure; one pace covering the unit matrix plus one integration case and the provenance proof. The named-band assertions are the only subtlety.",
+                "",
+                "## Unit tier (the bulk)",
+                "Extend the BUK self-test fact cases (Tools/buk/buts/butcfc_facts.sh — the established previous/-seeding home) over the footings resolver and decoder: wrong-kind chained fact → assert the named chain-rejection band code; broken/absent chain → its rejection; good fact → success; express-present beats chain-present (precedence); and fact-intact — a failed resolve leaves the seeded fact byte-identical.",
+                "Seeding previous/ is the resolver's legitimate input here, not a re-seed hack.",
+                "",
+                "## Integration tier (one case)",
+                "One theurge case via the existing chain_next_invoke producer→consumer pairing: a real ensconce then the real feoff, asserting the real fact shape matches the unit mocks and the named band code survives the full dispatch exec path (the regime-poison precedent: assert the specific band, never bare nonzero).",
+                "",
+                "## Provenance case",
+                "ensconce → feoff → commit → conjure asserts the build's recorded git provenance matches the committed anchor — the proof the feoff split closed the hole.",
+                "",
+                "## Cinched",
+                "Negative cases assert the named precision-band code (buc_reject), never bare nonzero.",
+                "The matrix lives at the unit tier; the integration tier is one representative case, not the whole matrix.",
+                "No relay anywhere — the depth-1 terminal-consume contract is what these tests defend.",
+                "",
+                "## Done when",
+                "The unit matrix (wrong-kind, broken, good, precedence, fact-intact) passes via the band-code assertions.",
+                "The one integration case proves the band code survives the exec path; the provenance case proves the committed-anchor stamp.",
+                "rbw-tl clean; the relevant suites green."
+              ],
+              "jjgtn_silks": "chaining-fact-band-tests",
+              "jjgtn_basis": "28805eb"
             }
           ]
         }
