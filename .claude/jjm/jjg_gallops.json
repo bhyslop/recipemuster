@@ -11946,9 +11946,10 @@
         "₢BDAAY",
         "₢BDAAf",
         "₢BDAAg",
-        "₢BDAAh"
+        "₢BDAAh",
+        "₢BDAAi"
       ],
-      "jjghn_next_pace_seed": "AAi",
+      "jjghn_next_pace_seed": "AAj",
       "jjghn_paces": {
         "₢BDAAA": {
           "jjgpn_tacks": [
@@ -13242,6 +13243,31 @@
               ],
               "jjgtn_silks": "vok-output-discipline-module",
               "jjgtn_basis": "951563c"
+            }
+          ]
+        },
+        "₢BDAAi": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260622-1017",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Done when",
+                "JSSCGZ's \"No ordering\" invariant no longer overstates the case.",
+                "",
+                "The gazette spec (JJSCGZ-gazette.adoc, \"== Invariants\", the \"No ordering\" block) asserts the gazette has NO ordering semantic — across slugs or within a slug's entries — and that callers must never depend on iteration order from any method.",
+                "That blanket claim is wrong: depending on the gazette (its use-site), order CAN be significant.",
+                "Correct the invariant prose to scope the no-ordering guarantee to where it actually holds, and acknowledge order-significant use-sites.",
+                "",
+                "Prose/invariant correction only — not driven by a current consumer (the ₣Bh emblem cousin sidesteps this by placing regions via an explicit pbge_location attribute, never gazette order; it is the realization that surfaced the overstatement, not a dependant).",
+                "If a JJK use-site is later found that genuinely needs preserved order, whether jjrz_gazette's behavior and its round-trip guarantee must change is a larger question — flag it, do not silently re-architect.",
+                "Not a gallops schema change (spec prose only), so no reprieve episode.",
+                "",
+                "## Character",
+                "Small spec-prose correction; judgment only on how narrowly to scope the corrected invariant."
+              ],
+              "jjgtn_silks": "gazette-ordering-invariant-correction",
+              "jjgtn_basis": "fff1ec6"
             }
           ]
         }
