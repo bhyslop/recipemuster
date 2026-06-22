@@ -17331,6 +17331,7 @@
       "jjghn_order": [
         "₢BiAAC",
         "₢BiAAK",
+        "₢BiAAQ",
         "₢BiAAM",
         "₢BiAAN",
         "₢BiAAO",
@@ -17346,7 +17347,7 @@
         "₢BiAAJ",
         "₢BiAAA"
       ],
-      "jjghn_next_pace_seed": "AAQ",
+      "jjghn_next_pace_seed": "AAR",
       "jjghn_paces": {
         "₢BiAAA": {
           "jjgpn_tacks": [
@@ -17771,7 +17772,7 @@
         "₢BiAAK": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260622-1300",
+              "jjgtn_ts": "260622-1205",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "Yoke gains the express-or-chain fallback for its reliquary touchmark, and lays the two shared footings the sibling verbs will reuse.",
@@ -17786,28 +17787,31 @@
                 "Both are parameterized so each verb stays a unique caller; final names are a mint to settle.",
                 "",
                 "## BCG conformance (required)",
-                "buf_read_fact is read via $() at every call site but lacks the _capture/_recite suffix BCG line 566 keys that permission to, and no fact exception is documented — suffix it (a mint) or document the exception so the fact stack reads clean.",
+                "buf_read_fact is read via $() at every call site but lacks the _capture/_recite suffix BCG keys that permission to, and no fact exception is documented — suffix it (a mint) or document the exception so the fact stack reads clean.",
                 "All bash holds BCG (kindle/sentinel, prefix rules, no inline shellcheck suppressions without cause) and lands shellcheck-clean via rbw-tl.",
                 "",
                 "## Yoke itself",
                 "Express touchmark wins; absent → the resolver reads the chained reliquary touchmark; then assert kind=reliquary via the decoder.",
-                "This closes a live gap: yoke today never typechecks its express touchmark and fails late at GAR cohort validation.",
+                "This closes a kind-typing gap: yoke validates its touchmark's existence against live GAR today but never asserts its KIND, so a non-reliquary touchmark fails late at cohort validation; the decoder adds the kind assertion up front.",
+                "Yoke's reliquary write stays leak-safe under the chain fallback — the reliquary fans to every vessel (global, idempotent), so there is no per-vessel wrong-instance exposure.",
                 "Relax spec RBSDY from hard-require to optional-with-fallback alongside the code.",
                 "",
                 "## Cinched",
                 "Express identifier always overrides the fact; the fact is the no-arg fallback only.",
                 "The resolver and decoder are shared hearting parameterized per verb — never a parent verb, never spanning bondstones.",
                 "Kind discrimination is by touchmark kind-prefix, matched as a prefix, never char[0].",
+                "The resolver NEVER relays — the chain stays depth-1, terminally consumed; this no-relay rule is the leak-elimination invariant (its rationale already lives in the base-anchor election's no-buf_relay comment).",
+                "Kind and broken-chain rejections surface a named precision-band exit code via buc_reject, never bare nonzero — mint a chain-rejection code in the open BUBC band, per the regime-poison precedent and BCG's Precision Exit-Code Band.",
                 "",
                 "## Done when",
-                "The resolver and touchmark-kind decoder exist as reusable helpers with the contracts above.",
+                "The resolver and touchmark-kind decoder exist as reusable helpers with the contracts above, and the resolver buc_rejects the named chain-rejection band code on a wrong-kind or broken chain.",
                 "Yoke resolves express-or-chain, asserts reliquary, and refuses a non-reliquary or broken chain cleanly; an express call behaves as today.",
-                "buf_read_fact satisfies BCG line 566 (suffix or documented exception).",
+                "buf_read_fact satisfies BCG's _capture/_recite suffix rule (suffix or documented exception).",
                 "RBSDY reflects optional-with-fallback.",
                 "rbw-tl clean and the fast suite green."
               ],
               "jjgtn_silks": "yoke-touchmark-fact-fallback",
-              "jjgtn_basis": "c8dd2c9"
+              "jjgtn_basis": "a4163db"
             }
           ]
         },
@@ -17939,32 +17943,68 @@
         "₢BiAAP": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260622-1300",
+              "jjgtn_ts": "260622-1205",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
-                "Retrofit the two pre-existing hand-rolled fact consumers — anoint and ordain's base-anchor election — onto the shared footings, retiring the divergent implementations.",
+                "Retrofit the remaining hand-rolled fact consumer — anoint — onto the shared footings, retiring the divergent implementation.",
                 "",
                 "## Character",
-                "Drift-killing cleanup; mechanical, with care on the security-relevant base-anchor path.",
-                "The footings exist precisely so there is one implementation — this folds the two that predate them.",
+                "Drift-killing cleanup; mechanical. The footings exist precisely so there is one implementation; this folds the last consumer that predates them.",
+                "The base-anchor election is converged separately, as part of its extraction into feoff, so this pace no longer touches conjure.",
                 "",
                 "## Shape",
-                "anoint reads three build facts, and ordain's base-anchor election reads the lode brand plus touchmark, each with its own hand-rolled buf_read_fact and buc_die phrasing.",
-                "Route both through the shared resolver, and switch the base-anchor's kind discrimination to the shared touchmark-kind decoder where it applies.",
+                "anoint reads three build facts (hallmark, gar-root, ark-stem) with its own hand-rolled buf_read_fact + buc_die phrasing. Route them through the shared resolver.",
                 "Discovery: grep buf_read_fact across Tools/rbk/.",
                 "",
                 "## Cinched",
-                "After this pace, every fact consumer routes through the shared resolver; no hand-rolled buf_read_fact + buc_die dance remains outside the footing (the BUK self-test fact case excepted).",
-                "Behavior is unchanged — this is a refactor onto the footings, not a contract change.",
+                "After this pace, every fact consumer routes through the shared resolver; no hand-rolled buf_read_fact + buc_die dance remains outside the footing (the BUK self-test fact case and feoff's own use excepted).",
+                "Behavior is unchanged — a refactor onto the footings, not a contract change.",
+                "anoint's loud-on-typecheck output is a separate behavior change, owned by the feoff pace.",
                 "",
                 "## Done when",
-                "anoint and the base-anchor election use the shared resolver, and the decoder where applicable.",
-                "A grep for hand-rolled buf_read_fact dances returns only the footing and the tests.",
-                "The ordain conjure/bind/graft paths and anoint behave identically, verified by the relevant fixtures.",
-                "rbw-tl clean; the fast suite green, plus a build-exercising tier for the base-anchor path."
+                "anoint uses the shared resolver; a grep for hand-rolled buf_read_fact dances returns only the footing, feoff, and the tests.",
+                "anoint behaves identically, verified by the relevant fixtures.",
+                "rbw-tl clean; the fast suite green."
               ],
               "jjgtn_silks": "chaining-fact-footing-convergence",
-              "jjgtn_basis": "c8dd2c9"
+              "jjgtn_basis": "a4163db"
+            }
+          ]
+        },
+        "₢BiAAQ": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260622-1205",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Restore conjure to a pure chain HEAD — output only, never reads a prior fact — by extracting its base-anchor election into a standalone feoff link verb.",
+                "",
+                "## Character",
+                "Behavior change (own cinch, distinct from the refactor-only convergence pace). The correctness fix of the heat: it closes a live provenance hole and restores the head-never-reads invariant. Intricate but bounded.",
+                "",
+                "## The split",
+                "Conjure (rbfd_build) embeds zrbfd_elect_base_anchor: it reads the chained bole touchmark, writes RBRV_IMAGE_n_ANCHOR into the vessel's rbrv.env after its clean-tree gate, then builds FROM that uncommitted value — so the artifact's git provenance names a commit whose rbrv.env still holds the OLD anchor.",
+                "Extract the election into feoff <vessel> (own colophon, express vessel arg like anoint): reads the chained bole touchmark through the shared footings, writes the vessel's anchor, creates no fact, no clean-tree gate, prints a commit reminder. Conjure then reads no chain and builds only from committed config.",
+                "Ceremony becomes: ensconce → feoff → commit → conjure.",
+                "",
+                "## Loud on typecheck",
+                "feoff and anoint both emit bold output on a passing typecheck — the value written and its source (chain vs express) — so a wrong build shows at the moment of action, not just in the eventual git diff. This replaces feoff's silent no-op branches.",
+                "",
+                "## Cinched",
+                "Conjure is a pure head — it never reads a prior fact (the head-never-reads invariant; verify by grep).",
+                "feoff takes its vessel from an express arg; the chain supplies only the value.",
+                "The derived-pull affordance is preserved, relocated — not retired.",
+                "Extracting the election here is also its convergence onto the footings, so the later convergence pace carries only anoint.",
+                "Per the gird precedent, the feoff mint is operator-sanctioned mid-heat; flag for Fable's terminal review.",
+                "",
+                "## Done when",
+                "A grep for chain reads (buf_read_fact / BURD_PREVIOUS) in head bodies returns only feoff; conjure has none and builds from committed config.",
+                "feoff resolves the bole touchmark, writes the anchor, refuses a non-bole or broken chain cleanly, and is loud on success; anoint gains the same loud output.",
+                "The conjure spec reflects reads-no-chain, and the election's spec home moves to a feoff spec.",
+                "rbw-tl clean; fast suite green plus a build-exercising tier for the anchor path."
+              ],
+              "jjgtn_silks": "feoff-base-anchor-split",
+              "jjgtn_basis": "a4163db"
             }
           ]
         }
