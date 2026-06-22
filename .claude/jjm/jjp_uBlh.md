@@ -22,7 +22,7 @@ That posture is load-bearing — its keystroke tap can see everything typed, and
 The two halves of this feature have different endpoints, so they take different transports:
 
 - Emblems (the labels) ride a FILE transport.
-  Each vvx atomically writes its own window's emblem to a file paneboard reads at paint time.
+  Each vvx atomically writes its own window's emblem to a file under the fixed emblem root (see Emblem and window reference) that paneboard reads at paint time.
   No socket into paneboard, so the network deny is untouched.
   The emblem file IS the atomic per-window frame — the earlier "one message per window, never split" cinch, realized as one file per window.
 - Viewer image bytes ride localhost TCP terminating at the VIEWER, a separate non-sandboxed binary, never at paneboard.
@@ -37,7 +37,9 @@ An emblem is the displayed label: an ordered set of stacked regions (top / middl
 The session identity is the primary glance datum — coronet when mounted on a pace, else the heat firemark, full identity, never abbreviated.
 
 An emblem binds to a window through a TYPED window reference, not a bare session id.
-The key is scheme-qualified — emblems/<scheme>/<value> — so emblems generalize to other window types later.
+The key is scheme-qualified — $HOME/.config/paneboard/emblems/<scheme>/<value>.json — so emblems generalize to other window types later.
+The root is a fixed, paneboard-owned per-user path, matching paneboard's existing ~/.config/paneboard/ config home: a by-convention rendezvous needing no handshake, with paneboard's PoC spec as its authority and rbm mirroring the literal with a citation.
+The writer mkdir's the tree and fails soft; the reader treats an absent or empty tree as no emblem (never world-writable /tmp, so the overlay cannot be spoofed by another local user).
 Today there is exactly one scheme (iterm-session) and one resolver (window -> iTerm session UUID).
 Emblems on non-Claude-Code windows are a named fork, not designed now: adopt the typed namespace, build only the one resolver.
 
