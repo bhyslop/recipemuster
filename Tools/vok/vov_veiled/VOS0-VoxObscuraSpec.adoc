@@ -1,4 +1,4 @@
-= Vox Specification
+= Vox Obscura Specification
 :doctype: book
 
 // tag::mapping-section[]
@@ -202,7 +202,7 @@
 
 == Overview
 
-The Vox Specification is the cosmology top for the Vox naming system — the `vo` cipher as a whole.
+The Vox Obscura Specification is the cosmology top for the Vox Obscura naming system — the `vo` cipher as a whole.
 It centralizes the Liturgy vocabulary (Cipher, Signet, Epithet, Inscription, Vesture and the domain vestures), then hosts its branches as `include::` subdocs that purely consume that centralized vocabulary, following the RBS0/JJS0/BUS0 SpecTop precedent.
 Its branches are the Obscura distribution machinery (release, install, uninstall, freshen — see VOSO-distribution.adoc), the commit/lock routine family (the VOSR* subdocs), and the Matricula transient inscription census (VMS-VoxMatriculaSpec.adoc).
 
@@ -529,7 +529,7 @@ Before minting new prefixes:
 
 {voslc_cipher_s}
 are declared as const values in `Tools/vok/vof/src/vofc_registry.rs`.
-The VOF crate (Vox Foundation) is the single source of truth for all project prefixes across the entire VO/VV ecosystem.
+The VOF crate (Vox Obscura Foundation) is the single source of truth for all project prefixes across the entire VO/VV ecosystem.
 
 ==== Declaration Pattern
 
@@ -1286,614 +1286,53 @@ maintained manually or by the build tabtarget.
 
 == Operations
 
+The four Obscura distribution operations are defined here at the cosmology top; their procedure bodies live in the consuming subdoc VOSO-distribution.adoc, included below.
+
 [[vosor_release]]
 //axvo_procedure axd_transient
-=== {vosor_release}
-
+{vosor_release}::
 Creates a
 {vose_parcel}
 from the
 {vosp_kit_forge}.
-
-//axd_none
-No external inputs. Operates on current
-{vosp_kit_forge}
-state.
-
-//axhos_step
-. *Collect kit declarations*:
-.. {vosc_call}
-read `BURC_MANAGED_KITS` from kit forge's `.buk/burc.env`
-.. {vosc_fatal}
-if missing or empty: "burc.env missing required variable: BURC_MANAGED_KITS"
-.. {vosc_store}
-kit list for processing (only kits in BURC_MANAGED_KITS)
-
-//axhos_step
-. *Validate prefix compliance*:
-.. For each
-{vose_kit}:
-{vosc_require}
-all asset
-{vosls_signet_s}
-derive from
-{voslc_cipher}
-.. {vosc_fatal}
-if any violations: list non-compliant
-{vosli_inscription_s}
-
-//axhos_step
-. *Run testbenches*:
-.. {vosc_call}
-each kit's testbench
-.. {vosc_fatal}
-if any tests fail
-
-//axhos_step
-. *Build binaries*:
-.. {vosc_call}
-cargo build for each target platform
-.. {vosc_store}
-binary paths
-
-//axhos_step
-. *Collect assets*:
-.. For each
-{vose_kit}:
-collect files excluding
-{vosp_veiled}
-.. For each
-{voslc_cipher}
-from kit list:
-... Scan kit forge `.claude/commands/` for files matching `{cipher}c-*.md`
-... Scan kit forge `.claude/hooks/` for files matching `{cipher}h-*.md`
-... Copy matching files to parcel `claude/commands/` and `claude/hooks/` respectively
-.. {vosc_step}
-"Claude config assets collected by cipher pattern"
-
-//axhos_step
-. *Generate sigil*:
-.. {vosc_store}
-{vost_sigil}
-as current timestamp (YYMMDD-HHMM)
-
-//axhos_step
-. *Compute brand identity*:
-.. {vosc_call}
-compute order-independent super-SHA:
-... Sort all parcel files by path
-... Hash each file's path + content
-... Combine hashes
-... Exclude
-{vose_brand_file}
-from computation
-.. {vosc_store}
-super-SHA for registry lookup
-
-//axhos_step
-. *Allocate brand*:
-.. {vosc_call}
-read
-{vose_registry}
-.. If super-SHA exists in registry:
-{vosc_store}
-existing
-{vost_brand}
-.. If super-SHA is new:
-... {vosc_store}
-next sequential
-{vost_brand}
-(max + 1, starting at 1000)
-... {vosc_call}
-update
-{vose_registry}
-with new entry
-... {vosc_call}
-commit registry change
-
-//axhos_step
-. *Write brand file*:
-.. {vosc_call}
-create
-{vose_brand_file}
-at parcel root with
-{vosem_brand},
-{vosem_brand_date},
-{vosem_brand_sha},
-{vosem_brand_commit}
-(current git HEAD),
-{vosem_brand_kits}
-(list of kit identifiers)
-
-//axhos_step
-. *Package parcel*:
-.. Create `vvk-parcel-{brand}.tar.gz` with structure:
-... `vvi_install.sh` — install script (bootstrap, not installed)
-... `vvbf_brand.json` —
-{vose_brand_file}
-at parcel root
-... `kits/` — all kit assets by directory (including VVK with binaries)
-... `claude/` — commands and hooks collected by cipher pattern
-
-//axhoom_motif_output
-* {vose_parcel}
-archive: `vvk-parcel-{brand}.tar.gz`
-* {vose_brand_file}
-at parcel root
-
-//axhoc_completion
-{vose_parcel}
-created with all validated
-{vose_kit}
-assets and platform binaries.
-
+Procedure: see VOSO-distribution.adoc.
 
 [[vosoi_install]]
 //axvo_procedure axd_transient
-=== {vosoi_install}
-
+{vosoi_install}::
 Deploys a
 {vose_parcel}
 to a
 {vosp_target_repo}.
-Nuclear replacement: deletes existing installation before copying fresh.
-Handles both first-time install and reinstall identically.
-
-Invocation (from extracted parcel):
-
-----
-./vvi_install.sh /path/to/target/.buk/burc.env
-----
-
-The bash script is a thin bootstrap: detect platform, exec `vvx_emplace`.
-All logic is implemented in Rust for path safety and testability.
-
-//axd_required
-* Path to target repository's `burc.env` file (positional argument)
-
-//axhos_step
-. *Validate burc.env*:
-.. {vosc_require}
-burc.env exists and is readable
-.. {vosc_call}
-parse burc.env as KEY=VALUE pairs
-.. {vosc_require}
-`BURC_PROJECT_ROOT` is defined and non-empty
-.. {vosc_require}
-`BURC_TOOLS_DIR` is defined and non-empty
-.. {vosc_require}
-`BURC_MANAGED_KITS` is defined and non-empty
-.. {vosc_fatal}
-if missing or empty: "burc.env missing required variable: {name}"
-.. {vosc_call}
-resolve `BURC_PROJECT_ROOT` as path from burc.env's location to project root
-.. {vosc_call}
-resolve `BURC_TOOLS_DIR` relative to resolved project_root (per BURC spec)
-.. {vosc_store}
-absolute paths for tools_dir and project_root, kit list from BURC_MANAGED_KITS
-
-//axhos_step
-. *Validate git state*:
-.. {vosc_require}
-project_root is a git repository
-.. {vosc_fatal}
-if not: "Target is not a git repository"
-.. {vosc_require}
-working tree is clean (no uncommitted changes)
-.. {vosc_fatal}
-if dirty: "Target repo has uncommitted changes. Commit or stash before install."
-
-//axhos_step
-. *Read brand identity*:
-.. {vosc_call}
-parse
-{vose_brand_file}
-from parcel root
-.. {vosc_store}
-{vosem_brand}
-and
-{vosem_brand_kits}
-
-//axhos_step
-. *Validate kit match*:
-.. {vosc_require}
-`BURC_MANAGED_KITS` exactly matches
-{vosem_brand_kits}
-(same kits, order independent)
-.. {vosc_fatal}
-if mismatch: "Target requests kits [{target_kits}] but parcel contains [{parcel_kits}]"
-
-//axhos_step
-. *Nuclear cleanup*:
-.. If `.vvk/` exists:
-{vosc_call}
-delete recursively
-.. If `.vvk/` absent: no action (first-time install)
-.. For each kit in `BURC_MANAGED_KITS`:
-... If `${BURC_TOOLS_DIR}/{kit}/` exists:
-{vosc_call}
-delete recursively
-... If absent: no action
-.. {vosc_step}
-"Previous installation removed" or "Clean target (first-time install)"
-
-//axhos_step
-. *Create brand directory*:
-.. {vosc_call}
-create `.vvk/` directory
-.. {vosc_call}
-copy
-{vose_brand_file}
-to `.vvk/vvbf_brand.json`
-
-//axhos_step
-. *Install kits*:
-.. For each kit in `BURC_MANAGED_KITS`:
-... {vosc_call}
-copy `kits/{kit}/` to `${BURC_TOOLS_DIR}/{kit}/`
-.. {vosc_step}
-"{n} kits installed"
-
-//axhos_step
-. *Emplace canonical binary*:
-.. {vosc_call}
-detect host platform via `uname -s` and `uname -m`
-.. {vosc_require}
-platform-suffixed binary exists in `kits/vvk/bin/vvx-{platform}`
-.. {vosc_fatal}
-if missing: "No binary for platform {platform}"
-.. {vosc_call}
-copy `kits/vvk/bin/vvx-{platform}` to `${BURC_TOOLS_DIR}/vvk/bin/vvx`
-.. {vosc_call}
-remove all `vvx-*` platform-suffixed binaries from `${BURC_TOOLS_DIR}/vvk/bin/`
-.. {vosc_step}
-"vvx binary emplaced for {platform}"
-
-//axhos_step
-. *Install Claude config assets*:
-.. {vosc_call}
-copy `claude/commands/*` to `.claude/commands/`
-.. {vosc_call}
-copy `claude/hooks/*` to `.claude/hooks/`
-.. {vosc_step}
-"{m} commands installed, {p} hooks installed"
-
-//axhos_step
-. *Freshen CLAUDE.md*:
-.. If CLAUDE.md absent:
-{vosc_call}
-create with header `# Claude Code Project Memory`
-.. {vosc_call}
-sweep any legacy per-kit
-{vose_marker_s}
-left by the retired inline mechanism
-.. {vosc_call}
-build the
-{vose_include_region}
-body: one `@`-include line per
-{vose_kit_include}
-of each installed
-{vose_kit},
-in registry order
-.. Upsert the
-{vose_include_region}:
-... If its
-{vose_marker_s}
-exist: replace content between markers
-... Else if the
-{vose_uninstalled_marker}
-exists: expand at that location
-... Else: append at end of file
-.. {vosc_step}
-"CLAUDE.md include region updated"
-+
-NOTE: This is a deterministic text transformation implemented in Rust.
-No LLM assistance required for marker manipulation.
-
-//axhos_step
-. *Write MCP configuration*:
-.. {vosc_call}
-write
-{vosa_mcp_config}
-at project root (`.mcp.json`)
-.. {vosc_step}
-"MCP server configured"
-
-//axhos_step
-. *Commit installation*:
-.. {vosc_call}
-`git add -A`
-.. {vosc_call}
-`git commit -m "VVK install: brand {brand}"`
-.. {vosc_step}
-"Installation committed"
-
-//axhoom_motif_output
-* Kit assets under `${BURC_TOOLS_DIR}/`
-* {vose_canonical_binary}
-at `${BURC_TOOLS_DIR}/vvk/bin/vvx`
-* {vosa_mcp_config}
-at `.mcp.json`
-* Commands in `.claude/commands/`
-* Hooks in `.claude/hooks/`
-* Brand file at `.vvk/vvbf_brand.json`
-* Updated CLAUDE.md with the
-{vose_include_region}
-* Single git commit
-
-//axhoc_completion
-All
-{vose_kit_s}
-installed atomically.
-Clean git history with single install commit.
-
+Procedure: see VOSO-distribution.adoc.
 
 [[vosou_uninstall]]
 //axvo_procedure axd_transient
-=== {vosou_uninstall}
-
-Removes Claude Code integration from
-{vosp_target_repo}
-while preserving
+{vosou_uninstall}::
+Removes Claude Code integration (commands, hooks, the CLAUDE.md
+{vose_include_region},
+the vvx binary) while preserving
 {vose_kit}
-directories.
-Unveiled kit content is typically open-source and remains functional outside Claude Code; vacate removes only the Claude-specific layer (commands, hooks, the CLAUDE.md include region, vvx binary).
-Uses brand file to enumerate what to remove.
-
-Invocation (from target repo root):
-
-----
-./Tools/vvk/vvu_uninstall.sh
-----
-
-The bash script is a thin bootstrap: exec `vvx_vacate`.
-All logic is implemented in Rust.
-
-//axd_none
-No arguments. Operates on current repository using `.buk/burc.env`.
-
-//axhos_step
-. *Validate burc.env*:
-.. {vosc_require}
-`.buk/burc.env` exists and is readable
-.. {vosc_call}
-parse burc.env as KEY=VALUE pairs
-.. {vosc_require}
-`BURC_PROJECT_ROOT` is defined and non-empty
-.. {vosc_require}
-`BURC_TOOLS_DIR` is defined and non-empty
-.. {vosc_require}
-`BURC_MANAGED_KITS` is defined and non-empty
-.. {vosc_fatal}
-if missing or empty: "burc.env missing required variable: {name}"
-.. {vosc_call}
-resolve `BURC_PROJECT_ROOT` as path from burc.env's location to project root
-.. {vosc_call}
-resolve `BURC_TOOLS_DIR` relative to resolved project_root (per BURC spec)
-+
-NOTE: `BURC_MANAGED_KITS` is required for defense in depth; any VVK-managed repo should declare its kit inventory.
-
-//axhos_step
-. *Validate git state*:
-.. {vosc_require}
-working tree is clean
-.. {vosc_fatal}
-if dirty: "Repo has uncommitted changes. Commit or stash before uninstall."
-
-//axhos_step
-. *Read brand file*:
-.. {vosc_require}
-`.vvk/vvbf_brand.json` exists
-.. {vosc_fatal}
-if absent: "No VVK installation found (.vvk/vvbf_brand.json missing)"
-.. {vosc_call}
-parse brand file
-.. {vosc_require}
-{vosem_brand_kits}
-is present and non-empty
-.. {vosc_fatal}
-if malformed: "Brand file malformed: {details}"
-.. {vosc_store}
-kit list and their
-{voslc_cipher_s}
-
-//axhos_step
-. *Remove commands and hooks*:
-.. For each
-{voslc_cipher}
-from kit list:
-... {vosc_call}
-remove files matching `{cipher}c-*.md` from `.claude/commands/`
-... {vosc_call}
-remove files matching `{cipher}h-*.md` from `.claude/hooks/`
-.. {vosc_step}
-"{n} commands removed, {m} hooks removed"
-
-//axhos_step
-. *Collapse CLAUDE.md region*:
-.. If CLAUDE.md exists:
-... {vosc_call}
-sweep any legacy per-kit
-{vose_marker_s}
-left by the retired inline mechanism
-... If the
-{vose_include_region}
-{vose_marker_s}
-exist: replace with a single
-{vose_uninstalled_marker}
-... If markers absent: no action (region was never added or already collapsed)
-.. {vosc_step}
-"CLAUDE.md include region collapsed"
-+
-NOTE: Preserves the region's position for future reinstall.
-
-//axhos_step
-. *Remove vvx binary*:
-.. {vosc_call}
-delete
-{vose_canonical_binary}
-at `${BURC_TOOLS_DIR}/vvk/bin/vvx` if exists
-.. {vosc_step}
-"vvx binary removed"
-
-//axhos_step
-. *Remove MCP configuration*:
-.. {vosc_call}
-delete `.mcp.json` at project root if exists
-.. {vosc_step}
-"MCP configuration removed"
-+
-NOTE: Kit directories (`buk/`, `jjk/`, etc.) are intentionally *preserved*.
-Unveiled kit content is typically open-source and remains functional outside Claude Code.
-Vacate removes Claude-specific integration while retaining underlying functionality.
-
-//axhos_step
-. *Remove brand infrastructure*:
-.. {vosc_call}
-delete `.vvk/vvbf_brand.json`
-.. {vosc_call}
-delete `.vvk/` directory if empty
-.. {vosc_step}
-"Brand file removed"
-
-//axhos_step
-. *Commit uninstallation*:
-.. {vosc_call}
-`git add -A`
-.. {vosc_call}
-`git commit -m "VVK uninstall"`
-.. {vosc_step}
-"Uninstallation committed"
-
-//axhoom_motif_output
-* {vose_canonical_binary}
-removed from `${BURC_TOOLS_DIR}/vvk/bin/vvx`
-* {vosa_mcp_config}
-removed from `.mcp.json`
-* Commands removed from `.claude/commands/`
-* Hooks removed from `.claude/hooks/`
-* CLAUDE.md include region collapsed to a single
-{vose_uninstalled_marker}
-* Brand file and `.vvk/` removed
-* Kit directories *preserved* (unveiled content remains functional)
-* Single git commit
-
-//axhoc_completion
-Claude Code integration cleanly removed.
-Kit directories remain for continued use outside Claude Code.
-The
-{vose_uninstalled_marker}
-preserves the region's position for future reinstall.
-
+directories; uses
+{vosls_signet}
+-based prefix matching for command/hook removal.
+Procedure: see VOSO-distribution.adoc.
 
 [[vosof_freshen]]
 //axvo_procedure axd_transient
-=== {vosof_freshen}
-
+{vosof_freshen}::
 Rebuilds CLAUDE.md's
 {vose_include_region}
-from the kit
-{vose_conclave},
-bypassing the
-{vose_parcel}
-pipeline.
-Operates directly within the
-{vosp_kit_forge}
-itself.
-
-This is a development-time operation for use in the
-{vosp_kit_forge}
-when the kit
-{vose_conclave}
-has changed — kits added or removed, or a
-{vose_kit_include}
-list edited — and CLAUDE.md's
-{vose_include_region}
-needs to match without a full
-{vosor_release}
-and
-{vosoi_install}
-cycle.
-
-Invocation (via tabtarget):
-
-----
-tt/vow-F.Freshen.sh
-----
-
-Or directly:
-
-----
-vvx_freshen --burc .buk/burc.env
-----
-
-//axd_required
-* Path to `burc.env` file (`--burc` argument)
-
-//axhos_step
-. *Parse burc.env*:
-.. {vosc_call}
-parse burc.env for `BURC_PROJECT_ROOT`, `BURC_TOOLS_DIR`, `BURC_MANAGED_KITS`
-.. {vosc_fatal}
-if missing or empty: "burc.env missing required variable: {name}"
-
-//axhos_step
-. *Build include region body*:
-.. For each kit in `BURC_MANAGED_KITS`:
-... {vosc_call}
-look up the
-{vose_kit}
-{vose_whisper}
 in the
-{vose_conclave}
-... For each
-{vose_kit_include}
-of the
-{vose_kit}:
-{vosc_call}
-emit one `@`-include line, project-root-relative to the kit's installed directory
+{vosp_kit_forge}
+from the kit
+{vose_registry}
+without a
+{vose_parcel},
+enabling rapid iteration during development.
+Procedure: see VOSO-distribution.adoc.
 
-//axhos_step
-. *Freshen CLAUDE.md*:
-.. If CLAUDE.md absent:
-{vosc_call}
-create with header `# Claude Code Project Memory`
-.. {vosc_call}
-sweep any legacy per-kit
-{vose_marker_s}
-left by the retired inline mechanism
-.. Upsert the
-{vose_include_region}:
-... If its
-{vose_marker_s}
-exist: replace content between markers
-... Else if the
-{vose_uninstalled_marker}
-exists: expand at that location
-... Else: append at end of file
-.. {vosc_step}
-report the
-{vose_include_region}
-as updated, expanded, or appended
-
-NOTE: No git commit is performed.
-The caller decides when to commit, enabling
-{vosof_freshen}
-to be composed with other operations.
-
-//axhoom_motif_output
-* Updated CLAUDE.md with the
-{vose_include_region}
-rebuilt from the kit
-{vose_conclave}
-
-//axhoc_completion
-CLAUDE.md's
-{vose_include_region}
-reflects the current kit
-{vose_conclave}.
-No other files modified.
-
+include::VOSO-distribution.adoc[leveloffset=+1]
 
 == Routines
 

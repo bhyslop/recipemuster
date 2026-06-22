@@ -1,6 +1,6 @@
 // VMS-VoxMatriculaSpec — Vox Matricula method subdoc.
 //
-// This is a pure-consumer subdoc of VOS0-VoxObscuraSpec.adoc (the Vox cosmology
+// This is a pure-consumer subdoc of VOS0-VoxObscuraSpec.adoc (the Vox Obscura cosmology
 // SpecTop), include::'d under its == Matricula branch. It defines NO quoins: the
 // Matricula vocabulary (vosmm_matricula, vosms_seal, vosme_estray, vosmp_presentment)
 // and every Liturgy / distribution / AXLA linked term it uses are defined and
@@ -373,7 +373,7 @@ mechanizes them; it does not redefine them.
 {vosle_epithet},
 {vosli_inscription},
 {voslv_vesture}
-): the Liturgy section of VOS0-VoxObscuraSpec.adoc (the Vox cosmology SpecTop).
+): the Liturgy section of VOS0-VoxObscuraSpec.adoc (the Vox Obscura cosmology SpecTop).
 * The narrow filename-only precedent this census widens: VOS0
 {vosk_prefix_validation}.
 * The freeze/builder lifecycle reference shape: `Memos/memo-20260620-freeze-builder-pattern/` (provenance only).

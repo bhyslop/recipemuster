@@ -302,7 +302,7 @@ The Bash Utilities Specification defines the tabtarget dispatch system — the i
 
 BUK invented tabtargets; BUK defines them.
 
-For universal naming vocabulary (Cipher, Signet, Epithet, Inscription, Vesture), see the Liturgy section of VOS0-VoxObscuraSpec.adoc (the Vox cosmology SpecTop, into which the former standalone VLS dissolved).
+For universal naming vocabulary (Cipher, Signet, Epithet, Inscription, Vesture), see the Liturgy section of VOS0-VoxObscuraSpec.adoc (the Vox Obscura cosmology SpecTop, into which the former standalone VLS dissolved).
 
 == Tabtarget Vesture
 
