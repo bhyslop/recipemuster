@@ -16818,7 +16818,7 @@
         "₢BhAAB": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260621-0847",
+              "jjgtn_ts": "260622-0552",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "The first rbm-side slice, standalone and dependency-free:",
@@ -16835,8 +16835,8 @@
                 "- vvx extracts the correct session key from its own environment.",
                 "- vvx reads paneboard's port-file when present and skips cleanly when absent."
               ],
-              "jjgtn_silks": "vvx-session-key-and-port-discovery",
-              "jjgtn_basis": "c9310a4"
+              "jjgtn_silks": "vvx-window-reference",
+              "jjgtn_basis": "c3d398d"
             }
           ]
         },
