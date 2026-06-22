@@ -1,6 +1,7 @@
 {
   "jjgrn_next_heat_seed": "Bl",
   "jjgrn_heat_order": [
+    "₣Bh",
     "₣Bg",
     "₣Bc",
     "₣Be",
@@ -33,7 +34,6 @@
     "₣BI",
     "₣BL",
     "₣Ba",
-    "₣Bh",
     "₣Bi"
   ],
   "jjgrn_heats": {
@@ -16776,7 +16776,7 @@
     "₣Bh": {
       "jjghn_silks": "jjk-v4-1-svg-viewer-and-pane-labels",
       "jjghn_creation_time": "260617",
-      "jjghn_status": "jjghe_stabled",
+      "jjghn_status": "jjghe_racing",
       "jjghn_order": [
         "₢BhAAA",
         "₢BhAAB",
