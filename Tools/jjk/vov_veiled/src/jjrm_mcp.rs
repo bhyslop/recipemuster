@@ -848,9 +848,11 @@ pub const JJRM_ITERM_SCHEME: &str = "iterm-session";
 
 /// Emblem root tail, relative to `$HOME`: the paneboard-owned per-user
 /// rendezvous directory emblems are written under. The full emblem file path is
-/// `<home>/<this>/<scheme>/<value>.json`. paneboard's PoC spec is the authority
-/// for this literal; we mirror it by convention (no handshake) and cite that
-/// here so the duplication is a deliberate mirror, not a second source.
+/// `<home>/<this>/<scheme>/<value>.emblem`, and its body is the `pbge_` emblem
+/// grammar (a gazette cousin). paneboard's PoC spec ("Emblem File Format") is
+/// the authority for both the path literal and the grammar; we mirror them by
+/// convention (no handshake) and cite that here so the duplication is a
+/// deliberate mirror, not a second source.
 pub const JJRM_EMBLEM_ROOT_TAIL: &str = ".config/paneboard/emblems";
 
 /// Parse an `ITERM_SESSION_ID` value into a scheme-qualified window reference.
@@ -886,7 +888,7 @@ pub fn jjrm_iterm_window_ref() -> Option<String> {
 
 /// Resolve the emblem root directory this process writes emblems into:
 /// `$HOME/<JJRM_EMBLEM_ROOT_TAIL>`. The per-scheme subdirectory and
-/// `<value>.json` basename are joined onto this by the writer from
+/// `<value>.emblem` basename are joined onto this by the writer from
 /// `jjrm_iterm_window_ref`. Fail-soft: an unset `HOME` returns `None`, and the
 /// caller skips — no emblem written.
 pub fn jjrm_emblem_root() -> Option<PathBuf> {
