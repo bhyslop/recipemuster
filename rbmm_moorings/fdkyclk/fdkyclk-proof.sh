@@ -33,6 +33,11 @@
 # The Keycloak token below is currently minted via the password grant — a
 # deliberate de-risk stepping-stone; the deliverable lands on the RFC 7523 JWT
 # Authorization Grant (config-model fork resolution).
+#
+# Stage B brevet is payor-DIRECT, not via rbgp_brevet: the real admission verbs
+# assume the single manor pool (spike-office-test), so admitting a subject in the
+# separate fdkyclk-test pool needs multiplicity-aware verbs — a separate build
+# unit. The proof grants the IAM directly to prove the don+call chain.
 
 set -euo pipefail
 
@@ -53,6 +58,12 @@ ISSUER="${FRONTEND_URL}/realms/${REALM}"
 JWKS_FILE=/tmp/fdkyclk-jwks.json
 RBRP=rbmm_moorings/rbrp.env
 RBRO=../station-files/secrets/payor/rbro.env
+
+# Stage B (don) — depot facts of the levied depot (rbrd.env + kludge image tags).
+DEPOT_PROJECT=cancbhm-d-canest3bhm100002
+DEPOT_REGION=us-central1
+MANTLE=director
+MANTLE_SA="rbma-${MANTLE}@${DEPOT_PROJECT}.iam.gserviceaccount.com"
 
 [ -d rbmm_moorings ] || { echo "ERROR: run from the repository root"; exit 1; }
 
@@ -167,6 +178,45 @@ sts_exchange() {
 decode_jwt() {
   python3 -c "import sys,base64,json;t=sys.argv[1].split('.')[1];t+='='*(-len(t)%4);d=json.loads(base64.urlsafe_b64decode(t));print(json.dumps({k:d.get(k) for k in ['iss','aud','sub','typ','exp']},indent=2))" "$1" 2>/dev/null || true
 }
+decode_sub() {
+  python3 -c "import sys,base64,json;t=sys.argv[1].split('.')[1];t+='='*(-len(t)%4);print(json.loads(base64.urlsafe_b64decode(t))['sub'])" "$1"
+}
+
+# ---- Stage B: brevet (payor-direct), don, authorized AR call ----
+brevet() {
+  local principal="$1"
+  export CLOUDSDK_AUTH_ACCESS_TOKEN; CLOUDSDK_AUTH_ACCESS_TOKEN=$(payor_token)
+  gcloud iam service-accounts add-iam-policy-binding "$MANTLE_SA" \
+    --member="$principal" --role="roles/iam.serviceAccountTokenCreator" --condition=None >/dev/null \
+    && echo "granted tokenCreator on $MANTLE_SA"
+  gcloud projects add-iam-policy-binding "$DEPOT_PROJECT" \
+    --member="$principal" --role="roles/serviceusage.serviceUsageConsumer" --condition=None >/dev/null \
+    && echo "granted serviceUsageConsumer on $DEPOT_PROJECT"
+}
+
+don() {
+  local fed="$1" i tok
+  for i in 1 2 3 4 5 6 7 8; do
+    tok=$(curl -s -X POST \
+      "https://iamcredentials.googleapis.com/v1/projects/-/serviceAccounts/${MANTLE_SA}:generateAccessToken" \
+      -H "Authorization: Bearer ${fed}" \
+      -H "x-goog-user-project: ${DEPOT_PROJECT}" \
+      -H "Content-Type: application/json" \
+      --data '{"scope":["https://www.googleapis.com/auth/cloud-platform"]}' \
+      | jq -r '.accessToken // empty')
+    [ -n "$tok" ] && { printf '%s' "$tok"; return 0; }
+    echo "don attempt $i: not yet (IAM propagation) — sleeping 10s" >&2
+    sleep 10
+  done
+  return 1
+}
+
+ar_call() {
+  local tok="$1"
+  local url="https://artifactregistry.googleapis.com/v1/projects/${DEPOT_PROJECT}/locations/${DEPOT_REGION}/repositories"
+  curl -s -H "Authorization: Bearer ${tok}" "$url" \
+    | jq 'if has("repositories") then {RESULT:"AUTHORIZED-AR-CALL-OK", repo_count:(.repositories|length), repos:[.repositories[].name]} else {RESULT:"FAILED", error:.error} end'
+}
 
 main() {
   say "Stage A.1 — configure Keycloak realm (client / user / frontendUrl)"
@@ -184,10 +234,25 @@ main() {
   decode_jwt "$idtok"
 
   say "Stage A.5 — STS exchange (Keycloak id_token -> Google federated token)"
-  local sts; sts=$(sts_exchange "$idtok")
-  echo "$sts" | jq 'if .access_token then {RESULT:"FEDERATED-TOKEN-OK", token_type, expires_in, issued_token_type, fed_token_len:(.access_token|length)} else {RESULT:"FAILED", error, error_description} end' 2>/dev/null || echo "$sts"
+  local sts fed
+  sts=$(sts_exchange "$idtok")
+  fed=$(echo "$sts" | jq -r '.access_token // empty')
+  [ -n "$fed" ] || { echo "STS FAILED:"; echo "$sts" | jq '{error,error_description}'; return 1; }
+  echo "{\"RESULT\":\"FEDERATED-TOKEN-OK\",\"fed_token_len\":${#fed}}"
 
-  say "Stage B — brevet subject, don mantle, authorized AR call  [TODO]"
+  local sub principal
+  sub=$(decode_sub "$idtok")
+  principal="principal://iam.googleapis.com/locations/global/workforcePools/${GCP_POOL}/subject/${sub}"
+
+  say "Stage B.1 — brevet (payor-direct): grant the fdkyclk subject tokenCreator on the ${MANTLE} mantle + serviceUsageConsumer"
+  brevet "$principal"
+
+  say "Stage B.2 — don the ${MANTLE} mantle (generateAccessToken with the federated token)"
+  local mtok; mtok=$(don "$fed") || { echo "DON FAILED"; return 1; }
+  echo "mantle token len: ${#mtok}"
+
+  say "Stage B.3 — authorized depot-API call (Artifact Registry repositories.list)"
+  ar_call "$mtok"
 }
 
 main "$@"
