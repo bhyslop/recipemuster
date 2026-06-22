@@ -43,6 +43,10 @@ The writer mkdir's the tree and fails soft; the reader treats an absent or empty
 The one resolver (UUID -> window) lives in the WRITER, not paneboard (see Resolver for why); vvx resolves and keys the emblem by the window handle paneboard already holds (the CGWindowID), and paneboard reads by that handle.
 The exact key — the window-id directly, or the UUID with a writer-written window-id index — is a grooming open point (window-handle recycling, see Resolver).
 Emblems on non-Claude-Code windows are a named fork, not designed now: adopt the typed namespace, build only the one resolver.
+Remote Claude Code sessions are a second named fork, not solved here: when Claude Code runs on another host (e.g. cerebro over SSH) shown in a LOCAL iTerm window, the writer (vvx) runs remote and has none of the local handles (no AppleScript, no CGWindowID, no ITERM_SESSION_ID since SSH does not forward it, no local emblem dir), so it can neither resolve nor write the emblem.
+This is inherent to the writer-and-window co-location the whole design assumes — the abandoned loopback socket failed it too (loopback is not cross-host, and a cross-host listener is exactly what the sandbox forbids).
+Such a window still appears in paneboard's list, just unlabeled (absent emblem = no emblem), no worse than today.
+The only host-crossing channel is the terminal stream itself (OSC / iTerm badge), a different and lower-fidelity mechanism that renders through iTerm rather than paneboard's overlay; if remote labeling is ever wanted, it is that separate sub-feature, not a paneboard extension.
 
 Style is optional per region (a font size and a color), sourced from an rbm-side config vvx reads at write time, never compiled in — edit the config, rewrite on any engagement, see it on the next alt-tab; paneboard supplies built-in defaults for any absent field.
 Region STRUCTURE (slot + lines + style) is frozen; region CONTENT — which lines land in which band — is deliberately soft and config-tunable.
@@ -128,16 +132,17 @@ Respect paneboard's own branching, not rbm's.
 ## Testing harness — direct process control
 
 Paneboard is a singleton (an exclusive file-lock at /tmp/paneboard.lock, released automatically when the process exits).
-So a trial means displacing the running instance.
+So a trial means displacing the running instance, then restoring it.
 The proven loop, drivable entirely from this console:
 
 - Kill the running paneboard-poc process (the lock releases on death — no stale-file hazard).
 - Run the timed tabtarget ../pb_paneboard02/tt/pbw-t.ProofOfConceptTimed.10.sh, which builds, runs ~10s, and self-exits via its own auto-exit timer — so a trial cannot run away with the operator's alt-tab.
-- Leave paneboard down after the trial; the operator relaunches.
+- Relaunch the standing instance in the background (../pb_paneboard02/tt/pbw-p.ProofOfConcept.sh).
 
 For a throwaway source probe, edit between the kill and the timed run, then revert after (grep a unique marker to prove a full revert; git diff the touched files should be empty).
 build.rs recompiles the Swift shim on change, so a Swift-side poke is picked up.
 A poke that must be SEEN (e.g. box rendering) needs the operator to alt-tab during the live window; a poke that only emits to stdout does not.
 
-Ownership split, agreed with the operator: the OPERATOR owns the relaunch, run in their OWN terminal window so the instance is durable (it survives /clear and the agent session); the AGENT kills-to-test and leaves paneboard down afterward, never holding the operator's instance as an agent-session child (which would die with the session).
-The operator relaunches when they next need it.
+Lifecycle ownership: the AGENT drives it in full — kill to test, relaunch after.
+A background instance launched from the agent session SURVIVES the operator's /clear (a context reset, not a process restart), so it rides through pace transitions; it dies only at full Claude Code session end, when the next mount relaunches it (or the operator does).
+Caveat: paneboard is a singleton, so only one agent session should drive its lifecycle at a time.
