@@ -17085,27 +17085,31 @@
         "₢BiAAA": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260618-1358",
+              "jjgtn_ts": "260622-1339",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
-                "Drafted from ₢BBABL in ₣BB.",
+                "Originally drafted in ₣BB against the pre-federation keyfile estate.",
                 "",
                 "## Character",
-                "Mechanical retry-tolerance extension; shape locked by the memo. Two touchpoints, one error class. Surfaced by dogfight verification (2 failures / 3 runs — transient).",
+                "Blocked on ₣Bf; must be rebuilt federation-aware before it can mount.",
+                "",
+                "## Cinched",
+                "Do not mount until ₣Bf wraps.",
+                "₣Bf is reworking the federation auth path in parallel;",
+                "by its completion a strong, stable federation definition will exist —",
+                "design against that, not against today's in-flight code.",
                 "",
                 "## Source",
-                "`Memos/memo-20260527-account-state-invalid-reinvest-flap.md` — full 401/`ACCOUNT_STATE_INVALID` signature, two-host evidence, the prior-art gap, and the time-bound tolerance model to reuse.",
+                "`Memos/memo-20260527-account-state-invalid-reinvest-flap.md` — the original 401 `ACCOUNT_STATE_INVALID` signature and two-host evidence.",
+                "That evidence predates federation, which demolished both the flap's trigger (the per-run director-SA re-invest) and the touchpoint the repair was to extend (the keyfile OAuth consumer-retry).",
+                "Re-derive the touchpoints against ₣Bf's federation auth path (compearance / STS / mantle-don); do not assume the memo's keyfile shape.",
                 "",
-                "## Shape (locked)",
-                "- `rbfc_FoundryCore.sh` build-status poll loop: absorb a transient `401 UNAUTHENTICATED` + `ACCOUNT_STATE_INVALID` with bounded backoff instead of counting it toward the consecutive-error fatal — a still-`WORKING` build must survive a director-SA auth flap.",
-                "- `rbgo_OAuth.sh` consumer-retry token mint: extend the existing retry error-class to `ACCOUNT_STATE_INVALID`, covering the `rbfv` vouch path (Host B in the memo).",
-                "- The retry budget is the discriminator (settling completes within budget; real denial waits it out and fails clean) — reuse the established propagation / access-probe time-bound model rather than minting new literals.",
-                "",
-                "## Done",
-                "A director re-invest immediately followed by `ordain` survives the flap: the transient is logged and retried within budget, never fatal on a healthy build. Confirm the `rbfv` vouch failure body is the same class (memo caveat)."
+                "## Done when",
+                "A determination, against the stable federation auth path, of whether an `ACCOUNT_STATE_INVALID` analogue can still strand a healthy build —",
+                "bounded tolerance added at the surviving touchpoint(s) where it can, or the pace retired with that finding recorded."
               ],
               "jjgtn_silks": "foundry-account-state-invalid-tolerance",
-              "jjgtn_basis": "f5f6b2b"
+              "jjgtn_basis": "ac33a7c"
             }
           ]
         },
