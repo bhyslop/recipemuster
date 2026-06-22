@@ -14218,8 +14218,8 @@
         "₢BZAAP": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260620-0912",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260622-0106",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "Invert the README federation narrative and register the elected vocabulary on the broadside (the README glossary). Today the README frames keyfile as the whole current system and federation as a planned future tier; this pace flips it — federation is the model, keyfile is retired bridge legacy now gone, the two-tier framing collapses to one. Scope: README + broadside glossary + diagrams; the handbook rework is ₣A6, not here.",
                 "",
@@ -14241,7 +14241,7 @@
                 "Wide rewrite of one public document and its diagrams — judgment in prose and vocabulary, mechanical in the glossary/diagram plumbing."
               ],
               "jjgtn_silks": "federation-narrative-broadside",
-              "jjgtn_basis": "7e7ef06"
+              "jjgtn_basis": "28ed94a"
             }
           ]
         },
