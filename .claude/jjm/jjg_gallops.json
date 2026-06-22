@@ -16795,230 +16795,242 @@
         "₢BhAAA": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260621-0847",
+              "jjgtn_ts": "260622-0554",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
-                "The go/no-go spike for the whole overlay:",
-                "prove paneboard can resolve an iTerm session UUID to an AX window handle via iTerm's own scripting API,",
-                "under the Accessibility grant paneboard already holds — not Automation, which the operator declined for System Events.",
+                "The go/no-go spike for the whole emblem overlay:",
+                "prove paneboard can resolve a live on-screen window to its iTerm session UUID via iTerm's own scripting API, under the Accessibility grant paneboard already holds — not Automation, which the operator declined for System Events.",
+                "This is the single resolver behind the typed window-reference scheme (paddock \"Emblem and window reference\").",
                 "",
-                "See the seed memo's Phase 0a and its correlation-mechanism section for the proven session-id basis and the AX entry points.",
+                "See seed memo Phase 0a and its correlation-mechanism section.",
+                "Reuse the existing (pid,window_id) -> AX-rect path (pbmsa_alttab.rs get_window_rect); the yellow box is HighlightBorderWindow in pbmbo_observer.swift.",
                 "",
                 "## Character",
-                "Throwaway spike — answer the question, do not build the overlay.",
+                "Throwaway spike — answer the questions, build nothing.",
                 "",
                 "## Done when",
-                "- A paneboard-side probe takes a session UUID and returns the matching AX window handle, or proves it cannot.",
-                "- The overlay's fork is settled and recorded: success -> session-id overlay as designed; failure -> fall back to Claude Code's existing per-session title."
+                "- A paneboard probe resolves a live window to its iTerm session UUID, or proves it cannot.",
+                "- A one-line poke confirms the yellow box can carry drawn text at all (today it draws only an outline) — so the box-render pace does not discover this at mount.",
+                "- The fork is recorded as heat shape: resolver works -> emblems on list + box as designed; resolver fails -> emblems on the enriched list only, never the box, and the writer, render, and spec paces narrow accordingly."
               ],
               "jjgtn_silks": "pb-guid-window-probe",
-              "jjgtn_basis": "2f23519"
+              "jjgtn_basis": "a4a4231"
             }
           ]
         },
         "₢BhAAB": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260622-0552",
+              "jjgtn_ts": "260622-0554",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "The first rbm-side slice, standalone and dependency-free:",
-                "vvx reads its own ITERM_SESSION_ID and discovers paneboard's port-file,",
-                "failing soft on a missing or stale file.",
+                "vvx derives its own typed window reference (the iterm-session scheme: read ITERM_SESSION_ID, take the UUID after the colon) and resolves the fixed emblem-directory path it will write into.",
+                "No port-file discovery — emblems are a fixed-path file transport, not a socket (paddock \"Transport\").",
                 "",
-                "See the seed memo's correlation-mechanism section (match the UUID after the colon, never the wNtNpN prefix) and its protocol section (port-file discovery).",
+                "See seed memo correlation-mechanism section (match the UUID, never the wNtNpN prefix).",
+                "Entry point: jjrm_mcp.rs near the existing Claude-Code-session-UUID reader (its sibling pattern); the env-read/parse/fallback pattern lives in jjrc_core.rs.",
                 "",
                 "## Cinched",
-                "Match the UUID, not the position prefix — the prefix goes stale when a tab is dragged to another window.",
-                "Fail-soft: a missing or unreadable port-file means paneboard is absent, so vvx silently skips.",
+                "Match the UUID, not the position prefix (the prefix goes stale when a tab is dragged to another window).",
+                "The window reference is scheme-qualified (iterm-session/<uuid>); the bare UUID is never the key.",
+                "Fail-soft: no ITERM_SESSION_ID means not under iTerm, so vvx writes no emblem and skips silently.",
                 "",
                 "## Done when",
-                "- vvx extracts the correct session key from its own environment.",
-                "- vvx reads paneboard's port-file when present and skips cleanly when absent."
+                "- vvx derives the correct scheme-qualified window reference from its own environment.",
+                "- vvx resolves the emblem-directory path and skips cleanly when it cannot, with the env-var inheritance confirmed by running the built vvx, not assumed from the proof."
               ],
               "jjgtn_silks": "vvx-window-reference",
-              "jjgtn_basis": "c3d398d"
+              "jjgtn_basis": "a4a4231"
             }
           ]
         },
         "₢BhAAC": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260621-0847",
+              "jjgtn_ts": "260622-0554",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
-                "Build the standalone viewer and, with it, the walking skeleton for the whole wire protocol:",
-                "an egui/iced window over a direct socket, fresh/update verbs with retained zoom,",
-                "format dispatch by magic-byte sniff (SVG via resvg, raster via the image crate).",
+                "Build the standalone viewer and, with it, the walking skeleton for the viewer wire protocol:",
+                "an egui/iced window over a direct localhost-TCP socket, fresh/update verbs with retained zoom, format dispatch by magic-byte sniff (SVG via resvg, raster via the image crate).",
+                "A fresh standalone binary in ../pb_paneboard02 — not grafted onto the paneboard daemon.",
                 "",
-                "See the seed memo's Phase 1 and its settled-decisions section (push-not-watch, the two verbs, format dispatch).",
-                "Sample payloads live at diagrams/rbdg*.svg.",
+                "See seed memo Phase 1 and its settled-decisions section (push-not-watch, the two verbs, format dispatch).",
+                "Sample payloads at diagrams/rbdg*.svg.",
                 "",
                 "## Cinched",
                 "Paneboard conducts viewer instances; it does not contain them.",
-                "update retains the held zoom+pan and re-rasterizes — crisp for SVG, native-limited for raster.",
-                "The viewer accepts direct connections, not only via paneboard, so the no-paneboard / Windows case keeps a bare viewer.",
+                "The viewer accepts direct connections (not only via paneboard) and advertises its own listen port in a port-file pushers read — the discovery the now-dropped listener pace would have owned, relocated to its rightful owner.",
+                "update retains the held zoom+pan and re-rasterizes (crisp for SVG, native-limited for raster).",
                 "",
                 "## Done when",
                 "- A pushed SVG or raster renders in a window; fresh opens/replaces fit-to-window; update replaces content at the held zoom.",
-                "- The framing and verbs exist as working code — the skeleton the protocol freeze will ratify."
+                "- The framing and verbs exist as working code, and the viewer writes its port-file on startup — the skeleton the protocol freeze ratifies."
               ],
               "jjgtn_silks": "pb-standalone-image-viewer",
-              "jjgtn_basis": "ef40ae7"
+              "jjgtn_basis": "a4a4231"
             }
           ]
         },
         "₢BhAAD": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260621-0847",
+              "jjgtn_ts": "260622-0554",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
-                "With the transport proven by the viewer skeleton, write the shared wire contract down and freeze it:",
-                "the atomic region-frame for register_label, and the fresh/update payload framing.",
+                "With the viewer skeleton proving the TCP path, write down and freeze the two contracts:",
+                "the emblem FILE format (the atomic per-window file) and the viewer fresh/update TCP wire.",
                 "",
-                "See the seed memo's Phase 2 and its protocol section, and the paddock's \"Pane-label overlay shape\" for the region-frame shape cinched here.",
+                "See seed memo Phase 2 and the paddock \"Transport\" + \"Emblem and window reference\".",
                 "",
                 "## Cinched",
-                "register_label carries one atomic frame per window — session key plus the full region set, each region {slot, lines, style} — never one message per region.",
-                "Transport is localhost TCP, connect-per-message, best-effort / fail-soft.",
+                "Emblem file: one atomic file per window (write-temp-then-rename), keyed by the scheme-qualified window reference; content is the ordered region set, each region {slot, lines, style}.",
+                "Region STRUCTURE freezes here; region CONTENT — which lines land in which band — stays deliberately soft and config-tunable, NOT frozen.",
+                "Viewer wire: localhost TCP, connect-per-message, best-effort / fail-soft, a JSON control line plus an optional length-prefixed payload tail.",
+                "The emblem-file format is frozen by design (its writer and readers land in the later rbm and render paces); the viewer wire is frozen against running skeleton code.",
                 "",
                 "## Done when",
-                "- The contract is written in both repos' homes (paneboard PoC spec; rbm formal landing tracked separately) and marked frozen.",
-                "- fresh/update and register_label shapes are pinned against the working skeleton."
+                "- Both contracts are written in their homes (paneboard PoC spec; rbm formal landing tracked by the spec pace) and marked frozen.",
+                "- The emblem-file schema and the fresh/update wire are pinned; the spec pace transcribes the emblem schema, it does not re-decide it."
               ],
               "jjgtn_silks": "wire-protocol-freeze",
-              "jjgtn_basis": "fdb50b2"
+              "jjgtn_basis": "a4a4231"
             }
           ]
         },
         "₢BhAAE": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260621-0848",
+              "jjgtn_ts": "260622-0554",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "Land the rbm-side concepts formally in JJS0 as quoins:",
-                "terminal-window / session-id correlation (clean new territory),",
-                "the control-channel's adjacency to the remote-dispatch layer,",
-                "and the disambiguation of the three distinct \"session\" identities.",
+                "the emblem (the displayed label), the typed window reference (how an emblem binds to a window), and the iterm-session scheme as the one resolver — and disambiguate the three overloaded \"session\" identities.",
                 "",
-                "See the seed memo's spec-landing-zones section for the neighborhoods to coordinate with and the word-selection hazard.",
-                "Mint per MCM Lapidary and the Quoin Sub-Letter Discipline.",
+                "See seed memo spec-landing-zones section. Mint per MCM Lapidary and the Quoin Sub-Letter Discipline.",
                 "",
                 "## Cinched",
-                "\"session\" is overloaded across three identities — officium, Claude Code session UUID, iTerm session id — so Lapidary forces three distinct words, not a reused \"session\".",
+                "Forbid the bare word \"session\": it is already taken three ways — officium is defined as \"a bounded agent session\", \"session: <uuid>\" names the Claude Code session UUID in invitatory commits, and the new iTerm session id is the third. Lapidary forces three distinct words.",
+                "The window reference is an ephemeral, officium-scoped, non-fossil handle: follow the jjdt_legatio precedent (no glyph, no seed, not an Insignia), never the Insignia system.",
+                "Land under the jjdx_ executor-and-transport family (sub-letters o/r/p/f taken; w/s/c free); the legend is the Category-declarations COMMENT block in the mapping section, so each quoin is two coupled edits (comment line + attribute line) in a new transport-band subsection.",
                 "",
                 "## Done when",
-                "- The new concepts are minted as JJS0 quoins with mapping-section entries and a sub-letter legend, not colliding with the existing officium / remote-dispatch / display neighborhoods."
+                "- emblem, typed window reference, and the iterm-session scheme are minted as JJS0 quoins in a new transport-band subsection, with mapping-section entries and the legend comment updated, colliding with no existing neighborhood and never reusing \"session\"."
               ],
               "jjgtn_silks": "jjs0-overlay-concept-landing",
-              "jjgtn_basis": "a922984"
+              "jjgtn_basis": "a4a4231"
             }
           ]
         },
         "₢BhAAF": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260622-0552",
+              "jjgtn_ts": "260622-0554",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
-                "The core rbm-side overlay sender:",
-                "on each jjx engagement, vvx composes the region frame from the window's current identity, silks, repo, and working directory,",
-                "reads per-region style from an rbm-side config,",
-                "and sends best-effort / fail-soft to paneboard's port.",
+                "The core rbm-side emblem writer:",
+                "on each jjx engagement, vvx composes its window's emblem (identity, pace name, repo, working directory), reads per-region style from an rbm-side config, and atomically writes the emblem file for its window reference — best-effort, fail-soft.",
                 "",
-                "Starting band layout (soft, tweak freely): top = identity + silks; middle = repo + cwd; bottom = reserved.",
+                "Starting band content (soft, tweak freely): top = identity + pace name; middle = repo + working directory; bottom = reserved.",
                 "",
                 "## Cinched",
-                "Style lives in an rbm-side config vvx reads at send time, never compiled in — edit the config, re-send on any engagement, see it on the next alt-tab.",
+                "Write the emblem to a file (atomic temp-then-rename), keyed by the scheme-qualified window reference — never a socket send (paddock \"Transport\").",
+                "Identity beyond cwd/officium-id (coronet/firemark/pace name) is NOT on the jjx params; resolve it from the gallops/saddle, and handle the open verb — which has no saddled identity yet — as a degraded case (firemark or bare officium).",
+                "Style lives in a new .claude/jjm/*.json config read at write time (serde_json, the gallops-sibling convention), fail-soft to built-in paneboard defaults when the file or a field is absent; never compiled in.",
+                "Hook: the single per-command entry (fn jjx in jjrm_mcp.rs) after the model/officium gates; respect the crate's deny(warnings).",
                 "",
                 "## Done when",
-                "- vvx sends a well-formed region frame on jjx engagement, failing soft when paneboard is absent.",
-                "- Per-region style is read from the config with paneboard-default fallback when a field is absent."
+                "- vvx writes a well-formed emblem file on jjx engagement, failing soft (no write, no surfaced error) when not under iTerm.",
+                "- Per-region style is read from the config with paneboard-default fallback.",
+                "- A jjx engagement returns its normal result with no added latency or error when the write path is disabled or fails — the no-paneboard non-regression, verified explicitly, including a refused/absent emblem directory."
               ],
               "jjgtn_silks": "vvx-emblem-writer",
-              "jjgtn_basis": "98de12a"
+              "jjgtn_basis": "a4a4231"
             }
           ]
         },
         "₢BhAAG": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260622-0552",
+              "jjgtn_ts": "260622-0554",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
-                "Paint the overlay on the proven channel:",
-                "paneboard maps a received frame's session key to its AX window (the mapping the probe spike settled)",
-                "and renders the three-region overlay on the alt-tab highlight box it already draws.",
-                "Frames arrive via the IPC listener; this pace is mapping plus rendering only.",
+                "The richer in-place render:",
+                "paneboard paints the three-region emblem on the yellow highlight box it already draws around the selected window during alt-tab.",
+                "The box's window-positioning plumbing is reused; the text-and-pill rendering is net-new (the box draws only an outline today).",
+                "Paneboard reads the emblem file at paint time, keyed by the window reference the resolver produces.",
                 "",
-                "See the seed memo's Phase 3 and its entry-points section (overlay FFI, window tracking).",
+                "See seed memo Phase 3 and paddock \"Overlay surface\" + \"Paneboard internals\".",
                 "",
                 "## Cinched",
-                "Three stacked multi-line regions on fixed black backing pills, identity-led; per-region style from the frame with built-in defaults when absent (paddock \"Pane-label overlay shape\").",
-                "No-frame fallback: a window with no frame paints exactly today's highlight, so this pace never regresses the current alt-tab overlay even before the sender lands.",
+                "Net-new drawing: a content view doing three banded sub-rects of multi-line text on fixed black backing pills, branching cleanly on emblem-present vs absent — NOT an extension of the outline-only highlight content view.",
+                "Read at paint time (no stored frame state), so a freshly-written emblem always lands on the right window by construction — never stale or mis-bound.",
+                "No-emblem fallback: a window with no emblem file paints exactly today's plain box, so this never regresses the current alt-tab overlay.",
+                "Replicate the AX-to-Cocoa coordinate flip and the secondary-display setFrame trap from the existing box code, or the label lands off-screen on multi-display.",
                 "",
                 "## Done when",
-                "- A received frame paints the correct window's highlight with all populated regions.",
-                "- A late-arriving frame still lands on the right window — latency-immune by session key — never the wrong one.",
-                "- A window with no frame is unchanged from today's behavior."
+                "- An emblem file paints the selected window's box with all populated regions, identity-led, per-region style from the file with built-in defaults.",
+                "- A window with no emblem file is unchanged from today.",
+                "- Gated on the resolver: if the probe failed, this pace does not run and emblems stay on the list only."
               ],
               "jjgtn_silks": "pb-box-emblems",
-              "jjgtn_basis": "b34d7d4"
+              "jjgtn_basis": "a4a4231"
             }
           ]
         },
         "₢BhAAH": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260621-0900",
+              "jjgtn_ts": "260622-0554",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "Layer paneboard over the viewer:",
-                "it proxies fresh/update to viewer instances it spawns and places,",
-                "while the direct-socket viewer keeps working for the no-paneboard / Windows case.",
+                "it spawns and AX-places viewer instances it conducts, while the direct-socket viewer keeps working for the no-paneboard / Windows case.",
                 "",
-                "See the seed memo's Phase 4 and the paddock's \"Paneboard run-loop integration\".",
+                "See seed memo Phase 4 and paddock \"Transport\" + \"Paneboard internals\".",
                 "",
                 "## Cinched",
-                "The viewer payload path is the one sanctioned offload: a multi-megabyte fresh/update read must not block the shared run-loop thread (macOS disables a slow event tap), so the byte read runs off-thread and hands the result back to the main thread.",
-                "The direct-socket viewer keeps working unchanged.",
+                "Spawn + place only: paneboard positions viewer windows via AX and does NOT proxy image bytes — pushers connect straight to the viewer's advertised port, so paneboard opens no socket and the network-deny posture stays intact.",
+                "Because paneboard never reads the bytes, there is no run-loop offload and no background-thread byte read here.",
                 "",
                 "## Character",
-                "Layering, not new risk — both the viewer and the overlay channel already exist by this point.",
+                "Layering, plus one Palisade check — little new risk beyond the spawn-inheritance question below.",
                 "",
                 "## Done when",
-                "- Paneboard spawns and places a viewer instance and forwards fresh/update to it by id.",
-                "- Large payload reads do not stall the run loop or trip the event-tap slow-callback disable.",
-                "- The direct-socket path from the standalone viewer still works unchanged."
+                "- Paneboard spawns a viewer instance and AX-places its window; the direct-socket path from the standalone viewer still works unchanged.",
+                "- Verified: whether a paneboard-spawned child inherits the network-deny sandbox. If it does, the viewer is launched independently and paneboard only positions an already-running window — and that resolution is recorded."
               ],
               "jjgtn_silks": "pb-viewer-conductor",
-              "jjgtn_basis": "da6b902"
+              "jjgtn_basis": "a4a4231"
             }
           ]
         },
         "₢BhAAI": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260621-0848",
+              "jjgtn_ts": "260622-0554",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
-                "The latest, separable rbm slice:",
-                "a regen loop that pushes fresh/update diagram bytes when the SVGs change —",
-                "the \"who pushes, and when\" that does not exist today (the SVGs currently change only on a pluml crucible fixture run).",
+                "The separable rbm slice:",
+                "push fresh/update diagram bytes to the viewer when the SVGs regenerate.",
+                "The sole SVG writer is rbtdrc_pluml_render_diagrams in the RBK rbtd crate (rbtdrc_crucible.rs), run on a pluml crucible fixture — a different crate and binary from vvx, so this is an RBK-side change, not a vvx change.",
                 "",
-                "See the seed memo's open-risks section (regen loop) and its references (diagrams/rbdg*.svg).",
+                "See seed memo open-risks (regen loop) and paddock \"Transport\".",
                 "",
                 "## Character",
                 "Independent and deferrable — the viewer is useful without it via a manual fresh.",
                 "",
+                "## Cinched",
+                "Trigger: a dedicated rbw-workbench action tabtarget that reads the viewer's port-file and pushes each diagrams/<stem>.svg — the idiomatic rbw precedent.",
+                "Rejected fork: a git hook (the repo ships no committed hooks and sets no core.hooksPath, so it would silently not exist on other checkouts). Deferred fork: a fixture-emits-push for a fully-automatic loop.",
+                "Reuse the viewer wire from the skeleton; enumerate from the diagrams/*.puml glob (the source of truth), not the acronym-map list. Payloads are small (~17-22 KB) — no off-thread offload applies.",
+                "",
                 "## Done when",
-                "- Something rbm-side detects regenerated diagrams and pushes fresh/update to the viewer.",
-                "- The trigger — hook, fixture, or manual command — is chosen and recorded."
+                "- An rbw-workbench tabtarget pushes the current diagrams to a running viewer via fresh/update, failing soft when the viewer is absent.",
+                "- The trigger choice (tabtarget chosen; git-hook rejected, fixture-push deferred) is recorded."
               ],
               "jjgtn_silks": "rbm-diagram-push-regen-loop",
-              "jjgtn_basis": "c17247a"
+              "jjgtn_basis": "a4a4231"
             }
           ]
         },
