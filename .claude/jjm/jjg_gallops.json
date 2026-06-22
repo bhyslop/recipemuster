@@ -1,6 +1,7 @@
 {
   "jjgrn_next_heat_seed": "Bl",
   "jjgrn_heat_order": [
+    "₣Bf",
     "₣Bg",
     "₣Bc",
     "₣Be",
@@ -11,7 +12,6 @@
     "₣BZ",
     "₣Bk",
     "₣Bj",
-    "₣Bf",
     "₣BW",
     "₣BN",
     "₣A-",
@@ -16535,9 +16535,9 @@
       }
     },
     "₣Bf": {
-      "jjghn_silks": "rbk-12-mvp-FABLE-federation-evolution",
+      "jjghn_silks": "rbk-12-mvp-federation-evolution",
       "jjghn_creation_time": "260616",
-      "jjghn_status": "jjghe_stabled",
+      "jjghn_status": "jjghe_racing",
       "jjghn_order": [
         "₢BfAAD",
         "₢BfAAC",
