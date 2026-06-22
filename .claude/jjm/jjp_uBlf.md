@@ -48,8 +48,9 @@ The discriminator splits public config from the one durable secret along the rig
 Boundary: vendor-invariance holds for OIDC only.
 The one place a genuine per-protocol fork would reappear is OIDC versus SAML — a structurally different provider — but the manor is OIDC-only, so that is out of scope.
 
-Honesty: the caged programmatic path is confirmed against live GCP docs down to the --jwk-json-path flag and the client-id-equals-aud match, but it is not yet proven end-to-end in our own harness — a strong design lead, not a proven recipe.
-Decision economy (operator ruling): the throwaway manual spike is skipped — the establishment is written as durable BCG-compliant bash and that is what gets tested.
+PROVEN end-to-end (260622, pace ₢BfAAH): the caged programmatic path — a Keycloak-minted OIDC id_token via uploaded JWKS → GCP STS → don → authorized depot-API call — ran GREEN in our own harness, no longer merely doc-confirmed. Full findings in the config-model memo's "Proof result" section.
+Decision economy (operator ruling, refined 260622 post-proof): the chain was proven by an expedient gcloud POC (now torn down); the DURABLE establishment + accessor are REST-only — NO direct gcloud — and are the deferred build-units, not this proof.
+Three-layer home (cinched): the realm config is baked vessel DATA; the establishment + accessor are station BCG MODULES (orchestration); Keycloak itself is the vessel. Durable test-foedus / pool / provider names are Fable's asterism work (the POC's provisional names are torn down).
 
 RESOLVED (260622, operator decision — see the config-model memo's "Fork resolution" section): both forks settled.
 Fork one (test-manor topology) — MULTIPLICITY IS THE GOAL: the test manor stands up the real Entra foedus (interactive) and a Keycloak test foedus (programmatic) side by side, each its own pool; per-run-switching is rejected, a dedicated second org is noted-unneeded.
