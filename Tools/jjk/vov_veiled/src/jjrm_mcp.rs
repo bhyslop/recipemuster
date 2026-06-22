@@ -839,6 +839,61 @@ fn zjjrm_resolve_session_uuid(cwd: &Path) -> Result<String, String> {
     Ok(candidates.swap_remove(0).1)
 }
 
+/// iTerm window-reference scheme — the typed namespace under which an emblem
+/// keys to its window. The reference is always scheme-qualified
+/// (`iterm-session/<uuid>`); the bare UUID is never the key, so the namespace
+/// generalizes to other window types (Terminal.app, Windows Terminal, ...) by
+/// adding a sibling scheme rather than overloading this one.
+pub const JJRM_ITERM_SCHEME: &str = "iterm-session";
+
+/// Emblem root tail, relative to `$HOME`: the paneboard-owned per-user
+/// rendezvous directory emblems are written under. The full emblem file path is
+/// `<home>/<this>/<scheme>/<value>.json`. paneboard's PoC spec is the authority
+/// for this literal; we mirror it by convention (no handshake) and cite that
+/// here so the duplication is a deliberate mirror, not a second source.
+pub const JJRM_EMBLEM_ROOT_TAIL: &str = ".config/paneboard/emblems";
+
+/// Parse an `ITERM_SESSION_ID` value into a scheme-qualified window reference.
+///
+/// iTerm sets the variable as `<wNtNpN-position-prefix>:<UUID>`. We key on the
+/// UUID after the colon and DISCARD the position prefix: the prefix restamps
+/// when a tab is dragged into another window, so it is stale as a durable
+/// window handle, while the UUID rides with the session for its life.
+///
+/// Pure (no env access) so the parse is unit-testable; `jjrm_iterm_window_ref`
+/// wraps it with the environment read. Returns `None` on a value with no colon
+/// or an empty UUID — fail-soft, treated as "not a usable iTerm session".
+fn zjjrm_parse_iterm_session(raw: &str) -> Option<String> {
+    let (_position_prefix, uuid) = raw.split_once(':')?;
+    if uuid.is_empty() {
+        return None;
+    }
+    Some(format!("{}/{}", JJRM_ITERM_SCHEME, uuid))
+}
+
+/// Derive this process's scheme-qualified iTerm window reference from its own
+/// environment (`ITERM_SESSION_ID`). Returns `iterm-session/<uuid>`.
+///
+/// Fail-soft: an unset `ITERM_SESSION_ID` means this process is not running
+/// under iTerm, so the caller writes no emblem and skips silently; a malformed
+/// value folds into the same `None`. Sibling to `zjjrm_resolve_session_uuid`
+/// (the Claude Code session reader); the env-read/parse/fallback idiom follows
+/// `jjrc_core`.
+pub fn jjrm_iterm_window_ref() -> Option<String> {
+    let raw = std::env::var("ITERM_SESSION_ID").ok()?;
+    zjjrm_parse_iterm_session(&raw)
+}
+
+/// Resolve the emblem root directory this process writes emblems into:
+/// `$HOME/<JJRM_EMBLEM_ROOT_TAIL>`. The per-scheme subdirectory and
+/// `<value>.json` basename are joined onto this by the writer from
+/// `jjrm_iterm_window_ref`. Fail-soft: an unset `HOME` returns `None`, and the
+/// caller skips — no emblem written.
+pub fn jjrm_emblem_root() -> Option<PathBuf> {
+    let home = std::env::var_os("HOME")?;
+    Some(PathBuf::from(home).join(JJRM_EMBLEM_ROOT_TAIL))
+}
+
 /// Validate officium directory exists and touch heartbeat.
 fn zjjrm_validate_officium(officium: &str) -> Result<(), String> {
     let bare_id = officium.trim_start_matches(OFFICIUM_SUN_PREFIX);
@@ -1878,6 +1933,28 @@ mod tests {
         let (s, trunc) = zjjrm_tail(&big, 10);
         assert_eq!(s.len(), 10);
         assert!(trunc);
+    }
+
+    #[test]
+    fn parse_iterm_session_keys_on_uuid_and_discards_position_prefix() {
+        // Real iTerm shape: <wNtNpN>:<UUID>. The UUID is the key; w4t0p0 is
+        // discarded because it restamps on tab-drag.
+        assert_eq!(
+            zjjrm_parse_iterm_session("w4t0p0:AA97D5ED-F633-4513-95B2-2A930EBB7365"),
+            Some("iterm-session/AA97D5ED-F633-4513-95B2-2A930EBB7365".to_string())
+        );
+        // A different position prefix, same UUID, must yield the same key.
+        assert_eq!(
+            zjjrm_parse_iterm_session("w0t9p3:AA97D5ED-F633-4513-95B2-2A930EBB7365"),
+            zjjrm_parse_iterm_session("w4t0p0:AA97D5ED-F633-4513-95B2-2A930EBB7365")
+        );
+    }
+
+    #[test]
+    fn parse_iterm_session_fails_soft_on_malformed() {
+        assert_eq!(zjjrm_parse_iterm_session("no-colon-here"), None);
+        assert_eq!(zjjrm_parse_iterm_session("w4t0p0:"), None);
+        assert_eq!(zjjrm_parse_iterm_session(""), None);
     }
 
     #[test]

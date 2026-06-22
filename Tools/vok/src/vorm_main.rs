@@ -59,6 +59,11 @@ enum Commands {
     #[command(name = "vvx_freshen")]
     VvxFreshen(FreshenArgs),
 
+    /// Diagnostic: derive and print this process's emblem window reference and
+    /// file path from the environment (paneboard emblem feature). Writes nothing.
+    #[command(name = "vvx_emblem_probe", hide = true)]
+    VvxEmblemProbe,
+
     /// Start MCP stdio server for jjx_* tool access
     #[command(name = "mcp")]
     Mcp,
@@ -210,6 +215,7 @@ async fn main() -> ExitCode {
         Some(Commands::VvxEmplace(args)) => run_emplace(args),
         Some(Commands::VvxVacate(args)) => run_vacate(args),
         Some(Commands::VvxFreshen(args)) => run_freshen(args),
+        Some(Commands::VvxEmblemProbe) => run_emblem_probe(),
         Some(Commands::Mcp) => run_mcp().await,
         Some(Commands::External(args)) => dispatch_external(args).await,
         None => {
@@ -244,6 +250,46 @@ fn run_commit(args: CommitArgs) -> i32 {
     };
     let mut output = vvc::vvco_Output::console();
     vvc::commit(&vvc_args, &mut output)
+}
+
+/// Diagnostic: derive and print this process's emblem target — the iTerm window
+/// reference and the emblem file path vvx would write — from the environment.
+/// Reads only the environment and writes nothing. Confirms that
+/// ITERM_SESSION_ID actually inherits into a running vvx (the same Claude Code
+/// child chain the MCP server rides), rather than only into a manual proof.
+fn run_emblem_probe() -> i32 {
+    let raw = std::env::var("ITERM_SESSION_ID");
+    println!(
+        "ITERM_SESSION_ID: {}",
+        match &raw {
+            Ok(v) => v.as_str(),
+            Err(_) => "(unset — not under iTerm)",
+        }
+    );
+
+    #[cfg(feature = "jjk")]
+    {
+        match jjk::jjrm_mcp::jjrm_iterm_window_ref() {
+            Some(window_ref) => {
+                println!("window reference: {}", window_ref);
+                match jjk::jjrm_mcp::jjrm_emblem_root() {
+                    Some(root) => {
+                        let file = root.join(format!("{}.json", window_ref));
+                        println!("emblem root:      {}", root.display());
+                        println!("emblem file:      {}", file.display());
+                    }
+                    None => println!("emblem root:      (skipped — HOME unset)"),
+                }
+            }
+            None => println!("window reference: (skipped — no usable iTerm session)"),
+        }
+        0
+    }
+    #[cfg(not(feature = "jjk"))]
+    {
+        eprintln!("vvx_emblem_probe: error: jjk feature not enabled");
+        1
+    }
 }
 
 /// Run MCP stdio server
