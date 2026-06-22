@@ -17854,7 +17854,7 @@
         "₢BiAAM": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260622-1300",
+              "jjgtn_ts": "260622-1222",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "Augur gains the express-or-chain fallback for its lode touchmark — the second consumer of the shared footings.",
@@ -17864,27 +17864,28 @@
                 "Also tightens augur's existing shape-only check into a real kind assertion.",
                 "",
                 "## Shape",
-                "Express touchmark wins; absent → the shared resolver reads the chained touchmark of any Lode kind; augur accepts any known kind via the shared decoder.",
+                "Express touchmark wins; absent -> the shared resolver reads the chained touchmark of any Lode kind; augur accepts any known kind via the shared decoder.",
                 "Augur today shape-validates the touchmark with a regex but never asserts a known kind — replace that with the decoder's known-kind assertion.",
                 "The footings are introduced earlier in this heat; reuse them, do not reimplement.",
                 "",
                 "## Cinched",
                 "Reuses the shared resolver and touchmark-kind decoder — no second implementation.",
                 "Accepts any known Lode kind, unlike yoke's reliquary-only.",
+                "Read-side fallback — reads the chain for a transient action only (inspect/display), writes no durable config; dies loud on a broken chain via the shared resolver. Categorically lower severity than feoff/anoint; MUST NOT be extended to write rbrv.env without joining the durable-leak surface and its no-relay plus named-band-reject discipline.",
                 "",
                 "## Done when",
                 "A no-arg augur after any capture inspects the just-captured Lode; an express touchmark behaves as today; an unknown-kind or broken chain refuses cleanly.",
                 "rbw-tl clean and the fast suite green."
               ],
               "jjgtn_silks": "augur-chaining-fact-fallback",
-              "jjgtn_basis": "c8dd2c9"
+              "jjgtn_basis": "fad50db"
             }
           ]
         },
         "₢BiAAN": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260622-1300",
+              "jjgtn_ts": "260622-1222",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "Summon, plumb, and rekon each gain the express-or-chain fallback for their hallmark, reusing the shared resolver.",
@@ -17894,27 +17895,28 @@
                 "Bundled because the edit is the same across them — they remain three distinct toothings, not a family.",
                 "",
                 "## Shape",
-                "Each verb: express hallmark wins; absent → the shared resolver reads the chained hallmark fact written by the prior build (ordain or kludge).",
+                "Each verb: express hallmark wins; absent -> the shared resolver reads the chained hallmark fact written by the prior build (ordain or kludge).",
                 "Hallmarks carry no sub-kind these verbs discriminate, so the typecheck is a shape check only — no kind decode; keep it minimal, shared only if a hallmark-shape predicate earns it.",
                 "The footings are introduced earlier in this heat; reuse the resolver, do not reimplement per verb.",
                 "",
                 "## Cinched",
                 "Three distinct verbs, one shared resolver, no parent.",
                 "Hallmark needs shape-validation only, never kind discrimination.",
+                "Read-side fallback — reads the chain for a transient action only (pull/display/verify), writes no durable config; dies loud on a broken chain via the shared resolver. Categorically lower severity than feoff/anoint; MUST NOT be extended to write rbrv.env without joining the durable-leak surface and its no-relay plus named-band-reject discipline.",
                 "",
                 "## Done when",
                 "A no-arg summon, plumb, or rekon after a build acts on the just-built hallmark; an express hallmark behaves as today; a broken chain refuses cleanly.",
                 "rbw-tl clean and the fast suite green."
               ],
               "jjgtn_silks": "hallmark-verbs-chaining-fact-fallback",
-              "jjgtn_basis": "c8dd2c9"
+              "jjgtn_basis": "fad50db"
             }
           ]
         },
         "₢BiAAO": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260622-1300",
+              "jjgtn_ts": "260622-1222",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "Vouch's already-optional conjure build-id falls back to the chained build-id fact when omitted.",
@@ -17931,13 +17933,14 @@
                 "## Cinched",
                 "The build-id stays optional; the fact is the omitted-argument fallback only.",
                 "Reuses the shared resolver.",
+                "Read-side fallback — reads the chain for a transient action only (verify), writes no durable config; dies loud on a broken chain via the shared resolver. Categorically lower severity than feoff/anoint; MUST NOT be extended to write rbrv.env without joining the durable-leak surface and its no-relay plus named-band-reject discipline.",
                 "",
                 "## Done when",
                 "A vouch immediately after a conjure resolves the build-id from the chain when omitted; an explicit build-id behaves as today.",
                 "rbw-tl clean and the fast suite green."
               ],
               "jjgtn_silks": "vouch-build-id-chaining-fallback",
-              "jjgtn_basis": "c8dd2c9"
+              "jjgtn_basis": "fad50db"
             }
           ]
         },
@@ -17975,44 +17978,59 @@
         "₢BiAAQ": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260622-1205",
+              "jjgtn_ts": "260622-1222",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "Restore conjure to a pure chain HEAD — output only, never reads a prior fact — by extracting its base-anchor election into a standalone feoff link verb.",
                 "",
                 "## Character",
-                "Behavior change (own cinch, distinct from the refactor-only convergence pace). The correctness fix of the heat: it closes a live provenance hole and restores the head-never-reads invariant. Intricate but bounded.",
+                "Behavior change (own cinch, distinct from the refactor-only convergence pace). The correctness fix of the heat: it closes a live provenance hole and restores the head-never-reads invariant. Contract-first, then intricate-but-bounded code.",
+                "",
+                "## Contract first (RBS0)",
+                "RBK is contract-before-code, and this is a contract REVERSAL: RBSAC (ark_conjure) currently sanctions the election as \"the one sanctioned post-gate write.\" Before the code:",
+                "Reverse RBSAC — remove the base-anchor election from conjure's contract; state conjure reads no chain and builds only from committed config.",
+                "Carve the election's contract into a NEW feoff subdoc (acronym mint, Fable-gated like the verb name).",
+                "Land the no-relay and head-never-reads invariants in that spec (and the footings' contract), not only in pace cinches that evaporate on wrap.",
+                "RBSDY's optional-with-fallback relax belongs to the footings pace, not this one.",
                 "",
                 "## The split",
                 "Conjure (rbfd_build) embeds zrbfd_elect_base_anchor: it reads the chained bole touchmark, writes RBRV_IMAGE_n_ANCHOR into the vessel's rbrv.env after its clean-tree gate, then builds FROM that uncommitted value — so the artifact's git provenance names a commit whose rbrv.env still holds the OLD anchor.",
-                "Extract the election into feoff <vessel> (own colophon, express vessel arg like anoint): reads the chained bole touchmark through the shared footings, writes the vessel's anchor, creates no fact, no clean-tree gate, prints a commit reminder. Conjure then reads no chain and builds only from committed config.",
-                "Ceremony becomes: ensconce → feoff → commit → conjure.",
+                "Extract the election into feoff <vessel> (own colophon, express vessel arg like anoint): reads the chained bole touchmark through the shared footings, writes the vessel's anchor, creates no fact, no clean-tree gate, prints a commit reminder.",
+                "The election's call site AND its function body leave rbfd_director.sh entirely — relocated into feoff, not merely bypassed. Conjure then reads no chain and builds only from committed config.",
+                "Ceremony becomes: ensconce -> feoff -> commit -> conjure.",
+                "",
+                "## Existing consumer to re-home",
+                "The election's chain consumer is the documented chain_next_invoke pairing (ensconce writes the touchmark, the following ordain reads it); the split breaks it.",
+                "Discovery: grep -rn chain_next_invoke Tools/rbk/rbtd/src/. Re-home any election-asserting chain to an ensconce -> feoff invoke (feoff before ordain), so the test proves the new ceremony rather than shipping red or being \"repaired\" by restoring conjure's read.",
                 "",
                 "## Loud on typecheck",
                 "feoff and anoint both emit bold output on a passing typecheck — the value written and its source (chain vs express) — so a wrong build shows at the moment of action, not just in the eventual git diff. This replaces feoff's silent no-op branches.",
                 "",
                 "## Cinched",
-                "Conjure is a pure head — it never reads a prior fact (the head-never-reads invariant; verify by grep).",
+                "Conjure is a pure head — it never reads a prior fact (the head-never-reads invariant).",
                 "feoff takes its vessel from an express arg; the chain supplies only the value.",
                 "The derived-pull affordance is preserved, relocated — not retired.",
+                "The no-relay leak-elimination rationale (today a comment in the election) relocates into feoff's body, so the invariant survives the wrap.",
                 "Extracting the election here is also its convergence onto the footings, so the later convergence pace carries only anoint.",
                 "Per the gird precedent, the feoff mint is operator-sanctioned mid-heat; flag for Fable's terminal review.",
                 "",
                 "## Done when",
-                "A grep for chain reads (buf_read_fact / BURD_PREVIOUS) in head bodies returns only feoff; conjure has none and builds from committed config.",
-                "feoff resolves the bole touchmark, writes the anchor, refuses a non-bole or broken chain cleanly, and is loud on success; anoint gains the same loud output.",
-                "The conjure spec reflects reads-no-chain, and the election's spec home moves to a feoff spec.",
-                "rbw-tl clean; fast suite green plus a build-exercising tier for the anchor path."
+                "grep zrbfd_elect_base_anchor returns zero hits in rbfd_director.sh; a grep for chain reads (buf_read_fact / BURD_PREVIOUS) in head bodies returns only feoff; conjure has none.",
+                "Conjure builds green from an EMPTY previous/ (no hard chain dependency survived), building only from committed config.",
+                "feoff resolves the bole touchmark, writes the anchor, refuses a non-bole or broken chain cleanly via the named band code, and is loud on success; anoint gains the same loud output — the written value and its source appear in output, asserted.",
+                "RBSAC no longer carries the election; a feoff subdoc holds its contract.",
+                "Provenance closure is proven by the chaining-tests pace's provenance case.",
+                "rbw-tl clean; fast suite green plus a crucible/onboarding tier exercising the re-homed election chain and the anchor path."
               ],
               "jjgtn_silks": "feoff-base-anchor-split",
-              "jjgtn_basis": "a4163db"
+              "jjgtn_basis": "fad50db"
             }
           ]
         },
         "₢BiAAR": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260622-1205",
+              "jjgtn_ts": "260622-1222",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "Chaining-fact tests — permutation and negative coverage with named precision-band exit codes, proving a bad chain attempt cannot corrupt a good one.",
@@ -18021,27 +18039,29 @@
                 "Test infrastructure; one pace covering the unit matrix plus one integration case and the provenance proof. The named-band assertions are the only subtlety.",
                 "",
                 "## Unit tier (the bulk)",
-                "Extend the BUK self-test fact cases (Tools/buk/buts/butcfc_facts.sh — the established previous/-seeding home) over the footings resolver and decoder: wrong-kind chained fact → assert the named chain-rejection band code; broken/absent chain → its rejection; good fact → success; express-present beats chain-present (precedence); and fact-intact — a failed resolve leaves the seeded fact byte-identical.",
+                "Extend the BUK self-test fact cases (Tools/buk/buts/butcfc_facts.sh — the established previous/-seeding home) over the footings resolver and decoder: wrong-kind chained fact -> assert the named chain-rejection band code; broken/absent chain -> its rejection; good fact -> success; express-present beats chain-present (precedence).",
+                "And the fact-intact proof — the operator's original worry, specified to actually defend it: seed a GOOD fact, drive the resolver to a kind/chain REJECT via the band code, then assert BOTH that the band fired AND that the named files that must survive (the good fact under previous/ and the target rbrv.env) are byte-identical to their pre-call state — rejection precedes any destructive write. Not the tautological \"a read left the file alone.\"",
                 "Seeding previous/ is the resolver's legitimate input here, not a re-seed hack.",
                 "",
                 "## Integration tier (one case)",
-                "One theurge case via the existing chain_next_invoke producer→consumer pairing: a real ensconce then the real feoff, asserting the real fact shape matches the unit mocks and the named band code survives the full dispatch exec path (the regime-poison precedent: assert the specific band, never bare nonzero).",
+                "One theurge case via the existing chain_next_invoke producer->consumer pairing: a real ensconce then the real feoff, asserting the real fact shape matches the unit mocks and the named band code survives the full dispatch exec path (the regime-poison precedent: assert the specific band, never bare nonzero).",
                 "",
                 "## Provenance case",
-                "ensconce → feoff → commit → conjure asserts the build's recorded git provenance matches the committed anchor — the proof the feoff split closed the hole.",
+                "ensconce -> feoff -> commit -> conjure asserts the build's recorded git provenance matches the committed anchor — the proof the feoff split closed the hole.",
                 "",
                 "## Cinched",
                 "Negative cases assert the named precision-band code (buc_reject), never bare nonzero.",
+                "The fact-intact case asserts rejection-before-write on named files, not a trivial read-left-it-alone.",
                 "The matrix lives at the unit tier; the integration tier is one representative case, not the whole matrix.",
                 "No relay anywhere — the depth-1 terminal-consume contract is what these tests defend.",
                 "",
                 "## Done when",
-                "The unit matrix (wrong-kind, broken, good, precedence, fact-intact) passes via the band-code assertions.",
+                "The unit matrix (wrong-kind, broken, good, precedence, fact-intact-via-rejection-before-write) passes via the band-code assertions.",
                 "The one integration case proves the band code survives the exec path; the provenance case proves the committed-anchor stamp.",
                 "rbw-tl clean; the relevant suites green."
               ],
               "jjgtn_silks": "chaining-fact-band-tests",
-              "jjgtn_basis": "28805eb"
+              "jjgtn_basis": "fad50db"
             }
           ]
         }

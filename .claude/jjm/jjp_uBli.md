@@ -31,6 +31,23 @@ The credential-flap tolerance and the OAuth fail-fast both touch `rbgo_get_token
 the fail-fast pace's own docket asks whether it is the same landing as the flap-tolerance touchpoint,
 so mount those two adjacent or fold them together.
 
+## Chaining-fact discipline — the shape the cluster cinched
+
+One coherent sub-initiative inside the junk-drawer: the verbs that pass a value forward between tabtargets are split by role, and the split is load-bearing for safety.
+
+Chain HEADS — the build and capture verbs (conjure, ensconce, conclave, underpin, immure, kludge, mirror) — only ever WRITE a fact; a head never reads a prior fact.
+Conjure violated this by embedding the base-anchor election, which is being extracted into a standalone link (feoff) so conjure becomes pure output and builds only from committed config; that also closes a live provenance hole.
+
+Chain LINKS read one chained value and write one durable config field.
+Only three verbs write durable config from a resolved value — feoff (the base anchor), anoint (the graft image), yoke (the reliquary) — and they are the only sanctioned members of the durable-leak surface.
+
+The leak-elimination invariant is no-relay: the express-or-chain resolver is depth-1 and terminally consumed, never forwarded.
+The git clean-tree gate is an ergonomic backstop only — never the safety mechanism.
+Instance-binding (stamping a producing-vessel identity into the fact) was deliberately weighed and DROPPED; the safety is operator-trust plus loud-on-typecheck output plus the commit-review gate.
+
+Read-side chain consumers (augur, summon, plumb, rekon, vouch) may resolve-or-die-loud but write no durable config — a wrong read corrupts only a transient action, never a regime file.
+They must never be extended to write config without joining the durable-leak surface and its no-relay plus named-band-reject discipline.
+
 ## Provenance
 
 Restrung from ₣BB and ₣BU.
