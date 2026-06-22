@@ -27,6 +27,7 @@
 // jjdxp_: Pensum lifecycle (remote dispatch job identity)
 // jjdxpe_: Pensum report states (liveness enum)
 // jjdxf_: Fundus profiles (test infrastructure configurations)
+// jjdxw_: Window emblem overlay (per-window labels, references, resolution)
 // jjdk_:  Key premises (design constraints)
 // jjdz_:  Serialization concerns
 // jjsz_:  Gazette entity (officium exchange files)
@@ -210,6 +211,14 @@
 :jjdxf_nogit:           <<jjdxf_nogit,nogit>>
 :jjdxf_preflight:       <<jjdxf_preflight,Preflight>>
 :jjdxf_preflight_p:     <<jjdxf_preflight,Preflight's>>
+
+// Window emblem overlay
+:jjdxw_emblem:    <<jjdxw_emblem,Emblem>>
+:jjdxw_emblem_s:  <<jjdxw_emblem,Emblems>>
+:jjdxw_billet:    <<jjdxw_billet,Billet>>
+:jjdxw_billet_s:  <<jjdxw_billet,Billets>>
+:jjdxw_marque:    <<jjdxw_marque,Marque>>
+:jjdxw_marque_s:  <<jjdxw_marque,Marques>>
 
 // Operations
 :jjdo_relocate:          <<jjdo_relocate,jjx_relocate>>
@@ -798,6 +807,52 @@ Serialized as `stopped` in pensum liveness report.
 `burx.env` file missing.
 The dispatch's temp dir was not found at the stored path.
 Serialized as `lost` in pensum liveness report.
+
+=== Window Emblem Overlay
+
+An out-of-band overlay paints a per-window label naming each window's current work — the {jjdt_coronet} when an {jjdxo_officium} is mounted on a {jjdpr_pace}, else the {jjdt_firemark} — so a glance across terminal windows reads as a glance across {jjdhr_heat_s}.
+The label is written by {jjdx_vvx} (an iTerm descendant) and read by a separate macOS overlay tool, paneboard; the two never share a socket — the writer atomically writes one file per window under a fixed paneboard-owned root, and the reader treats an absent or empty tree as no label.
+This subsection lands the three rbm-side concepts; the on-disk file format and its literals are paneboard's to freeze (its PoC spec is the authority), which rbm mirrors with a citation.
+
+[NOTE]
+====
+Three distinct identities have all been loosely called "session"; JJS0 keeps them apart by word and never mints "session" into the `jjdxw_` family:
+
+* the _agent_ session is an {jjdxo_officium};
+* the _Claude Code_ session UUID is the `session: <uuid>` field of the {jjdxo_invitatory} commit — a foreign wire field, unchanged here;
+* the _iTerm_ window identity is the `<value>` inside a {jjdxw_billet} under the `iterm-session` {jjdxw_marque}.
+
+The literal `iterm-session` is a cited paneboard wire constant, not a JJS0 quoin word.
+====
+
+[[jjdxw_emblem]]
+//axve_entity
+{jjdxw_emblem}::
+The displayed label: an ordered set of stacked regions (top, middle, bottom), each region a list of text lines with optional style — a font size and a color — on fixed black backing pills.
+The primary glance datum is the work identity: the full {jjdt_coronet} or {jjdt_firemark}, never abbreviated.
+Region STRUCTURE (slot, lines, style) is frozen; region CONTENT — which lines fall in which band — is config-tunable, sourced from an rbm-side style file {jjdx_vvx} reads at write time, never compiled in.
+The writer supplies content and any explicit style; the reader supplies built-in defaults for absent style fields.
+Serialized cross-repo as the `pbge_emblem` grammar (paneboard PoC spec, _Emblem File Format_), one file per window.
+
+[[jjdxw_billet]]
+//axve_entity
+{jjdxw_billet}::
+The typed reference binding an {jjdxw_emblem} to a specific window.
+A {jjdxw_billet} is scheme-qualified — `<scheme>/<value>` — where the scheme names a {jjdxw_marque} and the value is the window handle that {jjdxw_marque} resolves (on macOS, the CGWindowID the overlay already enumerates).
+That qualification is what lets {jjdxw_emblem_s} generalize to other window types later without collision.
++
+A {jjdxw_billet} is NOT a {jjdt_insignia} — it has no unicode glyph, no persistent seed, and no fossil-record purpose, precisely as a {jjdt_legatio} is not.
+It is ephemeral and {jjdxo_officium}-scoped: a window handle is stable for its window's life but may be recycled after the window closes, so correctness rests on the reader painting an {jjdxw_emblem} only while its window is in the live window set, with {jjdx_vvx} sweeping its own stale {jjdxw_billet_s}.
+The {jjdxw_billet} equals the per-window file's on-disk key; cross-repo it is the `pbge_pane` lede.
+
+[[jjdxw_marque]]
+//axve_entity
+{jjdxw_marque}::
+A named scheme for identifying a window, together with its resolver leg — the platform-and-terminal-specific code mapping a window to the handle a {jjdxw_billet} carries.
+The resolver lives in the writer, never in the overlay reader: paneboard holds no resolver and reads each {jjdxw_emblem} by the window handle it already enumerates.
++
+The sole {jjdxw_marque} today is `iterm-session` (the on-disk scheme literal, paneboard PoC authority): {jjdx_vvx}, an unsandboxed iTerm descendant, self-scripts iTerm's AppleScript API to resolve its own window to the CGWindowID.
+A {jjdxw_marque} is the per-platform-AND-per-terminal seam — the lock is two-axis (OS × terminal), and `iterm-session` is one cell; future {jjdxw_marque_s} are one resolver leg and one registration apart, leaving {jjdxw_emblem} content, the file format, and the reader's handle lookup untouched.
 
 == Premises
 
