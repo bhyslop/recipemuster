@@ -16848,8 +16848,8 @@
         "₢BhAAC": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260622-0554",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260622-0901",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "Build the standalone viewer and, with it, the walking skeleton for the viewer wire protocol:",
                 "an egui/iced window over a direct localhost-TCP socket, fresh/update verbs with retained zoom, format dispatch by magic-byte sniff (SVG via resvg, raster via the image crate).",
@@ -16868,7 +16868,7 @@
                 "- The framing and verbs exist as working code, and the viewer writes its port-file on startup — the skeleton the protocol freeze ratifies."
               ],
               "jjgtn_silks": "pb-standalone-image-viewer",
-              "jjgtn_basis": "a4a4231"
+              "jjgtn_basis": "762422f"
             }
           ]
         },
