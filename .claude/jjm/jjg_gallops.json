@@ -17180,8 +17180,8 @@
         "₢BiAAC": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260618-1358",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260622-1412",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "Drafted from ₢BBABY in ₣BB.",
                 "",
@@ -17224,7 +17224,7 @@
                 "`fast` is green and a service-tier run exercises at least one real build wait."
               ],
               "jjgtn_silks": "build-poll-two-clock-split",
-              "jjgtn_basis": "f5f6b2b"
+              "jjgtn_basis": "cecc8ad"
             }
           ]
         },
