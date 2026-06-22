@@ -124,14 +124,19 @@ zrbfc_kindle() {
   z_rbfc_tool_binfmt=""
   z_rbfc_tool_gcrane=""
 
-  # Foundry build LRO poll policy — host-side wait_build_completion governance.
-  # Each *_CEILING is the per-build-kind poll budget (wall clock = ceiling ×
-  # INTERVAL_SEC). RETRY_TOLERANCE absorbs transient curl/empty-response
-  # glitches before declaring the poll fatal. Distinct from the pool-build
-  # policy in rbgp (ZRBGP_POOL_BUILD_POLL_*) — foundry builds carry user
-  # payload; pool builds are diagnostic.
+  # Foundry build LRO poll policy — host-side wait_build_completion governance,
+  # two bounded clocks. CEILING_QUEUE is a shared budget for the pre-WORKING
+  # queue phase (PENDING/QUEUED polls before the worker pool starts the build);
+  # each per-kind *_CEILING bounds execution only, counted from the first
+  # WORKING. Worst-case wall clock = (QUEUE + kind ceiling) × INTERVAL_SEC.
+  # Splitting the clocks keeps a queue burst (pool-capacity weather, not our
+  # build) from eating the execution budget. RETRY_TOLERANCE absorbs transient
+  # curl/empty-response glitches before declaring the poll fatal. Distinct from
+  # the pool-build policy in rbgp (ZRBGP_POOL_BUILD_POLL_*) — foundry builds
+  # carry user payload; pool builds are diagnostic.
   readonly ZRBFC_BUILD_POLL_INTERVAL_SEC=5
   readonly ZRBFC_BUILD_POLL_RETRY_TOLERANCE=3
+  readonly ZRBFC_BUILD_POLL_CEILING_QUEUE=180
   readonly ZRBFC_BUILD_POLL_CEILING_CAPTURE_HEAVY=120
   readonly ZRBFC_BUILD_POLL_CEILING_CAPTURE_LIGHT=50
   readonly ZRBFC_BUILD_POLL_CEILING_CONJURE=960

@@ -48,7 +48,12 @@ zrbfc_wait_build_completion() {
 
   local z_status="PENDING"
   local z_polls=0
-  local z_queued_advisory_shown=0
+  local z_queue_polls=0
+  local z_exec_polls=0
+  local z_seen_working=0
+  local z_phase=""
+  local z_phase_polls=0
+  local z_phase_ceiling=0
   local z_consecutive_failures=0
   local z_response_file=""
   local z_code_file=""
@@ -63,7 +68,26 @@ zrbfc_wait_build_completion() {
     sleep "${ZRBFC_BUILD_POLL_INTERVAL_SEC}"
 
     z_polls=$((z_polls + 1))
-    test "${z_polls}" -le "${z_max_polls}" || buc_die "${z_label}: Build timeout after ${z_max_polls} polls"
+
+    # Two clocks: queue polls (pre-WORKING) charge the shared queue ceiling;
+    # execution polls (post first-WORKING) charge the per-kind z_max_polls.
+    if test "${z_seen_working}" -eq 0; then
+      z_queue_polls=$((z_queue_polls + 1))
+      z_phase="queue"
+      z_phase_polls="${z_queue_polls}"
+      z_phase_ceiling="${ZRBFC_BUILD_POLL_CEILING_QUEUE}"
+      if test "${z_queue_polls}" -gt "${ZRBFC_BUILD_POLL_CEILING_QUEUE}"; then
+        buc_tabtarget "${RBZ_QUOTA_BUILD}"
+        buc_die "${z_label}: pool never took the build — still queued after ${ZRBFC_BUILD_POLL_CEILING_QUEUE} queue polls; the worker pool never started execution"
+      fi
+    else
+      z_exec_polls=$((z_exec_polls + 1))
+      z_phase="exec"
+      z_phase_polls="${z_exec_polls}"
+      z_phase_ceiling="${z_max_polls}"
+      test "${z_exec_polls}" -le "${z_max_polls}" \
+        || buc_die "${z_label}: Build timeout after ${z_max_polls} execution polls"
+    fi
 
     z_response_file="${ZRBFC_POLL_RESPONSE_PREFIX}${z_polls}.json"
     z_code_file="${ZRBFC_POLL_CODE_PREFIX}${z_polls}.txt"
@@ -71,7 +95,7 @@ zrbfc_wait_build_completion() {
     z_err_check_file="${ZRBFC_POLL_ERR_CHECK_PREFIX}${z_polls}.txt"
     z_status_check_file="${ZRBFC_POLL_STATUS_PREFIX}${z_polls}.txt"
 
-    buc_log_args "Fetch build status (poll ${z_polls}/${z_max_polls})"
+    buc_log_args "Fetch build status (poll ${z_polls}; ${z_phase} ${z_phase_polls}/${z_phase_ceiling})"
     z_curl_rc=0
     rbuh_request "GET" "${ZRBFC_GCB_PROJECT_BUILDS_URL}/${z_build_id}" \
                       "${z_token}"                                          \
@@ -112,11 +136,15 @@ zrbfc_wait_build_completion() {
 
     z_last_good_response="${z_response_file}"
 
-    buc_info "${z_label}: ${z_status} (poll ${z_polls}/${z_max_polls})"
+    buc_info "${z_label}: ${z_status} (poll ${z_polls}; ${z_phase} ${z_phase_polls}/${z_phase_ceiling})"
 
-    if test "${z_status}" = "QUEUED" && test "${z_polls}" -ge 20 && test "${z_queued_advisory_shown}" = "0"; then
-      z_queued_advisory_shown=1
-      buc_warn "Build queued longer than normal — another build may be holding the private pool"
+    if test "${z_status}" = "WORKING" && test "${z_seen_working}" -eq 0; then
+      z_seen_working=1
+      buc_info "${z_label}: QUEUED→WORKING after ${z_queue_polls} queue polls (execution budget ${z_max_polls} polls)"
+    fi
+
+    if test "${z_seen_working}" -eq 0 && test "$(( z_queue_polls % 20 ))" -eq 0; then
+      buc_warn "Build queued longer than normal (${z_queue_polls} queue polls) — another build may be holding the private pool"
       buc_tabtarget "${RBZ_QUOTA_BUILD}"
     fi
   done

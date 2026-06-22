@@ -1,18 +1,18 @@
 {
-  "jjgrn_next_heat_seed": "Bl",
+  "jjgrn_next_heat_seed": "Bm",
   "jjgrn_heat_order": [
-    "₣Bh",
+    "₣Bi",
+    "₣Bf",
     "₣Bg",
     "₣Bc",
     "₣Be",
     "₣Bd",
     "₣Bb",
-    "₣BZ",
     "₣BF",
     "₣BD",
+    "₣BZ",
     "₣Bk",
     "₣Bj",
-    "₣Bf",
     "₣BW",
     "₣BN",
     "₣A-",
@@ -34,7 +34,8 @@
     "₣BI",
     "₣BL",
     "₣Ba",
-    "₣Bi"
+    "₣Bh",
+    "₣Bl"
   ],
   "jjgrn_heats": {
     "₣A-": {
@@ -2987,9 +2988,10 @@
         "₢A6AAL",
         "₢A6AAy",
         "₢A6AAz",
-        "₢A6AA9"
+        "₢A6AA9",
+        "₢A6ABA"
       ],
-      "jjghn_next_pace_seed": "ABA",
+      "jjghn_next_pace_seed": "ABB",
       "jjghn_paces": {
         "₢A6AA-": {
           "jjgpn_tacks": [
@@ -6963,6 +6965,29 @@
               ],
               "jjgtn_silks": "replace-example-com-with-internic",
               "jjgtn_basis": "c01eb86"
+            }
+          ]
+        },
+        "₢A6ABA": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260622-0740",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Reconcile the onboarding handbook to the keyless federation model — it still expects a governor-RBRA key file the keyless path no longer writes.",
+                "",
+                "The ₣BZ terminal review (divergence triage) found: keyless freehold-establish dons mantles and writes NO governor-RBRA key file, but onboarding's credential-install prose + start-here menu still expect one, so a fresh-levy gauntlet may not satisfy onboarding's gate.",
+                "",
+                "Entry point: rbho0_onboarding.sh (the start-here menu) + the rbw-Op payor track. NOTE: the review's source named tracks \"rbw-Ocr/Ocd\" — those tabtargets DO NOT EXIST (live rbw-O* = Occ/Oda/Odb/Odf/Odg/Ofc/Op/Ots); locate the real keyfile-expecting prose before editing. Full context: Memos/memo-20260622-fable-review-queue.md (m7-onboarding-keyless-gap).",
+                "",
+                "## Done when",
+                "Onboarding's credential-readiness prose matches the keyless federation reality (mantle don, not a key file); a fresh-levy gauntlet satisfies whatever onboarding gate remains.",
+                "",
+                "## Character",
+                "Handbook reconciliation; a federation-correctness fix, not a vocabulary one. Find the real entry point first — the named tracks are stale."
+              ],
+              "jjgtn_silks": "onboarding-keyless-precondition-gap",
+              "jjgtn_basis": "3eb5366"
             }
           ]
         }
@@ -13688,9 +13713,9 @@
       }
     },
     "₣BZ": {
-      "jjghn_silks": "rbk-11-mvp-office-federation",
+      "jjghn_silks": "rbk-11-mvp-FABLE-federation-create",
       "jjghn_creation_time": "260604",
-      "jjghn_status": "jjghe_racing",
+      "jjghn_status": "jjghe_stabled",
       "jjghn_order": [
         "₢BZAAR",
         "₢BZAAA",
@@ -14153,8 +14178,8 @@
         "₢BZAAN": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260618-1153",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260622-0759",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "Full review by model Fable of heat ₣BZ as executed — reconcile the frozen paddock against what was built, with the movement-4 review-findings memo as the divergence record and entry point.",
                 "The paddock was frozen through execution under the Opus-stewardship banner; this is where the freeze lifts — Fable re-reads the paddock against the landed paces and the findings memo, then re-authors the paddock or ratifies the divergences.",
@@ -14174,11 +14199,20 @@
                 "The entry point is Memos/memo-20260615-BZ-m4-review-findings.md; it carries the five movement-4 decisions, the M4-vs-M7 reading, and the per-docket divergences for cold review.",
                 "Also read, in the pace-design memo, the freehold doctrine, the terrier-settled-design section, and the manor-identity section, plus Memos/memo-20260617-BZ-workforce-pool-constraints.md — the post-freeze sharpenings the paddock does not yet fully reflect.",
                 "",
+                "## As-built baseline (shelved 260622)",
+                "The heat was shelved (stabled, not retired) before this Fable review, so work continues on the repo meanwhile — read the federation surface as it stood at shelve time, not as later commits leave it.",
+                "Baseline HEAD at shelve: af0e08eee (the silks-rename commit; the federation surface itself landed through ₢BZAAP at 28ed94a0a).",
+                "Recover the full affiliated commit set with `jjx_log ₣BZ` — the heat→commit affiliation is committed gallops state and survives the shelving immutably; do not trust any hand-copied enumeration over it.",
+                "As-built caveats not captured durably in any spec (carried only in commit-message PENDING notes, pinned here against erosion):",
+                "- The pluml SVG re-renders (rbdgl / rbdgm / rbdgs) are stale — blocked on an interactive compearance this headless work could not perform; the README still displays the pre-rewrite federation diagrams until someone runs `tt/rbw-tf.FixtureRun.sh pluml` after a compearance on a clean tree.",
+                "- The 12h assize cap (RBRF_SESSION_DURATION 43200s) is live in regime and on the standing test pool, but only a fresh compearance picks it up.",
+                "- `rbw-acf` federated-access verification is deferred — it needs a human device-flow click, not run during this work.",
+                "",
                 "## Character",
                 "Terminal reconciliation under Fable; the one pace that lifts the paddock freeze."
               ],
               "jjgtn_silks": "fable-heat-review",
-              "jjgtn_basis": "51911ea"
+              "jjgtn_basis": "bd4493e"
             }
           ]
         },
@@ -16526,16 +16560,19 @@
       }
     },
     "₣Bf": {
-      "jjghn_silks": "rbk-12-mvp-FABLE-federation-evolution",
+      "jjghn_silks": "rbk-12-mvp-federation-evolution",
       "jjghn_creation_time": "260616",
-      "jjghn_status": "jjghe_stabled",
+      "jjghn_status": "jjghe_racing",
       "jjghn_order": [
-        "₢BfAAD",
         "₢BfAAC",
         "₢BfAAA",
-        "₢BfAAB"
+        "₢BfAAD",
+        "₢BfAAB",
+        "₢BfAAE",
+        "₢BfAAF",
+        "₢BfAAG"
       ],
-      "jjghn_next_pace_seed": "AAE",
+      "jjghn_next_pace_seed": "AAH",
       "jjghn_paces": {
         "₢BfAAA": {
           "jjgpn_tacks": [
@@ -16663,6 +16700,84 @@
               "jjgtn_basis": "ca67bc6"
             }
           ]
+        },
+        "₢BfAAE": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260622-0739",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Scrub canonical RBS0 of the org-level \"manor\" leak — disambiguate Manor (the holding / payor project) from the GCP organization it commands.",
+                "",
+                "The terminal Fable review ratified the composite-Manor model (Manor = a holding that has-a payor/manor project + clustered resources + commands-an-org; the \"deed / pure-org\" sense is overturned). That overturned sense already leaked into canonical RBS0 prose, leaving the spec self-contradictory: one definition says Manor = one project, while other sites say \"Manor-scoped (org-level)\" / \"every depot under the manor.\"",
+                "",
+                "Authoritative model + leak-site list: Memos/memo-20260622-fable-review-queue.md (composite-manor-model, rbs0-canon-scrub-framing) and the review ledger. The ledger's site enumeration (RBS0 lines near 1890/1971/1980/1985/1331/2030/3486/3497 + RBSRF + claude-rbk-acronyms) is provenance — re-grep before trusting.",
+                "",
+                "## Done when",
+                "Each leaked site reads \"Manor\" where it means the project/holding and \"organization\"/\"org-scoped\" where it means the org; the formal Manor quoin carries the composite framing (has-a-project + commands-an-org); the Depot↔Manor cardinality (each Depot belongs to exactly one Manor; a Manor owns zero-or-more Depots) is stated; and the RBS0:1774 \"payor manages infra without org-level permissions\" contradiction is reconciled against the federation layer's org-admin requirement.",
+                "",
+                "## Cinched",
+                "The composite-Manor model is ratified (operator-sanctioned 260622) and not reopened here — this is mechanical disambiguation, not a re-decision.",
+                "",
+                "## Character",
+                "Mechanical spec disambiguation over a settled model; coordinate with the FABLE-REANCHOR-RBS0 worklist (same federation quoins) to avoid dangling citations."
+              ],
+              "jjgtn_silks": "rbs0-manor-org-canon-scrub",
+              "jjgtn_basis": "1fd6742"
+            }
+          ]
+        },
+        "₢BfAAF": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260622-0739",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Build the terrier's permanent founding-home — a single idempotent \"post-payor-guide manor-setup finisher\" that ensures the terrier bucket + per-polity folders, retiring the interim scaffold.",
+                "",
+                "The terminal Fable review resolved the founding-home to OPTION B: the Manor provisions the terrier (affiance touches it nowhere — the bucket name is foedus-independent, its IAM binds the depot-born governor mantle SA, not a foedus principal). Operator cinched the shape: ONE idempotent tabtarget, run after the manual manor setup (console project + OAuth), finishing all scriptable manor-setup steps including the terrier-bucket-ensure.",
+                "",
+                "Full reasoning + grain: the review ledger (chunk 3) and Memos/memo-20260622-fable-review-queue.md (terrier-fork-b-resolution, terrier-b-shape-finisher). As-built to fold in + retire: the rbw-dt / rbw-dT scaffold, plus the two theurge fixtures (terrier-scaffold, terrier-atomicity) in the service/complete suites.",
+                "",
+                "## Done when",
+                "A standing manor-setup-finisher tabtarget idempotently ensures the terrier bucket (payor-project-grain) + per-polity managed folders (depot-grain) + the grain IAM (write folder-scoped own-polity, read bucket-level manor-wide); the interim scaffold and its two fixtures are retired or migrated onto it; the gauntlet ladder stays green (it carries no terrier fixture).",
+                "",
+                "## Cinched",
+                "Founding-home = Option B (Manor, not affiance); the finisher is a dedicated standing op run after the manual manor setup. One terrier per Manor (per-foedus cardinality is Fable-gated, out of scope here).",
+                "",
+                "## Character",
+                "Implementation over a settled design; the B-variant (standing op vs manor-establish enlargement) and the folder-step credential boundary (folder lives in the payor-project bucket) are the in-pace judgment calls."
+              ],
+              "jjgtn_silks": "terrier-founding-home-finisher",
+              "jjgtn_basis": "3936dc6"
+            }
+          ]
+        },
+        "₢BfAAG": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260622-0740",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## TERMINAL pace — model Fable works through the standing Fable-review queue: ratify-or-sweep every provisional mint made in her absence, and answer every deferred vocabulary/premise question.",
+                "",
+                "This is the ₣Bf analogue of ₣BZ's terminal Fable review. The federation-evolution work proceeded under operator sanction while Fable was unavailable; the names and premise-touching calls made meanwhile are PROVISIONAL and eviction-sweepable.",
+                "",
+                "Entry point: Memos/memo-20260622-fable-review-queue.md — Bucket 1 (provisional decisions to ratify-or-sweep) and Bucket 2 (open questions deferred to Fable: the foedus mint + cold-probe, the heed/assize remints, the mechanism-discriminator quoin, the RBST0 fresh quoin stem + theurge word + asterism call, the FABLE-REANCHOR worklist, jilt/gird ratification, the federation premise calls).",
+                "",
+                "## Done when",
+                "Fable has worked through the queue memo: every Bucket-1 provisional decision is ratified or eviction-swept; every Bucket-2 question is answered; confirmed outcomes land in their spec homes; the queue memo retires.",
+                "",
+                "## Cinched",
+                "Requires model Fable (the queue was assembled at provisional, operator-sanctioned density). Runs LAST — every other ₣Bf movement slates before it.",
+                "",
+                "## Character",
+                "Terminal reconciliation under Fable; the pace that lifts the provisional-mint posture for ₣Bf. Requires model Fable."
+              ],
+              "jjgtn_silks": "fable-terminal-review",
+              "jjgtn_basis": "58a4aab"
+            }
+          ]
         }
       }
     },
@@ -16673,9 +16788,11 @@
       "jjghn_order": [
         "₢BgAAA",
         "₢BgAAB",
-        "₢BgAAC"
+        "₢BgAAC",
+        "₢BgAAD",
+        "₢BgAAE"
       ],
-      "jjghn_next_pace_seed": "AAD",
+      "jjghn_next_pace_seed": "AAF",
       "jjghn_paces": {
         "₢BgAAA": {
           "jjgpn_tacks": [
@@ -16705,8 +16822,8 @@
         "₢BgAAB": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260620-1544",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260622-0525",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "## Character",
                 "",
@@ -16722,15 +16839,15 @@
                 "The .adoc house rule is MCM line-break discipline, not the gazette semantic-linefeed rule (which governs paddocks and dockets only)."
               ],
               "jjgtn_silks": "vms-mcm-linebreak-reflow",
-              "jjgtn_basis": "be067a8"
+              "jjgtn_basis": "d6f4d98"
             }
           ]
         },
         "₢BgAAC": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260621-1132",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260622-0616",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "## Character",
                 "",
@@ -16767,7 +16884,60 @@
                 "VLS placement is open on cognitive grounds only — no distribution constraint forces it either way; AXL is prior art for the separate-vocabulary-anchor option."
               ],
               "jjgtn_silks": "vo-cipher-gestalt-decision",
-              "jjgtn_basis": "6b65d15"
+              "jjgtn_basis": "131d917"
+            }
+          ]
+        },
+        "₢BgAAD": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260622-0720",
+              "jjgtn_state": "jjgte_complete",
+              "jjgtn_text": [
+                "## Character",
+                "",
+                "Intricate spec surgery requiring judgment, not mechanical.",
+                "Touches dense quoined specs (VOS0, VLS) under sub-letter discipline and terminal exclusivity, with no Matricula yet to mechanically catch a collision introduced by the mass rename — eyeball care required.",
+                "",
+                "## Done when",
+                "",
+                "VOS0 is the Vox cosmology SpecTop on the RBS0/JJS0/BUS0 `0`-top + `include::` pattern:",
+                "all Liturgy quoins centralized in its mapping section and definition sites (VLS-the-file dissolved into it);",
+                "\"Obscura\" demoted from claiming the whole to one branch or retired;",
+                "the commit/lock (VOSR*) family and the Matricula spec re-homed as `include::` subdocs that purely consume the centralized quoins;",
+                "Matricula-specific quoins (Residue, Finding, the freeze verb) defined at the top.",
+                "",
+                "## Cinched",
+                "",
+                "The gestalt direction is fixed in the ₣Bg paddock Cinched section — read it first; do not re-litigate.",
+                "Use RBS0-SpecTop.adoc as the structural exemplar (its subdocs define zero quoins — purely consume)."
+              ],
+              "jjgtn_silks": "vox-cosmology-regestalt-consolidation",
+              "jjgtn_basis": "d17526a"
+            }
+          ]
+        },
+        "₢BgAAE": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260622-0731",
+              "jjgtn_state": "jjgte_complete",
+              "jjgtn_text": [
+                "## Character",
+                "",
+                "Mechanical sweep.",
+                "",
+                "## Done when",
+                "",
+                "By-name references to the dissolved/renamed specs are repointed to the Vox cosmology top (BUS0's `VLS-VoxLiturgicalSpec.adoc` citation is the known one), and stale memos that only referenced the old `vo`/Obscura gestalt are retired to `Memos/retired/`.",
+                "Discovery: `grep -rE 'VLS-Vox|VOS0-Vox|Vox Obscura' Tools/ Memos/`.",
+                "",
+                "## Cinched",
+                "",
+                "Runs after the re-gestalt surgery lands, against whatever final names that pace settles."
+              ],
+              "jjgtn_silks": "vox-citation-memo-sweep",
+              "jjgtn_basis": "200c0bf"
             }
           ]
         }
@@ -17125,47 +17295,55 @@
     "₣Bi": {
       "jjghn_silks": "rbk-14-mvp-loose-ends",
       "jjghn_creation_time": "260618",
-      "jjghn_status": "jjghe_stabled",
+      "jjghn_status": "jjghe_racing",
       "jjghn_order": [
-        "₢BiAAJ",
-        "₢BiAAA",
-        "₢BiAAB",
         "₢BiAAC",
-        "₢BiAAD",
-        "₢BiAAE",
-        "₢BiAAF",
-        "₢BiAAG",
-        "₢BiAAH",
-        "₢BiAAI",
         "₢BiAAK",
-        "₢BiAAL"
+        "₢BiAAM",
+        "₢BiAAN",
+        "₢BiAAO",
+        "₢BiAAP",
+        "₢BiAAL",
+        "₢BiAAE",
+        "₢BiAAD",
+        "₢BiAAF",
+        "₢BiAAB",
+        "₢BiAAG",
+        "₢BiAAI",
+        "₢BiAAH",
+        "₢BiAAJ",
+        "₢BiAAA"
       ],
-      "jjghn_next_pace_seed": "AAM",
+      "jjghn_next_pace_seed": "AAQ",
       "jjghn_paces": {
         "₢BiAAA": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260618-1358",
+              "jjgtn_ts": "260622-1339",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
-                "Drafted from ₢BBABL in ₣BB.",
+                "Originally drafted in ₣BB against the pre-federation keyfile estate.",
                 "",
                 "## Character",
-                "Mechanical retry-tolerance extension; shape locked by the memo. Two touchpoints, one error class. Surfaced by dogfight verification (2 failures / 3 runs — transient).",
+                "Blocked on ₣Bf; must be rebuilt federation-aware before it can mount.",
+                "",
+                "## Cinched",
+                "Do not mount until ₣Bf wraps.",
+                "₣Bf is reworking the federation auth path in parallel;",
+                "by its completion a strong, stable federation definition will exist —",
+                "design against that, not against today's in-flight code.",
                 "",
                 "## Source",
-                "`Memos/memo-20260527-account-state-invalid-reinvest-flap.md` — full 401/`ACCOUNT_STATE_INVALID` signature, two-host evidence, the prior-art gap, and the time-bound tolerance model to reuse.",
+                "`Memos/memo-20260527-account-state-invalid-reinvest-flap.md` — the original 401 `ACCOUNT_STATE_INVALID` signature and two-host evidence.",
+                "That evidence predates federation, which demolished both the flap's trigger (the per-run director-SA re-invest) and the touchpoint the repair was to extend (the keyfile OAuth consumer-retry).",
+                "Re-derive the touchpoints against ₣Bf's federation auth path (compearance / STS / mantle-don); do not assume the memo's keyfile shape.",
                 "",
-                "## Shape (locked)",
-                "- `rbfc_FoundryCore.sh` build-status poll loop: absorb a transient `401 UNAUTHENTICATED` + `ACCOUNT_STATE_INVALID` with bounded backoff instead of counting it toward the consecutive-error fatal — a still-`WORKING` build must survive a director-SA auth flap.",
-                "- `rbgo_OAuth.sh` consumer-retry token mint: extend the existing retry error-class to `ACCOUNT_STATE_INVALID`, covering the `rbfv` vouch path (Host B in the memo).",
-                "- The retry budget is the discriminator (settling completes within budget; real denial waits it out and fails clean) — reuse the established propagation / access-probe time-bound model rather than minting new literals.",
-                "",
-                "## Done",
-                "A director re-invest immediately followed by `ordain` survives the flap: the transient is logged and retried within budget, never fatal on a healthy build. Confirm the `rbfv` vouch failure body is the same class (memo caveat)."
+                "## Done when",
+                "A determination, against the stable federation auth path, of whether an `ACCOUNT_STATE_INVALID` analogue can still strand a healthy build —",
+                "bounded tolerance added at the surviving touchpoint(s) where it can, or the pace retired with that finding recorded."
               ],
               "jjgtn_silks": "foundry-account-state-invalid-tolerance",
-              "jjgtn_basis": "f5f6b2b"
+              "jjgtn_basis": "ac33a7c"
             }
           ]
         },
@@ -17236,8 +17414,8 @@
         "₢BiAAC": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260618-1358",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260622-1412",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "Drafted from ₢BBABY in ₣BB.",
                 "",
@@ -17280,7 +17458,7 @@
                 "`fast` is green and a service-tier run exercises at least one real build wait."
               ],
               "jjgtn_silks": "build-poll-two-clock-split",
-              "jjgtn_basis": "f5f6b2b"
+              "jjgtn_basis": "cecc8ad"
             }
           ]
         },
@@ -17561,41 +17739,43 @@
         "₢BiAAK": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260621-1158",
+              "jjgtn_ts": "260622-1300",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
+                "Yoke gains the express-or-chain fallback for its reliquary touchmark, and lays the two shared footings the sibling verbs will reuse.",
+                "",
                 "## Character",
+                "First-consumer pace: it introduces shared hearting plumbing (a fact resolver and a touchmark-kind decoder) and makes yoke its first caller — modeled on zrbfc_resolve_vessel, the established one-resolver-many-verbs precedent.",
+                "Mechanical once the footings' contracts are set; the footings are the reusable part, yoke is one thin client.",
                 "",
-                "Small, well-precedented change — both halves of the pattern already ship.",
+                "## The footings (cinched plumbing — hearting, never a parent)",
+                "An express-or-chain resolver: a BUK fact primitive in buf_fact.sh, BCG _capture shape (stdout-once / return-1, caller guards with || buc_die), generic over any fact constant — returns the folio if set, else the chained fact, fails on a broken chain.",
+                "A touchmark-kind decoder: Lode hearting (z-prefixed), the single home for the RBGC_LODE_KIND_* decode, handling 1-char prefixes (b/r/w) and 2-char (vw/vn).",
+                "Both are parameterized so each verb stays a unique caller; final names are a mint to settle.",
                 "",
-                "## Goal",
+                "## BCG conformance (required)",
+                "buf_read_fact is read via $() at every call site but lacks the _capture/_recite suffix BCG line 566 keys that permission to, and no fact exception is documented — suffix it (a mint) or document the exception so the fact stack reads clean.",
+                "All bash holds BCG (kindle/sentinel, prefix rules, no inline shellcheck suppressions without cause) and lands shellcheck-clean via rbw-tl.",
                 "",
-                "Make the reliquary yoke (`rbfl_yoke` in `rbfly_yoke.sh`, colophon `rbw-rvy`) accept no touchmark",
-                "and fall back to the chained conclave capture,",
-                "so a conclave→yoke run needs no hand-copied touchmark.",
-                "",
-                "The conclave already emits the touchmark as the depth-1 chaining fact",
-                "(`RBF_FACT_LODE_TOUCHMARK` plus `RBF_FACT_LODE_BRAND`, written by the capture spine);",
-                "read it via `buf_read_fact`, the way ordain's `zrbfd_elect_base_anchor` and anoint's `rbfl_anoint` already read prior-dispatch facts.",
-                "Yoke's CLI already sources `buf_fact.sh`, so there is no new wiring.",
+                "## Yoke itself",
+                "Express touchmark wins; absent → the resolver reads the chained reliquary touchmark; then assert kind=reliquary via the decoder.",
+                "This closes a live gap: yoke today never typechecks its express touchmark and fails late at GAR cohort validation.",
+                "Relax spec RBSDY from hard-require to optional-with-fallback alongside the code.",
                 "",
                 "## Cinched",
-                "",
-                "- Param1 present keeps today's behavior, unchanged.",
-                "- Param1 absent reads the chained touchmark and requires its brand be `RBGC_LODE_BRAND_RELIQUARY`;",
-                "  a bole/wsl capture or an empty chain refuses with a diagnostic pointing at the explicit-param path —",
-                "  a non-reliquary touchmark must never silently yoke into `RBRV_RELIQUARY`.",
-                "- The depth-1 chain resolves only immediately after a conclave; that adjacency is the intended ergonomic, not a gap to widen.",
-                "- Spec RBSDY makes the touchmark a hard require — relax it to optional-with-fallback alongside the code.",
+                "Express identifier always overrides the fact; the fact is the no-arg fallback only.",
+                "The resolver and decoder are shared hearting parameterized per verb — never a parent verb, never spanning bondstones.",
+                "Kind discrimination is by touchmark kind-prefix, matched as a prefix, never char[0].",
                 "",
                 "## Done when",
-                "",
-                "A no-arg `rbw-rvy` immediately after a conclave yokes the just-captured reliquary;",
-                "a non-reliquary or empty chain refuses diagnostically;",
-                "RBSDY reflects the optional-with-fallback contract."
+                "The resolver and touchmark-kind decoder exist as reusable helpers with the contracts above.",
+                "Yoke resolves express-or-chain, asserts reliquary, and refuses a non-reliquary or broken chain cleanly; an express call behaves as today.",
+                "buf_read_fact satisfies BCG line 566 (suffix or documented exception).",
+                "RBSDY reflects optional-with-fallback.",
+                "rbw-tl clean and the fast suite green."
               ],
               "jjgtn_silks": "yoke-touchmark-fact-fallback",
-              "jjgtn_basis": "0da21c0"
+              "jjgtn_basis": "c8dd2c9"
             }
           ]
         },
@@ -17633,6 +17813,128 @@
               "jjgtn_basis": "545de03"
             }
           ]
+        },
+        "₢BiAAM": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260622-1300",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Augur gains the express-or-chain fallback for its lode touchmark — the second consumer of the shared footings.",
+                "",
+                "## Character",
+                "Thin adopter of the shared footings; mechanical.",
+                "Also tightens augur's existing shape-only check into a real kind assertion.",
+                "",
+                "## Shape",
+                "Express touchmark wins; absent → the shared resolver reads the chained touchmark of any Lode kind; augur accepts any known kind via the shared decoder.",
+                "Augur today shape-validates the touchmark with a regex but never asserts a known kind — replace that with the decoder's known-kind assertion.",
+                "The footings are introduced earlier in this heat; reuse them, do not reimplement.",
+                "",
+                "## Cinched",
+                "Reuses the shared resolver and touchmark-kind decoder — no second implementation.",
+                "Accepts any known Lode kind, unlike yoke's reliquary-only.",
+                "",
+                "## Done when",
+                "A no-arg augur after any capture inspects the just-captured Lode; an express touchmark behaves as today; an unknown-kind or broken chain refuses cleanly.",
+                "rbw-tl clean and the fast suite green."
+              ],
+              "jjgtn_silks": "augur-chaining-fact-fallback",
+              "jjgtn_basis": "c8dd2c9"
+            }
+          ]
+        },
+        "₢BiAAN": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260622-1300",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Summon, plumb, and rekon each gain the express-or-chain fallback for their hallmark, reusing the shared resolver.",
+                "",
+                "## Character",
+                "Thin, near-identical adopter applied to three hallmark verbs; mechanical.",
+                "Bundled because the edit is the same across them — they remain three distinct toothings, not a family.",
+                "",
+                "## Shape",
+                "Each verb: express hallmark wins; absent → the shared resolver reads the chained hallmark fact written by the prior build (ordain or kludge).",
+                "Hallmarks carry no sub-kind these verbs discriminate, so the typecheck is a shape check only — no kind decode; keep it minimal, shared only if a hallmark-shape predicate earns it.",
+                "The footings are introduced earlier in this heat; reuse the resolver, do not reimplement per verb.",
+                "",
+                "## Cinched",
+                "Three distinct verbs, one shared resolver, no parent.",
+                "Hallmark needs shape-validation only, never kind discrimination.",
+                "",
+                "## Done when",
+                "A no-arg summon, plumb, or rekon after a build acts on the just-built hallmark; an express hallmark behaves as today; a broken chain refuses cleanly.",
+                "rbw-tl clean and the fast suite green."
+              ],
+              "jjgtn_silks": "hallmark-verbs-chaining-fact-fallback",
+              "jjgtn_basis": "c8dd2c9"
+            }
+          ]
+        },
+        "₢BiAAO": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260622-1300",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Vouch's already-optional conjure build-id falls back to the chained build-id fact when omitted.",
+                "",
+                "## Character",
+                "Smallest adopter — the parameter is already optional, so this is a pure fallback wire-up with no signature change.",
+                "Mechanical.",
+                "",
+                "## Shape",
+                "When the conjure build-id argument is omitted, read the build-id fact via the shared resolver, written by the prior conjure; an explicit argument behaves exactly as today.",
+                "Confirm the build-id fact is emitted by the conjure path vouch targets (rbfd_director writes it).",
+                "The footing is introduced earlier in this heat.",
+                "",
+                "## Cinched",
+                "The build-id stays optional; the fact is the omitted-argument fallback only.",
+                "Reuses the shared resolver.",
+                "",
+                "## Done when",
+                "A vouch immediately after a conjure resolves the build-id from the chain when omitted; an explicit build-id behaves as today.",
+                "rbw-tl clean and the fast suite green."
+              ],
+              "jjgtn_silks": "vouch-build-id-chaining-fallback",
+              "jjgtn_basis": "c8dd2c9"
+            }
+          ]
+        },
+        "₢BiAAP": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260622-1300",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Retrofit the two pre-existing hand-rolled fact consumers — anoint and ordain's base-anchor election — onto the shared footings, retiring the divergent implementations.",
+                "",
+                "## Character",
+                "Drift-killing cleanup; mechanical, with care on the security-relevant base-anchor path.",
+                "The footings exist precisely so there is one implementation — this folds the two that predate them.",
+                "",
+                "## Shape",
+                "anoint reads three build facts, and ordain's base-anchor election reads the lode brand plus touchmark, each with its own hand-rolled buf_read_fact and buc_die phrasing.",
+                "Route both through the shared resolver, and switch the base-anchor's kind discrimination to the shared touchmark-kind decoder where it applies.",
+                "Discovery: grep buf_read_fact across Tools/rbk/.",
+                "",
+                "## Cinched",
+                "After this pace, every fact consumer routes through the shared resolver; no hand-rolled buf_read_fact + buc_die dance remains outside the footing (the BUK self-test fact case excepted).",
+                "Behavior is unchanged — this is a refactor onto the footings, not a contract change.",
+                "",
+                "## Done when",
+                "anoint and the base-anchor election use the shared resolver, and the decoder where applicable.",
+                "A grep for hand-rolled buf_read_fact dances returns only the footing and the tests.",
+                "The ordain conjure/bind/graft paths and anoint behave identically, verified by the relevant fixtures.",
+                "rbw-tl clean; the fast suite green, plus a build-exercising tier for the base-anchor path."
+              ],
+              "jjgtn_silks": "chaining-fact-footing-convergence",
+              "jjgtn_basis": "c8dd2c9"
+            }
+          ]
         }
       }
     },
@@ -17651,6 +17953,43 @@
       "jjghn_order": [],
       "jjghn_next_pace_seed": "AAA",
       "jjghn_paces": {}
+    },
+    "₣Bl": {
+      "jjghn_silks": "rbk-15-theurge-cosmology-spec",
+      "jjghn_creation_time": "260622",
+      "jjghn_status": "jjghe_stabled",
+      "jjghn_order": [
+        "₢BlAAA"
+      ],
+      "jjghn_next_pace_seed": "AAB",
+      "jjghn_paces": {
+        "₢BlAAA": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260622-0755",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Create a skimpy proper RBS0 SUBDOC for the theurge test-cosmology — base quoins only, include'd into RBS0, Fable inflates later.",
+                "",
+                "The test-orchestration cosmology (theurge / fixture / case / suite / freehold / leasehold / cupel) has no spec home — it lives in code comments + CLAUDE.md tables + memos. Operator-settled: a proper RBS0 SUBDOC (include'd into RBS0, for free production-quoin reference), NOT a sibling top-spec — so it is named per the subdoc convention (RBS + tail, like RBSTR / RBSMA), NEVER a \"0\"-suffixed name (the \"0\" suffix is the top-spec convention).",
+                "",
+                "Full scope + the five membranes + the placement reasoning: Memos/memo-20260622-fable-review-queue.md (the rbst0-theurge-subdoc item) and the theurge-spec-gap analysis it cites.",
+                "",
+                "## Done when",
+                "A skimpy RBS0 subdoc (RBS+tail acronym, NOT \"0\"-suffixed) is include'd into RBS0, seating base quoins for the core test-cosmology nouns under a FRESH quoin stem (rbst_ is TAKEN — 14 production quoins at RBS0:492-506 — so a provisional, operator-sanctioned, eviction-sweepable stem; Fable later ratifies/sweeps the stem, the \"theurge\" word, and the asterism call). The five membranes hold: reference BUS0's busr_fixture/busr_suite + dependency-tier axis + tweak mechanism (do not re-mint); point at RBTDRC_SUITES for suite membership (never transcribe member lists); cite the crucible-security specs; split the identity-layers model (the permanent-vs-pool citizen fact stays production-side in RBS0/RBSRF, only the freehold-subject pinning is the subdoc's); thin the CLAUDE.md suites table toward a pointer.",
+                "",
+                "## Cinched",
+                "A SUBDOC of RBS0 (not a sibling top-spec); skimpy (base quoins, Fable inflates later); a fresh quoin stem (not rbst_). One subdoc probably enough — split only if conviction emerges.",
+                "",
+                "## Character",
+                "Spec authoring over operator-settled structure; the fresh-stem + theurge-word + asterism are provisional-now / Fable-ratified-later (carried in the Fable queue)."
+              ],
+              "jjgtn_silks": "create-skimpy-theurge-subdoc",
+              "jjgtn_basis": "7b47b60"
+            }
+          ]
+        }
+      }
     }
   }
 }
