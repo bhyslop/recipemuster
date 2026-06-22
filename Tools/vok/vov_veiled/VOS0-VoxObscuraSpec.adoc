@@ -183,6 +183,21 @@
 :vosk_burc_prerequisite: <<vosk_burc_prerequisite,BURC Prerequisite>>
 :vosk_default_routing:   <<vosk_default_routing,Default Routing>>
 
+// Matricula vocabulary (transient inscription census; method prose in VMS-VoxMatriculaSpec.adoc)
+:vosmm_matricula:       <<vosmm_matricula,Matricula>>
+:vosmm_matricula_s:     <<vosmm_matricula,Matriculae>>
+:vosmm_matricula_p:     <<vosmm_matricula,Matricula's>>
+:vosms_seal:            <<vosms_seal,Seal>>
+:vosms_seal_ed:         <<vosms_seal,Sealed>>
+:vosme_estray:          <<vosme_estray,Estray>>
+:vosme_estray_s:        <<vosme_estray,Estrays>>
+:vosmp_presentment:     <<vosmp_presentment,Presentment>>
+:vosmp_presentment_s:   <<vosmp_presentment,Presentments>>
+
+// Mutability dimensions — imported from AXLA, cited never restated (used by the Matricula vocabulary)
+:axd_petrify:           <<axd_petrify,Petrify>>
+:axd_immutable:         <<axd_immutable,Immutable>>
+
 // end::mapping-section[]
 
 == Overview
@@ -2062,4 +2077,86 @@ via `cipher.kit_id()`.
 {vost_cipher}
 must be a const registered in the cipher registry.
 * Terminal exclusivity holds across all ciphers — no cipher is a prefix of another (`vofc_validate_terminal_exclusivity`).
+
+== Matricula
+
+The Matricula branch is the transient inscription census over the naming system.
+Its vocabulary is defined here at the cosmology top; its method, decomposition, invariants, and scan mechanics live in the consuming subdoc VMS-VoxMatriculaSpec.adoc, included below.
+
+[[vosmm_matricula]]
+//axve_entity axd_petrify
+{vosmm_matricula}::
+A transient, frozen census of the repository's
+{vosli_inscription_s}
+below the
+{voslc_cipher}
+tier, built from source on demand and discarded after the call that summoned it.
+The
+{vosmm_matricula}
+carries the
+{vosls_signet}
+trie (each node holding its prefix, its
+{vosle_epithet},
+its terminal-versus-container status, and the
+{vosli_inscription_s}
+seated under it), the
+{vosme_estray}
+set, and the query indices read by its jobs.
+It has both structure and behavior: a builder raises it,
+{vosms_seal}
+freezes it, and a pure query interface reads it.
++
+The
+{vosmm_matricula}
+performs set operations over
+{vosli_inscription_s}
+— membership, enumeration, set-difference, vesture-grammar role-form expansion — and reports the constraint space.
+It never generates words, fuzzy-matches, or interprets meaning; the operator supplies the meaning.
+
+[[vosms_seal]]
+//axve_entity axd_petrify
+{vosms_seal}::
+The freeze verb of the
+{vosmm_matricula}:
+the act that consumes the mutable Builder and returns the immutable census.
+{vosms_seal}
+is the Matricula's name for the AXLA petrifying act ({axd_petrify}); the build-then-freeze semantics are AXLA's, cited not restated.
+After
+{vosms_seal},
+the census accepts queries and no mutation, and the seating invariants (terminal-exclusivity, exact collision) are read as properties of the frozen structure.
+
+[[vosme_estray]]
+//axr_record axd_immutable
+{vosme_estray}::
+A token that carries the project
+{voslc_cipher}
+but that no
+{voslv_vesture}
+claims — ours by namespace, unclaimed by any known grammar.
+An
+{vosme_estray}
+is a product of the census, never an error and never folded into the validator
+{vosmp_presentment_s}:
+it surfaces misminting, mint-gaps, and forgotten
+{voslv_vesture}
+categories, and it is reported in its own section.
+The metaphor is manorial: an estray is an ownerless thing found within the demesne whose owner is unknown — the census records it and presents it to the operator, who alone decides whether it is a stray to reclaim or a category yet to be minted.
+
+[[vosmp_presentment]]
+//axr_record axd_immutable
+{vosmp_presentment}::
+A seating validator's output record: a formal report of one minting violation the census observed directly.
+The metaphor is the inquest's presentment — an offense reported from the body's own knowledge, not an accusation imported from elsewhere.
+A
+{vosmp_presentment}
+carries the violating
+{vosli_inscription_s},
+the declaration sites, and the violated rule (cited to its CMK/MCM home, never restated).
+{vosmp_presentment_s}
+validate *declarations* only; reference sites feed later interrogations that are out of MVP scope.
+Per VOr_m7w, a
+{vosmp_presentment}
+over a fallible gate (sprue, rivet) is advisory, not an assertion.
+
+include::VMS-VoxMatriculaSpec.adoc[leveloffset=+1]
 

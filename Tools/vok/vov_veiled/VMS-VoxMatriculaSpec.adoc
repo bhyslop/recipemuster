@@ -1,60 +1,16 @@
-= Vox Matricula Specification
-:doctype: book
-
-// tag::mapping-section[]
+// VMS-VoxMatriculaSpec — Vox Matricula method subdoc.
 //
-// Category declarations:
-// vosmm_:  Matricula entity (the transient census roll)
-// vosme_:  Matricula Estray (ours-but-unclassified product)
-// vosmp_:  Matricula Presentment (a seating validator's output record)
-// vosms_:  Matricula Seal (the freeze verb: builder -> immutable)
+// This is a pure-consumer subdoc of VOS0-VoxObscuraSpec.adoc (the Vox cosmology
+// SpecTop), include::'d under its == Matricula branch. It defines NO quoins: the
+// Matricula vocabulary (vosmm_matricula, vosms_seal, vosme_estray, vosmp_presentment)
+// and every Liturgy / distribution / AXLA linked term it uses are defined and
+// registered at the cosmology top. This file carries only the method, decomposition,
+// invariants, and scan mechanics that consume that vocabulary.
 //
-// Imported, never re-homed:
-//   vosl* (Liturgy vocabulary) defined in VOS0-VoxObscuraSpec.adoc (Vox cosmology SpecTop)
-//   vosk_prefix_validation defined in VOS0-VoxObscuraSpec.adoc
-//   minting doctrine (terminal-exclusivity, collision, Lapidary) defined in CMK/MCM + CLAUDE.md
-//
-// Cited-constraint rivets (VOr_ opaque IDs, kind by axvc_ voicing):
+// Cited-constraint rivets defined below (VOr_ opaque IDs, kind by axvc_ voicing):
 //   VOr_k3p  axvc_dictum   Transient by design
 //   VOr_m7w  axvc_dictum   Mechanical, never linguistic
 //   VOr_q4f  axvc_dictum   Never ships (structural secrecy)
-//
-// Variant patterns:
-//   _s: plural form
-//   _p: possessive form
-//
-
-// Matricula vocabulary (this spec)
-:vosmm_matricula:       <<vosmm_matricula,Matricula>>
-:vosmm_matricula_s:     <<vosmm_matricula,Matriculae>>
-:vosmm_matricula_p:     <<vosmm_matricula,Matricula's>>
-:vosme_estray:          <<vosme_estray,Estray>>
-:vosme_estray_s:        <<vosme_estray,Estrays>>
-:vosmp_presentment:     <<vosmp_presentment,Presentment>>
-:vosmp_presentment_s:   <<vosmp_presentment,Presentments>>
-:vosms_seal:            <<vosms_seal,Seal>>
-:vosms_seal_ed:         <<vosms_seal,Sealed>>
-
-// Liturgy vocabulary — imported from VLS, cited never restated
-:voslc_cipher:          <<voslc_cipher,Cipher>>
-:voslc_cipher_s:        <<voslc_cipher,Ciphers>>
-:vosls_signet:          <<vosls_signet,Signet>>
-:vosls_signet_s:        <<vosls_signet,Signets>>
-:vosle_epithet:         <<vosle_epithet,Epithet>>
-:vosli_inscription:     <<vosli_inscription,Inscription>>
-:vosli_inscription_s:   <<vosli_inscription,Inscriptions>>
-:voslv_vesture:         <<voslv_vesture,Vesture>>
-:voslv_vesture_s:       <<voslv_vesture,Vestures>>
-
-// Distribution vocabulary — imported from VOS0, cited never restated
-:vosk_prefix_validation: <<vosk_prefix_validation,Prefix Validation>>
-:vosp_veiled:           <<vosp_veiled,Veiled>>
-
-// Mutability dimensions — imported from AXLA, cited never restated
-:axd_petrify:           <<axd_petrify,Petrify>>
-:axd_immutable:         <<axd_immutable,Immutable>>
-
-// end::mapping-section[]
 
 == Overview
 
@@ -107,39 +63,16 @@ Earlier, that knowledge lived in a Job Jockey paddock as a way-station; it is mi
 
 == The Matricula
 
-[[vosmm_matricula]]
-//axve_entity axd_petrify
-{vosmm_matricula}::
-A transient, frozen census of the repository's
-{vosli_inscription_s}
-below the
-{voslc_cipher}
-tier, built from source on demand and discarded after the call that summoned it.
 The
 {vosmm_matricula}
-carries the
+(defined at the cosmology top) carries the
 {vosls_signet}
-trie (each node holding its prefix, its
-{vosle_epithet},
-its terminal-versus-container status, and the
-{vosli_inscription_s}
-seated under it), the
+trie, the
 {vosme_estray}
-set, and the query indices read by its jobs.
-It has both structure and behavior: a builder raises it,
-{vosms_seal}
-freezes it, and a pure query interface reads it.
-+
-The
-{vosmm_matricula}
-performs set operations over
-{vosli_inscription_s}
-— membership, enumeration, set-difference, vesture-grammar role-form expansion — and reports the constraint space.
-It never generates words, fuzzy-matches, or interprets meaning; the operator supplies the meaning (see
-{vosms_seal}
-and the
-{vosmm_matricula_p}
-invariants).
+set, and the query indices read by its jobs; it has both structure and behavior, raised by a builder,
+{vosms_seal_ed}
+into an immutable census, and read through a pure query interface.
+This section carries its method.
 
 The
 {vosmm_matricula}
@@ -333,24 +266,9 @@ claims the declarations it owns; whatever carries our
 yet no
 {voslv_vesture}
 claims is an
-{vosme_estray}.
-
-[[vosme_estray]]
-//axr_record axd_immutable
-{vosme_estray}::
-A token that carries the project
-{voslc_cipher}
-but that no
-{voslv_vesture}
-claims — ours by namespace, unclaimed by any known grammar.
-An
 {vosme_estray}
-is a product of the census, never an error and never folded into the validator
-{vosmp_presentment_s}:
-it surfaces misminting, mint-gaps, and forgotten
-{voslv_vesture}
-categories, and it is reported in its own section.
-The metaphor is manorial: an estray is an ownerless thing found within the demesne whose owner is unknown — the census records it and presents it to the operator, who alone decides whether it is a stray to reclaim or a category yet to be minted.
+(defined at the cosmology top) — reported in its own section, never folded into the validator
+{vosmp_presentment_s}.
 
 == Seating Validators
 
@@ -368,18 +286,11 @@ that is both seated and has children: a property of a trie node read after
 {vosms_seal}.
 The rule itself is CMK/MCM doctrine; this validator mechanizes it.
 
-[[vosmp_presentment]]
-//axr_record axd_immutable
-{vosmp_presentment}::
-A seating validator's output record: a formal report of one minting violation the census observed directly.
-The metaphor is the inquest's presentment — an offense reported from the body's own knowledge, not an accusation imported from elsewhere.
-A
+Each validator emits a
 {vosmp_presentment}
-carries the violating
+(defined at the cosmology top) — a formal report of one minting violation the census observed directly, carrying the violating
 {vosli_inscription_s},
-the declaration sites, and the violated rule (cited to its CMK/MCM home, never restated).
-{vosmp_presentment_s}
-validate *declarations* only; reference sites feed later interrogations that are out of MVP scope.
+the declaration sites, and the violated rule cited to its CMK/MCM home.
 Per VOr_m7w, a
 {vosmp_presentment}
 over a fallible gate (sprue, rivet) is advisory, not an assertion.
