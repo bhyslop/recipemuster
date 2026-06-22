@@ -186,7 +186,7 @@ decode_sub() {
 brevet() {
   local principal="$1"
   export CLOUDSDK_AUTH_ACCESS_TOKEN; CLOUDSDK_AUTH_ACCESS_TOKEN=$(payor_token)
-  gcloud iam service-accounts add-iam-policy-binding "$MANTLE_SA" \
+  gcloud iam service-accounts add-iam-policy-binding "$MANTLE_SA" --project="$DEPOT_PROJECT" \
     --member="$principal" --role="roles/iam.serviceAccountTokenCreator" --condition=None >/dev/null \
     && echo "granted tokenCreator on $MANTLE_SA"
   gcloud projects add-iam-policy-binding "$DEPOT_PROJECT" \
