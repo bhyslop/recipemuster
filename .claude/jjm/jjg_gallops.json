@@ -16570,9 +16570,10 @@
         "₢BfAAB",
         "₢BfAAE",
         "₢BfAAF",
-        "₢BfAAG"
+        "₢BfAAG",
+        "₢BfAAH"
       ],
-      "jjghn_next_pace_seed": "AAH",
+      "jjghn_next_pace_seed": "AAI",
       "jjghn_paces": {
         "₢BfAAA": {
           "jjgpn_tacks": [
@@ -16776,6 +16777,37 @@
               ],
               "jjgtn_silks": "fable-terminal-review",
               "jjgtn_basis": "58a4aab"
+            }
+          ]
+        },
+        "₢BfAAH": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260622-1003",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Prove end-to-end — ride or die, durable BCG bash, not a throwaway spike — that a Keycloak-minted OIDC token federates into GCP via uploaded JWKS and dons a mantle from a clean headless shell.",
+                "This is the one link the planning corpus only ever paper-confirmed: ₢BZAAA accepted \"paper answer acceptable\" for Keycloak-uploaded-JWKS viability and it was never harness-run, yet the whole Keycloak-automated test strategy rests on it.",
+                "",
+                "Walk the chain: a LOCAL Keycloak crucible (kludged or pulled from upstream, never through the federated GAR/summon path — that one-way dependency is what keeps the chicken-and-egg from biting) mints a token via its non-interactive RFC 7523 JWT Authorization Grant (the supported path per the degenerate-personas memo — NOT the deprecated password grant the static-negative-test-rig memo still names); upload Keycloak's public JWKS to a programmatic workforce provider; STS exchange → generateAccessToken → bearer call against a depot API / don a mantle.",
+                "",
+                "## Done when",
+                "A Keycloak-minted token, from a clean shell with no human, dons a mantle and makes an authorized depot-API call.",
+                "The uploaded-JWKS refresh coupling (Keycloak signing-key change → re-upload) is characterized.",
+                "Result recorded: works → it feeds the spec-first recast; fails → it is a real blocker, surfaced not silently absorbed.",
+                "",
+                "## Cinched",
+                "Ride or die — durable BCG bash, not throwaway (the config-model memo's decision-economy ruling).",
+                "Keycloak is the preferred minter; self-signed-caged is the fallback only if the grant disappoints.",
+                "Proves the PROGRAMMATIC arm only — the interactive device-flow arm stays human-gated by construction.",
+                "",
+                "## Character",
+                "Ride-or-die foreign-API proof; expect Palisade surprises; characterize the exact signature rather than tolerate it silently.",
+                "",
+                "Sources: degenerate-personas memo (RFC 7523 grant, can/cannot-prove boundary), static-negative-test-rig memo (degenerate-IdP spectrum, chicken-and-egg-doesn't-bite), config-model memo (uploaded-JWKS, decision-economy, the 260622 fork resolution)."
+              ],
+              "jjgtn_silks": "keycloak-programmatic-foedus-proof",
+              "jjgtn_basis": "4bdd4bb"
             }
           ]
         }
