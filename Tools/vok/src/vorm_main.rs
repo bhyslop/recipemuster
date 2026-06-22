@@ -274,7 +274,7 @@ fn run_emblem_probe() -> i32 {
                 println!("window reference: {}", window_ref);
                 match jjk::jjrm_mcp::jjrm_emblem_root() {
                     Some(root) => {
-                        let file = root.join(format!("{}.json", window_ref));
+                        let file = jjk::jjrm_mcp::jjrm_emblem_path(&root, &window_ref);
                         println!("emblem root:      {}", root.display());
                         println!("emblem file:      {}", file.display());
                     }

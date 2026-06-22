@@ -896,6 +896,221 @@ pub fn jjrm_emblem_root() -> Option<PathBuf> {
     Some(PathBuf::from(home).join(JJRM_EMBLEM_ROOT_TAIL))
 }
 
+/// Emblem file basename suffix. The full per-window path is
+/// `<root>/<scheme>/<value>.emblem` (built by `jjrm_emblem_path`); paneboard's
+/// PoC spec ("Emblem File Format") freezes the `.emblem` extension.
+pub const JJRM_EMBLEM_SUFFIX: &str = "emblem";
+
+/// rbm-side emblem STYLE config (JJS0 `jjdxw_emblem`: "an rbm-side style file
+/// vvx reads at write time, never compiled in"), relative to the project root
+/// (the server cwd). Edit it and the next jjx engagement repaints with the new
+/// per-region style. An absent file or absent field folds to the built-in
+/// paneboard default — the writer simply omits the attribute. Sibling to
+/// `GALLOPS_PATH` under `.claude/jjm/`; the `jje_` file prefix is its home.
+const EMBLEM_STYLE_PATH: &str = ".claude/jjm/jje_emblem.json";
+
+/// Officium-resident marker recording the identity this session last *saddled*
+/// (mounted). Written by the orient arm, read by the emblem writer so every
+/// later jjx engagement — `record`, `list`, `close`, … — paints the mounted
+/// pace, not just orient itself. Absent before the first mount: the emblem then
+/// degrades to the bare officium identity (see `zjjrm_refresh_emblem`). Lives
+/// under the gitignored officia tree, alongside `heartbeat`.
+const SADDLE_MARKER_FILE: &str = "saddle";
+
+/// Compose the per-window emblem file path from the emblem root and a
+/// scheme-qualified window reference. The reference carries its own `/`
+/// (`iterm-session/<uuid>`), so the join lands the file under the scheme
+/// subdirectory: `<root>/iterm-session/<uuid>.emblem`. One home for the path
+/// literal, shared by the writer and the `vvx_emblem_probe` diagnostic.
+pub fn jjrm_emblem_path(root: &Path, window_ref: &str) -> PathBuf {
+    root.join(format!("{}.{}", window_ref, JJRM_EMBLEM_SUFFIX))
+}
+
+/// Per-region style (a font size and a color), each independently optional.
+/// Sourced from `EMBLEM_STYLE_PATH`; an absent field stays `None` and the
+/// writer omits the corresponding `pbge_` attribute so paneboard supplies its
+/// built-in default. Unknown JSON fields are ignored (forward-compatible).
+#[derive(Default, serde::Deserialize)]
+struct jjrm_RegionStyle {
+    #[serde(default)]
+    color: Option<String>,
+    #[serde(default)]
+    size: Option<u32>,
+}
+
+/// The three frozen emblem regions' styles. Each defaults to empty (all
+/// paneboard defaults), so a partial config — or none — parses clean.
+#[derive(Default, serde::Deserialize)]
+struct jjrm_EmblemStyle {
+    #[serde(default)]
+    top: jjrm_RegionStyle,
+    #[serde(default)]
+    middle: jjrm_RegionStyle,
+    #[serde(default)]
+    bottom: jjrm_RegionStyle,
+}
+
+/// Load the emblem style config from `<project_root>/EMBLEM_STYLE_PATH`.
+/// Fail-soft: a missing file or any parse error yields the all-default style
+/// (every field `None` → paneboard defaults). Never errors — style is a
+/// best-effort overlay, never a precondition for writing the emblem.
+fn zjjrm_load_emblem_style(project_root: &Path) -> jjrm_EmblemStyle {
+    std::fs::read_to_string(project_root.join(EMBLEM_STYLE_PATH))
+        .ok()
+        .and_then(|s| serde_json::from_str(&s).ok())
+        .unwrap_or_default()
+}
+
+/// Normalize a raw identity (firemark or coronet, with or without its glyph) to
+/// its full glyph-prefixed display form — "never abbreviated" (JJS0
+/// `jjdxw_emblem`). A 2-char body is a firemark (`₣`), a 5-char body a coronet
+/// (`₢`); any other length passes through unchanged, so degraded input is shown
+/// as-is rather than mislabeled.
+fn zjjrm_normalize_identity(raw: &str) -> String {
+    let body = raw
+        .trim()
+        .trim_start_matches(crate::jjrf_favor::JJRF_FIREMARK_PREFIX)
+        .trim_start_matches(crate::jjrf_favor::JJRF_CORONET_PREFIX);
+    match body.chars().count() {
+        2 => format!("{}{}", crate::jjrf_favor::JJRF_FIREMARK_PREFIX, body),
+        5 => format!("{}{}", crate::jjrf_favor::JJRF_CORONET_PREFIX, body),
+        _ => body.to_string(),
+    }
+}
+
+/// Emit one `pbge_region` block: the `### pbge_region {…}` lede plus its text
+/// lines. Returns empty when `lines` is empty — a region with no content is
+/// omitted entirely (placement is explicit in the lede, so order and absence
+/// are both insignificant to the reader). `pbge_color` / `pbge_size` ride only
+/// when the config supplied them; otherwise the attribute is absent and
+/// paneboard defaults it.
+fn zjjrm_region_block(location: &str, style: &jjrm_RegionStyle, lines: &[String]) -> String {
+    if lines.is_empty() {
+        return String::new();
+    }
+    let mut attrs = format!("pbge_location={}", location);
+    if let Some(ref c) = style.color {
+        attrs.push_str(&format!(", pbge_color={}", c));
+    }
+    if let Some(n) = style.size {
+        attrs.push_str(&format!(", pbge_size={}", n));
+    }
+    let mut out = format!("### pbge_region {{{}}}\n", attrs);
+    for line in lines {
+        out.push_str(line);
+        out.push('\n');
+    }
+    out
+}
+
+/// Compose the full `pbge_` emblem document (paneboard PoC "Emblem File
+/// Format") for one window. Pure — no env, no I/O — so the grammar is
+/// unit-testable. `identity` is the already-normalized top-region line (the
+/// work identity, the primary glance datum); `repo` and `cwd` fill the middle
+/// region; the bottom region is reserved and currently emitted empty (omitted).
+/// Region CONTENT here is the soft starting set; region STRUCTURE is frozen.
+fn zjjrm_compose_emblem(
+    window_ref: &str,
+    identity: &str,
+    repo: &str,
+    cwd: &str,
+    style: &jjrm_EmblemStyle,
+) -> String {
+    let mut out = String::from("# pbge_emblem\n");
+    out.push_str(&format!("## pbge_pane {}\n", window_ref));
+    out.push_str(&zjjrm_region_block(
+        "pbge_top",
+        &style.top,
+        &[identity.to_string()],
+    ));
+    out.push_str(&zjjrm_region_block(
+        "pbge_middle",
+        &style.middle,
+        &[repo.to_string(), cwd.to_string()],
+    ));
+    // Bottom is reserved: no lines yet, so the block is omitted. The call reads
+    // style.bottom (forward-correct the day content lands) and keeps the frozen
+    // three-region structure explicit at the one composition site.
+    out.push_str(&zjjrm_region_block("pbge_bottom", &style.bottom, &[]));
+    out
+}
+
+/// Atomically write the emblem file: mkdir the scheme tree, write a sibling
+/// temp file, then rename over the target (rename is atomic within a
+/// filesystem, so paneboard never reads a half-written emblem). Every step is
+/// `?`-propagated to one `io::Result`; the sole caller discards it — a refused
+/// or absent emblem tree must never surface as a jjx error.
+fn zjjrm_write_emblem_atomic(path: &Path, contents: &str) -> std::io::Result<()> {
+    if let Some(parent) = path.parent() {
+        std::fs::create_dir_all(parent)?;
+    }
+    let mut tmp = path.as_os_str().to_owned();
+    tmp.push(".tmp");
+    let tmp = PathBuf::from(tmp);
+    std::fs::write(&tmp, contents)?;
+    std::fs::rename(&tmp, path)?;
+    Ok(())
+}
+
+/// Best-effort, fail-soft emblem write for this window (JJS0 `jjdxw_emblem`;
+/// paddock "Transport" — the FILE channel, never a socket). Called once per jjx
+/// engagement from the single dispatcher entry, after the model/officium gates.
+/// Every step degrades to "write nothing, surface nothing": not under iTerm
+/// (`ITERM_SESSION_ID` unset), `HOME` unset, an unwritable emblem tree — all
+/// fold to a silent no-op, so a jjx command returns its normal result with no
+/// added error and only a microsecond file touch.
+///
+/// `new_identity` is the freshly-saddled identity to persist (orient supplies
+/// the halter lede; every other command and `jjx_open` pass `None`). When
+/// present it updates the officium's `SADDLE_MARKER_FILE`; the emblem's work
+/// identity is then read back from that marker, degrading to the bare officium
+/// handle (the `☉` session id) when no mount has happened yet.
+fn zjjrm_refresh_emblem(officium_dir: &Path, new_identity: Option<&str>) {
+    // Persist a freshly-saddled identity (orient only); best-effort. Recorded
+    // even when no emblem can be painted — the mount happened regardless.
+    if let Some(id) = new_identity {
+        let _ = std::fs::write(officium_dir.join(SADDLE_MARKER_FILE), id.as_bytes());
+    }
+
+    // Window reference + emblem root: either absent ⇒ not paintable, skip.
+    let Some(window_ref) = jjrm_iterm_window_ref() else {
+        return;
+    };
+    let Some(root) = jjrm_emblem_root() else {
+        return;
+    };
+    let Ok(cwd) = std::env::current_dir() else {
+        return;
+    };
+
+    // Work identity: the saddled marker, else the bare officium handle.
+    let identity = match std::fs::read_to_string(officium_dir.join(SADDLE_MARKER_FILE)) {
+        Ok(s) if !s.trim().is_empty() => zjjrm_normalize_identity(s.trim()),
+        _ => {
+            let bare = officium_dir
+                .file_name()
+                .map(|n| n.to_string_lossy().into_owned())
+                .unwrap_or_default();
+            format!("{}{}", OFFICIUM_SUN_PREFIX, bare)
+        }
+    };
+    let repo = cwd
+        .file_name()
+        .map(|n| n.to_string_lossy().into_owned())
+        .unwrap_or_default();
+    let style = zjjrm_load_emblem_style(&cwd);
+    let body = zjjrm_compose_emblem(
+        &window_ref,
+        &identity,
+        &repo,
+        &cwd.to_string_lossy(),
+        &style,
+    );
+
+    let path = jjrm_emblem_path(&root, &window_ref);
+    let _ = zjjrm_write_emblem_atomic(&path, &body);
+}
+
 /// Validate officium directory exists and touch heartbeat.
 fn zjjrm_validate_officium(officium: &str) -> Result<(), String> {
     let bare_id = officium.trim_start_matches(OFFICIUM_SUN_PREFIX);
@@ -1132,6 +1347,10 @@ async fn zjjrm_handle_open(size_limit: u64) -> Result<CallToolResult, McpError> 
     };
     // No gazette files created at open — they are ephemeral, single-MCP-call lifetime.
     std::fs::write(exchange.join(HEARTBEAT_FILE), b"").ok();
+
+    // Degraded emblem paint: a freshly-opened officium has no saddled identity
+    // yet, so the label shows the bare officium handle until the first mount.
+    zjjrm_refresh_emblem(&exchange, None);
 
     // Resolve session UUID + cwd. Emitted on every invitatory body so the
     // chat that produced this commit can be located (`git log --grep='session: '`)
@@ -1379,6 +1598,23 @@ impl jjrm_McpServer {
             }
             other => other,
         };
+
+        // Emblem overlay (best-effort, fail-soft): paint this window's
+        // work-identity label once per engagement, here at the single dispatcher
+        // entry after the model/officium gates. orient persists its freshly-saddled
+        // identity (the halter lede) into the officium marker; every other command
+        // — and the no-mount case — reads the standing marker. The call never
+        // affects the command result; see zjjrm_refresh_emblem.
+        let emblem_identity: Option<String> = if cmd == JJRM_CMD_NAME_ORIENT {
+            gazette_in_content
+                .as_deref()
+                .and_then(|c| jjrz_parse_halter_input(c).ok())
+                .filter(|t| t.len() == 1)
+                .and_then(|t| t.into_iter().next())
+        } else {
+            None
+        };
+        zjjrm_refresh_emblem(&zjjrm_exchange_dir(officium_id), emblem_identity.as_deref());
 
         macro_rules! deser {
             ($t:ty) => {
@@ -1957,6 +2193,140 @@ mod tests {
         assert_eq!(zjjrm_parse_iterm_session("no-colon-here"), None);
         assert_eq!(zjjrm_parse_iterm_session("w4t0p0:"), None);
         assert_eq!(zjjrm_parse_iterm_session(""), None);
+    }
+
+    #[test]
+    fn normalize_identity_reconstructs_glyph_by_length() {
+        // Bare body → full glyph-prefixed form (the marker may store either).
+        assert_eq!(zjjrm_normalize_identity("Bh"), "₣Bh");
+        assert_eq!(zjjrm_normalize_identity("BhAAF"), "₢BhAAF");
+        // Already-glyphed input round-trips, not double-prefixed.
+        assert_eq!(zjjrm_normalize_identity("₣Bh"), "₣Bh");
+        assert_eq!(zjjrm_normalize_identity("₢BhAAF"), "₢BhAAF");
+        // Surrounding whitespace (a trailing newline in the marker file) is trimmed.
+        assert_eq!(zjjrm_normalize_identity("  ₣Bh\n"), "₣Bh");
+        // A body that is neither 2 nor 5 chars passes through rather than being
+        // mislabeled (the marker only ever stores real firemarks/coronets, so
+        // this is purely the defensive degraded path).
+        assert_eq!(zjjrm_normalize_identity("odd"), "odd");
+        assert_eq!(zjjrm_normalize_identity("sixchar"), "sixchar");
+    }
+
+    #[test]
+    fn region_block_omits_empty_and_rides_optional_style() {
+        // No lines → no block at all (placement is explicit, absence is fine).
+        let empty = zjjrm_region_block("pbge_bottom", &jjrm_RegionStyle::default(), &[]);
+        assert_eq!(empty, "");
+
+        // Absent style → bare location attr, no color/size.
+        let plain = zjjrm_region_block(
+            "pbge_middle",
+            &jjrm_RegionStyle::default(),
+            &["repo".to_string()],
+        );
+        assert_eq!(plain, "### pbge_region {pbge_location=pbge_middle}\nrepo\n");
+
+        // Present style → attrs ride in order.
+        let styled = zjjrm_region_block(
+            "pbge_top",
+            &jjrm_RegionStyle {
+                color: Some("#ffffff".to_string()),
+                size: Some(14),
+            },
+            &["₣Bh".to_string()],
+        );
+        assert_eq!(
+            styled,
+            "### pbge_region {pbge_location=pbge_top, pbge_color=#ffffff, pbge_size=14}\n₣Bh\n"
+        );
+    }
+
+    #[test]
+    fn compose_emblem_emits_frozen_pbge_grammar() {
+        let style = jjrm_EmblemStyle {
+            top: jjrm_RegionStyle {
+                color: Some("#ffffff".to_string()),
+                size: Some(14),
+            },
+            middle: jjrm_RegionStyle::default(),
+            bottom: jjrm_RegionStyle::default(),
+        };
+        let out = zjjrm_compose_emblem(
+            "iterm-session/AA97D5ED-F633-4513-95B2-2A930EBB7365",
+            "₣Bh",
+            "rbm_beta_recipemuster",
+            "/Users/x/projects/rbm_beta_recipemuster",
+            &style,
+        );
+        let expected = "\
+# pbge_emblem
+## pbge_pane iterm-session/AA97D5ED-F633-4513-95B2-2A930EBB7365
+### pbge_region {pbge_location=pbge_top, pbge_color=#ffffff, pbge_size=14}
+₣Bh
+### pbge_region {pbge_location=pbge_middle}
+rbm_beta_recipemuster
+/Users/x/projects/rbm_beta_recipemuster
+";
+        assert_eq!(out, expected);
+        // Bottom region is reserved → omitted entirely.
+        assert!(!out.contains("pbge_bottom"));
+    }
+
+    #[test]
+    fn load_emblem_style_fails_soft_on_absent_and_garbage() {
+        let dir = scratch_officia("emblem_style");
+        // No config file present → all-default (every field None).
+        let absent = zjjrm_load_emblem_style(&dir);
+        assert!(absent.top.color.is_none() && absent.top.size.is_none());
+
+        // Garbage at the config path → still all-default, never an error.
+        let cfg = dir.join(".claude/jjm");
+        std::fs::create_dir_all(&cfg).unwrap();
+        std::fs::write(cfg.join("jje_emblem.json"), b"{ not json").unwrap();
+        let garbage = zjjrm_load_emblem_style(&dir);
+        assert!(garbage.middle.color.is_none());
+
+        // A partial config parses: only the present field lands.
+        std::fs::write(
+            cfg.join("jje_emblem.json"),
+            br#"{"top": {"size": 18}}"#,
+        )
+        .unwrap();
+        let partial = zjjrm_load_emblem_style(&dir);
+        assert_eq!(partial.top.size, Some(18));
+        assert!(partial.top.color.is_none());
+        let _ = std::fs::remove_dir_all(&dir);
+    }
+
+    #[test]
+    fn write_emblem_atomic_succeeds_and_is_readable() {
+        let dir = scratch_officia("emblem_write");
+        let root = dir.join(".config/paneboard/emblems");
+        let path = jjrm_emblem_path(&root, "iterm-session/UUID-1234");
+        zjjrm_write_emblem_atomic(&path, "# pbge_emblem\n").unwrap();
+        assert_eq!(
+            std::fs::read_to_string(&path).unwrap(),
+            "# pbge_emblem\n"
+        );
+        // No temp residue left beside the target.
+        let mut tmp = path.as_os_str().to_owned();
+        tmp.push(".tmp");
+        assert!(!std::path::Path::new(&tmp).exists());
+        let _ = std::fs::remove_dir_all(&dir);
+    }
+
+    #[test]
+    fn write_emblem_atomic_fails_soft_on_refused_parent() {
+        // The "refused/absent emblem directory" non-regression: when the parent
+        // cannot be created (here it is an existing *file*, not a dir), the write
+        // returns Err rather than panicking — and the sole caller discards it, so
+        // a jjx engagement is never affected.
+        let dir = scratch_officia("emblem_refused");
+        let blocker = dir.join("not-a-dir");
+        std::fs::write(&blocker, b"i am a file").unwrap();
+        let path = blocker.join("iterm-session/UUID.emblem");
+        assert!(zjjrm_write_emblem_atomic(&path, "x").is_err());
+        let _ = std::fs::remove_dir_all(&dir);
     }
 
     #[test]
