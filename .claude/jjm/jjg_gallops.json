@@ -17475,8 +17475,8 @@
         "₢BhAAP": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260623-1058",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260623-1206",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "Derive the emblem work-identity from mount/groom semantics inside JJK, instead of persisting the verbatim jjx_orient halter lede.",
                 "",
@@ -17496,7 +17496,7 @@
                 "- Verified live: heat-mount shows the next-pace coronet on the emblem; groom shows the firemark."
               ],
               "jjgtn_silks": "vvx-emblem-identity-derivation",
-              "jjgtn_basis": "955e9c6"
+              "jjgtn_basis": "597fc28"
             }
           ]
         }
