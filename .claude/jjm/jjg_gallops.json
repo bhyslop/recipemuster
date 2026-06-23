@@ -17279,7 +17279,7 @@
                 "No bespoke pusher and no tabtarget: the committed rbdg* SVGs are unfurled conversationally through the JJK primitive, and a human works the viewer on real content.",
                 "This is the viewer's acceptance gate — proving the primitive is good enough that RB needs nothing of its own.",
                 "",
-                "See paddock \"Viewer surface\" and the JSS0 \"Diagram Viewer\" subsection for the primitive; the committed diagrams under diagrams/rbdg*.svg are the dogfood fodder.",
+                "See paddock \"Viewer surface\" and the JJS0 \"Diagram Viewer\" subsection for the primitive; the committed diagrams under diagrams/rbdg*.svg are the dogfood fodder.",
                 "",
                 "## Character",
                 "A human dogfood pass plus a short affordance note. No code beyond documentation.",
@@ -17294,7 +17294,7 @@
                 "- A short affordance note records that diagrams are reviewed by unfurling them, naming the -dark sibling convention."
               ],
               "jjgtn_silks": "rbm-diagram-viewer-dogfood",
-              "jjgtn_basis": "8b41924"
+              "jjgtn_basis": "0f07959"
             }
           ]
         },
