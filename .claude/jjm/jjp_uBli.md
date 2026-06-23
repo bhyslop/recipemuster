@@ -48,6 +48,10 @@ Instance-binding (stamping a producing-vessel identity into the fact) was delibe
 Read-side chain consumers (augur, summon, plumb, rekon, vouch) may resolve-or-die-loud but write no durable config — a wrong read corrupts only a transient action, never a regime file.
 They must never be extended to write config without joining the durable-leak surface and its no-relay plus named-band-reject discipline.
 
+Verification of this discipline is homed under theurge — it drives the real durable-leak verbs through the full tabtarget exec path and asserts the named chain-rejection band, regime-poison the type specimen.
+It is deliberately NOT homed in the BUK bash self-test: the chain-rejection band fires only at the RBK consumer (feoff/yoke via buc_reject), the footing resolver and decoder return a bare 1, and the self-test sources no RBK — so it can prove the footing primitives' return-1 shape but never the band itself.
+The footing primitives keep their existing BUK self-test cases; the band, wrong-kind, and fact-intact matrix is theurge's.
+
 ## Provenance
 
 Restrung from ₣BB and ₣BU.
