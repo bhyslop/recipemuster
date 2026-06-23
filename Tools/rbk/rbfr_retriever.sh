@@ -54,15 +54,24 @@ zrbfr_sentinel() {
 rbfr_summon() {
   zrbfr_sentinel
 
-  local z_hallmark="${BUZ_FOLIO:-}"
+  local -r z_express="${BUZ_FOLIO:-}"
 
   # Documentation block
   buc_doc_brief "Summon an ark (pull -image, -about, and -vouch artifacts as a coherent unit)"
-  buc_doc_param "hallmark" "Full hallmark (e.g., c260305133650-r260305160530)"
+  buc_doc_param "hallmark" "Full hallmark (e.g., c260305133650-r260305160530); optional — absent, falls back to the hallmark the prior build chained forward"
   buc_doc_shown || return 0
 
-  # Hallmark required — use rbw-ft (tally) to discover available hallmarks
-  test -n "${z_hallmark}" || buc_die "Hallmark parameter required (use rbw-ft to tally vouched hallmarks)"
+  # Resolve the hallmark express-or-chain: an express argument wins; absent, fall
+  # back to the hallmark a prior build (ordain or kludge) handed forward through the
+  # depth-1 chain — so a no-arg summon immediately after a build pulls the just-built
+  # hallmark. NEVER relays — depth-1, terminally consumed. Read-side: summon writes no
+  # durable config, so a broken chain dies loud (buc_die), NOT the durable-leak
+  # surface's named-band reject (feoff/anoint/yoke) — categorically lower severity.
+  # Hallmarks carry no sub-kind these verbs discriminate, so the resolve is the whole
+  # typecheck: no kind decode, no shape predicate (the chain value is build-written).
+  local z_hallmark=""
+  z_hallmark=$(buf_elect_fact_capture "${z_express}" "${RBF_FACT_HALLMARK}") \
+    || buc_die "No hallmark — pass one (use rbw-ft to tally vouched hallmarks) or run a build immediately before summon"
 
   buc_step "Authenticating for retrieval"
   local z_token

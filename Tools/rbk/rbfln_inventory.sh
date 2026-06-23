@@ -137,13 +137,23 @@ rbfl_tally() {
 rbfl_rekon_hallmark() {
   zrbfl_sentinel
 
-  local -r z_hallmark="${BUZ_FOLIO:-}"
+  local -r z_express="${BUZ_FOLIO:-}"
 
   buc_doc_brief "List ark basenames present under a hallmark's GAR subtree"
-  buc_doc_param "hallmark" "Hallmark identifier"
+  buc_doc_param "hallmark" "Hallmark identifier; optional — absent, falls back to the hallmark the prior build chained forward"
   buc_doc_shown || return 0
 
-  test -n "${z_hallmark}" || buc_die "Usage: rbw-irh <hallmark>"
+  # Resolve the hallmark express-or-chain: an express argument wins; absent, fall
+  # back to the hallmark a prior build (ordain or kludge) handed forward through the
+  # depth-1 chain — so a no-arg rekon immediately after a build inspects the just-built
+  # hallmark. NEVER relays — depth-1, terminally consumed. Read-side: rekon writes no
+  # durable config, so a broken chain dies loud (buc_die), NOT the durable-leak
+  # surface's named-band reject (feoff/anoint/yoke) — categorically lower severity.
+  # Hallmarks carry no sub-kind these verbs discriminate, so the resolve is the whole
+  # typecheck: no kind decode, no shape predicate (the chain value is build-written).
+  local z_hallmark=""
+  z_hallmark=$(buf_elect_fact_capture "${z_express}" "${RBF_FACT_HALLMARK}") \
+    || buc_die "No hallmark — pass one (rbw-irh <hallmark>) or run a build immediately before rekon"
 
   buc_step "Authenticating as Director"
   local z_token=""

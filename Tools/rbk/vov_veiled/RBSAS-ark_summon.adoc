@@ -18,15 +18,25 @@ credentials when available, falling back to
 NOTE: This is the ark-level view of image retrieval. For single-artifact retrieval, see
 {rbtgo_image_retrieve}.
 
+NOTE: *Read-side chain consumer.*
+The hallmark is resolved express-or-chain for a transient retrieval only — summon writes no durable config — so a broken chain dies loud as an ordinary {rbbc_fatal}, categorically lower severity than the durable-leak links
+{rbtgo_director_feoff}
+and
+{rbtgo_director_yoke},
+whose rejections ride the chaining precision band.
+Unlike those kind-gated links the resolve carries no kind decode: a
+{rbst_hallmark}
+bears no sub-kind these verbs discriminate, so the express-or-chain resolution is the whole typecheck.
+Summon must never be extended to write config without joining that durable-leak surface and its depth-1 no-relay plus named-band-reject discipline.
+
 The summon operation:
 
 //axhopt_typed_parameter
-{rbtga_ark}
-. *Validate Input Parameters*:
-.. {rbbc_require}
-vessel provided as first argument
-.. {rbbc_require}
-hallmark provided as second argument
+{rbst_hallmark}
+. *Resolve the Hallmark* (express-or-chain):
+.. `«HALLMARK»` resolves express-or-chain: an express folio argument (e.g., `c260305133650-r260305160530`) wins; absent, it falls back to the hallmark a prior build ({rbtgo_ark_ordain} or {rbtgo_ark_kludge}) handed forward through the depth-1 cross-tabtarget chain — so a no-arg summon immediately after a build pulls the just-built hallmark. The chain is read terminally — never relayed.
+.. {rbbc_fatal}
+if neither an express argument nor a chained hallmark is present — a broken chain
 
 //axhos_step
 . *Authenticate as

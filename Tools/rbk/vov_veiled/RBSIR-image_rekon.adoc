@@ -18,17 +18,27 @@ Rekon over Lodes is intentionally omitted: a reliquary cohort is a conclave {rbt
 
 == Hallmark Rekon
 
+NOTE: *Read-side chain consumer.*
+The hallmark is resolved express-or-chain for a transient presence enumeration only — rekon writes no durable config — so a broken chain dies loud as an ordinary {rbbc_fatal}, categorically lower severity than the durable-leak links
+{rbtgo_director_feoff}
+and
+{rbtgo_director_yoke},
+whose rejections ride the chaining precision band.
+Unlike those kind-gated links the resolve carries no kind decode: a
+{rbst_hallmark}
+bears no sub-kind these verbs discriminate, so the express-or-chain resolution is the whole typecheck.
+Rekon must never be extended to write config without joining that durable-leak surface and its depth-1 no-relay plus named-band-reject discipline.
+
 The
 {rbtr_director}
 rekons basenames under a hallmark:
 
 //axhopt_typed_parameter
 {rbst_hallmark}
-. *Validate Input Parameters*:
-.. {rbbc_require}
-`«INPUT_HALLMARK»` provided as first argument
+. *Resolve the Hallmark* (express-or-chain):
+.. `«INPUT_HALLMARK»` resolves express-or-chain: an express folio argument wins; absent, it falls back to the hallmark a prior build ({rbtgo_ark_ordain} or {rbtgo_ark_kludge}) handed forward through the depth-1 cross-tabtarget chain — so a no-arg rekon immediately after a build inspects the just-built hallmark. The chain is read terminally — never relayed.
 .. {rbbc_fatal}
-if missing: "Usage: rbw-irh <hallmark>"
+if neither an express argument nor a chained hallmark is present — a broken chain
 
 //axhos_step
 . *Authenticate as
