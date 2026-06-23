@@ -22,7 +22,7 @@ Using the current canonical word meanwhile is therefore never a dingleberry — 
 ## Conviction — the federation configuration model (settled modeling axis)
 
 The one settled shape in this paddock: the modeling axis is decided, even though the build is not.
-What is settled is HOW a federation is modeled; that it gets built is gated on the office-federation heat ₣BZ completing the single-federation case, and the vocabulary it needs is now minted in-heat (operator decision 260623), no longer gated on Fable.
+What is settled is HOW a federation is modeled; the build spine is now slated and builds independently of ₣BZ — only the deferred attach-caged-subject unit consumes ₣BZ's admission verbs and waits on ₣BZ landing — and the vocabulary it needs is now minted in-heat (operator decision 260623), no longer gated on Fable.
 
 The deciding finding: Google Workforce Identity Federation provider config is vendor-invariant — the same gcloud flags with identical semantics for Microsoft Entra, Okta, or generic OIDC, only the values differ (doc-confirmed against live GCP docs).
 So the regime must not enumerate vendors; enumerating them was reasoning from exactly two, and the docs settle that the shape generalizes.
@@ -59,7 +59,7 @@ De-lamination (settled 260623): the proof script is a flattened cross-section of
 configure_realm's live admin-REST evaporates into declarative entries in the baked fdkyclk-realm.json (the import mechanism already rides the vessel Dockerfile's --import-realm, and the realm JSON is currently a near-empty shell carrying only the realm envelope), so the durable rig holds no runtime admin-REST.
 The JWKS rotates per charge — the realm signing key is generated fresh on import, deliberately committing no secret — so affiance re-syncs the uploaded public keys on every establish rather than once (the JWKS-refresh coupling, made concrete).
 The test-facility orchestrator is ONE coherent BCG module: charge then ready-poll then fetch-JWKS then call affiance, and the inverse jilt then quench.
-It composes existing verbs plus the one JWKS bridge; it does NOT contain the accessor (that stays a mechanism arm of rba, the production-shared STS-then-don machinery) and it does NOT reimplement affiance or brevet (existing production verbs, called not contained).
+It composes existing verbs plus the one JWKS bridge; it does NOT contain the accessor (that stays a mechanism arm of rba, the production-shared STS-then-don machinery) and it does NOT reimplement affiance or jilt (existing production verbs, called not contained — brevet is admission, owned by the separate deferred attach-caged-subject unit, never this orchestrator).
 Membrane: affiance never learns "Keycloak" — all Keycloak knowledge is quarantined in the baked realm DATA and this orchestrator; the orchestrator names its vessel by reference but is BLIND to the realm contents (affiliation by reference, never by ownership), which is what stops the de-lamination from silently re-laminating.
 Naming (minted in-heat 260623, gates applied by hand, grep-clean, terminal-exclusivity intact): the module is rbxk_keycloak.sh in a new rbx family — the federation establishment / synthetic-trust test-rig family, pre-earmarked in the proof header as the "rbx_ establishment/accessor units"; its setup/teardown tabtargets take colophons under rbw-xkX.
 The rbx letter doubles as a holding family for other poorly-slotted things until a later mass remint; rby was rejected as it is the yelp/handbook-vocabulary family (rbyk would have been terminal-legal but incoherent).
@@ -298,10 +298,10 @@ Entra finding (260617, empirical, not just docs): the live devicecode response f
 Declined fallback recorded: synthesizing a code-carrying URL ourselves (.../device?otc=<code>) is unsupported, Palisade-fragile, and rides the device-code-phishing pattern Microsoft's filters flag — and tried live, the prefill did not populate, so even the hack does not work.
 Revisit trigger: a new or migrated IdP that returns the field, or Microsoft adding it.
 
-## Future build order (held as shape; gated on ₣BZ; not slated)
+## Future build order (spine slated; the attach-caged-subject tail still held, gated on ₣BZ)
 
 The configuration-model conviction implies a sequence of buildable units; their dependency order is fixed even though none has graduated to a pace.
-The Fable gate is lifted (operator decision 260623) and the front-of-heat design pace has settled the de-lamination, the Keycloak-control home, and the build naming: these units are now ready to graduate into slated build paces, in the dependency order below.
+The Fable gate is lifted (operator decision 260623) and the front-of-heat design pace settled the de-lamination, the Keycloak-control home, and the build naming: the six-unit spine below is now slated as build paces; only the attach-caged-subject tail remains held, gated on ₣BZ landing.
 
 The spine, in dependency order:
 Spec-first, before any code — evolve the federation-regime and affiance specs to the core-plus-mechanism-gate shape and stand up the two new subdocs as contracts; contract before code is project doctrine, so this is a hard predecessor of every code unit below.
@@ -325,3 +325,31 @@ Degenerate-test-federation mechanism, sources, and the can-and-cannot-prove boun
 Workforce-pool quota and soft-delete constraints (the freehold idea's load-bearing facts, and the affiance undelete-on-DELETED gap): Memos/memo-20260617-BZ-workforce-pool-constraints.md.
 Federation configuration model — the vendor-agnostic-core plus mechanism-gate conviction, full reasoning: Memos/memo-20260618-Bf-federation-config-model.md.
 Spec homes to evolve when this lands: RBSRF (RBSRF-RegimeFederation.adoc) and RBSMA (RBSMA-manor_affiance.adoc).
+
+## Foedus lifecycle — the two-tier test-bed (settled topology + scoped design pass)
+
+The audit's pool-topology gap — the build spine quietly assumed a manor could hold two foedera at once, which nothing slated builds — resolves here, and it opens a strand that gathers four deferred ideas into one design.
+
+Topology (operator decision 260623): single-active-foedus, switched lightly.
+One foedus is live in the regime at a time; a test selects which standing foedus it runs against by pointing the regime at it, never by holding both at once.
+Because only one is active, the existing singleton-keyed affiance/accessor/brevet work unchanged — the heavy regime-as-family-of-named-instances rework is NOT needed for the test-bed.
+That simultaneous rework is needed only by the future governor-selects feature (premise-gated), so it defers with that feature; this supersedes the earlier (260622) "both at once, each its own pool" framing for the test case.
+
+Build-spine consequence (so the spine reads true): the spine operates on single-active.
+The affiance arm founds the Keycloak programmatic foedus as the test regime's one pool, and the orchestrator stands it up as that single active foedus, not beside a live Entra one.
+The accessor's end-to-end don-and-call still awaits a standing admission (a brevet), which the deferred attach-caged-subject unit owns; the slated spine reaches the federated token, not the full don-and-call.
+
+Two tiers (operator aim): a light tier — "use the current, switch lightly" — reuses durable standing foedera and changes the active one by selection, mapping onto the existing skirmish/dogfight (freehold-already-standing) suites; a nuclear tier — "full redo everything" — jilts and re-affiances the foedera from scratch, mapping onto the existing gauntlet (levies-fresh) suites.
+
+New vocabulary (in-heat mint, Fable-decoupled): roughly ONE new toothing — select/switch the active foedus — plus the assize-reset it forces (clear the live session, re-sign-in against the new foedus), which is the already-noted clear-the-live-assize idea, not net-new.
+Founding/dissolving stays affiance/jilt; durable-vs-ephemeral is a tenure policy (freehold = affiance-and-never-jilt), not a verb; the nuclear redo is a named ceremony composing jilt+affiance, not an atom.
+
+This strand gathers four ideas above that are really one design: freehold (durable test-bed), the release-suites' lost credential-heal (a standing-freehold readiness step), multiplicity-as-switching (this topology), and federation-testing-collapses-onto-real-verbs (the authentic-verb fixture, suite word parley). It borders the durable manor-setup finisher.
+
+Relationship to the spine: the spine PROVES one foedus's chain (the de-lamination); this strand MANAGES the test-bed (standing foedera, selection, the two tiers) — two different jobs. The lifecycle layer is mostly downstream of the spine (it composes the spine's verbs), with one upstream touch: the regime must support foedus selection (two configs plus a selector), folded into the spec recast or handed to a lifecycle pace.
+
+Next: a focused design pass settles six forks — the tenure policy; the selection mechanism and what the select act does; the new toothing name(s); the light/nuclear tier mapping onto the existing suite ladder; the light-tier readiness check (the release-heal / parley step); and where regime-selection-support lands relative to the spec recast. It produces this strand's own slate, and runs before the audit's build-docket tightenings are finalized.
+
+Two audit decisions remain OPEN and independent of this strand:
+the signing-key disposition — bake a stable caged test keypair so the JWKS does not rotate, versus keep per-charge rotation and add a jwksJson re-sync arm to affiance (whose idempotent path leaves an existing provider untouched, so the per-charge re-sync the conviction above currently asserts cannot run as-is);
+and the foedus-noun mint — keep it Fable's, versus swallow it in-heat (it is a bondstone with a cold-probe gate and a verb-register sub-decision, heavier than the build-machinery words).
