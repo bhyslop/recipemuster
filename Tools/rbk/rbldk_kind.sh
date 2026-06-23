@@ -42,11 +42,12 @@ ZRBLDK_SOURCED=1
 # letter. Emits the matched RBGC_LODE_KIND_* on stdout; returns 1 on an
 # unrecognized prefix.
 #
-# This is the single home for the touchmark-prefix kind decode — the express-path
-# kind gate, for a bare touchmark string (operator input or display). It is NOT
-# the chaining channel: the depth-1 fact chain carries the kind as its own opaque
-# brand fact (RBF_FACT_LODE_BRAND), read whole by the conjure ANCHOR election,
-# never parsed from the touchmark (see RBGC kind-brand enum). Do not unify the two.
+# This is the single home for touchmark kind decode — used wherever a consumer
+# needs a Lode's kind, on both the express path (a bare touchmark: operator input
+# or display) and the chained path (a touchmark handed forward through the depth-1
+# fact chain). The touchmark is the sole carrier of kind: its kind-letter prefix
+# decodes here, and the chain carries no separate kind-brand fact. The two
+# consumers are feoff (its bole gate) and yoke (its reliquary gate).
 #
 # _capture shape: stdout once or return 1; the caller guards with || buc_die.
 # Args: <touchmark>

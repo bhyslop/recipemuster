@@ -105,7 +105,10 @@ rbfl_anoint() {
   mv "${z_tmp_file}" "${z_rbrv_file}" \
     || buc_die "Failed to finalize ${z_rbrv_file}"
 
-  buc_success "Anointed ${RBRV_SIGIL} with ${z_hallmark}"
+  # Loud on success: name the written value and its source so a wrong anoint shows
+  # at the moment of action, not only in the eventual git diff. Anoint reads the
+  # build facts from the chain (no express path), so the source is always chain.
+  buc_success "Anointed ${RBRV_SIGIL}: RBRV_GRAFT_IMAGE=${z_image_ref} (source: chain)"
   buc_info "Commit the rbrv.env change with your usual git workflow."
 }
 

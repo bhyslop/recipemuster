@@ -31,6 +31,7 @@ ZRBFL_SOURCED=1
 source "${BASH_SOURCE[0]%/*}/rbfc0_core.sh"
 source "${BASH_SOURCE[0]%/*}/rbfla_anoint.sh"
 source "${BASH_SOURCE[0]%/*}/rbfly_yoke.sh"
+source "${BASH_SOURCE[0]%/*}/rbflf_feoff.sh"
 source "${BASH_SOURCE[0]%/*}/rbfld_delete.sh"
 source "${BASH_SOURCE[0]%/*}/rbfln_inventory.sh"
 source "${BASH_SOURCE[0]%/*}/rbflw_wrest.sh"

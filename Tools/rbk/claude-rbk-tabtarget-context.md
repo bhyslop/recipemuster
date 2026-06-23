@@ -160,6 +160,7 @@ The Folio column shows how each tabtarget receives it:
 | `rbw-rvv` | ValidateVesselRegime | param1 | Validate vessel regime |
 | `rbw-rvy` | DirectorYokesReliquaryAllVessels | param1 | Yoke a reliquary touchmark into every vessel's rbrv.env (wildcard fan-out) |
 | `rbw-rva` | DirectorAnointsGraftVessel | param1 | Anoint a graft vessel with the previous build's hallmark (rewrites RBRV_GRAFT_IMAGE from chained facts) |
+| `rbw-rvf` | DirectorFeoffsVessel | param1 | Feoff a conjure vessel - elect its base anchor from a bole Lode touchmark (express-or-chain) |
 | `rbw-rrr` | RenderRepoRegime | — | Render repo regime |
 | `rbw-rrv` | ValidateRepoRegime | — | Validate repo regime |
 | `rbw-rdr` | RenderDepotRegime | — | Render depot regime |

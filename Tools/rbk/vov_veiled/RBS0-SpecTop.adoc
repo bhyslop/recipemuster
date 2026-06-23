@@ -124,6 +124,7 @@
 :rbtgo_depot_recognosce:          <<rbtgo_depot_recognosce,rbgp_depot_recognosce>>
 :rbtgo_director_vouch:            <<rbtgo_director_vouch,rbfv_batch_vouch>>
 :rbtgo_director_yoke:             <<rbtgo_director_yoke,rbfl_yoke>>
+:rbtgo_director_feoff:            <<rbtgo_director_feoff,rbfl_feoff>>
 :rbtgo_image_delete:              <<rbtgo_image_delete,rbfl_jettison>>
 :rbtgo_image_audit:               <<rbtgo_image_audit,Image Audit>>
 :rbtgo_image_rekon:               <<rbtgo_image_rekon,Image Rekon>>
@@ -1361,6 +1362,17 @@ validates the conclave {rbtga_lode} touchmark once against GAR, then rewrites `R
 
 include::RBSDY-director_yoke.adoc[]
 
+[[rbtgo_director_feoff]]
+//axvo_method axd_transient axd_grouped
+=== {rbtgo_director_feoff}
+
+Elects a vessel's conjure base anchor:
+resolves a bole {rbtga_lode} touchmark express-or-chain, then writes `RBRV_IMAGE_n_ANCHOR` into one named {rbrv_regime} file under `${RBRR_VESSEL_DIR}`
+({rbtgog_depot}).
+The chain LINK extracted out of {rbtgo_ark_conjure} so conjure stays a pure chain head — ceremony ensconce → feoff → commit → conjure.
+
+include::RBSDF-director_feoff.adoc[]
+
 [[rbtgo_image_delete]]
 //axvo_method axd_transient axd_grouped
 === {rbtgo_image_delete}
@@ -2517,8 +2529,9 @@ Per-platform image reference.
 [[rbf_fact_lode]]
 //axpof_fact
 {rbf_fact_lode}::
-The host-side capture handoff written by {rbtgo_lode_ensconce}: two bare single-form chaining facts — the touchmark value and the kind-brand enum — carrying no provenance content (the envelope lives only in GAR as the {rbtga_lode_vouch} `:rbi_vouch` tag).
-The consumption-side touchmark election reads them via derived-pull through the depth-1 cross-tabtarget chain, so election survives an election failure and a one-to-many fan-out iterates by reading the facts rather than by a verb taking N consumer arguments.
+The host-side capture handoff written by {rbtgo_lode_ensconce}: one bare single-form chaining fact — the touchmark value — carrying no provenance content (the envelope lives only in GAR as the {rbtga_lode_vouch} `:rbi_vouch` tag).
+The touchmark is self-describing: its kind-letter prefix decodes to the Lode kind through the single-home prefix decoder, so no separate kind-brand fact rides the chain — the touchmark is the sole carrier of kind, identically on the chained path and the express path (an operator-typed touchmark).
+The consumption-side touchmark election ({rbtgo_director_feoff}, {rbtgo_director_yoke}) reads it via derived-pull through the depth-1 cross-tabtarget chain, so election survives an election failure and a one-to-many fan-out iterates by reading the fact rather than by a verb taking N consumer arguments.
 
 === Payor Fact Files
 

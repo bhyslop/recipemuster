@@ -82,6 +82,7 @@ pub const RBTDGC_RENDER_VESSEL: &str = "rbw-rvr";
 pub const RBTDGC_VALIDATE_VESSEL: &str = "rbw-rvv";
 pub const RBTDGC_YOKE_RELIQUARY: &str = "rbw-rvy";
 pub const RBTDGC_ANOINT_GRAFT: &str = "rbw-rva";
+pub const RBTDGC_FEOFF_BOLE: &str = "rbw-rvf";
 pub const RBTDGC_RENDER_REPO: &str = "rbw-rrr";
 pub const RBTDGC_VALIDATE_REPO: &str = "rbw-rrv";
 pub const RBTDGC_RENDER_DEPOT: &str = "rbw-rdr";

@@ -311,9 +311,10 @@ zrbld_spine_extract() {
 # Internal: the shared single-slot capture extract for the one-Lode kinds
 # (underpin, conclave, immure): decode step 0's buildStepOutputs slot, require
 # the host-minted stamp in rbls_slot_1 (dumping the present keys when absent, so
-# a slot-shape drift self-diagnoses), and emit the two bare single-form chaining
-# facts (touchmark value + kind-brand enum). Kind data arrives as parameters —
-# the spine still owns no kind knowledge. The provenance envelope is NOT read
+# a slot-shape drift self-diagnoses), and emit the one bare single-form chaining
+# fact (the touchmark value). The brand parameter is now only the display label
+# (the kind name) — the chain carries no kind-brand fact, so the spine still owns
+# no kind knowledge. The provenance envelope is NOT read
 # host-side: it lives only in GAR (:rbi_vouch, pushed cloud-side), so the host
 # hands forward only the touchmark a consumer needs. Bole stays on its own
 # extract (rbldb_): its multi-slot 1..3 continue-on-empty loop is genuinely
@@ -322,7 +323,7 @@ zrbld_spine_extract() {
 # (memo-20260610-heat-BH-extract-keys-triplication).
 # Args: prefix brand label
 #   prefix — the kind's temp-file prefix (ZRBLD_*_PREFIX)
-#   brand  — kind-brand enum for the fact (RBGC_LODE_BRAND_* / immure's family)
+#   brand  — kind name for the display label (RBGC_LODE_BRAND_* / immure's family)
 #   label  — display word for messages, matching the dispatch label (e.g. "Underpin")
 zrbld_spine_extract_single() {
   zrbfc_sentinel
@@ -351,8 +352,6 @@ zrbld_spine_extract_single() {
 
   buf_write_fact_single "${RBF_FACT_LODE_TOUCHMARK}" "${z_stamp}" \
     || buc_die "Failed to write touchmark fact for ${z_stamp}"
-  buf_write_fact_single "${RBF_FACT_LODE_BRAND}" "${z_brand}" \
-    || buc_die "Failed to write kind-brand fact for ${z_stamp}"
   buc_success "${z_label} captured Lode ${z_stamp} — touchmark fact emitted (${z_brand})"
 }
 

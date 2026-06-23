@@ -27,11 +27,11 @@
 set -euo pipefail
 
 # Ensconce is capture-pure: it writes no consumer config. It hands the captured
-# touchmark to a later derived-pull election (the conjure ANCHOR populator)
-# through two bare single-form chaining facts (RBF_FACT_LODE_TOUCHMARK +
-# RBF_FACT_LODE_BRAND) via the depth-1 cross-tabtarget chain. The provenance
-# envelope lives only in GAR (:rbi_vouch tag, pushed cloud-side by rbgjl02),
-# never host-side.
+# bole touchmark to feoff (the conjure ANCHOR election) through one bare
+# single-form chaining fact (RBF_FACT_LODE_TOUCHMARK) via the depth-1
+# cross-tabtarget chain; feoff decodes the bole kind from the touchmark prefix.
+# The provenance envelope lives only in GAR (:rbi_vouch tag, pushed cloud-side by
+# rbgjl02), never host-side.
 
 ######################################################################
 # Internal Helpers (zrbld_*)
@@ -135,8 +135,6 @@ zrbld_ensconce_extract() {
 
     buf_write_fact_single "${RBF_FACT_LODE_TOUCHMARK}" "${z_stamp}" \
       || buc_die "Failed to write touchmark fact for ${z_stamp}"
-    buf_write_fact_single "${RBF_FACT_LODE_BRAND}" "${RBGC_LODE_BRAND_BOLE}" \
-      || buc_die "Failed to write kind-brand fact for ${z_stamp}"
     buc_success "Ensconced Lode ${z_stamp} — touchmark fact emitted (${RBGC_LODE_BRAND_BOLE})"
   done
 }
