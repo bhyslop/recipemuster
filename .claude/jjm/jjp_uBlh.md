@@ -74,7 +74,10 @@ The only host-crossing channel is the terminal stream itself (OSC / iTerm badge)
 
 Style is optional per region (a font size and a color), sourced from an rbm-side config vvx reads at write time, never compiled in — edit the config, rewrite on any engagement, see it on the next alt-tab; paneboard supplies built-in defaults for any absent field.
 Region STRUCTURE (slot + lines + style) is frozen; region CONTENT — which lines land in which band — is deliberately soft and config-tunable.
-Starting content (soft): top = identity + pace name; middle = repo + working directory; bottom = identity (mirrors top, so the identity reads from all four corners — paneboard paints top into both top corners and bottom into both bottom corners).
+Starting content (soft): top = the work identity (a coronet on a pace, the heat firemark on a heat);
+middle = the cwd basename, then — on a pace-mount only — the coronet-prefixed pace silks, then the firemark-prefixed heat silks, so a pace reads three middle lines and a heat two;
+bottom = identity (mirrors top, so the identity reads from all four corners — paneboard paints top into both top corners and bottom into both bottom corners).
+Each silks line leads with its own glyph-identity so the line says both what it is and which it is; the work identity is JJK's mount/groom semantics (coronet on a pace-mount, the resolved next-actionable one on a heat-mount; the heat firemark on a groom), and the silks are resolved once at mount/groom and cached in the officium-resident saddle marker so the per-engagement writer never re-reads the gallops.
 
 ## Overlay surface — the selection box
 
