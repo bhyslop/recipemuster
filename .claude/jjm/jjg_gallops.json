@@ -17992,7 +17992,7 @@
         "₢BiAAO": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260623-1735",
+              "jjgtn_ts": "260623-1736",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "Retire the vestigial build-id fact RBF_FACT_BUILD_ID.",
@@ -18026,8 +18026,8 @@
                 "definition); a repo-wide grep for the constant and for rbf_fact_build_id lands clean.",
                 "rbw-tl clean and the fast suite green."
               ],
-              "jjgtn_silks": "vouch-build-id-chaining-fallback",
-              "jjgtn_basis": "22e1c01"
+              "jjgtn_silks": "retire-vestigial-build-id-fact",
+              "jjgtn_basis": "dd15cdc"
             }
           ]
         },
