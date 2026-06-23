@@ -17412,6 +17412,7 @@
         "₢BiAAO",
         "₢BiAAP",
         "₢BiAAR",
+        "₢BiAAT",
         "₢BiAAS",
         "₢BiAAL",
         "₢BiAAE",
@@ -17424,7 +17425,7 @@
         "₢BiAAJ",
         "₢BiAAA"
       ],
-      "jjghn_next_pace_seed": "AAT",
+      "jjghn_next_pace_seed": "AAU",
       "jjghn_paces": {
         "₢BiAAA": {
           "jjgpn_tacks": [
@@ -18118,48 +18119,41 @@
         "₢BiAAR": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260623-1838",
+              "jjgtn_ts": "260623-1905",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
-                "Chaining-fact tests — permutation and negative coverage with named precision-band exit codes, proving a bad chain attempt cannot corrupt a good one. All verified under theurge.",
+                "Chaining-fact band matrix — permutation and negative coverage with named precision-band exit codes, proving a bad chain attempt cannot corrupt a good one. The local matrix, verified under theurge.",
                 "",
                 "## Character",
-                "Test infrastructure; one pace covering the band matrix, one chained integration case, and the provenance proof. The named-band assertions are the only subtlety.",
+                "Test infrastructure; one pace covering the local band matrix (feoff/yoke negatives, the good election, express-beats-chain precedence, and fact-intact). The named-band assertions are the only subtlety. The cloud integration + provenance cases split to a follow-on pace.",
                 "",
                 "## Home — theurge, not the BUK self-test",
                 "The chain-rejection band fires only at the RBK consumer (feoff/yoke via buc_reject); the footing resolver and decoder return a bare 1, and the BUK bash self-test sources no RBK — so it can never drive the band.",
                 "All chaining verification therefore lives under theurge, regime-poison the type specimen: drive the real verb through the tabtarget exec path and assert the SPECIFIC band code, never bare nonzero.",
-                "Mint RBTDGC_BAND_CHAIN=105 on the theurge side if absent (the BUBC_band_chain mirror).",
+                "RBTDGC_BAND_CHAIN=105 is projected from BUBC_band_chain in rbcc_emit_consts.",
                 "The footing primitives keep their existing BUK self-test cases — they test BUK's own code and are not this pace's work.",
                 "",
-                "## Matrix tier (the bulk) — seeded-input single-verb cases",
+                "## Matrix tier (local, creds-free)",
                 "Drive feoff and yoke directly with a seeded input and assert the chain-rejection band:",
                 "wrong-kind touchmark (a non-bole expressed into feoff, a non-reliquary into yoke) -> the band code;",
                 "broken/absent chain (empty express and empty previous/) -> the band code;",
-                "good input -> success (the anchor/reliquary is elected);",
+                "good input -> success (the anchor is elected);",
                 "express present beats a present chained fact (precedence).",
                 "And the fact-intact proof — the operator's original worry, specified to defend it: with a GOOD fact seeded in previous/, drive feoff to a band REJECT, then assert BOTH that the band fired AND that the files that must survive (the seeded previous/ fact and the target rbrv.env) are byte-identical to their pre-call state — rejection precedes any destructive write. Not the tautological \"a read left the file alone.\"",
-                "",
-                "## Integration tier (one case)",
-                "One case via the existing chain_next_invoke producer->consumer pairing: a real ensconce then the real feoff, asserting the real fact shape matches the seeded-input cases and the band code survives the full dispatch exec path.",
-                "",
-                "## Provenance case",
-                "ensconce -> feoff -> commit -> conjure asserts the build's recorded git provenance matches the committed anchor — the proof the feoff split closed the hole.",
+                "feoff resolves a staged temp vessel by path, so no tracked config is touched; yoke negatives reject before auth and the fan-out write.",
                 "",
                 "## Cinched",
                 "All chaining self-tests are verified under theurge; the BUK bash self-test is not the home, because it cannot reach the RBK band gate.",
                 "Negative cases assert the named precision-band code (buc_reject), never bare nonzero.",
                 "The fact-intact case asserts rejection-before-write on named files, not a trivial read-left-it-alone.",
-                "The matrix lives at the seeded-input single-verb tier; the integration tier is one representative producer->consumer case, not the whole matrix.",
                 "No relay anywhere — the depth-1 terminal-consume contract is what these tests defend.",
                 "",
                 "## Done when",
                 "The band matrix (wrong-kind, broken, good, precedence, fact-intact-via-rejection-before-write) passes via the band-code assertions, under theurge.",
-                "The one integration case proves the band code survives the exec path; the provenance case proves the committed-anchor stamp.",
-                "rbw-tl clean; the relevant suites green."
+                "rbw-tl clean; the fast suite green."
               ],
               "jjgtn_silks": "chaining-fact-band-tests",
-              "jjgtn_basis": "c933306"
+              "jjgtn_basis": "be8e110"
             }
           ]
         },
@@ -18182,6 +18176,41 @@
               ],
               "jjgtn_silks": "reconcile-and-push-chaining-fixes",
               "jjgtn_basis": "8ab215e"
+            }
+          ]
+        },
+        "₢BiAAT": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260623-1905",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "The chaining-fact discipline's two cloud cases — integration (real producer->consumer) and provenance — split out of the band-matrix pace because they run real cloud builds (service-tier, GCP) and cannot be verified locally.",
+                "",
+                "## Character",
+                "Service-tier test infrastructure: real cloud builds (ensconce, conjure), GCP-credentialed, minutes-long. The provenance case commits mid-flow, so it carries commit-in-fixture weight (the tools-never-commit discipline) — a mount-time design decision. Verified on a service/dogfight run, not locally.",
+                "",
+                "## Home",
+                "Extend the theurge chaining-fact verification onto the service tier — these cases need GCP and live cloud builds, so they ride a service-tier fixture (NOT fast). The local band matrix already shipped as the chaining-fact-band fixture; these are its cloud siblings.",
+                "",
+                "## Integration case",
+                "One case via the existing chain_next_invoke producer->consumer pairing: a real ensconce then the real feoff, asserting the real chained fact shape matches the band matrix's seeded inputs and the named band code survives the full dispatch exec path with a real producer upstream.",
+                "",
+                "## Provenance case",
+                "ensconce -> feoff -> commit -> conjure asserts the build's recorded git provenance matches the committed anchor — the proof the feoff split closed the live provenance hole (conjure builds FROM committed config, never an uncommitted election).",
+                "",
+                "## Cinched",
+                "Where a negative is asserted, it asserts the named precision band (buc_reject), never bare nonzero.",
+                "The chain_next_invoke producer->consumer pairing is the integration vehicle (it replicates the operator's current/->previous/ promotion across invokes).",
+                "No relay — the depth-1 terminal-consume contract.",
+                "",
+                "## Done when",
+                "The integration case proves the band code survives the exec path with a real ensconce upstream of feoff.",
+                "The provenance case proves the committed-anchor stamp.",
+                "Both verified on a service (or dogfight) run."
+              ],
+              "jjgtn_silks": "chaining-fact-cloud-cases",
+              "jjgtn_basis": "be8e110"
             }
           ]
         }
