@@ -17201,8 +17201,8 @@
         "₢BhAAG": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260623-0840",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260623-0935",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "The emblem render — the sole surface (the list is the untouched switcher, not an emblem surface; see paddock \"Overlay surface\"):",
                 "paneboard paints the three-region emblem on the yellow highlight box it already draws around the selected window during alt-tab.",
@@ -17223,7 +17223,7 @@
                 "- A window with no emblem file is unchanged from today."
               ],
               "jjgtn_silks": "pb-box-emblems",
-              "jjgtn_basis": "208740c"
+              "jjgtn_basis": "87eddcf"
             }
           ]
         },
