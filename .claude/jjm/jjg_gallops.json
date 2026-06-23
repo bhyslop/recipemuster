@@ -17416,8 +17416,8 @@
         "₢BhAAN": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260623-1031",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260623-1336",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "The viewer side of the light/dark pair: hold both variants and let the operator switch, proofing exactly what the README <picture> blocks render in each mode.",
                 "The pair arrives via the JJK render primitive (light required, dark optional, see paddock \"Viewer surface\"); this pace is the viewer's DISPLAY of it plus its first keyboard handling.",
@@ -17440,7 +17440,7 @@
                 "- The frozen wire is revised and re-frozen for the optional second payload (poc spec + the pbgvw_ census)."
               ],
               "jjgtn_silks": "viewer-light-dark-pair",
-              "jjgtn_basis": "235224c"
+              "jjgtn_basis": "24aa860"
             }
           ]
         },
