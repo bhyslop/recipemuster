@@ -17507,8 +17507,8 @@
         "₢BhAAQ": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260623-1257",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260623-1508",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "Bind the diagram viewer's lifetime to its conductor so paneboard's death takes the viewer with it.",
                 "The viewer's launchd parentage is load-bearing — a paneboard child would inherit the network-deny sandbox and could not listen (paddock \"Paneboard internals\") — so the viewer outlives a dead conductor: an orphan left listening on its port, with a stale port-file naming a windowless process (observed live 2026-06-23, when a push \"succeeded\" to a viewer no operator could see).",
@@ -17531,7 +17531,7 @@
                 "- Starting paneboard reaps any orphan viewer left by a prior run before spawning a fresh one."
               ],
               "jjgtn_silks": "pb-viewer-dies-with-conductor",
-              "jjgtn_basis": "45c63c7"
+              "jjgtn_basis": "f60b6ed"
             }
           ]
         },
