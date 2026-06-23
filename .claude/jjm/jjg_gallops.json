@@ -17035,11 +17035,12 @@
         "₢BhAAK",
         "₢BhAAG",
         "₢BhAAH",
+        "₢BhAAO",
         "₢BhAAI",
         "₢BhAAL",
         "₢BhAAN"
       ],
-      "jjghn_next_pace_seed": "AAO",
+      "jjghn_next_pace_seed": "AAP",
       "jjghn_paces": {
         "₢BhAAA": {
           "jjgpn_tacks": [
@@ -17268,29 +17269,29 @@
         "₢BhAAI": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260622-0554",
+              "jjgtn_ts": "260623-1031",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
-                "The separable rbm slice:",
-                "push fresh/update diagram bytes to the viewer when the SVGs regenerate.",
-                "The sole SVG writer is rbtdrc_pluml_render_diagrams in the RBK rbtd crate (rbtdrc_crucible.rs), run on a pluml crucible fixture — a different crate and binary from vvx, so this is an RBK-side change, not a vvx change.",
+                "The RBK slice, now a CONSUMER of the JJK viewer primitive (see paddock \"Viewer surface\"): produce the diagram SVGs and unfurl them — RBK owns no bespoke pusher.",
+                "The sole SVG writer is rbtdrc_pluml_render_diagrams in the RBK rbtd crate (rbtdrc_crucible.rs), run on a pluml crucible fixture — a different crate and binary from vvx.",
                 "",
-                "See seed memo open-risks (regen loop) and paddock \"Transport\".",
+                "See seed memo open-risks (regen loop) and paddock \"Viewer surface\" + \"Transport\".",
                 "",
                 "## Character",
-                "Independent and deferrable — the viewer is useful without it via a manual fresh.",
+                "Independent and deferrable — the viewer is useful without it via a manual unfurl. Consumes the JJK render primitive, so it follows that in order.",
                 "",
                 "## Cinched",
-                "Trigger: a dedicated rbw-workbench action tabtarget that reads the viewer's port-file and pushes each diagrams/<stem>.svg — the idiomatic rbw precedent.",
-                "Rejected fork: a git hook (the repo ships no committed hooks and sets no core.hooksPath, so it would silently not exist on other checkouts). Deferred fork: a fixture-emits-push for a fully-automatic loop.",
-                "Reuse the viewer wire from the skeleton; enumerate from the diagrams/*.puml glob (the source of truth), not the acronym-map list. Payloads are small (~17-22 KB) — no off-thread offload applies.",
+                "Trigger: a dedicated rbw-workbench action tabtarget that resolves each diagram's light + -dark sibling paths and unfurls them through the JJK render primitive — the idiomatic rbw precedent.",
+                "The RB-specific -dark naming is resolved HERE (the producer), never in the generic primitive.",
+                "Rejected fork: a git hook (the repo ships no committed hooks and sets no core.hooksPath). Deferred fork: a fixture-emits-push for a fully-automatic loop.",
+                "Enumerate from the diagrams/*.puml glob (the source of truth), not the acronym-map list. Payloads are small (~17-22 KB) — no off-thread offload.",
                 "",
                 "## Done when",
-                "- An rbw-workbench tabtarget pushes the current diagrams to a running viewer via fresh/update, failing soft when the viewer is absent.",
+                "- An rbw-workbench tabtarget unfurls the current diagrams (each as its light + dark pair) through the JJK primitive, failing soft when the viewer is absent.",
                 "- The trigger choice (tabtarget chosen; git-hook rejected, fixture-push deferred) is recorded."
               ],
               "jjgtn_silks": "rbm-diagram-push-regen-loop",
-              "jjgtn_basis": "a4a4231"
+              "jjgtn_basis": "235224c"
             }
           ]
         },
@@ -17412,33 +17413,61 @@
         "₢BhAAN": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260623-0932",
+              "jjgtn_ts": "260623-1031",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
-                "Give the viewer a light/dark pair per image and a 'd'/'l' toggle, so it proofs exactly what the README's `<picture>` blocks will render in both modes.",
-                "The README ships two committed SVGs per diagram (`diagrams/{stem}.svg` plus `{stem}-dark.svg`, the dark one recolored by the rbtd crate's pure palette map), and the viewer cannot derive dark from light — the palette is PlantUML-skin-specific and stays single-homed in rbm — so both variants must arrive over the wire.",
+                "The viewer side of the light/dark pair: hold both variants and let the operator switch, proofing exactly what the README <picture> blocks render in each mode.",
+                "The pair arrives via the JJK render primitive (light required, dark optional, see paddock \"Viewer surface\"); this pace is the viewer's DISPLAY of it plus its first keyboard handling.",
                 "",
-                "Three parts: a wire revision, the pusher sending the pair, and the viewer holding both plus the keys.",
-                "",
-                "See paddock \"Transport\"; the viewer reference impl (pbgvt_transport.rs, pbgvd_decode.rs, pbgvu_ui.rs in the paneboard checkout); the frozen wire contract (poc \"Diagram Viewer — Wire Protocol\"); the README `<picture>` blocks and the darken recolor.",
+                "See paddock \"Viewer surface\" + \"Transport\"; the viewer UI (pbgvu_ui.rs) and decode (pbgvd_decode.rs) in the paneboard checkout; the README <picture> blocks.",
                 "",
                 "## Cinched",
-                "The pair is carried ATOMICALLY in one frame, additively: a new optional second-payload length (default absent = today's single-payload frame, so old pushers are unchanged), the dark bytes following the light.",
-                "Do NOT pair via the existing instance id — that field is the reserved viewer-INSTANCE handle, not an image id.",
-                "Recolor stays OUT of the viewer: it never computes dark, only displays the two payloads it received — keeps it format-agnostic (raster or non-PlantUML SVG just carry light alone, or light twice).",
-                "Always-paired guarantee — pick one at build, either keeps the viewer near-dumb: the pusher sends both (duplicating light when no dark exists), or the viewer falls back 'd'->light when no dark arrived.",
-                "The 'd'/'l' toggle RETAINS zoom+pan — re-rasterize the other variant at the held viewport (update-semantics, not fresh), so theme-switching never resets the view.",
+                "The viewer holds both decoded variants and switches with the held zoom+pan retained — re-rasterize the other at the held viewport, never a refit.",
+                "Theme switch must ALSO flip the viewer backing white<->dark: the dark variant is light ink on transparent, so on today's hard-coded white backing it would be near-invisible.",
+                "These are the viewer's FIRST keystrokes — it binds none today: d / l theme, f fit (a manual trigger for the existing fresh/resize fit logic); zoom/pan stay scroll/drag.",
+                "Recolor stays OUT of the viewer — it only displays the payloads it received; a single-variant push carries light alone and 'd' falls back to light.",
+                "The wire pair is additive (a second optional payload in one frame); do not pair via the instance id.",
                 "",
                 "## Character",
-                "Multi-part and crosses the frozen wire — the one pace here carrying a protocol-contract revision.",
+                "Viewer-side display plus the viewer's first keyboard handling. Consumes the JJK render primitive.",
                 "",
                 "## Done when",
-                "- A push carries a light/dark pair; 'd' and 'l' switch the displayed variant, retaining zoom+pan, with a small current-mode indicator (default light).",
-                "- An old single-payload push still renders unchanged.",
-                "- The frozen wire contract (poc spec plus the `pbgvw_` census) is revised to document the second payload, and re-frozen."
+                "- The viewer displays a pushed light/dark pair; d and l switch variant (retaining zoom+pan) and flip the backing accordingly; f fits; a small current-mode indicator shows which is up (default light).",
+                "- A single-variant push (no dark) renders unchanged, 'd' falling back to light.",
+                "- The frozen wire is revised and re-frozen for the optional second payload (poc spec + the pbgvw_ census)."
               ],
               "jjgtn_silks": "viewer-light-dark-pair",
-              "jjgtn_basis": "7215e02"
+              "jjgtn_basis": "235224c"
+            }
+          ]
+        },
+        "₢BhAAO": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260623-1031",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "The JJK side of the viewer surface — the one operator verb and its lower command — so RBK and any later producer have a primitive to consume.",
+                "See paddock \"Viewer surface — a JJK master-UI primitive\".",
+                "",
+                "Three parts: the JJS0 vocabulary, the vvx implementation, and the verb-table entry.",
+                "",
+                "## Cinched",
+                "JJS0 vocabulary: the upper verb (unfurl) and the lower tool (render) with its anew flag and the two-path light/dark signature.",
+                "Mint per MCM Lapidary and the jjdxw_ window family; the surface noun stays plain (no quoin) until JJS0 must reference it.",
+                "The upper/lower register gap is load-bearing: the operator verb is vivid, the tool name deliberately boring, never guessable from the verb (JJS0 Upper API anti-pattern-match discipline).",
+                "anew is a documented tool param the LLM sets from conversation per a verb-table heuristic — not a deterministic viewer-state rule, not an operator-typed flag.",
+                "render is generic: light path required, dark optional, no RB-specific -dark naming baked in.",
+                "vvx implementation: read the light (and optional dark) image and push over paneboard's existing wire, mapping anew->fresh / not-anew->update; spawn the viewer if absent; fail soft if the push cannot land.",
+                "Transient like the emblem — persists nothing to the gallops, so no schema change and no reprieve episode.",
+                "",
+                "## Done when",
+                "- \"unfurl <image>\" routes through the verb table to the vvx render tool, which displays it (fresh or update per anew), spawning the viewer if needed and failing soft otherwise.",
+                "- JJS0 carries the verb, the tool, the anew param, and the verb-table heuristic; the surface noun is left plain.",
+                "- A generic single-image unfurl works with no dark variant."
+              ],
+              "jjgtn_silks": "viewer-unfurl-primitive",
+              "jjgtn_basis": "235224c"
             }
           ]
         }
