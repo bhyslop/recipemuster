@@ -180,3 +180,17 @@ Segment rules:
   it ever did, disambiguate in the topic — never by lowercasing the identity. Omit
   this segment only when no pace or heat applies.
 - **`{short-topic}` — kebab-case, a few words.**
+
+### G. Diagram review via unfurl (rbm-specific)
+
+Companion to the public Unfurl Protocol in `claude-jjk-core.md`: in rbm a
+committed diagram is reviewed by *unfurling* it onto the viewer and working it
+by hand — never via an RB-side tool (the viewing is a generic JJK act; RB is
+merely the first image producer). Unfurl the light `.svg` together with its
+`-dark` sibling and the pair travels as one frame; then in the viewer `f` fits,
+scroll/drag zoom and pan, and `d`/`l` toggle the variant at the held zoom+pan
+(the backing flips with it). The viewer cannot derive dark, so both paths are
+passed — the `rbdgX_name.svg` / `rbdgX_name-dark.svg` convention and its
+`zrbtdrc_darken_svg` recolor are documented at the RBDG acronym entry
+(`claude-rbk-acronyms.md`), referenced here, not restated. The toggle is an
+in-tool proof of exactly what the README `<picture>` blocks render per theme.
