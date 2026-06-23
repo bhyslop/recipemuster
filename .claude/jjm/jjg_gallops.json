@@ -17357,8 +17357,8 @@
         "₢BhAAL": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260622-0902",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260623-1412",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "Fold the standalone viewer crate into paneboard's build so the existing",
                 "paneboard build tabtargets build it — the viewer must never have its own build",
@@ -17382,7 +17382,7 @@
                 "- The viewer's run/launch path is out of scope here — this pace is the build only."
               ],
               "jjgtn_silks": "viewer-build-folds-into-paneboard-tabtargets",
-              "jjgtn_basis": "23d4674"
+              "jjgtn_basis": "c042277"
             }
           ]
         },
