@@ -31,6 +31,12 @@ The two halves of this feature have different endpoints, so they take different 
 Consequence: paneboard needs no listening socket at all, and the standalone viewer keeps working for the no-paneboard / Windows case.
 The seatbelt loopback-only carve-out is verified feasible and held as the fallback if a future need ever forces bytes through paneboard itself.
 
+The viewer wire additionally carries an optional light/dark PAIR per image — cinched here so the decision is not lost before it is built.
+The README ships each diagram as two committed SVGs (a light render plus a dark recolor produced by rbm's pluml case), and the viewer cannot derive one from the other: the recolor palette is PlantUML-skin-specific and stays single-homed in rbm, never compiled into the format-agnostic viewer, so both variants must travel over the wire.
+The pair rides ADDITIVELY — a second optional payload within one frame, its absence meaning today's single-payload frame — so the change is backward-compatible and the existing single-push path is untouched; do not pair via the instance id, which is the reserved per-instance handle, not an image id.
+The viewer holds both and toggles between them ('d'/'l') with the held zoom+pan retained, an in-tool proof of exactly what the README <picture> blocks render in each mode.
+Building it revises and re-freezes the viewer wire contract (the poc spec's protocol section).
+
 ## Emblem and window reference
 
 An emblem is the displayed label: an ordered set of stacked regions (top / middle / bottom), each region a list of lines plus optional style, on fixed black backing pills.
