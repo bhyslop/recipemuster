@@ -117,6 +117,16 @@ pub const RBTDRM_FIXTURE_PODVM_RESOLVE: &str = "podvm-resolve";
 // band fires only at the RBK consumer, so this is the home the footing (BUK)
 // self-test cannot reach. Credless — nothing here mints a token.
 pub const RBTDRM_FIXTURE_CHAINING_FACT_BAND: &str = "chaining-fact-band";
+// Chaining-fact-livery — the cloud sibling of the local chaining-fact-band
+// matrix. Proves the GENUINE producer->consumer succession: a real bole ensconce
+// captures into live GAR and hands its touchmark forward, the chain wires it to a
+// real feoff, and feoff elects the base anchor into a STAGED TEMP vessel (no
+// tracked config, no commit). Catches drift between what a live ensconce writes
+// and what a live feoff reads — which the synthetic band matrix cannot. Service
+// tier; the touchmark is pinned via the ensconce-stamp tweak for a stable reset
+// handle, and the case self-contains a banish-if-present baseline + best-effort
+// cleanup (no setup hook — that channel is the crucible-charge signal).
+pub const RBTDRM_FIXTURE_CHAINING_LIVERY: &str = "chaining-fact-livery";
 // Cupel — BCG command-dependency static analysis over all Tools/ bash. No
 // external dependency; partitions kit-bash (strict) from GCB-bash (looser).
 pub const RBTDRM_FIXTURE_CUPEL: &str = "cupel";
