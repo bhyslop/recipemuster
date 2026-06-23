@@ -106,7 +106,7 @@ rbfv_about() {
   buc_doc_brief "Assemble about metadata artifact for an existing hallmark image"
   buc_doc_param "vessel" "Vessel sigil or path to vessel directory"
   buc_doc_param "hallmark" "Full hallmark (e.g., c260305133650-r260305160530)"
-  buc_doc_param "conjure_build_id" "(Optional, conjure only) Cloud Build job ID from conjure; absent, falls back to the build-id the prior conjure chained forward"
+  buc_doc_param "conjure_build_id" "(Optional) Cloud Build job ID from conjure"
   buc_doc_shown || return 0
 
   # Resolve vessel argument (sigil or path) and load
@@ -419,7 +419,7 @@ zrbfv_about_submit() {
 
   local -r z_hallmark="$1"
   local -r z_token="$2"
-  local z_conjure_build_id="${3:-}"
+  local -r z_conjure_build_id="${3:-}"
 
   buc_step "Constructing about Cloud Build resource"
   local -r z_gar_host="${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}"
@@ -440,17 +440,6 @@ zrbfv_about_submit() {
     rbnve_conjure)
       # Extract inscribe timestamp from hallmark (e.g., c260305133650 from c260305133650-r260305160530)
       z_inscribe_ts="${z_hallmark%%-r*}"
-      # Resolve the conjure build-id express-or-chain: an explicit argument wins;
-      # absent, fall back to the build-id the prior conjure handed forward through
-      # the depth-1 chain (RBF_FACT_BUILD_ID, written by rbfd conjure) — so a
-      # standalone about immediately after a conjure stamps the just-built id into
-      # build_info.json. NEVER relays — depth-1, terminally consumed. Read-side:
-      # about writes no durable config, so a broken chain dies loud (buc_die), NOT
-      # the durable-leak surface's named-band reject (feoff/anoint/yoke) —
-      # categorically lower severity. Conjure-only: bind/graft carry no build-id
-      # and never reach this branch.
-      z_conjure_build_id=$(buf_elect_fact_capture "${z_conjure_build_id}" "${RBF_FACT_BUILD_ID}") \
-        || buc_die "Conjure about: build-id omitted and no chained build-id fact — pass it explicitly or run conjure immediately before about"
       # Read Dockerfile content for recipe.txt
       if test -f "${RBRV_CONJURE_DOCKERFILE:-}"; then
         z_dockerfile_content=$(<"${RBRV_CONJURE_DOCKERFILE}")

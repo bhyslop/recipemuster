@@ -147,13 +147,11 @@ All `_RBGA_*` substitution variables are passed in the `builds.create` request b
 *Mode-specific*::
 [cols="1,2"]
 |===
-| `_RBGA_BUILD_ID` | Conjure Cloud Build job ID (conjure only). In the combined conjure job, populated from the built-in `$BUILD_ID`. In manual recovery standalone about, the director resolves it express-or-chain: an explicit argument wins; absent, it falls back to the build-id the prior conjure chained forward (`RBF_FACT_BUILD_ID`). Used by step 3 to populate `build_info.json`. Empty for bind/graft (the resolve is conjure-only).
+| `_RBGA_BUILD_ID` | Conjure Cloud Build job ID (conjure only). In the combined conjure job, populated from the built-in `$BUILD_ID`. In manual recovery standalone about, passed by the director from a prior conjure run. Used by step 3 to populate `build_info.json`. Empty for bind/graft.
 | `_RBGA_INSCRIBE_TIMESTAMP` | Inscribe timestamp from hallmark (conjure only). Empty for bind/graft.
 | `_RBGA_BIND_SOURCE` | Pinned upstream image reference (bind only). Source: {rbrv_bind_image}. Empty for conjure/graft.
 | `_RBGA_GRAFT_SOURCE` | Local image reference at push time (graft only). Empty for conjure/bind.
 | `_RBGA_DOCKERFILE_CONTENT` | Dockerfile content read locally by {rbtr_director} (all modes, optional). Source: {rbrv_conjure_dockerfile} (conjure, always populated), {rbrv_graft_optional_dockerfile} (graft, optional), {rbrv_bind_optional_dockerfile} (bind, optional). Empty if file exceeds ~4KB substitution limit or path not configured. Written to `recipe.txt` in step 3.
 |===
-
-NOTE: The standalone-about build-id resolution is a *read-side chain consumer* — like augur/summon/plumb/rekon, the director resolves express-or-chain for a transient action (stamping provenance into `build_info.json`) and writes no durable config, so a broken chain dies loud. This is categorically lower severity than the durable-leak surface (feoff/anoint/yoke), which reject a named precision band and gate on a clean tree; the build-id resolve carries neither and must never be extended to write a regime file without joining that surface and its no-relay plus named-band-reject discipline.
 
 NOTE: `«PLATFORMS»` is discovered in step 1 and passed to subsequent steps as a workspace variable (written to `/workspace/platforms.txt`), not as a substitution variable.
