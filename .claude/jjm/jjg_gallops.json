@@ -16567,6 +16567,7 @@
       "jjghn_status": "jjghe_racing",
       "jjghn_order": [
         "₢BfAAI",
+        "₢BfAAK",
         "₢BfAAJ",
         "₢BfAAC",
         "₢BfAAA",
@@ -16577,7 +16578,7 @@
         "₢BfAAG",
         "₢BfAAH"
       ],
-      "jjghn_next_pace_seed": "AAK",
+      "jjghn_next_pace_seed": "AAL",
       "jjghn_paces": {
         "₢BfAAA": {
           "jjgpn_tacks": [
@@ -16882,6 +16883,34 @@
               ],
               "jjgtn_silks": "entra-federation-setup-guide",
               "jjgtn_basis": "deeab17"
+            }
+          ]
+        },
+        "₢BfAAK": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260623-0902",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Add the programmatic token-acquisition arm to the rba accessor: obtain the id_token via the RFC 7523 grant, then STS-exchange and don.",
+                "",
+                "The interactive accessor acquires its token via device flow; add the programmatic arm that obtains the id_token via Keycloak's RFC 7523 grant (or self-mints, fallback) and exchanges at STS, sharing the existing STS-then-don tail.",
+                "Mechanism-gated, a mechanism arm of rba — not a new module, and not folded into the orchestrator.",
+                "",
+                "Source: fdkyclk-proof.sh (mint_idtoken + sts_exchange + don) is the proven flow; rba is the accessor home.",
+                "",
+                "## Done when",
+                "The accessor obtains a federated token over a programmatic foedus and dons a mantle, mechanism-gated, reusing the interactive arm's STS-then-don tail.",
+                "",
+                "## Cinched",
+                "Stays an arm of rba (production-shared machinery), never absorbed into the rbxk orchestrator.",
+                "REST-only, no direct gcloud.",
+                "",
+                "## Character",
+                "Bash; consumes the RFC 7523 grant established by the realm pace."
+              ],
+              "jjgtn_silks": "programmatic-accessor-rba-arm",
+              "jjgtn_basis": "2de034f"
             }
           ]
         }
