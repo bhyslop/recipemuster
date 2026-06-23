@@ -17035,12 +17035,13 @@
         "₢BhAAK",
         "₢BhAAG",
         "₢BhAAH",
+        "₢BhAAP",
         "₢BhAAO",
         "₢BhAAI",
         "₢BhAAL",
         "₢BhAAN"
       ],
-      "jjghn_next_pace_seed": "AAP",
+      "jjghn_next_pace_seed": "AAQ",
       "jjghn_paces": {
         "₢BhAAA": {
           "jjgpn_tacks": [
@@ -17468,6 +17469,34 @@
               ],
               "jjgtn_silks": "viewer-unfurl-primitive",
               "jjgtn_basis": "235224c"
+            }
+          ]
+        },
+        "₢BhAAP": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260623-1058",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Derive the emblem work-identity from mount/groom semantics inside JJK, instead of persisting the verbatim jjx_orient halter lede.",
+                "",
+                "Today the dispatcher saddles whatever single halter lede orient received (the emblem-refresh path in Tools/jjk/vov_veiled/src/jjrm_mcp.rs): a firemark lede saddles the firemark even though orient already resolves the next-actionable coronet, and groom (jjx_show) passes None and never sets the identity.",
+                "So firemark-vs-coronet is the agent's lede choice, not JJK's — the gap the paddock \"Emblem and window reference\" rule (\"coronet when mounted on a pace, else the heat firemark\") was meant to close.",
+                "",
+                "## Cinched",
+                "The saddle marker is per-officium officium-resident state, not gallops — no schema change, so no reprieve episode.",
+                "",
+                "## Character",
+                "Localized dispatcher change; the resolved next-pace coronet is already in hand at orient time.",
+                "",
+                "## Done when",
+                "- Pace mount (orient on a coronet) saddles that coronet.",
+                "- Heat mount (orient on a firemark) saddles the resolved next-actionable pace's coronet, not the firemark.",
+                "- Groom (jjx_show on a heat) saddles the heat firemark.",
+                "- Verified live: heat-mount shows the next-pace coronet on the emblem; groom shows the firemark."
+              ],
+              "jjgtn_silks": "vvx-emblem-identity-derivation",
+              "jjgtn_basis": "955e9c6"
             }
           ]
         }
