@@ -350,7 +350,10 @@ Relationship to the spine: the spine PROVES one foedus's chain (the de-laminatio
 
 Next: a focused design pass settles six forks — the tenure policy; the selection mechanism and what the select act does; the new toothing name(s); the light/nuclear tier mapping onto the existing suite ladder; the light-tier readiness check (the release-heal / parley step); and where regime-selection-support lands relative to the spec recast. It produces this strand's own slate, and runs before the audit's build-docket tightenings are finalized.
 
-One audit decision remains OPEN and independent of this strand: the signing-key disposition — bake a stable caged test keypair so the JWKS does not rotate, versus keep per-charge rotation and add a jwksJson re-sync arm to affiance (whose idempotent path leaves an existing provider untouched, so the per-charge re-sync the conviction above currently asserts cannot run as-is).
-Operator inclination (260623): the stable key, homed in a cross-machine "global regime" — a controlled, distributed config category distinct from the per-machine station regime, holding config identical on every machine that touches an installation.
-Open in the lifecycle design pass: the shared-one-key-versus-per-platform-keys topology, and the global-regime's letter (RBRG is a retired regime, so a clean letter is wanted).
-The foedus-noun mint is SETTLED — adopted in-heat (above) — no longer open.
+Signing key — SETTLED (operator decision 260623): a stable key, no per-charge rotation, so affiance's idempotent path needs no jwksJson re-sync arm.
+The private key is homed as an estate-wide field in the station regime (rbrs.env, which is NEVER committed — exactly its secret-bearing property), working name RBRS_ESTATE_KEYCLOAK_SECRET.
+It is validated by matching its public half against the already-committed JWKS — which IS the canonical estate-wide reference — so no secret is ever committed or compared across stations.
+This nucleates Estate as a core concept: estate-wide facts that must be identical on every machine touching an installation, parked in the per-machine station regime with a must-match validator and an explicit estate-wide marker, until 2-3 such facts accumulate and graduate to a dedicated estate regime (RBRG is a retired GCB regime, so a clean letter at graduation — RBRI/RBRU/RBRE candidates).
+The shared-one-key-versus-per-platform topology softens: the committed JWKS is a key SET, so it can hold several public keys if per-platform keys are ever wanted; that stays the lifecycle pass's to settle.
+The foedus-noun mint is also SETTLED — adopted in-heat (above).
+With both audit decisions settled, the audit's remaining work is the deferred build-docket tightening batch plus the lifecycle design pass.
