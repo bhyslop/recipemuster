@@ -67,9 +67,6 @@ zrbfd_kindle() {
   buc_log_args 'Define context push operation files'
   readonly ZRBFD_CONTEXT_PREFIX="${BURD_TEMP_DIR}/rbfd_context_"
 
-  buc_log_args 'Define base-anchor election files'
-  readonly ZRBFD_ELECT_PREFIX="${BURD_TEMP_DIR}/rbfd_elect_"
-
   buc_log_args 'Kindle verify module (cross-module calls from ordain)'
   zrbfv_kindle
 
@@ -275,9 +272,9 @@ zrbfd_registry_preflight() {
   # --- Layer 2: Base images (bole Lodes) ---
   # Each vessel declares base images via RBRV_IMAGE_n_ORIGIN (upstream tag) and
   # RBRV_IMAGE_n_ANCHOR (locator: package-path:tag). Ensconce captures the upstream
-  # image into a bole Lode (rbi_ld), pinned by content hash; the derived-pull
-  # election populates the ANCHOR. The conjure Dockerfile's FROM references the
-  # locator-resolved GAR ref, not the upstream tag.
+  # image into a bole Lode (rbi_ld), pinned by content hash; feoff (rbw-rvf)
+  # populates the ANCHOR from that capture before conjure runs. The conjure
+  # Dockerfile's FROM references the locator-resolved GAR ref, not the upstream tag.
 
   buc_step "Verifying base images exist in GAR"
 
@@ -871,111 +868,6 @@ zrbfd_push_build_context() {
 ######################################################################
 # External Functions (rbfd_*)
 
-# Derived-pull base-anchor election (bole kind). If the immediately-prior
-# dispatch was a bole ensconce, it handed a touchmark forward through the depth-1
-# chain; resolve it to a Lode locator and persist it as the conjure base ANCHOR
-# before the build loads the vessel. This is the fetched-side "the vessel pulls
-# the resolved coordinate from the capture-file": capture stays pure (writes no
-# vessel config) and election writes it here, durably, so repeated conjures reuse
-# the persisted ANCHOR without re-ensconcing.
-#
-# No buf_relay: the touchmark is consumed terminally. Relaying would forward a
-# stale touchmark into a later unrelated ordain (cross-vessel leakage), so the
-# depth-1 adjacency — ensconce immediately precedes the first ordain — is the
-# deliberate contract, not a limitation to paper over. Absence is normal (no
-# fresh capture in the chain): leave any existing ANCHOR untouched. A present
-# touchmark elects only when its kind-brand is bole; a non-bole touchmark (a wsl
-# underpin or reliquary conclave chained ahead of this ordain) likewise leaves
-# the ANCHOR as-is. Election also requires exactly one populated ORIGIN slot —
-# zero or several leave the ANCHORs as-is too, since the touchmark cannot say
-# which slot it belongs to. A bole presence overwrites, so a re-capture repoints.
-# Args: rbrv_file
-zrbfd_elect_base_anchor() {
-  zrbfd_sentinel
-
-  local -r z_rbrv_file="${1:?Vessel regime file required}"
-  test -f "${z_rbrv_file}" || buc_die "Vessel regime file not found: ${z_rbrv_file}"
-
-  test -f "${BURD_PREVIOUS_DIR}/${RBF_FACT_LODE_TOUCHMARK}" || {
-    buc_log_args "No Lode touchmark in the chain — base ANCHOR left as-is"
-    return 0
-  }
-
-  local z_brand=""
-  z_brand=$(buf_read_fact "${RBF_FACT_LODE_BRAND}") || buc_die "Failed to read kind-brand chaining fact"
-
-  # Only a bole carries a base image to elect. A non-bole capture (an underpin or
-  # conclave run earlier in the same depth-1 chain) hands its own touchmark
-  # forward but has no base ANCHOR to give — leave the ANCHOR as-is. A brand
-  # outside the authored enum is corruption.
-  local z_tag=""
-  case "${z_brand}" in
-    "${RBGC_LODE_BRAND_BOLE}")
-      z_tag="${RBGC_LODE_TAG_BOLE}" ;;
-    "${RBGC_LODE_BRAND_RELIQUARY}"|"${RBGC_LODE_BRAND_WSL}")
-      buc_log_args "Chained Lode is '${z_brand}', not a base capture — base ANCHOR left as-is"
-      return 0 ;;
-    *)
-      buc_die "Unknown Lode kind-brand in chaining fact: '${z_brand}'" ;;
-  esac
-
-  buc_step "Electing conjure base ANCHOR from bole capture"
-
-  local z_touchmark=""
-  z_touchmark=$(buf_read_fact "${RBF_FACT_LODE_TOUCHMARK}") || buc_die "Failed to read touchmark chaining fact"
-  test -n "${z_touchmark}" || buc_die "Empty touchmark in chaining fact"
-
-  local -r z_locator="${RBGL_LODES_ROOT}/${z_touchmark}:${z_tag}"
-
-  # Find the single populated base ORIGIN slot (ensconce captures exactly one).
-  local z_line=""
-  local z_slot=""
-  local z_count=0
-  while IFS= read -r z_line || test -n "${z_line}"; do
-    case "${z_line}" in
-      RBRV_IMAGE_1_ORIGIN=?*) z_slot="1"; z_count=$((z_count + 1)) ;;
-      RBRV_IMAGE_2_ORIGIN=?*) z_slot="2"; z_count=$((z_count + 1)) ;;
-      RBRV_IMAGE_3_ORIGIN=?*) z_slot="3"; z_count=$((z_count + 1)) ;;
-    esac
-  done < "${z_rbrv_file}"
-  # Election can only disambiguate a single populated slot. Any other count is a
-  # no-op, not corruption — same shape as the non-bole brand no-op above: a bole
-  # fact chained ahead of this ordain must never kill it pre-submit. Zero slots
-  # means the vessel declares no base ORIGIN to elect into; two-plus means the
-  # touchmark cannot say which slot it belongs to — those ANCHORs stay
-  # operator-pinned.
-  case "${z_count}" in
-    1) ;;
-    0)
-      buc_log_args "Vessel has no populated RBRV_IMAGE_n_ORIGIN slot — base ANCHOR left as-is"
-      return 0 ;;
-    *)
-      buc_log_args "Vessel has ${z_count} populated RBRV_IMAGE_n_ORIGIN slots — election cannot disambiguate; base ANCHORs left as-is"
-      return 0 ;;
-  esac
-
-  # Replace-or-append the chosen slot's ANCHOR line.
-  local -r z_anchor_var="RBRV_IMAGE_${z_slot}_ANCHOR"
-  local -r z_anchor_line="${z_anchor_var}=${z_locator}"
-  local -r z_updated_file="${ZRBFD_ELECT_PREFIX}rbrv.env"
-  local z_found=false
-  while IFS= read -r z_line || test -n "${z_line}"; do
-    if [[ "${z_line}" == ${z_anchor_var}=* ]]; then
-      printf '%s\n' "${z_anchor_line}"; z_found=true
-    else
-      printf '%s\n' "${z_line}"
-    fi
-  done < "${z_rbrv_file}" > "${z_updated_file}" \
-    || buc_die "Failed to rewrite ${z_rbrv_file} for ${z_anchor_var}"
-  if [[ "${z_found}" != "true" ]]; then
-    printf '%s\n' "${z_anchor_line}" >> "${z_updated_file}" || buc_die "Failed to append ${z_anchor_var}"
-  fi
-  cp "${z_updated_file}" "${z_rbrv_file}" || buc_die "Failed to write updated rbrv.env"
-
-  buc_success "Elected base ANCHOR slot ${z_slot}: ${z_locator}"
-  buc_info "rbrv.env base ANCHOR updated — commit it with your usual workflow to pin this base"
-}
-
 rbfd_ordain() {
   zrbfd_sentinel
 
@@ -1001,8 +893,8 @@ rbfd_ordain() {
   z_mode="${z_mode:-rbnve_conjure}"
 
   # Mode dispatch. Each mode owns its own dirty-tree posture: conjure gates
-  # then elects inside rbfd_build, bind gates inside rbfd_mirror, graft is
-  # deliberately ungated (see the comment in rbfd_graft).
+  # inside rbfd_build, bind gates inside rbfd_mirror, graft is deliberately
+  # ungated (see the comment in rbfd_graft).
   case "${z_mode}" in
     rbnve_conjure) rbfd_build "${z_vessel_dir}" ;;
     rbnve_bind)    rbfd_mirror "${z_vessel_dir}" ;;
@@ -1063,13 +955,12 @@ rbfd_build() {
   # the tree must match a commit before anything leaves the host.
   bug_require_clean_tree "${RBCC_verb_conjure}"
 
-  # Derived-pull base-anchor election: the one sanctioned post-gate write. It
-  # rewrites at most one RBRV_IMAGE_n_ANCHOR line, machine-derived from an
-  # attested capture, consumed by this same build, and recorded independently
-  # of the git stamp (the _RBGR_BASE_LOCATOR_n substitutions and the Lode's
-  # provenance envelope both carry the locator); election surfaces the write
-  # for immediate commit.
-  zrbfd_elect_base_anchor "${z_vessel_dir}/rbrv.env"
+  # Conjure is a pure chain head: it reads no chaining fact and writes no config.
+  # The base ANCHOR is elected separately by feoff (rbw-rvf) before conjure runs
+  # (ensconce -> feoff -> commit -> conjure), so the anchor this build resolves is
+  # already committed when the clean-tree gate passes and HEAD is stamped — closing
+  # the provenance hole of the former in-build election (which wrote the anchor
+  # after the gate and built from an uncommitted value). See RBSDF / RBSAC.
 
   # Load and validate vessel
   zrbfc_load_vessel "${z_vessel_dir}"
@@ -1207,14 +1098,10 @@ rbfd_build() {
     buc_info "Output: ${BURD_OUTPUT_DIR}/${RBF_FACT_ARK_YIELD}-${RBGC_ARK_BASENAME_ATTEST}-${z_plat_suffix}"
   done
 
-  # Write build ID fact file (dispatched build ID for cross-check with vouch provenance)
-  buf_write_fact_single "${RBF_FACT_BUILD_ID}" "${z_build_id}"
-
   buc_info "Output: ${ZRBFC_OUTPUT_VESSEL_DIR}"
   buc_info "Output: ${BURD_OUTPUT_DIR}/${RBF_FACT_HALLMARK}"
   buc_info "Output: ${BURD_OUTPUT_DIR}/${RBF_FACT_GAR_ROOT}"
   buc_info "Output: ${BURD_OUTPUT_DIR}/${RBF_FACT_ARK_STEM}"
-  buc_info "Output: ${BURD_OUTPUT_DIR}/${RBF_FACT_BUILD_ID}"
 
   buc_success "Vessel image built: ${RBRV_SIGIL}"
 }

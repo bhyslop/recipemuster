@@ -96,13 +96,15 @@ butt_kindle() {
   butr_case_enroll "burx-exchange" butcbx_multi_preexist_tcase
   butr_case_enroll "burx-exchange" butcbx_multi_empty_content_tcase
 
-  # fact-chaining fixture (5 cases)
+  # fact-chaining fixture (7 cases)
   butr_fixture_enroll "fact-chaining" "" "zbutt_noop_baste"
   butr_case_enroll "fact-chaining" butcfc_relay_forwards_tcase
   butr_case_enroll "fact-chaining" butcfc_relay_preserves_current_tcase
   butr_case_enroll "fact-chaining" butcfc_relay_idempotent_tcase
   butr_case_enroll "fact-chaining" butcfc_read_fact_tcase
   butr_case_enroll "fact-chaining" butcfc_read_fact_absent_tcase
+  butr_case_enroll "fact-chaining" butcfc_elect_express_tcase
+  butr_case_enroll "fact-chaining" butcfc_elect_chain_tcase
 
   # buh-link fixture (3 cases)
   butr_fixture_enroll "buh-link" "" "zbutt_noop_baste"

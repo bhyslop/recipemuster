@@ -43,7 +43,7 @@ use crate::rbtdgc_consts::{
     RBTDGC_JETTISON_HALLMARK_IMAGE, RBTDGC_ORDAIN_HALLMARK, RBTDGC_REKON_HALLMARK,
     RBTDGC_ACCOUNT_PAYOR,
     RBTDGC_TALLY_HALLMARKS, RBTDGC_VOUCH_HALLMARKS,
-    RBTDGC_ENSCONCE_BOLE, RBTDGC_CONCLAVE_RELIQUARY, RBTDGC_UNDERPIN_WSL, RBTDGC_DIVINE_LODES,
+    RBTDGC_ENSCONCE_BOLE, RBTDGC_FEOFF_BOLE, RBTDGC_CONCLAVE_RELIQUARY, RBTDGC_UNDERPIN_WSL, RBTDGC_DIVINE_LODES,
     RBTDGC_AUGUR_LODE, RBTDGC_BANISH_LODE, RBTDGC_LIST_IMAGES, RBTDGC_JETTISON_IMAGE,
     RBTDGC_IMMURE_PODVM,
     RBTDGC_CHECK_PAYOR, RBTDGC_AFFIANCE_MANOR, RBTDGC_JILT_MANOR, RBTDGC_TWEAK_REGIME_POISON,
@@ -2563,6 +2563,20 @@ pub static RBTDRC_FIXTURE_TERRIER_ATOMICITY: rbtdre_Fixture = rbtdre_Fixture {
     credless: false,
 };
 
+// Chaining-fact livery — the cloud sibling of the local chaining-fact band
+// matrix. A bare cloud fixture (no crucible): the single case self-contains its
+// reset baseline and best-effort cleanup (banish-if-present, body below), so
+// setup/teardown stay None — the single-case runner reads a setup hook as
+// "crucible fixture, verify it is charged", which this fixture is not.
+pub static RBTDRC_FIXTURE_CHAINING_LIVERY: rbtdre_Fixture = rbtdre_Fixture {
+    name: crate::rbtdrm_manifest::RBTDRM_FIXTURE_CHAINING_LIVERY,
+    disposition: rbtdre_Disposition::Independent,
+    setup: None,
+    teardown: None,
+    cases: RBTDRC_CASES_CHAINING_LIVERY,
+    credless: false,
+};
+
 
 /// Registry of all fixtures known to theurge. Single source of truth: drives
 /// rbtdrc_lookup_fixture and the helpful "list valid fixtures" diagnostic the
@@ -2585,6 +2599,7 @@ pub static RBTDRC_FIXTURES: &[&'static rbtdre_Fixture] = &[
     &RBTDRC_FIXTURE_ACCESS_PROBE,
     &RBTDRC_FIXTURE_TERRIER_SCAFFOLD,
     &RBTDRC_FIXTURE_TERRIER_ATOMICITY,
+    &RBTDRC_FIXTURE_CHAINING_LIVERY,
     &crate::rbtdrf_fast::RBTDRF_FIXTURE_ENROLLMENT_VALIDATION,
     &crate::rbtdrf_fast::RBTDRF_FIXTURE_REGIME_VALIDATION,
     &crate::rbtdrs_poison::RBTDRS_FIXTURE_REGIME_POISON,
@@ -2594,6 +2609,7 @@ pub static RBTDRC_FIXTURES: &[&'static rbtdre_Fixture] = &[
     &crate::rbtdrf_fast::RBTDRF_FIXTURE_PODVM_RESOLVE,
     &crate::rbtdru_cupel::RBTDRU_FIXTURE_CUPEL,
     &crate::rbtdrn_conformance::RBTDRN_FIXTURE_CONFORMANCE,
+    &crate::rbtdrh_chain::RBTDRH_FIXTURE_CHAINING_FACT_BAND,
     &crate::rbtdrf_handbook::RBTDRF_FIXTURE_HANDBOOK_RENDER,
     &crate::rbtdrp_lifecycle::RBTDRP_FIXTURE_DEPOT_LIFECYCLE,
     &crate::rbtdrk_depot::RBTDRK_FIXTURE_FREEHOLD_ESTABLISH,
@@ -2638,6 +2654,7 @@ pub static RBTDRC_SUITES: &[rbtdre_Suite] = &[
             &crate::rbtdrf_fast::RBTDRF_FIXTURE_RECIPE_VALIDATION,
             &crate::rbtdru_cupel::RBTDRU_FIXTURE_CUPEL,
             &crate::rbtdrn_conformance::RBTDRN_FIXTURE_CONFORMANCE,
+            &crate::rbtdrh_chain::RBTDRH_FIXTURE_CHAINING_FACT_BAND,
         ],
     },
     // Service — fast + GCP-credentialed bare fixtures.
@@ -2664,6 +2681,8 @@ pub static RBTDRC_SUITES: &[rbtdre_Suite] = &[
             &RBTDRC_FIXTURE_BATCH_VOUCH,
             &RBTDRC_FIXTURE_TERRIER_SCAFFOLD,
             &RBTDRC_FIXTURE_TERRIER_ATOMICITY,
+            &RBTDRC_FIXTURE_CHAINING_LIVERY,
+            &crate::rbtdrh_chain::RBTDRH_FIXTURE_CHAINING_FACT_BAND,
         ],
     },
     // Crucible — fast + container-runtime crucible fixtures.
@@ -2684,6 +2703,7 @@ pub static RBTDRC_SUITES: &[rbtdre_Suite] = &[
             &RBTDRC_FIXTURE_TADMOR,
             &RBTDRC_FIXTURE_SRJCL,
             &RBTDRC_FIXTURE_PLUML,
+            &crate::rbtdrh_chain::RBTDRH_FIXTURE_CHAINING_FACT_BAND,
         ],
     },
     // Complete — fast + every dependency-tiered fixture (service ∪ crucible).
@@ -2710,9 +2730,11 @@ pub static RBTDRC_SUITES: &[rbtdre_Suite] = &[
             &RBTDRC_FIXTURE_BATCH_VOUCH,
             &RBTDRC_FIXTURE_TERRIER_SCAFFOLD,
             &RBTDRC_FIXTURE_TERRIER_ATOMICITY,
+            &RBTDRC_FIXTURE_CHAINING_LIVERY,
             &RBTDRC_FIXTURE_TADMOR,
             &RBTDRC_FIXTURE_SRJCL,
             &RBTDRC_FIXTURE_PLUML,
+            &crate::rbtdrh_chain::RBTDRH_FIXTURE_CHAINING_FACT_BAND,
         ],
     },
     // Gauntlet — release-qualification ladder. Walks marshal-zero state through
@@ -3456,6 +3478,218 @@ pub static RBTDRC_CASES_LODE_LIFECYCLE: &[rbtdre_Case] = &[
     case!(rbtdrc_lode_lifecycle),
     case!(rbtdrc_lode_collision),
 ];
+
+
+// Chaining-fact livery fixture — the cloud sibling of the local chaining-fact
+// band matrix (rbtdrh_chain.rs). That matrix proves the chain LINKS' rejection
+// bands by hand-SEEDING a synthetic touchmark into previous/; it can only
+// simulate the producer. This fixture proves the GENUINE producer->consumer
+// succession end-to-end: a real bole ensconce captures a base into live GAR and
+// hands its touchmark forward as a chaining fact, chain_next_invoke wires that
+// capture's BURV root into the following feoff, and the real feoff reads the
+// chained fact from previous/ and elects the base anchor. It catches drift the
+// synthetic matrix cannot — between what a live ensconce WRITES to current/ and
+// what a live feoff READS from previous/.
+//
+// Distinct from onboarding-sequence's tracked-vessel ensconce->feoff (the same
+// chain against a committed forge vessel, gauntlet-tier): this rides SERVICE tier
+// and feoffs a STAGED TEMP vessel resolved by path, touching no tracked config
+// and committing nothing (band-matrix discipline, rbtdrh_chain.rs the model).
+// feoff itself makes no GAR call — it composes the locator from the decoded
+// touchmark (RBSDF) — so the live ensconce is what makes the chained touchmark
+// real; the registry confirmation is conjure's at a later build, not feoff's.
+//
+// The touchmark is pinned to a fixed bole-shaped value via the ensconce-stamp
+// tweak (the lode-collision precedent), giving the reset a stable banish handle:
+// a prior crashed run leaves a Lode at exactly this touchmark, which would trip
+// the cloud collision guard on the next ensconce. The case OPENS by re-
+// establishing the absent-Lode baseline (load-bearing) and CLOSES by banishing
+// best-effort regardless of verdict, so a mid-case failure still cleans up and a
+// crash is recovered by the next run's opening reset. Both go through one
+// divine-then-banish helper, because banish dies on an absent Lode (rbld_banish:
+// "nothing to banish"). The reset lives in the case body, not a setup hook: the
+// single-case runner reserves a setup hook for crucible charge, and this fixture
+// charges no crucible.
+
+/// Fixed bole touchmark this fixture pins via the ensconce-stamp tweak. The shape
+/// is the band matrix's synthetic bole-seed shape — RBGC_LODE_KIND_BOLE 'b' + a
+/// 12-digit YYMMDDHHMMSS stamp (cf. rbtdrh_chain.rs RBTDRH_BOLE_TOUCHMARK) — but
+/// a deterministic value rather than a clock mint, so setup has a stable handle
+/// and the elected anchor is predictable. ensconce takes BURE_TWEAK_VALUE
+/// verbatim as the stamp (rbldb_bole.sh), so this becomes the captured Lode's
+/// touchmark and the chained fact the feoff consumes.
+const RBTDRC_LIVERY_TOUCHMARK: &str = "b260623000000";
+
+/// The staged temp vessel's rbrv.env — one populated base ORIGIN slot, which is
+/// all feoff needs to locate the slot whose ANCHOR it elects, and NO ANCHOR line,
+/// so an RBRV_IMAGE_1_ANCHOR= present after feoff proves the write fired (a no-op
+/// would leave the file ORIGIN-only). feoff never reads this origin's value;
+/// busybox is the real yoked vessel the live ensconce actually captures from.
+const RBTDRC_LIVERY_VESSEL_RBRV: &str = "RBRV_IMAGE_1_ORIGIN=docker.io/library/debian:bookworm\n";
+
+/// Reset the fixture's pinned Lode to absent (idempotent). divine-then-banish:
+/// banish dies on an absent Lode, so probe presence first and banish only when
+/// the pinned touchmark is live. Shared by setup (load-bearing baseline) and
+/// teardown (best-effort cleanup).
+fn zrbtdrc_chaining_livery_reset(ctx: &mut rbtdri_Context) -> Result<(), String> {
+    let divine = rbtdri_invoke_global(ctx, RBTDGC_DIVINE_LODES, &[], &[])
+        .map_err(|e| format!("livery reset divine invocation: {}", e))?;
+    if divine.exit_code != 0 {
+        return Err(format!(
+            "livery reset divine failed (exit {})\n{}",
+            divine.exit_code, divine.stderr
+        ));
+    }
+    if !divine.stdout.contains(RBTDRC_LIVERY_TOUCHMARK) {
+        // Pinned Lode already absent — clean baseline, nothing to banish.
+        return Ok(());
+    }
+    match rbtdri_invoke_global(
+        ctx,
+        RBTDGC_BANISH_LODE,
+        &[RBTDRC_LIVERY_TOUCHMARK],
+        &[(RBTDRI_BURE_CONFIRM_KEY, RBTDRI_BURE_CONFIRM_SKIP)],
+    ) {
+        Ok(r) if r.exit_code == 0 => Ok(()),
+        Ok(r) => Err(format!(
+            "livery reset banish failed (exit {})\n{}",
+            r.exit_code, r.stderr
+        )),
+        Err(e) => Err(format!("livery reset banish invocation: {}", e)),
+    }
+}
+
+/// The case: OPEN by re-establishing the absent-Lode baseline (load-bearing —
+/// the cloud collision guard would trip on a leaked prior Lode at the pinned
+/// touchmark), run the real ensconce->chain->feoff succession, then CLOSE by
+/// banishing best-effort regardless of verdict so a mid-case failure still
+/// cleans up. The reset is in the body, not a setup hook, because the single-case
+/// runner reserves a setup hook for crucible charge and this fixture charges none.
+fn rbtdrc_chaining_livery(dir: &Path) -> rbtdre_Verdict {
+    rbtdrc_with_ctx(|ctx| {
+        if let Err(e) = zrbtdrc_chaining_livery_reset(ctx) {
+            return rbtdre_Verdict::Fail(format!("baseline reset (banish-if-present): {}", e));
+        }
+        let verdict = zrbtdrc_chaining_livery_body(ctx, dir);
+        // Best-effort cleanup, regardless of verdict — banish the Lode the body
+        // captured. A crash that skips this is recovered by the next run's opening
+        // reset (the pinned touchmark is the stable handle).
+        if let Err(e) = zrbtdrc_chaining_livery_reset(ctx) {
+            crate::rbtdrg_error_now!("chaining-livery cleanup banish: {}", e);
+        }
+        verdict
+    })
+}
+
+/// The real producer->consumer succession, lifted out of the case wrapper so the
+/// reset/cleanup bookend can frame it. Takes ctx directly (the wrapper already
+/// holds the thread-local borrow — a nested rbtdrc_with_ctx would double-borrow).
+fn zrbtdrc_chaining_livery_body(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_Verdict {
+    let busybox_dir = RBTDRC_BUSYBOX_VESSEL_DIR;
+    if !ctx.project_root().join(busybox_dir).is_dir() {
+        return rbtdre_Verdict::Fail(format!("vessel directory not found: {}", busybox_dir));
+    }
+
+    // Step 1: real bole ensconce of the busybox base, pinned to the fixed
+    // touchmark via the ensconce-stamp tweak. ensconce captures into live GAR
+    // and emits the touchmark chaining fact to current/ — the real producer.
+    let _ = std::fs::write(dir.join("01-ensconce.txt"), "ensconcing busybox base, pinned");
+    let pin = &[
+        (RBTDRI_BURE_TWEAK_NAME_KEY, RBTDRC_ENSCONCE_STAMP_TWEAK_NAME),
+        (RBTDRI_BURE_TWEAK_VALUE_KEY, RBTDRC_LIVERY_TOUCHMARK),
+    ];
+    let ensconce = match rbtdri_invoke_global(ctx, RBTDGC_ENSCONCE_BOLE, &[busybox_dir], pin) {
+        Ok(r) if r.exit_code == 0 => r,
+        Ok(r) => return rbtdre_Verdict::Fail(format!("ensconce failed (exit {})\n{}", r.exit_code, r.stderr)),
+        Err(e) => return rbtdre_Verdict::Fail(format!("ensconce invocation: {}", e)),
+    };
+    let _ = std::fs::write(dir.join("01-ensconce-stdout.txt"), &ensconce.stdout);
+
+    // The producer's handoff is the bare touchmark fact in current/. Read it
+    // now, BEFORE the chained feoff promotes current/ into previous/ (where
+    // feoff reads it but this read no longer would).
+    let touchmark = match rbtdri_read_burv_fact(&ensconce, RBTDRC_FACT_LODE_TOUCHMARK) {
+        Ok(v) => v,
+        Err(e) => return rbtdre_Verdict::Fail(format!("read touchmark fact: {}", e)),
+    };
+    let _ = std::fs::write(dir.join("02-touchmark.txt"), &touchmark);
+
+    // The real touchmark must be the pinned value (ensconce honored the stamp
+    // and round-tripped it through the fact) AND carry the band matrix's
+    // synthetic bole-seed shape: 'b' + 12 digits (cf. rbtdrh_chain.rs
+    // RBTDRH_BOLE_TOUCHMARK) — the proof that synthetic seed is faithful to
+    // what a live ensconce emits and a live feoff consumes.
+    if touchmark != RBTDRC_LIVERY_TOUCHMARK {
+        return rbtdre_Verdict::Fail(format!(
+            "ensconce emitted touchmark '{}', expected the pinned '{}' (stamp tweak not honored?)",
+            touchmark, RBTDRC_LIVERY_TOUCHMARK
+        ));
+    }
+    let shape_ok = touchmark.len() == 13
+        && touchmark.starts_with('b')
+        && touchmark[1..].chars().all(|c| c.is_ascii_digit());
+    if !shape_ok {
+        return rbtdre_Verdict::Fail(format!(
+            "real ensconce touchmark '{}' is not the bole-seed shape ('b' + 12 digits)",
+            touchmark
+        ));
+    }
+
+    // Step 2: stage a temp vessel and chain feoff off the ensconce. The chain
+    // makes feoff reuse the ensconce's BURV root, so bud promotes the touchmark
+    // from current/ into feoff's previous/ — the operator's shared ../output-buk
+    // flow, restored for exactly this pair (rbtdri chain_next). feoff resolves
+    // the vessel by PATH, so its rbrv.env rewrite lands in the case temp dir — no
+    // tracked config is touched. No express touchmark is passed, so feoff MUST
+    // take the value from the chain or die loud.
+    let vessel_dir = dir.join("vessel");
+    if let Err(e) = std::fs::create_dir_all(&vessel_dir) {
+        return rbtdre_Verdict::Fail(format!("stage vessel dir: {}", e));
+    }
+    let rbrv = vessel_dir.join("rbrv.env");
+    if let Err(e) = std::fs::write(&rbrv, RBTDRC_LIVERY_VESSEL_RBRV) {
+        return rbtdre_Verdict::Fail(format!("stage rbrv.env: {}", e));
+    }
+    let vessel_posix = crate::rbtdrx_platform::rbtdrx_native_to_posix(&vessel_dir);
+
+    ctx.chain_next_invoke();
+    let _ = std::fs::write(dir.join("03-feoff.txt"), "feoffing temp vessel off chained touchmark");
+    let feoff = match rbtdri_invoke_global(
+        ctx,
+        RBTDGC_FEOFF_BOLE,
+        &[vessel_posix.as_str()],
+        &[(RBTDRI_BURE_CONFIRM_KEY, RBTDRI_BURE_CONFIRM_SKIP)],
+    ) {
+        Ok(r) if r.exit_code == 0 => r,
+        Ok(r) => return rbtdre_Verdict::Fail(format!(
+            "feoff failed (exit {}) — the ensconce->feoff chain may not have carried the touchmark\n{}",
+            r.exit_code, r.stderr
+        )),
+        Err(e) => return rbtdre_Verdict::Fail(format!("feoff invocation: {}", e)),
+    };
+    let _ = std::fs::write(dir.join("03-feoff-stdout.txt"), &feoff.stdout);
+
+    // Step 3: the temp vessel's elected anchor must bear the REAL chained
+    // touchmark's bole locator. The staged rbrv.env carried no ANCHOR line, so
+    // an RBRV_IMAGE_1_ANCHOR= bearing '<touchmark>:rbi_bole' proves both that
+    // feoff wrote (no no-op) and that it elected the touchmark the live ensconce
+    // handed forward through the chain. Read the config file, never a printout
+    // scrape.
+    let content = std::fs::read_to_string(&rbrv).unwrap_or_default();
+    let _ = std::fs::write(dir.join("04-vessel-rbrv.env"), &content);
+    let bole_locator = format!("{}:{}", touchmark, RBTDRC_LODE_TAG_BOLE);
+    if content.contains("RBRV_IMAGE_1_ANCHOR=") && content.contains(&bole_locator) {
+        let _ = std::fs::write(dir.join("05-passed.txt"), "passed");
+        rbtdre_Verdict::Pass
+    } else {
+        rbtdre_Verdict::Fail(format!(
+            "feoff did not elect the chained bole locator '{}' into the temp vessel; rbrv.env:\n{}",
+            bole_locator, content
+        ))
+    }
+}
+
+pub static RBTDRC_CASES_CHAINING_LIVERY: &[rbtdre_Case] = &[case!(rbtdrc_chaining_livery)];
 
 
 // Reliquary-lifecycle fixture — fetched-side cohort capture against live GAR.

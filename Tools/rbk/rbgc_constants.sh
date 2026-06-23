@@ -375,21 +375,21 @@ zrbgc_kindle() {
   # its steps need.
   readonly RBGC_RELIQUARY_TOOL_GCRANE="gcrane"
 
-  # Fact-file filenames (written to BURD_OUTPUT_DIR by producers, read by tests)
+  # Fact-file filenames (written to BURD_OUTPUT_DIR by producers)
   readonly RBF_FACT_HALLMARK="rbf_fact_hallmark"
-  readonly RBF_FACT_BUILD_ID="rbf_fact_build_id"
   readonly RBF_FACT_GAR_ROOT="rbf_fact_gar_root"
   readonly RBF_FACT_ARK_STEM="rbf_fact_ark_stem"
   readonly RBF_FACT_ARK_YIELD="rbf_fact_ark_yield"
 
-  # Lode capture chaining facts (single-form, fixed filenames). Ensconce is
-  # capture-pure and writes no consumer config; it hands the bole touchmark to a
-  # later derived-pull election (the conjure ANCHOR populator) through these two
-  # bare facts via the depth-1 cross-tabtarget chain. The provenance envelope
-  # lives only in GAR (:rbi_vouch), never host-side. TOUCHMARK carries the Lode
-  # stamp (e.g. b260602120000); BRAND carries the kind enum (RBGC_LODE_BRAND_*).
+  # Lode capture chaining fact (single-form, fixed filename). A capture is
+  # capture-pure and writes no consumer config; it hands the captured touchmark to
+  # a later election (feoff for the conjure ANCHOR, yoke for the reliquary) through
+  # this one bare fact via the depth-1 cross-tabtarget chain. The provenance
+  # envelope lives only in GAR (:rbi_vouch), never host-side. TOUCHMARK carries the
+  # Lode stamp (e.g. b260602120000); its kind-letter prefix decodes to the kind, so
+  # no separate kind-brand fact rides the chain (RBGC_LODE_BRAND_* are display
+  # labels / immure's family vocabulary, not a chaining fact).
   readonly RBF_FACT_LODE_TOUCHMARK="rbf_fact_lode_touchmark"
-  readonly RBF_FACT_LODE_BRAND="rbf_fact_lode_brand"
 
   # Payor fact-file filenames (governor identifying values)
   readonly RBGP_FACT_GOVERNOR_SA_EMAIL="rbgp_fact_governor_sa_email"

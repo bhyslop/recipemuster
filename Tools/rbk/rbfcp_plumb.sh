@@ -32,10 +32,20 @@ set -euo pipefail
 zrbfc_plumb_core() {
   zrbfc_sentinel
 
-  local -r z_hallmark="${1:-}"
+  local -r z_express="${1:-}"
   local -r z_mode="${2}"
 
-  test -n "${z_hallmark}" || buc_die "Hallmark parameter required"
+  # Resolve the hallmark express-or-chain: an express argument wins; absent, fall
+  # back to the hallmark a prior build (ordain or kludge) handed forward through the
+  # depth-1 chain — so a no-arg plumb immediately after a build inspects the just-built
+  # hallmark. NEVER relays — depth-1, terminally consumed. Read-side: plumb writes no
+  # durable config, so a broken chain dies loud (buc_die), NOT the durable-leak
+  # surface's named-band reject (feoff/anoint/yoke) — categorically lower severity.
+  # Hallmarks carry no sub-kind these verbs discriminate, so the resolve is the whole
+  # typecheck: no kind decode, no shape predicate (the chain value is build-written).
+  local z_hallmark=""
+  z_hallmark=$(buf_elect_fact_capture "${z_express}" "${RBF_FACT_HALLMARK}") \
+    || buc_die "No hallmark — pass one or run a build (ordain/kludge) immediately before plumb"
 
   buc_step "Resolving vessel from vouch ark"
   local z_vessel=""
@@ -643,25 +653,25 @@ zrbfc_plumb_show_full() {
 rbfc_plumb_full() {
   zrbfc_sentinel
 
-  local -r z_hallmark="${BUZ_FOLIO:-}"
+  local -r z_express="${BUZ_FOLIO:-}"
 
   buc_doc_brief "Plumb a hallmark's trust posture (full detail)"
-  buc_doc_param "hallmark" "Full hallmark (e.g., c260305133650-r260305160530)"
+  buc_doc_param "hallmark" "Full hallmark (e.g., c260305133650-r260305160530); optional — absent, falls back to the hallmark the prior build chained forward"
   buc_doc_shown || return 0
 
-  zrbfc_plumb_core "${z_hallmark}" "full"
+  zrbfc_plumb_core "${z_express}" "full"
 }
 
 rbfc_plumb_compact() {
   zrbfc_sentinel
 
-  local -r z_hallmark="${BUZ_FOLIO:-}"
+  local -r z_express="${BUZ_FOLIO:-}"
 
   buc_doc_brief "Plumb a hallmark's trust posture (compact summary)"
-  buc_doc_param "hallmark" "Full hallmark (e.g., c260305133650-r260305160530)"
+  buc_doc_param "hallmark" "Full hallmark (e.g., c260305133650-r260305160530); optional — absent, falls back to the hallmark the prior build chained forward"
   buc_doc_shown || return 0
 
-  zrbfc_plumb_core "${z_hallmark}" "compact"
+  zrbfc_plumb_core "${z_express}" "compact"
 }
 
 # eof

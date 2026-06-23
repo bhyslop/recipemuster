@@ -18,7 +18,8 @@
 #
 # BUTCFC - Fact-chaining (consume side) test cases for BUK self-test
 #
-# Exercises buf_relay and buf_read_fact against the live dispatch directories.
+# Exercises buf_relay, buf_read_fact_capture, and buf_elect_fact_capture against
+# the live dispatch directories.
 # BURD_PREVIOUS_DIR and BURD_OUTPUT_DIR are readonly (locked by the BURD regime),
 # so these cases cannot redirect them to scratch — they seed uniquely-named
 # (butcfc_*) facts into the real previous/ and current/ dirs and assert on those,
@@ -85,26 +86,56 @@ butcfc_relay_idempotent_tcase() {
 }
 
 butcfc_read_fact_tcase() {
-  buto_trace "buf_read_fact: emits the bare value (newline stripped) from previous"
+  buto_trace "buf_read_fact_capture: emits the bare value (newline stripped) from previous"
 
   mkdir -p "${BURD_PREVIOUS_DIR}" || buto_fatal "mkdir previous failed"
   zbutcfc_seed "${BURD_PREVIOUS_DIR}" "butcfc_greeting" "hello world"
 
   local z_value
-  z_value=$(buf_read_fact "butcfc_greeting") || buto_fatal "buf_read_fact failed on present fact"
+  z_value=$(buf_read_fact_capture "butcfc_greeting") || buto_fatal "buf_read_fact_capture failed on present fact"
   test "${z_value}" = "hello world" \
-    || buto_fatal "buf_read_fact returned '${z_value}' expected 'hello world'"
+    || buto_fatal "buf_read_fact_capture returned '${z_value}' expected 'hello world'"
 }
 
 butcfc_read_fact_absent_tcase() {
-  buto_trace "buf_read_fact: fails hard when the named fact is absent"
+  buto_trace "buf_read_fact_capture: fails hard when the named fact is absent"
 
   local -r z_stderr="${BUT_TEMP_DIR}/read_absent_stderr.txt"
 
   local z_status=0
-  buf_read_fact "butcfc_definitely_absent_fact" 2>"${z_stderr}" || z_status=$?
+  buf_read_fact_capture "butcfc_definitely_absent_fact" 2>"${z_stderr}" || z_status=$?
   test "${z_status}" -ne 0 \
-    || buto_fatal "buf_read_fact should fail on an absent fact"
+    || buto_fatal "buf_read_fact_capture should fail on an absent fact"
+}
+
+butcfc_elect_express_tcase() {
+  buto_trace "buf_elect_fact_capture: a non-empty express value wins; the chained fact is not read"
+
+  # No previous fact seeded — if elect read the (absent) fact it would fail.
+  local z_value
+  z_value=$(buf_elect_fact_capture "express-wins" "butcfc_definitely_absent_fact") \
+    || buto_fatal "buf_elect_fact_capture failed with a non-empty express value"
+  test "${z_value}" = "express-wins" \
+    || buto_fatal "buf_elect_fact_capture returned '${z_value}' expected 'express-wins'"
+}
+
+butcfc_elect_chain_tcase() {
+  buto_trace "buf_elect_fact_capture: an empty express value falls back to the chained fact"
+
+  mkdir -p "${BURD_PREVIOUS_DIR}" || buto_fatal "mkdir previous failed"
+  zbutcfc_seed "${BURD_PREVIOUS_DIR}" "butcfc_chained" "from-chain"
+
+  local z_value
+  z_value=$(buf_elect_fact_capture "" "butcfc_chained") \
+    || buto_fatal "buf_elect_fact_capture failed falling back to a present chained fact"
+  test "${z_value}" = "from-chain" \
+    || buto_fatal "buf_elect_fact_capture returned '${z_value}' expected 'from-chain'"
+
+  # Empty express AND absent fact is the broken-chain failure path.
+  local z_status=0
+  buf_elect_fact_capture "" "butcfc_definitely_absent_fact" 2>/dev/null || z_status=$?
+  test "${z_status}" -ne 0 \
+    || buto_fatal "buf_elect_fact_capture should fail when express is empty and the fact is absent"
 }
 
 # eof

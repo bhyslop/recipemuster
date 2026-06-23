@@ -36,10 +36,11 @@
 set -euo pipefail
 
 # Underpin is capture-pure: it writes no consumer config. It hands the captured
-# touchmark forward through two bare single-form chaining facts
-# (RBF_FACT_LODE_TOUCHMARK + RBF_FACT_LODE_BRAND/RBGC_LODE_BRAND_WSL). The
-# provenance envelope lives only in GAR (:rbi_vouch tag, pushed cloud-side by
-# rbgjl02), never host-side. Consumption (wsl --import of the captured seed) is a
+# touchmark forward through one bare single-form chaining fact
+# (RBF_FACT_LODE_TOUCHMARK) via the depth-1 cross-tabtarget chain; a consumer
+# decodes the wsl kind from the touchmark prefix. The provenance envelope lives
+# only in GAR (:rbi_vouch tag, pushed cloud-side by rbgjl02), never host-side.
+# Consumption (wsl --import of the captured seed) is a
 # separate, deferred layer that reads these facts — not part of underpin.
 
 ######################################################################

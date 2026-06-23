@@ -33,11 +33,11 @@
 set -euo pipefail
 
 # Conclave is capture-pure: it writes no consumer config. It hands the captured
-# touchmark to a later explicit yoke-stamp election (the reliquary cutover, a
-# separate pace) through two bare single-form chaining facts
-# (RBF_FACT_LODE_TOUCHMARK + RBF_FACT_LODE_BRAND/RBGC_LODE_BRAND_RELIQUARY). The
-# provenance envelope lives only in GAR (:rbi_vouch tag, pushed cloud-side by
-# rbgjl02), never host-side.
+# touchmark to a later explicit yoke election through one bare single-form
+# chaining fact (RBF_FACT_LODE_TOUCHMARK) via the depth-1 cross-tabtarget chain;
+# yoke decodes the reliquary kind from the touchmark prefix. The provenance
+# envelope lives only in GAR (:rbi_vouch tag, pushed cloud-side by rbgjl02),
+# never host-side.
 
 ######################################################################
 # Internal Helpers (zrbld_*)

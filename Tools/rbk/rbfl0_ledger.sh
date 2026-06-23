@@ -31,6 +31,7 @@ ZRBFL_SOURCED=1
 source "${BASH_SOURCE[0]%/*}/rbfc0_core.sh"
 source "${BASH_SOURCE[0]%/*}/rbfla_anoint.sh"
 source "${BASH_SOURCE[0]%/*}/rbfly_yoke.sh"
+source "${BASH_SOURCE[0]%/*}/rbflf_feoff.sh"
 source "${BASH_SOURCE[0]%/*}/rbfld_delete.sh"
 source "${BASH_SOURCE[0]%/*}/rbfln_inventory.sh"
 source "${BASH_SOURCE[0]%/*}/rbflw_wrest.sh"
@@ -38,9 +39,11 @@ source "${BASH_SOURCE[0]%/*}/rbflw_wrest.sh"
 # Cross-source from the rbld (Lode) family: abjure dispatches its GAR package
 # delete cloud-side through the build-assembly spine and the shared cloud-delete
 # body, exactly as banish does (the cinch-blessed narrow cross into made-side
-# delete). Both carry their own inclusion guards, so this single-source-per-
-# process reach raises no double-source; the spine reads only rbfc-level state
-# (zrbfc_sentinel), which this process kindles.
+# delete); yoke reaches the touchmark kind-decode for its reliquary kind gate.
+# All three carry their own inclusion guards, so this single-source-per-process
+# reach raises no double-source; they read only rbfc-level state (zrbfc_sentinel),
+# which this process kindles.
+source "${BASH_SOURCE[0]%/*}/rbldk_kind.sh"
 source "${BASH_SOURCE[0]%/*}/rblds_spine.sh"
 source "${BASH_SOURCE[0]%/*}/rbldd_delete.sh"
 

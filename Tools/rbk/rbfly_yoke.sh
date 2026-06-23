@@ -28,13 +28,30 @@ set -euo pipefail
 rbfl_yoke() {
   zrbfl_sentinel
 
-  local -r z_stamp="${BUZ_FOLIO:-}"
+  local -r z_express="${BUZ_FOLIO:-}"
 
   buc_doc_brief "Yoke a reliquary touchmark into every vessel's rbrv.env — pre-validate the conclave Lode once against GAR, then rewrite RBRV_RELIQUARY across all vessels under \${RBRR_VESSEL_DIR}"
-  buc_doc_param "touchmark" "Reliquary Lode touchmark (e.g., r260327172456)"
+  buc_doc_param "touchmark" "Reliquary Lode touchmark (e.g., r260327172456); optional — absent, falls back to the reliquary touchmark a conclave chained forward"
   buc_doc_shown || return 0
 
-  test -n "${z_stamp}" || buc_die "Reliquary touchmark required (param1)"
+  # Resolve the reliquary touchmark express-or-chain: an express argument wins;
+  # absent, fall back to the touchmark a conclave handed forward through the
+  # depth-1 chain. NEVER relays — depth-1, terminally consumed (the leak-
+  # elimination invariant; see rbfl_feoff's no-buf_relay rationale, the sibling link).
+  local z_stamp=""
+  z_stamp=$(buf_elect_fact_capture "${z_express}" "${RBF_FACT_LODE_TOUCHMARK}") \
+    || buc_reject "${BUBC_band_chain}" "No reliquary touchmark — pass one (param1) or run a reliquary conclave immediately before yoke"
+
+  # Assert the touchmark is a reliquary kind up front by decoding its kind-letter
+  # prefix. yoke validates existence against GAR below but never asserted KIND, so
+  # a non-reliquary touchmark would otherwise fail late at cohort validation. This
+  # is the express-path kind gate (a bare touchmark), distinct from the chaining
+  # channel's own brand fact that the conjure election reads.
+  local z_kind=""
+  z_kind=$(zrbld_decode_touchmark_kind_capture "${z_stamp}") \
+    || buc_reject "${BUBC_band_chain}" "Touchmark '${z_stamp}' has no recognizable Lode kind prefix"
+  test "${z_kind}" = "${RBGC_LODE_KIND_RELIQUARY}" \
+    || buc_reject "${BUBC_band_chain}" "Touchmark '${z_stamp}' is kind '${z_kind}', not a reliquary — yoke requires a reliquary Lode (run a reliquary conclave)"
 
   buc_step "Authenticating as Director"
   local z_token=""

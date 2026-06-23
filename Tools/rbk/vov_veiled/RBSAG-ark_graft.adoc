@@ -101,13 +101,6 @@ The full
 string.
 
 //axhoot_typed_output axd_fact
-{rbf_fact_build_id}
-Empty for graft — no
-{gcb_build}
-involvement in image push.
-Written for uniform fact coverage.
-
-//axhoot_typed_output axd_fact
 {rbf_fact_gar_root}
 {gar_service}
 registry prefix.

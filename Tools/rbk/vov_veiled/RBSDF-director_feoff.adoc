@@ -1,0 +1,68 @@
+//axhob_operation
+{rbtgo_director_feoff}
+
+NOTE: This operation writes `RBRV_IMAGE_«n»_ANCHOR=«LOCATOR»` into one named vessel's {rbrv_regime} file, electing the base image that vessel's {rbtgo_ark_conjure} will build FROM.
+The locator names a bole {rbtga_lode} captured by {rbtgo_lode_ensconce}; the anchor pins the conjure `FROM` to the private-GAR copy rather than the upstream origin.
+Feoff is a chain LINK — it reads one chained value and writes one durable config field — extracted out of conjure so conjure stays a pure chain head that reads no fact and builds only from committed configuration.
+The ceremony is ensconce → feoff → commit → conjure: ensconce captures the bole and hands its touchmark forward; feoff elects the anchor from it (or from an express touchmark); the operator commits; conjure builds from the now-committed anchor.
+
+NOTE: *No GAR call, no clean-tree gate, no fact.*
+Feoff resolves the locator purely from the touchmark and the {rbrv_regime} — it makes no {gar_service} call (the {rbtgo_ark_conjure} registry preflight validates the anchor against GAR later).
+It does not gate on a clean tree — it writes the very change the operator is about to commit — and it emits no chaining fact: a chain LINK terminates the chain it reads, never relaying it (the depth-1 no-relay leak-elimination invariant — a relayed touchmark would forward a stale capture into a later unrelated election).
+This primitive does not commit; the operator commits the {rbrv_regime} change.
+
+NOTE: *Loud on success.*
+On a successful write feoff emits the elected anchor and the touchmark's source — an express argument versus the chained capture — in bold, so a wrong election shows at the moment of action rather than only in the eventual git diff.
+
+The {rbtr_director} elects a vessel's base anchor:
+
+//axhopt_typed_parameter
+{rbtr_director}
+. *Resolve the Vessel* (express):
+.. `«VESSEL»` is the first positional argument — a sigil or a path to one vessel directory
+.. {rbbc_require}
+the vessel resolves to a directory carrying an {rbrv_regime} file
+
+//axhos_step
+. *Resolve the Bole Touchmark* (express-or-chain):
+.. `«TOUCHMARK»` resolves express-or-chain: an express second positional argument (e.g., `b260327172456`) wins; absent, it falls back to the bole touchmark a
+{rbtgo_lode_ensconce}
+handed forward through the depth-1 cross-tabtarget chain. The chain is read terminally — never relayed.
+.. {rbbc_fatal}
+if neither an express argument nor a chained touchmark is present — a broken chain; the rejection rides the chaining precision band
+.. {rbbc_require}
+the resolved `«TOUCHMARK»` decodes to a bole kind from its kind-letter prefix (the leading `b`), via the same single-home prefix decoder {rbtgo_director_yoke} uses
+.. {rbbc_fatal}
+if the resolved touchmark is not a bole kind — a non-bole capture (an underpin or conclave chained ahead of this election) carries no base image to elect, so the kind is asserted up front rather than failing late; the rejection rides the chaining precision band
+
+//axhos_step
+. *Resolve the Locator*:
+.. Compose `«LOCATOR»` as `{gar_lodes_namespace}/«TOUCHMARK»:rbi_bole` — the bole Lode package path and its `:rbi_bole` member tag
+.. `«LOCATOR»` is the {rbst_locator} that {rbtgo_ark_conjure} later resolves to a full GAR reference and HEAD-checks in its registry preflight
+
+//axhos_step
+. *Elect the Anchor Slot* (single populated origin):
+.. Scan the vessel's {rbrv_regime} for populated
+{rbrv_image_origin}
+slots (n = 1, 2, 3)
+.. {rbbc_require}
+exactly one populated
+{rbrv_image_origin}
+slot — an ensconce captures exactly one base, so the touchmark names exactly one slot
+.. {rbbc_fatal}
+on zero populated slots (the vessel declares no base origin to elect into) or two-plus (the touchmark cannot say which slot it belongs to) — a vessel misconfiguration, distinct in failure class from the chain-band rejections above
+
+//axhos_step
+. *Rewrite the {rbrv_regime}*:
+.. For the
+{rbrv_image_anchor}
+line of the elected slot — substitute with `RBRV_IMAGE_«n»_ANCHOR=«LOCATOR»`, preserving position; if no such line is present, append one
+.. All other lines pass through unchanged
+.. Write the composed content to a temp file, then atomically replace the {rbrv_regime} file via rename
+.. {rbbc_fatal}
+on any I/O failure
+
+//axhoc_completion
+Successful execution writes `RBRV_IMAGE_«n»_ANCHOR=«LOCATOR»` into the one named vessel's {rbrv_regime} file; no GAR state is read or modified, and no chaining fact is emitted.
+The primitive does not commit — the operator commits the modified {rbrv_regime} file with their usual git workflow, after which {rbtgo_ark_conjure} builds FROM the committed anchor as a pure chain head.
+A bole {rbtgo_lode_ensconce} repointed (re-captured under a fresh touchmark) is picked up by re-running feoff and re-committing.

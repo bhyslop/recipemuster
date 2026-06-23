@@ -17,17 +17,27 @@ NOTE: Two entry points provide different detail levels:
 {rbtc_plumb_full} for complete diagnostic output and
 {rbtc_plumb_compact} for a trust posture summary.
 
-NOTE: Two invocation modes:
-Vessel+hallmark (both arguments) fetches directly from the hallmark subtree with the vessel identity already in hand.
-Hallmark-only (single argument) navigates the `{gar_hallmarks_namespace}/«HALLMARK»/` subtree to locate the basenames and reads the vessel identity from the vouch artifact's `vouch_summary.json`.
+NOTE: Plumb takes a single hallmark and navigates the `{gar_hallmarks_namespace}/«HALLMARK»/` subtree to locate the basenames, recovering the vessel identity from the vouch artifact's `vouch_summary.json`.
+
+NOTE: *Read-side chain consumer.*
+The hallmark is resolved express-or-chain for a transient inspection only — plumb writes no durable config — so a broken chain dies loud as an ordinary {rbbc_fatal}, categorically lower severity than the durable-leak links
+{rbtgo_director_feoff}
+and
+{rbtgo_director_yoke},
+whose rejections ride the chaining precision band.
+Unlike those kind-gated links the resolve carries no kind decode: a
+{rbst_hallmark}
+bears no sub-kind these verbs discriminate, so the express-or-chain resolution is the whole typecheck.
+Plumb must never be extended to write config without joining that durable-leak surface and its depth-1 no-relay plus named-band-reject discipline.
 
 The plumb operation:
 
 //axhopt_typed_parameter
-{rbtga_ark}
-. *Validate Input Parameters*:
-.. If two arguments: vessel and hallmark
-.. If one argument: hallmark only (vessel resolved via hallmark-subtree lookup)
+{rbst_hallmark}
+. *Resolve the Hallmark* (express-or-chain):
+.. `«HALLMARK»` resolves express-or-chain: an express folio argument (e.g., `c260305133650-r260305160530`) wins; absent, it falls back to the hallmark a prior build ({rbtgo_ark_ordain} or {rbtgo_ark_kludge}) handed forward through the depth-1 cross-tabtarget chain — so a no-arg plumb immediately after a build inspects the just-built hallmark. The chain is read terminally — never relayed.
+.. {rbbc_fatal}
+if neither an express argument nor a chained hallmark is present — a broken chain
 
 //axhos_step
 . *Authenticate as
@@ -38,7 +48,7 @@ The plumb operation:
 `«RETRIEVER_TOKEN»` for subsequent API calls
 
 //axhos_step
-. *Resolve Vessel (hallmark-only mode)*:
+. *Resolve Vessel*:
 .. {rbbc_call}
 Registry API: extract vouch artifact from `{gar_hallmarks_namespace}/«HALLMARK»/vouch:«HALLMARK»`
 .. {rbbc_require}
@@ -115,7 +125,7 @@ using OAuth credentials.
 *GAR-direct extraction*: Artifacts are fetched via Registry API manifest and blob endpoints.
 Multi-platform manifest lists are resolved to a single platform (first entry) since artifact content (JSON metadata) is architecture-independent.
 +
-*Hallmark-only mode*: When invoked with only a hallmark, plumb navigates directly to the `{gar_hallmarks_namespace}/«HALLMARK»/` subtree in GAR.
+*Subtree navigation*: Plumb navigates directly to the `{gar_hallmarks_namespace}/«HALLMARK»/` subtree in GAR.
 The categorical layout makes the hallmark itself the primary index — all basenames (`image`, `about`, `vouch`, `pouch`, `diags`, `attest`) for a single build sit together under one subtree, so no cross-vessel aggregator is needed.
 The vessel identity is recovered by reading the `.vessel` field out of the subtree's `vouch` artifact, and the remaining basenames are fetched from the same subtree.
 +

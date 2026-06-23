@@ -139,7 +139,7 @@ final status is `SUCCESS`
 . *Write Capture-Facts*:
 .. Read `buildStepOutputs[0]` (base64-decoded JSON) from the completed build to recover the host-minted `«TOUCHMARK»`
 .. {rbbc_store}
-the touchmark value and the bole kind-brand enum as the two bare single-form facts of the
+the touchmark value as the one bare single-form fact of the
 {rbf_fact_lode}
 — carrying no provenance content; the envelope is the in-GAR `:rbi_vouch` tag, written cloud-side by the vouch step
 

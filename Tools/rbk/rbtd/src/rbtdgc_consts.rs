@@ -82,6 +82,7 @@ pub const RBTDGC_RENDER_VESSEL: &str = "rbw-rvr";
 pub const RBTDGC_VALIDATE_VESSEL: &str = "rbw-rvv";
 pub const RBTDGC_YOKE_RELIQUARY: &str = "rbw-rvy";
 pub const RBTDGC_ANOINT_GRAFT: &str = "rbw-rva";
+pub const RBTDGC_FEOFF_BOLE: &str = "rbw-rvf";
 pub const RBTDGC_RENDER_REPO: &str = "rbw-rrr";
 pub const RBTDGC_VALIDATE_REPO: &str = "rbw-rrv";
 pub const RBTDGC_RENDER_DEPOT: &str = "rbw-rdr";
@@ -149,6 +150,7 @@ pub const RBTDGC_BAND_ENROLL: i32 = 101;
 pub const RBTDGC_BAND_RECIPE: i32 = 102;
 pub const RBTDGC_BAND_HYGIENE: i32 = 103;
 pub const RBTDGC_BAND_CREDLESS: i32 = 104;
+pub const RBTDGC_BAND_CHAIN: i32 = 105;
 pub const RBTDGC_BAND_SELFTEST: i32 = 115;
 
 // BUBC regime-poison tweak (bubc_constants.sh) — string

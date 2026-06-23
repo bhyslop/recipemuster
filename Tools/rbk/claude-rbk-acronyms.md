@@ -19,6 +19,8 @@
 - **RBFK** → `rbk/rbfk_kludge.sh` (Foundry Kludge — local vessel image build for development (`rbfk_kludge`); CLI partner `rbfk_cli.sh`, colophon `rbw-fk`)
 - **RBFL** → `rbk/rbfl*` (Foundry Ledger family — Container (terminal: names no file). The `rbfl_FoundryLedger.sh` monolith was decomposed into the children below; the rbfl CLI is now the 0-top `rbfl0_cli.sh`. Cluster boundaries — which function lands in which file — were settled at the explosion.)
   - **RBFLY** → `rbk/rbfly_*.sh` (Foundry Ledger yoke — reliquary-touchmark yoke into vessel regimes)
+  - **RBFLA** → `rbk/rbfla_anoint.sh` (Foundry Ledger anoint — rewrites RBRV_GRAFT_IMAGE in one graft vessel from the chained build facts; a durable-config chain LINK)
+  - **RBFLF** → `rbk/rbflf_feoff.sh` (Foundry Ledger feoff — elects one conjure vessel's base anchor (RBRV_IMAGE_n_ANCHOR) from a bole Lode touchmark express-or-chain, extracted out of conjure so conjure stays a pure chain head; a durable-config chain LINK, colophon `rbw-rvf`, spec RBSDF. Sibling of anoint/yoke on the durable-leak surface — depth-1 no-relay, bole-kind gate via the touchmark prefix decoder, buc_reject BUBC_band_chain on broken chain / non-bole)
   - **RBFLD** → `rbk/rbfld_*.sh` (Foundry Ledger delete — reliquary / ledger removal gesture)
   - **RBFLN** → `rbk/rbfln_*.sh` (Foundry Ledger inventory — ledger listing / enumeration gesture)
   - **RBFLW** → `rbk/rbflw_*.sh` (Foundry Ledger wrest — image wrest from registry)
@@ -89,6 +91,7 @@
 - **RBSCO** → `rbk/vov_veiled/RBSCO-CosmologyIntro.adoc`
 - **RBSCTD** → `rbk/vov_veiled/RBSCTD-CloudBuildTriggerDispatch.adoc`
 - **RBSDD** → `rbk/vov_veiled/RBSDD-director_defrock.adoc` (Governor defrocks a director SA — zero-arg by-role lookup)
+- **RBSDF** → `rbk/vov_veiled/RBSDF-director_feoff.adoc` (Feoff operation — director elects one conjure vessel's base anchor from a bole Lode touchmark express-or-chain; the chain LINK extracted out of conjure (RBSAC) so conjure stays a pure head reading no fact. Colophon `rbw-rvf`, verb `rbfl_feoff`. Ceremony: ensconce → feoff → commit → conjure)
 - **RBSDI** → `rbk/vov_veiled/RBSDI-depot_inscribe.adoc` (Reliquary creation — director mirrors tool images to datestamped GAR namespace)
 - **RBSDK** → `rbk/vov_veiled/RBSDK-director_enrobe.adoc` (Governor enrobes a director SA — singleton-per-role)
 - **RBSDL** → `rbk/vov_veiled/RBSDL-depot_list.adoc`

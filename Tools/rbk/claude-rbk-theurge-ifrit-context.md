@@ -101,6 +101,52 @@ Rules for authoring a fast-tier case:
 - **Fast cases carry no tweaks of their own.** The BURE tweak slot belongs to the guard in the fast tier (BUS0 Tweak Mechanism, slot-reservation rule); `rbtdri_invoke*` fails loud if a guarded case supplies `BURE_TWEAK_NAME`. A case that needs a test seam has self-identified as not belonging in fast — home it in a higher tier.
 - **A new fast fixture must set `credless: true`** and join the fast suite list in `rbtdrc_crucible.rs`; fixtures in higher tiers set `credless: false`.
 
+### Fixture Config-Evolution Console
+
+A fixture that walks an onboarding or freehold track *evolves* the tracked
+config it tests — driving hallmarks into nameplates, electing vessel anchors,
+setting regime fields — and commits each step so the next sees a clean tree.
+Those write-side actions are a named cohort homed in `rbtdre_engine.rs` (the
+"Fixture config-evolution console"), beside the read-side `rbtdre_tree_clean`.
+**When a fixture commits config, it goes through the console — never an ad-hoc
+`git add`/`git commit`.**
+
+The console commits config in exactly three classes, each through its own
+scoped verb that derives its own paths from a class identifier and stages only
+those:
+
+| Class | Identifier | Verb | Stages |
+|-------|-----------|------|--------|
+| nameplate | nameplate moniker(s) | `rbtdre_commit_nameplates` | `<moorings>/<np>/rbrn.env` |
+| vessel | vessel dir(s) | `rbtdre_commit_vessels` / `rbtdre_commit_vessels_all` | `<vessel_dir>/rbrv.env` |
+| regime | `rbtdre_RegimeFile` tag(s) | `rbtdre_commit_regime` | `<moorings>/rbrd.env` / `<moorings>/rbrr.env` |
+
+The load-bearing property is **no free-form file list**. The only entry that
+takes an arbitrary path set, `rbtdre_commit_paths`, is private to the engine
+module; every public verb is class-typed. So a fixture is *structurally
+incapable* of sweeping a surprise edit — another officium's work, an operator's
+half-finished change — into its commit (the wrap-sweeps-everything hazard). A
+scoped `git status --porcelain -- <derived-paths>` runs first; if nothing in the
+class changed, the commit is a clean no-op, not an error.
+
+**Config-zero** (`rbtdre_config_zero`) is the console's reset seam, for the
+marshal-zero family of in-place TRACKED config. Zeroing a field before an
+in-place write defeats the stale-value false-green — a silently-skipped write
+then leaves an obviously-empty value, not a passing stale one — and its
+fail-on-absent doubles as a schema-drift catch: a renamed field stops the run
+instead of writing nothing. It shares one validated core
+(`rbtdre_config_set_field`) with the vessel-env write; it is **one seam, never a
+per-field function farm**. Temp-vessel cases that construct known bytes need no
+zero call.
+
+**Dispersed siblings (not yet in the console).** The same validated
+field-rewrite still lives in `rbtdro_drive_hallmark` (the nameplate hallmark
+drive) and `rbtdrk_replace_env_fields` (the regime multi-field rewrite). These
+are migration candidates — fold them onto `rbtdre_config_set_field` when next in
+that code — left in place only to keep the console's introduction scoped. New
+fixture state-mutation helpers land in the console; they do not re-grow per
+module.
+
 ### Adding a New Test
 
 **New ifrit attack** (simple probe, single command):

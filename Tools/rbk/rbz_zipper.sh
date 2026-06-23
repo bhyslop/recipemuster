@@ -193,6 +193,7 @@ zrbz_kindle() {
   z_mod="rbfl0_cli.sh"
   buz_enroll RBZ_YOKE_RELIQUARY         "rbw-rvy" "${z_mod}" "rbfl_yoke"      "param1"  "Yoke a reliquary touchmark into every vessel's rbrv.env (wildcard fan-out)"
   buz_enroll RBZ_ANOINT_GRAFT           "rbw-rva" "${z_mod}" "rbfl_anoint"    "param1"  "Anoint a graft vessel with the previous build's hallmark (rewrites RBRV_GRAFT_IMAGE from chained facts)"
+  buz_enroll RBZ_FEOFF_BOLE             "rbw-rvf" "${z_mod}" "rbfl_feoff"     "param1"  "Feoff a conjure vessel - elect its base anchor from a bole Lode touchmark (express-or-chain)"
   z_mod="rbrr_cli.sh"
   buz_enroll RBZ_RENDER_REPO            "rbw-rrr" "${z_mod}" "rbrr_render"    ""  "Render repo regime"
   buz_enroll RBZ_VALIDATE_REPO          "rbw-rrv" "${z_mod}" "rbrr_validate"  ""  "Validate repo regime"
