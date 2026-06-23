@@ -17961,8 +17961,8 @@
         "₢BiAAN": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260622-1222",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260623-1657",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "Summon, plumb, and rekon each gain the express-or-chain fallback for their hallmark, reusing the shared resolver.",
                 "",
@@ -17985,7 +17985,7 @@
                 "rbw-tl clean and the fast suite green."
               ],
               "jjgtn_silks": "hallmark-verbs-chaining-fact-fallback",
-              "jjgtn_basis": "fad50db"
+              "jjgtn_basis": "84d734d"
             }
           ]
         },
