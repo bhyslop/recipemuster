@@ -684,13 +684,14 @@ fn zjjrm_run_tabtarget(params: jjrm_VvxTtParams) -> (i32, String) {
 //
 // Wire framing is paneboard's FROZEN contract (the "Diagram Viewer — Wire
 // Protocol" section of its PoC spec; reference impl viewer/src/pbgvt_transport.rs):
-// one JSON control line '\n'-terminated, then exactly pbgvw_len payload bytes.
-// rbm speaks it as a client and freezes nothing. Control keys and the verb enum
+// one JSON control line '\n'-terminated, then exactly pbgvw_len payload bytes,
+// then — only when pbgvw_dark_len is present and non-zero — exactly
+// pbgvw_dark_len further bytes (the dark variant of the light/dark pair). rbm
+// speaks it as a client and freezes nothing. Control keys and the verb enum
 // carry the `pbgvw_` sprue, so `grep pbgvw_` is the format's whole census. The
-// optional dark variant of the light/dark pair is accepted into the signature
-// now (so producers and the viewer can be built against a stable tool) but is
-// NOT yet transported — the wire carries one payload until its pair revision —
-// so today only the light image is pushed.
+// optional dark variant is now transported (the 2026-06-23 additive pair
+// revision): when `dark` is supplied, both payloads ride one frame; when it is
+// absent the frame is byte-identical to the prior single-payload push.
 
 /// Discovery path tail (under `$HOME`): the viewer publishes its ephemeral
 /// localhost port here (write-temp-then-rename). Sibling to the emblem root
@@ -701,7 +702,7 @@ const JJRM_VIEWER_PORT_TAIL: &str = ".config/paneboard/viewer.port";
 pub struct jjrm_RenderParams {
     #[schemars(description = "Path to the light image to display (required). SVG or raster — the viewer sniffs the payload, so there is no type tag.")]
     pub light: String,
-    #[schemars(description = "Optional path to the dark variant. Accepted now for a stable signature, but NOT yet transported (the wire carries one payload until its pair revision); today only the light image is pushed.")]
+    #[schemars(description = "Optional path to the dark variant. When supplied, it is transported as the light/dark pair's second payload (the viewer holds both and toggles with d/l); the viewer never derives one from the other, so the producer resolves both paths. Omit it for a single-variant push.")]
     #[serde(default)]
     pub dark: Option<String>,
     #[schemars(description = "true = a fresh look (fit-to-window); false = iterate at the viewer's held zoom+pan. Set from conversational intent per the CLAUDE.md verb-table heuristic: a new or different image, or an explicit fresh look, is anew; tweaking the image already up is not. Defaults to a fresh look when omitted.")]
@@ -710,19 +711,33 @@ pub struct jjrm_RenderParams {
 }
 
 /// The one FROZEN control line: a `pbgvw_`-sprued JSON object, '\n'-terminated.
-/// `anew` picks the wire verb (fresh vs update), `len` is the payload byte
-/// count. Single home for the wire-format string — shared by the pusher and the
-/// framing test, so a drift from paneboard's frozen contract fails the test.
-fn zjjrm_render_control(anew: bool, len: usize) -> String {
+/// `anew` picks the wire verb (fresh vs update), `len` is the (light) payload
+/// byte count, `dark_len` the optional dark-variant byte count. `pbgvw_dark_len`
+/// rides only when `dark_len > 0`, so a single push stays byte-identical to the
+/// pre-pair frame. Single home for the wire-format string — shared by the pusher
+/// and the framing test, so a drift from paneboard's frozen contract fails it.
+fn zjjrm_render_control(anew: bool, len: usize, dark_len: usize) -> String {
     let verb = if anew { "pbgvw_fresh" } else { "pbgvw_update" };
-    format!("{{\"pbgvw_verb\":\"{}\",\"pbgvw_id\":0,\"pbgvw_len\":{}}}\n", verb, len)
+    if dark_len > 0 {
+        format!(
+            "{{\"pbgvw_verb\":\"{}\",\"pbgvw_id\":0,\"pbgvw_len\":{},\"pbgvw_dark_len\":{}}}\n",
+            verb, len, dark_len
+        )
+    } else {
+        format!("{{\"pbgvw_verb\":\"{}\",\"pbgvw_id\":0,\"pbgvw_len\":{}}}\n", verb, len)
+    }
 }
 
-/// Push one image to the running viewer over the frozen `pbgvw_` wire.
-/// `Ok((bytes, port))` on a landed push; `Err(reason)` on any soft failure
-/// (no port-file, unreachable viewer, unreadable image). The caller renders
-/// either as a success-result notice — `vvx_render` never returns an McpError.
-fn zjjrm_push_viewer(light: &Path, anew: bool) -> Result<(usize, u16), String> {
+/// Push one image (plus the optional dark variant) to the running viewer over
+/// the frozen `pbgvw_` wire. `Ok((bytes, dark_bytes, port))` on a landed push
+/// (`dark_bytes` is 0 for a single-variant push); `Err(reason)` on any soft
+/// failure (no port-file, unreachable viewer, unreadable image). The caller
+/// renders either as a success-result notice — `vvx_render` never errors.
+fn zjjrm_push_viewer(
+    light: &Path,
+    dark: Option<&Path>,
+    anew: bool,
+) -> Result<(usize, usize, u16), String> {
     use std::io::Write;
 
     let home = std::env::var_os("HOME").ok_or("HOME is unset")?;
@@ -735,35 +750,53 @@ fn zjjrm_push_viewer(light: &Path, anew: bool) -> Result<(usize, u16), String> {
         .map_err(|e| format!("bad port in {}: {e}", port_path.display()))?;
 
     let bytes = std::fs::read(light).map_err(|e| format!("read {}: {e}", light.display()))?;
+    let dark_bytes = match dark {
+        Some(d) => Some(std::fs::read(d).map_err(|e| format!("read {}: {e}", d.display()))?),
+        None => None,
+    };
+    let dark_len = dark_bytes.as_ref().map_or(0, Vec::len);
 
     let mut stream = std::net::TcpStream::connect(("127.0.0.1", port))
         .map_err(|e| format!("connect 127.0.0.1:{port}: {e}"))?;
-    let control = zjjrm_render_control(anew, bytes.len());
+    let control = zjjrm_render_control(anew, bytes.len(), dark_len);
     stream
         .write_all(control.as_bytes())
         .map_err(|e| format!("write control: {e}"))?;
     stream
         .write_all(&bytes)
         .map_err(|e| format!("write payload: {e}"))?;
+    if let Some(d) = &dark_bytes {
+        stream
+            .write_all(d)
+            .map_err(|e| format!("write dark payload: {e}"))?;
+    }
     stream.flush().map_err(|e| format!("flush: {e}"))?;
-    Ok((bytes.len(), port))
+    Ok((bytes.len(), dark_len, port))
 }
 
 /// Build the fail-soft report for one render call — always a success-result
-/// string (the tool never errors). Names the landed push or the soft cause,
-/// and notes a supplied-but-not-yet-transported dark variant.
+/// string (the tool never errors). Names the landed push (light, plus the dark
+/// variant when paired) or the soft cause.
 fn zjjrm_render_report(p: &jjrm_RenderParams) -> String {
     let anew = p.anew.unwrap_or(true);
     let verb = if anew { "fresh" } else { "update" };
+    let dark_path = p.dark.as_deref().map(Path::new);
     let dark_note = match &p.dark {
-        Some(d) => format!(" (dark variant {d} accepted; transport pending the wire's pair revision)"),
+        Some(d) => format!(" (dark variant {d} supplied)"),
         None => String::new(),
     };
-    match zjjrm_push_viewer(Path::new(&p.light), anew) {
-        Ok((n, port)) => format!(
-            "unfurled {} ({} bytes, {}) to the viewer on 127.0.0.1:{port}{}",
-            p.light, n, verb, dark_note
-        ),
+    match zjjrm_push_viewer(Path::new(&p.light), dark_path, anew) {
+        Ok((n, dark_n, port)) => {
+            let pair = if dark_n > 0 {
+                format!(" + dark {dark_n} bytes")
+            } else {
+                String::new()
+            };
+            format!(
+                "unfurled {} ({} bytes{}, {}) to the viewer on 127.0.0.1:{port}",
+                p.light, n, pair, verb
+            )
+        }
         Err(e) => format!(
             "viewer push failed soft: {e}{} — bring the viewer up (paneboard conducts it), then retry",
             dark_note
@@ -2517,13 +2550,21 @@ mod tests {
         // Pins the control line vvx_render emits to paneboard's FROZEN wire
         // contract: one `pbgvw_`-sprued JSON object, '\n'-terminated, `anew`
         // selecting fresh vs update. A drift here is a wire-format break.
+        // Single-variant push (dark_len 0): byte-identical to the pre-pair frame,
+        // so `pbgvw_dark_len` is absent entirely.
         assert_eq!(
-            zjjrm_render_control(true, 1234),
+            zjjrm_render_control(true, 1234, 0),
             "{\"pbgvw_verb\":\"pbgvw_fresh\",\"pbgvw_id\":0,\"pbgvw_len\":1234}\n"
         );
         assert_eq!(
-            zjjrm_render_control(false, 0),
+            zjjrm_render_control(false, 0, 0),
             "{\"pbgvw_verb\":\"pbgvw_update\",\"pbgvw_id\":0,\"pbgvw_len\":0}\n"
+        );
+        // Paired push (dark_len > 0): `pbgvw_dark_len` rides as the additive
+        // trailing key, the dark payload following the light payload on the wire.
+        assert_eq!(
+            zjjrm_render_control(true, 1234, 5678),
+            "{\"pbgvw_verb\":\"pbgvw_fresh\",\"pbgvw_id\":0,\"pbgvw_len\":1234,\"pbgvw_dark_len\":5678}\n"
         );
     }
 

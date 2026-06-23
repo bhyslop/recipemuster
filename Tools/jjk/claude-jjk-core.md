@@ -303,7 +303,7 @@ When the user says "unfurl" (put an image on the diagram viewer), invoke the **`
 
 Params:
 - `light` (required) — path to the image to display (SVG or raster).
-- `dark` (optional) — path to a dark variant. Accepted for a stable signature but **not yet transported**; today only the light image is pushed.
+- `dark` (optional) — path to a dark variant. When supplied it is **transported as the pair's second payload**; the viewer holds both and the operator toggles with `d`/`l`. The viewer never derives one from the other, so pass both paths when you have a light/dark pair (e.g. rbm's README `<picture>` SVGs). Omit it for a single-variant image.
 - `anew` (optional boolean) — **you set this from conversational intent**, per the heuristic below.
 
 **The `anew` heuristic** (the judgment you legitimately hold — decide alike every time so the surface is consistent):
