@@ -18053,8 +18053,8 @@
         "₢BiAAQ": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260622-1222",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260623-1631",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "Restore conjure to a pure chain HEAD — output only, never reads a prior fact — by extracting its base-anchor election into a standalone feoff link verb.",
                 "",
@@ -18098,7 +18098,7 @@
                 "rbw-tl clean; fast suite green plus a crucible/onboarding tier exercising the re-homed election chain and the anchor path."
               ],
               "jjgtn_silks": "feoff-base-anchor-split",
-              "jjgtn_basis": "fad50db"
+              "jjgtn_basis": "7d60d5c"
             }
           ]
         },
