@@ -115,10 +115,11 @@ Box-text is PROVEN: the yellow selection box can carry drawn text (a one-line NS
 
 The overlay and AX render path is main-thread-only: every paint is marshalled to the main run loop via CFRunLoopPerformBlock + CFRunLoopWakeUp, and the yellow box is repositioned per tab-press.
 Reading a tiny emblem file at paint time rides that same path — a microsecond file read, no new thread, no run-loop source.
-The viewer conductor launches and AX-places viewer windows; because paneboard never reads the image bytes, the earlier multi-megabyte off-thread-read concern does not arise on the paneboard side.
+The viewer conductor launches viewer instances and keeps them alive; because paneboard never reads the image bytes, the earlier multi-megabyte off-thread-read concern does not arise on the paneboard side.
 Settled (2026-06-23 probe, faithful to pbmbs_sandbox's byte-identical policy): a child spawned DIRECTLY by paneboard (posix_spawn / exec / Command) INHERITS the (allow default)(deny network*) seatbelt sandbox — EPERM on both listen and connect, versus an unsandboxed control's ECONNREFUSED — so the viewer, which must listen on its advertised port, cannot be a direct paneboard child.
 The viewer is therefore launched INDEPENDENTLY through launchd — NSWorkspace.openApplication / open of an .app bundle — and the launchd-parented viewer escapes the sandbox with full networking, while open itself runs fine under the sandbox (it reaches launchd over Mach IPC, which deny-network* does not touch).
-Paneboard only AX-positions the already-running, launchd-owned window; it never forks the viewer, so the sandbox boundary is never the viewer's parent edge.
+Paneboard never forks the viewer, so the sandbox boundary is never the viewer's parent edge.
+Placement is NOT the conductor's job (operator decision 2026-06-23): the switcher selects and the layout chords tile, so the viewer is a normal AX window the operator tiles like any other — the conductor only spawns it and keeps it alive, never moving or resizing it.
 Consequence on the viewer side: it must ship as a minimal .app bundle (Info.plist + Contents/MacOS/paneboard-viewer), since launchd cannot open a bare binary — a small packaging addition that also makes the standalone viewer a proper double-clickable app.
 
 ## Platform surface — macOS pins and the portability seam
