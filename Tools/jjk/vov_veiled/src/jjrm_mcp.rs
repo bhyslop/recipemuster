@@ -1075,10 +1075,10 @@ fn zjjrm_region_block(location: &str, style: &jjrm_RegionStyle, lines: &[String]
 
 /// Compose the full `pbge_` emblem document (paneboard PoC "Emblem File
 /// Format") for one window. Pure — no env, no I/O — so the grammar is
-/// unit-testable. `identity` is the already-normalized top-region line (the
-/// work identity, the primary glance datum); `repo` and `cwd` fill the middle
-/// region; the bottom region is reserved and currently emitted empty (omitted).
-/// Region CONTENT here is the soft starting set; region STRUCTURE is frozen.
+/// unit-testable. `identity` is the already-normalized work-identity line (the
+/// primary glance datum); it fills both the top and bottom regions so it reads
+/// from all four corners of the box, while `repo` and `cwd` fill the middle
+/// region. Region CONTENT here is the soft starting set; region STRUCTURE is frozen.
 fn zjjrm_compose_emblem(
     window_ref: &str,
     identity: &str,
@@ -1098,10 +1098,15 @@ fn zjjrm_compose_emblem(
         &style.middle,
         &[repo.to_string(), cwd.to_string()],
     ));
-    // Bottom is reserved: no lines yet, so the block is omitted. The call reads
-    // style.bottom (forward-correct the day content lands) and keeps the frozen
-    // three-region structure explicit at the one composition site.
-    out.push_str(&zjjrm_region_block("pbge_bottom", &style.bottom, &[]));
+    // Bottom mirrors the top identity so the coronet/firemark reads from all four
+    // corners of the box: paneboard paints pbge_top into both top corners and
+    // pbge_bottom into both bottom corners. Same identity line, styled by
+    // style.bottom.
+    out.push_str(&zjjrm_region_block(
+        "pbge_bottom",
+        &style.bottom,
+        &[identity.to_string()],
+    ));
     out
 }
 
@@ -2357,10 +2362,12 @@ mod tests {
 ### pbge_region {pbge_location=pbge_middle}
 rbm_beta_recipemuster
 /Users/x/projects/rbm_beta_recipemuster
+### pbge_region {pbge_location=pbge_bottom}
+₣Bh
 ";
         assert_eq!(out, expected);
-        // Bottom region is reserved → omitted entirely.
-        assert!(!out.contains("pbge_bottom"));
+        // Bottom mirrors the top identity, for a four-corner read.
+        assert!(out.contains("### pbge_region {pbge_location=pbge_bottom}\n₣Bh\n"));
     }
 
     #[test]
