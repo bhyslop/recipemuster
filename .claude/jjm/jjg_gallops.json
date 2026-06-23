@@ -17229,27 +17229,38 @@
         "₢BhAAH": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260622-0554",
+              "jjgtn_ts": "260623-0907",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
-                "Layer paneboard over the viewer:",
-                "it spawns and AX-places viewer instances it conducts, while the direct-socket viewer keeps working for the no-paneboard / Windows case.",
+                "Layer paneboard over the viewer as its conductor and SOLE lifecycle owner:",
+                "paneboard spawns, AX-places, and respawns viewer instances, while the direct-socket viewer keeps working for the no-paneboard / Windows case.",
                 "",
                 "See seed memo Phase 4 and paddock \"Transport\" + \"Paneboard internals\".",
                 "",
                 "## Cinched",
-                "Spawn + place only: paneboard positions viewer windows via AX and does NOT proxy image bytes — pushers connect straight to the viewer's advertised port, so paneboard opens no socket and the network-deny posture stays intact.",
+                "Spawn + place, never proxy: paneboard positions viewer windows via AX and does NOT proxy image bytes — pushers connect straight to the viewer's advertised port, so paneboard opens no socket and the network-deny posture stays intact.",
                 "Because paneboard never reads the bytes, there is no run-loop offload and no background-thread byte read here.",
+                "",
+                "Paneboard is the sole spawner; the pusher never launches the viewer (a paneboard-owned sibling-repo binary), so the pusher's pace is untouched here — it still just reads the port-file, pushes, and fails soft.",
+                "",
+                "Respawn on close: a gone viewer is brought back EMPTY — a declared state, not a bug — and the next push fills it (the viewer must render a graceful no-content state).",
+                "A respawn is a fresh process with a fresh port, and the pusher reads the port-file every push, so it picks up the new port with no pusher change.",
+                "Respawn is just spawn-again — no new sandbox surface, only the same child-inherits-network-deny question below.",
+                "",
+                "Respawn rides the EXISTING alt-tab path — no new poll: paneboard re-ensures its viewer on the window-switch event it already runs, so a closed viewer reappears at the next alt-tab.",
+                "Prompt-on-close (a timer or window-close observer) is deferred, not built now.",
+                "No stay-closed dismiss gesture: a deliberately closed viewer returns; a stay-closed toggle, if ever wanted, is a separate later fork.",
                 "",
                 "## Character",
                 "Layering, plus one Palisade check — little new risk beyond the spawn-inheritance question below.",
                 "",
                 "## Done when",
                 "- Paneboard spawns a viewer instance and AX-places its window; the direct-socket path from the standalone viewer still works unchanged.",
+                "- A closed or dead viewer is respawned empty without operator action, and the next push fills it; the empty viewer renders gracefully.",
                 "- Verified: whether a paneboard-spawned child inherits the network-deny sandbox. If it does, the viewer is launched independently and paneboard only positions an already-running window — and that resolution is recorded."
               ],
               "jjgtn_silks": "pb-viewer-conductor",
-              "jjgtn_basis": "a4a4231"
+              "jjgtn_basis": "a7bb0d6"
             }
           ]
         },
