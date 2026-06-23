@@ -17311,8 +17311,8 @@
         "₢BhAAK": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260622-1227",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260623-0833",
+              "jjgtn_state": "jjgte_abandoned",
               "jjgtn_text": [
                 "The first emblem render, on the cheapest surface:",
                 "paneboard puts each window's emblem on its alt-tab LIST entry — which already renders text — reusing the existing list-row drawing rather than the text-less box.",
@@ -17333,7 +17333,7 @@
                 "- A malformed or half-written emblem file degrades to the plain entry, never a crash or a torn render."
               ],
               "jjgtn_silks": "pb-list-entry-emblems",
-              "jjgtn_basis": "d3ff196"
+              "jjgtn_basis": "abd8dcd"
             }
           ]
         },
