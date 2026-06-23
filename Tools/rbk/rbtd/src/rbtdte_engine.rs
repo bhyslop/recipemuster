@@ -320,3 +320,101 @@ fn rbtdte_case_output_files_survive_in_trace_dir() {
 
     let _ = std::fs::remove_dir_all(&tmp);
 }
+
+// ── Config-evolution console ─────────────────────────────────
+
+fn rbtdte_git(args: &[&str], root: &Path) -> std::process::Output {
+    std::process::Command::new("git")
+        .args(args)
+        .current_dir(root)
+        .output()
+        .expect("git invocation")
+}
+
+#[test]
+fn rbtdte_config_set_field_replaces_value_preserving_other_lines() {
+    let tmp = rbtdte_make_temp("setfield");
+    let file = tmp.join("rbrv.env");
+    std::fs::write(&file, "KEEP_BEFORE=1\nRBRV_ANCHOR=old\nKEEP_AFTER=2\n").unwrap();
+
+    rbtdre_config_set_field(&file, "RBRV_ANCHOR", "new").unwrap();
+
+    let body = std::fs::read_to_string(&file).unwrap();
+    assert!(body.contains("RBRV_ANCHOR=new"));
+    assert!(body.contains("KEEP_BEFORE=1"));
+    assert!(body.contains("KEEP_AFTER=2"));
+    assert!(!body.contains("RBRV_ANCHOR=old"));
+    let _ = std::fs::remove_dir_all(&tmp);
+}
+
+#[test]
+fn rbtdte_config_zero_blanks_named_field_only() {
+    let tmp = rbtdte_make_temp("zerofield");
+    let file = tmp.join("rbrd.env");
+    std::fs::write(&file, "RBRD_DEPOT_MONIKER=canest3-000007\nRBRD_CLOUD_PREFIX=canc\n").unwrap();
+
+    rbtdre_config_zero(&file, "RBRD_DEPOT_MONIKER").unwrap();
+
+    let body = std::fs::read_to_string(&file).unwrap();
+    assert!(body.contains("RBRD_DEPOT_MONIKER=\n"));
+    // The sibling field is untouched — zeroing is field-scoped.
+    assert!(body.contains("RBRD_CLOUD_PREFIX=canc"));
+    let _ = std::fs::remove_dir_all(&tmp);
+}
+
+#[test]
+fn rbtdte_config_zero_absent_field_fails_loud() {
+    let tmp = rbtdte_make_temp("zeroabsent");
+    let file = tmp.join("rbrd.env");
+    std::fs::write(&file, "RBRD_CLOUD_PREFIX=canc\n").unwrap();
+
+    // The schema-drift catch: zeroing a field that is not present errs rather
+    // than silently no-op'ing (which would mask a renamed or removed field).
+    let err = rbtdre_config_zero(&file, "RBRD_RENAMED_AWAY").unwrap_err();
+    assert!(err.contains("RBRD_RENAMED_AWAY"));
+    assert!(err.contains("not found"));
+    let _ = std::fs::remove_dir_all(&tmp);
+}
+
+#[test]
+fn rbtdte_commit_nameplates_scopes_to_named_class_only() {
+    let tmp = rbtdte_make_temp("commit-scope");
+    assert!(rbtdte_git(&["init", "-q"], &tmp).status.success());
+    rbtdte_git(&["config", "user.email", "theurge@test"], &tmp);
+    rbtdte_git(&["config", "user.name", "theurge test"], &tmp);
+
+    // Baseline: a nameplate rbrn.env plus an unrelated tracked file, committed clean.
+    let np_dir = tmp
+        .join(crate::rbtdgc_consts::RBTDGC_MOORINGS_DIR)
+        .join("testnp");
+    std::fs::create_dir_all(&np_dir).unwrap();
+    let rbrn = np_dir.join(crate::rbtdgc_consts::RBTDGC_RBRN_FILE);
+    std::fs::write(&rbrn, "RBRN_SENTRY_HALLMARK=\n").unwrap();
+    let surprise = tmp.join("surprise.txt");
+    std::fs::write(&surprise, "baseline\n").unwrap();
+    rbtdte_git(&["add", "-A"], &tmp);
+    assert!(rbtdte_git(&["commit", "-q", "-m", "baseline"], &tmp).status.success());
+
+    // Dirty BOTH the owned nameplate file and an unrelated file — the exact
+    // wrap-sweeps-everything hazard the scoped verb exists to prevent.
+    std::fs::write(&rbrn, "RBRN_SENTRY_HALLMARK=kabc123\n").unwrap();
+    std::fs::write(&surprise, "SURPRISE EDIT — must not be swept\n").unwrap();
+
+    rbtdre_commit_nameplates(&tmp, &["testnp"], "test: nameplate hallmark").unwrap();
+
+    let status = rbtdte_git(&["status", "--porcelain"], &tmp);
+    let out = String::from_utf8_lossy(&status.stdout);
+    // The nameplate file is committed (no longer dirty)...
+    assert!(
+        !out.contains("rbrn.env"),
+        "nameplate file must be committed; status: {:?}",
+        out
+    );
+    // ...and the surprise edit survives uncommitted — never swept into the commit.
+    assert!(
+        out.contains("surprise.txt"),
+        "surprise edit must survive uncommitted; status: {:?}",
+        out
+    );
+    let _ = std::fs::remove_dir_all(&tmp);
+}

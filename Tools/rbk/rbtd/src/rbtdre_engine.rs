@@ -18,6 +18,7 @@
 
 // RCG output discipline: all emission via rbtdrg_*! — no direct println!/eprintln!
 
+use std::io::{BufRead, BufReader, Write};
 use std::path::Path;
 use std::path::PathBuf;
 use std::sync::mpsc;
@@ -144,6 +145,239 @@ pub fn rbtdre_tree_clean(root: &Path) -> Result<(), String> {
         )),
         Err(e) => Err(format!("git status invocation failed: {}", e)),
     }
+}
+
+// ── Fixture config-evolution console ───────────────────────────
+//
+// The home for the domain-intimate actions a fixture performs to evolve and
+// commit the tracked config it tests. A fixture forward-evolves config in
+// exactly three classes — vessel (rbrv.env), nameplate (rbrn.env), and regime
+// (rbrd.env / rbrr.env) — and commits each through its own scoped verb here.
+// `rbtdre_tree_clean` above is the read-side member of this console; these are
+// the write side.
+//
+// The load-bearing property is scope: every commit verb DERIVES its own paths
+// from a class identifier (a nameplate moniker, a vessel dir, a regime-file
+// tag) and stages only those. No verb accepts a free-form file list, so a
+// fixture is structurally incapable of sweeping a surprise edit — another
+// officium's work, an operator's half-finished change — into its commit. The
+// only entry that touches an arbitrary path list, `rbtdre_commit_paths`, is
+// private to this module; external callers reach it solely through the
+// class-typed verbs. Doctrine: claude-rbk-theurge-ifrit-context.md.
+
+/// Vessel-local regime file. The vessel rbrv.env has no rbcc source-of-truth
+/// home (it is composed Rust-side, not by bash — see rbtdrp_attest), so it
+/// stays a bare literal here, as it does at the other vessel sites.
+const RBTDRE_VESSEL_RBRV_FILE: &str = "rbrv.env";
+
+/// Stage and commit EXACTLY the given repo-relative paths — never a wider set.
+/// Module-private: the class verbs are the only callers, which is what seals
+/// the can't-sweep property — no external caller can hand this an arbitrary
+/// list. A scoped `git status --porcelain -- <paths>` runs first; an empty
+/// result means none of the owned paths changed (an idempotent re-run, a
+/// terminal step with no consumers) and is a clean no-op, not an error. An
+/// empty `paths` is itself a no-op — guarding it is essential, since a bare
+/// `git status --porcelain --` with no pathspec would survey the WHOLE tree
+/// and defeat the scoping.
+fn rbtdre_commit_paths(root: &Path, paths: &[String], message: &str) -> Result<(), String> {
+    if paths.is_empty() {
+        return Ok(());
+    }
+
+    let mut status_args: Vec<&str> = vec!["status", "--porcelain", "--"];
+    status_args.extend(paths.iter().map(String::as_str));
+    let status = std::process::Command::new("git")
+        .args(&status_args)
+        .current_dir(root)
+        .output()
+        .map_err(|e| format!("git status --porcelain exec failed: {}", e))?;
+    if !status.status.success() {
+        return Err(format!(
+            "git status --porcelain exited {}: {}",
+            status.status.code().unwrap_or(-1),
+            String::from_utf8_lossy(&status.stderr).trim()
+        ));
+    }
+    if String::from_utf8_lossy(&status.stdout).trim().is_empty() {
+        // None of the owned paths changed — clean no-op, not an error.
+        return Ok(());
+    }
+
+    let mut add_args: Vec<&str> = vec!["add", "--"];
+    add_args.extend(paths.iter().map(String::as_str));
+    let add = std::process::Command::new("git")
+        .args(&add_args)
+        .current_dir(root)
+        .output()
+        .map_err(|e| format!("git add exec failed: {}", e))?;
+    if !add.status.success() {
+        return Err(format!(
+            "git add exited {}: {}",
+            add.status.code().unwrap_or(-1),
+            String::from_utf8_lossy(&add.stderr).trim()
+        ));
+    }
+
+    let commit = std::process::Command::new("git")
+        .args(["commit", "-m", message])
+        .current_dir(root)
+        .output()
+        .map_err(|e| format!("git commit exec failed: {}", e))?;
+    if !commit.status.success() {
+        return Err(format!(
+            "git commit exited {}: {}",
+            commit.status.code().unwrap_or(-1),
+            String::from_utf8_lossy(&commit.stderr).trim()
+        ));
+    }
+    Ok(())
+}
+
+/// Commit the named nameplates' rbrn.env files and nothing else. Each moniker
+/// derives `<moorings>/<nameplate>/rbrn.env`.
+pub fn rbtdre_commit_nameplates(
+    root: &Path,
+    nameplates: &[&str],
+    message: &str,
+) -> Result<(), String> {
+    let paths: Vec<String> = nameplates
+        .iter()
+        .map(|np| {
+            format!(
+                "{}/{}/{}",
+                crate::rbtdgc_consts::RBTDGC_MOORINGS_DIR,
+                np,
+                crate::rbtdgc_consts::RBTDGC_RBRN_FILE
+            )
+        })
+        .collect();
+    rbtdre_commit_paths(root, &paths, message)
+}
+
+/// Commit the named vessels' rbrv.env files and nothing else. Each vessel dir
+/// (a moorings-relative path) derives `<vessel_dir>/rbrv.env`.
+pub fn rbtdre_commit_vessels(
+    root: &Path,
+    vessel_dirs: &[&str],
+    message: &str,
+) -> Result<(), String> {
+    let paths: Vec<String> = vessel_dirs
+        .iter()
+        .map(|dir| format!("{}/{}", dir, RBTDRE_VESSEL_RBRV_FILE))
+        .collect();
+    rbtdre_commit_paths(root, &paths, message)
+}
+
+/// Commit EVERY vessel's rbrv.env — the set a wildcard yoke rewrites. Still
+/// vessel-scoped: the enumeration walks only the vessels dir and only collects
+/// rbrv.env leaves, so nothing outside the vessel class can ride along. Paths
+/// are sorted for stable commit staging.
+pub fn rbtdre_commit_vessels_all(root: &Path, message: &str) -> Result<(), String> {
+    let vessels_rel = crate::rbtd_vessels_dir!();
+    let vessels_abs = root.join(vessels_rel);
+    let mut paths: Vec<String> = Vec::new();
+    let entries = std::fs::read_dir(&vessels_abs)
+        .map_err(|e| format!("read vessels dir {}: {}", vessels_abs.display(), e))?;
+    for entry in entries {
+        let entry = entry.map_err(|e| format!("read vessels dir entry: {}", e))?;
+        if entry.path().is_dir() {
+            let name = entry.file_name();
+            let rbrv_rel = format!(
+                "{}/{}/{}",
+                vessels_rel,
+                name.to_string_lossy(),
+                RBTDRE_VESSEL_RBRV_FILE
+            );
+            if root.join(&rbrv_rel).is_file() {
+                paths.push(rbrv_rel);
+            }
+        }
+    }
+    paths.sort();
+    rbtdre_commit_paths(root, &paths, message)
+}
+
+/// The regime files a fixture forward-evolves in place — the marshal-zero
+/// family of tracked depot/runtime config.
+pub enum rbtdre_RegimeFile {
+    Rbrd,
+    Rbrr,
+}
+
+/// Commit the named regime files and nothing else. The closed enum is what
+/// keeps the regime class scoped — there is no free-form path to widen it.
+pub fn rbtdre_commit_regime(
+    root: &Path,
+    files: &[rbtdre_RegimeFile],
+    message: &str,
+) -> Result<(), String> {
+    let paths: Vec<String> = files
+        .iter()
+        .map(|f| {
+            match f {
+                rbtdre_RegimeFile::Rbrd => crate::rbtdgc_consts::RBTDGC_RBRD_FILE,
+                rbtdre_RegimeFile::Rbrr => crate::rbtdgc_consts::RBTDGC_RBRR_FILE,
+            }
+            .to_string()
+        })
+        .collect();
+    rbtdre_commit_paths(root, &paths, message)
+}
+
+/// Set a named `FIELD=value` line in an in-place tracked config file, preserving
+/// every other line, via atomic rename. **Fails loud if the field is absent** —
+/// the find-or-err is the schema-drift catch: a renamed or removed field stops
+/// the run instead of silently writing nothing. The generalized form of the
+/// vessel-env write embryo (rbtdro_write_vessel_env), and the shared core of the
+/// config-zero seam below.
+pub fn rbtdre_config_set_field(file: &Path, field: &str, value: &str) -> Result<(), String> {
+    let f = std::fs::File::open(file).map_err(|e| format!("open {}: {}", file.display(), e))?;
+    let lines: Vec<String> = BufReader::new(f)
+        .lines()
+        .collect::<Result<_, _>>()
+        .map_err(|e| format!("read {}: {}", file.display(), e))?;
+
+    let prefix = format!("{}=", field);
+    let mut found = false;
+    let rewritten: Vec<String> = lines
+        .into_iter()
+        .map(|line| {
+            if line.starts_with(&prefix) {
+                found = true;
+                format!("{}={}", field, value)
+            } else {
+                line
+            }
+        })
+        .collect();
+
+    if !found {
+        return Err(format!("field {} not found in {}", field, file.display()));
+    }
+
+    let mut tmp = file.to_path_buf().into_os_string();
+    tmp.push(".write_tmp");
+    let tmp = PathBuf::from(tmp);
+    {
+        let mut out = std::fs::File::create(&tmp)
+            .map_err(|e| format!("create tmp for {}: {}", file.display(), e))?;
+        for line in &rewritten {
+            writeln!(out, "{}", line)
+                .map_err(|e| format!("write tmp for {}: {}", file.display(), e))?;
+        }
+    }
+    std::fs::rename(&tmp, file)
+        .map_err(|e| format!("atomic replace {}: {}", file.display(), e))?;
+    Ok(())
+}
+
+/// Zero a named field (write `FIELD=`) in an in-place tracked config file — the
+/// marshal-zero-family reset seam. Zeroing before an in-place write defeats the
+/// stale-value false-green: a silently-skipped write then leaves an obviously
+/// empty value, not a passing stale one. The inherited fail-on-absent doubles
+/// as a schema-drift catch. One validated seam, never a per-field function farm.
+pub fn rbtdre_config_zero(file: &Path, field: &str) -> Result<(), String> {
+    rbtdre_config_set_field(file, field, "")
 }
 
 // ── Case and Fixture ───────────────────────────────────────────

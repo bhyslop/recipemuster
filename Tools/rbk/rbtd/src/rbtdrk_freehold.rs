@@ -33,8 +33,8 @@
 // freehold-churn ever destroys the freehold itself.
 
 use std::path::{Path, PathBuf};
-use std::process::Command;
 
+use crate::rbtdre_engine::{rbtdre_commit_regime, rbtdre_RegimeFile};
 use crate::rbtdrx_platform::rbtdrx_path_from_env;
 use crate::rbtdri_invocation::{
     RBTDRI_BURV_OUTPUT_SUBDIR,
@@ -165,44 +165,6 @@ fn rbtdrk_replace_env_fields(content: &str, pairs: &[(&str, &str)]) -> String {
     result
 }
 
-fn rbtdrk_git_add_and_commit(root: &Path, file: &str, message: &str) -> Result<(), String> {
-    rbtdrk_git_add_and_commit_paths(root, &[file], message)
-}
-
-fn rbtdrk_git_add_and_commit_paths(
-    root: &Path,
-    files: &[&str],
-    message: &str,
-) -> Result<(), String> {
-    let mut add_args: Vec<&str> = vec!["add"];
-    add_args.extend_from_slice(files);
-    let add = Command::new("git")
-        .args(&add_args)
-        .current_dir(root)
-        .output()
-        .map_err(|e| format!("rbtdrk: git add invocation failed: {}", e))?;
-    if !add.status.success() {
-        return Err(format!(
-            "rbtdrk: git add failed (exit {}): {}",
-            add.status.code().unwrap_or(-1),
-            String::from_utf8_lossy(&add.stderr).trim()
-        ));
-    }
-    let commit = Command::new("git")
-        .args(["commit", "-m", message])
-        .current_dir(root)
-        .output()
-        .map_err(|e| format!("rbtdrk: git commit invocation failed: {}", e))?;
-    if !commit.status.success() {
-        return Err(format!(
-            "rbtdrk: git commit failed (exit {}): {}",
-            commit.status.code().unwrap_or(-1),
-            String::from_utf8_lossy(&commit.stderr).trim()
-        ));
-    }
-    Ok(())
-}
-
 // ── Freehold-prefix install ──────────────────────────────────
 
 /// Idempotently install the freehold canc-/canr- prefixes. CLOUD_PREFIX lands in
@@ -249,9 +211,9 @@ pub(crate) fn rbtdrk_install_freehold_prefixes(root: &Path) -> Result<(), String
         "freehold fixture: install freehold prefixes ({}/{})",
         cloud_target, runtime_target
     );
-    rbtdrk_git_add_and_commit_paths(
+    rbtdre_commit_regime(
         root,
-        &[RBTDGC_RBRR_FILE, RBTDGC_RBRD_FILE],
+        &[rbtdre_RegimeFile::Rbrr, rbtdre_RegimeFile::Rbrd],
         &commit_msg,
     )
 }
@@ -268,7 +230,7 @@ pub(crate) fn rbtdrk_install_depot_moniker(root: &Path, moniker: &str) -> Result
         "freehold fixture: set {}={}",
         RBTDRK_FIELD_RBRD_DEPOT_MONIKER, moniker
     );
-    rbtdrk_git_add_and_commit(root, RBTDGC_RBRD_FILE, &commit_msg)
+    rbtdre_commit_regime(root, &[rbtdre_RegimeFile::Rbrd], &commit_msg)
 }
 
 /// Compose depot project_id from kindled regime values: <CLOUD>d-<moniker>.
