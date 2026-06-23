@@ -1,5 +1,5 @@
 {
-  "jjgrn_next_heat_seed": "Bm",
+  "jjgrn_next_heat_seed": "Bn",
   "jjgrn_heat_order": [
     "₣Bi",
     "₣Bf",
@@ -34,7 +34,8 @@
     "₣BL",
     "₣Ba",
     "₣Bh",
-    "₣Bl"
+    "₣Bl",
+    "₣Bm"
   ],
   "jjgrn_heats": {
     "₣A-": {
@@ -18297,6 +18298,14 @@
           ]
         }
       }
+    },
+    "₣Bm": {
+      "jjghn_silks": "jjk-v4-1-local-inference-spike",
+      "jjghn_creation_time": "260623",
+      "jjghn_status": "jjghe_stabled",
+      "jjghn_order": [],
+      "jjghn_next_pace_seed": "AAA",
+      "jjghn_paces": {}
     }
   }
 }
