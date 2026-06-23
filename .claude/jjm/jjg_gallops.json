@@ -17404,6 +17404,7 @@
       "jjghn_creation_time": "260618",
       "jjghn_status": "jjghe_racing",
       "jjghn_order": [
+        "₢BiAAV",
         "₢BiAAC",
         "₢BiAAK",
         "₢BiAAQ",
@@ -17426,7 +17427,7 @@
         "₢BiAAJ",
         "₢BiAAA"
       ],
-      "jjghn_next_pace_seed": "AAV",
+      "jjghn_next_pace_seed": "AAW",
       "jjghn_paces": {
         "₢BiAAA": {
           "jjgpn_tacks": [
@@ -18231,6 +18232,42 @@
               ],
               "jjgtn_silks": "chaining-fact-cloud-run",
               "jjgtn_basis": "f4fa00b"
+            }
+          ]
+        },
+        "₢BiAAV": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260623-1951",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "Mechanical framework consolidation — one mint, one doctrine line, two call-site migrations.",
+                "No GCP, no cloud, no new test behavior.",
+                "",
+                "## Why",
+                "Theurge carries two drifted git-commit helpers: the careful one (porcelain idempotent no-op + `--` path-safety) and the looser one (neither guard).",
+                "The READ side already unified — rbtdre_tree_clean is the engine-owned, doc-commented single clean-tree primitive.",
+                "The WRITE side never followed.",
+                "The next chaining-fact-cloud pace would add a THIRD commit site; finish the read side's pattern on the write side first, so that pace rides one seam instead of forking a third copy.",
+                "",
+                "## Sources",
+                "- The two write helpers: rbtdro_git_commit (Tools/rbk/rbtd/src/rbtdro_onboarding.rs) and rbtdrk_git_add_and_commit[_paths] (Tools/rbk/rbtd/src/rbtdrk_freehold.rs).",
+                "- The read-side precedent to mirror: rbtdre_tree_clean (Tools/rbk/rbtd/src/rbtdre_engine.rs).",
+                "",
+                "## Done when",
+                "- One canonical commit primitive lives in the engine beside rbtdre_tree_clean, carrying the careful version's discipline (porcelain idempotent clean-no-op, `--` separator, explicit root, framework-neutral String error).",
+                "- Both call sites are migrated onto it; case-side callers keep a thin verdict adapter, mirroring how they already adapt rbtdre_tree_clean's String.",
+                "- The \"fixtures commit only through this one seam — the sanctioned test-infra exception to tools-never-commit\" doctrine is documented where findable (the theurge context doc the likely home).",
+                "- The theurge crate builds; suites exercising the migrated sites pass; shellcheck clean if any bash is touched.",
+                "",
+                "## Cinched",
+                "- Canonical form is the careful version, never the looser copy.",
+                "- Framework-only: nothing about what any fixture proves changes.",
+                "- Mint the primitive's name per Lapidary; the engine prefix and the rbtdre_tree_clean sibling constrain it."
+              ],
+              "jjgtn_silks": "theurge-commit-seam",
+              "jjgtn_basis": "103f325"
             }
           ]
         }
