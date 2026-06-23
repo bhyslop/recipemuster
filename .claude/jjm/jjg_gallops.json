@@ -18185,8 +18185,8 @@
         "₢BiAAT": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260623-2039",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260623-2150",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "## Character",
                 "Service-tier test infrastructure, authored but NOT run here — coding is local and fast; the live GCP run is deferred. Standard dev with one mint (the fixture + case names).",
@@ -18219,7 +18219,7 @@
                 "- Runtime explicitly UNVERIFIED — the run is a follow-on."
               ],
               "jjgtn_silks": "chaining-fact-cloud-code",
-              "jjgtn_basis": "410af55"
+              "jjgtn_basis": "9c2abdf"
             }
           ]
         },
