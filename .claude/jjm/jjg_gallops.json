@@ -17041,9 +17041,10 @@
         "₢BhAAN",
         "₢BhAAI",
         "₢BhAAL",
-        "₢BhAAQ"
+        "₢BhAAQ",
+        "₢BhAAR"
       ],
-      "jjghn_next_pace_seed": "AAR",
+      "jjghn_next_pace_seed": "AAS",
       "jjghn_paces": {
         "₢BhAAA": {
           "jjgpn_tacks": [
@@ -17530,6 +17531,40 @@
               ],
               "jjgtn_silks": "pb-viewer-dies-with-conductor",
               "jjgtn_basis": "45c63c7"
+            }
+          ]
+        },
+        "₢BhAAR": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260623-1403",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "A focused diagnostic plus a recorded finding — empirical and low-stakes; the design decision it informs is deferred, not taken here.",
+                "",
+                "The viewer's TCP port publishes late after a paneboard launch (observed at roughly twenty seconds), so an unfurl fired before it lands fails soft.",
+                "Two mechanisms could explain the gap, and they imply opposite fixes:",
+                "(a) paneboard services viewer lifecycle only in the alt-tab keypress path, not on its existing run-loop heartbeat, so publication waits for the operator's first tab;",
+                "(b) the delay is the viewer child's own egui/Metal cold-start — GPU shader compile plus glyph and font warmup — which no paneboard-side poll can shorten.",
+                "The clue that (a) is even possible: paneboard already runs a sub-second run-loop heartbeat (the event-tap health monitor), so if viewer servicing rode that tick, publication would already be prompt — see paddock \"Paneboard internals\" for the main-thread-only run-loop model.",
+                "",
+                "Conduct the probe to settle (a) versus (b): timestamp the conductor's viewer-launch call against the viewer's port-bind.",
+                "Launch firing at startup but bind landing much later is (b) cold-start; launch itself firing only on the first tab is (a) event-gating; a mix is plausible.",
+                "Record the verdict where later design can read it — the seed memo (Memos/memo-20260617-paneboard-overlay-and-viewer.md) or the paddock — so the deferred decision rests on fact, not this chat's inference.",
+                "",
+                "Carry forward the consolidation hypothesis the finding informs but does not build:",
+                "fold viewer-readiness servicing, and a future embedded resource monitor, onto one periodic run-loop tick — single-threaded, no separate startup thread — at a poll period (roughly 200ms to 1s) consonant with both snappy readiness and low-overhead resource sampling.",
+                "",
+                "## Cinched",
+                "The probe is diagnostic only: it builds no poll and no resource monitor — those are later, decision-gated work that this finding informs.",
+                "",
+                "## Done when",
+                "- The (a) event-gated versus (b) viewer-cold-start question is settled by a launch-versus-bind timestamp probe, with the verdict recorded where later steps can read it.",
+                "- The heartbeat-consolidation hypothesis — one periodic tick servicing viewer readiness and a future resource monitor — is captured alongside the verdict, framed as informed-but-deferred."
+              ],
+              "jjgtn_silks": "viewer-port-latency-probe",
+              "jjgtn_basis": "c4947cd"
             }
           ]
         }
