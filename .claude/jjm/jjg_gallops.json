@@ -17200,13 +17200,14 @@
         "₢BhAAG": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260622-0554",
+              "jjgtn_ts": "260623-0840",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
-                "The richer in-place render:",
+                "The emblem render — the sole surface (the list is the untouched switcher, not an emblem surface; see paddock \"Overlay surface\"):",
                 "paneboard paints the three-region emblem on the yellow highlight box it already draws around the selected window during alt-tab.",
                 "The box's window-positioning plumbing is reused; the text-and-pill rendering is net-new (the box draws only an outline today).",
-                "Paneboard reads the emblem file at paint time, keyed by the window reference the resolver produces.",
+                "Paneboard reads the emblem file at paint time, keyed by the selected window's window-id.",
+                "The pipeline (writer -> file -> window-id -> read -> display) is already proven by the reverted list probe, so this pace is the box DRAWING, not the plumbing — with one gap to close: the box-draw path (the highlight-border FFI) carries only the window's rect today, so the selected window's window-id must additionally reach the draw site for the file read.",
                 "",
                 "See seed memo Phase 3 and paddock \"Overlay surface\" + \"Paneboard internals\".",
                 "",
@@ -17218,11 +17219,10 @@
                 "",
                 "## Done when",
                 "- An emblem file paints the selected window's box with all populated regions, identity-led, per-region style from the file with built-in defaults.",
-                "- A window with no emblem file is unchanged from today.",
-                "- Gated on the resolver: if the probe failed, this pace does not run and emblems stay on the list only."
+                "- A window with no emblem file is unchanged from today."
               ],
               "jjgtn_silks": "pb-box-emblems",
-              "jjgtn_basis": "a4a4231"
+              "jjgtn_basis": "208740c"
             }
           ]
         },
