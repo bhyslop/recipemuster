@@ -9,6 +9,10 @@ A pace is cut only when an idea graduates from discuss to do — at which point 
 Until then the heat sits stabled, often with zero paces.
 
 Premise-touching ideas wait on Fable: any idea that would amend a cinched ₣BZ premise graduates only after Fable's ₣BZ heat-review has weighed it.
+
+In-heat mint (operator decision 260623): this heat finishes WITHOUT Fable for its build work — the buildout vocabulary it needs is minted in-heat, applying the selection gates by hand (grep gate, no trodden words, terminal-exclusivity, family coherence), not deferred to Fable's asterism pass.
+This lifts the standing "vocabulary waits on Fable" gate for THIS heat's build names only — the module/family/colophon names and any mechanism-discriminator vocabulary the specs need.
+It does not pull in the orthogonal standalone remints: the heed/compear and assize fair-faced remints stay separate ideas, untouched by this decision.
 Keep this catalog shape-shaped — each idea a named tension plus a current lean, never a running discussion log.
 Genuinely thin or orthogonal ideas belong in itches or the horizon roadmap, not here; this paddock is for ideas worth deliberating with heat context.
 
@@ -18,7 +22,7 @@ Using the current canonical word meanwhile is therefore never a dingleberry — 
 ## Conviction — the federation configuration model (settled modeling axis)
 
 The one settled shape in this paddock: the modeling axis is decided, even though the build is not.
-What is settled is HOW a federation is modeled; that it gets built is gated on the office-federation heat ₣BZ completing the single-federation case, and the vocabulary it needs is gated on Fable.
+What is settled is HOW a federation is modeled; that it gets built is gated on the office-federation heat ₣BZ completing the single-federation case, and the vocabulary it needs is now minted in-heat (operator decision 260623), no longer gated on Fable.
 
 The deciding finding: Google Workforce Identity Federation provider config is vendor-invariant — the same gcloud flags with identical semantics for Microsoft Entra, Okta, or generic OIDC, only the values differ (doc-confirmed against live GCP docs).
 So the regime must not enumerate vendors; enumerating them was reasoning from exactly two, and the docs settle that the shape generalizes.
@@ -48,15 +52,24 @@ The discriminator splits public config from the one durable secret along the rig
 Boundary: vendor-invariance holds for OIDC only.
 The one place a genuine per-protocol fork would reappear is OIDC versus SAML — a structurally different provider — but the manor is OIDC-only, so that is out of scope.
 
-PROVEN end-to-end (260622, pace ₢BfAAH): the caged programmatic path — a Keycloak-minted OIDC id_token via uploaded JWKS → GCP STS → don → authorized depot-API call — ran GREEN in our own harness, no longer merely doc-confirmed. Full findings in the config-model memo's "Proof result" section.
+PROVEN end-to-end (260622): the caged programmatic path — a Keycloak-minted OIDC id_token via uploaded JWKS → GCP STS → don → authorized depot-API call — ran GREEN in our own harness, no longer merely doc-confirmed. Full findings in the config-model memo's "Proof result" section.
 Decision economy (operator ruling, refined 260622 post-proof): the chain was proven by an expedient gcloud POC (now torn down); the DURABLE establishment + accessor are REST-only — NO direct gcloud — and are the deferred build-units, not this proof.
-Three-layer home (cinched): the realm config is baked vessel DATA; the establishment + accessor are station BCG MODULES (orchestration); Keycloak itself is the vessel. Durable test-foedus / pool / provider names are Fable's asterism work (the POC's provisional names are torn down).
+Three-layer home (cinched): the realm config is baked vessel DATA; the establishment + accessor are station BCG MODULES (orchestration); Keycloak itself is the vessel.
+De-lamination (settled 260623): the proof script is a flattened cross-section of all three layers, and productizing de-laminates it.
+configure_realm's live admin-REST evaporates into declarative entries in the baked fdkyclk-realm.json (the import mechanism already rides the vessel Dockerfile's --import-realm, and the realm JSON is currently a near-empty shell carrying only the realm envelope), so the durable rig holds no runtime admin-REST.
+The JWKS rotates per charge — the realm signing key is generated fresh on import, deliberately committing no secret — so affiance re-syncs the uploaded public keys on every establish rather than once (the JWKS-refresh coupling, made concrete).
+The test-facility orchestrator is ONE coherent BCG module: charge then ready-poll then fetch-JWKS then call affiance, and the inverse jilt then quench.
+It composes existing verbs plus the one JWKS bridge; it does NOT contain the accessor (that stays a mechanism arm of rba, the production-shared STS-then-don machinery) and it does NOT reimplement affiance or brevet (existing production verbs, called not contained).
+Membrane: affiance never learns "Keycloak" — all Keycloak knowledge is quarantined in the baked realm DATA and this orchestrator; the orchestrator names its vessel by reference but is BLIND to the realm contents (affiliation by reference, never by ownership), which is what stops the de-lamination from silently re-laminating.
+Naming (minted in-heat 260623, gates applied by hand, grep-clean, terminal-exclusivity intact): the module is rbxk_keycloak.sh in a new rbx family — the federation establishment / synthetic-trust test-rig family, pre-earmarked in the proof header as the "rbx_ establishment/accessor units"; its setup/teardown tabtargets take colophons under rbw-xkX.
+The rbx letter doubles as a holding family for other poorly-slotted things until a later mass remint; rby was rejected as it is the yelp/handbook-vocabulary family (rbyk would have been terminal-legal but incoherent).
+One bondstone — the keycloak facility, named plainly because a test-scaffold bondstone wants the most cold-probe-able word, not an asterism word; the setup/teardown verbs are toothing on it, settled plainly at module-cut time.
 
 RESOLVED (260622, operator decision — see the config-model memo's "Fork resolution" section): both forks settled.
 Fork one (test-manor topology) — MULTIPLICITY IS THE GOAL: the test manor stands up the real Entra foedus (interactive) and a Keycloak test foedus (programmatic) side by side, each its own pool; per-run-switching is rejected, a dedicated second org is noted-unneeded.
 Fork two (programmatic JWKS source) — a single UPLOADED field: the local Keycloak crucible is unreachable from Google so its public JWKS must be uploaded regardless; the token behind it may be Keycloak-minted (preferred) or self-signed (fallback), a choice below the regime; issuer-discovered is not modeled (re-cut named if a publicly-hosted automated IdP ever enters).
 
-Flagged for Fable: the mechanism discriminator wants a quoin and its value words want minting; the two new RBS0 subdocs this model calls for want acronym mints — all Fable's, owing the asterism check and the grep gate.
+Minted in-heat (260623, was Fable-flagged): the mechanism discriminator quoin and its value words, and the two new RBS0 subdoc acronyms this model calls for, are minted in-heat applying the gates by hand (grep gate, terminal-exclusivity, family coherence) — no longer deferred to Fable's asterism pass.
 
 Detail and reasoning trail: the federation-config-model memo (Memos/memo-20260618-Bf-federation-config-model.md).
 
@@ -288,12 +301,12 @@ Revisit trigger: a new or migrated IdP that returns the field, or Microsoft addi
 ## Future build order (held as shape; gated on ₣BZ; not slated)
 
 The configuration-model conviction implies a sequence of buildable units; their dependency order is fixed even though none has graduated to a pace.
-No unit is slated: each waits until the conviction graduates from discuss to do, and graduation itself waits on the Fable review of ₣BZ's premise-touching pieces.
+The Fable gate is lifted (operator decision 260623) and the front-of-heat design pace has settled the de-lamination, the Keycloak-control home, and the build naming: these units are now ready to graduate into slated build paces, in the dependency order below.
 
 The spine, in dependency order:
 Spec-first, before any code — evolve the federation-regime and affiance specs to the core-plus-mechanism-gate shape and stand up the two new subdocs as contracts; contract before code is project doctrine, so this is a hard predecessor of every code unit below.
 Regime mechanism discriminator and mechanism-conditional affiance — depends on the spec unit. (The affiance soft-deleted-pool handling was settled in ₣BZ as refuse-and-rotate, NOT undelete — the "undelete-on-DELETED fix" this once anticipated is moot; quota-flatness rides never-jilting the durable pool.)
-Programmatic-trust establishment bash — depends on the spec unit and the discriminator; stands up the Keycloak test crucible (preferred) or a self-signed caged trust (fallback) and uploads its public JWKS; the durable replacement for the throwaway manual spike.
+Programmatic-trust establishment bash — the rbxk_keycloak orchestrator (charge, ready-poll, fetch-JWKS, call affiance) over the fattened baked realm; depends on the spec unit and the discriminator; stands up the Keycloak test crucible (preferred) or a self-signed caged trust (fallback) and uploads its public JWKS through affiance; the durable replacement for the throwaway manual spike.
 Programmatic accessor (token → STS) — depends on the discriminator and on a programmatic trust existing to acquire against; obtains a token from Keycloak's non-interactive RFC 7523 grant (or self-mints, fallback) and exchanges at STS.
 Per-vendor setup guide (Entra first) — depends only on the core-facts contract line, so it runs parallel to the three code units.
 Attach a caged subject to a test depot via the admission verbs — strictly last, since it consumes ₣BZ's admission-verb surface; it cannot be slated until ₣BZ lands.
