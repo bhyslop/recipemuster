@@ -1098,14 +1098,10 @@ rbfd_build() {
     buc_info "Output: ${BURD_OUTPUT_DIR}/${RBF_FACT_ARK_YIELD}-${RBGC_ARK_BASENAME_ATTEST}-${z_plat_suffix}"
   done
 
-  # Write build ID fact file (dispatched build ID for cross-check with vouch provenance)
-  buf_write_fact_single "${RBF_FACT_BUILD_ID}" "${z_build_id}"
-
   buc_info "Output: ${ZRBFC_OUTPUT_VESSEL_DIR}"
   buc_info "Output: ${BURD_OUTPUT_DIR}/${RBF_FACT_HALLMARK}"
   buc_info "Output: ${BURD_OUTPUT_DIR}/${RBF_FACT_GAR_ROOT}"
   buc_info "Output: ${BURD_OUTPUT_DIR}/${RBF_FACT_ARK_STEM}"
-  buc_info "Output: ${BURD_OUTPUT_DIR}/${RBF_FACT_BUILD_ID}"
 
   buc_success "Vessel image built: ${RBRV_SIGIL}"
 }

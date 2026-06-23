@@ -375,9 +375,8 @@ zrbgc_kindle() {
   # its steps need.
   readonly RBGC_RELIQUARY_TOOL_GCRANE="gcrane"
 
-  # Fact-file filenames (written to BURD_OUTPUT_DIR by producers, read by tests)
+  # Fact-file filenames (written to BURD_OUTPUT_DIR by producers)
   readonly RBF_FACT_HALLMARK="rbf_fact_hallmark"
-  readonly RBF_FACT_BUILD_ID="rbf_fact_build_id"
   readonly RBF_FACT_GAR_ROOT="rbf_fact_gar_root"
   readonly RBF_FACT_ARK_STEM="rbf_fact_ark_stem"
   readonly RBF_FACT_ARK_YIELD="rbf_fact_ark_yield"

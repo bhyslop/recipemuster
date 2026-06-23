@@ -136,17 +136,6 @@ The full
 string.
 
 //axhoot_typed_output axd_fact
-{rbf_fact_build_id}
-The
-{gcb_build}
-job ID from the `builds.create` submission.
-Used by
-{rbtgo_ark_vouch}
-for
-{rbtgr_provenance}
-verification.
-
-//axhoot_typed_output axd_fact
 {rbf_fact_gar_root}
 {gar_service}
 registry prefix.
