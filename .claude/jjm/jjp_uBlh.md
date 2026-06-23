@@ -50,7 +50,7 @@ The only host-crossing channel is the terminal stream itself (OSC / iTerm badge)
 
 Style is optional per region (a font size and a color), sourced from an rbm-side config vvx reads at write time, never compiled in — edit the config, rewrite on any engagement, see it on the next alt-tab; paneboard supplies built-in defaults for any absent field.
 Region STRUCTURE (slot + lines + style) is frozen; region CONTENT — which lines land in which band — is deliberately soft and config-tunable.
-Starting content (soft): top = identity + pace name; middle = repo + working directory; bottom = reserved.
+Starting content (soft): top = identity + pace name; middle = repo + working directory; bottom = identity (mirrors top, so the identity reads from all four corners — paneboard paints top into both top corners and bottom into both bottom corners).
 
 ## Overlay surface — the selection box
 
