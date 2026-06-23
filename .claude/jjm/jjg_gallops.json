@@ -17930,8 +17930,8 @@
         "₢BiAAM": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260622-1222",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260623-1643",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "Augur gains the express-or-chain fallback for its lode touchmark — the second consumer of the shared footings.",
                 "",
@@ -17954,7 +17954,7 @@
                 "rbw-tl clean and the fast suite green."
               ],
               "jjgtn_silks": "augur-chaining-fact-fallback",
-              "jjgtn_basis": "fad50db"
+              "jjgtn_basis": "9e6c276"
             }
           ]
         },
