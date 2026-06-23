@@ -17040,9 +17040,10 @@
         "₢BhAAO",
         "₢BhAAI",
         "₢BhAAL",
-        "₢BhAAN"
+        "₢BhAAN",
+        "₢BhAAQ"
       ],
-      "jjghn_next_pace_seed": "AAQ",
+      "jjghn_next_pace_seed": "AAR",
       "jjghn_paces": {
         "₢BhAAA": {
           "jjgpn_tacks": [
@@ -17498,6 +17499,37 @@
               ],
               "jjgtn_silks": "vvx-emblem-identity-derivation",
               "jjgtn_basis": "597fc28"
+            }
+          ]
+        },
+        "₢BhAAQ": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260623-1257",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Bind the diagram viewer's lifetime to its conductor so paneboard's death takes the viewer with it.",
+                "The viewer's launchd parentage is load-bearing — a paneboard child would inherit the network-deny sandbox and could not listen (paddock \"Paneboard internals\") — so the viewer outlives a dead conductor: an orphan left listening on its port, with a stale port-file naming a windowless process (observed live 2026-06-23, when a push \"succeeded\" to a viewer no operator could see).",
+                "",
+                "See paddock \"Paneboard internals\" for the launchd/sandbox constraint and the conductor in pbmv_viewer.rs; paddock \"Transport\" for the standalone-viewer invariant; paddock \"Cross-repo operation\" for the git -C mechanics.",
+                "",
+                "## Character",
+                "Paneboard-side conductor plus a viewer-side watch leg. Mechanical, but the standalone-viewer invariant constrains the design.",
+                "",
+                "## Cinched",
+                "The viewer must NOT become a paneboard child — that inheritance is exactly what the launchd routing exists to avoid.",
+                "So the bind is explicit, not by process parentage: the conductor signals its own liveness to each viewer it spawns (its PID), and the viewer self-exits when that signal goes dead — crash-safe, covering SIGKILL and panic, not only a clean exit.",
+                "The watch must tolerate PID reuse — pair the PID with a conductor-owned liveness token (the singleton lock is the natural one), never a bare-PID poll.",
+                "The standalone viewer is preserved: launched with no conductor signal it never watches and stays independent (the standalone viewer must keep working for the no-paneboard case).",
+                "Defense-in-depth: the conductor also reaps any pre-existing orphan viewer at startup, before spawning a fresh one.",
+                "",
+                "## Done when",
+                "- Killing paneboard — both a clean exit and a SIGKILL — makes its spawned viewer exit on its own shortly after.",
+                "- A viewer launched with no conductor signal is unaffected: it keeps running with no conductor.",
+                "- Starting paneboard reaps any orphan viewer left by a prior run before spawning a fresh one."
+              ],
+              "jjgtn_silks": "pb-viewer-dies-with-conductor",
+              "jjgtn_basis": "45c63c7"
             }
           ]
         }
