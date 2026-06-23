@@ -16567,6 +16567,7 @@
       "jjghn_status": "jjghe_racing",
       "jjghn_order": [
         "₢BfAAI",
+        "₢BfAAN",
         "₢BfAAM",
         "₢BfAAL",
         "₢BfAAK",
@@ -16580,7 +16581,7 @@
         "₢BfAAG",
         "₢BfAAH"
       ],
-      "jjghn_next_pace_seed": "AAN",
+      "jjghn_next_pace_seed": "AAO",
       "jjghn_paces": {
         "₢BfAAA": {
           "jjgpn_tacks": [
@@ -16970,6 +16971,33 @@
               ],
               "jjgtn_silks": "affiance-programmatic-mechanism-arm",
               "jjgtn_basis": "0ef1a6e"
+            }
+          ]
+        },
+        "₢BfAAN": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260623-0903",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Work out the un-understood Keycloak-side RFC 7523 JWT-authorization-grant setup, and bake the durable realm so configure_realm evaporates.",
+                "",
+                "The proof minted the id_token via the PASSWORD grant as a de-risk stepping-stone; the durable rig mints via the RFC 7523 grant, whose Keycloak-side setup (a trusted asserting key registered in the realm) is un-built and un-understood — understand it first, then bake it.",
+                "Fatten the baked realm at rbmm_moorings/rbmv_vessels/rbev-bottle-fdkyclk/fdkyclk-realm.json with the client, audience mapper, user, frontendUrl, and the RFC 7523 trusted-key config as declarative import entries, until the proof's configure_realm has nothing left to apply live.",
+                "",
+                "Source: fdkyclk-proof.sh (configure_realm + mint_idtoken) is the live-applied form being de-laminated into baked DATA; the vessel Dockerfile already loads it via --import-realm; the paddock de-lamination section is the model.",
+                "",
+                "## Done when",
+                "The fdkyclk vessel boots a fully-configured realm via --import-realm with no runtime admin-REST, and mints an id_token via the RFC 7523 grant.",
+                "",
+                "## Cinched",
+                "No committed signing secret: the realm signing key stays generated-fresh-on-import, so the public JWKS rotates per charge and the orchestrator re-syncs it each establish.",
+                "",
+                "## Character",
+                "Investigation (RFC 7523 on Keycloak) plus mechanical realm-JSON authoring."
+              ],
+              "jjgtn_silks": "rfc7523-grant-and-baked-realm",
+              "jjgtn_basis": "879cce7"
             }
           ]
         }
