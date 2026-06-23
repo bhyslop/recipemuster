@@ -17848,8 +17848,8 @@
         "₢BiAAK": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260622-1205",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260623-1525",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "Yoke gains the express-or-chain fallback for its reliquary touchmark, and lays the two shared footings the sibling verbs will reuse.",
                 "",
@@ -17887,7 +17887,7 @@
                 "rbw-tl clean and the fast suite green."
               ],
               "jjgtn_silks": "yoke-touchmark-fact-fallback",
-              "jjgtn_basis": "a4163db"
+              "jjgtn_basis": "2c41f37"
             }
           ]
         },
