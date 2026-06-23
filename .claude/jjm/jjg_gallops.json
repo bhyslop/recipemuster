@@ -17036,9 +17036,10 @@
         "₢BhAAG",
         "₢BhAAH",
         "₢BhAAI",
-        "₢BhAAL"
+        "₢BhAAL",
+        "₢BhAAN"
       ],
-      "jjghn_next_pace_seed": "AAN",
+      "jjghn_next_pace_seed": "AAO",
       "jjghn_paces": {
         "₢BhAAA": {
           "jjgpn_tacks": [
@@ -17405,6 +17406,39 @@
               ],
               "jjgtn_silks": "vvx-window-id-resolver",
               "jjgtn_basis": "843a275"
+            }
+          ]
+        },
+        "₢BhAAN": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260623-0932",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Give the viewer a light/dark pair per image and a 'd'/'l' toggle, so it proofs exactly what the README's `<picture>` blocks will render in both modes.",
+                "The README ships two committed SVGs per diagram (`diagrams/{stem}.svg` plus `{stem}-dark.svg`, the dark one recolored by the rbtd crate's pure palette map), and the viewer cannot derive dark from light — the palette is PlantUML-skin-specific and stays single-homed in rbm — so both variants must arrive over the wire.",
+                "",
+                "Three parts: a wire revision, the pusher sending the pair, and the viewer holding both plus the keys.",
+                "",
+                "See paddock \"Transport\"; the viewer reference impl (pbgvt_transport.rs, pbgvd_decode.rs, pbgvu_ui.rs in the paneboard checkout); the frozen wire contract (poc \"Diagram Viewer — Wire Protocol\"); the README `<picture>` blocks and the darken recolor.",
+                "",
+                "## Cinched",
+                "The pair is carried ATOMICALLY in one frame, additively: a new optional second-payload length (default absent = today's single-payload frame, so old pushers are unchanged), the dark bytes following the light.",
+                "Do NOT pair via the existing instance id — that field is the reserved viewer-INSTANCE handle, not an image id.",
+                "Recolor stays OUT of the viewer: it never computes dark, only displays the two payloads it received — keeps it format-agnostic (raster or non-PlantUML SVG just carry light alone, or light twice).",
+                "Always-paired guarantee — pick one at build, either keeps the viewer near-dumb: the pusher sends both (duplicating light when no dark exists), or the viewer falls back 'd'->light when no dark arrived.",
+                "The 'd'/'l' toggle RETAINS zoom+pan — re-rasterize the other variant at the held viewport (update-semantics, not fresh), so theme-switching never resets the view.",
+                "",
+                "## Character",
+                "Multi-part and crosses the frozen wire — the one pace here carrying a protocol-contract revision.",
+                "",
+                "## Done when",
+                "- A push carries a light/dark pair; 'd' and 'l' switch the displayed variant, retaining zoom+pan, with a small current-mode indicator (default light).",
+                "- An old single-payload push still renders unchanged.",
+                "- The frozen wire contract (poc spec plus the `pbgvw_` census) is revised to document the second payload, and re-frozen."
+              ],
+              "jjgtn_silks": "viewer-light-dark-pair",
+              "jjgtn_basis": "7215e02"
             }
           ]
         }
