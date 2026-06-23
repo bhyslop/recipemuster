@@ -18210,8 +18210,8 @@
                 "Both cases are authored on a service-tier fixture; the theurge crate builds; the fixture is registered (service/dogfight/complete as appropriate); shellcheck clean; rbw-tc lists the new case names.",
                 "Runtime is explicitly UNVERIFIED here — pass/fail is the run pace's to establish."
               ],
-              "jjgtn_silks": "chaining-fact-cloud-cases",
-              "jjgtn_basis": "f4fa00b"
+              "jjgtn_silks": "chaining-fact-cloud-code",
+              "jjgtn_basis": "7302832"
             }
           ]
         },
