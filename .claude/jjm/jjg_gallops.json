@@ -17272,7 +17272,7 @@
         "₢BhAAI": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260623-1304",
+              "jjgtn_ts": "260623-1305",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "Recipe Bottle as the first consumer of the viewer primitive — by USE, not by automation.",
@@ -17293,8 +17293,8 @@
                 "- A committed rbdg* diagram has been unfurled through the primitive and worked by hand — zoom, pan, and the light/dark toggle — with the result judged good, or any viewer gap captured.",
                 "- A short affordance note records that diagrams are reviewed by unfurling them, naming the -dark sibling convention."
               ],
-              "jjgtn_silks": "rbm-diagram-push-regen-loop",
-              "jjgtn_basis": "88899f0"
+              "jjgtn_silks": "rbm-diagram-viewer-dogfood",
+              "jjgtn_basis": "8b41924"
             }
           ]
         },
