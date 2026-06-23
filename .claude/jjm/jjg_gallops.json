@@ -17232,8 +17232,8 @@
         "₢BhAAH": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260623-0907",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260623-1059",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "Layer paneboard over the viewer as its conductor and SOLE lifecycle owner:",
                 "paneboard spawns, AX-places, and respawns viewer instances, while the direct-socket viewer keeps working for the no-paneboard / Windows case.",
@@ -17263,7 +17263,7 @@
                 "- Verified: whether a paneboard-spawned child inherits the network-deny sandbox. If it does, the viewer is launched independently and paneboard only positions an already-running window — and that resolution is recorded."
               ],
               "jjgtn_silks": "pb-viewer-conductor",
-              "jjgtn_basis": "a7bb0d6"
+              "jjgtn_basis": "c066a47"
             }
           ]
         },
