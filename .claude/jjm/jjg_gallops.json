@@ -17413,6 +17413,7 @@
         "₢BiAAP",
         "₢BiAAR",
         "₢BiAAT",
+        "₢BiAAU",
         "₢BiAAS",
         "₢BiAAL",
         "₢BiAAE",
@@ -17425,7 +17426,7 @@
         "₢BiAAJ",
         "₢BiAAA"
       ],
-      "jjghn_next_pace_seed": "AAU",
+      "jjghn_next_pace_seed": "AAV",
       "jjghn_paces": {
         "₢BiAAA": {
           "jjgpn_tacks": [
@@ -18182,13 +18183,13 @@
         "₢BiAAT": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260623-1905",
+              "jjgtn_ts": "260623-1912",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
-                "The chaining-fact discipline's two cloud cases — integration (real producer->consumer) and provenance — split out of the band-matrix pace because they run real cloud builds (service-tier, GCP) and cannot be verified locally.",
+                "Author the chaining-fact discipline's two cloud cases — integration (real producer->consumer) and provenance — in code, without running them. Coding is fast and local; the slow GCP run splits to a follow-on pace.",
                 "",
                 "## Character",
-                "Service-tier test infrastructure: real cloud builds (ensconce, conjure), GCP-credentialed, minutes-long. The provenance case commits mid-flow, so it carries commit-in-fixture weight (the tools-never-commit discipline) — a mount-time design decision. Verified on a service/dogfight run, not locally.",
+                "Service-tier test infrastructure, authored but NOT run here. Real cloud builds (ensconce, conjure) are minutes-long and GCP-gated, so this pace stops at code: the cases compile, register, and list, but their runtime is UNVERIFIED until the run pace exercises them. The provenance case commits mid-flow, so it carries commit-in-fixture weight (the tools-never-commit discipline) — a mount-time design decision.",
                 "",
                 "## Home",
                 "Extend the theurge chaining-fact verification onto the service tier — these cases need GCP and live cloud builds, so they ride a service-tier fixture (NOT fast). The local band matrix already shipped as the chaining-fact-band fixture; these are its cloud siblings.",
@@ -18200,17 +18201,36 @@
                 "ensconce -> feoff -> commit -> conjure asserts the build's recorded git provenance matches the committed anchor — the proof the feoff split closed the live provenance hole (conjure builds FROM committed config, never an uncommitted election).",
                 "",
                 "## Cinched",
+                "Coding and running are split: this pace ships code only and is NOT a runtime verification — the cases are unproven until the run pace exercises them.",
                 "Where a negative is asserted, it asserts the named precision band (buc_reject), never bare nonzero.",
                 "The chain_next_invoke producer->consumer pairing is the integration vehicle (it replicates the operator's current/->previous/ promotion across invokes).",
                 "No relay — the depth-1 terminal-consume contract.",
                 "",
                 "## Done when",
-                "The integration case proves the band code survives the exec path with a real ensconce upstream of feoff.",
-                "The provenance case proves the committed-anchor stamp.",
-                "Both verified on a service (or dogfight) run."
+                "Both cases are authored on a service-tier fixture; the theurge crate builds; the fixture is registered (service/dogfight/complete as appropriate); shellcheck clean; rbw-tc lists the new case names.",
+                "Runtime is explicitly UNVERIFIED here — pass/fail is the run pace's to establish."
               ],
               "jjgtn_silks": "chaining-fact-cloud-cases",
-              "jjgtn_basis": "be8e110"
+              "jjgtn_basis": "f4fa00b"
+            }
+          ]
+        },
+        "₢BiAAU": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260623-1912",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Run and verify the chaining-fact cloud cases (integration + provenance) on a service-tier session — the slow GCP half, split from the authoring pace.",
+                "",
+                "## Character",
+                "Execution-only: no new code expected (the cases were authored upstream). A live GCP session running real cloud builds (ensconce, conjure), minutes-long. If a case fails, the fix loops back to authoring — fix-and-rerun.",
+                "",
+                "## Done when",
+                "The chaining-fact cloud fixture runs green on a service (or dogfight) session: the integration case proves the named band survives the real exec path with a real ensconce upstream of feoff; the provenance case proves the committed-anchor stamp."
+              ],
+              "jjgtn_silks": "chaining-fact-cloud-run",
+              "jjgtn_basis": "f4fa00b"
             }
           ]
         }
