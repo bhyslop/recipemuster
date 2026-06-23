@@ -45,16 +45,16 @@ rbfl_anoint() {
     || buc_die "Vessel '${RBRV_SIGIL}' is not a graft vessel (mode: ${RBRV_VESSEL_MODE:-unset})"
 
   # Read the chained build facts — the previous dispatch must be a build
-  # (kludge or ordain); buf_read_fact fails hard on a broken chain.
+  # (kludge or ordain); buf_read_fact_capture fails hard on a broken chain.
   buc_step "Reading chained build facts"
   local z_hallmark=""
-  z_hallmark=$(buf_read_fact "${RBF_FACT_HALLMARK}") \
+  z_hallmark=$(buf_read_fact_capture "${RBF_FACT_HALLMARK}") \
     || buc_die "No hallmark fact from the previous dispatch — run a build (kludge or ordain) immediately before anoint"
   local z_gar_root=""
-  z_gar_root=$(buf_read_fact "${RBF_FACT_GAR_ROOT}") \
+  z_gar_root=$(buf_read_fact_capture "${RBF_FACT_GAR_ROOT}") \
     || buc_die "No gar_root fact from the previous dispatch"
   local z_ark_stem=""
-  z_ark_stem=$(buf_read_fact "${RBF_FACT_ARK_STEM}") \
+  z_ark_stem=$(buf_read_fact_capture "${RBF_FACT_ARK_STEM}") \
     || buc_die "No ark_stem fact from the previous dispatch"
 
   local -r z_image_ref="${z_gar_root}/${z_ark_stem}/${RBGC_ARK_BASENAME_IMAGE}:${z_hallmark}"

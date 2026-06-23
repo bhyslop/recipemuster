@@ -34,6 +34,7 @@ source "${BASH_SOURCE[0]%/*}/rbfc0_core.sh"
 # guard-free; rblds_ (build-assembly spine) and rbldd_ (cloud delete) are
 # multiply-sourced — rbfl0_ledger cross-sources them for made-side abjure
 # — so they carry their own inclusion guards (BCG single-guard exception).
+source "${BASH_SOURCE[0]%/*}/rbldk_kind.sh"
 source "${BASH_SOURCE[0]%/*}/rbldl_lifecycle.sh"
 source "${BASH_SOURCE[0]%/*}/rblds_spine.sh"
 source "${BASH_SOURCE[0]%/*}/rbldd_delete.sh"

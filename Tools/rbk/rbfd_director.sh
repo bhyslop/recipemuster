@@ -902,7 +902,7 @@ zrbfd_elect_base_anchor() {
   }
 
   local z_brand=""
-  z_brand=$(buf_read_fact "${RBF_FACT_LODE_BRAND}") || buc_die "Failed to read kind-brand chaining fact"
+  z_brand=$(buf_read_fact_capture "${RBF_FACT_LODE_BRAND}") || buc_die "Failed to read kind-brand chaining fact"
 
   # Only a bole carries a base image to elect. A non-bole capture (an underpin or
   # conclave run earlier in the same depth-1 chain) hands its own touchmark
@@ -922,7 +922,7 @@ zrbfd_elect_base_anchor() {
   buc_step "Electing conjure base ANCHOR from bole capture"
 
   local z_touchmark=""
-  z_touchmark=$(buf_read_fact "${RBF_FACT_LODE_TOUCHMARK}") || buc_die "Failed to read touchmark chaining fact"
+  z_touchmark=$(buf_read_fact_capture "${RBF_FACT_LODE_TOUCHMARK}") || buc_die "Failed to read touchmark chaining fact"
   test -n "${z_touchmark}" || buc_die "Empty touchmark in chaining fact"
 
   local -r z_locator="${RBGL_LODES_ROOT}/${z_touchmark}:${z_tag}"

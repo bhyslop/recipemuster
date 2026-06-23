@@ -3,7 +3,8 @@
 
 NOTE: This operation writes `RBRV_RELIQUARY=«TOUCHMARK»` into every vessel's {rbrv_regime} file under `${RBRR_VESSEL_DIR}` so that subsequent Cloud Build operations (conjure, bind, graft, ensconce) consume the named tool image set as GCB step images.
 The about/vouch pipeline (gcloud, docker, alpine, syft) consumes reliquary tool images uniformly across all ordain modes; bind additionally uses gcrane for image-copy.
-The touchmark is validated once against GAR before any vessel file is touched: the conclave Lode package `{gar_lodes_namespace}/«TOUCHMARK»` must exist and carry all six expected tool cohort member tags as `:rbi_<tool>` sprued tags — one per tool — on that single package.
+The touchmark is resolved express-or-chain — an express positional argument wins, else the reliquary touchmark a conclave handed forward through the depth-1 chain — and asserted to be a reliquary kind by its kind-letter prefix before any GAR call.
+The touchmark is then validated once against GAR before any vessel file is touched: the conclave Lode package `{gar_lodes_namespace}/«TOUCHMARK»` must exist and carry all six expected tool cohort member tags as `:rbi_<tool>` sprued tags — one per tool — on that single package.
 On touchmark validation failure the operation errors diagnostically without writing any vessel.
 On per-vessel write failure the diagnostic identifies the failing vessel and the set of vessels already written, so the operator can resume from a known point.
 This primitive does not commit; the caller (orchestrator or operator) commits the {rbrv_regime} changes.
@@ -14,9 +15,16 @@ yokes a reliquary touchmark across every vessel:
 
 //axhopt_typed_parameter
 {rbtr_director}
-. *Validate Input Parameters*:
+. *Resolve the Reliquary Touchmark* (express-or-chain):
+.. `«TOUCHMARK»` resolves express-or-chain: an express first positional argument (e.g., `r260327172456`) wins; absent, it falls back to the reliquary touchmark a
+{rbtgo_lode_conclave}
+handed forward through the depth-1 cross-tabtarget chain. The chain is read terminally — never relayed.
+.. {rbbc_fatal}
+if neither an express argument nor a chained touchmark is present — a broken chain
 .. {rbbc_require}
-`«TOUCHMARK»` provided as first positional argument (e.g., `r260327172456`)
+the resolved `«TOUCHMARK»` decodes to a reliquary kind from its kind-letter prefix (the leading `r`)
+.. {rbbc_fatal}
+if the resolved touchmark is not a reliquary kind — a non-reliquary touchmark would otherwise fail late at cohort validation, so the kind is asserted up front
 
 //axhos_step
 . *Authenticate as
