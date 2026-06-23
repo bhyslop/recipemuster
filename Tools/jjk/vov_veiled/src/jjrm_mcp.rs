@@ -671,6 +671,107 @@ fn zjjrm_run_tabtarget(params: jjrm_VvxTtParams) -> (i32, String) {
 }
 
 // ============================================================================
+// vvx_render — diagram-viewer push (vvx-surface sibling tool, NOT a jjx command)
+// ============================================================================
+//
+// The lower tool behind the `unfurl` upper verb (JJS0 jjdo_render): read an
+// image and push it to the standalone diagram viewer. Like vvx_tt it is a
+// vvx-surface sibling tool — no officium, no gallops, transient — so it carries
+// none of the lock→load→save invariant the gallops operations do. Best-effort /
+// fail-soft: a missing port-file, an unreachable viewer, or an unreadable image
+// returns a soft notice, never an McpError and never a panic. Bringing the
+// viewer up is paneboard's job (it conducts the window), not this tool's.
+//
+// Wire framing is paneboard's FROZEN contract (the "Diagram Viewer — Wire
+// Protocol" section of its PoC spec; reference impl viewer/src/pbgvt_transport.rs):
+// one JSON control line '\n'-terminated, then exactly pbgvw_len payload bytes.
+// rbm speaks it as a client and freezes nothing. Control keys and the verb enum
+// carry the `pbgvw_` sprue, so `grep pbgvw_` is the format's whole census. The
+// optional dark variant of the light/dark pair is accepted into the signature
+// now (so producers and the viewer can be built against a stable tool) but is
+// NOT yet transported — the wire carries one payload until its pair revision —
+// so today only the light image is pushed.
+
+/// Discovery path tail (under `$HOME`): the viewer publishes its ephemeral
+/// localhost port here (write-temp-then-rename). Sibling to the emblem root
+/// under paneboard's per-user `~/.config/paneboard/` config home.
+const JJRM_VIEWER_PORT_TAIL: &str = ".config/paneboard/viewer.port";
+
+#[derive(Debug, serde::Deserialize, schemars::JsonSchema)]
+pub struct jjrm_RenderParams {
+    #[schemars(description = "Path to the light image to display (required). SVG or raster — the viewer sniffs the payload, so there is no type tag.")]
+    pub light: String,
+    #[schemars(description = "Optional path to the dark variant. Accepted now for a stable signature, but NOT yet transported (the wire carries one payload until its pair revision); today only the light image is pushed.")]
+    #[serde(default)]
+    pub dark: Option<String>,
+    #[schemars(description = "true = a fresh look (fit-to-window); false = iterate at the viewer's held zoom+pan. Set from conversational intent per the CLAUDE.md verb-table heuristic: a new or different image, or an explicit fresh look, is anew; tweaking the image already up is not. Defaults to a fresh look when omitted.")]
+    #[serde(default)]
+    pub anew: Option<bool>,
+}
+
+/// The one FROZEN control line: a `pbgvw_`-sprued JSON object, '\n'-terminated.
+/// `anew` picks the wire verb (fresh vs update), `len` is the payload byte
+/// count. Single home for the wire-format string — shared by the pusher and the
+/// framing test, so a drift from paneboard's frozen contract fails the test.
+fn zjjrm_render_control(anew: bool, len: usize) -> String {
+    let verb = if anew { "pbgvw_fresh" } else { "pbgvw_update" };
+    format!("{{\"pbgvw_verb\":\"{}\",\"pbgvw_id\":0,\"pbgvw_len\":{}}}\n", verb, len)
+}
+
+/// Push one image to the running viewer over the frozen `pbgvw_` wire.
+/// `Ok((bytes, port))` on a landed push; `Err(reason)` on any soft failure
+/// (no port-file, unreachable viewer, unreadable image). The caller renders
+/// either as a success-result notice — `vvx_render` never returns an McpError.
+fn zjjrm_push_viewer(light: &Path, anew: bool) -> Result<(usize, u16), String> {
+    use std::io::Write;
+
+    let home = std::env::var_os("HOME").ok_or("HOME is unset")?;
+    let port_path = PathBuf::from(home).join(JJRM_VIEWER_PORT_TAIL);
+    let port_text = std::fs::read_to_string(&port_path)
+        .map_err(|e| format!("read port-file {}: {e}", port_path.display()))?;
+    let port: u16 = port_text
+        .trim()
+        .parse()
+        .map_err(|e| format!("bad port in {}: {e}", port_path.display()))?;
+
+    let bytes = std::fs::read(light).map_err(|e| format!("read {}: {e}", light.display()))?;
+
+    let mut stream = std::net::TcpStream::connect(("127.0.0.1", port))
+        .map_err(|e| format!("connect 127.0.0.1:{port}: {e}"))?;
+    let control = zjjrm_render_control(anew, bytes.len());
+    stream
+        .write_all(control.as_bytes())
+        .map_err(|e| format!("write control: {e}"))?;
+    stream
+        .write_all(&bytes)
+        .map_err(|e| format!("write payload: {e}"))?;
+    stream.flush().map_err(|e| format!("flush: {e}"))?;
+    Ok((bytes.len(), port))
+}
+
+/// Build the fail-soft report for one render call — always a success-result
+/// string (the tool never errors). Names the landed push or the soft cause,
+/// and notes a supplied-but-not-yet-transported dark variant.
+fn zjjrm_render_report(p: &jjrm_RenderParams) -> String {
+    let anew = p.anew.unwrap_or(true);
+    let verb = if anew { "fresh" } else { "update" };
+    let dark_note = match &p.dark {
+        Some(d) => format!(" (dark variant {d} accepted; transport pending the wire's pair revision)"),
+        None => String::new(),
+    };
+    match zjjrm_push_viewer(Path::new(&p.light), anew) {
+        Ok((n, port)) => format!(
+            "unfurled {} ({} bytes, {}) to the viewer on 127.0.0.1:{port}{}",
+            p.light, n, verb, dark_note
+        ),
+        Err(e) => format!(
+            "viewer push failed soft: {e}{} — bring the viewer up (paneboard conducts it), then retry",
+            dark_note
+        ),
+    }
+}
+
+// ============================================================================
 // Officium lifecycle — jjdxo_* (Officium Lifecycle in JJS0)
 // ============================================================================
 
@@ -2278,6 +2379,13 @@ impl jjrm_McpServer {
         eprintln!("vvx_tt: exit={}", code);
         jjrm_result((code, report))
     }
+
+    #[tool(name = "vvx_render", description = "Put an image on the standalone diagram viewer — the lower tool behind the `unfurl` verb. Pushes the light image over paneboard's localhost wire: a fresh look (fit-to-window) when `anew` is true, an update at the viewer's held zoom+pan when false. Best-effort / fail-soft: an absent or unreachable viewer is a soft notice, not an error — bringing the viewer up is paneboard's job. Takes no officium and touches no gallops. The optional `dark` path is accepted for a stable signature but not yet transported (today only the light image is pushed).")]
+    async fn vvx_render(&self, Parameters(p): Parameters<jjrm_RenderParams>) -> Result<CallToolResult, McpError> {
+        let report = zjjrm_render_report(&p);
+        eprintln!("vvx_render: {}", report);
+        Ok(CallToolResult::success(vec![Content::text(report)]))
+    }
 }
 
 #[tool_handler]
@@ -2402,6 +2510,21 @@ mod tests {
         let (s, trunc) = zjjrm_tail(&big, 10);
         assert_eq!(s.len(), 10);
         assert!(trunc);
+    }
+
+    #[test]
+    fn render_control_matches_frozen_pbgvw_wire_format() {
+        // Pins the control line vvx_render emits to paneboard's FROZEN wire
+        // contract: one `pbgvw_`-sprued JSON object, '\n'-terminated, `anew`
+        // selecting fresh vs update. A drift here is a wire-format break.
+        assert_eq!(
+            zjjrm_render_control(true, 1234),
+            "{\"pbgvw_verb\":\"pbgvw_fresh\",\"pbgvw_id\":0,\"pbgvw_len\":1234}\n"
+        );
+        assert_eq!(
+            zjjrm_render_control(false, 0),
+            "{\"pbgvw_verb\":\"pbgvw_update\",\"pbgvw_id\":0,\"pbgvw_len\":0}\n"
+        );
     }
 
     #[test]

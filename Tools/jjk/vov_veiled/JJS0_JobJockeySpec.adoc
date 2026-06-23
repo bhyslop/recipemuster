@@ -247,6 +247,9 @@
 :jjdo_validate:       <<jjdo_validate,jjx_validate>>
 :jjdo_open:           <<jjdo_open,jjx_open>>
 
+// Viewer operation (vvx-surface sibling tool, not a jjx command)
+:jjdo_render:         <<jjdo_render,vvx_render>>
+
 // Remote dispatch operations
 :jjdo_bind:           <<jjdo_bind,jjx_bind>>
 :jjdo_send:           <<jjdo_send,jjx_send>>
@@ -294,6 +297,7 @@
 :jjsuv_notch:      <<jjsuv_notch,notch>>
 :jjsuv_chivvy:     <<jjsuv_chivvy,chivvy>>
 :jjsuv_cantle:     <<jjsuv_cantle,cantle>>
+:jjsuv_unfurl:     <<jjsuv_unfurl,unfurl>>
 
 // Upper API: context artifact
 :jjsuc_insert:  <<jjsuc_insert,CLAUDE.md JJK section>>
@@ -854,6 +858,18 @@ The resolver lives in the writer, never in the overlay reader: paneboard holds n
 The sole {jjdxw_marque} today is `iterm-session` (the on-disk scheme literal, paneboard PoC authority): {jjdx_vvx}, an unsandboxed iTerm descendant, self-scripts iTerm's AppleScript API to resolve its own window to the CGWindowID.
 A {jjdxw_marque} is the per-platform-AND-per-terminal seam — the lock is two-axis (OS × terminal), and `iterm-session` is one cell; future {jjdxw_marque_s} are one resolver leg and one registration apart, leaving {jjdxw_emblem} content, the file format, and the reader's handle lookup untouched.
 
+=== Diagram Viewer
+
+Beside the {jjdxw_emblem} sits a second surface of Job Jockey's window system: a standalone viewer onto which the operator unfurls an image.
+Where the {jjdxw_emblem} labels a window, the viewer _is_ a window — and "show me this image" is a project-agnostic act, since Job Jockey is the operator's master UI across every project and the viewing is generic; a producer of images (a diagram pipeline, say) is merely the first caller.
+paneboard conducts the windows beneath — spawning the viewer, keeping it alive, leaving the operator to tile it like any other window — while Job Jockey is the operator-facing control plane on top.
+
+The operator's entire memorized surface is one verb, {jjsuv_unfurl}, mapping across the Upper/Lower register gap to the deliberately boring {jjdo_render} (see Upper API).
+A viewer image may carry an optional light/dark pair: a producer ships two renders the viewer cannot derive one from the other, so both travel the wire, and the viewer holds both and toggles between them.
+{jjdo_render} accepts the pair as its two-path signature; the wire framing that transports the second payload is paneboard's to freeze.
+
+The surface itself stays a plain noun — "the viewer" — and earns no quoin until a normative statement must name it.
+
 == Premises
 
 [[jjdk_sole_operator]]
@@ -1080,6 +1096,14 @@ Maps to {jjdo_enroll} with {jjda_first}.
 {jjsuv_cantle}::
 Add a {jjdpr_pace} immediately after the current {jjdpr_pace}.
 Maps to {jjdo_enroll} with {jjda_after} bound to the current {jjdpr_pace_p} {jjdt_coronet}.
+
+[[jjsuv_unfurl]]
+//axl_voices axi_cc_claudemd_verb
+{jjsuv_unfurl}::
+Put an image on the diagram viewer (see Diagram Viewer).
+Maps to {jjdo_render}.
+The operator's whole memorized surface for the viewer is this one verb; the register gap to the deliberately boring {jjdo_render} is load-bearing, so the mapping cannot be pattern-guessed.
+The driving model sets the {jjdo_render} `anew` flag from conversational intent — a new or different image, or an explicit fresh look, is `anew`; tweaking the image already up is not — per the heuristic documented in the {jjsuc_insert} verb table.
 
 
 === Slash Commands
@@ -2380,6 +2404,36 @@ include::JJSCSC-scout.adoc[]
 ==== {jjdo_show}
 
 include::JJSCPD-parade.adoc[]
+
+=== Viewer Operations
+
+Unlike every operation above, the viewer push owns no {jjdgr_gallops} access and needs no {jjdxo_officium}.
+It is a transient {jjdx_vvx}-surface {jjdx_tool} — a sibling to the tabtarget runner, not a {jjdx_cli} command — that reaches the standalone diagram viewer over paneboard's wire and persists nothing, so it is exempt from the lock → load → save invariant the gallops operations carry.
+
+[[jjdo_render]]
+//axvo_procedure axd_transient
+==== {jjdo_render}
+
+The lower tool behind {jjsuv_unfurl}: read an image and push it to the standalone diagram viewer (see Diagram Viewer).
+Served as the `vvx_render` {jjdx_tool}; it takes no {jjdxo_officium} and touches no {jjdgr_gallops}.
+
+{jjds_arguments}
++
+. A *light* image path (required) and an optional *dark* image path — the two-path signature of the light/dark pair.
+{jjdo_render} is generic: it never assumes any producer's `-dark` naming, so the caller resolves both paths and passes them.
+. `anew` (optional boolean): a fresh look (fit-to-window) when true, an iteration at the held zoom and pan when false.
+Set by the driving model per the {jjsuc_insert} heuristic, never an operator-typed flag.
+
+{jjds_behavior}
++
+. Read the light image bytes; on any read failure, fail soft — no push.
+. Discover the running viewer by its port-file and connect over localhost TCP; if it is absent or unreachable, fail soft.
+Bringing the viewer up is paneboard's responsibility (it conducts the window), not this tool's.
+. Send one frame — `anew` selecting the fresh-versus-update wire verb — then the light payload, and close.
+The wire framing is paneboard's frozen contract (the `pbgvw_` viewer-wire protocol); rbm speaks it as a client and freezes nothing.
++
+The dark path is accepted into the signature now so producers and the viewer can be built against a stable tool, but its transport waits on the wire's optional-second-payload revision; until then {jjdo_render} pushes the light payload alone.
+Transient: it persists nothing, so it forces no {jjdz_reprieve} episode.
 
 === Officium Operations
 

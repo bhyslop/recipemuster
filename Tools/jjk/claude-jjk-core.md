@@ -100,6 +100,7 @@ NEVER invent param fields — check the reference below first.
 | retire | heat | `jjx_archive` |
 | restring | heat | `jjx_transfer` |
 | foray | remote dispatch | See Foray Protocol below |
+| unfurl | image | See Unfurl Protocol below |
 
 **MCP Command Reference:**
 
@@ -295,6 +296,22 @@ When user says "foray" or asks to run something on a remote machine:
 **`jjx_send`** is for synchronous one-off commands (no pensum, no polling). Use when the command is short and you need inline results.
 
 **Windows fundus body discipline:** When the fundus is a Windows host, both `jjx_send` and `jjx_relay`-dispatched tabtargets traverse the cmd.exe → wsl.exe / cygwin / PowerShell transport stack. Body authoring rules (escape `\$name` for w-letter wsl.exe transit, no heredocs, single-line `;`-joined for cmd.exe transit, lazy-flush avoidance for PowerShell cmdlets, etc.) live in your project's Windows scripting guide, if present. Empirical record under `Memos/memo-YYYYMMDD-windows-transport-{topic}.md`.
+
+### Unfurl Protocol
+
+When the user says "unfurl" (put an image on the diagram viewer), invoke the **`vvx_render`** MCP tool — `mcp__vvx__vvx_render`, a sibling of the gallops dispatcher, NOT a `jjx_*` command. It takes no officium and no model.
+
+Params:
+- `light` (required) — path to the image to display (SVG or raster).
+- `dark` (optional) — path to a dark variant. Accepted for a stable signature but **not yet transported**; today only the light image is pushed.
+- `anew` (optional boolean) — **you set this from conversational intent**, per the heuristic below.
+
+**The `anew` heuristic** (the judgment you legitimately hold — decide alike every time so the surface is consistent):
+- `anew: true` — a fresh look (fit-to-window). Use when the image is **new or different** from what is up, or the user explicitly asks for a fresh/refit view.
+- `anew: false` — an iteration at the viewer's **held zoom + pan**. Use when the user is **tweaking the same image already on the viewer** (a re-render after an edit). Retaining the viewport is the point: the operator stays zoomed where they were looking.
+- When unsure, omit it — the tool defaults to a fresh look (fit-to-window).
+
+The push is **best-effort / fail-soft**: an absent or unreachable viewer comes back as a soft notice (not an error). Bringing the viewer up is paneboard's job (it conducts the window), so on a soft-fail, relay the notice — do not retry in a loop.
 
 ### Commit Discipline
 
