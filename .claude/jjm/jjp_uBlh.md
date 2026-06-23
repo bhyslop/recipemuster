@@ -37,6 +37,24 @@ The pair rides ADDITIVELY — a second optional payload within one frame, its ab
 The viewer holds both and toggles between them ('d'/'l') with the held zoom+pan retained, an in-tool proof of exactly what the README <picture> blocks render in each mode.
 Building it revises and re-freezes the viewer wire contract (the poc spec's protocol section).
 
+## Viewer surface — a JJK master-UI primitive
+
+The diagram viewer is a JOB JOCKEY surface, not an RBK one.
+JJK is the operator's master UI across every project, so "show me this image" is a project-agnostic act; RBK is merely the first producer of images, and the viewing is generic.
+This sits beside the emblem, which JJK already owns — both are surfaces of the JJK window system, with paneboard conducting the windows beneath (spawn / place / respawn) and JJK the operator-facing control plane on top.
+
+The operator's entire memorized surface is ONE verb: unfurl — put an image on the viewer.
+It follows the Upper-API two-layer split (see JJS0 Upper API): the vivid operator verb maps across a register gap to a deliberately boring lower tool, so the mapping cannot be pattern-guessed.
+unfurl maps to a render tool on vvx — the non-sandboxed JJK server reads the image and pushes it to the viewer port over paneboard's wire, spawning the viewer if absent and failing soft otherwise.
+The render tool carries an anew flag: a fresh look (fit-to-window) versus an iteration (retain the held zoom+pan).
+The driving LLM sets anew from conversational intent — a new or different diagram, or an explicit fresh look, is anew; tweaking the diagram already up is not.
+That is judgment the LLM legitimately holds, not a banned guess at the mapping; consistency comes from documenting the heuristic in the verb table, so every instance decides alike.
+
+The render tool takes a light path plus an OPTIONAL dark path (the light/dark pair, see Transport).
+The viewer cannot derive dark, and the tool stays generic — it never assumes RB's -dark naming, so the producer resolves both paths and passes them.
+View manipulation lives entirely in viewer keystrokes, never in JJK vocabulary: f fits, d / l switch theme (and flip the viewer backing white<->dark, or the dark variant's light ink vanishes), zoom/pan stay scroll/drag.
+The surface noun is left plain ("the viewer"); the operator never names it, so no quoin is minted now.
+
 ## Emblem and window reference
 
 An emblem is the displayed label: an ordered set of stacked regions (top / middle / bottom), each region a list of lines plus optional style, on fixed black backing pills.
