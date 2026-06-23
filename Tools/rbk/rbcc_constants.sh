@@ -209,6 +209,7 @@ rbcc_emit_consts() {
     BUBC_band_recipe    \
     BUBC_band_hygiene   \
     BUBC_band_credless  \
+    BUBC_band_chain     \
     BUBC_band_selftest  \
   ; do
     z_stem="${z_name#BUBC_}"

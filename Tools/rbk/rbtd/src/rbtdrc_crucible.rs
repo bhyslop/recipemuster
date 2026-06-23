@@ -2594,6 +2594,7 @@ pub static RBTDRC_FIXTURES: &[&'static rbtdre_Fixture] = &[
     &crate::rbtdrf_fast::RBTDRF_FIXTURE_PODVM_RESOLVE,
     &crate::rbtdru_cupel::RBTDRU_FIXTURE_CUPEL,
     &crate::rbtdrn_conformance::RBTDRN_FIXTURE_CONFORMANCE,
+    &crate::rbtdrh_chain::RBTDRH_FIXTURE_CHAINING_FACT_BAND,
     &crate::rbtdrf_handbook::RBTDRF_FIXTURE_HANDBOOK_RENDER,
     &crate::rbtdrp_lifecycle::RBTDRP_FIXTURE_DEPOT_LIFECYCLE,
     &crate::rbtdrk_depot::RBTDRK_FIXTURE_FREEHOLD_ESTABLISH,
@@ -2638,6 +2639,7 @@ pub static RBTDRC_SUITES: &[rbtdre_Suite] = &[
             &crate::rbtdrf_fast::RBTDRF_FIXTURE_RECIPE_VALIDATION,
             &crate::rbtdru_cupel::RBTDRU_FIXTURE_CUPEL,
             &crate::rbtdrn_conformance::RBTDRN_FIXTURE_CONFORMANCE,
+            &crate::rbtdrh_chain::RBTDRH_FIXTURE_CHAINING_FACT_BAND,
         ],
     },
     // Service — fast + GCP-credentialed bare fixtures.
@@ -2664,6 +2666,7 @@ pub static RBTDRC_SUITES: &[rbtdre_Suite] = &[
             &RBTDRC_FIXTURE_BATCH_VOUCH,
             &RBTDRC_FIXTURE_TERRIER_SCAFFOLD,
             &RBTDRC_FIXTURE_TERRIER_ATOMICITY,
+            &crate::rbtdrh_chain::RBTDRH_FIXTURE_CHAINING_FACT_BAND,
         ],
     },
     // Crucible — fast + container-runtime crucible fixtures.
@@ -2684,6 +2687,7 @@ pub static RBTDRC_SUITES: &[rbtdre_Suite] = &[
             &RBTDRC_FIXTURE_TADMOR,
             &RBTDRC_FIXTURE_SRJCL,
             &RBTDRC_FIXTURE_PLUML,
+            &crate::rbtdrh_chain::RBTDRH_FIXTURE_CHAINING_FACT_BAND,
         ],
     },
     // Complete — fast + every dependency-tiered fixture (service ∪ crucible).
@@ -2713,6 +2717,7 @@ pub static RBTDRC_SUITES: &[rbtdre_Suite] = &[
             &RBTDRC_FIXTURE_TADMOR,
             &RBTDRC_FIXTURE_SRJCL,
             &RBTDRC_FIXTURE_PLUML,
+            &crate::rbtdrh_chain::RBTDRH_FIXTURE_CHAINING_FACT_BAND,
         ],
     },
     // Gauntlet — release-qualification ladder. Walks marshal-zero state through

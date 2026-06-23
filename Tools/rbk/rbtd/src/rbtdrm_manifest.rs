@@ -109,6 +109,14 @@ pub const RBTDRM_FIXTURE_FOUNDRY_PATH: &str = "foundry-path";
 // creds or container runtime required; invokes immure colophon, asserts the
 // diagnostic line emitted before credential load, expects non-zero exit.
 pub const RBTDRM_FIXTURE_PODVM_RESOLVE: &str = "podvm-resolve";
+// Chaining-fact-band — the band matrix for the durable-leak chain LINKS (feoff,
+// yoke). Drives the real verbs through the exec path against a staged temp
+// vessel + a seeded previous/ fact, asserting the specific chain-rejection band
+// on wrong-kind / unknown-prefix / broken chain, the good election, express-
+// beats-chain precedence, and fact-intact (rejection precedes any write). The
+// band fires only at the RBK consumer, so this is the home the footing (BUK)
+// self-test cannot reach. Credless — nothing here mints a token.
+pub const RBTDRM_FIXTURE_CHAINING_FACT_BAND: &str = "chaining-fact-band";
 // Cupel — BCG command-dependency static analysis over all Tools/ bash. No
 // external dependency; partitions kit-bash (strict) from GCB-bash (looser).
 pub const RBTDRM_FIXTURE_CUPEL: &str = "cupel";
