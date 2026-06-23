@@ -8,11 +8,11 @@ A docket is a specification of needed change; an undecided idea is shape, so it 
 A pace is cut only when an idea graduates from discuss to do — at which point it earns a real docket.
 Until then the heat sits stabled, often with zero paces.
 
-Premise-touching ideas wait on Fable: any idea that would amend a cinched ₣BZ premise graduates only after Fable's ₣BZ heat-review has weighed it.
+Premise-touching ideas are operator-owned (260623): any idea that would amend a cinched ₣BZ premise stays a parked idea until the operator takes it up — there is no Fable adjudicator to wait on (Fable will not be available in time; this heat finishes without it).
 
-In-heat mint (operator decision 260623): this heat finishes WITHOUT Fable for its build work — the buildout vocabulary it needs is minted in-heat, applying the selection gates by hand (grep gate, no trodden words, terminal-exclusivity, family coherence), not deferred to Fable's asterism pass.
-This lifts the standing "vocabulary waits on Fable" gate for THIS heat's build names only — the module/family/colophon names and any mechanism-discriminator vocabulary the specs need.
-It does not pull in the orthogonal standalone remints: the heed/compear and assize fair-faced remints stay separate ideas, untouched by this decision.
+In-heat mint (operator decision 260623, broadened): Fable will not be available in time, so this heat mints ALL its vocabulary in-heat — every name, applying the selection gates by hand (grep gate, no trodden words, terminal-exclusivity, family coherence), the operator the sole authority.
+This covers everything the heat names: the build module/family/colophon names, the mechanism-discriminator vocabulary, the keystone foedus noun, and the standalone heed/compear and assize fair-faced remints.
+The remints keep their own shape — a fair-faced word plus a tree-wide eviction sweep — but no longer wait on Fable; they are ordinary in-heat work the operator schedules.
 Keep this catalog shape-shaped — each idea a named tension plus a current lean, never a running discussion log.
 Genuinely thin or orthogonal ideas belong in itches or the horizon roadmap, not here; this paddock is for ideas worth deliberating with heat context.
 
@@ -86,9 +86,9 @@ It names the standing trust structurally — a pact with an external authority �
 The noun is a folio, not a colophon: a named foedus is data passed as a parameter to operations that stay homed by actor — the payor founds and dissolves a foedus (affiance and jilt in the payor file), the governor affiliates a depot with one.
 So the noun claims no colophon family, which dissolves the earlier worry that a configured-federation tabtarget family would collide with Crucible's rbw-c — the worry that had ruled out the con-/com- binding-together words (concordat, covenant); foedus is preferred over those for its tighter tie to the word federation itself.
 Noted tradeoff carried to the mint: foedus is Latin and opaque, so a fresh operator may not parse it cold; the fair-faced cold-probe is the load-bearing gate before it hardens.
-This sharpens RBS0 even in the single-federation case, so it is flagged for Fable's ₣BZ heat-review as a candidate RBS0 civic quoin in the rbtf_ federation-civics category; the mint is Fable's, owing the asterism check, terminal exclusivity, and that cold-probe (the grep gate lands clean).
-The founding and un-founding verbs (affiance, jilt) are betrothal-register and monogamous while a foedus is a treaty that pluralizes; whether the verbs migrate to match the noun or the registers coexist is the verb-register question for Fable's mint — you do not betroth a foedus.
-The configuration-model conviction above sharpens what this noun denotes — a foedus is a vendor-agnostic trust core plus an acquisition-mechanism gate, with vendor identity deliberately not a field of it — so when the noun is minted it names that shape rather than the raw pool-plus-provider-plus-mapping mechanics; the mint, the asterism check, and the cold-probe remain Fable's.
+ADOPTED in-heat (operator decision 260623): foedus is the RBS0 civic quoin (rbtf_ federation-civics category) for the configured federation; the grep gate is clean and the cold-probe is discharged by a first-contact gloss wherever the word faces a fresh operator.
+Verb-register settled: affiance/jilt stay as the founding/un-founding verbs and coexist with the foedus noun — affiance founds ONE foedus per call, correct even when the manor holds several, so the betrothal-register impurity is accepted rather than buy a costly eviction sweep of two live verbs (a treaty-register migration, if ever wanted, is a standalone remint, not build work).
+The noun denotes the configured shape — a vendor-agnostic trust core plus an acquisition-mechanism gate, vendor identity deliberately not a field of it — not the raw pool-plus-provider-plus-mapping mechanics.
 
 ## Idea — payor federation-setup guides (one per vendor)
 
@@ -111,7 +111,7 @@ A single pool makes every provider a full root of trust over the whole namespace
 Distinct from the conviction above: that conviction governs one federation's shape (vendor-agnostic core plus mechanism gate, on a single active federation), whereas this idea is the orthogonal axis of how many federations the manor holds at once.
 SETTLED (260622): this axis is no longer deferred — it is a GOAL of the heat (the operator's swap-foedera-in-and-out aim).
 The degenerate-test idea's own-pool requirement made the cleave moot: a test manor must hold both the interactive Entra trust and a programmatic test trust at once, so multiplicity is required and adopted, not merely possible.
-The civic-hierarchy nod for the governor-selects feature and the attach/swap verb wording remain Fable's; the design direction is decided.
+The civic-hierarchy nod for the governor-selects feature is operator-owned premise work; the attach/swap verb wording is minted in-heat; the design direction is decided.
 
 Current lean: let the federation regime become a family of named instances (the pattern the nameplate and per-identity auth regimes already use), with affiance keyed to a named instance and each instance its own pool.
 Buys trust isolation between real identity providers, per-depot-group trust, and — the load-bearing one — test/production separation.
@@ -129,7 +129,7 @@ The ride-or-die end-to-end proof of the Keycloak→GCP→don chain (via uploaded
 
 Modeling, folded into the conviction above: the caged path is not a vendor at all but a value of the mechanism gate — mechanism=programmatic, a self-held signing keypair, its public JWKS uploaded to a workforce provider, tokens minted locally and POSTed straight to the STS token endpoint.
 That much is settled by the conviction; what is NOT settled is whether to adopt a caged path at all — whether a test-org-only signing key is an acceptable quarantined exception or the per-run human click stays.
-That judgment is the heat's to settle, gated on the Fable review.
+That judgment is the heat's to settle, operator-owned (no Fable review to wait on).
 
 Hard constraint: the caged signing key is a new durable secret and a root of trust over its pool.
 It must live in its own pool and never share one with real citizens, and it must never stand in for the paces whose whole purpose is to prove the real human-click path.
@@ -137,7 +137,7 @@ The private signing key never enters the federation regime — only the public J
 
 Premise question RESOLVED (260622): the own-pool constraint settles the multiplicity axis as a GOAL — a test manor holds the interactive trust and the programmatic test trust at once, each its own pool, so no collision remains.
 
-Why the durable-secret worry relaxed (260622): with Keycloak holding its own key in a test crucible, the key is test scaffolding outside the shipped zero-keys design — not a production secret we hold — so the premise tension that drove the deferral largely dissolves (Fable ratifies the wording).
+Why the durable-secret worry relaxed (260622): with Keycloak holding its own key in a test crucible, the key is test scaffolding outside the shipped zero-keys design — not a production secret we hold — so the premise tension that drove the deferral largely dissolves (the operator ratifies the wording).
 The interactive human-click proof still cannot be automated away; exactly one thin human-present pace stays for the device-flow leg.
 
 Detail and sources: the degenerate-federation test-personas memo records the two degenerate shapes (caged self-signed JWT; real test IdP on a non-interactive grant), the live-doc confirmation of the programmatic STS flow, the can/cannot-prove boundary, and the GCP / Keycloak / RFC URLs.
@@ -168,7 +168,7 @@ That temptation is the ₣BZ↔₣Bf conflation: it was raised and withdrawn in 
 Why it is this heat's: the bucket lives in the payor project (RBS0 makes the manor and the payor project one entity), but whether there is one terrier per manor or one per foedus turns on the multiple-federations idea; and whether affiance is the right home turns on the foedus verb-register question (affiance/jilt are monogamous betrothal verbs while a foedus pluralizes — "you do not betroth a foedus").
 Deciding the terrier's home before those settle would pre-commit them.
 
-RESOLVED (terminal Fable review, 260622): the founding-home is OPTION B — Manor-founding provisions the terrier, NOT affiance (affiance touches the terrier nowhere; the bucket name is foedus-independent and its IAM binds the depot-born governor mantle SA, not a foedus principal). Operator CINCHED the shape: the terrier-build plus all scriptable manor-setup go into ONE idempotent "post-payor-guide manor-setup finisher" tabtarget (a dedicated op, run after the manual manor setup), which retires the rbw-dt/dT scaffold. Genuinely residual for ₣Bf: which B-variant exactly (a standing op vs enlarging a manor-establish ceremony that does not exist yet — lean: standing op); where the per-polity folder step lands (grain says depot-levy, but the folder is in the payor-project bucket so it needs a payor-credentialed actor); and the per-Manor-vs-per-foedus cardinality (default one-per-Manor; per-foedus is Fable-gated).
+RESOLVED (terminal Fable review, 260622): the founding-home is OPTION B — Manor-founding provisions the terrier, NOT affiance (affiance touches the terrier nowhere; the bucket name is foedus-independent and its IAM binds the depot-born governor mantle SA, not a foedus principal). Operator CINCHED the shape: the terrier-build plus all scriptable manor-setup go into ONE idempotent "post-payor-guide manor-setup finisher" tabtarget (a dedicated op, run after the manual manor setup), which retires the rbw-dt/dT scaffold. Genuinely residual for ₣Bf: which B-variant exactly (a standing op vs enlarging a manor-establish ceremony that does not exist yet — lean: standing op); where the per-polity folder step lands (grain says depot-levy, but the folder is in the payor-project bucket so it needs a payor-credentialed actor); and the per-Manor-vs-per-foedus cardinality (default one-per-Manor; per-foedus is operator-owned design).
 
 Settled regardless (carried from ₣BZ, RBS0-grounded): the bucket lives in the payor project; the per-polity managed folder is depot-grain; manor establishment's project/OAuth half is manual Console and cannot be scripted, so any home is for the scriptable remainder.
 Cross-note (configuration model): the caged-federation establishment is another founding-time gesture a synthetic test manor would stand up, so this "what founding ensures" shape now has one more sibling to weigh — recorded as a coupling only, not a widening of the decision here.
@@ -235,9 +235,9 @@ Ruled out (firmly): the payor as a federation identity. The payor is the bootstr
 The fork (both sides seen):
 
 - Payor wields the IT-department powers directly, via OAuth. Simplest; no new role; fits if org-health administration is rare and founding-adjacent. The default lean.
-- A new federated role above governor — a steward-of-the-estate stature, below the payor — carries routine org-health administration as a citizen, so the OAuth root stays last-resort. Earns its existence only if such routine super-governor work actually emerges; defer the mint (the load-bearing-complexity test), do not pre-build it. Not "admin" (overloaded); a fresh civic-asterism word is Fable's — seneschal (chief steward of a great house, under the lord) is an illustrative register, not a mint.
+- A new federated role above governor — a steward-of-the-estate stature, below the payor — carries routine org-health administration as a citizen, so the OAuth root stays last-resort. Earns its existence only if such routine super-governor work actually emerges; defer the mint (the load-bearing-complexity test), do not pre-build it. Not "admin" (overloaded); a fresh civic-asterism word is minted in-heat when the role earns its existence — seneschal (chief steward of a great house, under the lord) is an illustrative register, not a mint.
 
-Composes with the governor's-role idea above (the sanctioned-set bound is the first concrete IT-department power). Premise-touching (the civic hierarchy is ₣BZ-frozen), so it graduates only after Fable's ₣BZ review.
+Composes with the governor's-role idea above (the sanctioned-set bound is the first concrete IT-department power). Premise-touching (the civic hierarchy is ₣BZ-frozen), so it stays a parked operator-owned idea until the operator takes it up.
 
 ## Idea — headless compearance (restrung in from the federation heat)
 
@@ -246,7 +246,7 @@ Restrung in: reconsider whether compearance must gate on a controlling terminal,
 It keeps the human-present premise — a human still authenticates each assize — and only relaxes human-present from terminal-present.
 Distinct from the degenerate-test-federation idea, which removes the human entirely.
 
-Touches a cinched federation-heat premise (human-present, and the headless fail-fast membrane), so it graduates only after Fable's federation-heat review, and may surface a paddock amendment rather than land purely in code.
+Touches a cinched federation-heat premise (human-present, and the headless fail-fast membrane), so it is operator-owned and may surface a paddock amendment rather than land purely in code.
 Under the configuration-model conviction this sharpens to a mechanism distinction: the programmatic mechanism is test-only and bypasses sign-in by construction, so it is not this fix — production headless stays an interactive-mechanism question with a human still present.
 
 ## Idea — heed: rename the compear sign-in verb (fair-faced remint)
@@ -259,7 +259,7 @@ Current lean: heed — the grep-isolated twin of answer (both name responding to
 It sits on the fair-faced floor by construction — rare enough to grep clean, warm enough to guess on first contact: the system summons you, you heed it by signing in, and the assize opens.
 Runner-up proffer (the present-yourself frame, also grep-clean) reads slightly more as offering a thing than showing up; heed is the better fit.
 
-Carried to the remint: this is a Fable remint with an eviction sweep, not a paddock swap — compear is live (rbtf_compear, the credential accessor, the "assize lapsed, compear" error), so all forms move together (compear -> heed, compearing/compearance -> heeding; heed needs no -ance form, heeding covers every standing usage).
+Carried to the remint: this is an in-heat remint with an eviction sweep, not a paddock swap — compear is live (rbtf_compear, the credential accessor, the "assize lapsed, compear" error), so all forms move together (compear -> heed, compearing/compearance -> heeding; heed needs no -ance form, heeding covers every standing usage).
 Register note for the mint: heed is plain Old English where its siblings (affiance, compear, brevet) are Latinate — intentional, since husbandry gives the high-traffic error-output ashlar the plainest word, so it should not be re-elevated toward the Latinate family on register grounds.
 
 ## Idea — rename the assize live-window noun (fair-faced remint)
@@ -270,10 +270,10 @@ Memorability: assize is an obscure medieval-legal term (a court sitting that is 
 The double-miss — bad substring and unguessable — lands in the one slot that least tolerates either, which on its own is the case for retiring the word regardless of its replacement.
 Sibling to the heed/compear remint above: the same word-husbandry inversion (a high-traffic operator-facing ashlar minted for rarity), here compounded by the register wart.
 
-Current lean: retire assize; the replacement is Fable's mint with an eviction sweep — the word is live (RBRF_SESSION_DURATION as the cap, the zrba_assize_* identifiers and cache, the "assize opened / assize lapsed" surface), so all forms move together.
+Current lean: retire assize; the replacement is an in-heat mint with an eviction sweep — the word is live (RBRF_SESSION_DURATION as the cap, the zrba_assize_* identifiers and cache, the "assize opened / assize lapsed" surface), so all forms move together.
 Load-bearing fork carried to the mint: whether the concept keeps an operator-facing noun at all, or demotes to hearting with the error text going plain prose ("your sign-in expired — sign in again").
 Lean on the fork: the concept is recurring and precise enough to earn a noun (asterism coherence, cap prose like "the window is 15 min–12 h"), so keep a noun but the error text may soften — and either way the new word must clear register and memorability, which assize cannot.
-No word is picked here, per the heat's vocabulary-waits-on-Fable posture.
+No word is picked here yet; under the in-heat-mint posture the operator picks it when the remint is scheduled.
 
 ## Idea — a verb to clear the live assize (force a fresh compearance)
 
@@ -284,7 +284,7 @@ The gap is a capability (delete the per-assize cache file at the tmpfs path) plu
 
 Current lean: add the verb and a tabtarget.
 Naming is coupled to the assize-rename idea above — it clears the live-window thing, so it keys off whatever that noun becomes and wants the same vocabulary pass.
-Disposition left open: whether it rides the Fable vocabulary mint or lands sooner under a provisional name is undecided — too soon to call any Bf pace Fable-only.
+Disposition left open: whether it rides the assize remint or lands sooner under its own name is the operator's call; the capability is trivial and minted in-heat.
 
 ## Idea — one-click compearance via verification_uri_complete (IdP-agnostic)
 
@@ -350,6 +350,7 @@ Relationship to the spine: the spine PROVES one foedus's chain (the de-laminatio
 
 Next: a focused design pass settles six forks — the tenure policy; the selection mechanism and what the select act does; the new toothing name(s); the light/nuclear tier mapping onto the existing suite ladder; the light-tier readiness check (the release-heal / parley step); and where regime-selection-support lands relative to the spec recast. It produces this strand's own slate, and runs before the audit's build-docket tightenings are finalized.
 
-Two audit decisions remain OPEN and independent of this strand:
-the signing-key disposition — bake a stable caged test keypair so the JWKS does not rotate, versus keep per-charge rotation and add a jwksJson re-sync arm to affiance (whose idempotent path leaves an existing provider untouched, so the per-charge re-sync the conviction above currently asserts cannot run as-is);
-and the foedus-noun mint — keep it Fable's, versus swallow it in-heat (it is a bondstone with a cold-probe gate and a verb-register sub-decision, heavier than the build-machinery words).
+One audit decision remains OPEN and independent of this strand: the signing-key disposition — bake a stable caged test keypair so the JWKS does not rotate, versus keep per-charge rotation and add a jwksJson re-sync arm to affiance (whose idempotent path leaves an existing provider untouched, so the per-charge re-sync the conviction above currently asserts cannot run as-is).
+Operator inclination (260623): the stable key, homed in a cross-machine "global regime" — a controlled, distributed config category distinct from the per-machine station regime, holding config identical on every machine that touches an installation.
+Open in the lifecycle design pass: the shared-one-key-versus-per-platform-keys topology, and the global-regime's letter (RBRG is a retired regime, so a clean letter is wanted).
+The foedus-noun mint is SETTLED — adopted in-heat (above) — no longer open.
