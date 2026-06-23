@@ -16567,6 +16567,7 @@
       "jjghn_status": "jjghe_racing",
       "jjghn_order": [
         "₢BfAAI",
+        "₢BfAAJ",
         "₢BfAAC",
         "₢BfAAA",
         "₢BfAAD",
@@ -16576,7 +16577,7 @@
         "₢BfAAG",
         "₢BfAAH"
       ],
-      "jjghn_next_pace_seed": "AAJ",
+      "jjghn_next_pace_seed": "AAK",
       "jjghn_paces": {
         "₢BfAAA": {
           "jjgpn_tacks": [
@@ -16853,6 +16854,34 @@
               ],
               "jjgtn_silks": "federation-buildout-orientation",
               "jjgtn_basis": "bd2ff08"
+            }
+          ]
+        },
+        "₢BfAAJ": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260623-0902",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Author the per-vendor federation setup guide for Microsoft Entra — the foreign-console human work that yields the vendor-agnostic core facts the regime reads.",
+                "",
+                "A guide, not a workbench command (foreign console, no API token can drive it), under the payor-guide family: walk the Entra app registration and claims/scopes, ending at the core values affiance consumes (issuer, client-id, subject claim, JWKS source).",
+                "Entra first because it is the live IdP; further vendors become further guides under the same core-facts contract, with no schema or code change.",
+                "",
+                "Source: the config-model conviction that vendor work is wholly guide-plus-values; HCG for durable-procedure craft.",
+                "",
+                "## Done when",
+                "An operator can stand up the Entra side from the guide and author the federation regime from its values.",
+                "",
+                "## Cinched",
+                "A guide, never a tabtarget; converges on the same core facts every per-vendor guide yields.",
+                "Needs only the spec recast's core-facts contract, so it runs parallel to the code paces.",
+                "",
+                "## Character",
+                "Procedure authoring (HCG); foreign-console human steps."
+              ],
+              "jjgtn_silks": "entra-federation-setup-guide",
+              "jjgtn_basis": "deeab17"
             }
           ]
         }
