@@ -16567,6 +16567,7 @@
       "jjghn_status": "jjghe_racing",
       "jjghn_order": [
         "₢BfAAI",
+        "₢BfAAM",
         "₢BfAAL",
         "₢BfAAK",
         "₢BfAAJ",
@@ -16579,7 +16580,7 @@
         "₢BfAAG",
         "₢BfAAH"
       ],
-      "jjghn_next_pace_seed": "AAM",
+      "jjghn_next_pace_seed": "AAN",
       "jjghn_paces": {
         "₢BfAAA": {
           "jjgpn_tacks": [
@@ -16941,6 +16942,34 @@
               ],
               "jjgtn_silks": "rbxk-keycloak-orchestrator",
               "jjgtn_basis": "ef5b382"
+            }
+          ]
+        },
+        "₢BfAAM": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260623-0903",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Add the programmatic (uploaded-JWKS) arm to affiance, gated by the mechanism discriminator from the spec recast.",
+                "",
+                "affiance today founds the interactive (device-flow) trust; add the programmatic arm that creates the workforce provider from an uploaded public JWKS plus the id-token web-sso flags.",
+                "affiance stays vendor-agnostic — it consumes a JWKS file and an issuer string as opaque inputs, never reads realm contents, never learns \"Keycloak.\"",
+                "",
+                "Source: fdkyclk-proof.sh ensure_gcp_provider is the proven gcloud shape to transform to REST (gcloud-to-REST per the no-gcloud cinch); rbgp_manor_affiance is the existing verb home.",
+                "",
+                "## Done when",
+                "affiance founds a programmatic foedus from an uploaded JWKS via REST, mechanism-gated, with no direct gcloud.",
+                "",
+                "## Cinched",
+                "REST-only, no direct gcloud (operator cinch).",
+                "The discriminator is mechanism, not vendor — the programmatic arm is the same gate pattern the vessel regime already uses (buv_enum_enroll + buv_gate_enroll).",
+                "",
+                "## Character",
+                "Bash; REST transform of a proven gcloud flow."
+              ],
+              "jjgtn_silks": "affiance-programmatic-mechanism-arm",
+              "jjgtn_basis": "0ef1a6e"
             }
           ]
         }
