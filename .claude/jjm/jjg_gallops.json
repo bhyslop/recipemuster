@@ -16567,6 +16567,7 @@
       "jjghn_status": "jjghe_racing",
       "jjghn_order": [
         "₢BfAAI",
+        "₢BfAAL",
         "₢BfAAK",
         "₢BfAAJ",
         "₢BfAAC",
@@ -16578,7 +16579,7 @@
         "₢BfAAG",
         "₢BfAAH"
       ],
-      "jjghn_next_pace_seed": "AAL",
+      "jjghn_next_pace_seed": "AAM",
       "jjghn_paces": {
         "₢BfAAA": {
           "jjgpn_tacks": [
@@ -16911,6 +16912,35 @@
               ],
               "jjgtn_silks": "programmatic-accessor-rba-arm",
               "jjgtn_basis": "2de034f"
+            }
+          ]
+        },
+        "₢BfAAL": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260623-0903",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Build the one BCG module orchestrating the Keycloak test-facility lifecycle: rbxk_keycloak.sh in the new rbx family.",
+                "",
+                "Setup: charge the fdkyclk crucible, poll Keycloak ready, fetch its public JWKS (the bridge — strip to standard RSA members), call affiance with that JWKS. Teardown: jilt then quench.",
+                "Compose existing verbs plus the one JWKS bridge — do NOT contain the accessor (rba's job) and do NOT reimplement affiance or jilt (call them).",
+                "Setup/teardown tabtargets take colophons under rbw-xkX; name the two verbs plainly at cut-time.",
+                "",
+                "Source: fdkyclk-proof.sh (fetch_jwks + the main staging) and fdkyclk-teardown.sh (the jilt-then-quench inverse, whose header already maps the sequence onto the real verbs); the paddock de-lamination + naming section.",
+                "",
+                "## Done when",
+                "One tabtarget stands up the programmatic facility (charged Keycloak + affianced foedus) and one tears it down, idempotently, composing affiance/jilt/charge/quench.",
+                "",
+                "## Cinched",
+                "rbx family, rbxk_keycloak.sh, rbw-xkX colophons (paddock-cinched).",
+                "The module is blind to the realm JSON — affiliation by reference, never ownership; affiance never learns \"Keycloak.\"",
+                "",
+                "## Character",
+                "Bash orchestration; the heart of the de-lamination."
+              ],
+              "jjgtn_silks": "rbxk-keycloak-orchestrator",
+              "jjgtn_basis": "ef5b382"
             }
           ]
         }
