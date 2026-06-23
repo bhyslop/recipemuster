@@ -45,24 +45,26 @@ The exact key is decided: the window-id directly (the CGWindowID), not the UUID 
 Emblems on non-Claude-Code windows are a named fork, not designed now: adopt the typed namespace, build only the one resolver.
 Remote Claude Code sessions are a second named fork, not solved here: when Claude Code runs on another host (e.g. cerebro over SSH) shown in a LOCAL iTerm window, the writer (vvx) runs remote and has none of the local handles (no AppleScript, no CGWindowID, no ITERM_SESSION_ID since SSH does not forward it, no local emblem dir), so it can neither resolve nor write the emblem.
 This is inherent to the writer-and-window co-location the whole design assumes — the abandoned loopback socket failed it too (loopback is not cross-host, and a cross-host listener is exactly what the sandbox forbids).
-Such a window still appears in paneboard's list, just unlabeled (absent emblem = no emblem), no worse than today.
+Such a window still appears in paneboard's switcher list, just without an emblem on its box (absent emblem = no emblem), no worse than today.
 The only host-crossing channel is the terminal stream itself (OSC / iTerm badge), a different and lower-fidelity mechanism that renders through iTerm rather than paneboard's overlay; if remote labeling is ever wanted, it is that separate sub-feature, not a paneboard extension.
 
 Style is optional per region (a font size and a color), sourced from an rbm-side config vvx reads at write time, never compiled in — edit the config, rewrite on any engagement, see it on the next alt-tab; paneboard supplies built-in defaults for any absent field.
 Region STRUCTURE (slot + lines + style) is frozen; region CONTENT — which lines land in which band — is deliberately soft and config-tunable.
 Starting content (soft): top = identity + pace name; middle = repo + working directory; bottom = reserved.
 
-## Overlay surface — list first, then the box
+## Overlay surface — the selection box
 
-Paneboard draws two things during alt-tab: a list of all windows (lower half of the screen, renders text today) and a yellow outline box around the selected window (renders only an outline today).
-Both can carry emblems, and both just look up the emblem file by the window-id paneboard already enumerates — neither needs an in-paneboard resolver (see Resolver).
-Sequenced by rendering cost:
+Paneboard draws two things during alt-tab: a LIST of all windows (lower half of the screen — the window switcher, renders text today) and a yellow OUTLINE BOX around the selected window (renders only an outline today).
+The emblem renders on the BOX, never in the list.
+The list's row text is the switcher's navigation handle — the operator picks a window by its title and app — so writing emblem content there overwrites the very datum used to switch; the list is left exactly as it is.
+The box is empty real estate (an outline only) that wants an in-place label, drawn on the window the operator is selecting.
 
-- The list entries gain emblems first — reusing the list's existing text rendering, showing every window at a glance (the memo's actual goal), validating the whole pipeline with almost no new drawing.
-- The selected-window box gains emblems second — net-new text-and-pill rendering on the box, the richer in-place view; the box CAN carry drawn text (proven, see Resolver).
-- Emblems on every window's box at once (N label windows) is a named fork, not designed now.
+A throwaway list-surface probe (2026-06-23) proved the whole pipeline end to end — writer -> file -> window-id FFI -> paint-time read -> display all work — by briefly using the list as the cheapest possible reader; the probe is fully reverted, its only residue the de-risking it bought.
+The "list first, then the box" sequencing it embodied was a misconception: the list is not an emblem surface, and the box is not a richer SECOND surface but the SOLE one.
 
-The earlier "list-only if the resolver fails" fallback is retired: with the resolver moved to the writer, paneboard never holds a resolver that could fail, so list and box stand or fall together on the same window-id lookup.
+The box looks up the emblem file at paint time by the window-id paneboard already holds for the selected window (the handle the resolver produced) — no in-paneboard resolver (see Resolver).
+It draws the three regions as banded sub-rects of multi-line text on fixed black backing pills, branching cleanly on emblem-present vs absent.
+Today only the selected window's box carries the emblem, so the operator reads each window's identity on its box as the highlight lands on it while tabbing; labelling EVERY window's box at once (N label windows simultaneously) is a named fork, not designed now — and it is the path back to the seed memo's "all windows at a glance" goal if that is ever wanted.
 
 ## Resolver — verdict: it moves off the sandboxed reader to the non-sandboxed writer (2026-06-22)
 
