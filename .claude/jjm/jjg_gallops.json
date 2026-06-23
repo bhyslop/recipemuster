@@ -16566,6 +16566,7 @@
       "jjghn_creation_time": "260616",
       "jjghn_status": "jjghe_racing",
       "jjghn_order": [
+        "₢BfAAQ",
         "₢BfAAI",
         "₢BfAAO",
         "₢BfAAN",
@@ -16583,7 +16584,7 @@
         "₢BfAAH",
         "₢BfAAP"
       ],
-      "jjghn_next_pace_seed": "AAQ",
+      "jjghn_next_pace_seed": "AAR",
       "jjghn_paces": {
         "₢BfAAA": {
           "jjgpn_tacks": [
@@ -17062,6 +17063,36 @@
               ],
               "jjgtn_silks": "estate-secret-verification",
               "jjgtn_basis": "f9f488a"
+            }
+          ]
+        },
+        "₢BfAAQ": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260623-1133",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Decompose the `Tools/rbk/rbtd/src/rbtdrc_crucible.rs` god-module: it wears three coats at once. Split out the two that don't belong, leaving a true crucible module.",
+                "",
+                "Extract:",
+                "- The framework-global registries `RBTDRC_FIXTURES` and `RBTDRC_SUITES` (and their `rbtdrc_lookup_*` fns) — theurge-wide tables every fixture module feeds, not a crucible concern.",
+                "- The bare GCP-service fixtures and their case bodies — the no-charge/quench fixtures (grep `setup: None` in the file) for hallmark/lode/reliquary/wsl/podvm/foedus/batch-vouch/access-probe/terrier. They touch no container; they squat here.",
+                "",
+                "Leave behind the actual crucible: the charge/quench hooks, the thread-local invocation ctx, and the security/srjcl/pluml case bodies.",
+                "",
+                "New module homes are mount's call (engine-adjacent, or a dedicated registry module).",
+                "",
+                "## Done when",
+                "`rbtdrc_crucible.rs` carries only crucible-lifecycle concerns; the registries and bare-service fixtures live in their own homes; `tt/rbw-tb.Build.sh` and `tt/rbw-tt.Test.sh` are green; suite composition and fixture behavior are byte-unchanged (pure relocation).",
+                "",
+                "## Cinched",
+                "Relocation only — do NOT collapse the suite membership lists. The suite table's explicit fast-fixture duplication is a documented, defended decision (const-slice concat is non-load-bearing cleverness; the compile-time member check already guards correctness). That decision stands.",
+                "",
+                "## Character",
+                "Mechanical module relocation, fully compile-checked. The one judgment call is the cluster boundary — which bare fixtures group into which new home."
+              ],
+              "jjgtn_silks": "theurge-crucible-module-split",
+              "jjgtn_basis": "0799498"
             }
           ]
         }
