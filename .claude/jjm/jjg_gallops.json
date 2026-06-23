@@ -18119,8 +18119,8 @@
         "₢BiAAR": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260623-1905",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260623-1906",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "Chaining-fact band matrix — permutation and negative coverage with named precision-band exit codes, proving a bad chain attempt cannot corrupt a good one. The local matrix, verified under theurge.",
                 "",
@@ -18153,7 +18153,7 @@
                 "rbw-tl clean; the fast suite green."
               ],
               "jjgtn_silks": "chaining-fact-band-tests",
-              "jjgtn_basis": "be8e110"
+              "jjgtn_basis": "1cfd968"
             }
           ]
         },
