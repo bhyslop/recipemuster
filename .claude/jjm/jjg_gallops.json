@@ -17992,8 +17992,8 @@
         "₢BiAAO": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260623-1758",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260623-1803",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "Retire the vestigial build-id fact RBF_FACT_BUILD_ID.",
                 "",
@@ -18028,7 +18028,7 @@
                 "rbw-tl clean and the fast suite green."
               ],
               "jjgtn_silks": "retire-vestigial-build-id-fact",
-              "jjgtn_basis": "0c9f7c4"
+              "jjgtn_basis": "937b92c"
             }
           ]
         },
