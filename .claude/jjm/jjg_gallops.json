@@ -17272,29 +17272,29 @@
         "₢BhAAI": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260623-1031",
+              "jjgtn_ts": "260623-1304",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
-                "The RBK slice, now a CONSUMER of the JJK viewer primitive (see paddock \"Viewer surface\"): produce the diagram SVGs and unfurl them — RBK owns no bespoke pusher.",
-                "The sole SVG writer is rbtdrc_pluml_render_diagrams in the RBK rbtd crate (rbtdrc_crucible.rs), run on a pluml crucible fixture — a different crate and binary from vvx.",
+                "Recipe Bottle as the first consumer of the viewer primitive — by USE, not by automation.",
+                "No bespoke pusher and no tabtarget: the committed rbdg* SVGs are unfurled conversationally through the JJK primitive, and a human works the viewer on real content.",
+                "This is the viewer's acceptance gate — proving the primitive is good enough that RB needs nothing of its own.",
                 "",
-                "See seed memo open-risks (regen loop) and paddock \"Viewer surface\" + \"Transport\".",
+                "See paddock \"Viewer surface\" and the JSS0 \"Diagram Viewer\" subsection for the primitive; the committed diagrams under diagrams/rbdg*.svg are the dogfood fodder.",
                 "",
                 "## Character",
-                "Independent and deferrable — the viewer is useful without it via a manual unfurl. Consumes the JJK render primitive, so it follows that in order.",
+                "A human dogfood pass plus a short affordance note. No code beyond documentation.",
                 "",
                 "## Cinched",
-                "Trigger: a dedicated rbw-workbench action tabtarget that resolves each diagram's light + -dark sibling paths and unfurls them through the JJK render primitive — the idiomatic rbw precedent.",
-                "The RB-specific -dark naming is resolved HERE (the producer), never in the generic primitive.",
-                "Rejected fork: a git hook (the repo ships no committed hooks and sets no core.hooksPath). Deferred fork: a fixture-emits-push for a fully-automatic loop.",
-                "Enumerate from the diagrams/*.puml glob (the source of truth), not the acronym-map list. Payloads are small (~17-22 KB) — no off-thread offload.",
+                "The tabtarget is dropped: a single viewer shows one image at a time, so a batch render-and-unfurl never fit; the edit→render→see loop is the already-deferred fixture-push fork, not built here.",
+                "The RB-specific -dark naming convention (foo.svg / foo-dark.svg) is resolved conversationally by the caller, never in the generic primitive.",
+                "The deliverable is guidance: a short operator-facing note that a committed diagram can be unfurled for review and the viewer worked by hand — where it lands is a mount-time choice (RBK docs near the diagrams, or the JJK Unfurl affordance).",
                 "",
                 "## Done when",
-                "- An rbw-workbench tabtarget unfurls the current diagrams (each as its light + dark pair) through the JJK primitive, failing soft when the viewer is absent.",
-                "- The trigger choice (tabtarget chosen; git-hook rejected, fixture-push deferred) is recorded."
+                "- A committed rbdg* diagram has been unfurled through the primitive and worked by hand — zoom, pan, and the light/dark toggle — with the result judged good, or any viewer gap captured.",
+                "- A short affordance note records that diagrams are reviewed by unfurling them, naming the -dark sibling convention."
               ],
               "jjgtn_silks": "rbm-diagram-push-regen-loop",
-              "jjgtn_basis": "235224c"
+              "jjgtn_basis": "88899f0"
             }
           ]
         },
