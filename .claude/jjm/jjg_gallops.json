@@ -17446,8 +17446,8 @@
         "₢BhAAO": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260623-1031",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260623-1255",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "The JJK side of the viewer surface — the one operator verb and its lower command — so RBK and any later producer have a primitive to consume.",
                 "See paddock \"Viewer surface — a JJK master-UI primitive\".",
@@ -17469,7 +17469,7 @@
                 "- A generic single-image unfurl works with no dark variant."
               ],
               "jjgtn_silks": "viewer-unfurl-primitive",
-              "jjgtn_basis": "235224c"
+              "jjgtn_basis": "4a37b61"
             }
           ]
         },
