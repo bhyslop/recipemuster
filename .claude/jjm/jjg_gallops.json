@@ -16566,7 +16566,14 @@
       "jjghn_creation_time": "260616",
       "jjghn_status": "jjghe_racing",
       "jjghn_order": [
+        "₢BfAAQ",
         "₢BfAAI",
+        "₢BfAAO",
+        "₢BfAAN",
+        "₢BfAAM",
+        "₢BfAAL",
+        "₢BfAAK",
+        "₢BfAAJ",
         "₢BfAAC",
         "₢BfAAA",
         "₢BfAAD",
@@ -16574,9 +16581,10 @@
         "₢BfAAE",
         "₢BfAAF",
         "₢BfAAG",
-        "₢BfAAH"
+        "₢BfAAH",
+        "₢BfAAP"
       ],
-      "jjghn_next_pace_seed": "AAJ",
+      "jjghn_next_pace_seed": "AAR",
       "jjghn_paces": {
         "₢BfAAA": {
           "jjgpn_tacks": [
@@ -16760,8 +16768,8 @@
         "₢BfAAG": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260622-0740",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260623-0911",
+              "jjgtn_state": "jjgte_abandoned",
               "jjgtn_text": [
                 "## TERMINAL pace — model Fable works through the standing Fable-review queue: ratify-or-sweep every provisional mint made in her absence, and answer every deferred vocabulary/premise question.",
                 "",
@@ -16779,7 +16787,7 @@
                 "Terminal reconciliation under Fable; the pace that lifts the provisional-mint posture for ₣Bf. Requires model Fable."
               ],
               "jjgtn_silks": "fable-terminal-review",
-              "jjgtn_basis": "58a4aab"
+              "jjgtn_basis": "bc51530"
             }
           ]
         },
@@ -16817,8 +16825,8 @@
         "₢BfAAI": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260622-1252",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260623-0910",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "A reminder-and-convene pace: before any federation build-unit is cut, the operator and agent reach shared understanding of the work the ride-or-die proof left open.",
                 "Mount this fresh — it is orientation and design conversation, not implementation.",
@@ -16852,7 +16860,239 @@
                 "Not implementation — its output is shared understanding plus slated next paces."
               ],
               "jjgtn_silks": "federation-buildout-orientation",
-              "jjgtn_basis": "bd2ff08"
+              "jjgtn_basis": "ac59126"
+            }
+          ]
+        },
+        "₢BfAAJ": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260623-0902",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Author the per-vendor federation setup guide for Microsoft Entra — the foreign-console human work that yields the vendor-agnostic core facts the regime reads.",
+                "",
+                "A guide, not a workbench command (foreign console, no API token can drive it), under the payor-guide family: walk the Entra app registration and claims/scopes, ending at the core values affiance consumes (issuer, client-id, subject claim, JWKS source).",
+                "Entra first because it is the live IdP; further vendors become further guides under the same core-facts contract, with no schema or code change.",
+                "",
+                "Source: the config-model conviction that vendor work is wholly guide-plus-values; HCG for durable-procedure craft.",
+                "",
+                "## Done when",
+                "An operator can stand up the Entra side from the guide and author the federation regime from its values.",
+                "",
+                "## Cinched",
+                "A guide, never a tabtarget; converges on the same core facts every per-vendor guide yields.",
+                "Needs only the spec recast's core-facts contract, so it runs parallel to the code paces.",
+                "",
+                "## Character",
+                "Procedure authoring (HCG); foreign-console human steps."
+              ],
+              "jjgtn_silks": "entra-federation-setup-guide",
+              "jjgtn_basis": "deeab17"
+            }
+          ]
+        },
+        "₢BfAAK": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260623-1014",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Add the programmatic token-acquisition arm to the rba accessor: obtain the id_token via the RFC 7523 grant, then exchange at STS for a federated token.",
+                "",
+                "The interactive accessor acquires its token via device flow; add the programmatic arm that obtains the id_token via Keycloak's RFC 7523 grant (or self-mints, fallback) and exchanges at STS, reusing the existing shared STS leg and the unchanged don path.",
+                "Mechanism-gated, a mechanism arm of rba — not a new module, and not folded into the orchestrator.",
+                "",
+                "Ceiling: the end-to-end don-and-call is NOT reproducible by the slated spine — the don needs a standing admission (a brevet of the test subject), which the deferred attach-caged-subject unit owns, not this pace.",
+                "So this pace reaches the federated token over a programmatic foedus; the don path is shared and unchanged but is exercised end-to-end only once that admission exists.",
+                "Do NOT reintroduce the proof's payor-direct brevet into the production-shared rba arm to force a green don here.",
+                "",
+                "Source: fdkyclk-proof.sh (mint_idtoken + sts_exchange; the don path already exists); rba is the accessor home.",
+                "",
+                "## Done when",
+                "The accessor obtains a federated token over a programmatic foedus via the RFC 7523 grant and STS, mechanism-gated, reusing the interactive arm's shared STS leg.",
+                "The don path is shared and unchanged; it completes end-to-end only once the deferred attach-caged-subject unit provides a standing admission.",
+                "",
+                "## Cinched",
+                "Stays an arm of rba (production-shared machinery), never absorbed into the rbxk orchestrator.",
+                "REST-only, no direct gcloud.",
+                "The end-to-end don is deferred-by-design behind the post-₣BZ attach unit; no spine-local brevet.",
+                "",
+                "## Character",
+                "Bash; consumes the RFC 7523 grant established by the realm pace."
+              ],
+              "jjgtn_silks": "programmatic-accessor-rba-arm",
+              "jjgtn_basis": "9a36dd4"
+            }
+          ]
+        },
+        "₢BfAAL": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260623-0903",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Build the one BCG module orchestrating the Keycloak test-facility lifecycle: rbxk_keycloak.sh in the new rbx family.",
+                "",
+                "Setup: charge the fdkyclk crucible, poll Keycloak ready, fetch its public JWKS (the bridge — strip to standard RSA members), call affiance with that JWKS. Teardown: jilt then quench.",
+                "Compose existing verbs plus the one JWKS bridge — do NOT contain the accessor (rba's job) and do NOT reimplement affiance or jilt (call them).",
+                "Setup/teardown tabtargets take colophons under rbw-xkX; name the two verbs plainly at cut-time.",
+                "",
+                "Source: fdkyclk-proof.sh (fetch_jwks + the main staging) and fdkyclk-teardown.sh (the jilt-then-quench inverse, whose header already maps the sequence onto the real verbs); the paddock de-lamination + naming section.",
+                "",
+                "## Done when",
+                "One tabtarget stands up the programmatic facility (charged Keycloak + affianced foedus) and one tears it down, idempotently, composing affiance/jilt/charge/quench.",
+                "",
+                "## Cinched",
+                "rbx family, rbxk_keycloak.sh, rbw-xkX colophons (paddock-cinched).",
+                "The module is blind to the realm JSON — affiliation by reference, never ownership; affiance never learns \"Keycloak.\"",
+                "",
+                "## Character",
+                "Bash orchestration; the heart of the de-lamination."
+              ],
+              "jjgtn_silks": "rbxk-keycloak-orchestrator",
+              "jjgtn_basis": "ef5b382"
+            }
+          ]
+        },
+        "₢BfAAM": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260623-0903",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Add the programmatic (uploaded-JWKS) arm to affiance, gated by the mechanism discriminator from the spec recast.",
+                "",
+                "affiance today founds the interactive (device-flow) trust; add the programmatic arm that creates the workforce provider from an uploaded public JWKS plus the id-token web-sso flags.",
+                "affiance stays vendor-agnostic — it consumes a JWKS file and an issuer string as opaque inputs, never reads realm contents, never learns \"Keycloak.\"",
+                "",
+                "Source: fdkyclk-proof.sh ensure_gcp_provider is the proven gcloud shape to transform to REST (gcloud-to-REST per the no-gcloud cinch); rbgp_manor_affiance is the existing verb home.",
+                "",
+                "## Done when",
+                "affiance founds a programmatic foedus from an uploaded JWKS via REST, mechanism-gated, with no direct gcloud.",
+                "",
+                "## Cinched",
+                "REST-only, no direct gcloud (operator cinch).",
+                "The discriminator is mechanism, not vendor — the programmatic arm is the same gate pattern the vessel regime already uses (buv_enum_enroll + buv_gate_enroll).",
+                "",
+                "## Character",
+                "Bash; REST transform of a proven gcloud flow."
+              ],
+              "jjgtn_silks": "affiance-programmatic-mechanism-arm",
+              "jjgtn_basis": "0ef1a6e"
+            }
+          ]
+        },
+        "₢BfAAN": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260623-0903",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Work out the un-understood Keycloak-side RFC 7523 JWT-authorization-grant setup, and bake the durable realm so configure_realm evaporates.",
+                "",
+                "The proof minted the id_token via the PASSWORD grant as a de-risk stepping-stone; the durable rig mints via the RFC 7523 grant, whose Keycloak-side setup (a trusted asserting key registered in the realm) is un-built and un-understood — understand it first, then bake it.",
+                "Fatten the baked realm at rbmm_moorings/rbmv_vessels/rbev-bottle-fdkyclk/fdkyclk-realm.json with the client, audience mapper, user, frontendUrl, and the RFC 7523 trusted-key config as declarative import entries, until the proof's configure_realm has nothing left to apply live.",
+                "",
+                "Source: fdkyclk-proof.sh (configure_realm + mint_idtoken) is the live-applied form being de-laminated into baked DATA; the vessel Dockerfile already loads it via --import-realm; the paddock de-lamination section is the model.",
+                "",
+                "## Done when",
+                "The fdkyclk vessel boots a fully-configured realm via --import-realm with no runtime admin-REST, and mints an id_token via the RFC 7523 grant.",
+                "",
+                "## Cinched",
+                "No committed signing secret: the realm signing key stays generated-fresh-on-import, so the public JWKS rotates per charge and the orchestrator re-syncs it each establish.",
+                "",
+                "## Character",
+                "Investigation (RFC 7523 on Keycloak) plus mechanical realm-JSON authoring."
+              ],
+              "jjgtn_silks": "rfc7523-grant-and-baked-realm",
+              "jjgtn_basis": "879cce7"
+            }
+          ]
+        },
+        "₢BfAAO": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260623-0904",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Recast the federation specs to the vendor-agnostic-core-plus-mechanism-gate shape, contract-first, before any build code.",
+                "",
+                "Evolve RBSRF (RBSRF-RegimeFederation.adoc) and RBSMA (RBSMA-manor_affiance.adoc) so the regime is a vendor-agnostic trust core plus an acquisition-mechanism gate (interactive vs programmatic), and stand up the two new RBS0 subdoc contracts the model calls for.",
+                "Mint the mechanism-discriminator quoin, its value words, and the two subdoc acronyms in-heat, applying the selection gates by hand (grep, no trodden words, terminal-exclusivity, family coherence) — the heat lifted the Fable gate for its build vocabulary.",
+                "",
+                "Source: the config-model memo (Memos/memo-20260618-Bf-federation-config-model.md) carries the detailed subdoc plan — the per-spec must-contain reference, the marker-scheme note, and the mint list — so read it first rather than re-deriving.",
+                "",
+                "## Done when",
+                "The two specs voice the core-plus-mechanism-gate model, the two subdoc contracts exist, and the minted vocabulary clears the gates.",
+                "",
+                "## Cinched",
+                "Contract before code (project doctrine): this is a hard predecessor of every build pace below — no establishment, accessor, or orchestrator code starts before the specs are recast.",
+                "",
+                "## Character",
+                "Spec authoring plus in-heat mint; judgment-heavy, reads the config-model memo first."
+              ],
+              "jjgtn_silks": "federation-spec-first-recast",
+              "jjgtn_basis": "2360e55"
+            }
+          ]
+        },
+        "₢BfAAP": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260623-1049",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Design the tabtarget/verb shape for verifying a station's local estate-wide secret against the estate reference — first instance: the Keycloak signing key against the committed JWKS.",
+                "",
+                "The stable-key decision homes the Keycloak signing key as an estate-wide field in the never-committed rbrs.env (working name RBRS_ESTATE_KEYCLOAK_SECRET), validated by matching its public half against the already-committed JWKS — the canonical estate-wide reference (see the paddock Foedus-lifecycle section).",
+                "What is un-designed is the verb/tabtarget shape of that validation: how a station checks a local secret against config that originated elsewhere — render, validate, and whether an inscribe/check tripwire pattern (as rbrd.env carries via rbw-rdi/rbw-rdc) fits the estate-wide-must-match case, or whether a JWKS-fingerprint match is simpler.",
+                "",
+                "Mount fresh as a design conversation, not implementation.",
+                "This is the first concrete instance of the Estate concept (estate-wide facts in the per-machine station regime, marked, with a must-match validator), so the shape it picks sets the precedent the later dedicated-estate-regime extraction inherits.",
+                "",
+                "## Done when",
+                "The verb/tabtarget shape for estate-secret verification is settled (render/validate/tripwire/fingerprint pattern chosen), the precedent it sets for the Estate concept is recorded, and any build paces it implies are slated or deferred.",
+                "",
+                "## Cinched",
+                "The private key lives in rbrs.env (never committed); the match is always against the committed JWKS, never a cross-station secret comparison.",
+                "Part of the foedus-lifecycle strand; reconcile with the lifecycle design pass when that runs.",
+                "",
+                "## Character",
+                "Design conversation requiring judgment; mount fresh, with the operator present. Not implementation."
+              ],
+              "jjgtn_silks": "estate-secret-verification",
+              "jjgtn_basis": "f9f488a"
+            }
+          ]
+        },
+        "₢BfAAQ": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260623-1133",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Decompose the `Tools/rbk/rbtd/src/rbtdrc_crucible.rs` god-module: it wears three coats at once. Split out the two that don't belong, leaving a true crucible module.",
+                "",
+                "Extract:",
+                "- The framework-global registries `RBTDRC_FIXTURES` and `RBTDRC_SUITES` (and their `rbtdrc_lookup_*` fns) — theurge-wide tables every fixture module feeds, not a crucible concern.",
+                "- The bare GCP-service fixtures and their case bodies — the no-charge/quench fixtures (grep `setup: None` in the file) for hallmark/lode/reliquary/wsl/podvm/foedus/batch-vouch/access-probe/terrier. They touch no container; they squat here.",
+                "",
+                "Leave behind the actual crucible: the charge/quench hooks, the thread-local invocation ctx, and the security/srjcl/pluml case bodies.",
+                "",
+                "New module homes are mount's call (engine-adjacent, or a dedicated registry module).",
+                "",
+                "## Done when",
+                "`rbtdrc_crucible.rs` carries only crucible-lifecycle concerns; the registries and bare-service fixtures live in their own homes; `tt/rbw-tb.Build.sh` and `tt/rbw-tt.Test.sh` are green; suite composition and fixture behavior are byte-unchanged (pure relocation).",
+                "",
+                "## Cinched",
+                "Relocation only — do NOT collapse the suite membership lists. The suite table's explicit fast-fixture duplication is a documented, defended decision (const-slice concat is non-load-bearing cleverness; the compile-time member check already guards correctness). That decision stands.",
+                "",
+                "## Character",
+                "Mechanical module relocation, fully compile-checked. The one judgment call is the cluster boundary — which bare fixtures group into which new home."
+              ],
+              "jjgtn_silks": "theurge-crucible-module-split",
+              "jjgtn_basis": "0799498"
             }
           ]
         }
@@ -18586,7 +18826,7 @@
       }
     },
     "₣Bm": {
-      "jjghn_silks": "jjk-v4-1-local-inference-spike",
+      "jjghn_silks": "rbk-19-aeo-basic-steps",
       "jjghn_creation_time": "260623",
       "jjghn_status": "jjghe_stabled",
       "jjghn_order": [],
