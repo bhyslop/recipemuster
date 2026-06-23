@@ -17425,9 +17425,10 @@
         "₢BiAAI",
         "₢BiAAH",
         "₢BiAAJ",
-        "₢BiAAA"
+        "₢BiAAA",
+        "₢BiAAW"
       ],
-      "jjghn_next_pace_seed": "AAW",
+      "jjghn_next_pace_seed": "AAX",
       "jjghn_paces": {
         "₢BiAAA": {
           "jjgpn_tacks": [
@@ -18268,6 +18269,47 @@
               ],
               "jjgtn_silks": "theurge-commit-seam",
               "jjgtn_basis": "103f325"
+            }
+          ]
+        },
+        "₢BiAAW": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260623-2036",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "Design conversation requiring judgment — re-express a known soundness gap and work out the proper fix.",
+                "NOT implementation; the deliverable is a ratified design plus a named follow-on path.",
+                "",
+                "## The problem, re-expressed (the nutrition label)",
+                "A conjure build is meant to build FROM the base its committed config names; we want to verify it actually did, to catch a regression where the build re-derives its own base and ignores the committed one.",
+                "We cannot today: the build stamps a metadata label (the about ark / build_info) recording the git commit, builder, and timestamps — but no line naming the base it built from.",
+                "Bind and graft modes record a `.source`; conjure does not — that asymmetry is the gap.",
+                "With no recorded base, a test has nothing to read back and compare, so no honest provenance assertion exists.",
+                "This is the successor the fold deferred: the structural-acceptance decision parked the invariant; this pace designs the real fix.",
+                "",
+                "## The crux — do not lose this",
+                "The recorded base must be the base AS ACTUALLY USED — captured from the build's real resolution (the actual resolved FROM digest), never echoed from the committed config.",
+                "An emitter that copies RBRV_IMAGE_n_ANCHOR from config is circular: it restates the committed value no matter what the build consumed, and the false-green survives.",
+                "Record the flour that went in the mixer, not the recipe card.",
+                "",
+                "## Design questions to settle",
+                "- WHERE to record: (1) the SLSA provenance the build already emits — the resolved base is conceptually a SLSA material/resolvedDependency, so the standard slot may be the right home before minting anything bespoke; (2) the about ark as a first-class field, symmetric with bind/graft `.source`; (3) the vouch ark, only if the resolved base should be a SIGNED, consumer-verifiable provenance claim, not just descriptive. Weigh standard-slot vs bespoke; decide vouch in/out by whether a consumer verifies it.",
+                "- HOW to read back: surface it host-side as an rbf_fact_* fact file after the build (structured, no printout scraping) — the channel a future regression test consumes. Confirm a post-build host step can extract it, as the touchmark/hallmark facts already do.",
+                "- Mint any new JSON wire key under the sprue + Lapidary discipline.",
+                "",
+                "## Done when",
+                "- The problem and the proper fix are written up clearly enough to ratify, the nutrition-label framing carried through.",
+                "- The fix is specified: where the resolved base is recorded (SLSA/about/vouch), captured-from-actual-resolution honored, and how it is surfaced for read-back.",
+                "- A follow-on implementation path is named (its own pace or a spec entry) — this pace is design, not build.",
+                "",
+                "## Cinched",
+                "- Captured-from-actual-resolution, never echoed-from-config — non-negotiable.",
+                "- This is the home for the regression test the fold deferred; the test is downstream of recording the base."
+              ],
+              "jjgtn_silks": "resolved-base-provenance",
+              "jjgtn_basis": "95faa0f"
             }
           ]
         }
