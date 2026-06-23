@@ -124,15 +124,32 @@ rbld_divine() {
 rbld_augur() {
   zrbld_sentinel
 
-  local -r z_touchmark="${BUZ_FOLIO:-}"
+  local -r z_express="${BUZ_FOLIO:-}"
 
   buc_doc_brief "Augur a Lode — inspect member tags and decode its rbi_vouch provenance envelope (read-only)"
-  buc_doc_param "touchmark" "Lode stamp to inspect (e.g., b260602120000)"
+  buc_doc_param "touchmark" "Lode stamp to inspect (e.g., b260602120000); optional — absent, falls back to the touchmark any capture chained forward"
   buc_doc_shown || return 0
 
-  test -n "${z_touchmark}" || buc_die "Touchmark parameter required"
-  [[ "${z_touchmark}" =~ ^[a-z]+[0-9]{12}$ ]] \
-    || buc_die "Touchmark format invalid: '${z_touchmark}' (expected <kind><YYMMDDHHMMSS>, e.g. b260602120000)"
+  # Resolve the touchmark express-or-chain: an express argument wins; absent, fall
+  # back to the touchmark any capture handed forward through the depth-1 chain, so a
+  # no-arg augur immediately after a capture inspects the just-captured Lode. NEVER
+  # relays — depth-1, terminally consumed (the leak-elimination invariant; see the
+  # durable-leak link rbfl_feoff for the no-relay rationale). Read-side: augur writes
+  # no durable config, so a broken chain dies loud (buc_die) rather than firing the
+  # durable-leak surface's named-band reject — categorically lower severity than
+  # feoff/anoint/yoke, and carrying neither their band nor a clean-tree gate.
+  local z_touchmark=""
+  z_touchmark=$(buf_elect_fact_capture "${z_express}" "${RBF_FACT_LODE_TOUCHMARK}") \
+    || buc_die "No touchmark — pass one (param1) or run any Lode capture immediately before augur"
+
+  # Assert a KNOWN Lode kind by decoding the touchmark's kind-letter prefix — the
+  # single home for touchmark kind decode, shared with feoff/yoke. Unlike those
+  # one-kind gates, augur accepts ANY known kind: it inspects every Lode kind. This
+  # replaces augur's former regex shape-check, which proved well-formedness but never
+  # that the prefix named a real kind (the decoder is the sole kind channel).
+  local z_kind=""
+  z_kind=$(zrbld_decode_touchmark_kind_capture "${z_touchmark}") \
+    || buc_die "Touchmark '${z_touchmark}' has no recognizable Lode kind prefix (expected <kind><YYMMDDHHMMSS>, e.g. b260602120000)"
 
   buc_step "Authenticating as Director"
   local z_token=""

@@ -24,20 +24,36 @@ It decodes the kind from the
 {rbtga_touchmark}
 leading letter and reads the same-shaped envelope every kind carries — so a new Lode kind needs no change here.
 
+NOTE: *Read-side chain consumer.*
+The touchmark is resolved express-or-chain for a transient inspection only — augur writes no durable config — so a broken chain or an unknown kind dies loud as an ordinary fatal, categorically lower severity than the durable-leak links
+{rbtgo_director_feoff}
+and
+{rbtgo_director_yoke},
+whose rejections ride the chaining precision band.
+Augur must never be extended to write config without joining that durable-leak surface and its depth-1 no-relay plus named-band-reject discipline.
+
 The
 {rbtr_director}
 augurs a Lode:
 
 //axhopt_typed_parameter
 {rbtga_touchmark}
-. *Validate Input Parameters*:
-.. {rbbc_require}
-`«TOUCHMARK»` provided as the operation folio
-.. {rbbc_require}
-`«TOUCHMARK»` matches the touchmark format `«KIND»YYMMDDHHMMSS` (see
-{rbst_touchmark})
+. *Resolve the Touchmark* (express-or-chain):
+.. `«TOUCHMARK»` resolves express-or-chain: an express folio argument (e.g., `b260602120000`) wins; absent, it falls back to the touchmark any
+{rbtga_lode}
+capture handed forward through the depth-1 cross-tabtarget chain — so a no-arg augur immediately after a capture inspects the just-captured Lode. The chain is read terminally — never relayed.
 .. {rbbc_fatal}
-if malformed: "Touchmark format invalid"
+if neither an express argument nor a chained touchmark is present — a broken chain
+.. {rbbc_require}
+the resolved `«TOUCHMARK»` decodes to any known Lode kind from its kind-letter prefix (see
+{rbst_touchmark}),
+via the same single-home prefix decoder
+{rbtgo_director_feoff}
+and
+{rbtgo_director_yoke}
+use — augur accepts every kind, unlike those one-kind gates
+.. {rbbc_fatal}
+if the resolved touchmark decodes to no known kind — this replaces a former format-shape regex that proved well-formedness but never that the prefix named a real kind
 
 //axhos_step
 . *Authenticate as
