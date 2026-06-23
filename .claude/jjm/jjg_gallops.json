@@ -17412,6 +17412,7 @@
         "₢BiAAO",
         "₢BiAAP",
         "₢BiAAR",
+        "₢BiAAS",
         "₢BiAAL",
         "₢BiAAE",
         "₢BiAAD",
@@ -17423,7 +17424,7 @@
         "₢BiAAJ",
         "₢BiAAA"
       ],
-      "jjghn_next_pace_seed": "AAS",
+      "jjghn_next_pace_seed": "AAT",
       "jjghn_paces": {
         "₢BiAAA": {
           "jjgpn_tacks": [
@@ -18137,6 +18138,28 @@
               ],
               "jjgtn_silks": "chaining-fact-band-tests",
               "jjgtn_basis": "fad50db"
+            }
+          ]
+        },
+        "₢BiAAS": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260623-1631",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Operator checkpoint — NOT agent work. The reminder, positioned at the chain-cluster terminus on purpose: this is where the chaining-fact changes get reconciled and pushed downstream.",
+                "",
+                "## Character",
+                "Operator-owned, cross-repo. The agent cannot do this — it lives in the operator's multi-repo push/reconcile workflow and judgment.",
+                "",
+                "## Why it lands here",
+                "The cluster's reusable footings (`buf_elect_fact_capture`, the `BUBC_band_chain` precision band) live in BUK, a distributed kit — so the work reaches the repos that vendor BUK. The RBK-side changes (feoff, the brand-fact collapse) are local to this repo. The operator owns the actual reconcile scope and steps.",
+                "",
+                "## Done when",
+                "The operator has reconciled and pushed the chaining-fact changes downstream by their usual cross-repo workflow. Closed by operator judgment, not an automated gate."
+              ],
+              "jjgtn_silks": "reconcile-and-push-chaining-fixes",
+              "jjgtn_basis": "8ab215e"
             }
           ]
         }
