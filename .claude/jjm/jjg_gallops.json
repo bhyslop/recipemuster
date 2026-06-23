@@ -17042,9 +17042,10 @@
         "₢BhAAI",
         "₢BhAAL",
         "₢BhAAQ",
+        "₢BhAAS",
         "₢BhAAR"
       ],
-      "jjghn_next_pace_seed": "AAS",
+      "jjghn_next_pace_seed": "AAT",
       "jjghn_paces": {
         "₢BhAAA": {
           "jjgpn_tacks": [
@@ -17565,6 +17566,43 @@
               ],
               "jjgtn_silks": "viewer-port-latency-probe",
               "jjgtn_basis": "c4947cd"
+            }
+          ]
+        },
+        "₢BhAAS": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260623-1505",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Bind the paneboard-spawned viewer's life to the canonical port file's existence, so paneboard cycling its lifecycle closes the viewer.",
+                "This is the dead-simple successor to the PID/lock leash, which the macOS seatbelt sandbox defeats.",
+                "",
+                "The sandbox silently strips BOTH argv and env from a LaunchServices `open` launch (verified 2026-06-23 against paneboard's live `(allow default)(deny network*)` profile via sandbox-exec), so the sandboxed conductor cannot signal the viewer through the spawn at all.",
+                "The viewer must POLL a file, never be TOLD.",
+                "See paddock \"Paneboard internals\" for the launchd/sandbox launch path this constrains.",
+                "",
+                "## Character",
+                "Mechanical; the protocol is fully settled below.",
+                "",
+                "## Cinched",
+                "Protocol (operator-decided 2026-06-23):",
+                "- Paneboard clears the canonical port file at its own startup.",
+                "- The viewer polls that file every ~2s; a missing file means close.",
+                "- The viewer clears the file at its own startup, then writes its bound port once known.",
+                "",
+                "Death triggers on the next paneboard STARTUP, not on paneboard's death; the kill-without-restart window is knowingly accepted as sufficient.",
+                "Every viewer obeys the one rule, so a hand-launched viewer is no longer kept independent while paneboard runs — this deliberately drops the earlier explicit-per-spawn-signal promise.",
+                "No flock, no PID stamp, no conductor→viewer launch signal.",
+                "",
+                "The paneboard working tree currently holds the abandoned flock-leash code uncommitted (conductor.live setup, the viewer-side leash module pbgvl_leash.rs, the --pb-watch passing, the startup reap, the launch debounce); revert or simplify it down to this protocol as part of the pace.",
+                "",
+                "## Done when",
+                "- Starting paneboard clears the port file, and any already-running viewer closes within ~2s.",
+                "- A viewer running with no paneboard keeps working (it maintains its own port file)."
+              ],
+              "jjgtn_silks": "viewer-dies-on-portfile-clear",
+              "jjgtn_basis": "2cdbde4"
             }
           ]
         }
