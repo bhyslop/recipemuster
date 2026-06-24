@@ -19404,7 +19404,7 @@
         "₢BiAAZ": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260624-0127",
+              "jjgtn_ts": "260624-1200",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "## Character",
@@ -19425,8 +19425,8 @@
                 "- dogfight passes ordain -> summon -> run -> abjure green.",
                 "- Root cause recorded (credential / registry / code)."
               ],
-              "jjgtn_silks": "debug-cloud-build-summon",
-              "jjgtn_basis": "3f9da46"
+              "jjgtn_silks": "read-side-chaining-furnish-coverage",
+              "jjgtn_basis": "f65aab9"
             }
           ]
         },
