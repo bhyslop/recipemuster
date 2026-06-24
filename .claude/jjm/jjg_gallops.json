@@ -17300,7 +17300,7 @@
         "₢BfAAV": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260624-1156",
+              "jjgtn_ts": "260624-1201",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "Add a REVEILLE_BASE set-equality assertion pinning the canonical reveille set as a regression oracle across the dependency-tiered suites, and RESTORE chaining-fact-band to the gauntlet and skirmish ladders (operator ruling 260623 — it was dropped from both).",
@@ -17314,8 +17314,8 @@
                 "## Character",
                 "Mechanical guard; the restore ruling is settled."
               ],
-              "jjgtn_silks": "fast-base-set-equality-assertion",
-              "jjgtn_basis": "6411253"
+              "jjgtn_silks": "reveille-base-set-equality-assertion",
+              "jjgtn_basis": "71e3552"
             }
           ]
         },
