@@ -376,3 +376,12 @@ Foedus reuse and the active-foedus switch — PARKED (not folded into the plan):
 Deliberately NOT minted here: the switch toothing's selection mechanism and its name.
 The switch name is placed and minted when the heat rails its rename and remint work (alongside the compear→heed and assize remints), not before.
 The audit's foedus-reuse-leg proposal inherited an affiance-centric frame the switch decision supersedes; it is reframed around the switch when the plan is enrolled.
+
+## Paddock drain — the heat-memories memo (experimental, 260623)
+
+This paddock is a holding catalog and it accretes; to keep it the shape of REMAINING work, dispositioned deliberation drains to a provenance memo: Memos/memo-20260623-Bf-heat-memories.md.
+What drains: only DISPOSITIONED ideas — built into a completed pace, declined, or superseded.
+What stays: deferred-but-still-live ideas (those belong here, or in an itch / the horizon roadmap if thin) — a live idea drained to the memo is a live idea quietly buried.
+The gate (experimental): as a pace wraps, its wrap decision considers whether the completed work renders some paddock material dispositioned — but the fact drains ONLY if a terminal groom estimates the paddock no longer needs it; the groom's judgment, not the wrap alone, releases the drain.
+This is being tried and is not obviously going to work well; revisit if it adds friction without keeping the paddock clean, or graduate it to a general JJK practice if it proves out.
+First expected use: the post-renaming paddock-refocus — drain the ₣BZ lineage and its now-released gating and the dingleberry doctrine, de-staling (not draining) the references that now resolve to existing work.
