@@ -16637,6 +16637,7 @@
       "jjghn_creation_time": "260616",
       "jjghn_status": "jjghe_racing",
       "jjghn_order": [
+        "₢BfAAo",
         "₢BfAAS",
         "₢BfAAR",
         "₢BfAAh",
@@ -16664,7 +16665,7 @@
         "₢BfAAm",
         "₢BfAAn"
       ],
-      "jjghn_next_pace_seed": "AAo",
+      "jjghn_next_pace_seed": "AAp",
       "jjghn_paces": {
         "₢BfAAA": {
           "jjgpn_tacks": [
@@ -17536,6 +17537,35 @@
               ],
               "jjgtn_silks": "payor-install-finish-manor-guidance",
               "jjgtn_basis": "6433ebf"
+            }
+          ]
+        },
+        "₢BfAAo": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260624-2309",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Cross-clone coordination gate for the federation-build stream (its own repo clone).",
+                "No code change of its own — this is the standing sync contract for this stream's writes into files owned by the theurge stream (₣Bl).",
+                "",
+                "## Spec of needed change",
+                "This stream owns RBS0-SpecTop and the acronym registry, so it leads on those; its only cross-clone WAITS are on ₣Bl, which owns the zipper trio and the crucible fixture/suite registry.",
+                "Zipper trio (rbz_zipper.sh plus its two build-regenerated files): the paces here that add tabtargets — the manor-setup finisher, and the Keycloak-facility setup/teardown — take the zipper baton AFTER ₣Bl has pushed its zipper paces; sync ₣Bl, edit the source, run the theurge build to regenerate the pair, and commit the three files as one unit.",
+                "Crucible fixture retirement: the terrier-founding-home finisher retires two crucible fixtures, a write into the ₣Bl-owned crucible registry; apply it only AFTER ₣Bl's registry-relocation has settled the fixture/suite home, as a one-shot delta against the relocated home.",
+                "",
+                "## Done when",
+                "Both theurge-owned surfaces (the zipper trio, the crucible fixture registry) were synced from ₣Bl before this stream wrote them, with no overwrite of the other clone's work.",
+                "",
+                "## Cinched",
+                "Coordination-only, no substantive code.",
+                "The zipper baton order is ₣Bl (theurge) then ₣Bf (federation) then ₣Bi (MVP).",
+                "",
+                "## Character",
+                "Cross-clone coordination gate; mechanical."
+              ],
+              "jjgtn_silks": "fed-syncs-theurge-zipper-crucible",
+              "jjgtn_basis": "d714a61"
             }
           ]
         }
