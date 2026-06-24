@@ -47,18 +47,20 @@ rbfl_anoint() {
   # Read the chained build facts through the shared express-or-chain resolver —
   # anoint carries no express path, so an empty express makes each resolve a pure
   # chain read, routing through the same footing every other fact consumer uses.
-  # The previous dispatch must be a build (kludge or ordain); a broken chain fails
-  # hard via buc_die.
+  # The previous dispatch must be a build (kludge or ordain); a broken chain
+  # rejects with the named chaining band (BUBC_band_chain), uniform with the other
+  # durable-leak links feoff and yoke — anoint is a durable-config writer, so a bad
+  # resolve is a deliberate rejection, never a bare die.
   buc_step "Reading chained build facts"
   local z_hallmark=""
   z_hallmark=$(buf_elect_fact_capture "" "${RBF_FACT_HALLMARK}") \
-    || buc_die "No hallmark fact from the previous dispatch — run a build (kludge or ordain) immediately before anoint"
+    || buc_reject "${BUBC_band_chain}" "No hallmark fact from the previous dispatch — run a build (kludge or ordain) immediately before anoint"
   local z_gar_root=""
   z_gar_root=$(buf_elect_fact_capture "" "${RBF_FACT_GAR_ROOT}") \
-    || buc_die "No gar_root fact from the previous dispatch"
+    || buc_reject "${BUBC_band_chain}" "No gar_root fact from the previous dispatch"
   local z_ark_stem=""
   z_ark_stem=$(buf_elect_fact_capture "" "${RBF_FACT_ARK_STEM}") \
-    || buc_die "No ark_stem fact from the previous dispatch"
+    || buc_reject "${BUBC_band_chain}" "No ark_stem fact from the previous dispatch"
 
   local -r z_image_ref="${z_gar_root}/${z_ark_stem}/${RBGC_ARK_BASENAME_IMAGE}:${z_hallmark}"
   buc_info "Hallmark: ${z_hallmark}"

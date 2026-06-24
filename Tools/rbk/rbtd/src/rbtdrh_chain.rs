@@ -36,7 +36,11 @@
 // dispatch start (the same path chain_next_invoke replicates for cloud pairs).
 // yoke fans out across the tracked vessel tree, but its kind gate rejects BEFORE
 // auth and BEFORE the write loop, so the yoke negatives are creds-free and
-// write-free. Nothing here mints a token — the fixture is credless.
+// write-free. anoint takes the strict load (it must, to read RBRV_VESSEL_MODE), so
+// unlike feoff it cannot use a temp vessel — it drives the one real graft vessel
+// (rbev-graft-demo) as its folio; its broken-chain reject precedes the rewrite, so
+// that tracked rbrv.env stays write-free too. Nothing here mints a token — the
+// fixture is credless.
 //
 // The read-side consumers (summon, plumb, augur) resolve the same express-or-chain
 // fact but write no durable config. They now reject a broken resolve with the same
@@ -50,6 +54,7 @@ use std::path::{Path, PathBuf};
 
 use crate::case;
 use crate::rbtdgc_consts::{
+    RBTDGC_ANOINT_GRAFT,
     RBTDGC_AUGUR_LODE,
     RBTDGC_BAND_CHAIN,
     RBTDGC_FEOFF_BOLE,
@@ -89,6 +94,14 @@ const RBTDRH_TAG_BOLE: &str = "rbi_bole"; // RBGC_LODE_TAG_BOLE
 // the stager and the fact-intact assertion so byte-identity is checked against
 // the exact bytes written.
 const RBTDRH_VESSEL_RBRV: &str = "RBRV_IMAGE_1_ORIGIN=docker.io/library/debian:bookworm\n";
+
+// anoint's folio is the real tracked graft vessel — the sole graft-mode vessel in
+// the tree. Unlike feoff (which reads a temp vessel by path), anoint LOADS the
+// vessel through the strict zrbfc_load_vessel, which demands it sit at its
+// canonical RBRR_VESSEL_DIR location, so a temp-staged vessel cannot reach the
+// chain read. The reject precedes the rewrite, so driving the real vessel leaves
+// its rbrv.env untouched (the case asserts that byte-identity).
+const RBTDRH_GRAFT_VESSEL: &str = "rbev-graft-demo";
 
 // ── Harness ─────────────────────────────────────────────────
 
@@ -169,6 +182,40 @@ fn rbtdrh_drive_yoke(dir: &Path, express: &str) -> Result<i32, String> {
         .map_err(|e| format!("failed to run yoke {}: {}", tt.display(), e))?;
     let _ = std::fs::write(dir.join("yoke-stdout.txt"), &output.stdout);
     let _ = std::fs::write(dir.join("yoke-stderr.txt"), &output.stderr);
+    Ok(output.status.code().unwrap_or(-1))
+}
+
+/// Drive the anoint tabtarget against the REAL tracked graft vessel (its mandatory
+/// folio) with an EMPTY BURV root. anoint is a durable-leak LINK like feoff/yoke,
+/// but chain-only (no express), so a broken chain is its sole resolve failure. It
+/// LOADS the vessel (the strict zrbfc_load_vessel demands the canonical location),
+/// so the folio must be the real tracked vessel, not a temp stage. With no chained
+/// fact the resolve finds nothing and anoint rejects with the chaining band BEFORE
+/// the rbrv.env rewrite — the same reject-before-write shape that keeps the yoke
+/// negatives write-free, so the tracked rbrv.env is never mutated (asserted by the
+/// case). Credless, no cloud — the reject fires before any token mint. Returns the
+/// exit code.
+fn rbtdrh_drive_anoint(dir: &Path) -> Result<i32, String> {
+    let root = std::env::current_dir().map_err(|e| format!("cannot get cwd: {}", e))?;
+    let tt = rbtdri_find_tabtarget_global(&root, RBTDGC_ANOINT_GRAFT)?;
+
+    let burv = dir.join("burv");
+    let burv_temp = dir.join("burvtmp");
+    std::fs::create_dir_all(&burv).map_err(|e| format!("mkdir burv root: {}", e))?;
+    std::fs::create_dir_all(&burv_temp).map_err(|e| format!("mkdir burv temp: {}", e))?;
+
+    let mut cmd = rbtdri_tabtarget_command(&tt);
+    cmd.arg(RBTDRH_GRAFT_VESSEL)
+        .env("BURV_OUTPUT_ROOT_DIR", rbtdrx_native_to_posix(&burv))
+        .env("BURV_TEMP_ROOT_DIR", rbtdrx_native_to_posix(&burv_temp))
+        .env(RBTDRI_BURE_CONFIRM_KEY, RBTDRI_BURE_CONFIRM_SKIP)
+        .current_dir(&root);
+
+    let output = cmd
+        .output()
+        .map_err(|e| format!("failed to run anoint {}: {}", tt.display(), e))?;
+    let _ = std::fs::write(dir.join("anoint-stdout.txt"), &output.stdout);
+    let _ = std::fs::write(dir.join("anoint-stderr.txt"), &output.stderr);
     Ok(output.status.code().unwrap_or(-1))
 }
 
@@ -359,6 +406,48 @@ fn rbtdrh_yoke_unknown_prefix(dir: &Path) -> rbtdre_Verdict {
     }
 }
 
+// ── anoint case ─────────────────────────────────────────────
+// anoint is the third durable-leak LINK (it rewrites RBRV_GRAFT_IMAGE), write-side
+// sibling of feoff/yoke. It is chain-only — no express — so a broken chain is its
+// only resolve failure. Driven against the real graft vessel with an empty BURV
+// root, anoint loads the vessel, then the first fact read fails and rejects with
+// the band BEFORE the rewrite, so the tracked rbrv.env must survive byte-identical.
+
+fn rbtdrh_anoint_broken_chain(dir: &Path) -> rbtdre_Verdict {
+    let rbrv = match std::env::current_dir() {
+        Ok(r) => r
+            .join("rbmm_moorings")
+            .join("rbmv_vessels")
+            .join(RBTDRH_GRAFT_VESSEL)
+            .join("rbrv.env"),
+        Err(e) => return rbtdre_Verdict::Fail(format!("cannot get cwd: {}", e)),
+    };
+    let before = std::fs::read_to_string(&rbrv).unwrap_or_default();
+
+    let code = match rbtdrh_drive_anoint(dir) {
+        Ok(c) => c,
+        Err(e) => return rbtdre_Verdict::Fail(e),
+    };
+    if code != RBTDGC_BAND_CHAIN {
+        return rbtdre_Verdict::Fail(format!(
+            "anoint broken chain (empty BURV root) exited {} — expected band {} (artifacts in {})",
+            code, RBTDGC_BAND_CHAIN, dir.display()
+        ));
+    }
+
+    // The reject must precede the rewrite — that invariant is what makes driving the
+    // real tracked vessel write-free. Prove the rbrv.env is byte-identical after.
+    let after = std::fs::read_to_string(&rbrv).unwrap_or_default();
+    if after != before {
+        return rbtdre_Verdict::Fail(format!(
+            "the tracked graft vessel rbrv.env was mutated under a band reject \
+             (rejection must precede any write); after:\n{}",
+            after
+        ));
+    }
+    rbtdre_Verdict::Pass
+}
+
 // ── read-side consumer cases ────────────────────────────────
 // summon/plumb/augur write no durable config, but they resolve the same
 // express-or-chain fact and now reject a broken resolve with the same band as the
@@ -546,6 +635,7 @@ pub static RBTDRH_CASES_CHAINING_FACT_BAND: &[rbtdre_Case] = &[
     case!(rbtdrh_feoff_fact_intact),
     case!(rbtdrh_yoke_wrong_kind),
     case!(rbtdrh_yoke_unknown_prefix),
+    case!(rbtdrh_anoint_broken_chain),
     case!(rbtdrh_summon_no_folio),
     case!(rbtdrh_plumb_no_folio),
     case!(rbtdrh_augur_no_folio),
