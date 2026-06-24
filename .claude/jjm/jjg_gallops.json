@@ -16605,37 +16605,27 @@
         "₢BfAAA": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260616-1507",
+              "jjgtn_ts": "260623-2235",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
-                "Drafted from ₢BZAAS in ₣BZ.",
+                "Reconsider whether compear (the sign-in verb) must gate on a controlling terminal, and if it relaxes, build the yawp channel as the headless mechanism — surface the device-flow prompt out-of-band so a relay can complete it, preserving the human-present premise without requiring a TTY.",
                 "",
-                "Reconsider whether compearance must gate on terminal-interactivity, or whether a headless run can open an assize by surfacing the device-flow prompt out-of-band and polling to completion.",
-                "",
-                "The Leg-1+2 compearance step currently gates on TTY presence and fails loud when headless — the fail-fast membrane the human-present premise prescribes.",
-                "The operator's challenge: IdP-completion detection is already a headless HTTP poll loop, and RFC 8628 is asynchronous by design (the device polls while the human authenticates on a separate device), so terminal-interactivity is a policy choice, not a technical necessity.",
-                "The suspected design error: conflating \"a human authenticates each assize\" (the premise) with \"a human is at a controlling terminal\" (the current enforcement), which fails a headless-but-human-reachable caller — e.g. a long-running agent whose operator watches its output channel but holds no TTY.",
-                "",
-                "The alternative to weigh: deliver the verification URI and user code through an out-of-band channel (emit, a known file, a notification), poll headlessly until completion or device-code expiry, and reserve fail-fast for the case where no channel and no human can be established.",
-                "The cost it trades: the fail-fast guard against a silent ~15-minute poll-until-expiry hang, and the obligation to answer \"which channel, and is someone watching it.\"",
-                "",
-                "This touches cinched paddock material — the human-present premise and the headless fail-fast membrane (spike D2/D3) — so resolving it may require an operator-sanctioned paddock amendment rather than a pace-local decision.",
+                "## Spec of needed change",
+                "Two halves of one question, formerly split across two paces (the yawp exploration folded in here):",
+                "- The DECISION (premise-touching, operator-owned): does compear keep its TTY fail-fast, or relax to headless-but-human-reachable? The suspected design error is conflating \"a human authenticates each assize\" (the premise) with \"a human is at a controlling terminal\" (the current enforcement) — which fails a headless-but-human-reachable caller (a long-running agent whose operator watches an output channel but holds no TTY).",
+                "- The MECHANISM (if it relaxes): emit the device-flow prompt (verification URL + user code) as a yawp (BUYM diastema wire format) instead of writing it to /dev/tty, so a relay surfaces it and polls to completion; the tty's real purposes — keep the single-use code off the persistent log, and serve as the fail-fast presence proxy — are preserved through the new channel.",
                 "",
                 "## Done when",
-                "The design question is settled either way, with rationale recorded in the pace-design memo.",
-                "Either the TTY-gate-plus-fail-fast enforcement is reaffirmed — and the reason the premise requires a controlling terminal rather than merely a reachable human is written down — or a decoupled design is specified (out-of-band prompt delivery plus headless polling), with the human-present-premise / fail-fast-membrane cinch amended to match.",
-                "The rework this implies for the compearance accessor step and the Leg-1+2 pace is identified and slated or folded, not left implicit.",
+                "The TTY-gating question is settled either way with rationale recorded; if relaxed, compear can open an assize from a non-tty context by surfacing its prompt as a yawp a relay completes, the human-present guarantee preserved; the rework for the accessor and the Leg-1 step is slated or folded.",
                 "",
                 "## Cinched",
-                "Zero durable secrets beyond the payor's RBRO; no refresh token; the federated-token-only assize cache.",
-                "The device flow stays the compearance mechanism; a human still authenticates each assize.",
-                "Explicitly under reconsideration: whether \"human present\" must mean \"controlling terminal present,\" and whether a headless miss fails loud unconditionally.",
+                "The human-present premise holds — a human still authenticates each assize; the device flow stays the mechanism; zero durable secrets beyond the payor's RBRO. This touches cinched paddock material (the human-present premise and the headless fail-fast membrane), so resolving it may surface an operator-sanctioned paddock amendment. Distinct from the programmatic no-human path — that is the foedus-reuse spine's, not this.",
                 "",
                 "## Character",
-                "Design reconsideration requiring judgment; touches a cinched premise, so it may surface a paddock amendment rather than land purely in code."
+                "Design reconsideration plus a contained channel build at the shared accessor membrane (compear, used by every cloud tabtarget) and the BUYM yawp wire format; premise-touching, operator-owned."
               ],
               "jjgtn_silks": "compearance-headless-reconsider",
-              "jjgtn_basis": "8597c46"
+              "jjgtn_basis": "0354cea"
             }
           ]
         },
