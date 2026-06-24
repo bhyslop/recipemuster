@@ -19211,8 +19211,8 @@
         "₢BiAAX": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260623-2154",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260623-2224",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "## Character",
                 "Mechanical operator-facing rename, low risk — an ashlar-tier vocabulary fix.",
@@ -19236,7 +19236,7 @@
                 "- rbw-tq + rbw-tl green; rbw-acm <mantle> still routes. No spec edit (grep finds no reference); colophon cross-refs (rbgp_payor, rbtdrk_depot) untouched."
               ],
               "jjgtn_silks": "mantle-access-probe-rename",
-              "jjgtn_basis": "bf33f34"
+              "jjgtn_basis": "e2e9b3d"
             }
           ]
         }
