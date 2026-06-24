@@ -16650,6 +16650,7 @@
         "₢BfAAP",
         "₢BfAAN",
         "₢BfAAM",
+        "₢BfAAp",
         "₢BfAAL",
         "₢BfAAK",
         "₢BfAAJ",
@@ -16665,7 +16666,7 @@
         "₢BfAAm",
         "₢BfAAn"
       ],
-      "jjghn_next_pace_seed": "AAp",
+      "jjghn_next_pace_seed": "AAq",
       "jjghn_paces": {
         "₢BfAAA": {
           "jjgpn_tacks": [
@@ -17567,6 +17568,28 @@
               ],
               "jjgtn_silks": "fed-syncs-theurge-zipper-crucible",
               "jjgtn_basis": "6ed03ba"
+            }
+          ]
+        },
+        "₢BfAAp": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260624-2333",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "BARRIER — cross-clone wait. No code work of its own.",
+                "This pace cannot complete until ₢BlAAN (heat ₣Bl — the colophon-relocation pace, the LAST of the theurge stream's zipper writes) is complete, pushed to origin, and origin merged back into this clone.",
+                "The zipper trio (rbz_zipper.sh plus its two build-regenerated files) is theurge-owned and re-derives wholesale, so the federation stream takes the baton only after ₣Bl finishes its zipper writes.",
+                "Only then may the following federation zipper paces — the Keycloak-facility and, later, the manor-finisher tabtargets — edit the trio: sync, edit, run the theurge build to regenerate the pair, commit the three files as one unit.",
+                "",
+                "## Done when",
+                "₢BlAAN is wrapped and pushed to origin, and this clone has pulled origin so the full theurge zipper state is present before this stream edits the trio.",
+                "",
+                "## Character",
+                "Cross-clone barrier (zipper baton ₣Bl → ₣Bf → ₣Bi); hold here until the named pace is merged through."
+              ],
+              "jjgtn_silks": "await-thg-zipper-baton",
+              "jjgtn_basis": "8eeea6a"
             }
           ]
         }
