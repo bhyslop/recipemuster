@@ -18440,8 +18440,8 @@
         "₢BhAAT": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260623-2317",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260624-1341",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "## Character",
                 "Small and mechanical: one gating decision in the mount/groom dispatch plus its spec and paddock homes.",
@@ -18468,7 +18468,7 @@
                 "- The heat paddock's Emblem section matches it, no longer asserting an unconditional firemark-on-groom."
               ],
               "jjgtn_silks": "emblem-coronet-sticks-per-officium",
-              "jjgtn_basis": "0600417"
+              "jjgtn_basis": "bbc0a21"
             }
           ]
         },
