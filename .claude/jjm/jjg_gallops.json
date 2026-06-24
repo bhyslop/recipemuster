@@ -16659,9 +16659,12 @@
         "₢BfAAE",
         "₢BfAAF",
         "₢BfAAG",
-        "₢BfAAH"
+        "₢BfAAH",
+        "₢BfAAl",
+        "₢BfAAm",
+        "₢BfAAn"
       ],
-      "jjghn_next_pace_seed": "AAl",
+      "jjghn_next_pace_seed": "AAo",
       "jjghn_paces": {
         "₢BfAAA": {
           "jjgpn_tacks": [
@@ -17390,6 +17393,151 @@
               "jjgtn_basis": "e5443bc"
             }
           ]
+        },
+        "₢BfAAl": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260624-2244",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Drafted from ₢BiAAA in ₣Bi.",
+                "",
+                "Originally drafted in ₣BB against the pre-federation keyfile estate.",
+                "",
+                "## Character",
+                "Blocked on ₣Bf; must be rebuilt federation-aware before it can mount.",
+                "",
+                "## Cinched",
+                "Do not mount until ₣Bf wraps.",
+                "₣Bf is reworking the federation auth path in parallel;",
+                "by its completion a strong, stable federation definition will exist —",
+                "design against that, not against today's in-flight code.",
+                "",
+                "## Source",
+                "`Memos/memo-20260527-account-state-invalid-reinvest-flap.md` — the original 401 `ACCOUNT_STATE_INVALID` signature and two-host evidence.",
+                "That evidence predates federation, which demolished both the flap's trigger (the per-run director-SA re-invest) and the touchpoint the repair was to extend (the keyfile OAuth consumer-retry).",
+                "Re-derive the touchpoints against ₣Bf's federation auth path (compearance / STS / mantle-don); do not assume the memo's keyfile shape.",
+                "",
+                "## Done when",
+                "A determination, against the stable federation auth path, of whether an `ACCOUNT_STATE_INVALID` analogue can still strand a healthy build —",
+                "bounded tolerance added at the surviving touchpoint(s) where it can, or the pace retired with that finding recorded."
+              ],
+              "jjgtn_silks": "foundry-account-state-invalid-tolerance",
+              "jjgtn_basis": "6433ebf"
+            }
+          ]
+        },
+        "₢BfAAm": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260624-2244",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Drafted from ₢BiAAB in ₣Bi.",
+                "",
+                "Drafted from ₢BBABX in ₣BB.",
+                "",
+                "## Character",
+                "Surgical bash change in one function, but gated on one genuine design question —",
+                "judgment, not mechanical.",
+                "",
+                "## Goal",
+                "`rbgo_get_token_capture` (Tools/rbk/rbgo_OAuth.sh) waits the full SA-propagation",
+                "budget (~104 s, 10 attempts) on credential failures that are deterministically",
+                "terminal. Its \"Discriminate failure\" block retries exactly two OAuth error shapes —",
+                "`invalid_grant` + `\"Invalid JWT Signature.\"` and `invalid_grant` +",
+                "`\"Invalid grant: account not found\"` — because those are the post-mint",
+                "propagation-race signals. The flaw: each shape is **ambiguous** — also the permanent",
+                "signal (key revoked / SA deleted with no mint pending). The response body alone",
+                "cannot tell transient from terminal, so the loop retries both and burns the whole",
+                "budget on dead credentials. Make terminal failures fail fast without weakening",
+                "legitimate post-mint propagation tolerance.",
+                "",
+                "## Cinched",
+                "- The string classifier is correct as far as it goes — do NOT \"repair\" by dropping",
+                "  the retry. The propagation race is real immediately after invest/mantle.",
+                "- The disambiguator is **call context** (did a mint just happen?), not the response",
+                "  body. The fix lives on that axis.",
+                "",
+                "## Clarifying questions — resolve at mount before coding",
+                "1. Parameterize the retry budget by caller? — `rbgo_get_token_capture` takes a",
+                "   ceiling arg: post-mint consumers (first use after invest/mantle) pass the full",
+                "   window; cold access probes (`rbgv_check_*` behind `rbw-ac*`) pass zero/small.",
+                "   Is call-context the right axis, and is a function parameter the right shape?",
+                "2. Does any access probe run as the FIRST use right after a mint (legitimately",
+                "   needing the window)? Check whether invest/mantle self-verify via a probe — if so",
+                "   the flag must be per-call-site, not a blanket \"probes fail fast.\"",
+                "3. Probe-path ceiling: zero retry, or a small bounded one (a few seconds) to",
+                "   tolerate a genuinely-just-established credential?",
+                "4. Sequencing vs the in-flight ACCOUNT_STATE_INVALID work — the `TEMP-FORENSIC`",
+                "   block in this same function (grep `TEMP-FORENSIC` in rbgo_OAuth.sh; memo-20260527,",
+                "   the touchpoint-2 match it is gathering shape for) overlaps this code. Is this",
+                "   repair the same change as that touchpoint-2 landing, or does it follow it?",
+                "",
+                "## Done when",
+                "- Terminal credential failures (stale key / absent SA, no pending mint) fail fast",
+                "  from access probes instead of waiting the full propagation budget.",
+                "- Genuine post-mint propagation races still retry on the existing budget.",
+                "- The chosen design (context axis) is recorded where the function lives.",
+                "",
+                "## Sources",
+                "- Tools/rbk/rbgo_OAuth.sh — `rbgo_get_token_capture`, the \"Discriminate failure\"",
+                "  block and the `RBGC_SA_KEY_CONSUMER_RETRY_*` constants; the `TEMP-FORENSIC` block",
+                "  marks the related in-flight work.",
+                "- memo-20260527 — Host-B capture gap / ACCOUNT_STATE_INVALID token-endpoint shape.",
+                "- memo-20260608-lode-podvm-cerebro-experiment.md §6 — the empirical 104 s-wait",
+                "  observation (stale Director key + deleted Governor SA, this session)."
+              ],
+              "jjgtn_silks": "token-mint-failfast-terminal-iam",
+              "jjgtn_basis": "6433ebf"
+            }
+          ]
+        },
+        "₢BfAAn": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260624-2244",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Drafted from ₢BiAAJ in ₣Bi.",
+                "",
+                "The payor-install verb closes by prescribing one hard-coded next step — \"Next: levy the depot\" — and the fix is to make its tail point the operator at finishing the manor rather than at a single federation/depot command.",
+                "",
+                "## Character",
+                "Reconfirm-then-shape, deferred on purpose: the mechanical change is small, but the canonical manor-completion sequence it must point at is mid-evolution in the federation heats and gated on Fable's vocabulary mints, so every premise below is a hypothesis to re-derive from the live tree at mount, not authority. The timing is the whole point of parking it here.",
+                "",
+                "## The need",
+                "`rbgp_payor_install` (Tools/rbk/rbgp_payor.sh) ends by hard-coding a pointer at the depot-levy tabtarget.",
+                "A leaf credential verb should not route workflow: the pointer is blind to the credential-refresh path (where depots already exist), it skips the manor-affiance step that actually finishes a manor, and levy is a per-depot act, not a manor-completion act.",
+                "The operator finishing payor-install wants \"here is how to finish setting up your manor\" — not federation-flavored, not a single command.",
+                "",
+                "## Shape (verify before adopting — see Reconfirm)",
+                "- Stop the verb prescribing levy; have its tail report state and point at the manor onboarding handbook (rbw-Op) as the sequence of record — the not-federation-dedicated \"finish your manor\" home.",
+                "- Clean the post-success \"Verifying ... rbrp.env\" tail in the same pass: give it an honest label (it reconciles the committed manor-identity regime against what the install just discovered), and drop any arm an earlier step already enforces with a hard die — suspected unreachable: the billing and client-id checks. Confirm, do not assume.",
+                "- Separable, larger: weave the affiance step into the manor onboarding handbook (Tools/rbk/rbh0/rbhopw_payor_wrapper.sh) as a manor-completion step — \"connect your manor to its identity provider\" — sequenced establish → install → affiance → then provision depots.",
+                "",
+                "## Reconfirm premises first",
+                "The federation surface this points at is mid-evolution in ₣Bf and ₣BZ, with vocabulary gated on Fable.",
+                "Before writing any guidance prose, re-derive from the live tree:",
+                "- Does the affiance verb still exist by that name and colophon, or did a Fable mint rename it (the affiance/heed and assize remints are live ideas in ₣Bf)?",
+                "- Has the manor-establishment reshape landed — is there now a unified manor-provision op (the terrier founding-home shape in ₣Bf) instead of a bare affiance, changing what \"finish the manor\" means?",
+                "- What is the canonical manor-completion sequence at mount, and does the handbook already reflect it?",
+                "Do not wire prose that contradicts whatever ₣Bf/₣BZ landed; if the sequence is still unsettled, the safe subset is the leaf-verb-stops-routing move alone.",
+                "",
+                "## Cinched",
+                "The leaf verb must not hard-code \"the next command\"; the manor handbook is the sequence of record.",
+                "The post-install guidance is framed as manor-completion, never as a federation-specialist detour.",
+                "",
+                "## Done when",
+                "Payor-install no longer prescribes levy; its tail reports state and points the operator at finishing the manor, with the \"Verifying\" block honestly labelled and free of unreachable checks.",
+                "The manor-completion sequence pointed at is confirmed against the live tree at mount, not taken from this docket.",
+                "Whether the handbook affiance-weave lands here or splits to its own pace is decided at mount.",
+                "Fast suite green."
+              ],
+              "jjgtn_silks": "payor-install-finish-manor-guidance",
+              "jjgtn_basis": "6433ebf"
+            }
+          ]
         }
       }
     },
@@ -17581,112 +17729,14 @@
         "₢BiAAd",
         "₢BiAAc",
         "₢BiAAF",
-        "₢BiAAB",
         "₢BiAAG",
         "₢BiAAI",
         "₢BiAAH",
-        "₢BiAAJ",
-        "₢BiAAA",
         "₢BiAAW",
         "₢BiAAa"
       ],
       "jjghn_next_pace_seed": "AAe",
       "jjghn_paces": {
-        "₢BiAAA": {
-          "jjgpn_tacks": [
-            {
-              "jjgtn_ts": "260622-1339",
-              "jjgtn_state": "jjgte_rough",
-              "jjgtn_text": [
-                "Originally drafted in ₣BB against the pre-federation keyfile estate.",
-                "",
-                "## Character",
-                "Blocked on ₣Bf; must be rebuilt federation-aware before it can mount.",
-                "",
-                "## Cinched",
-                "Do not mount until ₣Bf wraps.",
-                "₣Bf is reworking the federation auth path in parallel;",
-                "by its completion a strong, stable federation definition will exist —",
-                "design against that, not against today's in-flight code.",
-                "",
-                "## Source",
-                "`Memos/memo-20260527-account-state-invalid-reinvest-flap.md` — the original 401 `ACCOUNT_STATE_INVALID` signature and two-host evidence.",
-                "That evidence predates federation, which demolished both the flap's trigger (the per-run director-SA re-invest) and the touchpoint the repair was to extend (the keyfile OAuth consumer-retry).",
-                "Re-derive the touchpoints against ₣Bf's federation auth path (compearance / STS / mantle-don); do not assume the memo's keyfile shape.",
-                "",
-                "## Done when",
-                "A determination, against the stable federation auth path, of whether an `ACCOUNT_STATE_INVALID` analogue can still strand a healthy build —",
-                "bounded tolerance added at the surviving touchpoint(s) where it can, or the pace retired with that finding recorded."
-              ],
-              "jjgtn_silks": "foundry-account-state-invalid-tolerance",
-              "jjgtn_basis": "ac33a7c"
-            }
-          ]
-        },
-        "₢BiAAB": {
-          "jjgpn_tacks": [
-            {
-              "jjgtn_ts": "260618-1358",
-              "jjgtn_state": "jjgte_rough",
-              "jjgtn_text": [
-                "Drafted from ₢BBABX in ₣BB.",
-                "",
-                "## Character",
-                "Surgical bash change in one function, but gated on one genuine design question —",
-                "judgment, not mechanical.",
-                "",
-                "## Goal",
-                "`rbgo_get_token_capture` (Tools/rbk/rbgo_OAuth.sh) waits the full SA-propagation",
-                "budget (~104 s, 10 attempts) on credential failures that are deterministically",
-                "terminal. Its \"Discriminate failure\" block retries exactly two OAuth error shapes —",
-                "`invalid_grant` + `\"Invalid JWT Signature.\"` and `invalid_grant` +",
-                "`\"Invalid grant: account not found\"` — because those are the post-mint",
-                "propagation-race signals. The flaw: each shape is **ambiguous** — also the permanent",
-                "signal (key revoked / SA deleted with no mint pending). The response body alone",
-                "cannot tell transient from terminal, so the loop retries both and burns the whole",
-                "budget on dead credentials. Make terminal failures fail fast without weakening",
-                "legitimate post-mint propagation tolerance.",
-                "",
-                "## Cinched",
-                "- The string classifier is correct as far as it goes — do NOT \"repair\" by dropping",
-                "  the retry. The propagation race is real immediately after invest/mantle.",
-                "- The disambiguator is **call context** (did a mint just happen?), not the response",
-                "  body. The fix lives on that axis.",
-                "",
-                "## Clarifying questions — resolve at mount before coding",
-                "1. Parameterize the retry budget by caller? — `rbgo_get_token_capture` takes a",
-                "   ceiling arg: post-mint consumers (first use after invest/mantle) pass the full",
-                "   window; cold access probes (`rbgv_check_*` behind `rbw-ac*`) pass zero/small.",
-                "   Is call-context the right axis, and is a function parameter the right shape?",
-                "2. Does any access probe run as the FIRST use right after a mint (legitimately",
-                "   needing the window)? Check whether invest/mantle self-verify via a probe — if so",
-                "   the flag must be per-call-site, not a blanket \"probes fail fast.\"",
-                "3. Probe-path ceiling: zero retry, or a small bounded one (a few seconds) to",
-                "   tolerate a genuinely-just-established credential?",
-                "4. Sequencing vs the in-flight ACCOUNT_STATE_INVALID work — the `TEMP-FORENSIC`",
-                "   block in this same function (grep `TEMP-FORENSIC` in rbgo_OAuth.sh; memo-20260527,",
-                "   the touchpoint-2 match it is gathering shape for) overlaps this code. Is this",
-                "   repair the same change as that touchpoint-2 landing, or does it follow it?",
-                "",
-                "## Done when",
-                "- Terminal credential failures (stale key / absent SA, no pending mint) fail fast",
-                "  from access probes instead of waiting the full propagation budget.",
-                "- Genuine post-mint propagation races still retry on the existing budget.",
-                "- The chosen design (context axis) is recorded where the function lives.",
-                "",
-                "## Sources",
-                "- Tools/rbk/rbgo_OAuth.sh — `rbgo_get_token_capture`, the \"Discriminate failure\"",
-                "  block and the `RBGC_SA_KEY_CONSUMER_RETRY_*` constants; the `TEMP-FORENSIC` block",
-                "  marks the related in-flight work.",
-                "- memo-20260527 — Host-B capture gap / ACCOUNT_STATE_INVALID token-endpoint shape.",
-                "- memo-20260608-lode-podvm-cerebro-experiment.md §6 — the empirical 104 s-wait",
-                "  observation (stale Director key + deleted Governor SA, this session)."
-              ],
-              "jjgtn_silks": "token-mint-failfast-terminal-iam",
-              "jjgtn_basis": "f5f6b2b"
-            }
-          ]
-        },
         "₢BiAAC": {
           "jjgpn_tacks": [
             {
@@ -17965,50 +18015,6 @@
               ],
               "jjgtn_silks": "clean-tree-rationale-param",
               "jjgtn_basis": "616b022"
-            }
-          ]
-        },
-        "₢BiAAJ": {
-          "jjgpn_tacks": [
-            {
-              "jjgtn_ts": "260619-1007",
-              "jjgtn_state": "jjgte_rough",
-              "jjgtn_text": [
-                "The payor-install verb closes by prescribing one hard-coded next step — \"Next: levy the depot\" — and the fix is to make its tail point the operator at finishing the manor rather than at a single federation/depot command.",
-                "",
-                "## Character",
-                "Reconfirm-then-shape, deferred on purpose: the mechanical change is small, but the canonical manor-completion sequence it must point at is mid-evolution in the federation heats and gated on Fable's vocabulary mints, so every premise below is a hypothesis to re-derive from the live tree at mount, not authority. The timing is the whole point of parking it here.",
-                "",
-                "## The need",
-                "`rbgp_payor_install` (Tools/rbk/rbgp_payor.sh) ends by hard-coding a pointer at the depot-levy tabtarget.",
-                "A leaf credential verb should not route workflow: the pointer is blind to the credential-refresh path (where depots already exist), it skips the manor-affiance step that actually finishes a manor, and levy is a per-depot act, not a manor-completion act.",
-                "The operator finishing payor-install wants \"here is how to finish setting up your manor\" — not federation-flavored, not a single command.",
-                "",
-                "## Shape (verify before adopting — see Reconfirm)",
-                "- Stop the verb prescribing levy; have its tail report state and point at the manor onboarding handbook (rbw-Op) as the sequence of record — the not-federation-dedicated \"finish your manor\" home.",
-                "- Clean the post-success \"Verifying ... rbrp.env\" tail in the same pass: give it an honest label (it reconciles the committed manor-identity regime against what the install just discovered), and drop any arm an earlier step already enforces with a hard die — suspected unreachable: the billing and client-id checks. Confirm, do not assume.",
-                "- Separable, larger: weave the affiance step into the manor onboarding handbook (Tools/rbk/rbh0/rbhopw_payor_wrapper.sh) as a manor-completion step — \"connect your manor to its identity provider\" — sequenced establish → install → affiance → then provision depots.",
-                "",
-                "## Reconfirm premises first",
-                "The federation surface this points at is mid-evolution in ₣Bf and ₣BZ, with vocabulary gated on Fable.",
-                "Before writing any guidance prose, re-derive from the live tree:",
-                "- Does the affiance verb still exist by that name and colophon, or did a Fable mint rename it (the affiance/heed and assize remints are live ideas in ₣Bf)?",
-                "- Has the manor-establishment reshape landed — is there now a unified manor-provision op (the terrier founding-home shape in ₣Bf) instead of a bare affiance, changing what \"finish the manor\" means?",
-                "- What is the canonical manor-completion sequence at mount, and does the handbook already reflect it?",
-                "Do not wire prose that contradicts whatever ₣Bf/₣BZ landed; if the sequence is still unsettled, the safe subset is the leaf-verb-stops-routing move alone.",
-                "",
-                "## Cinched",
-                "The leaf verb must not hard-code \"the next command\"; the manor handbook is the sequence of record.",
-                "The post-install guidance is framed as manor-completion, never as a federation-specialist detour.",
-                "",
-                "## Done when",
-                "Payor-install no longer prescribes levy; its tail reports state and points the operator at finishing the manor, with the \"Verifying\" block honestly labelled and free of unreachable checks.",
-                "The manor-completion sequence pointed at is confirmed against the live tree at mount, not taken from this docket.",
-                "Whether the handbook affiance-weave lands here or splits to its own pace is decided at mount.",
-                "Fast suite green."
-              ],
-              "jjgtn_silks": "payor-install-finish-manor-guidance",
-              "jjgtn_basis": "8699a3e"
             }
           ]
         },
