@@ -18855,8 +18855,8 @@
         "₢BiAAL": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260621-1608",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260623-2347",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "## Goal",
                 "buwz (BUK workbench) colophons become generated Rust consts — first-class peers of RB's RBTDGC_ set —",
@@ -18883,7 +18883,7 @@
                 "Intricate but mechanical — a shared-buz refactor with a clear verification gate and one concept mint."
               ],
               "jjgtn_silks": "buk-colophon-projection-division",
-              "jjgtn_basis": "545de03"
+              "jjgtn_basis": "ee1490a"
             }
           ]
         },
