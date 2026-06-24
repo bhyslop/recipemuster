@@ -17739,6 +17739,7 @@
       "jjghn_creation_time": "260618",
       "jjghn_status": "jjghe_racing",
       "jjghn_order": [
+        "₢BiAAe",
         "₢BiAAV",
         "₢BiAAC",
         "₢BiAAK",
@@ -17766,7 +17767,7 @@
         "₢BiAAW",
         "₢BiAAa"
       ],
-      "jjghn_next_pace_seed": "AAe",
+      "jjghn_next_pace_seed": "AAf",
       "jjghn_paces": {
         "₢BiAAC": {
           "jjgpn_tacks": [
@@ -18743,6 +18744,37 @@
               ],
               "jjgtn_silks": "anoint-band-conformance",
               "jjgtn_basis": "55ae861"
+            }
+          ]
+        },
+        "₢BiAAe": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260624-2312",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Cross-clone coordination gate for the MVP-cleanup stream (its own repo clone).",
+                "No code change of its own — this stream owns no hot spine file and rides LAST behind both owner streams.",
+                "Pace order within each heat is fixed and encodes every in-clone wait; this gate names only the CROSS-clone waits.",
+                "",
+                "## Spec of needed change",
+                "Before landing its hot-file-touching paces, this stream syncs the owners:",
+                "- RBS0-SpecTop (₣Bf-owned): ₢BiAAc mints the coarse durable-leak quoins and ₢BiAAG amends the scry region — both append as disjoint regions behind ₣Bf's federation-block push (led by ₢BfAAO); rebase onto ₣Bf first. The in-clone mint-before-cite order holds — ₢BiAAc strictly before ₢BiAAa.",
+                "- Zipper trio: ₢BiAAa's ordain-drive colophon (rbw-od) takes the zipper baton LAST, after ₣Bf. Sync, edit rbz_zipper.sh, rebuild, commit the three-file unit.",
+                "- Theurge crate (₣Bl-owned): ₢BiAAa's onboarding-probe touch into the crate syncs ₣Bl's crate push before landing.",
+                "₢BiAAa is the heaviest pace and reaches all three owners — rail it LAST, behind every owner push. Its durable-leak enumeration also reconciles with the out-of-scope ₣Bb work as a standing external note, never pulling ₣Bb in.",
+                "",
+                "## Done when",
+                "Every MVP write into an owner-stream file (the RBS0 regions, the zipper trio, the theurge crate) rebased onto that owner's push first, with no owner work overwritten.",
+                "",
+                "## Cinched",
+                "Coordination-only; MVP is the last clone to land on every shared file.",
+                "",
+                "## Character",
+                "Cross-clone coordination gate; mechanical."
+              ],
+              "jjgtn_silks": "mvp-rides-last-syncs-owners",
+              "jjgtn_basis": "b06b15c"
             }
           ]
         }
