@@ -1,6 +1,7 @@
 {
   "jjgrn_next_heat_seed": "Bn",
   "jjgrn_heat_order": [
+    "₣Bl",
     "₣Bi",
     "₣Bf",
     "₣Bg",
@@ -33,8 +34,7 @@
     "₣BC",
     "₣BI",
     "₣BL",
-    "₣Ba",
-    "₣Bl"
+    "₣Ba"
   ],
   "jjgrn_heats": {
     "₣A-": {
@@ -18735,9 +18735,9 @@
       "jjghn_paces": {}
     },
     "₣Bl": {
-      "jjghn_silks": "rbk-15-theurge-cosmology-spec",
+      "jjghn_silks": "rbk-15-mvp-theurge-refactor",
       "jjghn_creation_time": "260622",
-      "jjghn_status": "jjghe_stabled",
+      "jjghn_status": "jjghe_racing",
       "jjghn_order": [
         "₢BlAAA",
         "₢BlAAB",
