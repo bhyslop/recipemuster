@@ -17811,9 +17811,10 @@
         "₢BiAAI",
         "₢BiAAH",
         "₢BiAAW",
+        "₢BiAAg",
         "₢BiAAa"
       ],
-      "jjghn_next_pace_seed": "AAg",
+      "jjghn_next_pace_seed": "AAh",
       "jjghn_paces": {
         "₢BiAAC": {
           "jjgpn_tacks": [
@@ -18842,6 +18843,29 @@
               ],
               "jjgtn_silks": "await-fed-rbs0-block",
               "jjgtn_basis": "69ddb67"
+            }
+          ]
+        },
+        "₢BiAAg": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260624-2334",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "BARRIER — cross-clone wait. No code work of its own.",
+                "This pace cannot complete until BOTH of the following are complete, pushed to origin, and origin merged back into this clone:",
+                "- ₢BfAAF (heat ₣Bf — the terrier finisher, the federation stream's LAST zipper write) — so the zipper baton has passed ₣Bl → ₣Bf → here and this stream takes it LAST for the ordain-drive colophon;",
+                "- ₢BlAAL (heat ₣Bl — the onboarding-reliquary-probe helper) — so the theurge crate's onboarding area is settled before the drive-link's onboarding-probe touch.",
+                "Only then may the next pace — the unified nameplate-hallmark drive-link, the heaviest and most cross-cutting pace — proceed; it rails last by design, behind every owner push.",
+                "",
+                "## Done when",
+                "Both ₢BfAAF and ₢BlAAL are wrapped and pushed to origin, and this clone has pulled origin so the zipper baton and the settled onboarding crate are both present here.",
+                "",
+                "## Character",
+                "Cross-clone barrier (MVP rides last); hold here until both named paces are merged through."
+              ],
+              "jjgtn_silks": "await-fed-zipper-and-thg-crate",
+              "jjgtn_basis": "5ed2058"
             }
           ]
         }
