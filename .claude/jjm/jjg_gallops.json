@@ -17166,26 +17166,28 @@
         "₢BfAAT": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260623-2134",
+              "jjgtn_ts": "260623-2206",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
-                "Settle two coupled design questions before the foedus build paces: how the theurge fixtures compose and invoke the first-class foedus verbs (affiance/jilt/…), and whether a new read-only pool-integrity toothing is needed so reuse fixtures skip rebuild-when-valid.",
+                "Settle the foedus-reuse design and the precise tabtarget nature of every foedus toothing — the fixture↔verb seam, the pool-integrity CHECK, the active-foedus SWITCH, and how affiance composes with them — choosing each verb's exact signature clearly and directly, not delegating it further.",
                 "",
                 "## Spec of needed change",
-                "(a) Specify the seam between the test universe and the production tabtargets — how a fixture sequences the real verbs under a wrapper, where it composes versus reimplements. This is the design the wrapper-combinator lift then builds against.",
-                "(b) Decide the pool-integrity toothing — a verify-only sibling of affiance/jilt (the foedus analog of depot recognosce) that reads whether the standing workforce identity pool is valid, so the REUSE wrapper reuses-if-valid and rebuilds only when not, giving an honest signal rather than affiance's if-absent inference. If adopted, name it in the foedus register (in-heat, gates by hand).",
+                "(a) Seam: how a fixture sequences the real verbs under a wrapper — composes, never reimplements.",
+                "(b) Atomic toothings (operator's strong opinion 260623): every foedus tabtarget is simple and atomic — affiance CREATES, the check CHECKS, the switch SELECTS; NONE is \"check-then-create-if-absent.\" The \"reuse if valid, else create\" logic lives in the FIXTURE composition, not inside a fat verb. The freehold fixtures' current self-healing behaviour moves into the fixture, not the tabtarget.",
+                "(c) The pool-integrity CHECK toothing: name it (foedus register) and CHOOSE its signature — does it take a foedus argument (parallel to switch) or check only the currently-selected foedus? Choose, with the reason.",
+                "(d) The SWITCH mechanism: the selection design (two regime configs + a selector + the assize-reset it forces) and the switch's own signature.",
                 "",
                 "## Done when",
-                "The fixture-to-verb seam is specified well enough for the wrapper-combinator lift to build against; the pool-integrity toothing is decided (adopted and named, or declined with rationale); any build paces it implies are slated or deferred.",
+                "Every foedus toothing's precise tabtarget nature is clearly and directly chosen — the check's signature, the switch's, and the atomic boundaries — with no deferral; the fixture-composition pattern that yields \"reuse if valid, else create\" is specified; the combinator and the reuse-build pace can build against it.",
                 "",
                 "## Cinched",
-                "Read-only verb if adopted (a probe, no churn). Mounts after the renaming paces so it uses the minted foedus vocabulary.",
+                "Atomic toothings: no tabtarget is check-then-create; composition lives in fixtures (operator's strong opinion). The precise signatures are decided HERE, not delegated further.",
                 "",
                 "## Character",
-                "Design conversation requiring judgment; mount with the operator present, after the vocabulary pass."
+                "Design conversation requiring operator judgment; mount with the operator present; this is where the long-delegated tabtarget nature gets pinned."
               ],
               "jjgtn_silks": "foedus-fixture-seam-and-pool-check",
-              "jjgtn_basis": "4d7fac2"
+              "jjgtn_basis": "43b764b"
             }
           ]
         },
