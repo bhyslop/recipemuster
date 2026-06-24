@@ -1349,6 +1349,23 @@ fn zjjrm_resolve_saddle_marker(identity: &str) -> jjrm_SaddleMarker {
     marker
 }
 
+/// True when this officium's standing saddle marker already holds a *coronet*
+/// identity — the coronet-sticks guard (JJS0 `jjdxw_emblem`): once a mount has
+/// saddled a coronet, a later groom must not demote it to the heat
+/// firemark. A coronet is exactly what the `jjrf_Coronet` parser accepts (glyph
+/// stripped, five base64 chars in the charset), so the parser is the
+/// discriminator — a firemark identity fails it on the `₣` glyph. A missing,
+/// empty, unparseable, or firemark-identity marker all yield false — the slot
+/// is fillable, so the groom saddles normally. Officium-scoped, like the marker
+/// itself.
+fn zjjrm_standing_is_coronet(officium_dir: &Path) -> bool {
+    std::fs::read_to_string(officium_dir.join(SADDLE_MARKER_FILE))
+        .ok()
+        .and_then(|s| serde_json::from_str::<jjrm_SaddleMarker>(&s).ok())
+        .map(|m| crate::jjrf_favor::jjrf_Coronet::jjrf_parse(m.identity.trim()).is_ok())
+        .unwrap_or(false)
+}
+
 /// Atomically write the emblem file: mkdir the scheme tree, write a sibling
 /// temp file, then rename over the target (rename is atomic within a
 /// filesystem, so paneboard never reads a half-written emblem). Every step is
@@ -2096,10 +2113,19 @@ impl jjrm_McpServer {
                         )));
                     }
                     if let Some(ref fm) = groom_firemark {
-                        zjjrm_refresh_emblem(
-                            &zjjrm_exchange_dir(officium_id),
-                            Some(zjjrm_resolve_saddle_marker(fm)),
-                        );
+                        // Coronet-sticks (JJS0 `jjdxw_emblem`): a groom never
+                        // demotes a coronet a prior mount saddled this
+                        // officium. When a coronet already stands, saddle nothing
+                        // (`None` — the emblem still repaints from the held
+                        // coronet); otherwise fill the empty-or-firemark slot with
+                        // the heat firemark as before.
+                        let exchange = zjjrm_exchange_dir(officium_id);
+                        let groom_marker = if zjjrm_standing_is_coronet(&exchange) {
+                            None
+                        } else {
+                            Some(zjjrm_resolve_saddle_marker(fm))
+                        };
+                        zjjrm_refresh_emblem(&exchange, groom_marker);
                     }
                     output.push('\n');
                     output.push_str(&zjjrm_gazette_paths_block(&gazette_in_path, &gazette_out_path));
@@ -2794,6 +2820,43 @@ rbm_beta_recipemuster
         let path = blocker.join("iterm-session/UUID.emblem");
         assert!(zjjrm_write_emblem_atomic(&path, "x").is_err());
         let _ = std::fs::remove_dir_all(&dir);
+    }
+
+    #[test]
+    fn standing_is_coronet_discriminates_marker_identity() {
+        // The coronet-sticks discriminator (JJS0 jjdxw_emblem): only a standing
+        // *coronet* marker blocks a groom's overwrite. A firemark, an absent
+        // marker, and garbage are all "fillable" — the groom saddles normally.
+        let officia = scratch_officia("standing_coronet");
+        let marker_path = officia.join(SADDLE_MARKER_FILE);
+        let write = |m: &jjrm_SaddleMarker| {
+            std::fs::write(&marker_path, serde_json::to_string(m).unwrap()).unwrap();
+        };
+
+        // Absent marker (no mount yet) → fillable.
+        assert!(!zjjrm_standing_is_coronet(&officia));
+
+        // Firemark identity (heat-mount or groom) → fillable, a groom may replace it.
+        write(&jjrm_SaddleMarker {
+            identity: "₣Bh".to_string(),
+            pace_silks: None,
+            heat_silks: "heat".to_string(),
+        });
+        assert!(!zjjrm_standing_is_coronet(&officia));
+
+        // Coronet identity (pace-mount) → sticks, a groom must not demote it.
+        write(&jjrm_SaddleMarker {
+            identity: "₢BhAAT".to_string(),
+            pace_silks: Some("pace".to_string()),
+            heat_silks: "heat".to_string(),
+        });
+        assert!(zjjrm_standing_is_coronet(&officia));
+
+        // Unparseable marker fails soft → fillable.
+        std::fs::write(&marker_path, b"not json").unwrap();
+        assert!(!zjjrm_standing_is_coronet(&officia));
+
+        let _ = std::fs::remove_dir_all(&officia);
     }
 
     #[test]

@@ -169,3 +169,14 @@ check `paces[coronet].tacks[0].state`
 {jjdo_log}
 logic, output as `recent_work` array
 . If session probe is needed (gap > 1 hour since last commit), call vosr_probe routine and output `Session-probe:` section with model IDs (haiku, sonnet, opus) and system context (host, platform)
+. Saddle the resolved work identity for the {jjdxw_emblem} — the actionable
+{jjdt_coronet},
+or the heat
+{jjdt_firemark}
+when no actionable pace exists.
+As a mount,
+{jjdo_orient}
+asserts it unconditionally; the coronet-sticks rule that keeps a later groom from demoting a
+{jjdt_coronet}
+is stated once at
+{jjdxw_emblem}.

@@ -837,6 +837,12 @@ The primary glance datum is the work identity: the full {jjdt_coronet} or {jjdt_
 Region STRUCTURE (slot, lines, style) is frozen; region CONTENT — which lines fall in which band — is config-tunable, sourced from an rbm-side style file {jjdx_vvx} reads at write time, never compiled in.
 The writer supplies content and any explicit style; the reader supplies built-in defaults for absent style fields.
 Serialized cross-repo as the `pbge_emblem` grammar (paneboard PoC spec, _Emblem File Format_), one file per window.
++
+The work identity an {jjdxw_emblem} shows is set by the {jjdxo_officium}'s mount and groom acts and held in officium-resident scratch, not re-derived at each paint.
+A mount ({jjdo_orient}) asserts its pace {jjdt_coronet} unconditionally — or the heat {jjdt_firemark} when the heat has no actionable pace.
+A groom ({jjdo_show}) sets that identity only when none is held, or a {jjdt_firemark} is — it never demotes a {jjdt_coronet} a mount has set.
+So a {jjdt_coronet}, once shown this {jjdxo_officium}, holds for the officium's life: a transient groom of the surrounding heat cannot stamp the heat {jjdt_firemark} over the pace the operator is working.
+The scope is the {jjdxo_officium} itself — a fresh session re-decides on its first mount or groom.
 
 [[jjdxw_billet]]
 //axve_entity
