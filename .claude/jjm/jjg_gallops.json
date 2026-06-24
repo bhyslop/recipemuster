@@ -18339,8 +18339,8 @@
         "₢BhAAS": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260623-1505",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260624-1214",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "Bind the paneboard-spawned viewer's life to the canonical port file's existence, so paneboard cycling its lifecycle closes the viewer.",
                 "This is the dead-simple successor to the PID/lock leash, which the macOS seatbelt sandbox defeats.",
@@ -18369,7 +18369,7 @@
                 "- A viewer running with no paneboard keeps working (it maintains its own port file)."
               ],
               "jjgtn_silks": "viewer-dies-on-portfile-clear",
-              "jjgtn_basis": "2cdbde4"
+              "jjgtn_basis": "59bb306"
             }
           ]
         },
