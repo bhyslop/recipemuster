@@ -16643,6 +16643,7 @@
         "₢BfAAh",
         "₢BfAAi",
         "₢BfAAO",
+        "₢BfAAj",
         "₢BfAAT",
         "₢BfAAZ",
         "₢BfAAf",
@@ -16674,7 +16675,7 @@
         "₢BfAAH",
         "₢BfAAP"
       ],
-      "jjghn_next_pace_seed": "AAj",
+      "jjghn_next_pace_seed": "AAk",
       "jjghn_paces": {
         "₢BfAAA": {
           "jjgpn_tacks": [
@@ -17637,6 +17638,37 @@
               ],
               "jjgtn_silks": "paddock-refocus-and-drain",
               "jjgtn_basis": "724072e"
+            }
+          ]
+        },
+        "₢BfAAj": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260624-1322",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Apply the settled 260624 colophon relocations the vocabulary sweep left undone — the verb-level rename (compear→avow, assize→sitting) swept tree-wide, but the colophon half is orphaned and the tree still contradicts the decision.",
+                "",
+                "## Spec of needed change",
+                "Two settled moves (paddock Foedus-accessor-vocabulary section, 260624):",
+                "Collapse the access family rbw-ac → rbw-a — rbw-aa avow, rbw-ap payor-credential check — and relocate the mantle-access probe to the test bucket.",
+                "Move gird rbw-pE → rbw-mG, so rbw-m is the payor founding trio (affiance / jilt / gird) and rbw-p stays purely governor.",
+                "Edit rbz_zipper.sh (the enrollment home), then build to regenerate rbtdgc_consts.rs + claude-rbk-tabtarget-context.md (both build-generated — yours to commit), and repoint the affected citations (claude-rbk-acronyms.md, and gird's spec RBSPG if it cites the colophon).",
+                "The foedus-cardinality (rbw-j) and test-bucket (rbw-q) homes are NOT this pace — they ride the new colophons in the foedus-toothing and orchestrator paces.",
+                "",
+                "## Done when",
+                "The tree matches the settled homing — rbw-a / rbw-mG enrolled, rbw-ac / rbw-pE gone; the generated files re-derive clean; rbq_qualify (tabtarget/colophon freshness) green; acronym + spec citations repointed.",
+                "",
+                "## Cinched",
+                "Settled decision (operator 260624) — naming is not reopened; this is mechanical execution.",
+                "The casing convention holds (uppercase second letter marks an op that mutates cloud/critical state).",
+                "Only the already-shipped rbw-ac family and the gird move are in scope; the new-colophon foedus/test moves stay with their build paces.",
+                "",
+                "## Character",
+                "Mechanical colophon relocation via the zipper, fully build-checked."
+              ],
+              "jjgtn_silks": "colophon-relocation-260624",
+              "jjgtn_basis": "04c6fe9"
             }
           ]
         }
