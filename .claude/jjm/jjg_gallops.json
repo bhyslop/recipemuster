@@ -19245,8 +19245,8 @@
         "₢BlAAQ": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260624-2312",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260624-2332",
+              "jjgtn_state": "jjgte_abandoned",
               "jjgtn_text": [
                 "Cross-clone coordination gate for the theurge-refactor stream (its own repo clone).",
                 "No code change of its own — the standing sync contract for this stream's cross-clone waits, and the zipper baton it holds first.",
@@ -19268,7 +19268,7 @@
                 "Cross-clone coordination gate; mechanical."
               ],
               "jjgtn_silks": "thg-syncs-federation-rbs0-foedus",
-              "jjgtn_basis": "09b195b"
+              "jjgtn_basis": "181d144"
             }
           ]
         }
