@@ -357,3 +357,22 @@ This nucleates Estate as a core concept: estate-wide facts that must be identica
 The shared-one-key-versus-per-platform topology softens: the committed JWKS is a key SET, so it can hold several public keys if per-platform keys are ever wanted; that stays the lifecycle pass's to settle.
 The foedus-noun mint is also SETTLED — adopted in-heat (above).
 With both audit decisions settled, the audit's remaining work is the deferred build-docket tightening batch plus the lifecycle design pass.
+
+## Theurge-test-consolidation audit — dispositions (260623)
+
+The theurge-test-consolidation audit ran 260623; its findings, the inventory-by-stratum, the duplication map (confirmed folds plus the coverage-preserving refusals), the suite-naming slate, a draft RBS0 cosmology subdoc, and a dependency-ordered fourteen-pace plan live in Memos/memo-20260623-theurge-test-consolidation-audit.md.
+The audit is a proposal; these lines record only what the operator has since elected or ruled.
+
+Substrate model (confirmed, not new work): the freehold substrate-lifecycle is already built — the rbtdrk_freehold / rbtdrk_depot / rbtdrp_lifecycle family plus the gauntlet ladder; the genuinely novel work is lifting the implicit (inner-body × wrapper) encoding into a first-class combinator over the engine's existing setup/teardown hooks.
+
+Suite naming — ELECTED whole (operator decision 260623): the test suites adopt one military / conflict asterism.
+crucible → bivouac is forced — the suite name collided with the production crucible runtime noun (the charged sentry + pentacle + bottle), a one-meaning-per-word violation.
+fast → reveille, service → picket, complete → echelon are the elected coherence renames; the keepers gauntlet / skirmish / dogfight / siege / blockade are unchanged, and parley names the federation authentic-verb suite.
+The rename is a mechanical batch across each suite's tabtarget filename, the RBTDRC_SUITES table, the CLAUDE.md tables, and the CLI / onboarding text.
+
+chaining-fact-band — RESTORED (operator ruling 260623): the credless feoff/yoke band-matrix fixture is restored to the gauntlet and skirmish release ladders — it rode the four everyday suites but had been dropped from both — guarded by a fast-base set-equality assertion so the membership cannot silently drift again.
+
+Foedus reuse and the active-foedus switch — PARKED (not folded into the plan): the single-active-foedus, switched-among-standing topology stands, and the everyday reuse path switches rather than affiances — a workforce identity pool is founded once per foedus and kept, never jilted, so the everyday path is cap-flat.
+Deliberately NOT minted here: the switch toothing's selection mechanism and its name.
+The switch name is placed and minted when the heat rails its rename and remint work (alongside the compear→heed and assize remints), not before.
+The audit's foedus-reuse-leg proposal inherited an affiance-centric frame the switch decision supersedes; it is reframed around the switch when the plan is enrolled.
