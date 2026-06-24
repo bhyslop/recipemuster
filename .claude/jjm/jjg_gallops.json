@@ -19404,11 +19404,11 @@
         "₢BiAAZ": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260624-1200",
+              "jjgtn_ts": "260624-1206",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "## Character",
-                "Diagnosis complete this session; remaining work is mechanical fix + audit + a fast-tier guard.",
+                "Diagnosis complete this session; remaining work is mechanical fix + audit + a reveille-tier guard.",
                 "The original \"retriever-mantle / credential\" hypothesis was wrong — root cause is a furnish-wiring gap.",
                 "",
                 "## Root cause (found this session — do not re-derive)",
@@ -19425,9 +19425,9 @@
                 "vouch and rekon are not yet chained (no buf_elect call) — confirm and leave them.",
                 "",
                 "## Coverage (both guards approved)",
-                "- Fast-tier credless guard (primary): invoke each read-side verb with no folio; assert it dies with the NAMED no-fact message, not command-not-found.",
+                "- Reveille-tier credless guard (primary): invoke each read-side verb with no folio; assert it dies with the NAMED no-fact message, not command-not-found.",
                 "  The resolve precedes any auth/network, so no cloud is needed — this is the net that would have caught the gap in CI.",
-                "- End-to-end (secondary): drive summon/plumb against real artifacts in a cloud-bearing tier, mirroring augur's crucible-fixture coverage.",
+                "- End-to-end (secondary): drive summon/plumb against real artifacts in a cloud-bearing tier, mirroring how augur is already driven end-to-end by its lifecycle fixture.",
                 "",
                 "## Cinched",
                 "- Read-side stays loud-die, never band-reject (paddock chaining-fact discipline).",
@@ -19435,12 +19435,12 @@
                 "",
                 "## Done when",
                 "- Every read-side consumer CLI sources buf_fact; the audit recipe lands clean.",
-                "- The fast-tier credless guard covers the read-side verbs and is green.",
+                "- The reveille-tier credless guard covers the read-side verbs and is green.",
                 "- summon and plumb are driven end-to-end; dogfight green is the cloud confirmation.",
                 "- Root cause recorded where the fix lives."
               ],
               "jjgtn_silks": "read-side-chaining-furnish-coverage",
-              "jjgtn_basis": "96fbdc5"
+              "jjgtn_basis": "1e9d6bc"
             }
           ]
         },
