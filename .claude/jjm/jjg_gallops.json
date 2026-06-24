@@ -16566,6 +16566,7 @@
       "jjghn_creation_time": "260616",
       "jjghn_status": "jjghe_racing",
       "jjghn_order": [
+        "₢BfAAR",
         "₢BfAAQ",
         "₢BfAAI",
         "₢BfAAO",
@@ -16584,7 +16585,7 @@
         "₢BfAAH",
         "₢BfAAP"
       ],
-      "jjghn_next_pace_seed": "AAR",
+      "jjghn_next_pace_seed": "AAS",
       "jjghn_paces": {
         "₢BfAAA": {
           "jjgpn_tacks": [
@@ -17093,6 +17094,35 @@
               ],
               "jjgtn_silks": "theurge-crucible-module-split",
               "jjgtn_basis": "0799498"
+            }
+          ]
+        },
+        "₢BfAAR": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260623-2028",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Rename the test suites to the elected military asterism across every surface: fast → reveille, service → picket, crucible → bivouac, complete → echelon. Keepers (gauntlet / skirmish / dogfight / siege / blockade) and parley unchanged.",
+                "",
+                "## Spec of needed change",
+                "crucible → bivouac is the forced fix — the suite name shadowed the production crucible runtime noun (the charged sentry + pentacle + bottle), a one-meaning-per-word collision; the other three are the elected coherence renames.",
+                "Sweep every home of each name: the suite tabtarget filenames, the RBTDRC_SUITES composition table, the zipper/colophon registry that drives them, the CLAUDE.md suite tables, and the CLI / onboarding text; then regenerate the build-generated context + consts and confirm qualify is green.",
+                "Discover the homes by grep, not a baked list.",
+                "",
+                "Source: the naming slate in Memos/memo-20260623-theurge-test-consolidation-audit.md carries the elected words and their grep verification.",
+                "",
+                "## Done when",
+                "The four suites are renamed across every surface; the build regenerates clean and qualify passes; and the new suite names are incorporated throughout the ₣Bf paddock and every remaining ₣Bf docket.",
+                "",
+                "## Cinched",
+                "The elected words are settled (operator election 260623), not reopened; crucible → bivouac is mandatory; keepers and parley untouched.",
+                "",
+                "## Character",
+                "Mechanical multi-surface rename sweep plus regenerate; the one judgment is catching every home of each name."
+              ],
+              "jjgtn_silks": "suite-asterism-rename",
+              "jjgtn_basis": "53a20bc"
             }
           ]
         }
