@@ -18817,10 +18817,11 @@
         "₢BlAAL",
         "₢BlAAM",
         "₢BlAAN",
+        "₢BlAAS",
         "₢BlAAO",
         "₢BlAAP"
       ],
-      "jjghn_next_pace_seed": "AAS",
+      "jjghn_next_pace_seed": "AAT",
       "jjghn_paces": {
         "₢BlAAA": {
           "jjgpn_tacks": [
@@ -19291,6 +19292,27 @@
               ],
               "jjgtn_silks": "await-fed-foedus-subdocs",
               "jjgtn_basis": "a11021e"
+            }
+          ]
+        },
+        "₢BlAAS": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260624-2333",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "BARRIER — cross-clone wait. No code work of its own.",
+                "This pace cannot complete until ₢BfAAO (heat ₣Bf — the federation spec recast that seats the RBS0-SpecTop federation block, the foedus civic quoin, and the mechanism-discriminator) is complete, pushed to origin, and origin merged back into this clone.",
+                "Only then may the next pace — the theurge-cosmology subdoc finalize — proceed, appending its cosmology region as a disjoint region behind FED's federation block rather than racing it.",
+                "",
+                "## Done when",
+                "₢BfAAO is wrapped and pushed to origin, and this clone has pulled origin so the RBS0 federation block is present here.",
+                "",
+                "## Character",
+                "Cross-clone barrier; hold here until the named pace is merged through."
+              ],
+              "jjgtn_silks": "await-fed-rbs0-block",
+              "jjgtn_basis": "c01c300"
             }
           ]
         }
