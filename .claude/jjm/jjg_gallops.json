@@ -16568,6 +16568,7 @@
       "jjghn_order": [
         "₢BfAAS",
         "₢BfAAR",
+        "₢BfAAh",
         "₢BfAAO",
         "₢BfAAT",
         "₢BfAAZ",
@@ -16600,7 +16601,7 @@
         "₢BfAAH",
         "₢BfAAP"
       ],
-      "jjghn_next_pace_seed": "AAh",
+      "jjghn_next_pace_seed": "AAi",
       "jjghn_paces": {
         "₢BfAAA": {
           "jjgpn_tacks": [
@@ -17472,6 +17473,37 @@
               ],
               "jjgtn_silks": "foedus-reuse-leg",
               "jjgtn_basis": "0f253cf"
+            }
+          ]
+        },
+        "₢BfAAh": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260623-2240",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Mount FRESH — a clean instance, not the long planning chat that produced this heat. Run a workflow-heavy audit that verifies the plan and closes its coverage gaps, producing a verified gap-list and a closure slate.",
+                "",
+                "## Spec of needed change",
+                "A read-only audit (mount fresh — the value is fresh eyes on work a long, heavy chat produced and cannot reliably self-check):",
+                "- VERIFY: adversarially re-check every slated pace's docket, its dependencies, and the heat ordering for subtle errors, contradictions, stale references, or mis-scopings introduced during planning.",
+                "- PACE COVERAGE: map every paddock-defined change to a pace home; propose paces for the uncovered ones — beyond this point, every change has a pace or an explicit deferral/decline.",
+                "- SPEC COVERAGE: map every code-changing pace to its RBS0*.adoc spec-sync need; propose the spec-update/synchronisation paces.",
+                "- FIXTURE COVERAGE: check that the theurge suites and major fixtures have characterisation homes (the cosmology subdoc and beyond).",
+                "",
+                "Output: a verified gap-list plus a proposed closure slate the operator reviews and enrolls — the test-consolidation audit's shape, turned on the heat itself.",
+                "",
+                "## Done when",
+                "The plan is adversarially verified; every paddock change has a pace home or explicit disposition; every code change has a spec-sync pace; the suite/fixture characterisation gaps are mapped; the closure slate is produced for operator review.",
+                "",
+                "## Cinched",
+                "MOUNT FRESH — a tired instance cannot reliably audit its own tired work. Read-only / audit-not-mutate (it proposes; the operator enrolls). Workflow-heavy by design.",
+                "",
+                "## Character",
+                "Workflow orchestration; the heat's trust-but-verify gate after a heavy planning chat."
+              ],
+              "jjgtn_silks": "heat-integrity-and-coverage-audit",
+              "jjgtn_basis": "c7433f4"
             }
           ]
         }
