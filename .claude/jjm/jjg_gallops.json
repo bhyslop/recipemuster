@@ -18750,8 +18750,8 @@
         "₢BiAAe": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260624-2312",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260624-2332",
+              "jjgtn_state": "jjgte_abandoned",
               "jjgtn_text": [
                 "Cross-clone coordination gate for the MVP-cleanup stream (its own repo clone).",
                 "No code change of its own — this stream owns no hot spine file and rides LAST behind both owner streams.",
@@ -18774,7 +18774,7 @@
                 "Cross-clone coordination gate; mechanical."
               ],
               "jjgtn_silks": "mvp-rides-last-syncs-owners",
-              "jjgtn_basis": "b06b15c"
+              "jjgtn_basis": "f8a8fcd"
             }
           ]
         }
