@@ -1,23 +1,15 @@
-## Charter — a holding paddock for federation-evolution ideas
+## Charter — the federation-build stream
 
-This heat is a holding paddock for federation ideas deliberately deferred from ₣BZ.
-Every entry below is a candidate for discussion, not a committed change.
+This heat is the federation-BUILD stream of the MVP federation work.
+It owns the federation/manor region of RBS0-SpecTop and the federation entries of the acronym registry (claude-rbk-acronyms.md), and it carries the federation idea-catalog of still-live strands deliberately deferred from ₣BZ.
 
-Posture (cinched for this heat): no pace slated here is a decision.
-A docket is a specification of needed change; an undecided idea is shape, so it lives in this paddock, not in a pace.
-A pace is cut only when an idea graduates from discuss to do — at which point it earns a real docket.
-Until then the heat sits stabled, often with zero paces.
+The spine is slated and builds independently of ₣BZ: the spec-first recast, the mechanism-gated affiance arm, the Keycloak orchestrator, the programmatic accessor, and the per-vendor setup guide.
+Only the attach-caged-subject tail stays held, gated on ₣BZ landing — it consumes ₣BZ's admission verbs and waits on them.
+Five federation-MVP re-derivations (the keyfile-era loose-ends restrung in from the sibling MVP heat) are folded in below, re-deriving against the now-stable federation auth surface this spine builds.
 
-Premise-touching ideas are operator-owned (260623): any idea that would amend a cinched ₣BZ premise stays a parked idea until the operator takes it up — there is no Fable adjudicator to wait on (Fable will not be available in time; this heat finishes without it).
-
-In-heat mint (operator decision 260623, broadened): Fable will not be available in time, so this heat mints ALL its vocabulary in-heat — every name, applying the selection gates by hand (grep gate, no trodden words, terminal-exclusivity, family coherence), the operator the sole authority.
-This covers everything the heat names: the build module/family/colophon names, the mechanism-discriminator vocabulary, the keystone foedus noun, and the foedus-accessor remints — sign-in, live-window, clear, switch, check — minted and (for the live words) swept 260624; see Foedus-accessor vocabulary below.
-The remints keep their own shape — a fair-faced word plus a tree-wide eviction sweep — but no longer wait on Fable; they are ordinary in-heat work the operator schedules.
+Posture (cinched for this heat): premise-touching ideas are operator-owned — any idea that would amend a cinched ₣BZ premise stays a parked idea until the operator takes it up.
 Keep this catalog shape-shaped — each idea a named tension plus a current lean, never a running discussion log.
 Genuinely thin or orthogonal ideas belong in itches or the horizon roadmap, not here; this paddock is for ideas worth deliberating with heat context.
-
-Vocabulary-remint dingleberry doctrine: a word this heat flags for remint retires by a tree-wide grep eviction sweep, run only after ₣BZ and its M6 narrative settle, so every site they add is present to be swept.
-Using the current canonical word meanwhile is therefore never a dingleberry — only a non-canonical paraphrase escapes the grep — so demolition and narrative work use the canonical word and never coin a variant.
 
 ## Conviction — the federation configuration model (settled modeling axis)
 
@@ -252,7 +244,7 @@ Under the configuration-model conviction this sharpens to a mechanism distinctio
 
 ## Foedus-accessor vocabulary — MINTED (260624)
 
-The sign-in / live-window / clear remints and the switch and check toothings were elected in-heat, gated by hand, and (for the two live words) swept tree-wide.
+The sign-in / live-window / clear remints were elected in-heat, gated by hand, and (for the two live words) swept tree-wide; the foedus-cardinality toothings (the active-foedus switch and the pool-integrity check) are built in the sibling theurge stream and homed there.
 
 Sign-in verb: compear → avow, swept tree-wide (260624).
 The everyone-class login — any human opening a session — homed in the access family rbw-a as rbw-aa, lowercase (it mutates no cloud).
@@ -265,18 +257,11 @@ Chosen for the cognitive rhyme with the vendor word "session" (RBRF_SESSION_DURA
 Clear-the-sitting verb: quash — test-only (force a fresh sign-in by discarding the cached sitting), homed in the test bucket rbw-q, lowercase.
 First-letter-separated from avow on purpose, since the operator wields the sign-in and clear-sign-in pair together.
 
-Active-foedus switch: instate — the foedus-cardinality toothing, homed in the odd-letter family rbw-j.
-Office register: install the active foedus, one at a time (single-active = the prior steps down).
-Open hinge carried to the switch-design pace: casing keys off whether the selector is committed config (uppercase + bug_require_clean_tree) or local runtime state (lowercase, gate-free).
-
-Foedus check: descry — the pool-integrity toothing, rbw-jd, lowercase (read-only); rhymes with Google's "describe pool".
-Word minted here; its exact signature stays the check-design pace's to choose.
-
 Colophon homing settled this pass:
 the access family collapses rbw-ac → rbw-a (rbw-aa avow, rbw-ap payor-credential check; the mantle-access probe relocates to the test bucket);
 gird moves to the manor family as rbw-mG, so rbw-m is the payor founding trio (affiance / jilt / gird) and rbw-p stays purely governor;
-foedus-cardinality verbs take rbw-j; test-only utilities and qualification take rbw-q (the Keycloak foedus setup is rbw-qjK — uppercase, because it affiances and so mutates cloud).
-The foedus NOUN stays a folio with no colophon family; only its cardinality VERBS take rbw-j.
+test-only utilities and qualification take rbw-q (the Keycloak foedus setup is rbw-qjK — uppercase, because it affiances and so mutates cloud).
+The foedus NOUN stays a folio with no colophon family.
 
 Casing convention across these families: an uppercase second letter marks an op that mutates cloud or critical manor state; lowercase marks read-only or non-mutating.
 
@@ -305,20 +290,10 @@ Programmatic accessor (token → STS) — depends on the discriminator and on a 
 Per-vendor setup guide (Entra first) — depends only on the core-facts contract line, so it runs parallel to the three code units.
 Attach a caged subject to a test depot via the admission verbs — strictly last, since it consumes ₣BZ's admission-verb surface; it cannot be slated until ₣BZ lands.
 
-Fold and precedence: all these units stay in ₣Bf; none folds into ₣BZ — the configuration-model evolution and the synthetic test rig that rides on it are this holding paddock's work, while ₣BZ owns the admission verbs and the single-federation implementation, and the attach unit consumes those verbs without defining them.
+Fold and precedence: all these units stay in ₣Bf; none folds into ₣BZ — the configuration-model evolution and the synthetic test rig that rides on it are this heat's work, while ₣BZ owns the admission verbs and the single-federation implementation, and the attach unit consumes those verbs without defining them.
 The spec-first unit is a hard predecessor of every code unit, not merely the first among equals — beginning any code before the specs are recast is a discipline breach, not a sequencing choice.
 
 Source material for cutting these paces: the federation-config-model memo (Memos/memo-20260618-Bf-federation-config-model.md) is the important source to consult — it carries the detailed RBS0 subdoc plan (the per-spec must-contain reference, the marker-scheme note, the MCM mint deferrals) alongside the full reasoning, so the spec-first unit reads it on graduation rather than re-deriving the detail; the front-of-heat design pace's two forks gate it.
-
-## Sources
-
-The office-federation heat ₣BZ is the parent; these ideas are its deliberate deferrals.
-Federation mechanism and the identity-provider-side console finding: the federation-legs spike findings memo.
-The pace-design and divergence record for the parent heat: its pace-design memo and its movement-4 review-findings memo.
-Degenerate-test-federation mechanism, sources, and the can-and-cannot-prove boundary: the degenerate-federation test-personas memo.
-Workforce-pool quota and soft-delete constraints (the freehold idea's load-bearing facts, and the affiance undelete-on-DELETED gap): Memos/memo-20260617-BZ-workforce-pool-constraints.md.
-Federation configuration model — the vendor-agnostic-core plus mechanism-gate conviction, full reasoning: Memos/memo-20260618-Bf-federation-config-model.md.
-Spec homes to evolve when this lands: RBSRF (RBSRF-RegimeFederation.adoc) and RBSMA (RBSMA-manor_affiance.adoc).
 
 ## Foedus lifecycle — the two-tier test-bed (settled topology + scoped design pass)
 
@@ -335,7 +310,7 @@ The accessor's end-to-end don-and-call still awaits a standing admission (a brev
 
 Two tiers (operator aim): a light tier — "use the current, switch lightly" — reuses durable standing foedera and changes the active one by selection, mapping onto the existing skirmish/dogfight (freehold-already-standing) suites; a nuclear tier — "full redo everything" — jilts and re-affiances the foedera from scratch, mapping onto the existing gauntlet (levies-fresh) suites.
 
-New vocabulary (minted 260624): the switch toothing instate (rbw-j) — select the active foedus — plus the sitting-reset it forces (quash the live sitting, re-sign-in against the new foedus).
+New vocabulary (minted 260624): the switch toothing instate — select the active foedus — plus the sitting-reset it forces (quash the live sitting, re-sign-in against the new foedus); the switch toothing and the pool-integrity check are built in the sibling theurge stream as the foedus-cardinality verbs.
 Founding/dissolving stays affiance/jilt; durable-vs-ephemeral is a tenure policy (freehold = affiance-and-never-jilt), not a verb; the nuclear redo is a named ceremony composing jilt+affiance, not an atom.
 
 This strand gathers four ideas above that are really one design: freehold (durable test-bed), the release-suites' lost credential-heal (a standing-freehold readiness step), multiplicity-as-switching (this topology), and federation-testing-collapses-onto-real-verbs (the authentic-verb fixture, suite word parley). It borders the durable manor-setup finisher.
@@ -343,6 +318,10 @@ This strand gathers four ideas above that are really one design: freehold (durab
 Relationship to the spine: the spine PROVES one foedus's chain (the de-lamination); this strand MANAGES the test-bed (standing foedera, selection, the two tiers) — two different jobs. The lifecycle layer is mostly downstream of the spine (it composes the spine's verbs), with one upstream touch: the regime must support foedus selection (two configs plus a selector), folded into the spec recast or handed to a lifecycle pace.
 
 Next: a focused design pass settles six forks — the tenure policy; the selection mechanism and what the select act does; the new toothing name(s); the light/nuclear tier mapping onto the existing suite ladder; the light-tier readiness check (the release-heal / parley step); and where regime-selection-support lands relative to the spec recast. It produces this strand's own slate, and runs before the audit's build-docket tightenings are finalized.
+
+Foedus-reuse leg (the affiance-centric reframe): the single-active-foedus, switched-among-standing topology stands, and the everyday reuse path switches rather than affiances — a workforce identity pool is founded once per foedus and kept, never jilted, so the everyday path is cap-flat.
+The earlier audit-era foedus-reuse-leg framing inherited an affiance-centric frame the switch decision supersedes; it is reframed around the switch when this design pass's plan is enrolled.
+The switch toothing itself is built in the sibling theurge stream; only its SELECTION mechanism stays PARKED for this design pass to settle.
 
 Signing key — SETTLED (operator decision 260623): a stable key, no per-charge rotation, so affiance's idempotent path needs no jwksJson re-sync arm.
 The private half lives as an estate field in the never-committed station file (working name RBRS_ESTATE_KEYCLOAK_SECRET); its public half is validated by matching the already-committed JWKS — the canonical reference — so no secret is ever committed or compared across stations.
@@ -352,32 +331,62 @@ Instead a deliberately-minimal, self-labelled BCG stub whose ONLY job is to sour
 The shelved FUTURE/RBSRS spec gains the Keycloak field as an optional/future entry, the live stub carries its own short contract plus a pointer to it, and the dangling acronym pointer is repointed to the FUTURE/ path (annotated shelved-for-₣BW), not deleted.
 The earlier "nucleate a dedicated Estate regime once 2-3 facts accrue" idea therefore defers WITH the podman regime — a single labelled stub now, not a new concept.
 The shared-one-key-versus-per-platform topology softens: the committed JWKS is a key SET, so it can hold several public keys if per-platform keys are ever wanted; that stays the lifecycle pass's to settle.
-The foedus-noun mint is also SETTLED — adopted in-heat (above).
-With both audit decisions settled, the audit's remaining work is the deferred build-docket tightening batch plus the lifecycle design pass.
 
-## Theurge-test-consolidation audit — dispositions (260623)
+## Federation-MVP re-derivations (the five keyfile-era loose-ends folded in)
 
-The theurge-test-consolidation audit ran 260623; its findings, the inventory-by-stratum, the duplication map (confirmed folds plus the coverage-preserving refusals), the suite-naming slate, a draft RBS0 cosmology subdoc, and a dependency-ordered fourteen-pace plan live in Memos/memo-20260623-theurge-test-consolidation-audit.md.
-The audit is a proposal; these lines record only what the operator has since elected or ruled.
+A coherent strand restrung in from the sibling MVP junk-drawer: five keyfile-era pre-MVP loose-ends, each re-deriving against the now-stable federation auth surface (compearance / STS / mantle-don) that the spine above builds.
+They belong with the federation vertical, not the MVP junk-drawer they came from, for a load-bearing reason: each was cross-heat gated "do not mount until ₣Bf wraps" or split the federation auth bash (rba_auth.sh / rbgp_payor.sh) across clones, and folding them here converts both to in-clone ordering — the federation paces land first and settle that surface, then these re-derive against it in the same clone.
 
-Substrate model (confirmed, not new work): the freehold substrate-lifecycle is already built — the rbtdrk_freehold / rbtdrk_depot / rbtdrp_lifecycle family plus the gauntlet ladder; the genuinely novel work is lifting the implicit (inner-body × wrapper) encoding into a first-class combinator over the engine's existing setup/teardown hooks.
+The five tensions, each by purpose:
 
-Suite naming — DONE (elected 260623, renamed 260624): the test suites adopted one military / conflict asterism.
-crucible → bivouac is forced — the suite name collided with the production crucible runtime noun (the charged sentry + pentacle + bottle), a one-meaning-per-word violation.
-fast → reveille, service → picket, complete → echelon are the elected coherence renames; the keepers gauntlet / skirmish / dogfight / siege / blockade are unchanged, and parley names the federation authentic-verb suite.
-The rename landed 260624 across every suite-name home — each suite's tabtarget filename, the RBTDRC_SUITES table, the CLAUDE.md tables, and the CLI / onboarding text — and (operator chose full coherence) the whole fast-tier→reveille-tier dependency-tier vocabulary too, ashlar credless-guard error strings and the BUS0/RBSLE specs included.
+- Account-state-invalid tolerance — re-derived against the federation auth path.
+  The keyfile-era credential-flap tolerance stranded a healthy build when an account-state-invalid analogue surfaced; the touchpoint it smoothed lived in the demolished keyfile token verb.
+  Lean: re-derive whether such an analogue can still strand a healthy build once the auth path is federated — the rebuild re-derives against sign-in / STS / mantle-don, not the old token verb — and tolerate-or-retire on that finding.
 
-chaining-fact-band — RESTORED (operator ruling 260623): the credless feoff/yoke band-matrix fixture is restored to the gauntlet and skirmish release ladders — it rode the four everyday suites but had been dropped from both — guarded by a reveille-base set-equality assertion so the membership cannot silently drift again.
+- OAuth terminal fast-fail by call context.
+  A deterministically-terminal credential failure should stop burning the SA-propagation retry budget; the fail-fast disambiguates terminal-vs-transient on the call context rather than retrying blind.
+  Lean: fast-fail the terminal case, distinguished by where the call sits in the federated flow.
 
-Foedus reuse and the active-foedus switch — switch NAMED, mechanism PARKED: the single-active-foedus, switched-among-standing topology stands, and the everyday reuse path switches rather than affiances — a workforce identity pool is founded once per foedus and kept, never jilted, so the everyday path is cap-flat.
-The switch toothing is now minted — instate (rbw-j) — alongside the avow / sitting / quash remints (done 260624); only its selection mechanism stays PARKED.
-The audit's foedus-reuse-leg proposal inherited an affiance-centric frame the switch decision supersedes; it is reframed around the switch when the plan is enrolled.
+- Build-bucket scrub plus the adjacent capability-spec check (lives in the sibling MVP stream).
+  Verify-and-retire the GCS build bucket superseded by pouch-context delivery, plus the adjacent capability-spec drift.
+  Carried here as a coupling note only — this pace stays in the sibling MVP-cleanup stream; it is named here because it sits in the same rbgp_payor.sh bash neighbourhood the federation arms settle first.
 
-## Paddock drain — the heat-memories memo (experimental, 260623)
+- Clean-tree gate rationale parameter (lives in the sibling MVP stream).
+  Give each clean-tree gate call site a locale-specific rationale carried as a new gate parameter, BUG staying kit-agnostic.
+  Carried here as a coupling note only — this pace stays in the sibling MVP-cleanup stream; named here because the gate sits in the federation auth bash.
 
-This paddock is a holding catalog and it accretes; to keep it the shape of REMAINING work, dispositioned deliberation drains to a provenance memo: Memos/memo-20260623-Bf-heat-memories.md.
-What drains: only DISPOSITIONED ideas — built into a completed pace, declined, or superseded.
-What stays: deferred-but-still-live ideas (those belong here, or in an itch / the horizon roadmap if thin) — a live idea drained to the memo is a live idea quietly buried.
-The gate (experimental): as a pace wraps, its wrap decision considers whether the completed work renders some paddock material dispositioned — but the fact drains ONLY if a terminal groom estimates the paddock no longer needs it; the groom's judgment, not the wrap alone, releases the drain.
-This is being tried and is not obviously going to work well; revisit if it adds friction without keeping the paddock clean, or graduate it to a general JJK practice if it proves out.
-First expected use: the post-renaming paddock-refocus — drain the ₣BZ lineage and its now-released gating and the dingleberry doctrine, de-staling (not draining) the references that now resolve to existing work.
+- Payor-install manor-completion next-step.
+  The payor-install leaf verb hard-codes the depot-levy next-step; with the manor-setup finisher (the terrier founding-home idea above) it should instead point the operator at finishing the manor.
+  Lean: re-aim the install tail's next-step prose at the manor-finisher op, not the depot levy.
+
+In-clone ordering notes: the first two (account-state tolerance, OAuth fast-fail) share the token-capture touchpoint — see the Coupling to watch note below — so mount them adjacent or fold them.
+The re-derivations touching rbgp_payor.sh (the heat's busiest bash file) order after the federation-code arms settle that file first.
+Keep this band shape-shaped: lean lines, no running log.
+
+## Coupling to watch
+
+The account-state-invalid tolerance and the OAuth terminal fast-fail both touch the federation auth path's token-capture point;
+the fast-fail's own docket asks whether it is the same landing as the account-state-tolerance touchpoint,
+so mount those two adjacent or fold them together.
+The touchpoint is now whatever survives in the federated path (sign-in / STS / mantle-don), not the demolished keyfile token verb — a thing the account-state-rebuild pace must itself first re-derive, so the adjacency is an in-clone ordering note for this stream, not a fixed line.
+
+## Chaining-fact constraint — the standing invariant the re-derivations respect
+
+The federation-MVP re-derivations brush against the cinched chaining-fact discipline: the build/capture verbs (chain HEADS) only ever WRITE a fact; the three durable-leak LINKS (feoff, anoint, yoke) read one chained value and write one durable config field; the read consumers resolve the same express-or-chain fact but write no durable config.
+The standing constraint any new clean-tree gate or fact-reading touch must honour is no-relay (the express-or-chain resolver is depth-1 and terminally consumed, never forwarded), the named chaining band (BUBC_band_chain on a broken resolve), and furnish-what-you-LOAD (a CLI whose source closure reaches a fact caller must source the fact module).
+This heat carries the discipline as a constraint, not as a work-strand: the durable-leak verb implementations live in the sibling MVP-cleanup stream, and the named-band theurge fixture that asserts the band lives in the sibling theurge stream.
+The full discipline — the HEADS/LINKS split, the furnish-vs-coverage two-net requirement, the theurge homing — is the deep shape behind the sibling MVP stream's two durable-leak spec paces and is homed in that stream's paddock.
+
+## Sources
+
+The office-federation heat ₣BZ is the parent; the still-live federation ideas here are its deliberate deferrals.
+Federation mechanism and the identity-provider-side console finding: the federation-legs spike findings memo.
+The pace-design and divergence record for the parent heat: its pace-design memo and its movement-4 review-findings memo.
+Degenerate-test-federation mechanism, sources, and the can-and-cannot-prove boundary: the degenerate-federation test-personas memo.
+Workforce-pool quota and soft-delete constraints (the freehold idea's load-bearing facts): Memos/memo-20260617-BZ-workforce-pool-constraints.md.
+Federation configuration model — the vendor-agnostic-core plus mechanism-gate conviction, full reasoning: Memos/memo-20260618-Bf-federation-config-model.md.
+Spec homes to evolve when this lands: RBSRF (RBSRF-RegimeFederation.adoc) and RBSMA (RBSMA-manor_affiance.adoc).
+Dispositioned deliberation drained from this paddock — the ₣BZ-lineage gating, the released Fable gating, the vocabulary-remint dingleberry doctrine, the theurge-test-consolidation audit dispositions, and the landed five-suite rename record: Memos/memo-20260623-Bf-heat-memories.md.
+
+Partition provenance (the cross-heat split that reshaped this heat into the federation-build stream): the five federation-MVP re-derivations were restrung in from the sibling MVP heat — their original junk-drawer home keeps the git history of their dockets; the theurge-crate refactor, the zipper-colophon trio, and the cosmology spec drained OUT to the sibling theurge stream, where the drained cosmology pace supersedes that stream's native cosmology pace.
+The full how-we-got-there record is the cross-heat split-study provenance memo.
