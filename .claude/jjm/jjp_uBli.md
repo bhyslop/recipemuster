@@ -45,16 +45,22 @@ The leak-elimination invariant is no-relay: the express-or-chain resolver is dep
 The git clean-tree gate is an ergonomic backstop only — never the safety mechanism.
 Instance-binding (stamping a producing-vessel identity into the fact) was deliberately weighed and DROPPED; the safety is operator-trust plus loud-on-typecheck output plus the commit-review gate.
 
-Read-side chain consumers (augur, summon, plumb, rekon, vouch) may resolve-or-die-loud but write no durable config — a wrong read corrupts only a transient action, never a regime file.
-They must never be extended to write config without joining the durable-leak surface and its no-relay plus named-band-reject discipline.
+Read-side chain consumers (augur, summon, plumb; rekon and vouch are not yet chained) resolve the same express-or-chain fact but write no durable config.
+A broken resolve now rejects with the named chaining band (BUBC_band_chain) — reused, NOT a new band: a read and a durable-leak write never share one tabtarget, so 105 stays unambiguous per tabtarget without a second code.
+This reverses the earlier loud-die cinch: the read/write distinction no longer lives in the exit code but in the EFFECT — a wrong read corrupts only a transient action, never a regime file.
+They must still never be extended to write durable config without joining the durable-leak surface and its no-relay discipline.
 
-A read-side consumer carries two requirements the durable-leak verbs' theurge coverage does not vouch for it.
-First, furnish: a verb body that calls the buf_* fact helpers requires its dispatching CLI to source buf_fact — the lode and ledger CLIs honor this, and a consumer added without it dies command-not-found at the resolve, not loud with its named message.
-Second, coverage: the read side needs its own guard, because the durable-verb theurge fixtures never drive it — a reveille-tier credless guard that invokes each read verb with no folio and asserts the named no-fact die (not command-not-found) catches the furnish gap without cloud, and an end-to-end fixture proves the pull against real artifacts.
+The read side carries two requirements the durable-leak verbs' coverage does not vouch for it, and they need two different nets — one runtime, one static — because the exit code cannot tell them apart.
+First, furnish: any CLI whose source closure reaches a buf_* fact caller must source buf_fact, or the helper is undefined and the verb dies command-not-found at the resolve.
+This is furnish-what-you-LOAD, not just furnish-what-you-dispatch: the static check caught rbfh and rbfv, which only transitively load rbfcp_plumb through the rbfc0_core 0-trick.
+Second, coverage: the reveille net is named-band exit-code cases (folio-less drives asserting the band — the resolve-logic net) PLUS a static furnish-invariant case (the transitive source-closure scan).
+The furnish gap needs the static case because a command-not-found exits the SAME band 105 as a real broken chain, so a runtime exit-code case cannot distinguish it; an end-to-end cloud fixture (dogfight) proves the pull against real artifacts.
+A coding error like the furnish gap is flushed out statically and NEVER given a named runtime band — naming command-not-found (127) would mix tiers, dressing a defect as a deliberate rejection.
 
-Verification of this discipline is homed under theurge — it drives the real durable-leak verbs through the full tabtarget exec path and asserts the named chain-rejection band, regime-poison the type specimen.
-It is deliberately NOT homed in the BUK bash self-test: the chain-rejection band fires only at the RBK consumer (feoff/yoke via buc_reject), the footing resolver and decoder return a bare 1, and the self-test sources no RBK — so it can prove the footing primitives' return-1 shape but never the band itself.
-The footing primitives keep their existing BUK self-test cases; the band, wrong-kind, and fact-intact matrix is theurge's.
+Verification of this discipline is homed under theurge — it drives the real verbs through the full tabtarget exec path and asserts the named chain-rejection band, regime-poison the type specimen.
+The band now fires at both the durable-leak LINKS (feoff/yoke via buc_reject) and the read consumers (summon/plumb/augur), all RBK; the BUK footing resolver and decoder still return a bare 1.
+It is deliberately NOT homed in the BUK bash self-test: the band fires only at the RBK consumer, and the self-test sources no RBK — so it can prove the footing primitives' return-1 shape but never the band itself.
+The footing primitives keep their existing BUK self-test cases; the band, wrong-kind, furnish-invariant, and fact-intact matrix is theurge's.
 
 ## Provenance
 
