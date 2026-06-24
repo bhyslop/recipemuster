@@ -134,13 +134,16 @@ rbld_augur() {
   # back to the touchmark any capture handed forward through the depth-1 chain, so a
   # no-arg augur immediately after a capture inspects the just-captured Lode. NEVER
   # relays — depth-1, terminally consumed (the leak-elimination invariant; see the
-  # durable-leak link rbfl_feoff for the no-relay rationale). Read-side: augur writes
-  # no durable config, so a broken chain dies loud (buc_die) rather than firing the
-  # durable-leak surface's named-band reject — categorically lower severity than
-  # feoff/anoint/yoke, and carrying neither their band nor a clean-tree gate.
+  # durable-leak link rbfl_feoff for the no-relay rationale). A broken chain rejects
+  # with the named chaining band (BUBC_band_chain), the same band feoff/yoke use — a
+  # read and a durable-leak write never share one tabtarget, so the band stays
+  # unambiguous per tabtarget without a second code. The read/write distinction lives
+  # not in the exit code but in the effect: augur writes no durable config, so a wrong
+  # read corrupts only a transient inspect, never a regime file — and augur carries no
+  # clean-tree gate.
   local z_touchmark=""
   z_touchmark=$(buf_elect_fact_capture "${z_express}" "${RBF_FACT_LODE_TOUCHMARK}") \
-    || buc_die "No touchmark — pass one (param1) or run any Lode capture immediately before augur"
+    || buc_reject "${BUBC_band_chain}" "No touchmark — pass one (param1) or run any Lode capture immediately before augur"
 
   # Assert a KNOWN Lode kind by decoding the touchmark's kind-letter prefix — the
   # single home for touchmark kind decode, shared with feoff/yoke. Unlike those
@@ -149,7 +152,7 @@ rbld_augur() {
   # that the prefix named a real kind (the decoder is the sole kind channel).
   local z_kind=""
   z_kind=$(zrbld_decode_touchmark_kind_capture "${z_touchmark}") \
-    || buc_die "Touchmark '${z_touchmark}' has no recognizable Lode kind prefix (expected <kind><YYMMDDHHMMSS>, e.g. b260602120000)"
+    || buc_reject "${BUBC_band_chain}" "Touchmark '${z_touchmark}' has no recognizable Lode kind prefix (expected <kind><YYMMDDHHMMSS>, e.g. b260602120000)"
 
   buc_step "Authenticating as Director"
   local z_token=""

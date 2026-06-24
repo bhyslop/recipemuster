@@ -29,6 +29,7 @@ zrbfc_furnish() {
   buc_doc_env_done || return 0
 
   local z_rbk_kit_dir="${BASH_SOURCE[0]%/*}"
+  source "${BURD_BUK_DIR}/buf_fact.sh"
   source "${BURD_BUK_DIR}/buv_validation.sh"
   source "${BURD_BUK_DIR}/burd_regime.sh"
   source "${z_rbk_kit_dir}/rbcc_constants.sh"

@@ -15,7 +15,8 @@
 // Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 //
 // RBTDRH — chaining-fact-band fixture: the band matrix for the durable-leak
-// chain LINKS (feoff, yoke), driven through the real tabtarget exec path.
+// chain LINKS (feoff, yoke) and the read-side consumers (summon, plumb, augur),
+// driven through the real tabtarget exec path.
 //
 // The chaining-fact discipline splits the value-forwarding verbs by role; only
 // feoff/anoint/yoke write durable config from a resolved express-or-chain value,
@@ -36,13 +37,24 @@
 // yoke fans out across the tracked vessel tree, but its kind gate rejects BEFORE
 // auth and BEFORE the write loop, so the yoke negatives are creds-free and
 // write-free. Nothing here mints a token — the fixture is credless.
+//
+// The read-side consumers (summon, plumb, augur) resolve the same express-or-chain
+// fact but write no durable config. They now reject a broken resolve with the same
+// chaining band, so a folio-less drive against an empty BURV root asserts the band
+// before any auth — credless, no cloud. These cases prove the resolve-logic
+// rejection ONLY: a furnish gap (a CLI that forgot to source buf_fact) exits the
+// same band 105 — command-not-found also trips the `|| buc_reject` — so it is
+// indistinguishable here and is caught instead by the static furnish case below.
 
 use std::path::{Path, PathBuf};
 
 use crate::case;
 use crate::rbtdgc_consts::{
+    RBTDGC_AUGUR_LODE,
     RBTDGC_BAND_CHAIN,
     RBTDGC_FEOFF_BOLE,
+    RBTDGC_PLUMB_FULL,
+    RBTDGC_SUMMON_HALLMARK,
     RBTDGC_YOKE_RELIQUARY,
 };
 use crate::rbtdre_engine::{
@@ -157,6 +169,44 @@ fn rbtdrh_drive_yoke(dir: &Path, express: &str) -> Result<i32, String> {
         .map_err(|e| format!("failed to run yoke {}: {}", tt.display(), e))?;
     let _ = std::fs::write(dir.join("yoke-stdout.txt"), &output.stdout);
     let _ = std::fs::write(dir.join("yoke-stderr.txt"), &output.stderr);
+    Ok(output.status.code().unwrap_or(-1))
+}
+
+/// Drive a read-side consumer (summon, plumb, augur) through its tabtarget with an
+/// optional express folio, against an EMPTY BURV root (no chained fact). With no
+/// express and no chain the express-or-chain resolve finds nothing and the verb
+/// rejects with the chaining band BEFORE any auth — so the drive is credless and
+/// needs no cloud. This asserts the resolve-logic rejection, NOT the furnish wiring:
+/// a furnish gap exits the same band, so the static furnish case covers that.
+/// `label` names the artifact files. Returns the exit code.
+fn rbtdrh_drive_readside(
+    dir: &Path,
+    colophon: &str,
+    label: &str,
+    express: Option<&str>,
+) -> Result<i32, String> {
+    let root = std::env::current_dir().map_err(|e| format!("cannot get cwd: {}", e))?;
+    let tt = rbtdri_find_tabtarget_global(&root, colophon)?;
+
+    let burv = dir.join("burv");
+    let burv_temp = dir.join("burvtmp");
+    std::fs::create_dir_all(&burv).map_err(|e| format!("mkdir burv root: {}", e))?;
+    std::fs::create_dir_all(&burv_temp).map_err(|e| format!("mkdir burv temp: {}", e))?;
+
+    let mut cmd = rbtdri_tabtarget_command(&tt);
+    if let Some(e) = express {
+        cmd.arg(e);
+    }
+    cmd.env("BURV_OUTPUT_ROOT_DIR", rbtdrx_native_to_posix(&burv))
+        .env("BURV_TEMP_ROOT_DIR", rbtdrx_native_to_posix(&burv_temp))
+        .env(RBTDRI_BURE_CONFIRM_KEY, RBTDRI_BURE_CONFIRM_SKIP)
+        .current_dir(&root);
+
+    let output = cmd
+        .output()
+        .map_err(|e| format!("failed to run {} {}: {}", label, tt.display(), e))?;
+    let _ = std::fs::write(dir.join(format!("{}-stdout.txt", label)), &output.stdout);
+    let _ = std::fs::write(dir.join(format!("{}-stderr.txt", label)), &output.stderr);
     Ok(output.status.code().unwrap_or(-1))
 }
 
@@ -309,6 +359,182 @@ fn rbtdrh_yoke_unknown_prefix(dir: &Path) -> rbtdre_Verdict {
     }
 }
 
+// ── read-side consumer cases ────────────────────────────────
+// summon/plumb/augur write no durable config, but they resolve the same
+// express-or-chain fact and now reject a broken resolve with the same band as the
+// LINKS. Each is driven folio-less against an empty BURV root, so the resolve fails
+// before any auth — credless, no cloud. These prove the resolve-logic rejection; a
+// furnish gap exits the same band 105, so the static furnish case (not these) is the
+// net for that.
+
+fn rbtdrh_summon_no_folio(dir: &Path) -> rbtdre_Verdict {
+    match rbtdrh_drive_readside(dir, RBTDGC_SUMMON_HALLMARK, "summon", None) {
+        Ok(code) => rbtdrh_expect_band(code, "summon no-folio (broken chain)", dir),
+        Err(e) => rbtdre_Verdict::Fail(e),
+    }
+}
+
+fn rbtdrh_plumb_no_folio(dir: &Path) -> rbtdre_Verdict {
+    match rbtdrh_drive_readside(dir, RBTDGC_PLUMB_FULL, "plumb", None) {
+        Ok(code) => rbtdrh_expect_band(code, "plumb no-folio (broken chain)", dir),
+        Err(e) => rbtdre_Verdict::Fail(e),
+    }
+}
+
+fn rbtdrh_augur_no_folio(dir: &Path) -> rbtdre_Verdict {
+    match rbtdrh_drive_readside(dir, RBTDGC_AUGUR_LODE, "augur", None) {
+        Ok(code) => rbtdrh_expect_band(code, "augur no-folio (broken chain)", dir),
+        Err(e) => rbtdre_Verdict::Fail(e),
+    }
+}
+
+fn rbtdrh_augur_unknown_prefix(dir: &Path) -> rbtdre_Verdict {
+    // An express touchmark with no recognizable kind prefix — augur accepts any KNOWN
+    // kind, so its decode gate rejects the unknown one with the chaining band, before auth.
+    match rbtdrh_drive_readside(dir, RBTDGC_AUGUR_LODE, "augur-badkind", Some(RBTDRH_UNKNOWN_TOUCHMARK)) {
+        Ok(code) => rbtdrh_expect_band(code, "augur unknown-prefix express", dir),
+        Err(e) => rbtdre_Verdict::Fail(e),
+    }
+}
+
+// ── furnish invariant (static) ──────────────────────────────
+// The chaining consumers reach the buf_* fact helpers through their dispatching
+// CLI; the CLI must source buf_fact or the helper is undefined and the verb dies
+// command-not-found at the resolve — the furnish gap that started this work. The
+// runtime cases above cannot see it (a furnish gap exits the same band), so it is
+// asserted here statically: for every rb*_cli.sh whose transitive source closure
+// reaches a buf_* fact caller, buf_fact.sh must be in that closure. Reads source,
+// runs nothing — the development-time net for a coding error, never a tolerated
+// runtime path. The fix is CLI-level (the lode/ledger precedent), so the closure is
+// followed transitively: the 0-trick CLIs reach their caller modules through a
+// gestalt entry, not a direct source.
+
+const RBTDRH_FACT_CALLERS: &[&str] = &["buf_elect_fact_capture", "buf_read_fact_capture"];
+const RBTDRH_FACT_MODULE: &str = "buf_fact.sh";
+
+/// Resolve a `source "..."` line to a repo path under Tools/rbk or Tools/buk, or
+/// None when the prefix is a runtime variable not statically resolvable (e.g.
+/// ${RBCC_rbrr_file} — a regime env file, never a fact caller). The three resolved
+/// prefixes are the only ones a kit module uses to source sibling code.
+fn rbtdrh_resolve_source(line: &str, rbk: &Path, buk: &Path) -> Option<PathBuf> {
+    let q = line.find('"')?;
+    let rest = &line[q + 1..];
+    let end = rest.find('"')?;
+    let spec = &rest[..end];
+    let base = spec.rsplit('/').next()?;
+    if !base.ends_with(".sh") {
+        return None;
+    }
+    if spec.starts_with("${BURD_BUK_DIR}/") {
+        Some(buk.join(base))
+    } else if spec.starts_with("${BASH_SOURCE[0]%/*}/") || spec.starts_with("${z_rbk_kit_dir}/") {
+        Some(rbk.join(base))
+    } else {
+        None
+    }
+}
+
+/// Transitive source closure of `start`, following only statically-resolvable
+/// source lines. Returns every file reached, including `start`.
+fn rbtdrh_source_closure(start: &Path, rbk: &Path, buk: &Path) -> Vec<PathBuf> {
+    let mut seen: Vec<PathBuf> = Vec::new();
+    let mut queue: Vec<PathBuf> = vec![start.to_path_buf()];
+    while let Some(f) = queue.pop() {
+        if seen.iter().any(|s| s == &f) {
+            continue;
+        }
+        seen.push(f.clone());
+        let content = match std::fs::read_to_string(&f) {
+            Ok(c) => c,
+            Err(_) => continue,
+        };
+        for line in content.lines() {
+            if !line.trim_start().starts_with("source ") {
+                continue;
+            }
+            if let Some(target) = rbtdrh_resolve_source(line, rbk, buk) {
+                queue.push(target);
+            }
+        }
+    }
+    seen
+}
+
+/// Static furnish invariant: every dispatching CLI whose source closure reaches a
+/// buf_* fact caller must also source buf_fact. A miss is the furnish gap — the
+/// helper undefined at runtime, the verb dying command-not-found at the resolve.
+fn rbtdrh_furnish_invariant(dir: &Path) -> rbtdre_Verdict {
+    let root = match std::env::current_dir() {
+        Ok(r) => r,
+        Err(e) => return rbtdre_Verdict::Fail(format!("cannot get cwd: {}", e)),
+    };
+    let rbk = root.join("Tools").join("rbk");
+    let buk = root.join("Tools").join("buk");
+
+    let entries = match std::fs::read_dir(&rbk) {
+        Ok(e) => e,
+        Err(e) => return rbtdre_Verdict::Fail(format!("cannot read {}: {}", rbk.display(), e)),
+    };
+    let mut clis: Vec<PathBuf> = entries
+        .flatten()
+        .map(|e| e.path())
+        .filter(|p| {
+            p.file_name()
+                .and_then(|n| n.to_str())
+                .map(|n| n.ends_with("_cli.sh"))
+                .unwrap_or(false)
+        })
+        .collect();
+    clis.sort();
+
+    let mut violations: Vec<String> = Vec::new();
+    let mut covered = 0usize;
+    for cli in &clis {
+        let closure = rbtdrh_source_closure(cli, &rbk, &buk);
+        let mut calls_fact = false;
+        let mut has_furnish = false;
+        for f in &closure {
+            let base = f.file_name().and_then(|n| n.to_str()).unwrap_or("");
+            if base == RBTDRH_FACT_MODULE {
+                has_furnish = true; // buf_fact's own definitions are not "calls"
+                continue;
+            }
+            let content = std::fs::read_to_string(f).unwrap_or_default();
+            if RBTDRH_FACT_CALLERS.iter().any(|c| content.contains(c)) {
+                calls_fact = true;
+            }
+        }
+        if calls_fact {
+            let name = cli.file_name().and_then(|n| n.to_str()).unwrap_or("?");
+            if has_furnish {
+                covered += 1;
+            } else {
+                violations.push(format!(
+                    "{} reaches a buf_* fact caller but its source closure omits {}",
+                    name, RBTDRH_FACT_MODULE
+                ));
+            }
+        }
+    }
+
+    let _ = std::fs::write(
+        dir.join("furnish-invariant.txt"),
+        format!(
+            "CLIs scanned: {}; fact-consuming + furnished: {}\nviolations:\n{}\n",
+            clis.len(), covered, violations.join("\n")
+        ),
+    );
+
+    if violations.is_empty() {
+        rbtdre_Verdict::Pass
+    } else {
+        rbtdre_Verdict::Fail(format!(
+            "{} furnish gap(s) — a CLI reaches a buf_* fact caller without sourcing {}:\n{}",
+            violations.len(), RBTDRH_FACT_MODULE, violations.join("\n")
+        ))
+    }
+}
+
 // ── Fixture ─────────────────────────────────────────────────
 
 pub static RBTDRH_CASES_CHAINING_FACT_BAND: &[rbtdre_Case] = &[
@@ -320,6 +546,11 @@ pub static RBTDRH_CASES_CHAINING_FACT_BAND: &[rbtdre_Case] = &[
     case!(rbtdrh_feoff_fact_intact),
     case!(rbtdrh_yoke_wrong_kind),
     case!(rbtdrh_yoke_unknown_prefix),
+    case!(rbtdrh_summon_no_folio),
+    case!(rbtdrh_plumb_no_folio),
+    case!(rbtdrh_augur_no_folio),
+    case!(rbtdrh_augur_unknown_prefix),
+    case!(rbtdrh_furnish_invariant),
 ];
 
 pub static RBTDRH_FIXTURE_CHAINING_FACT_BAND: rbtdre_Fixture = rbtdre_Fixture {
