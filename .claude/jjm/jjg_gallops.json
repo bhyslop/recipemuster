@@ -19353,8 +19353,8 @@
         "₢BiAAY": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260624-0127",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260624-0159",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "## Character",
                 "Mechanical removal gated on a coverage check:",
@@ -19379,7 +19379,7 @@
                 "The chaining-nature common quoin in RBS0 — a separate spec finding: the chain-head / chain-link / durable-leak discipline is repeated near-verbatim across ~7 subdocs and was never lifted into one quoin."
               ],
               "jjgtn_silks": "prune-legacy-build-cycle-tabtargets",
-              "jjgtn_basis": "0538e1d"
+              "jjgtn_basis": "2c32383"
             }
           ]
         },
