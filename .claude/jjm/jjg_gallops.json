@@ -19113,8 +19113,8 @@
         "₢BiAAU": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260623-1912",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260623-2204",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "Run and verify the chaining-fact cloud cases (integration + provenance) on a service-tier session — the slow GCP half, split from the authoring pace.",
                 "",
@@ -19125,7 +19125,7 @@
                 "The chaining-fact cloud fixture runs green on a service (or dogfight) session: the integration case proves the named band survives the real exec path with a real ensconce upstream of feoff; the provenance case proves the committed-anchor stamp."
               ],
               "jjgtn_silks": "chaining-fact-cloud-run",
-              "jjgtn_basis": "f4fa00b"
+              "jjgtn_basis": "e827e5d"
             }
           ]
         },
