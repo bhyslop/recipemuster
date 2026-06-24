@@ -15588,9 +15588,10 @@
         "₢BcAAH",
         "₢BcAAJ",
         "₢BcAAD",
-        "₢BcAAE"
+        "₢BcAAE",
+        "₢BcAAK"
       ],
-      "jjghn_next_pace_seed": "AAK",
+      "jjghn_next_pace_seed": "AAL",
       "jjghn_paces": {
         "₢BcAAA": {
           "jjgpn_tacks": [
@@ -15984,6 +15985,38 @@
               ],
               "jjgtn_silks": "jjk-dealias-cipher-imports",
               "jjgtn_basis": "a71eea0"
+            }
+          ]
+        },
+        "₢BcAAK": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260623-2256",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "Design plus a gallops schema change; reprieve machinery in scope, so judgment work, not mechanical.",
+                "",
+                "## Goal",
+                "Give a pace an immutable \"original intent\" field — the operator's intent in their own words, captured at the moment of slating — surfaced at mount above the docket, so the original intent is read before any later-reconstructed rationale.",
+                "It exists because a docket's rationale can be confabulated or reconstructed and later becomes indistinguishable from genuine intent; an immutable, slate-frozen capture in the operator's words is the fix.",
+                "Chat-UUID / transcript linkage is deliberately OUT of scope — a future problem, not this pace.",
+                "",
+                "## Cinched",
+                "The field is immutable — populated once at slate (enroll) only, never rewritten by reslate or redocket.",
+                "Mount presents it before the docket.",
+                "",
+                "## Schema change",
+                "Adding a `jjrg_Pace` field changes the gallops on-disk shape — follow the JJK schema-change discipline (§E reprieve-episode gate, §F branch naming) and JJSCRP (`jjdz_reprieve`): register a reprieve episode, deliver source-only on a date-and-identity branch, commit no gallops conversion.",
+                "",
+                "## Guidance update",
+                "Update the JJK CLAUDE guidance (`claude-jjk*.md`) to direct the slating ceremony to populate the field correctly, and only during slating — not reslate, not later.",
+                "",
+                "## Done when",
+                "A newly slated pace carries the immutable original-intent field; mount surfaces it before the docket; the `claude-jjk*.md` guidance directs correct slate-only population; the schema change rides a registered reprieve episode; older on-disk gallops still read."
+              ],
+              "jjgtn_silks": "pace-original-intent",
+              "jjgtn_basis": "d101d76"
             }
           ]
         }
