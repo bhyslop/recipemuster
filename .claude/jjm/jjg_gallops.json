@@ -18301,6 +18301,7 @@
         "₢BiAAR",
         "₢BiAAT",
         "₢BiAAU",
+        "₢BiAAX",
         "₢BiAAS",
         "₢BiAAL",
         "₢BiAAE",
@@ -18314,7 +18315,7 @@
         "₢BiAAA",
         "₢BiAAW"
       ],
-      "jjghn_next_pace_seed": "AAX",
+      "jjghn_next_pace_seed": "AAY",
       "jjghn_paces": {
         "₢BiAAA": {
           "jjgpn_tacks": [
@@ -19204,6 +19205,38 @@
               ],
               "jjgtn_silks": "resolved-base-provenance",
               "jjgtn_basis": "95faa0f"
+            }
+          ]
+        },
+        "₢BiAAX": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260623-2154",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "Mechanical operator-facing rename, low risk — an ashlar-tier vocabulary fix.",
+                "",
+                "Reframe the rbw-acm probe's operator face from \"don a mantle\" to its true subject — mantle access — without disturbing the interior `don` act or the colophon.",
+                "The probe actively compears, dons (real Leg-3 token mint), calls Artifact Registry, and writes an attributed Data-Access audit entry;",
+                "its face must name that access-reach verdict, not the mechanism, and must not under-promise the real side effects.",
+                "",
+                "## Cinched",
+                "- Name: CheckMantleAccess (frontispiece), sibling of CheckFederatedAccess / CheckPayorCredential.",
+                "  Rejected CheckMantleAdmission — the handler's 403 branch tests AR-reach (capability-set / artifactregistry.reader), which outlives mere admission.",
+                "- Colophon rbw-acm is UNCHANGED (m = mantle).",
+                "  This is what makes the rename cheap: every colophon cross-ref and the generated rbtdgc colophon const stay untouched.",
+                "- Interior `don` STAYS: rba_don_capture, rba_token_capture, the handler's Leg-3 step/die/success narration, and rba_auth's \"Leg 3 (don)\" text all faithfully name the real act.",
+                "  Only the intent-layer ashlar strings change.",
+                "",
+                "## Done when",
+                "- Tabtarget renamed tt/rbw-acm.CheckMantleDon.sh -> tt/rbw-acm.CheckMantleAccess.sh (content byte-identical; trampoline routes on the colophon).",
+                "- The zipper purpose (RBZ_CHECK_MANTLE in rbz_zipper.sh) and the handler's buc_doc_brief + headline buc_step (rbgv_check_mantle in rbgv_cli.sh) reframed to the access verdict, keeping the active-don + AR-exercise + audit-entry honesty.",
+                "- claude-rbk-tabtarget-context.md regenerated via build (rbtdgc_consts.rs shows no diff — colophon stable).",
+                "- rbw-tq + rbw-tl green; rbw-acm <mantle> still routes. No spec edit (grep finds no reference); colophon cross-refs (rbgp_payor, rbtdrk_depot) untouched."
+              ],
+              "jjgtn_silks": "mantle-access-probe-rename",
+              "jjgtn_basis": "bf33f34"
             }
           ]
         }
