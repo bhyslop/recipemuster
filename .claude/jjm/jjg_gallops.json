@@ -18537,8 +18537,8 @@
         "₢BiAAD": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260618-1358",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260624-0128",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "Drafted from ₢BBABU in ₣BB.",
                 "",
@@ -18596,7 +18596,7 @@
                 "  and `xargs -P` is non-POSIX / outside the allowed-command set."
               ],
               "jjgtn_silks": "shellcheck-cover-moorings-and-jailer",
-              "jjgtn_basis": "f5f6b2b"
+              "jjgtn_basis": "77ec852"
             }
           ]
         },
