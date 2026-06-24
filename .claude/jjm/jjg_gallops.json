@@ -16569,6 +16569,7 @@
         "₢BfAAS",
         "₢BfAAR",
         "₢BfAAh",
+        "₢BfAAi",
         "₢BfAAO",
         "₢BfAAT",
         "₢BfAAZ",
@@ -16601,7 +16602,7 @@
         "₢BfAAH",
         "₢BfAAP"
       ],
-      "jjghn_next_pace_seed": "AAi",
+      "jjghn_next_pace_seed": "AAj",
       "jjghn_paces": {
         "₢BfAAA": {
           "jjgpn_tacks": [
@@ -17504,6 +17505,31 @@
               ],
               "jjgtn_silks": "heat-integrity-and-coverage-audit",
               "jjgtn_basis": "c7433f4"
+            }
+          ]
+        },
+        "₢BfAAi": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260623-2241",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Drain the dispositioned deliberation from the ₣Bf paddock to the heat-memories memo and refocus the paddock on remaining work — the first use of the drain practice.",
+                "",
+                "## Spec of needed change",
+                "Per the paddock's drain direction and Memos/memo-20260623-Bf-heat-memories.md: move the DISPOSITIONED material out to the memo — the ₣BZ lineage and its now-released gating, the dingleberry doctrine (its gate released by treating ₣BZ complete), and any built-or-declined idea — de-staling (not draining) the references that now resolve to existing work. Leave the paddock the shape of remaining work only.",
+                "",
+                "## Done when",
+                "The dispositioned material lives in the memories memo as provenance; the paddock holds only live, remaining-work shape; stale ₣BZ-gating and dingleberry references are gone or de-staled; deferred-but-live ideas remain in the paddock.",
+                "",
+                "## Cinched",
+                "Drain only DISPOSITIONED ideas (built / declined / superseded), never deferred-but-live ones. Runs after the renames (which sweep the paddock) and after the integrity audit (whose coverage-mapping informs what is truly dispositioned).",
+                "",
+                "## Character",
+                "Paddock hygiene — the experimental drain practice's first run; judgment on what is dispositioned versus still-live."
+              ],
+              "jjgtn_silks": "paddock-refocus-and-drain",
+              "jjgtn_basis": "724072e"
             }
           ]
         }
