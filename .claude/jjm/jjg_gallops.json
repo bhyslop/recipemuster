@@ -18376,6 +18376,7 @@
         "₢BiAAE",
         "₢BiAAD",
         "₢BiAAY",
+        "₢BiAAZ",
         "₢BiAAF",
         "₢BiAAB",
         "₢BiAAG",
@@ -18385,7 +18386,7 @@
         "₢BiAAA",
         "₢BiAAW"
       ],
-      "jjghn_next_pace_seed": "AAZ",
+      "jjghn_next_pace_seed": "AAa",
       "jjghn_paces": {
         "₢BiAAA": {
           "jjgpn_tacks": [
@@ -19340,6 +19341,35 @@
               ],
               "jjgtn_silks": "prune-legacy-build-cycle-tabtargets",
               "jjgtn_basis": "0538e1d"
+            }
+          ]
+        },
+        "₢BiAAZ": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260624-0127",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "Diagnostic: find why a successfully cloud-built image cannot be summoned.",
+                "Likely retriever-mantle / registry / credential, not a build defect.",
+                "",
+                "## Goal",
+                "The dogfight suite (cloud-build viability probe: ordain -> summon -> run on busybox) fails at the summon step (exit 1) after a successful cloud ordain.",
+                "Diagnose and fix so dogfight passes end-to-end — it is the cloud-pipeline smoke test.",
+                "",
+                "## Starting points",
+                "Re-run tt/rbw-ts.TestSuite.dogfight.sh and read its trace dir (rbtd/rbtdrd_build_run_lifecycle and burv-output) for the summon stderr — the suite verdict only reports \"summon failed (exit 1)\".",
+                "Summon path: rbw-fs (RetrieverSummonsHallmark / rbfr_summon), which uses the retriever-mantle federation.",
+                "Director access works (ordain via rbw-fO succeeded on the levied freehold depot), so the retriever leg is the suspect.",
+                "The operator can authenticate gcloud via the client_secret under ../station-files/secrets/client_secrets/ if a credential refresh is the fix.",
+                "",
+                "## Done when",
+                "- dogfight passes ordain -> summon -> run -> abjure green.",
+                "- Root cause recorded (credential / registry / code)."
+              ],
+              "jjgtn_silks": "debug-cloud-build-summon",
+              "jjgtn_basis": "3f9da46"
             }
           ]
         }
