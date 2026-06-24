@@ -18305,8 +18305,8 @@
         "₢BhAAR": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260623-1403",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260624-1232",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "## Character",
                 "A focused diagnostic plus a recorded finding — empirical and low-stakes; the design decision it informs is deferred, not taken here.",
@@ -18332,7 +18332,7 @@
                 "- The heartbeat-consolidation hypothesis — one periodic tick servicing viewer readiness and a future resource monitor — is captured alongside the verdict, framed as informed-but-deferred."
               ],
               "jjgtn_silks": "viewer-port-latency-probe",
-              "jjgtn_basis": "c4947cd"
+              "jjgtn_basis": "31493fc"
             }
           ]
         },
