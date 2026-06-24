@@ -16822,26 +16822,35 @@
         "₢BfAAF": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260624-1156",
+              "jjgtn_ts": "260624-1322",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "## Build the terrier's permanent founding-home — a single idempotent \"post-payor-guide manor-setup finisher\" that ensures the terrier bucket + per-polity folders, retiring the interim scaffold.",
                 "",
-                "The terminal Fable review resolved the founding-home to OPTION B: the Manor provisions the terrier (affiance touches it nowhere — the bucket name is foedus-independent, its IAM binds the depot-born governor mantle SA, not a foedus principal). Operator cinched the shape: ONE idempotent tabtarget, run after the manual manor setup (console project + OAuth), finishing all scriptable manor-setup steps including the terrier-bucket-ensure.",
+                "The terminal Fable review resolved the founding-home to OPTION B: the Manor provisions the terrier (affiance touches it nowhere — the bucket name is foedus-independent, its IAM binds the depot-born governor mantle SA, not a foedus principal).",
+                "Operator cinched the shape: ONE idempotent tabtarget, run after the manual manor setup (console project + OAuth), finishing all scriptable manor-setup steps including the terrier-bucket-ensure.",
                 "",
-                "Full reasoning + grain: the review ledger (chunk 3) and Memos/memo-20260622-fable-review-queue.md (terrier-fork-b-resolution, terrier-b-shape-finisher). As-built to fold in + retire: the rbw-dt / rbw-dT scaffold, plus the two theurge fixtures (terrier-scaffold, terrier-atomicity) in the picket/echelon suites.",
+                "Full reasoning + grain: the review ledger (chunk 3) and Memos/memo-20260622-fable-review-queue.md (terrier-fork-b-resolution, terrier-b-shape-finisher).",
+                "As-built to fold in + retire: the rbw-dt / rbw-dT scaffold, plus the two theurge fixtures (terrier-scaffold, terrier-atomicity) in the picket/echelon suites.",
+                "",
+                "## Spec-sync (surfaced by the heat-integrity audit — the operation has no spec home today)",
+                "Contract-first: mint a NEW operation subdoc for the finisher in the operation-subdoc family (provisional acronym minted in-heat), authored before the code (operator decision 260624).",
+                "Drop the tentative spec_targets RBSTR and RBSMF — both wrong: RBSTR is terrier-ACCESS-verbs only by its own scope boundary (it references the terrier noun, never provisions it); RBSMF is depot-grain while the terrier bucket is manor-grain.",
+                "Update the RBS0-SpecTop terrier cross-project line that today says the terrier is \"provisioned by an interim scaffold, never folded into a founding ceremony in this heat\" — the finisher makes that false the moment it lands; replace it with the finisher founding-home.",
                 "",
                 "## Done when",
-                "A standing manor-setup-finisher tabtarget idempotently ensures the terrier bucket (payor-project-grain) + per-polity managed folders (depot-grain) + the grain IAM (write folder-scoped own-polity, read bucket-level manor-wide); the interim scaffold and its two fixtures are retired or migrated onto it; the gauntlet ladder stays green (it carries no terrier fixture).",
+                "A standing manor-setup-finisher tabtarget idempotently ensures the terrier bucket (payor-project-grain) + per-polity managed folders (depot-grain) + the grain IAM (write folder-scoped own-polity, read bucket-level manor-wide); the new operation subdoc exists and the RBS0-SpecTop terrier line is corrected; the interim scaffold and its two fixtures are retired or migrated onto it; the gauntlet ladder stays green (it carries no terrier fixture).",
                 "",
                 "## Cinched",
-                "Founding-home = Option B (Manor, not affiance); the finisher is a dedicated standing op run after the manual manor setup. One terrier per Manor (per-foedus cardinality is Fable-gated, out of scope here).",
+                "Founding-home = Option B (Manor, not affiance); the finisher is a dedicated standing op run after the manual manor setup.",
+                "One terrier per Manor (per-foedus cardinality is Fable-gated, out of scope here).",
+                "Spec home = a NEW operation subdoc (operator decision 260624), contract-first, not RBSTR/RBSMF.",
                 "",
                 "## Character",
                 "Implementation over a settled design; the B-variant (standing op vs manor-establish enlargement) and the folder-step credential boundary (folder lives in the payor-project bucket) are the in-pace judgment calls."
               ],
               "jjgtn_silks": "terrier-founding-home-finisher",
-              "jjgtn_basis": "6411253"
+              "jjgtn_basis": "b41e86b"
             }
           ]
         },
@@ -17075,7 +17084,7 @@
         "₢BfAAN": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260623-0903",
+              "jjgtn_ts": "260624-1322",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "Work out the un-understood Keycloak-side RFC 7523 JWT-authorization-grant setup, and bake the durable realm so configure_realm evaporates.",
@@ -17086,23 +17095,24 @@
                 "Source: fdkyclk-proof.sh (configure_realm + mint_idtoken) is the live-applied form being de-laminated into baked DATA; the vessel Dockerfile already loads it via --import-realm; the paddock de-lamination section is the model.",
                 "",
                 "## Done when",
-                "The fdkyclk vessel boots a fully-configured realm via --import-realm with no runtime admin-REST, and mints an id_token via the RFC 7523 grant.",
+                "The fdkyclk vessel boots a fully-configured realm via --import-realm with no runtime admin-REST, mints an id_token via the RFC 7523 grant, and uses the STABLE signing key (no per-charge regeneration).",
                 "",
                 "## Cinched",
-                "No committed signing secret: the realm signing key stays generated-fresh-on-import, so the public JWKS rotates per charge and the orchestrator re-syncs it each establish.",
+                "The realm signing key is STABLE, not generated-fresh-on-import (operator decision 260623, reversing the earlier rotate-per-charge model): the private half is the never-committed station estate secret (committed nowhere), the public half is the committed JWKS reference.",
+                "No per-charge JWKS rotation and NO orchestrator re-sync arm — affiance uploads the committed public JWKS once and it never drifts.",
                 "",
                 "## Character",
                 "Investigation (RFC 7523 on Keycloak) plus mechanical realm-JSON authoring."
               ],
               "jjgtn_silks": "rfc7523-grant-and-baked-realm",
-              "jjgtn_basis": "879cce7"
+              "jjgtn_basis": "b41e86b"
             }
           ]
         },
         "₢BfAAO": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260623-2218",
+              "jjgtn_ts": "260624-1322",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "Recast the federation specs to the vendor-agnostic-core-plus-mechanism-gate shape, contract-first, before any build code — and add the foedus-selection regime support the switch design leans on.",
@@ -17110,21 +17120,29 @@
                 "Evolve RBSRF (RBSRF-RegimeFederation.adoc) and RBSMA (RBSMA-manor_affiance.adoc) so the regime is a vendor-agnostic trust core plus an acquisition-mechanism gate (interactive vs programmatic), and stand up the two new RBS0 subdoc contracts the model calls for.",
                 "Mint the mechanism-discriminator quoin, its value words, and the two subdoc acronyms in-heat, applying the selection gates by hand (grep, no trodden words, terminal-exclusivity, family coherence) — the heat lifted the Fable gate for its build vocabulary.",
                 "",
-                "Add the foedus-SELECTION regime support: the single-active-foedus topology needs the regime to hold two (or more) foedus configs plus a selector naming the active one. This is the regime shape the switch toothing re-points; its SUPPORT lives here in the recast, while the switch's behaviour lives in the foedus-reuse design pace. Settled selector-home (operator decision 260623).",
+                "Add the foedus-SELECTION regime support: the single-active-foedus topology needs the regime to hold two (or more) foedus configs plus a selector naming the active one.",
+                "This is the regime shape the switch toothing re-points; its SUPPORT lives here in the recast, while the switch's behaviour lives in the foedus-reuse design pace.",
+                "Settled selector-home (operator decision 260623).",
                 "",
-                "Source: the config-model memo (Memos/memo-20260618-Bf-federation-config-model.md) for the subdoc plan; the paddock foedus-lifecycle strand for the selection topology.",
+                "## Additional spec sites (surfaced by the heat-integrity audit — outside the original RBSRF/RBSMA scope but belonging to this spec-first pace)",
+                "Seat the foedus civic quoin in RBS0 — the configured-federation noun the whole model leans on, in the rbtf_ federation-civics category, with a fair-faced first-contact gloss for the cold-probe; it is homed in no spec today.",
+                "Make the human-present premise and the three governor/director/retriever authenticate patterns in RBS0-SpecTop mechanism-conditional: the interactive arm keeps the human-avow / TTY / fails-loud rule, the programmatic arm voids it — so the programmatic accessor has a contract to build against (config-model memo).",
+                "Assess RBSMA's sibling RBSMJ (manor_jilt) for a mechanism arm: jilt carries interactive behaviour and is the orchestrator's teardown, so the interactive/programmatic split likely reaches it; sync it or record why it stays mechanism-blind.",
+                "",
+                "Source: the config-model memo (Memos/memo-20260618-Bf-federation-config-model.md) for the subdoc plan and the per-spec must-contain reference; the paddock foedus-lifecycle strand for the selection topology.",
                 "",
                 "## Done when",
-                "The two specs voice the core-plus-mechanism-gate model, the two subdoc contracts exist, the regime carries the multi-config + selector shape the switch re-points, and the minted vocabulary clears the gates.",
+                "The two specs voice the core-plus-mechanism-gate model, the two subdoc contracts exist, the regime carries the multi-config + selector shape the switch re-points, the minted vocabulary clears the gates, the foedus quoin is seated, the human-present premise and the three authenticate patterns are mechanism-conditional, and jilt's mechanism-arm need is settled.",
                 "",
                 "## Cinched",
-                "Contract before code (project doctrine): a hard predecessor of every build pace below — no establishment, accessor, orchestrator, or foedus-toothing code starts before the specs are recast. Selector regime-SUPPORT lives here; switch behaviour lives in the foedus-reuse design.",
+                "Contract before code (project doctrine): a hard predecessor of every build pace below — no establishment, accessor, orchestrator, or foedus-toothing code starts before the specs are recast.",
+                "Selector regime-SUPPORT lives here; switch behaviour lives in the foedus-reuse design.",
                 "",
                 "## Character",
                 "Spec authoring plus in-heat mint; judgment-heavy, reads the config-model memo first."
               ],
               "jjgtn_silks": "federation-spec-first-recast",
-              "jjgtn_basis": "effe429"
+              "jjgtn_basis": "b41e86b"
             }
           ]
         },
@@ -17322,13 +17340,13 @@
         "₢BfAAW": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260623-2135",
+              "jjgtn_ts": "260624-1322",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "Hoist rbtdro_ordain_capture (single + three-fact), the invoke-or-fail wrapper, and the GAR-locator builders out of rbtdro_onboarding into a shared home (rbtdri_invocation is the natural fit), then route the open-coded copies in dogfight and the crucible bodies through them.",
                 "",
                 "## Done when",
-                "No crucible/dogfight body open-codes the ordain+fact-read or invoke-error shape; service and dogfight suites green.",
+                "No crucible/dogfight body open-codes the ordain+fact-read or invoke-error shape; picket and dogfight suites green.",
                 "",
                 "## Cinched",
                 "The TWO GAR-locator shapes (category-rooted wrest_locator vs fact-rooted image_ref) must NOT merge — keep two builders or none. Detail: the audit memo's pace-slate.",
@@ -17337,7 +17355,7 @@
                 "Coverage-neutral lift; the helpers are already proven in onboarding."
               ],
               "jjgtn_silks": "ordain-capture-helpers-to-shared-home",
-              "jjgtn_basis": "ed7d151"
+              "jjgtn_basis": "b41e86b"
             }
           ]
         },
