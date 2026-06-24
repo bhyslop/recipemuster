@@ -47,4 +47,39 @@ existing work.
 
 ## Entries
 
-*(none yet — drained as paces complete and terminal grooms judge)*
+### Suite-naming sweep — DONE (drained 2026-06-24)
+
+The theurge test suites were renamed onto one military / conflict asterism, the rename landing 2026-06-24 across every suite-name home.
+This is dispositioned provenance: the work is built, the deliberation spent, and the result lives in the suite tabtargets, the RBTDRC_SUITES table, the CLAUDE.md suite tables, and the CLI / onboarding text.
+
+The forced rename: crucible → bivouac.
+The old suite word collided with the production crucible runtime noun — the charged sentry + pentacle + bottle — a one-meaning-per-word violation under the lapidary gate, so the dependency-tier suite could not keep it; bivouac (a temporary military encampment) carries the same transient-staging sense without the collision.
+
+The coherence renames, elected for asterism fit rather than forced: fast → reveille, service → picket, complete → echelon.
+The keepers — gauntlet, skirmish, dogfight, siege, blockade — were already in-asterism and unchanged.
+
+The sweep was full, not surface-deep: the operator chose to carry the rename past the suite names themselves into the whole fast-tier → reveille-tier dependency-tier vocabulary, including the ashlar credless-guard error strings and the BUS0 / RBSLE specs.
+Every home a tier word appeared in moved together, so no stale tier name survives to mislead.
+
+Not drained — the parley reservation stays live.
+parley names the federation authentic-verb suite, whose green target is not yet built; it is a reserved suite word held in the federation stream's paddock as remaining work, not a landed rename, and was deliberately left there rather than drained here.
+
+### Fable adjudicator gate lifted — in-heat minting (superseded, drained 2026-06-24)
+
+The heat once waited on a Fable terminal-review pass to adjudicate its vocabulary — the asterism words, the foedus noun, the mechanism-discriminator and the foedus-accessor remints.
+Operator decision 260623: Fable will not be available in time, so the heat mints all its vocabulary in-heat, applying the selection gates by hand (grep gate, no trodden words, terminal-exclusivity, family coherence), the operator the sole authority.
+The remints kept their own shape — a fair-faced word plus a tree-wide eviction sweep — but no longer waited on Fable; they became ordinary in-heat work the operator schedules.
+This released the ₣BZ-lineage Fable gating the charter once carried.
+
+### Vocabulary-remint dingleberry doctrine (spent, drained 2026-06-24)
+
+While remints were pending, the rule was: a word flagged for remint retires by a tree-wide grep eviction sweep, run only after ₣BZ and its narrative settle, so every site is present to be swept.
+Using the current canonical word meanwhile was therefore never a dingleberry — only a non-canonical paraphrase escapes the grep — so demolition and narrative work used the canonical word and never coined a variant.
+With the live remints (avow / sitting / quash) elected and swept tree-wide 260624, the doctrine is spent.
+
+### Theurge-test-consolidation audit dispositions (drained 2026-06-24 — content relocated, not memo-homed)
+
+The theurge-test-consolidation audit's dispositions — the substrate / combinator-lift, the crucible-module hotspot shape, the chaining-fact-band restore with its reveille-base guard, and the suite asterism framing — were not memo-homed.
+The cross-heat split rewrote them into the charter of the theurge-refactor stream (firemark ₣Bl), where the theurge work now lives; this entry records only that they left the federation paddock.
+The federation-lifecycle remainder (the foedus-reuse switch selection-mechanism park, the affiance-centric reuse-leg reframe) stayed in the federation paddock.
+The full how-we-got-there record is the cross-heat split-study provenance memo (memo-20260624-Bf-split-study.md).
