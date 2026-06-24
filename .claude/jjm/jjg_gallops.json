@@ -17634,16 +17634,17 @@
         "₢BfAAi": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260623-2241",
+              "jjgtn_ts": "260624-1344",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "Drain the dispositioned deliberation from the ₣Bf paddock to the heat-memories memo and refocus the paddock on remaining work — the first use of the drain practice.",
                 "",
                 "## Spec of needed change",
                 "Per the paddock's drain direction and Memos/memo-20260623-Bf-heat-memories.md: move the DISPOSITIONED material out to the memo — the ₣BZ lineage and its now-released gating, the dingleberry doctrine (its gate released by treating ₣BZ complete), and any built-or-declined idea — de-staling (not draining) the references that now resolve to existing work. Leave the paddock the shape of remaining work only.",
+                "Explicit de-stale targets (surfaced by the heat-integrity audit): the retired verbs compear/assize still in idea bodies (→ avow/sitting), and the superseded colophon earmark rbw-xkX in the Conviction section (→ the live rbw-qjK) — de-stale these specific tokens, not only generic references.",
                 "",
                 "## Done when",
-                "The dispositioned material lives in the memories memo as provenance; the paddock holds only live, remaining-work shape; stale ₣BZ-gating and dingleberry references are gone or de-staled; deferred-but-live ideas remain in the paddock.",
+                "The dispositioned material lives in the memories memo as provenance; the paddock holds only live, remaining-work shape; stale ₣BZ-gating and dingleberry references are gone or de-staled; the named stale tokens (compear/assize, rbw-xkX) are de-staled; deferred-but-live ideas remain in the paddock.",
                 "",
                 "## Cinched",
                 "Drain only DISPOSITIONED ideas (built / declined / superseded), never deferred-but-live ones. Runs after the renames (which sweep the paddock) and after the integrity audit (whose coverage-mapping informs what is truly dispositioned).",
@@ -17652,7 +17653,7 @@
                 "Paddock hygiene — the experimental drain practice's first run; judgment on what is dispositioned versus still-live."
               ],
               "jjgtn_silks": "paddock-refocus-and-drain",
-              "jjgtn_basis": "724072e"
+              "jjgtn_basis": "5c92e29"
             }
           ]
         },
