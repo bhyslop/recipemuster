@@ -18433,6 +18433,7 @@
         "₢BiAAD",
         "₢BiAAY",
         "₢BiAAZ",
+        "₢BiAAd",
         "₢BiAAc",
         "₢BiAAb",
         "₢BiAAF",
@@ -18445,7 +18446,7 @@
         "₢BiAAW",
         "₢BiAAa"
       ],
-      "jjghn_next_pace_seed": "AAd",
+      "jjghn_next_pace_seed": "AAe",
       "jjghn_paces": {
         "₢BiAAA": {
           "jjgpn_tacks": [
@@ -19565,6 +19566,39 @@
               ],
               "jjgtn_silks": "rbs0-chaining-style-quoins",
               "jjgtn_basis": "2d04fed"
+            }
+          ]
+        },
+        "₢BiAAd": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260624-1338",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "Small code pace mirroring the read-side band conversion on the last write-side holdout. Mechanical.",
+                "",
+                "## Why",
+                "After the read-side reversal, anoint is the only chaining consumer — read or write — still on buc_die, not the named band.",
+                "It is a durable-leak writer (rewrites RBRV_GRAFT_IMAGE), so the named-band-reject discipline should cover it; the buc_die is a gap, not a decision.",
+                "",
+                "## Scope",
+                "- Convert anoint's three broken-chain buc_die (hallmark, gar_root, ark_stem in rbfla_anoint.sh) to buc_reject BUBC_band_chain (105), matching feoff/yoke.",
+                "- Keep anoint chain-only — no express override (deliberate: it pulls the just-built facts forward, three facts, an override would be awkward).",
+                "- Add a reveille case in rbtdrh_chain.rs: drive anoint folio-less against an empty BURV root, assert exit 105.",
+                "  anoint resolves a graft vessel BEFORE the fact reads, so the case must stage a graft-mode vessel (RBRV_VESSEL_MODE=rbnve_graft) — adapt rbtdrh_drive_feoff, which already stages a vessel.",
+                "- Update anoint's comment if it claims loud-die.",
+                "",
+                "## Done when",
+                "- anoint's broken-chain rejects with band 105; feoff/yoke/anoint are uniform on the band.",
+                "- A reveille case asserts it by exit code; chaining-fact-band green.",
+                "",
+                "## Cinched",
+                "- Express override stays feoff/yoke-only by design; anoint is chain-only.",
+                "- Coding errors stay flushed-out statically, never named runtime bands."
+              ],
+              "jjgtn_silks": "anoint-band-conformance",
+              "jjgtn_basis": "024ff7f"
             }
           ]
         }
