@@ -35,13 +35,13 @@ echo "nameserver ${RBRN_ENCLAVE_SENTRY_IP}" > /etc/resolv.conf || exit 10
 echo "RBJP: Discovering enclave interface (single non-loopback interface expected)"
 z_temp_file="/tmp/rbjp_iface_discovery.txt"
 ip -o -4 addr show scope global > "${z_temp_file}" || exit 11
-read z_num RBJP_ENCLAVE_IF z_rest < "${z_temp_file}"
+read -r z_num RBJP_ENCLAVE_IF z_rest < "${z_temp_file}"
 rm -f "${z_temp_file}"
 test -n "${RBJP_ENCLAVE_IF}" || { echo "RBJP: FATAL - No enclave interface found"; exit 11; }
 echo "RBJP: Enclave interface = ${RBJP_ENCLAVE_IF}"
 
 echo "RBJP: Flushing ARP entries"
-ip link set ${RBJP_ENCLAVE_IF} down && ip link set ${RBJP_ENCLAVE_IF} up && ip -s -s neigh flush all || exit 20
+ip link set "${RBJP_ENCLAVE_IF}" down && ip link set "${RBJP_ENCLAVE_IF}" up && ip -s -s neigh flush all || exit 20
 
 echo "RBJP: Setting default route through sentry"
 ip route add default via "${RBRN_ENCLAVE_SENTRY_IP}" || exit 30
