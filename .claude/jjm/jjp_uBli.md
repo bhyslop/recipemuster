@@ -7,29 +7,26 @@ As the project approaches MVP the remaining issues trend small and self-containe
 this heat is their shared home,
 with no pretense of a single goal beyond settling them before release.
 
-Two loose bands, ordered robustness ahead of hygiene:
+What remains after the partition is a spec-and-cleanup remainder,
+the lighter robustness band having departed with the federation re-derivations it belonged to.
+One coherent sub-initiative anchors the rest:
+the chained-fact / durable-leak consolidation —
+the two coarse durable-leak quoins minted into the spec top,
+and the unified nameplate-hallmark drive-link that cites them onto the durable-leak surface.
+Around it sit four genuinely independent cleanups —
+a conjure-provenance design-only pass,
+a mechanical two-reference Cloud Build spec repair,
+a network-diagnostic (scry) repair,
+a build-bucket-vestige scrub of the GCS bucket superseded by pouch-context delivery,
+and a clean-tree-rationale gate parameter that gives each gate call site a locale-specific reason while BUG stays kit-agnostic.
 
-- Robustness that smooths a clean release run —
-  a credential-flap tolerance,
-  an OAuth terminal-failure fail-fast,
-  and a build-poll queue/execution clock split.
-- Hygiene and cleanup —
-  a dormant station regime relocated off the MVP surface,
-  a shellcheck-coverage widening past the `Tools/` root,
-  two stale Cloud Build spec references,
-  a network-diagnostic tool repair,
-  and a superseded build-bucket scrub.
-
-Paces stand alone;
-order is loose priority, not a dependency chain.
-The two lowest-value tail paces (the network-diagnostic repair and the stale spec references)
-are itch-candidates if the heat needs thinning rather than finishing.
-
-## Coupling to watch
-
-The credential-flap tolerance and the OAuth fail-fast both touch `rbgo_get_token_capture`;
-the fail-fast pace's own docket asks whether it is the same landing as the flap-tolerance touchpoint,
-so mount those two adjacent or fold them together.
+The consolidation sub-initiative is not loose:
+its two spec paces author the discipline laid out below,
+and they share a citation order — the coarse quoins mint strictly before the drive-link cites them.
+The four cleanups stand alone;
+their order is loose priority, not a dependency chain.
+The conjure-provenance pass is design-only and the lightest tail —
+if the heat needs thinning rather than finishing, that is the pace to lift to an itch, not the scry or spec-repair work, which are genuine MVP cleanup that should land.
 
 ## Chaining-fact discipline — the shape the cluster cinched
 
@@ -57,10 +54,12 @@ Second, coverage: the reveille net is named-band exit-code cases (folio-less dri
 The furnish gap needs the static case because a command-not-found exits the SAME band 105 as a real broken chain, so a runtime exit-code case cannot distinguish it; an end-to-end cloud fixture (dogfight) proves the pull against real artifacts.
 A coding error like the furnish gap is flushed out statically and NEVER given a named runtime band — naming command-not-found (127) would mix tiers, dressing a defect as a deliberate rejection.
 
-Verification of this discipline is homed under theurge — it drives the real verbs through the full tabtarget exec path and asserts the named chain-rejection band, regime-poison the type specimen.
-The band now fires at both the durable-leak LINKS (feoff/yoke via buc_reject) and the read consumers (summon/plumb/augur), all RBK; the BUK footing resolver and decoder still return a bare 1.
+This heat owns the spec paces that author the band-citing prose — the coarse quoins and the drive-link that cite the discipline into the durable-leak surface.
+Verification of the discipline, however, now lives in a sibling stream: it is theurge-homed — the theurge crate drives the real verbs through the full tabtarget exec path and asserts the named chain-rejection band, regime-poison the type specimen — and the theurge crate relocated out of this heat into the theurge-refactor stream.
+That is a stream boundary, not an in-heat one: the spec work here and the band-asserting fixtures there must stay consistent on the band matrix, but they sit in different clones.
+The band fires at both the durable-leak LINKS (feoff/yoke via buc_reject) and the read consumers (summon/plumb/augur), all RBK; the BUK footing resolver and decoder still return a bare 1.
 It is deliberately NOT homed in the BUK bash self-test: the band fires only at the RBK consumer, and the self-test sources no RBK — so it can prove the footing primitives' return-1 shape but never the band itself.
-The footing primitives keep their existing BUK self-test cases; the band, wrong-kind, furnish-invariant, and fact-intact matrix is theurge's.
+The footing primitives keep their existing BUK self-test cases; the band, wrong-kind, furnish-invariant, and fact-intact matrix is the theurge stream's.
 
 ## Provenance
 
@@ -71,6 +70,11 @@ these paces were ordinary engineering that had collected under it, never release
 parked stabled as paddock-memory until release time —
 that work is not here and is not reopened by this heat.
 Both source heats keep the git history of any dropped dockets.
+
+A later cross-heat partition narrowed this heat further:
+the federation-MVP re-derivations that had collected here (the credential-flap tolerance, the OAuth terminal fail-fast, the build-poll clock split, and the payor-install next-step) restrung out into the federation-build stream, where they re-derive against the now-stable federation auth surface;
+the read-side named-band crucible case restrung out into the theurge-refactor stream alongside the theurge crate it asserts against.
+The heats those paces moved to keep the git history of their dockets.
 
 ## References
 
