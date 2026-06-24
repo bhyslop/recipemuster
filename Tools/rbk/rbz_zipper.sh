@@ -38,7 +38,7 @@ zrbz_kindle() {
   local z_mod="rbgv_cli.sh"
   buz_enroll RBZ_CHECK_PAYOR             "rbw-acp" "${z_mod}" "rbgv_check_payor"           ""        "Check the payor credential reaches Google Cloud (OAuth access probe)"
   buz_enroll RBZ_CHECK_COMPEARANCE       "rbw-acf" "${z_mod}" "rbgv_check_compearance"     ""        "Check federated access — open or reuse an assize via device flow + STS (Legs 1+2) against the RBRF trust"
-  buz_enroll RBZ_CHECK_MANTLE            "rbw-acm" "${z_mod}" "rbgv_check_mantle"          "param1"  "Don a mantle as the freehold subject — compear then don the named mantle (governor|director|retriever), or surface the admission deficit"
+  buz_enroll RBZ_CHECK_MANTLE            "rbw-acm" "${z_mod}" "rbgv_check_mantle"          "param1"  "Check mantle access as the freehold subject — compear, don the named mantle (governor|director|retriever), reach Artifact Registry, and write the attributed audit entry; or surface the access deficit"
 
   # Crucible — container runtime (rbw-c)
   buz_group RBZ__GROUP_CRUCIBLE   "rbw-c"   "Crucible — Container runtime"

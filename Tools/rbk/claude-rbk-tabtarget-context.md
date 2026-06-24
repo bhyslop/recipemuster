@@ -16,7 +16,7 @@ The Folio column shows how each tabtarget receives it:
 |----------|-------------|-------|---------|
 | `rbw-acp` | CheckPayorCredential | — | Check the payor credential reaches Google Cloud (OAuth access probe) |
 | `rbw-acf` | CheckFederatedAccess | — | Check federated access — open or reuse an assize via device flow + STS (Legs 1+2) against the RBRF trust |
-| `rbw-acm` | CheckMantleDon | param1 | Don a mantle as the freehold subject — compear then don the named mantle (governor|director|retriever), or surface the admission deficit |
+| `rbw-acm` | CheckMantleAccess | param1 | Check mantle access as the freehold subject — compear, don the named mantle (governor|director|retriever), reach Artifact Registry, and write the attributed audit entry; or surface the access deficit |
 
 ### Crucible — Container runtime (`rbw-c`)
 

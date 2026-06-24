@@ -91,7 +91,7 @@ rbgv_check_mantle() {
   # as a positional. Documented in zrbgv_furnish's buc_doc_env block.
   local -r z_mantle="${BUZ_FOLIO:-}"
 
-  buc_doc_brief "Don a mantle as the freehold subject — compear, then don the named mantle (or surface the admission deficit)"
+  buc_doc_brief "Check mantle access as the freehold subject — compear, don the named mantle, reach Artifact Registry, and write the attributed audit entry (or surface the access deficit)"
   buc_doc_shown || return 0
 
   case "${z_mantle}" in
@@ -99,7 +99,7 @@ rbgv_check_mantle() {
     *) buc_die "rbgv_check_mantle: mantle parameter required (governor | director | retriever), got '${z_mantle:-<empty>}'" ;;
   esac
 
-  buc_step "Don-mantle probe — ${z_mantle} mantle as the freehold subject"
+  buc_step "Mantle-access probe — ${z_mantle} mantle as the freehold subject"
 
   buc_step "Resolve the freehold subject"
   test -n "${RBPC_freehold_subject:-}" || buc_die "RBPC_freehold_subject is not set — rbpc_constants.sh must be sourced"

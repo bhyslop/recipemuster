@@ -357,7 +357,7 @@ No operation runs outside a live [Assize](#Assize); when one lapses the next tok
 
 <a id="Don"></a>**[Don](#Don)** — Assume a [Mantle](#Mantle).
 Having [Compeared](#Compear), an operator dons a named mantle to mint the short-lived service-account token that operation needs; exactly one mantle is worn per token.
-[Check Mantle Don](#CheckMantleDon) reports whether a given mantle can be donned, or surfaces the admission deficit.
+[Check Mantle Access](#CheckMantleAccess) reports whether a given mantle reaches Artifact Registry, or surfaces the access deficit.
 
 <a id="Affiance"></a>**[Affiance](#Affiance)** — Betroth the [Manor](#Manor) to an external identity provider — seat the organization-level workforce pool, its provider, and the attribute mapping that names trusted principals.
 A [Payor](#Payor) ceremony with founding gravity, run once per provider; it is the trust every federated sign-in depends on.
@@ -475,8 +475,8 @@ Shows project IDs, regions, and provisioning status.
 <a id="CheckFederatedAccess"></a>**[Check Federated Access](#CheckFederatedAccess)** — Open or reuse an [Assize](#Assize) and confirm the federated sign-in reaches Google.
 Runs the device-flow [Compearance](#Compear) and STS exchange against the [Manor's](#Manor) trust — the first thing to run when sign-in is failing.
 
-<a id="CheckMantleDon"></a>**[Check Mantle Don](#CheckMantleDon)** — [Don](#Don) a named [Mantle](#Mantle) as the current [Citizen](#Citizen).
-Confirms the [Citizen](#Citizen) can assume the [Governor](#Governor), [Director](#Director), or [Retriever](#Retriever) mantle in the [Depot](#Depot), or surfaces the admission deficit — useful for diagnosing access failures after a [Brevet](#Brevet).
+<a id="CheckMantleAccess"></a>**[Check Mantle Access](#CheckMantleAccess)** — Confirm a [Citizen](#Citizen) can reach Artifact Registry under a named [Mantle](#Mantle).
+[Dons](#Don) the [Governor](#Governor), [Director](#Director), or [Retriever](#Retriever) mantle in the [Depot](#Depot), exercises the minted token against Artifact Registry, and writes the attributed audit entry — or surfaces the access deficit; useful for diagnosing access failures after a [Brevet](#Brevet).
 
 <a id="OAuthProbe"></a>**[OAuth Probe](#OAuthProbe)** — Test [Payor](#Payor) OAuth authentication.
 The [OAuth Probe](#OAuthProbe) verifies that the stored refresh token can obtain a valid access token — useful for diagnosing [Payor](#Payor) operation failures before attempting a full [Refresh](#Refresh).
