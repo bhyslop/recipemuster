@@ -75,6 +75,8 @@ When working with .adoc files using MCM patterns:
 
 ### Rust Build Discipline
 
+**Always notch before you test.** Commit (notch) every pending change before running any test — `vow-t`, `rbw-tt`, a suite (`rbw-ts.*`), or a fixture/case (`rbw-tf`/`rbw-tc`) — so each result maps to a committed (if not yet pushed) commit, and the interim notches stand as the durable record of what passed or failed. Never run tests against a dirty tree; if `git status` isn't clean, notch first.
+
 Two Rust build targets. Always use the tabtarget, never raw cargo commands.
 
 **VOW pipeline** (vvk/jjk/cmk kits — parceled for delivery):
