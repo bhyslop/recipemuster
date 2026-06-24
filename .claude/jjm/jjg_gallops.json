@@ -18433,6 +18433,7 @@
         "₢BiAAD",
         "₢BiAAY",
         "₢BiAAZ",
+        "₢BiAAb",
         "₢BiAAF",
         "₢BiAAB",
         "₢BiAAG",
@@ -18443,7 +18444,7 @@
         "₢BiAAW",
         "₢BiAAa"
       ],
-      "jjghn_next_pace_seed": "AAb",
+      "jjghn_next_pace_seed": "AAc",
       "jjghn_paces": {
         "₢BiAAA": {
           "jjgpn_tacks": [
@@ -19488,6 +19489,42 @@
               ],
               "jjgtn_silks": "nameplate-hallmark-drive-chain-link",
               "jjgtn_basis": "4fa80f3"
+            }
+          ]
+        },
+        "₢BiAAb": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260624-1242",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "Mechanical extension of the read-side named-band discipline to a second failure class, woven into existing cloud fixtures.",
+                "",
+                "The read verbs (summon/plumb/augur) reject a second user-controlled cause beyond the local chaining resolve: the user names an artifact that is absent or in the wrong state in the registry — knowable only after a round-trip.",
+                "These die generic (buc_die) today.",
+                "",
+                "## Discovery",
+                "grep buc_die across rbfr_retriever.sh, rbfcp_plumb.sh, rbldl_lifecycle.sh.",
+                "The Class-2 sites are the absent / wrong-state ones — hallmark absent (summon; plumb vessel-resolve), Lode absent and Lode-unvouched (augur) — distinct from the local chaining resolve and the infra dies (auth / network / integrity), which stay buc_die.",
+                "",
+                "## Coverage — deft insertion, no new fixtures",
+                "The cloud lifecycle fixtures already stand up the artifacts; add negatives at their natural absent moments — summon/plumb a hallmark before ordain or after abjure (hallmark-lifecycle / dogfight), augur a touchmark after banish (lode-lifecycle).",
+                "",
+                "## Done when",
+                "- Each Class-2 user-controlled failure rejects with a named band.",
+                "- A negative case asserting that band by exit code rides an existing cloud fixture — no new fixture stood up.",
+                "- The infra dies are left as buc_die.",
+                "",
+                "## Mount-time decisions",
+                "- Band: not a chaining failure, so likely a new absent-artifact band, not a reuse of the chaining band.",
+                "- Whether augur's unvouched-Lode case earns a band or stays buc_die (it blends user cause with capture integrity).",
+                "",
+                "## Cinched",
+                "Tests assert the named exit code, never output text. Coding errors stay flushed-out statically, never named runtime bands."
+              ],
+              "jjgtn_silks": "read-existence-failure-bands",
+              "jjgtn_basis": "aaaa63a"
             }
           ]
         }
