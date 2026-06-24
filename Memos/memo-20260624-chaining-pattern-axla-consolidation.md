@@ -108,6 +108,26 @@ monosemy collision (the JJS0 `rd` failure). The new motif needs its own word —
 mint into the `axvc_` asterism's register (ecclesiastical/diplomatic), grep gate
 clean.
 
+## Coupled pace — a fourth durable-leak member is incoming (₢BiAAa, ₣Bi)
+
+₣Bi pace **₢BiAAa** (nameplate-hallmark-drive-chain-link) is settled to add a
+**fourth durable-leak link**: the drive that writes a freshly-built hallmark into a
+nameplate's `RBRN_*_HALLMARK`. Today that durable write is three ad-hoc copies —
+bash `zrbob_drive_hallmark` fused into the local kludge wrappers, a Rust
+reimplementation (`rbtdro_drive_hallmark`) for onboarding, and a handbook
+hand-edit instruction — all outside the discipline. ₢BiAAa brings it onto the
+durable-leak surface with the same no-relay / named-band-reject / commit-boundary
+treatment feoff/anoint/yoke carry.
+
+Consequence for this consolidation: the durable-leak link is a **role whose
+membership is about to grow from three to four**, and its members span two regime
+families — feoff/anoint/yoke write `RBRV_*` (vessel); the new drive writes
+`RBRN_*` (nameplate). Consolidate the role's *nature*, not a fixed roster of three
+`RBRV_*`-writing verbs: any enumeration or "only three verbs / writes one durable
+config field" wording must generalize so the fourth member slots in without
+re-opening the motif. The two paces are order-independent; whichever lands second
+reconciles against the other.
+
 ## Mandate (for the pace)
 
 Treat the model above as a proposal that recurred enough to be worth getting
