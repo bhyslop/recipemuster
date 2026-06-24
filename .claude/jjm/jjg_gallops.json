@@ -19407,8 +19407,8 @@
         "₢BiAAZ": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260624-1206",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260624-1339",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "## Character",
                 "Diagnosis complete this session; remaining work is mechanical fix + audit + a reveille-tier guard.",
@@ -19443,7 +19443,7 @@
                 "- Root cause recorded where the fix lives."
               ],
               "jjgtn_silks": "read-side-chaining-furnish-coverage",
-              "jjgtn_basis": "1e9d6bc"
+              "jjgtn_basis": "2166932"
             }
           ]
         },
