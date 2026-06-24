@@ -16570,6 +16570,7 @@
         "₢BfAAR",
         "₢BfAAT",
         "₢BfAAZ",
+        "₢BfAAf",
         "₢BfAAe",
         "₢BfAAQ",
         "₢BfAAU",
@@ -16598,7 +16599,7 @@
         "₢BfAAH",
         "₢BfAAP"
       ],
-      "jjghn_next_pace_seed": "AAf",
+      "jjghn_next_pace_seed": "AAg",
       "jjghn_paces": {
         "₢BfAAA": {
           "jjgpn_tacks": [
@@ -17427,6 +17428,28 @@
               ],
               "jjgtn_silks": "theurge-cosmology-subdoc-finalize",
               "jjgtn_basis": "dfeacc5"
+            }
+          ]
+        },
+        "₢BfAAf": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260623-2153",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Lift the implicit (inner-body × wrapper) encoding into a first-class combinator over the engine's setup/teardown hooks, factoring the shared stand-up/teardown spines into rbtdrk helpers parameterized by REUSE versus LIFECYCLE — building on the already-built substrate machinery, not rebuilding it. The audit core.",
+                "",
+                "## Done when",
+                "The nine hand-spelled suite fixture lists are expressible as wrapper(inner) compositions verified against the gauntlet membership matrix; both REUSE and LIFECYCLE semantics survive; gauntlet green.",
+                "",
+                "## Cinched",
+                "The teardown post-state assertion is STRUCTURALLY INVERTED between tear_down (fail-closed allowlist) and churn (fail-open denylist) — if folded at all, the polarity is an explicit predicate, never a boolean relaxation flag; the lower-risk path leaves the two assertions un-merged. Do NOT rebuild the substrate (rbtdrk_freehold/depot/lifecycle + gauntlet) — LIFT it. The fixture-to-verb seam is settled upstream by the foedus seam-and-pool-integrity design; the payor-gate fold precedes this (the terrier-scaffold consolidation rides here). Detail: the audit memo's pace-slate.",
+                "",
+                "## Character",
+                "Design conversation requiring operator judgment; opus; mount with the operator present."
+              ],
+              "jjgtn_silks": "freehold-wrapper-combinator-lift",
+              "jjgtn_basis": "60c1d0f"
             }
           ]
         }
