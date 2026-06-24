@@ -17947,7 +17947,7 @@
         "₢BiAAH": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260618-1359",
+              "jjgtn_ts": "260624-2246",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "Drafted from ₢BUAAB in ₣BU.",
@@ -17961,22 +17961,21 @@
                 "Candidate residue, if the verdict is retire:",
                 "the build-bucket creation and its one-day lifecycle rule at depot levy in `rbgp_payor.sh`;",
                 "Mason's `roles/storage.objectViewer` grant on that bucket at levy;",
-                "the stale director-enrobe spec line (RBSDK) granting the director `storage.objectCreator`/`objectViewer`, which the director capability code grants nowhere;",
                 "bucket-only constants in `rbgb_buckets.sh` / `rbgd_depot.sh` / `rbdc_derived.sh`.",
                 "",
                 "## Done when",
                 "Every reader and writer of the build bucket is enumerated from the live kit, yielding a verdict.",
-                "Either a live consumer is found — keep the bucket and correct the specs to match — or none is, in which case the bucket, its levy creation, Mason's grant, and the stale RBSDK line retire together with the suites green.",
-                "The adjacent capability-spec drift is dispositioned in the same sweep: RBSRK omits the `containeranalysis.occurrencesViewer` role the retriever capability code actually grants.",
+                "Either a live consumer is found — keep the bucket and correct the specs to match — or none is, in which case the bucket, its levy creation, and Mason's grant retire together with the suites green.",
                 "",
                 "## Cinched",
                 "Pouch is the build-context delivery mechanism; this pace does not reopen that decision.",
+                "No cult-spec drift to fix here: the RBSDK director-enrobe storage line and the RBSRK retriever occurrencesViewer drift this docket once carried are both moot — those specs were deleted in the 260619 cult-verb-estate demolition, and the live retriever occurrences grant is already correct in RBSDC (split-study Decision 3, memo-20260624-Bf-split-study).",
                 "",
                 "## Character",
                 "Investigation-first ACG simplification — a hidden live consumer is the one risk, so the study gates the cut; mechanical once the verdict is in."
               ],
               "jjgtn_silks": "build-bucket-vestige-scrub",
-              "jjgtn_basis": "5c4d1fc"
+              "jjgtn_basis": "ca0842c"
             }
           ]
         },
