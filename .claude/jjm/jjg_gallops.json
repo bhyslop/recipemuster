@@ -16566,6 +16566,7 @@
       "jjghn_creation_time": "260616",
       "jjghn_status": "jjghe_racing",
       "jjghn_order": [
+        "₢BfAAS",
         "₢BfAAR",
         "₢BfAAQ",
         "₢BfAAI",
@@ -16585,7 +16586,7 @@
         "₢BfAAH",
         "₢BfAAP"
       ],
-      "jjghn_next_pace_seed": "AAS",
+      "jjghn_next_pace_seed": "AAT",
       "jjghn_paces": {
         "₢BfAAA": {
           "jjgpn_tacks": [
@@ -17123,6 +17124,34 @@
               ],
               "jjgtn_silks": "suite-asterism-rename",
               "jjgtn_basis": "53a20bc"
+            }
+          ]
+        },
+        "₢BfAAS": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260623-2029",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Mint the foedus-accessor toothing/bondstone vocabulary in-heat as one coupled register pass — the sign-in verb (compear → heed), the live sign-in-window noun (assize → a new word), the verb that clears the live window (forces a fresh sign-in), and the active-foedus switch toothing — then sweep the two remints tree-wide.",
+                "",
+                "## Spec of needed change",
+                "Pick each word by hand against the gates — grep-clean, no trodden words, terminal-exclusivity, the fair-faced floor for the operator-facing ashlars, one coherent civic register. The four are coupled and picked together: the switch forces the window-clear, the clear verb keys off whatever the window noun becomes, and heed and the window noun are sibling sign-in remints. Settle the open fork on the window noun — keep an operator-facing noun, or demote it to hearting with the error text going plain prose. Mint only the switch NAME here; its selection mechanism stays with the parked foedus-reuse leg.",
+                "Then run the eviction sweeps: compear → heed and assize → the new noun across every live site, all forms moving together.",
+                "",
+                "Source: the paddock ideas — the heed/compear remint, the assize rename, the clear-the-live-window verb, and the foedus-lifecycle switch toothing — carry the tensions and current leans.",
+                "",
+                "## Done when",
+                "Each word clears the gates and is minted; compear → heed and the assize remint are swept tree-wide; the clear verb and the switch toothing are named; and the new names are incorporated throughout the ₣Bf paddock and every remaining ₣Bf docket.",
+                "",
+                "## Cinched",
+                "₣BZ is treated as functionally complete (operator decision 260623): the eviction-sweep gate is lifted — sweep now, do not wait on Fable. Only the switch name is minted here; the switch mechanism and the foedus-reuse leg stay parked. Words are operator-elected in-heat.",
+                "",
+                "## Character",
+                "In-heat mint plus tree-wide eviction sweep; design judgment on the words and the window-noun fork; mount with the operator present."
+              ],
+              "jjgtn_silks": "accessor-vocabulary-pass",
+              "jjgtn_basis": "40e0093"
             }
           ]
         }
