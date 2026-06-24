@@ -19050,8 +19050,8 @@
         "₢BiAAS": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260623-1631",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260623-2239",
+              "jjgtn_state": "jjgte_abandoned",
               "jjgtn_text": [
                 "Operator checkpoint — NOT agent work. The reminder, positioned at the chain-cluster terminus on purpose: this is where the chaining-fact changes get reconciled and pushed downstream.",
                 "",
@@ -19065,7 +19065,7 @@
                 "The operator has reconciled and pushed the chaining-fact changes downstream by their usual cross-repo workflow. Closed by operator judgment, not an automated gate."
               ],
               "jjgtn_silks": "reconcile-and-push-chaining-fixes",
-              "jjgtn_basis": "8ab215e"
+              "jjgtn_basis": "83bc1d3"
             }
           ]
         },
