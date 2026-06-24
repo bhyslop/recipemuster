@@ -19532,34 +19532,43 @@
         "₢BiAAc": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260624-1247",
+              "jjgtn_ts": "260624-1324",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "## Character",
-                "Interactive design conversation requiring judgment — settle how the chaining-fact discipline is homed across RBS0 and its subdocs before editing them. Not mechanical.",
+                "Interactive design conversation requiring judgment — settle how the chaining-fact discipline is homed across RBS0 / AXLA and its subdocs.",
+                "Not mechanical, and not greenfield: a proposed model already exists.",
+                "",
+                "## Prior art — START here",
+                "Memos/memo-20260624-chaining-pattern-axla-consolidation.md describes this exact problem (one discipline restated in ~7 places) and proposes ONE consolidation model to critique and improve.",
+                "It is targeted at heat ₣Bb and is ₢BbAAT's source — so this pace and ₢BbAAT may be the SAME work in two heats; reconcile ownership before building.",
                 "",
                 "## The question",
-                "The chaining-fact discipline (chain heads write facts; chain links read-one / write-durable with named-band reject; read-side consumers resolve-or-reject, no durable write) is currently RESTATED in several subdocs (RBSAS summon, RBSAP plumb, RBSLA augur, RBSDF feoff, RBSDY yoke) and in verb code comments — the same logic, many homes.",
-                "Decide whether to hoist the shared behaviors into top-level RBS0 quoins that every subdoc references (ACG: reference the home, don't recreate), and if so the quoin set, granularity, prefix, and section placement.",
+                "The discipline (chain heads write a fact; durable-leak LINKS read-one / write-durable with named-band reject; read-side consumers resolve-or-reject with the SAME band, no durable write) is restated across RBSAS/RBSAP/RBSLA/RBSIR and RBSDF/RBSDY plus verb comments.",
+                "Decide the home: RBS0 quoins, or an AXLA motif voiced by RBS0 — the memo is \"axla-consolidation\", and RBS0 already carries an axpof_fact annotation and an rbf_fact_lode quoin, a partial home to reconcile rather than a greenfield.",
+                "Generalize beyond the Lode touchmark to any chained fact (the hallmark chain too).",
+                "",
+                "## Now-false prose (urgency — correct regardless of the hoist outcome)",
+                "The read-side reversal landed, so the existing subdoc prose is FALSE: RBSLA, RBSAS, RBSAP — and RBSIR, which is not even chained — all still say the read side \"dies loud … categorically lower severity.\"",
+                "That is now band-reject. This pace corrects false normative prose, not just dedup.",
                 "",
                 "## Threads to settle",
-                "- Quoin set + boundary: which behaviors are shared (hoist) vs verb-local (stay in subdoc — summon's ark triad, augur's accepts-any-kind, feoff's single-slot election).",
-                "- Prefix + sub-letter discipline for any new quoins (MCM lapidary, grep gate).",
-                "- Section: new RBS0 branch vs an existing one.",
-                "- Code-comment allocation: once hoisted, verb comments cite the quoin / RBr_ rivet rather than restate — the read-side band reversal showed the cost of restatement (one change, many edits).",
-                "- Whether any behavior earns an RBr_ rivet (cited normative proposition) vs a plain quoin.",
+                "- Quoin/motif set + boundary: shared discipline (hoist) vs verb-local (summon's ark triad, augur's accepts-any-kind, feoff's single-slot election).",
+                "- Prefix/sub-letter discipline anchored on the existing rbtg* / rbf_fact_* / axpof families (MCM lapidary, grep gate).",
+                "- Code-comment allocation: once hoisted, verb comments cite the quoin / RBr_ rivet rather than restate (the reversal's one-change-many-edits cost is the proof).",
+                "- Plain quoin vs RBr_ rivet for the normative propositions (band reuse, distinction-by-effect, no-relay, tier separation).",
                 "",
                 "## Done when",
-                "- The hoist decision is cinched (hoist or not; if hoist, the quoin set + placement).",
-                "- RBS0 + the listed subdocs reflect the read-side named-band discipline through the chosen homing.",
+                "- The hoist decision is cinched (home + quoin/motif set + placement), reconciled with the memo and ₢BbAAT.",
+                "- RBS0 / AXLA + the listed subdocs reflect the read-side named-band discipline through the chosen home; the now-false prose is corrected.",
                 "- Verb code comments align with the allocation decision.",
                 "",
                 "## Cinched (carried from the implementing pace)",
-                "- Read-side rejects with the named chaining band (reused, not a new band).",
+                "- Read-side rejects with the named chaining band (reused 105, not a new band); the read/write distinction is by effect, not exit code.",
                 "- Coding errors stay flushed-out statically, never named runtime bands."
               ],
               "jjgtn_silks": "chaining-discipline-spec-quoins",
-              "jjgtn_basis": "30206e5"
+              "jjgtn_basis": "60de912"
             }
           ]
         }
