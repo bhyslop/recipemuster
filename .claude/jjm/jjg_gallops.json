@@ -18423,9 +18423,10 @@
         "₢BiAAH",
         "₢BiAAJ",
         "₢BiAAA",
-        "₢BiAAW"
+        "₢BiAAW",
+        "₢BiAAa"
       ],
-      "jjghn_next_pace_seed": "AAa",
+      "jjghn_next_pace_seed": "AAb",
       "jjghn_paces": {
         "₢BiAAA": {
           "jjgpn_tacks": [
@@ -19409,6 +19410,42 @@
               ],
               "jjgtn_silks": "debug-cloud-build-summon",
               "jjgtn_basis": "3f9da46"
+            }
+          ]
+        },
+        "₢BiAAa": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260624-0208",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "Structural consolidation with an embedded spec ruling — larger than the ₣Bi loose-ends norm; deferral-eligible.",
+                "",
+                "## Goal",
+                "Give \"drive a freshly-built hallmark into a nameplate's RBRN_*_HALLMARK\" ONE disciplined chain-link home — read one resolved value, write one durable config field — shared by BOTH the local kludge and cloud ordain paths, replacing the three ad-hoc forms that exist today.",
+                "",
+                "## The three forms it replaces (grep, don't trust a list)",
+                "grep -rnE 'drive_hallmark|RBRN_(BOTTLE|SENTRY)_HALLMARK' Tools/rbk/",
+                "Today the same durable write lives as: bash zrbob_drive_hallmark fused into the local kludge wrappers (rbw-cKB/cKS); a Rust reimplementation rbtdro_drive_hallmark for onboarding; and a handbook step that tells the cloud operator to hand-edit rbrn.env. The cloud path has no operator-facing drive verb at all.",
+                "",
+                "## Embedded ruling (what makes it larger)",
+                "The formal durable-leak surface (feoff/anoint/yoke, no-relay + named-band-reject) writes RBRV_* (vessel). This RBRN_* (nameplate) write is equally durable but got none of that discipline. Open at mount: does the nameplate-hallmark drive formally JOIN the durable-leak surface — named band + theurge verification, full version — or is this implementation-unification only? Settle this with the operator before building.",
+                "",
+                "## Boundary",
+                "Keep the local one-shot: rbw-cKB/cKS stay single-command, composing build-head + the new drive-link. Unify the underlying operation, not the operator gesture — do not tax the local dev loop with a second command.",
+                "",
+                "## Cross-heat coupling — ₢BbAAT (₣Bb)",
+                "That pace consolidates the chaining discipline-prose into one home and enumerates the durable-leak-link as exactly three verbs writing RBRV_*. If this pace adds a fourth member writing RBRN_*, whichever lands second reconciles: the consolidated \"only three verbs / writes one durable config field\" wording must generalize to the nameplate write. Same for its companion memo (memo-20260624-chaining-pattern-axla-consolidation.md).",
+                "",
+                "## Done when",
+                "- One drive-link primitive is the single home; the Rust reimplementation and the handbook hand-edit are gone — both compose the primitive.",
+                "- Local kludge stays one-shot; the cloud path gains a real operator drive verb.",
+                "- If the durable-leak ruling is yes: named-band-reject + theurge verification match the feoff/yoke pattern.",
+                "- Build green; fast + siege green."
+              ],
+              "jjgtn_silks": "nameplate-hallmark-drive-chain-link",
+              "jjgtn_basis": "be2b6f7"
             }
           ]
         }
