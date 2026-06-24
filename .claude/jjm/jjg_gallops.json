@@ -16571,6 +16571,7 @@
         "₢BfAAT",
         "₢BfAAZ",
         "₢BfAAf",
+        "₢BfAAg",
         "₢BfAAe",
         "₢BfAAQ",
         "₢BfAAU",
@@ -16599,7 +16600,7 @@
         "₢BfAAH",
         "₢BfAAP"
       ],
-      "jjghn_next_pace_seed": "AAg",
+      "jjghn_next_pace_seed": "AAh",
       "jjghn_paces": {
         "₢BfAAA": {
           "jjgpn_tacks": [
@@ -17452,6 +17453,31 @@
               ],
               "jjgtn_silks": "freehold-wrapper-combinator-lift",
               "jjgtn_basis": "60c1d0f"
+            }
+          ]
+        },
+        "₢BfAAg": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260623-2207",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Build the day-to-day REUSE path on the wrapper — the fixture composition that reuses a standing freehold without pool churn: check the foedus, switch to it if valid, heal its credentials (compear + don the mantles), and affiance only when the check fails. The switch made real.",
+                "",
+                "## Spec of needed change",
+                "Compose, in the REUSE wrapper, the atomic foedus toothings settled by the design pace — the pool-integrity check, the switch, the credential heal, and affiance-only-on-check-failure. This builds the standing-reuse credential leg that skirmish/dogfight/blockade assume but no fixture establishes today.",
+                "",
+                "## Done when",
+                "The REUSE wrapper reuses a valid standing freehold with no pool churn (cap-flat), heals its credentials, and rebuilds only when the check fails; skirmish/dogfight/blockade prove their mantle credentials via a fixture, not prose.",
+                "",
+                "## Cinched",
+                "Composes ATOMIC toothings (check / switch / heal / affiance) per the design pace — no fat check-then-create verb. The credential heal is quota-neutral (idempotent IAM); the affiance create-gesture fires only on check-failure. Detail: the audit memo's pace-10.",
+                "",
+                "## Character",
+                "Bash build over the settled foedus toothings; depends on the design pace and the combinator."
+              ],
+              "jjgtn_silks": "foedus-reuse-leg",
+              "jjgtn_basis": "119c73d"
             }
           ]
         }
