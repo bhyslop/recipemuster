@@ -17691,30 +17691,46 @@
         "₢BfAAk": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260624-1354",
+              "jjgtn_ts": "260624-1411",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
-                "Run a workflow-driven cross-heat split study: partition the remaining work of ₣Bf, ₣Bi (and the coupled ₣Bb) into about three parallel streams that can run in separate repo clones with occasional git syncs, and propose a new heat plus the pace transfers that realize it.",
+                "Run a workflow-driven cross-heat split study: partition the remaining work of ₣Bf, ₣Bi, and ₣Bl into about three parallel streams that can run in separate repo clones with occasional git syncs, and propose the retained-heat set (₣Bl the candidate third stream), the pace transfers, and the paddock restitching that realize it.",
                 "",
                 "## Spec of needed change",
                 "Mount FRESH in a clean chat; this is a workflow-heavy planning study, read-only until the operator approves the transfers.",
-                "- FOOTPRINT: for each remaining pace across ₣Bf, ₣Bi, and ₣Bb, derive its likely file footprint (which files it edits) and its hard dependencies (cross-pace, cross-heat). No jjx surface gives this — derive it from the dockets plus grep; the file-touch bitmap covers committed work only, not future paces.",
-                "- CONTENTION: build the file-contention graph. The binding constraint is NOT dependency-chain depth but a small set of hot shared spine files every heat writes — RBS0-SpecTop.adoc, the zipper plus its two build-generated files (rbtdgc_consts.rs, claude-rbk-tabtarget-context.md), claude-rbk-acronyms.md, and the theurge crate (Tools/rbk/rbtd/). Identify every remaining pace that writes each.",
-                "- PARTITION: propose about three streams whose file territories are as disjoint as possible, plus a choreography for serializing edits to the unavoidable hot files (who owns RBS0 / the zipper in which window). Honor the hard cross-heat blocks (the ₣Bi account-state and payor-install paces wait on ₣Bf; the ₣Bi nameplate-drive pace couples to ₣Bb's chaining-consolidation).",
-                "- SLATE: propose the new heat (nominate) and the exact pace transfers (jjx_transfer) that realize the partition, for operator review.",
+                "Exclude THIS study pace itself from the partition.",
+                "",
+                "SCOPE — updated 260624 (operator ruling): the inclusion list is ₣Bf, ₣Bi, and ₣Bl ONLY.",
+                "₣Bb is OUT — it does not belong; the earlier \"coupled ₣Bb\" framing is retired.",
+                "The one real residue is that ₣Bi's nameplate-hallmark-drive pace couples to a ₣Bb chaining-consolidation pace — honor that as an EXTERNAL dependency to an out-of-scope heat, never pull ₣Bb in.",
+                "",
+                "₣Bl drains into the retained set and is the candidate THIRD-STREAM ANCHOR.",
+                "Its single pace (the theurge-cosmology RBS0 subdoc) is pure spec / RBS0 / theurge-crate territory, so a stream that OWNS RBS0 anchors naturally on ₣Bl: prefer relabelling + un-stabling ₣Bl and draining the spec/RBS0/theurge paces of ₣Bf and ₣Bi into it over nominating a fresh third heat.",
+                "Restitch items ₣Bl carries: an empty template paddock, a narrow silks, and a stabled state.",
+                "",
+                "Method:",
+                "- FOOTPRINT: for each remaining (non-done, non-abandoned) pace of ₣Bf, ₣Bi, ₣Bl, derive its likely file footprint and its hard dependencies (cross-pace, cross-heat) from the docket plus grep — no jjx surface gives this, and the file-touch bitmap covers committed work only, not future paces. Discovery recipe: jjx_coronets {firemark, remaining:true} per heat, then jjx_brief per coronet.",
+                "- CONTENTION: build the file-contention graph. The binding constraint is NOT dependency-chain depth but the small set of hot shared spine files every heat writes — RBS0-SpecTop.adoc, the zipper plus its two build-generated files (rbtdgc_consts.rs, claude-rbk-tabtarget-context.md), claude-rbk-acronyms.md, and the theurge crate (Tools/rbk/rbtd/). Identify every remaining pace that writes each.",
+                "- PARTITION: propose about three streams whose file territories are as disjoint as possible (the ₣Bl-anchored spec stream is a strong candidate for one), plus a choreography for serializing edits to the unavoidable hot files (who owns RBS0 / the zipper in which window). Honor the hard cross-heat blocks (the ₣Bi account-state and payor-install paces wait on ₣Bf; the ₣Bi nameplate-drive pace's coupling to the out-of-scope ₣Bb consolidation).",
+                "- PADDOCK RESTITCH (first-class deliverable, operator-flagged): the partition moves paces between heats, so the paddock prose carrying their shape must move, merge, or be written fresh. For each retained stream-heat, specify which paddock shape moves in (from which source paddock sections), what is written fresh (especially ₣Bl's empty paddock), and what drains to a provenance memo — honoring the no-coronets / no-silks-in-paddock-prose discipline.",
+                "- SLATE: propose the retained-heat set, the relabels / alters, the exact pace transfers (jjx_transfer), and the paddock-restitch operations that realize the partition — for operator review.",
                 "",
                 "## Done when",
-                "A workflow-verified partition exists: each remaining pace assigned to a stream, the hot-file contention choreography specified, the hard cross-heat blocks honored, and a concrete proposal (nominate a heat + transfer the named paces) produced for operator review — nothing nominated or transferred without approval.",
+                "A workflow-verified partition over ₣Bf, ₣Bi, ₣Bl exists: each remaining pace assigned to a stream, the hot-file contention choreography specified, the hard cross-heat blocks honored (including the external ₣Bb coupling), the paddock-restitch plan written, and a concrete proposal (reuse/relabel ₣Bl as stream three, nominate any further heat, transfer the named paces, restitch the paddocks) produced for operator review — nothing nominated, relabelled, or transferred without approval.",
                 "",
                 "## Cinched",
-                "MOUNT FRESH in a clean chat (the audit chat that birthed this is saturated). Workflow-driven. Read-only / propose-not-mutate — the operator approves the nominate + transfers.",
+                "MOUNT FRESH in a clean chat (the audit chat that birthed this is saturated, and the operator deploys the workflow there).",
+                "Workflow-driven. Read-only / propose-not-mutate — the operator approves the nominate + relabels + transfers.",
+                "Scope is ₣Bf + ₣Bi + ₣Bl; ₣Bb is excluded (operator ruling 260624).",
                 "The real constraint is file contention on the spine files, not dependency depth — design the partition by file territory, not by chain length.",
+                "₣Bl is the candidate third-stream anchor (spec / RBS0 / theurge territory); prefer reusing it over nominating a fresh third heat.",
+                "Paddock restitching is a required deliverable, not an afterthought.",
                 "",
                 "## Character",
                 "Workflow orchestration; a cross-heat planning study. Motivated by the ₣Bf heat-integrity audit's finding that file contention, not chain depth, is the binding constraint on parallelism."
               ],
               "jjgtn_silks": "cross-heat-parallelization-split-study",
-              "jjgtn_basis": "5c4817a"
+              "jjgtn_basis": "e5443bc"
             }
           ]
         }
