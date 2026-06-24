@@ -16695,8 +16695,8 @@
         "₢BfAAD": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260619-1126",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260623-2235",
+              "jjgtn_state": "jjgte_abandoned",
               "jjgtn_text": [
                 "## Explore: replace the /dev/tty compearance channel with a yawp",
                 "",
@@ -16715,7 +16715,7 @@
                 "Design exploration at the shared accessor membrane (rba_compear, used by every cloud tabtarget) and the BUYM yawp wire format."
               ],
               "jjgtn_silks": "compear-tty-to-yawp",
-              "jjgtn_basis": "ca67bc6"
+              "jjgtn_basis": "acc5b06"
             }
           ]
         },
