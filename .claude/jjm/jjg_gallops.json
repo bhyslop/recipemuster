@@ -17150,29 +17150,34 @@
         "₢BfAAP": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260623-1049",
+              "jjgtn_ts": "260624-1329",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
-                "Design the tabtarget/verb shape for verifying a station's local estate-wide secret against the estate reference — first instance: the Keycloak signing key against the committed JWKS.",
+                "Build the minimal estate-secret stub — a self-labelled BCG module that sources-and-verifies the Keycloak signing key from the shelved interim station file, so the realm and orchestrator have a stable key to consume.",
                 "",
-                "The stable-key decision homes the Keycloak signing key as an estate-wide field in the never-committed rbrs.env (working name RBRS_ESTATE_KEYCLOAK_SECRET), validated by matching its public half against the already-committed JWKS — the canonical estate-wide reference (see the paddock Foedus-lifecycle section).",
-                "What is un-designed is the verb/tabtarget shape of that validation: how a station checks a local secret against config that originated elsewhere — render, validate, and whether an inscribe/check tripwire pattern (as rbrd.env carries via rbw-rdi/rbw-rdc) fits the estate-wide-must-match case, or whether a JWKS-fingerprint match is simpler.",
+                "The estate-secret HOME is settled (operator 260624, paddock Foedus-lifecycle section): do NOT reinstate the RBK station regime (RBRS) — it stays shelved in Tools/rbk/vov_veiled/FUTURE/ for the podman feature (₣BW).",
+                "Instead a deliberately-minimal, self-labelled stub whose ONLY job is to source-and-verify this one field.",
                 "",
-                "Mount fresh as a design conversation, not implementation.",
-                "This is the first concrete instance of the Estate concept (estate-wide facts in the per-machine station regime, marked, with a must-match validator), so the shape it picks sets the precedent the later dedicated-estate-regime extraction inherits.",
+                "## Spec of needed change",
+                "A small BCG module that:",
+                "- sources the private signing key from the never-committed interim station file (working name RBRS_ESTATE_KEYCLOAK_SECRET), TOLERATING the file's absence (skip the programmatic path when absent);",
+                "- verifies it by matching its public half against the already-committed JWKS (the canonical reference), failing LOUD on present-but-mismatched — never a silent pass;",
+                "- is self-labelled as a stub: a header noting the full RBRS station regime is shelved for ₣BW, with a pointer to FUTURE/RBSRS.",
+                "Also: add the Keycloak field to the shelved FUTURE/RBSRS spec as an optional/future entry, give the live stub its own short contract, and repoint the dangling claude-rbk-acronyms.md RBSRS pointer to the FUTURE/ path (annotated shelved-for-₣BW), not deleted.",
                 "",
                 "## Done when",
-                "The verb/tabtarget shape for estate-secret verification is settled (render/validate/tripwire/fingerprint pattern chosen), the precedent it sets for the Estate concept is recorded, and any build paces it implies are slated or deferred.",
+                "The stub sources-and-verifies the one estate field (present → match-or-fail-loud; absent → skip), is self-labelled with the ₣BW-shelved pointer, the FUTURE/RBSRS spec carries the optional field, and the acronym pointer resolves; the realm pace consumes a stable key from it.",
                 "",
                 "## Cinched",
-                "The private key lives in rbrs.env (never committed); the match is always against the committed JWKS, never a cross-station secret comparison.",
-                "Part of the foedus-lifecycle strand; reconcile with the lifecycle design pass when that runs.",
+                "NOT a station-regime reinstatement and NOT the Estate-concept nucleation — a single labelled stub; the full RBRS regime and any dedicated-estate-regime graduation defer with podman (₣BW).",
+                "Source-plus-verify ONLY (operator 260624) — no podman anticipation, no extra fields.",
+                "The private half is never committed; the match is always against the committed JWKS, never a cross-station secret comparison.",
                 "",
                 "## Character",
-                "Design conversation requiring judgment; mount fresh, with the operator present. Not implementation."
+                "Small BCG build over a settled design; sits before the realm/orchestrator paces that consume the stable key (the stub name is an in-pace hearting mint)."
               ],
               "jjgtn_silks": "estate-secret-verification",
-              "jjgtn_basis": "f9f488a"
+              "jjgtn_basis": "2088896"
             }
           ]
         },
