@@ -7,7 +7,7 @@
 //! Validates Gallops JSON structure against schema rules.
 
 use std::collections::HashSet;
-use crate::jjrf_favor::{JJRF_CHARSET, JJRF_FIREMARK_LEN, JJRF_PACE_INDEX_LEN, JJRF_CORONET_LEN, JJRF_FIREMARK_PREFIX};
+use crate::jjrf_favor::{JJRF_CHARSET, JJRF_FIREMARK_LEN, JJRF_PACE_INDEX_LEN, JJRF_CORONET_LEN, JJRF_FIREMARK_PREFIX, JJRF_CORONET_PREFIX};
 use crate::jjrt_types::*;
 
 /// Check if string contains only URL-safe base64 characters
@@ -108,7 +108,7 @@ fn zjjrg_validate_heat(heat_key: &str, heat: &jjrg_Heat, errors: &mut Vec<String
     if !heat_key.starts_with('₣') {
         errors.push(format!("{}: key must start with '₣'", heat_ctx));
     } else {
-        let suffix = &heat_key[3..]; // ₣ is 3 bytes in UTF-8
+        let suffix = &heat_key[JJRF_FIREMARK_PREFIX.len_utf8()..];
         if suffix.len() != JJRF_FIREMARK_LEN {
             errors.push(format!(
                 "{}: key must have {} base64 chars after '₣', got {}",
@@ -160,7 +160,7 @@ fn zjjrg_validate_heat(heat_key: &str, heat: &jjrg_Heat, errors: &mut Vec<String
 
     // Extract heat identity (base64 part without prefix) for pace validation
     let heat_identity = if heat_key.starts_with('₣') && heat_key.len() >= JJRF_FIREMARK_PREFIX.len_utf8() + JJRF_FIREMARK_LEN {
-        Some(&heat_key[3..]) // ₣ is 3 bytes
+        Some(&heat_key[JJRF_FIREMARK_PREFIX.len_utf8()..])
     } else {
         None
     };
@@ -216,7 +216,7 @@ fn zjjrg_validate_pace(
     if !pace_key.starts_with('₢') {
         errors.push(format!("{}: key must start with '₢'", pace_ctx));
     } else {
-        let suffix = &pace_key[3..]; // ₢ is 3 bytes in UTF-8
+        let suffix = &pace_key[JJRF_CORONET_PREFIX.len_utf8()..];
         if suffix.len() != JJRF_CORONET_LEN {
             errors.push(format!(
                 "{}: key must have {} base64 chars after '₢', got {}",

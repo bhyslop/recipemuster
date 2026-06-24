@@ -53,6 +53,7 @@ const PROBE_DATE_FILE: &str = ".probe_date";
 const EXSANGUINATION_THRESHOLD_SECS: u64 = 7 * 24 * 3600;
 const OFFICIUM_SUN_PREFIX: char = '\u{2609}'; // ☉
 const OFFICIUM_SUFFIX_LEN: usize = 4; // random discriminant chars appended to YYMMDD-NNNN
+const OFFICIUM_FIRST_ORDINAL: u32 = 1000; // first-of-day daily ordinal NNNN (per-machine seed)
 
 // Command name constants — RCG String Boundary Discipline.
 // Lifecycle commands (bypass Gallops lock)
@@ -883,7 +884,8 @@ fn zjjrm_random_suffix(len: usize) -> String {
 /// forever; `split('-').next()` recovers the ordinal from both formats.
 fn zjjrm_generate_officium_id(officia: &Path, today: &str) -> String {
     let prefix = format!("{}-", today);
-    let mut max_num: u32 = 999;
+    // Seed one below the first ordinal so the first mint of the day lands on it.
+    let mut max_num: u32 = OFFICIUM_FIRST_ORDINAL - 1;
     if let Ok(entries) = std::fs::read_dir(officia) {
         for entry in entries.flatten() {
             let name = entry.file_name();

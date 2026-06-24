@@ -832,8 +832,10 @@ pub fn jjrg_restring(gallops: &mut jjrg_Gallops, args: jjrg_RestringArgs) -> Res
         let silks = first_tack.map(|t| t.silks.clone()).unwrap_or_default();
         let state = first_tack.map(|t| t.state.clone()).unwrap_or(jjrg_PaceState::Rough);
         let spec_full = first_tack.map(|t| jjrg_lines_to_text(&t.text)).unwrap_or_default();
-        let spec_preview = if spec_full.len() > 80 {
-            format!("{}...", &spec_full[..77])
+        const SPEC_PREVIEW_WIDTH: usize = 80;
+        const ELLIPSIS: &str = "...";
+        let spec_preview = if spec_full.len() > SPEC_PREVIEW_WIDTH {
+            format!("{}{}", &spec_full[..SPEC_PREVIEW_WIDTH - ELLIPSIS.len()], ELLIPSIS)
         } else {
             spec_full.clone()
         };
