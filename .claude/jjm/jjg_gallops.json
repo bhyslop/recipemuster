@@ -17753,9 +17753,10 @@
         "₢BhAAL",
         "₢BhAAQ",
         "₢BhAAS",
-        "₢BhAAR"
+        "₢BhAAR",
+        "₢BhAAT"
       ],
-      "jjghn_next_pace_seed": "AAT",
+      "jjghn_next_pace_seed": "AAU",
       "jjghn_paces": {
         "₢BhAAA": {
           "jjgpn_tacks": [
@@ -18313,6 +18314,41 @@
               ],
               "jjgtn_silks": "viewer-dies-on-portfile-clear",
               "jjgtn_basis": "2cdbde4"
+            }
+          ]
+        },
+        "₢BhAAT": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260623-2317",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "Small and mechanical: one gating decision in the mount/groom dispatch plus its spec and paddock homes.",
+                "No gallops schema change — the saddle marker is officium-resident scratch, not a serialized gallops field — so no reprieve episode.",
+                "",
+                "Mount and groom re-saddle unconditionally today, so the emblem identity flips on every transient groom;",
+                "a groom stamps the heat firemark over a working pace's coronet (the friction that seeded this pace).",
+                "The saddle marker's presence already records that a first mount-or-groom happened,",
+                "so gate the re-saddle on the identity already held instead of overwriting blind —",
+                "the orient and show branches of the MCP dispatcher (jjrm_mcp.rs) are the code home.",
+                "",
+                "## Cinched",
+                "Coronet-sticks semantics (operator-decided 2026-06-23):",
+                "- A mount always (re)asserts its coronet.",
+                "- A groom writes the identity only when the slot is empty or holds a firemark — never demoting a coronet.",
+                "- Invariant: a coronet, once seen, holds for the officium's life; grooms fill or replace only a firemark.",
+                "Scope is per-officium — a /clear opens a fresh officium that re-decides on first engagement.",
+                "Reuse the existing saddle marker as the memory; mint no new file.",
+                "",
+                "## Done when",
+                "- Grooming a heat while a pace coronet is saddled leaves the coronet on the emblem.",
+                "- Grooming first, then mounting a pace, upgrades the emblem to the coronet.",
+                "- JJS0 (and the saddle subdoc JJSCSD, where saddle/emblem identity semantics live) states the coronet-sticks rule.",
+                "- The heat paddock's Emblem section matches it, no longer asserting an unconditional firemark-on-groom."
+              ],
+              "jjgtn_silks": "emblem-coronet-sticks-per-officium",
+              "jjgtn_basis": "0600417"
             }
           ]
         }
