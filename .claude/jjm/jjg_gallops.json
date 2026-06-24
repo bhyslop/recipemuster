@@ -17543,19 +17543,20 @@
         "₢BfAAo": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260624-2309",
+              "jjgtn_ts": "260624-2312",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "Cross-clone coordination gate for the federation-build stream (its own repo clone).",
-                "No code change of its own — this is the standing sync contract for this stream's writes into files owned by the theurge stream (₣Bl).",
+                "No code change of its own — the standing sync contract for this stream's writes into ₣Bl-owned files.",
+                "Pace order within each heat is the dependency order and is fixed, so it already encodes every in-clone wait; this gate names only the CROSS-clone waits that separate-clone order cannot express.",
                 "",
                 "## Spec of needed change",
-                "This stream owns RBS0-SpecTop and the acronym registry, so it leads on those; its only cross-clone WAITS are on ₣Bl, which owns the zipper trio and the crucible fixture/suite registry.",
-                "Zipper trio (rbz_zipper.sh plus its two build-regenerated files): the paces here that add tabtargets — the manor-setup finisher, and the Keycloak-facility setup/teardown — take the zipper baton AFTER ₣Bl has pushed its zipper paces; sync ₣Bl, edit the source, run the theurge build to regenerate the pair, and commit the three files as one unit.",
-                "Crucible fixture retirement: the terrier-founding-home finisher retires two crucible fixtures, a write into the ₣Bl-owned crucible registry; apply it only AFTER ₣Bl's registry-relocation has settled the fixture/suite home, as a one-shot delta against the relocated home.",
+                "This stream owns RBS0-SpecTop and the acronym registry and leads on those; its only cross-clone WAITS are on ₣Bl, which owns the zipper trio and the crucible fixture/suite registry:",
+                "- Zipper baton (₣Bl → ₣Bf → ₣Bi): ₢BfAAF (manor-finisher, rbw-dXX) and ₢BfAAL (Keycloak facility, rbw-qjK/rbw-qj) — plus ₢BfAAJ's Entra colophon IF that guide mints one — take the baton AFTER ₣Bl's ₢BlAAN and ₢BlAAE have pushed the trio. Sync ₣Bl, edit rbz_zipper.sh, run the theurge build to regenerate the pair, commit the three files as one unit.",
+                "- Crucible delta: ₢BfAAF retires two crucible fixtures — a write into ₣Bl's rbtdrc_crucible.rs — and lands only AFTER ₢BlAAC has settled the relocated RBTDRC_FIXTURES / RBTDRC_SUITES home, as a one-shot delta against that relocated home.",
                 "",
                 "## Done when",
-                "Both theurge-owned surfaces (the zipper trio, the crucible fixture registry) were synced from ₣Bl before this stream wrote them, with no overwrite of the other clone's work.",
+                "₢BfAAF and ₢BfAAL synced ₣Bl's zipper and crucible pushes before writing them, with no ₣Bl work overwritten.",
                 "",
                 "## Cinched",
                 "Coordination-only, no substantive code.",
@@ -17565,7 +17566,7 @@
                 "Cross-clone coordination gate; mechanical."
               ],
               "jjgtn_silks": "fed-syncs-theurge-zipper-crucible",
-              "jjgtn_basis": "d714a61"
+              "jjgtn_basis": "9aeba74"
             }
           ]
         }
