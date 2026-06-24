@@ -17804,6 +17804,7 @@
         "₢BiAAY",
         "₢BiAAZ",
         "₢BiAAd",
+        "₢BiAAf",
         "₢BiAAc",
         "₢BiAAF",
         "₢BiAAG",
@@ -17812,7 +17813,7 @@
         "₢BiAAW",
         "₢BiAAa"
       ],
-      "jjghn_next_pace_seed": "AAf",
+      "jjghn_next_pace_seed": "AAg",
       "jjghn_paces": {
         "₢BiAAC": {
           "jjgpn_tacks": [
@@ -18820,6 +18821,27 @@
               ],
               "jjgtn_silks": "mvp-rides-last-syncs-owners",
               "jjgtn_basis": "f8a8fcd"
+            }
+          ]
+        },
+        "₢BiAAf": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260624-2333",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "BARRIER — cross-clone wait. No code work of its own.",
+                "This pace cannot complete until ₢BfAAO (heat ₣Bf — the federation spec recast that seats the RBS0-SpecTop federation block) is complete, pushed to origin, and origin merged back into this clone.",
+                "Only then may the next paces — the durable-leak coarse quoins and, later, the scry-region amend — append their disjoint RBS0 regions behind FED's federation block. The in-clone mint-before-cite order still holds for the coarse quoins and the drive-link that cites them.",
+                "",
+                "## Done when",
+                "₢BfAAO is wrapped and pushed to origin, and this clone has pulled origin so the RBS0 federation block is present here.",
+                "",
+                "## Character",
+                "Cross-clone barrier; hold here until the named pace is merged through."
+              ],
+              "jjgtn_silks": "await-fed-rbs0-block",
+              "jjgtn_basis": "69ddb67"
             }
           ]
         }
