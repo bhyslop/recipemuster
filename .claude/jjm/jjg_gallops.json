@@ -18433,6 +18433,7 @@
         "₢BiAAD",
         "₢BiAAY",
         "₢BiAAZ",
+        "₢BiAAc",
         "₢BiAAb",
         "₢BiAAF",
         "₢BiAAB",
@@ -18444,7 +18445,7 @@
         "₢BiAAW",
         "₢BiAAa"
       ],
-      "jjghn_next_pace_seed": "AAc",
+      "jjghn_next_pace_seed": "AAd",
       "jjghn_paces": {
         "₢BiAAA": {
           "jjgpn_tacks": [
@@ -19525,6 +19526,40 @@
               ],
               "jjgtn_silks": "read-existence-failure-bands",
               "jjgtn_basis": "aaaa63a"
+            }
+          ]
+        },
+        "₢BiAAc": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260624-1247",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "Interactive design conversation requiring judgment — settle how the chaining-fact discipline is homed across RBS0 and its subdocs before editing them. Not mechanical.",
+                "",
+                "## The question",
+                "The chaining-fact discipline (chain heads write facts; chain links read-one / write-durable with named-band reject; read-side consumers resolve-or-reject, no durable write) is currently RESTATED in several subdocs (RBSAS summon, RBSAP plumb, RBSLA augur, RBSDF feoff, RBSDY yoke) and in verb code comments — the same logic, many homes.",
+                "Decide whether to hoist the shared behaviors into top-level RBS0 quoins that every subdoc references (ACG: reference the home, don't recreate), and if so the quoin set, granularity, prefix, and section placement.",
+                "",
+                "## Threads to settle",
+                "- Quoin set + boundary: which behaviors are shared (hoist) vs verb-local (stay in subdoc — summon's ark triad, augur's accepts-any-kind, feoff's single-slot election).",
+                "- Prefix + sub-letter discipline for any new quoins (MCM lapidary, grep gate).",
+                "- Section: new RBS0 branch vs an existing one.",
+                "- Code-comment allocation: once hoisted, verb comments cite the quoin / RBr_ rivet rather than restate — the read-side band reversal showed the cost of restatement (one change, many edits).",
+                "- Whether any behavior earns an RBr_ rivet (cited normative proposition) vs a plain quoin.",
+                "",
+                "## Done when",
+                "- The hoist decision is cinched (hoist or not; if hoist, the quoin set + placement).",
+                "- RBS0 + the listed subdocs reflect the read-side named-band discipline through the chosen homing.",
+                "- Verb code comments align with the allocation decision.",
+                "",
+                "## Cinched (carried from the implementing pace)",
+                "- Read-side rejects with the named chaining band (reused, not a new band).",
+                "- Coding errors stay flushed-out statically, never named runtime bands."
+              ],
+              "jjgtn_silks": "chaining-discipline-spec-quoins",
+              "jjgtn_basis": "30206e5"
             }
           ]
         }
