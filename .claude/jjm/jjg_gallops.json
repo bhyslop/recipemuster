@@ -14815,9 +14815,10 @@
         "₢BbAAF",
         "₢BbAAC",
         "₢BbAAD",
-        "₢BbAAS"
+        "₢BbAAS",
+        "₢BbAAT"
       ],
-      "jjghn_next_pace_seed": "AAT",
+      "jjghn_next_pace_seed": "AAU",
       "jjghn_paces": {
         "₢BbAAA": {
           "jjgpn_tacks": [
@@ -15569,6 +15570,44 @@
               ],
               "jjgtn_silks": "cross-language-core-premises",
               "jjgtn_basis": "f7aa42d"
+            }
+          ]
+        },
+        "₢BbAAT": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260624-0146",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "Spec-consolidation design requiring real judgment, deferred to Fable.",
+                "The model itself is the crux — not a mechanical edit.",
+                "Fable makes its best recommendation; the human editor reviews and interacts to settle the level before anything lands.",
+                "",
+                "## Mount with",
+                "Fable 5 (claude-fable-5), when/if available — a FABLE-heat pace by design.",
+                "",
+                "## Goal",
+                "Eliminate the \"chaining\" discipline-prose that is restated near-verbatim across ~7 RB subdocs by consolidating its nature into the right home(s) — AXLA and/or RBS0 — through MCM/AXLA motifs and voicings, so each subdoc cites one definition instead of restating it.",
+                "",
+                "## The issue, and a proposed model to critique",
+                "Read Memos/memo-20260624-chaining-pattern-axla-consolidation.md in full.",
+                "It describes the problem, every facet of the pattern's nature (fact transport / dispatch-output-directory behavior; the head / durable-leak-link / transient-consumer roles; express-or-chain + depth-1 + no-relay; the git-commit boundary; and on-error behavior), where the pieces already live (BUS0 substrate; AXLA axd_fact / axd_file_bus / axpof_fact / the axvc_ rivet-kind family; RBS0 instantiation), and ONE proposed consolidation model.",
+                "That model is a starting point: critically review and improve it. The shape recurred several times, so make it as reusable as is sound — but recommend the right level rather than assume the proposal is fixed.",
+                "",
+                "## Discovery (sites drift — grep, don't trust a list)",
+                "grep -rniE \"chain(ing)?[- ]?(fact|head|link)|durable[- ]?leak|express-or-chain|no-relay|named-band-reject\" Tools/rbk/vov_veiled/*.adoc",
+                "",
+                "## Hazard",
+                "Do not reuse axd_transient: in AXLA it means \"procedure executes and completes,\" not the chaining \"writes-no-durable-config\" sense — reusing it is a monosemy collision (see memo).",
+                "",
+                "## Done when",
+                "- The duplicated discipline-prose is gone: each affected subdoc cites a single definitional home instead of restating the nature.",
+                "- Every facet — including the git-commit boundary, the dispatch-output-directory behavior, and the on-error behavior — is documented once.",
+                "- The homes and motif shapes are the human-editor-approved outcome of Fable's recommendation plus review."
+              ],
+              "jjgtn_silks": "consolidate-chaining-discipline-prose",
+              "jjgtn_basis": "3134438"
             }
           ]
         }
