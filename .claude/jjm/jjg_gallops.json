@@ -18769,6 +18769,7 @@
       "jjghn_creation_time": "260622",
       "jjghn_status": "jjghe_racing",
       "jjghn_order": [
+        "₢BlAAQ",
         "₢BlAAA",
         "₢BlAAB",
         "₢BlAAC",
@@ -18786,7 +18787,7 @@
         "₢BlAAO",
         "₢BlAAP"
       ],
-      "jjghn_next_pace_seed": "AAQ",
+      "jjghn_next_pace_seed": "AAR",
       "jjghn_paces": {
         "₢BlAAA": {
           "jjgpn_tacks": [
@@ -19206,6 +19207,36 @@
               ],
               "jjgtn_silks": "read-existence-failure-bands",
               "jjgtn_basis": "f676ede"
+            }
+          ]
+        },
+        "₢BlAAQ": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260624-2312",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Cross-clone coordination gate for the theurge-refactor stream (its own repo clone).",
+                "No code change of its own — the standing sync contract for this stream's cross-clone waits, and the zipper baton it holds first.",
+                "Pace order within each heat is fixed and encodes every in-clone wait; this gate names only the CROSS-clone waits.",
+                "",
+                "## Spec of needed change",
+                "This stream owns rbtdrc_crucible.rs and the zipper trio, and HOLDS the zipper baton first — ₢BlAAN and ₢BlAAE push the trio before ₣Bf takes it.",
+                "Its cross-clone WAITS are on ₣Bf, which owns RBS0-SpecTop and authors the foedus operation subdocs:",
+                "- Foedus spec-first: ₢BlAAE builds the descry/instate REUSE-path code against the two foedus operation subdocs and their RBS0 include lines that ₣Bf's ₢BfAAT authors contract-first. Build ₢BlAAE only AFTER ₢BfAAT has landed those subdocs; sync ₣Bf first.",
+                "- RBS0 cosmology region: ₢BlAAO adds an RBS0-SpecTop include and a cosmology region; rebase onto ₣Bf's RBS0 federation-block push (led by ₢BfAAO) before landing it — a disjoint region behind a single forward sync, never a concurrent edit. (₢BlAAO also depends in-clone on ₢BlAAB's combinator and supersedes the native ₢BlAAA, which is wrapped/dropped.)",
+                "",
+                "## Done when",
+                "₢BlAAE built after ₢BfAAT's subdocs existed, and ₢BlAAO's cosmology region landed behind ₣Bf's RBS0 push with no federation-block conflict.",
+                "",
+                "## Cinched",
+                "Coordination-only; this stream holds the zipper baton first, then hands to ₣Bf.",
+                "",
+                "## Character",
+                "Cross-clone coordination gate; mechanical."
+              ],
+              "jjgtn_silks": "thg-syncs-federation-rbs0-foedus",
+              "jjgtn_basis": "09b195b"
             }
           ]
         }
