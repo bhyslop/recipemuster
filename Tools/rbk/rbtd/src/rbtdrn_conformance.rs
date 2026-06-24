@@ -34,7 +34,7 @@
 // a kept identifier and an exempt path that MUST be respected, a filename sprue
 // that MUST be caught — so the verdict on the live tree is trustworthy. The
 // self-proof is hermetic: it never plants a real violation in the repo, so the
-// fast suite stays green with zero production rows. The live-tree walker engages
+// reveille suite stays green with zero production rows. The live-tree walker engages
 // the instant the first row is added.
 //
 // Identifier-boundary awareness — the whole reason this is code, not grep. A

@@ -98,7 +98,7 @@ Both stdout and stderr are captured. Adding your own `tee` or `2>&1` duplicates 
 ./tt/rbw-ts.TestSuite.gauntlet.sh 2>&1 | tee /tmp/log | tail -80
 
 # Wrong — even a bare `| head` discards the real signal
-./tt/rbw-ts.TestSuite.fast.sh | head -50
+./tt/rbw-ts.TestSuite.reveille.sh | head -50
 
 # Right — separate commands; exit code preserved
 ./tt/rbw-ts.TestSuite.gauntlet.sh

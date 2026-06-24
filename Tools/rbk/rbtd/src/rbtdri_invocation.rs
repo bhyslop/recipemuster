@@ -45,7 +45,7 @@ pub const RBTDRI_BURE_CONFIRM_KEY: &str = "BURE_CONFIRM";
 
 /// BURE tweak-slot env var (BUS0 Tweak Mechanism) — the single test-seam
 /// channel every tabtarget inherits. The credless guard rides this slot for
-/// fast-tier fixtures; case-supplied tweaks ride it everywhere else.
+/// reveille-tier fixtures; case-supplied tweaks ride it everywhere else.
 pub const RBTDRI_BURE_TWEAK_NAME_KEY: &str = "BURE_TWEAK_NAME";
 
 /// BURE tweak-value env var — the payload paired with `BURE_TWEAK_NAME`. The
@@ -176,7 +176,7 @@ impl rbtdri_Context {
 // ── Credless guard ───────────────────────────────────────────
 
 thread_local! {
-    /// Fast-tier credless guard arm state. Thread-local (not process-global)
+    /// Reveille-tier credless guard arm state. Thread-local (not process-global)
     /// to match the rbtdrc context channel: cases, hooks, and direct-Command
     /// helpers all run on the thread that installed the context, and unit
     /// tests on parallel threads cannot interfere with each other.
@@ -185,7 +185,7 @@ thread_local! {
 
 /// Arm or disarm the credless guard for the current thread. Armed by
 /// `rbtdrc_set_context` from the fixture's `credless` field and disarmed by
-/// `rbtdrc_take_context`, so the guard rides every invocation of a fast-tier
+/// `rbtdrc_take_context`, so the guard rides every invocation of a reveille-tier
 /// fixture's cases regardless of which suite hosts the fixture.
 pub fn rbtdri_arm_credless(armed: bool) {
     RBTDRI_CREDLESS_ARMED.with(|c| c.set(armed));
@@ -323,7 +323,7 @@ pub fn rbtdri_bash_program() -> &'static str {
 ///
 /// The credless guard lands here — the one constructor every tabtarget launch
 /// goes through, including the direct-Command case helpers that bypass
-/// `rbtdri_invoke*` — so a fast-tier fixture cannot spawn an unguarded
+/// `rbtdri_invoke*` — so a reveille-tier fixture cannot spawn an unguarded
 /// tabtarget by construction.
 pub fn rbtdri_tabtarget_command(tabtarget: &Path) -> Command {
     let mut cmd = Command::new(rbtdri_bash_program());
@@ -373,16 +373,16 @@ fn rbtdri_invoke_impl(
         .map_err(|e| format!("rbtdri: failed to create BURV temp dir: {}", e))?;
 
     // Tweak-slot conflict gate (BUS0): under the credless guard the single
-    // tweak slot belongs to the guard — a fast-tier case supplying its own
-    // tweak has self-identified as not belonging in fast. Fail loud rather
+    // tweak slot belongs to the guard — a reveille-tier case supplying its own
+    // tweak has self-identified as not belonging in reveille. Fail loud rather
     // than letting the case silently overwrite the guard.
     if rbtdri_credless_armed()
         && extra_env.iter().any(|(k, _)| *k == RBTDRI_BURE_TWEAK_NAME_KEY)
     {
         return Err(format!(
-            "rbtdri: fixture '{}' is fast-tier credless — its tweak slot belongs to \
+            "rbtdri: fixture '{}' is reveille-tier credless — its tweak slot belongs to \
              the credless guard, so a case may not set {} (a case needing a seam \
-             does not belong in fast)",
+             does not belong in reveille)",
             ctx.fixture, RBTDRI_BURE_TWEAK_NAME_KEY
         ));
     }

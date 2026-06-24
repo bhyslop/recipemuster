@@ -73,7 +73,7 @@ pub const RBTDRM_FIXTURE_FOEDUS_LIFECYCLE: &str = "foedus-lifecycle";
 // probe payor -> run the rbw-dt scaffold (ensure bucket + per-polity managed
 // folder + folder-scoped write / bucket-level read IAM to the governor mantle,
 // then getIamPolicy read-back verify) -> run it again to prove the idempotent
-// reset. Unlike the quota-touching foedus fixture, this is a service-suite member
+// reset. Unlike the quota-touching foedus fixture, this is a picket-suite member
 // and self-skips when the payor credential is unreachable (suite-passenger
 // protection); a levied freehold absent the governor mantle is a real failure.
 pub const RBTDRM_FIXTURE_TERRIER_SCAFFOLD: &str = "terrier-scaffold";
@@ -82,10 +82,10 @@ pub const RBTDRM_FIXTURE_TERRIER_SCAFFOLD: &str = "terrier-scaffold";
 // proof, which engrosses a synthetic muniment, re-engrosses it to assert the
 // 412-on-conflict idempotency, peruses it present, expunges it, re-expunges to
 // assert the 404 idempotency, and peruses it gone (exit 0 IS that atomicity
-// assertion). Service-suite member; self-skips when the payor credential is
+// assertion). Picket-suite member; self-skips when the payor credential is
 // unreachable (suite-passenger protection), like terrier-scaffold.
 pub const RBTDRM_FIXTURE_TERRIER_ATOMICITY: &str = "terrier-atomicity";
-// Fast fixtures (no external dependencies)
+// Reveille fixtures (no external dependencies)
 pub const RBTDRM_FIXTURE_ENROLLMENT_VALIDATION: &str = "enrollment-validation";
 pub const RBTDRM_FIXTURE_RECIPE_VALIDATION: &str = "recipe-validation";
 pub const RBTDRM_FIXTURE_REGIME_VALIDATION: &str = "regime-validation";
@@ -94,8 +94,8 @@ pub const RBTDRM_FIXTURE_REGIME_SMOKE: &str = "regime-smoke";
 // real (in-tree or staged) regimes with one field corrupted via the
 // regime-poison tweak, asserting the specific band code of the gate that fires.
 // NOT credless: the tweak slot carries the per-case poison, so this fixture
-// cannot ride fast (whose slot belongs to the credless guard) — it enrolls in
-// service/crucible/complete instead.
+// cannot ride reveille (whose slot belongs to the credless guard) — it enrolls in
+// picket/bivouac/echelon instead.
 pub const RBTDRM_FIXTURE_REGIME_POISON: &str = "regime-poison";
 pub const RBTDRM_FIXTURE_HANDBOOK_RENDER: &str = "handbook-render";
 pub const RBTDRM_FIXTURE_DOCKERFILE_HYGIENE: &str = "dockerfile-hygiene";

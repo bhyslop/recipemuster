@@ -142,7 +142,7 @@ rbte_suite() {
   zrbte_sentinel
 
   local z_suite="${BUZ_FOLIO:-}"
-  test -n "${z_suite}" || buc_die "No suite imprint — use tabtarget with imprint (e.g. rbw-ts.TestSuite.fast.sh)"
+  test -n "${z_suite}" || buc_die "No suite imprint — use tabtarget with imprint (e.g. rbw-ts.TestSuite.reveille.sh)"
 
   zrbte_build_binary
 

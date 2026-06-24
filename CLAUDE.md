@@ -94,29 +94,29 @@ Run the broadest applicable suite:
 
 | Suite | Tabtarget | Dependencies | What it covers |
 |-------|-----------|-------------|----------------|
-| `fast` | `tt/rbw-ts.TestSuite.fast.sh` | None | 10 fixtures: enrollment-validation, regime-validation, regime-smoke, podvm-resolve, handbook-render, dockerfile-hygiene, foundry-path, recipe-validation, cupel, conformance |
-| `service` | `tt/rbw-ts.TestSuite.service.sh` | GCP credentials | fast + access-probe, hallmark-lifecycle, lode-lifecycle, reliquary-lifecycle, wsl-lifecycle, podvm-lifecycle, batch-vouch, regime-poison (18 fixtures) |
-| `crucible` | `tt/rbw-ts.TestSuite.crucible.sh` | Container runtime | fast + tadmor, srjcl, pluml, regime-poison (14 fixtures) |
-| `complete` | `tt/rbw-ts.TestSuite.complete.sh` | All of the above | service ∪ crucible (21 fixtures) |
+| `reveille` | `tt/rbw-ts.TestSuite.reveille.sh` | None | 10 fixtures: enrollment-validation, regime-validation, regime-smoke, podvm-resolve, handbook-render, dockerfile-hygiene, foundry-path, recipe-validation, cupel, conformance |
+| `picket` | `tt/rbw-ts.TestSuite.picket.sh` | GCP credentials | reveille + access-probe, hallmark-lifecycle, lode-lifecycle, reliquary-lifecycle, wsl-lifecycle, podvm-lifecycle, batch-vouch, regime-poison (18 fixtures) |
+| `bivouac` | `tt/rbw-ts.TestSuite.bivouac.sh` | Container runtime | reveille + tadmor, srjcl, pluml, regime-poison (14 fixtures) |
+| `echelon` | `tt/rbw-ts.TestSuite.echelon.sh` | All of the above | picket ∪ bivouac (21 fixtures) |
 
-`regime-poison` is the in-universe negative-validation fixture (real validate verbs against real regimes, one field corrupted via the regime-poison tweak, asserting a specific band code). It rides above fast — fast reserves the tweak slot for the credless guard — so a regime/validation change runs fast (positives) plus this fixture (negatives) via `tt/rbw-tf.FixtureRun.sh regime-poison`. Its operator-local cases (station/oauth/auth/node/privilege) self-skip when the regime is not configured on the machine.
+`regime-poison` is the in-universe negative-validation fixture (real validate verbs against real regimes, one field corrupted via the regime-poison tweak, asserting a specific band code). It rides above reveille — reveille reserves the tweak slot for the credless guard — so a regime/validation change runs reveille (positives) plus this fixture (negatives) via `tt/rbw-tf.FixtureRun.sh regime-poison`. Its operator-local cases (station/oauth/auth/node/privilege) self-skip when the regime is not configured on the machine.
 
 **Release/probe suites** — ladders distinguished by project-churn × crucible ×
 network posture, not dependency tier:
 
 | Suite | Tabtarget | Precondition | What it covers |
 |-------|-----------|-------------|----------------|
-| `gauntlet` | `tt/rbw-ts.TestSuite.gauntlet.sh` | None (levies fresh projects) | Release-qualification ladder: marshal-zero state → depot-lifecycle → freehold-establish → onboarding-sequence → fast fixtures → crucibles |
+| `gauntlet` | `tt/rbw-ts.TestSuite.gauntlet.sh` | None (levies fresh projects) | Release-qualification ladder: marshal-zero state → depot-lifecycle → freehold-establish → onboarding-sequence → reveille fixtures → crucibles |
 | `skirmish` | `tt/rbw-ts.TestSuite.skirmish.sh` | Freehold depot already levied | Mini-gauntlet: depot→build→crucible chain without project churn |
 | `dogfight` | `tt/rbw-ts.TestSuite.dogfight.sh` | Freehold depot already levied | Cloud-build viability probe: ordain → summon → run, no crucible |
 | `siege` | `tt/rbw-ts.TestSuite.siege.sh` | None (fully local) | Tadmor self-contained: kludge both vessels + security cases |
 | `blockade` | `tt/rbw-ts.TestSuite.blockade.sh` | Depot levied + moriah hallmark ordained | Airgap moriah crucible with credential self-heal |
 
 **After code changes**, run the appropriate tier:
-- Regime/validation changes → `fast` + `regime-poison` (`tt/rbw-tf.FixtureRun.sh regime-poison`)
-- Foundry/credential changes → `service`
-- Bottle/sentry/network changes → `crucible`
-- Pre-release or decomposition sweep → `complete`
+- Regime/validation changes → `reveille` + `regime-poison` (`tt/rbw-tf.FixtureRun.sh regime-poison`)
+- Foundry/credential changes → `picket`
+- Bottle/sentry/network changes → `bivouac`
+- Pre-release or decomposition sweep → `echelon`
 
 **Single fixture**: `tt/rbw-tf.FixtureRun.sh <name>` (e.g., `tadmor`, `enrollment-validation`, `regime-smoke`)
 
@@ -182,7 +182,7 @@ When minting, enumerate ALL namespaces the system touches:
 
 This is not exhaustive. The principle: **any persistent name anywhere is in the mint universe.**
 
-BURE tweak-name detail: the `buo` sprue is a reserved prefix for `BURE_TWEAK_NAME` values (the test-seam channel). BURE enforces the *shape* (`buo<segment>_…`) only — never specific names — so a typo'd/unregistered tweak fails loud instead of silently no-op'ing, and `grep buo` is the virtual registry (no central list). The segment after `buo` names the owning kit; `buost_` is BUK's own segment (BUK as consumer, since `buobu_` would be degenerate), homing both BUK-owned behavioral tweaks (the `buost_regime_poison` seam) and BUK self-test stubs (`buost_example`). Tweak *doctrine* — what a tweak is for, one-at-a-time by design, a suite reserving the slot for a standing guard — lives in BUS0 "Tweak Mechanism"; the live behavioral census is stamp (`buorb_ensconce_stamp`), poison (`buost_regime_poison`), and the fast-tier credless guard (`buorb_credless_guard`). A deliberate-rejection gate asserts its named exit code from the precision band, never bare nonzero — see BCG "Precision Exit-Code Band".
+BURE tweak-name detail: the `buo` sprue is a reserved prefix for `BURE_TWEAK_NAME` values (the test-seam channel). BURE enforces the *shape* (`buo<segment>_…`) only — never specific names — so a typo'd/unregistered tweak fails loud instead of silently no-op'ing, and `grep buo` is the virtual registry (no central list). The segment after `buo` names the owning kit; `buost_` is BUK's own segment (BUK as consumer, since `buobu_` would be degenerate), homing both BUK-owned behavioral tweaks (the `buost_regime_poison` seam) and BUK self-test stubs (`buost_example`). Tweak *doctrine* — what a tweak is for, one-at-a-time by design, a suite reserving the slot for a standing guard — lives in BUS0 "Tweak Mechanism"; the live behavioral census is stamp (`buorb_ensconce_stamp`), poison (`buost_regime_poison`), and the reveille-tier credless guard (`buorb_credless_guard`). A deliberate-rejection gate asserts its named exit code from the precision band, never bare nonzero — see BCG "Precision Exit-Code Band".
 
 ### Kit Infrastructure Suffixes
 

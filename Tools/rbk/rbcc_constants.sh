@@ -120,10 +120,10 @@ RBCC_fact_ext_roster_director="${RBCC_verb_roster}-${RBCC_account_director}"
 RBCC_fact_ext_audit_hallmark="audit-hallmark"
 
 # Tweak-name tinder — RB-owned BURE_TWEAK_NAME values (buo sprue, BUS0 Tweak
-# Mechanism). The credless guard is the fast-tier slot reservation: theurge
-# sets it on every tabtarget a fast-tier fixture spawns, and the Payor OAuth
+# Mechanism). The credless guard is the reveille-tier slot reservation: theurge
+# sets it on every tabtarget a reveille-tier fixture spawns, and the Payor OAuth
 # token-mint membrane (zrbgp_authenticate_capture) rejects under it with
-# BUBC_band_credless — a passing fast run can never use credentials.
+# BUBC_band_credless — a passing reveille run can never use credentials.
 RBCC_tweak_credless_guard="buorb_credless_guard"
 
 # Container-role tinder — the canonical bash home for the crucible's container

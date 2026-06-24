@@ -14,7 +14,7 @@
 //
 // Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 //
-// RBTDRF — fast-tier test cases for theurge
+// RBTDRF — reveille-tier test cases for theurge
 //
 // Ports enrollment-validation (47), regime-validation (21), and regime-smoke (7)
 // from bash test framework to theurge. Cases shell out to bash — theurge invokes
@@ -1207,7 +1207,7 @@ fn rbtdrf_rs_unmake_empty_arg_refusal(dir: &Path) -> rbtdre_Verdict {
 }
 
 /// Credless-guard proof — the BUS0 suite-invariant case. A deliberate cloud
-/// verb (rbw-iJ, registry delete) invoked from a fast-tier fixture must die
+/// verb (rbw-iJ, registry delete) invoked from a reveille-tier fixture must die
 /// at the token-mint chokepoint with the credless band code: the guard env
 /// arrives via `rbtdri_tabtarget_command` because this fixture is
 /// `credless: true`, and `rba_avow` rejects before touching the IdP or
@@ -1774,7 +1774,7 @@ pub static RBTDRF_FIXTURE_RECIPE_VALIDATION: rbtdre_Fixture = rbtdre_Fixture {
 // Asserts that zrbld_immure_resolve_family maps both podvm brands correctly.
 // Invokes the presage colophon (RBTDGC_PRESAGE_IMMURE) — the read-only dry-run
 // verb that resolves a family and reports what immure would capture. Presage
-// never loads credentials nor fires a build, so the fast tier drives it
+// never loads credentials nor fires a build, so the reveille tier drives it
 // directly with no test seam.
 
 fn rbtdrf_pr_invoke(

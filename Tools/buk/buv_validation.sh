@@ -135,7 +135,7 @@ zbuv_reset_enrollment() {
 # BURE_TWEAK_NAME is the optional test-seam slot, so its presence check is
 # guarded. The poison name is a bubc tinder constant sourced at module top, so
 # its reference stays unguarded — a typo dies under set -u rather than silently
-# matching nothing. Any other tweak occupying the slot — notably the fast-tier
+# matching nothing. Any other tweak occupying the slot — notably the reveille-tier
 # credless guard — compares unequal here and rides inert.
 zbuv_poison_apply() {
   local z_scope="${1:-}"

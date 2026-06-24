@@ -155,9 +155,9 @@ zrbgp_authenticate_capture() {
   zrbgp_sentinel
 
   # Credless guard gate — first, before the RBRO credential load, so a guarded
-  # run rejects before any credential touch (fast cases must never reach creds).
+  # run rejects before any credential touch (reveille cases must never reach creds).
   test "${BURE_TWEAK_NAME:-}" != "${RBCC_tweak_credless_guard}" \
-    || buc_reject "${BUBC_band_credless}" "Credless guard: Payor OAuth token mint refused — this run carries the fast-tier guard (fast cases must never reach credentials)"
+    || buc_reject "${BUBC_band_credless}" "Credless guard: Payor OAuth token mint refused — this run carries the reveille-tier guard (reveille cases must never reach credentials)"
 
   buc_log_args "Establishing Payor OAuth authentication context"
 

@@ -53,7 +53,7 @@ set -euo pipefail
 
 # Internal: resolve the family argument to its (kind-letter, quay-family, selection,
 # brand) tuple. The brand IS the operator-typed argument and the envelope kind field.
-# Both families are wired; podvm-wsl is fixture-proven recurring (service tier), and
+# Both families are wired; podvm-wsl is fixture-proven recurring (picket tier), and
 # podvm-native carries full 8-leaf curation (see rbgc_constants podvm selection block).
 # Args: family   Sets: z_kind, z_quay_family, z_selection (caller-scoped locals)
 zrbld_immure_resolve_family() {

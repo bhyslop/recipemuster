@@ -230,8 +230,8 @@ rbq_qualify_release() {
   rbq_qualify_fast
   rbq_qualify_shellcheck
 
-  buc_step "Running complete test suite"
-  "${ZRBQ_PROJECT_ROOT}/tt/rbw-ts.TestSuite.complete.sh"
+  buc_step "Running echelon test suite"
+  "${ZRBQ_PROJECT_ROOT}/tt/rbw-ts.TestSuite.echelon.sh"
 
   buc_step "Release qualification passed"
 }

@@ -65,7 +65,7 @@ thread_local! {
 
 /// Store invocation context for case functions. Called before run_sections.
 ///
-/// Also arms the fast-tier credless guard from the registered fixture's
+/// Also arms the reveille-tier credless guard from the registered fixture's
 /// `credless` field — installing a context IS entering a fixture's run, so
 /// the guard cannot be forgotten at a runner call site. An unregistered
 /// fixture name arms nothing (the runner has already fataled on lookup
@@ -2634,15 +2634,15 @@ pub fn rbtdrc_lookup_fixture(fixture: &str) -> Option<&'static rbtdre_Fixture> {
 /// resolves membership here. Each member is a compile-checked reference to a
 /// fixture static, so a mistyped or deleted member fails the build.
 ///
-/// The dependency-tiered suites (service, crucible, complete) list the fast
-/// fixtures explicitly rather than splicing a shared `fast` slice: const slice
+/// The dependency-tiered suites (picket, bivouac, echelon) list the reveille
+/// fixtures explicitly rather than splicing a shared `reveille` slice: const slice
 /// concatenation would be non-load-bearing cleverness, and the compile-time
-/// member check already guards correctness. Fast remains the conceptual base —
+/// member check already guards correctness. Reveille remains the conceptual base —
 /// the explicit duplication is the cost of that being a compile-checked list.
 pub static RBTDRC_SUITES: &[rbtdre_Suite] = &[
-    // Fast — no external dependencies.
+    // Reveille — no external dependencies.
     rbtdre_Suite {
-        name: "fast",
+        name: "reveille",
         fixtures: &[
             &crate::rbtdrf_fast::RBTDRF_FIXTURE_ENROLLMENT_VALIDATION,
             &crate::rbtdrf_fast::RBTDRF_FIXTURE_REGIME_VALIDATION,
@@ -2657,9 +2657,9 @@ pub static RBTDRC_SUITES: &[rbtdre_Suite] = &[
             &crate::rbtdrh_chain::RBTDRH_FIXTURE_CHAINING_FACT_BAND,
         ],
     },
-    // Service — fast + GCP-credentialed bare fixtures.
+    // Picket — reveille + GCP-credentialed bare fixtures.
     rbtdre_Suite {
-        name: "service",
+        name: "picket",
         fixtures: &[
             &crate::rbtdrf_fast::RBTDRF_FIXTURE_ENROLLMENT_VALIDATION,
             &crate::rbtdrf_fast::RBTDRF_FIXTURE_REGIME_VALIDATION,
@@ -2685,9 +2685,9 @@ pub static RBTDRC_SUITES: &[rbtdre_Suite] = &[
             &crate::rbtdrh_chain::RBTDRH_FIXTURE_CHAINING_FACT_BAND,
         ],
     },
-    // Crucible — fast + container-runtime crucible fixtures.
+    // Bivouac — reveille + container-runtime crucible fixtures.
     rbtdre_Suite {
-        name: "crucible",
+        name: "bivouac",
         fixtures: &[
             &crate::rbtdrf_fast::RBTDRF_FIXTURE_ENROLLMENT_VALIDATION,
             &crate::rbtdrf_fast::RBTDRF_FIXTURE_REGIME_VALIDATION,
@@ -2706,9 +2706,9 @@ pub static RBTDRC_SUITES: &[rbtdre_Suite] = &[
             &crate::rbtdrh_chain::RBTDRH_FIXTURE_CHAINING_FACT_BAND,
         ],
     },
-    // Complete — fast + every dependency-tiered fixture (service ∪ crucible).
+    // Echelon — reveille + every dependency-tiered fixture (picket ∪ bivouac).
     rbtdre_Suite {
-        name: "complete",
+        name: "echelon",
         fixtures: &[
             &crate::rbtdrf_fast::RBTDRF_FIXTURE_ENROLLMENT_VALIDATION,
             &crate::rbtdrf_fast::RBTDRF_FIXTURE_REGIME_VALIDATION,
@@ -3492,7 +3492,7 @@ pub static RBTDRC_CASES_LODE_LIFECYCLE: &[rbtdre_Case] = &[
 // what a live feoff READS from previous/.
 //
 // Distinct from onboarding-sequence's tracked-vessel ensconce->feoff (the same
-// chain against a committed forge vessel, gauntlet-tier): this rides SERVICE tier
+// chain against a committed forge vessel, gauntlet-tier): this rides PICKET tier
 // and feoffs a STAGED TEMP vessel resolved by path, touching no tracked config
 // and committing nothing (band-matrix discipline, rbtdrh_chain.rs the model).
 // feoff itself makes no GAR call — it composes the locator from the decoded

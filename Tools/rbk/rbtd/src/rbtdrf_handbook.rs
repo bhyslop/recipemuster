@@ -14,7 +14,7 @@
 //
 // Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 //
-// RBTDRF — handbook-render fast-tier fixture for theurge
+// RBTDRF — handbook-render reveille-tier fixture for theurge
 //
 // Exercises every handbook display tabtarget and reports per-case pass/fail.
 // Each case invokes a handbook colophon with no arguments and asserts exit 0.

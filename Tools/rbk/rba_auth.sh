@@ -108,7 +108,7 @@ zrba_sentinel() {
 # learn the avowal dance, so this accessor emits rba_avow's buc_step
 # progress to stderr and may buc_die on a headless miss. The stdout contract
 # still holds — only the mantle token reaches stdout (avow writes stderr and
-# /dev/tty only; the don emits the token straight to stdout) — and the fast-tier
+# /dev/tty only; the don emits the token straight to stdout) — and the reveille-tier
 # credless guard's in-band buc_reject still propagates: avow's exit
 # terminates the caller's command substitution with the credless band code,
 # which the caller's `|| buc_die` re-exits through the band membrane. The sitting
@@ -403,10 +403,10 @@ rba_avow() {
   zrbrf_sentinel
   zrbcc_sentinel
 
-  # Credless guard — the fast tier must never touch the IdP or the network.
+  # Credless guard — the reveille tier must never touch the IdP or the network.
   # Mirrors the keyfile mint's guard so the federated path honors the same invariant.
   test "${BURE_TWEAK_NAME:-}" != "${RBCC_tweak_credless_guard}" \
-    || buc_reject "${BUBC_band_credless}" "Credless guard: avowal refused — this run carries the fast-tier guard (fast cases must never reach the IdP)"
+    || buc_reject "${BUBC_band_credless}" "Credless guard: avowal refused — this run carries the reveille-tier guard (reveille cases must never reach the IdP)"
 
   if zrba_sitting_live_predicate; then
     buc_step "Sitting already live — reusing the cached federated token"
@@ -474,7 +474,7 @@ rba_avow() {
 # returned, NEVER retried as a propagation race, unlike the SA-propagation loops
 # the keyfile accessor carries.
 #
-# The fast-tier credless guard lives at the avowal entry (rba_avow): no
+# The reveille-tier credless guard lives at the avowal entry (rba_avow): no
 # verb dons without a live sitting, and the sitting read below returns 1 when none
 # is cached, so a credless run never reaches the mint.
 rba_don_capture() {

@@ -154,5 +154,5 @@ envelope, and hands the touchmark forward host-side as the
 The operation is capture-pure: no vessel or nameplate config is written.
 A consumer elects the touchmark separately by reading the capture-file — so election retries independently and survives, and a one-to-many fan-out iterates by reading the file rather than by a verb taking N consumer arguments.
 +
-Capture-fidelity (`recorded == upstream`) is established by construction — the same `gcrane manifest` that records the digest is the truth it would be checked against — so fidelity is a live/service-tier property, not an offline-checkable one.
+Capture-fidelity (`recorded == upstream`) is established by construction — the same `gcrane manifest` that records the digest is the truth it would be checked against — so fidelity is a live/picket-tier property, not an offline-checkable one.
 Re-running against the same upstream digest reproduces the same canonical digest tag; a rotated upstream yields a different digest, and that is the capture surfacing the change, not a fault.

@@ -73,7 +73,7 @@ BUBC_band_regime=100    # regime-module custom enforce rejection (cross-field, f
 BUBC_band_enroll=101    # buv enrollment-validation rejection (buv_vet, buv_scope_sentinel)
 BUBC_band_recipe=102    # recipe validation rejection
 BUBC_band_hygiene=103   # Dockerfile FROM-line hygiene rejection (rbfh)
-BUBC_band_credless=104  # credless guard at token mint (fast-tier suite invariant)
+BUBC_band_credless=104  # credless guard at token mint (reveille-tier suite invariant)
 BUBC_band_chain=105     # chaining-fact resolution rejection (broken express-or-chain, or wrong-kind touchmark) — one gate, alternative firings never co-occur in a spawn path
 # Self-test probe pins the band top, proving full-width propagation:
 BUBC_band_selftest=115  # BUK self-test deliberate rejection (buw-xb fixture)

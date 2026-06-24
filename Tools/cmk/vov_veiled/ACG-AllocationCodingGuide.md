@@ -177,7 +177,7 @@ Every cleanup move obeys one litmus:
 > is detect-and-report, never repair.**
 
 Code-side moves — the value resolves through a named constant, and shellcheck
-plus the fast suite verify it — may mutate now. Spec- and document-side moves are
+plus the reveille suite verify it — may mutate now. Spec- and document-side moves are
 detect-and-report until the lexer/linter that would catch a wrong move exists.
 
 Three rules ride that litmus:
@@ -199,8 +199,8 @@ Three rules ride that litmus:
 ## The named home — the conformance fixture
 
 Rule 2 and move-types ACGm_102/103 all defer to one concrete home: the
-**`conformance`** fast-tier theurge fixture
-(`Tools/rbk/rbtd/src/rbtdrn_conformance.rs`), registered in the `fast` suite. It
+**`conformance`** reveille-tier theurge fixture
+(`Tools/rbk/rbtd/src/rbtdrn_conformance.rs`), registered in the `reveille` suite. It
 is to evicted vocabulary what BUK's `bug_require_clean_tree` is to the clean-tree
 gate — the single named place the check lives, so no caller improvises its own.
 
@@ -236,7 +236,7 @@ detect-only** (read and report; no repair until a verifier exists). Numbered fro
   truth; every literal is a copy that can drift.
 - **Licensing:** mutate-now — the constant either resolves or the verifier fails,
   so a wrong move dies loud and immediately.
-- **Verifier:** bash — `tt/rbw-tl.Shellcheck.sh` + `tt/rbw-ts.TestSuite.fast.sh`
+- **Verifier:** bash — `tt/rbw-tl.Shellcheck.sh` + `tt/rbw-ts.TestSuite.reveille.sh`
   green; Rust — `tt/rbw-tb.Build.sh` + `tt/rbw-tt.Test.sh` green.
 - **Done:** every genuine construction site resolves through the constant; the
   constant carries a breadcrumb to its spec quoin.
