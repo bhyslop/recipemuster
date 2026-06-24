@@ -11,7 +11,7 @@ Until then the heat sits stabled, often with zero paces.
 Premise-touching ideas are operator-owned (260623): any idea that would amend a cinched ₣BZ premise stays a parked idea until the operator takes it up — there is no Fable adjudicator to wait on (Fable will not be available in time; this heat finishes without it).
 
 In-heat mint (operator decision 260623, broadened): Fable will not be available in time, so this heat mints ALL its vocabulary in-heat — every name, applying the selection gates by hand (grep gate, no trodden words, terminal-exclusivity, family coherence), the operator the sole authority.
-This covers everything the heat names: the build module/family/colophon names, the mechanism-discriminator vocabulary, the keystone foedus noun, and the standalone heed/compear and assize fair-faced remints.
+This covers everything the heat names: the build module/family/colophon names, the mechanism-discriminator vocabulary, the keystone foedus noun, and the foedus-accessor remints — sign-in, live-window, clear, switch, check — minted and (for the live words) swept 260624; see Foedus-accessor vocabulary below.
 The remints keep their own shape — a fair-faced word plus a tree-wide eviction sweep — but no longer wait on Fable; they are ordinary in-heat work the operator schedules.
 Keep this catalog shape-shaped — each idea a named tension plus a current lean, never a running discussion log.
 Genuinely thin or orthogonal ideas belong in itches or the horizon roadmap, not here; this paddock is for ideas worth deliberating with heat context.
@@ -249,42 +249,35 @@ Distinct from the degenerate-test-federation idea, which removes the human entir
 Touches a cinched federation-heat premise (human-present, and the headless fail-fast membrane), so it is operator-owned and may surface a paddock amendment rather than land purely in code.
 Under the configuration-model conviction this sharpens to a mechanism distinction: the programmatic mechanism is test-only and bypasses sign-in by construction, so it is not this fix — production headless stays an interactive-mechanism question with a human still present.
 
-## Idea — heed: rename the compear sign-in verb (fair-faced remint)
+## Foedus-accessor vocabulary — MINTED (260624)
 
-Tension: compear is an ashlar — the operator meets it in error output ("assize lapsed, compear") — yet it was minted as an obscure Scots-law term (to appear in answer to a summons).
-That inverts word-husbandry: the high-traffic, operator-facing sign-in verb is exactly the slot that wants the plainest, most guessable word, and compear spent its whole budget on rarity, so it never connects to "sign in."
-Distinct from the headless-compearance idea above, which is about the act's behavior — TTY gating — not its name.
+The sign-in / live-window / clear remints and the switch and check toothings were elected in-heat, gated by hand, and (for the two live words) swept tree-wide.
 
-Current lean: heed — the grep-isolated twin of answer (both name responding to a summons), at zero repo hits where answer lands at 83.
-It sits on the fair-faced floor by construction — rare enough to grep clean, warm enough to guess on first contact: the system summons you, you heed it by signing in, and the assize opens.
-Runner-up proffer (the present-yourself frame, also grep-clean) reads slightly more as offering a thing than showing up; heed is the better fit.
+Sign-in verb: compear → avow, swept tree-wide (260624).
+The everyone-class login — any human opening a session — homed in the access family rbw-a as rbw-aa, lowercase (it mutates no cloud).
+Chosen for the cognitive rhyme with OIDC's "assertion" (you avow yourself; the IdP asserts your identity), and as the plain, fair-faced word the highest-traffic error-output ashlar wants.
 
-Carried to the remint: this is an in-heat remint with an eviction sweep, not a paddock swap — compear is live (rbtf_compear, the credential accessor, the "assize lapsed, compear" error), so all forms move together (compear -> heed, compearing/compearance -> heeding; heed needs no -ance form, heeding covers every standing usage).
-Register note for the mint: heed is plain Old English where its siblings (affiance, compear, brevet) are Latinate — intentional, since husbandry gives the high-traffic error-output ashlar the plainest word, so it should not be re-elevated toward the Latinate family on register grounds.
+Live-window noun: assize → sitting, swept tree-wide (260624).
+The keep-a-noun-or-demote fork resolved to KEEP an operator-facing noun.
+Chosen for the cognitive rhyme with the vendor word "session" (RBRF_SESSION_DURATION) and as the civic cousin of the retired word (an assize is a court sitting); it takes no colophon — it is a noun, living in error prose and the zrba_sitting_* identifiers.
 
-## Idea — rename the assize live-window noun (fair-faced remint)
+Clear-the-sitting verb: quash — test-only (force a fresh sign-in by discarding the cached sitting), homed in the test bucket rbw-q, lowercase.
+First-letter-separated from avow on purpose, since the operator wields the sign-in and clear-sign-in pair together.
 
-Tension: assize names the live sign-in window and is an ashlar — the operator meets it in cap prose and in the "assize lapsed, compear" error text — yet it fails the fair-faced bar on two axes at once.
-Register: the leading "ass-" sits at the head of an operator- and customer-visible word, an embedded-substring wart that undercuts the polish corporate adoption needs.
-Memorability: assize is an obscure medieval-legal term (a court sitting that is also a fixed measure), so beyond the substring it never connects to "the live sign-in window" on first contact.
-The double-miss — bad substring and unguessable — lands in the one slot that least tolerates either, which on its own is the case for retiring the word regardless of its replacement.
-Sibling to the heed/compear remint above: the same word-husbandry inversion (a high-traffic operator-facing ashlar minted for rarity), here compounded by the register wart.
+Active-foedus switch: instate — the foedus-cardinality toothing, homed in the odd-letter family rbw-j.
+Office register: install the active foedus, one at a time (single-active = the prior steps down).
+Open hinge carried to the switch-design pace: casing keys off whether the selector is committed config (uppercase + bug_require_clean_tree) or local runtime state (lowercase, gate-free).
 
-Current lean: retire assize; the replacement is an in-heat mint with an eviction sweep — the word is live (RBRF_SESSION_DURATION as the cap, the zrba_assize_* identifiers and cache, the "assize opened / assize lapsed" surface), so all forms move together.
-Load-bearing fork carried to the mint: whether the concept keeps an operator-facing noun at all, or demotes to hearting with the error text going plain prose ("your sign-in expired — sign in again").
-Lean on the fork: the concept is recurring and precise enough to earn a noun (asterism coherence, cap prose like "the window is 15 min–12 h"), so keep a noun but the error text may soften — and either way the new word must clear register and memorability, which assize cannot.
-No word is picked here yet; under the in-heat-mint posture the operator picks it when the remint is scheduled.
+Foedus check: descry — the pool-integrity toothing, rbw-jd, lowercase (read-only); rhymes with Google's "describe pool".
+Word minted here; its exact signature stays the check-design pace's to choose.
 
-## Idea — a verb to clear the live assize (force a fresh compearance)
+Colophon homing settled this pass:
+the access family collapses rbw-ac → rbw-a (rbw-aa avow, rbw-ap payor-credential check; the mantle-access probe relocates to the test bucket);
+gird moves to the manor family as rbw-mG, so rbw-m is the payor founding trio (affiance / jilt / gird) and rbw-p stays purely governor;
+foedus-cardinality verbs take rbw-j; test-only utilities and qualification take rbw-q (the Keycloak foedus setup is rbw-qjK — uppercase, because it affiances and so mutates cloud).
+The foedus NOUN stays a folio with no colophon family; only its cardinality VERBS take rbw-j.
 
-Tension: nothing discards a cached assize today — the rba accessor exposes only path/read/live/write, and no tabtarget clears the federation token.
-While an assize is live, every rbw-acf cache-hits and reuses the same federated token until natural expiry; the only way to force a fresh compearance now is to delete the cache file by hand.
-Demonstrated live (260617): after one compearance, repeated rbw-acf runs reused the single cached token byte-for-byte across the whole assize window — there was no on-demand path to re-mint.
-The gap is a capability (delete the per-assize cache file at the tmpfs path) plus a name; the capability is trivial and the name is the open part.
-
-Current lean: add the verb and a tabtarget.
-Naming is coupled to the assize-rename idea above — it clears the live-window thing, so it keys off whatever that noun becomes and wants the same vocabulary pass.
-Disposition left open: whether it rides the assize remint or lands sooner under its own name is the operator's call; the capability is trivial and minted in-heat.
+Casing convention across these families: an uppercase second letter marks an op that mutates cloud or critical manor state; lowercase marks read-only or non-mutating.
 
 ## Idea — one-click compearance via verification_uri_complete (IdP-agnostic)
 
@@ -341,7 +334,7 @@ The accessor's end-to-end don-and-call still awaits a standing admission (a brev
 
 Two tiers (operator aim): a light tier — "use the current, switch lightly" — reuses durable standing foedera and changes the active one by selection, mapping onto the existing skirmish/dogfight (freehold-already-standing) suites; a nuclear tier — "full redo everything" — jilts and re-affiances the foedera from scratch, mapping onto the existing gauntlet (levies-fresh) suites.
 
-New vocabulary (in-heat mint, Fable-decoupled): roughly ONE new toothing — select/switch the active foedus — plus the assize-reset it forces (clear the live session, re-sign-in against the new foedus), which is the already-noted clear-the-live-assize idea, not net-new.
+New vocabulary (minted 260624): the switch toothing instate (rbw-j) — select the active foedus — plus the sitting-reset it forces (quash the live sitting, re-sign-in against the new foedus).
 Founding/dissolving stays affiance/jilt; durable-vs-ephemeral is a tenure policy (freehold = affiance-and-never-jilt), not a verb; the nuclear redo is a named ceremony composing jilt+affiance, not an atom.
 
 This strand gathers four ideas above that are really one design: freehold (durable test-bed), the release-suites' lost credential-heal (a standing-freehold readiness step), multiplicity-as-switching (this topology), and federation-testing-collapses-onto-real-verbs (the authentic-verb fixture, suite word parley). It borders the durable manor-setup finisher.
@@ -372,9 +365,8 @@ The rename is a mechanical batch across each suite's tabtarget filename, the RBT
 
 chaining-fact-band — RESTORED (operator ruling 260623): the credless feoff/yoke band-matrix fixture is restored to the gauntlet and skirmish release ladders — it rode the four everyday suites but had been dropped from both — guarded by a fast-base set-equality assertion so the membership cannot silently drift again.
 
-Foedus reuse and the active-foedus switch — PARKED (not folded into the plan): the single-active-foedus, switched-among-standing topology stands, and the everyday reuse path switches rather than affiances — a workforce identity pool is founded once per foedus and kept, never jilted, so the everyday path is cap-flat.
-Deliberately NOT minted here: the switch toothing's selection mechanism and its name.
-The switch name is placed and minted when the heat rails its rename and remint work (alongside the compear→heed and assize remints), not before.
+Foedus reuse and the active-foedus switch — switch NAMED, mechanism PARKED: the single-active-foedus, switched-among-standing topology stands, and the everyday reuse path switches rather than affiances — a workforce identity pool is founded once per foedus and kept, never jilted, so the everyday path is cap-flat.
+The switch toothing is now minted — instate (rbw-j) — alongside the avow / sitting / quash remints (done 260624); only its selection mechanism stays PARKED.
 The audit's foedus-reuse-leg proposal inherited an affiance-centric frame the switch decision supersedes; it is reframed around the switch when the plan is enrolled.
 
 ## Paddock drain — the heat-memories memo (experimental, 260623)
