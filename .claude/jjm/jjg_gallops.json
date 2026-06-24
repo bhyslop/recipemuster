@@ -16822,14 +16822,14 @@
         "₢BfAAF": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260622-0739",
+              "jjgtn_ts": "260624-1156",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "## Build the terrier's permanent founding-home — a single idempotent \"post-payor-guide manor-setup finisher\" that ensures the terrier bucket + per-polity folders, retiring the interim scaffold.",
                 "",
                 "The terminal Fable review resolved the founding-home to OPTION B: the Manor provisions the terrier (affiance touches it nowhere — the bucket name is foedus-independent, its IAM binds the depot-born governor mantle SA, not a foedus principal). Operator cinched the shape: ONE idempotent tabtarget, run after the manual manor setup (console project + OAuth), finishing all scriptable manor-setup steps including the terrier-bucket-ensure.",
                 "",
-                "Full reasoning + grain: the review ledger (chunk 3) and Memos/memo-20260622-fable-review-queue.md (terrier-fork-b-resolution, terrier-b-shape-finisher). As-built to fold in + retire: the rbw-dt / rbw-dT scaffold, plus the two theurge fixtures (terrier-scaffold, terrier-atomicity) in the service/complete suites.",
+                "Full reasoning + grain: the review ledger (chunk 3) and Memos/memo-20260622-fable-review-queue.md (terrier-fork-b-resolution, terrier-b-shape-finisher). As-built to fold in + retire: the rbw-dt / rbw-dT scaffold, plus the two theurge fixtures (terrier-scaffold, terrier-atomicity) in the picket/echelon suites.",
                 "",
                 "## Done when",
                 "A standing manor-setup-finisher tabtarget idempotently ensures the terrier bucket (payor-project-grain) + per-polity managed folders (depot-grain) + the grain IAM (write folder-scoped own-polity, read bucket-level manor-wide); the interim scaffold and its two fixtures are retired or migrated onto it; the gauntlet ladder stays green (it carries no terrier fixture).",
@@ -16841,7 +16841,7 @@
                 "Implementation over a settled design; the B-variant (standing op vs manor-establish enlargement) and the folder-step credential boundary (folder lives in the payor-project bucket) are the in-pace judgment calls."
               ],
               "jjgtn_silks": "terrier-founding-home-finisher",
-              "jjgtn_basis": "3936dc6"
+              "jjgtn_basis": "6411253"
             }
           ]
         },
@@ -17278,13 +17278,13 @@
         "₢BfAAU": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260623-2135",
+              "jjgtn_ts": "260624-1156",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "Close the discovery-vs-suite registry drift: register foundry-path in RBTDRC_FIXTURES (it rides six suites but is unresolvable by name), and add a build-time assertion that every suite-referenced fixture is roster-resolvable.",
                 "",
                 "## Done when",
-                "FixtureRun resolves foundry-path; the invariant fails the build if any suite gains a roster-less fixture; fast suite green.",
+                "FixtureRun resolves foundry-path; the invariant fails the build if any suite gains a roster-less fixture; reveille suite green.",
                 "",
                 "## Cinched",
                 "Assert suite ⊆ roster ONLY, never the reverse — foedus-lifecycle / freehold-churn / calibrant-* are intentional roster-only members of no suite. Build-affecting: rbtdgc_consts.rs + tabtarget-context.md regenerate, yours to commit. Detail: the audit memo's pace-slate (Memos/memo-20260623-theurge-test-consolidation-audit.md).",
@@ -17293,29 +17293,29 @@
                 "Mechanical heal plus one guard."
               ],
               "jjgtn_silks": "registry-drift-guard-and-heal",
-              "jjgtn_basis": "ed7d151"
+              "jjgtn_basis": "6411253"
             }
           ]
         },
         "₢BfAAV": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260623-2135",
+              "jjgtn_ts": "260624-1156",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
-                "Add a FAST_BASE set-equality assertion pinning the canonical fast set as a regression oracle across the dependency-tiered suites, and RESTORE chaining-fact-band to the gauntlet and skirmish ladders (operator ruling 260623 — it was dropped from both).",
+                "Add a REVEILLE_BASE set-equality assertion pinning the canonical reveille set as a regression oracle across the dependency-tiered suites, and RESTORE chaining-fact-band to the gauntlet and skirmish ladders (operator ruling 260623 — it was dropped from both).",
                 "",
                 "## Done when",
-                "The assertion fails the build on any fast-base drift; chaining-fact-band rides gauntlet and skirmish; the defended verbatim fast lists stay literal.",
+                "The assertion fails the build on any reveille-base drift; chaining-fact-band rides gauntlet and skirmish; the defended verbatim reveille lists stay literal.",
                 "",
                 "## Cinched",
-                "Do NOT collapse the fast lists into a concat — the assertion guards the set, the lists stay literal. Detail: the audit memo's pace-slate.",
+                "Do NOT collapse the reveille lists into a concat — the assertion guards the set, the lists stay literal. Detail: the audit memo's pace-slate.",
                 "",
                 "## Character",
                 "Mechanical guard; the restore ruling is settled."
               ],
               "jjgtn_silks": "fast-base-set-equality-assertion",
-              "jjgtn_basis": "ed7d151"
+              "jjgtn_basis": "6411253"
             }
           ]
         },
@@ -17388,13 +17388,13 @@
         "₢BfAAZ": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260623-2135",
+              "jjgtn_ts": "260624-1156",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "Extract the triplicated payor-credential probe-and-gate preamble (terrier-scaffold, terrier-atomicity, foedus-lifecycle) into one helper whose signature reproduces all three verdicts verbatim.",
                 "",
                 "## Done when",
-                "All three gates route through the helper; the foedus Fail still dumps stdout/stderr verbatim; the two terrier Skips still skip; service suite green.",
+                "All three gates route through the helper; the foedus Fail still dumps stdout/stderr verbatim; the two terrier Skips still skip; picket suite green.",
                 "",
                 "## Cinched",
                 "The naive (fixture_name + Skip|Fail) signature is INSUFFICIENT — it drops the foedus stdout/stderr dump; carry per-policy templates or return the probe Result. Detail: the audit memo's pace-slate.",
@@ -17403,7 +17403,7 @@
                 "Real dedup gated on a richer-than-naive signature."
               ],
               "jjgtn_silks": "payor-gate-helper-richer-signature",
-              "jjgtn_basis": "ed7d151"
+              "jjgtn_basis": "6411253"
             }
           ]
         },
@@ -17454,13 +17454,13 @@
         "₢BfAAc": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260623-2135",
+              "jjgtn_ts": "260624-1156",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "Remove the dead rbtdri_invoke_ifrit and its duplicate ifrit-binary const, leaving the live rbtdrc_invoke_ifrit pair as the single ifrit-invoke home.",
                 "",
                 "## Done when",
-                "One ifrit-invoke home and one rbid const remain; the crate builds; crucible suite green.",
+                "One ifrit-invoke home and one rbid const remain; the crate builds; bivouac suite green.",
                 "",
                 "## Cinched",
                 "Verify zero external callers before removing; rbtdri_parse_ifrit_verdict and the rest of rbtdri_invocation stay live. Detail: the audit memo's pace-slate.",
@@ -17469,7 +17469,7 @@
                 "Surgical dead-code removal."
               ],
               "jjgtn_silks": "ifrit-invoke-dead-code-removal",
-              "jjgtn_basis": "ed7d151"
+              "jjgtn_basis": "6411253"
             }
           ]
         },
