@@ -313,7 +313,7 @@ For universal naming vocabulary (Cipher, Signet, Epithet, Inscription, Vesture),
 Vesture for tabtarget launcher identifiers.
 Defines how launcher scripts in `tt/` are named.
 +
-* signet_case: lowercase with hyphen (the colophon)
+* signet_case: lowercase cipher prefix with hyphen, then a case-significant suffix (the colophon) — suffix letters may be upper or lower case and the case is meaningful, so colophons differing only in suffix case are distinct routing identifiers (kept filesystem-safe by their differing epithets); a consumer may assign the suffix case a meaning by convention
 * separator: `.`
 * epithet_case: PascalCase (the frontispiece)
 * envelope: `.sh`
