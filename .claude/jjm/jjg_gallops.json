@@ -17029,27 +17029,29 @@
         "₢BfAAO": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260623-0904",
+              "jjgtn_ts": "260623-2218",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
-                "Recast the federation specs to the vendor-agnostic-core-plus-mechanism-gate shape, contract-first, before any build code.",
+                "Recast the federation specs to the vendor-agnostic-core-plus-mechanism-gate shape, contract-first, before any build code — and add the foedus-selection regime support the switch design leans on.",
                 "",
                 "Evolve RBSRF (RBSRF-RegimeFederation.adoc) and RBSMA (RBSMA-manor_affiance.adoc) so the regime is a vendor-agnostic trust core plus an acquisition-mechanism gate (interactive vs programmatic), and stand up the two new RBS0 subdoc contracts the model calls for.",
                 "Mint the mechanism-discriminator quoin, its value words, and the two subdoc acronyms in-heat, applying the selection gates by hand (grep, no trodden words, terminal-exclusivity, family coherence) — the heat lifted the Fable gate for its build vocabulary.",
                 "",
-                "Source: the config-model memo (Memos/memo-20260618-Bf-federation-config-model.md) carries the detailed subdoc plan — the per-spec must-contain reference, the marker-scheme note, and the mint list — so read it first rather than re-deriving.",
+                "Add the foedus-SELECTION regime support: the single-active-foedus topology needs the regime to hold two (or more) foedus configs plus a selector naming the active one. This is the regime shape the switch toothing re-points; its SUPPORT lives here in the recast, while the switch's behaviour lives in the foedus-reuse design pace. Settled selector-home (operator decision 260623).",
+                "",
+                "Source: the config-model memo (Memos/memo-20260618-Bf-federation-config-model.md) for the subdoc plan; the paddock foedus-lifecycle strand for the selection topology.",
                 "",
                 "## Done when",
-                "The two specs voice the core-plus-mechanism-gate model, the two subdoc contracts exist, and the minted vocabulary clears the gates.",
+                "The two specs voice the core-plus-mechanism-gate model, the two subdoc contracts exist, the regime carries the multi-config + selector shape the switch re-points, and the minted vocabulary clears the gates.",
                 "",
                 "## Cinched",
-                "Contract before code (project doctrine): this is a hard predecessor of every build pace below — no establishment, accessor, or orchestrator code starts before the specs are recast.",
+                "Contract before code (project doctrine): a hard predecessor of every build pace below — no establishment, accessor, orchestrator, or foedus-toothing code starts before the specs are recast. Selector regime-SUPPORT lives here; switch behaviour lives in the foedus-reuse design.",
                 "",
                 "## Character",
                 "Spec authoring plus in-heat mint; judgment-heavy, reads the config-model memo first."
               ],
               "jjgtn_silks": "federation-spec-first-recast",
-              "jjgtn_basis": "2360e55"
+              "jjgtn_basis": "effe429"
             }
           ]
         },
