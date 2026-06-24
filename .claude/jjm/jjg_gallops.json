@@ -17266,7 +17266,7 @@
         "₢BfAAT": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260624-0202",
+              "jjgtn_ts": "260624-1333",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "Settle the foedus-reuse design and the precise tabtarget nature of every foedus toothing — the fixture↔verb seam, the pool-integrity CHECK, the active-foedus SWITCH, and how affiance composes with them — choosing each verb's exact signature clearly and directly, not delegating it further.",
@@ -17283,8 +17283,13 @@
                 "Casing is the open hinge — lowercase (rbw-ji) if the selector is local runtime state (free test-switching, no gate), uppercase (rbw-jI) plus bug_require_clean_tree if the selector is committed config.",
                 "The configure-foedus op the switch's regime shape feeds from is homed rbw-qjK (the Keycloak setup).",
                 "",
+                "## Parley fixture ownership (surfaced by the heat-integrity audit)",
+                "This strand's slate also owns the parley authentic-verb federation fixture — the real brevet/unseat/rehearse against a real terrier — which is named and reserved but built by no pace.",
+                "Decide its fate here: confirm it DEFERS with the held attach-caged-subject unit (the real verbs need a brevetted subject + standing terrier, both ₣BZ-gated), or slate its build if a real subject proves feasible pre-₣BZ.",
+                "Fold in (or sibling-slate) the small rbgft data-layer unit test the paddock flags for the precise engross-412 / expunge-404 idempotency.",
+                "",
                 "## Done when",
-                "Every foedus toothing's precise tabtarget nature is clearly and directly chosen — descry's signature, the switch's signature and the instate/casing question, and the atomic boundaries — with no deferral; the fixture-composition pattern that yields \"reuse if valid, else create\" is specified; the combinator and the reuse-build pace can build against it.",
+                "Every foedus toothing's precise tabtarget nature is clearly and directly chosen — descry's signature, the switch's signature and the instate/casing question, and the atomic boundaries — with no deferral; the fixture-composition pattern that yields \"reuse if valid, else create\" is specified; parley's fate is decided (deferred-with-the-attach-tail or slated); the combinator and the reuse-build pace can build against it.",
                 "",
                 "## Cinched",
                 "Atomic toothings: no tabtarget is check-then-create; composition lives in fixtures (operator's strong opinion).",
@@ -17295,7 +17300,7 @@
                 "Design conversation requiring operator judgment; mount with the operator present; this is where the long-delegated tabtarget nature gets pinned."
               ],
               "jjgtn_silks": "foedus-reuse-design",
-              "jjgtn_basis": "9d9ece1"
+              "jjgtn_basis": "49e26b5"
             }
           ]
         },
@@ -17522,13 +17527,16 @@
         "₢BfAAe": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260623-2152",
+              "jjgtn_ts": "260624-1333",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "Finalize the RBS0 theurge-test-cosmology subdoc, homing the durable concepts this audit lifted — the inner-body × wrapper combinator, the REUSE/LIFECYCLE wrappers, the three strata, the freehold composite — as spec rather than memo, superseding the prior standalone cosmology-spec pace ₢BlAAA (in a separate heat).",
                 "",
+                "## Parley characterization (surfaced by the heat-integrity audit)",
+                "Either name the parley authentic-verb federation suite/fixture in the cosmology — its sub-register among the strata — or explicitly scope it out with a one-line note, so the characterization gap closes by decision rather than omission.",
+                "",
                 "## Done when",
-                "The cosmology is spec-homed in a new RBS-tail subdoc include'd into RBS0 (a fresh quoin stem, not rbst_); the wrapper/strata/composite vocabulary is citable from code; the vow + adoc build is green; the prior cosmology-spec pace ₢BlAAA is wrapped or dropped as superseded, and its empty heat retired.",
+                "The cosmology is spec-homed in a new RBS-tail subdoc include'd into RBS0 (a fresh quoin stem, not rbst_); the wrapper/strata/composite vocabulary is citable from code; the parley suite/fixture is either characterized or explicitly scoped out; the vow + adoc build is green; the prior cosmology-spec pace ₢BlAAA is wrapped or dropped as superseded, and its empty heat retired.",
                 "",
                 "## Cinched",
                 "A SUBDOC of RBS0, not a sibling top-spec; honor the five membranes (reference BUS0 busr_fixture/busr_suite, point at RBTDRC_SUITES, cite the crucible-security specs, split the identity-layers model, thin the CLAUDE.md table). Depends on the combinator having settled the abstraction. Detail: the audit memo plus ₢BlAAA's membrane list (its rich source).",
@@ -17537,7 +17545,7 @@
                 "Spec authoring; depends on the combinator."
               ],
               "jjgtn_silks": "theurge-cosmology-subdoc-finalize",
-              "jjgtn_basis": "dfeacc5"
+              "jjgtn_basis": "49e26b5"
             }
           ]
         },
