@@ -16643,22 +16643,8 @@
         "₢BfAAk",
         "₢BfAAi",
         "₢BfAAO",
-        "₢BfAAj",
         "₢BfAAT",
-        "₢BfAAZ",
-        "₢BfAAf",
-        "₢BfAAg",
-        "₢BfAAe",
-        "₢BfAAQ",
-        "₢BfAAU",
-        "₢BfAAV",
-        "₢BfAAW",
-        "₢BfAAX",
-        "₢BfAAY",
-        "₢BfAAa",
         "₢BfAAb",
-        "₢BfAAc",
-        "₢BfAAd",
         "₢BfAAI",
         "₢BfAAP",
         "₢BfAAN",
@@ -17181,31 +17167,6 @@
             }
           ]
         },
-        "₢BfAAQ": {
-          "jjgpn_tacks": [
-            {
-              "jjgtn_ts": "260623-2135",
-              "jjgtn_state": "jjgte_rough",
-              "jjgtn_text": [
-                "Decompose the rbtdrc_crucible god-module: extract the two framework-global registries (RBTDRC_FIXTURES, RBTDRC_SUITES and their lookups) and the bare no-charge/quench GCP-service fixtures, leaving a true crucible module behind. The defended suite-list duplication stays.",
-                "",
-                "## Refresh (post-rebase)",
-                "The rebase grew the file: also relocate the new chaining-fact-livery bare fixture with its cluster, and preserve the rbtdrh_chain cross-module registry references that now sit in RBTDRC_FIXTURES and four suites. RBTDRC_FIXTURES and RBTDRC_SUITES stay together in one module after the split — they are the registries every later pace edits.",
-                "",
-                "## Done when",
-                "rbtdrc_crucible carries only crucible-lifecycle concerns; the registries and bare-service fixtures live in their own homes; the theurge build and unit tests are green; suite composition and fixture behavior are byte-unchanged.",
-                "",
-                "## Cinched",
-                "Relocation only — do NOT collapse the suite membership lists (the const-concat-is-cleverness decision stands).",
-                "",
-                "## Character",
-                "Mechanical module relocation, fully compile-checked."
-              ],
-              "jjgtn_silks": "theurge-crucible-module-split",
-              "jjgtn_basis": "ed7d151"
-            }
-          ]
-        },
         "₢BfAAR": {
           "jjgpn_tacks": [
             {
@@ -17305,160 +17266,6 @@
             }
           ]
         },
-        "₢BfAAU": {
-          "jjgpn_tacks": [
-            {
-              "jjgtn_ts": "260624-1156",
-              "jjgtn_state": "jjgte_rough",
-              "jjgtn_text": [
-                "Close the discovery-vs-suite registry drift: register foundry-path in RBTDRC_FIXTURES (it rides six suites but is unresolvable by name), and add a build-time assertion that every suite-referenced fixture is roster-resolvable.",
-                "",
-                "## Done when",
-                "FixtureRun resolves foundry-path; the invariant fails the build if any suite gains a roster-less fixture; reveille suite green.",
-                "",
-                "## Cinched",
-                "Assert suite ⊆ roster ONLY, never the reverse — foedus-lifecycle / freehold-churn / calibrant-* are intentional roster-only members of no suite. Build-affecting: rbtdgc_consts.rs + tabtarget-context.md regenerate, yours to commit. Detail: the audit memo's pace-slate (Memos/memo-20260623-theurge-test-consolidation-audit.md).",
-                "",
-                "## Character",
-                "Mechanical heal plus one guard."
-              ],
-              "jjgtn_silks": "registry-drift-guard-and-heal",
-              "jjgtn_basis": "6411253"
-            }
-          ]
-        },
-        "₢BfAAV": {
-          "jjgpn_tacks": [
-            {
-              "jjgtn_ts": "260624-1201",
-              "jjgtn_state": "jjgte_rough",
-              "jjgtn_text": [
-                "Add a REVEILLE_BASE set-equality assertion pinning the canonical reveille set as a regression oracle across the dependency-tiered suites, and RESTORE chaining-fact-band to the gauntlet and skirmish ladders (operator ruling 260623 — it was dropped from both).",
-                "",
-                "## Done when",
-                "The assertion fails the build on any reveille-base drift; chaining-fact-band rides gauntlet and skirmish; the defended verbatim reveille lists stay literal.",
-                "",
-                "## Cinched",
-                "Do NOT collapse the reveille lists into a concat — the assertion guards the set, the lists stay literal. Detail: the audit memo's pace-slate.",
-                "",
-                "## Character",
-                "Mechanical guard; the restore ruling is settled."
-              ],
-              "jjgtn_silks": "reveille-base-set-equality-assertion",
-              "jjgtn_basis": "71e3552"
-            }
-          ]
-        },
-        "₢BfAAW": {
-          "jjgpn_tacks": [
-            {
-              "jjgtn_ts": "260624-1322",
-              "jjgtn_state": "jjgte_rough",
-              "jjgtn_text": [
-                "Hoist rbtdro_ordain_capture (single + three-fact), the invoke-or-fail wrapper, and the GAR-locator builders out of rbtdro_onboarding into a shared home (rbtdri_invocation is the natural fit), then route the open-coded copies in dogfight and the crucible bodies through them.",
-                "",
-                "## Done when",
-                "No crucible/dogfight body open-codes the ordain+fact-read or invoke-error shape; picket and dogfight suites green.",
-                "",
-                "## Cinched",
-                "The TWO GAR-locator shapes (category-rooted wrest_locator vs fact-rooted image_ref) must NOT merge — keep two builders or none. Detail: the audit memo's pace-slate.",
-                "",
-                "## Character",
-                "Coverage-neutral lift; the helpers are already proven in onboarding."
-              ],
-              "jjgtn_silks": "ordain-capture-helpers-to-shared-home",
-              "jjgtn_basis": "b41e86b"
-            }
-          ]
-        },
-        "₢BfAAX": {
-          "jjgpn_tacks": [
-            {
-              "jjgtn_ts": "260623-2135",
-              "jjgtn_state": "jjgte_rough",
-              "jjgtn_text": [
-                "Extract the byte-near-identical invariant blocks shared by the four Lode round-trip case bodies (touchmark read-back, divine-contains, banish-and-verify-gone) and the two-site member-jettison block into within-module helpers.",
-                "",
-                "## Done when",
-                "The four Lode bodies call the shared blocks; the six load-bearing per-kind differences stay inline; the four Lode fixtures green standalone.",
-                "",
-                "## Cinched",
-                "Do NOT widen any helper to absorb the six exclusions; do NOT touch lode-collision or chaining-livery. Detail: the audit memo's pace-slate.",
-                "",
-                "## Character",
-                "Within-file mechanical extraction, independent of the wrapper lift."
-              ],
-              "jjgtn_silks": "lode-roundtrip-block-helpers",
-              "jjgtn_basis": "ed7d151"
-            }
-          ]
-        },
-        "₢BfAAY": {
-          "jjgpn_tacks": [
-            {
-              "jjgtn_ts": "260623-2135",
-              "jjgtn_state": "jjgte_rough",
-              "jjgtn_text": [
-                "Collapse the seven byte-identical reliquary-touchmark precondition-probe preambles in the onboarding cases into one assert helper.",
-                "",
-                "## Done when",
-                "The seven preambles become one helper; onboarding-sequence green; the standalone kludge-tadmor path stays probe-free.",
-                "",
-                "## Cinched",
-                "At the graft-demo case replace only the reliquary preamble; leave the standalone path's deliberate probe-omission alone. Detail: the audit memo's pace-slate.",
-                "",
-                "## Character",
-                "Trivial within-file fold, coverage-neutral."
-              ],
-              "jjgtn_silks": "onboarding-reliquary-probe-helper",
-              "jjgtn_basis": "ed7d151"
-            }
-          ]
-        },
-        "₢BfAAZ": {
-          "jjgpn_tacks": [
-            {
-              "jjgtn_ts": "260624-1156",
-              "jjgtn_state": "jjgte_rough",
-              "jjgtn_text": [
-                "Extract the triplicated payor-credential probe-and-gate preamble (terrier-scaffold, terrier-atomicity, foedus-lifecycle) into one helper whose signature reproduces all three verdicts verbatim.",
-                "",
-                "## Done when",
-                "All three gates route through the helper; the foedus Fail still dumps stdout/stderr verbatim; the two terrier Skips still skip; picket suite green.",
-                "",
-                "## Cinched",
-                "The naive (fixture_name + Skip|Fail) signature is INSUFFICIENT — it drops the foedus stdout/stderr dump; carry per-policy templates or return the probe Result. Detail: the audit memo's pace-slate.",
-                "",
-                "## Character",
-                "Real dedup gated on a richer-than-naive signature."
-              ],
-              "jjgtn_silks": "payor-gate-helper-richer-signature",
-              "jjgtn_basis": "6411253"
-            }
-          ]
-        },
-        "₢BfAAa": {
-          "jjgpn_tacks": [
-            {
-              "jjgtn_ts": "260623-2135",
-              "jjgtn_state": "jjgte_rough",
-              "jjgtn_text": [
-                "Route rbtdro_drive_hallmark through the engine config-console (rbtdre_config_set_field) for rbrn.env, as its rbrv.env sibling already does, retiring the hand-rolled find-replace-rename.",
-                "",
-                "## Done when",
-                "drive_hallmark delegates to the config-console; atomic-rename semantics unchanged; onboarding-sequence green.",
-                "",
-                "## Cinched",
-                "The find-or-err schema-drift catch is preserved by routing through config_set_field, not lost. Detail: the audit memo's pace-slate.",
-                "",
-                "## Character",
-                "The cleanest route-through-the-shared-home item."
-              ],
-              "jjgtn_silks": "drive-hallmark-through-config-console",
-              "jjgtn_basis": "ed7d151"
-            }
-          ]
-        },
         "₢BfAAb": {
           "jjgpn_tacks": [
             {
@@ -17478,125 +17285,6 @@
               ],
               "jjgtn_silks": "butcfc-seed-previous-wrapper",
               "jjgtn_basis": "ed7d151"
-            }
-          ]
-        },
-        "₢BfAAc": {
-          "jjgpn_tacks": [
-            {
-              "jjgtn_ts": "260624-1156",
-              "jjgtn_state": "jjgte_rough",
-              "jjgtn_text": [
-                "Remove the dead rbtdri_invoke_ifrit and its duplicate ifrit-binary const, leaving the live rbtdrc_invoke_ifrit pair as the single ifrit-invoke home.",
-                "",
-                "## Done when",
-                "One ifrit-invoke home and one rbid const remain; the crate builds; bivouac suite green.",
-                "",
-                "## Cinched",
-                "Verify zero external callers before removing; rbtdri_parse_ifrit_verdict and the rest of rbtdri_invocation stay live. Detail: the audit memo's pace-slate.",
-                "",
-                "## Character",
-                "Surgical dead-code removal."
-              ],
-              "jjgtn_silks": "ifrit-invoke-dead-code-removal",
-              "jjgtn_basis": "6411253"
-            }
-          ]
-        },
-        "₢BfAAd": {
-          "jjgpn_tacks": [
-            {
-              "jjgtn_ts": "260623-2135",
-              "jjgtn_state": "jjgte_rough",
-              "jjgtn_text": [
-                "Enrich rbtdth_helpers with two hoisted helpers: a registration-triplet assert pair (disposition + cases) folding the lookup/projection idiom across rbtdtk/rbtdtp/rbtdto/rbtdtl, and a scratch-dir maker folding the triplicated make_temp across rbtdte/rbtdti/rbtdtl.",
-                "",
-                "## Done when",
-                "The ~150 lines of test boilerplate collapse to call sites; the rbtdt* unit tests green.",
-                "",
-                "## Cinched",
-                "disposition is a PARAMETER, never a constant — calibrant's three Independent fixtures must survive; the scratch maker uses the strongest pid+nanos+preclean recipe; leave rbtdtk's deliberately-nonexistent path and rbtdti's tt-staging alone. Detail: the audit memo's gap-closure addendum.",
-                "",
-                "## Character",
-                "Mechanical test-mirror hoist, order-independent."
-              ],
-              "jjgtn_silks": "rbtdth-shared-test-helpers",
-              "jjgtn_basis": "ed7d151"
-            }
-          ]
-        },
-        "₢BfAAe": {
-          "jjgpn_tacks": [
-            {
-              "jjgtn_ts": "260624-1333",
-              "jjgtn_state": "jjgte_rough",
-              "jjgtn_text": [
-                "Finalize the RBS0 theurge-test-cosmology subdoc, homing the durable concepts this audit lifted — the inner-body × wrapper combinator, the REUSE/LIFECYCLE wrappers, the three strata, the freehold composite — as spec rather than memo, superseding the prior standalone cosmology-spec pace ₢BlAAA (in a separate heat).",
-                "",
-                "## Parley characterization (surfaced by the heat-integrity audit)",
-                "Either name the parley authentic-verb federation suite/fixture in the cosmology — its sub-register among the strata — or explicitly scope it out with a one-line note, so the characterization gap closes by decision rather than omission.",
-                "",
-                "## Done when",
-                "The cosmology is spec-homed in a new RBS-tail subdoc include'd into RBS0 (a fresh quoin stem, not rbst_); the wrapper/strata/composite vocabulary is citable from code; the parley suite/fixture is either characterized or explicitly scoped out; the vow + adoc build is green; the prior cosmology-spec pace ₢BlAAA is wrapped or dropped as superseded, and its empty heat retired.",
-                "",
-                "## Cinched",
-                "A SUBDOC of RBS0, not a sibling top-spec; honor the five membranes (reference BUS0 busr_fixture/busr_suite, point at RBTDRC_SUITES, cite the crucible-security specs, split the identity-layers model, thin the CLAUDE.md table). Depends on the combinator having settled the abstraction. Detail: the audit memo plus ₢BlAAA's membrane list (its rich source).",
-                "",
-                "## Character",
-                "Spec authoring; depends on the combinator."
-              ],
-              "jjgtn_silks": "theurge-cosmology-subdoc-finalize",
-              "jjgtn_basis": "49e26b5"
-            }
-          ]
-        },
-        "₢BfAAf": {
-          "jjgpn_tacks": [
-            {
-              "jjgtn_ts": "260623-2153",
-              "jjgtn_state": "jjgte_rough",
-              "jjgtn_text": [
-                "Lift the implicit (inner-body × wrapper) encoding into a first-class combinator over the engine's setup/teardown hooks, factoring the shared stand-up/teardown spines into rbtdrk helpers parameterized by REUSE versus LIFECYCLE — building on the already-built substrate machinery, not rebuilding it. The audit core.",
-                "",
-                "## Done when",
-                "The nine hand-spelled suite fixture lists are expressible as wrapper(inner) compositions verified against the gauntlet membership matrix; both REUSE and LIFECYCLE semantics survive; gauntlet green.",
-                "",
-                "## Cinched",
-                "The teardown post-state assertion is STRUCTURALLY INVERTED between tear_down (fail-closed allowlist) and churn (fail-open denylist) — if folded at all, the polarity is an explicit predicate, never a boolean relaxation flag; the lower-risk path leaves the two assertions un-merged. Do NOT rebuild the substrate (rbtdrk_freehold/depot/lifecycle + gauntlet) — LIFT it. The fixture-to-verb seam is settled upstream by the foedus seam-and-pool-integrity design; the payor-gate fold precedes this (the terrier-scaffold consolidation rides here). Detail: the audit memo's pace-slate.",
-                "",
-                "## Character",
-                "Design conversation requiring operator judgment; opus; mount with the operator present."
-              ],
-              "jjgtn_silks": "freehold-wrapper-combinator-lift",
-              "jjgtn_basis": "60c1d0f"
-            }
-          ]
-        },
-        "₢BfAAg": {
-          "jjgpn_tacks": [
-            {
-              "jjgtn_ts": "260624-1341",
-              "jjgtn_state": "jjgte_rough",
-              "jjgtn_text": [
-                "Build the day-to-day REUSE path end to end on the INTERACTIVE foedus: first the foedus check (descry) and switch (instate) as first-class atomic production tabtargets per the design pace, then the REUSE fixture that composes them — check the foedus, switch to it if valid, heal its credentials (avow + don the mantles), and affiance only when the check fails.",
-                "",
-                "## Spec of needed change",
-                "Build the two new foedus toothings as clean standalone tabtargets, each atomic per the design pace — the pool-integrity check (descry) reads pool validity, the switch (instate) re-points the regime selector and resets the sitting; neither bundles create. Then build the REUSE-wrapper fixture that composes them with the existing affiance and the credential heal. This is the standing-reuse credential leg that skirmish/dogfight/blockade assume but no fixture establishes today.",
-                "",
-                "## Done when",
-                "The check and switch exist as first-class atomic tabtargets; the REUSE wrapper reuses a valid standing freehold (the interactive Entra foedus) with no pool churn (cap-flat), heals its credentials via the existing avow + don, and rebuilds only when the check fails; skirmish/dogfight/blockade prove their mantle credentials via a fixture, not prose.",
-                "",
-                "## Cinched",
-                "The verbs are ATOMIC and first-class — standalone production tabtargets, never a fat check-then-create, never buried only inside the fixture; \"reuse if valid, else create\" lives in the fixture. The credential heal is quota-neutral (idempotent IAM); affiance fires only on check-failure.",
-                "SCOPE — interactive only (verified against the code 260623): the standing freehold runs on the interactive Entra foedus, so the heal uses the existing interactive avow + don and is human-present (one avow at suite head, then reuse cache-hits the live sitting). The switch verb builds but is DEGENERATE until a second foedus stands (only Entra exists today). Fully-unattended / cross-mechanism (Entra↔Keycloak) reuse is OUT of scope here — a later pace gated on the programmatic spine (programmatic affiance arm, Keycloak orchestrator, programmatic accessor). Do NOT chase the unattended path here; it would hit unbuilt programmatic code.",
-                "descry and instate are built against their own operation subdocs (authored contract-first at the design pace) — no exemption (operator 260624).",
-                "Detail: the audit memo's pace-10.",
-                "",
-                "## Character",
-                "Bash build — two production tabtargets plus the composing fixture; depends on the design pace and the combinator. No dependency on the programmatic spine (interactive machinery only)."
-              ],
-              "jjgtn_silks": "foedus-reuse-leg",
-              "jjgtn_basis": "a0a8a55"
             }
           ]
         },
@@ -17654,37 +17342,6 @@
               ],
               "jjgtn_silks": "paddock-refocus-and-drain",
               "jjgtn_basis": "5c92e29"
-            }
-          ]
-        },
-        "₢BfAAj": {
-          "jjgpn_tacks": [
-            {
-              "jjgtn_ts": "260624-1322",
-              "jjgtn_state": "jjgte_rough",
-              "jjgtn_text": [
-                "Apply the settled 260624 colophon relocations the vocabulary sweep left undone — the verb-level rename (compear→avow, assize→sitting) swept tree-wide, but the colophon half is orphaned and the tree still contradicts the decision.",
-                "",
-                "## Spec of needed change",
-                "Two settled moves (paddock Foedus-accessor-vocabulary section, 260624):",
-                "Collapse the access family rbw-ac → rbw-a — rbw-aa avow, rbw-ap payor-credential check — and relocate the mantle-access probe to the test bucket.",
-                "Move gird rbw-pE → rbw-mG, so rbw-m is the payor founding trio (affiance / jilt / gird) and rbw-p stays purely governor.",
-                "Edit rbz_zipper.sh (the enrollment home), then build to regenerate rbtdgc_consts.rs + claude-rbk-tabtarget-context.md (both build-generated — yours to commit), and repoint the affected citations (claude-rbk-acronyms.md, and gird's spec RBSPG if it cites the colophon).",
-                "The foedus-cardinality (rbw-j) and test-bucket (rbw-q) homes are NOT this pace — they ride the new colophons in the foedus-toothing and orchestrator paces.",
-                "",
-                "## Done when",
-                "The tree matches the settled homing — rbw-a / rbw-mG enrolled, rbw-ac / rbw-pE gone; the generated files re-derive clean; rbq_qualify (tabtarget/colophon freshness) green; acronym + spec citations repointed.",
-                "",
-                "## Cinched",
-                "Settled decision (operator 260624) — naming is not reopened; this is mechanical execution.",
-                "The casing convention holds (uppercase second letter marks an op that mutates cloud/critical state).",
-                "Only the already-shipped rbw-ac family and the gird move are in scope; the new-colophon foedus/test moves stay with their build paces.",
-                "",
-                "## Character",
-                "Mechanical colophon relocation via the zipper, fully build-checked."
-              ],
-              "jjgtn_silks": "colophon-relocation-260624",
-              "jjgtn_basis": "04c6fe9"
             }
           ]
         },
@@ -17923,7 +17580,6 @@
         "₢BiAAZ",
         "₢BiAAd",
         "₢BiAAc",
-        "₢BiAAb",
         "₢BiAAF",
         "₢BiAAB",
         "₢BiAAG",
@@ -18982,42 +18638,6 @@
             }
           ]
         },
-        "₢BiAAb": {
-          "jjgpn_tacks": [
-            {
-              "jjgtn_ts": "260624-1242",
-              "jjgtn_state": "jjgte_rough",
-              "jjgtn_text": [
-                "## Character",
-                "Mechanical extension of the read-side named-band discipline to a second failure class, woven into existing cloud fixtures.",
-                "",
-                "The read verbs (summon/plumb/augur) reject a second user-controlled cause beyond the local chaining resolve: the user names an artifact that is absent or in the wrong state in the registry — knowable only after a round-trip.",
-                "These die generic (buc_die) today.",
-                "",
-                "## Discovery",
-                "grep buc_die across rbfr_retriever.sh, rbfcp_plumb.sh, rbldl_lifecycle.sh.",
-                "The Class-2 sites are the absent / wrong-state ones — hallmark absent (summon; plumb vessel-resolve), Lode absent and Lode-unvouched (augur) — distinct from the local chaining resolve and the infra dies (auth / network / integrity), which stay buc_die.",
-                "",
-                "## Coverage — deft insertion, no new fixtures",
-                "The cloud lifecycle fixtures already stand up the artifacts; add negatives at their natural absent moments — summon/plumb a hallmark before ordain or after abjure (hallmark-lifecycle / dogfight), augur a touchmark after banish (lode-lifecycle).",
-                "",
-                "## Done when",
-                "- Each Class-2 user-controlled failure rejects with a named band.",
-                "- A negative case asserting that band by exit code rides an existing cloud fixture — no new fixture stood up.",
-                "- The infra dies are left as buc_die.",
-                "",
-                "## Mount-time decisions",
-                "- Band: not a chaining failure, so likely a new absent-artifact band, not a reuse of the chaining band.",
-                "- Whether augur's unvouched-Lode case earns a band or stays buc_die (it blends user cause with capture integrity).",
-                "",
-                "## Cinched",
-                "Tests assert the named exit code, never output text. Coding errors stay flushed-out statically, never named runtime bands."
-              ],
-              "jjgtn_silks": "read-existence-failure-bands",
-              "jjgtn_basis": "aaaa63a"
-            }
-          ]
-        },
         "₢BiAAc": {
           "jjgpn_tacks": [
             {
@@ -19113,9 +18733,24 @@
       "jjghn_creation_time": "260622",
       "jjghn_status": "jjghe_stabled",
       "jjghn_order": [
-        "₢BlAAA"
+        "₢BlAAA",
+        "₢BlAAB",
+        "₢BlAAC",
+        "₢BlAAD",
+        "₢BlAAE",
+        "₢BlAAF",
+        "₢BlAAG",
+        "₢BlAAH",
+        "₢BlAAI",
+        "₢BlAAJ",
+        "₢BlAAK",
+        "₢BlAAL",
+        "₢BlAAM",
+        "₢BlAAN",
+        "₢BlAAO",
+        "₢BlAAP"
       ],
-      "jjghn_next_pace_seed": "AAB",
+      "jjghn_next_pace_seed": "AAQ",
       "jjghn_paces": {
         "₢BlAAA": {
           "jjgpn_tacks": [
@@ -19140,6 +18775,401 @@
               ],
               "jjgtn_silks": "create-skimpy-theurge-subdoc",
               "jjgtn_basis": "7b47b60"
+            }
+          ]
+        },
+        "₢BlAAB": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260624-2240",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Drafted from ₢BfAAf in ₣Bf.",
+                "",
+                "Lift the implicit (inner-body × wrapper) encoding into a first-class combinator over the engine's setup/teardown hooks, factoring the shared stand-up/teardown spines into rbtdrk helpers parameterized by REUSE versus LIFECYCLE — building on the already-built substrate machinery, not rebuilding it. The audit core.",
+                "",
+                "## Done when",
+                "The nine hand-spelled suite fixture lists are expressible as wrapper(inner) compositions verified against the gauntlet membership matrix; both REUSE and LIFECYCLE semantics survive; gauntlet green.",
+                "",
+                "## Cinched",
+                "The teardown post-state assertion is STRUCTURALLY INVERTED between tear_down (fail-closed allowlist) and churn (fail-open denylist) — if folded at all, the polarity is an explicit predicate, never a boolean relaxation flag; the lower-risk path leaves the two assertions un-merged. Do NOT rebuild the substrate (rbtdrk_freehold/depot/lifecycle + gauntlet) — LIFT it. The fixture-to-verb seam is settled upstream by the foedus seam-and-pool-integrity design; the payor-gate fold precedes this (the terrier-scaffold consolidation rides here). Detail: the audit memo's pace-slate.",
+                "",
+                "## Character",
+                "Design conversation requiring operator judgment; opus; mount with the operator present."
+              ],
+              "jjgtn_silks": "freehold-wrapper-combinator-lift",
+              "jjgtn_basis": "f676ede"
+            }
+          ]
+        },
+        "₢BlAAC": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260624-2240",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Drafted from ₢BfAAQ in ₣Bf.",
+                "",
+                "Decompose the rbtdrc_crucible god-module: extract the two framework-global registries (RBTDRC_FIXTURES, RBTDRC_SUITES and their lookups) and the bare no-charge/quench GCP-service fixtures, leaving a true crucible module behind. The defended suite-list duplication stays.",
+                "",
+                "## Refresh (post-rebase)",
+                "The rebase grew the file: also relocate the new chaining-fact-livery bare fixture with its cluster, and preserve the rbtdrh_chain cross-module registry references that now sit in RBTDRC_FIXTURES and four suites. RBTDRC_FIXTURES and RBTDRC_SUITES stay together in one module after the split — they are the registries every later pace edits.",
+                "",
+                "## Done when",
+                "rbtdrc_crucible carries only crucible-lifecycle concerns; the registries and bare-service fixtures live in their own homes; the theurge build and unit tests are green; suite composition and fixture behavior are byte-unchanged.",
+                "",
+                "## Cinched",
+                "Relocation only — do NOT collapse the suite membership lists (the const-concat-is-cleverness decision stands).",
+                "",
+                "## Character",
+                "Mechanical module relocation, fully compile-checked."
+              ],
+              "jjgtn_silks": "theurge-crucible-module-split",
+              "jjgtn_basis": "f676ede"
+            }
+          ]
+        },
+        "₢BlAAD": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260624-2240",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Drafted from ₢BfAAV in ₣Bf.",
+                "",
+                "Add a REVEILLE_BASE set-equality assertion pinning the canonical reveille set as a regression oracle across the dependency-tiered suites, and RESTORE chaining-fact-band to the gauntlet and skirmish ladders (operator ruling 260623 — it was dropped from both).",
+                "",
+                "## Done when",
+                "The assertion fails the build on any reveille-base drift; chaining-fact-band rides gauntlet and skirmish; the defended verbatim reveille lists stay literal.",
+                "",
+                "## Cinched",
+                "Do NOT collapse the reveille lists into a concat — the assertion guards the set, the lists stay literal. Detail: the audit memo's pace-slate.",
+                "",
+                "## Character",
+                "Mechanical guard; the restore ruling is settled."
+              ],
+              "jjgtn_silks": "reveille-base-set-equality-assertion",
+              "jjgtn_basis": "f676ede"
+            }
+          ]
+        },
+        "₢BlAAE": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260624-2240",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Drafted from ₢BfAAg in ₣Bf.",
+                "",
+                "Build the day-to-day REUSE path end to end on the INTERACTIVE foedus: first the foedus check (descry) and switch (instate) as first-class atomic production tabtargets per the design pace, then the REUSE fixture that composes them — check the foedus, switch to it if valid, heal its credentials (avow + don the mantles), and affiance only when the check fails.",
+                "",
+                "## Spec of needed change",
+                "Build the two new foedus toothings as clean standalone tabtargets, each atomic per the design pace — the pool-integrity check (descry) reads pool validity, the switch (instate) re-points the regime selector and resets the sitting; neither bundles create. Then build the REUSE-wrapper fixture that composes them with the existing affiance and the credential heal. This is the standing-reuse credential leg that skirmish/dogfight/blockade assume but no fixture establishes today.",
+                "",
+                "## Done when",
+                "The check and switch exist as first-class atomic tabtargets; the REUSE wrapper reuses a valid standing freehold (the interactive Entra foedus) with no pool churn (cap-flat), heals its credentials via the existing avow + don, and rebuilds only when the check fails; skirmish/dogfight/blockade prove their mantle credentials via a fixture, not prose.",
+                "",
+                "## Cinched",
+                "The verbs are ATOMIC and first-class — standalone production tabtargets, never a fat check-then-create, never buried only inside the fixture; \"reuse if valid, else create\" lives in the fixture. The credential heal is quota-neutral (idempotent IAM); affiance fires only on check-failure.",
+                "SCOPE — interactive only (verified against the code 260623): the standing freehold runs on the interactive Entra foedus, so the heal uses the existing interactive avow + don and is human-present (one avow at suite head, then reuse cache-hits the live sitting). The switch verb builds but is DEGENERATE until a second foedus stands (only Entra exists today). Fully-unattended / cross-mechanism (Entra↔Keycloak) reuse is OUT of scope here — a later pace gated on the programmatic spine (programmatic affiance arm, Keycloak orchestrator, programmatic accessor). Do NOT chase the unattended path here; it would hit unbuilt programmatic code.",
+                "descry and instate are built against their own operation subdocs (authored contract-first at the design pace) — no exemption (operator 260624).",
+                "Detail: the audit memo's pace-10.",
+                "",
+                "## Character",
+                "Bash build — two production tabtargets plus the composing fixture; depends on the design pace and the combinator. No dependency on the programmatic spine (interactive machinery only)."
+              ],
+              "jjgtn_silks": "foedus-reuse-leg",
+              "jjgtn_basis": "f676ede"
+            }
+          ]
+        },
+        "₢BlAAF": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260624-2240",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Drafted from ₢BfAAd in ₣Bf.",
+                "",
+                "Enrich rbtdth_helpers with two hoisted helpers: a registration-triplet assert pair (disposition + cases) folding the lookup/projection idiom across rbtdtk/rbtdtp/rbtdto/rbtdtl, and a scratch-dir maker folding the triplicated make_temp across rbtdte/rbtdti/rbtdtl.",
+                "",
+                "## Done when",
+                "The ~150 lines of test boilerplate collapse to call sites; the rbtdt* unit tests green.",
+                "",
+                "## Cinched",
+                "disposition is a PARAMETER, never a constant — calibrant's three Independent fixtures must survive; the scratch maker uses the strongest pid+nanos+preclean recipe; leave rbtdtk's deliberately-nonexistent path and rbtdti's tt-staging alone. Detail: the audit memo's gap-closure addendum.",
+                "",
+                "## Character",
+                "Mechanical test-mirror hoist, order-independent."
+              ],
+              "jjgtn_silks": "rbtdth-shared-test-helpers",
+              "jjgtn_basis": "f676ede"
+            }
+          ]
+        },
+        "₢BlAAG": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260624-2240",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Drafted from ₢BfAAc in ₣Bf.",
+                "",
+                "Remove the dead rbtdri_invoke_ifrit and its duplicate ifrit-binary const, leaving the live rbtdrc_invoke_ifrit pair as the single ifrit-invoke home.",
+                "",
+                "## Done when",
+                "One ifrit-invoke home and one rbid const remain; the crate builds; bivouac suite green.",
+                "",
+                "## Cinched",
+                "Verify zero external callers before removing; rbtdri_parse_ifrit_verdict and the rest of rbtdri_invocation stay live. Detail: the audit memo's pace-slate.",
+                "",
+                "## Character",
+                "Surgical dead-code removal."
+              ],
+              "jjgtn_silks": "ifrit-invoke-dead-code-removal",
+              "jjgtn_basis": "f676ede"
+            }
+          ]
+        },
+        "₢BlAAH": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260624-2240",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Drafted from ₢BfAAW in ₣Bf.",
+                "",
+                "Hoist rbtdro_ordain_capture (single + three-fact), the invoke-or-fail wrapper, and the GAR-locator builders out of rbtdro_onboarding into a shared home (rbtdri_invocation is the natural fit), then route the open-coded copies in dogfight and the crucible bodies through them.",
+                "",
+                "## Done when",
+                "No crucible/dogfight body open-codes the ordain+fact-read or invoke-error shape; picket and dogfight suites green.",
+                "",
+                "## Cinched",
+                "The TWO GAR-locator shapes (category-rooted wrest_locator vs fact-rooted image_ref) must NOT merge — keep two builders or none. Detail: the audit memo's pace-slate.",
+                "",
+                "## Character",
+                "Coverage-neutral lift; the helpers are already proven in onboarding."
+              ],
+              "jjgtn_silks": "ordain-capture-helpers-to-shared-home",
+              "jjgtn_basis": "f676ede"
+            }
+          ]
+        },
+        "₢BlAAI": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260624-2240",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Drafted from ₢BfAAX in ₣Bf.",
+                "",
+                "Extract the byte-near-identical invariant blocks shared by the four Lode round-trip case bodies (touchmark read-back, divine-contains, banish-and-verify-gone) and the two-site member-jettison block into within-module helpers.",
+                "",
+                "## Done when",
+                "The four Lode bodies call the shared blocks; the six load-bearing per-kind differences stay inline; the four Lode fixtures green standalone.",
+                "",
+                "## Cinched",
+                "Do NOT widen any helper to absorb the six exclusions; do NOT touch lode-collision or chaining-livery. Detail: the audit memo's pace-slate.",
+                "",
+                "## Character",
+                "Within-file mechanical extraction, independent of the wrapper lift."
+              ],
+              "jjgtn_silks": "lode-roundtrip-block-helpers",
+              "jjgtn_basis": "f676ede"
+            }
+          ]
+        },
+        "₢BlAAJ": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260624-2240",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Drafted from ₢BfAAU in ₣Bf.",
+                "",
+                "Close the discovery-vs-suite registry drift: register foundry-path in RBTDRC_FIXTURES (it rides six suites but is unresolvable by name), and add a build-time assertion that every suite-referenced fixture is roster-resolvable.",
+                "",
+                "## Done when",
+                "FixtureRun resolves foundry-path; the invariant fails the build if any suite gains a roster-less fixture; reveille suite green.",
+                "",
+                "## Cinched",
+                "Assert suite ⊆ roster ONLY, never the reverse — foedus-lifecycle / freehold-churn / calibrant-* are intentional roster-only members of no suite. Build-affecting: rbtdgc_consts.rs + tabtarget-context.md regenerate, yours to commit. Detail: the audit memo's pace-slate (Memos/memo-20260623-theurge-test-consolidation-audit.md).",
+                "",
+                "## Character",
+                "Mechanical heal plus one guard."
+              ],
+              "jjgtn_silks": "registry-drift-guard-and-heal",
+              "jjgtn_basis": "f676ede"
+            }
+          ]
+        },
+        "₢BlAAK": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260624-2240",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Drafted from ₢BfAAa in ₣Bf.",
+                "",
+                "Route rbtdro_drive_hallmark through the engine config-console (rbtdre_config_set_field) for rbrn.env, as its rbrv.env sibling already does, retiring the hand-rolled find-replace-rename.",
+                "",
+                "## Done when",
+                "drive_hallmark delegates to the config-console; atomic-rename semantics unchanged; onboarding-sequence green.",
+                "",
+                "## Cinched",
+                "The find-or-err schema-drift catch is preserved by routing through config_set_field, not lost. Detail: the audit memo's pace-slate.",
+                "",
+                "## Character",
+                "The cleanest route-through-the-shared-home item."
+              ],
+              "jjgtn_silks": "drive-hallmark-through-config-console",
+              "jjgtn_basis": "f676ede"
+            }
+          ]
+        },
+        "₢BlAAL": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260624-2240",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Drafted from ₢BfAAY in ₣Bf.",
+                "",
+                "Collapse the seven byte-identical reliquary-touchmark precondition-probe preambles in the onboarding cases into one assert helper.",
+                "",
+                "## Done when",
+                "The seven preambles become one helper; onboarding-sequence green; the standalone kludge-tadmor path stays probe-free.",
+                "",
+                "## Cinched",
+                "At the graft-demo case replace only the reliquary preamble; leave the standalone path's deliberate probe-omission alone. Detail: the audit memo's pace-slate.",
+                "",
+                "## Character",
+                "Trivial within-file fold, coverage-neutral."
+              ],
+              "jjgtn_silks": "onboarding-reliquary-probe-helper",
+              "jjgtn_basis": "f676ede"
+            }
+          ]
+        },
+        "₢BlAAM": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260624-2240",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Drafted from ₢BfAAZ in ₣Bf.",
+                "",
+                "Extract the triplicated payor-credential probe-and-gate preamble (terrier-scaffold, terrier-atomicity, foedus-lifecycle) into one helper whose signature reproduces all three verdicts verbatim.",
+                "",
+                "## Done when",
+                "All three gates route through the helper; the foedus Fail still dumps stdout/stderr verbatim; the two terrier Skips still skip; picket suite green.",
+                "",
+                "## Cinched",
+                "The naive (fixture_name + Skip|Fail) signature is INSUFFICIENT — it drops the foedus stdout/stderr dump; carry per-policy templates or return the probe Result. Detail: the audit memo's pace-slate.",
+                "",
+                "## Character",
+                "Real dedup gated on a richer-than-naive signature."
+              ],
+              "jjgtn_silks": "payor-gate-helper-richer-signature",
+              "jjgtn_basis": "f676ede"
+            }
+          ]
+        },
+        "₢BlAAN": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260624-2240",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Drafted from ₢BfAAj in ₣Bf.",
+                "",
+                "Apply the settled 260624 colophon relocations the vocabulary sweep left undone — the verb-level rename (compear→avow, assize→sitting) swept tree-wide, but the colophon half is orphaned and the tree still contradicts the decision.",
+                "",
+                "## Spec of needed change",
+                "Two settled moves (paddock Foedus-accessor-vocabulary section, 260624):",
+                "Collapse the access family rbw-ac → rbw-a — rbw-aa avow, rbw-ap payor-credential check — and relocate the mantle-access probe to the test bucket.",
+                "Move gird rbw-pE → rbw-mG, so rbw-m is the payor founding trio (affiance / jilt / gird) and rbw-p stays purely governor.",
+                "Edit rbz_zipper.sh (the enrollment home), then build to regenerate rbtdgc_consts.rs + claude-rbk-tabtarget-context.md (both build-generated — yours to commit), and repoint the affected citations (claude-rbk-acronyms.md, and gird's spec RBSPG if it cites the colophon).",
+                "The foedus-cardinality (rbw-j) and test-bucket (rbw-q) homes are NOT this pace — they ride the new colophons in the foedus-toothing and orchestrator paces.",
+                "",
+                "## Done when",
+                "The tree matches the settled homing — rbw-a / rbw-mG enrolled, rbw-ac / rbw-pE gone; the generated files re-derive clean; rbq_qualify (tabtarget/colophon freshness) green; acronym + spec citations repointed.",
+                "",
+                "## Cinched",
+                "Settled decision (operator 260624) — naming is not reopened; this is mechanical execution.",
+                "The casing convention holds (uppercase second letter marks an op that mutates cloud/critical state).",
+                "Only the already-shipped rbw-ac family and the gird move are in scope; the new-colophon foedus/test moves stay with their build paces.",
+                "",
+                "## Character",
+                "Mechanical colophon relocation via the zipper, fully build-checked."
+              ],
+              "jjgtn_silks": "colophon-relocation-260624",
+              "jjgtn_basis": "f676ede"
+            }
+          ]
+        },
+        "₢BlAAO": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260624-2240",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Drafted from ₢BfAAe in ₣Bf.",
+                "",
+                "Finalize the RBS0 theurge-test-cosmology subdoc, homing the durable concepts this audit lifted — the inner-body × wrapper combinator, the REUSE/LIFECYCLE wrappers, the three strata, the freehold composite — as spec rather than memo, superseding the prior standalone cosmology-spec pace ₢BlAAA (in a separate heat).",
+                "",
+                "## Parley characterization (surfaced by the heat-integrity audit)",
+                "Either name the parley authentic-verb federation suite/fixture in the cosmology — its sub-register among the strata — or explicitly scope it out with a one-line note, so the characterization gap closes by decision rather than omission.",
+                "",
+                "## Done when",
+                "The cosmology is spec-homed in a new RBS-tail subdoc include'd into RBS0 (a fresh quoin stem, not rbst_); the wrapper/strata/composite vocabulary is citable from code; the parley suite/fixture is either characterized or explicitly scoped out; the vow + adoc build is green; the prior cosmology-spec pace ₢BlAAA is wrapped or dropped as superseded, and its empty heat retired.",
+                "",
+                "## Cinched",
+                "A SUBDOC of RBS0, not a sibling top-spec; honor the five membranes (reference BUS0 busr_fixture/busr_suite, point at RBTDRC_SUITES, cite the crucible-security specs, split the identity-layers model, thin the CLAUDE.md table). Depends on the combinator having settled the abstraction. Detail: the audit memo plus ₢BlAAA's membrane list (its rich source).",
+                "",
+                "## Character",
+                "Spec authoring; depends on the combinator."
+              ],
+              "jjgtn_silks": "theurge-cosmology-subdoc-finalize",
+              "jjgtn_basis": "f676ede"
+            }
+          ]
+        },
+        "₢BlAAP": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260624-2244",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Drafted from ₢BiAAb in ₣Bi.",
+                "",
+                "## Character",
+                "Mechanical extension of the read-side named-band discipline to a second failure class, woven into existing cloud fixtures.",
+                "",
+                "The read verbs (summon/plumb/augur) reject a second user-controlled cause beyond the local chaining resolve: the user names an artifact that is absent or in the wrong state in the registry — knowable only after a round-trip.",
+                "These die generic (buc_die) today.",
+                "",
+                "## Discovery",
+                "grep buc_die across rbfr_retriever.sh, rbfcp_plumb.sh, rbldl_lifecycle.sh.",
+                "The Class-2 sites are the absent / wrong-state ones — hallmark absent (summon; plumb vessel-resolve), Lode absent and Lode-unvouched (augur) — distinct from the local chaining resolve and the infra dies (auth / network / integrity), which stay buc_die.",
+                "",
+                "## Coverage — deft insertion, no new fixtures",
+                "The cloud lifecycle fixtures already stand up the artifacts; add negatives at their natural absent moments — summon/plumb a hallmark before ordain or after abjure (hallmark-lifecycle / dogfight), augur a touchmark after banish (lode-lifecycle).",
+                "",
+                "## Done when",
+                "- Each Class-2 user-controlled failure rejects with a named band.",
+                "- A negative case asserting that band by exit code rides an existing cloud fixture — no new fixture stood up.",
+                "- The infra dies are left as buc_die.",
+                "",
+                "## Mount-time decisions",
+                "- Band: not a chaining failure, so likely a new absent-artifact band, not a reuse of the chaining band.",
+                "- Whether augur's unvouched-Lode case earns a band or stays buc_die (it blends user cause with capture integrity).",
+                "",
+                "## Cinched",
+                "Tests assert the named exit code, never output text. Coding errors stay flushed-out statically, never named runtime bands."
+              ],
+              "jjgtn_silks": "read-existence-failure-bands",
+              "jjgtn_basis": "f676ede"
             }
           ]
         }
