@@ -77,7 +77,11 @@ Region STRUCTURE (slot + lines + style) is frozen; region CONTENT — which line
 Starting content (soft): top = the work identity (a coronet on a pace, the heat firemark on a heat);
 middle = the cwd basename, then — on a pace-mount only — the coronet-prefixed pace silks, then the firemark-prefixed heat silks, so a pace reads three middle lines and a heat two;
 bottom = identity (mirrors top, so the identity reads from all four corners — paneboard paints top into both top corners and bottom into both bottom corners).
-Each silks line leads with its own glyph-identity so the line says both what it is and which it is; the work identity is JJK's mount/groom semantics (coronet on a pace-mount, the resolved next-actionable one on a heat-mount; the heat firemark on a groom), and the silks are resolved once at mount/groom and cached in the officium-resident saddle marker so the per-engagement writer never re-reads the gallops.
+Each silks line leads with its own glyph-identity so the line says both what it is and which it is.
+The work identity follows JJK's mount/groom semantics, gated so a transient groom cannot clobber the pace being worked:
+a mount asserts its coronet (the resolved next-actionable one on a heat-mount, or the heat firemark when no actionable pace exists);
+a groom fills the identity only when none is held or a firemark is, never demoting a coronet a mount has set, so a coronet once shown this officium holds for the officium's life.
+The silks are resolved once at mount/groom and cached in the officium-resident saddle marker, so the per-engagement writer never re-reads the gallops.
 
 ## Overlay surface — the selection box
 
