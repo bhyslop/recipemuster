@@ -17185,8 +17185,8 @@
         "₢BfAAR": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260623-2028",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260624-1203",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "Rename the test suites to the elected military asterism across every surface: fast → reveille, service → picket, crucible → bivouac, complete → echelon. Keepers (gauntlet / skirmish / dogfight / siege / blockade) and parley unchanged.",
                 "",
@@ -17207,7 +17207,7 @@
                 "Mechanical multi-surface rename sweep plus regenerate; the one judgment is catching every home of each name."
               ],
               "jjgtn_silks": "suite-asterism-rename",
-              "jjgtn_basis": "53a20bc"
+              "jjgtn_basis": "880cf24"
             }
           ]
         },
