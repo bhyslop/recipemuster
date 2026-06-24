@@ -29,6 +29,18 @@ pub const JJRF_PENSUM_PREFIX: char = '₱';
 /// Pensum sentinel character — literal `%` at position 3 disambiguates from Coronet
 pub const JJRF_PENSUM_SENTINEL: char = '%';
 
+/// Firemark body length — base64 chars after the optional ₣ prefix (heat identity)
+pub const JJRF_FIREMARK_LEN: usize = 2;
+
+/// Pace-index body length — the base64 chars a Coronet carries beyond its parent firemark
+pub const JJRF_PACE_INDEX_LEN: usize = 3;
+
+/// Coronet body length — parent firemark followed by the pace index (structural, not a bare 5)
+pub const JJRF_CORONET_LEN: usize = JJRF_FIREMARK_LEN + JJRF_PACE_INDEX_LEN;
+
+/// Pensum body length — firemark + `%` sentinel + 2-char index (2 + 1 + 2)
+pub const JJRF_PENSUM_LEN: usize = 5;
+
 /// Maximum value for Firemark (RADIX^2 - 1)
 pub const JJRF_FIREMARK_MAX: u16 = (JJRF_RADIX * JJRF_RADIX - 1) as u16;
 
@@ -81,8 +93,8 @@ impl jjrf_Firemark {
     /// Decode a Firemark to its integer value
     pub fn jjrf_decode(&self) -> Result<u16, String> {
         let chars: Vec<char> = self.0.chars().collect();
-        if chars.len() != 2 {
-            return Err(format!("Firemark must be 2 characters, got {}", chars.len()));
+        if chars.len() != JJRF_FIREMARK_LEN {
+            return Err(format!("Firemark must be {} characters, got {}", JJRF_FIREMARK_LEN, chars.len()));
         }
         let high = zjjrf_char_to_value(chars[0])? as u16;
         let low = zjjrf_char_to_value(chars[1])? as u16;
@@ -92,10 +104,10 @@ impl jjrf_Firemark {
     /// Parse a Firemark from string input (with or without prefix)
     pub fn jjrf_parse(input: &str) -> Result<Self, String> {
         let stripped = input.strip_prefix(JJRF_FIREMARK_PREFIX).unwrap_or(input);
-        if stripped.len() != 2 {
+        if stripped.len() != JJRF_FIREMARK_LEN {
             return Err(format!(
-                "Firemark must be 2 base64 characters (with or without {} prefix), got '{}'",
-                JJRF_FIREMARK_PREFIX, input
+                "Firemark must be {} base64 characters (with or without {} prefix), got '{}'",
+                JJRF_FIREMARK_LEN, JJRF_FIREMARK_PREFIX, input
             ));
         }
         // Validate all characters are in charset
@@ -134,10 +146,10 @@ impl jjrf_Coronet {
     /// Decode a Coronet to its parent Heat and pace index
     pub fn jjrf_decode(&self) -> Result<(jjrf_Firemark, u32), String> {
         let chars: Vec<char> = self.0.chars().collect();
-        if chars.len() != 5 {
-            return Err(format!("Coronet must be 5 characters, got {}", chars.len()));
+        if chars.len() != JJRF_CORONET_LEN {
+            return Err(format!("Coronet must be {} characters, got {}", JJRF_CORONET_LEN, chars.len()));
         }
-        let heat = jjrf_Firemark(chars[0..2].iter().collect());
+        let heat = jjrf_Firemark(chars[0..JJRF_FIREMARK_LEN].iter().collect());
         let p2 = zjjrf_char_to_value(chars[2])? as u32;
         let p1 = zjjrf_char_to_value(chars[3])? as u32;
         let p0 = zjjrf_char_to_value(chars[4])? as u32;
@@ -148,10 +160,10 @@ impl jjrf_Coronet {
     /// Parse a Coronet from string input (with or without prefix)
     pub fn jjrf_parse(input: &str) -> Result<Self, String> {
         let stripped = input.strip_prefix(JJRF_CORONET_PREFIX).unwrap_or(input);
-        if stripped.len() != 5 {
+        if stripped.len() != JJRF_CORONET_LEN {
             return Err(format!(
-                "Coronet must be 5 base64 characters (with or without {} prefix), got '{}'",
-                JJRF_CORONET_PREFIX, input
+                "Coronet must be {} base64 characters (with or without {} prefix), got '{}'",
+                JJRF_CORONET_LEN, JJRF_CORONET_PREFIX, input
             ));
         }
         // Validate all characters are in charset
@@ -173,7 +185,7 @@ impl jjrf_Coronet {
 
     /// Extract the parent Firemark (first 2 base64 chars)
     pub fn jjrf_parent_firemark(&self) -> jjrf_Firemark {
-        jjrf_Firemark(self.0[..2].to_string())
+        jjrf_Firemark(self.0[..JJRF_FIREMARK_LEN].to_string())
     }
 }
 
@@ -199,8 +211,8 @@ impl jjrf_Pensum {
     /// Decode a Pensum to its parent Heat firemark and index
     pub fn jjrf_decode(&self) -> Result<(jjrf_Firemark, u32), String> {
         let chars: Vec<char> = self.0.chars().collect();
-        if chars.len() != 5 {
-            return Err(format!("Pensum must be 5 characters, got {}", chars.len()));
+        if chars.len() != JJRF_PENSUM_LEN {
+            return Err(format!("Pensum must be {} characters, got {}", JJRF_PENSUM_LEN, chars.len()));
         }
         if chars[2] != JJRF_PENSUM_SENTINEL {
             return Err(format!(
@@ -208,7 +220,7 @@ impl jjrf_Pensum {
                 JJRF_PENSUM_SENTINEL, chars[2]
             ));
         }
-        let heat = jjrf_Firemark(chars[0..2].iter().collect());
+        let heat = jjrf_Firemark(chars[0..JJRF_FIREMARK_LEN].iter().collect());
         let high = zjjrf_char_to_value(chars[3])? as u32;
         let low = zjjrf_char_to_value(chars[4])? as u32;
         Ok((heat, high * JJRF_RADIX + low))
@@ -217,10 +229,10 @@ impl jjrf_Pensum {
     /// Parse a Pensum from string input (with or without prefix)
     pub fn jjrf_parse(input: &str) -> Result<Self, String> {
         let stripped = input.strip_prefix(JJRF_PENSUM_PREFIX).unwrap_or(input);
-        if stripped.len() != 5 {
+        if stripped.len() != JJRF_PENSUM_LEN {
             return Err(format!(
-                "Pensum must be 5 characters (with or without {} prefix), got '{}'",
-                JJRF_PENSUM_PREFIX, input
+                "Pensum must be {} characters (with or without {} prefix), got '{}'",
+                JJRF_PENSUM_LEN, JJRF_PENSUM_PREFIX, input
             ));
         }
         let chars: Vec<char> = stripped.chars().collect();
@@ -251,6 +263,6 @@ impl jjrf_Pensum {
 
     /// Extract the parent Firemark (first 2 base64 chars)
     pub fn jjrf_parent_firemark(&self) -> jjrf_Firemark {
-        jjrf_Firemark(self.0[..2].to_string())
+        jjrf_Firemark(self.0[..JJRF_FIREMARK_LEN].to_string())
     }
 }

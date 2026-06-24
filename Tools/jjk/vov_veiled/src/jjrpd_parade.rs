@@ -8,6 +8,7 @@
 
 use crate::jjrf_favor::jjrf_Firemark as Firemark;
 use crate::jjrf_favor::jjrf_Coronet as Coronet;
+use crate::jjrf_favor::{JJRF_FIREMARK_LEN, JJRF_CORONET_LEN};
 use crate::jjrg_gallops::{
     jjrg_Gallops as Gallops,
     jjrg_Heat as Heat,
@@ -85,7 +86,7 @@ pub fn jjrpd_run_parade(args: jjrpd_ParadeArgs, gazette: &mut jjrz_Gazette) -> (
 
     // The file-touch bitmap and commit swim lanes assume a single heat; render
     // them only when the request resolves to exactly one firemark target.
-    let single_firemark = targets.len() == 1 && zjjrpd_strip_glyph(&targets[0]).len() == 2;
+    let single_firemark = targets.len() == 1 && zjjrpd_strip_glyph(&targets[0]).len() == JJRF_FIREMARK_LEN;
 
     let mut added_paddocks: std::collections::HashSet<String> = std::collections::HashSet::new();
     let mut added_paces: std::collections::HashSet<String> = std::collections::HashSet::new();
@@ -93,11 +94,11 @@ pub fn jjrpd_run_parade(args: jjrpd_ParadeArgs, gazette: &mut jjrz_Gazette) -> (
     for target in &targets {
         let target_str = zjjrpd_strip_glyph(target);
         let res = match target_str.len() {
-            5 => zjjrpd_emit_coronet(&mut output, &gallops, target, gazette, &mut added_paddocks, &mut added_paces),
-            2 => zjjrpd_emit_firemark(&mut output, &gallops, target, args.remaining, single_firemark, gazette, &mut added_paddocks, &mut added_paces),
+            JJRF_CORONET_LEN => zjjrpd_emit_coronet(&mut output, &gallops, target, gazette, &mut added_paddocks, &mut added_paces),
+            JJRF_FIREMARK_LEN => zjjrpd_emit_firemark(&mut output, &gallops, target, args.remaining, single_firemark, gazette, &mut added_paddocks, &mut added_paces),
             n => Err(format!(
-                "{}: error: target '{}' must be Firemark (2 chars) or Coronet (5 chars), got {} chars",
-                cn, target, n
+                "{}: error: target '{}' must be Firemark ({} chars) or Coronet ({} chars), got {} chars",
+                cn, target, JJRF_FIREMARK_LEN, JJRF_CORONET_LEN, n
             )),
         };
         if let Err(e) = res {

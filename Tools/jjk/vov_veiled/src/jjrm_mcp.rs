@@ -1202,8 +1202,8 @@ fn zjjrm_normalize_identity(raw: &str) -> String {
         .trim_start_matches(crate::jjrf_favor::JJRF_FIREMARK_PREFIX)
         .trim_start_matches(crate::jjrf_favor::JJRF_CORONET_PREFIX);
     match body.chars().count() {
-        2 => format!("{}{}", crate::jjrf_favor::JJRF_FIREMARK_PREFIX, body),
-        5 => format!("{}{}", crate::jjrf_favor::JJRF_CORONET_PREFIX, body),
+        crate::jjrf_favor::JJRF_FIREMARK_LEN => format!("{}{}", crate::jjrf_favor::JJRF_FIREMARK_PREFIX, body),
+        crate::jjrf_favor::JJRF_CORONET_LEN => format!("{}{}", crate::jjrf_favor::JJRF_CORONET_PREFIX, body),
         _ => body.to_string(),
     }
 }
@@ -1221,8 +1221,8 @@ fn zjjrm_lede_firemark(lede: &str) -> Option<String> {
         .trim_start_matches(crate::jjrf_favor::JJRF_FIREMARK_PREFIX)
         .trim_start_matches(crate::jjrf_favor::JJRF_CORONET_PREFIX);
     match body.chars().count() {
-        2 => crate::jjrf_favor::jjrf_Firemark::jjrf_parse(lede).ok().map(|f| f.jjrf_display()),
-        5 => crate::jjrf_favor::jjrf_Coronet::jjrf_parse(lede).ok().map(|c| c.jjrf_parent_firemark().jjrf_display()),
+        crate::jjrf_favor::JJRF_FIREMARK_LEN => crate::jjrf_favor::jjrf_Firemark::jjrf_parse(lede).ok().map(|f| f.jjrf_display()),
+        crate::jjrf_favor::JJRF_CORONET_LEN => crate::jjrf_favor::jjrf_Coronet::jjrf_parse(lede).ok().map(|c| c.jjrf_parent_firemark().jjrf_display()),
         _ => None,
     }
 }
@@ -1311,7 +1311,7 @@ fn zjjrm_compose_emblem(
 /// no silks, so the emblem still paints the glyph. The result is cached in the
 /// marker so the per-engagement writer never re-touches the gallops.
 fn zjjrm_resolve_saddle_marker(identity: &str) -> jjrm_SaddleMarker {
-    use crate::jjrf_favor::{jjrf_Firemark as Firemark, jjrf_Coronet as Coronet};
+    use crate::jjrf_favor::{jjrf_Firemark as Firemark, jjrf_Coronet as Coronet, JJRF_FIREMARK_LEN, JJRF_CORONET_LEN};
     let mut marker = jjrm_SaddleMarker {
         identity: zjjrm_normalize_identity(identity),
         pace_silks: None,
@@ -1326,11 +1326,11 @@ fn zjjrm_resolve_saddle_marker(identity: &str) -> jjrm_SaddleMarker {
         .trim_start_matches(crate::jjrf_favor::JJRF_FIREMARK_PREFIX)
         .trim_start_matches(crate::jjrf_favor::JJRF_CORONET_PREFIX);
     let (heat_key, coronet_key): (String, Option<String>) = match body.chars().count() {
-        5 => match Coronet::jjrf_parse(identity) {
+        JJRF_CORONET_LEN => match Coronet::jjrf_parse(identity) {
             Ok(c) => (c.jjrf_parent_firemark().jjrf_display(), Some(c.jjrf_display())),
             Err(_) => return marker,
         },
-        2 => match Firemark::jjrf_parse(identity) {
+        JJRF_FIREMARK_LEN => match Firemark::jjrf_parse(identity) {
             Ok(f) => (f.jjrf_display(), None),
             Err(_) => return marker,
         },

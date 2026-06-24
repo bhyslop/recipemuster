@@ -11,6 +11,7 @@ use vvc::{vvco_out, vvco_err, vvco_Output};
 
 use crate::jjrf_favor::jjrf_Firemark as Firemark;
 use crate::jjrf_favor::jjrf_Coronet as Coronet;
+use crate::jjrf_favor::{JJRF_FIREMARK_LEN, JJRF_CORONET_LEN};
 use crate::jjrg_gallops::{
     jjrg_Gallops as Gallops,
     jjrg_HeatStatus as HeatStatus,
@@ -145,7 +146,7 @@ pub async fn jjrsd_run_saddle(args: jjrsd_SaddleArgs, gazette: &mut jjrz_Gazette
         .trim_start_matches('₣')
         .trim_start_matches('₢');
 
-    let target_coronet = if stripped_input.len() == 5 {
+    let target_coronet = if stripped_input.len() == JJRF_CORONET_LEN {
         // It's a coronet - parse to get parent firemark
         let coronet = match Coronet::jjrf_parse(&firemark_str) {
             Ok(c) => c,
@@ -155,7 +156,7 @@ pub async fn jjrsd_run_saddle(args: jjrsd_SaddleArgs, gazette: &mut jjrz_Gazette
             }
         };
         Some(coronet)
-    } else if stripped_input.len() == 2 {
+    } else if stripped_input.len() == JJRF_FIREMARK_LEN {
         // It's a firemark - existing behavior
         None
     } else {

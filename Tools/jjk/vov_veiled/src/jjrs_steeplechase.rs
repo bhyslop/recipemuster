@@ -14,7 +14,7 @@
 
 use serde::Serialize;
 
-use crate::jjrf_favor::{jjrf_Firemark as Firemark, JJRF_FIREMARK_PREFIX as FIREMARK_PREFIX, JJRF_CORONET_PREFIX as CORONET_PREFIX};
+use crate::jjrf_favor::{jjrf_Firemark as Firemark, JJRF_FIREMARK_PREFIX as FIREMARK_PREFIX, JJRF_CORONET_PREFIX as CORONET_PREFIX, JJRF_FIREMARK_LEN, JJRF_CORONET_LEN};
 use crate::jjrp_print::{jjrp_Table, jjrp_Column, jjrp_Align};
 
 const JJRS_CMD_NAME_REIN: &str = "jjx_rein";
@@ -85,20 +85,20 @@ pub fn zjjrs_parse_new_format(subject: &str, firemark_raw: &str) -> Option<jjrs_
     // Parse identity (₢CORONET or ₣FIREMARK)
     let (identity, rest) = if after_brand.starts_with(CORONET_PREFIX) {
         // Coronet: ₢XXXXX (1 prefix char + 5 base64 chars = 6 chars total in UTF-8)
-        let coronet_end = CORONET_PREFIX.len_utf8() + 5;
+        let coronet_end = CORONET_PREFIX.len_utf8() + JJRF_CORONET_LEN;
         if after_brand.len() < coronet_end {
             return None;
         }
         let coronet = &after_brand[..coronet_end];
         // Verify this coronet belongs to our heat (first 2 chars of base64 match firemark)
-        let coronet_heat = &after_brand[CORONET_PREFIX.len_utf8()..CORONET_PREFIX.len_utf8() + 2];
+        let coronet_heat = &after_brand[CORONET_PREFIX.len_utf8()..CORONET_PREFIX.len_utf8() + JJRF_FIREMARK_LEN];
         if coronet_heat != firemark_raw {
             return None;
         }
         (Some(coronet.to_string()), &after_brand[coronet_end..])
     } else if after_brand.starts_with(FIREMARK_PREFIX) {
         // Firemark: ₣XX (1 prefix char + 2 base64 chars)
-        let firemark_end = FIREMARK_PREFIX.len_utf8() + 2;
+        let firemark_end = FIREMARK_PREFIX.len_utf8() + JJRF_FIREMARK_LEN;
         if after_brand.len() < firemark_end {
             return None;
         }

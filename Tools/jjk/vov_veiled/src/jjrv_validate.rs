@@ -7,7 +7,7 @@
 //! Validates Gallops JSON structure against schema rules.
 
 use std::collections::HashSet;
-use crate::jjrf_favor::JJRF_CHARSET;
+use crate::jjrf_favor::{JJRF_CHARSET, JJRF_FIREMARK_LEN, JJRF_PACE_INDEX_LEN, JJRF_CORONET_LEN, JJRF_FIREMARK_PREFIX};
 use crate::jjrt_types::*;
 
 /// Check if string contains only URL-safe base64 characters
@@ -75,10 +75,10 @@ pub fn jjrg_validate(gallops: &jjrg_Gallops) -> Result<(), Vec<String>> {
     let mut errors = Vec::new();
 
     // Rule 1: next_heat_seed must be 2 URL-safe base64 characters
-    if gallops.next_heat_seed.len() != 2 {
+    if gallops.next_heat_seed.len() != JJRF_FIREMARK_LEN {
         errors.push(format!(
-            "next_heat_seed must be 2 characters, got {}",
-            gallops.next_heat_seed.len()
+            "next_heat_seed must be {} characters, got {}",
+            JJRF_FIREMARK_LEN, gallops.next_heat_seed.len()
         ));
     } else if !zjjrg_is_base64(&gallops.next_heat_seed) {
         errors.push(format!(
@@ -109,10 +109,11 @@ fn zjjrg_validate_heat(heat_key: &str, heat: &jjrg_Heat, errors: &mut Vec<String
         errors.push(format!("{}: key must start with '₣'", heat_ctx));
     } else {
         let suffix = &heat_key[3..]; // ₣ is 3 bytes in UTF-8
-        if suffix.len() != 2 {
+        if suffix.len() != JJRF_FIREMARK_LEN {
             errors.push(format!(
-                "{}: key must have 2 base64 chars after '₣', got {}",
+                "{}: key must have {} base64 chars after '₣', got {}",
                 heat_ctx,
+                JJRF_FIREMARK_LEN,
                 suffix.len()
             ));
         } else if !zjjrg_is_base64(suffix) {
@@ -143,10 +144,11 @@ fn zjjrg_validate_heat(heat_key: &str, heat: &jjrg_Heat, errors: &mut Vec<String
     // status (validated by serde enum)
 
     // next_pace_seed (3 URL-safe base64 characters)
-    if heat.next_pace_seed.len() != 3 {
+    if heat.next_pace_seed.len() != JJRF_PACE_INDEX_LEN {
         errors.push(format!(
-            "{}: next_pace_seed must be 3 characters, got {}",
+            "{}: next_pace_seed must be {} characters, got {}",
             heat_ctx,
+            JJRF_PACE_INDEX_LEN,
             heat.next_pace_seed.len()
         ));
     } else if !zjjrg_is_base64(&heat.next_pace_seed) {
@@ -157,7 +159,7 @@ fn zjjrg_validate_heat(heat_key: &str, heat: &jjrg_Heat, errors: &mut Vec<String
     }
 
     // Extract heat identity (base64 part without prefix) for pace validation
-    let heat_identity = if heat_key.starts_with('₣') && heat_key.len() >= 5 {
+    let heat_identity = if heat_key.starts_with('₣') && heat_key.len() >= JJRF_FIREMARK_PREFIX.len_utf8() + JJRF_FIREMARK_LEN {
         Some(&heat_key[3..]) // ₣ is 3 bytes
     } else {
         None
@@ -215,10 +217,11 @@ fn zjjrg_validate_pace(
         errors.push(format!("{}: key must start with '₢'", pace_ctx));
     } else {
         let suffix = &pace_key[3..]; // ₢ is 3 bytes in UTF-8
-        if suffix.len() != 5 {
+        if suffix.len() != JJRF_CORONET_LEN {
             errors.push(format!(
-                "{}: key must have 5 base64 chars after '₢', got {}",
+                "{}: key must have {} base64 chars after '₢', got {}",
                 pace_ctx,
+                JJRF_CORONET_LEN,
                 suffix.len()
             ));
         } else {
@@ -235,7 +238,7 @@ fn zjjrg_validate_pace(
                         "{}: key must embed parent heat identity '{}', got '{}'",
                         pace_ctx,
                         heat_id,
-                        &suffix[..2.min(suffix.len())]
+                        &suffix[..JJRF_FIREMARK_LEN.min(suffix.len())]
                     ));
                 }
             }

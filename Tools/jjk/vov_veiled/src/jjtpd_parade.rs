@@ -12,6 +12,7 @@
 use super::jjrpd_parade::{jjrpd_run_parade, jjrpd_ParadeArgs};
 use super::jjrg_gallops::{jjrg_Gallops, jjrg_Heat, jjrg_Pace, jjrg_Tack, jjrg_HeatStatus, jjrg_PaceState, JJRG_UNKNOWN_BASIS};
 use super::jjrz_gazette::{jjrz_Gazette, jjrz_Slug, jjrz_parse_reslate_input};
+use super::jjrf_favor::{JJRF_FIREMARK_LEN, JJRF_CORONET_LEN};
 use std::collections::BTreeMap;
 
 // ===== Helper functions =====
@@ -147,7 +148,7 @@ fn jjtpd_target_length_coronet_with_prefix_valid() {
 fn jjtpd_target_length_invalid_three_chars() {
     let target = "ABC";
     let target_str = target.strip_prefix('₢').or_else(|| target.strip_prefix('₣')).unwrap_or(target);
-    assert!(target_str.len() != 2 && target_str.len() != 5);
+    assert!(target_str.len() != JJRF_FIREMARK_LEN && target_str.len() != JJRF_CORONET_LEN);
 }
 
 // ===== Public-boundary dispatch tests (jjrpd_run_parade) =====
