@@ -173,8 +173,6 @@ The Folio column shows how each tabtarget receives it:
 | `rbw-rfv` | ValidateFederationRegime | — | Validate federation regime |
 | `rbw-ror` | RenderOauthRegime | — | Render OAuth regime |
 | `rbw-rov` | ValidateOauthRegime | — | Validate OAuth regime |
-| `rbw-rsr` | RenderStationRegime | — | Render station regime |
-| `rbw-rsv` | ValidateStationRegime | — | Validate station regime |
 
 ### Theurge — Test infrastructure (`rbw-t`)
 

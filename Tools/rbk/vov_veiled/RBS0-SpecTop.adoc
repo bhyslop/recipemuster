@@ -413,12 +413,6 @@
 :rbro_refresh_token:         <<rbro_refresh_token,RBRO_REFRESH_TOKEN>>
 :rbro_regime:                <<rbro_regime,RBRO Regime>>
 
-// Recipe Bottle Regime: Station (workstation Podman configuration)
-:rbrs_podman_root_dir:       <<rbrs_podman_root_dir,RBRS_PODMAN_ROOT_DIR>>
-:rbrs_regime:                <<rbrs_regime,RBRS Regime>>
-:rbrs_vm_platform:           <<rbrs_vm_platform,RBRS_VM_PLATFORM>>
-:rbrs_vmimage_cache_dir:     <<rbrs_vmimage_cache_dir,RBRS_VMIMAGE_CACHE_DIR>>
-
 // Recipe Bottle Regime: Vessel (container image specifications)
 :rbrv_regime:                <<rbrv_regime,RBRV Regime>>
 :rbrv_group_binding:         <<rbrv_group_binding,Binding Group>>
@@ -451,7 +445,6 @@
 :rbro_prefix:                <<rbro_prefix,RBRO_>>
 :rbrp_prefix:                <<rbrp_prefix,RBRP_>>
 :rbrr_prefix:                <<rbrr_prefix,RBRR_>>
-:rbrs_prefix:                <<rbrs_prefix,RBRS_>>
 :rbrv_prefix:                <<rbrv_prefix,RBRV_>>
 
 // Recipe Bottle Kit Regime Operations
@@ -3180,11 +3173,6 @@ Recipe Bottle Vessel Regime
 {rbrn_prefix}::
 Recipe Bottle Nameplate Regime
 
-[[rbrs_prefix]]
-//axl_voices axrg_prefix
-{rbrs_prefix}::
-Recipe Bottle Station Regime
-
 === Consumer Filesystem Layout
 
 [[rbsld_moorings]]
@@ -3565,34 +3553,6 @@ The OAuth 2.0 client secret from the Google Cloud Console OAuth client configura
 The long-lived OAuth refresh token obtained during the authorization flow, used to obtain fresh access tokens.
 
 include::RBSRO-RegimeOauth.adoc[]
-
-=== Station Regime (RBRS)
-
-The station regime defines workstation-specific Podman VM configuration for the local development environment.
-
-[[rbrs_regime]]
-//axvr_regime axf_bash axrd_file_sourced axrd_singleton
-{rbrs_regime}::
-An
-regime
-that contains workstation-specific Podman VM configuration for the local development environment.
-
-[[rbrs_podman_root_dir]]
-//axl_voices axrg_variable axtu_string
-{rbrs_podman_root_dir}::
-Root directory for Podman machine storage on the local workstation.
-
-[[rbrs_vmimage_cache_dir]]
-//axl_voices axrg_variable axtu_string
-{rbrs_vmimage_cache_dir}::
-Directory for caching VM images used by Podman machine initialization.
-
-[[rbrs_vm_platform]]
-//axl_voices axrg_variable axtu_string
-{rbrs_vm_platform}::
-Platform architecture identifier for the Podman VM.
-
-include::RBSRS-RegimeStation.adoc[]
 
 === Kit Regime Operations (RBK)
 

@@ -216,9 +216,6 @@ zrbz_kindle() {
   z_mod="rbro_cli.sh"
   buz_enroll RBZ_RENDER_OAUTH           "rbw-ror" "${z_mod}" "rbro_render"    ""  "Render OAuth regime"
   buz_enroll RBZ_VALIDATE_OAUTH         "rbw-rov" "${z_mod}" "rbro_validate"  ""  "Validate OAuth regime"
-  z_mod="rbrs_cli.sh"
-  buz_enroll RBZ_RENDER_STATION         "rbw-rsr" "${z_mod}" "rbrs_render"    ""  "Render station regime"
-  buz_enroll RBZ_VALIDATE_STATION       "rbw-rsv" "${z_mod}" "rbrs_validate"  ""  "Validate station regime"
 
   # Theurge — test infrastructure (rbw-t). One pipeline: the theurge engine
   # (build/test/run/suite/single) dispatches through rbw_workbench like every

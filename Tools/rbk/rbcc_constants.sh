@@ -53,7 +53,6 @@ RBCC_rbrd_basename="rbrd.env"
 RBCC_rbrd_file="${RBCC_moorings_dir}/${RBCC_rbrd_basename}"
 
 # Literal constants (pure string literals, no variable expansion — available at source time)
-RBCC_rbrs_file="../station-files/rbrs.env"
 RBCC_rbrn_file="rbrn.env"
 RBCC_rbro_file="rbro.env"
 
@@ -177,7 +176,6 @@ rbcc_emit_consts() {
     RBCC_rbrf_file       \
     RBCC_rbrd_basename   \
     RBCC_rbrd_file       \
-    RBCC_rbrs_file       \
     RBCC_rbrn_file       \
     RBCC_rbro_file       \
     RBCC_verb_defrock     \

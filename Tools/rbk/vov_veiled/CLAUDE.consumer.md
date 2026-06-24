@@ -134,11 +134,10 @@ Regimes follow a consistent pattern: `rbw-r{code}{r|v|l}` where `r` = render, `v
 | `rr` | RBRR | Repo — depot project, region, build config | `rbw-rrr` | `rbw-rrv` |
 | `rn` | RBRN | Nameplate — per-vessel hallmarks, runtime | `rbw-rnr` | `rbw-rnv` |
 | `rv` | RBRV | Vessel — container image build definitions | `rbw-rvr` | `rbw-rvv` |
-| `rs` | RBRS | Station — developer machine paths | `rbw-rsr` | `rbw-rsv` |
 | `ro` | RBRO | OAuth — payor refresh token (managed) | `rbw-ror` | `rbw-rov` |
 | `ra` | RBRA | Auth — service account credentials (managed) | `rbw-rar` | `rbw-rav` |
 
-**User-configured**: RBRP, RBRR, RBRN, RBRV, RBRS — you edit these during setup.
+**User-configured**: RBRP, RBRR, RBRN, RBRV — you edit these during setup.
 **Managed/generated**: RBRO (by payor install), RBRA (by credential creation).
 
 Cross-regime operations: `rbw-ni` (nameplate info/survey), `rbw-nv` (validate all nameplates).
@@ -166,7 +165,6 @@ A Config Regime is a structured configuration system: a specification document, 
 - **RBRR** — Repository/depot configuration. Region, machine type, vessel directory, secrets directory, depot project ID.
 - **RBRN** — Nameplate. Per-vessel: runtime (`docker`), vessel names, hallmark values (set after builds complete).
 - **RBRV** — Vessel definitions. One per container image you want to build.
-- **RBRS** — Station. Developer-specific paths for Recipe Bottle. Not in git.
 
 ## Architecture
 

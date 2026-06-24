@@ -53,7 +53,6 @@ use crate::rbtdgc_consts::{
     RBTDGC_VALIDATE_OAUTH,
     RBTDGC_VALIDATE_PAYOR,
     RBTDGC_VALIDATE_REPO,
-    RBTDGC_VALIDATE_STATION,
     RBTDGC_VALIDATE_VESSEL,
 };
 use crate::rbtdre_engine::{
@@ -369,11 +368,6 @@ fn rbtdrs_poison_optional(
     rbtdrs_poison(dir, validate_colophon, folio, poison, expected_band, label)
 }
 
-fn rbtdrs_rbrs_missing_platform(dir: &Path) -> rbtdre_Verdict {
-    rbtdrs_poison_optional(dir, RBTDGC_VALIDATE_STATION, &[], "RBRS_VM_PLATFORM",
-        RBTDGC_BAND_ENROLL, "rbrs-missing-platform")
-}
-
 fn rbtdrs_rbro_missing_refresh_token(dir: &Path) -> rbtdre_Verdict {
     rbtdrs_poison_optional(dir, RBTDGC_VALIDATE_OAUTH, &[], "RBRO_REFRESH_TOKEN",
         RBTDGC_BAND_ENROLL, "rbro-missing-refresh-token")
@@ -426,7 +420,6 @@ pub static RBTDRS_CASES_REGIME_POISON: &[rbtdre_Case] = &[
     case!(rbtdrs_rbrv_unexpected_var),
     case!(rbtdrs_rbrv_partial_conjure),
     case!(rbtdrs_rbrv_no_bind_image),
-    case!(rbtdrs_rbrs_missing_platform),
     case!(rbtdrs_rbro_missing_refresh_token),
     case!(rbtdrs_burs_bad_tincture),
     case!(rbtdrs_burn_bad_platform),
