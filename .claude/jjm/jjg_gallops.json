@@ -17352,8 +17352,8 @@
         "₢BfAAk": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260624-1411",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260624-2317",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "Run a workflow-driven cross-heat split study: partition the remaining work of ₣Bf, ₣Bi, and ₣Bl into about three parallel streams that can run in separate repo clones with occasional git syncs, and propose the retained-heat set (₣Bl the candidate third stream), the pace transfers, and the paddock restitching that realize it.",
                 "",
@@ -17391,7 +17391,7 @@
                 "Workflow orchestration; a cross-heat planning study. Motivated by the ₣Bf heat-integrity audit's finding that file contention, not chain depth, is the binding constraint on parallelism."
               ],
               "jjgtn_silks": "cross-heat-parallelization-split-study",
-              "jjgtn_basis": "e5443bc"
+              "jjgtn_basis": "e46c10e"
             }
           ]
         },
