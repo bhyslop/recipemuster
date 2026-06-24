@@ -17009,29 +17009,38 @@
         "₢BfAAL": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260623-0903",
+              "jjgtn_ts": "260624-0057",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
-                "Build the one BCG module orchestrating the Keycloak test-facility lifecycle: rbxk_keycloak.sh in the new rbx family.",
+                "Build the one BCG module orchestrating the Keycloak test-facility lifecycle: rbxk_keycloak.sh in the rbx family.",
                 "",
-                "Setup: charge the fdkyclk crucible, poll Keycloak ready, fetch its public JWKS (the bridge — strip to standard RSA members), call affiance with that JWKS. Teardown: jilt then quench.",
-                "Compose existing verbs plus the one JWKS bridge — do NOT contain the accessor (rba's job) and do NOT reimplement affiance or jilt (call them).",
-                "Setup/teardown tabtargets take colophons under rbw-xkX; name the two verbs plainly at cut-time.",
+                "## Spec of needed change",
+                "Setup: charge the fdkyclk crucible, poll Keycloak ready, fetch its public JWKS (the bridge — strip to standard RSA members), call affiance with that JWKS.",
+                "Teardown: jilt then quench.",
+                "Compose existing verbs plus the one JWKS bridge — do NOT contain the accessor (rba's job), do NOT reimplement affiance or jilt (call them).",
+                "The module is blind to the realm JSON — affiliation by reference, never ownership; affiance never learns \"Keycloak.\"",
                 "",
-                "Source: fdkyclk-proof.sh (fetch_jwks + the main staging) and fdkyclk-teardown.sh (the jilt-then-quench inverse, whose header already maps the sequence onto the real verbs); the paddock de-lamination + naming section.",
+                "Colophon (operator 260624, supersedes the rbw-xk earmark): the setup tabtarget is rbw-qjK — test bucket q, foedus j, Keycloak K; the teardown is a sibling under rbw-qj, named at cut-time.",
+                "Uppercase K because setup CALLS AFFIANCE and so mutates cloud (creates the GCP workforce provider) — the uppercase is that warning.",
+                "The module keeps its rbxk_keycloak.sh name; the module letter need not match the colophon.",
+                "Setup calls bug_require_clean_tree first — it writes committed config and mutates cloud.",
+                "",
+                "Caveat (operator flag 260624): the full mutation surface is not yet pinned — this setup is \"pretty mutating,\" possibly beyond affiance's provider creation; verify the mutation surface at mount before trusting the gate placement.",
+                "",
+                "Source: fdkyclk-proof.sh (fetch_jwks + the main staging) and fdkyclk-teardown.sh (the jilt-then-quench inverse); the paddock de-lamination + naming section.",
                 "",
                 "## Done when",
-                "One tabtarget stands up the programmatic facility (charged Keycloak + affianced foedus) and one tears it down, idempotently, composing affiance/jilt/charge/quench.",
+                "One tabtarget (rbw-qjK) stands up the programmatic facility (charged Keycloak + affianced foedus) and one tears it down, idempotently, composing affiance/jilt/charge/quench.",
                 "",
                 "## Cinched",
-                "rbx family, rbxk_keycloak.sh, rbw-xkX colophons (paddock-cinched).",
-                "The module is blind to the realm JSON — affiliation by reference, never ownership; affiance never learns \"Keycloak.\"",
+                "rbx family, rbxk_keycloak.sh module; colophon rbw-qjK (setup) plus an rbw-qj teardown sibling, superseding the prior rbw-xk earmark (operator 260624).",
+                "The module is blind to the realm JSON — affiliation by reference, never ownership.",
                 "",
                 "## Character",
                 "Bash orchestration; the heart of the de-lamination."
               ],
               "jjgtn_silks": "rbxk-keycloak-orchestrator",
-              "jjgtn_basis": "ef5b382"
+              "jjgtn_basis": "016046c"
             }
           ]
         },
@@ -17233,28 +17242,37 @@
         "₢BfAAT": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260623-2206",
+              "jjgtn_ts": "260624-0057",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "Settle the foedus-reuse design and the precise tabtarget nature of every foedus toothing — the fixture↔verb seam, the pool-integrity CHECK, the active-foedus SWITCH, and how affiance composes with them — choosing each verb's exact signature clearly and directly, not delegating it further.",
                 "",
                 "## Spec of needed change",
                 "(a) Seam: how a fixture sequences the real verbs under a wrapper — composes, never reimplements.",
-                "(b) Atomic toothings (operator's strong opinion 260623): every foedus tabtarget is simple and atomic — affiance CREATES, the check CHECKS, the switch SELECTS; NONE is \"check-then-create-if-absent.\" The \"reuse if valid, else create\" logic lives in the FIXTURE composition, not inside a fat verb. The freehold fixtures' current self-healing behaviour moves into the fixture, not the tabtarget.",
-                "(c) The pool-integrity CHECK toothing: name it (foedus register) and CHOOSE its signature — does it take a foedus argument (parallel to switch) or check only the currently-selected foedus? Choose, with the reason.",
+                "(b) Atomic toothings (operator's strong opinion 260623): every foedus tabtarget is simple and atomic — affiance CREATES, the check CHECKS, the switch SELECTS; NONE is \"check-then-create-if-absent.\"",
+                "The \"reuse if valid, else create\" logic lives in the FIXTURE composition, not inside a fat verb.",
+                "The freehold fixtures' current self-healing behaviour moves into the fixture, not the tabtarget.",
+                "(c) The pool-integrity CHECK toothing: name it (foedus register) and CHOOSE its signature — a foedus argument (parallel to switch) or check only the currently-selected foedus? Choose, with the reason.",
+                "(\"check\" is rejected as the word — operator 260624; mint a foedus-register word.)",
                 "(d) The SWITCH mechanism: the selection design (two regime configs + a selector + the assize-reset it forces) and the switch's own signature.",
                 "",
+                "Draft carried from the vocabulary pass (re-review here, operator 260624): the switch verb is drafted instate, homed in the foedus-cardinality colophon family rbw-j.",
+                "Casing is the open hinge — lowercase (rbw-ji) if the selector is local runtime state (free test-switching, no gate), uppercase (rbw-jI) plus bug_require_clean_tree if the selector is committed config.",
+                "The configure-foedus op the switch's regime shape feeds from is homed rbw-qjK (the Keycloak setup).",
+                "",
                 "## Done when",
-                "Every foedus toothing's precise tabtarget nature is clearly and directly chosen — the check's signature, the switch's, and the atomic boundaries — with no deferral; the fixture-composition pattern that yields \"reuse if valid, else create\" is specified; the combinator and the reuse-build pace can build against it.",
+                "Every foedus toothing's precise tabtarget nature is clearly and directly chosen — the check's signature and word, the switch's signature and the instate/casing question, and the atomic boundaries — with no deferral; the fixture-composition pattern that yields \"reuse if valid, else create\" is specified; the combinator and the reuse-build pace can build against it.",
                 "",
                 "## Cinched",
-                "Atomic toothings: no tabtarget is check-then-create; composition lives in fixtures (operator's strong opinion). The precise signatures are decided HERE, not delegated further.",
+                "Atomic toothings: no tabtarget is check-then-create; composition lives in fixtures (operator's strong opinion).",
+                "The precise signatures are decided HERE, not delegated further.",
+                "Switch draft instate / family rbw-j carried in for re-review (operator 260624), not yet final.",
                 "",
                 "## Character",
                 "Design conversation requiring operator judgment; mount with the operator present; this is where the long-delegated tabtarget nature gets pinned."
               ],
               "jjgtn_silks": "foedus-reuse-design",
-              "jjgtn_basis": "e26cedb"
+              "jjgtn_basis": "016046c"
             }
           ]
         },
