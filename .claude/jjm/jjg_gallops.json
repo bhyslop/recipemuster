@@ -17543,8 +17543,8 @@
         "₢BfAAo": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260624-2312",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260624-2332",
+              "jjgtn_state": "jjgte_abandoned",
               "jjgtn_text": [
                 "Cross-clone coordination gate for the federation-build stream (its own repo clone).",
                 "No code change of its own — the standing sync contract for this stream's writes into ₣Bl-owned files.",
@@ -17566,7 +17566,7 @@
                 "Cross-clone coordination gate; mechanical."
               ],
               "jjgtn_silks": "fed-syncs-theurge-zipper-crucible",
-              "jjgtn_basis": "9aeba74"
+              "jjgtn_basis": "6ed03ba"
             }
           ]
         }
