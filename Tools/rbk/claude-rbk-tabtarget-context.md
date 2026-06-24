@@ -183,8 +183,6 @@ The Folio column shows how each tabtarget receives it:
 | `rbw-ts` | TestSuite | imprint | Run a named test suite (fast/service/crucible/complete/gauntlet/skirmish/dogfight/siege/blockade) |
 | `rbw-tf` | FixtureRun | param1 | Run a single named test fixture |
 | `rbw-tc` | FixtureCase | param1 | Run one case against a charged crucible (omit to list fixtures/cases) |
-| `rbw-tK` | KludgeCycle | imprint | Local kludge build + install hallmark into nameplate |
-| `rbw-tO` | OrdainCycle | imprint | Cloud build + install hallmark into nameplate |
 | `rbw-tq` | QualifyFast | — | Fast qualify: tabtargets, colophons, nameplate health |
 | `rbw-tr` | QualifyRelease | — | Release qualify: + shellcheck, full test suite |
 | `rbw-tl` | Shellcheck | — | Shellcheck only: BCG-configured static analysis, no test suite |

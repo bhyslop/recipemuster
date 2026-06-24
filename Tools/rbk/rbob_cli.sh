@@ -131,7 +131,6 @@ zrbob_furnish() {
   source "${BURD_BUK_DIR}/buf_fact.sh"
   source "${BURD_BUK_DIR}/bug_git.sh"
   source "${z_rbk_kit_dir}/rbfh_hygiene.sh"
-  source "${z_rbk_kit_dir}/rbfd_director.sh"
   source "${z_rbk_kit_dir}/rbfk_kludge.sh"
   source "${z_rbk_kit_dir}/rboo_observe.sh"
   source "${BURD_BUK_DIR}/buz_zipper.sh"
@@ -162,13 +161,9 @@ zrbob_furnish() {
   # state where those fields are blank by design (rblm zeroes them;
   # rbtdrp_lifecycle treats them as RBTDRP_RBRN_BLANK_FIELDS). Strict
   # validation lives in rbw-rnv (rbrn_cli.sh). Mirrors the yoke/RBRV
-  # split (rbfl_cli vs rbrv_cli). rbob_ordain (rbw-tO) keeps enforce —
-  # it is the nameplate-keyed gate before incurring Cloud Build spend;
-  # the foundry-keyed ordain (rbw-fO → rbfd_ordain) is vessel-only and
-  # never enters this CLI, so onboarding-sequence's ordain steps are
-  # unaffected.
+  # split (rbfl_cli vs rbrv_cli).
   case "${z_command}" in
-    rbob_kludge|rbob_kludge_bottle|rbob_kludge_sentry)
+    rbob_kludge_bottle|rbob_kludge_sentry)
       ;;
     *)
       zrbrn_enforce
@@ -193,13 +188,10 @@ zrbob_furnish() {
   # since both wired callsites invoke rbfh_dockerfile_check.
   zrbfh_kindle
 
-  # Differential kindle: kludge uses uncredentialed rbfk; ordain needs full rbfd
+  # Kludge commands need the uncredentialed foundry-kludge module.
   case "${z_command}" in
-    rbob_kludge|rbob_kludge_bottle|rbob_kludge_sentry)
+    rbob_kludge_bottle|rbob_kludge_sentry)
       zrbfk_kindle
-      ;;
-    rbob_ordain)
-      zrbfd_kindle
       ;;
   esac
 

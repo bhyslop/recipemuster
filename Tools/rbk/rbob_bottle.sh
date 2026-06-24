@@ -657,17 +657,9 @@ zrbob_drive_hallmark() {
 }
 
 ######################################################################
-# Kludge Bottle — param1 dispatch target delegating to rbob_kludge
+# Kludge Bottle — build bottle vessel locally and drive hallmark into nameplate
 
 rbob_kludge_bottle() {
-  zrbob_sentinel
-  rbob_kludge
-}
-
-######################################################################
-# Kludge — build bottle vessel locally and drive hallmark into nameplate
-
-rbob_kludge() {
   zrbob_sentinel
   zrbfc_sentinel
 
@@ -676,8 +668,6 @@ rbob_kludge() {
 
   buc_step "Kludge: ${RBRN_MONIKER} (${RBRN_BOTTLE_VESSEL})"
 
-  # Delegate build to foundry kludge — override BUZ_FOLIO with the vessel sigil
-  # for the duration of the call (rbfk_kludge reads BUZ_FOLIO as its operand).
   BUZ_FOLIO="${RBRN_BOTTLE_VESSEL}" rbfk_kludge
 
   # Read hallmark from fact file
@@ -716,32 +706,6 @@ rbob_kludge_sentry() {
   zrbob_drive_hallmark "${ZRBOB_ENV_RBRN}" "RBRN_SENTRY_HALLMARK" "${z_hallmark}"
 
   buc_success "Kludge installed: ${z_hallmark} → ${RBRN_MONIKER}"
-}
-
-######################################################################
-# Ordain — cloud-build bottle vessel and drive hallmark into nameplate
-
-rbob_ordain() {
-  zrbob_sentinel
-  zrbfd_sentinel
-
-  buc_doc_brief "Ordain bottle vessel via cloud build and drive hallmark into nameplate"
-  buc_doc_shown || return 0
-
-  buc_step "Ordain: ${RBRN_MONIKER} (${RBRN_BOTTLE_VESSEL})"
-
-  BUZ_FOLIO="${RBRN_BOTTLE_VESSEL}" rbfd_ordain
-
-  # Read hallmark from fact file
-  local z_hallmark=""
-  z_hallmark=$(<"${BURD_OUTPUT_DIR}/${RBF_FACT_HALLMARK}") \
-    || buc_die "Failed to read hallmark from ordain output"
-  test -n "${z_hallmark}" || buc_die "Empty hallmark from ordain output"
-
-  # Drive hallmark into nameplate
-  zrbob_drive_hallmark "${ZRBOB_ENV_RBRN}" "RBRN_BOTTLE_HALLMARK" "${z_hallmark}"
-
-  buc_success "Ordain installed: ${z_hallmark} → ${RBRN_MONIKER}"
 }
 
 # eof

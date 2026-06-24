@@ -235,7 +235,9 @@ rbfk_kludge() {
   buc_bare "  Image:        ${z_image_ref}"
   buc_bare "  Vouch:        ${z_vouch_ref}"
   buc_bare ""
-  buc_bare "  Auto-install via: tt/rbw-tK.KludgeCycle.{moniker}.sh"
+  buc_bare "  Auto-install via:"
+  buc_bare "    tt/rbw-cKB.KludgeBottle.sh <moniker>   (bottle vessel)"
+  buc_bare "    tt/rbw-cKS.KludgeSentry.sh <moniker>   (sentry vessel)"
 }
 
 # eof
