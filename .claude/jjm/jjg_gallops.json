@@ -18375,6 +18375,7 @@
         "₢BiAAL",
         "₢BiAAE",
         "₢BiAAD",
+        "₢BiAAY",
         "₢BiAAF",
         "₢BiAAB",
         "₢BiAAG",
@@ -18384,7 +18385,7 @@
         "₢BiAAA",
         "₢BiAAW"
       ],
-      "jjghn_next_pace_seed": "AAY",
+      "jjghn_next_pace_seed": "AAZ",
       "jjghn_paces": {
         "₢BiAAA": {
           "jjgpn_tacks": [
@@ -19306,6 +19307,39 @@
               ],
               "jjgtn_silks": "mantle-access-probe-rename",
               "jjgtn_basis": "e2e9b3d"
+            }
+          ]
+        },
+        "₢BiAAY": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260624-0127",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "Mechanical removal gated on a coverage check:",
+                "confirm the chaining / per-container pattern fully covers the convenience before deleting it.",
+                "",
+                "## Goal",
+                "Retire the redundant build-cycle convenience tabtargets — rbw-tO (OrdainCycle / rbob_ordain) and rbw-tK (KludgeCycle / rbob_kludge).",
+                "They are fixture-uncovered, superseded, and rbw-tO is broken (rbuh_json not sourced — see the Spook in Memos/memo-20260624-jailer-shellcheck-coverage-risk.md).",
+                "",
+                "## Replacement coverage (verify, then delete)",
+                "Local: rbw-cKB / rbw-cKS (rbob_kludge_bottle / rbob_kludge_sentry) — per-container kludge + drive hallmark into nameplate, fixture-covered (siege).",
+                "Cloud: rbw-fO (DirectorOrdainsHallmark) plus the onboarding ordain->propagate flow in rbtdro_onboarding.rs, which propagates the hallmark into the nameplate.",
+                "Confirm onboarding and any operator-facing convenience is already served by these; wire in the chaining op only if a real gap is found.",
+                "",
+                "## Done when",
+                "- rbw-tO / rbw-tK tabtargets, the rbob_ordain / rbob_kludge functions, their CLI dispatch cases, and their rbz_zipper enrollments are gone; rbob_kludge_bottle / rbob_kludge_sentry retained.",
+                "- grep for the removed colophons lands clean across onboarding, handbook, and specs.",
+                "- Build green; rbw-tq + rbw-tl green (regenerated consts / context re-derived).",
+                "",
+                "## Out of scope",
+                "The dogfight cloud-build summon failure (its own pace).",
+                "The chaining-nature common quoin in RBS0 — a separate spec finding: the chain-head / chain-link / durable-leak discipline is repeated near-verbatim across ~7 subdocs and was never lifted into one quoin."
+              ],
+              "jjgtn_silks": "prune-legacy-build-cycle-tabtargets",
+              "jjgtn_basis": "0538e1d"
             }
           ]
         }
