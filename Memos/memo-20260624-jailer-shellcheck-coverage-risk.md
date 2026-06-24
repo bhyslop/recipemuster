@@ -114,11 +114,32 @@ the airgap sibling is `blockade`).
 - **Pre-change baseline (pristine jailer):** GREEN — siege 62 passed, 0 failed,
   0 skipped (kludge-tadmor + tadmor's 61 cases), crucible quenched clean. Run on
   commit 3b794bc88 (jailer pristine), 2026-06-24.
-- **Post-change (jailer fixed):** RESULT PENDING.
-- **Cloud-build verification (operator-requested) — "cloud build and run
-  nsproto":** the modern target is the tadmor security crucible run against
-  CLOUD-BUILT (ordained) sentry+ifrit images, not local kludge — see the lineage
-  below. Exact tabtarget wiring to confirm before running.
+- **Post-change (jailer fixed):** GREEN — siege 62 passed, 0 failed, 0 skipped
+  (identical to baseline), commit 1111f5901. rbw-tl green (217 files clean).
+  2026-06-24.
+- **Cloud-build verification (operator-requested):** CORRECTION (operator,
+  2026-06-24): tadmor is NOT cloud-built — it is local-only (kludge), so the
+  attempted `rbw-tO.OrdainCycle.tadmor` was the wrong target (it failed fast at
+  the quota preflight, before building — see Spook below). The cloud/airgap
+  *sentry* path is **moriah** (blockade suite); the cloud-pipeline smoke test is
+  **dogfight** (ordain→summon→run on busybox over the freehold depot). The jailer
+  edits are already behavior-proven by the local siege above; dogfight confirms
+  the cloud build pipeline is intact, and the cloud-built *sentry* is reached only
+  via moriah/blockade (not requested now). dogfight ordains via `rbw-fO`
+  (rbfd_cli, which sources rbuh) so it is unaffected by the Spook bug. RESULT
+  PENDING (dogfight running).
+
+## Spook — latent bug in the rbob_ordain (`rbw-tO` OrdainCycle) path
+
+Surfaced while (mistakenly) running `rbw-tO.OrdainCycle.tadmor`: the ordain
+reaches `rbfd_director.sh:200`'s concurrent-build-quota preflight, which calls
+`rbuh_json`, but `rbob_cli.sh`'s furnish sources `rbfd_director.sh` (line 134)
+WITHOUT sourcing `rbuh_http.sh` — so `rbuh_json` is command-not-found (exit 127).
+The sibling `rbw-fO` path (rbfd_cli.sh) sources+kindles rbuh correctly, so only
+the `rbob_ordain` (`rbw-tO`) entry is broken. Pre-existing, unrelated to the
+jailer work, and not in this pace's scope. Likely fix: source + kindle
+rbuh_http.sh in `rbob_cli.sh` furnish beside the `rbfd_director.sh` source.
+Candidate itch / separate pace.
 
 ## nsproto lineage — what "cloud build and run nsproto" refers to
 
