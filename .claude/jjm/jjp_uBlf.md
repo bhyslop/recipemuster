@@ -358,12 +358,12 @@ The audit is a proposal; these lines record only what the operator has since ele
 
 Substrate model (confirmed, not new work): the freehold substrate-lifecycle is already built — the rbtdrk_freehold / rbtdrk_depot / rbtdrp_lifecycle family plus the gauntlet ladder; the genuinely novel work is lifting the implicit (inner-body × wrapper) encoding into a first-class combinator over the engine's existing setup/teardown hooks.
 
-Suite naming — ELECTED whole (operator decision 260623): the test suites adopt one military / conflict asterism.
+Suite naming — DONE (elected 260623, renamed 260624): the test suites adopted one military / conflict asterism.
 crucible → bivouac is forced — the suite name collided with the production crucible runtime noun (the charged sentry + pentacle + bottle), a one-meaning-per-word violation.
 fast → reveille, service → picket, complete → echelon are the elected coherence renames; the keepers gauntlet / skirmish / dogfight / siege / blockade are unchanged, and parley names the federation authentic-verb suite.
-The rename is a mechanical batch across each suite's tabtarget filename, the RBTDRC_SUITES table, the CLAUDE.md tables, and the CLI / onboarding text.
+The rename landed 260624 across every suite-name home — each suite's tabtarget filename, the RBTDRC_SUITES table, the CLAUDE.md tables, and the CLI / onboarding text — and (operator chose full coherence) the whole fast-tier→reveille-tier dependency-tier vocabulary too, ashlar credless-guard error strings and the BUS0/RBSLE specs included.
 
-chaining-fact-band — RESTORED (operator ruling 260623): the credless feoff/yoke band-matrix fixture is restored to the gauntlet and skirmish release ladders — it rode the four everyday suites but had been dropped from both — guarded by a fast-base set-equality assertion so the membership cannot silently drift again.
+chaining-fact-band — RESTORED (operator ruling 260623): the credless feoff/yoke band-matrix fixture is restored to the gauntlet and skirmish release ladders — it rode the four everyday suites but had been dropped from both — guarded by a reveille-base set-equality assertion so the membership cannot silently drift again.
 
 Foedus reuse and the active-foedus switch — switch NAMED, mechanism PARKED: the single-active-foedus, switched-among-standing topology stands, and the everyday reuse path switches rather than affiances — a workforce identity pool is founded once per foedus and kept, never jilted, so the everyday path is cap-flat.
 The switch toothing is now minted — instate (rbw-j) — alongside the avow / sitting / quash remints (done 260624); only its selection mechanism stays PARKED.
