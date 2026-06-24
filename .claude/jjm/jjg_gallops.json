@@ -16659,6 +16659,7 @@
         "₢BfAAD",
         "₢BfAAB",
         "₢BfAAE",
+        "₢BfAAq",
         "₢BfAAF",
         "₢BfAAG",
         "₢BfAAH",
@@ -16666,7 +16667,7 @@
         "₢BfAAm",
         "₢BfAAn"
       ],
-      "jjghn_next_pace_seed": "AAq",
+      "jjghn_next_pace_seed": "AAr",
       "jjghn_paces": {
         "₢BfAAA": {
           "jjgpn_tacks": [
@@ -17590,6 +17591,27 @@
               ],
               "jjgtn_silks": "await-thg-zipper-baton",
               "jjgtn_basis": "8eeea6a"
+            }
+          ]
+        },
+        "₢BfAAq": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260624-2333",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "BARRIER — cross-clone wait. No code work of its own.",
+                "This pace cannot complete until ₢BlAAC (heat ₣Bl — the crucible-module split that relocates RBTDRC_FIXTURES / RBTDRC_SUITES into the registry home) is complete, pushed to origin, and origin merged back into this clone.",
+                "Only then may the next pace — the terrier founding-home finisher — retire its two crucible fixtures, applying that delta against the relocated registry home rather than the old crucible god-module.",
+                "",
+                "## Done when",
+                "₢BlAAC is wrapped and pushed to origin, and this clone has pulled origin so the relocated fixture/suite registry is present here.",
+                "",
+                "## Character",
+                "Cross-clone barrier; hold here until the named pace is merged through."
+              ],
+              "jjgtn_silks": "await-thg-registry-relocation",
+              "jjgtn_basis": "76d8c8e"
             }
           ]
         }
