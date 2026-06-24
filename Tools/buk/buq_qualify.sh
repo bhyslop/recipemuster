@@ -188,6 +188,16 @@ buq_shellcheck() {
   test -n "${z_rcfile}"      || buc_die "buq_shellcheck: rcfile path required"
   test -n "${z_result_file}" || buc_die "buq_shellcheck: result file path required"
 
+  # Args beyond the third are explicit extra .sh files to lint alongside the
+  # tree under z_tools_dir — a consumer with load-bearing shell scripts outside
+  # its tools dir (vessel/jailer context, charge hooks) enumerates them here.
+  # Each must exist: a moved or renamed extra fails loud rather than silently
+  # dropping out of coverage.
+  local z_extra_files=()
+  if (( $# > 3 )); then
+    z_extra_files=("${@:4}")
+  fi
+
   buc_step "Running shellcheck qualification"
 
   test -f "${z_rcfile}"    || buc_die "Shellcheck rcfile not found: ${z_rcfile}"
@@ -211,8 +221,19 @@ buq_shellcheck() {
     z_files+=("${z_file}")
   done < <(find "${z_tools_dir}" -name '*.sh' -type f | sort)
 
+  local -r z_tree_count=${#z_files[@]}
+
+  # Append the validated extra files after the tree set
+  if (( ${#z_extra_files[@]} > 0 )); then
+    local z_extra=""
+    for z_extra in "${z_extra_files[@]}"; do
+      test -f "${z_extra}" || buc_die "buq_shellcheck: extra file not found: ${z_extra}"
+      z_files+=("${z_extra}")
+    done
+  fi
+
   local -r z_file_count=${#z_files[@]}
-  buc_log_args "Found ${z_file_count} shell files under ${z_tools_dir}"
+  buc_log_args "Found ${z_tree_count} shell files under ${z_tools_dir}; ${#z_extra_files[@]} explicit extra files"
 
   test "${z_file_count}" -gt 0 || buc_die "No .sh files found under ${z_tools_dir}"
 
