@@ -16570,6 +16570,7 @@
         "₢BfAAR",
         "₢BfAAT",
         "₢BfAAZ",
+        "₢BfAAe",
         "₢BfAAQ",
         "₢BfAAU",
         "₢BfAAV",
@@ -16597,7 +16598,7 @@
         "₢BfAAH",
         "₢BfAAP"
       ],
-      "jjghn_next_pace_seed": "AAe",
+      "jjghn_next_pace_seed": "AAf",
       "jjghn_paces": {
         "₢BfAAA": {
           "jjgpn_tacks": [
@@ -17404,6 +17405,28 @@
               ],
               "jjgtn_silks": "rbtdth-shared-test-helpers",
               "jjgtn_basis": "ed7d151"
+            }
+          ]
+        },
+        "₢BfAAe": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260623-2152",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Finalize the RBS0 theurge-test-cosmology subdoc, homing the durable concepts this audit lifted — the inner-body × wrapper combinator, the REUSE/LIFECYCLE wrappers, the three strata, the freehold composite — as spec rather than memo, superseding the prior standalone cosmology-spec pace ₢BlAAA (in a separate heat).",
+                "",
+                "## Done when",
+                "The cosmology is spec-homed in a new RBS-tail subdoc include'd into RBS0 (a fresh quoin stem, not rbst_); the wrapper/strata/composite vocabulary is citable from code; the vow + adoc build is green; the prior cosmology-spec pace ₢BlAAA is wrapped or dropped as superseded, and its empty heat retired.",
+                "",
+                "## Cinched",
+                "A SUBDOC of RBS0, not a sibling top-spec; honor the five membranes (reference BUS0 busr_fixture/busr_suite, point at RBTDRC_SUITES, cite the crucible-security specs, split the identity-layers model, thin the CLAUDE.md table). Depends on the combinator having settled the abstraction. Detail: the audit memo plus ₢BlAAA's membrane list (its rich source).",
+                "",
+                "## Character",
+                "Spec authoring; depends on the combinator."
+              ],
+              "jjgtn_silks": "theurge-cosmology-subdoc-finalize",
+              "jjgtn_basis": "dfeacc5"
             }
           ]
         }
