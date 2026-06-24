@@ -38,7 +38,7 @@ distributed to consumer projects.
 - Default reldir: `projects/rbm_alpha_recipemuster`
 - BURN alias: use the alias from the target's BUK Regime Node profile (e.g., `winhost-wsl`, `winhost-cyg`)
 
-Hosts in play for this repo:
+Hosts in play for this repo (full operator machine registry: §I Test Environments below):
 - `winhost-wsl` / `winhost-cyg` — Windows host transports (WSL and Cygwin).
 - `cerebro` — Linux test host used as a fundus by JJK fundus scenario tests.
 
@@ -194,3 +194,46 @@ passed — the `rbdgX_name.svg` / `rbdgX_name-dark.svg` convention and its
 `zrbtdrc_darken_svg` recolor are documented at the RBDG acronym entry
 (`claude-rbk-acronyms.md`), referenced here, not restated. The toggle is an
 in-tool proof of exactly what the README `<picture>` blocks render per theme.
+
+### H. Notch before test (Rust test/commit discipline)
+
+Operator standing preference, no carve-out — homed here because *notch* is
+JJK-native; the rule governs every Rust test gate across BOTH build pipelines
+(the VOW kits and RBK's theurge), so it has no single non-JJK owner.
+
+**Always notch before you test.** Commit (notch) every pending change before
+running any test — `vow-t`, `rbw-tt`, a suite (`rbw-ts.*`), or a fixture/case
+(`rbw-tf`/`rbw-tc`) — so each result maps to a committed (if not yet pushed)
+commit, and the interim notches stand as the durable record of what passed or
+failed. Never run tests against a dirty tree; if `git status` isn't clean, notch
+first.
+
+### I. Test Environments
+
+Operator-specific test machines reachable from this station. Cross-cutting
+operator infrastructure — both BUK garrison/caparison and JJK foray/fundus reach
+these — homed here because JJK foray/fundus is the dominant consumer; §B's
+fundus-host list points here for the full registry.
+
+- **bujn-winpc** — Windows host, tailnet hostname `rocket`. Formal BURN profile
+  at `rbmm_moorings/rbmn_nodes/bujn-winpc/` for BUK caparison/garrison/invigilate
+  work under heat ₣A-. **Consolidated access reference + live account state:**
+  `Memos/memo-20260516-windows-headless-account-anatomy.md`.
+  - Admin SSH: `tt/buw-jpS bujn-winpc <cmd>` (as `bhyslop`; cmd.exe default shell,
+    so prepend `powershell -Command` / `bash -c` as the task needs).
+  - Formal workload: `tt/buw-jws bujn-winpc` (as `bujuw_user`; garrison routes to
+    WSL `rbtww-main`). Owned by the garrison ceremony, not hand-edits.
+  - Ad-hoc test accounts (pubkey-only, independent of the formal garrison — safe
+    scratch). Repo cloned at `~/projects/rbm_alpha_recipemuster`:
+    - `ssh brad@rocket` — interactive Cygwin login shell (human use; ignores a passed command).
+    - `ssh cygwin@rocket "<cmd>"` (one-shot) or `ssh -t cygwin@rocket` (interactive) — Cygwin, full shell semantics.
+    - `ssh wsl@rocket "<cmd>"` (one-shot) or `ssh -t wsl@rocket` (interactive) — WSL Ubuntu 24.04 as root; **Docker daemon live — container tests run here**.
+  - Legacy LAN aliases `winhost-{wsl,cyg,ps}` (192.168.86.27) are currently
+    unreachable; use the `rocket` tailnet paths above.
+- **cerebro** — Linux test host (Ubuntu 24.04). Direct access: `ssh cerebro`
+  (user `bhyslop`, key `~/.ssh/id_ed25519`). Also the remote fundus for JJK
+  scenario tests: tabtargets `tt/jjw-tfP2.ProvisionPhase2.cerebro.sh`,
+  `tt/jjw-tfs.TestFundusScenario.cerebro.sh` (tests marked `#[ignore]`,
+  `--ignored` required; fundus accounts must be provisioned on cerebro first).
+- **localhost** — local fundus for JJK scenario tests via `jjfu-*` ssh aliases
+  (`jjfu-full`, `jjfu-nogit`, `jjfu-nokey`, `jjfu-norepo`).
