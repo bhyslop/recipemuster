@@ -236,3 +236,42 @@ developer notes" register — no quoins). New features slot in as new sections f
   feeds).
 - `poc/src/pbmbo_overlay.rs` — the alt-tab overlay FFI (where label text and the tier-0 collision color
   render).
+
+## Viewer-port latency — settled 2026-06-24 (pace BhAAR)
+
+**Question.** The viewer's TCP port was observed publishing ~20 s after a paneboard launch, so an
+unfurl fired too early fails soft. Two candidate mechanisms with opposite fixes: **(a)** paneboard
+services the viewer's lifecycle only on the alt-tab keypress path, not on its existing run-loop
+heartbeat, so publication waits for the operator's first tab; **(b)** the viewer child's own
+egui/Metal cold-start (GPU shader compile + glyph/font warmup) gates the bind, which no paneboard
+poll could shorten.
+
+**Method.** Four wall-clock (epoch-ms) markers on one shared file (the launchd-detached viewer and
+paneboard share no console), throwaway and fully reverted: `pb_startup` (conductor
+`clear_viewer_port_file`), `launch_dispatch` (conductor `launch_viewer`, the `open -g`), `viewer_main`
+(viewer `main()` entry), `viewer_bind` (viewer post-bind in `serve()`). One cold run, fresh build.
+
+**Result (one representative cold run).**
+
+| Interval | Δ | What it is |
+|----------|----|-----------|
+| `pb_startup` → `launch_dispatch` | 66.6 s | operator-gated — launch can't fire before the first alt-tab (here, prompt-reading latency) |
+| `launch_dispatch` → `viewer_main` | 0.89 s | launchd `open -g` → process exec |
+| `viewer_main` → `viewer_bind` | 0.14 s | eframe/Metal init → TCP bind + port publish |
+| `launch_dispatch` → `viewer_bind` (total once launch fires) | **~1.0 s** | the whole system delay |
+
+**Verdict: (a) event-gating, decisively; (b) refuted.** Once the launch *fires*, the port binds in
+~1.0 s total — there is no multi-second cold-start. The structural reason (b) cannot bite: the bind
+runs inside `ViewerApp::new`, which `eframe::run_native` calls *before* the first frame paint, so any
+GPU shader / font warmup happens after the bind and never gates the port. The ~20 s the operator saw
+was the idle-until-first-tab gap: `ensure_viewer()` is wired only to the alt-tab gesture
+(`pbmsa_alttab.rs` → `pbmv_viewer.rs`), never to startup and never to the 500 ms event-tap health
+heartbeat that already runs (`pbmbe_eventtap.rs`, `tap_health_check_timer`).
+
+**Informed-but-deferred (the consolidation hypothesis this finding feeds, NOT built here).** Move
+viewer-readiness servicing — and a future embedded resource monitor — onto one periodic run-loop tick
+(the existing 500 ms heartbeat, single-threaded, no separate startup thread), at a poll period
+(~200 ms–1 s) consonant with both snappy readiness and low-overhead resource sampling. The measured
+~1.0 s launch→bind says this would make the viewer ready ~1 s after paneboard startup, long before any
+unfurl — closing the soft-fail window without any change to the viewer's own cold-start. The decision
+to build it is deferred; this finding is the fact it should rest on.
