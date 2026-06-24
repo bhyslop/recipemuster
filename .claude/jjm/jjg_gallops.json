@@ -18806,6 +18806,7 @@
         "₢BlAAB",
         "₢BlAAC",
         "₢BlAAD",
+        "₢BlAAR",
         "₢BlAAE",
         "₢BlAAF",
         "₢BlAAG",
@@ -18819,7 +18820,7 @@
         "₢BlAAO",
         "₢BlAAP"
       ],
-      "jjghn_next_pace_seed": "AAR",
+      "jjghn_next_pace_seed": "AAS",
       "jjghn_paces": {
         "₢BlAAA": {
           "jjgpn_tacks": [
@@ -19269,6 +19270,27 @@
               ],
               "jjgtn_silks": "thg-syncs-federation-rbs0-foedus",
               "jjgtn_basis": "181d144"
+            }
+          ]
+        },
+        "₢BlAAR": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260624-2333",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "BARRIER — cross-clone wait. No code work of its own.",
+                "This pace cannot complete until ₢BfAAT (heat ₣Bf — the foedus-reuse design that authors the two foedus operation subdocs and their RBS0 include lines) is complete, pushed to origin, and origin merged back into this clone.",
+                "Only then may the next pace — the descry/instate REUSE-path build — proceed, because it builds against those subdocs (contract before code).",
+                "",
+                "## Done when",
+                "₢BfAAT is wrapped and pushed to origin, and this clone has pulled origin so the foedus operation subdocs and their RBS0 includes are present here.",
+                "",
+                "## Character",
+                "Cross-clone barrier; hold here until the named pace is merged through."
+              ],
+              "jjgtn_silks": "await-fed-foedus-subdocs",
+              "jjgtn_basis": "a11021e"
             }
           ]
         }
