@@ -16679,27 +16679,27 @@
         "₢BfAAA": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260623-2235",
+              "jjgtn_ts": "260624-0202",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
-                "Reconsider whether compear (the sign-in verb) must gate on a controlling terminal, and if it relaxes, build the yawp channel as the headless mechanism — surface the device-flow prompt out-of-band so a relay can complete it, preserving the human-present premise without requiring a TTY.",
+                "Reconsider whether avow (the sign-in verb) must gate on a controlling terminal, and if it relaxes, build the yawp channel as the headless mechanism — surface the device-flow prompt out-of-band so a relay can complete it, preserving the human-present premise without requiring a TTY.",
                 "",
                 "## Spec of needed change",
                 "Two halves of one question, formerly split across two paces (the yawp exploration folded in here):",
-                "- The DECISION (premise-touching, operator-owned): does compear keep its TTY fail-fast, or relax to headless-but-human-reachable? The suspected design error is conflating \"a human authenticates each assize\" (the premise) with \"a human is at a controlling terminal\" (the current enforcement) — which fails a headless-but-human-reachable caller (a long-running agent whose operator watches an output channel but holds no TTY).",
+                "- The DECISION (premise-touching, operator-owned): does avow keep its TTY fail-fast, or relax to headless-but-human-reachable? The suspected design error is conflating \"a human authenticates each sitting\" (the premise) with \"a human is at a controlling terminal\" (the current enforcement) — which fails a headless-but-human-reachable caller (a long-running agent whose operator watches an output channel but holds no TTY).",
                 "- The MECHANISM (if it relaxes): emit the device-flow prompt (verification URL + user code) as a yawp (BUYM diastema wire format) instead of writing it to /dev/tty, so a relay surfaces it and polls to completion; the tty's real purposes — keep the single-use code off the persistent log, and serve as the fail-fast presence proxy — are preserved through the new channel.",
                 "",
                 "## Done when",
-                "The TTY-gating question is settled either way with rationale recorded; if relaxed, compear can open an assize from a non-tty context by surfacing its prompt as a yawp a relay completes, the human-present guarantee preserved; the rework for the accessor and the Leg-1 step is slated or folded.",
+                "The TTY-gating question is settled either way with rationale recorded; if relaxed, avow can open a sitting from a non-tty context by surfacing its prompt as a yawp a relay completes, the human-present guarantee preserved; the rework for the accessor and the Leg-1 step is slated or folded.",
                 "",
                 "## Cinched",
-                "The human-present premise holds — a human still authenticates each assize; the device flow stays the mechanism; zero durable secrets beyond the payor's RBRO. This touches cinched paddock material (the human-present premise and the headless fail-fast membrane), so resolving it may surface an operator-sanctioned paddock amendment. Distinct from the programmatic no-human path — that is the foedus-reuse spine's, not this.",
+                "The human-present premise holds — a human still authenticates each sitting; the device flow stays the mechanism; zero durable secrets beyond the payor's RBRO. This touches cinched paddock material (the human-present premise and the headless fail-fast membrane), so resolving it may surface an operator-sanctioned paddock amendment. Distinct from the programmatic no-human path — that is the foedus-reuse spine's, not this.",
                 "",
                 "## Character",
-                "Design reconsideration plus a contained channel build at the shared accessor membrane (compear, used by every cloud tabtarget) and the BUYM yawp wire format; premise-touching, operator-owned."
+                "Design reconsideration plus a contained channel build at the shared accessor membrane (avow, used by every cloud tabtarget) and the BUYM yawp wire format; premise-touching, operator-owned."
               ],
               "jjgtn_silks": "heed-headless",
-              "jjgtn_basis": "32cfb44"
+              "jjgtn_basis": "9d9ece1"
             }
           ]
         },
@@ -17242,7 +17242,7 @@
         "₢BfAAT": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260624-0057",
+              "jjgtn_ts": "260624-0202",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "Settle the foedus-reuse design and the precise tabtarget nature of every foedus toothing — the fixture↔verb seam, the pool-integrity CHECK, the active-foedus SWITCH, and how affiance composes with them — choosing each verb's exact signature clearly and directly, not delegating it further.",
@@ -17252,16 +17252,15 @@
                 "(b) Atomic toothings (operator's strong opinion 260623): every foedus tabtarget is simple and atomic — affiance CREATES, the check CHECKS, the switch SELECTS; NONE is \"check-then-create-if-absent.\"",
                 "The \"reuse if valid, else create\" logic lives in the FIXTURE composition, not inside a fat verb.",
                 "The freehold fixtures' current self-healing behaviour moves into the fixture, not the tabtarget.",
-                "(c) The pool-integrity CHECK toothing: name it (foedus register) and CHOOSE its signature — a foedus argument (parallel to switch) or check only the currently-selected foedus? Choose, with the reason.",
-                "(\"check\" is rejected as the word — operator 260624; mint a foedus-register word.)",
-                "(d) The SWITCH mechanism: the selection design (two regime configs + a selector + the assize-reset it forces) and the switch's own signature.",
+                "(c) The pool-integrity CHECK toothing: its word is descry (minted in the vocabulary pass); CHOOSE its signature — a foedus argument (parallel to the switch) or check only the currently-selected foedus? Choose, with the reason.",
+                "(d) The SWITCH mechanism: the selection design (two regime configs + a selector + the sitting-reset it forces) and the switch's own signature.",
                 "",
                 "Draft carried from the vocabulary pass (re-review here, operator 260624): the switch verb is drafted instate, homed in the foedus-cardinality colophon family rbw-j.",
                 "Casing is the open hinge — lowercase (rbw-ji) if the selector is local runtime state (free test-switching, no gate), uppercase (rbw-jI) plus bug_require_clean_tree if the selector is committed config.",
                 "The configure-foedus op the switch's regime shape feeds from is homed rbw-qjK (the Keycloak setup).",
                 "",
                 "## Done when",
-                "Every foedus toothing's precise tabtarget nature is clearly and directly chosen — the check's signature and word, the switch's signature and the instate/casing question, and the atomic boundaries — with no deferral; the fixture-composition pattern that yields \"reuse if valid, else create\" is specified; the combinator and the reuse-build pace can build against it.",
+                "Every foedus toothing's precise tabtarget nature is clearly and directly chosen — descry's signature, the switch's signature and the instate/casing question, and the atomic boundaries — with no deferral; the fixture-composition pattern that yields \"reuse if valid, else create\" is specified; the combinator and the reuse-build pace can build against it.",
                 "",
                 "## Cinched",
                 "Atomic toothings: no tabtarget is check-then-create; composition lives in fixtures (operator's strong opinion).",
@@ -17272,7 +17271,7 @@
                 "Design conversation requiring operator judgment; mount with the operator present; this is where the long-delegated tabtarget nature gets pinned."
               ],
               "jjgtn_silks": "foedus-reuse-design",
-              "jjgtn_basis": "016046c"
+              "jjgtn_basis": "9d9ece1"
             }
           ]
         },
@@ -17543,27 +17542,27 @@
         "₢BfAAg": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260623-2227",
+              "jjgtn_ts": "260624-0202",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
-                "Build the day-to-day REUSE path end to end on the INTERACTIVE foedus: first the foedus check and switch as first-class atomic production tabtargets per the design pace, then the REUSE fixture that composes them — check the foedus, switch to it if valid, heal its credentials (compear + don the mantles), and affiance only when the check fails.",
+                "Build the day-to-day REUSE path end to end on the INTERACTIVE foedus: first the foedus check (descry) and switch (instate) as first-class atomic production tabtargets per the design pace, then the REUSE fixture that composes them — check the foedus, switch to it if valid, heal its credentials (avow + don the mantles), and affiance only when the check fails.",
                 "",
                 "## Spec of needed change",
-                "Build the two new foedus toothings as clean standalone tabtargets, each atomic per the design pace — the pool-integrity check reads pool validity, the switch re-points the regime selector and resets the assize; neither bundles create. Then build the REUSE-wrapper fixture that composes them with the existing affiance and the credential heal. This is the standing-reuse credential leg that skirmish/dogfight/blockade assume but no fixture establishes today.",
+                "Build the two new foedus toothings as clean standalone tabtargets, each atomic per the design pace — the pool-integrity check (descry) reads pool validity, the switch (instate) re-points the regime selector and resets the sitting; neither bundles create. Then build the REUSE-wrapper fixture that composes them with the existing affiance and the credential heal. This is the standing-reuse credential leg that skirmish/dogfight/blockade assume but no fixture establishes today.",
                 "",
                 "## Done when",
-                "The check and switch exist as first-class atomic tabtargets; the REUSE wrapper reuses a valid standing freehold (the interactive Entra foedus) with no pool churn (cap-flat), heals its credentials via the existing compear + don, and rebuilds only when the check fails; skirmish/dogfight/blockade prove their mantle credentials via a fixture, not prose.",
+                "The check and switch exist as first-class atomic tabtargets; the REUSE wrapper reuses a valid standing freehold (the interactive Entra foedus) with no pool churn (cap-flat), heals its credentials via the existing avow + don, and rebuilds only when the check fails; skirmish/dogfight/blockade prove their mantle credentials via a fixture, not prose.",
                 "",
                 "## Cinched",
                 "The verbs are ATOMIC and first-class — standalone production tabtargets, never a fat check-then-create, never buried only inside the fixture; \"reuse if valid, else create\" lives in the fixture. The credential heal is quota-neutral (idempotent IAM); affiance fires only on check-failure.",
-                "SCOPE — interactive only (verified against the code 260623): the standing freehold runs on the interactive Entra foedus, so the heal uses the existing interactive compear + don and is human-present (one compear at suite head, then reuse cache-hits the live assize). The switch verb builds but is DEGENERATE until a second foedus stands (only Entra exists today). Fully-unattended / cross-mechanism (Entra↔Keycloak) reuse is OUT of scope here — a later pace gated on the programmatic spine (programmatic affiance arm, Keycloak orchestrator, programmatic accessor). Do NOT chase the unattended path here; it would hit unbuilt programmatic code.",
+                "SCOPE — interactive only (verified against the code 260623): the standing freehold runs on the interactive Entra foedus, so the heal uses the existing interactive avow + don and is human-present (one avow at suite head, then reuse cache-hits the live sitting). The switch verb builds but is DEGENERATE until a second foedus stands (only Entra exists today). Fully-unattended / cross-mechanism (Entra↔Keycloak) reuse is OUT of scope here — a later pace gated on the programmatic spine (programmatic affiance arm, Keycloak orchestrator, programmatic accessor). Do NOT chase the unattended path here; it would hit unbuilt programmatic code.",
                 "Detail: the audit memo's pace-10.",
                 "",
                 "## Character",
                 "Bash build — two production tabtargets plus the composing fixture; depends on the design pace and the combinator. No dependency on the programmatic spine (interactive machinery only)."
               ],
               "jjgtn_silks": "foedus-reuse-leg",
-              "jjgtn_basis": "0f253cf"
+              "jjgtn_basis": "9d9ece1"
             }
           ]
         },
