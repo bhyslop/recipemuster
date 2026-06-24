@@ -135,7 +135,7 @@ rbq_qualify_context() {
   local -r z_committed="${RBCC_tabtarget_context_file}"
   local -r z_fresh="${BURD_TEMP_DIR}/rbq_context_check.md"
 
-  buz_emit_context "${ZRBQ_TT_DIR}" > "${z_fresh}" || buc_die "Failed to generate context for comparison"
+  buz_emit_context "rbz" "${ZRBQ_TT_DIR}" > "${z_fresh}" || buc_die "Failed to generate context for comparison"
 
   if ! test -f "${z_committed}"; then
     buc_die "Generated context file missing: ${z_committed} — run tt/rbw-tb.Build.sh"

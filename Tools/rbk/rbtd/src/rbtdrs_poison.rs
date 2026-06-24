@@ -41,6 +41,10 @@ use std::path::Path;
 
 use crate::case;
 use crate::rbtdgc_consts::{
+    BUWGC_RC_VALIDATE,
+    BUWGC_RN_VALIDATE,
+    BUWGC_RP_VALIDATE,
+    BUWGC_RS_VALIDATE,
     RBTDGC_BAND_ENROLL,
     RBTDGC_BAND_REGIME,
     RBTDGC_TWEAK_REGIME_POISON,
@@ -71,13 +75,6 @@ use crate::rbtdrm_manifest::RBTDRM_FIXTURE_REGIME_POISON;
 const RBTDRS_VAR_RBRR_RUNTIME_PREFIX: &str = "RBRR_RUNTIME_PREFIX";
 const RBTDRS_VAR_RBRD_CLOUD_PREFIX: &str = "RBRD_CLOUD_PREFIX";
 const RBTDRS_VAR_RBRD_DEPOT_MONIKER: &str = "RBRD_DEPOT_MONIKER";
-
-// BUK validate colophons — not projected into RBTDGC_* (those carry the rbw-*
-// RB colophons only), so the buw-* BUK colophons are named here.
-const RBTDRS_VALIDATE_BURC: &str = "buw-rcv";
-const RBTDRS_VALIDATE_BURS: &str = "buw-rsv";
-const RBTDRS_VALIDATE_BURN: &str = "buw-rnv";
-const RBTDRS_VALIDATE_BURP: &str = "buw-rpv";
 
 // Folio monikers referenced by 2+ cases — a known-good entry-enabled nameplate,
 // a known-good conjure vessel, and a committed BURN node, all in-tree. Removing
@@ -237,7 +234,7 @@ fn rbtdrs_rbrp_bad_payor_project(dir: &Path) -> rbtdre_Verdict {
 
 fn rbtdrs_burc_missing_station_file(dir: &Path) -> rbtdre_Verdict {
     // Unset a required field → buv presence check → enroll.
-    rbtdrs_poison(dir, RBTDRS_VALIDATE_BURC, &[], "BURC_STATION_FILE",
+    rbtdrs_poison(dir, BUWGC_RC_VALIDATE, &[], "BURC_STATION_FILE",
         RBTDGC_BAND_ENROLL, "burc-missing-station-file")
 }
 
@@ -384,19 +381,19 @@ fn rbtdrs_rbro_missing_refresh_token(dir: &Path) -> rbtdre_Verdict {
 
 fn rbtdrs_burs_bad_tincture(dir: &Path) -> rbtdre_Verdict {
     // Uppercase clears the length enroll but fails the zburs_enforce regex → regime.
-    rbtdrs_poison_optional(dir, RBTDRS_VALIDATE_BURS, &[], "BURS_TINCTURE=A1",
+    rbtdrs_poison_optional(dir, BUWGC_RS_VALIDATE, &[], "BURS_TINCTURE=A1",
         RBTDGC_BAND_REGIME, "burs-bad-tincture")
 }
 
 fn rbtdrs_burn_bad_platform(dir: &Path) -> rbtdre_Verdict {
     // Off-enum value fails the buv_enum_enroll check → enroll.
-    rbtdrs_poison_optional(dir, RBTDRS_VALIDATE_BURN, &[RBTDRS_NODE_BUJN_WINPC],
+    rbtdrs_poison_optional(dir, BUWGC_RN_VALIDATE, &[RBTDRS_NODE_BUJN_WINPC],
         "BURN_PLATFORM=bunne_solaris", RBTDGC_BAND_ENROLL, "burn-bad-platform")
 }
 
 fn rbtdrs_burp_missing_workload_key(dir: &Path) -> rbtdre_Verdict {
     // Unset a required field → buv presence check → enroll.
-    rbtdrs_poison_optional(dir, RBTDRS_VALIDATE_BURP, &[RBTDRS_NODE_BUJN_WINPC],
+    rbtdrs_poison_optional(dir, BUWGC_RP_VALIDATE, &[RBTDRS_NODE_BUJN_WINPC],
         "BURP_WORKLOAD_KEY_FILE", RBTDGC_BAND_ENROLL, "burp-missing-workload-key")
 }
 

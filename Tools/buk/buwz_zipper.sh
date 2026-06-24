@@ -33,6 +33,12 @@ zbuwz_kindle() {
   # Verify buz zipper is kindled (CLI furnish must kindle buz first)
   zbuz_sentinel
 
+  # Open the BUK tome: this zipper's run projects to BUWGC_ consts (BUWZ_ stem).
+  # Must precede the first enroll so the run begins at the roll's current head —
+  # which, when RB is kindled first (the theurge build and rbq), lands the BUK
+  # run after the RB run, keeping the RBTDGC_ block byte-stable.
+  buz_tome "buwz" "BUWGC_" "BUWZ_"
+
   # TabTarget subsystem (buut_cli.sh)
   local z_mod="buut_cli.sh"
   buz_enroll BUWZ_TT_LIST_LAUNCHERS      "buw-tt-ll"  "${z_mod}" "buut_list_launchers"               ""  "List all registered launchers"

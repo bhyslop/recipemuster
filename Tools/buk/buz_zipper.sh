@@ -43,6 +43,16 @@ zbuz_kindle() {
   z_buz_group_prefix_roll=()
   z_buz_group_description_roll=()
 
+  # Tome rolls (populated by buz_tome, consumed by buz_emit_colophon_consts and
+  # buz_emit_context). A tome is a division of the shared roll — the run one
+  # zipper contributes. It marks the roll index where that run begins and carries
+  # the zipper's const add/strip prefixes plus a name the context emitter scopes
+  # by. One level above the group: a tome holds groups, a group holds colophons.
+  z_buz_tome_index_roll=()
+  z_buz_tome_name_roll=()
+  z_buz_tome_add_roll=()
+  z_buz_tome_strip_roll=()
+
   readonly ZBUZ_KINDLED=1
 }
 
@@ -73,6 +83,33 @@ zbuz_resolve_tabtarget_capture() {
   # Allow multiple matches (imprinted colophons share a colophon prefix)
   # Return first match as representative
   echo "${z_matches[0]}"
+}
+
+######################################################################
+# Tome declaration (registry division for multi-zipper projection)
+
+# buz_tome() - Open a tome: the division of the shared roll one zipper owns.
+# Args: name, add_prefix, strip_prefix
+# Records the current roll length as this tome's start index, the same marker
+# trick buz_group uses one level down. The colophon-const emitter walks each
+# tome's run with that tome's add/strip prefixes, and the context emitter scopes
+# its markdown to one named tome — so a roll shared by several zippers projects
+# each zipper's colophons under its own const prefix without cross-leak. Call
+# once per zipper, before that zipper's first buz_group/buz_enroll.
+buz_tome() {
+  zbuz_sentinel
+
+  local -r z_name="${1:-}"
+  local -r z_add_prefix="${2:-}"
+  local -r z_strip_prefix="${3:-}"
+  test -n "${z_name}"         || buc_die "buz_tome: name required"
+  test -n "${z_add_prefix}"   || buc_die "buz_tome: add prefix required"
+  test -n "${z_strip_prefix}" || buc_die "buz_tome: strip prefix required"
+
+  z_buz_tome_index_roll+=("${#z_buz_colophon_roll[@]}")
+  z_buz_tome_name_roll+=("${z_name}")
+  z_buz_tome_add_roll+=("${z_add_prefix}")
+  z_buz_tome_strip_roll+=("${z_strip_prefix}")
 }
 
 ######################################################################
@@ -180,42 +217,79 @@ buz_emit_const_i32() {
   printf 'pub const %s: i32 = %s;\n' "${z_name}" "${z_value}"
 }
 
-# buz_emit_colophon_consts() - Emit Rust string consts for every enrolled colophon.
-# Args: add_prefix, strip_prefix
-# Each const name is <add_prefix> followed by the enroll varname with
-# <strip_prefix> removed (stem carried verbatim); each value is the colophon
-# string. Walks the co-indexed varname/colophon rolls, formatting each line via
-# buz_emit_const. RBK-ignorant: both prefixes are supplied by the caller.
-# Emits the const lines only — the file banner is the caller's concern, since
-# the generated file may concatenate several emitters' sections.
+# buz_emit_colophon_consts() - Emit Rust string consts for every enrolled
+# colophon, walking each tome's run under that tome's prefixes.
+# No args: the add/strip prefixes live on the tomes now (buz_tome), so one call
+# projects every zipper's colophons, each under its own const prefix. For a tome
+# carrying (add, strip), each const name is <add> followed by the enroll varname
+# with <strip> removed; each value is the colophon string. Tomes emit in
+# declaration order, separated by a blank line (none before the first), so the
+# first tome's block keeps the byte position it had before tomes existed.
+# RBK-ignorant: every prefix comes from a tome the caller declared. Emits the
+# const lines only — the file banner is the caller's concern, since the
+# generated file may concatenate several emitters' sections.
 buz_emit_colophon_consts() {
   zbuz_sentinel
 
-  local -r z_add_prefix="${1:-}"
-  local -r z_strip_prefix="${2:-}"
-  test -n "${z_add_prefix}"   || buc_die "buz_emit_colophon_consts: add prefix required"
-  test -n "${z_strip_prefix}" || buc_die "buz_emit_colophon_consts: strip prefix required"
+  (( ${#z_buz_tome_index_roll[@]} )) \
+    || buc_die "buz_emit_colophon_consts: no tomes declared — call buz_tome before enrolling"
 
-  local z_i=""
-  for z_i in "${!z_buz_colophon_roll[@]}"; do
-    local z_stem="${z_buz_varname_roll[z_i]#"${z_strip_prefix}"}"
-    buz_emit_const "${z_add_prefix}${z_stem}" "${z_buz_colophon_roll[z_i]}" \
-      || buc_die "buz_emit_colophon_consts: emit failed for colophon ${z_buz_colophon_roll[z_i]}"
+  local -r z_total="${#z_buz_colophon_roll[@]}"
+  local z_t=""
+  for z_t in "${!z_buz_tome_index_roll[@]}"; do
+    if (( z_t > 0 )); then
+      printf '%s\n' ""
+    fi
+
+    local z_start="${z_buz_tome_index_roll[z_t]}"
+    local z_end="${z_total}"
+    if (( z_t + 1 < ${#z_buz_tome_index_roll[@]} )); then
+      z_end="${z_buz_tome_index_roll[z_t + 1]}"
+    fi
+
+    local z_add="${z_buz_tome_add_roll[z_t]}"
+    local z_strip="${z_buz_tome_strip_roll[z_t]}"
+
+    local z_i="${z_start}"
+    while (( z_i < z_end )); do
+      local z_stem="${z_buz_varname_roll[z_i]#"${z_strip}"}"
+      buz_emit_const "${z_add}${z_stem}" "${z_buz_colophon_roll[z_i]}" \
+        || buc_die "buz_emit_colophon_consts: emit failed for colophon ${z_buz_colophon_roll[z_i]}"
+      z_i=$((z_i + 1))
+    done
   done
 }
 
 ######################################################################
 # Context generation (emit markdown from registry metadata)
 
-# buz_emit_context() - Emit colophon registry as markdown, organized by groups
-# Args: tabtarget_dir
-# Writes markdown to stdout. Groups come from buz_group; descriptions from buz_enroll.
-# Frontispiece extracted from tabtarget filenames on disk.
+# buz_emit_context() - Emit one named tome's colophons as markdown, by group.
+# Args: tome_name, tabtarget_dir
+# Writes markdown to stdout for the named tome's run of the roll only, so a roll
+# shared by several zippers never leaks another zipper's colophons into this
+# tome's context file. Groups come from buz_group; descriptions from buz_enroll;
+# frontispiece extracted from tabtarget filenames on disk.
 buz_emit_context() {
   zbuz_sentinel
 
-  local -r z_tt_dir="${1:-}"
-  test -n "${z_tt_dir}" || buc_die "buz_emit_context: tabtarget directory required"
+  local -r z_tome_name="${1:-}"
+  local -r z_tt_dir="${2:-}"
+  test -n "${z_tome_name}" || buc_die "buz_emit_context: tome name required"
+  test -n "${z_tt_dir}"    || buc_die "buz_emit_context: tabtarget directory required"
+
+  # Resolve the named tome to its [start, end) slice of the shared roll.
+  local z_start=""
+  local z_end="${#z_buz_colophon_roll[@]}"
+  local z_t=""
+  for z_t in "${!z_buz_tome_name_roll[@]}"; do
+    test "${z_buz_tome_name_roll[z_t]}" = "${z_tome_name}" || continue
+    z_start="${z_buz_tome_index_roll[z_t]}"
+    if (( z_t + 1 < ${#z_buz_tome_index_roll[@]} )); then
+      z_end="${z_buz_tome_index_roll[z_t + 1]}"
+    fi
+    break
+  done
+  test -n "${z_start}" || buc_die "buz_emit_context: unknown tome: ${z_tome_name}"
 
   printf '%s\n' "## Command Reference (Generated)"
   printf '%s\n' ""
@@ -230,11 +304,17 @@ buz_emit_context() {
   printf '%s\n' "- **—**: No folio needed — standalone command"
   printf '%s\n' ""
 
+  # Advance the group cursor past any groups that fall before this tome's start.
   local z_group_cursor=0
-  local z_in_table=0
-  local z_i
+  while (( z_group_cursor < ${#z_buz_group_index_roll[@]} )) \
+        && (( z_buz_group_index_roll[z_group_cursor] < z_start )); do
+    z_group_cursor=$((z_group_cursor + 1))
+  done
 
-  for z_i in "${!z_buz_colophon_roll[@]}"; do
+  local z_in_table=0
+  local z_i="${z_start}"
+
+  while (( z_i < z_end )); do
     # Emit group header when we reach its starting index
     if (( z_group_cursor < ${#z_buz_group_index_roll[@]} )) \
        && (( z_i == z_buz_group_index_roll[z_group_cursor] )); then
@@ -267,6 +347,8 @@ buz_emit_context() {
     local z_folio_display="${z_channel:-—}"
     local z_desc="${z_buz_describe_roll[z_i]:-}"
     printf '| `%s` | %s | %s | %s |\n' "${z_colophon}" "${z_frontispiece}" "${z_folio_display}" "${z_desc}"
+
+    z_i=$((z_i + 1))
   done
 
   if (( z_in_table )); then

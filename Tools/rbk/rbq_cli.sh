@@ -33,6 +33,7 @@ zrbq_furnish() {
   local z_rbk_kit_dir="${BASH_SOURCE[0]%/*}"
   source "${BURD_BUK_DIR}/buv_validation.sh"
   source "${BURD_BUK_DIR}/buz_zipper.sh"
+  source "${BURD_BUK_DIR}/buwz_zipper.sh"
   source "${z_rbk_kit_dir}/rbz_zipper.sh"
   source "${z_rbk_kit_dir}/rbcc_constants.sh"
   source "${z_rbk_kit_dir}/rbpc_constants.sh"
@@ -41,6 +42,7 @@ zrbq_furnish() {
 
   zbuz_kindle
   zrbz_kindle
+  zbuwz_kindle
   zrbcc_kindle
   zrbq_kindle
 }

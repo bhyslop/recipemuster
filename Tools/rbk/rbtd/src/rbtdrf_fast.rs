@@ -27,6 +27,10 @@ use crate::case;
 use crate::rbtdre_engine::{rbtdre_Case, rbtdre_Disposition, rbtdre_Fixture, rbtdre_Verdict};
 use crate::rbtdri_invocation::{rbtdri_find_tabtarget_global, rbtdri_tabtarget_command, rbtdri_bash_program};
 use crate::rbtdgc_consts::{
+    BUWGC_RC_RENDER,
+    BUWGC_RC_VALIDATE,
+    BUWGC_RS_RENDER,
+    BUWGC_RS_VALIDATE,
     RBTDGC_BAND_CREDLESS,
     RBTDGC_BAND_ENROLL,
     RBTDGC_BAND_HYGIENE,
@@ -942,11 +946,11 @@ fn rbtdrf_rs_render_validate(dir: &Path, render: &str, validate: &str, label: &s
 }
 
 fn rbtdrf_rs_burc(dir: &Path) -> rbtdre_Verdict {
-    rbtdrf_rs_render_validate(dir, "buw-rcr", "buw-rcv", "burc")
+    rbtdrf_rs_render_validate(dir, BUWGC_RC_RENDER, BUWGC_RC_VALIDATE, "burc")
 }
 
 fn rbtdrf_rs_burs(dir: &Path) -> rbtdre_Verdict {
-    rbtdrf_rs_render_validate(dir, "buw-rsr", "buw-rsv", "burs")
+    rbtdrf_rs_render_validate(dir, BUWGC_RS_RENDER, BUWGC_RS_VALIDATE, "burs")
 }
 
 // The RBK station regime (RBRS) lives outside the repo, in the operator's
@@ -1163,7 +1167,7 @@ fn rbtdrf_rs_burd(dir: &Path) -> rbtdre_Verdict {
         Ok(r) => r,
         Err(e) => return rbtdre_Verdict::Fail(format!("cannot get cwd: {}", e)),
     };
-    if let Err(e) = rbtdrf_run_tt(&root, "buw-rcv", &[], dir, "burd-dispatch") {
+    if let Err(e) = rbtdrf_run_tt(&root, BUWGC_RC_VALIDATE, &[], dir, "burd-dispatch") {
         return rbtdre_Verdict::Fail(e);
     }
     rbtdre_Verdict::Pass
