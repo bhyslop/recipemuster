@@ -18601,8 +18601,8 @@
         "₢BiAAE": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260618-1358",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260624-0002",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "Drafted from ₢BBABT in ₣BB.",
                 "",
@@ -18632,7 +18632,7 @@
                 "tabtargets remain; RBRS payload intact under FUTURE/."
               ],
               "jjgtn_silks": "rbrs-relocate-to-future",
-              "jjgtn_basis": "f5f6b2b"
+              "jjgtn_basis": "751a0c4"
             }
           ]
         },
