@@ -17873,9 +17873,10 @@
         "₢BhAAQ",
         "₢BhAAS",
         "₢BhAAR",
-        "₢BhAAT"
+        "₢BhAAT",
+        "₢BhAAU"
       ],
-      "jjghn_next_pace_seed": "AAU",
+      "jjghn_next_pace_seed": "AAV",
       "jjghn_paces": {
         "₢BhAAA": {
           "jjgpn_tacks": [
@@ -18468,6 +18469,37 @@
               ],
               "jjgtn_silks": "emblem-coronet-sticks-per-officium",
               "jjgtn_basis": "0600417"
+            }
+          ]
+        },
+        "₢BhAAU": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260624-1340",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "Design/judgment — a docs-architecture decision plus a careful move, not mechanical.",
+                "",
+                "## Context",
+                "The CLAUDE.md \"notch before test\" placement (this session) surfaced that root CLAUDE.md conflates two orthogonal axes:",
+                "distribution (rbm-local vs distributed-to-consumers) and authorship (project doctrine vs personal disposition).",
+                "Personal dispositions currently sit in the project-doctrine file (root CLAUDE.md), where they read as project law rather than operator preference.",
+                "The veiled claude-<kit>-bhyslop.md layer is the personal-disposition home; claude-jjk-bhyslop.md is the worked precedent.",
+                "",
+                "## Cinched",
+                "Kits may each carry their own veiled claude-<kit>-bhyslop.md (kit-scoped personal layer) — preferred over one rbm-level cross-cutting personal file.",
+                "",
+                "## Consider / decide",
+                "- Which personal-disposition bits to extract from root CLAUDE.md. Candidates found this session: the \"Always notch before you test\" rule (added in 7e5fe6f2, now leading Rust Build Discipline), the Test Environments section (operator machines), and the Working Preferences block.",
+                "- The cross-cutting wrinkle: a rule spanning kits (notch-before-test governs both vow-t and rbw-ts) has no single kit owner — decide its home (the JJK file, since notch is JJK-native; another kit; or keep in root as a deliberate exception).",
+                "",
+                "## Done when",
+                "- A kit-scoped veiled-bhyslop structure decision is recorded.",
+                "- The agreed personal bits are moved into the relevant veiled claude-<kit>-bhyslop.md files (or explicitly deferred)."
+              ],
+              "jjgtn_silks": "veiled-bhyslop-personal-extraction",
+              "jjgtn_basis": "7e5fe6f"
             }
           ]
         }
