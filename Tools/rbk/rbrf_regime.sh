@@ -41,7 +41,7 @@ zrbrf_kindle() {
   buv_string_enroll  RBRF_ORG_ID               6   32  "GCP organization numeric ID owning the workforce pool (affiance creates the pool under it)"
   buv_string_enroll  RBRF_WORKFORCE_POOL_ID    4   32  "Workforce identity pool ID — org-scoped, serves every depot under the manor"
   buv_string_enroll  RBRF_PROVIDER_ID          4   32  "Workforce pool provider ID — the IdP trust root within the pool"
-  buv_string_enroll  RBRF_SESSION_DURATION     2   10  "Workforce pool session duration — the assize cap (e.g. 3600s)"
+  buv_string_enroll  RBRF_SESSION_DURATION     2   10  "Workforce pool session duration — the sitting cap (e.g. 3600s)"
 
   buv_group_enroll "IdP Trust"
   buv_string_enroll  RBRF_IDP_ISSUER           8  512  "OIDC issuer URI of the external IdP"
@@ -92,14 +92,14 @@ zrbrf_enforce() {
     || buc_reject "${BUBC_band_regime}" "RBRF_IDP_TOKEN_ENDPOINT must be an https:// URI: ${RBRF_IDP_TOKEN_ENDPOINT}"
 
   # OIDC requires openid; the human-present premise forbids offline_access — a
-  # refresh token would let a run begin outside a live assize. Both enforced here
-  # so a misconfigured scope fails at the regime boundary, not mid-compearance.
+  # refresh token would let a run begin outside a live sitting. Both enforced here
+  # so a misconfigured scope fails at the regime boundary, not mid-avowal.
   case " ${RBRF_IDP_SCOPE} " in
     *" openid "*) ;;
     *) buc_reject "${BUBC_band_regime}" "RBRF_IDP_SCOPE must request the openid scope: ${RBRF_IDP_SCOPE}" ;;
   esac
   case " ${RBRF_IDP_SCOPE} " in
-    *offline_access*) buc_reject "${BUBC_band_regime}" "RBRF_IDP_SCOPE must not request offline_access — the no-refresh-token premise (a live human compears at each run)" ;;
+    *offline_access*) buc_reject "${BUBC_band_regime}" "RBRF_IDP_SCOPE must not request offline_access — the no-refresh-token premise (a live human avows at each run)" ;;
   esac
 
   case "${RBRF_ATTRIBUTE_MAPPING}" in

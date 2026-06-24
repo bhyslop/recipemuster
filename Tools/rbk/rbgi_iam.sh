@@ -566,7 +566,7 @@ rbgi_add_sa_iam_role() {
 # rbgi_add_sa_iam_role (BCG Interface Contamination: one canonical member form
 # per entry point — no serviceAccount: prefix is applied here, the member is
 # passed verbatim). The polity admission verb brevet uses this to grant a
-# compeared citizen tokenCreator on a mantle SA. The propagation/etag machinery
+# avowed citizen tokenCreator on a mantle SA. The propagation/etag machinery
 # mirrors the serviceAccount-member sibling; only the member-string formation and
 # the capture infixes differ.
 rbgi_add_sa_principal_iam_role() {

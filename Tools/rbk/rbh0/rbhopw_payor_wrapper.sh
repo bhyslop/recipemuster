@@ -132,7 +132,7 @@ rbho_payor_handbook() {
   buh_tt  "  " "${RBZ_GIRD_POLITY}" "" " <subject>"
   buh_e
   buh_line "No key file is created or handed over: the ${RBYC_GOVERNOR} signs in"
-  buh_line "(compears) and dons the governor mantle to administer this ${RBYC_DEPOT},"
+  buh_line "(avows) and dons the governor mantle to administer this ${RBYC_DEPOT},"
   buh_line "admitting ${RBYC_RETRIEVER} and ${RBYC_DIRECTOR} citizens independently."
   buh_e
   buh_line "The ${RBYC_PAYORS} job for this ${RBYC_DEPOT} is done unless billing or"

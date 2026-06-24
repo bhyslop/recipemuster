@@ -1210,7 +1210,7 @@ fn rbtdrf_rs_unmake_empty_arg_refusal(dir: &Path) -> rbtdre_Verdict {
 /// verb (rbw-iJ, registry delete) invoked from a fast-tier fixture must die
 /// at the token-mint chokepoint with the credless band code: the guard env
 /// arrives via `rbtdri_tabtarget_command` because this fixture is
-/// `credless: true`, and `rba_compear` rejects before touching the IdP or
+/// `credless: true`, and `rba_avow` rejects before touching the IdP or
 /// any credential — so the verdict is identical on credentialed and bare
 /// machines. The junk ref names a nonexistent namespace and the verb's
 /// interactive confirm sits after the mint, so even a broken guard cannot

@@ -47,16 +47,16 @@ the suspension contract.
 //axhos_step
 . *Don the governor
 {rbtf_mantle}*:
-.. {rbtf_compear}
+.. {rbtf_avow}
 to open or reuse a live
-{rbtf_assize}
+{rbtf_sitting}
 — the device flow runs outside the token capture, since it needs the terminal
 .. {rbtf_don}
 the governor mantle and
 {rbbc_store}
 `«GOVERNOR_TOKEN»`
 .. {rbbc_fatal}
-if the don fails — compear if the assize lapsed, or this identity is not yet breveted
+if the don fails — avow if the sitting lapsed, or this identity is not yet breveted
 onto the governor mantle
 
 //axhos_step

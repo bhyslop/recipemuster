@@ -120,7 +120,7 @@ Successful execution leaves the manor jilted: the workforce pool is soft-deleted
 (`state: DELETED`), its provider removed with it, and no
 {rbtf_citizen}
 can
-{rbtf_compear}
+{rbtf_avow}
 against the dissolved trust until a fresh
 {rbtf_affiance}
 re-seats it — or an

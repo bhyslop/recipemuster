@@ -42,7 +42,7 @@ depot's first, the depot-scoped `serviceUsageConsumer` binding is always written
 . *Authenticate as
 {rbtr_payor}*:
 .. obtain the payor OAuth access token from the loaded RBRO credential — no
-{rbtf_compear}
+{rbtf_avow}
 and no
 {rbtf_don}, since the founding act predates any
 {rbtf_mantle}
@@ -91,7 +91,7 @@ of this
 the
 {rbtf_muniment}
 is engrossed and both bindings are in place, so the citizen may
-{rbtf_compear},
+{rbtf_avow},
 {rbtf_don}
 the governor
 {rbtf_mantle},

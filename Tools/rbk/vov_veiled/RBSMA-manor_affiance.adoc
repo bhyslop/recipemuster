@@ -21,7 +21,7 @@ RBRF_IDP_ISSUER, RBRF_IDP_CLIENT_ID, RBRF_ATTRIBUTE_MAPPING)`.
 The device-flow endpoints and scope (`RBRF_IDP_DEVICE_ENDPOINT`,
 `RBRF_IDP_TOKEN_ENDPOINT`, `RBRF_IDP_SCOPE`) are the credential accessor's to read
 at
-{rbtf_compear},
+{rbtf_avow},
 not affiance's.
 
 NOTE: Affiance is *idempotent-ensure-exists*, exercised once per provider with
@@ -94,7 +94,7 @@ link:https://cloud.google.com/iam/docs/reference/rest/v1/locations.workforcePool
 the returned operation to done
 .. {rbbc_require}
 the pool present and live. Ensure-exists only: an already-present *live* pool is left as it stands — not recreated, not patched. A *soft-deleted* same-id pool is refused, not resurrected (see NOTE). Drift reconciliation of `sessionDuration` is the deferred follow-up noted above.
-.. NOTE: `sessionDuration` is the assize cap (900s–43200s; the regime validator bounds it).
+.. NOTE: `sessionDuration` is the sitting cap (900s–43200s; the regime validator bounds it).
 .. NOTE: A soft-deleted pool of the same id returns `200` with `state: DELETED` (live-verified) and holds its id-namespace through the ~30-day purge window — the workforce-pool analogue of the depot project's soft-delete graveyard. Affiance is *ensure-exists, not undelete*: it refuses a soft-deleted pool rather than resurrecting it — lifecycle certainty, a dissolved trust never commingles with its replacement and a fresh trust takes a fresh name. It directs the operator to set a free `RBRF_WORKFORCE_POOL_ID` and re-affiance, which also requires pointing the IdP provider redirect-URI at the new id and re-breveting standing citizens (the pool id threads through both).
 
 //axhos_step
@@ -136,10 +136,10 @@ the provider present. Ensure-exists only: an already-present provider is left as
 single-line success banner naming the affianced
 {rbtgi_manor},
 the workforce pool and provider resource names, and the
-{rbtf_compear}
+{rbtf_avow}
 follow-up hint (the first
 {rbtf_citizen}
-verifies the trust by compearing against the provider).
+verifies the trust by avowing against the provider).
 
 //axhoc_completion
 Successful execution leaves the manor affianced: the org-level
@@ -147,7 +147,7 @@ Successful execution leaves the manor affianced: the org-level
 its provider, and the attribute mapping exist under `organizations/RBRF_ORG_ID`. A
 {rbtf_citizen}
 may now
-{rbtf_compear}
+{rbtf_avow}
 against the provider and exchange the resulting assertion for a federated token.
 Admission of a citizen to a
 {rbtf_mantle}

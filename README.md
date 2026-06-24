@@ -162,8 +162,8 @@ The shared `-mark` ending signals the kinship: a [Hallmark](#Hallmark) names wha
 The [Payor](#Payor) stands apart — it authenticates with its own OAuth refresh token, the system's sole durable secret.
 Every other role is a [Mantle](#Mantle): a standing office — governor, director, retriever — realized as a Google service account whose authority is granted once, at [Levy](#Levy), and frozen there.
 No role keeps a credential file on disk.
-An operator [Compears](#Compear) — a fresh federated sign-in against the [Manor's](#Manor) identity provider, one device-flow click that opens a time-bounded [Assize](#Assize) — and then [Dons](#Don) the [Mantle](#Mantle) the work needs.
-A donned mantle mints a short-lived, self-expiring token; when the [Assize](#Assize) lapses the next mint fails loud and the operator simply compears again.
+An operator [Avows](#Avow) — a fresh federated sign-in against the [Manor's](#Manor) identity provider, one device-flow click that opens a time-bounded [Sitting](#Sitting) — and then [Dons](#Don) the [Mantle](#Mantle) the work needs.
+A donned mantle mints a short-lived, self-expiring token; when the [Sitting](#Sitting) lapses the next mint fails loud and the operator simply avows again.
 **Zero service-account keys exist anywhere in the system.**
 
 This model **requires a GCP organization and an external OIDC identity provider** — the founding cost of corporate-acceptable identity, and the one prerequisite federation does not waive.
@@ -201,7 +201,7 @@ Before the first build can run, the [Depot](#Depot) needs its supply-chain infra
 
 A standing [Governor](#Governor) populates the [Depot](#Depot): it [Brevets](#Brevet) a [Citizen](#Citizen) onto a [Director](#Director) mantle for build operations and onto a [Retriever](#Retriever) mantle for image pull access, [Unseating](#Unseat) a mantle when it is no longer needed.
 A brevet grants a federated principal the right to [Don](#Don) a mantle — no credential file is created or handed out; the grant is recorded as a [Muniment](#Muniment) in the [Manor's](#Manor) [Terrier](#Terrier).
-At runtime each operator [Compears](#Compear) once to open an [Assize](#Assize), then [Dons](#Don) whichever mantle the operation calls for.
+At runtime each operator [Avows](#Avow) once to open an [Sitting](#Sitting), then [Dons](#Don) whichever mantle the operation calls for.
 
 #### Build and Retrieve
 
@@ -348,15 +348,15 @@ A mantle is worn, never issued as a file — there is no key to leak.
 <a id="Citizen"></a>**[Citizen](#Citizen)** — A federated operator within a [Depot](#Depot): a principal asserted by the [Manor's](#Manor) identity provider, never a per-user Google account.
 The [Citizen](#Citizen) is the grantable subject — the same identity is grantable in every [Depot](#Depot) under the [Manor](#Manor).
 
-<a id="Compear"></a>**[Compear](#Compear)** — Sign in for a session.
-Compearing is a fresh federated authentication against the [Manor's](#Manor) identity provider — one device-flow click — that opens an [Assize](#Assize).
-It is not a [Tabtarget](#Tabtarget): any cloud operation finding no live [Assize](#Assize) compears inline when run interactively, and fails loud when headless.
+<a id="Avow"></a>**[Avow](#Avow)** — Sign in for a session.
+Avowing is a fresh federated authentication against the [Manor's](#Manor) identity provider — one device-flow click — that opens an [Sitting](#Sitting).
+It is not a [Tabtarget](#Tabtarget): any cloud operation finding no live [Sitting](#Sitting) avows inline when run interactively, and fails loud when headless.
 
-<a id="Assize"></a>**[Assize](#Assize)** — The time-bounded session a [Compearance](#Compear) opens — the workforce-pool window (15 minutes to 12 hours) within which [Mantles](#Mantle) can be [Donned](#Don).
-No operation runs outside a live [Assize](#Assize); when one lapses the next token mint fails loud rather than reaching for a stored secret.
+<a id="Sitting"></a>**[Sitting](#Sitting)** — The time-bounded session a [Avowal](#Avow) opens — the workforce-pool window (15 minutes to 12 hours) within which [Mantles](#Mantle) can be [Donned](#Don).
+No operation runs outside a live [Sitting](#Sitting); when one lapses the next token mint fails loud rather than reaching for a stored secret.
 
 <a id="Don"></a>**[Don](#Don)** — Assume a [Mantle](#Mantle).
-Having [Compeared](#Compear), an operator dons a named mantle to mint the short-lived service-account token that operation needs; exactly one mantle is worn per token.
+Having [Avowed](#Avow), an operator dons a named mantle to mint the short-lived service-account token that operation needs; exactly one mantle is worn per token.
 [Check Mantle Access](#CheckMantleAccess) reports whether a given mantle reaches Artifact Registry, or surfaces the access deficit.
 
 <a id="Affiance"></a>**[Affiance](#Affiance)** — Betroth the [Manor](#Manor) to an external identity provider — seat the organization-level workforce pool, its provider, and the attribute mapping that names trusted principals.
@@ -472,8 +472,8 @@ Used for cleanup of individual registry entries.
 <a id="ListDepots"></a>**[List Depots](#ListDepots)** — Inventory all active [Depots](#Depot) visible to the current [Payor](#Payor) credentials.
 Shows project IDs, regions, and provisioning status.
 
-<a id="CheckFederatedAccess"></a>**[Check Federated Access](#CheckFederatedAccess)** — Open or reuse an [Assize](#Assize) and confirm the federated sign-in reaches Google.
-Runs the device-flow [Compearance](#Compear) and STS exchange against the [Manor's](#Manor) trust — the first thing to run when sign-in is failing.
+<a id="CheckFederatedAccess"></a>**[Check Federated Access](#CheckFederatedAccess)** — Open or reuse an [Sitting](#Sitting) and confirm the federated sign-in reaches Google.
+Runs the device-flow [Avowal](#Avow) and STS exchange against the [Manor's](#Manor) trust — the first thing to run when sign-in is failing.
 
 <a id="CheckMantleAccess"></a>**[Check Mantle Access](#CheckMantleAccess)** — Confirm a [Citizen](#Citizen) can reach Artifact Registry under a named [Mantle](#Mantle).
 [Dons](#Don) the [Governor](#Governor), [Director](#Director), or [Retriever](#Retriever) mantle in the [Depot](#Depot), exercises the minted token against Artifact Registry, and writes the attributed audit entry — or surfaces the access deficit; useful for diagnosing access failures after a [Brevet](#Brevet).

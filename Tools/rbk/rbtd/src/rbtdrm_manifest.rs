@@ -31,7 +31,7 @@ use crate::rbtdgc_consts::*;
 /// Map a credential role to its access-probe colophon. Returns None for
 /// unknown roles. Only the payor OAuth probe survives the keyfile JWT-probe
 /// demolition; the governor/director/retriever JWT probes retired with the
-/// RBRA estate (their federation persona readiness rides compearance + the
+/// RBRA estate (their federation persona readiness rides avowal + the
 /// mantle don under freehold-establish, not this map).
 pub fn rbtdrm_credential_check_colophon(role: &str) -> Option<&'static str> {
     match role {
@@ -135,7 +135,7 @@ pub const RBTDRM_FIXTURE_CUPEL: &str = "cupel";
 // fresh leasehold it mints, never the standing freehold.
 pub const RBTDRM_FIXTURE_DEPOT_LIFECYCLE: &str = "depot-lifecycle";
 // Gauntlet freehold-establish fixture (§2: freehold ensure (reuse-or-levy) +
-// federation-persona admission — compear, gird, brevet+don director/retriever,
+// federation-persona admission — avow, gird, brevet+don director/retriever,
 // recognosce — with per-case precondition probes)
 pub const RBTDRM_FIXTURE_FREEHOLD_ESTABLISH: &str = "freehold-establish";
 // Freehold-churn fixture — the deliberate teardown of the standing freehold
@@ -264,7 +264,7 @@ pub fn rbtdrm_required_colophons(fixture: &str) -> Option<&'static [&'static str
             RBTDGC_LEVY_DEPOT,
             RBTDGC_LIST_DEPOT,
             RBTDGC_RECOGNOSCE_DEPOT,
-            RBTDGC_CHECK_COMPEARANCE,
+            RBTDGC_CHECK_AVOWAL,
             RBTDGC_GIRD_POLITY,
             RBTDGC_BREVET_POLITY,
             RBTDGC_CHECK_MANTLE,

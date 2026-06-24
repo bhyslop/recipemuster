@@ -52,7 +52,7 @@ The
 and all downstream roles authenticate by donning their
 {rbtf_mantle_s}
 through federated
-{rbtf_compear}ance,
+{rbtf_avow}al,
 minting short-lived tokens with no on-disk credential.
 
 == Phase 1: Establish
@@ -126,7 +126,7 @@ can now operate independently of the
 
 == Credential Files
 
-The {rbtr_payor} maintains an OAuth credential file; the operational roles hold none — they don mantles through federated compearance.
+The {rbtr_payor} maintains an OAuth credential file; the operational roles hold none — they don mantles through federated avowal.
 Understanding this file helps administrators plan secure handling.
 
 The
@@ -144,7 +144,7 @@ The
 and
 {rbtr_retriever}
 hold no on-disk credential: the operator dons each role's mantle service account through federated
-{rbtf_compear}ance,
+{rbtf_avow}al,
 minting a short-lived token scoped to one role within one
 {rbtgi_depot}.
 A donned mantle's token cannot operate outside its designated role and {rbtgi_depot}.

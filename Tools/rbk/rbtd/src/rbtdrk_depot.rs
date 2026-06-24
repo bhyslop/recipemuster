@@ -24,7 +24,7 @@
 //                              RBRD already names when ACTIVE, else levy a fresh
 //                              canest depot (the levy establishes the three mantle
 //                              SAs with frozen IAM)
-//   2. compear               — open/confirm a live assize against the RBRF trust
+//   2. avow               — open/confirm a live sitting against the RBRF trust
 //   3. gird_governor         — the payor (OAuth) seats the freehold subject as the
 //                              first governor (rbw-pE)
 //   4. brevet_don_director   — the girded governor brevets the freehold subject onto
@@ -59,7 +59,7 @@ use crate::rbtdgc_consts::{
     RBTDGC_GIRD_POLITY,
     RBTDGC_BREVET_POLITY,
     RBTDGC_CHECK_MANTLE,
-    RBTDGC_CHECK_COMPEARANCE,
+    RBTDGC_CHECK_AVOWAL,
     RBTDGC_FREEHOLD_SUBJECT,
     RBTDGC_RBRD_FILE,
 };
@@ -378,16 +378,16 @@ fn rbtdrk_depot_churn_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_Verdi
 // ── Federation-persona cases (freehold-establish) ────────────
 //
 // freehold-establish admits federation personas on the no-keys org. The freehold
-// subject (the operator's standing Entra oid, RBTDGC_FREEHOLD_SUBJECT) is compeared,
+// subject (the operator's standing Entra oid, RBTDGC_FREEHOLD_SUBJECT) is avowed,
 // girded as the first governor by the payor, then breveted onto the director and
 // retriever mantles and donned — the federation replacement for the retired keyfile
 // governor/retriever/director enrobe + JWT-probe cases.
 
-/// Suite-head compearance. Opens or confirms a live assize against the RBRF trust
-/// (rbw-acf): a cache-hit when the operator pre-compeared, an inline device-flow prompt
+/// Suite-head avowal. Opens or confirms a live sitting against the RBRF trust
+/// (rbw-acf): a cache-hit when the operator pre-avowed, an inline device-flow prompt
 /// when a TTY is present, a loud headless failure otherwise. The admission cases below
 /// ride the cached federated token, so the human clicks once here, not per case.
-fn rbtdrk_compear(dir: &Path) -> rbtdre_Verdict {
+fn rbtdrk_avow(dir: &Path) -> rbtdre_Verdict {
     let probe = rbtdrb_Probe {
         name: "freehold depot moniker installed",
         check: rbtdrk_probe_freehold_moniker,
@@ -397,13 +397,13 @@ fn rbtdrk_compear(dir: &Path) -> rbtdre_Verdict {
         return v;
     }
     rbtdrc_with_ctx(|ctx| {
-        let r = match rbtdrk_invoke_logged(ctx, RBTDGC_CHECK_COMPEARANCE, &[], &[], dir, "compear") {
+        let r = match rbtdrk_invoke_logged(ctx, RBTDGC_CHECK_AVOWAL, &[], &[], dir, "avow") {
             Ok(r) => r,
-            Err(e) => return rbtdre_Verdict::Fail(format!("compearance probe: {}", e)),
+            Err(e) => return rbtdre_Verdict::Fail(format!("avowal probe: {}", e)),
         };
         if r.exit_code != 0 {
             return rbtdre_Verdict::Fail(format!(
-                "compearance failed (exit {}) — open an assize before the run with rbw-acf \
+                "avowal failed (exit {}) — open a sitting before the run with rbw-acf \
                  (one device-flow click), or launch from a terminal so the prompt can surface\n{}",
                 r.exit_code, r.stderr
             ));
@@ -415,7 +415,7 @@ fn rbtdrk_compear(dir: &Path) -> rbtdre_Verdict {
 /// Gird the founding governor. The payor (OAuth) seats the freehold subject as this depot's
 /// first governor (rbw-pE) — the one admission outside governor wielding, the founding door a
 /// fresh levy needs before any mantle can be donned. Payor-credentialed, so it needs no
-/// assize. Replaces the keyfile governor-enrobe's admin-credential step.
+/// sitting. Replaces the keyfile governor-enrobe's admin-credential step.
 fn rbtdrk_gird_governor(dir: &Path) -> rbtdre_Verdict {
     let probe = rbtdrb_Probe {
         name: "freehold depot moniker installed",
@@ -448,8 +448,8 @@ fn rbtdrk_gird_governor(dir: &Path) -> rbtdre_Verdict {
 }
 
 /// Shared federation-admission body for director and retriever: the girded governor brevets
-/// the freehold subject onto the named mantle (rbw-pB, governor-wielded — rides the assize),
-/// then dons that mantle and reaches Artifact Registry (rbw-acm: compear cache-hit → don →
+/// the freehold subject onto the named mantle (rbw-pB, governor-wielded — rides the sitting),
+/// then dons that mantle and reaches Artifact Registry (rbw-acm: avow cache-hit → don →
 /// repositories.list). The don is the federation analog of the keyfile JWT access-probe.
 fn rbtdrk_brevet_don_impl(ctx: &mut rbtdri_Context, dir: &Path, mantle: &str) -> rbtdre_Verdict {
     let label_brevet = format!("brevet-{}", mantle);
@@ -490,7 +490,7 @@ fn rbtdrk_brevet_don_director(dir: &Path) -> rbtdre_Verdict {
     let probe = rbtdrb_Probe {
         name: "freehold depot moniker installed",
         check: rbtdrk_probe_freehold_moniker,
-        remediation: "rerun the full freehold-establish fixture (ensure → compear → gird) first",
+        remediation: "rerun the full freehold-establish fixture (ensure → avow → gird) first",
     };
     if let Err(v) = rbtdrb_assert(&probe) {
         return v;
@@ -503,7 +503,7 @@ fn rbtdrk_brevet_don_retriever(dir: &Path) -> rbtdre_Verdict {
     let probe = rbtdrb_Probe {
         name: "freehold depot moniker installed",
         check: rbtdrk_probe_freehold_moniker,
-        remediation: "rerun the full freehold-establish fixture (ensure → compear → gird) first",
+        remediation: "rerun the full freehold-establish fixture (ensure → avow → gird) first",
     };
     if let Err(v) = rbtdrb_assert(&probe) {
         return v;
@@ -515,7 +515,7 @@ fn rbtdrk_brevet_don_retriever(dir: &Path) -> rbtdre_Verdict {
 
 pub static RBTDRK_CASES_FREEHOLD_ESTABLISH: &[rbtdre_Case] = &[
     case!(rbtdrk_freehold_ensure),
-    case!(rbtdrk_compear),
+    case!(rbtdrk_avow),
     case!(rbtdrk_gird_governor),
     case!(rbtdrk_brevet_don_director),
     case!(rbtdrk_brevet_don_retriever),

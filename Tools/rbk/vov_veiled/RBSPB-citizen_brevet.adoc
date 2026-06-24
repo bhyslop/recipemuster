@@ -48,9 +48,9 @@ principal grant, never the `serviceAccount:` member sibling; the depot
 //axhos_step
 . *Don the governor
 {rbtf_mantle}*:
-.. {rbtf_compear}
+.. {rbtf_avow}
 to open or reuse a live
-{rbtf_assize}
+{rbtf_sitting}
 — the device flow runs outside the token capture, since it needs the terminal
 .. {rbtf_don}
 the governor mantle and
@@ -58,7 +58,7 @@ the governor mantle and
 `«GOVERNOR_TOKEN»` (the founding-exception and proof paths supply a payor-credentialed
 token to the shared core instead)
 .. {rbbc_fatal}
-if the don fails — compear if the assize lapsed, or this identity is not yet breveted
+if the don fails — avow if the sitting lapsed, or this identity is not yet breveted
 onto the governor mantle
 
 //axhos_step
@@ -131,7 +131,7 @@ is engrossed, the mantle-SA `tokenCreator` and the depot `serviceUsageConsumer`
 bindings are in place, and the citizen may
 {rbtf_don}
 that mantle within a live
-{rbtf_assize}.
+{rbtf_sitting}.
 Withdrawal of one mantle is the
 {rbtf_unseat}
 verb (suspension); whole-person expulsion is

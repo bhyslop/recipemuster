@@ -2,7 +2,7 @@
 // Regenerate: tt/rbw-tb.Build.sh
 
 pub const RBTDGC_CHECK_PAYOR: &str = "rbw-acp";
-pub const RBTDGC_CHECK_COMPEARANCE: &str = "rbw-acf";
+pub const RBTDGC_CHECK_AVOWAL: &str = "rbw-acf";
 pub const RBTDGC_CHECK_MANTLE: &str = "rbw-acm";
 pub const RBTDGC_CRUCIBLE_CHARGE: &str = "rbw-cC";
 pub const RBTDGC_CRUCIBLE_QUENCH: &str = "rbw-cQ";

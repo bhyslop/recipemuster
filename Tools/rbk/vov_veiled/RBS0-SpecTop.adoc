@@ -570,8 +570,8 @@
 :rbtf_mantle_s:              <<rbtf_mantle,Mantles>>
 :rbtf_citizen:               <<rbtf_citizen,Citizen>>
 :rbtf_citizen_s:             <<rbtf_citizen,Citizens>>
-:rbtf_compear:               <<rbtf_compear,Compear>>
-:rbtf_assize:                <<rbtf_assize,Assize>>
+:rbtf_avow:               <<rbtf_avow,Avow>>
+:rbtf_sitting:                <<rbtf_sitting,Sitting>>
 :rbtf_don:                   <<rbtf_don,Don>>
 :rbtf_brevet:                <<rbtf_brevet,Brevet>>
 :rbtf_gird:                  <<rbtf_gird,Gird>>
@@ -918,9 +918,9 @@ The durable supply-chain canon, the gcr.io-bootstrap-only provenance, and the pe
 //axk_premise
 {rbsk_human_present}::
 A live
-{rbtf_assize}
+{rbtf_sitting}
 — opened by a human
-{rbtf_compear}
+{rbtf_avow}
 — backs every run of
 {at_recipe_bottle};
 no run begins outside one, and every token self-expires.
@@ -928,11 +928,11 @@ no run begins outside one, and every token self-expires.
 No refresh token exists anywhere beyond the
 {rbtr_payor}'s
 own RBRO: an orchestrating agent never holds a durable secret, and the
-{rbtf_compear}
+{rbtf_avow}
 device-flow kickoff surfaces only a user code and a verification URI — spike-verified live, with no `offline_access` scope and no refresh token in the response.
 +
-Rationale: this is the design's outer bound on blast radius — a compromised station or agent inherits only what the live assize still permits, and that window closes on its own.
-A long run re-mints mantle tokens mid-flight from the cached federated token while the assize lives; when the assize lapses, the next mint fails loud (`assize lapsed, compear`) rather than silently reaching for a stored credential, because there is none to reach for.
+Rationale: this is the design's outer bound on blast radius — a compromised station or agent inherits only what the live sitting still permits, and that window closes on its own.
+A long run re-mints mantle tokens mid-flight from the cached federated token while the sitting lives; when the sitting lapses, the next mint fails loud (`sitting lapsed, avow`) rather than silently reaching for a stored credential, because there is none to reach for.
 
 == Dependency Inventory
 
@@ -1258,7 +1258,7 @@ per operator — these write no resource IAM: brevet and unseat carry only the p
 `serviceUsageConsumer`; attaint sweeps it; rehearse reads.
 Each wields the donned governor
 {rbtf_mantle}
-({rbtf_compear}
+({rbtf_avow}
 then
 {rbtf_don})
 and each writes its
@@ -1759,7 +1759,7 @@ is implemented through a dedicated mantle
 {giam_service_account}
 that the
 {at_operator}
-{rbtf_don}s after {rbtf_compear}ance, with the exception of the
+{rbtf_don}s after {rbtf_avow}al, with the exception of the
 {rbtr_mason}
 which operates exclusively within cloud infrastructure.
 
@@ -1893,25 +1893,25 @@ is the grantable subject — the `principal://` to which a
 {rbtf_mantle}
 is admitted — and the same subject is grantable in every depot under the manor.
 
-[[rbtf_compear]]
-{rbtf_compear}::
+[[rbtf_avow]]
+{rbtf_avow}::
 The per-session human sign-in act (Scots law: to appear formally in answer to a summons), which opens a live
-{rbtf_assize}.
-Surfaced through the credential accessor, never as a tabtarget: a cloud command that finds no live assize runs the device-flow kickoff inline when a TTY is present, and fails loud when headless.
+{rbtf_sitting}.
+Surfaced through the credential accessor, never as a tabtarget: a cloud command that finds no live sitting runs the device-flow kickoff inline when a TTY is present, and fails loud when headless.
 
-[[rbtf_assize]]
-{rbtf_assize}::
+[[rbtf_sitting]]
+{rbtf_sitting}::
 The live window opened by a
-{rbtf_compear}
+{rbtf_avow}
 — a bounded sitting that is also a fixed regulated measure, concretely the workforce-pool session window (15 minutes to 12 hours).
-No run begins outside a live assize; once it lapses, the next token mint fails loud rather than reaching for a stored secret.
+No run begins outside a live sitting; once it lapses, the next token mint fails loud rather than reaching for a stored secret.
 
 [[rbtf_don]]
 {rbtf_don}::
 The impersonation act that mints a short-lived
 {rbtf_mantle}
 token from the federated token of a live
-{rbtf_assize}
+{rbtf_sitting}
 (the third federation leg, with the depot as quota project).
 Exactly one mantle is worn per token — the blast-radius bound made audible.
 
@@ -2767,7 +2767,7 @@ An individual who maintains a local installation of the
 system on their
 {at_workstation}
 and, through
-{rbtf_compear}ance,
+{rbtf_avow}al,
 {rbtf_don}s the
 {rbtf_mantle_s}
 that enable assumption of the system's defined
@@ -3478,7 +3478,7 @@ include::RBSRP-RegimePayor.adoc[]
 [[rbrf_regime]]
 //axvr_regime axf_bash axrd_file_sourced axrd_singleton
 {rbrf_regime}::
-Manor-scoped (org-level) IdP trust and workforce-pool identity: the external OIDC provider the manor is affianced to, the pool that serves every depot under the manor, and the device-flow endpoints a compearance drives.
+Manor-scoped (org-level) IdP trust and workforce-pool identity: the external OIDC provider the manor is affianced to, the pool that serves every depot under the manor, and the device-flow endpoints an avowal drives.
 File-sourced singleton at {rbsld_moorings}rbrf.env; carries no secrets, so it ships committed.
 
 [[rbrf_org_id]]
@@ -3499,7 +3499,7 @@ Workforce pool provider ID — the external IdP trust root within the pool.
 [[rbrf_session_duration]]
 //axrg_variable axtu_string
 {rbrf_session_duration}::
-Workforce pool session duration — the assize cap, the live window a compearance opens.
+Workforce pool session duration — the sitting cap, the live window an avowal opens.
 
 [[rbrf_idp_issuer]]
 //axrg_variable axtu_string
@@ -4361,9 +4361,9 @@ A pattern that establishes
 context:
 
 . {rbbc_require} a live
-{rbtf_assize}
+{rbtf_sitting}
 via
-{rbtf_compear}
+{rbtf_avow}
 (the credential accessor runs the device-flow kickoff inline under a TTY, fails loud when headless),
 . {rbtf_don} the
 {rbtr_governor}
@@ -4380,9 +4380,9 @@ A pattern that establishes
 context:
 
 . {rbbc_require} a live
-{rbtf_assize}
+{rbtf_sitting}
 via
-{rbtf_compear}
+{rbtf_avow}
 (the credential accessor runs the device-flow kickoff inline under a TTY, fails loud when headless),
 . {rbtf_don} the
 {rbtr_director}
@@ -4399,9 +4399,9 @@ A pattern that establishes
 context:
 
 . {rbbc_require} a live
-{rbtf_assize}
+{rbtf_sitting}
 via
-{rbtf_compear}
+{rbtf_avow}
 (the credential accessor runs the device-flow kickoff inline under a TTY, fails loud when headless),
 . {rbtf_don} the
 {rbtr_retriever}

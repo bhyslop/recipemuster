@@ -38,12 +38,12 @@ zrbz_kindle() {
   # begins at the roll's current head.
   buz_tome "rbz" "RBTDGC_" "RBZ_"
 
-  # Access — credential access probes (rbw-ac): payor OAuth, federated compearance, mantle don
+  # Access — credential access probes (rbw-ac): payor OAuth, federated avowal, mantle don
   buz_group RBZ__GROUP_ACCESS     "rbw-ac"  "Access — Credential access probes"
   local z_mod="rbgv_cli.sh"
   buz_enroll RBZ_CHECK_PAYOR             "rbw-acp" "${z_mod}" "rbgv_check_payor"           ""        "Check the payor credential reaches Google Cloud (OAuth access probe)"
-  buz_enroll RBZ_CHECK_COMPEARANCE       "rbw-acf" "${z_mod}" "rbgv_check_compearance"     ""        "Check federated access — open or reuse an assize via device flow + STS (Legs 1+2) against the RBRF trust"
-  buz_enroll RBZ_CHECK_MANTLE            "rbw-acm" "${z_mod}" "rbgv_check_mantle"          "param1"  "Check mantle access as the freehold subject — compear, don the named mantle (governor|director|retriever), reach Artifact Registry, and write the attributed audit entry; or surface the access deficit"
+  buz_enroll RBZ_CHECK_AVOWAL       "rbw-acf" "${z_mod}" "rbgv_check_avowal"     ""        "Check federated access — open or reuse a sitting via device flow + STS (Legs 1+2) against the RBRF trust"
+  buz_enroll RBZ_CHECK_MANTLE            "rbw-acm" "${z_mod}" "rbgv_check_mantle"          "param1"  "Check mantle access as the freehold subject — avow, don the named mantle (governor|director|retriever), reach Artifact Registry, and write the attributed audit entry; or surface the access deficit"
 
   # Crucible — container runtime (rbw-c)
   buz_group RBZ__GROUP_CRUCIBLE   "rbw-c"   "Crucible — Container runtime"

@@ -31,7 +31,7 @@ policy edit: any resource-scope `getIamPolicy` / `setIamPolicy` issued by a
 recently-empowered caller can draw the 403, whether it adds or removes a
 member.
 
-// FABLE-REANCHOR (₣BZ terminal review): the Class C paragraph above cited the keyfile JWT access-probe as its proof point; that probe was demolished with the RBRA estate. Fable re-anchors the time-bound-discriminator evidence to a surviving federation proof point (the compearance STS exchange / mantle don) or prunes the citation, alongside the keyfile-churn race bullets below. See the M7 record in memo-20260615-BZ-pace-design.md.
+// FABLE-REANCHOR (₣BZ terminal review): the Class C paragraph above cited the keyfile JWT access-probe as its proof point; that probe was demolished with the RBRA estate. Fable re-anchors the time-bound-discriminator evidence to a surviving federation proof point (the avowal STS exchange / mantle don) or prunes the citation, alongside the keyfile-churn race bullets below. See the M7 record in memo-20260615-BZ-pace-design.md.
 
 * **Secret access readiness**: The CB v2 connection creation LRO itself serves as the propagation test.
   If the Cloud Build Service Agent cannot yet access the secrets (IAM grant not propagated), the LRO fails.

@@ -24,7 +24,7 @@
 #
 # Commands:
 #   check_payor        OAuth access probe for the payor credential
-#   check_compearance  Federated access probe — open or reuse an assize (Legs 1+2)
+#   check_avowal  Federated access probe — open or reuse a sitting (Legs 1+2)
 #   check_mantle       Don a mantle as the freehold subject (Leg 3)
 
 set -euo pipefail
@@ -51,38 +51,38 @@ rbgv_check_payor() {
   buc_success "Payor OAuth access probe passed"
 }
 
-# Federated access probe — triggers the accessor's compearance step (Legs 1+2):
-# cache-hit reuses a live assize; a miss with a terminal runs the device flow +
+# Federated access probe — triggers the accessor's avowal step (Legs 1+2):
+# cache-hit reuses a live sitting; a miss with a terminal runs the device flow +
 # STS exchange and caches the federated token; a headless miss fails loud. This
-# is the cloud tabtarget that exercises compearance — compearance itself owns no
+# is the cloud tabtarget that exercises avowal — avowal itself owns no
 # colophon. Depot-agnostic: needs only the RBRF trust, not RBRR/RBRD.
-rbgv_check_compearance() {
+rbgv_check_avowal() {
   zrbgv_sentinel
-  buc_doc_brief "Check federated access — open or reuse an assize via device flow + STS (Legs 1+2) against the RBRF trust"
+  buc_doc_brief "Check federated access — open or reuse a sitting via device flow + STS (Legs 1+2) against the RBRF trust"
   buc_doc_shown || return 0
 
-  buc_step "Federated access probe — compearance against the RBRF trust"
+  buc_step "Federated access probe — avowal against the RBRF trust"
   source "${RBCC_rbrf_file}" || buc_die "Failed to source RBRF: ${RBCC_rbrf_file}"
   zrbrf_kindle
   zrbrf_enforce
 
-  rba_compear
+  rba_avow
 
   local z_token
-  z_token=$(zrba_assize_read_capture) || buc_die "Assize not readable after compearance"
-  test -n "${z_token}" || buc_die "Assize holds an empty federated token"
-  buc_success "Federated assize live — federated token obtained (${#z_token} chars)"
+  z_token=$(zrba_sitting_read_capture) || buc_die "Sitting not readable after avowal"
+  test -n "${z_token}" || buc_die "Sitting holds an empty federated token"
+  buc_success "Federated sitting live — federated token obtained (${#z_token} chars)"
 }
 
 # Don-mantle probe — exercises the freehold rig end to end: resolve the freehold
-# subject (the operator's standing Entra oid, RBPC_freehold_subject), compear as
-# that identity to open or reuse an assize, then don the named mantle (Leg 3).
+# subject (the operator's standing Entra oid, RBPC_freehold_subject), avow as
+# that identity to open or reuse a sitting, then don the named mantle (Leg 3).
 # Reports the minted mantle token, or surfaces the admission deficit the accessor
 # already characterized (the Leg-3 403: a citizen not brevetted onto the mantle,
 # or a missing depot serviceUsageConsumer — a standing state, not a propagation
-# race). Depot-coupled, unlike the depot-agnostic compearance probe: the don
+# race). Depot-coupled, unlike the depot-agnostic avowal probe: the don
 # derives the depot project (RBDC_DEPOT_PROJECT_ID), so furnish enforces RBRR/RBRD
-# for this command; the RBRF trust is sourced here as compearance does.
+# for this command; the RBRF trust is sourced here as avowal does.
 rbgv_check_mantle() {
   zrbgv_sentinel
 
@@ -91,7 +91,7 @@ rbgv_check_mantle() {
   # as a positional. Documented in zrbgv_furnish's buc_doc_env block.
   local -r z_mantle="${BUZ_FOLIO:-}"
 
-  buc_doc_brief "Check mantle access as the freehold subject — compear, don the named mantle, reach Artifact Registry, and write the attributed audit entry (or surface the access deficit)"
+  buc_doc_brief "Check mantle access as the freehold subject — avow, don the named mantle, reach Artifact Registry, and write the attributed audit entry (or surface the access deficit)"
   buc_doc_shown || return 0
 
   case "${z_mantle}" in
@@ -103,37 +103,37 @@ rbgv_check_mantle() {
 
   buc_step "Resolve the freehold subject"
   test -n "${RBPC_freehold_subject:-}" || buc_die "RBPC_freehold_subject is not set — rbpc_constants.sh must be sourced"
-  buc_info "Freehold subject (compear as this identity): ${RBPC_freehold_subject}"
+  buc_info "Freehold subject (avow as this identity): ${RBPC_freehold_subject}"
 
-  buc_step "Compear against the RBRF trust to open or reuse the assize"
+  buc_step "Avow against the RBRF trust to open or reuse the sitting"
   source "${RBCC_rbrf_file}" || buc_die "Failed to source RBRF: ${RBCC_rbrf_file}"
   zrbrf_kindle
   zrbrf_enforce
 
-  rba_compear
+  rba_avow
 
-  # Confirm the human compeared as the freehold subject. The cached subject is
+  # Confirm the human avowed as the freehold subject. The cached subject is
   # the decoded oid (best-effort, informational per the accessor): a mismatch
   # warns — the rig is being exercised under a different identity — but does not
   # gate the don; an undecodable subject is skipped with a log note.
   local z_cached_subject=""
-  z_cached_subject=$(zrba_assize_subject_capture) || z_cached_subject=""
+  z_cached_subject=$(zrba_sitting_subject_capture) || z_cached_subject=""
   if test -z "${z_cached_subject}"; then
-    buc_log_args "Compeared subject not decodable from the assize cache — skipping the freehold-identity confirmation (informational only)"
+    buc_log_args "Avowed subject not decodable from the sitting cache — skipping the freehold-identity confirmation (informational only)"
   elif test "${z_cached_subject}" = "${RBPC_freehold_subject}"; then
-    buc_info "Compeared subject matches the freehold subject"
+    buc_info "Avowed subject matches the freehold subject"
   else
-    buc_warn "Compeared subject '${z_cached_subject}' is NOT the freehold subject '${RBPC_freehold_subject}' — donning anyway, but this is not the freehold identity"
+    buc_warn "Avowed subject '${z_cached_subject}' is NOT the freehold subject '${RBPC_freehold_subject}' — donning anyway, but this is not the freehold identity"
   fi
 
   buc_step "Don the ${z_mantle} mantle (Leg 3)"
   # rba_don_capture emits the mantle token on success or returns 1 having already
-  # logged the admission-deficit / lapsed-assize forensic line; the probe surfaces
+  # logged the admission-deficit / lapsed-sitting forensic line; the probe surfaces
   # that as its verdict (the accessor owns the diagnosis). The token is held in a
   # process-local var, never persisted, and only its length is reported.
   local z_mantle_token
   z_mantle_token=$(rba_don_capture "${z_mantle}") \
-    || buc_die "Don of the ${z_mantle} mantle failed — see the transcript (admission deficit or lapsed assize)"
+    || buc_die "Don of the ${z_mantle} mantle failed — see the transcript (admission deficit or lapsed sitting)"
   test -n "${z_mantle_token}" || buc_die "Don of the ${z_mantle} mantle returned an empty token"
 
   # Exercise the minted token against Artifact Registry (repositories.list). This
@@ -207,7 +207,7 @@ zrbgv_furnish() {
   # (credential path needed by the probe); depot-identity RBDC_* values it
   # also composes are unread on the Payor path. Mirrors BBAAS pattern in
   # rbgp_cli.sh:56-60 for rbgp_depot_list.
-  if test "${z_command}" != "rbgv_check_payor" && test "${z_command}" != "rbgv_check_compearance"; then
+  if test "${z_command}" != "rbgv_check_payor" && test "${z_command}" != "rbgv_check_avowal"; then
     zrbrr_enforce
     zrbrd_enforce
   fi

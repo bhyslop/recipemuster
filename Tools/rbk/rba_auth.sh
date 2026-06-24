@@ -36,7 +36,7 @@ zrba_kindle() {
   # Federation protocol constants — RFC 8628 device flow (Leg 1) + RFC 8693 STS
   # exchange (Leg 2). Pure protocol invariants with no config dependency, so they
   # set unconditionally; the per-trust audience is built from RBRF_* at Leg 2, not
-  # here. The federated path is opt-in: only rba_compear and its legs read these,
+  # here. The federated path is opt-in: only rba_avow and its legs read these,
   # and they guard on zrbrf_sentinel / zrbcc_sentinel, so the keyfile-only
   # consumers that source rba are untouched.
   readonly ZRBA_STS_ENDPOINT="https://sts.googleapis.com/v1/token"
@@ -46,14 +46,14 @@ zrba_kindle() {
   readonly ZRBA_STS_SCOPE="https://www.googleapis.com/auth/cloud-platform"
   readonly ZRBA_DEVICE_GRANT_TYPE="urn:ietf:params:oauth:grant-type:device_code"
 
-  # Assize cache tuning: skew (treat the federated token as spent this many
+  # Sitting cache tuning: skew (treat the federated token as spent this many
   # seconds before its stated expiry) and the device-flow poll ceiling (device
   # codes self-expire in ~15 min).
-  readonly ZRBA_ASSIZE_SKEW_SEC=60
+  readonly ZRBA_SITTING_SKEW_SEC=60
   readonly ZRBA_DEVICE_POLL_MAX_SEC=900
 
   # Per-invocation scratch for the leg curls — BURD_TEMP_DIR (process lifetime),
-  # never the assize cache, which must outlive one invocation (see rba_compear).
+  # never the sitting cache, which must outlive one invocation (see rba_avow).
   readonly ZRBA_FED_DEVICE_RESPONSE_FILE="${BURD_TEMP_DIR}/rba_fed_device.json"
   readonly ZRBA_FED_TOKEN_RESPONSE_FILE="${BURD_TEMP_DIR}/rba_fed_token.json"
   readonly ZRBA_FED_STS_RESPONSE_FILE="${BURD_TEMP_DIR}/rba_fed_sts.json"
@@ -73,11 +73,11 @@ zrba_kindle() {
   # never among them — jq emits each straight to its function's stdout. The only
   # token-bearing temp files are the STS and don curl responses above (the
   # federated and mantle tokens respectively): both are per-invocation
-  # BURD_TEMP_DIR scratch, never the persistent assize cache, which holds the
+  # BURD_TEMP_DIR scratch, never the persistent sitting cache, which holds the
   # federated token alone — the mantle token is never cached anywhere.
-  readonly ZRBA_FED_ASSIZE_EXPIRY_FILE="${BURD_TEMP_DIR}/rba_fed_assize_expiry.txt"
-  readonly ZRBA_FED_ASSIZE_NOW_FILE="${BURD_TEMP_DIR}/rba_fed_assize_now.txt"
-  readonly ZRBA_FED_COMPEAR_NOW_FILE="${BURD_TEMP_DIR}/rba_fed_compear_now.txt"
+  readonly ZRBA_FED_SITTING_EXPIRY_FILE="${BURD_TEMP_DIR}/rba_fed_sitting_expiry.txt"
+  readonly ZRBA_FED_SITTING_NOW_FILE="${BURD_TEMP_DIR}/rba_fed_sitting_now.txt"
+  readonly ZRBA_FED_AVOW_NOW_FILE="${BURD_TEMP_DIR}/rba_fed_avow_now.txt"
   readonly ZRBA_FED_DEVICE_CODE_FILE="${BURD_TEMP_DIR}/rba_fed_device_code.txt"
   readonly ZRBA_FED_USER_CODE_FILE="${BURD_TEMP_DIR}/rba_fed_user_code.txt"
   readonly ZRBA_FED_VERIFY_URI_FILE="${BURD_TEMP_DIR}/rba_fed_verify_uri.txt"
@@ -98,52 +98,52 @@ zrba_sentinel() {
 # External / RBTOE Pattern Functions
 
 # The credential accessor — the single place credential material is resolved.
-# Keyed by identity (governor | director | retriever): ensures a live assize
-# (compearance) then dons the matching mantle SA, minting a short-lived mantle
+# Keyed by identity (governor | director | retriever): ensures a live sitting
+# (avowal) then dons the matching mantle SA, minting a short-lived mantle
 # access token. No call site outside this function touches credential material
 # (source-side grep-gated); the production callers and their bearer-blind
 # downstream are unchanged — the keyfile→federation swap lives entirely here.
 #
-# Deliberately NOT a pure _capture: rba_compear is folded in so callers never
-# learn the compearance dance, so this accessor emits rba_compear's buc_step
+# Deliberately NOT a pure _capture: rba_avow is folded in so callers never
+# learn the avowal dance, so this accessor emits rba_avow's buc_step
 # progress to stderr and may buc_die on a headless miss. The stdout contract
-# still holds — only the mantle token reaches stdout (compear writes stderr and
+# still holds — only the mantle token reaches stdout (avow writes stderr and
 # /dev/tty only; the don emits the token straight to stdout) — and the fast-tier
-# credless guard's in-band buc_reject still propagates: compear's exit
+# credless guard's in-band buc_reject still propagates: avow's exit
 # terminates the caller's command substitution with the credless band code,
-# which the caller's `|| buc_die` re-exits through the band membrane. The assize
-# cache rba_compear writes is a file, so it survives this command-substitution
+# which the caller's `|| buc_die` re-exits through the band membrane. The sitting
+# cache rba_avow writes is a file, so it survives this command-substitution
 # subshell and the next caller takes the cache-hit path.
 rba_token_capture() {
   zrba_sentinel
 
   local -r z_identity="${1:-}"
 
-  # Validate up front so a typo'd identity dies before an interactive compearance.
+  # Validate up front so a typo'd identity dies before an interactive avowal.
   case "${z_identity}" in
     governor|director|retriever) ;;
     *) buc_die "rba_token_capture: unknown identity '${z_identity}' (expected governor | director | retriever)" ;;
   esac
 
-  rba_compear
+  rba_avow
   rba_don_capture "${z_identity}"
 }
 
 ######################################################################
-# Federation branch — compearance (Leg 1) + STS exchange (Leg 2)
+# Federation branch — avowal (Leg 1) + STS exchange (Leg 2)
 #
-# The accessor's federated-token path. A human compears via the IdP device flow
+# The accessor's federated-token path. A human avows via the IdP device flow
 # (Leg 1); the IdP id_token is exchanged at Google STS for a workforce federated
-# access token (Leg 2); that federated token alone is cached, per-assize. The
+# access token (Leg 2); that federated token alone is cached, per-sitting. The
 # mantle token (Leg 3, the don) is a separate artifact, separately scoped, and
-# never cached — it is not built here. The persisted assize cache is the clean
+# never cached — it is not built here. The persisted sitting cache is the clean
 # producer/consumer seam between this path and the don.
 #
 # All federation config is read from RBRF_* (rbrf_regime); the leg curls reuse
 # RBCC curl timeouts and rbgo's transient-curl classifier. Callers kindle
-# rbrf + rbcc before invoking rba_compear; the functions guard on their sentinels.
+# rbrf + rbcc before invoking rba_avow; the functions guard on their sentinels.
 
-# A controlling terminal is writable (a human is present to compear). Probes
+# A controlling terminal is writable (a human is present to avow). Probes
 # /dev/tty rather than `test -t 1` because a tabtarget's stdout is captured to
 # the log, so stdout is never a TTY even interactively (same reason buc prompts
 # write to /dev/tty). The redirect on the `:` builtin opens /dev/tty for that one
@@ -153,15 +153,15 @@ zrba_tty_present_predicate() {
   return 0
 }
 
-# Resolve the per-session assize cache path. Session-scoped — it spans tabtarget
+# Resolve the per-session sitting cache path. Session-scoped — it spans tabtarget
 # processes within one operator session — tmpfs-preferred, keyed by the trust so
-# switching pools never crosses assizes. Dir 0700; the file is written 0600.
-zrba_assize_path_capture() {
+# switching pools never crosses sittings. Dir 0700; the file is written 0600.
+zrba_sitting_path_capture() {
   zrba_sentinel
   zrbrf_sentinel
 
   local z_dir="${XDG_RUNTIME_DIR:-${TMPDIR:-/tmp}}"
-  z_dir="${z_dir%/}/rbf-assize"
+  z_dir="${z_dir%/}/rbf-sitting"
   mkdir -p  "${z_dir}" || return 1
   chmod 700 "${z_dir}" || return 1
   printf '%s/%s.%s.json' "${z_dir}" "${RBRF_WORKFORCE_POOL_ID}" "${RBRF_PROVIDER_ID}"
@@ -169,22 +169,22 @@ zrba_assize_path_capture() {
 
 # Echo the cached federated token if present and not within skew of expiry;
 # return 1 on any miss (absent, malformed, or expired).
-zrba_assize_read_capture() {
+zrba_sitting_read_capture() {
   zrba_sentinel
 
   local z_path
-  z_path=$(zrba_assize_path_capture) || return 1
+  z_path=$(zrba_sitting_path_capture) || return 1
   test -f "${z_path}" || return 1
 
   jq -r '.expiry_epoch // 0' "${z_path}" \
-     > "${ZRBA_FED_ASSIZE_EXPIRY_FILE}" 2>"${ZRBA_FED_JQ_STDERR_FILE}" || return 1
-  local -r z_expiry=$(<"${ZRBA_FED_ASSIZE_EXPIRY_FILE}")
+     > "${ZRBA_FED_SITTING_EXPIRY_FILE}" 2>"${ZRBA_FED_JQ_STDERR_FILE}" || return 1
+  local -r z_expiry=$(<"${ZRBA_FED_SITTING_EXPIRY_FILE}")
   [[ "${z_expiry}" =~ ^[0-9]+$ ]] || return 1
 
-  date +%s > "${ZRBA_FED_ASSIZE_NOW_FILE}" || return 1
-  local -r z_now=$(<"${ZRBA_FED_ASSIZE_NOW_FILE}")
+  date +%s > "${ZRBA_FED_SITTING_NOW_FILE}" || return 1
+  local -r z_now=$(<"${ZRBA_FED_SITTING_NOW_FILE}")
   test -n "${z_now}" || return 1
-  test "${z_expiry}" -gt "$(( z_now + ZRBA_ASSIZE_SKEW_SEC ))" || return 1
+  test "${z_expiry}" -gt "$(( z_now + ZRBA_SITTING_SKEW_SEC ))" || return 1
 
   # Federated token (secret): jq emits it straight to stdout, never through a
   # shell var or temp file. select(length > 0) yields no output and a non-zero jq
@@ -192,32 +192,32 @@ zrba_assize_read_capture() {
   jq -er '.federated_token // empty | select(length > 0)' "${z_path}" 2>"${ZRBA_FED_JQ_STDERR_FILE}"
 }
 
-# Echo the cached assize subject (the compeared oid) if present; return 1 on any
-# miss. Informational mirror of zrba_assize_read_capture — the muniment-trail
-# subject (decoded best-effort at compearance, non-load-bearing), not a
+# Echo the cached sitting subject (the avowed oid) if present; return 1 on any
+# miss. Informational mirror of zrba_sitting_read_capture — the muniment-trail
+# subject (decoded best-effort at avowal, non-load-bearing), not a
 # credential, so no expiry gate: identity, not a token. select(length > 0) yields
 # a non-zero jq exit for an absent/empty subject — the capture miss.
-zrba_assize_subject_capture() {
+zrba_sitting_subject_capture() {
   zrba_sentinel
 
   local z_path
-  z_path=$(zrba_assize_path_capture) || return 1
+  z_path=$(zrba_sitting_path_capture) || return 1
   test -f "${z_path}" || return 1
 
   jq -er '.subject // empty | select(length > 0)' "${z_path}" 2>"${ZRBA_FED_JQ_STDERR_FILE}"
 }
 
-# A live (unexpired) assize is cached — status only, no output.
-zrba_assize_live_predicate() {
+# A live (unexpired) sitting is cached — status only, no output.
+zrba_sitting_live_predicate() {
   zrba_sentinel
-  zrba_assize_read_capture >/dev/null || return 1
+  zrba_sitting_read_capture >/dev/null || return 1
   return 0
 }
 
-# Atomically write the assize cache (federated token + expiry epoch + subject).
+# Atomically write the sitting cache (federated token + expiry epoch + subject).
 # The dir is 0700 (owner-only traversal); chmod 600 + temp-then-rename keeps the
 # file owner-only and never partially visible under its stable name.
-zrba_assize_write() {
+zrba_sitting_write() {
   zrba_sentinel
 
   local -r z_token="${1:-}"
@@ -225,7 +225,7 @@ zrba_assize_write() {
   local -r z_subject="${3:-}"
 
   local z_path
-  z_path=$(zrba_assize_path_capture) || return 1
+  z_path=$(zrba_sitting_path_capture) || return 1
   local -r z_tmp="${z_path}.tmp.$$"
 
   jq -n --arg t "${z_token}" --argjson e "${z_expiry_epoch}" --arg s "${z_subject}" \
@@ -258,7 +258,7 @@ zrba_idtoken_subject_capture() {
     | jq -r '.oid // .sub // empty' 2>"${ZRBA_FED_JQ_STDERR_FILE}"
 }
 
-# Leg 1 — device-flow compearance (RFC 8628). Requests a device + user code,
+# Leg 1 — device-flow avowal (RFC 8628). Requests a device + user code,
 # surfaces the verification URL and code to the human on /dev/tty, polls the IdP
 # token endpoint until the human approves, and echoes the OIDC id_token. The
 # id_token is never persisted — Leg 2 consumes it in-process.
@@ -297,11 +297,11 @@ zrba_leg1_idtoken_capture() {
 
   # Surface the prompt live on the controlling terminal (stdout is log-captured;
   # the user code is short-lived and single-use, kept off the persistent log).
-  { printf '\nCompearance — sign in to open your assize:\n'
+  { printf '\nAvowal — sign in to open your sitting:\n'
     printf '    %s\n'         "${z_verification_uri}"
     printf '    code: %s\n\n' "${z_user_code}"
   } >/dev/tty 2>"${ZRBA_FED_CURL_STDERR_FILE}" || return 1
-  buc_log_args "Compearance prompt surfaced to terminal; polling for sign-in"
+  buc_log_args "Avowal prompt surfaced to terminal; polling for sign-in"
 
   local z_elapsed=0
   local z_err=""
@@ -392,13 +392,13 @@ zrba_leg2_federated_capture() {
     || { buc_log_args "STS exchange returned no access_token; see ${ZRBA_FED_STS_RESPONSE_FILE}"; return 1; }
 }
 
-# rba_compear — the compearance accessor step. Ensures a live assize; its side
+# rba_avow — the avowal accessor step. Ensures a live sitting; its side
 # effect is the per-session cache, and consumers read the federated token with
-# zrba_assize_read_capture. Cache-hit → done. Miss/expired with a terminal → run
+# zrba_sitting_read_capture. Cache-hit → done. Miss/expired with a terminal → run
 # Legs 1+2 and cache. Miss with no terminal → fail loud: the headless fail-fast
-# membrane, also the suite-head seam (an automated run compears once at suite
+# membrane, also the suite-head seam (an automated run avows once at suite
 # head; the headless cases thereafter take the cache-hit path).
-rba_compear() {
+rba_avow() {
   zrba_sentinel
   zrbrf_sentinel
   zrbcc_sentinel
@@ -406,40 +406,40 @@ rba_compear() {
   # Credless guard — the fast tier must never touch the IdP or the network.
   # Mirrors the keyfile mint's guard so the federated path honors the same invariant.
   test "${BURE_TWEAK_NAME:-}" != "${RBCC_tweak_credless_guard}" \
-    || buc_reject "${BUBC_band_credless}" "Credless guard: compearance refused — this run carries the fast-tier guard (fast cases must never reach the IdP)"
+    || buc_reject "${BUBC_band_credless}" "Credless guard: avowal refused — this run carries the fast-tier guard (fast cases must never reach the IdP)"
 
-  if zrba_assize_live_predicate; then
-    buc_step "Assize already live — reusing the cached federated token"
+  if zrba_sitting_live_predicate; then
+    buc_step "Sitting already live — reusing the cached federated token"
     return 0
   fi
 
   zrba_tty_present_predicate \
-    || buc_die "No live assize and no terminal — a human must compear interactively to open one (this headless run cannot). Open an assize from a terminal, then re-run."
+    || buc_die "No live sitting and no terminal — a human must avow interactively to open one (this headless run cannot). Open a sitting from a terminal, then re-run."
 
-  buc_step "No live assize — opening one via device-flow compearance"
+  buc_step "No live sitting — opening one via device-flow avowal"
 
   local z_idtoken
-  z_idtoken=$(zrba_leg1_idtoken_capture) || buc_die "Compearance failed at Leg 1 (device flow); see the transcript"
+  z_idtoken=$(zrba_leg1_idtoken_capture) || buc_die "Avowal failed at Leg 1 (device flow); see the transcript"
 
   local z_fed
-  z_fed=$(zrba_leg2_federated_capture "${z_idtoken}") || buc_die "Compearance failed at Leg 2 (STS exchange); see the transcript"
+  z_fed=$(zrba_leg2_federated_capture "${z_idtoken}") || buc_die "Avowal failed at Leg 2 (STS exchange); see the transcript"
 
   local -r z_federated="${z_fed%% *}"
   local -r z_expires_in="${z_fed##* }"
   [[ "${z_expires_in}" =~ ^[0-9]+$ ]] || buc_die "Leg 2 returned a non-numeric expiry: ${z_expires_in}"
 
-  date +%s > "${ZRBA_FED_COMPEAR_NOW_FILE}" || buc_die "Failed to read the clock"
-  local -r z_now=$(<"${ZRBA_FED_COMPEAR_NOW_FILE}")
+  date +%s > "${ZRBA_FED_AVOW_NOW_FILE}" || buc_die "Failed to read the clock"
+  local -r z_now=$(<"${ZRBA_FED_AVOW_NOW_FILE}")
   test -n "${z_now}" || buc_die "Empty clock reading"
   local -r z_expiry_epoch=$(( z_now + z_expires_in ))
 
   local z_subject
   z_subject=$(zrba_idtoken_subject_capture "${z_idtoken}") || z_subject=""
 
-  zrba_assize_write "${z_federated}" "${z_expiry_epoch}" "${z_subject}" \
-    || buc_die "Compearance succeeded but caching the assize failed"
+  zrba_sitting_write "${z_federated}" "${z_expiry_epoch}" "${z_subject}" \
+    || buc_die "Avowal succeeded but caching the sitting failed"
 
-  buc_step "Assize opened (federated token expires in ${z_expires_in}s)"
+  buc_step "Sitting opened (federated token expires in ${z_expires_in}s)"
 }
 
 ######################################################################
@@ -452,18 +452,18 @@ rba_compear() {
 # once on success, or returns 1 — never buc_die, never stderr (BCG capture
 # contract); the consuming verb supplies the loud buc_die over the returned 1,
 # and the forensic lines below carry the operator instruction it dies with
-# (matching rba_compear's "failed at Leg N; see the transcript" division of
+# (matching rba_avow's "failed at Leg N; see the transcript" division of
 # labor). The unknown-identity guard buc_dies — a caller bug, not a runtime
 # condition — exactly as rba_token_capture does.
 #
 # Custody: the mantle token reaches only this function's stdout (jq straight to
 # stdout, never a shell var) and the per-invocation curl response (BURD_TEMP_DIR,
-# process lifetime, like the Leg-2 STS response) — never the persistent assize
+# process lifetime, like the Leg-2 STS response) — never the persistent sitting
 # cache. It carries exactly one mantle's authority and self-expires (1 h default
 # ceiling, spike V1); donning again re-mints. A long run re-dons mid-flight while
-# the assize lives; the re-mint ceiling is the assize itself — the
-# cached-federated-token read below returns 1 once the assize lapses, carrying the
-# compear instruction.
+# the sitting lives; the re-mint ceiling is the sitting itself — the
+# cached-federated-token read below returns 1 once the sitting lapses, carrying the
+# avow instruction.
 #
 # Single attempt by design. The Leg-3 403 is the structural admission-deficit
 # Palisade signature (spike F2): a workforce federated token carries no
@@ -474,8 +474,8 @@ rba_compear() {
 # returned, NEVER retried as a propagation race, unlike the SA-propagation loops
 # the keyfile accessor carries.
 #
-# The fast-tier credless guard lives at the compearance entry (rba_compear): no
-# verb dons without a live assize, and the assize read below returns 1 when none
+# The fast-tier credless guard lives at the avowal entry (rba_avow): no
+# verb dons without a live sitting, and the sitting read below returns 1 when none
 # is cached, so a credless run never reaches the mint.
 rba_don_capture() {
   zrba_sentinel
@@ -503,11 +503,11 @@ rba_don_capture() {
   buc_log_args "Donning the ${z_identity} mantle: ${z_mantle_email}"
 
   # The bearer is the cached federated token. A miss (absent or within skew of
-  # expiry) is the re-mint ceiling — the assize has lapsed; the forensic line
-  # carries the compear instruction and the caller fails loud on the return 1.
+  # expiry) is the re-mint ceiling — the sitting has lapsed; the forensic line
+  # carries the avow instruction and the caller fails loud on the return 1.
   local z_federated
-  z_federated=$(zrba_assize_read_capture) || {
-    buc_log_args "Assize lapsed — no live federated token is cached; compear to open a fresh assize, then re-run (the mantle re-mint is capped by the assize, not by the mantle token's own lifetime)"
+  z_federated=$(zrba_sitting_read_capture) || {
+    buc_log_args "Sitting lapsed — no live federated token is cached; avow to open a fresh sitting, then re-run (the mantle re-mint is capped by the sitting, not by the mantle token's own lifetime)"
     return 1
   }
 
@@ -544,7 +544,7 @@ rba_don_capture() {
          > "${ZRBA_FED_DON_ERROR_FILE}" 2>"${ZRBA_FED_JQ_STDERR_FILE}" \
          || : > "${ZRBA_FED_DON_ERROR_FILE}"
       local -r z_errmsg=$(<"${ZRBA_FED_DON_ERROR_FILE}")
-      buc_log_args "Leg 3 (don) denied (HTTP 403) for mantle ${z_mantle_email}: ${z_errmsg} — admission deficit, not a propagation race; brevet the compeared citizen onto the mantle (tokenCreator on the mantle SA + serviceUsageConsumer on the depot project); not retried"
+      buc_log_args "Leg 3 (don) denied (HTTP 403) for mantle ${z_mantle_email}: ${z_errmsg} — admission deficit, not a propagation race; brevet the avowed citizen onto the mantle (tokenCreator on the mantle SA + serviceUsageConsumer on the depot project); not retried"
       return 1 ;;
     *)
       buc_log_args "Leg 3 (don) failed (HTTP ${z_code}) for mantle ${z_mantle_email}; see ${ZRBA_FED_DON_RESPONSE_FILE}"

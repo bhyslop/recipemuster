@@ -93,7 +93,7 @@ Cases group by purpose in source order (no formal section structure):
 
 ### Fast-Tier Cases: Credless by Construction
 
-The fast suite's fixtures carry `credless: true` on their `rbtdre_Fixture` static. While such a fixture runs, every tabtarget Command theurge builds (via `rbtdri_tabtarget_command` — including the direct-Command helpers) carries the credless-guard tweak (`RBCC_tweak_credless_guard` / `RBTDGC_TWEAK_CREDLESS_GUARD`), and both token-mint membranes (`rba_compear`, `zrbgp_authenticate_capture`) reject under it with the credless band code (`BUBC_band_credless` / `RBTDGC_BAND_CREDLESS`) before touching any credential. The guard rides the fixture, not the suite — a fast fixture hosted in service/complete is still guarded.
+The fast suite's fixtures carry `credless: true` on their `rbtdre_Fixture` static. While such a fixture runs, every tabtarget Command theurge builds (via `rbtdri_tabtarget_command` — including the direct-Command helpers) carries the credless-guard tweak (`RBCC_tweak_credless_guard` / `RBTDGC_TWEAK_CREDLESS_GUARD`), and both token-mint membranes (`rba_avow`, `zrbgp_authenticate_capture`) reject under it with the credless band code (`BUBC_band_credless` / `RBTDGC_BAND_CREDLESS`) before touching any credential. The guard rides the fixture, not the suite — a fast fixture hosted in service/complete is still guarded.
 
 Rules for authoring a fast-tier case:
 

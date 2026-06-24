@@ -141,7 +141,7 @@ fn rbtdtk_cases_registered() {
     assert_eq!(fixture.cases.len(), 6, "expected six cases");
     let names: Vec<&str> = fixture.cases.iter().map(|c| c.name).collect();
     assert!(names.iter().any(|n| n.contains("rbtdrk_freehold_ensure")));
-    assert!(names.iter().any(|n| n.contains("rbtdrk_compear")));
+    assert!(names.iter().any(|n| n.contains("rbtdrk_avow")));
     assert!(names.iter().any(|n| n.contains("rbtdrk_gird_governor")));
     assert!(names.iter().any(|n| n.contains("rbtdrk_brevet_don_director")));
     assert!(names.iter().any(|n| n.contains("rbtdrk_brevet_don_retriever")));

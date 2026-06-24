@@ -1302,8 +1302,8 @@ rbgp_manor_affiance() {
 
   buc_step 'Manor affianced'
   buc_info "Manor affianced: pool=${z_pool_id} provider=${z_provider_id} org=${z_org}"
-  buyy_tt_yawp "${RBZ_CHECK_COMPEARANCE}"; local -r z_acf_tt="${z_buym_yelp}"
-  buc_info "Verify the trust by compearing — run ${z_acf_tt}"
+  buyy_tt_yawp "${RBZ_CHECK_AVOWAL}"; local -r z_acf_tt="${z_buym_yelp}"
+  buc_info "Verify the trust by avowing — run ${z_acf_tt}"
 }
 
 rbgp_manor_jilt() {
@@ -2292,7 +2292,7 @@ rbgp_terrier_proof() {
 # mantle SA (a principal:// member) and serviceUsageConsumer on the depot project
 # (spike F2). Intent-first ordering: the muniment write precedes every binding.
 #
-# The verbs run as a donned governor mantle (rba_compear then rba_don_capture
+# The verbs run as a donned governor mantle (rba_avow then rba_don_capture
 # governor — this pace is that accessor's first consumer). The token-agnostic
 # *_core helpers carry the composition so the levy founding exception (the payor
 # breveting the first governor) and the interim proof can drive the same logic
@@ -2466,7 +2466,7 @@ rbgp_gird() {
   zrbgp_brevet_core "${z_token}" "governor" "${z_subject}"
 }
 
-# rbgp_brevet <subject> <mantle> — admit a compeared citizen onto a mantle in this
+# rbgp_brevet <subject> <mantle> — admit an avowed citizen onto a mantle in this
 # depot. Wields the governor mantle.
 rbgp_brevet() {
   zrbgp_sentinel
@@ -2482,12 +2482,12 @@ rbgp_brevet() {
   test -n "${z_subject}" || buc_die "Subject required as the first argument"
   test -n "${z_mantle}"  || buc_die "Mantle required as the second argument (governor | director | retriever)"
 
-  # Don the governor mantle — compear runs outside the capture (its device flow
+  # Don the governor mantle — avow runs outside the capture (its device flow
   # needs the terminal); only the mint is captured.
-  rba_compear
+  rba_avow
   local z_token
   z_token=$(rba_don_capture "governor") \
-    || buc_die "Failed to don the governor mantle — compear if the assize lapsed, or brevet this identity onto the governor mantle if admission is denied"
+    || buc_die "Failed to don the governor mantle — avow if the sitting lapsed, or brevet this identity onto the governor mantle if admission is denied"
 
   zrbgp_brevet_core "${z_token}" "${z_mantle}" "${z_subject}"
 }
@@ -2508,10 +2508,10 @@ rbgp_unseat() {
   test -n "${z_subject}" || buc_die "Subject required as the first argument"
   test -n "${z_mantle}"  || buc_die "Mantle required as the second argument (governor | director | retriever)"
 
-  rba_compear
+  rba_avow
   local z_token
   z_token=$(rba_don_capture "governor") \
-    || buc_die "Failed to don the governor mantle — compear if the assize lapsed, or brevet this identity onto the governor mantle if admission is denied"
+    || buc_die "Failed to don the governor mantle — avow if the sitting lapsed, or brevet this identity onto the governor mantle if admission is denied"
 
   zrbgp_unseat_core "${z_token}" "${z_mantle}" "${z_subject}"
 }
@@ -2529,10 +2529,10 @@ rbgp_attaint() {
 
   test -n "${z_subject}" || buc_die "Subject required as the first argument"
 
-  rba_compear
+  rba_avow
   local z_token
   z_token=$(rba_don_capture "governor") \
-    || buc_die "Failed to don the governor mantle — compear if the assize lapsed, or brevet this identity onto the governor mantle if admission is denied"
+    || buc_die "Failed to don the governor mantle — avow if the sitting lapsed, or brevet this identity onto the governor mantle if admission is denied"
 
   zrbgp_attaint_core "${z_token}" "${z_subject}"
 }
@@ -2545,10 +2545,10 @@ rbgp_rehearse() {
   buc_doc_brief "Rehearse the manor terrier — recount every muniment (who holds what), read-only"
   buc_doc_shown || return 0
 
-  rba_compear
+  rba_avow
   local z_token
   z_token=$(rba_don_capture "governor") \
-    || buc_die "Failed to don the governor mantle — compear if the assize lapsed, or brevet this identity onto the governor mantle if admission is denied"
+    || buc_die "Failed to don the governor mantle — avow if the sitting lapsed, or brevet this identity onto the governor mantle if admission is denied"
 
   buc_step 'Rehearse the manor terrier (manor-wide muniment roll)'
   local z_muniments
@@ -2617,7 +2617,7 @@ rbgp_attribution_trail() {
     || buc_die "Failed to count attribution entries"
 
   test "${z_count}" -gt 0 || {
-    buc_warn "No Data-Access audit entries on ${z_depot} yet. Has a mantle made an Artifact Registry call? Run 'rbw-acm retriever' (compear + don + AR call) first, allow a few seconds for log ingestion, then re-run."
+    buc_warn "No Data-Access audit entries on ${z_depot} yet. Has a mantle made an Artifact Registry call? Run 'rbw-acm retriever' (avow + don + AR call) first, allow a few seconds for log ingestion, then re-run."
     return 0
   }
 

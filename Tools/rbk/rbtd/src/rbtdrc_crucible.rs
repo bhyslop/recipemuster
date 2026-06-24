@@ -2776,7 +2776,7 @@ pub static RBTDRC_SUITES: &[rbtdre_Suite] = &[
     // builds the crucible images (local kludge + cloud ordain into the standing
     // depot) and the four crucibles charge+run. OPERATOR PRECONDITION: a freehold
     // depot already levied (install freehold prefixes and run rbw-dL by hand) AND
-    // federation credentials ready — a live assize with the depot's mantles
+    // federation credentials ready — a live sitting with the depot's mantles
     // donnable (the standing-freehold credential step is federation test-rig work,
     // no longer a keyfile re-enrobe preamble). Spends cloud build/GAR but creates
     // no GCP project per run.
@@ -2805,7 +2805,7 @@ pub static RBTDRC_SUITES: &[rbtdre_Suite] = &[
     // no unmake) but charges NO crucible: it proves only the cloud-build →
     // summon → run path yields a runnable artifact; the fixture stays
     // crucible-free. OPERATOR PRECONDITION: a freehold depot already levied AND
-    // federation credentials ready (a live assize, the depot's mantles donnable),
+    // federation credentials ready (a live sitting, the depot's mantles donnable),
     // exactly as skirmish assumes.
     rbtdre_Suite {
         name: "dogfight",
@@ -2835,7 +2835,7 @@ pub static RBTDRC_SUITES: &[rbtdre_Suite] = &[
     // moriah crucible charges (auto-summoning its already-ordained conjure
     // hallmarks), runs the security cases, quenches. No kludge predecessor —
     // conjure hallmarks come from GAR, not a local build. OPERATOR PRECONDITION:
-    // freehold depot levied, federation credentials ready (a live assize, the
+    // freehold depot levied, federation credentials ready (a live sitting, the
     // retriever mantle donnable), AND the moriah conjure hallmark already ordained
     // into its GAR.
     rbtdre_Suite {
