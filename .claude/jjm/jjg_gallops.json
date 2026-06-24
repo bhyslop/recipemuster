@@ -18509,8 +18509,8 @@
         "₢BhAAU": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260624-1340",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260624-1354",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "## Character",
                 "Design/judgment — a docs-architecture decision plus a careful move, not mechanical.",
@@ -18533,7 +18533,7 @@
                 "- The agreed personal bits are moved into the relevant veiled claude-<kit>-bhyslop.md files (or explicitly deferred)."
               ],
               "jjgtn_silks": "veiled-bhyslop-personal-extraction",
-              "jjgtn_basis": "7e5fe6f"
+              "jjgtn_basis": "6bc2ea2"
             }
           ]
         }
