@@ -17603,8 +17603,8 @@
         "₢BfAAh": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260623-2240",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260624-1358",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "Mount FRESH — a clean instance, not the long planning chat that produced this heat. Run a workflow-heavy audit that verifies the plan and closes its coverage gaps, producing a verified gap-list and a closure slate.",
                 "",
@@ -17627,7 +17627,7 @@
                 "Workflow orchestration; the heat's trust-but-verify gate after a heavy planning chat."
               ],
               "jjgtn_silks": "heat-integrity-and-coverage-audit",
-              "jjgtn_basis": "c7433f4"
+              "jjgtn_basis": "1d3579e"
             }
           ]
         },
