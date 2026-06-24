@@ -17266,7 +17266,7 @@
         "₢BfAAT": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260624-1333",
+              "jjgtn_ts": "260624-1341",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "Settle the foedus-reuse design and the precise tabtarget nature of every foedus toothing — the fixture↔verb seam, the pool-integrity CHECK, the active-foedus SWITCH, and how affiance composes with them — choosing each verb's exact signature clearly and directly, not delegating it further.",
@@ -17289,18 +17289,19 @@
                 "Fold in (or sibling-slate) the small rbgft data-layer unit test the paddock flags for the precise engross-412 / expunge-404 idempotency.",
                 "",
                 "## Done when",
-                "Every foedus toothing's precise tabtarget nature is clearly and directly chosen — descry's signature, the switch's signature and the instate/casing question, and the atomic boundaries — with no deferral; the fixture-composition pattern that yields \"reuse if valid, else create\" is specified; parley's fate is decided (deferred-with-the-attach-tail or slated); the combinator and the reuse-build pace can build against it.",
+                "Every foedus toothing's precise tabtarget nature is clearly and directly chosen — descry's signature, the switch's signature and the instate/casing question, and the atomic boundaries — with no deferral; the fixture-composition pattern that yields \"reuse if valid, else create\" is specified; parley's fate is decided (deferred-with-the-attach-tail or slated); descry's and instate's operation subdocs are authored contract-first; the combinator and the reuse-build pace can build against it.",
                 "",
                 "## Cinched",
                 "Atomic toothings: no tabtarget is check-then-create; composition lives in fixtures (operator's strong opinion).",
                 "The precise signatures are decided HERE, not delegated further.",
                 "Switch draft instate / family rbw-j carried in for re-review (operator 260624), not yet final.",
+                "descry and instate EACH get their own operation subdoc (the RBSDC / RBSAO precedent for an operator-facing op), authored contract-first ahead of the build — NO exemption (operator decision 260624).",
                 "",
                 "## Character",
                 "Design conversation requiring operator judgment; mount with the operator present; this is where the long-delegated tabtarget nature gets pinned."
               ],
               "jjgtn_silks": "foedus-reuse-design",
-              "jjgtn_basis": "49e26b5"
+              "jjgtn_basis": "a0a8a55"
             }
           ]
         },
@@ -17574,7 +17575,7 @@
         "₢BfAAg": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260624-0202",
+              "jjgtn_ts": "260624-1341",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "Build the day-to-day REUSE path end to end on the INTERACTIVE foedus: first the foedus check (descry) and switch (instate) as first-class atomic production tabtargets per the design pace, then the REUSE fixture that composes them — check the foedus, switch to it if valid, heal its credentials (avow + don the mantles), and affiance only when the check fails.",
@@ -17588,13 +17589,14 @@
                 "## Cinched",
                 "The verbs are ATOMIC and first-class — standalone production tabtargets, never a fat check-then-create, never buried only inside the fixture; \"reuse if valid, else create\" lives in the fixture. The credential heal is quota-neutral (idempotent IAM); affiance fires only on check-failure.",
                 "SCOPE — interactive only (verified against the code 260623): the standing freehold runs on the interactive Entra foedus, so the heal uses the existing interactive avow + don and is human-present (one avow at suite head, then reuse cache-hits the live sitting). The switch verb builds but is DEGENERATE until a second foedus stands (only Entra exists today). Fully-unattended / cross-mechanism (Entra↔Keycloak) reuse is OUT of scope here — a later pace gated on the programmatic spine (programmatic affiance arm, Keycloak orchestrator, programmatic accessor). Do NOT chase the unattended path here; it would hit unbuilt programmatic code.",
+                "descry and instate are built against their own operation subdocs (authored contract-first at the design pace) — no exemption (operator 260624).",
                 "Detail: the audit memo's pace-10.",
                 "",
                 "## Character",
                 "Bash build — two production tabtargets plus the composing fixture; depends on the design pace and the combinator. No dependency on the programmatic spine (interactive machinery only)."
               ],
               "jjgtn_silks": "foedus-reuse-leg",
-              "jjgtn_basis": "9d9ece1"
+              "jjgtn_basis": "a0a8a55"
             }
           ]
         },
