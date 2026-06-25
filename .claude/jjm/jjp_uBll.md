@@ -95,11 +95,11 @@ re-point the regime selector and force a sitting reset (quash the live sitting, 
 descry is the pool-integrity check toothing,
 rbw-jd, lowercase and read-only,
 rhyming with Google's describe-pool;
-its exact signature stays the build pace's to choose.
+its exact signature is settled upstream in the federation stream's foedus-reuse design pass — the build pace builds against the operation subdocs that pass authors, it does not re-choose the signature.
 
-The one open hinge carried to the build pace is casing:
+The one open hinge — casing — is settled upstream in that same design pass, not carried to the build pace:
 it keys off whether the selector is committed config (uppercase, gated on a clean tree) or local runtime state (lowercase, gate-free).
-The selection mechanism itself stays the build pace's to settle.
+The selection mechanism itself is settled there too; the build pace consumes the settled operation subdocs rather than re-litigating it.
 
 Colophon homing for these verbs, settled this pass:
 the foedus-cardinality verbs take rbw-j;
