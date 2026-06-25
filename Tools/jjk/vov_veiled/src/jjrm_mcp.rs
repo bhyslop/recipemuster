@@ -926,57 +926,175 @@ fn zjjrm_encode_cwd(cwd: &Path) -> String {
         .collect()
 }
 
-/// Resolve current Claude Code session UUID from the transcript directory for `cwd`.
-///
-/// Lists `~/.claude/projects/<encoded-cwd>/*.jsonl`, picks newest by mtime,
-/// returns the basename without `.jsonl`. Fails on missing dir, zero `.jsonl`
-/// files, or mtime tie between the top two candidates — silent fallback would
-/// bind the wrong session UUID into a durable git commit.
-fn zjjrm_resolve_session_uuid(cwd: &Path) -> Result<String, String> {
-    let home = std::env::var_os("HOME")
-        .ok_or_else(|| "HOME env var not set".to_string())?;
-    let projects_dir = PathBuf::from(home)
+/// Sentinel recorded when a session-recall channel yields no value.
+pub(crate) const ZJJRM_SESSION_ABSENT: &str = "-";
+
+/// Sentinel recorded when a session-recall channel cannot disambiguate between
+/// equally-ranked candidates (e.g. an mtime tie between the two newest transcripts).
+pub(crate) const ZJJRM_SESSION_AMBIGUOUS: &str = "(ambiguous)";
+
+/// One `~/.claude/sessions/<pid>.json` entry reduced to the fields the
+/// `session-procmap` selection consults. Foreign JSON read at the Palisade.
+pub(crate) struct zjjrm_ProcEntry {
+    pub(crate) session_id: String,
+    pub(crate) busy: bool,
+    pub(crate) updated_at: u64,
+}
+
+/// `session-procmap` selection rule: prefer a `busy` entry, then the newest
+/// `updatedAt`; `-` when no entry matched the cwd. Pure — no filesystem access.
+pub(crate) fn zjjrm_procmap_select(mut candidates: Vec<zjjrm_ProcEntry>) -> String {
+    candidates.sort_by(|a, b| b.busy.cmp(&a.busy).then(b.updated_at.cmp(&a.updated_at)));
+    match candidates.into_iter().next() {
+        Some(c) => c.session_id,
+        None => ZJJRM_SESSION_ABSENT.to_string(),
+    }
+}
+
+/// Rank a directory's entries by mtime, newest first, keeping only those for
+/// which `pick` derives a name from the entry name and metadata. Empty when the
+/// directory is absent or unreadable — record-only, never an error.
+fn zjjrm_entries_by_mtime(
+    dir: &Path,
+    pick: impl Fn(&str, &std::fs::Metadata) -> Option<String>,
+) -> Vec<(std::time::SystemTime, String)> {
+    let Ok(entries) = std::fs::read_dir(dir) else {
+        return Vec::new();
+    };
+    let mut ranked: Vec<(std::time::SystemTime, String)> = Vec::new();
+    for entry in entries.flatten() {
+        let Ok(metadata) = entry.metadata() else { continue };
+        let Ok(mtime) = metadata.modified() else { continue };
+        let name = entry.file_name();
+        let name_str = name.to_string_lossy();
+        let Some(derived) = pick(&name_str, &metadata) else { continue };
+        ranked.push((mtime, derived));
+    }
+    ranked.sort_by(|a, b| b.0.cmp(&a.0));
+    ranked
+}
+
+/// Newest ranked name, or `-` when the ranking is empty.
+fn zjjrm_newest_or_absent(ranked: Vec<(std::time::SystemTime, String)>) -> String {
+    match ranked.into_iter().next() {
+        Some((_, name)) => name,
+        None => ZJJRM_SESSION_ABSENT.to_string(),
+    }
+}
+
+/// `session` channel: newest-mtime `*.jsonl` basename under the cwd transcript
+/// dir. `-` when the dir or its transcripts are absent; `(ambiguous)` on an
+/// mtime tie between the two newest.
+fn zjjrm_session_mtime(cwd: &Path) -> String {
+    let Some(home) = std::env::var_os("HOME") else {
+        return ZJJRM_SESSION_ABSENT.to_string();
+    };
+    let dir = PathBuf::from(home)
         .join(".claude")
         .join("projects")
         .join(zjjrm_encode_cwd(cwd));
-
-    if !projects_dir.is_dir() {
-        return Err(format!(
-            "Claude transcripts dir not found: {}",
-            projects_dir.display()
-        ));
+    let ranked = zjjrm_entries_by_mtime(&dir, |name, _meta| {
+        name.strip_suffix(".jsonl").map(|s| s.to_string())
+    });
+    if ranked.is_empty() {
+        return ZJJRM_SESSION_ABSENT.to_string();
     }
+    if ranked.len() >= 2 && ranked[0].0 == ranked[1].0 {
+        return ZJJRM_SESSION_AMBIGUOUS.to_string();
+    }
+    ranked[0].1.clone()
+}
 
-    let entries = std::fs::read_dir(&projects_dir)
-        .map_err(|e| format!("read_dir({}): {}", projects_dir.display(), e))?;
+/// Read one environment variable, mapping unset / empty / non-UTF-8 to `-`.
+fn zjjrm_session_env_var(name: &str) -> String {
+    match std::env::var(name) {
+        Ok(value) if !value.is_empty() => value,
+        _ => ZJJRM_SESSION_ABSENT.to_string(),
+    }
+}
 
-    let mut candidates: Vec<(std::time::SystemTime, String)> = Vec::new();
+/// `session-procmap` channel: the `sessionId` of the `~/.claude/sessions/<pid>.json`
+/// entry whose `cwd` matches, preferring `status == "busy"` then newest `updatedAt`.
+/// Only those four fields are consulted; a malformed file is skipped.
+fn zjjrm_session_procmap(cwd: &Path) -> String {
+    let Some(home) = std::env::var_os("HOME") else {
+        return ZJJRM_SESSION_ABSENT.to_string();
+    };
+    let dir = PathBuf::from(home).join(".claude").join("sessions");
+    let Ok(entries) = std::fs::read_dir(&dir) else {
+        return ZJJRM_SESSION_ABSENT.to_string();
+    };
+    let cwd_str = cwd.to_string_lossy();
+    let mut candidates: Vec<zjjrm_ProcEntry> = Vec::new();
     for entry in entries.flatten() {
-        let name = entry.file_name();
-        let name_str = name.to_string_lossy();
-        let Some(uuid) = name_str.strip_suffix(".jsonl") else { continue };
-        let Ok(metadata) = entry.metadata() else { continue };
-        let Ok(mtime) = metadata.modified() else { continue };
-        candidates.push((mtime, uuid.to_string()));
+        let path = entry.path();
+        if path.extension().and_then(|e| e.to_str()) != Some("json") {
+            continue;
+        }
+        let Ok(bytes) = std::fs::read(&path) else { continue };
+        let Ok(value) = serde_json::from_slice::<serde_json::Value>(&bytes) else {
+            continue;
+        };
+        let (Some(session_id), Some(entry_cwd)) = (
+            value.get("sessionId").and_then(|v| v.as_str()),
+            value.get("cwd").and_then(|v| v.as_str()),
+        ) else {
+            continue;
+        };
+        if entry_cwd != cwd_str {
+            continue;
+        }
+        candidates.push(zjjrm_ProcEntry {
+            session_id: session_id.to_string(),
+            busy: value.get("status").and_then(|v| v.as_str()) == Some("busy"),
+            updated_at: value.get("updatedAt").and_then(|v| v.as_u64()).unwrap_or(0),
+        });
     }
+    zjjrm_procmap_select(candidates)
+}
 
-    if candidates.is_empty() {
-        return Err(format!(
-            "No transcripts under {}",
-            projects_dir.display()
-        ));
-    }
+/// `session-envdir` channel: newest entry under `~/.claude/session-env/`
+/// (a UUID-named directory). `-` when absent.
+fn zjjrm_session_envdir() -> String {
+    let Some(home) = std::env::var_os("HOME") else {
+        return ZJJRM_SESSION_ABSENT.to_string();
+    };
+    let dir = PathBuf::from(home).join(".claude").join("session-env");
+    zjjrm_newest_or_absent(zjjrm_entries_by_mtime(&dir, |name, meta| {
+        meta.is_dir().then(|| name.to_string())
+    }))
+}
 
-    candidates.sort_by(|a, b| b.0.cmp(&a.0));
+/// `session-subdir` channel: newest UUID-named subdirectory under the cwd
+/// transcript dir (the per-session subagents tree). `-` when absent.
+fn zjjrm_session_subdir(cwd: &Path) -> String {
+    let Some(home) = std::env::var_os("HOME") else {
+        return ZJJRM_SESSION_ABSENT.to_string();
+    };
+    let dir = PathBuf::from(home)
+        .join(".claude")
+        .join("projects")
+        .join(zjjrm_encode_cwd(cwd));
+    zjjrm_newest_or_absent(zjjrm_entries_by_mtime(&dir, |name, meta| {
+        meta.is_dir().then(|| name.to_string())
+    }))
+}
 
-    if candidates.len() >= 2 && candidates[0].0 == candidates[1].0 {
-        return Err(format!(
-            "mtime tie between transcripts under {} — cannot disambiguate session",
-            projects_dir.display()
-        ));
-    }
-
-    Ok(candidates.swap_remove(0).1)
+/// Capture the session-recall survey for `cwd`: an ordered list of (label, value)
+/// pairs written verbatim into the invitatory body. Each value is a captured UUID,
+/// `-` when the channel is absent, or `(ambiguous)` when it cannot disambiguate.
+/// The Claude Code session UUID is an uncontrolled foreign signal exposed through
+/// several undocumented, drift-prone channels; this records all of them side by
+/// side as a redundancy survey — no channel can abort the open.
+fn zjjrm_session_survey(cwd: &Path) -> Vec<(&'static str, String)> {
+    vec![
+        ("session", zjjrm_session_mtime(cwd)),
+        ("session-env", zjjrm_session_env_var("CLAUDE_CODE_SESSION_ID")),
+        ("session-env-bare", zjjrm_session_env_var("CLAUDE_SESSION_ID")),
+        ("session-procmap", zjjrm_session_procmap(cwd)),
+        ("session-envdir", zjjrm_session_envdir()),
+        ("session-subdir", zjjrm_session_subdir(cwd)),
+    ]
 }
 
 /// iTerm window-reference scheme — the typed namespace under which an emblem
@@ -1087,7 +1205,7 @@ fn zjjrm_resolve_iterm_window_id(session_uuid: &str) -> Option<u32> {
 /// Fail-soft: an unset `ITERM_SESSION_ID` (not under iTerm), a malformed value,
 /// or an unresolvable window (osascript denied/failed) all fold to the same
 /// `None`, and the caller writes no emblem and skips silently. Sibling to
-/// `zjjrm_resolve_session_uuid` (the Claude Code session reader); the
+/// `zjjrm_session_survey` (the Claude Code session-recall reader); the
 /// env-read/parse/fallback idiom follows `jjrc_core`.
 pub fn jjrm_iterm_window_ref() -> Option<String> {
     let raw = std::env::var("ITERM_SESSION_ID").ok()?;
@@ -1717,11 +1835,14 @@ async fn zjjrm_handle_open(size_limit: u64) -> Result<CallToolResult, McpError> 
     // yet, so the label shows the bare officium handle until the first mount.
     zjjrm_refresh_emblem(&exchange, None);
 
-    // Resolve session UUID + cwd. Emitted on every invitatory body so the
-    // chat that produced this commit can be located (`git log --grep='session: '`)
-    // and resumed (`claude --resume <uuid>` from the recorded cwd).
-    // Failure here aborts jjx_open — silently emitting a stale or wrong UUID
-    // would poison the durable recall anchor.
+    // Session-recall survey + cwd. The Claude Code session UUID is an uncontrolled
+    // foreign signal exposed through several undocumented, drift-prone channels; the
+    // invitatory captures every known channel verbatim so the chat that produced this
+    // commit can be located (`git log --grep='session: '`) and resumed
+    // (`claude --resume <uuid>` from the recorded cwd). This is a redundancy survey,
+    // not a resolution — each channel records its value or a `-`/`(ambiguous)` sentinel,
+    // and capture never aborts the open. cwd is our own process state, so a current_dir
+    // failure (unlike a missing channel) still aborts.
     let cwd = match std::env::current_dir() {
         Ok(p) => p,
         Err(e) => {
@@ -1730,15 +1851,12 @@ async fn zjjrm_handle_open(size_limit: u64) -> Result<CallToolResult, McpError> 
             )]));
         }
     };
-    let session_uuid = match zjjrm_resolve_session_uuid(&cwd) {
-        Ok(uuid) => uuid,
-        Err(e) => {
-            return Ok(CallToolResult::error(vec![Content::text(
-                format!("{}: session UUID resolution failed: {}", cn, e),
-            )]));
-        }
-    };
-    let mut body = format!("session: {}\ncwd: {}", session_uuid, cwd.display());
+    let mut body = zjjrm_session_survey(&cwd)
+        .iter()
+        .map(|(label, value)| format!("{}: {}", label, value))
+        .collect::<Vec<_>>()
+        .join("\n");
+    body.push_str(&format!("\ncwd: {}", cwd.display()));
 
     // Daily probe: append model inventory if .probe_date doesn't match today
     let probe_date_path = officia.join(PROBE_DATE_FILE);

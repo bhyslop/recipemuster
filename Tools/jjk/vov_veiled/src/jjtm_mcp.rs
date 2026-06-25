@@ -16,7 +16,13 @@
 //! pure transform run inside the one shared dispatch/persist lifecycle (one
 //! machine_commit), already covered by the dispatch tests.
 
-use super::jjrm_mcp::{jjrm_resolve_batch_firemark, jjrm_apply_batch};
+use super::jjrm_mcp::{
+    jjrm_apply_batch,
+    jjrm_resolve_batch_firemark,
+    zjjrm_ProcEntry,
+    zjjrm_procmap_select,
+    ZJJRM_SESSION_ABSENT,
+};
 use super::jjrz_gazette::{jjrz_BatchInput, jjrz_parse_batch_input};
 use super::jjrg_gallops::{jjrg_Gallops, jjrg_Heat, jjrg_Pace, jjrg_Tack, jjrg_HeatStatus, jjrg_PaceState, JJRG_UNKNOWN_BASIS};
 use std::collections::BTreeMap;
@@ -121,4 +127,29 @@ fn jjtm_apply_batch_reslates_and_slates_in_file_order() {
     let s2 = &heat.paces.get(&heat.order[2]).unwrap().tacks.first().unwrap().silks;
     assert_eq!(s1, "yankee-pace");
     assert_eq!(s2, "bravo-pace");
+}
+
+// ===== session-procmap selection =====
+
+#[test]
+fn jjtm_procmap_select_prefers_busy_over_newer_idle() {
+    let picked = zjjrm_procmap_select(vec![
+        zjjrm_ProcEntry { session_id: "idle-new".to_string(), busy: false, updated_at: 200 },
+        zjjrm_ProcEntry { session_id: "busy-old".to_string(), busy: true, updated_at: 100 },
+    ]);
+    assert_eq!(picked, "busy-old");
+}
+
+#[test]
+fn jjtm_procmap_select_newest_among_busy() {
+    let picked = zjjrm_procmap_select(vec![
+        zjjrm_ProcEntry { session_id: "busy-old".to_string(), busy: true, updated_at: 100 },
+        zjjrm_ProcEntry { session_id: "busy-newer".to_string(), busy: true, updated_at: 300 },
+    ]);
+    assert_eq!(picked, "busy-newer");
+}
+
+#[test]
+fn jjtm_procmap_select_empty_is_absent() {
+    assert_eq!(zjjrm_procmap_select(Vec::new()), ZJJRM_SESSION_ABSENT);
 }
