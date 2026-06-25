@@ -16703,6 +16703,7 @@
         "₢BfAAT",
         "₢BfAAb",
         "₢BfAAI",
+        "₢BfAAr",
         "₢BfAAP",
         "₢BfAAN",
         "₢BfAAM",
@@ -16723,7 +16724,7 @@
         "₢BfAAm",
         "₢BfAAn"
       ],
-      "jjghn_next_pace_seed": "AAr",
+      "jjghn_next_pace_seed": "AAs",
       "jjghn_paces": {
         "₢BfAAA": {
           "jjgpn_tacks": [
@@ -17200,7 +17201,7 @@
         "₢BfAAP": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260625-1623",
+              "jjgtn_ts": "260625-1643",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "Build the minimal estate-secret stub — a self-labelled BCG module that sources-and-verifies the Keycloak signing key from the shelved interim station file, so the realm and orchestrator have a stable key to consume.",
@@ -17215,25 +17216,24 @@
                 "- is self-labelled as a stub: a header noting the full RBRS station regime is shelved for ₣BW, with a pointer to FUTURE/RBSRS.",
                 "Also: add the Keycloak field to the shelved FUTURE/RBSRS spec as an optional/future entry, give the live stub its own short contract, and repoint the dangling claude-rbk-acronyms.md RBSRS pointer to the FUTURE/ path (annotated shelved-for-₣BW), not deleted.",
                 "",
-                "## Producer gap (surfaced by the integrity audit — resolve before mount)",
-                "This stub VERIFIES the public half against \"the already-committed JWKS (the canonical reference)\" — but no committed fdkyclk JWKS exists in the tree today, and NO ₣Bf pace commits it.",
-                "₢BfAAN bakes it into the realm and ₢BfAAM uploads it — both are consumers; the original \"public JWKS committed\" producer step (config-model memo subdoc #3) was orphaned by the 260623 stable-key reversal and the 260624 stub-not-regime decision and never re-homed.",
-                "Resolve before mounting: either a predecessor commits the canonical public JWKS, or — crossing this pace's source-plus-verify cinch, so an OPERATOR call — this stub also commits it on first establish.",
-                "Until resolved the verify has no target: the absent→skip tolerance below covers a missing SECRET file, not a missing canonical JWKS.",
+                "## Producer — RESOLVED (260625, the integrity-audit gap closed)",
+                "The canonical public JWKS this stub verifies against is now produced by the estate-key genesis pace slated earlier in this heat: it generates the stable keypair once, fences the private half in the station file, and commits the public JWKS.",
+                "So this stub verifies against a real, committed artifact; its source-plus-verify cinch is intact — it does NOT produce or commit the JWKS.",
+                "(Before the genesis pace was slated, no ₣Bf pace produced this JWKS — the original producer step had been orphaned by the 260623 stable-key reversal and the 260624 stub-not-regime decision.)",
                 "",
                 "## Done when",
-                "The stub sources-and-verifies the one estate field (present → match-or-fail-loud; absent → skip), is self-labelled with the ₣BW-shelved pointer, the FUTURE/RBSRS spec carries the optional field, and the acronym pointer resolves; the canonical-JWKS producer gap above is resolved so the realm pace consumes a stable key from a JWKS that actually exists.",
+                "The stub sources-and-verifies the one estate field (present → match-or-fail-loud; absent → skip), is self-labelled with the ₣BW-shelved pointer, the FUTURE/RBSRS spec carries the optional field, and the acronym pointer resolves; it verifies against the canonical JWKS produced by the earlier estate-key genesis pace.",
                 "",
                 "## Cinched",
                 "NOT a station-regime reinstatement and NOT the Estate-concept nucleation — a single labelled stub; the full RBRS regime and any dedicated-estate-regime graduation defer with podman (₣BW).",
-                "Source-plus-verify ONLY (operator 260624) — no podman anticipation, no extra fields; whether this stub also COMMITS the canonical JWKS (the producer gap) is an explicit operator call, not assumed.",
+                "Source-plus-verify ONLY (operator 260624) — no podman anticipation, no extra fields; the canonical JWKS is produced by the separate earlier genesis pace, NOT this stub.",
                 "The private half is never committed; the match is always against the committed JWKS, never a cross-station secret comparison.",
                 "",
                 "## Character",
-                "Small BCG build over a settled design; sits before the realm/orchestrator paces that consume the stable key (the stub name is an in-pace hearting mint)."
+                "Small BCG build over a settled design; sits after the estate-key genesis pace (its producer) and before the realm/orchestrator paces that consume the stable key (the stub name is an in-pace hearting mint)."
               ],
               "jjgtn_silks": "estate-secret-verification",
-              "jjgtn_basis": "aa36cf1"
+              "jjgtn_basis": "fe2e9c4"
             }
           ]
         },
@@ -17647,6 +17647,39 @@
               ],
               "jjgtn_silks": "await-thg-registry-relocation",
               "jjgtn_basis": "aa36cf1"
+            }
+          ]
+        },
+        "₢BfAAr": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260625-1643",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Generate the stable Keycloak signing keypair once, fence its private half in the never-committed station file, and commit its public half as the canonical JWKS reference — the producer the estate-secret stub, the baked realm, and affiance all consume.",
+                "",
+                "## Why this pace exists",
+                "The 260623 stable-key decision and the 260624 stub-not-regime decision left a producer gap (surfaced by the heat-integrity audit): three paces reference \"the already-committed JWKS (the canonical reference)\" — the estate-secret stub verifies against it, the baked realm bakes it into its RFC 7523 trusted-key, affiance uploads it to the workforce provider — but no pace produces it. The original \"public JWKS committed\" step (config-model memo subdoc #3) was orphaned by those two decisions and never re-homed. This pace is that home.",
+                "",
+                "## Spec of needed change",
+                "The stable keypair is generated ONCE (no per-charge rotation, operator decision 260623):",
+                "- generate the keypair — the programmatic/caged path's root of trust for the Keycloak foedus;",
+                "- the PRIVATE half is operator-fenced: this pace provides the procedure that emits it for the operator to place in the never-committed station file (working name RBRS_ESTATE_KEYCLOAK_SECRET); the secret is never committed, mirroring the manor OAuth secret seam (public config commits, the one durable secret is operator-held);",
+                "- the PUBLIC half is committed as the canonical JWKS reference at the location the federation regime names — the artifact the stub matches against, the realm bakes, and affiance uploads.",
+                "",
+                "## Done when",
+                "The stable keypair is generated, the private-half placement procedure exists (operator runs the secret-fencing), and the public JWKS is committed as the canonical reference at the regime-named location — so the estate-secret stub, the baked realm, and affiance all have a real artifact to consume.",
+                "",
+                "## Cinched",
+                "Stable key, generated once — regenerate only on a deliberate rotation, never per charge (operator 260623).",
+                "The private half is NEVER committed (operator-fenced in the station file); only the public JWKS commits — the ships-committed-no-secrets seam.",
+                "This pace PRODUCES the canonical JWKS; the estate-secret stub later in this heat only sources-and-verifies against it, its source-plus-verify cinch intact.",
+                "",
+                "## Character",
+                "Thin establishment / bootstrap over a settled design (stable key, fenced private half); one-time keypair genesis, not recurring runtime. Needs the regime's JWKS-location contract (the spec recast) before it; sits before the stub/realm/affiance consumers."
+              ],
+              "jjgtn_silks": "keycloak-estate-key-genesis",
+              "jjgtn_basis": "fe2e9c4"
             }
           ]
         }
