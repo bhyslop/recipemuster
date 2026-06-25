@@ -13251,7 +13251,7 @@
         "₢BDAAj": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260625-0952",
+              "jjgtn_ts": "260625-1057",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "## Character",
@@ -13268,10 +13268,17 @@
                 "   on-demand display and a churn metric were both considered and rejected.",
                 "   ₢BcAAK now carries it — nothing left to scope here.",
                 "",
-                "2. Session-ID-in-commit (post haste — narrow, no other changes).",
-                "   Capture the Claude session id into the git commit for the officium,",
-                "   so we can start comparing sessions.",
-                "   Deliberately scoped to that single change and nothing else.",
+                "2. Session-ID-in-commit (post haste — narrow, no other changes). — RESOLVED, graduated into ₢BDAAk.",
+                "   Explored and delivered 2026-06-25, expanded past that original narrow scope.",
+                "   The invitatory now captures a six-channel session-recall survey —",
+                "   newest-mtime .jsonl guess, $CLAUDE_CODE_SESSION_ID, $CLAUDE_SESSION_ID,",
+                "   the sessions/<pid>.json process map, and the session-env/ and project subagent dirs —",
+                "   as additive session-* commit-body lines, record-only with -/(ambiguous) sentinels;",
+                "   the former fail-loud mtime resolution was relaxed so capture never aborts the open.",
+                "   Spec (JJS0) plus impl (jjrm_mcp), build/suite/unit green and live-tested:",
+                "   the first live commit already caught one recency channel binding a different session,",
+                "   exactly the redundancy the survey exists to retrospect.",
+                "   ₢BDAAk carries it — nothing left to scope here.",
                 "",
                 "3. 'Prospective feature' concept.",
                 "   Build out a first-class 'prospective feature' notion.",
@@ -13312,7 +13319,7 @@
                 "or explicitly declined; this capture pace is then wrapped."
               ],
               "jjgtn_silks": "explore-and-expand-capture-and-display-musings",
-              "jjgtn_basis": "f204f21"
+              "jjgtn_basis": "b5f3985"
             }
           ]
         },
