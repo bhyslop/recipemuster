@@ -18988,12 +18988,13 @@
         "₢BlAAK",
         "₢BlAAL",
         "₢BlAAM",
+        "₢BlAAT",
         "₢BlAAN",
         "₢BlAAS",
         "₢BlAAO",
         "₢BlAAP"
       ],
-      "jjghn_next_pace_seed": "AAT",
+      "jjghn_next_pace_seed": "AAU",
       "jjghn_paces": {
         "₢BlAAA": {
           "jjgpn_tacks": [
@@ -19502,6 +19503,36 @@
               ],
               "jjgtn_silks": "await-fed-rbs0-block",
               "jjgtn_basis": "c01c300"
+            }
+          ]
+        },
+        "₢BlAAT": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260625-1650",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Revive rbq_qualify's dead colophon-freshness check — it currently validates ZERO tabtargets, so an unregistered or stale colophon passes qualify silently.",
+                "",
+                "## Why this pace exists",
+                "The heat-integrity audit observed that rbq_qualify's tabtarget/colophon-freshness check is a no-op: live qualify logs \"Checked 0 RBW tabtargets.\" That check is meant to catch a tabtarget whose colophon (parsed from its filename) is unregistered in the zipper or stale against the regenerated context — exactly the failure mode the colophon-relocation pace's renames could introduce. With the count at zero, that safety net is silently down, which is why the colophon-relocation docket currently has to say \"verify by dispatch, not by qualify.\" This pace restores the net.",
+                "",
+                "## Spec of needed change",
+                "Re-derive the cause from the live rbq_qualify.sh scan — the audit's suspected cause is a launcher-path-match bug (the scan's tt/ discovery or its launcher-path predicate matching nothing), but confirm it against the code rather than trusting the diagnosis.",
+                "Repair the scan so it enumerates the real tt/ tabtarget population and checks each one's colophon against the zipper registry (the rbz-derived rbtdgc consts / tabtarget-context), failing loud on an unregistered or stale colophon.",
+                "",
+                "## Done when",
+                "rbq_qualify's colophon-freshness check enumerates the real tt/ tabtarget population (not zero); a deliberately-mis-registered tabtarget is CAUGHT (prove the net actually fires, do not just assert a nonzero count); rbw-tl / rbw-tr qualify green on the clean tree.",
+                "",
+                "## Cinched",
+                "Standalone qualify-infrastructure repair surfaced by the integrity audit — NOT part of the theurge-crate refactor or the zipper relocation, but homed here because the colophon check ties qualify to the zipper trio this heat owns.",
+                "Sits before the colophon-relocation pace so that relocation's tabtarget renames regain a working qualify net — the relocation does not HARD-depend on it (it can verify by dispatch), but a live check is the right safety net for it.",
+                "",
+                "## Character",
+                "Investigation-then-mechanical: confirm the zero-count cause from the live scan, repair the match, prove the net fires. Independent of the crucible / zipper refactor work."
+              ],
+              "jjgtn_silks": "qualify-colophon-check-revive",
+              "jjgtn_basis": "65665bf"
             }
           ]
         }
