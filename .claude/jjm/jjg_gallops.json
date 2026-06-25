@@ -13251,7 +13251,7 @@
         "₢BDAAj": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260625-1057",
+              "jjgtn_ts": "260625-1115",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "## Character",
@@ -13289,14 +13289,18 @@
                 "   Scrub up a voicing-level declaration for a 'non-normative subdocument',",
                 "   used only to replace current heat-paddock musing ideas.",
                 "",
-                "5. Groom-by-commit-hash.",
-                "   A groom option that takes a git commit hash,",
-                "   so ancient Job Jockey state can be easily interrogated.",
+                "5. Groom-by-commit-hash. — RESOLVED, delivered in-pace as the hark retrospective groom.",
+                "   Landed 2026-06-25 (commit c475c692a, affiliated to this pace, not a separate one).",
+                "   jjx_show gained hark — a git revision — backed by jjdr_hark / jjri_show_blob",
+                "   (git show <rev>:<path>), an AS-OF banner, the jjda_hark quoin, and a JSCPD amendment.",
+                "   Ancient Job Jockey state can now be interrogated by commit hash — nothing left to scope here.",
                 "",
-                "6. Immutable class objects for firemark and coronet.",
-                "   Develop an immutable class object for each of firemark and coronet.",
-                "   Consolidating their display code flows from this — one typed home per identity —",
-                "   in preparation for the 'post-global-database' refactor toward immutable coronets.",
+                "6. Immutable class objects for firemark and coronet. — OPEN, rescoped: the typed homes already exist.",
+                "   jjrf_favor.rs already defines jjrf_Firemark / jjrf_Coronet with encode/decode/parse/display,",
+                "   so \"develop a class object\" is effectively done.",
+                "   The remaining, narrower work: make them genuinely immutable",
+                "   (the inner field is presently pub String) and consolidate the scattered ₣/₢ display code",
+                "   through jjrf_display — in preparation for the 'post-global-database' refactor toward immutable coronets.",
                 "",
                 "7. Track pre/post-rebase commits for recovering passing scenarios.",
                 "   Think through whether the independent Job Jockey database can/should track the",
@@ -13319,7 +13323,7 @@
                 "or explicitly declined; this capture pace is then wrapped."
               ],
               "jjgtn_silks": "explore-and-expand-capture-and-display-musings",
-              "jjgtn_basis": "b5f3985"
+              "jjgtn_basis": "f694c80"
             }
           ]
         },
