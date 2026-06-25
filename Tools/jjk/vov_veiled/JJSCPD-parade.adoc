@@ -7,7 +7,7 @@ Output varies by target type.
 
 *Invocation:*
 ----
-vvx jjx_show [--detail] [--remaining]
+vvx jjx_show [--detail] [--remaining] [--hark <rev>]
 ----
 Targets are not parameters — they are supplied via {jjezs_halter} notices in `gazette_in.md`.
 
@@ -30,6 +30,12 @@ A `targets` or `firemark` parameter is rejected, not honored — the forced gaze
 {jjdpe_complete}
 and
 {jjdpe_abandoned})
+
+//axd_optional
+* {jjda_hark} `<rev>` — Hark back: render the heat or pace as of a prior git revision (read-only,
+via {jjdr_hark}), output stamped `AS OF <rev>`.
+Presence flips show into hark mode; absent, show reads the working tree as usual.
+{jjdo_orient} (mount) never accepts it.
 
 
 {jjds_stdout} Human-readable text (not JSON).
@@ -204,3 +210,13 @@ extract parent
 .. Print pace header (silks, coronet, state, heat)
 .. Print docket text from the latest tack (storage `tacks[0]`, i.e. most recent) as plain text, without display index prefix
 .. After tack history, always append pace commits bitmap: query steeplechase entries for heat, filter by coronet, reverse for chronological order; run `git diff-tree` per commit to get work files (excluding `.claude/jjm/*`); group files by identical touch pattern; legend shows commit SHA and subject; column-header line above bitmap rows
+
+*Hark mode ({jjda_hark} present) — wraps the behavior above:*
+
+. Source the {jjdgr_gallops} and each targeted heat's paddock from the {jjda_hark} revision via
+{jjdr_hark} (both fetched at the same revision), in place of the working-tree {jjdgr_gallops} read
+and the per-heat paddock-file read.
+. Render exactly as above, with every view stamped `AS OF <rev>`.
+. Set no {jjdxw_emblem} identity and write nothing — a hark mutates nothing live.
+. On an unresolvable or too-old revision, surface {jjdr_hark}'s error verbatim and render nothing.
+. {jjdo_orient} never enters hark mode — a mount is always the latest state.

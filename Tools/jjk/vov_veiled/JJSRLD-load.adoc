@@ -54,3 +54,12 @@ This makes validation bypass architecturally impossible.
 The round-trip check (steps 4-5) ensures the file is in canonical form.
 It is skipped for old-format files to allow seamless migration.
 The semantic validation (steps 7-8) ensures business rules are satisfied.
+
+{jjdr_hark} is the read-only retrospective sibling: it obtains a
+{jjdgr_gallops}
+from a prior git revision (not the working tree), reusing this routine's deserialize,
+{jjdz_reprieve}
+correct, and semantic-validation steps — so validation stays unbypassable — while skipping the
+round-trip check unconditionally and never writing.
+See
+{jjdr_hark}.

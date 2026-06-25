@@ -11,6 +11,7 @@ A per-episode _registry_, one entry per tolerated old shape.
 
 A single read-only _probe_ — the sole definition of "what counts as old-format" — that reads a parsed {jjdgr_gallops} and its on-disk bytes and reports, per episode, whether that episode's old shape is present (_pending_) or absent (_dormant_).
 {jjdr_load} consults the probe to decide migration mode and keeps no second copy of the detection.
+{jjdr_hark} — the retrospective read — is the probe's second consumer: it runs the same probe and write-forward in-memory to render a prior-revision store, but never the save, so a hark persists no conversion (the read-only sibling of the never-persist-prematurely rule below).
 
 A _nag_ at {jjdo_open} that emits one status line per episode carrying the rivet token, so each install self-reports which tolerances are still load-bearing there.
 Each line is self-documenting: it states inline what its verdict means and the removal rule — _pending_: old shape still present here, tolerance load-bearing; _dormant_: store canonical here, episode removable once dormant on every clone — so a reader acts on it without opening code or spec.

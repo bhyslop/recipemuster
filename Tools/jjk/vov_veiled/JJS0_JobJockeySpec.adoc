@@ -164,6 +164,7 @@
 :jjda_tabtarget:      <<jjda_tabtarget,--tabtarget>>
 :jjda_commit:         <<jjda_commit,--commit>>
 :jjda_path:           <<jjda_path,--path>>
+:jjda_hark:           <<jjda_hark,--hark>>
 
 // Executor and transport
 :jjdx_vvx:      <<jjdx_vvx,vvx>>
@@ -266,6 +267,7 @@
 :jjdr_save:           <<jjdr_save,save routine>>
 :jjdr_persist:        <<jjdr_persist,persist routine>>
 :jjdr_wrap:           <<jjdr_wrap,wrap routine>>
+:jjdr_hark:           <<jjdr_hark,hark routine>>
 
 // Section headers
 :jjds_arguments:        <<jjds_arguments,Arguments:>>
@@ -841,6 +843,7 @@ Serialized cross-repo as the `pbge_emblem` grammar (paneboard PoC spec, _Emblem 
 The work identity an {jjdxw_emblem} shows is set by the {jjdxo_officium}'s mount and groom acts and held in officium-resident scratch, not re-derived at each paint.
 A mount ({jjdo_orient}) asserts its pace {jjdt_coronet} unconditionally — or the heat {jjdt_firemark} when the heat has no actionable pace.
 A groom ({jjdo_show}) sets that identity only when none is held, or a {jjdt_firemark} is — it never demotes a {jjdt_coronet} a mount has set.
+A hark ({jjdo_show} carrying {jjda_hark}) sets no identity at all — a retrospective read mutates nothing live, officium scratch included.
 So a {jjdt_coronet}, once shown this {jjdxo_officium}, holds for the officium's life: a transient groom of the surrounding heat cannot stamp the heat {jjdt_firemark} over the pace the operator is working.
 The scope is the {jjdxo_officium} itself — a fresh session re-decides on its first mount or groom.
 
@@ -1845,6 +1848,7 @@ Output always includes the prefix (`₣` or `₢`).
 The permanent mechanism by which {jjdr_load} tolerates an on-disk {jjdgr_gallops} written under an older schema, converging it forward on the next save rather than rejecting it — a temporary stay for the old shape, granted until every clone converges and then retired.
 Cited in shipped code by the opaque rivet token `JJr_a7c` — a rivet's identifier carries no meaning, unlike this quoin's readable name, so it leaks no semantics into the rust that ships without this veiled spec; one `grep JJr_a7c` returns this definition and every code and spec site the mechanism governs.
 This is the cited-constraint anchor pattern — one anchor, many citers — the RBr_ rivet doctrine made JJK-native; the {jjdo_open} nag emits the token beside a legible label, the census surface a jailer rivet rides on its phase announcement.
+The tolerance floor also bounds {jjdr_hark}: a retrospective hark reaches only as far back as the oldest live episode still deserializes, so retiring an episode recedes hark's horizon — an accepted, best-effort consequence, never itself a reason to hold an episode past its demolition condition.
 +
 Doctrine elaborated in subdocument:
 
@@ -1891,6 +1895,17 @@ Default: `.claude/jjm/jjg_gallops.json`.
 The {jjdx_mcp} resolves this path internally.
 {jjda_file} is not exposed as an {jjdx_tool} parameter.
 {jjdx_handler} functions accept the resolved path from the transport layer.
+
+[[jjda_hark]]
+//axa_keyword
+{jjda_hark}::
+Git revision to hark back to — any git-resolvable revision (full SHA, `HEAD~n`, tag, or branch).
+Optional parameter of {jjdo_show}; its presence flips show into *hark mode*, presenting the
+{jjdgr_gallops} and each targeted heat's paddock as of that revision (read-only, loaded via {jjdr_hark})
+rather than the working tree, with every view stamped `AS OF <rev>`.
+{jjdo_orient} never accepts it — a mount is always the latest state.
+A revision that does not resolve, or one too old for the {jjdz_reprieve} floor to read, surfaces the
+underlying error verbatim and renders nothing; the read mutates nothing live.
 
 [[jjda_silks]]
 //axl_voices axa_keyword
@@ -2116,6 +2131,31 @@ They encapsulate common logic for consistent behavior across the codebase.
 === {jjdr_load}
 
 include::JJSRLD-load.adoc[]
+
+[[jjdr_hark]]
+//axvo_procedure axd_internal
+=== {jjdr_hark}
+
+Load a {jjdgr_gallops} — and, for {jjdo_show} in hark mode, a heat paddock — from a prior git
+revision rather than the working-tree file, for read-only retrospective display.
+Named for the hunt's _hark back_: turning the line back to an earlier point.
+
+{jjdr_hark} shares {jjdr_load}'s deserialize, {jjdz_reprieve} probe + write-forward (in-memory),
+and semantic-validation steps, and differs in exactly three ways:
+
+. *Source.* Bytes come from `git show <rev>:<path>` for the {jjda_hark} revision — both the
+{jjdgr_gallops} and the paddock are fetched at the *same* revision — not from disk.
+. *No round-trip check.* The canonical-form round-trip ({jjdr_load} steps 4–5) is skipped
+unconditionally: the historical bytes are never re-saved, so canonical enforcement is meaningless.
+. *No write, ever.* {jjdr_hark} never saves and never commits.
+The in-memory write-forward is display-only — it honors the {jjdz_reprieve} rule that a conversion
+persists solely at the coordinated convergence, never as the side effect of a read.
+
+Reach is bounded by the {jjdz_reprieve} registry: a revision predating the oldest live episode
+fails to deserialize, and that failure *is* the "too old to hark" signal, surfaced verbatim.
+{jjdr_hark} mutates nothing live — no save, no commit, and the {jjdxw_emblem} identity is left untouched.
+
+{jjds_exit_uniform} 0 on a rendered revision; non-zero (surfaced verbatim) on an unresolvable or too-old revision.
 
 [[jjdr_save]]
 //axvo_procedure axd_internal
