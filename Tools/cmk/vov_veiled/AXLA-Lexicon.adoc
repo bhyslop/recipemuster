@@ -3486,9 +3486,10 @@ Seals a quoin as the identity of the
 that defines it.
 A
 {mcm_codex}
-catalogues a *self-naming quoin* in its own
-{mcm_mapping_section} —
-a quoin whose subject is the codex itself —
+catalogues in its own
+{mcm_mapping_section}
+an ordinary quoin whose subject is the codex itself —
+underscore-bearing and catalogued like any other, set apart only by what it names —
 and this voicing, placed at that quoin's
 {axl_definition_site},
 declares it the identity each
@@ -3509,7 +3510,7 @@ Reads one lookahead
 {mcm_attribute_reference} —
 the parent
 {mcm_codex_p}
-self-naming identity quoin, the one sealed by
+identity quoin, the one sealed by
 {axvd_codex} —
 which the
 {mcm_sheaf}
@@ -3534,21 +3535,22 @@ The two emplacements, by template:
 +
 [source,asciidoc]
 ----
-// at the head of the sheaf file (RBSLE-lode_ensconce.adoc):
+// at the head of the sheaf file («sheaf-filename»):
 //axvd_sheaf axd_aspirant
-{rbs0}
-= Lode Ensconce
+{«codex»_«ident»}
+= «Sheaf Title»
 ...sheaf content...
 ----
 +
 [source,asciidoc]
 ----
-// at the inclusion point, inside the codex (RBS0-SpecTop.adoc):
+// at the inclusion point, inside the codex («codex-filename»):
 //axvd_sheaf axd_aspirant
-include::RBSLE-lode_ensconce.adoc[]
+include::«sheaf-filename»[]
 ----
 +
-Here `{rbs0}` is the codex's self-naming identity quoin, sealed at its
+Here `{«codex»_«ident»}` stands for the codex's identity quoin — `«codex»` the codex's
+acronym, `«ident»` the identity word — an ordinary underscore-bearing quoin sealed at its
 {axl_definition_site}
 by
 {axvd_codex};

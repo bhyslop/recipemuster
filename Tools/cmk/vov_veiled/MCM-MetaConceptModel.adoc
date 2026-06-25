@@ -272,7 +272,7 @@ It is realized at the voicing layer:
 {axvd_codex}
 seals the
 {mcm_codex_p}
-self-naming identity quoin, and
+identity quoin, and
 {axvd_sheaf}
 reads that quoin as a lookahead — the mechanism and its templates live in AXLA.
 
