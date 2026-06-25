@@ -66,6 +66,8 @@ mod rbtdth_helpers;
 #[cfg(test)]
 mod rbtdtb_probe;
 #[cfg(test)]
+mod rbtdtc_crucible;
+#[cfg(test)]
 mod rbtdte_engine;
 #[cfg(test)]
 mod rbtdti_invocation;

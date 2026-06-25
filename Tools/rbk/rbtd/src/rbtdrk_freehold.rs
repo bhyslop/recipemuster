@@ -34,17 +34,25 @@
 
 use std::path::{Path, PathBuf};
 
-use crate::rbtdre_engine::{rbtdre_commit_regime, rbtdre_RegimeFile};
+use crate::rbtdre_engine::{
+    rbtdre_commit_regime,
+    rbtdre_RegimeFile,
+    rbtdre_Verdict,
+};
 use crate::rbtdrx_platform::rbtdrx_path_from_env;
 use crate::rbtdri_invocation::{
+    RBTDRI_BURE_CONFIRM_KEY,
+    RBTDRI_BURE_CONFIRM_SKIP,
     RBTDRI_BURV_OUTPUT_SUBDIR,
     rbtdri_Context,
     rbtdri_InvokeResult,
     rbtdri_invoke_global,
 };
 use crate::rbtdgc_consts::{
+    RBTDGC_LIST_DEPOT,
     RBTDGC_RBRD_FILE,
     RBTDGC_RBRR_FILE,
+    RBTDGC_UNMAKE_DEPOT,
 };
 
 // ── Freehold-scheme identities ───────────────────────────────
@@ -252,6 +260,36 @@ pub(crate) fn rbtdrk_cloud_prefix_subdir(root: &Path) -> Result<String, String> 
     Ok(cloud_prefix.trim_end_matches('-').to_string())
 }
 
+/// Parent directory of the depot fact files a `rbgp_depot_list` invocation
+/// emits: `<burv_output>/<RBTDRI_BURV_OUTPUT_SUBDIR>/<prefix_dir>`. The
+/// cloud_prefix subdir (`rbtdrk_cloud_prefix_subdir`) is what keeps same-moniker
+/// depots under different cloud_prefixes from colliding. `pick_next_moniker`
+/// `read_dir`s this directory; `rbtdrk_depot_fact_path` joins one leaf onto it.
+pub(crate) fn rbtdrk_depot_fact_dir(
+    list_result: &rbtdri_InvokeResult,
+    prefix_dir: &str,
+) -> PathBuf {
+    list_result
+        .burv_output
+        .join(RBTDRI_BURV_OUTPUT_SUBDIR)
+        .join(prefix_dir)
+}
+
+/// One depot fact file: `<fact_dir>/<moniker>.<ext>` — the state fact
+/// (`RBTDRK_FACT_EXT_DEPOT`) or the project-id fact
+/// (`RBTDRK_FACT_EXT_DEPOT_PROJECT`). Built on `rbtdrk_depot_fact_dir` so the
+/// layout lives in one place. These facts sit one dir deeper than
+/// `rbtdri_read_burv_fact`'s prefix-less layout, so this prefixed builder is a
+/// genuine analogue, not a re-duplication.
+pub(crate) fn rbtdrk_depot_fact_path(
+    list_result: &rbtdri_InvokeResult,
+    prefix_dir: &str,
+    moniker: &str,
+    ext: &str,
+) -> PathBuf {
+    rbtdrk_depot_fact_dir(list_result, prefix_dir).join(format!("{}.{}", moniker, ext))
+}
+
 /// Pick the next free moniker for `family_stem` by walking the depot_list
 /// invocation's BURV output dir for `<family>NNNNNN.depot` files under the
 /// current cloud_prefix subdir. Returns
@@ -274,10 +312,7 @@ pub(crate) fn rbtdrk_pick_next_moniker(
     family_stem: &str,
 ) -> Result<String, String> {
     let prefix_dir = rbtdrk_cloud_prefix_subdir(root)?;
-    let dir = list_result
-        .burv_output
-        .join(RBTDRI_BURV_OUTPUT_SUBDIR)
-        .join(&prefix_dir);
+    let dir = rbtdrk_depot_fact_dir(list_result, &prefix_dir);
     let entries = match std::fs::read_dir(&dir) {
         Ok(e) => e,
         Err(_) => {
@@ -369,4 +404,172 @@ pub(crate) fn rbtdrk_probe_freehold_moniker() -> Result<(), String> {
         ));
     }
     Ok(())
+}
+
+// ── Shared wrapper spines ────────────────────────────────────
+//
+// The two depot wrappers — REUSE (freehold-ensure) and LIFECYCLE (depot
+// stand-up + tear-down) — are near-clones with two load-bearing differences
+// that must stay at the call site: the reuse-vs-create branch IS the wrapper's
+// instance selection, and the post-unmake assertion is STRUCTURALLY INVERTED
+// between tear-down and churn (see the unmake preamble below). These helpers
+// lift only the byte-identical spines the two share, never the differences.
+
+/// Cross-check the depot's actual project_id — read from the `<moniker>` depot-
+/// project fact in `fact_list`'s BURV output — against the RBDC compose
+/// derivation, writing the captured id to `dir/project-id.txt` for diagnostics.
+/// Returns `Some(Fail)` on any divergence (missing/empty fact or compose
+/// mismatch), `None` when they agree.
+///
+/// This is the ONLY byte-identical block shared by freehold-ensure (reuse path)
+/// and depot stand-up (lifecycle): the cross-check TAIL. The reuse-vs-create
+/// branch that selects which `InvokeResult` supplies `fact_list` stays at the
+/// call site — that selection is the wrapper's instance choice, not part of the
+/// shared spine.
+pub(crate) fn rbtdrk_crosscheck_project_id(
+    root: &Path,
+    fact_list: &rbtdri_InvokeResult,
+    prefix_dir: &str,
+    moniker: &str,
+    dir: &Path,
+) -> Option<rbtdre_Verdict> {
+    let fact_path =
+        rbtdrk_depot_fact_path(fact_list, prefix_dir, moniker, RBTDRK_FACT_EXT_DEPOT_PROJECT);
+    let fact_project_id = match std::fs::read_to_string(&fact_path) {
+        Ok(s) => s.trim().to_string(),
+        Err(e) => {
+            return Some(rbtdre_Verdict::Fail(format!(
+                "read depot-project fact '{}': {}",
+                fact_path.display(),
+                e
+            )))
+        }
+    };
+    if fact_project_id.is_empty() {
+        return Some(rbtdre_Verdict::Fail(format!(
+            "depot-project fact is empty: {}",
+            fact_path.display()
+        )));
+    }
+    let _ = std::fs::write(dir.join("project-id.txt"), &fact_project_id);
+
+    let composed = match rbtdrk_compose_project_id(root, moniker) {
+        Ok(p) => p,
+        Err(e) => return Some(rbtdre_Verdict::Fail(format!("compose project_id: {}", e))),
+    };
+    if composed != fact_project_id {
+        return Some(rbtdre_Verdict::Fail(format!(
+            "project_id mismatch: RBDC compose='{}' vs depot-list fact='{}' \
+             (RBDC kindle derivation diverged from payor creation)",
+            composed, fact_project_id
+        )));
+    }
+    None
+}
+
+/// Per-call-site forensic labels the shared unmake preamble interpolates. Each
+/// is a low-stakes diagnostic string the spec keeps call-site-owned, so
+/// tear-down and churn retain their distinct failure-attribution and trace
+/// artifacts.
+pub(crate) struct rbtdrk_UnmakeSpec<'a> {
+    /// Fail message when RBRD_DEPOT_MONIKER is blank (no depot to unmake).
+    pub(crate) blank_moniker_msg: &'a str,
+    /// Trace filename the composed project_id is written to in `dir`.
+    pub(crate) project_id_filename: &'a str,
+    /// Placeholder moniker rotated into RBRD so the unmake's live-disqualify
+    /// guard releases the real project.
+    pub(crate) placeholder_moniker: &'a str,
+    /// Invocation label for the unmake call's stdout/stderr capture files.
+    pub(crate) unmake_label: &'a str,
+}
+
+/// What the unmake preamble hands its caller's post-unmake assertion: the
+/// resolved state-fact path plus the identifiers the assertion's Fail message
+/// interpolates.
+pub(crate) struct rbtdrk_UnmakeOutcome {
+    pub(crate) state_fact: PathBuf,
+    pub(crate) moniker: String,
+    pub(crate) project_id: String,
+}
+
+/// The shared preamble of the two depot teardowns — tear-down (lifecycle) and
+/// churn — up to the moment the post-unmake state fact is resolved: read the
+/// moniker, compose the project_id, record it, rotate the moniker to the spec's
+/// placeholder so `rbgp_depot_unmake`'s live-disqualify guard lets the unmake
+/// through, unmake (confirm skipped via the test seam), re-list, and resolve the
+/// churned moniker's state fact. Returns `Err(Fail)` to short-circuit, else the
+/// `rbtdrk_UnmakeOutcome` the caller's assertion needs.
+///
+/// The caller then applies its OWN post-unmake assertion. Those two assertions
+/// are STRUCTURALLY INVERTED — tear-down is a fail-closed allowlist (only
+/// absent / DELETE_REQUESTED pass), churn is a fail-open denylist (anything but
+/// COMPLETE passes) — and are deliberately NOT merged: a finite allowlist cannot
+/// express churn's "complement of {COMPLETE}", and a wrong fold here would
+/// silently lose the create→destroy-proof coverage tear-down's allowlist carries.
+pub(crate) fn rbtdrk_unmake_preamble(
+    ctx: &mut rbtdri_Context,
+    dir: &Path,
+    spec: &rbtdrk_UnmakeSpec,
+) -> Result<rbtdrk_UnmakeOutcome, rbtdre_Verdict> {
+    let root = ctx.project_root().to_path_buf();
+    let rbrd = root.join(RBTDGC_RBRD_FILE);
+
+    let moniker = match rbtdrk_read_env_value(&rbrd, RBTDRK_FIELD_RBRD_DEPOT_MONIKER) {
+        Some(m) if !m.is_empty() => m,
+        _ => return Err(rbtdre_Verdict::Fail(spec.blank_moniker_msg.to_string())),
+    };
+
+    let project_id = match rbtdrk_compose_project_id(&root, &moniker) {
+        Ok(p) => p,
+        Err(e) => return Err(rbtdre_Verdict::Fail(format!("compose project_id: {}", e))),
+    };
+    let _ = std::fs::write(dir.join(spec.project_id_filename), &project_id);
+
+    if let Err(e) = rbtdrk_install_depot_moniker(&root, spec.placeholder_moniker) {
+        return Err(rbtdre_Verdict::Fail(format!(
+            "rotate moniker before unmake: {}",
+            e
+        )));
+    }
+
+    let unmake = match rbtdrk_invoke_logged(
+        ctx,
+        RBTDGC_UNMAKE_DEPOT,
+        &[&project_id],
+        &[(RBTDRI_BURE_CONFIRM_KEY, RBTDRI_BURE_CONFIRM_SKIP)],
+        dir,
+        spec.unmake_label,
+    ) {
+        Ok(r) => r,
+        Err(e) => return Err(rbtdre_Verdict::Fail(format!("depot unmake: {}", e))),
+    };
+    if unmake.exit_code != 0 {
+        return Err(rbtdre_Verdict::Fail(format!(
+            "depot unmake exit {}\n{}",
+            unmake.exit_code, unmake.stderr
+        )));
+    }
+
+    let list_after = match rbtdrk_invoke_logged(ctx, RBTDGC_LIST_DEPOT, &[], &[], dir, "list-after") {
+        Ok(r) if r.exit_code == 0 => r,
+        Ok(r) => {
+            return Err(rbtdre_Verdict::Fail(format!(
+                "depot list (after unmake) exit {}\n{}",
+                r.exit_code, r.stderr
+            )))
+        }
+        Err(e) => return Err(rbtdre_Verdict::Fail(format!("depot list (after unmake): {}", e))),
+    };
+
+    let prefix_dir = match rbtdrk_cloud_prefix_subdir(&root) {
+        Ok(p) => p,
+        Err(e) => return Err(rbtdre_Verdict::Fail(format!("resolve cloud_prefix subdir: {}", e))),
+    };
+    let state_fact = rbtdrk_depot_fact_path(&list_after, &prefix_dir, &moniker, RBTDRK_FACT_EXT_DEPOT);
+
+    Ok(rbtdrk_UnmakeOutcome {
+        state_fact,
+        moniker,
+        project_id,
+    })
 }

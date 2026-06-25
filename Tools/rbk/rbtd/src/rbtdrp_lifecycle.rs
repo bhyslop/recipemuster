@@ -37,19 +37,32 @@ use crate::rbtdrc_crucible::rbtdrc_with_ctx;
 use crate::rbtdre_engine::{rbtdre_Case, rbtdre_Disposition, rbtdre_Fixture, rbtdre_Verdict};
 use crate::rbtdri_invocation::{
     rbtdri_Context,
-    RBTDRI_BURE_CONFIRM_KEY, RBTDRI_BURE_CONFIRM_SKIP, RBTDRI_BURV_OUTPUT_SUBDIR,
+    RBTDRI_BURE_CONFIRM_KEY,
+    RBTDRI_BURE_CONFIRM_SKIP,
 };
 use crate::rbtdgc_consts::{
-    RBTDGC_LEVY_DEPOT, RBTDGC_LIST_DEPOT, RBTDGC_RBRD_FILE, RBTDGC_UNMAKE_DEPOT,
+    RBTDGC_LEVY_DEPOT,
+    RBTDGC_LIST_DEPOT,
+    RBTDGC_RBRD_FILE,
+    RBTDGC_UNMAKE_DEPOT,
 };
 use crate::rbtdrm_manifest::RBTDRM_FIXTURE_DEPOT_LIFECYCLE;
 use crate::rbtdrp_attest::rbtdrp_marshal_zero_attestation;
 use crate::rbtdrk_freehold::{
-    rbtdrk_burs_tincture, rbtdrk_cloud_prefix_subdir, rbtdrk_compose_project_id,
-    rbtdrk_family_stem, rbtdrk_install_depot_moniker,
-    rbtdrk_install_freehold_prefixes, rbtdrk_invoke_logged, rbtdrk_pick_next_moniker,
-    rbtdrk_read_env_value, RBTDRK_FACT_EXT_DEPOT, RBTDRK_FACT_EXT_DEPOT_PROJECT,
-    RBTDRK_FIELD_RBRD_CLOUD_PREFIX, RBTDRK_FIELD_RBRD_DEPOT_MONIKER,
+    rbtdrk_burs_tincture,
+    rbtdrk_cloud_prefix_subdir,
+    rbtdrk_compose_project_id,
+    rbtdrk_crosscheck_project_id,
+    rbtdrk_family_stem,
+    rbtdrk_install_depot_moniker,
+    rbtdrk_install_freehold_prefixes,
+    rbtdrk_invoke_logged,
+    rbtdrk_pick_next_moniker,
+    rbtdrk_read_env_value,
+    rbtdrk_unmake_preamble,
+    rbtdrk_UnmakeSpec,
+    RBTDRK_FIELD_RBRD_CLOUD_PREFIX,
+    RBTDRK_FIELD_RBRD_DEPOT_MONIKER,
 };
 
 /// Placeholder moniker installed by tear_down before invoking rbw-dU. With the
@@ -188,39 +201,10 @@ fn rbtdrp_depot_stand_up_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_Ve
         Ok(p) => p,
         Err(e) => return rbtdre_Verdict::Fail(format!("resolve cloud_prefix subdir: {}", e)),
     };
-    let fact_path = list_present
-        .burv_output
-        .join(RBTDRI_BURV_OUTPUT_SUBDIR)
-        .join(&prefix_dir)
-        .join(format!("{}.{}", moniker, RBTDRK_FACT_EXT_DEPOT_PROJECT));
-    let fact_project_id = match std::fs::read_to_string(&fact_path) {
-        Ok(s) => s.trim().to_string(),
-        Err(e) => {
-            return rbtdre_Verdict::Fail(format!(
-                "read depot-project fact '{}': {}",
-                fact_path.display(),
-                e
-            ))
-        }
-    };
-    if fact_project_id.is_empty() {
-        return rbtdre_Verdict::Fail(format!(
-            "depot-project fact is empty: {}",
-            fact_path.display()
-        ));
-    }
-    let _ = std::fs::write(dir.join("project-id.txt"), &fact_project_id);
-
-    let composed_project_id = match rbtdrk_compose_project_id(&root, &moniker) {
-        Ok(p) => p,
-        Err(e) => return rbtdre_Verdict::Fail(format!("compose project_id: {}", e)),
-    };
-    if composed_project_id != fact_project_id {
-        return rbtdre_Verdict::Fail(format!(
-            "project_id mismatch: RBDC compose='{}' vs depot-list fact='{}' \
-             (RBDC kindle derivation diverged from payor creation)",
-            composed_project_id, fact_project_id
-        ));
+    if let Some(verdict) =
+        rbtdrk_crosscheck_project_id(&root, &list_present, &prefix_dir, &moniker, dir)
+    {
+        return verdict;
     }
 
     rbtdre_Verdict::Pass
@@ -322,88 +306,36 @@ fn rbtdrp_depot_tear_down(dir: &Path) -> rbtdre_Verdict {
 }
 
 fn rbtdrp_depot_tear_down_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_Verdict {
-    let root = ctx.project_root().to_path_buf();
-
-    let rbrd = root.join(RBTDGC_RBRD_FILE);
-    let moniker = match rbtdrk_read_env_value(&rbrd, RBTDRK_FIELD_RBRD_DEPOT_MONIKER) {
-        Some(m) if !m.is_empty() => m,
-        _ => {
-            return rbtdre_Verdict::Fail(
-                "stand-up did not run or rbrd.env is missing the moniker \
-                 (RBRD_DEPOT_MONIKER is blank)"
-                    .to_string(),
-            )
-        }
-    };
-
-    let project_id = match rbtdrk_compose_project_id(&root, &moniker) {
-        Ok(p) => p,
-        Err(e) => return rbtdre_Verdict::Fail(format!("compose project_id: {}", e)),
-    };
-    let _ = std::fs::write(dir.join("project-id.txt"), &project_id);
-
-    if let Err(e) =
-        rbtdrk_install_depot_moniker(&root, RBTDRP_TEAR_DOWN_PLACEHOLDER_MONIKER)
-    {
-        return rbtdre_Verdict::Fail(format!("rotate moniker before unmake: {}", e));
-    }
-
-    let unmake = match rbtdrk_invoke_logged(
+    let outcome = match rbtdrk_unmake_preamble(
         ctx,
-        RBTDGC_UNMAKE_DEPOT,
-        &[&project_id],
-        &[(RBTDRI_BURE_CONFIRM_KEY, RBTDRI_BURE_CONFIRM_SKIP)],
         dir,
-        "unmake",
+        &rbtdrk_UnmakeSpec {
+            blank_moniker_msg: "stand-up did not run or rbrd.env is missing the moniker \
+                                (RBRD_DEPOT_MONIKER is blank)",
+            project_id_filename: "project-id.txt",
+            placeholder_moniker: RBTDRP_TEAR_DOWN_PLACEHOLDER_MONIKER,
+            unmake_label: "unmake",
+        },
     ) {
-        Ok(r) => r,
-        Err(e) => return rbtdre_Verdict::Fail(format!("depot unmake: {}", e)),
+        Ok(o) => o,
+        Err(v) => return v,
     };
-    if unmake.exit_code != 0 {
-        return rbtdre_Verdict::Fail(format!(
-            "depot unmake exit {}\n{}",
-            unmake.exit_code, unmake.stderr
-        ));
-    }
 
-    let list_after = match rbtdrk_invoke_logged(
-        ctx,
-        RBTDGC_LIST_DEPOT,
-        &[],
-        &[],
-        dir,
-        "list-after",
-    ) {
-        Ok(r) => r,
-        Err(e) => return rbtdre_Verdict::Fail(format!("depot list (after unmake): {}", e)),
-    };
-    if list_after.exit_code != 0 {
-        return rbtdre_Verdict::Fail(format!(
-            "depot list (after unmake) exit {}\n{}",
-            list_after.exit_code, list_after.stderr
-        ));
-    }
-
-    let prefix_dir = match rbtdrk_cloud_prefix_subdir(&root) {
-        Ok(p) => p,
-        Err(e) => return rbtdre_Verdict::Fail(format!("resolve cloud_prefix subdir: {}", e)),
-    };
-    let depot_fact_path = list_after
-        .burv_output
-        .join(RBTDRI_BURV_OUTPUT_SUBDIR)
-        .join(&prefix_dir)
-        .join(format!("{}.{}", moniker, RBTDRK_FACT_EXT_DEPOT));
-
-    if !depot_fact_path.exists() {
+    // Post-unmake assertion — tear-down is a fail-CLOSED allowlist: ONLY an
+    // absent fact or DELETE_REQUESTED passes; every other state — including an
+    // unreadable fact — fails. This strict allowlist IS the gauntlet's
+    // create→destroy proof, and its polarity is STRUCTURALLY INVERTED from
+    // churn's fail-open denylist; the two are deliberately not merged.
+    if !outcome.state_fact.exists() {
         return rbtdre_Verdict::Pass;
     }
 
-    let depot_state = match std::fs::read_to_string(&depot_fact_path) {
+    let depot_state = match std::fs::read_to_string(&outcome.state_fact) {
         Ok(s) => s.trim().to_string(),
         Err(e) => {
             return rbtdre_Verdict::Fail(format!(
                 "read depot fact '{}': {}",
-                depot_fact_path.display(),
+                outcome.state_fact.display(),
                 e
             ))
         }
@@ -416,7 +348,7 @@ fn rbtdrp_depot_tear_down_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_V
     rbtdre_Verdict::Fail(format!(
         "depot '{}' (project '{}') still present with unexpected state '{}' after unmake \
          (expected absent or '{}')",
-        moniker, project_id, depot_state, RBTDRP_DELETE_REQUESTED
+        outcome.moniker, outcome.project_id, depot_state, RBTDRP_DELETE_REQUESTED
     ))
 }
 
