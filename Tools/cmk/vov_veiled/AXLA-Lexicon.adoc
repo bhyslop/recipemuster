@@ -108,7 +108,6 @@
 :axd_informative:                     <<axd_informative,Informative>>
 :axd_notional:                        <<axd_notional,Notional>>
 :axd_aspirant:                        <<axd_aspirant,Aspirant>>
-:axd_provenance:                      <<axd_provenance,Provenance>>
 
 // Axial Format Terms
 :axf_bash:                            <<axf_bash,Bash Format>>
@@ -1787,9 +1786,7 @@ Exactly one is required on every
 voicing, and they are mutually exclusive;
 unmarked content reads as
 {axd_normative}.
-The first four mark current standing on a ladder of integrity;
-{axd_provenance}
-marks the backward-looking record.
+The four mark current standing on a ladder of integrity.
 Enforcement is grain-stratified: required at the
 {mcm_sheaf}
 grain, where the population is small and the stakes whole-document, and defaulted at finer grain.
@@ -1813,6 +1810,10 @@ Carrying no integrity promise at all — a notion, a sketch that may be wrong.
 The weakest standing; distinct from
 {axd_informative},
 which still holds itself true to the normative.
+"Notional" carries one gestalt across grains — *exists as a notion, not the binding thing* —
+shared with the
+{mcm_notional_snippet}
+(an illustrative exemplar): a content-status here, a snippet-kind there, one meaning.
 
 [[axd_aspirant]]
 {axd_aspirant}::
@@ -1833,13 +1834,6 @@ span merely sits;
 an
 {axd_aspirant}
 one strives.
-
-[[axd_provenance]]
-{axd_provenance}::
-A record of origin, never authority — how a thing came to be, not what currently binds.
-Backward-looking by construction, so it cannot masquerade as forward authority;
-it informs judgement without commanding it.
-The native status of a memo-class record.
 
 === Regime Dimensions
 
@@ -3472,11 +3466,11 @@ that consumes it.
 They make the file-composition tree, today implicit in include paths, explicit and machine-checkable:
 the
 {axvd_sheaf}
-voicing carries the
-{mcm_tendon}
-reference that a validator checks against the
-{mcm_codex}
-it names.
+voicing reads, as a lookahead, the identity quoin of the parent
+{mcm_codex},
+and a validator checks that binding — the
+{mcm_tendon} —
+against the codex that seals it.
 
 === Definition-Site Voicing Annotations (axvd_*)
 
@@ -3487,40 +3481,78 @@ The annotation line starts with `//axvd_` (no space after `//`), followed by the
 
 [[axvd_codex]]
 {axvd_codex}::
-Declares a file the
+Seals a quoin as the identity of the
 {mcm_codex}
-of a
-{mcm_concept_model} —
-the head that owns the
-{mcm_mapping_section}
-and lists its
-{mcm_sheaf_s}.
-Placed at the file head;
-declares the identity each
+that defines it.
+A
+{mcm_codex}
+catalogues a *self-naming quoin* in its own
+{mcm_mapping_section} —
+a quoin whose subject is the codex itself —
+and this voicing, placed at that quoin's
+{axl_definition_site},
+declares it the identity each
 {mcm_sheaf}
-names back through its
-{mcm_tendon}.
+names back.
+Arity-0: it seals the quoin it annotates and reads no lookahead, as
+{axvc_dictum}
+seals a
+{mcm_rivet}.
 
 [[axvd_sheaf]]
 {axvd_sheaf}::
-Declares a file a
+Declares a
 {mcm_sheaf}
-included into a named
+and binds it to its parent
 {mcm_codex}.
-Carries the
-{mcm_tendon}
-reference — the
-{mcm_codex}
-it names back — and exactly one normativeness
-{axd_dimension}.
-Placed both at the
+Reads one lookahead
+{mcm_attribute_reference} —
+the parent
+{mcm_codex_p}
+self-naming identity quoin, the one sealed by
+{axvd_codex} —
+which the
 {mcm_sheaf}
-head and at its inclusion point in the
+names back, realizing the
+{mcm_tendon}.
+The annotation line carries exactly one normativeness
+{axd_dimension}
+(an unmarked line reads as
+{axd_normative}).
+It appears at two sites: the head of the
+{mcm_sheaf}
+file, and immediately above its `include::` in the
 {mcm_codex},
-so neither a reader of the part nor a reader of the head can be misled;
-where the status is non-{axd_normative}, the head also carries a
+where the included path is its lookahead — so neither a reader of the part nor a reader of the head is misled.
+Where the status is non-{axd_normative}, the
+{mcm_sheaf}
+head also carries a
 {mcm_fair_faced}
 prose banner declaring it.
++
+The two emplacements, by template:
++
+[source,asciidoc]
+----
+// at the head of the sheaf file (RBSLE-lode_ensconce.adoc):
+//axvd_sheaf axd_aspirant
+{rbs0}
+= Lode Ensconce
+...sheaf content...
+----
++
+[source,asciidoc]
+----
+// at the inclusion point, inside the codex (RBS0-SpecTop.adoc):
+//axvd_sheaf axd_aspirant
+include::RBSLE-lode_ensconce.adoc[]
+----
++
+Here `{rbs0}` is the codex's self-naming identity quoin, sealed at its
+{axl_definition_site}
+by
+{axvd_codex};
+the sheaf resolves it because it is processed within the codex that includes it.
 
 == Axial Type Universal Terms
 

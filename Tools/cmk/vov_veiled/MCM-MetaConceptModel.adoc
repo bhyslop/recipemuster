@@ -1128,14 +1128,51 @@ Founding specimen: Job Jockey's equestrian vocabulary (JJS0, Equestrian Vocabula
 Model-side rationale: `Memos/retired/memo-20260610-quoin-minting-introspection.md`;
 prefix-side sibling: `Memos/memo-20260110-acronym-selection-study.md`.
 
-=== Reserved Vocabulary
+=== The Soil Family
 
-Two further states of ground complete the soil family begun in the Antipatterns
-({mcm_trodden_word},
-{mcm_leached_word}).
-Those *disqualify* a word for a defect — wrong valence or none.
-These *reserve* a sound word by deliberate choice, withholding it from minting so a resource stays available.
-A reserved word is not unmintable in itself; it is held back, and the census of each grows by discovery rather than being settled in advance.
+Four states of ground name the ways a word can be unavailable for minting.
+Two *disqualify* a word for a defect: a
+{mcm_trodden_word}
+fires the wrong valence — over-walked in a specific domain — and a
+{mcm_leached_word}
+fires none at all, worn smooth by universal use.
+Two *reserve* a sound word by deliberate choice, withholding it from minting so a resource stays available;
+a reserved word is not unmintable in itself, and the census of each grows by discovery rather than being settled in advance.
+The disqualified pair are also
+{mcm_antipattern_s},
+cross-listed there.
+
+[[mcm_trodden_word]]
+{mcm_trodden_word}::
+An
+{mcm_antipattern}:
+a persistent name minted from vocabulary worn featureless by ambient software prose —
+open, close, run, lock, task, manager, handler, grant.
+The name is the gestalt: a path so heavily walked that no single footprint is findable on it;
+grep returns a thousand strangers.
+A
+{mcm_trodden_word}
+fails retrieval for the
+{mcm_digital_mind}
+and search for the
+{mcm_editor},
+and invites the plan-versus-product bleed that vocabulary isolation exists to prevent.
+Semantic fit never rescues it:
+the word is disqualified before fit is weighed.
+
+[[mcm_leached_word]]
+{mcm_leached_word}::
+An
+{mcm_antipattern}:
+a persistent name minted from vocabulary worn so smooth by *universal* use that it fires no valence at all —
+content, data, item, thing, value, object, element.
+The name is the gestalt: ground leached of every nutrient, giving nothing back.
+Where a
+{mcm_trodden_word}
+evokes the *wrong* thing — a specific ambient domain that floods the grep —
+a
+{mcm_leached_word}
+evokes *nothing*: too generic to lodge in a reader or to do semantic work.
 
 [[mcm_hallowed_word]]
 {mcm_hallowed_word}::
@@ -1395,43 +1432,11 @@ The finished staircase, seen from outside, is a wall;
 the defect is not completeness but delivering it whole,
 with no sentence to stand on and no way to climb.
 
-[[mcm_trodden_word]]
-{mcm_trodden_word}::
-An
-{mcm_antipattern}:
-a persistent name minted from vocabulary worn featureless by ambient software prose —
-open, close, run, lock, task, manager, handler, grant.
-The name is the gestalt: a path so heavily walked that no single footprint is findable on it;
-grep returns a thousand strangers.
-A
+The word-minting defects —
 {mcm_trodden_word}
-fails retrieval for the
-{mcm_digital_mind}
-and search for the
-{mcm_editor},
-and invites the plan-versus-product bleed that vocabulary isolation exists to prevent.
-Semantic fit never rescues it:
-the word is disqualified before fit is weighed.
-
-[[mcm_leached_word]]
-{mcm_leached_word}::
-An
-{mcm_antipattern}:
-a persistent name minted from vocabulary worn so smooth by *universal* use that it fires no valence at all —
-content, data, item, thing, value, object, element.
-The name is the gestalt: ground leached of every nutrient, giving nothing back.
-Where a
-{mcm_trodden_word}
-evokes the *wrong* thing — a specific ambient domain that floods the grep —
-a
-{mcm_leached_word}
-evokes *nothing*: too generic to lodge in a reader or to do semantic work.
-The two are the disqualified pair of the soil family;
-the reserved pair —
-{mcm_hallowed_word}
 and
-{mcm_fallow_word} —
-withholds good words by choice rather than disqualifying bad ones.
+{mcm_leached_word} —
+are catalogued with their reserved kin in Lapidary's soil family, since their gestalt is a state of vocabulary rather than a delivery or document flaw.
 
 [[mcm_word_cancer]]
 {mcm_word_cancer}::
