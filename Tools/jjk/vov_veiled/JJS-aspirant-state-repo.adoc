@@ -1,0 +1,77 @@
+//axvd_sheaf axd_aspirant
+{jjs0}
+= Standalone State Repo (Aspirant Nucleation)
+
+[IMPORTANT]
+====
+*Aspirant nucleation* (AXLA `axd_aspirant`): not yet binding.
+A feature-definition space under active mulling — to be sophisticated and revised until ready for
+development, then infused into this codex or retired.
+A reader must not rely on its content; released code must not cite identifiers it mints.
+Unlike the mews sibling, this nucleation is *destined to infuse into this codex* — it is the
+persistence story of the gallops it already describes.
+====
+
+== What it is
+
+Job Jockey's own record — the gallops, the captured chat histories, the action-choices it commits
+— lives in a git repository *separate from the code being jockeyed and global across stations*,
+not co-resident in the work repo as today.
+A dedicated vvx-driven executable manages that repo safely.
+
+== Why decouple
+
+* *Contamination.* Co-residence makes JJ bookkeeping commits part of the work repo's history and
+  advances its HEAD — the recorded symptom is the pensum-seed eviction (JJ commits advanced HEAD
+  past origin and tripped foray's curia-readiness guard).
+  A separate repo dissolves the whole contamination class, not one instance.
+* *Merge relief.* Across synced clones, every gallops change is today a 3-way merge of canonical
+  JSON; a single global record edited under a lock has no cross-clone merge at all.
+  Independently sufficient.
+
+== The locked-edit transaction
+
+Every state edit brackets as *pull-rebase → acquire lock → mutate → push → confirm → unwind*.
+Git push is an atomic compare-and-swap on the remote; that CAS *is* the cross-station lock.
+The human never hand-manages the repo's git.
+
+== Store shape
+
+* *Git stays source-of-truth and journal* — additive history, commit-as-intent, jjx_log
+  reconstruction, and free immutability all survive the move.
+* *Single-blob storage is disqualifying* — it is the root of the merge pressure felt today.
+  Per-heat sharding lets two stations on different heats push without conflict.
+* *Station-partitioned minting* — root state (next_heat_seed, heat_order) needs a partition
+  scheme so heat creation requires no cross-station coordination.
+* *Reads take no lock* and tolerate slight staleness; consumers reach gallops through a vvx read
+  path, never raw JSON.
+
+== Chat↔commit correlation (captured 260620)
+
+Once the captured chat histories live in the state repo, a commit can be tied to the chat turn
+that produced it: commit → its chat session → the session transcript → the exact turn → model and
+full context.
+The transcript is the normalized source of truth; any field stamped on a commit is a denormalized
+cache justified by query convenience, never by recoverability.
+Two small enabling changes close the loop — write the session id into every work commit, and label
+the SHA the tool already emits — deferred until the scope-of-state boundary settles.
+
+== Sibling rhyme (mews — not a dependency)
+
+This repo and the mews fleet store are the same git-CAS, sharded, journalled pattern, in distinct
+homes.
+The one genuine seam is the `(work-repo, SHA)` cross-reference both need — here, the per-tack HEAD
+SHA a pace records for the work repo it touched.
+
+== Open forks (the mulling surface)
+
+* Scope of "state" — gallops only, or also the captured chat histories and action-choices?
+* The git-database representation — peer JSON shards vs. git objects/refs.
+* Clone location and sync model; conflict policy on a genuine same-heat content divergence.
+* Whether chat↔commit provenance lives as commit fields or as correlation queries over the repo.
+
+== Sources (provenance, not authority)
+
+* The former standalone-state-repo paddock of this heat — superseded by this sheaf.
+* `Memos/memo-20260615-chat-capture-and-cost-reconstruction.md` — in-repo chat archive and the
+  state-gestalt thread.
