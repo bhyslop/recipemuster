@@ -11923,9 +11923,10 @@
         "₢BDAAf",
         "₢BDAAg",
         "₢BDAAh",
-        "₢BDAAi"
+        "₢BDAAi",
+        "₢BDAAk"
       ],
-      "jjghn_next_pace_seed": "AAk",
+      "jjghn_next_pace_seed": "AAl",
       "jjghn_paces": {
         "₢BDAAA": {
           "jjgpn_tacks": [
@@ -13312,6 +13313,43 @@
               ],
               "jjgtn_silks": "explore-and-expand-capture-and-display-musings",
               "jjgtn_basis": "f204f21"
+            }
+          ]
+        },
+        "₢BDAAk": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260625-1027",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "Intricate but mechanical — design settled this chat; spec + impl land together.",
+                "",
+                "## Goal",
+                "Record every available session-id signal in the officium invitatory commit body as a",
+                "redundancy survey, to retrospect in weeks. No channel is trusted yet: capture all,",
+                "validate nothing, fail on nothing.",
+                "",
+                "## Channels (record-only; emit `-` absent / `(ambiguous)` rather than abort)",
+                "- session            — newest-mtime `.jsonl` guess (existing)",
+                "- session-env        — CLAUDE_CODE_SESSION_ID (MCP server env)",
+                "- session-env-legacy — CLAUDE_SESSION_ID (web-documented name; capture even if absent)",
+                "- session-procmap    — sessions/<pid>.json by cwd + status:busy + newest updatedAt",
+                "- session-envdir     — newest session-env/<uuid>",
+                "- session-subdir     — newest projects/<enc-cwd>/<uuid>/",
+                "",
+                "## Cinched",
+                "- Additive: keep session:/cwd:; recall grep + `claude --resume` stay intact.",
+                "- Relax existing mtime fail-loud to record `(ambiguous)` and continue.",
+                "- No gallops schema change, so NO reprieve episode.",
+                "- Channel key-names are a first mint; revisit before the commit corpus hardens.",
+                "",
+                "## Done when",
+                "JJS0 (and JJSRPS if warranted) define the multi-channel capture grammar and relaxed",
+                "posture; the invitatory handler emits all channels with sentinels; kit tests green."
+              ],
+              "jjgtn_silks": "multichannel-session-id-capture",
+              "jjgtn_basis": "cbc57ae"
             }
           ]
         }
