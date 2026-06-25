@@ -51,6 +51,9 @@
 :xref_BUS0:                  Bash Utilities Specification
 :xref_BURN:                  BUK Regime Node profile
 
+// Codex identity (document composition; sealed by axvd_codex at its definition site)
+:jjs0:                       <<jjs0,Job Jockey Gallops Data Model>>
+
 // Types
 :jjdt_coronet:    <<jjdt_coronet,Coronet>>
 :jjdt_coronet_p:  <<jjdt_coronet,Coronet's>>
@@ -328,6 +331,13 @@
 // end::mapping-section[]
 
 == Overview
+
+[[jjs0]]
+//axvd_codex
+{jjs0}::
+This document — the codex of the Job Jockey concept model: the root that owns this mapping
+section and the vocabulary its sheaves consume, and the identity each sheaf names back through
+its tendon.
 
 The
 {jjdgr_gallops}
@@ -3174,4 +3184,22 @@ Current behavior:
 . Next {jjdr_save} writes V4 format
 
 The frozen V3 types in `jjrt_v3_types.rs` capture the V3 schema for reference when V4 type changes are implemented.
+
+== Aspirant Nucleations
+
+[IMPORTANT]
+====
+The subdocuments below are *aspirant* (AXLA `axd_aspirant`): not yet binding, actively aspiring
+to integrity, each a feature-nucleation under active mulling. They aspire to be infused into
+this codex once ready — or retired if rejected. A reader must not rely on their content, and
+released code must not cite identifiers they mint. The provisional vocabulary each mints is
+self-contained within its sheaf and dissolves into this codex's mapping section only on infusion
+(or leaves with the sheaf on graduation).
+====
+
+//axvd_sheaf axd_aspirant
+include::JJS-aspirant-mews.adoc[leveloffset=+2]
+
+//axvd_sheaf axd_aspirant
+include::JJS-aspirant-state-repo.adoc[leveloffset=+2]
 

@@ -1,0 +1,83 @@
+//axvd_sheaf axd_aspirant
+{jjs0}
+= Mews — Operator Fleet (Aspirant Nucleation)
+
+[IMPORTANT]
+====
+*Aspirant nucleation* (AXLA `axd_aspirant`): not yet binding.
+This subdocument is a feature-definition space under active mulling — to be sophisticated and
+revised until it is ready for development, then infused into the canon or retired.
+A reader must not rely on its content; released code must not cite identifiers it mints.
+Its realization may *graduate* to its own kit and naming prefix rather than infusing into this
+codex — the host tendon to {jjs0} records where it is mulled, not necessarily where it lands.
+====
+
+== What the mews is
+
+The *mews* is the operator's fleet: the machines available for Job Jockey's remote work — stood
+up, tracked, and allocated.
+It is the maturation of foray: today foray dispatches to an explicit `(alias, reldir)`; the mews
+lets it pick from a registered, reserved pool.
+Falconry register (soaking): *mews* = the operator-scoped home where provisioned environments are
+kept between flights; *jess* = the key tether binding a provisioned user.
+
+The fleet lifecycle is one domain: *provision → register → reserve → dispatch*.
+
+== Why it lives in Job Jockey
+
+The mews is operator-private operational knowledge — the testing apparatus, the machines.
+JJK is not released the way RBK is, so housing the fleet here keeps it out of any public surface
+by construction, not by vigilance.
+The dependency concern resolves the same way: RBK test suites are *dispatched through foray*,
+never direct consumers of the fleet registry, so no RBK→JJK coupling arises.
+
+== Distinct state repo (sibling to the gallops repo)
+
+The mews *code and vocabulary* live in JJK; its *runtime state* — the fleet inventory plus live
+reservations — lives in its own git repository, logically distinct from the gallops/planning
+record.
+The two separate on scope (operator-global fleet vs. project planning), cadence (slow operational
+vs. fast intentional), and blast radius.
+One vvx engine drives both; two repos, two locks.
+This is the same git-CAS store pattern the state-repo sheaf describes — a sibling rhyme, not a
+shared home; any eventual convergence is at the engine layer.
+
+== The fleet, in three parts
+
+* *Registry* — which nodes exist, of what type, how reached.
+  This is the BURN node-profile set matured: BURN is proto-mews.
+* *Reservation* — soft, token-granted node ownership, so two masters can work in parallel from
+  different places without collision; an operator can administratively reclaim a stuck
+  reservation. No distributed-consensus machinery (sole-operator fit).
+* *Provisioning* — standing a node up: admin host posture and workload-account creation (today's
+  caparison / invigilate / garrison over BURN/BURP).
+  The privileged transport stays bash under BCG+WSG — the Windows transport Palisade is not
+  rewritten for purity — so the mews is Rust core plus owned bash transport.
+
+== Provisional vocabulary (self-contained)
+
+These mints stay local to this sheaf; they dissolve into the codex mapping section only on
+infusion, or leave with the sheaf on graduation.
+
+* *mews* — the operator-scoped fleet home.
+* *jess* — the key tether binding a provisioned user.
+* *registry / reservation / provisioning* — the three fleet phases above.
+
+Names are provisional: the falconry register is soaking and the kit prefix is deliberately
+unminted until it survives daily voice.
+
+== Open forks (the mulling surface)
+
+* The fleet store's git-database representation — peer JSON shards vs. git objects/refs.
+* Clone location and sync model; conflict policy on a same-node-shard race.
+* The `(work-repo, SHA)` cross-reference seam shared with the state-repo sibling.
+* Whether the realization graduates to its own kit and prefix, or infuses here.
+* What of today's jurisdiction (caparison/invigilate/garrison, BURN/BURP) re-gestates intact vs.
+  is redesigned. The veiled BUK jurisdiction apparatus and the Windows guides are the raw
+  material; their disposition is recorded by the veiling pace.
+
+== Sources (provenance, not authority)
+
+* The former rig-and-mews paddock of this heat — superseded by this sheaf.
+* `Memos/memo-20260612-heat-Ba-falconry-asterism-soak.md` — naming deliberation and grep gates.
+* Heat ₣A- (windows-remote-control) — the jurisdiction design substance to drain in.
