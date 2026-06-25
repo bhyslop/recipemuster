@@ -538,9 +538,9 @@ The agent calls {jjdo_open} once per chat session.
 . Run {jjdxo_exsanguination} (reap stale officia before creating new one)
 . Generate {jjdxo_officium} identity (datestamp + autonumber)
 . Create {jjdxo_exchange} directory with {jjdxo_gazette} and {jjdxo_heartbeat} files (both empty)
-. Resolve current Claude Code session UUID by listing `~/.claude/projects/<encoded-cwd>/*.jsonl` and selecting newest mtime (encoding rule: `/` and `_` both map to `-` in the absolute cwd path); fail loud on missing dir, zero `.jsonl` files, or mtime tie
+. Capture the Claude Code session UUID into the session-recall survey — read every known channel (roster and sources defined under Steeplechase Commit Patterns below) and record each verbatim. The session UUID is an uncontrolled foreign signal, so this is a redundancy survey, not a resolution: record-only, validate nothing. A channel that is absent emits `-`; a channel that cannot disambiguate (e.g. an mtime tie between the two newest `.jsonl` transcripts) emits `(ambiguous)`. Capture never aborts {jjdo_open} — no single channel is load-bearing for the open
 . Collect model inventory via `vvcp_probe()` if daily probe has not yet run (check `.claude/jjm/officia/.probe_date` datestamp file)
-. Create invitatory commit (action code `i`, `jjb`-branded) with `session:` + `cwd:` lines always present in body, optionally followed by model inventory when the daily probe ran
+. Create invitatory commit (action code `i`, `jjb`-branded) with the session-recall survey block (`session:` plus the redundant `session-*` channels) and `cwd:` always present in body, optionally followed by model inventory when the daily probe ran
 . Return {jjdxo_officium} identity string (e.g. `☉260327-1000`)
 +
 The agent receives the identity and passes it as a parameter on all subsequent {jjdx_tool} calls.
@@ -595,6 +595,11 @@ Because the `officia/` tree is gitignored, incorrect reaping is benign — no tr
 jjb:BRAND::i: OFFICIUM <id>
 
 session: <uuid>
+session-env: <uuid>
+session-env-bare: <uuid>
+session-procmap: <uuid>
+session-envdir: <uuid>
+session-subdir: <uuid>
 cwd: <absolute-path>
 haiku: <model-id>
 sonnet: <model-id>
@@ -603,8 +608,22 @@ host: <hostname>
 platform: <platform>
 ----
 +
-The `session:` and `cwd:` lines appear in *every* invitatory body — each chat session has its own UUID and may run from a different cwd, so the recall anchor must be present on every {jjdo_open}.
-The model/host/platform inventory below them appears only on the first {jjdxo_invitatory} of the day (gated by `.probe_date`); subsequent same-day invitatories carry only `session:` + `cwd:`.
+The session-recall survey block (`session:` through `session-subdir:`) and `cwd:` appear in *every* invitatory body — each chat session has its own UUID and may run from a different cwd, so the recall anchor must be present on every {jjdo_open}.
+The model/host/platform inventory below them appears only on the first {jjdxo_invitatory} of the day (gated by `.probe_date`); subsequent same-day invitatories carry only the survey block + `cwd:`.
++
+*Session-recall survey.*
+The _Claude Code_ session UUID is an uncontrolled foreign signal — Claude Code exposes it through several undocumented, drift-prone channels, none contractually stable (the env-var name claimed by external documentation has already proven wrong in practice).
+Rather than trust one, the {jjdxo_invitatory} captures *all* known channels side by side as a redundancy survey, to be retrospected once the corpus accumulates; only then is one channel elected canonical and the rest contained.
+Each channel records its value verbatim, or `-` when absent, or `(ambiguous)` when it cannot disambiguate:
++
+* `session` — newest-mtime `*.jsonl` under `~/.claude/projects/<encoded-cwd>/` (encoding: `/` and `_` both map to `-`); the original guess, `(ambiguous)` on an mtime tie
+* `session-env` — `$CLAUDE_CODE_SESSION_ID` from the {jjdx_mcp} process environment
+* `session-env-bare` — `$CLAUDE_SESSION_ID`, the name claimed by external documentation; captured even when absent, to record whether it ever appears
+* `session-procmap` — `sessionId` of the `~/.claude/sessions/<pid>.json` entry matching `cwd`, preferring `status: busy` and newest `updatedAt`
+* `session-envdir` — newest entry under `~/.claude/session-env/` (a UUID-named directory)
+* `session-subdir` — newest UUID-named subdirectory under `~/.claude/projects/<encoded-cwd>/`
++
+`session:` remains the canonical recall anchor (below): the survey is purely additive, changing neither the recall workflow nor any existing reader of the `session:` field.
 +
 *Recall workflow.*
 The `session:` and `cwd:` lines complete the chat-level recall loop:
@@ -825,7 +844,7 @@ This subsection lands the three rbm-side concepts; the on-disk file format and i
 Three distinct identities have all been loosely called "session"; JJS0 keeps them apart by word and never mints "session" into the `jjdxw_` family:
 
 * the _agent_ session is an {jjdxo_officium};
-* the _Claude Code_ session UUID is the `session: <uuid>` field of the {jjdxo_invitatory} commit — a foreign wire field, unchanged here;
+* the _Claude Code_ session UUID is captured by the session-recall survey of the {jjdxo_invitatory} commit — the canonical `session: <uuid>` field plus its redundant `session-*` channels, all foreign wire fields;
 * the _iTerm_ window identity is the `<value>` inside a {jjdxw_billet} under the `iterm-session` {jjdxw_marque}.
 
 The literal `iterm-session` is a cited paneboard wire constant, not a JJS0 quoin word.
