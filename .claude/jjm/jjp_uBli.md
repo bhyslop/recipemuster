@@ -13,7 +13,7 @@ One coherent sub-initiative anchors the rest:
 the chained-fact / durable-leak consolidation —
 the two coarse durable-leak quoins minted into the spec top,
 and the unified nameplate-hallmark drive-link that cites them onto the durable-leak surface.
-Around it sit four genuinely independent cleanups —
+Around it sit five genuinely independent cleanups —
 a conjure-provenance design-only pass,
 a mechanical two-reference Cloud Build spec repair,
 a network-diagnostic (scry) repair,
@@ -23,7 +23,7 @@ and a clean-tree-rationale gate parameter that gives each gate call site a local
 The consolidation sub-initiative is not loose:
 its two spec paces author the discipline laid out below,
 and they share a citation order — the coarse quoins mint strictly before the drive-link cites them.
-The four cleanups stand alone;
+The five cleanups stand alone;
 their order is loose priority, not a dependency chain.
 The conjure-provenance pass is design-only and the lightest tail —
 if the heat needs thinning rather than finishing, that is the pace to lift to an itch, not the scry or spec-repair work, which are genuine MVP cleanup that should land.
@@ -72,7 +72,7 @@ that work is not here and is not reopened by this heat.
 Both source heats keep the git history of any dropped dockets.
 
 A later cross-heat partition narrowed this heat further:
-the federation-MVP re-derivations that had collected here (the credential-flap tolerance, the OAuth terminal fail-fast, the build-poll clock split, and the payor-install next-step) restrung out into the federation-build stream, where they re-derive against the now-stable federation auth surface;
+the federation-MVP re-derivations that had collected here (the credential-flap tolerance, the OAuth terminal fail-fast, and the payor-install next-step) restrung out into the federation-build stream, where they re-derive against the now-stable federation auth surface;
 the read-side named-band crucible case restrung out into the theurge-refactor stream alongside the theurge crate it asserts against.
 The heats those paces moved to keep the git history of their dockets.
 
