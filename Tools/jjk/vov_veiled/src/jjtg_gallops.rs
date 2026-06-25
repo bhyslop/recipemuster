@@ -265,6 +265,54 @@ fn jjtg_validate_appraise_invariant_violation_is_broken() {
     assert!(matches!(zjjrvl_appraise(&bytes), zjjrvl_Appraisal::Broken(_)));
 }
 
+// ===== hark (retrospective load — jjrg_hark / jjdr_hark) =====
+
+#[test]
+fn jjtg_hark_accepts_canonical_bytes() {
+    // The common case: a recent revision's store is already canonical, so hark loads it
+    // exactly as a disk load would.
+    let bytes = serde_json::to_string_pretty(&canonical_gallops()).unwrap().into_bytes();
+    let harked = jjrg_Gallops::jjrg_hark(&bytes).expect("hark loads canonical bytes");
+    assert_eq!(harked.heats["₣AC"].paces.get("₢ACAAA").unwrap().tacks.len(), 1);
+}
+
+#[test]
+fn jjtg_hark_skips_roundtrip_where_disk_load_rejects() {
+    // Compact (non-canonical) serialization of a canonical-schema store: the disk load
+    // rejects it on the round-trip canonical check, but jjrg_hark — which never re-saves
+    // these historical bytes — skips that check and loads the same bytes. This is the one
+    // behavior that distinguishes the retrospective path from jjrg_load.
+    let compact = serde_json::to_string(&canonical_gallops()).unwrap().into_bytes();
+
+    let dir = JjkTestDir::new("jjtg_hark_roundtrip_contrast");
+    let path = dir.path().join("jjg_gallops.json");
+    std::fs::write(&path, &compact).unwrap();
+    assert!(
+        jjrg_Gallops::jjrg_load(&path).is_err(),
+        "disk load must reject non-canonical bytes on the round-trip check"
+    );
+
+    let harked = jjrg_Gallops::jjrg_hark(&compact).expect("hark loads non-canonical historical bytes");
+    assert_eq!(harked.heats["₣AC"].paces.get("₢ACAAA").unwrap().tacks.len(), 1);
+}
+
+#[test]
+fn jjtg_hark_rejects_garbage() {
+    // A revision too old for the reprieve floor (or otherwise unparseable) fails to
+    // deserialize — the "too old to hark" signal.
+    assert!(jjrg_Gallops::jjrg_hark(b"not json at all").is_err());
+}
+
+#[test]
+fn jjtg_hark_rejects_invariant_violation() {
+    // Hark shares jjdr_load's semantic validation, so a structurally-readable but
+    // invariant-violating store still fails — the unbypassable-validation invariant holds.
+    let mut g = canonical_gallops();
+    g.next_heat_seed = "ABC".to_string();
+    let bytes = serde_json::to_string_pretty(&g).unwrap().into_bytes();
+    assert!(jjrg_Gallops::jjrg_hark(&bytes).is_err());
+}
+
 #[test]
 fn jjtg_validate_run_clean_returns_exit0_and_leaves_file() {
     // The clean path neither locks nor commits, so it runs without a git repo. The file must be

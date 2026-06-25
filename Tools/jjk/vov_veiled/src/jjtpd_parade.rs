@@ -167,7 +167,7 @@ fn jjtpd_empty_targets_errors() {
 
     let mut gz = jjrz_Gazette::jjrz_build(&[jjrz_Slug::Paddock, jjrz_Slug::Pace]);
     let (code, out) = jjrpd_run_parade(
-        jjrpd_ParadeArgs { file: path.clone(), targets: vec![], remaining: false },
+        jjrpd_ParadeArgs { file: path.clone(), targets: vec![], remaining: false, hark: None },
         &mut gz,
     );
     assert_eq!(code, 1);
@@ -193,6 +193,7 @@ fn jjtpd_heterogeneous_list_populates_gazette_for_each_target() {
             file: path.clone(),
             targets: vec!["₣AB".to_string(), "₢CDAAA".to_string()],
             remaining: false,
+            hark: None,
         },
         &mut gz,
     );
@@ -216,7 +217,7 @@ fn jjtpd_bad_target_length_errors() {
 
     let mut gz = jjrz_Gazette::jjrz_build(&[jjrz_Slug::Paddock, jjrz_Slug::Pace]);
     let (code, out) = jjrpd_run_parade(
-        jjrpd_ParadeArgs { file: path.clone(), targets: vec!["ABC".to_string()], remaining: false },
+        jjrpd_ParadeArgs { file: path.clone(), targets: vec!["ABC".to_string()], remaining: false, hark: None },
         &mut gz,
     );
     assert_eq!(code, 1);
@@ -236,7 +237,7 @@ fn jjtpd_remaining_filters_firemark_but_coronet_returns_regardless() {
     // Firemark + remaining: the complete pace is excluded from the gazette.
     let mut gz_heat = jjrz_Gazette::jjrz_build(&[jjrz_Slug::Paddock, jjrz_Slug::Pace]);
     let (c1, _) = jjrpd_run_parade(
-        jjrpd_ParadeArgs { file: path.clone(), targets: vec!["₣AB".to_string()], remaining: true },
+        jjrpd_ParadeArgs { file: path.clone(), targets: vec!["₣AB".to_string()], remaining: true, hark: None },
         &mut gz_heat,
     );
     assert_eq!(c1, 0);
@@ -245,7 +246,7 @@ fn jjtpd_remaining_filters_firemark_but_coronet_returns_regardless() {
     // Coronet target: returned regardless of remaining.
     let mut gz_pace = jjrz_Gazette::jjrz_build(&[jjrz_Slug::Paddock, jjrz_Slug::Pace]);
     let (c2, _) = jjrpd_run_parade(
-        jjrpd_ParadeArgs { file: path.clone(), targets: vec!["₢ABAAA".to_string()], remaining: true },
+        jjrpd_ParadeArgs { file: path.clone(), targets: vec!["₢ABAAA".to_string()], remaining: true, hark: None },
         &mut gz_pace,
     );
     assert_eq!(c2, 0);

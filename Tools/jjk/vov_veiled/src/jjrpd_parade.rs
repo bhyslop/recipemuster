@@ -16,7 +16,10 @@ use crate::jjrg_gallops::{
     jjrg_lines_to_text,
     jjrg_PaceState as PaceState,
 };
-use crate::jjri_io::jjri_paddock_path;
+use crate::jjri_io::{
+    jjri_paddock_path,
+    jjri_show_blob,
+};
 use crate::jjrp_print::{jjrp_Table, jjrp_Column, jjrp_Align};
 use crate::jjrq_query::{jjrq_files_for_pace, jjrq_file_touches_for_heat};
 use crate::jjrs_steeplechase::{jjrs_ReinArgs, jjrs_get_entries, jjrs_SteeplechaseEntry};
@@ -45,6 +48,12 @@ pub struct jjrpd_ParadeArgs {
     /// expansion only; a directly-named coronet returns regardless of state.
     #[arg(long)]
     pub remaining: bool,
+
+    /// Hark mode (JJS0 jjda_hark): when Some(rev), source the Gallops and each
+    /// heat paddock from that git revision (read-only retrospective via jjdr_hark)
+    /// instead of the working tree, suppress the live-git bitmaps, and stamp AS OF.
+    #[arg(long)]
+    pub hark: Option<String>,
 }
 
 /// Run the show command — terse tool-result table(s) plus an always-populated
@@ -66,13 +75,21 @@ pub fn jjrpd_run_parade(args: jjrpd_ParadeArgs, gazette: &mut jjrz_Gazette) -> (
         }
     }
 
-    let gallops = match Gallops::jjrg_load(&args.file) {
+    let gallops = match zjjrpd_load_gallops(&args) {
         Ok(g) => g,
         Err(e) => {
             vvco_err!(output, "{}: error: {}", cn, e);
             return (1, output.vvco_finish());
         }
     };
+
+    // Hark mode (JJS0 jjda_hark): stamp the retrospective banner once the historical
+    // store has loaded, and note that the live-git bitmaps are omitted (they reflect
+    // current HEAD history, not the rev's, so they have no place in a snapshot).
+    if let Some(rev) = &args.hark {
+        vvco_out!(output, "=== HARK — state AS OF {} (read-only retrospective; live-git bitmaps omitted) ===", rev);
+        vvco_out!(output, "");
+    }
 
     // Target selection now arrives solely through the gazette halter notice the
     // MCP arm parses — there is no empty-targets auto-select. An empty list is a
@@ -86,16 +103,19 @@ pub fn jjrpd_run_parade(args: jjrpd_ParadeArgs, gazette: &mut jjrz_Gazette) -> (
 
     // The file-touch bitmap and commit swim lanes assume a single heat; render
     // them only when the request resolves to exactly one firemark target.
-    let single_firemark = targets.len() == 1 && zjjrpd_strip_glyph(&targets[0]).len() == JJRF_FIREMARK_LEN;
+    // Bitmaps are derived from live git history (current HEAD), so they are
+    // incoherent in hark mode; suppress them there.
+    let single_firemark = args.hark.is_none() && targets.len() == 1 && zjjrpd_strip_glyph(&targets[0]).len() == JJRF_FIREMARK_LEN;
 
     let mut added_paddocks: std::collections::HashSet<String> = std::collections::HashSet::new();
     let mut added_paces: std::collections::HashSet<String> = std::collections::HashSet::new();
 
+    let hark = args.hark.as_deref();
     for target in &targets {
         let target_str = zjjrpd_strip_glyph(target);
         let res = match target_str.len() {
-            JJRF_CORONET_LEN => zjjrpd_emit_coronet(&mut output, &gallops, target, gazette, &mut added_paddocks, &mut added_paces),
-            JJRF_FIREMARK_LEN => zjjrpd_emit_firemark(&mut output, &gallops, target, args.remaining, single_firemark, gazette, &mut added_paddocks, &mut added_paces),
+            JJRF_CORONET_LEN => zjjrpd_emit_coronet(&mut output, &gallops, target, gazette, &mut added_paddocks, &mut added_paces, hark),
+            JJRF_FIREMARK_LEN => zjjrpd_emit_firemark(&mut output, &gallops, target, args.remaining, single_firemark, gazette, &mut added_paddocks, &mut added_paces, hark),
             n => Err(format!(
                 "{}: error: target '{}' must be Firemark ({} chars) or Coronet ({} chars), got {} chars",
                 cn, target, JJRF_FIREMARK_LEN, JJRF_CORONET_LEN, n
@@ -115,17 +135,40 @@ fn zjjrpd_strip_glyph(target: &str) -> &str {
     target.strip_prefix('₢').or_else(|| target.strip_prefix('₣')).unwrap_or(target)
 }
 
+/// Load the Gallops for a parade run: the working-tree file by default, or — in
+/// hark mode (JJS0 jjda_hark) — the blob at `args.hark`'s git revision via the
+/// read-only jjdr_hark path. Both flavors return a validated Gallops.
+fn zjjrpd_load_gallops(args: &jjrpd_ParadeArgs) -> Result<Gallops, String> {
+    match &args.hark {
+        Some(rev) => {
+            let path = args.file.to_string_lossy();
+            let bytes = jjri_show_blob(rev, &path)?;
+            Gallops::jjrg_hark(&bytes)
+        }
+        None => Gallops::jjrg_load(&args.file),
+    }
+}
+
 /// Add a heat's paddock to the gazette at most once per heat. Best-effort: a
 /// missing paddock file is skipped (the pace dockets are the round-trip payload).
 fn zjjrpd_gazette_paddock_once(
     gazette: &mut jjrz_Gazette,
     added: &mut std::collections::HashSet<String>,
     firemark: &Firemark,
+    hark: Option<&str>,
 ) {
     let heat_key = firemark.jjrf_display();
     if added.insert(heat_key.clone()) {
         let paddock_path = jjri_paddock_path(firemark.jjrf_as_str());
-        if let Ok(content) = fs::read_to_string(&paddock_path) {
+        // Hark mode reads the paddock blob at the same revision as the Gallops, so
+        // the rendered paddock is coherent with the historical dockets.
+        let content = match hark {
+            Some(rev) => jjri_show_blob(rev, &paddock_path)
+                .ok()
+                .and_then(|bytes| String::from_utf8(bytes).ok()),
+            None => fs::read_to_string(&paddock_path).ok(),
+        };
+        if let Some(content) = content {
             gazette.jjrz_add(jjrz_Slug::Paddock, &heat_key, &content).ok();
         }
     }
@@ -141,6 +184,7 @@ fn zjjrpd_emit_coronet(
     gazette: &mut jjrz_Gazette,
     added_paddocks: &mut std::collections::HashSet<String>,
     added_paces: &mut std::collections::HashSet<String>,
+    hark: Option<&str>,
 ) -> Result<(), String> {
     let cn = JJRPD_CMD_NAME_SHOW;
     let coronet = Coronet::jjrf_parse(target).map_err(|e| format!("{}: error: {}", cn, e))?;
@@ -167,7 +211,7 @@ fn zjjrpd_emit_coronet(
     }
     vvco_out!(output, "");
 
-    zjjrpd_gazette_paddock_once(gazette, added_paddocks, &firemark);
+    zjjrpd_gazette_paddock_once(gazette, added_paddocks, &firemark, hark);
     if added_paces.insert(coronet_key.clone()) {
         let pace_text = jjrg_lines_to_text(&current_tack.text);
         gazette.jjrz_add(jjrz_Slug::Pace, &coronet_key, &pace_text).ok();
@@ -187,6 +231,7 @@ fn zjjrpd_emit_firemark(
     gazette: &mut jjrz_Gazette,
     added_paddocks: &mut std::collections::HashSet<String>,
     added_paces: &mut std::collections::HashSet<String>,
+    hark: Option<&str>,
 ) -> Result<(), String> {
     let cn = JJRPD_CMD_NAME_SHOW;
     let firemark = Firemark::jjrf_parse(target).map_err(|e| format!("{}: error: {}", cn, e))?;
@@ -348,7 +393,7 @@ fn zjjrpd_emit_firemark(
 
     // Always populate the gazette: paddock once, then each pace docket
     // (remaining-filtered to match the table).
-    zjjrpd_gazette_paddock_once(gazette, added_paddocks, &firemark);
+    zjjrpd_gazette_paddock_once(gazette, added_paddocks, &firemark, hark);
     for coronet_key in &heat.order {
         if let Some(pace) = heat.paces.get(coronet_key) {
             if let Some(tack) = pace.tacks.first() {

@@ -33,6 +33,14 @@ impl jjrg_Gallops {
         jjdr_load(path).map(|vg| vg.into_inner())
     }
 
+    /// Hark-load Gallops from bytes lifted from a prior git revision (read-only
+    /// retrospective). Sibling of jjrg_load; see jjdr_hark / JJS0 `jjdr_hark`.
+    pub fn jjrg_hark(bytes: &[u8]) -> Result<Self, String> {
+        use crate::jjri_io::jjdr_hark;
+
+        jjdr_hark(bytes).map(|vg| vg.into_inner())
+    }
+
     /// Save Gallops to a file path (legacy API - prefer jjdr_save)
     pub fn jjrg_save(&self, path: &Path) -> Result<(), String> {
         use crate::jjri_io::jjdr_save;

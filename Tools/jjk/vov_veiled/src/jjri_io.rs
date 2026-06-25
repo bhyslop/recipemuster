@@ -285,22 +285,58 @@ pub fn jjdr_load(path: &Path) -> Result<jjdr_ValidatedGallops, String> {
     // Read original bytes
     let original_bytes = fs::read(path)
         .map_err(|e| format!("Failed to read file '{}': {}", path.display(), e))?;
+    zjjdr_from_bytes(&original_bytes, true)
+}
 
-    let mut gallops: jjrg_Gallops = serde_json::from_slice(&original_bytes)
+/// Hark (retrospective) load — read-only sibling of jjdr_load. JJS0 `jjdr_hark`.
+///
+/// Loads a Gallops from in-memory bytes lifted from a prior git revision (jjri_show_blob), for
+/// read-only retrospective display (jjx_show hark mode). Shares jjdr_load's deserialize, reprieve
+/// probe + write-forward, and semantic validation; skips the round-trip canonical check
+/// unconditionally (historical bytes are never re-saved) and never writes. Rivet JJr_a7c.
+pub fn jjdr_hark(bytes: &[u8]) -> Result<jjdr_ValidatedGallops, String> {
+    zjjdr_from_bytes(bytes, false)
+}
+
+/// Read one file's bytes as of a prior git revision: `git show <rev>:<path>`.
+///
+/// The input side of jjdr_hark — lifts a historical blob (Gallops or paddock) without touching the
+/// working tree, via the vvc git helper (stdin-nulled). An unresolvable revision or absent path
+/// surfaces git's stderr verbatim. JJS0 `jjdr_hark`.
+pub fn jjri_show_blob(rev: &str, path: &str) -> Result<Vec<u8>, String> {
+    let spec = format!("{}:{}", rev, path);
+    let output = vvc::vvce_git_command(&["show", &spec])
+        .output()
+        .map_err(|e| format!("git show {}: failed to run: {}", spec, e))?;
+    if !output.status.success() {
+        let stderr = String::from_utf8_lossy(&output.stderr);
+        return Err(format!("git show {}: {}", spec, stderr.trim()));
+    }
+    Ok(output.stdout)
+}
+
+/// Shared load tail for jjdr_load (disk) and jjdr_hark (git blob).
+///
+/// `check_roundtrip` gates the canonical-form round-trip (steps 4-5); hark passes false because the
+/// historical bytes are never re-saved. The reprieve probe + in-memory write-forward and the
+/// semantic validation run identically on both paths, so a hark's Gallops is as validated as a disk
+/// load's and the unbypassable-validation invariant holds.
+fn zjjdr_from_bytes(original_bytes: &[u8], check_roundtrip: bool) -> Result<jjdr_ValidatedGallops, String> {
+    let mut gallops: jjrg_Gallops = serde_json::from_slice(original_bytes)
         .map_err(|e| format!("Failed to parse JSON: {}", e))?;
 
     // Reprieve probe is the single source of old-format detection (rivet JJr_a7c).
     // Any live episode means the on-disk shape is not yet canonical; tolerate the
     // round-trip mismatch so the next save rewrites the clean format back to disk.
-    let reprieve = jjdz_probe(&gallops, &original_bytes);
+    let reprieve = jjdz_probe(&gallops, original_bytes);
     let is_migration_mode = reprieve.iter().any(|s| s.live);
 
-    if !is_migration_mode {
+    if check_roundtrip && !is_migration_mode {
         let reserialized = serde_json::to_string_pretty(&gallops)
             .map_err(|e| format!("Failed to reserialize JSON: {}", e))?;
 
         if reserialized.as_bytes() != original_bytes {
-            let diff_pos = zjjdr_find_first_diff(&original_bytes, reserialized.as_bytes());
+            let diff_pos = zjjdr_find_first_diff(original_bytes, reserialized.as_bytes());
             return Err(format!("Round-trip validation failed at byte {}", diff_pos));
         }
     }
@@ -308,7 +344,8 @@ pub fn jjdr_load(path: &Path) -> Result<jjdr_ValidatedGallops, String> {
     // Reprieve write-forward — rivet JJr_a7c. In migration mode, run the shared canonical-form
     // transform (the single source jjdz_write_forward, also driven by validate-normalize) so the
     // next jjdr_save lands clean. The loader keeps no second copy of the transform; serde already
-    // drops the removed schema_version key and any stale next_pensum_seed on its own.
+    // drops the removed schema_version key and any stale next_pensum_seed on its own. Hark never
+    // saves, so for a hark this transform is display-only.
     if is_migration_mode {
         jjdz_write_forward(&mut gallops);
     }

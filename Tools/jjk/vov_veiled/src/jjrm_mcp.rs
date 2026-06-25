@@ -348,6 +348,10 @@ pub struct jjrm_ShowParams {
     /// coronet-named targets return regardless of state. Target selection itself
     /// comes solely from the gazette halter notices, never a param.
     pub remaining: bool,
+    /// Optional. Hark mode (JJS0 jjda_hark): a git revision. When present, show
+    /// renders the Gallops and paddock as of that revision (read-only, via
+    /// jjdr_hark) and sets no standing emblem; jjx_orient never accepts it.
+    pub hark: Option<String>,
 }
 
 #[derive(Debug, serde::Deserialize, schemars::JsonSchema)]
@@ -2101,6 +2105,7 @@ impl jjrm_McpServer {
                     file: gallops_pathbuf(),
                     targets,
                     remaining: p.remaining,
+                    hark: p.hark.clone(),
                 }, &mut gazette);
                 // The gazette is now show's load-bearing payload (the round-trip
                 // surface), not an optional convenience. Crash-fast on a failed
@@ -2114,20 +2119,24 @@ impl jjrm_McpServer {
                             cmd, gazette_out_path.display(), e,
                         )));
                     }
-                    if let Some(ref fm) = groom_firemark {
-                        // Coronet-sticks (JJS0 `jjdxw_emblem`): a groom never
-                        // demotes a coronet a prior mount saddled this
-                        // officium. When a coronet already stands, saddle nothing
-                        // (`None` — the emblem still repaints from the held
-                        // coronet); otherwise fill the empty-or-firemark slot with
-                        // the heat firemark as before.
-                        let exchange = zjjrm_exchange_dir(officium_id);
-                        let groom_marker = if zjjrm_standing_is_coronet(&exchange) {
-                            None
-                        } else {
-                            Some(zjjrm_resolve_saddle_marker(fm))
-                        };
-                        zjjrm_refresh_emblem(&exchange, groom_marker);
+                    // A hark (JJS0 `jjda_hark`) sets no standing emblem — a
+                    // retrospective read mutates nothing live, officium scratch included.
+                    if p.hark.is_none() {
+                        if let Some(ref fm) = groom_firemark {
+                            // Coronet-sticks (JJS0 `jjdxw_emblem`): a groom never
+                            // demotes a coronet a prior mount saddled this
+                            // officium. When a coronet already stands, saddle nothing
+                            // (`None` — the emblem still repaints from the held
+                            // coronet); otherwise fill the empty-or-firemark slot with
+                            // the heat firemark as before.
+                            let exchange = zjjrm_exchange_dir(officium_id);
+                            let groom_marker = if zjjrm_standing_is_coronet(&exchange) {
+                                None
+                            } else {
+                                Some(zjjrm_resolve_saddle_marker(fm))
+                            };
+                            zjjrm_refresh_emblem(&exchange, groom_marker);
+                        }
                     }
                     output.push('\n');
                     output.push_str(&zjjrm_gazette_paths_block(&gazette_in_path, &gazette_out_path));

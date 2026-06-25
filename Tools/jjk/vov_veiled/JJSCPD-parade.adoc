@@ -217,6 +217,8 @@ extract parent
 {jjdr_hark} (both fetched at the same revision), in place of the working-tree {jjdgr_gallops} read
 and the per-heat paddock-file read.
 . Render exactly as above, with every view stamped `AS OF <rev>`.
+. Omit the file-touch bitmap and commit swim lanes: both derive from live git history (current
+HEAD), not the revision's, so they carry no coherent meaning in a snapshot.
 . Set no {jjdxw_emblem} identity and write nothing — a hark mutates nothing live.
 . On an unresolvable or too-old revision, surface {jjdr_hark}'s error verbatim and render nothing.
 . {jjdo_orient} never enters hark mode — a mount is always the latest state.
