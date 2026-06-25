@@ -13250,7 +13250,7 @@
         "₢BDAAj": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260625-0929",
+              "jjgtn_ts": "260625-0952",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "## Character",
@@ -13260,9 +13260,12 @@
                 "",
                 "## Items to explore and expand",
                 "",
-                "1. Pace-intent staleness in rendering.",
-                "   Add an option for the new pace-intent capture so it either shows only on demand,",
-                "   or renders with a clear indicator that it might be stale.",
+                "1. Pace-intent staleness in rendering. — RESOLVED, graduated into ₢BcAAK.",
+                "   Explored 2026-06-25 alongside the original-intent schema-change pace.",
+                "   The staleness handling folded into that feature: a standing staleness caveat at mount",
+                "   (a frozen field over a mutable docket), a redocket-count drift signal, and a date annotation;",
+                "   on-demand display and a churn metric were both considered and rejected.",
+                "   ₢BcAAK now carries it — nothing left to scope here.",
                 "",
                 "2. Session-ID-in-commit (post haste — narrow, no other changes).",
                 "   Capture the Claude session id into the git commit for the officium,",
@@ -13308,7 +13311,7 @@
                 "or explicitly declined; this capture pace is then wrapped."
               ],
               "jjgtn_silks": "explore-and-expand-capture-and-display-musings",
-              "jjgtn_basis": "3452fe3"
+              "jjgtn_basis": "f204f21"
             }
           ]
         }
