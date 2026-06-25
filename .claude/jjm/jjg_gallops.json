@@ -13250,7 +13250,7 @@
         "₢BDAAj": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260625-1414",
+              "jjgtn_ts": "260625-1416",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "## Character",
@@ -13282,8 +13282,9 @@
                 "   A groom option that takes a git commit hash,",
                 "   so ancient Job Jockey state can be easily interrogated.",
                 "",
-                "6. Unify firemark/coronet display code.",
-                "   Force Job Jockey to consolidate firemark and coronet rendering into one path,",
+                "6. Immutable class objects for firemark and coronet.",
+                "   Develop an immutable class object for each of firemark and coronet.",
+                "   Consolidating their display code flows from this — one typed home per identity —",
                 "   in preparation for the 'post-global-database' refactor toward immutable coronets.",
                 "",
                 "## Done when",
@@ -13291,7 +13292,7 @@
                 "or explicitly declined; this capture pace is then wrapped."
               ],
               "jjgtn_silks": "explore-and-expand-capture-and-display-musings",
-              "jjgtn_basis": "2245a6d"
+              "jjgtn_basis": "da3f241"
             }
           ]
         }
