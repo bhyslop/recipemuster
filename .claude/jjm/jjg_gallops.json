@@ -17997,9 +17997,10 @@
         "₢BiAAH",
         "₢BiAAW",
         "₢BiAAg",
-        "₢BiAAa"
+        "₢BiAAa",
+        "₢BiAAh"
       ],
-      "jjghn_next_pace_seed": "AAh",
+      "jjghn_next_pace_seed": "AAi",
       "jjghn_paces": {
         "₢BiAAC": {
           "jjgpn_tacks": [
@@ -19064,6 +19065,30 @@
               ],
               "jjgtn_silks": "await-fed-zipper-and-thg-crate",
               "jjgtn_basis": "5ed2058"
+            }
+          ]
+        },
+        "₢BiAAh": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260625-1433",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "Diffusion — apply the settled document-composition vocabulary to the RBS0 and BUS0 codices. Mechanical, with per-sheaf status judgment; two specs.",
+                "",
+                "## Done when",
+                "RBS0 and BUS0 each define a self-naming identity quoin sealed by //axvd_codex; every included",
+                "sheaf is marked at its head and at its include-site with //axvd_sheaf and exactly one axd_",
+                "normativeness status; each tendon binding resolves (the sheaf names a real codex).",
+                "",
+                "## Source",
+                "Vocabulary home: MCM == Document Composition (mcm_codex/sheaf/pandect/canon, mcm_tendon) and",
+                "AXLA == Axial Voicing Document Terms (axvd_codex/axvd_sheaf + the two emplacement templates)",
+                "plus the axd_ Normativeness Dimensions. Minted 260625."
+              ],
+              "jjgtn_silks": "diffuse-codex-vocabulary-to-rbs-bus",
+              "jjgtn_basis": "523f5e0"
             }
           ]
         }
