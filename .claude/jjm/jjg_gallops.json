@@ -17400,7 +17400,7 @@
         "₢BfAAl": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260624-2244",
+              "jjgtn_ts": "260625-0602",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "Drafted from ₢BiAAA in ₣Bi.",
@@ -17408,25 +17408,22 @@
                 "Originally drafted in ₣BB against the pre-federation keyfile estate.",
                 "",
                 "## Character",
-                "Blocked on ₣Bf; must be rebuilt federation-aware before it can mount.",
+                "A re-derivation against the federation auth path this heat builds: the mechanical change is small, but the pre-federation keyfile touchpoints are demolished and must be re-derived first.",
                 "",
                 "## Cinched",
-                "Do not mount until ₣Bf wraps.",
-                "₣Bf is reworking the federation auth path in parallel;",
-                "by its completion a strong, stable federation definition will exist —",
-                "design against that, not against today's in-flight code.",
+                "This pace now lives in the federation-build heat itself, positioned AFTER the federation code arms in this heat's order — so the old inter-heat \"do not mount until ₣Bf wraps\" gate is now in-heat ordering.",
+                "Mount it once the federation auth path (the arms earlier in this same heat) has landed; design against that settled path, not against in-flight code.",
                 "",
                 "## Source",
                 "`Memos/memo-20260527-account-state-invalid-reinvest-flap.md` — the original 401 `ACCOUNT_STATE_INVALID` signature and two-host evidence.",
                 "That evidence predates federation, which demolished both the flap's trigger (the per-run director-SA re-invest) and the touchpoint the repair was to extend (the keyfile OAuth consumer-retry).",
-                "Re-derive the touchpoints against ₣Bf's federation auth path (compearance / STS / mantle-don); do not assume the memo's keyfile shape.",
+                "Re-derive the touchpoints against the federation auth path this heat builds (compearance / STS / mantle-don); do not assume the memo's keyfile shape.",
                 "",
                 "## Done when",
-                "A determination, against the stable federation auth path, of whether an `ACCOUNT_STATE_INVALID` analogue can still strand a healthy build —",
-                "bounded tolerance added at the surviving touchpoint(s) where it can, or the pace retired with that finding recorded."
+                "A determination, against the settled federation auth path, of whether an `ACCOUNT_STATE_INVALID` analogue can still strand a healthy build — bounded tolerance added at the surviving touchpoint(s) where it can, or the pace retired with that finding recorded."
               ],
               "jjgtn_silks": "foundry-account-state-invalid-tolerance",
-              "jjgtn_basis": "6433ebf"
+              "jjgtn_basis": "6b861cd"
             }
           ]
         },
