@@ -13250,11 +13250,11 @@
         "₢BDAAj": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260625-1416",
+              "jjgtn_ts": "260625-1421",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "## Character",
-                "Capture pace — durable record of six musings to explore and expand.",
+                "Capture pace — durable record of musings to explore and expand.",
                 "Each item is a seed, not yet scoped; the work is to flesh each one into",
                 "its own scoped pace(s) or decline it, not to implement here.",
                 "",
@@ -13287,12 +13287,18 @@
                 "   Consolidating their display code flows from this — one typed home per identity —",
                 "   in preparation for the 'post-global-database' refactor toward immutable coronets.",
                 "",
+                "7. Track pre/post-rebase commits for recovering passing scenarios.",
+                "   Think through whether the independent Job Jockey database can/should track the",
+                "   git commits before and after rebasing merges,",
+                "   so we can get back to an original passing scenario.",
+                "   Note: reviving the school / breeze / worktree approach may solve this instead.",
+                "",
                 "## Done when",
-                "Each of the six items has been explored and expanded into its own scoped pace(s)",
+                "Each item has been explored and expanded into its own scoped pace(s)",
                 "or explicitly declined; this capture pace is then wrapped."
               ],
               "jjgtn_silks": "explore-and-expand-capture-and-display-musings",
-              "jjgtn_basis": "da3f241"
+              "jjgtn_basis": "72d3ea0"
             }
           ]
         }
