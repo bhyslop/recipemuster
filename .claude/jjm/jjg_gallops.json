@@ -16871,7 +16871,7 @@
         "₢BfAAF": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260624-1322",
+              "jjgtn_ts": "260625-1623",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "## Build the terrier's permanent founding-home — a single idempotent \"post-payor-guide manor-setup finisher\" that ensures the terrier bucket + per-polity folders, retiring the interim scaffold.",
@@ -16881,6 +16881,7 @@
                 "",
                 "Full reasoning + grain: the review ledger (chunk 3) and Memos/memo-20260622-fable-review-queue.md (terrier-fork-b-resolution, terrier-b-shape-finisher).",
                 "As-built to fold in + retire: the rbw-dt / rbw-dT scaffold, plus the two theurge fixtures (terrier-scaffold, terrier-atomicity) in the picket/echelon suites.",
+                "Retiring those fixtures reaches a SIXTH ₣Bl-owned file beyond the zipper trio and the crucible registry: rbtdrm_manifest.rs — the two RBTDRM_FIXTURE_TERRIER_* name-consts and their colophon-dependency-map arms. Include it in the retire-frame so a hot-file-only read does not silently miss it.",
                 "",
                 "## Spec-sync (surfaced by the heat-integrity audit — the operation has no spec home today)",
                 "Contract-first: mint a NEW operation subdoc for the finisher in the operation-subdoc family (provisional acronym minted in-heat), authored before the code (operator decision 260624).",
@@ -16888,7 +16889,7 @@
                 "Update the RBS0-SpecTop terrier cross-project line that today says the terrier is \"provisioned by an interim scaffold, never folded into a founding ceremony in this heat\" — the finisher makes that false the moment it lands; replace it with the finisher founding-home.",
                 "",
                 "## Done when",
-                "A standing manor-setup-finisher tabtarget idempotently ensures the terrier bucket (payor-project-grain) + per-polity managed folders (depot-grain) + the grain IAM (write folder-scoped own-polity, read bucket-level manor-wide); the new operation subdoc exists and the RBS0-SpecTop terrier line is corrected; the interim scaffold and its two fixtures are retired or migrated onto it; the gauntlet ladder stays green (it carries no terrier fixture).",
+                "A standing manor-setup-finisher tabtarget idempotently ensures the terrier bucket (payor-project-grain) + per-polity managed folders (depot-grain) + the grain IAM (write folder-scoped own-polity, read bucket-level manor-wide); the new operation subdoc exists and the RBS0-SpecTop terrier line is corrected; the interim scaffold and its two fixtures are retired or migrated onto it, including their rbtdrm_manifest.rs name-consts + colophon-dependency-map arms; the gauntlet ladder stays green (it carries no terrier fixture).",
                 "",
                 "## Cinched",
                 "Founding-home = Option B (Manor, not affiance); the finisher is a dedicated standing op run after the manual manor setup.",
@@ -16899,7 +16900,7 @@
                 "Implementation over a settled design; the B-variant (standing op vs manor-establish enlargement) and the folder-step credential boundary (folder lives in the payor-project bucket) are the in-pace judgment calls."
               ],
               "jjgtn_silks": "terrier-founding-home-finisher",
-              "jjgtn_basis": "b41e86b"
+              "jjgtn_basis": "aa36cf1"
             }
           ]
         },
@@ -17161,7 +17162,7 @@
         "₢BfAAO": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260624-1322",
+              "jjgtn_ts": "260625-1623",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "Recast the federation specs to the vendor-agnostic-core-plus-mechanism-gate shape, contract-first, before any build code — and add the foedus-selection regime support the switch design leans on.",
@@ -17177,11 +17178,12 @@
                 "Seat the foedus civic quoin in RBS0 — the configured-federation noun the whole model leans on, in the rbtf_ federation-civics category, with a fair-faced first-contact gloss for the cold-probe; it is homed in no spec today.",
                 "Make the human-present premise and the three governor/director/retriever authenticate patterns in RBS0-SpecTop mechanism-conditional: the interactive arm keeps the human-avow / TTY / fails-loud rule, the programmatic arm voids it — so the programmatic accessor has a contract to build against (config-model memo).",
                 "Assess RBSMA's sibling RBSMJ (manor_jilt) for a mechanism arm: jilt carries interactive behaviour and is the orchestrator's teardown, so the interactive/programmatic split likely reaches it; sync it or record why it stays mechanism-blind.",
+                "Register the missing RBSMA (manor_affiance) and RBSMJ (manor_jilt) acronym entries in claude-rbk-acronyms.md — both specs exist on disk but were never catalogued (pre-existing gap; this pace already touches RBSMA/RBSMJ and the acronym registry, so it is the natural home).",
                 "",
                 "Source: the config-model memo (Memos/memo-20260618-Bf-federation-config-model.md) for the subdoc plan and the per-spec must-contain reference; the paddock foedus-lifecycle strand for the selection topology.",
                 "",
                 "## Done when",
-                "The two specs voice the core-plus-mechanism-gate model, the two subdoc contracts exist, the regime carries the multi-config + selector shape the switch re-points, the minted vocabulary clears the gates, the foedus quoin is seated, the human-present premise and the three authenticate patterns are mechanism-conditional, and jilt's mechanism-arm need is settled.",
+                "The two specs voice the core-plus-mechanism-gate model, the two subdoc contracts exist, the regime carries the multi-config + selector shape the switch re-points, the minted vocabulary clears the gates, the foedus quoin is seated, the human-present premise and the three authenticate patterns are mechanism-conditional, jilt's mechanism-arm need is settled, and the RBSMA/RBSMJ acronym entries are registered.",
                 "",
                 "## Cinched",
                 "Contract before code (project doctrine): a hard predecessor of every build pace below — no establishment, accessor, orchestrator, or foedus-toothing code starts before the specs are recast.",
@@ -17191,14 +17193,14 @@
                 "Spec authoring plus in-heat mint; judgment-heavy, reads the config-model memo first."
               ],
               "jjgtn_silks": "federation-spec-first-recast",
-              "jjgtn_basis": "b41e86b"
+              "jjgtn_basis": "aa36cf1"
             }
           ]
         },
         "₢BfAAP": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260624-1329",
+              "jjgtn_ts": "260625-1623",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "Build the minimal estate-secret stub — a self-labelled BCG module that sources-and-verifies the Keycloak signing key from the shelved interim station file, so the realm and orchestrator have a stable key to consume.",
@@ -17213,19 +17215,25 @@
                 "- is self-labelled as a stub: a header noting the full RBRS station regime is shelved for ₣BW, with a pointer to FUTURE/RBSRS.",
                 "Also: add the Keycloak field to the shelved FUTURE/RBSRS spec as an optional/future entry, give the live stub its own short contract, and repoint the dangling claude-rbk-acronyms.md RBSRS pointer to the FUTURE/ path (annotated shelved-for-₣BW), not deleted.",
                 "",
+                "## Producer gap (surfaced by the integrity audit — resolve before mount)",
+                "This stub VERIFIES the public half against \"the already-committed JWKS (the canonical reference)\" — but no committed fdkyclk JWKS exists in the tree today, and NO ₣Bf pace commits it.",
+                "₢BfAAN bakes it into the realm and ₢BfAAM uploads it — both are consumers; the original \"public JWKS committed\" producer step (config-model memo subdoc #3) was orphaned by the 260623 stable-key reversal and the 260624 stub-not-regime decision and never re-homed.",
+                "Resolve before mounting: either a predecessor commits the canonical public JWKS, or — crossing this pace's source-plus-verify cinch, so an OPERATOR call — this stub also commits it on first establish.",
+                "Until resolved the verify has no target: the absent→skip tolerance below covers a missing SECRET file, not a missing canonical JWKS.",
+                "",
                 "## Done when",
-                "The stub sources-and-verifies the one estate field (present → match-or-fail-loud; absent → skip), is self-labelled with the ₣BW-shelved pointer, the FUTURE/RBSRS spec carries the optional field, and the acronym pointer resolves; the realm pace consumes a stable key from it.",
+                "The stub sources-and-verifies the one estate field (present → match-or-fail-loud; absent → skip), is self-labelled with the ₣BW-shelved pointer, the FUTURE/RBSRS spec carries the optional field, and the acronym pointer resolves; the canonical-JWKS producer gap above is resolved so the realm pace consumes a stable key from a JWKS that actually exists.",
                 "",
                 "## Cinched",
                 "NOT a station-regime reinstatement and NOT the Estate-concept nucleation — a single labelled stub; the full RBRS regime and any dedicated-estate-regime graduation defer with podman (₣BW).",
-                "Source-plus-verify ONLY (operator 260624) — no podman anticipation, no extra fields.",
+                "Source-plus-verify ONLY (operator 260624) — no podman anticipation, no extra fields; whether this stub also COMMITS the canonical JWKS (the producer gap) is an explicit operator call, not assumed.",
                 "The private half is never committed; the match is always against the committed JWKS, never a cross-station secret comparison.",
                 "",
                 "## Character",
                 "Small BCG build over a settled design; sits before the realm/orchestrator paces that consume the stable key (the stub name is an in-pace hearting mint)."
               ],
               "jjgtn_silks": "estate-secret-verification",
-              "jjgtn_basis": "2088896"
+              "jjgtn_basis": "aa36cf1"
             }
           ]
         },
@@ -17486,66 +17494,38 @@
         "₢BfAAm": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260624-2244",
+              "jjgtn_ts": "260625-1623",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "Drafted from ₢BiAAB in ₣Bi.",
                 "",
-                "Drafted from ₢BBABX in ₣BB.",
+                "Make the federation accessor fail fast on deterministically-terminal credential failures rather than burning the SA-propagation retry budget on dead credentials — re-derived against the post-federation auth path.",
                 "",
-                "## Character",
-                "Surgical bash change in one function, but gated on one genuine design question —",
-                "judgment, not mechanical.",
+                "## Demolished — re-derive, do not extend",
+                "The original drafting targeted `rbgo_get_token_capture` in `rbgo_OAuth.sh`, its \"Discriminate failure\" / `TEMP-FORENSIC` blocks, and the ~104s/10-attempt SA-propagation loop.",
+                "This heat's own federation recast demolished all of it: `grep rbgo_get_token_capture` is empty, the file is `rbgo_oauth.sh`, those blocks are gone.",
+                "Do not hunt or extend them — sibling ₢BfAAl already carries this federation-vs-keyfile warning; this docket now states it too.",
                 "",
-                "## Goal",
-                "`rbgo_get_token_capture` (Tools/rbk/rbgo_OAuth.sh) waits the full SA-propagation",
-                "budget (~104 s, 10 attempts) on credential failures that are deterministically",
-                "terminal. Its \"Discriminate failure\" block retries exactly two OAuth error shapes —",
-                "`invalid_grant` + `\"Invalid JWT Signature.\"` and `invalid_grant` +",
-                "`\"Invalid grant: account not found\"` — because those are the post-mint",
-                "propagation-race signals. The flaw: each shape is **ambiguous** — also the permanent",
-                "signal (key revoked / SA deleted with no mint pending). The response body alone",
-                "cannot tell transient from terminal, so the loop retries both and burns the whole",
-                "budget on dead credentials. Make terminal failures fail fast without weakening",
-                "legitimate post-mint propagation tolerance.",
-                "",
-                "## Cinched",
-                "- The string classifier is correct as far as it goes — do NOT \"repair\" by dropping",
-                "  the retry. The propagation race is real immediately after invest/mantle.",
-                "- The disambiguator is **call context** (did a mint just happen?), not the response",
-                "  body. The fix lives on that axis.",
-                "",
-                "## Clarifying questions — resolve at mount before coding",
-                "1. Parameterize the retry budget by caller? — `rbgo_get_token_capture` takes a",
-                "   ceiling arg: post-mint consumers (first use after invest/mantle) pass the full",
-                "   window; cold access probes (`rbgv_check_*` behind `rbw-ac*`) pass zero/small.",
-                "   Is call-context the right axis, and is a function parameter the right shape?",
-                "2. Does any access probe run as the FIRST use right after a mint (legitimately",
-                "   needing the window)? Check whether invest/mantle self-verify via a probe — if so",
-                "   the flag must be per-call-site, not a blanket \"probes fail fast.\"",
-                "3. Probe-path ceiling: zero retry, or a small bounded one (a few seconds) to",
-                "   tolerate a genuinely-just-established credential?",
-                "4. Sequencing vs the in-flight ACCOUNT_STATE_INVALID work — the `TEMP-FORENSIC`",
-                "   block in this same function (grep `TEMP-FORENSIC` in rbgo_OAuth.sh; memo-20260527,",
-                "   the touchpoint-2 match it is gathering shape for) overlaps this code. Is this",
-                "   repair the same change as that touchpoint-2 landing, or does it follow it?",
+                "## The surviving surface",
+                "The token-mint / don home is `rba_auth.sh` (`rba_token_capture`, `rba_avow`, `rba_don_capture`); `rba_don_capture` is already single-attempt fail-fast by design — the 403 admission-deficit is logged and returned, never retried as a propagation race.",
+                "The retry-budget consts (`RBGC_SA_KEY_CONSUMER_RETRY_*`, `rbgc_constants.sh`) are vestigial — zero source consumers today.",
+                "The cold access probes are `rbgv_payor_oauth_probe` and the live `rbgv_check_*` family (`rbgv_probe.sh` / `rbgv_cli.sh`).",
                 "",
                 "## Done when",
-                "- Terminal credential failures (stale key / absent SA, no pending mint) fail fast",
-                "  from access probes instead of waiting the full propagation budget.",
-                "- Genuine post-mint propagation races still retry on the existing budget.",
-                "- The chosen design (context axis) is recorded where the function lives.",
+                "A determination, against the settled federation accessor, of whether a deterministically-terminal credential failure can still burn a propagation budget:",
+                "call-context fail-fast added at the surviving touchpoint where it can, or the pace retired with that finding recorded where the surviving code lives.",
+                "Tolerate-or-retire.",
                 "",
-                "## Sources",
-                "- Tools/rbk/rbgo_OAuth.sh — `rbgo_get_token_capture`, the \"Discriminate failure\"",
-                "  block and the `RBGC_SA_KEY_CONSUMER_RETRY_*` constants; the `TEMP-FORENSIC` block",
-                "  marks the related in-flight work.",
-                "- memo-20260527 — Host-B capture gap / ACCOUNT_STATE_INVALID token-endpoint shape.",
-                "- memo-20260608-lode-podvm-cerebro-experiment.md §6 — the empirical 104 s-wait",
-                "  observation (stale Director key + deleted Governor SA, this session)."
+                "## Cinched",
+                "The disambiguator is call context (did a mint just happen?), not the response body.",
+                "Do NOT reintroduce or extend the demolished keyfile SA-propagation loop; keep genuine post-mint propagation tolerance wherever it survives.",
+                "",
+                "## Character",
+                "Surgical re-derivation gated on one design question — judgment, not mechanical.",
+                "Shares its surviving-touchpoint question with sibling ₢BfAAl; mount adjacent or fold."
               ],
               "jjgtn_silks": "token-mint-failfast-terminal-iam",
-              "jjgtn_basis": "6433ebf"
+              "jjgtn_basis": "aa36cf1"
             }
           ]
         },
@@ -17650,21 +17630,23 @@
         "₢BfAAq": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260624-2333",
+              "jjgtn_ts": "260625-1623",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "BARRIER — cross-clone wait. No code work of its own.",
-                "This pace cannot complete until ₢BlAAC (heat ₣Bl — the crucible-module split that relocates RBTDRC_FIXTURES / RBTDRC_SUITES into the registry home) is complete, pushed to origin, and origin merged back into this clone.",
-                "Only then may the next pace — the terrier founding-home finisher — retire its two crucible fixtures, applying that delta against the relocated registry home rather than the old crucible god-module.",
+                "This pace cannot complete until ₢BlAAM (heat ₣Bl — the payor-gate-helper extraction, the LAST ₣Bl pace to touch the terrier fixtures and the registry they live in) is complete, pushed to origin, and origin merged back into this clone.",
+                "Naming ₢BlAAM (not the earlier crucible-module split) is deliberate: the next pace ₢BfAAF retires the two terrier fixtures from the registry, so it must apply that delta against the registry AS FULLY RESTRUCTURED — the module split, the suite⊆roster drift-guard, AND the payor-gate helper that ₢BlAAM extracts from the terrier preambles — not merely the bare relocation.",
+                "₢BlAAM is the latest of those ₣Bl writers; its merge transitively delivers the earlier ones.",
+                "(₢BfAAF is in fact ALREADY covered before this barrier, because the zipper-baton barrier ₢BfAAp pulls ₣Bl through its last zipper write, which post-dates ₢BlAAM; this barrier is the EXPLICIT, robust gate for the crucible delta so that coverage does not silently ride on the zipper baton alone.)",
                 "",
                 "## Done when",
-                "₢BlAAC is wrapped and pushed to origin, and this clone has pulled origin so the relocated fixture/suite registry is present here.",
+                "₢BlAAM is wrapped and pushed to origin, and this clone has pulled origin so the fully-restructured fixture/suite registry (split + drift-guard + payor-gate helper) is present here.",
                 "",
                 "## Character",
                 "Cross-clone barrier; hold here until the named pace is merged through."
               ],
               "jjgtn_silks": "await-thg-registry-relocation",
-              "jjgtn_basis": "76d8c8e"
+              "jjgtn_basis": "aa36cf1"
             }
           ]
         }
