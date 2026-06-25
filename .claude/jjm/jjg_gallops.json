@@ -17999,9 +17999,10 @@
         "₢BiAAg",
         "₢BiAAa",
         "₢BiAAh",
-        "₢BiAAi"
+        "₢BiAAi",
+        "₢BiAAj"
       ],
-      "jjghn_next_pace_seed": "AAj",
+      "jjghn_next_pace_seed": "AAk",
       "jjghn_paces": {
         "₢BiAAC": {
           "jjgpn_tacks": [
@@ -19118,6 +19119,31 @@
               ],
               "jjgtn_silks": "veil-jurisdiction-and-windows-apparatus",
               "jjgtn_basis": "3181622"
+            }
+          ]
+        },
+        "₢BiAAj": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260625-1523",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Goal",
+                "Fold the design substance of heat ₣A- (windows-remote-control / jurisdiction) into the mews aspirant sheaf, then retire ₣A-.",
+                "",
+                "## Cinched",
+                "- Drain the knowledge, not the paces: ₣A-'s paddock — the three-verb jurisdiction model, the caparison ceremonies, the cross-cutting premises, and especially the Windows-transport standing-notes and the memos it cites — is the re-gestation raw material for `Tools/jjk/vov_veiled/JJS-aspirant-mews.adoc`.",
+                "- Abandon, don't migrate, ₣A-'s remaining rough paces (`jjx_show ₣A-`): they are operational convergence on a never-blessed apparatus, or hygiene on soon-veiled code — superseded, not design to mull.",
+                "- Retire ₣A- once drained.",
+                "",
+                "## Done when",
+                "₣A-'s design substance is captured in the mews sheaf, its remaining rough paces are abandoned, and ₣A- is archived.",
+                "",
+                "## Character",
+                "Knowledge consolidation + heat retirement; mulling, not construction. Sequenced after the veil pace (the apparatus is veiled first)."
+              ],
+              "jjgtn_silks": "drain-jurisdiction-heat-into-mews-sheaf",
+              "jjgtn_basis": "5545823"
             }
           ]
         }
