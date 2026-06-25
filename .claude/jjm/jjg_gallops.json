@@ -18991,7 +18991,7 @@
         "₢BlAAB": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260624-2240",
+              "jjgtn_ts": "260625-1626",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "Drafted from ₢BfAAf in ₣Bf.",
@@ -19002,13 +19002,17 @@
                 "The nine hand-spelled suite fixture lists are expressible as wrapper(inner) compositions verified against the gauntlet membership matrix; both REUSE and LIFECYCLE semantics survive; gauntlet green.",
                 "",
                 "## Cinched",
-                "The teardown post-state assertion is STRUCTURALLY INVERTED between tear_down (fail-closed allowlist) and churn (fail-open denylist) — if folded at all, the polarity is an explicit predicate, never a boolean relaxation flag; the lower-risk path leaves the two assertions un-merged. Do NOT rebuild the substrate (rbtdrk_freehold/depot/lifecycle + gauntlet) — LIFT it. The fixture-to-verb seam is settled upstream by the foedus seam-and-pool-integrity design; the payor-gate fold precedes this (the terrier-scaffold consolidation rides here). Detail: the audit memo's pace-slate.",
+                "The teardown post-state assertion is STRUCTURALLY INVERTED between tear_down (fail-closed allowlist) and churn (fail-open denylist) — if folded at all, the polarity is an explicit predicate, never a boolean relaxation flag; the lower-risk path leaves the two assertions un-merged.",
+                "Do NOT rebuild the substrate (rbtdrk_freehold/depot/lifecycle + gauntlet) — LIFT it.",
+                "This is the unblocked head of ₣Bl's order: it lifts already-committed substrate and consumes no cross-clone product, so it has no upstream barrier.",
+                "(The integrity audit struck three stale slate-carryover claims that previously sat in this Cinched block: the foedus fixture-to-verb seam is the LATER reuse-build pace's dependency on the design pace, not this combinator's; the payor-gate fold is LATER in this heat's order, not a predecessor of this pace; the terrier-scaffold retirement is the federation stream's work, not this pace's surface.)",
+                "Detail: the audit memo's pace-slate.",
                 "",
                 "## Character",
                 "Design conversation requiring operator judgment; opus; mount with the operator present."
               ],
               "jjgtn_silks": "freehold-wrapper-combinator-lift",
-              "jjgtn_basis": "f676ede"
+              "jjgtn_basis": "b91ab48"
             }
           ]
         },
@@ -19192,7 +19196,7 @@
         "₢BlAAJ": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260624-2240",
+              "jjgtn_ts": "260625-1626",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "Drafted from ₢BfAAU in ₣Bf.",
@@ -19203,13 +19207,15 @@
                 "FixtureRun resolves foundry-path; the invariant fails the build if any suite gains a roster-less fixture; reveille suite green.",
                 "",
                 "## Cinched",
-                "Assert suite ⊆ roster ONLY, never the reverse — foedus-lifecycle / freehold-churn / calibrant-* are intentional roster-only members of no suite. Build-affecting: rbtdgc_consts.rs + tabtarget-context.md regenerate, yours to commit. Detail: the audit memo's pace-slate (Memos/memo-20260623-theurge-test-consolidation-audit.md).",
+                "Assert suite ⊆ roster ONLY, never the reverse — foedus-lifecycle / freehold-churn / calibrant-* are intentional roster-only members of no suite.",
+                "(The integrity audit struck a false \"rbtdgc_consts.rs + tabtarget-context.md regenerate, yours to commit\" claim that previously sat here: those build-generated files derive ONLY from zipper/colophon edits, and this pace registers a Rust fixture + adds a test — it touches no colophon, so nothing regenerates.)",
+                "Detail: the audit memo's pace-slate (Memos/memo-20260623-theurge-test-consolidation-audit.md).",
                 "",
                 "## Character",
                 "Mechanical heal plus one guard."
               ],
               "jjgtn_silks": "registry-drift-guard-and-heal",
-              "jjgtn_basis": "f676ede"
+              "jjgtn_basis": "b91ab48"
             }
           ]
         },
@@ -19288,7 +19294,7 @@
         "₢BlAAN": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260624-2240",
+              "jjgtn_ts": "260625-1626",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "Drafted from ₢BfAAj in ₣Bf.",
@@ -19297,24 +19303,32 @@
                 "",
                 "## Spec of needed change",
                 "Two settled moves (paddock Foedus-accessor-vocabulary section, 260624):",
-                "Collapse the access family rbw-ac → rbw-a — rbw-aa avow, rbw-ap payor-credential check — and relocate the mantle-access probe to the test bucket.",
+                "Collapse the access family rbw-ac → rbw-a — rbw-aa avow, rbw-ap payor-credential check.",
                 "Move gird rbw-pE → rbw-mG, so rbw-m is the payor founding trio (affiance / jilt / gird) and rbw-p stays purely governor.",
                 "Edit rbz_zipper.sh (the enrollment home), then build to regenerate rbtdgc_consts.rs + claude-rbk-tabtarget-context.md (both build-generated — yours to commit), and repoint the affected citations (claude-rbk-acronyms.md, and gird's spec RBSPG if it cites the colophon).",
-                "The foedus-cardinality (rbw-j) and test-bucket (rbw-q) homes are NOT this pace — they ride the new colophons in the foedus-toothing and orchestrator paces.",
+                "",
+                "## Full edit set (the integrity audit found the original list omitted the runtime-load-bearing parts)",
+                "- RENAME the tabtarget FILES in tt/ (rbw-acp / rbw-acf / rbw-acm / rbw-pE → their new colophons), because a tabtarget's colophon is parsed from its FILENAME at dispatch — an unrenamed file routes the wrong launcher.",
+                "- CAUTION: rbq_qualify does NOT catch a missed rename — live qualify logs \"Checked 0 RBW tabtargets\" (its colophon-freshness check is a dead no-op, a launcher-path-match bug). The renames are RUNTIME-load-bearing, not qualify-enforced; do not trust \"qualify green\" to prove them. (That qualify dead-check is a separate latent defect, flagged for its own disposition.)",
+                "- Clean the stale-by-name colophon references the rename leaves behind, which qualify also will not catch: comments / strings naming rbw-acf / rbw-acm in rbgp_payor.sh, and doc-comments / Fail() strings naming rbw-pE / rbw-acf / rbw-acm in rbtdrk_depot.rs (grep them).",
+                "",
+                "## rbw-acm (mantle-access probe) — destination resolved",
+                "The 260624 note said \"relocate the mantle-access probe to the test bucket,\" but the test bucket rbw-q does NOT exist yet (it is FED-minted downstream, and this pace explicitly disclaims minting rbw-q) — so the original instruction self-contradicted.",
+                "Resolution: rename rbw-acm → rbw-am into the collapsed rbw-a access family NOW (mechanical, in scope); DEFER the move into the test bucket to whenever rbw-q is minted, rather than strand rbw-acm under the retired rbw-ac prefix. (Operator may override the interim home.)",
                 "",
                 "## Done when",
-                "The tree matches the settled homing — rbw-a / rbw-mG enrolled, rbw-ac / rbw-pE gone; the generated files re-derive clean; rbq_qualify (tabtarget/colophon freshness) green; acronym + spec citations repointed.",
+                "The tree matches the settled homing — rbw-a (incl. the interim rbw-am) / rbw-mG enrolled, rbw-ac / rbw-pE gone, the tt/ files renamed to match; the generated files re-derive clean; acronym + spec citations repointed; the stale-by-name refs in rbgp_payor.sh / rbtdrk_depot.rs corrected. Verify by dispatch, not by rbq_qualify, until the qualify colophon-check is repaired.",
                 "",
                 "## Cinched",
                 "Settled decision (operator 260624) — naming is not reopened; this is mechanical execution.",
                 "The casing convention holds (uppercase second letter marks an op that mutates cloud/critical state).",
-                "Only the already-shipped rbw-ac family and the gird move are in scope; the new-colophon foedus/test moves stay with their build paces.",
+                "Only the already-shipped rbw-ac family and the gird move are in scope; the new-colophon foedus / test moves stay with their build paces; the rbw-acm test-bucket move defers with rbw-q.",
                 "",
                 "## Character",
-                "Mechanical colophon relocation via the zipper, fully build-checked."
+                "Mechanical colophon relocation via the zipper; verify by dispatch (rbq_qualify's colophon check is currently a no-op)."
               ],
               "jjgtn_silks": "colophon-relocation-260624",
-              "jjgtn_basis": "f676ede"
+              "jjgtn_basis": "b91ab48"
             }
           ]
         },
