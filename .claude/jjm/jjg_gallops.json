@@ -13250,7 +13250,7 @@
         "₢BDAAj": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260625-1421",
+              "jjgtn_ts": "260625-0929",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "## Character",
@@ -13293,12 +13293,22 @@
                 "   so we can get back to an original passing scenario.",
                 "   Note: reviving the school / breeze / worktree approach may solve this instead.",
                 "",
+                "8. Mount over-renders heat-scoped bitmaps at pace-action time.",
+                "   The file-touch bitmap and commit swim lanes are heat-wide retrospectives;",
+                "   a rough pace with no commits isn't even a column,",
+                "   so they carry no signal for the pace being mounted —",
+                "   groom-time (heat-planning) artifacts misfiring at mount-time (pace-action).",
+                "   Study whether they belong at mount at all,",
+                "   or should suppress when the mounted pace has no commits.",
+                "   By the time this item is mounted, parallel-chat work on this heat",
+                "   will have produced a richer bitmap — more live data on the phenomenon then.",
+                "",
                 "## Done when",
                 "Each item has been explored and expanded into its own scoped pace(s)",
                 "or explicitly declined; this capture pace is then wrapped."
               ],
               "jjgtn_silks": "explore-and-expand-capture-and-display-musings",
-              "jjgtn_basis": "72d3ea0"
+              "jjgtn_basis": "3452fe3"
             }
           ]
         }
