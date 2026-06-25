@@ -25,6 +25,7 @@
 // axhp*_: Axial Hierarchy Protocol (standalone protocol hierarchy markers) → mcm_form_deflist
 // axpo*_: Axial Product-of-Operation (definition-site voicings for operation outputs) → mcm_form_deflist
 // axve_: Axial Voicing Entity (definition-site entity annotations) → mcm_form_deflist
+// axvd_: Axial Voicing Document (definition-site document-role annotations) → mcm_form_deflist
 // axhe*_: Axial Hierarchy Entity (standalone entity hierarchy markers) → mcm_form_deflist
 // xref_: External specification references
 //
@@ -103,6 +104,11 @@
 :axd_mutable:                         <<axd_mutable,Mutable>>
 :axd_wire_type:                       <<axd_wire_type,Wire Type>>
 :axd_xml_form:                        <<axd_xml_form,XML Form>>
+:axd_normative:                       <<axd_normative,Normative>>
+:axd_informative:                     <<axd_informative,Informative>>
+:axd_notional:                        <<axd_notional,Notional>>
+:axd_aspirant:                        <<axd_aspirant,Aspirant>>
+:axd_provenance:                      <<axd_provenance,Provenance>>
 
 // Axial Format Terms
 :axf_bash:                            <<axf_bash,Bash Format>>
@@ -170,6 +176,10 @@
 // Axial Voicing Sprue Terms (definition-site sprue-family annotations)
 :axvs_escutcheon:                     <<axvs_escutcheon,Escutcheon Voicing>>
 :axvs_fascicle:                       <<axvs_fascicle,Fascicle Voicing>>
+
+// Axial Voicing Document Terms (definition-site document-role annotations)
+:axvd_codex:                          <<axvd_codex,Codex Voicing>>
+:axvd_sheaf:                          <<axvd_sheaf,Sheaf Voicing>>
 
 // Axial Hierarchy Operation Terms (standalone hierarchy markers)
 :axhob_operation:                     <<axhob_operation,Hierarchy Operation>>
@@ -1764,6 +1774,72 @@ a
 {axd_mutable}
 structure never seals, and mutation is its standing condition rather than a bounded build phase.
 Worked instances: the Job Jockey gallops records — gallops, heat, pace, tack — whose members are incremented, appended, and updated by the jjx operations.
+
+=== Normativeness Dimensions
+
+These
+{axd_dimension_s}
+declare the *normative status* of a
+{mcm_sheaf} —
+whether and how its content binds.
+Exactly one is required on every
+{axvd_sheaf}
+voicing, and they are mutually exclusive;
+unmarked content reads as
+{axd_normative}.
+The first four mark current standing on a ladder of integrity;
+{axd_provenance}
+marks the backward-looking record.
+Enforcement is grain-stratified: required at the
+{mcm_sheaf}
+grain, where the population is small and the stakes whole-document, and defaulted at finer grain.
+
+[[axd_normative]]
+{axd_normative}::
+Load-bearing and binding — content that code and tests may rely on.
+The prevailing case, and the reading of unmarked content.
+
+[[axd_informative]]
+{axd_informative}::
+Drafted with integrity relative to the
+{axd_normative}
+content, but binding nothing and promising no permanence —
+rationale, a worked example, an explanatory aside.
+A reader may trust it as honest, never as law.
+
+[[axd_notional]]
+{axd_notional}::
+Carrying no integrity promise at all — a notion, a sketch that may be wrong.
+The weakest standing; distinct from
+{axd_informative},
+which still holds itself true to the normative.
+
+[[axd_aspirant]]
+{axd_aspirant}::
+Not yet binding, but actively aspiring to integrity, with an express commitment to be infused into the
+{mcm_codex}
+once it reaches it.
+The status of a feature-nucleation
+{mcm_sheaf}:
+it aspires to join the
+{mcm_canon}
+and is dissolved into it when it does, or retired if rejected.
+A reader must not rely on its content, and released code must not cite identifiers it mints.
+Distinct from
+{axd_notional}
+by its declared trajectory: a
+{axd_notional}
+span merely sits;
+an
+{axd_aspirant}
+one strives.
+
+[[axd_provenance]]
+{axd_provenance}::
+A record of origin, never authority — how a thing came to be, not what currently binds.
+Backward-looking by construction, so it cannot masquerade as forward authority;
+it informs judgement without commanding it.
+The native status of a memo-class record.
 
 === Regime Dimensions
 
@@ -3383,6 +3459,68 @@ Voices a
 {mcm_sprue}
 family whose members are the field keys of one RB-authored wire document — for example the `rblv_` keys of the vouch envelope.
 Obligation: every key bearing the prefix belongs to the declared envelope schema.
+
+== Axial Voicing Document Terms
+
+{axvd_*} annotations declare the *document role* a file plays in a
+{mcm_concept_model_p}
+composition — whether it is the
+{mcm_codex}
+that owns the vocabulary or a
+{mcm_sheaf}
+that consumes it.
+They make the file-composition tree, today implicit in include paths, explicit and machine-checkable:
+the
+{axvd_sheaf}
+voicing carries the
+{mcm_tendon}
+reference that a validator checks against the
+{mcm_codex}
+it names.
+
+=== Definition-Site Voicing Annotations (axvd_*)
+
+{axvd_*} annotations appear at a
+{axl_definition_site},
+between anchor and definition where the file declares itself.
+The annotation line starts with `//axvd_` (no space after `//`), followed by the specific voicing term.
+
+[[axvd_codex]]
+{axvd_codex}::
+Declares a file the
+{mcm_codex}
+of a
+{mcm_concept_model} —
+the head that owns the
+{mcm_mapping_section}
+and lists its
+{mcm_sheaf_s}.
+Placed at the file head;
+declares the identity each
+{mcm_sheaf}
+names back through its
+{mcm_tendon}.
+
+[[axvd_sheaf]]
+{axvd_sheaf}::
+Declares a file a
+{mcm_sheaf}
+included into a named
+{mcm_codex}.
+Carries the
+{mcm_tendon}
+reference — the
+{mcm_codex}
+it names back — and exactly one normativeness
+{axd_dimension}.
+Placed both at the
+{mcm_sheaf}
+head and at its inclusion point in the
+{mcm_codex},
+so neither a reader of the part nor a reader of the head can be misled;
+where the status is non-{axd_normative}, the head also carries a
+{mcm_fair_faced}
+prose banner declaring it.
 
 == Axial Type Universal Terms
 

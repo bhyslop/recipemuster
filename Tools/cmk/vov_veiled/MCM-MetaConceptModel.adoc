@@ -16,6 +16,7 @@
 
 :mcm_digital_mind:           <<mcm_digital_mind,Digital Mind>>
 :mcm_digital_mind_s:         <<mcm_digital_mind,Digital Minds>>
+:mcm_digital_mind_p:         <<mcm_digital_mind,Digital Mind's>>
 :mcm_editor:                 <<mcm_editor,Editor>>
 :mcm_editor_p:               <<mcm_editor,Editor's>>
 
@@ -44,6 +45,8 @@
 :mcm_stun:                   <<mcm_stun,Stun>>
 :mcm_trodden_word:           <<mcm_trodden_word,Trodden Word>>
 :mcm_trodden_word_s:         <<mcm_trodden_word,Trodden Words>>
+:mcm_leached_word:           <<mcm_leached_word,Leached Word>>
+:mcm_leached_word_s:         <<mcm_leached_word,Leached Words>>
 :mcm_word_cancer:            <<mcm_word_cancer,Word Cancer>>
 :mcm_word_cancer_s:          <<mcm_word_cancer,Word Cancers>>
 
@@ -58,6 +61,10 @@
 :mcm_fair_faced:             <<mcm_fair_faced,Fair-Faced>>
 :mcm_hearting:               <<mcm_hearting,Hearting>>
 :mcm_toothing:               <<mcm_toothing,Toothing>>
+:mcm_hallowed_word:          <<mcm_hallowed_word,Hallowed Word>>
+:mcm_hallowed_word_s:        <<mcm_hallowed_word,Hallowed Words>>
+:mcm_fallow_word:            <<mcm_fallow_word,Fallow Word>>
+:mcm_fallow_word_s:          <<mcm_fallow_word,Fallow Words>>
 
 :mcm_definition_section:     <<mcm_definition_section,Definition Section>>
 :mcm_definition_section_s:   <<mcm_definition_section,Definition Sections>>
@@ -69,6 +76,18 @@
 :mcm_notional_snippet:       <<mcm_notional_snippet,Notional Snippet>>
 :mcm_notional_snippet_s:     <<mcm_notional_snippet,Notional Snippets>>
 
+:mcm_canon:                  <<mcm_canon,Canon>>
+:mcm_canon_s:                <<mcm_canon,Canons>>
+:mcm_pandect:                <<mcm_pandect,Pandect>>
+:mcm_pandect_s:              <<mcm_pandect,Pandects>>
+:mcm_codex:                  <<mcm_codex,Codex>>
+:mcm_codex_s:                <<mcm_codex,Codices>>
+:mcm_codex_p:                <<mcm_codex,Codex's>>
+:mcm_sheaf:                  <<mcm_sheaf,Sheaf>>
+:mcm_sheaf_s:                <<mcm_sheaf,Sheaves>>
+:mcm_tendon:                 <<mcm_tendon,Tendon>>
+:mcm_tendon_s:               <<mcm_tendon,Tendons>>
+
 :mcm_linked_term:            <<mcm_linked_term,Linked Term>>
 :mcm_linked_term_s:          <<mcm_linked_term,Linked Terms>>
 :mcm_quoin:                  <<mcm_quoin,Quoin>>
@@ -79,6 +98,8 @@
 :mcm_sprue_s:                <<mcm_sprue,Sprues>>
 :mcm_rivet:                  <<mcm_rivet,Rivet>>
 :mcm_rivet_s:                <<mcm_rivet,Rivets>>
+:mcm_precept:                <<mcm_precept,Precept>>
+:mcm_precept_s:              <<mcm_precept,Precepts>>
 :mcm_attribute_reference:    <<mcm_attribute_reference,Attribute Reference>>
 :mcm_attribute_reference_s:  <<mcm_attribute_reference,Attribute References>>
 :mcm_line_break:             <<mcm_line_break,Line Break>>
@@ -149,6 +170,104 @@ that provide precise meaning for each term
 Through these elements, the
 {mcm_document}
 maintains the delicate balance between rigorous structure and organic concept evolution, allowing the idea constellation to grow while preserving its essential relationships.
+
+== Document Composition
+
+A
+{mcm_concept_model}
+of any size is rarely one file.
+It composes into a fileset on four levels, each a unit of the manuscript that holds it.
+The levels name what the include tree already builds; naming them lets a voicing bind a part to its whole and declare what binds.
+
+[[mcm_sheaf]]
+{mcm_sheaf}::
+A subordinate detail treatment included into a
+{mcm_codex} —
+one gathering of the larger work.
+A
+{mcm_sheaf}
+consumes its
+{mcm_codex_p}
+vocabulary rather than minting its own, carrying no
+{mcm_mapping_section}
+of its own, and binds to its
+{mcm_codex}
+through a
+{mcm_tendon}.
+Every
+{mcm_sheaf}
+declares exactly one normativeness status — the axial status dimension — both at its head and at its inclusion point.
+
+[[mcm_codex]]
+{mcm_codex}::
+The root file of a
+{mcm_concept_model}:
+the head that owns the
+{mcm_mapping_section},
+defines the vocabulary, and lists its parts — but holds none of the detail.
+The connective mesentery of the document family: the structure that gives the parts their shape and shared lexicon without being the organs themselves.
+A
+{mcm_codex}
+includes its
+{mcm_sheaf_s}
+and is the authoritative source from which they draw their terms.
+First instinct reads "codex" as the whole bound book; here it names the binding head alone — the whole assembled work is the
+{mcm_pandect}.
+
+[[mcm_pandect]]
+{mcm_pandect}::
+One whole assembled
+{mcm_concept_model}:
+a
+{mcm_codex}
+together with all its
+{mcm_sheaf_s},
+the complete treatise on its subject.
+The
+{mcm_pandect}
+is the rarely-named level — work happens in the
+{mcm_codex}
+and its
+{mcm_sheaf_s};
+the assembled whole is referenced seldom.
+
+[[mcm_canon]]
+{mcm_canon}::
+The entire body of every
+{mcm_pandect} —
+the whole library of a project's specifications, taken as one authoritative collection.
+As the literary canon is the collection of all admitted works, the
+{mcm_canon}
+is the collection of all
+{mcm_pandect_s}.
+
+[[mcm_tendon]]
+{mcm_tendon}::
+The structural tie binding a
+{mcm_sheaf}
+to its
+{mcm_codex}.
+As a tendon anchors a moving part to a stable frame at two ends, a
+{mcm_tendon}
+anchors the
+{mcm_sheaf}
+that may change to the
+{mcm_codex}
+that owns the vocabulary: the
+{mcm_codex}
+declares its identity once, each
+{mcm_sheaf}
+names it back, and a validator checks the bijection — every
+{mcm_sheaf}
+binds to a real
+{mcm_codex},
+and every inclusion resolves to a
+{mcm_sheaf}
+that names its
+{mcm_codex}.
+The
+{mcm_tendon}
+makes membership a checkable invariant rather than an inference from the include path.
 
 == Text Organization
 
@@ -1009,6 +1128,47 @@ Founding specimen: Job Jockey's equestrian vocabulary (JJS0, Equestrian Vocabula
 Model-side rationale: `Memos/retired/memo-20260610-quoin-minting-introspection.md`;
 prefix-side sibling: `Memos/memo-20260110-acronym-selection-study.md`.
 
+=== Reserved Vocabulary
+
+Two further states of ground complete the soil family begun in the Antipatterns
+({mcm_trodden_word},
+{mcm_leached_word}).
+Those *disqualify* a word for a defect — wrong valence or none.
+These *reserve* a sound word by deliberate choice, withholding it from minting so a resource stays available.
+A reserved word is not unmintable in itself; it is held back, and the census of each grows by discovery rather than being settled in advance.
+
+[[mcm_hallowed_word]]
+{mcm_hallowed_word}::
+A word withheld from minting because it carries strong resonance to the
+{mcm_digital_mind_p}
+nature, such that enclosing it in one frozen meaning would dull a resource the collaboration relies on.
+The name is the gestalt: hallowed ground, set apart and not to be trodden.
+Reserved to protect the *word's* resonance.
+The tell that a word belongs here is a redefinition in context that lands with a jarring loss of valence;
+the
+{mcm_digital_mind}
+is a poor judge of its own reserves, since its nature is to adopt the
+{mcm_editor_p}
+word-use quickly, so the census grows by noticing surprise, not by introspection.
+Seed: spine.
+
+[[mcm_fallow_word]]
+{mcm_fallow_word}::
+A word withheld from minting because the
+{mcm_editor}
+keeps it in active use for context-painting — improvised explanation that needs the word to stay fluid and polysemous.
+The name is the gestalt: fallow ground, left as commons rather than enclosed, so it stays freely grazable.
+Minting encloses a word into one meaning;
+a
+{mcm_fallow_word}
+resists enclosure to remain a brush on the
+{mcm_editor_p}
+palette.
+Reserved to protect the *editor's* explanatory reach, where
+{mcm_hallowed_word}
+protects the word's resonance.
+Seed: mesentery, constellation.
+
 === Exposure
 
 Word-selection care scales with who must read the name.
@@ -1172,6 +1332,20 @@ the reader states what they expect the word to do or mean.
 The stated expectation is the verdict —
 mismatch fails the candidate,
 and no advocacy by the minter is admitted.
+The verdict resolves into three outcomes, ranked:
+a reader who acts correctly (the word is
+{mcm_fair_faced});
+a reader who draws a blank but knows to seek context (safe — the blank is self-correcting);
+and a reader who acts *confidently on the wrong meaning* — a *false friend*, the worst outcome, because it is self-confirming and silently in error.
+A false friend is worse than a blank.
+The bar is exposure-dependent:
+an
+{mcm_ashlar}
+must reach the first outcome, since no glossary is at hand when it surfaces in output;
+a spec-interior
+{mcm_quoin}
+need only avoid the third, since its definition is at hand to turn a blank into knowledge.
+A word that draws a blank but evokes the right image is therefore a safe spec-interior mint, where a confidently-misread one is not.
 
 == Antipatterns
 
@@ -1238,6 +1412,26 @@ and search for the
 and invites the plan-versus-product bleed that vocabulary isolation exists to prevent.
 Semantic fit never rescues it:
 the word is disqualified before fit is weighed.
+
+[[mcm_leached_word]]
+{mcm_leached_word}::
+An
+{mcm_antipattern}:
+a persistent name minted from vocabulary worn so smooth by *universal* use that it fires no valence at all —
+content, data, item, thing, value, object, element.
+The name is the gestalt: ground leached of every nutrient, giving nothing back.
+Where a
+{mcm_trodden_word}
+evokes the *wrong* thing — a specific ambient domain that floods the grep —
+a
+{mcm_leached_word}
+evokes *nothing*: too generic to lodge in a reader or to do semantic work.
+The two are the disqualified pair of the soil family;
+the reserved pair —
+{mcm_hallowed_word}
+and
+{mcm_fallow_word} —
+withholds good words by choice rather than disqualifying bad ones.
 
 [[mcm_word_cancer]]
 {mcm_word_cancer}::
@@ -1401,6 +1595,32 @@ and
 {mcm_sprue}
 are by contrast *lookahead arguments* that voicings read, never voiced
 subjects.
+
+[[mcm_precept]]
+{mcm_precept}::
+A formal identifier for a numbered conformance rule that a coding guide defines
+once and that tests cite to determine conformance.
+The open cousin of the
+{mcm_rivet}:
+the same define-once, cite-by-search census with no registry to drift, but the
+identifier is *readable and numbered* (CBi_101, JDo_101, ACGm_101) rather than
+opaque — because a guide governs open conventions with nothing to hide, where a
+{mcm_rivet}
+guards closed reasoning that must not leak into released code.
+A
+{mcm_precept}
+is *audit-anchored*: its conformance is sincerely determined by the tests that
+cite it, and a deviation cites the
+{mcm_precept}
+it bends.
+The two share the citation axis and differ only by exposure; distinct from the
+{mcm_tendon},
+which carries membership rather than a cited proposition.
+Kind-classification, should
+{mcm_precept_s}
+ever need it, is deferred to an axial voicing as the
+{mcm_rivet}
+has the `axvc_` family.
 
 [[mcm_category]]
 {mcm_category}::
