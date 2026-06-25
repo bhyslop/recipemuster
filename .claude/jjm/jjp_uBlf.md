@@ -3,8 +3,8 @@
 This heat is the federation-BUILD stream of the MVP federation work.
 It owns the federation/manor region of RBS0-SpecTop and the federation entries of the acronym registry (claude-rbk-acronyms.md), and it carries the federation idea-catalog of still-live strands deliberately deferred from ₣BZ.
 
-The spine is slated and builds independently of ₣BZ: the spec-first recast, the mechanism-gated affiance arm, the Keycloak orchestrator, the programmatic accessor, and the per-vendor setup guide.
-Only the attach-caged-subject tail stays held, gated on ₣BZ landing — it consumes ₣BZ's admission verbs and waits on them.
+The spine is slated: the spec-first recast, the mechanism-gated affiance arm, the Keycloak orchestrator, the programmatic accessor, and the per-vendor setup guide.
+The attach-caged-subject tail consumes ₣BZ's admission verbs; with ₣BZ complete those verbs have landed, so the tail is slatable too rather than held.
 Five federation-MVP re-derivations (the keyfile-era loose-ends restrung in from the sibling MVP heat) are folded in below, re-deriving against the now-stable federation auth surface this spine builds.
 
 Posture (cinched for this heat): premise-touching ideas are operator-owned — any idea that would amend a cinched ₣BZ premise stays a parked idea until the operator takes it up.
@@ -14,7 +14,7 @@ Genuinely thin or orthogonal ideas belong in itches or the horizon roadmap, not 
 ## Conviction — the federation configuration model (settled modeling axis)
 
 The one settled shape in this paddock: the modeling axis is decided, even though the build is not.
-What is settled is HOW a federation is modeled; the build spine is now slated and builds independently of ₣BZ — only the deferred attach-caged-subject unit consumes ₣BZ's admission verbs and waits on ₣BZ landing — and the vocabulary it needs is now minted in-heat (operator decision 260623), no longer gated on Fable.
+What is settled is HOW a federation is modeled; the build spine is now slated, and the vocabulary it needs is minted in-heat (operator decision 260623).
 
 The deciding finding: Google Workforce Identity Federation provider config is vendor-invariant — the same gcloud flags with identical semantics for Microsoft Entra, Okta, or generic OIDC, only the values differ (doc-confirmed against live GCP docs).
 So the regime must not enumerate vendors; enumerating them was reasoning from exactly two, and the docs settle that the shape generalizes.
@@ -53,7 +53,7 @@ The JWKS rotates per charge — the realm signing key is generated fresh on impo
 The test-facility orchestrator is ONE coherent BCG module: charge then ready-poll then fetch-JWKS then call affiance, and the inverse jilt then quench.
 It composes existing verbs plus the one JWKS bridge; it does NOT contain the accessor (that stays a mechanism arm of rba, the production-shared STS-then-don machinery) and it does NOT reimplement affiance or jilt (existing production verbs, called not contained — brevet is admission, owned by the separate deferred attach-caged-subject unit, never this orchestrator).
 Membrane: affiance never learns "Keycloak" — all Keycloak knowledge is quarantined in the baked realm DATA and this orchestrator; the orchestrator names its vessel by reference but is BLIND to the realm contents (affiliation by reference, never by ownership), which is what stops the de-lamination from silently re-laminating.
-Naming (minted in-heat 260623, gates applied by hand, grep-clean, terminal-exclusivity intact): the module is rbxk_keycloak.sh in a new rbx family — the federation establishment / synthetic-trust test-rig family, pre-earmarked in the proof header as the "rbx_ establishment/accessor units"; its setup/teardown tabtargets take colophons under rbw-xkX.
+Naming (minted in-heat 260623, gates applied by hand, grep-clean, terminal-exclusivity intact): the module is rbxk_keycloak.sh in a new rbx family — the federation establishment / synthetic-trust test-rig family, pre-earmarked in the proof header as the "rbx_ establishment/accessor units"; its setup/teardown tabtargets take colophons under rbw-qjK (the colophon homing settled below).
 The rbx letter doubles as a holding family for other poorly-slotted things until a later mass remint; rby was rejected as it is the yelp/handbook-vocabulary family (rbyk would have been terminal-legal but incoherent).
 One bondstone — the keycloak facility, named plainly because a test-scaffold bondstone wants the most cold-probe-able word, not an asterism word; the setup/teardown verbs are toothing on it, settled plainly at module-cut time.
 
@@ -61,26 +61,17 @@ RESOLVED (260622, operator decision — see the config-model memo's "Fork resolu
 Fork one (test-manor topology) — MULTIPLICITY IS THE GOAL: the test manor stands up the real Entra foedus (interactive) and a Keycloak test foedus (programmatic) side by side, each its own pool; per-run-switching is rejected, a dedicated second org is noted-unneeded.
 Fork two (programmatic JWKS source) — a single UPLOADED field: the local Keycloak crucible is unreachable from Google so its public JWKS must be uploaded regardless; the token behind it may be Keycloak-minted (preferred) or self-signed (fallback), a choice below the regime; issuer-discovered is not modeled (re-cut named if a publicly-hosted automated IdP ever enters).
 
-Minted in-heat (260623, was Fable-flagged): the mechanism discriminator quoin and its value words, and the two new RBS0 subdoc acronyms this model calls for, are minted in-heat applying the gates by hand (grep gate, terminal-exclusivity, family coherence) — no longer deferred to Fable's asterism pass.
+Minted in-heat (260623): the mechanism discriminator quoin and its value words, and the two new RBS0 subdoc acronyms this model calls for, are minted in-heat applying the gates by hand (grep gate, terminal-exclusivity, family coherence).
 
 Detail and reasoning trail: the federation-config-model memo (Memos/memo-20260618-Bf-federation-config-model.md).
 
-## Idea — foedus, the configured-federation noun (keystone vocabulary)
+## Idea — foedus, the configured-federation noun (adopted)
 
-Tension: the civic vocabulary names every actor and container in the federation story — the manor that founds, the depot that runs, the citizen who signs in, the mantle they don, the assize they open — but has no noun for the configured trust itself.
-A configured federation is referred to mechanically (the workforce pool plus provider plus attribute mapping) or with the overloaded word federation, which carries both the concept and the instance at once.
-
-Why it is the keystone: the healthy payor-governor model is only sayable as a relationship between named nouns, and three ideas below lean on it — multiple federations names instances of it, the governor-selects idea affiliates a depot with one, and the payor federation-setup guide configures one.
-With the noun the model collapses to four speakable lines: the payor founds one foedus (affiance, org-scope); the payor sanctions a set of them as eligible (the bound); the governor affiliates a depot with a sanctioned foedus (depot-scope); a depot draws its citizens from the foedus it is affiliated with.
-
-Chosen noun (working lean): foedus — the Latin treaty between a sovereign and an external people (the foederati), and the literal root of the word federation.
-It names the standing trust structurally — a pact with an external authority — and it is tightly mnemonic, being the etymon of the very concept it names; it pluralizes (foedera) for the multiple-federations idea.
-The noun is a folio, not a colophon: a named foedus is data passed as a parameter to operations that stay homed by actor — the payor founds and dissolves a foedus (affiance and jilt in the payor file), the governor affiliates a depot with one.
-So the noun claims no colophon family, which dissolves the earlier worry that a configured-federation tabtarget family would collide with Crucible's rbw-c — the worry that had ruled out the con-/com- binding-together words (concordat, covenant); foedus is preferred over those for its tighter tie to the word federation itself.
-Noted tradeoff carried to the mint: foedus is Latin and opaque, so a fresh operator may not parse it cold; the fair-faced cold-probe is the load-bearing gate before it hardens.
-ADOPTED in-heat (operator decision 260623): foedus is the RBS0 civic quoin (rbtf_ federation-civics category) for the configured federation; the grep gate is clean and the cold-probe is discharged by a first-contact gloss wherever the word faces a fresh operator.
-Verb-register settled: affiance/jilt stay as the founding/un-founding verbs and coexist with the foedus noun — affiance founds ONE foedus per call, correct even when the manor holds several, so the betrothal-register impurity is accepted rather than buy a costly eviction sweep of two live verbs (a treaty-register migration, if ever wanted, is a standalone remint, not build work).
+Foedus is the adopted civic noun for the configured federation (operator decision 260623): the RBS0 rbtf_ federation-civics quoin the spec-first spine unit homes — the rbtf_foedus quoin is not yet built.
+It is a folio, not a colophon: a named foedus is data passed as a parameter to operations homed by actor — the payor founds and dissolves one (affiance/jilt), the governor affiliates a depot with one.
 The noun denotes the configured shape — a vendor-agnostic trust core plus an acquisition-mechanism gate, vendor identity deliberately not a field of it — not the raw pool-plus-provider-plus-mapping mechanics.
+Why it is the keystone (the model the governor-role and health-assurer ideas below lean on): the healthy payor-governor model collapses to four speakable lines — the payor founds one foedus (affiance, org-scope); the payor sanctions a set of them as eligible (the bound); the governor affiliates a depot with a sanctioned foedus (depot-scope); a depot draws its citizens from the foedus it is affiliated with.
+The noun-selection deliberation (foedus vs concordat/covenant, the etymology, the verb-register settlement) is drained to the heat-memories memo.
 
 ## Idea — payor federation-setup guides (one per vendor)
 
@@ -95,76 +86,24 @@ Current lean: a guide-family procedure under the payor-guide family, with Entra 
 
 Source: the federation spike found the only console work was identity-provider-side; everything Google-side was payor-token REST.
 
-## Idea — multiple federations (a federation-regime family)
+## Idea — freeholds: the three live residuals
 
-Tension: today one federation regime serves the whole manor — one workforce pool, one subject namespace.
-A single pool makes every provider a full root of trust over the whole namespace, so the pool's security floor is its weakest provider, and there is no way to isolate two real trust domains, or to isolate a test trust from a production trust.
-
-Distinct from the conviction above: that conviction governs one federation's shape (vendor-agnostic core plus mechanism gate, on a single active federation), whereas this idea is the orthogonal axis of how many federations the manor holds at once.
-SETTLED (260622): this axis is no longer deferred — it is a GOAL of the heat (the operator's swap-foedera-in-and-out aim).
-The degenerate-test idea's own-pool requirement made the cleave moot: a test manor must hold both the interactive Entra trust and a programmatic test trust at once, so multiplicity is required and adopted, not merely possible.
-The civic-hierarchy nod for the governor-selects feature is operator-owned premise work; the attach/swap verb wording is minted in-heat; the design direction is decided.
-
-Current lean: let the federation regime become a family of named instances (the pattern the nameplate and per-identity auth regimes already use), with affiance keyed to a named instance and each instance its own pool.
-Buys trust isolation between real identity providers, per-depot-group trust, and — the load-bearing one — test/production separation.
-
-Enables the degenerate-test-federation idea and the governor-selects-federation idea below; both presuppose it.
-
-## Idea — degenerate test federation
-
-Tension: the federation suites compear once at suite head — one human browser click per run — which is fine for operator-driven runs but cannot run unattended.
-
-LEAN FLIPPED (260622): Keycloak (a real conformant OIDC server, run as a local crucible) is the PREFERRED automated path — it exercises the genuine token-endpoint + signature mechanism, no hack.
-The self-signed-caged JWT ("R4's ghost", below) demotes to a fallback used only if Keycloak's non-interactive grant disappoints.
-The corpus carried these even-handedly as a control-vs-realism spectrum and leaned caged; realism wins for routine automated runs.
-The ride-or-die end-to-end proof of the Keycloak→GCP→don chain (via uploaded JWKS) is now slated — the link the corpus only ever paper-confirmed, never harness-ran.
-
-Modeling, folded into the conviction above: the caged path is not a vendor at all but a value of the mechanism gate — mechanism=programmatic, a self-held signing keypair, its public JWKS uploaded to a workforce provider, tokens minted locally and POSTed straight to the STS token endpoint.
-That much is settled by the conviction; what is NOT settled is whether to adopt a caged path at all — whether a test-org-only signing key is an acceptable quarantined exception or the per-run human click stays.
-That judgment is the heat's to settle, operator-owned (no Fable review to wait on).
-
-Hard constraint: the caged signing key is a new durable secret and a root of trust over its pool.
-It must live in its own pool and never share one with real citizens, and it must never stand in for the paces whose whole purpose is to prove the real human-click path.
-The private signing key never enters the federation regime — only the public JWKS commits, the conviction's public-commits / private-fenced seam — and the key lives marshal-fenced.
-
-Premise question RESOLVED (260622): the own-pool constraint settles the multiplicity axis as a GOAL — a test manor holds the interactive trust and the programmatic test trust at once, each its own pool, so no collision remains.
-
-Why the durable-secret worry relaxed (260622): with Keycloak holding its own key in a test crucible, the key is test scaffolding outside the shipped zero-keys design — not a production secret we hold — so the premise tension that drove the deferral largely dissolves (the operator ratifies the wording).
-The interactive human-click proof still cannot be automated away; exactly one thin human-present pace stays for the device-flow leg.
-
-Detail and sources: the degenerate-federation test-personas memo records the two degenerate shapes (caged self-signed JWT; real test IdP on a non-interactive grant), the live-doc confirmation of the programmatic STS flow, the can/cannot-prove boundary, and the GCP / Keycloak / RFC URLs.
-Honesty: doc-confirmed down to the --jwk-json-path flag and the client-id=aud match; not yet harness-proven end-to-end.
-
-## Idea — freeholds: durable reused test installations
-
-Tension: a federation test-bed is expensive to churn.
-A workforce pool soft-deletes for 30 days and counts against the 100-per-org cap the whole time, and a soft-deleted id cannot be re-created, only undeleted — the same churn-quota pain depots already carry (why the team runs skirmish over gauntlet).
-Recreating the trust and its citizens every run does not scale.
-
-Current lean: a freehold — a durable, deliberately-kept test installation reused day-to-day, set against the ephemeral create→destroy lifecycle fixture (the freehold/leasehold contrast).
-It cross-cuts depot and foedus, and the two are intertwined: a muniment binds a foedus principal to a depot mantle, so the standing-citizen roster is the join between them — the manor-wide roll is the foedus view, the per-polity slice the depot view — and post-impersonation a depot's mantles are donnable only through a foedus.
-
-RECONCILED (terminal Fable review, 260622 — see Memos/memo-20260622-fable-review-queue.md): the as-built diverged from this split. ₣BZ already BUILT the depot-freehold (the canonical→freehold rename landed; freehold-establish/churn ride the gauntlet), so the broad blast-radius is done, not pending. Only foedus-LIFECYCLE is a built fixture; the foedus-FREEHOLD is an un-tested config posture (one durable pool kept alive, never jilted). Quota-flatness comes from NEVER-jilting the durable pool, NOT from undelete: affiance was reshaped to refuse-and-rotate (hard-error on a soft-deleted pool + bump the pool id), which closes the "dead trust reported live" bug by the opposite mechanism — so the undelete prerequisite is struck.
-₣Bf's genuine freehold residual is three narrow items: (1) the foedus-freehold-VERIFY fixture (the un-built durable-reuse green target; reserved suite word "parley"); (2) the multi-citizen roster slice (needs the headless/degenerate IdP for a 2nd standing subject); (3) the terrier permanent founding-home (below — now resolved).
-Residual (2), the multi-citizen roster slice, is DEFERRED with the held attach-caged-subject build-unit (premise/₣BZ-gated): a 2nd standing subject needs either the headless/degenerate IdP or ₣BZ's admission verbs, neither present yet, so it carries no ₣Bf pace by design.
-Composes with the ideas above: a freehold would be a named instance (the multiple-federations idea) and, for unattended runs, a degenerate federation.
-
-Release-cadence refresh: when the quota-touching lifecycle does run (say at releases), it also refreshes the freehold — jilt then re-establish, ordered after the lifecycle's own create→jilt passes so cleanup is proven on a throwaway before it touches the durable pool.
-Buys isolation from stale freeholds.
+A freehold is a durable, deliberately-kept test installation reused day-to-day, set against the ephemeral create→destroy lifecycle fixture (the freehold/leasehold contrast).
+It cross-cuts depot and foedus: a muniment binds a foedus principal to a depot mantle, so the standing-citizen roster is the join between them (the manor-wide roll is the foedus view, the per-polity slice the depot view).
+₣BZ already built the depot-freehold; quota-flatness rides affiance's refuse-and-rotate, not undelete (the full reconciliation is drained to the heat-memories memo).
+₣Bf's three live residuals:
+(1) the foedus-freehold-VERIFY fixture — the un-built durable-reuse green target, reserved suite word parley;
+(2) the multi-citizen roster slice — a 2nd standing subject, via the headless/degenerate IdP the spine builds or the now-built admission verbs;
+(3) the terrier permanent founding-home — below.
+Release-cadence refresh: when the quota-touching lifecycle runs (say at releases) it also refreshes the freehold — jilt then re-establish, ordered after the lifecycle's own create→jilt passes so cleanup is proven on a throwaway before it touches the durable pool.
 
 ## Idea — the terrier's permanent founding-home
 
-Tension: ₣BZ builds the terrier (the manor's muniment store — the cloud bucket of who-holds-which-mantle records) and provisions it for the freehold via an interim scaffold tabtarget, but does not wire its creation into any founding ceremony.
-It is tempting to fold that provisioning into manor establishment during the MVP heat — most naturally by enlarging affiance to ensure the bucket alongside the workforce pool, or by minting a dedicated manor-provision op.
-That temptation is the ₣BZ↔₣Bf conflation: it was raised and withdrawn in ₣BZ conversation (260618), because the terrier's permanent home is entangled with the manor-establishment reshape this heat owns.
-
-Why it is this heat's: the bucket lives in the payor project (RBS0 makes the manor and the payor project one entity), but whether there is one terrier per manor or one per foedus turns on the multiple-federations idea; and whether affiance is the right home turns on the foedus verb-register question (affiance/jilt are monogamous betrothal verbs while a foedus pluralizes — "you do not betroth a foedus").
-Deciding the terrier's home before those settle would pre-commit them.
-
-RESOLVED (terminal Fable review, 260622): the founding-home is OPTION B — Manor-founding provisions the terrier, NOT affiance (affiance touches the terrier nowhere; the bucket name is foedus-independent and its IAM binds the depot-born governor mantle SA, not a foedus principal). Operator CINCHED the shape: the terrier-build plus all scriptable manor-setup go into ONE idempotent "post-payor-guide manor-setup finisher" tabtarget (a dedicated op, run after the manual manor setup), which retires the rbw-dt/dT scaffold. Genuinely residual for ₣Bf: which B-variant exactly (a standing op vs enlarging a manor-establish ceremony that does not exist yet — lean: standing op); where the per-polity folder step lands (grain says depot-levy, but the folder is in the payor-project bucket so it needs a payor-credentialed actor); and the per-Manor-vs-per-foedus cardinality (default one-per-Manor; per-foedus is operator-owned design).
-
-Settled regardless (carried from ₣BZ, RBS0-grounded): the bucket lives in the payor project; the per-polity managed folder is depot-grain; manor establishment's project/OAuth half is manual Console and cannot be scripted, so any home is for the scriptable remainder.
-Cross-note (configuration model): the caged-federation establishment is another founding-time gesture a synthetic test manor would stand up, so this "what founding ensures" shape now has one more sibling to weigh — recorded as a coupling only, not a widening of the decision here.
+Founding-home RESOLVED (terminal Fable review 260622): OPTION B — Manor-founding provisions the terrier, NOT affiance (affiance touches the terrier nowhere; the bucket name is foedus-independent and its IAM binds the depot-born governor mantle SA, not a foedus principal).
+Operator cinched the shape: the terrier-build plus all scriptable manor-setup go into ONE idempotent post-payor-guide manor-setup finisher tabtarget, retiring the rbw-dt/dT scaffold (the option-fork deliberation and the ₣BZ-conflation history are drained to the heat-memories memo).
+Live ₣Bf residuals: which B-variant exactly (a standing op vs enlarging a not-yet-existing manor-establish ceremony — lean: standing op); where the per-polity folder step lands (grain says depot-levy, but the folder is in the payor-project bucket so it needs a payor-credentialed actor); and the per-Manor-vs-per-foedus cardinality (default one-per-Manor; per-foedus is operator-owned design).
+Settled regardless (RBS0-grounded): the bucket lives in the payor project; the per-polity managed folder is depot-grain; manor establishment's project/OAuth half is manual Console, so any home is for the scriptable remainder.
+Cross-note: the caged-federation establishment is another founding-time gesture a synthetic test manor stands up, so this "what founding ensures" shape has one more sibling to weigh — a coupling, not a widening.
 
 ## Idea — federation testing collapses onto the real verbs
 
@@ -178,14 +117,14 @@ The fixture then invokes only verbs that exist for real operator reasons, so no 
 Trap to avoid: the lazy collapse — relocating rbw-dt/rbw-dT into an rbw-t* test group — sheds the wrong-family strangeness but keeps the synthetic-payor shallowness and the obligation; reject it.
 Honest residual: real verbs swallow the engross/expunge disposition, so asserting the precise 412/404 idempotency may still want a small rbgft data-layer unit test — homed honestly in test-infra, never a production-family verb.
 
-Composes with the founding-home idea and the build spine's attach-via-admission-verbs unit (this is that unit's operator-compearance sibling); not premise-touching and needs no new vocabulary, so it can graduate without the Fable gate.
+Composes with the founding-home idea and the build spine's attach-via-admission-verbs unit (this is that unit's operator-avowal sibling); not premise-touching and needs no new vocabulary, so it can graduate freely.
 
 ## Idea — release suites lost their credential-heal preamble
 
 Tension: skirmish, dogfight, and blockade each led with the freehold-enrobe fixture as a keyfile credential-heal — re-mantling the governor and defrock/re-enrobing retriever and director so the real fixture found fresh service-account keys against a standing operator-levied depot.
 The ₣BZ estate demolition removed freehold-enrobe whole (it minted keys, already dead on the no-keys org) and stripped its leader from those three suites, which now carry no credential-readiness step.
 
-Current lean: the federation replacement is not a re-enrobe dance but a standing-freehold compear-plus-don — open an assize and confirm the donnable mantles — so the three suites are one more consumer of whatever test-rig credential step the config-model forks and the compearance ideas above settle, not separate machinery.
+Current lean: the federation replacement is not a re-enrobe dance but a standing-freehold avow-plus-don — open a sitting and confirm the donnable mantles — so the three suites are one more consumer of whatever test-rig credential step the config-model forks and the avowal ideas above settle, not separate machinery.
 Until that lands skirmish/dogfight/blockade are credential-incomplete; they were already non-functional on the no-keys org, so this surfaces an existing gap rather than regressing a working state.
 
 Source: the ₣BZ estate-demolition pace and its M7 record in the pace-design memo.
@@ -204,7 +143,7 @@ Two sub-questions, opposite verdicts on one scope test (creation is org-scoped; 
 - Select which federation a depot is affiliated with — open, and this is the healthy model to aim for.
   Stated in the keystone noun above: the payor founds the configured federations and sanctions which are eligible; the governor affiliates its own depot with one of the sanctioned ones.
   Selection among already-founded, payor-sanctioned trusts affects only the one depot, so it respects the cinch that cross-depot administration does not exist, and it mirrors admission — the governor already decides who is admitted; this adds which trust the depot draws from.
-  Depends on the multiple-federations idea.
+  Depends on the federation-regime-family rework (drained as superseded for the test-bed; it survives only for this premise-gated feature).
 
 The bound — the sanctioned set: which configured federations are eligible for affiliation is a payor-controlled, manor-level artifact, an eligibility the payor sets and governors only read.
 This is the IT-department catalog of approved trusts.
@@ -230,57 +169,32 @@ The fork (both sides seen):
 - Payor wields the IT-department powers directly, via OAuth. Simplest; no new role; fits if org-health administration is rare and founding-adjacent. The default lean.
 - A new federated role above governor — a steward-of-the-estate stature, below the payor — carries routine org-health administration as a citizen, so the OAuth root stays last-resort. Earns its existence only if such routine super-governor work actually emerges; defer the mint (the load-bearing-complexity test), do not pre-build it. Not "admin" (overloaded); a fresh civic-asterism word is minted in-heat when the role earns its existence — seneschal (chief steward of a great house, under the lord) is an illustrative register, not a mint.
 
-Composes with the governor's-role idea above (the sanctioned-set bound is the first concrete IT-department power). Premise-touching (the civic hierarchy is ₣BZ-frozen), so it stays a parked operator-owned idea until the operator takes it up.
+Composes with the governor's-role idea above (the sanctioned-set bound is the first concrete IT-department power). Premise-touching (the civic hierarchy is a cinched premise), so it stays a parked operator-owned idea until the operator takes it up.
 
-## Idea — headless compearance (restrung in from the federation heat)
+## Idea — headless avowal (restrung in from the federation heat)
 
-Restrung in: reconsider whether compearance must gate on a controlling terminal, or whether a headless-but-human-reachable caller can open an assize by surfacing the device-flow prompt out-of-band and polling to completion.
+Restrung in: reconsider whether avowal must gate on a controlling terminal, or whether a headless-but-human-reachable caller can open a sitting by surfacing the device-flow prompt out-of-band and polling to completion.
 
-It keeps the human-present premise — a human still authenticates each assize — and only relaxes human-present from terminal-present.
-Distinct from the degenerate-test-federation idea, which removes the human entirely.
+It keeps the human-present premise — a human still authenticates each sitting — and only relaxes human-present from terminal-present.
+Distinct from the programmatic (caged) mechanism, which removes the human entirely.
 
 Touches a cinched federation-heat premise (human-present, and the headless fail-fast membrane), so it is operator-owned and may surface a paddock amendment rather than land purely in code.
 Under the configuration-model conviction this sharpens to a mechanism distinction: the programmatic mechanism is test-only and bypasses sign-in by construction, so it is not this fix — production headless stays an interactive-mechanism question with a human still present.
 
-## Foedus-accessor vocabulary — MINTED (260624)
+## Foedus-accessor colophon homing (live build guidance)
 
-The sign-in / live-window / clear remints were elected in-heat, gated by hand, and (for the two live words) swept tree-wide; the foedus-cardinality toothings (the active-foedus switch and the pool-integrity check) are built in the sibling theurge stream and homed there.
-
-Sign-in verb: compear → avow, swept tree-wide (260624).
-The everyone-class login — any human opening a session — homed in the access family rbw-a as rbw-aa, lowercase (it mutates no cloud).
-Chosen for the cognitive rhyme with OIDC's "assertion" (you avow yourself; the IdP asserts your identity), and as the plain, fair-faced word the highest-traffic error-output ashlar wants.
-
-Live-window noun: assize → sitting, swept tree-wide (260624).
-The keep-a-noun-or-demote fork resolved to KEEP an operator-facing noun.
-Chosen for the cognitive rhyme with the vendor word "session" (RBRF_SESSION_DURATION) and as the civic cousin of the retired word (an assize is a court sitting); it takes no colophon — it is a noun, living in error prose and the zrba_sitting_* identifiers.
-
-Clear-the-sitting verb: quash — test-only (force a fresh sign-in by discarding the cached sitting), homed in the test bucket rbw-q, lowercase.
-First-letter-separated from avow on purpose, since the operator wields the sign-in and clear-sign-in pair together.
-
-Colophon homing settled this pass:
+The minted words avow / sitting / quash are built and swept tree-wide (260624) — the minted-word record is drained to the heat-memories memo.
+The live colophon-homing plan this pass settled, carried here as build guidance:
 the access family collapses rbw-ac → rbw-a (rbw-aa avow, rbw-ap payor-credential check; the mantle-access probe relocates to the test bucket);
 gird moves to the manor family as rbw-mG, so rbw-m is the payor founding trio (affiance / jilt / gird) and rbw-p stays purely governor;
 test-only utilities and qualification take rbw-q (the Keycloak foedus setup is rbw-qjK — uppercase, because it affiances and so mutates cloud).
 The foedus NOUN stays a folio with no colophon family.
-
 Casing convention across these families: an uppercase second letter marks an op that mutates cloud or critical manor state; lowercase marks read-only or non-mutating.
 
-## Idea — one-click compearance via verification_uri_complete (IdP-agnostic)
-
-Tension: compearance makes the operator read a URL and type a short user_code, yet RFC 8628 defines verification_uri_complete — the verification URL with the code pre-embedded, often QR-rendered — for exactly this friction.
-The win is modest: it removes typing the code, not the approve-in-browser step the human-present premise requires, and it matters most for keyboardless devices, less on a dev terminal.
-
-Current lean: teach Leg 1 to prefer verification_uri_complete (optionally QR it) whenever the IdP returns it, with graceful fallback to today's URL+code when absent.
-IdP-agnostic by construction — it stays dark for an IdP that omits the field and lights up for any conformant one — so it fits the regime's IdP-agnostic design with no provider-specific hack.
-
-Entra finding (260617, empirical, not just docs): the live devicecode response from the standing trust omits verification_uri_complete entirely, and it is not a knob — no scope, param, or app-registration toggle turns it on; Microsoft's endpoint structurally lacks it.
-Declined fallback recorded: synthesizing a code-carrying URL ourselves (.../device?otc=<code>) is unsupported, Palisade-fragile, and rides the device-code-phishing pattern Microsoft's filters flag — and tried live, the prefill did not populate, so even the hack does not work.
-Revisit trigger: a new or migrated IdP that returns the field, or Microsoft adding it.
-
-## Future build order (spine slated; the attach-caged-subject tail still held, gated on ₣BZ)
+## Future build order (spine slated; the attach-caged-subject tail slatable now that ₣BZ is complete)
 
 The configuration-model conviction implies a sequence of buildable units; their dependency order is fixed even though none has graduated to a pace.
-The Fable gate is lifted (operator decision 260623) and the front-of-heat design pace settled the de-lamination, the Keycloak-control home, and the build naming: the six-unit spine below is now slated as build paces; only the attach-caged-subject tail remains held, gated on ₣BZ landing.
+The front-of-heat design pace settled the de-lamination, the Keycloak-control home, and the build naming: the six-unit spine below is now slated as build paces; with ₣BZ complete its admission verbs have landed, so the attach-caged-subject tail is slatable too.
 
 The spine, in dependency order:
 Spec-first, before any code — evolve the federation-regime and affiance specs to the core-plus-mechanism-gate shape and stand up the two new subdocs as contracts; contract before code is project doctrine, so this is a hard predecessor of every code unit below.
@@ -288,7 +202,7 @@ Regime mechanism discriminator and mechanism-conditional affiance — depends on
 Programmatic-trust establishment bash — the rbxk_keycloak orchestrator (charge, ready-poll, fetch-JWKS, call affiance) over the fattened baked realm; depends on the spec unit and the discriminator; stands up the Keycloak test crucible (preferred) or a self-signed caged trust (fallback) and uploads its public JWKS through affiance; the durable replacement for the throwaway manual spike.
 Programmatic accessor (token → STS) — depends on the discriminator and on a programmatic trust existing to acquire against; obtains a token from Keycloak's non-interactive RFC 7523 grant (or self-mints, fallback) and exchanges at STS.
 Per-vendor setup guide (Entra first) — depends only on the core-facts contract line, so it runs parallel to the three code units.
-Attach a caged subject to a test depot via the admission verbs — strictly last, since it consumes ₣BZ's admission-verb surface; it cannot be slated until ₣BZ lands.
+Attach a caged subject to a test depot via the admission verbs — strictly last, since it consumes ₣BZ's admission-verb surface (now landed, so it is slatable).
 
 Fold and precedence: all these units stay in ₣Bf; none folds into ₣BZ — the configuration-model evolution and the synthetic test rig that rides on it are this heat's work, while ₣BZ owns the admission verbs and the single-federation implementation, and the attach unit consumes those verbs without defining them.
 The spec-first unit is a hard predecessor of every code unit, not merely the first among equals — beginning any code before the specs are recast is a discipline breach, not a sequencing choice.
@@ -306,7 +220,7 @@ That simultaneous rework is needed only by the future governor-selects feature (
 
 Build-spine consequence (so the spine reads true): the spine operates on single-active.
 The affiance arm founds the Keycloak programmatic foedus as the test regime's one pool, and the orchestrator stands it up as that single active foedus, not beside a live Entra one.
-The accessor's end-to-end don-and-call still awaits a standing admission (a brevet), which the deferred attach-caged-subject unit owns; the slated spine reaches the federated token, not the full don-and-call.
+The accessor's end-to-end don-and-call still awaits a standing admission (a brevet), which the attach-caged-subject unit owns; the slated spine reaches the federated token, not the full don-and-call.
 
 Two tiers (operator aim): a light tier — "use the current, switch lightly" — reuses durable standing foedera and changes the active one by selection, mapping onto the existing skirmish/dogfight (freehold-already-standing) suites; a nuclear tier — "full redo everything" — jilts and re-affiances the foedera from scratch, mapping onto the existing gauntlet (levies-fresh) suites.
 
@@ -334,7 +248,7 @@ The shared-one-key-versus-per-platform topology softens: the committed JWKS is a
 
 ## Federation-MVP re-derivations (the five keyfile-era loose-ends folded in)
 
-A coherent strand restrung in from the sibling MVP junk-drawer: five keyfile-era pre-MVP loose-ends, each re-deriving against the now-stable federation auth surface (compearance / STS / mantle-don) that the spine above builds.
+A coherent strand restrung in from the sibling MVP junk-drawer: five keyfile-era pre-MVP loose-ends, each re-deriving against the now-stable federation auth surface (avowal / STS / mantle-don) that the spine above builds.
 They belong with the federation vertical, not the MVP junk-drawer they came from, for a load-bearing reason: each was cross-heat gated "do not mount until ₣Bf wraps" or split the federation auth bash (rba_auth.sh / rbgp_payor.sh) across clones, and folding them here converts both to in-clone ordering — the federation paces land first and settle that surface, then these re-derive against it in the same clone.
 
 The five tensions, each by purpose:
@@ -386,7 +300,7 @@ Degenerate-test-federation mechanism, sources, and the can-and-cannot-prove boun
 Workforce-pool quota and soft-delete constraints (the freehold idea's load-bearing facts): Memos/memo-20260617-BZ-workforce-pool-constraints.md.
 Federation configuration model — the vendor-agnostic-core plus mechanism-gate conviction, full reasoning: Memos/memo-20260618-Bf-federation-config-model.md.
 Spec homes to evolve when this lands: RBSRF (RBSRF-RegimeFederation.adoc) and RBSMA (RBSMA-manor_affiance.adoc).
-Dispositioned deliberation drained from this paddock — the ₣BZ-lineage gating, the released Fable gating, the vocabulary-remint dingleberry doctrine, the theurge-test-consolidation audit dispositions, and the landed five-suite rename record: Memos/memo-20260623-Bf-heat-memories.md.
+Dispositioned deliberation drained from this paddock — the ₣BZ-lineage gating, the released Fable gating, the vocabulary-remint dingleberry doctrine, the theurge-test-consolidation audit dispositions, the landed five-suite rename record, and (260625) the foedus noun-selection, the multiplicity-goal framing, the degenerate-test-federation, the freehold reconciliation, the terrier option-fork, the foedus-accessor minted words, and the one-click verification_uri_complete decline: Memos/memo-20260623-Bf-heat-memories.md.
 
 Partition provenance (the cross-heat split that reshaped this heat into the federation-build stream): the five federation-MVP re-derivations were restrung in from the sibling MVP heat — their original junk-drawer home keeps the git history of their dockets; the theurge-crate refactor, the zipper-colophon trio, and the cosmology spec drained OUT to the sibling theurge stream, where the drained cosmology pace supersedes that stream's native cosmology pace.
 The full how-we-got-there record is the cross-heat split-study provenance memo.
