@@ -320,7 +320,7 @@ Relationship to the spine: the spine PROVES one foedus's chain (the de-laminatio
 Next: a focused design pass settles six forks — the tenure policy; the selection mechanism and what the select act does; the new toothing name(s); the light/nuclear tier mapping onto the existing suite ladder; the light-tier readiness check (the release-heal / parley step); and where regime-selection-support lands relative to the spec recast. It produces this strand's own slate, and runs before the audit's build-docket tightenings are finalized.
 
 Foedus-reuse leg (the affiance-centric reframe): the single-active-foedus, switched-among-standing topology stands, and the everyday reuse path switches rather than affiances — a workforce identity pool is founded once per foedus and kept, never jilted, so the everyday path is cap-flat.
-The earlier audit-era foedus-reuse-leg framing inherited an affiance-centric frame the switch decision supersedes; it is reframed around the switch when this design pass's plan is enrolled.
+The earlier audit-era reuse-path framing inherited an affiance-centric frame the switch decision supersedes; it is reframed around the switch when this design pass's plan is enrolled.
 The switch toothing itself is built in the sibling theurge stream; only its SELECTION mechanism stays PARKED for this design pass to settle.
 
 Signing key — SETTLED (operator decision 260623): a stable key, no per-charge rotation, so affiance's idempotent path needs no jwksJson re-sync arm.
