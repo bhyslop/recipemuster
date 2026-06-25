@@ -17998,9 +17998,10 @@
         "₢BiAAW",
         "₢BiAAg",
         "₢BiAAa",
-        "₢BiAAh"
+        "₢BiAAh",
+        "₢BiAAi"
       ],
-      "jjghn_next_pace_seed": "AAi",
+      "jjghn_next_pace_seed": "AAj",
       "jjghn_paces": {
         "₢BiAAC": {
           "jjgpn_tacks": [
@@ -19089,6 +19090,34 @@
               ],
               "jjgtn_silks": "diffuse-codex-vocabulary-to-rbs-bus",
               "jjgtn_basis": "523f5e0"
+            }
+          ]
+        },
+        "₢BiAAi": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260625-1522",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Goal",
+                "Unpublish the BUK jurisdiction apparatus (BURN/BURP regimes + caparison/invigilate/garrison) and the Windows documentation guides from the distributed/canonical surface, pending re-gestation through the mews aspirant sheaf (`Tools/jjk/vov_veiled/JJS-aspirant-mews.adoc`).",
+                "",
+                "## Cinched",
+                "- Veil, do not delete: relocate the code + guides to a veiled directory so they are unpublished but still function locally. Deletion stays off the table while these are the only working fleet apparatus — it waits until the mews supersedes them.",
+                "- Preserve the hard-won Windows-transport Palisade knowledge; veiling retains it.",
+                "- Record the disposition (where each artifact went) at wrap, and cross-note it in the mews aspirant sheaf so the re-gestation knows its raw material.",
+                "",
+                "## Done when",
+                "The jurisdiction apparatus and Windows guides no longer sit on the distributed/canonical surface, every sourcing and launcher reference still resolves, and the disposition is recorded.",
+                "",
+                "## Discovery",
+                "grep the apparatus: `burn_`/`burp_` regimes + CLIs, `bujb_jurisdiction.sh`, the `BUSJ*` specs, `WSG`, and the windows handbook guides. Relocation means updating every reference in the same move.",
+                "",
+                "## Character",
+                "Mechanical relocation + reference updates, gated on the veil-not-delete decision. Caution: live load-bearing paths (BURN/BURP machinery, any Linux/cerebro provisioning) must keep functioning."
+              ],
+              "jjgtn_silks": "veil-jurisdiction-and-windows-apparatus",
+              "jjgtn_basis": "3181622"
             }
           ]
         }
