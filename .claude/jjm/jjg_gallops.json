@@ -11924,9 +11924,10 @@
         "₢BDAAg",
         "₢BDAAh",
         "₢BDAAi",
-        "₢BDAAk"
+        "₢BDAAk",
+        "₢BDAAl"
       ],
-      "jjghn_next_pace_seed": "AAl",
+      "jjghn_next_pace_seed": "AAm",
       "jjghn_paces": {
         "₢BDAAA": {
           "jjgpn_tacks": [
@@ -13366,6 +13367,30 @@
               ],
               "jjgtn_silks": "multichannel-session-id-capture",
               "jjgtn_basis": "cbc57ae"
+            }
+          ]
+        },
+        "₢BDAAl": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260625-1432",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "Diffusion — apply the settled document-composition vocabulary to the JJS0 codex. Mechanical, with per-sheaf status judgment.",
+                "",
+                "## Done when",
+                "JJS0 defines a self-naming identity quoin sealed by //axvd_codex; every included sheaf is",
+                "marked at its head and at its include-site with //axvd_sheaf and exactly one axd_ normativeness",
+                "status; each tendon binding resolves (the sheaf names a real codex).",
+                "",
+                "## Source",
+                "Vocabulary home: MCM == Document Composition (mcm_codex/sheaf/pandect/canon, mcm_tendon) and",
+                "AXLA == Axial Voicing Document Terms (axvd_codex/axvd_sheaf + the two emplacement templates)",
+                "plus the axd_ Normativeness Dimensions. Minted 260625."
+              ],
+              "jjgtn_silks": "diffuse-codex-vocabulary-to-jjs",
+              "jjgtn_basis": "cbb04b8"
             }
           ]
         }
