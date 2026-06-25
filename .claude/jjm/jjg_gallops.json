@@ -18009,26 +18009,26 @@
         "₢BiAAF": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260618-1358",
+              "jjgtn_ts": "260625-1625",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "Drafted from ₢BBABV in ₣BB.",
                 "",
                 "## Character",
-                "Mechanical — two stale-reference corrections in the Cloud Build specs; verify-then-edit, low risk.",
+                "Two reference corrections in the Cloud Build specs; the RBSCJ item is mechanical, the RBSCB item is a semantic judgment — its original \"broken acronym\" premise is inverted at mount-time (see below). Verify-then-edit, low risk.",
                 "",
                 "## Goal",
-                "Two dangling references in the Cloud Build specs name symbols that no longer exist. Correct each to a live referent so the specs cite only real files/functions. (Surfaced during a Cloud Build spec audit; left out-of-scope there.)",
+                "The Cloud Build specs carry two reference questions. The original drafting (Cloud Build spec audit) called both \"dangling symbols that no longer exist,\" but the RBSCB half's premise is INVERTED and must be re-derived, not acted on mechanically.",
                 "",
                 "## Items",
-                "- **RBSCB broken acronym.** The authoritative-specs list (`RBSAC, RBSAV, RBSDC, RBSDN`) names `RBSDC`, which has no file — confirm via `ls Tools/rbk/vov_veiled/RBSD*-*.adoc`. Determine the intended spec from what that sentence asserts and correct it (likely `RBSDI` depot_inscribe, but confirm — don't guess-substitute).",
-                "- **RBSCJ dead function name.** The trigger-era Decision section names `zrbf_stitch_build_json` (`grep -rn zrbf_stitch_build_json Tools/rbk/vov_veiled/RBSCJ-CloudBuildJson.adoc`); the live function is `zrbfd_stitch_build_json` (renamed in the foundry decomposition; RBSCB already cites it correctly). Repoint to the live name. Scope is the name only — a broader refresh of the trigger-era Decision section is a separate question, not this pace.",
+                "- **RBSCB authoritative-specs list — re-derive semantically, do NOT substitute.** The list names `RBSAC, RBSAV, RBSDC, RBSDN`. All four resolve to live files (`ls Tools/rbk/vov_veiled/RBSD*-*.adoc` shows RBSDC-depot_recognosce.adoc present). **`RBSDC` is NOT a dangle** — the original \"has no file → likely RBSDI\" suggestion is backwards and would replace a live referent with a dangling one. The real question is purely semantic: is `RBSDC` (depot_recognosce, read-only founding-survey, colophon `rbw-dr`) the right \"authoritative operational spec\" for this Cloud Build posture sentence, or was a now-retired inscribe spec intended? Correct ONLY if recognosce is genuinely the wrong referent for what the sentence asserts. The actual dangle — `RBSDI` → `RBSDI-depot_inscribe.adoc` in claude-rbk-acronyms.md (no such file) — is a real defect but is ₣Bf-of-record (soft-shared registry) territory: flag it, do NOT fix it here.",
+                "- **RBSCJ dead function name.** The trigger-era Decision section names `zrbf_stitch_build_json` (`grep zrbf_stitch_build_json Tools/rbk/vov_veiled/RBSCJ-CloudBuildJson.adoc`); the live function is `zrbfd_stitch_build_json` (renamed in the foundry decomposition; RBSCB already cites it correctly). Repoint to the live name. Scope is the name only — a broader refresh of the trigger-era Decision section is a separate question, not this pace.",
                 "",
-                "## Done",
-                "Neither `RBSDC` nor `zrbf_stitch_build_json` appears in the Cloud Build specs (RBSCB-CloudBuildPosture.adoc, RBSCJ-CloudBuildJson.adoc); each former reference now names a live spec/function."
+                "## Done when",
+                "RBSCJ no longer names `zrbf_stitch_build_json` (now `zrbfd_stitch_build_json`); the RBSCB authoritative-specs sentence is either confirmed correct as-is (RBSDC is live) or repointed to a genuinely-correct referent — never blind-substituted to the RBSDI dangle. The RBSDI acronyms.md dangle is left flagged for ₣Bf, not fixed here."
               ],
               "jjgtn_silks": "cloudbuild-spec-stale-refs",
-              "jjgtn_basis": "f5f6b2b"
+              "jjgtn_basis": "d40447a"
             }
           ]
         },
@@ -18061,7 +18061,7 @@
         "₢BiAAH": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260624-2246",
+              "jjgtn_ts": "260625-1625",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "Drafted from ₢BUAAB in ₣BU.",
@@ -18075,11 +18075,17 @@
                 "Candidate residue, if the verdict is retire:",
                 "the build-bucket creation and its one-day lifecycle rule at depot levy in `rbgp_payor.sh`;",
                 "Mason's `roles/storage.objectViewer` grant on that bucket at levy;",
-                "bucket-only constants in `rbgb_buckets.sh` / `rbgd_depot.sh` / `rbdc_derived.sh`.",
+                "bucket-only constants in `rbgb_buckets.sh` / `rbgd_depot.sh` / `rbdc_derived.sh`;",
+                "and — the integrity audit found the original residue list understated this — the RBS0 `rbtgi_build_bucket` quoin (definition + mapping ref), its citations in RBSMF / RBSDU / RBSGS, and the Mason \"reads from the build bucket\" prose. RBS0 is written under BOTH verdicts (retire the quoin, or correct it to match).",
+                "",
+                "## Cross-clone note (surfaced by the integrity audit)",
+                "The RBS0 edit lands in the `[[rbtgi_depot]]` / `[[rbtgi_build_bucket]]` definition cluster, which BRACKETS FED's `[[rbtgi_manor]]` manor/org scrub (₢BfAAE).",
+                "This pace is gated (via the ₣Bi RBS0 barrier) only on FED's federation-block anchor, NOT on ₢BfAAE, and FED never pulls MVP's RBS0 edits — so at final convergence these two near-adjacent, uncoordinated edits to one definition cluster may textually conflict.",
+                "It is EXPECTED-and-resolvable (blank-line-separated hunks under a default 3-line-context merge), NOT a defect or a missing barrier: resolve it by hand at convergence; do not add a heavyweight barrier for it.",
                 "",
                 "## Done when",
                 "Every reader and writer of the build bucket is enumerated from the live kit, yielding a verdict.",
-                "Either a live consumer is found — keep the bucket and correct the specs to match — or none is, in which case the bucket, its levy creation, and Mason's grant retire together with the suites green.",
+                "Either a live consumer is found — keep the bucket and correct the specs to match — or none is, in which case the bucket, its levy creation, Mason's grant, and the RBS0 quoin + its spec citations retire together with the suites green.",
                 "",
                 "## Cinched",
                 "Pouch is the build-context delivery mechanism; this pace does not reopen that decision.",
@@ -18089,7 +18095,7 @@
                 "Investigation-first ACG simplification — a hidden live consumer is the one risk, so the study gates the cut; mechanical once the verdict is in."
               ],
               "jjgtn_silks": "build-bucket-vestige-scrub",
-              "jjgtn_basis": "ca0842c"
+              "jjgtn_basis": "d40447a"
             }
           ]
         },
@@ -18713,7 +18719,7 @@
         "₢BiAAa": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260624-0211",
+              "jjgtn_ts": "260625-1625",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "## Character",
@@ -18740,6 +18746,12 @@
                 "Keep the local one-shot: rbw-cKB/cKS stay single-command, composing build-head + the new drive-link.",
                 "Unify the underlying operation, not the operator gesture — do not tax the local dev loop with a second command.",
                 "",
+                "## Cross-clone surface (surfaced by the integrity audit — barriers cover it, this is for legibility)",
+                "This is the heaviest cross-cutting pace; it writes into BOTH sibling clones' territory, all of it covered by the ₢BiAAg dual-wait barrier (which waits on ₢BfAAF and ₢BlAAL) — recorded here so a mount agent sees the surface, not just the ₢BbAAT coupling below.",
+                "- **Same-symbol collision with ₢BlAAK (₣Bl, theurge crate).** ₢BiAAa REMOVES the Rust reimplementation rbtdro_drive_hallmark (callers compose the unified primitive); ₢BlAAK REFACTORS that same function (routes it through the engine config-console). Whichever lands second reconciles — ₢BiAAa's removal supersedes ₢BlAAK's reroute. The ₢BiAAg wait on ₢BlAAL (later than ₢BlAAK in ₣Bl order) delivers ₢BlAAK's refactor before this pace removes the function, so the reconcile is informed, not a surprise.",
+                "- **RBS0 write (₣Bf-owned).** \"Enumerate alongside feoff/anoint/yoke\" means a new rbtgo_ drive-verb quoin + include into RBS0; gated because ₢BiAAg waits on ₢BfAAF, FED's last RBS0 writer.",
+                "- **Zipper-trio write (₣Bl-owned).** The new cloud drive verb mints a colophon (beside rbw-rvf/rva/rvy), editing the zipper trio; gated by the zipper baton arriving last at MVP (₢BiAAg on ₢BfAAF, whose ancestry already carries ₣Bl's last zipper write).",
+                "",
                 "## Cross-heat coupling — ₢BbAAT (₣Bb)",
                 "That pace consolidates the chaining discipline-prose into one home and enumerates the durable-leak-link as exactly three verbs writing RBRV_*.",
                 "This pace adds a fourth member writing RBRN_*, so whichever lands second reconciles: the consolidated enumeration and the \"writes one durable config field\" wording must cover the nameplate write.",
@@ -18753,7 +18765,7 @@
                 "- Build green; fast + siege green."
               ],
               "jjgtn_silks": "nameplate-hallmark-drive-chain-link",
-              "jjgtn_basis": "4fa80f3"
+              "jjgtn_basis": "d40447a"
             }
           ]
         },
@@ -18863,12 +18875,13 @@
         "₢BiAAf": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260624-2333",
+              "jjgtn_ts": "260625-1625",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "BARRIER — cross-clone wait. No code work of its own.",
                 "This pace cannot complete until ₢BfAAO (heat ₣Bf — the federation spec recast that seats the RBS0-SpecTop federation block) is complete, pushed to origin, and origin merged back into this clone.",
-                "Only then may the next paces — the durable-leak coarse quoins and, later, the scry-region amend — append their disjoint RBS0 regions behind FED's federation block. The in-clone mint-before-cite order still holds for the coarse quoins and the drive-link that cites them.",
+                "Only then may the next pace — the durable-leak coarse quoins — append its disjoint RBS0 region behind FED's federation block. The in-clone mint-before-cite order still holds for the coarse quoins and the drive-link that cites them.",
+                "(The earlier \"scry-region amend\" mention was struck by the integrity audit: the scry pace ₢BiAAG makes no RBS0 write — the interface-by-role model it adopts is already in RBS0 at the at_sentry_container quoin — so no scry RBS0 append rides this barrier.)",
                 "",
                 "## Done when",
                 "₢BfAAO is wrapped and pushed to origin, and this clone has pulled origin so the RBS0 federation block is present here.",
@@ -18877,7 +18890,7 @@
                 "Cross-clone barrier; hold here until the named pace is merged through."
               ],
               "jjgtn_silks": "await-fed-rbs0-block",
-              "jjgtn_basis": "69ddb67"
+              "jjgtn_basis": "d40447a"
             }
           ]
         },
