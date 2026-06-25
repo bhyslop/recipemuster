@@ -11890,6 +11890,7 @@
       "jjghn_creation_time": "260507",
       "jjghn_status": "jjghe_racing",
       "jjghn_order": [
+        "₢BDAAj",
         "₢BDAAa",
         "₢BDAAA",
         "₢BDAAB",
@@ -11924,7 +11925,7 @@
         "₢BDAAh",
         "₢BDAAi"
       ],
-      "jjghn_next_pace_seed": "AAj",
+      "jjghn_next_pace_seed": "AAk",
       "jjghn_paces": {
         "₢BDAAA": {
           "jjgpn_tacks": [
@@ -13243,6 +13244,54 @@
               ],
               "jjgtn_silks": "gazette-ordering-invariant-correction",
               "jjgtn_basis": "fff1ec6"
+            }
+          ]
+        },
+        "₢BDAAj": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260625-1414",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "Capture pace — durable record of six musings to explore and expand.",
+                "Each item is a seed, not yet scoped; the work is to flesh each one into",
+                "its own scoped pace(s) or decline it, not to implement here.",
+                "",
+                "## Items to explore and expand",
+                "",
+                "1. Pace-intent staleness in rendering.",
+                "   Add an option for the new pace-intent capture so it either shows only on demand,",
+                "   or renders with a clear indicator that it might be stale.",
+                "",
+                "2. Session-ID-in-commit (post haste — narrow, no other changes).",
+                "   Capture the Claude session id into the git commit for the officium,",
+                "   so we can start comparing sessions.",
+                "   Deliberately scoped to that single change and nothing else.",
+                "",
+                "3. 'Prospective feature' concept.",
+                "   Build out a first-class 'prospective feature' notion.",
+                "   Gate deep Claude Code session capture to land AFTER the split of Job Jockey",
+                "   into a global database (see the standalone-state-repo / global-database direction).",
+                "",
+                "4. Non-normative subdocument voicing.",
+                "   Scrub up a voicing-level declaration for a 'non-normative subdocument',",
+                "   used only to replace current heat-paddock musing ideas.",
+                "",
+                "5. Groom-by-commit-hash.",
+                "   A groom option that takes a git commit hash,",
+                "   so ancient Job Jockey state can be easily interrogated.",
+                "",
+                "6. Unify firemark/coronet display code.",
+                "   Force Job Jockey to consolidate firemark and coronet rendering into one path,",
+                "   in preparation for the 'post-global-database' refactor toward immutable coronets.",
+                "",
+                "## Done when",
+                "Each of the six items has been explored and expanded into its own scoped pace(s)",
+                "or explicitly declined; this capture pace is then wrapped."
+              ],
+              "jjgtn_silks": "explore-and-expand-capture-and-display-musings",
+              "jjgtn_basis": "2245a6d"
             }
           ]
         }
