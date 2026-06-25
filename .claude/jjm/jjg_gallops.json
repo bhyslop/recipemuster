@@ -18917,8 +18917,8 @@
         "₢BlAAA": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260622-0755",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260625-0601",
+              "jjgtn_state": "jjgte_abandoned",
               "jjgtn_text": [
                 "## Create a skimpy proper RBS0 SUBDOC for the theurge test-cosmology — base quoins only, include'd into RBS0, Fable inflates later.",
                 "",
@@ -18936,7 +18936,7 @@
                 "Spec authoring over operator-settled structure; the fresh-stem + theurge-word + asterism are provisional-now / Fable-ratified-later (carried in the Fable queue)."
               ],
               "jjgtn_silks": "create-skimpy-theurge-subdoc",
-              "jjgtn_basis": "7b47b60"
+              "jjgtn_basis": "b1731d0"
             }
           ]
         },
