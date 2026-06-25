@@ -19273,27 +19273,30 @@
         "₢BlAAO": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260624-2240",
+              "jjgtn_ts": "260625-0601",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "Drafted from ₢BfAAe in ₣Bf.",
                 "",
-                "Finalize the RBS0 theurge-test-cosmology subdoc, homing the durable concepts this audit lifted — the inner-body × wrapper combinator, the REUSE/LIFECYCLE wrappers, the three strata, the freehold composite — as spec rather than memo, superseding the prior standalone cosmology-spec pace ₢BlAAA (in a separate heat).",
+                "Finalize the RBS0 theurge-test-cosmology subdoc, homing the durable concepts this audit lifted — the inner-body × wrapper combinator, the REUSE/LIFECYCLE wrappers, the three strata, the freehold composite — as spec rather than memo, superseding this heat's former native cosmology-spec pace (₢BlAAA, dropped as superseded in the split-study restitch — its docket survives as this pace's rich source).",
                 "",
                 "## Parley characterization (surfaced by the heat-integrity audit)",
                 "Either name the parley authentic-verb federation suite/fixture in the cosmology — its sub-register among the strata — or explicitly scope it out with a one-line note, so the characterization gap closes by decision rather than omission.",
                 "",
                 "## Done when",
-                "The cosmology is spec-homed in a new RBS-tail subdoc include'd into RBS0 (a fresh quoin stem, not rbst_); the wrapper/strata/composite vocabulary is citable from code; the parley suite/fixture is either characterized or explicitly scoped out; the vow + adoc build is green; the prior cosmology-spec pace ₢BlAAA is wrapped or dropped as superseded, and its empty heat retired.",
+                "The cosmology is spec-homed in a new RBS-tail subdoc include'd into RBS0 (a fresh quoin stem, not rbst_); the wrapper/strata/composite vocabulary is citable from code; the parley suite/fixture is either characterized or explicitly scoped out; the vow + adoc build is green.",
+                "(The former native cosmology-spec pace ₢BlAAA was already dropped as superseded in the restitch — there is no separate heat to retire; this heat IS the active theurge-refactor stream.)",
                 "",
                 "## Cinched",
-                "A SUBDOC of RBS0, not a sibling top-spec; honor the five membranes (reference BUS0 busr_fixture/busr_suite, point at RBTDRC_SUITES, cite the crucible-security specs, split the identity-layers model, thin the CLAUDE.md table). Depends on the combinator having settled the abstraction. Detail: the audit memo plus ₢BlAAA's membrane list (its rich source).",
+                "A SUBDOC of RBS0, not a sibling top-spec; honor the five membranes (reference BUS0 busr_fixture/busr_suite, point at RBTDRC_SUITES, cite the crucible-security specs, split the identity-layers model, thin the CLAUDE.md table).",
+                "Depends in-clone on the combinator having settled the abstraction — the combinator pace precedes this one in this heat's order, so the dependency is in-clone ordering, not a cross-clone wait.",
+                "Detail: the audit memo plus the dropped native pace's (₢BlAAA's) membrane list, its rich source.",
                 "",
                 "## Character",
-                "Spec authoring; depends on the combinator."
+                "Spec authoring; depends in-clone on the combinator."
               ],
               "jjgtn_silks": "theurge-cosmology-subdoc-finalize",
-              "jjgtn_basis": "f676ede"
+              "jjgtn_basis": "13ef40e"
             }
           ]
         },
