@@ -98,6 +98,8 @@
 - **RBSDU** → `rbk/vov_veiled/RBSDU-depot_unmake.adoc`
 - **RBSDV** → `rbk/vov_veiled/RBSDV-director_vouch.adoc`
 - **RBSDY** → `rbk/vov_veiled/RBSDY-director_yoke.adoc` (Yoke operation — director validates a reliquary touchmark against GAR, then rewrites RBRV_RELIQUARY in rbrv.env)
+- **RBSFA** → `rbk/vov_veiled/RBSFA-foedus_acquire.adoc` (Foedus Acquire — programmatic-accessor contract: the no-human sibling of avow; obtains an id_token via the RFC 7523 grant (or self-mint, fallback) and exchanges at STS for a federated token, an arm of rba, REST-only. Reaches the federated token only — the don awaits the deferred attach-caged-subject admission. Descriptive operation quoin rbtgo_foedus_acquire; the civic asterism verb is deferred to the build pace.)
+- **RBSFE** → `rbk/vov_veiled/RBSFE-foedus_establish.adoc` (Foedus Establish — programmatic-establishment contract (marshal-only): stable keypair + uploaded public JWKS + mechanism=programmatic regime facts, handing off to affiance's programmatic branch. Durable-secret quarantine keystone (private key marshal-fenced, public JWKS committed); harness-proven by the ride-or-die proof; REST-only. Descriptive operation quoin rbtgo_foedus_establish; the civic asterism verb is deferred to the build pace.)
 - **RBSFH** → `rbk/vov_veiled/RBSFH-dockerfile_hygiene.adoc` (Dockerfile Hygiene — FROM-line constraint enforced by rbfh, shared across kludge and conjure paths)
 - **RBSGD** → `rbk/vov_veiled/RBSGD-gdc_establish.adoc`
 - **RBSGS** → `rbk/vov_veiled/RBSGS-GettingStarted.adoc`
@@ -116,7 +118,9 @@
   - **RBSLE** → `rbk/vov_veiled/RBSLE-lode_ensconce.adoc` (Lode Ensconce — capture an upstream base image, bole kind)
   - **RBSLI** → `rbk/vov_veiled/RBSLI-lode_immure.adoc` (Lode Immure — capture podman-machine disk leaves of one quay family, podvm kinds)
   - **RBSLU** → `rbk/vov_veiled/RBSLU-lode_underpin.adoc` (Lode Underpin — capture a vendor WSL rootfs, wsl kind)
+- **RBSMA** → `rbk/vov_veiled/RBSMA-manor_affiance.adoc` (Affiance operation — payor pledges the org-level IdP trust: workforce pool + provider + attribute mapping, all org-scoped. The provider oidc body is mechanism-conditional (RBRF_MECHANISM): interactive builds issuerUri + webSsoConfig, programmatic builds oidc.jwksJson; refuse-and-rotate on a soft-deleted pool, never undelete. Verb rbgp_manor_affiance, colophon rbw-mA.)
 - **RBSMF** → `rbk/vov_veiled/RBSMF-depot_levy.adoc` (Manor demesne — depot levy ceremony, now also establishing the three mantle SAs and enabling AR Data-Access audit logs; successor to the retired RBSDE depot_levy spec)
+- **RBSMJ** → `rbk/vov_veiled/RBSMJ-manor_jilt.adoc` (Jilt operation — payor dissolves the org-level workforce pool (provider cascades), the structural inverse of affiance. Mechanism-blind (no RBRF_MECHANISM arm — pool teardown is identical for interactive/programmatic foedera); founding-rare, operator-confirmed via the confirm-skip seam. Verb rbgp_manor_jilt, colophon rbw-mJ.)
 - **RBSNC** → `rbk/vov_veiled/RBSNC-network_create.adoc`
 - **RBSNX** → `rbk/vov_veiled/RBSNX-network_connect.adoc`
 - **RBSOB** → `rbk/vov_veiled/RBSOB-oci_layout_bridge.adoc`
