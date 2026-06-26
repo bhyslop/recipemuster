@@ -13373,8 +13373,8 @@
         "₢BDAAl": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260625-1432",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260626-0248",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "## Character",
                 "Diffusion — apply the settled document-composition vocabulary to the JJS0 codex. Mechanical, with per-sheaf status judgment.",
@@ -13390,7 +13390,7 @@
                 "plus the axd_ Normativeness Dimensions. Minted 260625."
               ],
               "jjgtn_silks": "diffuse-codex-vocabulary-to-jjs",
-              "jjgtn_basis": "cbb04b8"
+              "jjgtn_basis": "cdd8ee1"
             }
           ]
         }
