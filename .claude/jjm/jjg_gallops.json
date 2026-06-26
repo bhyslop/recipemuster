@@ -17417,8 +17417,8 @@
         "₢BfAAO": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260625-1623",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260626-1029",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "Recast the federation specs to the vendor-agnostic-core-plus-mechanism-gate shape, contract-first, before any build code — and add the foedus-selection regime support the switch design leans on.",
                 "",
@@ -17448,7 +17448,7 @@
                 "Spec authoring plus in-heat mint; judgment-heavy, reads the config-model memo first."
               ],
               "jjgtn_silks": "federation-spec-first-recast",
-              "jjgtn_basis": "aa36cf1"
+              "jjgtn_basis": "16970b2"
             }
           ]
         },
