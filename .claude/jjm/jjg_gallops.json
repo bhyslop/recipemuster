@@ -19361,8 +19361,8 @@
         "₢BlAAB": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260625-1626",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260626-0709",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "Drafted from ₢BfAAf in ₣Bf.",
                 "",
@@ -19382,7 +19382,7 @@
                 "Design conversation requiring operator judgment; opus; mount with the operator present."
               ],
               "jjgtn_silks": "freehold-wrapper-combinator-lift",
-              "jjgtn_basis": "b91ab48"
+              "jjgtn_basis": "d1cdcb9"
             }
           ]
         },
