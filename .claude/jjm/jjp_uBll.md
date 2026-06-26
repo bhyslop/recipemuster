@@ -113,6 +113,10 @@ The boundary is firm:
 founding and dissolving a foedus stay the federation heat's verbs (Stream-FED);
 this heat builds only the switch-and-check toothing on a standing foedus.
 
+The read-all sibling canvass (rbw-jc) rounds out the foedus-cardinality family:
+it lists every foedus the manor holds by interrogating the Manor itself, emitting depot_list-shape fact files for fixture chaining, and stays a standalone tabtarget — the Lode divine/augur split, never conjoined with descry.
+Its operation sheaf is authored with descry's and instate's at the foedus-reuse design pass, so the cardinality set's contracts seat together and its build pace only consumes the sheaf.
+
 ## Provenance
 
 These paces restrung in from two heats.
