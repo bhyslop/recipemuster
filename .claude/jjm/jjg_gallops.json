@@ -3,7 +3,6 @@
   "jjgrn_heat_order": [
     "₣Bl",
     "₣Bi",
-    "₣Bf",
     "₣Bg",
     "₣Bc",
     "₣Be",
@@ -11,6 +10,7 @@
     "₣Bb",
     "₣BF",
     "₣BD",
+    "₣Bf",
     "₣Bm",
     "₣BZ",
     "₣Bk",
@@ -16835,9 +16835,9 @@
       }
     },
     "₣Bf": {
-      "jjghn_silks": "rbk-04-mvp-federation-build",
+      "jjghn_silks": "rbk-40-fbl-review-federation-build",
       "jjghn_creation_time": "260616",
-      "jjghn_status": "jjghe_racing",
+      "jjghn_status": "jjghe_stabled",
       "jjghn_order": [
         "₢BfAAo",
         "₢BfAAS",
