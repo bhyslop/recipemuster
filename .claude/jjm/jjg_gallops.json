@@ -19801,48 +19801,60 @@
         "₢BlAAU": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260626-0805",
+              "jjgtn_ts": "260626-0833",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
-                "PLACEHOLDER — full docket deferred to a design pass (operator 260626); reslate before mount.",
+                "Build canvass — the read-only foedus enumeration verb, the read-all sibling of descry's read-one: interrogate the Manor for every foedus by listing the org's workforce pools.",
+                "Colophon rbw-jc, quoin rbtf_canvass, foedus-cardinality family.",
                 "",
-                "Build canvass: the read-only foedus enumeration verb.",
-                "It lists every foedus by interrogating the Manor — workforcePools.list under organizations/{org}/locations/global/workforcePools — the read-all sibling of descry (descry inspects one pool, canvass lists all).",
-                "The collection URL is already constructed in rbgp_payor.sh, so this is largely a one-method extension.",
-                "",
-                "Naming settled (recorded in the ₣Bf federation-vocabulary census): colophon rbw-jc, quoin rbtf_canvass, foedus-cardinality family.",
+                "## Spec of needed change",
+                "canvass lists every foedus under the manor via workforcePools.list against the org's workforce-pool collection — the collection URL affiance already constructs inline in rbgp_payor.sh.",
+                "It is payor-credentialed, not a donned mantle: listing org workforce pools is an org-level IAM read, the authority affiance and jilt already wield — the payor self-holds workforcePoolAdmin at the org, and the depot-scoped mantles cannot reach org workforce pools.",
+                "Verify the list URL and its parent-scoping against the live workforcePools.list contract: the single-pool GET carries no org in its path, so the collection list scopes the org differently than the create body does.",
+                "Output enumerates each live foedus — pool id and lifecycle state — and marks the one the regime currently selects, so the operator reads the standing foedus against the manor's full set (exact fields per the operation subdoc).",
+                "Home it with the workforce-pool REST siblings (affiance/jilt) and the rbw-j cardinality kin, dispatch via the payor CLI, and add the rbw-jc colophon to the zipper, regenerating the build artifacts.",
                 "",
                 "## Done when",
-                "Deferred to the design pass.",
+                "canvass is a first-class atomic tabtarget (rbw-jc), payor-credentialed and read-only, that lists every foedus under the manor with its state and a regime-selected marker — built against the canvass operation subdoc rather than a re-chosen signature.",
                 "",
-                "## Open (carry to the design pass)",
-                "- exact signature and output shape; whether canvass builds against a contract-first operation subdoc, as descry/instate do.",
-                "- ordering relative to the descry/instate build."
+                "## Cinched",
+                "Naming settled (₣Bf vocabulary census): rbw-jc / rbtf_canvass / foedus-cardinality; the lowercase second letter is the family's read-only mark (paddock casing convention) — do not re-mint.",
+                "canvass builds against a contract-first operation subdoc exactly as descry/instate do (no-exemption ruling, operator 260624) — the verb does not ship without its contract; if the recast has not seated canvass's contract, author it first on the cardinality-family pattern, descry/instate as the model.",
+                "The home of rbtf_canvass and its operation contract is the federation recast's (₢BfAAO) to seat — that pace homes the foedus civic noun canvass references; coordinate the seating before mount.",
+                "",
+                "## Character",
+                "Bash build — one read-only payor verb plus its zipper colophon, largely a one-method extension of the affiance collection-URL machinery; depends on the foedus civic noun the recast seats."
               ],
               "jjgtn_silks": "foedus-canvass-build",
-              "jjgtn_basis": "21a918c"
+              "jjgtn_basis": "7ac21f5"
             }
           ]
         },
         "₢BlAAV": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260626-0806",
+              "jjgtn_ts": "260626-0833",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
-                "PLACEHOLDER — full docket deferred to a design pass (operator 260626); reslate before mount.",
+                "Exercise canvass deftly inside the existing foedus-lifecycle fixture — assert it enumerates the throwaway foedus while it stands — standing up no new fixture.",
                 "",
-                "Add canvass to the existing test plan DEFTLY — weave a canvass assertion into a fixture that ALREADY stands up foedera, standing up no new fixture (the way the read-side negatives ride existing cloud fixtures).",
-                "Depends on the canvass build (the preceding pace).",
+                "## Spec of needed change",
+                "The foedus-lifecycle fixture (RBTDRC_FIXTURE_FOEDUS_LIFECYCLE — operator-invoked, quota-touching) already affiances a fresh throwaway workforce pool and then jilts it, so a foedus stands live in the window between the affiance assertions and the jilt.",
+                "Weave a single canvass assertion into that window — after affiance reaches its affianced terminal, before jilt dissolves the pool: invoke canvass and assert its output enumerates the throwaway pool id.",
+                "canvass is payor-credentialed and the fixture has already proven the payor credential live at its head, so the assertion needs no new credential setup, charge, or quench.",
                 "",
                 "## Done when",
-                "Deferred to the design pass; canvass is exercised against a real Manor with a standing foedus, asserting it enumerates it.",
+                "The foedus-lifecycle round-trip invokes canvass between affiance and jilt and asserts it lists the standing throwaway foedus by pool id — proving canvass enumerates a real, live foedus against the Manor; no new fixture stood up.",
                 "",
-                "## Open (carry to the design pass)",
-                "- which existing fixture is the natural host (one already standing a foedus)."
+                "## Cinched",
+                "Host is the existing foedus-lifecycle fixture — the only fixture that stands up a foedus — exercised in the live window between affiance and jilt; no new fixture, charge, or quench (the read-side negatives' ride-existing-fixtures pattern).",
+                "Depends on the canvass build for the verb and the global colophon constant the fixture invokes (the RBTDGC_ key).",
+                "",
+                "## Character",
+                "Test weave — one assertion folded into an existing operator-invoked round-trip; mechanical, no new infrastructure."
               ],
               "jjgtn_silks": "foedus-canvass-test",
-              "jjgtn_basis": "881138d"
+              "jjgtn_basis": "7ac21f5"
             }
           ]
         }
