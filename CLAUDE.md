@@ -4,7 +4,6 @@
 Full read and edit access is pre-approved for all files in:
 - `Tools/`
 - `Memos/`
-- `../cnmp_CellNodeMessagePrototype/lenses/`
 
 ## File Acronym Mappings
 
@@ -15,26 +14,6 @@ Per-kit acronym mappings live in each kit's context file (loaded via `@` include
 - JJK: `@Tools/jjk/claude-jjk-core.md` (+ veiled `@Tools/jjk/vov_veiled/claude-jjk-bhyslop.md`)
 - VOK: `@Tools/vok/claude-vok-context.md`
 - GAD: `Tools/gad/CLAUDE.md` (not `@`-included — loaded only when working in that kit)
-
-### CNMP Lenses Directory (`../cnmp_CellNodeMessagePrototype/lenses/`)
-- **ANCIENT** → `a-roe-ANCIENT.md`
-- **ANNEAL**  → `a-roe-ANNEAL-spec-fine.adoc`
-- **CRAFT**   → `a-roe-CRAFT-cmodel-format.adoc`
-- **METAL**   → `a-roe-METAL-sequences.adoc`
-- **MIND**    → `a-roe-MIND-cmodel-semantic.adoc`
-- **JRR**     → `jrr-JobRookRadar-sspec.adoc`
-- **MBC**     → `lens-mbc-MakefileBashConsole-cmodel.adoc`
-- **YAK**     → `lens-yak-YetAnotherKludge-cmodel.adoc`
-- **M2C**     → `mcm-M2C-ModelToClaudex.md`
-- **SRFC**    → `srf-SRFC-StudyRaftConcepts.adoc`
-- **ABG**     → `wrs-ABG-AccordBuilderGuide.md`
-- **ALTL**    → `wrs-ALTL-AccordLogicalTaskLens.claudex`
-- **PMTL**    → `wrs-PMTL-ProtocolMachineryTaskLens.claudex`
-- **SDTL**    → `wrs-SDTL-ShapeDesignTaskLens.claudex`
-- **TITL**    → `wrs-TITL-TestInfrastructureTaskLens.claudex`
-- **TLG**     → `wrs-TLG-TaskLensGuide.md`
-- **WRC**     → `wrs-WRC-WardRealmConcepts.adoc`
-- **WCC**     → `WCC-WebClaudetoClaudeCode.md`
 
 ## Retired Memos
 
@@ -50,7 +29,7 @@ a memo is itself the signal that formal specification is due.
 
 ## Working Preferences
 - When user mentions an acronym, immediately navigate to the corresponding file
-- Assume full edit permissions for all files in the three main directories
+- Assume full edit permissions for all files in the two main directories
 - For bash scripts, prefer functional programming style with clear error handling
 - For .adoc files, maintain consistent AsciiDoc formatting
 - For .claudex files, preserve the specific format requirements
