@@ -11,6 +11,24 @@ Posture (cinched for this heat): premise-touching ideas are operator-owned — a
 Keep this catalog shape-shaped — each idea a named tension plus a current lean, never a running discussion log.
 Genuinely thin or orthogonal ideas belong in itches or the horizon roadmap, not here; this paddock is for ideas worth deliberating with heat context.
 
+## Federation vocabulary — the minted census (chosen; the recast does not re-derive these)
+
+The federation naming is substantially settled; this census is the single prominent home, so a mount agent reads "chosen" before reaching for the mint.
+Built-word deliberation stays drained to the heat-memories memo — what lives here is the standing roster and what remains owed: shape, not deliberation.
+
+Chosen (do NOT re-mint — re-deriving these is the failure this census guards against):
+- foedus — the configured federation, the noun affiance founds; this recast seats its rbtf_ civic quoin, the word itself is adopted.
+- avow / sitting / quash — the human device-flow sign-in, the live window it opens, and the test-only sitting-clear.
+- instate / descry — switch which foedus is active, and read a foedus pool's health; both owned and built in the theurge stream.
+
+Still owed by the recast — the ONLY federation words this pace mints:
+- the mechanism gate's two value-words (the interactive-versus-programmatic discriminator) — test-scoped, lean: keep the plain words rather than mint asterism words;
+- the gate's regime field name;
+- the two operation-subdoc acronyms — the programmatic establishment and the programmatic accessor;
+- the active-foedus selector field name, unless deferred to the foedus-reuse design pass.
+
+As each owed item settles it moves up into the chosen list here, so the record never scatters again.
+
 ## Conviction — the federation configuration model (settled modeling axis)
 
 The one settled shape in this paddock: the modeling axis is decided, even though the build is not.
