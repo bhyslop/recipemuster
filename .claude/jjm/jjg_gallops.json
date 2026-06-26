@@ -11925,9 +11925,10 @@
         "₢BDAAh",
         "₢BDAAi",
         "₢BDAAk",
-        "₢BDAAl"
+        "₢BDAAl",
+        "₢BDAAm"
       ],
-      "jjghn_next_pace_seed": "AAm",
+      "jjghn_next_pace_seed": "AAn",
       "jjghn_paces": {
         "₢BDAAA": {
           "jjgpn_tacks": [
@@ -13391,6 +13392,37 @@
               ],
               "jjgtn_silks": "diffuse-codex-vocabulary-to-jjs",
               "jjgtn_basis": "cdd8ee1"
+            }
+          ]
+        },
+        "₢BDAAm": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260626-0814",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "Placeholder — design conversation, not yet mount-ready.",
+                "The gestalt is named below; the AXLA word and the voicing shape are the open surface, to be refined before this mounts.",
+                "",
+                "## Goal",
+                "Mint an AXLA motif for an immutable abstract data type, then voice it across the three glyph-prefixed JJK identity classes — firemark (₣), coronet (₢), and the officium id (☉) — so the nature they share is named once in AXLA and applied uniformly, rather than re-derived per type.",
+                "",
+                "## The gestalt (what the three share)",
+                "- A leading glyph that is part of the identity, never decoration.",
+                "- An encoded body — the favor base64 alphabet for firemark/coronet; a minted token for the officium id.",
+                "- Value-object semantics: immutable once minted; compared and displayed by value.",
+                "- A parse/display round-trip — the glyph stripped on the wire, restored on display.",
+                "",
+                "## Seed",
+                "Graduated from ₢BDAAj item 6 (immutable class objects for firemark and coronet), widened to take in the officium id and lifted from \"make the structs immutable\" to \"name the shared abstraction in AXLA and voice all three against it.\"",
+                "jjrf_favor.rs already homes jjrf_Firemark / jjrf_Coronet; the officium id is generated as a string (zjjrm_generate_officium_id) with no typed home yet.",
+                "",
+                "## Done when",
+                "To be refined in design conversation before this is mount-ready."
+              ],
+              "jjgtn_silks": "axla-immutable-identity-adt-motif",
+              "jjgtn_basis": "608af6e"
             }
           ]
         }
