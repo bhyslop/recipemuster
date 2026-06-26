@@ -19,13 +19,13 @@
 // disposition tags, sections registered, manifest-required colophons empty,
 // per-case verdicts, sentinel write/non-write contracts.
 //
-// Tests look up cases through the public registry (rbtdrc_lookup_fixture)
+// Tests look up cases through the public registry (rbtdra_lookup_fixture)
 // rather than calling case fns directly — exercising the same dispatch path the
 // engine uses, so a registration-without-implementation regression is caught.
 
 use std::path::PathBuf;
 
-use crate::rbtdrc_crucible::rbtdrc_lookup_fixture;
+use crate::rbtdra_almanac::rbtdra_lookup_fixture;
 use crate::rbtdre_engine::{rbtdre_find_case, rbtdre_Disposition, rbtdre_Verdict};
 use crate::rbtdrl_calibrant::{RBTDRL_OUTPUT_FILE, RBTDRL_SENTINEL_FILE};
 use crate::rbtdrm_manifest::{
@@ -48,7 +48,7 @@ fn rbtdtl_make_tempdir(label: &str) -> PathBuf {
 }
 
 fn rbtdtl_run_case(fixture: &'static str, case_name: &str) -> (rbtdre_Verdict, PathBuf) {
-    let fix = rbtdrc_lookup_fixture(fixture)
+    let fix = rbtdra_lookup_fixture(fixture)
         .unwrap_or_else(|| panic!("fixture '{}' not registered", fixture));
     let case = rbtdre_find_case(fix.cases, case_name)
         .unwrap_or_else(|| panic!("case '{}' not found in fixture '{}'", case_name, fixture));
@@ -122,7 +122,7 @@ fn rbtdtl_dispositions() {
         RBTDRM_FIXTURE_CALIBRANT_FAIL_FAST,
         RBTDRM_FIXTURE_CALIBRANT_SENTINEL,
     ] {
-        let fix = rbtdrc_lookup_fixture(fixture)
+        let fix = rbtdra_lookup_fixture(fixture)
             .unwrap_or_else(|| panic!("fixture '{}' not registered", fixture));
         assert_eq!(
             fix.disposition,
@@ -131,7 +131,7 @@ fn rbtdtl_dispositions() {
             fixture
         );
     }
-    let fix = rbtdrc_lookup_fixture(RBTDRM_FIXTURE_CALIBRANT_PROGRESSING)
+    let fix = rbtdra_lookup_fixture(RBTDRM_FIXTURE_CALIBRANT_PROGRESSING)
         .expect("calibrant-progressing is registered");
     assert_eq!(
         fix.disposition,
@@ -144,28 +144,28 @@ fn rbtdtl_dispositions() {
 
 #[test]
 fn rbtdtl_verdicts_cases_registered() {
-    let fix = rbtdrc_lookup_fixture(RBTDRM_FIXTURE_CALIBRANT_VERDICTS)
+    let fix = rbtdra_lookup_fixture(RBTDRM_FIXTURE_CALIBRANT_VERDICTS)
         .expect("calibrant-verdicts is registered");
     assert_eq!(fix.cases.len(), 4, "expected four cases");
 }
 
 #[test]
 fn rbtdtl_fail_fast_cases_registered() {
-    let fix = rbtdrc_lookup_fixture(RBTDRM_FIXTURE_CALIBRANT_FAIL_FAST)
+    let fix = rbtdra_lookup_fixture(RBTDRM_FIXTURE_CALIBRANT_FAIL_FAST)
         .expect("calibrant-fail-fast is registered");
     assert_eq!(fix.cases.len(), 3, "expected three cases");
 }
 
 #[test]
 fn rbtdtl_progressing_cases_registered() {
-    let fix = rbtdrc_lookup_fixture(RBTDRM_FIXTURE_CALIBRANT_PROGRESSING)
+    let fix = rbtdra_lookup_fixture(RBTDRM_FIXTURE_CALIBRANT_PROGRESSING)
         .expect("calibrant-progressing is registered");
     assert_eq!(fix.cases.len(), 2, "expected two cases");
 }
 
 #[test]
 fn rbtdtl_sentinel_cases_registered() {
-    let fix = rbtdrc_lookup_fixture(RBTDRM_FIXTURE_CALIBRANT_SENTINEL)
+    let fix = rbtdra_lookup_fixture(RBTDRM_FIXTURE_CALIBRANT_SENTINEL)
         .expect("calibrant-sentinel is registered");
     assert_eq!(fix.cases.len(), 1, "expected one case");
 }

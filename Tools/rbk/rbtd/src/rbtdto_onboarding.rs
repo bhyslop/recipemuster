@@ -16,7 +16,7 @@
 //
 // Tests for rbtdro_onboarding — gauntlet onboarding-sequence fixture.
 
-use crate::rbtdrc_crucible::rbtdrc_lookup_fixture;
+use crate::rbtdra_almanac::rbtdra_lookup_fixture;
 use crate::rbtdre_engine::rbtdre_Disposition;
 use crate::rbtdrm_manifest::RBTDRM_FIXTURE_ONBOARDING_SEQUENCE;
 
@@ -24,7 +24,7 @@ use crate::rbtdrm_manifest::RBTDRM_FIXTURE_ONBOARDING_SEQUENCE;
 /// state establishes preconditions for case N+1, so engine keep-going is refused.
 #[test]
 fn rbtdto_disposition_is_state_progressing() {
-    let fix = rbtdrc_lookup_fixture(RBTDRM_FIXTURE_ONBOARDING_SEQUENCE)
+    let fix = rbtdra_lookup_fixture(RBTDRM_FIXTURE_ONBOARDING_SEQUENCE)
         .expect("onboarding-sequence is registered");
     assert_eq!(fix.disposition, rbtdre_Disposition::StateProgressing);
 }
@@ -33,7 +33,7 @@ fn rbtdto_disposition_is_state_progressing() {
 /// exactly eight cases.
 #[test]
 fn rbtdto_cases_registered() {
-    let fix = rbtdrc_lookup_fixture(RBTDRM_FIXTURE_ONBOARDING_SEQUENCE)
+    let fix = rbtdra_lookup_fixture(RBTDRM_FIXTURE_ONBOARDING_SEQUENCE)
         .expect("onboarding-sequence is registered");
     assert_eq!(fix.cases.len(), 8, "expected eight cases");
     let names: Vec<&str> = fix.cases.iter().map(|c| c.name).collect();
@@ -51,7 +51,7 @@ fn rbtdto_cases_registered() {
 /// all reliquary-consuming cases (kludge, conjure, srjcl, airgap, bind).
 #[test]
 fn rbtdto_conclave_precedes_reliquary_consumers() {
-    let fix = rbtdrc_lookup_fixture(RBTDRM_FIXTURE_ONBOARDING_SEQUENCE)
+    let fix = rbtdra_lookup_fixture(RBTDRM_FIXTURE_ONBOARDING_SEQUENCE)
         .expect("onboarding-sequence is registered");
     let names: Vec<&str> = fix.cases.iter().map(|c| c.name).collect();
     let conclave_idx = names

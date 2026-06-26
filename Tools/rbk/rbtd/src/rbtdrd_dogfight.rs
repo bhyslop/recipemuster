@@ -29,7 +29,7 @@
 // busybox vessel is consumerless — no nameplate holds its hallmark, so there
 // is no committed regime file to carry the ephemeral hallmark across a
 // case boundary. The hallmark therefore lives as a local across the steps,
-// the same structural choice rbtdrc_hallmark_lifecycle makes for the same
+// the same structural choice rbtdrv_hallmark_lifecycle makes for the same
 // reason. This fixture IS hallmark_lifecycle with the registry-inventory
 // middle (audit/rekon) swapped for summon + a bare container-runtime run.
 
@@ -37,9 +37,10 @@ use std::path::Path;
 use std::process::Command;
 
 use crate::case;
-use crate::rbtdrc_crucible::{
-    rbtdrc_docker_inspect, rbtdrc_with_ctx, RBTDRC_ARK_BASENAME_IMAGE, RBTDRC_BUSYBOX_VESSEL_DIR,
-    RBTDRC_FACT_ARK_STEM, RBTDRC_FACT_GAR_ROOT, RBTDRC_FACT_HALLMARK,
+use crate::rbtdrc_crucible::rbtdrc_with_ctx;
+use crate::rbtdrv_patrol::{
+    rbtdrv_docker_inspect, RBTDRV_ARK_BASENAME_IMAGE, RBTDRV_BUSYBOX_VESSEL_DIR,
+    RBTDRV_FACT_ARK_STEM, RBTDRV_FACT_GAR_ROOT, RBTDRV_FACT_HALLMARK,
 };
 use crate::rbtdre_engine::{rbtdre_Case, rbtdre_Disposition, rbtdre_Fixture, rbtdre_Verdict};
 use crate::rbtdri_invocation::{
@@ -92,7 +93,7 @@ fn rbtdrd_build_run_lifecycle(dir: &Path) -> rbtdre_Verdict {
 }
 
 fn rbtdrd_build_run_lifecycle_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_Verdict {
-    let vessel_dir = RBTDRC_BUSYBOX_VESSEL_DIR;
+    let vessel_dir = RBTDRV_BUSYBOX_VESSEL_DIR;
     if !ctx.project_root().join(vessel_dir).is_dir() {
         return rbtdre_Verdict::Fail(format!("vessel directory not found: {}", vessel_dir));
     }
@@ -109,15 +110,15 @@ fn rbtdrd_build_run_lifecycle_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtd
         Err(e) => return rbtdre_Verdict::Fail(format!("ordain invocation: {}", e)),
     };
     let _ = std::fs::write(dir.join("01-ordain-stdout.txt"), &ordain.stdout);
-    let hallmark = match rbtdri_read_burv_fact(&ordain, RBTDRC_FACT_HALLMARK) {
+    let hallmark = match rbtdri_read_burv_fact(&ordain, RBTDRV_FACT_HALLMARK) {
         Ok(v) => v,
         Err(e) => return rbtdre_Verdict::Fail(format!("read hallmark fact: {}", e)),
     };
-    let gar_root = match rbtdri_read_burv_fact(&ordain, RBTDRC_FACT_GAR_ROOT) {
+    let gar_root = match rbtdri_read_burv_fact(&ordain, RBTDRV_FACT_GAR_ROOT) {
         Ok(v) => v,
         Err(e) => return rbtdre_Verdict::Fail(format!("read gar_root fact: {}", e)),
     };
-    let ark_stem = match rbtdri_read_burv_fact(&ordain, RBTDRC_FACT_ARK_STEM) {
+    let ark_stem = match rbtdri_read_burv_fact(&ordain, RBTDRV_FACT_ARK_STEM) {
         Ok(v) => v,
         Err(e) => return rbtdre_Verdict::Fail(format!("read ark_stem fact: {}", e)),
     };
@@ -127,7 +128,7 @@ fn rbtdrd_build_run_lifecycle_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtd
     // Same construction onboarding's conjure verification tail uses.
     let image_ref = format!(
         "{}/{}/{}:{}",
-        gar_root, ark_stem, RBTDRC_ARK_BASENAME_IMAGE, hallmark
+        gar_root, ark_stem, RBTDRV_ARK_BASENAME_IMAGE, hallmark
     );
     let _ = std::fs::write(dir.join("02-image-ref.txt"), &image_ref);
 
@@ -142,7 +143,7 @@ fn rbtdrd_build_run_lifecycle_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtd
         Err(e) => return rbtdre_Verdict::Fail(format!("summon invocation: {}", e)),
     };
     let _ = std::fs::write(dir.join("03-summon-stdout.txt"), &summon.stdout);
-    if !rbtdrc_docker_inspect(&image_ref) {
+    if !rbtdrv_docker_inspect(&image_ref) {
         return rbtdre_Verdict::Fail(format!(
             "summon: image ark not local after pull: {}",
             image_ref

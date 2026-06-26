@@ -35,7 +35,7 @@
 //
 // NOT credless, so it cannot ride fast (whose single tweak slot belongs to the
 // credless guard). The per-case poison occupies that slot, so the fixture
-// enrolls in service/crucible/complete — see RBTDRC_SUITES.
+// enrolls in service/crucible/complete — see RBTDRA_SUITES.
 
 use std::path::Path;
 

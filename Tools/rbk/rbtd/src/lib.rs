@@ -38,6 +38,7 @@ macro_rules! rbtd_vessels_dir {
 }
 
 pub mod rbtdgc_consts;
+pub mod rbtdra_almanac;
 pub mod rbtdrb_probe;
 pub mod rbtdrc_crucible;
 pub mod rbtdrd_dogfight;
@@ -59,6 +60,7 @@ pub mod rbtdrs_poison;
 pub mod rbtdru_bash;
 pub mod rbtdru_cupel;
 pub mod rbtdru_python;
+pub mod rbtdrv_patrol;
 pub mod rbtdrx_platform;
 
 #[cfg(test)]

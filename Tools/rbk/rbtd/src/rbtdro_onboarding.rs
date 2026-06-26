@@ -35,12 +35,13 @@ use std::path::{Path, PathBuf};
 
 use crate::case;
 use crate::rbtdrb_probe::{rbtdrb_assert, rbtdrb_Probe};
-use crate::rbtdrc_crucible::{
-    rbtdrc_docker_inspect, rbtdrc_docker_layers_capture, rbtdrc_docker_rmi,
-    rbtdrc_rekon_basename_yes, rbtdrc_with_ctx, RBTDRC_ARK_BASENAME_ABOUT,
-    RBTDRC_ARK_BASENAME_ATTEST, RBTDRC_ARK_BASENAME_IMAGE, RBTDRC_ARK_BASENAME_POUCH,
-    RBTDRC_ARK_BASENAME_VOUCH, RBTDRC_FACT_ARK_STEM, RBTDRC_FACT_GAR_ROOT, RBTDRC_FACT_HALLMARK,
-    RBTDRC_GAR_CATEGORY_HALLMARKS,
+use crate::rbtdrc_crucible::rbtdrc_with_ctx;
+use crate::rbtdrv_patrol::{
+    rbtdrv_docker_inspect, rbtdrv_docker_layers_capture, rbtdrv_docker_rmi,
+    rbtdrv_rekon_basename_yes, RBTDRV_ARK_BASENAME_ABOUT,
+    RBTDRV_ARK_BASENAME_ATTEST, RBTDRV_ARK_BASENAME_IMAGE, RBTDRV_ARK_BASENAME_POUCH,
+    RBTDRV_ARK_BASENAME_VOUCH, RBTDRV_FACT_ARK_STEM, RBTDRV_FACT_GAR_ROOT, RBTDRV_FACT_HALLMARK,
+    RBTDRV_GAR_CATEGORY_HALLMARKS,
 };
 use crate::rbtdre_engine::{
     rbtdre_commit_nameplates, rbtdre_commit_vessels, rbtdre_commit_vessels_all,
@@ -327,7 +328,7 @@ fn rbtdro_ordain_capture(
         dir,
         label,
     )?;
-    let hallmark = rbtdri_read_burv_fact(&result, RBTDRC_FACT_HALLMARK).map_err(|e| {
+    let hallmark = rbtdri_read_burv_fact(&result, RBTDRV_FACT_HALLMARK).map_err(|e| {
         rbtdre_Verdict::Fail(format!(
             "read hallmark fact after {} {}: {}",
             RBTDGC_VERB_ORDAIN, vessel_dir, e
@@ -356,19 +357,19 @@ fn rbtdro_ordain_capture_full(
         dir,
         label,
     )?;
-    let hallmark = rbtdri_read_burv_fact(&result, RBTDRC_FACT_HALLMARK).map_err(|e| {
+    let hallmark = rbtdri_read_burv_fact(&result, RBTDRV_FACT_HALLMARK).map_err(|e| {
         rbtdre_Verdict::Fail(format!(
             "read hallmark fact after {} {}: {}",
             RBTDGC_VERB_ORDAIN, vessel_dir, e
         ))
     })?;
-    let gar_root = rbtdri_read_burv_fact(&result, RBTDRC_FACT_GAR_ROOT).map_err(|e| {
+    let gar_root = rbtdri_read_burv_fact(&result, RBTDRV_FACT_GAR_ROOT).map_err(|e| {
         rbtdre_Verdict::Fail(format!(
             "read gar_root fact after {} {}: {}",
             RBTDGC_VERB_ORDAIN, vessel_dir, e
         ))
     })?;
-    let ark_stem = rbtdri_read_burv_fact(&result, RBTDRC_FACT_ARK_STEM).map_err(|e| {
+    let ark_stem = rbtdri_read_burv_fact(&result, RBTDRV_FACT_ARK_STEM).map_err(|e| {
         rbtdre_Verdict::Fail(format!(
             "read ark_stem fact after {} {}: {}",
             RBTDGC_VERB_ORDAIN, vessel_dir, e
@@ -792,7 +793,7 @@ fn rbtdro_onboarding_ordain_conjure_sentry_impl(ctx: &mut rbtdri_Context, dir: &
     // crucible fixtures consume this hallmark.
     let wrest_locator = format!(
         "{}/{}/{}:{}",
-        RBTDRC_GAR_CATEGORY_HALLMARKS, hallmark, RBTDRC_ARK_BASENAME_IMAGE, hallmark
+        RBTDRV_GAR_CATEGORY_HALLMARKS, hallmark, RBTDRV_ARK_BASENAME_IMAGE, hallmark
     );
     if let Err(v) = rbtdro_invoke_or_fail(
         ctx,
@@ -807,9 +808,9 @@ fn rbtdro_onboarding_ordain_conjure_sentry_impl(ctx: &mut rbtdri_Context, dir: &
         return v;
     }
 
-    let image_ref = format!("{}/{}/{}:{}", gar_root, ark_stem, RBTDRC_ARK_BASENAME_IMAGE, hallmark);
-    let about_ref = format!("{}/{}/{}:{}", gar_root, ark_stem, RBTDRC_ARK_BASENAME_ABOUT, hallmark);
-    let vouch_ref = format!("{}/{}/{}:{}", gar_root, ark_stem, RBTDRC_ARK_BASENAME_VOUCH, hallmark);
+    let image_ref = format!("{}/{}/{}:{}", gar_root, ark_stem, RBTDRV_ARK_BASENAME_IMAGE, hallmark);
+    let about_ref = format!("{}/{}/{}:{}", gar_root, ark_stem, RBTDRV_ARK_BASENAME_ABOUT, hallmark);
+    let vouch_ref = format!("{}/{}/{}:{}", gar_root, ark_stem, RBTDRV_ARK_BASENAME_VOUCH, hallmark);
 
     if let Err(v) = rbtdro_invoke_or_fail(
         ctx,
@@ -824,7 +825,7 @@ fn rbtdro_onboarding_ordain_conjure_sentry_impl(ctx: &mut rbtdri_Context, dir: &
         return v;
     }
     for ark_ref in [&image_ref, &about_ref, &vouch_ref] {
-        if !rbtdrc_docker_inspect(ark_ref) {
+        if !rbtdrv_docker_inspect(ark_ref) {
             return rbtdre_Verdict::Fail(format!(
                 "summon: ark not local after pull: {}",
                 ark_ref
@@ -868,12 +869,12 @@ fn rbtdro_onboarding_ordain_conjure_sentry_impl(ctx: &mut rbtdri_Context, dir: &
         Err(v) => return v,
     };
     for basename in [
-        RBTDRC_ARK_BASENAME_IMAGE,
-        RBTDRC_ARK_BASENAME_ABOUT,
-        RBTDRC_ARK_BASENAME_VOUCH,
-        RBTDRC_ARK_BASENAME_ATTEST,
+        RBTDRV_ARK_BASENAME_IMAGE,
+        RBTDRV_ARK_BASENAME_ABOUT,
+        RBTDRV_ARK_BASENAME_VOUCH,
+        RBTDRV_ARK_BASENAME_ATTEST,
     ] {
-        if !rbtdrc_rekon_basename_yes(&rekon.stdout, basename) {
+        if !rbtdrv_rekon_basename_yes(&rekon.stdout, basename) {
             return rbtdre_Verdict::Fail(format!(
                 "rekon: basename '{}' not marked yes\nstdout:\n{}",
                 basename, rekon.stdout
@@ -1055,9 +1056,9 @@ fn rbtdro_onboarding_ordain_airgap_chain_impl(ctx: &mut rbtdri_Context, dir: &Pa
     // this locator to a full GAR ref at airgap-bottle build time.
     let airgap_anchor = format!(
         "{}/{}/{}:{}",
-        RBTDRC_GAR_CATEGORY_HALLMARKS,
+        RBTDRV_GAR_CATEGORY_HALLMARKS,
         forge_hallmark.trim(),
-        RBTDRC_ARK_BASENAME_IMAGE,
+        RBTDRV_ARK_BASENAME_IMAGE,
         forge_hallmark.trim(),
     );
     if let Err(e) = rbtdro_write_vessel_env(
@@ -1150,7 +1151,7 @@ fn rbtdro_onboarding_ordain_bind_plantuml_impl(ctx: &mut rbtdri_Context, dir: &P
     // Abjure is omitted because pluml consumes this hallmark.
     let wrest_locator = format!(
         "{}/{}/{}:{}",
-        RBTDRC_GAR_CATEGORY_HALLMARKS, hallmark, RBTDRC_ARK_BASENAME_IMAGE, hallmark
+        RBTDRV_GAR_CATEGORY_HALLMARKS, hallmark, RBTDRV_ARK_BASENAME_IMAGE, hallmark
     );
     if let Err(v) = rbtdro_invoke_or_fail(
         ctx,
@@ -1192,7 +1193,7 @@ fn rbtdro_onboarding_ordain_bind_plantuml_impl(ctx: &mut rbtdri_Context, dir: &P
 
     let jettison_locator = format!(
         "{}/{}/{}:{}",
-        RBTDRC_GAR_CATEGORY_HALLMARKS, hallmark, RBTDRC_ARK_BASENAME_POUCH, hallmark
+        RBTDRV_GAR_CATEGORY_HALLMARKS, hallmark, RBTDRV_ARK_BASENAME_POUCH, hallmark
     );
     if let Err(v) = rbtdro_invoke_or_fail(
         ctx,
@@ -1220,13 +1221,13 @@ fn rbtdro_onboarding_ordain_bind_plantuml_impl(ctx: &mut rbtdri_Context, dir: &P
         Ok(r) => r,
         Err(v) => return v,
     };
-    if rbtdrc_rekon_basename_yes(&rekon_after.stdout, RBTDRC_ARK_BASENAME_POUCH) {
+    if rbtdrv_rekon_basename_yes(&rekon_after.stdout, RBTDRV_ARK_BASENAME_POUCH) {
         return rbtdre_Verdict::Fail(format!(
             "rekon: pouch still present after jettison\nstdout:\n{}",
             rekon_after.stdout
         ));
     }
-    if !rbtdrc_rekon_basename_yes(&rekon_after.stdout, RBTDRC_ARK_BASENAME_IMAGE) {
+    if !rbtdrv_rekon_basename_yes(&rekon_after.stdout, RBTDRV_ARK_BASENAME_IMAGE) {
         return rbtdre_Verdict::Fail(format!(
             "rekon: image disappeared after pouch jettison (collateral damage)\nstdout:\n{}",
             rekon_after.stdout
@@ -1299,7 +1300,7 @@ fn rbtdro_onboarding_ordain_graft_demo_impl(ctx: &mut rbtdri_Context, dir: &Path
     // GAR's manifest-envelope normalization; round-trip identity proves the
     // bytes survived unchanged. Doubles as the local-presence gate: the
     // anointed image must still sit in the docker cache from its kludge.
-    let source_layers = match rbtdrc_docker_layers_capture(&graft_image) {
+    let source_layers = match rbtdrv_docker_layers_capture(&graft_image) {
         Ok(v) => v,
         Err(e) => {
             return rbtdre_Verdict::Fail(format!(
@@ -1325,7 +1326,7 @@ fn rbtdro_onboarding_ordain_graft_demo_impl(ctx: &mut rbtdri_Context, dir: &Path
     // is terminal (no consumers), so abjure is safe.
     let wrest_locator = format!(
         "{}/{}/{}:{}",
-        RBTDRC_GAR_CATEGORY_HALLMARKS, hallmark, RBTDRC_ARK_BASENAME_IMAGE, hallmark
+        RBTDRV_GAR_CATEGORY_HALLMARKS, hallmark, RBTDRV_ARK_BASENAME_IMAGE, hallmark
     );
     if let Err(v) = rbtdro_invoke_or_fail(
         ctx,
@@ -1340,8 +1341,8 @@ fn rbtdro_onboarding_ordain_graft_demo_impl(ctx: &mut rbtdri_Context, dir: &Path
         return v;
     }
 
-    let image_ref = format!("{}/{}/{}:{}", gar_root, ark_stem, RBTDRC_ARK_BASENAME_IMAGE, hallmark);
-    let wrested_layers = match rbtdrc_docker_layers_capture(&image_ref) {
+    let image_ref = format!("{}/{}/{}:{}", gar_root, ark_stem, RBTDRV_ARK_BASENAME_IMAGE, hallmark);
+    let wrested_layers = match rbtdrv_docker_layers_capture(&image_ref) {
         Ok(v) => v,
         Err(e) => return rbtdre_Verdict::Fail(format!("wrested image inspect: {}", e)),
     };
@@ -1353,7 +1354,7 @@ fn rbtdro_onboarding_ordain_graft_demo_impl(ctx: &mut rbtdri_Context, dir: &Path
         ));
     }
 
-    if let Err(e) = rbtdrc_docker_rmi(&[&image_ref]) {
+    if let Err(e) = rbtdrv_docker_rmi(&[&image_ref]) {
         return rbtdre_Verdict::Fail(format!("rmi: {}", e));
     }
 

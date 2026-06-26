@@ -34,10 +34,10 @@
 use std::path::PathBuf;
 use std::process::ExitCode;
 
-use rbtd::rbtdrc_crucible::{
-    rbtdrc_lookup_fixture, rbtdrc_lookup_suite, rbtdrc_set_context, rbtdrc_take_context,
-    RBTDRC_FIXTURES, RBTDRC_SUITES,
+use rbtd::rbtdra_almanac::{
+    rbtdra_lookup_fixture, rbtdra_lookup_suite, RBTDRA_FIXTURES, RBTDRA_SUITES,
 };
+use rbtd::rbtdrc_crucible::{rbtdrc_set_context, rbtdrc_take_context};
 use rbtd::rbtdre_engine::{
     rbtdre_detect_colors, rbtdre_find_case, rbtdre_list_cases, rbtdre_print_summary,
     rbtdre_run_fixture, rbtdre_run_single_case, rbtdre_tree_clean,
@@ -129,12 +129,12 @@ fn rbtdb_run_fixture(args: &[String]) -> ExitCode {
         &roots.burv_output_root,
     );
 
-    let fixture_def = match rbtdrc_lookup_fixture(fixture) {
+    let fixture_def = match rbtdra_lookup_fixture(fixture) {
         Some(f) => f,
         None => rbtd::rbtdrg_fatal_now!(
             "rbtd: fixture '{}' has no registered Fixture — \
              no Fixture static is bound. \
-             Update rbtdrc_lookup_fixture in rbtdrc_crucible.rs.",
+             Update rbtdra_lookup_fixture in rbtdrc_crucible.rs.",
             fixture
         ),
     };
@@ -165,7 +165,7 @@ fn rbtdb_run_fixture(args: &[String]) -> ExitCode {
 
 fn rbtdb_run_suite(args: &[String]) -> ExitCode {
     let suite = match args.first() {
-        Some(name) => match rbtdrc_lookup_suite(name) {
+        Some(name) => match rbtdra_lookup_suite(name) {
             Some(s) => s,
             None => {
                 rbtd::rbtdrg_error_now!("rbtd suite: unknown suite '{}'", name);
@@ -275,7 +275,7 @@ fn rbtdb_run_suite(args: &[String]) -> ExitCode {
 
 fn rbtdb_list_suites() {
     rbtd::rbtdrg_info_now!("available suites:");
-    for s in RBTDRC_SUITES {
+    for s in RBTDRA_SUITES {
         rbtd::rbtdrg_info_now!("  {}", s.name);
     }
 }
@@ -295,7 +295,7 @@ fn rbtdb_run_single(args: &[String]) -> ExitCode {
         }
     };
 
-    if !RBTDRC_FIXTURES.iter().any(|f| f.name == *fixture) {
+    if !RBTDRA_FIXTURES.iter().any(|f| f.name == *fixture) {
         rbtd::rbtdrg_error_now!("rbtd single: unknown fixture '{}'", fixture);
         rbtdb_list_fixtures();
         return ExitCode::FAILURE;
@@ -322,7 +322,7 @@ fn rbtdb_run_single(args: &[String]) -> ExitCode {
         &roots.burv_output_root,
     );
 
-    let fixture_def = match rbtdrc_lookup_fixture(fixture) {
+    let fixture_def = match rbtdra_lookup_fixture(fixture) {
         Some(f) => f,
         None => rbtd::rbtdrg_fatal_now!(
             "rbtd single: fixture '{}' has no registered Fixture",
@@ -389,7 +389,7 @@ fn rbtdb_run_single(args: &[String]) -> ExitCode {
 
 fn rbtdb_list_fixtures() {
     rbtd::rbtdrg_info_now!("available fixtures:");
-    for f in RBTDRC_FIXTURES {
+    for f in RBTDRA_FIXTURES {
         rbtd::rbtdrg_info_now!("  {}", f.name);
     }
 }

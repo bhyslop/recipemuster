@@ -19,7 +19,7 @@
 
 use std::path::PathBuf;
 
-use crate::rbtdrc_crucible::rbtdrc_lookup_fixture;
+use crate::rbtdra_almanac::rbtdra_lookup_fixture;
 use crate::rbtdre_engine::rbtdre_Disposition;
 use crate::rbtdrk_freehold::{
     rbtdrk_family_stem, rbtdrk_freehold_cloud_prefix, rbtdrk_freehold_runtime_prefix,
@@ -127,7 +127,7 @@ fn rbtdtk_freehold_dual_station_disjoint() {
 /// refusal applies to this fixture too, by design (per BBAAd policy gate).
 #[test]
 fn rbtdtk_disposition_is_state_progressing() {
-    let fixture = rbtdrc_lookup_fixture(RBTDRM_FIXTURE_FREEHOLD_ESTABLISH)
+    let fixture = rbtdra_lookup_fixture(RBTDRM_FIXTURE_FREEHOLD_ESTABLISH)
         .expect("freehold-establish is registered");
     assert_eq!(fixture.disposition, rbtdre_Disposition::StateProgressing);
 }
@@ -136,7 +136,7 @@ fn rbtdtk_disposition_is_state_progressing() {
 /// exactly the six federation-persona cases.
 #[test]
 fn rbtdtk_cases_registered() {
-    let fixture = rbtdrc_lookup_fixture(RBTDRM_FIXTURE_FREEHOLD_ESTABLISH)
+    let fixture = rbtdra_lookup_fixture(RBTDRM_FIXTURE_FREEHOLD_ESTABLISH)
         .expect("freehold-establish is registered");
     assert_eq!(fixture.cases.len(), 6, "expected six cases");
     let names: Vec<&str> = fixture.cases.iter().map(|c| c.name).collect();
@@ -151,7 +151,7 @@ fn rbtdtk_cases_registered() {
 /// freehold-churn registers its single deliberate teardown case.
 #[test]
 fn rbtdtk_churn_case_registered() {
-    let fixture = rbtdrc_lookup_fixture(RBTDRM_FIXTURE_FREEHOLD_CHURN)
+    let fixture = rbtdra_lookup_fixture(RBTDRM_FIXTURE_FREEHOLD_CHURN)
         .expect("freehold-churn is registered");
     assert_eq!(fixture.cases.len(), 1, "expected one churn case");
     let names: Vec<&str> = fixture.cases.iter().map(|c| c.name).collect();

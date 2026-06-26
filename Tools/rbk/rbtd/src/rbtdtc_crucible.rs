@@ -17,7 +17,7 @@
 // RBTDTC — suite-composition oracle: the theurge wrapper(inner) membership matrix
 //
 // A runnable suite is, in the theurge model, one inner-body set run under one
-// wrapper. That product is spelled by hand in RBTDRC_SUITES — the literal,
+// wrapper. That product is spelled by hand in RBTDRA_SUITES — the literal,
 // compile-checked membership lists ARE the source of truth and stay literal.
 // This module is the independent regression oracle proving those literal lists
 // remain expressible as wrapper(inner) compositions: it classifies every suite
@@ -33,13 +33,13 @@
 
 use std::collections::BTreeSet;
 
-use crate::rbtdrc_crucible::{
-    rbtdrc_lookup_suite,
-    RBTDRC_SUITES,
+use crate::rbtdra_almanac::{
+    rbtdra_lookup_suite,
+    RBTDRA_SUITES,
 };
 
 // Canonical suite names. The production source of truth is the `name` literal on
-// each RBTDRC_SUITES entry; these test-side consts are the single spelling the
+// each RBTDRA_SUITES entry; these test-side consts are the single spelling the
 // oracle shares across its model table and law assertions (a renamed suite makes
 // the lookup panic loudly rather than silently skipping a law).
 const ZRBTDTC_REVEILLE: &str = "reveille";
@@ -68,7 +68,7 @@ enum rbtdtc_Wrapper {
 }
 
 /// The wrapper(inner) model: every suite paired with the wrapper it runs under.
-/// The exhaustiveness test pins this against RBTDRC_SUITES, so a new suite cannot
+/// The exhaustiveness test pins this against RBTDRA_SUITES, so a new suite cannot
 /// enter the registry without being classified under a wrapper here.
 const ZRBTDTC_MODEL: &[(&str, rbtdtc_Wrapper)] = &[
     (ZRBTDTC_REVEILLE, rbtdtc_Wrapper::Base),
@@ -83,11 +83,11 @@ const ZRBTDTC_MODEL: &[(&str, rbtdtc_Wrapper)] = &[
 ];
 
 /// Resolve a suite's membership as a set of fixture names, read live from
-/// RBTDRC_SUITES. Panics if the suite is not registered — a stale suite name in
+/// RBTDRA_SUITES. Panics if the suite is not registered — a stale suite name in
 /// the model is a loud failure, not a silent skip.
 fn zrbtdtc_members(suite: &str) -> BTreeSet<&'static str> {
-    rbtdrc_lookup_suite(suite)
-        .unwrap_or_else(|| panic!("suite '{}' not registered in RBTDRC_SUITES", suite))
+    rbtdra_lookup_suite(suite)
+        .unwrap_or_else(|| panic!("suite '{}' not registered in RBTDRA_SUITES", suite))
         .fixtures
         .iter()
         .map(|f| f.name)
@@ -99,11 +99,11 @@ fn rbtdtc_model_classifies_every_suite() {
     // Every registered suite carries exactly one wrapper classification, and
     // every classified name is a registered suite — the model covers reality,
     // neither missing a suite nor naming a phantom.
-    let registered: BTreeSet<&str> = RBTDRC_SUITES.iter().map(|s| s.name).collect();
+    let registered: BTreeSet<&str> = RBTDRA_SUITES.iter().map(|s| s.name).collect();
     let modeled: BTreeSet<&str> = ZRBTDTC_MODEL.iter().map(|(n, _)| *n).collect();
     assert_eq!(
         registered, modeled,
-        "wrapper model and RBTDRC_SUITES disagree on the suite set"
+        "wrapper model and RBTDRA_SUITES disagree on the suite set"
     );
     assert_eq!(
         ZRBTDTC_MODEL.len(),
