@@ -8,6 +8,9 @@
 // Begin Mapping Section
 // tag::mapping-section[]
 
+// Codex identity (document composition; sealed by axvd_codex at its definition site)
+:rbs0_imprimatur:            <<rbs0_imprimatur,Recipe Bottle Specification>>
+
 // Category declarations:
 // rbtr_ prefix: RB Term Role (Recipe Bottle role identities)
 // rbtgi_ prefix: RB Term Google Instance (Recipe Bottle specific instances)
@@ -600,6 +603,13 @@
 
 == System Overview
 
+[[rbs0_imprimatur]]
+//axvd_codex
+{rbs0_imprimatur}::
+This document — the codex of the Recipe Bottle concept model: the root that owns this mapping
+section and the vocabulary its sheaves consume, and the identity each sheaf names back through
+its tendon.
+
 === Core Trust Challenge
 
 Modern development increasingly requires running foreign code with access to local work.
@@ -751,6 +761,7 @@ Removing or weakening a layer requires Ifrit-suite empirical validation to confi
 
 === Adversarial Validation: The Ifrit
 
+//axvd_sheaf axd_normative
 include::RBSIP-ifrit_pentester.adoc[]
 
 == Getting Started
@@ -759,6 +770,7 @@ For builders and operators new to
 {at_recipe_bottle},
 this section provides conceptual grounding and the setup journey.
 
+//axvd_sheaf axd_informative
 include::RBSGS-GettingStarted.adoc[leveloffset=+2]
 
 // ============================================================================
@@ -1090,6 +1102,7 @@ Establishes
 credentials and project configuration
 ({rbtgog_payor}).
 
+//axvd_sheaf axd_normative
 include::RBSPE-payor_establish.adoc[]
 
 [[rbtgo_payor_install]]
@@ -1102,6 +1115,7 @@ OAuth credential installation
 ({rbtgog_payor})
 by performing authorization flow, storing credentials, and validating {rbtgi_manor} access.
 
+//axvd_sheaf axd_normative
 include::RBSPI-payor_install.adoc[]
 
 [[rbtgo_payor_refresh]]
@@ -1113,6 +1127,7 @@ Refreshes
 OAuth credentials
 ({rbtgog_payor}).
 
+//axvd_sheaf axd_normative
 include::RBSPR-payor_refresh.adoc[]
 
 [[rbtgo_access_oauth_probe]]
@@ -1125,6 +1140,7 @@ OAuth access
 ({rbtgog_access})
 by refreshing the stored OAuth token and calling the Cloud Resource Manager projects.get API, with optional iteration and delay for sustained verification.
 
+//axvd_sheaf axd_normative
 include::RBSAO-access_oauth_probe.adoc[]
 
 [[rbtgo_manor_affiance]]
@@ -1137,6 +1153,7 @@ to its external OIDC identity provider
 ({rbtgog_payor}):
 the org-level workforce pool, its provider, and the attribute mapping.
 
+//axvd_sheaf axd_normative
 include::RBSMA-manor_affiance.adoc[]
 
 [[rbtgo_manor_jilt]]
@@ -1151,6 +1168,7 @@ the structural inverse of
 {rbtf_affiance},
 dissolving the org-level workforce pool (the provider cascades with it).
 
+//axvd_sheaf axd_normative
 include::RBSMJ-manor_jilt.adoc[]
 
 [[rbtgo_depot_levy]]
@@ -1166,6 +1184,7 @@ project, bucket, repository,
 service account, and the three
 {rbtf_mantle_s}.
 
+//axvd_sheaf axd_normative
 include::RBSMF-depot_levy.adoc[]
 
 [[rbtgo_depot_unmake]]
@@ -1180,6 +1199,7 @@ Includes
 {rbtr_governor}
 service account cleanup; no separate defrock verb (DELETE tolerates 404).
 
+//axvd_sheaf axd_normative
 include::RBSDU-depot_unmake.adoc[]
 
 [[rbtgo_depot_list]]
@@ -1191,6 +1211,7 @@ Lists
 instances
 ({rbtgog_depot}).
 
+//axvd_sheaf axd_normative
 include::RBSDL-depot_list.adoc[]
 
 [[rbtgo_depot_recognosce]]
@@ -1205,6 +1226,7 @@ the three
 {rbtf_mantle_s},
 their capability-sets, and the Artifact Registry Data-Access audit config — read-only.
 
+//axvd_sheaf axd_normative
 include::RBSDC-depot_recognosce.adoc[]
 
 [[rbtgo_quota_build]]
@@ -1217,6 +1239,7 @@ machine type and CPU quota alignment
 ({rbtgog_depot})
 to enable the desired level of parallel build execution.
 
+//axvd_sheaf axd_normative
 include::RBSQB-quota_build.adoc[]
 
 == {rbtr_governor} Operations
@@ -1243,6 +1266,7 @@ The federation successor to the bridge-legacy keyfile governor-enrobe;
 once a governor is girded, every further admission flows through the governor-wielded verbs
 below.
 
+//axvd_sheaf axd_normative
 include::RBSPG-governor_gird.adoc[]
 
 The federation admission verbs are the governor-wielded operator surface that admits and
@@ -1281,6 +1305,7 @@ the
 then the mantle-SA `tokenCreator` and (first admission) depot `serviceUsageConsumer`
 bindings, idempotently ensured.
 
+//axvd_sheaf axd_normative
 include::RBSPB-citizen_brevet.adoc[]
 
 [[rbtgo_citizen_unseat]]
@@ -1298,6 +1323,7 @@ and the mantle-SA `tokenCreator` binding, leaving the depot-scoped binding in pl
 ({rbtf_unseat}
 is suspension, not erasure).
 
+//axvd_sheaf axd_normative
 include::RBSPU-citizen_unseat.adoc[]
 
 [[rbtgo_citizen_attaint]]
@@ -1315,6 +1341,7 @@ and sweeps the depot-scoped `serviceUsageConsumer` binding
 {rbtf_unseat}
 leaves behind.
 
+//axvd_sheaf axd_normative
 include::RBSPA-citizen_attaint.adoc[]
 
 [[rbtgo_terrier_rehearse]]
@@ -1329,6 +1356,7 @@ a pure read across the whole
 {rbtf_terrier}
 that mutates nothing.
 
+//axvd_sheaf axd_normative
 include::RBSPO-terrier_rehearse.adoc[]
 
 == {rbtr_director} Operations
@@ -1352,6 +1380,7 @@ Yokes a reliquary touchmark across every vessel's
 validates the conclave {rbtga_lode} touchmark once against GAR, then rewrites `RBRV_RELIQUARY` in every {rbrv_regime} file under `${RBRR_VESSEL_DIR}`
 ({rbtgog_depot}).
 
+//axvd_sheaf axd_normative
 include::RBSDY-director_yoke.adoc[]
 
 [[rbtgo_director_feoff]]
@@ -1363,6 +1392,7 @@ resolves a bole {rbtga_lode} touchmark express-or-chain, then writes `RBRV_IMAGE
 ({rbtgog_depot}).
 The chain LINK extracted out of {rbtgo_ark_conjure} so conjure stays a pure chain head — ceremony ensconce → feoff → commit → conjure.
 
+//axvd_sheaf axd_normative
 include::RBSDF-director_feoff.adoc[]
 
 [[rbtgo_image_delete]]
@@ -1376,6 +1406,7 @@ artifact by
 ({rbtgog_image}).
 Locator-generic across hallmark members and Lode members.
 
+//axvd_sheaf axd_normative
 include::RBSIJ-image_jettison.adoc[]
 
 [[rbtgo_image_retrieve]]
@@ -1390,6 +1421,7 @@ artifact by
 Locator-generic across hallmark members and Lode members.
 {rbtr_director}-tier — peer to {rbtgo_image_delete}, distinct from {rbtgo_ark_summon}.
 
+//axvd_sheaf axd_normative
 include::RBSIW-image_wrest.adoc[]
 
 [[rbtgo_image_rekon]]
@@ -1401,6 +1433,7 @@ Reports canonical-member presence under a hallmark subtree in
 ({rbtgog_image}).
 One procedure (`rbfl_rekon_hallmark`); rekon over Lodes is intentionally omitted — reliquary cohorts are conclave Lodes inspected via Lode augur, and bole Lodes are 1-deep.
 
+//axvd_sheaf axd_normative
 include::RBSIR-image_rekon.adoc[]
 
 [[rbtgo_image_audit]]
@@ -1412,6 +1445,7 @@ Lists identifiers under the hallmark GAR domain in
 ({rbtgog_image}).
 {rbtr_director}-tier flat catalog; complements the {rbtr_retriever}-tier {rbtgo_hallmark_tally}, which adds health classification on the hallmark domain only.
 
+//axvd_sheaf axd_normative
 include::RBSIA-image_audit.adoc[]
 
 [[rbtgo_ark_abjure]]
@@ -1424,6 +1458,7 @@ from the repository
 ({rbtgog_ark}),
 removing its image, about, and vouch artifacts as a coherent unit.
 
+//axvd_sheaf axd_normative
 include::RBSAA-ark_abjure.adoc[]
 
 [[rbtgo_ark_ordain]]
@@ -1446,6 +1481,7 @@ by building a container image
 from a vessel specification.
 Build context delivered via {rbtga_ark_pouch}, submitted via `builds.create` API. The combined job produces both the `image` and `about` packages under the hallmark subtree (about steps embedded via stitch). Vouch is a separate Cloud Build job using DSSE envelope signature verification.
 
+//axvd_sheaf axd_normative
 include::RBSAC-ark_conjure.adoc[]
 
 [[rbtgo_ark_graft]]
@@ -1458,6 +1494,7 @@ Grafts a locally-built container image into the
 via native docker/podman push.
 The image push itself is local (no Cloud Build); about and vouch follow as Cloud Build jobs.
 
+//axvd_sheaf axd_normative
 include::RBSAG-ark_graft.adoc[]
 
 [[rbtgo_ark_kludge]]
@@ -1473,6 +1510,7 @@ Kludge resolves
 {rbrv_image_anchor}
 declarations to GAR references identically to {rbtgo_ark_conjure}, but anchored images must already be locally cached; the credentialed fetch happens out-of-band via {rbtgo_image_retrieve}. Origin-only slots auto-pull inline — no credentials required for public upstream.
 
+//axvd_sheaf axd_normative
 include::RBSAK-ark_kludge.adoc[]
 
 [[rbtgo_ark_about]]
@@ -1489,6 +1527,7 @@ Runs Syft for SBOM generation and builds mode-aware `build_info.json` using unif
 steps.
 Conjure and bind embed these steps in their primary Cloud Build job alongside image production; graft's primary job consists of these steps alone.
 
+//axvd_sheaf axd_normative
 include::RBSAB-ark_about.adoc[]
 
 [[rbtgo_ark_vouch]]
@@ -1510,6 +1549,7 @@ job via `builds.create` after
 {rbtgo_ark_about}
 completes.
 
+//axvd_sheaf axd_normative
 include::RBSAV-ark_vouch.adoc[]
 
 [[rbtgo_director_vouch]]
@@ -1524,6 +1564,7 @@ hallmark in
 Dispatches {rbtgo_ark_vouch} per pending hallmark; mode-specific verification (conjure, bind, graft) happens inside that operation, not in the batch.
 Any vouch failure terminates the batch fail-fast at the broken hallmark.
 
+//axvd_sheaf axd_normative
 include::RBSDV-director_vouch.adoc[]
 
 [[rbtgo_lode_ensconce]]
@@ -1536,6 +1577,7 @@ capturing it cloud-side into the `{gar_lodes_namespace}/` namespace under a host
 The {rbtr_director} submits a two-step Cloud Build job — gcrane capture of the upstream manifest, then a vouch push — writing the {rbtga_lode_vouch} provenance envelope to its one canonical home, the `:rbi_vouch` tag in GAR, and handing the touchmark forward host-side as the {rbf_fact_lode}.
 The bole kind — base images consumed as a FROM line — is the canonical capture skeleton the remaining kinds reuse.
 
+//axvd_sheaf axd_normative
 include::RBSLE-lode_ensconce.adoc[]
 
 [[rbtgo_lode_conclave]]
@@ -1548,6 +1590,7 @@ capturing the co-versioned Cloud Build tool images cloud-side into one `{gar_lod
 The {rbtr_director} submits a two-step Cloud Build job — gcrane capture of the tool cohort, then a vouch push — writing the {rbtga_lode_vouch} provenance envelope to its one canonical home, the `:rbi_vouch` tag in GAR, and handing the touchmark forward host-side as the {rbf_fact_lode}.
 The reliquary kind — N member tags within one package — brings the build-tool cohort into the Lode model; the member cardinality is the only structural departure from the bole skeleton.
 
+//axvd_sheaf axd_normative
 include::RBSLC-lode_conclave.adoc[]
 
 [[rbtgo_lode_underpin]]
@@ -1560,6 +1603,7 @@ fetching the tarball cloud-side into one `{gar_lodes_namespace}/` package under 
 The {rbtr_director} submits a two-step Cloud Build job — curl fetch with GPG-verified published-checksum verification and opaque-blob wrap, then a vouch push — writing the {rbtga_lode_vouch} provenance envelope to its one canonical home, the `:rbi_vouch` tag in GAR, and handing the touchmark forward host-side as the {rbf_fact_lode}.
 The wsl kind is the structural outlier: its upstream is an HTTPS tarball plus an out-of-band signed checksum, not an OCI image, so its capture step is new — and intent is declarative (version arguments, no FQIN), with the checksum discovered and signature-verified at capture.
 
+//axvd_sheaf axd_normative
 include::RBSLU-lode_underpin.adoc[]
 
 [[rbtgo_lode_immure]]
@@ -1573,6 +1617,7 @@ One verb spans both quay families — `podvm-wsl` (`quay.io/podman/machine-os-ws
 The {rbtr_director} submits a four-step Cloud Build job — a python select step that reads the upstream OCI index and picks the curated `{disktype × arch}` leaves by descriptor, a gcrane copy-by-digest, a blob-residency guard, then a vouch push — writing the {rbtga_lode_vouch} provenance envelope to its one canonical home, the `:rbi_vouch` tag in GAR, and handing the touchmark forward host-side as the {rbf_fact_lode}.
 The podvm kind is opaque-blob (like wsl) × multi-member (like reliquary); intent is declarative (family + version arguments, no FQIN), and the trust grade is recorded-at-acquisition — quay publishes no durable checksum and rotates within days, so RB attests only the digest observed at capture.
 
+//axvd_sheaf axd_normative
 include::RBSLI-lode_immure.adoc[]
 
 [[rbtgo_lode_divine]]
@@ -1584,6 +1629,7 @@ Enumerates every {rbtga_lode} under the `{gar_lodes_namespace}/` namespace
 reading each {rbtga_touchmark} and its glance fingerprint.
 Read-only and kind-agnostic — the kind is decoded from the touchmark's leading letter.
 
+//axvd_sheaf axd_normative
 include::RBSLD-lode_divine.adoc[]
 
 [[rbtgo_lode_augur]]
@@ -1594,6 +1640,7 @@ Augurs a single {rbtga_lode} — inspecting its member tags and decoding its {rb
 ({rbtgog_lode}).
 Read-only and kind-agnostic; the single-Lode inspect counterpart to {rbtgo_lode_divine} enumeration, paralleling made-side {rbtgo_ark_inspect}.
 
+//axvd_sheaf axd_normative
 include::RBSLA-lode_augur.adoc[]
 
 [[rbtgo_lode_banish]]
@@ -1605,6 +1652,7 @@ Banishes a whole {rbtga_lode}
 via a single GAR `packages delete` on the touchmark package — the atomic whole-Lode delete.
 Kind-agnostic; parallels made-side {rbtgo_ark_abjure}.
 
+//axvd_sheaf axd_normative
 include::RBSLB-lode_banish.adoc[]
 
 == {rbtr_retriever} Operations
@@ -1620,6 +1668,7 @@ hallmark in
 ({rbtgog_ark}),
 classifying each by artifact completeness and vouch status.
 
+//axvd_sheaf axd_normative
 include::RBSCL-consecration_tally.adoc[]
 
 [[rbtgo_ark_summon]]
@@ -1632,6 +1681,7 @@ from the repository
 ({rbtgog_ark}),
 retrieving its image, about, and vouch artifacts to the local container runtime.
 
+//axvd_sheaf axd_normative
 include::RBSAS-ark_summon.adoc[]
 
 [[rbtgo_ark_inspect]]
@@ -1645,6 +1695,7 @@ locally
 displaying trust posture from locally-present about and vouch artifacts.
 Two modes: {rbtc_plumb_full} (full detail) and {rbtc_plumb_compact} (summary).
 
+//axvd_sheaf axd_normative
 include::RBSAP-ark_plumb.adoc[]
 
 == Local Operations
@@ -1658,24 +1709,28 @@ The precisely ordered sequence of steps needed to start a
 that enforces network policy for a new
 {rbsc_crucible}.
 
+//axvd_sheaf axd_normative
 include::RBSSS-sentry_start.adoc[]
 
 [[mkr_network_create]]
 //axvo_procedure axd_transient axd_internal
 === {mkr_network_create}
 
+//axvd_sheaf axd_normative
 include::RBSNC-network_create.adoc[]
 
 [[mkr_sentry_run]]
 //axvo_procedure axd_transient axd_internal
 === {mkr_sentry_run}
 
+//axvd_sheaf axd_normative
 include::RBSSR-sentry_run.adoc[]
 
 [[mkr_network_connect]]
 //axvo_procedure axd_transient axd_internal
 === {mkr_network_connect}
 
+//axvd_sheaf axd_normative
 include::RBSNX-network_connect.adoc[]
 
 [[rbsc_charge]]
@@ -1686,18 +1741,21 @@ Charges a new
 {at_sessile_service}
 through controlled container instantiation and configuration.
 
+//axvd_sheaf axd_normative
 include::RBSCC-crucible_charge.adoc[]
 
 [[mkr_bottle_cleanup]]
 //axvo_procedure axd_transient axd_internal
 === {mkr_bottle_cleanup}
 
+//axvd_sheaf axd_normative
 include::RBSBK-bottle_cleanup.adoc[]
 
 [[mkr_bottle_launch]]
 //axvo_procedure axd_transient axd_internal
 === {mkr_bottle_launch}
 
+//axvd_sheaf axd_normative
 include::RBSBL-bottle_launch.adoc[]
 
 [[rbsc_enjoin]]
@@ -1708,22 +1766,26 @@ Enjoins a new
 {at_agile_service}
 instance through controlled container instantiation and command execution.
 
+//axvd_sheaf axd_normative
 include::RBSCN-crucible_enjoin.adoc[]
 
 [[mkr_bottle_create]]
 //axvo_procedure axd_transient axd_internal
 === {mkr_bottle_create}
 
+//axvd_sheaf axd_normative
 include::RBSBC-bottle_create.adoc[]
 
 [[mkr_command_exec]]
 //axvo_procedure axd_transient axd_internal
 === {mkr_command_exec}
 
+//axvd_sheaf axd_normative
 include::RBSCE-command_exec.adoc[]
 
 === Podman VM Supply Chain
 
+//axvd_sheaf axd_normative
 include::RBSPV-PodmanVmSupplyChain.adoc[leveloffset=+2]
 
 // [[mkc_interface_check]] removed — historical (Podman era), IP-based discovery replaced interface checks
@@ -2048,6 +2110,7 @@ Its access sub-operations (
 {rbtf_peruse})
 are homed in the Terrier access subdoc below.
 
+//axvd_sheaf axd_normative
 include::RBSTR-Terrier.adoc[leveloffset=+1]
 
 === {gcp_service} Definitions
@@ -3317,6 +3380,7 @@ Container image build process configuration.
 [[rbrr_group_cbv2]]
 //axvr_group
 {rbrr_group_cbv2}::
+//axvd_sheaf axd_normative
 include::RBSRR-RegimeRepo.adoc[]
 
 // RBRG regime eliminated — tool images are sourced from the reliquary-kind Lode at ordain time
@@ -3398,6 +3462,7 @@ GCP region applied to depot-scoped regional services.
 {rbrd_group_pool}::
 Cloud Build private worker pool configuration consumed at pool creation time.
 
+//axvd_sheaf axd_normative
 include::RBSRT-RegimeDepot.adoc[]
 
 === Recipe Bottle GCP Constants (RBGC)
@@ -3428,6 +3493,7 @@ The displayName discriminator at those sites is `RBGC_DEPOT_DISPLAY_PREFIX`, not
 Podman VM supply chain configuration including container runtime tool versions, platform targets, and VM image selection.
 File-sourced singleton at {rbsld_moorings}rbrm.env.
 
+//axvd_sheaf axd_normative
 include::RBSRM-RegimeMachine.adoc[]
 
 === Payor Regime (RBRP)
@@ -3471,6 +3537,7 @@ desktop application.
 {rbrp_operator_email}::
 Email address of the human operator managing depot infrastructure.
 
+//axvd_sheaf axd_normative
 include::RBSRP-RegimePayor.adoc[]
 
 === Federation Regime (RBRF)
@@ -3531,6 +3598,7 @@ IdP token endpoint — the Leg 1 device-code polling target.
 {rbrf_attribute_mapping}::
 Workforce provider attribute mapping; must map google.subject to the federated subject.
 
+//axvd_sheaf axd_normative
 include::RBSRF-RegimeFederation.adoc[]
 
 === OAuth Regime (RBRO)
@@ -3552,6 +3620,7 @@ The OAuth 2.0 client secret from the Google Cloud Console OAuth client configura
 {rbro_refresh_token}::
 The long-lived OAuth refresh token obtained during the authorization flow, used to obtain fresh access tokens.
 
+//axvd_sheaf axd_normative
 include::RBSRO-RegimeOauth.adoc[]
 
 === Kit Regime Operations (RBK)
@@ -3841,6 +3910,7 @@ When configured, the Dockerfile content is embedded in the
 {rbtga_ark_about}
 artifact as `recipe.txt`.
 
+//axvd_sheaf axd_normative
 include::RBSRV-RegimeVessel.adoc[]
 
 === Nameplate Regime (RBRN)
@@ -4031,6 +4101,7 @@ Access allowlist variables for IP-restricted outbound traffic.
 {rbrn_group_dns_allowlist}::
 DNS allowlist variables for domain-restricted resolution.
 
+//axvd_sheaf axd_normative
 include::RBRN-RegimeNameplate.adoc[]
 
 == Type Voicings
@@ -4553,6 +4624,7 @@ Detailed implementation reference for security enforcement internals within the
 
 Establishes security controls through four phases executed in sequence, halting early if any command has a nonzero unix status.
 
+//axvd_sheaf axd_normative
 include::RBSSC-security_config.adoc[]
 
 [[scr_iptables_init]]
@@ -4562,6 +4634,7 @@ include::RBSSC-security_config.adoc[]
 Establishes the basic IPTables rules and chains within a
 {at_sentry_container}.
 
+//axvd_sheaf axd_normative
 include::RBSII-iptables_init.adoc[]
 
 [[scr_port_setup]]
@@ -4571,6 +4644,7 @@ include::RBSII-iptables_init.adoc[]
 Establishes port mapping and service exposure rules within a
 {at_sentry_container}.
 
+//axvd_sheaf axd_normative
 include::RBSPT-port_setup.adoc[]
 
 [[scr_access_setup]]
@@ -4579,6 +4653,7 @@ include::RBSPT-port_setup.adoc[]
 
 Configures network access controls including NAT rules and connection tracking.
 
+//axvd_sheaf axd_normative
 include::RBSAX-access_setup.adoc[]
 
 [[scr_dns_step]]
@@ -4587,6 +4662,7 @@ include::RBSAX-access_setup.adoc[]
 
 Configures DNS resolution controls and domain access restrictions.
 
+//axvd_sheaf axd_normative
 include::RBSDS-dns_step.adoc[]
 
 == Foundry Internals
@@ -4603,6 +4679,7 @@ parameterization contract on which {rbtgo_ark_kludge} and
 {rbtgo_ark_conjure} rely. Enforced as a fail-fast precondition in both
 the local kludge and Cloud Build conjure paths.
 
+//axvd_sheaf axd_normative
 include::RBSFH-dockerfile_hygiene.adoc[]
 
 == Nameplate Customization Internals
@@ -4621,6 +4698,7 @@ Defines the two optional customization files (the {rbnnh_compose_fragment}
 and the {rbnnh_post_charge_hook} script) — what they are, where they live,
 how {rbsc_charge} detects them, and the exit-status contract.
 
+//axvd_sheaf axd_normative
 include::RBSCH-charge_hook.adoc[]
 
 == Trade Studies
@@ -4631,22 +4709,27 @@ Each study presents constraints, evaluated alternatives, and the rationale for c
 [[rbsob_oci_layout_bridge]]
 === OCI Layout Bridge
 
+//axvd_sheaf axd_normative
 include::RBSOB-oci_layout_bridge.adoc[]
 
 === Cloud Build Posture
 
+//axvd_sheaf axd_normative
 include::RBSCB-CloudBuildPosture.adoc[]
 
 [[rbscj_trade_study]]
 === Cloud Build JSON
 
+//axvd_sheaf axd_normative
 include::RBSCJ-CloudBuildJson.adoc[]
 
 [[rbscip_trade_study]]
 === IAM Propagation Resilience
 
+//axvd_sheaf axd_normative
 include::RBSCIP-IamPropagation.adoc[]
 
 === Horizon Roadmap
 
+//axvd_sheaf axd_informative
 include::RBSHR-HorizonRoadmap.adoc[]

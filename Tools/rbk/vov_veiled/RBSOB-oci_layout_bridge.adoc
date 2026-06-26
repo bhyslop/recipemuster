@@ -1,3 +1,4 @@
+//axvd_sheaf rbs0_imprimatur axd_normative
 // STATUS: Fully superseded (2026-03-05). Retained as historical record.
 
 [NOTE]

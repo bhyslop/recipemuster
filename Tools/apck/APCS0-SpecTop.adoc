@@ -5,6 +5,9 @@
 
 // tag::mapping-section[]
 //
+// Codex identity (document composition; sealed by axvd_codex at its definition site)
+:apcs0_imprimatur:           <<apcs0_imprimatur,PHI Clipbuddy Detection Pipeline Specification>>
+//
 // Category declaration:
 //   apcsXY_{word}: APCK Specification (detection pipeline concepts)
 //                  X = domain letter, Y = concept/role within domain
@@ -175,6 +178,13 @@
 
 
 == Overview
+
+[[apcs0_imprimatur]]
+//axvd_codex
+{apcs0_imprimatur}::
+This document — the codex of the PHI Clipbuddy detection-pipeline concept model: the root that owns this mapping
+section and the vocabulary its sheaves consume, and the identity each sheaf names back through
+its tendon.
 
 This document defines the formal vocabulary for the detection pipeline in Ann's PHI Clipbuddy.
 It specifies the entities the algorithm operates on, the resources it consults, the procedures it performs, and the execution sites at which each discerner runs.
@@ -560,6 +570,7 @@ the callee's publication and the caller's interpretation share a version compati
 
 === Protocol Detail
 
+//axvd_sheaf axd_normative
 include::APCSWP-wire.adoc[leveloffset=+1]
 
 

@@ -1,5 +1,11 @@
+//axvd_sheaf rbs0_imprimatur axd_informative
 [[rbshr_horizon_roadmap]]
 ==== Horizon Roadmap
+
+[NOTE]
+====
+*Informative* (AXLA `axd_informative`): honest relative to the normative specs, but binding nothing — trust it as an inventory of intentions, never as law.
+====
 
 Defined-but-unscoped future work across Recipe Bottle.
 Each item has a rationale (why it matters), a trigger (when to revisit), and a reference (where the evidence lives).

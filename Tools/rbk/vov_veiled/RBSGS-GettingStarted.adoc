@@ -1,4 +1,10 @@
+//axvd_sheaf rbs0_imprimatur axd_informative
 = Getting Started with Recipe Bottle
+
+[NOTE]
+====
+*Informative* (AXLA `axd_informative`): an onboarding guide — honest, but the authoritative procedures live in the operational specs it points to, never here.
+====
 
 {at_recipe_bottle}
 constructs container images under controlled conditions on trusted

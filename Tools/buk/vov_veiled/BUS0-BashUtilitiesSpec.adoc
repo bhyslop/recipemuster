@@ -3,6 +3,9 @@
 
 // tag::mapping-section[]
 //
+// Codex identity (document composition; sealed by axvd_codex at its definition site)
+:bus0_imprimatur:            <<bus0_imprimatur,Bash Utilities Specification>>
+//
 // Category declarations:
 // bust_:  Tabtarget (launcher naming vesture)
 // busd:   Dispatch (non-terminal, tabtarget system umbrella)
@@ -298,6 +301,13 @@
 // end::mapping-section[]
 
 == Overview
+
+[[bus0_imprimatur]]
+//axvd_codex
+{bus0_imprimatur}::
+This document — the codex of the Bash Utilities concept model: the root that owns this mapping
+section and the vocabulary its sheaves consume, and the identity each sheaf names back through
+its tendon.
 
 The Bash Utilities Specification defines the tabtarget dispatch system — the infrastructure for tab-completion-friendly launchers that route to kit formularies.
 
@@ -1838,6 +1848,7 @@ Present only when
 {burx_exit_status}
 is present.
 
+//axvd_sheaf axd_normative
 include::BUSD-DispatchRuntime.adoc[]
 
 == Remote Node Access
@@ -2304,48 +2315,71 @@ on the remote node by {bust_command_file}.
 Path passed as a positional argument; contents are streamed
 to the remote shell at dispatch time.
 
+//axvd_sheaf axd_normative
 include::BUSTLL-NodeRegimeList.adoc[]
 
+//axvd_sheaf axd_normative
 include::BUSTLR-NodeRegimeRender.adoc[]
 
+//axvd_sheaf axd_normative
 include::BUSTLV-NodeRegimeValidate.adoc[]
 
+//axvd_sheaf axd_normative
 include::BUSTPL-PrivilegeRegimeList.adoc[]
 
+//axvd_sheaf axd_normative
 include::BUSTPR-PrivilegeRegimeRender.adoc[]
 
+//axvd_sheaf axd_normative
 include::BUSTPV-PrivilegeRegimeValidate.adoc[]
 
+//axvd_sheaf axd_normative
 include::BUSJCW-CaparisonWindows.adoc[]
 
+//axvd_sheaf axd_normative
 include::BUSJCM-CaparisonMacos.adoc[]
 
+//axvd_sheaf axd_normative
 include::BUSJCL-CaparisonLinux.adoc[]
 
+//axvd_sheaf axd_normative
 include::BUSJIW-InvigilateWindows.adoc[]
 
+//axvd_sheaf axd_normative
 include::BUSJIM-InvigilateMacos.adoc[]
 
+//axvd_sheaf axd_normative
 include::BUSJIL-InvigilateLinux.adoc[]
 
+//axvd_sheaf axd_normative
 include::BUSJPS-PrivilegedSsh.adoc[]
 
+//axvd_sheaf axd_normative
 include::BUSJGB-GarrisonBash.adoc[]
 
+//axvd_sheaf axd_normative
 include::BUSJGC-GarrisonCygwin.adoc[]
 
+//axvd_sheaf axd_normative
 include::BUSJGW-GarrisonWsl.adoc[]
 
+//axvd_sheaf axd_normative
 include::BUSJWK-Knock.adoc[]
 
+//axvd_sheaf axd_normative
 include::BUSJWC-CommandFile.adoc[]
 
+//axvd_sheaf axd_normative
 include::BUSJWS-InteractiveSession.adoc[]
 
+//axvd_sheaf axd_normative
 include::BUSJH0-HandbookJurisdictionTop.adoc[]
 
+//axvd_sheaf axd_normative
 include::BUSJHW-HandbookWindows.adoc[]
 
+//axvd_sheaf axd_normative
 include::BUSJHM-HandbookMacos.adoc[]
 
+//axvd_sheaf axd_normative
 include::BUSJHL-HandbookLinux.adoc[]

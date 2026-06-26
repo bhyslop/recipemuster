@@ -3,6 +3,9 @@
 
 // tag::mapping-section[]
 //
+// Codex identity (document composition; sealed by axvd_codex at its definition site)
+:vos0_imprimatur:            <<vos0_imprimatur,Vox Obscura Specification>>
+//
 // Category declarations:
 // vost_:  Types (scalar identifiers with validation rules)
 // vose_:  Entities (objects with structure and behavior)
@@ -201,6 +204,13 @@
 // end::mapping-section[]
 
 == Overview
+
+[[vos0_imprimatur]]
+//axvd_codex
+{vos0_imprimatur}::
+This document — the codex of the Vox Obscura concept model: the root that owns this mapping
+section and the vocabulary its sheaves consume, and the identity each sheaf names back through
+its tendon.
 
 The Vox Obscura Specification is the cosmology top for the Vox Obscura naming system — the `vo` cipher as a whole.
 It centralizes the Liturgy vocabulary (Cipher, Signet, Epithet, Inscription, Vesture and the domain vestures), then hosts its branches as `include::` subdocs that purely consume that centralized vocabulary, following the RBS0/JJS0/BUS0 SpecTop precedent.
@@ -1332,6 +1342,7 @@ without a
 enabling rapid iteration during development.
 Procedure: see VOSO-distribution.adoc.
 
+//axvd_sheaf axd_normative
 include::VOSO-distribution.adoc[leveloffset=+1]
 
 == Routines
@@ -1343,30 +1354,35 @@ They encapsulate common logic for consistent behavior across the codebase.
 //axvo_procedure axd_internal
 === {vosr_lock}
 
+//axvd_sheaf axd_normative
 include::VOSRL-lock.adoc[]
 
 [[vosr_commit]]
 //axvo_procedure axd_internal
 === {vosr_commit}
 
+//axvd_sheaf axd_normative
 include::VOSRC-commit.adoc[]
 
 [[vosr_guard]]
 //axvo_procedure axd_internal
 === {vosr_guard}
 
+//axvd_sheaf axd_normative
 include::VOSRG-guard.adoc[]
 
 [[vosr_probe]]
 //axvo_procedure axd_internal
 === {vosr_probe}
 
+//axvd_sheaf axd_normative
 include::VOSRP-probe.adoc[]
 
 [[vosr_init]]
 //axvo_procedure axd_internal
 === {vosr_init}
 
+//axvd_sheaf axd_normative
 include::VOSRI-init.adoc[]
 
 
@@ -1597,5 +1613,6 @@ Per VOr_m7w, a
 {vosmp_presentment}
 over a fallible gate (sprue, rivet) is advisory, not an assertion.
 
+//axvd_sheaf axd_normative
 include::VOSMM-entity.adoc[leveloffset=+1]
 

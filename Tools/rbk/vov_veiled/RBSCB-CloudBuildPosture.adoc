@@ -1,3 +1,4 @@
+//axvd_sheaf rbs0_imprimatur axd_normative
 ==== Multi-Architecture Strategy Caveat
 
 All sections below assume Google Cloud Build (GCB) remains the sole builder.

@@ -1,3 +1,4 @@
+//axvd_sheaf vos0_imprimatur axd_normative
 // VOSMM-entity — Vox Matricula entity subdoc.
 //
 // This is a pure-consumer subdoc of VOS0-VoxObscuraSpec.adoc (the Vox Obscura cosmology
