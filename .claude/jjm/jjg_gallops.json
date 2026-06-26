@@ -19218,9 +19218,10 @@
         "₢BlAAN",
         "₢BlAAS",
         "₢BlAAO",
-        "₢BlAAP"
+        "₢BlAAP",
+        "₢BlAAU"
       ],
-      "jjghn_next_pace_seed": "AAU",
+      "jjghn_next_pace_seed": "AAV",
       "jjghn_paces": {
         "₢BlAAA": {
           "jjgpn_tacks": [
@@ -19759,6 +19760,32 @@
               ],
               "jjgtn_silks": "qualify-colophon-check-revive",
               "jjgtn_basis": "65665bf"
+            }
+          ]
+        },
+        "₢BlAAU": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260626-0805",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "PLACEHOLDER — full docket deferred to a design pass (operator 260626); reslate before mount.",
+                "",
+                "Build canvass: the read-only foedus enumeration verb.",
+                "It lists every foedus by interrogating the Manor — workforcePools.list under organizations/{org}/locations/global/workforcePools — the read-all sibling of descry (descry inspects one pool, canvass lists all).",
+                "The collection URL is already constructed in rbgp_payor.sh, so this is largely a one-method extension.",
+                "",
+                "Naming settled (recorded in the ₣Bf federation-vocabulary census): colophon rbw-jc, quoin rbtf_canvass, foedus-cardinality family.",
+                "",
+                "## Done when",
+                "Deferred to the design pass.",
+                "",
+                "## Open (carry to the design pass)",
+                "- exact signature and output shape; whether canvass builds against a contract-first operation subdoc, as descry/instate do.",
+                "- ordering relative to the descry/instate build."
+              ],
+              "jjgtn_silks": "foedus-canvass-build",
+              "jjgtn_basis": "21a918c"
             }
           ]
         }
