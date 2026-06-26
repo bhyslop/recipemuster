@@ -19219,9 +19219,10 @@
         "₢BlAAS",
         "₢BlAAO",
         "₢BlAAP",
-        "₢BlAAU"
+        "₢BlAAU",
+        "₢BlAAV"
       ],
-      "jjghn_next_pace_seed": "AAV",
+      "jjghn_next_pace_seed": "AAW",
       "jjghn_paces": {
         "₢BlAAA": {
           "jjgpn_tacks": [
@@ -19786,6 +19787,28 @@
               ],
               "jjgtn_silks": "foedus-canvass-build",
               "jjgtn_basis": "21a918c"
+            }
+          ]
+        },
+        "₢BlAAV": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260626-0806",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "PLACEHOLDER — full docket deferred to a design pass (operator 260626); reslate before mount.",
+                "",
+                "Add canvass to the existing test plan DEFTLY — weave a canvass assertion into a fixture that ALREADY stands up foedera, standing up no new fixture (the way the read-side negatives ride existing cloud fixtures).",
+                "Depends on the canvass build (the preceding pace).",
+                "",
+                "## Done when",
+                "Deferred to the design pass; canvass is exercised against a real Manor with a standing foedus, asserting it enumerates it.",
+                "",
+                "## Open (carry to the design pass)",
+                "- which existing fixture is the natural host (one already standing a foedus)."
+              ],
+              "jjgtn_silks": "foedus-canvass-test",
+              "jjgtn_basis": "881138d"
             }
           ]
         }
