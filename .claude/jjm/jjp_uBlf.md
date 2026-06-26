@@ -24,6 +24,7 @@ Chosen (do NOT re-mint — re-deriving these is the failure this census guards a
   Serialized as rbnfe_interactive / rbnfe_programmatic — the rbnfe_ federation enum sprue, derived from the rbnve_ (vessel) / rbnne_ (nameplate) scheme, not a free mint.
 - RBRF_MECHANISM — the regime field holding the gate value (260626), modeled on RBRV_VESSEL_MODE.
 - RBSFE / RBSFA — the two operation-subdoc acronyms (260626): RBSFE the programmatic establishment, RBSFA the programmatic accessor; fresh RBSF tails (only RBSFH was taken), distinct-over-mnemonic per operator ruling. The operation-quoin verb stays descriptive — the civic verb defers to the build pace.
+- canvass — read-only enumeration of every foedus by interrogating the Manor (workforcePools.list), the descry sibling (descry inspects one pool, canvass lists all); chosen 260626 via the Lapidary gates (grep-clean, fair-faced, civic register, sibling-initial c safe against descry-d/instate-i). Colophon rbw-jc, quoin rbtf_canvass; build + test slated as placeholders in the theurge stream (foedus-cardinality family), full docket deferred to a design pass.
 
 Still owed by the recast — the open call this pace settles:
 - the active-foedus selector and foedus-identifier field — a TEST-ONLY overlay: the production regime stays single-foedus-clean (effectively singleton, no selector), the multi-config + selector riding on top for the test-bed alone.
