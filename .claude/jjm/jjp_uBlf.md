@@ -19,13 +19,14 @@ Built-word deliberation stays drained to the heat-memories memo — what lives h
 Chosen (do NOT re-mint — re-deriving these is the failure this census guards against):
 - foedus — the configured federation, the noun affiance founds; this recast seats its rbtf_ civic quoin, the word itself is adopted.
 - avow / sitting / quash — the human device-flow sign-in, the live window it opens, and the test-only sitting-clear.
-- instate / descry — switch which foedus is active, and read a foedus pool's health; both owned and built in the theurge stream.
+- instate / descry — switch which foedus is active, and read a foedus pool's health; minted, owned by the theurge stream where the build is slated (not yet landed).
+- interactive / programmatic — the mechanism gate's two values, KEPT as the plain words (260626): test-scoped — read by affiance and the accessor, written only by the test establishment, never a tabtarget argument, so the asterism's weight does not apply.
+  Serialized as rbnfe_interactive / rbnfe_programmatic — the rbnfe_ federation enum sprue, derived from the rbnve_ (vessel) / rbnne_ (nameplate) scheme, not a free mint.
 
-Still owed by the recast — the ONLY federation words this pace mints:
-- the mechanism gate's two value-words (the interactive-versus-programmatic discriminator) — test-scoped, lean: keep the plain words rather than mint asterism words;
-- the gate's regime field name;
+Still owed by the recast — the open calls this pace settles:
+- the gate's regime field name (the RBRF_ variable that holds the value, modeled on RBRV_VESSEL_MODE);
 - the two operation-subdoc acronyms — the programmatic establishment and the programmatic accessor;
-- the active-foedus selector field name, unless deferred to the foedus-reuse design pass.
+- the active-foedus selector and foedus-identifier field — a TEST-ONLY overlay: the production regime stays single-foedus-clean (effectively singleton, no selector), the multi-config + selector riding on top for the test-bed alone.
 
 As each owed item settles it moves up into the chosen list here, so the record never scatters again.
 
