@@ -22,6 +22,18 @@ the same organization and pool
 {rbtf_affiance}
 seated.
 
+NOTE: *Mechanism-blind.* Jilt carries no
+{rbrf_mechanism}
+arm, the structural asymmetry with
+{rbtf_affiance}.
+Dissolving the workforce pool ends the trust regardless of how citizens acquired tokens
+against it — the interactive device flow and the programmatic self-supplied JWT alike
+validate against a pool that no longer exists, so an
+{rbrf_mechanism_programmatic}
+foedus is torn down by exactly the same gesture as an interactive one. Jilt's one
+interactive touch — the operator confirmation below — is governed by the orthogonal
+confirm-skip seam, not the mechanism gate.
+
 NOTE: Jilt is *idempotent*. A pool that never existed (the probe returns `404`) or one
 already soft-deleted (the probe returns `200` with `state: DELETED`) is reported
 already-dissolved and the operation exits clean without issuing a delete. Only an
@@ -45,9 +57,12 @@ link:https://cloud.google.com/iam/docs/reference/rest/v1/locations.workforcePool
 ({rbtgo_depot_unmake}).
 A subsequent
 {rbtf_affiance}
-against a soft-deleted pool of the same id meets a `404` GET followed by a `409`
-create and must undelete rather than re-create (the signal the RBSMA soft-delete NOTE
-records from the other side).
+against a soft-deleted pool of the same id meets a `200` GET with `state: DELETED` and
+*refuses* — it never undeletes (the refuse-and-rotate ruling: a dissolved trust never
+commingles with its replacement, so the operator sets a fresh `RBRF_WORKFORCE_POOL_ID`
+and re-affiances, as the RBSMA soft-delete NOTE records from the other side). The
+`undelete` API above stays the operator's manual recovery within the purge window;
+affiance does not invoke it.
 
 NOTE: Scope boundary. Jilt unmakes only the *org-level* IdP trust. The depot-scoped
 admission bindings (the
