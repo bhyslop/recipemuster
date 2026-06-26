@@ -13254,7 +13254,7 @@
         "₢BDAAj": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260626-0815",
+              "jjgtn_ts": "260626-0920",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "## Character",
@@ -13303,14 +13303,14 @@
                 "   (git show <rev>:<path>), an AS-OF banner, the jjda_hark quoin, and a JSCPD amendment.",
                 "   Ancient Job Jockey state can now be interrogated by commit hash — nothing left to scope here.",
                 "",
-                "6. Immutable abstract-data-type for firemark, coronet, and the officium id. — GRADUATED into ₢BDAAm (placeholder; concept refinement pending).",
-                "   jjrf_favor.rs already defines jjrf_Firemark / jjrf_Coronet with encode/decode/parse/display,",
-                "   so \"develop a class object\" is effectively done; the officium id (☉) is the third glyph-prefixed",
+                "6. Immutable abstract-data-type for firemark, coronet, pensum, and the officium id. — GRADUATED, design settled, split into a spec pace and a dependent code pace.",
+                "   jjrf_favor.rs already defines jjrf_Firemark / jjrf_Coronet / jjrf_Pensum with encode/decode/parse/display,",
+                "   so \"develop a class object\" is effectively done; the officium id (☉) is the fourth glyph-prefixed",
                 "   identity sharing the same immutable value-object gestalt.",
                 "   The narrower work — make them genuinely immutable (the inner field is presently pub String) and",
-                "   consolidate the scattered ₣/₢/☉ display code through jjrf_display — has widened: the three want a",
-                "   single named AXLA motif voicing the abstract data type they all instantiate.",
-                "   ₢BDAAm now carries it — nothing left to scope here.",
+                "   consolidate the scattered ₣/₢/₱/☉ display code — widened into a named AXLA dimension (axd_insignia)",
+                "   voicing the four against axo_entity + the encoding-nature dimensions.",
+                "   ₢BDAAm (spec) and ₢BDAAn (code, dependent) now carry it — nothing left to scope here.",
                 "",
                 "7. Track pre/post-rebase commits for recovering passing scenarios.",
                 "   Think through whether the independent Job Jockey database can/should track the",
@@ -13333,7 +13333,7 @@
                 "or explicitly declined; this capture pace is then wrapped."
               ],
               "jjgtn_silks": "explore-and-expand-capture-and-display-musings",
-              "jjgtn_basis": "071115d"
+              "jjgtn_basis": "c6dd993"
             }
           ]
         },
