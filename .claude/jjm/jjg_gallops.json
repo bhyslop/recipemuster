@@ -19434,8 +19434,8 @@
         "₢BlAAD": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260624-2240",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260626-1159",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "Drafted from ₢BfAAV in ₣Bf.",
                 "",
@@ -19451,7 +19451,7 @@
                 "Mechanical guard; the restore ruling is settled."
               ],
               "jjgtn_silks": "reveille-base-set-equality-assertion",
-              "jjgtn_basis": "f676ede"
+              "jjgtn_basis": "745ff36"
             }
           ]
         },
