@@ -400,11 +400,17 @@
 
 // Recipe Bottle Regime: Federation (manor IdP trust)
 :rbrf_attribute_mapping:     <<rbrf_attribute_mapping,RBRF_ATTRIBUTE_MAPPING>>
+:rbrf_group_interactive:     <<rbrf_group_interactive,Interactive Mechanism Group>>
+:rbrf_group_programmatic:    <<rbrf_group_programmatic,Programmatic Mechanism Group>>
 :rbrf_idp_client_id:         <<rbrf_idp_client_id,RBRF_IDP_CLIENT_ID>>
 :rbrf_idp_device_endpoint:   <<rbrf_idp_device_endpoint,RBRF_IDP_DEVICE_ENDPOINT>>
 :rbrf_idp_issuer:            <<rbrf_idp_issuer,RBRF_IDP_ISSUER>>
+:rbrf_idp_jwks_json:         <<rbrf_idp_jwks_json,RBRF_IDP_JWKS_JSON>>
 :rbrf_idp_scope:             <<rbrf_idp_scope,RBRF_IDP_SCOPE>>
 :rbrf_idp_token_endpoint:    <<rbrf_idp_token_endpoint,RBRF_IDP_TOKEN_ENDPOINT>>
+:rbrf_mechanism:             <<rbrf_mechanism,RBRF_MECHANISM>>
+:rbrf_mechanism_interactive: <<rbrf_mechanism_interactive,interactive>>
+:rbrf_mechanism_programmatic: <<rbrf_mechanism_programmatic,programmatic>>
 :rbrf_org_id:                <<rbrf_org_id,RBRF_ORG_ID>>
 :rbrf_provider_id:           <<rbrf_provider_id,RBRF_PROVIDER_ID>>
 :rbrf_regime:                <<rbrf_regime,RBRF Regime>>
@@ -3545,8 +3551,10 @@ include::RBSRP-RegimePayor.adoc[]
 [[rbrf_regime]]
 //axvr_regime axf_bash axrd_file_sourced axrd_singleton
 {rbrf_regime}::
-Manor-scoped (org-level) IdP trust and workforce-pool identity: the external OIDC provider the manor is affianced to, the pool that serves every depot under the manor, and the device-flow endpoints an avowal drives.
-File-sourced singleton at {rbsld_moorings}rbrf.env; carries no secrets, so it ships committed.
+Manor-scoped (org-level) IdP trust and workforce-pool identity: a vendor-agnostic trust core plus a single acquisition-mechanism gate ({rbrf_mechanism}).
+The core — org, pool, provider, session, issuer, client-id, attribute mapping — is the same structure for every OIDC IdP, so vendor identity is not a field of it; the gate selects the interactive (device-flow) or programmatic (uploaded-JWKS) arm.
+Names the single active {rbtf_foedus} by its {rbrf_workforce_pool_id}; the Manor is the authoritative registry of foedera (read by {rbtf_canvass}), so production stays single-foedus-clean.
+File-sourced singleton at {rbsld_moorings}rbrf.env; carries no secrets — the programmatic arm's private signing key never enters it, only the public JWKS — so it ships committed.
 
 [[rbrf_org_id]]
 //axrg_variable axtu_string
@@ -3568,10 +3576,32 @@ Workforce pool provider ID — the external IdP trust root within the pool.
 {rbrf_session_duration}::
 Workforce pool session duration — the sitting cap, the live window an avowal opens.
 
+[[rbrf_mechanism]]
+//axrg_variable axtu_string
+{rbrf_mechanism}::
+The acquisition-mechanism discriminator: how a citizen acquires a federated assertion against this foedus.
+Selects which mechanism group applies; modeled on {rbrv_vessel_mode}.
+One of {rbrf_mechanism_interactive} or {rbrf_mechanism_programmatic}.
+
+[[rbrf_mechanism_interactive]]
+//axl_voices axt_enum_value axd_string
+{rbrf_mechanism_interactive}::
+The human device-authorization flow (RFC 8628): a live human avows each sitting.
+Gates the device endpoints and scope.
+Serialized as `rbnfe_interactive` in bash regime variable value.
+
+[[rbrf_mechanism_programmatic]]
+//axl_voices axt_enum_value axd_string
+{rbrf_mechanism_programmatic}::
+The self-supplied-JWT path validated against an uploaded public JWKS — the test-bed's unattended, no-human mechanism.
+Gates the uploaded JWKS field and voids the human-present premise.
+Serialized as `rbnfe_programmatic` in bash regime variable value.
+
 [[rbrf_idp_issuer]]
 //axrg_variable axtu_string
 {rbrf_idp_issuer}::
 OIDC issuer URI of the external IdP.
+Under {rbrf_mechanism_interactive} a resolvable `https://` issuer; under {rbrf_mechanism_programmatic} a self-declared `https://`-scheme string matched against the JWT `iss` (scheme required, resolution not).
 
 [[rbrf_idp_client_id]]
 //axrg_variable axtu_string
@@ -3582,21 +3612,41 @@ Public client (application) ID registered at the IdP for the device authorizatio
 //axrg_variable axtu_string
 {rbrf_idp_scope}::
 Device-flow OAuth scope; requests openid and never offline_access (the human-present premise).
+Interactive-mechanism only ({rbrf_group_interactive}).
 
 [[rbrf_idp_device_endpoint]]
 //axrg_variable axtu_string
 {rbrf_idp_device_endpoint}::
 IdP device authorization endpoint (RFC 8628) — the Leg 1 device-code request target.
+Interactive-mechanism only ({rbrf_group_interactive}).
 
 [[rbrf_idp_token_endpoint]]
 //axrg_variable axtu_string
 {rbrf_idp_token_endpoint}::
 IdP token endpoint — the Leg 1 device-code polling target.
+Interactive-mechanism only ({rbrf_group_interactive}).
 
 [[rbrf_attribute_mapping]]
 //axrg_variable axtu_string
 {rbrf_attribute_mapping}::
 Workforce provider attribute mapping; must map google.subject to the federated subject.
+
+[[rbrf_group_interactive]]
+//axvr_group axd_conditional
+{rbrf_group_interactive}::
+The fields that apply only under {rbrf_mechanism_interactive} — the device-flow endpoints and scope that drive the human device-authorization Leg 1.
+
+[[rbrf_group_programmatic]]
+//axvr_group axd_conditional
+{rbrf_group_programmatic}::
+The fields that apply only under {rbrf_mechanism_programmatic} — the uploaded public JWKS the self-supplied JWT is validated against.
+
+[[rbrf_idp_jwks_json]]
+//axrg_variable axtu_string
+{rbrf_idp_jwks_json}::
+The active foedus's uploaded public JWKS (REST `oidc.jwksJson`) — the static key snapshot GCP validates self-supplied JWTs against.
+A public identifier, so it commits; the matching private signing key never enters the regime.
+Programmatic-mechanism only ({rbrf_group_programmatic}).
 
 //axvd_sheaf axd_normative
 include::RBSRF-RegimeFederation.adoc[]

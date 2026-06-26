@@ -5,78 +5,158 @@
 This regime specifies the manor-scoped IdP trust and workforce-pool identity within the Recipe Bottle system.
 Each
 {rbrf_regime}
-instance represents the org-level federation: the workforce identity pool, its external OIDC provider, and the device-flow endpoints an avowal drives.
+instance represents the org-level federation: the workforce identity pool, its external OIDC provider, and the provider configuration that a federated assertion is acquired against.
 The trust is org-scoped, not depot-scoped — one pool serves every depot under the manor, the same federated subject grantable in each.
+
+The trust divides into a vendor-agnostic core and a single acquisition-mechanism gate.
+The Google-side provider configuration is the same structure for every OIDC IdP — only the values differ — so *vendor identity is not a regime field*; a real vendor is a setup guide plus values, never a schema or code change.
+The one axis that changes the required-field shape is the *acquisition mechanism* — how a citizen acquires a federated assertion — held in
+{rbrf_mechanism}
+and gating the two arms below.
+The programmatic arm's private signing key never enters this regime: only the *public* JWKS, itself a public identifier.
 RBRF assignment files are found in the operator's local filesystem and carry no secrets — every value is a public identifier — so the file ships committed; affiance rewrites the values when founding a fresh trust against a real org and IdP tenant.
+
+NOTE: *Active foedus and selection.* This regime names the single *active*
+{rbtf_foedus}
+— the configured federation a run authenticates against — identified by its
+{rbrf_workforce_pool_id}
+(the workforce pool is one-per-foedus). The manor may stand up several foedera, each its own pool; the authoritative registry of what exists is the Manor itself, enumerated by
+{rbtf_canvass}
+(a `workforcePools.list` query), not a local list in this regime. Selecting a different active foedus re-points this regime at another pool; production stays single-foedus-clean (effectively singleton). The switch *mechanism* — the act that re-points and resets the sitting — is specified in the foedus-reuse design, not here; this regime carries only the active-foedus identity the switch re-points.
+
+NOTE: *Per-vendor guide contract.* A real vendor's IdP-console setup (app registration, claims, scopes) is foreign-console human work, not a regime field and not a tabtarget. Each vendor gets a setup guide whose contract is to yield the vendor-agnostic core values this regime reads (issuer, client-id, subject claim via the attribute mapping, and the mechanism-appropriate gated values). Entra is the first such guide; further vendors are further guides under the same contract.
 
 //axhrv_variable
 {rbrf_org_id}
 
 GCP organization numeric ID owning the workforce pool.
 Affiance creates the pool beneath this organization.
-Required; numeric.
+Core (both mechanisms); required; numeric.
 
 //axhrv_variable
 {rbrf_workforce_pool_id}
 
 Workforce identity pool ID, org-scoped — one pool serves every depot under the manor.
-Required; lowercase alphanumeric and hyphen, 4-32 chars, must not start with the reserved `gcp-` prefix.
+This pool ID is the identifier of the active
+{rbtf_foedus}.
+Core (both mechanisms); required; lowercase alphanumeric and hyphen, 4-32 chars, must not start with the reserved `gcp-` prefix.
 
 //axhrv_variable
 {rbrf_provider_id}
 
 Workforce pool provider ID — the external IdP trust root within the pool.
-Required; same naming constraints as the pool ID.
+Core (both mechanisms); required; same naming constraints as the pool ID.
 
 //axhrv_variable
 {rbrf_session_duration}
 
 Workforce pool session duration — the sitting cap, the live window an avowal opens.
 Caps the federated token lifetime independently of the mantle token.
-Required; NNNs format (e.g. 3600s).
+Core (both mechanisms); required; NNNs format (e.g. 3600s).
+
+//axhrv_variable
+{rbrf_mechanism}
+
+The acquisition-mechanism discriminator — how a citizen acquires a federated assertion against this foedus.
+Must be
+{rbrf_mechanism_interactive}
+(human device-flow sign-in) or
+{rbrf_mechanism_programmatic}
+(self-supplied JWT against an uploaded public JWKS, the test-bed's no-human path).
+Gates which of the two mechanism groups below applies; modeled on
+{rbrv_vessel_mode}.
+Core (always present); required.
 
 //axhrv_variable
 {rbrf_idp_issuer}
 
 OIDC issuer URI of the external IdP.
-Required; https:// URI.
+Core (both mechanisms); required.
+Under
+{rbrf_mechanism_interactive}
+this is a resolvable `https://` issuer whose discovery document backs the device flow.
+Under
+{rbrf_mechanism_programmatic}
+it is a self-declared `https://` identifier string-matched against the JWT `iss`; GCP still requires the `https://` scheme but never resolves it (the uploaded JWKS is the key source), so a fictional https value is valid and a local IdP's `http://localhost` issuer is not.
 
 //axhrv_variable
 {rbrf_idp_client_id}
 
-Public client (application) ID registered at the IdP for the device authorization flow.
-Required.
-
-//axhrv_variable
-{rbrf_idp_scope}
-
-Device-flow OAuth scope requested at Leg 1.
-Required; must request `openid`, and must NOT request `offline_access` — a refresh token would let a run begin outside a live sitting, contradicting the human-present premise.
-
-//axhrv_variable
-{rbrf_idp_device_endpoint}
-
-IdP device authorization endpoint (RFC 8628) — the Leg 1 device-code request target.
-Explicit field rather than a tenant-derived template, so a non-Entra IdP needs only new values, no code change.
-Required; https:// URI.
-
-//axhrv_variable
-{rbrf_idp_token_endpoint}
-
-IdP token endpoint — the Leg 1 device-code polling target.
-Required; https:// URI.
+Public client (application) ID registered at the IdP.
+Core (both mechanisms); required.
+Under
+{rbrf_mechanism_interactive}
+it is the device-authorization-flow client.
+Under
+{rbrf_mechanism_programmatic}
+it must equal the JWT `aud`.
 
 //axhrv_variable
 {rbrf_attribute_mapping}
 
 Workforce provider attribute mapping written into the provider by affiance.
 Must map `google.subject`; the mapped IdP claim becomes the grantable federated subject.
-Required.
+Core (both mechanisms); required.
+
+//axhrgb_group
+{rbrf_group_interactive}
+
+//axhrgc_gate
+{rbrf_mechanism}
+{rbrf_mechanism_interactive}
+
+Variables in this group apply only when
+{rbrf_mechanism}
+is
+{rbrf_mechanism_interactive}.
+The interactive mechanism is the human device-authorization flow (RFC 8628): a live human avows each sitting, and these fields drive that flow's Leg 1.
+
+//axhrgv_variable
+{rbrf_idp_scope}
+
+Device-flow OAuth scope requested at Leg 1.
+Required; must request `openid`, and must NOT request `offline_access` — a refresh token would let a run begin outside a live sitting, contradicting the human-present premise.
+
+//axhrgv_variable
+{rbrf_idp_device_endpoint}
+
+IdP device authorization endpoint (RFC 8628) — the Leg 1 device-code request target.
+Explicit field rather than a tenant-derived template, so a non-Entra IdP needs only new values, no code change — the vendor-invariance of the core, in miniature.
+Required; https:// URI.
+
+//axhrgv_variable
+{rbrf_idp_token_endpoint}
+
+IdP token endpoint — the Leg 1 device-code polling target.
+Required; https:// URI.
+
+//axhrgb_group
+{rbrf_group_programmatic}
+
+//axhrgc_gate
+{rbrf_mechanism}
+{rbrf_mechanism_programmatic}
+
+Variables in this group apply only when
+{rbrf_mechanism}
+is
+{rbrf_mechanism_programmatic}.
+The programmatic mechanism deletes the human by construction: there is no device flow and no sitting to open — a caller self-supplies a JWT and GCP validates it against an uploaded public JWKS.
+It is the test-bed's unattended path; the human-present premise is deliberately voided under it.
+
+//axhrgv_variable
+{rbrf_idp_jwks_json}
+
+The active foedus's uploaded *public* JWKS — the static key snapshot GCP validates self-supplied JWTs against (REST `oidc.jwksJson`, the `--jwk-json-path` target).
+A public identifier, so it commits with the regime; the matching *private* signing key never enters this regime (it is fenced in the marshal-only estate home).
+Used because the test IdP runs as a local crucible unreachable from Google, so issuer-discovery cannot serve it — the key snapshot must be uploaded regardless.
+Required under the programmatic mechanism.
 
 //axhro_kindle
 {rbkro_kindle}
 
-Enrolls all RBRF_ variables via buv enrollment.
+Enrolls all RBRF_ variables via buv enrollment — the vendor-agnostic core unconditionally, the interactive and programmatic groups gated on
+{rbrf_mechanism}.
 Guards against unexpected RBRF_ variables via scope sentinel.
 Locks all enrolled variables against mutation.
 
@@ -84,10 +164,12 @@ Locks all enrolled variables against mutation.
 {rbkro_validate}
 
 Validates fields via buv_vet type checkers, then custom format checks in a separate enforce step.
-Validates the org as numeric, the pool and provider IDs as lowercase alphanumeric/hyphen with the `gcp-` prefix reserved, the issuer and both device-flow endpoints as https:// URIs, the session duration as NNNs, the scope as requesting openid but never offline_access (the human-present premise), and the attribute mapping as mapping google.subject.
+Core, both mechanisms: org as numeric; pool and provider IDs as lowercase alphanumeric/hyphen with the `gcp-` prefix reserved; session duration as NNNs; the attribute mapping as mapping google.subject; the mechanism as one of the two enum values.
+Interactive only: both device-flow endpoints as resolvable https:// URIs, the scope as requesting openid but never offline_access (the human-present premise), and the issuer as a resolvable https:// URI.
+Programmatic only: the issuer as an https://-scheme iss-matching string (scheme required, resolution not), and the uploaded JWKS as present and well-formed.
 
 //axhro_render
 {rbkro_render}
 
 Renders via buv_render.
-Sections: Workforce Pool Identity, IdP Trust.
+Sections: Workforce Pool Identity, Acquisition Mechanism, IdP Trust (core), Interactive Mechanism, Programmatic Mechanism.
