@@ -12,16 +12,29 @@ every
 {rbtgi_depot}
 under the manor: the same federated `principal://` subject is grantable in each, so
 the trust is a property of the manor, never of a depot.
+The pool and attribute mapping are mechanism-invariant; the provider's `oidc`
+configuration is built per
+{rbrf_mechanism}
+— issuer-discovered web-sso under
+{rbrf_mechanism_interactive},
+an uploaded public JWKS under
+{rbrf_mechanism_programmatic}.
+Affiance stays vendor-agnostic — it consumes the regime's opaque values and never
+learns which IdP product is behind them.
 
 The
 {rbtr_payor}
 performs the affiance. The operation accepts no CLI parameters; the IdP trust to
-seat is read from the kindled Federation regime as
+seat is read from the kindled Federation regime. The vendor-agnostic core
 `(RBRF_ORG_ID, RBRF_WORKFORCE_POOL_ID, RBRF_PROVIDER_ID, RBRF_SESSION_DURATION,
-RBRF_IDP_ISSUER, RBRF_IDP_CLIENT_ID, RBRF_ATTRIBUTE_MAPPING)`.
-The device-flow endpoints and scope (`RBRF_IDP_DEVICE_ENDPOINT`,
-`RBRF_IDP_TOKEN_ENDPOINT`, `RBRF_IDP_SCOPE`) are the credential accessor's to read
-at
+RBRF_IDP_ISSUER, RBRF_IDP_CLIENT_ID, RBRF_ATTRIBUTE_MAPPING)` is read unconditionally;
+`RBRF_MECHANISM` then selects the provider body. Under
+{rbrf_mechanism_programmatic}
+affiance additionally reads the uploaded public JWKS (`RBRF_IDP_JWKS_JSON`).
+The interactive device-flow endpoints and scope (`RBRF_IDP_DEVICE_ENDPOINT`,
+`RBRF_IDP_TOKEN_ENDPOINT`, `RBRF_IDP_SCOPE`) exist only under
+{rbrf_mechanism_interactive}
+and are the credential accessor's to read at
 {rbtf_avow},
 not affiance's.
 
@@ -107,12 +120,16 @@ link:https://cloud.google.com/iam/docs/reference/rest/v1/locations.workforcePool
 link:https://cloud.google.com/iam/docs/reference/rest/v1/locations.workforcePools.providers/create[workforcePools.providers.create] with:
 ... parent: `locations/global/workforcePools/RBRF_WORKFORCE_POOL_ID`
 ... workforcePoolProviderId: `RBRF_PROVIDER_ID`
-... body:
+... body: `displayName` and `attributeMapping` are mechanism-invariant; the `oidc` block is built per `RBRF_MECHANISM`.
++
+Under
+{rbrf_mechanism_interactive}
+(issuer-discovered keys, device-flow web-sso):
 +
 ----
 {
   "displayName": "RBRF_PROVIDER_ID",
-  "attributeMapping": { <parsed from RBRF_ATTRIBUTE_MAPPING: "google.subject" -> "assertion.oid"> },
+  "attributeMapping": { <parsed from RBRF_ATTRIBUTE_MAPPING> },
   "oidc": {
     "issuerUri": "RBRF_IDP_ISSUER",
     "clientId":  "RBRF_IDP_CLIENT_ID",
@@ -123,11 +140,29 @@ link:https://cloud.google.com/iam/docs/reference/rest/v1/locations.workforcePool
   }
 }
 ----
++
+Under
+{rbrf_mechanism_programmatic}
+(uploaded public JWKS, self-supplied JWT — no issuer discovery):
++
+----
+{
+  "displayName": "RBRF_PROVIDER_ID",
+  "attributeMapping": { <parsed from RBRF_ATTRIBUTE_MAPPING> },
+  "oidc": {
+    "issuerUri": "RBRF_IDP_ISSUER",
+    "clientId":  "RBRF_IDP_CLIENT_ID",
+    "jwksJson":  "RBRF_IDP_JWKS_JSON"
+  }
+}
+----
 .. {rbbc_await}
 the returned operation to done
 .. {rbbc_require}
 the provider present. Ensure-exists only: an already-present provider is left as it stands — not recreated, not patched, not failed. Drift reconciliation of `attributeMapping` / `oidc` is the deferred follow-up noted above.
-.. NOTE: `RBRF_ATTRIBUTE_MAPPING` is stored as a single `key=value` string in the regime and parsed into the API's `attributeMapping` object; the regime validator guarantees it maps `google.subject`. `webSsoConfig` (`ID_TOKEN` / `ONLY_ID_TOKEN_CLAIMS`) is an affiance-fixed protocol constant, not regime config — the spike-proven shape that makes the provider serve the device flow.
+.. NOTE: `RBRF_ATTRIBUTE_MAPPING` is stored as a single `key=value` string in the regime and parsed into the API's `attributeMapping` object; the regime validator guarantees it maps `google.subject`. The mapped claim is vendor-specific (`assertion.oid` for Entra, `assertion.sub` elsewhere) and rides in the regime value, not in affiance.
+.. NOTE: `webSsoConfig` (`ID_TOKEN` / `ONLY_ID_TOKEN_CLAIMS`) is interactive-meaningful — the spike-proven shape that makes the provider serve the device flow. Under {rbrf_mechanism_programmatic} it is inert: GCP validates the self-supplied JWT against the uploaded `jwksJson`, never through web-sso. The proof observed `gcloud providers create-oidc` *demand* the web-sso flags even alongside `--jwk-json-path`; whether the REST `create` body must likewise carry an inert `webSsoConfig` or may omit it is an impl-confirm, not a hard contract.
+.. NOTE: `jwksJson` is the uploaded public JWKS (REST field `oidc.jwksJson`, the `--jwk-json-path` target). GCP's parser is strict — only `kty/kid/use/alg/n/e` RSA members are accepted; an exporter's `x5c`/`x5t` certificate fields are rejected (misleadingly as `Only RSA, EC key types are supported`) and must be stripped before upload.
 .. NOTE: The provider resource name `//iam.googleapis.com/locations/global/workforcePools/RBRF_WORKFORCE_POOL_ID/providers/RBRF_PROVIDER_ID` is the STS audience the accessor's second leg presents (spike Leg 2). Affiance seats the resource that name addresses; it does not itself exercise the legs.
 
 //axhoot_typed_output
@@ -145,11 +180,19 @@ verifies the trust by avowing against the provider).
 //axhoc_completion
 Successful execution leaves the manor affianced: the org-level
 `roles/iam.workforcePoolAdmin` grant is seated on the payor, and the workforce pool,
-its provider, and the attribute mapping exist under `organizations/RBRF_ORG_ID`. A
+its provider, and the attribute mapping exist under `organizations/RBRF_ORG_ID`.
+Under
+{rbrf_mechanism_interactive}
+a
 {rbtf_citizen}
 may now
 {rbtf_avow}
-against the provider and exchange the resulting assertion for a federated token.
+against the provider and exchange the resulting assertion for a federated token;
+under
+{rbrf_mechanism_programmatic}
+the follow-up is the programmatic accessor's self-supplied-JWT STS exchange
+({rbtgo_foedus_acquire}),
+no human avowal.
 Admission of a citizen to a
 {rbtf_mantle}
 — the depot-scoped bindings — is the separate concern of the levy and the
