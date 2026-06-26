@@ -83,7 +83,10 @@ pub fn rbtdra_lookup_fixture(fixture: &str) -> Option<&'static rbtdre_Fixture> {
 /// fixtures explicitly rather than splicing a shared `reveille` slice: const slice
 /// concatenation would be non-load-bearing cleverness, and the compile-time
 /// member check already guards correctness. Reveille remains the conceptual base —
-/// the explicit duplication is the cost of that being a compile-checked list.
+/// the explicit duplication is the cost of that being a compile-checked list, and
+/// the independent `RBTDRA_REVEILLE_BASE` set-equality/superset guard below pins
+/// that base against silent per-ladder drift (audit 260623, finding X-d: the
+/// chaining-fact-band member had been quietly dropped from gauntlet and skirmish).
 pub static RBTDRA_SUITES: &[rbtdre_Suite] = &[
     // Reveille — no external dependencies.
     rbtdre_Suite {
@@ -207,6 +210,7 @@ pub static RBTDRA_SUITES: &[rbtdre_Suite] = &[
             &crate::rbtdrf_fast::RBTDRF_FIXTURE_RECIPE_VALIDATION,
             &crate::rbtdru_cupel::RBTDRU_FIXTURE_CUPEL,
             &crate::rbtdrn_conformance::RBTDRN_FIXTURE_CONFORMANCE,
+            &crate::rbtdrh_chain::RBTDRH_FIXTURE_CHAINING_FACT_BAND,
             &crate::rbtdrv_patrol::RBTDRV_FIXTURE_HALLMARK_LIFECYCLE,
             &crate::rbtdrc_crucible::RBTDRC_FIXTURE_TADMOR,
             &crate::rbtdrc_crucible::RBTDRC_FIXTURE_MORIAH,
@@ -239,6 +243,7 @@ pub static RBTDRA_SUITES: &[rbtdre_Suite] = &[
             &crate::rbtdrf_fast::RBTDRF_FIXTURE_RECIPE_VALIDATION,
             &crate::rbtdru_cupel::RBTDRU_FIXTURE_CUPEL,
             &crate::rbtdrn_conformance::RBTDRN_FIXTURE_CONFORMANCE,
+            &crate::rbtdrh_chain::RBTDRH_FIXTURE_CHAINING_FACT_BAND,
             &crate::rbtdrc_crucible::RBTDRC_FIXTURE_TADMOR,
             &crate::rbtdrc_crucible::RBTDRC_FIXTURE_MORIAH,
             &crate::rbtdrc_crucible::RBTDRC_FIXTURE_SRJCL,
@@ -297,6 +302,32 @@ pub fn rbtdra_lookup_suite(suite: &str) -> Option<&'static rbtdre_Suite> {
     RBTDRA_SUITES.iter().find(|s| s.name == suite)
 }
 
+/// Canonical reveille base — the substrate-independent fixture set every
+/// dependency-tiered suite and release ladder is contractually required to carry.
+/// Declared INDEPENDENTLY of any suite (never spliced into one — see the
+/// RBTDRA_SUITES doc) so that editing a suite's literal list cannot silently move
+/// the bar it is checked against: this const is the regression oracle, the suites
+/// are checked against it by the guard below.
+///
+/// Drift history (260623 consolidation audit, finding X-d): chaining-fact-band —
+/// the credless feoff/yoke band-matrix conformance fixture — had been silently
+/// dropped from the gauntlet and skirmish ladders while reveille/picket/bivouac/
+/// echelon kept it, a conformance hole in exactly the suites that gate a release.
+/// The set-equality + superset assertions below make any such drift a build error.
+pub static RBTDRA_REVEILLE_BASE: &[&'static rbtdre_Fixture] = &[
+    &crate::rbtdrf_fast::RBTDRF_FIXTURE_ENROLLMENT_VALIDATION,
+    &crate::rbtdrf_fast::RBTDRF_FIXTURE_REGIME_VALIDATION,
+    &crate::rbtdrf_fast::RBTDRF_FIXTURE_REGIME_SMOKE,
+    &crate::rbtdrf_fast::RBTDRF_FIXTURE_PODVM_RESOLVE,
+    &crate::rbtdrf_handbook::RBTDRF_FIXTURE_HANDBOOK_RENDER,
+    &crate::rbtdrf_fast::RBTDRF_FIXTURE_DOCKERFILE_HYGIENE,
+    &crate::rbtdrf_fast::RBTDRF_FIXTURE_FOUNDRY_PATH,
+    &crate::rbtdrf_fast::RBTDRF_FIXTURE_RECIPE_VALIDATION,
+    &crate::rbtdru_cupel::RBTDRU_FIXTURE_CUPEL,
+    &crate::rbtdrn_conformance::RBTDRN_FIXTURE_CONFORMANCE,
+    &crate::rbtdrh_chain::RBTDRH_FIXTURE_CHAINING_FACT_BAND,
+];
+
 // ── Compile-time uniqueness guard ────────────────────────────
 //
 // Fixture and suite name strings are author-maintained and lookups are
@@ -349,3 +380,71 @@ const fn zrbtdra_assert_unique_suites(suites: &[rbtdre_Suite]) {
 
 const _: () = zrbtdra_assert_unique_fixtures(RBTDRA_FIXTURES);
 const _: () = zrbtdra_assert_unique_suites(RBTDRA_SUITES);
+
+// ── Compile-time reveille-base guard ─────────────────────────
+//
+// Pin the canonical reveille set (RBTDRA_REVEILLE_BASE) against silent
+// per-suite drift. Every reveille-bearing suite must carry the base as a subset;
+// the "reveille" suite itself must equal it (mutual subset). The probe suites
+// dogfight/siege/blockade are deliberately base-free and are named as bearers
+// nowhere below. This is a pure ⊆/= check over the literal lists — the lists are
+// never concatenated, so the duplication the RBTDRA_SUITES doc defends stays.
+
+const fn zrbtdra_fixtures_contain(fixtures: &[&rbtdre_Fixture], name: &str) -> bool {
+    let mut i = 0;
+    while i < fixtures.len() {
+        if zrbtdra_str_eq(fixtures[i].name, name) {
+            return true;
+        }
+        i += 1;
+    }
+    false
+}
+
+/// True when every fixture in `needles` is present (by name) in `haystack`.
+const fn zrbtdra_contains_all(haystack: &[&rbtdre_Fixture], needles: &[&rbtdre_Fixture]) -> bool {
+    let mut i = 0;
+    while i < needles.len() {
+        if !zrbtdra_fixtures_contain(haystack, needles[i].name) {
+            return false;
+        }
+        i += 1;
+    }
+    true
+}
+
+/// Suites contractually required to carry the full reveille base as a subset.
+/// "reveille" is additionally held to equality (see below). dogfight/siege/
+/// blockade are base-free probe suites and return false on purpose.
+const fn zrbtdra_bears_base(name: &str) -> bool {
+    zrbtdra_str_eq(name, "reveille")
+        || zrbtdra_str_eq(name, "picket")
+        || zrbtdra_str_eq(name, "bivouac")
+        || zrbtdra_str_eq(name, "echelon")
+        || zrbtdra_str_eq(name, "gauntlet")
+        || zrbtdra_str_eq(name, "skirmish")
+}
+
+const fn zrbtdra_assert_reveille_base(suites: &[rbtdre_Suite], base: &[&rbtdre_Fixture]) {
+    let mut i = 0;
+    while i < suites.len() {
+        let name = suites[i].name;
+        let fixtures = suites[i].fixtures;
+        if zrbtdra_bears_base(name) {
+            // base ⊆ suite — every reveille-base member must run in this suite.
+            if !zrbtdra_contains_all(fixtures, base) {
+                panic!("a reveille-bearing suite is missing a reveille-base fixture");
+            }
+        }
+        if zrbtdra_str_eq(name, "reveille") {
+            // suite ⊆ base — the reveille suite carries nothing beyond the base
+            // (this half plus the superset above pins reveille to set-equality).
+            if !zrbtdra_contains_all(base, fixtures) {
+                panic!("the reveille suite carries a fixture outside RBTDRA_REVEILLE_BASE");
+            }
+        }
+        i += 1;
+    }
+}
+
+const _: () = zrbtdra_assert_reveille_base(RBTDRA_SUITES, RBTDRA_REVEILLE_BASE);
