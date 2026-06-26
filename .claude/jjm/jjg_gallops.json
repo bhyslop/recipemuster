@@ -19389,27 +19389,45 @@
         "₢BlAAC": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260624-2240",
+              "jjgtn_ts": "260626-0926",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "Drafted from ₢BfAAQ in ₣Bf.",
                 "",
-                "Decompose the rbtdrc_crucible god-module: extract the two framework-global registries (RBTDRC_FIXTURES, RBTDRC_SUITES and their lookups) and the bare no-charge/quench GCP-service fixtures, leaving a true crucible module behind. The defended suite-list duplication stays.",
+                "Decompose the rbtdrc_crucible god-module:",
+                "extract the two framework-global registries (RBTDRC_FIXTURES, RBTDRC_SUITES + their lookups)",
+                "and the bare no-charge/quench GCP-service fixtures,",
+                "leaving a true crucible-lifecycle module behind.",
                 "",
                 "## Refresh (post-rebase)",
-                "The rebase grew the file: also relocate the new chaining-fact-livery bare fixture with its cluster, and preserve the rbtdrh_chain cross-module registry references that now sit in RBTDRC_FIXTURES and four suites. RBTDRC_FIXTURES and RBTDRC_SUITES stay together in one module after the split — they are the registries every later pace edits.",
+                "The rebase grew the file:",
+                "also relocate the new chaining-fact-livery bare fixture with its cluster,",
+                "and preserve the rbtdrh_chain cross-module registry references now in RBTDRC_FIXTURES and four suites.",
+                "",
+                "## Settled at mount (260626) — design decisions, do not re-litigate",
+                "Symbols are renamed to their new module's prefix (RCG-clean), not name-preserved.",
+                "- rbtdra_almanac: the registry home — fixtures roll + suite composition + both lookups (RBTDRA_FIXTURES, RBTDRA_SUITES, rbtdra_lookup_fixture, rbtdra_lookup_suite).",
+                "- rbtdrv_patrol: the eleven bare cloud fixtures + their shared support cluster (ark basenames, BURV fact keys, GAR category, vessel dirs, the four docker_*/rekon helpers); rbtdrd_dogfight and rbtdro_onboarding repoint their imports to patrol.",
+                "- Crucible remainder keeps rbtdrc_: charge/quench, the context machinery (set/take/with_ctx stays here), the ifrit/sentry/dns/curl/srjcl/pluml helpers + cases, the four charge/quench fixture statics, darken_svg + tests.",
+                "- \"patrol\" accepted provisionally. Names were grep-gated: roster/rota/muster/census/cohort and assay/vigil/sortie/foray all failed (taken or ungreppable); almanac/patrol clean.",
+                "- Authorized addition beyond pure relocation: a compile-time duplicate-name guard — a const _ assertion over RBTDRA_FIXTURES and RBTDRA_SUITES that fails the build on a duplicate name field; fall back to an equivalent unit test if this toolchain's const &str comparison balks.",
                 "",
                 "## Done when",
-                "rbtdrc_crucible carries only crucible-lifecycle concerns; the registries and bare-service fixtures live in their own homes; the theurge build and unit tests are green; suite composition and fixture behavior are byte-unchanged.",
+                "rbtdrc_crucible holds only crucible-lifecycle concerns;",
+                "almanac + patrol hold the registries and the bare fixtures + shared cluster;",
+                "the duplicate-name guard is in;",
+                "rbw-tb build and rbw-tt tests are green;",
+                "suite composition and fixture behavior are byte-unchanged.",
                 "",
                 "## Cinched",
-                "Relocation only — do NOT collapse the suite membership lists (the const-concat-is-cleverness decision stands).",
+                "Relocation only beyond the named guard — do NOT collapse the suite membership lists (const-concat-is-cleverness stands).",
+                "Notch before testing.",
                 "",
                 "## Character",
-                "Mechanical module relocation, fully compile-checked."
+                "Mechanical module relocation + one compile-time guard, fully compile-checked."
               ],
               "jjgtn_silks": "theurge-crucible-module-split",
-              "jjgtn_basis": "f676ede"
+              "jjgtn_basis": "9ca5ead"
             }
           ]
         },
