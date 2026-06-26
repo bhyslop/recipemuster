@@ -11926,9 +11926,10 @@
         "₢BDAAi",
         "₢BDAAk",
         "₢BDAAl",
-        "₢BDAAm"
+        "₢BDAAm",
+        "₢BDAAn"
       ],
-      "jjghn_next_pace_seed": "AAn",
+      "jjghn_next_pace_seed": "AAo",
       "jjghn_paces": {
         "₢BDAAA": {
           "jjgpn_tacks": [
@@ -13451,6 +13452,53 @@
               ],
               "jjgtn_silks": "axla-immutable-identity-adt-motif",
               "jjgtn_basis": "24d69eb"
+            }
+          ]
+        },
+        "₢BDAAn": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260626-0914",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "Implementation against a cinched contract — a Rust refactor in the jjk crate, the design already settled by the spec pace.",
+                "Moderate: encapsulation + renderer consolidation + a derivation method, contained to one module and its consumers.",
+                "",
+                "## Prerequisite",
+                "Depends on ₢BDAAm (the AXLA / JJS0 spec pace): this realizes in code the `axd_insignia` contract that pace defines.",
+                "Mount after ₢BDAAm lands — the voiced contract (four-member family, implies-immutable, required encoding-nature, value-vs-render glyph model) is the specification this implements.",
+                "",
+                "## Goal",
+                "Make the JJK insignia types genuinely the immutable seed-ADT the spec voices: an encapsulated value, unified renderers, a derivation (seed) method, and a typed officium.",
+                "",
+                "## Cinched",
+                "The family is four: firemark, coronet, pensum (all algebraic), officium (temporal).",
+                "Immutability is constitutive — encapsulate the body (the field is `pub String` today) so it is fixed from construction, not merely by convention.",
+                "Value-vs-render: the stored value is the bare encoded body (the seed); rendering is a separate concern with audience-keyed forms — operator-display (glyph), bare/wire (git refs, JSON keys), machine-context (on-disk, glyph stripped).",
+                "Consolidate the scattered ₣/₢/₱/☉ display code through one render home.",
+                "The derivation (seed) method — \"ask for the successor, swap your handle\" — is an *algebraic* affordance: arithmetic on the base-64 numeral. Temporal officium derives by time / filesystem enumeration, not arithmetic, so the successor interface is encoding-nature-specific, not universal.",
+                "Officium is an un-typed string today (`zjjrm_generate_officium_id`); give it a typed home as the temporal insignia.",
+                "",
+                "## Done when",
+                "- The insignia newtypes expose no mutable interior (no `pub String`); the body is set at construction and never after.",
+                "- All ₣/₢/₱/☉ rendering routes through a single render home; the audience-keyed forms (glyph / bare / machine-context) are distinct and named.",
+                "- The algebraic insignia carry a successor / seed derivation method returning a fresh value.",
+                "- Officium has a typed insignia home, minted through it.",
+                "- Build and tests green via the VOW tabtargets (notch before test).",
+                "",
+                "## Schema check (slate-time)",
+                "This touches jjk-crate types serialized in the gallops.",
+                "Verify at mount whether encapsulation or the officium typing changes the on-disk serialization; if it does, it is a gallops schema change — follow §E / §F and JJSCRP (`jjdz_reprieve`) for the reprieve-episode determination and date-and-identity branch delivery.",
+                "Plain encapsulation that preserves the existing string serde is not a schema change.",
+                "",
+                "## Discovery",
+                "The concrete types: `Tools/jjk/vov_veiled/src/jjrf_favor.rs` (firemark/coronet/pensum newtypes; encode/decode/parse/as_str/display/parent_firemark).",
+                "Officium minting: `grep -rn 'zjjrm_generate_officium_id\\|officium_id' Tools/jjk`.",
+                "Scattered display sites: `grep -rn 'jjrf_display\\|FIREMARK_PREFIX\\|CORONET_PREFIX\\|PENSUM_PREFIX' Tools/jjk`."
+              ],
+              "jjgtn_silks": "jjrf-insignia-adt-realization",
+              "jjgtn_basis": "284d723"
             }
           ]
         }
