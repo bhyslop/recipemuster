@@ -13336,8 +13336,8 @@
         "₢BDAAk": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260625-1027",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260626-0335",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "## Character",
                 "Intricate but mechanical — design settled this chat; spec + impl land together.",
@@ -13366,7 +13366,7 @@
                 "posture; the invitatory handler emits all channels with sentinels; kit tests green."
               ],
               "jjgtn_silks": "multichannel-session-id-capture",
-              "jjgtn_basis": "cbc57ae"
+              "jjgtn_basis": "9defef0"
             }
           ]
         },
