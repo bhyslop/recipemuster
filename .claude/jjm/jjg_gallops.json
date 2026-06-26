@@ -13252,7 +13252,7 @@
         "₢BDAAj": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260625-1431",
+              "jjgtn_ts": "260626-0336",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "## Character",
@@ -13269,7 +13269,7 @@
                 "   on-demand display and a churn metric were both considered and rejected.",
                 "   ₢BcAAK now carries it — nothing left to scope here.",
                 "",
-                "2. Session-ID-in-commit (post haste — narrow, no other changes). — RESOLVED, graduated into ₢BDAAk.",
+                "2. Session-ID-in-commit (post haste — narrow, no other changes). — DONE 260626 (₢BDAAk wrapped).",
                 "   Explored and delivered 2026-06-25, expanded past that original narrow scope.",
                 "   The invitatory now captures a six-channel session-recall survey —",
                 "   newest-mtime .jsonl guess, $CLAUDE_CODE_SESSION_ID, $CLAUDE_SESSION_ID,",
@@ -13329,7 +13329,7 @@
                 "or explicitly declined; this capture pace is then wrapped."
               ],
               "jjgtn_silks": "explore-and-expand-capture-and-display-musings",
-              "jjgtn_basis": "032e9b0"
+              "jjgtn_basis": "3882d2b"
             }
           ]
         },
