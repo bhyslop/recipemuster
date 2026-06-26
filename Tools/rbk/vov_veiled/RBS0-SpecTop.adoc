@@ -579,6 +579,8 @@
 :rbtf_mantle_s:              <<rbtf_mantle,Mantles>>
 :rbtf_citizen:               <<rbtf_citizen,Citizen>>
 :rbtf_citizen_s:             <<rbtf_citizen,Citizens>>
+:rbtf_foedus:                <<rbtf_foedus,Foedus>>
+:rbtf_foedus_s:              <<rbtf_foedus,Foedera>>
 :rbtf_avow:               <<rbtf_avow,Avow>>
 :rbtf_sitting:                <<rbtf_sitting,Sitting>>
 :rbtf_don:                   <<rbtf_don,Don>>
@@ -589,6 +591,7 @@
 :rbtf_affiance:              <<rbtf_affiance,Affiance>>
 :rbtf_jilt:                  <<rbtf_jilt,Jilt>>
 :rbtf_rehearse:              <<rbtf_rehearse,Rehearse>>
+:rbtf_canvass:               <<rbtf_canvass,Canvass>>
 :rbtf_muniment:              <<rbtf_muniment,Muniment>>
 :rbtf_muniment_s:            <<rbtf_muniment,Muniments>>
 :rbtf_census:                <<rbtf_census,Census>>
@@ -935,11 +938,13 @@ The durable supply-chain canon, the gcr.io-bootstrap-only provenance, and the pe
 [[rbsk_human_present]]
 //axk_premise
 {rbsk_human_present}::
-A live
+Under the
+{rbrf_mechanism_interactive}
+mechanism — production's only mechanism — a live
 {rbtf_sitting}
-— opened by a human
+opened by a human
 {rbtf_avow}
-— backs every run of
+backs every run of
 {at_recipe_bottle};
 no run begins outside one, and every token self-expires.
 +
@@ -951,6 +956,11 @@ device-flow kickoff surfaces only a user code and a verification URI — spike-v
 +
 Rationale: this is the design's outer bound on blast radius — a compromised station or agent inherits only what the live sitting still permits, and that window closes on its own.
 A long run re-mints mantle tokens mid-flight from the cached federated token while the sitting lives; when the sitting lapses, the next mint fails loud (`sitting lapsed, avow`) rather than silently reaching for a stored credential, because there is none to reach for.
++
+Mechanism boundary: the
+{rbrf_mechanism_programmatic}
+mechanism deliberately voids this premise — it deletes the human by construction (a self-supplied JWT, no sitting, no avow) — and exists only for the unattended test-bed, never a production foedus.
+The voiding is bounded to that test scope; it relaxes nothing for production, where the interactive mechanism and this premise hold.
 
 == Dependency Inventory
 
@@ -1932,11 +1942,29 @@ Marshal operations are invisible to
 
 === Federation Civics
 
-The vocabulary of office federation: the standing roles an operator wears, the human
-who wears them, the acts that admit and remove, and the record that tells who holds
-what.
+The vocabulary of office federation: the configured trust a manor stands up, the
+standing roles an operator wears within it, the human who wears them, the acts that
+admit and remove, and the record that tells who holds what.
 The elected word set is authoritative; these definitions seat it as the contract the
 levy, accessor, terrier, and verb work all reference.
+
+[[rbtf_foedus]]
+{rbtf_foedus}::
+A configured federation: one workforce identity pool, its OIDC provider, and the
+attribute mapping, taken together as the trust a manor stands up.
+The noun
+{rbtf_affiance}
+founds and
+{rbtf_jilt}
+dissolves, identified by its workforce-pool id.
+Its shape is a vendor-agnostic trust core plus an acquisition-mechanism gate
+({rbrf_mechanism});
+vendor identity is deliberately not part of it, so a new IdP is a setup guide plus
+values, never a new kind of foedus.
+A manor may hold several foedera, each its own pool and enumerable by
+{rbtf_canvass};
+a depot draws its citizens from the foedus it is affiliated with.
+(Latin _foedus_: a treaty or league between powers.)
 
 [[rbtf_mantle]]
 //axo_role
@@ -2058,6 +2086,14 @@ under the manor at once.
 The delete soft-deletes the pool (recoverable within a purge window); the depot-scoped
 {rbtf_mantle}
 bindings and service accounts are untouched.
+
+[[rbtf_canvass]]
+{rbtf_canvass}::
+The read act that enumerates every
+{rbtf_foedus}
+the manor holds, by interrogating the Manor itself (a `workforcePools.list` query) — the manor, not this regime, is the authoritative registry of what foedera exist.
+Where the per-foedus health read inspects one pool, canvass lists them all.
+Read-only; never an operator-triggered mutation.
 
 [[rbtf_rehearse]]
 {rbtf_rehearse}::
@@ -4481,11 +4517,17 @@ A pattern that establishes
 {rbtf_mantle}
 context:
 
-. {rbbc_require} a live
+. {rbbc_require} a federated token — under
+{rbrf_mechanism_interactive}
+a live
 {rbtf_sitting}
 via
 {rbtf_avow}
-(the credential accessor runs the device-flow kickoff inline under a TTY, fails loud when headless),
+(the credential accessor runs the device-flow kickoff inline under a TTY, fails loud when headless); under
+{rbrf_mechanism_programmatic}
+the programmatic accessor's self-supplied-JWT STS exchange
+({rbtgo_foedus_acquire}),
+no sitting and no human,
 . {rbtf_don} the
 {rbtr_governor}
 {rbtf_mantle}
@@ -4500,11 +4542,17 @@ A pattern that establishes
 {rbtf_mantle}
 context:
 
-. {rbbc_require} a live
+. {rbbc_require} a federated token — under
+{rbrf_mechanism_interactive}
+a live
 {rbtf_sitting}
 via
 {rbtf_avow}
-(the credential accessor runs the device-flow kickoff inline under a TTY, fails loud when headless),
+(the credential accessor runs the device-flow kickoff inline under a TTY, fails loud when headless); under
+{rbrf_mechanism_programmatic}
+the programmatic accessor's self-supplied-JWT STS exchange
+({rbtgo_foedus_acquire}),
+no sitting and no human,
 . {rbtf_don} the
 {rbtr_director}
 {rbtf_mantle}
@@ -4519,11 +4567,17 @@ A pattern that establishes
 {rbtf_mantle}
 context:
 
-. {rbbc_require} a live
+. {rbbc_require} a federated token — under
+{rbrf_mechanism_interactive}
+a live
 {rbtf_sitting}
 via
 {rbtf_avow}
-(the credential accessor runs the device-flow kickoff inline under a TTY, fails loud when headless),
+(the credential accessor runs the device-flow kickoff inline under a TTY, fails loud when headless); under
+{rbrf_mechanism_programmatic}
+the programmatic accessor's self-supplied-JWT STS exchange
+({rbtgo_foedus_acquire}),
+no sitting and no human,
 . {rbtf_don} the
 {rbtr_retriever}
 {rbtf_mantle}
