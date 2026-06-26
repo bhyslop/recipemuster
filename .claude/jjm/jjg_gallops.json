@@ -1,6 +1,7 @@
 {
   "jjgrn_next_heat_seed": "Bn",
   "jjgrn_heat_order": [
+    "₣Bf",
     "₣Bg",
     "₣Bc",
     "₣Be",
@@ -10,7 +11,6 @@
     "₣BD",
     "₣Bl",
     "₣Bi",
-    "₣Bf",
     "₣Bm",
     "₣BZ",
     "₣Bk",
@@ -16871,7 +16871,7 @@
     "₣Bf": {
       "jjghn_silks": "rbk-40-fbl-review-federation-build",
       "jjghn_creation_time": "260616",
-      "jjghn_status": "jjghe_stabled",
+      "jjghn_status": "jjghe_racing",
       "jjghn_order": [
         "₢BfAAo",
         "₢BfAAS",
