@@ -404,6 +404,7 @@
 
 // Recipe Bottle Regime: Federation (manor IdP trust)
 :rbrf_attribute_mapping:     <<rbrf_attribute_mapping,RBRF_ATTRIBUTE_MAPPING>>
+:rbrf_cognomen:              <<rbrf_cognomen,RBRF_COGNOMEN>>
 :rbrf_group_interactive:     <<rbrf_group_interactive,Interactive Mechanism Group>>
 :rbrf_group_programmatic:    <<rbrf_group_programmatic,Programmatic Mechanism Group>>
 :rbrf_idp_client_id:         <<rbrf_idp_client_id,RBRF_IDP_CLIENT_ID>>
@@ -1991,7 +1992,7 @@ The noun
 {rbtf_affiance}
 founds and
 {rbtf_jilt}
-dissolves, identified by its workforce-pool id.
+dissolves, identified by its stable {rbrf_cognomen} (not the pool that realizes it, which may rotate).
 Its shape is a vendor-agnostic trust core plus an acquisition-mechanism gate
 ({rbrf_mechanism});
 vendor identity is deliberately not part of it, so a new IdP is a setup guide plus
@@ -3624,8 +3625,13 @@ include::RBSRP-RegimePayor.adoc[]
 {rbrf_regime}::
 Manor-scoped (org-level) IdP trust and workforce-pool identity: a vendor-agnostic trust core plus a single acquisition-mechanism gate ({rbrf_mechanism}).
 The core — org, pool, provider, session, issuer, client-id, attribute mapping — is the same structure for every OIDC IdP, so vendor identity is not a field of it; the gate selects the interactive (device-flow) or programmatic (uploaded-JWKS) arm.
-Names the single active {rbtf_foedus} by its {rbrf_workforce_pool_id}; the Manor is the authoritative registry of foedera (read by {rbtf_canvass}), so production stays single-foedus-clean.
+Names the single active {rbtf_foedus} by its {rbrf_cognomen} (its stable identity); {rbrf_workforce_pool_id} is the pool that realizes it and may rotate. The Manor is the authoritative registry of foedera (read by {rbtf_canvass}), so production stays single-foedus-clean.
 File-sourced singleton at {rbsld_moorings}rbrf.env; carries no secrets — the programmatic arm's private signing key never enters it, only the public JWKS — so it ships committed.
+
+[[rbrf_cognomen]]
+//axrg_variable axtu_xname
+{rbrf_cognomen}::
+The stable identity of the active {rbtf_foedus} — an operator-assigned name, distinct from the {rbrf_workforce_pool_id} that realizes it and surviving the pool's rotation. The durable handle a foedus is selected and enumerated by.
 
 [[rbrf_org_id]]
 //axrg_variable axtu_string
