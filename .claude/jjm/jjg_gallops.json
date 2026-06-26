@@ -19073,8 +19073,8 @@
         "₢BiAAh": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260625-1433",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260626-0328",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "## Character",
                 "Diffusion — apply the settled document-composition vocabulary to the RBS0 and BUS0 codices. Mechanical, with per-sheaf status judgment; two specs.",
@@ -19090,7 +19090,7 @@
                 "plus the axd_ Normativeness Dimensions. Minted 260625."
               ],
               "jjgtn_silks": "diffuse-codex-vocabulary-to-rbs-bus",
-              "jjgtn_basis": "523f5e0"
+              "jjgtn_basis": "36fa091"
             }
           ]
         },
