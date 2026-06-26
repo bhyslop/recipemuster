@@ -1211,7 +1211,7 @@ palette.
 Reserved to protect the *editor's* explanatory reach, where
 {mcm_hallowed_word}
 protects the word's resonance.
-Seed: mesentery, constellation.
+Seed: mesentery, constellation, moniker.
 
 === Exposure
 
