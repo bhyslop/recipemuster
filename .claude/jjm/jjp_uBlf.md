@@ -22,11 +22,12 @@ Chosen (do NOT re-mint — re-deriving these is the failure this census guards a
 - instate / descry — switch which foedus is active, and read a foedus pool's health; minted, owned by the theurge stream where the build is slated (not yet landed).
 - interactive / programmatic — the mechanism gate's two values, KEPT as the plain words (260626): test-scoped — read by affiance and the accessor, written only by the test establishment, never a tabtarget argument, so the asterism's weight does not apply.
   Serialized as rbnfe_interactive / rbnfe_programmatic — the rbnfe_ federation enum sprue, derived from the rbnve_ (vessel) / rbnne_ (nameplate) scheme, not a free mint.
+- RBRF_MECHANISM — the regime field holding the gate value (260626), modeled on RBRV_VESSEL_MODE.
+- RBSFE / RBSFA — the two operation-subdoc acronyms (260626): RBSFE the programmatic establishment, RBSFA the programmatic accessor; fresh RBSF tails (only RBSFH was taken), distinct-over-mnemonic per operator ruling. The operation-quoin verb stays descriptive — the civic verb defers to the build pace.
 
-Still owed by the recast — the open calls this pace settles:
-- the gate's regime field name (the RBRF_ variable that holds the value, modeled on RBRV_VESSEL_MODE);
-- the two operation-subdoc acronyms — the programmatic establishment and the programmatic accessor;
+Still owed by the recast — the open call this pace settles:
 - the active-foedus selector and foedus-identifier field — a TEST-ONLY overlay: the production regime stays single-foedus-clean (effectively singleton, no selector), the multi-config + selector riding on top for the test-bed alone.
+  Open question under discussion (260626): lean toward the Manor (GCP) as the authoritative foedus registry — pool-ID as the identifier, "list foedera" a cloud query — so the regime holds the active config, not a local registry.
 
 As each owed item settles it moves up into the chosen list here, so the record never scatters again.
 
