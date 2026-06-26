@@ -1,7 +1,6 @@
 {
   "jjgrn_next_heat_seed": "Bn",
   "jjgrn_heat_order": [
-    "₣Bl",
     "₣Bg",
     "₣Bc",
     "₣Be",
@@ -9,6 +8,7 @@
     "₣Bb",
     "₣BF",
     "₣BD",
+    "₣Bl",
     "₣Bi",
     "₣Bf",
     "₣Bm",
@@ -19195,9 +19195,9 @@
       "jjghn_paces": {}
     },
     "₣Bl": {
-      "jjghn_silks": "rbk-04-mvp-theurge-refactor",
+      "jjghn_silks": "rbk-42-fbl-review-theurge-refactor",
       "jjghn_creation_time": "260622",
-      "jjghn_status": "jjghe_racing",
+      "jjghn_status": "jjghe_stabled",
       "jjghn_order": [
         "₢BlAAQ",
         "₢BlAAA",
