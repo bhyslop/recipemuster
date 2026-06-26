@@ -19389,8 +19389,8 @@
         "₢BlAAC": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260626-0926",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260626-1051",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "Drafted from ₢BfAAQ in ₣Bf.",
                 "",
@@ -19427,7 +19427,7 @@
                 "Mechanical module relocation + one compile-time guard, fully compile-checked."
               ],
               "jjgtn_silks": "theurge-crucible-module-split",
-              "jjgtn_basis": "9ca5ead"
+              "jjgtn_basis": "68ca7e9"
             }
           ]
         },
