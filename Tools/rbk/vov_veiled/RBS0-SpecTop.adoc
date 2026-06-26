@@ -156,6 +156,10 @@
 :rbtgo_citizen_attaint:          <<rbtgo_citizen_attaint,rbgp_attaint>>
 :rbtgo_terrier_rehearse:         <<rbtgo_terrier_rehearse,rbgp_rehearse>>
 
+// Recipe Bottle Term Google Operations — Foedus (programmatic test-bed)
+:rbtgo_foedus_establish:         <<rbtgo_foedus_establish,Foedus Establish>>
+:rbtgo_foedus_acquire:           <<rbtgo_foedus_acquire,Foedus Acquire>>
+
 // Recipe Bottle Term Google Operation Groups
 :rbtgog_access:                   <<rbtgog_access,Access Probe Group>>
 :rbtgog_ark:                      <<rbtgog_ark,Ark Group>>
@@ -1186,6 +1190,37 @@ dissolving the org-level workforce pool (the provider cascades with it).
 
 //axvd_sheaf axd_normative
 include::RBSMJ-manor_jilt.adoc[]
+
+[[rbtgo_foedus_establish]]
+//axvo_method axd_transient axd_grouped
+=== {rbtgo_foedus_establish}
+
+Stands up a
+{rbrf_mechanism_programmatic}
+{rbtf_foedus}
+end-to-end — the unattended test-bed's trust — calling
+{rbtgo_manor_affiance}'s
+programmatic branch and owning the stable keypair, the uploaded public JWKS, and the
+regime facts that branch consumes.
+A contract for the establishment build pace; the civic verb is deferred.
+
+//axvd_sheaf axd_normative
+include::RBSFE-foedus_establish.adoc[]
+
+[[rbtgo_foedus_acquire]]
+//axvo_method axd_transient axd_grouped
+=== {rbtgo_foedus_acquire}
+
+Acquires a federated token over a
+{rbrf_mechanism_programmatic}
+{rbtf_foedus}
+with no human — the programmatic sibling of
+{rbtf_avow},
+an arm of the production-shared accessor.
+A contract for the accessor build pace; the civic verb is deferred.
+
+//axvd_sheaf axd_normative
+include::RBSFA-foedus_acquire.adoc[]
 
 [[rbtgo_depot_levy]]
 //axvo_method axd_transient axd_grouped

@@ -1,0 +1,74 @@
+//axvd_sheaf rbs0_imprimatur axd_normative
+//axhob_operation
+{rbtgo_foedus_acquire}
+
+NOTE: *Contract, not yet built.* This subdoc is the contract the programmatic-accessor build
+pace fills; it states what done looks like, not the implementation.
+{rbtgo_foedus_acquire}
+is a *descriptive* operation quoin — the civic asterism verb (the
+{rbtf_avow}-register
+word for the programmatic acquisition act) is deferred to that build pace, per the federation
+vocabulary census.
+
+NOTE: This operation is the programmatic sibling of
+{rbtf_avow}:
+it acquires a federated token over a
+{rbrf_mechanism_programmatic}
+{rbtf_foedus}
+with no human and no sitting. Where
+{rbtf_avow}
+opens a sitting through the device flow, this operation self-supplies a JWT and exchanges it
+at STS. It is an *arm of the production-shared accessor* (`rba`), mechanism-gated — never a new
+module, and never absorbed into the test-facility orchestrator.
+
+NOTE: *Precondition.* A programmatic foedus established
+({rbtgo_foedus_establish})
+and affianced
+({rbtgo_manor_affiance}
+programmatic branch); the marshal-fenced private signing key reachable to this accessor (the
+estate stub sources-and-verifies it).
+
+NOTE: *Ceiling — reaches the federated token, not the full don-and-call.* The end-to-end don
+needs a standing admission (a
+{rbtf_brevet}
+of the test subject), owned by the deferred attach-caged-subject unit, not this operation. The
+{rbtf_don}
+path is shared and unchanged — exercised end-to-end only once that admission exists. Do NOT
+reintroduce a spine-local payor-direct brevet to force a green don here.
+
+The ordered shape (impl deferred — do not read REST calls, function names, or a grant flavor
+into it as fixed):
+
+//axhos_step
+. *Obtain the subject id_token* from the test IdP's non-interactive grant (Keycloak's RFC 7523
+JWT-authorization-grant, preferred — a real token-endpoint path; or a self-mint with the fenced
+key, fallback). The JWT's `iss` matches the regime issuer, `aud` matches `client-id`, `sub`
+matches the mapped subject claim, and `exp` is fresh within skew. GCP cannot distinguish the
+grant — it validates the resulting id_token's signature, `iss`, `aud`, and `sub` — so the grant
+flavor is a test-IdP detail below this contract.
+
+//axhos_step
+. *Exchange at STS* for a federated token, reusing the existing second leg wholesale — the STS
+exchange is mechanism-invariant. This operation owns only the self-supply of the subject token
+and ends at the federated token.
+
+//axhos_step
+. *Point at the shared
+{rbtf_don}
+path* for mantle impersonation; do not duplicate it (its end-to-end exercise awaits the standing
+admission, per the ceiling NOTE).
+
+//axhoc_completion
+Successful execution yields a federated token over a programmatic
+{rbtf_foedus},
+acquired with no human in the loop, ready for the shared
+{rbtf_don}
+once a standing admission exists.
+Cinched: stays an arm of `rba` (production-shared machinery), never absorbed into the
+test-facility orchestrator; REST-only, no direct gcloud; the IAM-propagation delay after a fresh
+{rbtf_brevet}
+(~70s, the standing RBSCIP delay) must be tolerated by the durable accessor.
+Boundary (the test-personas memo): the programmatic accessor automates everything downstream of
+the federated token — the don, the admission-verb suite, the autonomous founding proofs, the
+audit-attribution read — but cannot substitute for the live human device-flow proof or first-leg
+reachability; exactly one thin human-present pace stays for the interactive leg.
