@@ -13897,9 +13897,10 @@
         "₢BZAAg",
         "₢BZAAe",
         "₢BZAAP",
-        "₢BZAAN"
+        "₢BZAAN",
+        "₢BZAAh"
       ],
-      "jjghn_next_pace_seed": "AAh",
+      "jjghn_next_pace_seed": "AAi",
       "jjghn_paces": {
         "₢BZAAA": {
           "jjgpn_tacks": [
@@ -14928,6 +14929,34 @@
               ],
               "jjgtn_silks": "assize-duration-12h",
               "jjgtn_basis": "2e08427"
+            }
+          ]
+        },
+        "₢BZAAh": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260626-0716",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "A terminal, Fable-only retrospective that mines heat ₣BZ's pace sequence and divergence arc for insights that inform how future heats of comparable scope and duration are planned.",
+                "Not a redo of the paddock reconciliation (that landed under operator sanction) and not the queue memo's ratify-or-sweep agenda — this studies the SHAPE of the execution: where the planned sequence held, where it bent, and why.",
+                "",
+                "## Done when",
+                "Model Fable has read the heat's affiliated commit sequence via `jjx_log ₣BZ` (the immutable affiliation record, authoritative over any hand-copied enumeration) and the as-built pace ordering.",
+                "Fable has characterized where execution diverged from the original plan — the freeze-under-stewardship arc, the mid-heat reslates, the forcing functions (e.g. the org keyless-policy rewrite that pulled work ahead of plan), and the heat-splits that pushed work into sibling heats.",
+                "The findings land in a forward-looking memo: what this heat's sequence teaches about planning future heats — segmentation, freeze discipline, divergence budgeting, when to split a heat versus absorb the change.",
+                "The memo points at decision homes rather than restating them; any durable planning doctrine that should outlive the memo is flagged for a real spec home.",
+                "",
+                "## Cinched",
+                "Requires model Fable — hard gate; this pace does not open to a lesser tier even under time pressure.",
+                "Entry points: `jjx_log ₣BZ`, the heat paddock (`jjx_paddock ₣BZ`), `Memos/memo-20260615-BZ-m4-review-findings.md`, `Memos/memo-20260615-BZ-pace-design.md`, and `Memos/memo-20260622-fable-review-queue.md` (read the last to stay OFF the already-tracked ratify-or-sweep work).",
+                "Distinct charter from the completed terminal reconciliation pace — that record stays untouched; this is additive process-retrospective, not a redo.",
+                "",
+                "## Character",
+                "Forward-looking retrospective; genuine Fable judgment over the heat's shape, not a mechanical pass."
+              ],
+              "jjgtn_silks": "fable-sequence-retrospective",
+              "jjgtn_basis": "eccaa34"
             }
           ]
         }
