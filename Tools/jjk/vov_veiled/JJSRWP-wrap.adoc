@@ -1,3 +1,4 @@
+//axvd_sheaf jjs0_imprimatur axd_normative
 Mark a pace complete and commit all changes in one self-contained operation.
 This routine combines staging, committing, state transition, and chalk marker creation.
 Used by the `wrap` verb (mapped to `jjx_close`) to provide a single-command wrap experience.

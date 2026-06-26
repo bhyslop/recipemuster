@@ -52,7 +52,7 @@
 :xref_BURN:                  BUK Regime Node profile
 
 // Codex identity (document composition; sealed by axvd_codex at its definition site)
-:jjs0:                       <<jjs0,Job Jockey Gallops Data Model>>
+:jjs0_imprimatur:            <<jjs0_imprimatur,Job Jockey Gallops Data Model>>
 
 // Types
 :jjdt_coronet:    <<jjdt_coronet,Coronet>>
@@ -332,9 +332,9 @@
 
 == Overview
 
-[[jjs0]]
+[[jjs0_imprimatur]]
 //axvd_codex
-{jjs0}::
+{jjs0_imprimatur}::
 This document — the codex of the Job Jockey concept model: the root that owns this mapping
 section and the vocabulary its sheaves consume, and the identity each sheaf names back through
 its tendon.
@@ -1828,6 +1828,7 @@ or by programmatic building (producing an unfrozen gazette that freezes on first
 +
 Contract elaborated in subdocument:
 
+//axvd_sheaf axd_normative
 include::JJSCGZ-gazette.adoc[leveloffset=+2]
 
 == Serialization
@@ -1881,6 +1882,7 @@ The tolerance floor also bounds {jjdr_hark}: a retrospective hark reaches only a
 +
 Doctrine elaborated in subdocument:
 
+//axvd_sheaf axd_normative
 include::JJSCRP-reprieve.adoc[leveloffset=+2]
 
 === {jjdz_monitum}
@@ -2159,6 +2161,7 @@ They encapsulate common logic for consistent behavior across the codebase.
 //axvo_procedure axd_internal
 === {jjdr_load}
 
+//axvd_sheaf axd_normative
 include::JJSRLD-load.adoc[]
 
 [[jjdr_hark]]
@@ -2190,18 +2193,21 @@ fails to deserialize, and that failure *is* the "too old to hark" signal, surfac
 //axvo_procedure axd_internal
 === {jjdr_save}
 
+//axvd_sheaf axd_normative
 include::JJSRSV-save.adoc[]
 
 [[jjdr_persist]]
 //axvo_procedure axd_internal
 === {jjdr_persist}
 
+//axvd_sheaf axd_normative
 include::JJSRPS-persist.adoc[]
 
 [[jjdr_wrap]]
 //axvo_procedure axd_internal
 === {jjdr_wrap}
 
+//axvd_sheaf axd_normative
 include::JJSRWP-wrap.adoc[]
 
 == Operation Taxonomy
@@ -2358,48 +2364,56 @@ The {jjdx_mcp} resolves the {jjdgr_gallops} path internally.
 //axvo_procedure axd_transient
 ==== {jjdo_create}
 
+//axvd_sheaf axd_normative
 include::JJSCNO-nominate.adoc[]
 
 [[jjdo_enroll]]
 //axvo_procedure axd_transient
 ==== {jjdo_enroll}
 
+//axvd_sheaf axd_normative
 include::JJSCSL-slate.adoc[]
 
 [[jjdo_reorder]]
 //axvo_procedure axd_transient
 ==== {jjdo_reorder}
 
+//axvd_sheaf axd_normative
 include::JJSCRL-rail.adoc[]
 
 [[jjdo_relocate]]
 //axvo_procedure axd_transient
 ==== {jjdo_relocate}
 
+//axvd_sheaf axd_normative
 include::JJSCDR-draft.adoc[]
 
 [[jjdo_redocket]]
 //axvo_procedure axd_transient
 ==== {jjdo_redocket}
 
+//axvd_sheaf axd_normative
 include::JJSCTL-tally.adoc[tag=redocket]
 
 [[jjdo_relabel]]
 //axvo_procedure axd_transient
 ==== {jjdo_relabel}
 
+//axvd_sheaf axd_normative
 include::JJSCTL-tally.adoc[tag=relabel]
 
 [[jjdo_drop]]
 //axvo_procedure axd_transient
 ==== {jjdo_drop}
 
+//axvd_sheaf axd_normative
 include::JJSCTL-tally.adoc[tag=drop]
 
 [[jjdo_alter]]
 //axvo_procedure axd_transient
 ==== {jjdo_alter}
 
+//axvd_sheaf axd_normative
 include::JJSCFU-furlough.adoc[]
 
 [[jjdo_continue]]
@@ -2410,24 +2424,28 @@ include::JJSCFU-furlough.adoc[]
 //axvo_procedure axd_transient
 ==== {jjdo_transfer}
 
+//axvd_sheaf axd_normative
 include::JJSCRS-restring.adoc[]
 
 [[jjdo_archive]]
 //axvo_procedure axd_transient
 ==== {jjdo_archive}
 
+//axvd_sheaf axd_normative
 include::JJSCRT-retire.adoc[]
 
 [[jjdo_close]]
 //axvo_procedure axd_transient
 ==== {jjdo_close}
 
+//axvd_sheaf axd_normative
 include::JJSCWP-wrap.adoc[]
 
 [[jjdo_paddock]]
 //axvo_procedure axd_transient
 ==== {jjdo_paddock}
 
+//axvd_sheaf axd_normative
 include::JJSCCU-curry.adoc[]
 
 === Read Operations
@@ -2436,48 +2454,56 @@ include::JJSCCU-curry.adoc[]
 //axvo_procedure axd_transient
 ==== {jjdo_validate}
 
+//axvd_sheaf axd_normative
 include::JJSCVL-validate.adoc[]
 
 [[jjdo_list]]
 //axvo_procedure axd_transient
 ==== {jjdo_list}
 
+//axvd_sheaf axd_normative
 include::JJSCMU-muster.adoc[]
 
 [[jjdo_brief]]
 //axvo_procedure axd_transient
 ==== {jjdo_brief}
 
+//axvd_sheaf axd_normative
 include::JJSCGS-get-spec.adoc[]
 
 [[jjdo_coronets]]
 //axvo_procedure axd_transient
 ==== {jjdo_coronets}
 
+//axvd_sheaf axd_normative
 include::JJSCGC-get-coronets.adoc[]
 
 [[jjdo_landing]]
 //axvo_procedure axd_transient
 ==== {jjdo_landing}
 
+//axvd_sheaf axd_normative
 include::JJSCLD-landing.adoc[]
 
 [[jjdo_orient]]
 //axvo_procedure axd_transient
 ==== {jjdo_orient}
 
+//axvd_sheaf axd_normative
 include::JJSCSD-saddle.adoc[]
 
 [[jjdo_search]]
 //axvo_procedure axd_transient
 ==== {jjdo_search}
 
+//axvd_sheaf axd_normative
 include::JJSCSC-scout.adoc[]
 
 [[jjdo_show]]
 //axvo_procedure axd_transient
 ==== {jjdo_show}
 
+//axvd_sheaf axd_normative
 include::JJSCPD-parade.adoc[]
 
 === Viewer Operations
@@ -3117,22 +3143,26 @@ See <<jjdxo_invitatory>> and <<jjdxo_compline>> for design rationale.
 //axvo_procedure axd_transient
 ==== {jjdo_log}
 
+//axvd_sheaf axd_normative
 include::JJSCRN-rein.adoc[]
 
 [[jjdo_record]]
 //axvo_procedure axd_transient
 ==== {jjdo_record}
 
+//axvd_sheaf axd_normative
 include::JJSCNC-notch.adoc[]
 
 [[jjdo_chalk]]
 //axvo_procedure axd_transient
 ==== {jjdo_chalk}
 
+//axvd_sheaf axd_normative
 include::JJSCCH-chalk.adoc[]
 
 === Test Infrastructure
 
+//axvd_sheaf axd_normative
 include::JJSTF-test-fundus.adoc[]
 
 == V3 Legacy Schema Reference

@@ -274,7 +274,7 @@ seals the
 {mcm_codex_p}
 identity quoin, and
 {axvd_sheaf}
-reads that quoin as a lookahead — the mechanism and its templates live in AXLA.
+names that quoin back — the mechanism and its templates live in AXLA.
 
 == Text Organization
 

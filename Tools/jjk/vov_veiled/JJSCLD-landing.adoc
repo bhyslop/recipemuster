@@ -1,3 +1,4 @@
+//axvd_sheaf jjs0_imprimatur axd_normative
 Create an L (landing) commit recording agent return from autonomous execution.
 
 {jjds_arguments}

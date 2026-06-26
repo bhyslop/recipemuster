@@ -1,5 +1,4 @@
-//axvd_sheaf axd_aspirant
-{jjs0}
+//axvd_sheaf jjs0_imprimatur axd_aspirant
 = Standalone State Repo (Aspirant Nucleation)
 
 [IMPORTANT]

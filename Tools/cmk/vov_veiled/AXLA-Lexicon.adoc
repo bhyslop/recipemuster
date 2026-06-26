@@ -3466,7 +3466,7 @@ that consumes it.
 They make the file-composition tree, today implicit in include paths, explicit and machine-checkable:
 the
 {axvd_sheaf}
-voicing reads, as a lookahead, the identity quoin of the parent
+voicing names the identity quoin of the parent
 {mcm_codex},
 and a validator checks that binding — the
 {mcm_tendon} —
@@ -3506,25 +3506,25 @@ Declares a
 {mcm_sheaf}
 and binds it to its parent
 {mcm_codex}.
-Reads one lookahead
-{mcm_attribute_reference} —
-the parent
-{mcm_codex_p}
-identity quoin, the one sealed by
-{axvd_codex} —
-which the
+At the head of the
 {mcm_sheaf}
-names back, realizing the
+file the annotation names the parent
+{mcm_codex_p}
+identity quoin — the one sealed by
+{axvd_codex} —
+as a bare token on the annotation line, by which the
+{mcm_sheaf}
+names its codex back, realizing the
 {mcm_tendon}.
-The annotation line carries exactly one normativeness
+The line also carries exactly one normativeness
 {axd_dimension}
 (an unmarked line reads as
 {axd_normative}).
 It appears at two sites: the head of the
 {mcm_sheaf}
-file, and immediately above its `include::` in the
+file, where the annotation carries the codex token and the status; and immediately above its `include::` in the
 {mcm_codex},
-where the included path is its lookahead — so neither a reader of the part nor a reader of the head is misled.
+where the codex is the enclosing file and the sheaf is the included path, so the annotation carries the status alone — neither a reader of the part nor a reader of the head is misled.
 Where the status is non-{axd_normative}, the
 {mcm_sheaf}
 head also carries a
@@ -3536,8 +3536,7 @@ The two emplacements, by template:
 [source,asciidoc]
 ----
 // at the head of the sheaf file («sheaf-filename»):
-//axvd_sheaf axd_aspirant
-{«codex»_«ident»}
+//axvd_sheaf «codex»_«ident» axd_aspirant
 = «Sheaf Title»
 ...sheaf content...
 ----
@@ -3549,12 +3548,12 @@ The two emplacements, by template:
 include::«sheaf-filename»[]
 ----
 +
-Here `{«codex»_«ident»}` stands for the codex's identity quoin — `«codex»` the codex's
+Here `«codex»_«ident»` is the codex's identity quoin — `«codex»` the codex's
 acronym, `«ident»` the identity word — an ordinary underscore-bearing quoin sealed at its
 {axl_definition_site}
 by
-{axvd_codex};
-the sheaf resolves it because it is processed within the codex that includes it.
+{axvd_codex}; a validator matches each sheaf's head token against that sealed quoin to confirm the
+{mcm_tendon}.
 
 == Axial Type Universal Terms
 

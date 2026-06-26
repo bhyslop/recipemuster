@@ -1,5 +1,4 @@
-//axvd_sheaf axd_aspirant
-{jjs0}
+//axvd_sheaf jjs0_imprimatur axd_aspirant
 = Mews — Operator Fleet (Aspirant Nucleation)
 
 [IMPORTANT]
@@ -9,7 +8,7 @@ This subdocument is a feature-definition space under active mulling — to be so
 revised until it is ready for development, then infused into the canon or retired.
 A reader must not rely on its content; released code must not cite identifiers it mints.
 Its realization may *graduate* to its own kit and naming prefix rather than infusing into this
-codex — the host tendon to {jjs0} records where it is mulled, not necessarily where it lands.
+codex — the host tendon to {jjs0_imprimatur} records where it is mulled, not necessarily where it lands.
 ====
 
 == What the mews is
