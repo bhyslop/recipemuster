@@ -17589,8 +17589,8 @@
         "₢BfAAT": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260627-1007",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260627-1134",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "Author the foedus test-bed switching mechanism into contract-first spec and the supporting regime restructure — the committed library of standing foedera, the active-selector, and the atomic toothings.",
                 "The design is landed (cinched below); sprue terminology and the normalization dispositions arrive as decided inputs from the attended chat, so this pace does not reopen them.",
@@ -17612,7 +17612,7 @@
                 "Authoring of an already-landed design — contract-first spec work, parallelizable without the operator. The open deliberations (parley, the normalization dispositions, the rbgft idempotency test, sprue terminology) are settled in the attended chat and arrive as inputs; do not reopen them here."
               ],
               "jjgtn_silks": "foedus-reuse-design",
-              "jjgtn_basis": "95410cc"
+              "jjgtn_basis": "ff4c41e"
             }
           ]
         },
