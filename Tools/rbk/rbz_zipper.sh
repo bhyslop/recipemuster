@@ -94,6 +94,14 @@ zrbz_kindle() {
   buz_enroll RBZ_ATTAINT_POLITY         "rbw-pA"  "${z_mod}" "rbgp_attaint"  "param1"  "Attaint a citizen — whole-person expulsion from this depot (args: subject)"
   buz_enroll RBZ_REHEARSE_POLITY        "rbw-pr"  "${z_mod}" "rbgp_rehearse" ""        "Rehearse the manor terrier — recount every muniment, manor-wide (read-only)"
 
+  # Foedus — test-bed cardinality verbs (rbw-j, UPPER=mutates critical state,
+  # lower=read-only). The switch-and-check toothings over the moorings foedera
+  # library on a STANDING foedus; founding/dissolving stay the Manor verbs.
+  buz_group RBZ__GROUP_FOEDUS     "rbw-j"   "Foedus — test-bed selection and health"
+  z_mod="rbof_cli.sh"
+  buz_enroll RBZ_INSTATE_FOEDUS         "rbw-jI"  "${z_mod}" "rbof_instate"  "param1"  "Instate a standing foedus as active — re-point the RBRR_ACTIVE_FOEDUS selector in rbrr.env (atomic, uncommitted; operator commits)"
+  buz_enroll RBZ_DESCRY_FOEDUS          "rbw-jd"  "${z_mod}" "rbof_descry"   "param1"  "Descry a standing foedus — read its workforce-pool health from the Manor (present-and-active, or a named deficit; read-only)"
+
   # Lode — fetched-side universal capture (rbw-l, UPPER=mutates GAR/cost, lower=read-only)
   buz_group RBZ__GROUP_LODE       "rbw-l"   "Lode — Fetched-side universal capture"
   z_mod="rbld0_cli.sh"

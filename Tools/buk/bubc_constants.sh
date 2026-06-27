@@ -75,6 +75,13 @@ BUBC_band_recipe=102    # recipe validation rejection
 BUBC_band_hygiene=103   # Dockerfile FROM-line hygiene rejection (rbfh)
 BUBC_band_credless=104  # credless guard at token mint (reveille-tier suite invariant)
 BUBC_band_chain=105     # chaining-fact resolution rejection (broken express-or-chain, or wrong-kind touchmark) — one gate, alternative firings never co-occur in a spawn path
+# Foedus test-bed cardinality verbs (descry/instate). Distinct codes per the
+# allocation rule: descry (pool-health probe) and instate (active-foedus
+# selector rewrite) co-occur in the reuse-or-establish fixture's spawn path,
+# so they may not share a code. Neither is the chaining band (105) — neither
+# resolves an express-or-chain fact.
+BUBC_band_descry=106    # foedus descry rejection (unresolvable foedus name, broken pool read)
+BUBC_band_instate=107   # foedus instate rejection (missing/unresolvable foedus identity)
 # Self-test probe pins the band top, proving full-width propagation:
 BUBC_band_selftest=115  # BUK self-test deliberate rejection (buw-xb fixture)
 

@@ -128,6 +128,10 @@ RBCC_fact_ext_depot_project="depot-project"
 RBCC_fact_ext_roster_retriever="${RBCC_verb_roster}-${RBCC_account_retriever}"
 RBCC_fact_ext_roster_director="${RBCC_verb_roster}-${RBCC_account_director}"
 RBCC_fact_ext_audit_hallmark="audit-hallmark"
+# Foedus descry health verdict — descry writes <foedus>.foedus-health carrying
+# one of healthy / pool-absent / pool-deleted / provider-absent for the
+# reuse-or-establish fixture to branch on (reuse iff healthy).
+RBCC_fact_ext_foedus_health="foedus-health"
 
 # Tweak-name tinder — RB-owned BURE_TWEAK_NAME values (buo sprue, BUS0 Tweak
 # Mechanism). The credless guard is the reveille-tier slot reservation: theurge
@@ -188,6 +192,8 @@ rbcc_emit_consts() {
     RBCC_rbrd_file       \
     RBCC_rbrn_file       \
     RBCC_rbro_file       \
+    RBCC_foedera_subdir  \
+    RBCC_fact_ext_foedus_health \
     RBCC_verb_defrock     \
     RBCC_verb_enrobe     \
     RBCC_verb_roster     \
@@ -218,6 +224,8 @@ rbcc_emit_consts() {
     BUBC_band_hygiene   \
     BUBC_band_credless  \
     BUBC_band_chain     \
+    BUBC_band_descry    \
+    BUBC_band_instate   \
     BUBC_band_selftest  \
   ; do
     z_stem="${z_name#BUBC_}"

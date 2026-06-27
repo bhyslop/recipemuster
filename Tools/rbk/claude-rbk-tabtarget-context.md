@@ -65,6 +65,13 @@ The Folio column shows how each tabtarget receives it:
 | `rbw-pA` | GovernorAttaintsCitizen | param1 | Attaint a citizen — whole-person expulsion from this depot (args: subject) |
 | `rbw-pr` | GovernorRehearsesTerrier | — | Rehearse the manor terrier — recount every muniment, manor-wide (read-only) |
 
+### Foedus — test-bed selection and health (`rbw-j`)
+
+| Colophon | Frontispiece | Folio | Purpose |
+|----------|-------------|-------|---------|
+| `rbw-jI` | FoedusInstate | param1 | Instate a standing foedus as active — re-point the RBRR_ACTIVE_FOEDUS selector in rbrr.env (atomic, uncommitted; operator commits) |
+| `rbw-jd` | FoedusDescry | param1 | Descry a standing foedus — read its workforce-pool health from the Manor (present-and-active, or a named deficit; read-only) |
+
 ### Lode — Fetched-side universal capture (`rbw-l`)
 
 | Colophon | Frontispiece | Folio | Purpose |
