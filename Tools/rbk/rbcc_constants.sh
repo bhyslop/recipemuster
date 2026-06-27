@@ -45,10 +45,20 @@ RBCC_launchers_subdir="rbml_launchers"
 RBCC_users_subdir="rbmu_users"
 RBCC_nodes_subdir="rbmn_nodes"
 RBCC_vessels_subdir="rbmv_vessels"
+RBCC_foedera_subdir="rbmf_foedera"
 RBCC_rbrr_file="${RBCC_moorings_dir}/rbrr.env"
 RBCC_rbrp_file="${RBCC_moorings_dir}/rbrp.env"
 RBCC_rbrm_file="${RBCC_moorings_dir}/rbrm.env"
-RBCC_rbrf_file="${RBCC_moorings_dir}/rbrf.env"
+# Federation regime file — the ACTIVE foedus's rbrf.env. The foedera library
+# (RBCC_foedera_subdir) holds one rbef_ subdirectory per standing foedus, the
+# active one selected by RBRR_ACTIVE_FOEDUS; the configuration is stored once
+# with no copied active file (RBSRF). DEGENERATE single-foedus resolution:
+# with only rbef_entrada standing, the active path is constant-folded to it
+# here. The selector-derived form (.../${RBRR_ACTIVE_FOEDUS}/rbrf.env) lands
+# with the deferred federation family-of-named-instances rework; until then
+# instate writes the selector and descry resolves any named foedus directly,
+# but the singleton accessor reads this constant unchanged.
+RBCC_rbrf_file="${RBCC_moorings_dir}/${RBCC_foedera_subdir}/rbef_entrada/rbrf.env"
 RBCC_rbrd_basename="rbrd.env"
 RBCC_rbrd_file="${RBCC_moorings_dir}/${RBCC_rbrd_basename}"
 

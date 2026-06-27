@@ -55,6 +55,9 @@ zrbrr_kindle() {
   buv_group_enroll "Public Docs"
   buv_string_enroll  RBRR_PUBLIC_DOCS_URL          1  512  "Public docs URL — readme target for buh_tlt glossary links, updated per-release or per-incorporation"
 
+  buv_group_enroll "Active Foedus"
+  buv_xname_enroll   RBRR_ACTIVE_FOEDUS            6   64  "Active-foedus selector — the rbef_ subdirectory of the moorings foedera library the manor authenticates against"
+
   # Guard against unexpected RBRR_ variables not in enrollment
   buv_scope_sentinel RBRR RBRR_
 
@@ -89,6 +92,9 @@ zrbrr_enforce() {
 
   [[ "${RBRR_RUNTIME_PREFIX}" =~ ^[a-z][a-z0-9-]*-$ ]] \
     || buc_reject "${BUBC_band_regime}" "Invalid RBRR_RUNTIME_PREFIX format: ${RBRR_RUNTIME_PREFIX} (expected lowercase starting with letter, ending in hyphen)"
+
+  [[ "${RBRR_ACTIVE_FOEDUS}" == rbef_* ]] \
+    || buc_reject "${BUBC_band_regime}" "RBRR_ACTIVE_FOEDUS must bear the rbef_ foedus-instance sprue: ${RBRR_ACTIVE_FOEDUS}"
 }
 
 # eof
