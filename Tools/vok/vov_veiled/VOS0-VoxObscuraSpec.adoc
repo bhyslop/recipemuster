@@ -1341,7 +1341,7 @@ without a
 enabling rapid iteration during development.
 Procedure: see VOSO-distribution.adoc.
 
-//axvd_sheaf axd_normative
+//axvd_cartouche axd_normative
 include::VOSO-distribution.adoc[leveloffset=+1]
 
 == Routines
@@ -1353,35 +1353,35 @@ They encapsulate common logic for consistent behavior across the codebase.
 //axvo_procedure axd_internal
 === {vosr_lock}
 
-//axvd_sheaf axd_normative
+//axvd_cartouche axd_normative
 include::VOSRL-lock.adoc[]
 
 [[vosr_commit]]
 //axvo_procedure axd_internal
 === {vosr_commit}
 
-//axvd_sheaf axd_normative
+//axvd_cartouche axd_normative
 include::VOSRC-commit.adoc[]
 
 [[vosr_guard]]
 //axvo_procedure axd_internal
 === {vosr_guard}
 
-//axvd_sheaf axd_normative
+//axvd_cartouche axd_normative
 include::VOSRG-guard.adoc[]
 
 [[vosr_probe]]
 //axvo_procedure axd_internal
 === {vosr_probe}
 
-//axvd_sheaf axd_normative
+//axvd_cartouche axd_normative
 include::VOSRP-probe.adoc[]
 
 [[vosr_init]]
 //axvo_procedure axd_internal
 === {vosr_init}
 
-//axvd_sheaf axd_normative
+//axvd_cartouche axd_normative
 include::VOSRI-init.adoc[]
 
 
