@@ -17001,6 +17001,7 @@
         "₢BfAAN",
         "₢BfAAM",
         "₢BfAAp",
+        "₢BfAAu",
         "₢BfAAL",
         "₢BfAAK",
         "₢BfAAJ",
@@ -17019,7 +17020,7 @@
         "₢BfAAs",
         "₢BfAAt"
       ],
-      "jjghn_next_pace_seed": "AAu",
+      "jjghn_next_pace_seed": "AAv",
       "jjghn_paces": {
         "₢BfAAA": {
           "jjgpn_tacks": [
@@ -18011,6 +18012,35 @@
               ],
               "jjgtn_silks": "terrier-band-discrimination",
               "jjgtn_basis": "c8f2dcc"
+            }
+          ]
+        },
+        "₢BfAAu": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260627-1409",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Add a well-formed bug_require_* clean-tree gate variant — one that rejects with a named BCG precision-exit-code band and takes the detailed error condition as a tinder/kindle constant plus the RB rationale as a parameter — and use it for the new federation clean-tree gating only.",
+                "",
+                "## Spec of needed change",
+                "Today's bug_require_clean_tree (Tools/buk/bug_git.sh) is malformed as a deliberate-rejection gate: it takes a free-string operation context and calls buc_die (generic fatal), with no precision band. A deliberate-rejection gate per BCG should buc_reject a named band and carry the detailed error condition as a structured constant.",
+                "Add a NEW variant alongside it (do NOT modify the existing one — its migration is a separate later pace on the loose-ends heat). The variant rejects on a dirty tree with a named clean-tree band (mint it in the bubc precision block), takes the error-condition tinder/kindle constant, and takes the RB rationale as a PARAMETER so BUG stays kit-agnostic.",
+                "The RB opinion the gate states — clean commits are demanded because building a container image from uncommitted state causes confusion — rides that rationale parameter as an RBCC creed constant (no such constant exists today; mint it). This keeps the opinion RB-side and out of kit-agnostic BUK.",
+                "Consume the new variant from the new federation clean-tree gate sites only (the Keycloak-facility orchestrator's setup is the clear consumer); leave the existing ~9 RBK call sites on the old gate for the migration pace.",
+                "",
+                "## Done when",
+                "A well-formed bug_require_* variant exists (named bubc clean-tree band + error-condition constant + RB-rationale parameter), the new federation gating consumes it, and the existing malformed gate is untouched (its retirement is the loose-ends migration pace). BUK self-test green.",
+                "",
+                "## Cinched",
+                "BUG stays kit-agnostic — the RB opinion rides the rationale parameter (an RBCC creed constant), never baked into BUG.",
+                "The existing bug_require_clean_tree is NOT modified here; its call-site migration and retirement is a separate later pace on the loose-ends heat (no mass churn now).",
+                "",
+                "## Character",
+                "BUK/BCG infrastructure: a new precision-band gate variant plus a minted bubc band and RBCC creed constant."
+              ],
+              "jjgtn_silks": "clean-tree-gate-precision-variant",
+              "jjgtn_basis": "f8c4dac"
             }
           ]
         }
