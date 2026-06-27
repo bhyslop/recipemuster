@@ -133,7 +133,6 @@ NOTE: Depot deletion automatically removes all infrastructure created by
 the
 {rbtr_mason}
 service account,
-{rbtgi_build_bucket},
 {rbtgi_repository},
 and any
 {rbtr_governor},

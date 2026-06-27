@@ -5,7 +5,7 @@ This is a normative portion of the {rbs0_imprimatur}: binding — code, tests, a
 
 NOTE: This operation creates an
 {rbtgi_depot}
-- a cohesive unit of Recipe Bottle infrastructure including the depot project, build bucket, container repository, Mason service account, private worker pool, and the three {rbtf_mantle_s} (governor, director, retriever)
+- a cohesive unit of Recipe Bottle infrastructure including the depot project, container repository, Mason service account, private worker pool, and the three {rbtf_mantle_s} (governor, director, retriever)
 that share their productive lifecycle.
 
 The
@@ -35,8 +35,6 @@ link:https://cloud.google.com/artifact-registry/docs/reference/rest/v1/projects.
 `«GAR_REPOSITORY»` as `${RBRD_CLOUD_PREFIX}${RBRD_DEPOT_MONIKER}-gar` (resolved by `RBDC_GAR_REPOSITORY`)
 .. {rbbc_store}
 `«WORKER_POOL_STEM»` as `${RBRD_CLOUD_PREFIX}${RBRD_DEPOT_MONIKER}-pool` (resolved by `RBDC_GCB_POOL_STEM`)
-.. {rbbc_store}
-`«BUILD_BUCKET»` as `${RBRD_CLOUD_PREFIX}b-${RBRD_DEPOT_MONIKER}` (resolved by `RBDC_GCS_BUCKET`)
 .. NOTE: Joint length `${RBRD_CLOUD_PREFIX}` + `d-` + `${RBRD_DEPOT_MONIKER}` ≤ 30 chars (GCP project ID limit) is enforced upstream by `zrbrd_enforce` at regime kindle time, so this step performs no length validation.
 
 //axhos_step
@@ -132,15 +130,6 @@ if timeout: "IAM propagation timeout - artifactregistry API not accessible"
 .. NOTE: This poll gates the project-scope artifactregistry API surface, not the per-repository resource-scope IAM cache.  Resource-scope cache lag (class C, see <<rbscig_iam_grant_contracts>>) is absorbed in-band by the IAM grant harness when a director subsequently issues `getIamPolicy` against the AR repo — not by this preflight poll.
 
 //axhos_step
-. *Create Build Bucket*:
-.. {rbbc_call}
-link:https://cloud.google.com/storage/docs/json_api/v1/buckets/insert[storage.buckets.insert] with:
-... name: `«BUILD_BUCKET»`
-... location: `{rbrd_gcp_region}`
-... project: `«DEPOT_PROJECT_ID»`
-... lifecycle rule: delete objects after 1 day
-
-//axhos_step
 . *Create Container Repository*:
 .. {rbbc_submit}
 link:https://cloud.google.com/artifact-registry/docs/reference/rest/v1/projects.locations.repositories/create[artifactregistry.repositories.create] with:
@@ -192,8 +181,6 @@ link:https://cloud.google.com/iam/docs/reference/rest/v1/projects.serviceAccount
 Permissions*:
 .. {rbtoe_iam_grant_repo} on `«GAR_REPOSITORY»`
 ... Add `serviceAccount:«MASON_EMAIL»` with `roles/artifactregistry.writer`
-.. {rbtoe_iam_grant_bucket} on `«BUILD_BUCKET»`
-... Add `serviceAccount:«MASON_EMAIL»` with `roles/storage.objectViewer`
 .. {rbtoe_iam_grant_project} on `«DEPOT_PROJECT_ID»`
 ... Add `serviceAccount:«MASON_EMAIL»` with `roles/viewer`
 ... Add `serviceAccount:«MASON_EMAIL»` with `roles/logging.logWriter`
@@ -331,7 +318,7 @@ pre-push existence guard via `docker manifest inspect`: image absent → proceed
 (CLOUD_PREFIX, DEPOT_MONIKER, GCP_REGION, GCB_MACHINE_TYPE) into GAR. Every cloud-submitting command thereafter pulls and exact-byte-diffs the inscribed copy against the local {rbrd_regime} assignment file before submitting, so a post-levy hand-edit fails loud rather than silently diverging from the depot's actual worker-pool quotas, region, and identity. Implemented host-side (Cloud Build is not involved) by `rbrd_inscribe` in `Tools/rbk/rbndb_base.sh`. The tripwire push runs after the depot-tracking refresh; a failure here leaves the depot live but un-inscribed, recoverable via `tt/rbw-rdi.sh` once the cause is resolved.
 
 //axhoc_completion
-Successful execution creates depot infrastructure with configured build bucket, container repository, Mason service account, private worker pool, and the three {rbtf_mantle_s} (governor, director, retriever) — their resource authority frozen behind the settle gate and Artifact Registry Data-Access audit logs enabled — all derived from `(RBRD_CLOUD_PREFIX, RBRD_DEPOT_MONIKER)`.
+Successful execution creates depot infrastructure with configured container repository, Mason service account, private worker pool, and the three {rbtf_mantle_s} (governor, director, retriever) — their resource authority frozen behind the settle gate and Artifact Registry Data-Access audit logs enabled — all derived from `(RBRD_CLOUD_PREFIX, RBRD_DEPOT_MONIKER)`.
 Proceed to
 {rbtgo_governor_gird}
 to seat the first

@@ -35,7 +35,7 @@ Stem identifier that combines with
 {rbrd_cloud_prefix}
 to form the depot identity tuple.
 Must be 1–26 characters, start with a lowercase letter, and contain only lowercase alphanumerics (regex `^[a-z][a-z0-9]*$`).
-The tuple derives `RBDC_DEPOT_PROJECT_ID`, `RBDC_GAR_REPOSITORY`, `RBDC_GCB_POOL_STEM`, and `RBDC_GCS_BUCKET` at kindle time.
+The tuple derives `RBDC_DEPOT_PROJECT_ID`, `RBDC_GAR_REPOSITORY`, and `RBDC_GCB_POOL_STEM` at kindle time.
 
 //axhrgb_group
 {rbrd_group_region}

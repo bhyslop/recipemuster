@@ -100,8 +100,6 @@ Most installations require exactly one
 a cohesive unit comprising a dedicated
 {gcp_project_id},
 a
-{rbtgi_build_bucket},
-a
 {rbtgi_repository},
 and the
 {rbtr_mason}

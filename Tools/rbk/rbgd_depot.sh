@@ -31,7 +31,7 @@ zrbgd_kindle() {
   test -z "${ZRBGD_KINDLED:-}" || buc_die "Module rbgd already kindled"
 
   # Depot-specific Constants — derive from RBDC kindle constants.
-  # RBDC_DEPOT_PROJECT_ID and RBDC_GCS_BUCKET are themselves derived from
+  # RBDC_DEPOT_PROJECT_ID is itself derived from
   # (RBRD_CLOUD_PREFIX, RBRD_DEPOT_MONIKER) at zrbdc_kindle time.
 
   # Service-specific Aliases
@@ -53,11 +53,9 @@ zrbgd_kindle() {
   readonly RBGD_API_SERVICE_ACCOUNTS="${RBGD_API_BASE_IAM_PROJECT}${RBGC_PATH_SERVICE_ACCOUNTS}"
   readonly RBGD_SA_EMAIL_FULL="${RBDC_DEPOT_PROJECT_ID}.${RBGC_SA_EMAIL_DOMAIN}"
 
-  # Depot name (the moniker) and bucket — both inputs to RBGD_MASON_EMAIL and
-  # bucket-IAM operations. Moniker is the operator-set RBRR field; bucket is
-  # already derived in RBDC.
+  # Depot name (the moniker) — input to RBGD_MASON_EMAIL. Moniker is the
+  # operator-set RBRR field.
   readonly RBGD_DEPOT_NAME="${RBRD_DEPOT_MONIKER}"
-  readonly RBGD_GCS_BUCKET="${RBDC_GCS_BUCKET}"
   readonly RBGD_MASON_EMAIL="${RBCC_account_mason}-${RBGD_DEPOT_NAME}@${RBGD_SA_EMAIL_FULL}"
 
   # Cloud Resource Manager (CRM) APIs. The IAM-policy pair rides CRM v3: Google's
@@ -88,9 +86,6 @@ zrbgd_kindle() {
 
   # Google Cloud Storage (GCS) APIs
   readonly RBGD_API_GCS_BUCKET_CREATE="${RBGC_API_GCS_BUCKETS}?project=${RBDC_DEPOT_PROJECT_ID}"
-  readonly RBGD_API_GCS_BUCKET_OPS="${RBGC_API_GCS_BUCKETS}/${RBGD_GCS_BUCKET}"
-  readonly RBGD_API_GCS_BUCKET_OBJECTS="${RBGD_API_GCS_BUCKET_OPS}/o"
-  readonly RBGD_API_GCS_BUCKET_IAM="${RBGD_API_GCS_BUCKET_OPS}/iam"
 
   readonly ZRBGD_KINDLED=1
 }

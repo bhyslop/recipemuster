@@ -393,7 +393,7 @@ rbgb_bucket_ensure() {
 
   buc_step "Ensuring Cloud Storage bucket: ${z_bucket_name} (project ${z_project_id})"
 
-  buc_log_args 'Build request: UBLA enabled (managed folders require it); no expiry lifecycle (durable, unlike the build bucket)'
+  buc_log_args 'Build request: UBLA enabled (managed folders require it); no expiry lifecycle (durable)'
   local -r z_req="${BURD_TEMP_DIR}/rbgb_bucket_ensure_req.json"
   jq -n --arg name "${z_bucket_name}" --arg location "${z_location}" '
 {
@@ -403,7 +403,7 @@ rbgb_bucket_ensure() {
   iamConfiguration: { uniformBucketLevelAccess: { enabled: true } }
 }' > "${z_req}" || buc_die "Failed to build bucket ensure request JSON"
 
-  buc_log_args 'POST create; tolerate 409 as idempotent already-present (contrast rbgb_bucket_create / the build bucket, which are pristine 409-fatal)'
+  buc_log_args 'POST create; tolerate 409 as idempotent already-present (contrast rbgb_bucket_create, which is pristine 409-fatal)'
   local -r z_url="${RBGC_API_ROOT_STORAGE}${RBGC_STORAGE_JSON_V1}/b?project=${z_project_id}"
   rbuh_json "POST" "${z_url}" "${z_token}" "${ZRBGB_INFIX_ENSURE}" "${z_req}"
 

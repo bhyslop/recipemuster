@@ -1553,30 +1553,6 @@ rbgp_depot_levy() {
   local -r z_preflight_url="${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}/projects/${RBDC_DEPOT_PROJECT_ID}/locations/${z_region}/repositories"
   rbuh_poll_until_ok "AR IAM propagation" "${z_preflight_url}" "${z_token}" "iam_preflight"
 
-  buc_step 'Create build bucket'
-  local -r z_bucket_req="${BURD_TEMP_DIR}/rbgp_bucket_create_req.json"
-  jq -n \
-    --arg name "${RBDC_GCS_BUCKET}" \
-    --arg location "${z_region}" \
-    --arg project "${RBDC_DEPOT_PROJECT_ID}" \
-    '{
-      name: $name,
-      location: $location,
-      storageClass: "STANDARD",
-      lifecycle: { rule: [ { action: { type: "Delete" }, condition: { age: 1 } } ] }
-    }' > "${z_bucket_req}" || buc_die "Failed to create bucket request JSON"
-
-  local -r z_bucket_create_url="${RBGC_API_ROOT_STORAGE}${RBGC_STORAGE_JSON_V1}/b?project=${RBDC_DEPOT_PROJECT_ID}"
-  rbuh_json "POST" "${z_bucket_create_url}" "${z_token}" "depot_bucket_create" "${z_bucket_req}"
-
-  local z_bucket_code
-  z_bucket_code=$(rbuh_code_capture "depot_bucket_create") || buc_die "Bad bucket creation HTTP code"
-  case "${z_bucket_code}" in
-    200|201) buc_log_args "Build bucket ${RBDC_GCS_BUCKET} created" ;;
-    409)     buc_die "Build bucket ${RBDC_GCS_BUCKET} already exists" ;;
-    *)       buc_die "Failed to create build bucket: HTTP ${z_bucket_code}" ;;
-  esac
-
   buc_step 'Create container repository'
   local -r z_parent="projects/${RBDC_DEPOT_PROJECT_ID}/locations/${z_region}"
   local -r z_create_repo_url="${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}/${z_parent}/repositories?repositoryId=${RBDC_GAR_REPOSITORY}"
@@ -1646,9 +1622,6 @@ rbgp_depot_levy() {
   # Repository admin (AR repo IAM requires email, not numeric ID)
   rbgi_add_repo_iam_role "${z_token}" "${RBDC_DEPOT_PROJECT_ID}" "${z_mason_sa_email}" "${z_region}" "${RBDC_GAR_REPOSITORY}" \
     "roles/artifactregistry.writer"
-
-  # Bucket viewer (GCS bucket IAM requires email, not numeric ID)
-  rbgi_add_bucket_iam_role "${z_token}" "${RBDC_GCS_BUCKET}" "${z_mason_sa_email}" "roles/storage.objectViewer"
 
   # Project viewer
   rbgi_add_project_iam_role "${z_token}" "Grant Mason Project Viewer" "projects/${RBDC_DEPOT_PROJECT_ID}" \

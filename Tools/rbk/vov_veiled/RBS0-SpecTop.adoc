@@ -55,8 +55,6 @@
 :rbtr_retriever_s:           <<rbtr_retriever,Retriever Roles>>
 
 // Recipe Bottle Term Google Instances
-:rbtgi_build_bucket:         <<rbtgi_build_bucket,RB Build Bucket>>
-:rbtgi_build_bucket_s:       <<rbtgi_build_bucket,RB Build Buckets>>
 :rbtgi_repository:           <<rbtgi_repository,RB Container Repository>>
 :rbtgi_repository_s:         <<rbtgi_repository,RB Container Repositories>>
 :rbtgi_depot:                <<rbtgi_depot,RB Depot>>
@@ -1968,8 +1966,6 @@ impersonates the implicit service agent for builds, replacing Google's auto-crea
 
 The
 {rbtr_mason}
-reads from the
-{rbtgi_build_bucket},
 carries out the build process within
 {gcb_service},
 and publishes
@@ -2247,7 +2243,6 @@ role.
 {rbtgi_depot}::
 A cohesive unit of Recipe Bottle infrastructure comprising a
 {rbtgi_depot_project},
-{rbtgi_build_bucket},
 {rbtgi_repository},
 and
 {rbtr_mason}
@@ -2271,18 +2266,6 @@ is the control plane from which multiple
 instances are created, funded, and managed. Established by the
 {rbtr_payor}
 role.
-
-
-[[rbtgi_build_bucket]]
-//axl_voices axig_bucket
-{rbtgi_build_bucket}::
-The dedicated
-{gcs_bucket}
-within the
-{rbtgi_depot_project}
-that holds
-{at_recipe_bottle}
-build artifacts with configured lifecycle policies.
 
 === {gar_service} Definitions
 
@@ -3578,7 +3561,7 @@ Stem identifier that combines with
 {rbrd_cloud_prefix}
 to form the depot identity tuple.
 Must be 1–26 characters, start with a lowercase letter, and contain only lowercase alphanumerics.
-The tuple derives `RBDC_DEPOT_PROJECT_ID`, `RBDC_GAR_REPOSITORY`, `RBDC_GCB_POOL_STEM`, and `RBDC_GCS_BUCKET` at kindle time.
+The tuple derives `RBDC_DEPOT_PROJECT_ID`, `RBDC_GAR_REPOSITORY`, and `RBDC_GCB_POOL_STEM` at kindle time.
 
 [[rbrd_gcp_region]]
 //axl_voices axrg_variable axtg_region
