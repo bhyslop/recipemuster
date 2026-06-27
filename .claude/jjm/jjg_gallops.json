@@ -13969,9 +13969,10 @@
       "jjghn_creation_time": "260601",
       "jjghn_status": "jjghe_stabled",
       "jjghn_order": [
-        "₢BWAAA"
+        "₢BWAAA",
+        "₢BWAAB"
       ],
-      "jjghn_next_pace_seed": "AAB",
+      "jjghn_next_pace_seed": "AAC",
       "jjghn_paces": {
         "₢BWAAA": {
           "jjgpn_tacks": [
@@ -14004,6 +14005,37 @@
               ],
               "jjgtn_silks": "rbrs-reinstate-from-future",
               "jjgtn_basis": "cea2763"
+            }
+          ]
+        },
+        "₢BWAAB": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260627-1411",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "",
+                "Boundary-drawing, not resolution — judgment over mechanics.",
+                "The TERMINAL pace of ₣BW: it closes the heat, nothing is slated after it, and \"finishing\" the design is the future build heat's job, not this one's.",
+                "The pull to resolve every open question — above all the station-config home — is the drift this pace exists to stop.",
+                "",
+                "## Shape",
+                "",
+                "Bring the podman aspirant (RBSPC-podman_crucible.adoc) to a coherent, bounded gestalt — a focus a future build heat can adopt without infinite drift.",
+                "The deliverable is the fence, not a build-ready spec and not all-questions-resolved (both are drift traps).",
+                "Walk each item in RBSPC \"Open Questions\" and \"Deferred Scope\" and consciously place each inside or outside the future build heat's scope — the deferred→build promotion checkpoint, default stay-deferred.",
+                "The decision that most wants fencing is the station-config home (stashed RBRS station regime vs a BURN node profile vs a new host regime): place it inside the future heat's scope as a first-order decision, do not resolve it here.",
+                "Confirm the kept/cut prototype boundary (the Cleave table) still holds, and that the retained acceptance bar rides into the build heat.",
+                "Close by nominating the future build heat — the one that re-targets rbv_fetch to the Lode, wires init/lifecycle, and stands up the chosen station-config home — handing it the bounded focus.",
+                "",
+                "## Done when",
+                "",
+                "The coherent focus is stated; the in/out fence is explicit with every RBSPC Open-Questions and Deferred-Scope item consciously placed; the station-config-home decision is fenced into the future heat's scope (not resolved here); and the future build heat is nominated.",
+                "Open design questions may remain open — answered inside the future build heat's fence, not here."
+              ],
+              "jjgtn_silks": "bound-the-aspirant-gestalt",
+              "jjgtn_basis": "5a0c5a3"
             }
           ]
         }
