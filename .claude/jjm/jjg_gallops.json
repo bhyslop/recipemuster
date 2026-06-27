@@ -19062,8 +19062,8 @@
         "₢BiAAc": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260624-1332",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260627-0813",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "## Character",
                 "RB-local interim consolidation — mostly mechanical, with light judgment on the two quoins.",
@@ -19094,7 +19094,7 @@
                 "- RB-local and Fable-free; the AXLA consolidation is ₢BbAAT's."
               ],
               "jjgtn_silks": "rbs0-chaining-style-quoins",
-              "jjgtn_basis": "2d04fed"
+              "jjgtn_basis": "089b6b2"
             }
           ]
         },
