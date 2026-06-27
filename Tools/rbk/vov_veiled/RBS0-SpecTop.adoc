@@ -4926,6 +4926,12 @@ A sheaf graduates by minting its vocabulary and moving its normative content int
 //axvd_cartouche axd_aspirant
 include::RBSCV-crucible_variant.adoc[leveloffset=+2]
 
+[[rbspc_aspirant]]
+=== Podman Crucible
+
+//axvd_cartouche axd_aspirant
+include::RBSPC-podman_crucible.adoc[leveloffset=+2]
+
 == Trade Studies
 
 Trade studies document the crystallized results of intensive research into complex technical domains.

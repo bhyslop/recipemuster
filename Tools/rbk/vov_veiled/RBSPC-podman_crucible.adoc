@@ -1,0 +1,102 @@
+//axvd_sheaf rbs0_imprimatur axd_aspirant
+This is an aspirant portion of the {rbs0_imprimatur}: not yet binding — do not rely on it, decide from it, or cite the provisional names it sketches until it is infused into the codex.
+Every term set in **bold** below is a provisional sketch local to this sheaf — a placeholder for a concept, not minted vocabulary; its word-selection and quoin allocation are deferred, and the sketches dissolve into the mapping section only on graduation (see Deferred Scope).
+
+[[rbspc_podman_crucible]]
+== Overview
+
+This sheaf nucleates the incorporation of **podman** as a first-class
+{rbsc_crucible}
+runtime — the
+{rbrn_runtime_podman}
+arm of
+{rbrn_runtime}
+— on workstations that host containers inside a podman-managed virtual machine.
+Its reason-to-believe is not speculation: a host-side podman-VM lifecycle was once a working prototype, retained (quarantined, not deleted) in `Tools/rbk/vov_veiled/FUTURE/`.
+This sheaf draws the fence between the part of that prototype the landed Lode model superseded and the part that survives as the build's spine; it defers the design itself, the station-config home decision, and all word-minting (see Deferred Scope).
+
+The concern is the *runtime + host-VM-provisioning* axis — which engine runs the crucible, and how its VM disk is provisioned — distinct from, and a sibling to, the *isolation-substrate* axis of the Crucible Variant aspirant (RBSCV).
+
+== The Cleave
+
+A
+{rbsc_crucible}
+on podman needs its host VM provisioned, and the retained prototype (`FUTURE/rbv_podvm.sh`, 599 lines) already built most of that.
+The landed universal Lode capture model
+({rbtgo_lode_immure},
+RBSLI) cleaves the prototype cleanly along the capture/consume line:
+
+[cols="2,1,4",options="header"]
+|===
+| Prototype verb | Fate | Why
+
+| `rbv_mirror` (+ ignite-VM bootstrap, RBRM mirror-config)
+| *Cut*
+| Depot-side capture, superseded by the cloud-side {rbtgo_lode_immure} into the {rbtga_lode} `rbi_ld/<vn\|vw>` package.
+
+| `rbv_fetch` (pull image → extract disk → cache)
+| *Re-target*
+| Repoint from the GHCR pull to consuming the immure'd {rbtga_lode} from the depot.
+
+| `rbv_init` (`podman machine init` from cache + provenance brand)
+| *Keep*
+| Host-side VM creation; `zrbv_generate_brand_file` records the provenance chain.
+
+| `rbv_start` / `rbv_stop` / `rbv_nuke`
+| *Keep*
+| Deploy-VM lifecycle, ran as-is.
+|===
+
+So the crystallization a future build heat inherits is narrow: **re-target the fetch to the {rbtga_lode}, keep the init/lifecycle/brand, and decide where the host station-config lives** — not a green-field design.
+
+== Reason to Believe
+
+* *The host-side half ran.* `rbv_fetch` / `rbv_init` / `rbv_start` / `rbv_stop` / `rbv_nuke` were working code (against GHCR), with a provenance brand written at init.
+  The hard part — driving `podman machine` reproducibly from a controlled disk image — is demonstrated, not hypothetical.
+* *The capture half already landed elsewhere.* The depot-side acquisition the prototype's `rbv_mirror` did by hand is now the cloud-side {rbtgo_lode_immure} verb (RBSLI), proven by the `podvm-lifecycle` fixture.
+  The prototype's obsolete half is not a gap — it is *replaced*.
+* *The isolation mechanism is no longer the worry.* The Podman-5.3+ `setns()` hardening that once broke the
+  {at_sentry_container}/{at_bottle_container}
+  namespace join is retired history: the architecture moved to Docker Compose `network_mode: "service:pentacle"` (RBS0 marks the Podman-era namespace machinery "removed … superseded by compose network_mode").
+  What remains for podman is the *ordinary* question of compose feature-parity (below), not a broken-isolation gate.
+  Full post-mortem: `Study/study-net-namespace-permutes/`.
+
+== Open Questions
+
+* *Station-config home.* The three retained station vars (`RBRS_PODMAN_ROOT_DIR`, `RBRS_VMIMAGE_CACHE_DIR`, `RBRS_VM_PLATFORM`) are genuine host-local consume-side config, *not* superseded by immure.
+  Open: do they home as the stashed RBRS station regime, fold into a BURN node profile, or seat a new host-config regime?
+  (The Horizon Roadmap's "Substrate Lode consumption" item poses the same question.)
+  This is the load-bearing decision the aspirant must fence.
+* *podman-compose parity.* Does `podman-compose` honor `network_mode: "service:pentacle"` namespace-sharing equivalently to docker-compose on podman 5.3+, and does it implement `--wait` readiness (the roadmap's "podman-compose lacks `--wait`" item)?
+  The crucible's
+  {rbsc_charge}
+  readiness gate depends on both.
+* *Lode-fed fetch.* The exact shape of consuming the immure'd {rbtga_lode} package host-side — the Retriever receives a pinned version, never elects one — and how the provenance brand carries the Lode touchmark.
+
+== Deferred Scope
+
+Named to bound the aspirant; none specified here:
+
+* The build itself — re-targeting `rbv_fetch`, wiring `rbv_init` and the lifecycle, and standing up the host station-config from `FUTURE/` (the quarantine commit blueprints the full active surface to restore — tabtargets, a theurge fast-suite case, the module manifest and constants, the RBS0 reference — not just the regime files).
+  Acceptance bar, carried over from the once-slated reinstatement and home-agnostic to which regime holds the config: the station-config validates *for real* against a configured station, and its fast-suite case self-skips when no station is present (the operator-local-case pattern), never silently passing.
+* The station-config-home decision's *implementation*, once the aspirant fences which regime holds it.
+* Vocabulary and quoin allocation for **podman crucible**, the **host VM**, and the station-config home — provisional sketches local to this sheaf, unminted, dissolving into the mapping section only on graduation.
+* The wsl substrate-Lode-consumption sibling (`underpin`, RBSLU) — the same host-side-consumption shape, a different kind; cross-referenced, not folded in.
+
+== References — Cite, Never Restate
+
+Existing codex vocabulary and live siblings (defined elsewhere, not here):
+{rbsc_crucible},
+{rbrn_runtime},
+{rbtgo_lode_immure},
+{rbtga_lode},
+{at_sentry_container},
+{at_bottle_container}.
+
+* RBSPV-PodmanVmSupplyChain.adoc — the (normative) VM-image supply-chain spec: its Motivation/Constraints justify the podvm kind; its Architecture/Operations sections are the superseded prototype, historical only.
+* RBSLI-lode_immure.adoc — the landed cloud-side podvm capture ({rbtgo_lode_immure}); the source of the {rbtga_lode} this aspirant consumes.
+* `Tools/rbk/vov_veiled/FUTURE/rbv_podvm.sh`, `FUTURE/rbv_cli.sh`, `FUTURE/RBSRS-RegimeStation.adoc` — the retained prototype: host-side lifecycle, CLI wiring, and the three-var station regime.
+* Horizon Roadmap entries: "Podman as first-class deployment target," "podman-compose lacks `--wait`," "Substrate Lode consumption — wsl/podvm host-side election and provisioning."
+* The RBRS-quarantine commit `016046c36` — the manifest of what was relocated to `FUTURE/`, hence the reinstatement blueprint.
+* `Study/study-net-namespace-permutes/` — the Podman-5.3+ `setns()` post-mortem (why the architecture uses compose `network_mode`, not manual namespace join).
+* Sibling aspirant RBSCV (Crucible Variant) — the isolation-substrate axis; a microVM guest needs no `setns` and no podman VM at all.
