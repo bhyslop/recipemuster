@@ -20084,8 +20084,8 @@
         "₢BlAAR": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260624-2333",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260627-1315",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "BARRIER — cross-clone wait. No code work of its own.",
                 "This pace cannot complete until ₢BfAAT (heat ₣Bf — the foedus-reuse design that authors the two foedus operation subdocs and their RBS0 include lines) is complete, pushed to origin, and origin merged back into this clone.",
@@ -20098,7 +20098,7 @@
                 "Cross-clone barrier; hold here until the named pace is merged through."
               ],
               "jjgtn_silks": "await-fed-foedus-subdocs",
-              "jjgtn_basis": "a11021e"
+              "jjgtn_basis": "3814036"
             }
           ]
         },
