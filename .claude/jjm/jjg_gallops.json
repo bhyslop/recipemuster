@@ -1,6 +1,7 @@
 {
   "jjgrn_next_heat_seed": "Bn",
   "jjgrn_heat_order": [
+    "₣Bi",
     "₣Bl",
     "₣Bf",
     "₣Bg",
@@ -10,7 +11,6 @@
     "₣Bb",
     "₣BF",
     "₣BD",
-    "₣Bi",
     "₣Bm",
     "₣BZ",
     "₣Bk",
@@ -18104,7 +18104,7 @@
     "₣Bi": {
       "jjghn_silks": "rbk-01-mvp-review-loose-ends",
       "jjghn_creation_time": "260618",
-      "jjghn_status": "jjghe_stabled",
+      "jjghn_status": "jjghe_racing",
       "jjghn_order": [
         "₢BiAAe",
         "₢BiAAV",
