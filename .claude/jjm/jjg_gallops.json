@@ -17430,7 +17430,7 @@
         "₢BfAAN": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260624-1322",
+              "jjgtn_ts": "260627-1408",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "Work out the un-understood Keycloak-side RFC 7523 JWT-authorization-grant setup, and bake the durable realm so configure_realm evaporates.",
@@ -17441,17 +17441,20 @@
                 "Source: fdkyclk-proof.sh (configure_realm + mint_idtoken) is the live-applied form being de-laminated into baked DATA; the vessel Dockerfile already loads it via --import-realm; the paddock de-lamination section is the model.",
                 "",
                 "## Done when",
-                "The fdkyclk vessel boots a fully-configured realm via --import-realm with no runtime admin-REST, mints an id_token via the RFC 7523 grant, and uses the STABLE signing key (no per-charge regeneration).",
+                "The fdkyclk vessel boots a fully-configured realm via --import-realm with no runtime admin-REST and mints an id_token via the RFC 7523 grant.",
+                "The realm signing key is EPHEMERAL — generated fresh in the crucible on each charge, persisted nowhere; the orchestrator fetches the fresh public JWKS and uploads it to the provider at establish (the twiddle).",
                 "",
                 "## Cinched",
-                "The realm signing key is STABLE, not generated-fresh-on-import (operator decision 260623, reversing the earlier rotate-per-charge model): the private half is the never-committed station estate secret (committed nowhere), the public half is the committed JWKS reference.",
-                "No per-charge JWKS rotation and NO orchestrator re-sync arm — affiance uploads the committed public JWKS once and it never drifts.",
+                "The realm signing key is EPHEMERAL, generated fresh per charge and committed nowhere (paddock \"Foedus switching — AUTHORED + residual shape\"; supersedes the earlier stable-key decisions 260623/260624 for the fed key).",
+                "There is NO never-committed station estate secret and NO committed JWKS reference — both belonged to the overturned stable model; the station-key paces that carried them were dropped.",
+                "Because the key is fresh each charge, affiance re-uploads the fetched public JWKS on every establish — the twiddle is a per-charge re-sync, not a one-time upload.",
+                "The full RBRS station regime stays shelved for ₣BW; this pace introduces no station-key stub.",
                 "",
                 "## Character",
                 "Investigation (RFC 7523 on Keycloak) plus mechanical realm-JSON authoring."
               ],
               "jjgtn_silks": "rfc7523-grant-and-baked-realm",
-              "jjgtn_basis": "b41e86b"
+              "jjgtn_basis": "7a2fb78"
             }
           ]
         },
