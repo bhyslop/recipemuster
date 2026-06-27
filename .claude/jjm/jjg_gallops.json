@@ -18273,9 +18273,10 @@
         "₢BiAAa",
         "₢BiAAh",
         "₢BiAAi",
-        "₢BiAAj"
+        "₢BiAAj",
+        "₢BiAAl"
       ],
-      "jjghn_next_pace_seed": "AAl",
+      "jjghn_next_pace_seed": "AAm",
       "jjghn_paces": {
         "₢BiAAC": {
           "jjgpn_tacks": [
@@ -19445,6 +19446,34 @@
               ],
               "jjgtn_silks": "chaining-roles-selection-adjacency",
               "jjgtn_basis": "a330405"
+            }
+          ]
+        },
+        "₢BiAAl": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260627-1409",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Migrate the existing bug_require_clean_tree call sites to the well-formed precision-band variant, then retire the malformed original.",
+                "",
+                "## Spec of needed change",
+                "Once the well-formed bug_require_* variant exists (slated on the federation-build heat), migrate the existing malformed-gate call sites to it and remove the original.",
+                "Discovery (grep, do not trust a count): grep -rn 'bug_require_clean_tree' Tools/ — today ~9 RBK call sites (kludge, immure, conclave, conjure, mirror, underpin, ensconce, affiance, inscribe) each passing an RBCC_verb_* context string, plus ~4 spec references (RBSAC, RBSLE, RBSMF, RBSRT) and the BUK core doc naming the old gate.",
+                "Each call site gains the error-condition constant + RB rationale the new variant wants; the spec references and the BUK doc update to name the new gate.",
+                "",
+                "## Done when",
+                "Every bug_require_clean_tree call site uses the well-formed variant, the malformed original is gone, the spec/doc references name the new gate, and the suites the affected verbs ride stay green.",
+                "",
+                "## Cinched",
+                "Gated on the federation-build heat's variant pace landing first (the variant must exist before sites migrate to it).",
+                "This is the deferred mass-migration half deliberately split off so the federation work did not churn ~13 sites mid-stream.",
+                "",
+                "## Character",
+                "Mechanical call-site migration across ~9 RBK verbs + spec/doc reference updates; the judgment is per-site error-condition/rationale selection."
+              ],
+              "jjgtn_silks": "clean-tree-gate-callsite-migration",
+              "jjgtn_basis": "432270c"
             }
           ]
         }
