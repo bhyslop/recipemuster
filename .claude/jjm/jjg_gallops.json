@@ -19314,8 +19314,8 @@
         "₢BiAAk": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260627-0930",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260627-1047",
+              "jjgtn_state": "jjgte_abandoned",
               "jjgtn_text": [
                 "## Spec of needed change",
                 "The rbch_enchase / rbch_palpate quoins (RBS0 \"Chaining-Fact Roles\") are scoped to \"the role a verb plays toward a chained fact\" — a HEAD-produced express-or-chain touchmark/hallmark.",
@@ -19335,7 +19335,7 @@
                 "Small, focused spec edit; vocabulary-boundary clarification, mechanical once the boundary text is agreed."
               ],
               "jjgtn_silks": "chaining-roles-selection-adjacency",
-              "jjgtn_basis": "db1c47c"
+              "jjgtn_basis": "a330405"
             }
           ]
         }
