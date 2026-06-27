@@ -179,6 +179,7 @@
 // Axial Voicing Document Terms (definition-site document-role annotations)
 :axvd_codex:                          <<axvd_codex,Codex Voicing>>
 :axvd_sheaf:                          <<axvd_sheaf,Sheaf Voicing>>
+:axvd_cartouche:                      <<axvd_cartouche,Cartouche Voicing>>
 
 // Axial Hierarchy Operation Terms (standalone hierarchy markers)
 :axhob_operation:                     <<axhob_operation,Hierarchy Operation>>
@@ -3512,7 +3513,7 @@ self-naming identity quoin, the one sealed by
 {axvd_codex} —
 carried as the first
 {mcm_attribute_reference}
-in the fair-faced membership sentence that opens the
+in the opening sentence of the
 {mcm_sheaf},
 by which the
 {mcm_sheaf}
@@ -3521,41 +3522,81 @@ The line also carries exactly one normativeness
 {axd_dimension}
 (an unmarked line reads as
 {axd_normative}).
-It appears at two sites: the head of the
-{mcm_sheaf}
-file, where the lookahead is the opening membership sentence; and immediately above its `include::` in the
-{mcm_codex},
-where the included path is the lookahead — so neither a reader of the part nor a reader of the head is misled.
-Where the status is non-{axd_normative}, the
-{mcm_sheaf}
-head also carries a
+That opening sentence is itself the
 {mcm_fair_faced}
-prose banner declaring it.
-+
-The two emplacements, by template:
+declaration — it names the codex, states the
+{axd_dimension}
+in prose, and carries the binding constraint keyed to that status, so a reader who never parses the voicing still learns whether the content binds; there is no separate banner.
+It appears at one site: the head of the
+{mcm_sheaf}
+file.
+The codex announces the matching incorporation from its own side with the sibling
+{axvd_cartouche}
+voicing.
 +
 [source,asciidoc]
 ----
-// at the head of the sheaf file («sheaf-filename»):
-//axvd_sheaf axd_aspirant
-This is a portion of the {«codex»_imprimatur}.
-= «Sheaf Title»
+// at the head of the sheaf file (RBSLE-lode_ensconce.adoc):
+//axvd_sheaf axd_normative
+This is a normative portion of the {rbs0_imprimatur}: binding — code, tests, and decisions may rely on it.
+= Lode Ensconce
 ...sheaf content...
 ----
 +
+Here `rbs0_imprimatur` is RBS0's self-naming identity quoin, shown concretely as every AXLA example is.
+The codex's identity quoin is whatever its
+{axvd_codex}
+voicing seals: AXLA fixes the voicing, never the quoin's name or shape.
+A validator reads the first
+{mcm_attribute_reference}
+of each sheaf's opening sentence and matches it against whatever quoin
+{axvd_codex}
+sealed, to confirm the membership.
++
+The opening sentence is keyed to the status — lead adjective, then constraint:
++
 [source,asciidoc]
 ----
-// at the inclusion point, inside the codex («codex-filename»):
+//axvd_sheaf axd_normative
+This is a normative portion of the {rbs0_imprimatur}: binding — code, tests, and decisions may rely on it.
+
+//axvd_sheaf axd_informative
+This is an informative portion of the {rbs0_imprimatur}: honest but binding nothing — read it as rationale, never as law.
+
+//axvd_sheaf axd_notional
+This is a notional portion of the {rbs0_imprimatur}: a sketch that may be wrong — rely on nothing here.
+
 //axvd_sheaf axd_aspirant
-include::«sheaf-filename»[]
+This is an aspirant portion of the {rbs0_imprimatur}: not yet binding — do not rely on it, decide from it, or cite the names it mints until it is infused into the codex.
 ----
+
+[[axvd_cartouche]]
+{axvd_cartouche}::
+Announces, inside the
+{mcm_codex},
+the incorporation of one
+{mcm_sheaf}
+at its `include::` site — the codex's outward proclamation of a part it binds in, sibling to the
+{axvd_sheaf}
+declaration the part makes from within.
+Arity-0: it reads no
+{mcm_attribute_reference},
+since the included file is a path, not a quoin.
+It sits immediately above the `include::`; a validator reads that line's path to identify the incorporated
+{mcm_sheaf}.
+It carries exactly one normativeness
+{axd_dimension} —
+the codex's attestation of the sheaf's status.
+A future linter cross-checks that attestation against the sheaf's own
+{axvd_sheaf}
+status; until then the two may drift, a silent error the linter will resolve.
 +
-Here `{«codex»_imprimatur}` is the codex's self-naming identity quoin — an ordinary underscore-bearing quoin sealed at its
-{axl_definition_site}
-by
-{axvd_codex}; a validator reads the first
-{mcm_attribute_reference}
-of each sheaf's opening sentence and matches it against that sealed quoin to confirm the membership.
+[source,asciidoc]
+----
+// at the inclusion point, inside the codex (RBS0-SpecTop.adoc):
+//axvd_cartouche axd_normative
+include::RBSLE-lode_ensconce.adoc[]
+----
 
 == Axial Type Universal Terms
 

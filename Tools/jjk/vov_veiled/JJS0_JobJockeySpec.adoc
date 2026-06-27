@@ -336,8 +336,7 @@
 //axvd_codex
 {jjs0_imprimatur}::
 This document — the codex of the Job Jockey concept model: the root that owns this mapping
-section and the vocabulary its sheaves consume, and the identity each sheaf names back through
-its tendon.
+section and the vocabulary its sheaves consume, and the identity each sheaf names back in its opening sentence.
 
 The
 {jjdgr_gallops}

@@ -306,8 +306,7 @@
 //axvd_codex
 {bus0_imprimatur}::
 This document — the codex of the Bash Utilities concept model: the root that owns this mapping
-section and the vocabulary its sheaves consume, and the identity each sheaf names back through
-its tendon.
+section and the vocabulary its sheaves consume, and the identity each sheaf names back in its opening sentence.
 
 The Bash Utilities Specification defines the tabtarget dispatch system — the infrastructure for tab-completion-friendly launchers that route to kit formularies.
 

@@ -65,6 +65,8 @@
 :mcm_hallowed_word_s:        <<mcm_hallowed_word,Hallowed Words>>
 :mcm_fallow_word:            <<mcm_fallow_word,Fallow Word>>
 :mcm_fallow_word_s:          <<mcm_fallow_word,Fallow Words>>
+:mcm_furrowed_word:          <<mcm_furrowed_word,Furrowed Word>>
+:mcm_furrowed_word_s:        <<mcm_furrowed_word,Furrowed Words>>
 
 :mcm_definition_section:     <<mcm_definition_section,Definition Section>>
 :mcm_definition_section_s:   <<mcm_definition_section,Definition Sections>>
@@ -1174,6 +1176,19 @@ Reserved to protect the *editor's* explanatory reach, where
 {mcm_hallowed_word}
 protects the word's resonance.
 Seed: mesentery, constellation, moniker.
+
+[[mcm_furrowed_word]]
+{mcm_furrowed_word}::
+A word withheld from minting now but earmarked for a future mint: liked and claimed, held until the concept that will bear it arrives.
+The name is the gestalt: furrowed ground, the trench cut and waiting for the seed.
+Distinct from its reserve-siblings by *intent to mint* — where
+{mcm_hallowed_word}
+and
+{mcm_fallow_word}
+are withheld to stay unminted (one to protect the word's resonance, one the editor's reach), a
+{mcm_furrowed_word}
+is enclosure merely deferred: it will be minted once its concept is ready, or released if the intent lapses.
+Seed: tendon, blazon.
 
 === Exposure
 

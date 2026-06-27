@@ -183,8 +183,7 @@
 //axvd_codex
 {apcs0_imprimatur}::
 This document — the codex of the PHI Clipbuddy detection-pipeline concept model: the root that owns this mapping
-section and the vocabulary its sheaves consume, and the identity each sheaf names back through
-its tendon.
+section and the vocabulary its sheaves consume, and the identity each sheaf names back in its opening sentence.
 
 This document defines the formal vocabulary for the detection pipeline in Ann's PHI Clipbuddy.
 It specifies the entities the algorithm operates on, the resources it consults, the procedures it performs, and the execution sites at which each discerner runs.

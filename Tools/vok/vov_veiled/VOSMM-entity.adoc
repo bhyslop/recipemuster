@@ -1,25 +1,5 @@
 //axvd_sheaf axd_aspirant
-This is a portion of the {vos0_imprimatur}.
-// VOSMM-entity — Vox Matricula entity subdoc.
-//
-// This is a pure-consumer subdoc of VOS0-VoxObscuraSpec.adoc (the Vox Obscura cosmology
-// SpecTop), include::'d under its == Matricula branch. It defines NO quoins: the
-// Matricula vocabulary (vosmm_matricula, vosms_seal, vosme_estray, vosmp_presentment)
-// and every Liturgy / distribution / AXLA linked term it uses are defined and
-// registered at the cosmology top. This file carries only the method, decomposition,
-// invariants, and scan mechanics that consume that vocabulary.
-//
-// Cited-constraint rivets defined below (VOr_ opaque IDs, kind by axvc_ voicing):
-//   VOr_k3p  axvc_dictum   Transient by design
-//   VOr_m7w  axvc_dictum   Mechanical, never linguistic
-//   VOr_q4f  axvc_dictum   Never ships (structural secrecy)
-
-[NOTE]
-.Aspirant — feature-nucleation sheaf
-====
-This sheaf is in {axd_aspirant} status: it nucleates the Matricula feature and is not yet binding.
-A reader must not rely on its content, and released code must not cite the identifiers it mints, until it is infused into the {vos0_imprimatur}.
-====
+This is an aspirant portion of the {vos0_imprimatur}: not yet binding — do not rely on it, decide from it, or cite the names it mints until it is infused into the codex.
 
 == Overview
 
@@ -31,6 +11,7 @@ in use across the repository below the
 {voslc_cipher}
 tier.
 It is an instant temporary database — raised on demand from repository source, queried, and discarded — that subsumes the ad-hoc grepping an agent does to answer naming questions.
+It is embodied as a standalone Rust executable — a VOK binary driven by its own tabtarget — that recursively scans the git-tracked project tree.
 
 It serves three jobs the operator asks of the naming system, and a fourth that falls out of the same frozen census:
 

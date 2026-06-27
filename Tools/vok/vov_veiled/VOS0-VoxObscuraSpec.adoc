@@ -209,8 +209,7 @@
 //axvd_codex
 {vos0_imprimatur}::
 This document — the codex of the Vox Obscura concept model: the root that owns this mapping
-section and the vocabulary its sheaves consume, and the identity each sheaf names back through
-its tendon.
+section and the vocabulary its sheaves consume, and the identity each sheaf names back in its opening sentence.
 
 The Vox Obscura Specification is the cosmology top for the Vox Obscura naming system — the `vo` cipher as a whole.
 It centralizes the Liturgy vocabulary (Cipher, Signet, Epithet, Inscription, Vesture and the domain vestures), then hosts its branches as `include::` subdocs that purely consume that centralized vocabulary, following the RBS0/JJS0/BUS0 SpecTop precedent.
@@ -1613,6 +1612,6 @@ Per VOr_m7w, a
 {vosmp_presentment}
 over a fallible gate (sprue, rivet) is advisory, not an assertion.
 
-//axvd_sheaf axd_normative
+//axvd_cartouche axd_aspirant
 include::VOSMM-entity.adoc[leveloffset=+1]
 
