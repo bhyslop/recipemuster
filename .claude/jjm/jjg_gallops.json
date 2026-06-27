@@ -18325,8 +18325,8 @@
         "₢BiAAG": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260618-1358",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260627-0917",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "Drafted from ₢BBABW in ₣BB.",
                 "",
@@ -18344,7 +18344,7 @@
                 "scry resolves interfaces by role (correct under either ordering), shows MACs, captures both sentry legs on docker, and supports a bounded non-interactive capture (duration + optional filter) that returns cleanly for scripted use — interactive behavior unchanged when no duration is passed."
               ],
               "jjgtn_silks": "scry-diagnostic-repairs",
-              "jjgtn_basis": "f5f6b2b"
+              "jjgtn_basis": "7d827ee"
             }
           ]
         },
