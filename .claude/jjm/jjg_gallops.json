@@ -17935,8 +17935,8 @@
         "₢BfAAr": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260625-1643",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260627-1312",
+              "jjgtn_state": "jjgte_abandoned",
               "jjgtn_text": [
                 "Generate the stable Keycloak signing keypair once, fence its private half in the never-committed station file, and commit its public half as the canonical JWKS reference — the producer the estate-secret stub, the baked realm, and affiance all consume.",
                 "",
@@ -17961,7 +17961,7 @@
                 "Thin establishment / bootstrap over a settled design (stable key, fenced private half); one-time keypair genesis, not recurring runtime. Needs the regime's JWKS-location contract (the spec recast) before it; sits before the stub/realm/affiance consumers."
               ],
               "jjgtn_silks": "keycloak-estate-key-genesis",
-              "jjgtn_basis": "fe2e9c4"
+              "jjgtn_basis": "4aa88e4"
             }
           ]
         },
