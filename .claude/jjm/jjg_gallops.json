@@ -1,5 +1,5 @@
 {
-  "jjgrn_next_heat_seed": "Bo",
+  "jjgrn_next_heat_seed": "Bp",
   "jjgrn_heat_order": [
     "₣Bi",
     "₣Bl",
@@ -35,7 +35,8 @@
     "₣BC",
     "₣BI",
     "₣BL",
-    "₣Ba"
+    "₣Ba",
+    "₣Bo"
   ],
   "jjgrn_heats": {
     "₣A-": {
@@ -20238,6 +20239,14 @@
     },
     "₣Bn": {
       "jjghn_silks": "rbk-99-aspirant-microvm",
+      "jjghn_creation_time": "260627",
+      "jjghn_status": "jjghe_stabled",
+      "jjghn_order": [],
+      "jjghn_next_pace_seed": "AAA",
+      "jjghn_paces": {}
+    },
+    "₣Bo": {
+      "jjghn_silks": "rbk-05-federation-itches",
       "jjghn_creation_time": "260627",
       "jjghn_status": "jjghe_stabled",
       "jjghn_order": [],
