@@ -18419,8 +18419,8 @@
         "₢BiAAI": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260618-1528",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260627-1002",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "Drafted from ₢BBABZ in ₣BB.",
                 "",
@@ -18450,7 +18450,7 @@
                 "`tt/rbw-tl.Shellcheck.sh` clean and the fast suite green."
               ],
               "jjgtn_silks": "clean-tree-rationale-param",
-              "jjgtn_basis": "616b022"
+              "jjgtn_basis": "95410cc"
             }
           ]
         },
