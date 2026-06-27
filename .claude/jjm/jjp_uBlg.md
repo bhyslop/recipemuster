@@ -1,8 +1,8 @@
 ## Character
 
-Specification authoring; concept-tier judgment, not mechanical.
-The MVP is scoped, the object pattern is chosen, and the placement/distribution direction is now settled (standalone VOK executable), so the next pace is heavy specification authoring.
-The post-MVP vision has been extracted to a separate prospective heat (₣Bj) so this heat stays lean on the MVP.
+Concept-tier judgment, not mechanical.
+The aspirant matricula spec is authored and homed in VOSMM-entity.adoc; what remains is the single terminal pace that bounds the aspirant into a coherent gestalt a future build heat can adopt without drift.
+The post-MVP vision lives in a separate prospective heat (₣Bj), keeping this heat lean on the MVP aspirant.
 
 ## Context
 
@@ -47,11 +47,11 @@ The secrecy gradient is preserved by tier, not by file: vocabulary lives at the 
 JJK contains no Vox implementation — JJK↔Vox couplings are purpose-built JJK operations with subtle Vox interactions, designed per-need (the paddock/docket integrity check is the first instance, not a template), never a blanket proxy of the whole Vox interface; much of that design likely lands in ₣Bj or future JJK heats.
 The re-gestalt-plus-consolidation surgery is its own slated pace(s), not absorbed into the authoring pace; the bootstrap-collision risk during the mass rename is accepted as bounded — the Liturgy is barely adopted yet (it was a distillation of a prior conversation, not yet in use), so repair is iterative as intimate problems surface, and the Matricula itself becomes the eventual net.
 
-Placement is VOK — entity, grammar, and spec under the `vo` cipher, homed in the re-gestalted Vox cosmology (VOS0 top plus a Matricula subdoc), code as a standalone VOK executable over the `vof` library.
+Placement is VOK — entity, grammar, and spec under the `vo` cipher, homed in the re-gestalted Vox cosmology (VOS0 top plus VOSMM-entity.adoc, the Matricula subdoc), code as a standalone VOK executable over the `vof` library.
 The verified build structure decides this: VOK ships nothing as source (it is not in the managed-kit list, so its tree is never collected into a parcel), which makes it a tighter vault than CMK — CMK ships through two outbound pipelines (the parcel and the open-source upstream) and is doc-only with no crate.
 
 CMK is the doctrine home, cited and never re-homed.
-The minting rules the Matricula enforces — terminal-exclusivity, collision, MCM Lapidary word-selection — are CMK/MCM doctrine; the vo subdoc cites them as the authority and does not restate them, so the rules keep one home.
+The minting rules the Matricula enforces — terminal-exclusivity, collision, MCM Lapidary word-selection — are CMK/MCM doctrine; VOSMM cites them as the authority and does not restate them, so the rules keep one home.
 
 The runtime is a standalone independent VOK executable, not a `vvr` subcommand.
 The theurge crate (`rbtd`) is the precedent: its own build/test/run tabtargets, outside the VOW pipeline, shipping nothing.
@@ -161,8 +161,8 @@ Recursive vocabulary care — this is a minting tool, so its own quoins set prec
 ## Owed to a spec home
 
 The architecture map and decomposition above are codebase fact that must remain true after this heat retires.
-The spec home is decided — the vo subdoc this heat authors (see Done when) — so these facts migrate there as the heat does its spec work.
-The paddock is a way-station, not their home.
+These facts have migrated to their spec home — VOSMM-entity.adoc (the entity nature, census lifecycle, invariants, decomposition, and scan mechanics now live there), which states the migration in its own Overview.
+The paddock is a way-station; its copy is now redundant with VOSMM and survives only as heat-shape context.
 
 ## Provenance — cite, do not restate or edit
 
@@ -173,6 +173,9 @@ Specs: VLS (Liturgy vocabulary), VOS0 (distribution plus filename-only validatio
 
 ## Done when
 
-The MVP is delivered when a whole-environment scan, run as a standalone VOK executable through its own tabtarget, reports the two minting violations (terminal-exclusivity, exact collision) plus a residue section, and the acronym index is generated from the same frozen census rather than hand-maintained.
-The concept widens later — the CHECK / LIST / TRACE interrogations, safe-reprefix, the engagement determinations, and the gestalt-label subsystem — but that widening is scoped to ₣Bj, not this heat.
-The immediate next step is narrower: author the vo subdoc (the first slated pace) that homes the entity nature, the decomposition, and the MVP method set.
+This is the aspirant-shaping heat, not the build heat.
+It closes when the matricula aspirant — homed in VOSMM-entity.adoc, with the entity nature, decomposition, invariants, and MVP method set already authored there — has gelled into a coherent, bounded gestalt: a focus a future heat can take up and build without infinite drift.
+The terminus is the fence, not a finished design — drawing it, not resolving every open question (which is its own drift trap), is the work.
+The deferred/aspirant boundary is consciously set: what the future heat pursues versus what stays deferred (the grimoire among the deferred, by standing decision), with open design questions allowed to remain open and answered inside the future heat's scope rather than as a precondition to lighting it.
+Out of scope here: building the executable (a future heat, nominated at the terminal pace) and the post-MVP widening — the richer interrogations, safe-reprefix, the engagement determinations, the gestalt-label subsystem — which is ₣Bj's.
+The terminal pace draws the fence and nominates the future build heat; nothing follows it.
