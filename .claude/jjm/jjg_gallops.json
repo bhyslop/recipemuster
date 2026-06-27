@@ -17969,22 +17969,23 @@
         "₢BfAAs": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260627-1205",
+              "jjgtn_ts": "260627-1314",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "## Spec of needed change",
-                "Three operations interrogate a GCP workforce pool and must classify its state identically — live, soft-deleted (the ~30-day purge window), or absent: affiance (creates pools and must refuse a soft-deleted id), descry (reports a foedus's pool health), and the deferred canvass (enumerates foedera).",
+                "Three operations interrogate a GCP workforce pool and must classify its state identically — live, soft-deleted (the ~30-day purge window), or absent: affiance (creates pools and must refuse a soft-deleted id), descry (reports a foedus's pool health), and canvass (enumerates foedera).",
                 "The classification lives inline today in affiance (rbgp_payor.sh, the workforcePools.get 200/404/DELETED branch).",
                 "Extract it into one shared helper so the manager (affiance) and the watcher (descry) share a single notion of soft-deleted rather than re-deriving it and drifting apart.",
+                "While here, give affiance its missing live-pool guard: on a live pre-existing pool, affiance FAST-FAILS (\"exists — reuse, don't recreate\") instead of silently leaving it in place, completing affiance's tri-state — 404 create / live fast-fail / soft-deleted refuse-and-rotate.",
                 "",
                 "## Done when",
-                "The live/soft-deleted/absent classification is defined once in a shared helper; affiance consumes it in place of its inline branch; the helper is the mandated home for descry's pool-state read (descry's config-drift \"valid\" check rides on top of it) and any future enumerator's.",
+                "The live/soft-deleted/absent classification is defined once in a shared helper; affiance consumes it in place of its inline branch and fast-fails on a live pre-existing pool (no silent leave-in-place); the helper is the mandated home for descry's pool-state read (descry's config-drift \"valid\" check rides on top of it) and any future enumerator's.",
                 "",
                 "## Character",
-                "Mechanical extraction plus re-wire — the soft-delete semantics already exist in affiance and are not being redesigned. The descry-side consumption is a forward constraint, satisfied when descry is built."
+                "Mechanical extraction plus re-wire — the soft-delete semantics already exist in affiance and are not being redesigned; the live-pool fast-fail is a small added guard. The descry-side consumption is a forward constraint, satisfied when descry is built."
               ],
               "jjgtn_silks": "foedus-pool-state-classifier",
-              "jjgtn_basis": "892ce3d"
+              "jjgtn_basis": "9a0fc5e"
             }
           ]
         },
