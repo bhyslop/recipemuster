@@ -19719,8 +19719,8 @@
         "₢BlAAE": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260627-1409",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260627-1452",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "Drafted from ₢BfAAg in ₣Bf.",
                 "",
@@ -19744,7 +19744,7 @@
                 "Bash build — the regime-field enrollment plus two production tabtargets plus the composing fixture; depends on the design pace and the combinator. No dependency on the programmatic spine (interactive machinery only)."
               ],
               "jjgtn_silks": "foedus-reuse-leg",
-              "jjgtn_basis": "360a0ea"
+              "jjgtn_basis": "eafdc11"
             }
           ]
         },
