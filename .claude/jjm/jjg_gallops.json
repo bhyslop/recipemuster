@@ -19654,30 +19654,32 @@
         "₢BlAAE": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260624-2240",
+              "jjgtn_ts": "260627-1409",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "Drafted from ₢BfAAg in ₣Bf.",
                 "",
-                "Build the day-to-day REUSE path end to end on the INTERACTIVE foedus: first the foedus check (descry) and switch (instate) as first-class atomic production tabtargets per the design pace, then the REUSE fixture that composes them — check the foedus, switch to it if valid, heal its credentials (avow + don the mantles), and affiance only when the check fails.",
+                "Build the day-to-day REUSE path end to end on the INTERACTIVE foedus: enroll the active-foedus regime selector, then the foedus check (descry) and switch (instate) as first-class atomic production tabtargets per the design pace, then the REUSE fixture that composes them — check the foedus, switch to it if valid, heal its credentials (avow + don the mantles), and affiance only when the check fails.",
                 "",
                 "## Spec of needed change",
-                "Build the two new foedus toothings as clean standalone tabtargets, each atomic per the design pace — the pool-integrity check (descry) reads pool validity, the switch (instate) re-points the regime selector and resets the sitting; neither bundles create. Then build the REUSE-wrapper fixture that composes them with the existing affiance and the credential heal. This is the standing-reuse credential leg that skirmish/dogfight/blockade assume but no fixture establishes today.",
+                "FIRST, enroll the regime field the switch reads and writes: RBSRR authored the RBRR_ACTIVE_FOEDUS selector and a Federation Selection group, but rbrr_regime.sh carries neither (spec/code gap). Add the field and the Federation Selection section to rbrr_regime.sh — a regime-validation change, so run reveille + regime-poison — before building the verbs that depend on it.",
+                "Then build the two new foedus toothings as clean standalone tabtargets, each atomic per the design pace — the pool-integrity check (descry) reads pool validity, the switch (instate) re-points the regime selector and resets the sitting; neither bundles create. Then build the REUSE-wrapper fixture that composes them with the existing affiance and the credential heal. This is the standing-reuse credential leg that skirmish/dogfight/blockade assume but no fixture establishes today.",
                 "",
                 "## Done when",
-                "The check and switch exist as first-class atomic tabtargets; the REUSE wrapper reuses a valid standing freehold (the interactive Entra foedus) with no pool churn (cap-flat), heals its credentials via the existing avow + don, and rebuilds only when the check fails; skirmish/dogfight/blockade prove their mantle credentials via a fixture, not prose.",
+                "RBRR_ACTIVE_FOEDUS + the Federation Selection group are enrolled in rbrr_regime.sh (spec'd in RBSRR, absent in code today); the check and switch exist as first-class atomic tabtargets; the REUSE wrapper reuses a valid standing freehold (the interactive Entra foedus) with no pool churn (cap-flat), heals its credentials via the existing avow + don, and rebuilds only when the check fails; skirmish/dogfight/blockade prove their mantle credentials via a fixture, not prose.",
                 "",
                 "## Cinched",
                 "The verbs are ATOMIC and first-class — standalone production tabtargets, never a fat check-then-create, never buried only inside the fixture; \"reuse if valid, else create\" lives in the fixture. The credential heal is quota-neutral (idempotent IAM); affiance fires only on check-failure.",
-                "SCOPE — interactive only (verified against the code 260623): the standing freehold runs on the interactive Entra foedus, so the heal uses the existing interactive avow + don and is human-present (one avow at suite head, then reuse cache-hits the live sitting). The switch verb builds but is DEGENERATE until a second foedus stands (only Entra exists today). Fully-unattended / cross-mechanism (Entra↔Keycloak) reuse is OUT of scope here — a later pace gated on the programmatic spine (programmatic affiance arm, Keycloak orchestrator, programmatic accessor). Do NOT chase the unattended path here; it would hit unbuilt programmatic code.",
+                "SCOPE — interactive only (verified against the code 260623): the standing freehold runs on the interactive Entra foedus, so the heal uses the existing interactive avow + don and is human-present (one avow at suite head, then reuse cache-hits the live sitting). The switch verb builds but is DEGENERATE until a second foedus stands (only Entra exists today). Fully-unattended / cross-mechanism (Entra<->Keycloak) reuse is OUT of scope here — a later pace gated on the programmatic spine (programmatic affiance arm, Keycloak orchestrator, programmatic accessor). Do NOT chase the unattended path here; it would hit unbuilt programmatic code.",
+                "The field-enrollment depends only on RBSRR (already landed), not on this pace's barrier — but it is folded here because the switch/check verbs cannot build without it (operator decision 260627: fold, not a separate micro-pace).",
                 "descry and instate are built against their own operation subdocs (authored contract-first at the design pace) — no exemption (operator 260624).",
                 "Detail: the audit memo's pace-10.",
                 "",
                 "## Character",
-                "Bash build — two production tabtargets plus the composing fixture; depends on the design pace and the combinator. No dependency on the programmatic spine (interactive machinery only)."
+                "Bash build — the regime-field enrollment plus two production tabtargets plus the composing fixture; depends on the design pace and the combinator. No dependency on the programmatic spine (interactive machinery only)."
               ],
               "jjgtn_silks": "foedus-reuse-leg",
-              "jjgtn_basis": "f676ede"
+              "jjgtn_basis": "360a0ea"
             }
           ]
         },
