@@ -19031,8 +19031,8 @@
         "₢BiAAW": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260623-2036",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260627-1458",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "## Character",
                 "Design conversation requiring judgment — re-express a known soundness gap and work out the proper fix.",
@@ -19065,7 +19065,7 @@
                 "- This is the home for the regression test the fold deferred; the test is downstream of recording the base."
               ],
               "jjgtn_silks": "resolved-base-provenance",
-              "jjgtn_basis": "95faa0f"
+              "jjgtn_basis": "13549ac"
             }
           ]
         },
