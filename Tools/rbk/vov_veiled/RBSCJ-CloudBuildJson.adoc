@@ -14,7 +14,7 @@ YAML is a file-authoring convenience that gets parsed into the same `Build` stru
 
 Programmatic generation via `jq` produces correct JSON directly — no YAML indentation
 fragility, no multiline string quoting hazards, no dependency on `yq` or custom emitters.
-The stitch function (`zrbf_stitch_build_json`) already generates JSON;
+The stitch function (`zrbfd_stitch_build_json`) already generates JSON;
 converting to YAML would add complexity with zero functional benefit.
 
 ==== Evidence
@@ -52,7 +52,7 @@ converting to YAML would add complexity with zero functional benefit.
 
 ==== What Survives
 
-* `zrbf_stitch_build_json()` — continues to emit JSON via `jq`, adapted for trigger structure
+* `zrbfd_stitch_build_json()` — continues to emit JSON via `jq`, adapted for trigger structure
 * `rbgjb/*.sh` step scripts — inlined into JSON `args` arrays at inscribe time
 * All `_RBGY_*` substitution variables — baked into JSON `substitutions` object
 * OCI Layout Bridge pattern — unchanged
