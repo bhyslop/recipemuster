@@ -19435,9 +19435,10 @@
         "₢BlAAP",
         "₢BlAAU",
         "₢BlAAV",
-        "₢BlAAW"
+        "₢BlAAW",
+        "₢BlAAX"
       ],
-      "jjghn_next_pace_seed": "AAX",
+      "jjghn_next_pace_seed": "AAY",
       "jjghn_paces": {
         "₢BlAAA": {
           "jjgpn_tacks": [
@@ -20086,6 +20087,29 @@
               ],
               "jjgtn_silks": "rekon-chaining-band-case",
               "jjgtn_basis": "8629959"
+            }
+          ]
+        },
+        "₢BlAAX": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260627-1307",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "The authentic-verb federation fixture — drive the REAL polity verbs (brevet, unseat, rehearse) against a standing terrier on a real federated subject, asserting the admission round-trip (the real don path and the folder-scoped IAM actually enforcing), not synthetic payor-direct cores.",
+                "This is the theurge crucible fixture the \"federation testing collapses onto the real verbs\" idea calls for (suite word parley); distinct from the reuse-leg fixture, which drives descry/instate + credential-heal and never the polity verbs.",
+                "",
+                "## Done when",
+                "A theurge fixture exercises brevet/unseat/rehearse against a standing terrier on a real federated subject and asserts the round-trip, invoking only verbs that exist for real operator reasons — no surviving test-rig tabtarget.",
+                "",
+                "## Cinched",
+                "Gated on ₢BfAAF (the terrier-founding-home-finisher provisions the standing terrier this needs); rides the interim terrier scaffold until that lands.",
+                "",
+                "## Character",
+                "Theurge crucible fixture; mechanical once the standing terrier and a brevetted subject are in place."
+              ],
+              "jjgtn_silks": "parley-authentic-verb-fixture",
+              "jjgtn_basis": "8a3a910"
             }
           ]
         }
