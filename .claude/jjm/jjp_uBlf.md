@@ -326,28 +326,26 @@ Dispositioned deliberation drained from this paddock — the ₣BZ-lineage gatin
 Partition provenance (the cross-heat split that reshaped this heat into the federation-build stream): the five federation-MVP re-derivations were restrung in from the sibling MVP heat — their original junk-drawer home keeps the git history of their dockets; the theurge-crate refactor, the zipper-colophon trio, and the cosmology spec drained OUT to the sibling theurge stream, where the drained cosmology pace supersedes that stream's native cosmology pace.
 The full how-we-got-there record is the cross-heat split-study provenance memo.
 
-## Foedus switching — SETTLED (mount conversation; supersedes the open questions above)
+## Foedus switching — AUTHORED + residual shape
 
-The switching design is settled and lives in full as the authoring pace's cinches; this block records the heat-shape and overturns the earlier open questions it resolves.
+The test-bed switching design is authored contract-first and wrapped: RBSFD (descry), RBSFI (instate), RBSRR (the RBRR_ACTIVE_FOEDUS selector + a Federation Selection group), RBSRF (restructured to a library). Those specs are the truth; this block records the heat-shape and the residual, and supersedes every earlier selector / cognomen / committed-JWKS / canvass note above.
 
-Selector + library (OVERTURNS the "Still owed by the recast" selector/registry open-question above — the Manor-as-registry / pool-ID-as-identity lean is dropped):
-each standing foedus is a committed subdirectory (the RBRR_VESSEL_DIR pattern) holding its own rbrf.env, config stored once, no copied active file; the subdirectory NAME is the foedus identity and the instate/descry argument; the active selector is a committed RBRR field naming that subdirectory (production trivially names its one foedus); RBRF_COGNOMEN is evicted (no code consumers), the subdirectory name carries the identity, the rbrf_cognomen quoin retires/redefines in RBS0.
+Landed (read the specs, do not re-derive):
+- Library: one rbrf.env per standing foedus, each in its own moorings subdirectory; the subdirectory NAME is the foedus identity and the instate/descry folio. Subdirectory names bear the rbef_ foedus-instance sprue — rbef_entrada (interactive Entra trust), rbef_keycloak (programmatic test trust). RBRF is now manifold (was singleton).
+- Selector: RBRR_ACTIVE_FOEDUS names the active foedus (an rbef_ member); a cross-domain reference, value owned by the rbrf library.
+- RBRF_COGNOMEN evicted WHOLE — the field and the rbrf_cognomen quoin both gone; the subdirectory name plus the rbef_ sprue carry the identity.
+- instate (RBSFI): a single-field rewrite of the selector — enchase-adjacent, own band, no self-gate, operator commits; the reuse-if-valid-else-create combinator lives in the FIXTURE (shared with depot-ensure), never a fat verb.
+- descry (RBSFD): a palpate-adjacent read of a named foedus's pool health — own band, no durable write; uses the live / soft-deleted / absent vocabulary but contracts no shared helper.
 
-instate / descry — atomic param verbs, own bands, NOT chaining links (refines the census line above):
-instate writes the RBRR selector and leaves it uncommitted (enchase-adjacent: one durable field, no self-gate, operator commits; reuses the feoff/anoint/yoke field-rewrite mechanics); descry reads a named foedus's pool health, transient, no durable write (palpate-adjacent), and its "valid" includes local-config-matches-cloud-provider so a drifted provider reads invalid; both fail-and-list on a missing argument.
-Gating: the authenticate-against-active consumers (avow / accessor / federated-access / mantle-access) gate on the committed selector via a new correctly-formed bug_require_* (BCG tinder/kindle constant); instate does not self-gate; a later pace migrates the old bug_require_clean_tree call sites and retires the malformed original.
+Residual heat-shape — NOT yet authored, future paces:
+- Code build owed: RBRR_ACTIVE_FOEDUS is spec-only (enroll it + the Federation Selection group in rbrr_regime.sh); plus the instate / descry / library CODE — the build paces consume these subdocs on the theurge heat behind its build barrier.
+- A shared pool-state classifier (live / soft-deleted / absent) behind affiance + descry — slated; still needed, since RBSFD contracts no shared helper.
+- Signing key: the programmatic keypair lives ONLY in the never-committed station regime (RBRS); rbrf.env carries no key; the public half is derived to JWKS at the Google-upload boundary (no JSON committed). Supersedes the committed-JWKS canonical-reference clause in the signing-key SETTLED block above.
+- Affiance on a pre-existing pool FAST-FAILS — no silent leave-in-place; a trust-config change is repaired by jilt + re-affiance, never an in-place patch.
+- Terrier testing moves to theurge: named precision-band codes on the rbgft error paths (buc_reject, not generic buc_die), a theurge poison fixture (regime-poison shape) over the real verbs with a new rbuh forcing seam asserting the exact bands; this retires the terrier proof; the idempotency success-variants ride the authentic real-verb fixture. To slate; rides parley's standing-terrier dependency.
+- parley: the authentic-verb fixture — real brevet / unseat / rehearse against a standing terrier. To slate (slate-now, riding the interim terrier scaffold).
+- Pool rotation re-admits every citizen (Google keys IAM bindings to the pool id, not the foedus name), so the durable pool is kept standing rather than rotated.
+- canvass and the name-as-folio apparatus stay DEFERRED until foedera proliferate or the premise-gated governor-selects feature lands.
+- 2c (test-switch versus depot-affiliation field separation) DECLINED as YAGNI — only the test-switch field exists today; governor-selects is premise-gated, and its builder would design that relationship then.
 
-Affiance on a pre-existing pool FAST-FAILS — no silent leave-in-place, no auto-fix; a trust-config change is repaired by jilt + re-affiance, never an in-place patch.
-
-Signing key (OVERTURNS the committed-JWKS canonical-reference clause in the signing-key SETTLED block above): the programmatic keypair lives ONLY in the never-committed station regime (RBRS); rbrf.env carries no key; the public half is derived to JWKS only at the Google-upload boundary (no JSON committed); RBRS is the single source, collapsing the former three-place drift to one.
-
-Pool rotation re-admits every citizen (Google keys bindings to the pool id, not the foedus name), so the durable pool stays standing rather than rotated — a one-line membrane, not a work-strand.
-
-Fixture: reuse-if-valid-else-create lives in the fixture (the freehold-ensure shape), never a fat verb; shares the ensure-combinator with depot-ensure.
-A shared pool-state classifier (live / soft-deleted / absent) is homed once behind affiance and descry rather than re-derived — slated.
-
-Terrier testing moves to theurge (SUPERSEDES the rbgft-data-layer-unit-test residual in the "federation testing collapses onto the real verbs" idea, and dissolves the "proof" naming): the terrier error paths get named precision-band codes (buc_reject, not generic buc_die); a theurge poison fixture (regime-poison shape) drives the real polity verbs with a new rbuh forcing seam to assert the exact bands; this retires rbgp_terrier_proof; the idempotency success-variants ride the authentic real-verb fixture. Slate-timing rides parley — both need a standing terrier.
-
-canvass and the name-as-folio apparatus are DEFERRED (supersedes the canvass build-slated note in the census above) until foedera proliferate or the premise-gated governor-selects feature lands.
-
-Still open (this conversation), folded in next after the trot: parley's fate (slate-now vs hold), the terrier-rigor slate-timing (with parley), the test-switch vs depot-affiliation field separation, and the directory-token term.
+Placement (to settle by groom): the new paces (parley, terrier-rigor, the owed code-enrollment) span the federation and theurge heats — the federation CODE build sits on the theurge heat behind its build barrier, the theurge fixtures fit there too, the rbgft band/buc_reject plus rbuh seam may sit on the loose-ends or federation heat; terrier-rigor may split across heats.
