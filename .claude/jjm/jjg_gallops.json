@@ -11927,9 +11927,10 @@
         "₢BDAAk",
         "₢BDAAl",
         "₢BDAAm",
-        "₢BDAAn"
+        "₢BDAAn",
+        "₢BDAAo"
       ],
-      "jjghn_next_pace_seed": "AAo",
+      "jjghn_next_pace_seed": "AAp",
       "jjghn_paces": {
         "₢BDAAA": {
           "jjgpn_tacks": [
@@ -13499,6 +13500,43 @@
               ],
               "jjgtn_silks": "jjrf-insignia-adt-realization",
               "jjgtn_basis": "284d723"
+            }
+          ]
+        },
+        "₢BDAAo": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260627-1041",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "",
+                "Concept-tier MCM quoin minting (vocab-strict) + mechanical JJK-crate wiring + one doc deletion. One feature, three strands.",
+                "",
+                "## Done when",
+                "",
+                "JJS0 formalizes a genus — condition-triggered, runtime-emitted, agent-facing guidance — with two species by enforcement posture: `jjdz_monitum` (existing; non-gating, informational; reparented under the genus, definition otherwise intact) and a new gating-corrective species (seed name `interdict`). The new species carries its emitted-text contract: on trip the runtime blocks and instructs the agent's response — stop, report to the operator, do not self-raise the limit or re-scope/split to dodge, wait. It is the operator's review beat.",
+                "",
+                "The commit-size guard (`jjda_size_limit`) is the charter instance: on trip it emits that guidance, drawn from a single named constant.",
+                "",
+                "The size-guard behavioral guidance is deleted from CLAUDE.md / included context (the `claude-jjk-core.md` Size guard paragraph) — it now lives only at the trip.",
+                "",
+                "## Cinched",
+                "",
+                "Just-in-time delivery: guidance lives at the enforcement point, never in standing context. The removal is load-bearing — the standing mention is what provoked engineering around the guard.",
+                "",
+                "RCG magic-string / Constant Discipline: the emitted text and the limit value home in a single named constant referenced at every guard site; no scattered literals.",
+                "",
+                "Not a gallops schema change (the guard reads staged-commit size, not the serialized store) → no reprieve episode.",
+                "",
+                "Names minted and grep-gated at mount. `monitum` stays non-gating by definition; the new species is its gating sibling — which is why the third instance lifts the genus rather than growing `monitum`.",
+                "",
+                "## Noted, not in scope",
+                "",
+                "The open `size_limit` convergence-budget hard-fail is a plausible second instance of the new species — evaluate, but do not fold it into this pace."
+              ],
+              "jjgtn_silks": "interdict-size-gate",
+              "jjgtn_basis": "33eda9c"
             }
           ]
         }
