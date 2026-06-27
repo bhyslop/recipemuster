@@ -357,7 +357,7 @@
 :rbrr_group_container_runtime:      <<rbrr_group_container_runtime,Container Runtime Group>>
 :rbrr_group_service_accounts:       <<rbrr_group_service_accounts,Service Accounts Group>>
 :rbrr_vessel_dir:            <<rbrr_vessel_dir,RBRR_VESSEL_DIR>>
-:rbrr_foedus:                <<rbrr_foedus,RBRR_FOEDUS>>
+:rbrr_active_foedus:                <<rbrr_active_foedus,RBRR_ACTIVE_FOEDUS>>
 :rbrr_group_federation_selection: <<rbrr_group_federation_selection,Federation Selection Group>>
 :rbrr_dns_server:            <<rbrr_dns_server,RBRR_DNS_SERVER>>
 :rbrr_gcb_timeout:           <<rbrr_gcb_timeout,RBRR_GCB_TIMEOUT>>
@@ -1249,7 +1249,7 @@ include::RBSFD-foedus_descry.adoc[]
 === {rbtgo_foedus_instate}
 
 Rewrites the active-foedus selector
-{rbrr_foedus}
+{rbrr_active_foedus}
 to a named standing
 {rbtf_foedus}
 — enchase-adjacent field-rewrite but resolving no chained fact, so not a
@@ -3380,7 +3380,7 @@ Recipe Bottle Nameplate Regime
 //axl_voices axtu_path
 {rbsld_moorings}::
 The moorings directory — the single root for all {rbtr_consumer} configuration.
-At its root sit the installation-wide regime assignment files; each {at_nameplate} adds a subdirectory named by its {rbrn_moniker}, vessel definitions live under {rbrr_vessel_dir}, and foedus definitions live one per subdirectory in the foedera library, the active one selected by {rbrr_foedus}.
+At its root sit the installation-wide regime assignment files; each {at_nameplate} adds a subdirectory named by its {rbrn_moniker}, vessel definitions live under {rbrr_vessel_dir}, and foedus definitions live one per subdirectory in the foedera library, the active one selected by {rbrr_active_foedus}.
 Each regime's exact file location is stated in that regime's definition.
 
 === Repository Regime (RBRR)
@@ -3435,12 +3435,16 @@ Used by compose `working_dir`, volume mount targets, and bottle engagement tabta
 Directory containing vessel configuration subdirectories for
 {rbrr_regime}.
 
-[[rbrr_foedus]]
+[[rbrr_active_foedus]]
 //axvr_variable axd_required rbst_xname
-{rbrr_foedus}::
+{rbrr_active_foedus}::
 The active-foedus selector — the subdirectory name of the
 {rbrf_regime}
-the manor authenticates against, one of the foedus subdirectories in the moorings foedera library.
+the manor authenticates against, one of the foedus subdirectories in the moorings foedera library, each bearing the `rbef_` foedus-instance sprue (e.g. `rbef_entrada`, `rbef_keycloak`).
+It is the operator-facing folio passed to
+{rbtgo_foedus_instate}
+and
+{rbtgo_foedus_descry}.
 A cross-domain reference: the value is a foedus identity owned by the
 {rbrf_regime}
 library, not an
@@ -3708,8 +3712,8 @@ include::RBSRP-RegimePayor.adoc[]
 {rbrf_regime}::
 Manor-scoped (org-level) IdP trust and workforce-pool identity: a vendor-agnostic trust core plus a single acquisition-mechanism gate ({rbrf_mechanism}).
 The core — org, pool, provider, session, issuer, client-id, attribute mapping — is the same structure for every OIDC IdP, so vendor identity is not a field of it; the gate selects the interactive (device-flow) or programmatic (uploaded-JWKS) arm.
-A foedus's stable identity is its subdirectory name, which survives the rotation of the {rbrf_workforce_pool_id} that realizes it; the active foedus is named by the {rbrr_foedus} selector, and the Manor is the authoritative registry of what foedera exist (read by {rbtf_canvass}), so production stays single-foedus-clean.
-File-sourced, one per foedus: an rbrf.env in each foedus subdirectory of the moorings foedera library, the subdirectory named by the foedus identity and the active one selected by {rbrr_foedus}. Carries no secrets — the programmatic arm's private signing key never enters it, only the public JWKS — so it ships committed.
+A foedus's stable identity is its subdirectory name, which survives the rotation of the {rbrf_workforce_pool_id} that realizes it; the active foedus is named by the {rbrr_active_foedus} selector, and the Manor is the authoritative registry of what foedera exist (read by {rbtf_canvass}), so production stays single-foedus-clean.
+File-sourced, one per foedus: an rbrf.env in each foedus subdirectory of the moorings foedera library, the subdirectory named by the foedus identity and the active one selected by {rbrr_active_foedus}. Carries no secrets — the programmatic arm's private signing key never enters it, only the public JWKS — so it ships committed.
 
 [[rbrf_org_id]]
 //axrg_variable axtu_string

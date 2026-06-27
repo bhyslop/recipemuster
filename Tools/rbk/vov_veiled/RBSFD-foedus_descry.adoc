@@ -26,14 +26,14 @@ share. The one discipline it does keep is the palpate guardrail: a read must nev
 write durable config.
 
 NOTE: *Subject — any standing foedus, not only the active one.* The inspected foedus is named by its
-subdirectory identity in the
+`rbef_`-sprued subdirectory identity (the operation's folio) in the
 {rbrf_regime}
 library, which need not be the one
-{rbrr_foedus}
+{rbrr_active_foedus}
 currently selects. Where
 {rbtf_canvass}
 enumerates the foedera the Manor holds and
-{rbrr_foedus}
+{rbrr_active_foedus}
 selects the active one, descry inspects the live health of a single named foedus's pool.
 
 NOTE: *Fixture role — the probe atom.* Descry is the precondition probe the foedus reuse-or-establish

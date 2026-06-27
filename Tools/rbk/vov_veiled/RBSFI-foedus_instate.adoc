@@ -11,7 +11,7 @@ names is already minted; only the build is deferred, to the sibling test-infrast
 
 NOTE: *Enchase-adjacent, but not a chaining link.* Instate rewrites exactly one durable config
 field — the active-foedus selector
-{rbrr_foedus}
+{rbrr_active_foedus}
 in
 {rbrr_regime}
 — reusing the same atomic in-place field-rewrite mechanics as the durable-config links
@@ -54,7 +54,7 @@ The ordered shape (impl deferred — do not read REST calls, function names, or 
 as fixed):
 
 //axhos_step
-. *Take the foedus identity* as the sole express argument — the subdirectory name of a standing
+. *Take the foedus identity* as the sole express argument — the `rbef_`-sprued subdirectory name (the operation's folio) of a standing
 foedus in
 {rbrf_regime}'s
 library. Omitting the argument is fatal in instate's own band, and fails by listing the discovered
@@ -63,7 +63,7 @@ foedus subdirectory is likewise fatal, naming the absent foedus.
 
 //axhos_step
 . *Rewrite the selector*: set
-{rbrr_foedus}
+{rbrr_active_foedus}
 to the supplied identity in
 {rbrr_regime},
 reusing the atomic in-place field-rewrite of the durable-config links — substitute the matching

@@ -16,11 +16,12 @@ The one axis that changes the required-field shape is the *acquisition mechanism
 and gating the two arms below.
 The programmatic arm's private signing key never enters this regime: only the *public* JWKS, itself a public identifier.
 RBRF assignment files form a library — one rbrf.env per standing foedus, each in its own subdirectory of the moorings foedera library, the subdirectory name the foedus's stable identity, the configuration stored once with no copied active file.
+A foedus subdirectory name bears the `rbef_` foedus-instance sprue — the standing members are `rbef_entrada` (the interactive Entra trust) and `rbef_keycloak` (the programmatic test trust) — and is the operator-facing folio passed to the switch toothings ({rbtgo_foedus_instate} and {rbtgo_foedus_descry}).
 Every value is a public identifier and carries no secrets, so each file ships committed; affiance rewrites a foedus's values when founding a fresh trust against a real org and IdP tenant.
 
 NOTE: *Active foedus and selection.* A foedus's stable identity is its subdirectory name in this library, which survives the rotation of the {rbrf_workforce_pool_id} that realizes it — a jilt graveyards the pool id and refuse-and-rotate forces a fresh one, while the subdirectory name does not change. The single *active*
 {rbtf_foedus}
-— the configured federation a run authenticates against — is named not here but by the {rbrr_foedus} selector in the sibling {rbrr_regime}; this regime carries one foedus's configured shape, never which is active. The manor may stand up several foedera, each its own pool and subdirectory; the authoritative registry of what exists is the Manor itself, enumerated by
+— the configured federation a run authenticates against — is named not here but by the {rbrr_active_foedus} selector in the sibling {rbrr_regime}; this regime carries one foedus's configured shape, never which is active. The manor may stand up several foedera, each its own pool and subdirectory; the authoritative registry of what exists is the Manor itself, enumerated by
 {rbtf_canvass}
 (a `workforcePools.list` query), not a local list. Production stays single-foedus-clean — one foedus in the library, named by the selector, rarely re-pointed. The switch toothings live outside this regime:
 {rbtgo_foedus_instate}

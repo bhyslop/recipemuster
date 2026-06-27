@@ -79,11 +79,16 @@ library — {rbrr_regime} names which foedus is active; the foedus's configurati
 Production names its single foedus and rarely changes it; the test-bed re-points it among standing foedera.
 
 //axhrgv_variable
-{rbrr_foedus}
+{rbrr_active_foedus}
 
 The subdirectory name of the active
 {rbtf_foedus}
-— one of the foedus subdirectories in the moorings foedera library, the durable identity that survives the workforce pool's rotation.
+— one of the foedus subdirectories in the moorings foedera library, each bearing the `rbef_` foedus-instance sprue (the standing members are `rbef_entrada`, the interactive Entra trust, and `rbef_keycloak`, the programmatic test trust).
+It is the operator-facing folio passed to
+{rbtgo_foedus_instate}
+and
+{rbtgo_foedus_descry},
+and the durable identity that survives the workforce pool's rotation.
 The authenticate-against-active consumers (avow, the accessor, the federated-access and mantle-access probes) require this selector committed before they run;
 {rbtgo_foedus_instate}
 rewrites it and leaves it uncommitted for the operator.
