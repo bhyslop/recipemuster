@@ -18302,6 +18302,7 @@
         "₢BiAAI",
         "₢BiAAH",
         "₢BiAAW",
+        "₢BiAAm",
         "₢BiAAg",
         "₢BiAAa",
         "₢BiAAh",
@@ -18309,7 +18310,7 @@
         "₢BiAAj",
         "₢BiAAl"
       ],
-      "jjghn_next_pace_seed": "AAm",
+      "jjghn_next_pace_seed": "AAn",
       "jjghn_paces": {
         "₢BiAAC": {
           "jjgpn_tacks": [
@@ -19507,6 +19508,37 @@
               ],
               "jjgtn_silks": "clean-tree-gate-callsite-migration",
               "jjgtn_basis": "432270c"
+            }
+          ]
+        },
+        "₢BiAAm": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260627-1457",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "Small, well-scoped RBK change plus its contract sheaf and a theurge regression case — mechanical once the design is in hand.",
+                "",
+                "## Goal",
+                "Plumb interrogates a conjure hallmark's BuildKit provenance attestation (on the -image ark) and emits the resolved base as a scalar fact;",
+                "a theurge regression case then asserts the built base matches committed config.",
+                "The base is read captured-from-actual-resolution, never echoed from config — closing the conjure provenance gap (bind and graft record a .source; conjure did not).",
+                "",
+                "## Done when",
+                "- rbfcp_plumb reads the -image attestation's SLSA-v1 .buildDefinition.resolvedDependencies (uri + digest.sha256) via imagetools inspect — registry-side, no full image pull — and writes a new rbf_fact_* scalar, one per base slot for a multi-stage conjure.",
+                "- The read is structured (jq), never a scrape of plumb's display output.",
+                "- A contract sheaf in RBSAP specifies the read-back; the BuildKit reliance (SLSA-v1 resolvedDependencies on buildx --push) is cited as an RBr_ foreign-behavior rivet carrying its own demolition condition.",
+                "- A theurge regression case drives a conjure ordain, reads the resolved base, and fails loud if it diverges from committed config (RBRV_IMAGE_n_ANCHOR or the Dockerfile FROM).",
+                "- Vouch and the about ark are untouched; no JSON wire format is authored (foreign source, scalar sink — sprue-free).",
+                "",
+                "## Cinched",
+                "- Read the BuildKit attestation's resolvedDependencies, NEVER the vouch ark's config-echoed base_images[] — the asserted value must never derive from config, else the test is circular.",
+                "- Durable home is the GAR attestation; the fact is a transient same-session cache, not a second record.",
+                "- Confirmed live (260627): conjure images already carry the attestation with the resolved base — no build-pipeline change needed."
+              ],
+              "jjgtn_silks": "resolved-base-readback-and-verify",
+              "jjgtn_basis": "5c58a2f"
             }
           ]
         }
