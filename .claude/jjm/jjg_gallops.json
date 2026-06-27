@@ -19328,9 +19328,10 @@
         "₢BlAAO",
         "₢BlAAP",
         "₢BlAAU",
-        "₢BlAAV"
+        "₢BlAAV",
+        "₢BlAAW"
       ],
-      "jjghn_next_pace_seed": "AAW",
+      "jjghn_next_pace_seed": "AAX",
       "jjghn_paces": {
         "₢BlAAA": {
           "jjgpn_tacks": [
@@ -19948,6 +19949,37 @@
               ],
               "jjgtn_silks": "foedus-canvass-test",
               "jjgtn_basis": "6e9177f"
+            }
+          ]
+        },
+        "₢BlAAW": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260627-0748",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "Small mechanical test addition — extend an existing matrix, no new apparatus.",
+                "",
+                "## Scope",
+                "Add rekon (`rbfl_rekon_hallmark`, colophon `rbw-irh`) to the read-consumer",
+                "chaining-fact-band matrix in `rbtdrh_chain.rs`, inline with the existing",
+                "summon / plumb / augur cases:",
+                "assert a broken express-or-chain resolve rejects with `BUBC_band_chain`,",
+                "with the same fact-intact / no-durable-write checks the sibling read cases make.",
+                "",
+                "## Dependency",
+                "Asserts a conversion shipped in ₣Bi:",
+                "rekon's broken-resolve moved from `buc_die` to `buc_reject BUBC_band_chain` in `rbfln_inventory.sh`.",
+                "Mount after that lands — rekon must already band-reject for the case to pass.",
+                "May fold into an existing ₣Bl band pace if one fits.",
+                "",
+                "## Done when",
+                "Rekon carries a passing band case in the read-consumer matrix asserting",
+                "`BUBC_band_chain` on a broken resolve, peer to summon / plumb / augur."
+              ],
+              "jjgtn_silks": "rekon-chaining-band-case",
+              "jjgtn_basis": "8629959"
             }
           ]
         }
