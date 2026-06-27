@@ -17551,11 +17551,11 @@
         "₢BfAAT": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260627-0930",
+              "jjgtn_ts": "260627-1007",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
-                "Settle and spec the foedus test-bed switching mechanism — the committed library of standing foedera, the active-selector, and the atomic toothings — so the build paces can follow.",
-                "The design landed in conversation (cinched below); this pace finishes by deciding the residuals and authoring the contract-first subdocs.",
+                "Author the foedus test-bed switching mechanism into contract-first spec and the supporting regime restructure — the committed library of standing foedera, the active-selector, and the atomic toothings.",
+                "The design is landed (cinched below); sprue terminology and the normalization dispositions arrive as decided inputs from the attended chat, so this pace does not reopen them.",
                 "",
                 "## Cinched (the design, landed)",
                 "Library: one subdirectory per standing foedus (the RBRR vessel-dir pattern), each holding its own rbrf.env; config stored once, no copied active rbrf.env; the subdirectory name is the foedus identity.",
@@ -17567,20 +17567,14 @@
                 "Fixture composition: reuse-if-valid-else-create lives in the fixture (the freehold-ensure shape), composing the atoms — descry, then reuse-instate or establish-then-instate — never a fat verb; share the ensure-combinator with depot-ensure.",
                 "Deferred: canvass and the name-as-folio richer apparatus, until foedera proliferate or the premise-gated governor-selects feature lands.",
                 "",
-                "## Still to decide (finish in this pace)",
-                "parley's fate: slate now (ride the interim terrier scaffold and the freehold's real subject, since ₣BZ's admission verbs have landed) versus hold until the terrier founding-home settles.",
-                "Normalization dispositions: the shared live/soft-deleted/absent pool-state classifier behind affiance and descry; the drift membranes to document (local-regime versus cloud-provider unreconciled, public-JWKS three-home, IAM-principal pool-id coupling on rotation); the test-switch versus deferred depot-affiliation separation.",
-                "The rbgft engross-412 / expunge-404 idempotency unit test: slate as a test-infra sibling.",
-                "sprue terminology: confirm the intended sense for the foedus directory tokens (the mint doc scopes \"sprue\" to wire-format key prefixes).",
-                "",
                 "## Done when",
-                "The residuals are decided; descry's and instate's operation subdocs are authored contract-first (the RBSDC / RBSAO precedent); the RBRR selector, the RBRF library restructure, and the cognomen eviction are spec'd (RBS0 / RBSRR / RBSRF); the spec text aligns with the ₣Bi chaining-roles boundary; the fixture-composition pattern is specified so the build and reuse-build paces can build against it.",
+                "descry's and instate's operation subdocs are authored contract-first (the RBSDC / RBSAO precedent); the RBRR selector, the RBRF library restructure, and the cognomen eviction are spec'd (RBS0 / RBSRR / RBSRF); the spec text aligns with the ₣Bi chaining-roles boundary; the fixture-composition pattern is specified so the build and reuse-build paces can build against it.",
                 "",
                 "## Character",
-                "Design largely landed; the remainder is a few operator-territory decisions (parley first) plus contract-first spec authoring. Mount with the operator present."
+                "Authoring of an already-landed design — contract-first spec work, parallelizable without the operator. The open deliberations (parley, the normalization dispositions, the rbgft idempotency test, sprue terminology) are settled in the attended chat and arrive as inputs; do not reopen them here."
               ],
               "jjgtn_silks": "foedus-reuse-design",
-              "jjgtn_basis": "0bbf4e2"
+              "jjgtn_basis": "95410cc"
             }
           ]
         },
