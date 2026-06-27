@@ -1847,7 +1847,7 @@ Present only when
 {burx_exit_status}
 is present.
 
-//axvd_sheaf axd_normative
+//axvd_cartouche axd_normative
 include::BUSD-DispatchRuntime.adoc[]
 
 == Remote Node Access
@@ -2314,71 +2314,71 @@ on the remote node by {bust_command_file}.
 Path passed as a positional argument; contents are streamed
 to the remote shell at dispatch time.
 
-//axvd_sheaf axd_normative
+//axvd_cartouche axd_normative
 include::BUSTLL-NodeRegimeList.adoc[]
 
-//axvd_sheaf axd_normative
+//axvd_cartouche axd_normative
 include::BUSTLR-NodeRegimeRender.adoc[]
 
-//axvd_sheaf axd_normative
+//axvd_cartouche axd_normative
 include::BUSTLV-NodeRegimeValidate.adoc[]
 
-//axvd_sheaf axd_normative
+//axvd_cartouche axd_normative
 include::BUSTPL-PrivilegeRegimeList.adoc[]
 
-//axvd_sheaf axd_normative
+//axvd_cartouche axd_normative
 include::BUSTPR-PrivilegeRegimeRender.adoc[]
 
-//axvd_sheaf axd_normative
+//axvd_cartouche axd_normative
 include::BUSTPV-PrivilegeRegimeValidate.adoc[]
 
-//axvd_sheaf axd_normative
+//axvd_cartouche axd_normative
 include::BUSJCW-CaparisonWindows.adoc[]
 
-//axvd_sheaf axd_normative
+//axvd_cartouche axd_normative
 include::BUSJCM-CaparisonMacos.adoc[]
 
-//axvd_sheaf axd_normative
+//axvd_cartouche axd_normative
 include::BUSJCL-CaparisonLinux.adoc[]
 
-//axvd_sheaf axd_normative
+//axvd_cartouche axd_normative
 include::BUSJIW-InvigilateWindows.adoc[]
 
-//axvd_sheaf axd_normative
+//axvd_cartouche axd_normative
 include::BUSJIM-InvigilateMacos.adoc[]
 
-//axvd_sheaf axd_normative
+//axvd_cartouche axd_normative
 include::BUSJIL-InvigilateLinux.adoc[]
 
-//axvd_sheaf axd_normative
+//axvd_cartouche axd_normative
 include::BUSJPS-PrivilegedSsh.adoc[]
 
-//axvd_sheaf axd_normative
+//axvd_cartouche axd_normative
 include::BUSJGB-GarrisonBash.adoc[]
 
-//axvd_sheaf axd_normative
+//axvd_cartouche axd_normative
 include::BUSJGC-GarrisonCygwin.adoc[]
 
-//axvd_sheaf axd_normative
+//axvd_cartouche axd_normative
 include::BUSJGW-GarrisonWsl.adoc[]
 
-//axvd_sheaf axd_normative
+//axvd_cartouche axd_normative
 include::BUSJWK-Knock.adoc[]
 
-//axvd_sheaf axd_normative
+//axvd_cartouche axd_normative
 include::BUSJWC-CommandFile.adoc[]
 
-//axvd_sheaf axd_normative
+//axvd_cartouche axd_normative
 include::BUSJWS-InteractiveSession.adoc[]
 
-//axvd_sheaf axd_normative
+//axvd_cartouche axd_normative
 include::BUSJH0-HandbookJurisdictionTop.adoc[]
 
-//axvd_sheaf axd_normative
+//axvd_cartouche axd_normative
 include::BUSJHW-HandbookWindows.adoc[]
 
-//axvd_sheaf axd_normative
+//axvd_cartouche axd_normative
 include::BUSJHM-HandbookMacos.adoc[]
 
-//axvd_sheaf axd_normative
+//axvd_cartouche axd_normative
 include::BUSJHL-HandbookLinux.adoc[]

@@ -1,4 +1,5 @@
-//axvd_sheaf jjs0_imprimatur axd_normative
+//axvd_sheaf axd_normative
+This is a normative portion of the {jjs0_imprimatur}: binding — code, tests, and decisions may rely on it.
 Read or write a
 {jjdhr_heat_p}
 paddock file.

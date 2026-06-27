@@ -569,7 +569,7 @@ the callee's publication and the caller's interpretation share a version compati
 
 === Protocol Detail
 
-//axvd_sheaf axd_normative
+//axvd_cartouche axd_normative
 include::APCSWP-wire.adoc[leveloffset=+1]
 
 
