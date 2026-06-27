@@ -18106,6 +18106,7 @@
       "jjghn_creation_time": "260618",
       "jjghn_status": "jjghe_racing",
       "jjghn_order": [
+        "₢BiAAk",
         "₢BiAAe",
         "₢BiAAV",
         "₢BiAAC",
@@ -18139,7 +18140,7 @@
         "₢BiAAi",
         "₢BiAAj"
       ],
-      "jjghn_next_pace_seed": "AAk",
+      "jjghn_next_pace_seed": "AAl",
       "jjghn_paces": {
         "₢BiAAC": {
           "jjgpn_tacks": [
@@ -19281,6 +19282,34 @@
               ],
               "jjgtn_silks": "drain-jurisdiction-heat-into-mews-sheaf",
               "jjgtn_basis": "5545823"
+            }
+          ]
+        },
+        "₢BiAAk": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260627-0930",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Spec of needed change",
+                "The rbch_enchase / rbch_palpate quoins (RBS0 \"Chaining-Fact Roles\") are scoped to \"the role a verb plays toward a chained fact\" — a HEAD-produced express-or-chain touchmark/hallmark.",
+                "A sibling pattern arrives from the federation work in ₣Bf: durable-config writes and transient reads whose resolved input is an operator selection from a discoverable set, NOT a chained fact.",
+                "These share the enchase / palpate discipline (one durable field, no self-gate, operator commits / transient use, no durable write) but are not chaining roles — there is no express-or-chain and no capture, so the depth-1 no-relay leak-elimination invariant is vacuous for them.",
+                "Align the spec text so the boundary is explicit rather than leaving the adjacent case to be mis-voiced later.",
+                "",
+                "## Done when",
+                "RBS0 \"Chaining-Fact Roles\" names the enchase-adjacent / palpate-adjacent case and the distinguishing test — resolved input is a HEAD-produced chained fact versus an operator selection; only the former is an enchase or palpate.",
+                "The prose states the band rule: a selection-driven durable-config write or transient read uses its own failure band, never BUBC_band_chain (which is the chain-resolve band).",
+                "A future selection-driven verb can cite this boundary to classify itself without re-litigating.",
+                "",
+                "## Cinched",
+                "Align the spec text; do NOT broaden the quoins to cover operator selections (operator decision).",
+                "",
+                "## Character",
+                "Small, focused spec edit; vocabulary-boundary clarification, mechanical once the boundary text is agreed."
+              ],
+              "jjgtn_silks": "chaining-roles-selection-adjacency",
+              "jjgtn_basis": "db1c47c"
             }
           ]
         }
