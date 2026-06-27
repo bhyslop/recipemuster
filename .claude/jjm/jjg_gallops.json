@@ -18299,8 +18299,8 @@
         "₢BiAAF": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260625-1625",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260627-0836",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "Drafted from ₢BBABV in ₣BB.",
                 "",
@@ -18318,7 +18318,7 @@
                 "RBSCJ no longer names `zrbf_stitch_build_json` (now `zrbfd_stitch_build_json`); the RBSCB authoritative-specs sentence is either confirmed correct as-is (RBSDC is live) or repointed to a genuinely-correct referent — never blind-substituted to the RBSDI dangle. The RBSDI acronyms.md dangle is left flagged for ₣Bf, not fixed here."
               ],
               "jjgtn_silks": "cloudbuild-spec-stale-refs",
-              "jjgtn_basis": "d40447a"
+              "jjgtn_basis": "f59ad63"
             }
           ]
         },
