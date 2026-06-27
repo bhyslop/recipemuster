@@ -42,7 +42,7 @@ const RBTDRP_RBRR_BLANK_FIELDS: &[&str] = &[
 ];
 
 /// Site-specific RBRD fields rblm_zero blanks. Both define the depot-bound
-/// site identity (project ID, GAR repo, pool stem, and bucket derive from
+/// site identity (project ID, GAR repo, and pool stem derive from
 /// CLOUD_PREFIX + DEPOT_MONIKER at kindle); an empty value is the post-
 /// marshal-zero invariant.
 const RBTDRP_RBRD_BLANK_FIELDS: &[&str] = &[

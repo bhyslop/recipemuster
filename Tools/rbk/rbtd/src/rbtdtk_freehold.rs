@@ -91,7 +91,7 @@ fn rbtdtk_freehold_disjoint_per_tincture() {
 }
 
 /// Dual-station dry-run for the freehold scheme: two distinct tinctures
-/// produce disjoint depot project IDs, GAR repos, GCS buckets, and SA
+/// produce disjoint depot project IDs, GAR repos, and SA
 /// emails. Mirrors RBDC composition rules (rbdc_derived.sh) without invoking GCP.
 #[test]
 fn rbtdtk_freehold_dual_station_disjoint() {
