@@ -17997,9 +17997,10 @@
         "₢BgAAB",
         "₢BgAAC",
         "₢BgAAD",
-        "₢BgAAE"
+        "₢BgAAE",
+        "₢BgAAF"
       ],
-      "jjghn_next_pace_seed": "AAF",
+      "jjghn_next_pace_seed": "AAG",
       "jjghn_paces": {
         "₢BgAAA": {
           "jjgpn_tacks": [
@@ -18145,6 +18146,33 @@
               ],
               "jjgtn_silks": "vox-citation-memo-sweep",
               "jjgtn_basis": "200c0bf"
+            }
+          ]
+        },
+        "₢BgAAF": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260627-1220",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "Boundary-drawing, not resolution — judgment over mechanics.",
+                "The TERMINAL pace of ₣Bg: it closes the heat, nothing is slated after it, and \"finishing\" the design is the future build heat's job, not this one's.",
+                "The pull to resolve every open question is the drift this pace exists to stop.",
+                "",
+                "## Shape",
+                "Bring the matricula aspirant (VOSMM-entity.adoc) to a coherent, bounded gestalt — a focus a future build heat can adopt without infinite drift.",
+                "The deliverable is the fence, not a build-ready spec and not all-questions-resolved (both are drift traps); the fence is largely the deferred/aspirant boundary already in VOSMM.",
+                "Walk each item in VOSMM \"Deferred Scope\" and this paddock's \"Open questions\" and consciously place each inside or outside the future heat's scope — the deferred→aspirant promotion checkpoint, default stay-deferred.",
+                "The grimoire stays deferred (its promotion is a parceling for when the matricula ascends, not now).",
+                "Close by nominating the future build heat — the one that builds the aspirant into a binding executable — handing it the bounded focus.",
+                "",
+                "## Done when",
+                "The coherent focus is stated; the in/out fence is explicit with every Deferred-Scope and Open-questions item consciously placed; the deferred set is confirmed (grimoire included); and the future build heat is nominated.",
+                "Open design questions may remain open — answered inside the future heat's fence, not here."
+              ],
+              "jjgtn_silks": "bound-the-aspirant-gestalt",
+              "jjgtn_basis": "9e7c441"
             }
           ]
         }
