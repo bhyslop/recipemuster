@@ -18378,8 +18378,8 @@
         "₢BiAAH": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260625-1625",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260627-1120",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "Drafted from ₢BUAAB in ₣BU.",
                 "",
@@ -18412,7 +18412,7 @@
                 "Investigation-first ACG simplification — a hidden live consumer is the one risk, so the study gates the cut; mechanical once the verdict is in."
               ],
               "jjgtn_silks": "build-bucket-vestige-scrub",
-              "jjgtn_basis": "d40447a"
+              "jjgtn_basis": "3d158a2"
             }
           ]
         },
