@@ -1,4 +1,5 @@
-//axvd_sheaf vos0_imprimatur axd_normative
+//axvd_sheaf axd_aspirant
+This is a portion of the {vos0_imprimatur}.
 // VOSMM-entity — Vox Matricula entity subdoc.
 //
 // This is a pure-consumer subdoc of VOS0-VoxObscuraSpec.adoc (the Vox Obscura cosmology
@@ -12,6 +13,13 @@
 //   VOr_k3p  axvc_dictum   Transient by design
 //   VOr_m7w  axvc_dictum   Mechanical, never linguistic
 //   VOr_q4f  axvc_dictum   Never ships (structural secrecy)
+
+[NOTE]
+.Aspirant — feature-nucleation sheaf
+====
+This sheaf is in {axd_aspirant} status: it nucleates the Matricula feature and is not yet binding.
+A reader must not rely on its content, and released code must not cite the identifiers it mints, until it is infused into the {vos0_imprimatur}.
+====
 
 == Overview
 

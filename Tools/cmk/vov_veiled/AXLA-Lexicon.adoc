@@ -3468,9 +3468,7 @@ the
 {axvd_sheaf}
 voicing names the identity quoin of the parent
 {mcm_codex},
-and a validator checks that binding — the
-{mcm_tendon} —
-against the codex that seals it.
+and a validator checks that binding against the codex that seals it.
 
 === Definition-Site Voicing Annotations (axvd_*)
 
@@ -3506,25 +3504,28 @@ Declares a
 {mcm_sheaf}
 and binds it to its parent
 {mcm_codex}.
-At the head of the
-{mcm_sheaf}
-file the annotation names the parent
+Reads one lookahead
+{mcm_attribute_reference} —
+the parent
 {mcm_codex_p}
-identity quoin — the one sealed by
+self-naming identity quoin, the one sealed by
 {axvd_codex} —
-as a bare token on the annotation line, by which the
+carried as the first
+{mcm_attribute_reference}
+in the fair-faced membership sentence that opens the
+{mcm_sheaf},
+by which the
 {mcm_sheaf}
-names its codex back, realizing the
-{mcm_tendon}.
+names its codex back.
 The line also carries exactly one normativeness
 {axd_dimension}
 (an unmarked line reads as
 {axd_normative}).
 It appears at two sites: the head of the
 {mcm_sheaf}
-file, where the annotation carries the codex token and the status; and immediately above its `include::` in the
+file, where the lookahead is the opening membership sentence; and immediately above its `include::` in the
 {mcm_codex},
-where the codex is the enclosing file and the sheaf is the included path, so the annotation carries the status alone — neither a reader of the part nor a reader of the head is misled.
+where the included path is the lookahead — so neither a reader of the part nor a reader of the head is misled.
 Where the status is non-{axd_normative}, the
 {mcm_sheaf}
 head also carries a
@@ -3536,7 +3537,8 @@ The two emplacements, by template:
 [source,asciidoc]
 ----
 // at the head of the sheaf file («sheaf-filename»):
-//axvd_sheaf «codex»_«ident» axd_aspirant
+//axvd_sheaf axd_aspirant
+This is a portion of the {«codex»_imprimatur}.
 = «Sheaf Title»
 ...sheaf content...
 ----
@@ -3548,12 +3550,12 @@ The two emplacements, by template:
 include::«sheaf-filename»[]
 ----
 +
-Here `«codex»_«ident»` is the codex's identity quoin — `«codex»` the codex's
-acronym, `«ident»` the identity word — an ordinary underscore-bearing quoin sealed at its
+Here `{«codex»_imprimatur}` is the codex's self-naming identity quoin — an ordinary underscore-bearing quoin sealed at its
 {axl_definition_site}
 by
-{axvd_codex}; a validator matches each sheaf's head token against that sealed quoin to confirm the
-{mcm_tendon}.
+{axvd_codex}; a validator reads the first
+{mcm_attribute_reference}
+of each sheaf's opening sentence and matches it against that sealed quoin to confirm the membership.
 
 == Axial Type Universal Terms
 

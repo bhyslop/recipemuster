@@ -85,8 +85,6 @@
 :mcm_codex_p:                <<mcm_codex,Codex's>>
 :mcm_sheaf:                  <<mcm_sheaf,Sheaf>>
 :mcm_sheaf_s:                <<mcm_sheaf,Sheaves>>
-:mcm_tendon:                 <<mcm_tendon,Tendon>>
-:mcm_tendon_s:               <<mcm_tendon,Tendons>>
 
 :mcm_linked_term:            <<mcm_linked_term,Linked Term>>
 :mcm_linked_term_s:          <<mcm_linked_term,Linked Terms>>
@@ -192,8 +190,7 @@ vocabulary rather than minting its own, carrying no
 {mcm_mapping_section}
 of its own, and binds to its
 {mcm_codex}
-through a
-{mcm_tendon}.
+by naming it back.
 Every
 {mcm_sheaf}
 declares exactly one normativeness status — the axial status dimension — both at its head and at its inclusion point.
@@ -240,41 +237,6 @@ As the literary canon is the collection of all admitted works, the
 {mcm_canon}
 is the collection of all
 {mcm_pandect_s}.
-
-[[mcm_tendon]]
-{mcm_tendon}::
-The structural tie binding a
-{mcm_sheaf}
-to its
-{mcm_codex}.
-As a tendon anchors a moving part to a stable frame at two ends, a
-{mcm_tendon}
-anchors the
-{mcm_sheaf}
-that may change to the
-{mcm_codex}
-that owns the vocabulary: the
-{mcm_codex}
-declares its identity once, each
-{mcm_sheaf}
-names it back, and a validator checks the bijection — every
-{mcm_sheaf}
-binds to a real
-{mcm_codex},
-and every inclusion resolves to a
-{mcm_sheaf}
-that names its
-{mcm_codex}.
-The
-{mcm_tendon}
-makes membership a checkable invariant rather than an inference from the include path.
-It is realized at the voicing layer:
-{axvd_codex}
-seals the
-{mcm_codex_p}
-identity quoin, and
-{axvd_sheaf}
-names that quoin back — the mechanism and its templates live in AXLA.
 
 == Text Organization
 
@@ -1625,14 +1587,19 @@ is *audit-anchored*: its conformance is sincerely determined by the tests that
 cite it, and a deviation cites the
 {mcm_precept}
 it bends.
-The two share the citation axis and differ only by exposure; distinct from the
-{mcm_tendon},
-which carries membership rather than a cited proposition.
+The two share the citation axis and differ only by exposure.
 Kind-classification, should
 {mcm_precept_s}
 ever need it, is deferred to an axial voicing as the
 {mcm_rivet}
 has the `axvc_` family.
+
+The cited-proposition signets classify by their terminal letter: `r` marks a
+{mcm_rivet}
+(`RBr_`), while each
+{mcm_precept}
+family takes a different letter (`CBi_`, `JDo_`, `ACGm_`).
+The letter is centrally controlled, never discovered, so this namespace carries no terminal-exclusivity growth pressure; and the mixed case — uppercase acronym, lowercase terminal letter — sets the whole cited-proposition namespace apart from the lowercase code namespace and the all-caps constant namespace, a separation a scanner must read case-sensitively.
 
 [[mcm_category]]
 {mcm_category}::
