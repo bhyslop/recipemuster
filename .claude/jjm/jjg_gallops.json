@@ -20249,9 +20249,59 @@
       "jjghn_silks": "rbk-05-federation-itches",
       "jjghn_creation_time": "260627",
       "jjghn_status": "jjghe_stabled",
-      "jjghn_order": [],
-      "jjghn_next_pace_seed": "AAA",
-      "jjghn_paces": {}
+      "jjghn_order": [
+        "₢BoAAA"
+      ],
+      "jjghn_next_pace_seed": "AAB",
+      "jjghn_paces": {
+        "₢BoAAA": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260627-1410",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Remember the remaining open federation tendrils from the 260627 orient/trot — the ones we did NOT reach a solid resolve to fully address. Context-preservation pace: each section carries the issue, where it stands, the lean (if any), and the coupling, so a later session can act without re-deriving. Source orientation: the ₣Bf paddock \"Foedus switching — AUTHORED + residual shape\" block, and the dockets named below.",
+                "",
+                "## PRIORITY — drift codebase study (gates the descry / drift / rotation cluster)",
+                "The affiance-on-a-pre-existing-pool behavior was re-decided inconsistently across 260627's sessions (the stable->ephemeral key reversal, layered \"supersedes\" notes, config-match present in one docket but not in the spec). Before ratifying anything in the cluster below, study the CODE: what does affiance (rbgp_payor.sh, the workforcePools.get 200/404/DELETED branch) actually do on a pre-existing pool — write-once-leave-in-place, refuse-and-rotate, and what does it compare? Establish ground truth from the code, then ratify tendrils 3/5/6 against it. This study SUBSUMES the deferred tendril-3 decision; nothing in the cluster is settled until it runs.",
+                "",
+                "## Tendril 3 — descry config-match (DECISION, gated on the study)",
+                "descry's contract RBSFD specs pool-health only (present / absent / soft-deleted / provider-missing) — no local-config-vs-cloud-provider MATCH. But the pool-state-classifier pace ₢BfAAs's docket promises \"descry's config-drift 'valid' check rides on top of\" the classifier. Decision owed: amend RBSFD to add config-match as a descry validity dimension, OR keep RBSFD pool-health-only and make config-comparison the reuse fixture's job (₢BlAAE).",
+                "Lean (operator-unratified): amend RBSFD, scoped to DURABLE/INTERACTIVE foedera only — drift bites only a foedus left standing across local edits, and only the interactive Entra foedus stands; the programmatic Keycloak foedus is ephemeral (torn down + re-affianced per run, fresh key per charge) so it is rebuilt-from-local, never reused-while-edited, and a programmatic matcher would be degenerate. Hedge: this assumes the programmatic foedus is fully re-established per run (from the orchestrator's jilt-then-quench) — if a programmatic foedus is ever kept standing, the per-flavor matcher question returns.",
+                "",
+                "## Tendril 5 — local<->cloud drift (deferred FIX)",
+                "affiance is write-once on the provider (leaves an existing one in place — the 200-branch), so later local rbrf.env edits never propagate and the cloud provider silently drifts. DETECTION rides tendril 3's config-match. The FIX — affiance PATCHing a drifted provider — stays DEFERRED; repair today is jilt + re-affiance, never in-place patch. NOT a Palisade membrane (our code, editable). Home when ready: an itch, or RBSHR (Horizon Roadmap), the more durable spec-resident choice.",
+                "",
+                "## Tendril 6 — rotation-coupling fact needs a spec home (small spec-write)",
+                "Durable fact, currently only in the ₣Bf paddock: Google keys IAM bindings to the workforce-pool ID, not the foedus rbef_ name, so refuse-and-rotate (bumping RBRF_WORKFORCE_POOL_ID on soft-delete) cascades into re-admitting every citizen — which is why the durable pool is kept standing. Per CLAUDE.md (a fact that must stay true after a memo retires needs a spec home, not a paddock), write it into RBSRF or RBSMA. Lean: small spec-write, fold into ₢BfAAs (which implements refuse-and-rotate — this fact is the why behind it) or ₢BfAAM. Rides the drift study (same affiance-pre-existing-pool behavior).",
+                "",
+                "## Tendril 7 — lift the ₢BlAAR barrier (READY action, not a design-open)",
+                "₢BlAAR (₣Bl) gates the foedus build paces on ₢BfAAT being merged into this clone. ₢BfAAT is wrapped and its four subdocs (RBSFD / RBSFI / RBSRR / RBSRF) are present in this working tree — so the barrier is liftable. To lift: wrap ₢BlAAR (needs operator confirm — never auto-wrap) AFTER confirming this is the clone ₣Bl runs in. Lifting unblocks ₢BlAAE and the canvass build/test paces.",
+                "",
+                "## Tendril 4 — AXLA opinion-registration voicing (CMK pass, itch-grade)",
+                "Coin an AXLA voicing for REGISTERING an opinion + an RBS0 header stanza to state RB's opinions, so e.g. the clean-tree gate rationale CITES a registered opinion instead of restating it. First candidate: the clean-commits-for-container-coherence rationale (the clean-tree gate variant ships it as a plain RBCC creed constant; this would re-home it). CMK/MCM design pass, orthogonal to federation, thin now — defer until enough opinions accrue (load-bearing-complexity test). May instead belong in jji_itch as a CMK nudge.",
+                "",
+                "## Tendril 8 — terrier-poison <-> ₢BfAAF retirement sequencing (WATCH at mount)",
+                "₢BfAAF retires the interim rbw-dt/rbw-dT terrier scaffold + the terrier-scaffold / terrier-atomicity fixtures; ₢BlAAY (terrier-poison-fixture) REPLACES the retired atomicity proof. Cross-refs already wired in both dockets (₢BlAAY's Cinched names ₢BfAAF). Sequence so the new fixture arrives as the old goes — no duplicate retirement, no coverage gap. Likely no action beyond watching at mount.",
+                "",
+                "## Tendril 9 — canvass -> rbef_ mapping (build detail for ₢BlAAU)",
+                "canvass (₢BlAAU, rbw-jc) enumerates foedera via the cloud (workforcePools.list) and must mark the regime-selected one — which requires correlating a cloud pool-id back to an rbef_ library identity. ₢BlAAU's docket emits pool-id + regime-selected-flag but is silent on HOW: does affiance stamp the rbef_ name into the pool's label/displayName (cloud-side link), or does canvass match pool-ids against the rbrf library's RBRF_WORKFORCE_POOL_ID values (local cross-walk)? Quietly touches affiance (whether it labels the pool). Settle when ₢BlAAU is built; if cloud-side labeling is chosen, affiance must be taught to stamp it.",
+                "",
+                "## Tendril 10 — \"proof\" word over-promises (MCM Lapidary)",
+                "\"proof\" (rbgp_terrier_proof, fdkyclk-proof, MarshalProofs) reads as the math/rigor sense but names bash demonstrations. The terrier instance self-retires (₢BfAAF + ₢BlAAY); the rest persist. Consider an eviction-sweep remint toward an honest demonstration / shakedown / proving-ground valence, if worth a Lapidary pass. Minor.",
+                "",
+                "## Done when",
+                "Each tendril above has either graduated to its own slated work on whichever heat owns it, or been explicitly declined — at which point this remember-pace wraps. The drift study is the gating first move for tendrils 3/5/6.",
+                "",
+                "## Character",
+                "Context-preservation catalog, not a build pace; the deliverable is that no open federation tendril is lost. The drift study is the one piece of real investigation work embedded here and may graduate to its own pace."
+              ],
+              "jjgtn_silks": "federation-open-tendrils-catalog",
+              "jjgtn_basis": "777ede8"
+            }
+          ]
+        }
+      }
     }
   }
 }
