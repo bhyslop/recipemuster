@@ -17495,8 +17495,8 @@
         "₢BfAAP": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260625-1643",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260627-1312",
+              "jjgtn_state": "jjgte_abandoned",
               "jjgtn_text": [
                 "Build the minimal estate-secret stub — a self-labelled BCG module that sources-and-verifies the Keycloak signing key from the shelved interim station file, so the realm and orchestrator have a stable key to consume.",
                 "",
@@ -17527,7 +17527,7 @@
                 "Small BCG build over a settled design; sits after the estate-key genesis pace (its producer) and before the realm/orchestrator paces that consume the stable key (the stub name is an in-pace hearting mint)."
               ],
               "jjgtn_silks": "estate-secret-verification",
-              "jjgtn_basis": "fe2e9c4"
+              "jjgtn_basis": "8ea2c71"
             }
           ]
         },
