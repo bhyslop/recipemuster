@@ -68,6 +68,27 @@ DNS server IP address used by sentry containers for name resolution.
 Injected into container environment to control DNS behavior.
 
 //axhrgb_group
+{rbrr_group_federation_selection}
+
+The active-foedus selector: which standing
+{rbtf_foedus}
+this installation authenticates against.
+A cross-domain reference into the
+{rbrf_regime}
+library — {rbrr_regime} names which foedus is active; the foedus's configuration lives in that foedus's own subdirectory's rbrf.env, never duplicated here.
+Production names its single foedus and rarely changes it; the test-bed re-points it among standing foedera.
+
+//axhrgv_variable
+{rbrr_foedus}
+
+The subdirectory name of the active
+{rbtf_foedus}
+— one of the foedus subdirectories in the moorings foedera library, the durable identity that survives the workforce pool's rotation.
+The authenticate-against-active consumers (avow, the accessor, the federated-access and mantle-access probes) require this selector committed before they run;
+{rbtgo_foedus_instate}
+rewrites it and leaves it uncommitted for the operator.
+
+//axhrgb_group
 {rbrr_group_build_configuration}
 
 Operator-chosen
@@ -119,4 +140,4 @@ Enforces format constraints on {rbrr_runtime_prefix}.
 {rbkro_render}
 
 Renders the {rbrr_regime} grouped by section with presentation gates per group.
-Sections: Runtime Prefix, Vessel and Local Configuration, Google Cloud Build Configuration, Secrets Directory, Public Docs.
+Sections: Runtime Prefix, Vessel and Local Configuration, Federation Selection, Google Cloud Build Configuration, Secrets Directory, Public Docs.

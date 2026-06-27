@@ -15,28 +15,20 @@ The one axis that changes the required-field shape is the *acquisition mechanism
 {rbrf_mechanism}
 and gating the two arms below.
 The programmatic arm's private signing key never enters this regime: only the *public* JWKS, itself a public identifier.
-RBRF assignment files are found in the operator's local filesystem and carry no secrets — every value is a public identifier — so the file ships committed; affiance rewrites the values when founding a fresh trust against a real org and IdP tenant.
+RBRF assignment files form a library — one rbrf.env per standing foedus, each in its own subdirectory of the moorings foedera library, the subdirectory name the foedus's stable identity, the configuration stored once with no copied active file.
+Every value is a public identifier and carries no secrets, so each file ships committed; affiance rewrites a foedus's values when founding a fresh trust against a real org and IdP tenant.
 
-NOTE: *Active foedus and selection.* This regime names the single *active*
+NOTE: *Active foedus and selection.* A foedus's stable identity is its subdirectory name in this library, which survives the rotation of the {rbrf_workforce_pool_id} that realizes it — a jilt graveyards the pool id and refuse-and-rotate forces a fresh one, while the subdirectory name does not change. The single *active*
 {rbtf_foedus}
-— the configured federation a run authenticates against — by its
-{rbrf_cognomen},
-the foedus's stable identity (distinct from the {rbrf_workforce_pool_id} that realizes it, which may rotate). The manor may stand up several foedera, each its own pool; the authoritative registry of what exists is the Manor itself, enumerated by
+— the configured federation a run authenticates against — is named not here but by the {rbrr_foedus} selector in the sibling {rbrr_regime}; this regime carries one foedus's configured shape, never which is active. The manor may stand up several foedera, each its own pool and subdirectory; the authoritative registry of what exists is the Manor itself, enumerated by
 {rbtf_canvass}
-(a `workforcePools.list` query), not a local list in this regime. Selecting a different active foedus re-points this regime; production stays single-foedus-clean (effectively singleton). The switch *mechanism* — the act that re-points and resets the sitting, and how a {rbrf_cognomen} is carried in the Manor for {rbtf_canvass} to enumerate — is specified in the foedus-reuse design, not here; this regime carries only the active foedus's identity the switch re-points.
+(a `workforcePools.list` query), not a local list. Production stays single-foedus-clean — one foedus in the library, named by the selector, rarely re-pointed. The switch toothings live outside this regime:
+{rbtgo_foedus_instate}
+re-points the selector and
+{rbtgo_foedus_descry}
+reads a named foedus's pool health.
 
 NOTE: *Per-vendor guide contract.* A real vendor's IdP-console setup (app registration, claims, scopes) is foreign-console human work, not a regime field and not a tabtarget. Each vendor gets a setup guide whose contract is to yield the vendor-agnostic core values this regime reads (issuer, client-id, subject claim via the attribute mapping, and the mechanism-appropriate gated values). Entra is the first such guide; further vendors are further guides under the same contract.
-
-//axhrv_variable
-{rbrf_cognomen}
-
-The stable identity of the active
-{rbtf_foedus}
-— an operator-assigned name (e.g. `entra`, `keycloak`), the durable handle a foedus is selected and enumerated by.
-Distinct from the
-{rbrf_workforce_pool_id}
-that realizes it: a jilt graveyards the pool id and refuse-and-rotate forces a fresh one on re-establishment, so the pool rotates while the cognomen does not.
-Core (both mechanisms); required.
 
 //axhrv_variable
 {rbrf_org_id}
@@ -49,11 +41,9 @@ Core (both mechanisms); required; numeric.
 {rbrf_workforce_pool_id}
 
 Workforce identity pool ID, org-scoped — one pool serves every depot under the manor.
-The pool currently realizing the active
+The pool currently realizing this
 {rbtf_foedus}
-(one pool per foedus); the foedus's durable identity is its
-{rbrf_cognomen},
-not this id, which may rotate.
+(one pool per foedus); the foedus's durable identity is its subdirectory name, not this id, which may rotate.
 Core (both mechanisms); required; lowercase alphanumeric and hyphen, 4-32 chars, must not start with the reserved `gcp-` prefix.
 
 //axhrv_variable
@@ -179,7 +169,7 @@ Locks all enrolled variables against mutation.
 {rbkro_validate}
 
 Validates fields via buv_vet type checkers, then custom format checks in a separate enforce step.
-Core, both mechanisms: the cognomen as a cross-context-safe identifier (xname); org as numeric; pool and provider IDs as lowercase alphanumeric/hyphen with the `gcp-` prefix reserved; session duration as NNNs; the attribute mapping as mapping google.subject; the mechanism as one of the two enum values.
+Core, both mechanisms: org as numeric; pool and provider IDs as lowercase alphanumeric/hyphen with the `gcp-` prefix reserved; session duration as NNNs; the attribute mapping as mapping google.subject; the mechanism as one of the two enum values.
 Interactive only: both device-flow endpoints as resolvable https:// URIs, the scope as requesting openid but never offline_access (the human-present premise), and the issuer as a resolvable https:// URI.
 Programmatic only: the issuer as an https://-scheme iss-matching string (scheme required, resolution not), and the uploaded JWKS as present and well-formed.
 
@@ -187,4 +177,4 @@ Programmatic only: the issuer as an https://-scheme iss-matching string (scheme 
 {rbkro_render}
 
 Renders via buv_render.
-Sections: Foedus Identity, Workforce Pool Identity, Acquisition Mechanism, IdP Trust (core), Interactive Mechanism, Programmatic Mechanism.
+Sections: Workforce Pool Identity, Acquisition Mechanism, IdP Trust (core), Interactive Mechanism, Programmatic Mechanism.

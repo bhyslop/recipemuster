@@ -1,0 +1,69 @@
+//axvd_sheaf axd_normative
+This is a normative portion of the {rbs0_imprimatur}: binding — code, tests, and decisions may rely on it.
+//axhob_operation
+{rbtgo_foedus_descry}
+
+NOTE: *Contract, not yet built.* This subdoc is the contract the foedus-cardinality build pace
+fills; it states what done looks like, not the implementation. Unlike the founding operations,
+no civic verb is deferred here — the word
+{rbtgo_foedus_descry}
+names is already minted; only the build is deferred, to the sibling test-infrastructure stream.
+
+NOTE: *Palpate-adjacent, but not a chaining consumer.* Descry reads a named
+{rbtf_foedus}'s
+workforce-pool health for a transient inspection only and writes no durable config — the read-side
+posture of a
+{rbch_palpate}.
+But it resolves no chained fact: its subject is an express foedus identity, never a value resolved
+express-or-chain from a prior tabtarget's capture. So it is *not* a
+{rbch_palpate}
+member — it carries none of the depth-1 no-relay machinery, and it rejects into its *own* precision
+band, never the chaining band that
+{rbch_palpate}
+and
+{rbch_enchase}
+share. The one discipline it does keep is the palpate guardrail: a read must never be extended to
+write durable config.
+
+NOTE: *Subject — any standing foedus, not only the active one.* The inspected foedus is named by its
+subdirectory identity in the
+{rbrf_regime}
+library, which need not be the one
+{rbrr_foedus}
+currently selects. Where
+{rbtf_canvass}
+enumerates the foedera the Manor holds and
+{rbrr_foedus}
+selects the active one, descry inspects the live health of a single named foedus's pool.
+
+NOTE: *Fixture role — the probe atom.* Descry is the precondition probe the foedus reuse-or-establish
+fixture composes first; it stays a bare read, never folded into a fat reuse-or-create verb. The
+composition contract is stated at
+{rbtgo_foedus_instate}.
+
+The ordered shape (impl deferred — do not read REST calls, function names, or a token actor into it
+as fixed):
+
+//axhos_step
+. *Resolve the named foedus's pool*: read the named foedus subdirectory's
+{rbrf_regime}
+to obtain the
+{rbrf_workforce_pool_id}
+that realizes it. A name resolving to no foedus subdirectory is fatal in descry's own band, naming
+the absent foedus.
+
+//axhos_step
+. *Read the pool's live health* from the Manor — whether the workforce pool exists, stands active
+(not soft-deleted), and carries its provider. The read is manor-scoped — a
+{rbtf_canvass}-adjacent
+interrogation of one pool rather than all — mutates nothing, and yields the health verdict.
+
+//axhoc_completion
+Successful execution reports the named foedus's pool health — present-and-active, or a named deficit
+(absent, soft-deleted, provider-missing) — for transient use by a caller or a fixture, having
+written no durable config and mutated nothing in the Manor or the regime.
+A broken read or an unresolvable foedus name rejects in descry's own precision band, distinct from
+the chaining band and from
+{rbtgo_foedus_instate}'s:
+the two co-occur in the fixture's reuse-or-establish spawn path, so the band allocation rule forbids
+them a shared code.

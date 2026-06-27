@@ -163,6 +163,8 @@
 // Recipe Bottle Term Google Operations — Foedus (programmatic test-bed)
 :rbtgo_foedus_establish:         <<rbtgo_foedus_establish,Foedus Establish>>
 :rbtgo_foedus_acquire:           <<rbtgo_foedus_acquire,Foedus Acquire>>
+:rbtgo_foedus_descry:            <<rbtgo_foedus_descry,Foedus Descry>>
+:rbtgo_foedus_instate:           <<rbtgo_foedus_instate,Foedus Instate>>
 
 // Recipe Bottle Term Google Operation Groups
 :rbtgog_access:                   <<rbtgog_access,Access Probe Group>>
@@ -355,6 +357,8 @@
 :rbrr_group_container_runtime:      <<rbrr_group_container_runtime,Container Runtime Group>>
 :rbrr_group_service_accounts:       <<rbrr_group_service_accounts,Service Accounts Group>>
 :rbrr_vessel_dir:            <<rbrr_vessel_dir,RBRR_VESSEL_DIR>>
+:rbrr_foedus:                <<rbrr_foedus,RBRR_FOEDUS>>
+:rbrr_group_federation_selection: <<rbrr_group_federation_selection,Federation Selection Group>>
 :rbrr_dns_server:            <<rbrr_dns_server,RBRR_DNS_SERVER>>
 :rbrr_gcb_timeout:           <<rbrr_gcb_timeout,RBRR_GCB_TIMEOUT>>
 :rbrr_gcb_min_concurrent_builds: <<rbrr_gcb_min_concurrent_builds,RBRR_GCB_MIN_CONCURRENT_BUILDS>>
@@ -408,7 +412,6 @@
 
 // Recipe Bottle Regime: Federation (manor IdP trust)
 :rbrf_attribute_mapping:     <<rbrf_attribute_mapping,RBRF_ATTRIBUTE_MAPPING>>
-:rbrf_cognomen:              <<rbrf_cognomen,RBRF_COGNOMEN>>
 :rbrf_group_interactive:     <<rbrf_group_interactive,Interactive Mechanism Group>>
 :rbrf_group_programmatic:    <<rbrf_group_programmatic,Programmatic Mechanism Group>>
 :rbrf_idp_client_id:         <<rbrf_idp_client_id,RBRF_IDP_CLIENT_ID>>
@@ -1226,6 +1229,37 @@ A contract for the accessor build pace; the civic verb is deferred.
 //axvd_cartouche axd_normative
 include::RBSFA-foedus_acquire.adoc[]
 
+[[rbtgo_foedus_descry]]
+//axvo_method axd_transient axd_grouped
+=== {rbtgo_foedus_descry}
+
+Reads a named
+{rbtf_foedus}'s
+workforce-pool health for transient inspection — palpate-adjacent but resolving no chained fact, so
+not a
+{rbch_palpate}
+member and rejecting in its own band.
+A contract for the foedus-cardinality build pace; the build is deferred, the word is minted.
+
+//axvd_cartouche axd_normative
+include::RBSFD-foedus_descry.adoc[]
+
+[[rbtgo_foedus_instate]]
+//axvo_method axd_transient axd_grouped
+=== {rbtgo_foedus_instate}
+
+Rewrites the active-foedus selector
+{rbrr_foedus}
+to a named standing
+{rbtf_foedus}
+— enchase-adjacent field-rewrite but resolving no chained fact, so not a
+{rbch_enchase}
+member and rejecting in its own band; no self-gate, the operator commits.
+A contract for the foedus-cardinality build pace; the build is deferred, the word is minted.
+
+//axvd_cartouche axd_normative
+include::RBSFI-foedus_instate.adoc[]
+
 [[rbtgo_depot_levy]]
 //axvo_method axd_transient axd_grouped
 === {rbtgo_depot_levy}
@@ -1995,7 +2029,7 @@ The noun
 {rbtf_affiance}
 founds and
 {rbtf_jilt}
-dissolves, identified by its stable {rbrf_cognomen} (not the pool that realizes it, which may rotate).
+dissolves, identified by its subdirectory name in the {rbrf_regime} library (not the pool that realizes it, which may rotate).
 Its shape is a vendor-agnostic trust core plus an acquisition-mechanism gate
 ({rbrf_mechanism});
 vendor identity is deliberately not part of it, so a new IdP is a setup guide plus
@@ -2131,7 +2165,9 @@ bindings and service accounts are untouched.
 The read act that enumerates every
 {rbtf_foedus}
 the manor holds, by interrogating the Manor itself (a `workforcePools.list` query) — the manor, not this regime, is the authoritative registry of what foedera exist.
-Where the per-foedus health read inspects one pool, canvass lists them all.
+Where
+{rbtgo_foedus_descry}
+inspects one named foedus's pool health, canvass lists every foedus the manor holds.
 Read-only; never an operator-triggered mutation.
 
 [[rbtf_rehearse]]
@@ -3344,7 +3380,7 @@ Recipe Bottle Nameplate Regime
 //axl_voices axtu_path
 {rbsld_moorings}::
 The moorings directory — the single root for all {rbtr_consumer} configuration.
-At its root sit the installation-wide regime assignment files; each {at_nameplate} adds a subdirectory named by its {rbrn_moniker}, and vessel definitions live under {rbrr_vessel_dir}.
+At its root sit the installation-wide regime assignment files; each {at_nameplate} adds a subdirectory named by its {rbrn_moniker}, vessel definitions live under {rbrr_vessel_dir}, and foedus definitions live one per subdirectory in the foedera library, the active one selected by {rbrr_foedus}.
 Each regime's exact file location is stated in that regime's definition.
 
 === Repository Regime (RBRR)
@@ -3398,6 +3434,22 @@ Used by compose `working_dir`, volume mount targets, and bottle engagement tabta
 {rbrr_vessel_dir}::
 Directory containing vessel configuration subdirectories for
 {rbrr_regime}.
+
+[[rbrr_foedus]]
+//axvr_variable axd_required rbst_xname
+{rbrr_foedus}::
+The active-foedus selector — the subdirectory name of the
+{rbrf_regime}
+the manor authenticates against, one of the foedus subdirectories in the moorings foedera library.
+A cross-domain reference: the value is a foedus identity owned by the
+{rbrf_regime}
+library, not an
+{rbrr_regime}
+concept of its own — {rbrr_regime} only names which standing foedus is active.
+Production names its single foedus and rarely changes it; the test-bed re-points it among standing
+foedera via
+{rbtgo_foedus_instate},
+and the authenticate-against-active consumers require it committed before they run.
 
 [[rbrr_dns_server]]
 //axvr_variable axd_required rbst_ipv4
@@ -3473,6 +3525,13 @@ for each operational role.
 //axvr_group
 {rbrr_group_container_runtime}::
 Container runtime and deployment environment settings.
+
+[[rbrr_group_federation_selection]]
+//axvr_group
+{rbrr_group_federation_selection}::
+The active-foedus selector — which standing
+{rbtf_foedus}
+this installation authenticates against.
 
 [[rbrr_group_build_configuration]]
 //axvr_group
@@ -3645,17 +3704,12 @@ include::RBSRP-RegimePayor.adoc[]
 === Federation Regime (RBRF)
 
 [[rbrf_regime]]
-//axvr_regime axf_bash axrd_file_sourced axrd_singleton
+//axvr_regime axf_bash axrd_file_sourced axrd_manifold
 {rbrf_regime}::
 Manor-scoped (org-level) IdP trust and workforce-pool identity: a vendor-agnostic trust core plus a single acquisition-mechanism gate ({rbrf_mechanism}).
 The core — org, pool, provider, session, issuer, client-id, attribute mapping — is the same structure for every OIDC IdP, so vendor identity is not a field of it; the gate selects the interactive (device-flow) or programmatic (uploaded-JWKS) arm.
-Names the single active {rbtf_foedus} by its {rbrf_cognomen} (its stable identity); {rbrf_workforce_pool_id} is the pool that realizes it and may rotate. The Manor is the authoritative registry of foedera (read by {rbtf_canvass}), so production stays single-foedus-clean.
-File-sourced singleton at {rbsld_moorings}rbrf.env; carries no secrets — the programmatic arm's private signing key never enters it, only the public JWKS — so it ships committed.
-
-[[rbrf_cognomen]]
-//axrg_variable axtu_xname
-{rbrf_cognomen}::
-The stable identity of the active {rbtf_foedus} — an operator-assigned name, distinct from the {rbrf_workforce_pool_id} that realizes it and surviving the pool's rotation. The durable handle a foedus is selected and enumerated by.
+A foedus's stable identity is its subdirectory name, which survives the rotation of the {rbrf_workforce_pool_id} that realizes it; the active foedus is named by the {rbrr_foedus} selector, and the Manor is the authoritative registry of what foedera exist (read by {rbtf_canvass}), so production stays single-foedus-clean.
+File-sourced, one per foedus: an rbrf.env in each foedus subdirectory of the moorings foedera library, the subdirectory named by the foedus identity and the active one selected by {rbrr_foedus}. Carries no secrets — the programmatic arm's private signing key never enters it, only the public JWKS — so it ships committed.
 
 [[rbrf_org_id]]
 //axrg_variable axtu_string

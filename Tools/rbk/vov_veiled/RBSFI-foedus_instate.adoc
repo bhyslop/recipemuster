@@ -1,0 +1,85 @@
+//axvd_sheaf axd_normative
+This is a normative portion of the {rbs0_imprimatur}: binding — code, tests, and decisions may rely on it.
+//axhob_operation
+{rbtgo_foedus_instate}
+
+NOTE: *Contract, not yet built.* This subdoc is the contract the foedus-cardinality build pace
+fills; it states what done looks like, not the implementation. Unlike the founding operations,
+no civic verb is deferred here — the word
+{rbtgo_foedus_instate}
+names is already minted; only the build is deferred, to the sibling test-infrastructure stream.
+
+NOTE: *Enchase-adjacent, but not a chaining link.* Instate rewrites exactly one durable config
+field — the active-foedus selector
+{rbrr_foedus}
+in
+{rbrr_regime}
+— reusing the same atomic in-place field-rewrite mechanics as the durable-config links
+({rbtgo_director_feoff},
+{rbtgo_director_yoke},
+and anoint): substitute the matching assignment line, pass the rest through unchanged, write a
+temp file then rename.
+But it is *not* a
+{rbch_enchase}:
+it crosses no transient chained value into config. Its input is an express foedus identity the
+operator supplies, not a value resolved express-or-chain from a prior tabtarget's capture — so
+there is no depth-1 chain to terminate, no no-relay concern, and it rejects into its *own*
+precision band, never the chaining band. It writes an operator-named value; the *sanctioned
+crossing of a transient chained value* that defines
+{rbch_enchase}
+membership simply does not apply.
+
+NOTE: *No self-gate; the operator commits.* Like the durable-config links, instate does not gate on
+a clean tree — it writes the very change the operator is about to commit — and it does not itself
+commit. The selector is left rewritten and uncommitted in
+{rbrr_regime};
+the operator commits it with their usual workflow. The committed-selector precondition is enforced
+elsewhere: the authenticate-against-active consumers (avow, the accessor, the federated-access and
+mantle-access probes) require the selector to be committed before they run. That consumer gate, and
+the retirement of the malformed clean-tree original it replaces, are a separate pace — instate is
+only the writer the gate later guards, and never gates itself.
+
+NOTE: *Fixture composition — never a fat verb.* The reuse-if-valid-else-create decision lives in the
+fixture, not in instate. The fixture composes the bare atoms —
+{rbtgo_foedus_descry}
+to probe a named foedus's health, then instate to select a healthy standing foedus, or
+{rbtgo_foedus_establish}-then-instate
+to found and select a fresh one — in the reuse-or-establish shape: reuse the standing foedus when
+descry finds it healthy, else establish then instate. This combinator is shared with the depot
+reuse-or-create fixture; the reuse-vs-create branch stays at the fixture call site, the shared
+spine is the surrounding ensure scaffold. Instate itself stays a single-field write — folding the
+probe-and-decide into it would make the fat verb the composition exists to avoid.
+
+The ordered shape (impl deferred — do not read REST calls, function names, or a token actor into it
+as fixed):
+
+//axhos_step
+. *Take the foedus identity* as the sole express argument — the subdirectory name of a standing
+foedus in
+{rbrf_regime}'s
+library. Omitting the argument is fatal in instate's own band, and fails by listing the discovered
+foedus subdirectories (the available identities) rather than a bare usage error. A name matching no
+foedus subdirectory is likewise fatal, naming the absent foedus.
+
+//axhos_step
+. *Rewrite the selector*: set
+{rbrr_foedus}
+to the supplied identity in
+{rbrr_regime},
+reusing the atomic in-place field-rewrite of the durable-config links — substitute the matching
+assignment, pass the rest through unchanged, write to a temp file and rename. No other field is
+touched, and the file is not committed.
+
+//axhoc_completion
+Successful execution leaves
+{rbrr_regime}
+naming the supplied foedus as active — rewritten, uncommitted, ready for the operator to commit.
+Instate creates and changes nothing else: no Manor mutation, and no sitting reset — re-establishing
+the
+{rbtf_sitting}
+against the newly active foedus is the avow side's concern on the next sign-in, not this write.
+A missing or unresolvable foedus identity rejects in instate's own precision band, distinct from the
+chaining band and from
+{rbtgo_foedus_descry}'s:
+the two co-occur in the fixture's reuse-or-establish spawn path, so the band allocation rule forbids
+them a shared code.
