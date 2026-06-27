@@ -13975,8 +13975,8 @@
         "₢BWAAA": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260601-0751",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260627-1407",
+              "jjgtn_state": "jjgte_abandoned",
               "jjgtn_text": [
                 "## Character",
                 "Reinstatement — mount-time judgment against the podman feature as it then stands.",
@@ -14002,7 +14002,7 @@
                 "(no longer self-skipping when rbrs.env is present)."
               ],
               "jjgtn_silks": "rbrs-reinstate-from-future",
-              "jjgtn_basis": "0265ec4"
+              "jjgtn_basis": "cea2763"
             }
           ]
         }
