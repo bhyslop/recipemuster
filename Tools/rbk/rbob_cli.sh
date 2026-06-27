@@ -84,11 +84,13 @@ rbob_scry() {
   zrbob_sentinel
 
   buc_doc_brief "Scry network traffic on crucible containers"
+  buc_doc_oparm "duration" "bounded capture window for scripted use (e.g. 10, 30s, 1m); omit for interactive run-until-Ctrl+C"
+  buc_doc_oparm "filter"   "tcpdump filter expression scoping every leg (e.g. 'host 10.242.0.2')"
   buc_doc_shown || return 0
 
   # Kindle observe module and delegate
   zrboo_kindle
-  rboo_observe
+  rboo_observe "$@"
 }
 
 rbob_charged() {
