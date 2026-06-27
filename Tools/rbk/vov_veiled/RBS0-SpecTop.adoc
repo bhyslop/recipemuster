@@ -4911,6 +4911,21 @@ how {rbsc_charge} detects them, and the exit-status contract.
 //axvd_cartouche axd_normative
 include::RBSCH-charge_hook.adoc[]
 
+== Aspirants
+
+[NOTE]
+====
+*Aspirant* (AXLA `axd_aspirant`): every sheaf mounted under this branch is a concept aspiring to first-class status but *not yet infused* into the codex.
+Nothing here is binding — do not rely on it, decide from it, or cite the provisional names it sketches.
+A sheaf graduates by minting its vocabulary and moving its normative content into the codex body; until then this branch is the nucleation site, alongside the Horizon Roadmap.
+====
+
+[[rbscv_aspirant]]
+=== Crucible Variant
+
+//axvd_cartouche axd_aspirant
+include::RBSCV-crucible_variant.adoc[leveloffset=+2]
+
 == Trade Studies
 
 Trade studies document the crystallized results of intensive research into complex technical domains.

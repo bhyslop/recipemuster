@@ -1,0 +1,137 @@
+//axvd_sheaf rbs0_imprimatur axd_aspirant
+This is an aspirant portion of the {rbs0_imprimatur}: not yet binding — do not rely on it, decide from it, or cite the provisional names it sketches until it is infused into the codex.
+Every term set in **bold** below is a provisional sketch local to this sheaf — a placeholder for a concept, not minted vocabulary; its word-selection and quoin allocation are deferred, and the sketches dissolve into the mapping section only on graduation (see Deferred Scope).
+
+[[rbscv_crucible_variant]]
+== Overview
+
+A
+{rbsc_crucible}
+is, at bottom, a *strong definition of a security arrangement* — a contracted set of boundaries the operator can trust once the
+{rbtr_director}
+has established it — and only secondarily the particular container machinery that realizes those boundaries today.
+The three-container topology (sentry, pentacle, bottle) and its namespace-sharing tricks are a **means** to that arrangement, not the arrangement itself.
+
+This sheaf records the reframe and the *reason to believe* a second realization is possible: running the contained workload inside a per-workload **microVM** (its own kernel) instead of a shared-kernel container, while keeping the same usage rules and the same safety guarantee.
+Its bar is reason-to-believe-possible, not design.
+A concrete design — and the decision of whether any new regime knob is even warranted — is out of scope here and waits on a heat.
+
+The motivating instance is the microVM; the durable concept is larger than it.
+"MicroVM" is one **isolation substrate**; the reframe is what lets the substrate be swapped without disturbing what sits above it.
+
+== The Reframe
+
+The arrangement decomposes into two contracts realized *upon* a substrate:
+
+* *File-exposure contract* — the contained workload sees only an explicitly enumerated set of host resources.
+  Mechanism varies (bind mount ↔ virtio-fs / block device); the allowlist invariant does not.
+* *Network-containment contract* — the workload has exactly one egress path, and on it sits a policy enforcer applying a deny-by-default allowlist (DNS + CIDR + ports), NAT, and full logging, live from the first packet.
+  This is the
+  {at_sentry_container}.
+  It is substrate-independent.
+  **It is the part Recipe Bottle invented, and it survives every substrate swap** because it lives on the network axis, orthogonal to the isolation axis.
+* *Isolation substrate* — the kernel boundary around the workload: shared-kernel container ↔ own-kernel microVM.
+  This is the part Recipe Bottle borrowed, and the swappable one.
+
+The two contracts are the *definition*; the substrate is a *binding*.
+The role vocabulary the codex uses today welds the binding into the noun — `at_bottle_container`, `at_sentry_container`, `at_pentacle_container` — which is the fingerprint of a substrate-first authoring.
+The reframe un-welds role from substrate: a **Subject** (the bottle), an **Enforcer** (the sentry), and an **Establisher** (the pentacle) as roles, with container-or-microVM as their binding.
+
+A principle falls out: **substrate strength is a per-role property, driven by whose code the role runs.**
+The Subject runs *foreign* code, so it is the role that may want the microVM's own-kernel boundary; the Enforcer runs the operator's *own* policy code, so a container remains fine there even when the Subject is hardened.
+The arrangement is mixed-substrate by design, not microVM-everything.
+
+== The Two Bindings
+
+[cols="1,3,3",options="header"]
+|===
+| Role | Container binding (today) | MicroVM binding (aspirant)
+
+| Subject (bottle)
+| Shared host/VM kernel, isolated by Linux namespaces.
+| Own kernel per Subject; a kernel escape lands in a throwaway guest kernel, not the host.
+
+| Enforcer (sentry)
+| Privileged container on the sole egress path; iptables + NAT + DNS allowlist + logging.
+| Unchanged in *role*; realized as a dual-homed guest/container straddling an internet-less network and the uplink. Runs operator code, so its own substrate need not harden.
+
+| Establisher (pentacle)
+| Privileged container that pre-cooks a network namespace the bottle then shares (`network_mode: "service:pentacle"`).
+| **Dissolves.** A microVM is born with its own stack; "born constrained, first packet" is achieved declaratively by attaching the Subject to an internet-less network with no default route — no privileged establisher needed.
+
+| Subject↔Enforcer attachment
+| Shared network namespace (a same-kernel trick).
+| A routed virtio NIC: the Subject's only route is the Enforcer, which NATs and filters.
+|===
+
+The pentacle's dissolution is the load-bearing confirmation of the reframe: a config item naming the pentacle would have encoded a *means that vanishes under one binding*.
+The usage contract ({rbsc_charge}, {rbsc_enjoin}, {rbsc_quench}, {rbsc_rack}, {rbsc_hail}) is invariant across bindings; only a few *diagnostic* mechanisms re-bind — {rbsc_scry} most of all, whose traffic-capture locus moves from a shared namespace to the Enforcer's interfaces when the Subject is a guest with its own NIC.
+
+A
+{at_nameplate}
+is not a promise of multiplatform reach; it is a handle to one useful
+{rbsc_crucible}.
+The microVM crucible is therefore a *variant*, authored concretely on need — not a portable nameplate that auto-binds per machine.
+Whether the reframe ever warrants a single nameplate knob (a Subject *isolation class*: shared-kernel vs own-kernel) or none at all is itself deferred; substrate-choice granularity is machine-dependent (genuinely per-role on Linux; uniformly all-guests under Apple's tool), which argues against a per-role substrate matrix.
+
+== Reason to Believe
+
+The one thing reasoning alone cannot settle is whether the network-containment contract is even *expressible* on a per-workload-microVM substrate.
+The evidence says yes, on current macOS:
+
+* Apple's open-source `container` tool (Containerization framework, macOS 26 "Tahoe") boots each OCI Linux container in its *own* lightweight microVM via Virtualization.framework — the per-Subject own-kernel model, native, no Linux host.
+* It consumes the *same OCI images* Recipe Bottle already builds, so the Subject's image stays the unit of configuration (this is what makes the substrate a swappable occupant rather than a rebuild).
+* The Enforcer pattern is demonstrated: `container network create --internal` yields an internet-less network, and a *dual-homed enforcer* straddling that network and the default network realizes the sole-egress-through-policy topology. A community thread does exactly this to allowlist domains — for the literal use case of sandboxing a coding agent (apple/container Discussion #719).
+* That same thread teaches the *separateness* lesson the hard way: a guest-side firewall *inside* the workload is root-bypassable; the enforcer must be a *separate* element the Subject cannot touch — which is precisely Recipe Bottle's existing design choice, here independently validated.
+
+On Linux the binding is Firecracker/Cloud-Hypervisor over KVM (or libkrun/krunvm), where full tap/route control makes the sole-egress topology straightforwardly constructible.
+
+macOS version is load-bearing: macOS 15 cannot host this (no custom networks, no container-to-container traffic); macOS 26 (released 2025-09-15; the successor to 15 under Apple's year-based numbering — there is no macOS 16–25) is the floor.
+
+== Open Questions
+
+These are recorded, not resolved — and the first is the honest limit on the "reason to believe":
+
+* *L3 vs proxy, unverified.* Discussion #719 demonstrates an *application-layer* (Squid proxy) allowlist. Recipe Bottle's sentry is *L3* — iptables + NAT + DNS allowlist. Whether a dual-homed enforcer *guest* performs real L3 forwarding/NAT over Apple's vmnet, with no host-gateway leak, is plausible but unproven. This is an {rbsi_ifrit} question for whenever the capability leaves aspirancy, not an architecture-reasoning one.
+* *Rough edges from the field.* Host services bound to `0.0.0.0` remain reachable via the host gateway; iCloud Private Relay can interfere; host-side `pf` enforcement needs `sudo`. Each is a containment detail to survey at design time.
+* *Diagnostic re-binding.* {rbsc_scry} (and the exec-into verbs to a lesser degree) need their mechanism re-bound to the guest model; the *capability* is preservable, the plumbing is not portable.
+
+== Deferred Scope
+
+Named to bound the aspirant; none specified here:
+
+* The concrete design of the microVM crucible variant — compose-equivalent topology, the Subject↔Enforcer virtio wiring, the file-exposure mechanism.
+* The regime question — whether a nameplate *isolation-class* knob is warranted, or whether a variant is authored without any new knob.
+* Vocabulary and quoin allocation for **Subject / Enforcer / Establisher / isolation substrate / variant** — every bold term above is a provisional sketch local to this sheaf, unminted, with no inscription status of its own yet; the mints dissolve into the mapping section only on graduation.
+* The Ifrit validation that would move this from aspirant to roadmap-actionable (the L3-enforcer-over-vmnet question above is its first case).
+
+== References — Cite, Never Restate
+
+Existing codex vocabulary this sheaf reframes (defined at the cosmology top, not here):
+{rbsc_crucible},
+{at_bottle_container},
+{at_sentry_container},
+{at_pentacle_container},
+{rbsc_pentacle},
+{rbsi_ifrit}.
+Adjacent Horizon Roadmap entries: "Podman as first-class deployment target" (macOS-native / podman-machine), "Hairpin peer access between crucibles" (sentry-as-sole-enforcement-point preserved under a new topology).
+
+Apple per-workload microVM (the macOS binding and the reason-to-believe):
+
+* apple/container — domain-allowlist firewall thread (the existence proof + the separateness lesson): `https://github.com/apple/container/discussions/719`
+* apple/container — technical-overview networking model (macOS 15 vs 26 difference): `https://github.com/apple/container/blob/main/docs/technical-overview.md`
+* apple/container — networking guide (`--internal`, `container network create`): `https://www.mintlify.com/apple/container/guides/networking`
+* apple/container — repository: `https://github.com/apple/container`
+* Edera — "Apple validated hypervisor-isolated containers" (substrate / isolation-class framing): `https://edera.dev/stories/apple-just-validated-hypervisor-isolated-containers-heres-what-that-means`
+
+Linux microVM bindings and the isolation-class background (the second column, and the borrowed-substrate thesis):
+
+* Firecracker microVMs (project site): `https://firecracker-microvm.github.io/`
+* Firecracker — AWS announcement (KVM, minimal device model, jailer second line): `https://aws.amazon.com/blogs/aws/firecracker-lightweight-virtualization-for-serverless-computing/`
+* containers/libkrun (HVF on macOS / KVM on Linux, borrows Firecracker code): `https://github.com/containers/libkrun`
+* containers/krunvm (microVMs from OCI images): `https://github.com/containers/krunvm`
+* Edera — Kata vs Firecracker vs gVisor isolation comparison: `https://edera.dev/stories/kata-vs-firecracker-vs-gvisor-isolation-compared`
+
+macOS version context (the version floor and the numbering jump):
+
+* macOS Tahoe (version 26; released 2025-09-15; year-based numbering, no 16–25): `https://en.wikipedia.org/wiki/MacOS_Tahoe`

@@ -90,6 +90,7 @@
 - **RBSCN** → `rbk/vov_veiled/RBSCN-crucible_enjoin.adoc`
 - **RBSCO** → `rbk/vov_veiled/RBSCO-CosmologyIntro.adoc`
 - **RBSCTD** → `rbk/vov_veiled/RBSCTD-CloudBuildTriggerDispatch.adoc`
+- **RBSCV** → `rbk/vov_veiled/RBSCV-crucible_variant.adoc` (Crucible Variant — **aspirant**, not yet binding: reframes the crucible as a strong security-arrangement definition whose isolation substrate is a swappable binding (shared-kernel container ↔ per-workload microVM), with the sentry surviving every swap and the pentacle dissolving into a network attribute. Mounted under RBS0 `== Aspirants`; carries reason-to-believe + reference URLs, defers design and all word-minting. Heat: rbk-99-aspirant-microvm.)
 - **RBSDF** → `rbk/vov_veiled/RBSDF-director_feoff.adoc` (Feoff operation — director elects one conjure vessel's base anchor from a bole Lode touchmark express-or-chain; the chain LINK extracted out of conjure (RBSAC) so conjure stays a pure head reading no fact. Colophon `rbw-rvf`, verb `rbfl_feoff`. Ceremony: ensconce → feoff → commit → conjure)
 - **RBSDI** → `rbk/vov_veiled/RBSDI-depot_inscribe.adoc` (Reliquary creation — director mirrors tool images to datestamped GAR namespace)
 - **RBSDL** → `rbk/vov_veiled/RBSDL-depot_list.adoc`
