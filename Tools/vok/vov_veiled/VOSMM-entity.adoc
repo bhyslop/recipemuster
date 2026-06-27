@@ -349,8 +349,40 @@ The concept widens later, and that widening is out of scope for this spec:
 * The engagement determinations — when an ambient check runs, when a gate blocks.
 * The gestalt-label subsystem.
 * A maintained (non-transient) census, which would deliberately supersede VOr_k3p.
+* The grimoire — a maintained, flat table of the human-presentation surface forms (every plural, every verb tense, the possessive) of the words a minted
+{vosli_inscription}
+dresses, read by the
+{vosmm_matricula}
+to reach the word-surface layer the identifier scan cannot.
 
-Each is named here only to bound the MVP; none is specified here.
+Each is named here to bound the MVP; none is specified here — save the grimoire, whose shape gelled enough in design to sketch below, though it stays deferred and unminted, with no
+{vosli_inscription}
+status of its own yet.
+
+=== Grimoire (deferred sketch)
+
+The grimoire is the design-time home for the human-presentation forms of a minted word — one flat row per word that surfaces in prose.
+A row enumerates its forms literally — `foedus`, `foedera`, `foedus's` — never as a stemming or derivation rule: the irregular forms cannot be derived, only known.
+This is the freeze pattern in linguistic form — the forms are authored once with full wisdom (the linguistic act, a mind's), then read forever by exact match (the mechanical act).
+The
+{vosmm_matricula}
+never stems or interprets at scan time, so the grimoire keeps VOr_m7w whole: it reports the constraint space, and the operator supplies the meaning.
+
+It serves three jobs, each a reach into word-surface space the identifier scan cannot make:
+
+. Lint prose for a missed citation — a word standing in plain prose where it ought to be a linked-term reference to its
+{vosli_inscription}.
+. Mechanize the Lapidary word-selection gate — at mint time, test a candidate word and its every inflection against the seated forms, the collision check the MVP leaves to manual grep (CLAUDE.md "Prefix Naming Discipline").
+. Generate the human-presentation string constants for Rust and bash, then lint printed strings against them — error output is operator-facing (ashlar), where word-care bites hardest.
+
+The distribution boundary holds as for the acronym index: the grimoire's output (the generated constants) may ride in shipped code, but the grimoire and the
+{vosmm_matricula}
+that reads it never ship (VOr_q4f).
+Rows stay flat and independent — any relationship a later job wants (the asterism, say) enters as a single categorical tag on the row, never a row-to-row edge, until a real traversal earns the graph.
+One tension is recorded, not resolved: the gate is only as sound as the table is complete, so a mint that adds no row silently weakens the lint — a mint-time hook is the likely answer.
+Promotion of this sketch to an aspirant of its own is a later parceling, taken when the
+{vosmm_matricula}
+itself ascends — not here.
 
 == Doctrine Homes — Cite, Never Restate
 
