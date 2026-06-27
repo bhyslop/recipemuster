@@ -19459,9 +19459,10 @@
         "₢BlAAU",
         "₢BlAAV",
         "₢BlAAW",
-        "₢BlAAX"
+        "₢BlAAX",
+        "₢BlAAY"
       ],
-      "jjghn_next_pace_seed": "AAY",
+      "jjghn_next_pace_seed": "AAZ",
       "jjghn_paces": {
         "₢BlAAA": {
           "jjgpn_tacks": [
@@ -20133,6 +20134,29 @@
               ],
               "jjgtn_silks": "parley-authentic-verb-fixture",
               "jjgtn_basis": "8a3a910"
+            }
+          ]
+        },
+        "₢BlAAY": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260627-1308",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "A theurge poison fixture (the regime-poison analogue) for the terrier — drive the REAL polity verbs with the rbuh fault-injection seam forcing each terrier error condition, and assert the EXACT named bubc terrier band from the tabtarget exit. Rust-validated negative testing, no rbgft test-rig tabtarget.",
+                "",
+                "## Done when",
+                "A theurge fixture (regime-poison shape, the rbtdrs_poison precedent) forces each terrier error through the real verbs via the rbuh seam and asserts the exact bubc terrier band; the old terrier-atomicity proof is gone.",
+                "",
+                "## Cinched",
+                "Depends on ₢BfAAt (terrier-band-discrimination — the bubc band + buc_reject + rbuh seam).",
+                "Coordinate with ₢BfAAF, which retires rbw-dt/dT and the terrier-atomicity fixture: this fixture REPLACES that retired one — do not duplicate the retirement.",
+                "",
+                "## Character",
+                "Theurge negative fixture on the regime-poison precedent."
+              ],
+              "jjgtn_silks": "terrier-poison-fixture",
+              "jjgtn_basis": "036c687"
             }
           ]
         }
