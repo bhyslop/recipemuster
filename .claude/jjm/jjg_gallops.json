@@ -17014,9 +17014,10 @@
         "₢BfAAH",
         "₢BfAAl",
         "₢BfAAm",
-        "₢BfAAn"
+        "₢BfAAn",
+        "₢BfAAs"
       ],
-      "jjghn_next_pace_seed": "AAs",
+      "jjghn_next_pace_seed": "AAt",
       "jjghn_paces": {
         "₢BfAAA": {
           "jjgpn_tacks": [
@@ -17960,6 +17961,28 @@
               ],
               "jjgtn_silks": "keycloak-estate-key-genesis",
               "jjgtn_basis": "fe2e9c4"
+            }
+          ]
+        },
+        "₢BfAAs": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260627-1205",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Spec of needed change",
+                "Three operations interrogate a GCP workforce pool and must classify its state identically — live, soft-deleted (the ~30-day purge window), or absent: affiance (creates pools and must refuse a soft-deleted id), descry (reports a foedus's pool health), and the deferred canvass (enumerates foedera).",
+                "The classification lives inline today in affiance (rbgp_payor.sh, the workforcePools.get 200/404/DELETED branch).",
+                "Extract it into one shared helper so the manager (affiance) and the watcher (descry) share a single notion of soft-deleted rather than re-deriving it and drifting apart.",
+                "",
+                "## Done when",
+                "The live/soft-deleted/absent classification is defined once in a shared helper; affiance consumes it in place of its inline branch; the helper is the mandated home for descry's pool-state read (descry's config-drift \"valid\" check rides on top of it) and any future enumerator's.",
+                "",
+                "## Character",
+                "Mechanical extraction plus re-wire — the soft-delete semantics already exist in affiance and are not being redesigned. The descry-side consumption is a forward constraint, satisfied when descry is built."
+              ],
+              "jjgtn_silks": "foedus-pool-state-classifier",
+              "jjgtn_basis": "892ce3d"
             }
           ]
         }
