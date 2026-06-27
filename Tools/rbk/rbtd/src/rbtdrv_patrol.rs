@@ -34,12 +34,16 @@ use crate::rbtdri_invocation::{
     RBTDRI_BURE_TWEAK_NAME_KEY, RBTDRI_BURE_TWEAK_VALUE_KEY,
 };
 use crate::rbtdgc_consts::{
-    RBTDGC_ABJURE_HALLMARK, RBTDGC_ACCOUNT_PAYOR, RBTDGC_AFFIANCE_MANOR, RBTDGC_AUDIT_HALLMARKS,
-    RBTDGC_AUGUR_LODE, RBTDGC_BANISH_LODE, RBTDGC_CHECK_PAYOR, RBTDGC_CONCLAVE_RELIQUARY,
-    RBTDGC_DIVINE_LODES, RBTDGC_ENSCONCE_BOLE, RBTDGC_FEOFF_BOLE, RBTDGC_IMMURE_PODVM,
+    RBTDGC_ABJURE_HALLMARK, RBTDGC_ACCOUNT_DIRECTOR, RBTDGC_ACCOUNT_GOVERNOR, RBTDGC_ACCOUNT_PAYOR,
+    RBTDGC_ACCOUNT_RETRIEVER, RBTDGC_AFFIANCE_MANOR, RBTDGC_AUDIT_HALLMARKS,
+    RBTDGC_AUGUR_LODE, RBTDGC_BANISH_LODE, RBTDGC_CHECK_AVOWAL, RBTDGC_CHECK_MANTLE,
+    RBTDGC_CHECK_PAYOR, RBTDGC_CONCLAVE_RELIQUARY, RBTDGC_DESCRY_FOEDUS,
+    RBTDGC_DIVINE_LODES, RBTDGC_ENSCONCE_BOLE, RBTDGC_FACT_EXT_FOEDUS_HEALTH, RBTDGC_FEOFF_BOLE,
+    RBTDGC_IMMURE_PODVM, RBTDGC_INSTATE_FOEDUS,
     RBTDGC_JETTISON_HALLMARK_IMAGE, RBTDGC_JETTISON_IMAGE, RBTDGC_JILT_MANOR, RBTDGC_LIST_IMAGES,
-    RBTDGC_ORDAIN_HALLMARK, RBTDGC_REKON_HALLMARK, RBTDGC_TALLY_HALLMARKS, RBTDGC_TERRIER_PROOF,
-    RBTDGC_TERRIER_SCAFFOLD, RBTDGC_TWEAK_REGIME_POISON, RBTDGC_UNDERPIN_WSL, RBTDGC_VOUCH_HALLMARKS,
+    RBTDGC_ORDAIN_HALLMARK, RBTDGC_RBRR_FILE, RBTDGC_REKON_HALLMARK, RBTDGC_TALLY_HALLMARKS,
+    RBTDGC_TERRIER_PROOF, RBTDGC_TERRIER_SCAFFOLD, RBTDGC_TWEAK_REGIME_POISON, RBTDGC_UNDERPIN_WSL,
+    RBTDGC_VOUCH_HALLMARKS,
 };
 use crate::rbtdrm_manifest::rbtdrm_credential_check_colophon;
 
@@ -96,6 +100,15 @@ pub static RBTDRV_FIXTURE_FOEDUS_LIFECYCLE: rbtdre_Fixture = rbtdre_Fixture {
     setup: None,
     teardown: None,
     cases: RBTDRV_CASES_FOEDUS_LIFECYCLE,
+    credless: false,
+};
+
+pub static RBTDRV_FIXTURE_FOEDUS_REUSE: rbtdre_Fixture = rbtdre_Fixture {
+    name: crate::rbtdrm_manifest::RBTDRM_FIXTURE_FOEDUS_REUSE,
+    disposition: rbtdre_Disposition::Independent,
+    setup: None,
+    teardown: None,
+    cases: RBTDRV_CASES_FOEDUS_REUSE,
     credless: false,
 };
 
@@ -1209,6 +1222,143 @@ fn rbtdrv_foedus_lifecycle(dir: &Path) -> rbtdre_Verdict {
 }
 
 pub static RBTDRV_CASES_FOEDUS_LIFECYCLE: &[rbtdre_Case] = &[case!(rbtdrv_foedus_lifecycle)];
+
+
+// Foedus-reuse fixture — the standing-freehold REUSE credential leg. Unlike the
+// quota-touching lifecycle round-trip above, this reuses the REAL standing foedus
+// cap-flat (no regime-poison, no throwaway pool) and is quota-neutral on the reuse
+// path. Composes the two new atoms (descry, instate) with the credential heal
+// (avow + don), the branch (reuse-if-valid-else-affiance) living here at the
+// fixture call site, never folded into a fat verb.
+
+/// The standing-freehold REUSE credential leg: descry the active foedus, reuse it
+/// cap-flat when healthy (affiance only on a check failure), re-point the selector
+/// (instate), then heal the credentials — avow the sitting, don each mantle. The
+/// release ladders (skirmish/dogfight/blockade) assume this readiness step but no
+/// fixture established it; operator-invoked (human-present avow, live dons), a
+/// member of no suite, the payor gate fails loud (never a passenger).
+fn rbtdrv_foedus_reuse(dir: &Path) -> rbtdre_Verdict {
+    rbtdrc_with_ctx(|ctx| {
+        // Payor credential precondition — Fail, not Skip (never a suite passenger).
+        let _ = std::fs::write(dir.join("01-payor-probe.txt"), "probing payor credential");
+        match rbtdri_invoke_global(ctx, RBTDGC_CHECK_PAYOR, &[], &[]) {
+            Ok(r) if r.exit_code == 0 => {}
+            Ok(r) => return rbtdre_Verdict::Fail(format!(
+                "payor credential probe not green (exit {}) — foedus-reuse is operator-invoked \
+                 and requires a live payor credential; this is a failure of the run, not a skip\n\
+                 stdout:\n{}\nstderr:\n{}",
+                r.exit_code, r.stdout, r.stderr
+            )),
+            Err(e) => return rbtdre_Verdict::Fail(format!("payor probe invocation: {}", e)),
+        }
+
+        // The standing foedus the manor authenticates against — the committed
+        // active selector, read rather than hardcoded so the leg follows the
+        // regime (degenerate today: one standing foedus).
+        let root = ctx.project_root().to_path_buf();
+        let rbrr = root.join(RBTDGC_RBRR_FILE);
+        let foedus = match crate::rbtdrk_freehold::rbtdrk_read_env_value(&rbrr, "RBRR_ACTIVE_FOEDUS") {
+            Some(f) if !f.trim().is_empty() => f.trim().to_string(),
+            _ => return rbtdre_Verdict::Fail(format!(
+                "RBRR_ACTIVE_FOEDUS blank or absent in {} — no standing foedus to reuse",
+                rbrr.display()
+            )),
+        };
+        let _ = std::fs::write(dir.join("00-foedus.txt"), &foedus);
+
+        // Descry the standing foedus — probe its workforce-pool health. A clean
+        // probe exits 0 and reports its verdict via the foedus-health fact; only an
+        // unresolvable name or broken read rejects (descry's own band).
+        let descry = match rbtdri_invoke_global(ctx, RBTDGC_DESCRY_FOEDUS, &[foedus.as_str()], &[]) {
+            Ok(r) if r.exit_code == 0 => r,
+            Ok(r) => return rbtdre_Verdict::Fail(format!(
+                "descry {} errored (exit {}) — could not determine pool health\n{}",
+                foedus, r.exit_code, r.stderr
+            )),
+            Err(e) => return rbtdre_Verdict::Fail(format!("descry invocation: {}", e)),
+        };
+        let _ = std::fs::write(
+            dir.join("02-descry.txt"),
+            format!("{}\n{}", descry.stdout, descry.stderr),
+        );
+        let fact_name = format!("{}.{}", foedus, RBTDGC_FACT_EXT_FOEDUS_HEALTH);
+        let health = match rbtdri_read_burv_fact(&descry, &fact_name) {
+            Ok(s) => s.trim().to_string(),
+            Err(e) => {
+                return rbtdre_Verdict::Fail(format!("descry wrote no {} health fact: {}", fact_name, e))
+            }
+        };
+
+        // Reuse-or-establish: the branch lives HERE (the verbs stay atomic). Reuse
+        // the standing foedus cap-flat when healthy — no affiance, no pool churn;
+        // affiance fires ONLY on a descry deficit (the rebuild-on-check-failure arm).
+        // The verdict token "healthy" is descry's (rbof_descry / RBCC_fact_ext_foedus_health).
+        if health == "healthy" {
+            let _ = std::fs::write(
+                dir.join("03-decision.txt"),
+                format!("reused {} (healthy, cap-flat)", foedus),
+            );
+        } else {
+            let _ = std::fs::write(
+                dir.join("03-decision.txt"),
+                format!("affiance {} (descry verdict '{}')", foedus, health),
+            );
+            match rbtdri_invoke_global(ctx, RBTDGC_AFFIANCE_MANOR, &[], &[]) {
+                Ok(r) if r.exit_code == 0 => {}
+                Ok(r) => return rbtdre_Verdict::Fail(format!(
+                    "affiance (on descry deficit '{}') exit {}\n{}",
+                    health, r.exit_code, r.stderr
+                )),
+                Err(e) => return rbtdre_Verdict::Fail(format!("affiance invocation: {}", e)),
+            }
+        }
+
+        // Instate — re-point the active-foedus selector at the standing foedus.
+        // Idempotent on the already-active one (rewrite to the same value, no diff).
+        match rbtdri_invoke_global(ctx, RBTDGC_INSTATE_FOEDUS, &[foedus.as_str()], &[]) {
+            Ok(r) if r.exit_code == 0 => {}
+            Ok(r) => return rbtdre_Verdict::Fail(format!(
+                "instate {} exit {}\n{}", foedus, r.exit_code, r.stderr
+            )),
+            Err(e) => return rbtdre_Verdict::Fail(format!("instate invocation: {}", e)),
+        }
+        let _ = std::fs::write(dir.join("04-instate.txt"), format!("instated {}", foedus));
+
+        // Credential heal — avow opens or reuses the sitting (one human click at
+        // suite head); the mantle dons then ride the cached federated token.
+        match rbtdri_invoke_global(ctx, RBTDGC_CHECK_AVOWAL, &[], &[]) {
+            Ok(r) if r.exit_code == 0 => {}
+            Ok(r) => return rbtdre_Verdict::Fail(format!(
+                "avow exit {} — open a sitting with rbw-acf (one device-flow click), or launch \
+                 from a terminal so the prompt can surface\n{}", r.exit_code, r.stderr
+            )),
+            Err(e) => return rbtdre_Verdict::Fail(format!("avow invocation: {}", e)),
+        }
+        let _ = std::fs::write(dir.join("05-avow.txt"), "avowed");
+
+        // Don each mantle and reach Artifact Registry (rbw-acm) — proves the
+        // standing freehold's mantle credentials are LIVE (the assertion the
+        // release ladders previously made in prose). The durable admission (gird/
+        // brevet) is freehold-establish's; a don failure here means the freehold is
+        // not seated for the subject — run freehold-establish first.
+        for mantle in [RBTDGC_ACCOUNT_GOVERNOR, RBTDGC_ACCOUNT_DIRECTOR, RBTDGC_ACCOUNT_RETRIEVER] {
+            match rbtdri_invoke_global(ctx, RBTDGC_CHECK_MANTLE, &[mantle], &[]) {
+                Ok(r) if r.exit_code == 0 => {}
+                Ok(r) => return rbtdre_Verdict::Fail(format!(
+                    "don {} exit {} — mantle credential not healed (is the freehold seated for the \
+                     subject? run freehold-establish first)\n{}", mantle, r.exit_code, r.stderr
+                )),
+                Err(e) => return rbtdre_Verdict::Fail(format!("don {} invocation: {}", mantle, e)),
+            }
+            let _ = std::fs::write(dir.join(format!("06-don-{}.txt", mantle)), "donned");
+        }
+
+        let _ = std::fs::write(dir.join("07-passed.txt"), "passed");
+        rbtdre_Verdict::Pass
+    })
+}
+
+pub static RBTDRV_CASES_FOEDUS_REUSE: &[rbtdre_Case] = &[case!(rbtdrv_foedus_reuse)];
 
 
 // Terrier-scaffold fixture — interim terrier-provision proof against live GCP.

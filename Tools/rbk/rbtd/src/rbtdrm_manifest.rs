@@ -69,6 +69,14 @@ pub const RBTDRM_FIXTURE_PODVM_LIFECYCLE: &str = "podvm-lifecycle";
 // for discovery, a member of no suite. The payor-credential gate fails loud, never
 // skips: this fixture is never a suite passenger (see the pace docket).
 pub const RBTDRM_FIXTURE_FOEDUS_LIFECYCLE: &str = "foedus-lifecycle";
+// Foedus-reuse fixture — the standing-freehold REUSE credential leg the release
+// ladders (skirmish/dogfight/blockade) assume but no fixture established. Probes
+// the standing foedus (descry), reuses it cap-flat when healthy (affiance only on
+// check-failure), re-points the selector (instate), then heals the credentials
+// (avow + don governor/director/retriever). No pool churn on the reuse path, so —
+// unlike foedus-lifecycle — it is quota-neutral; still operator-invoked (human-
+// present avow, live mantle dons), a member of no suite, payor-gate fails loud.
+pub const RBTDRM_FIXTURE_FOEDUS_REUSE: &str = "foedus-reuse";
 // Terrier-scaffold fixture — interim terrier-provision proof against live GCP:
 // probe payor -> run the rbw-dt scaffold (ensure bucket + per-polity managed
 // folder + folder-scoped write / bucket-level read IAM to the governor mantle,
@@ -217,6 +225,14 @@ pub fn rbtdrm_required_colophons(fixture: &str) -> Option<&'static [&'static str
             RBTDGC_CHECK_PAYOR,
             RBTDGC_AFFIANCE_MANOR,
             RBTDGC_JILT_MANOR,
+        ]),
+        RBTDRM_FIXTURE_FOEDUS_REUSE => Some(&[
+            RBTDGC_CHECK_PAYOR,
+            RBTDGC_DESCRY_FOEDUS,
+            RBTDGC_INSTATE_FOEDUS,
+            RBTDGC_AFFIANCE_MANOR,
+            RBTDGC_CHECK_AVOWAL,
+            RBTDGC_CHECK_MANTLE,
         ]),
         RBTDRM_FIXTURE_TERRIER_SCAFFOLD => Some(&[
             RBTDGC_CHECK_PAYOR,

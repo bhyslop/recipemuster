@@ -40,6 +40,11 @@ pub static RBTDRA_FIXTURES: &[&'static rbtdre_Fixture] = &[
     // foedus-lifecycle: discovery-registered, operator-invoked only — quota-touching,
     // so a member of no suite (see RBTDRA_SUITES). Runnable via FixtureRun.
     &crate::rbtdrv_patrol::RBTDRV_FIXTURE_FOEDUS_LIFECYCLE,
+    // foedus-reuse: the standing-freehold REUSE credential leg (descry -> reuse-or-
+    // affiance -> instate -> avow + don). Operator-invoked (human-present avow,
+    // live mantle dons); quota-neutral on the reuse path but a member of no suite —
+    // it heals creds against a STANDING freehold rather than provisioning one.
+    &crate::rbtdrv_patrol::RBTDRV_FIXTURE_FOEDUS_REUSE,
     &crate::rbtdrv_patrol::RBTDRV_FIXTURE_BATCH_VOUCH,
     &crate::rbtdrv_patrol::RBTDRV_FIXTURE_ACCESS_PROBE,
     &crate::rbtdrv_patrol::RBTDRV_FIXTURE_TERRIER_SCAFFOLD,
