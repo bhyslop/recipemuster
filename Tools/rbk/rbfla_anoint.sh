@@ -49,8 +49,8 @@ rbfl_anoint() {
   # chain read, routing through the same footing every other fact consumer uses.
   # The previous dispatch must be a build (kludge or ordain); a broken chain
   # rejects with the named chaining band (BUBC_band_chain), uniform with the other
-  # durable-leak links feoff and yoke — anoint is a durable-config writer, so a bad
-  # resolve is a deliberate rejection, never a bare die.
+  # durable-config links feoff and yoke (RBS0 rbch_enchase) — anoint writes durable
+  # config, so a bad resolve is a deliberate rejection, never a bare die.
   buc_step "Reading chained build facts"
   local z_hallmark=""
   z_hallmark=$(buf_elect_fact_capture "" "${RBF_FACT_HALLMARK}") \

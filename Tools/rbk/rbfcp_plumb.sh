@@ -38,14 +38,11 @@ zrbfc_plumb_core() {
   # Resolve the hallmark express-or-chain: an express argument wins; absent, fall
   # back to the hallmark a prior build (ordain or kludge) handed forward through the
   # depth-1 chain — so a no-arg plumb immediately after a build inspects the just-built
-  # hallmark. NEVER relays — depth-1, terminally consumed. A broken chain rejects with
-  # the named chaining band (BUBC_band_chain), the same band feoff/yoke use — a read
-  # and a durable-leak write never share one tabtarget, so the band stays unambiguous
-  # per tabtarget without a second code. The read/write distinction lives not in the
-  # exit code but in the effect: plumb writes no durable config, so a wrong read
-  # corrupts only a transient inspect, never a regime file. Hallmarks carry no sub-kind
-  # these verbs discriminate, so the resolve is the whole typecheck: no kind decode,
-  # no shape predicate (the chain value is build-written).
+  # hallmark. NEVER relays — depth-1, terminally consumed. Plumb is a read-side chain
+  # consumer (RBS0 rbch_palpate): a broken resolve band-rejects with BUBC_band_chain,
+  # the same band the rbch_enchase durable-config links use; the read/write split is by
+  # effect, not exit code, since plumb writes no durable config. Hallmarks carry no
+  # sub-kind these verbs discriminate, so the resolve is the whole typecheck.
   local z_hallmark=""
   z_hallmark=$(buf_elect_fact_capture "${z_express}" "${RBF_FACT_HALLMARK}") \
     || buc_reject "${BUBC_band_chain}" "No hallmark — pass one or run a build (ordain/kludge) immediately before plumb"

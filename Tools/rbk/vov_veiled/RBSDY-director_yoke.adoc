@@ -5,6 +5,7 @@
 NOTE: This operation writes `RBRV_RELIQUARY=«TOUCHMARK»` into every vessel's {rbrv_regime} file under `${RBRR_VESSEL_DIR}` so that subsequent Cloud Build operations (conjure, bind, graft, ensconce) consume the named tool image set as GCB step images.
 The about/vouch pipeline (gcloud, docker, alpine, syft) consumes reliquary tool images uniformly across all ordain modes; bind additionally uses gcrane for image-copy.
 The touchmark is resolved express-or-chain — an express positional argument wins, else the reliquary touchmark a conclave handed forward through the depth-1 chain — and asserted to be a reliquary kind by its kind-letter prefix before any GAR call.
+Yoke is a {rbch_enchase} — it reads one chained touchmark and writes one durable config field (`RBRV_RELIQUARY`), here fanned out across every vessel under `${RBRR_VESSEL_DIR}`.
 The touchmark is then validated once against GAR before any vessel file is touched: the conclave Lode package `{gar_lodes_namespace}/«TOUCHMARK»` must exist and carry all six expected tool cohort member tags as `:rbi_<tool>` sprued tags — one per tool — on that single package.
 On touchmark validation failure the operation errors diagnostically without writing any vessel.
 On per-vessel write failure the diagnostic identifies the failing vessel and the set of vessels already written, so the operator can resume from a known point.

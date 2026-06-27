@@ -109,7 +109,7 @@ pub const RBTDRM_FIXTURE_FOUNDRY_PATH: &str = "foundry-path";
 // creds or container runtime required; invokes immure colophon, asserts the
 // diagnostic line emitted before credential load, expects non-zero exit.
 pub const RBTDRM_FIXTURE_PODVM_RESOLVE: &str = "podvm-resolve";
-// Chaining-fact-band — the band matrix for the durable-leak chain LINKS (feoff,
+// Chaining-fact-band — the band matrix for the durable-config chain LINKS (feoff,
 // yoke). Drives the real verbs through the exec path against a staged temp
 // vessel + a seeded previous/ fact, asserting the specific chain-rejection band
 // on wrong-kind / unknown-prefix / broken chain, the good election, express-

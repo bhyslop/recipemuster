@@ -25,13 +25,9 @@ It decodes the kind from the
 {rbtga_touchmark}
 leading letter and reads the same-shaped envelope every kind carries — so a new Lode kind needs no change here.
 
-NOTE: *Read-side chain consumer.*
-The touchmark is resolved express-or-chain for a transient inspection only — augur writes no durable config — so a broken chain or an unknown kind dies loud as an ordinary fatal, categorically lower severity than the durable-leak links
-{rbtgo_director_feoff}
-and
-{rbtgo_director_yoke},
-whose rejections ride the chaining precision band.
-Augur must never be extended to write config without joining that durable-leak surface and its depth-1 no-relay plus named-band-reject discipline.
+NOTE: Augur is a {rbch_palpate} over the {rbf_fact_lode} touchmark chain — it resolves the touchmark express-or-chain for a transient inspection only and writes no durable config.
+A broken resolve, or a touchmark of unknown kind, rejects with the named chaining band; the distinction from the {rbch_enchase} write side is by effect, not exit code — a wrong read misdirects only this inspection, never a regime file.
+Augur must never be extended to write durable config without joining the {rbch_enchase} surface and its depth-1 no-relay discipline.
 
 The
 {rbtr_director}

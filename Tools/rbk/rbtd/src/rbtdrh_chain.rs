@@ -14,7 +14,7 @@
 //
 // Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 //
-// RBTDRH — chaining-fact-band fixture: the band matrix for the durable-leak
+// RBTDRH — chaining-fact-band fixture: the band matrix for the durable-config
 // chain LINKS (feoff, yoke) and the read-side consumers (summon, plumb, augur),
 // driven through the real tabtarget exec path.
 //
@@ -186,7 +186,7 @@ fn rbtdrh_drive_yoke(dir: &Path, express: &str) -> Result<i32, String> {
 }
 
 /// Drive the anoint tabtarget against the REAL tracked graft vessel (its mandatory
-/// folio) with an EMPTY BURV root. anoint is a durable-leak LINK like feoff/yoke,
+/// folio) with an EMPTY BURV root. anoint is a durable-config LINK like feoff/yoke,
 /// but chain-only (no express), so a broken chain is its sole resolve failure. It
 /// LOADS the vessel (the strict zrbfc_load_vessel demands the canonical location),
 /// so the folio must be the real tracked vessel, not a temp stage. With no chained
@@ -407,7 +407,7 @@ fn rbtdrh_yoke_unknown_prefix(dir: &Path) -> rbtdre_Verdict {
 }
 
 // ── anoint case ─────────────────────────────────────────────
-// anoint is the third durable-leak LINK (it rewrites RBRV_GRAFT_IMAGE), write-side
+// anoint is the third durable-config LINK (it rewrites RBRV_GRAFT_IMAGE), write-side
 // sibling of feoff/yoke. It is chain-only — no express — so a broken chain is its
 // only resolve failure. Driven against the real graft vessel with an empty BURV
 // root, anoint loads the vessel, then the first fact read fails and rejects with

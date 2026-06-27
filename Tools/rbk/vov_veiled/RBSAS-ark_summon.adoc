@@ -19,16 +19,12 @@ credentials when available, falling back to
 NOTE: This is the ark-level view of image retrieval. For single-artifact retrieval, see
 {rbtgo_image_retrieve}.
 
-NOTE: *Read-side chain consumer.*
-The hallmark is resolved express-or-chain for a transient retrieval only — summon writes no durable config — so a broken chain dies loud as an ordinary {rbbc_fatal}, categorically lower severity than the durable-leak links
-{rbtgo_director_feoff}
-and
-{rbtgo_director_yoke},
-whose rejections ride the chaining precision band.
-Unlike those kind-gated links the resolve carries no kind decode: a
+NOTE: Summon is a {rbch_palpate} over the {rbf_fact_hallmark} chain — it resolves the hallmark express-or-chain for a transient retrieval only and writes no durable config.
+A broken resolve rejects with the named chaining band; the distinction from the {rbch_enchase} write side is by effect, not exit code — a wrong read misdirects only this retrieval, never a regime file.
+Unlike the kind-gated durable-config links, the resolve carries no kind decode: a
 {rbst_hallmark}
 bears no sub-kind these verbs discriminate, so the express-or-chain resolution is the whole typecheck.
-Summon must never be extended to write config without joining that durable-leak surface and its depth-1 no-relay plus named-band-reject discipline.
+Summon must never be extended to write durable config without joining the {rbch_enchase} surface and its depth-1 no-relay discipline.
 
 The summon operation:
 
