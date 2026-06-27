@@ -8,7 +8,7 @@ Each
 {rbrd_regime}
 instance pins the values that
 {rbtgo_depot_levy}
-consumes at depot creation — the identity tuple `(RBRD_CLOUD_PREFIX, RBRD_DEPOT_MONIKER)` (from which depot project ID, GAR repository, pool stem, and bucket fall out as RBDC constants), the GCP region, and the Cloud Build private worker pool machine type.
+consumes at depot creation — the identity tuple `(RBRD_CLOUD_PREFIX, RBRD_DEPOT_MONIKER)` (from which depot project ID, GAR repository, and pool stem fall out as RBDC constants), the GCP region, and the Cloud Build private worker pool machine type.
 RBRD assignment files are found in the operator's local filesystem and are frozen for the productive lifetime of the depot.
 Changing any field after levy requires a fresh depot.
 

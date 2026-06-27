@@ -38,8 +38,8 @@ zrbrd_kindle() {
   buv_regime_enroll RBRD
 
   buv_group_enroll "Depot Identity"
-  buv_string_enroll  RBRD_CLOUD_PREFIX         2   11  "Prefix for cloud-visible resource names (depot project, GAR repo, GCS bucket, pool stem)"
-  buv_string_enroll  RBRD_DEPOT_MONIKER        1   26  "Depot moniker — paired with CLOUD_PREFIX to derive depot project ID, GAR repo, pool stem, and bucket"
+  buv_string_enroll  RBRD_CLOUD_PREFIX         2   11  "Prefix for cloud-visible resource names (depot project, GAR repo, pool stem)"
+  buv_string_enroll  RBRD_DEPOT_MONIKER        1   26  "Depot moniker — paired with CLOUD_PREFIX to derive depot project ID, GAR repo, and pool stem"
 
   buv_group_enroll "GCP Region"
   buv_gname_enroll   RBRD_GCP_REGION           1   32  "GCP region"
