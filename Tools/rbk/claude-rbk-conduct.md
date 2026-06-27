@@ -44,3 +44,13 @@ modified in `git status` after you edited the zipper and ran a build, that is
 expected** — they re-derived from your zipper change; they are *yours* to commit,
 not another officium's work. `rbq_qualify` (`rbw-tl` / `rbw-tr`) only *checks*
 their freshness and fails loud if the build wasn't re-run.
+
+### Scry — bounded capture for crucible network debugging
+
+To debug a *charged* crucible's traffic (mislabeling, off-path delivery, containment
+leaks), reach for scry: `tt/rbw-cs.Scry.sh <moniker> <duration> [filter]`. With a
+duration it captures the pentacle and both sentry legs (enclave + uplink), shows L2
+MACs, and exits 0 — drivable from one tool call, read back from `../logs-buk/`.
+**Never call the bare `rbw-cs <moniker>` form (no duration) from a tool call** — it
+runs until Ctrl+C and hangs until your tool times out. Needs a charged crucible; not
+a cold-start probe.
