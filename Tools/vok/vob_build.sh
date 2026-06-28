@@ -224,7 +224,7 @@ vob_release() {
 
   # Check if a new brand was allocated by examining stderr
   local z_is_new=0
-  if grep -q "Allocated new brand: ${z_brand}" "${z_stderr_file}" 2>/dev/null; then
+  if grep -q "allocated new brand ${z_brand}" "${z_stderr_file}" 2>/dev/null; then
     z_is_new=1
   fi
 
