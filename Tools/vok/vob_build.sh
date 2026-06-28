@@ -140,6 +140,26 @@ vob_release() {
   local z_registry="${BURC_TOOLS_DIR}/vok/vov_veiled/vovr_registry.json"
   local z_vvx="${VVB_VVX_BINARY}"
 
+  # Resolve the kit set to parcel. Defaults to the repo's full managed set;
+  # VOB_PARCEL_KITS narrows it to a deliberate subset for delivery to a
+  # downstream that manages fewer kits (e.g. a cmk-less target). The override
+  # must be a subset of BURC_MANAGED_KITS — narrow only, never widen to a kit
+  # this repo does not own.
+  local z_managed_kits="${VOB_PARCEL_KITS:-${BURC_MANAGED_KITS}}"
+  if test -n "${VOB_PARCEL_KITS:-}"; then
+    buc_step "Parcel kit-set override"
+    buc_log_args "Override:     ${VOB_PARCEL_KITS}"
+    buc_log_args "Repo manages: ${BURC_MANAGED_KITS}"
+
+    local z_override_kit=""
+    for z_override_kit in ${VOB_PARCEL_KITS//,/ }; do
+      case ",${BURC_MANAGED_KITS}," in
+        *",${z_override_kit},"*) ;;
+        *) buc_die "VOB_PARCEL_KITS names '${z_override_kit}', not in BURC_MANAGED_KITS (${BURC_MANAGED_KITS})" ;;
+      esac
+    done
+  fi
+
   buc_step "Running tests"
   buc_log_args "Cargo dir: ${ZVOB_CARGO_DIR}"
   buc_log_args "Features: ${VOF_VOK_FEATURES:-none}"
@@ -167,7 +187,7 @@ vob_release() {
     --staging "${z_staging}" \
     --tools-dir "${BURC_TOOLS_DIR}" \
     --install-script "${z_install_script}" \
-    --managed-kits "${BURC_MANAGED_KITS}" || buc_die "release_collect failed"
+    --managed-kits "${z_managed_kits}" || buc_die "release_collect failed"
 
   buc_step "Copying platform binary"
 
@@ -194,7 +214,7 @@ vob_release() {
     --staging "${z_staging}" \
     --registry "${z_registry}" \
     --commit "${z_commit}" \
-    --managed-kits "${BURC_MANAGED_KITS}" > "${z_brand_file}" 2>"${z_stderr_file}" || buc_die "release_brand failed"
+    --managed-kits "${z_managed_kits}" > "${z_brand_file}" 2>"${z_stderr_file}" || buc_die "release_brand failed"
 
   local z_brand=""
   z_brand=$(<"${z_brand_file}")
@@ -213,7 +233,7 @@ vob_release() {
     buc_step "Committing registry for new brand"
     buc_log_args "New brand: ${z_brand}"
 
-    local z_kit_list="${BURC_MANAGED_KITS// /, }"
+    local z_kit_list="${z_managed_kits// /, }"
     "${z_vvx}" commit \
       --message "vvb:${z_brand}::A: allocate brand for ${z_kit_list}" \
       --file "${z_registry}" || buc_die "Failed to commit registry"
