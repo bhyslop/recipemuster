@@ -1977,13 +1977,15 @@ async fn zjjrm_handle_open(size_limit: u64) -> Result<CallToolResult, McpError> 
 // ============================================================================
 
 /// Extract model tier from verbatim model ID string.
-/// Returns "fable", "opus", "sonnet", "haiku", or "unknown".
+/// Returns "fable", "opus", "gpt-5.5", "sonnet", "haiku", or "unknown".
 fn zjjrm_extract_tier(model: &str) -> &'static str {
     let lower = model.to_ascii_lowercase();
     if lower.contains("fable") {
         "fable"
     } else if lower.contains("opus") {
         "opus"
+    } else if lower.contains("gpt-5.5") {
+        "gpt-5.5"
     } else if lower.contains("sonnet") {
         "sonnet"
     } else if lower.contains("haiku") {
@@ -1993,14 +1995,14 @@ fn zjjrm_extract_tier(model: &str) -> &'static str {
     }
 }
 
-/// Gate check: require a frontier-tier model (opus or fable). Returns Err with diagnostic on failure.
+/// Gate check: require a frontier-tier model (opus, fable, or gpt-5.5). Returns Err with diagnostic on failure.
 fn zjjrm_check_model_gate(model: &str) -> Result<(), String> {
     let tier = zjjrm_extract_tier(model);
-    if tier == "opus" || tier == "fable" {
+    if tier == "opus" || tier == "fable" || tier == "gpt-5.5" {
         return Ok(());
     }
     Err(format!(
-        "MODEL GATE — this command requires a frontier-tier model (opus or fable).\n\n  Received model: {}\n  Extracted tier: {}\n\nJob Jockey commands currently require a frontier-tier model.",
+        "MODEL GATE — this command requires a frontier-tier model (opus, fable, or gpt-5.5).\n\n  Received model: {}\n  Extracted tier: {}\n\nJob Jockey commands currently require a frontier-tier model.",
         model, tier
     ))
 }

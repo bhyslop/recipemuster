@@ -72,7 +72,7 @@ All JJK commands are accessed via the single `mcp__vvx__jjx` MCP tool with four 
 - `command`: string selecting the operation — always the canonical `jjx_*` name (e.g., `"jjx_show"`, `"jjx_enroll"`, `"jjx_record"`)
 - `params`: JSON object with command-specific fields (see reference below)
 - `officium`: officium identity string from `jjx_open` (required on all commands except `jjx_open` — see Officium Protocol below)
-- `model`: agent's verbatim model ID string from its system prompt (e.g., `"claude-opus-4-8"`). Required on ALL commands including `jjx_open`. The server gates commands by model tier — currently all commands require opus.
+- `model`: agent's verbatim model ID string from its system prompt (e.g., `"claude-opus-4-8"`). Required on ALL commands including `jjx_open`. The server gates commands by model tier — currently all commands require a frontier-tier model (opus, fable, or gpt-5.5).
 
 **`params` must be a JSON object, never a string.** If params is accidentally stringified (e.g., `"{\"key\": \"val\"}"` instead of `{"key": "val"}`), deserialization will fail. The server has a defensive fallback for this, but always pass a native object.
 
