@@ -19,32 +19,39 @@
 use crate::rbtdra_almanac::rbtdra_lookup_fixture;
 use crate::rbtdre_engine::rbtdre_Disposition;
 use crate::rbtdrm_manifest::RBTDRM_FIXTURE_ONBOARDING_SEQUENCE;
+use crate::rbtdth_helpers::{
+    rbtdth_assert_cases,
+    rbtdth_assert_disposition,
+};
 
 /// Onboarding-sequence is StateProgressing — case N's hallmark/scratch
 /// state establishes preconditions for case N+1, so engine keep-going is refused.
 #[test]
 fn rbtdto_disposition_is_state_progressing() {
-    let fix = rbtdra_lookup_fixture(RBTDRM_FIXTURE_ONBOARDING_SEQUENCE)
-        .expect("onboarding-sequence is registered");
-    assert_eq!(fix.disposition, rbtdre_Disposition::StateProgressing);
+    rbtdth_assert_disposition(
+        RBTDRM_FIXTURE_ONBOARDING_SEQUENCE,
+        rbtdre_Disposition::StateProgressing,
+    );
 }
 
 /// Case lookup binds the fixture name to the registry array and yields
 /// exactly eight cases.
 #[test]
 fn rbtdto_cases_registered() {
-    let fix = rbtdra_lookup_fixture(RBTDRM_FIXTURE_ONBOARDING_SEQUENCE)
-        .expect("onboarding-sequence is registered");
-    assert_eq!(fix.cases.len(), 8, "expected eight cases");
-    let names: Vec<&str> = fix.cases.iter().map(|c| c.name).collect();
-    assert!(names.iter().any(|n| n.contains("rbtdro_onboarding_conclave_reliquary")));
-    assert!(names.iter().any(|n| n.contains("rbtdro_onboarding_kludge_tadmor")));
-    assert!(names.iter().any(|n| n.contains("rbtdro_onboarding_kludge_ccyolo")));
-    assert!(names.iter().any(|n| n.contains("rbtdro_onboarding_ordain_conjure_sentry")));
-    assert!(names.iter().any(|n| n.contains("rbtdro_onboarding_ordain_conjure_jupyter")));
-    assert!(names.iter().any(|n| n.contains("rbtdro_onboarding_ordain_airgap_chain")));
-    assert!(names.iter().any(|n| n.contains("rbtdro_onboarding_ordain_bind_plantuml")));
-    assert!(names.iter().any(|n| n.contains("rbtdro_onboarding_ordain_graft_demo")));
+    rbtdth_assert_cases(
+        RBTDRM_FIXTURE_ONBOARDING_SEQUENCE,
+        8,
+        &[
+            "rbtdro_onboarding_conclave_reliquary",
+            "rbtdro_onboarding_kludge_tadmor",
+            "rbtdro_onboarding_kludge_ccyolo",
+            "rbtdro_onboarding_ordain_conjure_sentry",
+            "rbtdro_onboarding_ordain_conjure_jupyter",
+            "rbtdro_onboarding_ordain_airgap_chain",
+            "rbtdro_onboarding_ordain_bind_plantuml",
+            "rbtdro_onboarding_ordain_graft_demo",
+        ],
+    );
 }
 
 /// Case order is load-bearing for StateProgressing — conclave must precede

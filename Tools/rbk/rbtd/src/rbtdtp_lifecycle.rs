@@ -20,29 +20,35 @@
 // stem, install rejection, dual-station disjointness) is exercised once, in
 // rbtdtk_freehold; these tests cover only what is lifecycle-specific.
 
-use crate::rbtdra_almanac::rbtdra_lookup_fixture;
 use crate::rbtdre_engine::rbtdre_Disposition;
 use crate::rbtdrm_manifest::RBTDRM_FIXTURE_DEPOT_LIFECYCLE;
+use crate::rbtdth_helpers::{
+    rbtdth_assert_cases,
+    rbtdth_assert_disposition,
+};
 
 /// depot-lifecycle is StateProgressing — the gauntlet's entry-gate fixture, so
 /// the engine's keep-going refusal applies (case 1 failure short-circuits the arc).
 #[test]
 fn rbtdtp_disposition_is_state_progressing() {
-    let fixture = rbtdra_lookup_fixture(RBTDRM_FIXTURE_DEPOT_LIFECYCLE)
-        .expect("depot-lifecycle is registered");
-    assert_eq!(fixture.disposition, rbtdre_Disposition::StateProgressing);
+    rbtdth_assert_disposition(
+        RBTDRM_FIXTURE_DEPOT_LIFECYCLE,
+        rbtdre_Disposition::StateProgressing,
+    );
 }
 
 /// Case lookup binds the fixture name to the registry array and yields exactly
 /// the four lifecycle cases (gate → stand-up → live-disqualify → tear-down).
 #[test]
 fn rbtdtp_cases_registered() {
-    let fixture = rbtdra_lookup_fixture(RBTDRM_FIXTURE_DEPOT_LIFECYCLE)
-        .expect("depot-lifecycle is registered");
-    assert_eq!(fixture.cases.len(), 4, "expected four cases");
-    let names: Vec<&str> = fixture.cases.iter().map(|c| c.name).collect();
-    assert!(names.iter().any(|n| n.contains("rbtdrp_marshal_zero_attestation")));
-    assert!(names.iter().any(|n| n.contains("rbtdrp_depot_stand_up")));
-    assert!(names.iter().any(|n| n.contains("rbtdrp_depot_live_disqualify")));
-    assert!(names.iter().any(|n| n.contains("rbtdrp_depot_tear_down")));
+    rbtdth_assert_cases(
+        RBTDRM_FIXTURE_DEPOT_LIFECYCLE,
+        4,
+        &[
+            "rbtdrp_marshal_zero_attestation",
+            "rbtdrp_depot_stand_up",
+            "rbtdrp_depot_live_disqualify",
+            "rbtdrp_depot_tear_down",
+        ],
+    );
 }

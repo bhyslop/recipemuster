@@ -19,7 +19,6 @@
 
 use std::path::PathBuf;
 
-use crate::rbtdra_almanac::rbtdra_lookup_fixture;
 use crate::rbtdre_engine::rbtdre_Disposition;
 use crate::rbtdrk_freehold::{
     rbtdrk_family_stem, rbtdrk_freehold_cloud_prefix, rbtdrk_freehold_runtime_prefix,
@@ -30,7 +29,11 @@ use crate::rbtdrm_manifest::{
     RBTDRM_FIXTURE_FREEHOLD_CHURN,
     RBTDRM_FIXTURE_FREEHOLD_ESTABLISH,
 };
-use crate::rbtdth_helpers::rbtdth_scratch_root;
+use crate::rbtdth_helpers::{
+    rbtdth_assert_cases,
+    rbtdth_assert_disposition,
+    rbtdth_scratch_root,
+};
 
 /// Freehold-prefix base shape: lowercase letters, distinct cloud/runtime
 /// pair, no trailing hyphen (the composer adds it). The cases rely on the
@@ -127,35 +130,34 @@ fn rbtdtk_freehold_dual_station_disjoint() {
 /// refusal applies to this fixture too, by design (per BBAAd policy gate).
 #[test]
 fn rbtdtk_disposition_is_state_progressing() {
-    let fixture = rbtdra_lookup_fixture(RBTDRM_FIXTURE_FREEHOLD_ESTABLISH)
-        .expect("freehold-establish is registered");
-    assert_eq!(fixture.disposition, rbtdre_Disposition::StateProgressing);
+    rbtdth_assert_disposition(
+        RBTDRM_FIXTURE_FREEHOLD_ESTABLISH,
+        rbtdre_Disposition::StateProgressing,
+    );
 }
 
 /// Case lookup binds the fixture name to the registry array and yields
 /// exactly the six federation-persona cases.
 #[test]
 fn rbtdtk_cases_registered() {
-    let fixture = rbtdra_lookup_fixture(RBTDRM_FIXTURE_FREEHOLD_ESTABLISH)
-        .expect("freehold-establish is registered");
-    assert_eq!(fixture.cases.len(), 6, "expected six cases");
-    let names: Vec<&str> = fixture.cases.iter().map(|c| c.name).collect();
-    assert!(names.iter().any(|n| n.contains("rbtdrk_freehold_ensure")));
-    assert!(names.iter().any(|n| n.contains("rbtdrk_avow")));
-    assert!(names.iter().any(|n| n.contains("rbtdrk_gird_governor")));
-    assert!(names.iter().any(|n| n.contains("rbtdrk_brevet_don_director")));
-    assert!(names.iter().any(|n| n.contains("rbtdrk_brevet_don_retriever")));
-    assert!(names.iter().any(|n| n.contains("rbtdrk_depot_recognosce")));
+    rbtdth_assert_cases(
+        RBTDRM_FIXTURE_FREEHOLD_ESTABLISH,
+        6,
+        &[
+            "rbtdrk_freehold_ensure",
+            "rbtdrk_avow",
+            "rbtdrk_gird_governor",
+            "rbtdrk_brevet_don_director",
+            "rbtdrk_brevet_don_retriever",
+            "rbtdrk_depot_recognosce",
+        ],
+    );
 }
 
 /// freehold-churn registers its single deliberate teardown case.
 #[test]
 fn rbtdtk_churn_case_registered() {
-    let fixture = rbtdra_lookup_fixture(RBTDRM_FIXTURE_FREEHOLD_CHURN)
-        .expect("freehold-churn is registered");
-    assert_eq!(fixture.cases.len(), 1, "expected one churn case");
-    let names: Vec<&str> = fixture.cases.iter().map(|c| c.name).collect();
-    assert!(names.iter().any(|n| n.contains("rbtdrk_depot_churn")));
+    rbtdth_assert_cases(RBTDRM_FIXTURE_FREEHOLD_CHURN, 1, &["rbtdrk_depot_churn"]);
 }
 
 /// install_freehold_prefixes refuses cleanly when rbrr.env is absent — the

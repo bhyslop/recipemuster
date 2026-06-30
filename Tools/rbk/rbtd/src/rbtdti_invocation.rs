@@ -22,13 +22,7 @@ use super::rbtdre_engine::rbtdre_Verdict;
 use super::rbtdri_invocation::*;
 use super::rbtdgc_consts::{RBTDGC_CRUCIBLE_BARK, RBTDGC_CRUCIBLE_CHARGE, RBTDGC_CRUCIBLE_WRIT, RBTDGC_ORDAIN_HALLMARK, RBTDGC_TWEAK_CREDLESS_GUARD};
 use super::rbtdrm_manifest::{RBTDRM_FIXTURE_SRJCL, RBTDRM_FIXTURE_TADMOR};
-use super::rbtdth_helpers::rbtdth_scratch_root;
-
-fn rbtdti_make_temp(label: &str) -> PathBuf {
-    let dir = rbtdth_scratch_root().join(format!("rbtd-test-{}-{}", std::process::id(), label));
-    std::fs::create_dir_all(&dir).unwrap();
-    dir
-}
+use super::rbtdth_helpers::rbtdth_make_scratch;
 
 fn rbtdti_make_tt_dir(root: &PathBuf) -> PathBuf {
     let tt = root.join("tt");
@@ -50,7 +44,7 @@ fn rbtdti_write_script(tt_dir: &PathBuf, name: &str, body: &str) {
 
 #[test]
 fn rbtdti_finds_matching_tabtarget() {
-    let tmp = rbtdti_make_temp("find-match");
+    let tmp = rbtdth_make_scratch("find-match");
     let tt = rbtdti_make_tt_dir(&tmp);
     rbtdti_write_script(&tt, &format!("{}.Bark.tadmor.sh", RBTDGC_CRUCIBLE_BARK), "exit 0\n");
 
@@ -64,7 +58,7 @@ fn rbtdti_finds_matching_tabtarget() {
 
 #[test]
 fn rbtdti_find_rejects_no_match() {
-    let tmp = rbtdti_make_temp("find-nomatch");
+    let tmp = rbtdth_make_scratch("find-nomatch");
     let _tt = rbtdti_make_tt_dir(&tmp);
 
     let result = rbtdri_find_tabtarget(&tmp, RBTDGC_CRUCIBLE_BARK, "tadmor");
@@ -76,7 +70,7 @@ fn rbtdti_find_rejects_no_match() {
 
 #[test]
 fn rbtdti_find_rejects_multiple_matches() {
-    let tmp = rbtdti_make_temp("find-multi");
+    let tmp = rbtdth_make_scratch("find-multi");
     let tt = rbtdti_make_tt_dir(&tmp);
     rbtdti_write_script(&tt, &format!("{}.Bark.tadmor.sh", RBTDGC_CRUCIBLE_BARK), "exit 0\n");
     rbtdti_write_script(&tt, &format!("{}.AlsoBark.tadmor.sh", RBTDGC_CRUCIBLE_BARK), "exit 0\n");
@@ -90,7 +84,7 @@ fn rbtdti_find_rejects_multiple_matches() {
 
 #[test]
 fn rbtdti_find_does_not_match_wrong_nameplate() {
-    let tmp = rbtdti_make_temp("find-wrongnp");
+    let tmp = rbtdth_make_scratch("find-wrongnp");
     let tt = rbtdti_make_tt_dir(&tmp);
     rbtdti_write_script(&tt, &format!("{}.Bark.tadmor.sh", RBTDGC_CRUCIBLE_BARK), "exit 0\n");
 
@@ -102,7 +96,7 @@ fn rbtdti_find_does_not_match_wrong_nameplate() {
 
 #[test]
 fn rbtdti_find_does_not_match_wrong_colophon() {
-    let tmp = rbtdti_make_temp("find-wrongcol");
+    let tmp = rbtdth_make_scratch("find-wrongcol");
     let tt = rbtdti_make_tt_dir(&tmp);
     rbtdti_write_script(&tt, &format!("{}.Bark.tadmor.sh", RBTDGC_CRUCIBLE_BARK), "exit 0\n");
 
@@ -114,7 +108,7 @@ fn rbtdti_find_does_not_match_wrong_colophon() {
 
 #[test]
 fn rbtdti_find_no_partial_colophon_match() {
-    let tmp = rbtdti_make_temp("find-partial");
+    let tmp = rbtdth_make_scratch("find-partial");
     let tt = rbtdti_make_tt_dir(&tmp);
     rbtdti_write_script(&tt, &format!("{}b.Bark.tadmor.sh", RBTDGC_CRUCIBLE_BARK), "exit 0\n");
 
@@ -196,7 +190,7 @@ fn rbtdti_parse_ifrit_empty_stdout() {
 
 #[test]
 fn rbtdti_invoke_creates_burv_dirs() {
-    let tmp = rbtdti_make_temp("invoke-burv");
+    let tmp = rbtdth_make_scratch("invoke-burv");
     let tt = rbtdti_make_tt_dir(&tmp);
     rbtdti_write_script(&tt, &format!("{}.Bark.testplate.sh", RBTDGC_CRUCIBLE_BARK), "exit 0\n");
 
@@ -215,7 +209,7 @@ fn rbtdti_invoke_creates_burv_dirs() {
 
 #[test]
 fn rbtdti_invoke_sequential_burv_isolation() {
-    let tmp = rbtdti_make_temp("invoke-seq");
+    let tmp = rbtdth_make_scratch("invoke-seq");
     let tt = rbtdti_make_tt_dir(&tmp);
     rbtdti_write_script(&tt, &format!("{}.Bark.testplate.sh", RBTDGC_CRUCIBLE_BARK), "exit 0\n");
 
@@ -239,7 +233,7 @@ fn rbtdti_invoke_sequential_burv_isolation() {
 
 #[test]
 fn rbtdti_chain_next_reuses_prior_burv_root() {
-    let tmp = rbtdti_make_temp("invoke-chain");
+    let tmp = rbtdth_make_scratch("invoke-chain");
     let tt = rbtdti_make_tt_dir(&tmp);
     rbtdti_write_script(&tt, &format!("{}.Bark.testplate.sh", RBTDGC_CRUCIBLE_BARK), "exit 0\n");
 
@@ -271,7 +265,7 @@ fn rbtdti_chain_next_reuses_prior_burv_root() {
 
 #[test]
 fn rbtdti_chain_next_without_prior_invoke_errs() {
-    let tmp = rbtdti_make_temp("invoke-chain-noprior");
+    let tmp = rbtdth_make_scratch("invoke-chain-noprior");
     let tt = rbtdti_make_tt_dir(&tmp);
     rbtdti_write_script(&tt, &format!("{}.Bark.testplate.sh", RBTDGC_CRUCIBLE_BARK), "exit 0\n");
 
@@ -290,7 +284,7 @@ fn rbtdti_chain_next_without_prior_invoke_errs() {
 
 #[test]
 fn rbtdti_invoke_captures_stdout() {
-    let tmp = rbtdti_make_temp("invoke-stdout");
+    let tmp = rbtdth_make_scratch("invoke-stdout");
     let tt = rbtdti_make_tt_dir(&tmp);
     rbtdti_write_script(&tt, &format!("{}.Bark.testplate.sh", RBTDGC_CRUCIBLE_BARK), "echo 'hello stdout'\n");
 
@@ -307,7 +301,7 @@ fn rbtdti_invoke_captures_stdout() {
 
 #[test]
 fn rbtdti_invoke_captures_stderr() {
-    let tmp = rbtdti_make_temp("invoke-stderr");
+    let tmp = rbtdth_make_scratch("invoke-stderr");
     let tt = rbtdti_make_tt_dir(&tmp);
     rbtdti_write_script(&tt, &format!("{}.Bark.testplate.sh", RBTDGC_CRUCIBLE_BARK), "echo 'hello stderr' >&2\n");
 
@@ -323,7 +317,7 @@ fn rbtdti_invoke_captures_stderr() {
 
 #[test]
 fn rbtdti_invoke_captures_nonzero_exit() {
-    let tmp = rbtdti_make_temp("invoke-exit");
+    let tmp = rbtdth_make_scratch("invoke-exit");
     let tt = rbtdti_make_tt_dir(&tmp);
     rbtdti_write_script(&tt, &format!("{}.Bark.testplate.sh", RBTDGC_CRUCIBLE_BARK), "exit 7\n");
 
@@ -339,7 +333,7 @@ fn rbtdti_invoke_captures_nonzero_exit() {
 
 #[test]
 fn rbtdti_invoke_passes_args() {
-    let tmp = rbtdti_make_temp("invoke-args");
+    let tmp = rbtdth_make_scratch("invoke-args");
     let tt = rbtdti_make_tt_dir(&tmp);
     rbtdti_write_script(&tt, &format!("{}.Bark.testplate.sh", RBTDGC_CRUCIBLE_BARK), "echo \"args: $*\"\n");
 
@@ -355,7 +349,7 @@ fn rbtdti_invoke_passes_args() {
 
 #[test]
 fn rbtdti_invoke_sets_burv_env_vars() {
-    let tmp = rbtdti_make_temp("invoke-env");
+    let tmp = rbtdth_make_scratch("invoke-env");
     let tt = rbtdti_make_tt_dir(&tmp);
     rbtdti_write_script(
         &tt,
@@ -380,7 +374,7 @@ fn rbtdti_invoke_sets_burv_env_vars() {
 
 #[test]
 fn rbtdti_invoke_returns_burv_output_path() {
-    let tmp = rbtdti_make_temp("invoke-burvpath");
+    let tmp = rbtdth_make_scratch("invoke-burvpath");
     let tt = rbtdti_make_tt_dir(&tmp);
     rbtdti_write_script(&tt, &format!("{}.Bark.testplate.sh", RBTDGC_CRUCIBLE_BARK), "exit 0\n");
 
@@ -399,7 +393,7 @@ fn rbtdti_invoke_returns_burv_output_path() {
 
 #[test]
 fn rbtdti_find_global_matches() {
-    let tmp = rbtdti_make_temp("global-match");
+    let tmp = rbtdth_make_scratch("global-match");
     let tt = rbtdti_make_tt_dir(&tmp);
     let script_name = format!("{}.DirectorOrdains.sh", RBTDGC_ORDAIN_HALLMARK);
     rbtdti_write_script(&tt, &script_name, "exit 0\n");
@@ -413,7 +407,7 @@ fn rbtdti_find_global_matches() {
 
 #[test]
 fn rbtdti_find_global_rejects_imprint_suffix() {
-    let tmp = rbtdti_make_temp("global-imprint");
+    let tmp = rbtdth_make_scratch("global-imprint");
     let tt = rbtdti_make_tt_dir(&tmp);
     // Only an imprint-scoped tabtarget — global discovery should not find it
     let script_name = format!("{}.DirectorOrdains.tadmor.sh", RBTDGC_ORDAIN_HALLMARK);
@@ -428,7 +422,7 @@ fn rbtdti_find_global_rejects_imprint_suffix() {
 
 #[test]
 fn rbtdti_find_global_rejects_no_match() {
-    let tmp = rbtdti_make_temp("global-nomatch");
+    let tmp = rbtdth_make_scratch("global-nomatch");
     let _tt = rbtdti_make_tt_dir(&tmp);
 
     let result = rbtdri_find_tabtarget_global(&tmp, RBTDGC_ORDAIN_HALLMARK);
@@ -441,7 +435,7 @@ fn rbtdti_find_global_rejects_no_match() {
 
 #[test]
 fn rbtdti_invoke_global_passes_extra_env() {
-    let tmp = rbtdti_make_temp("invoke-global-env");
+    let tmp = rbtdth_make_scratch("invoke-global-env");
     let tt = rbtdti_make_tt_dir(&tmp);
     let script_name = format!("{}.DirectorOrdains.sh", RBTDGC_ORDAIN_HALLMARK);
     rbtdti_write_script(
@@ -474,7 +468,7 @@ fn rbtdti_invoke_global_passes_extra_env() {
 
 #[test]
 fn rbtdti_credless_armed_applies_guard_env() {
-    let tmp = rbtdti_make_temp("credless-env");
+    let tmp = rbtdth_make_scratch("credless-env");
     let tt = rbtdti_make_tt_dir(&tmp);
     rbtdti_write_script(
         &tt,
@@ -502,7 +496,7 @@ fn rbtdti_credless_armed_applies_guard_env() {
 
 #[test]
 fn rbtdti_credless_armed_rejects_case_tweak() {
-    let tmp = rbtdti_make_temp("credless-conflict");
+    let tmp = rbtdth_make_scratch("credless-conflict");
     let tt = rbtdti_make_tt_dir(&tmp);
     rbtdti_write_script(
         &tt,
@@ -535,7 +529,7 @@ fn rbtdti_credless_armed_rejects_case_tweak() {
 
 #[test]
 fn rbtdti_credless_disarmed_leaves_tweak_slot_free() {
-    let tmp = rbtdti_make_temp("credless-disarmed");
+    let tmp = rbtdth_make_scratch("credless-disarmed");
     let tt = rbtdti_make_tt_dir(&tmp);
     rbtdti_write_script(
         &tt,
@@ -561,7 +555,7 @@ fn rbtdti_credless_disarmed_leaves_tweak_slot_free() {
 
 #[test]
 fn rbtdti_invoke_imprint_finds_correct_target() {
-    let tmp = rbtdti_make_temp("invoke-imprint");
+    let tmp = rbtdth_make_scratch("invoke-imprint");
     let tt = rbtdti_make_tt_dir(&tmp);
     let charge_tadmor = format!("{}.Charge.{}.sh", RBTDGC_CRUCIBLE_CHARGE, RBTDRM_FIXTURE_TADMOR);
     let charge_srjcl = format!("{}.Charge.{}.sh", RBTDGC_CRUCIBLE_CHARGE, RBTDRM_FIXTURE_SRJCL);
@@ -583,7 +577,7 @@ fn rbtdti_invoke_imprint_finds_correct_target() {
 
 #[test]
 fn rbtdti_read_burv_fact_reads_value() {
-    let tmp = rbtdti_make_temp("burv-fact");
+    let tmp = rbtdth_make_scratch("burv-fact");
     let tt = rbtdti_make_tt_dir(&tmp);
     rbtdti_write_script(
         &tt,
@@ -604,7 +598,7 @@ fn rbtdti_read_burv_fact_reads_value() {
 
 #[test]
 fn rbtdti_read_burv_fact_rejects_missing() {
-    let tmp = rbtdti_make_temp("burv-fact-missing");
+    let tmp = rbtdth_make_scratch("burv-fact-missing");
     let tt = rbtdti_make_tt_dir(&tmp);
     rbtdti_write_script(&tt, &format!("{}.Bark.testplate.sh", RBTDGC_CRUCIBLE_BARK), "exit 0\n");
 
@@ -623,7 +617,7 @@ fn rbtdti_read_burv_fact_rejects_missing() {
 
 #[test]
 fn rbtdti_invoke_fails_no_tabtarget() {
-    let tmp = rbtdti_make_temp("invoke-notarget");
+    let tmp = rbtdth_make_scratch("invoke-notarget");
     let _tt = rbtdti_make_tt_dir(&tmp);
 
     let burv_temp_root = tmp.join("burv-temp");

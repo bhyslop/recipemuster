@@ -16,10 +16,10 @@
 //
 // RBTDTE — tests for case execution engine
 
-use std::path::{Path, PathBuf};
+use std::path::Path;
 
 use super::rbtdre_engine::*;
-use super::rbtdth_helpers::rbtdth_scratch_root;
+use super::rbtdth_helpers::rbtdth_make_scratch;
 
 fn rbtdte_pass(_dir: &Path) -> rbtdre_Verdict {
     rbtdre_Verdict::Pass
@@ -40,12 +40,6 @@ const RBTDTE_COLORS: rbtdre_Colors = rbtdre_Colors {
     reset: "",
 };
 
-fn rbtdte_make_temp(label: &str) -> PathBuf {
-    let dir = rbtdth_scratch_root().join(format!("rbtd-test-{}-{}", std::process::id(), label));
-    std::fs::create_dir_all(&dir).unwrap();
-    dir
-}
-
 #[test]
 fn rbtdte_counts_all_verdict_types() {
     static CASES: &[rbtdre_Case] = &[
@@ -55,7 +49,7 @@ fn rbtdte_counts_all_verdict_types() {
         rbtdre_Case { name: "f1", func: rbtdte_fail },
     ];
 
-    let tmp = rbtdte_make_temp("counts");
+    let tmp = rbtdth_make_scratch("counts");
     let result = rbtdre_run_cases(CASES, &RBTDTE_COLORS, false, &tmp).unwrap();
     assert_eq!(result.passed, 2);
     assert_eq!(result.failed, 1);
@@ -70,7 +64,7 @@ fn rbtdte_fail_fast_stops_after_first_failure() {
         rbtdre_Case { name: "ff-p1", func: rbtdte_pass },
     ];
 
-    let tmp = rbtdte_make_temp("failfast");
+    let tmp = rbtdth_make_scratch("failfast");
     let result = rbtdre_run_cases(CASES, &RBTDTE_COLORS, true, &tmp).unwrap();
     assert_eq!(result.failed, 1);
     assert_eq!(result.passed, 0);
@@ -90,7 +84,7 @@ fn rbtdte_trace_files_written() {
         },
     ];
 
-    let tmp = rbtdte_make_temp("trace");
+    let tmp = rbtdth_make_scratch("trace");
     let _ = rbtdre_run_cases(CASES, &RBTDTE_COLORS, false, &tmp).unwrap();
 
     let pass_trace =
@@ -113,7 +107,7 @@ fn rbtdte_cases_run_in_declaration_order() {
         rbtdre_Case { name: "ord-c", func: rbtdte_skip },
     ];
 
-    let tmp = rbtdte_make_temp("order");
+    let tmp = rbtdth_make_scratch("order");
     let result = rbtdre_run_cases(CASES, &RBTDTE_COLORS, false, &tmp).unwrap();
     assert_eq!(result.passed, 2);
     assert_eq!(result.skipped, 1);
@@ -126,7 +120,7 @@ fn rbtdte_cases_run_in_declaration_order() {
 #[test]
 fn rbtdte_zero_cases() {
     static CASES: &[rbtdre_Case] = &[];
-    let tmp = rbtdte_make_temp("zerocases");
+    let tmp = rbtdth_make_scratch("zerocases");
     let result = rbtdre_run_cases(CASES, &RBTDTE_COLORS, false, &tmp).unwrap();
     assert_eq!(result.passed, 0);
     assert_eq!(result.failed, 0);
@@ -142,7 +136,7 @@ fn rbtdte_all_skip() {
         rbtdre_Case { name: "sk3", func: rbtdte_skip },
     ];
 
-    let tmp = rbtdte_make_temp("allskip");
+    let tmp = rbtdth_make_scratch("allskip");
     let result = rbtdre_run_cases(CASES, &RBTDTE_COLORS, false, &tmp).unwrap();
     assert_eq!(result.passed, 0);
     assert_eq!(result.failed, 0);
@@ -157,7 +151,7 @@ fn rbtdte_single_case_pass() {
         func: rbtdte_pass,
     }];
 
-    let tmp = rbtdte_make_temp("solopass");
+    let tmp = rbtdth_make_scratch("solopass");
     let result = rbtdre_run_cases(CASES, &RBTDTE_COLORS, false, &tmp).unwrap();
     assert_eq!(result.passed, 1);
     assert_eq!(result.failed, 0);
@@ -172,7 +166,7 @@ fn rbtdte_single_case_fail() {
         func: rbtdte_fail,
     }];
 
-    let tmp = rbtdte_make_temp("solofail");
+    let tmp = rbtdth_make_scratch("solofail");
     let result = rbtdre_run_cases(CASES, &RBTDTE_COLORS, false, &tmp).unwrap();
     assert_eq!(result.passed, 0);
     assert_eq!(result.failed, 1);
@@ -191,7 +185,7 @@ fn rbtdte_run_all_executes_every_case_despite_failures() {
         rbtdre_Case { name: "ra-p2", func: rbtdte_pass },
     ];
 
-    let tmp = rbtdte_make_temp("runall");
+    let tmp = rbtdth_make_scratch("runall");
     let result = rbtdre_run_cases(CASES, &RBTDTE_COLORS, false, &tmp).unwrap();
     assert_eq!(result.passed, 2);
     assert_eq!(result.failed, 2);
@@ -217,7 +211,7 @@ fn rbtdte_temp_dirs_are_distinct_and_isolated() {
         rbtdre_Case { name: "iso-b", func: rbtdte_write_marker },
     ];
 
-    let tmp = rbtdte_make_temp("isolation");
+    let tmp = rbtdth_make_scratch("isolation");
     let _ = rbtdre_run_cases(CASES, &RBTDTE_COLORS, false, &tmp).unwrap();
 
     let dir_a = tmp.join("iso-a");
@@ -285,7 +279,7 @@ fn rbtdte_trace_file_skip_contains_reason() {
         func: rbtdte_skip,
     }];
 
-    let tmp = rbtdte_make_temp("skiptrace");
+    let tmp = rbtdth_make_scratch("skiptrace");
     let _ = rbtdre_run_cases(CASES, &RBTDTE_COLORS, false, &tmp).unwrap();
 
     let trace = std::fs::read_to_string(tmp.join("traced-skip").join("trace.txt")).unwrap();
@@ -308,7 +302,7 @@ fn rbtdte_case_output_files_survive_in_trace_dir() {
         func: write_output,
     }];
 
-    let tmp = rbtdte_make_temp("caseoutput");
+    let tmp = rbtdth_make_scratch("caseoutput");
     let _ = rbtdre_run_cases(CASES, &RBTDTE_COLORS, false, &tmp).unwrap();
 
     let output = std::fs::read_to_string(tmp.join("output-case").join("output.txt")).unwrap();
@@ -333,7 +327,7 @@ fn rbtdte_git(args: &[&str], root: &Path) -> std::process::Output {
 
 #[test]
 fn rbtdte_config_set_field_replaces_value_preserving_other_lines() {
-    let tmp = rbtdte_make_temp("setfield");
+    let tmp = rbtdth_make_scratch("setfield");
     let file = tmp.join("rbrv.env");
     std::fs::write(&file, "KEEP_BEFORE=1\nRBRV_ANCHOR=old\nKEEP_AFTER=2\n").unwrap();
 
@@ -349,7 +343,7 @@ fn rbtdte_config_set_field_replaces_value_preserving_other_lines() {
 
 #[test]
 fn rbtdte_config_zero_blanks_named_field_only() {
-    let tmp = rbtdte_make_temp("zerofield");
+    let tmp = rbtdth_make_scratch("zerofield");
     let file = tmp.join("rbrd.env");
     std::fs::write(&file, "RBRD_DEPOT_MONIKER=canest3-000007\nRBRD_CLOUD_PREFIX=canc\n").unwrap();
 
@@ -364,7 +358,7 @@ fn rbtdte_config_zero_blanks_named_field_only() {
 
 #[test]
 fn rbtdte_config_zero_absent_field_fails_loud() {
-    let tmp = rbtdte_make_temp("zeroabsent");
+    let tmp = rbtdth_make_scratch("zeroabsent");
     let file = tmp.join("rbrd.env");
     std::fs::write(&file, "RBRD_CLOUD_PREFIX=canc\n").unwrap();
 
@@ -378,7 +372,7 @@ fn rbtdte_config_zero_absent_field_fails_loud() {
 
 #[test]
 fn rbtdte_commit_nameplates_scopes_to_named_class_only() {
-    let tmp = rbtdte_make_temp("commit-scope");
+    let tmp = rbtdth_make_scratch("commit-scope");
     assert!(rbtdte_git(&["init", "-q"], &tmp).status.success());
     rbtdte_git(&["config", "user.email", "theurge@test"], &tmp);
     rbtdte_git(&["config", "user.name", "theurge test"], &tmp);
