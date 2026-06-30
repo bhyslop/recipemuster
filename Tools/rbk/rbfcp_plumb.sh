@@ -98,6 +98,27 @@ zrbfc_plumb_core() {
     buc_die "About ark not found in GAR: ${z_about_pkg}:${z_hallmark}"
   fi
 
+  # Resolved-base labels (conjure only): read the rbi_resolved_base_n labels back
+  # from the SIGNED attest image's config blob (RBSAP). The labels are identical
+  # across platforms — set once at buildx, preserved byte-identically by the
+  # per-platform pullback into the attest image, which the google-worker DSSE then
+  # signs (RBr_b4e) — so the first built platform's attest tag carries them. The
+  # fact is a transient display cache; the durable signed home is the attest label.
+  # A pre-resolved-base hallmark (or platform-config drift) yields no config file
+  # and the Base Image section simply omits the resolved line.
+  if test "${RBRV_VESSEL_MODE}" = "rbnve_conjure" && test -n "${RBRV_CONJURE_PLATFORMS:-}"; then
+    buc_step "Reading resolved-base labels from attest image config"
+    local z_first_plat="${RBRV_CONJURE_PLATFORMS//,/ }"
+    z_first_plat="${z_first_plat%% *}"
+    local z_attest_suffix="${z_first_plat#linux/}"
+    z_attest_suffix="${z_attest_suffix//\//}"
+    local -r z_attest_pkg="${RBGL_HALLMARKS_ROOT}/${z_hallmark}/${RBGC_ARK_BASENAME_ATTEST}"
+    local -r z_attest_tag="${z_hallmark}-${z_attest_suffix}"
+    zrbfc_image_config_fetch "${z_token}" "${z_attest_pkg}" "${z_attest_tag}" \
+      "${z_extract}/attest_config.json" \
+      || buc_info "Resolved-base labels not available (attest ${z_attest_tag} absent — pre-resolved-base build?)"
+  fi
+
   # Display results
   if test "${z_mode}" = "compact"; then
     zrbfc_plumb_show_compact "${z_vessel}" "${z_hallmark}" "${z_extract}" "${z_has_vouch}"
@@ -351,6 +372,39 @@ zrbfc_plumb_show_sections() {
       { read -r z_distro_name; read -r z_distro_ver; } < "${ZRBFC_SCRATCH_FILE}"
       if test -n "${z_distro_name}"; then
         echo "  Detected distro: ${z_distro_name} ${z_distro_ver}"
+      fi
+    fi
+
+    # Resolved base (signed): the rbi_resolved_base_n labels read back from the
+    # attest image config (RBSAP). Unlike the generic "FROM ${RBF_IMAGE_n}" recipe
+    # line above, this is the ACTUAL base each slot resolved to at build time —
+    # pinned by digest and riding the attest image's google-worker signature
+    # (RBr_b4e). The reader references the sprued key home; the cloud writer uses a
+    # literal (it sources no constants).
+    local -r z_attest_config="${z_dir}/attest_config.json"
+    if test -f "${z_attest_config}"; then
+      local z_rb_n=""
+      local z_rb_val=""
+      local z_rb_any="false"
+      local z_rb_stderr=""
+      for z_rb_n in 1 2 3; do
+        # (.config.Labels // {}) tolerates an image with no labels (null) in-jq, so
+        # only a malformed config or a jq fault reaches the guard. buc_warn (not
+        # buc_die) is deliberate: plumb is a read-only trust-posture display, and a
+        # single unreadable optional label must not abort a report already in flight.
+        z_rb_stderr="${BURD_TEMP_DIR}/plumb_resolved_base_${z_rb_n}_stderr.txt"
+        jq -r --arg k "${RBGC_IMAGE_LABEL_RESOLVED_BASE}_${z_rb_n}" \
+          '(.config.Labels // {})[$k] // empty' "${z_attest_config}" \
+          > "${ZRBFC_SCRATCH_FILE}" 2>"${z_rb_stderr}" \
+          || buc_warn "Could not read ${RBGC_IMAGE_LABEL_RESOLVED_BASE}_${z_rb_n} from attest config — see ${z_rb_stderr}"
+        z_rb_val=$(<"${ZRBFC_SCRATCH_FILE}")
+        if test -n "${z_rb_val}"; then
+          echo "  Resolved base ${z_rb_n} (signed): ${z_rb_val}"
+          z_rb_any="true"
+        fi
+      done
+      if test "${z_rb_any}" = "false"; then
+        echo "  Resolved base:   (no rbi_resolved_base_n labels — pre-resolved-base build)"
       fi
     fi
   fi

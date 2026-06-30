@@ -256,6 +256,106 @@ zrbfc_gar_extract_artifact() {
   return 0
 }
 
+# Internal: fetch an image's config blob (the .config.Labels carrier) via the
+# Registry API — manifest -> .config.digest -> blob — no docker, no gcloud. Used by
+# plumb to read the rbi_resolved_base_n labels back from the signed attest image.
+# Resolves a multi-platform index to its first platform; image labels are identical
+# across platforms (set once at buildx, preserved byte-identically by the
+# per-platform pullback), so any platform's config carries them.
+# Args: token package tag out_config_file
+# Returns: 0 and writes the config JSON to out_config_file; 1 if the image is not
+# found (HTTP 404 — graceful, e.g. a pre-resolved-base hallmark). Infrastructure
+# failures (curl, jq) are fatal via buc_die.
+zrbfc_image_config_fetch() {
+  zrbfc_sentinel
+
+  local -r z_token="$1"
+  local -r z_package="$2"
+  local -r z_tag="$3"
+  local -r z_out="$4"
+
+  local -r z_safe_pkg="${z_package//\//_}"
+  local -r z_prefix="${BURD_TEMP_DIR}/cfg_${z_safe_pkg}_${z_tag}_"
+
+  # HEAD check — does the image exist?
+  local -r z_head_status="${z_prefix}head_status.txt"
+  local -r z_head_response="${z_prefix}head_response.txt"
+  local -r z_head_stderr="${z_prefix}head_stderr.txt"
+  curl --head -s \
+    --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
+    --max-time "${RBCC_CURL_MAX_TIME_SEC}" \
+    -H "Authorization: Bearer ${z_token}" \
+    -H "Accept: ${ZRBFC_ACCEPT_MANIFEST_MTYPES}" \
+    -w "%{http_code}" \
+    -o "${z_head_response}" \
+    "${ZRBFC_REGISTRY_API_BASE}/${z_package}/manifests/${z_tag}" \
+    > "${z_head_status}" 2>"${z_head_stderr}" \
+    || buc_die "HEAD request failed for ${z_package}:${z_tag} — see ${z_head_stderr}"
+  local -r z_http_code=$(<"${z_head_status}")
+  test "${z_http_code}" = "200" || return 1
+
+  # GET manifest (may be index or single-platform)
+  local -r z_manifest="${z_prefix}manifest.json"
+  local -r z_manifest_stderr="${z_prefix}manifest_stderr.txt"
+  curl -sL \
+    --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
+    --max-time "${RBCC_CURL_MAX_TIME_SEC}" \
+    -H "Authorization: Bearer ${z_token}" \
+    -H "Accept: ${ZRBFC_ACCEPT_MANIFEST_MTYPES}" \
+    "${ZRBFC_REGISTRY_API_BASE}/${z_package}/manifests/${z_tag}" \
+    > "${z_manifest}" 2>"${z_manifest_stderr}" \
+    || buc_die "GET manifest failed for ${z_package}:${z_tag} — see ${z_manifest_stderr}"
+
+  # Resolve to a single-platform manifest. The attest per-platform tag is already
+  # single-platform, but the defensive index-resolve keeps the helper general.
+  local z_single_manifest="${z_manifest}"
+  local -r z_media_type_file="${z_prefix}media_type.txt"
+  local -r z_media_type_stderr="${z_prefix}media_type_stderr.txt"
+  jq -r '.mediaType // empty' "${z_manifest}" > "${z_media_type_file}" 2>"${z_media_type_stderr}" \
+    || buc_die "Failed to read manifest mediaType for ${z_package}:${z_tag} — see ${z_media_type_stderr}"
+  local -r z_media_type=$(<"${z_media_type_file}")
+  case "${z_media_type}" in
+    *manifest.list*|*image.index*)
+      local -r z_digest_file="${z_prefix}platform_digest.txt"
+      local -r z_digest_stderr="${z_prefix}platform_digest_stderr.txt"
+      jq -r '.manifests[0].digest // empty' "${z_manifest}" > "${z_digest_file}" 2>"${z_digest_stderr}" \
+        || buc_die "Failed to extract platform digest from manifest list — see ${z_digest_stderr}"
+      local -r z_platform_digest=$(<"${z_digest_file}")
+      test -n "${z_platform_digest}" || buc_die "Empty platform digest in manifest list"
+      local -r z_plat_manifest="${z_prefix}plat_manifest.json"
+      local -r z_plat_stderr="${z_prefix}plat_manifest_stderr.txt"
+      curl -sL \
+        --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
+        --max-time "${RBCC_CURL_MAX_TIME_SEC}" \
+        -H "Authorization: Bearer ${z_token}" \
+        -H "Accept: application/vnd.docker.distribution.manifest.v2+json,application/vnd.oci.image.manifest.v1+json" \
+        "${ZRBFC_REGISTRY_API_BASE}/${z_package}/manifests/${z_platform_digest}" \
+        > "${z_plat_manifest}" 2>"${z_plat_stderr}" \
+        || buc_die "GET platform manifest failed for ${z_package} — see ${z_plat_stderr}"
+      z_single_manifest="${z_plat_manifest}"
+      ;;
+  esac
+
+  # Extract the config blob digest and fetch the config JSON (carries .config.Labels).
+  local -r z_config_digest_file="${z_prefix}config_digest.txt"
+  local -r z_config_digest_stderr="${z_prefix}config_digest_stderr.txt"
+  jq -r '.config.digest // empty' "${z_single_manifest}" > "${z_config_digest_file}" 2>"${z_config_digest_stderr}" \
+    || buc_die "Failed to extract config digest from manifest for ${z_package}:${z_tag} — see ${z_config_digest_stderr}"
+  local -r z_config_digest=$(<"${z_config_digest_file}")
+  test -n "${z_config_digest}" || buc_die "No config digest in manifest for ${z_package}:${z_tag}"
+
+  local -r z_config_stderr="${z_prefix}config_stderr.txt"
+  curl -sL \
+    --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
+    --max-time "${RBCC_CURL_MAX_TIME_SEC}" \
+    -H "Authorization: Bearer ${z_token}" \
+    "${ZRBFC_REGISTRY_API_BASE}/${z_package}/blobs/${z_config_digest}" \
+    > "${z_out}" 2>"${z_config_stderr}" \
+    || buc_die "GET config blob failed for ${z_package}:${z_tag} — see ${z_config_stderr}"
+
+  return 0
+}
+
 # Resolve a hallmark's vessel by reading the vessel field from its vouch ark.
 # Authenticates as Retriever, fetches the vouch ark, extracts vouch_summary.json,
 # and emits the .vessel field. Single home for hallmark→vessel lookup; callers
