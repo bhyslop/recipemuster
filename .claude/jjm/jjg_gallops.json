@@ -17036,6 +17036,7 @@
         "₢BfAAp",
         "₢BfAAu",
         "₢BfAAv",
+        "₢BfAAw",
         "₢BfAAL",
         "₢BfAAK",
         "₢BfAAJ",
@@ -17054,7 +17055,7 @@
         "₢BfAAs",
         "₢BfAAt"
       ],
-      "jjghn_next_pace_seed": "AAw",
+      "jjghn_next_pace_seed": "AAx",
       "jjghn_paces": {
         "₢BfAAA": {
           "jjgpn_tacks": [
@@ -17176,7 +17177,7 @@
         "₢BfAAE": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260622-0739",
+              "jjgtn_ts": "260630-1451",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "## Scrub canonical RBS0 of the org-level \"manor\" leak — disambiguate Manor (the holding / payor project) from the GCP organization it commands.",
@@ -17185,6 +17186,9 @@
                 "",
                 "Authoritative model + leak-site list: Memos/memo-20260622-fable-review-queue.md (composite-manor-model, rbs0-canon-scrub-framing) and the review ledger. The ledger's site enumeration (RBS0 lines near 1890/1971/1980/1985/1331/2030/3486/3497 + RBSRF + claude-rbk-acronyms) is provenance — re-grep before trusting.",
                 "",
+                "## 260630 coordination",
+                "₢BfAAv re-cuts the same RBS0 federation/manor region first (foedus≡provider, one manor pool). Adopt that framing here and avoid double-rewriting the same lines — this scrub layers on top of the re-cut, it does not contradict it.",
+                "",
                 "## Done when",
                 "Each leaked site reads \"Manor\" where it means the project/holding and \"organization\"/\"org-scoped\" where it means the org; the formal Manor quoin carries the composite framing (has-a-project + commands-an-org); the Depot↔Manor cardinality (each Depot belongs to exactly one Manor; a Manor owns zero-or-more Depots) is stated; and the RBS0:1774 \"payor manages infra without org-level permissions\" contradiction is reconciled against the federation layer's org-admin requirement.",
                 "",
@@ -17192,10 +17196,10 @@
                 "The composite-Manor model is ratified (operator-sanctioned 260622) and not reopened here — this is mechanical disambiguation, not a re-decision.",
                 "",
                 "## Character",
-                "Mechanical spec disambiguation over a settled model; coordinate with the FABLE-REANCHOR-RBS0 worklist (same federation quoins) to avoid dangling citations."
+                "Mechanical spec disambiguation over a settled model; coordinate with ₢BfAAv (same federation region, re-cut first) and the FABLE-REANCHOR-RBS0 worklist to avoid dangling citations."
               ],
               "jjgtn_silks": "rbs0-manor-org-canon-scrub",
-              "jjgtn_basis": "1fd6742"
+              "jjgtn_basis": "bd02e40"
             }
           ]
         },
@@ -18081,29 +18085,60 @@
         "₢BfAAv": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260630-1428",
+              "jjgtn_ts": "260630-1451",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "Re-cut the federation specs to the 260630 one-pool identity substrate (paddock \"Model\" section) — the contract-first hard predecessor of every model-touching code pace.",
                 "",
                 "## Spec of needed change",
                 "A foedus becomes a PROVIDER under one manor-lifetime pool (was: a pool per foedus). Re-cut, contract-first:",
-                "- RBSRF: the workforce-pool id moves to a manor-level home; RBRF_PROVIDER_ID is the per-foedus discriminator; the library/selector (RBSRR) stand. State the membership rule — per-individual normalized subject, with the synthetic test provider's subjects namespaced disjoint from production.",
-                "- RBSMA: affiance founds a PROVIDER under the standing pool, not the pool; the pool's one-time founding moves to manor setup. Drop the pre-existing-pool fast-fail / refuse-and-rotate framing (moot — the pool is founded once, never rotated).",
+                "- RBSRF: the workforce-pool id moves to a manor-level home; RBRF_PROVIDER_ID is the per-foedus discriminator; the library/selector (RBSRR) stand.",
+                "- RBSMA: affiance founds a PROVIDER under the standing pool, not the pool; the pool's one-time founding moves to manor setup. Drop the pre-existing-pool fast-fail / refuse-and-rotate framing (moot — the pool is founded once, never rotated). The attribute-mapping that yields the namespaced subject (below) is set provider-side here.",
                 "- RBSFD: descry reads provider presence under the pool, not pool absence / soft-delete; re-cut its verdict vocabulary.",
-                "- RBS0 federation civics: foedus≡provider, one manor pool; coordinate with the manor/org canon scrub (same RBS0 region).",
+                "- RBSPB (and the polity admission specs that quote the principal shape): membership is per-individual on the stable pool by an IdP-stable canonical subject; the synthetic test provider's subjects are namespaced DISJOINT from production so a test token can never satisfy a production binding (the load-bearing co-tenancy rule). State the principal shape and the namespacing rule here.",
+                "- The canvass operation sheaf: re-cut to enumerate providers under the one pool (providers.list) — the contract ₢BlAAU consumes.",
+                "- RBS0 federation civics: foedus≡provider, one manor pool; coordinate with the manor/org canon scrub (₢BfAAE, same RBS0 region).",
                 "",
                 "## Source",
                 "The paddock \"Model — the one-pool identity substrate\" section and the four 260630 spec studies (founding, membership, terrier, test-bed/accessor) carry the per-surface change-lists.",
                 "",
                 "## Done when",
-                "RBSRF / RBSMA / RBSFD and the RBS0 federation civics express the one-pool / foedus≡provider model with the per-individual-normalized + test-namespacing membership rule; no code re-cut yet (this is the contract).",
+                "RBSRF / RBSMA / RBSFD / RBSPB, the canvass sheaf, and the RBS0 federation civics express the one-pool / foedus≡provider model with the per-individual-normalized + test-namespacing membership rule; no code re-cut yet (this is the contract). The membership-composer CODE re-cut is the slated follow-on, not this pace.",
                 "",
                 "## Character",
                 "Spec authoring over a settled model (the Model section is the decision); contract-first hard predecessor — no model-touching code lands before this."
               ],
               "jjgtn_silks": "onepool-spec-recut",
-              "jjgtn_basis": "352aeac"
+              "jjgtn_basis": "bd02e40"
+            }
+          ]
+        },
+        "₢BfAAw": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260630-1451",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Re-cut the membership-principal composer to the one-pool model — per-individual normalized subject on the stable manor pool, test-provider subjects namespaced disjoint from production. The code follow-on of the ₢BfAAv spec re-cut.",
+                "",
+                "## Spec of needed change",
+                "zrbgp_principal_member_capture (rbgp_payor.sh) builds principal://…/workforcePools/{pool}/subject/{S} from the per-foedus pool id and the raw IdP subject. Re-cut per RBSPB (re-cut by ₢BfAAv):",
+                "- The pool is the one manor-level pool, not the per-foedus pool id.",
+                "- S is an IdP-stable canonical subject; the synthetic test provider's subjects are namespaced disjoint from production (the attribute-mapping that yields this is set provider-side in affiance).",
+                "- The composer is the single home — brevet / gird / unseat / attaint all route through it.",
+                "",
+                "## Done when",
+                "The principal composer and its polity-verb consumers build membership on the one manor pool with the normalized + namespaced subject per RBSPB; the exact-string unseat/attaint revoke still matches (no binding orphaned by the pool-id change).",
+                "",
+                "## Cinched",
+                "Per-individual membership, NOT group — the terrier muniment's 1:1 record↔grant mirror is preserved (a group binding would sever it).",
+                "Contract-first: builds against RBSPB as re-cut by ₢BfAAv.",
+                "",
+                "## Character",
+                "Surgical bash re-cut at one composer + its polity-verb consumers; sweeping any existing per-foedus-pool bindings (the exact-string-revoke leak the membership study flagged) is the in-pace judgment call."
+              ],
+              "jjgtn_silks": "membership-composer-recut",
+              "jjgtn_basis": "bd02e40"
             }
           ]
         }
