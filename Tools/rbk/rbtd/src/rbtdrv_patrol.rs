@@ -29,7 +29,8 @@ use crate::case;
 use crate::rbtdrc_crucible::rbtdrc_with_ctx;
 use crate::rbtdre_engine::{rbtdre_Case, rbtdre_Disposition, rbtdre_Fixture, rbtdre_Verdict};
 use crate::rbtdri_invocation::{
-    rbtdri_Context, rbtdri_gar_ref_categorical, rbtdri_invoke_global, rbtdri_invoke_or_fail,
+    rbtdri_Context, rbtdri_InvokeResult, rbtdri_gar_ref_categorical, rbtdri_invoke_global,
+    rbtdri_invoke_or_fail,
     rbtdri_ordain_capture, rbtdri_read_burv_fact, rbtdri_read_burv_facts_multi,
     RBTDRI_BURE_CONFIRM_KEY, RBTDRI_BURE_CONFIRM_SKIP,
     RBTDRI_BURE_TWEAK_NAME_KEY, RBTDRI_BURE_TWEAK_VALUE_KEY,
@@ -455,6 +456,153 @@ fn rbtdrv_hallmark_lifecycle(dir: &Path) -> rbtdre_Verdict {
 pub static RBTDRV_CASES_HALLMARK_LIFECYCLE: &[rbtdre_Case] = &[case!(rbtdrv_hallmark_lifecycle)];
 
 
+// ── Lode round-trip shared blocks ────────────────────────────
+// The four Lode round-trip fixtures (lode/reliquary/wsl/podvm-lifecycle) share a
+// byte-near-identical capture -> read-touchmark -> divine-contains -> augur ->
+// [member-jettison] -> banish -> final-divine skeleton. These helpers home the
+// three four-site invariant blocks plus the two-site member-jettison block. The
+// six load-bearing per-kind differences stay inline at the call sites by design:
+// the capture verb+args, the augur member-tag sets, the trust grade, lode's
+// literal-HEAD-commit envelope assertion, podvm's refresh+cohort-count
+// sub-sequence and trust-posture prose, and the jettison step's reliquary+podvm-
+// only presence.
+
+/// Read the bare Lode touchmark fact from a capture invocation and stamp it to
+/// the case scratch dir. The host-side capture handoff is identical across every
+/// Lode kind; only the capture result differs. Ok(touchmark) to continue,
+/// Err(Fail) to short-circuit on a missing/empty fact.
+fn zrbtdrv_read_touchmark(
+    result: &rbtdri_InvokeResult,
+    dir: &Path,
+) -> Result<String, rbtdre_Verdict> {
+    let touchmark = rbtdri_read_burv_fact(result, RBTDRV_FACT_LODE_TOUCHMARK)
+        .map_err(|e| rbtdre_Verdict::Fail(format!("read touchmark fact: {}", e)))?;
+    let _ = std::fs::write(dir.join("02-touchmark.txt"), &touchmark);
+    Ok(touchmark)
+}
+
+/// Divine-enumerate the Lodes and confirm the just-captured touchmark appears.
+/// `verb_label` preserves the per-kind Fail-message diagnostic (ensconce /
+/// conclave / underpin / immure). Returns the divine stdout on success so a kind
+/// can layer extra inline assertions (podvm's cohort-count) on the same output.
+fn zrbtdrv_divine_contains(
+    ctx: &mut rbtdri_Context,
+    dir: &Path,
+    touchmark: &str,
+    verb_label: &str,
+) -> Result<String, rbtdre_Verdict> {
+    let after = match rbtdri_invoke_global(ctx, RBTDGC_DIVINE_LODES, &[], &[]) {
+        Ok(r) if r.exit_code == 0 => r,
+        Ok(r) => return Err(rbtdre_Verdict::Fail(format!("post-{} divine failed (exit {})\n{}", verb_label, r.exit_code, r.stderr))),
+        Err(e) => return Err(rbtdre_Verdict::Fail(format!("post-{} divine invocation: {}", verb_label, e))),
+    };
+    let _ = std::fs::write(dir.join("03-divine-after.txt"), &after.stdout);
+    if !after.stdout.contains(touchmark) {
+        return Err(rbtdre_Verdict::Fail(format!(
+            "post-{} divine missing touchmark {}\nstdout:\n{}",
+            verb_label, touchmark, after.stdout
+        )));
+    }
+    Ok(after.stdout)
+}
+
+/// Banish the whole Lode (confirm-skip) and confirm a final divine no longer
+/// shows the touchmark — the registry-restored bookend, byte-identical across
+/// every Lode kind. Some(Fail) to short-circuit, None to continue.
+fn zrbtdrv_banish_and_verify_gone(
+    ctx: &mut rbtdri_Context,
+    dir: &Path,
+    touchmark: &str,
+) -> Option<rbtdre_Verdict> {
+    let _ = std::fs::write(dir.join("05-banish.txt"), "banishing");
+    match rbtdri_invoke_global(
+        ctx,
+        RBTDGC_BANISH_LODE,
+        &[touchmark],
+        &[(RBTDRI_BURE_CONFIRM_KEY, RBTDRI_BURE_CONFIRM_SKIP)],
+    ) {
+        Ok(r) if r.exit_code == 0 => {}
+        Ok(r) => return Some(rbtdre_Verdict::Fail(format!("banish failed (exit {})\n{}", r.exit_code, r.stderr))),
+        Err(e) => return Some(rbtdre_Verdict::Fail(format!("banish invocation: {}", e))),
+    }
+    let final_divine = match rbtdri_invoke_global(ctx, RBTDGC_DIVINE_LODES, &[], &[]) {
+        Ok(r) if r.exit_code == 0 => r,
+        Ok(r) => return Some(rbtdre_Verdict::Fail(format!("final divine failed (exit {})\n{}", r.exit_code, r.stderr))),
+        Err(e) => return Some(rbtdre_Verdict::Fail(format!("final divine invocation: {}", e))),
+    };
+    let _ = std::fs::write(dir.join("06-divine-final.txt"), &final_divine.stdout);
+    if final_divine.stdout.contains(touchmark) {
+        return Some(rbtdre_Verdict::Fail(format!(
+            "final divine still shows banished touchmark {} — banish did not restore baseline\nstdout:\n{}",
+            touchmark, final_divine.stdout
+        )));
+    }
+    None
+}
+
+/// Member-grain jettison proof for the multi-member Lode kinds (reliquary +
+/// podvm): raw-list the cohort and assert both tags present, jettison the victim
+/// tag via the type-blind raw verb, then re-list and assert the victim gone while
+/// the survivor remains. Emits the 04b/04c/04d scratch files. Some(Fail) to
+/// short-circuit, None to continue.
+fn zrbtdrv_member_jettison_proof(
+    ctx: &mut rbtdri_Context,
+    dir: &Path,
+    touchmark: &str,
+    victim_tag: &str,
+    survivor_tag: &str,
+) -> Option<rbtdre_Verdict> {
+    let lode_path = format!("{}/{}", RBTDRV_LODES_ROOT, touchmark);
+    let member_ref = format!("{}:{}", lode_path, victim_tag);
+
+    let pre_list = match rbtdri_invoke_global(ctx, RBTDGC_LIST_IMAGES, &[&lode_path], &[]) {
+        Ok(r) if r.exit_code == 0 => r,
+        Ok(r) => return Some(rbtdre_Verdict::Fail(format!("pre-jettison list failed (exit {})\n{}", r.exit_code, r.stderr))),
+        Err(e) => return Some(rbtdre_Verdict::Fail(format!("pre-jettison list invocation: {}", e))),
+    };
+    let _ = std::fs::write(dir.join("04b-list-before-jettison.txt"), &pre_list.stdout);
+    for member in &[survivor_tag, victim_tag] {
+        if !pre_list.stdout.contains(member) {
+            return Some(rbtdre_Verdict::Fail(format!(
+                "pre-jettison raw list missing member tag '{}'\nstdout:\n{}",
+                member, pre_list.stdout
+            )));
+        }
+    }
+
+    let _ = std::fs::write(dir.join("04c-jettison-member.txt"), &member_ref);
+    match rbtdri_invoke_global(
+        ctx,
+        RBTDGC_JETTISON_IMAGE,
+        &[&member_ref],
+        &[(RBTDRI_BURE_CONFIRM_KEY, RBTDRI_BURE_CONFIRM_SKIP)],
+    ) {
+        Ok(r) if r.exit_code == 0 => {}
+        Ok(r) => return Some(rbtdre_Verdict::Fail(format!("member jettison failed (exit {})\n{}", r.exit_code, r.stderr))),
+        Err(e) => return Some(rbtdre_Verdict::Fail(format!("member jettison invocation: {}", e))),
+    }
+
+    let post_list = match rbtdri_invoke_global(ctx, RBTDGC_LIST_IMAGES, &[&lode_path], &[]) {
+        Ok(r) if r.exit_code == 0 => r,
+        Ok(r) => return Some(rbtdre_Verdict::Fail(format!("post-jettison list failed (exit {})\n{}", r.exit_code, r.stderr))),
+        Err(e) => return Some(rbtdre_Verdict::Fail(format!("post-jettison list invocation: {}", e))),
+    };
+    let _ = std::fs::write(dir.join("04d-list-after-jettison.txt"), &post_list.stdout);
+    if post_list.stdout.contains(victim_tag) {
+        return Some(rbtdre_Verdict::Fail(format!(
+            "post-jettison list still shows jettisoned member '{}' — member-grain delete failed\nstdout:\n{}",
+            victim_tag, post_list.stdout
+        )));
+    }
+    if !post_list.stdout.contains(survivor_tag) {
+        return Some(rbtdre_Verdict::Fail(format!(
+            "post-jettison list missing sibling member '{}' — jettison damaged the Lode\nstdout:\n{}",
+            survivor_tag, post_list.stdout
+        )));
+    }
+    None
+}
+
 // Lode-lifecycle fixture — fetched-side base capture against live GAR. Single
 // self-contained round-trip: ensconce the busybox base into a fresh rbi_ld
 // Lode, divine-enumerate to confirm it appears, augur to confirm the member
@@ -479,24 +627,14 @@ fn rbtdrv_lode_lifecycle(dir: &Path) -> rbtdre_Verdict {
         let _ = std::fs::write(dir.join("01-ensconce-stdout.txt"), &ensconce.stdout);
 
         // The host-side capture handoff is the bare touchmark fact.
-        let touchmark = match rbtdri_read_burv_fact(&ensconce, RBTDRV_FACT_LODE_TOUCHMARK) {
-            Ok(v) => v,
-            Err(e) => return rbtdre_Verdict::Fail(format!("read touchmark fact: {}", e)),
+        let touchmark = match zrbtdrv_read_touchmark(&ensconce, dir) {
+            Ok(t) => t,
+            Err(v) => return v,
         };
-        let _ = std::fs::write(dir.join("02-touchmark.txt"), &touchmark);
 
         // Step 2: divine enumerate shows the new Lode.
-        let after = match rbtdri_invoke_global(ctx, RBTDGC_DIVINE_LODES, &[], &[]) {
-            Ok(r) if r.exit_code == 0 => r,
-            Ok(r) => return rbtdre_Verdict::Fail(format!("post-ensconce divine failed (exit {})\n{}", r.exit_code, r.stderr)),
-            Err(e) => return rbtdre_Verdict::Fail(format!("post-ensconce divine invocation: {}", e)),
-        };
-        let _ = std::fs::write(dir.join("03-divine-after.txt"), &after.stdout);
-        if !after.stdout.contains(&touchmark) {
-            return rbtdre_Verdict::Fail(format!(
-                "post-ensconce divine missing touchmark {}\nstdout:\n{}",
-                touchmark, after.stdout
-            ));
+        if let Err(v) = zrbtdrv_divine_contains(ctx, dir, &touchmark, "ensconce") {
+            return v;
         }
 
         // Step 3: augur inspects the single Lode — member tags AND the decoded
@@ -559,31 +697,9 @@ fn rbtdrv_lode_lifecycle(dir: &Path) -> rbtdre_Verdict {
             ));
         }
 
-        // Step 4: banish the whole Lode.
-        let _ = std::fs::write(dir.join("05-banish.txt"), "banishing");
-        match rbtdri_invoke_global(
-            ctx,
-            RBTDGC_BANISH_LODE,
-            &[&touchmark],
-            &[(RBTDRI_BURE_CONFIRM_KEY, RBTDRI_BURE_CONFIRM_SKIP)],
-        ) {
-            Ok(r) if r.exit_code == 0 => {}
-            Ok(r) => return rbtdre_Verdict::Fail(format!("banish failed (exit {})\n{}", r.exit_code, r.stderr)),
-            Err(e) => return rbtdre_Verdict::Fail(format!("banish invocation: {}", e)),
-        }
-
-        // Step 5: divine enumerate no longer shows the Lode — registry restored.
-        let final_divine = match rbtdri_invoke_global(ctx, RBTDGC_DIVINE_LODES, &[], &[]) {
-            Ok(r) if r.exit_code == 0 => r,
-            Ok(r) => return rbtdre_Verdict::Fail(format!("final divine failed (exit {})\n{}", r.exit_code, r.stderr)),
-            Err(e) => return rbtdre_Verdict::Fail(format!("final divine invocation: {}", e)),
-        };
-        let _ = std::fs::write(dir.join("06-divine-final.txt"), &final_divine.stdout);
-        if final_divine.stdout.contains(&touchmark) {
-            return rbtdre_Verdict::Fail(format!(
-                "final divine still shows banished touchmark {} — banish did not restore baseline\nstdout:\n{}",
-                touchmark, final_divine.stdout
-            ));
+        // Step 4: banish the whole Lode, then confirm the registry is restored.
+        if let Some(v) = zrbtdrv_banish_and_verify_gone(ctx, dir, &touchmark) {
+            return v;
         }
 
         let _ = std::fs::write(dir.join("07-passed.txt"), "passed");
@@ -939,24 +1055,14 @@ fn rbtdrv_reliquary_lifecycle(dir: &Path) -> rbtdre_Verdict {
         let _ = std::fs::write(dir.join("01-conclave-stdout.txt"), &conclave.stdout);
 
         // The host-side capture handoff is the bare touchmark fact.
-        let touchmark = match rbtdri_read_burv_fact(&conclave, RBTDRV_FACT_LODE_TOUCHMARK) {
-            Ok(v) => v,
-            Err(e) => return rbtdre_Verdict::Fail(format!("read touchmark fact: {}", e)),
+        let touchmark = match zrbtdrv_read_touchmark(&conclave, dir) {
+            Ok(t) => t,
+            Err(v) => return v,
         };
-        let _ = std::fs::write(dir.join("02-touchmark.txt"), &touchmark);
 
         // Step 2: divine enumerate shows the new Lode.
-        let after = match rbtdri_invoke_global(ctx, RBTDGC_DIVINE_LODES, &[], &[]) {
-            Ok(r) if r.exit_code == 0 => r,
-            Ok(r) => return rbtdre_Verdict::Fail(format!("post-conclave divine failed (exit {})\n{}", r.exit_code, r.stderr)),
-            Err(e) => return rbtdre_Verdict::Fail(format!("post-conclave divine invocation: {}", e)),
-        };
-        let _ = std::fs::write(dir.join("03-divine-after.txt"), &after.stdout);
-        if !after.stdout.contains(&touchmark) {
-            return rbtdre_Verdict::Fail(format!(
-                "post-conclave divine missing touchmark {}\nstdout:\n{}",
-                touchmark, after.stdout
-            ));
+        if let Err(v) = zrbtdrv_divine_contains(ctx, dir, &touchmark, "conclave") {
+            return v;
         }
 
         // Step 3: augur inspects the cohort Lode — member tags AND the decoded
@@ -983,86 +1089,21 @@ fn rbtdrv_reliquary_lifecycle(dir: &Path) -> rbtdre_Verdict {
             ));
         }
 
-        // Step 3.5: member-grain jettison via the type-blind raw verbs. The raw
-        // list (rbw-il) at leaf grain shows the cohort's member tags; jettison
-        // (rbw-iJ) deletes ONE member tag; a re-list proves that member absent
-        // and a sibling member still present — the per-member-delete the multi-
-        // member kinds need. Tag-grain delete leaves the Lode package and its
-        // other members intact (whole-Lode delete stays with banish, below).
-        let lode_path = format!("{}/{}", RBTDRV_LODES_ROOT, touchmark);
-        let member_ref = format!("{}:{}", lode_path, RBTDRV_RELIQUARY_TAG_GCRANE);
-
-        let pre_list = match rbtdri_invoke_global(ctx, RBTDGC_LIST_IMAGES, &[&lode_path], &[]) {
-            Ok(r) if r.exit_code == 0 => r,
-            Ok(r) => return rbtdre_Verdict::Fail(format!("pre-jettison list failed (exit {})\n{}", r.exit_code, r.stderr)),
-            Err(e) => return rbtdre_Verdict::Fail(format!("pre-jettison list invocation: {}", e)),
-        };
-        let _ = std::fs::write(dir.join("04b-list-before-jettison.txt"), &pre_list.stdout);
-        for member in &[RBTDRV_RELIQUARY_TAG_GCLOUD, RBTDRV_RELIQUARY_TAG_GCRANE] {
-            if !pre_list.stdout.contains(member) {
-                return rbtdre_Verdict::Fail(format!(
-                    "pre-jettison raw list missing member tag '{}'\nstdout:\n{}",
-                    member, pre_list.stdout
-                ));
-            }
-        }
-
-        let _ = std::fs::write(dir.join("04c-jettison-member.txt"), &member_ref);
-        match rbtdri_invoke_global(
+        // Step 3.5: member-grain jettison via the type-blind raw verbs — delete
+        // one member tag and prove it gone while a sibling survives.
+        if let Some(v) = zrbtdrv_member_jettison_proof(
             ctx,
-            RBTDGC_JETTISON_IMAGE,
-            &[&member_ref],
-            &[(RBTDRI_BURE_CONFIRM_KEY, RBTDRI_BURE_CONFIRM_SKIP)],
+            dir,
+            &touchmark,
+            RBTDRV_RELIQUARY_TAG_GCRANE,
+            RBTDRV_RELIQUARY_TAG_GCLOUD,
         ) {
-            Ok(r) if r.exit_code == 0 => {}
-            Ok(r) => return rbtdre_Verdict::Fail(format!("member jettison failed (exit {})\n{}", r.exit_code, r.stderr)),
-            Err(e) => return rbtdre_Verdict::Fail(format!("member jettison invocation: {}", e)),
+            return v;
         }
 
-        let post_list = match rbtdri_invoke_global(ctx, RBTDGC_LIST_IMAGES, &[&lode_path], &[]) {
-            Ok(r) if r.exit_code == 0 => r,
-            Ok(r) => return rbtdre_Verdict::Fail(format!("post-jettison list failed (exit {})\n{}", r.exit_code, r.stderr)),
-            Err(e) => return rbtdre_Verdict::Fail(format!("post-jettison list invocation: {}", e)),
-        };
-        let _ = std::fs::write(dir.join("04d-list-after-jettison.txt"), &post_list.stdout);
-        if post_list.stdout.contains(RBTDRV_RELIQUARY_TAG_GCRANE) {
-            return rbtdre_Verdict::Fail(format!(
-                "post-jettison list still shows jettisoned member '{}' — member-grain delete failed\nstdout:\n{}",
-                RBTDRV_RELIQUARY_TAG_GCRANE, post_list.stdout
-            ));
-        }
-        if !post_list.stdout.contains(RBTDRV_RELIQUARY_TAG_GCLOUD) {
-            return rbtdre_Verdict::Fail(format!(
-                "post-jettison list missing sibling member '{}' — jettison damaged the Lode\nstdout:\n{}",
-                RBTDRV_RELIQUARY_TAG_GCLOUD, post_list.stdout
-            ));
-        }
-
-        // Step 4: banish the whole Lode.
-        let _ = std::fs::write(dir.join("05-banish.txt"), "banishing");
-        match rbtdri_invoke_global(
-            ctx,
-            RBTDGC_BANISH_LODE,
-            &[&touchmark],
-            &[(RBTDRI_BURE_CONFIRM_KEY, RBTDRI_BURE_CONFIRM_SKIP)],
-        ) {
-            Ok(r) if r.exit_code == 0 => {}
-            Ok(r) => return rbtdre_Verdict::Fail(format!("banish failed (exit {})\n{}", r.exit_code, r.stderr)),
-            Err(e) => return rbtdre_Verdict::Fail(format!("banish invocation: {}", e)),
-        }
-
-        // Step 5: divine enumerate no longer shows the Lode — registry restored.
-        let final_divine = match rbtdri_invoke_global(ctx, RBTDGC_DIVINE_LODES, &[], &[]) {
-            Ok(r) if r.exit_code == 0 => r,
-            Ok(r) => return rbtdre_Verdict::Fail(format!("final divine failed (exit {})\n{}", r.exit_code, r.stderr)),
-            Err(e) => return rbtdre_Verdict::Fail(format!("final divine invocation: {}", e)),
-        };
-        let _ = std::fs::write(dir.join("06-divine-final.txt"), &final_divine.stdout);
-        if final_divine.stdout.contains(&touchmark) {
-            return rbtdre_Verdict::Fail(format!(
-                "final divine still shows banished touchmark {} — banish did not restore baseline\nstdout:\n{}",
-                touchmark, final_divine.stdout
-            ));
+        // Step 4: banish the whole Lode, then confirm the registry is restored.
+        if let Some(v) = zrbtdrv_banish_and_verify_gone(ctx, dir, &touchmark) {
+            return v;
         }
 
         let _ = std::fs::write(dir.join("07-passed.txt"), "passed");
@@ -1550,24 +1591,14 @@ fn rbtdrv_wsl_lifecycle(dir: &Path) -> rbtdre_Verdict {
         let _ = std::fs::write(dir.join("01-underpin-stdout.txt"), &underpin.stdout);
 
         // The host-side capture handoff is the bare touchmark fact.
-        let touchmark = match rbtdri_read_burv_fact(&underpin, RBTDRV_FACT_LODE_TOUCHMARK) {
-            Ok(v) => v,
-            Err(e) => return rbtdre_Verdict::Fail(format!("read touchmark fact: {}", e)),
+        let touchmark = match zrbtdrv_read_touchmark(&underpin, dir) {
+            Ok(t) => t,
+            Err(v) => return v,
         };
-        let _ = std::fs::write(dir.join("02-touchmark.txt"), &touchmark);
 
         // Step 2: divine enumerate shows the new Lode.
-        let after = match rbtdri_invoke_global(ctx, RBTDGC_DIVINE_LODES, &[], &[]) {
-            Ok(r) if r.exit_code == 0 => r,
-            Ok(r) => return rbtdre_Verdict::Fail(format!("post-underpin divine failed (exit {})\n{}", r.exit_code, r.stderr)),
-            Err(e) => return rbtdre_Verdict::Fail(format!("post-underpin divine invocation: {}", e)),
-        };
-        let _ = std::fs::write(dir.join("03-divine-after.txt"), &after.stdout);
-        if !after.stdout.contains(&touchmark) {
-            return rbtdre_Verdict::Fail(format!(
-                "post-underpin divine missing touchmark {}\nstdout:\n{}",
-                touchmark, after.stdout
-            ));
+        if let Err(v) = zrbtdrv_divine_contains(ctx, dir, &touchmark, "underpin") {
+            return v;
         }
 
         // Step 3: augur inspects the rootfs Lode — member tags AND the decoded
@@ -1587,31 +1618,9 @@ fn rbtdrv_wsl_lifecycle(dir: &Path) -> rbtdre_Verdict {
             }
         }
 
-        // Step 4: banish the whole Lode.
-        let _ = std::fs::write(dir.join("05-banish.txt"), "banishing");
-        match rbtdri_invoke_global(
-            ctx,
-            RBTDGC_BANISH_LODE,
-            &[&touchmark],
-            &[(RBTDRI_BURE_CONFIRM_KEY, RBTDRI_BURE_CONFIRM_SKIP)],
-        ) {
-            Ok(r) if r.exit_code == 0 => {}
-            Ok(r) => return rbtdre_Verdict::Fail(format!("banish failed (exit {})\n{}", r.exit_code, r.stderr)),
-            Err(e) => return rbtdre_Verdict::Fail(format!("banish invocation: {}", e)),
-        }
-
-        // Step 5: divine enumerate no longer shows the Lode — registry restored.
-        let final_divine = match rbtdri_invoke_global(ctx, RBTDGC_DIVINE_LODES, &[], &[]) {
-            Ok(r) if r.exit_code == 0 => r,
-            Ok(r) => return rbtdre_Verdict::Fail(format!("final divine failed (exit {})\n{}", r.exit_code, r.stderr)),
-            Err(e) => return rbtdre_Verdict::Fail(format!("final divine invocation: {}", e)),
-        };
-        let _ = std::fs::write(dir.join("06-divine-final.txt"), &final_divine.stdout);
-        if final_divine.stdout.contains(&touchmark) {
-            return rbtdre_Verdict::Fail(format!(
-                "final divine still shows banished touchmark {} — banish did not restore baseline\nstdout:\n{}",
-                touchmark, final_divine.stdout
-            ));
+        // Step 4: banish the whole Lode, then confirm the registry is restored.
+        if let Some(v) = zrbtdrv_banish_and_verify_gone(ctx, dir, &touchmark) {
+            return v;
         }
 
         let _ = std::fs::write(dir.join("07-passed.txt"), "passed");
@@ -1669,30 +1678,21 @@ fn rbtdrv_podvm_lifecycle(dir: &Path) -> rbtdre_Verdict {
         let _ = std::fs::write(dir.join("01-immure-stdout.txt"), &immure.stdout);
 
         // The host-side capture handoff is the bare touchmark fact.
-        let touchmark = match rbtdri_read_burv_fact(&immure, RBTDRV_FACT_LODE_TOUCHMARK) {
-            Ok(v) => v,
-            Err(e) => return rbtdre_Verdict::Fail(format!("read touchmark fact: {}", e)),
+        let touchmark = match zrbtdrv_read_touchmark(&immure, dir) {
+            Ok(t) => t,
+            Err(v) => return v,
         };
-        let _ = std::fs::write(dir.join("02-touchmark.txt"), &touchmark);
 
         // Step 2: divine enumerate shows the new Lode as a cohort.
-        let after = match rbtdri_invoke_global(ctx, RBTDGC_DIVINE_LODES, &[], &[]) {
-            Ok(r) if r.exit_code == 0 => r,
-            Ok(r) => return rbtdre_Verdict::Fail(format!("post-immure divine failed (exit {})\n{}", r.exit_code, r.stderr)),
-            Err(e) => return rbtdre_Verdict::Fail(format!("post-immure divine invocation: {}", e)),
+        let after = match zrbtdrv_divine_contains(ctx, dir, &touchmark, "immure") {
+            Ok(s) => s,
+            Err(v) => return v,
         };
-        let _ = std::fs::write(dir.join("03-divine-after.txt"), &after.stdout);
-        if !after.stdout.contains(&touchmark) {
-            return rbtdre_Verdict::Fail(format!(
-                "post-immure divine missing touchmark {}\nstdout:\n{}",
-                touchmark, after.stdout
-            ));
-        }
         // Cohort display asserts the member count column, not a specific digest.
-        if !after.stdout.contains("cohort: 2 members") {
+        if !after.contains("cohort: 2 members") {
             return rbtdre_Verdict::Fail(format!(
                 "post-immure divine row for {} missing '(cohort: 2 members)'\nstdout:\n{}",
-                touchmark, after.stdout
+                touchmark, after
             ));
         }
 
@@ -1781,86 +1781,21 @@ fn rbtdrv_podvm_lifecycle(dir: &Path) -> rbtdre_Verdict {
             ));
         }
 
-        // Step 3.5: per-member jettison via the type-blind raw verbs. The raw
-        // list (rbw-il) at leaf grain shows the podvm cohort's member tags; jettison
-        // (rbw-iJ) deletes ONE member tag; a re-list proves that member absent and
-        // a sibling member still present — the per-member-delete the multi-member
-        // podvm kind needs. Tag-grain delete leaves the Lode package and its other
-        // members intact (whole-Lode delete stays with banish, below).
-        let lode_path = format!("{}/{}", RBTDRV_LODES_ROOT, touchmark);
-        let member_ref = format!("{}:{}", lode_path, RBTDRV_PODVM_TAG_WSL_AARCH);
-
-        let pre_list = match rbtdri_invoke_global(ctx, RBTDGC_LIST_IMAGES, &[&lode_path], &[]) {
-            Ok(r) if r.exit_code == 0 => r,
-            Ok(r) => return rbtdre_Verdict::Fail(format!("pre-jettison list failed (exit {})\n{}", r.exit_code, r.stderr)),
-            Err(e) => return rbtdre_Verdict::Fail(format!("pre-jettison list invocation: {}", e)),
-        };
-        let _ = std::fs::write(dir.join("04b-list-before-jettison.txt"), &pre_list.stdout);
-        for member in &[RBTDRV_PODVM_TAG_WSL_X86, RBTDRV_PODVM_TAG_WSL_AARCH] {
-            if !pre_list.stdout.contains(member) {
-                return rbtdre_Verdict::Fail(format!(
-                    "pre-jettison raw list missing member tag '{}'\nstdout:\n{}",
-                    member, pre_list.stdout
-                ));
-            }
-        }
-
-        let _ = std::fs::write(dir.join("04c-jettison-member.txt"), &member_ref);
-        match rbtdri_invoke_global(
+        // Step 3.5: per-member jettison via the type-blind raw verbs — delete one
+        // member tag and prove it gone while a sibling survives.
+        if let Some(v) = zrbtdrv_member_jettison_proof(
             ctx,
-            RBTDGC_JETTISON_IMAGE,
-            &[&member_ref],
-            &[(RBTDRI_BURE_CONFIRM_KEY, RBTDRI_BURE_CONFIRM_SKIP)],
+            dir,
+            &touchmark,
+            RBTDRV_PODVM_TAG_WSL_AARCH,
+            RBTDRV_PODVM_TAG_WSL_X86,
         ) {
-            Ok(r) if r.exit_code == 0 => {}
-            Ok(r) => return rbtdre_Verdict::Fail(format!("member jettison failed (exit {})\n{}", r.exit_code, r.stderr)),
-            Err(e) => return rbtdre_Verdict::Fail(format!("member jettison invocation: {}", e)),
+            return v;
         }
 
-        let post_list = match rbtdri_invoke_global(ctx, RBTDGC_LIST_IMAGES, &[&lode_path], &[]) {
-            Ok(r) if r.exit_code == 0 => r,
-            Ok(r) => return rbtdre_Verdict::Fail(format!("post-jettison list failed (exit {})\n{}", r.exit_code, r.stderr)),
-            Err(e) => return rbtdre_Verdict::Fail(format!("post-jettison list invocation: {}", e)),
-        };
-        let _ = std::fs::write(dir.join("04d-list-after-jettison.txt"), &post_list.stdout);
-        if post_list.stdout.contains(RBTDRV_PODVM_TAG_WSL_AARCH) {
-            return rbtdre_Verdict::Fail(format!(
-                "post-jettison list still shows jettisoned member '{}' — member-grain delete failed\nstdout:\n{}",
-                RBTDRV_PODVM_TAG_WSL_AARCH, post_list.stdout
-            ));
-        }
-        if !post_list.stdout.contains(RBTDRV_PODVM_TAG_WSL_X86) {
-            return rbtdre_Verdict::Fail(format!(
-                "post-jettison list missing sibling member '{}' — jettison damaged the Lode\nstdout:\n{}",
-                RBTDRV_PODVM_TAG_WSL_X86, post_list.stdout
-            ));
-        }
-
-        // Step 4: banish the whole Lode.
-        let _ = std::fs::write(dir.join("05-banish.txt"), "banishing");
-        match rbtdri_invoke_global(
-            ctx,
-            RBTDGC_BANISH_LODE,
-            &[&touchmark],
-            &[(RBTDRI_BURE_CONFIRM_KEY, RBTDRI_BURE_CONFIRM_SKIP)],
-        ) {
-            Ok(r) if r.exit_code == 0 => {}
-            Ok(r) => return rbtdre_Verdict::Fail(format!("banish failed (exit {})\n{}", r.exit_code, r.stderr)),
-            Err(e) => return rbtdre_Verdict::Fail(format!("banish invocation: {}", e)),
-        }
-
-        // Step 5: divine enumerate no longer shows the Lode — registry restored.
-        let final_divine = match rbtdri_invoke_global(ctx, RBTDGC_DIVINE_LODES, &[], &[]) {
-            Ok(r) if r.exit_code == 0 => r,
-            Ok(r) => return rbtdre_Verdict::Fail(format!("final divine failed (exit {})\n{}", r.exit_code, r.stderr)),
-            Err(e) => return rbtdre_Verdict::Fail(format!("final divine invocation: {}", e)),
-        };
-        let _ = std::fs::write(dir.join("06-divine-final.txt"), &final_divine.stdout);
-        if final_divine.stdout.contains(&touchmark) {
-            return rbtdre_Verdict::Fail(format!(
-                "final divine still shows banished touchmark {} — banish did not restore baseline\nstdout:\n{}",
-                touchmark, final_divine.stdout
-            ));
+        // Step 4: banish the whole Lode, then confirm the registry is restored.
+        if let Some(v) = zrbtdrv_banish_and_verify_gone(ctx, dir, &touchmark) {
+            return v;
         }
 
         let _ = std::fs::write(dir.join("07-passed.txt"), "passed");
