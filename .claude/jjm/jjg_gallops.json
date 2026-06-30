@@ -20433,8 +20433,8 @@
         "₢BoAAA": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260627-1410",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260630-1438",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "Remember the remaining open federation tendrils from the 260627 orient/trot — the ones we did NOT reach a solid resolve to fully address. Context-preservation pace: each section carries the issue, where it stands, the lean (if any), and the coupling, so a later session can act without re-deriving. Source orientation: the ₣Bf paddock \"Foedus switching — AUTHORED + residual shape\" block, and the dockets named below.",
                 "",
@@ -20473,7 +20473,7 @@
                 "Context-preservation catalog, not a build pace; the deliverable is that no open federation tendril is lost. The drift study is the one piece of real investigation work embedded here and may graduate to its own pace."
               ],
               "jjgtn_silks": "federation-open-tendrils-catalog",
-              "jjgtn_basis": "777ede8"
+              "jjgtn_basis": "542e23c"
             }
           ]
         },
