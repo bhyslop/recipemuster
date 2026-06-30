@@ -17659,8 +17659,8 @@
         "₢BfAAb": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260623-2135",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260630-0829",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "Fold the repeated mkdir-then-seed-previous idiom in the BUK fact-chaining self-test (butcfc_facts.sh) into a dedicated zbutcfc_seed_previous wrapper.",
                 "",
@@ -17674,7 +17674,7 @@
                 "Trivial BUK-self-test fold; framework-self-test stratum."
               ],
               "jjgtn_silks": "butcfc-seed-previous-wrapper",
-              "jjgtn_basis": "ed7d151"
+              "jjgtn_basis": "65183ea"
             }
           ]
         },
