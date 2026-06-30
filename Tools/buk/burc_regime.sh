@@ -60,6 +60,9 @@ zburc_kindle() {
   buv_xname_enroll   BURC_LOG_EXT               1   16  "Log file extension (without dot)"
   buv_string_enroll  BURC_BUK_DIR               1  256  "Derived: BUK directory"
 
+  buv_group_enroll "Workbench Policy"
+  buv_enum_enroll    BURC_BUW_COLOPHON_CHECK    "buw tabtarget-roster check (bvc_* identifier): bvc_strict (every enrolled colophon needs a tabtarget) or bvc_lax (only the dispatched one — lets a consumer ship a subset of buw tabtargets)" bvc_strict bvc_lax
+
   # Guard against unexpected BURC_ variables not in enrollment
   buv_scope_sentinel BURC BURC_
 
