@@ -55,6 +55,7 @@ pub static RBTDRA_FIXTURES: &[&'static rbtdre_Fixture] = &[
     &crate::rbtdrs_poison::RBTDRS_FIXTURE_REGIME_POISON,
     &crate::rbtdrf_fast::RBTDRF_FIXTURE_REGIME_SMOKE,
     &crate::rbtdrf_fast::RBTDRF_FIXTURE_DOCKERFILE_HYGIENE,
+    &crate::rbtdrf_fast::RBTDRF_FIXTURE_FOUNDRY_PATH,
     &crate::rbtdrf_fast::RBTDRF_FIXTURE_RECIPE_VALIDATION,
     &crate::rbtdrf_fast::RBTDRF_FIXTURE_PODVM_RESOLVE,
     &crate::rbtdru_cupel::RBTDRU_FIXTURE_CUPEL,
@@ -453,3 +454,30 @@ const fn zrbtdra_assert_reveille_base(suites: &[rbtdre_Suite], base: &[&rbtdre_F
 }
 
 const _: () = zrbtdra_assert_reveille_base(RBTDRA_SUITES, RBTDRA_REVEILLE_BASE);
+
+// ── Compile-time suite ⊆ roster guard ───────────────────────
+//
+// Every fixture referenced in any suite must be registered in RBTDRA_FIXTURES.
+// The reverse is NOT asserted: intentional roster-only fixtures (foedus-lifecycle,
+// freehold-churn, calibrant-* etc.) belong to no suite by design. This is a pure
+// suite ⊆ roster check — a suite gaining a roster-less fixture fails the build.
+
+const fn zrbtdra_assert_suites_subset_fixtures(
+    suites: &[rbtdre_Suite],
+    roster: &[&rbtdre_Fixture],
+) {
+    let mut i = 0;
+    while i < suites.len() {
+        let suite_fixtures = suites[i].fixtures;
+        let mut j = 0;
+        while j < suite_fixtures.len() {
+            if !zrbtdra_fixtures_contain(roster, suite_fixtures[j].name) {
+                panic!("suite references a fixture not registered in RBTDRA_FIXTURES");
+            }
+            j += 1;
+        }
+        i += 1;
+    }
+}
+
+const _: () = zrbtdra_assert_suites_subset_fixtures(RBTDRA_SUITES, RBTDRA_FIXTURES);
