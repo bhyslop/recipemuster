@@ -20227,61 +20227,62 @@
         "₢BlAAU": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260626-0917",
+              "jjgtn_ts": "260630-1435",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
-                "Build canvass — the read-only foedus enumeration verb, the read-all sibling of descry's read-one: list every foedus the manor holds by interrogating the Manor (workforcePools.list).",
-                "Colophon rbw-jc, quoin rbtf_canvass (seated in RBS0 federation civics), foedus-cardinality family — a standalone tabtarget, not conjoined with descry.",
+                "Build canvass — the read-only foedus enumeration verb, the read-all sibling of descry's read-one: list every foedus the manor holds by interrogating the Manor's one workforce pool (providers.list). RE-CUT 260630: under the one-pool Model (₣Bf paddock) foedera are PROVIDERS under one manor pool, so this enumerates providers, not pools (was workforcePools.list).",
                 "",
                 "## Spec of needed change",
-                "canvass follows the depot_list shape (RBSDL), not a bare human dump: it enumerates the manor's foedera and emits machine-readable facts for programmatic consumers — the foedus fixtures chain on them, as freehold-establish chains on depot_list's facts.",
-                "Payor-credentialed: listing org workforce pools is the affiance/jilt org-level authority; the depot mantles cannot reach org pools.",
-                "Call workforcePools.list against the org's workforce-pool collection — the URL affiance already constructs inline in rbgp_payor.sh; verify the list parent-scoping against the live contract, since the single-pool GET carries no org in its path.",
-                "Emit one fact file per foedus keyed on a new RBCC_fact_ext_foedus extension into BURD_OUTPUT_DIR (pool id, lifecycle state, regime-selected flag), then a typed-output summary; an empty manor reports zero, non-fatal.",
-                "Home it with the workforce-pool REST siblings, dispatch via the payor CLI, add the rbw-jc colophon to the zipper (regenerating the build artifacts).",
+                "canvass follows the depot_list shape (RBSDL), not a bare human dump: it enumerates the manor's foedera and emits machine-readable facts for programmatic consumers — the foedus fixtures chain on them.",
+                "Payor-credentialed: listing the org pool's providers is the affiance/jilt org-level authority; depot mantles cannot reach it.",
+                "Call providers.list against the one manor pool's provider collection (the URL affiance constructs when it adds a provider) — verify list parent-scoping against the live contract.",
+                "Emit one fact file per foedus keyed on a new RBCC_fact_ext_foedus extension into BURD_OUTPUT_DIR (provider id, provider state, regime-selected flag), then a typed-output summary; an empty manor reports zero, non-fatal.",
+                "The foedus↔provider correlation (mark the regime-selected one): match provider ids/displayNames against the rbef_ library's RBRF_PROVIDER_ID values, or have affiance stamp the rbef_ name into the provider — settle at build (the Model's open canvass→rbef_ mapping detail).",
+                "Home it with the workforce-pool REST siblings, dispatch via the payor CLI, add the rbw-jc colophon to the zipper.",
                 "",
                 "## Done when",
-                "canvass is a first-class atomic tabtarget (rbw-jc), payor-credentialed and read-only, emitting per-foedus fact files (RBCC_fact_ext_foedus) plus a typed-output summary that marks the regime-selected foedus, non-fatal on an empty manor — built against the canvass operation sheaf, not a re-chosen signature.",
+                "canvass is a first-class atomic tabtarget (rbw-jc), payor-credentialed and read-only, emitting per-foedus fact files (RBCC_fact_ext_foedus) plus a typed-output summary that marks the regime-selected foedus, non-fatal on an empty manor — built against the re-cut canvass operation sheaf (providers.list).",
                 "",
                 "## Cinched",
-                "Naming settled (₣Bf census): rbw-jc / rbtf_canvass / foedus-cardinality; lowercase second letter = read-only (paddock casing). Do not re-mint; do not conjoin with descry — the family follows the Lode divine/augur split (separate tabtargets), not the conjoined-CLI pattern.",
-                "Output follows depot_list (RBSDL): fact files for programmatic chaining + typed-output summary + non-fatal empty — settled because the foedus fixtures consume the facts (production is single-foedus; the consumer is the test-bed).",
-                "canvass consumes its operation sheaf, authored with the descry/instate sheaves at the foedus-reuse cardinality design; this pace builds against the contract, it does not author it.",
+                "Naming settled (₣Bf census): rbw-jc / rbtf_canvass / foedus-cardinality; lowercase = read-only.",
+                "Output follows depot_list (RBSDL): fact files + typed-output summary + non-fatal empty.",
+                "260630 Model: enumerate PROVIDERS under the one manor pool (providers.list), not pools; consumes its re-cut operation sheaf (the ₣Bf spec re-cut), does not re-choose the signature.",
                 "",
                 "## Character",
-                "Bash build — one read-only payor verb plus its fact-ext constant and zipper colophon; a one-method extension of the affiance collection-URL machinery against an already-authored sheaf."
+                "Bash build — one read-only payor verb plus its fact-ext constant and zipper colophon; a one-method extension of affiance's provider-collection-URL machinery against the re-cut sheaf."
               ],
               "jjgtn_silks": "foedus-canvass-build",
-              "jjgtn_basis": "6e9177f"
+              "jjgtn_basis": "5f71df7"
             }
           ]
         },
         "₢BlAAV": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260626-0917",
+              "jjgtn_ts": "260630-1435",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
-                "Exercise canvass deftly inside the existing foedus-lifecycle fixture — assert it enumerates the throwaway foedus while it stands — standing up no new fixture.",
+                "Exercise canvass deftly inside the existing foedus-lifecycle fixture — assert it enumerates the throwaway foedus while it stands — standing up no new fixture. RE-CUT 260630: the throwaway foedus is a PROVIDER under the manor pool (was its own pool).",
                 "",
                 "## Spec of needed change",
-                "The foedus-lifecycle fixture (RBTDRC_FIXTURE_FOEDUS_LIFECYCLE — operator-invoked, quota-touching) already affiances a fresh throwaway workforce pool then jilts it, so a foedus stands live between the affiance assertions and the jilt.",
-                "Weave a single canvass invocation into that window — after affiance reaches its affianced terminal, before jilt dissolves the pool — and assert against canvass's fact file: the throwaway pool's RBCC_fact_ext_foedus fact file is present and names it (read the facts, not the human table — the freehold-establish consumer pattern).",
+                "The foedus-lifecycle fixture (RBTDRC_FIXTURE_FOEDUS_LIFECYCLE — operator-invoked) affiances a fresh throwaway foedus (a provider under the standing manor pool) then jilts it, so a foedus stands live between the affiance assertions and the jilt.",
+                "Weave a single canvass invocation into that window — after affiance reaches its affianced terminal, before jilt dissolves the provider — and assert against canvass's fact file: the throwaway foedus's RBCC_fact_ext_foedus fact file is present and names it (read the facts, not the human table).",
                 "canvass is payor-credentialed and the fixture proves the payor credential live at its head, so the assertion needs no new credential, charge, or quench.",
                 "",
                 "## Done when",
-                "The foedus-lifecycle round-trip, between affiance and jilt, invokes canvass and asserts its fact file enumerates the standing throwaway foedus — proving canvass reads a real, live foedus from the Manor; no new fixture stood up.",
+                "The foedus-lifecycle round-trip, between affiance and jilt, invokes canvass and asserts its fact file enumerates the standing throwaway foedus — proving canvass reads a real, live foedus (provider) from the Manor; no new fixture stood up.",
                 "",
                 "## Cinched",
-                "Host is the existing foedus-lifecycle fixture (the only fixture that stands a foedus), in the live window between affiance and jilt; no new fixture, charge, or quench.",
-                "Assert on the fact file, not stdout — the depot_list / freehold-establish chaining pattern, and the seam later multi-step foedus fixtures reuse.",
-                "Depends on the canvass build for the verb and its fact-ext constant.",
+                "Host is the existing foedus-lifecycle fixture, in the live window between affiance and jilt; no new fixture, charge, or quench.",
+                "Assert on the fact file, not stdout.",
+                "Depends on the canvass build (₢BlAAU) for the verb and its fact-ext constant.",
+                "260630 Model: the throwaway foedus is a provider under the manor pool, not its own pool; the fixture exercises provider-grain affiance/jilt.",
                 "",
                 "## Character",
                 "Test weave — one fact-file assertion folded into an existing operator-invoked round-trip; mechanical, no new infrastructure."
               ],
               "jjgtn_silks": "foedus-canvass-test",
-              "jjgtn_basis": "6e9177f"
+              "jjgtn_basis": "5f71df7"
             }
           ]
         },
