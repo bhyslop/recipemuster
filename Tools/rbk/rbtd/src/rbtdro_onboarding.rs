@@ -233,6 +233,19 @@ fn rbtdro_probe_reliquary_touchmark() -> Result<(), String> {
     Ok(())
 }
 
+/// Assert the reliquary-touchmark precondition shared by every reliquary-
+/// consuming onboarding case: case 1's conclave yoked RBRV_RELIQUARY into the
+/// witness vessel. One home for the probe the cases formerly inlined byte-for-
+/// byte; on Err the case returns the verdict immediately, as the inline form did.
+fn rbtdro_assert_reliquary_touchmark() -> Result<(), rbtdre_Verdict> {
+    let probe = rbtdrb_Probe {
+        name: "reliquary touchmark captured",
+        check: rbtdro_probe_reliquary_touchmark,
+        remediation: "rerun rbtdro_onboarding_conclave_reliquary before this case",
+    };
+    rbtdrb_assert(&probe)
+}
+
 /// Graft case probe: RBRV_GRAFT_IMAGE anointed into the graft vessel's
 /// committed rbrv.env by the ccyolo kludge case's anoint chain. A tagged ref
 /// is the cross-case witness; local docker presence is asserted in the case
@@ -508,12 +521,7 @@ fn rbtdro_onboarding_conclave_reliquary_impl(
 /// Build tadmor sentry and bottle locally. Kludge is local docker — no GCP.
 /// Probe: reliquary scratch present (confirms case 1 completed).
 fn rbtdro_onboarding_kludge_tadmor(dir: &Path) -> rbtdre_Verdict {
-    let probe = rbtdrb_Probe {
-        name: "reliquary touchmark captured",
-        check: rbtdro_probe_reliquary_touchmark,
-        remediation: "rerun rbtdro_onboarding_conclave_reliquary before this case",
-    };
-    if let Err(v) = rbtdrb_assert(&probe) {
+    if let Err(v) = rbtdro_assert_reliquary_touchmark() {
         return v;
     }
     rbtdrc_with_ctx(|ctx| rbtdro_onboarding_kludge_tadmor_impl(ctx, dir))
@@ -552,12 +560,7 @@ pub static RBTDRO_FIXTURE_KLUDGE_TADMOR: rbtdre_Fixture = rbtdre_Fixture {
 /// bottle kludge's chained facts. Kludge and anoint are local — no GCP.
 /// Probe: reliquary scratch present (confirms case 1 completed).
 fn rbtdro_onboarding_kludge_ccyolo(dir: &Path) -> rbtdre_Verdict {
-    let probe = rbtdrb_Probe {
-        name: "reliquary touchmark captured",
-        check: rbtdro_probe_reliquary_touchmark,
-        remediation: "rerun rbtdro_onboarding_conclave_reliquary before this case",
-    };
-    if let Err(v) = rbtdrb_assert(&probe) {
+    if let Err(v) = rbtdro_assert_reliquary_touchmark() {
         return v;
     }
     rbtdrc_with_ctx(|ctx| rbtdro_onboarding_kludge_ccyolo_impl(ctx, dir))
@@ -617,12 +620,7 @@ fn rbtdro_onboarding_kludge_ccyolo_impl(ctx: &mut rbtdri_Context, dir: &Path) ->
 /// touchmark into the vessel. Propagates the resulting hallmark to all sentry-tether
 /// consumers (moriah, srjcl, pluml) via RBRN_SENTRY_HALLMARK.
 fn rbtdro_onboarding_ordain_conjure_sentry(dir: &Path) -> rbtdre_Verdict {
-    let probe = rbtdrb_Probe {
-        name: "reliquary touchmark captured",
-        check: rbtdro_probe_reliquary_touchmark,
-        remediation: "rerun rbtdro_onboarding_conclave_reliquary before this case",
-    };
-    if let Err(v) = rbtdrb_assert(&probe) {
+    if let Err(v) = rbtdro_assert_reliquary_touchmark() {
         return v;
     }
     rbtdrc_with_ctx(|ctx| rbtdro_onboarding_ordain_conjure_sentry_impl(ctx, dir))
@@ -762,12 +760,7 @@ fn rbtdro_onboarding_ordain_conjure_sentry_impl(ctx: &mut rbtdri_Context, dir: &
 /// Ordain rbev-bottle-anthropic-jupyter (conjure mode). Propagates the
 /// resulting hallmark to srjcl via RBRN_BOTTLE_HALLMARK.
 fn rbtdro_onboarding_ordain_conjure_jupyter(dir: &Path) -> rbtdre_Verdict {
-    let probe = rbtdrb_Probe {
-        name: "reliquary touchmark captured",
-        check: rbtdro_probe_reliquary_touchmark,
-        remediation: "rerun rbtdro_onboarding_conclave_reliquary before this case",
-    };
-    if let Err(v) = rbtdrb_assert(&probe) {
+    if let Err(v) = rbtdro_assert_reliquary_touchmark() {
         return v;
     }
     rbtdrc_with_ctx(|ctx| rbtdro_onboarding_ordain_conjure_jupyter_impl(ctx, dir))
@@ -816,12 +809,7 @@ fn rbtdro_onboarding_ordain_conjure_jupyter_impl(ctx: &mut rbtdri_Context, dir: 
 /// Case 1 yoked the reliquary touchmark into both forge and airgap vessels.
 /// Propagates airgap-bottle hallmark to moriah via RBRN_BOTTLE_HALLMARK.
 fn rbtdro_onboarding_ordain_airgap_chain(dir: &Path) -> rbtdre_Verdict {
-    let probe = rbtdrb_Probe {
-        name: "reliquary touchmark captured",
-        check: rbtdro_probe_reliquary_touchmark,
-        remediation: "rerun rbtdro_onboarding_conclave_reliquary before this case",
-    };
-    if let Err(v) = rbtdrb_assert(&probe) {
+    if let Err(v) = rbtdro_assert_reliquary_touchmark() {
         return v;
     }
     rbtdrc_with_ctx(|ctx| rbtdro_onboarding_ordain_airgap_chain_impl(ctx, dir))
@@ -973,12 +961,7 @@ fn rbtdro_onboarding_ordain_airgap_chain_impl(ctx: &mut rbtdri_Context, dir: &Pa
 /// Build (gcrane from reliquary + about/vouch metadata). Propagates plantuml
 /// hallmark to pluml via RBRN_BOTTLE_HALLMARK.
 fn rbtdro_onboarding_ordain_bind_plantuml(dir: &Path) -> rbtdre_Verdict {
-    let probe = rbtdrb_Probe {
-        name: "reliquary touchmark captured",
-        check: rbtdro_probe_reliquary_touchmark,
-        remediation: "rerun rbtdro_onboarding_conclave_reliquary before this case",
-    };
-    if let Err(v) = rbtdrb_assert(&probe) {
+    if let Err(v) = rbtdro_assert_reliquary_touchmark() {
         return v;
     }
     rbtdrc_with_ctx(|ctx| rbtdro_onboarding_ordain_bind_plantuml_impl(ctx, dir))
@@ -1115,12 +1098,7 @@ fn rbtdro_onboarding_ordain_bind_plantuml_impl(ctx: &mut rbtdri_Context, dir: &P
 /// the ccyolo kludge case's chain, consumed here as any operator-set regime
 /// value, no injection. No consumers — graft-demo is terminal.
 fn rbtdro_onboarding_ordain_graft_demo(dir: &Path) -> rbtdre_Verdict {
-    let probe = rbtdrb_Probe {
-        name: "reliquary touchmark captured",
-        check: rbtdro_probe_reliquary_touchmark,
-        remediation: "rerun rbtdro_onboarding_conclave_reliquary before this case",
-    };
-    if let Err(v) = rbtdrb_assert(&probe) {
+    if let Err(v) = rbtdro_assert_reliquary_touchmark() {
         return v;
     }
     let probe = rbtdrb_Probe {
