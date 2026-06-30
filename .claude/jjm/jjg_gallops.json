@@ -20295,8 +20295,8 @@
         "₢BlAAZ": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260630-0858",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260630-0925",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "The per-fixture registration unit-tests — the `*_disposition_*` and `*_cases_registered` mirrors in rbtdtk/rbtdtp/rbtdto/rbtdtl —",
                 "re-enter the registry by name-string lookup and restate the roster as hand-typed literals.",
@@ -20324,7 +20324,7 @@
                 "Architectural paradigm-collapse, judgment per fixture — not a mechanical sweep."
               ],
               "jjgtn_silks": "registration-mirror-to-const-guard",
-              "jjgtn_basis": "dc2b6f8"
+              "jjgtn_basis": "26a8a9a"
             }
           ]
         }
