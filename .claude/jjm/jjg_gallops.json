@@ -19752,8 +19752,8 @@
         "₢BlAAF": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260624-2240",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260630-0907",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "Drafted from ₢BfAAd in ₣Bf.",
                 "",
@@ -19769,7 +19769,7 @@
                 "Mechanical test-mirror hoist, order-independent."
               ],
               "jjgtn_silks": "rbtdth-shared-test-helpers",
-              "jjgtn_basis": "f676ede"
+              "jjgtn_basis": "8c7345b"
             }
           ]
         },
