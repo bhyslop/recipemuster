@@ -38,12 +38,12 @@ zrbz_kindle() {
   # begins at the roll's current head.
   buz_tome "rbz" "RBTDGC_" "RBZ_"
 
-  # Access — credential access probes (rbw-ac): payor OAuth, federated avowal, mantle don
-  buz_group RBZ__GROUP_ACCESS     "rbw-ac"  "Access — Credential access probes"
+  # Access — credential access probes (rbw-a): payor OAuth, federated avowal, mantle don
+  buz_group RBZ__GROUP_ACCESS     "rbw-a"   "Access — Credential access probes"
   local z_mod="rbgv_cli.sh"
-  buz_enroll RBZ_CHECK_PAYOR             "rbw-acp" "${z_mod}" "rbgv_check_payor"           ""        "Check the payor credential reaches Google Cloud (OAuth access probe)"
-  buz_enroll RBZ_CHECK_AVOWAL       "rbw-acf" "${z_mod}" "rbgv_check_avowal"     ""        "Check federated access — open or reuse a sitting via device flow + STS (Legs 1+2) against the RBRF trust"
-  buz_enroll RBZ_CHECK_MANTLE            "rbw-acm" "${z_mod}" "rbgv_check_mantle"          "param1"  "Check mantle access as the freehold subject — avow, don the named mantle (governor|director|retriever), reach Artifact Registry, and write the attributed audit entry; or surface the access deficit"
+  buz_enroll RBZ_CHECK_PAYOR             "rbw-ap"  "${z_mod}" "rbgv_check_payor"           ""        "Check the payor credential reaches Google Cloud (OAuth access probe)"
+  buz_enroll RBZ_CHECK_AVOWAL       "rbw-aa"  "${z_mod}" "rbgv_check_avowal"     ""        "Check federated access — open or reuse a sitting via device flow + STS (Legs 1+2) against the RBRF trust"
+  buz_enroll RBZ_CHECK_MANTLE            "rbw-am"  "${z_mod}" "rbgv_check_mantle"          "param1"  "Check mantle access as the freehold subject — avow, don the named mantle (governor|director|retriever), reach Artifact Registry, and write the attributed audit entry; or surface the access deficit"
 
   # Crucible — container runtime (rbw-c)
   buz_group RBZ__GROUP_CRUCIBLE   "rbw-c"   "Crucible — Container runtime"
@@ -75,20 +75,26 @@ zrbz_kindle() {
   # Transitional — interim terrier muniment-atomicity proof; retires with the scaffold when ₣Bf consolidates. Not README-broadside-registered.
   buz_enroll RBZ_TERRIER_PROOF          "rbw-dT"  "${z_mod}" "rbgp_terrier_proof"     ""  "Prove terrier muniment atomicity end-to-end against the scaffolded terrier (interim)"
 
-  # Manor — IdP federation founding (rbw-m). Seeds the elected manor colophon
-  # family; the M5 colophon regroup later gathers levy/establish into it.
+  # Manor — IdP federation founding (rbw-m). The payor founding trio —
+  # affiance / jilt / gird (gird seats a fresh depot's first governor, the one
+  # admission the payor wields). The M5 colophon regroup later gathers
+  # levy/establish into it.
   buz_group RBZ__GROUP_MANOR      "rbw-m"   "Manor — IdP federation founding"
   z_mod="rbgp_cli.sh"
   buz_enroll RBZ_AFFIANCE_MANOR         "rbw-mA"  "${z_mod}" "rbgp_manor_affiance" ""  "Affiance the manor to its IdP — seat the org-level workforce pool, provider, and attribute mapping"
   buz_enroll RBZ_JILT_MANOR             "rbw-mJ"  "${z_mod}" "rbgp_manor_jilt"     ""  "Jilt the manor from its IdP — dissolve the org-level workforce pool (provider cascades)"
+  # gird keeps its _POLITY demesne stem (it admits a governor to the polity);
+  # only its colophon homes here in the payor founding family. Do not rename
+  # the constant to match the group — the demesne, not the colophon, names it.
+  buz_enroll RBZ_GIRD_POLITY            "rbw-mG"  "${z_mod}" "rbgp_gird"           "param1"  "Gird the first governor — payor seats a citizen as this depot's founding governor (args: subject)"
 
   # Polity — federation admission (rbw-p, UPPER=mutates, lower=read). The
-  # operator-facing admission verbs over the manor terrier + mantle IAM; gird is
-  # the payor-wielded founding first-governor exception, the mutating three are
-  # governor-wielded, rehearse is a manor-wide read.
+  # operator-facing admission verbs over the manor terrier + mantle IAM, all
+  # governor-wielded: the mutating three (brevet/unseat/attaint) plus rehearse,
+  # a manor-wide read. (Gird, the payor-wielded first-governor founding, homes
+  # in the rbw-m manor trio.)
   buz_group RBZ__GROUP_POLITY     "rbw-p"   "Polity — federation admission"
   z_mod="rbgp_cli.sh"
-  buz_enroll RBZ_GIRD_POLITY            "rbw-pE"  "${z_mod}" "rbgp_gird"     "param1"  "Gird the first governor — payor seats a citizen as this depot's founding governor (args: subject)"
   buz_enroll RBZ_BREVET_POLITY          "rbw-pB"  "${z_mod}" "rbgp_brevet"   "param1"  "Brevet a citizen onto a mantle in this depot (governor-wielded admission; args: subject mantle)"
   buz_enroll RBZ_UNSEAT_POLITY          "rbw-pU"  "${z_mod}" "rbgp_unseat"   "param1"  "Unseat a citizen from one mantle (suspension, not erasure; args: subject mantle)"
   buz_enroll RBZ_ATTAINT_POLITY         "rbw-pA"  "${z_mod}" "rbgp_attaint"  "param1"  "Attaint a citizen — whole-person expulsion from this depot (args: subject)"

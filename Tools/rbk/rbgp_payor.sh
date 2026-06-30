@@ -1170,7 +1170,7 @@ rbgp_manor_affiance() {
   # live pool in place (200), refuse a soft-deleted one (200, state DELETED — see
   # the 200 branch below).
   # NOTE: workforce-pool REST shape is per the IAM v1 docs; the live device-flow
-  # proof against the standing spike trust rides tt/rbw-acf (needs a human click)
+  # proof against the standing spike trust rides rbgv_check_avowal (needs a human click)
   # and has not yet exercised these create calls. Drift-reconcile on an existing
   # pool (PATCH sessionDuration) is a named follow-up, not in this first cut.
   buc_step 'Ensure workforce identity pool'
@@ -2631,7 +2631,8 @@ rbgp_attribution_trail() {
     || buc_die "Failed to count attribution entries"
 
   test "${z_count}" -gt 0 || {
-    buc_warn "No Data-Access audit entries on ${z_depot} yet. Has a mantle made an Artifact Registry call? Run 'rbw-acm retriever' (avow + don + AR call) first, allow a few seconds for log ingestion, then re-run."
+    buyy_tt_yawp "${RBZ_CHECK_MANTLE}" "" " retriever"; local -r z_am_tt="${z_buym_yelp}"
+    buc_warn "No Data-Access audit entries on ${z_depot} yet. Has a mantle made an Artifact Registry call? Run ${z_am_tt} (avow + don + AR call) first, allow a few seconds for log ingestion, then re-run."
     return 0
   }
 

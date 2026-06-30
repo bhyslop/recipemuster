@@ -26,7 +26,7 @@
 //                              SAs with frozen IAM)
 //   2. avow               — open/confirm a live sitting against the RBRF trust
 //   3. gird_governor         — the payor (OAuth) seats the freehold subject as the
-//                              first governor (rbw-pE)
+//                              first governor
 //   4. brevet_don_director   — the girded governor brevets the freehold subject onto
 //                              the director mantle, then dons it and reaches AR
 //   5. brevet_don_retriever  — same for the retriever mantle
@@ -305,8 +305,8 @@ fn rbtdrk_depot_churn_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_Verdi
 // retriever mantles and donned — the federation replacement for the retired keyfile
 // governor/retriever/director enrobe + JWT-probe cases.
 
-/// Suite-head avowal. Opens or confirms a live sitting against the RBRF trust
-/// (rbw-acf): a cache-hit when the operator pre-avowed, an inline device-flow prompt
+/// Suite-head avowal. Opens or confirms a live sitting against the RBRF trust:
+/// a cache-hit when the operator pre-avowed, an inline device-flow prompt
 /// when a TTY is present, a loud headless failure otherwise. The admission cases below
 /// ride the cached federated token, so the human clicks once here, not per case.
 fn rbtdrk_avow(dir: &Path) -> rbtdre_Verdict {
@@ -325,9 +325,9 @@ fn rbtdrk_avow(dir: &Path) -> rbtdre_Verdict {
         };
         if r.exit_code != 0 {
             return rbtdre_Verdict::Fail(format!(
-                "avowal failed (exit {}) — open a sitting before the run with rbw-acf \
+                "avowal failed (exit {}) — open a sitting before the run with {} \
                  (one device-flow click), or launch from a terminal so the prompt can surface\n{}",
-                r.exit_code, r.stderr
+                r.exit_code, RBTDGC_CHECK_AVOWAL, r.stderr
             ));
         }
         rbtdre_Verdict::Pass
@@ -335,7 +335,7 @@ fn rbtdrk_avow(dir: &Path) -> rbtdre_Verdict {
 }
 
 /// Gird the founding governor. The payor (OAuth) seats the freehold subject as this depot's
-/// first governor (rbw-pE) — the one admission outside governor wielding, the founding door a
+/// first governor — the one admission outside governor wielding, the founding door a
 /// fresh levy needs before any mantle can be donned. Payor-credentialed, so it needs no
 /// sitting. Replaces the keyfile governor-enrobe's admin-credential step.
 fn rbtdrk_gird_governor(dir: &Path) -> rbtdre_Verdict {
@@ -371,7 +371,7 @@ fn rbtdrk_gird_governor(dir: &Path) -> rbtdre_Verdict {
 
 /// Shared federation-admission body for director and retriever: the girded governor brevets
 /// the freehold subject onto the named mantle (rbw-pB, governor-wielded — rides the sitting),
-/// then dons that mantle and reaches Artifact Registry (rbw-acm: avow cache-hit → don →
+/// then dons that mantle and reaches Artifact Registry (avow cache-hit → don →
 /// repositories.list). The don is the federation analog of the keyfile JWT access-probe.
 fn rbtdrk_brevet_don_impl(ctx: &mut rbtdri_Context, dir: &Path, mantle: &str) -> rbtdre_Verdict {
     let label_brevet = format!("brevet-{}", mantle);

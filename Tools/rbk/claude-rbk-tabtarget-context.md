@@ -10,13 +10,13 @@ The Folio column shows how each tabtarget receives it:
 - **param1**: Folio is passed as a command-line argument (e.g., `tt/rbw-cKB.KludgeBottle.sh tadmor`)
 - **—**: No folio needed — standalone command
 
-### Access — Credential access probes (`rbw-ac`)
+### Access — Credential access probes (`rbw-a`)
 
 | Colophon | Frontispiece | Folio | Purpose |
 |----------|-------------|-------|---------|
-| `rbw-acp` | CheckPayorCredential | — | Check the payor credential reaches Google Cloud (OAuth access probe) |
-| `rbw-acf` | CheckFederatedAccess | — | Check federated access — open or reuse a sitting via device flow + STS (Legs 1+2) against the RBRF trust |
-| `rbw-acm` | CheckMantleAccess | param1 | Check mantle access as the freehold subject — avow, don the named mantle (governor|director|retriever), reach Artifact Registry, and write the attributed audit entry; or surface the access deficit |
+| `rbw-ap` | CheckPayorCredential | — | Check the payor credential reaches Google Cloud (OAuth access probe) |
+| `rbw-aa` | CheckFederatedAccess | — | Check federated access — open or reuse a sitting via device flow + STS (Legs 1+2) against the RBRF trust |
+| `rbw-am` | CheckMantleAccess | param1 | Check mantle access as the freehold subject — avow, don the named mantle (governor|director|retriever), reach Artifact Registry, and write the attributed audit entry; or surface the access deficit |
 
 ### Crucible — Container runtime (`rbw-c`)
 
@@ -54,12 +54,12 @@ The Folio column shows how each tabtarget receives it:
 |----------|-------------|-------|---------|
 | `rbw-mA` | PayorAffiancesManor | — | Affiance the manor to its IdP — seat the org-level workforce pool, provider, and attribute mapping |
 | `rbw-mJ` | PayorJiltsManor | — | Jilt the manor from its IdP — dissolve the org-level workforce pool (provider cascades) |
+| `rbw-mG` | PayorGirdsGovernor | param1 | Gird the first governor — payor seats a citizen as this depot's founding governor (args: subject) |
 
 ### Polity — federation admission (`rbw-p`)
 
 | Colophon | Frontispiece | Folio | Purpose |
 |----------|-------------|-------|---------|
-| `rbw-pE` | PayorGirdsGovernor | param1 | Gird the first governor — payor seats a citizen as this depot's founding governor (args: subject) |
 | `rbw-pB` | GovernorBrevetsCitizen | param1 | Brevet a citizen onto a mantle in this depot (governor-wielded admission; args: subject mantle) |
 | `rbw-pU` | GovernorUnseatsCitizen | param1 | Unseat a citizen from one mantle (suspension, not erasure; args: subject mantle) |
 | `rbw-pA` | GovernorAttaintsCitizen | param1 | Attaint a citizen — whole-person expulsion from this depot (args: subject) |

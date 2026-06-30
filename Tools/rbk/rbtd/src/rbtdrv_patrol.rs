@@ -1427,14 +1427,14 @@ fn rbtdrv_foedus_reuse(dir: &Path) -> rbtdre_Verdict {
         match rbtdri_invoke_global(ctx, RBTDGC_CHECK_AVOWAL, &[], &[]) {
             Ok(r) if r.exit_code == 0 => {}
             Ok(r) => return rbtdre_Verdict::Fail(format!(
-                "avow exit {} — open a sitting with rbw-acf (one device-flow click), or launch \
-                 from a terminal so the prompt can surface\n{}", r.exit_code, r.stderr
+                "avow exit {} — open a sitting with {} (one device-flow click), or launch \
+                 from a terminal so the prompt can surface\n{}", r.exit_code, RBTDGC_CHECK_AVOWAL, r.stderr
             )),
             Err(e) => return rbtdre_Verdict::Fail(format!("avow invocation: {}", e)),
         }
         let _ = std::fs::write(dir.join("05-avow.txt"), "avowed");
 
-        // Don each mantle and reach Artifact Registry (rbw-acm) — proves the
+        // Don each mantle and reach Artifact Registry — proves the
         // standing freehold's mantle credentials are LIVE (the assertion the
         // release ladders previously made in prose). The durable admission (gird/
         // brevet) is freehold-establish's; a don failure here means the freehold is
