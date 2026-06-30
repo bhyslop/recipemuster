@@ -19936,8 +19936,8 @@
         "₢BlAAM": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260624-2240",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260630-1051",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "Drafted from ₢BfAAZ in ₣Bf.",
                 "",
@@ -19953,7 +19953,7 @@
                 "Real dedup gated on a richer-than-naive signature."
               ],
               "jjgtn_silks": "payor-gate-helper-richer-signature",
-              "jjgtn_basis": "f676ede"
+              "jjgtn_basis": "66b36a1"
             }
           ]
         },
