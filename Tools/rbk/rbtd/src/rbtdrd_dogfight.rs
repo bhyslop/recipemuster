@@ -25,13 +25,19 @@
 // build → summon → run viability, not containment (the crucible's orthogonal
 // concern).
 //
-// Single case, ordain → summon → run → abjure, threaded through one body. The
-// busybox vessel is consumerless — no nameplate holds its hallmark, so there
-// is no committed regime file to carry the ephemeral hallmark across a
-// case boundary. The hallmark therefore lives as a local across the steps,
-// the same structural choice rbtdrv_hallmark_lifecycle makes for the same
+// Single case, ordain → summon → resolved-base check → run → abjure, threaded
+// through one body. The busybox vessel is consumerless — no nameplate holds its
+// hallmark, so there is no committed regime file to carry the ephemeral hallmark
+// across a case boundary. The hallmark therefore lives as a local across the
+// steps, the same structural choice rbtdrv_hallmark_lifecycle makes for the same
 // reason. This fixture IS hallmark_lifecycle with the registry-inventory
 // middle (audit/rekon) swapped for summon + a bare container-runtime run.
+//
+// The resolved-base check reads the rbi_resolved_base_1 label off the summoned
+// image and fails loud if it diverges from the vessel's committed base — the
+// regression guard for the conjure resolved-base provenance feature (RBSAC /
+// RBr_b4e). It reuses this fixture's existing ordain rather than spending a
+// second cloud build on a separate case.
 
 use std::path::Path;
 use std::process::Command;
@@ -39,7 +45,8 @@ use std::process::Command;
 use crate::case;
 use crate::rbtdrc_crucible::rbtdrc_with_ctx;
 use crate::rbtdrv_patrol::{
-    rbtdrv_docker_inspect, RBTDRV_ARK_BASENAME_IMAGE, RBTDRV_BUSYBOX_VESSEL_DIR,
+    rbtdrv_docker_config_label, rbtdrv_docker_inspect, RBTDRV_ARK_BASENAME_IMAGE,
+    RBTDRV_BUSYBOX_VESSEL_DIR,
 };
 use crate::rbtdre_engine::{rbtdre_Case, rbtdre_Disposition, rbtdre_Fixture, rbtdre_Verdict};
 use crate::rbtdri_invocation::{
@@ -81,6 +88,28 @@ fn rbtdrd_runtime_run(image_ref: &str, cmd: &str, dir: &Path) -> Result<(), Stri
         ));
     }
     Ok(())
+}
+
+// ── Committed-config reader ──────────────────────────────────
+
+/// Read one shell-assignment field from a vessel's rbrv.env, value with
+/// surrounding double-quotes stripped. The committed-config source the
+/// resolved-base divergence check compares the emitted label against.
+fn rbtdrd_vessel_field(
+    ctx: &rbtdri_Context,
+    vessel_dir: &str,
+    key: &str,
+) -> Result<String, String> {
+    let path = ctx.project_root().join(vessel_dir).join("rbrv.env");
+    let body = std::fs::read_to_string(&path)
+        .map_err(|e| format!("read {}: {}", path.display(), e))?;
+    let prefix = format!("{}=", key);
+    for line in body.lines() {
+        if let Some(value) = line.trim().strip_prefix(&prefix) {
+            return Ok(value.trim().trim_matches('"').to_owned());
+        }
+    }
+    Err(format!("{} not found in {}", key, path.display()))
 }
 
 // ── Case ─────────────────────────────────────────────────────
@@ -128,6 +157,62 @@ fn rbtdrd_build_run_lifecycle_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtd
         return rbtdre_Verdict::Fail(format!(
             "summon: image ark not local after pull: {}",
             image_ref
+        ));
+    }
+
+    // Resolved-base provenance regression: the summoned image must carry the
+    // rbi_resolved_base_1 label naming the vessel's committed base (busybox is a
+    // pass-through, slot-1 vessel), pinned by a well-formed sha256. The label
+    // rides the consumer image config byte-identically into the signed attest
+    // image (RBr_b4e), so reading it off the locally summoned consumer image is
+    // the same value without a registry round-trip.
+    let _ = std::fs::write(dir.join("03-resolved-base.txt"), "checking rbi_resolved_base_1");
+    let label = match rbtdrv_docker_config_label(&image_ref, "rbi_resolved_base_1") {
+        Ok(v) => v,
+        Err(e) => {
+            return rbtdre_Verdict::Fail(format!(
+                "resolved-base: docker inspect label failed: {}",
+                e
+            ))
+        }
+    };
+    let _ = std::fs::write(dir.join("03-resolved-base-label.txt"), &label);
+    if label.is_empty() {
+        return rbtdre_Verdict::Fail(format!(
+            "resolved-base: rbi_resolved_base_1 absent on {} — write-side (rbgjb03/rbgjb04) regression",
+            image_ref
+        ));
+    }
+    let (ref_portion, digest) = match label.split_once("@sha256:") {
+        Some(pair) => pair,
+        None => {
+            return rbtdre_Verdict::Fail(format!(
+                "resolved-base: label not @sha256:-pinned: {}",
+                label
+            ))
+        }
+    };
+    if digest.len() != 64 || !digest.bytes().all(|b| matches!(b, b'0'..=b'9' | b'a'..=b'f')) {
+        return rbtdre_Verdict::Fail(format!(
+            "resolved-base: malformed sha256 digest in label: {}",
+            label
+        ));
+    }
+    // The ref-portion must equal the committed RBRV_IMAGE_1_ORIGIN with its tag
+    // stripped — the exact transform rbgjb03 applies (${origin%:*}). A mismatch is
+    // a provenance lie: the label names a base the vessel never committed.
+    let committed_origin = match rbtdrd_vessel_field(ctx, vessel_dir, "RBRV_IMAGE_1_ORIGIN") {
+        Ok(v) => v,
+        Err(e) => return rbtdre_Verdict::Fail(format!("resolved-base: {}", e)),
+    };
+    let expected_ref = committed_origin
+        .rsplit_once(':')
+        .map(|(base, _)| base)
+        .unwrap_or(committed_origin.as_str());
+    if ref_portion != expected_ref {
+        return rbtdre_Verdict::Fail(format!(
+            "resolved-base DIVERGENCE: label base '{}' != committed '{}' (RBRV_IMAGE_1_ORIGIN='{}')",
+            ref_portion, expected_ref, committed_origin
         ));
     }
 

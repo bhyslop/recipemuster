@@ -241,6 +241,30 @@ pub(crate) fn rbtdrv_docker_layers_capture(image_ref: &str) -> Result<String, St
     Ok(layers)
 }
 
+/// Docker wrapper: read one image config label's value via inspect's Go-template
+/// `index`. Returns the value; an absent key yields an empty string (every
+/// conjure image carries hallmark/git.* labels, so `.Config.Labels` is never
+/// nil and `index` cannot fault on it). Used to read the rbi_resolved_base_n
+/// provenance labels off a summoned consumer image, whose config is
+/// byte-identical to the signed attest image's (RBr_b4e).
+pub(crate) fn rbtdrv_docker_config_label(image_ref: &str, label_key: &str) -> Result<String, String> {
+    let fmt = format!("--format={{{{index .Config.Labels \"{}\"}}}}", label_key);
+    let output = Command::new("docker")
+        .args(["inspect", &fmt, image_ref])
+        .output()
+        .map_err(|e| format!("docker inspect exec failed: {}", e))?;
+    if !output.status.success() {
+        let stderr = String::from_utf8_lossy(&output.stderr).into_owned();
+        return Err(format!(
+            "docker inspect {} exited {}: {}",
+            image_ref,
+            output.status.code().unwrap_or(-1),
+            stderr
+        ));
+    }
+    Ok(String::from_utf8_lossy(&output.stdout).trim().to_owned())
+}
+
 // Hallmark-lifecycle fixture — round-trip ark inventory across the
 // ordain/abjure boundary on a conjure-mode hallmark. Verifies that abjure
 // removes every ark basename (image, about, vouch, attest, pouch) without
