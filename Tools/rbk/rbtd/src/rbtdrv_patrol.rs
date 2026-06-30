@@ -1073,6 +1073,58 @@ fn rbtdrv_reliquary_lifecycle(dir: &Path) -> rbtdre_Verdict {
 pub static RBTDRV_CASES_RELIQUARY_LIFECYCLE: &[rbtdre_Case] = &[case!(rbtdrv_reliquary_lifecycle)];
 
 
+// Shared payor-credential probe-and-gate preamble for the four credentialed-service
+// fixtures below. The probe is identical; the verdict on a non-green probe is
+// policy-split:
+//   Skip — the terrier pair: auto-suite members, so an absent credential is
+//     suite-passenger protection (terse, exit-code-only message).
+//   Fail — the foedus pair: operator-invoked only (never a passenger), so an
+//     absent credential fails the run and dumps the probe's stdout/stderr verbatim.
+// The policy carries the whole per-policy verdict template, not just a Skip|Fail
+// flag, precisely because the Fail side's stdout/stderr dump has no Skip analogue.
+enum zrbtdrv_PayorGatePolicy {
+    Skip,
+    Fail,
+}
+
+/// Probe the payor credential; return None when green (caller proceeds), or
+/// Some(verdict) when the gate trips. `fixture` is interpolated into the message
+/// (pass the RBTDRM_FIXTURE_* constant), so each call reproduces its prior
+/// open-coded verdict byte-for-byte.
+fn zrbtdrv_payor_gate(
+    ctx: &mut rbtdri_Context,
+    dir: &Path,
+    fixture: &str,
+    policy: zrbtdrv_PayorGatePolicy,
+) -> Option<rbtdre_Verdict> {
+    let _ = std::fs::write(dir.join("01-payor-probe.txt"), "probing payor credential");
+    match rbtdri_invoke_global(ctx, RBTDGC_CHECK_PAYOR, &[], &[]) {
+        Ok(r) if r.exit_code == 0 => None,
+        Ok(r) => Some(match policy {
+            zrbtdrv_PayorGatePolicy::Skip => rbtdre_Verdict::Skip(format!(
+                "payor credential not reachable (exit {}) — {} requires service credentials",
+                r.exit_code, fixture
+            )),
+            zrbtdrv_PayorGatePolicy::Fail => rbtdre_Verdict::Fail(format!(
+                "payor credential probe not green (exit {}) — {} is operator-invoked \
+                 and requires a live payor credential; this is a failure of the run, not a skip\n\
+                 stdout:\n{}\nstderr:\n{}",
+                r.exit_code, fixture, r.stdout, r.stderr
+            )),
+        }),
+        Err(e) => Some(match policy {
+            zrbtdrv_PayorGatePolicy::Skip => rbtdre_Verdict::Skip(format!(
+                "payor credential probe could not run ({}) — {} requires service credentials",
+                e, fixture
+            )),
+            zrbtdrv_PayorGatePolicy::Fail => {
+                rbtdre_Verdict::Fail(format!("payor probe invocation: {}", e))
+            }
+        }),
+    }
+}
+
+
 // Foedus-lifecycle fixture — federation IdP-trust round-trip against the live org.
 // The reliquary-lifecycle shape (single self-contained case, no charge/quench)
 // applied to the affiance→jilt create/destroy round-trip: probe the payor
@@ -1092,19 +1144,11 @@ const RBTDRV_RBRF_POOL_VAR: &str = "RBRF_WORKFORCE_POOL_ID";
 /// terminal banner. Split from the case so the case can run a best-effort cleanup
 /// jilt on any failure (the round-trip's own jilt may not have been reached).
 fn zrbtdrv_foedus_roundtrip(ctx: &mut rbtdri_Context, dir: &Path, pool_id: &str) -> rbtdre_Verdict {
-    // The payor credential must be live. This fixture is operator-invoked only, so
-    // an absent or expired payor credential is a failure of the run — not a skip
-    // (Skip is suite-passenger protection, and this fixture is never a passenger).
-    let _ = std::fs::write(dir.join("01-payor-probe.txt"), "probing payor credential");
-    match rbtdri_invoke_global(ctx, RBTDGC_CHECK_PAYOR, &[], &[]) {
-        Ok(r) if r.exit_code == 0 => {}
-        Ok(r) => return rbtdre_Verdict::Fail(format!(
-            "payor credential probe not green (exit {}) — foedus-lifecycle is operator-invoked \
-             and requires a live payor credential; this is a failure of the run, not a skip\n\
-             stdout:\n{}\nstderr:\n{}",
-            r.exit_code, r.stdout, r.stderr
-        )),
-        Err(e) => return rbtdre_Verdict::Fail(format!("payor probe invocation: {}", e)),
+    // Payor credential precondition — Fail, not Skip (never a suite passenger).
+    if let Some(v) = zrbtdrv_payor_gate(
+        ctx, dir, crate::rbtdrm_manifest::RBTDRM_FIXTURE_FOEDUS_LIFECYCLE, zrbtdrv_PayorGatePolicy::Fail,
+    ) {
+        return v;
     }
 
     // The throwaway pool id rides the regime-poison seam: RBRF_WORKFORCE_POOL_ID
@@ -1235,16 +1279,10 @@ pub static RBTDRV_CASES_FOEDUS_LIFECYCLE: &[rbtdre_Case] = &[case!(rbtdrv_foedus
 fn rbtdrv_foedus_reuse(dir: &Path) -> rbtdre_Verdict {
     rbtdrc_with_ctx(|ctx| {
         // Payor credential precondition — Fail, not Skip (never a suite passenger).
-        let _ = std::fs::write(dir.join("01-payor-probe.txt"), "probing payor credential");
-        match rbtdri_invoke_global(ctx, RBTDGC_CHECK_PAYOR, &[], &[]) {
-            Ok(r) if r.exit_code == 0 => {}
-            Ok(r) => return rbtdre_Verdict::Fail(format!(
-                "payor credential probe not green (exit {}) — foedus-reuse is operator-invoked \
-                 and requires a live payor credential; this is a failure of the run, not a skip\n\
-                 stdout:\n{}\nstderr:\n{}",
-                r.exit_code, r.stdout, r.stderr
-            )),
-            Err(e) => return rbtdre_Verdict::Fail(format!("payor probe invocation: {}", e)),
+        if let Some(v) = zrbtdrv_payor_gate(
+            ctx, dir, crate::rbtdrm_manifest::RBTDRM_FIXTURE_FOEDUS_REUSE, zrbtdrv_PayorGatePolicy::Fail,
+        ) {
+            return v;
         }
 
         // The standing foedus the manor authenticates against — the committed
@@ -1373,21 +1411,10 @@ fn rbtdrv_terrier_scaffold(dir: &Path) -> rbtdre_Verdict {
     rbtdrc_with_ctx(|ctx| {
         // Self-skip gate: a service fixture stays green on a machine with no GCP
         // credentials by skipping, not failing, when the payor probe is not green.
-        let _ = std::fs::write(dir.join("01-payor-probe.txt"), "probing payor credential");
-        match rbtdri_invoke_global(ctx, RBTDGC_CHECK_PAYOR, &[], &[]) {
-            Ok(r) if r.exit_code == 0 => {}
-            Ok(r) => {
-                return rbtdre_Verdict::Skip(format!(
-                    "payor credential not reachable (exit {}) — terrier-scaffold requires service credentials",
-                    r.exit_code
-                ))
-            }
-            Err(e) => {
-                return rbtdre_Verdict::Skip(format!(
-                    "payor credential probe could not run ({}) — terrier-scaffold requires service credentials",
-                    e
-                ))
-            }
+        if let Some(v) = zrbtdrv_payor_gate(
+            ctx, dir, crate::rbtdrm_manifest::RBTDRM_FIXTURE_TERRIER_SCAFFOLD, zrbtdrv_PayorGatePolicy::Skip,
+        ) {
+            return v;
         }
 
         // First run — provision. The scaffold's getIamPolicy read-back is the
@@ -1451,21 +1478,10 @@ pub static RBTDRV_CASES_TERRIER_SCAFFOLD: &[rbtdre_Case] = &[case!(rbtdrv_terrie
 fn rbtdrv_terrier_atomicity(dir: &Path) -> rbtdre_Verdict {
     rbtdrc_with_ctx(|ctx| {
         // Self-skip gate: stay green on a machine with no GCP credentials.
-        let _ = std::fs::write(dir.join("01-payor-probe.txt"), "probing payor credential");
-        match rbtdri_invoke_global(ctx, RBTDGC_CHECK_PAYOR, &[], &[]) {
-            Ok(r) if r.exit_code == 0 => {}
-            Ok(r) => {
-                return rbtdre_Verdict::Skip(format!(
-                    "payor credential not reachable (exit {}) — terrier-atomicity requires service credentials",
-                    r.exit_code
-                ))
-            }
-            Err(e) => {
-                return rbtdre_Verdict::Skip(format!(
-                    "payor credential probe could not run ({}) — terrier-atomicity requires service credentials",
-                    e
-                ))
-            }
+        if let Some(v) = zrbtdrv_payor_gate(
+            ctx, dir, crate::rbtdrm_manifest::RBTDRM_FIXTURE_TERRIER_ATOMICITY, zrbtdrv_PayorGatePolicy::Skip,
+        ) {
+            return v;
         }
 
         // Charge the terrier — the proof needs a provisioned bucket + polity folder.
