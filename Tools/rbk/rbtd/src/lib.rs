@@ -82,8 +82,6 @@ mod rbtdtm_manifest;
 #[cfg(test)]
 mod rbtdto_onboarding;
 #[cfg(test)]
-mod rbtdtp_lifecycle;
-#[cfg(test)]
 mod rbtdtu_cupel;
 #[cfg(test)]
 mod rbtdtx_platform;

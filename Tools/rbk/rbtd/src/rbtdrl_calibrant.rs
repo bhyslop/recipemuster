@@ -186,6 +186,7 @@ pub static RBTDRL_FIXTURE_VERDICTS: rbtdre_Fixture = rbtdre_Fixture {
     cases: RBTDRL_CASES_VERDICTS,
     credless: false,
 };
+const _: () = assert!(RBTDRL_FIXTURE_VERDICTS.cases.len() == 4);
 
 pub static RBTDRL_FIXTURE_FAIL_FAST: rbtdre_Fixture = rbtdre_Fixture {
     name: RBTDRM_FIXTURE_CALIBRANT_FAIL_FAST,
@@ -195,6 +196,7 @@ pub static RBTDRL_FIXTURE_FAIL_FAST: rbtdre_Fixture = rbtdre_Fixture {
     cases: RBTDRL_CASES_FAIL_FAST,
     credless: false,
 };
+const _: () = assert!(RBTDRL_FIXTURE_FAIL_FAST.cases.len() == 3);
 
 pub static RBTDRL_FIXTURE_PROGRESSING: rbtdre_Fixture = rbtdre_Fixture {
     name: RBTDRM_FIXTURE_CALIBRANT_PROGRESSING,
@@ -204,6 +206,7 @@ pub static RBTDRL_FIXTURE_PROGRESSING: rbtdre_Fixture = rbtdre_Fixture {
     cases: RBTDRL_CASES_PROGRESSING,
     credless: false,
 };
+const _: () = assert!(RBTDRL_FIXTURE_PROGRESSING.cases.len() == 2);
 
 pub static RBTDRL_FIXTURE_SENTINEL: rbtdre_Fixture = rbtdre_Fixture {
     name: RBTDRM_FIXTURE_CALIBRANT_SENTINEL,
@@ -213,3 +216,4 @@ pub static RBTDRL_FIXTURE_SENTINEL: rbtdre_Fixture = rbtdre_Fixture {
     cases: RBTDRL_CASES_SENTINEL,
     credless: false,
 };
+const _: () = assert!(RBTDRL_FIXTURE_SENTINEL.cases.len() == 1);

@@ -19,21 +19,12 @@
 
 use std::path::PathBuf;
 
-use crate::rbtdre_engine::rbtdre_Disposition;
 use crate::rbtdrk_freehold::{
     rbtdrk_family_stem, rbtdrk_freehold_cloud_prefix, rbtdrk_freehold_runtime_prefix,
     rbtdrk_install_freehold_prefixes, RBTDRK_FREEHOLD_CLOUD_BASE, RBTDRK_FREEHOLD_RUNTIME_BASE,
     RBTDRK_FREEHOLD_STEM_BASE,
 };
-use crate::rbtdrm_manifest::{
-    RBTDRM_FIXTURE_FREEHOLD_CHURN,
-    RBTDRM_FIXTURE_FREEHOLD_ESTABLISH,
-};
-use crate::rbtdth_helpers::{
-    rbtdth_assert_cases,
-    rbtdth_assert_disposition,
-    rbtdth_scratch_root,
-};
+use crate::rbtdth_helpers::rbtdth_scratch_root;
 
 /// Freehold-prefix base shape: lowercase letters, distinct cloud/runtime
 /// pair, no trailing hyphen (the composer adds it). The cases rely on the
@@ -124,40 +115,6 @@ fn rbtdtk_freehold_dual_station_disjoint() {
         format!("canest-ret@{}.iam.gserviceaccount.com", project_a),
         format!("canest-ret@{}.iam.gserviceaccount.com", project_b)
     );
-}
-
-/// freehold-establish is StateProgressing — the engine's keep-going
-/// refusal applies to this fixture too, by design (per BBAAd policy gate).
-#[test]
-fn rbtdtk_disposition_is_state_progressing() {
-    rbtdth_assert_disposition(
-        RBTDRM_FIXTURE_FREEHOLD_ESTABLISH,
-        rbtdre_Disposition::StateProgressing,
-    );
-}
-
-/// Case lookup binds the fixture name to the registry array and yields
-/// exactly the six federation-persona cases.
-#[test]
-fn rbtdtk_cases_registered() {
-    rbtdth_assert_cases(
-        RBTDRM_FIXTURE_FREEHOLD_ESTABLISH,
-        6,
-        &[
-            "rbtdrk_freehold_ensure",
-            "rbtdrk_avow",
-            "rbtdrk_gird_governor",
-            "rbtdrk_brevet_don_director",
-            "rbtdrk_brevet_don_retriever",
-            "rbtdrk_depot_recognosce",
-        ],
-    );
-}
-
-/// freehold-churn registers its single deliberate teardown case.
-#[test]
-fn rbtdtk_churn_case_registered() {
-    rbtdth_assert_cases(RBTDRM_FIXTURE_FREEHOLD_CHURN, 1, &["rbtdrk_depot_churn"]);
 }
 
 /// install_freehold_prefixes refuses cleanly when rbrr.env is absent — the

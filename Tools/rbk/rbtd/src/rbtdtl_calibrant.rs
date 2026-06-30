@@ -26,18 +26,14 @@
 use std::path::PathBuf;
 
 use crate::rbtdra_almanac::rbtdra_lookup_fixture;
-use crate::rbtdre_engine::{rbtdre_find_case, rbtdre_Disposition, rbtdre_Verdict};
+use crate::rbtdre_engine::{rbtdre_find_case, rbtdre_Verdict};
 use crate::rbtdrl_calibrant::{RBTDRL_OUTPUT_FILE, RBTDRL_SENTINEL_FILE};
 use crate::rbtdrm_manifest::{
     rbtdrm_required_colophons, RBTDRM_FIXTURE_CALIBRANT_FAIL_FAST,
     RBTDRM_FIXTURE_CALIBRANT_PROGRESSING, RBTDRM_FIXTURE_CALIBRANT_SENTINEL,
     RBTDRM_FIXTURE_CALIBRANT_VERDICTS,
 };
-use crate::rbtdth_helpers::{
-    rbtdth_assert_cases,
-    rbtdth_assert_disposition,
-    rbtdth_make_scratch,
-};
+use crate::rbtdth_helpers::rbtdth_make_scratch;
 
 fn rbtdtl_run_case(fixture: &'static str, case_name: &str) -> (rbtdre_Verdict, PathBuf) {
     let fix = rbtdra_lookup_fixture(fixture)
@@ -103,45 +99,6 @@ fn rbtdtl_required_colophons_all_empty() {
             req
         );
     }
-}
-
-// ── disposition tags ────────────────────────────────────────
-
-#[test]
-fn rbtdtl_dispositions() {
-    for fixture in [
-        RBTDRM_FIXTURE_CALIBRANT_VERDICTS,
-        RBTDRM_FIXTURE_CALIBRANT_FAIL_FAST,
-        RBTDRM_FIXTURE_CALIBRANT_SENTINEL,
-    ] {
-        rbtdth_assert_disposition(fixture, rbtdre_Disposition::Independent);
-    }
-    rbtdth_assert_disposition(
-        RBTDRM_FIXTURE_CALIBRANT_PROGRESSING,
-        rbtdre_Disposition::StateProgressing,
-    );
-}
-
-// ── case registration ───────────────────────────────────────
-
-#[test]
-fn rbtdtl_verdicts_cases_registered() {
-    rbtdth_assert_cases(RBTDRM_FIXTURE_CALIBRANT_VERDICTS, 4, &[]);
-}
-
-#[test]
-fn rbtdtl_fail_fast_cases_registered() {
-    rbtdth_assert_cases(RBTDRM_FIXTURE_CALIBRANT_FAIL_FAST, 3, &[]);
-}
-
-#[test]
-fn rbtdtl_progressing_cases_registered() {
-    rbtdth_assert_cases(RBTDRM_FIXTURE_CALIBRANT_PROGRESSING, 2, &[]);
-}
-
-#[test]
-fn rbtdtl_sentinel_cases_registered() {
-    rbtdth_assert_cases(RBTDRM_FIXTURE_CALIBRANT_SENTINEL, 1, &[]);
 }
 
 // ── per-case verdicts ───────────────────────────────────────

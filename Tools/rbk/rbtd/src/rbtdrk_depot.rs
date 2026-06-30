@@ -452,6 +452,7 @@ pub static RBTDRK_FIXTURE_FREEHOLD_ESTABLISH: rbtdre_Fixture = rbtdre_Fixture {
     cases: RBTDRK_CASES_FREEHOLD_ESTABLISH,
     credless: false,
 };
+const _: () = assert!(RBTDRK_FIXTURE_FREEHOLD_ESTABLISH.cases.len() == 6);
 
 // freehold-churn — the deliberate teardown of the freehold. Single case: rotate
 // the moniker off the live project, unmake it, confirm gone. Member of no suite —
@@ -470,3 +471,4 @@ pub static RBTDRK_FIXTURE_FREEHOLD_CHURN: rbtdre_Fixture = rbtdre_Fixture {
     cases: RBTDRK_CASES_FREEHOLD_CHURN,
     credless: false,
 };
+const _: () = assert!(RBTDRK_FIXTURE_FREEHOLD_CHURN.cases.len() == 1);

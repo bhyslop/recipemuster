@@ -1395,3 +1395,4 @@ pub static RBTDRO_FIXTURE_ONBOARDING_SEQUENCE: rbtdre_Fixture = rbtdre_Fixture {
     cases: RBTDRO_CASES_ONBOARDING_SEQUENCE,
     credless: false,
 };
+const _: () = assert!(RBTDRO_FIXTURE_ONBOARDING_SEQUENCE.cases.len() == 8);

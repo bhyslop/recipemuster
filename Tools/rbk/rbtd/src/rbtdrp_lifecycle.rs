@@ -369,3 +369,4 @@ pub static RBTDRP_FIXTURE_DEPOT_LIFECYCLE: rbtdre_Fixture = rbtdre_Fixture {
     cases: RBTDRP_CASES_DEPOT_LIFECYCLE,
     credless: false,
 };
+const _: () = assert!(RBTDRP_FIXTURE_DEPOT_LIFECYCLE.cases.len() == 4);
