@@ -51,6 +51,9 @@ zrboo_kindle() {
   ZRBOO_TCPDUMP_OPTS=(-U -l -nn -vvv -e)
   readonly ZRBOO_TCPDUMP_OPTS
 
+  # Scry interface-discovery captures land here (BCG temp-file capture pattern).
+  readonly ZRBOO_SCRY_PREFIX="${BURD_TEMP_DIR}/rboo_scry_"
+
   # Bridge interface (only for podman, discovered at observe time)
   z_rboo_bridge_interface=""
 
@@ -99,29 +102,39 @@ rboo_observe() {
   # Discover sentry interface roles by IP inside the container — Docker does
   # not guarantee eth0/eth1 ordering (on the WSL native-docker host the two are
   # reversed), so resolve by role the way rbjs_sentry.sh does, never by name.
+  # BCG: external command output goes to temp files, never command substitution.
+  local z_enclave_file="${ZRBOO_SCRY_PREFIX}enclave_addr.txt"
+  local z_enclave_stderr="${ZRBOO_SCRY_PREFIX}enclave_stderr.txt"
+  "${ZRBOB_RUNTIME}" exec "${ZRBOB_SENTRY}" \
+    ip -o addr show to "${RBRN_ENCLAVE_SENTRY_IP}" \
+    > "${z_enclave_file}" 2>"${z_enclave_stderr}" \
+    || buc_die "scry: cannot query sentry interfaces (is the crucible charged?) — see ${z_enclave_stderr}"
+
+  # ip -o emits "<idx>: <ifname> ..."; the first line's second field is the leg.
+  local z_if_idx=""
+  local z_if_rest=""
   local z_sentry_enclave_if=""
-  local z_if_idx="" z_if_rest=""
-  local z_enclave_addr=""
-  z_enclave_addr=$("${ZRBOB_RUNTIME}" exec "${ZRBOB_SENTRY}" \
-    ip -o addr show to "${RBRN_ENCLAVE_SENTRY_IP}" 2>/dev/null) || true
-  # First matching line's second field is the interface name (ip -o: "<idx>: <ifname> ...").
-  read -r z_if_idx z_sentry_enclave_if z_if_rest <<< "${z_enclave_addr}"
+  read -r z_if_idx z_sentry_enclave_if z_if_rest < "${z_enclave_file}" || true
   test -n "${z_sentry_enclave_if}" \
     || buc_die "scry: no sentry interface holds enclave IP ${RBRN_ENCLAVE_SENTRY_IP} (is the crucible charged?)"
 
-  local z_sentry_uplink_if=""
-  local z_ifname=""
-  local z_uplink_addrs=""
-  z_uplink_addrs=$("${ZRBOB_RUNTIME}" exec "${ZRBOB_SENTRY}" \
-    ip -o -4 addr show scope global 2>/dev/null) || true
+  local z_uplink_file="${ZRBOO_SCRY_PREFIX}uplink_addr.txt"
+  local z_uplink_stderr="${ZRBOO_SCRY_PREFIX}uplink_stderr.txt"
+  "${ZRBOB_RUNTIME}" exec "${ZRBOB_SENTRY}" \
+    ip -o -4 addr show scope global \
+    > "${z_uplink_file}" 2>"${z_uplink_stderr}" \
+    || buc_die "scry: cannot query sentry uplink interfaces — see ${z_uplink_stderr}"
+
   # First global interface whose name differs from the enclave leg is the uplink.
-  while read -r z_if_idx z_ifname z_if_rest; do
+  local z_ifname=""
+  local z_sentry_uplink_if=""
+  while read -r z_if_idx z_ifname z_if_rest || test -n "${z_if_idx}"; do
     test -n "${z_ifname}" || continue
     if test "${z_ifname}" != "${z_sentry_enclave_if}"; then
       z_sentry_uplink_if="${z_ifname}"
       break
     fi
-  done <<< "${z_uplink_addrs}"
+  done < "${z_uplink_file}"
   test -n "${z_sentry_uplink_if}" \
     || buc_die "scry: no sentry uplink interface found (enclave=${z_sentry_enclave_if})"
 
