@@ -20367,9 +20367,10 @@
       "jjghn_order": [
         "₢BoAAA",
         "₢BoAAB",
-        "₢BoAAC"
+        "₢BoAAC",
+        "₢BoAAD"
       ],
-      "jjghn_next_pace_seed": "AAD",
+      "jjghn_next_pace_seed": "AAE",
       "jjghn_paces": {
         "₢BoAAA": {
           "jjgpn_tacks": [
@@ -20495,6 +20496,37 @@
               ],
               "jjgtn_silks": "mantle-token-home-and-isolation-matrix",
               "jjgtn_basis": "c851dc6"
+            }
+          ]
+        },
+        "₢BoAAD": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260630-1153",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Explore converging the bridge-legacy account local-parts onto the new mantle-token home, so the identity token is defined once.",
+                "",
+                "## Spec of needed change",
+                "RBCC_account_{governor,director,retriever} (rbcc_constants.sh) currently restate the bare tokens.",
+                "Explore referencing the new RBCC_mantle_* home instead (e.g. RBCC_account_governor=\"${RBCC_mantle_governor}\"), so the identity token has one source.",
+                "Confirm the consumers survive the indirection: the account local-parts feed SA-email construction AND local secret-directory names (per the rbcc_constants comment) — the rendered values must stay byte-identical.",
+                "RBCC_account_mantle_* (the rbma- SA local-parts) stay literal and out of scope — their value is a GCP-bound SA ID, not the identity token; the rbma_/rbma- sprue (RBSMF) is correctly its own home.",
+                "",
+                "## Done when",
+                "A recorded decision: either RBCC_account_* references RBCC_mantle_* (one source, derivations green) or stays independently literal with the reason;",
+                "RBCC_account_mantle_* confirmed unchanged.",
+                "",
+                "## Cinched",
+                "Explore, not mandate — the account local-parts may have load-bearing reason to stay independent; the pace decides and records, it does not presume the convergence.",
+                "rbma_/rbma- (mantle account, RBSMF) is out of scope — GCP-bound, stays.",
+                "Gated on the token home existing (the preceding mint pace).",
+                "",
+                "## Character",
+                "Small DRY exploration plus a recorded decision; gated on RBCC_mantle_* existing."
+              ],
+              "jjgtn_silks": "account-localpart-mantle-token-converge",
+              "jjgtn_basis": "2bbef6a"
             }
           ]
         }
