@@ -19986,8 +19986,8 @@
         "₢BlAAN": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260625-1626",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260630-1410",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "Drafted from ₢BfAAj in ₣Bf.",
                 "",
@@ -20020,7 +20020,7 @@
                 "Mechanical colophon relocation via the zipper; verify by dispatch (rbq_qualify's colophon check is currently a no-op)."
               ],
               "jjgtn_silks": "colophon-relocation-260624",
-              "jjgtn_basis": "b91ab48"
+              "jjgtn_basis": "528005a"
             }
           ]
         },
