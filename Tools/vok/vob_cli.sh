@@ -32,6 +32,7 @@ zvob_furnish() {
 
   source "${BURD_BUK_DIR}/buv_validation.sh"
   source "${BURD_BUK_DIR}/burd_regime.sh"
+  source "${BURD_BUK_DIR}/bug_git.sh"
   source "${BURD_TOOLS_DIR}/vok/vof_features.sh"
   source "${BURD_TOOLS_DIR}/vvk/vvb_bash.sh"
   source "${BURD_TOOLS_DIR}/vok/vob_build.sh"

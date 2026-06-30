@@ -140,25 +140,41 @@ vob_release() {
   local z_registry="${BURC_TOOLS_DIR}/vok/vov_veiled/vovr_registry.json"
   local z_vvx="${VVB_VVX_BINARY}"
 
-  # Resolve the kit set to parcel. Defaults to the repo's full managed set;
-  # VOB_PARCEL_KITS narrows it to a deliberate subset for delivery to a
-  # downstream that manages fewer kits (e.g. a cmk-less target). The override
-  # must be a subset of BURC_MANAGED_KITS — narrow only, never widen to a kit
-  # this repo does not own.
-  local z_managed_kits="${VOB_PARCEL_KITS:-${BURC_MANAGED_KITS}}"
-  if test -n "${VOB_PARCEL_KITS:-}"; then
-    buc_step "Parcel kit-set override"
-    buc_log_args "Override:     ${VOB_PARCEL_KITS}"
-    buc_log_args "Repo manages: ${BURC_MANAGED_KITS}"
+  # Resolve the kit set to parcel from the tabtarget imprint (folio). Each
+  # blessed parcel is its own imprinted tt/vow-R.ParcelRelease.<imprint>.sh; the
+  # imprint both selects the kit subset and labels the tarball. Hardcoded
+  # because the imprints are curated labels, not kit enumerations (buk-only is
+  # not split('buk-only')); the full set carries no name suffix (canonical).
+  local z_imprint="${BUZ_FOLIO:-}"
+  test -n "${z_imprint}" || buc_die "vob_release: no parcel imprint — invoke via tt/vow-R.ParcelRelease.<imprint>.sh"
 
-    local z_override_kit=""
-    for z_override_kit in ${VOB_PARCEL_KITS//,/ }; do
-      case ",${BURC_MANAGED_KITS}," in
-        *",${z_override_kit},"*) ;;
-        *) buc_die "VOB_PARCEL_KITS names '${z_override_kit}', not in BURC_MANAGED_KITS (${BURC_MANAGED_KITS})" ;;
-      esac
-    done
-  fi
+  local z_managed_kits=""
+  case "${z_imprint}" in
+    full)      z_managed_kits="${BURC_MANAGED_KITS}" ;;
+    buk-only)  z_managed_kits="buk"     ;;
+    buk-jjk)   z_managed_kits="buk,jjk" ;;
+    *) buc_die "vob_release: unknown parcel imprint '${z_imprint}'" ;;
+  esac
+
+  buc_step "Parcel imprint"
+  buc_log_args "Imprint:      ${z_imprint}"
+  buc_log_args "Kit set:      ${z_managed_kits}"
+  buc_log_args "Repo manages: ${BURC_MANAGED_KITS}"
+
+  # Guard: every selected kit must be one this repo manages (catches a stale
+  # imprint row after BURC_MANAGED_KITS shrinks). Trivially true for 'full'.
+  local z_sel_kit=""
+  for z_sel_kit in ${z_managed_kits//,/ }; do
+    case ",${BURC_MANAGED_KITS}," in
+      *",${z_sel_kit},"*) ;;
+      *) buc_die "vob_release: imprint '${z_imprint}' names kit '${z_sel_kit}', not in BURC_MANAGED_KITS (${BURC_MANAGED_KITS})" ;;
+    esac
+  done
+
+  # Tools never commit, but a release brands a specific commit and commits the
+  # registry — a dirty tree would mint a brand that misrepresents its recorded
+  # vvbc_commit. Gate before any heavy work begins.
+  bug_require_clean_tree "parcel release"
 
   buc_step "Running tests"
   buc_log_args "Cargo dir: ${ZVOB_CARGO_DIR}"
@@ -243,7 +259,9 @@ vob_release() {
 
   buc_step "Creating tarball"
 
-  local z_parcel_name="vvk-parcel-${z_brand}"
+  local z_suffix=""
+  test "${z_imprint}" = "full" || z_suffix="-${z_imprint}"
+  local z_parcel_name="vvk-parcel-${z_brand}${z_suffix}"
   local z_parcels_dir=".jjk/parcels"
   local z_tarball="${z_parcels_dir}/${z_parcel_name}.tar.gz"
 

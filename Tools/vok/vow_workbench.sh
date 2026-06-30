@@ -16,7 +16,11 @@
 #
 # Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 #
-# VOW Workbench - Routes VOK management commands
+# VOW Workbench - Routes VOK management commands via zipper registry
+#
+# All commands dispatch via buz_exec_lookup (see voz_zipper.sh for colophon
+# mapping). vow-r is the lone exception — a raw vvr-binary passthrough routed
+# ahead of the registry (see vow_route).
 
 set -euo pipefail
 
@@ -28,20 +32,24 @@ source "${BURD_BUK_DIR}/buc_command.sh"
 source "${BURD_BUK_DIR}/buv_validation.sh"
 source "${BURD_BUK_DIR}/burd_regime.sh"
 source "${BURD_BUK_DIR}/buym_yelp.sh"
+source "${BURD_BUK_DIR}/buz_zipper.sh"
+source "${VOW_SCRIPT_DIR}/voz_zipper.sh"
 
 # Show filename on each displayed line
 buc_context "${0##*/}"
 
-# Verify dispatch completed
+# Kindle dispatch and zipper registry
 zbuv_kindle
 zburd_kindle
+zbuz_kindle
+zvoz_kindle
 
 # Verbose output if BURE_VERBOSE is set
 vow_show() {
   test "${BURE_VERBOSE:-0}" != "1" || echo "VOWSHOW: $*"
 }
 
-# Simple routing function
+# Routing
 vow_route() {
   local z_command="$1"
   shift
@@ -49,27 +57,18 @@ vow_route() {
   vow_show "Routing command: ${z_command} with args: $*"
 
   zburd_sentinel
+  zvoz_healthcheck
 
   vow_show "BUD environment verified"
 
-  # Route based on command
-  local z_vob_cli="${VOW_SCRIPT_DIR}/vob_cli.sh"
-
+  # vow-r runs the freshly-built vvr binary directly with arbitrary args — a raw
+  # dev-binary passthrough that does not fit the zipper's (module, command)
+  # model, so it is dispatched ahead of the registry (cf. rbw's pre-lookup gate).
   case "${z_command}" in
-
-    # Build subsystem
-    vow-b)  exec "${z_vob_cli}" vob_build   "$@" ;;
-    vow-c)  exec "${z_vob_cli}" vob_clean   "$@" ;;
-    vow-t)  exec "${z_vob_cli}" vob_test    "$@" ;;
-    vow-R)  exec "${z_vob_cli}" vob_release "$@" ;;  # capital R = big action
-    vow-F)  exec "${z_vob_cli}" vob_freshen "$@" ;;  # capital F = CLAUDE.md freshen
-
-    # Run VVX binary directly
     vow-r)  exec "${VOW_SCRIPT_DIR}/target/release/vvr" "$@" ;;
-
-    # Unknown command
-    *)   buc_die "Unknown command: ${z_command}" ;;
   esac
+
+  buz_exec_lookup "${z_command}" "${VOW_SCRIPT_DIR}" "$@"
 }
 
 vow_main() {
