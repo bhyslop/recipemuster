@@ -179,13 +179,21 @@ rboo_observe() {
   # Bridge capture: only for podman (requires podman machine ssh). Built as a
   # single ssh command string, so timeout/opts/filter are spliced in textually.
   if test "${RBRN_RUNTIME}" = "podman"; then
-    z_rboo_bridge_interface=$(${ZRBOB_RUNTIME} network inspect "${ZRBOB_NETWORK}" --format '{{.NetworkInterface}}')
+    # BCG: capture network-inspect output to a temp file, never command substitution.
+    local z_bridge_if_file="${ZRBOO_SCRY_PREFIX}bridge_if.txt"
+    local z_bridge_if_stderr="${ZRBOO_SCRY_PREFIX}bridge_if_stderr.txt"
+    "${ZRBOB_RUNTIME}" network inspect "${ZRBOB_NETWORK}" --format '{{.NetworkInterface}}' \
+      > "${z_bridge_if_file}" 2>"${z_bridge_if_stderr}" \
+      || buc_die "scry: cannot inspect network ${ZRBOB_NETWORK} — see ${z_bridge_if_stderr}"
+    read -r z_rboo_bridge_interface < "${z_bridge_if_file}" || true
+    test -n "${z_rboo_bridge_interface}" \
+      || buc_die "scry: network ${ZRBOB_NETWORK} reports no bridge interface"
     buc_info "Starting bridge capture (${z_rboo_bridge_interface}) via podman machine ssh"
     local z_bridge_cmd="sudo -n"
     test -z "${z_duration}" || z_bridge_cmd="${z_bridge_cmd} timeout ${z_duration}"
     z_bridge_cmd="${z_bridge_cmd} tcpdump ${ZRBOO_TCPDUMP_OPTS[*]} -i ${z_rboo_bridge_interface}"
     test -z "${z_filter}" || z_bridge_cmd="${z_bridge_cmd} ${z_filter}"
-    ${ZRBOB_RUNTIME} machine ssh "${z_bridge_cmd}" 2>&1 | zrboo_prefix "${ZRBOO_BLUE}" "BRIDGE" &
+    "${ZRBOB_RUNTIME}" machine ssh "${z_bridge_cmd}" 2>&1 | zrboo_prefix "${ZRBOO_BLUE}" "BRIDGE" &
   else
     buc_info "Bridge capture not available for Docker runtime (requires podman machine ssh)"
   fi
