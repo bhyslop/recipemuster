@@ -18007,8 +18007,8 @@
         "₢BfAAs": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260627-1314",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260630-1428",
+              "jjgtn_state": "jjgte_abandoned",
               "jjgtn_text": [
                 "## Spec of needed change",
                 "Three operations interrogate a GCP workforce pool and must classify its state identically — live, soft-deleted (the ~30-day purge window), or absent: affiance (creates pools and must refuse a soft-deleted id), descry (reports a foedus's pool health), and canvass (enumerates foedera).",
@@ -18023,7 +18023,7 @@
                 "Mechanical extraction plus re-wire — the soft-delete semantics already exist in affiance and are not being redesigned; the live-pool fast-fail is a small added guard. The descry-side consumption is a forward constraint, satisfied when descry is built."
               ],
               "jjgtn_silks": "foedus-pool-state-classifier",
-              "jjgtn_basis": "9a0fc5e"
+              "jjgtn_basis": "c2c5ccb"
             }
           ]
         },
