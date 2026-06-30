@@ -144,3 +144,21 @@ The idea: avowal makes the operator read a URL and type a short user_code, yet R
 DECLINED for the live IdP: the Entra finding (260617, empirical not just docs) — the live devicecode response from the standing trust omits verification_uri_complete entirely, and it is not a knob (no scope, param, or app-registration toggle turns it on; Microsoft's endpoint structurally lacks it).
 Declined fallback recorded: synthesizing a code-carrying URL ourselves (.../device?otc=<code>) is unsupported, Palisade-fragile, rides the device-code-phishing pattern Microsoft's filters flag, and tried live the prefill did not populate.
 Revisit trigger: a new or migrated IdP that returns the field, or Microsoft adding it.
+
+### one-pool identity substrate — per-foedus-pool model SUPERSEDED (drained 2026-06-30)
+
+The architectural reversal: the heat's federation-identity model was re-founded from a pool-per-foedus topology onto a single manor-lifetime workforce pool with one provider per foedus.
+This supersedes both the 260622 "each its own pool" framing and the 260623 single-active-foedus topology that had itself superseded it (see "multiple federations as a multiplicity goal" above) — the 260630 model returns to co-resident foedera, but as PROVIDERS under one pool, not as separate pools.
+
+The prior framing (now superseded): a foedus was its own GCP workforce pool; affiance/jilt created and destroyed pools; descry read pool health (live / soft-deleted / absent); RBRF carried a per-foedus pool id; "list foedera" was workforcePools.list; pool rotation re-admitted every citizen, so the durable pool was kept standing; affiance fast-failed on a live pre-existing pool (refuse-and-rotate); the terrier muniment recorded only (subject, mantle) and was pool-blind.
+
+What replaced it (the one-pool identity substrate): ONE manor pool, founded once at manor setup (the finisher), never by affiance/jilt; a foedus IS a provider under it; affiance adds a provider, jilt removes one; "list foedera" is providers.list; membership is per-individual on the stable pool by an IdP-stable canonical subject, with the synthetic test provider's subjects namespaced DISJOINT from production (the load-bearing co-tenancy rule); descry reads provider presence, not pool health; the terrier muniment gains a provider dimension.
+
+The reasoning: the IT-maintainability lens — a workforce pool is the org-stable identity container and IdP variety belongs in providers under it, not in per-IdP pools (how GCP Workforce Identity Federation is meant to be run).
+Per-foedus pools made IdP onboarding a pool change and fragmented membership across pools; the pool-blind terrier silently conflated co-resident foedera and could leave a residual grant the record-vs-reality diff read as clean (the membership study's structural-collision finding).
+The one-pool-for-everything choice — the synthetic test rig included — was operator simplicity (260630) over a separate test pool; the co-tenancy impersonation risk (an IAM binding names pool/subject, not the provider) is closed by the subject-namespacing rule.
+Scope was held to the identity substrate; the governor-selects / sanctioned-set authz model stays the deferred premise-gated feature the substrate unblocks.
+
+The disposition (the ₣Bf rework slated 260630): the paddock "Model — the one-pool identity substrate" section is the governing home; a spec-recast pace was slated as the contract-first hard predecessor (RBSRF pool→manor home + foedus≡provider, RBSMA affiance→add-provider, RBSFD descry→provider presence, RBS0 civics); the terrier-founding-home finisher was expanded to own the one-time manor-pool founding (ensure-exists, with a separate reset mode) and the terrier muniment provider-dimension + on-disk migration; the foedus-pool-state-classifier pace was dropped as moot; on ₣Bl the canvass build/test paces were re-cut workforcePools.list → providers.list.
+
+Detailed per-surface change-lists and the steelman: the four 2026-06-30 spec studies (founding, membership, terrier, test-bed/accessor), conducted at the model decision; their findings are the source for cutting the re-cut paces.
