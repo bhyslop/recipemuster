@@ -17936,45 +17936,44 @@
         "₢BfAAp": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260624-2333",
+              "jjgtn_ts": "260630-1535",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "BARRIER — cross-clone wait. No code work of its own.",
-                "This pace cannot complete until ₢BlAAN (heat ₣Bl — the colophon-relocation pace, the LAST of the theurge stream's zipper writes) is complete, pushed to origin, and origin merged back into this clone.",
-                "The zipper trio (rbz_zipper.sh plus its two build-regenerated files) is theurge-owned and re-derives wholesale, so the federation stream takes the baton only after ₣Bl finishes its zipper writes.",
-                "Only then may the following federation zipper paces — the Keycloak-facility and, later, the manor-finisher tabtargets — edit the trio: sync, edit, run the theurge build to regenerate the pair, commit the three files as one unit.",
+                "This pace cannot complete until ₢BlAAb (heat ₣Bl — the colophon-completeness check, ₣Bl's LAST zipper write under the 260630 rework, after canvass added rbw-jc) is complete, pushed to origin, and origin merged back into this clone.",
+                "The zipper trio (rbz_zipper.sh plus its two build-regenerated files) is theurge-owned and re-derives wholesale, so the federation stream takes the baton only after ₣Bl finishes ALL its zipper writes — now canvass (rbw-jc) plus the colophon-check, both post-dating the old ₢BlAAN trigger.",
+                "Positioned after ₢BfAAv (the spec re-cut, non-zipper) so the spec lands and unblocks ₣Bl's canvass before this baton waits — only then may the following ₣Bf zipper paces (force-delete, finisher, Keycloak-facility) edit the trio.",
                 "",
                 "## Done when",
-                "₢BlAAN is wrapped and pushed to origin, and this clone has pulled origin so the full theurge zipper state is present before this stream edits the trio.",
+                "₢BlAAb is wrapped and pushed to origin, and this clone has pulled origin so the full theurge zipper state (incl. canvass rbw-jc + the colophon-check) is present before this stream edits the trio.",
                 "",
                 "## Character",
-                "Cross-clone barrier (zipper baton ₣Bl → ₣Bf → ₣Bi); hold here until the named pace is merged through."
+                "Cross-clone barrier (zipper baton ₣Bl → ₣Bf → ₣Bi); retargeted 260630 from the stale ₢BlAAN to ₣Bl's actual last zipper write ₢BlAAb, and repositioned after ₢BfAAv to avoid the spec-re-cut cycle."
               ],
               "jjgtn_silks": "await-thg-zipper-baton",
-              "jjgtn_basis": "8eeea6a"
+              "jjgtn_basis": "4b4643b"
             }
           ]
         },
         "₢BfAAq": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260625-1623",
+              "jjgtn_ts": "260630-1535",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "BARRIER — cross-clone wait. No code work of its own.",
-                "This pace cannot complete until ₢BlAAM (heat ₣Bl — the payor-gate-helper extraction, the LAST ₣Bl pace to touch the terrier fixtures and the registry they live in) is complete, pushed to origin, and origin merged back into this clone.",
-                "Naming ₢BlAAM (not the earlier crucible-module split) is deliberate: the next pace ₢BfAAF retires the two terrier fixtures from the registry, so it must apply that delta against the registry AS FULLY RESTRUCTURED — the module split, the suite⊆roster drift-guard, AND the payor-gate helper that ₢BlAAM extracts from the terrier preambles — not merely the bare relocation.",
-                "₢BlAAM is the latest of those ₣Bl writers; its merge transitively delivers the earlier ones.",
-                "(₢BfAAF is in fact ALREADY covered before this barrier, because the zipper-baton barrier ₢BfAAp pulls ₣Bl through its last zipper write, which post-dates ₢BlAAM; this barrier is the EXPLICIT, robust gate for the crucible delta so that coverage does not silently ride on the zipper baton alone.)",
+                "This pace cannot complete until ₢BlAAY (heat ₣Bl — the terrier-poison fixture, ₣Bl's LAST registry write under the 260630 rework: it adds the poison fixture to the roster AND replaces the terrier-atomicity fixture that ₢BfAAz retires) is complete, pushed to origin, and origin merged back into this clone.",
+                "The next pace ₢BfAAz (terrier-scaffold-retirement) retires the terrier fixtures from the registry, so it must apply that delta against the FULLY-restructured roster — including ₢BlAAY's replacement fixture — not against a stale roster.",
+                "Positioned after ₢BfAAt (which ₢BlAAY depends on for its bands), so the terrier zigzag ₢BfAAt → ₢BlAAY → ₢BfAAz resolves in order without a cycle.",
                 "",
                 "## Done when",
-                "₢BlAAM is wrapped and pushed to origin, and this clone has pulled origin so the fully-restructured fixture/suite registry (split + drift-guard + payor-gate helper) is present here.",
+                "₢BlAAY is wrapped and pushed to origin, and this clone has pulled origin so the fully-restructured fixture/suite registry (incl. the terrier-poison replacement) is present here before ₢BfAAz retires the old fixtures.",
                 "",
                 "## Character",
-                "Cross-clone barrier; hold here until the named pace is merged through."
+                "Cross-clone barrier; retargeted 260630 from the stale ₢BlAAM to ₣Bl's actual last registry write ₢BlAAY, repositioned after ₢BfAAt for the terrier zigzag. The retirement it gates is ₢BfAAz (split out of the former ₢BfAAF)."
               ],
               "jjgtn_silks": "await-thg-registry-relocation",
-              "jjgtn_basis": "aa36cf1"
+              "jjgtn_basis": "4b4643b"
             }
           ]
         },
