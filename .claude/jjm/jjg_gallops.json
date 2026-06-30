@@ -19925,8 +19925,8 @@
         "₢BlAAK": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260624-2240",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260630-1222",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "Drafted from ₢BfAAa in ₣Bf.",
                 "",
@@ -19942,7 +19942,7 @@
                 "The cleanest route-through-the-shared-home item."
               ],
               "jjgtn_silks": "drive-hallmark-through-config-console",
-              "jjgtn_basis": "f676ede"
+              "jjgtn_basis": "7c0574a"
             }
           ]
         },
