@@ -29,11 +29,7 @@ use std::process::Command;
 use std::sync::OnceLock;
 
 use crate::rbtdre_engine::rbtdre_Verdict;
-use crate::rbtdgc_consts::RBTDGC_CRUCIBLE_BARK;
 use crate::rbtdrx_platform::{rbtdrx_is_cygwin, rbtdrx_native_to_posix, rbtdrx_posix_to_native};
-
-/// Ifrit binary name inside the bottle container.
-const RBTDRI_IFRIT_BINARY: &str = "rbid";
 
 /// BUK dispatch output subdirectory — tabtargets write facts to BURV_OUTPUT_ROOT_DIR/current.
 /// Matches BURD_OUTPUT_DIR = "${BURC_OUTPUT_ROOT_DIR}/current" from bud_dispatch.sh.
@@ -529,15 +525,4 @@ pub fn rbtdri_parse_ifrit_verdict(stdout: &str, exit_code: i32) -> rbtdre_Verdic
     } else {
         rbtdre_Verdict::Fail(format!("ifrit exited {} with no verdict line", exit_code))
     }
-}
-
-/// Invoke the ifrit binary inside a charged bottle via the bark tabtarget.
-/// The attack selector argument tells ifrit which attack module to run.
-/// Returns a test verdict based on ifrit's stdout verdict line and exit code.
-pub fn rbtdri_invoke_ifrit(
-    ctx: &mut rbtdri_Context,
-    attack_selector: &str,
-) -> Result<rbtdre_Verdict, String> {
-    let result = rbtdri_invoke(ctx, RBTDGC_CRUCIBLE_BARK, &[RBTDRI_IFRIT_BINARY, attack_selector])?;
-    Ok(rbtdri_parse_ifrit_verdict(&result.stdout, result.exit_code))
 }
