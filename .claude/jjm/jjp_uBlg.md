@@ -150,6 +150,7 @@ Classifier growth — enumerate all classifiers up front versus bootstrap from t
 Vesture gaps — the sprue (wire-key) domain and the mixed-case rivet form (`RBr_`) are not covered by the current six-plus-one vestures.
 Declaration-recognition fidelity — per-Vesture line patterns (MVP-cheap, leans on RCG/BCG discipline) versus a tree-sitter threshold; when does a Vesture's structure defeat a regex?
 Macro/eval greppability enforcement — whether RCG and BCG should add a narrow rule forbidding identifier-synthesis, now that the Matricula's correctness leans on the grep-as-registry axiom.
+Reference-placement lint — should the matricula flag inscription literals sitting where they don't belong: a colophon hardcoded in a comment or operator-facing string where it should route through its zipper constant (the reference-hygiene antipattern), distinct from the declaration-freshness check `rbq_qualify` already does. Reference-site, so it rides TRACE in ₣Bj, not the MVP — consciously place it in the future heat's fence.
 
 ## Concerns
 
