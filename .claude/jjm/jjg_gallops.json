@@ -19515,8 +19515,8 @@
         "₢BiAAm": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260630-1256",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260630-1423",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "## Character",
                 "Build-side change plus a spec sheaf, a foreign-behavior rivet, and a theurge regression case.",
@@ -19542,7 +19542,7 @@
                 "- A FROM-direct Dockerfile cannot reach this — rbfh hygiene already forces every FROM to a RBF_IMAGE_n slot or scratch before any build."
               ],
               "jjgtn_silks": "resolved-base-readback-and-verify",
-              "jjgtn_basis": "7ad21cd"
+              "jjgtn_basis": "6cbc012"
             }
           ]
         },
