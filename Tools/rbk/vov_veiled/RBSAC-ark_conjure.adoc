@@ -92,7 +92,25 @@ and resolve to full GAR image reference (`«GAR-REPO-BASE»/«LOCATOR-PATH»:«L
 is absent: pass
 {rbrv_image_origin}
 through as the upstream tag (development path)
-.. Resolved references become `RBF_IMAGE_n` build-args for the Dockerfile `ARG`/`FROM` pattern
+.. The host resolves a *tag-level* reference; a cloud step (`rbgjb03-resolve-base-digests`) then resolves each populated slot's tag to its canonical `@sha256:` digest in GCP egress — `gcrane manifest «REF»` over the raw manifest bytes, the gcrane-fingerprint shape — reachable in-pool for an anchored GAR base and over egress for an upstream pass-through base
+.. The pinned reference `«REF»@sha256:«DIGEST»` is used twice: as the `RBF_IMAGE_n` build-arg, so buildx provably builds `FROM` exactly the resolved digest rather than a tag that could move between resolution and build; and as a sprued image label recording what was actually resolved
+.. The label key is `rbi_resolved_base_n` (one per populated slot — a `scratch` slot, having no base, gets none), sprued under the `rbi_` image domain where its neighbor build labels (`hallmark`, `git.commit`, `git.branch`) stay unsprued by deliberate divergence; the value is the same pinned `«REF»@sha256:«DIGEST»`
++
+[[RBr_b4e]]
+//axvc_spoor
+RBr_b4e::
+The resolved-base label is a fact whose integrity rides the existing google-worker signature, and that trust rests on two surveyed foreign behaviors at the
+{gcb_service}
+/ buildx Palisade, each carrying its own demolition condition.
+First: the labels `docker buildx build --label` sets on the consumer image survive the per-platform pullback (`docker pull --platform` → `docker tag` → `docker push`) into the attest ark byte-identically — the image config, labels included, is preserved across the pull/tag/push round-trip (verified live: `hallmark`/`git.commit`/`git.branch` present and identical in the signed attest subject).
+Demolition: if a future buildkit/docker strips or rewrites config labels across pull/tag/push, the label no longer reaches the attest image — re-verify and relocate the label's home.
+Second: the
+{gcb_service}
+google-worker DSSE provenance signs the per-platform attest-ark pullback images, NOT the consumer image the user pulls (verified live: the consumer amd64 digest is not the signed attest subject digest), so the label rides into the signed subject's config and is tamper-evident under the existing signature.
+Demolition: if
+{gcb_service}
+changes which image its google-worker provenance covers, the label's signed home moves — re-verify.
+Full live grounding: `Memos/memo-20260630-conjure-resolved-base-provenance-location.md`.
 
 //axhos_step
 . *Assign Hallmark*:

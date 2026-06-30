@@ -76,6 +76,14 @@ Registry API: extract from `{gar_hallmarks_namespace}/«HALLMARK»/vouch:«HALLM
 .. Extract `vouch_summary.json` and per-platform verification files
 
 //axhos_step
+. *Fetch Resolved-Base Labels from the Attest Image* (conjure only):
+.. {rbbc_call}
+Registry API: fetch the signed attest ark's per-platform image config blob from `{gar_hallmarks_namespace}/«HALLMARK»/attest:«HALLMARK»-«SUFFIX»` (manifest → `.config.digest` → blob), reading `.config.Labels`
+.. The `«SUFFIX»` is the first built platform; the `rbi_resolved_base_n` labels are identical across platforms (set once at buildx, preserved byte-identically by the per-platform pullback into the signed attest image — rivet RBr_b4e)
+.. {rbbc_store}
+the `rbi_resolved_base_n` values for the Base Image display; a pre-resolved-base hallmark (no such labels, or no attest tag at all) degrades gracefully to none
+
+//axhos_step
 . *Display Mode-Aware Sections* (both detail levels):
 .. *Vessel Type*: mode (conjure/bind/graft), platform, build strategy (native/QEMU for conjure), moniker
 .. *Source*: git repository, branch, commit
@@ -84,7 +92,7 @@ Registry API: extract from `{gar_hallmarks_namespace}/«HALLMARK»/vouch:«HALLM
 **Conjure sections**:
 .. *Builder*: Cloud Build job ID, timestamps, image URI
 .. *SLSA Provenance*: build level, invocation ID, builder ID, predicate types, explicit boundary statements (what SLSA does and does not attest)
-.. *Base Image*: Dockerfile FROM line, syft-detected distro
+.. *Base Image*: Dockerfile FROM line, syft-detected distro, and the *resolved base* — the `rbi_resolved_base_n` labels read back from the signed attest image's config, recording the `@sha256:`-pinned base each populated slot actually resolved to at build time. This surfaces the *actual* base beside the generic `${RBF_IMAGE_n}` FROM template; it is a transient display read of the durable signed home (rivet RBr_b4e), and a pre-resolved-base hallmark shows none.
 +
 **Bind sections**:
 .. *Bind Source*: original upstream image reference, digest-pin status

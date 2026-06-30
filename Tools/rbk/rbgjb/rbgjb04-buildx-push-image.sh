@@ -16,7 +16,9 @@
 # wrote the pinned ref "<ref>@sha256:<digest>" to .resolved_base_n. This step
 # uses that pinned ref TWICE per slot: as the RBF_IMAGE_n build-arg (so buildx
 # provably builds FROM exactly the resolved digest) and as the rbi_resolved_base_n
-# image label (the signed, tamper-evident record of the resolved base — RBSAC).
+# image label (the signed, tamper-evident record of the resolved base — RBSAC; the
+# label survives the per-platform pullback into the google-worker-signed attest
+# image per rivet RBr_b4e).
 # The rbi_resolved_base_n label key is sprued; the host home of the key prefix is
 # RBGC_IMAGE_LABEL_RESOLVED_BASE (cloud steps source no constants, so it is a
 # literal here — the grep gate keeps the two in sync). The neighbor labels
