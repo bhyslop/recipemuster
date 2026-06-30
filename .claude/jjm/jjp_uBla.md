@@ -12,12 +12,12 @@ Mull and sophisticate the feature in the sheaf; this paddock holds only heat sha
 Stabled and aspirant — not yet binding, not under development.
 The realization may graduate to its own kit and naming prefix rather than infusing into JJS0; the host tendon records where it is mulled, not where it lands.
 
-## Shared lock service (nucleating)
+## Revision-control architecture (nucleating)
 
-The git-CAS write-lock this heat's fleet store needs is being firmed up as a *shared* rust layer —
-one engine, two repos, two independent locks — used by both the fleet store and the gallops repo.
-It is nucleated for now in `Memos/memo-20260630-multiclone-lock-service.md`;
-that memo is the mulling home until the design settles into its own `axo_entity` sheaf.
+The git-CAS write-lock this heat's fleet store needs has grown into a shared revision-control architecture —
+the lock (gallops/mews only), the source/lock split, a polymorphic VCS driver, repo naming, and glyphed revision insignia —
+nucleated for now in `Memos/memo-20260630-jj-revision-control-architecture.md`.
+That holding memo is the mulling home until a sheaf is named.
 Read it as provenance, not authority.
 
 ## Character
