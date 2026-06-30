@@ -12,6 +12,16 @@ Mull and sophisticate the feature in the sheaf; this paddock holds only heat sha
 Stabled and aspirant — not yet binding, not under development.
 Destined to infuse into JJS0 (it is the persistence story of the gallops it already describes).
 
+## Shared lock service (nucleating)
+
+The locked-edit transaction this heat describes is being firmed up as a *shared* git-CAS write-lock —
+the same rust engine the mews fleet store uses, pure git and no cloud service —
+nucleated for now in `Memos/memo-20260630-multiclone-lock-service.md`.
+That memo also records the three-repo impact —
+the work-code repo's commit SHA is journaled here through the existing tack member `jjdcm_basis` —
+and the spec-structure finding: one `axo_entity` with methods, not separate lock/unlock sheaves.
+Read it as provenance, not authority until it settles into an entity sheaf.
+
 ## Character
 
 Feature-definition (mulling) heat. No construction until the sheaf design settles.
