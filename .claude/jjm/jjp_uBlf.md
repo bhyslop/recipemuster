@@ -74,7 +74,7 @@ The discriminator is mechanism, not vendor.
 Vendors are open-ended but collapse onto a closed, tiny set of acquisition mechanisms; a new vendor never adds a mechanism, it slots into one, so adding a vendor is a guide plus values — no schema change, no code change.
 
 The landing model: the federation regime is a vendor-agnostic trust core plus an acquisition-mechanism gate.
-The core is always present — org, pool, provider, session-duration, client-id, attribute-mapping, issuer or JWKS source.
+The core is always present — org, provider, client-id, attribute-mapping, issuer or JWKS source (the workforce-pool id and its session-duration are manor-level under the Model, not per-foedus fields).
 The interactive arm carries the device-authorization and token endpoints and the device scope; the programmatic arm carries an uploaded public JWKS (the caged case); vendor identity is not a regime field at all.
 
 Scope of this model: it governs one foedus's shape (vendor-agnostic core plus mechanism gate), orthogonal to the pool topology the Model above settles.
