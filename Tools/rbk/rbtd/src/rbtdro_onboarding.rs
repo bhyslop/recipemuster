@@ -570,6 +570,15 @@ fn rbtdro_onboarding_kludge_ccyolo_impl(ctx: &mut rbtdri_Context, dir: &Path) ->
         return v;
     }
 
+    // Chain anoint off the bottle kludge above: theurge isolates each invoke
+    // in its own BURV root, so without this the kludge's hallmark fact never
+    // lands in anoint's previous/ and the chain read dies on the broken chain
+    // (band 105). This makes anoint reuse the bottle kludge's root, so bud
+    // promotes the hallmark into anoint's previous/ — the operator's shared
+    // ../output-buk depth-1 flow, restored for just this pair. The intervening
+    // hallmark commit is not a dispatch, so the depth-1 invoke chain holds.
+    ctx.chain_next_invoke();
+
     // Anoint graft-demo off the bottle kludge that just ran: the anoint
     // dispatch reads the kludge's chained build facts (previous-dir baton)
     // and rewrites the graft vessel's RBRV_GRAFT_IMAGE. Must follow the
