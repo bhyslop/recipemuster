@@ -19573,6 +19573,7 @@
         "₢BlAAR",
         "₢BlAAE",
         "₢BlAAF",
+        "₢BlAAZ",
         "₢BlAAG",
         "₢BlAAH",
         "₢BlAAI",
@@ -19591,7 +19592,7 @@
         "₢BlAAX",
         "₢BlAAY"
       ],
-      "jjghn_next_pace_seed": "AAZ",
+      "jjghn_next_pace_seed": "AAa",
       "jjghn_paces": {
         "₢BlAAA": {
           "jjgpn_tacks": [
@@ -20288,6 +20289,42 @@
               ],
               "jjgtn_silks": "terrier-poison-fixture",
               "jjgtn_basis": "036c687"
+            }
+          ]
+        },
+        "₢BlAAZ": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260630-0858",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "The per-fixture registration unit-tests — the `*_disposition_*` and `*_cases_registered` mirrors in rbtdtk/rbtdtp/rbtdto/rbtdtl —",
+                "re-enter the registry by name-string lookup and restate the roster as hand-typed literals.",
+                "That is a weaker second paradigm than the almanac's compile-time const-guards (`const _: () = assert!(…)` over the single declarative source in rbtdra_almanac.rs).",
+                "Collapse the first into the second: assert each pinned fact at the fixture declaration site against the fixture static by symbol, and delete the runtime mirror.",
+                "",
+                "The case-NAME literals go entirely —",
+                "the compile-checked `case!(ident)` list already proves each case is a real function, so only the count is non-redundant (`assert!(FIXTURE.cases.len() == N)`).",
+                "Disposition, where it earns pinning, becomes `assert!(matches!(FIXTURE.disposition, …))` — `matches!`, never `==` (derived PartialEq isn't const).",
+                "",
+                "## Done when",
+                "The per-fixture disposition/cases mirror tests are gone, their surviving signal expressed as const-asserts at the fixture declarations;",
+                "genuinely-semantic runtime tests (the onboarding conclave-ordering test) stay;",
+                "theurge build + unit tests green.",
+                "",
+                "## Cinched",
+                "No fn-pointer comparison anywhere — it is optimization-dependent and lint-flagged (`unpredictable_function_pointer_comparisons`); websearch-settled in the slating chat.",
+                "Per-fixture disposition correctness is already tested generically in rbtdte_engine, so those asserts are restatement — delete unless a declaration-site const-assert earns its keep.",
+                "",
+                "## Open",
+                "Before deleting the name lists, confirm whether the bash blackbox testbench consumes these case names as an external contract (the rbtdtl header hints at it);",
+                "if so, guard the Rust registry against the bash side's real list, not a third hand-typed copy.",
+                "",
+                "## Character",
+                "Architectural paradigm-collapse, judgment per fixture — not a mechanical sweep."
+              ],
+              "jjgtn_silks": "registration-mirror-to-const-guard",
+              "jjgtn_basis": "dc2b6f8"
             }
           ]
         }
