@@ -30,9 +30,11 @@
 #
 # PROVISIONAL NAMES (pending the pre-wrap naming reconsideration):
 #   pool=fdkyclk-test  provider=keycloak  client=fdkyclk-gcp  issuer=https://fdkyclk.test
-# The Keycloak token below is currently minted via the password grant — a
-# deliberate de-risk stepping-stone; the deliverable lands on the RFC 7523 JWT
-# Authorization Grant (config-model fork resolution).
+# The realm is now fully BAKED (fdkyclk-realm.json, --import-realm): client, audience
+# mapper, RFC 7523 asserting trust, federated-linked user, and frontendUrl are all
+# declarative DATA, so configure_realm is gone (no runtime admin-REST). The token is
+# minted via the RFC 7523 JWT Authorization Grant, signed with the committed test
+# asserter key (fdkyclk-asserter-key.pem). Contract: RBSFK / rbtf_realm.
 #
 # Stage B brevet is payor-DIRECT, not via rbgp_brevet: the real admission verbs
 # assume the single manor pool (spike-office-test), so admitting a subject in the
@@ -46,8 +48,13 @@ KC=http://localhost:8088
 REALM=fdkyclk
 KC_CLIENT=fdkyclk-gcp
 KC_CLIENT_SECRET=fdkyclk-test-secret
-KC_USER=federate
-KC_PASS=federate
+# RFC 7523 asserting key (committed caged test scaffolding; its public half is baked into
+# the realm as publicKeySignatureVerifier). The realm links the federate user to the
+# asserter IdP, so an assertion carrying ASSERTER_SUB resolves to that user.
+ASSERTER_KEY=rbmm_moorings/fdkyclk/fdkyclk-asserter-key.pem
+ASSERTER_KID=fdkyclk-asserter-key-1
+ASSERTER_ISSUER=https://fdkyclk-asserter.test
+ASSERTER_SUB=fdkyclk-ext-subject-001
 FRONTEND_URL=https://fdkyclk.test                       # GCP requires an https issuer; never resolved (uploaded JWKS)
 GCP_ORG=247899326218
 GCP_POOL=fdkyclk-test
@@ -69,6 +76,7 @@ MANTLE_SA="rbma-${MANTLE}@${DEPOT_PROJECT}.iam.gserviceaccount.com"
 
 say() { printf '\n=== %s ===\n' "$*"; }
 val() { grep -E "^$1=" "$2" | head -1 | cut -d= -f2- | sed "s/^[\"']//; s/[\"']\$//"; }
+b64url() { openssl base64 -A | tr '+/' '-_' | tr -d '='; }
 
 # ---- payor access token (OAuth refresh-token exchange; never echoes secrets) ----
 payor_token() {
@@ -81,41 +89,6 @@ payor_token() {
     --data-urlencode "client_secret=${csec}" \
     --data-urlencode "refresh_token=${rtok}" \
     --data-urlencode "grant_type=refresh_token" | jq -r '.access_token // empty'
-}
-
-kc_admin_token() {
-  curl -s "$KC/realms/master/protocol/openid-connect/token" \
-    -d grant_type=password -d client_id=admin-cli \
-    -d username=admin -d password=admin | jq -r '.access_token // empty'
-}
-
-# ---- configure realm (idempotent): client, user, frontendUrl ----
-configure_realm() {
-  local at code uid
-  at=$(kc_admin_token); [ -n "$at" ] || { echo "no kc admin token"; return 1; }
-
-  code=$(curl -s -o /dev/null -w '%{http_code}' -X POST "$KC/admin/realms/$REALM/clients" \
-    -H "Authorization: Bearer $at" -H "Content-Type: application/json" \
-    -d "{\"clientId\":\"$KC_CLIENT\",\"enabled\":true,\"protocol\":\"openid-connect\",\"publicClient\":false,\"secret\":\"$KC_CLIENT_SECRET\",\"standardFlowEnabled\":false,\"implicitFlowEnabled\":false,\"directAccessGrantsEnabled\":true,\"serviceAccountsEnabled\":true,\"fullScopeAllowed\":true,\"protocolMappers\":[{\"name\":\"gcp-aud\",\"protocol\":\"openid-connect\",\"protocolMapper\":\"oidc-audience-mapper\",\"config\":{\"included.custom.audience\":\"$GCP_AUDIENCE\",\"id.token.claim\":\"true\",\"access.token.claim\":\"false\"}}]}")
-  echo "client create http=$code (201 new / 409 exists both ok)"
-
-  code=$(curl -s -o /dev/null -w '%{http_code}' -X POST "$KC/admin/realms/$REALM/users" \
-    -H "Authorization: Bearer $at" -H "Content-Type: application/json" \
-    -d "{\"username\":\"$KC_USER\",\"enabled\":true,\"email\":\"$KC_USER@fdkyclk.test\",\"emailVerified\":true,\"firstName\":\"Federate\",\"lastName\":\"Subject\"}")
-  echo "user create http=$code (201 new / 409 exists both ok)"
-
-  uid=$(curl -s "$KC/admin/realms/$REALM/users?username=$KC_USER" -H "Authorization: Bearer $at" | jq -r '.[0].id')
-  curl -s -o /dev/null -w 'user profile http=%{http_code}\n' -X PUT "$KC/admin/realms/$REALM/users/$uid" \
-    -H "Authorization: Bearer $at" -H "Content-Type: application/json" \
-    -d '{"firstName":"Federate","lastName":"Subject","emailVerified":true,"enabled":true,"requiredActions":[]}'
-  curl -s -o /dev/null -w 'set password http=%{http_code}\n' -X PUT "$KC/admin/realms/$REALM/users/$uid/reset-password" \
-    -H "Authorization: Bearer $at" -H "Content-Type: application/json" \
-    -d "{\"type\":\"password\",\"value\":\"$KC_PASS\",\"temporary\":false}"
-
-  curl -s "$KC/admin/realms/$REALM" -H "Authorization: Bearer $at" > /tmp/realm.json
-  jq --arg fu "$FRONTEND_URL" '.attributes = ((.attributes // {}) + {"frontendUrl":$fu})' /tmp/realm.json > /tmp/realm2.json
-  curl -s -o /dev/null -w 'set frontendUrl http=%{http_code}\n' -X PUT "$KC/admin/realms/$REALM" \
-    -H "Authorization: Bearer $at" -H "Content-Type: application/json" --data @/tmp/realm2.json
 }
 
 fetch_jwks() {
@@ -154,11 +127,22 @@ ensure_gcp_provider() {
   fi
 }
 
-# ---- mint Keycloak id_token (password grant; RFC 7523 to follow) ----
+# ---- mint id_token via RFC 7523 JWT Authorization Grant ----
+# Sign an assertion with the committed asserter key; Keycloak validates it against the
+# baked publicKeySignatureVerifier and resolves ASSERTER_SUB to the federated-linked user.
 mint_idtoken() {
-  curl -s "$KC/realms/$REALM/protocol/openid-connect/token" \
-    -d grant_type=password -d client_id="$KC_CLIENT" -d client_secret="$KC_CLIENT_SECRET" \
-    -d username="$KC_USER" -d password="$KC_PASS" -d scope=openid | jq -r '.id_token // empty'
+  local tokurl="$KC/realms/$REALM/protocol/openid-connect/token"
+  local iat exp jti header payload signing sig assertion
+  iat=$(date +%s); exp=$((iat + 300)); jti="jti-${iat}-$$"
+  header="{\"alg\":\"RS256\",\"typ\":\"JWT\",\"kid\":\"$ASSERTER_KID\"}"
+  payload="{\"iss\":\"$ASSERTER_ISSUER\",\"sub\":\"$ASSERTER_SUB\",\"aud\":\"$tokurl\",\"iat\":$iat,\"exp\":$exp,\"jti\":\"$jti\"}"
+  signing="$(printf '%s' "$header" | b64url).$(printf '%s' "$payload" | b64url)"
+  sig=$(printf '%s' "$signing" | openssl dgst -sha256 -sign "$ASSERTER_KEY" -binary | b64url)
+  assertion="${signing}.${sig}"
+  curl -s "$tokurl" \
+    -d "grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer" \
+    -d "client_id=$KC_CLIENT" -d "client_secret=$KC_CLIENT_SECRET" -d "scope=openid" \
+    --data-urlencode "assertion=$assertion" | jq -r '.id_token // empty'
 }
 
 # ---- STS exchange: Keycloak id_token -> Google federated token ----
@@ -219,16 +203,24 @@ ar_call() {
 }
 
 main() {
-  say "Stage A.1 — configure Keycloak realm (client / user / frontendUrl)"
-  configure_realm
+  # `mint` mode: local Done-when check only — boots against the baked realm and mints
+  # via RFC 7523, no GCP and no admin-REST. The bare invocation runs the full chain.
+  if [ "${1:-}" = "mint" ]; then
+    say "LOCAL MINT CHECK — RFC 7523 against the baked realm (no GCP, no admin-REST)"
+    local idtok; idtok=$(mint_idtoken)
+    [ -n "$idtok" ] || { echo "FAILED to mint id_token via RFC 7523"; return 1; }
+    decode_jwt "$idtok"
+    echo "LOCAL_MINT_OK"
+    return 0
+  fi
 
-  say "Stage A.2 — fetch signing JWKS"
+  say "Stage A.1 — fetch signing JWKS (the twiddle: ephemeral realm key's public half)"
   fetch_jwks
 
-  say "Stage A.3 — ensure GCP pool + programmatic provider"
+  say "Stage A.2 — ensure GCP pool + programmatic provider"
   ensure_gcp_provider
 
-  say "Stage A.4 — mint Keycloak id_token"
+  say "Stage A.3 — mint id_token via RFC 7523 JWT authorization grant"
   local idtok; idtok=$(mint_idtoken)
   [ -n "$idtok" ] || { echo "FAILED to mint id_token"; return 1; }
   decode_jwt "$idtok"
