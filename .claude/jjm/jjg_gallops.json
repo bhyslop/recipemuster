@@ -18305,12 +18305,13 @@
         "₢BiAAm",
         "₢BiAAg",
         "₢BiAAa",
+        "₢BiAAn",
         "₢BiAAh",
         "₢BiAAi",
         "₢BiAAj",
         "₢BiAAl"
       ],
-      "jjghn_next_pace_seed": "AAn",
+      "jjghn_next_pace_seed": "AAo",
       "jjghn_paces": {
         "₢BiAAC": {
           "jjgpn_tacks": [
@@ -19553,6 +19554,42 @@
               ],
               "jjgtn_silks": "resolved-base-readback-and-verify",
               "jjgtn_basis": "2adf990"
+            }
+          ]
+        },
+        "₢BiAAn": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260630-1202",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "Small self-contained mechanism pace — one helper family plus success-path wiring.",
+                "Mechanical once the shape is set; the only judgment is the mint and the spec home.",
+                "",
+                "## Goal",
+                "A per-fact-type \"next tabtargets\" emitter:",
+                "keyed on the fact a chain HEAD just wrote, it prints the tabtargets that consume that fact, composing the existing buc_tabtarget primitive.",
+                "The producing HEAD calls it on the success path, so the operator sees what the fresh fact unlocks.",
+                "This replaces the hand-placed one-off next-step hints with one home per fact.",
+                "",
+                "## Done when",
+                "- One emitter per fact type owns its consumer list; today that is exactly one — the hallmark fact (RBF_FACT_HALLMARK) — and its producing HEAD calls it on success.",
+                "- The hallmark emitter lists every current consumer, including the unified nameplate-hallmark drive verb; this pace therefore lands after that verb exists.",
+                "- The list composes buc_tabtarget with only light context filtering (enough to fill the folio argument), never a predicate farm.",
+                "- An RBS*.adoc spec home documents the emitter mechanism; which subdoc is chosen at mount.",
+                "- Build green; shellcheck clean; reveille green.",
+                "",
+                "## Cinched",
+                "- Per-fact-type, never per-call-site: the consumer list has ONE home per fact, not the drift the hand-coded form would grow.",
+                "- RBK home: the buc_tabtarget primitive and the buf_ resolver stay generic BUK; the RBK colophon content lives RBK-side.",
+                "- The emitter's consumer set must agree with the durable-leak / chaining enumeration; cite it so the two encodings cannot silently drift.",
+                "",
+                "## Sources",
+                "buc_tabtarget in buc_command.sh; RBF_FACT_HALLMARK in rbgc_constants.sh; prior-art hand-placed next-step hints in rbgp_payor.sh and rbfd_director.sh."
+              ],
+              "jjgtn_silks": "fact-next-tabtarget-emitter",
+              "jjgtn_basis": "b830526"
             }
           ]
         }
