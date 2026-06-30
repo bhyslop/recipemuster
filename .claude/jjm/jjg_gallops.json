@@ -17036,6 +17036,7 @@
         "₢BfAAp",
         "₢BfAAu",
         "₢BfAAv",
+        "₢BfAAx",
         "₢BfAAw",
         "₢BfAAL",
         "₢BfAAK",
@@ -17053,9 +17054,11 @@
         "₢BfAAm",
         "₢BfAAn",
         "₢BfAAs",
-        "₢BfAAt"
+        "₢BfAAt",
+        "₢BfAAy",
+        "₢BfAAz"
       ],
-      "jjghn_next_pace_seed": "AAx",
+      "jjghn_next_pace_seed": "AA0",
       "jjghn_paces": {
         "₢BfAAA": {
           "jjgpn_tacks": [
@@ -17206,36 +17209,36 @@
         "₢BfAAF": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260630-1428",
+              "jjgtn_ts": "260630-1519",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
-                "Build the manor-setup finisher — a single idempotent post-payor-guide tabtarget that founds the scriptable manor: the workforce pool (once), the terrier bucket + per-polity folders, retiring the interim rbw-dt/dT scaffold. EXPANDED 260630 by the one-pool Model (paddock).",
+                "Build the manor-setup finisher — a single idempotent post-payor-guide tabtarget that founds the scriptable manor: the workforce pool (once) plus the terrier bucket + per-polity folders. ENSURE-EXISTS (operator 260630).",
                 "",
                 "## Spec of needed change",
-                "Founding-home is OPTION B (terminal Fable 260622): the Manor provisions these, not affiance. Two expansions land here under the 260630 Model:",
-                "- The ONE manor pool's one-time founding lives here (the Model: the pool is founded once at manor setup, never by affiance/jilt). Idempotency is ensure-exists on a live pool for production; a delete-then-create RESET is a SEPARATE, explicitly-invoked mode for testing manor setup — never the default, since resetting the pool rotates it and re-admits every citizen.",
-                "- The terrier muniment gains a PROVIDER dimension (the Model: the muniment is provider-blind today, so co-resident providers conflate in a manor-wide rehearse). Carry the on-disk muniment migration — existing depot/mantle/subject objects have no provider segment.",
+                "Founding-home is OPTION B (terminal Fable 260622): the Manor provisions these, not affiance.",
+                "- The ONE manor pool's one-time founding lives here (the Model: founded once at manor setup, never by affiance/jilt). Idempotency is ENSURE-EXISTS: pool absent → create; pool present → leave it; config drifted → PATCH-reconcile (session-duration etc., non-destructive). The finisher NEVER deletes the pool — destroying it re-enrolls every citizen, so clean-slate is the separate force-delete sibling (manor-teardown), run before the finisher in the release ladder.",
+                "- The terrier bucket + per-polity managed folders + grain IAM.",
                 "",
-                "Contract-first: rides behind the one-pool spec re-cut (RBSRF/RBSMA/RBSFD) — do not build before that lands.",
+                "Out of this pace (now siblings): the terrier muniment provider-dimension (its own RBSTR/RBGFT pace) and the rbw-dt/dT scaffold RETIREMENT (its own late pace, behind the ₢BfAAq registry merge). This finisher is the founding tabtarget only.",
                 "",
-                "## As-built to fold in + retire",
-                "The rbw-dt / rbw-dT scaffold, the terrier-scaffold / terrier-atomicity fixtures (picket/echelon), and rbtdrm_manifest.rs (the two RBTDRM_FIXTURE_TERRIER_* name-consts + colophon-dependency-map arms). Coordinate the terrier-atomicity retirement with ₣Bl's terrier-poison fixture, which replaces the retired proof — no duplicate retirement.",
+                "Contract-first: rides behind ₢BfAAv (the manor found/teardown contract in the new finisher subdoc). Sequenced AHEAD of ₢BfAAL — the Keycloak orchestrator's affiance-add-provider needs the pool standing.",
                 "",
                 "## Spec-sync",
-                "A NEW operation subdoc for the finisher (provisional acronym minted in-heat), authored before the code. NOT RBSTR (terrier ACCESS only) / RBSMF (depot-grain). Update the RBS0 terrier cross-project line.",
+                "A NEW operation subdoc for the manor found/teardown pair (provisional acronym minted in-heat), authored before the code (the contract is re-cut in ₢BfAAv). NOT RBSTR (terrier ACCESS) / RBSMF (depot-grain).",
                 "",
                 "## Done when",
-                "A standing manor-setup-finisher tabtarget idempotently ensures the manor pool (ensure-exists; reset a separate mode), the terrier bucket (payor-project-grain) + per-polity managed folders (depot-grain) + grain IAM, with the muniment carrying its provider dimension; the new operation subdoc exists; the interim scaffold + its two fixtures are retired/migrated including rbtdrm_manifest.rs; gauntlet stays green.",
+                "A standing manor-setup-finisher tabtarget idempotently ensures the manor pool (ensure-exists + PATCH-reconcile, never delete) plus the terrier bucket (payor-project-grain) + per-polity folders (depot-grain) + grain IAM; the new operation subdoc exists; gauntlet stays green.",
                 "",
                 "## Cinched",
-                "Founding-home = Option B (Manor, not affiance); one idempotent finisher run after manual manor setup.",
-                "Spec home = a NEW operation subdoc (contract-first), not RBSTR/RBSMF.",
+                "Founding-home = Option B (Manor, not affiance); one idempotent finisher after manual manor setup.",
+                "Ensure-exists, never destructive — clean-slate is the force-delete sibling.",
+                "Spec home = a NEW operation subdoc, not RBSTR/RBSMF.",
                 "",
                 "## Character",
-                "Implementation over a settled design; the B-variant (standing op vs manor-establish enlargement), the folder-step credential boundary, the pool ensure-vs-reset split, and the muniment provider-dimension + migration are the in-pace judgment calls."
+                "Implementation over a settled design; the B-variant, the folder-step credential boundary, and the PATCH-reconcile scope are the in-pace judgment calls."
               ],
               "jjgtn_silks": "terrier-founding-home-finisher",
-              "jjgtn_basis": "352aeac"
+              "jjgtn_basis": "b844d7b"
             }
           ]
         },
@@ -18085,7 +18088,7 @@
         "₢BfAAv": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260630-1451",
+              "jjgtn_ts": "260630-1519",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "Re-cut the federation specs to the 260630 one-pool identity substrate (paddock \"Model\" section) — the contract-first hard predecessor of every model-touching code pace.",
@@ -18093,23 +18096,25 @@
                 "## Spec of needed change",
                 "A foedus becomes a PROVIDER under one manor-lifetime pool (was: a pool per foedus). Re-cut, contract-first:",
                 "- RBSRF: the workforce-pool id moves to a manor-level home; RBRF_PROVIDER_ID is the per-foedus discriminator; the library/selector (RBSRR) stand.",
-                "- RBSMA: affiance founds a PROVIDER under the standing pool, not the pool; the pool's one-time founding moves to manor setup. Drop the pre-existing-pool fast-fail / refuse-and-rotate framing (moot — the pool is founded once, never rotated). The attribute-mapping that yields the namespaced subject (below) is set provider-side here.",
-                "- RBSFD: descry reads provider presence under the pool, not pool absence / soft-delete; re-cut its verdict vocabulary.",
-                "- RBSPB (and the polity admission specs that quote the principal shape): membership is per-individual on the stable pool by an IdP-stable canonical subject; the synthetic test provider's subjects are namespaced DISJOINT from production so a test token can never satisfy a production binding (the load-bearing co-tenancy rule). State the principal shape and the namespacing rule here.",
+                "- RBSMA: affiance founds a PROVIDER under the standing pool, not the pool; the pool's one-time founding moves to manor setup. Drop the pre-existing-pool fast-fail / refuse-and-rotate framing (moot). The namespacing attribute-mapping (below) is set provider-side here.",
+                "- RBSMJ: jilt deletes a PROVIDER (dissolves a foedus), not the pool. The old pool-delete relocates to the manor-teardown force-delete (the finisher's inverse, its own pace) — deliberately distinct so an everyday foedus-jilt can never nuke the pool.",
+                "- RBSFD: descry reads provider presence under the pool, not pool absence / soft-delete.",
+                "- RBSPB (and the polity admission specs): membership is per-individual on the stable pool by an IdP-stable canonical subject; the synthetic test provider's subjects are namespaced DISJOINT from production (the load-bearing co-tenancy rule).",
                 "- The canvass operation sheaf: re-cut to enumerate providers under the one pool (providers.list) — the contract ₢BlAAU consumes.",
-                "- RBS0 federation civics: foedus≡provider, one manor pool; coordinate with the manor/org canon scrub (₢BfAAE, same RBS0 region).",
+                "- The manor found/teardown contract: the finisher founds the one pool (ensure-exists); a distinct manor-teardown force-deletes it (buc_require-gated). Homed in the finisher's new operation subdoc (₢BfAAF), referenced here.",
+                "- RBS0 federation civics: foedus≡provider, one manor pool; coordinate with the manor/org canon scrub (₢BfAAE).",
                 "",
                 "## Source",
-                "The paddock \"Model — the one-pool identity substrate\" section and the four 260630 spec studies (founding, membership, terrier, test-bed/accessor) carry the per-surface change-lists.",
+                "The paddock \"Model — the one-pool identity substrate\" section and the four 260630 spec studies (founding, membership, terrier, test-bed/accessor).",
                 "",
                 "## Done when",
-                "RBSRF / RBSMA / RBSFD / RBSPB, the canvass sheaf, and the RBS0 federation civics express the one-pool / foedus≡provider model with the per-individual-normalized + test-namespacing membership rule; no code re-cut yet (this is the contract). The membership-composer CODE re-cut is the slated follow-on, not this pace.",
+                "RBSRF / RBSMA / RBSMJ / RBSFD / RBSPB, the canvass sheaf, the manor found/teardown contract, and the RBS0 federation civics express the one-pool / foedus≡provider model with the per-individual-normalized + test-namespacing membership rule; no code re-cut yet. The membership-composer code re-cut (₢BfAAw) and the verb code follow.",
                 "",
                 "## Character",
                 "Spec authoring over a settled model (the Model section is the decision); contract-first hard predecessor — no model-touching code lands before this."
               ],
               "jjgtn_silks": "onepool-spec-recut",
-              "jjgtn_basis": "bd02e40"
+              "jjgtn_basis": "b844d7b"
             }
           ]
         },
@@ -18139,6 +18144,94 @@
               ],
               "jjgtn_silks": "membership-composer-recut",
               "jjgtn_basis": "bd02e40"
+            }
+          ]
+        },
+        "₢BfAAx": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260630-1519",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Build the manor-teardown — force-delete the manor workforce pool, the deliberate inverse of the ensure-exists finisher, so a release ladder can start from a clean manor.",
+                "",
+                "## Spec of needed change",
+                "A distinct, dangerous manor-level op (NOT foedus-jilt, which is the everyday provider-delete). Deletes the one manor pool; the next finisher run recreates it clean. Re-enrolls every citizen by construction (bindings key on the pool) — which is exactly why it is separate and gated, never the finisher's default.",
+                "- buc_require-gated, matching manor-jilt / depot-unmake: `buc_require \"DANGER: Force-delete the manor workforce pool … re-enrolls every citizen\" \"<pool-id>\"` (TTY-typed confirmation, honors BURE_CONFIRM=skip for tests).",
+                "- Payor-credentialed (org-level, like affiance/jilt).",
+                "- Internal test infra: the CODE ships, the tabtarget accelerator is WITHHELD from delivery — consumers never get a one-keystroke pool-destroyer.",
+                "",
+                "## Done when",
+                "A payor-credentialed, buc_require-gated tabtarget force-deletes the manor pool; the release ladder runs it before the finisher to start clean; the tabtarget is marked withheld-from-delivery (code ships, accelerator does not).",
+                "",
+                "## Cinched",
+                "Distinct from foedus-jilt (provider-delete) — the danger lives in a separate, scary-gated verb so everyday jilt can never nuke the pool.",
+                "buc_require gate, BURE_CONFIRM=skip seam.",
+                "Withheld from delivery (internal only); code ships.",
+                "",
+                "## Character",
+                "Bash — one dangerous payor verb reusing the manor-jilt confirm pattern, plus the delivery-withhold marking."
+              ],
+              "jjgtn_silks": "manor-teardown-force-delete",
+              "jjgtn_basis": "b844d7b"
+            }
+          ]
+        },
+        "₢BfAAy": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260630-1519",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Add a provider dimension to the terrier muniment — so co-resident providers under one pool no longer conflate in a manor-wide rehearse, and a pool-independent subject can't collide silently (the membership study's structural-collision finding).",
+                "",
+                "## Spec of needed change",
+                "The muniment records only (subject, mantle) today and is pool/provider/foedus-blind (rbgft_terrier.sh; RBSTR). Under co-resident providers, two foedera admitting the same human write a byte-identical muniment while holding two distinct grants. Add a provider segment:",
+                "- Key composer + body builder (rbgft_terrier.sh) gain a provider dimension; engross/expunge signatures + the lister emit thread it; the rbgp_ cores already read RBRF_PROVIDER_ID, so the source is in scope.",
+                "- On-disk MIGRATION: existing depot/mantle/subject objects have no provider segment — re-key or migrate the live terrier.",
+                "- Spec home is RBSTR/RBGFT (the terrier ACCESS layer), NOT the finisher subdoc.",
+                "",
+                "## Done when",
+                "The muniment carries a provider dimension; engross/expunge/peruse/rehearse thread it; a manor-wide rehearse distinguishes co-resident foedera; the live terrier is migrated; the RBSTR/RBGFT contract is updated.",
+                "",
+                "## Cinched",
+                "Per-individual muniment (1:1 record↔grant mirror preserved — depends on the per-individual, not group, membership choice).",
+                "Spec home = RBSTR/RBGFT, not the finisher.",
+                "",
+                "## Character",
+                "Contained code membrane (one terrier module) plus a one-time on-disk muniment migration; the migration is the real cost."
+              ],
+              "jjgtn_silks": "terrier-muniment-provider-dim",
+              "jjgtn_basis": "b844d7b"
+            }
+          ]
+        },
+        "₢BfAAz": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260630-1519",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Retire the interim terrier scaffold — the rbw-dt/dT tabtargets, the terrier-scaffold / terrier-atomicity fixtures (picket/echelon), and their rbtdrm_manifest.rs name-consts + colophon-dependency-map arms — now that the finisher provisions the terrier for real.",
+                "",
+                "## Spec of needed change",
+                "Split out of the finisher (₢BfAAF) because it genuinely depends on the fully-restructured fixture registry (behind the ₢BfAAq cross-clone barrier), while the finisher itself does not.",
+                "- Retire rbw-dt / rbw-dT, the terrier-scaffold + terrier-atomicity fixtures, and the rbtdrm_manifest.rs RBTDRM_FIXTURE_TERRIER_* consts + colophon-dependency-map arms (the sixth ₣Bl-owned file — include it so a hot-file-only read doesn't miss it).",
+                "- Coordinate the terrier-atomicity retirement with ₣Bl's terrier-poison fixture, which replaces the retired proof — no duplicate retirement.",
+                "- Update the RBS0 terrier cross-project line (the finisher makes the \"interim scaffold\" framing false).",
+                "",
+                "## Done when",
+                "The rbw-dt/dT scaffold + its two fixtures are retired/migrated onto the finisher, including the rbtdrm_manifest.rs arms; the RBS0 terrier line is corrected; gauntlet stays green (no terrier fixture there).",
+                "",
+                "## Cinched",
+                "Rides behind ₢BfAAq (the fully-restructured fixture registry must be merged here first).",
+                "The terrier-poison fixture REPLACES the retired atomicity proof — coordinate, don't duplicate.",
+                "",
+                "## Character",
+                "Mechanical retirement across the registry + manifest + RBS0 line; the cross-clone barrier (₢BfAAq) is the gate."
+              ],
+              "jjgtn_silks": "terrier-scaffold-retirement",
+              "jjgtn_basis": "b844d7b"
             }
           ]
         }
