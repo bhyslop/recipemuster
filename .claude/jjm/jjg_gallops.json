@@ -19516,23 +19516,23 @@
         "₢BiAAg": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260624-2334",
+              "jjgtn_ts": "260630-1536",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "BARRIER — cross-clone wait. No code work of its own.",
                 "This pace cannot complete until BOTH of the following are complete, pushed to origin, and origin merged back into this clone:",
-                "- ₢BfAAF (heat ₣Bf — the terrier finisher, the federation stream's LAST zipper write) — so the zipper baton has passed ₣Bl → ₣Bf → here and this stream takes it LAST for the ordain-drive colophon;",
+                "- ₢BfAAz (heat ₣Bf — the terrier-scaffold-retirement, ₣Bf's LAST zipper + RBS0 write under the 260630 rework; retargeted from ₢BfAAF, which the rework's reorder moved off \"last\") — so the zipper baton has passed ₣Bl → ₣Bf → here and this stream takes it LAST for the ordain-drive colophon and its RBS0 drive-verb quoin;",
                 "- ₢BlAAL (heat ₣Bl — the onboarding-reliquary-probe helper) — so the theurge crate's onboarding area is settled before the drive-link's onboarding-probe touch.",
                 "Only then may the next pace — the unified nameplate-hallmark drive-link, the heaviest and most cross-cutting pace — proceed; it rails last by design, behind every owner push.",
                 "",
                 "## Done when",
-                "Both ₢BfAAF and ₢BlAAL are wrapped and pushed to origin, and this clone has pulled origin so the zipper baton and the settled onboarding crate are both present here.",
+                "Both ₢BfAAz and ₢BlAAL are wrapped and pushed to origin, and this clone has pulled origin so the full federation zipper+RBS0 state and the settled onboarding crate are both present here.",
                 "",
                 "## Character",
-                "Cross-clone barrier (MVP rides last); hold here until both named paces are merged through."
+                "Cross-clone barrier (MVP rides last); retargeted 260630 from ₢BfAAF to ₢BfAAz (₣Bf's actual last zipper/RBS0 writer after the rework). Hold until both named paces are merged through."
               ],
               "jjgtn_silks": "await-fed-zipper-and-thg-crate",
-              "jjgtn_basis": "5ed2058"
+              "jjgtn_basis": "b8bfd91"
             }
           ]
         },
