@@ -19,8 +19,9 @@ REST-only successor to the throwaway gcloud proof that first ran the chain. The
 {rbtf_affiance}-sibling
 half — creating the pool and the programmatic provider from the uploaded JWKS — is
 {rbtgo_manor_affiance}'s
-programmatic branch, called here, never duplicated; this operation owns the keypair,
-the public JWKS, and the regime facts that branch consumes.
+programmatic branch, called here, never duplicated; this operation fetches the fresh public JWKS
+(the realm mints its signing key per charge — see {rbtf_realm}) and writes the regime facts that
+branch consumes.
 
 NOTE: *Scope — marshal / test-rig.* A programmatic foedus is the unattended test-bed's
 trust, never a production foedus (the production manor is interactive-only). The role
@@ -28,15 +29,19 @@ that performs this establishment (a marshal / test-rig lifecycle) touches the
 premise-bearing payor-health question and is *not* asserted as a settled allocation
 here — that graduation is operator-owned.
 
-NOTE: *Durable-secret quarantine — the keystone.* The signing key is *stable* (no
-per-charge rotation). Its *private* half is fenced in the marshal-only estate home (the
-never-committed station file, working name `RBRS_ESTATE_KEYCLOAK_SECRET`) — it never
-enters the committed regime and never reaches a production path. Its *public* half is the
-committed JWKS, the canonical reference. The discriminator splits public config from the
-one durable secret along exactly this seam.
+NOTE: *Durable-secret quarantine — the keystone.* The realm signing key is *ephemeral* — minted
+fresh by the synthetic IdP on each charge and committed nowhere — so no private signing secret is
+fenced and no public JWKS is committed as a canonical reference. Its public half is fetched fresh
+each charge and uploaded to the provider (the per-charge re-sync). The one committed key is the
+caged RFC 7523 asserting key baked with the realm DATA — a test credential, never a production
+secret; the full two-key separation is the {rbtf_realm} contract. This supersedes the earlier
+stable-key / fenced-estate-secret / committed-JWKS framing, whose cross-station rationale is moot
+for a single-machine test bed.
 
 NOTE: *Membrane.* All test-IdP knowledge (that the trust is Keycloak, the realm shape, the
-grant) is quarantined in this establishment and the baked vessel DATA.
+grant) is quarantined in this establishment and the baked
+{rbtf_realm}
+DATA.
 {rbtgo_manor_affiance}
 never learns it — it consumes an opaque JWKS file and an issuer string. The membrane is
 what keeps the de-lamination from silently re-laminating.
@@ -50,11 +55,11 @@ The ordered shape (impl deferred — do not read REST calls, function names, pat
 algorithm into it):
 
 //axhos_step
-. *Obtain the stable keypair*: the test IdP's realm signing key (a real conformant OIDC
-server — preferred, so routine runs exercise a genuine token-endpoint and signature path)
-or a marshal-minted self-signed key (fallback). Either way the private half is fenced (see
-the quarantine NOTE) and the minter choice is *below the regime* — GCP sees the identical
-uploaded-JWKS provider.
+. *Fetch the fresh public signing JWKS*: the synthetic IdP mints its realm signing key fresh on
+charge (a real conformant OIDC server — preferred, so routine runs exercise a genuine
+token-endpoint and signature path; or a marshal-minted self-signed key, fallback). Fetch its
+public half; nothing private is retained, and the minter choice is *below the regime* — GCP sees
+the identical uploaded-JWKS provider.
 
 //axhos_step
 . *Derive the public JWKS*, stripped to standard RSA public-key members (`kty/kid/use/alg/n/e`);
@@ -84,7 +89,8 @@ Successful execution leaves a programmatic
 standing: a workforce pool and an uploaded-JWKS provider exist under the manor, the regime
 names the active foedus with
 {rbrf_mechanism_programmatic},
-and the matching private signing key is reachable only from the marshal-fenced estate home.
+and the realm signing key — minted fresh this charge — is committed nowhere, its public half the
+uploaded JWKS (the two-key separation is the {rbtf_realm} contract).
 A caller may now acquire a federated token over it via
 {rbtgo_foedus_acquire}.
 First-contact trips (`client-id` = `aud`, the `https://` issuer scheme, JWT `exp` skew, the

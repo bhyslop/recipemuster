@@ -1,0 +1,108 @@
+//axvd_sheaf axd_normative
+This is a normative portion of the {rbs0_imprimatur}: binding — code, tests, and decisions may rely on it.
+//axhob_operation
+{rbtf_realm}
+
+NOTE: *Contract, not implementation.* This subdoc states what the baked
+{rbtf_realm}
+must establish — the entries its declarative `--import-realm` JSON carries — not how a console
+or admin-REST session would build it. The realm is developed live, exported, and re-baked; that
+live admin-REST is scaffolding that must leave *no* runtime trace. The vessel boot path is
+`--import-realm` only: a correctly baked realm needs zero runtime admin-REST.
+
+NOTE: *Membrane — the Keycloak quarantine.* This is the home the
+{rbtgo_foedus_establish}
+membrane names "the baked vessel DATA". ALL synthetic-IdP knowledge — that the trust is
+Keycloak, the realm shape, the RFC 7523 grant, the exact provider and client attribute keys —
+lives HERE and in the establishment orchestration, never in
+{rbtgo_manor_affiance},
+which consumes only an opaque public JWKS and an issuer string. Naming Keycloak in this subdoc
+is *correct*: this subdoc is the quarantine, not a leak.
+
+[NOTE]
+====
+*Two keys, never conflated.* The realm involves two distinct asymmetric keys, governed by
+opposite secrecy rules:
+
+- The *realm signing key* — Keycloak signs the id_tokens it issues with it — is EPHEMERAL:
+generated fresh by Keycloak on every `--import-realm`, committed nowhere. The realm DATA bakes
+*no* signing key. GCP validates issued tokens against the key's public half, which the
+establishment fetches per charge and uploads to the provider (the per-charge re-sync, the
+"twiddle"). This supersedes the earlier stable-key / committed-JWKS / never-committed-estate-secret
+model once carried by {rbtgo_foedus_establish}; the cross-station rationale that model served is
+moot for a single-machine test bed.
+- The *asserting key* — the RFC 7523 caller signs its assertion with it; Keycloak validates the
+assertion against the registered public half — is a *committed test keypair*, the same category
+of caged test scaffolding as the realm's bootstrap-admin credential, never a production secret.
+The zero-durable-secret premise governs the realm *signing* key, never this test asserter.
+====
+
+The baked realm's ordered shape (the entries the import MUST carry; the concrete attribute keys
+are the Keycloak 26.6.x realization, surveyed live, not eternal law — the durable contract is the
+achievement each entry secures):
+
+//axhos_step
+. *The realm envelope* — realm name, `enabled`, and short token / SSO-session lifespans. No
+`keys` component and no signing-key material is baked, so Keycloak mints an ephemeral signing key
+on import (the two-keys NOTE).
+
+//axhos_step
+. *The asserting trust* — an identity provider of Keycloak type `jwt-authorization-grant`, the
+registered trusted asserting key. It enables the grant (`jwtAuthorizationGrantEnabled`), declares
+the `issuer` the assertion's `iss` must match, and pins the validating public key by value, no
+JWKS URL (`useJwksUrl=false`, `publicKeySignatureVerifier` = the committed test asserter's public
+key, `publicKeySignatureVerifierKeyId` = the kid the assertion header carries).
+
+//axhos_step
+. *The GCP-facing client* — a confidential client (`publicClient=false`) whose `clientId` equals
+the GCP provider's
+{rbrf_idp_client_id}
+and the issued id_token audience. It is enabled for the grant
+(`oauth2.jwt.authorization.grant.enabled=true`) and allows the asserting IdP
+(`oauth2.jwt.authorization.grant.idp` = the IdP alias); every interactive flow is off. It carries
+an audience mapper (`oidc-audience-mapper`, `id.token.claim=true`) stamping the GCP audience into
+the id_token, since the bare token would otherwise carry the client as `aud`.
+
+//axhos_step
+. *The federated subject* — a user with a PINNED `id` and a `federatedIdentities` link to the
+asserting IdP whose external `userId` equals the assertion's `sub`. Keycloak resolves the
+assertion to this local user *through the link*; without it the grant fails. The id is pinned so
+the GCP subject (below) is deterministic across charges.
+
+//axhos_step
+. *The https issuer* — the realm `frontendUrl` attribute set to a fictional `https://` value, so
+the issued id_token's `iss` carries the scheme GCP requires
+({rbrf_idp_issuer}).
+GCP never resolves it — it string-matches `iss` only — because the keys arrive by upload
+({rbrf_idp_jwks_json}),
+never by discovery.
+
+[NOTE]
+====
+*First-contact trips (Keycloak 26.6.x + GCP, harness-surveyed — the Palisade signatures).*
+
+- *The issued `sub` is Keycloak's INTERNAL user id*, never the assertion's external `sub`. GCP
+maps `google.subject` from it, so the federate user's `id` must be pinned for a stable subject —
+otherwise every charge mints a new subject and every standing brevet goes stale.
+- *The assertion must carry `jti`* (one-time use; reuse is disabled by default), a mandatory
+`exp`, and `aud` = the realm token endpoint or issuer; the asserting key id rides the JWT header
+`kid`, matched against `publicKeySignatureVerifierKeyId`.
+- *GCP's uploaded-JWKS parser is strict*: the realm signing key's public JWKS must be stripped to
+the standard RSA members (`kty/kid/use/alg/n/e`) before the establishment uploads it — Keycloak's
+`x5c` / `x5t` certificate fields draw a misleading `Only RSA, EC key types are supported`.
+====
+
+//axhoc_completion
+A correctly baked
+{rbtf_realm}
+boots the synthetic IdP via `--import-realm` with zero runtime admin-REST, and a caller holding
+the committed asserting private key mints — through Keycloak's RFC 7523 JWT-authorization grant
+(`grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer`, the client's secret, the signed
+`assertion`) — an id_token whose `aud` is the GCP audience and whose `iss` is the fictional
+`https://` issuer. That token is the one
+{rbtgo_foedus_acquire}
+exchanges at GCP STS. The realm signing key is fresh per charge and committed nowhere; the only
+key committed alongside this DATA is the caged test asserter.
+{rbbc_fatal}
+on a realm whose boot still requires runtime admin-REST to reach a mintable state — the
+de-lamination has silently re-laminated.

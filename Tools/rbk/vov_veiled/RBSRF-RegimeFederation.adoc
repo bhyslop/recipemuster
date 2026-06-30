@@ -153,8 +153,8 @@ It is the test-bed's unattended path; the human-present premise is deliberately 
 //axhrgv_variable
 {rbrf_idp_jwks_json}
 
-The active foedus's uploaded *public* JWKS — the static key snapshot GCP validates self-supplied JWTs against (REST `oidc.jwksJson`, the `--jwk-json-path` target).
-A public identifier, so it commits with the regime; the matching *private* signing key never enters this regime (it is fenced in the marshal-only estate home).
+The active foedus's uploaded *public* JWKS — the key snapshot GCP validates self-supplied JWTs against (REST `oidc.jwksJson`, the `--jwk-json-path` target).
+The realm signing key is ephemeral — minted fresh per charge, see {rbtf_realm} — so this public snapshot is re-synced to the provider each charge (the twiddle) rather than held as a committed canonical reference, and the matching *private* key is persisted nowhere and never enters this regime.
 Used because the test IdP runs as a local crucible unreachable from Google, so issuer-discovery cannot serve it — the key snapshot must be uploaded regardless.
 Required under the programmatic mechanism.
 

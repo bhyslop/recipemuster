@@ -591,6 +591,7 @@
 :rbtf_citizen_s:             <<rbtf_citizen,Citizens>>
 :rbtf_foedus:                <<rbtf_foedus,Foedus>>
 :rbtf_foedus_s:              <<rbtf_foedus,Foedera>>
+:rbtf_realm:                 <<rbtf_realm,Realm>>
 :rbtf_avow:               <<rbtf_avow,Avow>>
 :rbtf_sitting:                <<rbtf_sitting,Sitting>>
 :rbtf_don:                   <<rbtf_don,Don>>
@@ -1205,8 +1206,8 @@ Stands up a
 {rbtf_foedus}
 end-to-end — the unattended test-bed's trust — calling
 {rbtgo_manor_affiance}'s
-programmatic branch and owning the stable keypair, the uploaded public JWKS, and the
-regime facts that branch consumes.
+programmatic branch, fetching the fresh public JWKS (the realm mints its signing key per charge)
+and writing the regime facts that branch consumes.
 A contract for the establishment build pace; the civic verb is deferred.
 
 //axvd_cartouche axd_normative
@@ -2225,6 +2226,28 @@ are homed in the Terrier access subdoc below.
 
 //axvd_cartouche axd_normative
 include::RBSTR-Terrier.adoc[leveloffset=+1]
+
+[[rbtf_realm]]
+{rbtf_realm}::
+The IdP-side companion to a
+{rbtf_foedus}:
+the baked, declarative trust DATA of the synthetic test identity provider that backs a
+{rbrf_mechanism_programmatic}
+foedus — a Keycloak `--import-realm` JSON standing up the RFC 7523 asserting trust, the
+GCP-facing client and audience mapper, and the federated subject, with its signing key minted
+fresh on each import.
+Where the
+{rbtf_foedus}
+is the GCP-side trust (pool, provider, attribute mapping), the
+{rbtf_realm}
+is the IdP-side trust its assertions originate from.
+It exists only for the unattended test bed — the production manor is interactive-only, with no
+synthetic IdP — so it is named plainly for cold-probe legibility rather than the civic asterism.
+Its full contract — the entries the import must carry, the two-key separation, and the
+first-contact trips — is the subdoc below.
+
+//axvd_cartouche axd_normative
+include::RBSFK-foedus_realm.adoc[leveloffset=+1]
 
 === {gcp_service} Definitions
 
