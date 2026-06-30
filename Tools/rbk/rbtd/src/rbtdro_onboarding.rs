@@ -30,7 +30,7 @@
 // and commits. Downstream cases verify it ran by reading RBRV_RELIQUARY from
 // a stable yoked vessel's rbrv.env — no out-of-source-tree scratch state.
 
-use std::io::{BufRead, BufReader, Write};
+use std::io::{BufRead, BufReader};
 use std::path::{Path, PathBuf};
 
 use crate::case;
@@ -375,9 +375,11 @@ fn rbtdro_read_vessel_env(
     Err(format!("variable {} not found in {}/rbrv.env", var_name, vessel_dir))
 }
 
-/// Drive a hallmark value into a nameplate's rbrn.env. Mirrors the
-/// zrbob_drive_hallmark substitution logic from rbob_bottle.sh: load file
-/// lines, replace the matching `VAR=*` line with the new value, atomic rename.
+/// Drive a hallmark value into a nameplate's rbrn.env. Delegates to the engine's
+/// validated config-field seam (rbtdre_config_set_field) — the same generalized
+/// find-or-err + atomic-rename home its rbrv.env sibling (rbtdro_write_vessel_env)
+/// rides — so the substitution lives in one place. The find-or-err is the
+/// schema-drift catch (renamed/removed field stops the run, never a silent skip).
 /// Returns Err if the variable line is not found (hard fail — configuration error).
 fn rbtdro_drive_hallmark(
     root: &Path,
@@ -385,51 +387,11 @@ fn rbtdro_drive_hallmark(
     var_name: &str,
     hallmark: &str,
 ) -> Result<(), String> {
-    let rbrn_path = root.join(crate::rbtdgc_consts::RBTDGC_MOORINGS_DIR).join(nameplate).join("rbrn.env");
-    let file = std::fs::File::open(&rbrn_path)
-        .map_err(|e| format!("open rbrn.env for {}: {}", nameplate, e))?;
-
-    let lines: Vec<String> = BufReader::new(file)
-        .lines()
-        .collect::<Result<_, _>>()
-        .map_err(|e| format!("read rbrn.env for {}: {}", nameplate, e))?;
-
-    let prefix = format!("{}=", var_name);
-    let mut found = false;
-    let rewritten: Vec<String> = lines
-        .into_iter()
-        .map(|line| {
-            if line.starts_with(&prefix) {
-                found = true;
-                format!("{}={}", var_name, hallmark)
-            } else {
-                line
-            }
-        })
-        .collect();
-
-    if !found {
-        return Err(format!(
-            "variable {} not found in {}/{}/rbrn.env",
-            var_name, crate::rbtdgc_consts::RBTDGC_MOORINGS_DIR, nameplate
-        ));
-    }
-
-    let tmp_path = root
+    let rbrn_path = root
         .join(crate::rbtdgc_consts::RBTDGC_MOORINGS_DIR)
         .join(nameplate)
-        .join("rbrn.env.drive_tmp");
-    {
-        let mut tmp = std::fs::File::create(&tmp_path)
-            .map_err(|e| format!("create tmp rbrn.env for {}: {}", nameplate, e))?;
-        for line in &rewritten {
-            writeln!(tmp, "{}", line)
-                .map_err(|e| format!("write tmp rbrn.env for {}: {}", nameplate, e))?;
-        }
-    }
-    std::fs::rename(&tmp_path, &rbrn_path)
-        .map_err(|e| format!("atomic replace rbrn.env for {}: {}", nameplate, e))?;
-    Ok(())
+        .join("rbrn.env");
+    rbtdre_config_set_field(&rbrn_path, var_name, hallmark)
 }
 
 /// Kludge helper: build sentry and bottle locally for a nameplate. Both steps
