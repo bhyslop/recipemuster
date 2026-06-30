@@ -19514,31 +19514,45 @@
         "₢BiAAm": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260627-1457",
+              "jjgtn_ts": "260630-1732",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "## Character",
-                "Small, well-scoped RBK change plus its contract sheaf and a theurge regression case — mechanical once the design is in hand.",
+                "Small, well-scoped RBK change plus its contract sheaf and a theurge regression case — one pace, dev and test co-authored in one sitting.",
+                "The read-mechanism design is the load-bearing part and is now grounded (below); the bash is mechanical once it lands.",
                 "",
                 "## Goal",
-                "Plumb interrogates a conjure hallmark's BuildKit provenance attestation (on the -image ark) and emits the resolved base as a scalar fact;",
+                "Plumb interrogates a conjure hallmark's SLSA-v1 BuildKit provenance and emits the resolved base as a scalar fact;",
                 "a theurge regression case then asserts the built base matches committed config.",
                 "The base is read captured-from-actual-resolution, never echoed from config — closing the conjure provenance gap (bind and graft record a .source; conjure did not).",
                 "",
                 "## Done when",
-                "- rbfcp_plumb reads the -image attestation's SLSA-v1 .buildDefinition.resolvedDependencies (uri + digest.sha256) via imagetools inspect — registry-side, no full image pull — and writes a new rbf_fact_* scalar, one per base slot for a multi-stage conjure.",
-                "- The read is structured (jq), never a scrape of plumb's display output.",
-                "- A contract sheaf in RBSAP specifies the read-back; the BuildKit reliance (SLSA-v1 resolvedDependencies on buildx --push) is cited as an RBr_ foreign-behavior rivet carrying its own demolition condition.",
-                "- A theurge regression case drives a conjure ordain, reads the resolved base, and fails loud if it diverges from committed config (RBRV_IMAGE_n_ANCHOR or the Dockerfile FROM).",
+                "- rbfcp_plumb extracts `.predicate.buildDefinition.resolvedDependencies[]` (uri + digest.sha256) from the conjure SLSA-v1 provenance and writes a new RBF_FACT_* scalar via buf_write_fact_single, one per base slot for a multi-stage conjure.",
+                "- The provenance is read registry-side from the per-platform `attest` ark, structured (jq) — never `imagetools inspect` and never a scrape of plumb's display output.",
+                "- A contract sheaf in RBSAP specifies the read-back; the GCB/BuildKit reliance (SLSA-v1 resolvedDependencies on the signed attest ark) is cited as an RBr_ foreign-behavior rivet with its own demolition condition.",
+                "- A theurge regression case drives a conjure ordain, reads the resolved base, and fails loud on divergence from committed config (RBRV_IMAGE_n_ANCHOR or the Dockerfile FROM).",
                 "- Vouch and the about ark are untouched; no JSON wire format is authored (foreign source, scalar sink — sprue-free).",
                 "",
+                "## Reference — the provenance decode is already proven in-repo",
+                "rbgjv02-verify-provenance.py (the conjure vouch step) decodes this exact provenance:",
+                "HEAD the `attest:<hallmark>-<arch>` tag, take the DSSE envelope, base64url-decode `.payload` to the in-toto statement, read the SLSA-v1 predicate.",
+                "It reads buildType / builder.id / subject-digest but NOT resolvedDependencies — that gap is what this pace fills.",
+                "Mirror its access path host-side; plumb already carries the retriever OAuth + Registry-API + jq machinery it needs.",
+                "",
+                "## Mount-time decision — provenance access mechanism",
+                "Registry-raw (recommended): fetch the attest manifest + DSSE blob via the Registry API — no new dependency.",
+                "Alternative: gcloud `describe --show-provenance` mirrors rbgjv02 exactly but adds a gcloud dependency and a second auth path.",
+                "NOT imagetools inspect: it breaks plumb's no-local-runtime invariant and reads the untrusted buildx-native attestation.",
+                "",
                 "## Cinched",
-                "- Read the BuildKit attestation's resolvedDependencies, NEVER the vouch ark's config-echoed base_images[] — the asserted value must never derive from config, else the test is circular.",
+                "- Read the attest-ark resolvedDependencies, NEVER the vouch ark's base_images[] — rbgjv02 fills base_images from the pinned _RBGV_IMAGE_n env (a config echo), so asserting against it would be circular.",
+                "- The trusted provenance is on the per-platform `attest` ark, NOT the image-manifest-index attestation (buildx-native, unsigned — rbgjv02 says so). The original \"on the -image ark\" framing was wrong.",
+                "- Plumb stays docker-free — its \"no local container runtime required\" invariant holds.",
                 "- Durable home is the GAR attestation; the fact is a transient same-session cache, not a second record.",
                 "- Confirmed live (260627): conjure images already carry the attestation with the resolved base — no build-pipeline change needed."
               ],
               "jjgtn_silks": "resolved-base-readback-and-verify",
-              "jjgtn_basis": "5c58a2f"
+              "jjgtn_basis": "2adf990"
             }
           ]
         }
