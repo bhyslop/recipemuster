@@ -19789,9 +19789,10 @@
         "₢BlAAV",
         "₢BlAAW",
         "₢BlAAX",
-        "₢BlAAY"
+        "₢BlAAY",
+        "₢BlAAb"
       ],
-      "jjghn_next_pace_seed": "AAb",
+      "jjghn_next_pace_seed": "AAc",
       "jjghn_paces": {
         "₢BlAAA": {
           "jjgpn_tacks": [
@@ -20546,6 +20547,37 @@
               ],
               "jjgtn_silks": "await-fed-onepool-recut",
               "jjgtn_basis": "3ac0a37"
+            }
+          ]
+        },
+        "₢BlAAb": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260630-1520",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Invent a strict colophon-completeness check — a source-repo-only tabtarget that FAILS if any enrolled colophon lacks its tabtarget — so the source repo's test sequence proves completeness while a delivered subset repo simply never runs it. Replaces the BURC strict/lax config approach (operator 260630).",
+                "",
+                "## Spec of needed change",
+                "The delivery split (RB ships code but WITHHOLDS internal accelerator tabtargets — the force-delete, the populate-citizens, this check itself) needs the source repo to catch a genuinely-missing tabtarget while the consumer/proof subset repo does not fail.",
+                "Rather than the stateful BURC_BUW_COLOPHON_CHECK = bvc_strict / bvc_lax config (which marshal-zero would have to flip), do it with a dedicated tabtarget:",
+                "- A check tabtarget that asserts every enrolled colophon has its tabtarget file present; fails loudly otherwise. Runs in the source repo's release-qualify / echelon sequence.",
+                "- It is itself withheld from delivery (source-only), so a subset consumer never runs it and never trips on its own withheld accelerators.",
+                "- This is a WORKING completeness check — the current rbq_qualify colophon-freshness check is a known no-op (the launcher-path-match bug ₢BlAAN flags, \"Checked 0 RBW tabtargets\"). Evaluate retiring BURC_BUW_COLOPHON_CHECK once this lands (grep its consumers first).",
+                "- No marshal-zero lax step — there is no config to flip.",
+                "",
+                "## Done when",
+                "A source-only tabtarget fails on any enrolled-colophon-without-tabtarget and rides the source release-qualify sequence; the consumer/proof subset repo does not run it and passes; BURC_BUW_COLOPHON_CHECK retirement is evaluated (retired if no other consumer).",
+                "",
+                "## Cinched",
+                "A tabtarget, not a config toggle (operator 260630) — no per-context stateful flip.",
+                "Source-repo-only (withheld from delivery), like the force-delete + populate-citizens accelerators.",
+                "",
+                "## Character",
+                "Bash check tabtarget over the colophon registry; the BURC_BUW_COLOPHON_CHECK retirement is a small regime cleanup gated on a grep. Self-contained ₣Bl (no new cross-heat barrier)."
+              ],
+              "jjgtn_silks": "colophon-completeness-check",
+              "jjgtn_basis": "0ebc648"
             }
           ]
         }
