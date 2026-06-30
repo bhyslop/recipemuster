@@ -20497,75 +20497,75 @@
         "₢BoAAC": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260630-1209",
+              "jjgtn_ts": "260630-1234",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
-                "Mint the canonical mantle-identity-token home (pallium-sprued values), then prove mantle-don isolation by exit code.",
+                "Mint the canonical mantle-identity-token home (pallium-sprued), repoint the patrol off the account-fragment conflation, and prove mantle-don isolation by exit code.",
                 "",
-                "Today the token a subject dons — governor | director | retriever — is a bare literal in the don/probe case statements, with no canonical home and no value-sprue;",
-                "a subject lacking a mantle is denied only by the real GCP IAM at the don, surfacing as the admission band once the preceding band pace lands.",
+                "Today rbtdrv_patrol.rs:1418 dons each mantle by passing the ACCOUNT fragments (RBTDGC_ACCOUNT_{GOVERNOR,DIRECTOR,RETRIEVER}, emitted bare from RBCC_account_*) to rbw-am — account-id pieces standing in where mantle tokens belong (the conflation).",
+                "A subject lacking a mantle is denied only by the live GCP IAM at the don, surfacing as the admission band once the band pace lands.",
                 "",
                 "## Spec of needed change",
-                "Mint RBCC_mantle_{governor,director,retriever} in rbcc_constants.sh — the canonical identity-token home.",
-                "The VALUES carry the new pallium value-sprue rbpa_ (the RB-authored-wire discipline; cf. RBGC_LODE_TAG_ROOTFS \"(RB-authored, sprued)\"): RBCC_mantle_governor=\"rbpa_governor\", RBCC_mantle_director=\"rbpa_director\", RBCC_mantle_retriever=\"rbpa_retriever\". Document the rbpa_ = pallium legend at the constant home; add a companion set only if the matrix needs iteration (not the word \"roster\").",
-                "Three sprues kept apart: identity-token VALUES rbpa_ (new) | mantle-ACCOUNT local-parts rbma_/rbma- (RBSMF, GCP-bound, unchanged) | constant-name family RBCC_mantle_.",
-                "Point the bare-literal case statements that resolve the token (rba_don_capture, rbgv_check_mantle) at the new home; the OPERATOR folio stays the clean word (rbw-am governor) and normalizes to the rbpa_ canonical at the CLI boundary — the sprue is internal/wire, never typed by the operator (ashlar).",
-                "Add a per-enrollment required-mantle declaration to the zipper, value = the sprued canonical (RBCC_mantle_*); code-gen emits the colophon->mantle map (rbpa_-valued) into the generated theurge consts (RBTDGC_).",
-                "The required-mantle field is TEST-HARNESS METADATA ONLY — never read by dispatch for client-side enforcement, which would mask the real Depot IAM denial under test; state that in the field's contract.",
-                "Build a probe-driven leave-one-out isolation fixture (theurge): brevet the freehold subject onto two mantles, withhold the third, assert the probe (rbw-am) on the withheld mantle rejects with the admission band while the held two reach AR.",
+                "Mint RBCC_mantle_{governor,director,retriever} in rbcc_constants.sh — the canonical identity-token home; VALUES carry the pallium value-sprue rbpa_ (RBCC_mantle_governor=\"rbpa_governor\", ...). Document the rbpa_ = pallium legend.",
+                "Codegen carries the sprued value cleanly: emit RBCC_mantle_* via rbcc_emit_consts to RBTDGC_MANTLE_*, exactly as RBTDGC_MOORINGS_DIR=\"rbmm_moorings\" already does — a single-prefix NAME holding a sprued VALUE, NOT nesting.",
+                "The sprued token is THE token everywhere: the rba_don_capture / rbgv_check_mantle case statements resolve \"rbpa_governor\", and rbw-am's folio takes the sprued token (no clean/canonical two-form, no normalization). It resolves to the mantle SA (rbma-governor) through the case, so the underscore never reaches an SA-id.",
+                "Repoint rbtdrv_patrol.rs:1418 (and its imports) off RBTDGC_ACCOUNT_* onto RBTDGC_MANTLE_* — fixing the account-as-mantle conflation.",
+                "Extend that don-each loop into the isolation matrix: leave-one-out — brevet the freehold subject onto two mantles, withhold the third, assert rbw-am on the withheld mantle rejects with the admission band while the held two reach AR.",
                 "",
                 "## Done when",
-                "RBCC_mantle_* is the single token home with rbpa_-sprued values, and the don/probe case statements resolve through it;",
-                "the operator folio stays the clean word, normalized at the boundary;",
+                "RBCC_mantle_* (rbpa_-sprued) is the canonical token home, emitted to RBTDGC_MANTLE_*;",
+                "the don/probe case statements and rbw-am resolve the sprued token, which resolves to the mantle SA via the case;",
+                "rbtdrv_patrol.rs no longer sources mantle tokens from RBTDGC_ACCOUNT_*;",
                 "a lacking/withheld-mantle don rejects with the admission band from the tabtarget exit;",
-                "the zipper carries the required-mantle declaration generating the rbpa_-valued colophon->mantle map, the field documented test-only;",
-                "a theurge leave-one-out fixture proves via the probe that the IAM denies a withheld mantle (admission band) while held mantles reach AR.",
+                "the patrol's leave-one-out matrix proves the IAM denies a withheld mantle (admission band) while the held two reach AR.",
                 "",
                 "## Cinched",
-                "Identity-token VALUES carry the rbpa_ (pallium) value-sprue — NOT bare; this is the RB-authored-wire discipline the current bare \"governor\" violates.",
-                "The existing bare wire uses (terrier rbgft_mantle value and its GCS object paths, the GCP role arg) are a SEPARATE migration — out of scope here, their own follow-on (stored-data re-key); this pace sprues the NEW canonical + zipper + map only.",
-                "Single-valued: a colophon requires exactly one mantle.",
-                "The leave-one-out runtime IS the drift guard — no static bash analysis, no derivation.",
-                "The probe (rbw-am) is the generic mantle-don entry; per-colophon production rows auto-extend as the foundry/lode surface migrates to mantle-don (today only the governor polity verbs and the probe reach the don).",
+                "rbpa_ (pallium) IS kept — codegen of a sprued value is the established RBTDGC_MOORINGS_DIR=\"rbmm_moorings\" shape (one-prefix name, sprued value), not nesting.",
+                "The account fragments RBCC_account_* stay bare because they compose GCP SA-ids (RFC1035 forbids underscores) — that is the marker pace's concern, NOT a constraint on this token class.",
+                "Single-valued: one mantle per colophon. The leave-one-out runtime is the drift guard — no static analysis, no derivation.",
+                "The existing terrier bare-wire uses (rbgft_mantle value + its GCS paths) are a separate deferred migration.",
                 "Payor isolation deferred. Tests assert the named band, never output text.",
-                "Depends on the admission band from the preceding band pace (₢BoAAB); coordinate with the ₣Bl parley fixture (₢BlAAX) — do not duplicate the don/unseat scaffolding.",
+                "Depends on the admission band (₢BoAAB); coordinate with the ₣Bl parley fixture (₢BlAAX) — do not duplicate the don/unseat scaffolding.",
                 "",
                 "## Character",
-                "Prefix mint + bash home + case-statement resolution + boundary normalization + zipper field and code-gen + one probe-driven leave-one-out theurge fixture; band, token home, and the rbpa_ sprue are settled this chat (260630)."
+                "Prefix mint + bash home + emit + patrol repoint + leave-one-out theurge matrix; band, token home, and the rbpa_ sprue settled this chat (260630)."
               ],
               "jjgtn_silks": "mantle-token-home-and-isolation-matrix",
-              "jjgtn_basis": "745d81c"
+              "jjgtn_basis": "154905a"
             }
           ]
         },
         "₢BoAAD": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260630-1153",
+              "jjgtn_ts": "260630-1234",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
-                "Explore converging the bridge-legacy account local-parts onto the new mantle-token home, so the identity token is defined once.",
+                "Mark the naked account-fragment constants as codegen sources that must stay bare, so the consolidation/spruing temptation cannot recur.",
+                "",
+                "The RBCC_account_* fragments (governor / director / retriever / payor / mason) compose GCP SA-ids and secret-directory names, so they MUST stay bare (RFC1035 forbids underscores in an SA-id), and they are codegen sources (rbcc_emit_consts -> RBTDGC_ACCOUNT_*).",
+                "The original consolidation/converge intent is dropped as inappropriate: the sprued mantle token is a separate class (the preceding pace), and these fragments are correctly bare.",
                 "",
                 "## Spec of needed change",
-                "RBCC_account_{governor,director,retriever} (rbcc_constants.sh) currently restate the bare tokens.",
-                "Explore referencing the new RBCC_mantle_* home instead (e.g. RBCC_account_governor=\"${RBCC_mantle_governor}\"), so the identity token has one source.",
-                "Confirm the consumers survive the indirection: the account local-parts feed SA-email construction AND local secret-directory names (per the rbcc_constants comment) — the rendered values must stay byte-identical.",
-                "RBCC_account_mantle_* (the rbma- SA local-parts) stay literal and out of scope — their value is a GCP-bound SA ID, not the identity token; the rbma_/rbma- sprue (RBSMF) is correctly its own home.",
+                "Add a codegen infix to the RBCC_account_* family names so the name itself records \"bare on purpose — codegen source / SA-id leaf; do not sprue or consolidate.\"",
+                "The infix MUST be stripped on emit so the generated names are unchanged (RBTDGC_ACCOUNT_GOVERNOR stays itself, never ..._CODEGEN_...); teach rbcc_emit_consts the strip.",
+                "Repoint the bash consumers of the renamed constants — the def / emit / fact-ext sites, the rbgp_payor.sh unmake pattern, the rbdc_derived / rblm payor secret-dir, the rbgd_depot / rbgp mason email.",
                 "",
                 "## Done when",
-                "A recorded decision: either RBCC_account_* references RBCC_mantle_* (one source, derivations green) or stays independently literal with the reason;",
-                "RBCC_account_mantle_* confirmed unchanged.",
+                "The RBCC_account_* family carries the codegen infix recording why it stays bare;",
+                "rbcc_emit_consts strips it so the RBTDGC_ACCOUNT_* names are unchanged;",
+                "all consumers are repointed and the build regenerates clean.",
                 "",
                 "## Cinched",
-                "Explore, not mandate — the account local-parts may have load-bearing reason to stay independent; the pace decides and records, it does not presume the convergence.",
-                "rbma_/rbma- (mantle account, RBSMF) is out of scope — GCP-bound, stays.",
-                "Gated on the token home existing (the preceding mint pace).",
+                "This is a marker rename, NOT a consolidation — the account fragments stay bare and independent of the sprued mantle class.",
+                "Scope: the whole RBCC_account_* family (all are bare SA-id-composing codegen sources), unless the operator narrows it to the three role accounts.",
+                "Runs after the preceding pace repoints the patrol off RBTDGC_ACCOUNT_*, so the rename's blast radius no longer includes the mantle-token use.",
                 "",
                 "## Character",
-                "Small DRY exploration plus a recorded decision; gated on RBCC_mantle_* existing."
+                "Mechanical family rename + emit-strip + consumer repoint; the \"why\" rides the name."
               ],
               "jjgtn_silks": "account-localpart-mantle-token-converge",
-              "jjgtn_basis": "2bbef6a"
+              "jjgtn_basis": "154905a"
             }
           ]
         }
