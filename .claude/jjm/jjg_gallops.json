@@ -19899,8 +19899,8 @@
         "₢BlAAJ": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260625-1626",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260630-1321",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "Drafted from ₢BfAAU in ₣Bf.",
                 "",
@@ -19918,7 +19918,7 @@
                 "Mechanical heal plus one guard."
               ],
               "jjgtn_silks": "registry-drift-guard-and-heal",
-              "jjgtn_basis": "b91ab48"
+              "jjgtn_basis": "57d43a0"
             }
           ]
         },
