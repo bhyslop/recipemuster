@@ -85,8 +85,11 @@ never by discovery.
 maps `google.subject` from it, so the federate user's `id` must be pinned for a stable subject —
 otherwise every charge mints a new subject and every standing brevet goes stale.
 - *The assertion must carry `jti`* (one-time use; reuse is disabled by default), a mandatory
-`exp`, and `aud` = the realm token endpoint or issuer; the asserting key id rides the JWT header
-`kid`, matched against `publicKeySignatureVerifierKeyId`.
+`exp`, and `aud` = the realm's *frontend* issuer (the `frontendUrl`-based value, e.g.
+`https://fdkyclk.test/realms/fdkyclk`) — *not* the internal/localhost token endpoint the caller
+actually POSTs to, which `frontendUrl` rewrites away from and which draws a misleading `Invalid
+token audience`. The asserting key id rides the JWT header `kid`, matched against
+`publicKeySignatureVerifierKeyId`.
 - *GCP's uploaded-JWKS parser is strict*: the realm signing key's public JWKS must be stripped to
 the standard RSA members (`kty/kid/use/alg/n/e`) before the establishment uploads it — Keycloak's
 `x5c` / `x5t` certificate fields draw a misleading `Only RSA, EC key types are supported`.

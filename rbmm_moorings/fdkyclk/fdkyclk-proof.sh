@@ -135,7 +135,9 @@ mint_idtoken() {
   local iat exp jti header payload signing sig assertion
   iat=$(date +%s); exp=$((iat + 300)); jti="jti-${iat}-$$"
   header="{\"alg\":\"RS256\",\"typ\":\"JWT\",\"kid\":\"$ASSERTER_KID\"}"
-  payload="{\"iss\":\"$ASSERTER_ISSUER\",\"sub\":\"$ASSERTER_SUB\",\"aud\":\"$tokurl\",\"iat\":$iat,\"exp\":$exp,\"jti\":\"$jti\"}"
+  # aud must be the realm's FRONTEND issuer ($ISSUER, from frontendUrl), not the localhost
+  # token endpoint — frontendUrl rewrites the issuer, so localhost fails "Invalid token audience".
+  payload="{\"iss\":\"$ASSERTER_ISSUER\",\"sub\":\"$ASSERTER_SUB\",\"aud\":\"$ISSUER\",\"iat\":$iat,\"exp\":$exp,\"jti\":\"$jti\"}"
   signing="$(printf '%s' "$header" | b64url).$(printf '%s' "$payload" | b64url)"
   sig=$(printf '%s' "$signing" | openssl dgst -sha256 -sign "$ASSERTER_KEY" -binary | b64url)
   assertion="${signing}.${sig}"
