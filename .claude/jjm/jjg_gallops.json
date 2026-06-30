@@ -17436,8 +17436,8 @@
         "₢BfAAM": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260623-0903",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260630-1012",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "Add the programmatic (uploaded-JWKS) arm to affiance, gated by the mechanism discriminator from the spec recast.",
                 "",
@@ -17457,7 +17457,7 @@
                 "Bash; REST transform of a proven gcloud flow."
               ],
               "jjgtn_silks": "affiance-programmatic-mechanism-arm",
-              "jjgtn_basis": "0ef1a6e"
+              "jjgtn_basis": "ee536ef"
             }
           ]
         },
