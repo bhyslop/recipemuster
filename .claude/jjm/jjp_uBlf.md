@@ -11,6 +11,36 @@ Posture (cinched for this heat): premise-touching ideas are operator-owned — a
 Keep this catalog shape-shaped — each idea a named tension plus a current lean, never a running discussion log.
 Genuinely thin or orthogonal ideas belong in itches or the horizon roadmap, not here; this paddock is for ideas worth deliberating with heat context.
 
+## Model — the one-pool identity substrate (operator decision 260630; GOVERNS, supersedes the per-foedus-pool model)
+
+This section is the governing federation-identity model.
+Where any earlier section assumes a pool per foedus — the Conviction's multiplicity lines, "Foedus lifecycle — the two-tier test-bed", and "Foedus switching — AUTHORED + residual shape" — this Model supersedes it; those sections are kept behind a supersession banner as historical context, their reasoning preserved in git history and the heat-memories memo.
+
+The model, in five lines:
+- ONE manor pool, manor lifecycle — founded once as a manor-setup act (the scriptable manor-finisher, extended, or a sibling founding step beside it), never by affiance/jilt. Pool lifecycle and foedus lifecycle are now distinct.
+- A foedus IS a PROVIDER under that one pool. affiance creates the provider (from the foedus's issuer / client-id / attribute-mapping / oidc); jilt deletes the provider.
+- A Manor lists its foedera by providers.list under its one pool (canvass flips from workforcePools.list); the foedus↔provider link rides the provider id/displayName.
+- Membership is per-individual on the stable pool — principal://…/subject/{S} kept, but S is an IdP-stable canonical claim. Normalize S across co-trusted PRODUCTION IdPs (the multi-real-IdP future); namespace-disjoint the synthetic TEST provider's subjects so a test token can never satisfy a production binding. That namespacing is LOAD-BEARING — it is the price of co-tenancy, carrying the isolation a separate test pool would have given for free.
+- Substrate-only scope: this fixes the identity substrate and UNBLOCKS, but does not build, the governor-selects / sanctioned-set authz model (the "governor's role in federation" idea below, which stays the deferred premise-gated feature).
+
+Why (the IT-maintainability lens + sole-operator simplicity): a workforce pool is the org-stable identity container; IdP variety belongs in PROVIDERS under it, not in per-IdP pools. Per-foedus pools made onboarding an IdP a pool change and fragmented membership across pools; one pool with providers is how GCP WIF is meant to be run. One pool for everything — the synthetic test rig included — is the simplest shape (operator decision 260630, choosing simplicity over a separate test pool; the co-tenancy impersonation risk is closed by the subject-namespacing rule above, which becomes mandatory).
+
+Reversed cinches (each was deliberately settled — several by terminal Fable review; this Model overturns them, old reasoning in git history + the heat-memories memo, NOT lost):
+- single-active-foedus topology (260623) → providers co-resident under one pool; "single-active" dissolves (depot-affiliation/selection defers with governor-selects).
+- per-foedus pool / "RBRF manifold, one pool per foedus" → one manor pool; RBRF_WORKFORCE_POOL_ID becomes a manor-level value, RBRF_PROVIDER_ID the per-foedus discriminator; foedus ≡ provider.
+- affiance/jilt as pool create/destroy, "affiance FAST-FAILS on a pre-existing pool", refuse-and-rotate → affiance/jilt are PROVIDER create/destroy; the pool is founded once at manor setup; refuse-and-rotate is moot (the pool is not rotated).
+- "pool rotation re-admits every citizen" → moot; the stable manor pool is never rotated (the old rotation-coupling pain dissolves).
+- one-terrier-per-manor with "per-foedus cardinality out of scope" → the terrier muniment is pool/provider/foedus-BLIND (records only (subject, mantle)); under co-resident providers a manor-wide rehearse conflates foedera, and a pool-independent subject makes silent key collisions structural — the muniment gains a provider dimension, with an on-disk migration owed.
+- canvass via workforcePools.list → providers.list.
+
+Contract-first (the heat's own hard rule): the spec re-cut leads, before any code — RBSRF (pool→manor-level home, foedus≡provider), RBSMA (affiance→add-provider), RBSFD (descry verdicts fork), and the RBS0 federation civics. No affiance/jilt/canvass/terrier code before the specs land.
+
+Still valid (the change touches pool + membership only): the vendor-agnostic-core conviction, avow/sitting/quash, the Keycloak de-lamination + orchestrator (now provisioning a PROVIDER, not a pool), the accessor STS layer (already provider-aware — audience and sitting-cache key on pool AND provider), and the vocabulary census all stand.
+
+New sub-works this substrate adds: the terrier muniment provider-dimension + on-disk migration; RBPC's freehold-subject goes multi (the deferred single-const opens); the subject-namespacing discipline (test provider disjoint from production).
+
+Source for cutting the re-cut paces: the four 260630 spec studies (founding, membership, terrier, test-bed/accessor) carry the per-surface change-lists and the steelman. Pace triage — re-cut the model-touching paces, keep the orthogonal loose-ends — is the next groom step.
+
 ## Federation vocabulary — the minted census (chosen; the recast does not re-derive these)
 
 The federation naming is substantially settled; this census is the single prominent home, so a mount agent reads "chosen" before reaching for the mint.
@@ -232,6 +262,8 @@ Source material for cutting these paces: the federation-config-model memo (Memos
 
 ## Foedus lifecycle — the two-tier test-bed (settled topology + scoped design pass)
 
+SUPERSEDED 260630 by "Model — the one-pool identity substrate" above. The single-active topology, the two-tier light/nuclear framing, and the stable-vs-ephemeral signing-key oscillation here are reversed; kept as historical context (reasoning in git history + the heat-memories memo). The strands it gathers — freehold, the release-suites' credential-heal, the authentic-verb fixture (parley) — survive; re-read them through the Model.
+
 The audit's pool-topology gap — the build spine quietly assumed a manor could hold two foedera at once, which nothing slated builds — resolves here, and it opens a strand that gathers four deferred ideas into one design.
 
 Topology (operator decision 260623): single-active-foedus, switched lightly.
@@ -327,6 +359,8 @@ Partition provenance (the cross-heat split that reshaped this heat into the fede
 The full how-we-got-there record is the cross-heat split-study provenance memo.
 
 ## Foedus switching — AUTHORED + residual shape
+
+PARTLY SUPERSEDED 260630 by "Model — the one-pool identity substrate" above. STANDS: the rbef_ library, the RBRR_ACTIVE_FOEDUS selector, instate/descry as verbs, RBRF_COGNOMEN evicted. REVERSED by the Model: "one pool per foedus / RBRF manifold", affiance-fast-fails-on-pre-existing-pool, pool-rotation-re-admits-every-citizen, canvass via workforcePools.list. The wrapped RBSRF / RBSFD / RBSMA named here are re-cut by the Model's contract-first paces — read them as the pre-260630 baseline, not the target.
 
 The test-bed switching design is authored contract-first and wrapped: RBSFD (descry), RBSFI (instate), RBSRR (the RBRR_ACTIVE_FOEDUS selector + a Federation Selection group), RBSRF (restructured to a library). Those specs are the truth; this block records the heat-shape and the residual, and supersedes every earlier selector / cognomen / committed-JWKS / canvass note above.
 
