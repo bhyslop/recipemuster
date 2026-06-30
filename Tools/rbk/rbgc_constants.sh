@@ -274,6 +274,17 @@ zrbgc_kindle() {
   # Pre-MVP: no back-compat; every author writes rblv_ keys, augur reads rblv_ ONLY.
   readonly RBGC_LODE_VOUCH_SCHEMA="rbld-vouch-3"    # unsigned, schema-versioned, rblv_ sprue
 
+  # Conjure resolved-base image label — the sprued key prefix for the per-slot base
+  # digest pins rbgjb03/rbgjb04 emit onto the consumer image (and which survive the
+  # pullback into the signed attest image; read back by plumb). Composes as
+  # <prefix>_<n> → rbi_resolved_base_1..3, one per populated RBF_IMAGE_n slot. This
+  # is an image-config LABEL, not a registry tag — but shares the rbi_ image-domain
+  # sprue. Its neighbor build labels (hallmark, git.commit, git.branch) stay UNSPRUED
+  # by deliberate divergence. The cloud step that writes the label sources no
+  # constants, so the key is a literal there; this constant is the host home (plumb
+  # reads it) and the repo-wide grep gate keeps the two in sync.
+  readonly RBGC_IMAGE_LABEL_RESOLVED_BASE="rbi_resolved_base"
+
   # wsl-kind acquisition convention — NOT a resolved coordinate (see RBSLU). Per
   # the no-FQIN premise, intent stays declarative and the pipeline computes the
   # coordinate: underpin takes the substrate version as ARGUMENTS (release + point,

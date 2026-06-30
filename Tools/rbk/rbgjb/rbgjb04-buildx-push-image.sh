@@ -1,5 +1,5 @@
 #!/bin/bash
-# RBGJB Step 03: Build all platforms and push consumer-facing image to GAR
+# RBGJB Step 04: Build all platforms and push consumer-facing image to GAR
 # Builder: gcr.io/cloud-builders/docker
 # Substitutions: _RBGY_DOCKERFILE, _RBGY_PLATFORMS,
 #                _RBGY_GAR_LOCATION, _RBGY_GAR_PROJECT, _RBGY_GAR_REPOSITORY,
@@ -11,6 +11,16 @@
 # Uses buildx --push with docker-container driver. Cloud Build pre-populates
 # Docker credentials in the host daemon; buildx inherits them via the
 # docker-container driver's config propagation.
+#
+# Base pinning: rbgjb03 resolved each populated base slot's tag to a digest and
+# wrote the pinned ref "<ref>@sha256:<digest>" to .resolved_base_n. This step
+# uses that pinned ref TWICE per slot: as the RBF_IMAGE_n build-arg (so buildx
+# provably builds FROM exactly the resolved digest) and as the rbi_resolved_base_n
+# image label (the signed, tamper-evident record of the resolved base — RBSAC).
+# The rbi_resolved_base_n label key is sprued; the host home of the key prefix is
+# RBGC_IMAGE_LABEL_RESOLVED_BASE (cloud steps source no constants, so it is a
+# literal here — the grep gate keeps the two in sync). The neighbor labels
+# (hallmark, git.commit, git.branch) stay unsprued by deliberate divergence.
 #
 # Image URI shape: <host>/<project>/<repo>/<HALLMARKS_ROOT>/<HALLMARK>/<image-basename>:<HALLMARK>
 
@@ -28,11 +38,28 @@ test -n "${_RBGY_GIT_COMMIT}"          || (echo "_RBGY_GIT_COMMIT missing"      
 test -n "${_RBGY_GIT_BRANCH}"          || (echo "_RBGY_GIT_BRANCH missing"          >&2; exit 1)
 test -n "${_RBGY_ARK_BASENAME_IMAGE}"  || (echo "_RBGY_ARK_BASENAME_IMAGE missing"  >&2; exit 1)
 
-# Resolve base image build-args (anchored GAR refs or upstream pass-through)
+# Pin each populated base slot to its rbgjb03-resolved digest, and record it as a
+# sprued image label. A populated _RBGY_IMAGE_n slot MUST have a .resolved_base_n
+# (rbgjb03 fatals on resolve failure and runs before this step) — its absence is a
+# build-assembly error, not a license to build unpinned.
 BUILD_ARGS=()
-test -z "${_RBGY_IMAGE_1}" || BUILD_ARGS+=(--build-arg "RBF_IMAGE_1=${_RBGY_IMAGE_1}")
-test -z "${_RBGY_IMAGE_2}" || BUILD_ARGS+=(--build-arg "RBF_IMAGE_2=${_RBGY_IMAGE_2}")
-test -z "${_RBGY_IMAGE_3}" || BUILD_ARGS+=(--build-arg "RBF_IMAGE_3=${_RBGY_IMAGE_3}")
+RESOLVED_BASE_LABELS=()
+zrbgjb_pin_slot() {
+  local z_n="$1"
+  local z_origin_var="_RBGY_IMAGE_${z_n}"
+  local z_origin="${!z_origin_var}"
+  local z_pinfile=".resolved_base_${z_n}"
+  test -n "${z_origin}" || return 0
+  test -s "${z_pinfile}" \
+    || { echo "resolved base missing for slot ${z_n} (rbgjb03 must run before buildx)" >&2; exit 1; }
+  local z_pinned
+  z_pinned="$(cat "${z_pinfile}")"
+  BUILD_ARGS+=(--build-arg "RBF_IMAGE_${z_n}=${z_pinned}")
+  RESOLVED_BASE_LABELS+=(--label "rbi_resolved_base_${z_n}=${z_pinned}")
+}
+zrbgjb_pin_slot 1
+zrbgjb_pin_slot 2
+zrbgjb_pin_slot 3
 
 test -s .hallmark || (echo "hallmark not derived" >&2; exit 1)
 HALLMARK="$(cat .hallmark)"
@@ -69,6 +96,7 @@ docker buildx build \
   --label "hallmark=${HALLMARK}" \
   --label "git.commit=${_RBGY_GIT_COMMIT}" \
   --label "git.branch=${_RBGY_GIT_BRANCH}" \
+  "${RESOLVED_BASE_LABELS[@]}" \
   "${BUILD_ARGS[@]}" \
   -f "${_RBGY_DOCKERFILE}" \
   .

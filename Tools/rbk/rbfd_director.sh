@@ -501,9 +501,11 @@ zrbfd_stitch_build_json() {
   fi
 
   # Step definitions: script|builder|entrypoint|id
-  # Entrypoint 'bash' → #!/bin/bash shebang, 'sh' → #!/bin/sh shebang (GCB script field)
+  # Entrypoint 'bash' → #!/bin/bash, 'sh' → #!/bin/sh, 'busybox' → #!/busybox/sh
+  # (the reliquary gcrane :debug builder carries only /busybox/sh) — GCB script field
   # Delimiter is | because image refs contain colons (sha256 digests)
-  # Pipeline: buildx --push → per-platform pullback → SLSA provenance via images: field
+  # Pipeline: resolve base digests → buildx --push → per-platform pullback → SLSA
+  # provenance via images: field
   local z_step_defs=(
     "rbgjb01-derive-tag-base.sh|${z_rbfc_tool_gcloud}|bash|derive-tag-base"
   )
@@ -511,10 +513,11 @@ zrbfd_stitch_build_json() {
     z_step_defs+=("rbgjb02-qemu-binfmt.sh|${z_rbfc_tool_docker}|bash|qemu-binfmt")
   fi
   z_step_defs+=(
-    "rbgjb03-buildx-push-image.sh|${z_rbfc_tool_docker}|bash|buildx-push-image"
-    "rbgjb04-per-platform-pullback.sh|${z_rbfc_tool_docker}|bash|per-platform-pullback"
-    "rbgjb05-push-per-platform.sh|${z_rbfc_tool_docker}|bash|push-per-platform"
-    "rbgjb06-push-diags.sh|${z_rbfc_tool_docker}|bash|push-diags"
+    "rbgjb03-resolve-base-digests.sh|${z_rbfc_tool_gcrane}|busybox|resolve-base-digests"
+    "rbgjb04-buildx-push-image.sh|${z_rbfc_tool_docker}|bash|buildx-push-image"
+    "rbgjb05-per-platform-pullback.sh|${z_rbfc_tool_docker}|bash|per-platform-pullback"
+    "rbgjb06-push-per-platform.sh|${z_rbfc_tool_docker}|bash|push-per-platform"
+    "rbgjb07-push-diags.sh|${z_rbfc_tool_docker}|bash|push-diags"
   )
 
   # Compute platform suffixes (used in images: field and substitutions)
@@ -576,9 +579,10 @@ zrbfd_stitch_build_json() {
     z_body="${z_body//\$\{ZRBF_BUILD_STRATEGY\}/${z_build_strategy}}"
 
     case "${z_entrypoint}" in
-      bash) z_shebang="#!/bin/bash" ;;
-      sh)   z_shebang="#!/bin/sh" ;;
-      *)    buc_die "Unknown entrypoint: ${z_entrypoint}" ;;
+      bash)    z_shebang="#!/bin/bash" ;;
+      sh)      z_shebang="#!/bin/sh" ;;
+      busybox) z_shebang="#!/busybox/sh" ;;
+      *)       buc_die "Unknown entrypoint: ${z_entrypoint}" ;;
     esac
     printf '%s\n%s' "${z_shebang}" "${z_body}" > "${z_escaped_file}" \
       || buc_die "Failed to write script body for ${z_id}"

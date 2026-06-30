@@ -1,5 +1,5 @@
 #!/bin/bash
-# RBGJB Step 06: Push diagnostic files as diags registry artifact
+# RBGJB Step 07: Push diagnostic files as diags registry artifact
 # Builder: gcr.io/cloud-builders/docker
 # Substitutions: _RBGY_DOCKERFILE,
 #                _RBGY_GAR_LOCATION, _RBGY_GAR_PROJECT, _RBGY_GAR_REPOSITORY,
@@ -11,9 +11,9 @@
 # artifact and merges its contents into the about container.
 #
 # Files included:
-#   buildkit_metadata.json  - BuildKit resolved base images and build parameters (from step 03)
-#   cache_before.json       - Docker daemon state before build (from step 03)
-#   cache_after.json        - Docker daemon state after pushes (from step 05)
+#   buildkit_metadata.json  - BuildKit resolved base images and build parameters (from step 04)
+#   cache_before.json       - Docker daemon state before build (from step 04)
+#   cache_after.json        - Docker daemon state after pushes (from step 06)
 #   recipe.txt              - Dockerfile content (no size limit, unlike substitution variable)
 #
 # The diags artifact persists in the registry as a durable record.

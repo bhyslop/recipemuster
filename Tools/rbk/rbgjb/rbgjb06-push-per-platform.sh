@@ -1,5 +1,5 @@
 #!/bin/bash
-# RBGJB Step 05: Push each per-platform attest tag to registry
+# RBGJB Step 06: Push each per-platform attest tag to registry
 # Builder: gcr.io/cloud-builders/docker
 # Substitutions: _RBGY_PLATFORM_SUFFIXES,
 #                _RBGY_GAR_LOCATION, _RBGY_GAR_PROJECT, _RBGY_GAR_REPOSITORY,
