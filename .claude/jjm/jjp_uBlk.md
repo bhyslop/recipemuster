@@ -12,15 +12,14 @@ Mull and sophisticate the feature in the sheaf; this paddock holds only heat sha
 Stabled and aspirant — not yet binding, not under development.
 Destined to infuse into JJS0 (it is the persistence story of the gallops it already describes).
 
-## Shared lock service (nucleating)
+## Revision-control architecture (nucleating)
 
-The locked-edit transaction this heat describes is being firmed up as a *shared* git-CAS write-lock —
-the same rust engine the mews fleet store uses, pure git and no cloud service —
-nucleated for now in `Memos/memo-20260630-multiclone-lock-service.md`.
-That memo also records the three-repo impact —
-the work-code repo's commit SHA is journaled here through the existing tack member `jjdcm_basis` —
-and the spec-structure finding: one `axo_entity` with methods, not separate lock/unlock sheaves.
-Read it as provenance, not authority until it settles into an entity sheaf.
+The locked-edit transaction this heat describes has grown into a shared revision-control architecture —
+the git-CAS lock (gallops/mews only, pure git), the lock-free source path (the operator is the trunk's lock),
+a polymorphic VCS driver coherent on pins, repo naming, and glyphed revision insignia aliasing the linear hashes —
+nucleated for now in `Memos/memo-20260630-jj-revision-control-architecture.md`.
+The work-code repo's commit SHA is journaled here through the existing tack member `jjdcm_basis`.
+Read it as provenance, not authority until a sheaf is named.
 
 ## Character
 
