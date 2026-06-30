@@ -20141,8 +20141,8 @@
         "₢BlAAT": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260625-1650",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260630-1059",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "Revive rbq_qualify's dead colophon-freshness check — it currently validates ZERO tabtargets, so an unregistered or stale colophon passes qualify silently.",
                 "",
@@ -20164,7 +20164,7 @@
                 "Investigation-then-mechanical: confirm the zero-count cause from the live scan, repair the match, prove the net fires. Independent of the crucible / zipper refactor work."
               ],
               "jjgtn_silks": "qualify-colophon-check-revive",
-              "jjgtn_basis": "65665bf"
+              "jjgtn_basis": "0feaa56"
             }
           ]
         },
