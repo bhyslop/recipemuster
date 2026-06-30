@@ -250,9 +250,12 @@ vob_release() {
     buc_log_args "New brand: ${z_brand}"
 
     local z_kit_list="${z_managed_kits// /, }"
-    "${z_vvx}" commit \
+    # Plain commit (vvx_commit stages with git add -A): the clean-tree gate above
+    # plus the tarball-after-commit ordering leave the registry as the only dirty
+    # tracked file at this point.
+    "${z_vvx}" vvx_commit \
       --message "vvb:${z_brand}::A: allocate brand for ${z_kit_list}" \
-      --file "${z_registry}" || buc_die "Failed to commit registry"
+      || buc_die "Failed to commit registry"
 
     buc_log_args "Registry committed"
   fi
