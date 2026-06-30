@@ -19776,8 +19776,8 @@
         "₢BlAAG": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260624-2240",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260630-0944",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "Drafted from ₢BfAAc in ₣Bf.",
                 "",
@@ -19793,7 +19793,7 @@
                 "Surgical dead-code removal."
               ],
               "jjgtn_silks": "ifrit-invoke-dead-code-removal",
-              "jjgtn_basis": "f676ede"
+              "jjgtn_basis": "c4148c8"
             }
           ]
         },
