@@ -19949,8 +19949,8 @@
         "₢BlAAL": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260624-2240",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260630-1339",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "Drafted from ₢BfAAY in ₣Bf.",
                 "",
@@ -19966,7 +19966,7 @@
                 "Trivial within-file fold, coverage-neutral."
               ],
               "jjgtn_silks": "onboarding-reliquary-probe-helper",
-              "jjgtn_basis": "f676ede"
+              "jjgtn_basis": "1fcf57f"
             }
           ]
         },
