@@ -80,19 +80,16 @@ The gap closes either way; it does not close by silence.
 
 ## REUSE-path tabtargets — descry and instate
 
-The settled premise these two verbs serve is single-active-foedus, switched lightly (operator decision 260623):
-one foedus is live in the regime at a time,
-and a test points the regime at the standing foedus it runs against,
-never holding two at once.
-Because only one is active, the existing singleton-keyed founding and accessor work unchanged —
-the heavy regime-as-family-of-named-instances rework is not needed for the test-bed and defers with the future governor-selects feature it alone requires.
+The premise these two verbs serve: the regime selects ONE active foedus at a time (RBRR_ACTIVE_FOEDUS), and a test points the selector at the standing foedus it runs against.
+Under the 260630 one-pool Model (₣Bf paddock) the foedera themselves now CO-RESIDE — each is a PROVIDER under one manor pool, not its own pool — so founding was re-cut to provider-grain (affiance adds a provider, jilt removes one); descry/instate stay the per-foedus select-and-check toothings, operating provider-grain.
+The broader governor-selects feature stays premise-gated and deferred.
 
 instate is the active-foedus switch toothing,
 homed in the rbw-j family.
 Its register is office: install the active foedus, one at a time, the prior stepping down —
 re-point the regime selector and force a sitting reset (quash the live sitting, re-sign-in against the new foedus).
 
-descry is the pool-integrity check toothing,
+descry is the foedus-health check toothing (provider presence under the manor pool, per the 260630 Model),
 rbw-jd, lowercase and read-only,
 rhyming with Google's describe-pool;
 its exact signature is settled upstream in the federation stream's foedus-reuse design pass — the build pace builds against the operation subdocs that pass authors, it does not re-choose the signature.
@@ -114,7 +111,7 @@ founding and dissolving a foedus stay the federation heat's verbs (Stream-FED);
 this heat builds only the switch-and-check toothing on a standing foedus.
 
 The read-all sibling canvass (rbw-jc) rounds out the foedus-cardinality family:
-it lists every foedus the manor holds by interrogating the Manor itself, emitting depot_list-shape fact files for fixture chaining, and stays a standalone tabtarget — the Lode divine/augur split, never conjoined with descry.
+it lists every foedus the manor holds by interrogating the Manor's one pool (providers.list, per the 260630 Model), emitting depot_list-shape fact files for fixture chaining, and stays a standalone tabtarget — the Lode divine/augur split, never conjoined with descry.
 Its operation sheaf is authored with descry's and instate's at the foedus-reuse design pass, so the cardinality set's contracts seat together and its build pace only consumes the sheaf.
 
 ## Provenance
