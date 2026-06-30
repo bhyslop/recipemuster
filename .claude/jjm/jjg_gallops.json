@@ -1,6 +1,7 @@
 {
   "jjgrn_next_heat_seed": "Bp",
   "jjgrn_heat_order": [
+    "₣Bo",
     "₣Bi",
     "₣Bl",
     "₣Bf",
@@ -35,8 +36,7 @@
     "₣BC",
     "₣BI",
     "₣BL",
-    "₣Ba",
-    "₣Bo"
+    "₣Ba"
   ],
   "jjgrn_heats": {
     "₣A-": {
@@ -20400,7 +20400,7 @@
     "₣Bo": {
       "jjghn_silks": "rbk-05-federation-itches",
       "jjghn_creation_time": "260627",
-      "jjghn_status": "jjghe_stabled",
+      "jjghn_status": "jjghe_racing",
       "jjghn_order": [
         "₢BoAAA",
         "₢BoAAB",
