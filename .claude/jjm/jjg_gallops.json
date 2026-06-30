@@ -19814,8 +19814,8 @@
         "₢BlAAH": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260624-2240",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260630-1056",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "Drafted from ₢BfAAW in ₣Bf.",
                 "",
@@ -19831,7 +19831,7 @@
                 "Coverage-neutral lift; the helpers are already proven in onboarding."
               ],
               "jjgtn_silks": "ordain-capture-helpers-to-shared-home",
-              "jjgtn_basis": "f676ede"
+              "jjgtn_basis": "2adf990"
             }
           ]
         },
