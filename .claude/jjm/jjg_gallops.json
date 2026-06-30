@@ -19788,10 +19788,11 @@
         "₢BlAAV",
         "₢BlAAW",
         "₢BlAAX",
+        "₢BlAAc",
         "₢BlAAY",
         "₢BlAAb"
       ],
-      "jjghn_next_pace_seed": "AAc",
+      "jjghn_next_pace_seed": "AAd",
       "jjghn_paces": {
         "₢BlAAA": {
           "jjgpn_tacks": [
@@ -20305,21 +20306,21 @@
         "₢BlAAS": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260624-2333",
+              "jjgtn_ts": "260630-1536",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "BARRIER — cross-clone wait. No code work of its own.",
-                "This pace cannot complete until ₢BfAAO (heat ₣Bf — the federation spec recast that seats the RBS0-SpecTop federation block, the foedus civic quoin, and the mechanism-discriminator) is complete, pushed to origin, and origin merged back into this clone.",
-                "Only then may the next pace — the theurge-cosmology subdoc finalize — proceed, appending its cosmology region as a disjoint region behind FED's federation block rather than racing it.",
+                "This pace cannot complete until ₢BfAAv (heat ₣Bf — the 260630 one-pool spec re-cut that re-cuts the RBS0-SpecTop federation block to foedus≡provider; retargeted from the stale ₢BfAAO, which seated the OLD block ₢BfAAv now re-cuts) is complete, pushed to origin, and origin merged back into this clone.",
+                "Only then may the next pace — the theurge-cosmology subdoc finalize — proceed, appending its cosmology region as a disjoint region behind FED's RE-CUT federation block rather than racing the re-cut.",
                 "",
                 "## Done when",
-                "₢BfAAO is wrapped and pushed to origin, and this clone has pulled origin so the RBS0 federation block is present here.",
+                "₢BfAAv is wrapped and pushed to origin, and this clone has pulled origin so the re-cut RBS0 federation block is present here.",
                 "",
                 "## Character",
-                "Cross-clone barrier; hold here until the named pace is merged through."
+                "Cross-clone barrier; retargeted 260630 from ₢BfAAO (the old block) to ₢BfAAv (the re-cut), so the cosmology appends behind the current federation block."
               ],
               "jjgtn_silks": "await-fed-rbs0-block",
-              "jjgtn_basis": "c01c300"
+              "jjgtn_basis": "be14aa9"
             }
           ]
         },
@@ -20577,6 +20578,27 @@
               ],
               "jjgtn_silks": "colophon-completeness-check",
               "jjgtn_basis": "0ebc648"
+            }
+          ]
+        },
+        "₢BlAAc": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260630-1536",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "BARRIER — cross-clone wait. No code work of its own.",
+                "This pace cannot complete until ₢BfAAt (heat ₣Bf — terrier-band-discrimination: the bubc terrier bands plus the rbuh fault-injection seam) is complete, pushed to origin, and origin merged back into this clone.",
+                "The next pace — the terrier-poison fixture (₢BlAAY) — forces each terrier error through the rbuh seam and asserts the EXACT bubc terrier band, so the bands and seam ₢BfAAt creates must be present here first.",
+                "",
+                "## Done when",
+                "₢BfAAt is wrapped and pushed to origin, and this clone has pulled origin so the bubc terrier bands + the rbuh seam are present before ₢BlAAY asserts them.",
+                "",
+                "## Character",
+                "Cross-clone barrier (the terrier zigzag ₢BfAAt → ₢BlAAY → ₢BfAAz, the ₣Bl→₣Bf hand-back leg); hold here until ₢BfAAt is merged through."
+              ],
+              "jjgtn_silks": "await-fed-terrier-band",
+              "jjgtn_basis": "be14aa9"
             }
           ]
         }
