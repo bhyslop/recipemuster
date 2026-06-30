@@ -20366,9 +20366,10 @@
       "jjghn_status": "jjghe_stabled",
       "jjghn_order": [
         "₢BoAAA",
-        "₢BoAAB"
+        "₢BoAAB",
+        "₢BoAAC"
       ],
-      "jjghn_next_pace_seed": "AAC",
+      "jjghn_next_pace_seed": "AAD",
       "jjghn_paces": {
         "₢BoAAA": {
           "jjgpn_tacks": [
@@ -20452,6 +20453,48 @@
               ],
               "jjgtn_silks": "mantle-admission-denial-band",
               "jjgtn_basis": "1f10041"
+            }
+          ]
+        },
+        "₢BoAAC": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260630-1153",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Mint the canonical mantle-identity-token home, then prove mantle-don isolation by exit code.",
+                "",
+                "Today the token a subject dons — governor | director | retriever — is a bare literal in the don/probe case statements with no canonical home;",
+                "a subject lacking a mantle is denied only by the real GCP IAM at the don, surfacing as the admission band once the preceding band pace lands.",
+                "",
+                "## Spec of needed change",
+                "Mint RBCC_mantle_{governor,director,retriever} in rbcc_constants.sh — the canonical identity-token home, values the bare tokens; add a companion set only if the matrix needs iteration (avoid the word \"roster\" — it names the muniment roll).",
+                "This is the identity-token sprue RBCC_mantle_, DISTINCT from the mantle-ACCOUNT sprue rbma_/rbma- (RBSMF), which stays GCP-bound — the rbma- SA local-parts are unchanged.",
+                "Point the bare-literal case statements that match the token (rba_don_capture, rbgv_check_mantle) at the new home.",
+                "Add a per-enrollment required-mantle declaration to the zipper (value references RBCC_mantle_*, or none); code-gen emits the colophon->mantle map into the generated theurge consts (RBTDGC_).",
+                "The required-mantle field is TEST-HARNESS METADATA ONLY — never read by dispatch for client-side enforcement, which would mask the real Depot IAM denial under test; state that in the field's contract.",
+                "Build a probe-driven leave-one-out isolation fixture (theurge): brevet the freehold subject onto two mantles, withhold the third, assert the probe (rbw-am) on the withheld mantle rejects with the admission band while the held two reach AR.",
+                "",
+                "## Done when",
+                "RBCC_mantle_* is the single token home and the don/probe case statements reference it;",
+                "a lacking/withheld-mantle don rejects with the admission band from the tabtarget exit;",
+                "the zipper carries the required-mantle declaration generating the colophon->mantle map, the field documented test-only;",
+                "a theurge leave-one-out fixture proves via the probe that the IAM denies a withheld mantle (admission band) while held mantles reach AR.",
+                "",
+                "## Cinched",
+                "Single-valued: a colophon requires exactly one mantle (people hold many; colophons require one).",
+                "The leave-one-out runtime IS the drift guard — a colophon donning a non-withheld mantle surfaces as an unexpected success; no static bash analysis, no derivation.",
+                "The probe (rbw-am) is the generic mantle-don entry, so the matrix proves the IAM-denial MECHANISM now; per-colophon production rows auto-extend as the foundry/lode surface migrates to mantle-don (today only the governor polity verbs and the probe reach the don).",
+                "Identity-token sprue RBCC_mantle_ is not the mantle-account sprue rbma_/rbma- (RBSMF); the latter stays.",
+                "Payor isolation deferred — payor is OAuth, not a mantle, denied via a different 403.",
+                "Tests assert the named band, never output text.",
+                "Depends on the admission band from the preceding band pace (₢BoAAB); coordinate with the ₣Bl parley fixture (₢BlAAX) — do not duplicate the don/unseat scaffolding.",
+                "",
+                "## Character",
+                "Bash mint + case-statement reference + zipper field and code-gen + one probe-driven leave-one-out theurge fixture; the band and the token home are settled this chat (260630)."
+              ],
+              "jjgtn_silks": "mantle-token-home-and-isolation-matrix",
+              "jjgtn_basis": "c851dc6"
             }
           ]
         }
