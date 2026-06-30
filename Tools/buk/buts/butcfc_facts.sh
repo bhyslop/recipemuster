@@ -42,14 +42,24 @@ zbutcfc_seed() {
   printf '%s\n' "${z_value}" > "${z_dir}/${z_name}" || buto_fatal "seed failed: ${z_dir}/${z_name}"
 }
 
+# Seed a fact into the previous/ dir, creating the dir first. The five
+# seed-into-previous cases share this mkdir+seed prelude; BURD_PREVIOUS_DIR is
+# readonly and cannot be redirected, so the mkdir stays inline here rather than
+# lifted to a one-time setup.
+zbutcfc_seed_previous() {
+  local -r z_name="${1}"
+  local -r z_value="${2}"
+  mkdir -p "${BURD_PREVIOUS_DIR}" || buto_fatal "mkdir previous failed"
+  zbutcfc_seed "${BURD_PREVIOUS_DIR}" "${z_name}" "${z_value}"
+}
+
 ######################################################################
 # Test cases — direct assertions inside zbute_tcase subshell
 
 butcfc_relay_forwards_tcase() {
   buto_trace "buf_relay: forwards a previous fact into current"
 
-  mkdir -p "${BURD_PREVIOUS_DIR}" || buto_fatal "mkdir previous failed"
-  zbutcfc_seed "${BURD_PREVIOUS_DIR}" "butcfc_fwd" "forwarded-value"
+  zbutcfc_seed_previous "butcfc_fwd" "forwarded-value"
 
   buf_relay || buto_fatal "buf_relay failed"
 
@@ -61,8 +71,7 @@ butcfc_relay_forwards_tcase() {
 butcfc_relay_preserves_current_tcase() {
   buto_trace "buf_relay: never clobbers a file already present in current"
 
-  mkdir -p "${BURD_PREVIOUS_DIR}" || buto_fatal "mkdir previous failed"
-  zbutcfc_seed "${BURD_PREVIOUS_DIR}" "butcfc_pres" "from-previous"
+  zbutcfc_seed_previous "butcfc_pres" "from-previous"
   zbutcfc_seed "${BURD_OUTPUT_DIR}"   "butcfc_pres" "from-current"
 
   buf_relay || buto_fatal "buf_relay failed"
@@ -75,8 +84,7 @@ butcfc_relay_preserves_current_tcase() {
 butcfc_relay_idempotent_tcase() {
   buto_trace "buf_relay: a second call is a no-op no-clobber and still succeeds"
 
-  mkdir -p "${BURD_PREVIOUS_DIR}" || buto_fatal "mkdir previous failed"
-  zbutcfc_seed "${BURD_PREVIOUS_DIR}" "butcfc_idem" "v1"
+  zbutcfc_seed_previous "butcfc_idem" "v1"
 
   buf_relay || buto_fatal "buf_relay first call failed"
   buf_relay || buto_fatal "buf_relay second call failed"
@@ -88,8 +96,7 @@ butcfc_relay_idempotent_tcase() {
 butcfc_read_fact_tcase() {
   buto_trace "buf_read_fact_capture: emits the bare value (newline stripped) from previous"
 
-  mkdir -p "${BURD_PREVIOUS_DIR}" || buto_fatal "mkdir previous failed"
-  zbutcfc_seed "${BURD_PREVIOUS_DIR}" "butcfc_greeting" "hello world"
+  zbutcfc_seed_previous "butcfc_greeting" "hello world"
 
   local z_value
   z_value=$(buf_read_fact_capture "butcfc_greeting") || buto_fatal "buf_read_fact_capture failed on present fact"
@@ -122,8 +129,7 @@ butcfc_elect_express_tcase() {
 butcfc_elect_chain_tcase() {
   buto_trace "buf_elect_fact_capture: an empty express value falls back to the chained fact"
 
-  mkdir -p "${BURD_PREVIOUS_DIR}" || buto_fatal "mkdir previous failed"
-  zbutcfc_seed "${BURD_PREVIOUS_DIR}" "butcfc_chained" "from-chain"
+  zbutcfc_seed_previous "butcfc_chained" "from-chain"
 
   local z_value
   z_value=$(buf_elect_fact_capture "" "butcfc_chained") \
