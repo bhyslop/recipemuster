@@ -20405,9 +20405,10 @@
         "₢BoAAA",
         "₢BoAAB",
         "₢BoAAC",
-        "₢BoAAD"
+        "₢BoAAD",
+        "₢BoAAE"
       ],
-      "jjghn_next_pace_seed": "AAE",
+      "jjghn_next_pace_seed": "AAF",
       "jjghn_paces": {
         "₢BoAAA": {
           "jjgpn_tacks": [
@@ -20566,6 +20567,38 @@
               ],
               "jjgtn_silks": "account-localpart-mantle-token-converge",
               "jjgtn_basis": "154905a"
+            }
+          ]
+        },
+        "₢BoAAE": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260630-1242",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "The about+vouch SBOM step fails on a single-arch image.",
+                "rbgja02-syft-per-platform.sh's single-platform branch scans the bare image tag with no platform constraint,",
+                "so syft falls back to its linux/amd64 default and dies (\"no child with platform linux/amd64\") on an arm64-only image —",
+                "the shape a local graft build on Apple Silicon produces, which is why ordain_graft_demo is the first case to hit it.",
+                "Pin the actual discovered platform so single-arch images get an SBOM.",
+                "",
+                "## Done when",
+                "A single-arch (locally-built arm64) image produces an SBOM through the about pipeline,",
+                "and onboarding-sequence's ordain_graft_demo case completes its about+vouch build green.",
+                "",
+                "## Cinched",
+                "Always generate the SBOM — never skip syft for graft.",
+                "The SBOM is a content inventory for CVE response, valuable independent of build provenance;",
+                "graft's low-provenance is the trust axis, not the inventory axis (the skip-for-graft alternative was studied and declined).",
+                "Fix by pinning the discovered platform in the single-platform scan — pass --platform, or reuse the @digest the multi-platform branch already pins (platform_digests.txt is always written by discover-platforms).",
+                "Fold in SYFT_CHECK_FOR_APP_UPDATE=false to kill the anchore.io version-check egress timeout (a non-fatal warning in the same step).",
+                "Spec home: RBSAB (about pipeline).",
+                "",
+                "## Character",
+                "Small, well-targeted cloud-step fix; mechanism fully diagnosed."
+              ],
+              "jjgtn_silks": "syft-single-arch-sbom-fix",
+              "jjgtn_basis": "321476c"
             }
           ]
         }
