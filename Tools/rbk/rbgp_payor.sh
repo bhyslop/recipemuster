@@ -1257,29 +1257,70 @@ rbgp_manor_affiance() {
       buc_info "Provider ${z_provider_id} already present — leaving in place (drift-reconcile is a named follow-up)"
       ;;
     404)
-      # webSsoConfig (ID_TOKEN / ONLY_ID_TOKEN_CLAIMS) is an affiance-fixed
-      # protocol constant — the spike-proven shape that serves the device flow,
-      # not regime config. attributeMapping is parsed from the regime's
-      # comma-separated key=value string inside jq (the validator guarantees it
-      # maps google.subject).
+      # The provider oidc block is the one mechanism-variant part of affiance
+      # (RBSMA): pool, attributeMapping, issuerUri, and clientId are
+      # mechanism-invariant; interactive adds device-flow web-sso over
+      # issuer-discovered keys, programmatic adds the uploaded public JWKS GCP
+      # validates self-supplied JWTs against. affiance treats RBRF_IDP_JWKS_JSON as
+      # an opaque regime value — it never reads realm contents (vendor-blind).
+      # attributeMapping is parsed from the regime's comma-separated key=value
+      # string inside jq (the validator guarantees it maps google.subject).
       local -r z_provider_body="${BURD_TEMP_DIR}/rbgp_affiance_provider.json"
-      jq -n \
-        --arg displayName "${z_provider_id}" \
-        --arg issuerUri   "${RBRF_IDP_ISSUER}" \
-        --arg clientId    "${RBRF_IDP_CLIENT_ID}" \
-        --arg mapping     "${RBRF_ATTRIBUTE_MAPPING}" \
-        '{
-          displayName: $displayName,
-          attributeMapping: ($mapping | split(",") | map(split("=") | {(.[0]): .[1]}) | add),
-          oidc: {
-            issuerUri: $issuerUri,
-            clientId: $clientId,
-            webSsoConfig: {
-              responseType: "ID_TOKEN",
-              assertionClaimsBehavior: "ONLY_ID_TOKEN_CLAIMS"
-            }
-          }
-        }' > "${z_provider_body}" || buc_die "Failed to build provider body"
+      case "${RBRF_MECHANISM}" in
+        rbnfe_interactive)
+          # webSsoConfig (ID_TOKEN / ONLY_ID_TOKEN_CLAIMS) is the spike-proven
+          # shape that serves the device flow.
+          jq -n \
+            --arg displayName "${z_provider_id}" \
+            --arg issuerUri   "${RBRF_IDP_ISSUER}" \
+            --arg clientId    "${RBRF_IDP_CLIENT_ID}" \
+            --arg mapping     "${RBRF_ATTRIBUTE_MAPPING}" \
+            '{
+              displayName: $displayName,
+              attributeMapping: ($mapping | split(",") | map(split("=") | {(.[0]): .[1]}) | add),
+              oidc: {
+                issuerUri: $issuerUri,
+                clientId: $clientId,
+                webSsoConfig: {
+                  responseType: "ID_TOKEN",
+                  assertionClaimsBehavior: "ONLY_ID_TOKEN_CLAIMS"
+                }
+              }
+            }' > "${z_provider_body}" || buc_die "Failed to build interactive provider body"
+          ;;
+        rbnfe_programmatic)
+          # jwksJson is the uploaded public JWKS as a string (REST oidc.jwksJson,
+          # the --jwk-json-path target); the orchestrator (rbxk_keycloak) strips it
+          # to the strict RSA members and re-syncs it per charge. webSsoConfig is
+          # inert under this mechanism (GCP validates against the JWKS, not
+          # web-sso) but is carried because the proof observed gcloud demand the
+          # web-sso flags alongside --jwk-json-path; whether the REST create
+          # likewise requires it is an impl-confirm to settle at the orchestrator's
+          # first live create (RBSMA webSsoConfig NOTE).
+          jq -n \
+            --arg displayName "${z_provider_id}" \
+            --arg issuerUri   "${RBRF_IDP_ISSUER}" \
+            --arg clientId    "${RBRF_IDP_CLIENT_ID}" \
+            --arg mapping     "${RBRF_ATTRIBUTE_MAPPING}" \
+            --arg jwks        "${RBRF_IDP_JWKS_JSON}" \
+            '{
+              displayName: $displayName,
+              attributeMapping: ($mapping | split(",") | map(split("=") | {(.[0]): .[1]}) | add),
+              oidc: {
+                issuerUri: $issuerUri,
+                clientId: $clientId,
+                jwksJson: $jwks,
+                webSsoConfig: {
+                  responseType: "ID_TOKEN",
+                  assertionClaimsBehavior: "ONLY_ID_TOKEN_CLAIMS"
+                }
+              }
+            }' > "${z_provider_body}" || buc_die "Failed to build programmatic provider body"
+          ;;
+        *)
+          buc_die "Unknown RBRF_MECHANISM: ${RBRF_MECHANISM}"
+          ;;
+      esac
 
       local -r z_provider_create_url="${z_providers_base}?workforcePoolProviderId=${z_provider_id}"
       rbge_lro_ok \

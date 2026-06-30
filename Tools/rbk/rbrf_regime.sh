@@ -43,13 +43,26 @@ zrbrf_kindle() {
   buv_string_enroll  RBRF_PROVIDER_ID          4   32  "Workforce pool provider ID — the IdP trust root within the pool"
   buv_string_enroll  RBRF_SESSION_DURATION     2   10  "Workforce pool session duration — the sitting cap (e.g. 3600s)"
 
-  buv_group_enroll "IdP Trust"
-  buv_string_enroll  RBRF_IDP_ISSUER           8  512  "OIDC issuer URI of the external IdP"
-  buv_string_enroll  RBRF_IDP_CLIENT_ID        1  256  "Public client (application) ID registered at the IdP for the device flow"
+  # Vendor-agnostic trust core — present under both mechanisms (RBSRF). RBRF_MECHANISM
+  # is the one discriminator that changes the required-field shape; modeled on
+  # RBRV_VESSEL_MODE. The interactive group (device flow) and programmatic group
+  # (uploaded JWKS) below are gated on it.
+  buv_group_enroll "IdP Trust Core"
+  buv_enum_enroll    RBRF_MECHANISM                   "Token-acquisition mechanism: rbnfe_interactive (device flow) or rbnfe_programmatic (self-supplied JWT)" \
+                     rbnfe_interactive rbnfe_programmatic
+  buv_string_enroll  RBRF_IDP_ISSUER           8  512  "OIDC issuer URI of the external IdP (resolvable under interactive; self-declared https identifier matched against the JWT iss under programmatic)"
+  buv_string_enroll  RBRF_IDP_CLIENT_ID        1  256  "Public client (application) ID registered at the IdP (device-flow client under interactive; must equal the JWT aud under programmatic)"
+  buv_string_enroll  RBRF_ATTRIBUTE_MAPPING    1  512  "Workforce provider attribute mapping — must map google.subject"
+
+  buv_group_enroll "Interactive Mechanism (device flow)"
+  buv_gate_enroll    RBRF_MECHANISM  rbnfe_interactive
   buv_string_enroll  RBRF_IDP_SCOPE            5  256  "Device-flow OAuth scope — must request openid, must not request offline_access"
   buv_string_enroll  RBRF_IDP_DEVICE_ENDPOINT  8  512  "IdP device authorization endpoint (RFC 8628) — Leg 1 device-code request"
   buv_string_enroll  RBRF_IDP_TOKEN_ENDPOINT   8  512  "IdP token endpoint — Leg 1 device-code polling"
-  buv_string_enroll  RBRF_ATTRIBUTE_MAPPING    1  512  "Workforce provider attribute mapping — must map google.subject"
+
+  buv_group_enroll "Programmatic Mechanism (uploaded JWKS)"
+  buv_gate_enroll    RBRF_MECHANISM  rbnfe_programmatic
+  buv_string_enroll  RBRF_IDP_JWKS_JSON        1 8192  "Uploaded public JWKS GCP validates self-supplied JWTs against (REST oidc.jwksJson); ephemeral key re-synced per charge by the orchestrator, committed nowhere"
 
   # Guard against unexpected RBRF_ variables not in enrollment
   buv_scope_sentinel RBRF RBRF_
@@ -85,26 +98,40 @@ zrbrf_enforce() {
   [[ "${RBRF_IDP_ISSUER}" =~ ^https:// ]] \
     || buc_reject "${BUBC_band_regime}" "RBRF_IDP_ISSUER must be an https:// URI: ${RBRF_IDP_ISSUER}"
 
-  [[ "${RBRF_IDP_DEVICE_ENDPOINT}" =~ ^https:// ]] \
-    || buc_reject "${BUBC_band_regime}" "RBRF_IDP_DEVICE_ENDPOINT must be an https:// URI: ${RBRF_IDP_DEVICE_ENDPOINT}"
-
-  [[ "${RBRF_IDP_TOKEN_ENDPOINT}" =~ ^https:// ]] \
-    || buc_reject "${BUBC_band_regime}" "RBRF_IDP_TOKEN_ENDPOINT must be an https:// URI: ${RBRF_IDP_TOKEN_ENDPOINT}"
-
-  # OIDC requires openid; the human-present premise forbids offline_access — a
-  # refresh token would let a run begin outside a live sitting. Both enforced here
-  # so a misconfigured scope fails at the regime boundary, not mid-avowal.
-  case " ${RBRF_IDP_SCOPE} " in
-    *" openid "*) ;;
-    *) buc_reject "${BUBC_band_regime}" "RBRF_IDP_SCOPE must request the openid scope: ${RBRF_IDP_SCOPE}" ;;
-  esac
-  case " ${RBRF_IDP_SCOPE} " in
-    *offline_access*) buc_reject "${BUBC_band_regime}" "RBRF_IDP_SCOPE must not request offline_access — the no-refresh-token premise (a live human avows at each run)" ;;
-  esac
-
+  # https required under both mechanisms (RBSRF: under programmatic GCP still
+  # demands the https scheme even though it never resolves the issuer).
   case "${RBRF_ATTRIBUTE_MAPPING}" in
     *google.subject*) ;;
     *) buc_reject "${BUBC_band_regime}" "RBRF_ATTRIBUTE_MAPPING must map google.subject: ${RBRF_ATTRIBUTE_MAPPING}" ;;
+  esac
+
+  # Mechanism-gated checks — only the active group's fields are set (buv gating
+  # leaves the inactive group unset), so each group's custom validation is guarded
+  # behind RBRF_MECHANISM. buv_vet has already proven RBRF_MECHANISM is one of the
+  # enrolled enum values.
+  case "${RBRF_MECHANISM}" in
+    rbnfe_interactive)
+      [[ "${RBRF_IDP_DEVICE_ENDPOINT}" =~ ^https:// ]] \
+        || buc_reject "${BUBC_band_regime}" "RBRF_IDP_DEVICE_ENDPOINT must be an https:// URI: ${RBRF_IDP_DEVICE_ENDPOINT}"
+      [[ "${RBRF_IDP_TOKEN_ENDPOINT}" =~ ^https:// ]] \
+        || buc_reject "${BUBC_band_regime}" "RBRF_IDP_TOKEN_ENDPOINT must be an https:// URI: ${RBRF_IDP_TOKEN_ENDPOINT}"
+      # OIDC requires openid; the human-present premise forbids offline_access — a
+      # refresh token would let a run begin outside a live sitting.
+      case " ${RBRF_IDP_SCOPE} " in
+        *" openid "*) ;;
+        *) buc_reject "${BUBC_band_regime}" "RBRF_IDP_SCOPE must request the openid scope: ${RBRF_IDP_SCOPE}" ;;
+      esac
+      case " ${RBRF_IDP_SCOPE} " in
+        *offline_access*) buc_reject "${BUBC_band_regime}" "RBRF_IDP_SCOPE must not request offline_access — the no-refresh-token premise (a live human avows at each run)" ;;
+      esac
+      ;;
+    rbnfe_programmatic)
+      # The uploaded snapshot must parse as a JWKS with at least one key; the
+      # strict RSA-member strip (kty/kid/use/alg/n/e) is the orchestrator's job
+      # before it writes this value, so affiance uploads it verbatim.
+      printf '%s' "${RBRF_IDP_JWKS_JSON}" | jq -e '(.keys | type) == "array" and (.keys | length) > 0' >/dev/null 2>&1 \
+        || buc_reject "${BUBC_band_regime}" "RBRF_IDP_JWKS_JSON must be a JWKS object with a non-empty keys array: ${RBRF_IDP_JWKS_JSON}"
+      ;;
   esac
 }
 
