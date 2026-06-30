@@ -100,16 +100,28 @@ rboo_observe() {
   # not guarantee eth0/eth1 ordering (on the WSL native-docker host the two are
   # reversed), so resolve by role the way rbjs_sentry.sh does, never by name.
   local z_sentry_enclave_if=""
-  z_sentry_enclave_if=$("${ZRBOB_RUNTIME}" exec "${ZRBOB_SENTRY}" \
-    ip -o addr show to "${RBRN_ENCLAVE_SENTRY_IP}" 2>/dev/null \
-    | awk '{print $2; exit}') || true
+  local z_if_idx="" z_if_rest=""
+  local z_enclave_addr=""
+  z_enclave_addr=$("${ZRBOB_RUNTIME}" exec "${ZRBOB_SENTRY}" \
+    ip -o addr show to "${RBRN_ENCLAVE_SENTRY_IP}" 2>/dev/null) || true
+  # First matching line's second field is the interface name (ip -o: "<idx>: <ifname> ...").
+  read -r z_if_idx z_sentry_enclave_if z_if_rest <<< "${z_enclave_addr}"
   test -n "${z_sentry_enclave_if}" \
     || buc_die "scry: no sentry interface holds enclave IP ${RBRN_ENCLAVE_SENTRY_IP} (is the crucible charged?)"
 
   local z_sentry_uplink_if=""
-  z_sentry_uplink_if=$("${ZRBOB_RUNTIME}" exec "${ZRBOB_SENTRY}" \
-    ip -o -4 addr show scope global 2>/dev/null \
-    | awk -v enc="${z_sentry_enclave_if}" '$2 != enc {print $2; exit}') || true
+  local z_ifname=""
+  local z_uplink_addrs=""
+  z_uplink_addrs=$("${ZRBOB_RUNTIME}" exec "${ZRBOB_SENTRY}" \
+    ip -o -4 addr show scope global 2>/dev/null) || true
+  # First global interface whose name differs from the enclave leg is the uplink.
+  while read -r z_if_idx z_ifname z_if_rest; do
+    test -n "${z_ifname}" || continue
+    if test "${z_ifname}" != "${z_sentry_enclave_if}"; then
+      z_sentry_uplink_if="${z_ifname}"
+      break
+    fi
+  done <<< "${z_uplink_addrs}"
   test -n "${z_sentry_uplink_if}" \
     || buc_die "scry: no sentry uplink interface found (enclave=${z_sentry_enclave_if})"
 
