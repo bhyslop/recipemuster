@@ -19691,13 +19691,14 @@
         "₢BlAAS",
         "₢BlAAO",
         "₢BlAAP",
+        "₢BlAAa",
         "₢BlAAU",
         "₢BlAAV",
         "₢BlAAW",
         "₢BlAAX",
         "₢BlAAY"
       ],
-      "jjghn_next_pace_seed": "AAa",
+      "jjghn_next_pace_seed": "AAb",
       "jjghn_paces": {
         "₢BlAAA": {
           "jjgpn_tacks": [
@@ -20431,6 +20432,27 @@
               ],
               "jjgtn_silks": "registration-mirror-to-const-guard",
               "jjgtn_basis": "26a8a9a"
+            }
+          ]
+        },
+        "₢BlAAa": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260630-1451",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "BARRIER — cross-clone wait. No code work of its own.",
+                "This pace cannot complete until ₢BfAAv (heat ₣Bf — the 260630 one-pool spec re-cut: RBSRF / RBSMA / RBSFD / RBSPB + the canvass operation sheaf + the RBS0 federation civics) is complete, pushed to origin, and origin merged back into this clone.",
+                "The foedus-cardinality build paces below — canvass build/test, and any descry/instate code that consumes the re-cut sheaves — would otherwise build against the pre-260630 (per-foedus-pool) contract.",
+                "",
+                "## Done when",
+                "₢BfAAv is wrapped and pushed to origin, and this clone has pulled origin so the re-cut federation subdocs + the providers.list canvass sheaf are present here.",
+                "",
+                "## Character",
+                "Cross-clone barrier (₣Bf → ₣Bl); hold here until the named pace is merged through."
+              ],
+              "jjgtn_silks": "await-fed-onepool-recut",
+              "jjgtn_basis": "3ac0a37"
             }
           ]
         }
