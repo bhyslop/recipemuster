@@ -11,35 +11,36 @@ Posture (cinched for this heat): premise-touching ideas are operator-owned — a
 Keep this catalog shape-shaped — each idea a named tension plus a current lean, never a running discussion log.
 Genuinely thin or orthogonal ideas belong in itches or the horizon roadmap, not here; this paddock is for ideas worth deliberating with heat context.
 
-## Model — the one-pool identity substrate (operator decision 260630; GOVERNS, supersedes the per-foedus-pool model)
+## Model — the one-pool identity substrate (operator decision 260630; GOVERNS)
 
 This section is the governing federation-identity model.
-Where any earlier section assumes a pool per foedus — the Conviction's multiplicity lines, "Foedus lifecycle — the two-tier test-bed", and "Foedus switching — AUTHORED + residual shape" — this Model supersedes it; those sections are kept behind a supersession banner as historical context, their reasoning preserved in git history and the heat-memories memo.
+It supersedes the per-foedus-pool framing the heat carried through 260623–260627; that reversal record and its reasoning live in git history and the heat-memories memo, not here.
 
 The model, in five lines:
-- ONE manor pool, manor lifecycle — founded once as a manor-setup act (the scriptable manor-finisher, extended, or a sibling founding step beside it), never by affiance/jilt. Pool lifecycle and foedus lifecycle are now distinct.
+- ONE manor pool, manor lifecycle — founded once as a manor-setup act (the scriptable manor-finisher, extended, or a sibling founding step beside it), never by affiance/jilt. Pool lifecycle and foedus lifecycle are distinct.
 - A foedus IS a PROVIDER under that one pool. affiance creates the provider (from the foedus's issuer / client-id / attribute-mapping / oidc); jilt deletes the provider.
-- A Manor lists its foedera by providers.list under its one pool (canvass flips from workforcePools.list); the foedus↔provider link rides the provider id/displayName.
-- Membership is per-individual on the stable pool — principal://…/subject/{S} kept, but S is an IdP-stable canonical claim. Normalize S across co-trusted PRODUCTION IdPs (the multi-real-IdP future); namespace-disjoint the synthetic TEST provider's subjects so a test token can never satisfy a production binding. That namespacing is LOAD-BEARING — it is the price of co-tenancy, carrying the isolation a separate test pool would have given for free.
-- Substrate-only scope: this fixes the identity substrate and UNBLOCKS, but does not build, the governor-selects / sanctioned-set authz model (the "governor's role in federation" idea below, which stays the deferred premise-gated feature).
+- A Manor lists its foedera by providers.list under its one pool; the foedus↔provider link rides the provider id/displayName.
+- Membership is per-individual on the stable pool — principal://…/subject/{S} kept, but S is an IdP-stable canonical claim. Normalize S across co-trusted PRODUCTION IdPs (the multi-real-IdP future); namespace-disjoint the synthetic TEST provider's subjects so a test token can never satisfy a production binding. That namespacing is LOAD-BEARING — the price of co-tenancy, carrying the isolation a separate test pool would have given for free.
+- Substrate-only scope: this fixes the identity substrate and UNBLOCKS, but does not build, the governor-selects / sanctioned-set authz model (the "governor's role in federation" idea below, the deferred premise-gated feature).
 
-Why (the IT-maintainability lens + sole-operator simplicity): a workforce pool is the org-stable identity container; IdP variety belongs in PROVIDERS under it, not in per-IdP pools. Per-foedus pools made onboarding an IdP a pool change and fragmented membership across pools; one pool with providers is how GCP WIF is meant to be run. One pool for everything — the synthetic test rig included — is the simplest shape (operator decision 260630, choosing simplicity over a separate test pool; the co-tenancy impersonation risk is closed by the subject-namespacing rule above, which becomes mandatory).
+Why (the IT-maintainability lens + sole-operator simplicity): a workforce pool is the org-stable identity container; IdP variety belongs in PROVIDERS under it, not in per-IdP pools. One pool with providers is how GCP WIF is meant to be run, and one pool for everything — the synthetic test rig included — is the simplest shape; the co-tenancy impersonation risk is closed by the subject-namespacing rule above.
 
-Reversed cinches (each was deliberately settled — several by terminal Fable review; this Model overturns them, old reasoning in git history + the heat-memories memo, NOT lost):
-- single-active-foedus topology (260623) → providers co-resident under one pool; "single-active" dissolves (depot-affiliation/selection defers with governor-selects).
-- per-foedus pool / "RBRF manifold, one pool per foedus" → one manor pool; RBRF_WORKFORCE_POOL_ID becomes a manor-level value, RBRF_PROVIDER_ID the per-foedus discriminator; foedus ≡ provider.
-- affiance/jilt as pool create/destroy, "affiance FAST-FAILS on a pre-existing pool", refuse-and-rotate → affiance/jilt are PROVIDER create/destroy; the pool is founded once at manor setup; refuse-and-rotate is moot (the pool is not rotated).
-- "pool rotation re-admits every citizen" → moot; the stable manor pool is never rotated (the old rotation-coupling pain dissolves).
-- one-terrier-per-manor with "per-foedus cardinality out of scope" → the terrier muniment is pool/provider/foedus-BLIND (records only (subject, mantle)); under co-resident providers a manor-wide rehearse conflates foedera, and a pool-independent subject makes silent key collisions structural — the muniment gains a provider dimension, with an on-disk migration owed.
-- canvass via workforcePools.list → providers.list.
+Contract-first (the heat's own hard rule): the spec re-cut leads, before any code — RBSRF (pool→manor-level home, foedus≡provider), RBSMA (affiance→add-provider), RBSFD (descry verdicts), and the RBS0 federation civics. No affiance/jilt/canvass/terrier code before the specs land.
 
-Contract-first (the heat's own hard rule): the spec re-cut leads, before any code — RBSRF (pool→manor-level home, foedus≡provider), RBSMA (affiance→add-provider), RBSFD (descry verdicts fork), and the RBS0 federation civics. No affiance/jilt/canvass/terrier code before the specs land.
+Still valid (the change touches pool + membership only): the vendor-agnostic-core conviction, avow/sitting/quash, the Keycloak orchestrator (now provisioning a PROVIDER, not a pool), the accessor STS layer (already provider-aware — audience and sitting-cache key on pool AND provider), and the vocabulary census all stand.
 
-Still valid (the change touches pool + membership only): the vendor-agnostic-core conviction, avow/sitting/quash, the Keycloak de-lamination + orchestrator (now provisioning a PROVIDER, not a pool), the accessor STS layer (already provider-aware — audience and sitting-cache key on pool AND provider), and the vocabulary census all stand.
+New sub-works this substrate adds: the terrier muniment provider-dimension + on-disk migration; RBPC's freehold-subject goes multi; the subject-namespacing discipline.
 
-New sub-works this substrate adds: the terrier muniment provider-dimension + on-disk migration; RBPC's freehold-subject goes multi (the deferred single-const opens); the subject-namespacing discipline (test provider disjoint from production).
+Source for cutting the re-cut paces: the four 260630 spec studies (founding, membership, terrier, test-bed/accessor) carry the per-surface change-lists. Pace triage — re-cut the model-touching paces, keep the orthogonal loose-ends — is the next groom step.
 
-Source for cutting the re-cut paces: the four 260630 spec studies (founding, membership, terrier, test-bed/accessor) carry the per-surface change-lists and the steelman. Pace triage — re-cut the model-touching paces, keep the orthogonal loose-ends — is the next groom step.
+## Landed structure (stands under the Model)
+
+These structural facts from the wrapped RBSRR / RBSFI / RBSFD predate 260630 and still hold:
+- Library: one rbrf.env per standing foedus, each in its own moorings subdirectory bearing the rbef_ sprue — rbef_entrada (interactive Entra), rbef_keycloak (programmatic test); the subdirectory name is the foedus identity and the instate/descry folio.
+- Selector: RBRR_ACTIVE_FOEDUS names the active foedus, a cross-domain reference whose value the rbrf library owns.
+- RBRF_COGNOMEN evicted whole — the subdirectory name plus the rbef_ sprue carry the identity.
+- instate (RBSFI): a single-field rewrite of the selector — own band, no self-gate, operator commits.
+- descry (RBSFD): a read of a named foedus's health — own band, no durable write. The Model re-cuts its verdict vocabulary: a foedus is a provider, so descry reads provider presence, not pool absence / soft-delete.
 
 ## Federation vocabulary — the minted census (chosen; the recast does not re-derive these)
 
@@ -49,18 +50,12 @@ Built-word deliberation stays drained to the heat-memories memo — what lives h
 Chosen (do NOT re-mint — re-deriving these is the failure this census guards against):
 - foedus — the configured federation, the noun affiance founds; this recast seats its rbtf_ civic quoin, the word itself is adopted.
 - avow / sitting / quash — the human device-flow sign-in, the live window it opens, and the test-only sitting-clear.
-- instate / descry — switch which foedus is active, and read a foedus pool's health; minted, owned by the theurge stream where the build is slated (not yet landed).
+- instate / descry — switch which foedus is active, and read a foedus's health; minted, owned by the theurge stream where the build is slated (not yet landed).
 - interactive / programmatic — the mechanism gate's two values, KEPT as the plain words (260626): test-scoped — read by affiance and the accessor, written only by the test establishment, never a tabtarget argument, so the asterism's weight does not apply.
   Serialized as rbnfe_interactive / rbnfe_programmatic — the rbnfe_ federation enum sprue, derived from the rbnve_ (vessel) / rbnne_ (nameplate) scheme, not a free mint.
 - RBRF_MECHANISM — the regime field holding the gate value (260626), modeled on RBRV_VESSEL_MODE.
 - RBSFE / RBSFA — the two operation-subdoc acronyms (260626): RBSFE the programmatic establishment, RBSFA the programmatic accessor; fresh RBSF tails (only RBSFH was taken), distinct-over-mnemonic per operator ruling. The operation-quoin verb stays descriptive — the civic verb defers to the build pace.
-- canvass — read-only enumeration of every foedus by interrogating the Manor (workforcePools.list), the descry sibling (descry inspects one pool, canvass lists all); chosen 260626 via the Lapidary gates (grep-clean, fair-faced, civic register, sibling-initial c safe against descry-d/instate-i). Colophon rbw-jc, quoin rbtf_canvass; build + test slated as placeholders in the theurge stream (foedus-cardinality family), full docket deferred to a design pass.
-
-Still owed by the recast — the open call this pace settles:
-- the active-foedus selector and foedus-identifier field — a TEST-ONLY overlay: the production regime stays single-foedus-clean (effectively singleton, no selector), the multi-config + selector riding on top for the test-bed alone.
-  Open question under discussion (260626): lean toward the Manor (GCP) as the authoritative foedus registry — pool-ID as the identifier, "list foedera" a cloud query — so the regime holds the active config, not a local registry.
-
-As each owed item settles it moves up into the chosen list here, so the record never scatters again.
+- canvass — read-only enumeration of every foedus by interrogating the Manor (providers.list under the one pool), the descry sibling (descry inspects one foedus, canvass lists all); chosen 260626 via the Lapidary gates (grep-clean, fair-faced, civic register, sibling-initial c safe against descry-d/instate-i). Colophon rbw-jc, quoin rbtf_canvass; build + test slated as placeholders in the theurge stream (foedus-cardinality family).
 
 ## Conviction — the federation configuration model (settled modeling axis)
 
@@ -82,9 +77,7 @@ The landing model: the federation regime is a vendor-agnostic trust core plus an
 The core is always present — org, pool, provider, session-duration, client-id, attribute-mapping, issuer or JWKS source.
 The interactive arm carries the device-authorization and token endpoints and the device scope; the programmatic arm carries an uploaded public JWKS (the caged case); vendor identity is not a regime field at all.
 
-Scope of this model: it governs one foedus's shape (vendor-agnostic core plus mechanism gate).
-How MANY foedera the manor holds at once is the separate multiplicity axis below — orthogonal to this per-foedus shape, and now (260622) settled as a GOAL of the heat, not a deferred axis: the manor holds several foedera and a depot draws from a chosen one.
-The singleton is no longer the model's boundary; multiplicity rides on top of the per-foedus shape, which is unchanged.
+Scope of this model: it governs one foedus's shape (vendor-agnostic core plus mechanism gate), orthogonal to the pool topology the Model above settles.
 
 The machinery is precedented in-tree: the vessel regime gates fields per mode via buv_enum_enroll plus buv_gate_enroll.
 The federation mechanism gate is the same pattern repurposed from a rejected vendor discriminator onto mechanism, where it is load-bearing.
@@ -108,10 +101,6 @@ Naming (minted in-heat 260623, gates applied by hand, grep-clean, terminal-exclu
 The rbx letter doubles as a holding family for other poorly-slotted things until a later mass remint; rby was rejected as it is the yelp/handbook-vocabulary family (rbyk would have been terminal-legal but incoherent).
 One bondstone — the keycloak facility, named plainly because a test-scaffold bondstone wants the most cold-probe-able word, not an asterism word; the setup/teardown verbs are toothing on it, settled plainly at module-cut time.
 
-RESOLVED (260622, operator decision — see the config-model memo's "Fork resolution" section): both forks settled.
-Fork one (test-manor topology) — MULTIPLICITY IS THE GOAL: the test manor stands up the real Entra foedus (interactive) and a Keycloak test foedus (programmatic) side by side, each its own pool; per-run-switching is rejected, a dedicated second org is noted-unneeded.
-Fork two (programmatic JWKS source) — a single UPLOADED field: the local Keycloak crucible is unreachable from Google so its public JWKS must be uploaded regardless; the token behind it may be Keycloak-minted (preferred) or self-signed (fallback), a choice below the regime; issuer-discovered is not modeled (re-cut named if a publicly-hosted automated IdP ever enters).
-
 Minted in-heat (260623): the mechanism discriminator quoin and its value words, and the two new RBS0 subdoc acronyms this model calls for, are minted in-heat applying the gates by hand (grep gate, terminal-exclusivity, family coherence).
 
 Detail and reasoning trail: the federation-config-model memo (Memos/memo-20260618-Bf-federation-config-model.md).
@@ -120,7 +109,7 @@ Detail and reasoning trail: the federation-config-model memo (Memos/memo-2026061
 
 Foedus is the adopted civic noun for the configured federation (operator decision 260623): the RBS0 rbtf_ federation-civics quoin the spec-first spine unit homes — the rbtf_foedus quoin is not yet built.
 It is a folio, not a colophon: a named foedus is data passed as a parameter to operations homed by actor — the payor founds and dissolves one (affiance/jilt), the governor affiliates a depot with one.
-The noun denotes the configured shape — a vendor-agnostic trust core plus an acquisition-mechanism gate, vendor identity deliberately not a field of it — not the raw pool-plus-provider-plus-mapping mechanics.
+The noun denotes the configured shape — a vendor-agnostic trust core plus an acquisition-mechanism gate, vendor identity deliberately not a field of it — not the raw provider-plus-mapping mechanics.
 Why it is the keystone (the model the governor-role and health-assurer ideas below lean on): the healthy payor-governor model collapses to four speakable lines — the payor founds one foedus (affiance, org-scope); the payor sanctions a set of them as eligible (the bound); the governor affiliates a depot with a sanctioned foedus (depot-scope); a depot draws its citizens from the foedus it is affiliated with.
 The noun-selection deliberation (foedus vs concordat/covenant, the etymology, the verb-register settlement) is drained to the heat-memories memo.
 
@@ -141,19 +130,20 @@ Source: the federation spike found the only console work was identity-provider-s
 
 A freehold is a durable, deliberately-kept test installation reused day-to-day, set against the ephemeral create→destroy lifecycle fixture (the freehold/leasehold contrast).
 It cross-cuts depot and foedus: a muniment binds a foedus principal to a depot mantle, so the standing-citizen roster is the join between them (the manor-wide roll is the foedus view, the per-polity slice the depot view).
-₣BZ already built the depot-freehold; quota-flatness rides affiance's refuse-and-rotate, not undelete (the full reconciliation is drained to the heat-memories memo).
+₣BZ already built the depot-freehold; the full reconciliation is drained to the heat-memories memo.
 ₣Bf's three live residuals:
 (1) the foedus-freehold-VERIFY fixture — the un-built durable-reuse green target, reserved suite word parley;
 (2) the multi-citizen roster slice — a 2nd standing subject, via the headless/degenerate IdP the spine builds or the now-built admission verbs;
 (3) the terrier permanent founding-home — below.
-Release-cadence refresh: when the quota-touching lifecycle runs (say at releases) it also refreshes the freehold — jilt then re-establish, ordered after the lifecycle's own create→jilt passes so cleanup is proven on a throwaway before it touches the durable pool.
+Release-cadence refresh: when the quota-touching lifecycle runs (say at releases) it also refreshes the freehold — jilt then re-establish, ordered after the lifecycle's own create→jilt passes so cleanup is proven on a throwaway before it touches the standing trust.
 
 ## Idea — the terrier's permanent founding-home
 
 Founding-home RESOLVED (terminal Fable review 260622): OPTION B — Manor-founding provisions the terrier, NOT affiance (affiance touches the terrier nowhere; the bucket name is foedus-independent and its IAM binds the depot-born governor mantle SA, not a foedus principal).
 Operator cinched the shape: the terrier-build plus all scriptable manor-setup go into ONE idempotent post-payor-guide manor-setup finisher tabtarget, retiring the rbw-dt/dT scaffold (the option-fork deliberation and the ₣BZ-conflation history are drained to the heat-memories memo).
-Live ₣Bf residuals: which B-variant exactly (a standing op vs enlarging a not-yet-existing manor-establish ceremony — lean: standing op); where the per-polity folder step lands (grain says depot-levy, but the folder is in the payor-project bucket so it needs a payor-credentialed actor); and the per-Manor-vs-per-foedus cardinality (default one-per-Manor; per-foedus is operator-owned design).
+Live ₣Bf residuals: which B-variant exactly (a standing op vs enlarging a not-yet-existing manor-establish ceremony — lean: standing op); where the per-polity folder step lands (grain says depot-levy, but the folder is in the payor-project bucket so it needs a payor-credentialed actor).
 Settled regardless (RBS0-grounded): the bucket lives in the payor project; the per-polity managed folder is depot-grain; manor establishment's project/OAuth half is manual Console, so any home is for the scriptable remainder.
+Model touch (260630): the manor pool's one-time founding now wants a home here too (the finisher, or a sibling founding step), and the muniment gains a provider dimension — see the Model.
 Cross-note: the caged-federation establishment is another founding-time gesture a synthetic test manor stands up, so this "what founding ensures" shape has one more sibling to weigh — a coupling, not a widening.
 
 ## Idea — federation testing collapses onto the real verbs
@@ -183,6 +173,7 @@ Source: the ₣BZ estate-demolition pace and its M7 record in the pace-design me
 ## Idea — the governor's role in federation
 
 Frame under consideration: the payor as the IT department — founds federations and bounds what is permissible — and governors as more-trusted regional stewards who operate within those bounds, still subordinate to the payor's citizen-list and federation-set choices.
+This is the premise-gated feature the 260630 Model UNBLOCKS but does not build (governor-selects); it stays parked and operator-owned.
 
 Two sub-questions, opposite verdicts on one scope test (creation is org-scoped; selection is depot-scoped):
 
@@ -194,17 +185,16 @@ Two sub-questions, opposite verdicts on one scope test (creation is org-scoped; 
 - Select which federation a depot is affiliated with — open, and this is the healthy model to aim for.
   Stated in the keystone noun above: the payor founds the configured federations and sanctions which are eligible; the governor affiliates its own depot with one of the sanctioned ones.
   Selection among already-founded, payor-sanctioned trusts affects only the one depot, so it respects the cinch that cross-depot administration does not exist, and it mirrors admission — the governor already decides who is admitted; this adds which trust the depot draws from.
-  Depends on the federation-regime-family rework (drained as superseded for the test-bed; it survives only for this premise-gated feature).
 
 The bound — the sanctioned set: which configured federations are eligible for affiliation is a payor-controlled, manor-level artifact, an eligibility the payor sets and governors only read.
 This is the IT-department catalog of approved trusts.
-Guard: a degenerate or test federation is never eligible for a production depot, so a governor cannot repoint production at a weak or caged pool.
+Guard: a degenerate or test federation is never eligible for a production depot, so a governor cannot repoint production at a weak or caged provider.
 
 The load-bearing distinction for how the hierarchy is enforced is authentication versus authorization:
 - Authentication is the crypto layer, and it already exists — the workforce provider holds the identity provider's public keys (JWKS) while the identity provider holds the private signing key.
   A token is trusted iff signed by that private key; this answers only whether the token is genuinely from the trusted identity provider.
 - Authorization is where the payor-governor hierarchy lives, and it is IAM, not the signing key — may this governor admit this principal, and may this governor affiliate this depot with this federation, are IAM questions.
-  Founding a pool is an org-level permission the payor holds and a governor structurally lacks; bounding a governor's affiliation to the sanctioned set is an IAM-condition or a provider attribute-condition.
+  Founding the pool is an org-level permission the payor holds and a governor structurally lacks; bounding a governor's affiliation to the sanctioned set is an IAM-condition or a provider attribute-condition.
 
 A bespoke payor keypair issuing signed grants would re-introduce a durable private secret — against the zero-keys premise — and duplicate what IAM already enforces; flagged as the path to avoid.
 The exact GCP condition mechanism that bounds affiliation to the sanctioned set wants verification before this graduates.
@@ -248,8 +238,8 @@ The configuration-model conviction implies a sequence of buildable units; their 
 The front-of-heat design pace settled the de-lamination, the Keycloak-control home, and the build naming: the six-unit spine below is now slated as build paces; with ₣BZ complete its admission verbs have landed, so the attach-caged-subject tail is slatable too.
 
 The spine, in dependency order:
-Spec-first, before any code — evolve the federation-regime and affiance specs to the core-plus-mechanism-gate shape and stand up the two new subdocs as contracts; contract before code is project doctrine, so this is a hard predecessor of every code unit below.
-Regime mechanism discriminator and mechanism-conditional affiance — depends on the spec unit. (The affiance soft-deleted-pool handling was settled in ₣BZ as refuse-and-rotate, NOT undelete — the "undelete-on-DELETED fix" this once anticipated is moot; quota-flatness rides never-jilting the durable pool.)
+Spec-first, before any code — evolve the federation-regime and affiance specs to the core-plus-mechanism-gate shape, fold in the 260630 Model's pool→provider re-cut, and stand up the two new subdocs as contracts; contract before code is project doctrine, so this is a hard predecessor of every code unit below.
+Regime mechanism discriminator and mechanism-conditional affiance — depends on the spec unit.
 Programmatic-trust establishment bash — the rbxk_keycloak orchestrator (charge, ready-poll, fetch-JWKS, call affiance) over the fattened baked realm; depends on the spec unit and the discriminator; stands up the Keycloak test crucible (preferred) or a self-signed caged trust (fallback) and uploads its public JWKS through affiance; the durable replacement for the throwaway manual spike.
 Programmatic accessor (token → STS) — depends on the discriminator and on a programmatic trust existing to acquire against; obtains a token from Keycloak's non-interactive RFC 7523 grant (or self-mints, fallback) and exchanges at STS.
 Per-vendor setup guide (Entra first) — depends only on the core-facts contract line, so it runs parallel to the three code units.
@@ -258,46 +248,7 @@ Attach a caged subject to a test depot via the admission verbs — strictly last
 Fold and precedence: all these units stay in ₣Bf; none folds into ₣BZ — the configuration-model evolution and the synthetic test rig that rides on it are this heat's work, while ₣BZ owns the admission verbs and the single-federation implementation, and the attach unit consumes those verbs without defining them.
 The spec-first unit is a hard predecessor of every code unit, not merely the first among equals — beginning any code before the specs are recast is a discipline breach, not a sequencing choice.
 
-Source material for cutting these paces: the federation-config-model memo (Memos/memo-20260618-Bf-federation-config-model.md) is the important source to consult — it carries the detailed RBS0 subdoc plan (the per-spec must-contain reference, the marker-scheme note, the MCM mint deferrals) alongside the full reasoning, so the spec-first unit reads it on graduation rather than re-deriving the detail; the front-of-heat design pace's two forks gate it.
-
-## Foedus lifecycle — the two-tier test-bed (settled topology + scoped design pass)
-
-SUPERSEDED 260630 by "Model — the one-pool identity substrate" above. The single-active topology, the two-tier light/nuclear framing, and the stable-vs-ephemeral signing-key oscillation here are reversed; kept as historical context (reasoning in git history + the heat-memories memo). The strands it gathers — freehold, the release-suites' credential-heal, the authentic-verb fixture (parley) — survive; re-read them through the Model.
-
-The audit's pool-topology gap — the build spine quietly assumed a manor could hold two foedera at once, which nothing slated builds — resolves here, and it opens a strand that gathers four deferred ideas into one design.
-
-Topology (operator decision 260623): single-active-foedus, switched lightly.
-One foedus is live in the regime at a time; a test selects which standing foedus it runs against by pointing the regime at it, never by holding both at once.
-Because only one is active, the existing singleton-keyed affiance/accessor/brevet work unchanged — the heavy regime-as-family-of-named-instances rework is NOT needed for the test-bed.
-That simultaneous rework is needed only by the future governor-selects feature (premise-gated), so it defers with that feature; this supersedes the earlier (260622) "both at once, each its own pool" framing for the test case.
-
-Build-spine consequence (so the spine reads true): the spine operates on single-active.
-The affiance arm founds the Keycloak programmatic foedus as the test regime's one pool, and the orchestrator stands it up as that single active foedus, not beside a live Entra one.
-The accessor's end-to-end don-and-call still awaits a standing admission (a brevet), which the attach-caged-subject unit owns; the slated spine reaches the federated token, not the full don-and-call.
-
-Two tiers (operator aim): a light tier — "use the current, switch lightly" — reuses durable standing foedera and changes the active one by selection, mapping onto the existing skirmish/dogfight (freehold-already-standing) suites; a nuclear tier — "full redo everything" — jilts and re-affiances the foedera from scratch, mapping onto the existing gauntlet (levies-fresh) suites.
-
-New vocabulary (minted 260624): the switch toothing instate — select the active foedus — plus the sitting-reset it forces (quash the live sitting, re-sign-in against the new foedus); the switch toothing and the pool-integrity check are built in the sibling theurge stream as the foedus-cardinality verbs.
-Founding/dissolving stays affiance/jilt; durable-vs-ephemeral is a tenure policy (freehold = affiance-and-never-jilt), not a verb; the nuclear redo is a named ceremony composing jilt+affiance, not an atom.
-
-This strand gathers four ideas above that are really one design: freehold (durable test-bed), the release-suites' lost credential-heal (a standing-freehold readiness step), multiplicity-as-switching (this topology), and federation-testing-collapses-onto-real-verbs (the authentic-verb fixture, suite word parley). It borders the durable manor-setup finisher.
-
-Relationship to the spine: the spine PROVES one foedus's chain (the de-lamination); this strand MANAGES the test-bed (standing foedera, selection, the two tiers) — two different jobs. The lifecycle layer is mostly downstream of the spine (it composes the spine's verbs), with one upstream touch: the regime must support foedus selection (two configs plus a selector), folded into the spec recast or handed to a lifecycle pace.
-
-Next: a focused design pass settles six forks — the tenure policy; the selection mechanism and what the select act does; the new toothing name(s); the light/nuclear tier mapping onto the existing suite ladder; the light-tier readiness check (the release-heal / parley step); and where regime-selection-support lands relative to the spec recast. It produces this strand's own slate, and runs before the audit's build-docket tightenings are finalized.
-
-Foedus-reuse leg (the affiance-centric reframe): the single-active-foedus, switched-among-standing topology stands, and the everyday reuse path switches rather than affiances — a workforce identity pool is founded once per foedus and kept, never jilted, so the everyday path is cap-flat.
-The earlier audit-era reuse-path framing inherited an affiance-centric frame the switch decision supersedes; it is reframed around the switch when this design pass's plan is enrolled.
-The switch toothing itself is built in the sibling theurge stream; only its SELECTION mechanism stays PARKED for this design pass to settle.
-
-Signing key — SETTLED (operator decision 260623): a stable key, no per-charge rotation, so affiance's idempotent path needs no jwksJson re-sync arm.
-The private half lives as an estate field in the never-committed station file (working name RBRS_ESTATE_KEYCLOAK_SECRET); its public half is validated by matching the already-committed JWKS — the canonical reference — so no secret is ever committed or compared across stations.
-Home — SETTLED (operator decision 260624, refining the earlier Estate-nucleation framing): do NOT reinstate the RBK station regime (RBRS) for this.
-That regime was shelved intact to Tools/rbk/vov_veiled/FUTURE/ for the later podman feature (heat ₣BW) and WILL return then, so reviving it now for a federation secret would either un-shelve podman work early or load a second, unrelated content domain into the very file thinned for lack of content.
-Instead a deliberately-minimal, self-labelled BCG stub whose ONLY job is to source-and-verify this one field from the shelved interim station file — tolerating its absence, fail-loud on present-but-mismatched — while the full RBRS regime, its tabtargets, and its RBS0 section stay shelved for ₣BW.
-The shelved FUTURE/RBSRS spec gains the Keycloak field as an optional/future entry, the live stub carries its own short contract plus a pointer to it, and the dangling acronym pointer is repointed to the FUTURE/ path (annotated shelved-for-₣BW), not deleted.
-The earlier "nucleate a dedicated Estate regime once 2-3 facts accrue" idea therefore defers WITH the podman regime — a single labelled stub now, not a new concept.
-The shared-one-key-versus-per-platform topology softens: the committed JWKS is a key SET, so it can hold several public keys if per-platform keys are ever wanted; that stays the lifecycle pass's to settle.
+Source material for cutting these paces: the federation-config-model memo (Memos/memo-20260618-Bf-federation-config-model.md) is the important source to consult — it carries the detailed RBS0 subdoc plan (the per-spec must-contain reference, the marker-scheme note, the MCM mint deferrals) alongside the full reasoning, so the spec-first unit reads it on graduation rather than re-deriving the detail; the 260630 spec studies carry the pool→provider re-cut on top.
 
 ## Federation-MVP re-derivations (the five keyfile-era loose-ends folded in)
 
@@ -350,36 +301,11 @@ The office-federation heat ₣BZ is the parent; the still-live federation ideas 
 Federation mechanism and the identity-provider-side console finding: the federation-legs spike findings memo.
 The pace-design and divergence record for the parent heat: its pace-design memo and its movement-4 review-findings memo.
 Degenerate-test-federation mechanism, sources, and the can-and-cannot-prove boundary: the degenerate-federation test-personas memo.
-Workforce-pool quota and soft-delete constraints (the freehold idea's load-bearing facts): Memos/memo-20260617-BZ-workforce-pool-constraints.md.
+Workforce-pool quota and soft-delete constraints: Memos/memo-20260617-BZ-workforce-pool-constraints.md.
 Federation configuration model — the vendor-agnostic-core plus mechanism-gate conviction, full reasoning: Memos/memo-20260618-Bf-federation-config-model.md.
-Spec homes to evolve when this lands: RBSRF (RBSRF-RegimeFederation.adoc) and RBSMA (RBSMA-manor_affiance.adoc).
+Spec homes to evolve when this lands: RBSRF (RBSRF-RegimeFederation.adoc), RBSMA (RBSMA-manor_affiance.adoc), RBSFD (RBSFD-foedus_descry.adoc).
 Dispositioned deliberation drained from this paddock — the ₣BZ-lineage gating, the released Fable gating, the vocabulary-remint dingleberry doctrine, the theurge-test-consolidation audit dispositions, the landed five-suite rename record, and (260625) the foedus noun-selection, the multiplicity-goal framing, the degenerate-test-federation, the freehold reconciliation, the terrier option-fork, the foedus-accessor minted words, and the one-click verification_uri_complete decline: Memos/memo-20260623-Bf-heat-memories.md.
+The 260630 model reversal (per-foedus-pool → one-pool identity substrate) and its four spec studies: to drain into the heat-memories memo when next edited.
 
 Partition provenance (the cross-heat split that reshaped this heat into the federation-build stream): the five federation-MVP re-derivations were restrung in from the sibling MVP heat — their original junk-drawer home keeps the git history of their dockets; the theurge-crate refactor, the zipper-colophon trio, and the cosmology spec drained OUT to the sibling theurge stream, where the drained cosmology pace supersedes that stream's native cosmology pace.
 The full how-we-got-there record is the cross-heat split-study provenance memo.
-
-## Foedus switching — AUTHORED + residual shape
-
-PARTLY SUPERSEDED 260630 by "Model — the one-pool identity substrate" above. STANDS: the rbef_ library, the RBRR_ACTIVE_FOEDUS selector, instate/descry as verbs, RBRF_COGNOMEN evicted. REVERSED by the Model: "one pool per foedus / RBRF manifold", affiance-fast-fails-on-pre-existing-pool, pool-rotation-re-admits-every-citizen, canvass via workforcePools.list. The wrapped RBSRF / RBSFD / RBSMA named here are re-cut by the Model's contract-first paces — read them as the pre-260630 baseline, not the target.
-
-The test-bed switching design is authored contract-first and wrapped: RBSFD (descry), RBSFI (instate), RBSRR (the RBRR_ACTIVE_FOEDUS selector + a Federation Selection group), RBSRF (restructured to a library). Those specs are the truth; this block records the heat-shape and the residual, and supersedes every earlier selector / cognomen / committed-JWKS / canvass note above.
-
-Landed (read the specs, do not re-derive):
-- Library: one rbrf.env per standing foedus, each in its own moorings subdirectory; the subdirectory NAME is the foedus identity and the instate/descry folio. Subdirectory names bear the rbef_ foedus-instance sprue — rbef_entrada (interactive Entra trust), rbef_keycloak (programmatic test trust). RBRF is now manifold (was singleton).
-- Selector: RBRR_ACTIVE_FOEDUS names the active foedus (an rbef_ member); a cross-domain reference, value owned by the rbrf library.
-- RBRF_COGNOMEN evicted WHOLE — the field and the rbrf_cognomen quoin both gone; the subdirectory name plus the rbef_ sprue carry the identity.
-- instate (RBSFI): a single-field rewrite of the selector — enchase-adjacent, own band, no self-gate, operator commits; the reuse-if-valid-else-create combinator lives in the FIXTURE (shared with depot-ensure), never a fat verb.
-- descry (RBSFD): a palpate-adjacent read of a named foedus's pool health — own band, no durable write; uses the live / soft-deleted / absent vocabulary but contracts no shared helper.
-
-Residual heat-shape — NOT yet authored, future paces:
-- Code build owed: RBRR_ACTIVE_FOEDUS is spec-only (enroll it + the Federation Selection group in rbrr_regime.sh); plus the instate / descry / library CODE — the build paces consume these subdocs on the theurge heat behind its build barrier.
-- A shared pool-state classifier (live / soft-deleted / absent) behind affiance + descry — slated; still needed, since RBSFD contracts no shared helper.
-- Signing key: the programmatic key is EPHEMERAL — generated fresh in the Keycloak crucible per charge, never persisted; the orchestrator fetches its public JWKS and uploads it to the provider at establish (the twiddle), so nothing is committed and no station-key stub is needed. This supersedes the stable-key + committed-JWKS calls (260623/260624) for the federation key — the cross-station rationale they served is moot for a single-machine test. The full RBRS regime stays shelved for ₣BW.
-- Affiance on a pre-existing pool FAST-FAILS — no silent leave-in-place; a trust-config change is repaired by jilt + re-affiance, never an in-place patch.
-- Terrier testing moves to theurge: named precision-band codes on the rbgft error paths (buc_reject, not generic buc_die), a theurge poison fixture (regime-poison shape) over the real verbs with a new rbuh forcing seam asserting the exact bands; this retires the terrier proof; the idempotency success-variants ride the authentic real-verb fixture. To slate; rides parley's standing-terrier dependency.
-- parley: the authentic-verb fixture — real brevet / unseat / rehearse against a standing terrier. To slate (slate-now, riding the interim terrier scaffold).
-- Pool rotation re-admits every citizen (Google keys IAM bindings to the pool id, not the foedus name), so the durable pool is kept standing rather than rotated.
-- canvass is ACTIVE (the cloud-side foedera census via workforcePools.list — descry's list-all sibling; build + test slated on the theurge heat), distinct from a local ls of the library; the name-as-folio question is settled by the rbef_ sprue, since the folios ARE the rbef_ names.
-- 2c (test-switch versus depot-affiliation field separation) DECLINED as YAGNI — only the test-switch field exists today; governor-selects is premise-gated, and its builder would design that relationship then.
-
-Placement (to settle by groom): the new paces (parley, terrier-rigor, the owed code-enrollment) span the federation and theurge heats — the federation CODE build sits on the theurge heat behind its build barrier, the theurge fixtures fit there too, the rbgft band/buc_reject plus rbuh seam may sit on the loose-ends or federation heat; terrier-rigor may split across heats.
