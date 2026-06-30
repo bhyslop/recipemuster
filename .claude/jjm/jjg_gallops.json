@@ -17464,8 +17464,8 @@
         "₢BfAAN": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260627-1408",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260630-0946",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "Work out the un-understood Keycloak-side RFC 7523 JWT-authorization-grant setup, and bake the durable realm so configure_realm evaporates.",
                 "",
@@ -17488,7 +17488,7 @@
                 "Investigation (RFC 7523 on Keycloak) plus mechanical realm-JSON authoring."
               ],
               "jjgtn_silks": "rfc7523-grant-and-baked-realm",
-              "jjgtn_basis": "7a2fb78"
+              "jjgtn_basis": "410d9c0"
             }
           ]
         },
