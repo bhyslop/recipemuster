@@ -20365,9 +20365,10 @@
       "jjghn_creation_time": "260627",
       "jjghn_status": "jjghe_stabled",
       "jjghn_order": [
-        "₢BoAAA"
+        "₢BoAAA",
+        "₢BoAAB"
       ],
-      "jjghn_next_pace_seed": "AAB",
+      "jjghn_next_pace_seed": "AAC",
       "jjghn_paces": {
         "₢BoAAA": {
           "jjgpn_tacks": [
@@ -20413,6 +20414,44 @@
               ],
               "jjgtn_silks": "federation-open-tendrils-catalog",
               "jjgtn_basis": "777ede8"
+            }
+          ]
+        },
+        "₢BoAAB": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260630-1123",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Give mantle-admission denial a named precision band, so role isolation can be asserted by exit code instead of by \"it failed.\"",
+                "",
+                "Today an un-brevetted (or unseated) subject's don exits 1 — the generic buc_die — indistinguishable from any other failure.",
+                "The 260630 trace: rba_don_capture's Leg-3 403 admission-deficit path (rba_auth.sh) returns a bare 1, which the consumer rbgv_check_mantle (rbw-am / CheckMantleAccess) turns into buc_die, and buc_die falls through to exit 1 because 1 is not in the precision band.",
+                "There is no band for authorization/admission denial in bubc_constants.sh.",
+                "",
+                "## Spec of needed change",
+                "Mint a precision band for mantle/admission denial in bubc_constants.sh — next free slot, following the BCG Precision Exit-Code Band rules and the mint discipline for the word (candidate: \"admission\", in the federation asterism; settle at mount).",
+                "Teach rba_don_capture to signal its 403 admission-deficit distinctly from its OTHER return-1 modes (lapsed sitting, curl/network, empty token): it must stay a capture (BCG capture contract — never buc_die, never stderr), so the 403-ness rides a distinct return code or out-param, not a die.",
+                "In the consumer rbgv_check_mantle, buc_reject the admission band on the distinguished 403; leave the infra failures (lapsed sitting, network) as buc_die.",
+                "Add a theurge negative fixture (regime-poison / terrier-poison shape): the freehold subject dons a mantle it holds (positive), is unseated, dons again, and the case asserts the EXACT admission band from the tabtarget exit — no output-text assertion.",
+                "",
+                "## Done when",
+                "A lacking-or-unseated-mantle don rejects with the named admission band from the tabtarget exit;",
+                "the 403 admission-deficit is distinguished from lapsed-sitting / infra failures;",
+                "a theurge fixture asserts that band on a real federated subject donning a mantle it does not hold;",
+                "the infra dies stay buc_die.",
+                "",
+                "## Cinched",
+                "Honors the single-subject mantle-impersonation design (cinched 260612) — isolation is proven by one subject losing a mantle and being denied, never by minting pseudo-people.",
+                "Tests assert the named exit code, never output text; coding errors stay statically flushed, never named runtime bands.",
+                "rba_don_capture stays return-based per the capture contract — the 403 distinction is a return signal, not a buc_die.",
+                "Coordinate with the ₣Bl parley authentic-verb fixture (₢BlAAX): if it lands first, the denial-band assertion may fold into it rather than stand up a second fixture — do not duplicate the don/unseat scaffolding.",
+                "",
+                "## Character",
+                "Small bash (one band, one capture-signal, one reject) plus one negative theurge fixture; design settled in the 260630 trace."
+              ],
+              "jjgtn_silks": "mantle-admission-denial-band",
+              "jjgtn_basis": "1f10041"
             }
           ]
         }
