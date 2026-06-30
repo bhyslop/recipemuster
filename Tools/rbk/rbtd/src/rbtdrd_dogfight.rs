@@ -40,16 +40,13 @@ use crate::case;
 use crate::rbtdrc_crucible::rbtdrc_with_ctx;
 use crate::rbtdrv_patrol::{
     rbtdrv_docker_inspect, RBTDRV_ARK_BASENAME_IMAGE, RBTDRV_BUSYBOX_VESSEL_DIR,
-    RBTDRV_FACT_ARK_STEM, RBTDRV_FACT_GAR_ROOT, RBTDRV_FACT_HALLMARK,
 };
 use crate::rbtdre_engine::{rbtdre_Case, rbtdre_Disposition, rbtdre_Fixture, rbtdre_Verdict};
 use crate::rbtdri_invocation::{
-    rbtdri_invoke_global, rbtdri_read_burv_fact, rbtdri_Context, RBTDRI_BURE_CONFIRM_KEY,
-    RBTDRI_BURE_CONFIRM_SKIP,
+    rbtdri_gar_ref_fact, rbtdri_invoke_or_fail, rbtdri_ordain_capture_full, rbtdri_Context,
+    RBTDRI_BURE_CONFIRM_KEY, RBTDRI_BURE_CONFIRM_SKIP,
 };
-use crate::rbtdgc_consts::{
-    RBTDGC_ABJURE_HALLMARK, RBTDGC_ORDAIN_HALLMARK, RBTDGC_SUMMON_HALLMARK,
-};
+use crate::rbtdgc_consts::{RBTDGC_ABJURE_HALLMARK, RBTDGC_SUMMON_HALLMARK};
 
 /// Container runtime for the bare executability proof. Hardcoded to docker;
 /// podman is deferred to the Director-governed runtime-regime decision that
@@ -101,48 +98,32 @@ fn rbtdrd_build_run_lifecycle_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtd
     // Ordain (conjure-mode): build busybox into the standing depot, capturing
     // the hallmark plus the gar_root/ark_stem facts needed to name the
     // locally-pulled image after summon.
-    let _ = std::fs::write(dir.join("01-ordain.txt"), "ordaining busybox");
-    let ordain = match rbtdri_invoke_global(ctx, RBTDGC_ORDAIN_HALLMARK, &[vessel_dir], &[]) {
-        Ok(r) if r.exit_code == 0 => r,
-        Ok(r) => {
-            return rbtdre_Verdict::Fail(format!("ordain failed (exit {})\n{}", r.exit_code, r.stderr))
-        }
-        Err(e) => return rbtdre_Verdict::Fail(format!("ordain invocation: {}", e)),
-    };
-    let _ = std::fs::write(dir.join("01-ordain-stdout.txt"), &ordain.stdout);
-    let hallmark = match rbtdri_read_burv_fact(&ordain, RBTDRV_FACT_HALLMARK) {
-        Ok(v) => v,
-        Err(e) => return rbtdre_Verdict::Fail(format!("read hallmark fact: {}", e)),
-    };
-    let gar_root = match rbtdri_read_burv_fact(&ordain, RBTDRV_FACT_GAR_ROOT) {
-        Ok(v) => v,
-        Err(e) => return rbtdre_Verdict::Fail(format!("read gar_root fact: {}", e)),
-    };
-    let ark_stem = match rbtdri_read_burv_fact(&ordain, RBTDRV_FACT_ARK_STEM) {
-        Ok(v) => v,
-        Err(e) => return rbtdre_Verdict::Fail(format!("read ark_stem fact: {}", e)),
-    };
-    let _ = std::fs::write(dir.join("02-hallmark.txt"), &hallmark);
+    let (hallmark, gar_root, ark_stem) =
+        match rbtdri_ordain_capture_full(ctx, dir, vessel_dir, &[], "01-ordain") {
+            Ok(facts) => facts,
+            Err(v) => return v,
+        };
 
     // The image ref summon pulls locally: <gar_root>/<ark_stem>/image:<hallmark>.
     // Same construction onboarding's conjure verification tail uses.
-    let image_ref = format!(
-        "{}/{}/{}:{}",
-        gar_root, ark_stem, RBTDRV_ARK_BASENAME_IMAGE, hallmark
-    );
+    let image_ref = rbtdri_gar_ref_fact(&gar_root, &ark_stem, RBTDRV_ARK_BASENAME_IMAGE, &hallmark);
     let _ = std::fs::write(dir.join("02-image-ref.txt"), &image_ref);
 
     // Summon: retriever pulls the hallmark's arks locally. Confirm the image
     // ark is resolvable before attempting to run it.
     let _ = std::fs::write(dir.join("03-summon.txt"), "summoning");
-    let summon = match rbtdri_invoke_global(ctx, RBTDGC_SUMMON_HALLMARK, &[&hallmark], &[]) {
-        Ok(r) if r.exit_code == 0 => r,
-        Ok(r) => {
-            return rbtdre_Verdict::Fail(format!("summon failed (exit {})\n{}", r.exit_code, r.stderr))
-        }
-        Err(e) => return rbtdre_Verdict::Fail(format!("summon invocation: {}", e)),
-    };
-    let _ = std::fs::write(dir.join("03-summon-stdout.txt"), &summon.stdout);
+    if let Err(v) = rbtdri_invoke_or_fail(
+        ctx,
+        "summon",
+        &hallmark,
+        RBTDGC_SUMMON_HALLMARK,
+        &[&hallmark],
+        &[],
+        dir,
+        "03-summon",
+    ) {
+        return v;
+    }
     if !rbtdrv_docker_inspect(&image_ref) {
         return rbtdre_Verdict::Fail(format!(
             "summon: image ark not local after pull: {}",
@@ -161,17 +142,17 @@ fn rbtdrd_build_run_lifecycle_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtd
     // Abjure — remove the hallmark's arks, restoring the standing depot to its
     // pre-run inventory. BURE_CONFIRM skipped for non-interactive teardown.
     let _ = std::fs::write(dir.join("05-abjure.txt"), "abjuring");
-    match rbtdri_invoke_global(
+    if let Err(v) = rbtdri_invoke_or_fail(
         ctx,
+        "abjure",
+        &hallmark,
         RBTDGC_ABJURE_HALLMARK,
         &[&hallmark],
         &[(RBTDRI_BURE_CONFIRM_KEY, RBTDRI_BURE_CONFIRM_SKIP)],
+        dir,
+        "05-abjure",
     ) {
-        Ok(r) if r.exit_code == 0 => {}
-        Ok(r) => {
-            return rbtdre_Verdict::Fail(format!("abjure failed (exit {})\n{}", r.exit_code, r.stderr))
-        }
-        Err(e) => return rbtdre_Verdict::Fail(format!("abjure invocation: {}", e)),
+        return v;
     }
 
     let _ = std::fs::write(dir.join("06-passed.txt"), "passed");

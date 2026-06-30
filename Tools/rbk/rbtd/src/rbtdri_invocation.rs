@@ -28,6 +28,7 @@ use std::path::{Path, PathBuf};
 use std::process::Command;
 use std::sync::OnceLock;
 
+use crate::rbtdgc_consts::{RBTDGC_ORDAIN_HALLMARK, RBTDGC_VERB_ORDAIN};
 use crate::rbtdre_engine::rbtdre_Verdict;
 use crate::rbtdrx_platform::{rbtdrx_is_cygwin, rbtdrx_native_to_posix, rbtdrx_posix_to_native};
 
@@ -495,6 +496,158 @@ pub fn rbtdri_read_burv_facts_multi(
         .collect();
     roots.sort();
     Ok(roots)
+}
+
+// ── Ordain fact-file names ───────────────────────────────────
+
+/// BURV fact file names written by ordain — single definition, matching
+/// rbgc_constants.sh values. Read by the ordain-capture helpers below.
+pub(crate) const RBTDRI_FACT_HALLMARK: &str = "rbf_fact_hallmark";
+pub(crate) const RBTDRI_FACT_GAR_ROOT: &str = "rbf_fact_gar_root";
+pub(crate) const RBTDRI_FACT_ARK_STEM: &str = "rbf_fact_ark_stem";
+
+// ── Ordain capture + invoke-or-fail helpers ──────────────────
+
+/// Invoke a tabtarget via `rbtdri_invoke_global` and write its stdout/stderr to
+/// `dir` under the `label` prefix. Private spine of `rbtdri_invoke_or_fail`.
+fn rbtdri_invoke_logged(
+    ctx: &mut rbtdri_Context,
+    colophon: &str,
+    args: &[&str],
+    extra_env: &[(&str, &str)],
+    dir: &Path,
+    label: &str,
+) -> Result<rbtdri_InvokeResult, String> {
+    let result = rbtdri_invoke_global(ctx, colophon, args, extra_env)?;
+    let _ = std::fs::write(dir.join(format!("{}-stdout.txt", label)), &result.stdout);
+    let _ = std::fs::write(dir.join(format!("{}-stderr.txt", label)), &result.stderr);
+    Ok(result)
+}
+
+/// Invoke a tabtarget via `rbtdri_invoke_logged` and convert non-success outcomes
+/// into Fail verdicts with consistent operation-prefixed messages. `target` is
+/// the per-call distinguishing string (vessel sigil, vessel dir, nameplate)
+/// included in the error prefix; pass `""` for operations without a target.
+pub(crate) fn rbtdri_invoke_or_fail(
+    ctx: &mut rbtdri_Context,
+    operation: &str,
+    target: &str,
+    colophon: &str,
+    args: &[&str],
+    extra_env: &[(&str, &str)],
+    dir: &Path,
+    label: &str,
+) -> Result<rbtdri_InvokeResult, rbtdre_Verdict> {
+    let prefix = if target.is_empty() {
+        operation.to_string()
+    } else {
+        format!("{} {}", operation, target)
+    };
+    let result = rbtdri_invoke_logged(ctx, colophon, args, extra_env, dir, label)
+        .map_err(|e| rbtdre_Verdict::Fail(format!("{} invocation: {}", prefix, e)))?;
+    if result.exit_code != 0 {
+        return Err(rbtdre_Verdict::Fail(format!(
+            "{} exit {}\n{}",
+            prefix, result.exit_code, result.stderr
+        )));
+    }
+    Ok(result)
+}
+
+/// Run an ordain on `vessel_dir` and return the captured hallmark string.
+/// Writes invocation logs to `dir` under the `label` prefix; returns Fail
+/// verdict-bearing Err so callers can early-return cleanly.
+pub(crate) fn rbtdri_ordain_capture(
+    ctx: &mut rbtdri_Context,
+    dir: &Path,
+    vessel_dir: &str,
+    extra_env: &[(&str, &str)],
+    label: &str,
+) -> Result<String, rbtdre_Verdict> {
+    let result = rbtdri_invoke_or_fail(
+        ctx,
+        RBTDGC_VERB_ORDAIN,
+        vessel_dir,
+        RBTDGC_ORDAIN_HALLMARK,
+        &[vessel_dir],
+        extra_env,
+        dir,
+        label,
+    )?;
+    let hallmark = rbtdri_read_burv_fact(&result, RBTDRI_FACT_HALLMARK).map_err(|e| {
+        rbtdre_Verdict::Fail(format!(
+            "read hallmark fact after {} {}: {}",
+            RBTDGC_VERB_ORDAIN, vessel_dir, e
+        ))
+    })?;
+    let _ = std::fs::write(dir.join(format!("{}-hallmark.txt", label)), &hallmark);
+    Ok(hallmark)
+}
+
+/// Same as `rbtdri_ordain_capture` but also returns gar_root and ark_stem facts
+/// needed by verification tails to construct local docker refs after wrest.
+pub(crate) fn rbtdri_ordain_capture_full(
+    ctx: &mut rbtdri_Context,
+    dir: &Path,
+    vessel_dir: &str,
+    extra_env: &[(&str, &str)],
+    label: &str,
+) -> Result<(String, String, String), rbtdre_Verdict> {
+    let result = rbtdri_invoke_or_fail(
+        ctx,
+        RBTDGC_VERB_ORDAIN,
+        vessel_dir,
+        RBTDGC_ORDAIN_HALLMARK,
+        &[vessel_dir],
+        extra_env,
+        dir,
+        label,
+    )?;
+    let hallmark = rbtdri_read_burv_fact(&result, RBTDRI_FACT_HALLMARK).map_err(|e| {
+        rbtdre_Verdict::Fail(format!(
+            "read hallmark fact after {} {}: {}",
+            RBTDGC_VERB_ORDAIN, vessel_dir, e
+        ))
+    })?;
+    let gar_root = rbtdri_read_burv_fact(&result, RBTDRI_FACT_GAR_ROOT).map_err(|e| {
+        rbtdre_Verdict::Fail(format!(
+            "read gar_root fact after {} {}: {}",
+            RBTDGC_VERB_ORDAIN, vessel_dir, e
+        ))
+    })?;
+    let ark_stem = rbtdri_read_burv_fact(&result, RBTDRI_FACT_ARK_STEM).map_err(|e| {
+        rbtdre_Verdict::Fail(format!(
+            "read ark_stem fact after {} {}: {}",
+            RBTDGC_VERB_ORDAIN, vessel_dir, e
+        ))
+    })?;
+    let _ = std::fs::write(dir.join(format!("{}-hallmark.txt", label)), &hallmark);
+    Ok((hallmark, gar_root, ark_stem))
+}
+
+// ── GAR image-reference builders ─────────────────────────────
+//
+// Two deliberately-separate GAR ref shapes — never fold into one signature.
+// Categorical roots at the canonical hallmark home (the GAR category, with the
+// hallmark naming both the subtree and the tag); fact-rooted roots at an
+// ordain-captured per-vessel build namespace (gar_root + ark_stem, the hallmark
+// only the tag). The same hallmark can carry both forms in one scope.
+
+/// Category-rooted GAR ref: `{category}/{hallmark}/{basename}:{hallmark}` — the
+/// canonical hallmark home, where the hallmark names both subtree and tag.
+pub(crate) fn rbtdri_gar_ref_categorical(category: &str, basename: &str, hallmark: &str) -> String {
+    format!("{}/{}/{}:{}", category, hallmark, basename, hallmark)
+}
+
+/// Fact-rooted GAR ref: `{gar_root}/{ark_stem}/{basename}:{hallmark}` — the
+/// per-vessel build namespace named by ordain-captured facts.
+pub(crate) fn rbtdri_gar_ref_fact(
+    gar_root: &str,
+    ark_stem: &str,
+    basename: &str,
+    hallmark: &str,
+) -> String {
+    format!("{}/{}/{}:{}", gar_root, ark_stem, basename, hallmark)
 }
 
 // ── Ifrit verdict parsing ────────────────────────────────────

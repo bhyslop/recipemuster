@@ -29,7 +29,8 @@ use crate::case;
 use crate::rbtdrc_crucible::rbtdrc_with_ctx;
 use crate::rbtdre_engine::{rbtdre_Case, rbtdre_Disposition, rbtdre_Fixture, rbtdre_Verdict};
 use crate::rbtdri_invocation::{
-    rbtdri_Context, rbtdri_invoke_global, rbtdri_read_burv_fact, rbtdri_read_burv_facts_multi,
+    rbtdri_Context, rbtdri_gar_ref_categorical, rbtdri_invoke_global, rbtdri_invoke_or_fail,
+    rbtdri_ordain_capture, rbtdri_read_burv_fact, rbtdri_read_burv_facts_multi,
     RBTDRI_BURE_CONFIRM_KEY, RBTDRI_BURE_CONFIRM_SKIP,
     RBTDRI_BURE_TWEAK_NAME_KEY, RBTDRI_BURE_TWEAK_VALUE_KEY,
 };
@@ -41,7 +42,7 @@ use crate::rbtdgc_consts::{
     RBTDGC_DIVINE_LODES, RBTDGC_ENSCONCE_BOLE, RBTDGC_FACT_EXT_FOEDUS_HEALTH, RBTDGC_FEOFF_BOLE,
     RBTDGC_IMMURE_PODVM, RBTDGC_INSTATE_FOEDUS,
     RBTDGC_JETTISON_HALLMARK_IMAGE, RBTDGC_JETTISON_IMAGE, RBTDGC_JILT_MANOR, RBTDGC_LIST_IMAGES,
-    RBTDGC_ORDAIN_HALLMARK, RBTDGC_RBRR_FILE, RBTDGC_REKON_HALLMARK, RBTDGC_TALLY_HALLMARKS,
+    RBTDGC_RBRR_FILE, RBTDGC_REKON_HALLMARK, RBTDGC_TALLY_HALLMARKS,
     RBTDGC_TERRIER_PROOF, RBTDGC_TERRIER_SCAFFOLD, RBTDGC_TWEAK_REGIME_POISON, RBTDGC_UNDERPIN_WSL,
     RBTDGC_VOUCH_HALLMARKS,
 };
@@ -163,11 +164,6 @@ pub static RBTDRV_FIXTURE_CHAINING_LIVERY: rbtdre_Fixture = rbtdre_Fixture {
 };
 
 // ── Hallmark / ark vocabulary and docker helpers ─────────────
-
-/// BURV fact file names — single definition, matching rbgc_constants.sh values.
-pub(crate) const RBTDRV_FACT_HALLMARK: &str = "rbf_fact_hallmark";
-pub(crate) const RBTDRV_FACT_GAR_ROOT: &str = "rbf_fact_gar_root";
-pub(crate) const RBTDRV_FACT_ARK_STEM: &str = "rbf_fact_ark_stem";
 
 /// Ark basenames — matching rbgc_constants.sh RBGC_ARK_BASENAME_* values.
 pub(crate) const RBTDRV_ARK_BASENAME_IMAGE: &str = "image";
@@ -355,17 +351,10 @@ fn rbtdrv_hallmark_lifecycle(dir: &Path) -> rbtdre_Verdict {
         let _ = std::fs::write(dir.join("01-baseline-parsed.txt"), baseline.join("\n"));
 
         // Step 2: ordain.
-        let _ = std::fs::write(dir.join("02-ordain.txt"), "ordaining busybox");
-        let ordain_result = match rbtdri_invoke_global(ctx, RBTDGC_ORDAIN_HALLMARK, &[vessel_dir], &[]) {
-            Ok(r) if r.exit_code == 0 => r,
-            Ok(r) => return rbtdre_Verdict::Fail(format!("ordain failed (exit {})\n{}", r.exit_code, r.stderr)),
-            Err(e) => return rbtdre_Verdict::Fail(format!("ordain invocation: {}", e)),
+        let hallmark = match rbtdri_ordain_capture(ctx, dir, vessel_dir, &[], "02-ordain") {
+            Ok(h) => h,
+            Err(v) => return v,
         };
-        let hallmark = match rbtdri_read_burv_fact(&ordain_result, RBTDRV_FACT_HALLMARK) {
-            Ok(v) => v,
-            Err(e) => return rbtdre_Verdict::Fail(format!("read hallmark: {}", e)),
-        };
-        let _ = std::fs::write(dir.join("02-hallmark.txt"), &hallmark);
 
         // Step 3: audit shows new hallmark added.
         let _ = std::fs::write(dir.join("03-audit-after-ordain.txt"), "auditing after ordain");
@@ -407,11 +396,17 @@ fn rbtdrv_hallmark_lifecycle(dir: &Path) -> rbtdre_Verdict {
         }
 
         // Step 5: abjure.
-        let _ = std::fs::write(dir.join("05-abjure.txt"), "abjuring");
-        match rbtdri_invoke_global(ctx, RBTDGC_ABJURE_HALLMARK, &[&hallmark], &[(RBTDRI_BURE_CONFIRM_KEY, RBTDRI_BURE_CONFIRM_SKIP)]) {
-            Ok(r) if r.exit_code == 0 => {}
-            Ok(r) => return rbtdre_Verdict::Fail(format!("abjure failed (exit {})\n{}", r.exit_code, r.stderr)),
-            Err(e) => return rbtdre_Verdict::Fail(format!("abjure invocation: {}", e)),
+        if let Err(v) = rbtdri_invoke_or_fail(
+            ctx,
+            "abjure",
+            &hallmark,
+            RBTDGC_ABJURE_HALLMARK,
+            &[&hallmark],
+            &[(RBTDRI_BURE_CONFIRM_KEY, RBTDRI_BURE_CONFIRM_SKIP)],
+            dir,
+            "05-abjure",
+        ) {
+            return v;
         }
 
         // Step 6: rekon for the abjured hallmark must exit non-zero — the
@@ -1884,23 +1879,17 @@ fn rbtdrv_batch_vouch_lifecycle(dir: &Path) -> rbtdre_Verdict {
             return rbtdre_Verdict::Fail(format!("vessel directory not found: {}", vessel_dir));
         }
 
-        let _ = std::fs::write(dir.join("01-ordain.txt"), "ordaining conjure for plant");
-        let ordain_result = match rbtdri_invoke_global(ctx, RBTDGC_ORDAIN_HALLMARK, &[vessel_dir], &[]) {
-            Ok(r) if r.exit_code == 0 => r,
-            Ok(r) => return rbtdre_Verdict::Fail(format!("ordain failed (exit {})\n{}", r.exit_code, r.stderr)),
-            Err(e) => return rbtdre_Verdict::Fail(format!("ordain invocation: {}", e)),
+        let hallmark = match rbtdri_ordain_capture(ctx, dir, vessel_dir, &[], "01-ordain") {
+            Ok(h) => h,
+            Err(v) => return v,
         };
-        let hallmark = match rbtdri_read_burv_fact(&ordain_result, RBTDRV_FACT_HALLMARK) {
-            Ok(v) => v,
-            Err(e) => return rbtdre_Verdict::Fail(format!("read hallmark: {}", e)),
-        };
-        let _ = std::fs::write(dir.join("01-hallmark.txt"), &hallmark);
 
         // Plant pending state: jettison the vouch ark, leaving image+about.
         let _ = std::fs::write(dir.join("02-plant-jettison.txt"), "jettisoning vouch");
-        let jettison_locator = format!(
-            "{}/{}/{}:{}",
-            RBTDRV_GAR_CATEGORY_HALLMARKS, hallmark, RBTDRV_ARK_BASENAME_VOUCH, hallmark
+        let jettison_locator = rbtdri_gar_ref_categorical(
+            RBTDRV_GAR_CATEGORY_HALLMARKS,
+            RBTDRV_ARK_BASENAME_VOUCH,
+            &hallmark,
         );
         match rbtdri_invoke_global(ctx, RBTDGC_JETTISON_HALLMARK_IMAGE, &[&jettison_locator], &[(RBTDRI_BURE_CONFIRM_KEY, RBTDRI_BURE_CONFIRM_SKIP)]) {
             Ok(r) if r.exit_code == 0 => {}
@@ -1956,11 +1945,17 @@ fn rbtdrv_batch_vouch_lifecycle(dir: &Path) -> rbtdre_Verdict {
             )),
         }
 
-        let _ = std::fs::write(dir.join("06-abjure.txt"), "abjuring");
-        match rbtdri_invoke_global(ctx, RBTDGC_ABJURE_HALLMARK, &[&hallmark], &[(RBTDRI_BURE_CONFIRM_KEY, RBTDRI_BURE_CONFIRM_SKIP)]) {
-            Ok(r) if r.exit_code == 0 => {}
-            Ok(r) => return rbtdre_Verdict::Fail(format!("abjure failed (exit {})\n{}", r.exit_code, r.stderr)),
-            Err(e) => return rbtdre_Verdict::Fail(format!("abjure invocation: {}", e)),
+        if let Err(v) = rbtdri_invoke_or_fail(
+            ctx,
+            "abjure",
+            &hallmark,
+            RBTDGC_ABJURE_HALLMARK,
+            &[&hallmark],
+            &[(RBTDRI_BURE_CONFIRM_KEY, RBTDRI_BURE_CONFIRM_SKIP)],
+            dir,
+            "06-abjure",
+        ) {
+            return v;
         }
 
         let _ = std::fs::write(dir.join("07-passed.txt"), "passed");
