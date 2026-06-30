@@ -19838,8 +19838,8 @@
         "₢BlAAI": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260624-2240",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260630-1823",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "Drafted from ₢BfAAX in ₣Bf.",
                 "",
@@ -19855,7 +19855,7 @@
                 "Within-file mechanical extraction, independent of the wrapper lift."
               ],
               "jjgtn_silks": "lode-roundtrip-block-helpers",
-              "jjgtn_basis": "f676ede"
+              "jjgtn_basis": "7c74b70"
             }
           ]
         },
