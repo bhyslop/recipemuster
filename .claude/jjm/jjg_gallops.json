@@ -19921,9 +19921,10 @@
         "₢BlAAW",
         "₢BlAAX",
         "₢BlAAc",
-        "₢BlAAY"
+        "₢BlAAY",
+        "₢BlAAd"
       ],
-      "jjghn_next_pace_seed": "AAd",
+      "jjghn_next_pace_seed": "AAe",
       "jjghn_paces": {
         "₢BlAAA": {
           "jjgpn_tacks": [
@@ -20737,6 +20738,38 @@
               ],
               "jjgtn_silks": "await-fed-terrier-band",
               "jjgtn_basis": "be14aa9"
+            }
+          ]
+        },
+        "₢BlAAd": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260701-1325",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Perform the terminal Fable review the RBSTC header reserves:",
+                "ratify or re-mint the provisional `rbtt_` quoin stem and the word \"theurge\" (asterism fit, Lapidary pass, sub-letter legend).",
+                "",
+                "## Model gate",
+                "Fable 5 only — the provisional marker names the model; decline under any other.",
+                "",
+                "## Spec of needed change",
+                "Resolve the `rbtt` namespace collision discovered at review:",
+                "the stabled heat rbk-21-win-theurge-tabarget-auditing holds docket-only claims on `Tools/rbk/rbtt_testbench.sh` — one side must move (terminal exclusivity / monosemy).",
+                "Sweep the provisional markers: RBSTC header block, the `rbtt_theurge` definition parenthetical, and any echo in the RBS0 mapping block and the RBSTC acronyms entry.",
+                "Record the ratification (date, model) at the sweep sites and reconcile the ₣Bl paddock's provisional-stem cinch line.",
+                "Reslate the claiming dockets in the stabled heat if the testbench side moves.",
+                "",
+                "## Done when",
+                "No await-review / provisional-naming marker survives;",
+                "the stem and word are final and recorded;",
+                "the colliding docket claim is reconciled with the outcome.",
+                "",
+                "## Character",
+                "Fable judgment on the mint; mechanical sweep once decided."
+              ],
+              "jjgtn_silks": "cosmology-stem-ratification",
+              "jjgtn_basis": "fdb52e9"
             }
           ]
         }
