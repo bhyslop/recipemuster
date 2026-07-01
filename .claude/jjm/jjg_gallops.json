@@ -17471,7 +17471,7 @@
         "₢BfAAL": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260630-1933",
+              "jjgtn_ts": "260630-2124",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "Build the one BCG module orchestrating the Keycloak test-facility lifecycle: rbxk_keycloak.sh in the rbx family.",
@@ -17482,6 +17482,8 @@
                 "Compose existing verbs plus the one JWKS bridge — do NOT contain the accessor (rba's job), do NOT reimplement affiance or jilt (call them).",
                 "The module is blind to the realm JSON — affiliation by reference, never ownership; affiance never learns \"Keycloak.\"",
                 "",
+                "Subject-namespacing (the one-pool co-tenancy rule, ₢BfAAv / RBSPB / rbtf_citizen): under the shared manor pool this test provider is co-resident with production, so its subjects MUST be namespace-disjoint from production — a test token can never satisfy a production `principal://…/subject/{S}` binding (load-bearing security). Author that here as part of standing the facility: the test foedus (rbef_keycloak) carries a namespaced attribute-mapping (e.g. a CEL prefix on `google.subject`) placing its subjects in a reserved namespace. Keep it in the foedus config, NOT the realm JSON — a mapping-level prefix likely suffices, preserving the realm-blindness cinch; only if the realm must mint a namespaceable claim does this coordinate a RBSFK / fdkyclk-realm.json touch, never the orchestrator owning realm internals.",
+                "",
                 "Colophon (operator 260624, supersedes the rbw-xk earmark): the setup tabtarget is rbw-qjK — test bucket q, foedus j, Keycloak K; the teardown is a sibling under rbw-qj, named at cut-time.",
                 "Uppercase K because setup CALLS AFFIANCE and so mutates cloud (creates the GCP workforce provider) — the uppercase is that warning.",
                 "The module keeps its rbxk_keycloak.sh name; the module letter need not match the colophon.",
@@ -17489,21 +17491,22 @@
                 "",
                 "Caveat (operator flag 260624): the full mutation surface is not yet pinned — this setup is \"pretty mutating,\" possibly beyond affiance's provider creation; verify the mutation surface at mount before trusting the gate placement.",
                 "",
-                "Source: fdkyclk-proof.sh (fetch_jwks + the main staging) and fdkyclk-teardown.sh (the jilt-then-quench inverse); the paddock de-lamination + naming section.",
+                "Source: fdkyclk-proof.sh (fetch_jwks + the main staging) and fdkyclk-teardown.sh (the jilt-then-quench inverse); the paddock de-lamination + naming section; RBSPB + rbtf_citizen for the namespacing rule.",
                 "",
                 "## Done when",
-                "One tabtarget (rbw-qjK) stands up the programmatic facility (charged Keycloak + affianced foedus) and one tears it down, idempotently, composing affiance/jilt/charge/quench; the setup's clean-tree gate uses the well-formed precision-band variant, not the old bug_require_clean_tree.",
+                "One tabtarget (rbw-qjK) stands up the programmatic facility (charged Keycloak + affianced foedus) and one tears it down, idempotently, composing affiance/jilt/charge/quench; the setup's clean-tree gate uses the well-formed precision-band variant, not the old bug_require_clean_tree; the test foedus's subjects are namespace-disjoint from production per RBSPB.",
                 "",
                 "## Cinched",
                 "rbx family, rbxk_keycloak.sh module; colophon rbw-qjK (setup) plus an rbw-qj teardown sibling, superseding the prior rbw-xk earmark (operator 260624).",
                 "The module is blind to the realm JSON — affiliation by reference, never ownership.",
                 "The setup gate is the precision-band variant's first live consumer; wiring the gate lands here, not in the infra pace.",
+                "Test-provider subjects are namespace-disjoint from production (the co-tenancy security rule, RBSPB) — authored in the foedus attribute-mapping, keeping the realm-blindness intact.",
                 "",
                 "## Character",
-                "Bash orchestration; the heart of the de-lamination."
+                "Bash orchestration; the heart of the de-lamination. The subject-namespacing mapping is a small config addition riding the same facility setup."
               ],
               "jjgtn_silks": "rbxk-keycloak-orchestrator",
-              "jjgtn_basis": "ea14b77"
+              "jjgtn_basis": "2afb450"
             }
           ]
         },
