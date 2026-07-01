@@ -18157,8 +18157,8 @@
         "₢BfAAv": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260630-1519",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260630-2127",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "Re-cut the federation specs to the 260630 one-pool identity substrate (paddock \"Model\" section) — the contract-first hard predecessor of every model-touching code pace.",
                 "",
@@ -18183,7 +18183,7 @@
                 "Spec authoring over a settled model (the Model section is the decision); contract-first hard predecessor — no model-touching code lands before this."
               ],
               "jjgtn_silks": "onepool-spec-recut",
-              "jjgtn_basis": "b844d7b"
+              "jjgtn_basis": "bbd2965"
             }
           ]
         },
