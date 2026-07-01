@@ -20967,8 +20967,8 @@
         "₢BoAAC": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260630-1234",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260701-1442",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "Mint the canonical mantle-identity-token home (pallium-sprued), repoint the patrol off the account-fragment conflation, and prove mantle-don isolation by exit code.",
                 "",
@@ -21001,7 +21001,7 @@
                 "Prefix mint + bash home + emit + patrol repoint + leave-one-out theurge matrix; band, token home, and the rbpa_ sprue settled this chat (260630)."
               ],
               "jjgtn_silks": "mantle-token-home-and-isolation-matrix",
-              "jjgtn_basis": "154905a"
+              "jjgtn_basis": "9afa566"
             }
           ]
         },
