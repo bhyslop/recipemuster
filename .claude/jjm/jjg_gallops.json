@@ -17036,6 +17036,7 @@
         "₢BfAAv",
         "₢BfAAu",
         "₢BfAAp",
+        "₢BfAA0",
         "₢BfAAx",
         "₢BfAAw",
         "₢BfAAF",
@@ -17056,10 +17057,71 @@
         "₢BfAAt",
         "₢BfAAy",
         "₢BfAAq",
-        "₢BfAAz"
+        "₢BfAAz",
+        "₢BfAA1"
       ],
-      "jjghn_next_pace_seed": "AA0",
+      "jjghn_next_pace_seed": "AA2",
       "jjghn_paces": {
+        "₢BfAA0": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260630-2043",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Build the RBRW Workforce regime module and relocate the manor pool identity out of RBRF — the code home for the org / pool-id / session-duration fields the one-pool spec recast (₢BfAAv) moved to a manor-level regime.",
+                "",
+                "## Spec of needed change",
+                "RBSRW (new, ₢BfAAv) specifies the regime; nothing builds it yet. Build the code and strip the vacated fields:",
+                "- New module rbrw_regime.sh (+ CLI) enrolling RBRW_ORG_ID, RBRW_WORKFORCE_POOL_ID, RBRW_SESSION_DURATION under one group, per RBSRW's kindle/validate/render (org numeric; pool-id lowercase-alnum-hyphen with the gcp- prefix reserved; session NNNs bounded 900s–43200s). Follow the RBRR/RBRP regime-module pattern.",
+                "- Moorings home: a single manor-level committed file (RBRW is axrd_singleton, one per manor) — settle its path in the moorings tree, sibling to the rbmf_foedera library, not per-foedus.",
+                "- Strip RBRF: remove RBRF_ORG_ID / RBRF_WORKFORCE_POOL_ID / RBRF_SESSION_DURATION from rbrf_regime.sh and from every rbef_*/rbrf.env in the moorings foedera library — they now live in RBRW.",
+                "- Tabtargets rbw-rwr (render) / rbw-rwv (validate), per the regime-tabtarget pattern — a zipper write, so this rides BEHIND the ₢BfAAp baton — plus the zipper enrollment for the new colophons.",
+                "",
+                "## Done when",
+                "rbrw_regime.sh kindles/validates/renders the three fields per RBSRW; the manor-level moorings file exists; rbrf_regime.sh and the rbef_*/rbrf.env files no longer carry org/pool/session; rbw-rwr/rbw-rwv are enrolled; reveille (regime-validation) and the fast qualify stay green.",
+                "",
+                "## Cinched",
+                "RBRW is the manor pool identity's sole home (RBSRW); RBRF keeps only the per-foedus provider fields.",
+                "Hard predecessor of the finisher (₢BfAAF), the membership composer (₢BfAAw), and the affiance/jilt verb re-cut — they all READ RBRW.",
+                "Tabtarget enrollment rides behind the ₢BfAAp zipper baton.",
+                "",
+                "## Character",
+                "Regime-module build over a settled spec (RBSRW) plus a mechanical field strip across RBRF and the rbef_ library; the moorings-path choice is the one open judgment."
+              ],
+              "jjgtn_silks": "rbrw-regime-buildout",
+              "jjgtn_basis": "251ef8a"
+            }
+          ]
+        },
+        "₢BfAA1": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260630-2043",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Re-cut the affiance and jilt verb code to the one-pool provider model per RBSMA / RBSMJ (re-cut by ₢BfAAv) — affiance creates a provider under the standing pool (no longer founds it); jilt deletes the provider (no longer the pool).",
+                "",
+                "## Spec of needed change",
+                "rbgp_manor_affiance / rbgp_manor_jilt (rbgp_payor.sh) still found and delete the workforce POOL. Re-cut to the provider model:",
+                "- affiance (RBSMA): drop the pool-ensure and the org-level workforcePoolAdmin self-grant (both move to the finisher ₢BfAAF); REQUIRE the manor pool present (fatal if absent, directing to the finisher); create the provider under RBRW_WORKFORCE_POOL_ID; drop the soft-delete / refuse-and-rotate handling (moot); write the attribute-mapping verbatim (the subject-namespacing rides the regime value, provider-side).",
+                "- jilt (RBSMJ): delete the PROVIDER under the standing pool (workforcePools.providers.delete), not the pool; drop the pool soft-delete/undelete/graveyard handling (the pool force-delete is the separate ₢BfAAx teardown); keep the idempotent 404 short-circuit; provider-scoped confirmation.",
+                "- Both read the pool id from RBRW (₢BfAAv's field relocation), not the retired RBRF pool field.",
+                "",
+                "## Done when",
+                "affiance creates a provider under the standing manor pool and fatally requires that pool present; jilt deletes only the provider; both source the pool from RBRW; the affiance/jilt paths verify against the re-cut RBSMA/RBSMJ; the relevant test tier (picket) stays green.",
+                "",
+                "## Cinched",
+                "Affiance never founds the pool and jilt never deletes it — both are provider-grain now (RBSMA/RBSMJ); the pool is the finisher's (₢BfAAF) and the teardown's (₢BfAAx).",
+                "Reads the pool from RBRW, not RBRF.",
+                "",
+                "## Character",
+                "Surgical bash re-cut of two payor verbs in rbgp_payor.sh against the settled RBSMA/RBSMJ; how much of the affiance founding-step logic moves wholesale to the finisher is the in-pace judgment."
+              ],
+              "jjgtn_silks": "affiance-jilt-provider-recut",
+              "jjgtn_basis": "251ef8a"
+            }
+          ]
+        },
         "₢BfAAA": {
           "jjgpn_tacks": [
             {
@@ -17209,36 +17271,39 @@
         "₢BfAAF": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260630-1519",
+              "jjgtn_ts": "260630-2043",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "Build the manor-setup finisher — a single idempotent post-payor-guide tabtarget that founds the scriptable manor: the workforce pool (once) plus the terrier bucket + per-polity folders. ENSURE-EXISTS (operator 260630).",
                 "",
                 "## Spec of needed change",
                 "Founding-home is OPTION B (terminal Fable 260622): the Manor provisions these, not affiance.",
-                "- The ONE manor pool's one-time founding lives here (the Model: founded once at manor setup, never by affiance/jilt). Idempotency is ENSURE-EXISTS: pool absent → create; pool present → leave it; config drifted → PATCH-reconcile (session-duration etc., non-destructive). The finisher NEVER deletes the pool — destroying it re-enrolls every citizen, so clean-slate is the separate force-delete sibling (manor-teardown), run before the finisher in the release ladder.",
+                "- The ONE manor pool's one-time founding lives here (founded once at manor setup, never by affiance/jilt), reading its identity from the RBRW Workforce regime (org / pool-id / session-duration; RBSRW).",
+                "- Idempotency is ENSURE-EXISTS, but NOT a bare get-by-id: RBSRW's drift guard (₢BfAAv-contracted) makes the finisher the pool_id half of the sync. Before founding, LIST the RB-marked pools under RBRW_ORG_ID; if one stands under a different id than RBRW_WORKFORCE_POOL_ID, REFUSE (coordinate drift) rather than create — a plain get-by-id would silently found a second, empty pool. No RB-marked pool → create; present at the expected id → PATCH-reconcile the reconcilable field (session-duration, non-destructive). An org_id drift is unguardable here (the org is the search scope) and rests on org-invariance, per RBSRW.",
+                "- The finisher NEVER deletes the pool — clean-slate is the separate force-delete sibling (₢BfAAx manor-teardown), run before the finisher in the release ladder.",
                 "- The terrier bucket + per-polity managed folders + grain IAM.",
                 "",
-                "Out of this pace (now siblings): the terrier muniment provider-dimension (its own RBSTR/RBGFT pace) and the rbw-dt/dT scaffold RETIREMENT (its own late pace, behind the ₢BfAAq registry merge). This finisher is the founding tabtarget only.",
+                "Out of this pace (siblings): the terrier muniment provider-dimension (₢BfAAy) and the rbw-dt/dT scaffold retirement (₢BfAAz, behind ₢BfAAq). This finisher is the founding tabtarget only.",
                 "",
-                "Contract-first: rides behind ₢BfAAv (the manor found/teardown contract in the new finisher subdoc). Sequenced AHEAD of ₢BfAAL — the Keycloak orchestrator's affiance-add-provider needs the pool standing.",
+                "Contract-first: rides behind ₢BfAAv (the found/teardown contract in the new finisher subdoc; the pool sync-guard shape in RBSRW) and behind the RBRW regime module (the finisher READS RBRW, does not build it). Sequenced AHEAD of ₢BfAAL — the Keycloak orchestrator's affiance-add-provider needs the pool standing.",
                 "",
                 "## Spec-sync",
-                "A NEW operation subdoc for the manor found/teardown pair (provisional acronym minted in-heat), authored before the code (the contract is re-cut in ₢BfAAv). NOT RBSTR (terrier ACCESS) / RBSMF (depot-grain).",
+                "A NEW operation subdoc for the manor found/teardown pair (provisional acronym minted in-heat), authored before the code (the contract is re-cut in ₢BfAAv; the pool sync-guard shape is in RBSRW). NOT RBSTR (terrier ACCESS) / RBSMF (depot-grain).",
                 "",
                 "## Done when",
-                "A standing manor-setup-finisher tabtarget idempotently ensures the manor pool (ensure-exists + PATCH-reconcile, never delete) plus the terrier bucket (payor-project-grain) + per-polity folders (depot-grain) + grain IAM; the new operation subdoc exists; gauntlet stays green.",
+                "A standing manor-setup-finisher tabtarget idempotently ensures the manor pool via the RBSRW drift guard (list-and-match under the org, refuse on id-mismatch, create-if-absent, PATCH-reconcile session-duration — never a bare get-by-id, never a delete) reading RBRW; plus the terrier bucket (payor-project-grain) + per-polity folders (depot-grain) + grain IAM; the new operation subdoc exists; gauntlet stays green.",
                 "",
                 "## Cinched",
                 "Founding-home = Option B (Manor, not affiance); one idempotent finisher after manual manor setup.",
                 "Ensure-exists, never destructive — clean-slate is the force-delete sibling.",
+                "The pool guard is list-and-match (RBSRW), not a bare get-by-id — a drifted pool_id must refuse, never silently found a second pool.",
                 "Spec home = a NEW operation subdoc, not RBSTR/RBSMF.",
                 "",
                 "## Character",
-                "Implementation over a settled design; the B-variant, the folder-step credential boundary, and the PATCH-reconcile scope are the in-pace judgment calls."
+                "Implementation over a settled design; the B-variant, the folder-step credential boundary, the PATCH-reconcile scope, and the list-and-match drift guard are the in-pace judgment calls."
               ],
               "jjgtn_silks": "terrier-founding-home-finisher",
-              "jjgtn_basis": "b844d7b"
+              "jjgtn_basis": "251ef8a"
             }
           ]
         },
@@ -18122,29 +18187,29 @@
         "₢BfAAw": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260630-1451",
+              "jjgtn_ts": "260630-2043",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "Re-cut the membership-principal composer to the one-pool model — per-individual normalized subject on the stable manor pool, test-provider subjects namespaced disjoint from production. The code follow-on of the ₢BfAAv spec re-cut.",
                 "",
                 "## Spec of needed change",
                 "zrbgp_principal_member_capture (rbgp_payor.sh) builds principal://…/workforcePools/{pool}/subject/{S} from the per-foedus pool id and the raw IdP subject. Re-cut per RBSPB (re-cut by ₢BfAAv):",
-                "- The pool is the one manor-level pool, not the per-foedus pool id.",
-                "- S is an IdP-stable canonical subject; the synthetic test provider's subjects are namespaced disjoint from production (the attribute-mapping that yields this is set provider-side in affiance).",
+                "- The pool is the one manor pool, sourced from RBRW_WORKFORCE_POOL_ID (the RBRW Workforce regime), not the retired per-foedus RBRF pool field.",
+                "- S is an IdP-stable canonical subject; the synthetic test provider's subjects are namespaced disjoint from production (the attribute-mapping that yields this is set provider-side in affiance, per RBSMA).",
                 "- The composer is the single home — brevet / gird / unseat / attaint all route through it.",
                 "",
                 "## Done when",
-                "The principal composer and its polity-verb consumers build membership on the one manor pool with the normalized + namespaced subject per RBSPB; the exact-string unseat/attaint revoke still matches (no binding orphaned by the pool-id change).",
+                "The principal composer and its polity-verb consumers build membership on the one manor pool (RBRW-sourced) with the normalized + namespaced subject per RBSPB; the exact-string unseat/attaint revoke still matches (no binding orphaned by the pool-id change).",
                 "",
                 "## Cinched",
                 "Per-individual membership, NOT group — the terrier muniment's 1:1 record↔grant mirror is preserved (a group binding would sever it).",
-                "Contract-first: builds against RBSPB as re-cut by ₢BfAAv.",
+                "Contract-first: builds against RBSPB as re-cut by ₢BfAAv; reads the pool from RBRW, not RBRF.",
                 "",
                 "## Character",
                 "Surgical bash re-cut at one composer + its polity-verb consumers; sweeping any existing per-foedus-pool bindings (the exact-string-revoke leak the membership study flagged) is the in-pace judgment call."
               ],
               "jjgtn_silks": "membership-composer-recut",
-              "jjgtn_basis": "bd02e40"
+              "jjgtn_basis": "251ef8a"
             }
           ]
         },
