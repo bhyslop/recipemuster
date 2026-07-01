@@ -19466,7 +19466,7 @@
         "₢BiAAa": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260625-1625",
+              "jjgtn_ts": "260701-1654",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "## Character",
@@ -19489,15 +19489,11 @@
                 "Today the same durable write lives as: bash zrbob_drive_hallmark fused into the local kludge wrappers (rbw-cKB/cKS); a Rust reimplementation rbtdro_drive_hallmark for onboarding; and a handbook step that tells the cloud operator to hand-edit rbrn.env.",
                 "The cloud path has no operator-facing drive verb at all.",
                 "",
-                "## Boundary",
-                "Keep the local one-shot: rbw-cKB/cKS stay single-command, composing build-head + the new drive-link.",
-                "Unify the underlying operation, not the operator gesture — do not tax the local dev loop with a second command.",
-                "",
                 "## Cross-clone surface (surfaced by the integrity audit — barriers cover it, this is for legibility)",
-                "This is the heaviest cross-cutting pace; it writes into BOTH sibling clones' territory, all of it covered by the ₢BiAAg dual-wait barrier (which waits on ₢BfAAF and ₢BlAAL) — recorded here so a mount agent sees the surface, not just the ₢BbAAT coupling below.",
-                "- **Same-symbol collision with ₢BlAAK (₣Bl, theurge crate).** ₢BiAAa REMOVES the Rust reimplementation rbtdro_drive_hallmark (callers compose the unified primitive); ₢BlAAK REFACTORS that same function (routes it through the engine config-console). Whichever lands second reconciles — ₢BiAAa's removal supersedes ₢BlAAK's reroute. The ₢BiAAg wait on ₢BlAAL (later than ₢BlAAK in ₣Bl order) delivers ₢BlAAK's refactor before this pace removes the function, so the reconcile is informed, not a surprise.",
-                "- **RBS0 write (₣Bf-owned).** \"Enumerate alongside feoff/anoint/yoke\" means a new rbtgo_ drive-verb quoin + include into RBS0; gated because ₢BiAAg waits on ₢BfAAF, FED's last RBS0 writer.",
-                "- **Zipper-trio write (₣Bl-owned).** The new cloud drive verb mints a colophon (beside rbw-rvf/rva/rvy), editing the zipper trio; gated by the zipper baton arriving last at MVP (₢BiAAg on ₢BfAAF, whose ancestry already carries ₣Bl's last zipper write).",
+                "This is the heaviest cross-cutting pace; it writes into BOTH sibling clones' territory, all of it covered by the ₢BiAAg dual-wait barrier (which waits on ₢BfAAz and ₢BlAAL) — recorded here so a mount agent sees the surface, not just the ₢BbAAT coupling below.",
+                "- **Same-symbol collision with ₢BlAAK (₣Bl, theurge crate).** ₢BiAAa REMOVES the Rust reimplementation rbtdro_drive_hallmark (callers compose the unified primitive); ₢BlAAK REFACTORS that same function (routes it through the engine config-console). Whichever lands second reconciles — ₢BiAAa's removal supersedes ₢BlAAK's reroute. Both ₢BlAAK and ₢BlAAL have since LANDED and pushed, so the refactored form is already in this clone's ancestry once ₢BiAAg merges through — the reconcile is informed, not a surprise.",
+                "- **RBS0 write (₣Bf-owned).** \"Enumerate alongside feoff/anoint/yoke\" means a new rbtgo_ drive-verb quoin + include into RBS0; gated because ₢BiAAg waits on ₢BfAAz, FED's last RBS0 writer under the 260630 rework (retargeted from ₢BfAAF, which the reorder moved off \"last\").",
+                "- **Zipper-trio write (₣Bl-owned).** The new cloud drive verb mints a colophon (beside rbw-rvf/rva/rvy), editing the zipper trio; gated by the zipper baton arriving last at MVP (₢BiAAg on ₢BfAAz, whose ancestry carries ₣Bl's last zipper write ₢BlAAb and every ₣Bf zipper write through the scaffold retirement).",
                 "",
                 "## Cross-heat coupling — ₢BbAAT (₣Bb)",
                 "That pace consolidates the chaining discipline-prose into one home and enumerates the durable-leak-link as exactly three verbs writing RBRV_*.",
@@ -19512,7 +19508,7 @@
                 "- Build green; fast + siege green."
               ],
               "jjgtn_silks": "nameplate-hallmark-drive-chain-link",
-              "jjgtn_basis": "d40447a"
+              "jjgtn_basis": "93a5547"
             }
           ]
         },
