@@ -20390,8 +20390,8 @@
         "₢BlAAP": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260701-1318",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260701-1440",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "Drafted from ₢BiAAb in ₣Bi.",
                 "",
@@ -20428,7 +20428,7 @@
                 "A NEW absent-artifact band, never a reuse of the chaining band: plumb's spawn path crosses the vessel-resolve chaining gate, and the allocation rule forbids sharing a code along a pipeline."
               ],
               "jjgtn_silks": "read-existence-failure-bands",
-              "jjgtn_basis": "18f686f"
+              "jjgtn_basis": "b99d2d5"
             }
           ]
         },
