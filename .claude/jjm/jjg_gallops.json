@@ -19893,8 +19893,8 @@
         "₢BiAAp": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260630-2041",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260701-1635",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "## Character",
                 "Design + normative RBSCH change — judgment on the note/hook boundary and the BCG-clean emit; the migration is mechanical.",
@@ -19915,7 +19915,7 @@
                 "RBSCH carries the new quoin; charge surfaces a nameplate's note BCG-clean at charge end; srjcl, pluml, and nineveh all render usage via notes; a typo'd placeholder fails the charge loud."
               ],
               "jjgtn_silks": "charge-note-formalization",
-              "jjgtn_basis": "2f6453f"
+              "jjgtn_basis": "2496a5e"
             }
           ]
         },
