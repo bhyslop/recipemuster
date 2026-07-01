@@ -19882,8 +19882,8 @@
         "₢BiAAq": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260701-1400",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260701-1503",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "## Character",
                 "Mechanical: a bind-gated regime-validation check plus a one-constant poll-budget bump. No new band. Code landed.",
@@ -19907,7 +19907,7 @@
                 "- ZRBFC_BUILD_POLL_CEILING_VOUCH raised."
               ],
               "jjgtn_silks": "bind-digest-gate-vouch-budget",
-              "jjgtn_basis": "09db029"
+              "jjgtn_basis": "76e5b9d"
             }
           ]
         }
