@@ -38,13 +38,15 @@ use crate::rbtdri_invocation::{
 use crate::rbtdgc_consts::{
     RBTDGC_ABJURE_HALLMARK, RBTDGC_ACCOUNT_DIRECTOR, RBTDGC_ACCOUNT_GOVERNOR, RBTDGC_ACCOUNT_PAYOR,
     RBTDGC_ACCOUNT_RETRIEVER, RBTDGC_AFFIANCE_MANOR, RBTDGC_AUDIT_HALLMARKS,
-    RBTDGC_AUGUR_LODE, RBTDGC_BAND_ADMISSION, RBTDGC_BANISH_LODE, RBTDGC_BREVET_POLITY,
+    RBTDGC_AUGUR_LODE, RBTDGC_BAND_ADMISSION, RBTDGC_BAND_VACANT, RBTDGC_BANISH_LODE,
+    RBTDGC_BREVET_POLITY,
     RBTDGC_CHECK_AVOWAL, RBTDGC_CHECK_MANTLE,
     RBTDGC_CHECK_PAYOR, RBTDGC_CONCLAVE_RELIQUARY, RBTDGC_DESCRY_FOEDUS,
     RBTDGC_DIVINE_LODES, RBTDGC_ENSCONCE_BOLE, RBTDGC_FACT_EXT_FOEDUS_HEALTH, RBTDGC_FEOFF_BOLE,
     RBTDGC_FREEHOLD_SUBJECT, RBTDGC_IMMURE_PODVM, RBTDGC_INSTATE_FOEDUS,
     RBTDGC_JETTISON_HALLMARK_IMAGE, RBTDGC_JETTISON_IMAGE, RBTDGC_JILT_MANOR, RBTDGC_LIST_IMAGES,
-    RBTDGC_RBRR_FILE, RBTDGC_REKON_HALLMARK, RBTDGC_TALLY_HALLMARKS,
+    RBTDGC_PLUMB_FULL, RBTDGC_RBRR_FILE, RBTDGC_REKON_HALLMARK, RBTDGC_SUMMON_HALLMARK,
+    RBTDGC_TALLY_HALLMARKS,
     RBTDGC_TERRIER_PROOF, RBTDGC_TERRIER_SCAFFOLD, RBTDGC_TWEAK_REGIME_POISON, RBTDGC_UNDERPIN_WSL,
     RBTDGC_UNSEAT_POLITY, RBTDGC_VOUCH_HALLMARKS,
 };
@@ -364,6 +366,31 @@ const RBTDRV_ENSCONCE_STAMP_TWEAK_NAME: &str = "buorb_ensconce_stamp";
 /// succeeds and the failure lands cloud-side at the guard, not host-side.
 const RBTDRV_DEB_VESSEL_DIR: &str = concat!(crate::rbtd_vessels_dir!(), "/rbev-sentry-deb-tether");
 
+/// Assert a read verb (summon/plumb/augur) exited the vacant band — the named
+/// hallmark or Lode is absent from the registry (buc_reject BUBC_band_vacant),
+/// the read-side absent-artifact signature rather than a bare death. Shared
+/// bookend for the two lifecycle fixtures' post-abjure and post-banish absent
+/// moments. No propagation poll (unlike mantle-denial's IAM revocation): abjure
+/// and banish are synchronous, so the artifact is gone the instant they return.
+/// Stamps the stderr for diagnostics; Some(Fail) on any other exit, None on the
+/// band.
+fn zrbtdrv_expect_vacant(
+    result: &rbtdri_InvokeResult,
+    label: &str,
+    dir: &Path,
+    stamp: &str,
+) -> Option<rbtdre_Verdict> {
+    let _ = std::fs::write(dir.join(stamp), &result.stderr);
+    if result.exit_code == RBTDGC_BAND_VACANT {
+        None
+    } else {
+        Some(rbtdre_Verdict::Fail(format!(
+            "{}: expected vacant band {} (named artifact absent from registry), got exit {}\nstderr:\n{}",
+            label, RBTDGC_BAND_VACANT, result.exit_code, result.stderr
+        )))
+    }
+}
+
 fn rbtdrv_hallmark_lifecycle(dir: &Path) -> rbtdre_Verdict {
     rbtdrc_with_ctx(|ctx| {
         let vessel_dir = RBTDRV_BUSYBOX_VESSEL_DIR;
@@ -461,6 +488,27 @@ fn rbtdrv_hallmark_lifecycle(dir: &Path) -> rbtdre_Verdict {
                 ));
             }
             Err(e) => return rbtdre_Verdict::Fail(format!("post-abjure rekon invocation: {}", e)),
+        }
+
+        // Step 6b: the abjured hallmark is now vacant — summon and plumb must
+        // reject with the vacant band (the read-side absent-artifact signature),
+        // never a bare death. summon dies at the neither-ark check; plumb at the
+        // sole-caller vessel-resolve (no vouch ark), whose band the outer
+        // buc_die propagates unchanged through the band membrane. Both are
+        // read-only, so they leave the restored-baseline invariant untouched.
+        let summon = match rbtdri_invoke_global(ctx, RBTDGC_SUMMON_HALLMARK, &[&hallmark], &[]) {
+            Ok(r) => r,
+            Err(e) => return rbtdre_Verdict::Fail(format!("post-abjure summon invocation: {}", e)),
+        };
+        if let Some(v) = zrbtdrv_expect_vacant(&summon, "post-abjure summon", dir, "06b-summon-vacant.txt") {
+            return v;
+        }
+        let plumb = match rbtdri_invoke_global(ctx, RBTDGC_PLUMB_FULL, &[&hallmark], &[]) {
+            Ok(r) => r,
+            Err(e) => return rbtdre_Verdict::Fail(format!("post-abjure plumb invocation: {}", e)),
+        };
+        if let Some(v) = zrbtdrv_expect_vacant(&plumb, "post-abjure plumb", dir, "06c-plumb-vacant.txt") {
+            return v;
         }
 
         // Step 7: final audit — registry restored to baseline.
@@ -733,6 +781,17 @@ fn rbtdrv_lode_lifecycle(dir: &Path) -> rbtdre_Verdict {
 
         // Step 4: banish the whole Lode, then confirm the registry is restored.
         if let Some(v) = zrbtdrv_banish_and_verify_gone(ctx, dir, &touchmark) {
+            return v;
+        }
+
+        // Step 5: the banished Lode is now vacant — augur must reject with the
+        // vacant band (its empty-tags "Lode not present" signal), never a bare
+        // death.
+        let augur_gone = match rbtdri_invoke_global(ctx, RBTDGC_AUGUR_LODE, &[&touchmark], &[]) {
+            Ok(r) => r,
+            Err(e) => return rbtdre_Verdict::Fail(format!("post-banish augur invocation: {}", e)),
+        };
+        if let Some(v) = zrbtdrv_expect_vacant(&augur_gone, "post-banish augur", dir, "06b-augur-vacant.txt") {
             return v;
         }
 
