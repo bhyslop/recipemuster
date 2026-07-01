@@ -89,11 +89,21 @@ zrbrv_sentinel() {
   test "${ZRBRV_KINDLED:-}" = "1" || buc_die "Module rbrv not kindled - call zrbrv_kindle first"
 }
 
-# Enforce all RBRV enrollment validations
+# Enforce all RBRV enrollment validations and custom format checks
 zrbrv_enforce() {
   zrbrv_sentinel
 
   buv_vet RBRV
+
+  # Bind vessels must be digest-pinned: the vouch's verify-provenance pins the
+  # mirrored image against the @sha256: digest in RBRV_BIND_IMAGE, so a tag-only
+  # source passes the mirror but fails the vouch deep in the cloud build. Reject
+  # it here at config time. Invariant homed in RBSRV.
+  if test "${RBRV_VESSEL_MODE}" = "rbnve_bind"; then
+    local z_bind_digest_re='@sha256:[0-9a-f]{64}$'
+    [[ "${RBRV_BIND_IMAGE}" =~ ${z_bind_digest_re} ]] \
+      || buc_reject "${BUBC_band_regime}" "RBRV_BIND_IMAGE must be digest-pinned (name@sha256:<64-hex>), not a bare tag, for a bind vessel; got '${RBRV_BIND_IMAGE}'"
+  fi
 }
 
 ######################################################################

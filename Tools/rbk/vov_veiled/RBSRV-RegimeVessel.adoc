@@ -78,6 +78,8 @@ Binding retrieves a pre-built image from an external registry without local buil
 
 Fully-qualified image reference to copy from an external registry.
 Must be a valid FQIN; 1-512 characters.
+Must be digest-pinned — the reference carries an `@sha256:<digest>` tail, never a bare tag.
+Bind images are provenance-verified: the vouch pins the mirrored image against this digest, so a tag-only reference is rejected at regime validation (the regime band) at config time — not deep in the mirror's cloud build, where the vouch would otherwise catch it far more expensively.
 
 //axhrgv_variable
 {rbrv_bind_optional_dockerfile}

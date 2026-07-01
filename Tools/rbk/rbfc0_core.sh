@@ -143,7 +143,7 @@ zrbfc_kindle() {
   readonly ZRBFC_BUILD_POLL_CEILING_MIRROR=100
   readonly ZRBFC_BUILD_POLL_CEILING_ABOUT_VOUCH=100
   readonly ZRBFC_BUILD_POLL_CEILING_ABOUT=50
-  readonly ZRBFC_BUILD_POLL_CEILING_VOUCH=50
+  readonly ZRBFC_BUILD_POLL_CEILING_VOUCH=150  # large multi-arch bind vouch runs ~8min; 50 (~4min) false-timed-out even on GCB success
   # Cloud-dispatched tool-plane delete (banish/abjure). The host waits for one
   # build that loops the package list in-pool (one build per abjure, never per
   # package), each package a convergence loop (rbgjl06: fire deletes, poll the
