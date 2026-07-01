@@ -18434,6 +18434,7 @@
       "jjghn_status": "jjghe_racing",
       "jjghn_order": [
         "₢BiAAo",
+        "₢BiAAp",
         "₢BiAAk",
         "₢BiAAe",
         "₢BiAAV",
@@ -18471,7 +18472,7 @@
         "₢BiAAj",
         "₢BiAAl"
       ],
-      "jjghn_next_pace_seed": "AAp",
+      "jjghn_next_pace_seed": "AAq",
       "jjghn_paces": {
         "₢BiAAC": {
           "jjgpn_tacks": [
@@ -19769,6 +19770,35 @@
               ],
               "jjgtn_silks": "nineveh-kroki-trial-crucible",
               "jjgtn_basis": "569bc5a"
+            }
+          ]
+        },
+        "₢BiAAp": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260630-2041",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "Design + normative RBSCH change — judgment on the note/hook boundary and the BCG-clean emit; the migration is mechanical.",
+                "",
+                "Formalize on-charge usage documentation as a declarative affordance: any nameplate gains a usage note by dropping one file.",
+                "Mint a third RBNNH member — a per-nameplate usage note (working name `rbnnh_charge_note`) — sibling to `rbnnh_compose_fragment` and `rbnnh_post_charge_hook` in RBSCH.",
+                "The note is data; charge core surfaces it at charge's end.",
+                "Migrate the three existing cases: srjcl's JupyterLab URL -> note (its ANTHROPIC_API_KEY check stays in a slimmed hook); pluml, which has no on-charge affordance today, gains a note; nineveh's trial freeform hook -> note.",
+                "",
+                "## Cinched",
+                "- Note/hook boundary is conditionality: unconditional/templated display -> note; anything conditional or enforcing -> the post_charge hook.",
+                "- Interpolation is bash-native `${!name}` indirect expansion after name-validation — NOT envsubst (off the BCG POSIX allowlist; a builtin does it), never eval. See BCG Eval Policy + Command Dependency Discipline.",
+                "- Closed, documented placeholder vocabulary; an unresolved/typo'd placeholder is buc_die, never silent passthrough (BCG Interface Contamination / Zeroes Theory).",
+                "- The charge-core emit is kit code -> BCG governs it: route through the kit messaging surface (buc_*/BUH), never raw echo. (The self-contained hook can't use buc_*, so display belongs on the charge-core surface — BCG argues for the split.)",
+                "- rbw-ni surfacing-without-charge is deferred — the reuse this unlocks, proven later.",
+                "",
+                "## Done when",
+                "RBSCH carries the new quoin; charge surfaces a nameplate's note BCG-clean at charge end; srjcl, pluml, and nineveh all render usage via notes; a typo'd placeholder fails the charge loud."
+              ],
+              "jjgtn_silks": "charge-note-formalization",
+              "jjgtn_basis": "2f6453f"
             }
           ]
         }
