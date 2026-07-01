@@ -119,6 +119,14 @@ RBCC_verb_immure="immure"
 RBCC_verb_mirror="mirror"
 RBCC_verb_underpin="underpin"
 
+# Creed tinder — RB convictions supplied as the rationale parameter to a
+# kit-agnostic BUG gate, keeping the opinion RB-side and out of BUK. The
+# clean-build creed rides bug_require_clean_tree_creed: RB refuses to build a
+# container image from an uncommitted tree because the image cannot then be
+# traced to a commit. Consumed only by bash gate sites (no theurge assertion),
+# so it is not projected to the Rust band; no call site is wired yet.
+RBCC_creed_clean_build="a container image built from an uncommitted tree cannot be traced to a commit; commit before building"
+
 # Fact-file extension tinder — multi-fact registry for buf_write_fact_multi.
 # Producers emit "<basename>.<extension>" via filesystem-as-data-bus pattern;
 # consumers walk fact files in BURD_OUTPUT_DIR / BURD_TEMP_DIR keyed on extension.

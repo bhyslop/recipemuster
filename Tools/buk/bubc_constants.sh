@@ -82,6 +82,11 @@ BUBC_band_chain=105     # chaining-fact resolution rejection (broken express-or-
 # resolves an express-or-chain fact.
 BUBC_band_descry=106    # foedus descry rejection (unresolvable foedus name, broken pool read)
 BUBC_band_instate=107   # foedus instate rejection (missing/unresolvable foedus identity)
+# Clean-tree gate: bug_require_clean_tree_creed refuses a dirty working tree
+# (staged/unstaged). One gate, kit-agnostic; the caller's rationale (a creed)
+# rides the message, never the band. Distinct code — not an alternative of any
+# gate above.
+BUBC_band_clean_tree=108 # clean-tree gate rejection (dirty working tree at a clean-tree-gated operation)
 # Self-test probe pins the band top, proving full-width propagation:
 BUBC_band_selftest=115  # BUK self-test deliberate rejection (buw-xb fixture)
 
