@@ -234,6 +234,7 @@ rbcc_emit_consts() {
     BUBC_band_chain     \
     BUBC_band_descry    \
     BUBC_band_instate   \
+    BUBC_band_admission \
     BUBC_band_selftest  \
   ; do
     z_stem="${z_name#BUBC_}"

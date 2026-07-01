@@ -1659,6 +1659,10 @@ One code per rejection **gate**, never per validation **rule**. The hole being c
 
 Two gates may share a code **only if they never co-occur in one test case's spawn path** — **share across alternatives, never along a pipeline**. Alternatives — gates a single input can never reach in the same run — reuse a code without ambiguity. Gates chained in one spawn path must be distinct, or an in-band code at the boundary cannot say which one fired.
 
+### Carve-out: usage refusals
+
+A bare-argument or malformed-invocation refusal (missing required argument, unknown subcommand) originates in a `buc_die` usage branch, not a named rejection gate — it stays imprecise death by design; banding it would grow the band toward the general error taxonomy this section forbids. Its negative case compensates with an operator-discovery pointer assertion (the case asserts the refusal names the tabtarget that would resolve it) instead of a band code.
+
 ### Enrollment
 
 **No band code is minted outside the bubc tinder block.** That block is the single grep-able registry of what the band means; a code defined anywhere else is invisible to the next reader and uncheckable by the membrane. A consumer that needs the band in another language projects it *from* this block by codegen — it never re-literals a code.

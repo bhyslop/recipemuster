@@ -127,13 +127,22 @@ rbgv_check_mantle() {
   fi
 
   buc_step "Don the ${z_mantle} mantle (Leg 3)"
-  # rba_don_capture emits the mantle token on success or returns 1 having already
-  # logged the admission-deficit / lapsed-sitting forensic line; the probe surfaces
-  # that as its verdict (the accessor owns the diagnosis). The token is held in a
-  # process-local var, never persisted, and only its length is reported.
+  # rba_don_capture emits the mantle token on success or returns a code having
+  # already logged the admission-deficit / lapsed-sitting forensic line; the
+  # probe surfaces that as its verdict (the accessor owns the diagnosis). The
+  # distinguished admission-band return (Leg-3 403) gets its own operator-facing
+  # buc_reject carrying the brevet instruction; every other nonzero return
+  # (lapsed sitting, transport/HTTP failure) stays the existing imprecise
+  # buc_die. The token is held in a process-local var, never persisted, and
+  # only its length is reported.
   local z_mantle_token
-  z_mantle_token=$(rba_don_capture "${z_mantle}") \
-    || buc_die "Don of the ${z_mantle} mantle failed — see the transcript (admission deficit or lapsed sitting)"
+  local z_don_status=0
+  z_mantle_token=$(rba_don_capture "${z_mantle}") || z_don_status=$?
+  if test "${z_don_status}" -eq "${BUBC_band_admission}"; then
+    buc_reject "${BUBC_band_admission}" "Donning the ${z_mantle} mantle hit an admission deficit: freehold subject '${RBPC_freehold_subject}' is not brevetted onto the ${z_mantle} mantle — brevet it first (rbw-pB ${RBPC_freehold_subject} ${z_mantle}), then re-run"
+  elif test "${z_don_status}" -ne 0; then
+    buc_die "Don of the ${z_mantle} mantle failed — see the transcript (lapsed sitting or transport/HTTP failure)"
+  fi
   test -n "${z_mantle_token}" || buc_die "Don of the ${z_mantle} mantle returned an empty token"
 
   # Exercise the minted token against Artifact Registry (repositories.list). This

@@ -93,6 +93,14 @@ pub const RBTDRM_FIXTURE_TERRIER_SCAFFOLD: &str = "terrier-scaffold";
 // assertion). Picket-suite member; self-skips when the payor credential is
 // unreachable (suite-passenger protection), like terrier-scaffold.
 pub const RBTDRM_FIXTURE_TERRIER_ATOMICITY: &str = "terrier-atomicity";
+// Mantle-denial fixture — proves the admission band (RBTDGC_BAND_ADMISSION) is
+// the exit code a governor-wielded polity verb's don (rbw-am) returns when the
+// wielding citizen is NOT brevetted onto the target mantle: don retriever
+// (baseline) -> unseat retriever -> poll the don until it exits the admission
+// band exactly -> brevet retriever back -> poll the don until positive again
+// (restore proof). Picket-suite member; self-skips when the payor credential
+// is unreachable (suite-passenger protection), like the terrier pair.
+pub const RBTDRM_FIXTURE_MANTLE_DENIAL: &str = "mantle-denial";
 // Reveille fixtures (no external dependencies)
 pub const RBTDRM_FIXTURE_ENROLLMENT_VALIDATION: &str = "enrollment-validation";
 pub const RBTDRM_FIXTURE_RECIPE_VALIDATION: &str = "recipe-validation";
@@ -114,8 +122,9 @@ pub const RBTDRM_FIXTURE_CONFORMANCE: &str = "conformance";
 // external dependency; pure bash-function unit test sourced direct (no kindle).
 pub const RBTDRM_FIXTURE_FOUNDRY_PATH: &str = "foundry-path";
 // Podvm-resolve — host-side zrbld_immure_resolve_family brand mapping. No GCP
-// creds or container runtime required; invokes immure colophon, asserts the
-// diagnostic line emitted before credential load, expects non-zero exit.
+// creds or container runtime required; invokes the presage colophon (rbw-lp),
+// the read-only dry-run verb that resolves a family and reports what immure
+// would capture, expecting exit 0 with a brand-mapping-line assertion.
 pub const RBTDRM_FIXTURE_PODVM_RESOLVE: &str = "podvm-resolve";
 // Chaining-fact-band — the band matrix for the durable-config chain LINKS (feoff,
 // yoke). Drives the real verbs through the exec path against a staged temp
@@ -242,6 +251,12 @@ pub fn rbtdrm_required_colophons(fixture: &str) -> Option<&'static [&'static str
             RBTDGC_CHECK_PAYOR,
             RBTDGC_TERRIER_SCAFFOLD,
             RBTDGC_TERRIER_PROOF,
+        ]),
+        RBTDRM_FIXTURE_MANTLE_DENIAL => Some(&[
+            RBTDGC_CHECK_PAYOR,
+            RBTDGC_CHECK_MANTLE,
+            RBTDGC_UNSEAT_POLITY,
+            RBTDGC_BREVET_POLITY,
         ]),
         RBTDRM_FIXTURE_BATCH_VOUCH => Some(&[
             RBTDGC_ORDAIN_HALLMARK,

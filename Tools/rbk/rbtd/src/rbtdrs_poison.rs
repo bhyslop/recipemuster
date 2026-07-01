@@ -33,9 +33,9 @@
 // some other code and fails the case loud, where a bare-nonzero assertion would
 // pass on it.
 //
-// NOT credless, so it cannot ride fast (whose single tweak slot belongs to the
-// credless guard). The per-case poison occupies that slot, so the fixture
-// enrolls in service/crucible/complete — see RBTDRA_SUITES.
+// NOT credless, so it cannot ride reveille (whose single tweak slot belongs to
+// the credless guard). The per-case poison occupies that slot, so the fixture
+// enrolls in picket/bivouac/echelon — see RBTDRA_SUITES.
 
 use std::path::Path;
 

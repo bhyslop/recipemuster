@@ -404,7 +404,8 @@ rba_avow() {
   zrbcc_sentinel
 
   # Credless guard — the reveille tier must never touch the IdP or the network.
-  # Mirrors the keyfile mint's guard so the federated path honors the same invariant.
+  # Mirrors the Payor OAuth token-mint guard (rbgp_payor.sh) so the federated
+  # path honors the same invariant.
   test "${BURE_TWEAK_NAME:-}" != "${RBCC_tweak_credless_guard}" \
     || buc_reject "${BUBC_band_credless}" "Credless guard: avowal refused — this run carries the reveille-tier guard (reveille cases must never reach the IdP)"
 
@@ -449,9 +450,11 @@ rba_avow() {
 # sibling of rba_token_capture: resolves a usable bearer token for an identity,
 # here by minting a mantle service-account access token from the cached federated
 # token via iamcredentials generateAccessToken. Emits the mantle token on stdout
-# once on success, or returns 1 — never buc_die, never stderr (BCG capture
-# contract); the consuming verb supplies the loud buc_die over the returned 1,
-# and the forensic lines below carry the operator instruction it dies with
+# once on success; failure returns 1, except the Leg-3 403 admission deficit,
+# which returns the distinguished BUBC_band_admission code — never buc_die,
+# never stderr (BCG capture contract); the consuming verb supplies the loud
+# buc_die (or a band-aware buc_reject) over the returned code, and the
+# forensic lines below carry the operator instruction it dies with
 # (matching rba_avow's "failed at Leg N; see the transcript" division of
 # labor). The unknown-identity guard buc_dies — a caller bug, not a runtime
 # condition — exactly as rba_token_capture does.
@@ -545,7 +548,7 @@ rba_don_capture() {
          || : > "${ZRBA_FED_DON_ERROR_FILE}"
       local -r z_errmsg=$(<"${ZRBA_FED_DON_ERROR_FILE}")
       buc_log_args "Leg 3 (don) denied (HTTP 403) for mantle ${z_mantle_email}: ${z_errmsg} — admission deficit, not a propagation race; brevet the avowed citizen onto the mantle (tokenCreator on the mantle SA + serviceUsageConsumer on the depot project); not retried"
-      return 1 ;;
+      return "${BUBC_band_admission}" ;;
     *)
       buc_log_args "Leg 3 (don) failed (HTTP ${z_code}) for mantle ${z_mantle_email}; see ${ZRBA_FED_DON_RESPONSE_FILE}"
       return 1 ;;

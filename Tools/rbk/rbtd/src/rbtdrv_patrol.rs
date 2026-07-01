@@ -38,14 +38,15 @@ use crate::rbtdri_invocation::{
 use crate::rbtdgc_consts::{
     RBTDGC_ABJURE_HALLMARK, RBTDGC_ACCOUNT_DIRECTOR, RBTDGC_ACCOUNT_GOVERNOR, RBTDGC_ACCOUNT_PAYOR,
     RBTDGC_ACCOUNT_RETRIEVER, RBTDGC_AFFIANCE_MANOR, RBTDGC_AUDIT_HALLMARKS,
-    RBTDGC_AUGUR_LODE, RBTDGC_BANISH_LODE, RBTDGC_CHECK_AVOWAL, RBTDGC_CHECK_MANTLE,
+    RBTDGC_AUGUR_LODE, RBTDGC_BAND_ADMISSION, RBTDGC_BANISH_LODE, RBTDGC_BREVET_POLITY,
+    RBTDGC_CHECK_AVOWAL, RBTDGC_CHECK_MANTLE,
     RBTDGC_CHECK_PAYOR, RBTDGC_CONCLAVE_RELIQUARY, RBTDGC_DESCRY_FOEDUS,
     RBTDGC_DIVINE_LODES, RBTDGC_ENSCONCE_BOLE, RBTDGC_FACT_EXT_FOEDUS_HEALTH, RBTDGC_FEOFF_BOLE,
-    RBTDGC_IMMURE_PODVM, RBTDGC_INSTATE_FOEDUS,
+    RBTDGC_FREEHOLD_SUBJECT, RBTDGC_IMMURE_PODVM, RBTDGC_INSTATE_FOEDUS,
     RBTDGC_JETTISON_HALLMARK_IMAGE, RBTDGC_JETTISON_IMAGE, RBTDGC_JILT_MANOR, RBTDGC_LIST_IMAGES,
     RBTDGC_RBRR_FILE, RBTDGC_REKON_HALLMARK, RBTDGC_TALLY_HALLMARKS,
     RBTDGC_TERRIER_PROOF, RBTDGC_TERRIER_SCAFFOLD, RBTDGC_TWEAK_REGIME_POISON, RBTDGC_UNDERPIN_WSL,
-    RBTDGC_VOUCH_HALLMARKS,
+    RBTDGC_UNSEAT_POLITY, RBTDGC_VOUCH_HALLMARKS,
 };
 use crate::rbtdrm_manifest::rbtdrm_credential_check_colophon;
 
@@ -147,6 +148,15 @@ pub static RBTDRV_FIXTURE_TERRIER_ATOMICITY: rbtdre_Fixture = rbtdre_Fixture {
     setup: None,
     teardown: None,
     cases: RBTDRV_CASES_TERRIER_ATOMICITY,
+    credless: false,
+};
+
+pub static RBTDRV_FIXTURE_MANTLE_DENIAL: rbtdre_Fixture = rbtdre_Fixture {
+    name: crate::rbtdrm_manifest::RBTDRM_FIXTURE_MANTLE_DENIAL,
+    disposition: rbtdre_Disposition::Independent,
+    setup: None,
+    teardown: None,
+    cases: RBTDRV_CASES_MANTLE_DENIAL,
     credless: false,
 };
 
@@ -1587,6 +1597,149 @@ fn rbtdrv_terrier_atomicity(dir: &Path) -> rbtdre_Verdict {
 }
 
 pub static RBTDRV_CASES_TERRIER_ATOMICITY: &[rbtdre_Case] = &[case!(rbtdrv_terrier_atomicity)];
+
+
+// Mantle-denial fixture — proves the admission band (BUBC_band_admission /
+// RBTDGC_BAND_ADMISSION) is the actual exit code a governor-wielded polity
+// verb's don (rbw-am) returns when the wielding citizen is NOT brevetted onto
+// the target mantle. Don retriever (positive baseline) -> unseat retriever ->
+// poll don until it exits the admission band EXACTLY (bounded ceiling — IAM
+// revocation propagates eventually, never instantly, in either direction) ->
+// brevet retriever back -> poll don until positive again (the restore proof,
+// so the fixture leaves the freehold exactly as it found it — a leaked
+// unseated retriever would fail every downstream picket fixture that dons
+// it). Target mantle is retriever, never governor: unseating governor would
+// saw off the wielding branch every polity verb — including this fixture's
+// own restore brevet — rides. Payor-credentialed picket fixture; self-skips
+// on an unreachable payor credential, like the terrier pair above.
+
+/// Don the retriever mantle once, logging to `label`, and return its bare
+/// exit status (never bare-nonzero downstream — callers compare against the
+/// exact code under test).
+fn zrbtdrv_mantle_denial_don_status(
+    ctx: &mut rbtdri_Context,
+    dir: &Path,
+    label: &str,
+) -> Result<i32, rbtdre_Verdict> {
+    match crate::rbtdrk_freehold::rbtdrk_invoke_logged(
+        ctx, RBTDGC_CHECK_MANTLE, &[RBTDGC_ACCOUNT_RETRIEVER], &[], dir, label,
+    ) {
+        Ok(r) => Ok(r.exit_code),
+        Err(e) => Err(rbtdre_Verdict::Fail(format!(
+            "don retriever ({}) invocation: {}", label, e
+        ))),
+    }
+}
+
+/// Poll the retriever don until its exit status equals `want`, bounded by the
+/// same propagation-deadline magnitude the bash IAM-grant loops use
+/// (RBGC_PROPAGATION_DEADLINE_SEC=420s, rbgc_constants.sh) — IAM admission
+/// changes are eventually consistent, never instant, whether revoking or
+/// re-granting. Returns Ok on reaching `want`, or a Fail naming the last-seen
+/// status once the deadline passes.
+fn zrbtdrv_mantle_denial_poll_until(
+    ctx: &mut rbtdri_Context,
+    dir: &Path,
+    label_prefix: &str,
+    want: i32,
+) -> Result<(), rbtdre_Verdict> {
+    const DEADLINE_SECS: u64 = 420;
+    const POLL_INTERVAL_SECS: u64 = 10;
+    let deadline = std::time::Instant::now() + std::time::Duration::from_secs(DEADLINE_SECS);
+    let mut attempt = 0u32;
+    loop {
+        let label = format!("{}-{:02}", label_prefix, attempt);
+        let last = zrbtdrv_mantle_denial_don_status(ctx, dir, &label)?;
+        if last == want {
+            return Ok(());
+        }
+        if std::time::Instant::now() >= deadline {
+            return Err(rbtdre_Verdict::Fail(format!(
+                "{}: don retriever did not reach exit {} within {}s — last exit {}",
+                label_prefix, want, DEADLINE_SECS, last
+            )));
+        }
+        attempt += 1;
+        std::thread::sleep(std::time::Duration::from_secs(POLL_INTERVAL_SECS));
+    }
+}
+
+fn rbtdrv_mantle_denial(dir: &Path) -> rbtdre_Verdict {
+    rbtdrc_with_ctx(|ctx| {
+        // Self-skip gate: stay green on a machine with no GCP credentials.
+        if let Some(v) = zrbtdrv_payor_gate(
+            ctx, dir, crate::rbtdrm_manifest::RBTDRM_FIXTURE_MANTLE_DENIAL, zrbtdrv_PayorGatePolicy::Skip,
+        ) {
+            return v;
+        }
+
+        // Step 1: positive baseline — the freehold subject is presumed already
+        // brevetted onto retriever (freehold-establish's job), so the don must
+        // succeed before this fixture touches anything.
+        match zrbtdrv_mantle_denial_don_status(ctx, dir, "01-don-baseline") {
+            Ok(0) => {}
+            Ok(status) => return rbtdre_Verdict::Fail(format!(
+                "baseline don retriever exit {} (expected 0) — the freehold subject must be \
+                 brevetted onto retriever before this fixture runs (run freehold-establish first)",
+                status
+            )),
+            Err(v) => return v,
+        }
+
+        // Step 2: unseat retriever — withdraw the mantle binding.
+        let unseat = match crate::rbtdrk_freehold::rbtdrk_invoke_logged(
+            ctx, RBTDGC_UNSEAT_POLITY, &[RBTDGC_FREEHOLD_SUBJECT, RBTDGC_ACCOUNT_RETRIEVER], &[], dir,
+            "02-unseat",
+        ) {
+            Ok(r) => r,
+            Err(e) => return rbtdre_Verdict::Fail(format!("unseat retriever invocation: {}", e)),
+        };
+        if unseat.exit_code != 0 {
+            return rbtdre_Verdict::Fail(format!(
+                "unseat retriever exit {}\n{}", unseat.exit_code, unseat.stderr
+            ));
+        }
+
+        // Step 3: poll the don until it exits the EXACT admission band — never
+        // weaken to bare-nonzero; the whole point of this fixture is proving
+        // the specific code, not merely "it failed".
+        if let Err(v) = zrbtdrv_mantle_denial_poll_until(ctx, dir, "03-poll-denied", RBTDGC_BAND_ADMISSION) {
+            // Best-effort restore before surfacing the failure, so a mid-run
+            // failure doesn't leave the freehold subject unseated for the next
+            // picket run.
+            let _ = crate::rbtdrk_freehold::rbtdrk_invoke_logged(
+                ctx, RBTDGC_BREVET_POLITY, &[RBTDGC_FREEHOLD_SUBJECT, RBTDGC_ACCOUNT_RETRIEVER], &[], dir,
+                "05-restore-brevet-on-failure",
+            );
+            return v;
+        }
+
+        // Step 4: brevet retriever back — the mirror admission.
+        let brevet = match crate::rbtdrk_freehold::rbtdrk_invoke_logged(
+            ctx, RBTDGC_BREVET_POLITY, &[RBTDGC_FREEHOLD_SUBJECT, RBTDGC_ACCOUNT_RETRIEVER], &[], dir,
+            "04-brevet-restore",
+        ) {
+            Ok(r) => r,
+            Err(e) => return rbtdre_Verdict::Fail(format!("brevet retriever (restore) invocation: {}", e)),
+        };
+        if brevet.exit_code != 0 {
+            return rbtdre_Verdict::Fail(format!(
+                "brevet retriever (restore) exit {}\n{}", brevet.exit_code, brevet.stderr
+            ));
+        }
+
+        // Step 5: poll the don until it exits 0 again — the restore proof: the
+        // fixture leaves the freehold subject exactly as it found it.
+        if let Err(v) = zrbtdrv_mantle_denial_poll_until(ctx, dir, "05-poll-restored", 0) {
+            return v;
+        }
+
+        let _ = std::fs::write(dir.join("06-passed.txt"), "passed");
+        rbtdre_Verdict::Pass
+    })
+}
+
+pub static RBTDRV_CASES_MANTLE_DENIAL: &[rbtdre_Case] = &[case!(rbtdrv_mantle_denial)];
 
 
 // Wsl-lifecycle fixture — fetched-side rootfs capture against live GAR. Single

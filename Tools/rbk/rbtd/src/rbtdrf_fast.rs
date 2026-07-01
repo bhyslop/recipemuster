@@ -1151,9 +1151,9 @@ fn rbtdrf_rs_burd(dir: &Path) -> rbtdre_Verdict {
 
 // ── Tabtarget-refusal cases ─────────────────────────────────
 
-/// rbw-dU empty-arg refusal — BBAA9 contract. Invoking rbw-dU with no
-/// argument must die non-zero and emit the rbw-dl pointer (operator
-/// discovery for candidate depot project IDs). BUW dispatch merges
+/// rbw-dU empty-arg refusal. Invoking rbw-dU with no argument must die
+/// non-zero and emit the rbw-dl pointer (operator discovery for candidate
+/// depot project IDs) rather than fail silent or opaque. BUW dispatch merges
 /// stderr→stdout via `2>&1` (bud_dispatch.sh:372), so the captured
 /// stdout carries the buc_warn/buc_info/buc_tabtarget/buc_die output
 /// from rbgp_depot_unmake's no-arg branch (rbgp_payor.sh:937-942).
@@ -1189,7 +1189,7 @@ fn rbtdrf_rs_unmake_empty_arg_refusal(dir: &Path) -> rbtdre_Verdict {
 
     if code == 0 {
         return rbtdre_Verdict::Fail(format!(
-            "{} exited 0 with no argument — BBAA9 empty-arg refusal contract violated",
+            "{} exited 0 with no argument — empty-arg refusal contract violated",
             RBTDGC_UNMAKE_DEPOT
         ));
     }
