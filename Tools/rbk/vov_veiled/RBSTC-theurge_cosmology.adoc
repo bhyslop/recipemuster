@@ -9,10 +9,12 @@ This is a normative portion of the {rbs0_imprimatur}: binding — code, tests, a
 // (rbtdtc_crucible.rs, rbtdrk_freehold.rs), the CLAUDE.md suites table, and
 // memos; code now cites these quoins for the vocabulary.
 //
-// PROVISIONAL naming (operator-sanctioned, eviction-sweepable): the quoin stem
-// rbtt_ and the word "theurge" itself await terminal review (model Fable) for
-// the asterism fit and the final stem/word. The concepts are settled; only the
-// naming is provisional. Using the current words meanwhile is not a dingleberry.
+// Naming RATIFIED (Fable terminal review, 260701): the quoin stem rbtt_
+// (sub-letters read Theurge-Test) and the word "theurge" are final. Lapidary
+// held on every clause, and the word anchors the project's ritual asterism
+// (ifrit, pentacle, crucible, charge/quench, conjure, summon). The colliding
+// docket-only rbtt_testbench claim was reconciled at ratification — that
+// testbench family re-mints at its own heat's mount.
 //
 // Five membranes (honored, not re-minted):
 //  - the fixture/suite vocabulary is BUS0's (busr_fixture, busr_suite) —
@@ -50,7 +52,6 @@ structural laws the product implies.
 {rbtt_theurge}::
 Recipe Bottle's test-orchestration engine (the `rbtd` crate): the composer and
 runner of fixtures and suites, and the cosmology this subdoc homes.
-(Provisional word — Fable ratifies the final term and stem.)
 
 [[rbtt_wrapper]]
 {rbtt_wrapper}::

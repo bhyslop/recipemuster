@@ -615,7 +615,7 @@
 :rbtf_expunge:               <<rbtf_expunge,Expunge>>
 :rbtf_peruse:                <<rbtf_peruse,Peruse>>
 
-// RB Theurge Test Cosmology (rbtt_*, PROVISIONAL stem) — defined in RBSTC-theurge_cosmology.adoc (concept home), registered here
+// RB Theurge Test Cosmology (rbtt_ = Theurge-Test; stem + word Fable-ratified 260701) — defined in RBSTC-theurge_cosmology.adoc (concept home), registered here
 :rbtt_theurge:              <<rbtt_theurge,Theurge>>
 :rbtt_wrapper:              <<rbtt_wrapper,Wrapper>>
 :rbtt_wrapper_s:            <<rbtt_wrapper,Wrappers>>
