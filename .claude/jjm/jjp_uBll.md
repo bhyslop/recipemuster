@@ -70,7 +70,8 @@ and thin the CLAUDE.md suites table toward a pointer.
 
 Cinched on the subdoc itself:
 it is a SUBDOC of RBS0, never a 0-suffixed sibling top-spec;
-it takes a fresh provisional eviction-sweepable quoin stem (the obvious theurge stem is already taken).
+its quoin stem `rbtt_` (sub-letters read Theurge-Test) and the word "theurge" are Fable-ratified (260701) — no longer provisional;
+the colliding docket-only testbench claim on the same stem in ₣BC (tabtarget-auditing, stabled) was reconciled at ratification: that testbench family re-mints at its own mount.
 The canonical territory list names a second spec home alongside the cosmology subdoc;
 the single-subdoc lean holds — the second file is provisional, split only if a conviction emerges, not asserted settled.
 
