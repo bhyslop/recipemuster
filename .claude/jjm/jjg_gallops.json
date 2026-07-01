@@ -17111,60 +17111,69 @@
         "₢BfAA0": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260630-2043",
+              "jjgtn_ts": "260701-1654",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
-                "Build the RBRW Workforce regime module and relocate the manor pool identity out of RBRF — the code home for the org / pool-id / session-duration fields the one-pool spec recast (₢BfAAv) moved to a manor-level regime.",
+                "Build the RBRW Workforce regime module and relocate the manor pool identity out of RBRF — the code home for the org / pool-id / session-duration fields the one-pool spec recast (₢BfAAv) moved to a manor-level regime — re-pointing every consumer of the stripped fields in the same landing.",
                 "",
                 "## Spec of needed change",
-                "RBSRW (new, ₢BfAAv) specifies the regime; nothing builds it yet. Build the code and strip the vacated fields:",
+                "RBSRW (new, ₢BfAAv) specifies the regime; nothing builds it yet. Build the code, strip the vacated fields, and re-point the consumers atomically:",
                 "- New module rbrw_regime.sh (+ CLI) enrolling RBRW_ORG_ID, RBRW_WORKFORCE_POOL_ID, RBRW_SESSION_DURATION under one group, per RBSRW's kindle/validate/render (org numeric; pool-id lowercase-alnum-hyphen with the gcp- prefix reserved; session NNNs bounded 900s–43200s). Follow the RBRR/RBRP regime-module pattern.",
                 "- Moorings home: a single manor-level committed file (RBRW is axrd_singleton, one per manor) — settle its path in the moorings tree, sibling to the rbmf_foedera library, not per-foedus.",
                 "- Strip RBRF: remove RBRF_ORG_ID / RBRF_WORKFORCE_POOL_ID / RBRF_SESSION_DURATION from rbrf_regime.sh and from every rbef_*/rbrf.env in the moorings foedera library — they now live in RBRW.",
+                "- Re-point the stripped fields' consumers IN THE SAME LANDING (the strip alone leaves the tree broken in ways the gates below cannot see). Discovery: grep -rn 'RBRF_ORG_ID\\|RBRF_WORKFORCE_POOL_ID\\|RBRF_SESSION_DURATION' Tools/. Known at reslate time (re-grep, don't trust):",
+                "  - rbof_foedus.sh — descry PARSES org/pool from the inspected foedus's rbrf.env and canvass PARSES pool from the active one (file-parse, not kindled vars); both now read the manor-level RBRW file. Provider fields stay RBRF. Mechanical source-move only — descry's verdict semantics are the verb re-cut pace's (₢BfAA1).",
+                "  - rba_auth.sh — the sitting-file name and the STS audience compose pool+provider; re-point the pool read to RBRW. Breaking this silently breaks avow, the whole credential path.",
+                "  - rbgp_payor.sh — mechanical name re-point of the field reads only; affiance/jilt/composer semantics stay with ₢BfAA1 / ₢BfAAw.",
+                "  - rbtdrv_patrol.rs — the lifecycle fixture's poison const targets RBRF_WORKFORCE_POOL_ID; re-point it to RBRW_WORKFORCE_POOL_ID (one line, safety-critical: left inert, the poison stops masking the pool id and the fixture's affiance/jilt would target the REAL manor pool). The fixture's provider-grain re-cut proper stays ₣Bl's.",
                 "- Tabtargets rbw-rwr (render) / rbw-rwv (validate), per the regime-tabtarget pattern — a zipper write, so this rides BEHIND the ₢BfAAp baton — plus the zipper enrollment for the new colophons.",
                 "",
                 "## Done when",
-                "rbrw_regime.sh kindles/validates/renders the three fields per RBSRW; the manor-level moorings file exists; rbrf_regime.sh and the rbef_*/rbrf.env files no longer carry org/pool/session; rbw-rwr/rbw-rwv are enrolled; reveille (regime-validation) and the fast qualify stay green.",
+                "rbrw_regime.sh kindles/validates/renders the three fields per RBSRW; the manor-level moorings file exists; rbrf_regime.sh and the rbef_*/rbrf.env files no longer carry org/pool/session; every stripped-field consumer reads RBRW (the discovery grep lands clean outside specs); rbw-rwr/rbw-rwv are enrolled; reveille (regime-validation) and the fast qualify stay green — AND, because those gates cannot see rbof/rba breakage, verify live: rbw-aa (avow/STS) and rbw-jd (descry of the standing foedus) both still work.",
                 "",
                 "## Cinched",
                 "RBRW is the manor pool identity's sole home (RBSRW); RBRF keeps only the per-foedus provider fields.",
+                "The strip and the consumer re-point are ONE landing — the tree never holds the strip without the re-point.",
                 "Hard predecessor of the finisher (₢BfAAF), the membership composer (₢BfAAw), and the affiance/jilt verb re-cut — they all READ RBRW.",
                 "Tabtarget enrollment rides behind the ₢BfAAp zipper baton.",
                 "",
                 "## Character",
-                "Regime-module build over a settled spec (RBSRW) plus a mechanical field strip across RBRF and the rbef_ library; the moorings-path choice is the one open judgment."
+                "Regime-module build over a settled spec (RBSRW) plus a mechanical field strip AND consumer re-point across RBRF, the rbef_ library, rbof, rba, rbgp, and the one patrol const; the moorings-path choice is the one open judgment."
               ],
               "jjgtn_silks": "rbrw-regime-buildout",
-              "jjgtn_basis": "251ef8a"
+              "jjgtn_basis": "1883bdb"
             }
           ]
         },
         "₢BfAA1": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260630-2043",
+              "jjgtn_ts": "260701-1654",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
-                "Re-cut the affiance and jilt verb code to the one-pool provider model per RBSMA / RBSMJ (re-cut by ₢BfAAv) — affiance creates a provider under the standing pool (no longer founds it); jilt deletes the provider (no longer the pool).",
+                "Re-cut the foedus verb code to the one-pool provider model per the re-cut RBSMA / RBSMJ / RBSFD (₢BfAAv) — affiance creates a provider under the standing pool (no longer founds it); jilt deletes the provider (no longer the pool); descry reads provider-grain health.",
                 "",
                 "## Spec of needed change",
-                "rbgp_manor_affiance / rbgp_manor_jilt (rbgp_payor.sh) still found and delete the workforce POOL. Re-cut to the provider model:",
+                "rbgp_manor_affiance / rbgp_manor_jilt (rbgp_payor.sh) still found and delete the workforce POOL, and rbof_descry (rbof_foedus.sh) still reads pool-grain health. Re-cut to the provider model:",
                 "- affiance (RBSMA): drop the pool-ensure and the org-level workforcePoolAdmin self-grant (both move to the finisher ₢BfAAF); REQUIRE the manor pool present (fatal if absent, directing to the finisher); create the provider under RBRW_WORKFORCE_POOL_ID; drop the soft-delete / refuse-and-rotate handling (moot); write the attribute-mapping verbatim (the subject-namespacing rides the regime value, provider-side).",
                 "- jilt (RBSMJ): delete the PROVIDER under the standing pool (workforcePools.providers.delete), not the pool; drop the pool soft-delete/undelete/graveyard handling (the pool force-delete is the separate ₢BfAAx teardown); keep the idempotent 404 short-circuit; provider-scoped confirmation.",
-                "- Both read the pool id from RBRW (₢BfAAv's field relocation), not the retired RBRF pool field.",
+                "- descry (RBSFD): re-cut the verdict read to provider-grain per the re-cut RBSFD — a foedus is a provider, so descry reads provider presence under the one manor pool; align the verdict tokens with RBSFD, keeping 'healthy' stable (the foedus-reuse fixture branches on it).",
+                "- All three read the pool id from RBRW (₢BfAA0's relocation, already re-pointed mechanically); this pace owns the SEMANTICS.",
                 "",
                 "## Done when",
-                "affiance creates a provider under the standing manor pool and fatally requires that pool present; jilt deletes only the provider; both source the pool from RBRW; the affiance/jilt paths verify against the re-cut RBSMA/RBSMJ; the relevant test tier (picket) stays green.",
+                "affiance creates a provider under the standing manor pool and fatally requires that pool present; jilt deletes only the provider; descry reports provider-grain verdicts per the re-cut RBSFD and the foedus-reuse fixture's healthy branch still passes; all three source the pool from RBRW; the paths verify against the re-cut RBSMA/RBSMJ/RBSFD; the relevant test tier (picket) stays green.",
+                "Known-broken residue, by design: the foedus-lifecycle fixture still asserts pool-grain terminals after this lands — its provider-grain re-cut is ₣Bl's canvass-weave pace, behind that stream's one-pool barrier; the fixture is operator-invoked (no suite member), and with the poison const re-pointed at RBRW it fails LOUD at affiance's pool-present gate rather than touching the real pool.",
                 "",
                 "## Cinched",
                 "Affiance never founds the pool and jilt never deletes it — both are provider-grain now (RBSMA/RBSMJ); the pool is the finisher's (₢BfAAF) and the teardown's (₢BfAAx).",
+                "descry's verdict re-cut lands HERE (verb semantics), not in the regime-buildout pace (mechanical re-points only).",
                 "Reads the pool from RBRW, not RBRF.",
                 "",
                 "## Character",
-                "Surgical bash re-cut of two payor verbs in rbgp_payor.sh against the settled RBSMA/RBSMJ; how much of the affiance founding-step logic moves wholesale to the finisher is the in-pace judgment."
+                "Surgical bash re-cut of three foedus verbs (two payor, one rbof) against the settled RBSMA/RBSMJ/RBSFD; how much of the affiance founding-step logic moves wholesale to the finisher is the in-pace judgment."
               ],
               "jjgtn_silks": "affiance-jilt-provider-recut",
-              "jjgtn_basis": "251ef8a"
+              "jjgtn_basis": "1883bdb"
             }
           ]
         },

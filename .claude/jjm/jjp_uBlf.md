@@ -27,6 +27,10 @@ Why (the IT-maintainability lens + sole-operator simplicity): a workforce pool i
 
 Contract-first (the heat's own hard rule): the spec re-cut leads, before any code — RBSRF (pool→manor-level home, foedus≡provider), RBSMA (affiance→add-provider), RBSFD (descry verdicts), and the RBS0 federation civics. No affiance/jilt/canvass/terrier code before the specs land.
 
+Code-re-cut ownership (integrity audit 260701): the regime-buildout pace owns the RBRW module AND, atomic in the same landing, the mechanical re-point of every stripped-field consumer — the rbof descry/canvass file-parses, the rba sitting-file and STS-audience composition, the rbgp read sites (name-only; semantics stay with the composer and verb re-cut paces), and the theurge patrol poison const (one line, safety-critical: left inert, the lifecycle fixture's jilt would aim at the REAL manor pool).
+The verb re-cut pace owns affiance, jilt, AND descry's verdict re-cut to the re-cut RBSFD.
+The foedus-lifecycle fixture's provider-grain re-cut stays theurge-stream-owned (₣Bl), delivered behind that stream's one-pool barrier.
+
 Still valid (the change touches pool + membership only): the vendor-agnostic-core conviction, avow/sitting/quash, the Keycloak orchestrator (now provisioning a PROVIDER, not a pool), the accessor STS layer (already provider-aware — audience and sitting-cache key on pool AND provider), and the vocabulary census all stand.
 
 New sub-works this substrate adds: the terrier muniment provider-dimension + on-disk migration; RBPC's freehold-subject goes multi; the subject-namespacing discipline.
