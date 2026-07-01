@@ -20348,7 +20348,7 @@
         "₢BlAAP": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260624-2244",
+              "jjgtn_ts": "260701-1318",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "Drafted from ₢BiAAb in ₣Bi.",
@@ -20358,6 +20358,12 @@
                 "",
                 "The read verbs (summon/plumb/augur) reject a second user-controlled cause beyond the local chaining resolve: the user names an artifact that is absent or in the wrong state in the registry — knowable only after a round-trip.",
                 "These die generic (buc_die) today.",
+                "",
+                "Band mechanics (from the ₣Be Fable review, `Memos/memo-20260701-fbl-be-negatives-review.md`):",
+                "mint the new code in the bubc sole-mint block at the next free slot as read at mount — the block is the registry;",
+                "₢BoAAB is slated to take 109, so expect 110 —",
+                "and extend the hand-kept band emit list in `rbcc_emit_consts` (rbcc_constants.sh) so the `RBTDGC_` const projects,",
+                "then rebuild via `tt/rbw-tb.Build.sh` (a new band code does NOT auto-flow to Rust; the miss is a loud compile error).",
                 "",
                 "## Discovery",
                 "grep buc_die across rbfr_retriever.sh, rbfcp_plumb.sh, rbldl_lifecycle.sh.",
@@ -20369,17 +20375,18 @@
                 "## Done when",
                 "- Each Class-2 user-controlled failure rejects with a named band.",
                 "- A negative case asserting that band by exit code rides an existing cloud fixture — no new fixture stood up.",
+                "- The new band projects via the emit list (`RBTDGC_` const consumed by the negative cases, never a re-literaled code).",
                 "- The infra dies are left as buc_die.",
                 "",
                 "## Mount-time decisions",
-                "- Band: not a chaining failure, so likely a new absent-artifact band, not a reuse of the chaining band.",
-                "- Whether augur's unvouched-Lode case earns a band or stays buc_die (it blends user cause with capture integrity).",
+                "- Whether augur's unvouched-Lode case earns a band or stays buc_die (it blends user cause with capture integrity; lean, not cinched: unvouched reads as capture integrity → buc_die).",
                 "",
                 "## Cinched",
-                "Tests assert the named exit code, never output text. Coding errors stay flushed-out statically, never named runtime bands."
+                "Tests assert the named exit code, never output text. Coding errors stay flushed-out statically, never named runtime bands.",
+                "A NEW absent-artifact band, never a reuse of the chaining band: plumb's spawn path crosses the vessel-resolve chaining gate, and the allocation rule forbids sharing a code along a pipeline."
               ],
               "jjgtn_silks": "read-existence-failure-bands",
-              "jjgtn_basis": "f676ede"
+              "jjgtn_basis": "18f686f"
             }
           ]
         },
