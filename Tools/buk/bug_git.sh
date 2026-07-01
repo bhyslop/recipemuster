@@ -65,8 +65,9 @@ bug_require_clean_tree_creed() {
   test -n "${z_creed}" || buc_die "bug_require_clean_tree_creed: creed (rationale) required"
 
   buc_step "Verifying clean working tree"
-  git diff --quiet && git diff --cached --quiet \
-    || buc_reject "${BUBC_band_clean_tree}" "${BUG_clean_tree_condition} — ${z_creed}"
+  if ! git diff --quiet || ! git diff --cached --quiet; then
+    buc_reject "${BUBC_band_clean_tree}" "${BUG_clean_tree_condition} — ${z_creed}"
+  fi
 }
 
 # eof
