@@ -18507,6 +18507,7 @@
       "jjghn_creation_time": "260618",
       "jjghn_status": "jjghe_racing",
       "jjghn_order": [
+        "₢BiAAq",
         "₢BiAAo",
         "₢BiAAp",
         "₢BiAAk",
@@ -18546,7 +18547,7 @@
         "₢BiAAj",
         "₢BiAAl"
       ],
-      "jjghn_next_pace_seed": "AAq",
+      "jjghn_next_pace_seed": "AAr",
       "jjghn_paces": {
         "₢BiAAC": {
           "jjgpn_tacks": [
@@ -19873,6 +19874,44 @@
               ],
               "jjgtn_silks": "charge-note-formalization",
               "jjgtn_basis": "2f6453f"
+            }
+          ]
+        },
+        "₢BiAAq": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260701-1346",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "Mechanical: a bind-gated regime-validation check plus a one-constant poll-budget bump. No new machinery, no new band.",
+                "",
+                "Add a fail-fast gate so a bind vessel whose RBRV_BIND_IMAGE lacks an `@sha256:` digest is rejected at regime-validation time,",
+                "not eight minutes into a cloud build at the vouch's verify-provenance step.",
+                "The digest requirement lives today only at its deepest consumer (rbgjv02-verify-provenance.py — \"no @ in BIND_SOURCE\"), with no upstream declaration;",
+                "the kroki bind ordain burned two cloud builds discovering that.",
+                "",
+                "The gate: `zrbrv_enforce` runs only `buv_vet RBRV` today — add a bind-gated custom check (mode rbnve_bind ⇒ RBRV_BIND_IMAGE contains `@sha256:`) that rejects with `buc_reject \"${BUBC_band_regime}\"`;",
+                "model it on the custom checks already in `zrbrn_enforce`.",
+                "RBSRV declares the invariant (bind ⇒ digest-pinned) as the config-time home of what the vouch enforces downstream.",
+                "Add a regime-poison case corrupting a bind RBRV_BIND_IMAGE to tag-only, asserting the band.",
+                "",
+                "Folded in — vouch poll budget: raise ZRBFC_BUILD_POLL_CEILING_VOUCH (rbfc0_core.sh) from 50 toward ~150.",
+                "A large multi-arch bind vouch runs ~8 min (~100+ polls at the ~5s interval); 50 (~4 min) makes the local poller report a false timeout even when the GCB build succeeds.",
+                "Stays under the 180 queue ceiling; only a live cloud vouch (picket/dogfight) truly exercises it.",
+                "",
+                "## Cinched",
+                "- Reuse BUBC_band_regime=100 (regime-module custom enforce, cross-field) — mint no new band; orthogonal to parallel band work.",
+                "- Bind-gated only; matches every existing valid bind config (pluml is digest-pinned).",
+                "- Do NOT fix nineveh in this pace — the gate will correctly reject its committed tag-only RBRV_BIND_IMAGE, and that break is the intended proof; nineveh's tag@digest fix belongs to ₢BiAAo.",
+                "",
+                "## Done when",
+                "- `rbw-rvv` rejects a tag-only bind RBRV_BIND_IMAGE with band 100, and passes a digest-pinned one.",
+                "- regime-poison green with the new bind-digest case; RBSRV specs the invariant.",
+                "- ZRBFC_BUILD_POLL_CEILING_VOUCH raised."
+              ],
+              "jjgtn_silks": "bind-digest-gate-vouch-budget",
+              "jjgtn_basis": "0ce64b0"
             }
           ]
         }
