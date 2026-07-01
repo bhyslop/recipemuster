@@ -21048,7 +21048,7 @@
         "₢BoAAD": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260630-1234",
+              "jjgtn_ts": "260701-1616",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "Mark the naked account-fragment constants as codegen sources that must stay bare, so the consolidation/spruing temptation cannot recur.",
@@ -21074,8 +21074,8 @@
                 "## Character",
                 "Mechanical family rename + emit-strip + consumer repoint; the \"why\" rides the name."
               ],
-              "jjgtn_silks": "account-localpart-mantle-token-converge",
-              "jjgtn_basis": "154905a"
+              "jjgtn_silks": "account-unhewn-marker-rename",
+              "jjgtn_basis": "9f56016"
             }
           ]
         },
