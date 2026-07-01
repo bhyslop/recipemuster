@@ -20318,8 +20318,8 @@
         "₢BlAAO": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260625-0601",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260701-1311",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "Drafted from ₢BfAAe in ₣Bf.",
                 "",
@@ -20341,7 +20341,7 @@
                 "Spec authoring; depends in-clone on the combinator."
               ],
               "jjgtn_silks": "theurge-cosmology-subdoc-finalize",
-              "jjgtn_basis": "13ef40e"
+              "jjgtn_basis": "57717d6"
             }
           ]
         },
