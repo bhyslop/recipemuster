@@ -1,6 +1,7 @@
 {
   "jjgrn_next_heat_seed": "Bp",
   "jjgrn_heat_order": [
+    "₣BZ",
     "₣Bo",
     "₣Bi",
     "₣Bl",
@@ -14,7 +15,6 @@
     "₣BD",
     "₣Bn",
     "₣Bm",
-    "₣BZ",
     "₣Bk",
     "₣Bj",
     "₣BW",
@@ -14050,7 +14050,7 @@
     "₣BZ": {
       "jjghn_silks": "rbk-42-fbl-federation-create",
       "jjghn_creation_time": "260604",
-      "jjghn_status": "jjghe_stabled",
+      "jjghn_status": "jjghe_racing",
       "jjghn_order": [
         "₢BZAAR",
         "₢BZAAA",
