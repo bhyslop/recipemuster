@@ -17,19 +17,23 @@
 # Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 #
 # Recipe Bottle Foedus — test-bed cardinality verbs over the moorings foedera
-# library. Two atomic, first-class toothings on a STANDING foedus:
+# library. Three atomic, first-class toothings:
 #
 #   descry  (rbw-jd) — read a named foedus's workforce-pool health from the
 #                      Manor (present-and-active, or a named deficit). Read-only,
 #                      payor-credentialed, mutates nothing. Contract: RBSFD.
-#   instate (rbw-j)  — re-point the active-foedus selector RBRR_ACTIVE_FOEDUS in
+#   instate (rbw-jI) — re-point the active-foedus selector RBRR_ACTIVE_FOEDUS in
 #                      rbrr.env via an atomic single-field rewrite. No clean-tree
 #                      gate, no commit, no Manor mutation, no sitting reset.
 #                      Contract: RBSFI.
+#   canvass (rbw-jc) — enumerate every foedus the manor holds (providers.list
+#                      under the one workforce pool), emitting one fact file per
+#                      foedus and marking the regime-selected one. Read-only,
+#                      payor-credentialed. Contract: RBS0 {rbtf_canvass}.
 #
-# Neither founds nor dissolves a foedus — that is the federation manor verbs'
-# (affiance/jilt) concern. The reuse-if-valid-else-establish decision lives in
-# the fixture that composes these atoms, never folded into a fat verb.
+# None of them founds or dissolves a foedus — that is the federation manor
+# verbs' (affiance/jilt) concern. The reuse-if-valid-else-establish decision
+# lives in the fixture that composes these atoms, never folded into a fat verb.
 
 set -euo pipefail
 
@@ -201,6 +205,180 @@ rbof_descry() {
     buc_success "Foedus ${z_foedus} is HEALTHY — pool ${z_pool} present-and-active, provider ${z_provider} present"
   else
     buc_warn "Foedus ${z_foedus} is NOT healthy — verdict '${z_verdict}' (pool ${z_pool}, provider ${z_provider})"
+  fi
+}
+
+######################################################################
+# Canvass (rbof_canvass) — read-only enumeration of the manor's foedera.
+
+rbof_canvass() {
+  zrbof_sentinel
+
+  buc_doc_brief "Canvass the manor's foedera — enumerate every provider under the one workforce pool, emitting per-foedus fact files and marking the regime-selected one; read-only"
+  buc_doc_shown || return 0
+
+  # Under the one-pool Model the manor pool coordinates ride every foedus's
+  # rbrf.env; resolve them from the regime-selected foedus (RBRR_ACTIVE_FOEDUS),
+  # which is also the selection the emitted facts mark. A selector pointing at
+  # no library foedus is corrupt repo regime, not a canvass verdict.
+  local -r z_active="${RBRR_ACTIVE_FOEDUS:-}"
+  test -n "${z_active}" || buc_die "RBRR_ACTIVE_FOEDUS is empty — the repo regime selects no active foedus"
+  local -r z_active_rbrf="${ZRBOF_FOEDERA_DIR}/${z_active}/rbrf.env"
+  test -f "${z_active_rbrf}" || buc_die "Active foedus '${z_active}' has no rbrf.env in the foedera library: ${z_active_rbrf}"
+
+  local z_pool=""
+  z_pool=$(zrbof_rbrf_field_capture "${z_active_rbrf}" "RBRF_WORKFORCE_POOL_ID") \
+    || buc_die "Active foedus '${z_active}' rbrf.env carries no RBRF_WORKFORCE_POOL_ID: ${z_active_rbrf}"
+
+  # Correlation map: every library foedus's configured provider id. A listed
+  # provider matching one of these ids IS that foedus (the canvass→rbef_
+  # mapping); an unmatched provider is still a foedus the manor holds — the
+  # Manor, not the library, is the authoritative registry of what exists.
+  local -a z_lib_foedus=()
+  local -a z_lib_provider=()
+  local z_entry=""
+  local z_lib_name=""
+  local z_lib_pid=""
+  for z_entry in "${ZRBOF_FOEDERA_DIR}"/rbef_*/; do
+    test -d "${z_entry}" || continue
+    z_entry="${z_entry%/}"
+    z_lib_name="${z_entry##*/}"
+    test -f "${z_entry}/rbrf.env" || continue
+    z_lib_pid=$(zrbof_rbrf_field_capture "${z_entry}/rbrf.env" "RBRF_PROVIDER_ID") || continue
+    z_lib_foedus+=("${z_lib_name}")
+    z_lib_provider+=("${z_lib_pid}")
+  done
+
+  buc_step "Canvass foedera — providers under pool ${z_pool}"
+
+  # Payor OAuth — listing the org pool's providers is the same org-level
+  # authority affiance/jilt wield; depot mantles cannot reach it. The credless
+  # guard rides inside this capture.
+  local z_token=""
+  z_token=$(zrbgp_authenticate_capture) || buc_die "Failed to authenticate as Payor via OAuth"
+
+  local -r z_iam_root="${RBGC_API_ROOT_IAM}${RBGC_IAM_V1}"
+  local -r z_providers_base="${z_iam_root}/locations/global/workforcePools/${z_pool}/providers"
+  local -r z_nl=$'\n'
+
+  buc_info ""
+  buc_info "=== FOEDUS CANVASS ==="
+  printf "%-24s %-24s %-12s %s\n" "FOEDUS" "PROVIDER" "STATE" "SELECTED"
+
+  # Per-iteration synthesized locals (BCG exception 2 — declare outside, assign inside)
+  local z_page=1
+  local z_page_token=""
+  local z_url=""
+  local z_tok_enc=""
+  local z_infix=""
+  local z_code=""
+  local z_count=0
+  local z_index=0
+  local z_p_name=""
+  local z_p_id=""
+  local z_p_state=""
+  local z_matched=""
+  local z_selected=""
+  local z_stem=""
+  local z_fact_value=""
+  local z_i=0
+  local z_total=0
+  local z_matched_count=0
+  local z_selected_seen=false
+  local z_pool_absent=false
+
+  # Paginated providers.list under the one manor pool. A 404 is the pool itself
+  # absent from the Manor (no pool, so no foedera stand) — a reported verdict,
+  # not an error; any other non-200 is a broken read.
+  while :; do
+    z_url="${z_providers_base}"
+    if test -n "${z_page_token}"; then
+      z_tok_enc=$(rbuh_urlencode_capture "${z_page_token}") \
+        || buc_die "Failed to URL-encode providers.list pageToken"
+      z_url="${z_url}?pageToken=${z_tok_enc}"
+    fi
+
+    z_infix="canvass_providers_list_${z_page}"
+    rbuh_json "GET" "${z_url}" "${z_token}" "${z_infix}"
+    z_code=$(rbuh_code_capture "${z_infix}") \
+      || buc_die "No HTTP code from providers.list under pool ${z_pool}"
+    case "${z_code}" in
+      200) ;;
+      404) z_pool_absent=true; break ;;
+      *)   buc_die "Unexpected HTTP ${z_code} from providers.list under pool ${z_pool}" ;;
+    esac
+
+    z_count=$(rbuh_json_field_capture "${z_infix}" '.workforcePoolProviders // [] | length') \
+      || z_count=0
+
+    z_index=0
+    while test "${z_index}" -lt "${z_count}"; do
+      z_p_name=$(rbuh_json_field_capture "${z_infix}" ".workforcePoolProviders[${z_index}].name") \
+        || { z_index=$((z_index + 1)); continue; }
+      z_p_id="${z_p_name##*/}"
+      z_p_state=$(rbuh_json_field_capture "${z_infix}" ".workforcePoolProviders[${z_index}].state // \"${RBGC_STATE_UNSPECIFIED}\"") \
+        || z_p_state="${RBGC_STATE_UNSPECIFIED}"
+
+      # Correlate the provider id against the library's configured ids.
+      z_matched=""
+      z_i=0
+      while test "${z_i}" -lt "${#z_lib_foedus[@]}"; do
+        if test "${z_lib_provider[${z_i}]}" = "${z_p_id}"; then
+          z_matched="${z_lib_foedus[${z_i}]}"
+          break
+        fi
+        z_i=$((z_i + 1))
+      done
+
+      if test -n "${z_matched}" && test "${z_matched}" = "${z_active}"; then
+        z_selected=true
+        z_selected_seen=true
+      else
+        z_selected=false
+      fi
+
+      # One fact file per foedus: stem is the matched rbef_ library name, or
+      # the bare provider id when the Manor holds a provider the library does
+      # not know.
+      z_stem="${z_matched:-${z_p_id}}"
+      z_fact_value="provider=${z_p_id}${z_nl}state=${z_p_state}${z_nl}selected=${z_selected}"
+      buf_write_fact_multi "${z_stem}" "${RBCC_fact_ext_foedus}" "${z_fact_value}"
+
+      printf "%-24s %-24s %-12s %s\n" "${z_matched:--}" "${z_p_id}" "${z_p_state}" "${z_selected}"
+      z_total=$((z_total + 1))
+      test -z "${z_matched}" || z_matched_count=$((z_matched_count + 1))
+
+      z_index=$((z_index + 1))
+    done
+
+    z_page_token=$(rbuh_json_field_capture "${z_infix}" '.nextPageToken') \
+      || z_page_token=""
+    test -n "${z_page_token}" || break
+    z_page=$((z_page + 1))
+  done
+
+  if test "${z_pool_absent}" = "true"; then
+    buc_warn "Workforce pool ${z_pool} is absent from the Manor — no pool, so no foedera stand"
+    buc_success "Canvass complete — manor holds no foedera (pool absent)"
+    return 0
+  fi
+
+  buc_info ""
+  buc_info "=== SUMMARY ==="
+  buc_info "Foedera (providers): ${z_total}"
+  buc_info "In library:          ${z_matched_count}"
+  buc_info "Unmatched:           $((z_total - z_matched_count))"
+
+  if test "${z_total}" -eq 0; then
+    buc_success "Canvass complete — manor holds no foedera under pool ${z_pool}"
+    return 0
+  fi
+
+  if test "${z_selected_seen}" = "true"; then
+    buc_success "Canvass complete — ${z_total} foedera; regime-selected foedus ${z_active} stands in the Manor"
+  else
+    buc_warn "Regime-selected foedus ${z_active} has no standing provider in the Manor"
+    buc_success "Canvass complete — ${z_total} foedera; the regime-selected foedus is not among them"
   fi
 }
 

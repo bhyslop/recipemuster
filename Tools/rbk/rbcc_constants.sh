@@ -159,6 +159,11 @@ RBCC_fact_ext_audit_hallmark="audit-hallmark"
 # one of healthy / pool-absent / pool-deleted / provider-absent for the
 # reuse-or-establish fixture to branch on (reuse iff healthy).
 RBCC_fact_ext_foedus_health="foedus-health"
+# Foedus canvass census — canvass writes one <foedus>.foedus per provider under
+# the manor pool (stem: the matched rbef_ library name, or the bare provider id
+# when the Manor holds a provider the library does not know), carrying
+# provider=/state=/selected= lines; selected marks the RBRR_ACTIVE_FOEDUS foedus.
+RBCC_fact_ext_foedus="foedus"
 
 # Tweak-name tinder — RB-owned BURE_TWEAK_NAME values (buo sprue, BUS0 Tweak
 # Mechanism). The credless guard is the reveille-tier slot reservation: theurge
@@ -227,6 +232,7 @@ rbcc_emit_consts() {
     RBCC_rbro_file       \
     RBCC_foedera_subdir  \
     RBCC_fact_ext_foedus_health \
+    RBCC_fact_ext_foedus \
     RBCC_verb_defrock     \
     RBCC_verb_enrobe     \
     RBCC_verb_roster     \

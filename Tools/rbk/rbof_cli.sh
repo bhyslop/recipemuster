@@ -16,7 +16,7 @@
 #
 # Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 #
-# Recipe Bottle Foedus - test-bed cardinality verbs CLI (descry / instate)
+# Recipe Bottle Foedus - test-bed cardinality verbs CLI (descry / instate / canvass)
 
 set -euo pipefail
 
@@ -46,10 +46,10 @@ zrbof_furnish() {
   zrbof_kindle
 
   case "${z_command}" in
-    rbof_descry)
-      # descry reads the org-level workforce pool from the Manor — the same
-      # payor-OAuth credential and IAM-REST stack affiance/jilt use. instate
-      # needs none of this, so it is sourced/kindled only on this branch.
+    rbof_descry|rbof_canvass)
+      # descry and canvass read the org-level workforce-pool surface from the
+      # Manor — the same payor-OAuth credential and IAM-REST stack affiance/jilt
+      # use. instate needs none of this, so it is sourced/kindled only here.
       source "${z_rbk_kit_dir}/rbgc_constants.sh"
       source "${z_rbk_kit_dir}/rbrr_regime.sh"
       source "${z_rbk_kit_dir}/rbrd_regime.sh"

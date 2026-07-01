@@ -71,6 +71,7 @@ The Folio column shows how each tabtarget receives it:
 |----------|-------------|-------|---------|
 | `rbw-jI` | FoedusInstate | param1 | Instate a standing foedus as active — re-point the RBRR_ACTIVE_FOEDUS selector in rbrr.env (atomic, uncommitted; operator commits) |
 | `rbw-jd` | FoedusDescry | param1 | Descry a standing foedus — read its workforce-pool health from the Manor (present-and-active, or a named deficit; read-only) |
+| `rbw-jc` | FoedusCanvass | — | Canvass the manor's foedera — enumerate every provider under the one workforce pool, emitting per-foedus fact files and marking the regime-selected one (read-only) |
 
 ### Lode — Fetched-side universal capture (`rbw-l`)
 

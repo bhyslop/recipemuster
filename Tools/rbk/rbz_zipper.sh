@@ -107,6 +107,7 @@ zrbz_kindle() {
   z_mod="rbof_cli.sh"
   buz_enroll RBZ_INSTATE_FOEDUS         "rbw-jI"  "${z_mod}" "rbof_instate"  "param1"  "Instate a standing foedus as active — re-point the RBRR_ACTIVE_FOEDUS selector in rbrr.env (atomic, uncommitted; operator commits)"
   buz_enroll RBZ_DESCRY_FOEDUS          "rbw-jd"  "${z_mod}" "rbof_descry"   "param1"  "Descry a standing foedus — read its workforce-pool health from the Manor (present-and-active, or a named deficit; read-only)"
+  buz_enroll RBZ_CANVASS_FOEDUS         "rbw-jc"  "${z_mod}" "rbof_canvass"  ""        "Canvass the manor's foedera — enumerate every provider under the one workforce pool, emitting per-foedus fact files and marking the regime-selected one (read-only)"
 
   # Lode — fetched-side universal capture (rbw-l, UPPER=mutates GAR/cost, lower=read-only)
   buz_group RBZ__GROUP_LODE       "rbw-l"   "Lode — Fetched-side universal capture"
