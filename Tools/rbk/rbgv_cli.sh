@@ -102,9 +102,9 @@ rbgv_check_mantle() {
   # is a separately deferred migration, so the probe straddles both forms by design.
   local z_polity_mantle
   case "${z_mantle}" in
-    "${RBCC_mantle_governor}")  z_polity_mantle="${RBCC_account_governor}"  ;;
-    "${RBCC_mantle_director}")  z_polity_mantle="${RBCC_account_director}"  ;;
-    "${RBCC_mantle_retriever}") z_polity_mantle="${RBCC_account_retriever}" ;;
+    "${RBCC_mantle_governor}")  z_polity_mantle="${RBCC_account_unhewn_governor}"  ;;
+    "${RBCC_mantle_director}")  z_polity_mantle="${RBCC_account_unhewn_director}"  ;;
+    "${RBCC_mantle_retriever}") z_polity_mantle="${RBCC_account_unhewn_retriever}" ;;
     *) buc_die "rbgv_check_mantle: mantle token required (${RBCC_mantle_governor} | ${RBCC_mantle_director} | ${RBCC_mantle_retriever}), got '${z_mantle:-<empty>}'" ;;
   esac
 

@@ -69,12 +69,16 @@ RBCC_rbro_file="rbro.env"
 # Account composition labels — bare fragments that compose GCP SA account-ids/
 # emails AND local secret-directory names. These stay bare: a derived
 # resource-name string in cloud/filesystem space, structurally like the SA
-# email and the -tether/-airgap pool suffixes the heat keeps bare.
-RBCC_account_governor="governor"
-RBCC_account_retriever="retriever"
-RBCC_account_director="director"
-RBCC_account_payor="payor"
-RBCC_account_mason="mason"
+# email and the -tether/-airgap pool suffixes the heat keeps bare. The unhewn
+# infix records that bareness IN THE NAME — an unhewn stone is used undressed:
+# do not sprue (an underscore is forbidden in an SA-id, RFC1035) and do not
+# consolidate these into the sprued mantle class. rbcc_emit_consts strips the
+# unhewn_ segment on emit, so the projected RBTDGC_ACCOUNT_* names are unchanged.
+RBCC_account_unhewn_governor="governor"
+RBCC_account_unhewn_retriever="retriever"
+RBCC_account_unhewn_director="director"
+RBCC_account_unhewn_payor="payor"
+RBCC_account_unhewn_mason="mason"
 
 # Mantle service-account names — the three impersonatable federation identities
 # (governor / director / retriever) established at depot levy. Hardcoded literals
@@ -148,8 +152,8 @@ RBCC_creed_clean_build="a container image built from an uncommitted tree cannot 
 # Roster extensions composed from earlier tinder (BCG tinder-on-tinder).
 RBCC_fact_ext_depot="depot"
 RBCC_fact_ext_depot_project="depot-project"
-RBCC_fact_ext_roster_retriever="${RBCC_verb_roster}-${RBCC_account_retriever}"
-RBCC_fact_ext_roster_director="${RBCC_verb_roster}-${RBCC_account_director}"
+RBCC_fact_ext_roster_retriever="${RBCC_verb_roster}-${RBCC_account_unhewn_retriever}"
+RBCC_fact_ext_roster_director="${RBCC_verb_roster}-${RBCC_account_unhewn_director}"
 RBCC_fact_ext_audit_hallmark="audit-hallmark"
 # Foedus descry health verdict — descry writes <foedus>.foedus-health carrying
 # one of healthy / pool-absent / pool-deleted / provider-absent for the
@@ -166,8 +170,8 @@ RBCC_tweak_credless_guard="buorb_credless_guard"
 # Container-role tinder — the canonical bash home for the crucible's container
 # roles. Bare role tokens; the crucible is sentry + pentacle + bottle and every
 # container name / compose service derives from these. Distinct from the
-# RBCC_account_* composition labels above (bare fragments for SA names + secret
-# dirs). None of these words are reused across families, keeping each token
+# RBCC_account_unhewn_* composition labels above (bare fragments for SA names +
+# secret dirs). None of these words are reused across families, keeping each token
 # monosemous.
 RBCC_container_bottle="bottle"
 RBCC_container_pentacle="pentacle"
@@ -183,9 +187,12 @@ RBCC_container_sentry="sentry"
 # operation verbs, and container roles. Each Rust const is
 # RBTDGC_ + the RBCC stem (RBCC_ prefix stripped) uppercased; the value is
 # carried verbatim. Bash stays mixed-case (RBCC_moorings_dir); the generated
-# Rust is SCREAMING (RBTDGC_MOORINGS_DIR) per Rust convention — that casing is
-# the sole transform, applied mechanically, so there is no per-entry mapping
-# and no drift. rbtd's lib.rs paths, the manifest account-label mirror, and the
+# Rust is SCREAMING (RBTDGC_MOORINGS_DIR) per Rust convention. Two mechanical
+# name transforms — no per-entry mapping, no drift: the RBCC_ prefix strip +
+# uppercase (universal), and a strip of the unhewn_ bare-marker infix so the
+# RBCC_account_unhewn_* family projects to RBTDGC_ACCOUNT_* (the marker records
+# "stay bare" in the bash name without leaking into the Rust mirror). rbtd's
+# lib.rs paths, the manifest account-label mirror, and the
 # rbtdrk/rbtdrp .env consts all source these instead of hand-copying.
 # A second section projects the BUBC precision exit-code band as i32 consts
 # (same mechanical transform, BUBC_ prefix stripped) — theurge asserts exit
@@ -202,11 +209,11 @@ rbcc_emit_consts() {
   for z_name in \
     RBCC_moorings_dir    \
     RBCC_vessels_subdir  \
-    RBCC_account_governor   \
-    RBCC_account_retriever  \
-    RBCC_account_director   \
-    RBCC_account_payor      \
-    RBCC_account_mason      \
+    RBCC_account_unhewn_governor   \
+    RBCC_account_unhewn_retriever  \
+    RBCC_account_unhewn_director   \
+    RBCC_account_unhewn_payor      \
+    RBCC_account_unhewn_mason      \
     RBCC_mantle_governor    \
     RBCC_mantle_director    \
     RBCC_mantle_retriever   \
@@ -234,6 +241,7 @@ rbcc_emit_consts() {
     RBCC_tweak_credless_guard \
   ; do
     z_stem="${z_name#RBCC_}"
+    z_stem="${z_stem/unhewn_/}"
     z_upper="$(printf '%s' "${z_stem}" | tr '[:lower:]' '[:upper:]')"
     buz_emit_const "RBTDGC_${z_upper}" "${!z_name}" \
       || buc_die "rbcc_emit_consts: emit failed for ${z_name}"

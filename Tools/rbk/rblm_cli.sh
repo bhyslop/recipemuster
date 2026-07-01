@@ -114,7 +114,7 @@ rblm_zero() {
   fi
   buh_e
   buh_line "  Preserved (payor-scoped, survives depot change):"
-  buh_line "    ${z_secrets_dir}/${RBCC_account_payor}/${RBCC_rbro_file}"
+  buh_line "    ${z_secrets_dir}/${RBCC_account_unhewn_payor}/${RBCC_rbro_file}"
   buh_e
   buh_line "  On completion, marshal-zero auto-commits the in-tree mutations."
   buh_e

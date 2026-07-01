@@ -33,11 +33,11 @@ zrbdc_kindle() {
 
   # Ensure the payor secrets subdirectory exists — the sole durable secret is the
   # payor's RBRO refresh token (bare-named: a derived resource-name string).
-  mkdir -p "${RBRR_SECRETS_DIR}/${RBCC_account_payor}" \
+  mkdir -p "${RBRR_SECRETS_DIR}/${RBCC_account_unhewn_payor}" \
     || buc_die "Failed to create secrets directories under: ${RBRR_SECRETS_DIR}"
 
   # Derive the payor credential file path from RBRR_SECRETS_DIR
-  readonly RBDC_PAYOR_RBRO_FILE="${RBRR_SECRETS_DIR}/${RBCC_account_payor}/${RBCC_rbro_file}"
+  readonly RBDC_PAYOR_RBRO_FILE="${RBRR_SECRETS_DIR}/${RBCC_account_unhewn_payor}/${RBCC_rbro_file}"
 
   # Derive depot identity from (RBRD_CLOUD_PREFIX, RBRD_DEPOT_MONIKER).
   # Project ID, GAR repository, and pool stem fall out at kindle.

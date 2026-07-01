@@ -56,7 +56,7 @@ zrbgd_kindle() {
   # Depot name (the moniker) — input to RBGD_MASON_EMAIL. Moniker is the
   # operator-set RBRR field.
   readonly RBGD_DEPOT_NAME="${RBRD_DEPOT_MONIKER}"
-  readonly RBGD_MASON_EMAIL="${RBCC_account_mason}-${RBGD_DEPOT_NAME}@${RBGD_SA_EMAIL_FULL}"
+  readonly RBGD_MASON_EMAIL="${RBCC_account_unhewn_mason}-${RBGD_DEPOT_NAME}@${RBGD_SA_EMAIL_FULL}"
 
   # Cloud Resource Manager (CRM) APIs. The IAM-policy pair rides CRM v3: Google's
   # Data Access audit-log procedure is documented only against v3 getIamPolicy/

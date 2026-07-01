@@ -1634,7 +1634,7 @@ rbgp_depot_levy() {
   rbuh_poll_until_ok "IAM API" "${z_iam_preflight_url}" "${z_token}" "iam_sa_preflight"
 
   buc_step 'Create Mason service account'
-  local -r z_mason_name="${RBCC_account_mason}-${RBRD_DEPOT_MONIKER}"
+  local -r z_mason_name="${RBCC_account_unhewn_mason}-${RBRD_DEPOT_MONIKER}"
   local -r z_mason_display_name="${RBGC_DEPOT_DISPLAY_PREFIX} mason ${RBRD_DEPOT_MONIKER}"
   local -r z_create_sa_body="${BURD_TEMP_DIR}/rbgp_create_mason.json"
 
@@ -1841,7 +1841,7 @@ rbgp_depot_unmake() {
     while test "${z_unmake_sa_index}" -lt "${z_unmake_sa_count}"; do
       z_unmake_sa_email=$(rbuh_json_field_capture "${z_unmake_sa_infix}" ".accounts[${z_unmake_sa_index}].email") \
         || { z_unmake_sa_index=$((z_unmake_sa_index + 1)); continue; }
-      if [[ "${z_unmake_sa_email}" == ${RBCC_account_governor}-* ]]; then
+      if [[ "${z_unmake_sa_email}" == ${RBCC_account_unhewn_governor}-* ]]; then
         buc_log_args "Deleting governor SA: ${z_unmake_sa_email}"
         z_unmake_gov_delete_infix="depot_unmake_gov_delete_${z_governor_sa_count}"
         rbuh_json "DELETE" "${z_unmake_sa_url_base}/${z_unmake_sa_email}" "${z_token}" "${z_unmake_gov_delete_infix}"
@@ -2052,7 +2052,7 @@ rbgp_depot_info() {
   local z_token
   z_token=$(zrbgp_authenticate_capture) || buc_die "Failed to authenticate as Payor via OAuth"
 
-  local -r z_mason_email="${RBCC_account_mason}-${RBRD_DEPOT_MONIKER}@${RBDC_DEPOT_PROJECT_ID}.${RBGC_SA_EMAIL_DOMAIN}"
+  local -r z_mason_email="${RBCC_account_unhewn_mason}-${RBRD_DEPOT_MONIKER}@${RBDC_DEPOT_PROJECT_ID}.${RBGC_SA_EMAIL_DOMAIN}"
   local -r z_tether_id="${RBDC_GCB_POOL_STEM}${RBGC_POOL_SUFFIX_TETHER}"
   local -r z_airgap_id="${RBDC_GCB_POOL_STEM}${RBGC_POOL_SUFFIX_AIRGAP}"
 
