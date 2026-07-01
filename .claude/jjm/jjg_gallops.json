@@ -20860,8 +20860,8 @@
         "₢BoAAB": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260701-1315",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260701-1349",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "Give mantle-admission denial a named precision band, so role isolation is asserted by exit code instead of by \"it failed\" —",
                 "plus apply the ₣Be review follow-ups that touch the same files.",
@@ -20925,7 +20925,7 @@
                 "the one live-cloud subtlety (IAM revocation propagation) is handled by the cinched bounded poll."
               ],
               "jjgtn_silks": "mantle-admission-denial-band",
-              "jjgtn_basis": "6d36fc2"
+              "jjgtn_basis": "0ce64b0"
             }
           ]
         },
