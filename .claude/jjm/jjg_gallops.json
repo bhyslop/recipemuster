@@ -20750,8 +20750,8 @@
         "₢BlAAd": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260701-1325",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260701-1330",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "Perform the terminal Fable review the RBSTC header reserves:",
                 "ratify or re-mint the provisional `rbtt_` quoin stem and the word \"theurge\" (asterism fit, Lapidary pass, sub-letter legend).",
@@ -20775,7 +20775,7 @@
                 "Fable judgment on the mint; mechanical sweep once decided."
               ],
               "jjgtn_silks": "cosmology-stem-ratification",
-              "jjgtn_basis": "fdb52e9"
+              "jjgtn_basis": "54eb252"
             }
           ]
         }
