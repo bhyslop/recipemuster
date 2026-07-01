@@ -13552,7 +13552,7 @@
         "₢BDAAp": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260701-2147",
+              "jjgtn_ts": "260701-2148",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "jjx_log on a long heat overflows the tool-result channel:",
@@ -13570,18 +13570,21 @@
                 "so a several-hundred-commit heat no longer trips the persisted-output overflow.",
                 "Full untruncated subjects land in gazette_out.md, always populated,",
                 "mirroring show's \"result terse, gazette always populated\" contract.",
+                "The JJS0 spec is updated in the same pass:",
+                "the jjdo_log operation quoin's definition specifies the new two-channel output contract",
+                "(terse inline, gazette bulk), so spec and behavior land together, never split across paces.",
                 "The jjx_log line in the claude-jjk-core.md command reference documents the new shape.",
-                "If the log command carries a JJSC* subdoc contract, it is aligned in the same pass.",
                 "",
                 "## Cinched",
+                "JJS0's jjdo_log definition update is in-pace, not deferred — spec and code move together.",
                 "No gallops schema change — pure render-side output shaping; the §E reprieve check was done at slate (no episode needed).",
                 "Commit messages themselves are untouched; truncation exists only in the inline rendering.",
                 "",
                 "## Character",
-                "Small mechanical JJK-crate change with one design alignment (mirror jjx_show's channel split); param/width mechanics are mount-time calls."
+                "Small mechanical JJK-crate change with one design alignment (mirror jjx_show's channel split) plus its JJS0 contract update; param/width mechanics are mount-time calls."
               ],
               "jjgtn_silks": "jjx-log-overflow-diet",
-              "jjgtn_basis": "88d13e0"
+              "jjgtn_basis": "56c6954"
             }
           ]
         }
