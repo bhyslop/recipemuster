@@ -19821,30 +19821,32 @@
         "₢BiAAo": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260630-2029",
+              "jjgtn_ts": "260701-1400",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "## Character",
-                "Intricate but mechanical — clones two existing patterns, mints no new machinery.",
+                "Resume — the config landed and a cloud mirror already ran; what remains is a digest correction, a re-vouch of the existing hallmark, and the charge/POST. Mount fresh in a separate chat.",
                 "",
-                "Stand up `nineveh`: a hand-driven kroki-core render crucible, as a trial feature — GraphViz rendering (plus plantuml, d2) from the single kroki-core container.",
-                "Core-only: the four companion containers (mermaid, bpmn, excalidraw, diagramsnet) are out of scope by construction.",
+                "Standing state:",
+                "- nineveh config is committed (bind vessel rbev-bottle-kroki + nameplate nineveh), but its RBRV_BIND_IMAGE is tag-only, which the new bind-digest gate now rejects at rbw-rvv (band 100).",
+                "- A cloud ordain-bind already ran: hallmark `b260701131017-r260701201021` is in GAR with image + about present, vouch ABSENT — the vouch failed on the tag-only source (\"no @ in BIND_SOURCE\" at verify-provenance).",
+                "- The vouch poll ceiling is now 150, so a re-vouch will not false-timeout.",
                 "",
-                "Two exemplars carry the whole shape:",
-                "- Provenance clones pluml (bind mode) — mirror upstream `yuzutech/kroki` into GAR via ordain-bind so the trial is not beholden to origin availability; study `rbev-bottle-plantuml`'s rbrv.env (RBRV_VESSEL_MODE=rbnve_bind, RBRV_BIND_IMAGE) and the mirror in rbfd_director.sh.",
-                "- Posture clones ccyolo — a chargeable nameplate (charge/quench tabtargets, moorings dir) with NO theurge fixture: no RBTDRM_FIXTURE_ const, no cases, no suite entry.",
-                "",
-                "Give nineveh an `rbnnh_post_charge.sh` printing the kroki curl usage (engine paths + a sample POST); srjcl's hook is the exemplar, RBSCH the contract.",
+                "Remaining:",
+                "- Fix rbev-bottle-kroki RBRV_BIND_IMAGE to tag@digest: `docker.io/yuzutech/kroki:0.31.0@sha256:c16303ecd8ae840a6e3a76efa53468836c6297eeb7b7316845c3b24e8dbd0398` — the digest the tag mirrored to, so it matches the image already in GAR. rbw-rvv then passes.",
+                "- Re-vouch the EXISTING hallmark (no re-mirror): rbw-fV sweeps image+about-present/vouch-absent; confirm it is the only pending hallmark first, then verify the vouch ark lands (rekon).",
+                "- Set nineveh RBRN_BOTTLE_HALLMARK to that hallmark (replacing PENDING-ORDAIN-BIND), notch.",
+                "- Charge nineveh, POST a graphviz sample to /graphviz/svg (workstation port 8006), get a well-formed <svg>; the post-charge hook prints the usage note.",
                 "",
                 "## Cinched",
-                "- Bind/mirror, not conjure/kludge — kroki-core runs as-is, no Dockerfile (RBSFH FROM-hygiene moot for bind).",
-                "- Core engines only; companions excluded. No dark-mode/darken, no suite wiring.",
+                "- Bind/mirror, not conjure/kludge; core engines only, companions excluded; no dark-mode/darken, no suite wiring.",
+                "- tag@digest pin, not a bare digest — legible and satisfies the vouch's digest-pin requirement.",
                 "",
                 "## Done when",
-                "Charge nineveh, POST a graphviz sample to the kroki `/graphviz/svg` endpoint on the nameplate's port, get a well-formed `<svg>`; the post-charge hook prints the usage note."
+                "Charge nineveh, POST a graphviz sample to the kroki /graphviz/svg endpoint on the nameplate's port, get a well-formed <svg>; the post-charge hook prints the usage note."
               ],
               "jjgtn_silks": "nineveh-kroki-trial-crucible",
-              "jjgtn_basis": "569bc5a"
+              "jjgtn_basis": "09db029"
             }
           ]
         },
@@ -19880,38 +19882,32 @@
         "₢BiAAq": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260701-1346",
+              "jjgtn_ts": "260701-1400",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "## Character",
-                "Mechanical: a bind-gated regime-validation check plus a one-constant poll-budget bump. No new machinery, no new band.",
+                "Mechanical: a bind-gated regime-validation check plus a one-constant poll-budget bump. No new band. Code landed.",
                 "",
-                "Add a fail-fast gate so a bind vessel whose RBRV_BIND_IMAGE lacks an `@sha256:` digest is rejected at regime-validation time,",
-                "not eight minutes into a cloud build at the vouch's verify-provenance step.",
-                "The digest requirement lives today only at its deepest consumer (rbgjv02-verify-provenance.py — \"no @ in BIND_SOURCE\"), with no upstream declaration;",
-                "the kroki bind ordain burned two cloud builds discovering that.",
-                "",
-                "The gate: `zrbrv_enforce` runs only `buv_vet RBRV` today — add a bind-gated custom check (mode rbnve_bind ⇒ RBRV_BIND_IMAGE contains `@sha256:`) that rejects with `buc_reject \"${BUBC_band_regime}\"`;",
-                "model it on the custom checks already in `zrbrn_enforce`.",
-                "RBSRV declares the invariant (bind ⇒ digest-pinned) as the config-time home of what the vouch enforces downstream.",
-                "Add a regime-poison case corrupting a bind RBRV_BIND_IMAGE to tag-only, asserting the band.",
-                "",
-                "Folded in — vouch poll budget: raise ZRBFC_BUILD_POLL_CEILING_VOUCH (rbfc0_core.sh) from 50 toward ~150.",
-                "A large multi-arch bind vouch runs ~8 min (~100+ polls at the ~5s interval); 50 (~4 min) makes the local poller report a false timeout even when the GCB build succeeds.",
-                "Stays under the 180 queue ceiling; only a live cloud vouch (picket/dogfight) truly exercises it.",
+                "Fail-fast gate so a bind vessel whose RBRV_BIND_IMAGE lacks an `@sha256:` digest is rejected at regime-validation time (rbw-rvv / reveille),",
+                "not eight minutes into a cloud build at the vouch's verify-provenance step (\"no @ in BIND_SOURCE\").",
+                "zrbrv_enforce carries the bind-gated check (rbnve_bind ⇒ RBRV_BIND_IMAGE matches @sha256:<64-hex>), rejecting via `buc_reject \"${BUBC_band_regime}\"`;",
+                "modeled on zrbrn_enforce.",
+                "RBSRV homes the bind ⇒ digest-pinned invariant.",
+                "Folded in: ZRBFC_BUILD_POLL_CEILING_VOUCH raised 50→150 (a large multi-arch bind vouch runs ~8 min; 50 ≈ 4 min false-timed-out the local poller even on GCB success).",
                 "",
                 "## Cinched",
-                "- Reuse BUBC_band_regime=100 (regime-module custom enforce, cross-field) — mint no new band; orthogonal to parallel band work.",
+                "- Reuse BUBC_band_regime=100 — mint no new band (kept us clear of the parallel bubc_constants.sh band work).",
                 "- Bind-gated only; matches every existing valid bind config (pluml is digest-pinned).",
-                "- Do NOT fix nineveh in this pace — the gate will correctly reject its committed tag-only RBRV_BIND_IMAGE, and that break is the intended proof; nineveh's tag@digest fix belongs to ₢BiAAo.",
+                "- The regime-poison case is OUT of this pace — band-asserting fixtures live in the theurge stream (Bl), not here (paddock). Hand the bind-digest poison case (assert band 100 on a tag-only bind RBRV_BIND_IMAGE) to Bl; spec and fixture must stay consistent on band 100.",
+                "- Do NOT fix nineveh here — the gate correctly rejecting nineveh's committed tag-only config is the intended proof; that fix belongs to the nineveh pace.",
                 "",
                 "## Done when",
-                "- `rbw-rvv` rejects a tag-only bind RBRV_BIND_IMAGE with band 100, and passes a digest-pinned one.",
-                "- regime-poison green with the new bind-digest case; RBSRV specs the invariant.",
+                "- rbw-rvv rejects a tag-only bind RBRV_BIND_IMAGE with band 100 and passes a digest-pinned one.",
+                "- RBSRV specs the bind ⇒ digest invariant.",
                 "- ZRBFC_BUILD_POLL_CEILING_VOUCH raised."
               ],
               "jjgtn_silks": "bind-digest-gate-vouch-budget",
-              "jjgtn_basis": "0ce64b0"
+              "jjgtn_basis": "09db029"
             }
           ]
         }
