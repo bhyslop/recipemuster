@@ -20814,7 +20814,7 @@
         "₢BoAAB": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260701-1312",
+              "jjgtn_ts": "260701-1315",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "Give mantle-admission denial a named precision band, so role isolation is asserted by exit code instead of by \"it failed\" —",
@@ -20822,6 +20822,7 @@
                 "Design fully settled at the Fable review (2026-07-01);",
                 "rationale and file anatomy live in `Memos/memo-20260701-fbl-be-negatives-review.md` (\"Settled design\" section) —",
                 "read it first, it makes every step below mechanical.",
+                "(The memo's CLAUDE.md suite-table follow-up is already done — landed separately with the theurge-cosmology subdoc; it is not in the list below.)",
                 "",
                 "## Spec of needed change",
                 "",
@@ -20843,12 +20844,11 @@
                 "→ brevet retriever back → poll don until positive (restore proof).",
                 "Self-skip on payor-unreachable like the sibling picket fixtures;",
                 "keep the don/unseat scaffolding a discrete helper.",
-                "Apply the six memo follow-ups:",
+                "Apply the five memo follow-ups:",
                 "BCG band-section carve-out line (usage refusals stay imprecise death; their cases compensate with a pointer assertion);",
                 "rba_auth.sh keyfile-ghost guard comment;",
                 "rbtdrs_poison.rs pre-rename suite names;",
                 "rbtdrm_manifest.rs podvm-resolve stale comment;",
-                "CLAUDE.md reveille row (11 fixtures, add chaining-fact-band) and the suite-composition pointer (RBTDRA_SUITES in rbtdra_almanac.rs, not RBTDRC_SUITES);",
                 "reword the BBAA9 coronet code comment purpose-based.",
                 "Notch before every test; run reveille, then the new fixture singly via `tt/rbw-tf.FixtureRun.sh` against the standing depot.",
                 "",
@@ -20858,7 +20858,7 @@
                 "distinguished from lapsed-sitting / network / other-HTTP failures, which stay imprecise death;",
                 "the mantle-denial fixture proves deny-then-restore on the real freehold subject asserting the exact band;",
                 "`RBTDGC_BAND_ADMISSION` projects via the emit list;",
-                "the six memo follow-ups are applied;",
+                "the five memo follow-ups are applied;",
                 "theurge build and reveille green, and the new fixture green against the standing depot.",
                 "",
                 "## Cinched",
@@ -20879,7 +20879,7 @@
                 "the one live-cloud subtlety (IAM revocation propagation) is handled by the cinched bounded poll."
               ],
               "jjgtn_silks": "mantle-admission-denial-band",
-              "jjgtn_basis": "27aef83"
+              "jjgtn_basis": "6d36fc2"
             }
           ]
         },
