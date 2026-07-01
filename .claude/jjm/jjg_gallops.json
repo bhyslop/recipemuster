@@ -20437,8 +20437,8 @@
         "₢BlAAS": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260630-1536",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260701-1246",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "BARRIER — cross-clone wait. No code work of its own.",
                 "This pace cannot complete until ₢BfAAv (heat ₣Bf — the 260630 one-pool spec re-cut that re-cuts the RBS0-SpecTop federation block to foedus≡provider; retargeted from the stale ₢BfAAO, which seated the OLD block ₢BfAAv now re-cuts) is complete, pushed to origin, and origin merged back into this clone.",
@@ -20451,7 +20451,7 @@
                 "Cross-clone barrier; retargeted 260630 from ₢BfAAO (the old block) to ₢BfAAv (the re-cut), so the cosmology appends behind the current federation block."
               ],
               "jjgtn_silks": "await-fed-rbs0-block",
-              "jjgtn_basis": "be14aa9"
+              "jjgtn_basis": "17600ef"
             }
           ]
         },
