@@ -189,6 +189,7 @@ pub const RBTDGC_BAND_CHAIN: i32 = 105;
 pub const RBTDGC_BAND_DESCRY: i32 = 106;
 pub const RBTDGC_BAND_INSTATE: i32 = 107;
 pub const RBTDGC_BAND_ADMISSION: i32 = 109;
+pub const RBTDGC_BAND_VACANT: i32 = 110;
 pub const RBTDGC_BAND_SELFTEST: i32 = 115;
 
 // BUBC regime-poison tweak (bubc_constants.sh) — string

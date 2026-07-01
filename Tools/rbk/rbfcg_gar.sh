@@ -376,7 +376,7 @@ rbfc_vessel_for_hallmark_capture() {
   rm -rf "${z_scratch}" || buc_die "Failed to clear scratch dir: ${z_scratch}"
 
   zrbfc_gar_extract_artifact "${z_token}" "${z_vouch_pkg}" "${z_hallmark}" "${z_scratch}" \
-    || buc_die "Hallmark not found: ${z_hallmark} (no vouch ark at ${z_vouch_pkg}:${z_hallmark})"
+    || buc_reject "${BUBC_band_vacant}" "Hallmark not found: ${z_hallmark} (no vouch ark at ${z_vouch_pkg}:${z_hallmark})"
 
   test -f "${z_scratch}/vouch_summary.json" \
     || buc_die "vouch_summary.json not found in vouch ark for ${z_hallmark}"

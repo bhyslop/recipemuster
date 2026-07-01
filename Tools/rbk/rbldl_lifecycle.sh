@@ -171,7 +171,7 @@ rbld_augur() {
   jq -r '.tags[]?.name | sub(".*/tags/"; "")' "${z_resp_file}" > "${z_tags_file}" \
     || buc_die "Failed to extract member tags for Lode ${z_touchmark}"
   test -s "${z_tags_file}" \
-    || buc_die "No member tags found under ${z_pkg} — Lode not present in registry"
+    || buc_reject "${BUBC_band_vacant}" "No member tags found under ${z_pkg} — Lode not present in registry"
 
   local z_tags=()
   local z_tag=""

@@ -92,6 +92,12 @@ BUBC_band_clean_tree=108 # clean-tree gate rejection (dirty working tree at a cl
 # express-or-chain fact, no regime/enrollment rule, no descry/instate
 # cardinality op. One gate: a citizen not brevetted onto the wielded mantle.
 BUBC_band_admission=109 # mantle admission rejection (don denied — citizen not brevetted onto the mantle)
+# Read-side vacancy: a read verb (summon/plumb/augur) names an artifact that
+# is not present in the registry — knowable only after a round-trip, distinct
+# from the local chaining resolve (105). Plumb's spawn path crosses the
+# vessel-resolve chaining gate, so the allocation rule forbids reusing 105
+# along that pipeline. One gate: the named hallmark or Lode is not there.
+BUBC_band_vacant=110    # read-side absent-artifact rejection (summon/plumb/augur — named hallmark or Lode not present in registry)
 # Self-test probe pins the band top, proving full-width propagation:
 BUBC_band_selftest=115  # BUK self-test deliberate rejection (buw-xb fixture)
 

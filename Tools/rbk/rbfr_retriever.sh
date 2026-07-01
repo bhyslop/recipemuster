@@ -161,7 +161,7 @@ rbfr_summon() {
 
   # Evaluate ark state
   if test "${z_image_exists}" = "false" && test "${z_about_exists}" = "false"; then
-    buc_die "Hallmark not found: neither image nor about ark exists"
+    buc_reject "${BUBC_band_vacant}" "Hallmark not found: neither image nor about ark exists"
   fi
 
   if test "${z_image_exists}" = "true" && test "${z_about_exists}" = "false"; then
