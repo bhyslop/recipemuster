@@ -11936,9 +11936,10 @@
         "₢BDAAl",
         "₢BDAAm",
         "₢BDAAn",
-        "₢BDAAo"
+        "₢BDAAo",
+        "₢BDAAp"
       ],
-      "jjghn_next_pace_seed": "AAp",
+      "jjghn_next_pace_seed": "AAq",
       "jjghn_paces": {
         "₢BDAAA": {
           "jjgpn_tacks": [
@@ -13545,6 +13546,42 @@
               ],
               "jjgtn_silks": "interdict-size-gate",
               "jjgtn_basis": "33eda9c"
+            }
+          ]
+        },
+        "₢BDAAp": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260701-2147",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "jjx_log on a long heat overflows the tool-result channel:",
+                "heat ₣BZ's 215-commit log rendered ~510KB because every jjb subject is paragraph-length,",
+                "so the harness persisted the result to a blob the scrape prohibition forbids reading —",
+                "leaving no sanctioned read path on the very command the ₢BZAAh retrospective docket named authoritative",
+                "(the agent fell back to git jjb trailers).",
+                "Fix: adopt for jjx_log the output pattern jjx_show already carries in claude-jjk-core.md —",
+                "terse inline result, bulk content to the gazette.",
+                "",
+                "## Done when",
+                "The jjx_log inline tool-result is a terse table —",
+                "timestamp, commit, act, affiliation, subject truncated to one bounded line",
+                "(orient's Recent-work table is the in-house rendering precedent) —",
+                "so a several-hundred-commit heat no longer trips the persisted-output overflow.",
+                "Full untruncated subjects land in gazette_out.md, always populated,",
+                "mirroring show's \"result terse, gazette always populated\" contract.",
+                "The jjx_log line in the claude-jjk-core.md command reference documents the new shape.",
+                "If the log command carries a JJSC* subdoc contract, it is aligned in the same pass.",
+                "",
+                "## Cinched",
+                "No gallops schema change — pure render-side output shaping; the §E reprieve check was done at slate (no episode needed).",
+                "Commit messages themselves are untouched; truncation exists only in the inline rendering.",
+                "",
+                "## Character",
+                "Small mechanical JJK-crate change with one design alignment (mirror jjx_show's channel split); param/width mechanics are mount-time calls."
+              ],
+              "jjgtn_silks": "jjx-log-overflow-diet",
+              "jjgtn_basis": "88d13e0"
             }
           ]
         }
