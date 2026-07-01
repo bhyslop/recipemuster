@@ -19861,8 +19861,8 @@
         "₢BiAAo": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260701-1400",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260701-1604",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "## Character",
                 "Resume — the config landed and a cloud mirror already ran; what remains is a digest correction, a re-vouch of the existing hallmark, and the charge/POST. Mount fresh in a separate chat.",
@@ -19886,7 +19886,7 @@
                 "Charge nineveh, POST a graphviz sample to the kroki /graphviz/svg endpoint on the nameplate's port, get a well-formed <svg>; the post-charge hook prints the usage note."
               ],
               "jjgtn_silks": "nineveh-kroki-trial-crucible",
-              "jjgtn_basis": "09db029"
+              "jjgtn_basis": "f4b6d8a"
             }
           ]
         },
