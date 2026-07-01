@@ -67,16 +67,14 @@ Two Rust build targets. Always use the tabtarget, never raw cargo commands.
 
 ### Test Execution
 
-**Test suites** group fixtures by dependency tier. Composition is owned by
-`RBTDRC_SUITES` (`Tools/rbk/rbtd/src/rbtdrc_crucible.rs`); this table summarizes it.
-Run the broadest applicable suite:
+**Test suites** group fixtures by dependency **stratum** (reveille/picket/bivouac; echelon = their union). The cosmology — the wrapper(inner) model, the three strata, and the freehold/leasehold substrate — is spec-homed in `RBSTC-theurge_cosmology.adoc`. Suite membership is owned by the hand-written `RBTDRA_SUITES` literal registry (`Tools/rbk/rbtd/src/rbtdra_almanac.rs`), the authoritative source; the table below summarizes strata, never member lists (which drift). Run the broadest applicable suite:
 
-| Suite | Tabtarget | Dependencies | What it covers |
-|-------|-----------|-------------|----------------|
-| `reveille` | `tt/rbw-ts.TestSuite.reveille.sh` | None | 10 fixtures: enrollment-validation, regime-validation, regime-smoke, podvm-resolve, handbook-render, dockerfile-hygiene, foundry-path, recipe-validation, cupel, conformance |
-| `picket` | `tt/rbw-ts.TestSuite.picket.sh` | GCP credentials | reveille + access-probe, hallmark-lifecycle, lode-lifecycle, reliquary-lifecycle, wsl-lifecycle, podvm-lifecycle, batch-vouch, regime-poison (18 fixtures) |
-| `bivouac` | `tt/rbw-ts.TestSuite.bivouac.sh` | Container runtime | reveille + tadmor, srjcl, pluml, regime-poison (14 fixtures) |
-| `echelon` | `tt/rbw-ts.TestSuite.echelon.sh` | All of the above | picket ∪ bivouac (21 fixtures) |
+| Suite | Tabtarget | Dependencies | Stratum |
+|-------|-----------|-------------|---------|
+| `reveille` | `tt/rbw-ts.TestSuite.reveille.sh` | None | Credless base — no external dependency |
+| `picket` | `tt/rbw-ts.TestSuite.picket.sh` | GCP credentials | reveille + GCP-credentialed fixtures |
+| `bivouac` | `tt/rbw-ts.TestSuite.bivouac.sh` | Container runtime | reveille + container-runtime crucible fixtures |
+| `echelon` | `tt/rbw-ts.TestSuite.echelon.sh` | All of the above | reveille ∪ picket ∪ bivouac |
 
 `regime-poison` is the in-universe negative-validation fixture (real validate verbs against real regimes, one field corrupted via the regime-poison tweak, asserting a specific band code). It rides above reveille — reveille reserves the tweak slot for the credless guard — so a regime/validation change runs reveille (positives) plus this fixture (negatives) via `tt/rbw-tf.FixtureRun.sh regime-poison`. Its operator-local cases (station/oauth/auth/node/privilege) self-skip when the regime is not configured on the machine.
 

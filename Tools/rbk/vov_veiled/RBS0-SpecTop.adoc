@@ -615,6 +615,19 @@
 :rbtf_expunge:               <<rbtf_expunge,Expunge>>
 :rbtf_peruse:                <<rbtf_peruse,Peruse>>
 
+// RB Theurge Test Cosmology (rbtt_*, PROVISIONAL stem) — defined in RBSTC-theurge_cosmology.adoc (concept home), registered here
+:rbtt_theurge:              <<rbtt_theurge,Theurge>>
+:rbtt_wrapper:              <<rbtt_wrapper,Wrapper>>
+:rbtt_wrapper_s:            <<rbtt_wrapper,Wrappers>>
+:rbtt_case:                 <<rbtt_case,Case>>
+:rbtt_case_s:               <<rbtt_case,Cases>>
+:rbtt_reuse:                <<rbtt_reuse,Reuse Wrapper>>
+:rbtt_lifecycle:            <<rbtt_lifecycle,Lifecycle Wrapper>>
+:rbtt_stratum:              <<rbtt_stratum,Stratum>>
+:rbtt_stratum_s:            <<rbtt_stratum,Strata>>
+:rbtt_freehold:             <<rbtt_freehold,Freehold>>
+:rbtt_leasehold:            <<rbtt_leasehold,Leasehold>>
+
 // Cross-references to companion specifications
 :xref_AXLA:                  Axial Lexicon Specification
 
@@ -3350,6 +3363,12 @@ Displays complete trust posture including package inventory, licensing, cache de
 {rbtc_plumb_compact}::
 Tabtarget colophon for compact hallmark plumb.
 Displays trust posture summary: vessel type, source, SLSA provenance, base image, build output, cache delta, SBOM summary, and vouch results.
+
+
+== Theurge Test Cosmology
+
+//axvd_cartouche axd_normative
+include::RBSTC-theurge_cosmology.adoc[leveloffset=+1]
 
 
 == Configuration Regimes
