@@ -17406,7 +17406,7 @@
         "₢BfAAL": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260624-0057",
+              "jjgtn_ts": "260630-1933",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "Build the one BCG module orchestrating the Keycloak test-facility lifecycle: rbxk_keycloak.sh in the rbx family.",
@@ -17420,24 +17420,25 @@
                 "Colophon (operator 260624, supersedes the rbw-xk earmark): the setup tabtarget is rbw-qjK — test bucket q, foedus j, Keycloak K; the teardown is a sibling under rbw-qj, named at cut-time.",
                 "Uppercase K because setup CALLS AFFIANCE and so mutates cloud (creates the GCP workforce provider) — the uppercase is that warning.",
                 "The module keeps its rbxk_keycloak.sh name; the module letter need not match the colophon.",
-                "Setup calls bug_require_clean_tree first — it writes committed config and mutates cloud.",
+                "Setup calls the well-formed precision-band clean-tree gate variant FIRST (built earlier in this heat as standalone BUK infra; pass the RB rationale parameter) — it writes committed config and mutates cloud. This is that variant's first live consumer, so the gate placement lands here, not in the infra pace.",
                 "",
                 "Caveat (operator flag 260624): the full mutation surface is not yet pinned — this setup is \"pretty mutating,\" possibly beyond affiance's provider creation; verify the mutation surface at mount before trusting the gate placement.",
                 "",
                 "Source: fdkyclk-proof.sh (fetch_jwks + the main staging) and fdkyclk-teardown.sh (the jilt-then-quench inverse); the paddock de-lamination + naming section.",
                 "",
                 "## Done when",
-                "One tabtarget (rbw-qjK) stands up the programmatic facility (charged Keycloak + affianced foedus) and one tears it down, idempotently, composing affiance/jilt/charge/quench.",
+                "One tabtarget (rbw-qjK) stands up the programmatic facility (charged Keycloak + affianced foedus) and one tears it down, idempotently, composing affiance/jilt/charge/quench; the setup's clean-tree gate uses the well-formed precision-band variant, not the old bug_require_clean_tree.",
                 "",
                 "## Cinched",
                 "rbx family, rbxk_keycloak.sh module; colophon rbw-qjK (setup) plus an rbw-qj teardown sibling, superseding the prior rbw-xk earmark (operator 260624).",
                 "The module is blind to the realm JSON — affiliation by reference, never ownership.",
+                "The setup gate is the precision-band variant's first live consumer; wiring the gate lands here, not in the infra pace.",
                 "",
                 "## Character",
                 "Bash orchestration; the heart of the de-lamination."
               ],
               "jjgtn_silks": "rbxk-keycloak-orchestrator",
-              "jjgtn_basis": "016046c"
+              "jjgtn_basis": "ea14b77"
             }
           ]
         },
@@ -18058,29 +18059,30 @@
         "₢BfAAu": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260627-1409",
+              "jjgtn_ts": "260630-1933",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
-                "Add a well-formed bug_require_* clean-tree gate variant — one that rejects with a named BCG precision-exit-code band and takes the detailed error condition as a tinder/kindle constant plus the RB rationale as a parameter — and use it for the new federation clean-tree gating only.",
+                "Add a well-formed bug_require_* clean-tree gate variant — one that rejects with a named BCG precision-exit-code band and takes the detailed error condition as a tinder/kindle constant plus the RB rationale as a parameter — as standalone BUK/BCG infrastructure (no call site wired here).",
                 "",
                 "## Spec of needed change",
                 "Today's bug_require_clean_tree (Tools/buk/bug_git.sh) is malformed as a deliberate-rejection gate: it takes a free-string operation context and calls buc_die (generic fatal), with no precision band. A deliberate-rejection gate per BCG should buc_reject a named band and carry the detailed error condition as a structured constant.",
-                "Add a NEW variant alongside it (do NOT modify the existing one — its migration is a separate later pace on the loose-ends heat). The variant rejects on a dirty tree with a named clean-tree band (mint it in the bubc precision block), takes the error-condition tinder/kindle constant, and takes the RB rationale as a PARAMETER so BUG stays kit-agnostic.",
+                "Add a NEW variant alongside it (do NOT modify the existing one — its migration is a separate later pace on the loose-ends heat). The variant rejects on a dirty tree with a named clean-tree band (mint it in the bubc precision block — take the next free code, grep BUBC_band_ to confirm), takes the error-condition tinder/kindle constant, and takes the RB rationale as a PARAMETER so BUG stays kit-agnostic.",
                 "The RB opinion the gate states — clean commits are demanded because building a container image from uncommitted state causes confusion — rides that rationale parameter as an RBCC creed constant (no such constant exists today; mint it). This keeps the opinion RB-side and out of kit-agnostic BUK.",
-                "Consume the new variant from the new federation clean-tree gate sites only (the Keycloak-facility orchestrator's setup is the clear consumer); leave the existing ~9 RBK call sites on the old gate for the migration pace.",
+                "This pace builds the machinery only and wires no call site. The first live consumer is the Keycloak-facility orchestrator pace (later in this heat), which places the gate; the existing ~9 RBK call sites stay on the old gate for the loose-ends migration pace (₢BiAAl).",
                 "",
                 "## Done when",
-                "A well-formed bug_require_* variant exists (named bubc clean-tree band + error-condition constant + RB-rationale parameter), the new federation gating consumes it, and the existing malformed gate is untouched (its retirement is the loose-ends migration pace). BUK self-test green.",
+                "A well-formed bug_require_* variant exists (named bubc clean-tree band + error-condition tinder/kindle constant + RB-rationale parameter), the existing malformed gate is untouched, and BUK self-test is green. No call site is migrated or wired here.",
                 "",
                 "## Cinched",
                 "BUG stays kit-agnostic — the RB opinion rides the rationale parameter (an RBCC creed constant), never baked into BUG.",
-                "The existing bug_require_clean_tree is NOT modified here; its call-site migration and retirement is a separate later pace on the loose-ends heat (no mass churn now).",
+                "The existing bug_require_clean_tree is NOT modified here; its call-site migration and retirement is the loose-ends heat's pace (₢BiAAl).",
+                "Infra-only: the first live consumer is the orchestrator pace, not this one — so this pace carries no obligation to wire a site.",
                 "",
                 "## Character",
-                "BUK/BCG infrastructure: a new precision-band gate variant plus a minted bubc band and RBCC creed constant."
+                "BUK/BCG infrastructure: a new precision-band gate variant plus a minted bubc band and RBCC creed constant. Orthogonal to the federation model — spec-first-exempt, rides early and parallel to the spec re-cut."
               ],
               "jjgtn_silks": "clean-tree-gate-precision-variant",
-              "jjgtn_basis": "f8c4dac"
+              "jjgtn_basis": "ea14b77"
             }
           ]
         },
