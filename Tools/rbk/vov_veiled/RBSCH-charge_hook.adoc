@@ -3,7 +3,7 @@ This is a normative portion of the {rbs0_imprimatur}: binding — code, tests, a
 //axhob_operation
 {rbnnh_post_charge_hook}
 
-Defines two optional per-nameplate customization files that the {rbsc_charge} operation auto-detects and incorporates. Both live in the nameplate's regime directory; absence is silently tolerated. The mechanism keeps nameplate-specific concerns out of the cross-nameplate compose base and the charge core, while admitting per-nameplate UX affordances and Compose overlays without spec churn.
+Defines three optional per-nameplate customization files that the {rbsc_charge} operation auto-detects and incorporates. All live in the nameplate's regime directory; absence is silently tolerated. The mechanism keeps nameplate-specific concerns out of the cross-nameplate compose base and the charge core, while admitting per-nameplate UX affordances and Compose overlays without spec churn.
 
 [[rbnnh_compose_fragment]]
 {rbnnh_compose_fragment}::
@@ -13,6 +13,13 @@ An optional Docker Compose YAML overlay at `«moniker»/rbnnh_compose.yml`, merg
 {rbnnh_post_charge_hook}::
 An optional executable script at `«moniker»/rbnnh_post_charge.sh`, invoked as the last step of {rbsc_charge} after the bottle readiness wait. The hook runs on the host with the charge's full `RBRN_*` and `RBRR_*` exported environment available. By contract the hook is self-contained: it must not depend on BUK/RBK utility modules, so that nameplate authors may compose hooks without learning the kit's internal idioms.
 
+[[rbnnh_charge_note]]
+{rbnnh_charge_note}::
+An optional plain-text usage note at `«moniker»/rbnnh_charge_note.txt`, surfaced by {rbsc_charge} at the end of a successful charge — after the {rbnnh_post_charge_hook}, so a hook precondition failure suppresses it. The note is data: it is read, never sourced or executed. Its lines are emitted verbatim except for placeholder tokens of the form `{{«name»}}`, where «name» is drawn from a closed, documented vocabulary and resolved by bash-native indirect expansion (`${!name}`) against the charge's exported `RBRN_*`/`RBRR_*` environment. The vocabulary is presently the single member `RBRN_ENTRY_PORT_WORKSTATION` (the operator-facing host port); widening it is adding a member to the charge-core allowlist, not a format change. Emission routes through the kit messaging surface (BUC), never raw echo, because the render is kit code and BCG governs it. Being data, the note carries no fatal-on-nonzero semantics of its own; its sole failure mode is the malformed/unknown placeholder below.
+
 //axhoc_completion
 {rbbc_fatal}
 if the hook is present, executable, and exits nonzero — the hook's exit code propagates through {rbsc_charge}, since a present hook expresses a precondition the operator wants enforced.
+
+{rbbc_fatal}
+if a {rbnnh_charge_note} token names a term outside the closed vocabulary, or is malformed — {rbsc_charge} fails loud rather than emit an unresolved or silently-dropped placeholder. Interface-contamination discipline: an unrecognized input form is rejected at the membrane, never passed through (BCG Zeroes Theory / Interface Contamination).

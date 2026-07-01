@@ -345,6 +345,7 @@
 // Nameplate Customization (optional per-nameplate hooks and overlay fragments)
 :rbnnh_compose_fragment:     <<rbnnh_compose_fragment,Nameplate Compose Fragment>>
 :rbnnh_post_charge_hook:     <<rbnnh_post_charge_hook,Post-Charge Hook>>
+:rbnnh_charge_note:          <<rbnnh_charge_note,Charge Note>>
 
 // Recipe Bottle Regime: Repo
 :rbrr_bottle_workspace:      <<rbrr_bottle_workspace,RBRR_BOTTLE_WORKSPACE>>
