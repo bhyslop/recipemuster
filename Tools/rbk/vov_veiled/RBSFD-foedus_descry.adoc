@@ -11,7 +11,7 @@ names is already minted; only the build is deferred, to the sibling test-infrast
 
 NOTE: *Palpate-adjacent, but not a chaining consumer.* Descry reads a named
 {rbtf_foedus}'s
-workforce-pool health for a transient inspection only and writes no durable config — the read-side
+provider presence under the manor pool for a transient inspection only and writes no durable config — the read-side
 posture of a
 {rbch_palpate}.
 But it resolves no chained fact: its subject is an express foedus identity, never a value resolved
@@ -34,7 +34,7 @@ currently selects. Where
 {rbtf_canvass}
 enumerates the foedera the Manor holds and
 {rbrr_active_foedus}
-selects the active one, descry inspects the live health of a single named foedus's pool.
+selects the active one, descry inspects the presence of a single named foedus's provider under the manor pool.
 
 NOTE: *Fixture role — the probe atom.* Descry is the precondition probe the foedus reuse-or-establish
 fixture composes first; it stays a bare read, never folded into a fat reuse-or-create verb. The
@@ -45,22 +45,28 @@ The ordered shape (impl deferred — do not read REST calls, function names, or 
 as fixed):
 
 //axhos_step
-. *Resolve the named foedus's pool*: read the named foedus subdirectory's
+. *Resolve the named foedus's provider*: read the named foedus subdirectory's
 {rbrf_regime}
 to obtain the
-{rbrf_workforce_pool_id}
-that realizes it. A name resolving to no foedus subdirectory is fatal in descry's own band, naming
-the absent foedus.
+{rbrf_provider_id}
+it configures, and the manor pool id ({rbrw_workforce_pool_id}) it hangs under. A name resolving to
+no foedus subdirectory is fatal in descry's own band, naming the absent foedus.
 
 //axhos_step
-. *Read the pool's live health* from the Manor — whether the workforce pool exists, stands active
-(not soft-deleted), and carries its provider. The read is manor-scoped — a
+. *Read the provider's presence* from the Manor — whether the manor pool carries this foedus's provider
+under it. The read is manor-scoped — a
 {rbtf_canvass}-adjacent
-interrogation of one pool rather than all — mutates nothing, and yields the health verdict.
+interrogation of one provider rather than all — mutates nothing, and yields the presence verdict.
+
+//axhos_step
+. *Confirm the manor pool coordinates* (the folded drift guard): the same read confirms the live pool
+under {rbrw_org_id} carries the id {rbrw_workforce_pool_id} — a mismatch (the RB-marked pool standing
+under a different id) is a coordinate-drift deficit, surfaced like any other. This is descry's half of
+the {rbrw_regime} sync guard; the manor-setup finisher's ensure-exists is the other.
 
 //axhoc_completion
-Successful execution reports the named foedus's pool health — present-and-active, or a named deficit
-(absent, soft-deleted, provider-missing) — for transient use by a caller or a fixture, having
+Successful execution reports the named foedus's provider presence — present, or a named deficit
+(provider-absent, or a manor-pool coordinate mismatch) — for transient use by a caller or a fixture, having
 written no durable config and mutated nothing in the Manor or the regime.
 A broken read or an unresolvable foedus name rejects in descry's own precision band, distinct from
 the chaining band and from

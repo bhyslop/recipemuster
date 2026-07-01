@@ -3,23 +3,25 @@ This is a normative portion of the {rbs0_imprimatur}: binding — code, tests, a
 //axhob_operation
 {rbtgo_manor_jilt}
 
-NOTE: This operation dissolves the trust between a
+NOTE: This operation dissolves one foedus's trust between a
 {rbtgi_manor}
-and its external OIDC identity provider — the
+and an external OIDC identity provider — the
 {rbtf_jilt}
 act, the structural inverse of
 {rbtf_affiance}.
-It deletes the org-level workforce identity pool; the pool's provider is namespaced
-beneath it and cascades with the deletion. One pool serves every
+It deletes that foedus's provider from the manor's one workforce pool; the pool itself
+stands, untouched. Deleting a provider ends federated access for citizens asserted
+through it, while a
 {rbtgi_depot}
-under the manor, so jilting it breaks federated access for every depot at once — a
-founding-rare, deliberately confirmed act.
+drawing on another foedus is unaffected — a deliberately confirmed act, but no longer
+the manor-wide break that tearing down the shared pool would be (that is the separate
+manor-teardown, the finisher's inverse).
 
 The
 {rbtr_payor}
-performs the jilt. The operation accepts no CLI parameters; the pool to dissolve is
-read from the kindled Federation regime as `(RBRF_ORG_ID, RBRF_WORKFORCE_POOL_ID)` —
-the same organization and pool
+performs the jilt. The operation accepts no CLI parameters; the provider to delete is
+read from the kindled Federation regime as `RBRF_PROVIDER_ID`, addressed under the
+manor pool `RBRW_WORKFORCE_POOL_ID` — the same provider
 {rbtf_affiance}
 seated.
 
@@ -27,60 +29,51 @@ NOTE: *Mechanism-blind.* Jilt carries no
 {rbrf_mechanism}
 arm, the structural asymmetry with
 {rbtf_affiance}.
-Dissolving the workforce pool ends the trust regardless of how citizens acquired tokens
+Deleting the provider ends the trust regardless of how citizens acquired tokens
 against it — the interactive device flow and the programmatic self-supplied JWT alike
-validate against a pool that no longer exists, so an
+validate against a provider that no longer exists, so an
 {rbrf_mechanism_programmatic}
 foedus is torn down by exactly the same gesture as an interactive one. Jilt's one
 interactive touch — the operator confirmation below — is governed by the orthogonal
 confirm-skip seam, not the mechanism gate.
 
-NOTE: Jilt is *idempotent*. A pool that never existed (the probe returns `404`) or one
-already soft-deleted (the probe returns `200` with `state: DELETED`) is reported
-already-dissolved and the operation exits clean without issuing a delete. Only an
-`ACTIVE` pool is deleted.
+NOTE: Jilt is *idempotent*. A provider that never existed or was already deleted (the
+probe returns `404`) is reported already-dissolved and the operation exits clean
+without issuing a delete. Only a present provider is deleted.
 
-NOTE: *Pool-only deletion.* The provider
+NOTE: *Provider-only deletion.* Jilt deletes exactly the provider
 {rbtf_affiance}
-created is namespaced under the pool
-(`//iam.googleapis.com/locations/global/workforcePools/RBRF_WORKFORCE_POOL_ID/providers/RBRF_PROVIDER_ID`)
-and is removed when the pool is deleted; jilt issues no separate provider delete. This
-is the
+created
+(`//iam.googleapis.com/locations/global/workforcePools/RBRW_WORKFORCE_POOL_ID/providers/RBRF_PROVIDER_ID`)
+and nothing else — the shared pool stands for the next foedus and for every other
+already standing. This is the
 {rbtf_jilt}
-cinch — dissolve the betrothal whole, in one gesture.
+cinch — dissolve one betrothal, never the pool the manor keeps.
 
-NOTE: *Soft-delete graveyard.* `workforcePools.delete` soft-deletes the pool: it
-enters a `DELETED` state and holds its id-namespace for a purge window (~30 days)
-before permanent removal. Recovery within that window is
-{rbbc_call}
-link:https://cloud.google.com/iam/docs/reference/rest/v1/locations.workforcePools/undelete[workforcePools.undelete]
-— the workforce-pool analogue of the depot project's soft-delete graveyard
-({rbtgo_depot_unmake}).
-A subsequent
+NOTE: *Re-affiance recreates.* A jilted provider is gone from the pool; a subsequent
 {rbtf_affiance}
-against a soft-deleted pool of the same id meets a `200` GET with `state: DELETED` and
-*refuses* — it never undeletes (the refuse-and-rotate ruling: a dissolved trust never
-commingles with its replacement, so the operator sets a fresh `RBRF_WORKFORCE_POOL_ID`
-and re-affiances, as the RBSMA soft-delete NOTE records from the other side). The
-`undelete` API above stays the operator's manual recovery within the purge window;
-affiance does not invoke it.
+of the same foedus recreates it under the standing pool (ensure-exists,
+created-when-absent), no graveyard to clear. The pool's own soft-delete graveyard and
+the refuse-and-rotate ruling belong to the manor-teardown act that deletes the pool
+({rbtgo_depot_unmake} being the depot-project analogue), not to jilt — jilt never
+reaches the pool.
 
-NOTE: Scope boundary. Jilt unmakes only the *org-level* IdP trust. The depot-scoped
-admission bindings (the
+NOTE: Scope boundary. Jilt unmakes only one provider — one foedus's IdP trust. The
+shared pool and the org-level admin grant (spike Finding F1) are the manor-teardown's,
+never jilt's; the depot-scoped admission bindings (the
 {rbtf_mantle}
 service-account `tokenCreator` and the depot `serviceUsageConsumer` of spike Finding
 F2) and the mantle service accounts belong to the levy and admission ceremonies and
-their own teardowns; jilt neither sweeps nor depends on them. Jilt is affiance's
-inverse on spike Finding F1 alone.
+their own teardowns. Jilt is affiance's exact inverse — the provider, and only the
+provider.
 
 //axhos_step
 . *Safety confirmation* (zero traffic — the deliberate pause precedes authentication):
 .. {rbbc_require}
-operator confirmation matching the workforce pool id `RBRF_WORKFORCE_POOL_ID`.
-Dissolving the pool breaks federated access for every
-{rbtgi_depot}
-under the manor; the confirmation is the gate. The standard confirm-skip seam
-suppresses the interactive prompt for non-interactive test runs.
+operator confirmation matching the provider id `RBRF_PROVIDER_ID`.
+Deleting the provider ends federated access for citizens asserted through this foedus;
+the confirmation is the gate. The standard confirm-skip seam suppresses the interactive
+prompt for non-interactive test runs.
 
 //axhos_step
 . *Authenticate as
@@ -91,59 +84,55 @@ suppresses the interactive prompt for non-interactive test runs.
 authentication successful
 
 //axhos_step
-. *Probe the workforce identity pool*:
+. *Probe the provider*:
 .. {rbbc_call}
-link:https://cloud.google.com/iam/docs/reference/rest/v1/locations.workforcePools/get[workforcePools.get] for `RBRF_WORKFORCE_POOL_ID` under `organizations/RBRF_ORG_ID`
+link:https://cloud.google.com/iam/docs/reference/rest/v1/locations.workforcePools.providers/get[workforcePools.providers.get] for `RBRF_PROVIDER_ID` under `locations/global/workforcePools/RBRW_WORKFORCE_POOL_ID`
 .. {rbbc_store}
-`«POOL_CODE»` (HTTP status) and `«POOL_STATE»` (`.state`)
-.. *Already-dissolved short-circuit* — exit clean (idempotent no-op), no delete issued, when either:
-... `«POOL_CODE»` is `404` (no pool of this id under the org), or
-... `«POOL_CODE»` is `200` and `«POOL_STATE»` is `DELETED` (pool already soft-deleted, awaiting purge)
+`«PROVIDER_CODE»` (HTTP status)
+.. *Already-dissolved short-circuit* — exit clean (idempotent no-op), no delete issued, when `«PROVIDER_CODE»` is `404` (no provider of this id under the pool).
 .. Any other non-`200` is
 {rbbc_fatal}.
-.. An `ACTIVE` pool (`200`, state `ACTIVE`) advances to deletion.
+.. A present provider (`200`) advances to deletion.
 
 //axhos_step
-. *Dissolve the pool* (provider cascades):
+. *Delete the provider*:
 .. {rbbc_submit}
-link:https://cloud.google.com/iam/docs/reference/rest/v1/locations.workforcePools/delete[workforcePools.delete] for the pool resource name
+link:https://cloud.google.com/iam/docs/reference/rest/v1/locations.workforcePools.providers/delete[workforcePools.providers.delete] for the provider resource name
 .. {rbbc_require}
 the delete accepted (HTTP `200`, returning a long-running operation)
-.. NOTE: the delete cascades to the pool's provider; jilt issues no separate provider delete.
+.. NOTE: only the provider is deleted; the manor pool is never touched by jilt.
 
 //axhos_step
 . *Verify dissolution*:
 .. {rbbc_call}
-link:https://cloud.google.com/iam/docs/reference/rest/v1/locations.workforcePools/get[workforcePools.get] for the pool resource name
+link:https://cloud.google.com/iam/docs/reference/rest/v1/locations.workforcePools.providers/get[workforcePools.providers.get] for the provider resource name
 .. {rbbc_poll}
-the pool at `RBGC_EVENTUAL_CONSISTENCY_SEC` intervals up to `RBGC_MAX_CONSISTENCY_SEC`
+the provider at `RBGC_EVENTUAL_CONSISTENCY_SEC` intervals up to `RBGC_MAX_CONSISTENCY_SEC`
 .. {rbbc_require}
-a dissolved terminal: `state: DELETED` (soft-deleted, the expected outcome) *or* a
-`404` (hard-gone). Either is success — the verify tolerates whether the GET surfaces
-soft-deleted resources, mirroring the depot-unmake resource-state poll
+a dissolved terminal: `state: DELETED` *or* a `404` (gone). Either is success — the
+verify tolerates whether the GET surfaces a soft-deleted provider, mirroring the
+depot-unmake resource-state poll
 ({rbtgo_depot_unmake}).
 
 //axhoot_typed_output
 {rbtgi_manor}
 . *Confirm Jilt*:
 .. {rbbc_show}
-single-line banner naming the dissolved
+single-line banner naming the
 {rbtgi_manor},
-the workforce pool resource name, the dissolved terminal reached, and the
-undelete-within-the-purge-window recovery hint.
+the dissolved provider resource name, the dissolved terminal reached, and the
+re-affiance recovery hint (a fresh affiance recreates the provider under the standing pool).
 
 //axhoc_completion
-Successful execution leaves the manor jilted: the workforce pool is soft-deleted
-(`state: DELETED`), its provider removed with it, and no
+Successful execution leaves the foedus jilted: its provider is deleted from the manor
+pool, and no
 {rbtf_citizen}
 can
 {rbtf_avow}
-against the dissolved trust until a fresh
+against that dissolved trust until a fresh
 {rbtf_affiance}
-re-seats it — or an
-{rbbc_call}
-link:https://cloud.google.com/iam/docs/reference/rest/v1/locations.workforcePools/undelete[workforcePools.undelete]
-restores it within the purge window. The depot-scoped
+re-seats the provider under the standing pool. The pool itself, every other foedus's
+provider, and the depot-scoped
 {rbtf_mantle}
-bindings and the mantle service accounts are untouched: their teardown is the levy and
-admission concern, never jilt's.
+bindings and mantle service accounts are untouched: the pool is the manor-teardown's
+concern and the bindings the levy and admission concern, never jilt's.

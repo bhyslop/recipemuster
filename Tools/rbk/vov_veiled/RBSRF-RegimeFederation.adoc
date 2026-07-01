@@ -3,11 +3,11 @@ This is a normative portion of the {rbs0_imprimatur}: binding — code, tests, a
 //axhrb_regime
 {rbrf_regime}
 
-This regime specifies the manor-scoped IdP trust and workforce-pool identity within the Recipe Bottle system.
+This regime specifies one foedus's provider-side IdP trust within the Recipe Bottle system.
 Each
 {rbrf_regime}
-instance represents the org-level federation: the workforce identity pool, its external OIDC provider, and the provider configuration that a federated assertion is acquired against.
-The trust is org-scoped, not depot-scoped — one pool serves every depot under the manor, the same federated subject grantable in each.
+instance represents a single foedus — a provider under the manor's one workforce pool, plus the provider configuration a federated assertion is acquired against.
+A foedus IS that provider: {rbtf_affiance} creates it, {rbtf_jilt} deletes it. The pool it hangs under is manor-level and carried by the sibling {rbrw_regime}, not here — one pool serves every depot under the manor, the same federated subject grantable in each.
 
 The trust divides into a vendor-agnostic core and a single acquisition-mechanism gate.
 The Google-side provider configuration is the same structure for every OIDC IdP — only the values differ — so *vendor identity is not a regime field*; a real vendor is a setup guide plus values, never a schema or code change.
@@ -19,46 +19,23 @@ RBRF assignment files form a library — one rbrf.env per standing foedus, each 
 A foedus subdirectory name bears the `rbef_` foedus-instance sprue — the standing members are `rbef_entrada` (the interactive Entra trust) and `rbef_keycloak` (the programmatic test trust) — and is the operator-facing folio passed to the switch toothings ({rbtgo_foedus_instate} and {rbtgo_foedus_descry}).
 Every value is a public identifier and carries no secrets, so each file ships committed; affiance rewrites a foedus's values when founding a fresh trust against a real org and IdP tenant.
 
-NOTE: *Active foedus and selection.* A foedus's stable identity is its subdirectory name in this library, which survives the rotation of the {rbrf_workforce_pool_id} that realizes it — a jilt graveyards the pool id and refuse-and-rotate forces a fresh one, while the subdirectory name does not change. The single *active*
+NOTE: *Active foedus and selection.* A foedus's stable identity is its subdirectory name in this library; the manor pool it hangs under is stable and manor-lifetime, so nothing rotates beneath the foedus. The single *active*
 {rbtf_foedus}
-— the configured federation a run authenticates against — is named not here but by the {rbrr_active_foedus} selector in the sibling {rbrr_regime}; this regime carries one foedus's configured shape, never which is active. The manor may stand up several foedera, each its own pool and subdirectory; the authoritative registry of what exists is the Manor itself, enumerated by
+— the configured federation a run authenticates against — is named not here but by the {rbrr_active_foedus} selector in the sibling {rbrr_regime}; this regime carries one foedus's configured shape, never which is active. The manor may stand up several foedera, each its own provider under the one pool and its own subdirectory; the authoritative registry of what exists is the Manor itself, enumerated by
 {rbtf_canvass}
-(a `workforcePools.list` query), not a local list. Production stays single-foedus-clean — one foedus in the library, named by the selector, rarely re-pointed. The switch toothings live outside this regime:
+(a `providers.list` under the one pool), not a local list. Production stays single-foedus-clean — one foedus in the library, named by the selector, rarely re-pointed. The switch toothings live outside this regime:
 {rbtgo_foedus_instate}
 re-points the selector and
 {rbtgo_foedus_descry}
-reads a named foedus's pool health.
+reads a named foedus's provider presence.
 
 NOTE: *Per-vendor guide contract.* A real vendor's IdP-console setup (app registration, claims, scopes) is foreign-console human work, not a regime field and not a tabtarget. Each vendor gets a setup guide whose contract is to yield the vendor-agnostic core values this regime reads (issuer, client-id, subject claim via the attribute mapping, and the mechanism-appropriate gated values). Entra is the first such guide; further vendors are further guides under the same contract.
 
 //axhrv_variable
-{rbrf_org_id}
-
-GCP organization numeric ID owning the workforce pool.
-Affiance creates the pool beneath this organization.
-Core (both mechanisms); required; numeric.
-
-//axhrv_variable
-{rbrf_workforce_pool_id}
-
-Workforce identity pool ID, org-scoped — one pool serves every depot under the manor.
-The pool currently realizing this
-{rbtf_foedus}
-(one pool per foedus); the foedus's durable identity is its subdirectory name, not this id, which may rotate.
-Core (both mechanisms); required; lowercase alphanumeric and hyphen, 4-32 chars, must not start with the reserved `gcp-` prefix.
-
-//axhrv_variable
 {rbrf_provider_id}
 
-Workforce pool provider ID — the external IdP trust root within the pool.
-Core (both mechanisms); required; same naming constraints as the pool ID.
-
-//axhrv_variable
-{rbrf_session_duration}
-
-Workforce pool session duration — the sitting cap, the live window an avowal opens.
-Caps the federated token lifetime independently of the mantle token.
-Core (both mechanisms); required; NNNs format (e.g. 3600s).
+Workforce pool provider ID — the external IdP trust root within the manor's one pool, and the per-foedus discriminator that distinguishes one foedus from another under that shared pool.
+Core (both mechanisms); required; lowercase alphanumeric and hyphen, 4-32 chars, must not start with the reserved `gcp-` prefix.
 
 //axhrv_variable
 {rbrf_mechanism}
@@ -170,7 +147,7 @@ Locks all enrolled variables against mutation.
 {rbkro_validate}
 
 Validates fields via buv_vet type checkers, then custom format checks in a separate enforce step.
-Core, both mechanisms: org as numeric; pool and provider IDs as lowercase alphanumeric/hyphen with the `gcp-` prefix reserved; session duration as NNNs; the attribute mapping as mapping google.subject; the mechanism as one of the two enum values.
+Core, both mechanisms: the provider ID as lowercase alphanumeric/hyphen with the `gcp-` prefix reserved; the attribute mapping as mapping google.subject; the mechanism as one of the two enum values. The manor pool's org, pool id, and session duration validate in the sibling {rbrw_regime}, not here.
 Interactive only: both device-flow endpoints as resolvable https:// URIs, the scope as requesting openid but never offline_access (the human-present premise), and the issuer as a resolvable https:// URI.
 Programmatic only: the issuer as an https://-scheme iss-matching string (scheme required, resolution not), and the uploaded JWKS as present and well-formed.
 
@@ -178,4 +155,4 @@ Programmatic only: the issuer as an https://-scheme iss-matching string (scheme 
 {rbkro_render}
 
 Renders via buv_render.
-Sections: Workforce Pool Identity, Acquisition Mechanism, IdP Trust (core), Interactive Mechanism, Programmatic Mechanism.
+Sections: Provider Identity, Acquisition Mechanism, IdP Trust (core), Interactive Mechanism, Programmatic Mechanism.

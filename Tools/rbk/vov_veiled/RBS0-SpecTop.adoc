@@ -408,7 +408,7 @@
 :rbrp_payor_project_id:      <<rbrp_payor_project_id,RBRP_PAYOR_PROJECT_ID>>
 :rbrp_regime:                <<rbrp_regime,RBRP Regime>>
 
-// Recipe Bottle Regime: Federation (manor IdP trust)
+// Recipe Bottle Regime: Federation (per-foedus IdP provider trust)
 :rbrf_attribute_mapping:     <<rbrf_attribute_mapping,RBRF_ATTRIBUTE_MAPPING>>
 :rbrf_group_interactive:     <<rbrf_group_interactive,Interactive Mechanism Group>>
 :rbrf_group_programmatic:    <<rbrf_group_programmatic,Programmatic Mechanism Group>>
@@ -421,11 +421,14 @@
 :rbrf_mechanism:             <<rbrf_mechanism,RBRF_MECHANISM>>
 :rbrf_mechanism_interactive: <<rbrf_mechanism_interactive,interactive>>
 :rbrf_mechanism_programmatic: <<rbrf_mechanism_programmatic,programmatic>>
-:rbrf_org_id:                <<rbrf_org_id,RBRF_ORG_ID>>
 :rbrf_provider_id:           <<rbrf_provider_id,RBRF_PROVIDER_ID>>
 :rbrf_regime:                <<rbrf_regime,RBRF Regime>>
-:rbrf_session_duration:      <<rbrf_session_duration,RBRF_SESSION_DURATION>>
-:rbrf_workforce_pool_id:     <<rbrf_workforce_pool_id,RBRF_WORKFORCE_POOL_ID>>
+
+// Recipe Bottle Regime: Workforce (the manor's one pool)
+:rbrw_org_id:                <<rbrw_org_id,RBRW_ORG_ID>>
+:rbrw_regime:                <<rbrw_regime,RBRW Regime>>
+:rbrw_session_duration:      <<rbrw_session_duration,RBRW_SESSION_DURATION>>
+:rbrw_workforce_pool_id:     <<rbrw_workforce_pool_id,RBRW_WORKFORCE_POOL_ID>>
 
 // Recipe Bottle Regime: OAuth (local OAuth credentials)
 :rbro_client_secret:         <<rbro_client_secret,RBRO_CLIENT_SECRET>>
@@ -1175,9 +1178,9 @@ include::RBSAO-access_oauth_probe.adoc[]
 
 Affiances the
 {rbtgi_manor}
-to its external OIDC identity provider
+to an external OIDC identity provider
 ({rbtgog_payor}):
-the org-level workforce pool, its provider, and the attribute mapping.
+creating a provider under the manor's standing workforce pool, with its attribute mapping.
 
 //axvd_cartouche axd_normative
 include::RBSMA-manor_affiance.adoc[]
@@ -1188,11 +1191,11 @@ include::RBSMA-manor_affiance.adoc[]
 
 Jilts the
 {rbtgi_manor}
-from its external OIDC identity provider
+from one external OIDC identity provider
 ({rbtgog_payor}):
 the structural inverse of
 {rbtf_affiance},
-dissolving the org-level workforce pool (the provider cascades with it).
+deleting that foedus's provider while the shared workforce pool stands.
 
 //axvd_cartouche axd_normative
 include::RBSMJ-manor_jilt.adoc[]
@@ -1234,7 +1237,7 @@ include::RBSFA-foedus_acquire.adoc[]
 
 Reads a named
 {rbtf_foedus}'s
-workforce-pool health for transient inspection — palpate-adjacent but resolving no chained fact, so
+provider presence under the manor pool for transient inspection — palpate-adjacent but resolving no chained fact, so
 not a
 {rbch_palpate}
 member and rejecting in its own band.
@@ -2020,18 +2023,18 @@ levy, accessor, terrier, and verb work all reference.
 
 [[rbtf_foedus]]
 {rbtf_foedus}::
-A configured federation: one workforce identity pool, its OIDC provider, and the
+A configured federation: a provider under the manor's one workforce pool, plus its
 attribute mapping, taken together as the trust a manor stands up.
 The noun
 {rbtf_affiance}
-founds and
+founds — creating the provider — and
 {rbtf_jilt}
-dissolves, identified by its subdirectory name in the {rbrf_regime} library (not the pool that realizes it, which may rotate).
+dissolves — deleting it; a foedus is identified by its subdirectory name in the {rbrf_regime} library, and IS the provider that name configures.
 Its shape is a vendor-agnostic trust core plus an acquisition-mechanism gate
 ({rbrf_mechanism});
 vendor identity is deliberately not part of it, so a new IdP is a setup guide plus
 values, never a new kind of foedus.
-A manor may hold several foedera, each its own pool and enumerable by
+A manor may hold several foedera, each its own provider under the one pool ({rbrw_regime}) and enumerable by
 {rbtf_canvass};
 a depot draws its citizens from the foedus it is affiliated with.
 (Latin _foedus_: a treaty or league between powers.)
@@ -2058,6 +2061,7 @@ The
 is the grantable subject — the `principal://` to which a
 {rbtf_mantle}
 is admitted — and the same subject is grantable in every depot under the manor.
+Membership is per-individual on the manor's one stable pool, keyed by an IdP-stable canonical subject: the `principal://…/subject/«S»` grant names the pool, not the provider, so «S» must be normalized across co-trusted production IdPs while the synthetic test provider's subjects are namespaced DISJOINT from production — the load-bearing co-tenancy rule, so a test token can never satisfy a production binding, the price of one shared pool carrying the isolation a separate test pool would have given for free.
 
 [[rbtf_avow]]
 {rbtf_avow}::
@@ -2138,22 +2142,23 @@ leaves behind; removal of the principal on the IdP side remains the IdP administ
 
 [[rbtf_affiance]]
 {rbtf_affiance}::
-The founding act that pledges trust between a manor and an external IdP — the workforce pool, its provider, and the attribute mapping, all seated org-level.
+The founding act that pledges trust between a manor and an external IdP — creating a provider under the manor's standing workforce pool, with its attribute mapping.
 A
 {rbtr_payor}
-ceremony with founding gravity, exercised once per provider; it covers the first or any further provider alike.
+ceremony with founding gravity, exercised once per foedus; the pool it hangs under is founded separately, at manor setup, and affiance requires it already standing.
 
 [[rbtf_jilt]]
 {rbtf_jilt}::
 The inverse of
 {rbtf_affiance}
-— to break off the betrothal: it dissolves the org-level workforce pool, and the pool's provider cascades with it.
+— to break off the betrothal: it deletes the foedus's provider from the manor's pool, dissolving that one trust while the pool itself stands.
 A
 {rbtr_payor}
-ceremony, founding-rare and deliberately confirmed, that ends federated access for every
+ceremony, deliberately confirmed, that ends federated access for citizens asserted through that provider; a
 {rbtgi_depot}
-under the manor at once.
-The delete soft-deletes the pool (recoverable within a purge window); the depot-scoped
+drawing on another foedus is untouched.
+Tearing down the shared pool itself is not jilt but the manor-teardown act, the finisher's inverse — deliberately distinct, so an everyday jilt can never nuke the pool.
+The depot-scoped
 {rbtf_mantle}
 bindings and service accounts are untouched.
 
@@ -2161,10 +2166,10 @@ bindings and service accounts are untouched.
 {rbtf_canvass}::
 The read act that enumerates every
 {rbtf_foedus}
-the manor holds, by interrogating the Manor itself (a `workforcePools.list` query) — the manor, not this regime, is the authoritative registry of what foedera exist.
+the manor holds, by interrogating the Manor itself (a `providers.list` under the one workforce pool) — the manor, not this regime, is the authoritative registry of what foedera exist.
 Where
 {rbtgo_foedus_descry}
-inspects one named foedus's pool health, canvass lists every foedus the manor holds.
+inspects one named foedus's provider presence, canvass lists every foedus — every provider under the pool — the manor holds.
 Read-only; never an operator-triggered mutation.
 
 [[rbtf_rehearse]]
@@ -3711,35 +3716,45 @@ Email address of the human operator managing depot infrastructure.
 //axvd_cartouche axd_normative
 include::RBSRP-RegimePayor.adoc[]
 
+=== Workforce Regime (RBRW)
+
+[[rbrw_regime]]
+//axvr_regime axf_bash axrd_file_sourced axrd_singleton
+{rbrw_regime}::
+The manor's one workforce identity pool — the manor-lifetime container founded once at manor setup, beneath which every {rbtf_foedus} hangs as a provider. GCP's Workforce Identity Federation is a pool plus its providers; this regime is the Workforce — the pool — and {rbrf_regime} the Federation — the providers. Exactly one per {rbtgi_manor}; every value a public identifier, so it ships committed.
+
+[[rbrw_org_id]]
+//axrg_variable axtu_string
+{rbrw_org_id}::
+GCP organization numeric ID owning the workforce pool; the manor-setup finisher creates the pool beneath it. Pool-time-immutable — a fresh value means a fresh pool.
+
+[[rbrw_workforce_pool_id]]
+//axrg_variable axtu_string
+{rbrw_workforce_pool_id}::
+The manor's one workforce identity pool ID — org-scoped, one pool serving every {rbtgi_depot} under the manor, every {rbtf_foedus} a provider beneath it; the `principal://…/workforcePools/«id»/subject/«subject»` member every admission grant names is formed from it. Pool-time-immutable and manor-lifetime — the old per-foedus-pool rotation is retired.
+
+[[rbrw_session_duration]]
+//axrg_variable axtu_string
+{rbrw_session_duration}::
+Workforce pool session duration — a GCP attribute of the pool, capping a federated token's lifetime under either mechanism (the interactive sitting is this window made human-visible). Reconcilable: the finisher PATCHes the pool to match.
+
+//axvd_cartouche axd_normative
+include::RBSRW-RegimeWorkforce.adoc[]
+
 === Federation Regime (RBRF)
 
 [[rbrf_regime]]
 //axvr_regime axf_bash axrd_file_sourced axrd_manifold
 {rbrf_regime}::
-Manor-scoped (org-level) IdP trust and workforce-pool identity: a vendor-agnostic trust core plus a single acquisition-mechanism gate ({rbrf_mechanism}).
-The core — org, pool, provider, session, issuer, client-id, attribute mapping — is the same structure for every OIDC IdP, so vendor identity is not a field of it; the gate selects the interactive (device-flow) or programmatic (uploaded-JWKS) arm.
-A foedus's stable identity is its subdirectory name, which survives the rotation of the {rbrf_workforce_pool_id} that realizes it; the active foedus is named by the {rbrr_active_foedus} selector, and the Manor is the authoritative registry of what foedera exist (read by {rbtf_canvass}), so production stays single-foedus-clean.
+One foedus's provider-side IdP trust: a vendor-agnostic trust core plus a single acquisition-mechanism gate ({rbrf_mechanism}). A foedus is a provider under the manor's one pool ({rbrw_regime}); this regime carries that provider's config, not the pool, which is manor-level.
+The core — provider, issuer, client-id, attribute mapping — is the same structure for every OIDC IdP, so vendor identity is not a field of it; the gate selects the interactive (device-flow) or programmatic (uploaded-JWKS) arm.
+A foedus's stable identity is its subdirectory name; the active foedus is named by the {rbrr_active_foedus} selector, and the Manor is the authoritative registry of what foedera exist (read by {rbtf_canvass} as the providers under the one pool), so production stays single-foedus-clean.
 File-sourced, one per foedus: an rbrf.env in each foedus subdirectory of the moorings foedera library, the subdirectory named by the foedus identity and the active one selected by {rbrr_active_foedus}. Carries no secrets — the programmatic arm's private signing key never enters it, only the public JWKS — so it ships committed.
-
-[[rbrf_org_id]]
-//axrg_variable axtu_string
-{rbrf_org_id}::
-GCP organization numeric ID owning the workforce pool; affiance creates the pool beneath it.
-
-[[rbrf_workforce_pool_id]]
-//axrg_variable axtu_string
-{rbrf_workforce_pool_id}::
-Workforce identity pool ID. Org-scoped — one pool serves every depot under the manor.
 
 [[rbrf_provider_id]]
 //axrg_variable axtu_string
 {rbrf_provider_id}::
-Workforce pool provider ID — the external IdP trust root within the pool.
-
-[[rbrf_session_duration]]
-//axrg_variable axtu_string
-{rbrf_session_duration}::
-Workforce pool session duration — the sitting cap, the live window an avowal opens.
+Workforce pool provider ID — the external IdP trust root within the manor's one pool, the per-foedus discriminator.
 
 [[rbrf_mechanism]]
 //axrg_variable axtu_string

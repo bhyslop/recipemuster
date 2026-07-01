@@ -74,8 +74,9 @@ the subject folio (param1) non-empty and the mantle one of `governor` | `directo
 email for the named mantle in this depot (`${RBCC_account_mantle_«MANTLE»}@…`)
 .. {rbbc_store}
 `«PRINCIPAL»` as the workforce federated `principal://` member for the subject —
-`principal://iam.googleapis.com/locations/global/workforcePools/«RBRF_WORKFORCE_POOL_ID»/subject/«SUBJECT»`
-— the single grantable identity, the same in every depot under the manor
+`principal://iam.googleapis.com/locations/global/workforcePools/«RBRW_WORKFORCE_POOL_ID»/subject/«SUBJECT»`
+— the single grantable identity on the manor's one pool, the same in every depot under the manor.
+`«SUBJECT»` is the IdP-stable canonical subject — normalized across co-trusted production IdPs, and namespace-disjoint for the synthetic test provider so a test token can never satisfy a production binding (the {rbtf_citizen} co-tenancy rule); the member names the pool, never the provider that asserted it
 
 //axhos_step
 . *Engross the

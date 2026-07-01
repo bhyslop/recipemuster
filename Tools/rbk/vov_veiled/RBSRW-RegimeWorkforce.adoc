@@ -1,0 +1,97 @@
+//axvd_sheaf axd_normative
+This is a normative portion of the {rbs0_imprimatur}: binding — code, tests, and decisions may rely on it.
+//axhrb_regime
+{rbrw_regime}
+
+This regime specifies the manor's one workforce identity pool — the manor-lifetime container the
+{rbtgi_manor}
+founds once, beneath which every
+{rbtf_foedus}
+hangs as a provider.
+Where the sibling
+{rbrf_regime}
+carries one foedus's provider-side trust (per-foedus, one file each), this regime carries the single pool all those providers share: exactly the inputs that found it — the owning organization, the pool id, and the session cap.
+GCP names the whole arrangement Workforce Identity Federation; this regime is the Workforce — the pool — and
+{rbrf_regime}
+is the Federation — the providers.
+
+There is exactly one
+{rbrw_regime}
+per
+{rbtgi_manor},
+founded at manor setup and standing for the manor's lifetime; pool lifecycle and foedus lifecycle are deliberately distinct.
+The manor-setup finisher founds the pool from these values (ensure-exists);
+{rbtf_affiance}
+reads the pool id to parent the provider it creates; every admission grant reads it to form a citizen's `principal://` path.
+Every value is a public identifier and carries no secret, so the file ships committed.
+
+NOTE: *Committed record, cloud-realized resource — and the sync between them.* This regime is the committed record; the live GCP workforce pool is its realization, and the two must not drift.
+The fields split by mutability.
+{rbrw_org_id}
+and
+{rbrw_workforce_pool_id}
+are *pool-time-immutable* — the coordinates that address the one pool, frozen at pool founding.
+GCP forbids changing a pool's id or its owning organization, so changing either value here means founding a *fresh* pool — the workforce-pool analogue of the way a
+{rbrd_regime}
+identity field requires a fresh depot.
+{rbrw_session_duration}
+is *reconcilable* — the finisher PATCHes the live pool to match this value, config driving cloud.
+
+NOTE: *The drift guard is folded into the pool's own readers, never a separate tripwire.* The workforce pool is self-describing and carries the manor's marker in its description, so the guard needs no separately inscribed snapshot (unlike the
+{rbrd_regime}
+tripwire) — it reads the live pool directly, in the two operations that already do.
+Against a drifted
+{rbrw_workforce_pool_id}
+the guard is load-bearing and asymmetric with a bare ensure-exists: the manor-setup finisher must *list* the marked pools under
+{rbrw_org_id}
+and refuse when one stands under a different id, where a plain get-by-id would silently found a second, empty pool.
+So the founding is never a silent re-found — but only because the finisher list-and-matches, a demand this contract places on it beyond ensure-exists.
+A drifted
+{rbrw_org_id}
+is caught by no check here: the org is the search scope itself, so its drift makes the founded pool merely look absent — it rests on the invariance of a GCP organization, not a value one edits by accident.
+{rbtgo_foedus_descry}
+carries the same live-pool read for a standing manor, surfacing a coordinate mismatch as a deficit; neither reader is a standalone tripwire verb.
+
+//axhrv_variable
+{rbrw_org_id}
+
+GCP organization numeric ID owning the workforce pool.
+The manor-setup finisher creates the pool beneath this organization;
+{rbtf_affiance}
+does not read it, since a provider is parented by the pool, not the organization.
+Pool-time-immutable (see the sync NOTE); required; numeric.
+
+//axhrv_variable
+{rbrw_workforce_pool_id}
+
+The manor's one workforce identity pool ID — org-scoped, one pool serving every
+{rbtgi_depot}
+under the manor, every
+{rbtf_foedus}
+a provider beneath it.
+The `principal://…/workforcePools/«id»/subject/«subject»` member every admission grant names is formed from this id, and it stands stable for the manor's lifetime — the old per-foedus-pool rotation is retired.
+Pool-time-immutable (see the sync NOTE); required; lowercase alphanumeric and hyphen, 4–32 chars, must not start with the reserved `gcp-` prefix.
+
+//axhrv_variable
+{rbrw_session_duration}
+
+Workforce pool session duration — a GCP attribute of the pool resource itself, capping a federated token's lifetime (independently of the mantle token) under either acquisition mechanism; the interactive sitting is this window made human-visible.
+Reconcilable (the finisher PATCHes the pool to match; see the sync NOTE); required; NNNs format, bounded 900s–43200s (15 minutes to 12 hours).
+
+//axhro_kindle
+{rbkro_kindle}
+
+Enrolls the RBRW_ variables via buv enrollment under a single group.
+Guards against unexpected RBRW_ variables via scope sentinel.
+Locks all enrolled variables against mutation.
+
+//axhro_validate
+{rbkro_validate}
+
+Validates fields via buv_vet type checkers, then custom format checks in a separate enforce step: the org as numeric; the pool id as lowercase alphanumeric/hyphen with the `gcp-` prefix reserved; the session duration as NNNs within 900s–43200s.
+
+//axhro_render
+{rbkro_render}
+
+Renders via buv_render.
+One section: Workforce Pool Identity.

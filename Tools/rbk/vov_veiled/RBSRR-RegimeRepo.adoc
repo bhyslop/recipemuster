@@ -88,7 +88,7 @@ It is the operator-facing folio passed to
 {rbtgo_foedus_instate}
 and
 {rbtgo_foedus_descry},
-and the durable identity that survives the workforce pool's rotation.
+and the durable identity of the foedus itself, distinct from the manor pool it draws on.
 The authenticate-against-active consumers (avow, the accessor, the federated-access and mantle-access probes) require this selector committed before they run;
 {rbtgo_foedus_instate}
 rewrites it and leaves it uncommitted for the operator.
