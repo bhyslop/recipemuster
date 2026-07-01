@@ -16986,8 +16986,8 @@
         "₢BeAAL": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260615-1852",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260701-1314",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "## Character",
                 "Model-gated full-heat review requiring judgment.",
@@ -17008,7 +17008,7 @@
                 "Fable has surfaced a review verdict to the operator — what holds, what is weak, and any gap between the Done-when and the work as landed."
               ],
               "jjgtn_silks": "fable-full-heat-review",
-              "jjgtn_basis": "b484ca7"
+              "jjgtn_basis": "9890a9e"
             }
           ]
         }
