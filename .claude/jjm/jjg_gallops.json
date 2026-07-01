@@ -11732,7 +11732,7 @@
         "₢BCAAA": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260428-0832",
+              "jjgtn_ts": "260701-1328",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "Drafted from ₢BBAAi in ₣BB.",
@@ -11743,10 +11743,15 @@
                 "",
                 "Intent-only docket. Section/case catalog locked in paddock — see \"Bash blackbox calibrant — design.\" Case organization, assertion helpers, exact zipper colophon, and tabtarget naming chosen at mount time.",
                 "",
+                "## Naming constraint (Fable ratification, 260701)",
+                "",
+                "The `rbtt` prefix is NOT available: it was Fable-ratified to the RBSTC test-cosmology quoin stem, which is landed spec.",
+                "Mint the testbench family letters at mount — module prefix, case-file directory, and case-file prefix mint together as one coherent family — following the full minting workflow (grep gate, terminal exclusivity, namespace enumeration).",
+                "",
                 "## Scope",
                 "",
-                "- New module `Tools/rbk/rbtt_testbench.sh` registering 14 cases across 6 sections per paddock catalog.",
-                "- Six case files in `Tools/rbk/rbts/rbtc*_*.sh` — one per section.",
+                "- New testbench module in `Tools/rbk/` registering 14 cases across 6 sections per paddock catalog (module prefix minted at mount per the naming constraint above).",
+                "- Six case files — one per section — in the case-file directory the mint chooses.",
                 "- Zipper entry in `rbz_zipper.sh` mapping new colophon → testbench module.",
                 "- One tabtarget stub in `tt/` (one-line exec, with-the-grain).",
                 "- Release runbook entry documenting `buw-st` → new-colophon sequence.",
@@ -11763,7 +11768,7 @@
                 "Pace BBAAh (calibrant-fixture-foundation) — needs the calibrant fixtures registered in the manifest and the `calibrant` suite available before bash assertions can pass."
               ],
               "jjgtn_silks": "calibrant-bash-blackbox-driver",
-              "jjgtn_basis": "a68b66d"
+              "jjgtn_basis": "8cc414e"
             }
           ]
         },
@@ -11849,7 +11854,7 @@
         "₢BCAAD": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260428-0840",
+              "jjgtn_ts": "260701-1328",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "## Character",
@@ -11857,21 +11862,22 @@
                 "BUK-side testbench extension that black-box-drives the three coverage fixtures from the sibling Rust pace (BCAAC) through the rbtd binary. Asserts CLI exit codes and stderr diagnostic shapes for the positive check (invoked-not-declared) and the negative check (declared-not-invoked), plus the single-case exemption for the negative check.",
                 "",
                 "Intent-only docket. Section and case catalog below; case-file naming and assertion helpers chosen at mount time.",
+                "(The testbench module prefix is minted at BCAAA's mount — `rbtt` is taken by the RBSTC cosmology stem, Fable-ratified 260701.)",
                 "",
                 "## Scope",
                 "",
-                "- New section manifest-coverage in rbtt_testbench.sh, four cases:",
+                "- New section manifest-coverage in the BCAAA testbench module, four cases:",
                 "  - coverage-aligned-passes — Run.calibrant-coverage-aligned exits 0.",
                 "  - coverage-undeclared-fails — Run.calibrant-coverage-undeclared exits non-zero; stderr matches the positive-check diagnostic naming the offending colophon.",
                 "  - coverage-unused-fails — Run.calibrant-coverage-unused exits non-zero; stderr names the unused colophon.",
                 "  - coverage-single-case-skips-negative — SingleCase invocation of calibrant-coverage-unused's case exits 0 (proves the single-case exemption).",
-                "- Case files in Tools/rbk/rbts/ following BCAAA convention.",
+                "- Case files following BCAAA convention, in the case-file directory the BCAAA mint chooses.",
                 "- Tabtarget(s) where manifest-driven generation yields them; testbench colophon registration.",
                 "",
                 "## Depends on",
                 "",
                 "- BCAAC (calibrant-coverage-foundation) — needs the three fixtures and the noop tabtarget.",
-                "- BCAAA (calibrant-bash-blackbox-driver) — needs rbtt_testbench.sh and the case-file convention.",
+                "- BCAAA (calibrant-bash-blackbox-driver) — needs the testbench module and the case-file convention.",
                 "- BCAAB (theurge-manifest-coverage-check) — transitively, via the Rust fixtures.",
                 "",
                 "## Out of scope",
@@ -11881,7 +11887,7 @@
                 "- Trace-file shape contracts beyond exit code + stderr substring."
               ],
               "jjgtn_silks": "calibrant-coverage-driver",
-              "jjgtn_basis": "ef5940c"
+              "jjgtn_basis": "8cc414e"
             }
           ]
         }
