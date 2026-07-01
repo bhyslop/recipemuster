@@ -199,6 +199,7 @@ Builds ZRBRV_ROLLUP serialization string.
 
 Validates fields via buv_env_* type checkers.
 Checks mode-appropriate presence invariant: RBRV_BIND_IMAGE for bind, RBRV_CONJURE_DOCKERFILE for conjure, optional RBRV_GRAFT_IMAGE for graft.
+For bind mode, enforces the digest-pin invariant: RBRV_BIND_IMAGE must end in `@sha256:<64-hex>`, rejecting a tag-only reference in the regime band.
 Validates optional Dockerfile paths when configured: RBRV_BIND_OPTIONAL_DOCKERFILE (bind), RBRV_GRAFT_OPTIONAL_DOCKERFILE (graft).
 
 //axhro_render

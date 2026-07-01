@@ -80,6 +80,7 @@ const RBTDRS_VAR_RBRD_DEPOT_MONIKER: &str = "RBRD_DEPOT_MONIKER";
 // any fails the cases loud (the verb cannot locate the regime), not silently.
 const RBTDRS_NAMEPLATE_TADMOR: &str = "tadmor";
 const RBTDRS_VESSEL_BUSYBOX: &str = "rbev-busybox";
+const RBTDRS_VESSEL_PLANTUML: &str = "rbev-bottle-plantuml";
 const RBTDRS_NODE_BUJN_WINPC: &str = "bujn-winpc";
 
 // ── Poison harness ──────────────────────────────────────────
@@ -313,8 +314,16 @@ fn rbtdrs_rbrv_partial_conjure(dir: &Path) -> rbtdre_Verdict {
 
 fn rbtdrs_rbrv_no_bind_image(dir: &Path) -> rbtdre_Verdict {
     // Unset the bind-gated required field on a bind vessel → enroll.
-    rbtdrs_poison(dir, RBTDGC_VALIDATE_VESSEL, &["rbev-bottle-plantuml"],
+    rbtdrs_poison(dir, RBTDGC_VALIDATE_VESSEL, &[RBTDRS_VESSEL_PLANTUML],
         "RBRV_BIND_IMAGE", RBTDGC_BAND_ENROLL, "rbrv-no-bind-image")
+}
+
+fn rbtdrs_rbrv_bind_image_tag_only(dir: &Path) -> rbtdre_Verdict {
+    // A tag-pinned FQIN clears the buv_fqin enroll but lacks the @sha256:<64-hex>
+    // digest, tripping the zrbrv_enforce bind-digest check → regime.
+    rbtdrs_poison(dir, RBTDGC_VALIDATE_VESSEL, &[RBTDRS_VESSEL_PLANTUML],
+        "RBRV_BIND_IMAGE=docker.io/plantuml/plantuml-server:1.2024.7",
+        RBTDGC_BAND_REGIME, "rbrv-bind-image-tag-only")
 }
 
 // ── Operator-local regimes — station, oauth, auth, node, privilege ──
@@ -420,6 +429,7 @@ pub static RBTDRS_CASES_REGIME_POISON: &[rbtdre_Case] = &[
     case!(rbtdrs_rbrv_unexpected_var),
     case!(rbtdrs_rbrv_partial_conjure),
     case!(rbtdrs_rbrv_no_bind_image),
+    case!(rbtdrs_rbrv_bind_image_tag_only),
     case!(rbtdrs_rbro_missing_refresh_token),
     case!(rbtdrs_burs_bad_tincture),
     case!(rbtdrs_burn_bad_platform),
