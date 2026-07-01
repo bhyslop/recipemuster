@@ -20577,8 +20577,8 @@
         "₢BlAAU": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260630-1435",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260701-1613",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "Build canvass — the read-only foedus enumeration verb, the read-all sibling of descry's read-one: list every foedus the manor holds by interrogating the Manor's one workforce pool (providers.list). RE-CUT 260630: under the one-pool Model (₣Bf paddock) foedera are PROVIDERS under one manor pool, so this enumerates providers, not pools (was workforcePools.list).",
                 "",
@@ -20602,7 +20602,7 @@
                 "Bash build — one read-only payor verb plus its fact-ext constant and zipper colophon; a one-method extension of affiance's provider-collection-URL machinery against the re-cut sheaf."
               ],
               "jjgtn_silks": "foedus-canvass-build",
-              "jjgtn_basis": "5f71df7"
+              "jjgtn_basis": "4d6cb28"
             }
           ]
         },
