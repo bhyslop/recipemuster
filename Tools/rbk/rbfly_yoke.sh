@@ -55,7 +55,7 @@ rbfl_yoke() {
 
   buc_step "Authenticating as Director"
   local z_token=""
-  z_token=$(rba_token_capture director) \
+  z_token=$(rba_token_capture "${RBCC_mantle_director}") \
     || buc_die "Failed to get Director OAuth token"
 
   buc_step "Validating reliquary Lode: ${z_stamp}"

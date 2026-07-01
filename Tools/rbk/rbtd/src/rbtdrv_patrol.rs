@@ -36,7 +36,7 @@ use crate::rbtdri_invocation::{
     RBTDRI_BURE_TWEAK_NAME_KEY, RBTDRI_BURE_TWEAK_VALUE_KEY,
 };
 use crate::rbtdgc_consts::{
-    RBTDGC_ABJURE_HALLMARK, RBTDGC_ACCOUNT_DIRECTOR, RBTDGC_ACCOUNT_GOVERNOR, RBTDGC_ACCOUNT_PAYOR,
+    RBTDGC_ABJURE_HALLMARK, RBTDGC_ACCOUNT_PAYOR,
     RBTDGC_ACCOUNT_RETRIEVER, RBTDGC_AFFIANCE_MANOR, RBTDGC_AUDIT_HALLMARKS,
     RBTDGC_AUGUR_LODE, RBTDGC_BAND_ADMISSION, RBTDGC_BAND_VACANT, RBTDGC_BANISH_LODE,
     RBTDGC_BREVET_POLITY,
@@ -45,6 +45,7 @@ use crate::rbtdgc_consts::{
     RBTDGC_DIVINE_LODES, RBTDGC_ENSCONCE_BOLE, RBTDGC_FACT_EXT_FOEDUS_HEALTH, RBTDGC_FEOFF_BOLE,
     RBTDGC_FREEHOLD_SUBJECT, RBTDGC_IMMURE_PODVM, RBTDGC_INSTATE_FOEDUS,
     RBTDGC_JETTISON_HALLMARK_IMAGE, RBTDGC_JETTISON_IMAGE, RBTDGC_JILT_MANOR, RBTDGC_LIST_IMAGES,
+    RBTDGC_MANTLE_DIRECTOR, RBTDGC_MANTLE_GOVERNOR, RBTDGC_MANTLE_RETRIEVER,
     RBTDGC_PLUMB_FULL, RBTDGC_RBRR_FILE, RBTDGC_REKON_HALLMARK, RBTDGC_SUMMON_HALLMARK,
     RBTDGC_TALLY_HALLMARKS,
     RBTDGC_TERRIER_PROOF, RBTDGC_TERRIER_SCAFFOLD, RBTDGC_TWEAK_REGIME_POISON, RBTDGC_UNDERPIN_WSL,
@@ -1508,7 +1509,7 @@ fn rbtdrv_foedus_reuse(dir: &Path) -> rbtdre_Verdict {
         // release ladders previously made in prose). The durable admission (gird/
         // brevet) is freehold-establish's; a don failure here means the freehold is
         // not seated for the subject — run freehold-establish first.
-        for mantle in [RBTDGC_ACCOUNT_GOVERNOR, RBTDGC_ACCOUNT_DIRECTOR, RBTDGC_ACCOUNT_RETRIEVER] {
+        for mantle in [RBTDGC_MANTLE_GOVERNOR, RBTDGC_MANTLE_DIRECTOR, RBTDGC_MANTLE_RETRIEVER] {
             match rbtdri_invoke_global(ctx, RBTDGC_CHECK_MANTLE, &[mantle], &[]) {
                 Ok(r) if r.exit_code == 0 => {}
                 Ok(r) => return rbtdre_Verdict::Fail(format!(
@@ -1661,31 +1662,36 @@ pub static RBTDRV_CASES_TERRIER_ATOMICITY: &[rbtdre_Case] = &[case!(rbtdrv_terri
 // Mantle-denial fixture — proves the admission band (BUBC_band_admission /
 // RBTDGC_BAND_ADMISSION) is the actual exit code a governor-wielded polity
 // verb's don (rbw-am) returns when the wielding citizen is NOT brevetted onto
-// the target mantle. Don retriever (positive baseline) -> unseat retriever ->
+// the target mantle, AND that admission is per-mantle (the leave-one-out
+// isolation matrix). Don retriever (positive baseline) -> unseat retriever ->
 // poll don until it exits the admission band EXACTLY (bounded ceiling — IAM
 // revocation propagates eventually, never instantly, in either direction) ->
-// brevet retriever back -> poll don until positive again (the restore proof,
-// so the fixture leaves the freehold exactly as it found it — a leaked
-// unseated retriever would fail every downstream picket fixture that dons
-// it). Target mantle is retriever, never governor: unseating governor would
-// saw off the wielding branch every polity verb — including this fixture's
-// own restore brevet — rides. Payor-credentialed picket fixture; self-skips
-// on an unreachable payor credential, like the terrier pair above.
+// with retriever withheld, assert the held mantles (governor, director) STILL
+// reach AR (isolation — the unseat denied retriever ALONE, not a blanket
+// credential failure) -> brevet retriever back -> poll don until positive again
+// (the restore proof, so the fixture leaves the freehold exactly as it found it
+// — a leaked unseated retriever would fail every downstream picket fixture that
+// dons it). The withheld mantle is retriever, never governor: unseating governor
+// would saw off the wielding branch every polity verb — including this fixture's
+// own restore brevet — rides, so governor is pinned as an always-held mantle.
+// Payor-credentialed picket fixture; self-skips on an unreachable payor
+// credential, like the terrier pair above.
 
-/// Don the retriever mantle once, logging to `label`, and return its bare
-/// exit status (never bare-nonzero downstream — callers compare against the
-/// exact code under test).
-fn zrbtdrv_mantle_denial_don_status(
+/// Don the given (pallium-sprued) mantle token once, logging to `label`, and
+/// return its bare exit status (never bare-nonzero downstream — callers compare
+/// against the exact code under test).
+fn zrbtdrv_mantle_don_status(
     ctx: &mut rbtdri_Context,
     dir: &Path,
+    mantle_token: &str,
     label: &str,
 ) -> Result<i32, rbtdre_Verdict> {
     match crate::rbtdrk_freehold::rbtdrk_invoke_logged(
-        ctx, RBTDGC_CHECK_MANTLE, &[RBTDGC_ACCOUNT_RETRIEVER], &[], dir, label,
+        ctx, RBTDGC_CHECK_MANTLE, &[mantle_token], &[], dir, label,
     ) {
         Ok(r) => Ok(r.exit_code),
         Err(e) => Err(rbtdre_Verdict::Fail(format!(
-            "don retriever ({}) invocation: {}", label, e
+            "don {} ({}) invocation: {}", mantle_token, label, e
         ))),
     }
 }
@@ -1708,7 +1714,7 @@ fn zrbtdrv_mantle_denial_poll_until(
     let mut attempt = 0u32;
     loop {
         let label = format!("{}-{:02}", label_prefix, attempt);
-        let last = zrbtdrv_mantle_denial_don_status(ctx, dir, &label)?;
+        let last = zrbtdrv_mantle_don_status(ctx, dir, RBTDGC_MANTLE_RETRIEVER, &label)?;
         if last == want {
             return Ok(());
         }
@@ -1735,7 +1741,7 @@ fn rbtdrv_mantle_denial(dir: &Path) -> rbtdre_Verdict {
         // Step 1: positive baseline — the freehold subject is presumed already
         // brevetted onto retriever (freehold-establish's job), so the don must
         // succeed before this fixture touches anything.
-        match zrbtdrv_mantle_denial_don_status(ctx, dir, "01-don-baseline") {
+        match zrbtdrv_mantle_don_status(ctx, dir, RBTDGC_MANTLE_RETRIEVER, "01-don-baseline") {
             Ok(0) => {}
             Ok(status) => return rbtdre_Verdict::Fail(format!(
                 "baseline don retriever exit {} (expected 0) — the freehold subject must be \
@@ -1771,6 +1777,41 @@ fn rbtdrv_mantle_denial(dir: &Path) -> rbtdre_Verdict {
                 "05-restore-brevet-on-failure",
             );
             return v;
+        }
+
+        // Step 3b: isolation — while retriever is withheld and denied, the OTHER
+        // mantles must still reach AR. This is the leave-one-out proof: admission is
+        // per-mantle, so unseating retriever denies retriever ALONE, never a blanket
+        // credential failure. Governor is the wielding mantle (pinned held — unseating
+        // it would saw off the restore brevet below), director rides its
+        // freehold-establish brevet; both must don clean (exit 0). A non-zero means the
+        // unseat bled across mantles (or the freehold is not fully seated). Restore
+        // retriever on any breach so it does not leave the subject unseated for the
+        // next picket run.
+        for held in [RBTDGC_MANTLE_GOVERNOR, RBTDGC_MANTLE_DIRECTOR] {
+            let label = format!("03b-isolation-don-{}", held);
+            let status = match zrbtdrv_mantle_don_status(ctx, dir, held, &label) {
+                Ok(s) => s,
+                Err(v) => {
+                    let _ = crate::rbtdrk_freehold::rbtdrk_invoke_logged(
+                        ctx, RBTDGC_BREVET_POLITY, &[RBTDGC_FREEHOLD_SUBJECT, RBTDGC_ACCOUNT_RETRIEVER], &[], dir,
+                        "03b-restore-brevet-on-isolation-error",
+                    );
+                    return v;
+                }
+            };
+            if status != 0 {
+                let _ = crate::rbtdrk_freehold::rbtdrk_invoke_logged(
+                    ctx, RBTDGC_BREVET_POLITY, &[RBTDGC_FREEHOLD_SUBJECT, RBTDGC_ACCOUNT_RETRIEVER], &[], dir,
+                    "03b-restore-brevet-on-isolation-breach",
+                );
+                return rbtdre_Verdict::Fail(format!(
+                    "isolation breach: with retriever withheld, don {} exit {} (expected 0) — \
+                     withholding one mantle must not deny the held mantles; is the freehold fully \
+                     seated for the subject? run freehold-establish first",
+                    held, status
+                ));
+            }
         }
 
         // Step 4: brevet retriever back — the mirror admission.

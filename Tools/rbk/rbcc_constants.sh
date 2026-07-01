@@ -84,6 +84,21 @@ RBCC_account_mason="mason"
 RBCC_account_mantle_governor="rbma-governor"
 RBCC_account_mantle_director="rbma-director"
 RBCC_account_mantle_retriever="rbma-retriever"
+
+# Mantle identity tokens — THE canonical name for "which mantle to don", carried
+# by every credential-mint surface (rba_token_capture / rba_don_capture, the
+# rbw-am folio, and the theurge patrol) as one form, never a bare-vs-sprued
+# two-form. The VALUE carries the pallium value-sprue rbpa_ so an identity token
+# is self-typing under grep and can never be mistaken for an SA-id fragment: the
+# underscore the sprue mandates is forbidden in a GCP SA id (RFC1035), so the
+# token resolves to the mantle SA only through the rba_don_capture case and the
+# raw sprued form never reaches a resource name. Distinct from the bare
+# RBCC_account_mantle_* SA-name fragments above (which compose rbma-<role>@… SA
+# emails); the polity/terrier bare-mantle-name uses are a separate deferred
+# migration and intentionally keep the bare role word.
+RBCC_mantle_governor="rbpa_governor"
+RBCC_mantle_director="rbpa_director"
+RBCC_mantle_retriever="rbpa_retriever"
 RBCC_onboarding_nameplate="tadmor"
 
 # Operation-verb tinder — the canonical bash home for RBK operation verbs.
@@ -164,8 +179,8 @@ RBCC_container_sentry="sentry"
 # rbcc_emit_consts() - Emit the RBCC-owned co-maintained constants as Rust
 # string consts to stdout, one `pub const` line per name/value pair via the
 # shared buz_emit_const primitive (BUK must be kindled). The single-homed set:
-# moorings/vessels dirs, account labels, .env filenames, operation verbs, and
-# container roles. Each Rust const is
+# moorings/vessels dirs, account labels, mantle identity tokens, .env filenames,
+# operation verbs, and container roles. Each Rust const is
 # RBTDGC_ + the RBCC stem (RBCC_ prefix stripped) uppercased; the value is
 # carried verbatim. Bash stays mixed-case (RBCC_moorings_dir); the generated
 # Rust is SCREAMING (RBTDGC_MOORINGS_DIR) per Rust convention — that casing is
@@ -192,6 +207,9 @@ rbcc_emit_consts() {
     RBCC_account_director   \
     RBCC_account_payor      \
     RBCC_account_mason      \
+    RBCC_mantle_governor    \
+    RBCC_mantle_director    \
+    RBCC_mantle_retriever   \
     RBCC_rbrr_file       \
     RBCC_rbrp_file       \
     RBCC_rbrm_file       \

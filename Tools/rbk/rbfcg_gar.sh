@@ -368,7 +368,7 @@ rbfc_vessel_for_hallmark_capture() {
   local -r z_hallmark="${1:?Hallmark required}"
 
   local z_token=""
-  z_token=$(rba_token_capture retriever) \
+  z_token=$(rba_token_capture "${RBCC_mantle_retriever}") \
     || buc_die "Failed to get Retriever OAuth token"
 
   local -r z_vouch_pkg="${RBGL_HALLMARKS_ROOT}/${z_hallmark}/${RBGC_ARK_BASENAME_VOUCH}"

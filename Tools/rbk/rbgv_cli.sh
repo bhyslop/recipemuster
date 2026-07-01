@@ -88,18 +88,27 @@ rbgv_check_mantle() {
 
   # The mantle operand arrives via the BUZ_FOLIO env channel (param1 colophon —
   # buz_exec_lookup shifts the folio off the positional args and exports it), NOT
-  # as a positional. Documented in zrbgv_furnish's buc_doc_env block.
+  # as a positional. Documented in zrbgv_furnish's buc_doc_env block. The folio is
+  # the pallium-sprued mantle token (rbpa_governor, …), THE canonical don form.
   local -r z_mantle="${BUZ_FOLIO:-}"
 
   buc_doc_brief "Check mantle access as the freehold subject — avow, don the named mantle, reach Artifact Registry, and write the attributed audit entry (or surface the access deficit)"
   buc_doc_shown || return 0
 
+  # Validate the sprued token AND derive the bare polity mantle name in one pass.
+  # The don is keyed by the sprued token (z_mantle); the brevet remediation and the
+  # human-facing lines below name the bare mantle (z_polity_mantle) because rbw-pB
+  # (brevet) still takes the bare role word — the polity/terrier bare-mantle surface
+  # is a separately deferred migration, so the probe straddles both forms by design.
+  local z_polity_mantle
   case "${z_mantle}" in
-    governor|director|retriever) ;;
-    *) buc_die "rbgv_check_mantle: mantle parameter required (governor | director | retriever), got '${z_mantle:-<empty>}'" ;;
+    "${RBCC_mantle_governor}")  z_polity_mantle="${RBCC_account_governor}"  ;;
+    "${RBCC_mantle_director}")  z_polity_mantle="${RBCC_account_director}"  ;;
+    "${RBCC_mantle_retriever}") z_polity_mantle="${RBCC_account_retriever}" ;;
+    *) buc_die "rbgv_check_mantle: mantle token required (${RBCC_mantle_governor} | ${RBCC_mantle_director} | ${RBCC_mantle_retriever}), got '${z_mantle:-<empty>}'" ;;
   esac
 
-  buc_step "Mantle-access probe — ${z_mantle} mantle as the freehold subject"
+  buc_step "Mantle-access probe — ${z_polity_mantle} mantle as the freehold subject"
 
   buc_step "Resolve the freehold subject"
   test -n "${RBPC_freehold_subject:-}" || buc_die "RBPC_freehold_subject is not set — rbpc_constants.sh must be sourced"
@@ -126,7 +135,7 @@ rbgv_check_mantle() {
     buc_warn "Avowed subject '${z_cached_subject}' is NOT the freehold subject '${RBPC_freehold_subject}' — donning anyway, but this is not the freehold identity"
   fi
 
-  buc_step "Don the ${z_mantle} mantle (Leg 3)"
+  buc_step "Don the ${z_polity_mantle} mantle (Leg 3)"
   # rba_don_capture emits the mantle token on success or returns a code having
   # already logged the admission-deficit / lapsed-sitting forensic line; the
   # probe surfaces that as its verdict (the accessor owns the diagnosis). The
@@ -139,34 +148,34 @@ rbgv_check_mantle() {
   local z_don_status=0
   z_mantle_token=$(rba_don_capture "${z_mantle}") || z_don_status=$?
   if test "${z_don_status}" -eq "${BUBC_band_admission}"; then
-    buc_reject "${BUBC_band_admission}" "Donning the ${z_mantle} mantle hit an admission deficit: freehold subject '${RBPC_freehold_subject}' is not brevetted onto the ${z_mantle} mantle — brevet it first (rbw-pB ${RBPC_freehold_subject} ${z_mantle}), then re-run"
+    buc_reject "${BUBC_band_admission}" "Donning the ${z_polity_mantle} mantle hit an admission deficit: freehold subject '${RBPC_freehold_subject}' is not brevetted onto the ${z_polity_mantle} mantle — brevet it first (rbw-pB ${RBPC_freehold_subject} ${z_polity_mantle}), then re-run"
   elif test "${z_don_status}" -ne 0; then
-    buc_die "Don of the ${z_mantle} mantle failed — see the transcript (lapsed sitting or transport/HTTP failure)"
+    buc_die "Don of the ${z_polity_mantle} mantle failed — see the transcript (lapsed sitting or transport/HTTP failure)"
   fi
-  test -n "${z_mantle_token}" || buc_die "Don of the ${z_mantle} mantle returned an empty token"
+  test -n "${z_mantle_token}" || buc_die "Don of the ${z_polity_mantle} mantle returned an empty token"
 
   # Exercise the minted token against Artifact Registry (repositories.list). This
   # proves the donned token actually REACHES AR — not merely that it minted — and
   # writes the spike-V3 use-hop Data-Access audit entry that attributes the act to
   # the human (serviceAccountDelegationInfo[].principalSubject). Read that trail
   # back with rbw-da to see the freehold subject named at the using service.
-  buc_step "Exercise the ${z_mantle} mantle token against Artifact Registry (repositories.list)"
+  buc_step "Exercise the ${z_polity_mantle} mantle token against Artifact Registry (repositories.list)"
   local z_ar_code
   z_ar_code=$(zrbgv_mantle_ar_call_capture "${z_mantle_token}") \
-    || buc_die "Mantle AR call failed for the ${z_mantle} mantle"
+    || buc_die "Mantle AR call failed for the ${z_polity_mantle} mantle"
   case "${z_ar_code}" in
     200|206)
-      buc_info "Artifact Registry reachable under the ${z_mantle} mantle (HTTP ${z_ar_code})"
+      buc_info "Artifact Registry reachable under the ${z_polity_mantle} mantle (HTTP ${z_ar_code})"
       ;;
     403)
-      buc_die "The ${z_mantle} mantle donned but Artifact Registry denied access (HTTP 403) — the mantle SA lacks artifactregistry.reader, or its capability-set was not granted at levy"
+      buc_die "The ${z_polity_mantle} mantle donned but Artifact Registry denied access (HTTP 403) — the mantle SA lacks artifactregistry.reader, or its capability-set was not granted at levy"
       ;;
     *)
-      buc_die "Mantle AR call: unexpected HTTP ${z_ar_code} for the ${z_mantle} mantle"
+      buc_die "Mantle AR call: unexpected HTTP ${z_ar_code} for the ${z_polity_mantle} mantle"
       ;;
   esac
 
-  buc_success "Donned the ${z_mantle} mantle, minted a token (${#z_mantle_token} chars), and reached Artifact Registry — the attributed use-hop audit entry is written; read it with rbw-da"
+  buc_success "Donned the ${z_polity_mantle} mantle, minted a token (${#z_mantle_token} chars), and reached Artifact Registry — the attributed use-hop audit entry is written; read it with rbw-da"
 }
 
 ######################################################################
@@ -177,7 +186,7 @@ zrbgv_furnish() {
 
   buc_doc_env "BURD_BUK_DIR          " "BUK module directory (dispatch-provided)"
   buc_doc_env "BURD_TEMP_DIR         " "Bash Dispatch Utility provided temporary directory, empty at start of command"
-  buc_doc_env "BUZ_FOLIO             " "Mantle to don (rbgv_check_mantle only): governor | director | retriever"
+  buc_doc_env "BUZ_FOLIO             " "Mantle token to don (rbgv_check_mantle only): ${RBCC_mantle_governor} | ${RBCC_mantle_director} | ${RBCC_mantle_retriever}"
   buc_doc_env_done || return 0
 
   local z_rbk="${BASH_SOURCE[0]%/*}"

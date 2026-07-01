@@ -75,7 +75,7 @@ rbfr_summon() {
 
   buc_step "Authenticating for retrieval"
   local z_token
-  z_token=$(rba_token_capture retriever) || buc_die "Failed to get OAuth token"
+  z_token=$(rba_token_capture "${RBCC_mantle_retriever}") || buc_die "Failed to get OAuth token"
 
   # Ark package paths — all basename siblings under the hallmark subtree
   local -r z_image_pkg="${RBGL_HALLMARKS_ROOT}/${z_hallmark}/${RBGC_ARK_BASENAME_IMAGE}"

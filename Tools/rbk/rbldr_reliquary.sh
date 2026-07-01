@@ -113,7 +113,7 @@ rbld_conclave() {
 
   buc_step "Authenticating as Director"
   local z_token=""
-  z_token=$(rba_token_capture director) \
+  z_token=$(rba_token_capture "${RBCC_mantle_director}") \
     || buc_die "Failed to get Director OAuth token"
 
   # Mint the Lode stamp on the host: <kind-letter><YYMMDDHHMMSS>. The host owns

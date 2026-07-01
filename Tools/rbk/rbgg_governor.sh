@@ -190,7 +190,7 @@ zrbgg_get_project_number_capture() {
   zrbgg_sentinel
 
   local z_token
-  z_token=$(rba_token_capture governor) || return 1
+  z_token=$(rba_token_capture "${RBCC_mantle_governor}") || return 1
 
   rbuh_json "GET" "${RBGD_API_CRM_GET_PROJECT}" "${z_token}" "${ZRBGG_INFIX_PROJECT_INFO}"
   rbuh_require_ok "Get project info"                         "${ZRBGG_INFIX_PROJECT_INFO}" || return 1
@@ -295,7 +295,7 @@ rbgg_destroy_project() {
 
   buc_step 'Mint admin OAuth token'
   local z_token
-  z_token=$(rba_token_capture governor) || buc_die "Failed to get admin token"
+  z_token=$(rba_token_capture "${RBCC_mantle_governor}") || buc_die "Failed to get admin token"
 
   buc_step 'Triple confirmation required'
   buc_warn ""
@@ -361,7 +361,7 @@ rbgg_restore_project() {
 
   buc_step 'Mint admin OAuth token'
   local z_token
-  z_token=$(rba_token_capture governor) || buc_die "Failed to get admin token"
+  z_token=$(rba_token_capture "${RBCC_mantle_governor}") || buc_die "Failed to get admin token"
 
   buc_step 'Check current project state'
   rbuh_json "GET" "${RBGD_API_CRM_GET_PROJECT}" "${z_token}" "${ZRBGG_INFIX_PROJECT_STATE}"

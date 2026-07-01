@@ -34,7 +34,7 @@ rbld_divine() {
 
   buc_step "Authenticating as Director"
   local z_token=""
-  z_token=$(rba_token_capture director) \
+  z_token=$(rba_token_capture "${RBCC_mantle_director}") \
     || buc_die "Failed to get Director OAuth token"
 
   buc_step "Enumerating Lodes under ${RBGL_LODES_ROOT}/"
@@ -152,7 +152,7 @@ rbld_augur() {
 
   buc_step "Authenticating as Director"
   local z_token=""
-  z_token=$(rba_token_capture director) \
+  z_token=$(rba_token_capture "${RBCC_mantle_director}") \
     || buc_die "Failed to get Director OAuth token"
 
   local -r z_pkg="${RBGL_LODES_ROOT}/${z_touchmark}"
@@ -273,7 +273,7 @@ rbld_banish() {
 
   buc_step "Authenticating as Director"
   local z_token=""
-  z_token=$(rba_token_capture director) \
+  z_token=$(rba_token_capture "${RBCC_mantle_director}") \
     || buc_die "Failed to get Director OAuth token"
 
   local -r z_pkg="${RBGL_LODES_ROOT}/${z_touchmark}"

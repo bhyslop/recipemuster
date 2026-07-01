@@ -116,13 +116,16 @@ zrba_sentinel() {
 # subshell and the next caller takes the cache-hit path.
 rba_token_capture() {
   zrba_sentinel
+  zrbcc_sentinel
 
   local -r z_identity="${1:-}"
 
   # Validate up front so a typo'd identity dies before an interactive avowal.
+  # The identity is the pallium-sprued mantle token (rbpa_governor, …), THE
+  # canonical form — no bare-role alias is accepted (RBCC_mantle_* is the home).
   case "${z_identity}" in
-    governor|director|retriever) ;;
-    *) buc_die "rba_token_capture: unknown identity '${z_identity}' (expected governor | director | retriever)" ;;
+    "${RBCC_mantle_governor}"|"${RBCC_mantle_director}"|"${RBCC_mantle_retriever}") ;;
+    *) buc_die "rba_token_capture: unknown mantle token '${z_identity}' (expected ${RBCC_mantle_governor} | ${RBCC_mantle_director} | ${RBCC_mantle_retriever})" ;;
   esac
 
   rba_avow
@@ -489,12 +492,16 @@ rba_don_capture() {
 
   local -r z_identity="${1:-}"
 
+  # Resolve the pallium-sprued mantle token to its mantle SA-name fragment. The
+  # sprued token (rbpa_governor) is THE identity form every caller passes; the
+  # underscore it carries never reaches the SA-id — it is consumed here and only
+  # the bare rbma-<role> fragment composes the SA email below.
   local z_mantle_account
   case "${z_identity}" in
-    governor)  z_mantle_account="${RBCC_account_mantle_governor}"  ;;
-    director)  z_mantle_account="${RBCC_account_mantle_director}"  ;;
-    retriever) z_mantle_account="${RBCC_account_mantle_retriever}" ;;
-    *) buc_die "rba_don_capture: unknown identity '${z_identity}' (expected governor | director | retriever)" ;;
+    "${RBCC_mantle_governor}")  z_mantle_account="${RBCC_account_mantle_governor}"  ;;
+    "${RBCC_mantle_director}")  z_mantle_account="${RBCC_account_mantle_director}"  ;;
+    "${RBCC_mantle_retriever}") z_mantle_account="${RBCC_account_mantle_retriever}" ;;
+    *) buc_die "rba_don_capture: unknown mantle token '${z_identity}' (expected ${RBCC_mantle_governor} | ${RBCC_mantle_director} | ${RBCC_mantle_retriever})" ;;
   esac
 
   # The mantle SA lives in the depot project; the depot is also the quota project

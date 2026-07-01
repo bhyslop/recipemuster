@@ -70,7 +70,7 @@ rbfv_vouch_gate() {
   buc_step "Vouch gate: checking ${RBGL_HALLMARKS_ROOT}/${z_hallmark}/${RBGC_ARK_BASENAME_VOUCH}:${z_vouch_tag}"
 
   local z_token
-  z_token=$(rba_token_capture director) \
+  z_token=$(rba_token_capture "${RBCC_mantle_director}") \
     || buc_die "rbfv_vouch_gate: failed to get Director OAuth token"
 
   local z_vouch_http_code
@@ -118,7 +118,7 @@ rbfv_about() {
 
   buc_step "Authenticating as Director"
   local z_token=""
-  z_token=$(rba_token_capture director) \
+  z_token=$(rba_token_capture "${RBCC_mantle_director}") \
     || buc_die "Failed to get Director OAuth token"
 
   # Gate: require image exists. Image package = rbi_hm/<H>/image, tag = <H>.
@@ -191,7 +191,7 @@ zrbfv_graft_metadata_submit() {
 
   buc_step "Authenticating as Director"
   local z_token=""
-  z_token=$(rba_token_capture director) \
+  z_token=$(rba_token_capture "${RBCC_mantle_director}") \
     || buc_die "Failed to get Director OAuth token"
 
   buc_step "Constructing combined about+vouch Cloud Build resource"
@@ -591,7 +591,7 @@ rbfv_vouch() {
 
   buc_step "Authenticating as Director"
   local z_token=""
-  z_token=$(rba_token_capture director) \
+  z_token=$(rba_token_capture "${RBCC_mantle_director}") \
     || buc_die "Failed to get Director OAuth token"
 
   # Gate: require about exists (about must complete before vouch)
@@ -804,7 +804,7 @@ rbfv_batch_vouch() {
 
   buc_step "Authenticating as Director"
   local z_token=""
-  z_token=$(rba_token_capture director) \
+  z_token=$(rba_token_capture "${RBCC_mantle_director}") \
     || buc_die "Failed to get Director OAuth token"
 
   buc_step "Enumerating hallmarks under ${RBGL_HALLMARKS_ROOT}/"

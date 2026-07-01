@@ -169,7 +169,7 @@ rbgb_bucket_create() {
 
   buc_log_args 'Get OAuth token from admin'
   local z_token
-  z_token=$(rba_token_capture governor) || buc_die "Failed to get admin token"
+  z_token=$(rba_token_capture "${RBCC_mantle_governor}") || buc_die "Failed to get admin token"
 
   buc_log_args 'Create bucket request JSON'
   local z_bucket_req="${BURD_TEMP_DIR}/rbgb_bucket_create_req.json"
@@ -211,7 +211,7 @@ rbgb_bucket_get() {
 
   buc_log_args 'Get OAuth token from admin'
   local z_token
-  z_token=$(rba_token_capture governor) || buc_die "Failed to get admin token"
+  z_token=$(rba_token_capture "${RBCC_mantle_governor}") || buc_die "Failed to get admin token"
 
   buc_log_args 'Get bucket via REST API'
   rbuh_json "GET" "${RBGC_API_ROOT_STORAGE}${RBGC_STORAGE_JSON_V1}/b/${z_bucket_name}" "${z_token}" "${ZRBGB_INFIX_GET}"
@@ -246,7 +246,7 @@ rbgb_bucket_set_iam() {
 
   buc_log_args 'Get OAuth token from admin'
   local z_token
-  z_token=$(rba_token_capture governor) || buc_die "Failed to get admin token"
+  z_token=$(rba_token_capture "${RBCC_mantle_governor}") || buc_die "Failed to get admin token"
 
   buc_log_args 'Set IAM policy'
   local z_iam_url="${RBGC_API_ROOT_STORAGE}${RBGC_STORAGE_JSON_V1}/b/${z_bucket_name}/iam"
@@ -286,7 +286,7 @@ rbgb_bucket_add_iam_role() {
 
   buc_log_args 'Get OAuth token from admin'
   local z_token
-  z_token=$(rba_token_capture governor) || buc_die "Failed to get admin token"
+  z_token=$(rba_token_capture "${RBCC_mantle_governor}") || buc_die "Failed to get admin token"
 
   buc_log_args 'Use rbgi_add_bucket_iam_role'
   rbgi_add_bucket_iam_role "${z_token}" "${z_bucket_name}" "${z_member}" "${z_role}"
@@ -312,7 +312,7 @@ rbgb_bucket_set_lifecycle() {
 
   buc_log_args 'Get OAuth token from admin'
   local z_token
-  z_token=$(rba_token_capture governor) || buc_die "Failed to get admin token"
+  z_token=$(rba_token_capture "${RBCC_mantle_governor}") || buc_die "Failed to get admin token"
 
   buc_log_args 'Set lifecycle policy'
   local z_lifecycle_url="${RBGC_API_ROOT_STORAGE}${RBGC_STORAGE_JSON_V1}/b/${z_bucket_name}"
@@ -348,7 +348,7 @@ rbgb_bucket_delete() {
 
   buc_log_args 'Get OAuth token from admin'
   local z_token
-  z_token=$(rba_token_capture governor) || buc_die "Failed to get admin token"
+  z_token=$(rba_token_capture "${RBCC_mantle_governor}") || buc_die "Failed to get admin token"
 
   if test "${z_force}" = "true"; then
     buc_log_args 'Empty bucket before deletion'

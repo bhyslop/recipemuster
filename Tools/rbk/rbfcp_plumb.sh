@@ -61,7 +61,7 @@ zrbfc_plumb_core() {
 
   buc_step "Authenticating as Retriever"
   local z_token=""
-  z_token=$(rba_token_capture retriever) \
+  z_token=$(rba_token_capture "${RBCC_mantle_retriever}") \
     || buc_die "Failed to get Retriever OAuth token"
 
   local -r z_extract="${BURD_TEMP_DIR}/plumb"

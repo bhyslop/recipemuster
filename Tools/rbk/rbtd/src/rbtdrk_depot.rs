@@ -47,6 +47,8 @@ use crate::rbtdrc_crucible::rbtdrc_with_ctx;
 use crate::rbtdre_engine::{rbtdre_Case, rbtdre_Disposition, rbtdre_Fixture, rbtdre_Verdict};
 use crate::rbtdri_invocation::rbtdri_Context;
 use crate::rbtdgc_consts::{
+    RBTDGC_ACCOUNT_DIRECTOR,
+    RBTDGC_ACCOUNT_RETRIEVER,
     RBTDGC_BREVET_POLITY,
     RBTDGC_CHECK_AVOWAL,
     RBTDGC_CHECK_MANTLE,
@@ -54,6 +56,8 @@ use crate::rbtdgc_consts::{
     RBTDGC_GIRD_POLITY,
     RBTDGC_LEVY_DEPOT,
     RBTDGC_LIST_DEPOT,
+    RBTDGC_MANTLE_DIRECTOR,
+    RBTDGC_MANTLE_RETRIEVER,
     RBTDGC_RBRD_FILE,
     RBTDGC_RECOGNOSCE_DEPOT,
 };
@@ -373,7 +377,18 @@ fn rbtdrk_gird_governor(dir: &Path) -> rbtdre_Verdict {
 /// the freehold subject onto the named mantle (rbw-pB, governor-wielded — rides the sitting),
 /// then dons that mantle and reaches Artifact Registry (avow cache-hit → don →
 /// repositories.list). The don is the federation analog of the keyfile JWT access-probe.
-fn rbtdrk_brevet_don_impl(ctx: &mut rbtdri_Context, dir: &Path, mantle: &str) -> rbtdre_Verdict {
+///
+/// `mantle` is the bare polity mantle name (governor|director|retriever) that brevet
+/// (rbw-pB) admits onto and that keys the terrier muniment; `mantle_token` is the
+/// pallium-sprued identity token (rbpa_…) the don (rbw-am) resolves to the mantle SA.
+/// The two forms are distinct surfaces — the polity/terrier bare-mantle migration is
+/// deferred, so this body carries both rather than deriving one from the other.
+fn rbtdrk_brevet_don_impl(
+    ctx: &mut rbtdri_Context,
+    dir: &Path,
+    mantle: &str,
+    mantle_token: &str,
+) -> rbtdre_Verdict {
     let label_brevet = format!("brevet-{}", mantle);
     let brevet = match rbtdrk_invoke_logged(
         ctx,
@@ -394,7 +409,7 @@ fn rbtdrk_brevet_don_impl(ctx: &mut rbtdri_Context, dir: &Path, mantle: &str) ->
     }
 
     let label_don = format!("don-{}", mantle);
-    let don = match rbtdrk_invoke_logged(ctx, RBTDGC_CHECK_MANTLE, &[mantle], &[], dir, &label_don) {
+    let don = match rbtdrk_invoke_logged(ctx, RBTDGC_CHECK_MANTLE, &[mantle_token], &[], dir, &label_don) {
         Ok(r) => r,
         Err(e) => return rbtdre_Verdict::Fail(format!("don {}: {}", mantle, e)),
     };
@@ -417,7 +432,7 @@ fn rbtdrk_brevet_don_director(dir: &Path) -> rbtdre_Verdict {
     if let Err(v) = rbtdrb_assert(&probe) {
         return v;
     }
-    rbtdrc_with_ctx(|ctx| rbtdrk_brevet_don_impl(ctx, dir, "director"))
+    rbtdrc_with_ctx(|ctx| rbtdrk_brevet_don_impl(ctx, dir, RBTDGC_ACCOUNT_DIRECTOR, RBTDGC_MANTLE_DIRECTOR))
 }
 
 /// Brevet + don the retriever mantle for the freehold subject.
@@ -430,7 +445,7 @@ fn rbtdrk_brevet_don_retriever(dir: &Path) -> rbtdre_Verdict {
     if let Err(v) = rbtdrb_assert(&probe) {
         return v;
     }
-    rbtdrc_with_ctx(|ctx| rbtdrk_brevet_don_impl(ctx, dir, "retriever"))
+    rbtdrc_with_ctx(|ctx| rbtdrk_brevet_don_impl(ctx, dir, RBTDGC_ACCOUNT_RETRIEVER, RBTDGC_MANTLE_RETRIEVER))
 }
 
 // ── Section registry ─────────────────────────────────────────
