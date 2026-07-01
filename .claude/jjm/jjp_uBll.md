@@ -82,7 +82,12 @@ The gap closes either way; it does not close by silence.
 ## REUSE-path tabtargets — descry and instate
 
 The premise these two verbs serve: the regime selects ONE active foedus at a time (RBRR_ACTIVE_FOEDUS), and a test points the selector at the standing foedus it runs against.
-Under the 260630 one-pool Model (₣Bf paddock) the foedera themselves now CO-RESIDE — each is a PROVIDER under one manor pool, not its own pool — so founding was re-cut to provider-grain (affiance adds a provider, jilt removes one); descry/instate stay the per-foedus select-and-check toothings, operating provider-grain.
+Under the 260630 one-pool Model (₣Bf paddock) the foedera CO-RESIDE — each is a PROVIDER under one manor pool, not its own pool.
+The SPECS are re-cut to provider-grain (affiance adds a provider, jilt removes one);
+the CODE re-cut is federation-stream-pending — that stream owns the manor-level pool regime relocation and the verb re-cuts (affiance, jilt, and descry's verdict vocabulary),
+and this heat takes delivery through its one-pool barrier pace before the canvass-test weave and the parley fixture mount.
+The foedus-lifecycle fixture's own provider-grain re-cut stays THIS heat's (the canvass-weave pace owns it — theurge-crate writes stay in this clone); the federation stream touches the crate only for the one-line poison-const safety re-point riding its regime relocation.
+descry/instate stay the per-foedus select-and-check toothings, operating provider-grain once that delivery lands.
 The broader governor-selects feature stays premise-gated and deferred.
 
 instate is the active-foedus switch toothing,

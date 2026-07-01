@@ -19999,13 +19999,14 @@
         "₢BlAAU",
         "₢BlAAb",
         "₢BlAAW",
+        "₢BlAAe",
         "₢BlAAV",
         "₢BlAAX",
         "₢BlAAc",
         "₢BlAAY",
         "₢BlAAd"
       ],
-      "jjghn_next_pace_seed": "AAe",
+      "jjghn_next_pace_seed": "AAf",
       "jjghn_paces": {
         "₢BlAAA": {
           "jjgpn_tacks": [
@@ -20609,37 +20610,31 @@
         "₢BlAAV": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260701-1631",
+              "jjgtn_ts": "260701-1650",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
-                "Weave canvass into the existing foedus-lifecycle fixture and assert its fact file enumerates the standing throwaway foedus (a PROVIDER under the one manor pool) — no new fixture. GATED on the ₣Bf one-pool code buildout (see Depends); NOT a mechanical weave until that lands.",
+                "Re-cut the foedus-lifecycle round-trip to provider grain (consuming the landed ₣Bf one-pool verb code), then weave canvass into the live window and assert its fact file names the standing throwaway provider — no new fixture.",
                 "",
                 "## Spec of needed change",
-                "The foedus-lifecycle fixture (RBTDRC_FIXTURE_FOEDUS_LIFECYCLE, operator-invoked) affiances a throwaway foedus then jilts it, so one stands live in between.",
-                "Weave a single canvass call into that window — after the affianced terminal, before jilt — and assert against canvass's RBCC_fact_ext_foedus fact files (read the facts, not the human table) that the throwaway foedus's file is present and names it.",
-                "canvass is payor-credentialed and the fixture proves that credential at its head, so no new credential, charge, or quench.",
-                "",
-                "## Depends on — cross-heat, the reason this is not yet mountable",
-                "The RBSRW / RBSMA / RBSMJ one-pool specs are re-cut, but the CODE is not. This weave is only real after ₣Bf lands:",
-                "- ₢BfAA0 (rbrw-regime-buildout): the pool id moves from per-foedus RBRF to the manor-level RBRW regime; canvass, affiance and jilt read the pool from RBRW.",
-                "- ₢BfAA1 (affiance-jilt-provider-recut): affiance creates a PROVIDER under the standing pool; jilt deletes that provider.",
-                "Today the fixture's regime-poison overrides only the in-memory RBRF pool id, so affiance founds a throwaway POOL while canvass reads the standing pool off disk — canvass never sees the throwaway.",
-                "Once the throwaway is a provider under the one standing pool, canvass (reading that pool) sees it, and this weave becomes the mechanical thing its Character claims.",
-                "At mount, also confirm the round-trip itself was re-cut to poison a provider, not a pool.",
+                "Two moves in one patrol edit (rbtdrv_patrol.rs), behind the await-fed-onepool-verbs barrier:",
+                "1. Fixture re-cut: the round-trip poisons the pool id and asserts pool-grain banners (create/dissolve/no-op naming the POOL); after the ₣Bf provider re-cut, affiance creates a provider under the standing manor pool and jilt deletes that provider. Re-point the poison at the provider field (expected RBRF_PROVIDER_ID — confirm the poisonable field and terminal banners against the landed ₢BfAA1 code at mount), re-target the banner assertions at the provider terminals, and keep the cleanup safety net (best-effort provider jilt on failure).",
+                "2. Canvass weave: after the affianced terminal, before jilt, invoke canvass (RBTDGC_CANVASS_FOEDUS) and assert via the multi-fact reader on RBCC_fact_ext_foedus that a fact file for the throwaway provider is present and its provider= line names it (expected stem: the bare provider id, since the throwaway is not in the rbef_ library — confirm at mount). Read the facts, not the human table.",
+                "canvass is payor-credentialed and the fixture proves that credential at its head — no new credential, charge, or quench.",
                 "",
                 "## Done when",
-                "Between affiance and jilt the round-trip invokes canvass and asserts its fact file names the standing throwaway provider — proving canvass reads a real, live foedus from the Manor; no new fixture stood up.",
+                "The round-trip exercises provider-grain affiance/jilt against the standing manor pool, and between them canvass's fact file enumerates the live throwaway provider — proving canvass reads a real, live foedus from the Manor; no new fixture stood up.",
                 "",
                 "## Cinched",
-                "Existing foedus-lifecycle fixture, live window between affiance and jilt; no new fixture, charge, or quench; assert on the fact file, not stdout.",
-                "Depends on the canvass build (₢BlAAU, landed) AND the ₣Bf one-pool code (₢BfAA0, ₢BfAA1) above.",
-                "260630 Model (TARGET, gated on ₣Bf): the throwaway foedus is a provider under the one manor pool, not its own pool.",
+                "Behind the await-fed-onepool-verbs barrier — the ₣Bf one-pool verb code (₢BfAA0 through ₢BfAA1) must be merged here first.",
+                "This pace owns the fixture's provider-grain re-cut — theurge-crate writes stay in this clone; no ₣Bf pace touches the crate beyond the poison-const safety re-point riding ₢BfAA0.",
+                "Existing foedus-lifecycle fixture; assert on the fact file, not stdout.",
+                "Depends on the canvass build (₢BlAAU, landed).",
                 "",
                 "## Character",
-                "Mechanical test weave — but only once the ₣Bf one-pool code (₢BfAA0, ₢BfAA1) lands; blocked until then, not mountable now."
+                "Theurge patrol edit — fixture re-cut plus one fact-file assertion; mechanical once the barrier clears."
               ],
               "jjgtn_silks": "foedus-canvass-test",
-              "jjgtn_basis": "666a369"
+              "jjgtn_basis": "aac9e75"
             }
           ]
         },
@@ -20677,7 +20672,7 @@
         "₢BlAAX": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260627-1307",
+              "jjgtn_ts": "260701-1650",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "The authentic-verb federation fixture — drive the REAL polity verbs (brevet, unseat, rehearse) against a standing terrier on a real federated subject, asserting the admission round-trip (the real don path and the folder-scoped IAM actually enforcing), not synthetic payor-direct cores.",
@@ -20687,36 +20682,37 @@
                 "A theurge fixture exercises brevet/unseat/rehearse against a standing terrier on a real federated subject and asserts the round-trip, invoking only verbs that exist for real operator reasons — no surviving test-rig tabtarget.",
                 "",
                 "## Cinched",
-                "Gated on ₢BfAAF (the terrier-founding-home-finisher provisions the standing terrier this needs); rides the interim terrier scaffold until that lands.",
+                "Behind the await-fed-onepool-verbs barrier: the barrier's target (₢BfAA1) transitively delivers ₢BfAAF (the finisher-provisioned standing terrier this fixture needs) and ₢BfAAw (the re-cut membership composer whose principal shape the assertions must match).",
+                "Do NOT build early against the interim rbw-dt scaffold — asserting against pre-re-cut principals would be rework discarded at the composer re-cut.",
                 "",
                 "## Character",
                 "Theurge crucible fixture; mechanical once the standing terrier and a brevetted subject are in place."
               ],
               "jjgtn_silks": "parley-authentic-verb-fixture",
-              "jjgtn_basis": "8a3a910"
+              "jjgtn_basis": "aac9e75"
             }
           ]
         },
         "₢BlAAY": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260627-1308",
+              "jjgtn_ts": "260701-1650",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "A theurge poison fixture (the regime-poison analogue) for the terrier — drive the REAL polity verbs with the rbuh fault-injection seam forcing each terrier error condition, and assert the EXACT named bubc terrier band from the tabtarget exit. Rust-validated negative testing, no rbgft test-rig tabtarget.",
                 "",
                 "## Done when",
-                "A theurge fixture (regime-poison shape, the rbtdrs_poison precedent) forces each terrier error through the real verbs via the rbuh seam and asserts the exact bubc terrier band; the old terrier-atomicity proof is gone.",
+                "A theurge fixture (regime-poison shape, the rbtdrs_poison precedent) forces each terrier error through the real verbs via the rbuh seam and asserts the exact bubc terrier band; this fixture stands registered as the replacement for the terrier-atomicity proof.",
                 "",
                 "## Cinched",
-                "Depends on ₢BfAAt (terrier-band-discrimination — the bubc band + buc_reject + rbuh seam).",
-                "Coordinate with ₢BfAAF, which retires rbw-dt/dT and the terrier-atomicity fixture: this fixture REPLACES that retired one — do not duplicate the retirement.",
+                "Depends on ₢BfAAt (terrier-band-discrimination — the bubc band + buc_reject + rbuh seam), delivered via the await-fed-terrier-band barrier ahead of this pace.",
+                "This fixture REPLACES the terrier-atomicity proof, but the retirement itself is ₢BfAAz's (₣Bf), coordinated through that heat's await-thg-registry-relocation barrier — do not retire the old fixture here, and do not duplicate the retirement.",
                 "",
                 "## Character",
                 "Theurge negative fixture on the regime-poison precedent."
               ],
               "jjgtn_silks": "terrier-poison-fixture",
-              "jjgtn_basis": "036c687"
+              "jjgtn_basis": "aac9e75"
             }
           ]
         },
@@ -20858,6 +20854,28 @@
               ],
               "jjgtn_silks": "cosmology-stem-ratification",
               "jjgtn_basis": "54eb252"
+            }
+          ]
+        },
+        "₢BlAAe": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260701-1650",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "BARRIER — cross-clone wait. No code work of its own.",
+                "This pace cannot complete until ₢BfAA1 (heat ₣Bf — the affiance-jilt provider re-cut) is complete, pushed to origin, and origin merged back into this clone.",
+                "By ₣Bf heat order, ₢BfAA1 rides behind the RBRW regime buildout (₢BfAA0), the membership-composer re-cut (₢BfAAw), and the manor finisher (₢BfAAF), so its merge transitively delivers the whole one-pool code substrate.",
+                "The next paces — the canvass-test weave (which re-cuts the foedus-lifecycle fixture to provider grain) and the parley authentic-verb fixture (which needs the finisher-provisioned terrier and the re-cut principal shape) — require that substrate standing here before they mount.",
+                "",
+                "## Done when",
+                "₢BfAA1 is wrapped and pushed to origin, and this clone has pulled origin so the one-pool verb code (and its ₣Bf predecessors by heat order) is present before the canvass-test and parley fixtures mount.",
+                "",
+                "## Character",
+                "Cross-clone barrier (₣Bf → ₣Bl hand-back of the one-pool code re-cut); hold here until ₢BfAA1 is merged through."
+              ],
+              "jjgtn_silks": "await-fed-onepool-verbs",
+              "jjgtn_basis": "aac9e75"
             }
           ]
         }
