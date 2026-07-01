@@ -20752,8 +20752,8 @@
         "₢BlAAa": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260630-1451",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260701-1509",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "BARRIER — cross-clone wait. No code work of its own.",
                 "This pace cannot complete until ₢BfAAv (heat ₣Bf — the 260630 one-pool spec re-cut: RBSRF / RBSMA / RBSFD / RBSPB + the canvass operation sheaf + the RBS0 federation civics) is complete, pushed to origin, and origin merged back into this clone.",
@@ -20766,7 +20766,7 @@
                 "Cross-clone barrier (₣Bf → ₣Bl); hold here until the named pace is merged through."
               ],
               "jjgtn_silks": "await-fed-onepool-recut",
-              "jjgtn_basis": "3ac0a37"
+              "jjgtn_basis": "84852d4"
             }
           ]
         },
