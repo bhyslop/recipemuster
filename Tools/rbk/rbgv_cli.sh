@@ -186,7 +186,7 @@ zrbgv_furnish() {
 
   buc_doc_env "BURD_BUK_DIR          " "BUK module directory (dispatch-provided)"
   buc_doc_env "BURD_TEMP_DIR         " "Bash Dispatch Utility provided temporary directory, empty at start of command"
-  buc_doc_env "BUZ_FOLIO             " "Mantle token to don (rbgv_check_mantle only): ${RBCC_mantle_governor} | ${RBCC_mantle_director} | ${RBCC_mantle_retriever}"
+  buc_doc_env "BUZ_FOLIO             " "Mantle token to don (rbgv_check_mantle only): rbpa_governor | rbpa_director | rbpa_retriever"
   buc_doc_env_done || return 0
 
   local z_rbk="${BASH_SOURCE[0]%/*}"
