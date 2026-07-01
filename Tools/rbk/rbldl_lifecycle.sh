@@ -164,6 +164,15 @@ rbld_augur() {
   local -r z_tags_url="${ZRBFC_GAR_API_BASE}/${ZRBFC_GAR_PACKAGE_BASE}/packages/${z_pkg_encoded}/tags?pageSize=1000"
   local -r z_tags_infix="rbld_augur_tags"
   rbuh_json "GET" "${z_tags_url}" "${z_token}" "${z_tags_infix}"
+  # A banished or never-captured Lode answers 404 here — the user named a
+  # touchmark absent from the registry, knowable only after this round-trip.
+  # Map 404 to the vacant band (as summon/plumb map their own 404s); any other
+  # non-OK status stays infra-generic through rbuh_require_ok.
+  local z_tags_code=""
+  z_tags_code=$(rbuh_code_capture "${z_tags_infix}") \
+    || buc_die "Failed to read tags HTTP code for Lode ${z_touchmark}"
+  test "${z_tags_code}" != "404" \
+    || buc_reject "${BUBC_band_vacant}" "No Lode at ${z_pkg} — touchmark names no package in the registry"
   rbuh_require_ok "List tags for Lode ${z_touchmark}" "${z_tags_infix}"
 
   local -r z_resp_file="${ZRBUH_PREFIX}${z_tags_infix}${ZRBUH_POSTFIX_JSON}"
