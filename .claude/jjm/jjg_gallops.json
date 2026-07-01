@@ -15121,8 +15121,8 @@
         "₢BZAAh": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260626-0716",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260701-2129",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "A terminal, Fable-only retrospective that mines heat ₣BZ's pace sequence and divergence arc for insights that inform how future heats of comparable scope and duration are planned.",
                 "Not a redo of the paddock reconciliation (that landed under operator sanction) and not the queue memo's ratify-or-sweep agenda — this studies the SHAPE of the execution: where the planned sequence held, where it bent, and why.",
@@ -15142,7 +15142,7 @@
                 "Forward-looking retrospective; genuine Fable judgment over the heat's shape, not a mechanical pass."
               ],
               "jjgtn_silks": "fable-sequence-retrospective",
-              "jjgtn_basis": "eccaa34"
+              "jjgtn_basis": "8bb8bfd"
             }
           ]
         }
