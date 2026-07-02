@@ -93,14 +93,17 @@ pub const RBTDRM_FIXTURE_TERRIER_SCAFFOLD: &str = "terrier-scaffold";
 // assertion). Picket-suite member; self-skips when the payor credential is
 // unreachable (suite-passenger protection), like terrier-scaffold.
 pub const RBTDRM_FIXTURE_TERRIER_ATOMICITY: &str = "terrier-atomicity";
-// Mantle-denial fixture — proves the admission band (RBTDGC_BAND_ADMISSION) is
-// the exit code a governor-wielded polity verb's don (rbw-am) returns when the
-// wielding citizen is NOT brevetted onto the target mantle: don retriever
-// (baseline) -> unseat retriever -> poll the don until it exits the admission
-// band exactly -> brevet retriever back -> poll the don until positive again
-// (restore proof). Picket-suite member; self-skips when the payor credential
-// is unreachable (suite-passenger protection), like the terrier pair.
-pub const RBTDRM_FIXTURE_MANTLE_DENIAL: &str = "mantle-denial";
+// Polity-denial fixture — proves the polity verbs reject with the exact precision
+// band across their failure surface. Admission arc: a governor-wielded verb's don is
+// refused when the citizen is not brevetted onto the mantle (RBTDGC_BAND_ADMISSION) —
+// don retriever (baseline) -> unseat retriever -> poll the don to the admission band
+// -> isolation (held mantles still reach AR) -> brevet back -> poll positive (restore).
+// Terrier-band arc (the regime-poison analogue for HTTP, folded in to supersede the
+// interim terrier-atomicity rbw-dT proof): the same real verbs under the rbuh
+// http-fault seam reject in the engross/expunge/peruse bands (brevet/unseat/rehearse),
+// on a synthetic subject with pre-clean + final sweep. Picket-suite member; self-skips
+// when the payor credential is unreachable (suite-passenger protection).
+pub const RBTDRM_FIXTURE_POLITY_DENIAL: &str = "polity-denial";
 // Reveille fixtures (no external dependencies)
 pub const RBTDRM_FIXTURE_ENROLLMENT_VALIDATION: &str = "enrollment-validation";
 pub const RBTDRM_FIXTURE_RECIPE_VALIDATION: &str = "recipe-validation";
@@ -252,11 +255,12 @@ pub fn rbtdrm_required_colophons(fixture: &str) -> Option<&'static [&'static str
             RBTDGC_TERRIER_SCAFFOLD,
             RBTDGC_TERRIER_PROOF,
         ]),
-        RBTDRM_FIXTURE_MANTLE_DENIAL => Some(&[
+        RBTDRM_FIXTURE_POLITY_DENIAL => Some(&[
             RBTDGC_CHECK_PAYOR,
             RBTDGC_CHECK_MANTLE,
             RBTDGC_UNSEAT_POLITY,
             RBTDGC_BREVET_POLITY,
+            RBTDGC_REHEARSE_POLITY,
         ]),
         RBTDRM_FIXTURE_BATCH_VOUCH => Some(&[
             RBTDGC_ORDAIN_HALLMARK,

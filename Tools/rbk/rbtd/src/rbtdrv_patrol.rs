@@ -38,7 +38,8 @@ use crate::rbtdri_invocation::{
 use crate::rbtdgc_consts::{
     RBTDGC_ABJURE_HALLMARK, RBTDGC_ACCOUNT_PAYOR,
     RBTDGC_ACCOUNT_RETRIEVER, RBTDGC_AFFIANCE_MANOR, RBTDGC_AUDIT_HALLMARKS,
-    RBTDGC_AUGUR_LODE, RBTDGC_BAND_ADMISSION, RBTDGC_BAND_VACANT, RBTDGC_BANISH_LODE,
+    RBTDGC_AUGUR_LODE, RBTDGC_BAND_ADMISSION, RBTDGC_BAND_ENGROSS, RBTDGC_BAND_EXPUNGE,
+    RBTDGC_BAND_PERUSE, RBTDGC_BAND_VACANT, RBTDGC_BANISH_LODE,
     RBTDGC_BREVET_POLITY,
     RBTDGC_CHECK_AVOWAL, RBTDGC_CHECK_MANTLE,
     RBTDGC_CHECK_PAYOR, RBTDGC_CONCLAVE_RELIQUARY, RBTDGC_DESCRY_FOEDUS,
@@ -46,9 +47,11 @@ use crate::rbtdgc_consts::{
     RBTDGC_FREEHOLD_SUBJECT, RBTDGC_IMMURE_PODVM, RBTDGC_INSTATE_FOEDUS,
     RBTDGC_JETTISON_HALLMARK_IMAGE, RBTDGC_JETTISON_IMAGE, RBTDGC_JILT_MANOR, RBTDGC_LIST_IMAGES,
     RBTDGC_MANTLE_DIRECTOR, RBTDGC_MANTLE_GOVERNOR, RBTDGC_MANTLE_RETRIEVER,
-    RBTDGC_PLUMB_FULL, RBTDGC_RBRR_FILE, RBTDGC_REKON_HALLMARK, RBTDGC_SUMMON_HALLMARK,
+    RBTDGC_PLUMB_FULL, RBTDGC_RBRR_FILE, RBTDGC_REHEARSE_POLITY, RBTDGC_REKON_HALLMARK,
+    RBTDGC_SUMMON_HALLMARK,
     RBTDGC_TALLY_HALLMARKS,
-    RBTDGC_TERRIER_PROOF, RBTDGC_TERRIER_SCAFFOLD, RBTDGC_TWEAK_REGIME_POISON, RBTDGC_UNDERPIN_WSL,
+    RBTDGC_TERRIER_PROOF, RBTDGC_TERRIER_SCAFFOLD, RBTDGC_TWEAK_HTTP_FAULT,
+    RBTDGC_TWEAK_REGIME_POISON, RBTDGC_UNDERPIN_WSL,
     RBTDGC_UNSEAT_POLITY, RBTDGC_VOUCH_HALLMARKS,
 };
 use crate::rbtdrm_manifest::rbtdrm_credential_check_colophon;
@@ -154,12 +157,12 @@ pub static RBTDRV_FIXTURE_TERRIER_ATOMICITY: rbtdre_Fixture = rbtdre_Fixture {
     credless: false,
 };
 
-pub static RBTDRV_FIXTURE_MANTLE_DENIAL: rbtdre_Fixture = rbtdre_Fixture {
-    name: crate::rbtdrm_manifest::RBTDRM_FIXTURE_MANTLE_DENIAL,
+pub static RBTDRV_FIXTURE_POLITY_DENIAL: rbtdre_Fixture = rbtdre_Fixture {
+    name: crate::rbtdrm_manifest::RBTDRM_FIXTURE_POLITY_DENIAL,
     disposition: rbtdre_Disposition::Independent,
     setup: None,
     teardown: None,
-    cases: RBTDRV_CASES_MANTLE_DENIAL,
+    cases: RBTDRV_CASES_POLITY_DENIAL,
     credless: false,
 };
 
@@ -371,7 +374,7 @@ const RBTDRV_DEB_VESSEL_DIR: &str = concat!(crate::rbtd_vessels_dir!(), "/rbev-s
 /// hallmark or Lode is absent from the registry (buc_reject BUBC_band_vacant),
 /// the read-side absent-artifact signature rather than a bare death. Shared
 /// bookend for the two lifecycle fixtures' post-abjure and post-banish absent
-/// moments. No propagation poll (unlike mantle-denial's IAM revocation): abjure
+/// moments. No propagation poll (unlike polity-denial's IAM revocation): abjure
 /// and banish are synchronous, so the artifact is gone the instant they return.
 /// Stamps the stderr for diagnostics; Some(Fail) on any other exit, None on the
 /// band.
@@ -1660,23 +1663,41 @@ fn rbtdrv_terrier_atomicity(dir: &Path) -> rbtdre_Verdict {
 pub static RBTDRV_CASES_TERRIER_ATOMICITY: &[rbtdre_Case] = &[case!(rbtdrv_terrier_atomicity)];
 
 
-// Mantle-denial fixture — proves the admission band (BUBC_band_admission /
-// RBTDGC_BAND_ADMISSION) is the actual exit code a governor-wielded polity
-// verb's don (rbw-am) returns when the wielding citizen is NOT brevetted onto
-// the target mantle, AND that admission is per-mantle (the leave-one-out
-// isolation matrix). Don retriever (positive baseline) -> unseat retriever ->
-// poll don until it exits the admission band EXACTLY (bounded ceiling — IAM
-// revocation propagates eventually, never instantly, in either direction) ->
-// with retriever withheld, assert the held mantles (governor, director) STILL
-// reach AR (isolation — the unseat denied retriever ALONE, not a blanket
-// credential failure) -> brevet retriever back -> poll don until positive again
-// (the restore proof, so the fixture leaves the freehold exactly as it found it
-// — a leaked unseated retriever would fail every downstream picket fixture that
-// dons it). The withheld mantle is retriever, never governor: unseating governor
-// would saw off the wielding branch every polity verb — including this fixture's
-// own restore brevet — rides, so governor is pinned as an always-held mantle.
-// Payor-credentialed picket fixture; self-skips on an unreachable payor
-// credential, like the terrier pair above.
+// Polity-denial fixture — proves the polity verbs reject with the EXACT precision
+// band across their whole failure surface: the IAM admission band when a
+// governor-wielded verb's don is refused, and the three terrier bands when a
+// muniment sub-op meets an unexpected HTTP code. One credentialed setup, two arcs.
+//
+// Admission arc — proves BUBC_band_admission / RBTDGC_BAND_ADMISSION is the actual
+// exit code a governor-wielded polity verb's don (rbw-am) returns when the wielding
+// citizen is NOT brevetted onto the target mantle, AND that admission is per-mantle
+// (the leave-one-out isolation matrix). Don retriever (positive baseline) -> unseat
+// retriever -> poll don until it exits the admission band EXACTLY (bounded ceiling —
+// IAM revocation propagates eventually, never instantly, in either direction) ->
+// with retriever withheld, assert the held mantles (governor, director) STILL reach
+// AR (isolation — the unseat denied retriever ALONE, not a blanket credential
+// failure) -> brevet retriever back -> poll don until positive again (the restore
+// proof, so the fixture leaves the freehold exactly as it found it — a leaked
+// unseated retriever would fail every downstream picket fixture that dons it). The
+// withheld mantle is retriever, never governor: unseating governor would saw off
+// the wielding branch every polity verb — including this fixture's own restore
+// brevet — rides, so governor is pinned as an always-held mantle.
+//
+// Terrier-band arc — the regime-poison analogue for HTTP, folded in as the negative
+// coverage that supersedes the interim terrier-atomicity rbw-dT proof (whose
+// positive round-trip is already exercised by the real brevet/unseat the admission
+// arc and freehold-establish drive). Drive the SAME real verbs under the rbuh
+// http-fault seam (RBTDGC_TWEAK_HTTP_FAULT), forcing each muniment sub-op's captured
+// code so rbgft rejects: brevet's engross -> engross band, unseat's expunge ->
+// expunge band, rehearse's manor-wide list -> the single peruse band. On a SYNTHETIC
+// subject, never the freehold subject — the seam overwrites the captured code only
+// AFTER the real transport succeeds, so unseat's real DELETE would strike a live
+// muniment; a pre-clean and a final sweep leave none behind. No explicit charge: the
+// admission arc's restore brevet already engrossed a real muniment, so reaching this
+// arc proves the terrier is provisioned.
+//
+// Payor-credentialed picket fixture; self-skips on an unreachable payor credential,
+// like the terrier pair above.
 
 /// Don the given (pallium-sprued) mantle token once, logging to `label`, and
 /// return its bare exit status (never bare-nonzero downstream — callers compare
@@ -1730,11 +1751,68 @@ fn zrbtdrv_mantle_denial_poll_until(
     }
 }
 
-fn rbtdrv_mantle_denial(dir: &Path) -> rbtdre_Verdict {
+// Synthetic subject for the terrier-band poison drives — a throwaway muniment key,
+// never the freehold subject: the http-fault seam overwrites the captured code only
+// AFTER the real request succeeds, so unseat's real DELETE would strike a live
+// muniment. Parallels the terrier proof's rbgft-proof-probe.
+const RBTDRV_TERRIER_POISON_SUBJECT: &str = "rbgft-poison-probe";
+
+// http-fault specs (BURE_TWEAK_VALUE "INFIX=CODE") — force each terrier sub-op's
+// captured HTTP code to an unexpected 500 so rbgft rejects in the matching band. The
+// list infix carries the page suffix zrbgft_list_fetch_emit appends (page 1).
+const RBTDRV_TERRIER_FAULT_ENGROSS: &str = "terrier_engross=500";
+const RBTDRV_TERRIER_FAULT_EXPUNGE: &str = "terrier_expunge=500";
+const RBTDRV_TERRIER_FAULT_PERUSE: &str = "terrier_peruse_manor_list1=500";
+
+/// Best-effort expunge of the synthetic poison muniment via an un-faulted unseat
+/// (idempotent — a 404 is "absent"; the never-granted tokenCreator revoke is a
+/// no-op), so a poison drive leaves no muniment behind. Exit ignored: cleanup.
+fn zrbtdrv_terrier_poison_sweep(ctx: &mut rbtdri_Context, dir: &Path, label: &str) {
+    let _ = crate::rbtdrk_freehold::rbtdrk_invoke_logged(
+        ctx,
+        RBTDGC_UNSEAT_POLITY,
+        &[RBTDRV_TERRIER_POISON_SUBJECT, RBTDGC_ACCOUNT_RETRIEVER],
+        &[],
+        dir,
+        label,
+    );
+}
+
+/// Drive a real polity verb under the rbuh http-fault seam forcing one terrier
+/// sub-op's captured code, asserting the tabtarget exits the EXACT terrier band.
+/// Never weaken to bare-nonzero: a harness break or a don failure exits some other
+/// code and must fail the drive loud, exactly as the regime-poison band check does.
+fn zrbtdrv_terrier_poison_drive(
+    ctx: &mut rbtdri_Context,
+    dir: &Path,
+    colophon: &str,
+    args: &[&str],
+    fault_spec: &str,
+    expected_band: i32,
+    label: &str,
+) -> Result<(), rbtdre_Verdict> {
+    let env = [
+        (RBTDRI_BURE_TWEAK_NAME_KEY, RBTDGC_TWEAK_HTTP_FAULT),
+        (RBTDRI_BURE_TWEAK_VALUE_KEY, fault_spec),
+    ];
+    let result = match crate::rbtdrk_freehold::rbtdrk_invoke_logged(ctx, colophon, args, &env, dir, label) {
+        Ok(r) => r,
+        Err(e) => return Err(rbtdre_Verdict::Fail(format!("{}: {} invocation: {}", label, colophon, e))),
+    };
+    if result.exit_code != expected_band {
+        return Err(rbtdre_Verdict::Fail(format!(
+            "{}: {} under http fault '{}' exited {} — expected terrier band {}\nstdout:\n{}\nstderr:\n{}",
+            label, colophon, fault_spec, result.exit_code, expected_band, result.stdout, result.stderr
+        )));
+    }
+    Ok(())
+}
+
+fn rbtdrv_polity_denial(dir: &Path) -> rbtdre_Verdict {
     rbtdrc_with_ctx(|ctx| {
         // Self-skip gate: stay green on a machine with no GCP credentials.
         if let Some(v) = zrbtdrv_payor_gate(
-            ctx, dir, crate::rbtdrm_manifest::RBTDRM_FIXTURE_MANTLE_DENIAL, zrbtdrv_PayorGatePolicy::Skip,
+            ctx, dir, crate::rbtdrm_manifest::RBTDRM_FIXTURE_POLITY_DENIAL, zrbtdrv_PayorGatePolicy::Skip,
         ) {
             return v;
         }
@@ -1835,12 +1913,56 @@ fn rbtdrv_mantle_denial(dir: &Path) -> rbtdre_Verdict {
             return v;
         }
 
-        let _ = std::fs::write(dir.join("06-passed.txt"), "passed");
+        // ── Terrier-band arc ─────────────────────────────────────────
+        // The admission arc left the freehold subject exactly as found; the terrier
+        // drives now work a SYNTHETIC subject so no real muniment is disturbed. Each
+        // drives the same real verb under the http-fault seam and asserts the exact
+        // terrier band. Pre-clean any muniment a prior failed run left behind, so the
+        // engross drive's REAL create is a fresh write, not a 412-present.
+        zrbtdrv_terrier_poison_sweep(ctx, dir, "06-terrier-preclean");
+
+        // engross band — brevet's first act is the muniment engross; the fault forces
+        // the create's captured code, rejecting before any IAM binding runs.
+        if let Err(v) = zrbtdrv_terrier_poison_drive(
+            ctx, dir, RBTDGC_BREVET_POLITY,
+            &[RBTDRV_TERRIER_POISON_SUBJECT, RBTDGC_ACCOUNT_RETRIEVER],
+            RBTDRV_TERRIER_FAULT_ENGROSS, RBTDGC_BAND_ENGROSS, "07-brevet-engross-poison",
+        ) {
+            zrbtdrv_terrier_poison_sweep(ctx, dir, "07-sweep-on-fail");
+            return v;
+        }
+
+        // expunge band — unseat's first act is the muniment expunge; the fault forces
+        // the delete's captured code. The real DELETE also strikes the muniment the
+        // engross drive created.
+        if let Err(v) = zrbtdrv_terrier_poison_drive(
+            ctx, dir, RBTDGC_UNSEAT_POLITY,
+            &[RBTDRV_TERRIER_POISON_SUBJECT, RBTDGC_ACCOUNT_RETRIEVER],
+            RBTDRV_TERRIER_FAULT_EXPUNGE, RBTDGC_BAND_EXPUNGE, "08-unseat-expunge-poison",
+        ) {
+            zrbtdrv_terrier_poison_sweep(ctx, dir, "08-sweep-on-fail");
+            return v;
+        }
+
+        // peruse band — rehearse reads manor-wide; the fault forces the first page of
+        // the muniment listing. One read gate: list/fetch/missing-fields deficits all
+        // reject in this single band. Read-only, so no state to sweep.
+        if let Err(v) = zrbtdrv_terrier_poison_drive(
+            ctx, dir, RBTDGC_REHEARSE_POLITY, &[],
+            RBTDRV_TERRIER_FAULT_PERUSE, RBTDGC_BAND_PERUSE, "09-rehearse-peruse-poison",
+        ) {
+            return v;
+        }
+
+        // Final sweep — leave the terrier exactly as found (no synthetic muniment).
+        zrbtdrv_terrier_poison_sweep(ctx, dir, "10-terrier-final-sweep");
+
+        let _ = std::fs::write(dir.join("11-passed.txt"), "passed");
         rbtdre_Verdict::Pass
     })
 }
 
-pub static RBTDRV_CASES_MANTLE_DENIAL: &[rbtdre_Case] = &[case!(rbtdrv_mantle_denial)];
+pub static RBTDRV_CASES_POLITY_DENIAL: &[rbtdre_Case] = &[case!(rbtdrv_polity_denial)];
 
 
 // Wsl-lifecycle fixture — fetched-side rootfs capture against live GAR. Single
