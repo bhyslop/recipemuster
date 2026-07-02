@@ -20915,9 +20915,10 @@
         "₢BoAAB",
         "₢BoAAC",
         "₢BoAAD",
-        "₢BoAAE"
+        "₢BoAAE",
+        "₢BoAAF"
       ],
-      "jjghn_next_pace_seed": "AAF",
+      "jjghn_next_pace_seed": "AAG",
       "jjghn_paces": {
         "₢BoAAA": {
           "jjgpn_tacks": [
@@ -21142,6 +21143,55 @@
               ],
               "jjgtn_silks": "syft-single-arch-sbom-fix",
               "jjgtn_basis": "a8d8b03"
+            }
+          ]
+        },
+        "₢BoAAF": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260701-1925",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "RBSAB and the syft SBOM step (rbgja02-syft-per-platform.sh) disagree on how the per-platform scan target is chosen.",
+                "The code and the spec do not merely differ in one mode — they branch on different axes entirely, so neither is a subset of the other.",
+                "This pace decides which is canonical and aligns the other; no urgency, surfaced during the ₢BoAAE single-arch SBOM fix (commit 56b0465f6).",
+                "",
+                "## Background — what each side does now",
+                "",
+                "The CODE, after the ₢BoAAE fix, digest-pins EVERY syft scan.",
+                "Single- and multi-platform, and all three vessel modes (conjure / bind / graft) alike, now scan `registry:<image>@<digest>`, the digest read from `platform_digests.txt` (always written by discover-platforms step 01).",
+                "There is no longer any branch — one unconditional digest-pinned loop.",
+                "",
+                "The SPEC (RBSAB, section \"Cloud Build Step 2: Syft SBOM Generation\" — find it via `grep -n \"Syft SBOM Generation\" Tools/rbk/vov_veiled/RBSAB-ark_about.adoc`) documents a THREE-mode scheme keyed on vessel mode:",
+                "- conjure multi-platform → per-platform TAG scan (`image:<HALLMARK>-<PLATFORM_SUFFIX>`)",
+                "- conjure single-platform → bare TAG scan (`image:<HALLMARK>`)",
+                "- bind / graft, any count → per-platform DIGEST scan (`image@<PLATFORM_DIGEST>`)",
+                "The spec even carries a NOTE explaining WHY graft needs digest pinning: grafted images may be stored as OCI indexes carrying attestation manifests, so a bare-tag scan makes syft auto-select the worker's native platform (amd64) and fail on an image of another arch — i.e. the spec already correctly diagnosed the exact bug ₢BoAAE fixed.",
+                "",
+                "## Background — how they drifted (the axis mismatch)",
+                "",
+                "The OLD code (before 56b0465f6, read its parent) branched on platform COUNT, not vessel MODE: single-platform → bare tag, multi-platform → digest.",
+                "Cross-referenced against the spec's mode-keyed scheme, the old code:",
+                "- matched spec for conjure-single (bare tag) and for bind/graft-multi (digest);",
+                "- ALREADY diverged, pre-existing, for conjure-multi (code used digest; spec says tag+suffix);",
+                "- VIOLATED spec for bind/graft-single (code used bare tag; spec says digest) — this was the ₢BoAAE bug, where the spec was right and the code was wrong.",
+                "The ₢BoAAE fix corrected the graft-single violation but went further: it made conjure (both counts) digest-pin too, so conjure now NEWLY diverges from the spec's tag/suffix scheme. Net result: code = \"always digest,\" spec = three modes.",
+                "",
+                "## The decision this pace must make",
+                "",
+                "Is \"always digest-pin\" the correct canonical behavior?",
+                "- Leading hypothesis: YES. Digest pinning always resolves the exact manifest and is immune to index/attestation-manifest ambiguity; tag/suffix scanning only works when there is no such ambiguity. The code is strictly safer, so the code should win and RBSAB Step 2 should be rewritten to collapse its three-mode table into one digest-pinned mode (deleting the conjure tag+suffix language and the single-platform bare-tag mode).",
+                "- BEFORE deleting spec language, disprove the alternative: is conjure's tag/suffix scanning load-bearing for a reason not captured here? e.g. does the per-platform *suffix tag* carry something the digest does not (does the produced SBOM need to reflect the tag-addressed artifact rather than the digest-addressed one)? Was the suffix-tag scheme chosen for a conjure-only property? If such a reason exists, the code should instead restore mode-awareness and this pace flips direction.",
+                "Record the decision and its reasoning wherever it lands (spec prose or a code comment), so this drift cannot silently recur.",
+                "",
+                "## Done when",
+                "RBSAB \"Cloud Build Step 2: Syft SBOM Generation\" and rbgja02-syft-per-platform.sh describe the same scan-target scheme — either the spec is rewritten to the code's \"always digest-pin\" single mode (expected), or the code is restored to a mode-aware scheme matching the spec — with the canonical-choice reasoning recorded.",
+                "",
+                "## Character",
+                "Spec-vs-code reconciliation requiring judgment — decide which side is canonical (leaning: code), then align the other and record why. Not mechanical; small in edits, load-bearing in the decision."
+              ],
+              "jjgtn_silks": "rbsab-syft-scan-scheme-reconcile",
+              "jjgtn_basis": "fd0db74"
             }
           ]
         }
