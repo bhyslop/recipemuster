@@ -17111,8 +17111,8 @@
         "₢BfAA0": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260701-1654",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260701-1827",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "Build the RBRW Workforce regime module and relocate the manor pool identity out of RBRF — the code home for the org / pool-id / session-duration fields the one-pool spec recast (₢BfAAv) moved to a manor-level regime — re-pointing every consumer of the stripped fields in the same landing.",
                 "",
@@ -17141,7 +17141,7 @@
                 "Regime-module build over a settled spec (RBSRW) plus a mechanical field strip AND consumer re-point across RBRF, the rbef_ library, rbof, rba, rbgp, and the one patrol const; the moorings-path choice is the one open judgment."
               ],
               "jjgtn_silks": "rbrw-regime-buildout",
-              "jjgtn_basis": "1883bdb"
+              "jjgtn_basis": "c97b375"
             }
           ]
         },
