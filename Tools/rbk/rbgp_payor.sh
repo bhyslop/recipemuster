@@ -1217,7 +1217,7 @@ rbgp_manor_affiance() {
       jq -n \
         --arg parent          "${z_org}" \
         --arg displayName     "${z_pool_id}" \
-        --arg description     "Recipe Bottle manor federation pool" \
+        --arg description     "${RBGC_WORKFORCE_POOL_MARKER}" \
         --arg sessionDuration "${RBRW_SESSION_DURATION}" \
         '{
           parent: $parent,
@@ -1548,6 +1548,219 @@ rbgp_manor_raze() {
   buc_success "Manor razed: workforce pool ${z_pool_id} force-deleted (${z_raze_dissolved}) under ${z_org}"
   buc_info "Provider cascaded with the pool; the next finisher run re-founds a clean pool"
   buc_info "Recover within the ~30-day purge window via workforcePools.undelete, or re-found after purge"
+}
+
+# The manor-setup finisher (RBSMS): one idempotent, payor-credentialed verb that founds
+# the manor's scriptable substrate after the manual payor guide — the ensure-exists
+# inverse of manor_raze. Founds three things: the org-level workforcePoolAdmin grant
+# (spike F1), the ONE workforce pool (via a list-and-match drift guard, never a bare
+# get-by-id — a drifted RBRW_WORKFORCE_POOL_ID must surface, not silently spawn a
+# second empty pool), the terrier bucket (manor-grain, in the payor project), and the
+# per-polity managed folder + grain IAM (depot-grain, but payor-provisioned since the
+# folder lives inside the payor-project bucket). Ensure-exists throughout — created when
+# absent, reconciled when present, NEVER deleted (clearing the ground is manor_raze).
+# Reads the pool from RBRW and the polity/depot coordinates from RBRD (enforced by the
+# caller's furnish); RBRP supplies the payor project and operator email.
+rbgp_manor_found() {
+  zrbgp_sentinel
+
+  buc_doc_brief "Found the manor — idempotently ensure the workforce pool, terrier bucket, and polity folder (post-payor-guide manor-setup finisher)"
+  buc_doc_shown || return 0
+
+  local -r z_org="organizations/${RBRW_ORG_ID}"
+  local -r z_pool_id="${RBRW_WORKFORCE_POOL_ID}"
+  local -r z_iam_root="${RBGC_API_ROOT_IAM}${RBGC_IAM_V1}"
+  local -r z_pools_base="${z_iam_root}/locations/global/workforcePools"
+  local -r z_pool_url="${z_pools_base}/${z_pool_id}"
+
+  buc_step 'Authenticate as Payor'
+  local z_token
+  z_token=$(zrbgp_authenticate_capture) || buc_die "Failed to authenticate as Payor via OAuth"
+
+  # Spike Finding F1: pool creation 403s until the payor holds
+  # roles/iam.workforcePoolAdmin at the organization. Must precede the pool founding.
+  # Idempotent (etag read-modify-write) — a payor already holding it passes straight
+  # through. Affiance assumes the finisher already seated this (RBSMA F1 NOTE).
+  buc_step 'Seat org-level workforcePoolAdmin (spike F1 — must precede pool founding)'
+  rbgi_add_project_iam_role \
+    "${z_token}" \
+    "Found: seat workforcePoolAdmin" \
+    "${z_org}" \
+    "roles/iam.workforcePoolAdmin" \
+    "user:${RBRP_OPERATOR_EMAIL}" \
+    "found_org_grant"
+
+  # === Ensure the manor workforce pool via LIST-AND-MATCH (RBSMS drift guard) ===
+  # Page workforcePools.list under the org with showDeleted=true (so a soft-deleted
+  # pool squatting the id is visible as drift, never a silent create-over), keeping
+  # only the RB-marked pools (description == the founding marker affiance also writes).
+  # Then: expected-id + live -> reconcile sessionDuration; expected-id + DELETED ->
+  # refuse (squatting, coordinate drift); a live RB pool at a DIFFERENT id -> refuse
+  # (coordinate drift); none -> create. A bare get-by-id would silently found a second
+  # empty pool the moment RBRW_WORKFORCE_POOL_ID drifted — that is the guard's purpose.
+  buc_step 'Ensure workforce identity pool (list-and-match drift guard)'
+  local z_org_enc=""
+  z_org_enc=$(rbuh_urlencode_capture "${z_org}") || buc_die "Failed to URL-encode org parent"
+
+  # Per-iteration synthesized locals (BCG — declare outside, assign inside)
+  local z_page=1
+  local z_page_token=""
+  local z_url=""
+  local z_tok_enc=""
+  local z_infix=""
+  local z_code=""
+  local z_count=0
+  local z_index=0
+  local z_p_name=""
+  local z_p_id=""
+  local z_p_state=""
+  local z_p_desc=""
+  local z_p_session=""
+  local z_expected_state=""
+  local z_expected_session=""
+  local z_other_live_id=""
+
+  while :; do
+    z_url="${z_pools_base}?parent=${z_org_enc}&showDeleted=true"
+    if test -n "${z_page_token}"; then
+      z_tok_enc=$(rbuh_urlencode_capture "${z_page_token}") \
+        || buc_die "Failed to URL-encode workforcePools.list pageToken"
+      z_url="${z_url}&pageToken=${z_tok_enc}"
+    fi
+
+    z_infix="found_pools_list_${z_page}"
+    rbuh_json "GET" "${z_url}" "${z_token}" "${z_infix}"
+    z_code=$(rbuh_code_capture "${z_infix}") \
+      || buc_die "No HTTP code from workforcePools.list under ${z_org}"
+    test "${z_code}" = "200" \
+      || buc_die "Unexpected HTTP ${z_code} from workforcePools.list under ${z_org}"
+
+    z_count=$(rbuh_json_field_capture "${z_infix}" '.workforcePools // [] | length') || z_count=0
+
+    z_index=0
+    while test "${z_index}" -lt "${z_count}"; do
+      z_p_desc=$(rbuh_json_field_capture "${z_infix}" ".workforcePools[${z_index}].description // \"\"") || z_p_desc=""
+      if test "${z_p_desc}" = "${RBGC_WORKFORCE_POOL_MARKER}"; then
+        z_p_name=$(rbuh_json_field_capture "${z_infix}" ".workforcePools[${z_index}].name") || z_p_name=""
+        z_p_id="${z_p_name##*/}"
+        z_p_state=$(rbuh_json_field_capture "${z_infix}" ".workforcePools[${z_index}].state // \"${RBGC_STATE_UNSPECIFIED}\"") || z_p_state="${RBGC_STATE_UNSPECIFIED}"
+        z_p_session=$(rbuh_json_field_capture "${z_infix}" ".workforcePools[${z_index}].sessionDuration // \"\"") || z_p_session=""
+        if test "${z_p_id}" = "${z_pool_id}"; then
+          z_expected_state="${z_p_state}"
+          z_expected_session="${z_p_session}"
+        elif test -n "${z_p_id}" && test "${z_p_state}" != "${RBGC_STATE_DELETED}" && test -z "${z_other_live_id}"; then
+          z_other_live_id="${z_p_id}"
+        fi
+      fi
+      z_index=$((z_index + 1))
+    done
+
+    z_page_token=$(rbuh_json_field_capture "${z_infix}" '.nextPageToken // ""') || z_page_token=""
+    test -n "${z_page_token}" || break
+    z_page=$((z_page + 1))
+  done
+
+  if test -n "${z_expected_state}"; then
+    # An RB-marked pool stands at the expected id.
+    if test "${z_expected_state}" = "${RBGC_STATE_DELETED}"; then
+      buc_warn "Workforce pool ${z_pool_id} is soft-deleted (state DELETED) — squatting its id through the ~30-day purge window"
+      buc_info "The finisher never resurrects a dissolved pool (ensure-exists, never undelete). Set a free RBRW_WORKFORCE_POOL_ID and re-run, or wait for purge."
+      buc_die "Workforce pool ${z_pool_id} soft-deleted — coordinate drift, refusing to found a second pool"
+    fi
+    # Live at the expected id -> reconcile the one reconcilable field, non-destructively.
+    if test "${z_expected_session}" = "${RBRW_SESSION_DURATION}"; then
+      buc_info "Workforce pool ${z_pool_id} present (state ${z_expected_state}, session ${z_expected_session}) — session duration already matches, leaving in place"
+    else
+      buc_step "Reconcile pool session duration (${z_expected_session:-unset} -> ${RBRW_SESSION_DURATION}, PATCH)"
+      local -r z_patch_body="${BURD_TEMP_DIR}/rbgp_found_pool_patch.json"
+      jq -n --arg sessionDuration "${RBRW_SESSION_DURATION}" \
+        '{ sessionDuration: $sessionDuration }' > "${z_patch_body}" \
+        || buc_die "Failed to build workforce pool patch body"
+      rbuh_json "PATCH" "${z_pool_url}?updateMask=sessionDuration" "${z_token}" "found_pool_patch" "${z_patch_body}"
+      rbuh_require_ok "Reconcile pool sessionDuration" "found_pool_patch"
+      buc_info "Workforce pool ${z_pool_id} session duration reconciled to ${RBRW_SESSION_DURATION}"
+    fi
+  elif test -n "${z_other_live_id}"; then
+    # A live RB pool stands under a different id — refuse rather than found a second.
+    buc_warn "A live Recipe Bottle workforce pool stands under id '${z_other_live_id}', but RBRW_WORKFORCE_POOL_ID is '${z_pool_id}' (coordinate drift)"
+    buc_info "The finisher refuses to found a second pool. Reconcile RBRW_WORKFORCE_POOL_ID with the standing pool's id (org+pool-id are pool-time-immutable, RBSRW)."
+    buc_die "Workforce pool coordinate drift: configured id '${z_pool_id}' does not match the standing RB pool '${z_other_live_id}'"
+  else
+    # No RB-marked pool under the org -> create it at the configured id. The org is an
+    # immutable body field (parent), never a query parameter (RBSMA create-shape).
+    buc_step "Create workforce identity pool ${z_pool_id} under ${z_org}"
+    local -r z_pool_body="${BURD_TEMP_DIR}/rbgp_found_pool.json"
+    jq -n \
+      --arg parent          "${z_org}" \
+      --arg displayName     "${z_pool_id}" \
+      --arg description     "${RBGC_WORKFORCE_POOL_MARKER}" \
+      --arg sessionDuration "${RBRW_SESSION_DURATION}" \
+      '{
+        parent: $parent,
+        displayName: $displayName,
+        description: $description,
+        sessionDuration: $sessionDuration
+      }' > "${z_pool_body}" || buc_die "Failed to build workforce pool body"
+
+    rbge_lro_ok \
+      "Create workforce pool" \
+      "${z_token}" \
+      "${z_pools_base}?workforcePoolId=${z_pool_id}" \
+      "found_pool_create" \
+      "${z_pool_body}" \
+      ".name" \
+      "${z_iam_root}" \
+      "" \
+      "${RBGC_EVENTUAL_CONSISTENCY_SEC}" \
+      "${RBGC_MAX_CONSISTENCY_SEC}"
+    buc_info "Workforce pool ${z_pool_id} created under ${z_org}"
+  fi
+
+  # === Ensure the terrier bucket (manor-grain, in the payor project) ===
+  buc_step "Ensure terrier bucket ${RBGP_TERRIER_BUCKET} in payor project ${RBRP_PAYOR_PROJECT_ID}"
+  rbgb_bucket_ensure "${z_token}" "${RBRP_PAYOR_PROJECT_ID}" "${RBGP_TERRIER_BUCKET}" "${RBRD_GCP_REGION}"
+
+  # === Ensure the per-polity managed folder + grain IAM (depot-grain, ensure-only) ===
+  # The folder is named by the depot it homes and lives inside the payor-project
+  # bucket, so its creation and grain IAM need the payor credential (the folder-step
+  # credential boundary). Ensure-only — unlike the interim scaffold's destroy-then-
+  # create, the finisher never empties a standing folder.
+  local -r z_gov_mantle_email="${RBCC_account_mantle_governor}@${RBGD_SA_EMAIL_FULL}"
+  local -r z_folder="${RBDC_DEPOT_PROJECT_ID}/"
+
+  buc_step "Ensure the polity managed folder ${z_folder} (ensure-only)"
+  rbgb_managed_folder_ensure "${z_token}" "${RBGP_TERRIER_BUCKET}" "${z_folder}"
+
+  buc_step 'Grant folder-scoped write to the governor mantle (own-polity)'
+  rbgb_managed_folder_add_iam_role "${z_token}" "${RBGP_TERRIER_BUCKET}" "${z_folder}" \
+    "${z_gov_mantle_email}" "${RBGC_ROLE_STORAGE_OBJECT_ADMIN}"
+
+  buc_step 'Grant bucket-level read to the governor mantle (manor-wide)'
+  rbgi_add_bucket_iam_role "${z_token}" "${RBGP_TERRIER_BUCKET}" "${z_gov_mantle_email}" "${RBGC_ROLE_STORAGE_OBJECT_VIEWER}"
+
+  buc_step 'Verify bucket-level read via getIamPolicy read-back'
+  rbuh_json "GET" \
+    "${RBGC_API_BASE_GCS}/b/${RBGP_TERRIER_BUCKET}/iam?optionsRequestedPolicyVersion=3" \
+    "${z_token}" "found_terrier_bucket_iam"
+  rbuh_require_ok "Read terrier bucket IAM policy" "found_terrier_bucket_iam"
+  zrbgp_recognosce_require_binding "found_terrier_bucket_iam" \
+    "${RBGC_ROLE_STORAGE_OBJECT_VIEWER}" "serviceAccount:${z_gov_mantle_email}" \
+    "terrier bucket (governor manor-wide read)"
+
+  buc_step 'Verify folder-scoped write via getIamPolicy read-back'
+  local z_folder_enc
+  z_folder_enc=$(rbuh_urlencode_capture "${z_folder}") || buc_die "Failed to encode terrier folder"
+  rbuh_json "GET" \
+    "${RBGC_API_BASE_GCS}/b/${RBGP_TERRIER_BUCKET}/managedFolders/${z_folder_enc}/iam?optionsRequestedPolicyVersion=3" \
+    "${z_token}" "found_terrier_folder_iam"
+  rbuh_require_ok "Read terrier folder IAM policy" "found_terrier_folder_iam"
+  zrbgp_recognosce_require_binding "found_terrier_folder_iam" \
+    "${RBGC_ROLE_STORAGE_OBJECT_ADMIN}" "serviceAccount:${z_gov_mantle_email}" \
+    "terrier folder (governor own-polity write)"
+
+  buc_step 'Manor founded'
+  buc_success "Manor founded: workforce pool ${z_pool_id} under ${z_org}, terrier bucket ${RBGP_TERRIER_BUCKET}, polity folder ${z_folder}"
+  buc_info "A foedus is now affianceable under the standing pool (rbw-mA); raze (rbw-mR) is the inverse teardown"
 }
 
 rbgp_depot_levy() {

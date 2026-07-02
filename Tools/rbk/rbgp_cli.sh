@@ -77,8 +77,11 @@ zrbgp_furnish() {
   # un-founding ops that work the federation trust independent of any one depot,
   # so they enforce the federation regimes (RBRW manor pool + RBRF provider)
   # instead of the depot/repo regimes. manor_raze (the pool-destroyer) touches
-  # only the pool, so it enforces RBRW alone — it reads no provider field. The
-  # polity admission verbs
+  # only the pool, so it enforces RBRW alone — it reads no provider field.
+  # manor_found (the manor-setup finisher) founds the pool AND the payor-project
+  # terrier bucket plus the depot-named polity folder, so it enforces RBRW (pool)
+  # + RBRD (the depot coordinates the folder is named by) — no provider, no repo.
+  # The polity admission verbs
   # (brevet/unseat/attaint/rehearse) work a specific depot AND don the governor
   # mantle, so they enforce the federation regimes (RBRW pool id + RBRF provider +
   # sitting machinery) on top of the depot/repo regimes. Gird (the payor-wielded
@@ -89,6 +92,7 @@ zrbgp_furnish() {
     rbgp_depot_list)                                    : ;;
     rbgp_manor_affiance|rbgp_manor_jilt)                zrbrw_enforce; zrbrf_enforce ;;
     rbgp_manor_raze)                                    zrbrw_enforce ;;
+    rbgp_manor_found)                                   zrbrw_enforce; zrbrd_enforce ;;
     rbgp_gird)                                          zrbrw_enforce; zrbrf_enforce; zrbrr_enforce; zrbrd_enforce ;;
     rbgp_brevet|rbgp_unseat|rbgp_attaint|rbgp_rehearse) zrbrw_enforce; zrbrf_enforce; zrbrr_enforce; zrbrd_enforce ;;
     *)                                                  zrbrr_enforce; zrbrd_enforce ;;

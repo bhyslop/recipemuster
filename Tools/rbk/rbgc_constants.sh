@@ -421,6 +421,13 @@ zrbgc_kindle() {
   readonly RBGC_STATE_DELETED="DELETED"
   readonly RBGC_STATE_UNSPECIFIED="STATE_UNSPECIFIED"
 
+  # Recipe Bottle marker written into the manor workforce pool's `description` at
+  # founding. The manor-setup finisher (rbgp_manor_found) filters workforcePools.list
+  # on this exact string to isolate RB-marked pools under the org for its list-and-match
+  # drift guard, and affiance writes it at pool creation — both MUST reference this one
+  # home, or the finisher's filter and affiance's marker silently diverge.
+  readonly RBGC_WORKFORCE_POOL_MARKER="Recipe Bottle manor federation pool"
+
   # DisplayName anchor used across depot-creation sites (depot project,
   # Mason SA, Governor SA). Search backend filters CRM v3 projects:search
   # by displayName starting with this anchor. Distinct, unmistakable string

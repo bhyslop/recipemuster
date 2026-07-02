@@ -54,6 +54,7 @@ The Folio column shows how each tabtarget receives it:
 |----------|-------------|-------|---------|
 | `rbw-mA` | PayorAffiancesManor | — | Affiance the manor to its IdP — seat the org-level workforce pool, provider, and attribute mapping |
 | `rbw-mJ` | PayorJiltsManor | — | Jilt the manor from its IdP — dissolve the org-level workforce pool (provider cascades) |
+| `rbw-mF` | PayorFoundsManor | — | Found the manor — idempotently ensure the workforce pool, terrier bucket, and polity folder (post-payor-guide manor-setup finisher) |
 | `rbw-mR` | PayorRazesManor | — | Raze the manor — force-delete its workforce pool to start clean (internal release-ladder infra; withheld from delivery) |
 | `rbw-mG` | PayorGirdsGovernor | param1 | Gird the first governor — payor seats a citizen as this depot's founding governor (args: subject) |
 
