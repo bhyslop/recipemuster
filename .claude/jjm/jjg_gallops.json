@@ -17221,8 +17221,8 @@
         "₢BiAAn": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260630-1202",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260702-1243",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "## Character",
                 "Small self-contained mechanism pace — one helper family plus success-path wiring.",
@@ -17250,7 +17250,7 @@
                 "buc_tabtarget in buc_command.sh; RBF_FACT_HALLMARK in rbgc_constants.sh; prior-art hand-placed next-step hints in rbgp_payor.sh and rbfd_director.sh."
               ],
               "jjgtn_silks": "fact-next-tabtarget-emitter",
-              "jjgtn_basis": "b830526"
+              "jjgtn_basis": "020c6c1"
             }
           ]
         },
