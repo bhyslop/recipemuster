@@ -15271,8 +15271,8 @@
         "₢BfAAn": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260624-2244",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260702-1135",
+              "jjgtn_state": "jjgte_abandoned",
               "jjgtn_text": [
                 "Drafted from ₢BiAAJ in ₣Bi.",
                 "",
@@ -15310,7 +15310,7 @@
                 "Fast suite green."
               ],
               "jjgtn_silks": "payor-install-finish-manor-guidance",
-              "jjgtn_basis": "6433ebf"
+              "jjgtn_basis": "7367b97"
             }
           ]
         },
