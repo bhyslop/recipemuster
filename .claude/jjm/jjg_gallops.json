@@ -17297,8 +17297,8 @@
         "₢BfAAE": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260630-1451",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260701-1730",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "## Scrub canonical RBS0 of the org-level \"manor\" leak — disambiguate Manor (the holding / payor project) from the GCP organization it commands.",
                 "",
@@ -17319,7 +17319,7 @@
                 "Mechanical spec disambiguation over a settled model; coordinate with ₢BfAAv (same federation region, re-cut first) and the FABLE-REANCHOR-RBS0 worklist to avoid dangling citations."
               ],
               "jjgtn_silks": "rbs0-manor-org-canon-scrub",
-              "jjgtn_basis": "bd02e40"
+              "jjgtn_basis": "be2b51b"
             }
           ]
         },
