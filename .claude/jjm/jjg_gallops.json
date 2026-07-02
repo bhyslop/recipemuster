@@ -18274,8 +18274,8 @@
         "₢BfAAx": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260630-1519",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260701-1849",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "Build the manor-teardown — force-delete the manor workforce pool, the deliberate inverse of the ensure-exists finisher, so a release ladder can start from a clean manor.",
                 "",
@@ -18297,7 +18297,7 @@
                 "Bash — one dangerous payor verb reusing the manor-jilt confirm pattern, plus the delivery-withhold marking."
               ],
               "jjgtn_silks": "manor-teardown-force-delete",
-              "jjgtn_basis": "b844d7b"
+              "jjgtn_basis": "8b0a2e5"
             }
           ]
         },
