@@ -16931,8 +16931,8 @@
         "₢BiAAg": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260630-1536",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260702-1131",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "BARRIER — cross-clone wait. No code work of its own.",
                 "This pace cannot complete until BOTH of the following are complete, pushed to origin, and origin merged back into this clone:",
@@ -16947,7 +16947,7 @@
                 "Cross-clone barrier (MVP rides last); retargeted 260630 from ₢BfAAF to ₢BfAAz (₣Bf's actual last zipper/RBS0 writer after the rework). Hold until both named paces are merged through."
               ],
               "jjgtn_silks": "await-fed-zipper-and-thg-crate",
-              "jjgtn_basis": "b8bfd91"
+              "jjgtn_basis": "3ab3e5e"
             }
           ]
         },
