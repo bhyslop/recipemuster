@@ -15310,8 +15310,8 @@
         "₢BfAAt": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260627-1308",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260701-2024",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "Give the terrier data layer (rbgft) precise, testable failure discrimination, closing the wrong-reason hole on its error paths (today: generic buc_die / bare nonzero).",
                 "Mint a terrier rejection band in the bubc precision-exit-code block (one code per gate, per BCG); convert rbgft's error-path buc_die to buc_reject of that band; add a buo-sprued fault-injection seam in the rbuh HTTP layer so a forced HTTP code can drive each error path (the regime-poison analogue for HTTP, which rbuh lacks today).",
@@ -15325,7 +15325,7 @@
                 "Data-layer hygiene (BCG precision-band) plus a small rbuh test seam; the band semantics are new but follow the established band discipline."
               ],
               "jjgtn_silks": "terrier-band-discrimination",
-              "jjgtn_basis": "c8f2dcc"
+              "jjgtn_basis": "9f455b1"
             }
           ]
         },
