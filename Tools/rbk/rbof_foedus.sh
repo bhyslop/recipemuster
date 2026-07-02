@@ -125,16 +125,18 @@ rbof_descry() {
 
   zrbof_require_foedus "${z_foedus}" "${BUBC_band_descry}"
 
-  # Resolve the named foedus's pool by parsing its own rbrf.env (org / pool /
-  # provider come from the inspected foedus, not the active selector).
+  # The manor pool coordinates (org / pool) are manor-level under the one-pool
+  # Model — read them from the manor's RBRW regime file, the same for every foedus.
+  # The provider is the per-foedus discriminator and stays in the inspected
+  # foedus's own rbrf.env.
   local -r z_rbrf="${ZRBOF_FOEDERA_DIR}/${z_foedus}/rbrf.env"
   local z_org=""
   local z_pool=""
   local z_provider=""
-  z_org=$(zrbof_rbrf_field_capture "${z_rbrf}" "RBRF_ORG_ID") \
-    || buc_reject "${BUBC_band_descry}" "Foedus '${z_foedus}' rbrf.env carries no RBRF_ORG_ID: ${z_rbrf}"
-  z_pool=$(zrbof_rbrf_field_capture "${z_rbrf}" "RBRF_WORKFORCE_POOL_ID") \
-    || buc_reject "${BUBC_band_descry}" "Foedus '${z_foedus}' rbrf.env carries no RBRF_WORKFORCE_POOL_ID: ${z_rbrf}"
+  z_org=$(zrbof_rbrf_field_capture "${RBCC_rbrw_file}" "RBRW_ORG_ID") \
+    || buc_reject "${BUBC_band_descry}" "Manor workforce regime carries no RBRW_ORG_ID: ${RBCC_rbrw_file}"
+  z_pool=$(zrbof_rbrf_field_capture "${RBCC_rbrw_file}" "RBRW_WORKFORCE_POOL_ID") \
+    || buc_reject "${BUBC_band_descry}" "Manor workforce regime carries no RBRW_WORKFORCE_POOL_ID: ${RBCC_rbrw_file}"
   z_provider=$(zrbof_rbrf_field_capture "${z_rbrf}" "RBRF_PROVIDER_ID") \
     || buc_reject "${BUBC_band_descry}" "Foedus '${z_foedus}' rbrf.env carries no RBRF_PROVIDER_ID: ${z_rbrf}"
 
@@ -217,18 +219,20 @@ rbof_canvass() {
   buc_doc_brief "Canvass the manor's foedera — enumerate every provider under the one workforce pool, emitting per-foedus fact files and marking the regime-selected one; read-only"
   buc_doc_shown || return 0
 
-  # Under the one-pool Model the manor pool coordinates ride every foedus's
-  # rbrf.env; resolve them from the regime-selected foedus (RBRR_ACTIVE_FOEDUS),
-  # which is also the selection the emitted facts mark. A selector pointing at
-  # no library foedus is corrupt repo regime, not a canvass verdict.
+  # The manor's ONE workforce pool id is manor-level (RBRW) — the same for every
+  # foedus — so read it from the manor's RBRW regime file. The active selector
+  # (RBRR_ACTIVE_FOEDUS) must still name a real library foedus (that is the
+  # selection the emitted facts mark), so validate it; it no longer carries the
+  # pool coordinates. A selector pointing at no library foedus is corrupt repo
+  # regime, not a canvass verdict.
   local -r z_active="${RBRR_ACTIVE_FOEDUS:-}"
   test -n "${z_active}" || buc_die "RBRR_ACTIVE_FOEDUS is empty — the repo regime selects no active foedus"
   local -r z_active_rbrf="${ZRBOF_FOEDERA_DIR}/${z_active}/rbrf.env"
   test -f "${z_active_rbrf}" || buc_die "Active foedus '${z_active}' has no rbrf.env in the foedera library: ${z_active_rbrf}"
 
   local z_pool=""
-  z_pool=$(zrbof_rbrf_field_capture "${z_active_rbrf}" "RBRF_WORKFORCE_POOL_ID") \
-    || buc_die "Active foedus '${z_active}' rbrf.env carries no RBRF_WORKFORCE_POOL_ID: ${z_active_rbrf}"
+  z_pool=$(zrbof_rbrf_field_capture "${RBCC_rbrw_file}" "RBRW_WORKFORCE_POOL_ID") \
+    || buc_die "Manor workforce regime carries no RBRW_WORKFORCE_POOL_ID: ${RBCC_rbrw_file}"
 
   # Correlation map: every library foedus's configured provider id. A listed
   # provider matching one of these ids IS that foedus (the canvass→rbef_

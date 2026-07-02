@@ -1141,12 +1141,13 @@ rbgp_manor_affiance() {
   local z_token
   z_token=$(zrbgp_authenticate_capture) || buc_die "Failed to authenticate as Payor via OAuth"
 
-  # Federation trust config is read from the kindled RBRF regime — the caller's
-  # furnish sources, kindles, and enforces rbrf before dispatch (like RBRD/RBRP
-  # for depot_levy). RBRP_OPERATOR_EMAIL (the payor's federated console identity)
-  # is the grantee of the workforce-pool admin role.
-  local -r z_org="organizations/${RBRF_ORG_ID}"
-  local -r z_pool_id="${RBRF_WORKFORCE_POOL_ID}"
+  # The manor pool coordinates (org / pool id / session) are read from the kindled
+  # RBRW regime (manor-level, RBSRW); the per-foedus provider id from the kindled
+  # RBRF regime. The caller's furnish sources, kindles, and enforces both before
+  # dispatch (like RBRD/RBRP for depot_levy). RBRP_OPERATOR_EMAIL (the payor's
+  # federated console identity) is the grantee of the workforce-pool admin role.
+  local -r z_org="organizations/${RBRW_ORG_ID}"
+  local -r z_pool_id="${RBRW_WORKFORCE_POOL_ID}"
   local -r z_provider_id="${RBRF_PROVIDER_ID}"
   local -r z_iam_root="${RBGC_API_ROOT_IAM}${RBGC_IAM_V1}"
   local -r z_pools_base="${z_iam_root}/locations/global/workforcePools"
@@ -1185,7 +1186,7 @@ rbgp_manor_affiance() {
       # is squatting its namespace through the ~30-day purge window. Affiance is
       # ensure-exists, never undelete — a live pool (state not DELETED) is left in
       # place, but a dissolved one is refused, not resurrected. Lifecycle certainty:
-      # a fresh trust takes a fresh name, so the operator bumps RBRF_WORKFORCE_POOL_ID
+      # a fresh trust takes a fresh name, so the operator bumps RBRW_WORKFORCE_POOL_ID
       # to a free id and re-affiances (RBSMA soft-delete NOTE; workforce-pool-
       # constraints memo).
       local z_pool_state
@@ -1200,9 +1201,9 @@ rbgp_manor_affiance() {
         fi
         buc_warn "Workforce pool ${z_pool_id} is soft-deleted (state DELETED) — squatting its id through the ~30-day purge window"
         buc_info "Affiance will not resurrect a dissolved trust. Set a free pool id and re-affiance:"
-        buc_code "sed -i '' 's|^RBRF_WORKFORCE_POOL_ID=.*|RBRF_WORKFORCE_POOL_ID=${z_next_pool_id}|' ${RBCC_rbrf_file}"
+        buc_code "sed -i '' 's|^RBRW_WORKFORCE_POOL_ID=.*|RBRW_WORKFORCE_POOL_ID=${z_next_pool_id}|' ${RBCC_rbrw_file}"
         buc_info "Then commit, point the IdP provider redirect-URI at the new id, and re-brevet any standing citizens."
-        buc_die "Workforce pool ${z_pool_id} soft-deleted — set a free RBRF_WORKFORCE_POOL_ID and re-affiance (see above)"
+        buc_die "Workforce pool ${z_pool_id} soft-deleted — set a free RBRW_WORKFORCE_POOL_ID and re-affiance (see above)"
       fi
       buc_info "Workforce pool ${z_pool_id} already present (state ${z_pool_state}) — leaving in place (drift-reconcile is a named follow-up)"
       ;;
@@ -1217,7 +1218,7 @@ rbgp_manor_affiance() {
         --arg parent          "${z_org}" \
         --arg displayName     "${z_pool_id}" \
         --arg description     "Recipe Bottle manor federation pool" \
-        --arg sessionDuration "${RBRF_SESSION_DURATION}" \
+        --arg sessionDuration "${RBRW_SESSION_DURATION}" \
         '{
           parent: $parent,
           displayName: $displayName,
@@ -1354,11 +1355,11 @@ rbgp_manor_jilt() {
   buc_doc_shown || return 0
 
   # Affiance's structural inverse. Reads the one configured pool from the kindled
-  # RBRF regime (the caller's furnish enforces rbrf before dispatch, like
-  # manor_affiance) — no CLI folio: jilt targets the regime's pool, never an
+  # RBRW regime (manor-level; the caller's furnish enforces it before dispatch,
+  # like manor_affiance) — no CLI folio: jilt targets the regime's pool, never an
   # operator-supplied one.
-  local -r z_org="organizations/${RBRF_ORG_ID}"
-  local -r z_pool_id="${RBRF_WORKFORCE_POOL_ID}"
+  local -r z_org="organizations/${RBRW_ORG_ID}"
+  local -r z_pool_id="${RBRW_WORKFORCE_POOL_ID}"
   local -r z_iam_root="${RBGC_API_ROOT_IAM}${RBGC_IAM_V1}"
   local -r z_pool_url="${z_iam_root}/locations/global/workforcePools/${z_pool_id}"
 
@@ -2340,7 +2341,7 @@ zrbgp_principal_member_capture() {
   local -r z_subject="${1:-}"
   test -n "${z_subject}" || return 1
   printf 'principal://iam.googleapis.com/locations/global/workforcePools/%s/subject/%s' \
-    "${RBRF_WORKFORCE_POOL_ID}" "${z_subject}"
+    "${RBRW_WORKFORCE_POOL_ID}" "${z_subject}"
 }
 
 # brevet core — token-agnostic admission composition. Ensures the muniment first,

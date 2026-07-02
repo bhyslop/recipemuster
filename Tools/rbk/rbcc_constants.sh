@@ -49,6 +49,12 @@ RBCC_foedera_subdir="rbmf_foedera"
 RBCC_rbrr_file="${RBCC_moorings_dir}/rbrr.env"
 RBCC_rbrp_file="${RBCC_moorings_dir}/rbrp.env"
 RBCC_rbrm_file="${RBCC_moorings_dir}/rbrm.env"
+# Workforce regime file — the manor's ONE workforce pool identity (RBSRW).
+# Manor-level (axrd_singleton, one per manor), so it sits flat at the moorings
+# root, a sibling of the rbmf_foedera library rather than a member of it — where
+# the per-foedus rbrf.env files live. Holds the pool coordinates (org, pool id,
+# session) the one-pool Model relocated out of the per-foedus federation regime.
+RBCC_rbrw_file="${RBCC_moorings_dir}/rbrw.env"
 # Federation regime file — the ACTIVE foedus's rbrf.env. The foedera library
 # (RBCC_foedera_subdir) holds one rbef_ subdirectory per standing foedus, the
 # active one selected by RBRR_ACTIVE_FOEDUS; the configuration is stored once

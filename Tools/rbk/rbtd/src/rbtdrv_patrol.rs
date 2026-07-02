@@ -1272,8 +1272,8 @@ fn zrbtdrv_payor_gate(
 // (workforce-pool-constraints memo) — so this fixture is operator-invoked only:
 // registered for discovery, a member of no auto-suite.
 
-/// RBRF field the throwaway-pool override targets through the regime-poison seam.
-const RBTDRV_RBRF_POOL_VAR: &str = "RBRF_WORKFORCE_POOL_ID";
+/// RBRW field the throwaway-pool override targets through the regime-poison seam.
+const RBTDRV_RBRW_POOL_VAR: &str = "RBRW_WORKFORCE_POOL_ID";
 
 /// Drive the affiance→jilt→re-jilt round-trip on `pool_id`, asserting each
 /// terminal banner. Split from the case so the case can run a best-effort cleanup
@@ -1286,12 +1286,12 @@ fn zrbtdrv_foedus_roundtrip(ctx: &mut rbtdri_Context, dir: &Path, pool_id: &str)
         return v;
     }
 
-    // The throwaway pool id rides the regime-poison seam: RBRF_WORKFORCE_POOL_ID
-    // carries the RBRF_ enroll-scope prefix, so the tweak rewrites that one field
+    // The throwaway pool id rides the regime-poison seam: RBRW_WORKFORCE_POOL_ID
+    // carries the RBRW_ enroll-scope prefix, so the tweak rewrites that one field
     // at regime kindle and both affiance and jilt target the throwaway pool. Only
     // the pool id is overridden — the provider is created beneath the fresh pool
     // and cascades on jilt.
-    let poison = format!("{}={}", RBTDRV_RBRF_POOL_VAR, pool_id);
+    let poison = format!("{}={}", RBTDRV_RBRW_POOL_VAR, pool_id);
 
     // Step 1: affiance the manor onto the fresh pool; assert the create banners.
     let affiance = match rbtdri_invoke_global(ctx, RBTDGC_AFFIANCE_MANOR, &[], &[
@@ -1384,7 +1384,7 @@ fn rbtdrv_foedus_lifecycle(dir: &Path) -> rbtdre_Verdict {
         // best-effort pass soft-deletes any leak. Result ignored — the round-trip
         // verdict stands.
         if matches!(verdict, rbtdre_Verdict::Fail(_)) {
-            let poison = format!("{}={}", RBTDRV_RBRF_POOL_VAR, pool_id);
+            let poison = format!("{}={}", RBTDRV_RBRW_POOL_VAR, pool_id);
             let _ = rbtdri_invoke_global(ctx, RBTDGC_JILT_MANOR, &[], &[
                 (RBTDRI_BURE_TWEAK_NAME_KEY, RBTDGC_TWEAK_REGIME_POISON),
                 (RBTDRI_BURE_TWEAK_VALUE_KEY, poison.as_str()),

@@ -63,8 +63,11 @@ rbgv_check_avowal() {
 
   buc_step "Federated access probe — avowal against the RBRF trust"
   source "${RBCC_rbrf_file}" || buc_die "Failed to source RBRF: ${RBCC_rbrf_file}"
+  source "${RBCC_rbrw_file}" || buc_die "Failed to source RBRW: ${RBCC_rbrw_file}"
   zrbrf_kindle
+  zrbrw_kindle
   zrbrf_enforce
+  zrbrw_enforce
 
   rba_avow
 
@@ -116,8 +119,11 @@ rbgv_check_mantle() {
 
   buc_step "Avow against the RBRF trust to open or reuse the sitting"
   source "${RBCC_rbrf_file}" || buc_die "Failed to source RBRF: ${RBCC_rbrf_file}"
+  source "${RBCC_rbrw_file}" || buc_die "Failed to source RBRW: ${RBCC_rbrw_file}"
   zrbrf_kindle
+  zrbrw_kindle
   zrbrf_enforce
+  zrbrw_enforce
 
   rba_avow
 
@@ -196,6 +202,7 @@ zrbgv_furnish() {
   source "${z_rbk}/rbrd_regime.sh"
   source "${z_rbk}/rbrp_regime.sh"
   source "${z_rbk}/rbrf_regime.sh"
+  source "${z_rbk}/rbrw_regime.sh"
   source "${z_rbk}/rbcc_constants.sh"
   source "${z_rbk}/rbpc_constants.sh"
   source "${z_rbk}/rbgc_constants.sh"

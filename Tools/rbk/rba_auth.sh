@@ -142,22 +142,25 @@ rba_token_capture() {
 # never cached — it is not built here. The persisted sitting cache is the clean
 # producer/consumer seam between this path and the don.
 #
-# All federation config is read from RBRF_* (rbrf_regime); the leg curls reuse
-# RBCC curl timeouts and rbgo's transient-curl classifier. Callers kindle
-# rbrf + rbcc before invoking rba_avow; the functions guard on their sentinels.
+# Federation config is read from two regimes under the one-pool Model: the manor
+# pool id from RBRW_* (rbrw_regime, manor-level) and the per-foedus provider from
+# RBRF_* (rbrf_regime). The leg curls reuse RBCC curl timeouts and rbgo's
+# transient-curl classifier. Callers kindle rbrw + rbrf + rbcc before invoking
+# rba_avow; the functions guard on their sentinels.
 
 # Resolve the per-session sitting cache path. Session-scoped — it spans tabtarget
 # processes within one operator session — tmpfs-preferred, keyed by the trust so
 # switching pools never crosses sittings. Dir 0700; the file is written 0600.
 zrba_sitting_path_capture() {
   zrba_sentinel
+  zrbrw_sentinel
   zrbrf_sentinel
 
   local z_dir="${XDG_RUNTIME_DIR:-${TMPDIR:-/tmp}}"
   z_dir="${z_dir%/}/rbf-sitting"
   mkdir -p  "${z_dir}" || return 1
   chmod 700 "${z_dir}" || return 1
-  printf '%s/%s.%s.json' "${z_dir}" "${RBRF_WORKFORCE_POOL_ID}" "${RBRF_PROVIDER_ID}"
+  printf '%s/%s.%s.json' "${z_dir}" "${RBRW_WORKFORCE_POOL_ID}" "${RBRF_PROVIDER_ID}"
 }
 
 # Echo the cached federated token if present and not within skew of expiry;
@@ -351,13 +354,14 @@ zrba_leg1_idtoken_capture() {
 # "<federated_token> <expires_in>".
 zrba_leg2_federated_capture() {
   zrba_sentinel
+  zrbrw_sentinel
   zrbrf_sentinel
   zrbcc_sentinel
 
   local -r z_idtoken="${1:-}"
   test -n "${z_idtoken}" || return 1
 
-  local -r z_audience="//iam.googleapis.com/locations/global/workforcePools/${RBRF_WORKFORCE_POOL_ID}/providers/${RBRF_PROVIDER_ID}"
+  local -r z_audience="//iam.googleapis.com/locations/global/workforcePools/${RBRW_WORKFORCE_POOL_ID}/providers/${RBRF_PROVIDER_ID}"
 
   local z_status=0
   curl -sS -X POST "${ZRBA_STS_ENDPOINT}"                                    \

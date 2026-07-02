@@ -41,11 +41,13 @@ zrbgp_furnish() {
   source "${z_rbk_kit_dir}/rbrr_regime.sh"
   source "${z_rbk_kit_dir}/rbrd_regime.sh"
   source "${z_rbk_kit_dir}/rbrf_regime.sh"
+  source "${z_rbk_kit_dir}/rbrw_regime.sh"
   source "${z_rbk_kit_dir}/rbdc_derived.sh"
   source "${z_rbk_kit_dir}/rbgd_depot.sh"
   source "${RBCC_rbrr_file}"
   source "${RBCC_rbrd_file}"
   source "${RBCC_rbrf_file}"
+  source "${RBCC_rbrw_file}"
   source "${z_rbk_kit_dir}/rbgl_layout.sh"
   source "${z_rbk_kit_dir}/rbgo_oauth.sh"
   source "${z_rbk_kit_dir}/rbuh_http.sh"
@@ -69,21 +71,23 @@ zrbgp_furnish() {
   zrbrr_kindle
   zrbrd_kindle
   zrbrf_kindle
+  zrbrw_kindle
   # Per-command regime enforcement. depot_list scans all depots and needs no one
   # depot/repo regime. manor_affiance and manor_jilt are manor-level founding/
   # un-founding ops that work the federation trust independent of any one depot,
-  # so they enforce the federation regime (RBRF) instead of the depot/repo
-  # regimes. The polity admission verbs (brevet/unseat/attaint/rehearse) work a
-  # specific depot AND don the governor mantle, so they enforce the federation
-  # regime (the pool id + sitting machinery) on top of the depot/repo regimes.
-  # Gird (the payor-wielded founding first-governor admission) rides the same
-  # enforce set but drives the shared core with the payor credential, not a don.
-  # Every other command works a specific depot.
+  # so they enforce the federation regimes (RBRW manor pool + RBRF provider)
+  # instead of the depot/repo regimes. The polity admission verbs
+  # (brevet/unseat/attaint/rehearse) work a specific depot AND don the governor
+  # mantle, so they enforce the federation regimes (RBRW pool id + RBRF provider +
+  # sitting machinery) on top of the depot/repo regimes. Gird (the payor-wielded
+  # founding first-governor admission) rides the same enforce set but drives the
+  # shared core with the payor credential, not a don. Every other command works a
+  # specific depot.
   case "${z_command}" in
     rbgp_depot_list)                                    : ;;
-    rbgp_manor_affiance|rbgp_manor_jilt)                zrbrf_enforce ;;
-    rbgp_gird)                                          zrbrf_enforce; zrbrr_enforce; zrbrd_enforce ;;
-    rbgp_brevet|rbgp_unseat|rbgp_attaint|rbgp_rehearse) zrbrf_enforce; zrbrr_enforce; zrbrd_enforce ;;
+    rbgp_manor_affiance|rbgp_manor_jilt)                zrbrw_enforce; zrbrf_enforce ;;
+    rbgp_gird)                                          zrbrw_enforce; zrbrf_enforce; zrbrr_enforce; zrbrd_enforce ;;
+    rbgp_brevet|rbgp_unseat|rbgp_attaint|rbgp_rehearse) zrbrw_enforce; zrbrf_enforce; zrbrr_enforce; zrbrd_enforce ;;
     *)                                                  zrbrr_enforce; zrbrd_enforce ;;
   esac
   zrbdc_kindle

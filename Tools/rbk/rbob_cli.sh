@@ -120,10 +120,12 @@ zrbob_furnish() {
   source "${z_rbk_kit_dir}/rbrr_regime.sh"
   source "${z_rbk_kit_dir}/rbrd_regime.sh"
   source "${z_rbk_kit_dir}/rbrf_regime.sh"
+  source "${z_rbk_kit_dir}/rbrw_regime.sh"
   source "${z_rbk_kit_dir}/rbdc_derived.sh"
   source "${RBCC_rbrr_file}"
   source "${RBCC_rbrd_file}"
   source "${RBCC_rbrf_file}"
+  source "${RBCC_rbrw_file}"
   source "${z_rbk_kit_dir}/rbgc_constants.sh"
   source "${z_rbk_kit_dir}/rbgl_layout.sh"
   source "${z_rbk_kit_dir}/rbgd_depot.sh"
@@ -175,9 +177,11 @@ zrbob_furnish() {
   zrbrr_kindle
   zrbrd_kindle
   zrbrf_kindle
+  zrbrw_kindle
   zrbrr_enforce
   zrbrd_enforce
   zrbrf_enforce
+  zrbrw_enforce
   zrbdc_kindle
   zrbgc_kindle
   zrbgl_kindle

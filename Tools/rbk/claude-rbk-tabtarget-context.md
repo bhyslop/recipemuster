@@ -180,6 +180,8 @@ The Folio column shows how each tabtarget receives it:
 | `rbw-rpv` | ValidatePayorRegime | — | Validate payor regime |
 | `rbw-rfr` | RenderFederationRegime | — | Render federation regime |
 | `rbw-rfv` | ValidateFederationRegime | — | Validate federation regime |
+| `rbw-rwr` | RenderWorkforceRegime | — | Render workforce regime |
+| `rbw-rwv` | ValidateWorkforceRegime | — | Validate workforce regime |
 | `rbw-ror` | RenderOauthRegime | — | Render OAuth regime |
 | `rbw-rov` | ValidateOauthRegime | — | Validate OAuth regime |
 

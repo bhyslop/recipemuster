@@ -39,10 +39,12 @@ zrbfv_furnish() {
   source "${z_rbk_kit_dir}/rbrr_regime.sh"
   source "${z_rbk_kit_dir}/rbrd_regime.sh"
   source "${z_rbk_kit_dir}/rbrf_regime.sh"
+  source "${z_rbk_kit_dir}/rbrw_regime.sh"
   source "${z_rbk_kit_dir}/rbdc_derived.sh"
   source "${RBCC_rbrr_file}"
   source "${RBCC_rbrd_file}"
   source "${RBCC_rbrf_file}"
+  source "${RBCC_rbrw_file}"
   source "${z_rbk_kit_dir}/rbgo_oauth.sh"
   source "${z_rbk_kit_dir}/rbuh_http.sh"
   source "${z_rbk_kit_dir}/rbge_rest.sh"
@@ -60,9 +62,11 @@ zrbfv_furnish() {
   zrbrr_kindle
   zrbrd_kindle
   zrbrf_kindle
+  zrbrw_kindle
   zrbrr_enforce
   zrbrd_enforce
   zrbrf_enforce
+  zrbrw_enforce
   zrbdc_kindle
 
   source "${z_rbk_kit_dir}/rbrv_regime.sh"
