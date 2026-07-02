@@ -244,7 +244,8 @@ The spine, in dependency order:
 Spec-first, before any code — evolve the federation-regime and affiance specs to the core-plus-mechanism-gate shape, fold in the 260630 Model's pool→provider re-cut, and stand up the two new subdocs as contracts; contract before code is project doctrine, so this is a hard predecessor of every code unit below.
 Regime mechanism discriminator and mechanism-conditional affiance — depends on the spec unit.
 Programmatic-trust establishment bash — the rbxk_keycloak orchestrator (charge, ready-poll, fetch-JWKS, call affiance) over the fattened baked realm; depends on the spec unit and the discriminator; stands up the Keycloak test crucible (preferred) or a self-signed caged trust (fallback) and uploads its public JWKS through affiance; the durable replacement for the throwaway manual spike.
-Programmatic accessor (token → STS) — depends on the discriminator and on a programmatic trust existing to acquire against; obtains a token from Keycloak's non-interactive RFC 7523 grant (or self-mints, fallback) and exchanges at STS.
+Programmatic accessor (token → STS) — depends on the discriminator and on a programmatic trust existing to acquire against; obtains a token from the IdP's non-interactive RFC 7523 grant against the RBRF programmatic self-supply fields and exchanges at STS.
+No self-mint fallback: the realm signing key is ephemeral and held by no caller, so a self-mint would mean re-establishing the trust, not falling back — the grant is the one programmatic path (RBSFA/RBSFK).
 Per-vendor setup guide (Entra first) — depends only on the core-facts contract line, so it runs parallel to the three code units.
 Attach a caged subject to a test depot via the admission verbs — strictly last, since it consumes ₣BZ's admission-verb surface (now landed, so it is slatable).
 
