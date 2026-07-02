@@ -15487,8 +15487,8 @@
         "₢BfAAy": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260630-1519",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260702-0153",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "Add a provider dimension to the terrier muniment — so co-resident providers under one pool no longer conflate in a manor-wide rehearse, and a pool-independent subject can't collide silently (the membership study's structural-collision finding).",
                 "",
@@ -15509,7 +15509,7 @@
                 "Contained code membrane (one terrier module) plus a one-time on-disk muniment migration; the migration is the real cost."
               ],
               "jjgtn_silks": "terrier-muniment-provider-dim",
-              "jjgtn_basis": "b844d7b"
+              "jjgtn_basis": "dbcf525"
             }
           ]
         },
