@@ -14221,9 +14221,10 @@
         "₢BfAA4",
         "₢BfAAq",
         "₢BfAAz",
-        "₢BfAA2"
+        "₢BfAA2",
+        "₢BfAA5"
       ],
-      "jjghn_next_pace_seed": "AA5",
+      "jjghn_next_pace_seed": "AA6",
       "jjghn_paces": {
         "₢BfAA0": {
           "jjgpn_tacks": [
@@ -14389,6 +14390,36 @@
               ],
               "jjgtn_silks": "terrier-noun-sheaf-carve",
               "jjgtn_basis": "590b49e"
+            }
+          ]
+        },
+        "₢BfAA5": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260702-0312",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "Bounded terrier-hygiene design-and-build — the need is witnessed; the mechanism is open (ride depot unmake / freehold churn, or a standalone payor-credentialed verb).",
+                "",
+                "## The debt",
+                "The payor-grain terrier accretes muniments no live admission path owns.",
+                "Unmaking a depot project runs no terrier sweep, so a retired levy's polity slice persists as orphans.",
+                "Muniment-schema churn strands old-shape objects the current verbs cannot expunge",
+                "(witnessed live at the provider-grain re-cut: a provider-blind stray aliased the parley probe's roll assertion until the scaffold-purge migration removed it — the accretion path stays open).",
+                "rehearse's roll is depot-attributed (RBSPO depot-attributed emission), so strays are visible and attributable — but nothing removes them.",
+                "",
+                "## Done when",
+                "A ruled sweep path exists and is exercised:",
+                "unmade-depot slices and dead-schema strays can be removed from the terrier,",
+                "so every standing roll line names a live depot in the current muniment schema.",
+                "",
+                "## Cinched",
+                "Terrier hygiene is this heat's work, not the parley probe's (ruled at the theurge heat's read-surface pace).",
+                "rehearse stays a pure read; the sweep is a separate mutating act, never folded into a read."
+              ],
+              "jjgtn_silks": "terrier-hygiene-sweep",
+              "jjgtn_basis": "5e7cb82"
             }
           ]
         },
