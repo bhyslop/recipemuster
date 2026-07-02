@@ -77,29 +77,13 @@ pub const RBTDRM_FIXTURE_FOEDUS_LIFECYCLE: &str = "foedus-lifecycle";
 // unlike foedus-lifecycle — it is quota-neutral; still operator-invoked (human-
 // present avow, live mantle dons), a member of no suite, payor-gate fails loud.
 pub const RBTDRM_FIXTURE_FOEDUS_REUSE: &str = "foedus-reuse";
-// Terrier-scaffold fixture — interim terrier-provision proof against live GCP:
-// probe payor -> run the rbw-dt scaffold (ensure bucket + per-polity managed
-// folder + folder-scoped write / bucket-level read IAM to the governor mantle,
-// then getIamPolicy read-back verify) -> run it again to prove the idempotent
-// reset. Unlike the quota-touching foedus fixture, this is a picket-suite member
-// and self-skips when the payor credential is unreachable (suite-passenger
-// protection); a levied freehold absent the governor mantle is a real failure.
-pub const RBTDRM_FIXTURE_TERRIER_SCAFFOLD: &str = "terrier-scaffold";
-// Terrier-atomicity fixture — the muniment sub-operation proof against live GCP:
-// probe payor -> charge the terrier via the rbw-dt scaffold -> run the rbw-dT
-// proof, which engrosses a synthetic muniment, re-engrosses it to assert the
-// 412-on-conflict idempotency, peruses it present, expunges it, re-expunges to
-// assert the 404 idempotency, and peruses it gone (exit 0 IS that atomicity
-// assertion). Picket-suite member; self-skips when the payor credential is
-// unreachable (suite-passenger protection), like terrier-scaffold.
-pub const RBTDRM_FIXTURE_TERRIER_ATOMICITY: &str = "terrier-atomicity";
 // Polity-denial fixture — proves the polity verbs reject with the exact precision
 // band across their failure surface. Admission arc: a governor-wielded verb's don is
 // refused when the citizen is not brevetted onto the mantle (RBTDGC_BAND_ADMISSION) —
 // don retriever (baseline) -> unseat retriever -> poll the don to the admission band
 // -> isolation (held mantles still reach AR) -> brevet back -> poll positive (restore).
 // Terrier-band arc (the regime-poison analogue for HTTP, folded in to supersede the
-// interim terrier-atomicity rbw-dT proof): the same real verbs under the rbuh
+// retired interim terrier-atomicity rbw-dT proof): the same real verbs under the rbuh
 // http-fault seam reject in the engross/expunge/peruse bands (brevet/unseat/rehearse),
 // on a synthetic subject with pre-clean + final sweep. Picket-suite member; self-skips
 // when the payor credential is unreachable (suite-passenger protection).
@@ -255,15 +239,6 @@ pub fn rbtdrm_required_colophons(fixture: &str) -> Option<&'static [&'static str
             RBTDGC_AFFIANCE_MANOR,
             RBTDGC_CHECK_AVOWAL,
             RBTDGC_CHECK_MANTLE,
-        ]),
-        RBTDRM_FIXTURE_TERRIER_SCAFFOLD => Some(&[
-            RBTDGC_CHECK_PAYOR,
-            RBTDGC_TERRIER_SCAFFOLD,
-        ]),
-        RBTDRM_FIXTURE_TERRIER_ATOMICITY => Some(&[
-            RBTDGC_CHECK_PAYOR,
-            RBTDGC_TERRIER_SCAFFOLD,
-            RBTDGC_TERRIER_PROOF,
         ]),
         RBTDRM_FIXTURE_POLITY_DENIAL => Some(&[
             RBTDGC_CHECK_PAYOR,

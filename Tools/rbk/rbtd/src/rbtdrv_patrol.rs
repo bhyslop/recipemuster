@@ -51,7 +51,7 @@ use crate::rbtdgc_consts::{
     RBTDGC_PLUMB_FULL, RBTDGC_RBRD_FILE, RBTDGC_RBRF_FILE, RBTDGC_RBRR_FILE, RBTDGC_REHEARSE_POLITY, RBTDGC_REKON_HALLMARK,
     RBTDGC_SUMMON_HALLMARK,
     RBTDGC_TALLY_HALLMARKS,
-    RBTDGC_TERRIER_PROOF, RBTDGC_TERRIER_SCAFFOLD, RBTDGC_TWEAK_HTTP_FAULT,
+    RBTDGC_TWEAK_HTTP_FAULT,
     RBTDGC_TWEAK_REGIME_POISON, RBTDGC_UNDERPIN_WSL,
     RBTDGC_UNSEAT_POLITY, RBTDGC_VOUCH_HALLMARKS,
 };
@@ -137,24 +137,6 @@ pub static RBTDRV_FIXTURE_ACCESS_PROBE: rbtdre_Fixture = rbtdre_Fixture {
     setup: None,
     teardown: None,
     cases: RBTDRV_CASES_ACCESS_PROBE,
-    credless: false,
-};
-
-pub static RBTDRV_FIXTURE_TERRIER_SCAFFOLD: rbtdre_Fixture = rbtdre_Fixture {
-    name: crate::rbtdrm_manifest::RBTDRM_FIXTURE_TERRIER_SCAFFOLD,
-    disposition: rbtdre_Disposition::Independent,
-    setup: None,
-    teardown: None,
-    cases: RBTDRV_CASES_TERRIER_SCAFFOLD,
-    credless: false,
-};
-
-pub static RBTDRV_FIXTURE_TERRIER_ATOMICITY: rbtdre_Fixture = rbtdre_Fixture {
-    name: crate::rbtdrm_manifest::RBTDRM_FIXTURE_TERRIER_ATOMICITY,
-    disposition: rbtdre_Disposition::Independent,
-    setup: None,
-    teardown: None,
-    cases: RBTDRV_CASES_TERRIER_ATOMICITY,
     credless: false,
 };
 
@@ -1608,136 +1590,6 @@ fn rbtdrv_foedus_reuse(dir: &Path) -> rbtdre_Verdict {
 pub static RBTDRV_CASES_FOEDUS_REUSE: &[rbtdre_Case] = &[case!(rbtdrv_foedus_reuse)];
 
 
-// Terrier-scaffold fixture — interim terrier-provision proof against live GCP.
-// Probes the payor credential and self-skips when it is unreachable (suite-
-// passenger protection), then runs the rbw-dt scaffold twice. The first run
-// provisions: the verb ensures the payor-project terrier bucket, destroys-then-
-// creates the polity managed folder, grants folder-scoped write + bucket-level
-// read to the depot's governor mantle, and verifies all of it via a getIamPolicy
-// read-back that dies fatally on any absent piece — so exit 0 IS the bucket +
-// per-polity folder + write/read-IAM assertion the pace requires (a getIamPolicy
-// check, not impersonation-enforcement; donning the mantle to prove own-folder-
-// only belongs to the admission/foedus paces). The second run proves the reset is
-// idempotent: destroy-then-create at folder grain reaches the same clean state and
-// the same read-back passes again. Payor-credentialed and cross-project to the
-// governor mantle, so a levied freehold absent the mantle is a real failure.
-fn rbtdrv_terrier_scaffold(dir: &Path) -> rbtdre_Verdict {
-    rbtdrc_with_ctx(|ctx| {
-        // Self-skip gate: a service fixture stays green on a machine with no GCP
-        // credentials by skipping, not failing, when the payor probe is not green.
-        if let Some(v) = zrbtdrv_payor_gate(
-            ctx, dir, crate::rbtdrm_manifest::RBTDRM_FIXTURE_TERRIER_SCAFFOLD, zrbtdrv_PayorGatePolicy::Skip,
-        ) {
-            return v;
-        }
-
-        // First run — provision. The scaffold's getIamPolicy read-back is the
-        // bucket + per-polity folder + write/read-IAM assertion; exit 0 is that proof.
-        let provision = match rbtdri_invoke_global(ctx, RBTDGC_TERRIER_SCAFFOLD, &[], &[]) {
-            Ok(r) => r,
-            Err(e) => {
-                return rbtdre_Verdict::Fail(format!(
-                    "terrier scaffold (provision) invocation: {}",
-                    e
-                ))
-            }
-        };
-        let provision_out = format!("{}\n{}", provision.stdout, provision.stderr);
-        let _ = std::fs::write(dir.join("02-provision.txt"), &provision_out);
-        if provision.exit_code != 0 {
-            return rbtdre_Verdict::Fail(format!(
-                "terrier scaffold (provision) exit {} — bucket / folder / IAM not stood up\n{}",
-                provision.exit_code, provision_out
-            ));
-        }
-
-        // Second run — idempotent reset. Destroy-then-create at folder grain must
-        // reach the same clean state, and the same read-back verify must pass again.
-        let reset = match rbtdri_invoke_global(ctx, RBTDGC_TERRIER_SCAFFOLD, &[], &[]) {
-            Ok(r) => r,
-            Err(e) => {
-                return rbtdre_Verdict::Fail(format!(
-                    "terrier scaffold (reset) invocation: {}",
-                    e
-                ))
-            }
-        };
-        let reset_out = format!("{}\n{}", reset.stdout, reset.stderr);
-        let _ = std::fs::write(dir.join("03-reset.txt"), &reset_out);
-        if reset.exit_code != 0 {
-            return rbtdre_Verdict::Fail(format!(
-                "terrier scaffold (idempotent reset) exit {} — re-run did not reach the same clean state\n{}",
-                reset.exit_code, reset_out
-            ));
-        }
-
-        let _ = std::fs::write(dir.join("04-passed.txt"), "passed");
-        rbtdre_Verdict::Pass
-    })
-}
-
-pub static RBTDRV_CASES_TERRIER_SCAFFOLD: &[rbtdre_Case] = &[case!(rbtdrv_terrier_scaffold)];
-
-
-// Terrier-atomicity fixture — the muniment sub-operation proof against live GCP.
-// Probes the payor credential and self-skips when unreachable (suite-passenger
-// protection). Charges the terrier via the rbw-dt scaffold (so the bucket + polity
-// folder exist), then runs the rbw-dT proof: it engrosses a synthetic muniment,
-// re-engrosses to assert the 412-on-conflict idempotency, peruses it present,
-// expunges, re-expunges to assert the 404 idempotency, and peruses it gone. The
-// proof self-asserts and dies on any deviation, so its exit 0 IS the atomicity
-// assertion the pace requires. Payor-credentialed — project-owner read/write proves
-// the GCS precondition mechanics; mantle-scoped write enforcement is the admission
-// paces' to prove, not this one's.
-fn rbtdrv_terrier_atomicity(dir: &Path) -> rbtdre_Verdict {
-    rbtdrc_with_ctx(|ctx| {
-        // Self-skip gate: stay green on a machine with no GCP credentials.
-        if let Some(v) = zrbtdrv_payor_gate(
-            ctx, dir, crate::rbtdrm_manifest::RBTDRM_FIXTURE_TERRIER_ATOMICITY, zrbtdrv_PayorGatePolicy::Skip,
-        ) {
-            return v;
-        }
-
-        // Charge the terrier — the proof needs a provisioned bucket + polity folder.
-        let charge = match rbtdri_invoke_global(ctx, RBTDGC_TERRIER_SCAFFOLD, &[], &[]) {
-            Ok(r) => r,
-            Err(e) => {
-                return rbtdre_Verdict::Fail(format!("terrier scaffold (charge) invocation: {}", e))
-            }
-        };
-        let charge_out = format!("{}\n{}", charge.stdout, charge.stderr);
-        let _ = std::fs::write(dir.join("02-charge.txt"), &charge_out);
-        if charge.exit_code != 0 {
-            return rbtdre_Verdict::Fail(format!(
-                "terrier scaffold (charge) exit {} — terrier not provisioned for the proof\n{}",
-                charge.exit_code, charge_out
-            ));
-        }
-
-        // Run the muniment-atomicity proof — exit 0 is the engross/expunge/peruse
-        // round-trip plus the 412/404 idempotency assertions (the verb dies on any
-        // deviation).
-        let proof = match rbtdri_invoke_global(ctx, RBTDGC_TERRIER_PROOF, &[], &[]) {
-            Ok(r) => r,
-            Err(e) => return rbtdre_Verdict::Fail(format!("terrier proof invocation: {}", e)),
-        };
-        let proof_out = format!("{}\n{}", proof.stdout, proof.stderr);
-        let _ = std::fs::write(dir.join("03-proof.txt"), &proof_out);
-        if proof.exit_code != 0 {
-            return rbtdre_Verdict::Fail(format!(
-                "terrier proof exit {} — engross/expunge/peruse atomicity not proven\n{}",
-                proof.exit_code, proof_out
-            ));
-        }
-
-        let _ = std::fs::write(dir.join("04-passed.txt"), "passed");
-        rbtdre_Verdict::Pass
-    })
-}
-
-pub static RBTDRV_CASES_TERRIER_ATOMICITY: &[rbtdre_Case] = &[case!(rbtdrv_terrier_atomicity)];
-
-
 // Polity-denial fixture — proves the polity verbs reject with the EXACT precision
 // band across their whole failure surface: the IAM admission band when a
 // governor-wielded verb's don is refused, and the three terrier bands when a
@@ -1759,7 +1611,7 @@ pub static RBTDRV_CASES_TERRIER_ATOMICITY: &[rbtdre_Case] = &[case!(rbtdrv_terri
 // brevet — rides, so governor is pinned as an always-held mantle.
 //
 // Terrier-band arc — the regime-poison analogue for HTTP, folded in as the negative
-// coverage that supersedes the interim terrier-atomicity rbw-dT proof (whose
+// coverage that superseded the retired interim terrier-atomicity rbw-dT proof (whose
 // positive round-trip is already exercised by the real brevet/unseat the admission
 // arc and freehold-establish drive). Drive the SAME real verbs under the rbuh
 // http-fault seam (RBTDGC_TWEAK_HTTP_FAULT), forcing each muniment sub-op's captured
@@ -1772,7 +1624,7 @@ pub static RBTDRV_CASES_TERRIER_ATOMICITY: &[rbtdre_Case] = &[case!(rbtdrv_terri
 // arc proves the terrier is provisioned.
 //
 // Payor-credentialed picket fixture; self-skips on an unreachable payor credential,
-// like the terrier pair above.
+// like the other credentialed picket fixtures.
 
 /// Don the given (pallium-sprued) mantle token once, logging to `label`, and
 /// return its bare exit status (never bare-nonzero downstream — callers compare
@@ -2072,7 +1924,7 @@ pub static RBTDRV_CASES_POLITY_DENIAL: &[rbtdre_Case] = &[case!(rbtdrv_polity_de
 // terrier; the IAM binding is eventually consistent, hence the poll).
 //
 // Payor-credentialed picket fixture; self-skips on an unreachable payor credential
-// (suite-passenger posture), like the terrier pair and polity-denial.
+// (suite-passenger posture), like polity-denial.
 
 /// Rehearse the manor-wide muniment roll and return its stdout — one
 /// "<depot>\t<mantle>\t<provider>\t<subject>" line per muniment (RBSPO

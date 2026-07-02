@@ -64,8 +64,6 @@ zrbgp_kindle() {
   readonly ZRBGP_INFIX_GOV_DELETE_SA="gov_delete_sa"
   readonly ZRBGP_INFIX_GOV_CREATE_SA="gov_create_sa"
   readonly ZRBGP_INFIX_GOV_KEY="gov_key"
-  readonly ZRBGP_INFIX_TERRIER_BUCKET_IAM="terrier_bucket_iam"
-  readonly ZRBGP_INFIX_TERRIER_FOLDER_IAM="terrier_folder_iam"
 
   # Pool build await budget — applies to any Cloud Build dispatched against
   # one of the depot's worker pools (probe at levy, posture check at info).
@@ -2473,126 +2471,6 @@ rbgp_depot_recognosce() {
   buc_success "Depot founding recognosced whole: three mantles, capability-sets, and AR Data-Access audit config confirmed against live GCP"
 }
 
-# Interim scaffold (the permanent founding-home is ₣Bf's): stand up and
-# idempotently reset the freehold's terrier. Payor-credentialed — the terrier
-# bucket lives in the payor project (the Manor, RBS0), and the cross-project
-# grants name a depot's governor mantle SA. Reset is at folder grain (recreating
-# the whole bucket risks GCS same-name reuse lag), so the bucket persists and
-# only the polity managed folder is destroyed-then-created. A re-run reaches the
-# same clean state. Not registered on the README broadside; retired when ₣Bf
-# consolidates the founding-home.
-rbgp_terrier_scaffold() {
-  zrbgp_sentinel
-
-  buc_doc_brief "Provision and idempotently reset the freehold's terrier (interim scaffold; payor-credentialed)"
-  buc_doc_shown || return 0
-
-  buc_step 'Authenticate as Payor'
-  local z_token
-  z_token=$(zrbgp_authenticate_capture) || buc_die "Failed to authenticate as Payor via OAuth"
-
-  local -r z_gov_mantle_email="${RBCC_account_mantle_governor}@${RBGD_SA_EMAIL_FULL}"
-  local -r z_folder="${RBDC_DEPOT_PROJECT_ID}/"
-
-  buc_step "Ensure terrier bucket ${RBGP_TERRIER_BUCKET} in payor project ${RBRP_PAYOR_PROJECT_ID}"
-  rbgb_bucket_ensure "${z_token}" "${RBRP_PAYOR_PROJECT_ID}" "${RBGP_TERRIER_BUCKET}" "${RBRD_GCP_REGION}"
-
-  buc_step "Reset the polity managed folder ${z_folder} (destroy-then-create at folder grain)"
-  rbgb_managed_folder_purge  "${z_token}" "${RBGP_TERRIER_BUCKET}" "${z_folder}" \
-    || buc_die "Failed to reset terrier folder ${z_folder}"
-  rbgb_managed_folder_ensure "${z_token}" "${RBGP_TERRIER_BUCKET}" "${z_folder}"
-
-  buc_step "Grant folder-scoped write to the governor mantle (own-polity)"
-  rbgb_managed_folder_add_iam_role "${z_token}" "${RBGP_TERRIER_BUCKET}" "${z_folder}" \
-    "${z_gov_mantle_email}" "${RBGC_ROLE_STORAGE_OBJECT_ADMIN}"
-
-  buc_step "Grant bucket-level read to the governor mantle (manor-wide)"
-  rbgi_add_bucket_iam_role "${z_token}" "${RBGP_TERRIER_BUCKET}" "${z_gov_mantle_email}" "${RBGC_ROLE_STORAGE_OBJECT_VIEWER}"
-
-  buc_step 'Verify bucket-level read via getIamPolicy read-back'
-  rbuh_json "GET" \
-    "${RBGC_API_BASE_GCS}/b/${RBGP_TERRIER_BUCKET}/iam?optionsRequestedPolicyVersion=3" \
-    "${z_token}" "${ZRBGP_INFIX_TERRIER_BUCKET_IAM}"
-  rbuh_require_ok "Read terrier bucket IAM policy" "${ZRBGP_INFIX_TERRIER_BUCKET_IAM}"
-  zrbgp_recognosce_require_binding "${ZRBGP_INFIX_TERRIER_BUCKET_IAM}" \
-    "${RBGC_ROLE_STORAGE_OBJECT_VIEWER}" "serviceAccount:${z_gov_mantle_email}" \
-    "terrier bucket (governor manor-wide read)"
-
-  buc_step 'Verify folder-scoped write via getIamPolicy read-back'
-  local z_folder_enc
-  z_folder_enc=$(rbuh_urlencode_capture "${z_folder}") || buc_die "Failed to encode terrier folder"
-  rbuh_json "GET" \
-    "${RBGC_API_BASE_GCS}/b/${RBGP_TERRIER_BUCKET}/managedFolders/${z_folder_enc}/iam?optionsRequestedPolicyVersion=3" \
-    "${z_token}" "${ZRBGP_INFIX_TERRIER_FOLDER_IAM}"
-  rbuh_require_ok "Read terrier folder IAM policy" "${ZRBGP_INFIX_TERRIER_FOLDER_IAM}"
-  zrbgp_recognosce_require_binding "${ZRBGP_INFIX_TERRIER_FOLDER_IAM}" \
-    "${RBGC_ROLE_STORAGE_OBJECT_ADMIN}" "serviceAccount:${z_gov_mantle_email}" \
-    "terrier folder (governor own-polity write)"
-
-  buc_success "Terrier scaffolded on ${RBGP_TERRIER_BUCKET}: polity folder ${z_folder}, write+read IAM for ${z_gov_mantle_email}"
-}
-
-# Interim proof (retires with the scaffold when ₣Bf consolidates): drive the
-# terrier muniment sub-operations against a scaffold-provisioned terrier and
-# assert the RBSTR atomic contract end-to-end. Payor-credentialed — the payor
-# reads/writes the payor-project bucket as project owner, which proves the GCS
-# precondition mechanics (the 412-on-conflict idempotency) without mantle
-# impersonation; donning the governor mantle to prove own-folder-only write
-# belongs to the admission paces, not here. Synthetic muniment, self-cleaning.
-# Not registered on the README broadside.
-rbgp_terrier_proof() {
-  zrbgp_sentinel
-
-  buc_doc_brief "Prove terrier muniment atomicity end-to-end against the scaffolded terrier (interim; payor-credentialed)"
-  buc_doc_shown || return 0
-
-  buc_step 'Authenticate as Payor'
-  local z_token
-  z_token=$(zrbgp_authenticate_capture) || buc_die "Failed to authenticate as Payor via OAuth"
-
-  local -r z_bucket="${RBGP_TERRIER_BUCKET}"
-  local -r z_depot="${RBDC_DEPOT_PROJECT_ID}"
-  local -r z_mantle="governor"
-  local -r z_provider="rbgft-proof-provider"   # synthetic segment, parallel to z_subject (the proof arm enforces no RBRF)
-  local -r z_subject="rbgft-proof-probe"
-  local -r z_pair="${z_depot}"$'\t'"${z_mantle}"$'\t'"${z_provider}"$'\t'"${z_subject}"
-
-  buc_step 'Pre-clean any muniment a prior failed proof left behind'
-  rbgft_expunge "${z_token}" "${z_bucket}" "${z_depot}" "${z_mantle}" "${z_provider}" "${z_subject}" >/dev/null
-
-  buc_step 'Engross fresh — expect a created write'
-  local z_disp
-  z_disp=$(rbgft_engross "${z_token}" "${z_bucket}" "${z_depot}" "${z_mantle}" "${z_provider}" "${z_subject}")
-  test "${z_disp}" = "created" || buc_die "Proof: first engross expected 'created', got '${z_disp}'"
-
-  buc_step 'Engross the duplicate — expect the 412 precondition, treated as idempotent'
-  z_disp=$(rbgft_engross "${z_token}" "${z_bucket}" "${z_depot}" "${z_mantle}" "${z_provider}" "${z_subject}")
-  test "${z_disp}" = "present" || buc_die "Proof: duplicate engross expected 412 'present', got '${z_disp}'"
-
-  buc_step 'Peruse — expect the engrossed muniment present'
-  local z_muniments
-  z_muniments=$(rbgft_peruse "${z_token}" "${z_bucket}" "${z_depot}")
-  [[ "${z_muniments}" == *"${z_pair}"* ]] \
-    || buc_die "Proof: peruse did not surface the engrossed muniment"
-
-  buc_step 'Expunge — expect a delete'
-  z_disp=$(rbgft_expunge "${z_token}" "${z_bucket}" "${z_depot}" "${z_mantle}" "${z_provider}" "${z_subject}")
-  test "${z_disp}" = "deleted" || buc_die "Proof: expunge expected 'deleted', got '${z_disp}'"
-
-  buc_step 'Expunge the absent — expect 404, treated as idempotent'
-  z_disp=$(rbgft_expunge "${z_token}" "${z_bucket}" "${z_depot}" "${z_mantle}" "${z_provider}" "${z_subject}")
-  test "${z_disp}" = "absent" || buc_die "Proof: re-expunge expected 404 'absent', got '${z_disp}'"
-
-  buc_step 'Peruse — expect the muniment gone'
-  z_muniments=$(rbgft_peruse "${z_token}" "${z_bucket}" "${z_depot}")
-  if [[ "${z_muniments}" == *"${z_pair}"* ]]; then
-    buc_die "Proof: peruse still surfaces the muniment after expunge"
-  fi
-
-  buc_success "Terrier muniment atomicity proven on ${z_bucket}: engross/412-idempotent, peruse, expunge/404-idempotent"
-}
-
-######################################################################
 # Polity admission verbs (rbgp_brevet / rbgp_unseat / rbgp_attaint /
 # rbgp_rehearse) — the operator-facing federation admission surface under the
 # rbw-p launcher family. Each is a thin idempotent composition over the terrier

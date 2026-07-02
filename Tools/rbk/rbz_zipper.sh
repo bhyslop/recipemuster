@@ -70,10 +70,6 @@ zrbz_kindle() {
   buz_enroll RBZ_INFO_DEPOT             "rbw-di"  "${z_mod}" "rbgp_depot_info"    ""  "Run egress posture checks against the live depot's worker pools"
   buz_enroll RBZ_RECOGNOSCE_DEPOT       "rbw-dr"  "${z_mod}" "rbgp_depot_recognosce"  ""  "Recognosce a depot's founding — confirm mantle SAs, capability-sets, and AR audit config against live GCP"
   buz_enroll RBZ_ATTRIBUTION_DEPOT      "rbw-da"  "${z_mod}" "rbgp_attribution_trail" ""  "Print the depot's AR Data-Access attribution trail — recent audit entries naming the acting mantle SA and the human federate subject"
-  # Transitional — interim terrier scaffold; ₣Bf owns the permanent founding-home and retires this colophon. Not README-broadside-registered.
-  buz_enroll RBZ_TERRIER_SCAFFOLD       "rbw-dt"  "${z_mod}" "rbgp_terrier_scaffold"  ""  "Provision and idempotently reset the freehold's terrier (interim scaffold)"
-  # Transitional — interim terrier muniment-atomicity proof; retires with the scaffold when ₣Bf consolidates. Not README-broadside-registered.
-  buz_enroll RBZ_TERRIER_PROOF          "rbw-dT"  "${z_mod}" "rbgp_terrier_proof"     ""  "Prove terrier muniment atomicity end-to-end against the scaffolded terrier (interim)"
 
   # Manor — IdP federation founding (rbw-m). The payor founding trio —
   # affiance / jilt / gird (gird seats a fresh depot's first governor, the one

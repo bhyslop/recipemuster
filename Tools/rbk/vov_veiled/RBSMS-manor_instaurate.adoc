@@ -84,9 +84,8 @@ and grants the governor
 its bindings (own-polity write, manor-wide read), and only the runtime
 {rbtf_muniment}
 writes into an already-provisioned own-polity folder are governor-credentialed (the
-admission verbs). Folder provisioning is *ensure-only* here — the interim
-scaffold's destroy-then-create is not the finisher's shape; the finisher never empties
-a standing folder.
+admission verbs). Folder provisioning is *ensure-only* here — a destroy-then-create
+reset is not the finisher's shape; the finisher never empties a standing folder.
 
 NOTE: Scope boundary. The finisher founds the pool, the terrier bucket, the polity
 folder, and the org-level workforce-pool admin grant (spike Finding F1). It does not
@@ -178,7 +177,7 @@ the bucket present. Idempotent — an already-present bucket (HTTP `409`) is tol
 .. {rbbc_submit}
 link:https://cloud.google.com/storage/docs/json_api/v1/managedFolders/insert[managedFolders.insert] for the polity folder named `RBDC_DEPOT_PROJECT_ID/` in the terrier bucket.
 .. {rbbc_require}
-the folder present. *Ensure-only* — an already-present folder (HTTP `409`) is left as it stands; the finisher never empties a standing folder (unlike the interim scaffold's destroy-then-create).
+the folder present. *Ensure-only* — an already-present folder (HTTP `409`) is left as it stands; the finisher never empties a standing folder (no destroy-then-create reset).
 .. {rbbc_submit}
 a folder-scoped
 link:https://cloud.google.com/storage/docs/json_api/v1/managedFolders/setIamPolicy[managedFolders.setIamPolicy]
