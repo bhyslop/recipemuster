@@ -54,23 +54,37 @@ not affiance's.
 An unresolvable folio — no such foedus in the library — is a precondition rejection
 naming the absent foedus.
 
-NOTE: Affiance is *idempotent-ensure-exists*, exercised once per foedus with
+NOTE: Affiance is *idempotent-ensure-current*, exercised once per foedus with
 founding gravity. Re-running it against an already-seated provider neither duplicates
-nor fails — the provider is ensured present (created when absent, left in place when
-already there). The project's standing test trust (the federation-legs spike's
-reference provider) is the type instance: against the seeded Federation regime this
-operation is a no-op on the provider. A second foedus is a further affiance with a
-different `RBRF_PROVIDER_ID` under the same standing pool; the pool persists across
-providers, founded once at manor setup and never by affiance. This is the
+nor fails — the provider is ensured present (created when absent, undeleted when
+soft-deleted, left standing when already live). Idempotence is mechanism-shaded on the
+re-run: under
+{rbrf_mechanism_interactive}
+a re-run against a live provider is a pure no-op (issuer-discovered keys — nothing is
+uploaded, so nothing to re-sync); under
+{rbrf_mechanism_programmatic}
+a re-run additionally re-syncs the ephemeral uploaded JWKS (the *twiddle*, step below),
+so it *converges* rather than no-ops — the realm signing key is minted fresh per charge
+({rbtf_realm}), so a standing programmatic provider validates against a stale key until
+re-synced. A second foedus is a further affiance with a different `RBRF_PROVIDER_ID`
+under the same standing pool; the pool persists across providers, founded once at manor
+setup and never by affiance. This is the
 {rbtf_affiance}
 cinch — first or further provider alike — realized as one idempotent body.
 
-NOTE: *Drift reconciliation is a deferred follow-up, not in the founding cut.* An
-already-present provider is left as it stands; affiance does not yet patch a provider
-whose live `attributeMapping` or `oidc` fields have drifted from the Federation
-regime. The patch-to-converge behavior is a horizon item — until it lands, affiance
-ensures existence, not field convergence. (The pool's own `sessionDuration`
-reconciliation is the manor-setup finisher's, not affiance's.)
+NOTE: *Drift reconciliation is a narrowed follow-up.* One field is exempt from the
+deferral: under
+{rbrf_mechanism_programmatic}
+affiance re-syncs the uploaded public JWKS (`oidc.jwksJson`) on an already-present
+provider, patching it from the regime on every run, because that key snapshot is
+ephemeral ({rbtf_realm}) and a standing provider would otherwise validate self-supplied
+JWTs against a stale key. That single-field re-sync — the *twiddle* — is part of the
+founding cut (the ensure step below), not a horizon item. Every OTHER field stays
+deferred: affiance does not yet patch a provider whose live `attributeMapping`,
+`issuerUri`, or `clientId` has drifted from the regime, under either mechanism — that
+full drift-to-converge is the horizon item, and the interactive mechanism (nothing
+uploaded) has no re-sync at all. (The pool's own `sessionDuration` reconciliation is
+the manor-setup finisher's, not affiance's.)
 
 NOTE: Scope boundary. Affiance seats only the provider under the manor's standing
 pool. The pool itself and the org-level workforce-pool admin grant (spike Finding F1)
@@ -98,10 +112,19 @@ the pool present and live (HTTP 200, `state` not `DELETED`). Absent (HTTP 404) o
 .. NOTE: The pool is manor-level, founded once at manor setup and standing for the manor's lifetime ({rbrw_regime}); affiance only hangs a provider beneath it. This get also anchors the provider's parent path for the next step.
 
 //axhos_step
-. *Ensure the pool provider and its attribute mapping*:
+. *Ensure the pool provider, its attribute mapping, and — under {rbrf_mechanism_programmatic} — a fresh JWKS*:
 .. {rbbc_call}
 link:https://cloud.google.com/iam/docs/reference/rest/v1/locations.workforcePools.providers/get[workforcePools.providers.get] for `RBRF_PROVIDER_ID` under `locations/global/workforcePools/RBRW_WORKFORCE_POOL_ID`
-.. present (HTTP 200) → leave it in place, advance. Absent (HTTP 404) → create it:
+.. Branch on the provider's presence and `state`:
+... *Live* (HTTP 200, `state` not DELETED) → the provider stands; skip the create body and run the *re-sync arm* below.
+... *Soft-deleted* (HTTP 200, `state` DELETED) →
+{rbbc_submit}
+link:https://cloud.google.com/iam/docs/reference/rest/v1/locations.workforcePools.providers/undelete[workforcePools.providers.undelete] and
+{rbbc_await}
+it to done, restoring the provider under its held id; then run the *re-sync arm* exactly as the live branch. Undelete restores the provider's LAST uploaded key snapshot, so under
+{rbrf_mechanism_programmatic}
+it is the re-sync patch — never the undelete — that converges the ephemeral JWKS; a delete/undelete cycle alone cannot.
+... *Absent* (HTTP 404) → create it (the create body follows):
 .. {rbbc_submit}
 link:https://cloud.google.com/iam/docs/reference/rest/v1/locations.workforcePools.providers/create[workforcePools.providers.create] with:
 ... parent: `locations/global/workforcePools/RBRW_WORKFORCE_POOL_ID`
@@ -143,9 +166,25 @@ Under
 }
 ----
 .. {rbbc_await}
-the returned operation to done
+the returned create operation to done (the absent branch only).
+.. *Re-sync arm* (the live and undeleted branches) — mechanism-conditional:
+... Under
+{rbrf_mechanism_programmatic}
+→ re-sync the ephemeral uploaded JWKS:
+{rbbc_submit}
+link:https://cloud.google.com/iam/docs/reference/rest/v1/locations.workforcePools.providers/patch[workforcePools.providers.patch] with an `updateMask` naming *only* `oidc.jwksJson`, its value taken from
+{rbrf_idp_jwks_json},
+then
+{rbbc_await}
+the patch operation to done. This is the *twiddle*: the realm signing key is minted fresh per charge ({rbtf_realm}), so a standing provider validates self-supplied JWTs against a stale key until this patch rewrites the uploaded snapshot. Only `oidc.jwksJson` is masked — every other field is left as it stands (the deferred full drift-reconcile), following the manor-setup finisher's `updateMask`-names-only-the-drifted-field precedent (RBSMS).
+... Under
+{rbrf_mechanism_interactive}
+→ leave the provider untouched: its keys are issuer-discovered, so nothing is uploaded to re-sync. Drift reconciliation of `attributeMapping` / `issuerUri` / `clientId` stays the deferred follow-up.
 .. {rbbc_require}
-the provider present. Ensure-exists only: an already-present provider is left as it stands — not recreated, not patched, not failed. Drift reconciliation of `attributeMapping` / `oidc` is the deferred follow-up noted above.
+the provider present and — under
+{rbrf_mechanism_programmatic}
+— carrying the re-synced JWKS. Ensure-*current*, not merely ensure-exists: an absent provider is created, a soft-deleted one undeleted, a stale programmatic JWKS re-synced; only the interactive live case is a pure no-op.
+.. NOTE: Whether a soft-deleted provider surfaces on GET as HTTP 200 with `state: DELETED` or as HTTP 404 is an impl-confirm settled at the first live cycle; the contract tolerates both — a 200-DELETED undeletes-then-re-syncs, a genuine 404 creates fresh (already carrying the current JWKS from the create body). Should the id instead read 404 on GET yet collide (`ALREADY_EXISTS`) on create — the tombstone still holding the id — that collision is the residual the first live cycle resolves; jilt's own verify loop already tolerates both surfacings.
 .. NOTE: `RBRF_ATTRIBUTE_MAPPING` is stored as a single `key=value` string in the regime and parsed into the API's `attributeMapping` object; the regime validator guarantees it maps `google.subject`. The mapped claim is vendor-specific (`assertion.oid` for Entra, `assertion.sub` elsewhere) and rides in the regime value, not in affiance.
 .. NOTE: *Subject-namespacing is set here, provider-side.* Because one pool is shared across every foedus, the mapped `google.subject` is the co-tenancy seam: a production foedus maps to the citizen's IdP-stable canonical subject, while the synthetic test provider's regime maps `google.subject` to a namespace-DISJOINT value, so a test token can never satisfy a production `principal://…/subject/«S»` binding. Affiance writes the mapping verbatim from the regime (vendor-blind); the disjointness is the discipline the test foedus's `RBRF_ATTRIBUTE_MAPPING` carries — the load-bearing co-tenancy rule, enforced at this provider.
 .. NOTE: `webSsoConfig` (`ID_TOKEN` / `ONLY_ID_TOKEN_CLAIMS`) is interactive-meaningful — the spike-proven shape that makes the provider serve the device flow. Under {rbrf_mechanism_programmatic} it is inert: GCP validates the self-supplied JWT against the uploaded `jwksJson`, never through web-sso. The proof observed `gcloud providers create-oidc` *demand* the web-sso flags even alongside `--jwk-json-path`; whether the REST `create` body must likewise carry an inert `webSsoConfig` or may omit it is an impl-confirm, not a hard contract.

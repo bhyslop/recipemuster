@@ -62,5 +62,12 @@ Tools/vvc/target/
 # Officium exchange directories (ephemeral, per-session)
 .claude/jjm/officia/
 
+# rbef_keycloak live federation regime — the ONE sanctioned deviation from
+# RBSRF ships-committed: the Keycloak orchestrator (rbxk_keycloak) renders this
+# live rbrf.env per charge from rbrf.env.template plus the ephemeral public JWKS
+# (committed nowhere, RBSFK). The template beside it IS committed; only the
+# rendered live file is ignored, so setup keeps the tree clean (untracked, ungated).
+rbmm_moorings/rbmf_foedera/rbef_keycloak/rbrf.env
+
 # JJK release directory (parcels ignored via .jjk/.gitignore)
 **/gen/

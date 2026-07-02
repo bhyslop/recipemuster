@@ -1194,7 +1194,60 @@ rbgp_manor_affiance() {
 
   case "${z_provider_code}" in
     200)
-      buc_info "Provider ${z_provider_id} already present — leaving in place (drift-reconcile is a named follow-up)"
+      # Provider present under the pool (RBSMA branch dispatch). Read its state: a
+      # live provider runs the re-sync arm directly; a soft-deleted one (state
+      # DELETED) is undeleted first, then re-synced exactly as live. Undelete
+      # restores the provider's LAST uploaded key snapshot, so under the programmatic
+      # mechanism only the re-sync patch converges the ephemeral JWKS — a
+      # delete/undelete cycle alone cannot (RBSMA re-sync-arm NOTE).
+      local z_provider_state
+      z_provider_state=$(rbuh_json_field_capture "affiance_provider_get" '.state // "UNKNOWN"') \
+        || z_provider_state="UNKNOWN"
+      if test "${z_provider_state}" = "${RBGC_STATE_DELETED}"; then
+        buc_step 'Undelete soft-deleted provider'
+        buc_info "Provider ${z_provider_id} soft-deleted (state DELETED) — undeleting before re-sync"
+        rbge_lro_ok \
+          "Undelete workforce pool provider" \
+          "${z_token}" \
+          "${z_provider_get_url}:undelete" \
+          "affiance_provider_undelete" \
+          "" \
+          ".name" \
+          "${z_iam_root}" \
+          "" \
+          "${RBGC_EVENTUAL_CONSISTENCY_SEC}" \
+          "${RBGC_MAX_CONSISTENCY_SEC}"
+        buc_info "Provider ${z_provider_id} undeleted under pool ${z_pool_id}"
+      else
+        buc_info "Provider ${z_provider_id} present (state ${z_provider_state}) — ensuring current"
+      fi
+
+      # Re-sync arm (RBSMA), mechanism-conditional. Under the programmatic mechanism
+      # the uploaded public JWKS is ephemeral — the realm signing key is minted fresh
+      # per charge (RBSFK) — so a standing provider validates self-supplied JWTs
+      # against a stale key until this patch rewrites the snapshot (the twiddle). The
+      # updateMask names ONLY oidc.jwksJson, the instaurate pool-reconcile precedent;
+      # every other field is left as it stands (full drift-reconcile deferred). Under
+      # the interactive mechanism the keys are issuer-discovered — nothing is uploaded
+      # to re-sync, so the present branch is a pure no-op.
+      case "${RBRF_MECHANISM}" in
+        rbnfe_programmatic)
+          buc_step 'Re-sync programmatic provider JWKS'
+          local -r z_patch_body="${BURD_TEMP_DIR}/rbgp_affiance_jwks_patch.json"
+          jq -n --arg jwks "${RBRF_IDP_JWKS_JSON}" \
+            '{ oidc: { jwksJson: $jwks } }' > "${z_patch_body}" \
+            || buc_die "Failed to build provider JWKS patch body"
+          rbuh_json "PATCH" "${z_provider_get_url}?updateMask=oidc.jwksJson" "${z_token}" "affiance_provider_patch" "${z_patch_body}"
+          rbuh_require_ok "Re-sync provider JWKS" "affiance_provider_patch"
+          buc_info "Provider ${z_provider_id} JWKS re-synced (updateMask=oidc.jwksJson)"
+          ;;
+        rbnfe_interactive)
+          buc_info "Provider ${z_provider_id} interactive — issuer-discovered keys, no JWKS re-sync"
+          ;;
+        *)
+          buc_die "Unknown RBRF_MECHANISM: ${RBRF_MECHANISM}"
+          ;;
+      esac
       ;;
     404)
       # The provider oidc block is the one mechanism-variant part of affiance
