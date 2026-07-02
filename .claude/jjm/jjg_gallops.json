@@ -14841,8 +14841,8 @@
         "₢BfAAK": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260702-1148",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260702-1306",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "Add the programmatic token-acquisition arm to the rba accessor:",
                 "mint the id_token via the test IdP's RFC 7523 grant, then exchange at STS for a federated token —",
@@ -14880,7 +14880,7 @@
                 "Bash across four surfaces (regime, template, orchestrator render, accessor arm); consumes the contract the predecessor spec pace re-cut; intricate but mechanical once that contract stands."
               ],
               "jjgtn_silks": "programmatic-accessor-rba-arm",
-              "jjgtn_basis": "da5b0a9"
+              "jjgtn_basis": "d981475"
             }
           ]
         },
