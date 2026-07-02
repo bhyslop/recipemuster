@@ -116,6 +116,15 @@ zrbz_kindle() {
   buz_enroll RBZ_DESCRY_FOEDUS          "rbw-jd"  "${z_mod}" "rbof_descry"   "param1"  "Descry a standing foedus — read its provider's presence under the manor pool (healthy, or a named deficit; read-only)"
   buz_enroll RBZ_CANVASS_FOEDUS         "rbw-jc"  "${z_mod}" "rbof_canvass"  ""        "Canvass the manor's foedera — enumerate every provider under the one workforce pool, emitting per-foedus fact files and marking the regime-selected one (read-only)"
 
+  # Facility — synthetic-federation test-bed lifecycle (rbw-q, test-only utilities;
+  # UPPER second-letter=mutates cloud/critical state). The Keycloak orchestrator is
+  # one coherent module composing charge/affiance and jilt/quench through their
+  # tabtargets — it never reimplements the composed verbs.
+  buz_group RBZ__GROUP_FACILITY   "rbw-q"   "Facility — synthetic-federation test-bed lifecycle"
+  z_mod="rbxk_cli.sh"
+  buz_enroll RBZ_SETUP_KEYCLOAK         "rbw-qjK" "${z_mod}" "rbxk_setup"    ""        "Stand up the Keycloak programmatic test facility — charge fdkyclk, render its ephemeral JWKS into the ignored live regime, affiance rbef_keycloak (mutates cloud via affiance)"
+  buz_enroll RBZ_TEARDOWN_KEYCLOAK      "rbw-qjQ" "${z_mod}" "rbxk_teardown" ""        "Tear down the Keycloak test facility — jilt rbef_keycloak, then quench fdkyclk (idempotent)"
+
   # Lode — fetched-side universal capture (rbw-l, UPPER=mutates GAR/cost, lower=read-only)
   buz_group RBZ__GROUP_LODE       "rbw-l"   "Lode — Fetched-side universal capture"
   z_mod="rbld0_cli.sh"

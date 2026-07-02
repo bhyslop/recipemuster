@@ -250,13 +250,13 @@ rbxk_setup() {
   buc_doc_brief "Stand up the Keycloak programmatic test facility — charge the crucible, render its ephemeral JWKS into the ignored live regime, and affiance rbef_keycloak (RBSMA)"
   buc_doc_shown || return 0
 
-  # Clean-tree gate FIRST — the precision-band creed variant's first live consumer
-  # (RBSMA/BCG Precision Exit-Code Band). affiance, which this facility calls,
-  # refuses a dirty tree (its provider id is the committed RBRF value); gating
-  # up-front fails fast BEFORE charging a crucible rather than after, and keeps
-  # the operator's own uncommitted work distinct from the facility's rendered
-  # (untracked) live regime.
-  bug_require_clean_tree_creed "the Keycloak facility charges a crucible then calls affiance, which itself demands a clean tree; gate up-front so setup fails before charging rather than after"
+  # Clean-tree gate FIRST — the precision-band creed variant (BCG Precision
+  # Exit-Code Band). The orchestrator gates up-front precisely to honor affiance's
+  # OWN clean-tree requirement BEFORE charging a crucible: affiance (which this
+  # facility calls) refuses a dirty tree because the seated provider must answer to
+  # a committed name, so reuse its very creed (ACG: reference the home) rather than
+  # mint a near-duplicate. Gating here fails fast, before charge, instead of after.
+  bug_require_clean_tree_creed "${RBCC_creed_clean_affiance}"
 
   buc_step "Charge the ${RBXK_moniker} crucible"
   zrbxk_run_tabtarget "rbw-cC" "${RBXK_moniker}"
