@@ -14263,8 +14263,8 @@
         "₢BfAA1": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260701-1654",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260701-2142",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "Re-cut the foedus verb code to the one-pool provider model per the re-cut RBSMA / RBSMJ / RBSFD (₢BfAAv) — affiance creates a provider under the standing pool (no longer founds it); jilt deletes the provider (no longer the pool); descry reads provider-grain health.",
                 "",
@@ -14288,7 +14288,7 @@
                 "Surgical bash re-cut of three foedus verbs (two payor, one rbof) against the settled RBSMA/RBSMJ/RBSFD; how much of the affiance founding-step logic moves wholesale to the finisher is the in-pace judgment."
               ],
               "jjgtn_silks": "affiance-jilt-provider-recut",
-              "jjgtn_basis": "1883bdb"
+              "jjgtn_basis": "b5ffd81"
             }
           ]
         },
