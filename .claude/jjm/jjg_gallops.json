@@ -21116,8 +21116,8 @@
         "₢BoAAE": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260630-1242",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260701-1924",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "The about+vouch SBOM step fails on a single-arch image.",
                 "rbgja02-syft-per-platform.sh's single-platform branch scans the bare image tag with no platform constraint,",
@@ -21141,7 +21141,7 @@
                 "Small, well-targeted cloud-step fix; mechanism fully diagnosed."
               ],
               "jjgtn_silks": "syft-single-arch-sbom-fix",
-              "jjgtn_basis": "321476c"
+              "jjgtn_basis": "a8d8b03"
             }
           ]
         }
