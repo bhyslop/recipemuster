@@ -14364,8 +14364,8 @@
         "₢BfAA4": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260702-0400",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260702-0410",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "Carve the terrier noun-internals out of RBS0 into the companion normative sheaf RBSTN,",
                 "so the terrier quoin reads as its definition plus two include::s (noun, access) —",
@@ -14414,7 +14414,7 @@
                 "Mechanical AsciiDoc relocation; the care is verbatim sentence preservation and resolving refs, not judgment."
               ],
               "jjgtn_silks": "terrier-noun-sheaf-carve",
-              "jjgtn_basis": "f140957"
+              "jjgtn_basis": "bf815d5"
             }
           ]
         },
