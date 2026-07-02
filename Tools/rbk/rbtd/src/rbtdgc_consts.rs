@@ -144,7 +144,6 @@ pub const RBTDGC_MANTLE_RETRIEVER: &str = "rbpa_retriever";
 pub const RBTDGC_RBRR_FILE: &str = "rbmm_moorings/rbrr.env";
 pub const RBTDGC_RBRP_FILE: &str = "rbmm_moorings/rbrp.env";
 pub const RBTDGC_RBRM_FILE: &str = "rbmm_moorings/rbrm.env";
-pub const RBTDGC_RBRF_FILE: &str = "rbmm_moorings/rbmf_foedera/rbef_entrada/rbrf.env";
 pub const RBTDGC_RBRD_BASENAME: &str = "rbrd.env";
 pub const RBTDGC_RBRD_FILE: &str = "rbmm_moorings/rbrd.env";
 pub const RBTDGC_RBRN_FILE: &str = "rbrn.env";

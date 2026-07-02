@@ -48,7 +48,7 @@ zrbgg_furnish() {
   source "${z_rbk_kit_dir}/rbdc_derived.sh"
   source "${RBCC_rbrr_file}"
   source "${RBCC_rbrd_file}"
-  source "${RBCC_rbrf_file}"
+  rbcc_source_active_rbrf
   source "${RBCC_rbrw_file}"
   source "${z_rbk_kit_dir}/rbgg_governor.sh"
   source "${z_rbk_kit_dir}/rbgw_capabilities.sh"

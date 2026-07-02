@@ -55,16 +55,15 @@ RBCC_rbrm_file="${RBCC_moorings_dir}/rbrm.env"
 # the per-foedus rbrf.env files live. Holds the pool coordinates (org, pool id,
 # session) the one-pool Model relocated out of the per-foedus federation regime.
 RBCC_rbrw_file="${RBCC_moorings_dir}/rbrw.env"
-# Federation regime file — the ACTIVE foedus's rbrf.env. The foedera library
-# (RBCC_foedera_subdir) holds one rbef_ subdirectory per standing foedus, the
-# active one selected by RBRR_ACTIVE_FOEDUS; the configuration is stored once
-# with no copied active file (RBSRF). DEGENERATE single-foedus resolution:
-# with only rbef_entrada standing, the active path is constant-folded to it
-# here. The selector-derived form (.../${RBRR_ACTIVE_FOEDUS}/rbrf.env) lands
-# with the deferred federation family-of-named-instances rework; until then
-# instate writes the selector and descry resolves any named foedus directly,
-# but the singleton accessor reads this constant unchanged.
-RBCC_rbrf_file="${RBCC_moorings_dir}/${RBCC_foedera_subdir}/rbef_entrada/rbrf.env"
+# Federation regime file — resolved from the ACTIVE foedus's selector, NOT a
+# source-time constant. The foedera library (RBCC_foedera_subdir) holds one
+# rbef_ subdirectory per standing foedus (RBSRF); RBRR_ACTIVE_FOEDUS names the
+# active one. That selector is only populated once rbrr.env is sourced during
+# furnish — AFTER this module — so the path cannot be constant-folded here.
+# rbcc_rbrf_file_capture (below) composes it post-rbrr; every consumer sources
+# rbrf.env only after sourcing rbrr.env, so the selector is live at the call
+# site. No-repo-regime contexts never call the resolver, so nothing breaks
+# where RBRR_ACTIVE_FOEDUS is unset.
 RBCC_rbrd_basename="rbrd.env"
 RBCC_rbrd_file="${RBCC_moorings_dir}/${RBCC_rbrd_basename}"
 
@@ -196,6 +195,38 @@ RBCC_container_pentacle="pentacle"
 RBCC_container_sentry="sentry"
 
 ######################################################################
+# Federation regime resolver (rbcc_rbrf_file_capture)
+
+# rbcc_rbrf_file_capture — echo the path to a foedus's rbrf.env in the moorings
+# foedera library. With no argument it resolves the ACTIVE foedus from the
+# RBRR_ACTIVE_FOEDUS selector (the runtime accessor path); a foedus name may be
+# passed explicitly (the Entra guide names the interactive rbef_entrada it
+# teaches). Returns nonzero without emitting when no foedus resolves — the
+# caller's `source "$(...)" || buc_die` surfaces it. The selector is only live
+# after rbrr.env is sourced, which every runtime consumer does before calling
+# this; a no-repo-regime context simply never calls it. This on-demand
+# resolution replaces the former source-time RBCC_rbrf_file constant — the
+# deferred federation family-of-named-instances rework (RBSRF).
+rbcc_rbrf_file_capture() {
+  local z_foedus="${1:-${RBRR_ACTIVE_FOEDUS:-}}"
+  test -n "${z_foedus}" || return 1
+  printf '%s\n' "${RBCC_moorings_dir}/${RBCC_foedera_subdir}/${z_foedus}/rbrf.env"
+}
+
+# rbcc_source_active_rbrf — resolve the ACTIVE foedus's rbrf.env from the
+# selector and source it, dying loud on an unset selector or an unreadable
+# file. The single home for what every runtime consumer did as the former
+# `source "${RBCC_rbrf_file}"`: a furnish sources it after sourcing rbrr.env,
+# so RBRR_ACTIVE_FOEDUS is live at the call. Sourcing here lands the RBRF_*
+# fields in the caller's global scope exactly as an inline source would (bare
+# assignments in the sourced file, sourced within a function, remain global).
+rbcc_source_active_rbrf() {
+  local z_rbrf
+  z_rbrf=$(rbcc_rbrf_file_capture) || buc_die "No active foedus resolved — RBRR_ACTIVE_FOEDUS unset or blank"
+  source "${z_rbrf}"               || buc_die "Failed to source the active foedus RBRF: ${z_rbrf}"
+}
+
+######################################################################
 # Rust const projection (rbcc single-homed set → RBTDGC_)
 
 # rbcc_emit_consts() - Emit the RBCC-owned co-maintained constants as Rust
@@ -238,7 +269,6 @@ rbcc_emit_consts() {
     RBCC_rbrr_file       \
     RBCC_rbrp_file       \
     RBCC_rbrm_file       \
-    RBCC_rbrf_file       \
     RBCC_rbrd_basename   \
     RBCC_rbrd_file       \
     RBCC_rbrn_file       \

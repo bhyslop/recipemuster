@@ -62,7 +62,7 @@ rbgv_check_avowal() {
   buc_doc_shown || return 0
 
   buc_step "Federated access probe — avowal against the RBRF trust"
-  source "${RBCC_rbrf_file}" || buc_die "Failed to source RBRF: ${RBCC_rbrf_file}"
+  rbcc_source_active_rbrf
   source "${RBCC_rbrw_file}" || buc_die "Failed to source RBRW: ${RBCC_rbrw_file}"
   zrbrf_kindle
   zrbrw_kindle
@@ -118,7 +118,7 @@ rbgv_check_mantle() {
   buc_info "Freehold subject (avow as this identity): ${RBPC_freehold_subject}"
 
   buc_step "Avow against the RBRF trust to open or reuse the sitting"
-  source "${RBCC_rbrf_file}" || buc_die "Failed to source RBRF: ${RBCC_rbrf_file}"
+  rbcc_source_active_rbrf
   source "${RBCC_rbrw_file}" || buc_die "Failed to source RBRW: ${RBCC_rbrw_file}"
   zrbrf_kindle
   zrbrw_kindle

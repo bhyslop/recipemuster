@@ -45,10 +45,10 @@ use crate::rbtdgc_consts::{
     RBTDGC_CHECK_AVOWAL, RBTDGC_CHECK_MANTLE,
     RBTDGC_CHECK_PAYOR, RBTDGC_CONCLAVE_RELIQUARY, RBTDGC_DESCRY_FOEDUS,
     RBTDGC_DIVINE_LODES, RBTDGC_ENSCONCE_BOLE, RBTDGC_FACT_EXT_FOEDUS, RBTDGC_FACT_EXT_FOEDUS_HEALTH, RBTDGC_FEOFF_BOLE,
-    RBTDGC_FREEHOLD_SUBJECT, RBTDGC_IMMURE_PODVM, RBTDGC_INSTATE_FOEDUS,
+    RBTDGC_FOEDERA_SUBDIR, RBTDGC_FREEHOLD_SUBJECT, RBTDGC_IMMURE_PODVM, RBTDGC_INSTATE_FOEDUS,
     RBTDGC_JETTISON_HALLMARK_IMAGE, RBTDGC_JETTISON_IMAGE, RBTDGC_JILT_MANOR, RBTDGC_LIST_IMAGES,
-    RBTDGC_MANTLE_DIRECTOR, RBTDGC_MANTLE_GOVERNOR, RBTDGC_MANTLE_RETRIEVER,
-    RBTDGC_PLUMB_FULL, RBTDGC_RBRD_FILE, RBTDGC_RBRF_FILE, RBTDGC_RBRR_FILE, RBTDGC_REHEARSE_POLITY, RBTDGC_REKON_HALLMARK,
+    RBTDGC_MANTLE_DIRECTOR, RBTDGC_MANTLE_GOVERNOR, RBTDGC_MANTLE_RETRIEVER, RBTDGC_MOORINGS_DIR,
+    RBTDGC_PLUMB_FULL, RBTDGC_RBRD_FILE, RBTDGC_RBRR_FILE, RBTDGC_REHEARSE_POLITY, RBTDGC_REKON_HALLMARK,
     RBTDGC_SUMMON_HALLMARK,
     RBTDGC_TALLY_HALLMARKS,
     RBTDGC_TWEAK_HTTP_FAULT,
@@ -1978,7 +1978,25 @@ fn zrbtdrv_freehold_depot_capture(ctx: &rbtdri_Context) -> Result<String, rbtdre
 /// assertions name exactly the admitting provider brevet stores in
 /// rbgft_provider.
 fn zrbtdrv_active_provider_capture(ctx: &rbtdri_Context) -> Result<String, rbtdre_Verdict> {
-    let rbrf = ctx.project_root().join(RBTDGC_RBRF_FILE);
+    // The federation regime file is the ACTIVE foedus's rbrf.env, resolved from
+    // the RBRR_ACTIVE_FOEDUS selector — the bash accessor's rbcc_rbrf_file_capture
+    // mirrored here (the former constant-folded entrada path is retired). Read the
+    // selector from rbrr, compose the library path, then read the provider id.
+    let root = ctx.project_root().to_path_buf();
+    let rbrr = root.join(RBTDGC_RBRR_FILE);
+    let foedus = match crate::rbtdrk_freehold::rbtdrk_read_env_value(&rbrr, "RBRR_ACTIVE_FOEDUS") {
+        Some(f) if !f.trim().is_empty() => f.trim().to_string(),
+        _ => return Err(rbtdre_Verdict::Fail(format!(
+            "RBRR_ACTIVE_FOEDUS blank or missing in {} — no active foedus to read the \
+             admitting provider from",
+            rbrr.display()
+        ))),
+    };
+    let rbrf = root
+        .join(RBTDGC_MOORINGS_DIR)
+        .join(RBTDGC_FOEDERA_SUBDIR)
+        .join(&foedus)
+        .join("rbrf.env");
     match crate::rbtdrk_freehold::rbtdrk_read_env_value(&rbrf, RBTDRV_RBRF_PROVIDER_VAR) {
         Some(p) if !p.trim().is_empty() => Ok(p.trim().to_string()),
         _ => Err(rbtdre_Verdict::Fail(format!(

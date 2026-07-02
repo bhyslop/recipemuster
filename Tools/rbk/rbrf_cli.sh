@@ -31,7 +31,9 @@ rbrf_validate() {
   buc_doc_brief "Validate RBRF federation regime configuration via enrollment report"
   buc_doc_shown || return 0
 
-  buc_step "Validating RBRF federation regime file: ${RBCC_rbrf_file}"
+  local z_rbrf
+  z_rbrf=$(rbcc_rbrf_file_capture) || buc_die "No active foedus resolved — RBRR_ACTIVE_FOEDUS unset or blank"
+  buc_step "Validating RBRF federation regime file: ${z_rbrf}"
   buv_report RBRF "Federation Regime"
   buc_step "RBRF federation regime valid"
 }
@@ -41,7 +43,9 @@ rbrf_render() {
   buc_doc_brief "Display diagnostic view of RBRF federation regime configuration"
   buc_doc_shown || return 0
 
-  buv_render RBRF "RBRF - Recipe Bottle Regime Federation" "${RBCC_rbrf_file}"
+  local z_rbrf
+  z_rbrf=$(rbcc_rbrf_file_capture) || buc_die "No active foedus resolved — RBRR_ACTIVE_FOEDUS unset or blank"
+  buv_render RBRF "RBRF - Recipe Bottle Regime Federation" "${z_rbrf}"
 }
 
 ######################################################################
@@ -59,7 +63,12 @@ zrbrf_furnish() {
   source "${BURD_BUK_DIR}/bupr_regime.sh"
   source "${z_rbk_kit_dir}/rbcc_constants.sh"
   source "${z_rbk_kit_dir}/rbrf_regime.sh"
-  source "${RBCC_rbrf_file}"
+  # The federation regime file is the ACTIVE foedus's rbrf.env, resolved from
+  # RBRR_ACTIVE_FOEDUS — so this validator sources the repo regime first for the
+  # selector, then the active rbrf. It reads the selector only; it does not
+  # enforce RBRR (federation-scoped, like rbgv's depot-agnostic probes).
+  source "${RBCC_rbrr_file}" || buc_die "Failed to source RBRR: ${RBCC_rbrr_file}"
+  rbcc_source_active_rbrf
 
   zbuv_kindle
   zburd_kindle

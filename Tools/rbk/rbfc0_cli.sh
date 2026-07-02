@@ -43,7 +43,7 @@ zrbfc_furnish() {
   source "${z_rbk_kit_dir}/rbdc_derived.sh"
   source "${RBCC_rbrr_file}"
   source "${RBCC_rbrd_file}"
-  source "${RBCC_rbrf_file}"
+  rbcc_source_active_rbrf
   source "${RBCC_rbrw_file}"
   source "${z_rbk_kit_dir}/rbgo_oauth.sh"
   source "${z_rbk_kit_dir}/rba_auth.sh"

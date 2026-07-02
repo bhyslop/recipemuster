@@ -51,7 +51,7 @@ zrbgp_furnish() {
   # operator-supplied folio (an rbef_-sprued library subdirectory) exactly as
   # descry addresses its subject — never the active/pinned foedus, whose selector
   # (RBRR_ACTIVE_FOEDUS) is reserved for the credential accessor. Every other payor
-  # verb reads the active foedus's constant-folded RBCC_rbrf_file. An unresolvable
+  # verb reads the active foedus, resolved from RBRR_ACTIVE_FOEDUS. An unresolvable
   # folio is an arg-validation precondition (imprecise buc_die, BCG carve-out).
   case "${z_command}" in
     rbgp_manor_affiance|rbgp_manor_jilt)
@@ -64,7 +64,7 @@ zrbgp_furnish() {
       source "${z_folio_rbrf}"
       ;;
     *)
-      source "${RBCC_rbrf_file}"
+      rbcc_source_active_rbrf
       ;;
   esac
   source "${RBCC_rbrw_file}"
