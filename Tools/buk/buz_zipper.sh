@@ -360,15 +360,21 @@ buz_emit_context() {
 # Healthcheck (opt-in tabtarget validation — called by consumer, not by BUK)
 
 # buz_healthcheck() - Validate that all enrolled colophons have tabtargets on disk
-# Dies on first missing tabtarget. Call after enrollment is complete.
+# Collects every enrolled colophon lacking a tabtarget and dies with the full
+# list (not first-only), so a completeness sweep names every gap in one pass.
+# Call after enrollment is complete.
 buz_healthcheck() {
   zbuz_sentinel
 
+  local z_missing=()
   local z_i=""
   for z_i in "${!z_buz_colophon_roll[@]}"; do
     zbuz_resolve_tabtarget_capture "${z_buz_colophon_roll[z_i]}" >/dev/null \
-      || buc_die "buz_healthcheck: no tabtarget for colophon '${z_buz_colophon_roll[z_i]}' in ${BURC_TABTARGET_DIR}/"
+      || z_missing+=("${z_buz_colophon_roll[z_i]}")
   done
+
+  test "${#z_missing[@]}" -eq 0 || buc_die \
+    "buz_healthcheck: ${#z_missing[@]} enrolled colophon(s) without a tabtarget in ${BURC_TABTARGET_DIR}/: ${z_missing[*]}"
 }
 
 ######################################################################

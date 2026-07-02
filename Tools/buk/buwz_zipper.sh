@@ -114,19 +114,6 @@ zbuwz_kindle() {
 }
 
 ######################################################################
-# Healthcheck (validates all enrolled tabtargets exist on disk)
-
-zbuwz_healthcheck() {
-  zbuwz_sentinel
-  # BURC_BUW_COLOPHON_CHECK=bvc_lax relaxes the all-enrolled completeness sweep so
-  # a consumer can ship a subset of buw tabtargets; the dispatched colophon still
-  # resolves, since it was invoked through its own tabtarget. Only buw consults
-  # this knob — consumer workbenches keep their own strict healthcheck.
-  test "${BURC_BUW_COLOPHON_CHECK:-}" = "bvc_lax" && return 0
-  buz_healthcheck
-}
-
-######################################################################
 # Internal sentinel
 
 zbuwz_sentinel() {

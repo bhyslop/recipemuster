@@ -264,14 +264,6 @@ zrbz_kindle() {
 }
 
 ######################################################################
-# Healthcheck (validates all enrolled tabtargets exist on disk)
-
-zrbz_healthcheck() {
-  zrbz_sentinel
-  buz_healthcheck
-}
-
-######################################################################
 # Rust const projection (colophons → RBTDGC_)
 
 # rbz_emit_consts() - Emit the complete generated colophon consts file to stdout.

@@ -132,6 +132,22 @@ rbq_qualify_colophons() {
   buc_log_args "All ${z_checked} RBW colophons registered"
 }
 
+# rbq_qualify_completeness() - The forward completeness sweep: every enrolled
+# colophon (RBW and BUW — zrbq_furnish kindles both zippers into the shared roll)
+# must have a tabtarget on disk. Homed as an rblm_zero (rbw-MZ) precondition,
+# never the per-dispatch path: rbw-MZ is withheld from delivery, so this proves
+# the source repo complete while a stripped consumer never runs it. The forward
+# sibling of rbq_qualify_colophons above (which sweeps tabtarget -> registered).
+rbq_qualify_completeness() {
+  zrbq_sentinel
+
+  buc_step "Qualifying colophon completeness (every enrolled colophon has a tabtarget)"
+
+  buz_healthcheck
+
+  buc_log_args "All enrolled colophons have tabtargets"
+}
+
 rbq_qualify_context() {
   zrbq_sentinel
 

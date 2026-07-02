@@ -59,6 +59,12 @@ rblm_zero() {
   local -r z_rbk_dir="${BASH_SOURCE[0]%/*}"
   "${z_rbk_dir}/rbq_cli.sh" rbq_qualify_shellcheck || buc_die "Shellcheck findings present — fix before marshal-zero; the pristine baseline must be lint-clean"
 
+  # Colophon-completeness gate: every enrolled colophon (RBW + BUW) must have a
+  # tabtarget on disk before marshal-zero mints the pristine baseline. rbw-MZ is
+  # withheld from delivery, so this is the source-only completeness proof — a
+  # stripped consumer never has this tabtarget and never runs it.
+  "${z_rbk_dir}/rbq_cli.sh" rbq_qualify_completeness || buc_die "Enrolled colophon without a tabtarget — the source tabtarget set must be complete before marshal-zero"
+
   # Discover secrets dir and vessel dir for pre-confirmation inventory
   local z_secrets_dir=""
   local z_vessel_dir=""

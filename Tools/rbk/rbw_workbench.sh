@@ -58,7 +58,6 @@ rbw_route() {
   rbw_show "Routing command: ${z_command} with args: $*"
 
   zburd_sentinel
-  zrbz_healthcheck
 
   rbw_show "BURD environment verified"
 
