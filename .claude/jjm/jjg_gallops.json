@@ -14217,11 +14217,12 @@
         "₢BfAAs",
         "₢BfAAt",
         "₢BfAAy",
+        "₢BfAA3",
         "₢BfAAq",
         "₢BfAAz",
         "₢BfAA2"
       ],
-      "jjghn_next_pace_seed": "AA3",
+      "jjghn_next_pace_seed": "AA4",
       "jjghn_paces": {
         "₢BfAA0": {
           "jjgpn_tacks": [
@@ -14324,6 +14325,38 @@
               ],
               "jjgtn_silks": "guide-to-tabtarget-automation-lift",
               "jjgtn_basis": "cce09c4"
+            }
+          ]
+        },
+        "₢BfAA3": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260702-0141",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Carve the terrier noun-internals out of RBS0 into a companion normative sheaf, so the terrier quoin reads as a one-line definition plus include::s — symmetric with the realm->RBSFK and terrier-access->RBSTR sheaf precedents, and consistent with how every operation block already sheafs.",
+                "",
+                "## Spec of needed change",
+                "The terrier noun internals (resource shape, muniment shape + rbgft_ sprue, key format, the provider collision-rationale) are the heaviest inline concept block in RBS0's civic-quoin section, under the terrier and muniment quoins.",
+                "Relocate that internals prose into a new normative sheaf that RBS0 include::s at the terrier quoin, beside the existing RBSTR access include.",
+                "The terrier quoin's anchor + one-line definition stay inline in RBS0; only the heavy internals move.",
+                "",
+                "Do NOT fold the noun into RBSTR — RBSTR's header deliberately scopes it to access-only and defers the noun to RBS0, so a fresh noun sheaf is the consistent move, not widening RBSTR.",
+                "Mint the sheaf acronym in the RBST* terrier family applying the mint gates (lean: RBSTN, noun); register it in claude-rbk-acronyms.md.",
+                "",
+                "## Done when",
+                "The terrier noun internals live in a normative sheaf include::d at the terrier quoin; RBS0's terrier quoin carries only its definition plus the two includes (noun, access); every quoin anchor, mapping-section attribute reference, and axvd_ normative marker resolves unchanged; the rendered spec is byte-faithful to today's content.",
+                "",
+                "## Cinched",
+                "Cosmetic relocation ONLY — no rewording of normative statements, no change to specification rigor.",
+                "Anchors, attribute references, and normativity markers are preserved; the move is a pure include:: relocation mirroring RBSTR/RBSFK.",
+                "If execution reveals rewording is needed to make the split cohere, that is out of scope — stop and surface it.",
+                "",
+                "## Character",
+                "Mechanical AsciiDoc relocation; the care is in preserving anchors/refs/normativity, not in judgment."
+              ],
+              "jjgtn_silks": "terrier-noun-sheaf-carve",
+              "jjgtn_basis": "1e37efc"
             }
           ]
         },
