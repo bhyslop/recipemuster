@@ -19,8 +19,8 @@
 # Recipe Bottle Foedus — test-bed cardinality verbs over the moorings foedera
 # library. Three atomic, first-class toothings:
 #
-#   descry  (rbw-jd) — read a named foedus's workforce-pool health from the
-#                      Manor (present-and-active, or a named deficit). Read-only,
+#   descry  (rbw-jd) — read a named foedus's provider presence under the one
+#                      manor pool (healthy, or a named deficit). Read-only,
 #                      payor-credentialed, mutates nothing. Contract: RBSFD.
 #   instate (rbw-jI) — re-point the active-foedus selector RBRR_ACTIVE_FOEDUS in
 #                      rbrr.env via an atomic single-field rewrite. No clean-tree
@@ -111,7 +111,7 @@ zrbof_rbrf_field_capture() {
 }
 
 ######################################################################
-# Descry (rbof_descry) — read-only pool-health probe of a named foedus.
+# Descry (rbof_descry) — read-only provider-grain health probe of a named foedus.
 
 rbof_descry() {
   zrbof_sentinel
@@ -119,7 +119,7 @@ rbof_descry() {
   # The foedus operand arrives via the BUZ_FOLIO env channel (param1 colophon).
   local -r z_foedus="${BUZ_FOLIO:-}"
 
-  buc_doc_brief "Descry a standing foedus — read its workforce-pool health from the Manor (present-and-active, or a named deficit); read-only"
+  buc_doc_brief "Descry a standing foedus — read its provider's presence under the manor pool (healthy, or a named deficit); read-only"
   buc_doc_param "foedus" "Foedus identity — the rbef_ subdirectory name of a standing foedus in the moorings foedera library"
   buc_doc_shown || return 0
 
@@ -140,7 +140,7 @@ rbof_descry() {
   z_provider=$(zrbof_rbrf_field_capture "${z_rbrf}" "RBRF_PROVIDER_ID") \
     || buc_reject "${BUBC_band_descry}" "Foedus '${z_foedus}' rbrf.env carries no RBRF_PROVIDER_ID: ${z_rbrf}"
 
-  buc_step "Descry foedus ${z_foedus} — pool ${z_pool} under organizations/${z_org}"
+  buc_step "Descry foedus ${z_foedus} — provider ${z_provider} under pool ${z_pool} (organizations/${z_org})"
 
   # Payor OAuth — the same credential affiance/jilt use to work the org-level
   # workforce pool (workforcePools.get is org-scoped; the payor holds it). The
@@ -152,11 +152,15 @@ rbof_descry() {
   local -r z_iam_root="${RBGC_API_ROOT_IAM}${RBGC_IAM_V1}"
   local -r z_pools_base="${z_iam_root}/locations/global/workforcePools"
 
-  # Pool health: 404 absent; 200 + state DELETED soft-deleted (squatting the id
-  # through the ~30-day purge window — not healthy); 200 otherwise live. A
-  # broken read (any other code) is descry's OWN error, not a verdict — reject
-  # in descry's band.
-  buc_step "Read workforce pool health"
+  # Confirm the manor pool coordinates (descry's half of the RBRW sync guard,
+  # RBSFD): the read confirms a live pool stands under the org at the expected
+  # id. No live pool at the coordinate — absent (404) or soft-deleted (200,
+  # state DELETED, squatting the id through the ~30-day purge window) — is the
+  # coordinate-drift deficit: a reported verdict, not an error (the RB pool may
+  # stand under a different id; the manor-setup finisher reconciles). A broken
+  # read (any other code) is descry's OWN error, not a verdict — reject in
+  # descry's band.
+  buc_step "Confirm manor pool coordinates"
   rbuh_json "GET" "${z_pools_base}/${z_pool}" "${z_token}" "descry_pool_get"
   local z_pool_code=""
   z_pool_code=$(rbuh_code_capture "descry_pool_get") \
@@ -169,24 +173,23 @@ rbof_descry() {
       z_pool_state=$(rbuh_json_field_capture "descry_pool_get" ".state // \"${RBGC_STATE_UNSPECIFIED}\"") \
         || z_pool_state="${RBGC_STATE_UNSPECIFIED}"
       if test "${z_pool_state}" = "${RBGC_STATE_DELETED}"; then
-        z_verdict="pool-deleted"
-      else
-        z_verdict="active"
+        z_verdict="coordinate-drift"
       fi
       ;;
     404)
-      z_verdict="pool-absent"
+      z_verdict="coordinate-drift"
       ;;
     *)
       buc_reject "${BUBC_band_descry}" "Unexpected HTTP ${z_pool_code} reading workforce pool ${z_pool} — descry cannot determine health"
       ;;
   esac
 
-  # Provider presence (only meaningful when the pool stands; an absent/deleted
-  # pool carries no provider). 200 present / 404 absent; any other code is a
-  # broken read.
-  if test "${z_verdict}" = "active"; then
-    buc_step "Read pool provider presence"
+  # Read the provider's presence — the foedus verdict proper (a foedus IS a
+  # provider under the one manor pool, RBSFD). Only reached when the pool
+  # coordinates confirmed; a coordinate-drift deficit already IS the verdict.
+  # 200 present / 404 absent; any other code is a broken read.
+  if test -z "${z_verdict}"; then
+    buc_step "Read provider presence"
     rbuh_json "GET" "${z_pools_base}/${z_pool}/providers/${z_provider}" "${z_token}" "descry_provider_get"
     local z_provider_code=""
     z_provider_code=$(rbuh_code_capture "descry_provider_get") \
@@ -204,9 +207,9 @@ rbof_descry() {
   buf_write_fact_multi "${z_foedus}" "${RBCC_fact_ext_foedus_health}" "${z_verdict}"
 
   if test "${z_verdict}" = "healthy"; then
-    buc_success "Foedus ${z_foedus} is HEALTHY — pool ${z_pool} present-and-active, provider ${z_provider} present"
+    buc_success "Foedus ${z_foedus} is HEALTHY — provider ${z_provider} present under pool ${z_pool}"
   else
-    buc_warn "Foedus ${z_foedus} is NOT healthy — verdict '${z_verdict}' (pool ${z_pool}, provider ${z_provider})"
+    buc_warn "Foedus ${z_foedus} is NOT healthy — verdict '${z_verdict}' (provider ${z_provider}, pool ${z_pool})"
   fi
 }
 

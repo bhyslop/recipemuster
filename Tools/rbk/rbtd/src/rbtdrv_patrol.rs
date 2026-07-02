@@ -1434,13 +1434,14 @@ fn rbtdrv_foedus_reuse(dir: &Path) -> rbtdre_Verdict {
         };
         let _ = std::fs::write(dir.join("00-foedus.txt"), &foedus);
 
-        // Descry the standing foedus — probe its workforce-pool health. A clean
-        // probe exits 0 and reports its verdict via the foedus-health fact; only an
-        // unresolvable name or broken read rejects (descry's own band).
+        // Descry the standing foedus — probe its provider-grain health (RBSFD:
+        // provider presence under the one manor pool). A clean probe exits 0 and
+        // reports its verdict via the foedus-health fact; only an unresolvable
+        // name or broken read rejects (descry's own band).
         let descry = match rbtdri_invoke_global(ctx, RBTDGC_DESCRY_FOEDUS, &[foedus.as_str()], &[]) {
             Ok(r) if r.exit_code == 0 => r,
             Ok(r) => return rbtdre_Verdict::Fail(format!(
-                "descry {} errored (exit {}) — could not determine pool health\n{}",
+                "descry {} errored (exit {}) — could not determine foedus health\n{}",
                 foedus, r.exit_code, r.stderr
             )),
             Err(e) => return rbtdre_Verdict::Fail(format!("descry invocation: {}", e)),
@@ -1458,7 +1459,7 @@ fn rbtdrv_foedus_reuse(dir: &Path) -> rbtdre_Verdict {
         };
 
         // Reuse-or-establish: the branch lives HERE (the verbs stay atomic). Reuse
-        // the standing foedus cap-flat when healthy — no affiance, no pool churn;
+        // the standing foedus cap-flat when healthy — no affiance, no provider churn;
         // affiance fires ONLY on a descry deficit (the rebuild-on-check-failure arm).
         // The verdict token "healthy" is descry's (rbof_descry / RBCC_fact_ext_foedus_health).
         if health == "healthy" {

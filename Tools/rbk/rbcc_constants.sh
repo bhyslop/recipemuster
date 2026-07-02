@@ -162,8 +162,8 @@ RBCC_fact_ext_roster_retriever="${RBCC_verb_roster}-${RBCC_account_unhewn_retrie
 RBCC_fact_ext_roster_director="${RBCC_verb_roster}-${RBCC_account_unhewn_director}"
 RBCC_fact_ext_audit_hallmark="audit-hallmark"
 # Foedus descry health verdict — descry writes <foedus>.foedus-health carrying
-# one of healthy / pool-absent / pool-deleted / provider-absent for the
-# reuse-or-establish fixture to branch on (reuse iff healthy).
+# one of healthy / provider-absent / coordinate-drift (RBSFD provider-grain
+# verdicts) for the reuse-or-establish fixture to branch on (reuse iff healthy).
 RBCC_fact_ext_foedus_health="foedus-health"
 # Foedus canvass census — canvass writes one <foedus>.foedus per provider under
 # the manor pool (stem: the matched rbef_ library name, or the bare provider id

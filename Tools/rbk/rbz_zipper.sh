@@ -83,8 +83,8 @@ zrbz_kindle() {
   # The M5 colophon regroup later gathers levy/establish into it.
   buz_group RBZ__GROUP_MANOR      "rbw-m"   "Manor — IdP federation founding"
   z_mod="rbgp_cli.sh"
-  buz_enroll RBZ_AFFIANCE_MANOR         "rbw-mA"  "${z_mod}" "rbgp_manor_affiance" ""  "Affiance the manor to its IdP — seat the org-level workforce pool, provider, and attribute mapping"
-  buz_enroll RBZ_JILT_MANOR             "rbw-mJ"  "${z_mod}" "rbgp_manor_jilt"     ""  "Jilt the manor from its IdP — dissolve the org-level workforce pool (provider cascades)"
+  buz_enroll RBZ_AFFIANCE_MANOR         "rbw-mA"  "${z_mod}" "rbgp_manor_affiance" ""  "Affiance the manor to its IdP — seat this foedus's provider and attribute mapping under the standing workforce pool"
+  buz_enroll RBZ_JILT_MANOR             "rbw-mJ"  "${z_mod}" "rbgp_manor_jilt"     ""  "Jilt one foedus — delete its provider from the manor's standing workforce pool (the pool stands)"
   # instaurate is the ensure-exists manor-setup finisher: idempotently founds the one
   # workforce pool (list-and-match drift guard), the terrier bucket, and the polity
   # folder + grain IAM. The inverse of raze; ships to consumers (not withheld).
@@ -117,7 +117,7 @@ zrbz_kindle() {
   buz_group RBZ__GROUP_FOEDUS     "rbw-j"   "Foedus — test-bed selection and health"
   z_mod="rbof_cli.sh"
   buz_enroll RBZ_INSTATE_FOEDUS         "rbw-jI"  "${z_mod}" "rbof_instate"  "param1"  "Instate a standing foedus as active — re-point the RBRR_ACTIVE_FOEDUS selector in rbrr.env (atomic, uncommitted; operator commits)"
-  buz_enroll RBZ_DESCRY_FOEDUS          "rbw-jd"  "${z_mod}" "rbof_descry"   "param1"  "Descry a standing foedus — read its workforce-pool health from the Manor (present-and-active, or a named deficit; read-only)"
+  buz_enroll RBZ_DESCRY_FOEDUS          "rbw-jd"  "${z_mod}" "rbof_descry"   "param1"  "Descry a standing foedus — read its provider's presence under the manor pool (healthy, or a named deficit; read-only)"
   buz_enroll RBZ_CANVASS_FOEDUS         "rbw-jc"  "${z_mod}" "rbof_canvass"  ""        "Canvass the manor's foedera — enumerate every provider under the one workforce pool, emitting per-foedus fact files and marking the regime-selected one (read-only)"
 
   # Lode — fetched-side universal capture (rbw-l, UPPER=mutates GAR/cost, lower=read-only)

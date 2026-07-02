@@ -52,8 +52,8 @@ The Folio column shows how each tabtarget receives it:
 
 | Colophon | Frontispiece | Folio | Purpose |
 |----------|-------------|-------|---------|
-| `rbw-mA` | PayorAffiancesManor | — | Affiance the manor to its IdP — seat the org-level workforce pool, provider, and attribute mapping |
-| `rbw-mJ` | PayorJiltsManor | — | Jilt the manor from its IdP — dissolve the org-level workforce pool (provider cascades) |
+| `rbw-mA` | PayorAffiancesManor | — | Affiance the manor to its IdP — seat this foedus's provider and attribute mapping under the standing workforce pool |
+| `rbw-mJ` | PayorJiltsManor | — | Jilt one foedus — delete its provider from the manor's standing workforce pool (the pool stands) |
 | `rbw-mI` | PayorInstauratesManor | — | Instaurate the manor — idempotently ensure the workforce pool, terrier bucket, and polity folder (post-payor-guide manor-setup finisher) |
 | `rbw-mR` | PayorRazesManor | — | Raze the manor — force-delete its workforce pool to start clean (internal release-ladder infra; withheld from delivery) |
 | `rbw-mG` | PayorGirdsGovernor | param1 | Gird the first governor — payor seats a citizen as this depot's founding governor (args: subject) |
@@ -72,7 +72,7 @@ The Folio column shows how each tabtarget receives it:
 | Colophon | Frontispiece | Folio | Purpose |
 |----------|-------------|-------|---------|
 | `rbw-jI` | FoedusInstate | param1 | Instate a standing foedus as active — re-point the RBRR_ACTIVE_FOEDUS selector in rbrr.env (atomic, uncommitted; operator commits) |
-| `rbw-jd` | FoedusDescry | param1 | Descry a standing foedus — read its workforce-pool health from the Manor (present-and-active, or a named deficit; read-only) |
+| `rbw-jd` | FoedusDescry | param1 | Descry a standing foedus — read its provider's presence under the manor pool (healthy, or a named deficit; read-only) |
 | `rbw-jc` | FoedusCanvass | — | Canvass the manor's foedera — enumerate every provider under the one workforce pool, emitting per-foedus fact files and marking the regime-selected one (read-only) |
 
 ### Lode — Fetched-side universal capture (`rbw-l`)

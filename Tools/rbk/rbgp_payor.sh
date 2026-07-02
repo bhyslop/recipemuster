@@ -1129,52 +1129,38 @@ zrbgp_enable_ar_audit_logs() {
 rbgp_manor_affiance() {
   zrbgp_sentinel
 
-  buc_doc_brief "Affiance the manor to its external OIDC IdP — seat the org-level workforce pool, provider, and attribute mapping (RBSMA)"
+  buc_doc_brief "Affiance the manor to its external OIDC IdP — seat this foedus's provider and attribute mapping under the manor's standing workforce pool (RBSMA)"
   buc_doc_shown || return 0
 
-  # Dirty-tree guard — affiance's pool id is the committed RBRF value, and the IdP
-  # redirect-URI and every admission-binding key thread through it; the pool it
-  # creates must answer to a committed name.
+  # Dirty-tree guard — affiance's provider id is the committed RBRF value, and
+  # the IdP redirect-URI and the accessor's STS audience thread through it; the
+  # provider it seats must answer to a committed name.
   bug_require_clean_tree "${RBCC_verb_affiance}"
 
   buc_step 'Authenticate as Payor'
   local z_token
   z_token=$(zrbgp_authenticate_capture) || buc_die "Failed to authenticate as Payor via OAuth"
 
-  # The manor pool coordinates (org / pool id / session) are read from the kindled
-  # RBRW regime (manor-level, RBSRW); the per-foedus provider id from the kindled
+  # The manor pool coordinates (org / pool id) are read from the kindled RBRW
+  # regime (manor-level, RBSRW); the per-foedus provider id from the kindled
   # RBRF regime. The caller's furnish sources, kindles, and enforces both before
-  # dispatch (like RBRD/RBRP for depot_levy). RBRP_OPERATOR_EMAIL (the payor's
-  # federated console identity) is the grantee of the workforce-pool admin role.
+  # dispatch (like RBRD/RBRP for depot_levy). The org-level workforcePoolAdmin
+  # grant (spike F1) is the finisher's to seat (RBSMS) — affiance assumes it
+  # present; a payor lacking it meets a 403 at provider creation, directing them
+  # to run the finisher first (RBSMA F1 NOTE).
   local -r z_org="organizations/${RBRW_ORG_ID}"
   local -r z_pool_id="${RBRW_WORKFORCE_POOL_ID}"
   local -r z_provider_id="${RBRF_PROVIDER_ID}"
   local -r z_iam_root="${RBGC_API_ROOT_IAM}${RBGC_IAM_V1}"
   local -r z_pools_base="${z_iam_root}/locations/global/workforcePools"
 
-  # Spike Finding F1: pool/provider creation 403s ("unregistered callers"-style)
-  # until the payor holds roles/iam.workforcePoolAdmin at the organization.
-  # organizationAdmin (a payor standing role) is sufficient to self-grant. This
-  # MUST precede both creates. Reuses the generic CRM read-modify-write IAM
-  # helper (etag + propagation retry) against the organization resource;
-  # idempotent — a payor already holding the role passes straight through.
-  buc_step 'Seat org-level workforcePoolAdmin (spike F1 — must precede pool/provider)'
-  rbgi_add_project_iam_role \
-    "${z_token}" \
-    "Affiance: seat workforcePoolAdmin" \
-    "${z_org}" \
-    "roles/iam.workforcePoolAdmin" \
-    "user:${RBRP_OPERATOR_EMAIL}" \
-    "affiance_org_grant"
-
-  # Ensure the workforce identity pool: create when the id is free (404), leave a
-  # live pool in place (200), refuse a soft-deleted one (200, state DELETED — see
-  # the 200 branch below).
-  # NOTE: workforce-pool REST shape is per the IAM v1 docs; the live device-flow
-  # proof against the standing spike trust rides rbgv_check_avowal (needs a human click)
-  # and has not yet exercised these create calls. Drift-reconcile on an existing
-  # pool (PATCH sessionDuration) is a named follow-up, not in this first cut.
-  buc_step 'Ensure workforce identity pool'
+  # Require the manor workforce pool present and live (RBSMA pool-present gate).
+  # The pool is manor-level, founded once by the manor-setup finisher and
+  # standing for the manor's lifetime (RBSRW); affiance founds no pool — it only
+  # hangs a provider beneath the standing one. Absent (404) or soft-deleted
+  # (200, state DELETED) is fatal, directing the operator to the finisher.
+  buc_step 'Require manor workforce pool present'
+  buyy_tt_yawp "${RBZ_INSTAURATE_MANOR}"; local -r z_finisher_tt="${z_buym_yelp}"
   local -r z_pool_get_url="${z_pools_base}/${z_pool_id}"
   rbuh_json "GET" "${z_pool_get_url}" "${z_token}" "affiance_pool_get"
   local z_pool_code
@@ -1182,63 +1168,15 @@ rbgp_manor_affiance() {
 
   case "${z_pool_code}" in
     200)
-      # A soft-deleted pool returns 200 with state DELETED (live-verified): the id
-      # is squatting its namespace through the ~30-day purge window. Affiance is
-      # ensure-exists, never undelete — a live pool (state not DELETED) is left in
-      # place, but a dissolved one is refused, not resurrected. Lifecycle certainty:
-      # a fresh trust takes a fresh name, so the operator bumps RBRW_WORKFORCE_POOL_ID
-      # to a free id and re-affiances (RBSMA soft-delete NOTE; workforce-pool-
-      # constraints memo).
       local z_pool_state
       z_pool_state=$(rbuh_json_field_capture "affiance_pool_get" ".state // \"${RBGC_STATE_UNSPECIFIED}\"") \
         || z_pool_state="${RBGC_STATE_UNSPECIFIED}"
-      if test "${z_pool_state}" = "${RBGC_STATE_DELETED}"; then
-        local z_next_pool_id=""
-        if [[ "${z_pool_id}" =~ ^(.+)-([0-9]+)$ ]]; then
-          z_next_pool_id="${BASH_REMATCH[1]}-$((BASH_REMATCH[2] + 1))"
-        else
-          z_next_pool_id="${z_pool_id}-1000"
-        fi
-        buc_warn "Workforce pool ${z_pool_id} is soft-deleted (state DELETED) — squatting its id through the ~30-day purge window"
-        buc_info "Affiance will not resurrect a dissolved trust. Set a free pool id and re-affiance:"
-        buc_code "sed -i '' 's|^RBRW_WORKFORCE_POOL_ID=.*|RBRW_WORKFORCE_POOL_ID=${z_next_pool_id}|' ${RBCC_rbrw_file}"
-        buc_info "Then commit, point the IdP provider redirect-URI at the new id, and re-brevet any standing citizens."
-        buc_die "Workforce pool ${z_pool_id} soft-deleted — set a free RBRW_WORKFORCE_POOL_ID and re-affiance (see above)"
-      fi
-      buc_info "Workforce pool ${z_pool_id} already present (state ${z_pool_state}) — leaving in place (drift-reconcile is a named follow-up)"
+      test "${z_pool_state}" != "${RBGC_STATE_DELETED}" \
+        || buc_die "Workforce pool ${z_pool_id} is soft-deleted (state DELETED) — affiance founds no pool; run the manor-setup finisher first: ${z_finisher_tt}"
+      buc_info "Manor workforce pool ${z_pool_id} standing (state ${z_pool_state})"
       ;;
     404)
-      # The org parent is a body field, not a query parameter: workforcePools.create
-      # binds the URL path to locations/global and accepts only workforcePoolId on
-      # the query string. The pool's resource name carries no org (GET is
-      # locations/global/workforcePools/<id>); the org scopes the pool solely
-      # through the immutable body `parent`. (RBSMA create-shape.)
-      local -r z_pool_body="${BURD_TEMP_DIR}/rbgp_affiance_pool.json"
-      jq -n \
-        --arg parent          "${z_org}" \
-        --arg displayName     "${z_pool_id}" \
-        --arg description     "${RBGC_WORKFORCE_POOL_MARKER}" \
-        --arg sessionDuration "${RBRW_SESSION_DURATION}" \
-        '{
-          parent: $parent,
-          displayName: $displayName,
-          description: $description,
-          sessionDuration: $sessionDuration
-        }' > "${z_pool_body}" || buc_die "Failed to build workforce pool body"
-
-      local -r z_pool_create_url="${z_pools_base}?workforcePoolId=${z_pool_id}"
-      rbge_lro_ok \
-        "Create workforce pool" \
-        "${z_token}" \
-        "${z_pool_create_url}" \
-        "affiance_pool_create" \
-        "${z_pool_body}" \
-        ".name" \
-        "${z_iam_root}" \
-        "" \
-        "${RBGC_EVENTUAL_CONSISTENCY_SEC}" \
-        "${RBGC_MAX_CONSISTENCY_SEC}"
-      buc_info "Workforce pool ${z_pool_id} created under ${z_org}"
+      buc_die "Workforce pool ${z_pool_id} absent under ${z_org} — affiance founds no pool; run the manor-setup finisher first: ${z_finisher_tt}"
       ;;
     *)
       rbuh_require_ok "Workforce pool get" "affiance_pool_get"
@@ -1343,7 +1281,7 @@ rbgp_manor_affiance() {
   esac
 
   buc_step 'Manor affianced'
-  buc_info "Manor affianced: pool=${z_pool_id} provider=${z_provider_id} org=${z_org}"
+  buc_info "Manor affianced: provider=${z_provider_id} under pool=${z_pool_id} org=${z_org}"
   buyy_tt_yawp "${RBZ_CHECK_AVOWAL}"; local -r z_acf_tt="${z_buym_yelp}"
   buc_info "Verify the trust by avowing — run ${z_acf_tt}"
 }
@@ -1351,75 +1289,85 @@ rbgp_manor_affiance() {
 rbgp_manor_jilt() {
   zrbgp_sentinel
 
-  buc_doc_brief "Jilt the manor — dissolve its workforce pool, breaking the manor↔IdP betrothal (RBSMJ)"
+  buc_doc_brief "Jilt one foedus — delete its provider from the manor's standing workforce pool, dissolving that trust (RBSMJ)"
   buc_doc_shown || return 0
 
-  # Affiance's structural inverse. Reads the one configured pool from the kindled
-  # RBRW regime (manor-level; the caller's furnish enforces it before dispatch,
-  # like manor_affiance) — no CLI folio: jilt targets the regime's pool, never an
-  # operator-supplied one.
+  # Affiance's structural inverse — provider-grain (RBSMJ): jilt deletes exactly
+  # the provider affiance seated and nothing else; the shared pool stands for
+  # every other foedus (pool teardown is the separate manor raze, never jilt).
+  # Reads the pool coordinates from the kindled RBRW regime and the provider id
+  # from the kindled RBRF regime (the caller's furnish enforces both) — no CLI
+  # folio: jilt targets the regime's provider, never an operator-supplied one.
+  # Mechanism-blind: deleting the provider ends the trust regardless of how
+  # citizens acquired tokens against it — no RBRF_MECHANISM arm (RBSMJ).
   local -r z_org="organizations/${RBRW_ORG_ID}"
   local -r z_pool_id="${RBRW_WORKFORCE_POOL_ID}"
+  local -r z_provider_id="${RBRF_PROVIDER_ID}"
   local -r z_iam_root="${RBGC_API_ROOT_IAM}${RBGC_IAM_V1}"
-  local -r z_pool_url="${z_iam_root}/locations/global/workforcePools/${z_pool_id}"
+  local -r z_provider_url="${z_iam_root}/locations/global/workforcePools/${z_pool_id}/providers/${z_provider_id}"
 
-  # Safety gate first (zero traffic). Dissolving the pool breaks federated access
-  # for every depot under the manor; the operator types the pool id to confirm.
-  # buc_require honors BURE_CONFIRM=skip for non-interactive test runs.
+  # Safety gate first (zero traffic). Deleting the provider ends federated access
+  # for citizens asserted through this foedus; the operator types the provider id
+  # to confirm. buc_require honors BURE_CONFIRM=skip for non-interactive test runs.
   buc_step 'Safety confirmation required'
-  buc_require "DANGER: Dissolve workforce pool ${z_pool_id} under ${z_org} — breaks federated access for every depot under the manor" "${z_pool_id}"
+  buc_require "Dissolve foedus provider ${z_provider_id} under pool ${z_pool_id} — ends federated access for citizens asserted through this foedus (the pool stands)" "${z_provider_id}"
 
   buc_step 'Authenticate as Payor'
   local z_token
   z_token=$(zrbgp_authenticate_capture) || buc_die "Failed to authenticate as Payor via OAuth"
 
-  # Probe the pool. Idempotent: an absent pool (404) or one already soft-deleted
-  # (200, state DELETED) is reported dissolved and exits clean — no delete issued.
-  buc_step 'Probe workforce identity pool'
-  rbuh_json "GET" "${z_pool_url}" "${z_token}" "jilt_pool_get"
-  local z_pool_code
-  z_pool_code=$(rbuh_code_capture "jilt_pool_get") || buc_die "No HTTP code from workforcePools.get"
+  # Probe the provider. Idempotent: an absent provider (404) or one already
+  # soft-deleted (200, state DELETED) is reported already-dissolved and exits
+  # clean — no delete issued.
+  buc_step 'Probe pool provider'
+  rbuh_json "GET" "${z_provider_url}" "${z_token}" "jilt_provider_get"
+  local z_provider_code
+  z_provider_code=$(rbuh_code_capture "jilt_provider_get") || buc_die "No HTTP code from providers.get"
 
-  case "${z_pool_code}" in
+  case "${z_provider_code}" in
     404)
-      buc_success "Workforce pool ${z_pool_id} absent under ${z_org} — already dissolved (no-op)"
+      buc_success "Provider ${z_provider_id} absent under pool ${z_pool_id} — already dissolved (no-op)"
       return 0
       ;;
     200)
-      local z_pool_state
-      z_pool_state=$(rbuh_json_field_capture "jilt_pool_get" '.state // "UNKNOWN"') || z_pool_state="UNKNOWN"
-      if test "${z_pool_state}" = "${RBGC_STATE_DELETED}"; then
-        buc_success "Workforce pool ${z_pool_id} already soft-deleted (state DELETED) — already dissolved (no-op)"
-        buc_info "Recover within the purge window via workforcePools.undelete, or re-affiance after purge"
+      local z_provider_state
+      z_provider_state=$(rbuh_json_field_capture "jilt_provider_get" '.state // "UNKNOWN"') || z_provider_state="UNKNOWN"
+      if test "${z_provider_state}" = "${RBGC_STATE_DELETED}"; then
+        buc_success "Provider ${z_provider_id} already soft-deleted (state DELETED) — already dissolved (no-op)"
+        buc_info "A fresh affiance re-seats the provider under the standing pool"
         return 0
       fi
       ;;
     *)
-      rbuh_require_ok "Workforce pool get" "jilt_pool_get"
+      rbuh_require_ok "Provider get" "jilt_provider_get"
       ;;
   esac
 
-  # Dissolve the pool. The provider is namespaced beneath the pool and cascades
-  # with the deletion — no separate provider delete. workforcePools.delete returns
-  # an LRO; confirm acceptance, then poll the resource to its terminal state.
-  buc_step 'Dissolve workforce pool (provider cascades)'
-  rbuh_json "DELETE" "${z_pool_url}" "${z_token}" "jilt_pool_delete"
-  rbuh_require_ok "Delete workforce pool" "jilt_pool_delete"
-  buc_info "Workforce pool ${z_pool_id} delete accepted — awaiting soft-delete transition"
+  # Delete the provider. workforcePools.providers.delete returns an LRO; confirm
+  # acceptance, then poll the resource to its terminal state. Only the provider
+  # is deleted; the manor pool is never touched by jilt.
+  buc_step 'Delete pool provider (the pool stands)'
+  rbuh_json "DELETE" "${z_provider_url}" "${z_token}" "jilt_provider_delete"
+  rbuh_require_ok "Delete provider" "jilt_provider_delete"
+  buc_info "Provider ${z_provider_id} delete accepted — awaiting dissolution"
 
   # Verify dissolution: poll until state DELETED (soft-delete terminal) or 404
-  # (hard-gone). Either is success — robust to whether get surfaces soft-deleted
-  # resources. Mirrors the depot-unmake resource-state poll.
+  # (gone). Either is success — the verify tolerates whether the GET surfaces a
+  # soft-deleted provider, mirroring the depot-unmake resource-state poll (RBSMJ).
   buc_step 'Verify dissolution'
+  # Loop counter/accumulator + per-iteration synthesized locals (BCG Exceptions
+  # 1/2/4 — declare outside, assign inside)
   local z_jilt_elapsed=0
   local z_jilt_dissolved=""
+  local z_verify_infix=""
+  local z_verify_code=""
+  local z_verify_state=""
   while :; do
     sleep "${RBGC_EVENTUAL_CONSISTENCY_SEC}"
     z_jilt_elapsed=$((z_jilt_elapsed + RBGC_EVENTUAL_CONSISTENCY_SEC))
 
-    local z_verify_infix="jilt_pool_verify_${z_jilt_elapsed}s"
-    rbuh_json "GET" "${z_pool_url}" "${z_token}" "${z_verify_infix}"
-    local z_verify_code
+    z_verify_infix="jilt_provider_verify_${z_jilt_elapsed}s"
+    rbuh_json "GET" "${z_provider_url}" "${z_token}" "${z_verify_infix}"
     z_verify_code=$(rbuh_code_capture "${z_verify_infix}") || z_verify_code=""
 
     if test "${z_verify_code}" = "404"; then
@@ -1427,7 +1375,6 @@ rbgp_manor_jilt() {
       break
     fi
     if test "${z_verify_code}" = "200"; then
-      local z_verify_state
       z_verify_state=$(rbuh_json_field_capture "${z_verify_infix}" '.state // "UNKNOWN"') || z_verify_state="UNKNOWN"
       if test "${z_verify_state}" = "${RBGC_STATE_DELETED}"; then
         z_jilt_dissolved="${RBGC_STATE_DELETED}"
@@ -1436,14 +1383,14 @@ rbgp_manor_jilt() {
     fi
 
     test "${z_jilt_elapsed}" -lt "${RBGC_MAX_CONSISTENCY_SEC}" \
-      || buc_die "Jilt: pool ${z_pool_id} did not reach a dissolved state within ${RBGC_MAX_CONSISTENCY_SEC}s (last HTTP ${z_verify_code})"
-    buc_log_args "Pool still present at ${z_jilt_elapsed}s (HTTP ${z_verify_code}) — polling"
+      || buc_die "Jilt: provider ${z_provider_id} did not reach a dissolved state within ${RBGC_MAX_CONSISTENCY_SEC}s (last HTTP ${z_verify_code})"
+    buc_log_args "Provider still present at ${z_jilt_elapsed}s (HTTP ${z_verify_code}) — polling"
   done
 
-  buc_step 'Manor jilted'
-  buc_success "Manor jilted: workforce pool ${z_pool_id} dissolved (${z_jilt_dissolved}) under ${z_org}"
-  buc_info "Provider cascaded with the pool; depot-scoped mantle bindings untouched"
-  buc_info "Recover within the ~30-day purge window via workforcePools.undelete, or re-affiance after purge"
+  buc_step 'Foedus jilted'
+  buc_success "Foedus jilted: provider ${z_provider_id} dissolved (${z_jilt_dissolved}) under pool ${z_pool_id} of ${z_org}"
+  buc_info "The pool and every other foedus's provider stand; depot-scoped mantle bindings untouched"
+  buc_info "A fresh affiance recreates the provider under the standing pool"
 }
 
 rbgp_manor_raze() {
