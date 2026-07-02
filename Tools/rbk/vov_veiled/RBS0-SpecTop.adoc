@@ -2256,14 +2256,6 @@ entry recording one (principal subject,
 held, admitting
 {rbtf_foedus}
 provider) triple — deeds preserved as proof of rights.
-The provider dimension is load-bearing under the one-pool model:
-a
-{rbtf_foedus}
-is a provider beneath the manor's one pool, so two co-resident foedera admitting the same subject onto the same mantle hold distinct grants;
-without the provider segment their records collide byte-identical and the second engross reports idempotent success against the first's muniment, breaking the one-record-per-grant mirror.
-The segment keeps each admission its own muniment and lets a manor-wide
-{rbtf_rehearse}
-attribute every holding to the foedus it was admitted through.
 A muniment names a holding, not a secret: key identifiers vanish with the keys the federation no longer mints.
 
 [[rbtf_census]]
@@ -2284,26 +2276,9 @@ holds which
 kept as
 {rbtf_muniment_s}
 in a Manor-homed bucket.
-+
-The terrier's *resource* internals are settled (at the terrier-provision pace):
-the physical bucket lives in the Manor's own {rbtgi_payor_project}, its id suffixed `-terrier` — manor-grain, one per Manor — homed in the `RBGP_TERRIER_BUCKET` kindle constant and created with Uniform Bucket-Level Access enabled (managed folders require it).
-The managed-folder grain is one managed folder per polity, keyed by the depot project id.
-A governor mantle's write is scoped to its own polity's folder (`roles/storage.objectAdmin` granted through managed-folder IAM); read is bucket-level for every governor mantle (`roles/storage.objectViewer` on the bucket) — write folder-scoped own-polity, read manor-wide.
-The payor reads inherently as owner of the payor project.
-The cross-project shape — a payor-project bucket written by a depot's governor mantle — is provisioned by an interim scaffold, never folded into a founding ceremony in this heat.
-+
-The terrier's *muniment* internals are settled (at the terrier sub-operations pace, extended with the provider dimension under the one-pool model):
-granularity is per-entry — one object per (principal subject,
-{rbtf_mantle}
-held, admitting provider) triple — so a holding is recorded by a muniment's presence and erased by its absence.
-The object name indexes the triple under the polity managed folder as `«depot-project-id»/«mantle»/«provider-id»/«principal-subject»` — the depot leads (the managed-folder grain), the raw principal subject trails (it alone may carry slashes), and the provider id discriminates co-resident foedera between them;
-the object content is the authoritative muniment JSON, `{ rbgft_subject, rbgft_mantle, rbgft_provider }` under the `rbgft_` sprue, and the holding is read from that content — the object name is only the index.
-Per-entry muniments are immutable, so writes are create-and-delete only: the generation-conditional update path of the access contract is unexercised under this granularity.
-Its access sub-operations (
-{rbtf_engross},
-{rbtf_expunge},
-{rbtf_peruse})
-are homed in the Terrier access subdoc below.
+
+//axvd_cartouche axd_normative
+include::RBSTN-terrier_noun.adoc[leveloffset=+1]
 
 //axvd_cartouche axd_normative
 include::RBSTR-Terrier.adoc[leveloffset=+1]

@@ -21,7 +21,7 @@ This is a normative portion of the {rbs0_imprimatur}: binding — code, tests, a
 // treatment). Settled: this subdoc's identity, the atomic-write contract, and the
 // three sub-operation quoins (engross / expunge / peruse). The terrier noun
 // internals (granularity, muniment shape + rbgft_ sprue, bucket, folder IAM) are
-// settled in the RBS0 terrier quoin; the former Forthcoming section is retired.
+// settled in the RBSTN Terrier noun sheaf; the former Forthcoming section is retired.
 
 == Terrier access
 
@@ -101,11 +101,11 @@ atomicity, the caller adds one query parameter and checks the HTTP code. This is
 within bash's good case under BCG — glue over a service, carrying no lock logic
 of its own.
 
-=== Settled — the terrier noun's internals (in RBS0)
+=== Settled — the terrier noun's internals (in RBSTN)
 
 The Terrier *noun* internals — object granularity, the muniment JSON shape and its
 `rbgft_` sprue, the physical bucket name and its constant home, and the
-managed-folder IAM grain — are settled in the RBS0 terrier quoin. They are
+managed-folder IAM grain — are settled in the RBSTN Terrier noun sheaf. They are
 properties of the noun, not of this access subdoc, so they are not restated here
 (ACG: reference the home).
 
