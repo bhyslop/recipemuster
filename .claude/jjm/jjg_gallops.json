@@ -14203,6 +14203,7 @@
         "₢BfAA1",
         "₢BfAA3",
         "₢BfAAL",
+        "₢BfAA6",
         "₢BfAAK",
         "₢BfAAJ",
         "₢BfAAC",
@@ -14224,7 +14225,7 @@
         "₢BfAA2",
         "₢BfAA5"
       ],
-      "jjghn_next_pace_seed": "AA6",
+      "jjghn_next_pace_seed": "AA7",
       "jjghn_paces": {
         "₢BfAA0": {
           "jjgpn_tacks": [
@@ -14445,6 +14446,50 @@
               ],
               "jjgtn_silks": "terrier-hygiene-sweep",
               "jjgtn_basis": "5e7cb82"
+            }
+          ]
+        },
+        "₢BfAA6": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260702-1148",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Contract-first predecessor of the programmatic accessor arm:",
+                "re-cut the federation specs so the accessor's RFC 7523 grant inputs have a regime home before any code moves.",
+                "",
+                "RBSRF (Tools/rbk/vov_veiled/RBSRF-RegimeFederation.adoc): extend the programmatic mechanism group with generic self-supply fields —",
+                "a reachable grant token-endpoint (live-rendered per charge by the orchestrator beside the JWKS; validator admits https or loopback-http, cleartext tolerated on loopback only — the test IdP is a local crucible, and RBSFK pins the POST target as local, distinct from the fictional https frontend issuer);",
+                "asserter key-file and client-secret-file PATH fields, repo-root-relative (the regime carries references, never secret values — sourced regime vars live in process env, so secret material must never ride them; the ships-committed / no-secrets premise stands un-amended);",
+                "and the public assertion facts (asserter kid, asserter issuer, asserter subject) as committed template values, dual-homed by contract with the realm DATA exactly as client-id already is.",
+                "The assertion aud is cinched to the existing issuer field — no new field.",
+                "Keep the reachable endpoint a distinct programmatic-gated field, not a promotion of the interactive token-endpoint to core: commit-vs-render provenance and https-vs-loopback validation are load-bearing differences.",
+                "Extend the one-sanctioned-deviation NOTE: the live render now carries two fields (JWKS + grant endpoint), both composed from the orchestrator's own knowledge (nameplate port, facility constants), never from realm contents.",
+                "",
+                "RBSFA (Tools/rbk/vov_veiled/RBSFA-foedus_acquire.adoc): re-cut the stale precondition (the marshal-fenced-key / estate-stub line) to the two-key reality per RBSFK —",
+                "the accessor reaches the committed caged asserter key and client secret by regime path reference;",
+                "remove the self-mint fallback everywhere it appears (the accessor cannot hold the ephemeral realm key, so a self-mint would mean re-establishing the trust — not a fallback).",
+                "",
+                "RBSFK (Tools/rbk/vov_veiled/RBSFK-foedus_realm.adoc): one correspondence line homing the caller-side grant inputs in the RBRF programmatic self-supply fields, and the client-secret file joining the caged-scaffolding census beside the asserter key.",
+                "",
+                "Exact field names are minted in this pace under the Lapidary/grep gates; the shapes above are the contract.",
+                "",
+                "## Done when",
+                "RBSRF specifies the programmatic self-supply fields (reachable endpoint, two secret-path references, three assertion facts) with validators, including the loopback-http escape from the https gate;",
+                "RBSFA's precondition reads the two-key reality with no self-mint fallback;",
+                "RBSFK names the correspondence.",
+                "No code moves in this pace.",
+                "",
+                "## Cinched",
+                "Secrets enter the regime only as path references; the committed caged home keeps the material (two-key doctrine, RBSFK).",
+                "The reachable grant endpoint is orchestrator-rendered into the git-ignored live rbrf.env, composed never from realm JSON (the orchestrator stays blind to realm contents).",
+                "rba stays IdP-blind: it reads only generic RBRF_ fields and never learns \"Keycloak\".",
+                "",
+                "## Character",
+                "Spec authoring (MCM/AsciiDoc) with minting judgment; no bash."
+              ],
+              "jjgtn_silks": "programmatic-self-supply-spec-recut",
+              "jjgtn_basis": "da5b0a9"
             }
           ]
         },
@@ -14763,34 +14808,46 @@
         "₢BfAAK": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260623-1014",
+              "jjgtn_ts": "260702-1148",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
-                "Add the programmatic token-acquisition arm to the rba accessor: obtain the id_token via the RFC 7523 grant, then exchange at STS for a federated token.",
+                "Add the programmatic token-acquisition arm to the rba accessor:",
+                "mint the id_token via the test IdP's RFC 7523 grant, then exchange at STS for a federated token —",
+                "mechanism-gated, a sibling of the interactive (device-flow) arm, never a new module and never folded into the orchestrator.",
                 "",
-                "The interactive accessor acquires its token via device flow; add the programmatic arm that obtains the id_token via Keycloak's RFC 7523 grant (or self-mints, fallback) and exchanges at STS, reusing the existing shared STS leg and the unchanged don path.",
-                "Mechanism-gated, a mechanism arm of rba — not a new module, and not folded into the orchestrator.",
+                "The config-home is settled by the predecessor spec pace (the RBSRF programmatic self-supply fields):",
+                "the arm reads its grant inputs ONLY from generic RBRF_ fields — reachable grant endpoint, asserter key-file and client-secret-file paths, assertion kid/issuer/subject, aud = the existing issuer field — and never learns \"Keycloak\".",
                 "",
-                "Ceiling: the end-to-end don-and-call is NOT reproducible by the slated spine — the don needs a standing admission (a brevet of the test subject), which the deferred attach-caged-subject unit owns, not this pace.",
-                "So this pace reaches the federated token over a programmatic foedus; the don path is shared and unchanged but is exercised end-to-end only once that admission exists.",
+                "This pace lands the whole read surface with the arm, atomically:",
+                "- Tools/rbk/rbrf_regime.sh — enroll + validate the new programmatic fields per the re-cut RBSRF, including the loopback-http endpoint escape from the https gate.",
+                "- rbmm_moorings/rbmf_foedera/rbef_keycloak/rbrf.env.template — the committed assertion facts + path references; the client-secret file joins the caged home rbmm_moorings/fdkyclk/ beside the asserter key.",
+                "- Tools/rbk/rbxk_keycloak.sh — extend the live render with the reachable grant endpoint, composed from the nameplate port + facility constants (never realm contents).",
+                "- Tools/rbk/rba_auth.sh — the mint arm: assertion signed by openssl reading the key path (key never in a shell var), client secret delivered to curl by file reference, tokens jq-straight-to-stdout; reuse zrba_leg2_federated_capture wholesale; sitting-cache reuse is mount's call (the cache key is already pool+provider).",
+                "",
+                "Source proof: rbmm_moorings/fdkyclk/fdkyclk-proof.sh (mint_idtoken + sts_exchange).",
+                "The civic verb for the programmatic acquisition act is decided at mount per RBSFA's deferral; staying descriptive is acceptable.",
+                "",
+                "Ceiling: reaches the federated token — the end-to-end don needs a standing admission (a brevet of the test subject), owned by the deferred attach-caged-subject unit, not this pace.",
+                "The don path is shared and unchanged.",
                 "Do NOT reintroduce the proof's payor-direct brevet into the production-shared rba arm to force a green don here.",
                 "",
-                "Source: fdkyclk-proof.sh (mint_idtoken + sts_exchange; the don path already exists); rba is the accessor home.",
-                "",
                 "## Done when",
-                "The accessor obtains a federated token over a programmatic foedus via the RFC 7523 grant and STS, mechanism-gated, reusing the interactive arm's shared STS leg.",
-                "The don path is shared and unchanged; it completes end-to-end only once the deferred attach-caged-subject unit provides a standing admission.",
+                "With the Keycloak facility up, the accessor acquires a federated token over the instated programmatic foedus unattended, via the RFC 7523 grant and the interactive arm's shared STS leg;",
+                "the interactive arm's behavior is unchanged and regime validation passes on both standing foedera.",
+                "The don completes end-to-end only once the deferred attach-caged-subject unit provides a standing admission.",
                 "",
                 "## Cinched",
                 "Stays an arm of rba (production-shared machinery), never absorbed into the rbxk orchestrator.",
                 "REST-only, no direct gcloud.",
+                "Grant inputs only via generic RBRF_ fields; secret material only by path reference — no secret value in any rbrf.env or shell var (BCG custody; the predecessor spec pace's contract).",
+                "No self-mint fallback: the RFC 7523 grant is the one programmatic path (RBSFK two-key doctrine).",
                 "The end-to-end don is deferred-by-design behind the post-₣BZ attach unit; no spine-local brevet.",
                 "",
                 "## Character",
-                "Bash; consumes the RFC 7523 grant established by the realm pace."
+                "Bash across four surfaces (regime, template, orchestrator render, accessor arm); consumes the contract the predecessor spec pace re-cut; intricate but mechanical once that contract stands."
               ],
               "jjgtn_silks": "programmatic-accessor-rba-arm",
-              "jjgtn_basis": "9a36dd4"
+              "jjgtn_basis": "da5b0a9"
             }
           ]
         },
