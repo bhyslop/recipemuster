@@ -18659,9 +18659,10 @@
         "₢BqAAA",
         "₢BqAAB",
         "₢BqAAC",
-        "₢BqAAD"
+        "₢BqAAD",
+        "₢BqAAF"
       ],
-      "jjghn_next_pace_seed": "AAF",
+      "jjghn_next_pace_seed": "AAG",
       "jjghn_paces": {
         "₢BqAAA": {
           "jjgpn_tacks": [
@@ -18844,6 +18845,38 @@
               ],
               "jjgtn_silks": "federation-credential-fault-disposition",
               "jjgtn_basis": "127e3b8"
+            }
+          ]
+        },
+        "₢BqAAF": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260702-1519",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Restore the credential-readiness leader the release suites lost with the keyfile estate demolition:",
+                "skirmish, dogfight, and blockade led with a keyfile credential-heal fixture (the re-enrobe dance) that was removed whole;",
+                "they currently carry no credential-readiness step and were left credential-incomplete — a deficit surfaces mid-suite instead of up front.",
+                "The federation replacement is not machinery of its own (parent-heat lean, carried in):",
+                "a standing-freehold readiness check — confirm a live sitting with runway and the donnable mantles — one more consumer of this heat's gate and renew.",
+                "With the runway gate live, any suite's first cloud call auto-gates;",
+                "this pace adds the UP-FRONT leader so a credential deficit fails in seconds with the renew advisory, never minutes into a build.",
+                "Design at mount: whether the leader is a fixture invoking the gate's check surface or the existing probe verbs;",
+                "suite membership edits ride the RBTDRA_SUITES literal registry.",
+                "",
+                "## Done when",
+                "The three suites lead with a credential-readiness step that passes on a healthy freehold sitting",
+                "and rejects fast with the renew advisory on a short or absent one.",
+                "",
+                "## Cinched",
+                "Consumer of the gate and renew — mount after they land (heat order already says so).",
+                "No re-enrobe dance, no keyfile shapes.",
+                "",
+                "## Character",
+                "Small test-infrastructure composition; the design question is the leader's form, not its need."
+              ],
+              "jjgtn_silks": "suite-credential-preamble",
+              "jjgtn_basis": "91beca5"
             }
           ]
         }
