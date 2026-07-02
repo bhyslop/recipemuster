@@ -14298,8 +14298,8 @@
         "₢BfAA2": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260701-1944",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260702-1204",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "## Character",
                 "Design + cross-cutting surgery across the guide/tabtarget membrane — Fable-suited (strong reasoning, few-error strange surgery).",
@@ -14326,7 +14326,7 @@
                 "The finisher hosts the automatable substrate (ensure-exists, idempotent)."
               ],
               "jjgtn_silks": "guide-to-tabtarget-automation-lift",
-              "jjgtn_basis": "cce09c4"
+              "jjgtn_basis": "89bf475"
             }
           ]
         },
