@@ -14772,7 +14772,7 @@
         "₢BfAAL": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260702-0259",
+              "jjgtn_ts": "260702-0321",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "Build the one BCG module orchestrating the Keycloak test-facility lifecycle: rbxk_keycloak.sh in the rbx family, composing the folio-addressed provider verbs.",
@@ -14787,20 +14787,24 @@
                 "",
                 "Compose existing verbs plus the one JWKS bridge — do NOT contain the accessor (rba's job), do NOT reimplement affiance or jilt (call them).",
                 "The module is blind to the realm JSON — affiliation by reference, never ownership; affiance never learns \"Keycloak.\"",
+                "The orchestrator never speaks GCP REST and never holds the payor credential — its only HTTP is the local-crucible JWKS fetch; cloud mutation flows solely through the called verbs (the uppercase-K rationale: setup mutates cloud BY CALLING affiance).",
                 "",
-                "Standing-provider staleness (open — settle at mount, contract-first): affiance is create-on-404 only (drift-reconcile is a named follow-up), so a rerun against a standing provider leaves GCP trusting last charge's stale JWKS.",
-                "Idempotent setup therefore re-seats (jilt-then-affiance) when the provider stands, or affiance grows a reconcile arm — settle which before cutting; spec-side first if it touches RBSMA.",
+                "Standing-provider staleness (SETTLED, 260702 terminal review): affiance grows the narrow programmatic re-sync arm, contract-first — re-cut RBSMA before the code.",
+                "The re-seat fork (jilt-then-affiance) is dead three ways: affiance's provider 200-branch is state-blind (unlike its pool gate), so a soft-deleted provider reads as present and create is skipped against a dead trust — the provider-grain twin of the latent-affiance-bug finding in Memos/memo-20260617-BZ-workforce-pool-constraints.md; soft-delete holds the id (pool-documented, provider-extrapolated), so recreate collides; and undelete alone restores the OLD key snapshot, so no delete/undelete cycle can converge the twiddle — only a patch can.",
+                "The arm, scoped to the twiddle: under the programmatic mechanism, a standing live provider gets providers.patch of oidc.jwksJson from the regime value (updateMask discipline per the instaurate pool-reconcile precedent); a soft-deleted provider is undeleted then patched; 404 creates as today; whether a soft-deleted provider surfaces as 200-DELETED or 404 on GET is an impl-confirm at this pace's first live cycle (jilt's own verify loop already tolerates both).",
+                "Full drift-reconcile (attributeMapping / issuer / clientId) stays the named deferred follow-up — RBSMA's drift NOTE narrows, it does not dissolve.",
+                "An orchestrator-owned direct patch was weighed at this review and rejected as re-lamination.",
                 "RBSMA's webSsoConfig impl-confirm NOTE (does the REST create demand webSsoConfig under programmatic?) settles at this pace's first live create.",
                 "",
                 "Subject-namespacing (the one-pool co-tenancy rule, RBSPB / rbtf_citizen): under the shared manor pool this test provider is co-resident with production, so its subjects MUST be namespace-disjoint from production — a test token can never satisfy a production `principal://…/subject/{S}` binding (load-bearing security).",
                 "Author it in the foedus attribute-mapping (a CEL prefix on `google.subject` placing subjects in a reserved namespace), NOT the realm JSON — preserving realm-blindness; only if the realm must mint a namespaceable claim does this coordinate a RBSFK / fdkyclk-realm.json touch, never the orchestrator owning realm internals.",
                 "",
-                "Source: fdkyclk-proof.sh (fetch_jwks plus the main staging) and fdkyclk-teardown.sh (the jilt-then-quench inverse); the paddock de-lamination and naming section; RBSPB plus rbtf_citizen for the namespacing rule; RBSMA/RBSMJ for the folio-addressed contracts.",
+                "Source: fdkyclk-proof.sh (fetch_jwks plus the main staging) and fdkyclk-teardown.sh (the jilt-then-quench inverse); the paddock de-lamination and naming section; RBSPB plus rbtf_citizen for the namespacing rule; RBSMA/RBSMJ for the folio-addressed contracts; Memos/memo-20260617-BZ-workforce-pool-constraints.md for the soft-delete findings the staleness settlement rests on.",
                 "",
                 "## Done when",
                 "rbw-qjK stands up the programmatic facility (charged Keycloak + affianced rbef_keycloak) and its teardown sibling tears it down, idempotently, composing the folio-addressed rbw-mA/rbw-mJ plus charge/quench;",
                 "the ephemeral JWKS lives in the ignored carrier so the tree stays clean through setup;",
-                "a rerun against a standing provider converges on the fresh JWKS, never a stale trust (re-seat or reconcile, as settled);",
+                "a rerun against a standing provider converges on the fresh JWKS via affiance's programmatic re-sync arm (RBSMA re-cut first), and a setup after teardown restores-and-converges the soft-deleted provider rather than mistaking it for standing;",
                 "the setup's gate is bug_require_clean_tree_creed with an RB rationale, not the old bug_require_clean_tree;",
                 "the test foedus's subjects are namespace-disjoint from production per RBSPB.",
                 "",
@@ -14808,17 +14812,18 @@
                 "rbx family, rbxk_keycloak.sh module; colophon rbw-qjK (setup — uppercase K because setup CALLS AFFIANCE and so mutates cloud) plus an rbw-qj teardown sibling named at cut-time; the module letter need not match the colophon.",
                 "The module is blind to the realm JSON — affiliation by reference, never ownership.",
                 "Composes the folio-addressed affiance/jilt — the orchestrator names rbef_keycloak and never touches the active-foedus selector.",
+                "The orchestrator never speaks GCP REST and never holds the payor credential (260702): cloud mutation flows only through the called manor verbs; the staleness settlement lives in affiance's programmatic re-sync arm, never in the orchestrator.",
                 "Keycloak's ephemeral JWKS lives in an IGNORED live rbrf.env rendered from a committed template; entrada untouched (the one sanctioned deviation from RBSRF ships-committed — spec-note it).",
                 "The setup gate is the precision-band variant's first live consumer; wiring the gate lands here, not in the infra pace.",
                 "Test-provider subjects are namespace-disjoint from production (RBSPB), authored in the foedus attribute-mapping.",
                 "",
                 "## Character",
-                "Bash orchestration; the heart of the de-lamination.",
-                "Mostly composition of existing verbs plus the JWKS bridge; one open contract question (standing-provider re-seat) leads and may touch RBSMA.",
+                "Bash orchestration plus one narrow verb arm; the heart of the de-lamination.",
+                "The RBSMA re-cut for the re-sync arm leads, then composition of existing verbs plus the JWKS bridge.",
                 "The subject-namespacing mapping is a small config addition riding the same facility setup."
               ],
               "jjgtn_silks": "rbxk-keycloak-orchestrator",
-              "jjgtn_basis": "b490ea5"
+              "jjgtn_basis": "1cdf093"
             }
           ]
         },
