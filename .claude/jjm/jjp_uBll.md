@@ -87,11 +87,10 @@ The SPECS are re-cut to provider-grain (affiance adds a provider, jilt removes o
 the CODE re-cut is federation-stream-pending — that stream owns the manor-level pool regime relocation and the verb re-cuts (affiance, jilt, and descry's verdict vocabulary),
 and this heat takes delivery through its one-pool barrier pace before the canvass-test weave and the parley fixture mount.
 The foedus-lifecycle fixture's own provider-grain re-cut stays THIS heat's (the canvass-weave pace owns it — theurge-crate writes stay in this clone); the federation stream touches the crate only for the one-line poison-const safety re-point riding its regime relocation.
-The muniment schema is a SECOND provider-grain delivery the verb list above does not cover:
-the live terrier's standing muniments are provider-qualified (four-segment key with the provider between mantle and subject, plus a provider content field), engrossed by the federation stream's edition,
-while this clone's polity verbs compose provider-blind keys they cannot expunge —
-so the parley fixture's live green waits on that polity-verb/muniment re-cut merging through, over and above its landed depot-attributed roll lens
-(the lens is what made the skew legible: attributed to the current depot, the aliasing roll line resolved to schema grain, not the cross-depot orphan first hypothesized).
+The muniment schema was a SECOND provider-grain delivery beyond the verb list above, and it is TAKEN (260702 merge):
+the provider-qualified muniment (four-segment key, provider content field) merged through and converged with this heat's depot-attribution work into the four-column roll — (depot, mantle, provider, subject), depot from the key, record fields from content (RBSPO depot-attributed emission).
+The parley fixture asserts the fully-attributed exact line and ran live green end-to-end on the merged tree
+(the depot lens is what made the schema skew legible in the first place: attributed to the current depot, the aliasing roll line resolved to schema grain, not the cross-depot orphan first hypothesized).
 descry/instate stay the per-foedus select-and-check toothings, operating provider-grain once that delivery lands.
 The broader governor-selects feature stays premise-gated and deferred.
 
