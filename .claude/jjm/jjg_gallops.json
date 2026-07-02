@@ -2866,8 +2866,8 @@
         "₢A-ABK": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260516-1741",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260701-1941",
+              "jjgtn_state": "jjgte_abandoned",
               "jjgtn_text": [
                 "## Character",
                 "Spec coherence to match unconditional-reboot architecture",
@@ -2918,7 +2918,7 @@
                 "  no-WSL) cited in spec edits."
               ],
               "jjgtn_silks": "windows-reboot-primitive-spec-coherence",
-              "jjgtn_basis": "71f5bf1"
+              "jjgtn_basis": "60c8152"
             }
           ]
         }
