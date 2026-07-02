@@ -25,8 +25,6 @@ use crate::case;
 use crate::rbtdre_engine::{rbtdre_Case, rbtdre_Disposition, rbtdre_Fixture, rbtdre_Verdict};
 use crate::rbtdri_invocation::{rbtdri_find_tabtarget_global, rbtdri_tabtarget_command};
 use crate::rbtdgc_consts::{
-    RBTDGC_HANDBOOK_TOP, RBTDGC_HANDBOOK_WINDOWS,
-    RBTDGC_HW_DOCKER_CONTEXT, RBTDGC_HW_DOCKER_DESKTOP,
     RBTDGC_ONBOARD_CRASH_COURSE, RBTDGC_ONBOARD_DIR_FIRST_BUILD,
     RBTDGC_ONBOARD_FIRST_CRUCIBLE,
     RBTDGC_ONBOARD_PAYOR_HB, RBTDGC_ONBOARD_START_HERE,
@@ -100,24 +98,6 @@ fn rbtdrf_hb_onboard_payor_hb(dir: &Path) -> rbtdre_Verdict {
     rbtdrf_hb_render(dir, RBTDGC_ONBOARD_PAYOR_HB, "onboard-payor-hb")
 }
 
-// ── Windows cases ───────────────────────────────────────────
-
-fn rbtdrf_hb_handbook_top(dir: &Path) -> rbtdre_Verdict {
-    rbtdrf_hb_render(dir, RBTDGC_HANDBOOK_TOP, "handbook-top")
-}
-
-fn rbtdrf_hb_handbook_windows(dir: &Path) -> rbtdre_Verdict {
-    rbtdrf_hb_render(dir, RBTDGC_HANDBOOK_WINDOWS, "handbook-windows")
-}
-
-fn rbtdrf_hb_hw_docker_desktop(dir: &Path) -> rbtdre_Verdict {
-    rbtdrf_hb_render(dir, RBTDGC_HW_DOCKER_DESKTOP, "hw-docker-desktop")
-}
-
-fn rbtdrf_hb_hw_docker_context(dir: &Path) -> rbtdre_Verdict {
-    rbtdrf_hb_render(dir, RBTDGC_HW_DOCKER_CONTEXT, "hw-docker-context")
-}
-
 // ── Payor cases (3) ─────────────────────────────────────────
 
 fn rbtdrf_hb_payor_establish(dir: &Path) -> rbtdre_Verdict {
@@ -140,10 +120,6 @@ pub static RBTDRF_CASES_HANDBOOK_RENDER: &[rbtdre_Case] = &[
     case!(rbtdrf_hb_onboard_first_crucible),
     case!(rbtdrf_hb_onboard_dir_first_build),
     case!(rbtdrf_hb_onboard_payor_hb),
-    case!(rbtdrf_hb_handbook_top),
-    case!(rbtdrf_hb_handbook_windows),
-    case!(rbtdrf_hb_hw_docker_desktop),
-    case!(rbtdrf_hb_hw_docker_context),
     case!(rbtdrf_hb_payor_establish),
     case!(rbtdrf_hb_payor_refresh),
     case!(rbtdrf_hb_quota_build),

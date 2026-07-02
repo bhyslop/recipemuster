@@ -199,12 +199,3 @@ The Folio column shows how each tabtarget receives it:
 | `rbw-tr` | QualifyRelease | — | Release qualify: + shellcheck, full test suite |
 | `rbw-tl` | Shellcheck | — | Shellcheck only: BCG-configured static analysis, no test suite |
 
-### Handbook — Human-facing procedures (`rbw-HW`)
-
-| Colophon | Frontispiece | Folio | Purpose |
-|----------|-------------|-------|---------|
-| `rbw-h0` | HandbookTOP | — | Top-level handbook index across all groups |
-| `rbw-hw` | HandbookWindows | — | Windows test infrastructure orchestrator |
-| `rbw-HWdd` | DockerDesktop | — | Docker Desktop install |
-| `rbw-HWdc` | DockerContextDiscipline | — | Deterministic daemon selection |
-

@@ -150,18 +150,6 @@ buh_tt() {
 }
 
 ######################################################################
-# Public: Index renderers
-#
-# Group-level handbook indexes shared across kits.
-# Each function renders one kit's handbook group tops.
-
-buh_index_buk() {
-  buh_section  "Generic OS Procedures (Bash Utility Kit)"
-  buh_line     "  Project-independent OS-level mechanisms."
-  buh_tt       "  Jurisdiction:  " "${BUWZ_HJ0_TOP}"
-}
-
-######################################################################
 # Public: Pre-composed line output
 #
 # buh_line string

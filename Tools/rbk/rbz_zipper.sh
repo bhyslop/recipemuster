@@ -261,14 +261,6 @@ zrbz_kindle() {
   buz_enroll RBZ_QUALIFY_RELEASE    "rbw-tr"   "${z_mod}" "rbq_qualify_release"     ""        "Release qualify: + shellcheck, full test suite"
   buz_enroll RBZ_QUALIFY_SHELLCHECK "rbw-tl"   "${z_mod}" "rbq_qualify_shellcheck"  ""        "Shellcheck only: BCG-configured static analysis, no test suite"
 
-  # Handbook — human-facing procedures (rbw-h0 index, rbw-hw/HW* windows)
-  buz_group RBZ__GROUP_HANDBOOK   "rbw-HW"  "Handbook — Human-facing procedures"
-  z_mod="rbh0/rbhw0_cli.sh"
-  buz_enroll RBZ_HANDBOOK_TOP           "rbw-h0"    "${z_mod}" "rbhw_handbook_top"              ""        "Top-level handbook index across all groups"
-  buz_enroll RBZ_HANDBOOK_WINDOWS       "rbw-hw"    "${z_mod}" "rbhw_top"                       ""        "Windows test infrastructure orchestrator"
-  buz_enroll RBZ_HW_DOCKER_DESKTOP     "rbw-HWdd"  "${z_mod}" "rbhw_docker_desktop"            ""        "Docker Desktop install"
-  buz_enroll RBZ_HW_DOCKER_CONTEXT     "rbw-HWdc"  "${z_mod}" "rbhw_docker_context_discipline" ""        "Deterministic daemon selection"
-
   readonly ZRBZ_KINDLED=1
 }
 

@@ -42,8 +42,6 @@ use std::path::Path;
 use crate::case;
 use crate::rbtdgc_consts::{
     BUWGC_RC_VALIDATE,
-    BUWGC_RN_VALIDATE,
-    BUWGC_RP_VALIDATE,
     BUWGC_RS_VALIDATE,
     RBTDGC_BAND_ENROLL,
     RBTDGC_BAND_REGIME,
@@ -75,13 +73,12 @@ const RBTDRS_VAR_RBRR_RUNTIME_PREFIX: &str = "RBRR_RUNTIME_PREFIX";
 const RBTDRS_VAR_RBRD_CLOUD_PREFIX: &str = "RBRD_CLOUD_PREFIX";
 const RBTDRS_VAR_RBRD_DEPOT_MONIKER: &str = "RBRD_DEPOT_MONIKER";
 
-// Folio monikers referenced by 2+ cases — a known-good entry-enabled nameplate,
-// a known-good conjure vessel, and a committed BURN node, all in-tree. Removing
-// any fails the cases loud (the verb cannot locate the regime), not silently.
+// Folio monikers referenced by 2+ cases — a known-good entry-enabled nameplate
+// and known-good conjure vessels, all in-tree. Removing any fails the cases loud
+// (the verb cannot locate the regime), not silently.
 const RBTDRS_NAMEPLATE_TADMOR: &str = "tadmor";
 const RBTDRS_VESSEL_BUSYBOX: &str = "rbev-busybox";
 const RBTDRS_VESSEL_PLANTUML: &str = "rbev-bottle-plantuml";
-const RBTDRS_NODE_BUJN_WINPC: &str = "bujn-winpc";
 
 // ── Poison harness ──────────────────────────────────────────
 
@@ -326,7 +323,7 @@ fn rbtdrs_rbrv_bind_image_tag_only(dir: &Path) -> rbtdre_Verdict {
         RBTDGC_BAND_REGIME, "rbrv-bind-image-tag-only")
 }
 
-// ── Operator-local regimes — station, oauth, auth, node, privilege ──
+// ── Operator-local regimes — station, oauth, auth ──
 //
 // These regimes have no in-tree baseline: their files live in the operator's
 // station tree, present only on a configured workstation. Each case probes the
@@ -388,18 +385,6 @@ fn rbtdrs_burs_bad_tincture(dir: &Path) -> rbtdre_Verdict {
         RBTDGC_BAND_REGIME, "burs-bad-tincture")
 }
 
-fn rbtdrs_burn_bad_platform(dir: &Path) -> rbtdre_Verdict {
-    // Off-enum value fails the buv_enum_enroll check → enroll.
-    rbtdrs_poison_optional(dir, BUWGC_RN_VALIDATE, &[RBTDRS_NODE_BUJN_WINPC],
-        "BURN_PLATFORM=bunne_solaris", RBTDGC_BAND_ENROLL, "burn-bad-platform")
-}
-
-fn rbtdrs_burp_missing_workload_key(dir: &Path) -> rbtdre_Verdict {
-    // Unset a required field → buv presence check → enroll.
-    rbtdrs_poison_optional(dir, BUWGC_RP_VALIDATE, &[RBTDRS_NODE_BUJN_WINPC],
-        "BURP_WORKLOAD_KEY_FILE", RBTDGC_BAND_ENROLL, "burp-missing-workload-key")
-}
-
 // ── Fixture ─────────────────────────────────────────────────
 
 pub static RBTDRS_CASES_REGIME_POISON: &[rbtdre_Case] = &[
@@ -432,8 +417,6 @@ pub static RBTDRS_CASES_REGIME_POISON: &[rbtdre_Case] = &[
     case!(rbtdrs_rbrv_bind_image_tag_only),
     case!(rbtdrs_rbro_missing_refresh_token),
     case!(rbtdrs_burs_bad_tincture),
-    case!(rbtdrs_burn_bad_platform),
-    case!(rbtdrs_burp_missing_workload_key),
 ];
 
 pub static RBTDRS_FIXTURE_REGIME_POISON: rbtdre_Fixture = rbtdre_Fixture {

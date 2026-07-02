@@ -15,7 +15,7 @@
 - **BUTT** → `buk/butt_testbench.sh` (BUK test framework self-test — kick-tires + bure-tweak, 9 cases)
 - **BURC** → `buk/burc_cli.sh`, `buk/burc_regime.sh` (regime configuration)
 - **BURS** → `buk/burs_cli.sh`, `buk/burs_regime.sh` (regime station)
-- **BUJP** → `buk/bujp_preflight.sh` (garrison step-1 preflight gate)
+- **BUJP** → `buk/vov_veiled/bujp_preflight.sh` (garrison step-1 preflight gate — VEILED: the BUK jurisdiction apparatus (BURN/BURP regimes + caparison/invigilate/garrison, `burn_`/`burp_`/`bujb_`/`buhj_`/`bujp_`) was shelved off the distributed surface into `buk/vov_veiled/` pending re-gestation through the mews aspirant sheaf `Tools/jjk/vov_veiled/JJS-aspirant-mews.adoc`. The code is inert (enrollments + tabtargets removed); not rewired for local execution.)
 
 ## Bash Utility Kit (BUK) Concepts
 
