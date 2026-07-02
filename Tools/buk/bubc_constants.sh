@@ -109,6 +109,12 @@ BUBC_band_vacant=110    # read-side absent-artifact rejection (summon/plumb/augu
 BUBC_band_engross=111   # terrier engross rejection (unexpected HTTP on the conditioned create)
 BUBC_band_expunge=112   # terrier expunge rejection (unexpected HTTP on the conditioned delete)
 BUBC_band_peruse=113    # terrier read rejection (list/fetch deficit or malformed muniment body; peruse and peruse_manor share the gate)
+# The escheat hygiene sweep (RBSME) rides its own gate: its raw-grain survey and
+# expunge deliberately bypass the muniment sub-operations above, and the verb
+# never calls them, so no spawn path chains the gates — but the semantic is its
+# own (a hygiene refusal, not an admission-path refusal), so it takes the last
+# free code rather than sharing.
+BUBC_band_escheat=114   # terrier escheat rejection (survey list/fetch deficit, raw-expunge unexpected HTTP, or folder-purge failure)
 # Self-test probe pins the band top, proving full-width propagation:
 BUBC_band_selftest=115  # BUK self-test deliberate rejection (buw-xb fixture)
 

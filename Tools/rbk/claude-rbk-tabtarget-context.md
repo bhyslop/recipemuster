@@ -54,6 +54,7 @@ The Folio column shows how each tabtarget receives it:
 | `rbw-mJ` | PayorJiltsManor | param1 | Jilt one foedus — delete the named foedus's provider from the manor's standing workforce pool (the pool stands; args: foedus) |
 | `rbw-mI` | PayorInstauratesManor | — | Instaurate the manor — idempotently ensure payor-project APIs, billing linkage, the workforce pool, terrier bucket, and polity folder (post-payor-guide manor-setup finisher) |
 | `rbw-mR` | PayorRazesManor | — | Raze the manor — force-delete its workforce pool to start clean (internal release-ladder infra; withheld from delivery) |
+| `rbw-mE` | PayorEscheatsTerrier | — | Escheat the terrier — sweep orphaned polity slices and dead-schema strays from the manor terrier (plan-then-confirm payor hygiene) |
 | `rbw-mG` | PayorGirdsGovernor | param1 | Gird the first governor — payor seats a citizen as this depot's founding governor (args: subject) |
 
 ### Polity — federation admission (`rbw-p`)

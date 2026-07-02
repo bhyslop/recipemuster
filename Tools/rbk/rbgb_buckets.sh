@@ -55,6 +55,7 @@ zrbgb_kindle() {
   readonly ZRBGB_INFIX_LIFECYCLE_SET="bucket_lifecycle_set"
   readonly ZRBGB_INFIX_MF_CREATE="managed_folder_create"
   readonly ZRBGB_INFIX_MF_DELETE="managed_folder_delete"
+  readonly ZRBGB_INFIX_MF_LIST="managed_folder_list"
 
   readonly ZRBGB_KINDLED=1
 }
@@ -512,6 +513,48 @@ rbgb_managed_folder_purge() {
          z_err=$(rbuh_json_field_capture "${ZRBGB_INFIX_MF_DELETE}" '.error.message') || z_err="HTTP ${z_del_code}"
          buc_warn "Managed folder ${z_folder} delete failed: ${z_err}";          return 1 ;;
   esac
+}
+
+# rbgb_managed_folders_capture <token> <bucket>
+# List every managed folder in a UBLA bucket (paged), one slash-terminated
+# folder name per line on stdout. Returns 1 on any list deficit — the caller
+# decides error handling (capture contract).
+rbgb_managed_folders_capture() {
+  zrbgb_sentinel
+
+  local -r z_token="${1:-}"
+  local -r z_bucket_name="${2:-}"
+
+  test -n "${z_token}"       || return 1
+  test -n "${z_bucket_name}" || return 1
+
+  local -r z_list_url_base="${RBGC_API_ROOT_STORAGE}${RBGC_STORAGE_JSON_V1}/b/${z_bucket_name}/managedFolders"
+  local z_page_token=""
+  local z_page=1
+  local z_url=""
+  local z_tok_enc=""
+  local z_infix=""
+  local z_code=""
+
+  while :; do
+    z_url="${z_list_url_base}"
+    if test -n "${z_page_token}"; then
+      z_tok_enc=$(rbuh_urlencode_capture "${z_page_token}") || return 1
+      z_url="${z_url}?pageToken=${z_tok_enc}"
+    fi
+
+    z_infix="${ZRBGB_INFIX_MF_LIST}${z_page}"
+    rbuh_json "GET" "${z_url}" "${z_token}" "${z_infix}"
+
+    z_code=$(rbuh_code_capture "${z_infix}") || return 1
+    test "${z_code}" = "200" || return 1
+
+    jq -r                '.items[]?.name // empty' "${ZRBUH_PREFIX}${z_infix}${ZRBUH_POSTFIX_JSON}"  || return 1
+    z_page_token=$(jq -r '.nextPageToken // empty' "${ZRBUH_PREFIX}${z_infix}${ZRBUH_POSTFIX_JSON}") || return 1
+
+    test -n "${z_page_token}" || break
+    z_page=$((z_page + 1))
+  done
 }
 
 rbgb_managed_folder_add_iam_role() {

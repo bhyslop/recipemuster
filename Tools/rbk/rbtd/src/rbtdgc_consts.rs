@@ -26,6 +26,7 @@ pub const RBTDGC_AFFIANCE_MANOR: &str = "rbw-mA";
 pub const RBTDGC_JILT_MANOR: &str = "rbw-mJ";
 pub const RBTDGC_INSTAURATE_MANOR: &str = "rbw-mI";
 pub const RBTDGC_RAZE_MANOR: &str = "rbw-mR";
+pub const RBTDGC_ESCHEAT_MANOR: &str = "rbw-mE";
 pub const RBTDGC_GIRD_POLITY: &str = "rbw-mG";
 pub const RBTDGC_BREVET_POLITY: &str = "rbw-pB";
 pub const RBTDGC_UNSEAT_POLITY: &str = "rbw-pU";

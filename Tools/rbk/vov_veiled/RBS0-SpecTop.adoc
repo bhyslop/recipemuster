@@ -138,6 +138,7 @@
 :rbtgo_manor_jilt:                <<rbtgo_manor_jilt,rbgp_manor_jilt>>
 :rbtgo_manor_instaurate:               <<rbtgo_manor_instaurate,rbgp_manor_instaurate>>
 :rbtgo_manor_raze:                <<rbtgo_manor_raze,rbgp_manor_raze>>
+:rbtgo_manor_escheat:             <<rbtgo_manor_escheat,rbgp_manor_escheat>>
 :rbtgo_payor_establish:           <<rbtgo_payor_establish,rbhp_establish>>
 :rbtgo_payor_install:             <<rbtgo_payor_install,rbgp_payor_install>>
 :rbtgo_payor_refresh:             <<rbtgo_payor_refresh,rbhp_refresh>>
@@ -1255,6 +1256,22 @@ distinct from the everyday provider-delete
 
 //axvd_cartouche axd_normative
 include::RBSMR-manor_raze.adoc[]
+
+[[rbtgo_manor_escheat]]
+//axvo_method axd_transient axd_grouped
+=== {rbtgo_manor_escheat}
+
+Escheats the
+{rbtf_terrier}
+({rbtgog_payor}):
+the manor-hygiene sweep — strike orphaned polity slices (their depot unmade) and
+dead-schema strays from the record, plan-then-confirm, so every standing line of
+{rbtf_rehearse}'s
+roll names a live depot in the current muniment schema; the mutating sibling of
+that pure read.
+
+//axvd_cartouche axd_normative
+include::RBSME-manor_escheat.adoc[]
 
 [[rbtgo_foedus_establish]]
 //axvo_method axd_transient axd_grouped

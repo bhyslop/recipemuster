@@ -74,8 +74,9 @@ zrbz_kindle() {
   # Manor — IdP federation founding (rbw-m). The payor founding trio —
   # affiance / jilt / gird (gird seats a fresh depot's first governor, the one
   # admission the payor wields) — plus instaurate, the ensure-exists manor-setup finisher
-  # (workforce pool + terrier bucket + polity folder), and raze, its withheld
-  # pool-destroyer inverse (internal release-ladder infra, stripped at delivery).
+  # (workforce pool + terrier bucket + polity folder), raze, its withheld
+  # pool-destroyer inverse (internal release-ladder infra, stripped at delivery),
+  # and escheat, the terrier-hygiene sweep (RBSME).
   # The M5 colophon regroup later gathers levy/establish into it.
   buz_group RBZ__GROUP_MANOR      "rbw-m"   "Manor — IdP federation founding"
   z_mod="rbgp_cli.sh"
@@ -90,6 +91,10 @@ zrbz_kindle() {
   # strips the tabtarget); the verb ships in rbgp_payor.sh. Internal release-ladder
   # infra only — consumers never get a one-keystroke pool-destroyer.
   buz_enroll RBZ_RAZE_MANOR             "rbw-mR"  "${z_mod}" "rbgp_manor_raze"     ""  "Raze the manor — force-delete its workforce pool to start clean (internal release-ladder infra; withheld from delivery)"
+  # escheat is the manor-hygiene sweep of the terrier (RBSME): plan-then-confirm
+  # strike of orphaned polity slices and dead-schema strays; the mutating sibling
+  # of the pure read rehearse. Ships to consumers (idempotent, confirm-gated).
+  buz_enroll RBZ_ESCHEAT_MANOR          "rbw-mE"  "${z_mod}" "rbgp_manor_escheat"  ""  "Escheat the terrier — sweep orphaned polity slices and dead-schema strays from the manor terrier (plan-then-confirm payor hygiene)"
   # gird keeps its _POLITY demesne stem (it admits a governor to the polity);
   # only its colophon homes here in the payor founding family. Do not rename
   # the constant to match the group — the demesne, not the colophon, names it.

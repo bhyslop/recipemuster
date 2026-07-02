@@ -1,0 +1,168 @@
+//axvd_sheaf axd_normative
+This is a normative portion of the {rbs0_imprimatur}: binding — code, tests, and decisions may rely on it.
+//axhob_operation
+{rbtgo_manor_escheat}
+
+NOTE: This operation escheats the
+{rbtf_terrier}
+— the manor-hygiene sweep that strikes from the record what no live admission path
+owns, reverting ownerless holdings to the
+{rbtr_payor}
+as an escheat reverts a dead tenant's holding to the lord. Two stray classes
+accrete: the *orphaned polity slice* — unmaking a depot project
+({rbtgo_depot_unmake})
+never sweeps the payor-grain terrier, so a retired levy's slice (its
+{rbtf_muniment_s}
+and its polity managed folder) persists — and the *dead-schema stray* — an object
+that fails the current muniment contract (RBSTN), stranded by schema churn where
+the admission verbs cannot
+{rbtf_expunge}
+it.
+{rbtf_rehearse}
+witnesses both (its depot-attributed roll) but mutates nothing: rehearse stays a
+pure read, and the escheat is the separate mutating act — the cinched split.
+
+NOTE: *Payor-credentialed, of necessity.* Striking objects across polity slices
+exceeds any governor
+{rbtf_mantle}'s
+folder-scoped write, and an orphaned slice has no living governor mantle at all —
+its SA died with the depot project. The
+{rbtr_payor}
+acts as owner of the
+{rbtgi_payor_project}
+the terrier bucket lives in. The operation accepts no CLI parameters.
+
+NOTE: *Depot-liveness rule.* A polity slice is judged by its depot project:
+`ACTIVE` bearing the depot displayName anchor is *live* (kept); `DELETE_REQUESTED`,
+`403`, and `404` are *dead* (the slice is swept). An unmake is deliberate
+retirement — waiting out the ~30-day purge window would leave every freshly-unmade
+slice standing and make the sweep unexercisable — and an undeleted depot re-admits
+cheaply through the idempotent admission verbs, so sweeping at `DELETE_REQUESTED`
+loses nothing durable. The conservative residue: an `ACTIVE` project *without* the
+depot anchor is an anomaly — flagged in the plan and *kept*, since the sweep
+removes only what is provably dead or provably malformed.
+
+NOTE: *Plan-then-confirm, idempotent.* The sweep enumerates first and shows its
+full plan — every keep, every strike, with the reason — and only then demands
+confirmation (the operator types the terrier bucket name; the standard
+confirm-skip seam suppresses the prompt for non-interactive runs). The plan *is*
+the confirmation subject, which is why the confirm sits after the survey rather
+than leading zero-traffic as
+{rbtgo_manor_raze}'s
+does — nothing mutates before the gate. A clean terrier short-circuits: nothing
+sweepable is reported as already-clean and the operation exits `0` without
+prompting, so the escheat is an idempotent no-op on a healthy manor.
+
+NOTE: *Scope boundary.* The escheat reaches the terrier alone: bucket objects and
+the polity managed folders of dead depots. No IAM binding is touched (a dead
+depot's bindings died with its project; a live depot's belong to the admission
+verbs), no workforce pool or provider is read or written, and the bucket itself
+stands. Provider-liveness is deliberately out of scope: a
+{rbtf_muniment}
+whose admitting provider was dissolved by
+{rbtf_jilt}
+stands — jilt/re-affiance churn must not erase admission records; only a dead
+depot or a dead schema condemns an object.
+
+NOTE: *Raw-grain data layer, beneath the muniment contract.* The escheat's two
+data-layer sub-operations — the classifying *survey* and the *raw expunge* —
+deliberately operate at the raw bucket-object grain, beneath the muniment
+sub-operations of the access contract (RBSTR), because their subjects are
+precisely the objects that fail or predate that contract. The survey classifies
+each object against the current muniment shape (RBSTN): the four-segment key
+`«depot»/«mantle»/«provider»/«subject»` with the mantle in its enum, a JSON body
+carrying the three non-empty `rbgft_` fields, and body-key agreement on
+(mantle, provider, subject). A read-after-list `404` is the benign vanish, skipped
+exactly as the peruse lister skips it. The raw expunge deletes by listed object
+name unconditioned (`204` deleted, `404` already-absent — both clean). Their
+deliberate rejections share the escheat band: one gate, its deficits rules within
+it, distinct from the engross/expunge/peruse bands whose verbs may co-occur with
+an escheat in a spawn path.
+
+//axhos_step
+. *Authenticate as
+{rbtr_payor}*:
+.. Execute
+{rbtoe_payor_authenticate}
+.. {rbbc_require}
+authentication successful
+
+//axhos_step
+. *Survey the
+{rbtf_terrier}*:
+.. {rbbc_call}
+the terrier bucket's object listing (paged) and each object's body; classify every
+object against the muniment contract — verdict *sound* (with its depot segment) or
+*stray* (with the deficit: key shape, mantle enum, body not JSON, missing
+`rbgft_` fields, or body-key mismatch)
+.. {rbbc_call}
+the bucket's managed-folder listing (paged) —
+{rbbc_store}
+`«FOLDER_SET»`, each folder naming the depot of a standing polity slice
+.. a read-after-list `404` on any object is skipped (benign vanish), not fatal
+.. an absent terrier bucket is
+{rbbc_fatal}
+naming the manor-setup finisher
+({rbtgo_manor_instaurate})
+— the escheat presumes an instaurated manor
+
+//axhos_step
+. *Probe depot liveness*:
+.. For each distinct depot named by a sound muniment or a standing folder,
+{rbbc_call}
+link:https://cloud.google.com/resource-manager/reference/rest/v3/projects/get[projects.get]
+.. {rbbc_store}
+the verdict per depot: `200` + `ACTIVE` + displayName anchor → *live*; `200` +
+`ACTIVE` without the anchor → *anomaly* (kept, flagged); `200` + any other state,
+`403`, or `404` → *dead*
+.. any other HTTP outcome is
+{rbbc_fatal}
+— a liveness verdict is never guessed
+
+//axhos_step
+. *Show the plan, then gate*:
+.. {rbbc_show}
+every disposition: each kept muniment (live depot, sound shape), each flagged
+anomaly, each planned strike with its reason (orphaned slice naming the dead
+depot's state, or dead-schema deficit), and each dead-depot managed folder
+planned for removal
+.. *Already-clean short-circuit* — when the plan holds no strike, report the
+terrier clean and exit `0` (idempotent no-op, no prompt)
+.. {rbbc_require}
+operator confirmation matching the terrier bucket name; the standard confirm-skip
+seam suppresses the interactive prompt for non-interactive runs. Nothing mutates
+before this gate.
+
+//axhos_step
+. *Execute the sweep*:
+.. For each planned strike, raw-expunge the object by its listed name (`204`
+deleted or `404` already-vanished — both clean; any other outcome rejects in the
+escheat band)
+.. For each dead depot's managed folder, purge it (any straggler objects, then the
+folder itself; an absent folder is tolerated — a scaffold-era slice may predate
+managed folders)
+
+//axhos_step
+. *Verify*:
+.. Re-run the survey and re-apply the held liveness verdicts;
+{rbbc_require}
+the re-plan holds no strike — every standing object is a sound muniment under a
+live (or flagged-anomaly) depot, and no dead depot's folder stands
+
+//axhoot_typed_output
+{rbtf_muniment}
+. *Recount the sweep*:
+.. {rbbc_show}
+the swept counts (objects struck by class, folders removed) and the standing
+remainder — how many sound muniments stand, under which live depots
+
+//axhoc_completion
+Successful execution leaves the
+{rbtf_terrier}
+holding only
+{rbtf_muniment_s}
+that are sound under the current schema and homed in a live depot's polity slice,
+with dead depots' managed folders gone: every line of
+{rbtf_rehearse}'s
+standing roll names a live depot in the current muniment schema. Re-running the
+escheat is an idempotent no-op reporting the terrier clean.

@@ -70,6 +70,14 @@ zrbgft_kindle() {
   readonly ZRBGFT_INFIX_PERUSE_GET="terrier_peruse_get"
   readonly ZRBGFT_INFIX_PERUSE_MANOR_LIST="terrier_peruse_manor_list"
   readonly ZRBGFT_INFIX_PERUSE_MANOR_GET="terrier_peruse_manor_get"
+  readonly ZRBGFT_INFIX_ESCHEAT_LIST="terrier_escheat_list"
+  readonly ZRBGFT_INFIX_ESCHEAT_GET="terrier_escheat_get"
+  readonly ZRBGFT_INFIX_ESCHEAT_EXPUNGE="terrier_escheat_expunge"
+
+  # Escheat survey run counter — mutable kindle state. Each survey invocation
+  # takes fresh temp filenames (the verb surveys twice per dispatch: plan, then
+  # verify), preserving both runs' forensics.
+  z_rbgft_escheat_run=0
 
   readonly ZRBGFT_KINDLED=1
 }
@@ -339,6 +347,192 @@ rbgft_peruse_manor() {
 
   zrbgft_list_fetch_emit "${z_token}" "${z_bucket}" "" \
     "${ZRBGFT_INFIX_PERUSE_MANOR_LIST}" "${ZRBGFT_INFIX_PERUSE_MANOR_GET}"
+}
+
+# rbgft_escheat_survey <token> <bucket>
+# The classifying hygiene read (RBSME): list every object in the terrier bucket
+# and judge each against the current muniment contract (RBSTN), emitting one
+# tab-separated "<verdict>\t<detail>\t<name>" line per object — verdict "sound"
+# with the depot key segment as detail, or verdict "stray" with the deficit word
+# (key-shape | mantle | body-json | body-fields | mismatch). Deliberately reads
+# at the raw object grain, beneath the muniment sub-operations: its subjects are
+# precisely the objects that fail or predate the contract, so a malformed body
+# CLASSIFIES rather than rejects (contrast the strict zrbgft_list_fetch_emit,
+# whose whole read dies on one bad body). A read-after-list 404 is the benign
+# vanish, skipped. List/fetch deficits reject in the escheat band
+# (BUBC_band_escheat); an absent bucket rejects there naming the manor finisher.
+rbgft_escheat_survey() {
+  zrbgft_sentinel
+
+  local -r z_token="${1:-}"
+  local -r z_bucket="${2:-}"
+
+  test -n "${z_token}"  || buc_die "Token required"
+  test -n "${z_bucket}" || buc_die "Bucket required"
+
+  buc_step "Survey the terrier for escheat (classify every object)"
+
+  z_rbgft_escheat_run=$((z_rbgft_escheat_run + 1))
+  local -r z_names_file="${ZRBGFT_PREFIX}escheat_${z_rbgft_escheat_run}_names.txt"
+  local -r z_fields_file="${ZRBGFT_PREFIX}escheat_${z_rbgft_escheat_run}_fields.txt"
+  local -r z_jq_err_file="${ZRBGFT_PREFIX}escheat_${z_rbgft_escheat_run}_jq_err.txt"
+
+  buc_log_args 'Page the raw object listing into the names file'
+  : > "${z_names_file}"
+  local z_page_token=""
+  local z_page=0
+  local z_tok_enc=""
+  local z_url=""
+  local z_list_infix_page=""
+  local z_list_code=""
+  local z_list_err=""
+  local z_list_file=""
+  while :; do
+    z_page=$((z_page + 1))
+    z_url="${RBGC_API_BASE_GCS}/b/${z_bucket}/o"
+    if test -n "${z_page_token}"; then
+      z_tok_enc=$(rbuh_urlencode_capture "${z_page_token}") || buc_die "Failed to encode pageToken"
+      z_url="${z_url}?pageToken=${z_tok_enc}"
+    fi
+
+    z_list_infix_page="${ZRBGFT_INFIX_ESCHEAT_LIST}${z_page}"
+    rbuh_json "GET" "${z_url}" "${z_token}" "${z_list_infix_page}"
+
+    z_list_code=$(rbuh_code_capture "${z_list_infix_page}") || buc_die "Bad escheat list HTTP code"
+    case "${z_list_code}" in
+      200) : ;;
+      404) buc_reject "${BUBC_band_escheat}" "Escheat survey: terrier bucket ${z_bucket} absent — instaurate the manor first" ;;
+      *)   z_list_err=$(rbuh_json_field_capture "${z_list_infix_page}" '.error.message') || z_list_err="HTTP ${z_list_code}"
+           buc_reject "${BUBC_band_escheat}" "Escheat survey: failed to list terrier objects (HTTP ${z_list_code}): ${z_list_err}" ;;
+    esac
+
+    z_list_file="${ZRBUH_PREFIX}${z_list_infix_page}${ZRBUH_POSTFIX_JSON}"
+    jq -r '.items[]?.name // empty' "${z_list_file}" >> "${z_names_file}" \
+      || buc_die "Failed to read escheat listing page ${z_page}"
+
+    z_page_token=$(jq -r '.nextPageToken // empty' "${z_list_file}") || buc_die "Failed to read nextPageToken"
+    test -n "${z_page_token}" || break
+  done
+
+  buc_log_args 'Load the names, then classify each (load-then-iterate)'
+  local z_names=()
+  local z_line=""
+  while IFS= read -r z_line || test -n "${z_line}"; do
+    test -n "${z_line}" || continue
+    z_names+=("${z_line}")
+  done < "${z_names_file}"
+
+  local z_i=0
+  local z_name=""
+  local z_depot=""
+  local z_rest=""
+  local z_mantle=""
+  local z_provider=""
+  local z_subject=""
+  local z_name_enc=""
+  local z_get_code=""
+  local z_get_err=""
+  local z_get_file=""
+  local z_body_mantle=""
+  local z_body_provider=""
+  local z_body_subject=""
+  for z_i in "${!z_names[@]}"; do
+    z_name="${z_names[$z_i]}"
+
+    case "${z_name}" in
+      */*/*/*) : ;;
+      *) printf 'stray\tkey-shape\t%s\n' "${z_name}" || buc_die "Failed to emit survey line"
+         continue ;;
+    esac
+    z_depot="${z_name%%/*}"
+    z_rest="${z_name#*/}"
+    z_mantle="${z_rest%%/*}"
+    z_rest="${z_rest#*/}"
+    z_provider="${z_rest%%/*}"
+    z_subject="${z_rest#*/}"
+    if test -z "${z_depot}" || test -z "${z_mantle}" || test -z "${z_provider}" || test -z "${z_subject}"; then
+      printf 'stray\tkey-shape\t%s\n' "${z_name}" || buc_die "Failed to emit survey line"
+      continue
+    fi
+
+    case "${z_mantle}" in
+      governor|director|retriever) : ;;
+      *) printf 'stray\tmantle\t%s\n' "${z_name}" || buc_die "Failed to emit survey line"
+         continue ;;
+    esac
+
+    z_name_enc=$(rbuh_urlencode_capture "${z_name}") || buc_die "Failed to encode object name"
+    rbuh_json "GET" "${RBGC_API_BASE_GCS}/b/${z_bucket}/o/${z_name_enc}?alt=media" \
+      "${z_token}" "${ZRBGFT_INFIX_ESCHEAT_GET}"
+
+    z_get_code=$(rbuh_code_capture "${ZRBGFT_INFIX_ESCHEAT_GET}") || buc_die "Bad escheat fetch HTTP code"
+    case "${z_get_code}" in
+      200) : ;;
+      404) buc_info "Object ${z_name} vanished between list and fetch — skipped"; continue ;;
+      *)   z_get_err=$(rbuh_json_field_capture "${ZRBGFT_INFIX_ESCHEAT_GET}" '.error.message') || z_get_err="HTTP ${z_get_code}"
+           buc_reject "${BUBC_band_escheat}" "Escheat survey: failed to fetch object ${z_name} (HTTP ${z_get_code}): ${z_get_err}" ;;
+    esac
+
+    z_get_file="${ZRBUH_PREFIX}${ZRBGFT_INFIX_ESCHEAT_GET}${ZRBUH_POSTFIX_JSON}"
+    jq -r '[(.rbgft_mantle? // ""), (.rbgft_provider? // ""), (.rbgft_subject? // "")] | @tsv' \
+      "${z_get_file}" > "${z_fields_file}" 2>"${z_jq_err_file}" \
+      || { printf 'stray\tbody-json\t%s\n' "${z_name}" || buc_die "Failed to emit survey line"; continue; }
+
+    z_body_mantle=""
+    z_body_provider=""
+    z_body_subject=""
+    IFS=$'\t' read -r z_body_mantle z_body_provider z_body_subject < "${z_fields_file}" \
+      || { printf 'stray\tbody-fields\t%s\n' "${z_name}" || buc_die "Failed to emit survey line"; continue; }
+
+    if test -z "${z_body_mantle}" || test -z "${z_body_provider}" || test -z "${z_body_subject}"; then
+      printf 'stray\tbody-fields\t%s\n' "${z_name}" || buc_die "Failed to emit survey line"
+      continue
+    fi
+
+    if test "${z_body_mantle}" != "${z_mantle}" || test "${z_body_provider}" != "${z_provider}" \
+      || test "${z_body_subject}" != "${z_subject}"; then
+      printf 'stray\tmismatch\t%s\n' "${z_name}" || buc_die "Failed to emit survey line"
+      continue
+    fi
+
+    printf 'sound\t%s\t%s\n' "${z_depot}" "${z_name}" || buc_die "Failed to emit survey line"
+  done
+}
+
+# rbgft_escheat_expunge_raw <token> <bucket> <object_name>
+# The raw hygiene delete (RBSME): strike one bucket object by its listed name,
+# unconditioned — no muniment-name composition, because an escheat subject's key
+# may be exactly what fails the contract. Echoes "deleted" (204) or "absent"
+# (404 — already vanished, clean). Any other code rejects in the escheat band
+# (BUBC_band_escheat). Logged, not stepped: the sweep loop is one verb step.
+rbgft_escheat_expunge_raw() {
+  zrbgft_sentinel
+
+  local -r z_token="${1:-}"
+  local -r z_bucket="${2:-}"
+  local -r z_name="${3:-}"
+
+  test -n "${z_token}"  || buc_die "Token required"
+  test -n "${z_bucket}" || buc_die "Bucket required"
+  test -n "${z_name}"   || buc_die "Object name required"
+
+  buc_log_args "Escheat raw expunge: ${z_name}"
+
+  local z_name_enc
+  z_name_enc=$(rbuh_urlencode_capture "${z_name}") || buc_die "Failed to encode object name"
+
+  rbuh_json "DELETE" "${RBGC_API_BASE_GCS}/b/${z_bucket}/o/${z_name_enc}" \
+    "${z_token}" "${ZRBGFT_INFIX_ESCHEAT_EXPUNGE}"
+
+  local z_code
+  z_code=$(rbuh_code_capture "${ZRBGFT_INFIX_ESCHEAT_EXPUNGE}") || buc_die "Bad escheat expunge HTTP code"
+  case "${z_code}" in
+    204) buc_info "Escheated ${z_name}"; echo "deleted" ;;
+    404) buc_info "Object ${z_name} already absent (benign vanish)"; echo "absent" ;;
+    *)   local z_err
+         z_err=$(rbuh_json_field_capture "${ZRBGFT_INFIX_ESCHEAT_EXPUNGE}" '.error.message') || z_err="HTTP ${z_code}"
+         buc_reject "${BUBC_band_escheat}" "Failed to escheat object ${z_name} (HTTP ${z_code}): ${z_err}" ;;
+  esac
 }
 
 # eof

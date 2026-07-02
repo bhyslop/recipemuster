@@ -34,7 +34,9 @@ never sweeps the payor-grain terrier, so orphaned slices of retired levies persi
 and a depot-blind roll cannot witness a depot-scoped admission churn, two identical
 lines being indistinguishable. The parley admission probe (RBSTC) is the located
 consumer whose live-run collision forced this ruling, superseding the founding
-depot-blind emission.
+depot-blind emission. Rehearse only witnesses the orphans; their removal is
+{rbtgo_manor_escheat}'s,
+never rehearse's — the cinched pure-read/mutating-sweep split.
 
 NOTE: *Pure-read race tolerance.* The manor sweep is a list-then-fetch, so an object the
 listing named can be withdrawn by a concurrent

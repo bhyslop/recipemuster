@@ -41,8 +41,8 @@ and
 key on the triple while
 {rbtf_peruse}
 recovers each holding's admitting provider from the muniment body.
-Exactly three sub-operations touch it, each a single conditioned REST call
-against the bucket:
+Exactly three sub-operations touch it at the muniment grain, each a single
+conditioned REST call against the bucket:
 
 [[rbtf_engross]]
 {rbtf_engross}::
@@ -71,6 +71,15 @@ Read
 The pure list-and-fetch primitive — no precondition — that
 {rbtf_rehearse}
 composes, and the read side of the reconciliation diff.
+
+NOTE: *Hygiene access rides beneath this contract.* The manor-hygiene sweep
+({rbtgo_manor_escheat})
+surveys and strikes bucket objects at the *raw object grain* — deliberately
+beneath the muniment sub-operations above, because its subjects are precisely the
+objects that fail or predate the muniment contract (dead-schema strays) or whose
+polity died (orphaned slices). The three sub-operations remain the only
+muniment-grain access; the hygiene pair (classifying survey, raw expunge) is
+contracted in the escheat operation and rejects in its own band, never these.
 
 === Write semantics — atomic, server-adjudicated (settled)
 

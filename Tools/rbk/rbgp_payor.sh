@@ -1838,6 +1838,347 @@ rbgp_manor_instaurate() {
   buc_info "A foedus is now affianceable under the standing pool (rbw-mA); raze (rbw-mR) is the inverse teardown"
 }
 
+# Escheat helper — derive the distinct depot candidates the liveness probe must
+# judge: the depot segment of every sound muniment plus every standing polity
+# folder (trailing slash stripped). Pure bash over the two survey files; emits
+# one candidate per line, deduplicated.
+zrbgp_escheat_depots() {
+  zrbgp_sentinel
+
+  local -r z_survey_file="${1:-}"
+  local -r z_folders_file="${2:-}"
+  test -f "${z_survey_file}"  || buc_die "Survey file required: ${z_survey_file}"
+  test -f "${z_folders_file}" || buc_die "Folders file required: ${z_folders_file}"
+
+  buc_log_args 'Collect depot candidates from sound muniments and standing folders'
+  local z_candidates=()
+  local z_line=""
+  local z_verdict=""
+  local z_detail=""
+  local z_name=""
+  while IFS= read -r z_line || test -n "${z_line}"; do
+    test -n "${z_line}" || continue
+    IFS=$'\t' read -r z_verdict z_detail z_name <<<"${z_line}" || buc_die "Malformed survey line: ${z_line}"
+    test "${z_verdict}" = "sound" || continue
+    z_candidates+=("${z_detail}")
+  done < "${z_survey_file}"
+  while IFS= read -r z_line || test -n "${z_line}"; do
+    test -n "${z_line}" || continue
+    z_candidates+=("${z_line%/}")
+  done < "${z_folders_file}"
+
+  local z_seen="|"
+  local z_i=0
+  local z_cand=""
+  for z_i in "${!z_candidates[@]}"; do
+    z_cand="${z_candidates[$z_i]}"
+    test -n "${z_cand}" || continue
+    case "${z_seen}" in
+      *"|${z_cand}|"*) continue ;;
+      *) : ;;
+    esac
+    z_seen="${z_seen}${z_cand}|"
+    printf '%s\n' "${z_cand}" || buc_die "Failed to emit depot candidate"
+  done
+}
+
+# Escheat helper — probe each depot candidate's liveness (RBSME rule): ACTIVE
+# with the depot displayName anchor is live; ACTIVE without it is an anomaly
+# (kept, flagged); any other state, 403, or 404 is dead. A candidate that cannot
+# even be a project id (shape-invalid — e.g. a nested folder name) is dead by
+# construction, no probe issued. Emits "«depot»\t«verdict»\t«detail»" per line.
+# Any unexpected HTTP outcome dies — a liveness verdict is never guessed.
+zrbgp_escheat_liveness() {
+  zrbgp_sentinel
+
+  local -r z_token="${1:-}"
+  local -r z_depots_file="${2:-}"
+  test -n "${z_token}"       || buc_die "Token required"
+  test -f "${z_depots_file}" || buc_die "Depots file required: ${z_depots_file}"
+
+  buc_log_args 'Load depot candidates, then probe each (load-then-iterate)'
+  local z_depots=()
+  local z_line=""
+  while IFS= read -r z_line || test -n "${z_line}"; do
+    test -n "${z_line}" || continue
+    z_depots+=("${z_line}")
+  done < "${z_depots_file}"
+
+  local -r z_display_prefix="${RBGC_DEPOT_DISPLAY_PREFIX} "
+  local z_i=0
+  local z_depot=""
+  local z_infix=""
+  local z_code=""
+  local z_state=""
+  local z_display=""
+  for z_i in "${!z_depots[@]}"; do
+    z_depot="${z_depots[$z_i]}"
+
+    [[ "${z_depot}" =~ ^[a-z][a-z0-9-]*$ ]] || {
+      printf '%s\tdead\tinvalid-id\n' "${z_depot}" || buc_die "Failed to emit liveness line"
+      continue
+    }
+
+    z_infix="escheat_liveness_${z_i}"
+    rbuh_json "GET" "${RBGC_API_ROOT_CRM}${RBGC_CRM_V3}/projects/${z_depot}" "${z_token}" "${z_infix}"
+    z_code=$(rbuh_code_capture "${z_infix}") || buc_die "No HTTP code from projects.get for ${z_depot}"
+    case "${z_code}" in
+      200)
+        z_state=$(rbuh_json_field_capture "${z_infix}" '.state // "UNKNOWN"') || z_state="UNKNOWN"
+        if test "${z_state}" != "${RBGC_STATE_ACTIVE}"; then
+          printf '%s\tdead\t%s\n' "${z_depot}" "${z_state}" || buc_die "Failed to emit liveness line"
+          continue
+        fi
+        z_display=$(rbuh_json_field_capture "${z_infix}" '.displayName // ""') || z_display=""
+        case "${z_display}" in
+          "${z_display_prefix}"*) printf '%s\tlive\t%s\n' "${z_depot}" "${z_state}" || buc_die "Failed to emit liveness line" ;;
+          *)                      printf '%s\tanomaly\tactive-without-depot-anchor\n' "${z_depot}" || buc_die "Failed to emit liveness line" ;;
+        esac
+        ;;
+      403|404)
+        printf '%s\tdead\thttp-%s\n' "${z_depot}" "${z_code}" || buc_die "Failed to emit liveness line"
+        ;;
+      *)
+        buc_die "Escheat liveness: unexpected HTTP ${z_code} from projects.get for ${z_depot} — a liveness verdict is never guessed"
+        ;;
+    esac
+  done
+}
+
+# Escheat helper — compose the plan from the survey, the folder listing, and the
+# held liveness verdicts. Pure bash over files; emits one
+# "«action»\t«kind»\t«reason»\t«name»" line per item, action keep | flag |
+# sweep, kind object | folder. A sound muniment whose depot carries no verdict
+# dies — every sound depot was a probe candidate by construction.
+zrbgp_escheat_plan() {
+  zrbgp_sentinel
+
+  local -r z_survey_file="${1:-}"
+  local -r z_folders_file="${2:-}"
+  local -r z_liveness_file="${3:-}"
+  test -f "${z_survey_file}"   || buc_die "Survey file required: ${z_survey_file}"
+  test -f "${z_folders_file}"  || buc_die "Folders file required: ${z_folders_file}"
+  test -f "${z_liveness_file}" || buc_die "Liveness file required: ${z_liveness_file}"
+
+  buc_log_args 'Load the liveness verdicts (parallel arrays)'
+  local z_lv_depots=()
+  local z_lv_verdicts=()
+  local z_lv_details=()
+  local z_line=""
+  local z_depot=""
+  local z_verdict=""
+  local z_detail=""
+  while IFS= read -r z_line || test -n "${z_line}"; do
+    test -n "${z_line}" || continue
+    IFS=$'\t' read -r z_depot z_verdict z_detail <<<"${z_line}" || buc_die "Malformed liveness line: ${z_line}"
+    z_lv_depots+=("${z_depot}")
+    z_lv_verdicts+=("${z_verdict}")
+    z_lv_details+=("${z_detail}")
+  done < "${z_liveness_file}"
+
+  buc_log_args 'Judge every surveyed object'
+  local z_survey_lines=()
+  while IFS= read -r z_line || test -n "${z_line}"; do
+    test -n "${z_line}" || continue
+    z_survey_lines+=("${z_line}")
+  done < "${z_survey_file}"
+
+  local z_i=0
+  local z_j=0
+  local z_name=""
+  local z_found_verdict=""
+  local z_found_detail=""
+  for z_i in "${!z_survey_lines[@]}"; do
+    IFS=$'\t' read -r z_verdict z_detail z_name <<<"${z_survey_lines[$z_i]}" || buc_die "Malformed survey line"
+    if test "${z_verdict}" = "stray"; then
+      printf 'sweep\tobject\tstray-%s\t%s\n' "${z_detail}" "${z_name}" || buc_die "Failed to emit plan line"
+      continue
+    fi
+    test "${z_verdict}" = "sound" || buc_die "Unknown survey verdict: ${z_verdict}"
+    z_found_verdict=""
+    z_found_detail=""
+    for z_j in "${!z_lv_depots[@]}"; do
+      test "${z_lv_depots[$z_j]}" = "${z_detail}" || continue
+      z_found_verdict="${z_lv_verdicts[$z_j]}"
+      z_found_detail="${z_lv_details[$z_j]}"
+      break
+    done
+    test -n "${z_found_verdict}" || buc_die "No liveness verdict for depot ${z_detail} — a liveness verdict is never guessed"
+    case "${z_found_verdict}" in
+      live)    printf 'keep\tobject\tlive\t%s\n' "${z_name}" || buc_die "Failed to emit plan line" ;;
+      anomaly) printf 'flag\tobject\t%s\t%s\n' "${z_found_detail}" "${z_name}" || buc_die "Failed to emit plan line" ;;
+      dead)    printf 'sweep\tobject\torphan-%s\t%s\n' "${z_found_detail}" "${z_name}" || buc_die "Failed to emit plan line" ;;
+      *)       buc_die "Unknown liveness verdict: ${z_found_verdict}" ;;
+    esac
+  done
+
+  buc_log_args 'Judge every standing polity folder'
+  local z_folders=()
+  while IFS= read -r z_line || test -n "${z_line}"; do
+    test -n "${z_line}" || continue
+    z_folders+=("${z_line}")
+  done < "${z_folders_file}"
+
+  local z_folder=""
+  for z_i in "${!z_folders[@]}"; do
+    z_folder="${z_folders[$z_i]}"
+    z_depot="${z_folder%/}"
+    z_found_verdict=""
+    z_found_detail=""
+    for z_j in "${!z_lv_depots[@]}"; do
+      test "${z_lv_depots[$z_j]}" = "${z_depot}" || continue
+      z_found_verdict="${z_lv_verdicts[$z_j]}"
+      z_found_detail="${z_lv_details[$z_j]}"
+      break
+    done
+    test -n "${z_found_verdict}" || buc_die "No liveness verdict for folder depot ${z_depot}"
+    case "${z_found_verdict}" in
+      live)    printf 'keep\tfolder\tlive\t%s\n' "${z_folder}" || buc_die "Failed to emit plan line" ;;
+      anomaly) printf 'flag\tfolder\t%s\t%s\n' "${z_found_detail}" "${z_folder}" || buc_die "Failed to emit plan line" ;;
+      dead)    printf 'sweep\tfolder\torphan-%s\t%s\n' "${z_found_detail}" "${z_folder}" || buc_die "Failed to emit plan line" ;;
+      *)       buc_die "Unknown liveness verdict: ${z_found_verdict}" ;;
+    esac
+  done
+}
+
+# The manor-hygiene sweep (RBSME): strike from the terrier what no live
+# admission path owns — orphaned polity slices (their depot unmade) and
+# dead-schema strays (objects failing the RBSTN muniment contract). Plan-then-
+# confirm: nothing mutates before the operator confirms against the shown plan
+# (the plan IS the confirmation subject, so the gate sits after the survey,
+# unlike raze's zero-traffic confirm-first). Already-clean short-circuits to an
+# idempotent exit-0 no-op with no prompt. Payor-credentialed of necessity:
+# cross-slice deletion exceeds any governor mantle's folder scope, and an
+# orphaned slice's governor SA died with its project. The mutating sibling of
+# the pure read rbgp_rehearse — rehearse witnesses, escheat removes.
+rbgp_manor_escheat() {
+  zrbgp_sentinel
+
+  buc_doc_brief "Escheat the terrier — sweep orphaned polity slices and dead-schema strays from the manor terrier (plan-then-confirm)"
+  buc_doc_shown || return 0
+
+  local -r z_bucket="${RBGP_TERRIER_BUCKET}"
+
+  buc_step 'Authenticate as Payor'
+  local z_token
+  z_token=$(zrbgp_authenticate_capture) || buc_die "Failed to authenticate as Payor via OAuth"
+
+  local -r z_survey_file="${ZRBGP_PREFIX}escheat_survey_plan.txt"
+  rbgft_escheat_survey "${z_token}" "${z_bucket}" > "${z_survey_file}" \
+    || buc_die "Escheat survey failed"
+
+  buc_step 'List the polity managed folders'
+  local -r z_folders_file="${ZRBGP_PREFIX}escheat_folders_plan.txt"
+  rbgb_managed_folders_capture "${z_token}" "${z_bucket}" > "${z_folders_file}" \
+    || buc_reject "${BUBC_band_escheat}" "Escheat: failed to list managed folders in ${z_bucket}"
+
+  local -r z_depots_file="${ZRBGP_PREFIX}escheat_depots.txt"
+  zrbgp_escheat_depots "${z_survey_file}" "${z_folders_file}" > "${z_depots_file}" \
+    || buc_die "Failed to derive depot candidates"
+
+  buc_step 'Probe depot liveness'
+  local -r z_liveness_file="${ZRBGP_PREFIX}escheat_liveness.txt"
+  zrbgp_escheat_liveness "${z_token}" "${z_depots_file}" > "${z_liveness_file}" \
+    || buc_die "Failed to probe depot liveness"
+
+  buc_step 'Escheat plan — every disposition'
+  local -r z_plan_file="${ZRBGP_PREFIX}escheat_plan.txt"
+  zrbgp_escheat_plan "${z_survey_file}" "${z_folders_file}" "${z_liveness_file}" > "${z_plan_file}" \
+    || buc_die "Failed to compose escheat plan"
+
+  local z_plan_lines=()
+  local z_line=""
+  while IFS= read -r z_line || test -n "${z_line}"; do
+    test -n "${z_line}" || continue
+    z_plan_lines+=("${z_line}")
+  done < "${z_plan_file}"
+
+  local z_i=0
+  local z_action=""
+  local z_kind=""
+  local z_reason=""
+  local z_name=""
+  local z_keep_count=0
+  local z_flag_count=0
+  local z_sweep_objects=0
+  local z_sweep_folders=0
+  for z_i in "${!z_plan_lines[@]}"; do
+    IFS=$'\t' read -r z_action z_kind z_reason z_name <<<"${z_plan_lines[$z_i]}" || buc_die "Malformed plan line"
+    case "${z_action}" in
+      keep)  z_keep_count=$((z_keep_count + 1))
+             buc_info "KEEP   ${z_kind} (${z_reason}): ${z_name}" ;;
+      flag)  z_flag_count=$((z_flag_count + 1))
+             buc_warn "FLAG   ${z_kind} (${z_reason}): ${z_name} — kept, not provably dead" ;;
+      sweep) if test "${z_kind}" = "object"; then
+               z_sweep_objects=$((z_sweep_objects + 1))
+             else
+               z_sweep_folders=$((z_sweep_folders + 1))
+             fi
+             buc_info "SWEEP  ${z_kind} (${z_reason}): ${z_name}" ;;
+      *)     buc_die "Unknown plan action: ${z_action}" ;;
+    esac
+  done
+
+  if test "$((z_sweep_objects + z_sweep_folders))" -eq 0; then
+    buc_success "Terrier clean — nothing to escheat (${z_keep_count} kept, ${z_flag_count} flagged)"
+    return 0
+  fi
+
+  buc_step 'Safety confirmation required'
+  buc_require "DANGER: escheat strikes ${z_sweep_objects} object(s) and ${z_sweep_folders} folder(s) from the terrier record permanently" "${z_bucket}"
+
+  buc_step 'Execute the sweep (objects, then dead polity folders)'
+  for z_i in "${!z_plan_lines[@]}"; do
+    IFS=$'\t' read -r z_action z_kind z_reason z_name <<<"${z_plan_lines[$z_i]}" || buc_die "Malformed plan line"
+    test "${z_action}" = "sweep" || continue
+    test "${z_kind}" = "object"  || continue
+    rbgft_escheat_expunge_raw "${z_token}" "${z_bucket}" "${z_name}" >/dev/null \
+      || buc_die "Escheat: raw expunge failed for ${z_name}"
+  done
+  for z_i in "${!z_plan_lines[@]}"; do
+    IFS=$'\t' read -r z_action z_kind z_reason z_name <<<"${z_plan_lines[$z_i]}" || buc_die "Malformed plan line"
+    test "${z_action}" = "sweep" || continue
+    test "${z_kind}" = "folder"  || continue
+    rbgb_managed_folder_purge "${z_token}" "${z_bucket}" "${z_name}" \
+      || buc_reject "${BUBC_band_escheat}" "Escheat: failed to purge dead polity folder ${z_name}"
+  done
+
+  buc_step 'Verify the sweep (re-survey; the re-plan must hold no strike)'
+  local -r z_survey_verify_file="${ZRBGP_PREFIX}escheat_survey_verify.txt"
+  rbgft_escheat_survey "${z_token}" "${z_bucket}" > "${z_survey_verify_file}" \
+    || buc_die "Escheat verify survey failed"
+  local -r z_folders_verify_file="${ZRBGP_PREFIX}escheat_folders_verify.txt"
+  rbgb_managed_folders_capture "${z_token}" "${z_bucket}" > "${z_folders_verify_file}" \
+    || buc_reject "${BUBC_band_escheat}" "Escheat verify: failed to re-list managed folders in ${z_bucket}"
+
+  local -r z_replan_file="${ZRBGP_PREFIX}escheat_replan.txt"
+  zrbgp_escheat_plan "${z_survey_verify_file}" "${z_folders_verify_file}" "${z_liveness_file}" > "${z_replan_file}" \
+    || buc_die "Failed to compose escheat verify plan"
+
+  local z_replan_lines=()
+  while IFS= read -r z_line || test -n "${z_line}"; do
+    test -n "${z_line}" || continue
+    z_replan_lines+=("${z_line}")
+  done < "${z_replan_file}"
+
+  local z_residual=0
+  local z_standing=0
+  for z_i in "${!z_replan_lines[@]}"; do
+    IFS=$'\t' read -r z_action z_kind z_reason z_name <<<"${z_replan_lines[$z_i]}" || buc_die "Malformed replan line"
+    if test "${z_action}" = "sweep"; then
+      z_residual=$((z_residual + 1))
+    fi
+    if test "${z_action}" = "keep" && test "${z_kind}" = "object"; then
+      z_standing=$((z_standing + 1))
+    fi
+  done
+  test "${z_residual}" -eq 0 \
+    || buc_die "Escheat verify: ${z_residual} sweepable item(s) still standing after the sweep — see ${z_replan_file}"
+
+  buc_step 'Escheated'
+  buc_success "Escheat complete: struck ${z_sweep_objects} object(s) and ${z_sweep_folders} folder(s); ${z_standing} sound muniment(s) stand, every roll line naming a live depot in the current schema"
+}
+
 rbgp_depot_levy() {
   zrbgp_sentinel
 
