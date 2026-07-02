@@ -26,12 +26,23 @@ learns which IdP product is behind them.
 
 The
 {rbtr_payor}
-performs the affiance. The operation accepts no CLI parameters; the provider to
-seat is read from the kindled Federation regime, and the pool to parent it under from
-the sibling Workforce regime (`RBRW_WORKFORCE_POOL_ID`). The vendor-agnostic core
-`(RBRF_PROVIDER_ID, RBRF_IDP_ISSUER, RBRF_IDP_CLIENT_ID, RBRF_ATTRIBUTE_MAPPING)` is
-read unconditionally;
-`RBRF_MECHANISM` then selects the provider body. Under
+performs the affiance. The operation takes the target
+{rbtf_foedus}
+as a folio (param1) — the `rbef_`-sprued subdirectory name of a standing foedus in the
+moorings foedera library, exactly as
+{rbtgo_foedus_descry}
+takes its subject — and acts on THAT named foedus's provider, resolved from the folio,
+never the active or pinned foedus. Provider management is folio-addressed while the
+{rbrr_active_foedus}
+selector is reserved for the credential accessor (avow / don), completing the addressing
+split
+{rbtgo_foedus_descry}
+already half-embodies. The vendor-agnostic core
+`(RBRF_PROVIDER_ID, RBRF_IDP_ISSUER, RBRF_IDP_CLIENT_ID, RBRF_ATTRIBUTE_MAPPING)` is read
+from the folio-resolved Federation regime unconditionally;
+`RBRF_MECHANISM` then selects the provider body, and the pool to parent it under is
+manor-level, read from the sibling Workforce regime (`RBRW_WORKFORCE_POOL_ID`) — the same
+for every foedus. Under
 {rbrf_mechanism_programmatic}
 affiance additionally reads the uploaded public JWKS (`RBRF_IDP_JWKS_JSON`).
 The interactive device-flow endpoints and scope (`RBRF_IDP_DEVICE_ENDPOINT`,
@@ -40,6 +51,8 @@ The interactive device-flow endpoints and scope (`RBRF_IDP_DEVICE_ENDPOINT`,
 and are the credential accessor's to read at
 {rbtf_avow},
 not affiance's.
+An unresolvable folio — no such foedus in the library — is a precondition rejection
+naming the absent foedus.
 
 NOTE: Affiance is *idempotent-ensure-exists*, exercised once per foedus with
 founding gravity. Re-running it against an already-seated provider neither duplicates

@@ -1143,8 +1143,11 @@ rbgp_manor_affiance() {
 
   # The manor pool coordinates (org / pool id) are read from the kindled RBRW
   # regime (manor-level, RBSRW); the per-foedus provider id from the kindled
-  # RBRF regime. The caller's furnish sources, kindles, and enforces both before
-  # dispatch (like RBRD/RBRP for depot_levy). The org-level workforcePoolAdmin
+  # RBRF regime. affiance is folio-addressed (param1, RBSMA): the caller's furnish
+  # folio-resolves the RBRF from the operator-supplied foedus, then sources,
+  # kindles, and enforces both before dispatch (like RBRD/RBRP for depot_levy), so
+  # the body stays foedus-blind — it works whatever foedus the furnish sourced.
+  # The org-level workforcePoolAdmin
   # grant (spike F1) is the finisher's to seat (RBSMS) — affiance assumes it
   # present; a payor lacking it meets a 403 at provider creation, directing them
   # to run the finisher first (RBSMA F1 NOTE).
@@ -1296,9 +1299,10 @@ rbgp_manor_jilt() {
   # the provider affiance seated and nothing else; the shared pool stands for
   # every other foedus (pool teardown is the separate manor raze, never jilt).
   # Reads the pool coordinates from the kindled RBRW regime and the provider id
-  # from the kindled RBRF regime (the caller's furnish enforces both) — no CLI
-  # folio: jilt targets the regime's provider, never an operator-supplied one.
-  # Mechanism-blind: deleting the provider ends the trust regardless of how
+  # from the kindled RBRF regime. jilt is folio-addressed (param1, RBSMJ): the
+  # caller's furnish folio-resolves the RBRF from the operator-supplied foedus and
+  # enforces both, so the body deletes that folio's provider while staying
+  # foedus-blind. Mechanism-blind: deleting the provider ends the trust regardless of how
   # citizens acquired tokens against it — no RBRF_MECHANISM arm (RBSMJ).
   local -r z_org="organizations/${RBRW_ORG_ID}"
   local -r z_pool_id="${RBRW_WORKFORCE_POOL_ID}"

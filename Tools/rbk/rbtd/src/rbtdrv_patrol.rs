@@ -1291,11 +1291,13 @@ fn zrbtdrv_payor_gate(
 /// RBRF field the throwaway-provider override targets through the regime-poison seam.
 const RBTDRV_RBRF_PROVIDER_VAR: &str = "RBRF_PROVIDER_ID";
 
-/// Drive the affiance→canvass→jilt→re-jilt round-trip on `provider_id`, asserting
-/// each terminal banner and that canvass enumerates the live provider. Split from
-/// the case so the case can run a best-effort cleanup jilt on any failure (the
-/// round-trip's own jilt may not have been reached).
-fn zrbtdrv_foedus_roundtrip(ctx: &mut rbtdri_Context, dir: &Path, provider_id: &str) -> rbtdre_Verdict {
+/// Drive the affiance→canvass→jilt→re-jilt round-trip on `provider_id`, addressing
+/// foedus `foedus` (the folio affiance/jilt take, RBSMA/RBSMJ — its rbrf.env is the
+/// base config the poison overrides RBRF_PROVIDER_ID atop), asserting each terminal
+/// banner and that canvass enumerates the live provider. Split from the case so the
+/// case can run a best-effort cleanup jilt on any failure (the round-trip's own jilt
+/// may not have been reached).
+fn zrbtdrv_foedus_roundtrip(ctx: &mut rbtdri_Context, dir: &Path, foedus: &str, provider_id: &str) -> rbtdre_Verdict {
     // Payor credential precondition — Fail, not Skip (never a suite passenger).
     if let Some(v) = zrbtdrv_payor_gate(
         ctx, dir, crate::rbtdrm_manifest::RBTDRM_FIXTURE_FOEDUS_LIFECYCLE, zrbtdrv_PayorGatePolicy::Fail,
@@ -1312,7 +1314,7 @@ fn zrbtdrv_foedus_roundtrip(ctx: &mut rbtdri_Context, dir: &Path, provider_id: &
     let poison = format!("{}={}", RBTDRV_RBRF_PROVIDER_VAR, provider_id);
 
     // Step 1: affiance a fresh provider under the standing pool; assert the create banners.
-    let affiance = match rbtdri_invoke_global(ctx, RBTDGC_AFFIANCE_MANOR, &[], &[
+    let affiance = match rbtdri_invoke_global(ctx, RBTDGC_AFFIANCE_MANOR, &[foedus], &[
         (RBTDRI_BURE_TWEAK_NAME_KEY, RBTDGC_TWEAK_REGIME_POISON),
         (RBTDRI_BURE_TWEAK_VALUE_KEY, poison.as_str()),
     ]) {
@@ -1383,7 +1385,7 @@ fn zrbtdrv_foedus_roundtrip(ctx: &mut rbtdri_Context, dir: &Path, provider_id: &
     }
 
     // Step 3: jilt the provider — live dissolution to the DELETED (soft-delete) terminal.
-    let jilt = match rbtdri_invoke_global(ctx, RBTDGC_JILT_MANOR, &[], &[
+    let jilt = match rbtdri_invoke_global(ctx, RBTDGC_JILT_MANOR, &[foedus], &[
         (RBTDRI_BURE_TWEAK_NAME_KEY, RBTDGC_TWEAK_REGIME_POISON),
         (RBTDRI_BURE_TWEAK_VALUE_KEY, poison.as_str()),
         (RBTDRI_BURE_CONFIRM_KEY, RBTDRI_BURE_CONFIRM_SKIP),
@@ -1404,7 +1406,7 @@ fn zrbtdrv_foedus_roundtrip(ctx: &mut rbtdri_Context, dir: &Path, provider_id: &
 
     // Step 4: re-jilt the soft-deleted provider — the idempotent no-op. Either no-op
     // branch (already-soft-deleted or absent) names the provider and tags "(no-op)".
-    let rejilt = match rbtdri_invoke_global(ctx, RBTDGC_JILT_MANOR, &[], &[
+    let rejilt = match rbtdri_invoke_global(ctx, RBTDGC_JILT_MANOR, &[foedus], &[
         (RBTDRI_BURE_TWEAK_NAME_KEY, RBTDGC_TWEAK_REGIME_POISON),
         (RBTDRI_BURE_TWEAK_VALUE_KEY, poison.as_str()),
         (RBTDRI_BURE_CONFIRM_KEY, RBTDRI_BURE_CONFIRM_SKIP),
@@ -1428,6 +1430,21 @@ fn zrbtdrv_foedus_roundtrip(ctx: &mut rbtdri_Context, dir: &Path, provider_id: &
 
 fn rbtdrv_foedus_lifecycle(dir: &Path) -> rbtdre_Verdict {
     rbtdrc_with_ctx(|ctx| {
+        // The foedus folio affiance/jilt address (RBSMA/RBSMJ) — the committed
+        // active selector, read rather than hardcoded (matches the reuse leg). Its
+        // rbrf.env is the base provider config; the regime-poison seam overrides
+        // only RBRF_PROVIDER_ID, so the round-trip seats a throwaway provider under
+        // the manor's standing pool and never touches the real provider.
+        let root = ctx.project_root().to_path_buf();
+        let rbrr = root.join(RBTDGC_RBRR_FILE);
+        let foedus = match crate::rbtdrk_freehold::rbtdrk_read_env_value(&rbrr, "RBRR_ACTIVE_FOEDUS") {
+            Some(f) if !f.trim().is_empty() => f.trim().to_string(),
+            _ => return rbtdre_Verdict::Fail(format!(
+                "RBRR_ACTIVE_FOEDUS blank or absent in {} — no foedus to affiance",
+                rbrr.display()
+            )),
+        };
+
         // A unique throwaway provider id every run: a genuine create cannot reuse a
         // soft-deleted id, and millis-since-epoch stays within the regime's
         // RBRF_PROVIDER_ID [a-z0-9-]{4,32} regex while staying unique across
@@ -1438,7 +1455,7 @@ fn rbtdrv_foedus_lifecycle(dir: &Path) -> rbtdre_Verdict {
         };
         let _ = std::fs::write(dir.join("00-provider-id.txt"), &provider_id);
 
-        let verdict = zrbtdrv_foedus_roundtrip(ctx, dir, &provider_id);
+        let verdict = zrbtdrv_foedus_roundtrip(ctx, dir, &foedus, &provider_id);
 
         // Cleanup safety net: if the round-trip failed after affiance seated the
         // provider, a leaked LIVE provider lingers under the standing pool. Jilt is
@@ -1446,7 +1463,7 @@ fn rbtdrv_foedus_lifecycle(dir: &Path) -> rbtdre_Verdict {
         // soft-deletes any leak. Result ignored — the round-trip verdict stands.
         if matches!(verdict, rbtdre_Verdict::Fail(_)) {
             let poison = format!("{}={}", RBTDRV_RBRF_PROVIDER_VAR, provider_id);
-            let _ = rbtdri_invoke_global(ctx, RBTDGC_JILT_MANOR, &[], &[
+            let _ = rbtdri_invoke_global(ctx, RBTDGC_JILT_MANOR, &[foedus.as_str()], &[
                 (RBTDRI_BURE_TWEAK_NAME_KEY, RBTDGC_TWEAK_REGIME_POISON),
                 (RBTDRI_BURE_TWEAK_VALUE_KEY, poison.as_str()),
                 (RBTDRI_BURE_CONFIRM_KEY, RBTDRI_BURE_CONFIRM_SKIP),
@@ -1533,7 +1550,7 @@ fn rbtdrv_foedus_reuse(dir: &Path) -> rbtdre_Verdict {
                 dir.join("03-decision.txt"),
                 format!("affiance {} (descry verdict '{}')", foedus, health),
             );
-            match rbtdri_invoke_global(ctx, RBTDGC_AFFIANCE_MANOR, &[], &[]) {
+            match rbtdri_invoke_global(ctx, RBTDGC_AFFIANCE_MANOR, &[foedus.as_str()], &[]) {
                 Ok(r) if r.exit_code == 0 => {}
                 Ok(r) => return rbtdre_Verdict::Fail(format!(
                     "affiance (on descry deficit '{}') exit {}\n{}",

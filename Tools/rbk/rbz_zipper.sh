@@ -83,8 +83,8 @@ zrbz_kindle() {
   # The M5 colophon regroup later gathers levy/establish into it.
   buz_group RBZ__GROUP_MANOR      "rbw-m"   "Manor — IdP federation founding"
   z_mod="rbgp_cli.sh"
-  buz_enroll RBZ_AFFIANCE_MANOR         "rbw-mA"  "${z_mod}" "rbgp_manor_affiance" ""  "Affiance the manor to its IdP — seat this foedus's provider and attribute mapping under the standing workforce pool"
-  buz_enroll RBZ_JILT_MANOR             "rbw-mJ"  "${z_mod}" "rbgp_manor_jilt"     ""  "Jilt one foedus — delete its provider from the manor's standing workforce pool (the pool stands)"
+  buz_enroll RBZ_AFFIANCE_MANOR         "rbw-mA"  "${z_mod}" "rbgp_manor_affiance" "param1"  "Affiance a foedus to its IdP — seat the named foedus's provider and attribute mapping under the standing workforce pool (args: foedus)"
+  buz_enroll RBZ_JILT_MANOR             "rbw-mJ"  "${z_mod}" "rbgp_manor_jilt"     "param1"  "Jilt one foedus — delete the named foedus's provider from the manor's standing workforce pool (the pool stands; args: foedus)"
   # instaurate is the ensure-exists manor-setup finisher: idempotently founds the one
   # workforce pool (list-and-match drift guard), the terrier bucket, and the polity
   # folder + grain IAM. The inverse of raze; ships to consumers (not withheld).

@@ -19,11 +19,21 @@ manor-teardown, the finisher's inverse).
 
 The
 {rbtr_payor}
-performs the jilt. The operation accepts no CLI parameters; the provider to delete is
-read from the kindled Federation regime as `RBRF_PROVIDER_ID`, addressed under the
-manor pool `RBRW_WORKFORCE_POOL_ID` — the same provider
+performs the jilt. The operation takes the target
+{rbtf_foedus}
+as a folio (param1) — the `rbef_`-sprued library subdirectory name, exactly as
 {rbtf_affiance}
-seated.
+and
+{rbtgo_foedus_descry}
+take theirs — and deletes THAT named foedus's provider (`RBRF_PROVIDER_ID`, read from
+the folio-resolved Federation regime) under the manor pool `RBRW_WORKFORCE_POOL_ID` — the
+same provider
+{rbtf_affiance}
+seated for that folio. Provider management is folio-addressed, never the active or pinned
+foedus; the
+{rbrr_active_foedus}
+selector is reserved for the credential accessor. An unresolvable folio is a precondition
+rejection naming the absent foedus.
 
 NOTE: *Mechanism-blind.* Jilt carries no
 {rbrf_mechanism}
