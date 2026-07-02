@@ -17464,8 +17464,8 @@
         "₢BfAAJ": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260623-0902",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260701-1719",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "Author the per-vendor federation setup guide for Microsoft Entra — the foreign-console human work that yields the vendor-agnostic core facts the regime reads.",
                 "",
@@ -17485,7 +17485,7 @@
                 "Procedure authoring (HCG); foreign-console human steps."
               ],
               "jjgtn_silks": "entra-federation-setup-guide",
-              "jjgtn_basis": "deeab17"
+              "jjgtn_basis": "7678218"
             }
           ]
         },
