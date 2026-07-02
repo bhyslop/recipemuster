@@ -14201,6 +14201,7 @@
         "₢BfAAw",
         "₢BfAAF",
         "₢BfAA1",
+        "₢BfAA3",
         "₢BfAAL",
         "₢BfAAK",
         "₢BfAAJ",
@@ -14221,7 +14222,7 @@
         "₢BfAAz",
         "₢BfAA2"
       ],
-      "jjghn_next_pace_seed": "AA3",
+      "jjghn_next_pace_seed": "AA4",
       "jjghn_paces": {
         "₢BfAA0": {
           "jjgpn_tacks": [
@@ -14324,6 +14325,37 @@
               ],
               "jjgtn_silks": "guide-to-tabtarget-automation-lift",
               "jjgtn_basis": "cce09c4"
+            }
+          ]
+        },
+        "₢BfAA3": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260702-0134",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Re-cut affiance and jilt to folio-address the foedus — take the foedus identity as a folio and act on rbef_<folio>, mirroring descry — instead of reading the entrada-pinned RBCC_rbrf_file constant.",
+                "",
+                "## Spec of needed change",
+                "Contract-first (the heat's hard rule): re-cut RBSMA (affiance) and RBSMJ (jilt) to the folio-addressed model before any code — the verb takes the foedus name as a folio and acts on that named foedus's provider, not the active/pinned foedus.",
+                "rbof_descry (RBSFD) is the in-tree precedent: it folio-addresses any named foedus and parses that foedus's own rbrf.env, independent of RBCC_rbrf_file and the active selector.",
+                "Code: the affiance/jilt CLI furnish (rbgp_cli.sh) sources the folio-derived rbrf.env path instead of the constant-folded RBCC_rbrf_file; the verb bodies stay foedus-blind (they already read RBRF_ from the kindled regime).",
+                "Reserve the active-foedus selector (RBRR_ACTIVE_FOEDUS / instate) for the human accessor (avow/don), completing the addressing split descry already half-embodies.",
+                "",
+                "## Done when",
+                "rbw-mA and rbw-mJ take a foedus folio (param1) like rbw-jd, resolving rbef_<folio>/rbrf.env directly; RBSMA/RBSMJ describe the folio-addressed model; rbw-mA rbef_entrada still affiances the standing spike trust — proven, not regressed.",
+                "",
+                "## Cinched",
+                "Folio-addressing reverses the prior \"no CLI folio for affiance/jilt\" decision (operator 260702); descry is the precedent.",
+                "Provider-management verbs are folio-addressed; the active-foedus selector is reserved for the accessor.",
+                "",
+                "## Character",
+                "Contract-first spec re-cut plus a mechanical CLI change; the verb bodies are largely untouched.",
+                "",
+                "Source: rbof_descry (rbof_foedus.sh) for the folio-resolution precedent; RBSMA / RBSMJ; RBCC_rbrf_file (rbcc_constants.sh) for the constant being bypassed."
+              ],
+              "jjgtn_silks": "affiance-jilt-folio-recut",
+              "jjgtn_basis": "0b2ae9b"
             }
           ]
         },
