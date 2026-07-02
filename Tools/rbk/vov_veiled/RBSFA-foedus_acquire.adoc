@@ -26,8 +26,14 @@ NOTE: *Precondition.* A programmatic foedus established
 ({rbtgo_foedus_establish})
 and affianced
 ({rbtgo_manor_affiance}
-programmatic branch); the marshal-fenced private signing key reachable to this accessor (the
-estate stub sources-and-verifies it).
+programmatic branch); the committed caged asserter key and client secret reachable by regime
+path reference
+({rbrf_asserter_key_file},
+{rbrf_client_secret_file})
+— the two-key reality of
+{rbtf_realm}:
+the realm signing key is ephemeral and held by no caller, so there is nothing marshal-fenced
+to reach.
 
 NOTE: *Ceiling — reaches the federated token, not the full don-and-call.* The end-to-end don
 needs a standing admission (a
@@ -41,12 +47,28 @@ The ordered shape (impl deferred — do not read REST calls, function names, or 
 into it as fixed):
 
 //axhos_step
-. *Obtain the subject id_token* from the test IdP's non-interactive grant (Keycloak's RFC 7523
-JWT-authorization-grant, preferred — a real token-endpoint path; or a self-mint with the fenced
-key, fallback). The JWT's `iss` matches the regime issuer, `aud` matches `client-id`, `sub`
-matches the mapped subject claim, and `exp` is fresh within skew. GCP cannot distinguish the
-grant — it validates the resulting id_token's signature, `iss`, `aud`, and `sub` — so the grant
-flavor is a test-IdP detail below this contract.
+. *Obtain the subject id_token* from the IdP's non-interactive RFC 7523 JWT-authorization
+grant: POST the signed assertion to
+{rbrf_grant_endpoint},
+the client authenticated with the secret at
+{rbrf_client_secret_file}.
+The assertion is signed with the key at
+{rbrf_asserter_key_file}
+and carries
+{rbrf_asserter_issuer}
+as `iss`,
+{rbrf_asserter_subject}
+as `sub`,
+{rbrf_idp_issuer}
+as `aud` (the assertion aud is cinched to that existing field — no separate field), the header
+`kid` from
+{rbrf_asserter_kid},
+and a fresh `exp` and unique `jti`. There is NO self-mint fallback: the realm signing key is
+ephemeral and held by no caller
+({rbtf_realm}),
+so a caller cannot mint the id_token itself — that would be re-establishing the trust, not
+falling back. GCP validates only the resulting id_token's signature, `iss`, `aud`, and `sub`,
+so the grant mechanics stay a test-IdP detail below this contract.
 
 //axhos_step
 . *Exchange at STS* for a federated token, reusing the existing second leg wholesale — the STS

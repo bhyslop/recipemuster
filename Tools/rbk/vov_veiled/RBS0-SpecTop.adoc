@@ -413,7 +413,13 @@
 :rbrp_regime:                <<rbrp_regime,RBRP Regime>>
 
 // Recipe Bottle Regime: Federation (per-foedus IdP provider trust)
+:rbrf_asserter_issuer:       <<rbrf_asserter_issuer,RBRF_ASSERTER_ISSUER>>
+:rbrf_asserter_key_file:     <<rbrf_asserter_key_file,RBRF_ASSERTER_KEY_FILE>>
+:rbrf_asserter_kid:          <<rbrf_asserter_kid,RBRF_ASSERTER_KID>>
+:rbrf_asserter_subject:      <<rbrf_asserter_subject,RBRF_ASSERTER_SUBJECT>>
 :rbrf_attribute_mapping:     <<rbrf_attribute_mapping,RBRF_ATTRIBUTE_MAPPING>>
+:rbrf_client_secret_file:    <<rbrf_client_secret_file,RBRF_CLIENT_SECRET_FILE>>
+:rbrf_grant_endpoint:        <<rbrf_grant_endpoint,RBRF_GRANT_ENDPOINT>>
 :rbrf_group_interactive:     <<rbrf_group_interactive,Interactive Mechanism Group>>
 :rbrf_group_programmatic:    <<rbrf_group_programmatic,Programmatic Mechanism Group>>
 :rbrf_idp_client_id:         <<rbrf_idp_client_id,RBRF_IDP_CLIENT_ID>>
@@ -3900,13 +3906,50 @@ The fields that apply only under {rbrf_mechanism_interactive} — the device-flo
 [[rbrf_group_programmatic]]
 //axvr_group axd_conditional
 {rbrf_group_programmatic}::
-The fields that apply only under {rbrf_mechanism_programmatic} — the uploaded public JWKS the self-supplied JWT is validated against.
+The fields that apply only under {rbrf_mechanism_programmatic} — the uploaded public JWKS the self-supplied JWT is validated against, plus the caller-side self-supply fields: the reachable grant endpoint, the asserter-key and client-secret path references, and the three committed assertion facts.
 
 [[rbrf_idp_jwks_json]]
 //axrg_variable axtu_string
 {rbrf_idp_jwks_json}::
 The active foedus's uploaded public JWKS (REST `oidc.jwksJson`) — the static key snapshot GCP validates self-supplied JWTs against.
 A public identifier, so it commits; the matching private signing key never enters the regime.
+Programmatic-mechanism only ({rbrf_group_programmatic}).
+
+[[rbrf_grant_endpoint]]
+//axrg_variable axtu_string
+{rbrf_grant_endpoint}::
+The reachable token-endpoint URL the RFC 7523 grant is POSTed to; orchestrator-rendered per charge into the git-ignored live rbrf.env, never committed.
+Admits an `https://` URI or a loopback `http://` URI (cleartext on loopback only); deliberately distinct from the interactive {rbrf_idp_token_endpoint} — commit-vs-render provenance and https-vs-loopback validation are load-bearing differences.
+Programmatic-mechanism only ({rbrf_group_programmatic}).
+
+[[rbrf_asserter_key_file]]
+//axrg_variable axtu_string
+{rbrf_asserter_key_file}::
+Repo-root-relative path to the asserter's private signing key — a reference, never the material; the caged committed home keeps the test keypair ({rbtf_realm}).
+Programmatic-mechanism only ({rbrf_group_programmatic}).
+
+[[rbrf_client_secret_file]]
+//axrg_variable axtu_string
+{rbrf_client_secret_file}::
+Repo-root-relative path to the token-endpoint client secret — the grant requires a confidential client, and the value enters the regime only as this path reference.
+Programmatic-mechanism only ({rbrf_group_programmatic}).
+
+[[rbrf_asserter_kid]]
+//axrg_variable axtu_string
+{rbrf_asserter_kid}::
+The assertion header `kid` — a public assertion fact, a committed template value dual-homed with the realm DATA as {rbrf_idp_client_id} already is.
+Programmatic-mechanism only ({rbrf_group_programmatic}).
+
+[[rbrf_asserter_issuer]]
+//axrg_variable axtu_string
+{rbrf_asserter_issuer}::
+The assertion `iss` — the asserting party's own issuer, distinct from {rbrf_idp_issuer} (which the assertion's `aud` targets; the aud is cinched to that existing field, no separate field).
+Programmatic-mechanism only ({rbrf_group_programmatic}).
+
+[[rbrf_asserter_subject]]
+//axrg_variable axtu_string
+{rbrf_asserter_subject}::
+The assertion `sub` — the external subject the IdP resolves to its federated-linked user, never the GCP-side federated subject.
 Programmatic-mechanism only ({rbrf_group_programmatic}).
 
 //axvd_cartouche axd_normative

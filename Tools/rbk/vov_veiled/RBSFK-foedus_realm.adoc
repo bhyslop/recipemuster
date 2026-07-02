@@ -35,6 +35,10 @@ moot for a single-machine test bed.
 assertion against the registered public half — is a *committed test keypair*, the same category
 of caged test scaffolding as the realm's bootstrap-admin credential, never a production secret.
 The zero-durable-secret premise governs the realm *signing* key, never this test asserter.
+The GCP-facing client's *secret* is the same category — committed caged scaffolding, kept in a
+file beside the asserter key and reached by the
+{rbrf_client_secret_file}
+path reference, never inline in a regime.
 ====
 
 The baked realm's ordered shape (the entries the import MUST carry; the concrete attribute keys
@@ -93,6 +97,10 @@ token audience`. The asserting key id rides the JWT header `kid`, matched agains
 - *GCP's uploaded-JWKS parser is strict*: the realm signing key's public JWKS must be stripped to
 the standard RSA members (`kty/kid/use/alg/n/e`) before the establishment uploads it — Keycloak's
 `x5c` / `x5t` certificate fields draw a misleading `Only RSA, EC key types are supported`.
+- *The grant refuses a public client* — `Public client not allowed to use authorization grant`
+(harness-probed, 26.6.x) — so the GCP-facing client stays confidential and its secret is
+load-bearing: dropping the secret by flipping the client public is a surveyed dead end, not a
+simplification awaiting someone brave enough.
 ====
 
 //axhoc_completion
@@ -104,8 +112,14 @@ the committed asserting private key mints — through Keycloak's RFC 7523 JWT-au
 `assertion`) — an id_token whose `aud` is the GCP audience and whose `iss` is the fictional
 `https://` issuer. That token is the one
 {rbtgo_foedus_acquire}
-exchanges at GCP STS. The realm signing key is fresh per charge and committed nowhere; the only
-key committed alongside this DATA is the caged test asserter.
+exchanges at GCP STS. The caller-side grant inputs — the reachable endpoint, the asserter-key
+and client-secret paths, and the assertion facts (kid / issuer / subject) — are homed as the
+{rbrf_group_programmatic}
+self-supply fields, dual-homed with this realm DATA exactly as
+{rbrf_idp_client_id}
+already is. The realm signing key is fresh per charge and committed nowhere; the only
+key committed alongside this DATA is the caged test asserter, its one committed sibling the
+client-secret file.
 {rbbc_fatal}
 on a realm whose boot still requires runtime admin-REST to reach a mintable state — the
 de-lamination has silently re-laminated.

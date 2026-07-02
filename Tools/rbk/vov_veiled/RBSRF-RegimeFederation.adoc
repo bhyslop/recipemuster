@@ -14,12 +14,12 @@ The Google-side provider configuration is the same structure for every OIDC IdP 
 The one axis that changes the required-field shape is the *acquisition mechanism* — how a citizen acquires a federated assertion — held in
 {rbrf_mechanism}
 and gating the two arms below.
-The programmatic arm's private signing key never enters this regime: only the *public* JWKS, itself a public identifier.
+The programmatic arm's secret material never enters this regime: the uploaded JWKS is *public*, itself a public identifier, and the asserter key and client secret arrive only as path references — sourced regime variables land in process environment, so secret VALUES must never ride them; the ships-committed / no-secrets premise stands un-amended.
 RBRF assignment files form a library — one rbrf.env per standing foedus, each in its own subdirectory of the moorings foedera library, the subdirectory name the foedus's stable identity, the configuration stored once with no copied active file.
 A foedus subdirectory name bears the `rbef_` foedus-instance sprue — the standing members are `rbef_entrada` (the interactive Entra trust) and `rbef_keycloak` (the programmatic test trust) — and is the operator-facing folio passed to the switch toothings ({rbtgo_foedus_instate} and {rbtgo_foedus_descry}).
 Every value is a public identifier and carries no secrets, so each file ships committed; affiance rewrites a foedus's values when founding a fresh trust against a real org and IdP tenant.
 
-NOTE: *One sanctioned ships-committed deviation — the `rbef_keycloak` test foedus.* The ships-committed rule holds for every foedus but one. `rbef_keycloak` (the programmatic test trust) commits only an `rbrf.env.template` carrying the vendor-agnostic core and the namespaced attribute mapping; its LIVE `rbrf.env` is git-IGNORED and rendered per charge by the Keycloak test-facility orchestrator (`rbxk_keycloak`) from that template plus the realm's fresh public JWKS. The deviation is confined to this one foedus and is forced by the twiddle: the realm signing key is ephemeral — minted fresh per charge ({rbtf_realm}) — so its public JWKS ({rbrf_idp_jwks_json}) cannot be a committed canonical value. `rbef_entrada` and every real-IdP foedus keep ships-committed untouched: the live file IS the committed file.
+NOTE: *One sanctioned ships-committed deviation — the `rbef_keycloak` test foedus.* The ships-committed rule holds for every foedus but one. `rbef_keycloak` (the programmatic test trust) commits only an `rbrf.env.template` carrying the vendor-agnostic core and the namespaced attribute mapping; its LIVE `rbrf.env` is git-IGNORED and rendered per charge by the Keycloak test-facility orchestrator (`rbxk_keycloak`) from that template plus TWO rendered fields — the realm's fresh public JWKS ({rbrf_idp_jwks_json}) and the reachable grant endpoint ({rbrf_grant_endpoint}) — both composed from the orchestrator's own knowledge (nameplate port, facility constants), never from realm contents. The deviation is confined to this one foedus and is forced by the twiddle: the realm signing key is ephemeral — minted fresh per charge ({rbtf_realm}) — so its public JWKS cannot be a committed canonical value; the grant endpoint rides the same render because the reachable POST target is charge-time knowledge (the crucible's port), not a committed IdP fact. `rbef_entrada` and every real-IdP foedus keep ships-committed untouched: the live file IS the committed file.
 
 NOTE: *Active foedus and selection.* A foedus's stable identity is its subdirectory name in this library; the manor pool it hangs under is stable and manor-lifetime, so nothing rotates beneath the foedus. The single *active*
 {rbtf_foedus}
@@ -128,6 +128,7 @@ is
 {rbrf_mechanism_programmatic}.
 The programmatic mechanism deletes the human by construction: there is no device flow and no sitting to open — a caller self-supplies a JWT and GCP validates it against an uploaded public JWKS.
 It is the test-bed's unattended path; the human-present premise is deliberately voided under it.
+The group carries both sides of that self-supply: what GCP validates against (the uploaded public JWKS) and what the caller needs to mint and present the grant (the reachable endpoint, the two secret-path references, and the three committed assertion facts).
 
 //axhrgv_variable
 {rbrf_idp_jwks_json}
@@ -135,6 +136,66 @@ It is the test-bed's unattended path; the human-present premise is deliberately 
 The active foedus's uploaded *public* JWKS — the key snapshot GCP validates self-supplied JWTs against (REST `oidc.jwksJson`, the `--jwk-json-path` target).
 The realm signing key is ephemeral — minted fresh per charge, see {rbtf_realm} — so this public snapshot is re-synced to the provider each charge (the twiddle) rather than held as a committed canonical reference, and the matching *private* key is persisted nowhere and never enters this regime.
 Used because the test IdP runs as a local crucible unreachable from Google, so issuer-discovery cannot serve it — the key snapshot must be uploaded regardless.
+Required under the programmatic mechanism.
+
+//axhrgv_variable
+{rbrf_grant_endpoint}
+
+The reachable token-endpoint URL the RFC 7523 grant is POSTed to.
+Live-rendered into the git-ignored live rbrf.env per charge by the establishment orchestrator, beside the JWKS — composed from the orchestrator's own knowledge (nameplate port, facility constants), never from realm contents.
+Deliberately a distinct programmatic-gated field, never a promotion of the interactive
+{rbrf_idp_token_endpoint}
+to core: that field is a committed IdP fact validated https-only, while this one is a charge-time render admitting loopback cleartext — commit-vs-render provenance and https-vs-loopback validation are load-bearing differences.
+Required under the programmatic mechanism; an `https://` URI or a loopback `http://` URI, cleartext tolerated on loopback only — the test IdP is a local crucible, and
+{rbtf_realm}
+pins the POST target as local, distinct from the fictional https frontend issuer in
+{rbrf_idp_issuer}.
+
+//axhrgv_variable
+{rbrf_asserter_key_file}
+
+Repo-root-relative path to the asserter's private signing key — the RFC 7523 caller signs its assertion with it.
+A path reference, never the material: for the test foedus the committed caged home keeps the keypair (the caged test asserter of
+{rbtf_realm}'s
+two-keys doctrine), and a production programmatic foedus points the same field at a station-fenced file instead — the field's shape does not change between test and production.
+Required under the programmatic mechanism.
+
+//axhrgv_variable
+{rbrf_client_secret_file}
+
+Repo-root-relative path to the client secret the grant authenticates with at the token endpoint.
+The grant requires a confidential client — the public-client path is a surveyed dead end (see
+{rbtf_realm}'s
+first-contact trips) — so the secret is load-bearing; it enters this regime only as a path reference, the caged committed home keeping the value beside the asserter key.
+Required under the programmatic mechanism.
+
+//axhrgv_variable
+{rbrf_asserter_kid}
+
+The asserter key id the assertion's JWT header `kid` carries, matched by the IdP against its registered asserting key.
+A public assertion fact — a committed template value, dual-homed by contract with the realm DATA exactly as
+{rbrf_idp_client_id}
+already is.
+Required under the programmatic mechanism.
+
+//axhrgv_variable
+{rbrf_asserter_issuer}
+
+The asserting party's issuer — the assertion's `iss`, matched by the IdP against its registered asserting trust.
+Distinct from
+{rbrf_idp_issuer},
+the IdP's own issuer, which the assertion's `aud` targets: the assertion aud is cinched to that existing field, deliberately no separate field.
+A public assertion fact, committed and dual-homed with the realm DATA.
+Required under the programmatic mechanism.
+
+//axhrgv_variable
+{rbrf_asserter_subject}
+
+The external subject the assertion's `sub` carries — the identity the IdP resolves to its federated-linked user.
+NOT the GCP-side federated subject: the IdP issues its own internal user id as the token `sub` (a first-contact trip of
+{rbtf_realm}),
+so this value never appears in a `principal://` binding.
+A public assertion fact, committed and dual-homed with the realm DATA.
 Required under the programmatic mechanism.
 
 //axhro_kindle
@@ -151,7 +212,7 @@ Locks all enrolled variables against mutation.
 Validates fields via buv_vet type checkers, then custom format checks in a separate enforce step.
 Core, both mechanisms: the provider ID as lowercase alphanumeric/hyphen with the `gcp-` prefix reserved; the attribute mapping as mapping google.subject; the mechanism as one of the two enum values. The manor pool's org, pool id, and session duration validate in the sibling {rbrw_regime}, not here.
 Interactive only: both device-flow endpoints as resolvable https:// URIs, the scope as requesting openid but never offline_access (the human-present premise), and the issuer as a resolvable https:// URI.
-Programmatic only: the issuer as an https://-scheme iss-matching string (scheme required, resolution not), and the uploaded JWKS as present and well-formed.
+Programmatic only: the issuer as an https://-scheme iss-matching string (scheme required, resolution not); the uploaded JWKS as present and well-formed; the grant endpoint as an `https://` URI or a loopback `http://` URI (the loopback-http escape from the https gate — cleartext tolerated on loopback only); the two secret-path fields as present, non-empty repo-root-relative paths; and the three assertion facts (kid, issuer, subject) as present non-empty strings.
 
 //axhro_render
 {rbkro_render}
