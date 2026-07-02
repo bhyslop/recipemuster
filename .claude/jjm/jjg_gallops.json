@@ -14452,8 +14452,8 @@
         "₢BfAA6": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260702-1148",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260702-1234",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "Contract-first predecessor of the programmatic accessor arm:",
                 "re-cut the federation specs so the accessor's RFC 7523 grant inputs have a regime home before any code moves.",
@@ -14489,7 +14489,7 @@
                 "Spec authoring (MCM/AsciiDoc) with minting judgment; no bash."
               ],
               "jjgtn_silks": "programmatic-self-supply-spec-recut",
-              "jjgtn_basis": "da5b0a9"
+              "jjgtn_basis": "7117b4f"
             }
           ]
         },
