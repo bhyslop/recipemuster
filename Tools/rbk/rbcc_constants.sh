@@ -131,26 +131,24 @@ RBCC_verb_inscribe="inscribe"
 RBCC_verb_kludge="kludge"
 RBCC_verb_ordain="ordain"
 RBCC_verb_yoke="yoke"
-#
-#   Clean-tree-gated operation verbs (the federation founding verb affiance, the
-#   Lode captures conclave/ensconce/immure/underpin, and the Director builds
-#   conjure/mirror) — each announces its name through bug_require_clean_tree;
-#   homed here so the guard sites reference the verb rather than a bare literal.
-RBCC_verb_affiance="affiance"
-RBCC_verb_conclave="conclave"
-RBCC_verb_conjure="conjure"
-RBCC_verb_ensconce="ensconce"
-RBCC_verb_immure="immure"
-RBCC_verb_mirror="mirror"
-RBCC_verb_underpin="underpin"
 
-# Creed tinder — RB convictions supplied as the rationale parameter to a
-# kit-agnostic BUG gate, keeping the opinion RB-side and out of BUK. The
-# clean-build creed rides bug_require_clean_tree_creed: RB refuses to build a
-# container image from an uncommitted tree because the image cannot then be
-# traced to a commit. Consumed only by bash gate sites (no theurge assertion),
-# so it is not projected to the Rust band; no call site is wired yet.
+# Creed tinder — RB convictions supplied as the rationale (creed) parameter to
+# the kit-agnostic BUG clean-tree gate bug_require_clean_tree_creed, keeping the
+# opinion RB-side and out of BUK. Each creed continues the gate's canonical
+# grievance ("… uncommitted changes — <creed>"), so it reads as the site's
+# reason for demanding a clean tree plus a commit-first directive. One creed per
+# rationale family (sites sharing a rationale share a creed); the former per-verb
+# gate labels retired with the malformed gate they announced. Consumed only by
+# bash gate sites (no theurge assertion), so none is projected to the Rust band —
+# the band itself (BUBC_band_clean_tree) is the theurge stream's assertion target.
+#   clean_build   — image builds that stamp HEAD into the image (conjure, mirror, kludge)
+#   clean_capture — Lode captures whose provenance envelope must be committed code (ensconce, conclave, immure, underpin)
+#   clean_inscribe — the tripwire ships committed depot-regime bytes as the drift reference (inscribe)
+#   clean_affiance — the seated provider must answer to a committed name (affiance)
 RBCC_creed_clean_build="a container image built from an uncommitted tree cannot be traced to a commit; commit before building"
+RBCC_creed_clean_capture="a Lode's provenance envelope must be the product of committed code; commit before capturing"
+RBCC_creed_clean_inscribe="the tripwire ships the tracked depot-regime bytes as the depot's permanent drift reference, so the inscribed state must be committed; commit before inscribing"
+RBCC_creed_clean_affiance="the seated provider must answer to a committed name — its id, redirect-URI and STS audience are read from committed federation config; commit before affiancing"
 
 # Fact-file extension tinder — multi-fact registry for buf_write_fact_multi.
 # Producers emit "<basename>.<extension>" via filesystem-as-data-bus pattern;

@@ -957,7 +957,7 @@ rbfd_build() {
   # Dirty-tree guard — conjure stamps HEAD into the image (git.commit label,
   # build_info) and ships working-tree bytes (pouch context, step scripts), so
   # the tree must match a commit before anything leaves the host.
-  bug_require_clean_tree "${RBCC_verb_conjure}"
+  bug_require_clean_tree_creed "${RBCC_creed_clean_build}"
 
   # Conjure is a pure chain head: it reads no chaining fact and writes no config.
   # The base ANCHOR is elected separately by feoff (rbw-rvf) before conjure runs
@@ -1147,7 +1147,7 @@ rbfd_mirror() {
 
   # Dirty-tree guard — mirror stamps HEAD into the about metadata and composes
   # its cloud step bodies from the working tree; both must match a commit.
-  bug_require_clean_tree "${RBCC_verb_mirror}"
+  bug_require_clean_tree_creed "${RBCC_creed_clean_build}"
 
   # Authenticate as Director
   buc_step "Authenticating as Director"

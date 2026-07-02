@@ -109,7 +109,7 @@ rbld_conclave() {
 
   # Dirty-tree guard — capture composes its cloud step bodies from the working
   # tree; the Lode's provenance envelope must be the product of committed code.
-  bug_require_clean_tree "${RBCC_verb_conclave}"
+  bug_require_clean_tree_creed "${RBCC_creed_clean_capture}"
 
   buc_step "Authenticating as Director"
   local z_token=""

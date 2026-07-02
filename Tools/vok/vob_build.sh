@@ -174,7 +174,7 @@ vob_release() {
   # Tools never commit, but a release brands a specific commit and commits the
   # registry — a dirty tree would mint a brand that misrepresents its recorded
   # vvbc_commit. Gate before any heavy work begins.
-  bug_require_clean_tree "parcel release"
+  bug_require_clean_tree_creed "a release brands a specific commit and commits the registry; a dirty tree would mint a brand that misrepresents its recorded vvbc_commit — commit before releasing"
 
   buc_step "Running tests"
   buc_log_args "Cargo dir: ${ZVOB_CARGO_DIR}"

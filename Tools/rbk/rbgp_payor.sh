@@ -1135,7 +1135,7 @@ rbgp_manor_affiance() {
   # Dirty-tree guard — affiance's provider id is the committed RBRF value, and
   # the IdP redirect-URI and the accessor's STS audience thread through it; the
   # provider it seats must answer to a committed name.
-  bug_require_clean_tree "${RBCC_verb_affiance}"
+  bug_require_clean_tree_creed "${RBCC_creed_clean_affiance}"
 
   buc_step 'Authenticate as Payor'
   local z_token

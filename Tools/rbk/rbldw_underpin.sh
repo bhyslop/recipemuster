@@ -128,7 +128,7 @@ rbld_underpin() {
 
   # Dirty-tree guard — capture composes its cloud step bodies from the working
   # tree; the Lode's provenance envelope must be the product of committed code.
-  bug_require_clean_tree "${RBCC_verb_underpin}"
+  bug_require_clean_tree_creed "${RBCC_creed_clean_capture}"
 
   # Two declarative version arguments (no FQIN — see RBSLU): the param1 channel
   # routes the first to BUZ_FOLIO and forwards the rest, so release is the folio

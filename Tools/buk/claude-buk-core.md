@@ -6,7 +6,7 @@
 - **BUS0** → `buk/vov_veiled/BUS0-BashUtilitiesSpec.adoc` (Bash Utilities Specification - tabtarget dispatch vocabulary)
 - **BUC**  → `buk/buc_command.sh` (command utilities, buc_* functions)
 - **BUD**  → `buk/bud_dispatch.sh` (dispatch utilities, zbud_* functions)
-- **BUG**  → `buk/bug_git.sh` (bash git utilities, bug_* functions — home of the "tools never commit, gate on a clean tree" gate `bug_require_clean_tree`)
+- **BUG**  → `buk/bug_git.sh` (bash git utilities, bug_* functions — home of the "tools never commit, gate on a clean tree" gate `bug_require_clean_tree_creed`)
 - **BUH**  → `buk/buh_handbook.sh` (handbook utilities, buh_* functions - always-visible user interaction)
 - **BUT**  → `buk/but_test.sh` (test utilities, but_* functions)
 - **BUYM** → `buk/buym_yelp.sh` (yelp module — diastema wire format, yawp functions, format resolver, legacy captures)
@@ -76,7 +76,7 @@ The working directory persists between Bash tool calls. A single `cd` corrupts A
 
 ## Tool Git Discipline
 
-Tools never commit in the consumer's codebase. A tool MAY presume git and refuse downstream steps on a dirty tree, but it never stages or commits — the operator commits with their usual workflow. The uniform gate is `bug_require_clean_tree "<operation>"` (BUG module); a verb that installs into tracked config calls it first, so an install-then-forgot-to-commit cannot silently ride into a later build.
+Tools never commit in the consumer's codebase. A tool MAY presume git and refuse downstream steps on a dirty tree, but it never stages or commits — the operator commits with their usual workflow. The uniform gate is `bug_require_clean_tree_creed "<creed>"` (BUG module) — a precision-band deliberate-rejection gate; BUG stays kit-agnostic and the caller supplies its rationale (a creed) for demanding a clean tree. A verb that installs into tracked config calls it first, so an install-then-forgot-to-commit cannot silently ride into a later build.
 
 ## TabTarget Invocation Discipline
 

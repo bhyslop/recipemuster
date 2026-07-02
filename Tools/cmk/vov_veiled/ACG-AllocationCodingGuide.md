@@ -201,7 +201,7 @@ Three rules ride that litmus:
 Rule 2 and move-types ACGm_102/103 all defer to one concrete home: the
 **`conformance`** reveille-tier theurge fixture
 (`Tools/rbk/rbtd/src/rbtdrn_conformance.rs`), registered in the `reveille` suite. It
-is to evicted vocabulary what BUK's `bug_require_clean_tree` is to the clean-tree
+is to evicted vocabulary what BUK's `bug_require_clean_tree_creed` is to the clean-tree
 gate — the single named place the check lives, so no caller improvises its own.
 
 The fixture is a data-driven engine, not a word list. It reads rows of

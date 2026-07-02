@@ -34,31 +34,13 @@ ZBUG_SOURCED=1
 # Untracked files are not gated, so the condition names staged-or-unstaged only.
 BUG_clean_tree_condition="git working tree carries uncommitted changes (staged or unstaged)"
 
-# Refuse to proceed unless the git working tree is clean — no unstaged and no
-# staged changes (untracked files are not gated, matching the prior per-verb
-# guards). The caller names the gated operation; it is surfaced in the failure
-# message so the operator knows what to commit before.
-# Args: <operation-context>
-bug_require_clean_tree() {
-  local -r z_context="${1:-}"
-  test -n "${z_context}" || buc_die "bug_require_clean_tree: operation context required"
-
-  buc_step "Verifying clean working tree"
-  git diff --quiet \
-    || buc_die "Working tree has unstaged changes — commit before ${z_context}"
-  git diff --cached --quiet \
-    || buc_die "Index has staged changes — commit before ${z_context}"
-}
-
-# Well-formed clean-tree gate — the precision-band sibling of bug_require_clean_tree
-# above (a deliberate-rejection gate per BCG "Precision Exit-Code Band"): it
-# buc_rejects the named clean-tree band rather than dying imprecisely, and states
-# the error condition from the BUG_clean_tree_condition constant. BUG holds no
-# opinion on WHY a clean tree matters — the caller supplies its rationale as a
-# creed, appended to the condition, so the opinion stays kit-side and BUG stays
-# kit-agnostic. Untracked files are not gated (staged/unstaged only). No call site
-# is wired to this yet; the malformed sibling above is retired by a separate
-# migration pace.
+# Clean-tree gate — the sole clean-tree guard (a deliberate-rejection gate per
+# BCG "Precision Exit-Code Band"): it buc_rejects the named clean-tree band
+# rather than dying imprecisely, and states the error condition from the
+# BUG_clean_tree_condition constant. BUG holds no opinion on WHY a clean tree
+# matters — the caller supplies its rationale as a creed, appended to the
+# condition, so the opinion stays kit-side and BUG stays kit-agnostic. Untracked
+# files are not gated (staged/unstaged only).
 # Args: <creed>  (the caller's rationale for demanding a clean tree)
 bug_require_clean_tree_creed() {
   local -r z_creed="${1:-}"

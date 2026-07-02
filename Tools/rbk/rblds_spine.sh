@@ -165,7 +165,7 @@ zrbld_spine_dispatch() {
   # like the pool and timeout (environment, not kind knowledge). The shared vouch-push
   # step (rbgjl02) splices it into every envelope, so each kind inherits the field with
   # no per-body edit. Honesty rides the upstream gate: every capture verb runs
-  # bug_require_clean_tree before composing, so HEAD names committed code by
+  # bug_require_clean_tree_creed before composing, so HEAD names committed code by
   # construction. Recipes without the vouch step (the delete builds) carry the key
   # unread — ALLOW_LOOSE automaps it; the coverage check below is refs-need-keys only.
   zrbfc_ensure_git_metadata
