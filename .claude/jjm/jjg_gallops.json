@@ -17039,8 +17039,8 @@
         "₢BiAAl": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260627-1409",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260702-0348",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "Migrate the existing bug_require_clean_tree call sites to the well-formed precision-band variant, then retire the malformed original.",
                 "",
@@ -17060,7 +17060,7 @@
                 "Mechanical call-site migration across ~9 RBK verbs + spec/doc reference updates; the judgment is per-site error-condition/rationale selection."
               ],
               "jjgtn_silks": "clean-tree-gate-callsite-migration",
-              "jjgtn_basis": "432270c"
+              "jjgtn_basis": "7e4fb20"
             }
           ]
         },
