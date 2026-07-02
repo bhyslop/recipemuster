@@ -227,11 +227,16 @@ zrbxk_render_live() {
   local z_jwks=""
   z_jwks="$(<"${ZRBXK_JWKS_STRIPPED}")"    # bash builtin file read; compact one-line JWKS
 
-  # Live regime = the committed template body (its trailing '# eof' dropped) plus
-  # the rendered ephemeral JWKS assignment, then a fresh '# eof'. The JWKS carries
-  # no single quotes (JSON), so the single-quoted assignment is safe.
+  # Live regime = the committed template body (its trailing '# eof' dropped by the
+  # read loop — a bash builtin, per BCG command discipline) plus the rendered
+  # ephemeral JWKS assignment, then a fresh '# eof'. The JWKS carries no single
+  # quotes (JSON), so the single-quoted assignment is safe.
+  local z_tline=""
   {
-    grep -v '^# eof$' "${ZRBXK_TEMPLATE}" || true
+    while IFS= read -r z_tline || test -n "${z_tline}"; do
+      if test "${z_tline}" = "# eof"; then continue; fi
+      printf '%s\n' "${z_tline}"
+    done < "${ZRBXK_TEMPLATE}"
     printf '\n'
     printf '# Ephemeral public JWKS (the twiddle) — orchestrator-rendered per charge; committed nowhere (RBSFK).\n'
     printf "RBRF_IDP_JWKS_JSON='%s'\n" "${z_jwks}"
