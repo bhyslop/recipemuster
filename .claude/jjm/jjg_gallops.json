@@ -20650,8 +20650,8 @@
         "₢BlAAW": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260627-0748",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260701-1745",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "## Character",
                 "Small mechanical test addition — extend an existing matrix, no new apparatus.",
@@ -20674,7 +20674,7 @@
                 "`BUBC_band_chain` on a broken resolve, peer to summon / plumb / augur."
               ],
               "jjgtn_silks": "rekon-chaining-band-case",
-              "jjgtn_basis": "8629959"
+              "jjgtn_basis": "7791840"
             }
           ]
         },
