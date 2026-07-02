@@ -14224,9 +14224,10 @@
         "₢BfAAq",
         "₢BfAAz",
         "₢BfAA2",
-        "₢BfAA5"
+        "₢BfAA5",
+        "₢BfAA8"
       ],
-      "jjghn_next_pace_seed": "AA8",
+      "jjghn_next_pace_seed": "AA9",
       "jjghn_paces": {
         "₢BfAA0": {
           "jjgpn_tacks": [
@@ -14523,6 +14524,47 @@
               ],
               "jjgtn_silks": "accessor-foedus-selector-resolve",
               "jjgtn_basis": "cad0387"
+            }
+          ]
+        },
+        "₢BfAA8": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260702-1519",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Terminal pace: disposition every live strand of this heat's paddock, then retire the heat.",
+                "The build work is complete; the paddock still holds live planning content that must be re-homed or dispositioned before archive.",
+                "Inventory taken 260702 — verify at mount rather than re-derive:",
+                "",
+                "- To RBSHR (operator-owned parked ideas, premise-touching): the governor's-role idea (sanctioned-set affiliation bound), the payor-health-assurer representation fork, further per-vendor federation setup guides.",
+                "- Re-home: the federation vocabulary census (most words are built RBS0 quoins already; the instate/descry/canvass records belong with the theurge stream); the escheat orphan-arm gauntlet-clause (to the RBSME spec or the fixture notes); the colophon casing convention (uppercase second letter marks cloud-mutating) if not already recorded at the zipper or BUS0.",
+                "- Drain: the 260630 model-reversal record into Memos/memo-20260623-Bf-heat-memories.md, per the paddock's own Sources note.",
+                "- Verify, then slate-or-decline with the operator:",
+                "  the attach-caged-subject spine unit (brevet the caged Keycloak subject onto a test depot via the admission verbs, yielding the second roster citizen — the Keycloak proof reached token acquisition, admission unconfirmed);",
+                "  the rbgft data-layer unit test (terrier 412/404 idempotency + escheat survey verdicts — paddock calls it theurge-stream-homed but that stream has no remaining paces);",
+                "  the mantle-access probe relocation out of the access colophon family (the colophon-homing plan's unexecuted line);",
+                "  the payor-install next-step re-aim at the manor finisher (probably landed via the guide-automation pace — confirm);",
+                "  the build-bucket scrub coupling said to live in the sibling MVP stream — confirm it is homed there or itch it.",
+                "- Already re-homed, no action: the release-suites credential preamble (slated at the tail of ₣Bq); the credential-fault disposition and the sitting-runway feature (₣Bq whole).",
+                "",
+                "Then retire this heat as the final act, operator-confirmed.",
+                "",
+                "## Done when",
+                "Every paddock idea is dispositioned — a pace elsewhere, RBSHR, an itch, or an explicit decline recorded;",
+                "the re-homings and the memo drain are done;",
+                "the five verifications resolved with the operator;",
+                "the heat retired.",
+                "",
+                "## Cinched",
+                "Premise-touching ideas move to RBSHR as operator-owned parked ideas — never silently dropped, never quietly built.",
+                "Retirement is the last act, after every strand has a home.",
+                "",
+                "## Character",
+                "Disposition sweep with the operator in the loop; judgment on homes, mechanical on moves."
+              ],
+              "jjgtn_silks": "paddock-scrub-and-retire",
+              "jjgtn_basis": "b3d6f9f"
             }
           ]
         },
