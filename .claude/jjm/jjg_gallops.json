@@ -15590,8 +15590,8 @@
         "₢BfAAz": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260702-0348",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260702-0405",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "Retire the interim terrier scaffold — the rbw-dt/dT tabtargets, the terrier-scaffold / terrier-atomicity fixtures (picket/echelon), and their rbtdrm_manifest.rs name-consts + colophon-dependency-map arms — now that the finisher provisions the terrier for real.",
                 "",
@@ -15612,7 +15612,7 @@
                 "Mechanical retirement across the registry + manifest + RBS0 line; the cross-clone barrier (₢BfAAq) that gated it is now lifted."
               ],
               "jjgtn_silks": "terrier-scaffold-retirement",
-              "jjgtn_basis": "ae2f4de"
+              "jjgtn_basis": "f9db44a"
             }
           ]
         }
