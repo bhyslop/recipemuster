@@ -14423,8 +14423,8 @@
         "₢BfAA5": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260702-0312",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260702-1321",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "## Character",
                 "Bounded terrier-hygiene design-and-build — the need is witnessed; the mechanism is open (ride depot unmake / freehold churn, or a standalone payor-credentialed verb).",
@@ -14446,7 +14446,7 @@
                 "rehearse stays a pure read; the sweep is a separate mutating act, never folded into a read."
               ],
               "jjgtn_silks": "terrier-hygiene-sweep",
-              "jjgtn_basis": "5e7cb82"
+              "jjgtn_basis": "83ae1e0"
             }
           ]
         },
