@@ -164,6 +164,13 @@ Honest residual: real verbs swallow the engross/expunge disposition, so assertin
 
 Composes with the founding-home idea and the build spine's attach-via-admission-verbs unit (this is that unit's operator-avowal sibling); not premise-touching and needs no new vocabulary, so it can graduate freely.
 
+Escheat residual (260702): the terrier-hygiene sweep (RBSME, rbw-mE) landed live-proven on the dead-schema arm —
+a real provider-blind stray swept from the standing terrier, verify re-survey green, second run idempotent-clean, rehearse roll all-live.
+The orphan-slice arm (dead-depot liveness verdict + dead-folder purge) awaits the next real depot churn,
+per the instaurate billing-arm gauntlet-clause precedent —
+never a synthetic payor-direct writer; that shape stays retired (operator ruling at the exercise).
+The rbgft classification unit-test residual above now also covers the escheat survey verdicts and its band, still theurge-stream-homed.
+
 ## Idea — release suites lost their credential-heal preamble
 
 Tension: skirmish, dogfight, and blockade each led with the freehold-enrobe fixture as a keyfile credential-heal — re-mantling the governor and defrock/re-enrobing retriever and director so the real fixture found fresh service-account keys against a standing operator-levied depot.
