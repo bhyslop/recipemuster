@@ -14215,7 +14215,6 @@
         "₢BfAAE",
         "₢BfAAG",
         "₢BfAAH",
-        "₢BfAAl",
         "₢BfAAm",
         "₢BfAAn",
         "₢BfAAs",
@@ -15288,68 +15287,6 @@
               ],
               "jjgtn_silks": "cross-heat-parallelization-split-study",
               "jjgtn_basis": "e46c10e"
-            }
-          ]
-        },
-        "₢BfAAl": {
-          "jjgpn_tacks": [
-            {
-              "jjgtn_ts": "260702-1508",
-              "jjgtn_state": "jjgte_rough",
-              "jjgtn_text": [
-                "Narrowed (260702, post-study): this pace is the credential-fault DISPOSITION it was chartered as —",
-                "record the two determinations against the settled federation auth path and clean the vestigial consts.",
-                "The lifecycle feature the study surfaced (sitting runway gate, renew, poll mantle re-mint) split out whole to heat ₣Bq; no build-poll code changes here.",
-                "",
-                "The study ran at mount (260702); the determinations to record, each where the surviving code lives:",
-                "",
-                "Determination A (flap tolerance) — retire with finding.",
-                "The memo's trigger (per-run director-SA re-invest) is demolished: mantle SAs are standing, levy-created, never re-invested per run.",
-                "The fresh-levy analogue is unobserved post-federation, and first-creation settling surfaces as the propagation family, not the runtime 401.",
-                "No tolerance added — the gauntlet-clause posture: await real evidence.",
-                "",
-                "Determination B (terminal fail-fast) — retire with finding.",
-                "The auth legs and cold probes already discriminate correctly:",
-                "the device-flow poll is dual-gated (transient curl band + OAuth pending states, wall-clock bounded);",
-                "programmatic acquire, STS, and the don are single-attempt fail-fast;",
-                "the don's 403 rides the admission band unretried by design;",
-                "the probes die on any 401/403 and retry only 5xx.",
-                "The blind-403 propagation waits (the IAM grant sites and the capabilities GAR loop) are post-grant by construction and cinch-kept —",
-                "record WHY at their constants' home, so a future reader does not \"optimize\" the deliberate budget away.",
-                "",
-                "The build poll (zrbfc_wait_build_completion, rbfcb_host.sh) — record as finding, fix elsewhere.",
-                "Its single non-refreshed mantle token plus blind consecutive-failure counter is real,",
-                "but it is a lifecycle contradiction of the human-present premise's mid-flight re-mint promise (mantle ceiling vs conjure budget),",
-                "not a fault-classification gap; the fix is ₣Bq's, and the recorded finding here names that handoff.",
-                "",
-                "Code actions in this pace:",
-                "remove the vestigial RBGC_SA_KEY_CONSUMER_RETRY_* trio from rbgc_constants.sh (zero consumers repo-wide; the mechanism they tuned was demolished with the keyfile estate),",
-                "and prune the single stale RBSCIP sentence naming them —",
-                "leaving the broader keyfile-tier re-anchor batch to its existing FABLE-REANCHOR flag, not swallowing it here.",
-                "",
-                "## Source",
-                "Memos/memo-20260527-account-state-invalid-reinvest-flap.md — the original 401 signature and two-host evidence; historical record now, its trigger and touchpoint both demolished.",
-                "",
-                "## Done when",
-                "Both determinations recorded where the surviving code lives (form of the record — comment, spec note — is mount judgment);",
-                "the dead consts and the orphaned spec sentence are gone;",
-                "the build-poll finding names the ₣Bq handoff;",
-                "shellcheck and reveille green.",
-                "",
-                "## Cinched",
-                "The terminal-vs-transient disambiguator is call context, never the response body alone.",
-                "Do not reintroduce the keyfile SA-propagation loop; keep genuine post-mint propagation tolerance wherever it survives.",
-                "No build-poll code changes in this pace — that surface belongs to ₣Bq.",
-                "",
-                "## Character",
-                "Recording plus small deletions; the judgment is already made, this pace writes it down.",
-                "",
-                "## Provenance",
-                "Drafted from ₣Bi lineage (originally ₣BB-era against the keyfile estate); the terminal-fail-fast sibling folded in 260702;",
-                "narrowed 260702 after the mount study, the sitting-runway lifecycle split out to ₣Bq."
-              ],
-              "jjgtn_silks": "federation-credential-fault-disposition",
-              "jjgtn_basis": "e983570"
             }
           ]
         },
@@ -18676,12 +18613,13 @@
       "jjghn_creation_time": "260702",
       "jjghn_status": "jjghe_stabled",
       "jjghn_order": [
+        "₢BqAAE",
         "₢BqAAA",
         "₢BqAAB",
         "₢BqAAC",
         "₢BqAAD"
       ],
-      "jjghn_next_pace_seed": "AAE",
+      "jjghn_next_pace_seed": "AAF",
       "jjghn_paces": {
         "₢BqAAA": {
           "jjgpn_tacks": [
@@ -18802,6 +18740,70 @@
               ],
               "jjgtn_silks": "poll-mantle-remint",
               "jjgtn_basis": "be074de"
+            }
+          ]
+        },
+        "₢BqAAE": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260702-1511",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Drafted from ₢BfAAl in ₣Bf.",
+                "",
+                "Narrowed (260702, post-study): this pace is the credential-fault DISPOSITION it was chartered as —",
+                "record the two determinations against the settled federation auth path and clean the vestigial consts.",
+                "The lifecycle feature the study surfaced (sitting runway gate, renew, poll mantle re-mint) split out whole to heat ₣Bq; no build-poll code changes here.",
+                "",
+                "The study ran at mount (260702); the determinations to record, each where the surviving code lives:",
+                "",
+                "Determination A (flap tolerance) — retire with finding.",
+                "The memo's trigger (per-run director-SA re-invest) is demolished: mantle SAs are standing, levy-created, never re-invested per run.",
+                "The fresh-levy analogue is unobserved post-federation, and first-creation settling surfaces as the propagation family, not the runtime 401.",
+                "No tolerance added — the gauntlet-clause posture: await real evidence.",
+                "",
+                "Determination B (terminal fail-fast) — retire with finding.",
+                "The auth legs and cold probes already discriminate correctly:",
+                "the device-flow poll is dual-gated (transient curl band + OAuth pending states, wall-clock bounded);",
+                "programmatic acquire, STS, and the don are single-attempt fail-fast;",
+                "the don's 403 rides the admission band unretried by design;",
+                "the probes die on any 401/403 and retry only 5xx.",
+                "The blind-403 propagation waits (the IAM grant sites and the capabilities GAR loop) are post-grant by construction and cinch-kept —",
+                "record WHY at their constants' home, so a future reader does not \"optimize\" the deliberate budget away.",
+                "",
+                "The build poll (zrbfc_wait_build_completion, rbfcb_host.sh) — record as finding, fix elsewhere.",
+                "Its single non-refreshed mantle token plus blind consecutive-failure counter is real,",
+                "but it is a lifecycle contradiction of the human-present premise's mid-flight re-mint promise (mantle ceiling vs conjure budget),",
+                "not a fault-classification gap; the fix is ₣Bq's, and the recorded finding here names that handoff.",
+                "",
+                "Code actions in this pace:",
+                "remove the vestigial RBGC_SA_KEY_CONSUMER_RETRY_* trio from rbgc_constants.sh (zero consumers repo-wide; the mechanism they tuned was demolished with the keyfile estate),",
+                "and prune the single stale RBSCIP sentence naming them —",
+                "leaving the broader keyfile-tier re-anchor batch to its existing FABLE-REANCHOR flag, not swallowing it here.",
+                "",
+                "## Source",
+                "Memos/memo-20260527-account-state-invalid-reinvest-flap.md — the original 401 signature and two-host evidence; historical record now, its trigger and touchpoint both demolished.",
+                "",
+                "## Done when",
+                "Both determinations recorded where the surviving code lives (form of the record — comment, spec note — is mount judgment);",
+                "the dead consts and the orphaned spec sentence are gone;",
+                "the build-poll finding names the ₣Bq handoff;",
+                "shellcheck and reveille green.",
+                "",
+                "## Cinched",
+                "The terminal-vs-transient disambiguator is call context, never the response body alone.",
+                "Do not reintroduce the keyfile SA-propagation loop; keep genuine post-mint propagation tolerance wherever it survives.",
+                "No build-poll code changes in this pace — that surface belongs to ₣Bq.",
+                "",
+                "## Character",
+                "Recording plus small deletions; the judgment is already made, this pace writes it down.",
+                "",
+                "## Provenance",
+                "Drafted from ₣Bi lineage (originally ₣BB-era against the keyfile estate); the terminal-fail-fast sibling folded in 260702;",
+                "narrowed 260702 after the mount study, the sitting-runway lifecycle split out to ₣Bq."
+              ],
+              "jjgtn_silks": "federation-credential-fault-disposition",
+              "jjgtn_basis": "39dce7a"
             }
           ]
         }
