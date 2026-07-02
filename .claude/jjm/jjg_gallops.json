@@ -14332,8 +14332,8 @@
         "₢BfAA3": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260702-0141",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260702-0236",
+              "jjgtn_state": "jjgte_abandoned",
               "jjgtn_text": [
                 "Carve the terrier noun-internals out of RBS0 into a companion normative sheaf, so the terrier quoin reads as a one-line definition plus include::s — symmetric with the realm->RBSFK and terrier-access->RBSTR sheaf precedents, and consistent with how every operation block already sheafs.",
                 "",
@@ -14357,7 +14357,7 @@
                 "Mechanical AsciiDoc relocation; the care is in preserving anchors/refs/normativity, not in judgment."
               ],
               "jjgtn_silks": "terrier-noun-sheaf-carve",
-              "jjgtn_basis": "1e37efc"
+              "jjgtn_basis": "2598c28"
             }
           ]
         },
