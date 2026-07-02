@@ -2711,8 +2711,8 @@
         "₢A-ABG": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260511-0759",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260701-1941",
+              "jjgtn_state": "jjgte_abandoned",
               "jjgtn_text": [
                 "## Character",
                 "Interactive operator-driven iteration. Spec and code both in",
@@ -2739,7 +2739,7 @@
                 "bujn-winpc."
               ],
               "jjgtn_silks": "windows-setup-first-time-debug",
-              "jjgtn_basis": "5419d87"
+              "jjgtn_basis": "2e0cd08"
             }
           ]
         },
