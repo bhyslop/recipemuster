@@ -1,5 +1,5 @@
 {
-  "jjgrn_next_heat_seed": "Bp",
+  "jjgrn_next_heat_seed": "Bq",
   "jjgrn_heat_order": [
     "₣BZ",
     "₣Bo",
@@ -14201,6 +14201,7 @@
         "₢BfAAw",
         "₢BfAAF",
         "₢BfAA1",
+        "₢BfAA3",
         "₢BfAAL",
         "₢BfAAK",
         "₢BfAAJ",
@@ -14217,11 +14218,12 @@
         "₢BfAAs",
         "₢BfAAt",
         "₢BfAAy",
+        "₢BfAA4",
         "₢BfAAq",
         "₢BfAAz",
         "₢BfAA2"
       ],
-      "jjghn_next_pace_seed": "AA3",
+      "jjghn_next_pace_seed": "AA5",
       "jjghn_paces": {
         "₢BfAA0": {
           "jjgpn_tacks": [
@@ -14324,6 +14326,69 @@
               ],
               "jjgtn_silks": "guide-to-tabtarget-automation-lift",
               "jjgtn_basis": "cce09c4"
+            }
+          ]
+        },
+        "₢BfAA3": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260702-0207",
+              "jjgtn_state": "jjgte_complete",
+              "jjgtn_text": [
+                "Re-cut affiance and jilt to folio-address the foedus — take the foedus identity as a folio and act on rbef_<folio>, mirroring descry — instead of reading the entrada-pinned RBCC_rbrf_file constant.",
+                "",
+                "## Spec of needed change",
+                "Contract-first (the heat's hard rule): re-cut RBSMA (affiance) and RBSMJ (jilt) to the folio-addressed model before any code — the verb takes the foedus name as a folio and acts on that named foedus's provider, not the active/pinned foedus.",
+                "rbof_descry (RBSFD) is the in-tree precedent: it folio-addresses any named foedus and parses that foedus's own rbrf.env, independent of RBCC_rbrf_file and the active selector.",
+                "Code: the affiance/jilt CLI furnish (rbgp_cli.sh) sources the folio-derived rbrf.env path instead of the constant-folded RBCC_rbrf_file; the verb bodies stay foedus-blind (they already read RBRF_ from the kindled regime).",
+                "Reserve the active-foedus selector (RBRR_ACTIVE_FOEDUS / instate) for the human accessor (avow/don), completing the addressing split descry already half-embodies.",
+                "",
+                "## Done when",
+                "rbw-mA and rbw-mJ take a foedus folio (param1) like rbw-jd, resolving rbef_<folio>/rbrf.env directly; RBSMA/RBSMJ describe the folio-addressed model; rbw-mA rbef_entrada still affiances the standing spike trust — proven, not regressed.",
+                "",
+                "## Cinched",
+                "Folio-addressing reverses the prior \"no CLI folio for affiance/jilt\" decision (operator 260702); descry is the precedent.",
+                "Provider-management verbs are folio-addressed; the active-foedus selector is reserved for the accessor.",
+                "",
+                "## Character",
+                "Contract-first spec re-cut plus a mechanical CLI change; the verb bodies are largely untouched.",
+                "",
+                "Source: rbof_descry (rbof_foedus.sh) for the folio-resolution precedent; RBSMA / RBSMJ; RBCC_rbrf_file (rbcc_constants.sh) for the constant being bypassed."
+              ],
+              "jjgtn_silks": "affiance-jilt-folio-recut",
+              "jjgtn_basis": "68b2bf5"
+            }
+          ]
+        },
+        "₢BfAA4": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260702-0235",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Carve the terrier noun-internals out of RBS0 into a companion normative sheaf, so the terrier quoin reads as a one-line definition plus include::s — symmetric with the realm->RBSFK and terrier-access->RBSTR sheaf precedents, and consistent with how every operation block already sheafs.",
+                "",
+                "## Spec of needed change",
+                "The terrier noun internals (resource shape, muniment shape + rbgft_ sprue, key format, the provider collision-rationale) are the heaviest inline concept block in RBS0's civic-quoin section, under the terrier and muniment quoins.",
+                "Relocate that internals prose into a new normative sheaf that RBS0 include::s at the terrier quoin, beside the existing RBSTR access include.",
+                "The terrier quoin's anchor + one-line definition stay inline in RBS0; only the heavy internals move.",
+                "",
+                "Do NOT fold the noun into RBSTR — RBSTR's header deliberately scopes it to access-only and defers the noun to RBS0, so a fresh noun sheaf is the consistent move, not widening RBSTR.",
+                "Mint the sheaf acronym in the RBST* terrier family applying the mint gates (lean: RBSTN, noun); register it in claude-rbk-acronyms.md.",
+                "",
+                "## Done when",
+                "The terrier noun internals live in a normative sheaf include::d at the terrier quoin; RBS0's terrier quoin carries only its definition plus the two includes (noun, access); every quoin anchor, mapping-section attribute reference, and axvd_ normative marker resolves unchanged; the rendered spec is byte-faithful to today's content.",
+                "",
+                "## Cinched",
+                "Cosmetic relocation ONLY — no rewording of normative statements, no change to specification rigor.",
+                "Anchors, attribute references, and normativity markers are preserved; the move is a pure include:: relocation mirroring RBSTR/RBSFK.",
+                "If execution reveals rewording is needed to make the split cohere, that is out of scope — stop and surface it.",
+                "",
+                "## Character",
+                "Mechanical AsciiDoc relocation; the care is in preserving anchors/refs/normativity, not in judgment."
+              ],
+              "jjgtn_silks": "terrier-noun-sheaf-carve",
+              "jjgtn_basis": "590b49e"
             }
           ]
         },
@@ -14676,42 +14741,40 @@
         "₢BfAAL": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260630-2124",
+              "jjgtn_ts": "260702-0135",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
-                "Build the one BCG module orchestrating the Keycloak test-facility lifecycle: rbxk_keycloak.sh in the rbx family.",
+                "Build the one BCG module orchestrating the Keycloak test-facility lifecycle: rbxk_keycloak.sh in the rbx family, composing the now-folio-addressed provider verbs (the predecessor lands folio-addressing).",
                 "",
                 "## Spec of needed change",
-                "Setup: charge the fdkyclk crucible, poll Keycloak ready, fetch its public JWKS (the bridge — strip to standard RSA members), call affiance with that JWKS.",
-                "Teardown: jilt then quench.",
-                "Compose existing verbs plus the one JWKS bridge — do NOT contain the accessor (rba's job), do NOT reimplement affiance or jilt (call them).",
+                "Create the rbef_keycloak foedus (programmatic mechanism) in the moorings foedera library: a committed rbrf.env TEMPLATE carrying the vendor-agnostic core plus the namespaced attribute-mapping, and an IGNORED live rbrf.env the orchestrator renders per setup with the fresh JWKS. The ephemeral key is \"committed nowhere\" (RBRF's own stated intent, rbrf_regime.sh); only keycloak deviates from RBSRF's ships-committed, entrada untouched.",
+                "",
+                "Setup (rbw-qjK): precision-band clean-tree gate FIRST (the well-formed variant, not bug_require_clean_tree; pass the RB rationale), then charge fdkyclk, poll Keycloak ready, fetch its public JWKS (the bridge — strip to standard RSA members) into the ignored live rbrf.env, then affiance the named foedus (rbw-mA rbef_keycloak).",
+                "Teardown (rbw-qj sibling, named at cut-time): jilt the named foedus (rbw-mJ rbef_keycloak), then quench.",
+                "Because the JWKS lands in the ignored carrier, the tree stays clean through setup, so affiance's own clean-tree gate passes untouched — no gate hoist, no skip. Verify this holds at mount.",
                 "The module is blind to the realm JSON — affiliation by reference, never ownership; affiance never learns \"Keycloak.\"",
                 "",
-                "Subject-namespacing (the one-pool co-tenancy rule, ₢BfAAv / RBSPB / rbtf_citizen): under the shared manor pool this test provider is co-resident with production, so its subjects MUST be namespace-disjoint from production — a test token can never satisfy a production `principal://…/subject/{S}` binding (load-bearing security). Author that here as part of standing the facility: the test foedus (rbef_keycloak) carries a namespaced attribute-mapping (e.g. a CEL prefix on `google.subject`) placing its subjects in a reserved namespace. Keep it in the foedus config, NOT the realm JSON — a mapping-level prefix likely suffices, preserving the realm-blindness cinch; only if the realm must mint a namespaceable claim does this coordinate a RBSFK / fdkyclk-realm.json touch, never the orchestrator owning realm internals.",
+                "Subject-namespacing (the one-pool co-tenancy rule, RBSPB / rbtf_citizen): under the shared manor pool this test provider is co-resident with production, so its subjects MUST be namespace-disjoint from production — a test token can never satisfy a production principal://…/subject/{S} binding (load-bearing security). Author it in the foedus attribute-mapping (a CEL prefix on google.subject placing subjects in a reserved namespace), NOT the realm JSON — preserving the realm-blindness cinch.",
                 "",
-                "Colophon (operator 260624, supersedes the rbw-xk earmark): the setup tabtarget is rbw-qjK — test bucket q, foedus j, Keycloak K; the teardown is a sibling under rbw-qj, named at cut-time.",
-                "Uppercase K because setup CALLS AFFIANCE and so mutates cloud (creates the GCP workforce provider) — the uppercase is that warning.",
-                "The module keeps its rbxk_keycloak.sh name; the module letter need not match the colophon.",
-                "Setup calls the well-formed precision-band clean-tree gate variant FIRST (built earlier in this heat as standalone BUK infra; pass the RB rationale parameter) — it writes committed config and mutates cloud. This is that variant's first live consumer, so the gate placement lands here, not in the infra pace.",
-                "",
-                "Caveat (operator flag 260624): the full mutation surface is not yet pinned — this setup is \"pretty mutating,\" possibly beyond affiance's provider creation; verify the mutation surface at mount before trusting the gate placement.",
-                "",
-                "Source: fdkyclk-proof.sh (fetch_jwks + the main staging) and fdkyclk-teardown.sh (the jilt-then-quench inverse); the paddock de-lamination + naming section; RBSPB + rbtf_citizen for the namespacing rule.",
+                "Colophon (operator 260624): setup rbw-qjK — test bucket q, foedus j, Keycloak K; uppercase K because setup CALLS AFFIANCE and so mutates cloud. The module keeps its rbxk_keycloak.sh name; the module letter need not match the colophon.",
                 "",
                 "## Done when",
-                "One tabtarget (rbw-qjK) stands up the programmatic facility (charged Keycloak + affianced foedus) and one tears it down, idempotently, composing affiance/jilt/charge/quench; the setup's clean-tree gate uses the well-formed precision-band variant, not the old bug_require_clean_tree; the test foedus's subjects are namespace-disjoint from production per RBSPB.",
+                "rbw-qjK stands up the programmatic facility (charged Keycloak + affianced rbef_keycloak) and its teardown sibling tears it down, idempotently, composing the folio-addressed rbw-mA/rbw-mJ plus charge/quench; the ephemeral JWKS lives in the ignored carrier so the tree stays clean; the setup's gate is the precision-band variant; the test foedus's subjects are namespace-disjoint from production per RBSPB.",
                 "",
                 "## Cinched",
-                "rbx family, rbxk_keycloak.sh module; colophon rbw-qjK (setup) plus an rbw-qj teardown sibling, superseding the prior rbw-xk earmark (operator 260624).",
+                "rbx family, rbxk_keycloak.sh module; colophon rbw-qjK (setup) plus an rbw-qj teardown sibling.",
+                "Composes the folio-addressed affiance/jilt — the orchestrator names rbef_keycloak and never touches the active-foedus selector.",
+                "Keycloak's ephemeral JWKS lives in an ignored live rbrf.env rendered from a committed template; entrada untouched.",
                 "The module is blind to the realm JSON — affiliation by reference, never ownership.",
-                "The setup gate is the precision-band variant's first live consumer; wiring the gate lands here, not in the infra pace.",
-                "Test-provider subjects are namespace-disjoint from production (the co-tenancy security rule, RBSPB) — authored in the foedus attribute-mapping, keeping the realm-blindness intact.",
+                "Test-provider subjects are namespace-disjoint from production (RBSPB), authored in the foedus attribute-mapping.",
                 "",
                 "## Character",
-                "Bash orchestration; the heart of the de-lamination. The subject-namespacing mapping is a small config addition riding the same facility setup."
+                "Bash orchestration; the heart of the de-lamination. Pure composition of existing verbs plus the JWKS bridge, now that folio-addressing is a predecessor.",
+                "",
+                "Source: fdkyclk-proof.sh (fetch_jwks plus the main staging) and fdkyclk-teardown.sh (the jilt-then-quench inverse); the paddock de-lamination and naming section; RBSPB plus rbtf_citizen for the namespacing rule."
               ],
               "jjgtn_silks": "rbxk-keycloak-orchestrator",
-              "jjgtn_basis": "2afb450"
+              "jjgtn_basis": "e6f082d"
             }
           ]
         },
@@ -15454,8 +15517,8 @@
         "₢BfAAy": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260630-1519",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260702-0153",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "Add a provider dimension to the terrier muniment — so co-resident providers under one pool no longer conflate in a manor-wide rehearse, and a pool-independent subject can't collide silently (the membership study's structural-collision finding).",
                 "",
@@ -15476,7 +15539,7 @@
                 "Contained code membrane (one terrier module) plus a one-time on-disk muniment migration; the migration is the real cost."
               ],
               "jjgtn_silks": "terrier-muniment-provider-dim",
-              "jjgtn_basis": "b844d7b"
+              "jjgtn_basis": "dbcf525"
             }
           ]
         },

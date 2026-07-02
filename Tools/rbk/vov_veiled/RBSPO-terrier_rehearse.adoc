@@ -9,7 +9,7 @@ act (medieval sense: to recount a record formally, in order). It reads every
 {rbtf_muniment}
 across the whole
 {rbtf_terrier}
-and emits the (depot, mantle, subject) record. It mutates nothing: no muniment is written or
+and emits the (depot, mantle, provider, subject) record. It mutates nothing: no muniment is written or
 withdrawn and no IAM binding is touched. Rehearse recounts what the record says; the
 spec-interior reconciliation diff — which checks the record against the live mantle-SA
 bindings — is a distinct, two-distinctions-apart concern and not this operator verb.
@@ -24,16 +24,17 @@ manor, not one depot. It takes no parameters.
 
 NOTE: *Depot-attributed emission.* The manor-wide read factors the per-polity peruse's
 list-and-fetch into a shared lister whose manor-wide entry point reads the whole bucket
-prefix-blind. It emits the (depot, mantle, subject) record per muniment. The record
-fields (mantle, subject) read from the muniment content — the content stays the
-authoritative record — while the depot column reads from the object key's first
-segment, because placement is the index's alone to tell: which polity slice holds a
-muniment is not record content. The column is load-bearing: identical (mantle, subject)
-pairs co-reside across polity slices — unmaking a depot project never sweeps the
-payor-grain terrier, so orphaned slices of retired levies persist — and a depot-blind
-roll cannot witness a depot-scoped admission churn, two identical lines being
-indistinguishable. The parley admission probe (RBSTC) is the located consumer whose
-live-run collision forced this ruling, superseding the founding depot-blind emission.
+prefix-blind. It emits the (depot, mantle, provider, subject) record per muniment. The
+record fields (mantle, provider, subject) read from the muniment content — the content
+stays the authoritative record — while the depot column reads from the object key's
+first segment, because placement is the index's alone to tell: which polity slice holds
+a muniment is not record content. The column is load-bearing: identical (mantle,
+provider, subject) records co-reside across polity slices — unmaking a depot project
+never sweeps the payor-grain terrier, so orphaned slices of retired levies persist —
+and a depot-blind roll cannot witness a depot-scoped admission churn, two identical
+lines being indistinguishable. The parley admission probe (RBSTC) is the located
+consumer whose live-run collision forced this ruling, superseding the founding
+depot-blind emission.
 
 NOTE: *Pure-read race tolerance.* The manor sweep is a list-then-fetch, so an object the
 listing named can be withdrawn by a concurrent
@@ -63,8 +64,8 @@ onto the governor mantle
 .. {rbtf_peruse}
 the whole terrier bucket through the manor-wide lister — list every
 {rbtf_muniment}
-object, fetch each, and read the (subject, mantle) record from its content and the
-depot attribution from its key
+object, fetch each, and read the (subject, mantle, provider) record from its content
+and the depot attribution from its key
 .. a read-after-list `404` on any object is skipped (benign vanish), not fatal
 .. {rbbc_fatal}
 only on a read failure that is not the benign vanish
@@ -73,14 +74,15 @@ only on a read failure that is not the benign vanish
 {rbtf_muniment}
 . *Recount the roll*:
 .. {rbbc_show}
-the (depot, mantle, subject) record for every muniment held across the manor; when the
-terrier holds no standing citizens, show that the roll is empty rather than emitting
-nothing silently
+the (depot, mantle, provider, subject) record for every muniment held across the manor;
+when the terrier holds no standing citizens, show that the roll is empty rather than
+emitting nothing silently
 
 //axhoc_completion
 Successful execution recounts the manor's standing citizenry: every
 {rbtf_muniment}
-across every polity is read and its (depot, mantle, subject) emitted, with no muniment
-or binding changed. The roll is the manor view of who holds what; the per-polity slice is
+across every polity is read and its (depot, mantle, provider, subject) emitted, with no
+muniment or binding changed. The roll is the manor view of who holds what; the
+per-polity slice is
 {rbtf_peruse}'s,
 and the record-versus-reality check is the reconciliation diff's — never rehearse's.

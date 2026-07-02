@@ -46,7 +46,27 @@ zrbgp_furnish() {
   source "${z_rbk_kit_dir}/rbgd_depot.sh"
   source "${RBCC_rbrr_file}"
   source "${RBCC_rbrd_file}"
-  source "${RBCC_rbrf_file}"
+  # Federation regime file. affiance and jilt are folio-addressed (param1,
+  # RBSMA/RBSMJ): each sources the NAMED foedus's rbrf.env, resolved from the
+  # operator-supplied folio (an rbef_-sprued library subdirectory) exactly as
+  # descry addresses its subject — never the active/pinned foedus, whose selector
+  # (RBRR_ACTIVE_FOEDUS) is reserved for the credential accessor. Every other payor
+  # verb reads the active foedus's constant-folded RBCC_rbrf_file. An unresolvable
+  # folio is an arg-validation precondition (imprecise buc_die, BCG carve-out).
+  case "${z_command}" in
+    rbgp_manor_affiance|rbgp_manor_jilt)
+      local z_folio="${BUZ_FOLIO:-}"
+      [[ "${z_folio}" == rbef_* ]] \
+        || buc_die "Foedus folio required (param1), an rbef_-sprued library name: got '${z_folio}'"
+      local z_folio_rbrf="${RBCC_moorings_dir}/${RBCC_foedera_subdir}/${z_folio}/rbrf.env"
+      test -f "${z_folio_rbrf}" \
+        || buc_die "No foedus '${z_folio}' in the foedera library: ${z_folio_rbrf}"
+      source "${z_folio_rbrf}"
+      ;;
+    *)
+      source "${RBCC_rbrf_file}"
+      ;;
+  esac
   source "${RBCC_rbrw_file}"
   source "${z_rbk_kit_dir}/rbgl_layout.sh"
   source "${z_rbk_kit_dir}/rbgo_oauth.sh"

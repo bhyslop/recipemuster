@@ -1143,8 +1143,11 @@ rbgp_manor_affiance() {
 
   # The manor pool coordinates (org / pool id) are read from the kindled RBRW
   # regime (manor-level, RBSRW); the per-foedus provider id from the kindled
-  # RBRF regime. The caller's furnish sources, kindles, and enforces both before
-  # dispatch (like RBRD/RBRP for depot_levy). The org-level workforcePoolAdmin
+  # RBRF regime. affiance is folio-addressed (param1, RBSMA): the caller's furnish
+  # folio-resolves the RBRF from the operator-supplied foedus, then sources,
+  # kindles, and enforces both before dispatch (like RBRD/RBRP for depot_levy), so
+  # the body stays foedus-blind — it works whatever foedus the furnish sourced.
+  # The org-level workforcePoolAdmin
   # grant (spike F1) is the finisher's to seat (RBSMS) — affiance assumes it
   # present; a payor lacking it meets a 403 at provider creation, directing them
   # to run the finisher first (RBSMA F1 NOTE).
@@ -1296,9 +1299,10 @@ rbgp_manor_jilt() {
   # the provider affiance seated and nothing else; the shared pool stands for
   # every other foedus (pool teardown is the separate manor raze, never jilt).
   # Reads the pool coordinates from the kindled RBRW regime and the provider id
-  # from the kindled RBRF regime (the caller's furnish enforces both) — no CLI
-  # folio: jilt targets the regime's provider, never an operator-supplied one.
-  # Mechanism-blind: deleting the provider ends the trust regardless of how
+  # from the kindled RBRF regime. jilt is folio-addressed (param1, RBSMJ): the
+  # caller's furnish folio-resolves the RBRF from the operator-supplied foedus and
+  # enforces both, so the body deletes that folio's provider while staying
+  # foedus-blind. Mechanism-blind: deleting the provider ends the trust regardless of how
   # citizens acquired tokens against it — no RBRF_MECHANISM arm (RBSMJ).
   local -r z_org="organizations/${RBRW_ORG_ID}"
   local -r z_pool_id="${RBRW_WORKFORCE_POOL_ID}"
@@ -2549,19 +2553,20 @@ rbgp_terrier_proof() {
   local -r z_bucket="${RBGP_TERRIER_BUCKET}"
   local -r z_depot="${RBDC_DEPOT_PROJECT_ID}"
   local -r z_mantle="governor"
+  local -r z_provider="rbgft-proof-provider"   # synthetic segment, parallel to z_subject (the proof arm enforces no RBRF)
   local -r z_subject="rbgft-proof-probe"
-  local -r z_pair="${z_depot}"$'\t'"${z_mantle}"$'\t'"${z_subject}"
+  local -r z_pair="${z_depot}"$'\t'"${z_mantle}"$'\t'"${z_provider}"$'\t'"${z_subject}"
 
   buc_step 'Pre-clean any muniment a prior failed proof left behind'
-  rbgft_expunge "${z_token}" "${z_bucket}" "${z_depot}" "${z_mantle}" "${z_subject}" >/dev/null
+  rbgft_expunge "${z_token}" "${z_bucket}" "${z_depot}" "${z_mantle}" "${z_provider}" "${z_subject}" >/dev/null
 
   buc_step 'Engross fresh — expect a created write'
   local z_disp
-  z_disp=$(rbgft_engross "${z_token}" "${z_bucket}" "${z_depot}" "${z_mantle}" "${z_subject}")
+  z_disp=$(rbgft_engross "${z_token}" "${z_bucket}" "${z_depot}" "${z_mantle}" "${z_provider}" "${z_subject}")
   test "${z_disp}" = "created" || buc_die "Proof: first engross expected 'created', got '${z_disp}'"
 
   buc_step 'Engross the duplicate — expect the 412 precondition, treated as idempotent'
-  z_disp=$(rbgft_engross "${z_token}" "${z_bucket}" "${z_depot}" "${z_mantle}" "${z_subject}")
+  z_disp=$(rbgft_engross "${z_token}" "${z_bucket}" "${z_depot}" "${z_mantle}" "${z_provider}" "${z_subject}")
   test "${z_disp}" = "present" || buc_die "Proof: duplicate engross expected 412 'present', got '${z_disp}'"
 
   buc_step 'Peruse — expect the engrossed muniment present'
@@ -2571,11 +2576,11 @@ rbgp_terrier_proof() {
     || buc_die "Proof: peruse did not surface the engrossed muniment"
 
   buc_step 'Expunge — expect a delete'
-  z_disp=$(rbgft_expunge "${z_token}" "${z_bucket}" "${z_depot}" "${z_mantle}" "${z_subject}")
+  z_disp=$(rbgft_expunge "${z_token}" "${z_bucket}" "${z_depot}" "${z_mantle}" "${z_provider}" "${z_subject}")
   test "${z_disp}" = "deleted" || buc_die "Proof: expunge expected 'deleted', got '${z_disp}'"
 
   buc_step 'Expunge the absent — expect 404, treated as idempotent'
-  z_disp=$(rbgft_expunge "${z_token}" "${z_bucket}" "${z_depot}" "${z_mantle}" "${z_subject}")
+  z_disp=$(rbgft_expunge "${z_token}" "${z_bucket}" "${z_depot}" "${z_mantle}" "${z_provider}" "${z_subject}")
   test "${z_disp}" = "absent" || buc_die "Proof: re-expunge expected 404 'absent', got '${z_disp}'"
 
   buc_step 'Peruse — expect the muniment gone'
@@ -2651,6 +2656,7 @@ zrbgp_brevet_core() {
 
   local -r z_bucket="${RBGP_TERRIER_BUCKET}"
   local -r z_depot="${RBDC_DEPOT_PROJECT_ID}"
+  local -r z_provider="${RBRF_PROVIDER_ID}"   # active foedus's provider (RBRF, non-empty via the CLI arm's zrbrf_enforce)
   local z_mantle_email
   z_mantle_email=$(zrbgp_mantle_sa_email_capture "${z_mantle}") \
     || buc_die "Unknown mantle '${z_mantle}' (expected governor | director | retriever)"
@@ -2660,7 +2666,7 @@ zrbgp_brevet_core() {
   buc_step "Brevet ${z_subject} onto the ${z_mantle} mantle"
 
   buc_log_args 'Intent-first: write the muniment before any binding'
-  rbgft_engross "${z_token}" "${z_bucket}" "${z_depot}" "${z_mantle}" "${z_subject}" >/dev/null
+  rbgft_engross "${z_token}" "${z_bucket}" "${z_depot}" "${z_mantle}" "${z_provider}" "${z_subject}" >/dev/null
 
   buc_log_args 'Ensure tokenCreator on the mantle SA (the don grant)'
   rbgi_add_sa_principal_iam_role "${z_token}" "${z_mantle_email}" "${z_principal}" \
@@ -2691,6 +2697,7 @@ zrbgp_unseat_core() {
 
   local -r z_bucket="${RBGP_TERRIER_BUCKET}"
   local -r z_depot="${RBDC_DEPOT_PROJECT_ID}"
+  local -r z_provider="${RBRF_PROVIDER_ID}"   # active foedus's provider (RBRF, non-empty via the CLI arm's zrbrf_enforce)
   local z_mantle_email
   z_mantle_email=$(zrbgp_mantle_sa_email_capture "${z_mantle}") \
     || buc_die "Unknown mantle '${z_mantle}' (expected governor | director | retriever)"
@@ -2700,7 +2707,7 @@ zrbgp_unseat_core() {
   buc_step "Unseat ${z_subject} from the ${z_mantle} mantle"
 
   buc_log_args 'Intent-first: withdraw the muniment before removing the binding'
-  rbgft_expunge "${z_token}" "${z_bucket}" "${z_depot}" "${z_mantle}" "${z_subject}" >/dev/null
+  rbgft_expunge "${z_token}" "${z_bucket}" "${z_depot}" "${z_mantle}" "${z_provider}" "${z_subject}" >/dev/null
 
   buc_log_args 'Remove tokenCreator on the mantle SA (depot-scoped binding stays: suspension)'
   rbgi_revoke_sa_principal_member "${z_token}" "${z_mantle_email}" "${z_principal}" \

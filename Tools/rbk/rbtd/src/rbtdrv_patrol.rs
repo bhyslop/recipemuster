@@ -48,7 +48,7 @@ use crate::rbtdgc_consts::{
     RBTDGC_FREEHOLD_SUBJECT, RBTDGC_IMMURE_PODVM, RBTDGC_INSTATE_FOEDUS,
     RBTDGC_JETTISON_HALLMARK_IMAGE, RBTDGC_JETTISON_IMAGE, RBTDGC_JILT_MANOR, RBTDGC_LIST_IMAGES,
     RBTDGC_MANTLE_DIRECTOR, RBTDGC_MANTLE_GOVERNOR, RBTDGC_MANTLE_RETRIEVER,
-    RBTDGC_PLUMB_FULL, RBTDGC_RBRD_FILE, RBTDGC_RBRR_FILE, RBTDGC_REHEARSE_POLITY, RBTDGC_REKON_HALLMARK,
+    RBTDGC_PLUMB_FULL, RBTDGC_RBRD_FILE, RBTDGC_RBRF_FILE, RBTDGC_RBRR_FILE, RBTDGC_REHEARSE_POLITY, RBTDGC_REKON_HALLMARK,
     RBTDGC_SUMMON_HALLMARK,
     RBTDGC_TALLY_HALLMARKS,
     RBTDGC_TERRIER_PROOF, RBTDGC_TERRIER_SCAFFOLD, RBTDGC_TWEAK_HTTP_FAULT,
@@ -1291,11 +1291,13 @@ fn zrbtdrv_payor_gate(
 /// RBRF field the throwaway-provider override targets through the regime-poison seam.
 const RBTDRV_RBRF_PROVIDER_VAR: &str = "RBRF_PROVIDER_ID";
 
-/// Drive the affiance→canvass→jilt→re-jilt round-trip on `provider_id`, asserting
-/// each terminal banner and that canvass enumerates the live provider. Split from
-/// the case so the case can run a best-effort cleanup jilt on any failure (the
-/// round-trip's own jilt may not have been reached).
-fn zrbtdrv_foedus_roundtrip(ctx: &mut rbtdri_Context, dir: &Path, provider_id: &str) -> rbtdre_Verdict {
+/// Drive the affiance→canvass→jilt→re-jilt round-trip on `provider_id`, addressing
+/// foedus `foedus` (the folio affiance/jilt take, RBSMA/RBSMJ — its rbrf.env is the
+/// base config the poison overrides RBRF_PROVIDER_ID atop), asserting each terminal
+/// banner and that canvass enumerates the live provider. Split from the case so the
+/// case can run a best-effort cleanup jilt on any failure (the round-trip's own jilt
+/// may not have been reached).
+fn zrbtdrv_foedus_roundtrip(ctx: &mut rbtdri_Context, dir: &Path, foedus: &str, provider_id: &str) -> rbtdre_Verdict {
     // Payor credential precondition — Fail, not Skip (never a suite passenger).
     if let Some(v) = zrbtdrv_payor_gate(
         ctx, dir, crate::rbtdrm_manifest::RBTDRM_FIXTURE_FOEDUS_LIFECYCLE, zrbtdrv_PayorGatePolicy::Fail,
@@ -1312,7 +1314,7 @@ fn zrbtdrv_foedus_roundtrip(ctx: &mut rbtdri_Context, dir: &Path, provider_id: &
     let poison = format!("{}={}", RBTDRV_RBRF_PROVIDER_VAR, provider_id);
 
     // Step 1: affiance a fresh provider under the standing pool; assert the create banners.
-    let affiance = match rbtdri_invoke_global(ctx, RBTDGC_AFFIANCE_MANOR, &[], &[
+    let affiance = match rbtdri_invoke_global(ctx, RBTDGC_AFFIANCE_MANOR, &[foedus], &[
         (RBTDRI_BURE_TWEAK_NAME_KEY, RBTDGC_TWEAK_REGIME_POISON),
         (RBTDRI_BURE_TWEAK_VALUE_KEY, poison.as_str()),
     ]) {
@@ -1383,7 +1385,7 @@ fn zrbtdrv_foedus_roundtrip(ctx: &mut rbtdri_Context, dir: &Path, provider_id: &
     }
 
     // Step 3: jilt the provider — live dissolution to the DELETED (soft-delete) terminal.
-    let jilt = match rbtdri_invoke_global(ctx, RBTDGC_JILT_MANOR, &[], &[
+    let jilt = match rbtdri_invoke_global(ctx, RBTDGC_JILT_MANOR, &[foedus], &[
         (RBTDRI_BURE_TWEAK_NAME_KEY, RBTDGC_TWEAK_REGIME_POISON),
         (RBTDRI_BURE_TWEAK_VALUE_KEY, poison.as_str()),
         (RBTDRI_BURE_CONFIRM_KEY, RBTDRI_BURE_CONFIRM_SKIP),
@@ -1404,7 +1406,7 @@ fn zrbtdrv_foedus_roundtrip(ctx: &mut rbtdri_Context, dir: &Path, provider_id: &
 
     // Step 4: re-jilt the soft-deleted provider — the idempotent no-op. Either no-op
     // branch (already-soft-deleted or absent) names the provider and tags "(no-op)".
-    let rejilt = match rbtdri_invoke_global(ctx, RBTDGC_JILT_MANOR, &[], &[
+    let rejilt = match rbtdri_invoke_global(ctx, RBTDGC_JILT_MANOR, &[foedus], &[
         (RBTDRI_BURE_TWEAK_NAME_KEY, RBTDGC_TWEAK_REGIME_POISON),
         (RBTDRI_BURE_TWEAK_VALUE_KEY, poison.as_str()),
         (RBTDRI_BURE_CONFIRM_KEY, RBTDRI_BURE_CONFIRM_SKIP),
@@ -1428,6 +1430,21 @@ fn zrbtdrv_foedus_roundtrip(ctx: &mut rbtdri_Context, dir: &Path, provider_id: &
 
 fn rbtdrv_foedus_lifecycle(dir: &Path) -> rbtdre_Verdict {
     rbtdrc_with_ctx(|ctx| {
+        // The foedus folio affiance/jilt address (RBSMA/RBSMJ) — the committed
+        // active selector, read rather than hardcoded (matches the reuse leg). Its
+        // rbrf.env is the base provider config; the regime-poison seam overrides
+        // only RBRF_PROVIDER_ID, so the round-trip seats a throwaway provider under
+        // the manor's standing pool and never touches the real provider.
+        let root = ctx.project_root().to_path_buf();
+        let rbrr = root.join(RBTDGC_RBRR_FILE);
+        let foedus = match crate::rbtdrk_freehold::rbtdrk_read_env_value(&rbrr, "RBRR_ACTIVE_FOEDUS") {
+            Some(f) if !f.trim().is_empty() => f.trim().to_string(),
+            _ => return rbtdre_Verdict::Fail(format!(
+                "RBRR_ACTIVE_FOEDUS blank or absent in {} — no foedus to affiance",
+                rbrr.display()
+            )),
+        };
+
         // A unique throwaway provider id every run: a genuine create cannot reuse a
         // soft-deleted id, and millis-since-epoch stays within the regime's
         // RBRF_PROVIDER_ID [a-z0-9-]{4,32} regex while staying unique across
@@ -1438,7 +1455,7 @@ fn rbtdrv_foedus_lifecycle(dir: &Path) -> rbtdre_Verdict {
         };
         let _ = std::fs::write(dir.join("00-provider-id.txt"), &provider_id);
 
-        let verdict = zrbtdrv_foedus_roundtrip(ctx, dir, &provider_id);
+        let verdict = zrbtdrv_foedus_roundtrip(ctx, dir, &foedus, &provider_id);
 
         // Cleanup safety net: if the round-trip failed after affiance seated the
         // provider, a leaked LIVE provider lingers under the standing pool. Jilt is
@@ -1446,7 +1463,7 @@ fn rbtdrv_foedus_lifecycle(dir: &Path) -> rbtdre_Verdict {
         // soft-deletes any leak. Result ignored — the round-trip verdict stands.
         if matches!(verdict, rbtdre_Verdict::Fail(_)) {
             let poison = format!("{}={}", RBTDRV_RBRF_PROVIDER_VAR, provider_id);
-            let _ = rbtdri_invoke_global(ctx, RBTDGC_JILT_MANOR, &[], &[
+            let _ = rbtdri_invoke_global(ctx, RBTDGC_JILT_MANOR, &[foedus.as_str()], &[
                 (RBTDRI_BURE_TWEAK_NAME_KEY, RBTDGC_TWEAK_REGIME_POISON),
                 (RBTDRI_BURE_TWEAK_VALUE_KEY, poison.as_str()),
                 (RBTDRI_BURE_CONFIRM_KEY, RBTDRI_BURE_CONFIRM_SKIP),
@@ -1533,7 +1550,7 @@ fn rbtdrv_foedus_reuse(dir: &Path) -> rbtdre_Verdict {
                 dir.join("03-decision.txt"),
                 format!("affiance {} (descry verdict '{}')", foedus, health),
             );
-            match rbtdri_invoke_global(ctx, RBTDGC_AFFIANCE_MANOR, &[], &[]) {
+            match rbtdri_invoke_global(ctx, RBTDGC_AFFIANCE_MANOR, &[foedus.as_str()], &[]) {
                 Ok(r) if r.exit_code == 0 => {}
                 Ok(r) => return rbtdre_Verdict::Fail(format!(
                     "affiance (on descry deficit '{}') exit {}\n{}",
@@ -2034,15 +2051,15 @@ pub static RBTDRV_CASES_POLITY_DENIAL: &[rbtdre_Case] = &[case!(rbtdrv_polity_de
 // rehearse dons the governor mantle internally, so its exit 0 through the
 // governor-wielded folder-scoped IAM path is proof in itself, and a line in its roll
 // names the (retriever, subject) muniment across the create/withdraw/restore arc.
-// Every roll assertion is depot-scoped — the exact (depot, mantle, subject) line for
-// the freehold's own depot (RBSPO depot-attributed emission) — because the manor
-// roll spans every polity slice and identical (mantle, subject) pairs co-reside
-// across them: a depot-blind roll cannot attribute an aliasing line at all. The
-// live run that forced the ruling turned out, once attributed, to be a SAME-depot
-// alias — standing muniments engrossed provider-grain by the federation stream's
-// edition (four-segment key, rbgft_provider content field) that this tree's
-// provider-blind verbs cannot expunge — so parley's green additionally waits on
-// that verb re-cut's delivery; the depot column is what made the skew legible.
+// Every roll assertion is the exact (depot, mantle, provider, subject) line for
+// the freehold's own depot and the active foedus's provider (RBSPO
+// depot-attributed emission): the manor roll spans every polity slice and
+// identical records co-reside across them, so a depot-blind roll cannot
+// attribute an aliasing line at all. The live run that forced the depot ruling
+// resolved, once attributed, to a SAME-depot alias — muniments engrossed
+// provider-grain before this tree took that re-cut's delivery — so the exact
+// line carries both attribution columns: the depot names the polity slice, the
+// provider names the admitting foedus.
 //
 // Unseat-first (Cinched): the freehold subject's retriever muniment already stands,
 // so a brevet-first shape would ride the 412-idempotent engross; unseating first
@@ -2058,11 +2075,11 @@ pub static RBTDRV_CASES_POLITY_DENIAL: &[rbtdre_Case] = &[case!(rbtdrv_polity_de
 // (suite-passenger posture), like the terrier pair and polity-denial.
 
 /// Rehearse the manor-wide muniment roll and return its stdout — one
-/// "<depot>\t<mantle>\t<subject>" line per muniment (RBSPO depot-attributed
-/// emission). rehearse dons the governor mantle internally, so exit 0 IS the
-/// governor-wielded folder-scoped IAM-path proof; a non-zero fails the drive loud
-/// (never bare-nonzero-tolerant — a broken read or a refused don must surface, not
-/// read as an empty roll). `label` names the log.
+/// "<depot>\t<mantle>\t<provider>\t<subject>" line per muniment (RBSPO
+/// depot-attributed emission). rehearse dons the governor mantle internally, so
+/// exit 0 IS the governor-wielded folder-scoped IAM-path proof; a non-zero fails
+/// the drive loud (never bare-nonzero-tolerant — a broken read or a refused don
+/// must surface, not read as an empty roll). `label` names the log.
 fn zrbtdrv_rehearse_roll(
     ctx: &mut rbtdri_Context,
     dir: &Path,
@@ -2104,15 +2121,37 @@ fn zrbtdrv_freehold_depot_capture(ctx: &rbtdri_Context) -> Result<String, rbtdre
         .map_err(|e| rbtdre_Verdict::Fail(format!("compose freehold depot project id: {}", e)))
 }
 
+/// Read the active foedus's provider id (RBRF_PROVIDER_ID) from the same
+/// federation regime file the polity verbs' CLI arm kindles, so the roll
+/// assertions name exactly the admitting provider brevet stores in
+/// rbgft_provider.
+fn zrbtdrv_active_provider_capture(ctx: &rbtdri_Context) -> Result<String, rbtdre_Verdict> {
+    let rbrf = ctx.project_root().join(RBTDGC_RBRF_FILE);
+    match crate::rbtdrk_freehold::rbtdrk_read_env_value(&rbrf, RBTDRV_RBRF_PROVIDER_VAR) {
+        Some(p) if !p.trim().is_empty() => Ok(p.trim().to_string()),
+        _ => Err(rbtdre_Verdict::Fail(format!(
+            "{} blank or missing in {} — no admitting provider to scope the roll \
+             assertions to",
+            RBTDRV_RBRF_PROVIDER_VAR,
+            rbrf.display()
+        ))),
+    }
+}
+
 /// True when the manor roll holds the freehold subject's retriever muniment in the
-/// freehold's own depot — the exact "<depot>\t<mantle>\t<subject>" line rehearse
-/// emits (RBTDGC_ACCOUNT_RETRIEVER is the mantle name brevet stores in
-/// rbgft_mantle; the tab join mirrors the terrier proof's line). Exact-line, never
-/// substring, and depot-scoped: an identical (mantle, subject) pair under another
-/// polity's slice — an orphan of an unmade depot, say, since freehold churn never
-/// sweeps the payor-grain terrier — must not alias the assertion.
-fn zrbtdrv_roll_holds_retriever(roll: &str, depot: &str) -> bool {
-    let line = format!("{}\t{}\t{}", depot, RBTDGC_ACCOUNT_RETRIEVER, RBTDGC_FREEHOLD_SUBJECT);
+/// freehold's own depot under the active provider — the exact
+/// "<depot>\t<mantle>\t<provider>\t<subject>" line rehearse emits
+/// (RBTDGC_ACCOUNT_RETRIEVER is the mantle name brevet stores in rbgft_mantle;
+/// the tab join mirrors the terrier proof's line). Exact-line, never substring,
+/// and fully attributed: an identical record under another polity's slice (an
+/// orphan of an unmade depot, say, since freehold churn never sweeps the
+/// payor-grain terrier) or under another admitting foedus must not alias the
+/// assertion.
+fn zrbtdrv_roll_holds_retriever(roll: &str, depot: &str, provider: &str) -> bool {
+    let line = format!(
+        "{}\t{}\t{}\t{}",
+        depot, RBTDGC_ACCOUNT_RETRIEVER, provider, RBTDGC_FREEHOLD_SUBJECT
+    );
     roll.lines().any(|l| l == line)
 }
 
@@ -2125,10 +2164,15 @@ fn rbtdrv_parley(dir: &Path) -> rbtdre_Verdict {
             return v;
         }
 
-        // The depot the roll assertions scope to — composed once, before any verb
-        // runs, so a mis-kindled regime fails here rather than mid-churn.
+        // The depot and admitting provider the roll assertions scope to — composed
+        // once, before any verb runs, so a mis-kindled regime fails here rather
+        // than mid-churn.
         let depot = match zrbtdrv_freehold_depot_capture(ctx) {
             Ok(d) => d,
+            Err(v) => return v,
+        };
+        let provider = match zrbtdrv_active_provider_capture(ctx) {
+            Ok(p) => p,
             Err(v) => return v,
         };
 
@@ -2140,13 +2184,13 @@ fn rbtdrv_parley(dir: &Path) -> rbtdre_Verdict {
             Ok(r) => r,
             Err(v) => return v,
         };
-        if !zrbtdrv_roll_holds_retriever(&baseline, &depot) {
+        if !zrbtdrv_roll_holds_retriever(&baseline, &depot, &provider) {
             return rbtdre_Verdict::Fail(format!(
                 "baseline manor roll lacks the freehold subject's retriever muniment in \
-                 depot {} (mantle {}, subject {}) — the subject must be brevetted onto \
-                 retriever in this depot before this fixture runs (run freehold-establish \
-                 first)\nroll:\n{}",
-                depot, RBTDGC_ACCOUNT_RETRIEVER, RBTDGC_FREEHOLD_SUBJECT, baseline
+                 depot {} under provider {} (mantle {}, subject {}) — the subject must be \
+                 brevetted onto retriever in this depot before this fixture runs (run \
+                 freehold-establish first)\nroll:\n{}",
+                depot, provider, RBTDGC_ACCOUNT_RETRIEVER, RBTDGC_FREEHOLD_SUBJECT, baseline
             ));
         }
 
@@ -2179,14 +2223,15 @@ fn rbtdrv_parley(dir: &Path) -> rbtdre_Verdict {
                 return v;
             }
         };
-        if zrbtdrv_roll_holds_retriever(&after_unseat, &depot) {
+        if zrbtdrv_roll_holds_retriever(&after_unseat, &depot, &provider) {
             let _ = crate::rbtdrk_freehold::rbtdrk_invoke_logged(
                 ctx, RBTDGC_BREVET_POLITY, &[RBTDGC_FREEHOLD_SUBJECT, RBTDGC_ACCOUNT_RETRIEVER], &[], dir,
                 "04-restore-brevet-on-breach",
             );
             return rbtdre_Verdict::Fail(format!(
-                "manor roll still holds the retriever muniment in depot {} after unseat — \
-                 expunge did not withdraw it\nroll:\n{}", depot, after_unseat
+                "manor roll still holds the retriever muniment in depot {} under provider \
+                 {} after unseat — expunge did not withdraw it\nroll:\n{}",
+                depot, provider, after_unseat
             ));
         }
 
@@ -2211,10 +2256,11 @@ fn rbtdrv_parley(dir: &Path) -> rbtdre_Verdict {
             Ok(r) => r,
             Err(v) => return v,
         };
-        if !zrbtdrv_roll_holds_retriever(&after_restore, &depot) {
+        if !zrbtdrv_roll_holds_retriever(&after_restore, &depot, &provider) {
             return rbtdre_Verdict::Fail(format!(
-                "manor roll lacks the retriever muniment in depot {} after the restore \
-                 brevet — the fresh engross did not land\nroll:\n{}", depot, after_restore
+                "manor roll lacks the retriever muniment in depot {} under provider {} \
+                 after the restore brevet — the fresh engross did not land\nroll:\n{}",
+                depot, provider, after_restore
             ));
         }
 

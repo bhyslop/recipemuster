@@ -33,7 +33,14 @@ holds which
 {rbtf_mantle}
 — one
 {rbtf_muniment}
-per object, recording (principal subject, mantle held).
+per object, recording (principal subject, mantle held, admitting provider).
+The provider segment discriminates co-resident foedera under the one pool, so
+{rbtf_engross}
+and
+{rbtf_expunge}
+key on the triple while
+{rbtf_peruse}
+recovers each holding's admitting provider from the muniment body.
 Exactly three sub-operations touch it, each a single conditioned REST call
 against the bucket:
 
@@ -105,7 +112,7 @@ properties of the noun, not of this access subdoc, so they are not restated here
 One resolution bears on the write semantics above: granularity is per-entry — one
 object per (principal subject,
 {rbtf_mantle}
-held) pair — so a muniment is immutable: a holding exists or it does not. Writes
+held, admitting provider) triple — so a muniment is immutable: a holding exists or it does not. Writes
 are therefore create-and-delete only (
 {rbtf_engross}
 then
