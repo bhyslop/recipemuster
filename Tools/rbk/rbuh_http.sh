@@ -55,6 +55,41 @@ zrbuh_sentinel() {
   test "${ZRBUH_KINDLED:-}" = "1" || buc_die "Module rbuh not kindled - call zrbuh_kindle first"
 }
 
+# HTTP fault-injection seam (BUS0 Tweak Mechanism; buorb_ is RB's buo segment) —
+# the regime-poison analogue for HTTP. The seam is one membrane in rbuh_json,
+# the single JSON-REST path every Google call crosses, applied after the
+# transport succeeds and before the code file is registered for capture. Under
+# RBCC_tweak_http_fault, BURE_TWEAK_VALUE is "INFIX=CODE": when this request's
+# infix equals INFIX, the captured HTTP code is overwritten with CODE, so every
+# downstream reader (rbuh_code_capture, rbuh_require_ok, rbuh_code_ok_predicate)
+# sees the forced code and the caller's error path runs for real. The spec is
+# validated before the infix match, so a malformed value dies loud even when
+# aimed elsewhere; any other infix, and any other tweak occupying the slot,
+# rides inert. BURE_TWEAK_NAME is the optional test-seam slot, so its presence
+# check is guarded; the tweak name is rbcc tinder sourced before rbuh, so its
+# reference stays unguarded — a typo dies under set -u rather than silently
+# matching nothing.
+zrbuh_fault_apply() {
+  local -r z_infix="${1}"
+  local -r z_code_file="${2}"
+  test -n "${BURE_TWEAK_NAME:-}" || return 0
+  test "${BURE_TWEAK_NAME}" = "${RBCC_tweak_http_fault}" || return 0
+
+  local -r z_spec="${BURE_TWEAK_VALUE:-}"
+  test -n "${z_spec}" || buc_die "http fault: BURE_TWEAK_VALUE required ('INFIX=CODE')"
+  local -r z_target="${z_spec%%=*}"
+  local -r z_forced="${z_spec#*=}"
+  test "${z_target}" != "${z_spec}" || buc_die "http fault: BURE_TWEAK_VALUE must be 'INFIX=CODE', got '${z_spec}'"
+  test -n "${z_target}"             || buc_die "http fault: empty INFIX in '${z_spec}'"
+  [[ "${z_forced}" =~ ^[0-9]{3}$ ]] \
+    || buc_die "http fault: forced code must be a 3-digit HTTP code, got '${z_forced}'"
+
+  test "${z_infix}" = "${z_target}" || return 0
+
+  printf '%s' "${z_forced}" > "${z_code_file}" || buc_die "http fault: cannot write forced code"
+  buc_log_args "http fault: forced HTTP ${z_forced} for infix ${z_infix}"
+}
+
 ######################################################################
 # Predicate Functions
 
@@ -228,6 +263,8 @@ rbuh_json() {
     buc_log_args "Transient curl error (exit ${z_curl_status}), retry ${z_attempt}/${RBGC_HTTP_TRANSIENT_RETRY_ATTEMPTS} in ${RBGC_HTTP_TRANSIENT_RETRY_SLEEP_SEC}s"
     sleep "${RBGC_HTTP_TRANSIENT_RETRY_SLEEP_SEC}"
   done
+
+  zrbuh_fault_apply "${z_infix}" "${z_code_file}"
 
   # Register successful attempt under bare infix for capture functions
   cp "${ZRBUH_PREFIX}${z_infix_u}${ZRBUH_POSTFIX_JSON}" "${ZRBUH_PREFIX}${z_infix}${ZRBUH_POSTFIX_JSON}"

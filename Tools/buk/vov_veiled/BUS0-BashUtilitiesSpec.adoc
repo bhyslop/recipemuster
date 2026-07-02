@@ -1693,9 +1693,9 @@ BUK enrolls, validates, and propagates the pair; consuming kits (e.g., RBK) chec
 
 Doctrine — what a tweak is for:
 a tweak forces one hard-to-produce condition so a test can observe the infrastructure handle it correctly —
-a colliding identity stamp (`buorb_ensconce_stamp`), a poisoned configuration value (`buost_regime_poison`), a denied credential path (`buorb_credless_guard`) —
+a colliding identity stamp (`buorb_ensconce_stamp`), a poisoned configuration value (`buost_regime_poison`), a denied credential path (`buorb_credless_guard`), a forced HTTP code (`buorb_http_fault`) —
 ideally asserting the rejecting gate's named exit code, never bare nonzero (the precision exit-code band; see BCG "Precision Exit-Code Band").
-Those three are the live behavioral census — exactly what `grep buo` finds, beside `buost_example`, BUK's own stub that exercises this channel's name/value plumbing in the BUK self-test rather than forcing any condition in a consumer.
+Those four are the live behavioral census — exactly what `grep buo` finds, beside `buost_example`, BUK's own stub that exercises this channel's name/value plumbing in the BUK self-test rather than forcing any condition in a consumer.
 An injection that enables a positive path, carries a parameter, or short-circuits work for convenience is not a tweak;
 it wants a CLI parameter, a regime slot, or its own command.
 

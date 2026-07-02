@@ -162,6 +162,7 @@ pub const RBTDGC_CONTAINER_BOTTLE: &str = "bottle";
 pub const RBTDGC_CONTAINER_PENTACLE: &str = "pentacle";
 pub const RBTDGC_CONTAINER_SENTRY: &str = "sentry";
 pub const RBTDGC_TWEAK_CREDLESS_GUARD: &str = "buorb_credless_guard";
+pub const RBTDGC_TWEAK_HTTP_FAULT: &str = "buorb_http_fault";
 
 // BUBC precision exit-code band (bubc_constants.sh) — numeric
 pub const RBTDGC_BAND_BASE: i32 = 100;
@@ -176,6 +177,9 @@ pub const RBTDGC_BAND_DESCRY: i32 = 106;
 pub const RBTDGC_BAND_INSTATE: i32 = 107;
 pub const RBTDGC_BAND_ADMISSION: i32 = 109;
 pub const RBTDGC_BAND_VACANT: i32 = 110;
+pub const RBTDGC_BAND_ENGROSS: i32 = 111;
+pub const RBTDGC_BAND_EXPUNGE: i32 = 112;
+pub const RBTDGC_BAND_PERUSE: i32 = 113;
 pub const RBTDGC_BAND_SELFTEST: i32 = 115;
 
 // BUBC regime-poison tweak (bubc_constants.sh) — string

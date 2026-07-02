@@ -178,6 +178,14 @@ RBCC_fact_ext_foedus="foedus"
 # BUBC_band_credless — a passing reveille run can never use credentials.
 RBCC_tweak_credless_guard="buorb_credless_guard"
 
+# HTTP fault-injection seam — the regime-poison analogue for HTTP. Under this
+# tweak name, BURE_TWEAK_VALUE is "INFIX=CODE": rbuh's one membrane
+# (zrbuh_fault_apply in rbuh_json) overwrites the captured HTTP code for the
+# named request infix, so a negative case can drive a caller's error path and
+# assert its band code (the terrier gates BUBC_band_engross/expunge/peruse are
+# the founding consumers).
+RBCC_tweak_http_fault="buorb_http_fault"
+
 # Container-role tinder — the canonical bash home for the crucible's container
 # roles. Bare role tokens; the crucible is sentry + pentacle + bottle and every
 # container name / compose service derives from these. Distinct from the
@@ -251,6 +259,7 @@ rbcc_emit_consts() {
     RBCC_container_pentacle  \
     RBCC_container_sentry    \
     RBCC_tweak_credless_guard \
+    RBCC_tweak_http_fault \
   ; do
     z_stem="${z_name#RBCC_}"
     z_stem="${z_stem/unhewn_/}"
@@ -274,6 +283,9 @@ rbcc_emit_consts() {
     BUBC_band_instate   \
     BUBC_band_admission \
     BUBC_band_vacant    \
+    BUBC_band_engross   \
+    BUBC_band_expunge   \
+    BUBC_band_peruse    \
     BUBC_band_selftest  \
   ; do
     z_stem="${z_name#BUBC_}"

@@ -98,6 +98,17 @@ BUBC_band_admission=109 # mantle admission rejection (don denied — citizen not
 # vessel-resolve chaining gate, so the allocation rule forbids reusing 105
 # along that pipeline. One gate: the named hallmark or Lode is not there.
 BUBC_band_vacant=110    # read-side absent-artifact rejection (summon/plumb/augur — named hallmark or Lode not present in registry)
+# Terrier data-layer gates (rbgft): each sub-operation's deliberate refusal of
+# an unexpected HTTP outcome is one gate. Distinct codes per the allocation
+# rule — the three sub-operations chain along one spawn path (the terrier
+# proof runs engross → peruse → expunge in a single dispatch), so they may not
+# share. Within a gate, sequential firings share the gate's code — the read's
+# list / fetch / body-parse deficits are rules of one gate, not three gates
+# (the descry precedent). The idempotent SUCCESS dispositions (engross 412,
+# expunge 404) are exit-0 stdout outcomes, never band firings.
+BUBC_band_engross=111   # terrier engross rejection (unexpected HTTP on the conditioned create)
+BUBC_band_expunge=112   # terrier expunge rejection (unexpected HTTP on the conditioned delete)
+BUBC_band_peruse=113    # terrier read rejection (list/fetch deficit or malformed muniment body; peruse and peruse_manor share the gate)
 # Self-test probe pins the band top, proving full-width propagation:
 BUBC_band_selftest=115  # BUK self-test deliberate rejection (buw-xb fixture)
 
