@@ -236,6 +236,7 @@ pub fn rbtdrm_required_colophons(fixture: &str) -> Option<&'static [&'static str
         RBTDRM_FIXTURE_FOEDUS_LIFECYCLE => Some(&[
             RBTDGC_CHECK_PAYOR,
             RBTDGC_AFFIANCE_MANOR,
+            RBTDGC_CANVASS_FOEDUS,
             RBTDGC_JILT_MANOR,
         ]),
         RBTDRM_FIXTURE_FOEDUS_REUSE => Some(&[

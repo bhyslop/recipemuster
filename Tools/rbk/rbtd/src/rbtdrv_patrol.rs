@@ -41,9 +41,10 @@ use crate::rbtdgc_consts::{
     RBTDGC_AUGUR_LODE, RBTDGC_BAND_ADMISSION, RBTDGC_BAND_ENGROSS, RBTDGC_BAND_EXPUNGE,
     RBTDGC_BAND_PERUSE, RBTDGC_BAND_VACANT, RBTDGC_BANISH_LODE,
     RBTDGC_BREVET_POLITY,
+    RBTDGC_CANVASS_FOEDUS,
     RBTDGC_CHECK_AVOWAL, RBTDGC_CHECK_MANTLE,
     RBTDGC_CHECK_PAYOR, RBTDGC_CONCLAVE_RELIQUARY, RBTDGC_DESCRY_FOEDUS,
-    RBTDGC_DIVINE_LODES, RBTDGC_ENSCONCE_BOLE, RBTDGC_FACT_EXT_FOEDUS_HEALTH, RBTDGC_FEOFF_BOLE,
+    RBTDGC_DIVINE_LODES, RBTDGC_ENSCONCE_BOLE, RBTDGC_FACT_EXT_FOEDUS, RBTDGC_FACT_EXT_FOEDUS_HEALTH, RBTDGC_FEOFF_BOLE,
     RBTDGC_FREEHOLD_SUBJECT, RBTDGC_IMMURE_PODVM, RBTDGC_INSTATE_FOEDUS,
     RBTDGC_JETTISON_HALLMARK_IMAGE, RBTDGC_JETTISON_IMAGE, RBTDGC_JILT_MANOR, RBTDGC_LIST_IMAGES,
     RBTDGC_MANTLE_DIRECTOR, RBTDGC_MANTLE_GOVERNOR, RBTDGC_MANTLE_RETRIEVER,
@@ -1265,23 +1266,27 @@ fn zrbtdrv_payor_gate(
 
 // Foedus-lifecycle fixture — federation IdP-trust round-trip against the live org.
 // The reliquary-lifecycle shape (single self-contained case, no charge/quench)
-// applied to the affiance→jilt create/destroy round-trip: probe the payor
-// credential, affiance the manor onto a fresh throwaway workforce pool, jilt it to
-// the soft-deleted terminal, then re-jilt to prove the idempotent no-op. Codifies
-// the manual proof the create-shape fix was found by.
+// applied to the affiance→jilt create/destroy round-trip under the one-pool Model
+// (RBSMA/RBSMJ): probe the payor credential, affiance a fresh throwaway provider
+// under the manor's standing workforce pool, canvass the pool and prove the live
+// provider surfaces in the enumeration, jilt the provider to the soft-deleted
+// terminal, then re-jilt to prove the idempotent no-op. Codifies the manual proof
+// the create-shape fix was found by, and exercises canvass against a real, live
+// foedus read from the Manor.
 //
 // Quota-touching by nature — a genuine create cannot reuse a soft-deleted id, and
-// soft-deleted pools count against the 100-per-org cap for ~30 days
+// soft-deleted providers linger under the standing pool for ~30 days
 // (workforce-pool-constraints memo) — so this fixture is operator-invoked only:
 // registered for discovery, a member of no auto-suite.
 
-/// RBRW field the throwaway-pool override targets through the regime-poison seam.
-const RBTDRV_RBRW_POOL_VAR: &str = "RBRW_WORKFORCE_POOL_ID";
+/// RBRF field the throwaway-provider override targets through the regime-poison seam.
+const RBTDRV_RBRF_PROVIDER_VAR: &str = "RBRF_PROVIDER_ID";
 
-/// Drive the affiance→jilt→re-jilt round-trip on `pool_id`, asserting each
-/// terminal banner. Split from the case so the case can run a best-effort cleanup
-/// jilt on any failure (the round-trip's own jilt may not have been reached).
-fn zrbtdrv_foedus_roundtrip(ctx: &mut rbtdri_Context, dir: &Path, pool_id: &str) -> rbtdre_Verdict {
+/// Drive the affiance→canvass→jilt→re-jilt round-trip on `provider_id`, asserting
+/// each terminal banner and that canvass enumerates the live provider. Split from
+/// the case so the case can run a best-effort cleanup jilt on any failure (the
+/// round-trip's own jilt may not have been reached).
+fn zrbtdrv_foedus_roundtrip(ctx: &mut rbtdri_Context, dir: &Path, provider_id: &str) -> rbtdre_Verdict {
     // Payor credential precondition — Fail, not Skip (never a suite passenger).
     if let Some(v) = zrbtdrv_payor_gate(
         ctx, dir, crate::rbtdrm_manifest::RBTDRM_FIXTURE_FOEDUS_LIFECYCLE, zrbtdrv_PayorGatePolicy::Fail,
@@ -1289,14 +1294,15 @@ fn zrbtdrv_foedus_roundtrip(ctx: &mut rbtdri_Context, dir: &Path, pool_id: &str)
         return v;
     }
 
-    // The throwaway pool id rides the regime-poison seam: RBRW_WORKFORCE_POOL_ID
-    // carries the RBRW_ enroll-scope prefix, so the tweak rewrites that one field
-    // at regime kindle and both affiance and jilt target the throwaway pool. Only
-    // the pool id is overridden — the provider is created beneath the fresh pool
-    // and cascades on jilt.
-    let poison = format!("{}={}", RBTDRV_RBRW_POOL_VAR, pool_id);
+    // The throwaway provider id rides the regime-poison seam: RBRF_PROVIDER_ID
+    // carries the RBRF_ enroll-scope prefix, so the tweak rewrites that one field
+    // at regime kindle and both affiance and jilt target the throwaway provider.
+    // Only the provider id is overridden — the provider is seated beneath the
+    // manor's standing workforce pool (manor-level RBRW, never created or destroyed
+    // here) and removed on jilt.
+    let poison = format!("{}={}", RBTDRV_RBRF_PROVIDER_VAR, provider_id);
 
-    // Step 1: affiance the manor onto the fresh pool; assert the create banners.
+    // Step 1: affiance a fresh provider under the standing pool; assert the create banners.
     let affiance = match rbtdri_invoke_global(ctx, RBTDGC_AFFIANCE_MANOR, &[], &[
         (RBTDRI_BURE_TWEAK_NAME_KEY, RBTDGC_TWEAK_REGIME_POISON),
         (RBTDRI_BURE_TWEAK_VALUE_KEY, poison.as_str()),
@@ -1308,15 +1314,15 @@ fn zrbtdrv_foedus_roundtrip(ctx: &mut rbtdri_Context, dir: &Path, pool_id: &str)
     let affiance_out = format!("{}\n{}", affiance.stdout, affiance.stderr);
     let _ = std::fs::write(dir.join("02-affiance.txt"), &affiance_out);
     // The create banner (not the already-present path) proves the seam overrode
-    // the regime pool with the throwaway id.
-    let created_banner = format!("Workforce pool {} created", pool_id);
+    // the regime provider with the throwaway id.
+    let created_banner = format!("Provider {} created under pool", provider_id);
     if !affiance_out.contains(&created_banner) {
         return rbtdre_Verdict::Fail(format!(
-            "affiance did not create the throwaway pool — missing banner '{}'\n{}",
+            "affiance did not create the throwaway provider — missing banner '{}'\n{}",
             created_banner, affiance_out
         ));
     }
-    let affianced_banner = format!("Manor affianced: pool={}", pool_id);
+    let affianced_banner = format!("Manor affianced: provider={}", provider_id);
     if !affiance_out.contains(&affianced_banner) {
         return rbtdre_Verdict::Fail(format!(
             "affiance did not reach the affianced terminal — missing banner '{}'\n{}",
@@ -1324,7 +1330,50 @@ fn zrbtdrv_foedus_roundtrip(ctx: &mut rbtdri_Context, dir: &Path, pool_id: &str)
         ));
     }
 
-    // Step 2: jilt the pool — live dissolution to the DELETED (soft-delete) terminal.
+    // Step 2: canvass the manor's foedera — a read-only live enumeration of every
+    // provider under the standing pool. The throwaway provider affiance just seated
+    // is live under the pool, so canvass must surface it; it matches no rbef_
+    // library foedus, so its fact stem is the bare provider id. Canvass needs no
+    // poison — it reads the pool from the Manor directly. Proves canvass reads a
+    // real, live foedus from the org, not a fixture-local stub.
+    let canvass = match rbtdri_invoke_global(ctx, RBTDGC_CANVASS_FOEDUS, &[], &[]) {
+        Ok(r) if r.exit_code == 0 => r,
+        Ok(r) => return rbtdre_Verdict::Fail(format!("canvass failed (exit {})\n{}", r.exit_code, r.stderr)),
+        Err(e) => return rbtdre_Verdict::Fail(format!("canvass invocation: {}", e)),
+    };
+    let _ = std::fs::write(
+        dir.join("03-canvass.txt"),
+        format!("{}\n{}", canvass.stdout, canvass.stderr),
+    );
+    // The throwaway provider's per-foedus fact file (stem = bare provider id, since
+    // the throwaway is not in the rbef_ library) must be among canvass's emissions.
+    let stems = match rbtdri_read_burv_facts_multi(&canvass, RBTDGC_FACT_EXT_FOEDUS) {
+        Ok(s) => s,
+        Err(e) => return rbtdre_Verdict::Fail(format!(
+            "canvass wrote no {} facts: {}", RBTDGC_FACT_EXT_FOEDUS, e
+        )),
+    };
+    if !stems.iter().any(|s| s == provider_id) {
+        return rbtdre_Verdict::Fail(format!(
+            "canvass did not enumerate the live throwaway provider '{}' — {} fact stems: {:?}",
+            provider_id, RBTDGC_FACT_EXT_FOEDUS, stems
+        ));
+    }
+    // The fact's provider= line must name the throwaway provider.
+    let fact_name = format!("{}.{}", provider_id, RBTDGC_FACT_EXT_FOEDUS);
+    let fact_body = match rbtdri_read_burv_fact(&canvass, &fact_name) {
+        Ok(s) => s,
+        Err(e) => return rbtdre_Verdict::Fail(format!("canvass fact {} unreadable: {}", fact_name, e)),
+    };
+    let provider_line = format!("provider={}", provider_id);
+    if !fact_body.contains(&provider_line) {
+        return rbtdre_Verdict::Fail(format!(
+            "canvass fact {} does not name the throwaway provider — missing '{}'\n{}",
+            fact_name, provider_line, fact_body
+        ));
+    }
+
+    // Step 3: jilt the provider — live dissolution to the DELETED (soft-delete) terminal.
     let jilt = match rbtdri_invoke_global(ctx, RBTDGC_JILT_MANOR, &[], &[
         (RBTDRI_BURE_TWEAK_NAME_KEY, RBTDGC_TWEAK_REGIME_POISON),
         (RBTDRI_BURE_TWEAK_VALUE_KEY, poison.as_str()),
@@ -1335,8 +1384,8 @@ fn zrbtdrv_foedus_roundtrip(ctx: &mut rbtdri_Context, dir: &Path, pool_id: &str)
         Err(e) => return rbtdre_Verdict::Fail(format!("jilt invocation: {}", e)),
     };
     let jilt_out = format!("{}\n{}", jilt.stdout, jilt.stderr);
-    let _ = std::fs::write(dir.join("03-jilt.txt"), &jilt_out);
-    let dissolved_banner = format!("Manor jilted: workforce pool {} dissolved", pool_id);
+    let _ = std::fs::write(dir.join("04-jilt.txt"), &jilt_out);
+    let dissolved_banner = format!("Foedus jilted: provider {} dissolved", provider_id);
     if !jilt_out.contains(&dissolved_banner) {
         return rbtdre_Verdict::Fail(format!(
             "jilt did not reach the dissolved terminal — missing banner '{}'\n{}",
@@ -1344,8 +1393,8 @@ fn zrbtdrv_foedus_roundtrip(ctx: &mut rbtdri_Context, dir: &Path, pool_id: &str)
         ));
     }
 
-    // Step 3: re-jilt the soft-deleted pool — the idempotent no-op. Either no-op
-    // branch (already-soft-deleted or absent) names the pool and tags "(no-op)".
+    // Step 4: re-jilt the soft-deleted provider — the idempotent no-op. Either no-op
+    // branch (already-soft-deleted or absent) names the provider and tags "(no-op)".
     let rejilt = match rbtdri_invoke_global(ctx, RBTDGC_JILT_MANOR, &[], &[
         (RBTDRI_BURE_TWEAK_NAME_KEY, RBTDGC_TWEAK_REGIME_POISON),
         (RBTDRI_BURE_TWEAK_VALUE_KEY, poison.as_str()),
@@ -1356,38 +1405,38 @@ fn zrbtdrv_foedus_roundtrip(ctx: &mut rbtdri_Context, dir: &Path, pool_id: &str)
         Err(e) => return rbtdre_Verdict::Fail(format!("re-jilt invocation: {}", e)),
     };
     let rejilt_out = format!("{}\n{}", rejilt.stdout, rejilt.stderr);
-    let _ = std::fs::write(dir.join("04-rejilt.txt"), &rejilt_out);
-    if !(rejilt_out.contains(pool_id) && rejilt_out.contains("no-op")) {
+    let _ = std::fs::write(dir.join("05-rejilt.txt"), &rejilt_out);
+    if !(rejilt_out.contains(provider_id) && rejilt_out.contains("no-op")) {
         return rbtdre_Verdict::Fail(format!(
             "re-jilt was not the idempotent no-op — expected an 'already … (no-op)' banner naming {}\n{}",
-            pool_id, rejilt_out
+            provider_id, rejilt_out
         ));
     }
 
-    let _ = std::fs::write(dir.join("05-passed.txt"), "passed");
+    let _ = std::fs::write(dir.join("06-passed.txt"), "passed");
     rbtdre_Verdict::Pass
 }
 
 fn rbtdrv_foedus_lifecycle(dir: &Path) -> rbtdre_Verdict {
     rbtdrc_with_ctx(|ctx| {
-        // A unique throwaway id every run: a genuine create cannot reuse a
+        // A unique throwaway provider id every run: a genuine create cannot reuse a
         // soft-deleted id, and millis-since-epoch stays within the regime's
-        // [a-z0-9-]{4,32} regex while staying unique across back-to-back runs.
-        let pool_id = match std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH) {
-            Ok(d) => format!("foedus-{}", d.as_millis()),
+        // RBRF_PROVIDER_ID [a-z0-9-]{4,32} regex while staying unique across
+        // back-to-back runs.
+        let provider_id = match std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH) {
+            Ok(d) => format!("provider-{}", d.as_millis()),
             Err(e) => return rbtdre_Verdict::Fail(format!("system clock before epoch: {}", e)),
         };
-        let _ = std::fs::write(dir.join("00-pool-id.txt"), &pool_id);
+        let _ = std::fs::write(dir.join("00-provider-id.txt"), &provider_id);
 
-        let verdict = zrbtdrv_foedus_roundtrip(ctx, dir, &pool_id);
+        let verdict = zrbtdrv_foedus_roundtrip(ctx, dir, &provider_id);
 
-        // Cleanup safety net: if the round-trip failed after affiance created the
-        // pool, a leaked LIVE pool counts against the org cap as active (worse than
-        // soft-deleted). Jilt is idempotent (no-op on absent/already-deleted), so a
-        // best-effort pass soft-deletes any leak. Result ignored — the round-trip
-        // verdict stands.
+        // Cleanup safety net: if the round-trip failed after affiance seated the
+        // provider, a leaked LIVE provider lingers under the standing pool. Jilt is
+        // idempotent (no-op on absent/already-deleted), so a best-effort pass
+        // soft-deletes any leak. Result ignored — the round-trip verdict stands.
         if matches!(verdict, rbtdre_Verdict::Fail(_)) {
-            let poison = format!("{}={}", RBTDRV_RBRW_POOL_VAR, pool_id);
+            let poison = format!("{}={}", RBTDRV_RBRF_PROVIDER_VAR, provider_id);
             let _ = rbtdri_invoke_global(ctx, RBTDGC_JILT_MANOR, &[], &[
                 (RBTDRI_BURE_TWEAK_NAME_KEY, RBTDGC_TWEAK_REGIME_POISON),
                 (RBTDRI_BURE_TWEAK_VALUE_KEY, poison.as_str()),
