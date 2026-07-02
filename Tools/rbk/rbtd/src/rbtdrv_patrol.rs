@@ -2037,8 +2037,12 @@ pub static RBTDRV_CASES_POLITY_DENIAL: &[rbtdre_Case] = &[case!(rbtdrv_polity_de
 // Every roll assertion is depot-scoped — the exact (depot, mantle, subject) line for
 // the freehold's own depot (RBSPO depot-attributed emission) — because the manor
 // roll spans every polity slice and identical (mantle, subject) pairs co-reside
-// across them (a live orphan of a retired freehold levy aliased the depot-blind
-// assertion and read an unseat as a no-op; the depot column is the ruled fix).
+// across them: a depot-blind roll cannot attribute an aliasing line at all. The
+// live run that forced the ruling turned out, once attributed, to be a SAME-depot
+// alias — standing muniments engrossed provider-grain by the federation stream's
+// edition (four-segment key, rbgft_provider content field) that this tree's
+// provider-blind verbs cannot expunge — so parley's green additionally waits on
+// that verb re-cut's delivery; the depot column is what made the skew legible.
 //
 // Unseat-first (Cinched): the freehold subject's retriever muniment already stands,
 // so a brevet-first shape would ride the 412-idempotent engross; unseating first
