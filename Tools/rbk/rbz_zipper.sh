@@ -77,12 +77,18 @@ zrbz_kindle() {
 
   # Manor — IdP federation founding (rbw-m). The payor founding trio —
   # affiance / jilt / gird (gird seats a fresh depot's first governor, the one
-  # admission the payor wields). The M5 colophon regroup later gathers
-  # levy/establish into it.
+  # admission the payor wields) — plus raze, the withheld pool-destroyer (internal
+  # release-ladder infra, stripped at delivery). The M5 colophon regroup later
+  # gathers levy/establish into it.
   buz_group RBZ__GROUP_MANOR      "rbw-m"   "Manor — IdP federation founding"
   z_mod="rbgp_cli.sh"
   buz_enroll RBZ_AFFIANCE_MANOR         "rbw-mA"  "${z_mod}" "rbgp_manor_affiance" ""  "Affiance the manor to its IdP — seat the org-level workforce pool, provider, and attribute mapping"
   buz_enroll RBZ_JILT_MANOR             "rbw-mJ"  "${z_mod}" "rbgp_manor_jilt"     ""  "Jilt the manor from its IdP — dissolve the org-level workforce pool (provider cascades)"
+  # raze force-deletes the whole pool — the deliberate destroyer, distinct from
+  # jilt's provider-level break. WITHHELD from delivery (prep-release Step 9c
+  # strips the tabtarget); the verb ships in rbgp_payor.sh. Internal release-ladder
+  # infra only — consumers never get a one-keystroke pool-destroyer.
+  buz_enroll RBZ_RAZE_MANOR             "rbw-mR"  "${z_mod}" "rbgp_manor_raze"     ""  "Raze the manor — force-delete its workforce pool to start clean (internal release-ladder infra; withheld from delivery)"
   # gird keeps its _POLITY demesne stem (it admits a governor to the polity);
   # only its colophon homes here in the payor founding family. Do not rename
   # the constant to match the group — the demesne, not the colophon, names it.

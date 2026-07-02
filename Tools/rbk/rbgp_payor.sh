@@ -1446,6 +1446,110 @@ rbgp_manor_jilt() {
   buc_info "Recover within the ~30-day purge window via workforcePools.undelete, or re-affiance after purge"
 }
 
+rbgp_manor_raze() {
+  zrbgp_sentinel
+
+  buc_doc_brief "Raze the manor — force-delete its workforce pool to start from a clean manor (internal release-ladder infra)"
+  buc_doc_shown || return 0
+
+  # The deliberate inverse of the ensure-exists manor finisher: a dangerous,
+  # standalone pool-destroyer that lets a release ladder wipe the manor back to
+  # nothing before re-founding. Distinct from manor_jilt on purpose — jilt is the
+  # everyday provider-level break, while raze levels the whole pool, re-enrolling
+  # every citizen under the manor by construction (bindings key on the pool). The
+  # danger lives in this separate, scary-gated verb so everyday jilt can never nuke
+  # the pool. Reads the one configured pool from the kindled RBRW regime (manor-
+  # level; the caller's furnish enforces it before dispatch, like manor_jilt) — no
+  # CLI folio: raze targets the regime's pool, never an operator-supplied one.
+  local -r z_org="organizations/${RBRW_ORG_ID}"
+  local -r z_pool_id="${RBRW_WORKFORCE_POOL_ID}"
+  local -r z_iam_root="${RBGC_API_ROOT_IAM}${RBGC_IAM_V1}"
+  local -r z_pool_url="${z_iam_root}/locations/global/workforcePools/${z_pool_id}"
+
+  # Safety gate first (zero traffic). Razing the pool re-enrolls every citizen
+  # under the manor; the operator types the pool id to confirm. buc_require honors
+  # BURE_CONFIRM=skip for non-interactive test runs.
+  buc_step 'Safety confirmation required'
+  buc_require "DANGER: Force-delete workforce pool ${z_pool_id} under ${z_org} — re-enrolls EVERY citizen under the manor" "${z_pool_id}"
+
+  buc_step 'Authenticate as Payor'
+  local z_token
+  z_token=$(zrbgp_authenticate_capture) || buc_die "Failed to authenticate as Payor via OAuth"
+
+  # Probe the pool. Idempotent: an absent pool (404) or one already soft-deleted
+  # (200, state DELETED) is reported razed and exits clean — no delete issued, so
+  # a release ladder can run raze unconditionally to reach a clean manor.
+  buc_step 'Probe workforce identity pool'
+  rbuh_json "GET" "${z_pool_url}" "${z_token}" "raze_pool_get"
+  local z_pool_code
+  z_pool_code=$(rbuh_code_capture "raze_pool_get") || buc_die "No HTTP code from workforcePools.get"
+
+  case "${z_pool_code}" in
+    404)
+      buc_success "Workforce pool ${z_pool_id} absent under ${z_org} — already razed (no-op)"
+      return 0
+      ;;
+    200)
+      local z_pool_state
+      z_pool_state=$(rbuh_json_field_capture "raze_pool_get" '.state // "UNKNOWN"') || z_pool_state="UNKNOWN"
+      if test "${z_pool_state}" = "${RBGC_STATE_DELETED}"; then
+        buc_success "Workforce pool ${z_pool_id} already soft-deleted (state DELETED) — already razed (no-op)"
+        buc_info "Recover within the purge window via workforcePools.undelete, or re-found after purge"
+        return 0
+      fi
+      ;;
+    *)
+      rbuh_require_ok "Workforce pool get" "raze_pool_get"
+      ;;
+  esac
+
+  # Force-delete the pool. The provider is namespaced beneath the pool and cascades
+  # with the deletion — no separate provider delete. workforcePools.delete returns
+  # an LRO; confirm acceptance, then poll the resource to its terminal state.
+  buc_step 'Force-delete workforce pool (provider cascades)'
+  rbuh_json "DELETE" "${z_pool_url}" "${z_token}" "raze_pool_delete"
+  rbuh_require_ok "Delete workforce pool" "raze_pool_delete"
+  buc_info "Workforce pool ${z_pool_id} delete accepted — awaiting soft-delete transition"
+
+  # Verify razing: poll until state DELETED (soft-delete terminal) or 404
+  # (hard-gone). Either is success — robust to whether get surfaces soft-deleted
+  # resources. Mirrors manor_jilt and the depot-unmake resource-state poll.
+  buc_step 'Verify razing'
+  local z_raze_elapsed=0
+  local z_raze_dissolved=""
+  while :; do
+    sleep "${RBGC_EVENTUAL_CONSISTENCY_SEC}"
+    z_raze_elapsed=$((z_raze_elapsed + RBGC_EVENTUAL_CONSISTENCY_SEC))
+
+    local z_verify_infix="raze_pool_verify_${z_raze_elapsed}s"
+    rbuh_json "GET" "${z_pool_url}" "${z_token}" "${z_verify_infix}"
+    local z_verify_code
+    z_verify_code=$(rbuh_code_capture "${z_verify_infix}") || z_verify_code=""
+
+    if test "${z_verify_code}" = "404"; then
+      z_raze_dissolved="404"
+      break
+    fi
+    if test "${z_verify_code}" = "200"; then
+      local z_verify_state
+      z_verify_state=$(rbuh_json_field_capture "${z_verify_infix}" '.state // "UNKNOWN"') || z_verify_state="UNKNOWN"
+      if test "${z_verify_state}" = "${RBGC_STATE_DELETED}"; then
+        z_raze_dissolved="${RBGC_STATE_DELETED}"
+        break
+      fi
+    fi
+
+    test "${z_raze_elapsed}" -lt "${RBGC_MAX_CONSISTENCY_SEC}" \
+      || buc_die "Raze: pool ${z_pool_id} did not reach a dissolved state within ${RBGC_MAX_CONSISTENCY_SEC}s (last HTTP ${z_verify_code})"
+    buc_log_args "Pool still present at ${z_raze_elapsed}s (HTTP ${z_verify_code}) — polling"
+  done
+
+  buc_step 'Manor razed'
+  buc_success "Manor razed: workforce pool ${z_pool_id} force-deleted (${z_raze_dissolved}) under ${z_org}"
+  buc_info "Provider cascaded with the pool; the next finisher run re-founds a clean pool"
+  buc_info "Recover within the ~30-day purge window via workforcePools.undelete, or re-found after purge"
+}
+
 rbgp_depot_levy() {
   zrbgp_sentinel
 

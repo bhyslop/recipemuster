@@ -76,7 +76,9 @@ zrbgp_furnish() {
   # depot/repo regime. manor_affiance and manor_jilt are manor-level founding/
   # un-founding ops that work the federation trust independent of any one depot,
   # so they enforce the federation regimes (RBRW manor pool + RBRF provider)
-  # instead of the depot/repo regimes. The polity admission verbs
+  # instead of the depot/repo regimes. manor_raze (the pool-destroyer) touches
+  # only the pool, so it enforces RBRW alone — it reads no provider field. The
+  # polity admission verbs
   # (brevet/unseat/attaint/rehearse) work a specific depot AND don the governor
   # mantle, so they enforce the federation regimes (RBRW pool id + RBRF provider +
   # sitting machinery) on top of the depot/repo regimes. Gird (the payor-wielded
@@ -86,6 +88,7 @@ zrbgp_furnish() {
   case "${z_command}" in
     rbgp_depot_list)                                    : ;;
     rbgp_manor_affiance|rbgp_manor_jilt)                zrbrw_enforce; zrbrf_enforce ;;
+    rbgp_manor_raze)                                    zrbrw_enforce ;;
     rbgp_gird)                                          zrbrw_enforce; zrbrf_enforce; zrbrr_enforce; zrbrd_enforce ;;
     rbgp_brevet|rbgp_unseat|rbgp_attaint|rbgp_rehearse) zrbrw_enforce; zrbrf_enforce; zrbrr_enforce; zrbrd_enforce ;;
     *)                                                  zrbrr_enforce; zrbrd_enforce ;;

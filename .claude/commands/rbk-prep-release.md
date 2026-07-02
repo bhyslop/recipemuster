@@ -162,7 +162,10 @@ git rm -f --ignore-unmatch tt/vslk-*.sh
 git rm -f --ignore-unmatch tt/vvw-*.sh
 git rm -f --ignore-unmatch tt/rbw-MZ.MarshalZeroes.sh
 git rm -f --ignore-unmatch tt/rbw-MP.MarshalProofs.sh
+git rm -f --ignore-unmatch tt/rbw-mR.PayorRazesManor.sh
 ```
+
+`rbw-mR` (manor raze) is internal release-ladder infra — a one-keystroke workforce-pool destroyer. The verb `rbgp_manor_raze` ships (it lives in the surviving `Tools/rbk/rbgp_payor.sh`); only the tabtarget accelerator is withheld, so consumers never get the accelerator.
 
 **9d. Internal .buk/ launchers (for stripped workbenches):**
 ```
@@ -201,7 +204,7 @@ After all removals, verify with `git ls-files` that no proprietary content remai
 - `rbev-vessels/` — vessel definitions and README
 - `Tools/buk/` — all `.sh` files, `busc_shellcheckrc`, `README.md`, `buts/` test support (minus `vov_veiled/`)
 - `Tools/rbk/` — all `.sh` files (minus `vov_veiled/`)
-- `tt/` — `rbw-*` and `buw-*` tabtargets only (minus `rbw-MZ`, `rbw-MP` marshal tabtargets)
+- `tt/` — `rbw-*` and `buw-*` tabtargets only (minus `rbw-MZ`, `rbw-MP` marshal tabtargets and `rbw-mR` manor-raze)
 
 ## Step 10: Post-strip verification
 
