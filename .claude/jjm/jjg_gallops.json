@@ -18673,9 +18673,137 @@
       "jjghn_silks": "rbk-43-fbl-sitting-lifecycle",
       "jjghn_creation_time": "260702",
       "jjghn_status": "jjghe_stabled",
-      "jjghn_order": [],
-      "jjghn_next_pace_seed": "AAA",
-      "jjghn_paces": {}
+      "jjghn_order": [
+        "₢BqAAA",
+        "₢BqAAB",
+        "₢BqAAC",
+        "₢BqAAD"
+      ],
+      "jjghn_next_pace_seed": "AAE",
+      "jjghn_paces": {
+        "₢BqAAA": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260702-1507",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Extend the RBS0 contracts ahead of any code (contract-first is a hard predecessor here, per parent-heat doctrine):",
+                "the sitting quoin gains the proactive runway floor (its contract today speaks only of lapse);",
+                "the human-present premise's mid-flight re-mint promise extends from reactive fail-at-lapse to the preflight gate + renew advisory;",
+                "a new quoin beside avow homes the force-fresh renew act.",
+                "Mint the operator verb via the federation vocabulary census with full Lapidary gates —",
+                "\"renew\" is the working name and likely trodden;",
+                "the word is ashlar (it rides the gate's rejection message) and bondstone-adjacent (the operator reasons through it when the gate turns them away).",
+                "",
+                "## Done when",
+                "The three RBS0 definition sites carry the floor, the extended promise, and the renew act;",
+                "the verb is minted, grep-clean, and recorded in the paddock census line;",
+                "no code in this pace.",
+                "",
+                "## Cinched",
+                "Renew-only (no release verb) and the reuse-branch gate placement are settled — spec them as such, do not reopen.",
+                "RBSFA does not own this contract (programmatic, sittingless); the interactive sitting surface in RBS0 does.",
+                "",
+                "## Character",
+                "Spec authoring plus one word mint; judgment on register, mechanical on structure."
+              ],
+              "jjgtn_silks": "sitting-runway-contract",
+              "jjgtn_basis": "be074de"
+            }
+          ]
+        },
+        "₢BqAAB": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260702-1507",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Widen the BUK precision reject band: all sixteen codes are allocated and the self-test sentinel pins the current top,",
+                "its BUTT fixture asserting full-width propagation.",
+                "Widen the band definition against BCG's band doctrine (choose the new width there),",
+                "re-pin the sentinel at the new top, update the self-test expectation;",
+                "allocation rules and every existing code unchanged.",
+                "No new RBK band constant in this pace — the consuming gate pace appends its own code (the escheat precedent: the const lands with its gate).",
+                "",
+                "## Done when",
+                "The band has free codes; buw-st self-test green; buc_reject's bounds enforce the new width.",
+                "",
+                "## Cinched",
+                "Widening over reuse: sharing an existing code is rule-barred (the runway gate co-occurs with its neighbors on the avow-to-don spawn path).",
+                "",
+                "## Character",
+                "Small, mechanical, BUK-pure."
+              ],
+              "jjgtn_silks": "bubc-band-widen",
+              "jjgtn_basis": "be074de"
+            }
+          ]
+        },
+        "₢BqAAC": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260702-1507",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Build the preflight runway gate and the renew verb together — the rejection names the remedy, so landing one without the other ships a dead end.",
+                "Gate: in avow's sitting-reuse branch only, computing remaining runway from the stored expiry;",
+                "below the floor, reject in a fresh band code (the prior pace widened the band) advising the census-minted renew verb.",
+                "Threshold: a kindled constant beside the existing sitting-skew knob, default two hours;",
+                "the check takes required-runway as a parameter defaulting to the floor — the seam is parameterized, no per-operation bounds populated (cinched at the paddock).",
+                "Renew: avow force-mode skipping the reuse branch, riding the existing atomic sitting overwrite; no delete primitive.",
+                "Surface: a new access-family colophon fronting a thin CLI arm, zipper enrollment, regenerated consts and tabtarget context riding the build.",
+                "Coverage is automatic at the chokepoint: every accessor site and all five direct avow+don side doors pass through avow; the payor path never does.",
+                "",
+                "## Done when",
+                "A short-runway reuse rejects with the named band code and the renew advisory;",
+                "the renew tabtarget restores a full-life sitting (device-flow interactive, RFC 7523 programmatic);",
+                "the deliberate rejection asserts its named code per the precision-band doctrine;",
+                "the credential-surface test tier green.",
+                "",
+                "## Cinched",
+                "Gate fires on the reuse path only; renew-only, no release; payor out of scope.",
+                "",
+                "## Character",
+                "Focused bash plus enrollment mechanics; the design is settled, the negative-test seam wants mount-time judgment."
+              ],
+              "jjgtn_silks": "runway-gate-and-renew",
+              "jjgtn_basis": "be074de"
+            }
+          ]
+        },
+        "₢BqAAD": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260702-1507",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Honor the human-present premise's mid-flight re-mint promise at the one long-lived mantle consumer:",
+                "the shared build-completion poll in rbfcb_host.sh, through which every long cloud build funnels (director conjure and mirror, the whole Lode capture spine).",
+                "The initial mint stays the full accessor; inside the loop, re-don directly on a cadence that beats the ~60-minute mantle ceiling",
+                "(poll count times the fixed interval is the available clock) —",
+                "the don alone, never the full accessor, so a lapsed sitting fails clean instead of re-entering avow mid-loop.",
+                "The runway gate (prior pace) guarantees the sitting outlives the build, so the re-mint read is live by construction.",
+                "Decide at mount how a mid-poll don rejection surfaces (the don's admission band versus the poll's die),",
+                "and design the test seam — the cadence must be exercisable without an hour-long build (a tweak shortening it, per the BURE seam pattern).",
+                "",
+                "## Done when",
+                "A conjure-length build survives mantle expiry (re-mint observed on cadence);",
+                "a lapsed-sitting mid-poll fails loud with the avow advisory;",
+                "the test seam exercises the cadence in a short build.",
+                "",
+                "## Cinched",
+                "The re-mint composes with, and does not replace, the poll's failure counter;",
+                "the blind-counter discrimination question was retired with findings by the ₣Bf disposition pace — do not reopen it here.",
+                "",
+                "## Character",
+                "Small code change carrying a real test-design question."
+              ],
+              "jjgtn_silks": "poll-mantle-remint",
+              "jjgtn_basis": "be074de"
+            }
+          ]
+        }
+      }
     }
   }
 }
