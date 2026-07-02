@@ -15353,8 +15353,8 @@
         "₢BfAAm": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260625-1623",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260702-1332",
+              "jjgtn_state": "jjgte_abandoned",
               "jjgtn_text": [
                 "Drafted from ₢BiAAB in ₣Bi.",
                 "",
@@ -15384,7 +15384,7 @@
                 "Shares its surviving-touchpoint question with sibling ₢BfAAl; mount adjacent or fold."
               ],
               "jjgtn_silks": "token-mint-failfast-terminal-iam",
-              "jjgtn_basis": "aa36cf1"
+              "jjgtn_basis": "893914c"
             }
           ]
         },
