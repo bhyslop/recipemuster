@@ -1,0 +1,224 @@
+//axvd_sheaf axd_normative
+This is a normative portion of the {rbs0_imprimatur}: binding — code, tests, and decisions may rely on it.
+//axhob_operation
+{rbtgo_manor_found}
+
+NOTE: This operation founds the scriptable half of a
+{rbtgi_manor}
+— the manor-setup finisher, run once after the manual payor guide, idempotently
+ensuring the manor's standing infrastructure into being. It founds three things: the
+manor's one workforce identity pool (the manor-lifetime container every
+{rbtf_foedus}
+hangs beneath as a provider), the
+{rbtf_terrier}
+bucket in the manor's payor project, and the per-polity managed folder with its grain
+IAM. It is the ensure-exists inverse of the manor-teardown
+({rbtgo_manor_raze}):
+where raze force-deletes the pool to clear the ground, this founds the pool and keeps
+it. A release ladder runs raze first, then this.
+
+NOTE: *Ensure-exists, never destructive.* Every gesture is idempotent — created when
+absent, left in place (or reconciled) when present, never deleted. Re-running the
+finisher against a fully-founded manor is a clean no-op. Clearing the ground is the
+separate force-delete sibling
+({rbtgo_manor_raze}),
+never this operation: the finisher founds and reconciles, it never razes.
+
+NOTE: *Founding-home is the Manor, not
+{rbtf_affiance}.*
+The pool's one-time founding lives here, at manor setup, and stands for the manor's
+lifetime; affiance only hangs a provider beneath the standing pool and requires it
+already present
+({rbtgo_manor_affiance}
+scope boundary). Pool lifecycle and foedus lifecycle are deliberately distinct — the
+finisher owns the former, affiance and
+{rbtf_jilt}
+the latter.
+
+NOTE: *The pool guard is list-and-match, never a bare get-by-id.* The finisher is the
+pool-id half of the
+{rbrw_regime}
+committed-record-vs-live-pool sync. A plain get-by-id would silently found a second,
+empty pool the moment
+{rbrw_workforce_pool_id}
+drifted from the live pool's id. So the finisher instead *lists* the RB-marked pools
+under
+{rbrw_org_id}
+(matching on the pool's Recipe Bottle description marker, the same marker affiance
+writes at creation) and:
+* no RB-marked pool → create it at
+{rbrw_workforce_pool_id};
+* one RB-marked pool at the expected id → reconcile its
+{rbrw_session_duration}
+(PATCH, non-destructive) and leave it;
+* one RB-marked pool at a *different* id →
+{rbbc_fatal}
+(coordinate drift): the finisher refuses rather than found a second pool, directing the
+operator to reconcile
+{rbrw_workforce_pool_id}
+with the standing pool. A drifted
+{rbrw_org_id}
+is caught by no check here — the org is the search scope itself — and rests on the
+invariance of a GCP organization, per
+{rbrw_regime}.
+
+NOTE: *The terrier bucket is manor-grain; the polity folder is depot-grain but
+payor-provisioned.* The
+{rbtf_terrier}
+bucket lives in the manor's payor project (manor-grain, one per manor). The per-polity
+managed folder is named by the
+{rbtgi_depot}
+it homes and is depot-grain, yet it lives *inside* the payor-project bucket — so its
+creation and its grain IAM need the payor credential, not a donned mantle. That is the
+folder-step credential boundary: the payor-credentialed finisher provisions the folder
+and grants the governor
+{rbtf_mantle}
+its bindings (own-polity write, manor-wide read), and only the runtime
+{rbtf_muniment}
+writes into an already-provisioned own-polity folder are governor-credentialed (the
+admission verbs). Folder provisioning is *ensure-only* here — the interim
+scaffold's destroy-then-create is not the finisher's shape; the finisher never empties
+a standing folder.
+
+NOTE: Scope boundary. The finisher founds the pool, the terrier bucket, the polity
+folder, and the org-level workforce-pool admin grant (spike Finding F1). It does not
+seat any provider (that is
+{rbtf_affiance}),
+admit any
+{rbtf_citizen}
+(that is the levy and admission ceremonies), or create the depot project and its
+{rbtf_mantle}
+service accounts (that is
+{rbtgo_depot_levy}).
+The finisher provisions the manor's standing substrate; the depot and its citizenry
+are levied and admitted atop it.
+
+//axhos_step
+. *Authenticate as
+{rbtr_payor}*:
+.. Execute
+{rbtoe_payor_authenticate}
+.. {rbbc_require}
+authentication successful
+
+//axhos_step
+. *Seat the org-level workforce-pool admin grant* (spike Finding F1 — must precede pool founding):
+.. {rbbc_submit}
+an organization-level
+link:https://cloud.google.com/resource-manager/reference/rest/v1/organizations/setIamPolicy[setIamPolicy]
+granting `roles/iam.workforcePoolAdmin` to the payor operator (`user:RBRP_OPERATOR_EMAIL`) on `organizations/RBRW_ORG_ID`.
+.. {rbbc_require}
+the grant present. Idempotent (etag read-modify-write) — a payor already holding the role passes straight through.
+.. NOTE: Pool and provider creation `403` until the payor holds this org-level role;
+{rbtf_affiance}
+assumes the finisher already seated it and does not re-grant it
+({rbtgo_manor_affiance}
+Finding-F1 NOTE).
+
+//axhos_step
+. *Ensure the manor workforce pool* (list-and-match drift guard, never a bare get-by-id):
+.. {rbbc_call}
+link:https://cloud.google.com/iam/docs/reference/rest/v1/locations.workforcePools/list[workforcePools.list] for `parent=organizations/RBRW_ORG_ID`, paginated to exhaustion.
+.. {rbbc_store}
+the RB-marked pools — those whose `description` is the Recipe Bottle manor federation marker (the marker affiance writes at creation) — as `(id, state)` pairs.
+.. *No RB-marked pool* → create it:
+... {rbbc_submit}
+link:https://cloud.google.com/iam/docs/reference/rest/v1/locations.workforcePools/create[workforcePools.create] with query `workforcePoolId=RBRW_WORKFORCE_POOL_ID` and body:
++
+----
+{
+  "parent":          "organizations/RBRW_ORG_ID",
+  "displayName":     "RBRW_WORKFORCE_POOL_ID",
+  "description":     "<the Recipe Bottle manor federation marker>",
+  "sessionDuration": "RBRW_SESSION_DURATION"
+}
+----
++
+The org is an immutable body field (`parent`), never a query parameter — the pool's
+resource name carries no org, the org scopes it solely through `parent`.
+... {rbbc_await}
+the returned operation to done.
+.. *One RB-marked pool at `RBRW_WORKFORCE_POOL_ID`* (live, `state` not `DELETED`) → reconcile and leave:
+... {rbbc_submit}
+link:https://cloud.google.com/iam/docs/reference/rest/v1/locations.workforcePools/patch[workforcePools.patch] with `updateMask=sessionDuration` when the live `sessionDuration` differs from
+{rbrw_session_duration}
+(config drives cloud, non-destructive); a matching value is left untouched.
+... {rbbc_await}
+the patch operation to done.
+.. *One RB-marked pool at a different id* →
+{rbbc_fatal}:
+coordinate drift. The finisher refuses to found a second pool and directs the operator to reconcile
+{rbrw_workforce_pool_id}
+with the standing pool's id (a bare ensure-exists would silently found the second, empty pool — the guard this step exists to be).
+.. NOTE: The finisher never deletes a pool. A soft-deleted pool squatting
+{rbrw_workforce_pool_id}
+(`state: DELETED`) is coordinate drift like any other id mismatch — resurrection is not ensure-exists; the manor-teardown owns deletion, and a fresh trust takes a fresh id
+({rbrw_regime}).
+
+//axhos_step
+. *Ensure the terrier bucket* (manor-grain, in the payor project):
+.. {rbbc_submit}
+link:https://cloud.google.com/storage/docs/json_api/v1/buckets/insert[buckets.insert] for the
+{rbtf_terrier}
+bucket `RBRP_PAYOR_PROJECT_ID-terrier` in the payor project, uniform bucket-level access enabled.
+.. {rbbc_require}
+the bucket present. Idempotent — an already-present bucket (HTTP `409`) is tolerated as ensured.
+.. NOTE: The bucket is manor-grain — one per manor, homed in the manor's payor project, durable across depots and foedera.
+
+//axhos_step
+. *Ensure the polity managed folder and its grain IAM* (depot-grain, payor-provisioned):
+.. {rbbc_submit}
+link:https://cloud.google.com/storage/docs/json_api/v1/managedFolders/insert[managedFolders.insert] for the polity folder named `RBDC_DEPOT_PROJECT_ID/` in the terrier bucket.
+.. {rbbc_require}
+the folder present. *Ensure-only* — an already-present folder (HTTP `409`) is left as it stands; the finisher never empties a standing folder (unlike the interim scaffold's destroy-then-create).
+.. {rbbc_submit}
+a folder-scoped
+link:https://cloud.google.com/storage/docs/json_api/v1/managedFolders/setIamPolicy[managedFolders.setIamPolicy]
+granting the governor
+{rbtf_mantle}
+`roles/storage.objectAdmin` on its own polity folder (own-polity write).
+.. {rbbc_submit}
+a bucket-level
+link:https://cloud.google.com/storage/docs/json_api/v1/buckets/setIamPolicy[buckets.setIamPolicy]
+granting the governor
+{rbtf_mantle}
+`roles/storage.objectViewer` on the terrier bucket (manor-wide read).
+.. {rbbc_require}
+both bindings present via a getIamPolicy read-back (etag read-modify-write, idempotent).
+.. NOTE: These are the payor-provisioned grain bindings; the runtime
+{rbtf_muniment}
+writes a governor makes into its own folder are governor-credentialed, seated by admission, not here.
+
+//axhoot_typed_output
+{rbtgi_manor}
+. *Confirm Found*:
+.. {rbbc_show}
+single-line success banner naming the founded
+{rbtgi_manor},
+the workforce pool resource name and the disposition it reached (created / reconciled / already-standing), the
+{rbtf_terrier}
+bucket and polity folder, and the
+{rbtf_affiance}
+follow-up hint (a foedus is now affianceable under the standing pool).
+
+//axhoc_completion
+Successful execution leaves the manor's scriptable substrate founded: the one workforce
+pool stands at
+{rbrw_workforce_pool_id}
+under
+{rbrw_org_id}
+with its
+{rbrw_session_duration}
+reconciled, the payor holds the org-level `roles/iam.workforcePoolAdmin`, and the
+{rbtf_terrier}
+bucket and its polity folder stand with the governor
+{rbtf_mantle}
+grain bindings in place.
+{rbtf_affiance}
+may now hang a provider beneath the standing pool, and the levy and admission ceremonies
+may raise a
+{rbtgi_depot}
+and its citizenry atop the substrate. Tearing any of it down is the manor-teardown's
+concern
+({rbtgo_manor_raze}
+for the pool), never the finisher's.

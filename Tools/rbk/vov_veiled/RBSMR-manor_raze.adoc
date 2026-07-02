@@ -1,0 +1,130 @@
+//axvd_sheaf axd_normative
+This is a normative portion of the {rbs0_imprimatur}: binding — code, tests, and decisions may rely on it.
+//axhob_operation
+{rbtgo_manor_raze}
+
+NOTE: This operation force-deletes a
+{rbtgi_manor}'s
+one workforce identity pool — the manor-teardown, clearing the ground so a release
+ladder starts from a clean manor. It is the deliberate destructive inverse of the
+manor-setup finisher
+({rbtgo_manor_found}):
+where the finisher founds the pool and keeps it, raze tears it down. Deleting the pool
+cascades to every provider hanging beneath it and ends federated access for *every*
+{rbtf_citizen}
+under the manor at once — a manor-wide break, not the single-foedus dissolution
+{rbtf_jilt}
+performs.
+
+NOTE: *Distinct from
+{rbtf_jilt},
+and deliberately so.* Jilt is the everyday provider-delete — dissolve one foedus while
+the shared pool stands
+({rbtgo_manor_jilt}).
+Raze is the rare, dangerous pool-delete. The danger lives in this separate,
+scary-gated verb precisely so the everyday
+{rbtf_jilt}
+can never nuke the pool: tearing down the pool is never a side effect of dissolving a
+foedus. Raze is release-ladder infrastructure, withheld from the delivered tabtarget
+surface (the verb ships; the one-keystroke accelerator does not).
+
+NOTE: Raze is *idempotent*. A pool that never existed or was already deleted (the probe
+returns `404`), or one already soft-deleted (HTTP `200` with `state: DELETED`), is
+reported already-razed and the operation exits clean without issuing a delete. Only a
+live pool is deleted.
+
+NOTE: *Payor-credentialed, pool-only.* The
+{rbtr_payor}
+performs the raze, reading the pool coordinates
+({rbrw_org_id},
+{rbrw_workforce_pool_id})
+from the
+{rbrw_regime}
+alone — no
+{rbrf_regime}
+provider field, since the delete cascades the providers rather than naming one. The
+operation accepts no CLI parameters.
+
+NOTE: Scope boundary. Raze deletes exactly the manor's one workforce pool and lets its
+providers cascade. The org-level admin grant, the
+{rbtf_terrier}
+bucket and its folders, the depot projects and their
+{rbtf_mantle}
+service accounts are untouched — those belong to the finisher, the levy, and their own
+teardowns
+({rbtgo_depot_unmake}
+for the depot). Raze is the finisher's inverse on the pool axis only.
+
+//axhos_step
+. *Safety confirmation* (zero traffic — the deliberate pause precedes authentication):
+.. {rbbc_require}
+operator confirmation matching the pool id
+{rbrw_workforce_pool_id}.
+The warning names the manor-wide break: deleting the pool re-enrolls EVERY citizen under
+the manor. The standard confirm-skip seam suppresses the interactive prompt for
+non-interactive test runs.
+
+//axhos_step
+. *Authenticate as
+{rbtr_payor}*:
+.. Execute
+{rbtoe_payor_authenticate}
+.. {rbbc_require}
+authentication successful
+
+//axhos_step
+. *Probe the pool*:
+.. {rbbc_call}
+link:https://cloud.google.com/iam/docs/reference/rest/v1/locations.workforcePools/get[workforcePools.get] for
+{rbrw_workforce_pool_id}
+under `organizations/RBRW_ORG_ID`.
+.. {rbbc_store}
+`«POOL_CODE»` (HTTP status) and, on `200`, the pool `state`.
+.. *Already-razed short-circuit* — exit clean (idempotent no-op), no delete issued, when `«POOL_CODE»` is `404` (no pool of this id) *or* `200` with `state: DELETED` (already soft-deleted).
+.. Any other non-`200` is
+{rbbc_fatal}.
+.. A live pool (`200`, `state` not `DELETED`) advances to deletion.
+
+//axhos_step
+. *Delete the pool*:
+.. {rbbc_submit}
+link:https://cloud.google.com/iam/docs/reference/rest/v1/locations.workforcePools/delete[workforcePools.delete] for the pool resource name.
+.. {rbbc_require}
+the delete accepted (HTTP `200`, returning a long-running operation).
+.. NOTE: The delete cascades to every provider under the pool — no separate provider delete, the structural difference from
+{rbtf_jilt}.
+
+//axhos_step
+. *Verify teardown*:
+.. {rbbc_call}
+link:https://cloud.google.com/iam/docs/reference/rest/v1/locations.workforcePools/get[workforcePools.get] for the pool resource name.
+.. {rbbc_poll}
+the pool at `RBGC_EVENTUAL_CONSISTENCY_SEC` intervals up to `RBGC_MAX_CONSISTENCY_SEC`.
+.. {rbbc_require}
+a razed terminal: `state: DELETED` *or* a `404` (gone). Either is success — the verify
+tolerates whether the GET surfaces a soft-deleted pool, mirroring the depot-unmake
+resource-state poll
+({rbtgo_depot_unmake}).
+
+//axhoot_typed_output
+{rbtgi_manor}
+. *Confirm Raze*:
+.. {rbbc_show}
+single-line banner naming the
+{rbtgi_manor},
+the razed pool resource name, the razed terminal reached, and the re-found recovery hint
+(the manor-setup finisher founds a fresh pool under the standing id).
+
+//axhoc_completion
+Successful execution leaves the manor's workforce pool razed: the pool and every provider
+that hung beneath it are gone, and no
+{rbtf_citizen}
+under the manor can
+{rbtf_avow}
+until the manor-setup finisher
+({rbtgo_manor_found})
+founds the pool afresh and
+{rbtf_affiance}
+re-seats the providers. The org-level grant, the
+{rbtf_terrier}
+bucket, and the depot projects stand untouched: raze reaches the pool alone.
