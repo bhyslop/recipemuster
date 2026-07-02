@@ -18029,8 +18029,8 @@
         "₢BlAAe": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260701-1650",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260702-0107",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "BARRIER — cross-clone wait. No code work of its own.",
                 "This pace cannot complete until ₢BfAA1 (heat ₣Bf — the affiance-jilt provider re-cut) is complete, pushed to origin, and origin merged back into this clone.",
@@ -18044,7 +18044,7 @@
                 "Cross-clone barrier (₣Bf → ₣Bl hand-back of the one-pool code re-cut); hold here until ₢BfAA1 is merged through."
               ],
               "jjgtn_silks": "await-fed-onepool-verbs",
-              "jjgtn_basis": "aac9e75"
+              "jjgtn_basis": "c15db7f"
             }
           ]
         }
