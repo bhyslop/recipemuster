@@ -59,16 +59,20 @@ Docker Registry API: HEAD manifests for `{gar_hallmarks_namespace}/«HALLMARK»/
 .. Image: docker (from reliquary; runs syft via `docker run` with reliquary syft image)
 .. Fetch OAuth token via metadata server (syft authenticates as {rbtr_mason})
 .. For each platform in `«PLATFORMS»`:
-... Conjure with per-platform tags (multi-platform): {rbbc_call}
-`syft registry:«GAR_HOST»/«GAR_PATH»/{gar_hallmarks_namespace}/«HALLMARK»/image:«HALLMARK»-«PLATFORM_SUFFIX»`
-... Conjure single-platform (single manifest, not an index): {rbbc_call}
-`syft registry:«GAR_HOST»/«GAR_PATH»/{gar_hallmarks_namespace}/«HALLMARK»/image:«HALLMARK»`
-... Bind/graft (always via per-platform digest): {rbbc_call}
-`syft registry:«GAR_HOST»/«GAR_PATH»/{gar_hallmarks_namespace}/«HALLMARK»/image@«PLATFORM_DIGEST»` using per-platform digest from step 1's manifest list
+... All modes (conjure, bind, graft) and all platform counts — always via per-platform digest: {rbbc_call}
+`syft registry:«GAR_HOST»/«GAR_PATH»/{gar_hallmarks_namespace}/«HALLMARK»/image@«PLATFORM_DIGEST»` using the per-platform digest step 1 wrote to `platform_digests.txt`
 +
-NOTE: Bind and graft images always use `@«PLATFORM_DIGEST»` pinning, even for single-platform images.
-Grafted images may be stored as OCI image indexes containing attestation manifests (see step 1 filtering); scanning the main tag would cause syft to auto-select the Cloud Build worker's native platform (amd64) from the index, failing when the image contains only a different architecture.
-Digest pinning bypasses index platform resolution entirely.
+NOTE: *Every scan is digest-pinned* — no branch on vessel mode or platform count.
+Step 1 always writes `platform_digests.txt`, single-platform included: for an OCI index it records each per-platform child manifest digest; for a single manifest it records the manifest digest itself.
+Digest pinning resolves the exact per-platform manifest and bypasses index platform resolution entirely.
+Scanning a bare or suffixed tag would let syft auto-select the Cloud Build worker's native platform (amd64) off an OCI index that may carry non-runnable attestation manifests (see step 1 filtering), failing on an image of another architecture.
+This hazard is not unique to graft: a single-platform buildx image can still be published as an index carrying such an attestation manifest, so the digest scheme applies uniformly.
++
+NOTE: *Why one digest mode, not a per-mode scheme* (recorded to prevent recurrence).
+An earlier revision of this step keyed the scan target on vessel mode — conjure scanned a per-platform suffix tag (`image:«HALLMARK»-«PLATFORM_SUFFIX»`) or the bare tag, and only bind/graft used the digest.
+That scheme was never correct for conjure: the per-platform suffix tags (`«HALLMARK»-«SUFFIX»`) are pushed on the *attest* package (`rbgjb05`/`rbgjb06`), not the *image* package.
+The image package carries only the single `image:«HALLMARK»` manifest-list tag, so a conjure `image:«HALLMARK»-«PLATFORM_SUFFIX»` scan target names a tag that does not exist.
+Because a digest addresses the identical per-platform manifest content that a correct tag would, digest scanning yields a byte-identical SBOM with none of the index-ambiguity or nonexistent-tag hazards — the mode-keyed scheme was strictly worse and is retired.
 ... {rbbc_store}
 per-platform SBOM to `/workspace/sbom-«LABEL».json` (e.g., `sbom-amd64.json`; LABEL = architecture + variant without separators)
 .. NOTE: Syft's `registry:` transport reads directly from the OCI registry — no docker CLI or local pull required.
