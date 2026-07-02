@@ -82,8 +82,8 @@ zrbgp_kindle() {
   # interpolated host-side into the cloud-destined script.
   readonly ZRBGP_POSTURE_REQUEST_MAX_TIME_SEC=10
 
-  # Terrier bucket — manor-grain (the Manor is the Payor Project, RBS0), so the
-  # name derives from the payor project, not the depot. One terrier bucket per
+  # Terrier bucket — manor-grain, homed in the Manor's payor project (RBS0), so
+  # the name derives from the payor project, not the depot. One terrier bucket per
   # manor; durable, UBLA-enabled. Constant home is here (rbgp kindle runs after
   # the RBRP regime is enforced; rbdc_derived runs before it and is depot-facet).
   test -n "${RBRP_PAYOR_PROJECT_ID:-}" \

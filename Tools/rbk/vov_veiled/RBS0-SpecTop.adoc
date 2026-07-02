@@ -1942,7 +1942,17 @@ that enables an
 to manage billing accounts and create depot projects using OAuth user authentication rather than service accounts.
 The
 {rbtr_payor}
-operates through OAuth 2.0 desktop application flow, enabling individual developers to manage Recipe Bottle infrastructure without requiring organization-level permissions.
+operates through OAuth 2.0 desktop application flow.
+Everyday depot-side management requires no organization-level permissions; the payor's one org-scoped authority is exercising the
+{rbtgi_manor_p}
+command of its
+{gcp_organization}
+— founding the manor's workforce pool at manor setup and pledging or dissolving foedus providers
+({rbtgo_manor_affiance},
+{rbtgo_manor_jilt})
+— the asymmetry that keeps every
+{rbtgi_depot}
+org-blind.
 
 [[rbtr_governor]]
 //axl_voices axo_actor
@@ -2224,7 +2234,7 @@ kept as
 in a Manor-homed bucket.
 +
 The terrier's *resource* internals are settled (at the terrier-provision pace):
-the physical bucket is the payor project id suffixed `-terrier` — manor-grain, one per Manor, since the Manor is the Payor Project — homed in the `RBGP_TERRIER_BUCKET` kindle constant and created with Uniform Bucket-Level Access enabled (managed folders require it).
+the physical bucket lives in the Manor's own {rbtgi_payor_project}, its id suffixed `-terrier` — manor-grain, one per Manor — homed in the `RBGP_TERRIER_BUCKET` kindle constant and created with Uniform Bucket-Level Access enabled (managed folders require it).
 The managed-folder grain is one managed folder per polity, keyed by the depot project id.
 A governor mantle's write is scoped to its own polity's folder (`roles/storage.objectAdmin` granted through managed-folder IAM); read is bucket-level for every governor mantle (`roles/storage.objectViewer` on the bucket) — write folder-scoped own-polity, read manor-wide.
 The payor reads inherently as owner of the payor project.
@@ -2292,20 +2302,32 @@ service account that share their productive lifecycle. Created as a unit by
 {rbtgo_depot_levy}
 and destroyed as a unit by
 {rbtgo_depot_unmake}.
+Each depot belongs to exactly one
+{rbtgi_manor}
+and is org-blind — organization-level authority is the Manor's alone.
 
 [[rbtgi_manor]]
-//axl_voices axig_project
 {rbtgi_manor}::
-The singular administrative
+The composite administrative holding at the head of an installation — has-a project, commands-an organization.
+The Manor holds a singular administrative
 {gcp_service}
-project that hosts the
-{rbtr_payor}
-{giam_service_account}, the OAuth client, and the billing account.
-There is exactly one per installation: this
-{gcp_project_id}
-is the control plane from which multiple
+project — the
+{rbtgi_payor_project},
+hosting the OAuth client, the billing account, and manor-clustered resources such as the
+{rbtf_terrier}
+bucket — and commands a
+{gcp_organization},
+which hosts the manor's one workforce pool
+({rbrw_regime})
+and homes the org-level trust authority that federation founding requires.
+The Manor is not identical to its project: the project is a member, the organization is commanded, and the Manor is the whole the operator reasons through.
+There is exactly one per installation: the control plane from which
 {rbtgi_depot_project}
-instances are created, funded, and managed. Established by the
+instances are created, funded, and managed.
+Each
+{rbtgi_depot}
+belongs to exactly one Manor; a Manor owns zero or more depots; depots are org-blind, holding no organization-level authority.
+Established by the
 {rbtr_payor}
 role.
 

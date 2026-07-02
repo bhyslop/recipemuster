@@ -123,9 +123,9 @@
   - **RBSLE** → `rbk/vov_veiled/RBSLE-lode_ensconce.adoc` (Lode Ensconce — capture an upstream base image, bole kind)
   - **RBSLI** → `rbk/vov_veiled/RBSLI-lode_immure.adoc` (Lode Immure — capture podman-machine disk leaves of one quay family, podvm kinds)
   - **RBSLU** → `rbk/vov_veiled/RBSLU-lode_underpin.adoc` (Lode Underpin — capture a vendor WSL rootfs, wsl kind)
-- **RBSMA** → `rbk/vov_veiled/RBSMA-manor_affiance.adoc` (Affiance operation — payor pledges the org-level IdP trust: workforce pool + provider + attribute mapping, all org-scoped. The provider oidc body is mechanism-conditional (RBRF_MECHANISM): interactive builds issuerUri + webSsoConfig, programmatic builds oidc.jwksJson; refuse-and-rotate on a soft-deleted pool, never undelete. Verb rbgp_manor_affiance, colophon rbw-mA.)
+- **RBSMA** → `rbk/vov_veiled/RBSMA-manor_affiance.adoc` (Affiance operation — payor pledges one foedus's IdP trust: creates a provider, with its attribute mapping, under the manor's standing workforce pool (org-hosted, founded at manor setup — affiance requires it already standing). The provider oidc body is mechanism-conditional (RBRF_MECHANISM): interactive builds issuerUri + webSsoConfig, programmatic builds oidc.jwksJson; subject-namespacing set provider-side. Verb rbgp_manor_affiance, colophon rbw-mA.)
 - **RBSMF** → `rbk/vov_veiled/RBSMF-depot_levy.adoc` (Manor demesne — depot levy ceremony, now also establishing the three mantle SAs and enabling AR Data-Access audit logs; successor to the retired RBSDE depot_levy spec)
-- **RBSMJ** → `rbk/vov_veiled/RBSMJ-manor_jilt.adoc` (Jilt operation — payor dissolves the org-level workforce pool (provider cascades), the structural inverse of affiance. Mechanism-blind (no RBRF_MECHANISM arm — pool teardown is identical for interactive/programmatic foedera); founding-rare, operator-confirmed via the confirm-skip seam. Verb rbgp_manor_jilt, colophon rbw-mJ.)
+- **RBSMJ** → `rbk/vov_veiled/RBSMJ-manor_jilt.adoc` (Jilt operation — payor dissolves one foedus: deletes its provider while the manor's shared workforce pool stands (pool teardown is the manor-teardown act, never jilt), the structural inverse of affiance. Mechanism-blind (no RBRF_MECHANISM arm — provider deletion is identical for interactive/programmatic foedera); founding-rare, operator-confirmed via the confirm-skip seam. Verb rbgp_manor_jilt, colophon rbw-mJ.)
 - **RBSNC** → `rbk/vov_veiled/RBSNC-network_create.adoc`
 - **RBSNX** → `rbk/vov_veiled/RBSNX-network_connect.adoc`
 - **RBSOB** → `rbk/vov_veiled/RBSOB-oci_layout_bridge.adoc`
@@ -140,7 +140,7 @@
 - **RBSPT** → `rbk/vov_veiled/RBSPT-port_setup.adoc`
 - **RBSPU** → `rbk/vov_veiled/RBSPU-citizen_unseat.adoc` (Polity demesne — unseat: everyday withdrawal of one mantle from a citizen — expunge the muniment + revoke `tokenCreator`, leaving the depot-scoped binding in place (suspension, not erasure). Verb body `rbgp_unseat`, colophon `rbw-pU`. Federation successor to the bridge-legacy defrock specs RBSDD/RBSRD.)
 - **RBSQB** → `rbk/vov_veiled/RBSQB-quota_build.adoc`
-- **RBSRF** → `rbk/vov_veiled/RBSRF-RegimeFederation.adoc` (Regime Federation — manor-scoped, org-level IdP trust + workforce-pool identity; the config home the accessor's federation legs read. One pool serves every depot under the manor. Carries no secrets, ships committed; affiance rewrites the values when founding a fresh trust.)
+- **RBSRF** → `rbk/vov_veiled/RBSRF-RegimeFederation.adoc` (Regime Federation — per-foedus, provider-side IdP trust config: one rbrf.env per standing foedus in the moorings foedera library; a foedus IS a provider under the manor's one workforce pool, and the pool itself is manor-level, homed in the sibling RBSRW workforce regime, not here. Vendor-agnostic trust core plus acquisition-mechanism gate (RBRF_MECHANISM); the config home the accessor's federation legs read. Carries no secrets, ships committed; affiance rewrites a foedus's values when founding a fresh trust.)
 - **RBSRG** → `rbk/vov_veiled/RBSRG-RegimeGcbPins.adoc`
 - **RBRN**  → `rbk/vov_veiled/RBRN-RegimeNameplate.adoc`
 - **RBSRM** → `rbk/vov_veiled/RBSRM-RegimeMachine.adoc`
@@ -149,6 +149,7 @@
 - **RBSRR** → `rbk/vov_veiled/RBSRR-RegimeRepo.adoc`
 - **RBSRS** → `rbk/vov_veiled/RBSRS-RegimeStation.adoc`
 - **RBSRV** → `rbk/vov_veiled/RBSRV-RegimeVessel.adoc`
+- **RBSRW** → `rbk/vov_veiled/RBSRW-RegimeWorkforce.adoc` (Regime Workforce — manor-level identity substrate: the manor's one workforce pool (GCP org numeric ID, pool ID, session duration), org-hosted, founded once at manor setup and manor-lifetime; every foedus hangs beneath it as a provider (per-foedus config is the sibling RBSRF). Committed-record-vs-live-pool sync is a mutability split: org + pool-id are pool-time-immutable behind a list-and-match drift guard; session duration reconciles. Ships committed, all public identifiers.)
 - **RBSSC** → `rbk/vov_veiled/RBSSC-security_config.adoc`
 - **RBSSR** → `rbk/vov_veiled/RBSSR-sentry_run.adoc`
 - **RBSSS** → `rbk/vov_veiled/RBSSS-sentry_start.adoc`
