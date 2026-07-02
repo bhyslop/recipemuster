@@ -14331,8 +14331,8 @@
         "₢BfAA3": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260702-0134",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260702-0207",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "Re-cut affiance and jilt to folio-address the foedus — take the foedus identity as a folio and act on rbef_<folio>, mirroring descry — instead of reading the entrada-pinned RBCC_rbrf_file constant.",
                 "",
@@ -14355,7 +14355,7 @@
                 "Source: rbof_descry (rbof_foedus.sh) for the folio-resolution precedent; RBSMA / RBSMJ; RBCC_rbrf_file (rbcc_constants.sh) for the constant being bypassed."
               ],
               "jjgtn_silks": "affiance-jilt-folio-recut",
-              "jjgtn_basis": "0b2ae9b"
+              "jjgtn_basis": "68b2bf5"
             }
           ]
         },
