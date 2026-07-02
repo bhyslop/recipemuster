@@ -196,10 +196,14 @@ graduated: it is a built, base-free probe suite (`rbtdrv_patrol.rs`) running und
 {rbtt_freehold}
 subject.
 It drives the real polity verbs — an unseat, then a restore brevet, on the subject's
-retriever mantle — and asserts through rehearse's manor-wide muniment roll that the
-muniment stands at baseline, vanishes after the unseat, and stands again after the
-restore, then leaves the freehold exactly as found via a final don-green poll over the
-eventually-consistent IAM binding.
+retriever mantle — and asserts through rehearse's depot-attributed manor roll (RBSPO)
+that the muniment stands at baseline, vanishes after the unseat, and stands again after
+the restore, then leaves the freehold exactly as found via a final don-green poll over
+the eventually-consistent IAM binding.
+Every roll assertion is an exact (depot, mantle, subject) line scoped to the freehold's
+own depot: identical (mantle, subject) pairs co-reside across polity slices — orphans
+of unmade depots persist in the payor-grain terrier — so a depot-blind assertion would
+alias them, as a live run proved before the depot column was ruled in.
 It is the positive mirror of its denial-band sibling, which owns every rejection-band
 assertion; parley makes no denial poll of its own.
 The fixture also rides the picket

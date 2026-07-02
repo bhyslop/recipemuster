@@ -29,7 +29,8 @@
 # A muniment is one GCS object per (principal subject, mantle held) pair — the
 # settled per-entry granularity. Its object name indexes the pair under the
 # polity managed folder; its content is the authoritative record (peruse
-# reconstructs the holding from content, never by parsing the key). Per-entry
+# reconstructs the holding from content — only the depot attribution column
+# reads from the key, placement being the index's alone to tell). Per-entry
 # muniments are immutable: a holding exists or it does not, so engross is a
 # create (ifGenerationMatch=0) and expunge a delete — the RBSTR
 # generation-conditional update path is unexercised under this granularity.
@@ -188,8 +189,13 @@ rbgft_expunge() {
 
 # Shared list-and-fetch core for the muniment reads. Pages a GCS object listing
 # (prefix empty = the whole terrier, manor-wide; "<depot>/" = one polity slice),
-# fetches each object's body, and echoes one tab-separated "<mantle>\t<subject>"
-# line per muniment, read from the rbgft_ content fields (never the key). A
+# fetches each object's body, and echoes one tab-separated
+# "<depot>\t<mantle>\t<subject>" line per muniment. The record fields (mantle,
+# subject) read from the rbgft_ content fields — the content stays the
+# authoritative record; the depot column reads from the object key's first
+# segment, because placement is the index's alone to tell: which polity slice
+# holds a muniment is not record content, and identical (mantle, subject)
+# records co-reside across polity slices (RBSPO depot-attributed emission). A
 # read-after-list 404 — an object expunged between the listing and its fetch — is
 # a benign vanish and is skipped, not fatal: a pure read must not crash because a
 # concurrent unseat withdrew an entry, and the wider the sweep the wider that
@@ -263,7 +269,7 @@ zrbgft_list_fetch_emit() {
       esac
 
       local z_get_file="${ZRBUH_PREFIX}${z_get_infix}${ZRBUH_POSTFIX_JSON}"
-      jq -r '[.rbgft_mantle, .rbgft_subject] | @tsv' "${z_get_file}" \
+      jq -r --arg depot "${z_name%%/*}" '[$depot, .rbgft_mantle, .rbgft_subject] | @tsv' "${z_get_file}" \
         || buc_reject "${BUBC_band_peruse}" "Terrier read: muniment ${z_name} missing rbgft_ fields"
     done <<< "${z_names}"
 
@@ -275,9 +281,10 @@ zrbgft_list_fetch_emit() {
 # rbgft_peruse <token> <bucket> <depot_project_id>
 # The pure list-and-fetch read of one polity's muniments — no precondition. Lists
 # every object under the polity folder prefix, fetches each, and echoes one
-# tab-separated "<mantle>\t<subject>" line per muniment (read from the rbgft_
-# content fields, never by parsing the key). The read side rehearse composes for
-# one polity, and the read side of the reconciliation diff.
+# tab-separated "<depot>\t<mantle>\t<subject>" line per muniment (the shared
+# lister's uniform emit — the depot column is constant here, by construction the
+# polity asked for). The per-polity slice of the roll, and the read side of the
+# reconciliation diff.
 rbgft_peruse() {
   zrbgft_sentinel
 
@@ -298,11 +305,13 @@ rbgft_peruse() {
 # rbgft_peruse_manor <token> <bucket>
 # The manor-wide read — every muniment in the terrier across all polities, no
 # prefix filter (read is bucket-level per RBS0). Echoes the same tab-separated
-# "<mantle>\t<subject>" line per muniment as the per-polity peruse; the depot
-# stays the object key's index, recoverable but deliberately unemitted (no
-# located consumer needs per-entry depot attribution — the muniment's placement
-# already is the (principal subject × depot mantle) join). The read rehearse
-# composes manor-wide.
+# "<depot>\t<mantle>\t<subject>" line per muniment as the per-polity peruse.
+# The depot column is what makes a manor-wide roll attributable: identical
+# (mantle, subject) pairs co-reside across polity slices — including orphans a
+# freehold churn leaves behind, since unmaking a depot project never sweeps the
+# payor-grain terrier — so a depot-blind roll cannot witness a depot-scoped
+# admission churn (RBSPO depot-attributed emission). The read rehearse composes
+# manor-wide.
 rbgft_peruse_manor() {
   zrbgft_sentinel
 

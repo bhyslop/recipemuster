@@ -2550,7 +2550,7 @@ rbgp_terrier_proof() {
   local -r z_depot="${RBDC_DEPOT_PROJECT_ID}"
   local -r z_mantle="governor"
   local -r z_subject="rbgft-proof-probe"
-  local -r z_pair="${z_mantle}"$'\t'"${z_subject}"
+  local -r z_pair="${z_depot}"$'\t'"${z_mantle}"$'\t'"${z_subject}"
 
   buc_step 'Pre-clean any muniment a prior failed proof left behind'
   rbgft_expunge "${z_token}" "${z_bucket}" "${z_depot}" "${z_mantle}" "${z_subject}" >/dev/null
