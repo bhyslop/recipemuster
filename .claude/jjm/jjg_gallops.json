@@ -14797,8 +14797,8 @@
         "₢BfAAL": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260702-0321",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260702-1025",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "Build the one BCG module orchestrating the Keycloak test-facility lifecycle: rbxk_keycloak.sh in the rbx family, composing the folio-addressed provider verbs.",
                 "",
@@ -14848,7 +14848,7 @@
                 "The subject-namespacing mapping is a small config addition riding the same facility setup."
               ],
               "jjgtn_silks": "rbxk-keycloak-orchestrator",
-              "jjgtn_basis": "1cdf093"
+              "jjgtn_basis": "9134095"
             }
           ]
         },
