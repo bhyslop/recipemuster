@@ -15,8 +15,8 @@
 // Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 //
 // RBTDRH — chaining-fact-band fixture: the band matrix for the durable-config
-// chain LINKS (feoff, yoke) and the read-side consumers (summon, plumb, augur),
-// driven through the real tabtarget exec path.
+// chain LINKS (feoff, yoke) and the read-side consumers (summon, plumb, augur,
+// rekon), driven through the real tabtarget exec path.
 //
 // The chaining-fact discipline splits the value-forwarding verbs by role; only
 // feoff/anoint/yoke write durable config from a resolved express-or-chain value,
@@ -42,8 +42,8 @@
 // that tracked rbrv.env stays write-free too. Nothing here mints a token — the
 // fixture is credless.
 //
-// The read-side consumers (summon, plumb, augur) resolve the same express-or-chain
-// fact but write no durable config. They now reject a broken resolve with the same
+// The read-side consumers (summon, plumb, augur, rekon) resolve the same
+// express-or-chain fact but write no durable config. They now reject a broken resolve with the same
 // chaining band, so a folio-less drive against an empty BURV root asserts the band
 // before any auth — credless, no cloud. These cases prove the resolve-logic
 // rejection ONLY: a furnish gap (a CLI that forgot to source buf_fact) exits the
@@ -219,7 +219,7 @@ fn rbtdrh_drive_anoint(dir: &Path) -> Result<i32, String> {
     Ok(output.status.code().unwrap_or(-1))
 }
 
-/// Drive a read-side consumer (summon, plumb, augur) through its tabtarget with an
+/// Drive a read-side consumer (summon, plumb, augur, rekon) through its tabtarget with an
 /// optional express folio, against an EMPTY BURV root (no chained fact). With no
 /// express and no chain the express-or-chain resolve finds nothing and the verb
 /// rejects with the chaining band BEFORE any auth — so the drive is credless and
@@ -449,7 +449,7 @@ fn rbtdrh_anoint_broken_chain(dir: &Path) -> rbtdre_Verdict {
 }
 
 // ── read-side consumer cases ────────────────────────────────
-// summon/plumb/augur write no durable config, but they resolve the same
+// summon/plumb/augur/rekon write no durable config, but they resolve the same
 // express-or-chain fact and now reject a broken resolve with the same band as the
 // LINKS. Each is driven folio-less against an empty BURV root, so the resolve fails
 // before any auth — credless, no cloud. These prove the resolve-logic rejection; a
@@ -482,6 +482,13 @@ fn rbtdrh_augur_unknown_prefix(dir: &Path) -> rbtdre_Verdict {
     // kind, so its decode gate rejects the unknown one with the chaining band, before auth.
     match rbtdrh_drive_readside(dir, RBTDGC_AUGUR_LODE, "augur-badkind", Some(RBTDRH_UNKNOWN_TOUCHMARK)) {
         Ok(code) => rbtdrh_expect_band(code, "augur unknown-prefix express", dir),
+        Err(e) => rbtdre_Verdict::Fail(e),
+    }
+}
+
+fn rbtdrh_rekon_no_folio(dir: &Path) -> rbtdre_Verdict {
+    match rbtdrh_drive_readside(dir, RBTDGC_REKON_HALLMARK, "rekon", None) {
+        Ok(code) => rbtdrh_expect_band(code, "rekon no-folio (broken chain)", dir),
         Err(e) => rbtdre_Verdict::Fail(e),
     }
 }
@@ -640,6 +647,7 @@ pub static RBTDRH_CASES_CHAINING_FACT_BAND: &[rbtdre_Case] = &[
     case!(rbtdrh_plumb_no_folio),
     case!(rbtdrh_augur_no_folio),
     case!(rbtdrh_augur_unknown_prefix),
+    case!(rbtdrh_rekon_no_folio),
     case!(rbtdrh_furnish_invariant),
 ];
 
