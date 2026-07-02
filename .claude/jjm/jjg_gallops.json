@@ -17143,6 +17143,7 @@
       "jjghn_creation_time": "260622",
       "jjghn_status": "jjghe_racing",
       "jjghn_order": [
+        "₢BlAAf",
         "₢BlAAQ",
         "₢BlAAA",
         "₢BlAAB",
@@ -17175,7 +17176,7 @@
         "₢BlAAY",
         "₢BlAAd"
       ],
-      "jjghn_next_pace_seed": "AAf",
+      "jjghn_next_pace_seed": "AAg",
       "jjghn_paces": {
         "₢BlAAA": {
           "jjgpn_tacks": [
@@ -17841,35 +17842,40 @@
         "₢BlAAX": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260702-0140",
+              "jjgtn_ts": "260702-0209",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "The parley fixture — the POSITIVE federation admission round-trip:",
-                "drive the real polity verbs (brevet, unseat, rehearse) on the real freehold subject against the standing finisher-provisioned terrier,",
+                "drive the real polity verbs (brevet, unseat, rehearse) on the real freehold subject against the standing terrier,",
                 "and graduate the RBSTC-reserved word parley.",
-                "Distinct from polity-denial (the negative sibling in the patrol module, and the pattern source):",
-                "parley's novel content is rehearse's positive manor-roll assertions — rehearse is asserted nowhere positively today —",
-                "and the real verbs succeeding through the governor-wielded folder-scoped IAM path (the verbs don internally; their exit 0 is that proof).",
-                "polity-denial owns all denial-band assertion — do not re-assert don denial here (no second 420s denial poll).",
+                "Positive mirror of polity-denial (the negative sibling in the patrol module, and the pattern source):",
+                "parley's novel content is rehearse's positive manor-roll assertions and the real verbs succeeding through the governor-wielded folder-scoped IAM path (the verbs don internally; their exit 0 is that proof).",
+                "polity-denial owns all denial-band assertion — no second denial poll here.",
+                "",
+                "DEPENDS ON the preceding read-surface pace:",
+                "a first cut is notched (de1501dd7) that asserts via manor-wide rehearse,",
+                "but the live run proved a manor-wide roll cannot witness a depot-scoped admission churn (unseat is depot-scoped; rehearse is manor-wide and drops the depot; a cross-depot orphan keeps the vanish from ever holding).",
+                "Re-cut parley's assertion to whatever read surface that pace settles.",
                 "",
                 "## Done when",
-                "A fixture named parley — almanac roster + picket/echelon membership, plus a parley probe suite registered base-free in RBTDRA_SUITES with the usual suite ride-alongs (rbw-ts tabtarget, zipper purpose string, CLAUDE.md probe-suite row) —",
+                "A fixture named parley — almanac roster + picket/echelon membership, plus a base-free parley probe suite in RBTDRA_SUITES with the usual ride-alongs (rbw-ts tabtarget, CLAUDE.md probe-suite row) —",
                 "drives unseat then restore-brevet on the freehold subject's retriever mantle,",
-                "asserting via rehearse's roll that the (subject, mantle) muniment stands at baseline, vanishes after unseat, and stands again after the restore;",
-                "the fixture ends on the don-green poll so the freehold leaves exactly as found.",
-                "RBSTC's scoped-out parley note moves to a built characterization; proven live.",
+                "asserting through the settled read surface that the (subject, mantle) muniment stands at baseline, vanishes after unseat, and stands again after the restore;",
+                "ends on the don-green poll so the freehold leaves exactly as found.",
+                "The scaffolding from the notched first cut (fixture, suite, manifest, oracle model, tabtarget, RBSTC characterization) is reused; only the assertion lens is re-cut.",
+                "Proven live against a standing depot seated for the subject.",
                 "",
                 "## Cinched",
-                "Unseat-first: the freehold subject's retriever muniment already stands, so brevet-first would ride the 412-idempotent engross — unseat first makes the restore brevet a genuinely fresh write.",
+                "Unseat-first: the subject's retriever muniment already stands, so brevet-first would ride the 412-idempotent engross — unseat first makes the restore a genuinely fresh write.",
                 "Churn retriever only (governor stays the pinned wielding mantle); payor-gate self-skip, the suite-passenger posture.",
-                "No test-rig tabtarget anywhere in the call path — the standing terrier is presumed, never charged via the interim scaffold;",
-                "retiring the scaffold pair and terrier-atomicity stays the federation heat's work, not this pace's.",
+                "No test-rig tabtarget in the call path — the standing terrier is presumed; retiring the scaffold pair / terrier-atomicity stays federation-heat work.",
+                "The read lens is inherited from the preceding read-surface pace, not re-decided here.",
                 "",
                 "## Character",
-                "Theurge bare-cloud fixture; mechanical against the sibling pattern — the novelty is the rehearse-roll assertions and the suite graduation."
+                "Theurge bare-cloud fixture; the scaffolding is mechanical (mostly notched); the live novelty is the settled positive-read assertion."
               ],
               "jjgtn_silks": "parley-authentic-verb-fixture",
-              "jjgtn_basis": "7ab8a9c"
+              "jjgtn_basis": "de1501d"
             }
           ]
         },
@@ -18056,6 +18062,43 @@
               ],
               "jjgtn_silks": "await-fed-onepool-verbs",
               "jjgtn_basis": "c15db7f"
+            }
+          ]
+        },
+        "₢BlAAf": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260702-0209",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "Design conversation requiring judgment — federation read-surface architecture; likely touches federation-owned rehearse and/or terrier hygiene.",
+                "",
+                "## The question",
+                "The polity admission verbs (brevet/unseat, zrbgp_*_core in rbgp_payor.sh) write depot-scoped — muniment key `<depot>/<mantle>/<subject>`, depot = RBDC_DEPOT_PROJECT_ID.",
+                "The sole exposed read, rehearse (rbw-pr -> rbgft_peruse_manor), is manor-wide and deliberately drops the depot, emitting `<mantle>\\t<subject>`.",
+                "So no exposed read can witness a depot-scoped admission churn: a manor-wide roll cannot say which depot a (mantle, subject) line belongs to, and it collides across depots.",
+                "Decide the read surface for witnessing a depot-scoped admission change.",
+                "",
+                "## Evidence (parley live run)",
+                "Against depot canest3bhm100002: the baseline roll showed retriever for the freehold subject; unseat retriever returned \"Muniment already absent\" (HTTP 404 — the current depot has none); the roll after unseat was unchanged.",
+                "The roll's retriever line is under a depot other than the current one — near-certainly an orphan from a retired freehold levy (freehold-churn unmakes the depot project, but the payor-level terrier bucket keeps its muniments, and churn runs no terrier sweep).",
+                "Once two depots hold the same (mantle, subject), the manor roll cannot distinguish the two identical lines.",
+                "",
+                "## Options (from the discussion — not pre-decided)",
+                "Emit the depot in rehearse's roll (three-column) so a consumer can attribute and filter — small, but changes federation-owned rehearse output.",
+                "A depot-scoped read colophon (rbgft_peruse per-polity exists as an internal fn, no colophon) — a new verb.",
+                "Orphan-sweep as terrier hygiene on churn — then manor-wide rehearse equals the standing slice.",
+                "Reframe the positive-admission assertion off the roll (verb disposition) — abandons \"rehearse's roll,\" parley's stated novel content.",
+                "",
+                "## Done when",
+                "The read-surface question is ruled and recorded where it binds (RBSTC and/or the federation paddock), with the bounded fix landed or a clear follow-on slated — enough that parley can assert its unseat->restore churn through a lens that survives cross-depot collisions.",
+                "",
+                "## Cinched",
+                "rehearse is the federation-owned read surface; terrier hygiene / orphan-sweep is federation-heat work, not parley's."
+              ],
+              "jjgtn_silks": "rehearse-depot-attribution",
+              "jjgtn_basis": "de1501d"
             }
           ]
         }
