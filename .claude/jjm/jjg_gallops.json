@@ -20785,8 +20785,8 @@
         "₢BlAAb": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260630-1520",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260701-1731",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "Invent a strict colophon-completeness check — a source-repo-only tabtarget that FAILS if any enrolled colophon lacks its tabtarget — so the source repo's test sequence proves completeness while a delivered subset repo simply never runs it. Replaces the BURC strict/lax config approach (operator 260630).",
                 "",
@@ -20809,7 +20809,7 @@
                 "Bash check tabtarget over the colophon registry; the BURC_BUW_COLOPHON_CHECK retirement is a small regime cleanup gated on a grep. Self-contained ₣Bl (no new cross-heat barrier)."
               ],
               "jjgtn_silks": "colophon-completeness-check",
-              "jjgtn_basis": "0ebc648"
+              "jjgtn_basis": "ca22a98"
             }
           ]
         },
