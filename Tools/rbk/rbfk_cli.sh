@@ -48,6 +48,7 @@ zrbfk_furnish() {
   source "${z_rbk_kit_dir}/rba_auth.sh"
   source "${z_rbk_kit_dir}/rbfh_hygiene.sh"
   source "${z_rbk_kit_dir}/rbfk_kludge.sh"
+  source "${z_rbk_kit_dir}/rbfb_beckon.sh"
   source "${BURD_BUK_DIR}/buz_zipper.sh"
   source "${z_rbk_kit_dir}/rbz_zipper.sh"
 

@@ -930,6 +930,9 @@ rbfd_ordain() {
       buc_die "Unknown vessel mode in chaining: ${z_mode}"
       ;;
   esac
+
+  # Beckon the consumers of the hallmark this ordain just wrote (RBS0 rbch_beckon)
+  rbfb_beckon_hallmark "${z_hallmark}"
 }
 
 rbfd_build() {

@@ -102,6 +102,7 @@
 // Recipe Bottle Chaining-Fact Roles (how a verb consumes a chained fact)
 :rbch_enchase:               <<rbch_enchase,Durable-Config Link>>
 :rbch_palpate:               <<rbch_palpate,Read-Side Chain Consumer>>
+:rbch_beckon:                <<rbch_beckon,Consumer Beckon>>
 
 // Recipe Bottle Payor Fact Files (governor identifying values)
 :rbgp_fact_governor_sa_email:  <<rbgp_fact_governor_sa_email,RBGP_FACT_GOVERNOR_SA_EMAIL>>
@@ -2829,6 +2830,15 @@ A broken resolve rejects with the same named chaining band (`BUBC_band_chain`) a
 The distinction from {rbch_enchase} is therefore by EFFECT, not exit code — a wrong read corrupts only a transient action, never a regime file.
 Members span the fact families: {rbtgo_ark_summon}, {rbtgo_ark_inspect}, and {rbtgo_image_rekon} read the {rbf_fact_hallmark} chain; {rbtgo_lode_augur} reads the {rbf_fact_lode} touchmark.
 A {rbch_palpate} must never be extended to write durable config without joining the {rbch_enchase} surface and its no-relay discipline.
+
+[[rbch_beckon]]
+{rbch_beckon}::
+The outbound signpost a chain HEAD raises on its success path: having written a fact, it announces the tabtargets that CONSUME that fact, so the operator sees what the fresh fact unlocks.
+Unlike {rbch_enchase} and {rbch_palpate}, a beckon resolves no chained value and rejects nothing — it is a courtesy emission after the write, not a fact consumer, so it carries no chaining band.
+One emitter per fact type owns its consumer roster; today only the {rbf_fact_hallmark} fact has one.
+That roster is exactly this fact's chain consumers — the {rbch_palpate} readers ({rbtgo_ark_summon}, {rbtgo_ark_inspect}, {rbtgo_image_rekon}) plus the {rbch_enchase} writers that resolve this same fact (anoint, {rbtgo_nameplate_drive}) — and it MUST agree with the enumerations above: a consumer added to a role without a matching beckon line, or removed from a role while its beckon line lingers, is the drift this single home exists to prevent.
+It composes the `buc_tabtarget` primitive with only light context filtering — a consumer whose folio IS the written fact gets it filled, a consumer taking a different folio prints a placeholder — never a per-mode predicate farm.
+Code home: the guard-free `rbfb_beckon.sh`, sourced by the {rbf_fact_hallmark} producing HEADs ({rbtgo_ark_ordain}, {rbtgo_ark_kludge}).
 
 === Payor Fact Files
 

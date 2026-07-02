@@ -238,6 +238,9 @@ rbfk_kludge() {
   buc_bare "  Auto-install via:"
   buc_bare "    tt/rbw-cKB.KludgeBottle.sh <moniker>   (bottle vessel)"
   buc_bare "    tt/rbw-cKS.KludgeSentry.sh <moniker>   (sentry vessel)"
+
+  # Beckon the consumers of the hallmark this kludge just wrote (RBS0 rbch_beckon)
+  rbfb_beckon_hallmark "${z_hallmark}"
 }
 
 # eof
