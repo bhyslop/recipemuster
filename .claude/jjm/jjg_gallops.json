@@ -18470,8 +18470,8 @@
         "₢BoAAF": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260701-1925",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260702-0318",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "RBSAB and the syft SBOM step (rbgja02-syft-per-platform.sh) disagree on how the per-platform scan target is chosen.",
                 "The code and the spec do not merely differ in one mode — they branch on different axes entirely, so neither is a subset of the other.",
@@ -18512,7 +18512,7 @@
                 "Spec-vs-code reconciliation requiring judgment — decide which side is canonical (leaning: code), then align the other and record why. Not mechanical; small in edits, load-bearing in the decision."
               ],
               "jjgtn_silks": "rbsab-syft-scan-scheme-reconcile",
-              "jjgtn_basis": "fd0db74"
+              "jjgtn_basis": "bb2d73c"
             }
           ]
         }
