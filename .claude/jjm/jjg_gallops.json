@@ -14497,8 +14497,8 @@
         "₢BfAA7": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260702-1305",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260702-1354",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "Make the singleton federation accessor selector-derived, so it reads the INSTATED foedus rather than the constant-folded entrada — the \"federation family-of-named-instances rework\" the RBCC_rbrf_file comment (rbcc_constants.sh), CLAUDE.md, and the paddock all defer.",
                 "This unblocks the programmatic accessor arm landed in the prior pace: with the arm reachable, this pace carries that pace's deferred end-to-end Done-when clause.",
@@ -14522,7 +14522,7 @@
                 "Sourcing-topology rework (source-time constant to post-RBRR computation) across RBCC_rbrf_file's consumers, plus a facility-up integration proof; structural judgment, not mechanical."
               ],
               "jjgtn_silks": "accessor-foedus-selector-resolve",
-              "jjgtn_basis": "36e2927"
+              "jjgtn_basis": "cad0387"
             }
           ]
         },
