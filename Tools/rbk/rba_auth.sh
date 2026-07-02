@@ -61,7 +61,6 @@ zrba_kindle() {
   readonly ZRBA_FED_CURL_STDERR_FILE="${BURD_TEMP_DIR}/rba_fed_curl_stderr.txt"
   readonly ZRBA_FED_JQ_STDERR_FILE="${BURD_TEMP_DIR}/rba_fed_jq_stderr.txt"
   readonly ZRBA_FED_OPENSSL_STDERR_FILE="${BURD_TEMP_DIR}/rba_fed_openssl_stderr.txt"
-  readonly ZRBA_FED_PROBE_STDERR_FILE="${BURD_TEMP_DIR}/rba_fed_probe_stderr.txt"
 
   # The don's request body is non-secret JSON (the scope list); it is composed
   # here rather than string-interpolated at the call site.
@@ -106,9 +105,10 @@ zrba_sentinel() {
 #
 # Deliberately NOT a pure _capture: rba_avow is folded in so callers never
 # learn the avowal dance, so this accessor emits rba_avow's buc_step
-# progress to stderr and may buc_die on a headless miss. The stdout contract
-# still holds — only the mantle token reaches stdout (avow writes stderr and
-# /dev/tty only; the don emits the token straight to stdout) — and the reveille-tier
+# progress — the device-flow prompt included — to stderr and may buc_die on a
+# failed avowal. The stdout contract
+# still holds — only the mantle token reaches stdout (avow writes stderr
+# only; the don emits the token straight to stdout) — and the reveille-tier
 # credless guard's in-band buc_reject still propagates: avow's exit
 # terminates the caller's command substitution with the credless band code,
 # which the caller's `|| buc_die` re-exits through the band membrane. The sitting
@@ -145,16 +145,6 @@ rba_token_capture() {
 # All federation config is read from RBRF_* (rbrf_regime); the leg curls reuse
 # RBCC curl timeouts and rbgo's transient-curl classifier. Callers kindle
 # rbrf + rbcc before invoking rba_avow; the functions guard on their sentinels.
-
-# A controlling terminal is writable (a human is present to avow). Probes
-# /dev/tty rather than `test -t 1` because a tabtarget's stdout is captured to
-# the log, so stdout is never a TTY even interactively (same reason buc prompts
-# write to /dev/tty). The redirect on the `:` builtin opens /dev/tty for that one
-# command only — no subshell, no leaked shell FD — and fails when it cannot open.
-zrba_tty_present_predicate() {
-  : >/dev/tty 2>"${ZRBA_FED_PROBE_STDERR_FILE}" || return 1
-  return 0
-}
 
 # Resolve the per-session sitting cache path. Session-scoped — it spans tabtarget
 # processes within one operator session — tmpfs-preferred, keyed by the trust so
@@ -262,9 +252,9 @@ zrba_idtoken_subject_capture() {
 }
 
 # Leg 1 — device-flow avowal (RFC 8628). Requests a device + user code,
-# surfaces the verification URL and code to the human on /dev/tty, polls the IdP
-# token endpoint until the human approves, and echoes the OIDC id_token. The
-# id_token is never persisted — Leg 2 consumes it in-process.
+# surfaces the verification URL and code as a yawp on the progress stream,
+# polls the IdP token endpoint until the human approves, and echoes the OIDC
+# id_token. The id_token is never persisted — Leg 2 consumes it in-process.
 zrba_leg1_idtoken_capture() {
   zrba_sentinel
   zrbrf_sentinel
@@ -298,13 +288,19 @@ zrba_leg1_idtoken_capture() {
   test -n "${z_verification_uri}" || return 1
   [[ "${z_interval}" =~ ^[0-9]+$ ]] || z_interval=5
 
-  # Surface the prompt live on the controlling terminal (stdout is log-captured;
-  # the user code is short-lived and single-use, kept off the persistent log).
-  { printf '\nAvowal — sign in to open your sitting:\n'
-    printf '    %s\n'         "${z_verification_uri}"
-    printf '    code: %s\n\n' "${z_user_code}"
-  } >/dev/tty 2>"${ZRBA_FED_CURL_STDERR_FILE}" || return 1
-  buc_log_args "Avowal prompt surfaced to terminal; polling for sign-in"
+  # Surface the prompt as a yawp on the shared progress stream — console, log,
+  # and any watching relay alike — so a headless-but-human-reachable caller can
+  # complete the sign-in. The user code rides the stream deliberately: RFC 8628
+  # designs it for open display (possession grants nothing without the human's
+  # own IdP sign-in, and a substituted sign-in cannot pass admission), so the
+  # retired /dev/tty emission and its headless fail-fast gate defended no
+  # threat. Spec home: RBS0 rbtf_avow.
+  buyy_href_yawp "${z_verification_uri}" "${z_verification_uri}"; local -r z_uri_yp="${z_buym_yelp}"
+  buyy_ui_yawp   "${z_user_code}";                                local -r z_code_yp="${z_buym_yelp}"
+  buc_step "Avowal — sign in to open your sitting:"
+  buc_step "    ${z_uri_yp}"
+  buc_step "    code: ${z_code_yp}"
+  buc_log_args "Avowal prompt emitted; polling for sign-in"
 
   local z_elapsed=0
   local z_err=""
@@ -397,10 +393,13 @@ zrba_leg2_federated_capture() {
 
 # rba_avow — the avowal accessor step. Ensures a live sitting; its side
 # effect is the per-session cache, and consumers read the federated token with
-# zrba_sitting_read_capture. Cache-hit → done. Miss/expired with a terminal → run
-# Legs 1+2 and cache. Miss with no terminal → fail loud: the headless fail-fast
-# membrane, also the suite-head seam (an automated run avows once at suite
-# head; the headless cases thereafter take the cache-hit path).
+# zrba_sitting_read_capture. Cache-hit → done. Miss/expired → run Legs 1+2 and
+# cache: the prompt rides the progress stream, so a terminal operator and a
+# headless-but-human-reachable relay complete the same sign-in (no terminal
+# gate — human presence is enforced by the IdP sign-in, not terminal
+# possession; a truly unattended miss polls to the bounded device-code expiry
+# and dies loud). The suite-head seam stands: an automated run avows once at
+# suite head; cases thereafter take the cache-hit path.
 rba_avow() {
   zrba_sentinel
   zrbrf_sentinel
@@ -416,9 +415,6 @@ rba_avow() {
     buc_step "Sitting already live — reusing the cached federated token"
     return 0
   fi
-
-  zrba_tty_present_predicate \
-    || buc_die "No live sitting and no terminal — a human must avow interactively to open one (this headless run cannot). Open a sitting from a terminal, then re-run."
 
   buc_step "No live sitting — opening one via device-flow avowal"
 

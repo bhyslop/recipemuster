@@ -2091,7 +2091,9 @@ Membership is per-individual on the manor's one stable pool, keyed by an IdP-sta
 {rbtf_avow}::
 The per-session human sign-in act (Scots law: to appear formally in answer to a summons), which opens a live
 {rbtf_sitting}.
-Surfaced through the credential accessor, never as a tabtarget: a cloud command that finds no live sitting runs the device-flow kickoff inline when a TTY is present, and fails loud when headless.
+Surfaced through the credential accessor, never as a tabtarget: a cloud command that finds no live sitting runs the device-flow kickoff inline, surfacing the verification prompt on the shared progress stream — console, log, and any watching relay alike — so a headless-but-human-reachable caller completes the same human sign-in.
+No terminal gate guards the kickoff (retired 260701): human presence is enforced by the IdP sign-in itself, never by terminal possession, and the user code is display-safe by design (RFC 8628) — possession grants nothing without the human's own IdP authentication, and a substituted sign-in cannot pass admission.
+A truly unattended miss polls to the bounded device-code expiry and fails loud; unattended operation belongs to the programmatic mechanism, never this path.
 
 [[rbtf_sitting]]
 {rbtf_sitting}::
@@ -4709,7 +4711,7 @@ a live
 {rbtf_sitting}
 via
 {rbtf_avow}
-(the credential accessor runs the device-flow kickoff inline under a TTY, fails loud when headless); under
+(the credential accessor runs the device-flow kickoff inline, its prompt on the shared progress stream); under
 {rbrf_mechanism_programmatic}
 the programmatic accessor's self-supplied-JWT STS exchange
 ({rbtgo_foedus_acquire}),
@@ -4734,7 +4736,7 @@ a live
 {rbtf_sitting}
 via
 {rbtf_avow}
-(the credential accessor runs the device-flow kickoff inline under a TTY, fails loud when headless); under
+(the credential accessor runs the device-flow kickoff inline, its prompt on the shared progress stream); under
 {rbrf_mechanism_programmatic}
 the programmatic accessor's self-supplied-JWT STS exchange
 ({rbtgo_foedus_acquire}),
@@ -4759,7 +4761,7 @@ a live
 {rbtf_sitting}
 via
 {rbtf_avow}
-(the credential accessor runs the device-flow kickoff inline under a TTY, fails loud when headless); under
+(the credential accessor runs the device-flow kickoff inline, its prompt on the shared progress stream); under
 {rbrf_mechanism_programmatic}
 the programmatic accessor's self-supplied-JWT STS exchange
 ({rbtgo_foedus_acquire}),
