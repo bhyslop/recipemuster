@@ -53,6 +53,106 @@ shared home; any eventual convergence is at the engine layer.
   The privileged transport stays bash under BCG+WSG — the Windows transport Palisade is not
   rewritten for purity — so the mews is Rust core plus owned bash transport.
 
+== The jurisdiction inheritance
+
+The provisioning leg is not greenfield: heat ₣A- (windows-remote-control) designed, built, and
+largely converged it once as BUK *jurisdiction*, and that heat is now archived with its
+apparatus veiled.
+This section is the drain: the design substance reduced to what the mews inherits, sorted by
+fate — invariants that re-gestate intact, surveyed Windows Palisade facts, and the forks the
+rework legitimately reopens.
+Ceremony step lists, directive sets, and the colophon inventory are deliberately not carried;
+the veiled tree and its git history hold them.
+
+=== Invariants (re-gestate intact)
+
+* *Two records, one identity.* Node shape (host, OS family — per-node, git-transported,
+  changes rarely) separates from credentials (privileged + workload key material —
+  per-station-user); they join 1:1 on a shared node identity (₣A-'s *investiture*), and a
+  node's host is stated only in the node record, reached by reference from the credential side.
+  BURN/BURP was the proto-mews carrier of this split; the split outlives any carrier.
+* *Three verbs, one division of labor.* Establish admin posture (nuclear — purge and
+  re-establish, never skip-if-present); verify posture (read-only, no standalone entry point —
+  invoked as establish's post-check and provision's precondition, the single source of truth
+  for "correctly configured", each fact carrying a read command, expected value, and a failure
+  pointer to whichever side owns it); provision the workload account (workload-only,
+  destructive).
+* *Destructive ownership.* Every provision wipes prior workload state; node runtime state
+  belongs to whoever last provisioned; one workload user per node, ever.
+  The account-lifecycle verb zoo (conscript / discharge / inventory / withdraw) was weighed
+  and rejected — provisioning subsumes it.
+* *Keys are operator-owned.* The system never generates or modifies SSH key material; pubkeys
+  derive from privkeys at use-time.
+  Corollaries that held: passphrase-protected privkeys unsupported (derivation would prompt);
+  out-of-band pubkey registration (e.g. GitHub) is a precondition the system states but cannot
+  validate.
+* *The handbook boundary.* Security-sensitive host edits stay operator-manual by design
+  (registry edits, VPN/IdP first-auth, first Remote-Login enablement); automation owns only
+  idempotent admin-shell operations; the verify verb's failure pointers encode which side owns
+  each fact.
+* *Self-contained nodes.* Standing up a fresh node needs no other node: author its records,
+  run the operator-manual handbook at the keyboard, then establish and provision over the
+  tailnet the node self-authed to.
+  (₣A-'s converge-against-a-known-host-first was a sequencing choice, not architecture.)
+* *Transport posture.* Bash conducts; the platform shell is a syscall layer taking one atomic
+  command per call — the BCG+WSG discipline the provisioning bullet above already pins.
+
+=== Windows Palisade facts (surveyed; do not re-derive)
+
+* *Two-phase SSH trust is structural.* Hardening sshd restarts it, killing the session that
+  did the hardening; reconnect-and-verify is a phase boundary, not a retry.
+  First contact may fall back to a password typed on /dev/tty (never seen by the tool); every
+  later session is key-only.
+* *The workload owns its WSL distribution.* Per-user distro registration lands in the hive of
+  the logon session that performs the import, so provisioning drives the import from an
+  SSH-as-workload session; the admin side only produces a seed image on disk and never
+  registers the distro itself (the admin-no-WSL shape).
+  The identity boundary is the SSH session, not a scheduler hop.
+* *Reboot is the canonical Windows state reset.* In-session destructive cleanup (hive unload,
+  profile teardown) is unreliable; the chosen primitive is an unconditional reboot, with the
+  rejected alternatives recorded in
+  `Memos/memo-20260511-windows-hive-cleanup-reboot-decision.md`.
+* *Headless accounts break relative-path key resolution.* Windows OpenSSH resolves a relative
+  `AuthorizedKeysFile` via GetUserProfileDirectoryW, which fails for never-logged-on accounts;
+  an absolute-path Match block is structurally required.
+  `Memos/memo-20260516-windows-headless-account-anatomy.md` is the account-internals bible.
+* *One container daemon per Windows host.* WSL2 distros share one network namespace; two
+  daemons fight over kernel iptables/NAT rules.
+  ₣A- cinched Docker Desktop only (per-distro WSL integration); a native in-distro daemon is
+  deferred to operator-managed exclusive lifecycle.
+* *Known parked defects in the veiled code*, recorded so re-gestation does not rediscover
+  them: workload stdout arrives UTF-16LE-mangled because the forced-command directive does not
+  set `$env:WSL_UTF8=1`; obliterate may need wildcard cleanup of orphan `C:\Users\<workload>.*`
+  profile dirs, which otherwise mint `.machinename`-suffixed profiles on the next cycle.
+
+=== Reopened at mews-time (the residual forks)
+
+* *The carrier.* Env-file regimes in the moorings tree were the proto-mews store; the fleet
+  store above is the successor question.
+  Whatever carries it, the shape/credential split and the 1:1 identity join survive.
+* *The dispatch surface.* The ~20-colophon tabtarget family was scaffolding; the mews fronts
+  provisioning through registry and reservation, so the verb surface is re-derived, not
+  restored.
+* *Multi-station trust.* ₣A- deferred *adopt* (cross-station pubkey install via standing
+  privileged trust) and a centralized per-user key record; the mews's reservation model is
+  where they become live again.
+* *The RB-side handbook lineage.* The veiled RBK Windows handbook (Docker test-infrastructure
+  onboarding) is adjacent to, not part of, fleet provisioning; whether it re-enters through
+  the mews or re-gestates RBK-side is undecided.
+* *Still deferred, still named:* PowerShell as a workload shell-letter; localhost provisioning
+  variants; per-purpose workload→GitHub keypair separation.
+
+=== Veiling disposition
+
+The apparatus was veiled, not deleted: the BUK jurisdiction modules (BURN/BURP regimes and
+CLIs, the jurisdiction seat, the preflight gate) sleep in `Tools/buk/vov_veiled/`, the RBK
+Windows-handbook modules (`rbhw*`) in `Tools/rbk/vov_veiled/`, with every zipper enrollment
+and tabtarget removed.
+The code is inert and deliberately not rewired for local execution — re-gestation happens
+through this sheaf, never by quietly re-enrolling the shelved surface.
+The `BUSJ*` spec family and WSG remain in `Tools/buk/vov_veiled/` as the detailed record
+beneath this section's reduction; git history holds the full lineage.
+
 == Provisional vocabulary (self-contained)
 
 These mints stay local to this sheaf; they dissolve into the codex mapping section only on
@@ -71,12 +171,19 @@ unminted until it survives daily voice.
 * Clone location and sync model; conflict policy on a same-node-shard race.
 * The `(work-repo, SHA)` cross-reference seam shared with the state-repo sibling.
 * Whether the realization graduates to its own kit and prefix, or infuses here.
-* What of today's jurisdiction (caparison/invigilate/garrison, BURN/BURP) re-gestates intact vs.
-  is redesigned. The veiled BUK jurisdiction apparatus and the Windows guides are the raw
-  material; their disposition is recorded by the veiling pace.
+* The jurisdiction-inheritance forks — store carrier, dispatch surface, multi-station trust,
+  the RB-side handbook lineage — as itemized under Reopened at mews-time in the inheritance
+  section above.
 
 == Sources (provenance, not authority)
 
 * The former rig-and-mews paddock of this heat — superseded by this sheaf.
 * `Memos/memo-20260612-heat-Ba-falconry-asterism-soak.md` — naming deliberation and grep gates.
-* Heat ₣A- (windows-remote-control) — the jurisdiction design substance to drain in.
+* Heat ₣A- (windows-remote-control) — archived; its jurisdiction design substance drained into
+  the inheritance section above.
+* `Memos/memo-20260604-windows-node-orientation.md` — pointer map over the whole Windows
+  remote-node facility as built.
+* `Memos/memo-20260511-orchestration-style-axla-draft.md` — orchestration-style AXLA dimension
+  draft, parked pending a second exemplar (CMK territory, not fleet).
+* The Windows transport memo family (`Memos/memo-2026*-windows-*.md`) — the Palisade empirical
+  record.
