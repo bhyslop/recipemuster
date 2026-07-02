@@ -18060,8 +18060,8 @@
         "₢BfAAp": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260630-1535",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260701-1750",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "BARRIER — cross-clone wait. No code work of its own.",
                 "This pace cannot complete until ₢BlAAb (heat ₣Bl — the colophon-completeness check, ₣Bl's LAST zipper write under the 260630 rework, after canvass added rbw-jc) is complete, pushed to origin, and origin merged back into this clone.",
@@ -18075,7 +18075,7 @@
                 "Cross-clone barrier (zipper baton ₣Bl → ₣Bf → ₣Bi); retargeted 260630 from the stale ₢BlAAN to ₣Bl's actual last zipper write ₢BlAAb, and repositioned after ₢BfAAv to avoid the spec-re-cut cycle."
               ],
               "jjgtn_silks": "await-thg-zipper-baton",
-              "jjgtn_basis": "4b4643b"
+              "jjgtn_basis": "915e274"
             }
           ]
         },
