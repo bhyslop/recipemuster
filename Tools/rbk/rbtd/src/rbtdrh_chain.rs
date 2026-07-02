@@ -15,11 +15,11 @@
 // Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 //
 // RBTDRH — chaining-fact-band fixture: the band matrix for the durable-config
-// chain LINKS (feoff, yoke) and the read-side consumers (summon, plumb, augur,
-// rekon), driven through the real tabtarget exec path.
+// chain LINKS (feoff, yoke, anoint, drive) and the read-side consumers (summon,
+// plumb, augur, rekon), driven through the real tabtarget exec path.
 //
 // The chaining-fact discipline splits the value-forwarding verbs by role; only
-// feoff/anoint/yoke write durable config from a resolved express-or-chain value,
+// feoff/anoint/yoke/drive write durable config from a resolved express-or-chain value,
 // and a bad resolution (a wrong-kind touchmark, a broken chain) must be REJECTED
 // with the named precision band — never a bare nonzero, and never after a
 // destructive write. The band fires only at the RBK consumer (buc_reject in
@@ -57,6 +57,8 @@ use crate::rbtdgc_consts::{
     RBTDGC_ANOINT_GRAFT,
     RBTDGC_AUGUR_LODE,
     RBTDGC_BAND_CHAIN,
+    RBTDGC_CONTAINER_BOTTLE,
+    RBTDGC_DRIVE_HALLMARK,
     RBTDGC_FEOFF_BOLE,
     RBTDGC_PLUMB_FULL,
     RBTDGC_REKON_HALLMARK,
@@ -103,6 +105,12 @@ const RBTDRH_VESSEL_RBRV: &str = "RBRV_IMAGE_1_ORIGIN=docker.io/library/debian:b
 // chain read. The reject precedes the rewrite, so driving the real vessel leaves
 // its rbrv.env untouched (the case asserts that byte-identity).
 const RBTDRH_GRAFT_VESSEL: &str = "rbev-graft-demo";
+
+// The drive's folio is a real tracked nameplate — the drive resolves the target
+// rbrn.env by MONIKER (never a path, unlike feoff's temp vessel), so it must drive
+// a real nameplate under rbmm_moorings. The reject precedes the rewrite, so the
+// drive leaves its rbrn.env byte-identical (the case asserts that identity).
+const RBTDRH_DRIVE_NAMEPLATE: &str = "tadmor";
 
 // ── Harness ─────────────────────────────────────────────────
 
@@ -217,6 +225,40 @@ fn rbtdrh_drive_anoint(dir: &Path) -> Result<i32, String> {
         .map_err(|e| format!("failed to run anoint {}: {}", tt.display(), e))?;
     let _ = std::fs::write(dir.join("anoint-stdout.txt"), &output.stdout);
     let _ = std::fs::write(dir.join("anoint-stderr.txt"), &output.stderr);
+    Ok(output.status.code().unwrap_or(-1))
+}
+
+/// Drive the rbw-nd nameplate-drive tabtarget against a REAL tracked nameplate (its
+/// folio) with an EMPTY BURV root and no express hallmark. The drive is the fourth
+/// durable-config LINK (it rewrites RBRN_{BOTTLE,SENTRY}_HALLMARK); with no express
+/// and no chained fact the express-or-chain resolve finds nothing and the drive
+/// rejects with the chaining band BEFORE the rbrn.env rewrite — the same reject-
+/// before-write shape that keeps the anoint negative write-free, so the tracked
+/// rbrn.env is never mutated (asserted by the case). The nameplate is addressed by
+/// moniker and NOT loaded, so a still-blank hallmark field never blocks the run.
+/// Credless, no cloud — the reject fires before any token mint. Returns the exit code.
+fn rbtdrh_drive_nameplate(dir: &Path, nameplate: &str, field: &str) -> Result<i32, String> {
+    let root = std::env::current_dir().map_err(|e| format!("cannot get cwd: {}", e))?;
+    let tt = rbtdri_find_tabtarget_global(&root, RBTDGC_DRIVE_HALLMARK)?;
+
+    let burv = dir.join("burv");
+    let burv_temp = dir.join("burvtmp");
+    std::fs::create_dir_all(&burv).map_err(|e| format!("mkdir burv root: {}", e))?;
+    std::fs::create_dir_all(&burv_temp).map_err(|e| format!("mkdir burv temp: {}", e))?;
+
+    let mut cmd = rbtdri_tabtarget_command(&tt);
+    cmd.arg(nameplate)
+        .arg(field)
+        .env("BURV_OUTPUT_ROOT_DIR", rbtdrx_native_to_posix(&burv))
+        .env("BURV_TEMP_ROOT_DIR", rbtdrx_native_to_posix(&burv_temp))
+        .env(RBTDRI_BURE_CONFIRM_KEY, RBTDRI_BURE_CONFIRM_SKIP)
+        .current_dir(&root);
+
+    let output = cmd
+        .output()
+        .map_err(|e| format!("failed to run drive {}: {}", tt.display(), e))?;
+    let _ = std::fs::write(dir.join("drive-stdout.txt"), &output.stdout);
+    let _ = std::fs::write(dir.join("drive-stderr.txt"), &output.stderr);
     Ok(output.status.code().unwrap_or(-1))
 }
 
@@ -449,6 +491,48 @@ fn rbtdrh_anoint_broken_chain(dir: &Path) -> rbtdre_Verdict {
     rbtdre_Verdict::Pass
 }
 
+// ── drive case ──────────────────────────────────────────────
+// drive is the fourth durable-config LINK (it rewrites RBRN_{BOTTLE,SENTRY}_HALLMARK,
+// the rbrn_regime sibling of feoff/yoke/anoint). It is express-or-chain like feoff,
+// but resolves the nameplate by MONIKER (never a path), so — like anoint — it cannot
+// use a temp target and drives the real tracked nameplate as its folio. With no
+// express and an empty BURV root the chain read fails and drive rejects with the band
+// BEFORE the rbrn.env rewrite, so the tracked nameplate stays byte-identical.
+
+fn rbtdrh_drive_broken_chain(dir: &Path) -> rbtdre_Verdict {
+    let rbrn = match std::env::current_dir() {
+        Ok(r) => r
+            .join("rbmm_moorings")
+            .join(RBTDRH_DRIVE_NAMEPLATE)
+            .join("rbrn.env"),
+        Err(e) => return rbtdre_Verdict::Fail(format!("cannot get cwd: {}", e)),
+    };
+    let before = std::fs::read_to_string(&rbrn).unwrap_or_default();
+
+    let code = match rbtdrh_drive_nameplate(dir, RBTDRH_DRIVE_NAMEPLATE, RBTDGC_CONTAINER_BOTTLE) {
+        Ok(c) => c,
+        Err(e) => return rbtdre_Verdict::Fail(e),
+    };
+    if code != RBTDGC_BAND_CHAIN {
+        return rbtdre_Verdict::Fail(format!(
+            "drive broken chain (empty BURV root, no express) exited {} — expected band {} (artifacts in {})",
+            code, RBTDGC_BAND_CHAIN, dir.display()
+        ));
+    }
+
+    // The reject must precede the rewrite — that invariant is what makes driving the
+    // real tracked nameplate write-free. Prove the rbrn.env is byte-identical after.
+    let after = std::fs::read_to_string(&rbrn).unwrap_or_default();
+    if after != before {
+        return rbtdre_Verdict::Fail(format!(
+            "the tracked nameplate rbrn.env was mutated under a band reject \
+             (rejection must precede any write); after:\n{}",
+            after
+        ));
+    }
+    rbtdre_Verdict::Pass
+}
+
 // ── read-side consumer cases ────────────────────────────────
 // summon/plumb/augur/rekon write no durable config, but they resolve the same
 // express-or-chain fact and now reject a broken resolve with the same band as the
@@ -644,6 +728,7 @@ pub static RBTDRH_CASES_CHAINING_FACT_BAND: &[rbtdre_Case] = &[
     case!(rbtdrh_yoke_wrong_kind),
     case!(rbtdrh_yoke_unknown_prefix),
     case!(rbtdrh_anoint_broken_chain),
+    case!(rbtdrh_drive_broken_chain),
     case!(rbtdrh_summon_no_folio),
     case!(rbtdrh_plumb_no_folio),
     case!(rbtdrh_augur_no_folio),

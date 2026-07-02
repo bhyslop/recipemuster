@@ -217,6 +217,7 @@ zrbz_kindle() {
   buz_enroll RBZ_LIST_NAMEPLATES        "rbw-rnl" "${z_mod}" "rbrn_list"    ""  "List all nameplates"
   buz_enroll RBZ_SURVEY_NAMEPLATES      "rbw-ni"  "${z_mod}" "rbrn_survey"  ""  "Survey nameplate status"
   buz_enroll RBZ_AUDIT_NAMEPLATES       "rbw-nv"  "${z_mod}" "rbrn_audit"   ""  "Validate all nameplates"
+  buz_enroll RBZ_DRIVE_HALLMARK         "rbw-nd"  "${z_mod}" "rbrn_drive"   "param1"  "Drive a freshly-built hallmark into a nameplate's RBRN_*_HALLMARK (express-or-chain; args: field bottle|sentry [hallmark])"
 
   # Regime — config files (rbw-r)
   buz_group RBZ__GROUP_REGIME     "rbw-r"   "Regime — Config files"

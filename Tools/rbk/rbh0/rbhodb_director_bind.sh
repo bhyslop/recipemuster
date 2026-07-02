@@ -142,12 +142,12 @@ rbho_director_bind() {
   buh_e
   buh_line "  Alternative — if you completed ${RBHO_TRACK_FIRST_BUILD}, the"
   buh_line "  ${RBYC_CONJURED} ${RBYC_SENTRY} ${RBYC_HALLMARK} is already in your ${RBYC_DEPOT}."
-  buh_line "  Read it and write it into ${z_lk_pluml}'s ${RBYC_RBRN}:"
+  buh_line "  Drive it into ${z_lk_pluml}'s ${RBYC_SENTRY} hallmark, pasting your"
+  buh_line "  ${RBYC_CONJURED} ${RBYC_SENTRY} ${RBYC_HALLMARK} as the last argument, then commit:"
   buh_e
-  buyy_cmd_yawp "${z_pluml_rbrn}"; local -r z_lk_pluml_file="${z_buym_yelp}"
-  buh_code "   RBRN_SENTRY_HALLMARK=<your-conjured-sentry-hallmark>"
+  buh_tt "   " "${RBZ_DRIVE_HALLMARK}" "" " ${z_moniker} sentry <your-conjured-sentry-hallmark>"
   buh_e
-  buh_line "  in ${z_lk_pluml_file}, then commit. The ${RBYC_SENTRY} ${RBYC_HALLMARK} can come"
+  buh_line "  The ${RBYC_SENTRY} ${RBYC_HALLMARK} can come"
   buh_line "  from either build path — a ${RBYC_KLUDGE_D} ${RBYC_SENTRY} is fine for"
   buh_line "  learning ${RBYC_BIND}; a ${RBYC_CONJURED} ${RBYC_SENTRY} is fine too. The bind"
   buh_line "  lesson is about the ${RBYC_BOTTLE}, not the ${RBYC_SENTRY}."

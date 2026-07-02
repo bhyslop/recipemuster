@@ -193,8 +193,6 @@ zrbob_kindle() {
   readonly ZRBOB_BOTTLE_USER="${z_bottle_user}"
   export RBRV_USER="${z_bottle_user}"
 
-  readonly ZRBOB_DRIVE_PREFIX="${BURD_TEMP_DIR}/rbob_drive_"
-
   readonly ZRBOB_KINDLED=1
 }
 
@@ -674,50 +672,6 @@ rbob_ifrit_sortie() {
 }
 
 ######################################################################
-# Drive Hallmark — rewrite a single RBRN_*_HALLMARK line in nameplate env
-# Args: nameplate_file variable_name new_hallmark
-
-zrbob_drive_hallmark() {
-  local -r z_file="$1"
-  local -r z_var_name="$2"
-  local -r z_new_value="$3"
-
-  test -f "${z_file}" || buc_die "Nameplate file not found: ${z_file}"
-  test -n "${z_var_name}" || buc_die "Variable name required"
-  test -n "${z_new_value}" || buc_die "New hallmark value required"
-
-  # Load file into array (BCG load-then-iterate)
-  local z_lines=()
-  while IFS= read -r z_line || test -n "${z_line}"; do
-    z_lines+=("${z_line}")
-  done < "${z_file}"
-
-  # Rewrite with substitution
-  local -r z_temp="${ZRBOB_DRIVE_PREFIX}${z_var_name}"
-  : > "${z_temp}" || buc_die "Failed to create temp file: ${z_temp}"
-
-  local z_found=0
-  local z_i="" z_current=""
-  for z_i in "${!z_lines[@]}"; do
-    z_current="${z_lines[$z_i]}"
-    case "${z_current}" in
-      "${z_var_name}"=*)
-        z_current="${z_var_name}=${z_new_value}"
-        z_found=1
-        ;;
-    esac
-    printf '%s\n' "${z_current}" >> "${z_temp}" || buc_die "Failed to write line"
-  done
-
-  test "${z_found}" = "1" || buc_die "Variable ${z_var_name} not found in ${z_file}"
-
-  # Atomic replace
-  mv "${z_temp}" "${z_file}" || buc_die "Failed to replace nameplate file: ${z_file}"
-
-  buc_info "Drove ${z_var_name}=${z_new_value} → ${z_file}"
-}
-
-######################################################################
 # Kludge Bottle — build bottle vessel locally and drive hallmark into nameplate
 
 rbob_kludge_bottle() {
@@ -731,14 +685,16 @@ rbob_kludge_bottle() {
 
   BUZ_FOLIO="${RBRN_BOTTLE_VESSEL}" rbfk_kludge
 
-  # Read hallmark from fact file
+  # Read the hallmark the in-process build head just wrote to current/ and drive
+  # it express into this nameplate. Express, not chain: the build head ran in THIS
+  # tabtarget, so its fact sits in BURD_OUTPUT_DIR, not the previous-dispatch chain
+  # a standalone drive reads — this is what keeps the local kludge one-shot.
   local z_hallmark=""
   z_hallmark=$(<"${BURD_OUTPUT_DIR}/${RBF_FACT_HALLMARK}") \
     || buc_die "Failed to read hallmark from kludge output"
   test -n "${z_hallmark}" || buc_die "Empty hallmark from kludge output"
 
-  # Drive hallmark into nameplate
-  zrbob_drive_hallmark "${ZRBOB_ENV_RBRN}" "RBRN_BOTTLE_HALLMARK" "${z_hallmark}"
+  BUZ_FOLIO="${RBRN_MONIKER}" rbrn_drive bottle "${z_hallmark}"
 
   buc_success "Kludge installed: ${z_hallmark} → ${RBRN_MONIKER}"
 }
@@ -757,14 +713,15 @@ rbob_kludge_sentry() {
 
   BUZ_FOLIO="${RBRN_SENTRY_VESSEL}" rbfk_kludge
 
-  # Read hallmark from fact file
+  # Read the hallmark the in-process build head just wrote to current/ and drive
+  # it express into this nameplate (see rbob_kludge_bottle for the express-not-
+  # chain rationale that keeps the local kludge one-shot).
   local z_hallmark=""
   z_hallmark=$(<"${BURD_OUTPUT_DIR}/${RBF_FACT_HALLMARK}") \
     || buc_die "Failed to read hallmark from kludge output"
   test -n "${z_hallmark}" || buc_die "Empty hallmark from kludge output"
 
-  # Drive hallmark into nameplate
-  zrbob_drive_hallmark "${ZRBOB_ENV_RBRN}" "RBRN_SENTRY_HALLMARK" "${z_hallmark}"
+  BUZ_FOLIO="${RBRN_MONIKER}" rbrn_drive sentry "${z_hallmark}"
 
   buc_success "Kludge installed: ${z_hallmark} → ${RBRN_MONIKER}"
 }

@@ -72,7 +72,7 @@ Kludge builds are for rapid local iteration. Once all tests pass with the kludge
    ```
    tt/rbw-fs.RetrieverSummonsHallmark.sh rbev-bottle-ifrit-tether <hallmark>
    ```
-3. Drive the ordained hallmark into the nameplate (edit `RBRN_BOTTLE_HALLMARK` in `.rbk/tadmor/rbrn.env`), commit, and re-run the full fixture to verify.
+3. Drive the ordained hallmark into the nameplate with `tt/rbw-nd.DriveNameplateHallmark.sh tadmor bottle <hallmark>` (or omit `<hallmark>` to chain-read it from the ordain you just ran), commit, and re-run the full fixture to verify.
 
 **Hallmark prefixes** tell you what you have: `k` = kludge (local build), `c` = conjured (Cloud Build ordained).
 
@@ -139,13 +139,14 @@ instead of writing nothing. It shares one validated core
 per-field function farm**. Temp-vessel cases that construct known bytes need no
 zero call.
 
-**Dispersed siblings (not yet in the console).** The same validated
-field-rewrite still lives in `rbtdro_drive_hallmark` (the nameplate hallmark
-drive) and `rbtdrk_replace_env_fields` (the regime multi-field rewrite). These
-are migration candidates — fold them onto `rbtdre_config_set_field` when next in
-that code — left in place only to keep the console's introduction scoped. New
-fixture state-mutation helpers land in the console; they do not re-grow per
-module.
+**Dispersed sibling (not yet in the console).** The same validated
+field-rewrite still lives in `rbtdrk_replace_env_fields` (the regime multi-field
+rewrite). It is a migration candidate — fold it onto `rbtdre_config_set_field`
+when next in that code — left in place only to keep the console's introduction
+scoped. (The former `rbtdro_drive_hallmark` nameplate-hallmark rewrite is gone:
+onboarding now invokes the real `rbw-nd` drive tabtarget, so that write lives in
+one bash home, `rbrn_drive`.) New fixture state-mutation helpers land in the
+console; they do not re-grow per module.
 
 ### Adding a New Test
 

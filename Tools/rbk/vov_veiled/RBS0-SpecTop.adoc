@@ -129,6 +129,7 @@
 :rbtgo_director_vouch:            <<rbtgo_director_vouch,rbfv_batch_vouch>>
 :rbtgo_director_yoke:             <<rbtgo_director_yoke,rbfl_yoke>>
 :rbtgo_director_feoff:            <<rbtgo_director_feoff,rbfl_feoff>>
+:rbtgo_nameplate_drive:          <<rbtgo_nameplate_drive,rbrn_drive>>
 :rbtgo_image_delete:              <<rbtgo_image_delete,rbfl_jettison>>
 :rbtgo_image_audit:               <<rbtgo_image_audit,Image Audit>>
 :rbtgo_image_rekon:               <<rbtgo_image_rekon,Image Rekon>>
@@ -1535,6 +1536,17 @@ The chain LINK extracted out of {rbtgo_ark_conjure} so conjure stays a pure chai
 //axvd_cartouche axd_normative
 include::RBSDF-director_feoff.adoc[]
 
+[[rbtgo_nameplate_drive]]
+//axvo_method axd_transient axd_grouped
+=== {rbtgo_nameplate_drive}
+
+Drives a freshly-built hallmark into a nameplate:
+resolves a hallmark express-or-chain, then writes `RBRN_BOTTLE_HALLMARK` or `RBRN_SENTRY_HALLMARK` into one named {rbrn_regime} file.
+The durable-config {rbch_enchase} for the {rbf_fact_hallmark} chain — the {rbrn_regime} sibling of {rbtgo_director_feoff}/{rbtgo_director_yoke}, one primitive shared by the local {rbtgo_ark_kludge} (composed one-shot after the build head) and the cloud {rbtgo_ark_ordain} path (a standalone operator verb replacing the former nameplate hand-edit).
+
+//axvd_cartouche axd_normative
+include::RBSND-nameplate_drive.adoc[]
+
 [[rbtgo_image_delete]]
 //axvo_method axd_transient axd_grouped
 === {rbtgo_image_delete}
@@ -2784,7 +2796,7 @@ This is the sanctioned crossing of a transient chained value into durable, commi
 A broken resolve rejects with the named chaining band (`BUBC_band_chain`), never a bare nonzero.
 The chain is read terminally, never relayed — the depth-1 no-relay leak-elimination invariant, since a relayed value would leak a stale capture forward into a later unrelated election.
 It does not gate on a clean tree: it writes the very change the operator is about to commit, where the durable effect is sealed and reviewed.
-Members are defined by this nature, not a fixed roster: {rbtgo_director_feoff}, {rbtgo_director_yoke}, anoint, and the nameplate-hallmark drive — spanning both the touchmark and hallmark chains and both the {rbrv_regime} and {rbrn_regime} families.
+Members are defined by this nature, not a fixed roster: {rbtgo_director_feoff}, {rbtgo_director_yoke}, anoint, and {rbtgo_nameplate_drive} — spanning both the touchmark and hallmark chains and both the {rbrv_regime} and {rbrn_regime} families.
 
 [[rbch_palpate]]
 {rbch_palpate}::

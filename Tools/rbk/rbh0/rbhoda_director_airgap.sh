@@ -259,11 +259,10 @@ rbho_director_airgap() {
   buh_e
   buh_code "   export ${RBYC_HANDBOOK_HALLMARK_NAME}=\$(cat ${BURD_OUTPUT_DIR}/${RBF_FACT_HALLMARK})"
   buh_e
-  buyy_cmd_yawp "${z_moriah_rbrn}"; local -r z_lk_moriah_file="${z_buym_yelp}"
-  buh_line "Open ${z_lk_moriah_file} and set the ${RBYC_BOTTLE} hallmark, replacing"
-  buh_line "the PENDING-ordination placeholder:"
+  buh_line "Drive it into ${z_lk_moriah}'s ${RBYC_BOTTLE} hallmark, replacing the"
+  buh_line "PENDING-ordination placeholder — the drive writes the ${RBYC_RBRN} for you:"
   buh_e
-  buh_code "   RBRN_BOTTLE_HALLMARK=${RBYC_HANDBOOK_HALLMARK_REF}"
+  buh_tt "   " "${RBZ_DRIVE_HALLMARK}" "" " ${z_moniker} bottle ${RBYC_HANDBOOK_HALLMARK_REF}"
   buh_e
   buh_line "Commit the change."
   buh_e

@@ -58,6 +58,7 @@ use crate::rbtdgc_consts::{
     RBTDGC_CONTAINER_SENTRY,
     RBTDGC_CRUCIBLE_KLUDGE_BOTTLE,
     RBTDGC_CRUCIBLE_KLUDGE_SENTRY,
+    RBTDGC_DRIVE_HALLMARK,
     RBTDGC_ENSCONCE_BOLE,
     RBTDGC_CONCLAVE_RELIQUARY,
     RBTDGC_FEOFF_BOLE,
@@ -67,6 +68,7 @@ use crate::rbtdgc_consts::{
     RBTDGC_REKON_HALLMARK,
     RBTDGC_SUMMON_HALLMARK,
     RBTDGC_VERB_ANOINT,
+    RBTDGC_VERB_DRIVE,
     RBTDGC_VERB_KLUDGE,
     RBTDGC_VERB_YOKE,
     RBTDGC_WREST_HALLMARK_IMAGE,
@@ -94,11 +96,6 @@ const RBTDRO_NAMEPLATE_CCYOLO: &str = "ccyolo";
 const RBTDRO_NAMEPLATE_MORIAH: &str = "moriah";
 const RBTDRO_NAMEPLATE_SRJCL: &str = "srjcl";
 const RBTDRO_NAMEPLATE_PLUML: &str = "pluml";
-
-// ── Nameplate hallmark variable names (lines in rbmm_moorings/<nameplate>/rbrn.env) ──
-
-const RBTDRO_HALLMARK_VAR_BOTTLE: &str = "RBRN_BOTTLE_HALLMARK";
-const RBTDRO_HALLMARK_VAR_SENTRY: &str = "RBRN_SENTRY_HALLMARK";
 
 // ── Consumer arrays ───────────────────────────────────────────
 
@@ -388,30 +385,38 @@ fn rbtdro_read_vessel_env(
     Err(format!("variable {} not found in {}/rbrv.env", var_name, vessel_dir))
 }
 
-/// Drive a hallmark value into a nameplate's rbrn.env. Delegates to the engine's
-/// validated config-field seam (rbtdre_config_set_field) — the same generalized
-/// find-or-err + atomic-rename home its rbrv.env sibling (rbtdro_write_vessel_env)
-/// rides — so the substitution lives in one place. The find-or-err is the
-/// schema-drift catch (renamed/removed field stops the run, never a silent skip).
-/// Returns Err if the variable line is not found (hard fail — configuration error).
-fn rbtdro_drive_hallmark(
-    root: &Path,
+/// Drive a freshly-built hallmark into a nameplate's RBRN_{BOTTLE,SENTRY}_HALLMARK
+/// by invoking the real rbw-nd drive tabtarget — the unified drive-link — with the
+/// hallmark passed EXPRESS (`field` is the two-value selector `bottle`|`sentry`).
+/// Replaces the former in-process rbtdro_drive_hallmark reimplementation: the
+/// onboarding harness now exercises the same operator verb the cloud path ships,
+/// and the durable-config discipline (no-relay, band-reject) lives in ONE bash home.
+/// The drive does not commit; callers commit via rbtdre_commit_nameplates.
+fn rbtdro_drive_nameplate(
+    ctx: &mut rbtdri_Context,
+    dir: &Path,
     nameplate: &str,
-    var_name: &str,
+    field: &str,
     hallmark: &str,
-) -> Result<(), String> {
-    let rbrn_path = root
-        .join(crate::rbtdgc_consts::RBTDGC_MOORINGS_DIR)
-        .join(nameplate)
-        .join("rbrn.env");
-    rbtdre_config_set_field(&rbrn_path, var_name, hallmark)
+) -> Result<(), rbtdre_Verdict> {
+    rbtdri_invoke_or_fail(
+        ctx,
+        &format!("{} {}", RBTDGC_VERB_DRIVE, field),
+        nameplate,
+        RBTDGC_DRIVE_HALLMARK,
+        &[nameplate, field, hallmark],
+        &[],
+        dir,
+        &format!("{}-{}-{}", RBTDGC_VERB_DRIVE, field, nameplate),
+    )?;
+    Ok(())
 }
 
 /// Kludge helper: build sentry and bottle locally for a nameplate. Both steps
 /// are local docker builds with no GCP dependency. The kludge tabtargets drive
-/// hallmarks directly into the nameplate's rbrn.env via zrbob_drive_hallmark.
-/// rbw-cKS and rbw-cKB are global (param1-channel) tabtargets — no imprint suffix,
-/// nameplate passed as a positional argument.
+/// hallmarks directly into the nameplate's rbrn.env via the rbrn_drive drive-link
+/// they compose. rbw-cKS and rbw-cKB are global (param1-channel) tabtargets — no
+/// imprint suffix, nameplate passed as a positional argument.
 fn rbtdro_kludge_nameplate(
     ctx: &mut rbtdri_Context,
     dir: &Path,
@@ -736,13 +741,10 @@ fn rbtdro_onboarding_ordain_conjure_sentry_impl(ctx: &mut rbtdri_Context, dir: &
     }
 
     for nameplate in RBTDRO_CONSUMERS_SENTRY_TETHER {
-        if let Err(e) =
-            rbtdro_drive_hallmark(&root, nameplate, RBTDRO_HALLMARK_VAR_SENTRY, &hallmark)
+        if let Err(v) =
+            rbtdro_drive_nameplate(ctx, dir, nameplate, RBTDGC_CONTAINER_SENTRY, &hallmark)
         {
-            return rbtdre_Verdict::Fail(format!(
-                "drive sentry hallmark into {}: {}",
-                nameplate, e
-            ));
+            return v;
         }
     }
 
@@ -781,13 +783,10 @@ fn rbtdro_onboarding_ordain_conjure_jupyter_impl(ctx: &mut rbtdri_Context, dir: 
     };
 
     for nameplate in RBTDRO_CONSUMERS_JUPYTER_BOTTLE {
-        if let Err(e) =
-            rbtdro_drive_hallmark(&root, nameplate, RBTDRO_HALLMARK_VAR_BOTTLE, &hallmark)
+        if let Err(v) =
+            rbtdro_drive_nameplate(ctx, dir, nameplate, RBTDGC_CONTAINER_BOTTLE, &hallmark)
         {
-            return rbtdre_Verdict::Fail(format!(
-                "drive jupyter hallmark into {}: {}",
-                nameplate, e
-            ));
+            return v;
         }
     }
 
@@ -935,13 +934,10 @@ fn rbtdro_onboarding_ordain_airgap_chain_impl(ctx: &mut rbtdri_Context, dir: &Pa
     };
 
     for nameplate in RBTDRO_CONSUMERS_AIRGAP_BOTTLE {
-        if let Err(e) =
-            rbtdro_drive_hallmark(&root, nameplate, RBTDRO_HALLMARK_VAR_BOTTLE, &airgap_hallmark)
+        if let Err(v) =
+            rbtdro_drive_nameplate(ctx, dir, nameplate, RBTDGC_CONTAINER_BOTTLE, &airgap_hallmark)
         {
-            return rbtdre_Verdict::Fail(format!(
-                "drive airgap hallmark into {}: {}",
-                nameplate, e
-            ));
+            return v;
         }
     }
 
@@ -1073,13 +1069,10 @@ fn rbtdro_onboarding_ordain_bind_plantuml_impl(ctx: &mut rbtdri_Context, dir: &P
     }
 
     for nameplate in RBTDRO_CONSUMERS_PLANTUML_BOTTLE {
-        if let Err(e) =
-            rbtdro_drive_hallmark(&root, nameplate, RBTDRO_HALLMARK_VAR_BOTTLE, &hallmark)
+        if let Err(v) =
+            rbtdro_drive_nameplate(ctx, dir, nameplate, RBTDGC_CONTAINER_BOTTLE, &hallmark)
         {
-            return rbtdre_Verdict::Fail(format!(
-                "drive plantuml hallmark into {}: {}",
-                nameplate, e
-            ));
+            return v;
         }
     }
 

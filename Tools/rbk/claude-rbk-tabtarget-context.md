@@ -164,6 +164,7 @@ The Folio column shows how each tabtarget receives it:
 | `rbw-rnl` | ListNameplateRegime | — | List all nameplates |
 | `rbw-ni` | NameplateInfo | — | Survey nameplate status |
 | `rbw-nv` | ValidateNameplates | — | Validate all nameplates |
+| `rbw-nd` | DriveNameplateHallmark | param1 | Drive a freshly-built hallmark into a nameplate's RBRN_*_HALLMARK (express-or-chain; args: field bottle|sentry [hallmark]) |
 
 ### Regime — Config files (`rbw-r`)
 

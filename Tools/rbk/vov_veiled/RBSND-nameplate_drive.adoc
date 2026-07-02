@@ -1,0 +1,57 @@
+//axvd_sheaf axd_normative
+This is a normative portion of the {rbs0_imprimatur}: binding — code, tests, and decisions may rely on it.
+//axhob_operation
+{rbtgo_nameplate_drive}
+
+NOTE: This operation writes `RBRN_BOTTLE_HALLMARK=«HALLMARK»` or `RBRN_SENTRY_HALLMARK=«HALLMARK»` into one named nameplate's {rbrn_regime} file, installing the freshly-built image tag the crucible will charge.
+The drive is a {rbch_enchase} — the {rbrn_regime} sibling of {rbtgo_director_feoff} and {rbtgo_director_yoke} on the durable-config surface, resolving the {rbf_fact_hallmark} chain rather than the touchmark chain, and writing the nameplate regime rather than the vessel regime.
+One primitive serves both build paths: the local {rbtgo_ark_kludge} composes it one-shot (build head, then drive) so the developer's edit-build-charge loop stays a single command, and the cloud {rbtgo_ark_ordain} path drives it as a standalone operator verb — replacing a former hand-edit of the nameplate file — to propagate an ordained hallmark into its consumer nameplates.
+
+NOTE: *No GAR call, no clean-tree gate, no fact.*
+The drive resolves the hallmark purely express-or-chain and rewrites one line of the {rbrn_regime} — it makes no {gar_service} call.
+It does not gate on a clean tree — it writes the very change the operator is about to commit — and it emits no chaining fact: a {rbch_enchase} terminates the chain it reads, never relaying it (the depth-1 no-relay leak-elimination invariant — a relayed hallmark would forward a stale build into a later unrelated drive).
+This primitive does not commit; the operator commits the {rbrn_regime} change.
+
+NOTE: *Addressed by moniker, never loaded.*
+The target nameplate is resolved by moniker to its {rbrn_regime} path and rewritten directly — the regime is NOT loaded.
+Loading would enforce the field's min-length and reject a still-blank hallmark — the very state a first drive fills — so the drive edits the file text directly, exactly as {rbtgo_director_feoff} never loads the vessel whose {rbrv_regime} it rewrites.
+
+NOTE: *Loud on success.*
+On a successful write the drive emits the driven field, the hallmark, and its source — an express argument versus the chained capture — so a wrong drive shows at the moment of action rather than only in the eventual git diff.
+
+The drive writes one nameplate's hallmark field:
+
+//axhopt_typed_parameter
+{rbrn_regime}
+. *Resolve the Target Nameplate* (express):
+.. `«NAMEPLATE»` is the first positional argument — a nameplate moniker
+.. {rbbc_require}
+the moniker resolves to a directory carrying an {rbrn_regime} file
+.. the nameplate is addressed by moniker and its regime is NOT loaded — the drive rewrites one line, never re-deriving from a loaded regime
+
+//axhos_step
+. *Resolve the Field* (express):
+.. `«FIELD»` is the second positional argument — the two-value selector `bottle` or `sentry`, mapping to `RBRN_BOTTLE_HALLMARK` or `RBRN_SENTRY_HALLMARK`
+.. {rbbc_fatal}
+if the field is absent, or is neither `bottle` nor `sentry`
+
+//axhos_step
+. *Resolve the Hallmark* (express-or-chain):
+.. `«HALLMARK»` resolves express-or-chain: an express third positional argument (e.g., `k260327172456`) wins; absent, it falls back to the hallmark a build ({rbtgo_ark_kludge} or {rbtgo_ark_ordain}) handed forward through the depth-1 cross-tabtarget chain. The chain is read terminally — never relayed.
+.. {rbbc_fatal}
+if neither an express argument nor a chained hallmark is present — a broken chain; the rejection rides the chaining precision band
+
+//axhos_step
+. *Rewrite the {rbrn_regime}*:
+.. Substitute the elected field's line with `«FIELD_VAR»=«HALLMARK»`, preserving position
+.. {rbbc_fatal}
+if the field's line is not present — a required enrolled field absent is nameplate schema drift, a hard failure, never a silent append (contrast anoint, whose grafting line may legitimately be absent and is appended)
+.. all other lines pass through unchanged
+.. write the composed content to a temp file, then atomically replace the {rbrn_regime} file via rename
+.. {rbbc_fatal}
+on any I/O failure
+
+//axhoc_completion
+Successful execution writes the resolved hallmark into the one named nameplate's {rbrn_regime} field; no GAR state is read or modified, and no chaining fact is emitted.
+The primitive does not commit — the operator commits the modified {rbrn_regime} file with their usual git workflow, after which the crucible charges the nameplate FROM the committed hallmark.
+The local {rbtgo_ark_kludge} composes this drive in-process, passing the just-built hallmark express — its build head wrote the fact into the current dispatch, not the previous-dispatch chain a standalone drive reads, which is what keeps the local kludge one-shot.
