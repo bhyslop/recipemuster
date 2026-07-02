@@ -26,18 +26,22 @@
 # this module carries no lock logic and no IAM — it is glue over a service.
 # Contract: RBSTR-Terrier.adoc.
 #
-# A muniment is one GCS object per (principal subject, mantle held) pair — the
-# settled per-entry granularity. Its object name indexes the pair under the
-# polity managed folder; its content is the authoritative record (peruse
-# reconstructs the holding from content, never by parsing the key). Per-entry
-# muniments are immutable: a holding exists or it does not, so engross is a
-# create (ifGenerationMatch=0) and expunge a delete — the RBSTR
-# generation-conditional update path is unexercised under this granularity.
+# A muniment is one GCS object per (principal subject, mantle held, admitting
+# provider) triple — the settled per-entry granularity. Its object name indexes
+# the triple under the polity managed folder; its content is the authoritative
+# record (peruse reconstructs the holding from content, never by parsing the
+# key). The provider segment discriminates co-resident foedera under the manor's
+# one workforce pool: two foedera admitting the same subject onto the same mantle
+# hold distinct grants, so each gets its own muniment rather than colliding on a
+# byte-identical key. Per-entry muniments are immutable: a holding exists or it
+# does not, so engross is a create (ifGenerationMatch=0) and expunge a delete —
+# the RBSTR generation-conditional update path is unexercised under this
+# granularity.
 #
 # Callers authenticate and pass the bearer token (token-first), like the rbgb_
 # bucket primitives: the payor reads/writes as project owner today; a donned
 # governor mantle writes own-polity once admission lands. The muniment wire keys
-# live under the rbgft_ sprue (rbgft_subject, rbgft_mantle).
+# live under the rbgft_ sprue (rbgft_subject, rbgft_mantle, rbgft_provider).
 
 set -euo pipefail
 
@@ -74,19 +78,22 @@ zrbgft_sentinel() {
 }
 
 # Compose the muniment object name: the per-entry index under the polity managed
-# folder. Three structural segments — <depot>/<mantle>/<subject> — with the raw
-# principal subject carrying its own slashes; the whole name is percent-encoded
-# once at transit time by the caller (rbuh_urlencode_capture), matching the
-# rbgb_ object idiom.
+# folder. Four structural segments — <depot>/<mantle>/<provider>/<subject> — the
+# depot leads (the managed-folder grain), the raw principal subject trails (it
+# alone may carry its own slashes), and the provider id discriminates co-resident
+# foedera between them; the whole name is percent-encoded once at transit time by
+# the caller (rbuh_urlencode_capture), matching the rbgb_ object idiom.
 zrbgft_muniment_name_capture() {
   zrbgft_sentinel
   local -r z_depot="${1}"
   local -r z_mantle="${2}"
-  local -r z_subject="${3}"
-  test -n "${z_depot}"   || return 1
-  test -n "${z_mantle}"  || return 1
-  test -n "${z_subject}" || return 1
-  printf '%s/%s/%s' "${z_depot}" "${z_mantle}" "${z_subject}"
+  local -r z_provider="${3}"
+  local -r z_subject="${4}"
+  test -n "${z_depot}"    || return 1
+  test -n "${z_mantle}"   || return 1
+  test -n "${z_provider}" || return 1
+  test -n "${z_subject}"  || return 1
+  printf '%s/%s/%s/%s' "${z_depot}" "${z_mantle}" "${z_provider}" "${z_subject}"
 }
 
 ######################################################################
@@ -96,8 +103,8 @@ zrbgft_muniment_name_capture() {
 # output; all human logging routes to stderr); peruse echoes one muniment per
 # line. Callers capture the disposition to assert the precondition outcome.
 
-# rbgft_engross <token> <bucket> <depot_project_id> <mantle> <subject>
-# Write the muniment for (subject, mantle) into the depot's polity slice.
+# rbgft_engross <token> <bucket> <depot_project_id> <mantle> <provider> <subject>
+# Write the muniment for (subject, mantle, provider) into the depot's polity slice.
 # ifGenerationMatch=0 create — Cloud Storage writes only if absent. Echoes
 # "created" on a fresh write (200/201) or "present" on the 412 precondition
 # (RBSTR: a duplicate create is idempotent success, the muniment already holds).
@@ -109,23 +116,25 @@ rbgft_engross() {
   local -r z_bucket="${2:-}"
   local -r z_depot="${3:-}"
   local -r z_mantle="${4:-}"
-  local -r z_subject="${5:-}"
+  local -r z_provider="${5:-}"
+  local -r z_subject="${6:-}"
 
-  test -n "${z_token}"   || buc_die "Token required"
-  test -n "${z_bucket}"  || buc_die "Bucket required"
-  test -n "${z_depot}"   || buc_die "Depot project id required"
-  test -n "${z_mantle}"  || buc_die "Mantle required"
-  test -n "${z_subject}" || buc_die "Principal subject required"
+  test -n "${z_token}"    || buc_die "Token required"
+  test -n "${z_bucket}"   || buc_die "Bucket required"
+  test -n "${z_depot}"    || buc_die "Depot project id required"
+  test -n "${z_mantle}"   || buc_die "Mantle required"
+  test -n "${z_provider}" || buc_die "Provider id required"
+  test -n "${z_subject}"  || buc_die "Principal subject required"
 
-  buc_step "Engross muniment (${z_mantle}) for ${z_subject}"
+  buc_step "Engross muniment (${z_mantle}, ${z_provider}) for ${z_subject}"
 
   buc_log_args 'Build the authoritative muniment body — the key is only the index'
-  jq -n --arg subject "${z_subject}" --arg mantle "${z_mantle}" \
-    '{rbgft_subject: $subject, rbgft_mantle: $mantle}' > "${ZRBGFT_MUNIMENT_BODY}" \
+  jq -n --arg subject "${z_subject}" --arg mantle "${z_mantle}" --arg provider "${z_provider}" \
+    '{rbgft_subject: $subject, rbgft_mantle: $mantle, rbgft_provider: $provider}' > "${ZRBGFT_MUNIMENT_BODY}" \
     || buc_die "Failed to build muniment JSON"
 
   local z_objname
-  z_objname=$(zrbgft_muniment_name_capture "${z_depot}" "${z_mantle}" "${z_subject}") \
+  z_objname=$(zrbgft_muniment_name_capture "${z_depot}" "${z_mantle}" "${z_provider}" "${z_subject}") \
     || buc_die "Failed to compose muniment object name"
   local z_name_enc
   z_name_enc=$(rbuh_urlencode_capture "${z_objname}") || buc_die "Failed to encode object name"
@@ -137,16 +146,16 @@ rbgft_engross() {
   local z_code
   z_code=$(rbuh_code_capture "${ZRBGFT_INFIX_ENGROSS}") || buc_die "Bad engross HTTP code"
   case "${z_code}" in
-    200|201) buc_success "Muniment engrossed (${z_mantle}, ${z_subject})"; echo "created" ;;
-    412)     buc_info    "Muniment already present, idempotent (${z_mantle}, ${z_subject})"; echo "present" ;;
+    200|201) buc_success "Muniment engrossed (${z_mantle}, ${z_provider}, ${z_subject})"; echo "created" ;;
+    412)     buc_info    "Muniment already present, idempotent (${z_mantle}, ${z_provider}, ${z_subject})"; echo "present" ;;
     *)       local z_err
              z_err=$(rbuh_json_field_capture "${ZRBGFT_INFIX_ENGROSS}" '.error.message') || z_err="HTTP ${z_code}"
              buc_reject "${BUBC_band_engross}" "Failed to engross muniment (HTTP ${z_code}): ${z_err}" ;;
   esac
 }
 
-# rbgft_expunge <token> <bucket> <depot_project_id> <mantle> <subject>
-# Withdraw the muniment for (subject, mantle). Echoes "deleted" (204) or
+# rbgft_expunge <token> <bucket> <depot_project_id> <mantle> <provider> <subject>
+# Withdraw the muniment for (subject, mantle, provider). Echoes "deleted" (204) or
 # "absent" (404 — idempotent, already struck from the record). Any other code
 # rejects in the expunge band (BUBC_band_expunge).
 rbgft_expunge() {
@@ -156,18 +165,20 @@ rbgft_expunge() {
   local -r z_bucket="${2:-}"
   local -r z_depot="${3:-}"
   local -r z_mantle="${4:-}"
-  local -r z_subject="${5:-}"
+  local -r z_provider="${5:-}"
+  local -r z_subject="${6:-}"
 
-  test -n "${z_token}"   || buc_die "Token required"
-  test -n "${z_bucket}"  || buc_die "Bucket required"
-  test -n "${z_depot}"   || buc_die "Depot project id required"
-  test -n "${z_mantle}"  || buc_die "Mantle required"
-  test -n "${z_subject}" || buc_die "Principal subject required"
+  test -n "${z_token}"    || buc_die "Token required"
+  test -n "${z_bucket}"   || buc_die "Bucket required"
+  test -n "${z_depot}"    || buc_die "Depot project id required"
+  test -n "${z_mantle}"   || buc_die "Mantle required"
+  test -n "${z_provider}" || buc_die "Provider id required"
+  test -n "${z_subject}"  || buc_die "Principal subject required"
 
-  buc_step "Expunge muniment (${z_mantle}) for ${z_subject}"
+  buc_step "Expunge muniment (${z_mantle}, ${z_provider}) for ${z_subject}"
 
   local z_objname
-  z_objname=$(zrbgft_muniment_name_capture "${z_depot}" "${z_mantle}" "${z_subject}") \
+  z_objname=$(zrbgft_muniment_name_capture "${z_depot}" "${z_mantle}" "${z_provider}" "${z_subject}") \
     || buc_die "Failed to compose muniment object name"
   local z_name_enc
   z_name_enc=$(rbuh_urlencode_capture "${z_objname}") || buc_die "Failed to encode object name"
@@ -178,8 +189,8 @@ rbgft_expunge() {
   local z_code
   z_code=$(rbuh_code_capture "${ZRBGFT_INFIX_EXPUNGE}") || buc_die "Bad expunge HTTP code"
   case "${z_code}" in
-    204) buc_success "Muniment expunged (${z_mantle}, ${z_subject})"; echo "deleted" ;;
-    404) buc_info    "Muniment already absent, idempotent (${z_mantle}, ${z_subject})"; echo "absent" ;;
+    204) buc_success "Muniment expunged (${z_mantle}, ${z_provider}, ${z_subject})"; echo "deleted" ;;
+    404) buc_info    "Muniment already absent, idempotent (${z_mantle}, ${z_provider}, ${z_subject})"; echo "absent" ;;
     *)   local z_err
          z_err=$(rbuh_json_field_capture "${ZRBGFT_INFIX_EXPUNGE}" '.error.message') || z_err="HTTP ${z_code}"
          buc_reject "${BUBC_band_expunge}" "Failed to expunge muniment (HTTP ${z_code}): ${z_err}" ;;
@@ -188,8 +199,9 @@ rbgft_expunge() {
 
 # Shared list-and-fetch core for the muniment reads. Pages a GCS object listing
 # (prefix empty = the whole terrier, manor-wide; "<depot>/" = one polity slice),
-# fetches each object's body, and echoes one tab-separated "<mantle>\t<subject>"
-# line per muniment, read from the rbgft_ content fields (never the key). A
+# fetches each object's body, and echoes one tab-separated
+# "<mantle>\t<provider>\t<subject>" line per muniment, read from the rbgft_
+# content fields (never the key) so co-resident foedera stay distinguished. A
 # read-after-list 404 — an object expunged between the listing and its fetch — is
 # a benign vanish and is skipped, not fatal: a pure read must not crash because a
 # concurrent unseat withdrew an entry, and the wider the sweep the wider that
@@ -263,7 +275,7 @@ zrbgft_list_fetch_emit() {
       esac
 
       local z_get_file="${ZRBUH_PREFIX}${z_get_infix}${ZRBUH_POSTFIX_JSON}"
-      jq -r '[.rbgft_mantle, .rbgft_subject] | @tsv' "${z_get_file}" \
+      jq -r '[.rbgft_mantle, .rbgft_provider, .rbgft_subject] | @tsv' "${z_get_file}" \
         || buc_reject "${BUBC_band_peruse}" "Terrier read: muniment ${z_name} missing rbgft_ fields"
     done <<< "${z_names}"
 
@@ -275,9 +287,9 @@ zrbgft_list_fetch_emit() {
 # rbgft_peruse <token> <bucket> <depot_project_id>
 # The pure list-and-fetch read of one polity's muniments — no precondition. Lists
 # every object under the polity folder prefix, fetches each, and echoes one
-# tab-separated "<mantle>\t<subject>" line per muniment (read from the rbgft_
-# content fields, never by parsing the key). The read side rehearse composes for
-# one polity, and the read side of the reconciliation diff.
+# tab-separated "<mantle>\t<provider>\t<subject>" line per muniment (read from the
+# rbgft_ content fields, never by parsing the key). The read side rehearse composes
+# for one polity, and the read side of the reconciliation diff.
 rbgft_peruse() {
   zrbgft_sentinel
 
@@ -298,11 +310,12 @@ rbgft_peruse() {
 # rbgft_peruse_manor <token> <bucket>
 # The manor-wide read — every muniment in the terrier across all polities, no
 # prefix filter (read is bucket-level per RBS0). Echoes the same tab-separated
-# "<mantle>\t<subject>" line per muniment as the per-polity peruse; the depot
-# stays the object key's index, recoverable but deliberately unemitted (no
+# "<mantle>\t<provider>\t<subject>" line per muniment as the per-polity peruse; the
+# depot stays the object key's index, recoverable but deliberately unemitted (no
 # located consumer needs per-entry depot attribution — the muniment's placement
-# already is the (principal subject × depot mantle) join). The read rehearse
-# composes manor-wide.
+# already is the (principal subject × depot mantle) join). The provider is emitted
+# so a manor-wide rehearse attributes each holding to its admitting foedus. The
+# read rehearse composes manor-wide.
 rbgft_peruse_manor() {
   zrbgft_sentinel
 
