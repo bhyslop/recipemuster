@@ -15339,8 +15339,8 @@
         "₢BfAAq": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260630-1535",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260702-0348",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "BARRIER — cross-clone wait. No code work of its own.",
                 "This pace cannot complete until ₢BlAAY (heat ₣Bl — the terrier-poison fixture, ₣Bl's LAST registry write under the 260630 rework: it adds the poison fixture to the roster AND replaces the terrier-atomicity fixture that ₢BfAAz retires) is complete, pushed to origin, and origin merged back into this clone.",
@@ -15354,7 +15354,7 @@
                 "Cross-clone barrier; retargeted 260630 from the stale ₢BlAAM to ₣Bl's actual last registry write ₢BlAAY, repositioned after ₢BfAAt for the terrier zigzag. The retirement it gates is ₢BfAAz (split out of the former ₢BfAAF)."
               ],
               "jjgtn_silks": "await-thg-registry-relocation",
-              "jjgtn_basis": "4b4643b"
+              "jjgtn_basis": "e92e2aa"
             }
           ]
         },
