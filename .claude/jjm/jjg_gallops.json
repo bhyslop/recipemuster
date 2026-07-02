@@ -16753,8 +16753,8 @@
         "₢BiAAa": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260701-1655",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260702-1222",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "## Character",
                 "Larger structural + spec change — code and spec together, above the ₣Bi loose-ends norm.",
@@ -16799,7 +16799,7 @@
                 "- Build green; fast + siege green."
               ],
               "jjgtn_silks": "nameplate-hallmark-drive-chain-link",
-              "jjgtn_basis": "c864402"
+              "jjgtn_basis": "5cb4fa3"
             }
           ]
         },
