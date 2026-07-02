@@ -84,7 +84,7 @@ zrbz_kindle() {
   # instaurate is the ensure-exists manor-setup finisher: idempotently founds the one
   # workforce pool (list-and-match drift guard), the terrier bucket, and the polity
   # folder + grain IAM. The inverse of raze; ships to consumers (not withheld).
-  buz_enroll RBZ_INSTAURATE_MANOR            "rbw-mI"  "${z_mod}" "rbgp_manor_instaurate"    ""  "Instaurate the manor — idempotently ensure the workforce pool, terrier bucket, and polity folder (post-payor-guide manor-setup finisher)"
+  buz_enroll RBZ_INSTAURATE_MANOR            "rbw-mI"  "${z_mod}" "rbgp_manor_instaurate"    ""  "Instaurate the manor — idempotently ensure payor-project APIs, billing linkage, the workforce pool, terrier bucket, and polity folder (post-payor-guide manor-setup finisher)"
   # raze force-deletes the whole pool — the deliberate destroyer, distinct from
   # jilt's provider-level break. WITHHELD from delivery (prep-release Step 9c
   # strips the tabtarget); the verb ships in rbgp_payor.sh. Internal release-ladder

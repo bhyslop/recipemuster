@@ -65,4 +65,9 @@ Never commit `~/.rbw/payor/rbro.env` to version control
 //axhoc_completion
 Successful execution stores OAuth credentials and displays payor configuration values.
 Record configuration values for {rbrp_regime} setup.
-Use {rbtgo_depot_levy} to create depot projects.
+Proceed to
+{rbtgo_manor_instaurate}
+to found the manor's scriptable substrate (payor-project APIs, billing linkage,
+workforce pool, terrier), then
+{rbtgo_depot_levy}
+to create depot projects.

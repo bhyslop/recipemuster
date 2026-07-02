@@ -10,6 +10,12 @@ performs one-time manual setup via Google Cloud Console to establish
 OAuth infrastructure.
 No API path exists for initial bootstrap - OAuth client creation requires human Console interaction.
 This procedure creates the project and OAuth client but does NOT install credentials.
+It holds only the pre-credential genesis: before the payor's first OAuth credential
+exists there is no token to automate with. Everything downstream of that credential
+— API enablement, billing linkage, the manor substrate — is automated by
+{rbtgo_manor_instaurate}
+after
+{rbtgo_payor_install}.
 
 //axhos_step
 . *Create the Manor*:
@@ -29,15 +35,11 @@ GCP IAM changes are https://cloud.google.com/iam/docs/access-change-propagation[
 .. Record
 {rbrp_billing_account_id}
 (format: XXXXXX-XXXXXX-XXXXXX)
-.. Link billing account to the {rbtgi_manor}
-.. {rbhg_require}
-billing linkage for API operations
-
-//axhos_step
-. *Enable Required APIs*:
-.. Navigate to APIs & Services > Enable APIs
-.. Enable: Cloud Resource Manager, Cloud Billing, Service Usage, IAM, Artifact Registry
-.. These enable programmatic depot management
+.. NOTE: Only the billing *account* — the payment method and its recorded id — is
+manual. Linking it to the {rbtgi_manor} project, and enabling the required APIs,
+formerly manual steps here, are automated by
+{rbtgo_manor_instaurate}
+after credential installation.
 
 //axhos_step
 . *Configure OAuth Consent Screen*:

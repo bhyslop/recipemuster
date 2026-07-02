@@ -1023,10 +1023,13 @@ rbgp_payor_install() {
 
   buc_info ""
   if test "${z_config_ok}" = "true"; then
-    buc_info "Next: levy the depot (set RBRD_DEPOT_MONIKER and RBRD_GCP_REGION in rbrd.env first):"
+    buc_info "Next: instaurate the manor — idempotently enables payor-project APIs, links billing, and founds the manor substrate"
+    buc_info "(set RBRD_DEPOT_MONIKER and RBRD_GCP_REGION in rbrd.env first — the polity folder is named by the depot):"
+    buc_tabtarget "${RBZ_INSTAURATE_MANOR}"
+    buc_info "Then levy the depot:"
     buc_tabtarget "${RBZ_LEVY_DEPOT}"
   else
-    buc_warn "Resolve the items above in ${RBCC_rbrp_file} before levying the depot."
+    buc_warn "Resolve the items above in ${RBCC_rbrp_file} before instaurating the manor."
   fi
 }
 
@@ -1554,7 +1557,9 @@ rbgp_manor_raze() {
 
 # The manor-setup finisher (RBSMS): one idempotent, payor-credentialed verb that founds
 # the manor's scriptable substrate after the manual payor guide — the ensure-exists
-# inverse of manor_raze. Founds three things: the org-level workforcePoolAdmin grant
+# inverse of manor_raze. First readies the payor project itself (the required-API set,
+# billing linkage — the two steps migrated out of the manual guide across the
+# credential boundary), then founds three things: the org-level workforcePoolAdmin grant
 # (spike F1), the ONE workforce pool (via a list-and-match drift guard, never a bare
 # get-by-id — a drifted RBRW_WORKFORCE_POOL_ID must surface, not silently spawn a
 # second empty pool), the terrier bucket (manor-grain, in the payor project), and the
@@ -1578,6 +1583,50 @@ rbgp_manor_instaurate() {
   buc_step 'Authenticate as Payor'
   local z_token
   z_token=$(zrbgp_authenticate_capture) || buc_die "Failed to authenticate as Payor via OAuth"
+
+  # === Ensure the payor-project APIs (migrated from the manual payor guide) ===
+  # The payor project is the OAuth client's home and so the quota project of every
+  # payor-token call — an API must be on here even when the resource lives elsewhere.
+  # iam (workforce pools), storage (terrier bucket), and cloudresourcemanager (the
+  # org grant) serve this finisher's own steps; cloudbilling (the billing links),
+  # artifactregistry (levy's region validation against the payor project), cloudbuild
+  # (levy's worker-pool ops), and iamcredentials carry the levy that follows.
+  # serviceusage leads: enabling rides the Service Usage API itself, so a project
+  # with it off entirely fails loud on the first call (new projects ship it on; one
+  # manual Console enable recovers, and the finisher re-runs cleanly).
+  buc_step 'Ensure payor-project APIs enabled'
+  local -r z_payor_api_services="serviceusage cloudresourcemanager cloudbilling iam iamcredentials storage artifactregistry cloudbuild"
+  local z_api_service=""
+  for z_api_service in ${z_payor_api_services}; do
+    rbge_api_enable "${z_api_service}" "${RBRP_PAYOR_PROJECT_ID}" "${z_token}" \
+      || buc_die "Failed to enable payor-project API: ${z_api_service}"
+  done
+
+  # === Ensure billing linked to the payor project (migrated from the manual guide) ===
+  # Must precede the terrier bucket — bucket creation requires an active billing
+  # link. GET-then-PUT: a matching link is a no-op; absent links; drifted reconciles
+  # to the committed record (RBRP is authoritative) with a warning — the same
+  # reconcile posture as the pool's session-duration.
+  buc_step "Ensure billing linked to payor project ${RBRP_PAYOR_PROJECT_ID}"
+  local -r z_billing_url="${RBGC_API_ROOT_CLOUDBILLING}${RBGC_CLOUDBILLING_V1}/projects/${RBRP_PAYOR_PROJECT_ID}/billingInfo"
+  rbuh_json "GET" "${z_billing_url}" "${z_token}" "instaurate_billing_read"
+  rbuh_require_ok "Read payor billing info" "instaurate_billing_read"
+  # An unlinked project reads back an absent/empty billingAccountName; the capture
+  # helper signals empty-or-null as nonzero, so fold that to "" (not linked) here.
+  local z_billing_live
+  z_billing_live=$(rbuh_json_field_capture "instaurate_billing_read" '.billingAccountName') || z_billing_live=""
+  local -r z_billing_want="billingAccounts/${RBRP_BILLING_ACCOUNT_ID}"
+  if test "${z_billing_live}" = "${z_billing_want}"; then
+    buc_log_args "Billing already linked: ${z_billing_want}"
+  else
+    test -z "${z_billing_live}" \
+      || buc_warn "Reconciling payor billing from ${z_billing_live} to ${z_billing_want} (RBRP is the committed record)"
+    local -r z_billing_body="${BURD_TEMP_DIR}/rbgp_instaurate_billing.json"
+    jq -n --arg billingAccountName "${z_billing_want}" '{billingAccountName: $billingAccountName}' \
+      > "${z_billing_body}" || buc_die "Failed to build billing link body"
+    rbuh_json "PUT" "${z_billing_url}" "${z_token}" "instaurate_billing_link" "${z_billing_body}"
+    rbuh_require_ok "Link billing to payor project" "instaurate_billing_link"
+  fi
 
   # Spike Finding F1: pool creation 403s until the payor holds
   # roles/iam.workforcePoolAdmin at the organization. Must precede the pool founding.

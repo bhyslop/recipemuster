@@ -6,7 +6,9 @@ This is a normative portion of the {rbs0_imprimatur}: binding — code, tests, a
 NOTE: This operation founds the scriptable half of a
 {rbtgi_manor}
 — the manor-setup finisher, run once after the manual payor guide, idempotently
-ensuring the manor's standing infrastructure into being. It founds three things: the
+ensuring the manor's standing infrastructure into being. It first readies the payor
+project itself — the required-API set enabled, billing linked — then founds three
+things: the
 manor's one workforce identity pool (the manor-lifetime container every
 {rbtf_foedus}
 hangs beneath as a provider), the
@@ -16,6 +18,19 @@ IAM. It is the ensure-exists inverse of the manor-teardown
 ({rbtgo_manor_raze}):
 where raze force-deletes the pool to clear the ground, this founds the pool and keeps
 it. A release ladder runs raze first, then this.
+
+NOTE: *The credential boundary is the guide/finisher sorting rule.* Before the payor
+holds its first OAuth credential there is no token to automate with — the payor
+project, the billing *account* (payment method, recorded id), and the OAuth consent
+screen and client are irreducibly manual Console work and stay in the payor guide
+({rbtgo_payor_establish}).
+Everything downstream of that first credential is automatable and lands here: API
+enablement and billing *linkage* were manual guide steps and are now the finisher's
+opening steps. The guide holds only the pre-credential genesis; the operator chain is
+guide, then
+{rbtgo_payor_install},
+then this finisher, then
+{rbtgo_depot_levy}.
 
 NOTE: *Ensure-exists, never destructive.* Every gesture is idempotent — created when
 absent, left in place (or reconciled) when present, never deleted. Re-running the
@@ -87,7 +102,8 @@ writes into an already-provisioned own-polity folder are governor-credentialed (
 admission verbs). Folder provisioning is *ensure-only* here — a destroy-then-create
 reset is not the finisher's shape; the finisher never empties a standing folder.
 
-NOTE: Scope boundary. The finisher founds the pool, the terrier bucket, the polity
+NOTE: Scope boundary. The finisher readies the payor project (the required-API set,
+billing linkage) and founds the pool, the terrier bucket, the polity
 folder, and the org-level workforce-pool admin grant (spike Finding F1). It does not
 seat any provider (that is
 {rbtf_affiance}),
@@ -107,6 +123,47 @@ are levied and admitted atop it.
 {rbtoe_payor_authenticate}
 .. {rbbc_require}
 authentication successful
+
+//axhos_step
+. *Ensure the payor-project APIs* (migrated from the manual guide's enable-APIs step):
+.. For each service in the payor-project API set —
+`serviceusage`, `cloudresourcemanager`, `cloudbilling`, `iam`, `iamcredentials`,
+`storage`, `artifactregistry`, `cloudbuild` —
+{rbbc_submit}
+{rbtoe_api_enable}
+against `RBRP_PAYOR_PROJECT_ID` (idempotent: enable, await the operation, verify the
+service reads `ENABLED`).
+.. NOTE: Provenance of the set. The payor project is the OAuth client's home and so
+the quota project of every payor-token call — an API must be on here even when the
+resource lives elsewhere. `iam` (workforce pools), `storage` (the terrier bucket),
+and `cloudresourcemanager` (the org grant) serve this finisher's own steps — formerly
+silent preconditions, now explicit; `cloudbilling` (the billing links),
+`artifactregistry` (the levy's region validation, which reads Artifact Registry
+locations against the payor project), `cloudbuild` (the levy's worker-pool
+operations), and `iamcredentials` carry the
+{rbtgo_depot_levy}
+that follows.
+.. NOTE: Bootstrap edge. Enabling rides the Service Usage API itself; a payor project
+with `serviceusage` off entirely (new projects ship it on) fails loud on the first
+enable call, naming the API and project — one manual Console enable recovers, and the
+finisher re-runs cleanly.
+
+//axhos_step
+. *Ensure billing linked to the payor project* (migrated from the manual guide's link step):
+.. {rbbc_call}
+link:https://cloud.google.com/billing/docs/reference/rest/v1/projects/getBillingInfo[projects.getBillingInfo]
+for the payor project.
+.. Already linked to `billingAccounts/RBRP_BILLING_ACCOUNT_ID` → no-op, ensured.
+.. Absent or drifted →
+{rbbc_submit}
+link:https://cloud.google.com/billing/docs/reference/rest/v1/projects/updateBillingInfo[projects.updateBillingInfo]
+with body `billingAccountName: billingAccounts/RBRP_BILLING_ACCOUNT_ID`. A drifted
+live link is reconciled to the committed record with a warning —
+{rbrp_billing_account_id}
+is authoritative, the same reconcile posture as the pool's session-duration.
+.. NOTE: Must precede the terrier-bucket step — bucket creation requires an active
+billing link. The billing *account* (payment method, recorded id) remains manual
+guide work; only the project *linkage* is automated here.
 
 //axhos_step
 . *Seat the org-level workforce-pool admin grant* (spike Finding F1 — must precede pool founding):
@@ -209,7 +266,8 @@ bucket and polity folder, and the
 follow-up hint (a foedus is now affianceable under the standing pool).
 
 //axhoc_completion
-Successful execution leaves the manor's scriptable substrate founded: the one workforce
+Successful execution leaves the manor's scriptable substrate founded: the payor
+project stands ready (required APIs enabled, billing linked), the one workforce
 pool stands at
 {rbrw_workforce_pool_id}
 under

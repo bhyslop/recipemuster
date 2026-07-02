@@ -55,8 +55,8 @@ rbho_payor_handbook() {
   buh_tt  "  " "${RBZ_PAYOR_ESTABLISH}"
   buh_e
   buh_line "This guides you through creating the ${RBYC_MANORS} GCP project,"
-  buh_line "enabling billing, and configuring the OAuth consent screen. The ${RBYC_MANOR}"
-  buh_line "identity is recorded in ${RBYC_RBRP}."
+  buh_line "choosing a billing account, and configuring the OAuth consent screen."
+  buh_line "The ${RBYC_MANOR} identity is recorded in ${RBYC_RBRP}."
   buh_e
 
   buh_step1 "Install OAuth credentials"
@@ -71,6 +71,18 @@ rbho_payor_handbook() {
   buh_e
   buh_line "If you are refreshing an existing credential that has expired:"
   buh_tt  "  " "${RBZ_PAYOR_REFRESH}"
+  buh_e
+
+  buh_step1 "Instaurate the Manor"
+  buh_e
+  buh_line "One idempotent command readies the ${RBYC_MANORS} scriptable"
+  buh_line "substrate: it enables the payor-project APIs, links billing, seats"
+  buh_line "the workforce identity pool, and provisions the terrier bucket"
+  buh_line "with its polity folder. Set RBRD_DEPOT_MONIKER and RBRD_GCP_REGION"
+  buh_line "in ${RBYC_RBRD} first — the polity folder is named by the ${RBYC_DEPOT}"
+  buh_line "it will home. Safe to re-run at any time (ensure-exists):"
+  buh_e
+  buh_tt  "  " "${RBZ_INSTAURATE_MANOR}"
   buh_e
 
   buh_step1 "Provision the Depot"

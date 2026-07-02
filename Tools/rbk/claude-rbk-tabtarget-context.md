@@ -52,7 +52,7 @@ The Folio column shows how each tabtarget receives it:
 |----------|-------------|-------|---------|
 | `rbw-mA` | PayorAffiancesManor | param1 | Affiance a foedus to its IdP — seat the named foedus's provider and attribute mapping under the standing workforce pool (args: foedus) |
 | `rbw-mJ` | PayorJiltsManor | param1 | Jilt one foedus — delete the named foedus's provider from the manor's standing workforce pool (the pool stands; args: foedus) |
-| `rbw-mI` | PayorInstauratesManor | — | Instaurate the manor — idempotently ensure the workforce pool, terrier bucket, and polity folder (post-payor-guide manor-setup finisher) |
+| `rbw-mI` | PayorInstauratesManor | — | Instaurate the manor — idempotently ensure payor-project APIs, billing linkage, the workforce pool, terrier bucket, and polity folder (post-payor-guide manor-setup finisher) |
 | `rbw-mR` | PayorRazesManor | — | Raze the manor — force-delete its workforce pool to start clean (internal release-ladder infra; withheld from delivery) |
 | `rbw-mG` | PayorGirdsGovernor | param1 | Gird the first governor — payor seats a citizen as this depot's founding governor (args: subject) |
 
