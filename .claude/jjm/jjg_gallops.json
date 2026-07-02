@@ -404,8 +404,8 @@
         "₢A-AA5": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260510-0923",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260701-1941",
+              "jjgtn_state": "jjgte_abandoned",
               "jjgtn_text": [
                 "## Character",
                 "Light comment-only bash touch — preserves chain of custody for review cycles.",
@@ -424,7 +424,7 @@
                 "- bash -n green; tt/buw-st.BukSelfTest.sh green; tt/rbtd-s.TestSuite.fast.sh green."
               ],
               "jjgtn_silks": "bash-spec-link-comments",
-              "jjgtn_basis": "cb9c60a"
+              "jjgtn_basis": "7442074"
             }
           ]
         },
