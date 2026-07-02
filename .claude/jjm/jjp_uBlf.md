@@ -216,15 +216,14 @@ The fork (both sides seen):
 
 Composes with the governor's-role idea above (the sanctioned-set bound is the first concrete IT-department power). Premise-touching (the civic hierarchy is a cinched premise), so it stays a parked operator-owned idea until the operator takes it up.
 
-## Idea — headless avowal (restrung in from the federation heat)
+## Settled — headless avowal (the tty gate retired, 260701)
 
-Restrung in: reconsider whether avowal must gate on a controlling terminal, or whether a headless-but-human-reachable caller can open a sitting by surfacing the device-flow prompt out-of-band and polling to completion.
-
-It keeps the human-present premise — a human still authenticates each sitting — and only relaxes human-present from terminal-present.
-Distinct from the programmatic (caged) mechanism, which removes the human entirely.
-
-Touches a cinched federation-heat premise (human-present, and the headless fail-fast membrane), so it is operator-owned and may surface a paddock amendment rather than land purely in code.
-Under the configuration-model conviction this sharpens to a mechanism distinction: the programmatic mechanism is test-only and bypasses sign-in by construction, so it is not this fix — production headless stays an interactive-mechanism question with a human still present.
+The terminal gate on avow is retired (operator ruling 260701): human presence is enforced by the IdP sign-in itself, never by terminal possession, so the gate defended a mechanism that needed no defense at production strength.
+The device-flow prompt now rides the shared progress stream as a yawp — console, log, and any watching relay alike — so a terminal operator and a headless-but-human-reachable relay complete the same sign-in; no opt-in, no new config, no prompt file.
+The user code rides the stream deliberately: RFC 8628 designs it for open display (possession grants nothing without the human's own IdP sign-in; a substituted sign-in cannot pass admission).
+Accepted cost: a truly unattended cache-miss polls to the bounded device-code expiry (~15 min) and dies loud instead of failing instantly — unattended operation belongs to the programmatic mechanism, never this path.
+The human-present premise stands untouched; the "headless fail-fast membrane" language is retired with the gate.
+Spec home: RBS0 rbtf_avow (the definition site carries the rationale).
 
 ## Foedus-accessor colophon homing (live build guidance)
 
