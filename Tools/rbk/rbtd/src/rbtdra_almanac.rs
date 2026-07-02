@@ -50,6 +50,7 @@ pub static RBTDRA_FIXTURES: &[&'static rbtdre_Fixture] = &[
     &crate::rbtdrv_patrol::RBTDRV_FIXTURE_TERRIER_SCAFFOLD,
     &crate::rbtdrv_patrol::RBTDRV_FIXTURE_TERRIER_ATOMICITY,
     &crate::rbtdrv_patrol::RBTDRV_FIXTURE_POLITY_DENIAL,
+    &crate::rbtdrv_patrol::RBTDRV_FIXTURE_PARLEY,
     &crate::rbtdrv_patrol::RBTDRV_FIXTURE_CHAINING_LIVERY,
     &crate::rbtdrf_fast::RBTDRF_FIXTURE_ENROLLMENT_VALIDATION,
     &crate::rbtdrf_fast::RBTDRF_FIXTURE_REGIME_VALIDATION,
@@ -137,6 +138,7 @@ pub static RBTDRA_SUITES: &[rbtdre_Suite] = &[
             &crate::rbtdrv_patrol::RBTDRV_FIXTURE_TERRIER_SCAFFOLD,
             &crate::rbtdrv_patrol::RBTDRV_FIXTURE_TERRIER_ATOMICITY,
             &crate::rbtdrv_patrol::RBTDRV_FIXTURE_POLITY_DENIAL,
+            &crate::rbtdrv_patrol::RBTDRV_FIXTURE_PARLEY,
             &crate::rbtdrv_patrol::RBTDRV_FIXTURE_CHAINING_LIVERY,
             &crate::rbtdrh_chain::RBTDRH_FIXTURE_CHAINING_FACT_BAND,
         ],
@@ -187,6 +189,7 @@ pub static RBTDRA_SUITES: &[rbtdre_Suite] = &[
             &crate::rbtdrv_patrol::RBTDRV_FIXTURE_TERRIER_SCAFFOLD,
             &crate::rbtdrv_patrol::RBTDRV_FIXTURE_TERRIER_ATOMICITY,
             &crate::rbtdrv_patrol::RBTDRV_FIXTURE_POLITY_DENIAL,
+            &crate::rbtdrv_patrol::RBTDRV_FIXTURE_PARLEY,
             &crate::rbtdrv_patrol::RBTDRV_FIXTURE_CHAINING_LIVERY,
             &crate::rbtdrc_crucible::RBTDRC_FIXTURE_TADMOR,
             &crate::rbtdrc_crucible::RBTDRC_FIXTURE_SRJCL,
@@ -301,6 +304,20 @@ pub static RBTDRA_SUITES: &[rbtdre_Suite] = &[
         name: "blockade",
         fixtures: &[
             &crate::rbtdrc_crucible::RBTDRC_FIXTURE_MORIAH,
+        ],
+    },
+    // Parley — positive federation-admission probe. Base-free (like dogfight/siege/
+    // blockade), a single-fixture REUSE probe: it drives the real polity verbs
+    // against the standing freehold subject, proving the manor roll reflects a
+    // genuine unseat→restore-brevet churn on the retriever mantle, then leaves the
+    // freehold exactly as found. OPERATOR PRECONDITION: a freehold depot levied with
+    // its standing terrier, the subject brevetted onto retriever, and federation
+    // credentials ready (a live sitting, the governor mantle donnable) — the parley
+    // fixture self-skips only on an unreachable payor credential.
+    rbtdre_Suite {
+        name: "parley",
+        fixtures: &[
+            &crate::rbtdrv_patrol::RBTDRV_FIXTURE_PARLEY,
         ],
     },
 ];

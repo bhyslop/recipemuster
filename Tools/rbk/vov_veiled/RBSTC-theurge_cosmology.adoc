@@ -188,17 +188,30 @@ and
 is specified by the crucible-security specs (RBSIP, RBSCC, RBSCN, RBSCV, RBSPC).
 This cosmology cites them; it does not restate containment.
 
-== Scoped out
+== The parley admission probe
 
-*parley* — the reserved suite word for the federation authentic-verb fixture — is
-federation territory (owned by the federation stream), and its green target is not
-yet built; it will register in `RBTDRA_SUITES` when it graduates.
-It is named here only to close the characterization by decision: it is scoped OUT of
-this cosmology's built-strata enumeration, not silently omitted.
+*parley* — the word RBSTC reserved for the federation authentic-verb fixture — has
+graduated: it is a built, base-free probe suite (`rbtdrv_patrol.rs`) running under the
+{rbtt_reuse}, proving the POSITIVE federation-admission round-trip against the standing
+{rbtt_freehold}
+subject.
+It drives the real polity verbs — an unseat, then a restore brevet, on the subject's
+retriever mantle — and asserts through rehearse's manor-wide muniment roll that the
+muniment stands at baseline, vanishes after the unseat, and stands again after the
+restore, then leaves the freehold exactly as found via a final don-green poll over the
+eventually-consistent IAM binding.
+It is the positive mirror of its denial-band sibling, which owns every rejection-band
+assertion; parley makes no denial poll of its own.
+The fixture also rides the picket
+{rbtt_stratum}
+(and echelon); its membership, like every suite's, is owned by `RBTDRA_SUITES`, not
+transcribed here.
+
+== Scoped out
 
 Per-kind test vocabulary still homed only in the crate — the cupel test vessel
 (`rbtdru_cupel.rs`), the calibrant fixtures (`rbtdrl_calibrant.rs`), and the like —
-is likewise deferred.
+is deferred.
 This subdoc homes the lifted cosmology (combinator, wrappers, strata, substrate),
 not the full per-fixture census; those omissions are a future homing pass by
 decision, not oversight.

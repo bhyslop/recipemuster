@@ -167,6 +167,15 @@ pub static RBTDRV_FIXTURE_POLITY_DENIAL: rbtdre_Fixture = rbtdre_Fixture {
     credless: false,
 };
 
+pub static RBTDRV_FIXTURE_PARLEY: rbtdre_Fixture = rbtdre_Fixture {
+    name: crate::rbtdrm_manifest::RBTDRM_FIXTURE_PARLEY,
+    disposition: rbtdre_Disposition::Independent,
+    setup: None,
+    teardown: None,
+    cases: RBTDRV_CASES_PARLEY,
+    credless: false,
+};
+
 // Chaining-fact livery — the cloud sibling of the local chaining-fact band
 // matrix. A bare cloud fixture (no crucible): the single case self-contains its
 // reset baseline and best-effort cleanup (banish-if-present, body below), so
@@ -2012,6 +2021,172 @@ fn rbtdrv_polity_denial(dir: &Path) -> rbtdre_Verdict {
 }
 
 pub static RBTDRV_CASES_POLITY_DENIAL: &[rbtdre_Case] = &[case!(rbtdrv_polity_denial)];
+
+
+// Parley fixture — the POSITIVE federation admission round-trip. The positive
+// mirror of polity-denial (which owns all rejection-band assertion): parley drives
+// the REAL polity verbs against the REAL freehold subject and proves the manor roll
+// reflects a genuine admission churn — the (retriever, subject) muniment stands at
+// baseline, VANISHES after unseat, and STANDS again after the restore brevet — then
+// leaves the freehold exactly as found.
+//
+// The novel content is rehearse's POSITIVE manor-wide roll, asserted nowhere else:
+// rehearse dons the governor mantle internally, so its exit 0 through the
+// governor-wielded folder-scoped IAM path is proof in itself, and a line in its roll
+// names the (retriever, subject) muniment across the create/withdraw/restore arc.
+//
+// Unseat-first (Cinched): the freehold subject's retriever muniment already stands,
+// so a brevet-first shape would ride the 412-idempotent engross; unseating first
+// makes the restore brevet a genuinely fresh write. Churns retriever ONLY — governor
+// is the pinned wielding mantle every polity verb (including the restore brevet)
+// dons, so unseating it would saw off the wielding branch. Denial-band assertion is
+// polity-denial's alone: parley makes NO don-denial poll, only the final don-GREEN
+// poll proving the restore's tokenCreator binding fully propagated so the freehold
+// leaves as found (the muniment restores immediately in the strongly-consistent
+// terrier; the IAM binding is eventually consistent, hence the poll).
+//
+// Payor-credentialed picket fixture; self-skips on an unreachable payor credential
+// (suite-passenger posture), like the terrier pair and polity-denial.
+
+/// Rehearse the manor-wide muniment roll and return its stdout — one
+/// "<mantle>\t<subject>" line per muniment. rehearse dons the governor mantle
+/// internally, so exit 0 IS the governor-wielded folder-scoped IAM-path proof; a
+/// non-zero fails the drive loud (never bare-nonzero-tolerant — a broken read or a
+/// refused don must surface, not read as an empty roll). `label` names the log.
+fn zrbtdrv_rehearse_roll(
+    ctx: &mut rbtdri_Context,
+    dir: &Path,
+    label: &str,
+) -> Result<String, rbtdre_Verdict> {
+    match crate::rbtdrk_freehold::rbtdrk_invoke_logged(
+        ctx, RBTDGC_REHEARSE_POLITY, &[], &[], dir, label,
+    ) {
+        Ok(r) if r.exit_code == 0 => Ok(r.stdout),
+        Ok(r) => Err(rbtdre_Verdict::Fail(format!(
+            "rehearse ({}) exit {} — the manor-roll read failed\n{}", label, r.exit_code, r.stderr
+        ))),
+        Err(e) => Err(rbtdre_Verdict::Fail(format!("rehearse ({}) invocation: {}", label, e))),
+    }
+}
+
+/// True when the manor roll holds the freehold subject's retriever muniment — the
+/// exact "<mantle>\t<subject>" line rehearse emits (RBTDGC_ACCOUNT_RETRIEVER is the
+/// mantle name brevet stores in rbgft_mantle; the tab join mirrors the terrier
+/// proof's pair). Exact-line, never substring: a substring test could alias a
+/// different muniment that shares the subject on another mantle.
+fn zrbtdrv_roll_holds_retriever(roll: &str) -> bool {
+    let pair = format!("{}\t{}", RBTDGC_ACCOUNT_RETRIEVER, RBTDGC_FREEHOLD_SUBJECT);
+    roll.lines().any(|line| line == pair)
+}
+
+fn rbtdrv_parley(dir: &Path) -> rbtdre_Verdict {
+    rbtdrc_with_ctx(|ctx| {
+        // Self-skip gate: stay green on a machine with no GCP credentials.
+        if let Some(v) = zrbtdrv_payor_gate(
+            ctx, dir, crate::rbtdrm_manifest::RBTDRM_FIXTURE_PARLEY, zrbtdrv_PayorGatePolicy::Skip,
+        ) {
+            return v;
+        }
+
+        // Step 1: baseline roll — the freehold subject is presumed already brevetted
+        // onto retriever (freehold-establish's job), so rehearse must show the
+        // muniment before this fixture touches anything. This is parley's positive
+        // baseline — the roll analogue of polity-denial's baseline don.
+        let baseline = match zrbtdrv_rehearse_roll(ctx, dir, "02-rehearse-baseline") {
+            Ok(r) => r,
+            Err(v) => return v,
+        };
+        if !zrbtdrv_roll_holds_retriever(&baseline) {
+            return rbtdre_Verdict::Fail(format!(
+                "baseline manor roll lacks the freehold subject's retriever muniment \
+                 (mantle {}, subject {}) — the subject must be brevetted onto retriever before \
+                 this fixture runs (run freehold-establish first)\nroll:\n{}",
+                RBTDGC_ACCOUNT_RETRIEVER, RBTDGC_FREEHOLD_SUBJECT, baseline
+            ));
+        }
+
+        // Step 2: unseat retriever — withdraw the muniment (its expunge is immediate
+        // in the strongly-consistent terrier, so the vanish below needs no poll).
+        let unseat = match crate::rbtdrk_freehold::rbtdrk_invoke_logged(
+            ctx, RBTDGC_UNSEAT_POLITY, &[RBTDGC_FREEHOLD_SUBJECT, RBTDGC_ACCOUNT_RETRIEVER], &[], dir,
+            "03-unseat",
+        ) {
+            Ok(r) => r,
+            Err(e) => return rbtdre_Verdict::Fail(format!("unseat retriever invocation: {}", e)),
+        };
+        if unseat.exit_code != 0 {
+            return rbtdre_Verdict::Fail(format!(
+                "unseat retriever exit {}\n{}", unseat.exit_code, unseat.stderr
+            ));
+        }
+
+        // Step 3: roll after unseat — the muniment must be GONE. Any failure here
+        // leaves the subject unseated (which would fail every downstream picket
+        // fixture that dons retriever), so best-effort restore before surfacing. This
+        // is the sole window between the unseat and the restore brevet.
+        let after_unseat = match zrbtdrv_rehearse_roll(ctx, dir, "04-rehearse-unseated") {
+            Ok(r) => r,
+            Err(v) => {
+                let _ = crate::rbtdrk_freehold::rbtdrk_invoke_logged(
+                    ctx, RBTDGC_BREVET_POLITY, &[RBTDGC_FREEHOLD_SUBJECT, RBTDGC_ACCOUNT_RETRIEVER], &[], dir,
+                    "04-restore-brevet-on-failure",
+                );
+                return v;
+            }
+        };
+        if zrbtdrv_roll_holds_retriever(&after_unseat) {
+            let _ = crate::rbtdrk_freehold::rbtdrk_invoke_logged(
+                ctx, RBTDGC_BREVET_POLITY, &[RBTDGC_FREEHOLD_SUBJECT, RBTDGC_ACCOUNT_RETRIEVER], &[], dir,
+                "04-restore-brevet-on-breach",
+            );
+            return rbtdre_Verdict::Fail(format!(
+                "manor roll still holds the retriever muniment after unseat — expunge did not \
+                 withdraw it\nroll:\n{}", after_unseat
+            ));
+        }
+
+        // Step 4: restore-brevet retriever — a genuinely fresh engross (unseat-first).
+        let brevet = match crate::rbtdrk_freehold::rbtdrk_invoke_logged(
+            ctx, RBTDGC_BREVET_POLITY, &[RBTDGC_FREEHOLD_SUBJECT, RBTDGC_ACCOUNT_RETRIEVER], &[], dir,
+            "05-brevet-restore",
+        ) {
+            Ok(r) => r,
+            Err(e) => return rbtdre_Verdict::Fail(format!("brevet retriever (restore) invocation: {}", e)),
+        };
+        if brevet.exit_code != 0 {
+            return rbtdre_Verdict::Fail(format!(
+                "brevet retriever (restore) exit {}\n{}", brevet.exit_code, brevet.stderr
+            ));
+        }
+
+        // Step 5: roll after restore — the muniment STANDS again (engross is immediate
+        // in the terrier). The subject is brevetted from step 4, so no restore needed
+        // on failure past here.
+        let after_restore = match zrbtdrv_rehearse_roll(ctx, dir, "06-rehearse-restored") {
+            Ok(r) => r,
+            Err(v) => return v,
+        };
+        if !zrbtdrv_roll_holds_retriever(&after_restore) {
+            return rbtdre_Verdict::Fail(format!(
+                "manor roll lacks the retriever muniment after the restore brevet — the fresh \
+                 engross did not land\nroll:\n{}", after_restore
+            ));
+        }
+
+        // Step 6: don-green poll — the muniment restored immediately, but the
+        // tokenCreator IAM binding is eventually consistent; poll the retriever don to
+        // exit 0 so the freehold leaves exactly as found. NOT a denial poll —
+        // polity-denial owns all denial-band assertion.
+        if let Err(v) = zrbtdrv_mantle_denial_poll_until(ctx, dir, "07-poll-restored", 0) {
+            return v;
+        }
+
+        let _ = std::fs::write(dir.join("08-passed.txt"), "passed");
+        rbtdre_Verdict::Pass
+    })
+}
+
+pub static RBTDRV_CASES_PARLEY: &[rbtdre_Case] = &[case!(rbtdrv_parley)];
 
 
 // Wsl-lifecycle fixture — fetched-side rootfs capture against live GAR. Single

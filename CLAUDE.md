@@ -88,6 +88,7 @@ network posture, not dependency tier:
 | `dogfight` | `tt/rbw-ts.TestSuite.dogfight.sh` | Freehold depot already levied | Cloud-build viability probe: ordain → summon → run, no crucible |
 | `siege` | `tt/rbw-ts.TestSuite.siege.sh` | None (fully local) | Tadmor self-contained: kludge both vessels + security cases |
 | `blockade` | `tt/rbw-ts.TestSuite.blockade.sh` | Depot levied + moriah hallmark ordained | Airgap moriah crucible with credential self-heal |
+| `parley` | `tt/rbw-ts.TestSuite.parley.sh` | Freehold depot levied + subject brevetted onto retriever (standing terrier) | Positive federation-admission round-trip: unseat → restore-brevet retriever, asserting via rehearse's manor roll that the muniment stands → vanishes → stands |
 
 **After code changes**, run the appropriate tier:
 - Regime/validation changes → `reveille` + `regime-poison` (`tt/rbw-tf.FixtureRun.sh regime-poison`)

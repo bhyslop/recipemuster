@@ -51,6 +51,7 @@ const ZRBTDTC_SKIRMISH: &str = "skirmish";
 const ZRBTDTC_DOGFIGHT: &str = "dogfight";
 const ZRBTDTC_SIEGE: &str = "siege";
 const ZRBTDTC_BLOCKADE: &str = "blockade";
+const ZRBTDTC_PARLEY: &str = "parley";
 
 /// First-class wrapper classification — the theurge cosmology's two wrappers,
 /// plus the two non-product suite shapes. A suite runs its inner bodies under
@@ -80,6 +81,7 @@ const ZRBTDTC_MODEL: &[(&str, rbtdtc_Wrapper)] = &[
     (ZRBTDTC_DOGFIGHT, rbtdtc_Wrapper::Reuse),
     (ZRBTDTC_SIEGE, rbtdtc_Wrapper::Local),
     (ZRBTDTC_BLOCKADE, rbtdtc_Wrapper::Reuse),
+    (ZRBTDTC_PARLEY, rbtdtc_Wrapper::Reuse),
 ];
 
 /// Resolve a suite's membership as a set of fixture names, read live from

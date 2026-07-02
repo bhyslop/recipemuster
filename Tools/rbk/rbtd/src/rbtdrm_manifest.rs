@@ -104,6 +104,15 @@ pub const RBTDRM_FIXTURE_TERRIER_ATOMICITY: &str = "terrier-atomicity";
 // on a synthetic subject with pre-clean + final sweep. Picket-suite member; self-skips
 // when the payor credential is unreachable (suite-passenger protection).
 pub const RBTDRM_FIXTURE_POLITY_DENIAL: &str = "polity-denial";
+// Parley fixture — the POSITIVE federation admission round-trip (the positive mirror
+// of polity-denial, which owns every rejection-band assertion). Drives the real
+// polity verbs against the REAL freehold subject: baseline rehearse (muniment stands)
+// -> unseat retriever -> rehearse (muniment vanishes) -> restore-brevet -> rehearse
+// (muniment stands again) -> poll the retriever don green, leaving the freehold as
+// found. The novel content is rehearse's POSITIVE manor-roll assertions (asserted
+// nowhere else). Picket-suite member (and its own base-free probe suite); self-skips
+// when the payor credential is unreachable (suite-passenger protection).
+pub const RBTDRM_FIXTURE_PARLEY: &str = "parley";
 // Reveille fixtures (no external dependencies)
 pub const RBTDRM_FIXTURE_ENROLLMENT_VALIDATION: &str = "enrollment-validation";
 pub const RBTDRM_FIXTURE_RECIPE_VALIDATION: &str = "recipe-validation";
@@ -257,6 +266,13 @@ pub fn rbtdrm_required_colophons(fixture: &str) -> Option<&'static [&'static str
             RBTDGC_TERRIER_PROOF,
         ]),
         RBTDRM_FIXTURE_POLITY_DENIAL => Some(&[
+            RBTDGC_CHECK_PAYOR,
+            RBTDGC_CHECK_MANTLE,
+            RBTDGC_UNSEAT_POLITY,
+            RBTDGC_BREVET_POLITY,
+            RBTDGC_REHEARSE_POLITY,
+        ]),
+        RBTDRM_FIXTURE_PARLEY => Some(&[
             RBTDGC_CHECK_PAYOR,
             RBTDGC_CHECK_MANTLE,
             RBTDGC_UNSEAT_POLITY,

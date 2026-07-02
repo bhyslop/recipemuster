@@ -193,7 +193,7 @@ The Folio column shows how each tabtarget receives it:
 |----------|-------------|-------|---------|
 | `rbw-tb` | Build | imprint | Build the theurge crate |
 | `rbw-tt` | Test | imprint | Run theurge unit tests |
-| `rbw-ts` | TestSuite | imprint | Run a named test suite (reveille/picket/bivouac/echelon/gauntlet/skirmish/dogfight/siege/blockade) |
+| `rbw-ts` | TestSuite | imprint | Run a named test suite |
 | `rbw-tf` | FixtureRun | param1 | Run a single named test fixture |
 | `rbw-tc` | FixtureCase | param1 | Run one case against a charged crucible (omit to list fixtures/cases) |
 | `rbw-tq` | QualifyFast | — | Fast qualify: tabtargets, colophons, nameplate health |
