@@ -18162,8 +18162,8 @@
         "₢BlAAf": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260702-0209",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260702-0314",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "## Character",
                 "Design conversation requiring judgment — federation read-surface architecture; likely touches federation-owned rehearse and/or terrier hygiene.",
@@ -18192,7 +18192,7 @@
                 "rehearse is the federation-owned read surface; terrier hygiene / orphan-sweep is federation-heat work, not parley's."
               ],
               "jjgtn_silks": "rehearse-depot-attribution",
-              "jjgtn_basis": "de1501d"
+              "jjgtn_basis": "e36a4e2"
             }
           ]
         }
