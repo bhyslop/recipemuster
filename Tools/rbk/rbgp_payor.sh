@@ -1561,10 +1561,10 @@ rbgp_manor_raze() {
 # absent, reconciled when present, NEVER deleted (clearing the ground is manor_raze).
 # Reads the pool from RBRW and the polity/depot coordinates from RBRD (enforced by the
 # caller's furnish); RBRP supplies the payor project and operator email.
-rbgp_manor_found() {
+rbgp_manor_instaurate() {
   zrbgp_sentinel
 
-  buc_doc_brief "Found the manor — idempotently ensure the workforce pool, terrier bucket, and polity folder (post-payor-guide manor-setup finisher)"
+  buc_doc_brief "Instaurate the manor — idempotently ensure the workforce pool, terrier bucket, and polity folder (post-payor-guide manor-setup finisher)"
   buc_doc_shown || return 0
 
   local -r z_org="organizations/${RBRW_ORG_ID}"
@@ -1584,11 +1584,11 @@ rbgp_manor_found() {
   buc_step 'Seat org-level workforcePoolAdmin (spike F1 — must precede pool founding)'
   rbgi_add_project_iam_role \
     "${z_token}" \
-    "Found: seat workforcePoolAdmin" \
+    "Instaurate: seat workforcePoolAdmin" \
     "${z_org}" \
     "roles/iam.workforcePoolAdmin" \
     "user:${RBRP_OPERATOR_EMAIL}" \
-    "found_org_grant"
+    "instaurate_org_grant"
 
   # === Ensure the manor workforce pool via LIST-AND-MATCH (RBSMS drift guard) ===
   # Page workforcePools.list under the org with showDeleted=true (so a soft-deleted
@@ -1628,7 +1628,7 @@ rbgp_manor_found() {
       z_url="${z_url}&pageToken=${z_tok_enc}"
     fi
 
-    z_infix="found_pools_list_${z_page}"
+    z_infix="instaurate_pools_list_${z_page}"
     rbuh_json "GET" "${z_url}" "${z_token}" "${z_infix}"
     z_code=$(rbuh_code_capture "${z_infix}") \
       || buc_die "No HTTP code from workforcePools.list under ${z_org}"
@@ -1672,12 +1672,12 @@ rbgp_manor_found() {
       buc_info "Workforce pool ${z_pool_id} present (state ${z_expected_state}, session ${z_expected_session}) — session duration already matches, leaving in place"
     else
       buc_step "Reconcile pool session duration (${z_expected_session:-unset} -> ${RBRW_SESSION_DURATION}, PATCH)"
-      local -r z_patch_body="${BURD_TEMP_DIR}/rbgp_found_pool_patch.json"
+      local -r z_patch_body="${BURD_TEMP_DIR}/rbgp_instaurate_pool_patch.json"
       jq -n --arg sessionDuration "${RBRW_SESSION_DURATION}" \
         '{ sessionDuration: $sessionDuration }' > "${z_patch_body}" \
         || buc_die "Failed to build workforce pool patch body"
-      rbuh_json "PATCH" "${z_pool_url}?updateMask=sessionDuration" "${z_token}" "found_pool_patch" "${z_patch_body}"
-      rbuh_require_ok "Reconcile pool sessionDuration" "found_pool_patch"
+      rbuh_json "PATCH" "${z_pool_url}?updateMask=sessionDuration" "${z_token}" "instaurate_pool_patch" "${z_patch_body}"
+      rbuh_require_ok "Reconcile pool sessionDuration" "instaurate_pool_patch"
       buc_info "Workforce pool ${z_pool_id} session duration reconciled to ${RBRW_SESSION_DURATION}"
     fi
   elif test -n "${z_other_live_id}"; then
@@ -1689,7 +1689,7 @@ rbgp_manor_found() {
     # No RB-marked pool under the org -> create it at the configured id. The org is an
     # immutable body field (parent), never a query parameter (RBSMA create-shape).
     buc_step "Create workforce identity pool ${z_pool_id} under ${z_org}"
-    local -r z_pool_body="${BURD_TEMP_DIR}/rbgp_found_pool.json"
+    local -r z_pool_body="${BURD_TEMP_DIR}/rbgp_instaurate_pool.json"
     jq -n \
       --arg parent          "${z_org}" \
       --arg displayName     "${z_pool_id}" \
@@ -1706,7 +1706,7 @@ rbgp_manor_found() {
       "Create workforce pool" \
       "${z_token}" \
       "${z_pools_base}?workforcePoolId=${z_pool_id}" \
-      "found_pool_create" \
+      "instaurate_pool_create" \
       "${z_pool_body}" \
       ".name" \
       "${z_iam_root}" \
@@ -1741,9 +1741,9 @@ rbgp_manor_found() {
   buc_step 'Verify bucket-level read via getIamPolicy read-back'
   rbuh_json "GET" \
     "${RBGC_API_BASE_GCS}/b/${RBGP_TERRIER_BUCKET}/iam?optionsRequestedPolicyVersion=3" \
-    "${z_token}" "found_terrier_bucket_iam"
-  rbuh_require_ok "Read terrier bucket IAM policy" "found_terrier_bucket_iam"
-  zrbgp_recognosce_require_binding "found_terrier_bucket_iam" \
+    "${z_token}" "instaurate_terrier_bucket_iam"
+  rbuh_require_ok "Read terrier bucket IAM policy" "instaurate_terrier_bucket_iam"
+  zrbgp_recognosce_require_binding "instaurate_terrier_bucket_iam" \
     "${RBGC_ROLE_STORAGE_OBJECT_VIEWER}" "serviceAccount:${z_gov_mantle_email}" \
     "terrier bucket (governor manor-wide read)"
 
@@ -1752,14 +1752,14 @@ rbgp_manor_found() {
   z_folder_enc=$(rbuh_urlencode_capture "${z_folder}") || buc_die "Failed to encode terrier folder"
   rbuh_json "GET" \
     "${RBGC_API_BASE_GCS}/b/${RBGP_TERRIER_BUCKET}/managedFolders/${z_folder_enc}/iam?optionsRequestedPolicyVersion=3" \
-    "${z_token}" "found_terrier_folder_iam"
-  rbuh_require_ok "Read terrier folder IAM policy" "found_terrier_folder_iam"
-  zrbgp_recognosce_require_binding "found_terrier_folder_iam" \
+    "${z_token}" "instaurate_terrier_folder_iam"
+  rbuh_require_ok "Read terrier folder IAM policy" "instaurate_terrier_folder_iam"
+  zrbgp_recognosce_require_binding "instaurate_terrier_folder_iam" \
     "${RBGC_ROLE_STORAGE_OBJECT_ADMIN}" "serviceAccount:${z_gov_mantle_email}" \
     "terrier folder (governor own-polity write)"
 
-  buc_step 'Manor founded'
-  buc_success "Manor founded: workforce pool ${z_pool_id} under ${z_org}, terrier bucket ${RBGP_TERRIER_BUCKET}, polity folder ${z_folder}"
+  buc_step 'Manor instaurated'
+  buc_success "Manor instaurated: workforce pool ${z_pool_id} under ${z_org}, terrier bucket ${RBGP_TERRIER_BUCKET}, polity folder ${z_folder}"
   buc_info "A foedus is now affianceable under the standing pool (rbw-mA); raze (rbw-mR) is the inverse teardown"
 }
 

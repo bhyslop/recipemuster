@@ -1,7 +1,7 @@
 //axvd_sheaf axd_normative
 This is a normative portion of the {rbs0_imprimatur}: binding — code, tests, and decisions may rely on it.
 //axhob_operation
-{rbtgo_manor_found}
+{rbtgo_manor_instaurate}
 
 NOTE: This operation founds the scriptable half of a
 {rbtgi_manor}
@@ -191,7 +191,7 @@ writes a governor makes into its own folder are governor-credentialed, seated by
 
 //axhoot_typed_output
 {rbtgi_manor}
-. *Confirm Found*:
+. *Confirm Instaurate*:
 .. {rbbc_show}
 single-line success banner naming the founded
 {rbtgi_manor},

@@ -8,7 +8,7 @@ NOTE: This operation force-deletes a
 one workforce identity pool — the manor-teardown, clearing the ground so a release
 ladder starts from a clean manor. It is the deliberate destructive inverse of the
 manor-setup finisher
-({rbtgo_manor_found}):
+({rbtgo_manor_instaurate}):
 where the finisher founds the pool and keeps it, raze tears it down. Deleting the pool
 cascades to every provider hanging beneath it and ends federated access for *every*
 {rbtf_citizen}
@@ -122,7 +122,7 @@ that hung beneath it are gone, and no
 under the manor can
 {rbtf_avow}
 until the manor-setup finisher
-({rbtgo_manor_found})
+({rbtgo_manor_instaurate})
 founds the pool afresh and
 {rbtf_affiance}
 re-seats the providers. The org-level grant, the

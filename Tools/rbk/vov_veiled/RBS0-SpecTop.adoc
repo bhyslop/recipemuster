@@ -135,7 +135,7 @@
 :rbtgo_image_retrieve:            <<rbtgo_image_retrieve,rbfl_wrest>>
 :rbtgo_manor_affiance:            <<rbtgo_manor_affiance,rbgp_manor_affiance>>
 :rbtgo_manor_jilt:                <<rbtgo_manor_jilt,rbgp_manor_jilt>>
-:rbtgo_manor_found:               <<rbtgo_manor_found,rbgp_manor_found>>
+:rbtgo_manor_instaurate:               <<rbtgo_manor_instaurate,rbgp_manor_instaurate>>
 :rbtgo_manor_raze:                <<rbtgo_manor_raze,rbgp_manor_raze>>
 :rbtgo_payor_establish:           <<rbtgo_payor_establish,rbhp_establish>>
 :rbtgo_payor_install:             <<rbtgo_payor_install,rbgp_payor_install>>
@@ -1216,11 +1216,11 @@ deleting that foedus's provider while the shared workforce pool stands.
 //axvd_cartouche axd_normative
 include::RBSMJ-manor_jilt.adoc[]
 
-[[rbtgo_manor_found]]
+[[rbtgo_manor_instaurate]]
 //axvo_method axd_transient axd_grouped
-=== {rbtgo_manor_found}
+=== {rbtgo_manor_instaurate}
 
-Founds the scriptable substrate of the
+Instaurates the scriptable substrate of the
 {rbtgi_manor}
 ({rbtgog_payor}):
 the one workforce pool (list-and-match ensure-exists), the
@@ -1230,7 +1230,7 @@ the ensure-exists inverse of
 {rbtgo_manor_raze}.
 
 //axvd_cartouche axd_normative
-include::RBSMS-manor_found.adoc[]
+include::RBSMS-manor_instaurate.adoc[]
 
 [[rbtgo_manor_raze]]
 //axvo_method axd_transient axd_grouped
@@ -1242,7 +1242,7 @@ one workforce pool
 ({rbtgog_payor}):
 the dangerous, scary-gated force-delete that clears the ground for a release ladder —
 the destructive inverse of
-{rbtgo_manor_found},
+{rbtgo_manor_instaurate},
 distinct from the everyday provider-delete
 {rbtf_jilt}.
 
