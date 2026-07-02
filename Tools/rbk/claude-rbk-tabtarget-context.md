@@ -45,8 +45,6 @@ The Folio column shows how each tabtarget receives it:
 | `rbw-di` | DepotInfo | — | Run egress posture checks against the live depot's worker pools |
 | `rbw-dr` | DepotRecognosce | — | Recognosce a depot's founding — confirm mantle SAs, capability-sets, and AR audit config against live GCP |
 | `rbw-da` | DepotAttribution | — | Print the depot's AR Data-Access attribution trail — recent audit entries naming the acting mantle SA and the human federate subject |
-| `rbw-dt` | TerrierScaffold | — | Provision and idempotently reset the freehold's terrier (interim scaffold) |
-| `rbw-dT` | TerrierProof | — | Prove terrier muniment atomicity end-to-end against the scaffolded terrier (interim) |
 
 ### Manor — IdP federation founding (`rbw-m`)
 
@@ -74,6 +72,13 @@ The Folio column shows how each tabtarget receives it:
 | `rbw-jI` | FoedusInstate | param1 | Instate a standing foedus as active — re-point the RBRR_ACTIVE_FOEDUS selector in rbrr.env (atomic, uncommitted; operator commits) |
 | `rbw-jd` | FoedusDescry | param1 | Descry a standing foedus — read its provider's presence under the manor pool (healthy, or a named deficit; read-only) |
 | `rbw-jc` | FoedusCanvass | — | Canvass the manor's foedera — enumerate every provider under the one workforce pool, emitting per-foedus fact files and marking the regime-selected one (read-only) |
+
+### Facility — synthetic-federation test-bed lifecycle (`rbw-q`)
+
+| Colophon | Frontispiece | Folio | Purpose |
+|----------|-------------|-------|---------|
+| `rbw-qjK` | KeycloakSetup | — | Stand up the Keycloak programmatic test facility — charge fdkyclk, render its ephemeral JWKS into the ignored live regime, affiance rbef_keycloak (mutates cloud via affiance) |
+| `rbw-qjQ` | KeycloakTeardown | — | Tear down the Keycloak test facility — jilt rbef_keycloak, then quench fdkyclk (idempotent) |
 
 ### Lode — Fetched-side universal capture (`rbw-l`)
 

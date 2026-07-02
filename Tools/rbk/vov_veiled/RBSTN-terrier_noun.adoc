@@ -22,7 +22,7 @@ the physical bucket lives in the Manor's own {rbtgi_payor_project}, its id suffi
 The managed-folder grain is one managed folder per polity, keyed by the depot project id.
 A governor mantle's write is scoped to its own polity's folder (`roles/storage.objectAdmin` granted through managed-folder IAM); read is bucket-level for every governor mantle (`roles/storage.objectViewer` on the bucket) — write folder-scoped own-polity, read manor-wide.
 The payor reads inherently as owner of the payor project.
-The cross-project shape — a payor-project bucket written by a depot's governor mantle — is provisioned by an interim scaffold, never folded into a founding ceremony in this heat.
+The cross-project shape — a payor-project bucket written by a depot's governor mantle — is provisioned by the manor-setup finisher (instaurate, RBSMS) as a founding-time act.
 
 The terrier's *muniment* internals are settled (at the terrier sub-operations pace, extended with the provider dimension under the one-pool model):
 granularity is per-entry — one object per (principal subject,
