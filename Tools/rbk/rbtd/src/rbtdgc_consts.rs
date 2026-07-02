@@ -46,6 +46,7 @@ pub const RBTDGC_PAYOR_INSTALL: &str = "rbw-gPI";
 pub const RBTDGC_PAYOR_ESTABLISH: &str = "rbw-gPE";
 pub const RBTDGC_PAYOR_REFRESH: &str = "rbw-gPR";
 pub const RBTDGC_QUOTA_BUILD: &str = "rbw-gPQ";
+pub const RBTDGC_FEDERATION_ENTRA: &str = "rbw-gPF";
 pub const RBTDGC_ONBOARD_START_HERE: &str = "rbw-o";
 pub const RBTDGC_ONBOARD_CRASH_COURSE: &str = "rbw-Occ";
 pub const RBTDGC_ONBOARD_FIRST_CRUCIBLE: &str = "rbw-Ofc";

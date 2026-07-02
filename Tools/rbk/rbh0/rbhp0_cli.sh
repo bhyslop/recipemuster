@@ -55,6 +55,7 @@ zrbhp_furnish() {
   source "${z_rbh0_dir}/rbhpe_establish.sh"   || buc_die "Failed to source rbhpe_establish.sh"
   source "${z_rbh0_dir}/rbhpr_refresh.sh"     || buc_die "Failed to source rbhpr_refresh.sh"
   source "${z_rbh0_dir}/rbhpq_quota_build.sh" || buc_die "Failed to source rbhpq_quota_build.sh"
+  source "${z_rbh0_dir}/rbhpf_entra.sh"       || buc_die "Failed to source rbhpf_entra.sh"
   source "${BURD_BUK_DIR}/buz_zipper.sh"                   || buc_die "Failed to source buz_zipper.sh"
   source "${z_rbk_kit_dir}/rbz_zipper.sh"                  || buc_die "Failed to source rbz_zipper.sh"
 
