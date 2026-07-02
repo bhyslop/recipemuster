@@ -2,7 +2,8 @@
 
 This heat lands the federated-credential lifecycle feature that the ₣Bf credential-fault disposition study surfaced (260702):
 a preflight runway gate on the sitting, a force-fresh renew act, and the mid-flight mantle re-mint the human-present premise already promises.
-₣Bf is the parent stream; its last pace records the study findings and hands the lifecycle matter here.
+₣Bf is the parent stream; its disposition pace was restrung in here whole and leads the heat —
+it records the study's retire-with-finding determinations and clears the vestigial consts before the build paces run.
 
 ## Model — two clocks under one credential
 
@@ -11,9 +12,10 @@ The mantle token minted beneath it (the don) self-expires at the ~60-minute gene
 The failure: the one long-lived consumer — the shared build-completion poll, through which every long cloud build funnels — mints one mantle token and holds it across a worst-case ~95-minute budget that outlives the mantle ceiling while the sitting stays perfectly live; the poll's blind consecutive-failure counter then kills a healthy build.
 RBS0's human-present premise already promises the cure ("a long run re-mints mantle tokens mid-flight from the cached federated token while the sitting lives"); the poll violates that promise today.
 
-## Shape — four parts, dependency order = pace order
+## Shape — disposition first, then four build parts in dependency order
 
-Contract first (RBS0 gains the proactive runway floor, the renew act, and the census-minted operator verb);
+The restrung disposition pace leads (findings recorded, dead consts cleared);
+then contract first (RBS0 gains the proactive runway floor, the renew act, and the census-minted operator verb);
 then the BUK band widening (the precision reject band is FULL, so no new gate can take a code until the band grows);
 then the gate + renew together (the rejection names the remedy, so they land as one);
 then the poll re-mint.
@@ -33,7 +35,8 @@ then the poll re-mint.
 
 ## Done when
 
-A short-runway sitting reuse rejects with a named band code advising renew;
+The study findings are recorded where the surviving code lives and the vestigial consts are gone;
+a short-runway sitting reuse rejects with a named band code advising renew;
 the renew tabtarget restores a full-life sitting on both mechanisms;
 the shared poll re-mints mid-flight so a conjure-length build no longer dies of mantle expiry;
 and the RBS0 contracts say all of this before the code does.
@@ -46,4 +49,4 @@ the one long-lived consumer zrbfc_wait_build_completion in rbfcb_host.sh (direct
 the full band census in bubc_constants.sh (16/16 allocated, self-test sentinel pinning the top, BUTT fixture asserting it);
 the spec homes in RBS0-SpecTop.adoc — the sitting and avow quoins and the human-present premise (its re-mint promise is today reactive fail-at-lapse only).
 Wrong homes ruled out: RBSFA is the programmatic, sittingless sibling and does not own this contract; the in-pool preflight quoin is an unrelated Cloud-Build step check.
-The keyfile-era memo trail and the terminal-vs-transient findings stay with ₣Bf's disposition pace; this heat builds, it does not re-litigate.
+The keyfile-era memo trail lives with the leading disposition pace's docket; this heat's build paces do not re-litigate it.

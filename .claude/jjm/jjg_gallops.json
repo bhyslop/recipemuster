@@ -18746,16 +18746,14 @@
         "₢BqAAE": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260702-1511",
+              "jjgtn_ts": "260702-1512",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
-                "Drafted from ₢BfAAl in ₣Bf.",
-                "",
-                "Narrowed (260702, post-study): this pace is the credential-fault DISPOSITION it was chartered as —",
+                "The credential-fault DISPOSITION (restrung from ₣Bf, 260702, where the study ran at mount) —",
                 "record the two determinations against the settled federation auth path and clean the vestigial consts.",
-                "The lifecycle feature the study surfaced (sitting runway gate, renew, poll mantle re-mint) split out whole to heat ₣Bq; no build-poll code changes here.",
+                "The lifecycle feature the study surfaced became this heat's four build paces; no build-poll code changes in this pace.",
                 "",
-                "The study ran at mount (260702); the determinations to record, each where the surviving code lives:",
+                "The determinations to record, each where the surviving code lives:",
                 "",
                 "Determination A (flap tolerance) — retire with finding.",
                 "The memo's trigger (per-run director-SA re-invest) is demolished: mantle SAs are standing, levy-created, never re-invested per run.",
@@ -18771,10 +18769,10 @@
                 "The blind-403 propagation waits (the IAM grant sites and the capabilities GAR loop) are post-grant by construction and cinch-kept —",
                 "record WHY at their constants' home, so a future reader does not \"optimize\" the deliberate budget away.",
                 "",
-                "The build poll (zrbfc_wait_build_completion, rbfcb_host.sh) — record as finding, fix elsewhere.",
+                "The build poll (zrbfc_wait_build_completion, rbfcb_host.sh) — record as finding here, fixed by this heat's re-mint pace.",
                 "Its single non-refreshed mantle token plus blind consecutive-failure counter is real,",
                 "but it is a lifecycle contradiction of the human-present premise's mid-flight re-mint promise (mantle ceiling vs conjure budget),",
-                "not a fault-classification gap; the fix is ₣Bq's, and the recorded finding here names that handoff.",
+                "not a fault-classification gap.",
                 "",
                 "Code actions in this pace:",
                 "remove the vestigial RBGC_SA_KEY_CONSUMER_RETRY_* trio from rbgc_constants.sh (zero consumers repo-wide; the mechanism they tuned was demolished with the keyfile estate),",
@@ -18787,23 +18785,23 @@
                 "## Done when",
                 "Both determinations recorded where the surviving code lives (form of the record — comment, spec note — is mount judgment);",
                 "the dead consts and the orphaned spec sentence are gone;",
-                "the build-poll finding names the ₣Bq handoff;",
+                "the build-poll finding names this heat's re-mint pace as the fix home;",
                 "shellcheck and reveille green.",
                 "",
                 "## Cinched",
                 "The terminal-vs-transient disambiguator is call context, never the response body alone.",
                 "Do not reintroduce the keyfile SA-propagation loop; keep genuine post-mint propagation tolerance wherever it survives.",
-                "No build-poll code changes in this pace — that surface belongs to ₣Bq.",
+                "No build-poll code changes in this pace — that surface belongs to the re-mint pace at the heat's tail.",
                 "",
                 "## Character",
                 "Recording plus small deletions; the judgment is already made, this pace writes it down.",
                 "",
                 "## Provenance",
                 "Drafted from ₣Bi lineage (originally ₣BB-era against the keyfile estate); the terminal-fail-fast sibling folded in 260702;",
-                "narrowed 260702 after the mount study, the sitting-runway lifecycle split out to ₣Bq."
+                "narrowed 260702 after the mount study and restrung from ₣Bf into this heat, the build work cut as the sibling paces."
               ],
               "jjgtn_silks": "federation-credential-fault-disposition",
-              "jjgtn_basis": "39dce7a"
+              "jjgtn_basis": "127e3b8"
             }
           ]
         }
