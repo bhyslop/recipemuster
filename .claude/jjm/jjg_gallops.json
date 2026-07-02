@@ -17362,8 +17362,8 @@
         "₢BfAAF": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260630-2043",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260701-2003",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "Build the manor-setup finisher — a single idempotent post-payor-guide tabtarget that founds the scriptable manor: the workforce pool (once) plus the terrier bucket + per-polity folders. ENSURE-EXISTS (operator 260630).",
                 "",
@@ -17394,7 +17394,7 @@
                 "Implementation over a settled design; the B-variant, the folder-step credential boundary, the PATCH-reconcile scope, and the list-and-match drift guard are the in-pace judgment calls."
               ],
               "jjgtn_silks": "terrier-founding-home-finisher",
-              "jjgtn_basis": "251ef8a"
+              "jjgtn_basis": "8478403"
             }
           ]
         },
