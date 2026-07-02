@@ -15590,29 +15590,29 @@
         "₢BfAAz": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260630-1519",
+              "jjgtn_ts": "260702-0348",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "Retire the interim terrier scaffold — the rbw-dt/dT tabtargets, the terrier-scaffold / terrier-atomicity fixtures (picket/echelon), and their rbtdrm_manifest.rs name-consts + colophon-dependency-map arms — now that the finisher provisions the terrier for real.",
                 "",
                 "## Spec of needed change",
-                "Split out of the finisher (₢BfAAF) because it genuinely depends on the fully-restructured fixture registry (behind the ₢BfAAq cross-clone barrier), while the finisher itself does not.",
+                "Split out of the finisher (₢BfAAF) because it genuinely depends on the fully-restructured fixture registry (behind the now-lifted ₢BfAAq cross-clone barrier), while the finisher itself does not.",
                 "- Retire rbw-dt / rbw-dT, the terrier-scaffold + terrier-atomicity fixtures, and the rbtdrm_manifest.rs RBTDRM_FIXTURE_TERRIER_* consts + colophon-dependency-map arms (the sixth ₣Bl-owned file — include it so a hot-file-only read doesn't miss it).",
-                "- Coordinate the terrier-atomicity retirement with ₣Bl's terrier-poison fixture, which replaces the retired proof — no duplicate retirement.",
+                "- Key the terrier-atomicity retirement off ₣Bl's polity-denial fixture (₢BlAAY): its terrier arc — folded in and renamed from the old mantle-denial fixture — now carries the terrier-band coverage that the retired proof held, so retiring terrier-atomicity leaves 2 terrier picket fixtures, not 3. There is NO standalone fixture named terrier-poison (₢BlAAY's earlier plan; it renamed/folded instead). Coordinate off the polity-denial terrier arc; do not duplicate coverage.",
                 "- Update the RBS0 terrier cross-project line (the finisher makes the \"interim scaffold\" framing false).",
                 "",
                 "## Done when",
                 "The rbw-dt/dT scaffold + its two fixtures are retired/migrated onto the finisher, including the rbtdrm_manifest.rs arms; the RBS0 terrier line is corrected; gauntlet stays green (no terrier fixture there).",
                 "",
                 "## Cinched",
-                "Rides behind ₢BfAAq (the fully-restructured fixture registry must be merged here first).",
-                "The terrier-poison fixture REPLACES the retired atomicity proof — coordinate, don't duplicate.",
+                "Rode behind ₢BfAAq (the fully-restructured fixture registry is now merged here).",
+                "The terrier-band coverage lives in ₢BlAAY's polity-denial terrier arc (renamed from mantle-denial), NOT in a fixture named terrier-poison — none was landed. Coordinate the terrier-atomicity retirement off that arc; do not duplicate.",
                 "",
                 "## Character",
-                "Mechanical retirement across the registry + manifest + RBS0 line; the cross-clone barrier (₢BfAAq) is the gate."
+                "Mechanical retirement across the registry + manifest + RBS0 line; the cross-clone barrier (₢BfAAq) that gated it is now lifted."
               ],
               "jjgtn_silks": "terrier-scaffold-retirement",
-              "jjgtn_basis": "b844d7b"
+              "jjgtn_basis": "ae2f4de"
             }
           ]
         }
