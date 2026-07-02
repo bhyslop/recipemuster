@@ -1592,10 +1592,14 @@ rbgp_manor_instaurate() {
 
   # === Ensure the manor workforce pool via LIST-AND-MATCH (RBSMS drift guard) ===
   # Page workforcePools.list under the org with showDeleted=true (so a soft-deleted
-  # pool squatting the id is visible as drift, never a silent create-over), keeping
-  # only the RB-marked pools (description == the founding marker affiance also writes).
-  # Then: expected-id + live -> reconcile sessionDuration; expected-id + DELETED ->
-  # refuse (squatting, coordinate drift); a live RB pool at a DIFFERENT id -> refuse
+  # pool squatting the id is visible as drift, never a silent create-over). The pool
+  # AT the expected id (RBRW_WORKFORCE_POOL_ID) is ours by COORDINATE — matched by id
+  # regardless of its description, so a pool predating the marker convention (a spike or
+  # hand-created pool) is recognized and reconciled, never create-over'd. The RB marker
+  # (description == the founding marker) is only how we recognize OUR pool among
+  # unrelated org pools for the DIFFERENT-id drift check. Then: expected-id + live ->
+  # reconcile sessionDuration and backfill the marker; expected-id + DELETED -> refuse
+  # (squatting, coordinate drift); a live RB-marked pool at a DIFFERENT id -> refuse
   # (coordinate drift); none -> create. A bare get-by-id would silently found a second
   # empty pool the moment RBRW_WORKFORCE_POOL_ID drifted — that is the guard's purpose.
   buc_step 'Ensure workforce identity pool (list-and-match drift guard)'
@@ -1618,7 +1622,9 @@ rbgp_manor_instaurate() {
   local z_p_session=""
   local z_expected_state=""
   local z_expected_session=""
+  local z_expected_desc=""
   local z_other_live_id=""
+  local z_mask=""
 
   while :; do
     z_url="${z_pools_base}?parent=${z_org_enc}&showDeleted=true"
@@ -1639,18 +1645,23 @@ rbgp_manor_instaurate() {
 
     z_index=0
     while test "${z_index}" -lt "${z_count}"; do
+      z_p_name=$(rbuh_json_field_capture "${z_infix}" ".workforcePools[${z_index}].name") || z_p_name=""
+      z_p_id="${z_p_name##*/}"
+      z_p_state=$(rbuh_json_field_capture "${z_infix}" ".workforcePools[${z_index}].state // \"${RBGC_STATE_UNSPECIFIED}\"") || z_p_state="${RBGC_STATE_UNSPECIFIED}"
+      z_p_session=$(rbuh_json_field_capture "${z_infix}" ".workforcePools[${z_index}].sessionDuration // \"\"") || z_p_session=""
       z_p_desc=$(rbuh_json_field_capture "${z_infix}" ".workforcePools[${z_index}].description // \"\"") || z_p_desc=""
-      if test "${z_p_desc}" = "${RBGC_WORKFORCE_POOL_MARKER}"; then
-        z_p_name=$(rbuh_json_field_capture "${z_infix}" ".workforcePools[${z_index}].name") || z_p_name=""
-        z_p_id="${z_p_name##*/}"
-        z_p_state=$(rbuh_json_field_capture "${z_infix}" ".workforcePools[${z_index}].state // \"${RBGC_STATE_UNSPECIFIED}\"") || z_p_state="${RBGC_STATE_UNSPECIFIED}"
-        z_p_session=$(rbuh_json_field_capture "${z_infix}" ".workforcePools[${z_index}].sessionDuration // \"\"") || z_p_session=""
-        if test "${z_p_id}" = "${z_pool_id}"; then
-          z_expected_state="${z_p_state}"
-          z_expected_session="${z_p_session}"
-        elif test -n "${z_p_id}" && test "${z_p_state}" != "${RBGC_STATE_DELETED}" && test -z "${z_other_live_id}"; then
-          z_other_live_id="${z_p_id}"
-        fi
+      if test "${z_p_id}" = "${z_pool_id}"; then
+        # The pool at the expected id is OURS by coordinate — matched by id, not marker,
+        # so a pool predating the marker convention still counts (the fix the live run
+        # forced: a spike pool at the id but without the marker was create-over'd).
+        z_expected_state="${z_p_state}"
+        z_expected_session="${z_p_session}"
+        z_expected_desc="${z_p_desc}"
+      elif test -n "${z_p_id}" && test "${z_p_desc}" = "${RBGC_WORKFORCE_POOL_MARKER}" \
+           && test "${z_p_state}" != "${RBGC_STATE_DELETED}" && test -z "${z_other_live_id}"; then
+        # A live RB-marked pool at a DIFFERENT id — the marker recognizes OUR pool among
+        # unrelated org pools for the drift check.
+        z_other_live_id="${z_p_id}"
       fi
       z_index=$((z_index + 1))
     done
@@ -1667,18 +1678,31 @@ rbgp_manor_instaurate() {
       buc_info "The finisher never resurrects a dissolved pool (ensure-exists, never undelete). Set a free RBRW_WORKFORCE_POOL_ID and re-run, or wait for purge."
       buc_die "Workforce pool ${z_pool_id} soft-deleted — coordinate drift, refusing to found a second pool"
     fi
-    # Live at the expected id -> reconcile the one reconcilable field, non-destructively.
-    if test "${z_expected_session}" = "${RBRW_SESSION_DURATION}"; then
-      buc_info "Workforce pool ${z_pool_id} present (state ${z_expected_state}, session ${z_expected_session}) — session duration already matches, leaving in place"
+    # Live at the expected id -> ours. Reconcile session-duration (config drives cloud)
+    # and backfill the RB marker if this pool predates the convention, both in one
+    # non-destructive PATCH whose updateMask names only the fields that actually differ.
+    z_mask=""
+    test "${z_expected_session}" = "${RBRW_SESSION_DURATION}" || z_mask="sessionDuration"
+    if test "${z_expected_desc}" != "${RBGC_WORKFORCE_POOL_MARKER}"; then
+      if test -n "${z_mask}"; then
+        z_mask="${z_mask},description"
+      else
+        z_mask="description"
+      fi
+    fi
+    if test -z "${z_mask}"; then
+      buc_info "Workforce pool ${z_pool_id} present (state ${z_expected_state}, session ${z_expected_session}) — already conformant, leaving in place"
     else
-      buc_step "Reconcile pool session duration (${z_expected_session:-unset} -> ${RBRW_SESSION_DURATION}, PATCH)"
+      buc_step "Reconcile pool ${z_pool_id} (updateMask=${z_mask})"
       local -r z_patch_body="${BURD_TEMP_DIR}/rbgp_instaurate_pool_patch.json"
-      jq -n --arg sessionDuration "${RBRW_SESSION_DURATION}" \
-        '{ sessionDuration: $sessionDuration }' > "${z_patch_body}" \
+      jq -n \
+        --arg sessionDuration "${RBRW_SESSION_DURATION}" \
+        --arg description     "${RBGC_WORKFORCE_POOL_MARKER}" \
+        '{ sessionDuration: $sessionDuration, description: $description }' > "${z_patch_body}" \
         || buc_die "Failed to build workforce pool patch body"
-      rbuh_json "PATCH" "${z_pool_url}?updateMask=sessionDuration" "${z_token}" "instaurate_pool_patch" "${z_patch_body}"
-      rbuh_require_ok "Reconcile pool sessionDuration" "instaurate_pool_patch"
-      buc_info "Workforce pool ${z_pool_id} session duration reconciled to ${RBRW_SESSION_DURATION}"
+      rbuh_json "PATCH" "${z_pool_url}?updateMask=${z_mask}" "${z_token}" "instaurate_pool_patch" "${z_patch_body}"
+      rbuh_require_ok "Reconcile pool" "instaurate_pool_patch"
+      buc_info "Workforce pool ${z_pool_id} reconciled (updateMask=${z_mask})"
     fi
   elif test -n "${z_other_live_id}"; then
     # A live RB pool stands under a different id — refuse rather than found a second.

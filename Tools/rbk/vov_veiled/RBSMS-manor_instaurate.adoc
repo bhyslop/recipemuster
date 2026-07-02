@@ -41,17 +41,25 @@ pool-id half of the
 committed-record-vs-live-pool sync. A plain get-by-id would silently found a second,
 empty pool the moment
 {rbrw_workforce_pool_id}
-drifted from the live pool's id. So the finisher instead *lists* the RB-marked pools
+drifted from the live pool's id. So the finisher instead *lists* the pools
 under
 {rbrw_org_id}
-(matching on the pool's Recipe Bottle description marker, the same marker affiance
-writes at creation) and:
-* no RB-marked pool → create it at
-{rbrw_workforce_pool_id};
-* one RB-marked pool at the expected id → reconcile its
+(soft-deleted included, so a dissolved squatter surfaces as drift) and matches by
+COORDINATE: the pool at
+{rbrw_workforce_pool_id}
+is ours by its id alone — recognized regardless of its description, so a pool predating
+the marker convention (a spike or hand-created pool) is reconciled, never founded over.
+The Recipe Bottle description marker (the same marker affiance writes at creation) is only
+how the finisher recognizes OUR pool among unrelated org pools for the *different-id*
+drift check. So:
+* no pool at the expected id, and no RB-marked pool elsewhere → create it at
+{rbrw_workforce_pool_id}
+(stamped with the marker);
+* a live pool at the expected id → reconcile its
 {rbrw_session_duration}
-(PATCH, non-destructive) and leave it;
-* one RB-marked pool at a *different* id →
+and backfill the marker if absent (PATCH, non-destructive, masking only the drifted
+fields), then leave it;
+* an RB-marked pool at a *different* id →
 {rbbc_fatal}
 (coordinate drift): the finisher refuses rather than found a second pool, directing the
 operator to reconcile
@@ -118,10 +126,10 @@ Finding-F1 NOTE).
 //axhos_step
 . *Ensure the manor workforce pool* (list-and-match drift guard, never a bare get-by-id):
 .. {rbbc_call}
-link:https://cloud.google.com/iam/docs/reference/rest/v1/locations.workforcePools/list[workforcePools.list] for `parent=organizations/RBRW_ORG_ID`, paginated to exhaustion.
+link:https://cloud.google.com/iam/docs/reference/rest/v1/locations.workforcePools/list[workforcePools.list] for `parent=organizations/RBRW_ORG_ID` with `showDeleted=true`, paginated to exhaustion.
 .. {rbbc_store}
-the RB-marked pools — those whose `description` is the Recipe Bottle manor federation marker (the marker affiance writes at creation) — as `(id, state)` pairs.
-.. *No RB-marked pool* → create it:
+the pool at the expected id `RBRW_WORKFORCE_POOL_ID` — matched by id alone, ours by coordinate whatever its `description` — as `(state, sessionDuration, description)`; and, separately, any RB-marked pool (whose `description` is the Recipe Bottle manor federation marker) standing at a *different* id, for the drift check.
+.. *No pool at the expected id, and no RB-marked pool elsewhere* → create it:
 ... {rbbc_submit}
 link:https://cloud.google.com/iam/docs/reference/rest/v1/locations.workforcePools/create[workforcePools.create] with query `workforcePoolId=RBRW_WORKFORCE_POOL_ID` and body:
 +
@@ -138,18 +146,18 @@ The org is an immutable body field (`parent`), never a query parameter — the p
 resource name carries no org, the org scopes it solely through `parent`.
 ... {rbbc_await}
 the returned operation to done.
-.. *One RB-marked pool at `RBRW_WORKFORCE_POOL_ID`* (live, `state` not `DELETED`) → reconcile and leave:
+.. *A live pool at the expected id* (`state` not `DELETED`) → reconcile and leave:
 ... {rbbc_submit}
-link:https://cloud.google.com/iam/docs/reference/rest/v1/locations.workforcePools/patch[workforcePools.patch] with `updateMask=sessionDuration` when the live `sessionDuration` differs from
-{rbrw_session_duration}
-(config drives cloud, non-destructive); a matching value is left untouched.
+link:https://cloud.google.com/iam/docs/reference/rest/v1/locations.workforcePools/patch[workforcePools.patch] with an `updateMask` naming *only the drifted fields* — `sessionDuration` when the live value differs from
+{rbrw_session_duration},
+and `description` when the pool lacks the RB marker (backfilling it, so a pool predating the convention becomes conformant). A fully-conformant pool is left untouched (empty mask, no PATCH).
 ... {rbbc_await}
 the patch operation to done.
-.. *One RB-marked pool at a different id* →
+.. *An RB-marked pool at a different id* →
 {rbbc_fatal}:
 coordinate drift. The finisher refuses to found a second pool and directs the operator to reconcile
 {rbrw_workforce_pool_id}
-with the standing pool's id (a bare ensure-exists would silently found the second, empty pool — the guard this step exists to be).
+with the standing pool's id (a bare get-by-id would silently found a second, empty pool — the guard this step exists to be).
 .. NOTE: The finisher never deletes a pool. A soft-deleted pool squatting
 {rbrw_workforce_pool_id}
 (`state: DELETED`) is coordinate drift like any other id mismatch — resurrection is not ensure-exists; the manor-teardown owns deletion, and a fresh trust takes a fresh id
