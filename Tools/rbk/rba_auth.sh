@@ -46,11 +46,20 @@ zrba_kindle() {
   readonly ZRBA_STS_SCOPE="https://www.googleapis.com/auth/cloud-platform"
   readonly ZRBA_DEVICE_GRANT_TYPE="urn:ietf:params:oauth:grant-type:device_code"
 
+  # RFC 7523 JWT-authorization grant — the programmatic Leg 1's grant_type, the
+  # no-human sibling of the device-code grant above.
+  readonly ZRBA_JWT_BEARER_GRANT_TYPE="urn:ietf:params:oauth:grant-type:jwt-bearer"
+
   # Sitting cache tuning: skew (treat the federated token as spent this many
   # seconds before its stated expiry) and the device-flow poll ceiling (device
   # codes self-expire in ~15 min).
   readonly ZRBA_SITTING_SKEW_SEC=60
   readonly ZRBA_DEVICE_POLL_MAX_SEC=900
+
+  # Programmatic (RFC 7523) assertion tuning: the self-supplied JWT's lifetime and
+  # the grant scope. Each mint carries a fresh jti and a short exp — single-use.
+  readonly ZRBA_PROG_ASSERTION_TTL_SEC=300
+  readonly ZRBA_PROG_ASSERTION_SCOPE="openid"
 
   # Per-invocation scratch for the leg curls — BURD_TEMP_DIR (process lifetime),
   # never the sitting cache, which must outlive one invocation (see rba_avow).
@@ -85,6 +94,26 @@ zrba_kindle() {
   readonly ZRBA_FED_EXPIRES_IN_FILE="${BURD_TEMP_DIR}/rba_fed_expires_in.txt"
   readonly ZRBA_FED_DON_CODE_FILE="${BURD_TEMP_DIR}/rba_fed_don_code.txt"
   readonly ZRBA_FED_DON_ERROR_FILE="${BURD_TEMP_DIR}/rba_fed_don_error.txt"
+
+  # Programmatic Leg-1 (RFC 7523 mint) scratch. The JWT header/payload and their
+  # base64url encodings, the signing input, the raw+encoded signature, and the
+  # assembled assertion are all NON-secret (public JWT parts) — the one durable
+  # secret, the asserter private key, is read only by openssl via its regime PATH
+  # and never lands here, and the client secret is read only by curl via its file
+  # reference. PROG_TOKEN_RESPONSE bears the minted id_token: like the STS and don
+  # responses it is per-invocation BURD_TEMP_DIR scratch, never the sitting cache,
+  # and jq emits the id_token from it straight to stdout (never a shell var).
+  readonly ZRBA_FED_PROG_NOW_FILE="${BURD_TEMP_DIR}/rba_fed_prog_now.txt"
+  readonly ZRBA_FED_PROG_HEADER_FILE="${BURD_TEMP_DIR}/rba_fed_prog_header.json"
+  readonly ZRBA_FED_PROG_PAYLOAD_FILE="${BURD_TEMP_DIR}/rba_fed_prog_payload.json"
+  readonly ZRBA_FED_PROG_HEADER_B64_FILE="${BURD_TEMP_DIR}/rba_fed_prog_header_b64.txt"
+  readonly ZRBA_FED_PROG_PAYLOAD_B64_FILE="${BURD_TEMP_DIR}/rba_fed_prog_payload_b64.txt"
+  readonly ZRBA_FED_PROG_SIGNING_FILE="${BURD_TEMP_DIR}/rba_fed_prog_signing.txt"
+  readonly ZRBA_FED_PROG_SIG_RAW_FILE="${BURD_TEMP_DIR}/rba_fed_prog_sig_raw.bin"
+  readonly ZRBA_FED_PROG_SIG_B64_FILE="${BURD_TEMP_DIR}/rba_fed_prog_sig_b64.txt"
+  readonly ZRBA_FED_PROG_ASSERTION_FILE="${BURD_TEMP_DIR}/rba_fed_prog_assertion.jwt"
+  readonly ZRBA_FED_PROG_TOKEN_RESPONSE_FILE="${BURD_TEMP_DIR}/rba_fed_prog_token.json"
+  readonly ZRBA_FED_PROG_ERROR_FILE="${BURD_TEMP_DIR}/rba_fed_prog_error.txt"
 
   readonly ZRBA_KINDLED=1
 }
@@ -135,12 +164,15 @@ rba_token_capture() {
 ######################################################################
 # Federation branch — avowal (Leg 1) + STS exchange (Leg 2)
 #
-# The accessor's federated-token path. A human avows via the IdP device flow
-# (Leg 1); the IdP id_token is exchanged at Google STS for a workforce federated
-# access token (Leg 2); that federated token alone is cached, per-sitting. The
-# mantle token (Leg 3, the don) is a separate artifact, separately scoped, and
-# never cached — it is not built here. The persisted sitting cache is the clean
-# producer/consumer seam between this path and the don.
+# The accessor's federated-token path. Leg 1 obtains an IdP id_token by one of two
+# mechanism-gated arms (RBRF_MECHANISM): the interactive device flow (a human avows,
+# RFC 8628) or the programmatic RFC 7523 grant (a self-supplied JWT, no human —
+# RBSFA). Leg 2 exchanges that id_token at Google STS for a workforce federated
+# access token, mechanism-invariant; that federated token alone is cached,
+# per-sitting. The mantle token (Leg 3, the don) is a separate artifact, separately
+# scoped, and never cached — it is not built here. The persisted sitting cache is the
+# clean producer/consumer seam between this path and the don, and its key is already
+# pool+provider, so an interactive and a programmatic foedus never cross sittings.
 #
 # Federation config is read from two regimes under the one-pool Model: the manor
 # pool id from RBRW_* (rbrw_regime, manor-level) and the per-foedus provider from
@@ -348,6 +380,134 @@ zrba_leg1_idtoken_capture() {
   return 1
 }
 
+# base64url-encode a file's bytes (RFC 7515): standard base64 via openssl (the
+# declared dependency — base64/tr are evicted, BCG Command Dependency Discipline),
+# then +/=->-_ stripped by bash parameter expansion. A non-secret transform over
+# public JWT parts. Args: $1 input file, $2 the raw-base64 scratch file (unique per
+# part, forensic). Echoes the b64url string or returns 1.
+zrba_b64url_capture() {
+  zrba_sentinel
+
+  local -r z_in="${1:-}"
+  local -r z_raw="${2:-}"
+
+  openssl enc -base64 -A -in "${z_in}" > "${z_raw}" 2>"${ZRBA_FED_OPENSSL_STDERR_FILE}" || return 1
+  local z_b64=$(<"${z_raw}")
+  test -n "${z_b64}" || return 1
+  z_b64="${z_b64//+/-}"
+  z_b64="${z_b64//\//_}"
+  z_b64="${z_b64//=/}"
+  printf '%s' "${z_b64}"
+}
+
+# Leg 1 (programmatic) — the RFC 7523 JWT-authorization grant. The no-human sibling
+# of the device-flow avowal: mint a subject id_token by signing an assertion with the
+# caged asserter private key and POSTing it to the reachable grant endpoint, the
+# confidential client authenticated by its secret. Echoes the OIDC id_token; Leg 2
+# consumes it in-process, never persisted. Reads its inputs solely from the
+# programmatic RBRF_ self-supply fields (RBSFA/RBSRF) — it never learns "Keycloak".
+#
+# Custody (BCG / RBSFK two-keys): the asserter private key is read ONLY by openssl
+# via its regime PATH and never enters a shell var; the client secret is read ONLY by
+# curl via its file reference (--data-urlencode name@file) and never enters a shell
+# var or the argument list; the minted id_token is emitted by jq straight to stdout,
+# never through a var. The assertion and its parts are public (a signed JWT), so they
+# ride files and vars freely — only the two durable secrets are fenced.
+zrba_leg1_programmatic_idtoken_capture() {
+  zrba_sentinel
+  zrbrf_sentinel
+  zrbcc_sentinel
+
+  # The two secret-path references (never the material). cwd is the repo root
+  # (dispatch normalizes it), so these repo-root-relative paths resolve here.
+  local -r z_key_file="${RBRF_ASSERTER_KEY_FILE}"
+  local -r z_secret_file="${RBRF_CLIENT_SECRET_FILE}"
+  test -f "${z_key_file}" \
+    || { buc_log_args "Asserter key file absent: ${z_key_file} (RBRF_ASSERTER_KEY_FILE)"; return 1; }
+  test -f "${z_secret_file}" \
+    || { buc_log_args "Client secret file absent: ${z_secret_file} (RBRF_CLIENT_SECRET_FILE)"; return 1; }
+
+  # Fresh assertion timestamps: BCG bars $() on external commands, so date writes a
+  # file read back with the $(<file) builtin. exp = iat + TTL; a unique jti per mint
+  # (one-time use — Keycloak disables reuse by default, RBSFK).
+  date +%s > "${ZRBA_FED_PROG_NOW_FILE}" || return 1
+  local -r z_iat=$(<"${ZRBA_FED_PROG_NOW_FILE}")
+  [[ "${z_iat}" =~ ^[0-9]+$ ]] || return 1
+  local -r z_exp=$(( z_iat + ZRBA_PROG_ASSERTION_TTL_SEC ))
+  local -r z_jti="rba-${z_iat}-$$"
+
+  # Compose the non-secret JWT header and payload as JSON via jq (safe quoting of the
+  # regime-sourced values). aud = RBRF_IDP_ISSUER — the assertion aud is cinched to
+  # that existing field, no separate field (RBSFA); the IdP resolves the asserter
+  # subject to its federated-linked user through the realm's asserting-trust link.
+  jq -cn --arg kid "${RBRF_ASSERTER_KID}" \
+     '{alg:"RS256",typ:"JWT",kid:$kid}' \
+     > "${ZRBA_FED_PROG_HEADER_FILE}" 2>"${ZRBA_FED_JQ_STDERR_FILE}" \
+    || { buc_log_args "Failed to compose the assertion header; see ${ZRBA_FED_JQ_STDERR_FILE}"; return 1; }
+  jq -cn --arg iss "${RBRF_ASSERTER_ISSUER}" --arg sub "${RBRF_ASSERTER_SUBJECT}" \
+     --arg aud "${RBRF_IDP_ISSUER}" --argjson iat "${z_iat}" --argjson exp "${z_exp}" \
+     --arg jti "${z_jti}" \
+     '{iss:$iss,sub:$sub,aud:$aud,iat:$iat,exp:$exp,jti:$jti}' \
+     > "${ZRBA_FED_PROG_PAYLOAD_FILE}" 2>"${ZRBA_FED_JQ_STDERR_FILE}" \
+    || { buc_log_args "Failed to compose the assertion payload; see ${ZRBA_FED_JQ_STDERR_FILE}"; return 1; }
+
+  # base64url the header and payload (non-secret).
+  local z_h64
+  z_h64=$(zrba_b64url_capture "${ZRBA_FED_PROG_HEADER_FILE}" "${ZRBA_FED_PROG_HEADER_B64_FILE}") \
+    || { buc_log_args "Failed to base64url the assertion header; see ${ZRBA_FED_OPENSSL_STDERR_FILE}"; return 1; }
+  local z_p64
+  z_p64=$(zrba_b64url_capture "${ZRBA_FED_PROG_PAYLOAD_FILE}" "${ZRBA_FED_PROG_PAYLOAD_B64_FILE}") \
+    || { buc_log_args "Failed to base64url the assertion payload; see ${ZRBA_FED_OPENSSL_STDERR_FILE}"; return 1; }
+
+  # Signing input = <b64url header>.<b64url payload>, to a file (the thing signed).
+  printf '%s.%s' "${z_h64}" "${z_p64}" > "${ZRBA_FED_PROG_SIGNING_FILE}" || return 1
+
+  # RS256-sign with the asserter private key BY PATH (never a shell var); raw binary
+  # signature to a file, then base64url it.
+  openssl dgst -sha256 -sign "${z_key_file}" -binary "${ZRBA_FED_PROG_SIGNING_FILE}" \
+     > "${ZRBA_FED_PROG_SIG_RAW_FILE}" 2>"${ZRBA_FED_OPENSSL_STDERR_FILE}" \
+    || { buc_log_args "Assertion signing failed; see ${ZRBA_FED_OPENSSL_STDERR_FILE}"; return 1; }
+  local z_sig
+  z_sig=$(zrba_b64url_capture "${ZRBA_FED_PROG_SIG_RAW_FILE}" "${ZRBA_FED_PROG_SIG_B64_FILE}") \
+    || { buc_log_args "Failed to base64url the assertion signature; see ${ZRBA_FED_OPENSSL_STDERR_FILE}"; return 1; }
+
+  # Assemble the assertion = signing_input.signature, to a file curl reads by
+  # reference (keeps it off the argument list; single-use, short-lived).
+  printf '%s.%s' "$(<"${ZRBA_FED_PROG_SIGNING_FILE}")" "${z_sig}" \
+     > "${ZRBA_FED_PROG_ASSERTION_FILE}" || return 1
+
+  # POST the RFC 7523 grant. The client secret and the assertion both ride by FILE
+  # REFERENCE (--data-urlencode name@file), so neither the secret nor the assertion
+  # enters a shell var or the argument list.
+  local z_status=0
+  curl -sS -X POST "${RBRF_GRANT_ENDPOINT}"                      \
+    --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}"         \
+    --max-time        "${RBCC_CURL_MAX_TIME_SEC}"                \
+    -H "Content-Type: application/x-www-form-urlencoded"         \
+    --data-urlencode "grant_type=${ZRBA_JWT_BEARER_GRANT_TYPE}"  \
+    --data-urlencode "client_id=${RBRF_IDP_CLIENT_ID}"           \
+    --data-urlencode "scope=${ZRBA_PROG_ASSERTION_SCOPE}"        \
+    --data-urlencode "client_secret@${z_secret_file}"            \
+    --data-urlencode "assertion@${ZRBA_FED_PROG_ASSERTION_FILE}" \
+    > "${ZRBA_FED_PROG_TOKEN_RESPONSE_FILE}" 2>"${ZRBA_FED_CURL_STDERR_FILE}" || z_status=$?
+  test "${z_status}" -eq 0 \
+    || { buc_log_args "RFC 7523 grant POST failed (curl ${z_status}); see ${ZRBA_FED_CURL_STDERR_FILE}"; return 1; }
+
+  # id_token (secret): jq emits it straight to stdout, never through a shell var or
+  # temp file. select(length > 0) yields a non-zero jq exit for an absent/empty token
+  # — the mint miss; the forensic log then surfaces the grant's own error string.
+  local z_jq_status=0
+  jq -er '.id_token // empty | select(length > 0)' \
+     "${ZRBA_FED_PROG_TOKEN_RESPONSE_FILE}" 2>"${ZRBA_FED_JQ_STDERR_FILE}" || z_jq_status=$?
+  test "${z_jq_status}" -eq 0 || {
+    jq -r '.error // empty' "${ZRBA_FED_PROG_TOKEN_RESPONSE_FILE}" \
+       > "${ZRBA_FED_PROG_ERROR_FILE}" 2>"${ZRBA_FED_JQ_STDERR_FILE}" || : > "${ZRBA_FED_PROG_ERROR_FILE}"
+    local -r z_err=$(<"${ZRBA_FED_PROG_ERROR_FILE}")
+    buc_log_args "RFC 7523 grant returned no id_token (error: ${z_err:-none}); see ${ZRBA_FED_PROG_TOKEN_RESPONSE_FILE}"
+    return 1
+  }
+}
+
 # Leg 2 — STS token exchange (RFC 8693). Exchanges the IdP id_token for a Google
 # workforce federated access token. Unauthenticated POST; audience = the provider
 # resource name; nothing else — no userProject, no auth header (spike F3). Echoes
@@ -398,12 +558,15 @@ zrba_leg2_federated_capture() {
 # rba_avow — the avowal accessor step. Ensures a live sitting; its side
 # effect is the per-session cache, and consumers read the federated token with
 # zrba_sitting_read_capture. Cache-hit → done. Miss/expired → run Legs 1+2 and
-# cache: the prompt rides the progress stream, so a terminal operator and a
-# headless-but-human-reachable relay complete the same sign-in (no terminal
-# gate — human presence is enforced by the IdP sign-in, not terminal
-# possession; a truly unattended miss polls to the bounded device-code expiry
-# and dies loud). The suite-head seam stands: an automated run avows once at
-# suite head; cases thereafter take the cache-hit path.
+# cache. Leg 1 is mechanism-gated on RBRF_MECHANISM: the interactive arm is the
+# device-flow avowal (a human signs in; the prompt rides the progress stream, so a
+# terminal operator and a headless-but-human-reachable relay complete the same
+# sign-in — no terminal gate, human presence enforced by the IdP sign-in, and a
+# truly unattended miss polls to the bounded device-code expiry and dies loud);
+# the programmatic arm is the RFC 7523 grant (no human, no sitting to open — a
+# self-supplied JWT, RBSFA). Leg 2 (STS) and the sitting cache are mechanism-
+# invariant, so only the id_token's origin differs. The suite-head seam stands: an
+# automated run avows once at suite head; cases thereafter take the cache-hit path.
 rba_avow() {
   zrba_sentinel
   zrbrf_sentinel
@@ -411,19 +574,33 @@ rba_avow() {
 
   # Credless guard — the reveille tier must never touch the IdP or the network.
   # Mirrors the Payor OAuth token-mint guard (rbgp_payor.sh) so the federated
-  # path honors the same invariant.
+  # path honors the same invariant, under either mechanism arm.
   test "${BURE_TWEAK_NAME:-}" != "${RBCC_tweak_credless_guard}" \
-    || buc_reject "${BUBC_band_credless}" "Credless guard: avowal refused — this run carries the reveille-tier guard (reveille cases must never reach the IdP)"
+    || buc_reject "${BUBC_band_credless}" "Credless guard: sitting acquisition refused — this run carries the reveille-tier guard (reveille cases must never reach the IdP)"
 
   if zrba_sitting_live_predicate; then
     buc_step "Sitting already live — reusing the cached federated token"
     return 0
   fi
 
-  buc_step "No live sitting — opening one via device-flow avowal"
-
+  # Leg 1 — mechanism-gated. buv_vet has already proven RBRF_MECHANISM is one of the
+  # two enum values, but a bare-case fallthrough dies loud rather than silently.
   local z_idtoken
-  z_idtoken=$(zrba_leg1_idtoken_capture) || buc_die "Avowal failed at Leg 1 (device flow); see the transcript"
+  case "${RBRF_MECHANISM}" in
+    rbnfe_interactive)
+      buc_step "No live sitting — opening one via device-flow avowal"
+      z_idtoken=$(zrba_leg1_idtoken_capture) \
+        || buc_die "Avowal failed at Leg 1 (device flow); see the transcript"
+      ;;
+    rbnfe_programmatic)
+      buc_step "No live sitting — acquiring one via the RFC 7523 programmatic grant"
+      z_idtoken=$(zrba_leg1_programmatic_idtoken_capture) \
+        || buc_die "Acquisition failed at Leg 1 (RFC 7523 grant); see the transcript"
+      ;;
+    *)
+      buc_die "rba_avow: unknown RBRF_MECHANISM '${RBRF_MECHANISM}' (expected rbnfe_interactive | rbnfe_programmatic)"
+      ;;
+  esac
 
   local z_fed
   z_fed=$(zrba_leg2_federated_capture "${z_idtoken}") || buc_die "Avowal failed at Leg 2 (STS exchange); see the transcript"

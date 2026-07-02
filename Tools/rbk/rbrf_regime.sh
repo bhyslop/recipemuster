@@ -66,6 +66,15 @@ zrbrf_kindle() {
   buv_group_enroll "Programmatic Mechanism"
   buv_gate_enroll    RBRF_MECHANISM  rbnfe_programmatic
   buv_string_enroll  RBRF_IDP_JWKS_JSON        1 8192  "Uploaded public JWKS GCP validates self-supplied JWTs against (REST oidc.jwksJson); ephemeral key re-synced per charge by the orchestrator, committed nowhere"
+  # The caller's self-supply set (RBSRF): the reachable grant POST target, the two
+  # secret-path references (never the material — sourced regime vars land in process
+  # env, so secret VALUES may not ride them), and the three committed assertion facts.
+  buv_string_enroll  RBRF_GRANT_ENDPOINT       8  512  "Reachable RFC 7523 grant token-endpoint URL the signed assertion is POSTed to — orchestrator-rendered per charge; https:// or a loopback http:// (cleartext tolerated on loopback only)"
+  buv_string_enroll  RBRF_ASSERTER_KEY_FILE    1  512  "Repo-root-relative path to the asserter's private signing key — the RFC 7523 caller signs its assertion with it (path reference, never the material)"
+  buv_string_enroll  RBRF_CLIENT_SECRET_FILE   1  512  "Repo-root-relative path to the confidential client's secret the grant authenticates with at the token endpoint (path reference, never the material)"
+  buv_string_enroll  RBRF_ASSERTER_KID         1  128  "Asserter key id the assertion JWT header kid carries, matched by the IdP against its registered asserting key (committed assertion fact)"
+  buv_string_enroll  RBRF_ASSERTER_ISSUER      1  512  "The asserting party's issuer — the assertion iss, matched by the IdP against its registered asserting trust (committed assertion fact; distinct from RBRF_IDP_ISSUER, which the assertion aud targets)"
+  buv_string_enroll  RBRF_ASSERTER_SUBJECT     1  256  "The external subject the assertion sub carries — the identity the IdP resolves to its federated-linked user (committed assertion fact; NOT the GCP-side federated subject)"
 
   # Guard against unexpected RBRF_ variables not in enrollment
   buv_scope_sentinel RBRF RBRF_
@@ -127,6 +136,35 @@ zrbrf_enforce() {
       # before it writes this value, so affiance uploads it verbatim.
       printf '%s' "${RBRF_IDP_JWKS_JSON}" | jq -e '(.keys | type) == "array" and (.keys | length) > 0' >/dev/null 2>&1 \
         || buc_reject "${BUBC_band_regime}" "RBRF_IDP_JWKS_JSON must be a JWKS object with a non-empty keys array: ${RBRF_IDP_JWKS_JSON}"
+
+      # The reachable grant endpoint: https, or a loopback http:// (the
+      # loopback-http escape from the https gate) — cleartext tolerated ONLY for
+      # localhost / 127.0.0.1, the local test crucible; a non-loopback http:// is
+      # rejected. This field's charge-time render admits loopback cleartext,
+      # deliberately unlike the interactive RBRF_IDP_TOKEN_ENDPOINT's https-only
+      # committed fact (RBSRF rbrf_grant_endpoint).
+      case "${RBRF_GRANT_ENDPOINT}" in
+        https://*) ;;
+        http://localhost|http://localhost:*|http://localhost/*) ;;
+        http://127.0.0.1|http://127.0.0.1:*|http://127.0.0.1/*) ;;
+        *) buc_reject "${BUBC_band_regime}" "RBRF_GRANT_ENDPOINT must be an https:// URI or a loopback http:// URI (localhost / 127.0.0.1 only): ${RBRF_GRANT_ENDPOINT}" ;;
+      esac
+
+      # The two secret-path references are repo-root-relative, never absolute —
+      # the material lives in a file the accessor reads by path, never inline in
+      # this regime (RBSRF / RBSFK two-keys custody). Presence and non-emptiness
+      # are the enrollment floor; this bars an absolute path (a production foedus's
+      # ../station-fenced form stays relative and is admitted).
+      case "${RBRF_ASSERTER_KEY_FILE}" in
+        /*) buc_reject "${BUBC_band_regime}" "RBRF_ASSERTER_KEY_FILE must be a repo-root-relative path, not absolute: ${RBRF_ASSERTER_KEY_FILE}" ;;
+      esac
+      case "${RBRF_CLIENT_SECRET_FILE}" in
+        /*) buc_reject "${BUBC_band_regime}" "RBRF_CLIENT_SECRET_FILE must be a repo-root-relative path, not absolute: ${RBRF_CLIENT_SECRET_FILE}" ;;
+      esac
+
+      # The three assertion facts (kid, issuer, subject) need only be present and
+      # non-empty — the enrollment min-length floor already enforces that, so no
+      # custom check here (RBSRF: "present non-empty strings").
       ;;
   esac
 }

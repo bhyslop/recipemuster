@@ -37,10 +37,13 @@
 #
 # The module is BLIND to the realm JSON — it names its vessel and foedus by
 # reference and never reads realm contents (affiliation by reference, never
-# ownership), so affiance never learns "Keycloak". The ephemeral realm signing
-# key's public half (the twiddle) rides the ignored live rbrf.env, re-synced per
-# charge; affiance's programmatic re-sync arm patches it into the standing
-# provider (RBSMA). Contract sources: RBSMA/RBSMJ, RBSFK, RBSRF, RBSPB.
+# ownership), so affiance never learns "Keycloak". It renders TWO fields into the
+# ignored live rbrf.env per charge, both from facility knowledge (nameplate port,
+# facility constants), never from realm contents: the ephemeral realm signing key's
+# public half (the twiddle, uploaded to the provider by affiance's programmatic
+# re-sync arm, RBSMA) and the reachable RFC 7523 grant endpoint (the loopback POST
+# target the accessor reads, RBSRF rbrf_grant_endpoint — accessor-facing, never
+# uploaded to GCP). Contract sources: RBSMA/RBSMJ, RBSFK, RBSRF, RBSPB.
 
 set -euo pipefail
 
@@ -214,9 +217,10 @@ zrbxk_fetch_jwks() {
   buc_info "JWKS fetched and stripped to RSA members: ${ZRBXK_JWKS_STRIPPED}"
 }
 
-# Render the git-IGNORED live rbrf.env from the committed template plus the fresh
-# public JWKS. Because the live file is untracked, this leaves the working tree
-# clean — so affiance's own clean-tree gate passes untouched (no hoist, no skip).
+# Render the git-IGNORED live rbrf.env from the committed template plus the two
+# rendered fields — the fresh public JWKS and the reachable grant endpoint. Because
+# the live file is untracked, this leaves the working tree clean — so affiance's own
+# clean-tree gate passes untouched (no hoist, no skip).
 zrbxk_render_live() {
   zrbxk_sentinel
 
@@ -227,10 +231,19 @@ zrbxk_render_live() {
   local z_jwks=""
   z_jwks="$(<"${ZRBXK_JWKS_STRIPPED}")"    # bash builtin file read; compact one-line JWKS
 
+  # The reachable RFC 7523 grant POST target — the realm's token endpoint on the
+  # local crucible, composed from the nameplate port (facility knowledge), never
+  # from realm contents. This is the loopback POST target RBSFK pins as local,
+  # distinct from the fictional https frontend issuer RBRF_IDP_ISSUER carries.
+  local z_base=""
+  z_base=$(zrbxk_kc_base_capture) \
+    || buc_die "Failed to resolve Keycloak base URL from nameplate ${ZRBXK_NAMEPLATE_RBRN}"
+  local -r z_grant_endpoint="${z_base}/realms/${RBXK_realm}/protocol/openid-connect/token"
+
   # Live regime = the committed template body (its trailing '# eof' dropped by the
-  # read loop — a bash builtin, per BCG command discipline) plus the rendered
-  # ephemeral JWKS assignment, then a fresh '# eof'. The JWKS carries no single
-  # quotes (JSON), so the single-quoted assignment is safe.
+  # read loop — a bash builtin, per BCG command discipline) plus the two rendered
+  # assignments, then a fresh '# eof'. Neither the JWKS (JSON) nor the endpoint URL
+  # carries single quotes, so the single-quoted assignments are safe.
   local z_tline=""
   {
     while IFS= read -r z_tline || test -n "${z_tline}"; do
@@ -240,10 +253,14 @@ zrbxk_render_live() {
     printf '\n'
     printf '# Ephemeral public JWKS (the twiddle) — orchestrator-rendered per charge; committed nowhere (RBSFK).\n'
     printf "RBRF_IDP_JWKS_JSON='%s'\n" "${z_jwks}"
+    printf '\n'
+    printf '# Reachable RFC 7523 grant endpoint (the loopback POST target) — orchestrator-rendered\n'
+    printf '# per charge from the nameplate port; never from realm contents (RBSRF rbrf_grant_endpoint).\n'
+    printf "RBRF_GRANT_ENDPOINT='%s'\n" "${z_grant_endpoint}"
     printf '\n# eof\n'
   } > "${ZRBXK_LIVE}" || buc_die "Failed to render live regime: ${ZRBXK_LIVE}"
 
-  buc_info "Rendered ${ZRBXK_LIVE} (git-ignored) with a fresh JWKS"
+  buc_info "Rendered ${ZRBXK_LIVE} (git-ignored) with a fresh JWKS and grant endpoint ${z_grant_endpoint}"
 }
 
 ######################################################################
