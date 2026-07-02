@@ -14205,6 +14205,7 @@
         "₢BfAAL",
         "₢BfAA6",
         "₢BfAAK",
+        "₢BfAA7",
         "₢BfAAJ",
         "₢BfAAC",
         "₢BfAAA",
@@ -14225,7 +14226,7 @@
         "₢BfAA2",
         "₢BfAA5"
       ],
-      "jjghn_next_pace_seed": "AA7",
+      "jjghn_next_pace_seed": "AA8",
       "jjghn_paces": {
         "₢BfAA0": {
           "jjgpn_tacks": [
@@ -14490,6 +14491,38 @@
               ],
               "jjgtn_silks": "programmatic-self-supply-spec-recut",
               "jjgtn_basis": "7117b4f"
+            }
+          ]
+        },
+        "₢BfAA7": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260702-1305",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Make the singleton federation accessor selector-derived, so it reads the INSTATED foedus rather than the constant-folded entrada — the \"federation family-of-named-instances rework\" the RBCC_rbrf_file comment (rbcc_constants.sh), CLAUDE.md, and the paddock all defer.",
+                "This unblocks the programmatic accessor arm landed in the prior pace: with the arm reachable, this pace carries that pace's deferred end-to-end Done-when clause.",
+                "",
+                "The crux (discovered at the accessor-arm mount, not stated in the RBCC comment):",
+                "RBCC_rbrf_file is a source-time literal pinned to rbef_entrada, but RBRR_ACTIVE_FOEDUS is only populated when rbrr.env is sourced during furnish/kindle — after rbcc_constants.sh.",
+                "So the selector-derived form must move RBCC_rbrf_file from a source-time constant to a resolution that runs after rbrr.env is sourced, re-pointing every consumer (rbgv_cli, rba's callers, rbw-rfv) and keeping the no-repo-regime contexts (no RBRR_ACTIVE_FOEDUS) working.",
+                "",
+                "## Done when",
+                "With the selector-derivation in place and the Keycloak facility up (rbw-qjK), instating rbef_keycloak makes the accessor resolve the programmatic foedus, so:",
+                "rbw-rfv validates the keycloak programmatic regime through the standard path (no synthetic-file workaround);",
+                "and the programmatic arm acquires a federated token over the instated foedus unattended, via the RFC 7523 grant — the deferred Done-when clause of the accessor-arm pace.",
+                "The interactive path (entrada) still resolves and behaves unchanged when instated.",
+                "",
+                "## Cinched",
+                "Production stays single-foedus-clean: rbef_entrada remains the committed default active foedus.",
+                "Contexts with no repo regime must not break — RBCC_rbrf_file must still resolve, or be shown unconsumed, where RBRR_ACTIVE_FOEDUS is unset.",
+                "Ceiling unchanged from the accessor-arm pace: the proof reaches the federated token only; the full don still awaits the deferred attach-caged-subject unit.",
+                "",
+                "## Character",
+                "Sourcing-topology rework (source-time constant to post-RBRR computation) across RBCC_rbrf_file's consumers, plus a facility-up integration proof; structural judgment, not mechanical."
+              ],
+              "jjgtn_silks": "accessor-foedus-selector-resolve",
+              "jjgtn_basis": "36e2927"
             }
           ]
         },
