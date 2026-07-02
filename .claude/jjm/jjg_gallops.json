@@ -17104,9 +17104,10 @@
         "₢BfAAt",
         "₢BfAAy",
         "₢BfAAq",
-        "₢BfAAz"
+        "₢BfAAz",
+        "₢BfAA2"
       ],
-      "jjghn_next_pace_seed": "AA2",
+      "jjghn_next_pace_seed": "AA3",
       "jjghn_paces": {
         "₢BfAA0": {
           "jjgpn_tacks": [
@@ -17174,6 +17175,41 @@
               ],
               "jjgtn_silks": "affiance-jilt-provider-recut",
               "jjgtn_basis": "1883bdb"
+            }
+          ]
+        },
+        "₢BfAA2": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260701-1944",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "Design + cross-cutting surgery across the guide/tabtarget membrane — Fable-suited (strong reasoning, few-error strange surgery).",
+                "",
+                "## Spec of needed change",
+                "Migrate the automatable manor-setup steps out of the human payor guide into the tabtarget layer (chiefly the manor-setup finisher, rbgp_manor_instaurate), shrinking the guide to the irreducible pre-credential genesis — because humans follow instructions poorly and idempotent scripts raise adoption.",
+                "Sorting rule — the credential boundary: before the payor holds its first OAuth credential there is no token to automate with (first project, OAuth client, billing linkage — irreducibly manual); everything downstream of that first credential is automatable and belongs in a tabtarget.",
+                "",
+                "Known movable work (audit rbhpe_establish / rbhpf_entra / the onboarding tracks for more):",
+                "- Enable-required-APIs (RBSPE step 3, the serviceusage set) folds into the finisher as a step-0 enable-then-wait via the existing rbge_api_enable idempotent helper — which also resolves the finisher's own dependency on those APIs being on.",
+                "- Re-aim the onboarding handoff so payor-install points at the finisher, then depot-levy (guide -> install -> instaurate -> levy); this SUBSUMES the paddock's \"payor-install manor-completion next-step\" re-derivation — do not double-slate it.",
+                "- Investigate billing-linkage automatability (API exists; the payor OAuth may lack billing-account scope — verify, do not assume).",
+                "",
+                "## Done when",
+                "The human guide holds only the irreducible pre-credential genesis;",
+                "every automatable manor-setup step runs from a tabtarget;",
+                "the guide -> install -> instaurate -> levy handoff is wired end-to-end;",
+                "each migrated step owns its failure modes (GCP eventual-consistency, enable-then-propagate, partial-run re-entry) so a half-founded manor is safely re-runnable, never a worse state than a checklist;",
+                "gauntlet stays green.",
+                "",
+                "## Cinched",
+                "The credential boundary is the sorting rule.",
+                "The genesis (first payor project + OAuth client) is irreducibly manual, stays in the guide.",
+                "The finisher hosts the automatable substrate (ensure-exists, idempotent)."
+              ],
+              "jjgtn_silks": "guide-to-tabtarget-automation-lift",
+              "jjgtn_basis": "cce09c4"
             }
           ]
         },
