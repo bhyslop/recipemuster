@@ -206,6 +206,12 @@ Lifecycle doctrine:
 * *Every dispatched session gets its own billet; trunk belongs to the operator alone.*
   Session isolation is structural, not disciplinary — even a "read-only" groom can run builds.
   Grooms get billets too (detached), so concurrent sessions on one hippodrome never share a tree.
+  Git itself enforces the split: a branch checked out in one worktree cannot be checked out in
+  another — pace billets own unique §F branches and groom billets are detached, so the
+  constraint never binds, and a billet mechanically *cannot* seat the trunk branch while the
+  hippodrome holds it.
+  (Worktrees share the hippodrome's object store — no history duplication, no fetch between
+  billet and hippodrome; the billet-side cost is working files and cold build artifacts only.)
 * *The dispatch verbs are the sole door to JJ* (cinched 260704; saddle and lunge share the one
   entrance spine).
   A bare hand-launched session carries no MCP registration and no JJ context — it is simply a
