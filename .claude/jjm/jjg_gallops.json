@@ -1,6 +1,7 @@
 {
   "jjgrn_next_heat_seed": "Br",
   "jjgrn_heat_order": [
+    "₣Bq",
     "₣BZ",
     "₣Bo",
     "₣Bi",
@@ -35,8 +36,7 @@
     "₣BC",
     "₣BI",
     "₣BL",
-    "₣Ba",
-    "₣Bq"
+    "₣Ba"
   ],
   "jjgrn_heats": {
     "₣A6": {
@@ -18653,7 +18653,7 @@
     "₣Bq": {
       "jjghn_silks": "rbk-43-fbl-sitting-lifecycle",
       "jjghn_creation_time": "260702",
-      "jjghn_status": "jjghe_stabled",
+      "jjghn_status": "jjghe_racing",
       "jjghn_order": [
         "₢BqAAE",
         "₢BqAAA",
