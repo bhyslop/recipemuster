@@ -609,6 +609,7 @@
 :rbtf_realm:                 <<rbtf_realm,Realm>>
 :rbtf_avow:               <<rbtf_avow,Avow>>
 :rbtf_sitting:                <<rbtf_sitting,Sitting>>
+:rbtf_novate:                <<rbtf_novate,Novate>>
 :rbtf_don:                   <<rbtf_don,Don>>
 :rbtf_brevet:                <<rbtf_brevet,Brevet>>
 :rbtf_gird:                  <<rbtf_gird,Gird>>
@@ -993,7 +994,12 @@ own RBRO: an orchestrating agent never holds a durable secret, and the
 device-flow kickoff surfaces only a user code and a verification URI — spike-verified live, with no `offline_access` scope and no refresh token in the response.
 +
 Rationale: this is the design's outer bound on blast radius — a compromised station or agent inherits only what the live sitting still permits, and that window closes on its own.
-A long run re-mints mantle tokens mid-flight from the cached federated token while the sitting lives; when the sitting lapses, the next mint fails loud (`sitting lapsed, avow`) rather than silently reaching for a stored credential, because there is none to reach for.
+A long run re-mints mantle tokens mid-flight from the cached federated token while the sitting lives — and the sitting it reads is live by construction, because the
+{rbtf_sitting}
+runway floor turns a short sitting away at reuse, advising
+{rbtf_novate},
+before the run begins.
+When a sitting nonetheless lapses, the next mint fails loud (`sitting lapsed, avow`) rather than silently reaching for a stored credential, because there is none to reach for — the backstop behind the gate, never the primary defense.
 +
 Mechanism boundary: the
 {rbrf_mechanism_programmatic}
@@ -2172,6 +2178,31 @@ The live window opened by a
 {rbtf_avow}
 — a bounded sitting that is also a fixed regulated measure, concretely the workforce-pool session window (15 minutes to 12 hours).
 No run begins outside a live sitting; once it lapses, the next token mint fails loud rather than reaching for a stored secret.
++
+Runway: the window is proactively gated, not merely lapse-bounded.
+At the
+{rbtf_avow}
+sitting-reuse branch — automatic for every federated command, never a per-command preflight step — the remaining runway must clear a blanket floor:
+a required-runway seam defaulting to ~2 hours, sized so an admitted sitting outlives the worst-case cloud build (~95 minutes) with margin;
+no per-operation bound is populated until one earns its existence.
+A shorter sitting is turned away with a named band rejection advising
+{rbtf_novate};
+a freshly-opened sitting has full runway by construction.
+The floor is what makes the
+{rbsk_human_present}
+mid-flight re-mint promise hold by construction: a run admitted at the gate re-mints mantle tokens from a sitting still live.
+
+[[rbtf_novate]]
+{rbtf_novate}::
+The force-fresh renewal act (law: _novation_ — extinguishing an obligation by replacing it with a new one): a deliberate
+{rbtf_avow}
+that bypasses the sitting-reuse branch and atomically overwrites the standing
+{rbtf_sitting}
+with a freshly-opened, full-window one.
+The remedy the runway floor names when it turns a short sitting away, and the one operator-invoked surface on the sitting lifecycle — a tabtarget, where
+{rbtf_avow}
+itself never is.
+Renewal-only by decision: no release or clear verb exists anywhere — the fresh sitting extinguishing the old is the entire mechanism, and a standing sitting is otherwise only outlived, never deleted.
 
 [[rbtf_don]]
 {rbtf_don}::
