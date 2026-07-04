@@ -35,12 +35,17 @@ A dedicated vvx-driven engine manages the studbook safely; the human never hand-
 * *Vanilla hippodromes.* State out of the work repo is what lets a work repo carry no JJ inserts
   at all (see The peer ring below).
 
-== The peer ring (garth)
+== The peer ring (infield)
 
-All JJ-managed trees are peers in one parent directory (candidate word: *garth*):
+All JJ-managed trees are peers in one parent directory — the *infield* (cinched 260704: the
+racing word for the enclosed interior of the track):
 
-* `../job-jockey-repo` — the kit (engine, specs); found by peer-ring convention, no per-repo pointer.
-* `../studbook` — this record repo.
+* The kit repo (engine, specs) — found by peer-ring convention, no per-repo pointer.
+  JJ's own infield residents carry the `jjy_` dirname family (mnemonic: yard); hippodromes stay
+  consumer-named.
+  Kit dirname micro-fork: operator lean `jjy_app`; `jjy_kit` offered ("app" is leached, "kit"
+  is the project's own word).
+* `../jjy_studbook` — this record repo.
 * Work clones (*hippodromes*) and their transient worktree *billets* (farrier sheaf).
 * The BUK station family (`../station-files/burs.env`, `../logs-buk`, `../temp-buk`,
   `../output-buk`) already lives at this level, so every peer tree shares station geography
@@ -76,7 +81,11 @@ Every studbook write brackets identically (the *journal ceremony*), and the orde
 
 . *Hippodrome commit* (lock-free): explicit file list, on the current branch or billet branch.
   The pin now exists.
-  (Whether this step also pushes the hippodrome is an open fork.)
+  On a billet branch this step also *pushes* the branch (cinched 260704): branches are the
+  cross-station WIP carrier, and an unpushed branch is no carrier.
+  Fast-forward and additive, so safe by construction; the trunk is never pushed by JJ;
+  offline, the journal proceeds with the pin flagged unpushed and `sync_state` nags at next
+  open.
 . *Lock the studbook*: `fetch` (sync lock state) → `ref_cas_create` (the CAS: atomically push
   the stamped lock ref, or be rejected) → `ref_read` to confirm the held stamp is ours.
   Lock refs live in a dedicated namespace outside `refs/heads/*`; the stamp carries officium,
@@ -115,6 +124,22 @@ pins; billet branches never rebase (freshen is merge-based, farrier sheaf), clos
 structurally where billets are used.
 An optional `pin_verify` op turns a dangling pin from a silent lie into a flagged one.
 
+== Pace identity re-gestalt (cinched 260704)
+
+Pace coronets split from heats: a pace's identity becomes *immutable for life* — restring and
+transfer re-affiliate the pace but never re-key it, retiring the identity churn the
+tombstone-transfer maneuver worked around.
+The studbook's lock enables *atomic global coronet minting* — one seed under the lock —
+killing the distributed-allocation collision class at pace grain.
+Display becomes heat-qualified everywhere coronets render (shape like `₢Bb-AAAAG`: current
+heat prefix + immutable pace id); the canonical *wire* form vs. the hyphenated *display* form
+is an open fork (gazette halter target-typing is by length today).
+Free synergy: billet branch names embed the coronet and no longer rot on transfer.
+This is a gallops schema change — the reprieve doctrine (JJS0 `jjdz_reprieve`, CLAUDE.md §E)
+gates its implementation.
+The deferred *insignia* sub-mint (Store shape below) shares this identity-display space and
+mints in the same design pace.
+
 == Plans as commits (the gazette convergence)
 
 With the studbook, every gallops mutation *is* a git commit — so ₣Ah's cinch ("warrants in
@@ -130,7 +155,12 @@ The commit message may carry the plan in gazette notice format as a review surfa
 * The studbook and mews repos are *linear — they never branch* — and single-writer-under-lock,
   so a monotonic ordinal per repo is clean and authoritative.
   The deferred insignia sub-mint (glyph-prefixed revision aliases; the ordinal a denormalized
-  label, the SHA the identity) stands as recorded in the 260630 memo.
+  label, the SHA the identity) stands as recorded in the 260630 memo — deferred past MVP,
+  to mint together with the pace-identity design pace (one coherent glyph-space allocation);
+  the AXLA insignia-family ADT work already planned in ₣BD is the code-side anticipation.
+  Because every studbook write happens under the lock, JJ can allocate the ordinal at journal
+  time and bake the insignia into the commit message itself — single-writer makes the stamp
+  race-free, the linear history makes it verifiable, and no side table exists.
 * The lock supersedes the original sharding pressure (no cross-clone merge exists at all);
   per-heat sharding remains open only as a file-layout choice, not a concurrency need.
 * Reads take no lock and tolerate slight staleness; consumers reach the gallops through the
@@ -156,14 +186,23 @@ With one regional studbook, the officium becomes the identity that names *where*
 station + hippodrome (or billet) + session.
 `jjx_open` discovers its billet (or trunk hippodrome) via the farrier's `identify` and
 validates it against the work being mounted.
-Officium exchange (gazettes) must leave the work repo (vanilla-hippodrome premise);
-proposed home: a working area beside the studbook clone in the garth — open fork.
+Officium exchange (gazettes) leaves the work repo (vanilla-hippodrome premise); home cinched
+260704: an untracked working area *inside the studbook clone* — one JJ-owned location the
+engine already knows on every station.
+The officium splits into *exchange* (gazettes — wire format, single-call lifetime, forever
+untracked) and *record* (seat metadata, pins, eventually the captured session transcripts —
+the second tenant).
+Co-locate now, commit later: graduating the record half to committed history becomes a
+gitignore-line change, not a relocation.
 
 == MVP framing
 
 One MVP, staging adjustable before heats are cut: the studbook transform (this sheaf), the
 farrier and its dispatch layer (farrier sheaf), and MVP tackle (tackle sheaf) land together.
 Phasing within the MVP is cinched below: build under current JJ, rehearse, then cut over.
+Heats are cut *one at a time* (cinched 260704): the build heat first; the conversion heat only
+after the build lands, cut from the Founding-and-cutover section below — the conversion plan's
+one durable home, no parallel memo — refreshed by build learnings.
 
 == Founding and cutover (cinched 260704)
 
@@ -215,9 +254,13 @@ Phasing within the MVP is cinched below: build under current JJ, rehearse, then 
 * *pedigree* — the per-upstream record; "a studbook is a register of pedigrees" self-explains.
   Alternates held: livery, passport (trodden-adjacent). Released: bloodline (furrowed — liked,
   unbound, held for a future concept).
-* *hippodrome* — the peer work clone. Ground-family alternates recorded in the 260630 memo
-  (turf, heath, glebe).
-* *garth* — the peer ring; seeded in the 260630 memo, still uncinched (G shared with gallops).
+* *hippodrome* — the peer work clone; formally cinched 260704. Ground-family alternates
+  recorded in the 260630 memo (turf, heath, glebe).
+* *infield* — the peer ring; cinched 260704, replacing the memo's *garth* seed (G collided
+  with gallops). *Heath* was the semantic runner-up (the Newmarket precedent) but collided
+  with hippodrome on H.
+* *jjy_* — dirname family for JJ's own infield-resident repos (`jjy_studbook`, the kit repo).
+  Mnemonic: yard.
 * *warden* — dropped: break is a sequence, not an entity.
 * *seat* — disqualified: per-seat licensing troddenness; near-neighbor collision with RBK's
   minted *unseat*.
@@ -231,9 +274,10 @@ The one genuine seam is the `(work-repo, SHA)` cross-reference both need — her
 
 == Open forks (the mulling surface)
 
-* Whether the journal ceremony's step 1 pushes the hippodrome (curia-readiness interaction).
-* Officium-exchange location in the garth.
-* Insignia glyphs + names (the deferred sub-mint).
+* Canonical wire form vs. heat-qualified display form for the re-gestalted coronet (gazette
+  halter target-typing by length depends on it).
+* Kit-repo dirname: `jjy_app` (operator lean) vs. `jjy_kit`.
+* Insignia glyphs + names (deferred sub-mint, coupled to the pace-identity design pace).
 * Per-heat file sharding as layout (concurrency need dissolved by the lock).
 
 == Sources (provenance, not authority)

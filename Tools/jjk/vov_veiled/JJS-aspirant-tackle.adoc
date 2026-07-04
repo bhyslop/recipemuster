@@ -50,6 +50,16 @@ When ₣Ah's tackle design pace mounts, it inherits this sheaf as its floor: bla
 exclusivity, and gait affinities are additions to the scope→discipline core, and the ₣Ah paddock
 updates to match.
 
+== Scope layering (provisional — agent supposition, requires design review)
+
+A possible reconciliation of the two scopes, recorded 260704 and *not to be acted on without
+design review*: the per-upstream tackle is the standing base (discipline bindings, rarely
+changing); a heat may later overlay heat-scoped additions (blazes, actions) that reference and
+extend the base; "tackle" names the layered whole.
+Operator ruling (260704): tackle architecture waits until the operator has worked inside the
+new system long enough to find footing — it is sequenced *after* the studbook/farrier MVP
+ships, never alongside it.
+
 == Deferred (explicitly not MVP)
 
 * ₿ blaze symbolic references and school-time resolution.
@@ -59,9 +69,12 @@ updates to match.
 
 == Open forks (the mulling surface)
 
-* Representation: format of the binding table and its home within the studbook (pedigree field
-  vs. sibling document).
-* Delivery mechanism into the session: opening-prompt prose, generated context file, or both.
+* Representation: *deliberately undecided* (260704) — no representation commitment and no
+  sibling structures while the concept is still forming; one home or none, never two
+  half-homes inviting confabulation between them.
+* Delivery: direction resolved (260704) — app-generated, work-honed context at saddle time,
+  with a retain-everything default until honing intelligence exists (farrier sheaf,
+  launch-time provisioning).
 * Whether discipline references point at guide documents (BCG, RCG) directly or at a named
   discipline registry.
 
