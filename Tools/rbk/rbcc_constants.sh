@@ -189,6 +189,12 @@ RBCC_tweak_credless_guard="buorb_credless_guard"
 # the founding consumers).
 RBCC_tweak_http_fault="buorb_http_fault"
 
+# Mid-flight re-don cadence override. Under this tweak name, BURE_TWEAK_VALUE
+# is a positive poll count replacing ZRBFC_BUILD_POLL_REDON_CADENCE at the
+# build-completion poll's one membrane (zrbfc_wait_build_completion), so a
+# short real build exercises the re-don tick without an hour on the clock.
+RBCC_tweak_redon_cadence="buorb_redon_cadence"
+
 # Container-role tinder — the canonical bash home for the crucible's container
 # roles. Bare role tokens; the crucible is sentry + pentacle + bottle and every
 # container name / compose service derives from these. Distinct from the
@@ -296,6 +302,7 @@ rbcc_emit_consts() {
     RBCC_container_sentry    \
     RBCC_tweak_credless_guard \
     RBCC_tweak_http_fault \
+    RBCC_tweak_redon_cadence \
   ; do
     z_stem="${z_name#RBCC_}"
     z_stem="${z_stem/unhewn_/}"

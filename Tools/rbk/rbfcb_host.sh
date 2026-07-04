@@ -30,6 +30,46 @@ set -euo pipefail
 test -z "${ZRBFCB_SOURCED:-}" || return 0
 ZRBFCB_SOURCED=1
 
+# zrbfc_redon_tick — one mid-flight re-don attempt, on the poll's cadence
+# (RBS0 rbsk_human_present). The don alone, never the avow-folding accessor,
+# so a lapsed sitting fails loud here instead of re-entering the interactive
+# avowal mid-loop. Called in the process frame, never `$()`: it announces on
+# the progress stream and its deaths must exit the run. Result rides the
+# z_rbfc_redon_token result-global: the fresh mantle token when the re-don
+# lands, empty when the don failed transiently while the sitting is still
+# live (the caller keeps its prior token and retries next poll; the status
+# poll's consecutive-failure counter stays the backstop). A lapsed sitting
+# buc_dies with the open-a-sitting advisory; the don's admission deficit
+# buc_rejects on its band. Sentinel-free by design — reads no ZRBFC kindle
+# state (callees guard their own kindles) — so the lapse branch stays
+# unit-testable without a live build.
+zrbfc_redon_tick() {
+  local -r z_label="${1:?zrbfc_redon_tick: label required}"
+  local -r z_poll_tag="${2:?zrbfc_redon_tick: poll tag required}"
+
+  z_rbfc_redon_token=""
+
+  local z_don_rc=0
+  local z_minted=""
+  z_minted=$(rba_don_capture "${RBCC_mantle_director}") || z_don_rc=$?
+
+  if test "${z_don_rc}" -eq 0; then
+    z_rbfc_redon_token="${z_minted}"
+    buc_info "${z_label}: Re-donned the director mantle mid-flight (${z_poll_tag})"
+    return 0
+  fi
+
+  test "${z_don_rc}" -ne "${BUBC_band_admission}" \
+    || buc_reject "${BUBC_band_admission}" "${z_label}: re-don denied mid-build — the director admission was revoked while the build ran; brevet the citizen back onto the mantle, then re-run"
+
+  if zrba_sitting_live_predicate; then
+    buc_warn "${z_label}: mid-flight re-don failed transiently (${z_poll_tag}) — keeping the prior token; retrying next poll"
+    return 0
+  fi
+
+  buc_die "${z_label}: sitting lapsed mid-build — the mantle cannot be re-donned; open a sitting (rbw-aa or rbw-aN), then re-run"
+}
+
 zrbfc_wait_build_completion() {
   zrbfc_sentinel
 
@@ -42,17 +82,24 @@ zrbfc_wait_build_completion() {
   z_build_id=$(<"${ZRBFC_BUILD_ID_FILE}") || buc_die "No build ID found"
   test -n "${z_build_id}" || buc_die "Build ID file empty"
 
-  # Known gap: this one token is held across the whole poll, so a worst-case
-  # build outlives the mantle's ~1 h ceiling while the sitting stays live, and
-  # the consecutive-failure counter below then kills a healthy build. Remedy is
-  # the mid-flight re-mint RBS0 rbsk_human_present promises (sitting-lifecycle
-  # re-mint work), not 401 discrimination here.
   buc_log_args 'Get fresh token for polling'
   local z_token=""
   z_token=$(rba_token_capture "${RBCC_mantle_director}") || buc_die "Failed to get GCB OAuth token"
 
+  # Re-don cadence — kindled default, or the BURE test seam's override so a
+  # short real build exercises the tick (BUS0 Tweak Mechanism; a malformed
+  # value dies loud, any other tweak occupying the slot rides inert).
+  local z_redon_cadence="${ZRBFC_BUILD_POLL_REDON_CADENCE}"
+  if test "${BURE_TWEAK_NAME:-}" = "${RBCC_tweak_redon_cadence}"; then
+    z_redon_cadence="${BURE_TWEAK_VALUE:-}"
+    [[ "${z_redon_cadence}" =~ ^[1-9][0-9]*$ ]] \
+      || buc_die "redon cadence tweak: BURE_TWEAK_VALUE must be a positive poll count, got '${z_redon_cadence}'"
+    buc_log_args "redon cadence tweak: cadence forced to ${z_redon_cadence} polls"
+  fi
+
   local z_status="PENDING"
   local z_polls=0
+  local z_polls_since_don=0
   local z_queue_polls=0
   local z_exec_polls=0
   local z_seen_working=0
@@ -92,6 +139,20 @@ zrbfc_wait_build_completion() {
       z_phase_ceiling="${z_max_polls}"
       test "${z_exec_polls}" -le "${z_max_polls}" \
         || buc_die "${z_label}: Build timeout after ${z_max_polls} execution polls"
+    fi
+
+    # Cadence tick — re-don before the status fetch so the fetch always rides
+    # a token younger than the mantle ceiling. An empty result is the tick's
+    # tolerated-transient outcome: counter untouched, and the since-don count
+    # stays past the cadence so the next poll retries.
+    z_polls_since_don=$((z_polls_since_don + 1))
+    if test "${z_polls_since_don}" -ge "${z_redon_cadence}"; then
+      zrbfc_redon_tick "${z_label}" "poll ${z_polls}; cadence ${z_redon_cadence}"
+      if test -n "${z_rbfc_redon_token}"; then
+        z_token="${z_rbfc_redon_token}"
+        z_rbfc_redon_token=""
+        z_polls_since_don=0
+      fi
     fi
 
     z_response_file="${ZRBFC_POLL_RESPONSE_PREFIX}${z_polls}.json"

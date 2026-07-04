@@ -53,7 +53,7 @@ use crate::rbtdgc_consts::{
     RBTDGC_SUMMON_HALLMARK,
     RBTDGC_TALLY_HALLMARKS,
     RBTDGC_TWEAK_HTTP_FAULT,
-    RBTDGC_TWEAK_REGIME_POISON, RBTDGC_UNDERPIN_WSL,
+    RBTDGC_TWEAK_REGIME_POISON, RBTDGC_TWEAK_REDON_CADENCE, RBTDGC_UNDERPIN_WSL,
     RBTDGC_UNSEAT_POLITY, RBTDGC_VOUCH_HALLMARKS,
 };
 use crate::rbtdrm_manifest::rbtdrm_credential_check_colophon;
@@ -357,6 +357,16 @@ const RBTDRV_WSL_POINT: &str = "4";
 /// enforced by BURE.
 const RBTDRV_ENSCONCE_STAMP_TWEAK_NAME: &str = "buorb_ensconce_stamp";
 
+/// Re-don cadence tweak value for the hallmark-lifecycle ordain: polls between
+/// mid-flight re-dons (RBTDGC_TWEAK_REDON_CADENCE seam). 4 polls × 5 s = 20 s
+/// — small enough that even the fastest real build crosses at least one tick,
+/// large enough to keep the extra generateAccessToken traffic modest.
+const RBTDRV_REDON_CADENCE_POLLS: &str = "4";
+
+/// Re-don announcement fragment asserted in the ordain transcript. Mirror:
+/// rbfcb_host.sh `zrbfc_redon_tick` buc_info line — same literal.
+const RBTDRV_REDON_ANNOUNCE: &str = "Re-donned the director mantle mid-flight";
+
 /// Debian-base vessel — a DIFFERENT upstream base than busybox, so ensconcing it
 /// onto a busybox touchmark trips the collision guard's different-digest branch.
 /// Carries the same yoked reliquary as busybox, so host-side tool resolution
@@ -409,11 +419,39 @@ fn rbtdrv_hallmark_lifecycle(dir: &Path) -> rbtdre_Verdict {
         };
         let _ = std::fs::write(dir.join("01-baseline-parsed.txt"), baseline.join("\n"));
 
-        // Step 2: ordain.
-        let hallmark = match rbtdri_ordain_capture(ctx, dir, vessel_dir, &[], "02-ordain") {
+        // Step 2: ordain — under the re-don cadence tweak, so this fixture's
+        // real short build also exercises the poll's mid-flight re-don
+        // (zrbfc_redon_tick; RBS0 rbsk_human_present) on every run, spending
+        // no second build on a separate case.
+        let hallmark = match rbtdri_ordain_capture(
+            ctx,
+            dir,
+            vessel_dir,
+            &[
+                (RBTDRI_BURE_TWEAK_NAME_KEY, RBTDGC_TWEAK_REDON_CADENCE),
+                (RBTDRI_BURE_TWEAK_VALUE_KEY, RBTDRV_REDON_CADENCE_POLLS),
+            ],
+            "02-ordain",
+        ) {
             Ok(h) => h,
             Err(v) => return v,
         };
+
+        // Step 2b: the re-don announcement must appear in the ordain
+        // transcript — the on-cadence observation. BUK dispatch may fold
+        // stderr into stdout, so both captured streams are searched.
+        let ordain_stdout = std::fs::read_to_string(dir.join("02-ordain-stdout.txt"))
+            .unwrap_or_default();
+        let ordain_stderr = std::fs::read_to_string(dir.join("02-ordain-stderr.txt"))
+            .unwrap_or_default();
+        if !ordain_stdout.contains(RBTDRV_REDON_ANNOUNCE)
+            && !ordain_stderr.contains(RBTDRV_REDON_ANNOUNCE)
+        {
+            return rbtdre_Verdict::Fail(format!(
+                "re-don cadence: no '{}' announcement in the ordain transcript — the tick never fired under cadence {}",
+                RBTDRV_REDON_ANNOUNCE, RBTDRV_REDON_CADENCE_POLLS
+            ));
+        }
 
         // Step 3: audit shows new hallmark added.
         let _ = std::fs::write(dir.join("03-audit-after-ordain.txt"), "auditing after ordain");

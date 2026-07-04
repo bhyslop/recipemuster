@@ -144,6 +144,13 @@ zrbfc_kindle() {
   readonly ZRBFC_BUILD_POLL_CEILING_ABOUT_VOUCH=100
   readonly ZRBFC_BUILD_POLL_CEILING_ABOUT=50
   readonly ZRBFC_BUILD_POLL_CEILING_VOUCH=150  # large multi-arch bind vouch runs ~8min; 50 (~4min) false-timed-out even on GCB success
+  # Mid-flight re-don cadence: the poll re-dons the director mantle every
+  # this-many polls, so the held token never ages past the mantle's ~60-minute
+  # generateAccessToken ceiling. 360 polls × 5 s = 30 min — 2× margin under
+  # the ceiling; the worst-case conjure budget (QUEUE 180 + CONJURE 960 polls
+  # ≈ 95 min) spans ~3 re-dons, each reading a sitting live by construction
+  # (RBS0 rbsk_human_present). Test seam: RBCC_tweak_redon_cadence.
+  readonly ZRBFC_BUILD_POLL_REDON_CADENCE=360
   # Cloud-dispatched tool-plane delete (banish/abjure). The host waits for one
   # build that loops the package list in-pool (one build per abjure, never per
   # package), each package a convergence loop (rbgjl06: fire deletes, poll the

@@ -69,6 +69,8 @@ use crate::rbtdrx_platform::rbtdrx_native_to_posix;
 const RBTDRF_RBK_ROOT: &str = "Tools/rbk";
 const RBTDRF_BUV_VALIDATION: &str = "Tools/buk/buv_validation.sh";
 const RBTDRF_BUC_COMMAND: &str = "Tools/buk/buc_command.sh";
+const RBTDRF_BUYM_YELP: &str = "Tools/buk/buym_yelp.sh";
+const RBTDRF_BUBC_CONSTANTS: &str = "Tools/buk/bubc_constants.sh";
 const RBTDRF_RBLDS_SPINE: &str = "Tools/rbk/rblds_spine.sh";
 
 // ── Helpers ──────────────────────────────────────────────────
@@ -1502,6 +1504,95 @@ fn rbtdrf_np_bare_absolute_unsurveyed(dir: &Path) -> rbtdre_Verdict {
         "/etc/hosts", None)
 }
 
+// ── Redon-tick cases ────────────────────────────────────────
+//
+// Drives zrbfc_redon_tick (rbfcb_host.sh) — the build poll's mid-flight
+// re-don — at its lapsed-sitting branch, deterministically and credless:
+// XDG_RUNTIME_DIR is pointed at an empty scratch dir so the sitting cache
+// resolves to nothing, the don's sitting read misses before any network
+// touch, and the tick must die with the open-a-sitting advisory. The furnish
+// ceremony mirrors rba_cli's zrba_furnish plus the don's rbrd/rbdc arm —
+// committed regime files only; BURD_TEMP_DIR is supplied directly since no
+// dispatch runs here. (The positive — the tick firing on cadence in a real
+// short build — rides the hallmark-lifecycle ordain under the
+// RBCC_tweak_redon_cadence seam, picket tier.)
+
+/// Lapse-advisory fragment asserted on the tick's death. Mirror:
+/// rbfcb_host.sh `zrbfc_redon_tick` buc_die line — same literal.
+const RBTDRF_RT_LAPSE_FRAGMENT: &str = "sitting lapsed mid-build";
+
+fn rbtdrf_rt_lapse_advisory(dir: &Path) -> rbtdre_Verdict {
+    let root = match std::env::current_dir() {
+        Ok(r) => r,
+        Err(e) => return rbtdre_Verdict::Fail(format!("cannot get cwd: {}", e)),
+    };
+    let dir_p = rbtdrx_native_to_posix(dir);
+    let buc_p = rbtdrx_native_to_posix(&root.join(RBTDRF_BUC_COMMAND));
+    let buym_p = rbtdrx_native_to_posix(&root.join(RBTDRF_BUYM_YELP));
+    let bubc_p = rbtdrx_native_to_posix(&root.join(RBTDRF_BUBC_CONSTANTS));
+    let buv_p = rbtdrx_native_to_posix(&root.join(RBTDRF_BUV_VALIDATION));
+    let rbk_p = rbtdrx_native_to_posix(&root.join(RBTDRF_RBK_ROOT));
+
+    let script = format!(
+        "set -euo pipefail\n\
+         export BURD_TEMP_DIR='{dir_p}'\n\
+         export XDG_RUNTIME_DIR='{dir_p}/rt-no-sitting'\n\
+         source '{buc_p}'\n\
+         source '{buym_p}'\n\
+         source '{bubc_p}'\n\
+         source '{buv_p}'\n\
+         source '{rbk_p}/rbrr_regime.sh'\n\
+         source '{rbk_p}/rbrd_regime.sh'\n\
+         source '{rbk_p}/rbrf_regime.sh'\n\
+         source '{rbk_p}/rbrw_regime.sh'\n\
+         source '{rbk_p}/rbcc_constants.sh'\n\
+         source '{rbk_p}/rbgc_constants.sh'\n\
+         source '{rbk_p}/rbdc_derived.sh'\n\
+         source '{rbk_p}/rbgo_oauth.sh'\n\
+         source '{rbk_p}/rba_auth.sh'\n\
+         source '{rbk_p}/rbfcb_host.sh'\n\
+         zbuv_kindle\n\
+         source \"${{PWD}}/{moorings}/rbrr.env\"\n\
+         source \"${{PWD}}/{moorings}/rbrd.env\"\n\
+         zrbrr_kindle\n\
+         zrbrd_kindle\n\
+         zrbrr_enforce\n\
+         zrbrd_enforce\n\
+         zrbcc_kindle\n\
+         zrbgc_kindle\n\
+         zrbdc_kindle\n\
+         zrbgo_kindle\n\
+         zrba_kindle\n\
+         rbcc_source_active_rbrf\n\
+         source \"${{RBCC_rbrw_file}}\"\n\
+         zrbrf_kindle\n\
+         zrbrw_kindle\n\
+         zrbfc_redon_tick 'LapseProbe' 'poll 1'\n",
+        moorings = crate::rbtdgc_consts::RBTDGC_MOORINGS_DIR,
+    );
+
+    match rbtdrf_run_bash(&root, &script, dir, "rt-lapse-advisory") {
+        Ok((code, stdout, stderr)) => {
+            if code == 0 {
+                return rbtdre_Verdict::Fail(
+                    "rt-lapse-advisory: expected the tick to die on a lapsed sitting, got exit 0"
+                        .to_string(),
+                );
+            }
+            if !stdout.contains(RBTDRF_RT_LAPSE_FRAGMENT)
+                && !stderr.contains(RBTDRF_RT_LAPSE_FRAGMENT)
+            {
+                return rbtdre_Verdict::Fail(format!(
+                    "rt-lapse-advisory: exit {} without the lapse advisory '{}':\nstderr:\n{}",
+                    code, RBTDRF_RT_LAPSE_FRAGMENT, stderr
+                ));
+            }
+            rbtdre_Verdict::Pass
+        }
+        Err(e) => rbtdre_Verdict::Fail(format!("rt-lapse-advisory: {}", e)),
+    }
+}
+
 // ── Clipboard cases ─────────────────────────────────────────
 //
 // Drives buc_clipboard_copy_predicate — BUK's platform-normalized clipboard
@@ -1851,6 +1942,7 @@ pub static RBTDRF_CASES_FOUNDRY_PATH: &[rbtdre_Case] = &[
     case!(rbtdrf_np_native_passthrough),
     case!(rbtdrf_np_offcygwin_identity),
     case!(rbtdrf_np_bare_absolute_unsurveyed),
+    case!(rbtdrf_rt_lapse_advisory),
 ];
 
 pub static RBTDRF_FIXTURE_FOUNDRY_PATH: rbtdre_Fixture = rbtdre_Fixture {

@@ -168,6 +168,7 @@ pub const RBTDGC_CONTAINER_PENTACLE: &str = "pentacle";
 pub const RBTDGC_CONTAINER_SENTRY: &str = "sentry";
 pub const RBTDGC_TWEAK_CREDLESS_GUARD: &str = "buorb_credless_guard";
 pub const RBTDGC_TWEAK_HTTP_FAULT: &str = "buorb_http_fault";
+pub const RBTDGC_TWEAK_REDON_CADENCE: &str = "buorb_redon_cadence";
 
 // BUBC precision exit-code band (bubc_constants.sh) — numeric
 pub const RBTDGC_BAND_BASE: i32 = 100;
