@@ -18952,8 +18952,8 @@
         "₢BqAAH": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260704-1042",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260704-1117",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "Mint and build the read-only sitting probe:",
                 "an access-family tabtarget reporting whether a sitting is live and how much runway remains —",
@@ -18987,7 +18987,7 @@
                 "Small focused bash + enrollment mechanics riding the gate pace's helpers; the verb mint wants census care."
               ],
               "jjgtn_silks": "sitting-liveness-probe",
-              "jjgtn_basis": "9716b60"
+              "jjgtn_basis": "649a1e4"
             }
           ]
         },
