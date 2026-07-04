@@ -1,5 +1,5 @@
 {
-  "jjgrn_next_heat_seed": "Br",
+  "jjgrn_next_heat_seed": "Bs",
   "jjgrn_heat_order": [
     "₣Bq",
     "₣BZ",
@@ -36,7 +36,8 @@
     "₣BC",
     "₣BI",
     "₣BL",
-    "₣Ba"
+    "₣Ba",
+    "₣Br"
   ],
   "jjgrn_heats": {
     "₣A6": {
@@ -19024,6 +19025,14 @@
           ]
         }
       }
+    },
+    "₣Br": {
+      "jjghn_silks": "jjk-v5-0-studbook-farrier-mvp",
+      "jjghn_creation_time": "260704",
+      "jjghn_status": "jjghe_stabled",
+      "jjghn_order": [],
+      "jjghn_next_pace_seed": "AAA",
+      "jjghn_paces": {}
     }
   }
 }
