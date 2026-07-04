@@ -2553,13 +2553,23 @@ const RBTDRV_RUNWAY_IMPOSSIBLE_SEC: &str = "999999";
 /// the EXACT runway band plus the novate advisory (the rejection must name the
 /// remedy's colophon). Never weakened to bare-nonzero, per band doctrine.
 /// Shared by the picket access-probe case and the sitting-novate round-trip.
+///
+/// Stream note: the launcher's self-logging merges the spawned tabtarget's
+/// stderr into stdout (surveyed 260704 — captured stderr arrives empty), so
+/// the advisory is asserted against BOTH streams and forensics print both.
 fn zrbtdrv_runway_gate_arc(ctx: &mut rbtdri_Context, dir: &Path) -> Result<(), rbtdre_Verdict> {
+    crate::rbtdrg_info_now!(
+        "baseline avow: reuses a live sitting; if none is live, the device-flow sign-in \
+         prompt rides the spawned tabtarget's log (../logs-buk/last.txt) — complete it \
+         there, or Ctrl+C and open a sitting from a terminal with {}",
+        RBTDGC_CHECK_AVOWAL
+    );
     match rbtdri_invoke_global(ctx, RBTDGC_CHECK_AVOWAL, &[], &[]) {
         Ok(r) if r.exit_code == 0 => {}
         Ok(r) => return Err(rbtdre_Verdict::Fail(format!(
             "baseline avow exit {} — open a sitting with {} (one device-flow click), \
-             or novate ({}) if the gate turned a short sitting away\n{}",
-            r.exit_code, RBTDGC_CHECK_AVOWAL, RBTDGC_NOVATE_SITTING, r.stderr
+             or novate ({}) if the gate turned a short sitting away\nstdout:\n{}\nstderr:\n{}",
+            r.exit_code, RBTDGC_CHECK_AVOWAL, RBTDGC_NOVATE_SITTING, r.stdout, r.stderr
         ))),
         Err(e) => return Err(rbtdre_Verdict::Fail(format!("baseline avow invocation: {}", e))),
     }
@@ -2571,6 +2581,7 @@ fn zrbtdrv_runway_gate_arc(ctx: &mut rbtdri_Context, dir: &Path) -> Result<(), r
         Ok(r) => r,
         Err(e) => return Err(rbtdre_Verdict::Fail(format!("runway-demand invocation: {}", e))),
     };
+    let _ = std::fs::write(dir.join("02-runway-demand-stdout.txt"), &short.stdout);
     let _ = std::fs::write(dir.join("02-runway-demand-stderr.txt"), &short.stderr);
     if short.exit_code != RBTDGC_BAND_RUNWAY {
         return Err(rbtdre_Verdict::Fail(format!(
@@ -2578,10 +2589,10 @@ fn zrbtdrv_runway_gate_arc(ctx: &mut rbtdri_Context, dir: &Path) -> Result<(), r
             RBTDRV_RUNWAY_IMPOSSIBLE_SEC, short.exit_code, RBTDGC_BAND_RUNWAY, short.stdout, short.stderr
         )));
     }
-    if !short.stderr.contains(RBTDGC_NOVATE_SITTING) {
+    if !short.stdout.contains(RBTDGC_NOVATE_SITTING) && !short.stderr.contains(RBTDGC_NOVATE_SITTING) {
         return Err(rbtdre_Verdict::Fail(format!(
-            "runway rejection carried no novate advisory — expected '{}' in stderr\nstderr:\n{}",
-            RBTDGC_NOVATE_SITTING, short.stderr
+            "runway rejection carried no novate advisory — expected '{}' on either stream\nstdout:\n{}\nstderr:\n{}",
+            RBTDGC_NOVATE_SITTING, short.stdout, short.stderr
         )));
     }
     Ok(())
@@ -2611,11 +2622,16 @@ fn rbtdrv_sitting_novate(dir: &Path) -> rbtdre_Verdict {
             return v;
         }
 
+        crate::rbtdrg_info_now!(
+            "novate always opens a fresh sitting: under the interactive mechanism the \
+             sign-in prompt rides the spawned tabtarget's log (../logs-buk/last.txt) — \
+             watch it there to complete the sign-in"
+        );
         match rbtdri_invoke_global(ctx, RBTDGC_NOVATE_SITTING, &[], &[]) {
             Ok(r) if r.exit_code == 0 => {}
             Ok(r) => return rbtdre_Verdict::Fail(format!(
-                "novate exit {} — complete the sign-in prompt (human-present fixture)\n{}",
-                r.exit_code, r.stderr
+                "novate exit {} — complete the sign-in prompt (human-present fixture)\nstdout:\n{}\nstderr:\n{}",
+                r.exit_code, r.stdout, r.stderr
             )),
             Err(e) => return rbtdre_Verdict::Fail(format!("novate invocation: {}", e)),
         }
@@ -2624,8 +2640,8 @@ fn rbtdrv_sitting_novate(dir: &Path) -> rbtdre_Verdict {
         match rbtdri_invoke_global(ctx, RBTDGC_CHECK_AVOWAL, &[], &[]) {
             Ok(r) if r.exit_code == 0 => {}
             Ok(r) => return rbtdre_Verdict::Fail(format!(
-                "post-novate avow exit {} — the novated sitting must clear the floor at reuse\n{}",
-                r.exit_code, r.stderr
+                "post-novate avow exit {} — the novated sitting must clear the floor at reuse\nstdout:\n{}\nstderr:\n{}",
+                r.exit_code, r.stdout, r.stderr
             )),
             Err(e) => return rbtdre_Verdict::Fail(format!("post-novate avow invocation: {}", e)),
         }
