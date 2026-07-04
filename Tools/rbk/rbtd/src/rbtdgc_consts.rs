@@ -4,6 +4,7 @@
 pub const RBTDGC_CHECK_PAYOR: &str = "rbw-ap";
 pub const RBTDGC_CHECK_AVOWAL: &str = "rbw-aa";
 pub const RBTDGC_CHECK_MANTLE: &str = "rbw-am";
+pub const RBTDGC_NOVATE_SITTING: &str = "rbw-aN";
 pub const RBTDGC_CRUCIBLE_CHARGE: &str = "rbw-cC";
 pub const RBTDGC_CRUCIBLE_QUENCH: &str = "rbw-cQ";
 pub const RBTDGC_CRUCIBLE_SSH: &str = "rbw-cS";
@@ -182,6 +183,7 @@ pub const RBTDGC_BAND_VACANT: i32 = 110;
 pub const RBTDGC_BAND_ENGROSS: i32 = 111;
 pub const RBTDGC_BAND_EXPUNGE: i32 = 112;
 pub const RBTDGC_BAND_PERUSE: i32 = 113;
+pub const RBTDGC_BAND_RUNWAY: i32 = 115;
 pub const RBTDGC_BAND_SELFTEST: i32 = 123;
 
 // BUBC regime-poison tweak (bubc_constants.sh) — string
