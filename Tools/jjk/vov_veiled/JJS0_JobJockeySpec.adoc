@@ -3232,3 +3232,9 @@ include::JJS-aspirant-mews.adoc[leveloffset=+2]
 //axvd_cartouche axd_aspirant
 include::JJS-aspirant-state-repo.adoc[leveloffset=+2]
 
+//axvd_cartouche axd_aspirant
+include::JJS-aspirant-farrier.adoc[leveloffset=+2]
+
+//axvd_cartouche axd_aspirant
+include::JJS-aspirant-tackle.adoc[leveloffset=+2]
+

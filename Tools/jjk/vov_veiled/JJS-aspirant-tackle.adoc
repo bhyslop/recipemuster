@@ -1,0 +1,73 @@
+//axvd_sheaf jjs0_imprimatur axd_aspirant
+= Tackle — Scope-to-Discipline Binding (Aspirant Nucleation)
+
+[IMPORTANT]
+====
+*Aspirant nucleation* (AXLA `axd_aspirant`): not yet binding.
+A feature-definition space under active mulling — to be sophisticated and revised until ready for
+development, then infused into this codex or retired.
+A reader must not rely on its content; released code must not cite identifiers it mints.
+The word *tackle* is already minted in the ₣Ah paddock with a maximal meaning; the one-word-one-
+concept resolution is stated below.
+====
+
+== What MVP tackle is
+
+A *tackle* is the standing binding from file scope to governing discipline:
+"these globs are BCG bash, those are RCG rust, that subtree is theurge, that one is ifrit."
+Nearly a table — glob patterns on one side, discipline/guide references on the other — and it is
+the binding that spares the operator from writing "write BCG-compliant code for all the bash you
+touch" into every chat.
+
+One codebase holds *several* discipline domains at once (ACG's own observation: multiple bash
+domains; discrete rust domains in theurge, ifrit, and JJ itself), so the binding is file-grain,
+not repo-grain.
+
+== Where it lives
+
+Studbook-side, beside the pedigree (one tackle set per upstream type) — never in the hippodrome,
+which carries no JJ inserts (studbook sheaf, vanilla-hippodrome premise).
+Tackle and farrier config are sibling entries on the pedigree answering different questions with
+different change cadences: tackle binds *files to rules* (changes when code domains shift);
+farrier binds *the repo to its mechanics* (changes when repo topology shifts).
+Letting tackle swallow VCS config would regrow the maximal tackle the MVP deliberately defers.
+
+== How it reaches a session
+
+At saddle time (farrier sheaf, launch-time provisioning): the dispatcher reads the pedigree's
+tackle bindings and provisions the session's context accordingly.
+This replaces repo-resident `@`-include context at repo grain with runtime binding at file grain,
+and is what lets vanilla external projects receive discipline context without carrying any of it.
+
+== One word, one concept (the ₣Ah resolution)
+
+The ₣Ah paddock defines a maximal tackle: silks-identified resource bundle carrying ₿-blaze file
+scopes, actions with exclusivity, gait affinities, read-also entries — school-time execution
+machinery (design pace ₢AhAAO).
+Resolution: *this MVP definition becomes the tackle; the maximal version extends it later.*
+One definition re-homed and grown — never two tackles side by side.
+When ₣Ah's tackle design pace mounts, it inherits this sheaf as its floor: blazes, actions,
+exclusivity, and gait affinities are additions to the scope→discipline core, and the ₣Ah paddock
+updates to match.
+
+== Deferred (explicitly not MVP)
+
+* ₿ blaze symbolic references and school-time resolution.
+* Actions (command + exclusivity scopes).
+* Gait affinities and integrity-check declarations informing chukker boundaries.
+* Any per-heat tackle mutability story — MVP tackle is per-upstream standing config.
+
+== Open forks (the mulling surface)
+
+* Representation: format of the binding table and its home within the studbook (pedigree field
+  vs. sibling document).
+* Delivery mechanism into the session: opening-prompt prose, generated context file, or both.
+* Whether discipline references point at guide documents (BCG, RCG) directly or at a named
+  discipline registry.
+
+== Sources (provenance, not authority)
+
+* ₣Ah paddock, Vocabulary § Tackle / Blaze; design pace ₢AhAAO — the maximal tackle this MVP
+  defers.
+* ACG (Allocation Coding Guide) — the several-domains observation.
+* Chat gamma-fable-regional-gallops (260704) — the MVP re-scope and pedigree-sibling placement.

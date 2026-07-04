@@ -1,7 +1,12 @@
 # Memo — Job Jockey Revision-Control Architecture (nucleation)
 
 **Date:** 2026-06-30
-**Status:** Holding memo / active mulling. Aspirant, not authority.
+**Status:** Superseded as mulling home (2026-07-04). The architecture matured into three
+aspirant sheaves — `Tools/jjk/vov_veiled/JJS-aspirant-state-repo.adoc` (studbook),
+`JJS-aspirant-farrier.adoc` (driver + dispatch), `JJS-aspirant-tackle.adoc` — which carry the
+settled vocabulary (studbook, pedigree, farrier, saddle/billet/unsaddle, hippodrome) and
+current design. Read this memo as provenance for the lock/insignia reasoning and the naming
+alternates; the sheaves are the living surface. Aspirant, not authority.
 Scope grew across the 2026-06-30 chats from "a lock service" to the whole JJ
 revision-control + state-persistence architecture for the mews heat (₣Ba) and the
 gallops heat (₣Bk). No sheaf yet — its name awaits more clarity. Both heats' paddocks

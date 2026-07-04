@@ -1,0 +1,213 @@
+//axvd_sheaf jjs0_imprimatur axd_aspirant
+= Farrier — Revision-Control Driver and Dispatch (Aspirant Nucleation)
+
+[IMPORTANT]
+====
+*Aspirant nucleation* (AXLA `axd_aspirant`): not yet binding.
+A feature-definition space under active mulling — to be sophisticated and revised until ready for
+development, then infused into this codex or retired.
+A reader must not rely on its content; released code must not cite identifiers it mints.
+Destined to infuse into this codex alongside the studbook sheaf; the two land as one MVP.
+Vocabulary below is candidate-minted (chat of 260704): adopted for mulling, formal mint ceremony
+runs at infusion.
+====
+
+== What the farrier is
+
+The *farrier* is JJ's polymorphic revision-control driver: the layer that fits the same JJ intent
+to whatever ground a repo runs on — plain git today, git-with-worktrees within it, submodules and
+Android `repo` constellations later.
+As a farrier shoes the same horse for different terrain, one driver interface serves every
+backend; the pedigree (studbook sheaf) selects the farrier kind per upstream.
+The studbook itself is driven through the same interface's lock facet — the degenerate
+single-repo case.
+
+The farrier supplies *primitives*; the ceremonies above it (journal ceremony, break sequence,
+saddle) stay JJ's.
+No driver ever owns a transaction.
+
+== Two axes, two generalization points
+
+The eventual backends sit on two orthogonal axes, each with one generalization point that must be
+right in the MVP so later rungs add without re-minting:
+
+* *Constellation axis* — what a pin names: one repo (scalar SHA) vs. many members.
+  Generalization point: the **pin** is always a member→SHA manifest; single-repo is the
+  one-element case.
+* *Partition axis* — who writes concurrently: shared checkout vs. isolated per-work checkouts.
+  Generalization point: the **billet** (below); every op takes an explicit repo root, so a
+  partition is just another root — op signatures never change when worktrees arrive.
+
+== Hearting ops (MVP census)
+
+Primitives are *capabilities, not commands* — almost none are ever human-typed.
+Boring names by JJS0 Upper API doctrine, with a principled line: keep the git word where the op
+is a faithful subset of it (an LLM's analogy will be correct); mint fresh where the discipline
+diverges from what the git word implies.
+
+[cols="1,1,2,1"]
+|===
+|Op |Facet |Shape |Consumer
+
+|`identify` |orient |Resolve this tree: dirname, origin URL (pedigree key), branch or
+detached state, HEAD, billet-of-which-hippodrome if a worktree. |ambient on `jjx_open`
+
+|`status` |inspect |Clean/dirty, per-path — feeds clean-tree gates and explicit-file commits.
+|sequence-internal
+
+|`sync_state` |inspect |Ahead/behind vs. remote, from last fetch (never blocks on network).
+|ambient at open/orient
+
+|`pin` |inspect |HEAD member→SHA manifest + branch annotation + dirty flag. |ambient on record
+
+|`pin_verify` |inspect |Does a journaled SHA still exist, reachable? Optional; flags dangling
+pins. |housekeeping
+
+|`commit` |mutate |Explicit file list + message; no `-a`, no amend (additive discipline).
+|sequence-internal
+
+|`fetch` |sync |Update remote refs. |sequence-internal, opportunistic
+
+|`advance` |sync |Fast-forward-only move to remote tip; fails loud if diverged.
+Deliberately not named "pull" — the farrier never merges or rebases. |journal ceremony
+
+|`push` |sync |Two flavors: plain fast-forward (hippodrome), `--atomic` + lease (studbook
+content). Never force. |sequence-internal
+
+|`ref_cas_create` / `ref_cas_delete` / `ref_read` |lock |Studbook/mews only; consumed by the
+lock guard and break sequence. |sequence-internal
+
+|`billet_create` / `billet_remove` |billet |Birth/reap a billet (below); remove refuses on
+dirty. |saddle / unsaddle
+|===
+
+Cross-cutting rules: every op takes the repo root explicitly (no cwd dependence); every mutating
+op rejects in a named typed-error band (dirty-tree, diverged, lock-held, lock-broken) — sequence
+composition is only safe when primitives fail loud and specifically.
+Deliberately absent: merge, rebase, clone, init, log, blame — operator's hands or `jjx_log`.
+
+Entity design: a driver trait with one implementation per farrier kind; the lock is an RAII
+guard (object lifetime = lock lifetime, panic on nested acquire); break is a separate sequence
+acting on someone else's lock, never a guard method.
+
+== Saddle, billet, unsaddle — the dispatch layer
+
+*Cinched (260704): JJ opens the Claude Code sessions we work in.*
+The operator knows the verb at chat-top; the seat must be right at launch (mid-session cd
+neither reloads project context nor survives the cd prohibition).
+
+* **saddle** — the outermost toothing, run at the shell.
+  Takes one identity; its length picks the protocol (the halter convention):
+  a coronet seats a *pace billet* (worktree + §F branch at trunk tip), a firemark seats a
+  *groom billet* (worktree at detached trunk tip — nothing must survive).
+  Saddle ensures the billet, freshens it, exports per-billet BURV roots, provisions JJ context,
+  and launches Claude Code in it at the verb-appropriate model tier with the engagement verb as
+  opening prompt.
+  (The bash toothing cannot be "mount" — Unix owns that word; the two-layer split is the JJS0
+  vocabulary-isolation doctrine appearing at a new boundary.)
+* **billet** — the standing thing a session runs in: worktree + branch-or-detached-tip + env
+  posture.
+  The lifecycle entity the officium records and validates; the object noun completing the
+  verbs-act-on-nouns grammar (mount acts on a pace; saddle creates a billet).
+  Board on arrival, kept for the duration, collected after.
+* **unsaddle** — the reap: `billet_remove`, refuse-if-dirty.
+
+Lifecycle doctrine:
+
+* *Billets are chat-ephemeral; branches are durable.*
+  The §F branch is the WIP carrier across chats, journaled in pace state; the worktree is
+  disposable scaffolding.
+  `git worktree list` is the authoritative local registry of which branch is seated where —
+  **no worktree path is ever written into the studbook** (station-local fact, regional record).
+* *Freshen by merge, never rebase.*
+  At re-mount, merge trunk *into* the pace branch: journaled pins survive, conflicts surface
+  once, and the branch's interior history dies at the operator's trunk merge anyway.
+  On conflict, the mount session (already high-tier and attended) resolves as its first order of
+  business; tier-escalation machinery is deferred to breeze.
+* *Mount absorbs cold start* — seat, billet-ensure, freshen, orient. No new engagement verb.
+* *Every dispatched session gets its own billet; trunk belongs to the operator alone.*
+  Session isolation is structural, not disciplinary — even a "read-only" groom can run builds.
+  Grooms get billets too (detached), so concurrent sessions on one hippodrome never share a tree.
+* Stale billets: reaped at next saddle if clean; flagged, never auto-destroyed, if dirty.
+  A ring-survey toothing (name open; *stables* candidate yielded its S) enumerates billets and
+  hippodrome staleness.
+
+== The BUK meld (studied 260704)
+
+Findings from the dispatch spine (`z-launcher.sh` → `bul_launcher.sh` → regimes):
+
+* BUK dispatch *self-anchors*: cwd normalizes to the invoked tree's root; moorings and burc.env
+  are committed and present in any worktree.
+  BUK cannot tell a billet from a clone.
+* The station family (`../station-files/burs.env`, `../logs-buk`, `../temp-buk`,
+  `../output-buk`) resolves to the parent directory — the garth.
+  Billets seated as garth peers inherit station geography with zero setup; nesting billets
+  deeper would break it, so garth-peer placement is load-bearing.
+* The genuine hazard is concurrency, not geometry, and it predates billets:
+  `../output-buk/current/` is cleared per dispatch and `logs-buk/last.txt` is a singleton.
+  Saddle closes it by exporting per-billet `BURV_OUTPUT_ROOT_DIR` / `BURV_TEMP_ROOT_DIR`
+  (absolute paths, theurge's own discipline).
+* *Theurge needs no change*: it sets BURV via `Command::env()` with self-constructed absolute
+  per-invoke paths — innermost setting wins, nobody composes with inherited values.
+  The protocol is "whoever dispatches owns the knob."
+* Named behavior change: chain facts (`current/`→`previous/`) become *billet-scoped* — a
+  tabtarget inside the billet and one in the trunk terminal no longer see each other's flow.
+  This also closes a latent cross-clone chain race that exists today.
+* Small BUK gap if per-billet logs prove wanted: `BURS_LOG_DIR` has no BURV-style override.
+
+== Launch-time provisioning (the vanilla-hippodrome consequence)
+
+Hippodromes carry no JJ inserts (studbook sheaf), which re-gestalts JJK installation:
+
+* MCP config, the verb table, and JJ context arrive *at session launch from saddle*
+  (session-scoped config + opening prompt), not from repo-resident inserts.
+  The project's own CLAUDE.md — whatever the vanilla project ships — still governs its code.
+* Officium exchange (gazettes) relocates out of the work repo; proposed garth home is an open
+  fork in the studbook sheaf.
+* Tackle bindings (tackle sheaf) supply per-scope discipline context at runtime, replacing
+  repo-grain `@`-includes with file-grain binding.
+
+Session tiers: saddle selects model and effort per verb — groom/school-grade planning at
+high-effort frontier tier, mechanical pace work at mid tier, orchestration (future breeze) at
+haiku.
+Programmatic session dispatch for personal tooling is documented product surface (headless mode,
+Agent SDK, `--model`); recording that standing determination here is what keeps it from being
+re-litigated from memory.
+
+== Prerequisite remint
+
+*saddle* currently names the interior orient-context routine (`jjrsd_saddle.rs`,
+`JJSCSD-saddle.adoc`).
+Before infusion: rename the interior routine to a boring hearting name (which *improves* JJS0
+doctrine — a vivid word is today spent below the vivid layer), sweep, grep-gate.
+
+== Naming ledger (candidate mints of 260704, alternates preserved)
+
+* *farrier* — the driver API; fits the horse to the ground. F freed by formbook's rejection.
+* *saddle* / *unsaddle* — dispatch verbs; the real-world sequence saddle-then-mount lands in
+  the right order across the two vocabulary layers. Alternate held: leg-up.
+* *billet* — the standing seat entity; the soldier's assigned temporary lodging, with the
+  equestrian foothold of saddle billet straps. Alternates held: livery (lead alternate; livery
+  stable Americana), stall (S-crowd + verb hazard). Disqualified: seat (per-seat licensing
+  troddenness; RBK's minted *unseat* as near-neighbor).
+* Ring-survey toothing — open; *stables* candidate yielded its S to studbook/saddle.
+
+== Open forks (the mulling surface)
+
+* Billet directory naming convention in the garth (dirname carries the coronet?).
+* Whether saddle also serves non-dispatch launches (operator opens a bare session in trunk —
+  today's model — forever legitimate?).
+* `BURS_LOG_DIR` per-billet override (small BUK addition).
+* Driver-op error-band allocation (typed error enum shape).
+* Constellation backends (submodules, Android `repo`): future farrier kinds; pin and billet
+  generalization points designed here, implementations deferred.
+
+== Sources (provenance, not authority)
+
+* `Memos/memo-20260630-jj-revision-control-architecture.md` — the VCS-driver and lock sections
+  this sheaf supersedes as mulling home.
+* BUK dispatch spine: `tt/z-launcher.sh`, `Tools/buk/bul_launcher.sh`, `bud_dispatch.sh`,
+  `burc_regime.sh`, `burs_regime.sh`; theurge BURV sites: `rbtdri_invocation.rs`,
+  `rbtdrh_chain.rs`.
+* Chat gamma-fable-regional-gallops (260704) — op census, billet lifecycle, BUK meld study,
+  dispatch cinch.
