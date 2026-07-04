@@ -18689,11 +18689,12 @@
         "₢BqAAA",
         "₢BqAAB",
         "₢BqAAC",
+        "₢BqAAH",
         "₢BqAAD",
         "₢BqAAF",
         "₢BqAAG"
       ],
-      "jjghn_next_pace_seed": "AAH",
+      "jjghn_next_pace_seed": "AAI",
       "jjghn_paces": {
         "₢BqAAA": {
           "jjgpn_tacks": [
@@ -18944,6 +18945,46 @@
               ],
               "jjgtn_silks": "curl-band-overlap-doctrine",
               "jjgtn_basis": "6201b42"
+            }
+          ]
+        },
+        "₢BqAAH": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260704-1021",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Mint and build the read-only sitting probe:",
+                "an access-family tabtarget reporting whether a sitting is live and how much runway remains —",
+                "never opening one, never prompting, never mutating, reading the cache alone (no network).",
+                "The verb word wants a Lapidary census at mount",
+                "(descry, rehearse, and canvass are taken by their own read verbs; grep gate + cold probe per MCM);",
+                "the colophon is a lowercase rbw-a member per the group's UPPER-mutates convention.",
+                "Shape: a thin arm over the sitting read/runway helpers in rba_auth.sh",
+                "(the runway capture landed with the gate pace);",
+                "an absent or lapsed sitting is a reported verdict, not a rejection —",
+                "the descry exit-0 verdict precedent (RBSFD), with machine-branchable output (fact or stdout, mount-time call).",
+                "Adopt it for fail-fast:",
+                "the theurge gate arc (access-probe fixture) and the sitting-novate baseline consult the probe",
+                "and fail immediately with the open-a-sitting instruction when no sitting is live,",
+                "replacing the blind device-window poll the operator hit (260704);",
+                "novate's own always-interactive step keeps its log-pointer INFO line.",
+                "Consider echoing the probe colophon in the runway-gate rejection text if it sharpens the advisory.",
+                "",
+                "## Done when",
+                "The probe reports live-with-runway or absent from the cache alone, without prompting or network;",
+                "the gate arc and sitting-novate fail fast with instructions on a dead sitting instead of polling the device window;",
+                "zipper enrollment plus regenerated consts and tabtarget context ride the build;",
+                "reveille and the access-probe fixture green.",
+                "",
+                "## Cinched",
+                "Read-only — never opens, never prompts; access family, lowercase colophon; absent is a verdict, not a band rejection.",
+                "",
+                "## Character",
+                "Small focused bash + enrollment mechanics riding the gate pace's helpers; the verb mint wants census care."
+              ],
+              "jjgtn_silks": "sitting-liveness-probe",
+              "jjgtn_basis": "67f53f1"
             }
           ]
         }
