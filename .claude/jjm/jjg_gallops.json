@@ -12595,8 +12595,8 @@
         "₢BbAAG": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260704-1222",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260704-1333",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "## Character",
                 "MCM core-voicing amendment plus a voicing-wide mechanical migration.",
@@ -12640,7 +12640,7 @@
                 "ACGm_102's dependency note flips to satisfied."
               ],
               "jjgtn_silks": "axvo-symbol-lookahead",
-              "jjgtn_basis": "03ca13a"
+              "jjgtn_basis": "a1b9131"
             }
           ]
         },
