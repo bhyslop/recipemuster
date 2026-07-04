@@ -1158,9 +1158,10 @@ authentication and registry access via OAuth and JWT probes.
 == {rbtr_payor} Operations
 
 [[rbtgo_payor_establish]]
-//axvo_method axd_transient axd_attended axd_grouped
+//axvo_method axd_transient axd_attended axd_inlaid axd_grouped
 === {rbtgo_payor_establish}
 
+`rbhp_establish` —
 Establishes
 {rbtr_payor}
 credentials and project configuration
@@ -1170,9 +1171,10 @@ credentials and project configuration
 include::RBSPE-payor_establish.adoc[]
 
 [[rbtgo_payor_install]]
-//axvo_method axd_transient axd_grouped
+//axvo_method axd_transient axd_inlaid axd_grouped
 === {rbtgo_payor_install}
 
+`rbgp_payor_install` —
 Completes
 {rbtr_payor}
 OAuth credential installation
@@ -1183,9 +1185,10 @@ by performing authorization flow, storing credentials, and validating {rbtgi_man
 include::RBSPI-payor_install.adoc[]
 
 [[rbtgo_payor_refresh]]
-//axvo_method axd_transient axd_attended axd_grouped
+//axvo_method axd_transient axd_attended axd_inlaid axd_grouped
 === {rbtgo_payor_refresh}
 
+`rbhp_refresh` —
 Refreshes
 {rbtr_payor}
 OAuth credentials
@@ -1195,9 +1198,10 @@ OAuth credentials
 include::RBSPR-payor_refresh.adoc[]
 
 [[rbtgo_access_oauth_probe]]
-//axvo_method axd_transient axd_grouped
+//axvo_method axd_transient axd_inlaid axd_grouped
 === {rbtgo_access_oauth_probe}
 
+`rbgv_check_payor` —
 Probes
 {rbtr_payor}
 OAuth access
@@ -1208,9 +1212,10 @@ by refreshing the stored OAuth token and calling the Cloud Resource Manager proj
 include::RBSAO-access_oauth_probe.adoc[]
 
 [[rbtgo_manor_affiance]]
-//axvo_method axd_transient axd_grouped
+//axvo_method axd_transient axd_inlaid axd_grouped
 === {rbtgo_manor_affiance}
 
+`rbgp_manor_affiance` —
 Affiances the
 {rbtgi_manor}
 to an external OIDC identity provider
@@ -1221,9 +1226,10 @@ creating a provider under the manor's standing workforce pool, with its attribut
 include::RBSMA-manor_affiance.adoc[]
 
 [[rbtgo_manor_jilt]]
-//axvo_method axd_transient axd_grouped
+//axvo_method axd_transient axd_inlaid axd_grouped
 === {rbtgo_manor_jilt}
 
+`rbgp_manor_jilt` —
 Jilts the
 {rbtgi_manor}
 from one external OIDC identity provider
@@ -1236,9 +1242,10 @@ deleting that foedus's provider while the shared workforce pool stands.
 include::RBSMJ-manor_jilt.adoc[]
 
 [[rbtgo_manor_instaurate]]
-//axvo_method axd_transient axd_grouped
+//axvo_method axd_transient axd_inlaid axd_grouped
 === {rbtgo_manor_instaurate}
 
+`rbgp_manor_instaurate` —
 Instaurates the scriptable substrate of the
 {rbtgi_manor}
 ({rbtgog_payor}):
@@ -1252,9 +1259,10 @@ the ensure-exists inverse of
 include::RBSMS-manor_instaurate.adoc[]
 
 [[rbtgo_manor_raze]]
-//axvo_method axd_transient axd_grouped
+//axvo_method axd_transient axd_inlaid axd_grouped
 === {rbtgo_manor_raze}
 
+`rbgp_manor_raze` —
 Razes the
 {rbtgi_manor}'s
 one workforce pool
@@ -1269,9 +1277,10 @@ distinct from the everyday provider-delete
 include::RBSMR-manor_raze.adoc[]
 
 [[rbtgo_manor_escheat]]
-//axvo_method axd_transient axd_grouped
+//axvo_method axd_transient axd_inlaid axd_grouped
 === {rbtgo_manor_escheat}
 
+`rbgp_manor_escheat` —
 Escheats the
 {rbtf_terrier}
 ({rbtgog_payor}):
@@ -1316,9 +1325,10 @@ A contract for the accessor build pace; the civic verb is deferred.
 include::RBSFA-foedus_acquire.adoc[]
 
 [[rbtgo_foedus_descry]]
-//axvo_method axd_transient axd_grouped
+//axvo_method axd_transient axd_inlaid axd_grouped
 === {rbtgo_foedus_descry}
 
+`rbof_descry` —
 Reads a named
 {rbtf_foedus}'s
 provider presence under the manor pool for transient inspection — palpate-adjacent but resolving no chained fact, so
@@ -1331,9 +1341,10 @@ A contract for the foedus-cardinality build pace; the build is deferred, the wor
 include::RBSFD-foedus_descry.adoc[]
 
 [[rbtgo_foedus_instate]]
-//axvo_method axd_transient axd_grouped
+//axvo_method axd_transient axd_inlaid axd_grouped
 === {rbtgo_foedus_instate}
 
+`rbof_instate` —
 Rewrites the active-foedus selector
 {rbrr_active_foedus}
 to a named standing
@@ -1347,9 +1358,10 @@ A contract for the foedus-cardinality build pace; the build is deferred, the wor
 include::RBSFI-foedus_instate.adoc[]
 
 [[rbtgo_depot_levy]]
-//axvo_method axd_transient axd_grouped
+//axvo_method axd_transient axd_inlaid axd_grouped
 === {rbtgo_depot_levy}
 
+`rbgp_depot_levy` —
 Creates
 {rbtgi_depot}
 infrastructure
@@ -1363,9 +1375,10 @@ service account, and the three
 include::RBSMF-depot_levy.adoc[]
 
 [[rbtgo_depot_unmake]]
-//axvo_method axd_transient axd_grouped
+//axvo_method axd_transient axd_inlaid axd_grouped
 === {rbtgo_depot_unmake}
 
+`rbgp_depot_unmake` —
 Destroys
 {rbtgi_depot}
 infrastructure
@@ -1378,9 +1391,10 @@ service account cleanup; no separate defrock verb (DELETE tolerates 404).
 include::RBSDU-depot_unmake.adoc[]
 
 [[rbtgo_depot_list]]
-//axvo_method axd_transient axd_grouped
+//axvo_method axd_transient axd_inlaid axd_grouped
 === {rbtgo_depot_list}
 
+`rbgp_depot_list` —
 Lists
 {rbtgi_depot}
 instances
@@ -1390,9 +1404,10 @@ instances
 include::RBSDL-depot_list.adoc[]
 
 [[rbtgo_depot_recognosce]]
-//axvo_method axd_transient axd_grouped
+//axvo_method axd_transient axd_inlaid axd_grouped
 === {rbtgo_depot_recognosce}
 
+`rbgp_depot_recognosce` —
 Recognosces
 {rbtgi_depot}
 founding
@@ -1405,9 +1420,10 @@ their capability-sets, and the Artifact Registry Data-Access audit config — re
 include::RBSDC-depot_recognosce.adoc[]
 
 [[rbtgo_quota_build]]
-//axvo_method axd_transient axd_attended axd_grouped
+//axvo_method axd_transient axd_attended axd_inlaid axd_grouped
 === {rbtgo_quota_build}
 
+`rbhp_quota_build` —
 Reviews
 {rbtgi_depot}
 machine type and CPU quota alignment
@@ -1421,9 +1437,10 @@ include::RBSQB-quota_build.adoc[]
 // FABLE-REANCHOR (₣BZ terminal review): the keyfile cult-verb-triad intro that opened this section was demolished with the verbs; the section now holds the gird founding act and the federation admission verbs (brevet/unseat/attaint/rehearse). Its title and intro framing want Fable's terminal pass. See the M7 record in memo-20260615-BZ-pace-design.md.
 
 [[rbtgo_governor_gird]]
-//axvo_method axd_transient axd_grouped
+//axvo_method axd_transient axd_inlaid axd_grouped
 === {rbtgo_governor_gird}
 
+`rbgp_gird` —
 Seats the first
 {rbtf_citizen}
 of a fresh
@@ -1465,9 +1482,10 @@ and each writes its
 before any binding.
 
 [[rbtgo_citizen_brevet]]
-//axvo_method axd_transient axd_grouped
+//axvo_method axd_transient axd_inlaid axd_grouped
 === {rbtgo_citizen_brevet}
 
+`rbgp_brevet` —
 Admits a
 {rbtf_citizen}
 onto a
@@ -1484,9 +1502,10 @@ bindings, idempotently ensured.
 include::RBSPB-citizen_brevet.adoc[]
 
 [[rbtgo_citizen_unseat]]
-//axvo_method axd_transient axd_grouped
+//axvo_method axd_transient axd_inlaid axd_grouped
 === {rbtgo_citizen_unseat}
 
+`rbgp_unseat` —
 Withdraws one
 {rbtf_mantle}
 from a
@@ -1502,9 +1521,10 @@ is suspension, not erasure).
 include::RBSPU-citizen_unseat.adoc[]
 
 [[rbtgo_citizen_attaint]]
-//axvo_method axd_transient axd_grouped
+//axvo_method axd_transient axd_inlaid axd_grouped
 === {rbtgo_citizen_attaint}
 
+`rbgp_attaint` —
 Expels a
 {rbtf_citizen}
 wholly from this
@@ -1520,9 +1540,10 @@ leaves behind.
 include::RBSPA-citizen_attaint.adoc[]
 
 [[rbtgo_terrier_rehearse]]
-//axvo_method axd_transient axd_grouped
+//axvo_method axd_transient axd_inlaid axd_grouped
 === {rbtgo_terrier_rehearse}
 
+`rbgp_rehearse` —
 Recounts the manor-wide
 {rbtf_muniment}
 roll
@@ -1547,9 +1568,10 @@ Hallmark minted on the host before submission, passed to Cloud Build via `_RBGY_
 NOTE: For multi-platform build authentication challenges and research findings, see link:RBWMBX-BuildxMultiPlatformAuth.adoc[RBWMBX: Buildx Multi-Platform Authentication Memo].
 
 [[rbtgo_director_yoke]]
-//axvo_method axd_transient axd_grouped
+//axvo_method axd_transient axd_inlaid axd_grouped
 === {rbtgo_director_yoke}
 
+`rbfl_yoke` —
 Yokes a reliquary touchmark across every vessel's
 {rbrv_regime}:
 validates the conclave {rbtga_lode} touchmark once against GAR, then rewrites `RBRV_RELIQUARY` in every {rbrv_regime} file under `${RBRR_VESSEL_DIR}`
@@ -1559,9 +1581,10 @@ validates the conclave {rbtga_lode} touchmark once against GAR, then rewrites `R
 include::RBSDY-director_yoke.adoc[]
 
 [[rbtgo_director_feoff]]
-//axvo_method axd_transient axd_grouped
+//axvo_method axd_transient axd_inlaid axd_grouped
 === {rbtgo_director_feoff}
 
+`rbfl_feoff` —
 Elects a vessel's conjure base anchor:
 resolves a bole {rbtga_lode} touchmark express-or-chain, then writes `RBRV_IMAGE_n_ANCHOR` into one named {rbrv_regime} file under `${RBRR_VESSEL_DIR}`
 ({rbtgog_depot}).
@@ -1571,9 +1594,10 @@ The chain LINK extracted out of {rbtgo_ark_conjure} so conjure stays a pure chai
 include::RBSDF-director_feoff.adoc[]
 
 [[rbtgo_nameplate_drive]]
-//axvo_method axd_transient axd_grouped
+//axvo_method axd_transient axd_inlaid axd_grouped
 === {rbtgo_nameplate_drive}
 
+`rbrn_drive` —
 Drives a freshly-built hallmark into a nameplate:
 resolves a hallmark express-or-chain, then writes `RBRN_BOTTLE_HALLMARK` or `RBRN_SENTRY_HALLMARK` into one named {rbrn_regime} file.
 The durable-config {rbch_enchase} for the {rbf_fact_hallmark} chain — the {rbrn_regime} sibling of {rbtgo_director_feoff}/{rbtgo_director_yoke}, one primitive shared by the local {rbtgo_ark_kludge} (composed one-shot after the build head) and the cloud {rbtgo_ark_ordain} path (a standalone operator verb replacing the former nameplate hand-edit).
@@ -1582,9 +1606,10 @@ The durable-config {rbch_enchase} for the {rbf_fact_hallmark} chain — the {rbr
 include::RBSND-nameplate_drive.adoc[]
 
 [[rbtgo_image_delete]]
-//axvo_method axd_transient axd_grouped
+//axvo_method axd_transient axd_inlaid axd_grouped
 === {rbtgo_image_delete}
 
+`rbfl_jettison` —
 Jettisons a single
 {rbtgi_image}
 artifact by
@@ -1596,9 +1621,10 @@ Locator-generic across hallmark members and Lode members.
 include::RBSIJ-image_jettison.adoc[]
 
 [[rbtgo_image_retrieve]]
-//axvo_method axd_transient axd_grouped
+//axvo_method axd_transient axd_inlaid axd_grouped
 === {rbtgo_image_retrieve}
 
+`rbfl_wrest` —
 Wrests a single
 {rbtgi_image}
 artifact by
@@ -1611,9 +1637,10 @@ Locator-generic across hallmark members and Lode members.
 include::RBSIW-image_wrest.adoc[]
 
 [[rbtgo_image_rekon]]
-//axvo_method axd_transient axd_grouped
+//axvo_method axd_transient axd_inlaid axd_grouped
 === {rbtgo_image_rekon}
 
+`rbfl_rekon_hallmark` —
 Reports canonical-member presence under a hallmark subtree in
 {rbtgi_repository}
 ({rbtgog_image}).
@@ -1623,9 +1650,10 @@ One procedure (`rbfl_rekon_hallmark`); rekon over Lodes is intentionally omitted
 include::RBSIR-image_rekon.adoc[]
 
 [[rbtgo_image_audit]]
-//axvo_method axd_transient axd_grouped
+//axvo_method axd_transient axd_inlaid axd_grouped
 === {rbtgo_image_audit}
 
+`rbfl_audit_hallmarks` —
 Lists identifiers under the hallmark GAR domain in
 {rbtgi_repository}
 ({rbtgog_image}).
@@ -1635,9 +1663,10 @@ Lists identifiers under the hallmark GAR domain in
 include::RBSIA-image_audit.adoc[]
 
 [[rbtgo_ark_abjure]]
-//axvo_method axd_transient axd_grouped
+//axvo_method axd_transient axd_inlaid axd_grouped
 === {rbtgo_ark_abjure}
 
+`rbfl_abjure` —
 Formally renounces an
 {rbtga_ark}
 from the repository
@@ -1648,18 +1677,20 @@ removing its image, about, and vouch artifacts as a coherent unit.
 include::RBSAA-ark_abjure.adoc[]
 
 [[rbtgo_ark_ordain]]
-//axvo_method axd_transient axd_grouped
+//axvo_method axd_transient axd_inlaid axd_grouped
 === {rbtgo_ark_ordain}
 
+`rbfd_ordain` —
 Ordains a hallmark from a vessel — the master ceremony dispatch operation.
 Detects vessel mode (conjure, bind, or graft) and delegates to the appropriate
 {rbtga_ark}
 creation path, then chains metadata and vouch pipeline stages.
 
 [[rbtgo_ark_conjure]]
-//axvo_method axd_transient axd_grouped
+//axvo_method axd_transient axd_inlaid axd_grouped
 === {rbtgo_ark_conjure}
 
+`rbfd_build` —
 Conjures an
 {rbtga_ark_image}
 by building a container image
@@ -1671,9 +1702,10 @@ Build context delivered via {rbtga_ark_pouch}, submitted via `builds.create` API
 include::RBSAC-ark_conjure.adoc[]
 
 [[rbtgo_ark_graft]]
-//axvo_method axd_transient axd_grouped
+//axvo_method axd_transient axd_inlaid axd_grouped
 === {rbtgo_ark_graft}
 
+`rbfd_graft` —
 Grafts a locally-built container image into the
 {rbtgi_repository}
 ({rbtgog_ark})
@@ -1684,9 +1716,10 @@ The image push itself is local (no Cloud Build); about and vouch follow as Cloud
 include::RBSAG-ark_graft.adoc[]
 
 [[rbtgo_ark_kludge]]
-//axvo_method axd_transient axd_grouped
+//axvo_method axd_transient axd_inlaid axd_grouped
 === {rbtgo_ark_kludge}
 
+`rbfk_kludge` —
 Kludges a locally-built container image for development iteration
 ({rbtgog_ark}).
 No registry push, no Cloud Build, no credentials — `docker build` runs against the workstation cache and produces a `k`-prefixed
@@ -1700,9 +1733,10 @@ declarations to GAR references identically to {rbtgo_ark_conjure}, but anchored 
 include::RBSAK-ark_kludge.adoc[]
 
 [[rbtgo_ark_about]]
-//axvo_method axd_transient axd_grouped
+//axvo_method axd_transient axd_inlaid axd_grouped
 === {rbtgo_ark_about}
 
+`rbfv_about` —
 Assembles the
 {rbtga_ark_about}
 metadata artifact for an existing
@@ -1717,9 +1751,10 @@ Conjure and bind embed these steps in their primary Cloud Build job alongside im
 include::RBSAB-ark_about.adoc[]
 
 [[rbtgo_ark_vouch]]
-//axvo_method axd_transient axd_grouped
+//axvo_method axd_transient axd_inlaid axd_grouped
 === {rbtgo_ark_vouch}
 
+`rbfv_vouch` —
 Vouches for an
 {rbtga_ark}
 ({rbtgog_ark}),
@@ -1739,9 +1774,10 @@ completes.
 include::RBSAV-ark_vouch.adoc[]
 
 [[rbtgo_director_vouch]]
-//axvo_method axd_transient axd_grouped
+//axvo_method axd_transient axd_inlaid axd_grouped
 === {rbtgo_director_vouch}
 
+`rbfv_batch_vouch` —
 Batch-vouches every pending
 {rbtga_ark}
 hallmark in
@@ -1754,9 +1790,10 @@ Any vouch failure terminates the batch fail-fast at the broken hallmark.
 include::RBSDV-director_vouch.adoc[]
 
 [[rbtgo_lode_ensconce]]
-//axvo_method axd_transient axd_grouped
+//axvo_method axd_transient axd_inlaid axd_grouped
 === {rbtgo_lode_ensconce}
 
+`rbld_ensconce` —
 Ensconces a single upstream base image into a {rbtga_lode}
 ({rbtgog_lode}),
 capturing it cloud-side into the `{gar_lodes_namespace}/` namespace under a host-minted {rbtga_touchmark}.
@@ -1767,9 +1804,10 @@ The bole kind — base images consumed as a FROM line — is the canonical captu
 include::RBSLE-lode_ensconce.adoc[]
 
 [[rbtgo_lode_conclave]]
-//axvo_method axd_transient axd_grouped
+//axvo_method axd_transient axd_inlaid axd_grouped
 === {rbtgo_lode_conclave}
 
+`rbld_conclave` —
 Convenes the build-tool cohort into a single {rbtga_lode}
 ({rbtgog_lode}),
 capturing the co-versioned Cloud Build tool images cloud-side into one `{gar_lodes_namespace}/` package under a host-minted {rbtga_touchmark}.
@@ -1780,9 +1818,10 @@ The reliquary kind — N member tags within one package — brings the build-too
 include::RBSLC-lode_conclave.adoc[]
 
 [[rbtgo_lode_underpin]]
-//axvo_method axd_transient axd_grouped
+//axvo_method axd_transient axd_inlaid axd_grouped
 === {rbtgo_lode_underpin}
 
+`rbld_underpin` —
 Captures a vendor-published WSL rootfs into a single {rbtga_lode}
 ({rbtgog_lode}),
 fetching the tarball cloud-side into one `{gar_lodes_namespace}/` package under a host-minted {rbtga_touchmark}.
@@ -1793,9 +1832,10 @@ The wsl kind is the structural outlier: its upstream is an HTTPS tarball plus an
 include::RBSLU-lode_underpin.adoc[]
 
 [[rbtgo_lode_immure]]
-//axvo_method axd_transient axd_grouped
+//axvo_method axd_transient axd_inlaid axd_grouped
 === {rbtgo_lode_immure}
 
+`rbld_immure` —
 Captures the selected podman-machine disk leaves of one quay family into a single {rbtga_lode}
 ({rbtgog_lode}),
 copying each leaf by digest cloud-side into one `{gar_lodes_namespace}/` package under a host-minted {rbtga_touchmark}.
@@ -1807,9 +1847,10 @@ The podvm kind is opaque-blob (like wsl) × multi-member (like reliquary); inten
 include::RBSLI-lode_immure.adoc[]
 
 [[rbtgo_lode_divine]]
-//axvo_method axd_transient axd_grouped
+//axvo_method axd_transient axd_inlaid axd_grouped
 === {rbtgo_lode_divine}
 
+`rbld_divine` —
 Enumerates every {rbtga_lode} under the `{gar_lodes_namespace}/` namespace
 ({rbtgog_lode}),
 reading each {rbtga_touchmark} and its glance fingerprint.
@@ -1819,9 +1860,10 @@ Read-only and kind-agnostic — the kind is decoded from the touchmark's leading
 include::RBSLD-lode_divine.adoc[]
 
 [[rbtgo_lode_augur]]
-//axvo_method axd_transient axd_grouped
+//axvo_method axd_transient axd_inlaid axd_grouped
 === {rbtgo_lode_augur}
 
+`rbld_augur` —
 Augurs a single {rbtga_lode} — inspecting its member tags and decoding its {rbtga_lode_vouch}
 ({rbtgog_lode}).
 Read-only and kind-agnostic; the single-Lode inspect counterpart to {rbtgo_lode_divine} enumeration, paralleling made-side {rbtgo_ark_inspect}.
@@ -1830,9 +1872,10 @@ Read-only and kind-agnostic; the single-Lode inspect counterpart to {rbtgo_lode_
 include::RBSLA-lode_augur.adoc[]
 
 [[rbtgo_lode_banish]]
-//axvo_method axd_transient axd_grouped
+//axvo_method axd_transient axd_inlaid axd_grouped
 === {rbtgo_lode_banish}
 
+`rbld_banish` —
 Banishes a whole {rbtga_lode}
 ({rbtgog_lode})
 via a single GAR `packages delete` on the touchmark package — the atomic whole-Lode delete.
@@ -1844,9 +1887,10 @@ include::RBSLB-lode_banish.adoc[]
 == {rbtr_retriever} Operations
 
 [[rbtgo_hallmark_tally]]
-//axvo_method axd_transient axd_grouped
+//axvo_method axd_transient axd_inlaid axd_grouped
 === {rbtgo_hallmark_tally}
 
+`rbfl_tally` —
 Enumerates every
 {rbtga_ark}
 hallmark in
@@ -1858,9 +1902,10 @@ classifying each by artifact completeness and vouch status.
 include::RBSCL-consecration_tally.adoc[]
 
 [[rbtgo_ark_summon]]
-//axvo_method axd_transient axd_grouped
+//axvo_method axd_transient axd_inlaid axd_grouped
 === {rbtgo_ark_summon}
 
+`rbfr_summon` —
 Summons an
 {rbtga_ark}
 from the repository
@@ -1871,9 +1916,10 @@ retrieving its image, about, and vouch artifacts to the local container runtime.
 include::RBSAS-ark_summon.adoc[]
 
 [[rbtgo_ark_inspect]]
-//axvo_method axd_transient axd_grouped
+//axvo_method axd_transient axd_inlaid axd_grouped
 === {rbtgo_ark_inspect}
 
+`zrbfc_plumb_core` —
 Plumbs an
 {rbtga_ark}
 locally
@@ -1920,9 +1966,10 @@ include::RBSSR-sentry_run.adoc[]
 include::RBSNX-network_connect.adoc[]
 
 [[rbsc_charge]]
-//axvo_procedure axd_transient
+//axvo_procedure axd_transient axd_inlaid
 === {rbsc_charge}
 
+`rbob_charge` —
 Charges a new
 {at_sessile_service}
 through controlled container instantiation and configuration.
@@ -4812,8 +4859,9 @@ Provides context or expected outcomes without requiring action.
 Recipe Bottle orchestration patterns define reusable implementation sequences for system operations.
 
 [[rbtoe_api_enable]]
-//axvo_procedure axd_transient axd_internal
+//axvo_procedure axd_transient axd_internal axd_inlaid
 {rbtoe_api_enable}::
+`rbge_api_enable` —
 A pattern that ensures a specified Google Cloud API is enabled in a project with idempotent behavior:
 
 . attempts to enable the API via serviceusage.services.enable,
@@ -4967,8 +5015,9 @@ A pattern that loads and validates RBRO credentials:
 . returns success when all RBRO variables are loaded and validated.
 
 [[rbtoe_depot_list_update]]
-//axvo_method axd_transient axd_internal
+//axvo_method axd_transient axd_internal axd_inlaid
 {rbtoe_depot_list_update}::
+`zrbgp_depot_list_update` —
 A pattern that synchronizes
 {rbtgi_depot}
 fact-file state after a depot lifecycle mutation:
@@ -4998,8 +5047,9 @@ A pattern that polls a REST endpoint with GET until HTTP 200, confirming resourc
 . {rbbc_fatal} if `RBGC_MAX_CONSISTENCY_SEC` elapsed without success.
 
 [[rbtoe_iam_grant_project]]
-//axvo_procedure axd_transient axd_internal
+//axvo_procedure axd_transient axd_internal axd_inlaid
 {rbtoe_iam_grant_project}::
+`rbgi_add_project_iam_role` —
 A pattern that grants an {giam_role} binding on a GCP project with optimistic concurrency, propagation-delay tolerance, and strong read-back verification:
 
 . {rbbc_call} POST link:https://cloud.google.com/resource-manager/reference/rest/v3/projects/getIamPolicy[projects.getIamPolicy] with policy version 3; {rbbc_require} HTTP 200 (projects always have IAM policies) or {rbbc_fatal},
@@ -5015,8 +5065,9 @@ Propagation retry per <<rbscip_trade_study>> backoff profile (3s initial, 2x mul
 API contract details: <<rbscig_iam_grant_contracts>>.
 
 [[rbtoe_iam_grant_repo]]
-//axvo_procedure axd_transient axd_internal
+//axvo_procedure axd_transient axd_internal axd_inlaid
 {rbtoe_iam_grant_repo}::
+`rbgi_add_repo_iam_role` —
 A pattern that grants an {giam_role} binding on a {gar_registry} repository with propagation-delay tolerance:
 
 . {rbbc_call} link:https://cloud.google.com/artifact-registry/docs/reference/rest/v1/projects.locations.repositories/getIamPolicy[repositories.getIamPolicy] (API proto specifies GET; see <<rbscig_iam_grant_contracts>>); API returns 200 with empty policy for new repositories (never 404),
@@ -5030,8 +5081,9 @@ Propagation retry per <<rbscip_trade_study>> backoff profile (3s initial, 2x mul
 API contract details: <<rbscig_iam_grant_contracts>>.
 
 [[rbtoe_iam_grant_sa]]
-//axvo_procedure axd_transient axd_internal
+//axvo_procedure axd_transient axd_internal axd_inlaid
 {rbtoe_iam_grant_sa}::
+`rbgi_add_sa_iam_role` —
 A pattern that grants an {giam_role} binding on a {giam_service_account} with existence pre-flight and propagation-delay tolerance:
 
 . {rbbc_require} target {giam_service_account} is accessible via link:https://cloud.google.com/iam/docs/reference/rest/v1/projects.serviceAccounts/get[serviceAccounts.get] or {rbbc_fatal},
@@ -5046,8 +5098,9 @@ Propagation retry per <<rbscip_trade_study>> backoff profile (3s initial, 2x mul
 API contract details: <<rbscig_iam_grant_contracts>>.
 
 [[rbtoe_iam_grant_bucket]]
-//axvo_procedure axd_transient axd_internal
+//axvo_procedure axd_transient axd_internal axd_inlaid
 {rbtoe_iam_grant_bucket}::
+`rbgi_add_bucket_iam_role` —
 A pattern that grants an {giam_role} binding on a {gcs_bucket} with propagation-delay tolerance:
 
 . {rbbc_call} GET link:https://cloud.google.com/storage/docs/json_api/v1/buckets/getIamPolicy[buckets.getIamPolicy]; buckets always have IAM policies (200 with inherited bindings; see <<rbscig_iam_grant_contracts>>),
@@ -5061,8 +5114,9 @@ Propagation retry per <<rbscip_trade_study>> backoff profile (3s initial, 2x mul
 API contract details: <<rbscig_iam_grant_contracts>>.
 
 [[rbtoe_iam_grant_secret]]
-//axvo_procedure axd_transient axd_internal
+//axvo_procedure axd_transient axd_internal axd_inlaid
 {rbtoe_iam_grant_secret}::
+`rbgi_grant_secret_iam` —
 A pattern that grants an {giam_role} binding on a Secret Manager secret with propagation-delay tolerance:
 
 . {rbbc_call} GET link:https://cloud.google.com/secret-manager/docs/reference/rest/v1/projects.secrets/getIamPolicy[secrets.getIamPolicy] with `?options.requestedPolicyVersion=3` (Secret Manager proto specifies GET; see <<rbscig_iam_grant_contracts>>); secrets always have IAM policies once created (200 with empty policy; see <<rbscig_iam_grant_contracts>>),
@@ -5134,9 +5188,10 @@ Detailed implementation reference for hygiene contracts enforced inside the
 foundry build pipeline.
 
 [[rbsfh_dockerfile_hygiene]]
-//axvo_procedure axd_transient axd_internal
+//axvo_procedure axd_transient axd_internal axd_inlaid
 === {rbsfh_dockerfile_hygiene}
 
+`rbfh_dockerfile_check` —
 Validates that vessel Dockerfiles preserve the `ARG`/`${RBF_IMAGE_n}`
 parameterization contract on which {rbtgo_ark_kludge} and
 {rbtgo_ark_conjure} rely. Enforced as a fail-fast precondition in both

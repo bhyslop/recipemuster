@@ -262,14 +262,14 @@ detect-only** (read and report; no repair until a verifier exists). Numbered fro
 - **Verifier:** none mechanized in v1 — read and reported by hand. The
   conformance fixture is the future verifier.
 - **Done:** a report of operation-quoin / symbol disagreements; nothing mutated.
-- **Formal dependency:** full mechanical decidability waits on an AXLA arity
-  change — an explicit symbol lookahead on `axvo_procedure` / `axvo_method`
-  (one `mcm_inlay`, the prefix-disciplined source symbol; mirroring
-  `axvo_tabtarget`'s literal lookahead). That change carries a migration across
-  every live operation voicing, so it is deferred to its own pace (see *The
-  AXLA/MCM interface*). Until it lands, the move is read against the existing
-  `axvo_*` voicings — which already mark *which* quoins are operations — plus the
-  implementation symbol named at an operation's detail site (`axhems_scoped_method`).
+- **Formal dependency (satisfied):** the AXLA arity change landed — the
+  `axd_inlaid` dimension on `axvo_procedure` / `axvo_method` declares a
+  one-`mcm_inlay` lookahead reading the literal source symbol (see *The
+  AXLA/MCM interface*). A voicing carrying `axd_inlaid` is mechanically
+  checkable: compare the inlay against the quoin's display-text, and grep the
+  inlay in source. A voicing without it is read as before — the `axvo_*`
+  census marks *which* quoins are operations, and the implementation symbol,
+  where stated, lives at the detail site (`axhems_scoped_method`).
 
 ### 🔍 ACGm_103: typed-parameter lookahead
 
@@ -405,17 +405,21 @@ terms) and backtick sprues.** A dimension that counts "the Nth linked term" (e.g
 `axd_grouped`) counts attribute-references only — a backtick inlay or sprue is a
 distinct token type and does not shift that count.
 
-### Name-identity's symbol-link dependency (deferred)
+### Name-identity's symbol link (landed)
 
-ACGm_102 becomes mechanically decidable only when an operation voicing carries its
-implementing symbol explicitly. The surveyed shape: add a one-`mcm_inlay`
-lookahead to `axvo_procedure` / `axvo_method` reading the literal source symbol
-(the MCM-correct token for a prefix-disciplined name, matching how
-`axhems_scoped_method` already reads an implementation method name). It is an
-*amendment* to two established voicings with many live consumers, not a fresh
-mint, so it carries a real migration and is held for its own deliberate pace
-rather than folded into guide authoring. Recorded here as ACGm_102's named
-dependency; raised and deferred, not dropped.
+ACGm_102's symbol-link dependency is satisfied: `axvo_procedure` /
+`axvo_method` carry an explicit implementing-symbol lookahead, declared by the
+`axd_inlaid` dimension (AXLA, *New Operation Dimension Terms*) and reading one
+`mcm_inlay` — the literal source symbol, first backtick token of the definition
+text. The lookahead is **dimension-declared, not inferred**: presence is
+explicit on the annotation line, and a declared-but-unreadable inlay is a
+malformed voicing, never a silent absence — a bare "optional first token" rule
+would let a typo'd symbol read as symbol-absent and silently drop the site from
+the mechanical census. Voicings without the dimension remain conformant: the
+no-single-symbol exception (move discipline, rule 3) is real — surveyed
+specimens include a wire-subcommand-fronted transport and keystroke-driven
+attended ceremonies — and adoption is driven site-by-site as audits touch each
+pair.
 
 ### The cited-constraint anchor — the rivet
 

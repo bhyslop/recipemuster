@@ -578,8 +578,9 @@ A stale {jjdxo_heartbeat} (mtime exceeding the staleness threshold) indicates th
 {jjdxo_exsanguination} uses {jjdxo_heartbeat} mtime to identify directories safe to reap.
 
 [[jjdxo_exsanguination]]
-//axvo_procedure axd_internal
+//axvo_procedure axd_internal axd_inlaid
 {jjdxo_exsanguination}::
+`zjjrm_exsanguinate` —
 The stale officium reaping procedure.
 Runs at the beginning of each {jjdxo_invitatory}, before creating the new {jjdxo_officium} directory.
 Returns counts of active and reaped officia for {jjdo_open} summary output.
@@ -2157,16 +2158,19 @@ Routines are internal reusable procedures invoked by operations.
 They encapsulate common logic for consistent behavior across the codebase.
 
 [[jjdr_load]]
-//axvo_procedure axd_internal
+//axvo_procedure axd_internal axd_inlaid
 === {jjdr_load}
+
+`jjdr_load`
 
 //axvd_cartouche axd_normative
 include::JJSRLD-load.adoc[]
 
 [[jjdr_hark]]
-//axvo_procedure axd_internal
+//axvo_procedure axd_internal axd_inlaid
 === {jjdr_hark}
 
+`jjdr_hark` —
 Load a {jjdgr_gallops} — and, for {jjdo_show} in hark mode, a heat paddock — from a prior git
 revision rather than the working-tree file, for read-only retrospective display.
 Named for the hunt's _hark back_: turning the line back to an earlier point.
@@ -2189,22 +2193,28 @@ fails to deserialize, and that failure *is* the "too old to hark" signal, surfac
 {jjds_exit_uniform} 0 on a rendered revision; non-zero (surfaced verbatim) on an unresolvable or too-old revision.
 
 [[jjdr_save]]
-//axvo_procedure axd_internal
+//axvo_procedure axd_internal axd_inlaid
 === {jjdr_save}
+
+`jjdr_save`
 
 //axvd_cartouche axd_normative
 include::JJSRSV-save.adoc[]
 
 [[jjdr_persist]]
-//axvo_procedure axd_internal
+//axvo_procedure axd_internal axd_inlaid
 === {jjdr_persist}
+
+`jjri_persist`
 
 //axvd_cartouche axd_normative
 include::JJSRPS-persist.adoc[]
 
 [[jjdr_wrap]]
-//axvo_procedure axd_internal
+//axvo_procedure axd_internal axd_inlaid
 === {jjdr_wrap}
+
+`zjjrx_run_wrap`
 
 //axvd_cartouche axd_normative
 include::JJSRWP-wrap.adoc[]
@@ -2291,8 +2301,9 @@ affiliated with {jjdgr_gallops}.
 === Procedures
 
 [[jjsoprd_revise_docket]]
-//axvo_procedure axd_transient axd_grouped
+//axvo_procedure axd_transient axd_inlaid axd_grouped
 {jjsoprd_revise_docket}::
+`jjrtl_run_revise_docket` —
 Update a {jjdpr_pace_p} docket text, member of {jjsogmc_mcp_commands}.
 Runs within {jjsodp_command_lifecycle} (pace-affiliated).
 +
@@ -2315,21 +2326,24 @@ Runs within {jjsodp_command_lifecycle} (pace-affiliated).
 === Gallops Methods
 
 [[jjsgmrp_resolve_pace]]
-//axvo_method axd_transient
+//axvo_method axd_transient axd_inlaid
 {jjsgmrp_resolve_pace}::
+`jjrg_resolve_pace` —
 Navigate {jjdgr_gallops} from a {jjdt_coronet} to the target {jjdpr_pace} and its current tack state.
 Returns pace context: parsed coronet, firemark key, current state, text, and silks.
 Used by all pace-targeting composed methods as the shared read primitive.
 
 [[jjsgmst_set_tack]]
-//axvo_method axd_transient
+//axvo_method axd_transient axd_inlaid
 {jjsgmst_set_tack}::
+`jjrg_set_tack` —
 Replace a {jjdpr_pace_p} single current tack within {jjdgr_gallops}.
 Used by all pace-mutating composed methods as the shared write primitive; tack evolution is git history (Git as Journal), not an in-JSON array.
 
 [[jjsgmrd_revise_docket]]
-//axvo_method axd_transient
+//axvo_method axd_transient axd_inlaid
 {jjsgmrd_revise_docket}::
+`jjrg_revise_docket` —
 Pure state transform on {jjdgr_gallops} that updates a {jjdpr_pace_p} docket text.
 Takes caller-provided basis SHA and timestamp (I/O captured at procedure boundary).
 +
@@ -2360,29 +2374,37 @@ The {jjdx_mcp} resolves the {jjdgr_gallops} path internally.
 === Write Operations
 
 [[jjdo_create]]
-//axvo_procedure axd_transient
+//axvo_procedure axd_transient axd_inlaid
 ==== {jjdo_create}
+
+`jjrx_run_nominate`
 
 //axvd_cartouche axd_normative
 include::JJSCNO-nominate.adoc[]
 
 [[jjdo_enroll]]
-//axvo_procedure axd_transient
+//axvo_procedure axd_transient axd_inlaid
 ==== {jjdo_enroll}
+
+`jjrsl_run_slate`
 
 //axvd_cartouche axd_normative
 include::JJSCSL-slate.adoc[]
 
 [[jjdo_reorder]]
-//axvo_procedure axd_transient
+//axvo_procedure axd_transient axd_inlaid
 ==== {jjdo_reorder}
+
+`jjrrl_run_rail`
 
 //axvd_cartouche axd_normative
 include::JJSCRL-rail.adoc[]
 
 [[jjdo_relocate]]
-//axvo_procedure axd_transient
+//axvo_procedure axd_transient axd_inlaid
 ==== {jjdo_relocate}
+
+`jjrdr_run_draft`
 
 //axvd_cartouche axd_normative
 include::JJSCDR-draft.adoc[]
@@ -2395,22 +2417,28 @@ include::JJSCDR-draft.adoc[]
 include::JJSCTL-tally.adoc[tag=redocket]
 
 [[jjdo_relabel]]
-//axvo_procedure axd_transient
+//axvo_procedure axd_transient axd_inlaid
 ==== {jjdo_relabel}
+
+`jjrtl_run_relabel`
 
 //axvd_cartouche axd_normative
 include::JJSCTL-tally.adoc[tag=relabel]
 
 [[jjdo_drop]]
-//axvo_procedure axd_transient
+//axvo_procedure axd_transient axd_inlaid
 ==== {jjdo_drop}
+
+`jjrtl_run_drop`
 
 //axvd_cartouche axd_normative
 include::JJSCTL-tally.adoc[tag=drop]
 
 [[jjdo_alter]]
-//axvo_procedure axd_transient
+//axvo_procedure axd_transient axd_inlaid
 ==== {jjdo_alter}
+
+`jjrfu_run_furlough`
 
 //axvd_cartouche axd_normative
 include::JJSCFU-furlough.adoc[]
@@ -2420,29 +2448,37 @@ include::JJSCFU-furlough.adoc[]
 ==== {jjdo_continue}
 
 [[jjdo_transfer]]
-//axvo_procedure axd_transient
+//axvo_procedure axd_transient axd_inlaid
 ==== {jjdo_transfer}
+
+`jjrrs_run`
 
 //axvd_cartouche axd_normative
 include::JJSCRS-restring.adoc[]
 
 [[jjdo_archive]]
-//axvo_procedure axd_transient
+//axvo_procedure axd_transient axd_inlaid
 ==== {jjdo_archive}
+
+`jjrrt_run_retire`
 
 //axvd_cartouche axd_normative
 include::JJSCRT-retire.adoc[]
 
 [[jjdo_close]]
-//axvo_procedure axd_transient
+//axvo_procedure axd_transient axd_inlaid
 ==== {jjdo_close}
+
+`zjjrx_run_wrap`
 
 //axvd_cartouche axd_normative
 include::JJSCWP-wrap.adoc[]
 
 [[jjdo_paddock]]
-//axvo_procedure axd_transient
+//axvo_procedure axd_transient axd_inlaid
 ==== {jjdo_paddock}
+
+`jjrcu_run_curry`
 
 //axvd_cartouche axd_normative
 include::JJSCCU-curry.adoc[]
@@ -2450,57 +2486,73 @@ include::JJSCCU-curry.adoc[]
 === Read Operations
 
 [[jjdo_validate]]
-//axvo_procedure axd_transient
+//axvo_procedure axd_transient axd_inlaid
 ==== {jjdo_validate}
+
+`jjrvl_run_validate`
 
 //axvd_cartouche axd_normative
 include::JJSCVL-validate.adoc[]
 
 [[jjdo_list]]
-//axvo_procedure axd_transient
+//axvo_procedure axd_transient axd_inlaid
 ==== {jjdo_list}
+
+`jjrmu_run_muster`
 
 //axvd_cartouche axd_normative
 include::JJSCMU-muster.adoc[]
 
 [[jjdo_brief]]
-//axvo_procedure axd_transient
+//axvo_procedure axd_transient axd_inlaid
 ==== {jjdo_brief}
+
+`jjrgs_run_get_spec`
 
 //axvd_cartouche axd_normative
 include::JJSCGS-get-spec.adoc[]
 
 [[jjdo_coronets]]
-//axvo_procedure axd_transient
+//axvo_procedure axd_transient axd_inlaid
 ==== {jjdo_coronets}
+
+`jjrgc_run_get_coronets`
 
 //axvd_cartouche axd_normative
 include::JJSCGC-get-coronets.adoc[]
 
 [[jjdo_landing]]
-//axvo_procedure axd_transient
+//axvo_procedure axd_transient axd_inlaid
 ==== {jjdo_landing}
+
+`jjrld_run_landing`
 
 //axvd_cartouche axd_normative
 include::JJSCLD-landing.adoc[]
 
 [[jjdo_orient]]
-//axvo_procedure axd_transient
+//axvo_procedure axd_transient axd_inlaid
 ==== {jjdo_orient}
+
+`jjrsd_run_saddle`
 
 //axvd_cartouche axd_normative
 include::JJSCSD-saddle.adoc[]
 
 [[jjdo_search]]
-//axvo_procedure axd_transient
+//axvo_procedure axd_transient axd_inlaid
 ==== {jjdo_search}
+
+`jjrsc_run_scout`
 
 //axvd_cartouche axd_normative
 include::JJSCSC-scout.adoc[]
 
 [[jjdo_show]]
-//axvo_procedure axd_transient
+//axvo_procedure axd_transient axd_inlaid
 ==== {jjdo_show}
+
+`jjrpd_run_parade`
 
 //axvd_cartouche axd_normative
 include::JJSCPD-parade.adoc[]
@@ -2511,9 +2563,10 @@ Unlike every operation above, the viewer push owns no {jjdgr_gallops} access and
 It is a transient {jjdx_vvx}-surface {jjdx_tool} — a sibling to the tabtarget runner, not a {jjdx_cli} command — that reaches the standalone diagram viewer over paneboard's wire and persists nothing, so it is exempt from the lock → load → save invariant the gallops operations carry.
 
 [[jjdo_render]]
-//axvo_procedure axd_transient
+//axvo_procedure axd_transient axd_inlaid
 ==== {jjdo_render}
 
+`vvx_render` —
 The lower tool behind {jjsuv_unfurl}: read an image and push it to the standalone diagram viewer (see Diagram Viewer).
 Served as the `vvx_render` {jjdx_tool}; it takes no {jjdxo_officium} and touches no {jjdgr_gallops}.
 
@@ -2538,9 +2591,10 @@ Transient: it persists nothing, so it forces no {jjdz_reprieve} episode.
 === Officium Operations
 
 [[jjdo_open]]
-//axvo_procedure axd_transient
+//axvo_procedure axd_transient axd_inlaid
 ==== {jjdo_open}
 
+`zjjrm_handle_open` —
 Create a new {jjdxo_officium} for the calling agent session.
 Takes no parameters; returns the {jjdxo_officium} identity string.
 Mutates no {jjdgr_gallops}; its only reads are the open-time {jjdz_monitum}s — the {jjdz_reprieve} nag and the retention {jjdz_monitum} — each read-only, best-effort, non-gating.
@@ -2588,8 +2642,10 @@ The collection of remote dispatch operations:
 {jjdo_plant}.
 
 [[jjdo_bind]]
-//axvo_procedure axd_transient
+//axvo_procedure axd_transient axd_inlaid
 ==== {jjdo_bind}
+
+`jjrlg_run_bind`
 
 //axhob_operation
 {jjdo_bind}
@@ -2671,8 +2727,10 @@ directory
 token and binding summary
 
 [[jjdo_send]]
-//axvo_procedure axd_transient
+//axvo_procedure axd_transient axd_inlaid
 ==== {jjdo_send}
+
+`jjrlg_run_send`
 
 //axhob_operation
 {jjdo_send}
@@ -2725,8 +2783,10 @@ directory
 . Output remote stdout, stderr, and `Exit: {code}`
 
 [[jjdo_relay]]
-//axvo_procedure axd_transient
+//axvo_procedure axd_transient axd_inlaid
 ==== {jjdo_relay}
+
+`jjrlg_run_relay`
 
 //axhob_operation
 {jjdo_relay}
@@ -2843,8 +2903,10 @@ directory
 token and remote temp directory
 
 [[jjdo_check]]
-//axvo_procedure axd_transient
+//axvo_procedure axd_transient axd_inlaid
 ==== {jjdo_check}
+
+`jjrlg_run_check`
 
 //axhob_operation
 {jjdo_check}
@@ -2929,8 +2991,10 @@ and list files in temp directory
 output file list from `BURX_TEMP_DIR`
 
 [[jjdo_fetch]]
-//axvo_procedure axd_transient
+//axvo_procedure axd_transient axd_inlaid
 ==== {jjdo_fetch}
+
+`jjrlg_run_fetch`
 
 //axhob_operation
 {jjdo_fetch}
@@ -2985,8 +3049,10 @@ directory
 . Output file contents to stdout
 
 [[jjdo_plant]]
-//axvo_procedure axd_transient
+//axvo_procedure axd_transient axd_inlaid
 ==== {jjdo_plant}
+
+`jjrlg_run_plant`
 
 //axhob_operation
 {jjdo_plant}
@@ -3139,22 +3205,28 @@ The {jjdxo_compline} action code `o` is reserved-unused — sessions end without
 See <<jjdxo_invitatory>> and <<jjdxo_compline>> for design rationale.
 
 [[jjdo_log]]
-//axvo_procedure axd_transient
+//axvo_procedure axd_transient axd_inlaid
 ==== {jjdo_log}
+
+`jjrrn_run_rein`
 
 //axvd_cartouche axd_normative
 include::JJSCRN-rein.adoc[]
 
 [[jjdo_record]]
-//axvo_procedure axd_transient
+//axvo_procedure axd_transient axd_inlaid
 ==== {jjdo_record}
+
+`jjrnc_run_notch`
 
 //axvd_cartouche axd_normative
 include::JJSCNC-notch.adoc[]
 
 [[jjdo_chalk]]
-//axvo_procedure axd_transient
+//axvo_procedure axd_transient axd_inlaid
 ==== {jjdo_chalk}
+
+`jjrx_run_chalk`
 
 //axvd_cartouche axd_normative
 include::JJSCCH-chalk.adoc[]

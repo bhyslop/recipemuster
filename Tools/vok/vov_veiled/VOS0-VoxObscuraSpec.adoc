@@ -1298,8 +1298,9 @@ maintained manually or by the build tabtarget.
 The four Obscura distribution operations are defined here at the cosmology top; their procedure bodies live in the consuming subdoc VOSO-distribution.adoc, included below.
 
 [[vosor_release]]
-//axvo_procedure axd_transient
+//axvo_procedure axd_transient axd_inlaid
 {vosor_release}::
+`vob_release` —
 Creates a
 {vose_parcel}
 from the
@@ -1307,8 +1308,9 @@ from the
 Procedure: see VOSO-distribution.adoc.
 
 [[vosoi_install]]
-//axvo_procedure axd_transient
+//axvo_procedure axd_transient axd_inlaid
 {vosoi_install}::
+`vofe_emplace` —
 Deploys a
 {vose_parcel}
 to a
@@ -1316,8 +1318,9 @@ to a
 Procedure: see VOSO-distribution.adoc.
 
 [[vosou_uninstall]]
-//axvo_procedure axd_transient
+//axvo_procedure axd_transient axd_inlaid
 {vosou_uninstall}::
+`vofe_vacate` —
 Removes Claude Code integration (commands, hooks, the CLAUDE.md
 {vose_include_region},
 the vvx binary) while preserving
@@ -1328,8 +1331,9 @@ directories; uses
 Procedure: see VOSO-distribution.adoc.
 
 [[vosof_freshen]]
-//axvo_procedure axd_transient
+//axvo_procedure axd_transient axd_inlaid
 {vosof_freshen}::
+`vofe_freshen_forge` —
 Rebuilds CLAUDE.md's
 {vose_include_region}
 in the
@@ -1378,8 +1382,10 @@ include::VOSRG-guard.adoc[]
 include::VOSRP-probe.adoc[]
 
 [[vosr_init]]
-//axvo_procedure axd_internal
+//axvo_procedure axd_internal axd_inlaid
 === {vosr_init}
+
+`vosr_init`
 
 //axvd_cartouche axd_normative
 include::VOSRI-init.adoc[]

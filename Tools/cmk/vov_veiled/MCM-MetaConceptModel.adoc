@@ -1530,7 +1530,7 @@ entry.
 An
 {mcm_inlay}
 is set permanently into a surface — recognized by its prefix pattern — but not catalogued in the parent document's lexicon.
-Used by hierarchy markers that need to formally identify elements without elevating them to
+Used by hierarchy markers and annotation dimensions that need to formally identify elements without elevating them to
 {mcm_quoin}
 status.
 

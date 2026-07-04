@@ -90,6 +90,7 @@
 :axd_attended:                        <<axd_attended,Attended>>
 :axd_grouped:                         <<axd_grouped,Grouped>>
 :axd_imprint:                         <<axd_imprint,Imprint>>
+:axd_inlaid:                          <<axd_inlaid,Inlaid>>
 :axd_internal:                        <<axd_internal,Internal>>
 :axd_slash_command:                   <<axd_slash_command,Slash Command>>
 :axd_string:                          <<axd_string,String Value>>
@@ -2490,6 +2491,11 @@ Optional
 Optional
 {axd_internal}.
 Optional
+{axd_inlaid}
+(reads one
+{mcm_inlay}
+from following text — the implementing symbol).
+Optional
 {axd_grouped}
 (the second
 {mcm_attribute_reference}
@@ -2520,6 +2526,11 @@ Optional
 {axd_attended}.
 Optional
 {axd_internal}.
+Optional
+{axd_inlaid}
+(reads one
+{mcm_inlay}
+from following text — the implementing symbol).
 Optional
 {axd_grouped}
 (the third
@@ -2624,6 +2635,41 @@ the second linked term must be the group.
 For
 {axvo_method}:
 the third linked term must be the group (second is the entity).
+Valid on
+{axvo_procedure}
+and
+{axvo_method}.
+
+[[axd_inlaid]]
+{axd_inlaid}::
+A
+{axd_dimension}
+indicating that a procedure or method definition carries its implementing symbol.
+1-arity: reads one
+{mcm_inlay}
+from following text — the literal implementing symbol as it appears in source.
+The
+{mcm_inlay}
+is the first backtick token of the definition text;
+by convention it leads the definition body, mirroring
+{axvo_tabtarget}
+sprue placement.
+A backtick token is a distinct token type from an
+{mcm_attribute_reference},
+so the
+{mcm_inlay}
+consumes from the backtick-token stream alone and shifts no dimension's
+attribute-reference counting
+(e.g.
+{axd_grouped}).
+Declared but unreadable is malformed:
+if no backtick token follows, or the first backtick token does not lex as a
+prefix-disciplined
+{mcm_inlay},
+the voicing is in error — never silently read as symbol-absent.
+Absence of the dimension declares either that no single symbol carries the
+link (a composite ceremony, a wire-name-fronted transport) or that the
+symbol is not yet carried.
 Valid on
 {axvo_procedure}
 and
