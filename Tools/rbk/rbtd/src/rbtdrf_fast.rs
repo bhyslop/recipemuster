@@ -71,6 +71,7 @@ const RBTDRF_BUV_VALIDATION: &str = "Tools/buk/buv_validation.sh";
 const RBTDRF_BUC_COMMAND: &str = "Tools/buk/buc_command.sh";
 const RBTDRF_BUYM_YELP: &str = "Tools/buk/buym_yelp.sh";
 const RBTDRF_BUBC_CONSTANTS: &str = "Tools/buk/bubc_constants.sh";
+const RBTDRF_BURD_REGIME: &str = "Tools/buk/burd_regime.sh";
 const RBTDRF_RBLDS_SPINE: &str = "Tools/rbk/rblds_spine.sh";
 
 // ── Helpers ──────────────────────────────────────────────────
@@ -1531,6 +1532,7 @@ fn rbtdrf_rt_lapse_advisory(dir: &Path) -> rbtdre_Verdict {
     let buym_p = rbtdrx_native_to_posix(&root.join(RBTDRF_BUYM_YELP));
     let bubc_p = rbtdrx_native_to_posix(&root.join(RBTDRF_BUBC_CONSTANTS));
     let buv_p = rbtdrx_native_to_posix(&root.join(RBTDRF_BUV_VALIDATION));
+    let burd_p = rbtdrx_native_to_posix(&root.join(RBTDRF_BURD_REGIME));
     let rbk_p = rbtdrx_native_to_posix(&root.join(RBTDRF_RBK_ROOT));
 
     let script = format!(
@@ -1541,6 +1543,7 @@ fn rbtdrf_rt_lapse_advisory(dir: &Path) -> rbtdre_Verdict {
          source '{buym_p}'\n\
          source '{bubc_p}'\n\
          source '{buv_p}'\n\
+         source '{burd_p}'\n\
          source '{rbk_p}/rbrr_regime.sh'\n\
          source '{rbk_p}/rbrd_regime.sh'\n\
          source '{rbk_p}/rbrf_regime.sh'\n\
@@ -1552,6 +1555,7 @@ fn rbtdrf_rt_lapse_advisory(dir: &Path) -> rbtdre_Verdict {
          source '{rbk_p}/rba_auth.sh'\n\
          source '{rbk_p}/rbfcb_host.sh'\n\
          zbuv_kindle\n\
+         zburd_kindle\n\
          source \"${{PWD}}/{moorings}/rbrr.env\"\n\
          source \"${{PWD}}/{moorings}/rbrd.env\"\n\
          zrbrr_kindle\n\
