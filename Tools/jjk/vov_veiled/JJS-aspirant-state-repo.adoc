@@ -40,11 +40,10 @@ A dedicated vvx-driven engine manages the studbook safely; the human never hand-
 All JJ-managed trees are peers in one parent directory — the *infield* (cinched 260704: the
 racing word for the enclosed interior of the track):
 
-* The kit repo (engine, specs) — found by peer-ring convention, no per-repo pointer.
+* `../jjy_app` — the kit repo (engine, specs); found by peer-ring convention, no per-repo
+  pointer (cinched 260704).
   JJ's own infield residents carry the `jjy_` dirname family (mnemonic: yard); hippodromes stay
   consumer-named.
-  Kit dirname micro-fork: operator lean `jjy_app`; `jjy_kit` offered ("app" is leached, "kit"
-  is the project's own word).
 * `../jjy_studbook` — this record repo.
 * Work clones (*hippodromes*) and their transient worktree *billets* (farrier sheaf).
 * The BUK station family (`../station-files/burs.env`, `../logs-buk`, `../temp-buk`,
@@ -259,8 +258,8 @@ one durable home, no parallel memo — refreshed by build learnings.
 * *infield* — the peer ring; cinched 260704, replacing the memo's *garth* seed (G collided
   with gallops). *Heath* was the semantic runner-up (the Newmarket precedent) but collided
   with hippodrome on H.
-* *jjy_* — dirname family for JJ's own infield-resident repos (`jjy_studbook`, the kit repo).
-  Mnemonic: yard.
+* *jjy_* — dirname family for JJ's own infield-resident repos: `jjy_studbook`, `jjy_app`
+  (both cinched 260704). Mnemonic: yard.
 * *warden* — dropped: break is a sequence, not an entity.
 * *seat* — disqualified: per-seat licensing troddenness; near-neighbor collision with RBK's
   minted *unseat*.
@@ -276,7 +275,6 @@ The one genuine seam is the `(work-repo, SHA)` cross-reference both need — her
 
 * Canonical wire form vs. heat-qualified display form for the re-gestalted coronet (gazette
   halter target-typing by length depends on it).
-* Kit-repo dirname: `jjy_app` (operator lean) vs. `jjy_kit`.
 * Insignia glyphs + names (deferred sub-mint, coupled to the pace-identity design pace).
 * Per-heat file sharding as layout (concurrency need dissolved by the lock).
 
