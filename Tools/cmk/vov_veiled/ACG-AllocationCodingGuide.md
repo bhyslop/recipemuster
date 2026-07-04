@@ -147,6 +147,10 @@ draining what is not must never groom away a constraint — or a reason the long
 term depends on. The reasoning is worked in
 `Memos/memo-20260615-acg-pilot-access-probe-findings.md`.
 
+**A deliberate absence is a normative statement like any other.** A mechanism
+considered and declined is homed at the spec in present tense, never as a
+comment at the site where the mechanism would have gone.
+
 ## The fourth clause — wire formats are named homes
 
 A JSON document this project authors on **both sides** — an envelope, a result
@@ -283,6 +287,12 @@ detect-only** (read and report; no repair until a verifier exists). Numbered fro
 - **Detect:** an edit-time comment carrying design-time knowledge — what a thing
   *is*, why it is shaped so, how it relates to other concepts — rather than
   operational mechanics or Palisade characterization.
+- **Sharpest signature — cite-then-restate:** a comment that names its spec home
+  and then paraphrases the home's content beside the citation. The citation
+  itself is the detect hook (spec acronyms and quoin-refs inside comment blocks
+  are mechanically greppable) and the declared-authority question is
+  pre-answered: the cited home is authoritative by the comment's own admission,
+  so the move degenerates directly to citation-collapse.
 - **Authority:** the three-homes table. The spec quoin is the design-time home;
   where no quoin exists, the move creates or extends one, then cites it; where
   the home already carries the content, the move degenerates to
