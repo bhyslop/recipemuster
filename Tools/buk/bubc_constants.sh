@@ -64,7 +64,11 @@ BUBC_windows_fw_display_name="OpenSSH Server"
 # spawn path — share across alternatives, never along a pipeline.
 # No band code is minted outside this block.
 BUBC_band_base=100
-BUBC_band_width=16
+# Terminal width: the ceiling at 124 (timeout/container-runtime codes) fixes
+# the band's maximum extent at 100-123; width 24 claims that whole window, so
+# the band can never widen again. When it fills, capacity comes from the
+# allocation rule (share across alternatives), never from growth.
+BUBC_band_width=24
 # Gate codes, allocated upward from base. The regime-load pipeline crosses
 # two gates in one spawn path — the buv layer (vet value checks + scope
 # sentinel) and the regime module's own custom enforce rules — so per the
@@ -115,8 +119,9 @@ BUBC_band_peruse=113    # terrier read rejection (list/fetch deficit or malforme
 # own (a hygiene refusal, not an admission-path refusal), so it takes the last
 # free code rather than sharing.
 BUBC_band_escheat=114   # terrier escheat rejection (survey list/fetch deficit, raw-expunge unexpected HTTP, or folder-purge failure)
+# Free codes: 115-122, allocated upward from 115.
 # Self-test probe pins the band top, proving full-width propagation:
-BUBC_band_selftest=115  # BUK self-test deliberate rejection (buw-xb fixture)
+BUBC_band_selftest=123  # BUK self-test deliberate rejection (buw-xb fixture)
 
 # Regime-poison tweak (BUS0 Tweak Mechanism; buost_ is BUK's reserved buo
 # segment). The seam is one membrane in buv_regime_enroll — the single buv

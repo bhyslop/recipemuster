@@ -1651,7 +1651,7 @@ An in-band exit status means a named rejection gate fired **on purpose**. Exit `
 - **`buc_reject «code» «message»`** — the rejection *origin*. A gate that has decided to refuse calls it with its band code; `buc_reject` prints the message to stderr and exits with that code. An out-of-band code is a programming error and dies imprecisely.
 - **`buc_die`** — the band *membrane*. It captures `$?`; if the value is in-band it re-exits with that exact code, otherwise it collapses to `1`. This is why existing `cmd || buc_die` chains need no audit: a `buc_reject` deep in a spawn path propagates its code unchanged through every upstream `|| buc_die` to the dispatch boundary, while ordinary failures still flatten to `1`.
 
-The band lives as tinder in `bubc_constants.sh` — `BUBC_band_base` and `BUBC_band_width` fix the range, placed clear of shell-reserved codes (2, 126–128+n), the `sysexits.h` range (64–78), curl's codes (1–92), and `timeout`/container-runtime codes (124–125). Both primitives read that tinder, so a code is in-band only because it was minted there.
+The band lives as tinder in `bubc_constants.sh` — `BUBC_band_base` and `BUBC_band_width` fix the range, placed clear of shell-reserved codes (2, 126–128+n), the `sysexits.h` range (64–78), curl's codes (1–92), and `timeout`/container-runtime codes (124–125). Both primitives read that tinder, so a code is in-band only because it was minted there. The ceiling at 124 fixes the band's maximum extent at 100–123, and `BUBC_band_width=24` claims that whole window — the terminal width, never to widen again. When the band fills, capacity comes from the allocation rule (share across alternatives), never from growth.
 
 ### Allocation rule
 

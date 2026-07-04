@@ -168,7 +168,7 @@ pub const RBTDGC_TWEAK_HTTP_FAULT: &str = "buorb_http_fault";
 
 // BUBC precision exit-code band (bubc_constants.sh) — numeric
 pub const RBTDGC_BAND_BASE: i32 = 100;
-pub const RBTDGC_BAND_WIDTH: i32 = 16;
+pub const RBTDGC_BAND_WIDTH: i32 = 24;
 pub const RBTDGC_BAND_REGIME: i32 = 100;
 pub const RBTDGC_BAND_ENROLL: i32 = 101;
 pub const RBTDGC_BAND_RECIPE: i32 = 102;
@@ -182,7 +182,7 @@ pub const RBTDGC_BAND_VACANT: i32 = 110;
 pub const RBTDGC_BAND_ENGROSS: i32 = 111;
 pub const RBTDGC_BAND_EXPUNGE: i32 = 112;
 pub const RBTDGC_BAND_PERUSE: i32 = 113;
-pub const RBTDGC_BAND_SELFTEST: i32 = 115;
+pub const RBTDGC_BAND_SELFTEST: i32 = 123;
 
 // BUBC regime-poison tweak (bubc_constants.sh) — string
 pub const RBTDGC_TWEAK_REGIME_POISON: &str = "buost_regime_poison";
