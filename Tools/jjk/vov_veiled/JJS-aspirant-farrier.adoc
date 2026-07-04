@@ -41,9 +41,27 @@ right in the MVP so later rungs add without re-minting:
 == Hearting ops (MVP census)
 
 Primitives are *capabilities, not commands* — almost none are ever human-typed.
-Boring names by JJS0 Upper API doctrine, with a principled line: keep the git word where the op
-is a faithful subset of it (an LLM's analogy will be correct); mint fresh where the discipline
-diverges from what the git word implies.
+Boring names by JJS0 Upper API doctrine, with a principled line (re-cinched 260704, superseding
+the earlier keep-the-git-word-on-faithful-subsets rule): *the trait surface is a vocabulary
+Palisade* — git words stop at the driver implementation boundary.
+Below the trait, git vocabulary is the neighbor's own language (Palisade conduct: never
+legislate the neighbor); above it — toothings, specs, error kinds, everything a session reads —
+a git word is interface contamination.
+A faithful-subset git name is correct only up to an invisible boundary, and the boundary is
+exactly what a lesser model does not hold: `commit` fires the amend/stage-all reflex, `push`
+fires force in a recovery scenario — the discipline's forbidden list *is* the git reflex set.
+A fresh word fails loud (the session looks it up — the provisioning pull door exists for
+precisely this); a familiar word fails silent.
+Census names stay boring-register but git-free — distinct and vivid are different axes, and no
+asterism budget is spent below the vivid layer (`advance`, `freshen`, `identify` prove the
+register).
+
+Re-mint due at the census/mint-sweep pace (word-picking happens there, under MCM Lapidary):
+`status`, `commit`, `fetch`, `push`; provisionally the lock trio
+`ref_cas_create`/`ref_cas_delete`/`ref_read` (seed held: the guidon supplies natural verbs —
+plant, read, strike — the maximum-danger facet earning maximum distinctness, against the
+counter-lean that this is vividness creeping below the layer; deliberately unsettled).
+The table keeps the git words until that pace lands, as mulling placeholders only.
 
 [cols="1,1,2,1"]
 |===
