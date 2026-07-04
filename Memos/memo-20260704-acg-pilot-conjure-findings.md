@@ -287,6 +287,29 @@ audit's known-answer discipline applied to a live behavior claim.
   a rivet defined in a sibling spec (RBSAP citing `RBr_b4e`), does it get a
   one-clause reader gist or full residue discipline? This is the DRY-the-
   rationale vs keep-the-load-bearing tension at its hardest.
+- **A8 — Residue form in shipped source** (operator-raised mid-landing; ruling
+  pending). Shipped source never cites a spec acronym: the `.sh` files ship
+  while the closed specs do not, so a readable spec name leaks the veiled
+  tree's structure and dangles for consumers — and it drifts on spec
+  renames/decompositions, where a cited rivet is never renumbered. The residue
+  form is: a rivet ID where a normative proposition needs an anchor at the
+  code (the dirty-tree/pure-chain-head dictum, the graft-ungated camber);
+  *nothing* where name-identity already carries the link (move rule 3 — the
+  symbol/inlay reaches the spec through the census). Spec acronyms remain fine
+  spec-to-spec and in veiled context files. Consequences once ratified: the
+  first tranche's acronym residues re-form (two rivets minted, the rest drop
+  to bare code); the pre-existing acronym citations across shipped source
+  become a detectable corpus-sweep population — roster material, not this
+  pace.
+
+## Addendum — mid-landing state (same day)
+
+First tranche notched at `4dd4ce967`: the findings memo, the RBS0 kludge
+mapping fix, the RBSAC extensions + step marker, and the F1/F2/F3/F4/F7/F9/F11/
+F14 collapses in rbfd_director / rbfcp_plumb / rbfca_assembly — residues in the
+spec-acronym form that A8 now questions. Held for the finish: the A8 ruling and
+residue re-form, rbgjb03/rbgjb04 header shrinks + rbgjr01 layout collapse, ACG
+amendments A1–A5 (+A8), the A6/A7 rulings, the F10 repair call, and reveille.
 
 ## Roster recommendation (recorded for the post-pilot groom)
 
