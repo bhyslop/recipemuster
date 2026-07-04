@@ -609,12 +609,12 @@ zrba_sitting_open() {
   local z_idtoken
   case "${RBRF_MECHANISM}" in
     rbnfe_interactive)
-      buc_step "No live sitting — opening one via device-flow avowal"
+      buc_step "Opening a sitting via device-flow avowal"
       z_idtoken=$(zrba_leg1_idtoken_capture) \
         || buc_die "Avowal failed at Leg 1 (device flow); see the transcript"
       ;;
     rbnfe_programmatic)
-      buc_step "No live sitting — acquiring one via the RFC 7523 programmatic grant"
+      buc_step "Acquiring a sitting via the RFC 7523 programmatic grant"
       z_idtoken=$(zrba_leg1_programmatic_idtoken_capture) \
         || buc_die "Acquisition failed at Leg 1 (RFC 7523 grant); see the transcript"
       ;;
@@ -685,6 +685,7 @@ rba_avow() {
     return 0
   fi
 
+  buc_step "No live sitting — opening a fresh one"
   zrba_sitting_open
 }
 

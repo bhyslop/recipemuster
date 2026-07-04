@@ -159,15 +159,6 @@ pub static RBTDRV_FIXTURE_PARLEY: rbtdre_Fixture = rbtdre_Fixture {
     credless: false,
 };
 
-pub static RBTDRV_FIXTURE_SITTING_NOVATE: rbtdre_Fixture = rbtdre_Fixture {
-    name: crate::rbtdrm_manifest::RBTDRM_FIXTURE_SITTING_NOVATE,
-    disposition: rbtdre_Disposition::Independent,
-    setup: None,
-    teardown: None,
-    cases: RBTDRV_CASES_SITTING_NOVATE,
-    credless: false,
-};
-
 // Chaining-fact livery — the cloud sibling of the local chaining-fact band
 // matrix. A bare cloud fixture (no crucible): the single case self-contains its
 // reset baseline and best-effort cleanup (banish-if-present, body below), so
@@ -2598,10 +2589,12 @@ fn zrbtdrv_runway_gate_arc(ctx: &mut rbtdri_Context, dir: &Path) -> Result<(), r
     Ok(())
 }
 
-/// Picket-tier gate case: the deterministic negative alone. No novate here —
+/// Picket-tier gate case: the deterministic negative alone. No novate step —
 /// novation always forces a fresh sign-in under the interactive mechanism, and
-/// a suite case may not demand a second human click beyond the suite-head avow
-/// (the full round-trip is the operator-invoked sitting-novate fixture).
+/// theurge captures the streams the prompt rides, so NO interactive act may
+/// live inside a fixture (operator ruling 260704 — the retired sitting-novate
+/// fixture is the cautionary precedent). Novate's positive proof is the
+/// operator ceremony: rbw-aN from a terminal, then a promptless plain avow.
 fn rbtdrv_sitting_runway_gate(dir: &Path) -> rbtdre_Verdict {
     rbtdrc_with_ctx(|ctx| {
         if let Err(v) = zrbtdrv_runway_gate_arc(ctx, dir) {
@@ -2611,48 +2604,6 @@ fn rbtdrv_sitting_runway_gate(dir: &Path) -> rbtdre_Verdict {
         rbtdre_Verdict::Pass
     })
 }
-
-/// The full sitting-lifecycle round-trip (operator-invoked, human-present):
-/// gate arc, then novate (force-fresh — the device-flow prompt under the
-/// interactive mechanism, promptless under the programmatic one), then a plain
-/// avow that must reuse promptless — the restored full window clears the floor.
-fn rbtdrv_sitting_novate(dir: &Path) -> rbtdre_Verdict {
-    rbtdrc_with_ctx(|ctx| {
-        if let Err(v) = zrbtdrv_runway_gate_arc(ctx, dir) {
-            return v;
-        }
-
-        crate::rbtdrg_info_now!(
-            "novate always opens a fresh sitting: under the interactive mechanism the \
-             sign-in prompt rides the spawned tabtarget's log (../logs-buk/last.txt) — \
-             watch it there to complete the sign-in"
-        );
-        match rbtdri_invoke_global(ctx, RBTDGC_NOVATE_SITTING, &[], &[]) {
-            Ok(r) if r.exit_code == 0 => {}
-            Ok(r) => return rbtdre_Verdict::Fail(format!(
-                "novate exit {} — complete the sign-in prompt (human-present fixture)\nstdout:\n{}\nstderr:\n{}",
-                r.exit_code, r.stdout, r.stderr
-            )),
-            Err(e) => return rbtdre_Verdict::Fail(format!("novate invocation: {}", e)),
-        }
-        let _ = std::fs::write(dir.join("03-novate.txt"), "novated");
-
-        match rbtdri_invoke_global(ctx, RBTDGC_CHECK_AVOWAL, &[], &[]) {
-            Ok(r) if r.exit_code == 0 => {}
-            Ok(r) => return rbtdre_Verdict::Fail(format!(
-                "post-novate avow exit {} — the novated sitting must clear the floor at reuse\nstdout:\n{}\nstderr:\n{}",
-                r.exit_code, r.stdout, r.stderr
-            )),
-            Err(e) => return rbtdre_Verdict::Fail(format!("post-novate avow invocation: {}", e)),
-        }
-        let _ = std::fs::write(dir.join("04-avow-reuse.txt"), "reused");
-
-        let _ = std::fs::write(dir.join("05-passed.txt"), "passed");
-        rbtdre_Verdict::Pass
-    })
-}
-
-pub static RBTDRV_CASES_SITTING_NOVATE: &[rbtdre_Case] = &[case!(rbtdrv_sitting_novate)];
 
 pub static RBTDRV_CASES_ACCESS_PROBE: &[rbtdre_Case] = &[
     case!(rbtdrv_oauth_payor),
