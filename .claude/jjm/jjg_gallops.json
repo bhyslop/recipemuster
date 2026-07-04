@@ -18697,8 +18697,8 @@
         "₢BqAAA": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260702-1507",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260704-0858",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "Extend the RBS0 contracts ahead of any code (contract-first is a hard predecessor here, per parent-heat doctrine):",
                 "the sitting quoin gains the proactive runway floor (its contract today speaks only of lapse);",
@@ -18721,7 +18721,7 @@
                 "Spec authoring plus one word mint; judgment on register, mechanical on structure."
               ],
               "jjgtn_silks": "sitting-runway-contract",
-              "jjgtn_basis": "be074de"
+              "jjgtn_basis": "619b948"
             }
           ]
         },
