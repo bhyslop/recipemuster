@@ -235,6 +235,305 @@ fn zrbtdrn_render(hits: &[zrbtdrn_Hit]) -> String {
     report
 }
 
+// ── Curl containment scan ───────────────────────────────────
+//
+// The band placement doctrine (BCG "Precision Exit-Code Band", bubc_constants.sh
+// placement comment) bars handing a curl exit status to the buc_die membrane:
+// curl 8.6.0+ mints exit codes 100/101 inside the band window, so a bare
+// `curl ... || buc_die` chain — or a bare curl whose failure propagates under
+// set -e — masquerades as an in-band deliberate rejection at the dispatch
+// boundary. Rather than hunt bad shapes, this scan legislates the one canonical
+// form and errors on everything else (operator ruling 260704):
+//
+//   - a curl invocation must LEAD its line (after comment skip + quote strip);
+//   - its terminator line must end with the byte-exact capture
+//     `|| z_curl_status=$?` — the forced variable name is the point: the scan
+//     verifies the classify step mechanically, no interpretation required;
+//   - the captured z_curl_status must reappear within
+//     ZRBTDRN_CURL_TEST_WINDOW lines of the terminator (the classify/test;
+//     reappearance is checked on RAW lines because the var rides inside the
+//     quoted test operand `"${z_curl_status}"`);
+//   - a curl token anywhere else on a line is a misplaced-curl violation —
+//     sole carve-out `command -v curl`, the presence probe whose `||` hands
+//     command -v's exit onward, never curl's;
+//   - a line whose quoting the line-local paired strip cannot resolve, when it
+//     also carries a curl token, is itself a violation — the scan demands
+//     lines simple enough to scan instead of growing bash-quoting
+//     sophistication.
+
+/// Repo-relative path prefixes exempt from the curl containment scan: retired
+/// code deliberately left untouched, and the in-pool cloud-step trees whose
+/// curl discipline is CBG/JDG dialect (`-f` flags, `|| exit N`, no buc_die) —
+/// the band membrane does not exist there.
+const ZRBTDRN_CURL_EXEMPT_PREFIXES: &[&str] = &[
+    "Tools/rbk/vov_veiled/ABANDONED-github/",
+    "Tools/rbk/rbgj",
+];
+
+/// The byte-exact terminator suffix every curl invocation must carry.
+const ZRBTDRN_CURL_CAPTURE: &str = "|| z_curl_status=$?";
+
+/// Lines after the terminator within which the captured z_curl_status must
+/// reappear. Corpus maximum is rbuh_http's dual-variant if/else, whose first
+/// branch's capture sits 21 lines from the shared test.
+const ZRBTDRN_CURL_TEST_WINDOW: usize = 24;
+
+/// One curl containment violation: where and which rule.
+struct zrbtdrn_CurlHit {
+    path: String,
+    line: usize,
+    kind: &'static str,
+    text: String,
+}
+
+/// Strip paired quote spans from one line, replacing each span with a single
+/// space so token boundaries survive. Backslash-escaped characters inside a
+/// double-quoted span are skipped; single-quoted spans take no escapes (bash
+/// semantics). An unpaired opening quote keeps the remainder verbatim and
+/// reports it — the caller errors when an unscannable line carries a curl
+/// token, rather than this parser growing multi-line string awareness.
+fn zrbtdrn_strip_quoted(line: &str) -> (String, bool) {
+    let chars: Vec<char> = line.chars().collect();
+    let mut out = String::new();
+    let mut i = 0;
+    while i < chars.len() {
+        let c = chars[i];
+        if c == '"' || c == '\'' {
+            let mut j = i + 1;
+            while j < chars.len() {
+                if c == '"' && chars[j] == '\\' {
+                    j += 2;
+                    continue;
+                }
+                if chars[j] == c {
+                    break;
+                }
+                j += 1;
+            }
+            if j < chars.len() {
+                out.push(' ');
+                i = j + 1;
+                continue;
+            }
+            // Unpaired — keep the remainder verbatim and flag it.
+            while i < chars.len() {
+                out.push(chars[i]);
+                i += 1;
+            }
+            return (out, true);
+        }
+        out.push(c);
+        i += 1;
+    }
+    (out, false)
+}
+
+/// True when the stripped line's first token is a curl invocation.
+fn zrbtdrn_curl_leads(stripped: &str) -> bool {
+    let t = stripped.trim_start();
+    match t.strip_prefix("curl") {
+        Some(rest) => rest.is_empty() || rest.starts_with(' ') || rest.starts_with('\t'),
+        None => false,
+    }
+}
+
+/// True when the stripped text carries a bare `curl` token.
+fn zrbtdrn_curl_token(stripped: &str) -> bool {
+    zrbtdrn_tokens(stripped).iter().any(|t| t == "curl")
+}
+
+/// Scan one shell file's contents for curl containment violations. A state
+/// machine per line: comment lines are skipped; a leading-curl invocation is
+/// walked through its backslash continuations to the terminator, which must end
+/// with the canonical capture, followed by a z_curl_status reappearance within
+/// the window; any other line carrying a curl token is misplaced (carve-out:
+/// `command -v curl`) or unscannable (unpaired quote).
+fn zrbtdrn_curl_match(rel_path: &str, content: &str) -> Vec<zrbtdrn_CurlHit> {
+    let lines: Vec<&str> = content.lines().collect();
+    let mut hits: Vec<zrbtdrn_CurlHit> = Vec::new();
+    let hit = |line: usize, kind: &'static str, text: &str| zrbtdrn_CurlHit {
+        path: rel_path.to_string(),
+        line,
+        kind,
+        text: text.trim().to_string(),
+    };
+    let mut i = 0;
+    while i < lines.len() {
+        let raw = lines[i];
+        if raw.trim_start().starts_with('#') {
+            i += 1;
+            continue;
+        }
+        let (stripped, unpaired) = zrbtdrn_strip_quoted(raw);
+        if !zrbtdrn_curl_token(&stripped) {
+            i += 1;
+            continue;
+        }
+        if unpaired {
+            hits.push(hit(i + 1, "unscannable", raw));
+            i += 1;
+            continue;
+        }
+        if !zrbtdrn_curl_leads(&stripped) {
+            if !stripped.contains("command -v curl") {
+                hits.push(hit(i + 1, "misplaced", raw));
+            }
+            i += 1;
+            continue;
+        }
+        // Leading-curl invocation: walk continuations to the terminator.
+        let mut t = i;
+        while t < lines.len() && lines[t].trim_end().ends_with('\\') {
+            t += 1;
+        }
+        if t >= lines.len() {
+            hits.push(hit(i + 1, "uncaptured", raw));
+            break;
+        }
+        let (term_stripped, term_unpaired) = zrbtdrn_strip_quoted(lines[t]);
+        if term_unpaired {
+            hits.push(hit(t + 1, "unscannable", lines[t]));
+        } else if !term_stripped.trim_end().ends_with(ZRBTDRN_CURL_CAPTURE) {
+            hits.push(hit(t + 1, "uncaptured", lines[t]));
+        } else {
+            let window_end = lines.len().min(t + 1 + ZRBTDRN_CURL_TEST_WINDOW);
+            let tested = lines[(t + 1)..window_end]
+                .iter()
+                .any(|l| zrbtdrn_tokens(l).iter().any(|tok| tok == "z_curl_status"));
+            if !tested {
+                hits.push(hit(t + 1, "untested", lines[t]));
+            }
+        }
+        i = t + 1;
+    }
+    hits
+}
+
+/// Render curl hits as a stable one-per-line report.
+fn zrbtdrn_curl_render(hits: &[zrbtdrn_CurlHit]) -> String {
+    let mut report = String::new();
+    for h in hits {
+        report.push_str(&format!("{}:{}: {} — {}\n", h.path, h.line, h.kind, h.text));
+    }
+    report
+}
+
+/// The canonical form clears: reset, leading curl through continuations,
+/// byte-exact capture, test within the window — plus the sanctioned
+/// non-leading shapes (the `command -v curl` probe, quoted message text,
+/// comment lines).
+fn rbtdrn_self_curl_canon_clears(_dir: &Path) -> rbtdre_Verdict {
+    let content = concat!(
+        "z_curl_status=0\n",
+        "curl -sS --max-time 5 \\\n",
+        "  -o \"${z_file}\" \\\n",
+        "  \"${z_url}\" > \"${z_code}\" || z_curl_status=$?\n",
+        "test \"${z_curl_status}\" -eq 0 || buc_die \"probe failed (curl exit ${z_curl_status})\"\n",
+        "command -v curl >/dev/null 2>&1 || buc_die \"curl not found\"\n",
+        "# a bare curl ... || buc_die chain in a comment is ignored\n",
+        "buc_log_args \"retrying (curl exit ${z_curl_status})\"\n",
+    );
+    let hits = zrbtdrn_curl_match("Tools/rbk/probe.sh", content);
+    if hits.is_empty() {
+        rbtdre_Verdict::Pass
+    } else {
+        rbtdre_Verdict::Fail(format!(
+            "canonical form flagged — {} false positive(s):\n{}",
+            hits.len(),
+            zrbtdrn_curl_render(&hits)
+        ))
+    }
+}
+
+/// Each deviant shape is caught with its kind: the bare buc_die chain, the
+/// capture-free invocation, the non-leading invocations (capture-assignment
+/// and pipe), and the captured-but-never-tested window miss.
+fn rbtdrn_self_curl_catches_deviants(_dir: &Path) -> rbtdre_Verdict {
+    let filler = "buc_log_args unrelated\n".repeat(ZRBTDRN_CURL_TEST_WINDOW);
+    let content = format!(
+        concat!(
+            "curl -s \\\n",
+            "  \"${{z_url}}\" || buc_die \"HEAD failed\"\n",
+            "curl -s \"${{z_url}}\" > \"${{z_file}}\"\n",
+            "z_code=$(curl -s -w '%{{http_code}}' \"${{z_url}}\")\n",
+            "echo \"${{z_body}}\" | curl -s -d @- \"${{z_url}}\"\n",
+            "curl -s \"${{z_url}}\" || z_curl_status=$?\n",
+            "{}"
+        ),
+        filler
+    );
+    let hits = zrbtdrn_curl_match("Tools/rbk/probe.sh", &content);
+    let kinds: Vec<&str> = hits.iter().map(|h| h.kind).collect();
+    let expected = ["uncaptured", "uncaptured", "misplaced", "misplaced", "untested"];
+    if kinds != expected {
+        return rbtdre_Verdict::Fail(format!(
+            "deviant shapes misjudged — expected kinds {:?}, got:\n{}",
+            expected,
+            zrbtdrn_curl_render(&hits)
+        ));
+    }
+    rbtdre_Verdict::Pass
+}
+
+/// A line the paired strip cannot resolve, carrying a curl token, is itself a
+/// violation — the scan demands scannable lines rather than parsing abstruse
+/// quoting.
+fn rbtdrn_self_curl_unscannable(_dir: &Path) -> rbtdre_Verdict {
+    let content = "z_json=' | curl -s -d @- \"${z_url}\"\n";
+    let hits = zrbtdrn_curl_match("Tools/rbk/probe.sh", content);
+    if hits.len() != 1 || hits[0].kind != "unscannable" {
+        return rbtdre_Verdict::Fail(format!(
+            "expected exactly 1 unscannable hit, got {}:\n{}",
+            hits.len(),
+            zrbtdrn_curl_render(&hits)
+        ));
+    }
+    rbtdre_Verdict::Pass
+}
+
+/// Live-tree curl containment scan: every .sh file under the scan roots (minus
+/// the exempt prefixes) must hold only canonical-form curl invocations.
+fn rbtdrn_curl_containment(dir: &Path) -> rbtdre_Verdict {
+    let root = match std::env::current_dir() {
+        Ok(r) => r,
+        Err(e) => return rbtdre_Verdict::Fail(format!("cannot get cwd: {}", e)),
+    };
+    let mut files: Vec<PathBuf> = Vec::new();
+    for sub in ZRBTDRN_SCAN_ROOTS {
+        zrbtdrn_walk(&root.join(sub), &mut files);
+    }
+    files.sort();
+
+    let mut hits: Vec<zrbtdrn_CurlHit> = Vec::new();
+    for path in &files {
+        if path.extension().and_then(|e| e.to_str()) != Some("sh") {
+            continue;
+        }
+        let rel = path.strip_prefix(&root).unwrap_or(path).display().to_string();
+        if ZRBTDRN_CURL_EXEMPT_PREFIXES.iter().any(|p| rel.starts_with(p)) {
+            continue;
+        }
+        let content = match std::fs::read_to_string(path) {
+            Ok(c) => c,
+            Err(_) => continue,
+        };
+        hits.extend(zrbtdrn_curl_match(&rel, &content));
+    }
+
+    let report = zrbtdrn_curl_render(&hits);
+    let _ = std::fs::write(dir.join("conformance-curl.txt"), &report);
+
+    if hits.is_empty() {
+        rbtdre_Verdict::Pass
+    } else {
+        rbtdre_Verdict::Fail(format!(
+            "{} curl containment violation(s) in the live tree:\n{}",
+            hits.len(),
+            report
+        ))
+    }
+}
+
 // ── Self-test cases — the checker proves itself ─────────────
 
 /// A synthetic stem that appears in no real source — the self-tests run the
@@ -377,6 +676,10 @@ pub static RBTDRN_CASES_CONFORMANCE: &[rbtdre_Case] = &[
     case!(rbtdrn_self_catch_sprue),
     case!(rbtdrn_self_pure_corpse),
     case!(rbtdrn_live_scan),
+    case!(rbtdrn_self_curl_canon_clears),
+    case!(rbtdrn_self_curl_catches_deviants),
+    case!(rbtdrn_self_curl_unscannable),
+    case!(rbtdrn_curl_containment),
 ];
 
 pub static RBTDRN_FIXTURE_CONFORMANCE: rbtdre_Fixture = rbtdre_Fixture {
