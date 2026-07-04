@@ -12317,6 +12317,7 @@
       "jjghn_creation_time": "260608",
       "jjghn_status": "jjghe_racing",
       "jjghn_order": [
+        "₢BbAAV",
         "₢BbAAH",
         "₢BbAAI",
         "₢BbAAJ",
@@ -12337,7 +12338,7 @@
         "₢BbAAU",
         "₢BbAAR"
       ],
-      "jjghn_next_pace_seed": "AAV",
+      "jjghn_next_pace_seed": "AAW",
       "jjghn_paces": {
         "₢BbAAA": {
           "jjgpn_tacks": [
@@ -13153,6 +13154,32 @@
               ],
               "jjgtn_silks": "rbgc-rba-comment-collapse",
               "jjgtn_basis": "bfe18b1"
+            }
+          ]
+        },
+        "₢BbAAV": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260704-1404",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "Conversational re-orientation; no code, no file edits.",
+                "",
+                "## Goal",
+                "At mount, deliver a plain-language restatement of what this heat is for",
+                "and what the operator is hoping it will buy —",
+                "grounded in the paddock (Shape, Governing idea, Motivating strategy sections),",
+                "delivered trot-style for an operator returning after a break.",
+                "Surface any drift noticed between the paddock's stated aims and where the heat",
+                "actually stands — report it, fix nothing.",
+                "",
+                "## Done when",
+                "Operator says they are re-oriented;",
+                "any noticed paddock drift reported, not repaired."
+              ],
+              "jjgtn_silks": "heat-purpose-reorientation",
+              "jjgtn_basis": "4dd4ce9"
             }
           ]
         }
