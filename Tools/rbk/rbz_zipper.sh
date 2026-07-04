@@ -39,14 +39,16 @@ zrbz_kindle() {
   buz_tome "rbz" "RBTDGC_" "RBZ_"
 
   # Access — credential access probes + the sitting lifecycle (rbw-a): payor
-  # OAuth, federated avowal, mantle don, and the one sitting-lifecycle operator
-  # verb (novate — UPPER: mutates the sitting where the probes only read/open).
+  # OAuth, federated avowal, mantle don, and the sitting-lifecycle operator
+  # verbs (novate — UPPER: mutates the sitting; espy — lower: reads the cache
+  # alone, the group's read-only member).
   buz_group RBZ__GROUP_ACCESS     "rbw-a"   "Access — Credential access probes + sitting lifecycle"
   local z_mod="rbgv_cli.sh"
   buz_enroll RBZ_CHECK_PAYOR             "rbw-ap"  "${z_mod}" "rbgv_check_payor"           ""        "Check the payor credential reaches Google Cloud (OAuth access probe)"
   buz_enroll RBZ_CHECK_AVOWAL       "rbw-aa"  "${z_mod}" "rbgv_check_avowal"     "param1"  "Check federated access — open or reuse a sitting via device flow + STS (Legs 1+2) against the RBRF trust (optional arg: required runway seconds)"
   buz_enroll RBZ_CHECK_MANTLE            "rbw-am"  "${z_mod}" "rbgv_check_mantle"          "param1"  "Check mantle access as the freehold subject — avow, don the named mantle token (rbpa_governor|rbpa_director|rbpa_retriever), reach Artifact Registry, and write the attributed audit entry; or surface the access deficit"
   buz_enroll RBZ_NOVATE_SITTING          "rbw-aN"  "rba_cli.sh" "rba_novate_sitting"       ""        "Novate the sitting — open a fresh full-window sitting, extinguishing any standing one (the runway gate's named remedy)"
+  buz_enroll RBZ_ESPY_SITTING            "rbw-as"  "rba_cli.sh" "rba_espy_sitting"         ""        "Espy the sitting — report whether one is live and how much runway remains, from the cache alone (read-only: never opens, never prompts, no network)"
 
   # Crucible — container runtime (rbw-c)
   buz_group RBZ__GROUP_CRUCIBLE   "rbw-c"   "Crucible — Container runtime"

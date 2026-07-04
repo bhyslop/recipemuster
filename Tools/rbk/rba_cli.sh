@@ -18,11 +18,11 @@
 #
 # RBA CLI - Recipe Bottle Auth command-line interface
 #
-# Surfaces the sitting-lifecycle operator verb (novate) as a tabtarget — the
-# one operator-invoked surface on the sitting lifecycle, where avow itself
-# never is (RBS0 rbtf_novate). Thin arm over the rba library: the furnish
-# carries only the avowal-path stack (trust + manor pool + OAuth transport),
-# none of the depot/don machinery the probe CLI (rbgv_cli.sh) pulls.
+# Surfaces the sitting-lifecycle operator verbs as tabtargets — where avow
+# itself never is: novate, the one mutating surface (RBS0 rbtf_novate), and
+# espy, the read-only probe (RBS0 rbtf_espy). Thin arm over the rba library:
+# the furnish carries only the avowal-path stack (trust + manor pool + OAuth
+# transport), none of the depot/don machinery the probe CLI (rbgv_cli.sh) pulls.
 
 set -euo pipefail
 
@@ -59,6 +59,58 @@ rba_novate_sitting() {
   buc_success "Sitting novated — fresh full-window federated token obtained (${#z_token} chars)"
 }
 
+# Espy the sitting — the read-only probe (RBS0 rbtf_espy): report whether a
+# sitting is live and how much runway remains, from the cache alone — never
+# opening one, never prompting, no network. An absent or lapsed sitting is a
+# reported verdict, exit 0 (the descry precedent, RBSFD); only a broken read
+# dies. Liveness and sufficiency judgments belong to the callers: the verdict
+# rides a fact file keyed by the active foedus, the branch point for the
+# theurge gate arc's fail-fast before its may-prompt baseline avow.
+rba_espy_sitting() {
+  zrba_sentinel
+  buc_doc_brief "Espy the sitting — report liveness and remaining runway from the cache alone (read-only: never opens, never prompts, no network)"
+  buc_doc_shown || return 0
+
+  buc_step "Espy — sitting state against the RBRF trust"
+  rbcc_source_active_rbrf
+  source "${RBCC_rbrw_file}" || buc_die "Failed to source RBRW: ${RBCC_rbrw_file}"
+  zrbrf_kindle
+  zrbrw_kindle
+  zrbrf_enforce
+  zrbrw_enforce
+
+  local z_path
+  z_path=$(zrba_sitting_path_capture) || buc_die "Failed to resolve the sitting cache path"
+
+  # Verdict: absent (no cache), else live/lapsed by the skew-gated predicate.
+  # Runway is reported raw (a lapsed sitting inside the skew window may still
+  # show a few seconds) — the probe reports, it never judges sufficiency.
+  local z_verdict=""
+  local z_runway=""
+  if test ! -f "${z_path}"; then
+    z_verdict="absent"
+  else
+    z_runway=$(zrba_sitting_runway_capture) || buc_die "Sitting cache present but unreadable: ${z_path}"
+    if zrba_sitting_live_predicate; then
+      z_verdict="live"
+    else
+      z_verdict="lapsed"
+    fi
+  fi
+
+  local z_value="verdict=${z_verdict}"
+  test -z "${z_runway}" || z_value="${z_value}
+runway=${z_runway}"
+  buf_write_fact_multi "${RBRR_ACTIVE_FOEDUS}" "${RBCC_fact_ext_sitting}" "${z_value}" \
+    || buc_die "Failed to write the sitting fact"
+
+  if test "${z_verdict}" = "live"; then
+    buc_success "Sitting LIVE — runway ${z_runway}s (~$(( z_runway / 3600 ))h$(( (z_runway % 3600) / 60 ))m remaining)"
+  else
+    buc_warn "No live sitting — verdict '${z_verdict}'; open one with any federated command or rbw-aN (fresh full window)"
+  fi
+}
+
 ######################################################################
 # Furnish and Main
 
@@ -70,6 +122,7 @@ zrba_furnish() {
   local z_rbk="${BASH_SOURCE[0]%/*}"
   source "${BURD_BUK_DIR}/buv_validation.sh"
   source "${BURD_BUK_DIR}/burd_regime.sh"
+  source "${BURD_BUK_DIR}/buf_fact.sh"
   source "${z_rbk}/rbrr_regime.sh"
   source "${z_rbk}/rbrf_regime.sh"
   source "${z_rbk}/rbrw_regime.sh"

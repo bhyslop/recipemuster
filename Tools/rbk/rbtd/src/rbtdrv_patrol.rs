@@ -44,7 +44,7 @@ use crate::rbtdgc_consts::{
     RBTDGC_CANVASS_FOEDUS,
     RBTDGC_CHECK_AVOWAL, RBTDGC_CHECK_MANTLE,
     RBTDGC_CHECK_PAYOR, RBTDGC_CONCLAVE_RELIQUARY, RBTDGC_DESCRY_FOEDUS,
-    RBTDGC_DIVINE_LODES, RBTDGC_ENSCONCE_BOLE, RBTDGC_FACT_EXT_FOEDUS, RBTDGC_FACT_EXT_FOEDUS_HEALTH, RBTDGC_FEOFF_BOLE,
+    RBTDGC_DIVINE_LODES, RBTDGC_ENSCONCE_BOLE, RBTDGC_ESPY_SITTING, RBTDGC_FACT_EXT_FOEDUS, RBTDGC_FACT_EXT_FOEDUS_HEALTH, RBTDGC_FACT_EXT_SITTING, RBTDGC_FEOFF_BOLE,
     RBTDGC_FOEDERA_SUBDIR, RBTDGC_FREEHOLD_SUBJECT, RBTDGC_IMMURE_PODVM, RBTDGC_INSTATE_FOEDUS,
     RBTDGC_JETTISON_HALLMARK_IMAGE, RBTDGC_JETTISON_IMAGE, RBTDGC_JILT_MANOR, RBTDGC_LIST_IMAGES,
     RBTDGC_MANTLE_DIRECTOR, RBTDGC_MANTLE_GOVERNOR, RBTDGC_MANTLE_RETRIEVER, RBTDGC_MOORINGS_DIR,
@@ -2539,22 +2539,59 @@ fn rbtdrv_oauth_payor(dir: &Path) -> rbtdre_Verdict {
 /// per-operation channel), never a test-only back door.
 const RBTDRV_RUNWAY_IMPOSSIBLE_SEC: &str = "999999";
 
-/// The deterministic gate arc: baseline avow (open-or-reuse — the one may-prompt
-/// step when no sitting is live), then demand an impossible runway and assert
-/// the EXACT runway band plus the novate advisory (the rejection must name the
+/// The deterministic gate arc: espy the sitting read-only and fail fast when
+/// none is live — the fixture never prompts and never waits on a device
+/// window (operator ruling 260704: no interactive act may live inside a
+/// theurge fixture) — then a promptless baseline avow (reuse by
+/// construction), then demand an impossible runway and assert the EXACT
+/// runway band plus the novate advisory (the rejection must name the
 /// remedy's colophon). Never weakened to bare-nonzero, per band doctrine.
-/// Shared by the picket access-probe case and the sitting-novate round-trip.
 ///
 /// Stream note: the launcher's self-logging merges the spawned tabtarget's
 /// stderr into stdout (surveyed 260704 — captured stderr arrives empty), so
 /// the advisory is asserted against BOTH streams and forensics print both.
 fn zrbtdrv_runway_gate_arc(ctx: &mut rbtdri_Context, dir: &Path) -> Result<(), rbtdre_Verdict> {
-    crate::rbtdrg_info_now!(
-        "baseline avow: reuses a live sitting; if none is live, the device-flow sign-in \
-         prompt rides the spawned tabtarget's log (../logs-buk/last.txt) — complete it \
-         there, or Ctrl+C and open a sitting from a terminal with {}",
-        RBTDGC_CHECK_AVOWAL
-    );
+    // Fail-fast: the read-only espy replaces the blind device-window poll the
+    // operator hit (260704) — a dead sitting is reported in seconds with the
+    // open-a-sitting instruction, never waited out to the device-code expiry.
+    let espy = match rbtdri_invoke_global(ctx, RBTDGC_ESPY_SITTING, &[], &[]) {
+        Ok(r) if r.exit_code == 0 => r,
+        Ok(r) => return Err(rbtdre_Verdict::Fail(format!(
+            "sitting espy exited {} — the probe reports verdicts and should never reject\nstdout:\n{}\nstderr:\n{}",
+            r.exit_code, r.stdout, r.stderr
+        ))),
+        Err(e) => return Err(rbtdre_Verdict::Fail(format!("sitting espy invocation: {}", e))),
+    };
+    let _ = std::fs::write(dir.join("00-espy-stdout.txt"), &espy.stdout);
+    let _ = std::fs::write(dir.join("00-espy-stderr.txt"), &espy.stderr);
+
+    let roots = match rbtdri_read_burv_facts_multi(&espy, RBTDGC_FACT_EXT_SITTING) {
+        Ok(r) => r,
+        Err(e) => return Err(rbtdre_Verdict::Fail(format!("espy wrote no sitting fact: {}", e))),
+    };
+    let root = match roots.as_slice() {
+        [one] => one.clone(),
+        other => return Err(rbtdre_Verdict::Fail(format!(
+            "expected exactly one {} fact from espy, got {:?}",
+            RBTDGC_FACT_EXT_SITTING, other
+        ))),
+    };
+    let fact = match rbtdri_read_burv_fact(&espy, &format!("{}.{}", root, RBTDGC_FACT_EXT_SITTING)) {
+        Ok(f) => f,
+        Err(e) => return Err(rbtdre_Verdict::Fail(format!("sitting fact unreadable: {}", e))),
+    };
+    // The verdict token "live" is espy's (rba_espy_sitting / RBCC_fact_ext_sitting).
+    if !fact.lines().any(|l| l.trim() == "verdict=live") {
+        return Err(rbtdre_Verdict::Fail(format!(
+            "no live sitting ({}) — open one from a terminal with {} (one device-flow \
+             sign-in) or {} (fresh full window), then re-run",
+            fact.replace('\n', ", "), RBTDGC_CHECK_AVOWAL, RBTDGC_NOVATE_SITTING
+        )));
+    }
+
+    // Baseline avow — promptless by construction: espy just proved a live
+    // sitting, so this rides the reuse path (a short sitting band-rejects
+    // deterministically at the runway gate; it never opens a device window).
     match rbtdri_invoke_global(ctx, RBTDGC_CHECK_AVOWAL, &[], &[]) {
         Ok(r) if r.exit_code == 0 => {}
         Ok(r) => return Err(rbtdre_Verdict::Fail(format!(

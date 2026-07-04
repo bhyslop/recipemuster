@@ -610,6 +610,7 @@
 :rbtf_avow:               <<rbtf_avow,Avow>>
 :rbtf_sitting:                <<rbtf_sitting,Sitting>>
 :rbtf_novate:                <<rbtf_novate,Novate>>
+:rbtf_espy:                  <<rbtf_espy,Espy>>
 :rbtf_don:                   <<rbtf_don,Don>>
 :rbtf_brevet:                <<rbtf_brevet,Brevet>>
 :rbtf_gird:                  <<rbtf_gird,Gird>>
@@ -2199,10 +2200,28 @@ The force-fresh renewal act (law: _novation_ — extinguishing an obligation by 
 that bypasses the sitting-reuse branch and atomically overwrites the standing
 {rbtf_sitting}
 with a freshly-opened, full-window one.
-The remedy the runway floor names when it turns a short sitting away, and the one operator-invoked surface on the sitting lifecycle — a tabtarget, where
+The remedy the runway floor names when it turns a short sitting away, and the sitting lifecycle's one mutating operator surface — a tabtarget, beside the read-only
+{rbtf_espy},
+where
 {rbtf_avow}
 itself never is.
 Renewal-only by decision: no release or clear verb exists anywhere — the fresh sitting extinguishing the old is the entire mechanism, and a standing sitting is otherwise only outlived, never deleted.
+
+[[rbtf_espy]]
+{rbtf_espy}::
+The read-only sitting probe (to espy: to catch sight of, without approaching): report whether a
+{rbtf_sitting}
+is live and how much runway remains, from the cache alone — never opening one, never prompting, never touching the network.
+An absent or lapsed sitting is a reported verdict, never a rejection;
+liveness and sufficiency judgments belong to the consumers.
+The founding consumer is the test harness's fail-fast:
+a fixture consults the probe and fails immediately with the open-a-sitting instruction when no sitting is live,
+rather than blind-polling a device window no one will answer — no interactive act may live inside a fixture.
+The read-only sibling of
+{rbtf_novate}
+on the sitting-lifecycle operator surface: espy reads, novate replaces, and
+{rbtf_avow}
+is surfaced through neither.
 
 [[rbtf_don]]
 {rbtf_don}::

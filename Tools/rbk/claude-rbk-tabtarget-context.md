@@ -18,6 +18,7 @@ The Folio column shows how each tabtarget receives it:
 | `rbw-aa` | CheckFederatedAccess | param1 | Check federated access — open or reuse a sitting via device flow + STS (Legs 1+2) against the RBRF trust (optional arg: required runway seconds) |
 | `rbw-am` | CheckMantleAccess | param1 | Check mantle access as the freehold subject — avow, don the named mantle token (rbpa_governor|rbpa_director|rbpa_retriever), reach Artifact Registry, and write the attributed audit entry; or surface the access deficit |
 | `rbw-aN` | NovateSitting | — | Novate the sitting — open a fresh full-window sitting, extinguishing any standing one (the runway gate's named remedy) |
+| `rbw-as` | EspySitting | — | Espy the sitting — report whether one is live and how much runway remains, from the cache alone (read-only: never opens, never prompts, no network) |
 
 ### Crucible — Container runtime (`rbw-c`)
 

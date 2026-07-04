@@ -168,6 +168,11 @@ RBCC_fact_ext_foedus_health="foedus-health"
 # when the Manor holds a provider the library does not know), carrying
 # provider=/state=/selected= lines; selected marks the RBRR_ACTIVE_FOEDUS foedus.
 RBCC_fact_ext_foedus="foedus"
+# Sitting espy verdict — the read-only probe (rba_espy_sitting) writes
+# <foedus>.sitting carrying verdict= (live / lapsed / absent) and, when the
+# cache holds an expiry, runway= (whole seconds remaining) — for the theurge
+# gate arc to branch on before the may-prompt baseline avow (RBS0 rbtf_espy).
+RBCC_fact_ext_sitting="sitting"
 
 # Tweak-name tinder — RB-owned BURE_TWEAK_NAME values (buo sprue, BUS0 Tweak
 # Mechanism). The credless guard is the reveille-tier slot reservation: theurge
@@ -276,6 +281,7 @@ rbcc_emit_consts() {
     RBCC_foedera_subdir  \
     RBCC_fact_ext_foedus_health \
     RBCC_fact_ext_foedus \
+    RBCC_fact_ext_sitting \
     RBCC_verb_defrock     \
     RBCC_verb_enrobe     \
     RBCC_verb_roster     \
