@@ -46,7 +46,7 @@ an earlier revision of this paddock paraphrased the guide and has been drained).
   the access-probe pair carries known-positive paraphrase/ornament specimens,
   so the audit proves itself against a known answer;
   the conjure pair is the richest surface and the scale test,
-  gated with the rest of the ₣BH lane.
+  originally gated behind the ₣BH lane (since landed).
 - Pilots execute at top model tier in the operator's chat;
   delegation to lesser tiers is for the post-pilot roster only,
   after ACG hardens.
@@ -82,34 +82,36 @@ an earlier revision of this paddock paraphrased the guide and has been drained).
 
 ## Sequencing & lanes
 
-Ungated front, in order: the access-probe pilot next,
-then the cited-constraint anchor design,
-then the jailer dialect guide,
-then the sentry collapse landings the anchor mechanism gates.
-The BUK test-vocab mint and the axvo symbol-lookahead amendment ride the back
-of the ungated front:
-the mint is self-contained in BUS0,
-and the axvo pace is only partially gated —
-its RBS0 migration share defers until ₣BH lands.
+₣BH landed and retired; every gate it imposed on this heat is open.
+The remaining slate is fully workable except one deferral noted below.
 
-The rest of the heat is gated on ₣BH:
-
-- Eviction (removing superseded terms) — ₣BH curates the KILL/KEEP list;
-  the standing conformance engine's rows populate per-cluster behind ₣BH's
-  cutovers.
-  ACG names that engine the canonical home for evicted-term assertions.
-- The conjure pilot — its surface is under active ₣BH rewrite;
-  findings against it now would go stale.
-- The rbrv.env single-home sweeps and the noun-cluster curation —
-  their files share ₣BH's rewrite surface.
-- Cluster repair (curating living vocabulary to a single home) is disjoint from
-  eviction and never removes terms.
+Front, in order:
+the axvo symbol-lookahead amendment first —
+it makes ACGm_102 mechanically decidable,
+hardening the move catalog before the third pilot exercises it;
+then the conjure pilot,
+whose roster recommendation the post-pilot groom needs;
+then the rbrv.env single-home sweeps
+(bash first, the rust projection riding immediately behind it)
+and the two noun-cluster curations, all unblocked by ₣BH's landing.
+The two cross-language consolidation paces are Fable-session design work,
+order-free, workable whenever a Fable chat is open.
+The command-exposure voicing family runs last:
+its AXLA/BUS0 share is ungated,
+but its RBS0 membrane names concrete colophons across federation surface
+₣Bf is still moving,
+so the pace cannot wrap until that lane settles.
 
 Triage rider across all audit work:
-Manor / Depot / account-role vocabulary is ₣BZ's lane and
-reliquary / Lode / Hallmark vocabulary is ₣BH's — report, never touch.
+reliquary / Lode / Hallmark vocabulary settled when ₣BH's terminal scrub
+landed,
+but term curation against it stays out of this heat's scope —
+allocation findings only.
+Manor / Depot / federation vocabulary remains ₣BZ/₣Bf's lane
+(₣BZ complete but unretired; ₣Bf racing with active federation commits) —
+report, never touch, until ₣Bf retires.
 Verb clusters stay unslated until their owning heats land;
-slating against terms two hot heats are still moving would re-create the drift
+slating against terms a hot heat is still moving would re-create the drift
 this heat exists to kill.
 
 ## Done looks like

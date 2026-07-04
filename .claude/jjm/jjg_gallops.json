@@ -12411,12 +12411,11 @@
         "₢BbAAC": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260612-1150",
+              "jjgtn_ts": "260704-1222",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "## Character",
-                "Stable-noun curation — terms are BH/BZ-safe so the docket is concrete,",
-                "but execution is file-gated on BH.",
+                "Stable-noun curation — terms are BH/BZ-safe so the docket is concrete.",
                 "Tier: opus — the drift-vs-legitimate-mention call is judgment, not mechanics.",
                 "",
                 "## Goal",
@@ -12436,29 +12435,29 @@
                 "- Apply ACG's reference-the-home discipline.",
                 "",
                 "## Gate",
-                "After ₣BH lands — these descriptions live in",
-                "rbz_zipper.sh and the doc_briefs BH is rewriting.",
+                "None — ₣BH landed;",
+                "the rbz_zipper.sh enrollment descriptions and doc_briefs it was rewriting are",
+                "stable.",
                 "",
                 "## Done when",
                 "Each cluster noun traces to one home;",
                 "descriptions and doc_briefs consistent;",
                 "no variant spellings or in-source re-definitions survive;",
-                "fast green."
+                "reveille green (tt/rbw-ts.TestSuite.reveille.sh)."
               ],
               "jjgtn_silks": "noun-cluster-crucible-family",
-              "jjgtn_basis": "817ab83"
+              "jjgtn_basis": "03ca13a"
             }
           ]
         },
         "₢BbAAD": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260612-1150",
+              "jjgtn_ts": "260704-1222",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "## Character",
-                "Stable-noun curation — terms are BH/BZ-safe so the docket is concrete,",
-                "but execution is file-gated on BH.",
+                "Stable-noun curation — terms are BH/BZ-safe so the docket is concrete.",
                 "Tier: opus — the drift-vs-legitimate-mention call is judgment, not mechanics.",
                 "",
                 "## Goal",
@@ -12481,24 +12480,25 @@
                 "- Apply ACG's reference-the-home discipline.",
                 "",
                 "## Gate",
-                "After ₣BH lands — these descriptions live in",
-                "rbz_zipper.sh and the doc_briefs BH is rewriting.",
+                "None — ₣BH landed;",
+                "the rbz_zipper.sh enrollment descriptions and doc_briefs it was rewriting are",
+                "stable.",
                 "",
                 "## Done when",
                 "Each cluster noun traces to one home;",
                 "descriptions and doc_briefs consistent;",
                 "no variant spellings or in-source re-definitions survive;",
-                "fast green."
+                "reveille green (tt/rbw-ts.TestSuite.reveille.sh)."
               ],
               "jjgtn_silks": "noun-cluster-vessel-identity",
-              "jjgtn_basis": "817ab83"
+              "jjgtn_basis": "03ca13a"
             }
           ]
         },
         "₢BbAAE": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260612-1150",
+              "jjgtn_ts": "260704-1222",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "## Character",
@@ -12520,17 +12520,14 @@
                 "but confirm against MCM \"warrants anchoring\".",
                 "",
                 "## Gate",
-                "After ₣BH lands.",
-                "This sweep's path-construction sites overlap BH's active rewrite surface —",
-                "the inscribe cutover repoints the yoke and Director-track rbrv.env handling,",
-                "and BH's terminal vocab scrub greps the whole tree last —",
-                "so landing this in a parallel repo before BH's tail would guarantee a merge",
-                "conflict.",
-                "Run it after BH is done, in the main line.",
+                "None — ₣BH landed and retired; run in the main line.",
                 "",
                 "## Cinched",
                 "- Constant joins the RBCC_rbr*_file family in rbcc_constants.sh",
-                "  (sibling to RBCC_rbrn_file / rbra_file / rbro_file),",
+                "  (sibling to the basename-style RBCC_rbrn_file / RBCC_rbro_file;",
+                "  the former rbra and rbrf members have since retired —",
+                "  keyfile estate and selector-derived federation resolve respectively —",
+                "  which does not disturb the basename-constant shape for a per-vessel file),",
                 "  with a breadcrumb to its spec quoin.",
                 "- Sweep only genuine path constructions.",
                 "  Discover: grep -rn \"rbrv\\.env\" Tools/rbk --include=\"*.sh\";",
@@ -12541,17 +12538,17 @@
                 "Every bash path-construction resolves through the constant;",
                 "prose literals untouched;",
                 "the constant carries its quoin breadcrumb;",
-                "tt/rbw-tl.Shellcheck.sh and tt/rbw-ts.TestSuite.fast.sh green."
+                "tt/rbw-tl.Shellcheck.sh and tt/rbw-ts.TestSuite.reveille.sh green."
               ],
               "jjgtn_silks": "rbrv-env-bash-sweep",
-              "jjgtn_basis": "817ab83"
+              "jjgtn_basis": "03ca13a"
             }
           ]
         },
         "₢BbAAF": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260612-1148",
+              "jjgtn_ts": "260704-1222",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "## Character",
@@ -12568,20 +12565,19 @@
                 "it projects from the bash RBCC_rbrv_file through rbcc_emit_consts",
                 "(rbcc_constants.sh), and rbtdgc_consts.rs is marked \"Do not edit.\"",
                 "The bash constant is established by the bash rbrv single-home pace immediately",
-                "preceding,",
-                "so this pace rides on it and inherits that pace's ₣BH gate transitively —",
-                "it is not independently doable before ₣BH despite carrying no gate of its own.",
+                "preceding; this pace rides directly on it.",
                 "",
                 "## Cinched",
                 "- Establish RBTDGC_RBRV_FILE by projection:",
                 "  ensure RBCC_rbrv_file is in the rbcc_emit_consts list and regenerate with",
                 "  tt/rbw-tb.Build.sh.",
-                "  Joins the RBTDGC_RBRN_FILE / RBRA_FILE / RBRO_FILE family.",
+                "  Joins the RBTDGC_RBRN_FILE / RBTDGC_RBRO_FILE family.",
                 "  Never hand-edit the generated rbtdgc_consts.rs.",
-                "- Collapse the two ad-hoc local consts onto it —",
-                "  discover the `const ... = \"rbrv.env\"` definitions in rbtdro_onboarding.rs and",
-                "  rbtdrp_pristine.rs —",
-                "  and replace the bare `path.join(\"rbrv.env\")` magic strings.",
+                "- Collapse the ad-hoc local consts onto it and replace the bare",
+                "  `path.join(\"rbrv.env\")` magic strings.",
+                "  Discover: grep -rn '\"rbrv.env\"' Tools/rbk/rbtd/src;",
+                "  the known entry point is RBTDRE_VESSEL_RBRV_FILE in rbtdre_engine.rs,",
+                "  whose comment already asks for the rbcc source of truth.",
                 "  Comments and error-format-strings keep the literal.",
                 "",
                 "## Done when",
@@ -12591,14 +12587,14 @@
                 "tt/rbw-tb.Build.sh and tt/rbw-tt.Test.sh green."
               ],
               "jjgtn_silks": "rbrv-env-rust-sweep",
-              "jjgtn_basis": "1c32c50"
+              "jjgtn_basis": "03ca13a"
             }
           ]
         },
         "₢BbAAG": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260612-1148",
+              "jjgtn_ts": "260704-1222",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "## Character",
@@ -12632,10 +12628,8 @@
                 "  so it does not shift axd_grouped's \"Nth linked term\" counting.",
                 "",
                 "## Gate",
-                "Partial.",
-                "The AXLA grammar amendment and the JJS0/VOS0 voicing migrations are ungated;",
-                "the RBS0 share of the migration overlaps ₣BH's active rewrite surface and",
-                "defers until ₣BH lands.",
+                "None — ₣BH landed and retired;",
+                "the formerly deferred RBS0 migration share is workable with the rest.",
                 "",
                 "## Done when",
                 "axvo_procedure / axvo_method carry the symbol lookahead with AXLA grammar prose",
@@ -12645,7 +12639,7 @@
                 "ACGm_102's dependency note flips to satisfied."
               ],
               "jjgtn_silks": "axvo-symbol-lookahead",
-              "jjgtn_basis": "1c32c50"
+              "jjgtn_basis": "03ca13a"
             }
           ]
         },
@@ -12802,7 +12796,7 @@
         "₢BbAAK": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260612-1150",
+              "jjgtn_ts": "260704-1222",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "## Character",
@@ -12810,17 +12804,14 @@
                 "multi-module pairing.",
                 "",
                 "## Gate",
-                "Two gates, both hard:",
-                "",
-                "- Top-tier model only (Fable-class at slating), worked in the operator's chat —",
-                "  never mount or delegate this pace at a lesser tier.",
-                "  The pilot's primary deliverable is ACG amendment judgment plus the roster",
-                "  recommendation, and delegation makes that feedback secondhand.",
-                "  If mounted on a lesser tier, stop and tell the operator instead of proceeding.",
-                "- After ₣BH lands —",
-                "  the conjure surface is under active ₣BH rewrite",
-                "  (ensconce cutover, anchor wiring);",
-                "  findings against it now go stale.",
+                "One gate, hard:",
+                "top-tier model only (Fable-class at slating), worked in the operator's chat —",
+                "never mount or delegate this pace at a lesser tier.",
+                "The pilot's primary deliverable is ACG amendment judgment plus the roster",
+                "recommendation, and delegation makes that feedback secondhand.",
+                "If mounted on a lesser tier, stop and tell the operator instead of proceeding.",
+                "(The former second gate — after ₣BH lands — is satisfied: ₣BH landed and",
+                "retired.)",
                 "",
                 "## Goal",
                 "Audit the conjure pair —",
@@ -12837,6 +12828,7 @@
                 "## Cinched",
                 "- Runs only after the first two pilots' ACG amendments have landed —",
                 "  this pilot exercises the hardened guide.",
+                "  (Satisfied: both pilots wrapped with their amendments in.)",
                 "- Reliquary/Lode/Hallmark vocabulary belongs to ₣BH's lane even after it lands;",
                 "  term curation stays out of scope — allocation findings only.",
                 "",
@@ -12845,10 +12837,10 @@
                 "agreed moves landed as individually reviewed moves;",
                 "ACG amendments landed;",
                 "roster recommendation recorded for the post-pilot groom;",
-                "fast suite green if any source file changed."
+                "reveille green if any source file changed."
               ],
               "jjgtn_silks": "pilot-audit-conjure",
-              "jjgtn_basis": "817ab83"
+              "jjgtn_basis": "03ca13a"
             }
           ]
         },
@@ -13014,7 +13006,7 @@
         "₢BbAAR": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260616-1015",
+              "jjgtn_ts": "260704-1222",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "Introduce a flat command-exposure voicing family in AXLA — sibling to the existing axho_/axhr_/axhp_ hierarchy families — that binds an operation to the concrete identifier(s) exposing it on a CLI surface, then instantiate it in RBS0 as the single place the spec names concrete colophons.",
@@ -13030,21 +13022,26 @@
                 "Marker and dimension names are a mount-time mint under AXLA naming discipline.",
                 "",
                 "## Gate",
-                "Partial, like the axvo symbol-lookahead pace ahead of it.",
+                "Partial.",
                 "The AXLA family and the BUS0 exposure tie are ungated and land now.",
-                "The RBS0 membrane defers: its colophon set spans vocabulary ₣BH and ₣BZ are still moving, and it overlaps ₣BH's active RBS0 rewrite — it waits until those lanes settle, per the heat triage rider.",
+                "The RBS0 membrane still defers:",
+                "₣BH landed and ₣BZ is complete,",
+                "but ₣Bf is still moving federation colophon surface",
+                "(the rbw-m*/rbw-p*/rbw-j*/rbw-q* families),",
+                "and the membrane is the sole site naming concrete colophons —",
+                "it waits until ₣Bf settles, per the heat triage rider.",
                 "",
                 "## Done when",
                 "AXLA defines the command-exposure voicing family with arity and placement rules, sibling to the existing hierarchy families, riding the existing exposure dimensions.",
                 "BUS0 ties the tabtarget exposure to bust_tabtarget / busdc_colophon.",
-                "Once the gating lanes clear, RBS0 carries the command rows as the sole site naming concrete colophons — the inline colophon-shape note and the vestigial Tabtarget-Colophons quoin section fold in, operations elsewhere staying colophon-blind.",
+                "Once the gating lane clears, RBS0 carries the command rows as the sole site naming concrete colophons — the inline colophon-shape note and the vestigial Tabtarget-Colophons quoin section fold in, operations elsewhere staying colophon-blind.",
                 "",
                 "## Character",
                 "AXLA voicing-grammar design plus contract-first instantiation — additive, no runtime behavior.",
                 "Tier: opus for the family-shape judgment; the RBS0 rows are mechanical once the family is set."
               ],
               "jjgtn_silks": "cli-command-voicing-family",
-              "jjgtn_basis": "e95800d"
+              "jjgtn_basis": "03ca13a"
             }
           ]
         },
