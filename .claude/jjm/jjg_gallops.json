@@ -12,8 +12,8 @@
     "₣Be",
     "₣Bd",
     "₣Bb",
-    "₣BF",
     "₣BD",
+    "₣BF",
     "₣Bn",
     "₣Bm",
     "₣Bk",
@@ -10709,7 +10709,7 @@
     "₣BF": {
       "jjghn_silks": "jjk-v4-2-add-tackle",
       "jjghn_creation_time": "260510",
-      "jjghn_status": "jjghe_racing",
+      "jjghn_status": "jjghe_stabled",
       "jjghn_order": [],
       "jjghn_next_pace_seed": "AAA",
       "jjghn_paces": {}
