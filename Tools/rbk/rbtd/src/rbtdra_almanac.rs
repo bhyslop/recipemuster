@@ -47,6 +47,11 @@ pub static RBTDRA_FIXTURES: &[&'static rbtdre_Fixture] = &[
     &crate::rbtdrv_patrol::RBTDRV_FIXTURE_FOEDUS_REUSE,
     &crate::rbtdrv_patrol::RBTDRV_FIXTURE_BATCH_VOUCH,
     &crate::rbtdrv_patrol::RBTDRV_FIXTURE_ACCESS_PROBE,
+    // credential-readiness: the standing-freehold readiness leader of the
+    // release ladders (skirmish/dogfight/blockade lead with it; gauntlet
+    // re-verifies right after freehold-establish) — espy + gated avow +
+    // director/retriever dons, seconds not minutes on a credential deficit.
+    &crate::rbtdrv_patrol::RBTDRV_FIXTURE_CREDENTIAL_READINESS,
     &crate::rbtdrv_patrol::RBTDRV_FIXTURE_POLITY_DENIAL,
     &crate::rbtdrv_patrol::RBTDRV_FIXTURE_PARLEY,
     &crate::rbtdrv_patrol::RBTDRV_FIXTURE_CHAINING_LIVERY,
@@ -210,6 +215,14 @@ pub static RBTDRA_SUITES: &[rbtdre_Suite] = &[
             &crate::rbtdrf_fast::RBTDRF_FIXTURE_ENROLLMENT_VALIDATION,
             &crate::rbtdrp_lifecycle::RBTDRP_FIXTURE_DEPOT_LIFECYCLE,
             &crate::rbtdrk_depot::RBTDRK_FIXTURE_FREEHOLD_ESTABLISH,
+            // credential-readiness re-verifies the just-seated freehold
+            // credentials (sitting + director/retriever dons) before the build
+            // bodies spend — and keeps the ladder containment law
+            // (blockade ⊆ skirmish ⊆ gauntlet) whole now that the
+            // standing-reuse ladders lead with it. It cannot lead HERE:
+            // gauntlet starts from marshal-zero, where no depot exists to don
+            // against; freehold-establish seats what this fixture verifies.
+            &crate::rbtdrv_patrol::RBTDRV_FIXTURE_CREDENTIAL_READINESS,
             &crate::rbtdro_onboarding::RBTDRO_FIXTURE_ONBOARDING_SEQUENCE,
             &crate::rbtdrf_fast::RBTDRF_FIXTURE_REGIME_VALIDATION,
             &crate::rbtdrf_fast::RBTDRF_FIXTURE_REGIME_SMOKE,
@@ -236,13 +249,19 @@ pub static RBTDRA_SUITES: &[rbtdre_Suite] = &[
     // depot) and the four crucibles charge+run. OPERATOR PRECONDITION: a freehold
     // depot already levied (install freehold prefixes and run rbw-dL by hand) AND
     // federation credentials ready — a live sitting with the depot's mantles
-    // donnable (the standing-freehold credential step is federation test-rig work,
-    // no longer a keyfile re-enrobe preamble). Spends cloud build/GAR but creates
-    // no GCP project per run.
+    // donnable; the credential-readiness leader proves that precondition in
+    // seconds (remedy advisory on deficit) before any cloud spend. Spends cloud
+    // build/GAR but creates no GCP project per run.
     rbtdre_Suite {
         name: "skirmish",
         fixtures: &[
             &crate::rbtdrf_fast::RBTDRF_FIXTURE_ENROLLMENT_VALIDATION,
+            // The credential leader precedes the first cloud act: a credential
+            // deficit fails in seconds with the renew advisory, never minutes
+            // into onboarding-sequence (enrollment-validation stays first —
+            // state-indifferent, catches a broken tree before any credential
+            // probe is spent).
+            &crate::rbtdrv_patrol::RBTDRV_FIXTURE_CREDENTIAL_READINESS,
             &crate::rbtdro_onboarding::RBTDRO_FIXTURE_ONBOARDING_SEQUENCE,
             &crate::rbtdrf_fast::RBTDRF_FIXTURE_REGIME_VALIDATION,
             &crate::rbtdrf_fast::RBTDRF_FIXTURE_REGIME_SMOKE,
@@ -266,10 +285,12 @@ pub static RBTDRA_SUITES: &[rbtdre_Suite] = &[
     // summon → run path yields a runnable artifact; the fixture stays
     // crucible-free. OPERATOR PRECONDITION: a freehold depot already levied AND
     // federation credentials ready (a live sitting, the depot's mantles donnable),
-    // exactly as skirmish assumes.
+    // exactly as skirmish assumes; the credential-readiness leader proves it up
+    // front.
     rbtdre_Suite {
         name: "dogfight",
         fixtures: &[
+            &crate::rbtdrv_patrol::RBTDRV_FIXTURE_CREDENTIAL_READINESS,
             &crate::rbtdrd_dogfight::RBTDRD_FIXTURE_DOGFIGHT,
         ],
     },
@@ -297,10 +318,12 @@ pub static RBTDRA_SUITES: &[rbtdre_Suite] = &[
     // conjure hallmarks come from GAR, not a local build. OPERATOR PRECONDITION:
     // freehold depot levied, federation credentials ready (a live sitting, the
     // retriever mantle donnable), AND the moriah conjure hallmark already ordained
-    // into its GAR.
+    // into its GAR; the credential-readiness leader proves the credential
+    // precondition up front.
     rbtdre_Suite {
         name: "blockade",
         fixtures: &[
+            &crate::rbtdrv_patrol::RBTDRV_FIXTURE_CREDENTIAL_READINESS,
             &crate::rbtdrc_crucible::RBTDRC_FIXTURE_MORIAH,
         ],
     },

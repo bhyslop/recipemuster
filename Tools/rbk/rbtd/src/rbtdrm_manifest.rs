@@ -50,6 +50,16 @@ pub const RBTDRM_FIXTURE_PLUML: &str = "pluml";
 pub const RBTDRM_FIXTURE_HALLMARK_LIFECYCLE: &str = "hallmark-lifecycle";
 pub const RBTDRM_FIXTURE_BATCH_VOUCH: &str = "batch-vouch";
 pub const RBTDRM_FIXTURE_ACCESS_PROBE: &str = "access-probe";
+// Credential-readiness — the standing-freehold readiness leader of the release
+// ladders: skirmish/dogfight/blockade run it ahead of any cloud spend, and
+// gauntlet re-verifies right after freehold-establish. Espy the sitting
+// (fail-fast advisory when absent), a promptless baseline avow (the runway
+// gate band-rejects a short sitting with the novate advisory), then don
+// director + retriever — the mantles the ladders' inner bodies wield. Restores
+// the up-front credential step the keyfile re-enrobe preamble provided before
+// the estate demolition; a deficit surfaces in seconds, never minutes into a
+// build. Pure consumer of the espy/gate/novate surfaces — no new mechanism.
+pub const RBTDRM_FIXTURE_CREDENTIAL_READINESS: &str = "credential-readiness";
 // Lode-lifecycle fixture — fetched-side base capture against live GAR:
 // ensconce -> divine (enumerate + inspect) -> banish, registry restored.
 pub const RBTDRM_FIXTURE_LODE_LIFECYCLE: &str = "lode-lifecycle";
@@ -271,6 +281,12 @@ pub fn rbtdrm_required_colophons(fixture: &str) -> Option<&'static [&'static str
         RBTDRM_FIXTURE_ACCESS_PROBE => Some(&[
             RBTDGC_CHECK_PAYOR,
             RBTDGC_CHECK_AVOWAL,
+            RBTDGC_ESPY_SITTING,
+        ]),
+        RBTDRM_FIXTURE_CREDENTIAL_READINESS => Some(&[
+            RBTDGC_ESPY_SITTING,
+            RBTDGC_CHECK_AVOWAL,
+            RBTDGC_CHECK_MANTLE,
         ]),
         RBTDRM_FIXTURE_ENROLLMENT_VALIDATION
         | RBTDRM_FIXTURE_RECIPE_VALIDATION
