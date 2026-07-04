@@ -98,14 +98,8 @@ zrbfc_plumb_core() {
     buc_die "About ark not found in GAR: ${z_about_pkg}:${z_hallmark}"
   fi
 
-  # Resolved-base labels (conjure only): read the rbi_resolved_base_n labels back
-  # from the SIGNED attest image's config blob (RBSAP). The labels are identical
-  # across platforms — set once at buildx, preserved byte-identically by the
-  # per-platform pullback into the attest image, which the google-worker DSSE then
-  # signs (RBr_b4e) — so the first built platform's attest tag carries them. The
-  # fact is a transient display cache; the durable signed home is the attest label.
-  # A pre-resolved-base hallmark (or platform-config drift) yields no config file
-  # and the Base Image section simply omits the resolved line.
+  # Resolved-base labels (conjure only): read back from the first built
+  # platform's attest tag per RBSAP; rivet RBr_b4e.
   if test "${RBRV_VESSEL_MODE}" = "rbnve_conjure" && test -n "${RBRV_CONJURE_PLATFORMS:-}"; then
     buc_step "Reading resolved-base labels from attest image config"
     local z_first_plat="${RBRV_CONJURE_PLATFORMS//,/ }"
@@ -375,12 +369,7 @@ zrbfc_plumb_show_sections() {
       fi
     fi
 
-    # Resolved base (signed): the rbi_resolved_base_n labels read back from the
-    # attest image config (RBSAP). Unlike the generic "FROM ${RBF_IMAGE_n}" recipe
-    # line above, this is the ACTUAL base each slot resolved to at build time —
-    # pinned by digest and riding the attest image's google-worker signature
-    # (RBr_b4e). The reader references the sprued key home; the cloud writer uses a
-    # literal (it sources no constants).
+    # Resolved base (signed): RBSAP "Base Image" display; rivet RBr_b4e.
     local -r z_attest_config="${z_dir}/attest_config.json"
     if test -f "${z_attest_config}"; then
       local z_rb_n=""

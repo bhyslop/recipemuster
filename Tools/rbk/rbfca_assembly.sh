@@ -30,8 +30,7 @@ set -euo pipefail
 # Sets module-level z_rbfc_tool_* mutable kindle state for downstream step assembly.
 # Idempotent — safe to call multiple times per invocation.
 #
-# A conclave Lode is ONE GAR package (rbi_ld/<touchmark>) holding the tool cohort as
-# sprued member tags (:rbi_<tool>). Each ref composes RBGC_LODE_TAG_SPRUE onto the bare
+# Conclave Lode layout: RBSLC. Each ref composes RBGC_LODE_TAG_SPRUE onto the bare
 # RBGC_RELIQUARY_TOOL_* seed to address its member tag on the one package — the
 # seeds stay inputs, the resolved ref a build consumes is always the :rbi_<tool> tag.
 zrbfc_resolve_tool_images() {

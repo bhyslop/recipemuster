@@ -120,7 +120,7 @@
 :rbtgo_ark_vouch:                 <<rbtgo_ark_vouch,rbfv_vouch>>
 :rbtgo_ark_about:                 <<rbtgo_ark_about,rbfv_about>>
 :rbtgo_ark_graft:                 <<rbtgo_ark_graft,rbfd_graft>>
-:rbtgo_ark_kludge:                <<rbtgo_ark_kludge,rbfd_kludge>>
+:rbtgo_ark_kludge:                <<rbtgo_ark_kludge,rbfk_kludge>>
 :rbtgo_ark_summon:                <<rbtgo_ark_summon,rbfr_summon>>
 :rbtgo_ark_inspect:              <<rbtgo_ark_inspect,rbfc_plumb>>
 :rbtgo_depot_levy:                <<rbtgo_depot_levy,rbgp_depot_levy>>

@@ -57,6 +57,7 @@ vessel Dockerfile passes {rbsfh_dockerfile_hygiene} — any column-0 `FROM` line
 {gar_service}.
 {rbbc_require}
 HTTP 200 for every tool — on 404, fail with directive to run conclave first.
+Misses accumulate across the whole tool set before the failure report, so the operator sees the full damage at once.
 The reliquary is a co-versioned set of builder tool images captured from upstream into one conclave Lode in private GAR. Each vessel declares its reliquary touchmark; multiple reliquary Lodes can coexist.
 .. *Anchor check*: For each indexed slot (n = 1, 2, 3) where both
 {rbrv_image_origin}
@@ -73,6 +74,13 @@ into package-path and tag
 ... {rbbc_require}
 HTTP 200 — on 404, fail with directive to run {rbtgo_lode_ensconce} first.
 Multiple vessels sharing the same base origin need only one ensconce.
+.. *Airgap anchor requirement*: Under `rbnve_airgap` egress, every slot with a populated
+{rbrv_image_origin}
+must also carry a populated
+{rbrv_image_anchor}
+— the airgap pool has no upstream egress, so an empty anchor guarantees an in-pool build failure; preflight rejects it before submission with the population directive.
+Two population paths, discriminated by whether the origin names a producer-vessel directory under the vessel tree: an upstream origin is captured into a bole locator by {rbtgo_lode_ensconce}; a producer-vessel origin is a hallmark-pin, written from the producer's ordain output (never ensconced — {rbtgo_lode_ensconce} rejects producer-vessel origins).
+Under `rbnve_tether`, an anchorless origin passes through — buildx fetches upstream at build time.
 .. Preflight prevents wasted
 {gcb_service}
 submission time on missing images, with copy-paste remediation commands
@@ -177,6 +185,7 @@ Per-platform
 reference.
 One fact file per platform discovered during the build.
 
+//axhos_step
 . *Display Results*:
 .. {rbbc_show}
 vessel image built with hallmark tag

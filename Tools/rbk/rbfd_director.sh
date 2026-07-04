@@ -79,11 +79,7 @@ zrbfd_sentinel() {
 }
 
 
-# Verify reliquary tool images exist in GAR.
-# Full-subtree presence check: every canonical tool image must be present at
-# the touchmark. Conclave captures all 6 atomically; piecemeal jettison or registry
-# damage compromises the cohort's integrity. Misses are accumulated across the
-# whole tool set so the operator sees full damage in one report.
+# Verify reliquary tool images exist in GAR: RBSAC "Registry Preflight", reliquary check.
 # Args: token vessel_dir
 zrbfd_preflight_reliquary() {
   zrbfd_sentinel
@@ -116,8 +112,7 @@ zrbfd_preflight_reliquary() {
   local z_stderr_file=""
   local z_http_code=""
 
-  # Conclave Lode layout: ONE package rbi_ld/<touchmark> carrying the cohort as
-  # sprued member tags (:rbi_<tool>) — the tool is the manifest TAG, not a sub-package.
+  # Conclave Lode layout: RBSLC.
   for z_tool in "${z_canonical_tools[@]}"; do
     z_pkg="${RBGL_LODES_ROOT}/${z_reliquary}"
     z_tag="${RBGC_LODE_TAG_SPRUE}${z_tool}"
@@ -247,18 +242,8 @@ zrbfd_quota_preflight() {
   fi
 }
 
-# Internal: Verify that all required images exist in GAR before submitting
-# to Cloud Build. Checks two layers in dependency order:
-#
-#   1. Reliquary — co-versioned builder tool images (gcloud, docker, syft, etc.)
-#      captured by conclave. One reliquary cohort per depot setup. Base capture depends on it.
-#   2. Base images — upstream bases captured into private GAR as bole Lodes via
-#      ensconce, pinned by content hash. One Lode per base image; the conjure
-#      ANCHOR resolves to it. Multiple vessels sharing a base reuse one Lode.
-#
-# A missing image at either layer causes a Cloud Build failure minutes later.
-# This preflight catches it immediately with copy-paste remediation commands.
-#
+# Internal: the host-side registry preflight — RBSAC "Registry Preflight"
+# (reliquary layer, then base-image layer).
 # Must be called after vessel load (reads RBRV_RELIQUARY, RBRV_IMAGE_*_ANCHOR)
 # and authentication (needs token for registry API).
 zrbfd_registry_preflight() {
@@ -272,12 +257,7 @@ zrbfd_registry_preflight() {
   # --- Layer 1: Reliquary tool images ---
   zrbfd_preflight_reliquary "${z_token}" "${z_vessel_dir}"
 
-  # --- Layer 2: Base images (bole Lodes) ---
-  # Each vessel declares base images via RBRV_IMAGE_n_ORIGIN (upstream tag) and
-  # RBRV_IMAGE_n_ANCHOR (locator: package-path:tag). Ensconce captures the upstream
-  # image into a bole Lode (rbi_ld), pinned by content hash; feoff (rbw-rvf)
-  # populates the ANCHOR from that capture before conjure runs. The conjure
-  # Dockerfile's FROM references the locator-resolved GAR ref, not the upstream tag.
+  # --- Layer 2: Base images — RBSAC "Registry Preflight", anchor check ---
 
   buc_step "Verifying base images exist in GAR"
 
@@ -303,15 +283,10 @@ zrbfd_registry_preflight() {
     # Skip slots without an origin (no base image to capture).
     test -n "${z_origin}" || continue
 
-    # Anchor handling depends on egress mode. Tether passes through (buildx
-    # fetches upstream at build time). Airgap requires a populated anchor
-    # because the worker pool has no upstream egress — an empty anchor with
-    # a non-empty origin guarantees runtime build failure.
+    # Egress-mode anchor rule: RBSAC "Registry Preflight", airgap anchor requirement.
     if test -z "${z_anchor}"; then
       if test "${RBRV_EGRESS_MODE:-}" = "rbnve_airgap"; then
-        # Two anchor-population paths: bole capture (origin is a public upstream)
-        # and hallmark-pin (origin names a producer vessel in this repo).
-        # Discriminate by whether origin resolves to a vessel directory.
+        # Bole vs hallmark-pin discrimination: RBSAC airgap anchor requirement.
         if test -d "${RBRR_VESSEL_DIR}/${z_origin}"; then
           buc_warn "Airgap vessel ${RBRV_SIGIL} has empty ${z_anchor_var}; origin ${z_origin} names a producer vessel"
           buc_bare "  ${z_anchor_var} is a hallmark-pin, not a bole locator — ensconce is not invoked on this vessel."
@@ -650,9 +625,8 @@ zrbfd_stitch_build_json() {
     fi
   fi
 
-  # Compose builds.create Build resource
-  # All values resolved directly — no placeholders, no post-processing jq surgery.
-  # Context extraction step prepended; mason SA included; images: field uses inscribe_ts.
+  # Compose builds.create Build resource — all substitution values resolved
+  # host-side; _RBGA_BUILD_ID alone rewrites to the GCB $BUILD_ID builtin.
   buc_log_args "Composing builds.create Build resource"
   local -r z_build_file="${ZRBFD_STITCH_PREFIX}build.json"
   local -r z_mason_sa="projects/${RBDC_DEPOT_PROJECT_ID}/serviceAccounts/${RBGD_MASON_EMAIL}"
@@ -847,10 +821,9 @@ zrbfd_push_build_context() {
   printf 'FROM scratch\nCOPY . /build-context/\n' > "${z_context_dockerfile}" \
     || buc_die "Failed to write context Dockerfile"
 
-  # docker is Windows-native under Cygwin; hand it Windows-form paths. The
-  # generated absolute -f is the proven failure; the context positional is
-  # routed too because dockerfile-inside-context is not guaranteed (no-op when a
-  # path is already relative or native, and off Cygwin).
+  # The generated absolute -f is the proven docker failure under Cygwin; the
+  # context positional is routed too because dockerfile-inside-context is not
+  # guaranteed (buc_native_path_capture no-ops when already relative/native).
   local z_norm_dockerfile=""
   z_norm_dockerfile=$(buc_native_path_capture "${z_context_dockerfile}") \
     || buc_die "Cannot normalize context Dockerfile path for docker: ${z_context_dockerfile}"
@@ -904,7 +877,7 @@ rbfd_ordain() {
 
   # Mode dispatch. Each mode owns its own dirty-tree posture: conjure gates
   # inside rbfd_build, bind gates inside rbfd_mirror, graft is deliberately
-  # ungated (see the comment in rbfd_graft).
+  # ungated (RBSAG).
   case "${z_mode}" in
     rbnve_conjure) rbfd_build "${z_vessel_dir}" ;;
     rbnve_bind)    rbfd_mirror "${z_vessel_dir}" ;;
@@ -963,17 +936,8 @@ rbfd_build() {
     buc_die "Vessel directory required"
   fi
 
-  # Dirty-tree guard — conjure stamps HEAD into the image (git.commit label,
-  # build_info) and ships working-tree bytes (pouch context, step scripts), so
-  # the tree must match a commit before anything leaves the host.
+  # Dirty-tree guard + pure-chain-head posture: RBSAC dirty-tree NOTE / RBSDF.
   bug_require_clean_tree_creed "${RBCC_creed_clean_build}"
-
-  # Conjure is a pure chain head: it reads no chaining fact and writes no config.
-  # The base ANCHOR is elected separately by feoff (rbw-rvf) before conjure runs
-  # (ensconce -> feoff -> commit -> conjure), so the anchor this build resolves is
-  # already committed when the clean-tree gate passes and HEAD is stamped — closing
-  # the provenance hole of the former in-build election (which wrote the anchor
-  # after the gate and built from an uncommitted value). See RBSDF / RBSAC.
 
   # Load and validate vessel
   zrbfc_load_vessel "${z_vessel_dir}"
@@ -1418,10 +1382,7 @@ rbfd_graft() {
 
   local -r z_local_image="${RBRV_GRAFT_IMAGE}"
 
-  # No dirty-tree guard — image already built; git state irrelevant to container
-  # bytes. The about metadata still stamps HEAD, but graft's GRAFTED vouch
-  # verdict already declares provenance unverifiable, so no commit-vs-bytes
-  # claim exists to protect.
+  # No dirty-tree guard — deliberate; RBSAG homes the rationale.
 
   # Verify local image exists
   buc_step "Verifying local image exists"
