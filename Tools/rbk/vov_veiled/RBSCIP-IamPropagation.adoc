@@ -33,6 +33,18 @@ policy edit: any resource-scope `getIamPolicy` / `setIamPolicy` issued by a
 recently-empowered caller can draw the 403, whether it adds or removes a
 member.
 
+The blind absorption is safe by construction, not oversight: every consumer of
+the shared budget sits immediately downstream of a grant or revoke the same
+run just issued, so a 403 there is presumptively the resource-scope cache
+lagging that edit, and a genuine denial cannot be masked — it exhausts the
+budget and fails clean.
+The terminal-vs-transient disambiguator is therefore the call context, never
+the response body alone: post-grant sites wait the budget; cold-call sites —
+the federation legs and the access probes — fail fast on any 401/403
+({rbtf_don} fault posture).
+Neither narrows into the other: the budget is the correctness mechanism at
+these sites, not a tuning knob.
+
 // FABLE-REANCHOR (₣BZ terminal review): the Class C paragraph above cited the keyfile JWT access-probe as its proof point; that probe was demolished with the RBRA estate. Fable re-anchors the time-bound-discriminator evidence to a surviving federation proof point (the avowal STS exchange / mantle don) or prunes the citation, alongside the keyfile-churn race bullets below. See the M7 record in memo-20260615-BZ-pace-design.md.
 
 * **Secret access readiness**: The CB v2 connection creation LRO itself serves as the propagation test.
@@ -190,8 +202,8 @@ and any need for `roles/iam.serviceAccountTokenCreator` grants for the readiness
 ==== Backoff Profile
 
 All IAM-grant propagation retries — every site in `rbgi_iam.sh` plus the
-inline GAR retry in `rbgg_enrobe_director` — use the same single profile
-locked in `rbgc_constants.sh`:
+capabilities GAR IAM loops in `rbgw_capabilities.sh` — use the same single
+profile locked in `rbgc_constants.sh`:
 
 * Initial delay: `RBGC_PROPAGATION_INITIAL_DELAY_SEC` (3 seconds)
 * Multiplier: 2x (per-site arithmetic, not a kindle constant)
@@ -202,9 +214,7 @@ This profile accommodates Google's documented "typically < 2 minutes" with margi
 propagation while avoiding indefinite waits. It is the single budget shared
 across all three propagation classes (A: forward member-visibility, B:
 backward member-visibility, C: caller-recently-empowered); operator value
-changes propagate to every grant site by editing the constants once. The
-JWT-bearer consumer-side retry uses its own budget
-(`RBGC_SA_KEY_CONSUMER_RETRY_*`) — different cost-of-waiting profile.
+changes propagate to every grant site by editing the constants once.
 
 ==== References
 

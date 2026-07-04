@@ -69,24 +69,10 @@ zrbgc_kindle() {
   readonly RBGC_SA_KEY_CREATE_RETRY_MAX=7
   readonly RBGC_SA_KEY_CREATE_RETRY_DELAY_SEC=10
 
-  # JWT-bearer consumer-side retry — every RBRA consumer absorbs the post-write
-  # race where Google's OAuth backend has not yet accepted a freshly-minted SA
-  # or its key, surfaced as `invalid_grant` paired with either
-  # `Invalid JWT Signature.` (fresh-key lag) or `Invalid grant: account not
-  # found` (fresh-SA lag). 90s budget locked by ₣BB pristine-tier contract;
-  # cadence below.
-  readonly RBGC_SA_KEY_CONSUMER_RETRY_BUDGET_SEC=90
-  readonly RBGC_SA_KEY_CONSUMER_RETRY_INITIAL_DELAY_SEC=2
-  readonly RBGC_SA_KEY_CONSUMER_RETRY_MAX_DELAY_SEC=15
-
   # IAM-grant propagation retry — exponential-backoff budget shared by every
-  # get-modify-set IAM grant site in rbgi_iam.sh plus the inline GAR retry in
-  # rbgg_enrobe_director. Recognizes three propagation classes against the
-  # same time budget: (A) forward member-visibility (HTTP 400 "does not
-  # exist"), (B) backward member-visibility (HTTP 400 "is not deleted"),
-  # (C) caller-recently-empowered (HTTP 403 from resource-scope IAM caches).
-  # Class C is time-bounded only — real propagation succeeds within budget,
-  # real denial waits the budget and fails cleanly. RBSCIP locks the profile.
+  # get-modify-set IAM grant site in rbgi_iam.sh plus the capabilities GAR
+  # IAM loops in rbgw_capabilities.sh. RBSCIP locks the profile and homes
+  # the rationale (the three propagation classes; why the 403 wait is blind).
   readonly RBGC_PROPAGATION_INITIAL_DELAY_SEC=3
   readonly RBGC_PROPAGATION_MAX_DELAY_SEC=20
   readonly RBGC_PROPAGATION_DEADLINE_SEC=420

@@ -2181,6 +2181,17 @@ token from the federated token of a live
 {rbtf_sitting}
 (the third federation leg, with the depot as quota project).
 Exactly one mantle is worn per token — the blast-radius bound made audible.
++
+Fault posture: the don and the acquisition legs behind it (the RFC 7523 acquire, the STS exchange) are single-attempt fail-fast;
+only the device-flow poll loops, and only on the surveyed transient curl band and the RFC 8628 pending states, bounded by the device-code expiry.
+The terminal-vs-transient disambiguator is the call context, never the response body alone:
+a don 403 is an admission deficit answered by
+{rbtf_brevet},
+not a propagation race to wait out — bounded blind waits belong exclusively to the post-grant IAM sites (RBSCIP).
+No account-state flap tolerance rides the federation path, by decision rather than omission:
+the keyfile estate's ACCOUNT_STATE_INVALID flap retired with its trigger (per-run SA re-invest — mantle SAs are standing, levy-created, never re-minted per run),
+fresh-creation settling surfaces as the propagation family,
+and tolerance returns only on observed post-federation evidence.
 
 [[rbtf_brevet]]
 {rbtf_brevet}::

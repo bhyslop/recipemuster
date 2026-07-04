@@ -42,6 +42,11 @@ zrbfc_wait_build_completion() {
   z_build_id=$(<"${ZRBFC_BUILD_ID_FILE}") || buc_die "No build ID found"
   test -n "${z_build_id}" || buc_die "Build ID file empty"
 
+  # Known gap: this one token is held across the whole poll, so a worst-case
+  # build outlives the mantle's ~1 h ceiling while the sitting stays live, and
+  # the consecutive-failure counter below then kills a healthy build. Remedy is
+  # the mid-flight re-mint RBS0 rbsk_human_present promises (sitting-lifecycle
+  # re-mint work), not 401 discrimination here.
   buc_log_args 'Get fresh token for polling'
   local z_token=""
   z_token=$(rba_token_capture "${RBCC_mantle_director}") || buc_die "Failed to get GCB OAuth token"
