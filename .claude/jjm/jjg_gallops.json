@@ -18690,11 +18690,12 @@
         "₢BqAAB",
         "₢BqAAC",
         "₢BqAAH",
+        "₢BqAAI",
         "₢BqAAD",
         "₢BqAAF",
         "₢BqAAG"
       ],
-      "jjghn_next_pace_seed": "AAI",
+      "jjghn_next_pace_seed": "AAJ",
       "jjghn_paces": {
         "₢BqAAA": {
           "jjgpn_tacks": [
@@ -18987,6 +18988,41 @@
               ],
               "jjgtn_silks": "sitting-liveness-probe",
               "jjgtn_basis": "9716b60"
+            }
+          ]
+        },
+        "₢BqAAI": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260704-1052",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Copy the device-flow user code to the operator clipboard at avowal-prompt emission, alongside the existing yawp display.",
+                "Security determination recorded (260704 session): the user code is display-safe by design",
+                "(RBS0 rbtf_avow — possession grants nothing without the human's own IdP sign-in; a substituted sign-in cannot pass admission),",
+                "and any clipboard-reading local process could already read the tabtarget logs or the sitting cache itself;",
+                "the small residual is clipboard sync/history spreading the single-use ~15-minute code to synced devices — accepted, note it at the site.",
+                "Custody rule: ONLY the user code ever touches the clipboard — never the device code, the federated token, or a mantle token.",
+                "Best-effort fail-soft: clipboard copy is a convenience, never load-bearing —",
+                "a missing tool must not break avowal; announce a successful copy on the progress stream (it also clobbers the prior clipboard).",
+                "Platform-variant dependency per BCG Command Dependency Discipline:",
+                "pbcopy (macOS), clip.exe (Windows), the X/Wayland pair on Linux — probe-and-skip, declared per the guidance.",
+                "Site: the prompt emission in rba_auth.sh's device-flow leg; both the avow-miss and novate paths reach it.",
+                "",
+                "## Done when",
+                "An interactive avowal (avow miss or novate) lands the user code on the clipboard where a clipboard tool exists, announced on the progress stream;",
+                "absent tooling degrades to display-only without error;",
+                "no other credential material ever reaches the clipboard;",
+                "reveille green.",
+                "",
+                "## Cinched",
+                "User code only; fail-soft; never load-bearing.",
+                "",
+                "## Character",
+                "Small platform-aware bash at one site; the clipboard-command survey is the only research."
+              ],
+              "jjgtn_silks": "avowal-code-clipboard",
+              "jjgtn_basis": "628d317"
             }
           ]
         }
