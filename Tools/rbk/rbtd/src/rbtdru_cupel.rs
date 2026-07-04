@@ -129,6 +129,9 @@ pub(crate) const ZRBTDRU_POSIX_FLOOR: &[&str] = &[
 pub(crate) const ZRBTDRU_DECLARED_DEPS: &[&str] = &[
     "bash", "cargo", "curl", "docker", "git", "jq", "openssl", "podman", "scp",
     "shellcheck", "ssh", "ssh-keygen", "stat", "tar", "tee", "timeout",
+    // Optional probe-and-skip clipboard tier (one RBS0 inventory row): probed
+    // by buc_clipboard_copy_predicate, never required on any host.
+    "clip.exe", "pbcopy", "wl-copy", "xclip",
 ];
 
 /// Curated GCB container-tool allowlist — the external commands present in the
