@@ -62,10 +62,11 @@ rbgv_check_payor() {
 rbgv_check_avowal() {
   zrbgv_sentinel
 
-  local -r z_required_runway="${1:-}"
+  # The optional runway demand arrives via the BUZ_FOLIO env channel (param1
+  # colophon), like the mantle operand on rbgv_check_mantle. Empty = the floor.
+  local -r z_required_runway="${BUZ_FOLIO:-}"
 
   buc_doc_brief "Check federated access — open or reuse a sitting via device flow + STS (Legs 1+2) against the RBRF trust"
-  buc_doc_param "required_runway_sec" "Optional runway demand in seconds (default: the blanket floor) — a reused sitting below this remaining runway rejects in the runway band"
   buc_doc_shown || return 0
 
   buc_step "Federated access probe — avowal against the RBRF trust"
@@ -199,7 +200,7 @@ zrbgv_furnish() {
 
   buc_doc_env "BURD_BUK_DIR          " "BUK module directory (dispatch-provided)"
   buc_doc_env "BURD_TEMP_DIR         " "Bash Dispatch Utility provided temporary directory, empty at start of command"
-  buc_doc_env "BUZ_FOLIO             " "Mantle token to don (rbgv_check_mantle only): rbpa_governor | rbpa_director | rbpa_retriever"
+  buc_doc_env "BUZ_FOLIO             " "Mantle token to don (rbgv_check_mantle): rbpa_governor | rbpa_director | rbpa_retriever; or optional required-runway seconds (rbgv_check_avowal)"
   buc_doc_env_done || return 0
 
   local z_rbk="${BASH_SOURCE[0]%/*}"

@@ -93,6 +93,8 @@ zrba_kindle() {
   readonly ZRBA_FED_SITTING_EXPIRY_FILE="${BURD_TEMP_DIR}/rba_fed_sitting_expiry.txt"
   readonly ZRBA_FED_SITTING_NOW_FILE="${BURD_TEMP_DIR}/rba_fed_sitting_now.txt"
   readonly ZRBA_FED_AVOW_NOW_FILE="${BURD_TEMP_DIR}/rba_fed_avow_now.txt"
+  readonly ZRBA_FED_RUNWAY_EXPIRY_FILE="${BURD_TEMP_DIR}/rba_fed_runway_expiry.txt"
+  readonly ZRBA_FED_RUNWAY_NOW_FILE="${BURD_TEMP_DIR}/rba_fed_runway_now.txt"
   readonly ZRBA_FED_DEVICE_CODE_FILE="${BURD_TEMP_DIR}/rba_fed_device_code.txt"
   readonly ZRBA_FED_USER_CODE_FILE="${BURD_TEMP_DIR}/rba_fed_user_code.txt"
   readonly ZRBA_FED_VERIFY_URI_FILE="${BURD_TEMP_DIR}/rba_fed_verify_uri.txt"
@@ -261,12 +263,12 @@ zrba_sitting_runway_capture() {
   test -f "${z_path}" || return 1
 
   jq -r '.expiry_epoch // 0' "${z_path}" \
-     > "${ZRBA_FED_SITTING_EXPIRY_FILE}" 2>"${ZRBA_FED_JQ_STDERR_FILE}" || return 1
-  local -r z_expiry=$(<"${ZRBA_FED_SITTING_EXPIRY_FILE}")
+     > "${ZRBA_FED_RUNWAY_EXPIRY_FILE}" 2>"${ZRBA_FED_JQ_STDERR_FILE}" || return 1
+  local -r z_expiry=$(<"${ZRBA_FED_RUNWAY_EXPIRY_FILE}")
   [[ "${z_expiry}" =~ ^[0-9]+$ ]] || return 1
 
-  date +%s > "${ZRBA_FED_SITTING_NOW_FILE}" || return 1
-  local -r z_now=$(<"${ZRBA_FED_SITTING_NOW_FILE}")
+  date +%s > "${ZRBA_FED_RUNWAY_NOW_FILE}" || return 1
+  local -r z_now=$(<"${ZRBA_FED_RUNWAY_NOW_FILE}")
   [[ "${z_now}" =~ ^[0-9]+$ ]] || return 1
 
   local z_runway=$(( z_expiry - z_now ))
