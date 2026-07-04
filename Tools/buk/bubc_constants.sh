@@ -57,8 +57,16 @@ BUBC_windows_fw_display_name="OpenSSH Server"
 # `cmd || buc_die` chains carry these codes to the dispatch boundary where
 # the test orchestrator asserts them in negative cases.
 # Placement: clear of shell-reserved codes (2, 126, 127, 128+n signals),
-# the sysexits.h range (64-78), curl's exit codes (1-92), and
-# timeout(1)/container-runtime reserved codes (124-125).
+# the sysexits.h range (64-78), and timeout(1)/container-runtime reserved
+# codes (124-125). Curl overlaps by design: its codes topped out at 92 when
+# the band was placed, but curl 8.6.0 (2024-01) minted CURLE_TOO_LARGE=100
+# and 8.8.0 (2024-05) CURLE_ECH_REQUIRED=101 — on band_regime/band_enroll —
+# and it grows at roughly one code a year. Re-basing was declined (zero-sum
+# window under the 124 ceiling; renumbers the census; rents years only,
+# while containment holds forever). Containment rule (normative): a curl
+# exit status is captured and classified at the call site
+# (`|| z_curl_status=$?`, then branch), never handed to the band membrane;
+# a bare `curl ... || buc_die` chain is rule-barred.
 # Allocation rule: one code per rejection GATE, never per validation rule.
 # Gates may share a code only if they never co-occur in one test case's
 # spawn path — share across alternatives, never along a pipeline.
