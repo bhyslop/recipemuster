@@ -97,6 +97,15 @@ pub const RBTDRM_FIXTURE_POLITY_DENIAL: &str = "polity-denial";
 // nowhere else). Picket-suite member (and its own base-free probe suite); self-skips
 // when the payor credential is unreachable (suite-passenger protection).
 pub const RBTDRM_FIXTURE_PARLEY: &str = "parley";
+// Sitting-novate fixture — the sitting-lifecycle round-trip (RBS0 rbtf_sitting /
+// rbtf_novate): baseline avow (open or reuse; the one may-prompt step) -> demand
+// an impossible runway, asserting the EXACT runway band + the novate advisory ->
+// novate (force-fresh; device-flow prompt under the interactive mechanism) ->
+// plain avow reuses promptless, proving the restored full window clears the
+// floor. Operator-invoked (human-present novation), a member of no suite —
+// exactly the foedus-reuse posture; the deterministic negative alone also rides
+// picket via the access-probe fixture.
+pub const RBTDRM_FIXTURE_SITTING_NOVATE: &str = "sitting-novate";
 // Reveille fixtures (no external dependencies)
 pub const RBTDRM_FIXTURE_ENROLLMENT_VALIDATION: &str = "enrollment-validation";
 pub const RBTDRM_FIXTURE_RECIPE_VALIDATION: &str = "recipe-validation";
@@ -263,6 +272,11 @@ pub fn rbtdrm_required_colophons(fixture: &str) -> Option<&'static [&'static str
         ]),
         RBTDRM_FIXTURE_ACCESS_PROBE => Some(&[
             RBTDGC_CHECK_PAYOR,
+            RBTDGC_CHECK_AVOWAL,
+        ]),
+        RBTDRM_FIXTURE_SITTING_NOVATE => Some(&[
+            RBTDGC_CHECK_AVOWAL,
+            RBTDGC_NOVATE_SITTING,
         ]),
         RBTDRM_FIXTURE_ENROLLMENT_VALIDATION
         | RBTDRM_FIXTURE_RECIPE_VALIDATION

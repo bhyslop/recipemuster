@@ -52,13 +52,20 @@ rbgv_check_payor() {
 }
 
 # Federated access probe — triggers the accessor's avowal step (Legs 1+2):
-# cache-hit reuses a live sitting; a miss with a terminal runs the device flow +
-# STS exchange and caches the federated token; a headless miss fails loud. This
-# is the cloud tabtarget that exercises avowal — avowal itself owns no
-# colophon. Depot-agnostic: needs only the RBRF trust, not RBRR/RBRD.
+# cache-hit gates the sitting's remaining runway then reuses it; a miss with a
+# terminal runs the device flow + STS exchange and caches the federated token;
+# a headless miss fails loud. This is the cloud tabtarget that exercises
+# avowal — avowal itself owns no colophon. The optional argument rides
+# rba_avow's required-runway seam, so the probe can demand a specific runway
+# (and a live-but-short sitting rejects in the runway band, advising novate).
+# Depot-agnostic: needs only the RBRF trust, not RBRR/RBRD.
 rbgv_check_avowal() {
   zrbgv_sentinel
+
+  local -r z_required_runway="${1:-}"
+
   buc_doc_brief "Check federated access — open or reuse a sitting via device flow + STS (Legs 1+2) against the RBRF trust"
+  buc_doc_param "required_runway_sec" "Optional runway demand in seconds (default: the blanket floor) — a reused sitting below this remaining runway rejects in the runway band"
   buc_doc_shown || return 0
 
   buc_step "Federated access probe — avowal against the RBRF trust"
@@ -69,7 +76,7 @@ rbgv_check_avowal() {
   zrbrf_enforce
   zrbrw_enforce
 
-  rba_avow
+  rba_avow "${z_required_runway}"
 
   local z_token
   z_token=$(zrba_sitting_read_capture) || buc_die "Sitting not readable after avowal"

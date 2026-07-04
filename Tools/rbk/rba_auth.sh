@@ -56,6 +56,13 @@ zrba_kindle() {
   readonly ZRBA_SITTING_SKEW_SEC=60
   readonly ZRBA_DEVICE_POLL_MAX_SEC=900
 
+  # Proactive runway floor (RBS0 rbtf_sitting): the blanket required-runway
+  # default the avow sitting-reuse gate demands, sized so an admitted sitting
+  # outlives the worst-case cloud build (~95 min) with margin. Per-operation
+  # bounds ride the rba_avow parameter seam; none are populated until one
+  # earns its existence.
+  readonly ZRBA_SITTING_RUNWAY_FLOOR_SEC=7200
+
   # Programmatic (RFC 7523) assertion tuning: the self-supplied JWT's lifetime and
   # the grant scope. Each mint carries a fresh jti and a short exp — single-use.
   readonly ZRBA_PROG_ASSERTION_TTL_SEC=300
@@ -240,6 +247,31 @@ zrba_sitting_live_predicate() {
   zrba_sentinel
   zrba_sitting_read_capture >/dev/null || return 1
   return 0
+}
+
+# Echo the cached sitting's remaining runway in whole seconds (stored expiry
+# minus now, floored at 0); return 1 on any structural miss (absent cache,
+# malformed expiry, failed clock read). A lapsed sitting is runway 0, not a
+# miss — liveness and sufficiency judgments belong to the callers.
+zrba_sitting_runway_capture() {
+  zrba_sentinel
+
+  local z_path
+  z_path=$(zrba_sitting_path_capture) || return 1
+  test -f "${z_path}" || return 1
+
+  jq -r '.expiry_epoch // 0' "${z_path}" \
+     > "${ZRBA_FED_SITTING_EXPIRY_FILE}" 2>"${ZRBA_FED_JQ_STDERR_FILE}" || return 1
+  local -r z_expiry=$(<"${ZRBA_FED_SITTING_EXPIRY_FILE}")
+  [[ "${z_expiry}" =~ ^[0-9]+$ ]] || return 1
+
+  date +%s > "${ZRBA_FED_SITTING_NOW_FILE}" || return 1
+  local -r z_now=$(<"${ZRBA_FED_SITTING_NOW_FILE}")
+  [[ "${z_now}" =~ ^[0-9]+$ ]] || return 1
+
+  local z_runway=$(( z_expiry - z_now ))
+  test "${z_runway}" -ge 0 || z_runway=0
+  printf '%s' "${z_runway}"
 }
 
 # Atomically write the sitting cache (federated token + expiry epoch + subject).
@@ -555,33 +587,20 @@ zrba_leg2_federated_capture() {
     || { buc_log_args "STS exchange returned no access_token; see ${ZRBA_FED_STS_RESPONSE_FILE}"; return 1; }
 }
 
-# rba_avow — the avowal accessor step. Ensures a live sitting; its side
-# effect is the per-session cache, and consumers read the federated token with
-# zrba_sitting_read_capture. Cache-hit → done. Miss/expired → run Legs 1+2 and
-# cache. Leg 1 is mechanism-gated on RBRF_MECHANISM: the interactive arm is the
-# device-flow avowal (a human signs in; the prompt rides the progress stream, so a
-# terminal operator and a headless-but-human-reachable relay complete the same
-# sign-in — no terminal gate, human presence enforced by the IdP sign-in, and a
-# truly unattended miss polls to the bounded device-code expiry and dies loud);
-# the programmatic arm is the RFC 7523 grant (no human, no sitting to open — a
-# self-supplied JWT, RBSFA). Leg 2 (STS) and the sitting cache are mechanism-
-# invariant, so only the id_token's origin differs. The suite-head seam stands: an
-# automated run avows once at suite head; cases thereafter take the cache-hit path.
-rba_avow() {
+# Open a fresh sitting: run Legs 1+2 and atomically cache the result. The
+# mechanism-gated fresh path shared by rba_avow (on a cache miss) and
+# rba_novate (unconditionally). Leg 1 is gated on RBRF_MECHANISM: the
+# interactive arm is the device-flow avowal (a human signs in; the prompt rides
+# the progress stream, so a terminal operator and a headless-but-human-reachable
+# relay complete the same sign-in — no terminal gate, human presence enforced by
+# the IdP sign-in, and a truly unattended miss polls to the bounded device-code
+# expiry and dies loud); the programmatic arm is the RFC 7523 grant (no human,
+# no sitting to open — a self-supplied JWT, RBSFA). Leg 2 (STS) and the sitting
+# cache are mechanism-invariant, so only the id_token's origin differs.
+zrba_sitting_open() {
   zrba_sentinel
   zrbrf_sentinel
   zrbcc_sentinel
-
-  # Credless guard — the reveille tier must never touch the IdP or the network.
-  # Mirrors the Payor OAuth token-mint guard (rbgp_payor.sh) so the federated
-  # path honors the same invariant, under either mechanism arm.
-  test "${BURE_TWEAK_NAME:-}" != "${RBCC_tweak_credless_guard}" \
-    || buc_reject "${BUBC_band_credless}" "Credless guard: sitting acquisition refused — this run carries the reveille-tier guard (reveille cases must never reach the IdP)"
-
-  if zrba_sitting_live_predicate; then
-    buc_step "Sitting already live — reusing the cached federated token"
-    return 0
-  fi
 
   # Leg 1 — mechanism-gated. buv_vet has already proven RBRF_MECHANISM is one of the
   # two enum values, but a bare-case fallthrough dies loud rather than silently.
@@ -621,6 +640,71 @@ rba_avow() {
     || buc_die "Avowal succeeded but caching the sitting failed"
 
   buc_step "Sitting opened (federated token expires in ${z_expires_in}s)"
+}
+
+# rba_avow — the avowal accessor step. Ensures a live sitting with sufficient
+# runway; its side effect is the per-session cache, and consumers read the
+# federated token with zrba_sitting_read_capture. Cache-hit → gate the
+# remaining runway, then reuse. Miss/expired → open a fresh sitting
+# (zrba_sitting_open). The suite-head seam stands: an automated run avows once
+# at suite head; cases thereafter take the cache-hit path.
+#
+# Runway gate (RBS0 rbtf_sitting): on the reuse path ONLY — automatic for
+# every federated command since every accessor site funnels through here,
+# never a per-command preflight step — the cached sitting's remaining runway
+# must clear the required floor. A shorter sitting is turned away with the
+# named band rejection advising novate; a freshly-opened sitting has full
+# runway by construction, so the fresh path is ungated. The required runway
+# arrives as the optional first argument, defaulting to the blanket floor —
+# the parameterized seam; no per-operation bound is populated until one earns
+# its existence.
+rba_avow() {
+  zrba_sentinel
+  zrbrf_sentinel
+  zrbcc_sentinel
+
+  local -r z_required_runway="${1:-${ZRBA_SITTING_RUNWAY_FLOOR_SEC}}"
+  [[ "${z_required_runway}" =~ ^[0-9]+$ ]] \
+    || buc_die "rba_avow: required runway must be a non-negative integer of seconds, got '${z_required_runway}'"
+
+  # Credless guard — the reveille tier must never touch the IdP or the network.
+  # Mirrors the Payor OAuth token-mint guard (rbgp_payor.sh) so the federated
+  # path honors the same invariant, under either mechanism arm.
+  test "${BURE_TWEAK_NAME:-}" != "${RBCC_tweak_credless_guard}" \
+    || buc_reject "${BUBC_band_credless}" "Credless guard: sitting acquisition refused — this run carries the reveille-tier guard (reveille cases must never reach the IdP)"
+
+  if zrba_sitting_live_predicate; then
+    local z_runway
+    z_runway=$(zrba_sitting_runway_capture) \
+      || buc_die "Live sitting became unreadable while gauging its runway"
+    test "${z_runway}" -ge "${z_required_runway}" \
+      || buc_reject "${BUBC_band_runway}" "Sitting runway too short: ${z_runway}s remain, ${z_required_runway}s required — novate to open a fresh full-window sitting (rbw-aN), then re-run"
+    buc_step "Sitting already live — reusing the cached federated token (runway ${z_runway}s)"
+    return 0
+  fi
+
+  zrba_sitting_open
+}
+
+# rba_novate — the force-fresh renewal act (RBS0 rbtf_novate): a deliberate
+# avowal that bypasses the sitting-reuse branch and atomically overwrites any
+# standing sitting with a freshly-opened, full-window one (novation:
+# extinguish-by-replacement, riding zrba_sitting_write's temp-then-rename).
+# The remedy the runway floor names when it turns a short sitting away.
+# Renewal-only by decision: no release or clear verb exists anywhere — the
+# fresh sitting extinguishing the old is the entire mechanism.
+rba_novate() {
+  zrba_sentinel
+  zrbrf_sentinel
+  zrbcc_sentinel
+
+  # Credless guard — novation is a sitting acquisition, so the reveille-tier
+  # invariant holds here exactly as at the rba_avow entry.
+  test "${BURE_TWEAK_NAME:-}" != "${RBCC_tweak_credless_guard}" \
+    || buc_reject "${BUBC_band_credless}" "Credless guard: sitting acquisition refused — this run carries the reveille-tier guard (reveille cases must never reach the IdP)"
+
+  buc_step "Novating the sitting — opening a fresh one, extinguishing any standing sitting"
+  zrba_sitting_open
 }
 
 ######################################################################

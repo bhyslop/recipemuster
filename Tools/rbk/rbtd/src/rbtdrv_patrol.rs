@@ -39,7 +39,7 @@ use crate::rbtdgc_consts::{
     RBTDGC_ABJURE_HALLMARK, RBTDGC_ACCOUNT_PAYOR,
     RBTDGC_ACCOUNT_RETRIEVER, RBTDGC_AFFIANCE_MANOR, RBTDGC_AUDIT_HALLMARKS,
     RBTDGC_AUGUR_LODE, RBTDGC_BAND_ADMISSION, RBTDGC_BAND_ENGROSS, RBTDGC_BAND_EXPUNGE,
-    RBTDGC_BAND_PERUSE, RBTDGC_BAND_VACANT, RBTDGC_BANISH_LODE,
+    RBTDGC_BAND_PERUSE, RBTDGC_BAND_RUNWAY, RBTDGC_BAND_VACANT, RBTDGC_BANISH_LODE,
     RBTDGC_BREVET_POLITY,
     RBTDGC_CANVASS_FOEDUS,
     RBTDGC_CHECK_AVOWAL, RBTDGC_CHECK_MANTLE,
@@ -48,6 +48,7 @@ use crate::rbtdgc_consts::{
     RBTDGC_FOEDERA_SUBDIR, RBTDGC_FREEHOLD_SUBJECT, RBTDGC_IMMURE_PODVM, RBTDGC_INSTATE_FOEDUS,
     RBTDGC_JETTISON_HALLMARK_IMAGE, RBTDGC_JETTISON_IMAGE, RBTDGC_JILT_MANOR, RBTDGC_LIST_IMAGES,
     RBTDGC_MANTLE_DIRECTOR, RBTDGC_MANTLE_GOVERNOR, RBTDGC_MANTLE_RETRIEVER, RBTDGC_MOORINGS_DIR,
+    RBTDGC_NOVATE_SITTING,
     RBTDGC_PLUMB_FULL, RBTDGC_RBRD_FILE, RBTDGC_RBRR_FILE, RBTDGC_REHEARSE_POLITY, RBTDGC_REKON_HALLMARK,
     RBTDGC_SUMMON_HALLMARK,
     RBTDGC_TALLY_HALLMARKS,
@@ -155,6 +156,15 @@ pub static RBTDRV_FIXTURE_PARLEY: rbtdre_Fixture = rbtdre_Fixture {
     setup: None,
     teardown: None,
     cases: RBTDRV_CASES_PARLEY,
+    credless: false,
+};
+
+pub static RBTDRV_FIXTURE_SITTING_NOVATE: rbtdre_Fixture = rbtdre_Fixture {
+    name: crate::rbtdrm_manifest::RBTDRM_FIXTURE_SITTING_NOVATE,
+    disposition: rbtdre_Disposition::Independent,
+    setup: None,
+    teardown: None,
+    cases: RBTDRV_CASES_SITTING_NOVATE,
     credless: false,
 };
 
@@ -2529,6 +2539,106 @@ fn rbtdrv_oauth_payor(dir: &Path) -> rbtdre_Verdict {
     rbtdrc_with_ctx(|ctx| rbtdrv_access_probe_role(ctx, RBTDGC_ACCOUNT_PAYOR, dir))
 }
 
+// ── Sitting-runway gate and novate round-trip ────────────────
+
+/// Impossible runway demand — above the 12h workforce-session ceiling (43200s),
+/// so ANY live sitting's remaining runway falls short and the avow reuse gate
+/// must reject. Keeps the negative deterministic without forging cache state:
+/// the demand rides rba_avow's parameterized required-runway seam (the designed
+/// per-operation channel), never a test-only back door.
+const RBTDRV_RUNWAY_IMPOSSIBLE_SEC: &str = "999999";
+
+/// The deterministic gate arc: baseline avow (open-or-reuse — the one may-prompt
+/// step when no sitting is live), then demand an impossible runway and assert
+/// the EXACT runway band plus the novate advisory (the rejection must name the
+/// remedy's colophon). Never weakened to bare-nonzero, per band doctrine.
+/// Shared by the picket access-probe case and the sitting-novate round-trip.
+fn zrbtdrv_runway_gate_arc(ctx: &mut rbtdri_Context, dir: &Path) -> Result<(), rbtdre_Verdict> {
+    match rbtdri_invoke_global(ctx, RBTDGC_CHECK_AVOWAL, &[], &[]) {
+        Ok(r) if r.exit_code == 0 => {}
+        Ok(r) => return Err(rbtdre_Verdict::Fail(format!(
+            "baseline avow exit {} — open a sitting with {} (one device-flow click), \
+             or novate ({}) if the gate turned a short sitting away\n{}",
+            r.exit_code, RBTDGC_CHECK_AVOWAL, RBTDGC_NOVATE_SITTING, r.stderr
+        ))),
+        Err(e) => return Err(rbtdre_Verdict::Fail(format!("baseline avow invocation: {}", e))),
+    }
+    let _ = std::fs::write(dir.join("01-avow-baseline.txt"), "avowed");
+
+    let short = match rbtdri_invoke_global(
+        ctx, RBTDGC_CHECK_AVOWAL, &[RBTDRV_RUNWAY_IMPOSSIBLE_SEC], &[],
+    ) {
+        Ok(r) => r,
+        Err(e) => return Err(rbtdre_Verdict::Fail(format!("runway-demand invocation: {}", e))),
+    };
+    let _ = std::fs::write(dir.join("02-runway-demand-stderr.txt"), &short.stderr);
+    if short.exit_code != RBTDGC_BAND_RUNWAY {
+        return Err(rbtdre_Verdict::Fail(format!(
+            "avow under impossible runway demand {}s exited {} — expected runway band {}\nstdout:\n{}\nstderr:\n{}",
+            RBTDRV_RUNWAY_IMPOSSIBLE_SEC, short.exit_code, RBTDGC_BAND_RUNWAY, short.stdout, short.stderr
+        )));
+    }
+    if !short.stderr.contains(RBTDGC_NOVATE_SITTING) {
+        return Err(rbtdre_Verdict::Fail(format!(
+            "runway rejection carried no novate advisory — expected '{}' in stderr\nstderr:\n{}",
+            RBTDGC_NOVATE_SITTING, short.stderr
+        )));
+    }
+    Ok(())
+}
+
+/// Picket-tier gate case: the deterministic negative alone. No novate here —
+/// novation always forces a fresh sign-in under the interactive mechanism, and
+/// a suite case may not demand a second human click beyond the suite-head avow
+/// (the full round-trip is the operator-invoked sitting-novate fixture).
+fn rbtdrv_sitting_runway_gate(dir: &Path) -> rbtdre_Verdict {
+    rbtdrc_with_ctx(|ctx| {
+        if let Err(v) = zrbtdrv_runway_gate_arc(ctx, dir) {
+            return v;
+        }
+        let _ = std::fs::write(dir.join("03-passed.txt"), "passed");
+        rbtdre_Verdict::Pass
+    })
+}
+
+/// The full sitting-lifecycle round-trip (operator-invoked, human-present):
+/// gate arc, then novate (force-fresh — the device-flow prompt under the
+/// interactive mechanism, promptless under the programmatic one), then a plain
+/// avow that must reuse promptless — the restored full window clears the floor.
+fn rbtdrv_sitting_novate(dir: &Path) -> rbtdre_Verdict {
+    rbtdrc_with_ctx(|ctx| {
+        if let Err(v) = zrbtdrv_runway_gate_arc(ctx, dir) {
+            return v;
+        }
+
+        match rbtdri_invoke_global(ctx, RBTDGC_NOVATE_SITTING, &[], &[]) {
+            Ok(r) if r.exit_code == 0 => {}
+            Ok(r) => return rbtdre_Verdict::Fail(format!(
+                "novate exit {} — complete the sign-in prompt (human-present fixture)\n{}",
+                r.exit_code, r.stderr
+            )),
+            Err(e) => return rbtdre_Verdict::Fail(format!("novate invocation: {}", e)),
+        }
+        let _ = std::fs::write(dir.join("03-novate.txt"), "novated");
+
+        match rbtdri_invoke_global(ctx, RBTDGC_CHECK_AVOWAL, &[], &[]) {
+            Ok(r) if r.exit_code == 0 => {}
+            Ok(r) => return rbtdre_Verdict::Fail(format!(
+                "post-novate avow exit {} — the novated sitting must clear the floor at reuse\n{}",
+                r.exit_code, r.stderr
+            )),
+            Err(e) => return rbtdre_Verdict::Fail(format!("post-novate avow invocation: {}", e)),
+        }
+        let _ = std::fs::write(dir.join("04-avow-reuse.txt"), "reused");
+
+        let _ = std::fs::write(dir.join("05-passed.txt"), "passed");
+        rbtdre_Verdict::Pass
+    })
+}
+
+pub static RBTDRV_CASES_SITTING_NOVATE: &[rbtdre_Case] = &[case!(rbtdrv_sitting_novate)];
+
 pub static RBTDRV_CASES_ACCESS_PROBE: &[rbtdre_Case] = &[
     case!(rbtdrv_oauth_payor),
+    case!(rbtdrv_sitting_runway_gate),
 ];

@@ -119,7 +119,14 @@ BUBC_band_peruse=113    # terrier read rejection (list/fetch deficit or malforme
 # own (a hygiene refusal, not an admission-path refusal), so it takes the last
 # free code rather than sharing.
 BUBC_band_escheat=114   # terrier escheat rejection (survey list/fetch deficit, raw-expunge unexpected HTTP, or folder-purge failure)
-# Free codes: 115-122, allocated upward from 115.
+# Sitting runway floor: the avow sitting-reuse gate turns away a live sitting
+# whose remaining runway is below the required floor, naming the novate remedy.
+# Fires on the reuse path only (a fresh sitting has full runway by
+# construction), before any leg — distinct from the credless guard (104,
+# refuses acquisition outright) and the admission band (109, the don's Leg-3
+# 403), and it shares no spawn path with either along a single pipeline.
+BUBC_band_runway=115    # sitting-runway rejection (live sitting below the required-runway floor at reuse; novate to open a fresh one)
+# Free codes: 116-122, allocated upward from 116.
 # Self-test probe pins the band top, proving full-width propagation:
 BUBC_band_selftest=123  # BUK self-test deliberate rejection (buw-xb fixture)
 

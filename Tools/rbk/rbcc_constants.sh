@@ -316,6 +316,7 @@ rbcc_emit_consts() {
     BUBC_band_engross   \
     BUBC_band_expunge   \
     BUBC_band_peruse    \
+    BUBC_band_runway    \
     BUBC_band_selftest  \
   ; do
     z_stem="${z_name#BUBC_}"
