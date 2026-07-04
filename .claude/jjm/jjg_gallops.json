@@ -18690,9 +18690,10 @@
         "₢BqAAB",
         "₢BqAAC",
         "₢BqAAD",
-        "₢BqAAF"
+        "₢BqAAF",
+        "₢BqAAG"
       ],
-      "jjghn_next_pace_seed": "AAG",
+      "jjghn_next_pace_seed": "AAH",
       "jjghn_paces": {
         "₢BqAAA": {
           "jjgpn_tacks": [
@@ -18907,6 +18908,42 @@
               ],
               "jjgtn_silks": "suite-credential-preamble",
               "jjgtn_basis": "91beca5"
+            }
+          ]
+        },
+        "₢BqAAG": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260704-0916",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Correct the stale curl survey in the precision-band placement doctrine and state the containment rule at both homes.",
+                "The placement note (\"curl's codes (1-92)\") predates curl 8.6:",
+                "CURLE_TOO_LARGE=100 (8.6.0, 2024-01) and CURLE_ECH_REQUIRED=101 (8.8.0, 2024-05) overlap band_regime/band_enroll,",
+                "and curl grows toward the rest at roughly one code a year.",
+                "The wrong-reason hole is already structurally closed:",
+                "every curl site captures via `|| z_curl_status=$?` and classifies before any buc_die,",
+                "so a curl exit never reaches the band membrane",
+                "(surveyed 260704: the rbuh_http request retry loop, the rbgv_probe loop; rbgo's command-v check is exit-1 shaped).",
+                "Record at both homes — BCG \"Precision Exit-Code Band\" placement paragraph and the bubc_constants.sh tinder placement comment —",
+                "the true curl extent, the deliberate overlap, and the containment rule stated normatively:",
+                "curl exits are captured-and-classified at the call site; a bare `curl ... || buc_die` chain is rule-barred.",
+                "An enforcement rule in the existing theurge shell-scan patrol earns its keep only if it drops in cheaply — mount-time call.",
+                "",
+                "## Done when",
+                "Both homes state the overlap and the containment rule;",
+                "a repo grep shows no bare curl-into-buc_die chain.",
+                "",
+                "## Cinched",
+                "Doctrine over re-base: re-basing the band was weighed and declined",
+                "(zero-sum window under the 124 ceiling — headroom below trades one-for-one against free codes above;",
+                "renumbers the census; rents years only, while containment holds forever).",
+                "",
+                "## Character",
+                "Prose-only, two files, small."
+              ],
+              "jjgtn_silks": "curl-band-overlap-doctrine",
+              "jjgtn_basis": "6201b42"
             }
           ]
         }
