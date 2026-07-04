@@ -30,7 +30,13 @@ then the poll re-mint.
 - Parameterize the seam, default the value: the runway check takes required-runway as an argument defaulting to the blanket floor (~2h, a kindled constant beside the existing sitting-skew knob).
   NO per-operation bounds are populated until one earns its existence (load-bearing-complexity test).
 - The floor guarantees the composition: at least 2h of runway at gate time means the sitting outlives any build (~95-minute worst case), so the poll's mid-flight re-mint reads a live sitting by construction and never prompts.
-- The operator verb is minted via the federation vocabulary census — "renew" is the working name and likely trodden; the word is ashlar (it rides the gate's rejection message) and bondstone-adjacent.
+- Census line — the operator verb is ELECTED (260704): **novate**, the force-fresh renewal act
+  (law: novation — extinguishing an obligation by replacing it with a new one; mechanism-exact for the atomic sitting overwrite).
+  Ashlar, low-traffic (the gate's rejection text + the renew tabtarget), bondstone-adjacent;
+  grep-clean at mint; rbtf_novate seated in RBS0 beside avow/sitting.
+  Census verdicts: "renew" disqualified (trodden ambient prose + near-neighbor collision with the payor refresh estate, RBSPR/RBSAO);
+  "reavow" runner-up (mechanism-honest but derivative — names the ceremony, not the fresh sitting it buys);
+  "prorogate" failed the cold probe (Westminster prorogue reads as suspend/end — backwards).
 - Band widening is blessed: widen the definition, re-pin the self-test sentinel, update its fixture; allocation rules and existing codes unchanged.
 
 ## Done when
@@ -47,6 +53,6 @@ The ₣Bf mount study (260702) mapped every surface; durable anchors:
 avow's sitting-reuse branch, the sitting read/write helpers, and the don's single-attempt design comment in rba_auth.sh;
 the one long-lived consumer zrbfc_wait_build_completion in rbfcb_host.sh (director conjure/mirror and the whole Lode capture spine all funnel through it — one fix, not several);
 the full band census in bubc_constants.sh (16/16 allocated, self-test sentinel pinning the top, BUTT fixture asserting it);
-the spec homes in RBS0-SpecTop.adoc — the sitting and avow quoins and the human-present premise (its re-mint promise is today reactive fail-at-lapse only).
+the spec homes in RBS0-SpecTop.adoc — the sitting and avow quoins and the human-present premise (its re-mint promise, reactive fail-at-lapse only at study time, now extended by the contract pace: runway floor on the sitting, novate quoin beside avow).
 Wrong homes ruled out: RBSFA is the programmatic, sittingless sibling and does not own this contract; the in-pool preflight quoin is an unrelated Cloud-Build step check.
 The keyfile-era memo trail lives with the leading disposition pace's docket; this heat's build paces do not re-litigate it.
