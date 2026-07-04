@@ -108,24 +108,22 @@ zrbgp_refresh_capture() {
 
   buc_log_args "Exchanging refresh token for access token"
 
-  # Build request and pipe to curl - secrets never touch disk
+  # Request body rides a process substitution into curl - secrets never touch disk
+  local z_curl_status=0
   local z_response
-  z_response=$(jq -n \
-    --arg refresh_token "${RBRO_REFRESH_TOKEN}" \
-    --arg client_id "${RBRP_OAUTH_CLIENT_ID}" \
-    --arg client_secret "${RBRO_CLIENT_SECRET}" \
-    --arg grant_type "refresh_token" \
-    '{
-      refresh_token: $refresh_token,
-      client_id: $client_id,
-      client_secret: $client_secret,
-      grant_type: $grant_type
-    }' | curl -sS -X POST \
+  z_response=$(
+    curl -sS -X POST \
       --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
       --max-time "${RBCC_CURL_MAX_TIME_SEC}" \
       -H "Content-Type: application/json" \
-      -d @- \
-      "${RBGC_OAUTH_TOKEN_URL}") || buc_die "Failed to execute OAuth refresh request"
+      -d @<(jq -n \
+        --arg refresh_token "${RBRO_REFRESH_TOKEN}" \
+        --arg client_id "${RBRP_OAUTH_CLIENT_ID}" \
+        --arg client_secret "${RBRO_CLIENT_SECRET}" \
+        --arg grant_type "refresh_token" \
+        '{refresh_token: $refresh_token, client_id: $client_id, client_secret: $client_secret, grant_type: $grant_type}') \
+      "${RBGC_OAUTH_TOKEN_URL}") || z_curl_status=$?
+  test "${z_curl_status}" -eq 0 || buc_die "Failed to execute OAuth refresh request (curl exit ${z_curl_status})"
 
   # Check for error in response
   local z_error
@@ -891,26 +889,23 @@ rbgp_payor_install() {
 
   buc_log_args "Exchanging authorization code for tokens"
 
-  # Build request and pipe to curl - secrets never touch disk
+  # Request body rides a process substitution into curl - secrets never touch disk
+  local z_curl_status=0
   local z_response
-  z_response=$(jq -n \
-    --arg code "${z_auth_code}" \
-    --arg client_id "${z_client_id}" \
-    --arg client_secret "${z_client_secret}" \
-    --arg redirect_uri "urn:ietf:wg:oauth:2.0:oob" \
-    --arg grant_type "authorization_code" \
-    '{
-      code: $code,
-      client_id: $client_id,
-      client_secret: $client_secret,
-      redirect_uri: $redirect_uri,
-      grant_type: $grant_type
-    }' | curl -sS -X POST \
+  z_response=$(
+    curl -sS -X POST \
       --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
       --max-time "${RBCC_CURL_MAX_TIME_SEC}" \
       -H "Content-Type: application/json" \
-      -d @- \
-      "${RBGC_OAUTH_TOKEN_URL}") || buc_die "Failed to execute token exchange request"
+      -d @<(jq -n \
+        --arg code "${z_auth_code}" \
+        --arg client_id "${z_client_id}" \
+        --arg client_secret "${z_client_secret}" \
+        --arg redirect_uri "urn:ietf:wg:oauth:2.0:oob" \
+        --arg grant_type "authorization_code" \
+        '{code: $code, client_id: $client_id, client_secret: $client_secret, redirect_uri: $redirect_uri, grant_type: $grant_type}') \
+      "${RBGC_OAUTH_TOKEN_URL}") || z_curl_status=$?
+  test "${z_curl_status}" -eq 0 || buc_die "Failed to execute token exchange request (curl exit ${z_curl_status})"
 
   # Check for error in response
   local z_error

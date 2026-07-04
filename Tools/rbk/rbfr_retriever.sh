@@ -88,6 +88,7 @@ rbfr_summon() {
   local z_image_status_file="${ZRBFR_TEMP_PREFIX}summon_image_status.txt"
   local z_image_response_file="${ZRBFR_TEMP_PREFIX}summon_image_response.json"
 
+  local z_curl_status=0
   curl --head -s                                     \
     --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
     --max-time "${RBCC_CURL_MAX_TIME_SEC}"           \
@@ -96,7 +97,8 @@ rbfr_summon() {
     -w "%{http_code}"                               \
     -o "${z_image_response_file}"                   \
     "${ZRBFC_REGISTRY_API_BASE}/${z_image_pkg}/manifests/${z_hallmark}" \
-    > "${z_image_status_file}" || buc_die "HEAD request failed for image ark"
+    > "${z_image_status_file}" || z_curl_status=$?
+  test "${z_curl_status}" -eq 0 || buc_die "HEAD request failed for image ark (curl exit ${z_curl_status})"
 
   local z_image_http_code
   z_image_http_code=$(<"${z_image_status_file}")
@@ -121,7 +123,8 @@ rbfr_summon() {
     -w "%{http_code}"                               \
     -o "${z_about_response_file}"                   \
     "${ZRBFC_REGISTRY_API_BASE}/${z_about_pkg}/manifests/${z_hallmark}" \
-    > "${z_about_status_file}" || buc_die "HEAD request failed for about ark"
+    > "${z_about_status_file}" || z_curl_status=$?
+  test "${z_curl_status}" -eq 0 || buc_die "HEAD request failed for about ark (curl exit ${z_curl_status})"
 
   local z_about_http_code
   z_about_http_code=$(<"${z_about_status_file}")
@@ -146,7 +149,8 @@ rbfr_summon() {
     -w "%{http_code}"                               \
     -o "${z_vouch_response_file}"                   \
     "${ZRBFC_REGISTRY_API_BASE}/${z_vouch_pkg}/manifests/${z_hallmark}" \
-    > "${z_vouch_status_file}" || buc_die "HEAD request failed for vouch ark"
+    > "${z_vouch_status_file}" || z_curl_status=$?
+  test "${z_curl_status}" -eq 0 || buc_die "HEAD request failed for vouch ark (curl exit ${z_curl_status})"
 
   local z_vouch_http_code
   z_vouch_http_code=$(<"${z_vouch_status_file}")

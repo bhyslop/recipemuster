@@ -353,16 +353,16 @@ zrba_leg1_idtoken_capture() {
   zrbrf_sentinel
   zrbcc_sentinel
 
-  local z_status=0
+  local z_curl_status=0
   curl -sS -X POST "${RBRF_IDP_DEVICE_ENDPOINT}"         \
     --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
     --max-time        "${RBCC_CURL_MAX_TIME_SEC}"        \
     -H "Content-Type: application/x-www-form-urlencoded" \
     --data-urlencode "client_id=${RBRF_IDP_CLIENT_ID}"   \
     --data-urlencode "scope=${RBRF_IDP_SCOPE}"           \
-    > "${ZRBA_FED_DEVICE_RESPONSE_FILE}" 2>"${ZRBA_FED_CURL_STDERR_FILE}" || z_status=$?
-  test "${z_status}" -eq 0 \
-    || { buc_log_args "Device-code request failed (curl ${z_status}); see ${ZRBA_FED_CURL_STDERR_FILE}"; return 1; }
+    > "${ZRBA_FED_DEVICE_RESPONSE_FILE}" 2>"${ZRBA_FED_CURL_STDERR_FILE}" || z_curl_status=$?
+  test "${z_curl_status}" -eq 0 \
+    || { buc_log_args "Device-code request failed (curl ${z_curl_status}); see ${ZRBA_FED_CURL_STDERR_FILE}"; return 1; }
 
   jq -r '.device_code // empty' "${ZRBA_FED_DEVICE_RESPONSE_FILE}" \
      > "${ZRBA_FED_DEVICE_CODE_FILE}" 2>"${ZRBA_FED_JQ_STDERR_FILE}" || return 1
@@ -402,7 +402,7 @@ zrba_leg1_idtoken_capture() {
     sleep "${z_interval}" || return 1
     z_elapsed=$(( z_elapsed + z_interval ))
 
-    z_status=0
+    z_curl_status=0
     curl -sS -X POST "${RBRF_IDP_TOKEN_ENDPOINT}"            \
       --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}"   \
       --max-time        "${RBCC_CURL_MAX_TIME_SEC}"          \
@@ -410,10 +410,10 @@ zrba_leg1_idtoken_capture() {
       --data-urlencode "grant_type=${ZRBA_DEVICE_GRANT_TYPE}" \
       --data-urlencode "client_id=${RBRF_IDP_CLIENT_ID}"     \
       --data-urlencode "device_code=${z_device_code}"        \
-      > "${ZRBA_FED_TOKEN_RESPONSE_FILE}" 2>"${ZRBA_FED_CURL_STDERR_FILE}" || z_status=$?
-    if test "${z_status}" -ne 0; then
-      rbgo_curl_status_is_transient_predicate "${z_status}" \
-        || { buc_log_args "Device-flow poll failed (curl ${z_status})"; return 1; }
+      > "${ZRBA_FED_TOKEN_RESPONSE_FILE}" 2>"${ZRBA_FED_CURL_STDERR_FILE}" || z_curl_status=$?
+    if test "${z_curl_status}" -ne 0; then
+      rbgo_curl_status_is_transient_predicate "${z_curl_status}" \
+        || { buc_log_args "Device-flow poll failed (curl ${z_curl_status})"; return 1; }
       continue
     fi
 
@@ -538,7 +538,7 @@ zrba_leg1_programmatic_idtoken_capture() {
   # POST the RFC 7523 grant. The client secret and the assertion both ride by FILE
   # REFERENCE (--data-urlencode name@file), so neither the secret nor the assertion
   # enters a shell var or the argument list.
-  local z_status=0
+  local z_curl_status=0
   curl -sS -X POST "${RBRF_GRANT_ENDPOINT}"                      \
     --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}"         \
     --max-time        "${RBCC_CURL_MAX_TIME_SEC}"                \
@@ -548,9 +548,9 @@ zrba_leg1_programmatic_idtoken_capture() {
     --data-urlencode "scope=${ZRBA_PROG_ASSERTION_SCOPE}"        \
     --data-urlencode "client_secret@${z_secret_file}"            \
     --data-urlencode "assertion@${ZRBA_FED_PROG_ASSERTION_FILE}" \
-    > "${ZRBA_FED_PROG_TOKEN_RESPONSE_FILE}" 2>"${ZRBA_FED_CURL_STDERR_FILE}" || z_status=$?
-  test "${z_status}" -eq 0 \
-    || { buc_log_args "RFC 7523 grant POST failed (curl ${z_status}); see ${ZRBA_FED_CURL_STDERR_FILE}"; return 1; }
+    > "${ZRBA_FED_PROG_TOKEN_RESPONSE_FILE}" 2>"${ZRBA_FED_CURL_STDERR_FILE}" || z_curl_status=$?
+  test "${z_curl_status}" -eq 0 \
+    || { buc_log_args "RFC 7523 grant POST failed (curl ${z_curl_status}); see ${ZRBA_FED_CURL_STDERR_FILE}"; return 1; }
 
   # id_token (secret): jq emits it straight to stdout, never through a shell var or
   # temp file. select(length > 0) yields a non-zero jq exit for an absent/empty token
@@ -582,7 +582,7 @@ zrba_leg2_federated_capture() {
 
   local -r z_audience="//iam.googleapis.com/locations/global/workforcePools/${RBRW_WORKFORCE_POOL_ID}/providers/${RBRF_PROVIDER_ID}"
 
-  local z_status=0
+  local z_curl_status=0
   curl -sS -X POST "${ZRBA_STS_ENDPOINT}"                                    \
     --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}"                     \
     --max-time        "${RBCC_CURL_MAX_TIME_SEC}"                            \
@@ -593,9 +593,9 @@ zrba_leg2_federated_capture() {
     --data-urlencode "requested_token_type=${ZRBA_STS_REQUESTED_TOKEN_TYPE}" \
     --data-urlencode "subject_token_type=${ZRBA_STS_SUBJECT_TOKEN_TYPE}"     \
     --data-urlencode "subject_token=${z_idtoken}"                            \
-    > "${ZRBA_FED_STS_RESPONSE_FILE}" 2>"${ZRBA_FED_CURL_STDERR_FILE}" || z_status=$?
-  test "${z_status}" -eq 0 \
-    || { buc_log_args "STS exchange failed (curl ${z_status}); see ${ZRBA_FED_CURL_STDERR_FILE}"; return 1; }
+    > "${ZRBA_FED_STS_RESPONSE_FILE}" 2>"${ZRBA_FED_CURL_STDERR_FILE}" || z_curl_status=$?
+  test "${z_curl_status}" -eq 0 \
+    || { buc_log_args "STS exchange failed (curl ${z_curl_status}); see ${ZRBA_FED_CURL_STDERR_FILE}"; return 1; }
 
   jq -r '.expires_in // 0' "${ZRBA_FED_STS_RESPONSE_FILE}" \
      > "${ZRBA_FED_EXPIRES_IN_FILE}" 2>"${ZRBA_FED_JQ_STDERR_FILE}" || return 1
@@ -819,7 +819,7 @@ rba_don_capture() {
 
   # Single generateAccessToken call. -o writes the response (mantle token) to the
   # curl-response scratch; -w prints the HTTP code to stdout, captured to a file.
-  local z_status=0
+  local z_curl_status=0
   curl -sS -X POST "${z_don_url}"                        \
     --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
     --max-time        "${RBCC_CURL_MAX_TIME_SEC}"        \
@@ -829,9 +829,9 @@ rba_don_capture() {
     --data "@${ZRBA_FED_DON_BODY_FILE}"                  \
     -o "${ZRBA_FED_DON_RESPONSE_FILE}"                   \
     -w '%{http_code}'                                    \
-    > "${ZRBA_FED_DON_CODE_FILE}" 2>"${ZRBA_FED_CURL_STDERR_FILE}" || z_status=$?
-  test "${z_status}" -eq 0 || {
-    buc_log_args "Leg 3 (don) curl failed (exit ${z_status}); see ${ZRBA_FED_CURL_STDERR_FILE}"
+    > "${ZRBA_FED_DON_CODE_FILE}" 2>"${ZRBA_FED_CURL_STDERR_FILE}" || z_curl_status=$?
+  test "${z_curl_status}" -eq 0 || {
+    buc_log_args "Leg 3 (don) curl failed (exit ${z_curl_status}); see ${ZRBA_FED_CURL_STDERR_FILE}"
     return 1
   }
 

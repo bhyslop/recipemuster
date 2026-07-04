@@ -150,6 +150,7 @@ zrbfc_gar_extract_artifact() {
   local -r z_head_status="${z_prefix}head_status.txt"
   local -r z_head_response="${z_prefix}head_response.txt"
   local -r z_head_stderr="${z_prefix}head_stderr.txt"
+  local z_curl_status=0
   curl --head -s \
     --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
     --max-time "${RBCC_CURL_MAX_TIME_SEC}" \
@@ -159,7 +160,9 @@ zrbfc_gar_extract_artifact() {
     -o "${z_head_response}" \
     "${ZRBFC_REGISTRY_API_BASE}/${z_package}/manifests/${z_tag}" \
     > "${z_head_status}" 2>"${z_head_stderr}" \
-    || buc_die "HEAD request failed for ${z_package}:${z_tag} — see ${z_head_stderr}"
+    || z_curl_status=$?
+  test "${z_curl_status}" -eq 0 \
+    || buc_die "HEAD request failed for ${z_package}:${z_tag} (curl exit ${z_curl_status}) — see ${z_head_stderr}"
 
   local -r z_http_code=$(<"${z_head_status}")
   test "${z_http_code}" = "200" || return 1
@@ -174,7 +177,9 @@ zrbfc_gar_extract_artifact() {
     -H "Accept: ${ZRBFC_ACCEPT_MANIFEST_MTYPES}" \
     "${ZRBFC_REGISTRY_API_BASE}/${z_package}/manifests/${z_tag}" \
     > "${z_manifest}" 2>"${z_manifest_stderr}" \
-    || buc_die "GET manifest failed for ${z_package}:${z_tag} — see ${z_manifest_stderr}"
+    || z_curl_status=$?
+  test "${z_curl_status}" -eq 0 \
+    || buc_die "GET manifest failed for ${z_package}:${z_tag} (curl exit ${z_curl_status}) — see ${z_manifest_stderr}"
 
   # Resolve to a single-platform manifest
   local z_single_manifest="${z_manifest}"
@@ -201,7 +206,9 @@ zrbfc_gar_extract_artifact() {
         -H "Accept: application/vnd.docker.distribution.manifest.v2+json,application/vnd.oci.image.manifest.v1+json" \
         "${ZRBFC_REGISTRY_API_BASE}/${z_package}/manifests/${z_platform_digest}" \
         > "${z_plat_manifest}" 2>"${z_plat_stderr}" \
-        || buc_die "GET platform manifest failed for ${z_package} — see ${z_plat_stderr}"
+        || z_curl_status=$?
+      test "${z_curl_status}" -eq 0 \
+        || buc_die "GET platform manifest failed for ${z_package} (curl exit ${z_curl_status}) — see ${z_plat_stderr}"
       z_single_manifest="${z_plat_manifest}"
       ;;
   esac
@@ -246,7 +253,9 @@ zrbfc_gar_extract_artifact() {
       -H "Authorization: Bearer ${z_token}" \
       "${ZRBFC_REGISTRY_API_BASE}/${z_package}/blobs/${z_layer_digest}" \
       > "${z_blob_file}" 2>"${z_blob_stderr}" \
-      || buc_die "GET blob failed for ${z_package} layer ${z_layer_digest} — see ${z_blob_stderr}"
+      || z_curl_status=$?
+    test "${z_curl_status}" -eq 0 \
+      || buc_die "GET blob failed for ${z_package} layer ${z_layer_digest} (curl exit ${z_curl_status}) — see ${z_blob_stderr}"
 
     z_tar_stderr="${z_prefix}tar_${z_layer_idx}_stderr.txt"
     tar -xzf "${z_blob_file}" -C "${z_extract_dir}" 2>"${z_tar_stderr}" \
@@ -281,6 +290,7 @@ zrbfc_image_config_fetch() {
   local -r z_head_status="${z_prefix}head_status.txt"
   local -r z_head_response="${z_prefix}head_response.txt"
   local -r z_head_stderr="${z_prefix}head_stderr.txt"
+  local z_curl_status=0
   curl --head -s \
     --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
     --max-time "${RBCC_CURL_MAX_TIME_SEC}" \
@@ -290,7 +300,9 @@ zrbfc_image_config_fetch() {
     -o "${z_head_response}" \
     "${ZRBFC_REGISTRY_API_BASE}/${z_package}/manifests/${z_tag}" \
     > "${z_head_status}" 2>"${z_head_stderr}" \
-    || buc_die "HEAD request failed for ${z_package}:${z_tag} — see ${z_head_stderr}"
+    || z_curl_status=$?
+  test "${z_curl_status}" -eq 0 \
+    || buc_die "HEAD request failed for ${z_package}:${z_tag} (curl exit ${z_curl_status}) — see ${z_head_stderr}"
   local -r z_http_code=$(<"${z_head_status}")
   test "${z_http_code}" = "200" || return 1
 
@@ -304,7 +316,9 @@ zrbfc_image_config_fetch() {
     -H "Accept: ${ZRBFC_ACCEPT_MANIFEST_MTYPES}" \
     "${ZRBFC_REGISTRY_API_BASE}/${z_package}/manifests/${z_tag}" \
     > "${z_manifest}" 2>"${z_manifest_stderr}" \
-    || buc_die "GET manifest failed for ${z_package}:${z_tag} — see ${z_manifest_stderr}"
+    || z_curl_status=$?
+  test "${z_curl_status}" -eq 0 \
+    || buc_die "GET manifest failed for ${z_package}:${z_tag} (curl exit ${z_curl_status}) — see ${z_manifest_stderr}"
 
   # Resolve to a single-platform manifest. The attest per-platform tag is already
   # single-platform, but the defensive index-resolve keeps the helper general.
@@ -331,7 +345,9 @@ zrbfc_image_config_fetch() {
         -H "Accept: application/vnd.docker.distribution.manifest.v2+json,application/vnd.oci.image.manifest.v1+json" \
         "${ZRBFC_REGISTRY_API_BASE}/${z_package}/manifests/${z_platform_digest}" \
         > "${z_plat_manifest}" 2>"${z_plat_stderr}" \
-        || buc_die "GET platform manifest failed for ${z_package} — see ${z_plat_stderr}"
+        || z_curl_status=$?
+      test "${z_curl_status}" -eq 0 \
+        || buc_die "GET platform manifest failed for ${z_package} (curl exit ${z_curl_status}) — see ${z_plat_stderr}"
       z_single_manifest="${z_plat_manifest}"
       ;;
   esac
@@ -351,7 +367,9 @@ zrbfc_image_config_fetch() {
     -H "Authorization: Bearer ${z_token}" \
     "${ZRBFC_REGISTRY_API_BASE}/${z_package}/blobs/${z_config_digest}" \
     > "${z_out}" 2>"${z_config_stderr}" \
-    || buc_die "GET config blob failed for ${z_package}:${z_tag} — see ${z_config_stderr}"
+    || z_curl_status=$?
+  test "${z_curl_status}" -eq 0 \
+    || buc_die "GET config blob failed for ${z_package}:${z_tag} (curl exit ${z_curl_status}) — see ${z_config_stderr}"
 
   return 0
 }

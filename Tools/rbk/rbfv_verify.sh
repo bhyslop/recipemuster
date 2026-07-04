@@ -74,6 +74,7 @@ rbfv_vouch_gate() {
     || buc_die "rbfv_vouch_gate: failed to get Director OAuth token"
 
   local z_vouch_http_code
+  local z_curl_status=0
   curl --head -s \
     --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
     --max-time "${RBCC_CURL_MAX_TIME_SEC}" \
@@ -82,7 +83,9 @@ rbfv_vouch_gate() {
     -w "%{http_code}" \
     "${ZRBFC_REGISTRY_API_BASE}/${RBGL_HALLMARKS_ROOT}/${z_hallmark}/${RBGC_ARK_BASENAME_VOUCH}/manifests/${z_vouch_tag}" \
     > "${ZRBFC_SCRATCH_FILE}" \
-    || buc_die "rbfv_vouch_gate: HEAD request failed for ${z_vessel}:${z_vouch_tag}"
+    || z_curl_status=$?
+  test "${z_curl_status}" -eq 0 \
+    || buc_die "rbfv_vouch_gate: HEAD request failed for ${z_vessel}:${z_vouch_tag} (curl exit ${z_curl_status})"
   z_vouch_http_code=$(<"${ZRBFC_SCRATCH_FILE}")
 
   if test "${z_vouch_http_code}" != "200"; then
@@ -128,6 +131,7 @@ rbfv_about() {
   local -r z_image_gate_response="${ZRBFV_ABOUT_PREFIX}image_response.json"
   local -r z_image_gate_stderr="${ZRBFV_ABOUT_PREFIX}image_stderr.txt"
 
+  local z_curl_status=0
   curl --head -s \
     --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
     --max-time "${RBCC_CURL_MAX_TIME_SEC}" \
@@ -137,7 +141,9 @@ rbfv_about() {
     -o "${z_image_gate_response}" \
     "${ZRBFC_REGISTRY_API_BASE}/${z_hallmark_subtree}/${RBGC_ARK_BASENAME_IMAGE}/manifests/${z_hallmark}" \
     > "${z_image_gate_status}" 2>"${z_image_gate_stderr}" \
-    || buc_die "HEAD request failed for image artifact — see ${z_image_gate_stderr}"
+    || z_curl_status=$?
+  test "${z_curl_status}" -eq 0 \
+    || buc_die "HEAD request failed for image artifact (curl exit ${z_curl_status}) — see ${z_image_gate_stderr}"
 
   local -r z_image_http_code=$(<"${z_image_gate_status}")
   test -n "${z_image_http_code}" || buc_die "HTTP status code is empty for image"
@@ -160,7 +166,9 @@ rbfv_about() {
     -o "${z_about_gate_response}" \
     "${ZRBFC_REGISTRY_API_BASE}/${z_hallmark_subtree}/${RBGC_ARK_BASENAME_ABOUT}/manifests/${z_hallmark}" \
     > "${z_about_gate_status}" 2>"${z_about_gate_stderr}" \
-    || buc_die "HEAD request failed for about artifact — see ${z_about_gate_stderr}"
+    || z_curl_status=$?
+  test "${z_curl_status}" -eq 0 \
+    || buc_die "HEAD request failed for about artifact (curl exit ${z_curl_status}) — see ${z_about_gate_stderr}"
 
   local -r z_about_http_code=$(<"${z_about_gate_status}")
   test -n "${z_about_http_code}" || buc_die "HTTP status code is empty for about"
@@ -206,6 +214,7 @@ zrbfv_graft_metadata_submit() {
   local -r z_image_gate_response="${ZRBFV_GRAFT_META_PREFIX}image_response.json"
   local -r z_image_gate_stderr="${ZRBFV_GRAFT_META_PREFIX}image_stderr.txt"
 
+  local z_curl_status=0
   curl --head -s \
     --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
     --max-time "${RBCC_CURL_MAX_TIME_SEC}" \
@@ -215,7 +224,9 @@ zrbfv_graft_metadata_submit() {
     -o "${z_image_gate_response}" \
     "${ZRBFC_REGISTRY_API_BASE}/${z_hallmark_subtree}/${RBGC_ARK_BASENAME_IMAGE}/manifests/${z_hallmark}" \
     > "${z_image_gate_status}" 2>"${z_image_gate_stderr}" \
-    || buc_die "HEAD request failed for image artifact — see ${z_image_gate_stderr}"
+    || z_curl_status=$?
+  test "${z_curl_status}" -eq 0 \
+    || buc_die "HEAD request failed for image artifact (curl exit ${z_curl_status}) — see ${z_image_gate_stderr}"
 
   local -r z_image_http_code=$(<"${z_image_gate_status}")
   test -n "${z_image_http_code}" || buc_die "HTTP status code is empty for image"
@@ -601,6 +612,7 @@ rbfv_vouch() {
   local -r z_about_gate_response="${ZRBFV_VOUCH_PREFIX}about_response.json"
   local -r z_about_gate_stderr="${ZRBFV_VOUCH_PREFIX}about_stderr.txt"
 
+  local z_curl_status=0
   curl --head -s \
     --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
     --max-time "${RBCC_CURL_MAX_TIME_SEC}" \
@@ -610,7 +622,9 @@ rbfv_vouch() {
     -o "${z_about_gate_response}" \
     "${ZRBFC_REGISTRY_API_BASE}/${z_hallmark_subtree}/${RBGC_ARK_BASENAME_ABOUT}/manifests/${z_hallmark}" \
     > "${z_about_gate_status}" 2>"${z_about_gate_stderr}" \
-    || buc_die "HEAD request failed for about artifact — see ${z_about_gate_stderr}"
+    || z_curl_status=$?
+  test "${z_curl_status}" -eq 0 \
+    || buc_die "HEAD request failed for about artifact (curl exit ${z_curl_status}) — see ${z_about_gate_stderr}"
 
   local -r z_about_http_code=$(<"${z_about_gate_status}")
   test -n "${z_about_http_code}" || buc_die "HTTP status code is empty for about"
@@ -633,7 +647,9 @@ rbfv_vouch() {
     -o "${z_vouch_gate_response}" \
     "${ZRBFC_REGISTRY_API_BASE}/${z_hallmark_subtree}/${RBGC_ARK_BASENAME_VOUCH}/manifests/${z_hallmark}" \
     > "${z_vouch_gate_status}" 2>"${z_vouch_gate_stderr}" \
-    || buc_die "HEAD request failed for vouch artifact — see ${z_vouch_gate_stderr}"
+    || z_curl_status=$?
+  test "${z_curl_status}" -eq 0 \
+    || buc_die "HEAD request failed for vouch artifact (curl exit ${z_curl_status}) — see ${z_vouch_gate_stderr}"
 
   local -r z_vouch_http_code=$(<"${z_vouch_gate_status}")
   test -n "${z_vouch_http_code}" || buc_die "HTTP status code is empty for vouch"

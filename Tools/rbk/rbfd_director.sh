@@ -125,6 +125,7 @@ zrbfd_preflight_reliquary() {
     z_response_file="${ZRBFD_PREFLIGHT_PREFIX}reliquary_${z_tool}_response.txt"
     z_stderr_file="${ZRBFD_PREFLIGHT_PREFIX}reliquary_${z_tool}_stderr.txt"
 
+    local z_curl_status=0
     curl --head -sS \
       --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
       --max-time "${RBCC_CURL_MAX_TIME_SEC}" \
@@ -134,7 +135,9 @@ zrbfd_preflight_reliquary() {
       -o "${z_response_file}" \
       "${ZRBFC_REGISTRY_API_BASE}/${z_pkg}/manifests/${z_tag}" \
       > "${z_status_file}" 2>"${z_stderr_file}" \
-      || buc_die "HEAD request failed for reliquary tool: ${z_pkg}:${z_tag} — see ${z_stderr_file}"
+      || z_curl_status=$?
+    test "${z_curl_status}" -eq 0 \
+      || buc_die "HEAD request failed for reliquary tool: ${z_pkg}:${z_tag} (curl exit ${z_curl_status}) — see ${z_stderr_file}"
 
     z_http_code=$(<"${z_status_file}")
     test -n "${z_http_code}" || buc_die "HTTP status code is empty for reliquary check: ${z_tool}"
@@ -350,6 +353,7 @@ zrbfd_registry_preflight() {
     z_response_file="${ZRBFD_PREFLIGHT_PREFIX}base_${z_n}_response.txt"
     z_stderr_file="${ZRBFD_PREFLIGHT_PREFIX}base_${z_n}_stderr.txt"
 
+    local z_curl_status=0
     curl --head -sS \
       --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
       --max-time "${RBCC_CURL_MAX_TIME_SEC}" \
@@ -359,7 +363,9 @@ zrbfd_registry_preflight() {
       -o "${z_response_file}" \
       "${ZRBFC_REGISTRY_API_BASE}/${z_pkg_path}/manifests/${z_tag}" \
       > "${z_status_file}" 2>"${z_stderr_file}" \
-      || buc_die "HEAD request failed for base image: ${z_anchor} — see ${z_stderr_file}"
+      || z_curl_status=$?
+    test "${z_curl_status}" -eq 0 \
+      || buc_die "HEAD request failed for base image: ${z_anchor} (curl exit ${z_curl_status}) — see ${z_stderr_file}"
 
     z_http_code=$(<"${z_status_file}")
     test -n "${z_http_code}" || buc_die "HTTP status code is empty for base image check"

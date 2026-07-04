@@ -87,6 +87,7 @@ zrbxk_kindle() {
   # JWKS bridge temp files (non-secret — public keys only).
   readonly ZRBXK_JWKS_RAW="${BURD_TEMP_DIR}/rbxk_jwks_raw.json"
   readonly ZRBXK_JWKS_STRIPPED="${BURD_TEMP_DIR}/rbxk_jwks_stripped.json"
+  readonly ZRBXK_HTTP_CODE="${BURD_TEMP_DIR}/rbxk_http_code.txt"
 
   test -f "${ZRBXK_TEMPLATE}" || buc_die "Keycloak foedus template missing: ${ZRBXK_TEMPLATE}"
   test -f "${ZRBXK_NAMEPLATE_RBRN}" || buc_die "Keycloak nameplate regime missing: ${ZRBXK_NAMEPLATE_RBRN}"
@@ -173,7 +174,12 @@ zrbxk_poll_ready() {
   local z_attempt=1
   local z_code="000"
   while test "${z_attempt}" -le "${RBXK_poll_max_attempts}"; do
-    z_code=$(curl -s -o /dev/null -w '%{http_code}' "${z_url}") || z_code="000"
+    local z_curl_status=0
+    curl -s -o /dev/null -w '%{http_code}' "${z_url}" > "${ZRBXK_HTTP_CODE}" || z_curl_status=$?
+    z_code="000"
+    if test "${z_curl_status}" -eq 0; then
+      z_code=$(<"${ZRBXK_HTTP_CODE}")
+    fi
     if test "${z_code}" = "200"; then
       buc_info "Keycloak realm ${RBXK_realm} ready (HTTP 200) after ${z_attempt} attempt(s)"
       return 0
@@ -202,8 +208,11 @@ zrbxk_fetch_jwks() {
 
   # Body to a temp file, code captured separately (BCG: single external command,
   # failures visible in the temp file afterward).
+  local z_curl_status=0
+  curl -s -o "${ZRBXK_JWKS_RAW}" -w '%{http_code}' "${z_certs_url}" > "${ZRBXK_HTTP_CODE}" || z_curl_status=$?
+  test "${z_curl_status}" -eq 0 || buc_die "Keycloak certs fetch failed (curl exit ${z_curl_status}) at ${z_certs_url}"
   local z_code="000"
-  z_code=$(curl -s -o "${ZRBXK_JWKS_RAW}" -w '%{http_code}' "${z_certs_url}") || z_code="000"
+  z_code=$(<"${ZRBXK_HTTP_CODE}")
   test "${z_code}" = "200" || buc_die "Keycloak certs fetch returned HTTP ${z_code} at ${z_certs_url}"
 
   jq -c '{keys: [.keys[] | select(.use=="sig") | {kty, use, kid, alg, n, e}]}' \
