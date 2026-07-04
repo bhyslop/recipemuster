@@ -68,7 +68,7 @@ The table keeps the git words until that pace lands, as mulling placeholders onl
 |Op |Facet |Shape |Consumer
 
 |`identify` |orient |Resolve this tree: dirname, origin URL (pedigree key), branch or
-detached state, HEAD, billet-of-which-hippodrome if a worktree. |saddle (dispatch-time);
+detached state, HEAD, billet-of-which-hippodrome if a worktree. |saddle/lunge (dispatch-time);
 ambient on `jjx_open`
 
 |`status` |inspect |Clean/dirty, per-path — feeds clean-tree gates and explicit-file commits.
@@ -145,7 +145,8 @@ ceremony carrying the counterfoil
 
 |slate / reslate / paddock |journal ceremony only — no hippodrome ops
 
-|saddle |`identify` → pedigree lookup → `billet_create`-or-reuse → `freshen` → BURV export →
+|saddle / lunge |shared entrance spine: `identify` → pedigree lookup →
+`billet_create`-or-reuse → `freshen` (groom billets re-detach to tip instead) → BURV export →
 launch session
 
 |unsaddle |`billet_remove`, refuse-if-dirty
@@ -166,15 +167,21 @@ keep, it is a report mode, not a verb.
 The operator knows the verb at chat-top; the session's billet must be right at launch
 (mid-session cd neither reloads project context nor survives the cd prohibition).
 
-* **saddle** — the outermost toothing, run at the shell.
-  Takes one identity; its length picks the protocol (the halter convention):
-  a coronet gets a *pace billet* (worktree + §F branch at trunk tip), a firemark gets a
-  *groom billet* (worktree at detached trunk tip — nothing must survive).
-  Saddle ensures the billet, freshens it, exports per-billet BURV roots, provisions JJ context,
-  and launches Claude Code in it at the verb-appropriate model tier with the engagement verb as
-  opening prompt.
+* **saddle** — the work dispatch, run at the shell.
+  A coronet saddles that pace; a firemark saddles the heat's *next actionable pace* — mounting
+  a heat has always meant mounting its first pace, and the firemark spelling keeps that meaning
+  (re-cinched 260704, retiring the earlier length-picks-protocol collapse that spent the
+  firemark case on grooming).
+  Either way the session gets a *pace billet* (worktree + §F branch at trunk tip).
   (The bash toothing cannot be "mount" — Unix owns that word; the two-layer split is the JJS0
   vocabulary-isolation doctrine appearing at a new boundary.)
+* **lunge** — the groom dispatch (minted 260704): working the horse from the ground,
+  deliberately unmounted.
+  A firemark gets a *groom billet* (worktree at detached trunk tip — nothing must survive).
+* Both doors share one *entrance spine*: ensure the billet, freshen it, export per-billet BURV
+  roots, provision JJ context, and launch Claude Code in it with the engagement verb as opening
+  prompt — and the verb itself carries the tier signal (lunge → planning tier, saddle → work
+  tier), so no protocol-sniffing.
 * **billet** — the standing thing a session runs in: worktree + branch-or-detached-tip + env
   posture.
   The lifecycle entity the officium records and validates; the object noun completing the
@@ -199,11 +206,12 @@ Lifecycle doctrine:
 * *Every dispatched session gets its own billet; trunk belongs to the operator alone.*
   Session isolation is structural, not disciplinary — even a "read-only" groom can run builds.
   Grooms get billets too (detached), so concurrent sessions on one hippodrome never share a tree.
-* *Saddle is the sole door to JJ* (cinched 260704).
+* *The dispatch verbs are the sole door to JJ* (cinched 260704; saddle and lunge share the one
+  entrance spine).
   A bare hand-launched session carries no MCP registration and no JJ context — it is simply a
   non-JJ session, forever legitimate as such.
-  No fallback paths until genuinely forced; the consequence is that saddle must be pleasant
-  very early in the MVP — it is a load-bearing entrance, not a convenience.
+  No fallback paths until genuinely forced; the consequence is that the entrance must be
+  pleasant very early in the MVP — it is load-bearing, not a convenience.
 * Stale billets: reaped at next saddle if clean; flagged, never auto-destroyed, if dirty.
 
 == The BUK meld (studied 260704)
@@ -258,9 +266,9 @@ Hippodromes carry no JJ inserts (studbook sheaf), which re-gestalts JJK installa
 * Tackle bindings (tackle sheaf) supply per-scope discipline context at runtime, replacing
   repo-grain `@`-includes with file-grain binding.
 
-Session tiers: saddle selects model and effort per verb — groom/school-grade planning at
-high-effort frontier tier, mechanical pace work at mid tier, orchestration (future breeze) at
-haiku.
+Session tiers: the dispatch verb carries the tier — lunge at high-effort frontier tier
+(groom/school-grade planning), saddle at the work tier per pace character, orchestration
+(future breeze) at haiku.
 Programmatic session dispatch for personal tooling is documented product surface (headless mode,
 Agent SDK, `--model`); recording that standing determination here is what keeps it from being
 re-litigated from memory.
@@ -277,6 +285,11 @@ doctrine — a vivid word is today spent below the vivid layer), sweep, grep-gat
 * *farrier* — the driver API; fits the horse to the ground. F freed by formbook's rejection.
 * *saddle* / *unsaddle* — dispatch verbs; the real-world sequence saddle-then-mount lands in
   the right order across the two vocabulary layers. Alternate held: leg-up.
+* *lunge* — the groom dispatch verb (minted 260704): working the horse from the ground on the
+  long line, deliberately unmounted — assessment without riding.
+  Grep-clean both spellings; US *lunge* elected over UK *longe*.
+  Restores saddle's firemark spelling to its natural meaning (the heat's next actionable pace),
+  retiring the length-picks-protocol collapse.
 * *billet* — the standing lodging entity; the soldier's assigned temporary quarters, with the
   equestrian foothold of saddle billet straps. Alternates held: livery (lead alternate; livery
   stable Americana), stall (S-crowd + verb hazard). Disqualified: seat (per-seat licensing

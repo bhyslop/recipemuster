@@ -237,8 +237,8 @@ one durable home, no parallel memo — refreshed by build learnings.
   never silently resurrect (`JJr_` rivet treatment: deliberately temporary, demolition
   condition attached).
   The same ceremony *de-inserts* JJK from consumer repos — CLAUDE.md includes, `.claude/jjm`,
-  MCP config — completing the vanilla-hippodrome premise; context provisioning moves to saddle
-  (farrier sheaf).
+  MCP config — completing the vanilla-hippodrome premise; context provisioning moves to the
+  dispatch layer (farrier sheaf).
 * *Founding import carries live state only* — racing and stabled heats, paddocks, dockets;
   retired trophies may ride along as plain files.
   Pre-cutover history does not migrate, and the new engine builds *no* old-side read path —
