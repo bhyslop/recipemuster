@@ -18758,8 +18758,8 @@
         "₢BqAAC": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260702-1507",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260704-1054",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "Build the preflight runway gate and the renew verb together — the rejection names the remedy, so landing one without the other ships a dead end.",
                 "Gate: in avow's sitting-reuse branch only, computing remaining runway from the stored expiry;",
@@ -18783,7 +18783,7 @@
                 "Focused bash plus enrollment mechanics; the design is settled, the negative-test seam wants mount-time judgment."
               ],
               "jjgtn_silks": "runway-gate-and-renew",
-              "jjgtn_basis": "be074de"
+              "jjgtn_basis": "156d74d"
             }
           ]
         },
