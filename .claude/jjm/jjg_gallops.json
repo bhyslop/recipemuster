@@ -13132,14 +13132,15 @@
         "₢BbAAU": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260704-0837",
+              "jjgtn_ts": "260704-0846",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
-                "ACGm_104 citation-collapse sweep over rbgc_constants.sh comment blocks:",
-                "several cite their spec home and then restate its rationale beside the citation — the paraphrase fork ACG forbids.",
-                "Discovery recipe: grep the file's comment blocks for spec citations (RBSL, RBSLU, RBSLI, RBSCB, RBSCIP, rbsk_ quoin refs) and judge each against the ACG three-homes table.",
-                "The propagation-constants block is already collapsed (credential-fault disposition work) and stands as the worked pattern.",
-                "Survey (260704): five-kinds rationale (RBSL), wsl acquisition + Palisade note (RBSLU), podvm acquisition (RBSLI), gcrane cohort rationale (rbsk_pinning_boundary/RBSCB), rbi_df layout narrative, GONE_CONFIRM_STREAK replica-flap characterization (confirmed fork of RBSCIP's SA-delete read-path flap bullet).",
+                "ACGm_104 citation-collapse sweep over rbgc_constants.sh comment blocks, widened to rba_auth.sh:",
+                "several blocks cite their spec home and then restate its rationale beside the citation — the cite-then-restate signature ACGm_104 names.",
+                "Discovery recipe: grep comment blocks for spec citations (RBSL, RBSLU, RBSLI, RBSCB, RBSCIP, RBS0 quoin refs) and judge each against the ACG three-homes table.",
+                "The rbgc propagation-constants block is already collapsed (credential-fault disposition work) and stands as the worked pattern.",
+                "rbgc survey (260704): five-kinds rationale (RBSL), wsl acquisition + Palisade note (RBSLU), podvm acquisition (RBSLI), gcrane cohort rationale (rbsk_pinning_boundary/RBSCB), rbi_df layout narrative, GONE_CONFIRM_STREAK replica-flap characterization (confirmed fork of RBSCIP's SA-delete read-path flap bullet).",
+                "rba_auth.sh: the don comment block's fault-posture prose (single-attempt design, admission-deficit-not-propagation-race) is now forked by RBS0's rbtf_don fault posture, which is authoritative — collapse to residue, keeping only what RBS0 does not home (custody and transport mechanics are edit-time and stay).",
                 "Palisade-fallback blocks are licensed where no spec home exists and stay: moby#44350 spoor, wincred-headless membrane, HTTP transient mechanics.",
                 "",
                 "## Done when",
@@ -13153,7 +13154,7 @@
                 "Judgment per block against a settled rule; mechanical once ruled."
               ],
               "jjgtn_silks": "rbgc-constants-comment-collapse",
-              "jjgtn_basis": "e1ff69d"
+              "jjgtn_basis": "230478d"
             }
           ]
         }
