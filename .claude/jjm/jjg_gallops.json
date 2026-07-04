@@ -18994,8 +18994,8 @@
         "₢BqAAI": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260704-1052",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260704-1152",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "Copy the device-flow user code to the operator clipboard at avowal-prompt emission, alongside the existing yawp display.",
                 "Security determination recorded (260704 session): the user code is display-safe by design",
@@ -19022,7 +19022,7 @@
                 "Small platform-aware bash at one site; the clipboard-command survey is the only research."
               ],
               "jjgtn_silks": "avowal-code-clipboard",
-              "jjgtn_basis": "628d317"
+              "jjgtn_basis": "055bcd9"
             }
           ]
         }
