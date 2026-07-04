@@ -51,6 +51,7 @@ use crate::rbtdgc_consts::{
     RBTDGC_VALIDATE_VESSEL,
 };
 use crate::rbtdrm_manifest::{
+    RBTDRM_FIXTURE_CLIPBOARD,
     RBTDRM_FIXTURE_DOCKERFILE_HYGIENE,
     RBTDRM_FIXTURE_ENROLLMENT_VALIDATION,
     RBTDRM_FIXTURE_FOUNDRY_PATH,
@@ -1501,6 +1502,120 @@ fn rbtdrf_np_bare_absolute_unsurveyed(dir: &Path) -> rbtdre_Verdict {
         "/etc/hosts", None)
 }
 
+// ── Clipboard cases ─────────────────────────────────────────
+//
+// Drives buc_clipboard_copy_predicate — BUK's platform-normalized clipboard
+// copy (probe chain: pbcopy / clip.exe / wl-copy / xclip), the foundry-path
+// sibling on the BUK-footing axis. The decline case proves the fail-soft
+// contract deterministically by emptying PATH: the predicate must return
+// non-zero without dying, leaving the z_buc_clipboard_tool result-global
+// empty. The round-trip case proves a real copy lands by reading the
+// clipboard back via arboard — read capability deliberately confined to this
+// test binary, never on the shipped bash surface — saving and restoring the
+// operator's clipboard text around the assert (non-text prior content cannot
+// be restored; the clipboard is cleared instead). Roster-only fixture: the
+// round-trip mutates the live desktop clipboard, so it runs on demand via
+// FixtureRun, never as a suite passenger.
+
+fn rbtdrf_cb_no_tool_decline(dir: &Path) -> rbtdre_Verdict {
+    let root = match std::env::current_dir() {
+        Ok(r) => r,
+        Err(e) => return rbtdre_Verdict::Fail(format!("cannot get cwd: {}", e)),
+    };
+    let buc = root.join(RBTDRF_BUC_COMMAND);
+
+    // Source first (needs PATH), then empty PATH so command -v finds no
+    // external tool; the predicate must decline (non-zero) with the tool
+    // result-global empty, and must not die on the way.
+    let script = format!(
+        "set -euo pipefail\nsource '{}'\nPATH=''\n\
+         buc_clipboard_copy_predicate 'rbtd-clip-probe' && exit 1\n\
+         test -z \"${{z_buc_clipboard_tool:-}}\" || exit 2\nexit 0",
+        rbtdrx_native_to_posix(&buc),
+    );
+
+    match rbtdrf_run_bash(&root, &script, dir, "cb-no-tool-decline") {
+        Ok((0, _, _)) => rbtdre_Verdict::Pass,
+        Ok((1, _, _)) => rbtdre_Verdict::Fail(
+            "cb-no-tool-decline: predicate claimed success with PATH emptied".to_string()),
+        Ok((2, _, _)) => rbtdre_Verdict::Fail(
+            "cb-no-tool-decline: z_buc_clipboard_tool non-empty with no tool present".to_string()),
+        Ok((code, _, stderr)) => rbtdre_Verdict::Fail(format!(
+            "cb-no-tool-decline: unexpected exit {} (predicate died?): {}", code, stderr)),
+        Err(e) => rbtdre_Verdict::Fail(format!("cb-no-tool-decline: {}", e)),
+    }
+}
+
+fn rbtdrf_cb_round_trip(dir: &Path) -> rbtdre_Verdict {
+    // WSL split surface: the bash-side probe picks clip.exe (the Windows
+    // clipboard) while this Linux-built binary reads the Wayland/X side.
+    // WSLg bridges the two in some configurations — unsurveyed; skip until
+    // proven, rather than fail on a mismatch our code did not cause.
+    if std::env::var_os("WSL_DISTRO_NAME").is_some() || std::env::var_os("WSL_INTEROP").is_some() {
+        return rbtdre_Verdict::Skip(
+            "WSL: bash copies via clip.exe but a Linux test binary reads the Wayland/X clipboard — split unsurveyed".to_string());
+    }
+
+    let mut clipboard = match arboard::Clipboard::new() {
+        Ok(c) => c,
+        Err(e) => return rbtdre_Verdict::Skip(format!("no clipboard context: {}", e)),
+    };
+    // Save the operator's clipboard text for restore; Err means empty or
+    // non-text (an image cannot be saved through the text API).
+    let prior = clipboard.get_text().ok();
+
+    let sentinel = format!("rbtd-clip-{}", std::process::id());
+
+    let root = match std::env::current_dir() {
+        Ok(r) => r,
+        Err(e) => return rbtdre_Verdict::Fail(format!("cannot get cwd: {}", e)),
+    };
+    let buc = root.join(RBTDRF_BUC_COMMAND);
+    let script = format!(
+        "set -euo pipefail\nsource '{}'\nbuc_clipboard_copy_predicate '{}'",
+        rbtdrx_native_to_posix(&buc),
+        sentinel,
+    );
+
+    match rbtdrf_run_bash(&root, &script, dir, "cb-round-trip") {
+        Ok((0, _, _)) => {}
+        Ok((_, _, _)) => {
+            // No bash-side tool (or the tool declined) — the display-only
+            // degradation environment, not a failure of the predicate.
+            return rbtdre_Verdict::Skip(
+                "no bash-side clipboard tool present (or copy declined) — display-only environment".to_string());
+        }
+        Err(e) => return rbtdre_Verdict::Fail(format!("cb-round-trip: {}", e)),
+    }
+
+    // Brief poll: some tools (wl-copy) serve the selection asynchronously.
+    let mut seen = String::new();
+    for _ in 0..10 {
+        if let Ok(text) = clipboard.get_text() {
+            seen = text;
+            if seen == sentinel {
+                break;
+            }
+        }
+        std::thread::sleep(std::time::Duration::from_millis(200));
+    }
+
+    // Restore before verdicting, best-effort: prior text goes back; a prior
+    // we could not read as text was already clobbered by the copy — clear
+    // rather than leave test residue on the operator's clipboard.
+    match prior {
+        Some(text) => { let _ = clipboard.set_text(text); }
+        None => { let _ = clipboard.clear(); }
+    }
+
+    if seen == sentinel {
+        rbtdre_Verdict::Pass
+    } else {
+        rbtdre_Verdict::Fail(format!(
+            "cb-round-trip: clipboard read back '{}' != sentinel '{}'", seen, sentinel))
+    }
+}
+
 // ── Recipe-validation cases ─────────────────────────────────
 //
 // Drives zrbld_spine_validate — the Lode capture-assembly spine's dispatch-time
@@ -1744,6 +1859,20 @@ pub static RBTDRF_FIXTURE_FOUNDRY_PATH: rbtdre_Fixture = rbtdre_Fixture {
     setup: None,
     teardown: None,
     cases: RBTDRF_CASES_FOUNDRY_PATH,
+    credless: true,
+};
+
+pub static RBTDRF_CASES_CLIPBOARD: &[rbtdre_Case] = &[
+    case!(rbtdrf_cb_no_tool_decline),
+    case!(rbtdrf_cb_round_trip),
+];
+
+pub static RBTDRF_FIXTURE_CLIPBOARD: rbtdre_Fixture = rbtdre_Fixture {
+    name: RBTDRM_FIXTURE_CLIPBOARD,
+    disposition: rbtdre_Disposition::Independent,
+    setup: None,
+    teardown: None,
+    cases: RBTDRF_CASES_CLIPBOARD,
     credless: true,
 };
 

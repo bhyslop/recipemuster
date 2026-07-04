@@ -527,4 +527,40 @@ buc_native_path_capture() {
   esac
 }
 
+# --- Clipboard copy (platform-normalized) ---
+#
+# Copy the argument text to the system clipboard via the first present
+# platform tool: pbcopy (macOS), clip.exe (Windows — reachable from WSL and
+# Cygwin), wl-copy (Wayland), xclip (X11). Existence-probing is the platform
+# discrimination — no OSTYPE sniffing (BCG Platform-Variant Command Guidance);
+# the tools are optional probe-and-skip dependencies each consuming project
+# inventories per BCG Command Dependency Discipline. Predicate contract:
+# exit 0 only when a tool was found AND the copy succeeded; exit 1 otherwise.
+# Sets z_buc_clipboard_tool to the probed tool name (empty when none present)
+# so the caller can log the outcome. Emits nothing on either stream and never
+# dies — the caller owns any user-visible announcement, and a copy is always
+# a convenience, never load-bearing. Reads only its argument — no kindle
+# state — so it stays unit-testable in isolation.
+buc_clipboard_copy_predicate() {
+  local -r z_text="${1:?buc_clipboard_copy_predicate: text required}"
+
+  z_buc_clipboard_tool=""
+  local z_copied=0
+  if command -v pbcopy >/dev/null 2>&1; then
+    z_buc_clipboard_tool="pbcopy"
+    if printf '%s' "${z_text}" | pbcopy 2>/dev/null; then z_copied=1; fi
+  elif command -v clip.exe >/dev/null 2>&1; then
+    z_buc_clipboard_tool="clip.exe"
+    if printf '%s' "${z_text}" | clip.exe 2>/dev/null; then z_copied=1; fi
+  elif command -v wl-copy >/dev/null 2>&1; then
+    z_buc_clipboard_tool="wl-copy"
+    if printf '%s' "${z_text}" | wl-copy 2>/dev/null; then z_copied=1; fi
+  elif command -v xclip >/dev/null 2>&1; then
+    z_buc_clipboard_tool="xclip"
+    if printf '%s' "${z_text}" | xclip -selection clipboard 2>/dev/null; then z_copied=1; fi
+  fi
+
+  test "${z_copied}" = "1"
+}
+
 # eof

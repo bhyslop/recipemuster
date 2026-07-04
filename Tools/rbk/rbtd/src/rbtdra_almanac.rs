@@ -56,6 +56,10 @@ pub static RBTDRA_FIXTURES: &[&'static rbtdre_Fixture] = &[
     &crate::rbtdrf_fast::RBTDRF_FIXTURE_REGIME_SMOKE,
     &crate::rbtdrf_fast::RBTDRF_FIXTURE_DOCKERFILE_HYGIENE,
     &crate::rbtdrf_fast::RBTDRF_FIXTURE_FOUNDRY_PATH,
+    // clipboard: discovery-registered, operator-invoked only — the round-trip
+    // case reads and mutates the live desktop clipboard (arboard save/restore),
+    // so a member of no suite. Runnable via FixtureRun.
+    &crate::rbtdrf_fast::RBTDRF_FIXTURE_CLIPBOARD,
     &crate::rbtdrf_fast::RBTDRF_FIXTURE_RECIPE_VALIDATION,
     &crate::rbtdrf_fast::RBTDRF_FIXTURE_PODVM_RESOLVE,
     &crate::rbtdru_cupel::RBTDRU_FIXTURE_CUPEL,

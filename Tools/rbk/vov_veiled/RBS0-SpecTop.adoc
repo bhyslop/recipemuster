@@ -1089,6 +1089,9 @@ Not required for core consumer or developer workflows.
 
 | `stty`
 | Terminal width detection in launcher
+
+| `pbcopy` / `clip.exe` / `wl-copy` / `xclip`
+| Optional, probe-and-skip (never required): avowal user-code clipboard copy via the BUK platform normalizer — first present tool wins; absent tooling degrades to display-only
 |===
 
 NOTE: `tcpdump` is *not* a {at_workstation} dependency.

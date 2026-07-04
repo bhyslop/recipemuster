@@ -320,6 +320,30 @@ zrba_idtoken_subject_capture() {
     | jq -r '.oid // .sub // empty' 2>"${ZRBA_FED_JQ_STDERR_FILE}"
 }
 
+# Best-effort clipboard copy of the device-flow user code at avowal-prompt
+# emission. Custody rule: ONLY the user code ever rides this path — never the
+# device code, the federated token, or a mantle token. The user code is
+# display-safe by design (RBS0 rbtf_avow: possession grants nothing without
+# the human's own IdP sign-in); accepted residual: clipboard sync/history may
+# spread the single-use ~15-minute code to synced devices. Convenience only,
+# never load-bearing — no tool found or a failed copy degrades to
+# display-only, and only a successful copy is announced (it replaces the
+# operator's prior clipboard contents). Mechanism is the BUK platform
+# normalizer buc_clipboard_copy_predicate; its optional probe-and-skip tools
+# are inventoried in RBS0 per BCG Command Dependency Discipline.
+zrba_user_code_clipboard() {
+  local -r z_code="${1:?zrba_user_code_clipboard: user code required}"
+
+  if buc_clipboard_copy_predicate "${z_code}"; then
+    buc_step "    (code copied to your clipboard)"
+  elif test -n "${z_buc_clipboard_tool}"; then
+    buc_log_args "Clipboard copy via ${z_buc_clipboard_tool} failed; user code display-only"
+  else
+    buc_log_args "No clipboard tool present; user code display-only"
+  fi
+  return 0
+}
+
 # Leg 1 — device-flow avowal (RFC 8628). Requests a device + user code,
 # surfaces the verification URL and code as a yawp on the progress stream,
 # polls the IdP token endpoint until the human approves, and echoes the OIDC
@@ -369,6 +393,7 @@ zrba_leg1_idtoken_capture() {
   buc_step "Avowal — sign in to open your sitting:"
   buc_step "    ${z_uri_yp}"
   buc_step "    code: ${z_code_yp}"
+  zrba_user_code_clipboard "${z_user_code}"
   buc_log_args "Avowal prompt emitted; polling for sign-in"
 
   local z_elapsed=0

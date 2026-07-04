@@ -117,6 +117,13 @@ pub const RBTDRM_FIXTURE_CONFORMANCE: &str = "conformance";
 // Foundry-path — buc_native_path_capture Cygwin /cygdrive normalizer. No
 // external dependency; pure bash-function unit test sourced direct (no kindle).
 pub const RBTDRM_FIXTURE_FOUNDRY_PATH: &str = "foundry-path";
+// Clipboard — buc_clipboard_copy_predicate platform normalizer (BUK footing,
+// foundry-path sibling). Credless, but roster-only (member of no suite): the
+// round-trip case reads and mutates the live desktop clipboard via arboard
+// (read capability deliberately confined to this test binary — never on the
+// shipped bash surface), with save/restore best-effort. Operator-invoked via
+// FixtureRun; the no-tool decline case is deterministic everywhere.
+pub const RBTDRM_FIXTURE_CLIPBOARD: &str = "clipboard";
 // Podvm-resolve — host-side zrbld_immure_resolve_family brand mapping. No GCP
 // creds or container runtime required; invokes the presage colophon (rbw-lp),
 // the read-only dry-run verb that resolves a family and reports what immure
