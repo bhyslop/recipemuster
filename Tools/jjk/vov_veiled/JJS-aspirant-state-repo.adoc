@@ -41,7 +41,7 @@ All JJ-managed trees are peers in one parent directory (candidate word: *garth*)
 
 * `../job-jockey-repo` — the kit (engine, specs); found by peer-ring convention, no per-repo pointer.
 * `../studbook` — this record repo.
-* Work clones (*hippodromes*) and their transient worktree seats (*billets*, farrier sheaf).
+* Work clones (*hippodromes*) and their transient worktree *billets* (farrier sheaf).
 * The BUK station family (`../station-files/burs.env`, `../logs-buk`, `../temp-buk`,
   `../output-buk`) already lives at this level, so every peer tree shares station geography
   with zero setup.
@@ -77,15 +77,18 @@ Every studbook write brackets identically (the *journal ceremony*), and the orde
 . *Hippodrome commit* (lock-free): explicit file list, on the current branch or billet branch.
   The pin now exists.
   (Whether this step also pushes the hippodrome is an open fork.)
-. *Lock the studbook*: pull → push the stamped lock ref (the CAS: atomically create, or be
-  rejected) → pull to confirm the held stamp is ours.
+. *Lock the studbook*: `fetch` (sync lock state) → `ref_cas_create` (the CAS: atomically push
+  the stamped lock ref, or be rejected) → `ref_read` to confirm the held stamp is ours.
   Lock refs live in a dedicated namespace outside `refs/heads/*`; the stamp carries officium,
   station, acquire-time, and operation, which is what makes break-on-error safe.
-. *Mutate*: apply the gallops change plus the pin naming the hippodrome and its commit.
+. *Advance*: fast-forward the local studbook to remote tip — always clean under the lock;
+  loud failure if not.
+. *Mutate and commit*: apply the gallops change plus the pin naming the hippodrome and its
+  commit; `commit` with explicit files.
 . *Push content*: `--atomic`, binding the content update to a lease on our own lock ref —
   if the lock was broken under us, the whole push fails.
   No corruption, no service but git.
-. *Unlock*: best-effort delete of the lock ref; a die here leaves a stamped stale lock for the
+. *Unlock*: `ref_cas_delete`, best-effort; a die here leaves a stamped stale lock for the
   break sequence.
 
 Breaking a stale lock is *never a method on the holder's guard* — it is its own sequence
@@ -135,7 +138,7 @@ The commit message may carry the plan in gazette notice format as a review surfa
 
 == Scope at birth
 
-Rung-one tenant: the gallops only.
+First tenant: the gallops only.
 Captured chat histories and action-choices are the *intended second tenant*, deferred.
 
 == Chat↔commit correlation (captured 260620, deferred with the second tenant)
@@ -151,8 +154,8 @@ label the SHA the tool already emits.
 
 With one regional studbook, the officium becomes the identity that names *where* work happens:
 station + hippodrome (or billet) + session.
-`jjx_open` discovers its seat via the farrier's `identify` and validates it against the work
-being mounted.
+`jjx_open` discovers its billet (or trunk hippodrome) via the farrier's `identify` and
+validates it against the work being mounted.
 Officium exchange (gazettes) must leave the work repo (vanilla-hippodrome premise);
 proposed home: a working area beside the studbook clone in the garth — open fork.
 
@@ -190,6 +193,9 @@ Phasing within the MVP is cinched below: build under current JJ, rehearse, then 
   The old in-repo store is replaced by a tombstone marker that old binaries fail loud on,
   never silently resurrect (`JJr_` rivet treatment: deliberately temporary, demolition
   condition attached).
+  The same ceremony *de-inserts* JJK from consumer repos — CLAUDE.md includes, `.claude/jjm`,
+  MCP config — completing the vanilla-hippodrome premise; context provisioning moves to saddle
+  (farrier sheaf).
 * *Founding import carries live state only* — racing and stabled heats, paddocks, dockets;
   retired trophies may ride along as plain files.
   Pre-cutover history does not migrate, and the new engine builds *no* old-side read path —

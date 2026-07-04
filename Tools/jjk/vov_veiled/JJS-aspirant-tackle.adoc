@@ -7,8 +7,8 @@
 A feature-definition space under active mulling — to be sophisticated and revised until ready for
 development, then infused into this codex or retired.
 A reader must not rely on its content; released code must not cite identifiers it mints.
-The word *tackle* is already minted in the ₣Ah paddock with a maximal meaning; the one-word-one-
-concept resolution is stated below.
+The word *tackle* is already minted in the ₣Ah paddock with a maximal meaning;
+the one-word-one-concept resolution is stated below.
 ====
 
 == What MVP tackle is

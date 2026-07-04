@@ -50,7 +50,8 @@ diverges from what the git word implies.
 |Op |Facet |Shape |Consumer
 
 |`identify` |orient |Resolve this tree: dirname, origin URL (pedigree key), branch or
-detached state, HEAD, billet-of-which-hippodrome if a worktree. |ambient on `jjx_open`
+detached state, HEAD, billet-of-which-hippodrome if a worktree. |saddle (dispatch-time);
+ambient on `jjx_open`
 
 |`status` |inspect |Clean/dirty, per-path — feeds clean-tree gates and explicit-file commits.
 |sequence-internal
@@ -79,26 +80,66 @@ lock guard and break sequence. |sequence-internal
 
 |`billet_create` / `billet_remove` |billet |Birth/reap a billet (below); remove refuses on
 dirty. |saddle / unsaddle
+
+|`freshen` |billet |Merge trunk *into* the billet branch (never rebase); fail-loud on
+conflict — resolution belongs to the attended session. |saddle, at billet ensure
 |===
 
 Cross-cutting rules: every op takes the repo root explicitly (no cwd dependence); every mutating
 op rejects in a named typed-error band (dirty-tree, diverged, lock-held, lock-broken) — sequence
 composition is only safe when primitives fail loud and specifically.
-Deliberately absent: merge, rebase, clone, init, log, blame — operator's hands or `jjx_log`.
+Deliberately absent: trunk-ward merge (the operator's serializer — `freshen` merges only
+*into* billet branches), rebase, clone, init, log, blame — operator's hands or `jjx_log`.
 
 Entity design: a driver trait with one implementation per farrier kind; the lock is an RAII
 guard (object lifetime = lock lifetime, panic on nested acquire); break is a separate sequence
 acting on someone else's lock, never a guard method.
 
+== Toothing compositions
+
+The journal ceremony (studbook sheaf) is the shared write bracket; toothings compose the
+primitives:
+
+[cols="1,3"]
+|===
+|Toothing |Composition
+
+|*(officium open — not a spoken verb)* |`identify` (billet, pedigree, branch, HEAD) +
+`sync_state` from last fetch
+
+|mount / orient |studbook read (no lock) + `sync_state` staleness line
+
+|muster / parade / groom |studbook reads only
+
+|notch |hippodrome: `status` → `commit` (explicit files) → `pin` — then the journal ceremony
+carrying the pin
+
+|wrap |as notch, plus pace-state mutation in the journal
+
+|slate / reslate / paddock |journal ceremony only — no hippodrome ops
+
+|saddle |`identify` → pedigree lookup → `billet_create`-or-reuse → `freshen` → BURV export →
+launch session
+
+|unsaddle |`billet_remove`, refuse-if-dirty
+
+|break |`ref_read` every JJ lock (studbook + mews) → report stamps → lease-guarded
+`ref_cas_delete` per lock, never blind. Operator-deliberate by definition; precedent
+`/vvc-BREAK-LOCK`
+
+|ring survey (name open) |per garth peer: `identify` + opportunistic `fetch` + `status` +
+`sync_state` → one report
+|===
+
 == Saddle, billet, unsaddle — the dispatch layer
 
 *Cinched (260704): JJ opens the Claude Code sessions we work in.*
-The operator knows the verb at chat-top; the seat must be right at launch (mid-session cd
-neither reloads project context nor survives the cd prohibition).
+The operator knows the verb at chat-top; the session's billet must be right at launch
+(mid-session cd neither reloads project context nor survives the cd prohibition).
 
 * **saddle** — the outermost toothing, run at the shell.
   Takes one identity; its length picks the protocol (the halter convention):
-  a coronet seats a *pace billet* (worktree + §F branch at trunk tip), a firemark seats a
+  a coronet gets a *pace billet* (worktree + §F branch at trunk tip), a firemark gets a
   *groom billet* (worktree at detached trunk tip — nothing must survive).
   Saddle ensures the billet, freshens it, exports per-billet BURV roots, provisions JJ context,
   and launches Claude Code in it at the verb-appropriate model tier with the engagement verb as
@@ -122,9 +163,10 @@ Lifecycle doctrine:
 * *Freshen by merge, never rebase.*
   At re-mount, merge trunk *into* the pace branch: journaled pins survive, conflicts surface
   once, and the branch's interior history dies at the operator's trunk merge anyway.
-  On conflict, the mount session (already high-tier and attended) resolves as its first order of
-  business; tier-escalation machinery is deferred to breeze.
-* *Mount absorbs cold start* — seat, billet-ensure, freshen, orient. No new engagement verb.
+  On conflict, the mount session resolves as its first order of business — *attended* is the
+  load-bearing property, not tier; saddle may bump the tier when it detects a pending conflict.
+  Tier-escalation machinery is deferred to breeze.
+* *Mount absorbs cold start* — billet-ensure, freshen, orient. No new engagement verb.
 * *Every dispatched session gets its own billet; trunk belongs to the operator alone.*
   Session isolation is structural, not disciplinary — even a "read-only" groom can run builds.
   Grooms get billets too (detached), so concurrent sessions on one hippodrome never share a tree.
@@ -141,7 +183,7 @@ Findings from the dispatch spine (`z-launcher.sh` → `bul_launcher.sh` → regi
   BUK cannot tell a billet from a clone.
 * The station family (`../station-files/burs.env`, `../logs-buk`, `../temp-buk`,
   `../output-buk`) resolves to the parent directory — the garth.
-  Billets seated as garth peers inherit station geography with zero setup; nesting billets
+  Billets placed as garth peers inherit station geography with zero setup; nesting billets
   deeper would break it, so garth-peer placement is load-bearing.
 * The genuine hazard is concurrency, not geometry, and it predates billets:
   `../output-buk/current/` is cleared per dispatch and `logs-buk/last.txt` is a singleton.
@@ -186,7 +228,7 @@ doctrine — a vivid word is today spent below the vivid layer), sweep, grep-gat
 * *farrier* — the driver API; fits the horse to the ground. F freed by formbook's rejection.
 * *saddle* / *unsaddle* — dispatch verbs; the real-world sequence saddle-then-mount lands in
   the right order across the two vocabulary layers. Alternate held: leg-up.
-* *billet* — the standing seat entity; the soldier's assigned temporary lodging, with the
+* *billet* — the standing lodging entity; the soldier's assigned temporary quarters, with the
   equestrian foothold of saddle billet straps. Alternates held: livery (lead alternate; livery
   stable Americana), stall (S-crowd + verb hazard). Disqualified: seat (per-seat licensing
   troddenness; RBK's minted *unseat* as near-neighbor).
