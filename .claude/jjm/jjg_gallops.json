@@ -18818,8 +18818,8 @@
         "₢BqAAE": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260702-1512",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260704-0841",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "The credential-fault DISPOSITION (restrung from ₣Bf, 260702, where the study ran at mount) —",
                 "record the two determinations against the settled federation auth path and clean the vestigial consts.",
@@ -18873,7 +18873,7 @@
                 "narrowed 260702 after the mount study and restrung from ₣Bf into this heat, the build work cut as the sibling paces."
               ],
               "jjgtn_silks": "federation-credential-fault-disposition",
-              "jjgtn_basis": "127e3b8"
+              "jjgtn_basis": "75a29d5"
             }
           ]
         },
