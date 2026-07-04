@@ -31,9 +31,9 @@ No driver ever owns a transaction.
 The eventual backends sit on two orthogonal axes, each with one generalization point that must be
 right in the MVP so later rungs add without re-minting:
 
-* *Constellation axis* — what a pin names: one repo (scalar SHA) vs. many members.
-  Generalization point: the **pin** is always a member→SHA manifest; single-repo is the
-  one-element case.
+* *Constellation axis* — what a counterfoil names: one repo (scalar SHA) vs. many members.
+  Generalization point: the **counterfoil** is always a member→SHA manifest; single-repo is
+  the one-element case.
 * *Partition axis* — who writes concurrently: shared checkout vs. isolated per-work checkouts.
   Generalization point: the **billet** (below); every op takes an explicit repo root, so a
   partition is just another root — op signatures never change when worktrees arrive.
@@ -59,11 +59,12 @@ ambient on `jjx_open`
 |`sync_state` |inspect |Ahead/behind vs. remote, from last fetch (never blocks on network).
 |ambient at open/orient
 
-|`pin` |inspect |HEAD member→SHA manifest + branch annotation + dirty flag. |ambient on record
+|`counterfoil` |inspect |HEAD member→SHA manifest + branch annotation + dirty flag. |ambient
+on record
 
-|`pin_verify` |inspect |Does a journaled SHA still exist, reachable? *Deferred past MVP*
-(260704): the designed answer for when a dangling pin first annoys — freshen-by-merge and
-notch-push make them rare. |deferred
+|`counterfoil_verify` |inspect |Does a journaled SHA still exist, reachable? *Deferred past
+MVP* (260704): the designed answer for when a dangling counterfoil first annoys —
+freshen-by-merge and notch-push make them rare. |deferred
 
 |`commit` |mutate |Explicit file list + message; no `-a`, no amend (additive discipline).
 |sequence-internal
@@ -119,8 +120,8 @@ primitives:
 
 |muster / parade / groom |studbook reads only
 
-|notch |hippodrome: `status` → `commit` (explicit files) → `pin` — then the journal ceremony
-carrying the pin
+|notch |hippodrome: `status` → `commit` (explicit files) → `counterfoil` — then the journal
+ceremony carrying the counterfoil
 
 |wrap |as notch, plus pace-state mutation in the journal
 
@@ -131,7 +132,7 @@ launch session
 
 |unsaddle |`billet_remove`, refuse-if-dirty
 
-|break |`ref_read` every JJ lock (studbook + mews) → report stamps → lease-guarded
+|break |`ref_read` every JJ lock (studbook + mews) → report guidons → lease-guarded
 `ref_cas_delete` per lock, never blind. Operator-deliberate by definition; precedent
 `/vvc-BREAK-LOCK`
 |===
@@ -171,8 +172,8 @@ Lifecycle doctrine:
   `git worktree list` is the authoritative local registry of which branch is seated where —
   **no worktree path is ever written into the studbook** (station-local fact, regional record).
 * *Freshen by merge, never rebase.*
-  At re-mount, merge trunk *into* the pace branch: journaled pins survive, conflicts surface
-  once, and the branch's interior history dies at the operator's trunk merge anyway.
+  At re-mount, merge trunk *into* the pace branch: journaled counterfoils survive, conflicts
+  surface once, and the branch's interior history dies at the operator's trunk merge anyway.
   On conflict, the mount session resolves as its first order of business — *attended* is the
   load-bearing property, not tier; saddle may bump the tier when it detects a pending conflict.
   Tier-escalation machinery is deferred to breeze.
@@ -269,8 +270,8 @@ doctrine — a vivid word is today spent below the vivid layer), sweep, grep-gat
 * Billet directory naming convention in the infield — parked for careful review.
   Provisional lean on record: dirname = the §F branch name verbatim (one string, two homes;
   the coronet segment becomes rot-proof under the pace-identity re-gestalt, studbook sheaf).
-* Constellation backends (submodules, Android `repo`): future farrier kinds; pin and billet
-  generalization points designed here, implementations deferred.
+* Constellation backends (submodules, Android `repo`): future farrier kinds; counterfoil and
+  billet generalization points designed here, implementations deferred.
 
 == Sources (provenance, not authority)
 

@@ -79,49 +79,50 @@ Every studbook write brackets identically (the *journal ceremony*), and the orde
 *durable-first*: the work artifact commits before the journal that references it.
 
 . *Hippodrome commit* (lock-free): explicit file list, on the current branch or billet branch.
-  The pin now exists.
+  The commit the counterfoil will name now exists.
   On a billet branch this step also *pushes* the branch (cinched 260704): branches are the
   cross-station WIP carrier, and an unpushed branch is no carrier.
   Fast-forward and additive, so safe by construction; the trunk is never pushed by JJ;
-  offline, the journal proceeds with the pin flagged unpushed and `sync_state` nags at next
-  open.
+  offline, the journal proceeds with the counterfoil flagged unpushed and `sync_state` nags at
+  next open.
 . *Lock the studbook*: `fetch` (sync lock state) → `ref_cas_create` (the CAS: atomically push
-  the stamped lock ref, or be rejected) → `ref_read` to confirm the held stamp is ours.
-  Lock refs live in a dedicated namespace outside `refs/heads/*`; the stamp carries officium,
+  the guidon-bearing lock ref, or be rejected) → `ref_read` to confirm the held guidon is ours.
+  Lock refs live in a dedicated namespace outside `refs/heads/*`; the guidon carries officium,
   station, acquire-time, and operation, which is what makes break-on-error safe.
 . *Advance*: fast-forward the local studbook to remote tip — always clean under the lock;
   loud failure if not.
-. *Mutate and commit*: apply the gallops change plus the pin naming the hippodrome and its
-  commit; `commit` with explicit files.
+. *Mutate and commit*: apply the gallops change plus the counterfoil naming the hippodrome and
+  its commit; `commit` with explicit files.
 . *Push content*: `--atomic`, binding the content update to a lease on our own lock ref —
   if the lock was broken under us, the whole push fails.
   No corruption, no service but git.
-. *Unlock*: `ref_cas_delete`, best-effort; a die here leaves a stamped stale lock for the
-  break sequence.
+. *Unlock*: `ref_cas_delete`, best-effort; a die here leaves a stale lock still flying its
+  guidon for the break sequence.
 
 Breaking a stale lock is *never a method on the holder's guard* — it is its own sequence
-(lease-guarded delete against the observed stamp, never blind), specified in its own right.
+(lease-guarded delete against the observed guidon, never blind), specified in its own right.
 There is no personified break entity.
 An operator-deliberate break-all toothing exists in the farrier sheaf's op census.
 
 An orphaned hippodrome commit (committed, never journaled) is recoverable;
 a journal entry naming a nonexistent SHA is the worse failure — hence durable-first.
 
-== Pin — how JJ commits know hippodrome commits
+== Counterfoil — how JJ commits know hippodrome commits
 
-Every journaled entry carries a *pin*: a member→SHA manifest (one-element for a single repo,
-generalizing unchanged to submodule/multi-repo constellations), annotated with branch and a
-dirty flag.
+Every journaled entry carries a *counterfoil* — the retained stub naming the issued work:
+a member→SHA manifest (one-element for a single repo, generalizing unchanged to
+submodule/multi-repo constellations), annotated with branch and a dirty flag.
 The reference is deliberately one-way — studbook points at hippodrome, never the reverse;
 the only hippodrome-side mark is the session-id commit trailer, a denormalized cache justified
 by query convenience, never by recoverability.
 
 *Rebase soft spot (known, accepted for now):* a rebase after journaling rewrites SHAs and
-dangles the pin — degraded provenance, not corruption; nothing downstream builds on it.
+dangles the counterfoil — degraded provenance, not corruption; nothing downstream builds on it.
 Convergence discipline already prefers merge over rebase (the collision memo), which preserves
-pins; billet branches never rebase (freshen is merge-based, farrier sheaf), closing the gap
-structurally where billets are used.
-An optional `pin_verify` op turns a dangling pin from a silent lie into a flagged one.
+counterfoils; billet branches never rebase (freshen is merge-based, farrier sheaf), closing the
+gap structurally where billets are used.
+An optional `counterfoil_verify` op turns a dangling counterfoil from a silent lie into a
+flagged one.
 
 == Pace identity re-gestalt (cinched 260704)
 
@@ -158,7 +159,7 @@ The commit message may carry the plan in gazette notice format as a review surfa
   to mint together with the pace-identity design pace (one coherent glyph-space allocation);
   the AXLA insignia-family ADT work already planned in ₣BD is the code-side anticipation.
   Because every studbook write happens under the lock, JJ can allocate the ordinal at journal
-  time and bake the insignia into the commit message itself — single-writer makes the stamp
+  time and bake the insignia into the commit message itself — single-writer makes the bake
   race-free, the linear history makes it verifiable, and no side table exists.
 * The lock supersedes the original sharding pressure (no cross-clone merge exists at all);
   per-heat sharding remains open only as a file-layout choice, not a concurrency need.
@@ -174,7 +175,7 @@ Captured chat histories and action-choices are the *intended second tenant*, def
 
 Once chats live in the studbook, a commit ties to the chat turn that produced it:
 commit → session → transcript → turn → model and full context.
-The transcript is the normalized source of truth; any field stamped on a commit is a
+The transcript is the normalized source of truth; any field written onto a commit is a
 denormalized cache.
 Two small enabling changes close the loop — write the session id into every work commit, and
 label the SHA the tool already emits.
@@ -189,7 +190,8 @@ Officium exchange (gazettes) leaves the work repo (vanilla-hippodrome premise); 
 260704: an untracked working area *inside the studbook clone* — one JJ-owned location the
 engine already knows on every station.
 The officium splits into *exchange* (gazettes — wire format, single-call lifetime, forever
-untracked) and *record* (seat metadata, pins, eventually the captured session transcripts —
+untracked) and *record* (officium identity metadata, counterfoils, eventually the captured
+session transcripts —
 the second tenant).
 Co-locate now, commit later: graduating the record half to committed history becomes a
 gitignore-line change, not a relocation.
@@ -260,6 +262,18 @@ one durable home, no parallel memo — refreshed by build learnings.
   with hippodrome on H.
 * *jjy_* — dirname family for JJ's own infield-resident repos: `jjy_studbook`, `jjy_app`
   (both cinched 260704). Mnemonic: yard.
+* *counterfoil* — the journaled member→SHA stub naming the issued work commit; one-way by
+  construction (the stub stays in the book, the leaf circulates).
+  Replaces *pin*, evicted as trodden (digest-pin/version-pin ambience, ~245 whole-word in-house
+  uses; registered in the MCM trodden census).
+  Alternate held: hitch (the draft-team semantics fit — a one-horse hitch generalizes as the
+  manifest does — but *itch* is a standing JJK concept one letter away and the cinch rhyme
+  crowds it; killed by the seat/unseat near-neighbor precedent).
+* *guidon* — the lock-holder mark flown on the lock ref: officium, station, acquire-time,
+  operation; the break sequence acts only against an observed guidon.
+  Replaces *stamp*, evicted as trodden (datestamp/timestamp ambience; live
+  `buorb_ensconce_stamp` tweak name; registered in the MCM trodden census).
+  Alternate held: cockade. Rejected: signet (live VOK/BUS0 mint).
 * *warden* — dropped: break is a sequence, not an entity.
 * *seat* — disqualified: per-seat licensing troddenness; near-neighbor collision with RBK's
   minted *unseat*.
@@ -269,7 +283,8 @@ one durable home, no parallel memo — refreshed by build learnings.
 == Sibling rhyme (mews — not a dependency)
 
 This repo and the mews fleet store are the same git-CAS, journalled pattern in distinct homes.
-The one genuine seam is the `(work-repo, SHA)` cross-reference both need — here, the pin.
+The one genuine seam is the `(work-repo, SHA)` cross-reference both need — here, the
+counterfoil.
 
 == Open forks (the mulling surface)
 

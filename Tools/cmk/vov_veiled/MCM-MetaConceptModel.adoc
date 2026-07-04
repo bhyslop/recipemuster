@@ -1118,7 +1118,7 @@ cross-listed there.
 An
 {mcm_antipattern}:
 a persistent name minted from vocabulary worn featureless by ambient software prose —
-open, close, run, lock, task, manager, handler, grant.
+open, close, run, lock, task, manager, handler, grant, stamp, pin.
 The name is the gestalt: a path so heavily walked that no single footprint is findable on it;
 grep returns a thousand strangers.
 A
