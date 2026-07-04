@@ -18728,8 +18728,8 @@
         "₢BqAAB": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260702-1507",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260704-0910",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "Widen the BUK precision reject band: all sixteen codes are allocated and the self-test sentinel pins the current top,",
                 "its BUTT fixture asserting full-width propagation.",
@@ -18748,7 +18748,7 @@
                 "Small, mechanical, BUK-pure."
               ],
               "jjgtn_silks": "bubc-band-widen",
-              "jjgtn_basis": "be074de"
+              "jjgtn_basis": "2b98181"
             }
           ]
         },
