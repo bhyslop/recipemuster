@@ -162,3 +162,25 @@ Scope was held to the identity substrate; the governor-selects / sanctioned-set 
 The disposition (the ₣Bf rework slated 260630): the paddock "Model — the one-pool identity substrate" section is the governing home; a spec-recast pace was slated as the contract-first hard predecessor (RBSRF pool→manor home + foedus≡provider, RBSMA affiance→add-provider, RBSFD descry→provider presence, RBS0 civics); the terrier-founding-home finisher was expanded to own the one-time manor-pool founding (ensure-exists, with a separate reset mode) and the terrier muniment provider-dimension + on-disk migration; the foedus-pool-state-classifier pace was dropped as moot; on ₣Bl the canvass build/test paces were re-cut workforcePools.list → providers.list.
 
 Detailed per-surface change-lists and the steelman: the four 2026-06-30 spec studies (founding, membership, terrier, test-bed/accessor), conducted at the model decision; their findings are the source for cutting the re-cut paces.
+
+### heat retirement — terminal dispositions (drained 2026-07-05)
+
+The paddock-scrub-and-retire sweep, verifying the 260702 inventory at mount.
+
+Census closed, all built: the federation vocabulary census verified against RBS0 — the rbtf_ civic quoins stand (foedus, mantle, citizen, avow, sitting, novate, espy, don, brevet, gird, unseat, attaint, affiance, jilt, canvass, rehearse, muniment, census, terrier, realm), and instate/descry/canvass are built code (rbof_foedus.sh; rbw-jI/jd/jc).
+quash was minted (the 260625 entry above homed it rbw-q lowercase) but never built: the sitting-lifecycle heat's novate (rbw-aN, force-fresh renewal) and espy (rbw-as, read-only probe) superseded the test-only sitting-clear, and the rbw-q colophon ultimately went to the Facility family (rbw-qjK/qjQ).
+RBS0 is the single vocabulary home; the census retires with the paddock.
+
+Premise-touching ideas moved to RBSHR as operator-owned parked entries: the governor sanctioned-set affiliation bound, the payor health-assurer representation fork, and the per-vendor federation setup guides; RBSHR's keyfile-era "Operator federation" entry was rewritten IMPLEMENTED in the same landing.
+
+Mid-sweep the operator nominated the rebaseline heat ₣Bs (run every process: the freehold-iterating ladders first, then the destructive manor rebuild and the longest sequences — much changed without full-sequence proof), so the graduating strands below land there as paces rather than itches.
+
+Escheat orphan-arm proof status homed as an informative NOTE in RBSME plus a live-proof pace in ₣Bs riding the gauntlet stage's real depot churn (dead-schema arm live-proven 260702; synthetic payor-direct writers stay retired per the operator ruling at the exercise).
+
+Declined: relocating the mantle-access probe (rbw-am) into the test bucket — the deferred half of the ₢BlAAN interim resolution, unblocked once rbw-q existed, declined at retirement: the probe is a credential-access probe and the Access family is its coherent home.
+
+Graduated to ₣Bs rather than itched: the rbgft data-layer unit-test residue (escheat-survey classifier verdicts plus the precise engross-412 / expunge-404 dispositions) — polity-denial already proves the rejection bands and parley the positive round-trip; the former theurge-stream home closed complete.
+
+Slated: the attach-caged-subject admission (the spine's deferred tail, RBSFA's "standing admission" precondition) into ₣Bs, re-aimed at nomination from the earlier federation-itches lean so it exercises the rebuilt substrate.
+
+Verified already-done, no action: the payor-install next-step re-aim (rbgp_payor.sh points at instaurate; RBSPI cites the finisher first); the build-bucket scrub (completed in the sibling MVP stream); the release-suites credential preamble (completed in the sitting-lifecycle heat; the ladders lead with it); the colophon casing convention (zipper-homed as the UPPER=mutates comments); and the 260630 model-reversal drain (the entry above, drained 2026-06-30 — the paddock's "when next edited" Sources note simply outlived the drain).

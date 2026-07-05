@@ -331,28 +331,57 @@ Requires reproducible toolchains — a vessel-author discipline, not a pipeline 
 _Trigger_: vessel ecosystem maturity and external distribution.
 _Reference_: RBSCB-CloudBuildPosture.adoc (Deferred Items: Reproducibility).
 
-**Operator federation — external-IdP identity for depot participants.**
-Recipe Bottle grants
-{rbtgi_depot}
-capabilities to identities the depot's IAM recognizes.
-The shipping model is the keyfile tier: each operator role holds a service-account key file on disk, possession of the key is the identity, and no GCP organization is required.
-Operator federation is the heavyweight successor tier for installations that cannot accept an operator secret on disk.
-The depot owner configures the
-{rbtgi_depot}
-to trust an external OIDC/SAML identity provider (any compliant issuer — self-hosted Dex/Keycloak, or GCP Identity Platform as an in-house IdP), then grants capabilities to those federated `principal://` subjects: keyless, no Google accounts for participants, revocation central at the depot.
-The
-{rbtgi_depot}
-remains the home of the participant roster (the role-to-identity mapping); the IdP owns only identity proofing.
-Org-only — federation pools are organization-level (Workforce Identity Federation, the human-identity product), so a no-org
-{rbtr_payor}
-cannot use this tier; the organization requirement is the line between the free keyfile tier and the federation tier.
-A qualifying organization is free via Cloud Identity once its owner verifies control of a DNS domain, so the true prerequisite is that the operator controls a domain — not that they pay Google.
-The Google-side credential path is curl-native — an STS token exchange (RFC 8693), no gcloud and no added stack dependency; only the IdP-auth leg (device flow where the issuer supports it) varies by issuer.
-Distinct from the envoy's egress federation (GCP-to-AWS delivery, the machine-identity Workload product): this is
+**Operator federation — IMPLEMENTED.**
+Workforce Identity Federation is now the shipping identity model: the keyfile tier is demolished (the zero-keys premise), and operator access rides a
+{rbtf_foedus}
+— a vendor-agnostic trust core plus acquisition-mechanism gate — as a provider under the manor's one workforce pool.
+The human path is avow (device flow) + STS exchange opening a sitting, then a mantle don;
+admission is governor-wielded (brevet/unseat/attaint) with the terrier as the muniment record;
+the programmatic mechanism (RFC 7523 self-supplied JWT against the caged test realm) serves the synthetic test rig.
+The organization requirement stands: workforce pools are organization-level, and a qualifying organization is free via Cloud Identity once its owner verifies control of a DNS domain.
+Distinct from the envoy's egress federation (the machine-identity Workload product): this is
 {at_operator}
 *access* identity arriving the other way.
-_Trigger_: first concrete need from an organization that cannot accept on-disk operator keyfiles, or when the keyfile tier's secret-distribution and rotation burden materially blocks adoption rather than being theoretically frictionful.
-_Reference_: `Memos/memo-20260609-federation-canon.md` (*the canon* — the authoritative federation shape: two-tier plan, curl-native two-leg device-flow + STS exchange, 12-hour session cap, per-depot mode enum homed in RBRD, the fully-secret-free human-present posture, and the regime/accessor homes; folds in the former source document `memo-20260527-operator-credential-models.md`);
-`Memos/memo-20260522-org-affiliated-credential-reorientation.md` (R1/R2/R3 credential model and three-tier ladder, plus R4/R5 test-rig and gauntlet resolutions);
-`Memos/memo-20260427-google-native-human-auth.md` (impersonation mechanism detail — its human-auth *framing* is superseded by R2);
-Google docs: Workforce Identity Federation overview (`https://docs.cloud.google.com/iam/docs/workforce-identity-federation`) and short-lived token exchange (`https://docs.cloud.google.com/iam/docs/workforce-obtaining-short-lived-credentials`).
+Remaining open surface lives in the three entries below (sanctioned-set bound, health-assurer representation, per-vendor guides).
+_Reference_: RBS0 federation civics (the `rbtf_` quoins);
+RBSRW-RegimeWorkforce.adoc and RBSRF-RegimeFederation.adoc (the regime homes);
+`Memos/memo-20260609-federation-canon.md` (the pre-build canon — superseded in detail by the built surface).
+
+**Governor federation-affiliation bound to a payor-sanctioned set.**
+The healthy payor–governor model, stated through the
+{rbtf_foedus}
+keystone: the
+{rbtr_payor}
+founds foedera
+({rbtf_affiance},
+org-scope) and *sanctions* a subset as eligible — the IT-department catalog of approved trusts;
+a governor affiliates its own depot with one sanctioned foedus (depot-scope, mirroring admission);
+a depot draws its citizens from the foedus it is affiliated with.
+Founding is settled payor-only (a new provider is a root of trust over every depot under the manor);
+selection is the open half.
+Guard: a test or degenerate foedus is never eligible for a production depot, so a governor cannot repoint production at a weak or caged provider.
+Enforcement is authorization, not authentication: an IAM condition or provider attribute-condition bounds affiliation to the sanctioned set — never a bespoke payor keypair, which would re-introduce a durable private secret against the zero-keys premise and duplicate what IAM already enforces.
+The exact GCP condition mechanism wants verification before this graduates.
+Premise-touching (the civic hierarchy is a cinched premise): operator-owned — never quietly built.
+_Trigger_: multi-foedus operation becoming real — a second production IdP, or concrete demand for governor-selects.
+_Reference_: `Memos/memo-20260623-Bf-heat-memories.md` and the ₣Bf paddock archive (the governor's-role idea);
+RBSRW-RegimeWorkforce.adoc (the one-pool identity substrate).
+
+**Payor as health-assurer — representing standing authority.**
+The operator's model: the payor as the IT department — standing veto and health-assurance authority over governors, beyond today's narrow powers (gird the first governor, recover a governorless depot, and the sanctioned-set bound above).
+Firmly ruled out: the payor as a federation identity — the payor is the bootstrap that founds the federation and the recovery root of last resort, so its OAuth-rootedness outside the citizenry is load-bearing, not a gap to close.
+The open fork: the payor wields IT-department powers directly via OAuth (the default lean — simplest, no new role), or a new federated steward role above governor carries routine org-health administration as a citizen so the OAuth root stays last-resort.
+The role earns its mint only if routine super-governor work actually emerges (the load-bearing-complexity test); a fresh civic-asterism word is minted then — "seneschal" is an illustrative register, not a mint.
+Premise-touching (the civic hierarchy is a cinched premise): operator-owned.
+_Trigger_: routine org-health administration beyond founding-adjacent acts actually emerging.
+_Reference_: `Memos/memo-20260623-Bf-heat-memories.md` and the ₣Bf paddock archive (the health-assurer idea).
+
+**Per-vendor federation setup guides.**
+IdP-console setup — registering the app, configuring claims and scopes — is foreign-console human work no API token can drive, so it is a guide per vendor, unified by contract rather than shared body:
+each guide must yield the same vendor-agnostic core facts the federation regime reads (issuer, client-id, subject claim).
+The Entra guide exists (`rbw-gPF`, rbhpf_entra.sh) as the template;
+further vendors (Okta, generic OIDC) are further guides under the same contract — no schema change, no code change, per the mechanism-not-vendor discriminator.
+_Trigger_: first federation against a non-Entra production IdP.
+_Reference_: RBSRF-RegimeFederation.adoc (the vendor-agnostic core plus mechanism gate);
+rbhpf_entra.sh (the template guide);
+`Memos/memo-20260618-Bf-federation-config-model.md` (the conviction's full reasoning).
