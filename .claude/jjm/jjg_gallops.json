@@ -9236,8 +9236,8 @@
         "₢BrAAA": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260705-1101",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260705-1635",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "## Character",
                 "",
@@ -9262,7 +9262,7 @@
                 "Founding prerequisite, operator-owned: bare GitHub private repos jjy_studbook and jjy_app must exist before the studbook-bootstrap pace mounts."
               ],
               "jjgtn_silks": "cut-paces-from-sheaves",
-              "jjgtn_basis": "5387442"
+              "jjgtn_basis": "1e2be4b"
             }
           ]
         },
