@@ -98,6 +98,24 @@ The wrest/jettison variants are pure pass-throughs and delete cleanly;
 _Trigger_: the made-side Ark/Hallmark retrofit heat.
 _Reference_: `Memos/retired/memo-20260610-heat-BH-image-tabtarget-cleanup.md` (waves, removal conditions, the done-when grep).
 
+**VOUCHES superdirectory — GAR-direct plumb and hallmark reverse-map.**
+Plumb currently requires a prior summon (local pull) before it can display provenance — heavy for a read-only inspection —
+and no path exists to reverse-map a hallmark to its vessel without iterating all vessel packages.
+Worked design (carried from the retired handbook-revamp heat at its retirement groom):
+a VOUCHES superdirectory in GAR — a single package where every vouch artifact is additionally tagged at vouch time
+(a tag pointer, not data duplication, since GAR is content-addressable);
+plumb converts to GAR-direct reads via Retriever credentials (manifest plus blob API, no local docker),
+gaining a hallmark-only mode that discovers the vessel through the VOUCHES entry's vouch summary,
+with the vessel-plus-hallmark mode skipping the VOUCHES lookup.
+Spec touchpoints: RBSAP (rewrite — GAR-direct, Retriever auth, hallmark-only mode),
+RBSAV (new step — tag the vouch artifact into VOUCHES after the vessel-package push),
+RBS0 (new package constant beside the ark-suffix family).
+Caution: the design predates the foundry decomposition —
+its file references (rbfc_FoundryCore.sh, rbfv_FoundryVerify.sh) map to the decomposed rbfcp_/rbfv_/rbgjv homes.
+_Trigger_: plumb friction in real retriever workflows, or the first consumer needing hallmark-to-vessel reverse lookup.
+_Reference_: this roadmap entry (the retired docket's design is fully absorbed here);
+RBSAP-ark_plumb.adoc and RBSAV-ark_vouch.adoc (the specs it would rewrite).
+
 **Hairpin peer access between crucibles.**
 Bottled containers cannot currently reach each other's published entry ports.
 Each bottle is isolated behind its own sentry on a separate enclave network.
