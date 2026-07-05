@@ -3821,8 +3821,8 @@
         "₢A6AAu": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260416-0947",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260705-1031",
+              "jjgtn_state": "jjgte_abandoned",
               "jjgtn_text": [
                 "## Character",
                 "",
@@ -3833,7 +3833,7 @@
                 "Re-review the existing onboarding-director-first-kludge handbook track. Interactive debug until the user is satisfied."
               ],
               "jjgtn_silks": "review-onboarding-director-first-kludge",
-              "jjgtn_basis": "e311078"
+              "jjgtn_basis": "3a9870c"
             }
           ]
         },
