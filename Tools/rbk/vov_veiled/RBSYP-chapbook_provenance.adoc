@@ -13,9 +13,11 @@ to the vouched pull that ends at a nameplate's hallmark line —
 and how the trail closes when a hallmark dies.
 
 The tale binds stitching only:
-a cast of actors and an ordered run of interaction beats.
+a cast of actors quartered into venues, and an ordered run of interaction beats,
+with each cloud submission bound to the fact that rides home as one vertical group.
 Every parameter, output, guarantee, and rejection band lives in the cited contracts, never here.
-The marker skeleton is the truth; any rendered diagram is derived presentation.
+The marker skeleton is the truth;
+any rendered diagram — its boxes, its activation bars, its arrow legends — is derived presentation.
 
 *Oracle.*
 The story spine is the onboarding-sequence fixture
@@ -26,7 +28,7 @@ The tale compresses where the oracle repeats:
 each mechanism is told once, and a movement notes the cases it compresses.
 
 *Stage geography.*
-The tale plays across two registry namespaces:
+The registry venue holds two lanes:
 the capture side
 ({gar_lodes_namespace}),
 where upstream material is impounded into
@@ -37,7 +39,7 @@ where built images stand as
 {rbtga_ark_s},
 each set under a datestamped
 {rbtga_hallmark}.
-Everything the crucible will ever run has crossed from the first namespace to the second under a contract told below.
+Everything the crucible will ever run has crossed from the first lane to the second under a contract told below.
 
 == Cast
 
@@ -51,20 +53,9 @@ owns the commits that make each chain link durable.
 the consumption-side party;
 pulls and inspects only what the vouch gate admits.
 
-//axhca_actor rbsyp_mason axd_internal
-{rbtr_mason} —
-the cloud-side executor;
-runs capture and build steps inside submitted jobs, never on the station.
-
-//axhca_actor rbsyp_cloudbuild axd_external
-{gcb_service} —
-the foreign build substrate jobs are submitted to;
-surveyed, never legislated.
-
-//axhca_actor rbsyp_gar axd_external
-{gar_service} —
-the foreign registry holding both namespaces;
-every artifact of the tale lives here.
+//axhcv_venue
+`rbsyp_committed_tree`
+The substrates the operator owns and commits — local git, the durable half of every chain link.
 
 //axhca_actor rbsyp_vessel axd_internal
 {rbtga_vessel} —
@@ -76,10 +67,35 @@ its regime lines are where chain links land.
 the crucible configuration;
 its hallmark lines are the tale's terminus — what charge consumes.
 
+//axhcv_venue
+`rbsyp_cloud`
+The foreign build substrate jobs are submitted to; surveyed, never legislated.
+
+//axhca_actor rbsyp_cloudbuild axd_external
+{gcb_service} —
+the submitted job:
+where every capture and every ordain actually runs.
+
+//axhca_actor rbsyp_mason axd_internal
+{rbtr_mason} —
+the cloud-side executor;
+runs capture and build steps inside submitted jobs, never on the station.
+
+//axhcv_venue
+`rbsyp_gar`
+The foreign registry —
+{gar_service} —
+holding both namespaces; every artifact of the tale lives here.
+
 //axhca_actor rbsyp_lode axd_internal
 {rbtga_lode} —
-the capture package:
-dated, vouched, upstream bytes impounded on the capture side.
+the capture side:
+dated, vouched, upstream bytes impounded under the Lode namespace.
+
+//axhca_actor rbsyp_hallmarks axd_internal
+{gar_hallmarks_namespace} —
+the release side:
+the ark sets standing under datestamped hallmarks.
 
 == The Tale
 
@@ -88,7 +104,7 @@ dated, vouched, upstream bytes impounded on the capture side.
 Oracle: `rbtdro_onboarding_conclave_reliquary`.
 Before anything is built, the tools that build are themselves captured.
 
-//axhci_interaction rbsyp_director rbsyp_cloudbuild
+//axhci_interaction rbsyp_director rbsyp_cloudbuild axd_open
 . Via
 {rbtgo_lode_conclave},
 the director submits the build-tool date-cohort capture as one cloud job;
@@ -99,11 +115,17 @@ the workstation fetches no upstream bytes.
 {rbtgo_lode_conclave}
 still, the mason executes the capture steps,
 minting the reliquary Lode and sealing its
-{rbtga_lode_vouch};
+{rbtga_lode_vouch}.
+
+//axhci_interaction rbsyp_cloudbuild rbsyp_director axd_closed axd_legend
+. `rbsyp_touchmark_home` —
+under
+{rbtgo_lode_conclave},
 the
 {rbtga_touchmark}
 rides home in the
-{rbf_fact_lode}.
+{rbf_fact_lode},
+and the next beat consumes it.
 
 //axhci_interaction rbsyp_director rbsyp_vessel
 . Via
@@ -148,13 +170,13 @@ Oracle: `rbtdro_onboarding_ordain_conjure_sentry`, `rbtdro_onboarding_ordain_con
 The canonical release mode:
 the cloud builds from committed sources and captured tools, and the full verification surface is walked.
 
-//axhci_interaction rbsyp_director rbsyp_cloudbuild
+//axhci_interaction rbsyp_director rbsyp_cloudbuild axd_open
 . Via
 {rbtgo_ark_ordain},
 the director ordains a conjure-mode vessel:
 the mode dispatch reads the committed vessel regime and submits the conjure pipeline.
 
-//axhci_interaction rbsyp_mason rbsyp_gar
+//axhci_interaction rbsyp_mason rbsyp_hallmarks
 . Via
 {rbtgo_ark_conjure},
 the mason builds the image — tools drawn from the yoked reliquary —
@@ -165,25 +187,32 @@ and pushes the ark set under a fresh
 {rbtga_ark_vouch},
 and the attestation.
 
-//axhci_interaction rbsyp_director rbsyp_gar
+//axhci_interaction rbsyp_cloudbuild rbsyp_director axd_closed axd_legend
+. `rbsyp_hallmark_home` —
+under
+{rbtgo_ark_ordain},
+the fresh hallmark rides home as a build fact;
+the drive at this movement's close consumes it.
+
+//axhci_interaction rbsyp_director rbsyp_hallmarks
 . Via
 {rbtgo_director_vouch},
 the director verifies hallmark provenance, mode-aware — SLSA verification for a conjured hallmark.
 
-//axhci_interaction rbsyp_retriever rbsyp_gar
+//axhci_interaction rbsyp_retriever rbsyp_hallmarks
 . Via
 {rbtgo_ark_summon},
 the retriever summons the hallmark:
 the pull is vouch-gated — no verdict, no image —
 and lands the image, about, and vouch arks in the station's cache.
 
-//axhci_interaction rbsyp_retriever rbsyp_gar
+//axhci_interaction rbsyp_retriever rbsyp_hallmarks
 . Via
 {rbtgo_ark_inspect},
 the retriever plumbs the hallmark in full:
 SLSA provenance, SBOM, and Dockerfile, rendered from the arks.
 
-//axhci_interaction rbsyp_director rbsyp_gar
+//axhci_interaction rbsyp_director rbsyp_hallmarks
 . Via
 {rbtgo_image_rekon},
 the director rekons the hallmark's subtree:
@@ -206,7 +235,7 @@ Oracle: `rbtdro_onboarding_ordain_airgap_chain`.
 The high-trust mode:
 the upstream base is impounded first, and the final build can reach nothing outside the registry.
 
-//axhci_interaction rbsyp_director rbsyp_cloudbuild
+//axhci_interaction rbsyp_director rbsyp_cloudbuild axd_open
 . Via
 {rbtgo_lode_ensconce},
 the director ensconces the forge vessel's declared upstream base — its
@@ -218,9 +247,15 @@ capture-pure, cloud-side, writing no vessel config.
 . Under
 {rbtgo_lode_ensconce}
 still, the mason captures the upstream bytes into the Lode and seals its
-{rbtga_lode_vouch};
+{rbtga_lode_vouch}.
+
+//axhci_interaction rbsyp_cloudbuild rbsyp_director axd_closed axd_legend
+. `rbsyp_bole_touchmark_home` —
+under
+{rbtgo_lode_ensconce},
 the bole touchmark rides home in the
-{rbf_fact_lode}.
+{rbf_fact_lode},
+and the feoff below consumes it.
 
 //axhci_interaction rbsyp_director rbsyp_vessel
 . Via
@@ -231,25 +266,38 @@ the chained touchmark is elected into its
 slot as a Lode locator, and the anchor is committed.
 The ceremony is ensconce, feoff, commit, ordain — conjure stays a pure head that reads no fact.
 
-//axhci_interaction rbsyp_director rbsyp_cloudbuild
+//axhci_interaction rbsyp_director rbsyp_cloudbuild axd_open
 . Via
 {rbtgo_ark_ordain},
 the director ordains the forge, tethered:
-conjure builds from the committed Lode anchor — the upstream is never re-fetched —
-and mints the forge hallmark.
+conjure builds from the committed Lode anchor — the upstream is never re-fetched.
+
+//axhci_interaction rbsyp_cloudbuild rbsyp_director axd_closed axd_legend
+. `rbsyp_forge_hallmark_home` —
+under
+{rbtgo_ark_ordain},
+the forge hallmark rides home;
+the handoff below consumes it.
 
 //axhci_interaction rbsyp_director rbsyp_vessel axd_attended
 . The director hands the forge hallmark to the airgap bottle:
 its base-anchor slot receives a hallmark-namespace locator naming the forge image, and the write is committed.
 No operator verb governs this handoff today — see Surfaced Gaps.
 
-//axhci_interaction rbsyp_director rbsyp_cloudbuild
+//axhci_interaction rbsyp_director rbsyp_cloudbuild axd_open
 . Via
 {rbtgo_ark_ordain},
 the director ordains the airgap bottle:
 conjure resolves the hallmark locator inside
 {gar_service}
 alone — the build needs no path to the upstream at all.
+
+//axhci_interaction rbsyp_cloudbuild rbsyp_director axd_closed axd_legend
+. `rbsyp_airgap_hallmark_home` —
+under
+{rbtgo_ark_ordain},
+the airgap hallmark rides home;
+the drive below consumes it.
 
 //axhci_interaction rbsyp_director rbsyp_nameplate
 . Via
@@ -262,7 +310,7 @@ Oracle: `rbtdro_onboarding_ordain_bind_plantuml`.
 The pin mode:
 an upstream image is adopted whole, by digest, without a local pull.
 
-//axhci_interaction rbsyp_director rbsyp_cloudbuild
+//axhci_interaction rbsyp_director rbsyp_cloudbuild axd_open
 . Via
 {rbtgo_ark_ordain},
 the director ordains a bind-mode vessel:
@@ -270,19 +318,26 @@ the digest-pinned upstream named in the vessel regime is mirrored cloud-side int
 {rbtga_hallmark},
 about and vouch metadata minted alongside.
 
-//axhci_interaction rbsyp_retriever rbsyp_gar
+//axhci_interaction rbsyp_cloudbuild rbsyp_director axd_closed axd_legend
+. `rbsyp_bind_hallmark_home` —
+under
+{rbtgo_ark_ordain},
+the bind hallmark rides home;
+the drive at this movement's close consumes it.
+
+//axhci_interaction rbsyp_retriever rbsyp_hallmarks
 . Via
 {rbtgo_ark_inspect},
 the retriever plumbs the bind hallmark compact — one-screen identity and verdict.
 
-//axhci_interaction rbsyp_director rbsyp_gar
+//axhci_interaction rbsyp_director rbsyp_hallmarks
 . Via
 {rbtgo_image_delete},
 the director jettisons the hallmark's
 {rbtga_ark_pouch}
 surgically.
 
-//axhci_interaction rbsyp_director rbsyp_gar
+//axhci_interaction rbsyp_director rbsyp_hallmarks
 . Via
 {rbtgo_image_rekon},
 the director rekons the subtree after the cut:
@@ -299,7 +354,7 @@ Oracle: `rbtdro_onboarding_ordain_graft_demo`.
 The escape-hatch mode:
 a station-built image enters the registry with its local provenance honestly labeled — and the tale closes on a hallmark's death.
 
-//axhci_interaction rbsyp_director rbsyp_cloudbuild
+//axhci_interaction rbsyp_director rbsyp_cloudbuild axd_open
 . Via
 {rbtgo_ark_graft},
 the director ordains the graft vessel:
@@ -308,13 +363,20 @@ is pushed under a fresh
 {rbtga_hallmark},
 its vouch verdict marked GRAFTED.
 
-//axhci_interaction rbsyp_director rbsyp_gar
+//axhci_interaction rbsyp_cloudbuild rbsyp_director axd_closed axd_legend
+. `rbsyp_graft_hallmark_home` —
+under
+{rbtgo_ark_graft},
+the graft hallmark rides home;
+the wrest below consumes it.
+
+//axhci_interaction rbsyp_director rbsyp_hallmarks
 . Via
 {rbtgo_image_retrieve},
 the director wrests the grafted image back and compares layer digests against the local source:
 the round trip is identity — the bytes survived the registry unchanged.
 
-//axhci_interaction rbsyp_director rbsyp_gar
+//axhci_interaction rbsyp_director rbsyp_hallmarks
 . Via
 {rbtgo_ark_abjure},
 the director abjures the terminal hallmark, deleting its arks —
