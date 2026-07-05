@@ -1,0 +1,122 @@
+//axvd_sheaf axd_aspirant axd_chapbook
+This is an aspirant chapbook of the {jjs0_imprimatur}: not yet binding — do not rely on it, decide from it, or cite the names it mints until it is infused into the codex.
+
+= A Typical Job Jockey Session — Chapbook
+
+//axhcb_chapbook jjcbs
+The happy-path tale of one mounted pace under the revision-control MVP:
+dispatch builds the billet, the session works it, the studbook and hippodrome co-evolve through a notional edit, and teardown waits for the next start.
+Stitching claims only — every contract cited here is homed elsewhere; where a home does not yet exist the beat carries a *pending* flag, and the register of those flags at the tail of this tale is the canon's convergence gauge.
+Cast tokens ride the regional sprue `jjcbs`; they resolve only within this file and are never catalogued.
+
+== The cast
+
+//axhca_actor jjcbs_operator axd_external
+*The operator* — the human at the shell; pending a catalogued party quoin.
+Initiates dispatch, directs the mounted work, alone may touch trunk.
+
+//axhca_actor jjcbs_session axd_external
+*The session* — the dispatched Claude Code agent, whose engine-facing identity is the
+{jjdxo_officium}.
+Everything it asks of the engine crosses an MCP door.
+
+//axhca_actor jjcbs_dispatch axd_internal
+*The dispatch layer* — the shell-side entrance spine behind the saddle and lunge verbs; pending the dispatch sheaf.
+
+//axhca_actor jjcbs_engine axd_internal
+*The engine* — the jjx MCP server and its farrier beneath; pending an engine entity quoin.
+
+//axhca_actor jjcbs_kit axd_internal
+*The kit repo* — the `jjy_app` peer in the infield, source of the engine and the provisioned context; pending the studbook-sheaf infusion.
+
+//axhca_actor jjcbs_studbook axd_internal
+*The studbook* — the regional record repo, the blotter's first instance, carrying the gallops; pending the blotter and studbook entity sheaves.
+
+//axhca_actor jjcbs_hippodrome axd_internal
+*The hippodrome* — the vanilla work clone, no JJ inserts; pending the cosmology sheaf.
+
+//axhca_actor jjcbs_billet axd_internal
+*The billet* — the pace's worktree and §F branch, chat-ephemeral scaffolding over a durable branch; pending the dispatch sheaf.
+
+== Act I — Dispatch
+
+//axhci_interaction jjcbs_operator jjcbs_dispatch
+The operator saddles a pace at the shell (or lunges a heat for a groom).
+Pending: the saddle and lunge operations.
+
+//axhci_interaction jjcbs_dispatch jjcbs_studbook
+Nuke-on-start: the sweep snapshots pace states under the studbook lock, plans retirement of every billet whose pace is closed and whose age exceeds retention, confirms, and reaps — refusing with advice on any dirty anomaly.
+Pending: the sweep operation and its word.
+
+//axhci_interaction jjcbs_dispatch jjcbs_hippodrome
+Billet-ensure: create or reuse the pace's worktree and §F branch at trunk tip.
+Pending: the farrier billet facet.
+
+//axhci_interaction jjcbs_dispatch jjcbs_hippodrome
+Fetch, never merge — staleness becomes known here so the open can report it.
+Pending: the farrier sync facet.
+
+//axhci_interaction jjcbs_dispatch jjcbs_kit
+Resolve engine and provisioned context from the infield peer ring.
+Pending: launch-time provisioning.
+
+//axhci_interaction jjcbs_dispatch jjcbs_session
+Launch Claude Code inside the billet, context provisioned, the engagement verb as opening prompt carrying the tier signal.
+Pending: the entrance spine.
+
+== Act II — The mounted work
+
+//axhci_interaction jjcbs_session jjcbs_engine
+{jjdo_open} —
+the officium opens; the engine identifies the billet from the filesystem alone (the same derivation dispatch ran — agreement by independent rediscovery, no env handoff) and reports trunk staleness loudly.
+On a known-stale trunk the mutating doors below would refuse in a precision band naming the resync operation as remedy; open itself never refuses.
+Pending: the identify contract and the resync operation.
+
+//axhci_interaction jjcbs_session jjcbs_engine
+{jjdo_orient} —
+the mount read: paddock and docket from the studbook, lock-free, staleness-tolerant.
+
+//axhci_interaction jjcbs_operator jjcbs_session axd_attended
+The work itself: the human directs, the session edits, and changes land in the billet's tree.
+No system contract governs this beat — the attended license is its citation.
+
+//axhci_interaction jjcbs_session jjcbs_engine
+{jjdo_record} —
+the notch, with an explicit file list.
+
+//axhci_interaction jjcbs_engine jjcbs_hippodrome
+Inside the notch: status, commit the explicit list on the billet branch, take the counterfoil, push the branch — the durable half lands first.
+Pending: the journal ceremony routine sheaf (this is its first step).
+
+//axhci_interaction jjcbs_engine jjcbs_studbook
+The journal ceremony proper: fetch, CAS-create the guidon-bearing lock ref, advance to remote tip, mutate and commit the gallops change with the counterfoil naming the hippodrome commit, push content atomically under lease, unlock.
+Durable-first is visible in the beat order — the hippodrome commit of the previous beat already exists before this journal names it.
+Pending: the journal ceremony routine sheaf.
+
+== Act III — Wrap and teardown
+
+//axhci_interaction jjcbs_session jjcbs_engine
+{jjdo_close} —
+the wrap: remaining work committed, the pace state mutates, and the same journal ceremony bracket carries it into the studbook (the previous two beats' shape, replayed).
+
+//axhci_interaction jjcbs_session jjcbs_operator
+The session ends and the operator is back at the shell.
+The billet stands — nothing reaps at wrap; the branch is pushed, so the worktree holds only convenience.
+
+//axhci_interaction jjcbs_operator jjcbs_dispatch
+Days later, the next saddle: Act I's sweep finds this pace closed and its billet past retention, and reaps it.
+The teardown actor is the dispatch layer at next start — never the session, which cannot remove its own floor.
+Pending: the sweep operation.
+
+== Pending-citation register (the convergence gauge)
+
+Beats above flag these homes as pending; each hardens to a citation when its sheaf lands:
+the saddle and lunge operations; the sweep operation and its word; the farrier billet and sync facets; launch-time provisioning and the entrance spine; the identify contract; the resync operation and its precision band; the journal ceremony routine sheaf; and the cast's entity quoins (party, dispatch, engine, blotter, studbook, hippodrome, billet, infield).
+
+Deferred sibling tales, named so they are not smuggled into this one:
+the two-station lock contention tale, the stale-lock break tale, and the stale-trunk resync tale — unhappy paths belong to their own chapbooks.
+
+== Sources (provenance, not authority)
+
+* The ₣Br paddock's Canon workup section — the destination-sheaf map and mint roster this tale tracks.
+* Chat of 260705 (the canon-workup groom) — the sweep, resync, and genre decisions this tale renders.
