@@ -111,7 +111,9 @@ Re-mints owed at the census pace:
 farrier ops status/commit/fetch/push;
 the lock trio (guidon-verbs seed held);
 the freshen successor (HARD VOK collision — the farrier sheaf ledger does not yet record it: bank the divergence);
-the sweep door's word (mucking-out seed held).
+the sweep door's word (mucking-out seed held);
+the stray pedigree prose use in RBK's getting-started spec (sweep at the census pace);
+weigh advance (English-common gray, no mint collision).
 Allocations with no words yet:
 the lock-ref git namespace;
 the dispatch-verb shell surface (vvx verb vs tabtarget);
