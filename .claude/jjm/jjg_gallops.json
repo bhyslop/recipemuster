@@ -13500,7 +13500,7 @@
         "₢BtAAA": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260705-1029",
+              "jjgtn_ts": "260705-1030",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "## Character",
@@ -13539,8 +13539,8 @@
                 "attest teaching presents the durable tags correctly;",
                 "no pre-federation role vocabulary survives in handbook output."
               ],
-              "jjgtn_silks": "onboarding-keyless-precondition-gap",
-              "jjgtn_basis": "d34c4c1"
+              "jjgtn_silks": "handbook-federation-reconcile",
+              "jjgtn_basis": "8ce3423"
             }
           ]
         },
