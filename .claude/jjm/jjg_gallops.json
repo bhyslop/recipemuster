@@ -18990,8 +18990,8 @@
         "₢BqAAG": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260704-1405",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260705-0924",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "Built and notched (260704), test-first at operator direction:",
                 "the curl-band overlap doctrine at both homes (BCG \"Precision Exit-Code Band\" placement paragraph + the bubc_constants.sh tinder placement comment);",
@@ -19026,7 +19026,7 @@
                 "One suite run plus possible Lode cleanup; wrap follows."
               ],
               "jjgtn_silks": "curl-band-overlap-doctrine",
-              "jjgtn_basis": "bdd159f"
+              "jjgtn_basis": "1186604"
             }
           ]
         },
