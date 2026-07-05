@@ -40,12 +40,15 @@ its AXLA half is landed canon (sheaf genre axis, two-token axvd_sheaf grammar, c
   refuse-with-advice on dirty anomalies by default, auto-commit-push behind explicit confirm;
   pace states snapshot under the studbook lock, then reaping proceeds lock-free (completion is monotonic).
   Supersedes the farrier sheaf's reaped-at-next-saddle-if-clean line (bank at drain time).
-- Trunk resync (260705): promoted from spine-internal auto-merge to an explicit session-facing operation —
+- Trunk resync (260705, softened same-day): promoted from spine-internal auto-merge to an explicit session-facing operation —
   the dispatch spine fetches but never merges;
-  jjx_open reports staleness loudly and mutating verbs refuse on known-stale trunk
-  in a precision band naming the resync operation as remedy (the avow-runway-gate shape);
-  open itself never refuses — the remedy runs in-session, so refusing open would starve its own remedy;
-  reads and orientation stay free on a stale trunk;
+  NO verb refuses on a stale trunk: trunk staleness is drift, never corruption
+  (the billet branch is additive and the studbook always advances under its own lock),
+  and refusing a notch would block the safe act of recording work.
+  Instead jjx_open leads its report with the staleness warning and the recommended remedy,
+  and notch/wrap append the same recommendation whenever trunk has moved.
+  The remedy is the resync operation — a merge of trunk into the billet, never rebase
+  (journaled counterfoils survive; rebase would dangle them);
   offline degrades to warn-and-proceed.
   The freshen re-mint (VOK collision) mints the new word for this operation, not the spine op.
 - Journal ceremony home (260705): the ceremony and break sequence are spec-homed as their own routine-genre sheaf —

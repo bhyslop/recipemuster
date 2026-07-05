@@ -13284,41 +13284,33 @@
         "₢BrAAA": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260704-1357",
+              "jjgtn_ts": "260705-1101",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "## Character",
                 "",
-                "Planning pace — read the sheaves fresh, then slate this heat's full pace roster; judgment over mechanics.",
+                "Planning pace — judgment over mechanics: read the authorities fresh, then slate the heat's full pace roster.",
                 "",
                 "## Done when",
                 "",
-                "The heat holds its slated roster in dependency order and this docket's rough sketch is superseded by the real dockets.",
+                "The heat holds its slated roster in dependency order and this docket is superseded by the real dockets.",
                 "",
-                "Read the paddock's three sheaves in full before slating; dated cinches (260704) are settled.",
+                "Authorities, in reading order:",
+                "the paddock (Canon workup — disposition doctrine, destination-sheaf map with genres, mint roster, deltas-to-bank, held-for-discussion register),",
+                "the three aspirant sheaves it governs,",
+                "and the authored session chapbook (`Tools/jjk/vov_veiled/JJS-aspirant-chapbook-session.adoc`),",
+                "whose pending-citation register is the convergence gauge the roster must drive to zero.",
                 "",
-                "Rough roster from the grooming session that cut this heat (refine freely against the sheaves):",
+                "Slate-time obligations:",
+                "any pace touching the gallops schema (the pace-identity re-gestalt above all) points its mount agent at CLAUDE.md §E, §F, and JJSCRP (jjdz_reprieve);",
+                "the sweep pace sequences after the officium re-gestalt amendment (liveness lean, paddock);",
+                "the census/mint-sweep pace carries the re-mint list and held word-seeds from the paddock's mint roster;",
+                "calcifying items (identify contract; any residual facet question) get design paces before farrier trait code.",
                 "",
-                "- Boring-rename sweep of the interior saddle routine (grep the jjrsd prefix to find it) freeing the saddle mint,",
-                "  plus the census re-mints under the vocabulary Palisade: status, commit, fetch, push, provisionally the lock trio (guidon-verbs seed ledgered),",
-                "  and the billet catch-up op formerly called freshen — HARD collision, freshen is a live VOK mint (kit-update verb).",
-                "  Word-picking under MCM Lapidary (read that section first); repo-wide grep gate per mint.",
-                "  Also sweep the stray pedigree prose use in RBK's getting-started spec; weigh advance (English-common gray, no mint collision).",
-                "- BURV_LOG_DIR override in the BUK launcher spine — standalone pace, meticulous execution demanded, self-tested via buw-st.",
-                "- Studbook bootstrap + pedigree schema.",
-                "- Farrier trait + plain-git ops + the settled farrier-wide error-kind enum (shapes calcify into op signatures — enum first).",
-                "- Lock guard (RAII) + journal ceremony + break sequence.",
-                "- jjx re-plumb over the studbook: open/record/close first.",
-                "- Scratch-studbook rehearsal gate — LAST; it is the conversion heat's entry gate (checklist in the paddock).",
-                "",
-                "Slate-time obligations: any pace touching the gallops schema (the pace-identity re-gestalt above all)",
-                "must point its mount agent at CLAUDE.md §E, §F, and JJSCRP (jjdz_reprieve) for branch delivery and episode registration.",
-                "",
-                "Founding prerequisite, operator-owned: bare GitHub private repos jjy_studbook and jjy_app must exist",
-                "before the studbook-bootstrap pace mounts."
+                "Founding prerequisite, operator-owned: bare GitHub private repos jjy_studbook and jjy_app must exist before the studbook-bootstrap pace mounts."
               ],
               "jjgtn_silks": "cut-paces-from-sheaves",
-              "jjgtn_basis": "50a6188"
+              "jjgtn_basis": "5387442"
             }
           ]
         }
