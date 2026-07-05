@@ -13487,32 +13487,266 @@
       "jjghn_creation_time": "260705",
       "jjghn_status": "jjghe_stabled",
       "jjghn_order": [
-        "₢BtAAA"
+        "₢BtAAB",
+        "₢BtAAA",
+        "₢BtAAC",
+        "₢BtAAD",
+        "₢BtAAE",
+        "₢BtAAF",
+        "₢BtAAG"
       ],
-      "jjghn_next_pace_seed": "AAB",
+      "jjghn_next_pace_seed": "AAH",
       "jjghn_paces": {
         "₢BtAAA": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260705-1028",
+              "jjgtn_ts": "260705-1029",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
-                "Drafted from ₢A6ABA in ₣A6.",
+                "## Character",
                 "",
-                "## Reconcile the onboarding handbook to the keyless federation model — it still expects a governor-RBRA key file the keyless path no longer writes.",
+                "Handbook reconciliation; a federation-correctness fix first, vocabulary currency second.",
+                "Find the real entry points before editing — prior review notes named tracks that do not exist.",
                 "",
-                "The ₣BZ terminal review (divergence triage) found: keyless freehold-establish dons mantles and writes NO governor-RBRA key file, but onboarding's credential-install prose + start-here menu still expect one, so a fresh-levy gauntlet may not satisfy onboarding's gate.",
+                "## Docket",
                 "",
-                "Entry point: rbho0_onboarding.sh (the start-here menu) + the rbw-Op payor track. NOTE: the review's source named tracks \"rbw-Ocr/Ocd\" — those tabtargets DO NOT EXIST (live rbw-O* = Occ/Oda/Odb/Odf/Odg/Ofc/Op/Ots); locate the real keyfile-expecting prose before editing. Full context: Memos/memo-20260622-fable-review-queue.md (m7-onboarding-keyless-gap).",
+                "Reconcile the onboarding handbooks to the keyless federation model.",
+                "The core defect (from the ₣BZ terminal-review divergence triage):",
+                "keyless freehold-establish dons mantles and writes NO governor key file,",
+                "but onboarding's credential-install prose and start-here menu still expect one,",
+                "so a fresh-levy gauntlet may not satisfy onboarding's gate.",
+                "Entry points: rbho0_onboarding.sh and the start-here menu (rbho0_start_here.sh), plus the rbw-Op payor track.",
+                "NOTE: the review's source named tracks rbw-Ocr/Ocd — those tabtargets DO NOT EXIST",
+                "(live rbw-O* = Occ/Oda/Odb/Odf/Odg/Ofc/Op/Ots);",
+                "locate the real keyfile-expecting prose before editing.",
+                "Full context: Memos/memo-20260622-fable-review-queue.md (m7-onboarding-keyless-gap).",
+                "",
+                "Fold in the attest-durability correction salvaged from the predecessor heat:",
+                "the -attest-{arch} tags are DURABLE provenance-carrying artifacts —",
+                "the only objects with GCB-attested digests",
+                "(the classic Docker image store re-serializes manifests, producing digests that differ from buildx-native) —",
+                "persisting alongside -image/-about/-vouch/-pouch/-diags and deleted by abjure alongside them.",
+                "The first-cloud-build teaching prose was written when they were considered ephemeral scaffolding;",
+                "the tag-inventory tour should present them as durable, not skip them.",
+                "",
+                "Sweep remaining handbook prose for pre-federation vocabulary against the federation chapbook's cast",
+                "(the chapbook pace earlier in this heat supplies the current story).",
                 "",
                 "## Done when",
-                "Onboarding's credential-readiness prose matches the keyless federation reality (mantle don, not a key file); a fresh-levy gauntlet satisfies whatever onboarding gate remains.",
                 "",
-                "## Character",
-                "Handbook reconciliation; a federation-correctness fix, not a vocabulary one. Find the real entry point first — the named tracks are stale."
+                "Onboarding's credential-readiness prose matches the keyless reality (mantle don, not a key file);",
+                "a fresh-levy gauntlet satisfies whatever onboarding gate remains;",
+                "attest teaching presents the durable tags correctly;",
+                "no pre-federation role vocabulary survives in handbook output."
               ],
               "jjgtn_silks": "onboarding-keyless-precondition-gap",
-              "jjgtn_basis": "767ec34"
+              "jjgtn_basis": "d34c4c1"
+            }
+          ]
+        },
+        "₢BtAAB": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260705-1029",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "",
+                "Concept-model authoring under CMK/AXLA discipline.",
+                "First chapbook instance in RB — also establishes the file home and minted names for the chapbook set.",
+                "",
+                "## Docket",
+                "",
+                "Draft an aspirant AXLA chapbook telling the provenance story:",
+                "reliquary conclave, Lode capture (ensconce and feoff), the ordain modes (conjure tether and airgap, bind, graft), vouch, summon and plumb.",
+                "The story spine is the onboarding-sequence fixture (Tools/rbk/rbtd/src/rbtdro_onboarding.rs) —",
+                "its case order and cross-case witnesses are the oracle;",
+                "a beat that contradicts a passing case is wrong.",
+                "Beats cite governing contracts (the ark and Lode operation specs, RBSA*/RBSL*) rather than restating them.",
+                "Genre law: AXLA sheaf genre chapbook with the hierarchy chapbook markers",
+                "(chapbook opener carrying the document sprue, actor lanes with internal/external kinds, interaction beats citing the governing contract).",
+                "Mint the chapbook file home and acronym with operator ratification — full mint ceremony;",
+                "expected under Tools/rbk/vov_veiled/, but the home is a mount-time decision.",
+                "",
+                "## Done when",
+                "",
+                "Aspirant chapbook committed;",
+                "cast and beats ratified against the fixture arc;",
+                "minted names operator-ratified."
+              ],
+              "jjgtn_silks": "chapbook-provenance-story",
+              "jjgtn_basis": "d34c4c1"
+            }
+          ]
+        },
+        "₢BtAAC": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260705-1029",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "",
+                "Concept-model authoring; second chapbook instance —",
+                "file home and marker idiom follow the pattern the provenance chapbook establishes.",
+                "",
+                "## Docket",
+                "",
+                "Draft an aspirant AXLA chapbook telling the federation story:",
+                "manor instaurate, affiance, gird, brevet, avow and don, attributed action —",
+                "with the withdrawal edges (unseat, attaint, jilt) as the story's shadow side.",
+                "Oracles: the parley suite (positive admission round-trip),",
+                "the freehold-establish gauntlet arc,",
+                "and polity-denial (rejection bands).",
+                "Beats cite the manor and polity contracts (RBSM*/RBSP*) and the federation regime specs (RBSRF/RBSRW).",
+                "",
+                "## Done when",
+                "",
+                "Aspirant chapbook committed;",
+                "cast and beats ratified against the parley and freehold-establish arcs."
+              ],
+              "jjgtn_silks": "chapbook-federation-story",
+              "jjgtn_basis": "d34c4c1"
+            }
+          ]
+        },
+        "₢BtAAD": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260705-1029",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "",
+                "Concept-model authoring; third chapbook instance.",
+                "",
+                "## Docket",
+                "",
+                "Draft an aspirant AXLA chapbook telling the containment story:",
+                "kludge and drive, charge, the sentry/pentacle/bottle composition and its enforcement layers,",
+                "adversarial sorties, quench.",
+                "Oracles: the tadmor crucible fixtures (siege for the self-contained pair; the bivouac stratum for the running suite).",
+                "Beats cite the crucible and security contracts (RBSCC, RBSCN, RBSSR, RBSSS, RBSIP).",
+                "",
+                "## Done when",
+                "",
+                "Aspirant chapbook committed;",
+                "cast and beats ratified against the crucible fixture arcs."
+              ],
+              "jjgtn_silks": "chapbook-containment-story",
+              "jjgtn_basis": "d34c4c1"
+            }
+          ]
+        },
+        "₢BtAAE": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260705-1029",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "",
+                "Consumer-document reconciliation informed by the chapbooks;",
+                "editorial judgment over mechanical sweep.",
+                "",
+                "## Docket",
+                "",
+                "Bring README.md current with the system as it stands:",
+                "federation-era vocabulary, current vessel and nameplate roster, current tabtarget families.",
+                "Re-derive the glossary anchor inventory from the chapbook casts —",
+                "the README glossary is the project broadside,",
+                "so every ashlar the chapbooks surface registers there.",
+                "Retire stale anchors and stale prose (pre-federation roles, retired operation names);",
+                "verify every anchor consumed by handbook linked-term calls still resolves.",
+                "Discovery: grep the handbook corpus (Tools/rbk/rbh0/) for buh_tlt and the public-docs URL constant to enumerate consumed anchors.",
+                "",
+                "## Done when",
+                "",
+                "README reads true against the current system and the chapbook stories;",
+                "no consumed anchor dangles;",
+                "the broadside carries the chapbook-surfaced ashlars."
+              ],
+              "jjgtn_silks": "readme-current-sweep",
+              "jjgtn_basis": "d34c4c1"
+            }
+          ]
+        },
+        "₢BtAAF": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260705-1029",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "",
+                "Evaluation design and execution — a minimal eval artifact, not a harness.",
+                "Tests whether handbook output actually teaches.",
+                "",
+                "## Docket",
+                "",
+                "Design and run a differential agent-learner evaluation of the handbook corpus",
+                "(design salvaged from the predecessor heat's eval pace):",
+                "",
+                "- Anti-inference persona: the learner agent reasons strictly from what the handbook says —",
+                "  if the handbook does not say it, the learner does not know it.",
+                "- 3-5 application-focused scenario questions per evaluated track (not recall);",
+                "  include misconception probes where surface understanding answers wrong.",
+                "- Differential design: full handbook output versus a stripped variant (teaching prose removed);",
+                "  the signal is the score delta, not the absolute.",
+                "- Synthetic critic alongside the learner:",
+                "  a separate agent evaluates the handbook AS pedagogy (gaps, ambiguities, stumble points).",
+                "- Goodhart note: eval questions authored outside the track author's working context;",
+                "  rotate periodically;",
+                "  human override with written justification.",
+                "",
+                "Run against at least the crash course and one director track.",
+                "Report whether the teaching prose carries measurable weight;",
+                "absorb actionable findings into handbook content or hand them to the docs-integrity sweep.",
+                "",
+                "## Out of scope",
+                "",
+                "Full eval harness or automation;",
+                "release-gate mechanics.",
+                "",
+                "## Done when",
+                "",
+                "Eval artifact committed;",
+                "runs executed against at least two tracks;",
+                "delta reported;",
+                "findings dispositioned."
+              ],
+              "jjgtn_silks": "agent-learner-load-test",
+              "jjgtn_basis": "d34c4c1"
+            }
+          ]
+        },
+        "₢BtAAG": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260705-1029",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "",
+                "Terminal mechanical sweep — deliberately last on the rail;",
+                "relocate to stay last if later paces enroll.",
+                "",
+                "## Docket",
+                "",
+                "Docs-integrity gates, salvaged from the predecessor heat's finalizer:",
+                "",
+                "- Dangling-reference grep: README and the consumer-facing context docs carry no references",
+                "  to retired symbol families or retired tabtargets.",
+                "- Tabtarget existence integrity: every tabtarget path mentioned in README and consumer-facing docs exists in tt/;",
+                "  no planned-but-never-built references survive.",
+                "- Anchor resolution: every anchor consumed by handbook linked-term calls exists in README.",
+                "",
+                "## Done when",
+                "",
+                "All three gates green in a single pass run after every other pace in this heat has wrapped."
+              ],
+              "jjgtn_silks": "docs-integrity-tail",
+              "jjgtn_basis": "d34c4c1"
             }
           ]
         }
