@@ -108,8 +108,8 @@
         "₢A6AA-": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260513-0747",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260705-1031",
+              "jjgtn_state": "jjgte_abandoned",
               "jjgtn_text": [
                 "## Character",
                 "",
@@ -138,7 +138,7 @@
                 "Every site emitting hand-edit instructions for an RBR*.env file applies the three-step pattern."
               ],
               "jjgtn_silks": "rbr-env-in-place-edit-pattern",
-              "jjgtn_basis": "d4c8c0f"
+              "jjgtn_basis": "ab0458f"
             }
           ]
         },
