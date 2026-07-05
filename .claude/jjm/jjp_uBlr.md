@@ -86,11 +86,12 @@ the founding-and-cutover section stays aspirant deliberately — it is the conve
 - Dispatch and billet (operation family): saddle, lunge, unsaddle, the entrance spine, the sweep,
   BUK meld consequences; launch-time provisioning folds in or splits out at authoring.
 - Tackle MVP core: scope-to-discipline binding beside the pedigree.
-- Typical-JJ-session chapbook (chapbook, born aspirant): the cast distinguishes every infield repo
-  (kit repo, studbook, hippodrome, billet) plus operator, dispatch layer, session, and engine;
-  the middle act shows a representative edit with the co-evolution beats —
-  hippodrome commit first, then the journal ceremony arrows into the studbook, durable-first visible in beat order;
-  the final act is the wrap and the next-start sweep.
+- Typical-JJ-session chapbook — AUTHORED 260705, aspirant: `Tools/jjk/vov_veiled/JJS-aspirant-chapbook-session.adoc`,
+  mounted in the codex's Aspirant Nucleations with the first two-token cartouche.
+  Its pending-citation register is the canon convergence gauge:
+  each destination sheaf that lands hardens the tale's flagged beats to citations;
+  the tale is expected to reach zero pending flags by heat end.
+  Unhappy-path sibling tales (two-station contention, stale-lock break, stale-trunk resync) are named there and deferred.
 
 Amendment streams, not new sheaves:
 officium re-gestalt (exchange relocation, identify at open);
@@ -112,7 +113,6 @@ Allocations with no words yet:
 the lock-ref git namespace;
 the dispatch-verb shell surface (vvx verb vs tabtarget);
 JJS0 sub-letter families for the store, dispatch, and driver vocabularies;
-the first chapbook's sprue token (derive mechanically from the sheaf identity);
 premise-vs-rivet classification of the scattered invariants
 (never-force, trunk-never-pushed-by-JJ, no-worktree-paths-in-studbook, durable-first, reads-take-no-lock, sole-door);
 exposure tiers for the operator-typed verbs (saddle/lunge/unsaddle/break are ashlar at least, likely bondstone).
@@ -142,7 +142,6 @@ Settle before the affected change, not before the heat:
 - Lock trio naming (guidon-verbs seed) — deliberately unsettled.
 - Billet dirname convention — parked with the branch-name lean on record.
 - Wire-vs-display coronet form (gazette halter typing depends on it).
-- Chapbook authoring order: whether the final-act sweep beats wait for sweep design or flag the fork.
 
 ## Done when
 
