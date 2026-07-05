@@ -1,6 +1,7 @@
 {
   "jjgrn_next_heat_seed": "Bu",
   "jjgrn_heat_order": [
+    "₣Bt",
     "₣Bs",
     "₣Bq",
     "₣Bg",
@@ -32,8 +33,7 @@
     "₣BI",
     "₣BL",
     "₣Ba",
-    "₣Br",
-    "₣Bt"
+    "₣Br"
   ],
   "jjgrn_heats": {
     "₣A6": {
@@ -13485,7 +13485,7 @@
     "₣Bt": {
       "jjghn_silks": "rbk-08-onboarding-readme",
       "jjghn_creation_time": "260705",
-      "jjghn_status": "jjghe_stabled",
+      "jjghn_status": "jjghe_racing",
       "jjghn_order": [
         "₢BtAAB",
         "₢BtAAC",
