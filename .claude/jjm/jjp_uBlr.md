@@ -44,8 +44,18 @@ its AXLA half is landed canon (sheaf genre axis, two-token axvd_sheaf grammar, c
   the dispatch spine fetches but never merges;
   jjx_open reports staleness loudly and mutating verbs refuse on known-stale trunk
   in a precision band naming the resync operation as remedy (the avow-runway-gate shape);
+  open itself never refuses — the remedy runs in-session, so refusing open would starve its own remedy;
+  reads and orientation stay free on a stale trunk;
   offline degrades to warn-and-proceed.
   The freshen re-mint (VOK collision) mints the new word for this operation, not the spine op.
+- Journal ceremony home (260705): the ceremony and break sequence are spec-homed as their own routine-genre sheaf —
+  one genre token per sheaf decides it;
+  the blotter entity sheaf summarizes its methods and cites, never restates.
+- Farrier facets (260705): the capability model is structural, not declarative —
+  facet-split traits (core / lock / billet), a blotter carrier implementing core+lock, a hippodrome kind core+billet,
+  so a kind lacking a facet is a compile-time fact;
+  no runtime capability machinery in the MVP,
+  and the degradation ladder stays spec prose until a second farrier kind arrives.
 
 ## Canon workup
 
@@ -121,13 +131,13 @@ exposure tiers for the operator-typed verbs (saddle/lunge/unsaddle/break are ash
 
 Settle before the affected change, not before the heat:
 
-- Liveness guard mechanics for the sweep (process-in-worktree probe vs officium exsanguination linkage)
-  and the retention constant.
-- Block-hard scope for stale trunk: which verbs refuse (mutating only, or open itself),
-  and the offline warn-threshold.
+- Liveness guard mechanics for the sweep and the retention constant —
+  lean on record: post-re-gestalt the officium names its billet,
+  so the guard is a pure JJ-data join (live officia × billets) with no platform process-probe,
+  which sequences the sweep pace after the officium re-gestalt amendment;
+  a process probe only ever as belt-and-braces.
 - Resync push timing: the merge commit pushes immediately, or rides the next notch.
-- Facet-capability model and the identify contract shape — calcifying: settle before farrier trait code.
-- Journal ceremony home: own routine sheaf vs inline in the blotter entity sheaf.
+- Identify contract shape — the kind-invariant core of its return; calcifying: settle before farrier trait code.
 - Launch-time provisioning: own sheaf vs fold into dispatch.
 - Lock trio naming (guidon-verbs seed) — deliberately unsettled.
 - Billet dirname convention — parked with the branch-name lean on record.
