@@ -5240,6 +5240,12 @@ include::RBSCV-crucible_variant.adoc[leveloffset=+2]
 //axvd_cartouche axd_aspirant
 include::RBSPC-podman_crucible.adoc[leveloffset=+2]
 
+[[rbsyp_aspirant]]
+=== Provenance Chapbook
+
+//axvd_cartouche axd_aspirant axd_chapbook
+include::RBSYP-chapbook_provenance.adoc[leveloffset=+2]
+
 == Trade Studies
 
 Trade studies document the crystallized results of intensive research into complex technical domains.
