@@ -1052,8 +1052,8 @@
         "₢A6AA9": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260429-1110",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260705-1032",
+              "jjgtn_state": "jjgte_abandoned",
               "jjgtn_text": [
                 "Drafted from ₢A-AAJ in ₣A-.",
                 "",
@@ -1064,7 +1064,7 @@
                 "After practicing the Windows procedures with `buh_step1`/`buh_step2`, decide whether to adopt auto-numbered steps across all handbook procedures (onboarding, payor). Convert if yes, document why not if no. Includes PayorEstablish, PayorRefresh, QuotaBuild, and any onboarding procedures still using hardcoded `buh_section \"N. ...\"`."
               ],
               "jjgtn_silks": "adopt-step-autonumber-across-all-procedures",
-              "jjgtn_basis": "03e67d8"
+              "jjgtn_basis": "4ee403c"
             }
           ]
         },
