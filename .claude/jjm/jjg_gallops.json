@@ -2749,8 +2749,8 @@
         "₢A6AAZ": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260415-0638",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260705-1032",
+              "jjgtn_state": "jjgte_abandoned",
               "jjgtn_text": [
                 "## Character",
                 "Design + implementation — new GAR structural concept (VOUCHES superdirectory), rewrite plumb from local-only to GAR-direct, update vouch to populate the new namespace.",
@@ -2799,7 +2799,7 @@
                 "- `rbfr_FoundryRetriever.sh` — plumb no longer needs summon; update any coupling"
               ],
               "jjgtn_silks": "plumb-goes-remote-with-vouches-superdirectory",
-              "jjgtn_basis": "8d97b93"
+              "jjgtn_basis": "455387c"
             }
           ]
         },
