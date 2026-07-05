@@ -2,12 +2,23 @@
 // All rights reserved.
 // SPDX-License-Identifier: LicenseRef-Proprietary
 
-//! Favor encoding - Firemark, Coronet, and Pensum identity types
+//! Favor encoding — the Job Jockey insignia types (the `axd_insignia` family).
 //!
-//! Implements base64url encoding/decoding for Job Jockey identity types:
-//! - Firemark: Heat identity (2 base64url chars, 0-4095)
-//! - Coronet: Pace identity (5 base64url chars, globally unique)
-//! - Pensum: Remote dispatch identity (5 chars with % sentinel, globally unique)
+//! Base64url encoding/decoding for the four minted identity marks:
+//! - Firemark: Heat identity (2 base64url chars, 0-4095) — algebraic
+//! - Coronet:  Pace identity (5 base64url chars, globally unique) — algebraic
+//! - Pensum:   Remote dispatch identity (5 chars with `%` sentinel) — algebraic
+//! - Incipit:  Officium identity (`YYMMDD-NNNN` + discriminant) — temporal
+//!
+//! Value vs. render (JJS0 `jjdt_insignia`): the identity IS the bare encoded body
+//! (`jjrf_as_str`); the unicode sigil is a render-layer mark — mandatory in
+//! operator-facing output (`jjrf_display`), forbidden in machine contexts (git
+//! refs, on-disk paths, wire keys). `zjjrf_emblazon` is the single render home
+//! that applies a sigil to a bare body. The body is set at construction and
+//! never after (encapsulated field). Derivation is generative: `jjrf_successor`
+//! / `jjrf_parent_firemark` return a fresh immutable value, never mutating the
+//! source — an algebraic affordance (arithmetic on the base-64 numeral), so the
+//! temporal Incipit carries no successor.
 
 use serde::{Deserialize, Serialize};
 
@@ -25,6 +36,9 @@ pub const JJRF_CORONET_PREFIX: char = '₢';
 
 /// Pensum prefix character
 pub const JJRF_PENSUM_PREFIX: char = '₱';
+
+/// Incipit (officium) prefix character — the ☉ temporal sigil (U+2609 SUN)
+pub const JJRF_INCIPIT_PREFIX: char = '☉';
 
 /// Pensum sentinel character — literal `%` at position 3 disambiguates from Coronet
 pub const JJRF_PENSUM_SENTINEL: char = '%';
@@ -65,20 +79,31 @@ pub fn zjjrf_value_to_char(value: u8) -> char {
     JJRF_CHARSET[value as usize] as char
 }
 
+/// The single render home for insignia: apply a render-layer `sigil` to a bare
+/// encoded `body`, yielding the operator-facing form. The one place a sigil is
+/// prepended (JJS0 `jjdt_insignia` render layer). The bare body alone is the
+/// machine form (git refs, on-disk paths, wire keys — sigil forbidden there).
+fn zjjrf_emblazon(sigil: char, body: &str) -> String {
+    format!("{}{}", sigil, body)
+}
+
 /// Heat identity - 2 base64 characters encoding 0-4095
+/// The body is private — set at construction, immutable thereafter (`axd_immutable`).
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
-pub struct jjrf_Firemark(pub String);
+pub struct jjrf_Firemark(String);
 
 /// Pace identity - 5 base64 characters, globally unique
 /// First 2 chars encode parent Heat, last 3 encode pace index (0-262143)
+/// The body is private — set at construction, immutable thereafter (`axd_immutable`).
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
-pub struct jjrf_Coronet(pub String);
+pub struct jjrf_Coronet(String);
 
 /// Pensum identity - 5 characters, globally unique
 /// Format: 2 base64url (heat firemark) + literal `%` + 2 base64url (index within heat)
 /// Example: `Ah%BE` belongs to heat `₣Ah`
+/// The body is private — set at construction, immutable thereafter (`axd_immutable`).
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
-pub struct jjrf_Pensum(pub String);
+pub struct jjrf_Pensum(String);
 
 impl jjrf_Firemark {
     /// Encode an integer (0-4095) as a Firemark
@@ -117,14 +142,42 @@ impl jjrf_Firemark {
         Ok(jjrf_Firemark(stripped.to_string()))
     }
 
-    /// Get the raw base64 string (without prefix)
+    /// Get the raw base64 string (the bare body — the identity, sigil stripped)
     pub fn jjrf_as_str(&self) -> &str {
         &self.0
     }
 
-    /// Format with prefix for display
+    /// The render-layer sigil (`₣`). Render-only — never part of the identity.
+    pub fn jjrf_sigil(&self) -> char {
+        JJRF_FIREMARK_PREFIX
+    }
+
+    /// Operator-facing form: sigil + bare body (sigil mandatory)
     pub fn jjrf_display(&self) -> String {
-        format!("{}{}", JJRF_FIREMARK_PREFIX, self.0)
+        zjjrf_emblazon(self.jjrf_sigil(), self.jjrf_as_str())
+    }
+
+    /// Algebraic successor — the next Firemark in seed order (this value + 1) as a
+    /// fresh immutable value; the source is untouched. `Err` when the base-64
+    /// numeral is saturated (no successor within capacity).
+    pub fn jjrf_successor(&self) -> Result<jjrf_Firemark, String> {
+        let value = self.jjrf_decode()?;
+        if value >= JJRF_FIREMARK_MAX {
+            return Err(format!(
+                "Firemark '{}' is at capacity ({}), no successor",
+                self.jjrf_display(), JJRF_FIREMARK_MAX
+            ));
+        }
+        Ok(jjrf_Firemark::jjrf_encode(value + 1))
+    }
+
+    /// Test-only raw wrap — build from an unvalidated body to exercise decode /
+    /// error paths that validated construction (`jjrf_encode` / `jjrf_parse`)
+    /// can never produce. Unavailable outside tests: production identities are
+    /// always validated at construction and immutable thereafter.
+    #[cfg(test)]
+    pub fn jjrf_from_raw(body: &str) -> Self {
+        jjrf_Firemark(body.to_string())
     }
 }
 
@@ -173,19 +226,45 @@ impl jjrf_Coronet {
         Ok(jjrf_Coronet(stripped.to_string()))
     }
 
-    /// Get the raw base64 string (without prefix)
+    /// Get the raw base64 string (the bare body — the identity, sigil stripped)
     pub fn jjrf_as_str(&self) -> &str {
         &self.0
     }
 
-    /// Format with prefix for display
-    pub fn jjrf_display(&self) -> String {
-        format!("{}{}", JJRF_CORONET_PREFIX, self.0)
+    /// The render-layer sigil (`₢`). Render-only — never part of the identity.
+    pub fn jjrf_sigil(&self) -> char {
+        JJRF_CORONET_PREFIX
     }
 
-    /// Extract the parent Firemark (first 2 base64 chars)
+    /// Operator-facing form: sigil + bare body (sigil mandatory)
+    pub fn jjrf_display(&self) -> String {
+        zjjrf_emblazon(self.jjrf_sigil(), self.jjrf_as_str())
+    }
+
+    /// Extract the parent Firemark (first 2 base64 chars) — a generative
+    /// derivation: a fresh immutable value, the source untouched.
     pub fn jjrf_parent_firemark(&self) -> jjrf_Firemark {
         jjrf_Firemark(self.0[..JJRF_FIREMARK_LEN].to_string())
+    }
+
+    /// Algebraic successor — the next Coronet in the same heat (pace index + 1)
+    /// as a fresh immutable value; the source is untouched. `Err` when the pace
+    /// index is saturated (no successor within capacity).
+    pub fn jjrf_successor(&self) -> Result<jjrf_Coronet, String> {
+        let (heat, pace_index) = self.jjrf_decode()?;
+        if pace_index >= JJRF_CORONET_PACE_MAX {
+            return Err(format!(
+                "Coronet '{}' pace index is at capacity ({}), no successor",
+                self.jjrf_display(), JJRF_CORONET_PACE_MAX
+            ));
+        }
+        Ok(jjrf_Coronet::jjrf_encode(&heat, pace_index + 1))
+    }
+
+    /// Test-only raw wrap — see `jjrf_Firemark::jjrf_from_raw`.
+    #[cfg(test)]
+    pub fn jjrf_from_raw(body: &str) -> Self {
+        jjrf_Coronet(body.to_string())
     }
 }
 
@@ -251,18 +330,91 @@ impl jjrf_Pensum {
         Ok(jjrf_Pensum(stripped.to_string()))
     }
 
-    /// Get the raw string (without prefix)
+    /// Get the raw string (the bare body — the identity, sigil stripped)
     pub fn jjrf_as_str(&self) -> &str {
         &self.0
     }
 
-    /// Format with prefix for display
-    pub fn jjrf_display(&self) -> String {
-        format!("{}{}", JJRF_PENSUM_PREFIX, self.0)
+    /// The render-layer sigil (`₱`). Render-only — never part of the identity.
+    pub fn jjrf_sigil(&self) -> char {
+        JJRF_PENSUM_PREFIX
     }
 
-    /// Extract the parent Firemark (first 2 base64 chars)
+    /// Operator-facing form: sigil + bare body (sigil mandatory)
+    pub fn jjrf_display(&self) -> String {
+        zjjrf_emblazon(self.jjrf_sigil(), self.jjrf_as_str())
+    }
+
+    /// Extract the parent Firemark (first 2 base64 chars) — a generative
+    /// derivation: a fresh immutable value, the source untouched.
     pub fn jjrf_parent_firemark(&self) -> jjrf_Firemark {
         jjrf_Firemark(self.0[..JJRF_FIREMARK_LEN].to_string())
+    }
+
+    /// Algebraic successor — the next Pensum in the same heat (index + 1) as a
+    /// fresh immutable value; the source is untouched. `Err` when the index is
+    /// saturated (no successor within capacity).
+    pub fn jjrf_successor(&self) -> Result<jjrf_Pensum, String> {
+        let (heat, index) = self.jjrf_decode()?;
+        if index >= JJRF_PENSUM_INDEX_MAX {
+            return Err(format!(
+                "Pensum '{}' index is at capacity ({}), no successor",
+                self.jjrf_display(), JJRF_PENSUM_INDEX_MAX
+            ));
+        }
+        Ok(jjrf_Pensum::jjrf_encode(&heat, index + 1))
+    }
+
+    /// Test-only raw wrap — see `jjrf_Firemark::jjrf_from_raw`.
+    #[cfg(test)]
+    pub fn jjrf_from_raw(body: &str) -> Self {
+        jjrf_Pensum(body.to_string())
+    }
+}
+
+/// Officium identity - temporal insignia (JJS0 `jjdt_incipit`)
+/// Format: `YYMMDD-NNNN` datestamp + autonumber, plus a cross-machine random
+/// discriminant. Minted by filesystem enumeration, not arithmetic — the
+/// `axd_temporal` nature — so it carries no algebraic successor.
+/// The body is private — set at construction, immutable thereafter (`axd_immutable`).
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub struct jjrf_Incipit(String);
+
+impl jjrf_Incipit {
+    /// Wrap an already-minted bare body (the officium directory name, sigil
+    /// stripped) as an Incipit. The mint — filesystem enumeration — is the
+    /// caller's; this is the typed home the minted value lands in.
+    pub fn jjrf_new(body: impl Into<String>) -> Self {
+        jjrf_Incipit(body.into())
+    }
+
+    /// Parse an Incipit from input with or without the `☉` sigil (sigil ignored
+    /// on input). Temporal bodies are filesystem-derived, so the only structural
+    /// check is non-emptiness.
+    pub fn jjrf_parse(input: &str) -> Result<Self, String> {
+        let stripped = input.strip_prefix(JJRF_INCIPIT_PREFIX).unwrap_or(input);
+        if stripped.is_empty() {
+            return Err(format!(
+                "Incipit must be non-empty (with or without {} prefix), got '{}'",
+                JJRF_INCIPIT_PREFIX, input
+            ));
+        }
+        Ok(jjrf_Incipit(stripped.to_string()))
+    }
+
+    /// The bare body — the identity itself, and the on-disk directory name
+    /// (sigil stripped; the machine form).
+    pub fn jjrf_as_str(&self) -> &str {
+        &self.0
+    }
+
+    /// The render-layer sigil (`☉`). Render-only — never part of the identity.
+    pub fn jjrf_sigil(&self) -> char {
+        JJRF_INCIPIT_PREFIX
+    }
+
+    /// Operator-facing form: sigil + bare body (sigil mandatory)
+    pub fn jjrf_display(&self) -> String {
+        zjjrf_emblazon(self.jjrf_sigil(), self.jjrf_as_str())
     }
 }

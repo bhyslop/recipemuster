@@ -51,7 +51,7 @@ const GAZETTE_IN_FILE: &str = "gazette_in.md";
 const GAZETTE_OUT_FILE: &str = "gazette_out.md";
 const PROBE_DATE_FILE: &str = ".probe_date";
 const EXSANGUINATION_THRESHOLD_SECS: u64 = 7 * 24 * 3600;
-const OFFICIUM_SUN_PREFIX: char = '\u{2609}'; // ☉
+const OFFICIUM_SUN_PREFIX: char = crate::jjrf_favor::JJRF_INCIPIT_PREFIX; // ☉ — single-homed sigil
 const OFFICIUM_SUFFIX_LEN: usize = 4; // random discriminant chars appended to YYMMDD-NNNN
 const OFFICIUM_FIRST_ORDINAL: u32 = 1000; // first-of-day daily ordinal NNNN (per-machine seed)
 
@@ -1558,7 +1558,7 @@ fn zjjrm_refresh_emblem(officium_dir: &Path, new_marker: Option<jjrm_SaddleMarke
                 .file_name()
                 .map(|n| n.to_string_lossy().into_owned())
                 .unwrap_or_default();
-            format!("{}{}", OFFICIUM_SUN_PREFIX, bare)
+            crate::jjrf_favor::jjrf_Incipit::jjrf_new(bare).jjrf_display()
         }
     };
     let basename = cwd
@@ -1819,7 +1819,8 @@ async fn zjjrm_handle_open(size_limit: u64) -> Result<CallToolResult, McpError> 
         let candidate = zjjrm_generate_officium_id(&officia, &today);
         let path = officia.join(&candidate);
         match std::fs::create_dir(&path) {
-            Ok(()) => break (candidate, path),
+            // Mint through the typed home: the claimed bare candidate becomes the officium's Incipit.
+            Ok(()) => break (crate::jjrf_favor::jjrf_Incipit::jjrf_new(candidate), path),
             Err(e) if e.kind() == std::io::ErrorKind::AlreadyExists => continue,
             Err(e) => {
                 return Ok(CallToolResult::error(vec![Content::text(
@@ -1873,9 +1874,9 @@ async fn zjjrm_handle_open(size_limit: u64) -> Result<CallToolResult, McpError> 
         }
     }
 
-    // Invitatory commit: jjb:BRAND::i: OFFICIUM <id>
+    // Invitatory commit: jjb:BRAND::i: OFFICIUM <id> — bare machine form (fossil-record grep key)
     let brand = vvc::vvcc_get_brand();
-    let subject = format!("OFFICIUM {}", id);
+    let subject = format!("OFFICIUM {}", id.jjrf_as_str());
     let action = crate::jjrnm_markers::JJRNM_INVITATORY.to_string();
     let message = vvc::vvcc_format_branded(
         crate::jjrn_notch::JJRN_COMMIT_PREFIX,
@@ -1963,10 +1964,10 @@ async fn zjjrm_handle_open(size_limit: u64) -> Result<CallToolResult, McpError> 
     }
     zjjrm_reprieve_nag(&mut output);
     zjjrm_retention_monitum(&mut output);
-    vvco_out!(output, "{}{}", OFFICIUM_SUN_PREFIX, id);
+    vvco_out!(output, "{}", id.jjrf_display());
     vvco_out!(output, "{}", zjjrm_gazette_paths_block(
-        &zjjrm_gazette_in_path(&id),
-        &zjjrm_gazette_out_path(&id),
+        &zjjrm_gazette_in_path(id.jjrf_as_str()),
+        &zjjrm_gazette_out_path(id.jjrf_as_str()),
     ));
     Ok(CallToolResult::success(vec![Content::text(output.vvco_finish())]))
 }

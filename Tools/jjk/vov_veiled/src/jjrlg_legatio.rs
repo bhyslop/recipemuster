@@ -39,7 +39,7 @@ const LEGATIO_FILE_EXT: &str = ".json";
 const OFFICIA_DIR: &str = ".claude/jjm/officia";
 
 /// Officium sun prefix character (mirrors jjrm_mcp.rs constant)
-const OFFICIUM_SUN_PREFIX: char = '\u{2609}'; // ☉
+const OFFICIUM_SUN_PREFIX: char = crate::jjrf_favor::JJRF_INCIPIT_PREFIX; // ☉ — single-homed sigil
 
 // Command name constants — RCG String Boundary Discipline
 const JJRLG_CMD_NAME_BIND: &str = "jjx_bind";
@@ -737,11 +737,11 @@ fn zjjrlg_mint_pensum_local(
     let seed = seeds.entry(firemark_key.clone())
         .or_insert_with(|| crate::jjrt_types::JJRT_PENSUM_SEED_INIT.to_string());
 
-    let pensum = jjrf_Pensum(format!("{}{}{}",
+    let pensum = jjrf_Pensum::jjrf_parse(&format!("{}{}{}",
         firemark.jjrf_as_str(),
         JJRF_PENSUM_SENTINEL,
         seed,
-    ));
+    )).map_err(|e| format!("Cannot mint pensum: {}", e))?;
 
     // Increment seed
     *seed = zjjrg_increment_seed(seed);

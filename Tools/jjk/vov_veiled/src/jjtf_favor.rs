@@ -73,10 +73,10 @@ fn jjtf_firemark_encode_decode_roundtrip() {
 
 #[test]
 fn jjtf_firemark_decode_invalid_length() {
-    let fm = jjrf_Firemark("A".to_string());
+    let fm = jjrf_Firemark::jjrf_from_raw("A");
     assert!(fm.jjrf_decode().is_err());
 
-    let fm = jjrf_Firemark("ABC".to_string());
+    let fm = jjrf_Firemark::jjrf_from_raw("ABC");
     assert!(fm.jjrf_decode().is_err());
 }
 
@@ -209,10 +209,10 @@ fn jjtf_coronet_parse_invalid() {
 
 #[test]
 fn jjtf_coronet_decode_invalid_length() {
-    let c = jjrf_Coronet("ABCD".to_string());
+    let c = jjrf_Coronet::jjrf_from_raw("ABCD");
     assert!(c.jjrf_decode().is_err());
 
-    let c = jjrf_Coronet("ABCDEF".to_string());
+    let c = jjrf_Coronet::jjrf_from_raw("ABCDEF");
     assert!(c.jjrf_decode().is_err());
 }
 
@@ -361,12 +361,95 @@ fn jjtf_pensum_parent_firemark() {
 
 #[test]
 fn jjtf_pensum_decode_invalid_length() {
-    let p = jjrf_Pensum("Ah%B".to_string());
+    let p = jjrf_Pensum::jjrf_from_raw("Ah%B");
     assert!(p.jjrf_decode().is_err());
 }
 
 #[test]
 fn jjtf_pensum_decode_missing_sentinel() {
-    let p = jjrf_Pensum("AhABE".to_string());
+    let p = jjrf_Pensum::jjrf_from_raw("AhABE");
     assert!(p.jjrf_decode().is_err());
+}
+
+// Sigil accessor — render-layer mark, distinct from the bare body
+
+#[test]
+fn jjtf_sigils_are_render_only() {
+    assert_eq!(jjrf_Firemark::jjrf_encode(0).jjrf_sigil(), JJRF_FIREMARK_PREFIX);
+    let heat = jjrf_Firemark::jjrf_encode(0);
+    assert_eq!(jjrf_Coronet::jjrf_encode(&heat, 0).jjrf_sigil(), JJRF_CORONET_PREFIX);
+    assert_eq!(jjrf_Pensum::jjrf_encode(&heat, 0).jjrf_sigil(), JJRF_PENSUM_PREFIX);
+    assert_eq!(jjrf_Incipit::jjrf_new("260705-1000-abcd").jjrf_sigil(), JJRF_INCIPIT_PREFIX);
+}
+
+// Algebraic successor — generative derivation, fresh immutable value
+
+#[test]
+fn jjtf_firemark_successor() {
+    let fm = jjrf_Firemark::jjrf_encode(0);
+    let next = fm.jjrf_successor().unwrap();
+    assert_eq!(next.jjrf_as_str(), "AB");
+    // Source untouched — derivation is generative, not mutative.
+    assert_eq!(fm.jjrf_as_str(), "AA");
+}
+
+#[test]
+fn jjtf_firemark_successor_saturates() {
+    let fm = jjrf_Firemark::jjrf_encode(JJRF_FIREMARK_MAX);
+    assert!(fm.jjrf_successor().is_err());
+}
+
+#[test]
+fn jjtf_coronet_successor_stays_in_heat() {
+    let heat = jjrf_Firemark::jjrf_encode(1); // "AB"
+    let coronet = jjrf_Coronet::jjrf_encode(&heat, 0);
+    let next = coronet.jjrf_successor().unwrap();
+    assert_eq!(next.jjrf_as_str(), "ABAAB");
+    assert_eq!(next.jjrf_parent_firemark().jjrf_as_str(), "AB");
+}
+
+#[test]
+fn jjtf_coronet_successor_saturates() {
+    let heat = jjrf_Firemark::jjrf_encode(0);
+    let coronet = jjrf_Coronet::jjrf_encode(&heat, JJRF_CORONET_PACE_MAX);
+    assert!(coronet.jjrf_successor().is_err());
+}
+
+#[test]
+fn jjtf_pensum_successor_stays_in_heat() {
+    let heat = jjrf_Firemark::jjrf_parse("Ah").unwrap();
+    let pensum = jjrf_Pensum::jjrf_encode(&heat, 0);
+    let next = pensum.jjrf_successor().unwrap();
+    assert_eq!(next.jjrf_as_str(), "Ah%AB");
+}
+
+#[test]
+fn jjtf_pensum_successor_saturates() {
+    let heat = jjrf_Firemark::jjrf_encode(0);
+    let pensum = jjrf_Pensum::jjrf_encode(&heat, JJRF_PENSUM_INDEX_MAX);
+    assert!(pensum.jjrf_successor().is_err());
+}
+
+// Incipit — temporal insignia (officium)
+
+#[test]
+fn jjtf_incipit_display_and_bare() {
+    let inc = jjrf_Incipit::jjrf_new("260705-1000-abcd");
+    assert_eq!(inc.jjrf_as_str(), "260705-1000-abcd");        // bare — the on-disk dir name
+    assert_eq!(inc.jjrf_display(), "☉260705-1000-abcd");      // operator form — sigil mandatory
+}
+
+#[test]
+fn jjtf_incipit_parse_ignores_sigil() {
+    let with = jjrf_Incipit::jjrf_parse("☉260705-1000-abcd").unwrap();
+    let without = jjrf_Incipit::jjrf_parse("260705-1000-abcd").unwrap();
+    assert_eq!(with.jjrf_as_str(), "260705-1000-abcd");
+    assert_eq!(without.jjrf_as_str(), "260705-1000-abcd");
+    assert_eq!(with, without);
+}
+
+#[test]
+fn jjtf_incipit_parse_rejects_empty() {
+    assert!(jjrf_Incipit::jjrf_parse("").is_err());
+    assert!(jjrf_Incipit::jjrf_parse("☉").is_err());
 }

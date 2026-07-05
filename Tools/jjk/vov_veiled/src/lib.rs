@@ -110,7 +110,7 @@ mod jjtz_gazette;
 mod jjtm_mcp;
 
 // Re-export commonly used types (with RCG prefixes)
-pub use jjrf_favor::{jjrf_Coronet, jjrf_Firemark, jjrf_Pensum};
+pub use jjrf_favor::{jjrf_Coronet, jjrf_Firemark, jjrf_Incipit, jjrf_Pensum};
 pub use jjrn_notch::{jjrn_ChalkMarker, jjrn_HeatAction, jjrn_format_notch_prefix, jjrn_format_heat_message, jjrn_format_heat_discussion};
 pub use jjrs_steeplechase::{jjrs_ReinArgs, jjrs_SteeplechaseEntry, jjrs_get_entries};
 
