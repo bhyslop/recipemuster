@@ -99,6 +99,7 @@
 :axd_tally:                           <<axd_tally,Tally>>
 :axd_algebraic:                       <<axd_algebraic,Algebraic>>
 :axd_temporal:                        <<axd_temporal,Temporal>>
+:axd_insignia:                        <<axd_insignia,Insignia>>
 :axd_transient:                       <<axd_transient,Transient>>
 :axd_petrify:                         <<axd_petrify,Petrify>>
 :axd_immutable:                       <<axd_immutable,Immutable>>
@@ -317,8 +318,6 @@
 :axt_string:                          <<axt_string,String Type>>
 :axt_type:                            <<axt_type,Type>>
 :axt_type_s:                          <<axt_type,Types>>
-:axt_insignia:                        <<axt_insignia,Insignia>>
-:axt_insignia_s:                      <<axt_insignia,Insignia>>
 :axt_variant:                         <<axt_variant,Variant Type>>
 
 // Axial Record Terms
@@ -836,23 +835,6 @@ Exactly one encoding dimension must qualify every
 voicing whose
 {axt_enumeration}
 participates in a wire form.
-
-[[axt_insignia]]
-{axt_insignia}::
-A
-{axl_motif}
-representing a glyph-prefixed typed identity string with seed-based allocation.
-Extends
-{axt_string}
-with structural properties: a unicode verification glyph (decorative in input, mandatory in output), a fixed encoding format, a monotonic seed allocation mechanism, and optional hierarchical embedding (parent identity encoded as a prefix substring).
-+
-Every
-{axt_insignia}
-declares an encoding nature via
-{axd_dimension_s}:
-{axd_algebraic}
-or
-{axd_temporal}.
 
 [[axt_variant]]
 {axt_variant}::
@@ -1775,6 +1757,65 @@ a
 {axd_mutable}
 structure never seals, and mutation is its standing condition rather than a bounded build phase.
 Worked instances: the Job Jockey gallops records — gallops, heat, pace, tack — whose members are incremented, appended, and updated by the jjx operations.
+
+=== Insignia Dimensions
+
+These
+{axd_dimension_s}
+qualify
+{axo_entity}
+voicings to declare a minted identity mark.
+{axd_insignia}
+names the character;
+the encoding-nature pair
+({axd_algebraic},
+{axd_temporal})
+names how a value is minted,
+and exactly one nature must accompany every
+{axd_insignia}.
+
+[[axd_insignia]]
+{axd_insignia}::
+A
+{axd_dimension}
+marking an
+{axo_entity}
+as a minted identity value: a fixed-format encoded string, set at construction and never after.
+Requires an explicit
+{axd_immutable}
+beside it — the phase is declared, never implied — and exactly one encoding-nature:
+{axd_algebraic}
+or
+{axd_temporal}.
+The identity is the bare encoded body.
+The associated unicode glyph is a render-layer sigil with audience-keyed obligation:
+mandatory in operator-facing output, forbidden in machine contexts (git refs, on-disk paths, wire keys), ignored on input.
+Derivation is generative, never mutative:
+any operation yielding a related identity (successor, parent, child) returns a fresh immutable value, and the source is never altered.
+The member census, per-member glyphs, and disambiguation rules live in the consuming domain model, not here.
+
+[[axd_algebraic]]
+{axd_algebraic}::
+A
+{axd_dimension}
+indicating seed-derived positional encoding for an
+{axd_insignia}
+entity.
+Characters drawn from a fixed alphabet; fixed digit count; minted from a monotonic seed incremented under lock.
+Digit count is the primary type discriminator within a family;
+where two members share a count, an out-of-alphabet sentinel character at a fixed position disambiguates,
+and the consuming domain model names the sentinel.
+Hierarchical embedding via prefix substring: a child identity's leading characters are the parent identity's value.
+
+[[axd_temporal]]
+{axd_temporal}::
+A
+{axd_dimension}
+indicating time-derived encoding for an
+{axd_insignia}
+entity.
+Datestamp component plus autonumber (e.g., YYMMDD-NNNN), minted by filesystem enumeration.
+No hierarchical embedding.
 
 === Normativeness Dimensions
 
@@ -2745,25 +2786,6 @@ Valid on
 At the definition site, the corresponding term is voiced
 {axpot_tally}.
 
-[[axd_algebraic]]
-{axd_algebraic}::
-A
-{axd_dimension}
-indicating seed-derived positional encoding for an
-{axt_insignia}.
-Characters drawn from a fixed alphabet, fixed digit count, monotonic seed incremented under lock.
-Digit count disambiguates type within the algebraic family.
-Hierarchical embedding via prefix substring: a child identity's leading characters are the parent identity's value.
-
-[[axd_temporal]]
-{axd_temporal}::
-A
-{axd_dimension}
-indicating time-derived encoding for an
-{axt_insignia}.
-Datestamp component plus autonumber (e.g., YYMMDD-NNNN), allocated by filesystem enumeration.
-No hierarchical embedding.
-
 === Product-of-Operation Terms
 
 [[axpof_fact]]
@@ -3204,7 +3226,20 @@ is the entity being defined.
 +
 {axd_dimension_s}:
 optional
-{axd_internal}.
+{axd_internal};
+optionally one mutability phase
+({axd_immutable},
+{axd_petrify},
+or
+{axd_mutable});
+optional
+{axd_insignia},
+which requires
+{axd_immutable}
+and exactly one encoding-nature
+({axd_algebraic}
+or
+{axd_temporal}).
 
 === Standalone Hierarchy Markers (axhe*_)
 

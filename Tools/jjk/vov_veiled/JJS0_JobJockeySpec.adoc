@@ -61,6 +61,7 @@
 :jjdt_firemark:   <<jjdt_firemark,Firemark>>
 :jjdt_firemark_p: <<jjdt_firemark,Firemark's>>
 :jjdt_firemark_s: <<jjdt_firemark,Firemarks>>
+:jjdt_incipit:    <<jjdt_incipit,Incipit>>
 :jjdt_insignia:   <<jjdt_insignia,Insignia>>
 :jjdt_insignia_s: <<jjdt_insignia,Insignia>>
 :jjdt_legatio:    <<jjdt_legatio,Legatio>>
@@ -470,12 +471,12 @@ The {jjdx_mcp} resolves the {jjdgr_gallops} path internally;
 [[jjdxo_officium]]
 //axve_entity
 {jjdxo_officium}::
-A bounded agent session with a unique identity and a dedicated filesystem directory.
+A bounded agent session with a unique {jjdt_incipit} identity and a dedicated filesystem directory.
 Each chat session has exactly one {jjdxo_officium}, created by explicit agent action ({jjdo_open}).
 +
 The {jjdxo_officium} is decoupled from {jjdx_mcp} process lifetime.
 The {jjdx_mcp} is stateless disposable infrastructure — it may restart at any time without affecting the {jjdxo_officium}.
-The agent (chat session) is the stable identity anchor; the {jjdxo_officium} ID is a routing parameter passed on every {jjdx_tool} call.
+The agent (chat session) is the stable identity anchor; the {jjdxo_officium_p} {jjdt_incipit} is a routing parameter passed on every {jjdx_tool} call.
 +
 The term derives from the Latin _Officium Divinum_ (Divine Office) — a structured, bounded period of intentional work.
 +
@@ -485,15 +486,9 @@ The commit lock serializes their mutations; the {jjdxo_exchange} isolates their 
 
 ==== Identity
 
-Each {jjdxo_officium} is assigned a unique identifier by {jjdo_open}.
-Format: `YYMMDD-NNNN` where `YYMMDD` is the local datestamp and `NNNN` is an autonumber (enumerate existing directories for the date, pick next unused starting at 1000).
-No persistent counter file — the directory listing is the source of truth.
-+
-Unicode verification prefix: ☉ (U+2609 SUN, evoking the Divine Office's daily cycle).
-The ☉ appears in parameters and display; it is stripped for the directory name.
-This parallels the ₣/₢ convention for {jjdt_firemark_s} and {jjdt_coronet_s}.
-+
-The identifier appears in the {jjdxo_exchange} path and in the {jjdxo_invitatory} commit.
+Each {jjdxo_officium} is assigned a unique {jjdt_incipit} by {jjdo_open}.
+Format, allocation, and sigil discipline are the {jjdt_incipit} type contract.
+The {jjdt_incipit} appears in the {jjdxo_exchange} path and in the {jjdxo_invitatory} commit.
 
 ==== Directory Layout
 
@@ -545,12 +540,12 @@ The agent calls {jjdo_open} once per chat session.
 {jjds_behavior}
 +
 . Run {jjdxo_exsanguination} (reap stale officia before creating new one)
-. Generate {jjdxo_officium} identity (datestamp + autonumber)
+. Mint the {jjdxo_officium_p} {jjdt_incipit} (datestamp + autonumber)
 . Create {jjdxo_exchange} directory with {jjdxo_gazette} and {jjdxo_heartbeat} files (both empty)
 . Capture the Claude Code session UUID into the session-recall survey — read every known channel (roster and sources defined under Steeplechase Commit Patterns below) and record each verbatim. The session UUID is an uncontrolled foreign signal, so this is a redundancy survey, not a resolution: record-only, validate nothing. A channel that is absent emits `-`; a channel that cannot disambiguate (e.g. an mtime tie between the two newest `.jsonl` transcripts) emits `(ambiguous)`. Capture never aborts {jjdo_open} — no single channel is load-bearing for the open
 . Collect model inventory via `vvcp_probe()` if daily probe has not yet run (check `.claude/jjm/officia/.probe_date` datestamp file)
 . Create invitatory commit (action code `i`, `jjb`-branded) with the session-recall survey block (`session:` plus the redundant `session-*` channels) and `cwd:` always present in body, optionally followed by model inventory when the daily probe ran
-. Return {jjdxo_officium} identity string (e.g. `☉260327-1000`)
+. Return the {jjdt_incipit} string (e.g. `☉260327-1000`)
 +
 The agent receives the identity and passes it as a parameter on all subsequent {jjdx_tool} calls.
 
@@ -1164,12 +1159,14 @@ This section is the primary mechanism by which the upper and lower API layers ar
 === Identity System
 
 [[jjdt_insignia]]
-//axl_voices axt_insignia
 {jjdt_insignia}::
-A glyph-prefixed typed identity string in Job Jockey's type system.
+A minted identity value in Job Jockey's type system.
+The identity is the bare encoded body;
+the unicode glyph is a render-layer sigil with audience-keyed obligation —
+mandatory in operator-facing output, forbidden in machine contexts (git refs, directory names, JSON keys), ignored on input.
 Every
 {jjdt_insignia}
-has four properties: a unicode verification glyph (decorative in input, mandatory in output), a fixed encoding format, a monotonic seed allocation mechanism, and optional hierarchical embedding (parent identity encoded as a prefix substring).
+has a fixed encoding format, a mint-time allocation discipline named by its encoding nature, and optional hierarchical embedding (parent identity encoded as a prefix substring).
 +
 Two encoding natures, declared via dimension:
 +
@@ -1187,13 +1184,13 @@ No hierarchical embedding.
 | ₣ | {jjdt_firemark}   | U+20A3 | 2 | 2 heat                               | 4,096 heats
 | ₢ | {jjdt_coronet}    | U+20A2 | 5 | 2 heat + 3 index                     | ~262K per heat
 | ₱ | {jjdt_pensum}     | U+20B1 | 5 | 2 heat + `%` sentinel + 2 index      | 4,096 per heat
-| ☉ | {jjdxo_officium}  | U+2609 | — | YYMMDD-NNNN                          | temporal
+| ☉ | {jjdt_incipit}    | U+2609 | — | YYMMDD-NNNN                          | temporal
 |===
 
 === Algebraic {jjdt_insignia_s}
 
 [[jjdt_firemark]]
-//axl_voices axt_insignia axd_algebraic
+//axve_entity axd_immutable axd_insignia axd_algebraic
 {jjdt_firemark}::
 {axd_algebraic}
 {jjdt_insignia}
@@ -1211,7 +1208,7 @@ Used as JSON keys and in CLI arguments.
 Input may omit the `₣` prefix; output always includes it.
 
 [[jjdt_coronet]]
-//axl_voices axt_insignia axd_algebraic
+//axve_entity axd_immutable axd_insignia axd_algebraic
 {jjdt_coronet}::
 {axd_algebraic}
 {jjdt_insignia}
@@ -1250,7 +1247,7 @@ Pace data is preserved, with a note recording the original
 {jjdt_coronet}.
 
 [[jjdt_pensum]]
-//axl_voices axt_insignia axd_algebraic
+//axve_entity axd_immutable axd_insignia axd_algebraic
 {jjdt_pensum}::
 {axd_algebraic}
 {jjdt_insignia}
@@ -1302,6 +1299,37 @@ A
 dispatched during housekeeping with no active
 {jjdpr_pace}
 still gets a valid identity.
+
+=== Temporal {jjdt_insignia_s}
+
+[[jjdt_incipit]]
+//axve_entity axd_immutable axd_insignia axd_temporal
+{jjdt_incipit}::
+{axd_temporal}
+{jjdt_insignia}
+for
+{jjdxo_officium}
+identity.
+Format: `☉` + `YYMMDD-NNNN`, where `YYMMDD` is the local datestamp and `NNNN` is an autonumber (e.g., `☉260327-1000`).
+Minted by
+{jjdxo_invitatory}:
+enumerate existing officia directories for the date, pick the next unused autonumber starting at 1000.
+No persistent counter file — the directory listing is the source of truth.
++
+The ☉ sigil (U+2609 SUN, evoking the Divine Office's daily cycle) appears in parameters and display; it is stripped for the directory name.
+This parallels the ₣/₢ convention for {jjdt_firemark_s} and {jjdt_coronet_s}.
++
+No hierarchical embedding: an
+{jjdt_incipit}
+carries no
+{jjdt_firemark}
+prefix —
+the
+{jjdxo_officium}
+is infrastructure, not affiliated with a
+{jjdhr_heat}.
++
+Named for the opening words by which a medieval liturgical text was catalogued — the mark that identifies the office.
 
 === Structural Types
 
