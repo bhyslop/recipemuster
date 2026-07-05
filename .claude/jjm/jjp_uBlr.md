@@ -15,6 +15,10 @@ The 260630 revision-control memo and 260702 collision memo are provenance, never
 A canon-workup groom (260705) added the specification architecture below;
 its AXLA half is landed canon (sheaf genre axis, two-token axvd_sheaf grammar, chapbook marker family).
 
+The roster is ordered judgment-first:
+mint, design, and sheaf-authoring paces front-load for frontier-tier sessions;
+the implementation tail runs at work tier.
+
 ## Cinched
 
 - One heat at a time: the conversion heat is cut only after this heat lands,
@@ -40,6 +44,10 @@ its AXLA half is landed canon (sheaf genre axis, two-token axvd_sheaf grammar, c
   refuse-with-advice on dirty anomalies by default, auto-commit-push behind explicit confirm;
   pace states snapshot under the studbook lock, then reaping proceeds lock-free (completion is monotonic).
   Supersedes the farrier sheaf's reaped-at-next-saddle-if-clean line (bank at drain time).
+- Sweep liveness and retention (260705, slate-time): the liveness guard is the pure JJ-data join —
+  live officia × billets, no platform process-probe (a probe only ever as belt-and-braces),
+  which sequences the sweep pace after the officium re-gestalt amendment;
+  the retention window equals the officium exsanguination window — one constant, one rhyme.
 - Trunk resync (260705, softened same-day): promoted from spine-internal auto-merge to an explicit session-facing operation —
   the dispatch spine fetches but never merges;
   NO verb refuses on a stale trunk: trunk staleness is drift, never corruption
@@ -51,6 +59,9 @@ its AXLA half is landed canon (sheaf genre axis, two-token axvd_sheaf grammar, c
   (journaled counterfoils survive; rebase would dangle them);
   offline degrades to warn-and-proceed.
   The freshen re-mint (VOK collision) mints the new word for this operation, not the spine op.
+- Resync push timing (260705, slate-time): the resync merge commit pushes immediately —
+  the operation exists to clear staleness for every station and runs online by construction;
+  offline stays warn-and-proceed.
 - Journal ceremony home (260705): the ceremony and break sequence are spec-homed as their own routine-genre sheaf —
   one genre token per sheaf decides it;
   the blotter entity sheaf summarizes its methods and cites, never restates.
@@ -97,7 +108,7 @@ the founding-and-cutover section stays aspirant deliberately — it is the conve
 - Studbook (entity): tenant content — pedigree, scope at birth.
 - Farrier (entity): the driver trait, op census as method contracts, error-kind taxonomy, the capability seam.
 - Dispatch and billet (operation family): saddle, lunge, unsaddle, the entrance spine, the sweep,
-  BUK meld consequences; launch-time provisioning folds in or splits out at authoring.
+  BUK meld consequences; launch-time provisioning folds in (lean 260705: fold, split only if it dominates the sheaf at authoring).
 - Tackle MVP core: scope-to-discipline binding beside the pedigree.
 - Typical-JJ-session chapbook — AUTHORED 260705, aspirant: `Tools/jjk/vov_veiled/JJS-aspirant-chapbook-session.adoc`,
   mounted in the codex's Aspirant Nucleations with the first two-token cartouche.
@@ -146,19 +157,15 @@ exposure tiers for the operator-typed verbs (saddle/lunge/unsaddle/break are ash
 
 ## Held for discussion
 
-Settle before the affected change, not before the heat:
+Settle before the affected change, not before the heat; each item names its settling pace:
 
-- Liveness guard mechanics for the sweep and the retention constant —
-  lean on record: post-re-gestalt the officium names its billet,
-  so the guard is a pure JJ-data join (live officia × billets) with no platform process-probe,
-  which sequences the sweep pace after the officium re-gestalt amendment;
-  a process probe only ever as belt-and-braces.
-- Resync push timing: the merge commit pushes immediately, or rides the next notch.
-- Identify contract shape — the kind-invariant core of its return; calcifying: settle before farrier trait code.
-- Launch-time provisioning: own sheaf vs fold into dispatch.
-- Lock trio naming (guidon-verbs seed) — deliberately unsettled.
-- Billet dirname convention — parked with the branch-name lean on record.
-- Wire-vs-display coronet form (gazette halter typing depends on it).
+- Identify contract shape — the kind-invariant core of its return;
+  calcifying: settles at its design pace, before any farrier trait code.
+- Lock trio naming (guidon-verbs seed) — deliberately unsettled; settles at the census pace.
+- Billet dirname convention — lean on record (dirname = the §F branch name verbatim);
+  adopted at dispatch-sheaf authoring.
+- Wire-vs-display coronet form (gazette halter typing depends on it) —
+  settles at the pace-identity design pace, coupled to the insignia sub-mint.
 
 ## Done when
 

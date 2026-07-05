@@ -9207,9 +9207,31 @@
       "jjghn_creation_time": "260704",
       "jjghn_status": "jjghe_racing",
       "jjghn_order": [
-        "₢BrAAA"
+        "₢BrAAA",
+        "₢BrAAB",
+        "₢BrAAC",
+        "₢BrAAD",
+        "₢BrAAE",
+        "₢BrAAF",
+        "₢BrAAG",
+        "₢BrAAH",
+        "₢BrAAI",
+        "₢BrAAJ",
+        "₢BrAAK",
+        "₢BrAAL",
+        "₢BrAAM",
+        "₢BrAAN",
+        "₢BrAAO",
+        "₢BrAAP",
+        "₢BrAAQ",
+        "₢BrAAR",
+        "₢BrAAS",
+        "₢BrAAT",
+        "₢BrAAU",
+        "₢BrAAV",
+        "₢BrAAW"
       ],
-      "jjghn_next_pace_seed": "AAB",
+      "jjghn_next_pace_seed": "AAX",
       "jjghn_paces": {
         "₢BrAAA": {
           "jjgpn_tacks": [
@@ -9241,6 +9263,541 @@
               ],
               "jjgtn_silks": "cut-paces-from-sheaves",
               "jjgtn_basis": "5387442"
+            }
+          ]
+        },
+        "₢BrAAB": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260705-1634",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "",
+                "Word-picking under MCM Lapidary — sustained judgment, grep gates throughout; frontier tier.",
+                "",
+                "## Done when",
+                "",
+                "The paddock's mint roster is discharged:",
+                "formal mint ceremony for the candidate mints (grep gates; broadside registration where ashlar);",
+                "re-mints elected for the farrier ops (status, commit, fetch, push),",
+                "the lock trio (guidon-verbs seed held; deliberately unsettled until here),",
+                "the freshen successor naming the resync operation (bank the VOK collision in the aspirant farrier sheaf's ledger),",
+                "and the sweep door's word (mucking-out seed held);",
+                "weigh advance dispositioned;",
+                "the stray pedigree prose use in RBK's getting-started spec swept;",
+                "allocations landed: the lock-ref git namespace,",
+                "JJS0 sub-letter families for the store/dispatch/driver vocabularies,",
+                "premise-vs-rivet classification of the scattered invariants,",
+                "and exposure tiers for the operator-typed verbs.",
+                "The saddle/unsaddle ceremony records its election here,",
+                "but its grep gate completes only when the later interior-rename pace frees the word — note the contingency in the ledger."
+              ],
+              "jjgtn_silks": "mint-census-sweep",
+              "jjgtn_basis": "d432287"
+            }
+          ]
+        },
+        "₢BrAAC": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260705-1634",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "",
+                "Spec authoring, gestalt register — frontier tier.",
+                "",
+                "## Done when",
+                "",
+                "The revision-control cosmology sheaf stands (cosmology genre, two-token axvd_sheaf line):",
+                "infield peer ring, hippodrome, why-decouple, the world model,",
+                "drained durable-first from the aspirant studbook sheaf's gestalt sections;",
+                "the session chapbook's cast quoins this sheaf homes harden to citations."
+              ],
+              "jjgtn_silks": "cosmology-sheaf",
+              "jjgtn_basis": "d432287"
+            }
+          ]
+        },
+        "₢BrAAD": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260705-1634",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "",
+                "Spec authoring — two coupled sheaves; frontier tier.",
+                "",
+                "## Done when",
+                "",
+                "Two sheaves stand:",
+                "the blotter entity sheaf — the locked-store entity: lock-ref namespace, guidon, read posture, instances,",
+                "engine-known bootstrap config, methods summarized by citation —",
+                "and the journal ceremony routine sheaf — the shared write bracket and the break sequence,",
+                "the ONE home every studbook-writing operation cites.",
+                "Both drain the aspirant studbook sheaf durable-first;",
+                "the chapbook's journal-ceremony and blotter flags harden."
+              ],
+              "jjgtn_silks": "blotter-journal-sheaves",
+              "jjgtn_basis": "d432287"
+            }
+          ]
+        },
+        "₢BrAAE": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260705-1634",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "",
+                "Spec authoring — frontier tier.",
+                "",
+                "## Done when",
+                "",
+                "The studbook entity sheaf stands (entity genre):",
+                "tenant content — pedigree, counterfoil, scope at birth —",
+                "drained durable-first from the aspirant studbook sheaf,",
+                "whose founding-and-cutover section deliberately stays aspirant as the conversion heat's sole plan home;",
+                "the jjy_ naming-ledger widening banked;",
+                "the chapbook's studbook flag hardens."
+              ],
+              "jjgtn_silks": "studbook-entity-sheaf",
+              "jjgtn_basis": "d432287"
+            }
+          ]
+        },
+        "₢BrAAF": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260705-1634",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "",
+                "Design pace — calcifying contract; settles before any farrier trait code; frontier tier.",
+                "",
+                "## Done when",
+                "",
+                "The kind-invariant core of identify's return is settled —",
+                "what every farrier kind must resolve for a tree",
+                "(the aspirant farrier sheaf's census row is the starting point) —",
+                "and cinched in the paddock for the farrier entity sheaf to author as a method contract."
+              ],
+              "jjgtn_silks": "identify-contract-design",
+              "jjgtn_basis": "d432287"
+            }
+          ]
+        },
+        "₢BrAAG": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260705-1634",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "",
+                "Spec authoring over settled design — frontier tier.",
+                "",
+                "## Done when",
+                "",
+                "The farrier entity sheaf stands (entity genre):",
+                "the driver trait as facet-split contracts (core / lock / billet, per the paddock cinch),",
+                "the op census as method contracts under the census-pace words,",
+                "the error-kind taxonomy,",
+                "and the vocabulary Palisade stated at the trait boundary.",
+                "The aspirant farrier sheaf drains durable-first with its owed deltas banked:",
+                "freshen collision and resync re-home in the ledger,",
+                "billet re-anchored on the partition axis,",
+                "the sweep superseding the reaped-at-next-saddle line,",
+                "the identify census row shedding plain-git vocabulary.",
+                "The chapbook's farrier facet flags harden."
+              ],
+              "jjgtn_silks": "farrier-entity-sheaf",
+              "jjgtn_basis": "d432287"
+            }
+          ]
+        },
+        "₢BrAAH": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260705-1634",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "",
+                "Design pace — identity and display space; frontier tier.",
+                "",
+                "## Done when",
+                "",
+                "The re-gestalted pace identity is designed whole:",
+                "canonical wire form vs interpunct display form settled,",
+                "with the gazette-halter target-typing consequence stated;",
+                "the insignia sub-mint's glyph space allocated coherently with it;",
+                "the design cinched in the paddock, gating the reprieve-gated implementation pace.",
+                "Authorities: the aspirant studbook sheaf's pace-identity and store-shape sections."
+              ],
+              "jjgtn_silks": "pace-identity-design",
+              "jjgtn_basis": "d432287"
+            }
+          ]
+        },
+        "₢BrAAI": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260705-1634",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "",
+                "Spec authoring — the operation family; frontier tier.",
+                "",
+                "## Done when",
+                "",
+                "The dispatch operation-family sheaf stands:",
+                "saddle, lunge, unsaddle, the shared entrance spine,",
+                "the sweep — retention equal to the officium exsanguination window, liveness as the JJ-data join, per the paddock cinches —",
+                "BUK meld consequences,",
+                "launch-time provisioning folded in per the paddock lean,",
+                "the billet dirname convention adopted from the lean on record,",
+                "and the jjy_ trampolines with their idempotent kit-repo installer.",
+                "The chapbook's Act I and teardown flags harden."
+              ],
+              "jjgtn_silks": "dispatch-billet-sheaf",
+              "jjgtn_basis": "d432287"
+            }
+          ]
+        },
+        "₢BrAAJ": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260705-1634",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "",
+                "Spec authoring — smallest sheaf, one open decision; frontier tier.",
+                "",
+                "## Done when",
+                "",
+                "The tackle MVP core sheaf stands: the scope-to-discipline binding beside the pedigree,",
+                "its representation decided at authoring (the deliberate prior non-commitment ends here);",
+                "only the aspirant tackle sheaf's MVP core drains —",
+                "the maximal remainder stays aspirant per the one-word-one-concept resolution."
+              ],
+              "jjgtn_silks": "tackle-mvp-sheaf",
+              "jjgtn_basis": "d432287"
+            }
+          ]
+        },
+        "₢BrAAK": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260705-1634",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "",
+                "Mechanical remint with a grep gate — work tier.",
+                "",
+                "## Done when",
+                "",
+                "The interior orient-context routine currently named saddle (JJSCSD and its jjrsd source module)",
+                "carries a boring hearting name,",
+                "every reference swept,",
+                "and the repo-wide grep for saddle lands clean of interior uses —",
+                "completing the ceremony gate the census pace recorded for the dispatch verb."
+              ],
+              "jjgtn_silks": "saddle-word-rename",
+              "jjgtn_basis": "d432287"
+            }
+          ]
+        },
+        "₢BrAAL": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260705-1634",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "",
+                "Small, meticulous BUK change — standalone, self-testable; work tier.",
+                "",
+                "## Done when",
+                "",
+                "The BURV_LOG_DIR override exists in the BUK launcher spine, mirroring the sibling BURV overrides",
+                "(per the aspirant farrier sheaf's BUK meld findings — elected 260704),",
+                "and the BUK self-test passes.",
+                "Dispatch exports it later; nothing consumes it yet."
+              ],
+              "jjgtn_silks": "burv-log-dir-override",
+              "jjgtn_basis": "d432287"
+            }
+          ]
+        },
+        "₢BrAAM": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260705-1634",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "",
+                "Rust, new inert surface — work tier.",
+                "At mount, run the schema-impact check: this pace should change no serialized gallops field;",
+                "if one changes, CLAUDE.md §E, §F, and JJSCRP govern delivery.",
+                "",
+                "## Done when",
+                "",
+                "The facet-split farrier traits and the plain-git kind's core facet land in the JJK crate:",
+                "identify per the cinched contract, the inspect and sync ops, the mutate ops with explicit file lists,",
+                "under their census words,",
+                "with the farrier-wide typed error-kind taxonomy wrapped in op/repo/detail context;",
+                "unit-tested; nothing wired live.",
+                "Authority: the farrier entity sheaf."
+              ],
+              "jjgtn_silks": "farrier-core-impl",
+              "jjgtn_basis": "d432287"
+            }
+          ]
+        },
+        "₢BrAAN": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260705-1634",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "",
+                "Rust — the maximum-danger facet; work tier, meticulous.",
+                "",
+                "## Done when",
+                "",
+                "The lock and billet facets land:",
+                "the ref-CAS trio under census words with the RAII guard (lock lifetime = object lifetime, panic on nested acquire),",
+                "the break sequence as its own operator-deliberate sequence acting on an observed guidon, never blind;",
+                "billet create and remove (refuse on dirty) and the trunk-into-billet merge (never rebase, fail-loud on conflict);",
+                "unit-tested; nothing wired live."
+              ],
+              "jjgtn_silks": "farrier-lock-billet-impl",
+              "jjgtn_basis": "d432287"
+            }
+          ]
+        },
+        "₢BrAAO": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260705-1634",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "",
+                "Rust — the write bracket; work tier.",
+                "",
+                "## Done when",
+                "",
+                "The blotter engine lands over the farrier:",
+                "the journal ceremony bracket exactly per its routine sheaf",
+                "(durable-first; guidon lock; advance; mutate and commit with counterfoil; atomic lease push; unlock),",
+                "engine-known bootstrap config,",
+                "and the lock-free staleness-tolerant read path;",
+                "the gallops-over-studbook surface sits behind its enablement seam with the old path frozen and authoritative;",
+                "exercised against a local scratch store in tests."
+              ],
+              "jjgtn_silks": "blotter-engine-impl",
+              "jjgtn_basis": "d432287"
+            }
+          ]
+        },
+        "₢BrAAP": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260705-1634",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "",
+                "Spec amendment + Rust — work tier.",
+                "At mount, run the schema-impact check: if any serialized gallops field changes,",
+                "CLAUDE.md §E, §F, and JJSCRP govern delivery.",
+                "",
+                "## Done when",
+                "",
+                "The officium re-gestalt amendment lands, spec and code:",
+                "officium exchange relocates to the studbook clone's untracked working area;",
+                "the officium records its billet — station, hippodrome-or-billet, session — via identify at open;",
+                "the record/exchange split co-locates for later graduation."
+              ],
+              "jjgtn_silks": "officium-regestalt-impl",
+              "jjgtn_basis": "d432287"
+            }
+          ]
+        },
+        "₢BrAAQ": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260705-1634",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "",
+                "Gallops schema change — reprieve-gated; read the governing doctrine before touching anything.",
+                "",
+                "## Done when",
+                "",
+                "Pace identities are immutable for life, minted atomically under the studbook lock,",
+                "displayed heat-qualified with the interpunct per the design pace's cinch;",
+                "restring and transfer re-affiliate without re-keying;",
+                "billet branch names embed the immutable id.",
+                "MANDATORY: CLAUDE.md §E and §F and JJSCRP (jjdz_reprieve) govern delivery —",
+                "reprieve episode registered, source-only date-and-identity branch, no gallops conversion committed."
+              ],
+              "jjgtn_silks": "pace-identity-regestalt-impl",
+              "jjgtn_basis": "d432287"
+            }
+          ]
+        },
+        "₢BrAAR": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260705-1634",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "",
+                "Rust — session-facing operation; work tier.",
+                "",
+                "## Done when",
+                "",
+                "The resync operation (census word) lands:",
+                "merge trunk into the billet, never rebase; push immediately per the paddock cinch;",
+                "jjx_open leads its report with the staleness warning and this remedy,",
+                "and notch/wrap append the same recommendation while trunk has moved;",
+                "no verb refuses on a stale trunk;",
+                "offline degrades to warn-and-proceed."
+              ],
+              "jjgtn_silks": "resync-impl",
+              "jjgtn_basis": "d432287"
+            }
+          ]
+        },
+        "₢BrAAS": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260705-1634",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "",
+                "Shell + Rust — the sole door; work tier, and the entrance must be pleasant.",
+                "",
+                "## Done when",
+                "",
+                "The dispatch layer lands:",
+                "jjy_saddle and jjy_lunge trampolines (two-line scripts, never symlinks) with the idempotent kit-repo installer;",
+                "the shared entrance spine per the dispatch sheaf —",
+                "identify, pedigree lookup, billet-ensure, freshen,",
+                "per-billet BURV exports including the log-dir override,",
+                "context provisioning carrying the conduct core and the pull door,",
+                "session launch with the engagement verb as opening prompt carrying the tier signal;",
+                "cwd elects the clone; nothing ever lands in a hippodrome."
+              ],
+              "jjgtn_silks": "dispatch-spine-impl",
+              "jjgtn_basis": "d432287"
+            }
+          ]
+        },
+        "₢BrAAT": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260705-1634",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "",
+                "Rust/shell — work tier.",
+                "Sequenced after the officium re-gestalt pace: the liveness join needs officia naming billets.",
+                "",
+                "## Done when",
+                "",
+                "The nuke-on-start sweep lands in the dispatch spine:",
+                "pace states snapshot under the studbook lock, reaping proceeds lock-free;",
+                "plan-then-confirm; retention behind the exsanguination-window constant;",
+                "liveness by the JJ-data join of live officia and billets;",
+                "refuse-with-advice on dirty anomalies, auto-commit-push only behind explicit confirm."
+              ],
+              "jjgtn_silks": "dispatch-sweep-impl",
+              "jjgtn_basis": "d432287"
+            }
+          ]
+        },
+        "₢BrAAU": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260705-1634",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "",
+                "Founding ceremony code — work tier.",
+                "Operator prerequisite before mount: bare GitHub private repos jjy_studbook and jjy_app exist.",
+                "",
+                "## Done when",
+                "",
+                "A studbook founds from nothing:",
+                "bootstrap creates the engine-known structure and config against a bare remote,",
+                "and a scratch studbook stands ready for rehearsal."
+              ],
+              "jjgtn_silks": "studbook-bootstrap",
+              "jjgtn_basis": "d432287"
+            }
+          ]
+        },
+        "₢BrAAV": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260705-1634",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "",
+                "Audit — verification judgment, no new surface.",
+                "",
+                "## Done when",
+                "",
+                "The session chapbook's pending-citation register reads zero —",
+                "every flagged beat hardened to a citation —",
+                "including reconciling its stale-trunk open beat with the softened no-refuse cinch;",
+                "the aspirant studbook and farrier sheaves are fully drained,",
+                "tackle's MVP core drained with its aspirant remainder intact,",
+                "founding-and-cutover intact as the conversion heat's plan home;",
+                "every paddock delta-to-bank confirmed banked."
+              ],
+              "jjgtn_silks": "convergence-audit",
+              "jjgtn_basis": "d432287"
+            }
+          ]
+        },
+        "₢BrAAW": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260705-1634",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "",
+                "The heat's exit gate — hands-on, operator-attended.",
+                "",
+                "## Done when",
+                "",
+                "The rehearsal checklist passes against the scratch studbook:",
+                "two-station lock contention, stale-lock break, atomic-push lease failure, dispatch round-trip;",
+                "findings recorded in the paddock as the conversion heat's entry-gate evidence."
+              ],
+              "jjgtn_silks": "scratch-rehearsal",
+              "jjgtn_basis": "d432287"
             }
           ]
         }
