@@ -550,7 +550,6 @@ The agent calls {jjdo_open} once per chat session.
 The agent receives the identity and passes it as a parameter on all subsequent {jjdx_tool} calls.
 
 [[jjdxo_compline]]
-//axve_entity axd_retired
 {jjdxo_compline}::
 Retired.
 The original design called for a clean shutdown procedure at {jjdx_mcp} process termination.
