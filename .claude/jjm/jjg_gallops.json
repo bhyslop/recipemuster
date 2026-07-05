@@ -3964,8 +3964,8 @@
         "₢A6AAx": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260423-0855",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260705-1031",
+              "jjgtn_state": "jjgte_abandoned",
               "jjgtn_text": [
                 "## Character",
                 "",
@@ -3988,7 +3988,7 @@
                 "- Final docs hygiene sweep (handled by `₢A6AAF`)"
               ],
               "jjgtn_silks": "review-onboarding-director-airgap",
-              "jjgtn_basis": "de8fb99"
+              "jjgtn_basis": "4c0a3ee"
             }
           ]
         },
