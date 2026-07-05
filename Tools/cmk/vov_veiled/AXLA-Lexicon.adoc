@@ -111,6 +111,21 @@
 :axd_notional:                        <<axd_notional,Notional>>
 :axd_aspirant:                        <<axd_aspirant,Aspirant>>
 
+// Sheaf genre dimensions (second required axis on axvd_sheaf / axvd_cartouche lines)
+:axd_entity:                          <<axd_entity,Entity>>
+:axd_operation:                       <<axd_operation,Operation>>
+:axd_routine:                         <<axd_routine,Routine>>
+:axd_handbook:                        <<axd_handbook,Handbook>>
+:axd_regime:                          <<axd_regime,Regime>>
+:axd_cosmology:                       <<axd_cosmology,Cosmology>>
+:axd_survey:                          <<axd_survey,Survey>>
+:axd_roadmap:                         <<axd_roadmap,Roadmap>>
+:axd_chapbook:                        <<axd_chapbook,Chapbook>>
+
+// Chapbook dimensions (required cast kind + beat licenses)
+:axd_external:                        <<axd_external,External>>
+:axd_foreign:                         <<axd_foreign,Foreign>>
+
 // Axial Format Terms
 :axf_bash:                            <<axf_bash,Bash Format>>
 :axf_format:                          <<axf_format,Format>>
@@ -201,6 +216,11 @@
 :axhpc_call:                          <<axhpc_call,Hierarchy Call>>
 :axhpr_return:                        <<axhpr_return,Hierarchy Return>>
 :axhpt_transaction:                   <<axhpt_transaction,Hierarchy Transaction>>
+
+// Axial Hierarchy Chapbook Terms (standalone chapbook markers)
+:axhcb_chapbook:                      <<axhcb_chapbook,Hierarchy Chapbook>>
+:axhca_actor:                         <<axhca_actor,Hierarchy Actor>>
+:axhci_interaction:                   <<axhci_interaction,Hierarchy Interaction>>
 
 // Axial Hierarchy Regime Operation Markers (subdocument)
 :axhro_kindle:                        <<axhro_kindle,Hierarchy Kindle>>
@@ -1878,6 +1898,125 @@ an
 {axd_aspirant}
 one strives.
 
+=== Sheaf Genre Dimensions
+
+These
+{axd_dimension_s}
+declare the *genre* of a
+{mcm_sheaf} —
+what kind of normativity its content carries: what the document binds.
+The genre axis pairs with the normativeness axis above:
+every
+{axvd_sheaf}
+voicing carries exactly two
+{axd_dimension_s}
+in fixed order — normativeness first, genre second — no defaults, no reordering.
+The axes are orthogonal: an aspirant chapbook hardens to a normative chapbook without changing genre.
+Lines carrying only the normativeness token predate this axis and read as ungenred;
+a future linter sweeps them, on the same tolerance the
+{axvd_cartouche}
+drift note records.
+
+[[axd_entity]]
+{axd_entity}::
+Genre of a
+{mcm_sheaf}
+that binds a *noun*: the data members and behavioral interface of one subject voiced
+{axo_entity}.
+Exemplars: RBSTN (terrier noun), VOSMM (matricula).
+
+[[axd_operation]]
+{axd_operation}::
+Genre of a
+{mcm_sheaf}
+that binds the caller-facing *contract of one exposed door* — colophon, command, or spoken verb:
+preconditions, observable behavior, outputs, rejection bands.
+Complete when a stranger can use the door knowing only this sheaf; its blast radius when changed is every caller.
+Exemplars: RBSLE and its operation-family siblings, the JJSC command family.
+
+[[axd_routine]]
+{axd_routine}::
+Genre of a
+{mcm_sheaf}
+that binds a *shared interior sequence* — no door, no outside caller.
+Exists so the operations citing it cannot drift apart in the shared stretch;
+the reader is the implementer, and its blast radius is every citing operation, silently from any door.
+Exemplars: the JJSR serialization family.
+
+[[axd_handbook]]
+{axd_handbook}::
+Genre of a
+{mcm_sheaf}
+that binds a *performance by an agent* — ordered steps with verification points, executed by a human or an attended session.
+The craft discipline is HCG; it fails when a performer cannot follow it, not when code diverges.
+Exemplars: VOSO procedure bodies, the BUSJ handbook family.
+
+[[axd_regime]]
+{axd_regime}::
+Genre of a
+{mcm_sheaf}
+that binds a *configuration contract* — the variables, validation, and carriage of one
+{axrg_regime}.
+Exemplars: the RBSR regime family.
+
+[[axd_cosmology]]
+{axd_cosmology}::
+Genre of a
+{mcm_sheaf}
+that binds the *shared gestalt* — the world-model a family of sibling sheaves assumes and none restates.
+Exemplars: RBSCO, RBSTC.
+
+[[axd_survey]]
+{axd_survey}::
+Genre of a
+{mcm_sheaf}
+that *records surveyed foreign behavior* at the Palisade — normative as record (the signature is real, verified, dated), legislating nothing beyond it.
+Exemplars: RBSCIG, RBSCIP.
+
+[[axd_roadmap]]
+{axd_roadmap}::
+Genre of a
+{mcm_sheaf}
+that binds *intent only* — defined-but-unscoped future work, collected so it stays findable and deliberate.
+Exemplar: RBSHR.
+
+[[axd_chapbook]]
+{axd_chapbook}::
+Genre of a
+{mcm_sheaf}
+that binds *stitching only* — a happy-path tale of actors and interactions whose contracts are homed elsewhere.
+Covenant: defines zero quoins; every cast lane and nearly every beat cites its catalogued home —
+a beat goes quoinless only under a licensing
+{axd_dimension},
+rare by design; cites, never restates; any rendered diagram is derived presentation — the marker skeleton is the truth.
+Markers: the
+{axhcb_chapbook}
+family.
+Named for the street-print stitched booklet of retold tales, the broadside's companion.
+
+The genre census at a glance:
+
+[cols="<,<,<",options="header"]
+|===
+|Genre |Binds |Exemplars
+
+|{axd_entity} |A noun: members + behavioral interface |RBSTN, VOSMM
+|{axd_operation} |One door's caller-facing contract |RBSLE, JJSC family
+|{axd_routine} |A shared interior sequence, no door |JJSR family
+|{axd_handbook} |A performance by an agent (HCG craft) |VOSO bodies, BUSJ family
+|{axd_regime} |A configuration contract |RBSR family
+|{axd_cosmology} |The gestalt a sheaf family shares |RBSCO, RBSTC
+|{axd_survey} |Recorded foreign behavior (Palisade) |RBSCIG, RBSCIP
+|{axd_roadmap} |Defined-but-unscoped intent |RBSHR
+|{axd_chapbook} |Stitching only: actors + interactions |the JJ dispatch tale (first instance)
+|===
+
+Adjacency note, since two genres stitch across operations: a
+{axd_handbook}
+obligates a performer; a
+{axd_chapbook}
+obligates nobody — it binds only its stitching claims.
+
 === Regime Dimensions
 
 These
@@ -2648,18 +2787,43 @@ Absence means unattended (fully automated).
 Valid on
 {axvo_procedure}
 and
-{axvo_method}.
+{axvo_method};
+also on
+{axhci_interaction},
+marking a beat a human performs rather than a system contract governs — such a beat may go quoinless (see the chapbook markers).
 
 [[axd_internal]]
 {axd_internal}::
 A
 {axd_dimension}
 indicating that a procedure or method is an implementation building block, not a consumer-facing interface.
-Absence means external (published interface).
+Absence means external (published interface) — a grain-stratified default: at the
+{axhca_actor}
+grain the kind is instead *required*, one of
+{axd_internal}
+or
+{axd_external}.
 Valid on
 {axvo_procedure}
 and
-{axvo_method}.
+{axvo_method};
+also on
+{axhca_actor},
+marking a cast lane that is a system component within the boundary — its beats normally cite routines.
+
+[[axd_external]]
+{axd_external}::
+A
+{axd_dimension}
+marking an
+{axhca_actor}
+cast lane as an *outside party* — an agent with its own initiative beyond the system boundary (an operator, an attended session), whose beats normally cross doors.
+The required pair-mate of
+{axd_internal}
+at the actor grain: every cast lane declares its kind explicitly; there is no unmarked reading.
+Valid on
+{axhca_actor}
+only.
 
 [[axd_grouped]]
 {axd_grouped}::
@@ -3183,6 +3347,147 @@ member prose must resolve to
 {axt_type}
 anchors in the parent spec or a shared vocabulary
 
+== Axial Hierarchy Chapbook Markers
+
+{axhc*} markers appear only in a
+{mcm_sheaf}
+declared
+{axd_chapbook} —
+the stitched happy-path tale.
+They lay out a cast of *actors* and an ordered run of *interaction* beats, and nothing else:
+no parameters, no outputs, no guarantees — those live in the contracts the beats cite.
+Cast names are *regional*: sprue-local tokens under a prefix the tale declares, defined and referenced wholly within the file, never catalogued in the
+{mcm_mapping_section}
+(kin to
+{mcm_sprue}
+families in prefix discipline, kin to the
+{axhos_waymark}
+local anchor in scope).
+The citation discipline is *cite the governing contract*: a beat crossing a door cites the operation; an interior beat cites the routine; only a beat carrying a licensing
+{axd_dimension}
+may go quoinless — the license fails loud where inference would fail silent, the
+{axd_inlaid}
+principle.
+
+=== Marker Terms and Lookahead Arities
+
+[cols="<,^,<",options="header"]
+|===
+|Marker |Lookahead |Reads
+
+|{axhcb_chapbook}    |0                            |Opens the tale; the annotation line carries the document's sprue token (the regional cast prefix); exactly one per sheaf
+|{axhca_actor}       |1 {mcm_attribute_reference}  |A cast lane; the line carries the sprue-local actor token plus exactly one kind dimension ({axd_internal} or {axd_external}); the lookahead is the catalogued quoin this lane instantiates
+|{axhci_interaction} |1 {mcm_attribute_reference} (0 when licensed) |A beat; the line carries from-token then to-token, plus optional licenses ({axd_attended}, {axd_foreign}); the lookahead is the governing contract
+|===
+
+[[axhcb_chapbook]]
+{axhcb_chapbook}::
+Opens the tale.
+The annotation line carries the document's sprue token — the regional prefix under which the cast is minted, conventionally derived from the sheaf's own identity.
+No attribute lookahead; exactly one per
+{mcm_sheaf}.
+
+[[axhca_actor]]
+{axhca_actor}::
+Mints one cast lane.
+The annotation line carries the sprue-local actor token and exactly one kind
+{axd_dimension} —
+{axd_internal}
+(a system component within the boundary; its beats normally cite routines) or
+{axd_external}
+(an outside party with its own initiative; its beats normally cross doors).
+The kind is required: no unmarked reading.
+Lookahead: 1
+{mcm_attribute_reference} —
+the catalogued quoin this lane instantiates:
+{axo_actor}
+or
+{axo_identity}
+kinds for parties,
+{axo_entity}
+kinds for components and the substrates acted upon.
+Cite the most specific catalogued quoin the census holds.
+
+[[axhci_interaction]]
+{axhci_interaction}::
+One beat of the tale.
+The annotation line carries the from-token then the to-token — both minted by prior
+{axhca_actor}
+lines — plus optional licensing
+{axd_dimension_s}:
+{axd_attended}
+(a human performs the beat) and
+{axd_foreign}
+(below); the two compose.
+Lookahead: 1
+{mcm_attribute_reference} —
+the *governing contract*, an anchor voiced
+{axvo_procedure},
+{axvo_method},
+or
+{axvo_tabtarget},
+at either exposure: an operation where the beat crosses a door, a routine where it is interior.
+A licensed beat may omit the lookahead, or cite a handbook or survey home where one exists; by covenant such beats are rare.
+Beats are anonymous — identity through position, order is narrative order, as with
+{axhos_step}.
+
+[[axd_foreign]]
+{axd_foreign}::
+A
+{axd_dimension}
+marking an
+{axhci_interaction}
+whose far side lies beyond the Palisade — a neighbor system whose behavior the model can survey but never legislate.
+Licenses the beat to go quoinless (no operation of ours governs a neighbor); where a
+{axd_survey}
+home exists, cite it.
+Composes with
+{axd_attended}:
+a federation sitting's device-code beat — a human completing authorization at a foreign page — carries both.
+Valid on
+{axhci_interaction}
+only.
+
+=== Nesting Rules
+
+* {axhcb_chapbook}
+opens the tale; exactly one per sheaf; nothing precedes it but the sheaf head.
+* Every
+{axhca_actor}
+precedes every
+{axhci_interaction} —
+define before reference.
+* An
+{axhci_interaction}
+names only tokens minted by a prior
+{axhca_actor}.
+
+=== Cross-Document Validation
+
+* Genre-bound: these markers are valid only in a sheaf whose
+{axvd_sheaf}
+line carries
+{axd_chapbook}.
+* The
+{axhca_actor}
+lookahead must resolve to a catalogued
+{axl_definition_site}.
+* An unlicensed
+{axhci_interaction}
+lookahead must resolve to an anchor voiced
+{axvo_procedure},
+{axvo_method},
+or
+{axvo_tabtarget} —
+{axd_internal}
+included: the rule is the governing contract, never door-grain.
+* Sprue tokens resolve only within the declaring file; a validator confines resolution to that sheaf.
+* Quoinless beats appear only under
+{axd_attended}
+or
+{axd_foreign};
+the license marks the exception, never normalizes it.
+
 == Axial Voicing Entity Terms
 
 Three annotation families enable entity specification across
@@ -3599,15 +3904,13 @@ in the opening sentence of the
 by which the
 {mcm_sheaf}
 names its codex back.
-The line also carries exactly one normativeness
-{axd_dimension}
-(an unmarked line reads as
-{axd_normative}).
+The line also carries exactly two
+{axd_dimension_s}
+in fixed order: first one normativeness dimension, then one sheaf genre dimension — no defaults, no reordering.
+A line carrying only the normativeness token predates the genre axis and awaits the linter sweep.
 That opening sentence is itself the
 {mcm_fair_faced}
-declaration — it names the codex, states the
-{axd_dimension}
-in prose, and carries the binding constraint keyed to that status, so a reader who never parses the voicing still learns whether the content binds; there is no separate banner.
+declaration — it names the codex, states both dimensions in prose — status adjective, then genre noun — and carries the binding constraint keyed to that status, so a reader who never parses the voicing still learns whether the content binds and what kind of document holds it; there is no separate banner.
 It appears at one site: the head of the
 {mcm_sheaf}
 file.
@@ -3618,8 +3921,8 @@ voicing.
 [source,asciidoc]
 ----
 // at the head of the sheaf file (RBSLE-lode_ensconce.adoc):
-//axvd_sheaf axd_normative
-This is a normative portion of the {rbs0_imprimatur}: binding — code, tests, and decisions may rely on it.
+//axvd_sheaf axd_normative axd_operation
+This is a normative operation sheaf of the {rbs0_imprimatur}: binding — code, tests, and decisions may rely on it.
 = Lode Ensconce
 ...sheaf content...
 ----
@@ -3634,21 +3937,21 @@ of each sheaf's opening sentence and matches it against whatever quoin
 {axvd_codex}
 sealed, to confirm the membership.
 +
-The opening sentence is keyed to the status — lead adjective, then constraint:
+The opening sentence is keyed to both axes — status adjective, genre noun, then constraint:
 +
 [source,asciidoc]
 ----
-//axvd_sheaf axd_normative
-This is a normative portion of the {rbs0_imprimatur}: binding — code, tests, and decisions may rely on it.
+//axvd_sheaf axd_normative axd_operation
+This is a normative operation sheaf of the {rbs0_imprimatur}: binding — code, tests, and decisions may rely on it.
 
-//axvd_sheaf axd_informative
-This is an informative portion of the {rbs0_imprimatur}: honest but binding nothing — read it as rationale, never as law.
+//axvd_sheaf axd_informative axd_cosmology
+This is an informative cosmology sheaf of the {rbs0_imprimatur}: honest but binding nothing — read it as rationale, never as law.
 
-//axvd_sheaf axd_notional
-This is a notional portion of the {rbs0_imprimatur}: a sketch that may be wrong — rely on nothing here.
+//axvd_sheaf axd_notional axd_roadmap
+This is a notional roadmap sheaf of the {rbs0_imprimatur}: a sketch that may be wrong — rely on nothing here.
 
-//axvd_sheaf axd_aspirant
-This is an aspirant portion of the {rbs0_imprimatur}: not yet binding — do not rely on it, decide from it, or cite the names it mints until it is infused into the codex.
+//axvd_sheaf axd_aspirant axd_chapbook
+This is an aspirant chapbook of the {jjs0_imprimatur}: not yet binding — do not rely on it, decide from it, or cite the names it mints until it is infused into the codex.
 ----
 
 [[axvd_cartouche]]
@@ -3665,17 +3968,17 @@ Arity-0: it reads no
 since the included file is a path, not a quoin.
 It sits immediately above the `include::`; a validator reads that line's path to identify the incorporated
 {mcm_sheaf}.
-It carries exactly one normativeness
-{axd_dimension} —
-the codex's attestation of the sheaf's status.
+It carries the same two
+{axd_dimension_s}
+as the sheaf's own declaration, in the same fixed order — the codex's attestation of the sheaf's status and genre.
 A future linter cross-checks that attestation against the sheaf's own
 {axvd_sheaf}
-status; until then the two may drift, a silent error the linter will resolve.
+line; until then the two may drift, a silent error the linter will resolve, and a one-token line predates the genre axis as on the sheaf side.
 +
 [source,asciidoc]
 ----
 // at the inclusion point, inside the codex (RBS0-SpecTop.adoc):
-//axvd_cartouche axd_normative
+//axvd_cartouche axd_normative axd_operation
 include::RBSLE-lode_ensconce.adoc[]
 ----
 
