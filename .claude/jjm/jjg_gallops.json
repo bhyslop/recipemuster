@@ -10527,7 +10527,7 @@
         "₢BDAAm": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260626-0911",
+              "jjgtn_ts": "260705-0849",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "## Character",
@@ -10576,8 +10576,8 @@
                 "## Seed",
                 "Graduated from ₢BDAAj item 6 (immutable class objects for firemark and coronet), widened to the four-member family and lifted from \"make the structs immutable\" to \"name the shared abstraction and voice all four against it.\""
               ],
-              "jjgtn_silks": "axla-immutable-identity-adt-motif",
-              "jjgtn_basis": "24d69eb"
+              "jjgtn_silks": "axla-insignia-dimension-and-incipit",
+              "jjgtn_basis": "df62ca2"
             }
           ]
         },
