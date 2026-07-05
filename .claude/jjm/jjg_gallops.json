@@ -1967,8 +1967,8 @@
         "₢A6AAM": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260413-1752",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260705-1032",
+              "jjgtn_state": "jjgte_abandoned",
               "jjgtn_text": [
                 "## Character",
                 "",
@@ -1991,7 +1991,7 @@
                 "- Release-gate mechanics"
               ],
               "jjgtn_silks": "agent-learner-eval-prototype",
-              "jjgtn_basis": "e38dbd3"
+              "jjgtn_basis": "0094569"
             }
           ]
         },
