@@ -2806,8 +2806,8 @@
         "₢A6AA_": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260601-0612",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260705-1031",
+              "jjgtn_state": "jjgte_abandoned",
               "jjgtn_text": [
                 "## Character",
                 "",
@@ -2869,7 +2869,7 @@
                 "parked, and A6 pointed at a clean retire-on-validation termination."
               ],
               "jjgtn_silks": "revision-onboarding-validation-tail",
-              "jjgtn_basis": "346b7f7"
+              "jjgtn_basis": "dcc4611"
             }
           ]
         },
