@@ -14634,8 +14634,8 @@
         "₢BfAA8": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260702-1519",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260705-0806",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "Terminal pace: disposition every live strand of this heat's paddock, then retire the heat.",
                 "The build work is complete; the paddock still holds live planning content that must be re-homed or dispositioned before archive.",
@@ -14668,7 +14668,7 @@
                 "Disposition sweep with the operator in the loop; judgment on homes, mechanical on moves."
               ],
               "jjgtn_silks": "paddock-scrub-and-retire",
-              "jjgtn_basis": "b3d6f9f"
+              "jjgtn_basis": "7887cfa"
             }
           ]
         },
