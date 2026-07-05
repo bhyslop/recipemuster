@@ -2470,8 +2470,8 @@
         "₢A6AAU": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260414-1419",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260705-1031",
+              "jjgtn_state": "jjgte_abandoned",
               "jjgtn_text": [
                 "## Character",
                 "",
@@ -2514,7 +2514,7 @@
                 "- Greenfield implementation (already landed)"
               ],
               "jjgtn_silks": "onboarding-director-first-cloud-build",
-              "jjgtn_basis": "51eccd1"
+              "jjgtn_basis": "9151079"
             }
           ]
         },
