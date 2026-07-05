@@ -10584,8 +10584,8 @@
         "₢BDAAn": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260626-0914",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260705-0917",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "## Character",
                 "Implementation against a cinched contract — a Rust refactor in the jjk crate, the design already settled by the spec pace.",
@@ -10624,7 +10624,7 @@
                 "Scattered display sites: `grep -rn 'jjrf_display\\|FIREMARK_PREFIX\\|CORONET_PREFIX\\|PENSUM_PREFIX' Tools/jjk`."
               ],
               "jjgtn_silks": "jjrf-insignia-adt-realization",
-              "jjgtn_basis": "284d723"
+              "jjgtn_basis": "3fbc138"
             }
           ]
         },
