@@ -7,8 +7,8 @@
 This subdocument is a feature-definition space under active mulling — to be sophisticated and
 revised until it is ready for development, then infused into the canon or retired.
 A reader must not rely on its content; released code must not cite identifiers it mints.
-Its realization may *graduate* to its own kit and naming prefix rather than infusing into this
-codex — naming {jjs0_imprimatur} back records where it is mulled, not necessarily where it lands.
+Resolved 260705: the realization *infuses into this codex* — the fleet store is a peer repo in
+the infield manipulated by the jj app; no separate kit or naming prefix will exist.
 ====
 
 == What the mews is
@@ -38,8 +38,10 @@ record.
 The two separate on scope (operator-global fleet vs. project planning), cadence (slow operational
 vs. fast intentional), and blast radius.
 One vvx engine drives both; two repos, two locks.
-This is the same git-CAS store pattern the state-repo sheaf describes — a sibling rhyme, not a
-shared home; any eventual convergence is at the engine layer.
+The fleet store is the anticipated *second instance* of the locked-store entity
+(*blotter*, candidate-minted at the revision-control canon workup, 260705):
+one engine drives both stores through the same entity machinery — the sibling rhyme resolved
+into a designed convergence, while two repos, two locks stands.
 
 == The fleet, in three parts
 
@@ -155,22 +157,20 @@ beneath this section's reduction; git history holds the full lineage.
 
 == Provisional vocabulary (self-contained)
 
-These mints stay local to this sheaf; they dissolve into the codex mapping section only on
-infusion, or leave with the sheaf on graduation.
+These mints stay local to this sheaf; they dissolve into the codex mapping section on infusion.
 
 * *mews* — the operator-scoped fleet home.
 * *jess* — the key tether binding a provisioned user.
 * *registry / reservation / provisioning* — the three fleet phases above.
 
-Names are provisional: the falconry register is soaking and the kit prefix is deliberately
-unminted until it survives daily voice.
+Names are provisional: the falconry register is soaking until it survives daily voice;
+no kit prefix will exist (resolved 260705).
 
 == Open forks (the mulling surface)
 
 * The fleet store's git-database representation — peer JSON shards vs. git objects/refs.
 * Clone location and sync model; conflict policy on a same-node-shard race.
 * The `(work-repo, SHA)` cross-reference seam shared with the state-repo sibling.
-* Whether the realization graduates to its own kit and prefix, or infuses here.
 * The jurisdiction-inheritance forks — store carrier, dispatch surface, multi-station trust,
   the RB-side handbook lineage — as itemized under Reopened at mews-time in the inheritance
   section above.
