@@ -3995,8 +3995,8 @@
         "₢A6AAy": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260417-0553",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260705-1032",
+              "jjgtn_state": "jjgte_abandoned",
               "jjgtn_text": [
                 "## Character",
                 "",
@@ -4022,7 +4022,7 @@
                 "Fix propagated from ccyolo nameplate (8b39ea53, ₢A6AAG) where the same Cloudflare rotation was resolved by adding `172.64.0.0/13`. Tadmor was missed in that pass."
               ],
               "jjgtn_silks": "tadmor-tcp-timeout-debug",
-              "jjgtn_basis": "8420c17"
+              "jjgtn_basis": "b526a56"
             }
           ]
         },
