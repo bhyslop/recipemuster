@@ -10527,8 +10527,8 @@
         "₢BDAAm": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260705-0849",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260705-0854",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "## Character",
                 "Design settled in conversation (260626); execution is a clean rename plus prose correction across two spec files, the conceptual decisions already made.",
@@ -10577,7 +10577,7 @@
                 "Graduated from ₢BDAAj item 6 (immutable class objects for firemark and coronet), widened to the four-member family and lifted from \"make the structs immutable\" to \"name the shared abstraction and voice all four against it.\""
               ],
               "jjgtn_silks": "axla-insignia-dimension-and-incipit",
-              "jjgtn_basis": "df62ca2"
+              "jjgtn_basis": "b5cdb13"
             }
           ]
         },
