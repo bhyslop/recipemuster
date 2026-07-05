@@ -1520,8 +1520,8 @@
         "₢A6AAF": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260409-1232",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260705-1032",
+              "jjgtn_state": "jjgte_abandoned",
               "jjgtn_text": [
                 "## Character",
                 "",
@@ -1645,7 +1645,7 @@
                 "- Public project page: `https://scaleinv.github.io/recipebottle` — destination of `RBGC_PUBLIC_DOCS_URL` links"
               ],
               "jjgtn_silks": "handbook-final-docs-hygiene",
-              "jjgtn_basis": "ac43d22"
+              "jjgtn_basis": "15aaa49"
             }
           ]
         },
