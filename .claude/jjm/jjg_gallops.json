@@ -9998,6 +9998,7 @@
       "jjghn_status": "jjghe_racing",
       "jjghn_order": [
         "₢BtAAH",
+        "₢BtAAI",
         "₢BtAAB",
         "₢BtAAC",
         "₢BtAAD",
@@ -10006,7 +10007,7 @@
         "₢BtAAF",
         "₢BtAAG"
       ],
-      "jjghn_next_pace_seed": "AAI",
+      "jjghn_next_pace_seed": "AAJ",
       "jjghn_paces": {
         "₢BtAAA": {
           "jjgpn_tacks": [
@@ -10300,6 +10301,44 @@
               ],
               "jjgtn_silks": "ax-annotation-line-sweep",
               "jjgtn_basis": "970636e"
+            }
+          ]
+        },
+        "₢BtAAI": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260705-1657",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "",
+                "Type-catalogue completion, mechanical on an established template.",
+                "",
+                "## Docket",
+                "",
+                "Relocating each `axvr_variable`'s project-universe type term from the annotation line",
+                "into the definition body (the revised `axvr_variable` law) surfaced six primitive types",
+                "that are referenced in bodies but were never catalogued in RBS0's type section:",
+                "`rbst_string`, `rbst_url`, `rbst_version`, `rbst_integer`, `rbst_duration`, `rbst_username`.",
+                "Those body references currently dangle.",
+                "Define each on the established RB subspecialized-type pattern —",
+                "the `rbst_ipv4` / `rbst_port` / `rbst_netmask` exemplars in RBS0's type section:",
+                "a mapping-section `:rbst_X:` entry, an `[[rbst_X]]` anchor,",
+                "an `//axl_voices` line naming an existing AXLA universal motif,",
+                "and a one-line definition carrying any RB-specific constraint in prose.",
+                "The catalogued motif set is axtu_string / axtu_xname / axtu_path / axtu_ipv4 /",
+                "axtu_port / axtu_cidr / axtu_domain / axtu_sha256 — no numeric or temporal motif exists,",
+                "so voice to the nearest (string/xname) rather than minting a new motif.",
+                "Discovery recipe: `grep -nE \"\\{rbst_(string|url|version|integer|duration|username)\\}\" RBS0-SpecTop.adoc`.",
+                "",
+                "## Done when",
+                "",
+                "Each of the six types carries a mapping entry, anchor, voicing, and definition;",
+                "every `{rbst_X}` body reference the sweep left resolves against the codex mapping;",
+                "no new AXLA motif was minted."
+              ],
+              "jjgtn_silks": "rbst-primitive-type-catalog",
+              "jjgtn_basis": "3833d4f"
             }
           ]
         }
