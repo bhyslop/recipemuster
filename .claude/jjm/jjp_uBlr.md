@@ -59,6 +59,16 @@ its AXLA half is landed canon (sheaf genre axis, two-token axvd_sheaf grammar, c
   so a kind lacking a facet is a compile-time fact;
   no runtime capability machinery in the MVP,
   and the degradation ladder stays spec prose until a second farrier kind arrives.
+- Dispatch shell surface (260705): the doors are infield-resident trampolines under the jjy_ brand —
+  jjy_saddle and jjy_lunge, two-line scripts (never symlinks: Windows stations) that exec into the kit repo's tabtargets,
+  stamped by an idempotent kit-repo installer verb at founding.
+  Invoked from within the elected clone: cwd elects the clone — the pace cannot,
+  since parallel clones of one upstream are all legitimate hippodromes;
+  works from trunk or billet alike (identify resolves either).
+  Nothing ever lands in a hippodrome — the vanilla premise and the no-clone-local-state ruling both forbid it,
+  and no gitignore is needed anywhere because the infield is not a repo.
+  The jjy_ family charter widens from infield-resident repos to ALL JJ-owned infield residents,
+  giving the yard-side/wire-side legibility split: jjy_ names what the operator touches on disk, jjx_ names the MCP wire.
 
 ## Canon workup
 
@@ -106,7 +116,8 @@ the interior saddle-routine rename freeing the saddle word.
 Catalogued at infusion (candidate-minted 260704):
 studbook, pedigree, hippodrome, infield, counterfoil, guidon, farrier, saddle, unsaddle, lunge, billet, tackle,
 and the jjy_ dirname family.
-Elected 260705 under grep gate: blotter; chapbook (landed in AXLA).
+Elected 260705 under grep gate: blotter; chapbook (landed in AXLA);
+the jjy_ widening carrying the launcher names jjy_saddle and jjy_lunge.
 Re-mints owed at the census pace:
 farrier ops status/commit/fetch/push;
 the lock trio (guidon-verbs seed held);
@@ -116,7 +127,6 @@ the stray pedigree prose use in RBK's getting-started spec (sweep at the census 
 weigh advance (English-common gray, no mint collision).
 Allocations with no words yet:
 the lock-ref git namespace;
-the dispatch-verb shell surface (vvx verb vs tabtarget);
 JJS0 sub-letter families for the store, dispatch, and driver vocabularies;
 premise-vs-rivet classification of the scattered invariants
 (never-force, trunk-never-pushed-by-JJ, no-worktree-paths-in-studbook, durable-first, reads-take-no-lock, sole-door);
@@ -129,7 +139,9 @@ exposure tiers for the operator-typed verbs (saddle/lunge/unsaddle/break are ash
   worktree is the plain-git implementation; a full clone is the fallback for kinds without worktrees.
 - The sweep supersedes the reaped-at-next-saddle line;
   the identify census row sheds its plain-git-only vocabulary.
-- Mews sheaf (sibling heat ₣Ba): the graduation fork closes —
+- Studbook sheaf naming ledger: widen the jjy_ entry from infield-resident repos
+  to all JJ-owned infield residents (the launcher trampolines join the family).
+- Mews sheaf (sibling heat ₣Ba): DONE 260705 — the graduation fork closed in the sheaf itself;
   the fleet store is a jjy_ peer repo manipulated by the jj app, the blotter's anticipated second instance; no separate kit.
 
 ## Held for discussion
