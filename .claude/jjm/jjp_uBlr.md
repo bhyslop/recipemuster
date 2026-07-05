@@ -12,6 +12,8 @@ Authority is the three aspirant sheaves; dated cinches (260704) are settled and 
 - `Tools/jjk/vov_veiled/JJS-aspirant-tackle.adoc` — MVP tackle only; scope layering is post-MVP supposition, do not act on it.
 
 The 260630 revision-control memo and 260702 collision memo are provenance, never authority.
+A canon-workup groom (260705) added the specification architecture below;
+its AXLA half is landed canon (sheaf genre axis, two-token axvd_sheaf grammar, chapbook marker family).
 
 ## Cinched
 
@@ -22,6 +24,115 @@ The 260630 revision-control memo and 260702 collision memo are provenance, never
 - The scratch-studbook rehearsal gate is this heat's final pace and the conversion heat's entry gate.
 - Farrier op names are git-free above the trait (vocabulary Palisade, farrier sheaf);
   all word-picking under MCM Lapidary with repo-wide grep gates.
+- Blotter (260705): the locked-store entity — a linear, single-writer-under-lock, engine-driven git repo.
+  The journal ceremony and break sequence are its methods;
+  the studbook and the mews fleet store are its instances;
+  its own config is engine-known, never pedigree-resolved (a store cannot look itself up in itself).
+  Word elected under grep gate; ratchet and cadastre held as alternates.
+- Sheaf genres (260705): every sheaf this heat authors carries the two-token axvd_sheaf line
+  (normativeness then genre) per AXLA Sheaf Genre Dimensions.
+- Chapbook (260705): the stitched happy-path tale genre, landed in AXLA —
+  actors with required internal/external kind, interactions citing the governing contract at either grain
+  (operations at doors, routines within), attended/foreign licenses for the rare quoinless beat.
+  First instance planned below.
+- Billet sweep (260705): reaping is nuke-on-start — a plan-then-confirm sweep at dispatch time
+  retires worktrees whose pace is closed, behind an age-retention window rhyming with officium exsanguination;
+  refuse-with-advice on dirty anomalies by default, auto-commit-push behind explicit confirm;
+  pace states snapshot under the studbook lock, then reaping proceeds lock-free (completion is monotonic).
+  Supersedes the farrier sheaf's reaped-at-next-saddle-if-clean line (bank at drain time).
+- Trunk resync (260705): promoted from spine-internal auto-merge to an explicit session-facing operation —
+  the dispatch spine fetches but never merges;
+  jjx_open reports staleness loudly and mutating verbs refuse on known-stale trunk
+  in a precision band naming the resync operation as remedy (the avow-runway-gate shape);
+  offline degrades to warn-and-proceed.
+  The freshen re-mint (VOK collision) mints the new word for this operation, not the spine op.
+
+## Canon workup
+
+How the aspirant sheaves become canon, and what gets minted on the way.
+
+### Disposition doctrine
+
+Aspirant content drains as the build proceeds, durable-first:
+the binding destination commits before the aspirant source trims,
+so authority migrates fact-by-fact and never gaps.
+Each section has one of three fates:
+contract content drains into binding sheaves;
+gestalt and rationale drain into the cosmology sheaf;
+decision records (naming ledgers, dated cinches, open-fork lists) retire to provenance.
+The sheaves are asymmetric:
+the studbook and farrier sheaves drain fully this heat;
+the tackle sheaf drains only its MVP core and keeps an aspirant remainder;
+the founding-and-cutover section stays aspirant deliberately — it is the conversion heat's sole plan home.
+
+### Destination sheaves (genre in parentheses)
+
+- Revision-control cosmology (cosmology): infield peer ring, hippodrome, why-decouple, the world model.
+- Blotter (entity): the locked-store entity — lock-ref namespace, guidon, read posture, instances, bootstrap config.
+- Journal ceremony and break sequence (routine): the shared write bracket, ONE home,
+  cited by the blotter sheaf and every studbook-writing operation.
+- Studbook (entity): tenant content — pedigree, scope at birth.
+- Farrier (entity): the driver trait, op census as method contracts, error-kind taxonomy, the capability seam.
+- Dispatch and billet (operation family): saddle, lunge, unsaddle, the entrance spine, the sweep,
+  BUK meld consequences; launch-time provisioning folds in or splits out at authoring.
+- Tackle MVP core: scope-to-discipline binding beside the pedigree.
+- Typical-JJ-session chapbook (chapbook, born aspirant): the cast distinguishes every infield repo
+  (kit repo, studbook, hippodrome, billet) plus operator, dispatch layer, session, and engine;
+  the middle act shows a representative edit with the co-evolution beats —
+  hippodrome commit first, then the journal ceremony arrows into the studbook, durable-first visible in beat order;
+  the final act is the wrap and the next-start sweep.
+
+Amendment streams, not new sheaves:
+officium re-gestalt (exchange relocation, identify at open);
+pace-identity re-gestalt (reprieve-gated per the standing cinch);
+the interior saddle-routine rename freeing the saddle word.
+
+### Mint roster
+
+Catalogued at infusion (candidate-minted 260704):
+studbook, pedigree, hippodrome, infield, counterfoil, guidon, farrier, saddle, unsaddle, lunge, billet, tackle,
+and the jjy_ dirname family.
+Elected 260705 under grep gate: blotter; chapbook (landed in AXLA).
+Re-mints owed at the census pace:
+farrier ops status/commit/fetch/push;
+the lock trio (guidon-verbs seed held);
+the freshen successor (HARD VOK collision — the farrier sheaf ledger does not yet record it: bank the divergence);
+the sweep door's word (mucking-out seed held).
+Allocations with no words yet:
+the lock-ref git namespace;
+the dispatch-verb shell surface (vvx verb vs tabtarget);
+JJS0 sub-letter families for the store, dispatch, and driver vocabularies;
+the first chapbook's sprue token (derive mechanically from the sheaf identity);
+premise-vs-rivet classification of the scattered invariants
+(never-force, trunk-never-pushed-by-JJ, no-worktree-paths-in-studbook, durable-first, reads-take-no-lock, sole-door);
+exposure tiers for the operator-typed verbs (saddle/lunge/unsaddle/break are ashlar at least, likely bondstone).
+
+### Deltas to bank into the aspirant sheaves at drain time
+
+- Farrier ledger: record the freshen collision and the resync re-home.
+- Billet definition: re-anchor on the partition axis (a root with a lifecycle) —
+  worktree is the plain-git implementation; a full clone is the fallback for kinds without worktrees.
+- The sweep supersedes the reaped-at-next-saddle line;
+  the identify census row sheds its plain-git-only vocabulary.
+- Mews sheaf (sibling heat ₣Ba): the graduation fork closes —
+  the fleet store is a jjy_ peer repo manipulated by the jj app, the blotter's anticipated second instance; no separate kit.
+
+## Held for discussion
+
+Settle before the affected change, not before the heat:
+
+- Liveness guard mechanics for the sweep (process-in-worktree probe vs officium exsanguination linkage)
+  and the retention constant.
+- Block-hard scope for stale trunk: which verbs refuse (mutating only, or open itself),
+  and the offline warn-threshold.
+- Resync push timing: the merge commit pushes immediately, or rides the next notch.
+- Facet-capability model and the identify contract shape — calcifying: settle before farrier trait code.
+- Journal ceremony home: own routine sheaf vs inline in the blotter entity sheaf.
+- Launch-time provisioning: own sheaf vs fold into dispatch.
+- Lock trio naming (guidon-verbs seed) — deliberately unsettled.
+- Billet dirname convention — parked with the branch-name lean on record.
+- Wire-vs-display coronet form (gazette halter typing depends on it).
+- Chapbook authoring order: whether the final-act sweep beats wait for sweep design or flag the fork.
 
 ## Done when
 
