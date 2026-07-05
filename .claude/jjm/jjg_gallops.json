@@ -101,8 +101,7 @@
         "₢A6AAL",
         "₢A6AAy",
         "₢A6AAz",
-        "₢A6AA9",
-        "₢A6ABA"
+        "₢A6AA9"
       ],
       "jjghn_next_pace_seed": "ABB",
       "jjghn_paces": {
@@ -4078,29 +4077,6 @@
               ],
               "jjgtn_silks": "replace-example-com-with-internic",
               "jjgtn_basis": "c01eb86"
-            }
-          ]
-        },
-        "₢A6ABA": {
-          "jjgpn_tacks": [
-            {
-              "jjgtn_ts": "260622-0740",
-              "jjgtn_state": "jjgte_rough",
-              "jjgtn_text": [
-                "## Reconcile the onboarding handbook to the keyless federation model — it still expects a governor-RBRA key file the keyless path no longer writes.",
-                "",
-                "The ₣BZ terminal review (divergence triage) found: keyless freehold-establish dons mantles and writes NO governor-RBRA key file, but onboarding's credential-install prose + start-here menu still expect one, so a fresh-levy gauntlet may not satisfy onboarding's gate.",
-                "",
-                "Entry point: rbho0_onboarding.sh (the start-here menu) + the rbw-Op payor track. NOTE: the review's source named tracks \"rbw-Ocr/Ocd\" — those tabtargets DO NOT EXIST (live rbw-O* = Occ/Oda/Odb/Odf/Odg/Ofc/Op/Ots); locate the real keyfile-expecting prose before editing. Full context: Memos/memo-20260622-fable-review-queue.md (m7-onboarding-keyless-gap).",
-                "",
-                "## Done when",
-                "Onboarding's credential-readiness prose matches the keyless federation reality (mantle don, not a key file); a fresh-levy gauntlet satisfies whatever onboarding gate remains.",
-                "",
-                "## Character",
-                "Handbook reconciliation; a federation-correctness fix, not a vocabulary one. Find the real entry point first — the named tracks are stale."
-              ],
-              "jjgtn_silks": "onboarding-keyless-precondition-gap",
-              "jjgtn_basis": "3eb5366"
             }
           ]
         }
@@ -13510,9 +13486,37 @@
       "jjghn_silks": "rbk-08-onboarding-readme",
       "jjghn_creation_time": "260705",
       "jjghn_status": "jjghe_stabled",
-      "jjghn_order": [],
-      "jjghn_next_pace_seed": "AAA",
-      "jjghn_paces": {}
+      "jjghn_order": [
+        "₢BtAAA"
+      ],
+      "jjghn_next_pace_seed": "AAB",
+      "jjghn_paces": {
+        "₢BtAAA": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260705-1028",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Drafted from ₢A6ABA in ₣A6.",
+                "",
+                "## Reconcile the onboarding handbook to the keyless federation model — it still expects a governor-RBRA key file the keyless path no longer writes.",
+                "",
+                "The ₣BZ terminal review (divergence triage) found: keyless freehold-establish dons mantles and writes NO governor-RBRA key file, but onboarding's credential-install prose + start-here menu still expect one, so a fresh-levy gauntlet may not satisfy onboarding's gate.",
+                "",
+                "Entry point: rbho0_onboarding.sh (the start-here menu) + the rbw-Op payor track. NOTE: the review's source named tracks \"rbw-Ocr/Ocd\" — those tabtargets DO NOT EXIST (live rbw-O* = Occ/Oda/Odb/Odf/Odg/Ofc/Op/Ots); locate the real keyfile-expecting prose before editing. Full context: Memos/memo-20260622-fable-review-queue.md (m7-onboarding-keyless-gap).",
+                "",
+                "## Done when",
+                "Onboarding's credential-readiness prose matches the keyless federation reality (mantle don, not a key file); a fresh-levy gauntlet satisfies whatever onboarding gate remains.",
+                "",
+                "## Character",
+                "Handbook reconciliation; a federation-correctness fix, not a vocabulary one. Find the real entry point first — the named tracks are stale."
+              ],
+              "jjgtn_silks": "onboarding-keyless-precondition-gap",
+              "jjgtn_basis": "767ec34"
+            }
+          ]
+        }
+      }
     }
   }
 }
