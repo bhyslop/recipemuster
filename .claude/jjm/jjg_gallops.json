@@ -19165,9 +19165,190 @@
       "jjghn_silks": "rbk-10-rebaseline-all",
       "jjghn_creation_time": "260705",
       "jjghn_status": "jjghe_racing",
-      "jjghn_order": [],
-      "jjghn_next_pace_seed": "AAA",
-      "jjghn_paces": {}
+      "jjghn_order": [
+        "₢BsAAA",
+        "₢BsAAB",
+        "₢BsAAC",
+        "₢BsAAD",
+        "₢BsAAE",
+        "₢BsAAF",
+        "₢BsAAG",
+        "₢BsAAH"
+      ],
+      "jjghn_next_pace_seed": "AAI",
+      "jjghn_paces": {
+        "₢BsAAA": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260705-0805",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Run the self-contained and union suites to green on the current tree: tt/rbw-ts.TestSuite.siege.sh, then tt/rbw-ts.TestSuite.echelon.sh.",
+                "Purpose: baseline the non-freehold-touching breadth — credless, GCP-credentialed, and crucible strata — before the freehold ladders run.",
+                "Suites run sequentially, never in parallel; notch before each run.",
+                "",
+                "## Done when",
+                "Both suites green on a committed tree; any failure either fixed forward in-pace or captured as a new pace with the operator.",
+                "",
+                "## Character",
+                "Long suite runs with watch-and-repair judgment."
+              ],
+              "jjgtn_silks": "siege-echelon-green",
+              "jjgtn_basis": "b9782ba"
+            }
+          ]
+        },
+        "₢BsAAB": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260705-0805",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Run the freehold-ITERATING release ladders against the standing freehold, in rising footprint: skirmish, dogfight, blockade, parley.",
+                "These reuse the standing depot and trust and must precede anything that destroys or rebuilds them (heat cinch).",
+                "Per-suite preconditions are the almanac's: standing depot levied; moriah hallmark ordained for blockade; the freehold subject brevetted onto retriever for parley.",
+                "",
+                "## Done when",
+                "All four ladders green against the standing freehold; any failure dispositioned with the operator.",
+                "",
+                "## Character",
+                "Long suite runs; freehold state preserved throughout."
+              ],
+              "jjgtn_silks": "freehold-ladder-green",
+              "jjgtn_basis": "b9782ba"
+            }
+          ]
+        },
+        "₢BsAAC": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260705-0805",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Run the full release-qualification ladder: tt/rbw-ts.TestSuite.gauntlet.sh — marshal-zero state through depot-lifecycle, freehold-establish, onboarding-sequence, reveille fixtures, crucibles.",
+                "This is the heat's first deliberately destructive stage: it levies and unmakes real projects, producing real depot churn — the orphan-arm proof pace consumes that churn immediately after.",
+                "",
+                "## Done when",
+                "Gauntlet green end-to-end; the unmade depots' terrier churn left standing for the next pace (do not escheat first).",
+                "",
+                "## Character",
+                "The longest ladder; operator-present for quota and billing surprises."
+              ],
+              "jjgtn_silks": "gauntlet-green",
+              "jjgtn_basis": "b9782ba"
+            }
+          ]
+        },
+        "₢BsAAD": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260705-0805",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Live-prove the escheat orphan-slice arm against the real depot churn the gauntlet stage just produced.",
+                "The dead-schema arm is live-proven (260702); the orphaned-slice arm — the dead-depot liveness verdict and the dead-folder purge — has never run against a real dead depot.",
+                "Run tt/rbw-mE.PayorEscheatsTerrier.sh: confirm the orphan plan names the dead depots, execute the sweep, verify the re-survey; run again to prove idempotent-clean.",
+                "Never seed a fake slice via a synthetic payor-direct writer — that scaffold shape is retired (operator ruling 260702).",
+                "If the churn stranded no slices, bring that null finding to the operator rather than synthesizing one.",
+                "On green, update RBSME's proof-status NOTE from \"awaits real churn\" to live-proven.",
+                "",
+                "## Done when",
+                "The orphan arm exercised against real churn with verify green and a second run idempotent-clean — or the null finding dispositioned; the RBSME NOTE updated.",
+                "",
+                "## Character",
+                "Short live exercise riding the gauntlet's wake."
+              ],
+              "jjgtn_silks": "escheat-orphan-arm-live-proof",
+              "jjgtn_basis": "b9782ba"
+            }
+          ]
+        },
+        "₢BsAAE": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260705-0805",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Walk the whole manor founding process together on the real installation: raze the manor pool (rbw-mR), then rebuild with the real verbs — instaurate (rbw-mI), affiance the standing foedera (entrada directly; keycloak via the facility setup), gird the freehold depot's governor, re-brevet the freehold subject onto its mantles — and prove access recovers (avow, mantle don, rehearse roll).",
+                "This is the destructive rebuild the iterating ladders had to precede (heat cinch); it rebaselines the identity substrate end-to-end through operator-facing verbs alone.",
+                "Watch and record: which IAM bindings referencing the pool survive the raze/re-instaurate round-trip (same pool id) versus need re-grant — that finding is spec-grade.",
+                "",
+                "## Done when",
+                "The manor razed and rebuilt via the real verbs alone; the freehold subject's access green again (avow + mantle don + attributed audit entry); the terrier roll all-live.",
+                "",
+                "## Character",
+                "The heat's centerpiece; deliberate, operator-present, real credentials."
+              ],
+              "jjgtn_silks": "manor-raze-rebuild-walk",
+              "jjgtn_basis": "b9782ba"
+            }
+          ]
+        },
+        "₢BsAAF": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260705-0805",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Brevet the caged Keycloak subject onto a test depot via the real admission verbs, yielding the standing roster's second citizen and closing the federation spine's deferred tail.",
+                "The Keycloak programmatic proof reached token acquisition; RBSFA explicitly defers the don until a standing admission exists — this pace creates that admission and exercises acquire→don end-to-end, on the substrate the rebuild pace just re-founded.",
+                "Consumes the landed admission verbs (RBSPB brevet, RBSPU unseat) and the Keycloak facility (rbw-qjK); the subject-namespacing rule — synthetic provider subjects disjoint from production — is load-bearing (RBSRF/RBSFK).",
+                "Entry points: RBSFA-foedus_acquire.adoc (the deferral NOTEs), rbxk_keycloak.sh, the rbgp admission verbs.",
+                "",
+                "## Done when",
+                "The caged subject holds a standing muniment and mantle admission on a test depot; the programmatic acquire→don→authorized-call chain runs green; rehearse's roll shows the second citizen.",
+                "",
+                "## Character",
+                "Build-and-prove against real verbs; modest scope, federation-adjacent judgment."
+              ],
+              "jjgtn_silks": "attach-caged-subject-admission",
+              "jjgtn_basis": "b9782ba"
+            }
+          ]
+        },
+        "₢BsAAG": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260705-0805",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Build the small rbgft data-layer test: the escheat survey's per-deficit classification verdicts (key shape, mantle enum, body-not-JSON, missing rbgft_ fields, body-key mismatch) and the precise engross-412 / expunge-404 clean dispositions, asserted deliberately rather than ridden incidentally.",
+                "Coverage today: polity-denial proves the muniment sub-ops' rejection bands under the http-fault seam, parley the positive round-trip — this closes the thin residue, informed by the orphan-arm live exercise two paces back.",
+                "Homed honestly in test-infra, never a production-family verb.",
+                "The standing itch terrier-atomicity-nature-discussion records the operator's wish to discuss what this proof IS before treating it as settled — honor that at mount.",
+                "",
+                "## Done when",
+                "The classifier verdicts and the 412/404 dispositions are asserted by a suite-registered test; the operator discussion honored.",
+                "",
+                "## Character",
+                "Test-infra build; small."
+              ],
+              "jjgtn_silks": "rbgft-data-layer-unit-test",
+              "jjgtn_basis": "b9782ba"
+            }
+          ]
+        },
+        "₢BsAAH": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260705-0805",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Close the rebaseline: re-run the freehold-iterating ladders against the REBUILT substrate — at minimum skirmish, blockade, and parley (the admission-sensitive one) — plus espy and rehearse spot checks.",
+                "Green here is the rebaseline verdict: everything changed since the last full sequences, now proven on a freshly-founded manor.",
+                "",
+                "## Done when",
+                "The chosen ladders green on the rebuilt manor; the operator declares the rebaseline complete.",
+                "",
+                "## Character",
+                "Confirmation runs; light judgment."
+              ],
+              "jjgtn_silks": "rebaseline-revalidation",
+              "jjgtn_basis": "b9782ba"
+            }
+          ]
+        }
+      }
     }
   }
 }

@@ -1,9 +1,26 @@
-# Paddock: rbk-10-rebaseline-all
+## Charter — rebaseline everything
 
-## Context
+This heat runs the full process surface of the installation end-to-end and re-proves the longest test sequences on a freshly rebuilt baseline.
+Much has changed since the last full-sequence runs — the federation identity rework, the admission and terrier surfaces, the accessor and sitting lifecycle, the curl-containment sweep — without a full-ladder proof over the accumulated result.
+The heat's product is a green rebaseline: every suite green, the manor rebuilt through the real founding verbs alone, and the standing freehold healthy on the far side.
 
-(Describe the initiative's background and goals)
+## Cinched
 
-## References
+Freehold-ITERATING sequences run before anything that destroys or rebuilds the freehold or the manor substrate:
+churn and cleanup are proven on throwaways (the gauntlet's levied projects) before any act touches the standing trust.
+This instantiates the release-cadence-refresh principle articulated in the federation-build stream's paddock.
+Fixtures and suites run sequentially, never in parallel; notch before every test run.
+Destructive stages (the gauntlet, the raze-and-rebuild walk) are operator-present.
 
-(List relevant files, docs, or prior work)
+## Shape
+
+Two phases in pace order: first the standing-substrate sweeps — the self-contained and union suites, then the freehold-iterating release ladders;
+then the destructive arc — the gauntlet, the orphan-arm escheat proof riding its churn, the manor raze-and-rebuild walk, the caged-subject admission on the rebuilt substrate, the rbgft test-infra residue, and a closing revalidation of the rebuilt baseline.
+
+## Done when
+
+Every suite in the almanac has run green on this baseline;
+the manor has been razed and rebuilt via the real verbs with access proven recovered;
+the escheat orphan arm is live-proven;
+the caged subject stands as the second roster citizen;
+the closing revalidation is green and the operator declares the rebaseline complete.
