@@ -13208,9 +13208,10 @@
         "₢BcAAJ",
         "₢BcAAD",
         "₢BcAAE",
-        "₢BcAAK"
+        "₢BcAAK",
+        "₢BcAAL"
       ],
-      "jjghn_next_pace_seed": "AAL",
+      "jjghn_next_pace_seed": "AAM",
       "jjghn_paces": {
         "₢BcAAA": {
           "jjgpn_tacks": [
@@ -13661,6 +13662,45 @@
               ],
               "jjgtn_silks": "pace-original-intent",
               "jjgtn_basis": "6105d6d"
+            }
+          ]
+        },
+        "₢BcAAL": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260705-0920",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "Design plus a gallops schema change — reprieve machinery in scope, so judgment work, not mechanical.",
+                "Bounded: the target form is spec-mandated and the bare-form render home already exists; the work is the read-tolerance + write-forward and its episode.",
+                "",
+                "## Goal",
+                "Migrate the on-disk gallops identity keys from their glyph-prefixed form (`₣BD`, `₢BDAAn`) to the spec-mandated bare form (`BD`, `BDAAn`).",
+                "AXLA `axd_insignia` / JJS0 `jjdt_insignia` forbid the render glyph in machine contexts — JSON keys among them — but the gallops `heats`/`paces` maps and the `order` vectors still carry it.",
+                "",
+                "## Cinched",
+                "- The target is the bare body (glyph stripped); it is spec-mandated, not a design choice.",
+                "The insignia-ADT render home already produces it (`jjrf_as_str` in `jjrf_favor.rs`); this pace routes the gallops key-production sites off `jjrf_display` onto the bare form, leaving operator-output rendering glyphed.",
+                "- Wire-format-breaking: it registers an episode against the forgiveness spine (read old glyph-keyed stores, write bare) — it does not invent its own trigger.",
+                "Retirement follows the standard demolition condition (dormant on every operated clone), governed by the coda, not presumed into any specific coda pass.",
+                "",
+                "## Schema change",
+                "Changes the gallops on-disk key shape — follow §E (reprieve-episode gate), §F (branch naming), and JJSCRP (`jjdz_reprieve`): register a reprieve episode, deliver source-only on a date-and-identity branch, commit no gallops conversion.",
+                "Do not improvise this part.",
+                "",
+                "## Discovery",
+                "Key-production sites: `grep -rn 'jjrf_display' Tools/jjk/vov_veiled/src` — separate the gallops-key uses (jjrg_gallops resolve/set, jjrm_mcp key-normalize, jjro_ops coronet-string construction) from operator-output uses, which keep the glyph.",
+                "Read-tolerance + loader home: JJSCRP (`jjdz_reprieve`) and `jjri_io.rs`.",
+                "Officium-local ephemeral JSON keys (pensum seeds, saddle marker) also carry glyphs but need no episode — rewritten per session; mount decides whether to fold them into the same branch.",
+                "",
+                "## Done when",
+                "The gallops `heats`/`paces` map keys and the `heat_order`/`order` vectors serialize glyph-stripped;",
+                "a reprieve episode is registered per JJSCRP and older glyph-keyed gallops still load (read-tolerance + write-forward);",
+                "build tt/vow-b and test tt/vow-t green."
+              ],
+              "jjgtn_silks": "gallops-key-glyph-strip",
+              "jjgtn_basis": "2e1b973"
             }
           ]
         }
