@@ -9440,6 +9440,7 @@
       "jjghn_creation_time": "260705",
       "jjghn_status": "jjghe_racing",
       "jjghn_order": [
+        "₢BtAAH",
         "₢BtAAB",
         "₢BtAAC",
         "₢BtAAD",
@@ -9448,7 +9449,7 @@
         "₢BtAAF",
         "₢BtAAG"
       ],
-      "jjghn_next_pace_seed": "AAH",
+      "jjghn_next_pace_seed": "AAI",
       "jjghn_paces": {
         "₢BtAAA": {
           "jjgpn_tacks": [
@@ -9700,6 +9701,43 @@
               ],
               "jjgtn_silks": "docs-integrity-tail",
               "jjgtn_basis": "d34c4c1"
+            }
+          ]
+        },
+        "₢BtAAH": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260705-1157",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "",
+                "Mechanical repair sweep under corrected AXLA annotation law.",
+                "Opus-tier mount; file-scoped chunks may be delegated to sonnet subagents; verification stays with the mount.",
+                "",
+                "## Docket",
+                "",
+                "Annotation lines (`//ax*`) carry ax-universe tokens only — the motif and `axd_` dimensions;",
+                "project-universe tokens (rb*, jj*) are malformed on the line and move to the read streams after it:",
+                "backtick inlays for sprue-local tokens, attribute references for catalogued quoins.",
+                "The corrected law lives in AXLA \"Axial Hierarchy Chapbook Markers\"",
+                "(line grammar, arities, read windows) and in the revised `axvr_variable` voicing definition.",
+                "Discovery recipe: `grep -rn \"^//ax.* rb\\|^//ax.* jj\" Tools --include=\"*.adoc\" --include=\"*.md\"`",
+                "Three families:",
+                "chapbook marker lines in the provenance chapbook (re-author to the backtick-stream form;",
+                "also replace the reserved word \"beat\" with \"interaction\" throughout that sheaf's prose);",
+                "`axvr_variable` lines carrying `rbst_` type tokens (move the type token to the attribute-reference lookahead per the revised law);",
+                "legacy `axvd_sheaf` lines carrying imprimatur tokens (rb and jj sheaves — migrate to the current opening-sentence form).",
+                "",
+                "## Done when",
+                "",
+                "The discovery grep returns zero hits;",
+                "every touched sheaf's attribute references still resolve against its codex mapping;",
+                "the provenance chapbook parses under the revised chapbook nesting law",
+                "(opener sprue, lane inlays, interaction from/to inlays, venue and legend inlays each inside their annotation's read window)."
+              ],
+              "jjgtn_silks": "ax-annotation-line-sweep",
+              "jjgtn_basis": "970636e"
             }
           ]
         }
