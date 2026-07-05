@@ -9501,35 +9501,40 @@
         "₢BtAAB": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260705-1029",
+              "jjgtn_ts": "260705-1206",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "## Character",
                 "",
-                "Concept-model authoring under CMK/AXLA discipline.",
-                "First chapbook instance in RB — also establishes the file home and minted names for the chapbook set.",
+                "Ratification tail of the first chapbook — verification and derived presentation, judgment-light.",
                 "",
                 "## Docket",
                 "",
-                "Draft an aspirant AXLA chapbook telling the provenance story:",
-                "reliquary conclave, Lode capture (ensconce and feoff), the ordain modes (conjure tether and airgap, bind, graft), vouch, summon and plumb.",
-                "The story spine is the onboarding-sequence fixture (Tools/rbk/rbtd/src/rbtdro_onboarding.rs) —",
-                "its case order and cross-case witnesses are the oracle;",
-                "a beat that contradicts a passing case is wrong.",
-                "Beats cite governing contracts (the ark and Lode operation specs, RBSA*/RBSL*) rather than restating them.",
-                "Genre law: AXLA sheaf genre chapbook with the hierarchy chapbook markers",
-                "(chapbook opener carrying the document sprue, actor lanes with internal/external kinds, interaction beats citing the governing contract).",
-                "Mint the chapbook file home and acronym with operator ratification — full mint ceremony;",
-                "expected under Tools/rbk/vov_veiled/, but the home is a mount-time decision.",
+                "The provenance chapbook stands committed (`Tools/rbk/vov_veiled/RBSYP-chapbook_provenance.adoc`)",
+                "in its venue / vertical-group / legend form,",
+                "but its annotation lines predate the corrected AXLA chapbook law;",
+                "the preceding annotation-line sweep pace re-authors them.",
+                "After that sweep lands:",
+                "re-ratify cast and interactions against the onboarding-sequence fixture",
+                "(`Tools/rbk/rbtd/src/rbtdro_onboarding.rs` — case order and cross-case witnesses are the oracle;",
+                "an interaction that contradicts a passing case is wrong);",
+                "verify the reserved word \"beat\" is gone from the sheaf's prose (the unit word is interaction);",
+                "verify every inlay lands inside its annotation's read window per AXLA \"Axial Hierarchy Chapbook Markers\";",
+                "then re-derive the sequence diagram from the marker skeleton",
+                "(venues as boxes, open/closed groups as activation bars, legends as arrow inscriptions)",
+                "and unfurl it for operator review.",
+                "Minted names (RBSY family, `rbsyp` sprue) are already operator-ratified.",
+                "The two surfaced contract gaps (uncatalogued anoint, verbless airgap base handoff)",
+                "stay recorded in-file and are not fixed here.",
                 "",
                 "## Done when",
                 "",
-                "Aspirant chapbook committed;",
-                "cast and beats ratified against the fixture arc;",
-                "minted names operator-ratified."
+                "Cast and interactions ratified against the fixture arc in conformant annotation form;",
+                "derived diagram unfurled and operator-accepted;",
+                "chapbook committed clean of reserved-word and annotation-law violations."
               ],
               "jjgtn_silks": "chapbook-provenance-story",
-              "jjgtn_basis": "d34c4c1"
+              "jjgtn_basis": "4abae9a"
             }
           ]
         },
