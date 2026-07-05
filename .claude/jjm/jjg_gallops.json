@@ -1,6 +1,7 @@
 {
   "jjgrn_next_heat_seed": "Bu",
   "jjgrn_heat_order": [
+    "₣Br",
     "₣Bt",
     "₣Bs",
     "₣Bq",
@@ -31,8 +32,7 @@
     "₣BC",
     "₣BI",
     "₣BL",
-    "₣Ba",
-    "₣Br"
+    "₣Ba"
   ],
   "jjgrn_heats": {
     "₣A9": {
@@ -9205,7 +9205,7 @@
     "₣Br": {
       "jjghn_silks": "jjk-v5-0-studbook-farrier-mvp",
       "jjghn_creation_time": "260704",
-      "jjghn_status": "jjghe_stabled",
+      "jjghn_status": "jjghe_racing",
       "jjghn_order": [
         "₢BrAAA"
       ],
