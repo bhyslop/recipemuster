@@ -10197,8 +10197,8 @@
         "₢BtAAD": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260705-1029",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260705-2245",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "## Character",
                 "",
@@ -10218,7 +10218,7 @@
                 "cast and beats ratified against the crucible fixture arcs."
               ],
               "jjgtn_silks": "chapbook-containment-story",
-              "jjgtn_basis": "d34c4c1"
+              "jjgtn_basis": "35ae5c5"
             }
           ]
         },
