@@ -10098,11 +10098,12 @@
         "₢BtAAD",
         "₢BtAAE",
         "₢BtAAK",
+        "₢BtAAL",
         "₢BtAAA",
         "₢BtAAF",
         "₢BtAAG"
       ],
-      "jjghn_next_pace_seed": "AAL",
+      "jjghn_next_pace_seed": "AAM",
       "jjghn_paces": {
         "₢BtAAA": {
           "jjgpn_tacks": [
@@ -10512,6 +10513,43 @@
               ],
               "jjgtn_silks": "readme-identity-single-telling",
               "jjgtn_basis": "9bff517"
+            }
+          ]
+        },
+        "₢BtAAL": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260706-0738",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "",
+                "Mechanical README edit under the cinched rule; Opus-tier — apply the rule, don't redesign the roadmap.",
+                "",
+                "## Docket",
+                "",
+                "The README Roadmap appendix is the only customer-facing statement of future features —",
+                "the specs are veiled and never ship.",
+                "Its entries over-promise:",
+                "the Podman entry explains a dismissal (\"no architectural advantage\") that no longer reflects intent,",
+                "and several entries carry mechanism detail beyond a feature shape.",
+                "",
+                "## Cinched",
+                "",
+                "Promise less while properly articulating intended feature shape:",
+                "each roadmap entry either names its feature shape in a sentence or two, or comes out;",
+                "no mechanism detail, no implied timeline, no dismissive rationale for deferral.",
+                "Add no new entries — announcing unreleased directions is exactly what this pace avoids.",
+                "Never remove an `<a id=...>` anchor;",
+                "if an entry comes out, keep its anchor on the section or re-point internal refs.",
+                "",
+                "## Done when",
+                "",
+                "Every Roadmap entry passes the rule;",
+                "the anchor sweep passes — every `](#X)` reference has a matching `<a id=\"X\">`."
+              ],
+              "jjgtn_silks": "readme-roadmap-promise-trim",
+              "jjgtn_basis": "5ef3914"
             }
           ]
         }
