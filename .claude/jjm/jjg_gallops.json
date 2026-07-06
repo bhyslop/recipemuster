@@ -9707,8 +9707,8 @@
         "₢BxAAB": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260706-1724",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260706-1058",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "## Character",
                 "One-screen additive edit under the RoE covenant;",
@@ -9732,7 +9732,7 @@
                 "and no vocabulary is restated outside MCM."
               ],
               "jjgtn_silks": "stitch-roe-publication-edge",
-              "jjgtn_basis": "57d98a9"
+              "jjgtn_basis": "1a5585c"
             }
           ]
         },
