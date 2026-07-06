@@ -60,6 +60,10 @@
 :mcm_coffer:                 <<mcm_coffer,Coffer>>
 :mcm_fair_faced:             <<mcm_fair_faced,Fair-Faced>>
 :mcm_hearting:               <<mcm_hearting,Hearting>>
+:mcm_revetment:              <<mcm_revetment,Revetment>>
+:mcm_revetment_s:            <<mcm_revetment,Revetments>>
+:mcm_spall:                  <<mcm_spall,Spall>>
+:mcm_spall_s:                <<mcm_spall,Spalls>>
 :mcm_toothing:               <<mcm_toothing,Toothing>>
 :mcm_hallowed_word:          <<mcm_hallowed_word,Hallowed Word>>
 :mcm_hallowed_word_s:        <<mcm_hallowed_word,Hallowed Words>>
@@ -1371,6 +1375,78 @@ a spec-interior
 {mcm_quoin}
 need only avoid the third, since its definition is at hand to turn a blank into knowledge.
 A word that draws a blank but evokes the right image is therefore a safe spec-interior mint, where a confidently-misread one is not.
+
+=== The Revetment
+
+The rules above govern names as the system mints them;
+one surface governs names as the system *ships* them.
+A veiled interior — specs held back, their lapidary rigor read by no outside eye —
+still needs a public face,
+and that face is prose an outsider reads with none of the interior at hand.
+The
+{mcm_revetment}
+is that maintained face,
+and the law below is what it answers to:
+what the interior may say when it dresses itself for the outside.
+
+The face has a reader who holds no glossary and never will,
+so its law runs stricter than the ladder's —
+only names already dressed for that reader may cross, and nothing of the dressing itself.
+
+* *Ashlar-or-prose only.*
+Every token on the face is an
+{mcm_ashlar}
+in display form or plain prose;
+an interior name — a bare
+{mcm_quoin}
+or a
+{mcm_hearting} —
+reaching the face is a
+{mcm_spall}.
+* *Broadside-complete.*
+Every
+{mcm_ashlar}
+the face uses resolves to its entry on the
+{mcm_broadside};
+a face word with no registry home is a face that cannot be read.
+* *References resolve.*
+Every cross-reference on the face lands on a declared anchor;
+a link into nothing spalls the structure rather than the word.
+* *Register silence.*
+The lapidary meta-register — the vocabulary of this craft itself — never crosses to the face.
+The reader is shown the wall, never the mason's word for dressing it.
+
+The last invariant turns on itself:
+{mcm_revetment}
+and
+{mcm_spall}
+are lapidary meta-register too,
+so the words that name the face and its defect never appear on a
+{mcm_revetment}.
+
+[[mcm_revetment]]
+{mcm_revetment}::
+The maintained public face of a veiled interior:
+a shipped prose surface presenting a closed
+{mcm_concept_model} —
+or a whole closed system —
+in dressed, reader-legible form.
+The facing course laid across the raw earthwork,
+finishing what shows while shielding what stands behind,
+so its work is armor and not ornament.
+It answers the face law above;
+its type specimen is a project's public README.
+
+[[mcm_spall]]
+{mcm_spall}::
+The face defect:
+an interior name, or the lapidary meta-register itself,
+surfacing on the
+{mcm_revetment}
+and breaking its dressed face to expose the core.
+Masonry spalling — a fragment split from the facing,
+the raw fill showing through the dressed stone.
+Each invariant of the face law forbids one way a face can spall.
 
 == Antipatterns
 
