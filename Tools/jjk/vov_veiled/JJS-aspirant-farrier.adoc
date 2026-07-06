@@ -58,12 +58,21 @@ Census names stay boring-register but git-free — distinct and vivid are differ
 asterism budget is spent below the vivid layer (`advance`, `freshen`, `identify` prove the
 register).
 
-Re-mint due at the census/mint-sweep pace (word-picking happens there, under MCM Lapidary):
-`status`, `commit`, `fetch`, `push`; provisionally the lock trio
-`ref_cas_create`/`ref_cas_delete`/`ref_read` (seed held: the guidon supplies natural verbs —
-plant, read, strike — the maximum-danger facet earning maximum distinctness, against the
-counter-lean that this is vividness creeping below the layer; deliberately unsettled).
-The table keeps the git words until that pace lands, as mulling placeholders only.
+Re-minted at the census pace (260705, under MCM Lapidary, all gates run fresh):
+`status`→`comb` (comb the tree for dirt), `commit`→`lodge` (formally deposit the explicit
+list — the administrative filing sense), `fetch`→`glean` (gather what the remote holds),
+`push`→`consign` (hand the branch into the remote's custody).
+The lock trio settled as guidon verbs: `ref_cas_create`→`stake` (stake the guidon in — the
+claim made atomic), `ref_cas_delete`→`pluck` (pluck it out), `ref_read`→`sight` (sight whose
+guidon flies, read-only).
+The trio spends vividness below the vivid layer deliberately, overruling the counter-lean:
+create/delete/read fire the CRUD reflex exactly as push fires force — a failed create invites
+a "cleanup" delete — and the lock is the maximum-danger facet, where a reflex-firing name
+costs most.
+Of the seed verbs, plant is taken (`jjx_plant`, the live foray command), strike is taken
+(RBSME escheat's orphan sweep), and read is barred outright as the CRUD/git reflex word.
+`advance` weighed and retained: git-free and boring-register — it is the register's own
+proof-word; English-common is the hearting posture, not a defect, below the vivid layer.
 
 [cols="1,1,2,1"]
 |===
@@ -73,7 +82,7 @@ The table keeps the git words until that pace lands, as mulling placeholders onl
 detached state, HEAD, billet-of-which-hippodrome if a worktree. |saddle/lunge (dispatch-time);
 ambient on `jjx_open`
 
-|`status` |inspect |Clean/dirty, per-path — feeds clean-tree gates and explicit-file commits.
+|`comb` |inspect |Clean/dirty, per-path — feeds clean-tree gates and explicit-file commits.
 |sequence-internal
 
 |`sync_state` |inspect |Ahead/behind vs. remote, from last fetch (never blocks on network).
@@ -86,18 +95,18 @@ on record
 MVP* (260704): the designed answer for when a dangling counterfoil first annoys —
 freshen-by-merge and notch-push make them rare. |deferred
 
-|`commit` |mutate |Explicit file list + message; no `-a`, no amend (additive discipline).
+|`lodge` |mutate |Explicit file list + message; no `-a`, no amend (additive discipline).
 |sequence-internal
 
-|`fetch` |sync |Update remote refs. |sequence-internal, opportunistic
+|`glean` |sync |Update remote refs. |sequence-internal, opportunistic
 
 |`advance` |sync |Fast-forward-only move to remote tip; fails loud if diverged.
 Deliberately not named "pull" — the farrier never merges or rebases. |journal ceremony
 
-|`push` |sync |Two flavors: plain fast-forward (hippodrome), `--atomic` + lease (studbook
+|`consign` |sync |Two flavors: plain fast-forward (hippodrome), `--atomic` + lease (studbook
 content). Never force. |sequence-internal
 
-|`ref_cas_create` / `ref_cas_delete` / `ref_read` |lock |Studbook/mews only; consumed by the
+|`stake` / `pluck` / `sight` |lock |Studbook/mews only; consumed by the
 lock guard and break sequence. |sequence-internal
 
 |`billet_create` / `billet_remove` |billet |Birth/reap a billet (below); remove refuses on
@@ -111,7 +120,7 @@ Cross-cutting rules: every op takes the repo root explicitly (no cwd dependence)
 op rejects in a named typed-error band (dirty-tree, diverged, lock-held, lock-broken) — sequence
 composition is only safe when primitives fail loud and specifically.
 The taxonomy is settled (260704, RCG-checked): one farrier-wide enum of rejection *kinds* — a
-kind is a shared semantic fact ("diverged" means the same from `advance` or `push`) — wrapped
+kind is a shared semantic fact ("diverged" means the same from `advance` or `consign`) — wrapped
 in a context layer naming op, repo, and detail.
 RCG defers error idioms by design; the binding disciplines (Zeroes, Identity Rule, String
 Boundary, Output) all pass, and the typed taxonomy is a deliberate step up from the crate's
@@ -140,7 +149,7 @@ primitives:
 
 |muster / parade / groom |studbook reads only
 
-|notch |hippodrome: `status` → `commit` (explicit files) → `counterfoil` — then the journal
+|notch |hippodrome: `comb` → `lodge` (explicit files) → `counterfoil` — then the journal
 ceremony carrying the counterfoil
 
 |wrap |as notch, plus pace-state mutation in the journal
@@ -153,8 +162,8 @@ launch session
 
 |unsaddle |`billet_remove`, refuse-if-dirty
 
-|break |`ref_read` every JJ lock (studbook + mews) → report guidons → lease-guarded
-`ref_cas_delete` per lock, never blind. Operator-deliberate by definition; precedent
+|break |`sight` every JJ lock (studbook + mews) → report guidons → lease-guarded
+`pluck` per lock, never blind. Operator-deliberate by definition; precedent
 `/vvc-BREAK-LOCK`
 |===
 
@@ -293,6 +302,9 @@ doctrine — a vivid word is today spent below the vivid layer), sweep, grep-gat
 * *farrier* — the driver API; fits the horse to the ground. F freed by formbook's rejection.
 * *saddle* / *unsaddle* — dispatch verbs; the real-world sequence saddle-then-mount lands in
   the right order across the two vocabulary layers. Alternate held: leg-up.
+  Election RATIFIED at the census (260705); the grep gate stays OPEN by contingency — it
+  completes only when the interior-rename pace frees `jjrsd_saddle.rs` / `JJSCSD-saddle.adoc`
+  (Prerequisite remint below); gate completion rides that pace, not the census.
 * *lunge* — the groom dispatch verb (minted 260704): working the horse from the ground on the
   long line, deliberately unmounted — assessment without riding.
   Grep-clean both spellings; US *lunge* elected over UK *longe*.
@@ -308,6 +320,23 @@ doctrine — a vivid word is today spent below the vivid layer), sweep, grep-gat
   (stalling/stalls saturate ambient prose, JJK core doctrine included).
   Disqualified earlier: seat (per-seat licensing troddenness; RBK's minted *unseat* as
   near-neighbor).
+* *comb* / *lodge* / *glean* / *consign* — the census re-mints (260705) for the four
+  git-worded ops; gates clean.
+  lodge's hits are incidental MCM prose ("images lodge across sessions") plus the lodging
+  gloss on billet above — judged a composing echo, not a collision: a session lodges its work
+  at its billet, the deposit sense and the quarters sense reinforcing.
+  Independent convergence noted: current-JJ's `jjrvl_validate.rs` doc prose already says
+  "consigns the gallops" for the commit act — comment-only, no mint.
+* *stake* / *pluck* / *sight* — the lock trio (260705), the guidon supplying its verbs; the
+  CRUD-reflex rationale is recorded at the census paragraph in the op census above.
+  Seed disposition: plant taken (`jjx_plant`, live foray command), strike taken (RBSME
+  escheat's orphan sweep), read barred (the CRUD/git reflex word).
+  stake's racing sense (stakes race) noted and accepted: the trio is sequence-internal, never
+  operator-typed, and the claim sense dominates in imperative position.
+* *freshen* — COLLIDES with VOK (`tt/vow-F.Freshen.sh`; VOSO "Freshen CLAUDE.md"), banked at
+  the census (260705).
+  Per the trunk-resync cinch the re-mint names the session-facing resync operation, not the
+  spine op; the primitive/operation untangle and the word are census work.
 * Ring-survey toothing — demoted 260704, no verb needed; the *stables* candidate is released.
 
 == Open forks (the mulling surface)

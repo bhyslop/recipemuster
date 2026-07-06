@@ -87,18 +87,18 @@ Every studbook write brackets identically (the *journal ceremony*), and the orde
   Fast-forward and additive, so safe by construction; the trunk is never pushed by JJ;
   offline, the journal proceeds with the counterfoil flagged unpushed and `sync_state` nags at
   next open.
-. *Lock the studbook*: `fetch` (sync lock state) → `ref_cas_create` (the CAS: atomically push
-  the guidon-bearing lock ref, or be rejected) → `ref_read` to confirm the held guidon is ours.
+. *Lock the studbook*: `glean` (sync lock state) → `stake` (the CAS: atomically push
+  the guidon-bearing lock ref, or be rejected) → `sight` to confirm the held guidon is ours.
   Lock refs live in a dedicated namespace outside `refs/heads/*`; the guidon carries officium,
   station, acquire-time, and operation, which is what makes break-on-error safe.
 . *Advance*: fast-forward the local studbook to remote tip — always clean under the lock;
   loud failure if not.
 . *Mutate and commit*: apply the gallops change plus the counterfoil naming the hippodrome and
-  its commit; `commit` with explicit files.
+  its commit; `lodge` with explicit files.
 . *Push content*: `--atomic`, binding the content update to a lease on our own lock ref —
   if the lock was broken under us, the whole push fails.
   No corruption, no service but git.
-. *Unlock*: `ref_cas_delete`, best-effort; a die here leaves a stale lock still flying its
+. *Unlock*: `pluck`, best-effort; a die here leaves a stale lock still flying its
   guidon for the break sequence.
 
 Breaking a stale lock is *never a method on the holder's guard* — it is its own sequence
