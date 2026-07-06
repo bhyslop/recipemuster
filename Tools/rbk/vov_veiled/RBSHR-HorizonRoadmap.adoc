@@ -1,4 +1,5 @@
-//axvd_sheaf rbs0_imprimatur axd_informative
+//axvd_sheaf axd_informative
+This is an informative portion of the {rbs0_imprimatur}: honest but binding nothing — read it as rationale, never as law.
 [[rbshr_horizon_roadmap]]
 ==== Horizon Roadmap
 

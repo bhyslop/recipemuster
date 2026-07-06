@@ -1,4 +1,4 @@
-//axvd_sheaf rbs0_imprimatur axd_aspirant
+//axvd_sheaf axd_aspirant
 This is an aspirant portion of the {rbs0_imprimatur}: not yet binding — do not rely on it, decide from it, or cite the provisional names it sketches until it is infused into the codex.
 Every term set in **bold** below is a provisional sketch local to this sheaf — a placeholder for a concept, not minted vocabulary; its word-selection and quoin allocation are deferred, and the sketches dissolve into the mapping section only on graduation (see Deferred Scope).
 

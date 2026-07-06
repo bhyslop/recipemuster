@@ -3658,23 +3658,29 @@ Derived from
 as `payor/rbro.env`.
 
 [[rbrr_bottle_workspace]]
-//axvr_variable axd_required rbst_path
+//axvr_variable axd_required
 {rbrr_bottle_workspace}::
-Container-internal working directory path for all
+A
+{rbst_path} —
+container-internal working directory path for all
 {at_bottle_container_s}.
 Conventionally `/workspace`, following the industry-standard devcontainer convention.
 Used by compose `working_dir`, volume mount targets, and bottle engagement tabtargets.
 
 [[rbrr_vessel_dir]]
-//axvr_variable axd_required rbst_path
+//axvr_variable axd_required
 {rbrr_vessel_dir}::
-Directory containing vessel configuration subdirectories for
+A
+{rbst_path} —
+directory containing vessel configuration subdirectories for
 {rbrr_regime}.
 
 [[rbrr_active_foedus]]
-//axvr_variable axd_required rbst_xname
+//axvr_variable axd_required
 {rbrr_active_foedus}::
-The active-foedus selector — the subdirectory name of the
+An
+{rbst_xname} —
+the active-foedus selector — the subdirectory name of the
 {rbrf_regime}
 the manor authenticates against, one of the foedus subdirectories in the moorings foedera library, each bearing the `rbef_` foedus-instance sprue (e.g. `rbef_entrada`, `rbef_keycloak`).
 It is the operator-facing folio passed to
@@ -3692,59 +3698,81 @@ foedera via
 and the authenticate-against-active consumers require it committed before they run.
 
 [[rbrr_dns_server]]
-//axvr_variable axd_required rbst_ipv4
+//axvr_variable axd_required
 {rbrr_dns_server}::
+An
+{rbst_ipv4} —
 DNS server IP address for sentry container name resolution.
 
 [[rbrm_ignite_machine_name]]
-//axvr_variable axd_required rbst_xname
+//axvr_variable axd_required
 {rbrm_ignite_machine_name}::
+An
+{rbst_xname} —
 Podman machine name for bottle ignition operations.
 
 [[rbrm_deploy_machine_name]]
-//axvr_variable axd_required rbst_xname
+//axvr_variable axd_required
 {rbrm_deploy_machine_name}::
+An
+{rbst_xname} —
 Podman machine name for bottle deployment operations.
 
 [[rbrm_crane_tar_gz]]
-//axvr_variable axd_required rbst_path
+//axvr_variable axd_required
 {rbrm_crane_tar_gz}::
-Path to crane tool tarball for OCI registry operations.
+A
+{rbst_path} —
+path to crane tool tarball for OCI registry operations.
 
 [[rbrm_manifest_platforms]]
-//axvr_variable axd_required rbst_platform_list
+//axvr_variable axd_required
 {rbrm_manifest_platforms}::
-Space-separated target platforms for multi-platform manifest creation.
+A
+{rbst_platform_list} —
+space-separated target platforms for multi-platform manifest creation.
 
 [[rbrm_chosen_podman_version]]
-//axvr_variable axd_required rbst_version
+//axvr_variable axd_required
 {rbrm_chosen_podman_version}::
+A
+{rbst_version} —
 Podman version string for VM provisioning.
 
 [[rbrm_chosen_vmimage_origin]]
-//axvr_variable axd_required rbst_string
+//axvr_variable axd_required
 {rbrm_chosen_vmimage_origin}::
+A
+{rbst_string} —
 Podman VM image origin specification.
 
 [[rbrm_chosen_identity]]
-//axvr_variable axd_required rbst_string
+//axvr_variable axd_required
 {rbrm_chosen_identity}::
-Identity specification for VM or build environment.
+A
+{rbst_string} —
+identity specification for VM or build environment.
 
 [[rbrr_gcb_min_concurrent_builds]]
-//axvr_variable axd_required rbst_integer
+//axvr_variable axd_required
 {rbrr_gcb_min_concurrent_builds}::
-Minimum concurrent Cloud Build execution count.
+An
+{rbst_integer} —
+minimum concurrent Cloud Build execution count.
 
 [[rbrr_gcb_timeout]]
-//axvr_variable axd_required rbst_duration
+//axvr_variable axd_required
 {rbrr_gcb_timeout}::
-Maximum duration for Cloud Build operations.
+A
+{rbst_duration} —
+maximum duration for Cloud Build operations.
 
 [[rbrr_public_docs_url]]
-//axvr_variable axd_required rbst_url
+//axvr_variable axd_required
 {rbrr_public_docs_url}::
-Public docs URL — readme target for buh_tlt glossary links, updated per-release or per-incorporation.
+A
+{rbst_url} —
+public docs URL — readme target for buh_tlt glossary links, updated per-release or per-incorporation.
 
 // RBRG variable definitions eliminated — reliquaries replace pin-based tool image management
 // Tool images (gcloud, docker, alpine, syft, binfmt, gcrane) now sourced from reliquary at ordain time
@@ -3827,8 +3855,10 @@ and
 {gcb_service}.
 
 [[rbrd_gcb_machine_type]]
-//axvr_variable axd_required rbst_string
+//axvr_variable axd_required
 {rbrd_gcb_machine_type}::
+A
+{rbst_string} —
 Compute Engine machine type for the private worker pool, consumed at pool creation time by
 {rbtgo_depot_levy}.
 Default: `e2-standard-2`.
@@ -4199,22 +4229,28 @@ Configuration regime for container image build specifications.
 File-sourced, one per vessel: an rbrv.env in each vessel subdirectory under {rbrr_vessel_dir}, the subdirectory named by the vessel's {rbrv_sigil}.
 
 [[rbrv_sigil]]
-//axvr_variable axd_required rbst_xname
+//axvr_variable axd_required
 {rbrv_sigil}::
-Vessel identifier for
+An
+{rbst_xname} —
+vessel identifier for
 {rbrv_regime};
 basis for directory and ark naming.
 
 [[rbrv_description]]
-//axvr_variable axd_optional rbst_description
+//axvr_variable axd_optional
 {rbrv_description}::
-Human-readable documentation for
+A
+{rbst_description} —
+human-readable documentation for
 {rbrv_regime}.
 
 [[rbrv_user]]
-//axvr_variable axd_optional rbst_username
+//axvr_variable axd_optional
 {rbrv_user}::
-Runtime user for
+A
+{rbst_username} —
+runtime user for
 {rbrv_regime}
 containers.
 When set, downstream consumers (compose, SSH, rack) use this as the container user identity.
@@ -4261,16 +4297,20 @@ Variables for conjuring vessels within
 {rbrv_regime}.
 
 [[rbrv_bind_image]]
-//axvr_variable axd_conditional rbst_image_ref
+//axvr_variable axd_conditional
 {rbrv_bind_image}::
-Container image reference for
+An
+{rbst_image_ref} —
+container image reference for
 {rbrv_regime}
 binding vessels.
 
 [[rbrv_bind_optional_dockerfile]]
-//axvr_variable axd_optional rbst_path
+//axvr_variable axd_optional
 {rbrv_bind_optional_dockerfile}::
-Optional path to reference Dockerfile for the upstream image in
+A
+{rbst_path} —
+optional path to reference Dockerfile for the upstream image in
 {rbrv_regime}
 binding vessels.
 When configured, the Dockerfile content is embedded in the
@@ -4278,23 +4318,29 @@ When configured, the Dockerfile content is embedded in the
 artifact as `recipe.txt`.
 
 [[rbrv_conjure_dockerfile]]
-//axvr_variable axd_conditional rbst_path
+//axvr_variable axd_conditional
 {rbrv_conjure_dockerfile}::
+A
+{rbst_path} —
 Dockerfile path for
 {rbrv_regime}
 conjuring vessels.
 
 [[rbrv_conjure_bldcontext]]
-//axvr_variable axd_conditional rbst_path
+//axvr_variable axd_conditional
 {rbrv_conjure_bldcontext}::
-Build context directory for
+A
+{rbst_path} —
+build context directory for
 {rbrv_regime}
 conjuring.
 
 [[rbrv_conjure_platforms]]
-//axvr_variable axd_conditional rbst_platform_list
+//axvr_variable axd_conditional
 {rbrv_conjure_platforms}::
-Target platform architectures for
+A
+{rbst_platform_list} —
+target platform architectures for
 {rbrv_regime}
 multi-platform builds.
 
@@ -4309,9 +4355,11 @@ Applies to
 vessels.
 
 [[rbrv_image_origin]]
-//axvr_variable axd_optional rbst_image_ref
+//axvr_variable axd_optional
 {rbrv_image_origin}::
-Base image declaration for
+An
+{rbst_image_ref} —
+base image declaration for
 {rbrv_regime}
 conjuring vessels.
 Two complementary roles depending on whether the slot's
@@ -4337,9 +4385,10 @@ resolves the base from
 The Dockerfile uses `ARG RBF_IMAGE_n` / `FROM ${RBF_IMAGE_n}` -- the Foundry substitutes the resolved reference via `--build-arg` at conjure time.
 
 [[rbrv_image_anchor]]
-//axvr_variable axd_optional rbst_locator
+//axvr_variable axd_optional
 {rbrv_image_anchor}::
-{rbst_locator}
+A
+{rbst_locator} —
 naming a GAR-resident base image for
 {rbrv_regime}
 conjuring vessels.
@@ -4371,9 +4420,11 @@ Tool image reliquary binding for
 Applies to every vessel regardless of mode.
 
 [[rbrv_reliquary]]
-//axvr_variable axd_required rbst_string
+//axvr_variable axd_required
 {rbrv_reliquary}::
-Reliquary touchmark identifying the conclave {rbtga_lode} tool image set in GAR for
+A
+{rbst_string} —
+reliquary touchmark identifying the conclave {rbtga_lode} tool image set in GAR for
 {rbrv_regime}
 (e.g., `r260324193326`).
 
@@ -4384,18 +4435,22 @@ Variables for grafting vessels within
 {rbrv_regime}.
 
 [[rbrv_graft_image]]
-//axvr_variable axd_conditional rbst_image_ref
+//axvr_variable axd_conditional
 {rbrv_graft_image}::
-Default local image reference for
+An
+{rbst_image_ref} —
+default local image reference for
 {rbrv_regime}
 grafting vessels.
 Optional; when empty, the image reference must be provided as a runtime parameter to
 {rbtgo_ark_graft}.
 
 [[rbrv_graft_optional_dockerfile]]
-//axvr_variable axd_optional rbst_path
+//axvr_variable axd_optional
 {rbrv_graft_optional_dockerfile}::
-Optional path to Dockerfile used for the local build in
+A
+{rbst_path} —
+optional path to Dockerfile used for the local build in
 {rbrv_regime}
 grafting vessels.
 When configured, the Dockerfile content is embedded in the
@@ -4415,14 +4470,18 @@ File-sourced, one per nameplate: an rbrn.env in each nameplate subdirectory unde
 Defines container deployment and network security settings.
 
 [[rbrn_moniker]]
-//axvr_variable axd_required rbst_xname
+//axvr_variable axd_required
 {rbrn_moniker}::
-Unique moniker for the crucible instance; 2-12 characters.
+An
+{rbst_xname} —
+unique moniker for the crucible instance; 2-12 characters.
 
 [[rbrn_description]]
-//axvr_variable axd_optional rbst_description
+//axvr_variable axd_optional
 {rbrn_description}::
-Human-readable description of the service purpose; 0-120 characters.
+A
+{rbst_description} —
+human-readable description of the service purpose; 0-120 characters.
 
 [[rbrn_runtime]]
 //axvr_variable axd_required axt_enumeration
@@ -4442,24 +4501,32 @@ Use Podman container runtime.
 Serialized as `podman` in bash regime variable value.
 
 [[rbrn_sentry_vessel]]
-//axvr_variable axd_required rbst_xname
+//axvr_variable axd_required
 {rbrn_sentry_vessel}::
-Vessel identifier for the sentry container image.
+An
+{rbst_xname} —
+vessel identifier for the sentry container image.
 
 [[rbrn_sentry_hallmark]]
-//axvr_variable axd_required rbst_hallmark
+//axvr_variable axd_required
 {rbrn_sentry_hallmark}::
-Hallmark timestamp for the sentry container image.
+A
+{rbst_hallmark} —
+hallmark timestamp for the sentry container image.
 
 [[rbrn_bottle_vessel]]
-//axvr_variable axd_required rbst_xname
+//axvr_variable axd_required
 {rbrn_bottle_vessel}::
-Vessel identifier for the bottle container image.
+An
+{rbst_xname} —
+vessel identifier for the bottle container image.
 
 [[rbrn_bottle_hallmark]]
-//axvr_variable axd_required rbst_hallmark
+//axvr_variable axd_required
 {rbrn_bottle_hallmark}::
-Hallmark timestamp for the bottle container image.
+A
+{rbst_hallmark} —
+hallmark timestamp for the bottle container image.
 
 [[rbrn_entry_mode]]
 //axvr_variable axd_required axt_enumeration
@@ -4479,39 +4546,53 @@ Entry functionality is enabled; user-initiated connections accepted.
 Serialized as `rbnne_enabled` in bash regime variable value.
 
 [[rbrn_entry_port_workstation]]
-//axvr_variable axd_conditional rbst_port
+//axvr_variable axd_conditional
 {rbrn_entry_port_workstation}::
-External port exposed on the transit network for user entry.
+A
+{rbst_port} —
+external port exposed on the transit network for user entry.
 
 [[rbrn_entry_port_enclave]]
-//axvr_variable axd_conditional rbst_port
+//axvr_variable axd_conditional
 {rbrn_entry_port_enclave}::
-Port used between sentry and bottle containers for entry traffic.
+A
+{rbst_port} —
+port used between sentry and bottle containers for entry traffic.
 
 [[rbrn_enclave_base_ip]]
-//axvr_variable axd_required rbst_ipv4
+//axvr_variable axd_required
 {rbrn_enclave_base_ip}::
-Base IPv4 address defining the enclave network range.
+An
+{rbst_ipv4} —
+base IPv4 address defining the enclave network range.
 
 [[rbrn_enclave_netmask]]
-//axvr_variable axd_required rbst_netmask
+//axvr_variable axd_required
 {rbrn_enclave_netmask}::
-Network mask width for enclave network addressing; 8-30.
+A
+{rbst_netmask} —
+network mask width for enclave network addressing; 8-30.
 
 [[rbrn_enclave_sentry_ip]]
-//axvr_variable axd_required rbst_ipv4
+//axvr_variable axd_required
 {rbrn_enclave_sentry_ip}::
+An
+{rbst_ipv4} —
 IP address assigned to the sentry container within the enclave.
 
 [[rbrn_enclave_bottle_ip]]
-//axvr_variable axd_required rbst_ipv4
+//axvr_variable axd_required
 {rbrn_enclave_bottle_ip}::
+An
+{rbst_ipv4} —
 IP address assigned to the bottle container within the enclave.
 
 [[rbrn_uplink_port_min]]
-//axvr_variable axd_required rbst_port
+//axvr_variable axd_required
 {rbrn_uplink_port_min}::
-Minimum port number for bottle-initiated outbound connections.
+A
+{rbst_port} —
+minimum port number for bottle-initiated outbound connections.
 
 [[rbrn_uplink_dns_mode]]
 //axvr_variable axd_required axt_enumeration
@@ -4560,14 +4641,18 @@ IP access restricted to allowed CIDR ranges.
 Serialized as `rbnne_allowlist` in bash regime variable value.
 
 [[rbrn_uplink_allowed_cidrs]]
-//axvr_variable axd_conditional rbst_cidr_list
+//axvr_variable axd_conditional
 {rbrn_uplink_allowed_cidrs}::
+A
+{rbst_cidr_list} —
 CIDR ranges for allowed bottle-initiated outbound traffic.
 
 [[rbrn_uplink_allowed_domains]]
-//axvr_variable axd_conditional rbst_domain_list
+//axvr_variable axd_conditional
 {rbrn_uplink_allowed_domains}::
-Domain names allowed for bottle-initiated DNS resolution.
+A
+{rbst_domain_list} —
+domain names allowed for bottle-initiated DNS resolution.
 
 // Volume mount specifications relocated to per-nameplate compose fragments («moniker».compose.yml).
 // Previously: RBRN_DOCKER_VOLUME_MOUNTS, RBRN_PODMAN_VOLUME_MOUNTS — semicolon-delimited strings
