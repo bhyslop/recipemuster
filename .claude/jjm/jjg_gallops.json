@@ -9903,6 +9903,7 @@
       "jjghn_order": [
         "₢BsAAI",
         "₢BsAAA",
+        "₢BsAAJ",
         "₢BsAAB",
         "₢BsAAC",
         "₢BsAAD",
@@ -9911,7 +9912,7 @@
         "₢BsAAG",
         "₢BsAAH"
       ],
-      "jjghn_next_pace_seed": "AAJ",
+      "jjghn_next_pace_seed": "AAK",
       "jjghn_paces": {
         "₢BsAAA": {
           "jjgpn_tacks": [
@@ -10117,6 +10118,48 @@
               ],
               "jjgtn_silks": "staging-ceremony-refresh",
               "jjgtn_basis": "cd2e307"
+            }
+          ]
+        },
+        "₢BsAAJ": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260706-0739",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "",
+                "Diagram authoring from a chapbook cast — the provenance-tale diagram pace is the worked precedent.",
+                "Positioned as fill work while long suite runs are awaited.",
+                "",
+                "## Docket",
+                "",
+                "Author the federation-at-a-glance diagram from the RBSYF chapbook cast —",
+                "the simple lead visual the three existing deep-dive federation diagrams lack.",
+                "Blocks: three venue boxes —",
+                "the foreign identity province holding the census;",
+                "the manor holding the workforce pool, the foedus provider beneath it, and the terrier;",
+                "the depot holding the mantle service accounts and the registry —",
+                "plus a citizen lane, with payor and governor as wielding annotations rather than blocks.",
+                "Arrows, the whole story in five:",
+                "found (instaurate plus affiance),",
+                "brevet (muniment recorded before binding),",
+                "avow (device flow opens the sitting),",
+                "don (short-lived mantle token, one mantle per token),",
+                "and the attributed act (audit line names mantle and human together).",
+                "One inscription: no key anywhere.",
+                "Render through the committed-puml pluml crucible case per the RBDG convention (light and dark pair);",
+                "mint the new rbdg family letter provisionally, flagged for operator ratification at review.",
+                "Emplace as the lead visual in README's Foundry Lifecycle, the existing deep-dives staying collapsed below.",
+                "",
+                "## Done when",
+                "",
+                "The puml source and both rendered SVGs stand committed in lockstep;",
+                "the README emplacement has landed;",
+                "the rbdg letter is ratified or re-minted at diagram review."
+              ],
+              "jjgtn_silks": "federation-glance-diagram",
+              "jjgtn_basis": "fcd0c6b"
             }
           ]
         }
