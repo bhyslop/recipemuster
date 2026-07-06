@@ -10063,6 +10063,7 @@
       "jjghn_creation_time": "260705",
       "jjghn_status": "jjghe_racing",
       "jjghn_order": [
+        "₢BtAAJ",
         "₢BtAAH",
         "₢BtAAI",
         "₢BtAAB",
@@ -10073,7 +10074,7 @@
         "₢BtAAF",
         "₢BtAAG"
       ],
-      "jjghn_next_pace_seed": "AAJ",
+      "jjghn_next_pace_seed": "AAK",
       "jjghn_paces": {
         "₢BtAAA": {
           "jjgpn_tacks": [
@@ -10405,6 +10406,44 @@
               ],
               "jjgtn_silks": "rbst-primitive-type-catalog",
               "jjgtn_basis": "3833d4f"
+            }
+          ]
+        },
+        "₢BtAAJ": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260705-1703",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "",
+                "Design conversation requiring judgment — Fable-tier.",
+                "An AXLA change to weigh, not RB content to author.",
+                "",
+                "## Docket",
+                "",
+                "The current AXLA chapbook law makes every cast lane mint a sprue-local token",
+                "(`rbsyp_director`, `jjcbs_operator`) on the backtick stream, and interactions reference lanes by that token.",
+                "The sweep applied it faithfully and surfaced the smell: those inlays are quoin-shaped, and in a mature chapbook they are redundant.",
+                "Every RBSYP actor lane sits one line above a catalogued quoin naming the same actor —",
+                "`rbsyp_director` over `{rbtr_director}`, `rbsyp_cloudbuild` over `{gcb_service}`, `rbsyp_hallmarks` over `{gar_hallmarks_namespace}`, and more.",
+                "The law forces a minted alias even where a quoin already names the actor, so the tale cites the alias and the quoin's cross-reference machinery does no work; a reader sees a backtick token shaped exactly like a quoin that is not one.",
+                "",
+                "The question for Fable: should AXLA gain an alternate cast-lane voicing whose lane identity IS a catalogued quoin (the attribute-reference stream), so interactions reference actors by quoin and no parallel sprue token is minted?",
+                "Weigh it honestly against the sprue form, which is still needed where no quoin exists — the JJS session chapbook's actors are \"pending a catalogued quoin\", so the sprue token is their only handle — and which buys a short stable local handle and compact from/to lines a quoin-pair would not.",
+                "The likely shape is both forms with a rule for when each applies, not a replacement.",
+                "",
+                "Read first as evidence: `RBSYP-chapbook_provenance.adoc` (mature domain, every actor has a quoin — maximal redundancy) and `JJS-aspirant-chapbook-session.adoc` (early domain, actors lack quoins — the sprue token earns its keep).",
+                "The law itself is AXLA \"Axial Hierarchy Chapbook Markers\" (the `axhca_actor` backtick-vs-attribute streams).",
+                "",
+                "## Done when",
+                "",
+                "A decision is recorded on whether and how AXLA gains a quoin-identity cast-lane voicing.",
+                "If adopted, the marker law and both existing chapbooks carry the change.",
+                "If declined, the rationale is recorded so the redundancy is understood rather than rediscovered."
+              ],
+              "jjgtn_silks": "axla-quoin-lane-voicing",
+              "jjgtn_basis": "8aabd6c"
             }
           ]
         }
