@@ -102,6 +102,11 @@ the founding-and-cutover section stays aspirant deliberately — it is the conve
 ### Destination sheaves (genre in parentheses)
 
 - Revision-control cosmology (cosmology): infield peer ring, hippodrome, why-decouple, the world model.
+  LANDED 260705: `JJSVC-cosmology.adoc` (normative cosmology), mounted in JJS0's new Revision Control region;
+  the `jjdw_` quoin category catalogues infield, hippodrome, and the jjy_ family (charter widened per the delta);
+  the JJSV* file family allocated for the destination sheaves (V: revision-control);
+  broadside registration for the two nouns deliberately deferred to cutover —
+  the README speaks to consumers of the live surface, and the new surface is inert until then.
 - Blotter (entity): the locked-store entity — lock-ref namespace, guidon, read posture, instances, bootstrap config.
 - Journal ceremony and break sequence (routine): the shared write bracket, ONE home,
   cited by the blotter sheaf and every studbook-writing operation.
@@ -148,6 +153,9 @@ premises trunk-never-pushed / reads-take-no-lock / sole-door;
 exposure tiers recorded — the six dispatch verbs ashlar, toothing-tier centrality,
 broadside registration owed at infusion.
 Saddle/unsaddle ratified with the gate OPEN by contingency until the interior rename frees the word.
+COSMOLOGY INFUSION (260705): hippodrome, infield, and the jjy_ family catalogued as `jjdw_` quoins
+in `JJSVC-cosmology.adoc`; their ledger entries marked infused;
+the chapbook's hippodrome/infield flags hardened to citations.
 Elections, alternates, and rationales live in the two sheaf ledgers; this roster is the summary.
 
 ### Deltas to bank into the aspirant sheaves at drain time
@@ -158,8 +166,8 @@ Elections, alternates, and rationales live in the two sheaf ledgers; this roster
   worktree is the plain-git implementation; a full clone is the fallback for kinds without worktrees.
 - The sweep supersedes the reaped-at-next-saddle line;
   the identify census row sheds its plain-git-only vocabulary.
-- Studbook sheaf naming ledger: widen the jjy_ entry from infield-resident repos
-  to all JJ-owned infield residents (the launcher trampolines join the family).
+- Studbook sheaf naming ledger: DONE 260705 — the jjy_ entry marked infused with the widened
+  charter (all JJ-owned infield residents), the charter itself canon in the cosmology sheaf.
 - Mews sheaf (sibling heat ₣Ba): DONE 260705 — the graduation fork closed in the sheaf itself;
   the fleet store is a jjy_ peer repo manipulated by the jj app, the blotter's anticipated second instance; no separate kit.
 
