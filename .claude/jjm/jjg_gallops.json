@@ -9367,8 +9367,8 @@
         "₢BrAAC": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260705-1634",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260705-2126",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "## Character",
                 "",
@@ -9382,7 +9382,7 @@
                 "the session chapbook's cast quoins this sheaf homes harden to citations."
               ],
               "jjgtn_silks": "cosmology-sheaf",
-              "jjgtn_basis": "d432287"
+              "jjgtn_basis": "17ecb29"
             }
           ]
         },
