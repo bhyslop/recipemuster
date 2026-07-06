@@ -9217,6 +9217,7 @@
         "₢BrAAH",
         "₢BrAAI",
         "₢BrAAJ",
+        "₢BrAAX",
         "₢BrAAK",
         "₢BrAAL",
         "₢BrAAM",
@@ -9231,7 +9232,7 @@
         "₢BrAAV",
         "₢BrAAW"
       ],
-      "jjghn_next_pace_seed": "AAX",
+      "jjghn_next_pace_seed": "AAY",
       "jjghn_paces": {
         "₢BrAAA": {
           "jjgpn_tacks": [
@@ -9864,6 +9865,32 @@
               ],
               "jjgtn_silks": "scratch-rehearsal",
               "jjgtn_basis": "d432287"
+            }
+          ]
+        },
+        "₢BrAAX": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260706-0649",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "",
+                "Gate — operator-attended checkpoint; judgment only, no new surface, no code.",
+                "",
+                "## Done when",
+                "",
+                "Every design and spec-authoring pace ahead of this gate is wrapped:",
+                "the destination sheaves stand as landed canon —",
+                "blotter entity, journal-ceremony routine, studbook entity, farrier entity,",
+                "dispatch operation family, tackle MVP core —",
+                "the identify-contract and pace-identity design cinches are recorded in the paddock,",
+                "and the paddock's held-for-discussion items are all settled.",
+                "The operator ratifies that design and planning are complete",
+                "and the work-tier implementation tail may begin."
+              ],
+              "jjgtn_silks": "design-complete-gate",
+              "jjgtn_basis": "f9572a4"
             }
           ]
         }
