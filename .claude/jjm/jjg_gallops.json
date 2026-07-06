@@ -8022,6 +8022,7 @@
       "jjghn_creation_time": "260609",
       "jjghn_status": "jjghe_racing",
       "jjghn_order": [
+        "₢BcAAM",
         "₢BcAAI",
         "₢BcAAC",
         "₢BcAAF",
@@ -8035,7 +8036,7 @@
         "₢BcAAK",
         "₢BcAAL"
       ],
-      "jjghn_next_pace_seed": "AAM",
+      "jjghn_next_pace_seed": "AAN",
       "jjghn_paces": {
         "₢BcAAA": {
           "jjgpn_tacks": [
@@ -8525,6 +8526,56 @@
               ],
               "jjgtn_silks": "gallops-key-glyph-strip",
               "jjgtn_basis": "2e1b973"
+            }
+          ]
+        },
+        "₢BcAAM": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260706-0751",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "",
+                "JJK feature build with the design core operator-cinched below;",
+                "gallops schema change — reprieve discipline applies: read §E and §F in the veiled JJK context and JJSCRP (jjdz_reprieve) before touching the schema.",
+                "",
+                "## Docket",
+                "",
+                "Add pace bridling: a frontier-only verb that deems a pace mechanically defined and designates the execution tier,",
+                "plus the mount guard that enforces the designation.",
+                "The evaluator is the calling frontier agent, never the server:",
+                "protocol text in claude-jjk-core.md directs it to read the docket,",
+                "block on ambiguities or lurking design-level decisions — refuse designation and report the gaps —",
+                "and otherwise designate; the jjx command records state plus tier, and the server enforces from there.",
+                "",
+                "## Cinched",
+                "",
+                "- Designation is by TIER (haiku/sonnet/opus/fable), never model ID — IDs drift, tiers hold.",
+                "- New pace state beside rough: bridled = mechanically defined plus tier-designated.",
+                "- Any docket edit (reslate/redocket) to a bridled pace reverts it to rough and wipes the tier.",
+                "- The mount guard holds both directions: a bridled pace mounts only at its designated tier —",
+                "  protecting frontier tokens from mechanical work and mechanical models from judgment work.",
+                "- Read commands (parade, brief, coronets, show) stay open to every tier.",
+                "- Wrap stays frontier-only, always: a sub-frontier designee finishes with record plus landing,",
+                "  and a frontier session reviews and wraps.",
+                "- Escalation: the edit-revert rule is the rescue path,",
+                "  plus a deliberate un-bridle gesture (no fake docket edit)",
+                "  for the docket-is-fine-but-the-horse-is-flailing case.",
+                "- Refusal messages are fair-faced: name the pace's designated tier, the caller's tier, and the remedies.",
+                "- Word re-mint accepted with cautions: bridle is a retired word whose retirement reprieve episode is still live —",
+                "  grep repo-wide including the frozen v3 types before re-minting,",
+                "  and confirm the new sense collides with no old-sense serialization key the tolerance code still reads.",
+                "",
+                "## Done when",
+                "",
+                "Verb, state, tier field, mount guard, revert rule, and un-bridle gesture land with tests;",
+                "the reprieve episode is registered and the change rides a date-and-identity branch with no gallops conversion committed;",
+                "claude-jjk-core.md carries the bridle protocol and the verb-table row;",
+                "the bridle re-mint is grep-clean or its collisions dispositioned with the operator."
+              ],
+              "jjgtn_silks": "bridle-verb-and-mount-guard",
+              "jjgtn_basis": "4041a2c"
             }
           ]
         }
