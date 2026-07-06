@@ -10166,8 +10166,8 @@
         "₢BtAAC": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260705-1029",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260705-2126",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "## Character",
                 "",
@@ -10190,7 +10190,7 @@
                 "cast and beats ratified against the parley and freehold-establish arcs."
               ],
               "jjgtn_silks": "chapbook-federation-story",
-              "jjgtn_basis": "d34c4c1"
+              "jjgtn_basis": "55ab442"
             }
           ]
         },
