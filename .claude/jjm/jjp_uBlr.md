@@ -102,6 +102,41 @@ the implementation tail runs at work tier.
   position — the member→SHA manifest shape has one home, the counterfoil op;
   trunk-ness — pedigree-relative, classified downstream, so the seat says primary, never trunk;
   dirt and staleness — comb's and sync_state's.
+- Wire-vs-display coronet form (260706): the bare immutable pace id is the identity in every machine context —
+  gallops keys, MCP params, billet branch names, git refs;
+  heat qualification is emission-only — glyph + current heat + interpunct + immutable id —
+  rendered from live affiliation at output time
+  (transfer changes tomorrow's rendering, never the identity);
+  input tolerates emitted forms: glyph and heat qualifier stripped on ingest, the bare id looked up;
+  frozen emissions (commit messages, historical prose) legitimately carry the qualified form
+  as record-of-the-moment, never as a live reference;
+  the full-form never-abbreviate display discipline carries over, and firemark display is untouched.
+- Pace-id shape (260706): five charset characters minted from the one global studbook seed under the lock;
+  existing coronets grandfather verbatim — immutable-for-life includes the already-living —
+  and the global seed founds above the highest grandfathered body,
+  so collision with the legacy heat-embedded space is structurally impossible
+  (one founding-time comparison, no reserved-set check);
+  a grandfathered body renders like any other, its leading pair merely spelling the birth heat.
+- Halter typing (260706): strip the glyph if present;
+  a token containing the interpunct is a qualified coronet — the five-character tail resolves, the qualifier is ignored;
+  otherwise type by length exactly as today (2 firemark, 5 coronet);
+  the %-sentinel pensum is untouched, its heat embedding a frozen at-dispatch correlation fact, not a live affiliation.
+- Revision insignia (260706): the two stores' commits carry decimal ordinal insignia, entirely emission-layer —
+  catchword ₶ for the studbook (founding value 200000), varvel ₰ for the mews (founding value 10000);
+  the ordinal is a denormalized label allocated under the store's lock and baked into the commit message,
+  the SHA stays the identity, and the genesis commit takes the founding value (no zeroth special case);
+  leading-digit founding pins width without zero-padding so lexicographic and numeric order agree
+  (horizons: 800K studbook / 90K mews revisions before width growth),
+  and a future store founds at a fresh leading-digit × width pair;
+  bare decimal is charset-valid, so an ordinal never circulates glyphless —
+  machine contexts carry the SHA, and any future ingestion convenience must require the glyph.
+- AXLA insignia natures (260706): axd_ordinal minted as the third encoding nature
+  (decimal, monotonic per store, a denormalized label aliasing an underlying identity, no hierarchical embedding),
+  and axd_algebraic tightened to name its encoding precisely —
+  the 64-character URL-safe base64 alphabet, RFC 4648 §5, positional values `A`=0 through `_`=63 —
+  eliminating the loose fixed-alphabet wording a decimal ordinal would otherwise satisfy;
+  the algebraic word retained, re-quoining deferred;
+  the insignia-family ADT work in ₣BD picks the natures up code-side.
 
 ## Canon workup
 
@@ -201,6 +236,11 @@ farrier, comb/lodge/glean/consign, stake/pluck/sight, and enfold ledger entries 
 never-force marked infused (homed at the consign contract, tail mints at implementation);
 the chapbook's farrier interactions and identify-at-open hardened to citations,
 its open-staleness line re-worded to the softened no-verb-refuses cinch.
+INSIGNIA SUB-MINT DISCHARGED (260706): the revision-insignia glyph space allocated whole at the pace-identity design pace —
+catchword ₶ (U+20B6, livre tournois) for studbook revisions, varvel ₰ (U+20B0, pfennig) for mews revisions,
+decimal-ordinal bodies under leading-digit founding;
+tattoo deliberately banked unminted, freezemark rejected for the firemark rhyme, chestnut/hip/accession held as alternates;
+AXLA gains axd_ordinal beside the tightened axd_algebraic.
 Elections, alternates, and rationales live in the two sheaf ledgers; this roster is the summary.
 
 ### Deltas to bank into the aspirant sheaves at drain time
@@ -219,6 +259,9 @@ Elections, alternates, and rationales live in the two sheaf ledgers; this roster
   charter (all JJ-owned infield residents), the charter itself canon in the cosmology sheaf.
 - Mews sheaf (sibling heat ₣Ba): DONE 260705 — the graduation fork closed in the sheaf itself;
   the fleet store is a jjy_ peer repo manipulated by the jj app, the blotter's anticipated second instance; no separate kit.
+- Pace-identity and store-shape sections: the 260706 design cinches settle the sheaf's
+  wire-vs-display open fork and deferred insignia sub-mint;
+  bank the settlement at drain time (the re-gestalt amendment stream is the implementing surface).
 
 ## Held for discussion
 
@@ -226,8 +269,6 @@ Settle before the affected change, not before the heat; each item names its sett
 
 - Billet dirname convention — lean on record (dirname = the §F branch name verbatim);
   adopted at dispatch-sheaf authoring.
-- Wire-vs-display coronet form (gazette halter typing depends on it) —
-  settles at the pace-identity design pace, coupled to the insignia sub-mint.
 - Session-launch configuration — the designation-tier vocabulary (shared with the bridle work in ₣Bc),
   the validated (model, effort) pair table and its home,
   the parameterized spawn primitive with its census word minted under Lapidary
