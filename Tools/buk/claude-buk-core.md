@@ -31,14 +31,14 @@ TabTargets are lightweight shell scripts in `tt/` that serve as the CLI entry po
 
 | Part | Purpose | Example |
 |------|---------|---------|
-| **Colophon** | Routing identifier (includes hyphen, workbench matches on this) | `rbw-cr`, `buw-tt-ll` |
-| **Frontispiece** | Human-readable description (PascalCase) | `Rack` |
+| **Colophon** | Routing identifier (includes hyphen, workbench matches on this) | `rbw-cC`, `buw-tt-ll` |
+| **Frontispiece** | Human-readable description (PascalCase) | `Charge` |
 | **Imprint** | Optional target parameter (nameplate moniker, fixture name, etc.) | `tadmor` |
 
 - The `.` is the delimiter between parts
 - The hyphen is part of the colophon (not a separator)
 
-Example: `tt/rbw-cr.Rack.tadmor.sh` — colophon `rbw-cr` routes to the crucible rack command, frontispiece tells you what it does, imprint `tadmor` selects the nameplate.
+Example: `tt/rbw-cC.Charge.tadmor.sh` — colophon `rbw-cC` routes to the crucible charge command, frontispiece tells you what it does, imprint `tadmor` selects the nameplate.
 
 Multiple tabtargets can share the same colophon but differ by imprint:
 ```
@@ -90,7 +90,7 @@ Tabtargets self-log to `../logs-buk/`:
 Both stdout and stderr are captured. Adding your own `tee` or `2>&1` duplicates work the tool already did. The real hazard is piping a tabtarget into `tail`/`head`/`grep`: zsh defaults `pipefail` OFF, so the pipeline returns the last command's exit status — usually 0. **A failing test reports as success.**
 
 - Run the tabtarget directly, then read from `../logs-buk/` in a separate command
-- Environment variables before the command are fine: `BURE_CONFIRM=skip ./tt/foo.sh`
+- Environment variables before the command are fine: `BURE_CONFIRM=skip ./tt/rbw-cQ.Quench.tadmor.sh`
 - If you genuinely must pipe live output (rare — usually you can read the log instead), set `-o pipefail` on the same line, or check `${PIPESTATUS[0]}` (bash) / `${pipestatus[1]}` (zsh)
 
 ```
@@ -113,9 +113,9 @@ Run test fixture tabtargets **sequentially, never in parallel**. Test fixtures s
 
 ```
 # Correct: run one at a time
-tt/rbw-tf.TestFixture.regime-validation.sh
-tt/rbw-tf.TestFixture.tadmor-security.sh
+tt/rbw-tf.FixtureRun.sh regime-validation
+tt/rbw-tf.FixtureRun.sh tadmor
 
 # Wrong: never run fixtures concurrently
-tt/rbw-tf.TestFixture.regime-validation.sh & tt/rbw-tf.TestFixture.tadmor-security.sh &
+tt/rbw-tf.FixtureRun.sh regime-validation & tt/rbw-tf.FixtureRun.sh tadmor &
 ```
