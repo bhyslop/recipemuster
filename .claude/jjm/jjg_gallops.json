@@ -9106,8 +9106,8 @@
         "₢BtAAA": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260705-1030",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260706-1013",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "## Character",
                 "",
@@ -9146,7 +9146,7 @@
                 "no pre-federation role vocabulary survives in handbook output."
               ],
               "jjgtn_silks": "handbook-federation-reconcile",
-              "jjgtn_basis": "8ce3423"
+              "jjgtn_basis": "ad33747"
             }
           ]
         },
