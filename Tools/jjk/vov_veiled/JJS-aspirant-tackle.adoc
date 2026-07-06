@@ -9,8 +9,8 @@ This is an aspirant portion of the {jjs0_imprimatur}: not yet binding — do not
 A feature-definition space under active mulling — to be sophisticated and revised until ready for
 development, then infused into this codex or retired.
 A reader must not rely on its content; released code must not cite identifiers it mints.
-The word *tackle* is already minted in the ₣Ah paddock with a maximal meaning;
-the one-word-one-concept resolution is stated below.
+The word *tackle* carried a maximal meaning in the retired V4 execution workup, now recast in
+the breeze aspirant sheaf (JJSAB); the one-word-one-concept resolution is stated below.
 ====
 
 == What MVP tackle is
@@ -41,16 +41,17 @@ tackle bindings and provisions the session's context accordingly.
 This replaces repo-resident `@`-include context at repo grain with runtime binding at file grain,
 and is what lets vanilla external projects receive discipline context without carrying any of it.
 
-== One word, one concept (the ₣Ah resolution)
+== One word, one concept (the V4 resolution)
 
-The ₣Ah paddock defines a maximal tackle: silks-identified resource bundle carrying ₿-blaze file
-scopes, actions with exclusivity, gait affinities, read-also entries — school-time execution
-machinery (design pace ₢AhAAO).
+The retired V4 execution workup defined a maximal tackle: a silks-identified resource bundle
+carrying ₿-blaze file scopes, actions with exclusivity, gait affinities, read-also entries —
+school-time execution machinery for the breeze pipeline.
 Resolution: *this MVP definition becomes the tackle; the maximal version extends it later.*
 One definition re-homed and grown — never two tackles side by side.
-When ₣Ah's tackle design pace mounts, it inherits this sheaf as its floor: blazes, actions,
-exclusivity, and gait affinities are additions to the scope→discipline core, and the ₣Ah paddock
-updates to match.
+The maximal layer is banked below (Deferred) as this sheaf's own content; its execution context
+(school, gaits, chukker boundaries) lives in the breeze aspirant sheaf (JJSAB), and the future
+tackle design pace inherits this sheaf as its floor: blazes, actions, exclusivity, and gait
+affinities are additions to the scope→discipline core.
 
 == Scope layering (provisional — agent supposition, requires design review)
 
@@ -62,11 +63,29 @@ Operator ruling (260704): tackle architecture waits until the operator has worke
 new system long enough to find footing — it is sequenced *after* the studbook/farrier MVP
 ships, never alongside it.
 
-== Deferred (explicitly not MVP)
+== Deferred (explicitly not MVP) — the banked maximal layer
 
-* ₿ blaze symbolic references and school-time resolution.
-* Actions (command + exclusivity scopes).
-* Gait affinities and integrity-check declarations informing chukker boundaries.
+Banked here from the retired V4 workup so the ideas survive their source heat; each is a future
+design decision, not a commitment:
+
+* *₿ blazes* — symbolic file/resource references defined by a tackle; dockets and gaits
+  reference them, school resolves them to concrete paths when writing warrants — breeze never
+  sees ₿ symbols.
+  Uniqueness scope is unsettled: the workup recorded both per-heat uniqueness and
+  scoped-to-tackle identity (never global in any recording).
+  Validation sketch: no duplicate definitions, no orphan references.
+* *Actions* — named commands with exclusivity scopes (candidate enum: worktree / workstation /
+  project), the orchestrator holding mutexes during concurrent dispatch when an action's scope
+  demands it.
+* *Gait affinities and read-also entries* — which gaits a tackle suits, and standing context
+  attachments.
+* *Integrity declarations* — build / test / lint checks a tackle makes available, informing
+  chukker-boundary decisions in the breeze pipeline: whether mechanical merge with
+  tackle-declared checks suffices or an explicit alignment beat is needed.
+* *Tackle–gait interface* — gaits declare required blazes; compatibility validates at school
+  time.
+* *Registry shape* — tackles as silks-identified, mutable resource bundles in a top-level
+  registry beside the gait registry.
 * Any per-heat tackle mutability story — MVP tackle is per-upstream standing config.
 
 == Open forks (the mulling surface)
@@ -96,7 +115,8 @@ ships, never alongside it.
 
 == Sources (provenance, not authority)
 
-* ₣Ah paddock, Vocabulary § Tackle / Blaze; design pace ₢AhAAO — the maximal tackle this MVP
-  defers.
+* Retired heat jjk-v4-4-school-breeze-founding (₣Ah) — its paddock's tackle/blaze vocabulary
+  and its tackle design docket, the maximal layer banked above; the execution context is recast
+  in the breeze aspirant sheaf (JJSAB).
 * ACG (Allocation Coding Guide) — the several-domains observation.
 * Chat gamma-fable-regional-gallops (260704) — the MVP re-scope and pedigree-sibling placement.
