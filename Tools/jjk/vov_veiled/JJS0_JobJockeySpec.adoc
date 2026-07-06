@@ -29,7 +29,7 @@
 // jjdxf_: Fundus profiles (test infrastructure configurations)
 // jjdxw_: Window emblem overlay (per-window labels, references, resolution)
 // jjdw_:  World model (revision-control cosmology: the infield and its residents)
-// jjdb_:  Blotter store vocabulary (the locked store, its guidon, journal ceremony, break sequence)
+// jjdb_:  Blotter store vocabulary (the locked store, its guidon, journal ceremony, break sequence; the studbook instance, its pedigree and counterfoil)
 // jjdd_:  Dispatch layer vocabulary (doors, billet lifecycle, sweep; reserved at census 260705 for aspirant infusion)
 // jjdf_:  Farrier driver vocabulary (trait, op census, error kinds; reserved at census 260705 for aspirant infusion)
 // jjdk_:  Key premises (design constraints)
@@ -235,14 +235,20 @@
 :jjdw_infield:       <<jjdw_infield,Infield>>
 :jjdw_yard:          <<jjdw_yard,jjy_ family>>
 
-// Blotter store (locked-store entity; journal ceremony + break sequence)
+// Blotter store (locked-store entity; journal ceremony + break sequence; studbook instance)
 :jjdb_blotter:    <<jjdb_blotter,Blotter>>
 :jjdb_blotter_p:  <<jjdb_blotter,Blotter's>>
 :jjdb_blotter_s:  <<jjdb_blotter,Blotters>>
 :jjdb_break:      <<jjdb_break,Break sequence>>
+:jjdb_counterfoil:    <<jjdb_counterfoil,Counterfoil>>
+:jjdb_counterfoil_s:  <<jjdb_counterfoil,Counterfoils>>
 :jjdb_guidon:     <<jjdb_guidon,Guidon>>
 :jjdb_guidon_s:   <<jjdb_guidon,Guidons>>
 :jjdb_journal:    <<jjdb_journal,Journal ceremony>>
+:jjdb_pedigree:   <<jjdb_pedigree,Pedigree>>
+:jjdb_pedigree_s: <<jjdb_pedigree,Pedigrees>>
+:jjdb_studbook:   <<jjdb_studbook,Studbook>>
+:jjdb_studbook_p: <<jjdb_studbook,Studbook's>>
 
 // Operations
 :jjdo_relocate:          <<jjdo_relocate,jjx_relocate>>
@@ -1006,6 +1012,9 @@ Terms drawn from horse racing — the competitive, forward-driving aspect of ini
 * {jjsuv_rail} — reorder paces. The rail governs position on the track — who runs where.
 * {jjdw_hippodrome} — a vanilla work clone. The ancient racecourse — the consumer's own ground the racing runs on; JJ visits, never moves in.
 * {jjdw_infield} — the peer ring holding every JJ-managed tree. The enclosed interior of the track — one shared ground, every structure a sibling on it.
+* {jjdb_studbook} — the regional record repo. The breed society's one authoritative register — kept apart from the track, recording every line so no race depends on memory.
+* {jjdb_pedigree} — the per-upstream record within the studbook. The lineage entry — what stock a clone descends from and how it must be handled.
+* {jjdb_counterfoil} — the journaled stub naming issued work. The retained half of the race-day ticket — the book keeps the stub, the ticket circulates.
 
 === Dressage Vocabulary
 
@@ -3351,6 +3360,9 @@ include::JJSVB-blotter.adoc[leveloffset=+2]
 
 //axvd_cartouche axd_normative axd_routine
 include::JJSVJ-journal.adoc[leveloffset=+2]
+
+//axvd_cartouche axd_normative axd_entity
+include::JJSVS-studbook.adoc[leveloffset=+2]
 
 == Aspirant Nucleations
 

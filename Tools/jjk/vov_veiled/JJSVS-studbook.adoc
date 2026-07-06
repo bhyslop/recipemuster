@@ -1,0 +1,97 @@
+//axvd_sheaf axd_normative axd_entity
+This is a normative entity sheaf of the {jjs0_imprimatur}: binding — code, tests, and decisions may rely on it.
+
+= Studbook
+
+The regional record repo: the {jjdb_blotter_p} first instance, and the physical vessel of the
+{jjdgr_gallops}.
+Store mechanics — the lock ref and its {jjdb_guidon}, the write bracket, the break sequence —
+are the {jjdb_blotter_p} contract and the journal sheaf's sequences;
+this sheaf homes the tenant: what the {jjdb_studbook} holds, and how its entries know the work
+they record.
+
+[NOTE]
+====
+*Forward references.* The farrier, its kind parameters, and its ops (`refit`,
+`counterfoil_verify`), the tackle bindings, and the billet are census-minted words (260705)
+whose binding sheaves land after this one;
+where such a word appears below it reads as a forward reference to a forthcoming contract
+home, not a citation.
+====
+
+== The entity
+
+[[jjdb_studbook]]
+//axo_entity
+{jjdb_studbook}::
+The regional record repo — one {jjdb_blotter} serving every station and every jockeyed
+project.
+The {jjdgr_gallops} stays the live state-concept;
+the {jjdb_studbook} is the physical vessel that holds it.
+As a {jjdb_blotter} it is linear, single-writer-under-lock, and engine-driven:
+every write passes through the {jjdb_journal} ({jjdk_sole_door}),
+reads take no lock ({jjdk_lockless_reads}),
+and its own coordinates are engine-known, never pedigree-resolved.
+
+== Pedigree
+
+[[jjdb_pedigree]]
+{jjdb_pedigree}::
+The per-upstream record: one {jjdb_pedigree} per hippodrome upstream type, keyed by origin
+URL, stored in the {jjdb_studbook} — the {jjdb_studbook} is a register of {jjdb_pedigree_s}.
+A new upstream needs a founding {jjdb_pedigree} entry before JJ serves it — a deliberate
+ceremony;
+the derivation chain that consumes the entry is world model, homed in the cosmology sheaf.
+
+Each {jjdb_pedigree} carries:
+
+* the farrier kind — which revision-control driver serves clones of this upstream — and its
+  parameters (trunk name, remotes posture);
+* tackle bindings (file scope → governing discipline) as sibling entries;
+* reserved, parked: a per-upstream edit-scope wildcard list, if billets-per-pace ever prove
+  insufficient for collision avoidance.
+
+== Counterfoil
+
+[[jjdb_counterfoil]]
+{jjdb_counterfoil}::
+The retained stub every journaled entry carries, naming the issued work:
+a member→SHA manifest — one-element for a single repo, generalizing unchanged to submodule
+and multi-repo constellations — annotated with branch and a dirty flag.
+The reference is deliberately one-way:
+the {jjdb_studbook} points at the {jjdw_hippodrome}, never the reverse.
+The only hippodrome-side mark is the session-id commit trailer,
+a denormalized cache justified by query convenience, never by recoverability.
+
+*Rebase soft spot (known, accepted):*
+a rebase after journaling rewrites SHAs and dangles the {jjdb_counterfoil} —
+degraded provenance, not corruption; nothing downstream builds on it.
+Convergence discipline already prefers merge over rebase, which preserves
+{jjdb_counterfoil_s};
+billet branches never rebase (refit is merge-based, farrier sheaf),
+closing the gap structurally where billets are used.
+An optional `counterfoil_verify` op (deferred past MVP, farrier sheaf) turns a dangling
+{jjdb_counterfoil} from a silent lie into a flagged one.
+
+== What never enters the record
+
+The {jjdb_studbook} is a regional record; a worktree path is a station-local fact.
+*No worktree path is ever written into the {jjdb_studbook}* —
+issued work is named by member, SHA, and branch, never by filesystem location.
+The proposition classifies as a rivet (census 260705);
+its opaque tail mints at implementation, citing this section.
+
+== Journal entries as commits
+
+Every {jjdgr_gallops} mutation is one {jjdb_journal} bracket, so every mutation *is* a git
+commit.
+The commit message may carry the plan in gazette notice format as a review surface for
+`git log`;
+the JSON in the {jjdgr_gallops} is truth, the message a denormalized presentation.
+
+== Scope at birth
+
+First tenant: the {jjdgr_gallops} only.
+Captured chat histories and action-choices are the *intended second tenant*, deferred;
+their contract — including the chat↔commit correlation — stays aspirant with them
+(`JJS-aspirant-state-repo.adoc`).
