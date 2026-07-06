@@ -8284,8 +8284,8 @@
         "₢BrAAG": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260705-1634",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260706-0828",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "## Character",
                 "",
@@ -8306,7 +8306,7 @@
                 "The chapbook's farrier facet flags harden."
               ],
               "jjgtn_silks": "farrier-entity-sheaf",
-              "jjgtn_basis": "d432287"
+              "jjgtn_basis": "34975fd"
             }
           ]
         },
