@@ -1,4 +1,4 @@
-# Paddock: jjk-v4-vision
+## Paddock: jjk-v4-vision
 
 ## Current Design
 
@@ -39,7 +39,7 @@ Quirt `ꝖABC` identifies an immutable gait snapshot. When a gait evolves, a new
 | **School** | Per-pace planning phase. Produces concrete beat table entries from docket + codebase investigation. Opus-tier, high human attention. See Four Phases for detail. |
 | **Breeze** | Execution phase. jjx dispatches beats per chukker via OAuth-authenticated Claude Code instances. Zero human attention. See Four Phases for detail. |
 | **Corral** | Per-pace review verb (parallels mount). Reviews composed pace outcome (not individual beats). Three outcomes: accept, refine + accept, or reject. No rebreeze — rejection flows upstream. See Four Phases for detail. |
-| **Tackle** | Named resource bundle within a heat. Silks-identified, mutable. Contains ₿-named file scopes (blazes mapping symbolic names to file paths/globs), ₿-named actions (command + exclusivity), gait affinities, and read-also entries. Tackles let dockets and gaits reference files indirectly — school resolves ₿ references to concrete paths when building beat warrants. Tackle's build/test/integrity-check declarations inform school's chukker boundary decisions. |
+| **Tackle** | Core definition homed in the aspirant sheaf `Tools/jjk/vov_veiled/JJS-aspirant-tackle.adoc` (scope→discipline binding; one word, one concept — that MVP core is the floor this heat's maximal tackle extends, and this paddock no longer restates it). ₣Ah's extension layer, homed here: ₿-named file scopes (blazes), ₿-named actions (command + exclusivity), gait affinities, read-also entries. School resolves ₿ references to concrete paths when building beat warrants; tackle's build/test/integrity-check declarations inform school's chukker boundary decisions. |
 | **Blaze** | Symbolic file/resource reference defined by a tackle. Notation: `₿guide-doc`. Tackles own blaze definitions; dockets and gaits reference them. School resolves blazes to concrete paths in warrants — breeze never sees ₿ symbols, only resolved paths. Global uniqueness within a heat. |
 
 ### Three Naming Regimes
@@ -225,7 +225,7 @@ Accumulated across groom sessions.
 
 ### Gallops Registries
 - **Gaits registry**: Top-level gallops key, keyed by quirt. Fields TBD.
-- **Tackles as resource bundles**: Top-level gallops key. Silks-identified, mutable. Contains blaze definitions, actions, gait affinities.
+- **Tackles as resource bundles**: Top-level gallops key. Silks-identified, mutable. Contains blaze definitions, actions, gait affinities. Extension-layer schema only: the standing scope→discipline base is pedigree-side per the aspirant tackle sheaf's provisional layering — reconcile at the tackle/blaze design pace, which inherits the sheaf as its floor.
 - **Blaze identity (₿)**: Not a global identity — scoped to tackle, resolved by school.
 
 ## Still Open
