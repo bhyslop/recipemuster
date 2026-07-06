@@ -101,6 +101,7 @@
 :axd_fact:                            <<axd_fact,Fact>>
 :axd_tally:                           <<axd_tally,Tally>>
 :axd_algebraic:                       <<axd_algebraic,Algebraic>>
+:axd_ordinal:                         <<axd_ordinal,Ordinal>>
 :axd_temporal:                        <<axd_temporal,Temporal>>
 :axd_insignia:                        <<axd_insignia,Insignia>>
 :axd_transient:                       <<axd_transient,Transient>>
@@ -1797,10 +1798,11 @@ qualify
 voicings to declare a minted identity mark.
 {axd_insignia}
 names the character;
-the encoding-nature pair
+the encoding natures
 ({axd_algebraic},
+{axd_ordinal},
 {axd_temporal})
-names how a value is minted,
+name how a value is minted,
 and exactly one nature must accompany every
 {axd_insignia}.
 
@@ -1814,7 +1816,8 @@ as a minted identity value: a fixed-format encoded string, set at construction a
 Requires an explicit
 {axd_immutable}
 beside it — the phase is declared, never implied — and exactly one encoding-nature:
-{axd_algebraic}
+{axd_algebraic},
+{axd_ordinal},
 or
 {axd_temporal}.
 The identity is the bare encoded body.
@@ -1830,12 +1833,36 @@ A
 {axd_dimension}
 indicating seed-derived positional encoding for an
 {axd_insignia}
-entity.
-Characters drawn from a fixed alphabet; fixed digit count; minted from a monotonic seed incremented under lock.
+entity over exactly the 64-character URL-safe base64 alphabet
+(RFC 4648 §5: `A`–`Z`, `a`–`z`, `0`–`9`, `-`, `_`; position is value, `A`=0 through `-`=62 and `_`=63; case distinguishes).
+The alphabet is the nature's own, never the consuming domain's to vary:
+a domain catalogues its operational charset quoin but may not substitute another alphabet —
+a different encoding is a different nature.
+Fixed digit count; minted from a monotonic seed incremented under lock.
 Digit count is the primary type discriminator within a family;
 where two members share a count, an out-of-alphabet sentinel character at a fixed position disambiguates,
 and the consuming domain model names the sentinel.
 Hierarchical embedding via prefix substring: a child identity's leading characters are the parent identity's value.
+
+[[axd_ordinal]]
+{axd_ordinal}::
+A
+{axd_dimension}
+indicating decimal sequential encoding for an
+{axd_insignia}
+entity: base-ten digits, monotonic per store, allocated under the store's single-writer lock.
+The value is a denormalized label aliasing an underlying identity —
+the underlying identity stays truth, and the label is baked once at allocation, never recomputed.
+Width is pinned by founding value, not zero-padding:
+the seed founds at a leading-digit boundary sized to the store's write-rate horizon,
+so lexicographic and numeric order agree until natural width growth,
+and distinct stores found at distinct leading-digit × width pairs.
+No hierarchical embedding.
+Decimal digits are members of the
+{axd_algebraic}
+alphabet, so an ordinal body never circulates glyphless:
+machine contexts carry the underlying identity,
+and — tightening the general insignia input posture — any ingestion path requires the glyph.
 
 [[axd_temporal]]
 {axd_temporal}::
@@ -3854,7 +3881,8 @@ optional
 which requires
 {axd_immutable}
 and exactly one encoding-nature
-({axd_algebraic}
+({axd_algebraic},
+{axd_ordinal},
 or
 {axd_temporal}).
 
