@@ -9390,8 +9390,8 @@
         "₢BrAAD": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260705-1634",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260706-0714",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "## Character",
                 "",
@@ -9408,7 +9408,7 @@
                 "the chapbook's journal-ceremony and blotter flags harden."
               ],
               "jjgtn_silks": "blotter-journal-sheaves",
-              "jjgtn_basis": "d432287"
+              "jjgtn_basis": "ae45626"
             }
           ]
         },
