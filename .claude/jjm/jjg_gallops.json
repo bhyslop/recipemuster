@@ -9420,8 +9420,8 @@
         "₢BtAAK": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260706-0801",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260706-0832",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "## Character",
                 "",
@@ -9459,7 +9459,7 @@
                 "and every anchor minted in `Tools/rbk/rbyc_common.sh` resolves in README.md."
               ],
               "jjgtn_silks": "readme-identity-single-telling",
-              "jjgtn_basis": "ba3c45d"
+              "jjgtn_basis": "86a76c8"
             }
           ]
         },
