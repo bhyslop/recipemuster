@@ -1,0 +1,87 @@
+//axvd_sheaf axd_normative axd_cosmology
+This is a normative cosmology sheaf of the {jjs0_imprimatur}: binding — code, tests, and decisions may rely on it.
+
+= Revision-Control Cosmology
+
+The world model of the revision-control substrate: the shared gestalt the sibling contract
+sheaves — store, driver, dispatch — assume and none restates.
+
+[NOTE]
+====
+*Forward references.* The studbook, pedigree, billet, farrier, and the dispatch verbs are
+census-minted words (260705) whose binding sheaves land after this one; where such a word
+appears below it reads as a forward reference to a forthcoming contract home, not a citation.
+The words catalogued *here* — {jjdw_infield}, {jjdw_hippodrome}, {jjdw_yard} — bind now.
+====
+
+== The world model
+
+Job Jockey's own record — the {jjdgr_gallops}, and later the captured chat histories — lives
+in a git repository *separate from the code being jockeyed and global across stations*: the
+studbook, whose entity contract is its own sheaf.
+Work happens in vanilla clones of consumer projects ({jjdw_hippodrome_s}) and their transient
+per-pace worktrees (billets), all peers in one parent directory (the {jjdw_infield}).
+A polymorphic revision-control driver (the farrier) fits the same JJ intent to whatever ground
+each repo runs on.
+
+JJ launched anywhere derives everything it needs from where it stands:
+origin URL → pedigree → farrier kind, trunk posture, tackle bindings.
+One derivation chain, no per-repo pointers, no clone-local state.
+The trunk of a {jjdw_hippodrome} belongs to the operator alone — JJ works in billets and
+records in the studbook, and never handles the operator's serializing branch.
+
+== Why decouple
+
+Four recorded pressures, each dissolved structurally rather than patched:
+
+* *Contamination.* Co-residence makes JJ bookkeeping commits part of the work repo's history
+  and advances its HEAD — the recorded symptom is the pensum-seed eviction (JJ commits
+  advanced HEAD past origin and tripped foray's curia-readiness guard).
+  A separate repo dissolves the whole contamination class, not one instance.
+* *Merge relief.* Across synced clones, every {jjdgr_gallops} change is a 3-way merge of
+  canonical JSON; a single global record edited under a lock has no cross-clone merge at all.
+* *Identity collision.* Distributed next-free {jjdt_coronet} allocation across divergent
+  clones deterministically double-mints (the ₢BfAA3 incident,
+  `Memos/memo-20260702-jjk-gallops-coronet-collision-incident.md`).
+  One record behind one lock means one seed — the collision class dies at the root.
+* *Vanilla hippodromes.* State out of the work repo is what lets a work repo carry no JJ
+  inserts at all ({jjdw_hippodrome}).
+
+== Infield
+
+[[jjdw_infield]]
+{jjdw_infield}::
+The peer ring: one parent directory holding every JJ-managed tree as a sibling.
+Residents: the kit repo and the studbook (both {jjdw_yard} dirnames), consumer
+{jjdw_hippodrome_s} and their transient billets, and the BUK station family
+(`../station-files/burs.env`, `../logs-buk`, `../temp-buk`, `../output-buk`), which already
+resolves to this level — every peer tree shares station geography with zero setup.
+Infield-peer placement is therefore load-bearing: nesting a tree deeper breaks the station
+geography.
++
+The {jjdw_infield} is a plain directory, not a repository.
+Because JJ's own residents land here rather than inside any repo, no repo needs a JJ
+gitignore entry — the infield tracks nothing, and nothing JJ owns ever lands in a
+{jjdw_hippodrome}.
+
+[[jjdw_yard]]
+{jjdw_yard}::
+The `jjy_` dirname brand (mnemonic: yard) marking JJ-owned residents of the {jjdw_infield}.
+Charter (widened 260705): *all* JJ-owned infield residents carry it — the repos
+(`jjy_app` the kit repo, `jjy_studbook` the record repo) and JJ's launcher scripts
+(dispatch sheaf).
+The split is yard-side vs. wire-side legibility: `jjy_` names what the operator touches on
+disk; `jjx_` names the MCP wire.
+{jjdw_hippodrome_s} stay consumer-named — the brand marks JJ's own residents only.
+
+== Hippodrome
+
+[[jjdw_hippodrome]]
+{jjdw_hippodrome}::
+A work clone JJ operates from — a vanilla clone of a consumer project, carrying *no JJ
+inserts*: no committed dossier, no `.claude/jjm` state, no JJK includes.
+A vanilla external project is a working {jjdw_hippodrome} the moment its pedigree exists.
+Identity is the directory name — there is no clone-local state at all (v1 ruling) — and the
+upstream key is the clone's origin URL.
+Several clones of one upstream are several {jjdw_hippodrome_s}: the operator's standing
+concurrent-parallel-clone work model is preserved, not replaced.

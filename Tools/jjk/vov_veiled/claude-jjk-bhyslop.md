@@ -30,6 +30,7 @@ distributed to consumer projects.
 - **JJSRSV** → `jjk/vov_veiled/JJSRSV-save.adoc`
 - **JJSRWP** → `jjk/vov_veiled/JJSRWP-wrap.adoc`
 - **JJSTF** → `jjk/vov_veiled/JJSTF-test-fundus.adoc` (Test Fundus — fundus scenario profiles and preflight contracts)
+- **JJSVC** → `jjk/vov_veiled/JJSVC-cosmology.adoc` (Revision-Control Cosmology — normative cosmology sheaf: the world model of the revision-control substrate (infield peer ring, hippodrome, yard family, why-decouple), mounted in JJS0's Revision Control region; homes the `jjdw_` quoin category. First member of the **JJSV*** family (V: revision-control) — the destination-sheaf family of the studbook–farrier MVP, non-terminal, siblings landing as the aspirant nucleations drain.)
 - **JJW**  → `jjk/jjw_workbench.sh` (workbench)
 
 ### B. Foray Protocol — Fundus constants (rbm values)

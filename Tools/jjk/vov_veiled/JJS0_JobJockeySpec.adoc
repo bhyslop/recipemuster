@@ -28,6 +28,7 @@
 // jjdxpe_: Pensum report states (liveness enum)
 // jjdxf_: Fundus profiles (test infrastructure configurations)
 // jjdxw_: Window emblem overlay (per-window labels, references, resolution)
+// jjdw_:  World model (revision-control cosmology: the infield and its residents)
 // jjdb_:  Blotter store vocabulary (locked-store entity; reserved at census 260705 for aspirant infusion)
 // jjdd_:  Dispatch layer vocabulary (doors, billet lifecycle, sweep; reserved at census 260705 for aspirant infusion)
 // jjdf_:  Farrier driver vocabulary (trait, op census, error kinds; reserved at census 260705 for aspirant infusion)
@@ -227,6 +228,12 @@
 :jjdxw_hatchment_s:  <<jjdxw_hatchment,Hatchments>>
 :jjdxw_marque:    <<jjdxw_marque,Marque>>
 :jjdxw_marque_s:  <<jjdxw_marque,Marques>>
+
+// World model (revision-control cosmology)
+:jjdw_hippodrome:    <<jjdw_hippodrome,Hippodrome>>
+:jjdw_hippodrome_s:  <<jjdw_hippodrome,Hippodromes>>
+:jjdw_infield:       <<jjdw_infield,Infield>>
+:jjdw_yard:          <<jjdw_yard,jjy_ family>>
 
 // Operations
 :jjdo_relocate:          <<jjdo_relocate,jjx_relocate>>
@@ -986,6 +993,8 @@ Terms drawn from horse racing — the competitive, forward-driving aspect of ini
 * {jjsuv_furlough} — alter heat status. A horse temporarily withdrawn from racing — not retired, not scratched, resting.
 * {jjsuv_retire} — archive a completed heat. The horse leaves the racing life — honored, not discarded.
 * {jjsuv_rail} — reorder paces. The rail governs position on the track — who runs where.
+* {jjdw_hippodrome} — a vanilla work clone. The ancient racecourse — the consumer's own ground the racing runs on; JJ visits, never moves in.
+* {jjdw_infield} — the peer ring holding every JJ-managed tree. The enclosed interior of the track — one shared ground, every structure a sibling on it.
 
 === Dressage Vocabulary
 
@@ -3315,6 +3324,16 @@ Current behavior:
 . Next {jjdr_save} writes V4 format
 
 The frozen V3 types in `jjrt_v3_types.rs` capture the V3 schema for reference when V4 type changes are implemented.
+
+== Revision Control
+
+Job Jockey's record, decoupled from the repos it jockeys.
+The subdocument below is the world model — the shared gestalt of the revision-control sheaf
+family; its sibling contract sheaves (store, driver, dispatch) accrete here as each lands,
+draining the aspirant nucleations durable-first.
+
+//axvd_cartouche axd_normative axd_cosmology
+include::JJSVC-cosmology.adoc[leveloffset=+2]
 
 == Aspirant Nucleations
 
