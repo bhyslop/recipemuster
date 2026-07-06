@@ -10097,11 +10097,12 @@
         "₢BtAAC",
         "₢BtAAD",
         "₢BtAAE",
+        "₢BtAAK",
         "₢BtAAA",
         "₢BtAAF",
         "₢BtAAG"
       ],
-      "jjghn_next_pace_seed": "AAK",
+      "jjghn_next_pace_seed": "AAL",
       "jjghn_paces": {
         "₢BtAAA": {
           "jjgpn_tacks": [
@@ -10471,6 +10472,46 @@
               ],
               "jjgtn_silks": "axla-quoin-lane-voicing",
               "jjgtn_basis": "329cd3c"
+            }
+          ]
+        },
+        "₢BtAAK": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260706-0721",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "",
+                "Mechanical README edit under the cinched rule below; Opus-tier — apply the rule, don't redesign the model.",
+                "",
+                "## Docket",
+                "",
+                "README.md tells the federated identity model in three regions:",
+                "the Foundry Lifecycle role table and role narrative,",
+                "the Establishment and Provisioning / Admission and Access subsections,",
+                "and the \"Identity and Admission\" appendix.",
+                "Drift breeds in the retellings —",
+                "the Affiance/Jilt staleness fixed at the prior pace lived in exactly this duplication.",
+                "",
+                "## Cinched",
+                "",
+                "The appendix entry is the single home for every identity fact",
+                "(token mechanics, binding and role names, session windows, ordering rules, idempotency claims).",
+                "Narrative regions keep story flow — who acts, and why it matters — and defer every fact to its linked term:",
+                "rewrite narrative fact-sentences down to story plus link; add no new facts anywhere.",
+                "Never remove or rename an `<a id=...>` anchor — handbooks yawp-link them.",
+                "",
+                "## Done when",
+                "",
+                "Each identity fact is stated in exactly one appendix entry;",
+                "narrative regions read as story with linked terms;",
+                "the anchor sweep still passes:",
+                "every `](#X)` reference has a matching `<a id=\"X\">`,",
+                "and every anchor minted in `Tools/rbk/rbyc_common.sh` resolves in README.md."
+              ],
+              "jjgtn_silks": "readme-identity-single-telling",
+              "jjgtn_basis": "9bff517"
             }
           ]
         }
