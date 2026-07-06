@@ -10099,11 +10099,12 @@
         "₢BtAAE",
         "₢BtAAK",
         "₢BtAAL",
+        "₢BtAAM",
         "₢BtAAA",
         "₢BtAAF",
         "₢BtAAG"
       ],
-      "jjghn_next_pace_seed": "AAM",
+      "jjghn_next_pace_seed": "AAN",
       "jjghn_paces": {
         "₢BtAAA": {
           "jjgpn_tacks": [
@@ -10550,6 +10551,45 @@
               ],
               "jjgtn_silks": "readme-roadmap-promise-trim",
               "jjgtn_basis": "5ef3914"
+            }
+          ]
+        },
+        "₢BtAAM": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260706-0738",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "",
+                "Mechanical README restructure under the cinched shape; Opus-tier.",
+                "",
+                "## Docket",
+                "",
+                "Lode prose is scattered across README:",
+                "Foundry sections (Lode, Touchmark, Reliquary) plus Supply Chain appendix entries (Capture, Conclave, Ensconce).",
+                "Consolidate into one section owning all lode prose —",
+                "landing descriptions for yawps, never first-class treatment of every verb.",
+                "",
+                "## Cinched",
+                "",
+                "One Lode home section holds every lode term at one-to-two sentences per anchor.",
+                "Preserve every existing `<a id=...>` anchor by moving it into the section —",
+                "anchors may share a section, so the yawp seam is untouched.",
+                "Add a one-sentence roll-call with anchors for the uncovered lode verbs",
+                "(Divine, Augur, Presage, Banish, Underpin, Immure)",
+                "so any future yawp has a landing without expanding the prose.",
+                "Every other README mention of lodes reduces to links into the section.",
+                "",
+                "## Done when",
+                "",
+                "One section owns all lode prose;",
+                "every prior lode anchor still resolves;",
+                "the roll-call anchors exist;",
+                "the anchor sweep passes — every `](#X)` reference has a matching `<a id=\"X\">`."
+              ],
+              "jjgtn_silks": "readme-lode-single-section",
+              "jjgtn_basis": "ad44374"
             }
           ]
         }
