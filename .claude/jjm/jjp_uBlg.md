@@ -131,6 +131,31 @@ File-role layer: atop the allowlist + git-tracked candidate gate, a path carries
 Memos are the first reference-only case: excluded from the MVP declaration scan, with a removal condition — they re-enter as a reference corpus when TRACE lands in ₣Bj, because a memo citing an old name is a reference a rename should know about.
 `.md` is the heterogeneous class that forces this layer — prose, index-of-record, and generated output cannot be scanned as one thing.
 
+## Worked seed — a chapbook marker-law checker (memo, 260705)
+
+Operator-directed capture of a validator written and discarded in the README-currency heat (₣Bt), during the provenance-chapbook ratification pace: a ~120-line Python script that mechanically validated the chapbook sheaf's annotation skeleton against AXLA's hierarchy-chapbook law.
+It is this paddock's concerns made concrete — a per-vesture line-pattern recognizer that proved sufficient without any AST or resolution — so its shape is recorded here as evidence and feedstock; the script itself lived in session scratchpad and is gone (deliberately unhomed: minting it a durable home is validator-inventory design work, not a ratification pace's).
+
+Mechanics, sufficient to rebuild in an hour:
+each `//ax…` annotation line opens a read window that the next annotation line closes;
+within a window the backtick-token stream and the attribute-reference stream are collected independently (three regexes: annotation `^//(ax\w+)((?:\s+\w+)*)$`, backtick inlay, `{attr}` reference);
+declared reads consume each stream's first tokens in declared order, and tokens beyond declared arity are prose.
+Checks, essentially clause-for-clause from the AXLA law text (quoined cast voicing only; the sprued arm was not needed):
+opener carries exactly one voicing and one sprue inlay;
+venue and legend inlays lex under the opener's sprue;
+actor lanes carry exactly one kind dimension and one attribute read, with an injective cast;
+interactions read from/to/contract on the attribute stream (contract waived under a license dimension), from and to resolving only to previously declared lanes;
+legend read first on the backtick stream;
+define-before-reference ordering (actors precede interactions, venues close at the first interaction);
+open/closed vertical groups pair LIFO with the close's from-lane validated against the open's to-lane, dangling opens detected at end.
+
+Result: across 35 interactions, 8 lanes, 3 venues, and 7 groups it surfaced exactly the sheaf's one documented covenant breach with zero false positives.
+
+Bearing on this heat, three observations:
+the annotation grammar joins RCG/BCG-disciplined code as evidence that per-vesture line patterns suffice at MVP grain;
+the window-scoped two-stream read is the recognizer shape an annotation-borne vesture would need if `//ax` inscriptions ever enter the census;
+and a checker of this class is a natural Finding producer should chapbook-law validation graduate to a maintained validator — whose home (matricula validator inventory versus CMK-side tooling) is a future determination, deliberately not cinched here.
+
 ## Near consumer — the integrity check
 
 One downstream consumer stays in view because it constrains the binary architecture now: a paddock/docket integrity check at mount and groom, validating that an artifact's references still resolve.
