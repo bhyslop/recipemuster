@@ -9631,9 +9631,151 @@
       "jjghn_silks": "rbk-09-readme-membrane",
       "jjghn_creation_time": "260706",
       "jjghn_status": "jjghe_racing",
-      "jjghn_order": [],
-      "jjghn_next_pace_seed": "AAA",
-      "jjghn_paces": {}
+      "jjghn_order": [
+        "₢BxAAA",
+        "₢BxAAB",
+        "₢BxAAC",
+        "₢BxAAD"
+      ],
+      "jjghn_next_pace_seed": "AAE",
+      "jjghn_paces": {
+        "₢BxAAA": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260706-1724",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "High-craft authoring against cinched design; the judgment is spent — do not reopen the mints.",
+                "Implementation model: Opus (operator direction).",
+                "",
+                "## Shape",
+                "Author the new subsection of MCM `== Lapidary` (following Exposure) that homes the face treatment:",
+                "mint mcm_revetment and mcm_spall into the masonry asterism,",
+                "state the four-invariant face law,",
+                "and carry the recursion clause — the revetment vocabulary never appears on a revetment.",
+                "Mints, non-mints, and law are cinched in the paddock;",
+                "exactly two quoins — a felt need for a third is stop-and-surface.",
+                "Match the register of the adjacent Exposure definitions (ashlar, bondstone, hearting are the exemplars);",
+                "linked-term structure and mapping-section registration per MCM's own patterns;",
+                "no rationale restatement in definition text.",
+                "Cold-probe the final definition text with the operator before landing.",
+                "Resolve inside this pace: whether the face-law invariants mint as rivets now",
+                "(MCM has no rivet family yet) or stay prose until the lint cites them — lean prose-until-cited.",
+                "",
+                "## Done when",
+                "The subsection stands in MCM with both quoins fully catalogued,",
+                "the law and recursion clause stated,",
+                "and the operator has ratified the prose."
+              ],
+              "jjgtn_silks": "mint-revetment-subsection",
+              "jjgtn_basis": "57d98a9"
+            }
+          ]
+        },
+        "₢BxAAB": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260706-1724",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "One-screen additive edit under the RoE covenant;",
+                "content was ratified in the founding design conversation (260706).",
+                "Implementation model: Opus (operator direction).",
+                "",
+                "## Shape",
+                "Add the publication edge to the interior-disciplines relationship in claude-cmk-roe-detail.md:",
+                "Interface Contamination guards the input edge,",
+                "the Palisade membrane the foreign outcome edge,",
+                "the revetment the publication edge — fully sovereign both sides, the system's only transmitting membrane.",
+                "Distinguish from the veil family (VOr_q4f):",
+                "the veil decides which files leave; the face decides what a leaving file may say.",
+                "Cite MCM Lapidary as the vocabulary home; restate no definitions.",
+                "Weigh a one-line mention in the always-on claude-cmk-roe.md",
+                "and settle that call with the operator in-session — the covenant bars unilateral edits.",
+                "",
+                "## Done when",
+                "The detail doc carries the third edge with the MCM citation,",
+                "the always-on question is decided with the operator,",
+                "and no vocabulary is restated outside MCM."
+              ],
+              "jjgtn_silks": "stitch-roe-publication-edge",
+              "jjgtn_basis": "57d98a9"
+            }
+          ]
+        },
+        "₢BxAAC": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260706-1724",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "Mechanical batteries with operator-ratified verdicts;",
+                "the audit proposes, the operator decides.",
+                "Implementation model: Opus (operator direction).",
+                "",
+                "## Shape",
+                "Designate README.md as RB's revetment beside the broadside designation in CLAUDE.md",
+                "(the broadside precedent for instance designations; surface the canonical-home question if it snags).",
+                "Decide with the operator whether the public project page is a second revetment now or later.",
+                "Run the by-hand audit as the ratification oracle:",
+                "the inscription battery (seated interior names, rivet IDs, veiled paths — against README);",
+                "the word-surface battery (the lapidary meta-register and interior quoin words as words —",
+                "derive the list from the MCM/AXLA/VOS0 mapping sections and the CLAUDE.md tables);",
+                "the anchor sweep (every ](#X) resolves to a declared <a id=\"X\">; orphaned anchors noted).",
+                "Deliver classified hit tables with proposed verdicts — leak, innocent homograph, or sanctioned ashlar;",
+                "verdicts land with the operator.",
+                "Durable residue (an accepted-homograph roster the future lint needs) goes to this heat's paddock as shape;",
+                "the run record is the commit.",
+                "",
+                "## Done when",
+                "The designation is committed,",
+                "the second-face question is decided,",
+                "all three batteries have run with every hit operator-verdicted,",
+                "and a clean (or cleaned) face is on record."
+              ],
+              "jjgtn_silks": "designate-audit-rb-revetment",
+              "jjgtn_basis": "57d98a9"
+            }
+          ]
+        },
+        "₢BxAAD": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260706-1724",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "Single cross-heat paddock curry through the gazette ceremony; content settled.",
+                "Implementation model: Opus (operator direction).",
+                "",
+                "## Shape",
+                "Curry ₣Bg's paddock:",
+                "add the facade lint to the placement walk its terminal fence pace performs",
+                "(re-derive that pace from jjx_show; do not trust a remembered ID),",
+                "aimed at ₣Bj —",
+                "the same conscious-placement move that paddock already makes for the reference-hygiene lint.",
+                "The banking line carries:",
+                "face files as a file-role;",
+                "the display-form README anchors as a non-cipher vesture (the \"Vesture gaps\" seat);",
+                "the inscription-leak check as a presentment producer over face files;",
+                "the anchor sweep as the second consumer of the artifact-integrity check (paddock/docket first).",
+                "State that word-surface leaks are grimoire-tier and stay deferred with the grimoire,",
+                "so the fence walk does not resurrect them.",
+                "Cite the MCM subsection this heat lands as the doctrine home; the lint cites, never restates.",
+                "",
+                "## Done when",
+                "₣Bg's paddock carries the banking line",
+                "and the fence-walk pace can place the facade lint without re-derivation."
+              ],
+              "jjgtn_silks": "bank-facade-lint",
+              "jjgtn_basis": "57d98a9"
+            }
+          ]
+        }
+      }
     }
   }
 }
