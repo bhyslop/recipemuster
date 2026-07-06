@@ -163,6 +163,38 @@ It is a join of two oracles — the Matricula for naming and path references, th
 Because JJK ships (it is the jjx server) and the Matricula must not, the standalone-binary choice forces this check to reach the Matricula by shelling out to the unshipped binary — present in the operator's repo, absent for consumers, where it degrades cleanly to the gallops-only oracle.
 The richer engagement (the ambient and gate determinations) is scoped to ₣Bj.
 
+## Empirical input — the ₣Br mint-census pace (260705)
+
+A full mint census ran by hand in ₣Br's word-picking pace;
+its experience feeds the ₢BgAAF fence walk and is banked here so the fence is drawn against field evidence, not supposition.
+
+- Frequency fact: the word-surface gate (the grimoire's mint-gate job) fired roughly twenty times;
+  the MVP seating validators would have fired once (an eviction proof).
+  Weigh at the deferred-scope walk — it re-weights what CHECK must mean, not necessarily the grimoire's deferral.
+- The gate's pass criterion was never zero hits but all-hits-classified: provenance, aspirant surface, or incidental prose.
+  The file-role layer wants provenance-corpus (Memos, retired heats, chat-archive — one gate dumped 101KB of archive JSONL)
+  and data/dictionary (APCK wordlists) roles,
+  plus a bindingness stratum read mechanically from the axvd_sheaf genre line,
+  so CHECK answers free / taken-binding / taken-aspirant / prose-echo(n).
+- A third seating state is real: *reserved* — dormant paper allocations
+  (README prefix tables; JJS0 legend lines reserved-at-census)
+  bind CHECK without being in-use inscriptions.
+- CHECK needs a word-part index over seated inscriptions, not the prefix trie alone:
+  four census kills were word-parts inside larger inscriptions
+  (plant in jjx_plant, livery in RBTDRM_FIXTURE_CHAINING_LIVERY, blazon in buz_blazon, escutcheon in axvs_escutcheon).
+- Troddenness has a mechanical advisory signal: raw prose hit-frequency
+  (stall and dress died on count-shaped evidence).
+  Report counts, never judge — VOr_m7w holds.
+- Negative evidence: semantic-field adjacency (lodge against the billet's lodging gloss)
+  was pure operator judgment, ledgered in prose; nothing argues for crossing the linguistic line.
+- Tier-0 direction: the file-selection allowlist is anticipated as a projection of JJ's tackle table
+  (aspirant tackle sheaf, representation fork, 260705) —
+  one file-universe table read by a shared substrate crate for both JJ dispatch and the matricula.
+  VOSMM Tier 0 records it.
+- VOSMM's grimoire sketch was extended same-day with the self-maintaining-row mechanism,
+  the two-verdict prose lint, the retroactive-sweep obligation, the acceptance-record open question,
+  the make-room eviction-cost census, and the register tag.
+
 ## Open questions
 
 The JJK integrity-check seam — shell-out (the clean degradation, the lean) versus in-process (which would link the Matricula into the shipped `vvx` and break the secrecy boundary); and how the jjx server locates a binary that only exists on the operator's machine. Lean: shell-out, Matricula-half best-effort.
