@@ -9,6 +9,7 @@ Two wire-format-breaking schema changes ride that spine.
 The first turns tack docket text into a line array and moves tack history out of the JSON into git, keeping one edited-in-place current tack.
 The second turns validate into a normalize-and-report pass that canonicalizes the store and carries its verdict in the exit code.
 Each registers an episode against the mechanism rather than re-plumbing detection.
+A third schema change — pace bridling — is additive-only and rides no episode; its determination is recorded in Cinched below.
 
 A coda then propagates the changes to every install and retires the spent episodes — but not the mechanism.
 Multi-install schema drift is the steady state of this tool, not a transition to be ended: there is always a leading clone where a schema-impacting change lands first and lagging clones not yet converged.
@@ -26,6 +27,9 @@ An episode's demolition condition — no pre-its-schema gallops survives in any 
 The durable "deep pattern" is not a torn-down cleverness but the standing mechanism plus its governing why, stated inline here: we minimize the schemas we keep mutually readable so the migration mechanism converges rather than accumulating (Zeroes Theory's version axis). The general cross-language statement of that why is a separate, independent formalization; this heat does not depend on it.
 Schema-change paces are delivered source-only on a date-and-identity-named branch and never commit a gallops conversion; the forgiveness episode makes the new binary tolerant of the old store, so the conversion stays deferred until the coda — the sole coordinated convergence — forces and commits it across every install at once.
 Keeping schema-change source off the shared main until that convergence is what prevents a stray gallops-saving command on a freshly-built binary from persisting the conversion prematurely, ahead of the cross-install coordination.
+Bridle revival (260706): the third schema change is additive-only and registers NO episode — forgiveness exists to tolerate old stores, and an additive change leaves every old store natively readable, so a probe would have no signature; §F branch delivery is retained.
+Its strip-first step retires the bridle-retirement episode ahead of the coda — the sole-instance ruling makes that episode's demolition condition already met — freeing the retired token for clean re-mint under the grep gate.
+The provisional designation-tier vocabulary is the vendor family words carried by the model wire param; the session-tier design pace in the studbook–farrier heat (₣Br) may re-mint rung words later, a cheap value migration while one instance operates.
 
 ## Done when
 Every install runs a binary whose on-disk gallops is canonical at this heat's final schema and whose open-time nag reports every episode dormant;
