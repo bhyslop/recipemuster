@@ -67,6 +67,27 @@ The Matricula harvests these and reconciles them — flagging missing labels whe
 Two boundaries: declared collisions are assertable, semantic fit is advisory (the linguistic line); and labels must expose over-deep chains as a smell, not legitimize depth the minting discipline would flatten.
 The label is user-visible (ashlar) and needs its own MCM Lapidary mint — "gestalt label" is the working descriptor only.
 
+## Census-pace input (260705)
+
+The ₣Br mint census ran this heat's surface by hand;
+VOSMM's grimoire sketch was extended same-day and homes the detail — this block scopes what lands here when the heat wakes.
+
+- The prose/strings enquoinment lint (grimoire job 1, widened): two verdict branches —
+  a hit is a missed citation (enquoin it) or an innocent homograph (reword or formally accept);
+  detection is mechanical over grimoire rows, the branch verdict is the operator's.
+  Every new mint owes a one-time retroactive sweep of existing prose;
+  accepted homographs need a durable record (site waivers rot; lean acceptance-by-domain on the row).
+- The make-room report: TRACE-for-words —
+  a weighted eviction-cost footprint per word (code identifiers > wire keys > spec quoins > prose)
+  and the ambient low-footprint inventory of eviction-cheap seats.
+  Cost is mechanical, value is the operator's;
+  the execute half is authorship — each prose site needs a written sentence — permanently manual, never a SAFE-REPREFIX sibling.
+- LIST-by-register-tag is the coffer census; flat single tags proved sufficient across the whole census pace.
+- The self-maintaining grimoire: the mint gate's input is an authored row, appended on adoption —
+  the gate and the table maintainer are one act.
+- CHECK's field-proven answer set: free / taken-binding / taken-aspirant / prose-echo(n),
+  riding the bindingness stratum, reserved seating state, and word-part index recorded in ₣Bg's paddock.
+
 ## Open questions
 
 Gestalt-label home — one authoritative declaration per level (the umbrella's `0` home) versus distributed declarations collected and reconciled across files.
