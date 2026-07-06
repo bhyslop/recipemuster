@@ -1,0 +1,251 @@
+//axvd_sheaf axd_normative axd_entity
+This is a normative entity sheaf of the {jjs0_imprimatur}: binding — code, tests, and decisions may rely on it.
+
+= Farrier
+
+JJ's polymorphic revision-control driver: the layer that fits the same JJ intent to whatever
+ground a repo runs on.
+This sheaf is the trait's contract home: the facet split, the op census as method contracts,
+the rejection-kind taxonomy, and the {jjdf_palisade} at the trait boundary.
+The ceremonies above the trait — the {jjdb_journal}, the {jjdb_break}, the dispatch doors —
+stay JJ's;
+no driver ever owns a transaction.
+
+[NOTE]
+====
+*Forward references.* The dispatch layer — the saddle and lunge doors, the entrance spine,
+the billet entity, the refit operation, and the muck sweep — is census-minted vocabulary
+(260705) whose binding sheaf lands after this one;
+where such a word appears below it reads as a forward reference to a forthcoming contract
+home, not a citation.
+====
+
+== The entity
+
+[[jjdf_farrier]]
+//axo_entity
+{jjdf_farrier}::
+The polymorphic revision-control driver: one trait, one implementation per *farrier kind* —
+plain git in the MVP, worktrees within it; submodule and multi-repo constellations later.
+As a farrier shoes the same horse for different terrain, one driver interface serves every
+backend;
+the {jjdb_pedigree} records which farrier kind serves clones of its upstream.
+The {jjdb_studbook} itself is driven through the same interface — the degenerate single-repo
+case.
++
+The {jjdf_farrier} supplies *primitives*; the ceremonies that compose them are homed above
+the trait, and every mutating primitive fails loud and specifically — sequence composition
+is only safe on that footing.
++
+Capability is structural, never declarative: the trait splits into three facets —
+{jjdf_core}, {jjdf_lock}, {jjdf_billet} — and a farrier kind implements exactly the facets it
+can honestly serve, so a kind lacking a facet is a compile-time fact.
+The blotter carrier implements {jjdf_core} plus {jjdf_lock};
+a hippodrome-serving kind implements {jjdf_core} plus {jjdf_billet}.
+No runtime capability machinery exists in the MVP;
+the degradation ladder stays spec prose until a second farrier kind arrives.
+
+== Two axes, two generalization points
+
+The eventual backends sit on two orthogonal axes;
+each has one generalization point settled now so later rungs add without re-minting:
+
+* *Constellation axis* — what a {jjdb_counterfoil} names: one repo vs. many members.
+  Generalization point: the {jjdb_counterfoil} is always a member→SHA manifest, single-repo
+  the one-element case (canon at the studbook sheaf).
+* *Partition axis* — who writes concurrently: a shared checkout vs. isolated per-work
+  checkouts.
+  Generalization point: the billet — a root with a lifecycle.
+  A worktree is the plain-git implementation;
+  a full clone is the fallback for kinds without worktrees.
+  Every op takes an explicit repo root, so a partition is just another root — op signatures
+  never change as partition mechanics vary by kind.
+
+== The vocabulary Palisade
+
+[[jjdf_palisade]]
+{jjdf_palisade}::
+The trait surface is a vocabulary Palisade: git words stop at the driver implementation
+boundary.
+Below the trait, git vocabulary is the neighbor's own language (Palisade conduct — never
+legislate the neighbor);
+above it — toothings, specs, rejection kinds, everything a session reads — a git word is
+interface contamination.
++
+The rationale is the reflex set: a faithful-subset git name is correct only up to an
+invisible boundary, and the boundary is exactly what a lesser model does not hold —
+`commit` fires the amend/stage-all reflex, `push` fires force in a recovery scenario,
+create/delete/read fire the CRUD reflex (a failed create invites a "cleanup" delete).
+A fresh word fails loud — the session looks it up;
+a familiar word fails silent.
++
+Census names stay boring-register but git-free: distinct and vivid are different axes, and
+no asterism budget is spent below the vivid layer (`advance` and `enfold` prove the
+register).
+Any op added to the census mints under MCM Lapidary behind this Palisade.
+
+== The facets
+
+[[jjdf_core]]
+{jjdf_core}::
+The ops every farrier kind serves: orientation ({jjdf_identify}), inspection (`comb`,
+`sync_state`, `counterfoil`), deposit (`lodge`), and remote sync (`glean`, `advance`,
+`consign`).
+
+[[jjdf_lock]]
+{jjdf_lock}::
+The guidon verbs `stake`/`pluck`/`sight` over a {jjdb_blotter_p} lock ref — the
+compare-and-swap primitives composed only by the {jjdb_journal} and the {jjdb_break}.
+
+[[jjdf_billet]]
+{jjdf_billet}::
+The billet lifecycle ops `billet_create`/`billet_remove`/`enfold`, consumed by the dispatch
+doors (forthcoming sheaf).
+
+== Op census — method contracts
+
+Primitives are *capabilities, not commands* — almost none are ever human-typed.
+Two cross-cutting laws:
+every op takes its repo root explicitly and none reads the working directory (the no-cwd
+rule);
+every mutating op rejects in a named rejection kind (below), never a bare failure.
+
+=== Core facet
+
+[[jjdf_identify]]
+{jjdf_identify}::
+Resolve the tree at an explicit probe path: studbook-blind, network-silent, lock-free — the
+first link of the cosmology's derivation chain, running before any record is open.
+The consumer captures the path once (the door captures cwd);
+{jjdf_identify} itself honors the no-cwd rule.
+
+The answer is *claim-or-decline*, so {jjdf_identify} doubles as ground detection:
+the consumer probes the farrier-kind roster, and a claim names the claiming kind.
+(The dispatch spine cross-checks the claiming kind against the kind recorded in the
+{jjdb_pedigree} downstream;
+a mismatch is the spine's named rejection — record/ground drift — never
+{jjdf_identify}'s.)
+
+A claimed tree resolves exactly four things:
+
+* *root* — the tree's station-local absolute path: transient, never journaled
+  (the no-worktree-paths rivet, studbook sheaf).
+  The identity dirname derives as its basename.
+* *canonical upstream key* — the {jjdb_pedigree} key.
+  The kind owns canonicalization;
+  one key per tree — a constellation kind keys on its own upstream.
+* *seat* — primary or partition.
+  A partition seat carries its primary's root;
+  the linkage mechanics are the kind's own (worktree gitdir for plain git, a planted
+  station-local marker for full-clone fallbacks).
+* *line of work* — branch or detached: one seat-grain designation, even for constellations.
+
+{jjdf_identify} is *total* for a claimed tree: detached, mid-merge, and dirty states report
+faithfully, never reject;
+the sole failure is foreign ground (no kind claims), and all refusal policy lives in
+consumers.
+
+Deliberately excluded from the return:
+position — the member→SHA manifest shape has one home, the `counterfoil` op;
+trunk-ness — pedigree-relative and classified downstream, so the seat says primary, never
+trunk;
+dirt and staleness — `comb`'s and `sync_state`'s.
+
+`comb`::
+Comb the tree for dirt: clean/dirty, per-path — feeds clean-tree gates and explicit-list
+deposits.
+Sequence-internal.
+
+`sync_state`::
+Ahead/behind vs. the remote, from the last `glean` — never blocks on the network.
+Ambient at open and orient: the staleness warning's source.
+
+`counterfoil`::
+Take the {jjdb_counterfoil} at the tree's current position: the member→SHA manifest —
+one-element for a single repo — annotated with branch and dirty flag.
+The manifest shape's one home;
+ambient on record.
+
+`lodge`::
+Formally deposit an explicit file list with a message — no stage-all, no amend (additive
+discipline).
+Sequence-internal.
+
+`glean`::
+Gather what the remote holds: update remote-tracking state, mutate nothing local.
+Sequence-internal, opportunistic;
+the {jjdf_farrier} fetches and never merges — the refit operation (dispatch family) is the
+staleness remedy.
+
+`advance`::
+Fast-forward-only move to the remote tip;
+rejects (diverged) when fast-forward is impossible — the {jjdf_farrier} never merges toward
+a remote and never rebases.
+Composed by the {jjdb_journal}.
+
+`consign`::
+Hand a branch into the remote's custody.
+Two flavors: plain fast-forward (hippodrome branches) and atomic-under-lease
+({jjdb_blotter} content — the lease binds the push to the holder's own lock ref,
+{jjdb_journal}).
+*Never force* — the proposition classifies as a rivet (census 260705): the consign
+implementation and the lease-guarded `pluck` of the {jjdb_break} are its citation sites;
+its opaque tail mints at implementation, citing this section.
+
+`counterfoil_verify`::
+Does a journaled SHA still exist, reachable?
+*Deferred past MVP* (260704): the designed answer for when a dangling {jjdb_counterfoil}
+first annoys — merge-based refit and push-at-notch make them rare.
+
+=== Lock facet
+
+The guidon verbs, consumed only by the {jjdb_journal} and the {jjdb_break};
+sequence-internal, never operator-typed.
+The trio spends vividness below the vivid layer deliberately ({jjdf_palisade} rationale):
+create/delete/read fire the CRUD reflex exactly as push fires force, and the lock is the
+maximum-danger facet, where a reflex-firing name costs most.
+
+`stake`::
+Stake the {jjdb_guidon} in: atomically create the lock ref bearing it — the compare-and-swap
+claim — or reject (lock-held).
+
+`pluck`::
+Pluck the lock out: lease-guarded delete against an observed {jjdb_guidon}, never blind.
+
+`sight`::
+Sight whose {jjdb_guidon} flies: read the lock ref, read-only.
+
+In the entity design the held lock is an RAII guard — object lifetime is lock lifetime, and
+a nested acquire panics;
+clearing someone else's stale lock is never a guard method but the {jjdb_break}, its own
+sequence (journal sheaf).
+
+=== Billet facet
+
+`billet_create`::
+Birth a billet: seat an isolated partition — worktree for plain git, full-clone fallback for
+kinds without worktrees — on a named branch, or detached at a named position.
+
+`billet_remove`::
+Reap a billet;
+refuses on dirty.
+
+`enfold`::
+Merge trunk *into* a billet branch — never rebase;
+fail-loud on conflict, resolution belonging to the attended session.
+The bare primitive beneath the refit operation (dispatch family, forthcoming).
+
+=== Deliberately absent
+
+Trunk-ward merge (the operator's serializer — `enfold` merges only *into* billet branches),
+rebase, clone, init, log, blame: operator's hands or {jjdo_log}.
+
+== Rejection kinds
+
+One farrier-wide taxonomy of rejection *kinds*, wrapped in a context layer naming op, repo,
+and detail.
+A kind is a shared semantic fact — diverged means the same thing from `advance` or
+`consign` — so consumers branch on kind, never on message text.
+Kinds known at MVP: foreign-ground ({jjdf_identify_p} sole failure), dirty-tree, diverged,
+lock-held, lock-broken.
+A new kind must be allocated in this sheaf, and named git-free per the {jjdf_palisade}.

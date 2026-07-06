@@ -31,7 +31,7 @@
 // jjdw_:  World model (revision-control cosmology: the infield and its residents)
 // jjdb_:  Blotter store vocabulary (the locked store, its guidon, journal ceremony, break sequence; the studbook instance, its pedigree and counterfoil)
 // jjdd_:  Dispatch layer vocabulary (doors, billet lifecycle, sweep; reserved at census 260705 for aspirant infusion)
-// jjdf_:  Farrier driver vocabulary (trait, op census, error kinds; reserved at census 260705 for aspirant infusion)
+// jjdf_:  Farrier driver vocabulary (the driver entity, its three facets, the identify contract, the vocabulary Palisade)
 // jjdk_:  Key premises (design constraints)
 // jjdz_:  Serialization concerns
 // jjsz_:  Gazette entity (officium exchange files)
@@ -249,6 +249,16 @@
 :jjdb_pedigree_s: <<jjdb_pedigree,Pedigrees>>
 :jjdb_studbook:   <<jjdb_studbook,Studbook>>
 :jjdb_studbook_p: <<jjdb_studbook,Studbook's>>
+
+// Farrier driver (revision-control driver entity; facets, identify contract, vocabulary Palisade)
+:jjdf_farrier:      <<jjdf_farrier,Farrier>>
+:jjdf_farrier_p:    <<jjdf_farrier,Farrier's>>
+:jjdf_core:         <<jjdf_core,core facet>>
+:jjdf_lock:         <<jjdf_lock,lock facet>>
+:jjdf_billet:       <<jjdf_billet,billet facet>>
+:jjdf_identify:     <<jjdf_identify,identify>>
+:jjdf_identify_p:   <<jjdf_identify,identify's>>
+:jjdf_palisade:     <<jjdf_palisade,vocabulary Palisade>>
 
 // Operations
 :jjdo_relocate:          <<jjdo_relocate,jjx_relocate>>
@@ -1015,6 +1025,7 @@ Terms drawn from horse racing — the competitive, forward-driving aspect of ini
 * {jjdb_studbook} — the regional record repo. The breed society's one authoritative register — kept apart from the track, recording every line so no race depends on memory.
 * {jjdb_pedigree} — the per-upstream record within the studbook. The lineage entry — what stock a clone descends from and how it must be handled.
 * {jjdb_counterfoil} — the journaled stub naming issued work. The retained half of the race-day ticket — the book keeps the stub, the ticket circulates.
+* {jjdf_farrier} — the polymorphic revision-control driver. The smith who fits the same horse to every ground — the shoe changes, the horse does not.
 
 === Dressage Vocabulary
 
@@ -3363,6 +3374,9 @@ include::JJSVJ-journal.adoc[leveloffset=+2]
 
 //axvd_cartouche axd_normative axd_entity
 include::JJSVS-studbook.adoc[leveloffset=+2]
+
+//axvd_cartouche axd_normative axd_entity
+include::JJSVF-farrier.adoc[leveloffset=+2]
 
 == Aspirant Nucleations
 
