@@ -9366,13 +9366,14 @@
         "₢BtAAG": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260706-0750",
+              "jjgtn_ts": "260706-1047",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "## Character",
                 "",
                 "Terminal mechanical sweep — deliberately last on the rail;",
                 "relocate to stay last if later paces enroll.",
+                "Carries a small editorial tail from the agent-learner eval handoff.",
                 "",
                 "## Docket",
                 "",
@@ -9387,13 +9388,22 @@
                 "  (file-to-file: anchors minted in rbyc_common.sh plus internal `](#X)` refs against `<a id>` targets, no network),",
                 "  so the seam cannot regress silently after this heat.",
                 "",
+                "Plus the agent-learner eval handoff:",
+                "",
+                "- Absorb or explicitly decline the findings listed under",
+                "  \"Handed to the docs-integrity sweep\" in",
+                "  `Memos/memo-20260706-handbook-agent-learner-eval.md` (Disposition section);",
+                "  the ordain success-signal item needs a live ordain run (or its transcript)",
+                "  before prose is written.",
+                "",
                 "## Done when",
                 "",
                 "All three gates green in a single pass run after every other pace in this heat has wrapped;",
-                "the anchor gate stands in qualify and fails loud on a seeded dangle."
+                "the anchor gate stands in qualify and fails loud on a seeded dangle;",
+                "the eval-handoff findings are absorbed or declined."
               ],
               "jjgtn_silks": "docs-integrity-tail",
-              "jjgtn_basis": "0770865"
+              "jjgtn_basis": "d48e162"
             }
           ]
         },
