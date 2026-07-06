@@ -10656,7 +10656,7 @@
         "₢BtAAK": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260706-0721",
+              "jjgtn_ts": "260706-0801",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "## Character",
@@ -10678,18 +10678,24 @@
                 "(token mechanics, binding and role names, session windows, ordering rules, idempotency claims).",
                 "Narrative regions keep story flow — who acts, and why it matters — and defer every fact to its linked term:",
                 "rewrite narrative fact-sentences down to story plus link; add no new facts anywhere.",
+                "One stated exception rides the pass:",
+                "add an Escheat landing entry beside Jilt in the admission appendix —",
+                "one to two sentences (the payor's manor-hygiene sweep of the terrier:",
+                "orphaned polity slices and dead-schema strays, plan-then-confirm, idempotent when already clean)",
+                "with its own `<a id=\"Escheat\">` anchor, so a future handbook yawp has a landing.",
                 "Never remove or rename an `<a id=...>` anchor — handbooks yawp-link them.",
                 "",
                 "## Done when",
                 "",
                 "Each identity fact is stated in exactly one appendix entry;",
                 "narrative regions read as story with linked terms;",
+                "the Escheat entry stands with its anchor;",
                 "the anchor sweep still passes:",
                 "every `](#X)` reference has a matching `<a id=\"X\">`,",
                 "and every anchor minted in `Tools/rbk/rbyc_common.sh` resolves in README.md."
               ],
               "jjgtn_silks": "readme-identity-single-telling",
-              "jjgtn_basis": "9bff517"
+              "jjgtn_basis": "ba3c45d"
             }
           ]
         },
