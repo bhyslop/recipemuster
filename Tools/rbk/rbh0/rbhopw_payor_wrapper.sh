@@ -33,14 +33,16 @@ rbho_payor_handbook() {
   buh_e
   buh_line "The ${RBYC_PAYOR} establishes a ${RBYC_MANOR} — an administrative seat"
   buh_line "holding the billing account, OAuth client, and operator identity."
-  buh_line "Unlike other roles that use service account keys, the ${RBYC_PAYOR}"
-  buh_line "authenticates via OAuth — representing the human project owner."
+  buh_line "The ${RBYC_PAYOR} authenticates via OAuth, representing the human"
+  buh_line "project owner. Every other role is keyless: a mantle that a"
+  buh_line "signed-in citizen dons — no service account keys anywhere."
   buh_e
   buh_line "By the end of this handbook you will have a ${RBYC_MANOR}, a ${RBYC_DEPOT}"
-  buh_line "funded under it, and a ${RBYC_GOVERNOR} service account ready to administer it."
+  buh_line "funded under it, its trust affianced to your identity provider,"
+  buh_line "and a founding ${RBYC_GOVERNOR} girded to administer it."
   buh_e
 
-  buh_line "This ceremony takes about 15 minutes."
+  buh_line "This ceremony takes about 30 minutes."
   buh_e
 
   buh_step_style "Step " " — "
@@ -85,14 +87,31 @@ rbho_payor_handbook() {
   buh_tt  "  " "${RBZ_INSTAURATE_MANOR}"
   buh_e
 
+  buh_step1 "Affiance a foedus"
+  buh_e
+  buh_line "Keyless sign-in rides a standing trust between the ${RBYC_MANOR} and"
+  buh_line "your identity provider — a foedus. First register the application"
+  buh_line "at the IdP's own console (guided walk, Entra shown):"
+  buh_e
+  buh_tt  "  " "${RBZ_FEDERATION_ENTRA}"
+  buh_e
+  buh_line "The walk yields the foedus's core trust values, landing in the"
+  buh_line "committed federation ${RBYC_REGIME}. Then pledge the trust — seat the"
+  buh_line "foedus's provider under the workforce pool:"
+  buh_e
+  buh_tt  "  " "${RBZ_AFFIANCE_MANOR}" "" " <foedus>"
+  buh_e
+  buh_line "Once per foedus — every citizen sign-in afterward rides this trust."
+  buh_e
+
   buh_step1 "Provision the Depot"
   buh_e
   buh_line "A ${RBYC_DEPOT} is the facility where container images are built and"
   buh_line "stored — a GCP project with a container repository, storage bucket,"
   buh_line "and build infrastructure, funded under the ${RBYC_MANORS} billing account."
-  buh_line "A ${RBYC_GOVERNOR} administers the ${RBYC_DEPOT} — creating"
-  buh_line "${RBYC_RETRIEVER} and ${RBYC_DIRECTOR} accounts for those who build and"
-  buh_line "retrieve container images."
+  buh_line "A ${RBYC_GOVERNOR} administers the ${RBYC_DEPOT} — brevetting the"
+  buh_line "citizens who build and retrieve container images onto the"
+  buh_line "${RBYC_DIRECTOR} and ${RBYC_RETRIEVER} mantles."
   buh_e
   buh_line "${RBYC_PAYOR} creates the Depot — commit anything pending first;"
   buh_line "the tripwire inscribe at the end of ${RBYC_LEVY} refuses on a dirty"

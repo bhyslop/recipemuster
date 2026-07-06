@@ -109,7 +109,7 @@ rbho_crash_course() {
   buh_tt   "   " "${RBZ_VALIDATE_DEPOT}"
   buh_e
   buh_line "On a bare fork, ${RBYC_RBRD} fields are blank and validation will fail —"
-  buh_line "you need a ${RBYC_PAYOR} account and a ${RBYC_DEPOT} to populate them."
+  buh_line "the ${RBYC_PAYOR} must establish a ${RBYC_MANOR} and ${RBYC_LEVY} a ${RBYC_DEPOT} to populate them."
   buh_line "On a team repo, they are already populated and validation passes."
   buh_line "Either way, read the output — it tells you exactly what state you're in."
   buh_e

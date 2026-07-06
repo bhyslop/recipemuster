@@ -213,7 +213,11 @@ rbho_director_first_build() {
   buh_line "   ${z_sfx_attest}"
   buh_line "      Per-platform ${RBYC_PROVENANCE}-carrying image (one per platform)."
   buh_line "      Shares all layers with -image — only the manifest differs."
-  buh_line "      These carry the GCB-attested digests used by ${RBYC_VOUCH}."
+  buh_line "      These carry the GCB-attested digests used by ${RBYC_VOUCH} —"
+  buh_line "      and they are the only arks that do: the classic Docker image"
+  buh_line "      store re-serializes manifests, so a pulled image's digest no"
+  buh_line "      longer matches what GCB attested. Durable — they persist"
+  buh_line "      alongside the other arks until ${RBYC_ABJURE} deletes the ${RBYC_HALLMARK}."
   buh_e
   buh_line "   ${z_sfx_about}"
   buh_line "      ${RBYC_SBOM} (software bill of materials) + build info."
@@ -288,14 +292,14 @@ rbho_director_first_build() {
 
   buh_step1 "${RBYC_ABJURE} and ${RBYC_REKON} — ${RBYC_HALLMARK} lifecycle"
   buh_e
-  buh_line "${RBYC_REKON} lists the raw tags for a ${RBYC_VESSEL}"
-  buh_line "package in GAR. Run it before and after ${RBYC_ABJURE} to see"
-  buh_line "the full lifecycle:"
+  buh_line "${RBYC_REKON} lists the ark basenames present under a"
+  buh_line "${RBYC_HALLMARK}'s GAR subtree. Run it before and after ${RBYC_ABJURE}"
+  buh_line "to see the full lifecycle:"
   buh_e
-  buh_tt "   " "${RBZ_REKON_HALLMARK}" "" " ${RBYC_HANDBOOK_VESSEL_REF}"
+  buh_tt "   " "${RBZ_REKON_HALLMARK}" "" " ${RBYC_HANDBOOK_HALLMARK_REF}"
   buh_e
-  buh_line "You should see all five durable tags for your ${RBYC_HALLMARK}:"
-  buyy_cmd_yawp "${RBGC_ARK_BASENAME_IMAGE}, ${RBGC_ARK_BASENAME_ABOUT}, ${RBGC_ARK_BASENAME_VOUCH}, ${RBGC_ARK_BASENAME_POUCH}, ${RBGC_ARK_BASENAME_DIAGS}"; local -r z_sfx_list="${z_buym_yelp}"
+  buh_line "You should see all six durable arks for your ${RBYC_HALLMARK}:"
+  buyy_cmd_yawp "${RBGC_ARK_BASENAME_POUCH}, ${RBGC_ARK_BASENAME_IMAGE}, ${RBGC_ARK_BASENAME_ATTEST}, ${RBGC_ARK_BASENAME_ABOUT}, ${RBGC_ARK_BASENAME_VOUCH}, ${RBGC_ARK_BASENAME_DIAGS}"; local -r z_sfx_list="${z_buym_yelp}"
   buh_line "   ${z_sfx_list}"
   buh_e
   buh_line "${RBYC_ABJURE} removes all artifacts for a ${RBYC_HALLMARK}"
@@ -306,7 +310,7 @@ rbho_director_first_build() {
   buh_e
   buh_line "After ${RBYC_ABJURE}, run ${RBYC_REKON} again:"
   buh_e
-  buh_tt "   " "${RBZ_REKON_HALLMARK}" "" " ${RBYC_HANDBOOK_VESSEL_REF}"
+  buh_tt "   " "${RBZ_REKON_HALLMARK}" "" " ${RBYC_HANDBOOK_HALLMARK_REF}"
   buh_e
   buh_line "The tags for your ${RBYC_HALLMARK} should be gone. The image is no"
   buh_line "longer in the ${RBYC_DEPOT}."

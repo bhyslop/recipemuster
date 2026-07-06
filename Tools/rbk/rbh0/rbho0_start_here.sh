@@ -16,21 +16,20 @@
 #
 # Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 #
-# Recipe Bottle Handbook Onboarding - Start Here (probe-aware menu)
+# Recipe Bottle Handbook Onboarding - Start Here (menu)
 
 set -euo pipefail
 
 test -z "${ZRBHO0_SOURCED:-}" || return 0
 ZRBHO0_SOURCED=1
 
-# rbho_start_here — probe-aware menu into the handbook family.
-# Probes are deliberately narrow: just RBRR populated + any-credential-
-# present. Highlighting only arrows foundation actions based on repo
-# state; it does not infer intent from detected roles.
+# rbho_start_here — menu into the handbook family. The menu itself is
+# static prose; each track opens with its own filesystem probes, so
+# state-awareness lives in the tracks, not here.
 rbho_start_here() {
   zrbho_sentinel
 
-  buc_doc_brief "Probe-aware menu — route learner into the handbook track that fits their state"
+  buc_doc_brief "Menu — route learner into the handbook track that fits their state"
   buc_doc_shown || return 0
 
   local -r z_docs="${RBRR_PUBLIC_DOCS_URL}"
@@ -102,7 +101,8 @@ rbho_start_here() {
 
   buh_section "Director Subtracks"
   buh_e
-  buh_line "  All tracks below require ${RBYC_DIRECTOR} credentials and a provisioned ${RBYC_DEPOT}."
+  buh_line "  All tracks below require a provisioned ${RBYC_DEPOT} and a citizen"
+  buh_line "  brevetted onto the ${RBYC_DIRECTOR} mantle — donned at sign-in, no key file."
   buh_e
   buh_line "    ${RBHO_TRACK_FIRST_BUILD} (~30 min, ~15 of which is Cloud Build wall-clock)"
   buh_line "      Build your first image in the cloud with verified provenance."
