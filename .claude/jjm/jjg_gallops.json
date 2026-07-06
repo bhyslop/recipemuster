@@ -9317,8 +9317,8 @@
         "₢BtAAF": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260705-1029",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260706-1048",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "## Character",
                 "",
@@ -9359,7 +9359,7 @@
                 "findings dispositioned."
               ],
               "jjgtn_silks": "agent-learner-load-test",
-              "jjgtn_basis": "d34c4c1"
+              "jjgtn_basis": "3878949"
             }
           ]
         },
