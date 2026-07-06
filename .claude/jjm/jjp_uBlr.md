@@ -108,9 +108,13 @@ the founding-and-cutover section stays aspirant deliberately — it is the conve
   broadside registration for the two nouns deliberately deferred to cutover —
   the README speaks to consumers of the live surface, and the new surface is inert until then.
 - Blotter (entity): the locked-store entity — lock-ref namespace, guidon, read posture, instances, bootstrap config.
+  LANDED 260706: `JJSVB-blotter.adoc` (normative entity), mounted in JJS0's Revision Control region.
 - Journal ceremony and break sequence (routine): the shared write bracket, ONE home,
   cited by the blotter sheaf and every studbook-writing operation.
+  LANDED 260706: `JJSVJ-journal.adoc` (normative routine), mounted beside the blotter sheaf.
 - Studbook (entity): tenant content — pedigree, scope at birth.
+  LANDED 260706: `JJSVS-studbook.adoc` (normative entity), mounted in JJS0's Revision Control region;
+  homes the studbook, pedigree, and counterfoil quoins and the no-worktree-paths rivet.
 - Farrier (entity): the driver trait, op census as method contracts, error-kind taxonomy, the capability seam.
 - Dispatch and billet (operation family): saddle, lunge, unsaddle, the entrance spine, the sweep,
   BUK meld consequences; launch-time provisioning folds in (lean 260705: fold, split only if it dominates the sheaf at authoring).
@@ -156,6 +160,15 @@ Saddle/unsaddle ratified with the gate OPEN by contingency until the interior re
 COSMOLOGY INFUSION (260705): hippodrome, infield, and the jjy_ family catalogued as `jjdw_` quoins
 in `JJSVC-cosmology.adoc`; their ledger entries marked infused;
 the chapbook's hippodrome/infield flags hardened to citations.
+BLOTTER AND JOURNAL INFUSION (260706): blotter, guidon, journal, and break catalogued as `jjdb_` quoins
+in `JJSVB-blotter.adoc`/`JJSVJ-journal.adoc`;
+guidon and jjv ledger entries marked infused (interior shape settled: refs/jjv/guidon, flat, per-blotter);
+lockless-reads and sole-door premises voiced; durable-first marked infused;
+the chapbook's blotter lane and journal-ceremony interactions hardened to citations.
+STUDBOOK INFUSION (260706): studbook, pedigree, and counterfoil catalogued as `jjdb_` quoins
+in `JJSVS-studbook.adoc`; their ledger entries marked infused;
+the no-worktree-paths rivet homed at the sheaf (tail mints at implementation);
+the chapbook's studbook lane and counterfoil mentions hardened to citations.
 Elections, alternates, and rationales live in the two sheaf ledgers; this roster is the summary.
 
 ### Deltas to bank into the aspirant sheaves at drain time
