@@ -9366,8 +9366,8 @@
         "₢BtAAG": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260706-1047",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260706-1131",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "## Character",
                 "",
@@ -9403,7 +9403,7 @@
                 "the eval-handoff findings are absorbed or declined."
               ],
               "jjgtn_silks": "docs-integrity-tail",
-              "jjgtn_basis": "d48e162"
+              "jjgtn_basis": "2aa92b7"
             }
           ]
         },
