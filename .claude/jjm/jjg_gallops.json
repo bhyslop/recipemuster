@@ -9910,9 +9910,10 @@
         "₢BsAAE",
         "₢BsAAF",
         "₢BsAAG",
-        "₢BsAAH"
+        "₢BsAAH",
+        "₢BsAAK"
       ],
-      "jjghn_next_pace_seed": "AAK",
+      "jjghn_next_pace_seed": "AAL",
       "jjghn_paces": {
         "₢BsAAA": {
           "jjgpn_tacks": [
@@ -10160,6 +10161,38 @@
               ],
               "jjgtn_silks": "federation-glance-diagram",
               "jjgtn_basis": "fcd0c6b"
+            }
+          ]
+        },
+        "₢BsAAK": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260706-0740",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "",
+                "Interactive release ceremony; operator-present throughout.",
+                "",
+                "## Docket",
+                "",
+                "Cut the real candidate on the proven-green rebaseline:",
+                "run the refreshed upstream delivery ceremony end to end —",
+                "full release qualification, squash candidate, strip, marshal zero, post-strip fast qualify, commit —",
+                "stopping at the push gate for operator review.",
+                "While here, add the ceremony-level link check as a standing ceremony step:",
+                "the candidate README satisfies every anchor minted in rbyc_common.sh (file-to-file sweep on the candidate tree),",
+                "and RBRR_PUBLIC_DOCS_URL points at the repository and branch actually being delivered —",
+                "the URL base is a delivery decision; record it in the ceremony document.",
+                "Precondition: the rebaseline revalidation pace has closed green — this cut rides the baseline it proved.",
+                "",
+                "## Done when",
+                "",
+                "A candidate branch stands cut, stripped, fast-qualified, and link-checked, awaiting the operator's manual push;",
+                "the ceremony document carries the link-check step and the recorded URL-base decision."
+              ],
+              "jjgtn_silks": "candidate-cut-on-rebaseline",
+              "jjgtn_basis": "55a5f80"
             }
           ]
         }
