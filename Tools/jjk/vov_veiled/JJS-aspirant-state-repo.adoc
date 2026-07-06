@@ -20,22 +20,16 @@ Vocabulary below is candidate-minted (chat of 260704): adopted for mulling, form
 The world model — the separate global record, why-decouple, the infield peer ring, the
 hippodrome — is canon: drained 260705 to the revision-control cosmology sheaf
 (`JJSVC-cosmology.adoc`, the `jjdw_` quoins).
-What remains below is the studbook's own contract, still aspirant.
-The gallops stays the live state-concept; the studbook is the physical vessel that holds it.
-A dedicated vvx-driven engine manages the studbook safely; the human never hand-manages its git.
+The studbook's own contract — the entity, pedigree, counterfoil, scope at birth — is canon:
+drained 260706 to the studbook entity sheaf (`JJSVS-studbook.adoc`,
+`jjdb_studbook`/`jjdb_pedigree`/`jjdb_counterfoil`).
+What remains below is deferred and plan content, still aspirant.
 
 == Pedigree — the per-upstream record
 
-One *pedigree* per hippodrome upstream type, keyed by origin URL, stored in the studbook:
-
-* the farrier kind (which revision-control driver serves clones of this upstream) and its
-  parameters (trunk name, remotes posture) — see the farrier sheaf;
-* tackle bindings (file scope → governing discipline) as sibling entries — see the tackle sheaf;
-* reserved, parked: a per-upstream edit-scope wildcard list, if billets-per-pace ever prove
-  insufficient for collision avoidance.
-
-A new upstream needs a founding pedigree entry before JJ serves it — a deliberate ceremony
-(the derivation chain itself is world model, homed in the cosmology sheaf).
+Canon: drained 260706 to the studbook entity sheaf (`JJSVS-studbook.adoc`, `jjdb_pedigree`) —
+the farrier-kind and tackle-binding entries, the parked edit-scope wildcard reservation, and
+the founding-entry ceremony.
 
 == The journal ceremony
 
@@ -46,20 +40,8 @@ interior shape settled: one well-known ref `refs/jjv/guidon` per blotter).
 
 == Counterfoil — how JJ commits know hippodrome commits
 
-Every journaled entry carries a *counterfoil* — the retained stub naming the issued work:
-a member→SHA manifest (one-element for a single repo, generalizing unchanged to
-submodule/multi-repo constellations), annotated with branch and a dirty flag.
-The reference is deliberately one-way — studbook points at hippodrome, never the reverse;
-the only hippodrome-side mark is the session-id commit trailer, a denormalized cache justified
-by query convenience, never by recoverability.
-
-*Rebase soft spot (known, accepted for now):* a rebase after journaling rewrites SHAs and
-dangles the counterfoil — degraded provenance, not corruption; nothing downstream builds on it.
-Convergence discipline already prefers merge over rebase (the collision memo), which preserves
-counterfoils; billet branches never rebase (refit is merge-based, farrier sheaf), closing the
-gap structurally where billets are used.
-An optional `counterfoil_verify` op turns a dangling counterfoil from a silent lie into a
-flagged one.
+Canon: drained 260706 to the studbook entity sheaf (`JJSVS-studbook.adoc`,
+`jjdb_counterfoil`), the rebase soft spot and its structural closure included.
 
 == Pace identity re-gestalt (cinched 260704)
 
@@ -82,11 +64,10 @@ mints in the same design pace.
 
 == Plans as commits (the gazette convergence)
 
-With the studbook, every gallops mutation *is* a git commit — so ₣Ah's cinch ("warrants in
-gallops, not git") and the long-held intent to keep breeze plans reviewable as commits become
-the same act.
-The commit message may carry the plan in gazette notice format as a review surface for
-`git log`; the JSON in the gallops is truth, the message a denormalized presentation.
+Canon: drained 260706 to the studbook entity sheaf (`JJSVS-studbook.adoc`, Journal entries as
+commits).
+Provenance kept here: ₣Ah's cinch ("warrants in gallops, not git") and the long-held intent
+to keep breeze plans reviewable as commits become the same act there.
 
 == Store shape
 
@@ -107,8 +88,9 @@ What remains is studbook-specific:
 
 == Scope at birth
 
-First tenant: the gallops only.
-Captured chat histories and action-choices are the *intended second tenant*, deferred.
+Canon: drained 260706 to the studbook entity sheaf (`JJSVS-studbook.adoc`, Scope at birth).
+The second tenant's contract — the chat↔commit correlation below — stays aspirant with the
+deferral.
 
 == Chat↔commit correlation (captured 260620, deferred with the second tenant)
 
@@ -196,6 +178,8 @@ cited by code and tests via opaque ID; tails minted at implementation) and three
 * *never-force* — RIVET: the consign implementation and the break sequence's lease-guarded
   pluck are citation sites; a test can assert no force path exists.
 * *no-worktree-paths-in-studbook* — RIVET: studbook write sites and the validator cite it.
+  INFUSED 260706 (studbook sheaf — What never enters the record; opaque tail still mints at
+  implementation).
 * *durable-first* — RIVET: the journal ceremony's ordering (hippodrome half before studbook
   half) is a citable proposition tests assert.
   INFUSED 260706 (journal sheaf — the bracket's law; opaque tail still mints at
@@ -213,9 +197,11 @@ cited by code and tests via opaque ID; tails minted at implementation) and three
 
 * *studbook* — the record repo. Alternates held: daybook, chronicle. Rejected: cartulary
   (didn't stick), formbook (F yielded to farrier).
+  INFUSED 260706 (studbook sheaf, `jjdb_studbook`).
 * *pedigree* — the per-upstream record; "a studbook is a register of pedigrees" self-explains.
   Alternates held: livery, passport (trodden-adjacent). Released: bloodline (furrowed — liked,
   unbound, held for a future concept).
+  INFUSED 260706 (studbook sheaf, `jjdb_pedigree`).
 * *hippodrome* — the peer work clone; formally cinched 260704. Ground-family alternates
   recorded in the 260630 memo (turf, heath, glebe).
   INFUSED 260705 (cosmology sheaf, `jjdw_hippodrome`).
@@ -237,6 +223,7 @@ cited by code and tests via opaque ID; tails minted at implementation) and three
   Alternate held: hitch (the draft-team semantics fit — a one-horse hitch generalizes as the
   manifest does — but *itch* is a standing JJK concept one letter away and the cinch rhyme
   crowds it; killed by the seat/unseat near-neighbor precedent).
+  INFUSED 260706 (studbook sheaf, `jjdb_counterfoil`).
 * *guidon* — the lock-holder mark flown on the lock ref: officium, station, acquire-time,
   operation; the break sequence acts only against an observed guidon.
   Replaces *stamp*, evicted as trodden (datestamp/timestamp ambience; live

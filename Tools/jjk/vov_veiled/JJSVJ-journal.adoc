@@ -13,8 +13,7 @@ so the operations cannot drift apart in the shared stretch.
 ====
 *Forward references.* The op names composing the sequences — `lodge`, `glean`, `advance`,
 `consign`, `sync_state`, and the lock trio `stake`/`pluck`/`sight` — are census-minted farrier
-primitives (260705) whose binding home is the forthcoming farrier entity sheaf;
-the counterfoil binds at the forthcoming studbook entity sheaf.
+primitives (260705) whose binding home is the forthcoming farrier entity sheaf.
 Where such a word appears below it reads as a forward reference, not a citation.
 ====
 
@@ -31,12 +30,12 @@ The bracket:
 . *Work half* (lock-free; present only when the write journals issued work — a notch or a
   wrap):
   `lodge` the explicit file list on the work repo's current or billet branch,
-  take the counterfoil,
+  take the {jjdb_counterfoil},
   and on a billet branch `consign` the branch —
   branches are the cross-station WIP carrier, and an unpushed branch is no carrier.
   Fast-forward and additive, so safe by construction; the trunk is never pushed by JJ.
-  Offline, the ceremony proceeds with the counterfoil flagged unpushed and `sync_state` nags
-  at next open.
+  Offline, the ceremony proceeds with the {jjdb_counterfoil} flagged unpushed and
+  `sync_state` nags at next open.
   The commit the journal will name now exists.
 . *Take the lock*:
   `glean` (sync lock-ref state) →
@@ -47,7 +46,7 @@ The bracket:
   fast-forward the local {jjdb_blotter} to remote tip —
   always clean under the lock; loud failure if not.
 . *Mutate and lodge*:
-  apply the record change, plus the counterfoil naming the work repo and its commit;
+  apply the record change, plus the {jjdb_counterfoil} naming the work repo and its commit;
   `lodge` with explicit files.
 . *Consign content*:
   `--atomic`, binding the content update to a lease on our own lock ref —

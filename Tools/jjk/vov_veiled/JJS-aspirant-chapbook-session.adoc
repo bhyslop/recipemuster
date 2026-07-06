@@ -37,7 +37,7 @@ Everything it asks of the engine crosses an MCP door.
 
 //axhca_actor axd_internal
 `jjcbs_studbook`
-*The studbook* — the regional record repo, the {jjdb_blotter_p} first instance, carrying the gallops; pending the studbook entity sheaf.
+*The studbook* — the {jjdb_studbook}: the regional record repo, the {jjdb_blotter_p} first instance, carrying the gallops.
 
 //axhca_actor axd_internal
 `jjcbs_hippodrome`
@@ -105,11 +105,11 @@ the notch, with an explicit file list.
 
 //axhci_interaction
 `jjcbs_engine` `jjcbs_hippodrome`
-Inside the notch: status, commit the explicit list on the billet branch, take the counterfoil, push the branch — the work half of the {jjdb_journal}, durable-first.
+Inside the notch: status, commit the explicit list on the billet branch, take the {jjdb_counterfoil}, push the branch — the work half of the {jjdb_journal}, durable-first.
 
 //axhci_interaction
 `jjcbs_engine` `jjcbs_studbook`
-The {jjdb_journal} proper: fetch, CAS-create the {jjdb_guidon}-bearing lock ref, advance to remote tip, mutate and commit the gallops change with the counterfoil naming the hippodrome commit, push content atomically under lease, release.
+The {jjdb_journal} proper: fetch, CAS-create the {jjdb_guidon}-bearing lock ref, advance to remote tip, mutate and commit the gallops change with the {jjdb_counterfoil} naming the hippodrome commit, push content atomically under lease, release.
 Durable-first is visible in the interaction order — the hippodrome commit of the previous interaction already exists before this journal names it.
 
 == Act III — Wrap and teardown
@@ -133,8 +133,8 @@ Pending: the sweep operation.
 == Pending-citation register (the convergence gauge)
 
 Interactions above flag these homes as pending; each hardens to a citation when its sheaf lands:
-the saddle and lunge operations; the sweep operation and its word; the farrier billet and sync facets; launch-time provisioning and the entrance spine; the identify contract; the resync operation and its precision band; and the cast's entity quoins (party, dispatch, engine, studbook, billet).
-Hardened so far: hippodrome and infield ({jjdw_hippodrome}, {jjdw_infield} — the cosmology sheaf, 260705); the blotter cast lane and the journal-ceremony interactions ({jjdb_blotter}, {jjdb_journal} — the blotter and journal sheaves, 260706).
+the saddle and lunge operations; the sweep operation and its word; the farrier billet and sync facets; launch-time provisioning and the entrance spine; the identify contract; the resync operation and its precision band; and the cast's entity quoins (party, dispatch, engine, billet).
+Hardened so far: hippodrome and infield ({jjdw_hippodrome}, {jjdw_infield} — the cosmology sheaf, 260705); the blotter cast lane and the journal-ceremony interactions ({jjdb_blotter}, {jjdb_journal} — the blotter and journal sheaves, 260706); the studbook cast lane and the counterfoil mentions ({jjdb_studbook}, {jjdb_counterfoil} — the studbook sheaf, 260706).
 
 Deferred sibling tales, named so they are not smuggled into this one:
 the two-station lock contention tale, the stale-lock break tale, and the stale-trunk resync tale — unhappy paths belong to their own chapbooks.

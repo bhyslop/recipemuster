@@ -21,7 +21,8 @@ The *farrier* is JJ's polymorphic revision-control driver: the layer that fits t
 to whatever ground a repo runs on — plain git today, git-with-worktrees within it, submodules and
 Android `repo` constellations later.
 As a farrier shoes the same horse for different terrain, one driver interface serves every
-backend; the pedigree (studbook sheaf) selects the farrier kind per upstream.
+backend; the pedigree (`JJSVS-studbook.adoc`, `jjdb_pedigree`) selects the farrier kind per
+upstream.
 The studbook itself is driven through the same interface's lock facet — the degenerate
 single-repo case.
 
@@ -284,7 +285,7 @@ re-gestalts JJK installation:
   ignorance.
   Selection is safe only when paired with discoverability.
 * Officium exchange (gazettes) relocates into the studbook clone's untracked working area
-  (cinched — studbook sheaf, Officium re-gestalt).
+  (cinched — state-repo aspirant sheaf, Officium re-gestalt).
 * Tackle bindings (tackle sheaf) supply per-scope discipline context at runtime, replacing
   repo-grain `@`-includes with file-grain binding.
 
@@ -368,7 +369,8 @@ doctrine — a vivid word is today spent below the vivid layer), sweep, grep-gat
 
 * Billet directory naming convention in the infield — parked for careful review.
   Provisional lean on record: dirname = the §F branch name verbatim (one string, two homes;
-  the coronet segment becomes rot-proof under the pace-identity re-gestalt, studbook sheaf).
+  the coronet segment becomes rot-proof under the pace-identity re-gestalt, state-repo
+  aspirant sheaf).
 * Constellation backends (submodules, Android `repo`): future farrier kinds; counterfoil and
   billet generalization points designed here, implementations deferred.
 

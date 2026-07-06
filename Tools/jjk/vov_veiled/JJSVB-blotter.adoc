@@ -10,9 +10,8 @@ this sheaf summarizes and cites, never restates.
 
 [NOTE]
 ====
-*Forward references.* The farrier and its lock ops (`stake`, `pluck`, `sight`), the studbook,
-the pedigree, the counterfoil, and the mews fleet store are census-minted words (260705) whose
-binding sheaves land after this one;
+*Forward references.* The farrier and its lock ops (`stake`, `pluck`, `sight`) and the mews
+fleet store are census-minted words (260705) whose binding sheaves land after this one;
 where such a word appears below it reads as a forward reference to a forthcoming contract
 home, not a citation.
 ====
@@ -43,14 +42,13 @@ history is additive, and the break is lease-guarded, never blind.
 
 Two instances are designed; one engine drives both through the same entity machinery:
 
-* the *studbook* — the regional record repo carrying the {jjdgr_gallops}
-  (entity sheaf forthcoming);
+* the {jjdb_studbook} — the regional record repo carrying the {jjdgr_gallops};
 * the *mews fleet store* — the anticipated second instance
   (sibling nucleation, `JJS-aspirant-mews.adoc`).
 
 Two repos, two locks: instances share machinery, never state.
 The one genuine seam between them is the `(work repo, SHA)` cross-reference both journal —
-in the studbook, the counterfoil.
+in the {jjdb_studbook}, the {jjdb_counterfoil}.
 
 == Lock ref and guidon
 
