@@ -123,8 +123,8 @@ rbho_crash_course() {
   buh_step1 "Check your logs"
   buh_e
   buh_line "When you ran the validator, it printed file paths at the top"
-  buh_line "of its output. Every state-changing command writes three ${RBYC_LOG}"
-  buh_line "files to ${RBYC_BURS}_LOG_DIR:"
+  buh_line "of its output. Read-only or state-changing, every command writes"
+  buh_line "three ${RBYC_LOG} files to ${RBYC_BURS}_LOG_DIR:"
   buh_e
   if test -n "${z_log_dir}"; then
     buyy_cmd_yawp "${z_log_dir}/${BURC_LOG_LAST}.${BURC_LOG_EXT}"; local -r z_log_path="${z_buym_yelp}"
@@ -132,8 +132,8 @@ rbho_crash_course() {
   else
     buh_line "   stable    always the same path — tooling reads this one"
   fi
-  buh_line "   per-cmd   same filename across runs — diff between executions"
-  buh_line "   history   timestamped — permanent record, never overwritten"
+  buh_line "   per-cmd   same-<cmd>.${BURC_LOG_EXT} — same filename across runs, diff between executions"
+  buh_line "   history   hist-<cmd>-<timestamp>.${BURC_LOG_EXT} — permanent record, never overwritten"
   buh_e
   buh_line "Some commands also write a ${RBYC_TRANSCRIPT} — a single file"
   buh_line "capturing key decision points and state transitions. When a"
@@ -177,6 +177,8 @@ rbho_crash_course() {
   buh_line "   n  ${RBYC_RBRN}  ${z_rn_r}  ${z_rn_v}"
   buh_e
   buh_line "Learn the letter — you can find any regime's tools from it."
+  buh_line "One wrinkle: ${RBYC_BURC}/${RBYC_BURS} tools carry the buw- prefix, the Recipe"
+  buh_line "Bottle regimes rbw- — the letter rule holds within each family."
   buh_e
 
   buh_step1 "Next steps"

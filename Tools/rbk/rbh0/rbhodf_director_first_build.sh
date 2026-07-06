@@ -127,8 +127,9 @@ rbho_director_first_build() {
   buh_e
   buh_tt "   " "${RBZ_CONCLAVE_RELIQUARY}"
   buh_e
-  buh_line "This captures the tool images from upstream into the ${RBYC_DEPOT}"
-  buh_line "GAR namespace. Takes 2-5 minutes depending on network speed."
+  buh_line "This captures the tool images from upstream into the ${RBYC_DEPOT}'s"
+  buh_line "GAR namespace (Google Artifact Registry — where the ${RBYC_DEPOT} stores"
+  buh_line "all its images). Takes 2-5 minutes depending on network speed."
   buh_e
   buyy_cmd_yawp "r260324193326";                   local -r z_ds_example="${z_buym_yelp}"
   buh_line "When conclave completes, it prints a ${RBYC_RELIQUARY} touchmark"
@@ -136,9 +137,9 @@ rbho_director_first_build() {
   buh_line "${RBYC_VESSEL}'s ${RBYC_REGIME} under \${RBRR_VESSEL_DIR} in one pass —"
   buh_line "there is no per-vessel argument:"
   buh_e
-  buh_tt "   " "${RBZ_YOKE_RELIQUARY}" "" " <stamp>"
+  buh_tt "   " "${RBZ_YOKE_RELIQUARY}" "" " <touchmark>"
   buh_e
-  buh_line "Yoke validates the stamp once against GAR, then rewrites RBRV_RELIQUARY"
+  buh_line "Yoke validates the touchmark once against GAR, then rewrites RBRV_RELIQUARY"
   buh_line "in every ${RBYC_VESSEL}'s rbrv.env. Commit the changes — ${RBYC_ORDAIN}"
   buh_line "refuses to build from an uncommitted tree."
   buh_e
