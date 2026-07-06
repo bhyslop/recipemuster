@@ -165,10 +165,7 @@ Cloud Build jobs run their steps from the [Reliquary's](#Reliquary) members rath
 | [**Retriever**](#Retriever) | Federated sign-in → [Retriever](#Retriever) [Mantle](#Mantle) | Pulls images for local use |
 
 The [Payor](#Payor) stands apart — it authenticates with its own OAuth refresh token, the system's sole durable secret.
-Every other role is a [Mantle](#Mantle): a standing office — governor, director, retriever — realized as a Google service account whose authority is granted once, at [Levy](#Levy), and frozen there.
-No role keeps a credential file on disk.
-An operator [Avows](#Avow) — a fresh federated sign-in against the [Manor's](#Manor) identity provider, one device-flow click that opens a time-bounded [Sitting](#Sitting) — and then [Dons](#Don) the [Mantle](#Mantle) the work needs.
-A donned mantle mints a short-lived, self-expiring token; when the [Sitting](#Sitting) lapses the next mint fails loud and the operator simply avows again.
+Every other role is a [Mantle](#Mantle): a standing office a federated operator [Avows](#Avow) into to open a [Sitting](#Sitting), then [Dons](#Don) for the work at hand.
 **Zero service-account keys exist anywhere in the system.**
 
 This model **requires a GCP organization and an external OIDC identity provider** — the founding cost of corporate-acceptable identity, and the one prerequisite federation does not waive.
@@ -194,19 +191,17 @@ Critical sequences, rendered from committed PlantUML source through the [pluml](
 
 #### Establishment and Provisioning
 
-The [Payor](#Payor) begins by [Establishing](#Establish) a GCP project and configuring an OAuth consent screen through the Google Cloud Console.
-After downloading the OAuth client credentials, the [Payor](#Payor) [Installs](#Install) them via a browser authorization flow — the resulting refresh token is stored locally with restrictive permissions and does not need to be repeated.
+The [Payor](#Payor) begins by [Establishing](#Establish) a GCP project and OAuth consent screen through the Google Cloud Console, then [Installs](#Install) the downloaded client credentials via a browser authorization flow.
 
-With [Payor](#Payor) credentials in place, the [Payor](#Payor) [Instaurates](#Instaurate) the [Manor's](#Manor) identity substrate, [Affiances](#Affiance) its external identity provider as a [Foedus](#Foedus), then [Levies](#Levy) a [Depot](#Depot) — provisioning its build infrastructure, artifact registry, and secrets storage, and raising the three [Mantle](#Mantle) service accounts (governor, director, retriever) with their resource authority granted and frozen in the same ceremony.
-The [Payor's](#Payor) last founding act is to [Gird](#Gird) the first [Governor](#Governor) — seating a federated [Citizen](#Citizen) in the governor mantle, the one admission made outside governor wielding.
+With [Payor](#Payor) credentials in place, the [Payor](#Payor) [Instaurates](#Instaurate) the [Manor's](#Manor) identity substrate, [Affiances](#Affiance) an external identity provider as a [Foedus](#Foedus), then [Levies](#Levy) a [Depot](#Depot) and raises its three [Mantle](#Mantle) service accounts.
+The [Payor's](#Payor) last founding act is to [Gird](#Gird) the first [Governor](#Governor), seating a federated [Citizen](#Citizen) in the governor mantle.
 
 Before the first build can run, the [Depot](#Depot) needs its supply-chain infrastructure in place: upstream base images and the cohort of builder tool images must be [Captured](#Capture) into the registry as [Lodes](#Lode).
 
 #### Admission and Access
 
-A standing [Governor](#Governor) populates the [Depot](#Depot): it [Brevets](#Brevet) a [Citizen](#Citizen) onto a [Director](#Director) mantle for build operations and onto a [Retriever](#Retriever) mantle for image pull access, [Unseating](#Unseat) a mantle when it is no longer needed.
-A brevet grants a federated principal the right to [Don](#Don) a mantle — no credential file is created or handed out; the grant is recorded as a [Muniment](#Muniment) in the [Manor's](#Manor) [Terrier](#Terrier).
-At runtime each operator [Avows](#Avow) once to open a [Sitting](#Sitting), then [Dons](#Don) whichever mantle the operation calls for.
+A standing [Governor](#Governor) populates the [Depot](#Depot): it [Brevets](#Brevet) a [Citizen](#Citizen) onto a [Director](#Director) mantle for build work and onto a [Retriever](#Retriever) mantle for image pulls, and [Unseats](#Unseat) a mantle no longer needed — each admission recorded as a [Muniment](#Muniment) in the [Manor's](#Manor) [Terrier](#Terrier).
+At runtime the [Citizen](#Citizen) [Avows](#Avow) to open a [Sitting](#Sitting), then [Dons](#Don) whichever mantle the operation calls for.
 
 #### Build and Retrieve
 
@@ -398,6 +393,9 @@ A [Payor](#Payor) ceremony with founding gravity, run once per [Foedus](#Foedus)
 <a id="Jilt"></a>**[Jilt](#Jilt)** — The inverse of [Affiance](#Affiance): dissolve one [Foedus](#Foedus) — delete its provider while the shared workforce pool stands — ending federated access for every [Citizen](#Citizen) asserted through that trust.
 A [Payor](#Payor) ceremony, founding-rare and deliberately confirmed; [Depots](#Depot) drawing on other foedera are untouched, [Mantle](#Mantle) service accounts and their bindings are left in place, and admission records in the [Terrier](#Terrier) are never erased by [Jilt](#Jilt) churn.
 Tearing down the pool itself is a manor-teardown act, deliberately not [Jilt](#Jilt).
+
+<a id="Escheat"></a>**[Escheat](#Escheat)** — Sweep the [Manor's](#Manor) [Terrier](#Terrier) of dead records — orphaned polity slices whose [Depot](#Depot) was [Unmade](#Unmake), and dead-schema strays that no longer parse as [Muniments](#Muniment).
+A [Payor](#Payor) manor-hygiene operation: it plans the strike, confirms before deleting, and is an idempotent no-op when the [Terrier](#Terrier) is already clean — the mutating counterpart to the read-only [Rehearse](#Rehearse).
 
 <a id="Gird"></a>**[Gird](#Gird)** — Seat the first [Governor](#Governor) of a freshly [Levied](#Levy) [Depot](#Depot).
 A fresh depot has [Mantle](#Mantle) service accounts but no admitted [Citizen](#Citizen), so no governor yet exists to admit one; girding is the [Payor's](#Payor) single founding admission, the one made outside governor wielding.
