@@ -8345,8 +8345,8 @@
         "₢BrAAH": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260705-1634",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260706-1058",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "## Character",
                 "",
@@ -8362,7 +8362,7 @@
                 "Authorities: the aspirant studbook sheaf's pace-identity and store-shape sections."
               ],
               "jjgtn_silks": "pace-identity-design",
-              "jjgtn_basis": "d432287"
+              "jjgtn_basis": "e713e94"
             }
           ]
         },
