@@ -228,6 +228,12 @@ Settle before the affected change, not before the heat; each item names its sett
   adopted at dispatch-sheaf authoring.
 - Wire-vs-display coronet form (gazette halter typing depends on it) —
   settles at the pace-identity design pace, coupled to the insignia sub-mint.
+- Session-launch configuration — the designation-tier vocabulary (shared with the bridle work in ₣Bc),
+  the validated (model, effort) pair table and its home,
+  the parameterized spawn primitive with its census word minted under Lapidary
+  (launch disqualified: trodden, and launcher is BUK-bound),
+  and the permanent frontier-only gate on the docket-authoring verbs —
+  settles at its dedicated design pace ahead of the dispatch-sheaf authoring.
 
 ## Done when
 
