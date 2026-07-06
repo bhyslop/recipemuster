@@ -10337,8 +10337,8 @@
         "₢BtAAH": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260705-1157",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260705-1902",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "## Character",
                 "",
@@ -10367,7 +10367,7 @@
                 "(opener sprue, lane inlays, interaction from/to inlays, venue and legend inlays each inside their annotation's read window)."
               ],
               "jjgtn_silks": "ax-annotation-line-sweep",
-              "jjgtn_basis": "970636e"
+              "jjgtn_basis": "2ea972e"
             }
           ]
         },
