@@ -9739,8 +9739,8 @@
         "₢BxAAC": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260706-1724",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260706-1126",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "## Character",
                 "Mechanical batteries with operator-ratified verdicts;",
@@ -9768,7 +9768,7 @@
                 "and a clean (or cleaned) face is on record."
               ],
               "jjgtn_silks": "designate-audit-rb-revetment",
-              "jjgtn_basis": "57d98a9"
+              "jjgtn_basis": "bf4929f"
             }
           ]
         },
