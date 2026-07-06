@@ -137,22 +137,6 @@ A specific build instance of a [Vessel](#Vessel), identified by timestamp.
 <a id="Ark"></a>Each [Hallmark](#Hallmark) stands in the [Depot](#Depot) registry as a set of tagged artifacts — its [Arks](#Ark) — led by the container image (`-image`), the [software bill of materials](#SBOM) ([`-about`](#About)), and the cryptographic attestation ([`-vouch`](#Vouch)); [Rekon](#Rekon) shows a [Hallmark's](#Hallmark) full [Ark](#Ark) census.
 [Hallmark](#Hallmark) values are recorded into [Nameplate](#Nameplate) [Regime](#Regime) files to pin a [Nameplate](#Nameplate) to specific image versions.
 
-### <a id="Lode"></a>Lode
-
-A project-owned copy of an upstream artifact — a base image, a builder tool, an OS substrate, a VM disk image — captured once into the [Depot's](#Depot) registry and held there with a provenance record, so a build never depends on the upstream remaining available or unchanged.
-A [Lode](#Lode) is the captured-side parallel of a [Hallmark](#Hallmark): where a [Hallmark](#Hallmark) is the unit of a *built* image, a [Lode](#Lode) is the unit of a *captured* one.
-Each [Lode](#Lode) records its upstream source, the exact digest captured, and a trust grade stating how strongly the bytes can be re-verified (see [Disappearing Upstream Images](#DisappearingUpstream)).
-
-### <a id="Touchmark"></a>Touchmark
-
-The identifier of a [Lode](#Lode) — the handle a consumer pins to use a specific captured artifact, the captured-side parallel of a [Hallmark](#Hallmark).
-The shared `-mark` ending signals the kinship: a [Hallmark](#Hallmark) names what was built, a [Touchmark](#Touchmark) names what was captured.
-
-### <a id="Reliquary"></a>Reliquary
-
-The [Depot's](#Depot) dated cohort of builder tool images — `gcloud`, `gcrane`, `syft`, and their peers — [Captured](#Capture) together as one co-versioned [Lode](#Lode) by [Conclave](#Conclave).
-Cloud Build jobs run their steps from the [Reliquary's](#Reliquary) members rather than pulling tools from upstream at build time, and each [Vessel](#Vessel) pins the [Reliquary](#Reliquary) it builds with by [Yoking](#Yoke) its [Touchmark](#Touchmark) into the [Vessel](#Vessel) [Regime](#Regime).
-
 ### Foundry Lifecycle
 
 [Recipe Bottle](#RecipeBottle) uses a role-based security model with four roles, each building on the previous:
@@ -426,17 +410,33 @@ A concept of the model rather than an operation: [Recipe Bottle](#RecipeBottle) 
 
 ### Supply Chain
 
-<a id="Capture"></a>**[Capture](#Capture)** — Mirror an upstream artifact into your [Depot's](#Depot) registry as a [Lode](#Lode).
-[Capturing](#Capture) ensures the build pipeline has a fixed, self-contained supply chain — builds draw from project-owned copies rather than depending on third-party registry availability at build time.
+The captured-side supply chain — the project-owned copies a build draws from, and the operations that capture, inspect, and retire them.
+
+<a id="Lode"></a>**[Lode](#Lode)** — A project-owned copy of an upstream artifact — a base image, a builder tool, an OS substrate, a VM disk image — captured once into the [Depot's](#Depot) registry and held with a provenance record, so a build never depends on the upstream remaining available or unchanged.
+A [Lode](#Lode) is the captured-side parallel of a [Hallmark](#Hallmark) — the unit of a *captured* image where a [Hallmark](#Hallmark) is the unit of a *built* one — and records its upstream source, the exact digest captured, and a trust grade stating how strongly the bytes can be re-verified (see [Disappearing Upstream Images](#DisappearingUpstream)).
+
+<a id="Touchmark"></a>**[Touchmark](#Touchmark)** — The identifier of a [Lode](#Lode): the handle a consumer pins to use a specific captured artifact.
+The shared `-mark` ending signals the kinship with [Hallmark](#Hallmark) — a [Hallmark](#Hallmark) names what was built, a [Touchmark](#Touchmark) names what was captured.
+
+<a id="Reliquary"></a>**[Reliquary](#Reliquary)** — The [Depot's](#Depot) dated cohort of builder tool images — `gcloud`, `gcrane`, `syft`, and their peers — [Captured](#Capture) together as one co-versioned [Lode](#Lode) by [Conclave](#Conclave).
+Cloud Build jobs run their steps from its members rather than pulling tools from upstream, and each [Vessel](#Vessel) pins the [Reliquary](#Reliquary) it builds with by [Yoking](#Yoke) its [Touchmark](#Touchmark) into the [Vessel](#Vessel) [Regime](#Regime).
+
+<a id="Capture"></a>**[Capture](#Capture)** — Mirror an upstream artifact into your [Depot's](#Depot) registry as a [Lode](#Lode), so builds draw from project-owned copies rather than depending on third-party registry availability at build time.
 Each artifact kind — base image, builder toolset, OS substrate, VM disk image — has its own capture operation, but every capture produces the same thing: a [Lode](#Lode) with a provenance record, named by its [Touchmark](#Touchmark).
-Builder tool images are [Captured](#Capture) together as one co-versioned [Lode](#Lode) — the [Reliquary](#Reliquary); Cloud Build jobs use its members as step containers, ensuring builds run with known, project-owned toolchains rather than pulling tools from upstream at build time.
-The [Director](#Director) [Captures](#Capture) the builder-tool [Lode](#Lode) before any [Ordain](#Ordain) or base-image [Capture](#Capture) can run.
 
 <a id="Conclave"></a>**[Conclave](#Conclave)** — [Capture](#Capture) the build-tool date-cohort into one [Lode](#Lode) — the [Reliquary](#Reliquary).
 One cloud job impounds the whole co-versioned toolchain; the resulting [Touchmark](#Touchmark) is what [Yoke](#Yoke) records into every [Vessel](#Vessel).
 
 <a id="Ensconce"></a>**[Ensconce](#Ensconce)** — [Capture](#Capture) an upstream base image into a [Lode](#Lode).
-Capture-pure and cloud-side — the workstation fetches no upstream bytes, and no [Vessel](#Vessel) configuration is written; electing the captured base into a [Vessel](#Vessel) is [Feoff's](#Feoff) separate act.
+Capture-pure and cloud-side — the workstation fetches no upstream bytes and no [Vessel](#Vessel) configuration is written; electing the captured base into a [Vessel](#Vessel) is [Feoff's](#Feoff) separate act.
+
+The remaining [Lode](#Lode) operations round out capture and lifecycle, each a landing for its handbook step:
+<a id="Underpin"></a>**[Underpin](#Underpin)** captures a vendor WSL rootfs into a [Lode](#Lode);
+<a id="Immure"></a>**[Immure](#Immure)** captures the podman-machine disk leaves of one quay family;
+<a id="Presage"></a>**[Presage](#Presage)** previews what an [Immure](#Immure) would capture, read-only;
+<a id="Divine"></a>**[Divine](#Divine)** enumerates every [Lode](#Lode) by [Touchmark](#Touchmark);
+<a id="Augur"></a>**[Augur](#Augur)** inspects one [Lode's](#Lode) members and decodes its provenance envelope;
+<a id="Banish"></a>**[Banish](#Banish)** deletes a whole [Lode](#Lode) from the registry.
 
 ### Building
 
@@ -674,7 +674,7 @@ We depend on Google Cloud and expect to keep depending on it — and building at
 
 The [Foundry](#Foundry) builds on images pulled from upstream registries. Most are durable — an image pinned by digest stays fetchable, and a published checksum lets you re-verify the bytes later. Some are not. The sharpest case we have hit is Quay's `quay.io/podman/machine-os` family, the disk images a `podman machine` boots: Quay churns them rapidly — new images every few hours, retention measured in days — so a reference that resolved this morning can be gone by tomorrow. For Quay's own use that is fine, and we grant it; for anyone who needs a *reproducible* build it is a trap. The indefensible part is not the churn but what comes with it: no durable reference. Quay retains no digest you can pin and publishes no checksum to verify against later, so a pinned build does not fail loudly when its base ages out — it breaks asynchronously, downstream, on someone else's clock. That is not hypothetical; it is the failure that motivated this work.
 
-The response is the **[Lode](#Lode)**: a project-owned copy of an upstream artifact — a base image, a build tool, an OS substrate, a VM disk image — captured once into the [Depot's](#Depot) own registry and held with a provenance record, so the bytes a build depends on cannot be pulled out from under it. Recipe Bottle grades its confidence honestly rather than uniformly: where the upstream is durable a Lode is *verified-against-published*, its bytes still re-checkable against the source; where it is not — as with the podman machine-os images — the Lode carries the weaker but honest grade *recorded-at-acquisition*, attesting the exact digest captured and claiming nothing beyond it, because the upstream permits nothing beyond it. A registry that ships images with no durable reference has decided reproducibility is not its concern; holding our own copy, and grading our confidence in it honestly, is the only sound way to build on an upstream that will not hold still.
+The response is the **[Lode](#Lode)** — a project-owned copy captured once into the [Depot's](#Depot) own registry, so the bytes a build depends on cannot be pulled out from under it. Recipe Bottle grades its confidence honestly rather than uniformly: where the upstream is durable a [Lode](#Lode) is *verified-against-published*, its bytes still re-checkable against the source; where it is not — as with the podman machine-os images — the [Lode](#Lode) carries the weaker but honest grade *recorded-at-acquisition*, attesting the exact digest captured and claiming nothing beyond it, because the upstream permits nothing beyond it. A registry that ships images with no durable reference has decided reproducibility is not its concern; holding our own copy, and grading our confidence in it honestly, is the only sound way to build on an upstream that will not hold still.
 
 ## <a id="Roadmap"></a>Appendix: Roadmap
 
