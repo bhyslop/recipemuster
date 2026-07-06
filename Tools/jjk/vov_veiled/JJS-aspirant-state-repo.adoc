@@ -121,7 +121,7 @@ by query convenience, never by recoverability.
 *Rebase soft spot (known, accepted for now):* a rebase after journaling rewrites SHAs and
 dangles the counterfoil — degraded provenance, not corruption; nothing downstream builds on it.
 Convergence discipline already prefers merge over rebase (the collision memo), which preserves
-counterfoils; billet branches never rebase (freshen is merge-based, farrier sheaf), closing the
+counterfoils; billet branches never rebase (refit is merge-based, farrier sheaf), closing the
 gap structurally where billets are used.
 An optional `counterfoil_verify` op turns a dangling counterfoil from a silent lie into a
 flagged one.

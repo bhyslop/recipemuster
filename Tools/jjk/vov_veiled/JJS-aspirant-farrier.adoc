@@ -55,7 +55,7 @@ fires force in a recovery scenario — the discipline's forbidden list *is* the 
 A fresh word fails loud (the session looks it up — the provisioning pull door exists for
 precisely this); a familiar word fails silent.
 Census names stay boring-register but git-free — distinct and vivid are different axes, and no
-asterism budget is spent below the vivid layer (`advance`, `freshen`, `identify` prove the
+asterism budget is spent below the vivid layer (`advance`, `enfold`, `identify` prove the
 register).
 
 Re-minted at the census pace (260705, under MCM Lapidary, all gates run fresh):
@@ -93,7 +93,7 @@ on record
 
 |`counterfoil_verify` |inspect |Does a journaled SHA still exist, reachable? *Deferred past
 MVP* (260704): the designed answer for when a dangling counterfoil first annoys —
-freshen-by-merge and notch-push make them rare. |deferred
+merge-based refit and notch-push make them rare. |deferred
 
 |`lodge` |mutate |Explicit file list + message; no `-a`, no amend (additive discipline).
 |sequence-internal
@@ -112,8 +112,9 @@ lock guard and break sequence. |sequence-internal
 |`billet_create` / `billet_remove` |billet |Birth/reap a billet (below); remove refuses on
 dirty. |saddle / unsaddle
 
-|`freshen` |billet |Merge trunk *into* the billet branch (never rebase); fail-loud on
-conflict — resolution belongs to the attended session. |saddle, at billet ensure
+|`enfold` |billet |Merge trunk *into* the billet branch (never rebase); fail-loud on
+conflict — resolution belongs to the attended session. |refit (the session-facing resync
+operation)
 |===
 
 Cross-cutting rules: every op takes the repo root explicitly (no cwd dependence); every mutating
@@ -126,7 +127,7 @@ RCG defers error idioms by design; the binding disciplines (Zeroes, Identity Rul
 Boundary, Output) all pass, and the typed taxonomy is a deliberate step up from the crate's
 habitual `Result<T, String>` — settled early because error shapes calcify into every op
 signature.
-Deliberately absent: trunk-ward merge (the operator's serializer — `freshen` merges only
+Deliberately absent: trunk-ward merge (the operator's serializer — `enfold` merges only
 *into* billet branches), rebase, clone, init, log, blame — operator's hands or `jjx_log`.
 
 Entity design: a driver trait with one implementation per farrier kind; the lock is an RAII
@@ -157,7 +158,8 @@ ceremony carrying the counterfoil
 |slate / reslate / paddock |journal ceremony only — no hippodrome ops
 
 |saddle / lunge |shared entrance spine: `identify` → pedigree lookup →
-`billet_create`-or-reuse → `freshen` (groom billets re-detach to tip instead) → BURV export →
+`billet_create`-or-reuse → `glean` (the spine never merges — staleness reports at open and
+refit is the remedy; groom billets re-detach to tip) → BURV export →
 launch session
 
 |unsaddle |`billet_remove`, refuse-if-dirty
@@ -189,7 +191,8 @@ The operator knows the verb at chat-top; the session's billet must be right at l
 * **lunge** — the groom dispatch (minted 260704): working the horse from the ground,
   deliberately unmounted.
   A firemark gets a *groom billet* (worktree at detached trunk tip — nothing must survive).
-* Both doors share one *entrance spine*: ensure the billet, freshen it, export per-billet BURV
+* Both doors share one *entrance spine*: ensure the billet, glean (never merge — refit is the
+  staleness remedy), export per-billet BURV
   roots, provision JJ context, and launch Claude Code in it with the engagement verb as opening
   prompt — and the verb itself carries the tier signal (lunge → planning tier, saddle → work
   tier), so no protocol-sniffing.
@@ -207,13 +210,13 @@ Lifecycle doctrine:
   disposable scaffolding.
   `git worktree list` is the authoritative local registry of which branch is seated where —
   **no worktree path is ever written into the studbook** (station-local fact, regional record).
-* *Freshen by merge, never rebase.*
-  At re-mount, merge trunk *into* the pace branch: journaled counterfoils survive, conflicts
+* *Refit by merge, never rebase.*
+  Refit merges trunk *into* the pace branch: journaled counterfoils survive, conflicts
   surface once, and the branch's interior history dies at the operator's trunk merge anyway.
   On conflict, the mount session resolves as its first order of business — *attended* is the
   load-bearing property, not tier; saddle may bump the tier when it detects a pending conflict.
   Tier-escalation machinery is deferred to breeze.
-* *Mount absorbs cold start* — billet-ensure, freshen, orient. No new engagement verb.
+* *Mount absorbs cold start* — billet-ensure, glean, orient. No new engagement verb.
 * *Every dispatched session gets its own billet; trunk belongs to the operator alone.*
   Session isolation is structural, not disciplinary — even a "read-only" groom can run builds.
   Grooms get billets too (detached), so concurrent sessions on one hippodrome never share a tree.
@@ -333,10 +336,17 @@ doctrine — a vivid word is today spent below the vivid layer), sweep, grep-gat
   escheat's orphan sweep), read barred (the CRUD/git reflex word).
   stake's racing sense (stakes race) noted and accepted: the trio is sequence-internal, never
   operator-typed, and the claim sense dominates in imperative position.
-* *freshen* — COLLIDES with VOK (`tt/vow-F.Freshen.sh`; VOSO "Freshen CLAUDE.md"), banked at
-  the census (260705).
-  Per the trunk-resync cinch the re-mint names the session-facing resync operation, not the
-  spine op; the primitive/operation untangle and the word are census work.
+* *freshen* — COLLIDED with VOK (`tt/vow-F.Freshen.sh`; VOSO "Freshen CLAUDE.md"); banked and
+  RESOLVED at the census (260705), the word swept from the sheaves.
+  The untangle, per the trunk-resync cinch: the session-facing resync operation is *refit* —
+  fair-faced for the staleness warning it names the remedy in, and composing with this sheaf's
+  own opening metaphor (the farrier fits the horse to the ground; when the ground moves,
+  refit); gate clean.
+  The bare merge-trunk-into-billet primitive is *enfold* (hearting; gate clean, 0 hits).
+  Alternates held for refit: revictual (the billet-logistics composition — resupply the
+  quarters), limber (the artillery-horse attach-to-move sense).
+  Disqualified: dress (MCM's exposure-ladder *dressing* is load-bearing masonry vocabulary),
+  absorb (a named ROE Palisade conduct step), incorporate (AXLA's include-incorporation).
 * Ring-survey toothing — demoted 260704, no verb needed; the *stables* candidate is released.
 
 == Open forks (the mulling surface)
