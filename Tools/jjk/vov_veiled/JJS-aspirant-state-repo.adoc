@@ -89,7 +89,8 @@ Every studbook write brackets identically (the *journal ceremony*), and the orde
   next open.
 . *Lock the studbook*: `glean` (sync lock state) → `stake` (the CAS: atomically push
   the guidon-bearing lock ref, or be rejected) → `sight` to confirm the held guidon is ours.
-  Lock refs live in a dedicated namespace outside `refs/heads/*`; the guidon carries officium,
+  Lock refs live in `refs/jjv/*`, the dedicated namespace outside `refs/heads/*` (allocated at
+  the census, 260705 — see the naming ledger); the guidon carries officium,
   station, acquire-time, and operation, which is what makes break-on-error safe.
 . *Advance*: fast-forward the local studbook to remote tip — always clean under the lock;
   loud failure if not.
@@ -253,6 +254,24 @@ one durable home, no parallel memo — refreshed by build learnings.
   second-project import is its own designed ceremony, with the tombstone-transfer maneuver as
   template.
 
+== Invariant classification (census 260705)
+
+The scattered invariants classify for voicing at drain time — three rivets (defined once,
+cited by code and tests via opaque ID; tails minted at implementation) and three premises
+(`axk_premise` voicings — complexity bounds, structurally enforced or unenforceable by guard):
+
+* *never-force* — RIVET: the consign implementation and the break sequence's lease-guarded
+  pluck are citation sites; a test can assert no force path exists.
+* *no-worktree-paths-in-studbook* — RIVET: studbook write sites and the validator cite it.
+* *durable-first* — RIVET: the journal ceremony's ordering (hippodrome half before studbook
+  half) is a citable proposition tests assert.
+* *trunk-never-pushed-by-JJ* — PREMISE: JJ does not handle trunk (the operator's serializer);
+  structurally enforced — a billet cannot seat the trunk branch — so no guard cites it.
+* *reads-take-no-lock* — PREMISE: no read-lock machinery exists to cite; the bound is the
+  design itself.
+* *sole-door* — PREMISE: every studbook write passes through the journal ceremony; a
+  no-other-door-exists claim has no runtime guard, only structure.
+
 == Naming ledger (candidate mints of 260704, alternates preserved)
 
 * *studbook* — the record repo. Alternates held: daybook, chronicle. Rejected: cartulary
@@ -279,6 +298,15 @@ one durable home, no parallel memo — refreshed by build learnings.
   Replaces *stamp*, evicted as trodden (datestamp/timestamp ambience; live
   `buorb_ensconce_stamp` tweak name; registered in the MCM trodden census).
   Alternate held: cockade. Rejected: signet (live VOK/BUS0 mint).
+* *jjv* — the lock-ref git namespace `refs/jjv/*` (allocated 260705, census): v reads
+  *vexillary* — the namespace where guidons fly; deep interior, farrier-only, so the obscure
+  mnemonic costs nothing.
+  Free letters at allocation were o/q/u/v/z (the README-table allocations jja/jjb/jjc/jjl/jjn
+  honored though several look dormant).
+  Rejected: jjg (the gallops squats it — two live meanings through the parallel-path period),
+  jjl (README Ledger allocation), jjrg (ties the refs to a code-module name that churns).
+  Interior shape (`refs/jjv/<store>/…` vs `refs/jjv/guidons/…`) settles at the blotter design
+  pace.
 * *warden* — dropped: break is a sequence, not an entity.
 * *seat* — disqualified: per-seat licensing troddenness; near-neighbor collision with RBK's
   minted *unseat*.

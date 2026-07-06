@@ -28,6 +28,9 @@
 // jjdxpe_: Pensum report states (liveness enum)
 // jjdxf_: Fundus profiles (test infrastructure configurations)
 // jjdxw_: Window emblem overlay (per-window labels, references, resolution)
+// jjdb_:  Blotter store vocabulary (locked-store entity; reserved at census 260705 for aspirant infusion)
+// jjdd_:  Dispatch layer vocabulary (doors, billet lifecycle, sweep; reserved at census 260705 for aspirant infusion)
+// jjdf_:  Farrier driver vocabulary (trait, op census, error kinds; reserved at census 260705 for aspirant infusion)
 // jjdk_:  Key premises (design constraints)
 // jjdz_:  Serialization concerns
 // jjsz_:  Gazette entity (officium exchange files)
