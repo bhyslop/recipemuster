@@ -50,7 +50,7 @@ Others live on the filesystem outside revision control: [Payor](#Payor) OAuth cr
 <a id="Tabtarget"></a>Every operation is launched through a [Tabtarget](#Tabtarget) — a shell script in the `tt/` directory.
 The critical property: tab completion finds the command you want.
 Type `tt/rbw-<TAB>` and the shell narrows to all [Recipe Bottle](#RecipeBottle) operations; type `tt/rbw-f<TAB>` to see just the [Foundry](#Foundry) build and [Hallmark](#Hallmark) commands.
-Each [Tabtarget](#Tabtarget) is named `{colophon}.{frontispiece}.sh` — the colophon routes to the right module, the frontispiece tells you what it does.
+Each [Tabtarget](#Tabtarget) is named `{prefix}.{label}.sh` — the prefix routes to the right module, the label tells you what it does.
 
 <a id="Log"></a>Every state-changing [Tabtarget](#Tabtarget) writes three [Log](#Log) files to the directory named by `BURS_LOG_DIR` in your [BURS](#BURS) station file: a stable-name file (always the same path — easy for tooling to locate and evaluate the most recent run), a per-command file (same command name across runs — tools like SlickEdit sense diffs between executions), and a timestamped historical file (permanent record).
 Disk space is cheap; [Log](#Log) unconditionally so the diagnostic evidence is always there when something fails.
@@ -748,7 +748,7 @@ The annotated tree below maps its files to the concepts defined above.
 | `        │   ├── Dockerfile.tether` | Rust binary + network attack tools (tether build) |
 | `        │   ├── Dockerfile.airgap` | Same image built `FROM` the forge ([Airgap](#Airgap) build, no upstream pull) |
 | `        │   ├── Cargo.toml` | Ifrit crate manifest |
-| `        │   └── src/` | Ifrit source (rbid binary) |
+| `        │   └── src/` | [Ifrit](#Ifrit) attack-binary source |
 | `        ├── common-ifrit-forge-context/` | Build context for the [Ifrit](#Ifrit) forge — warms cargo cache + pre-stages apt deps |
 | `        │   └── Dockerfile` | Forge image; consumed by `Dockerfile.airgap` as its base |
 | `        ├── rbev-bottle-ifrit-tether/` | [Conjure](#Conjure) (tether) — [Ifrit](#Ifrit) attack binary |

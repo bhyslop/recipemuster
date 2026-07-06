@@ -202,6 +202,7 @@ Prefix rules govern the left half of a name; these govern the word itself. When 
 - **Rare but real**: distinctive words whose true meaning does semantic work; concrete over abstract; never abbreviations.
 - **Mint into an asterism** (`mcm_asterism`): join a coherent metaphor family with an audible register (equestrian, ecclesiastical, diplomatic, civic).
 - **Exposure ladder** (`mcm_ashlar`/`mcm_hearting`): hearting (interior, prefix-only) → quoin (catalogued default) → ashlar (operator-facing). An ashlar must be fair-faced (first-contact actionable; `mcm_cold_probe` tests it), draws from the coffer (bounded operator vocabulary), and registers on the project's broadside (RB's broadside is the README glossary). Words in error output are ashlar.
+- **Revetment** (`mcm_revetment`/`mcm_spall`): the maintained public face presenting the veiled interior in dressed form; a leaked interior name on it is a *spall*. RB's revetment is README.md — the same file that is RB's broadside above. Concept home and the four-invariant face law: MCM "Lapidary", not restated here.
 
 Full doctrine: MCM "Lapidary". Constrains births, not the living.
 
