@@ -9503,8 +9503,8 @@
         "₢BtAAM": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260706-0738",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260706-0914",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "## Character",
                 "",
@@ -9535,7 +9535,7 @@
                 "the anchor sweep passes — every `](#X)` reference has a matching `<a id=\"X\">`."
               ],
               "jjgtn_silks": "readme-lode-single-section",
-              "jjgtn_basis": "ad44374"
+              "jjgtn_basis": "38bbe82"
             }
           ]
         }
