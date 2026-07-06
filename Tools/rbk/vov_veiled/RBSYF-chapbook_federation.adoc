@@ -1,0 +1,375 @@
+//axvd_sheaf axd_aspirant axd_chapbook
+This is an aspirant chapbook of the {rbs0_imprimatur}: not yet binding — do not rely on it, decide from it, or cite the names it mints until it is infused into the codex.
+//axhcb_chapbook axd_quoined
+`rbsyf`
+
+== Overview
+
+This chapbook tells the federation tale:
+how a human comes to act inside a
+{rbtgi_depot}
+with no key anywhere and every act attributed —
+from the manor's founding trust,
+through admission onto a mantle,
+to the audit line that names the acting service account and the human behind it together —
+and how holdings are withdrawn when the story runs its shadow side.
+
+The tale binds stitching only:
+a cast of actors quartered into venues, and an ordered run of interactions.
+Every parameter, output, guarantee, and rejection band lives in the cited contracts, never here.
+The marker skeleton is the truth;
+any rendered diagram — its boxes, its arrows, its inscriptions — is derived presentation.
+
+*Oracle.*
+The story spine is three fixtures.
+The freehold-establish arc
+(`Tools/rbk/rbtd/src/rbtdrk_depot.rs`, the `RBTDRK_CASES_FREEHOLD_ESTABLISH` registry)
+walks the positive founding in registered order: levy, avowal, gird, the brevet-and-don pairs, and the founding-whole recognosce.
+The parley fixture
+(`Tools/rbk/rbtd/src/rbtdrv_patrol.rs`, `RBTDRV_CASES_PARLEY`)
+proves the withdrawal round-trip on the manor roll — the muniment stands, vanishes, stands.
+Polity-denial
+(same file, `RBTDRV_CASES_POLITY_DENIAL`)
+pins the shadow side's exact rejection bands and the per-mantle isolation of admission.
+An interaction that contradicts a passing case is wrong — the fixture, not the chapbook, is authoritative.
+The tale compresses where the oracle repeats:
+each mechanism is told once, and a beat notes the cases it compresses.
+
+*Stage geography.*
+Identity originates at the
+{rbtf_census} —
+the external IdP that alone says who exists —
+and flows through the manor's one workforce pool
+({rbrw_regime})
+and a per-foedus provider
+({rbrf_regime})
+into a depot,
+where the three
+{rbtf_mantle_s}
+stand as the only actors resources ever see.
+Who holds what is recorded beside the trust:
+the
+{rbtf_terrier}
+keeps one
+{rbtf_muniment}
+per holding, and the record moves before the power, both directions.
+No keyfile exists at any point of the flow;
+what replaces possession is the
+{rbsk_human_present}
+premise — a live human sign-in behind every mantle token.
+
+== Cast
+
+//axhca_actor axd_external
+{rbtr_payor} —
+the organization-level founder:
+wields the manor and depot founding verbs,
+and the one admission a fresh depot cannot yet wield for itself.
+
+//axhca_actor axd_external
+{rbtr_governor} —
+the wielding admission authority of a depot;
+every everyday admission and withdrawal is this role's act,
+performed under a donned governor mantle.
+
+//axhca_actor axd_external
+{rbtf_citizen} —
+the admitted human:
+the federated principal the census asserts,
+the subject the muniments name,
+the wearer of mantles.
+In the oracle the governor and the citizen are one person —
+the standing freehold subject wears every mantle;
+the tale splits the wielding role from the admitted subject so the everyday shape stays visible.
+
+//axhcv_venue
+`rbsyf_idp`
+The foreign identity province — surveyed, never legislated.
+
+//axhca_actor axd_external
+{rbtf_census} —
+the authoritative population:
+who exists is its verdict alone, asserted to the manor's trust at each sign-in.
+
+//axhcv_venue
+`rbsyf_manor`
+The manor's holdings — the commanded organization and the payor project.
+
+//axhca_actor axd_internal
+{rbtgi_manor} —
+the composite administrative holding;
+its scriptable substrate — pool, terrier bucket, polity folder — is where founding lands.
+
+//axhca_actor axd_internal
+{rbtf_foedus} —
+the standing trust:
+a provider under the manor's one workforce pool, with its attribute mapping.
+
+//axhca_actor axd_internal
+{rbtf_terrier} —
+the durable record of holdings:
+one muniment per subject, mantle held, and admitting provider,
+written before any binding.
+
+//axhcv_venue
+`rbsyf_depot`
+The levied polity — the depot project and what stands inside it.
+
+//axhca_actor axd_internal
+{rbtgi_depot} —
+the depot unit itself;
+depot-scoped bindings land here, and whole-person expulsion sweeps here.
+
+//axhca_actor axd_internal
+{rbtf_mantle} —
+the three standing role service accounts;
+per-citizen impersonation bindings land here, and every don mints from here.
+
+//axhca_actor axd_internal
+{rbtgi_repository} —
+the depot's registry:
+the resource the attributed act finally touches.
+
+== The Tale
+
+=== Movement I — The Manor Founded
+
+Oracle: none of the spine's cases —
+this movement is the ground the oracles presume:
+parley and polity-denial baseline-assert against a standing manor, and freehold-establish levies into one.
+
+//axhci_interaction
+. {rbtr_payor} {rbtgi_manor} — via
+{rbtgo_manor_instaurate},
+the payor founds the manor's scriptable substrate:
+the one workforce pool ensured by list-and-match against its committed record
+({rbrw_regime}),
+the terrier bucket, and the per-polity managed folder —
+ensure-exists, idempotent, never destructive.
+
+//axhci_interaction axd_attended axd_foreign
+. {rbtr_payor} {rbtf_census} — at the census's own console,
+the payor registers the application that will assert citizens:
+the guided walk whose yield is a foedus's core trust values,
+landing in the committed federation regime
+({rbrf_regime}).
+No operation of ours governs a neighbor's console;
+the walk is a handbook track without a citable home — see Surfaced Gaps.
+
+//axhci_interaction
+. {rbtr_payor} {rbtf_foedus} — via
+{rbtgo_manor_affiance},
+the payor pledges the trust:
+a provider seated under the standing pool, with its attribute mapping,
+its body conditional on the foedus's acquisition mechanism
+({rbrf_mechanism}).
+A ceremony with founding gravity, once per foedus;
+the pool it hangs under must already stand.
+
+=== Movement II — The Polity Levied
+
+Oracle: `rbtdrk_freehold_ensure`, `rbtdrk_depot_recognosce`.
+A depot rises inside the founded manor, federation-ready from birth.
+
+//axhci_interaction
+. {rbtr_payor} {rbtgi_depot} — via
+{rbtgo_depot_levy},
+the payor levies the depot:
+project, repository, mason service account — and the three
+{rbtf_mantle_s},
+their resource authority granted once here and frozen,
+with the registry's Data-Access audit trail enabled at birth.
+The oracle reuses a standing freehold when one is active; the levy is the create path it proves.
+
+//axhci_interaction
+. {rbtr_payor} {rbtgi_depot} — via
+{rbtgo_depot_recognosce},
+the founding is recognosced:
+a read-only proof that the mantles, their capability-sets, and the audit config stand whole.
+The tale tells it beside the levy it verifies;
+the oracle holds this case to the arc's very end,
+pronouncing the founding whole only after every admission below has ridden on it.
+
+=== Movement III — The Sitting
+
+Oracle: `rbtdrk_avow`.
+No run begins outside a live sitting; the human clicks once.
+
+//axhci_interaction axd_attended axd_foreign axd_legend
+. {rbtf_citizen} {rbtf_census} `rbsyf_sitting_opens` —
+the citizen avows:
+answering the summons at the census's own sign-in page (the device flow),
+whereupon the accessor exchanges the fresh assertion for a federated token
+and a live
+{rbtf_sitting}
+opens — a bounded window, runway-gated at every reuse, with
+{rbtf_novate}
+the floor's named remedy.
+Human presence is enforced by the sign-in itself, never by terminal possession.
+The
+{rbtf_avow}
+is a civic act with no catalogued operation anchor — see Surfaced Gaps.
+
+=== Movement IV — The Founding Admission
+
+Oracle: `rbtdrk_gird_governor`.
+A fresh depot has no governor to admit its first governor.
+
+//axhci_interaction
+. {rbtr_payor} {rbtf_mantle} — via
+{rbtgo_governor_gird},
+the payor girds the founding governor:
+the first citizen seated onto the governor mantle,
+the one admission wielded by the payor's own credential rather than a donned governor —
+needing no sitting at all.
+It composes exactly as the everyday admission below:
+the
+{rbtf_muniment}
+engrossed into the terrier before any binding,
+then the mantle's `tokenCreator` and the depot's first-admission `serviceUsageConsumer`.
+Every further admission flows through governor wielding.
+
+=== Movement V — The Everyday Admission
+
+Oracle: `rbtdrk_brevet_don_director`, `rbtdrk_brevet_don_retriever`.
+Admission is a governor's everyday act, and its record precedes its power.
+
+//axhci_interaction axd_foreign
+. {rbtf_citizen} {rbtf_mantle} —
+the girded citizen dons the governor mantle:
+a short-lived mantle token minted from the sitting's federated token —
+the third federation leg, the depot as quota project —
+one mantle worn per token, the blast radius made audible.
+This wearing is what turns the citizen into the wielding governor of the beats below.
+The don is told once here;
+every later don in the tale is the same act on another mantle,
+and polity-denial's isolation dons prove each mantle wears independently.
+The
+{rbtf_don}
+has no catalogued operation anchor — see Surfaced Gaps.
+
+//axhci_interaction
+. {rbtr_governor} {rbtf_mantle} — via
+{rbtgo_citizen_brevet},
+the governor brevets the citizen onto a mantle:
+the
+{rbtf_muniment}
+engrossed first — one terrier entry naming subject, mantle, and admitting provider —
+then the `tokenCreator` binding and, on the citizen's first admission to this depot, the depot-scoped `serviceUsageConsumer`,
+all idempotently ensured.
+Told once;
+the oracle walks the arc for the director and retriever mantles alike,
+each brevet wielded under the donned governor mantle.
+
+//axhci_interaction axd_foreign axd_legend
+. {rbtf_citizen} {rbtgi_repository} `rbsyf_audit_names_both` —
+wearing the freshly donned retriever mantle, the citizen reaches the repository,
+and the depot's Data-Access audit trail writes the attributed entry:
+the acting mantle service account and the human federate subject, named together on one line —
+the tale's whole point made durable.
+The mantle-access probe that drives this reach and the attribution-trail read beside it
+are enrolled but uncatalogued — see Surfaced Gaps.
+
+=== Movement VI — The Withdrawal Rehearsed
+
+Oracle: `rbtdrv_parley` and `rbtdrv_polity_denial`.
+Suspension is everyday and cheap, and the record moves first in both directions.
+
+//axhci_interaction
+. {rbtr_governor} {rbtf_terrier} — via
+{rbtgo_terrier_rehearse},
+the governor rehearses the manor roll:
+the baseline — the citizen's retriever
+{rbtf_muniment}
+stands, attributed to its admitting foedus.
+
+//axhci_interaction
+. {rbtr_governor} {rbtf_mantle} — via
+{rbtgo_citizen_unseat},
+the governor unseats the citizen from the retriever mantle:
+the muniment expunged first, then the `tokenCreator` binding withdrawn —
+suspension, not erasure; the depot-scoped binding stands.
+Polity-denial pins the consequence:
+the retriever don now refuses in the exact admission band — never bare failure —
+while the held mantles still don clean: admission is per-mantle, by proof.
+
+//axhci_interaction
+. {rbtr_governor} {rbtf_terrier} — via
+{rbtgo_terrier_rehearse},
+the roll no longer holds the muniment —
+the expunge is immediate in the strongly-consistent terrier.
+
+//axhci_interaction
+. {rbtr_governor} {rbtf_mantle} — via
+{rbtgo_citizen_brevet},
+the governor restores the brevet — a genuinely fresh engross;
+the impersonation binding settles eventually,
+and the oracle polls the retriever don back to green
+so the freehold leaves exactly as it was found.
+
+//axhci_interaction
+. {rbtr_governor} {rbtf_terrier} — via
+{rbtgo_terrier_rehearse},
+the muniment stands again:
+stands, vanishes, stands — the round-trip the parley suite exists to prove.
+
+Beneath the verbs, polity-denial also pins the record layer itself:
+the terrier sub-operations
+({rbtf_engross},
+{rbtf_expunge},
+{rbtf_peruse})
+are each driven under the fault seam on a synthetic subject,
+so the record's refusals reject in bands as exact as the admission's.
+
+=== Movement VII — The Expulsions
+
+Oracle: none — the rare edges are told from contract alone; no spine fixture drives attaint or jilt.
+
+//axhci_interaction
+. {rbtr_governor} {rbtgi_depot} — via
+{rbtgo_citizen_attaint},
+the governor attaints a citizen — the whole-person expulsion:
+every mantle unseated,
+and the depot-scoped binding that suspension leaves behind swept.
+Removal of the principal on the census side remains the IdP administrator's act, never ours.
+
+//axhci_interaction
+. {rbtr_payor} {rbtf_foedus} — via
+{rbtgo_manor_jilt},
+the payor jilts the foedus:
+its provider deleted while the shared pool stands,
+ending federated access for every citizen asserted through that trust —
+deliberately confirmed, founding-rare.
+Depots drawing on other foedera are untouched, as are the mantle service accounts and their bindings;
+tearing down the pool itself is the manor-teardown act, deliberately not jilt,
+and jilt churn never erases admission records.
+
+== Surfaced Gaps
+
+Story-first authoring exists to surface exactly these.
+Both gaps are graduation conditions for this chapbook, alongside its cast-and-interaction ratification.
+
+*The access arc is uncatalogued.*
+{rbtf_avow},
+{rbtf_don},
+and the sitting lifecycle around them
+({rbtf_sitting},
+{rbtf_novate},
+{rbtf_espy})
+are civic definitions carrying real normative weight,
+and the accessor surface is implemented and enrolled —
+the federated-access check, the mantle-access check that writes the attributed audit entry,
+the read-only attribution-trail display, and the sitting probes —
+yet none of them stands behind an operation anchor voiced for citation,
+where every admission and manor verb does.
+Movements III and V therefore carry the avow, don, and attributed-action beats licensed
+(attended or foreign) rather than cited — licensed, but naming a real gap.
+The breach dissolves when the access operation quoins and sheaves are minted and the beats cite them.
+
+*The IdP-console walk is guide-only.*
+The payor's application registration at the census —
+the guided walk yielding a foedus's core trust values —
+has a handbook track but no catalogued home to cite;
+Movement I carries it attended and foreign.
+The foreignness is permanent (a neighbor's console is never ours to legislate);
+the citable guide home is what is missing.
