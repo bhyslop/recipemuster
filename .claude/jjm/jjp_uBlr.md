@@ -138,6 +138,9 @@ the founding-and-cutover section stays aspirant deliberately — it is the conve
   LANDED 260706: `JJSVS-studbook.adoc` (normative entity), mounted in JJS0's Revision Control region;
   homes the studbook, pedigree, and counterfoil quoins and the no-worktree-paths rivet.
 - Farrier (entity): the driver trait, op census as method contracts, error-kind taxonomy, the capability seam.
+  LANDED 260706: `JJSVF-farrier.adoc` (normative entity), mounted in JJS0's Revision Control region;
+  homes the `jjdf_` quoins (entity, three facets, identify, vocabulary Palisade)
+  and the never-force rivet at the consign contract.
 - Dispatch and billet (operation family): saddle, lunge, unsaddle, the entrance spine, the sweep,
   BUK meld consequences; launch-time provisioning folds in (lean 260705: fold, split only if it dominates the sheaf at authoring).
 - Tackle MVP core: scope-to-discipline binding beside the pedigree.
@@ -191,18 +194,27 @@ STUDBOOK INFUSION (260706): studbook, pedigree, and counterfoil catalogued as `j
 in `JJSVS-studbook.adoc`; their ledger entries marked infused;
 the no-worktree-paths rivet homed at the sheaf (tail mints at implementation);
 the chapbook's studbook lane and counterfoil mentions hardened to citations.
+FARRIER INFUSION (260706): farrier, the three facets (core/lock/billet), identify, and the
+vocabulary Palisade catalogued as `jjdf_` quoins in `JJSVF-farrier.adoc`;
+farrier, comb/lodge/glean/consign, stake/pluck/sight, and enfold ledger entries marked infused
+(refit, muck, saddle/unsaddle, lunge, and billet stay aspirant with the dispatch family);
+never-force marked infused (homed at the consign contract, tail mints at implementation);
+the chapbook's farrier interactions and identify-at-open hardened to citations,
+its open-staleness line re-worded to the softened no-verb-refuses cinch.
 Elections, alternates, and rationales live in the two sheaf ledgers; this roster is the summary.
 
 ### Deltas to bank into the aspirant sheaves at drain time
 
 - Farrier ledger: DONE 260705 — the freshen collision recorded and resolved (refit/enfold);
   spine and doctrine wording re-cinched to glean-never-merge per the trunk-resync cinch.
-- Billet definition: re-anchor on the partition axis (a root with a lifecycle) —
-  worktree is the plain-git implementation; a full clone is the fallback for kinds without worktrees.
-- The sweep supersedes the reaped-at-next-saddle line;
-  the identify census row sheds its plain-git-only vocabulary,
-  sheds HEAD (position's one home is the counterfoil op, per the identify cinch),
-  and the officium-open composition row updates to match.
+- Billet definition: DONE 260706 — re-anchored on the partition axis (a root with a lifecycle)
+  in both the canon Two-axes section and the remaining aspirant billet bullet;
+  worktree the plain-git implementation, full clone the fallback for kinds without worktrees.
+- Sweep and identify rows: DONE 260706 — the muck-sweep cinch superseded the
+  reaped-at-next-saddle line in the aspirant lifecycle doctrine;
+  the census drained into the farrier sheaf with identify carrying the cinched contract
+  (plain-git vocabulary and HEAD shed — position's one home is the counterfoil op),
+  and the officium-open composition row re-worded to the four identify resolutions.
 - Studbook sheaf naming ledger: DONE 260705 — the jjy_ entry marked infused with the widened
   charter (all JJ-owned infield residents), the charter itself canon in the cosmology sheaf.
 - Mews sheaf (sibling heat ₣Ba): DONE 260705 — the graduation fork closed in the sheaf itself;
