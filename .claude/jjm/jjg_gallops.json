@@ -8030,6 +8030,7 @@
         "₢BrAAF",
         "₢BrAAG",
         "₢BrAAH",
+        "₢BrAAY",
         "₢BrAAI",
         "₢BrAAJ",
         "₢BrAAX",
@@ -8047,7 +8048,7 @@
         "₢BrAAV",
         "₢BrAAW"
       ],
-      "jjghn_next_pace_seed": "AAY",
+      "jjghn_next_pace_seed": "AAZ",
       "jjghn_paces": {
         "₢BrAAA": {
           "jjgpn_tacks": [
@@ -8706,6 +8707,52 @@
               ],
               "jjgtn_silks": "design-complete-gate",
               "jjgtn_basis": "f9572a4"
+            }
+          ]
+        },
+        "₢BrAAY": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260706-0922",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "",
+                "Design pace — the session-configuration model spanning dispatch and bridle; frontier tier.",
+                "Includes a minting ceremony under MCM Lapidary.",
+                "",
+                "## Done when",
+                "",
+                "The session-launch configuration model is designed whole and cinched in the paddock:",
+                "the designation vocabulary — flat tier ladder vs (family, effort) axes,",
+                "JJ-owned rung words vs vendor family names —",
+                "ratified jointly with the bridle pace ₢BcAAM in ₣Bc, which stores it;",
+                "the validated (model, effort) pair table (effort ceilings are model-gated) and its home;",
+                "the spawn primitive parameterized on the order of (billet, tier, opening prompt),",
+                "its census word minted under the Lapidary gates with exposure tier settled at authoring —",
+                "launch is disqualified before fit is weighed: trodden,",
+                "and launcher is already bound to the BUK tabtarget-dispatch concept (semantic uniqueness);",
+                "the mechanics of the permanent frontier-only gate on the docket-authoring verbs;",
+                "and bridle-tier consumption at the dispatch door — designated tier honored,",
+                "unbridled paces default to frontier (undesignated work is judgment work).",
+                "",
+                "## Cinched",
+                "",
+                "- Pace-coupling lives in the caller, never the primitive: mount is the first caller;",
+                "  breeze-era per-beat dispatch is an anticipated second caller, acknowledged, never designed here",
+                "  (JJSAB reconciliation: per-beat dispatch rides this same spine, no parallel launcher).",
+                "- The docket carries the full weight of bridling, judged at the designated tier;",
+                "  no pace-grain warrant artifact returns — warrant stays whole in the breeze aspirant sheaf.",
+                "- Designation is by tier, never model ID (per the bridle pace cinch);",
+                "  whether rung names are JJ-owned or vendor family words is this pace's question.",
+                "",
+                "## Sources",
+                "",
+                "Aspirant farrier sheaf dispatch sections; JJSAB reconciliation section;",
+                "₢BcAAM docket in ₣Bc; MCM Lapidary (vocabulary isolation, semantic uniqueness, word husbandry)."
+              ],
+              "jjgtn_silks": "session-tier-launch-design",
+              "jjgtn_basis": "d5557fc"
             }
           ]
         }
