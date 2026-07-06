@@ -39,38 +39,10 @@ A new upstream needs a founding pedigree entry before JJ serves it — a deliber
 
 == The journal ceremony
 
-Every studbook write brackets identically (the *journal ceremony*), and the ordering is
-*durable-first*: the work artifact commits before the journal that references it.
-
-. *Hippodrome commit* (lock-free): explicit file list, on the current branch or billet branch.
-  The commit the counterfoil will name now exists.
-  On a billet branch this step also *pushes* the branch (cinched 260704): branches are the
-  cross-station WIP carrier, and an unpushed branch is no carrier.
-  Fast-forward and additive, so safe by construction; the trunk is never pushed by JJ;
-  offline, the journal proceeds with the counterfoil flagged unpushed and `sync_state` nags at
-  next open.
-. *Lock the studbook*: `glean` (sync lock state) → `stake` (the CAS: atomically push
-  the guidon-bearing lock ref, or be rejected) → `sight` to confirm the held guidon is ours.
-  Lock refs live in `refs/jjv/*`, the dedicated namespace outside `refs/heads/*` (allocated at
-  the census, 260705 — see the naming ledger); the guidon carries officium,
-  station, acquire-time, and operation, which is what makes break-on-error safe.
-. *Advance*: fast-forward the local studbook to remote tip — always clean under the lock;
-  loud failure if not.
-. *Mutate and commit*: apply the gallops change plus the counterfoil naming the hippodrome and
-  its commit; `lodge` with explicit files.
-. *Push content*: `--atomic`, binding the content update to a lease on our own lock ref —
-  if the lock was broken under us, the whole push fails.
-  No corruption, no service but git.
-. *Unlock*: `pluck`, best-effort; a die here leaves a stale lock still flying its
-  guidon for the break sequence.
-
-Breaking a stale lock is *never a method on the holder's guard* — it is its own sequence
-(lease-guarded delete against the observed guidon, never blind), specified in its own right.
-There is no personified break entity.
-An operator-deliberate break-all toothing exists in the farrier sheaf's op census.
-
-An orphaned hippodrome commit (committed, never journaled) is recoverable;
-a journal entry naming a nonexistent SHA is the worse failure — hence durable-first.
+The write bracket and the break sequence are canon: drained 260706 to the journal ceremony
+routine sheaf (`JJSVJ-journal.adoc`, `jjdb_journal`/`jjdb_break`), with the lock ref and the
+guidon in the blotter entity sheaf (`JJSVB-blotter.adoc`, `jjdb_blotter`/`jjdb_guidon` —
+interior shape settled: one well-known ref `refs/jjv/guidon` per blotter).
 
 == Counterfoil — how JJ commits know hippodrome commits
 
@@ -118,11 +90,12 @@ The commit message may carry the plan in gazette notice format as a review surfa
 
 == Store shape
 
-* Git stays source-of-truth and journal — additive history, commit-as-intent, `jjx_log`
-  reconstruction, free immutability.
-* The studbook and mews repos are *linear — they never branch* — and single-writer-under-lock,
-  so a monotonic ordinal per repo is clean and authoritative.
-  The deferred insignia sub-mint (glyph-prefixed revision aliases; the ordinal a denormalized
+The entity-generic shape — git as source-of-truth and journal, linear and
+single-writer-under-lock, the lockless read posture — is canon: drained 260706 to the blotter
+entity sheaf (`JJSVB-blotter.adoc`).
+What remains is studbook-specific:
+
+* The deferred insignia sub-mint (glyph-prefixed revision aliases; the ordinal a denormalized
   label, the SHA the identity) stands as recorded in the 260630 memo — deferred past MVP,
   to mint together with the pace-identity design pace (one coherent glyph-space allocation);
   the AXLA insignia-family ADT work already planned in ₣BD is the code-side anticipation.
@@ -131,8 +104,6 @@ The commit message may carry the plan in gazette notice format as a review surfa
   race-free, the linear history makes it verifiable, and no side table exists.
 * The lock supersedes the original sharding pressure (no cross-clone merge exists at all);
   per-heat sharding remains open only as a file-layout choice, not a concurrency need.
-* Reads take no lock and tolerate slight staleness; consumers reach the gallops through the
-  engine's read path, never raw JSON.
 
 == Scope at birth
 
@@ -227,12 +198,16 @@ cited by code and tests via opaque ID; tails minted at implementation) and three
 * *no-worktree-paths-in-studbook* — RIVET: studbook write sites and the validator cite it.
 * *durable-first* — RIVET: the journal ceremony's ordering (hippodrome half before studbook
   half) is a citable proposition tests assert.
+  INFUSED 260706 (journal sheaf — the bracket's law; opaque tail still mints at
+  implementation).
 * *trunk-never-pushed-by-JJ* — PREMISE: JJ does not handle trunk (the operator's serializer);
   structurally enforced — a billet cannot seat the trunk branch — so no guard cites it.
 * *reads-take-no-lock* — PREMISE: no read-lock machinery exists to cite; the bound is the
   design itself.
+  INFUSED 260706 (blotter sheaf, `jjdk_lockless_reads`).
 * *sole-door* — PREMISE: every studbook write passes through the journal ceremony; a
   no-other-door-exists claim has no runtime guard, only structure.
+  INFUSED 260706 (journal sheaf, `jjdk_sole_door`).
 
 == Naming ledger (candidate mints of 260704, alternates preserved)
 
@@ -252,6 +227,9 @@ cited by code and tests via opaque ID; tails minted at implementation) and three
   (both cinched 260704). Mnemonic: yard.
   INFUSED 260705 (cosmology sheaf, `jjdw_yard`), with the charter widened to *all* JJ-owned
   infield residents — the launcher trampolines join the family (paddock delta banked).
+* *blotter* — the locked-store entity the studbook instantiates; elected 260705 at the canon
+  workup under grep gate (paddock cinch). Alternates held: ratchet, cadastre.
+  INFUSED 260706 (blotter sheaf, `jjdb_blotter`).
 * *counterfoil* — the journaled member→SHA stub naming the issued work commit; one-way by
   construction (the stub stays in the book, the leaf circulates).
   Replaces *pin*, evicted as trodden (digest-pin/version-pin ambience, ~245 whole-word in-house
@@ -264,6 +242,7 @@ cited by code and tests via opaque ID; tails minted at implementation) and three
   Replaces *stamp*, evicted as trodden (datestamp/timestamp ambience; live
   `buorb_ensconce_stamp` tweak name; registered in the MCM trodden census).
   Alternate held: cockade. Rejected: signet (live VOK/BUS0 mint).
+  INFUSED 260706 (blotter sheaf, `jjdb_guidon`).
 * *jjv* — the lock-ref git namespace `refs/jjv/*` (allocated 260705, census): v reads
   *vexillary* — the namespace where guidons fly; deep interior, farrier-only, so the obscure
   mnemonic costs nothing.
@@ -271,8 +250,9 @@ cited by code and tests via opaque ID; tails minted at implementation) and three
   honored though several look dormant).
   Rejected: jjg (the gallops squats it — two live meanings through the parallel-path period),
   jjl (README Ledger allocation), jjrg (ties the refs to a code-module name that churns).
-  Interior shape (`refs/jjv/<store>/…` vs `refs/jjv/guidons/…`) settles at the blotter design
-  pace.
+  Interior shape SETTLED 260706 (blotter design pace): one well-known ref `refs/jjv/guidon`
+  per blotter — the store discriminator is the repo itself, so the interior stays flat.
+  INFUSED 260706 (blotter sheaf, at `jjdb_guidon`).
 * *warden* — dropped: break is a sequence, not an entity.
 * *seat* — disqualified: per-seat licensing troddenness; near-neighbor collision with RBK's
   minted *unseat*.
@@ -281,9 +261,9 @@ cited by code and tests via opaque ID; tails minted at implementation) and three
 
 == Sibling rhyme (mews — not a dependency)
 
-This repo and the mews fleet store are the same git-CAS, journalled pattern in distinct homes.
-The one genuine seam is the `(work-repo, SHA)` cross-reference both need — here, the
-counterfoil.
+Canon: drained 260706 to the blotter entity sheaf's Instances section (`JJSVB-blotter.adoc`) —
+the studbook and the mews fleet store are the blotter's two designed instances, the
+counterfoil seam included.
 
 == Open forks (the mulling surface)
 

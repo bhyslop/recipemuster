@@ -137,8 +137,8 @@ acting on someone else's lock, never a guard method.
 
 == Toothing compositions
 
-The journal ceremony (studbook sheaf) is the shared write bracket; toothings compose the
-primitives:
+The journal ceremony (its own routine sheaf, `JJSVJ-journal.adoc`) is the shared write
+bracket; toothings compose the primitives:
 
 [cols="1,3"]
 |===
