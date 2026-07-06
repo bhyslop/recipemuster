@@ -365,17 +365,6 @@ Benefits:
 
 ## Future Directions
 
-> **Note**: Items marked ~~strikethrough~~ are addressed by the Studbook Redesign heat (b260101).
-> See `.claude/jjm/current/jjh_b260101-jj-studbook-redesign.md` for the replacement architecture.
-
-### ~~Heat Creation Skill~~ → `jj-nominate`
-~~Create a dedicated skill for forming well-structured heats.~~
-Replaced by `jj-nominate` which allocates Favor, creates paddock stub, and registers in studbook.
-
-### ~~Heat Document Efficiency~~ → Studbook + Paddock
-~~Reduce thrash in heat files during active work.~~
-Replaced by Studbook (JSON registry) + Paddock (per-heat markdown) architecture. No more Done/Current/Remaining section churn.
-
 ### Silk Design Guidance
 Make silks short and memorable for human cognition:
 - **Silks**: Kebab-case identifiers for heats, paces, itches, scars (e.g., `cloud-foundation-stabilize`, `fix-unbound-variable`)
@@ -392,14 +381,6 @@ Project-level control over automatic git commits:
 - Some want no JJ-initiated commits at all
 - Configuration in CLAUDE.md JJ section: `autocommit: per-pace | per-notch | never`
 - Default behavior should match current (commits on wrap/notch)
-
-### ~~Steeplechase as Git Commit Discipline~~ → `jj-chalk` / `jj-rein`
-~~Experiment with moving steeplechase entries from heat files to git commits.~~
-Implemented as core feature: `jj-chalk` writes structured git commits (empty commits with Favor + emblem), `jj-rein` queries git log for steeplechase entries. Trophy extraction gathers git history at retirement.
-
-### ~~JSON Storage with jq Management~~ → `jjs_studbook.json`
-~~Consider storing itches and/or heats as JSON documents managed via jq.~~
-Implemented as `jjs_studbook.json` - central registry of heats/paces with Favor keys. Uses `jq --sort-keys --indent 2` for stable diffs. Paddock prose stays markdown (hybrid approach).
 
 ---
 
