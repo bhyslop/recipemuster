@@ -33,7 +33,7 @@ Everything it asks of the engine crosses an MCP door.
 
 //axhca_actor axd_internal
 `jjcbs_kit`
-*The kit repo* — the `jjy_app` peer in the infield, source of the engine and the provisioned context; pending the studbook-sheaf infusion.
+*The kit repo* — the `jjy_app` peer in the {jjdw_infield}, a {jjdw_yard} resident, source of the engine and the provisioned context.
 
 //axhca_actor axd_internal
 `jjcbs_studbook`
@@ -41,7 +41,7 @@ Everything it asks of the engine crosses an MCP door.
 
 //axhca_actor axd_internal
 `jjcbs_hippodrome`
-*The hippodrome* — the vanilla work clone, no JJ inserts; pending the cosmology sheaf.
+*The hippodrome* — the {jjdw_hippodrome}: the vanilla work clone, no JJ inserts.
 
 //axhca_actor axd_internal
 `jjcbs_billet`
@@ -71,7 +71,7 @@ Pending: the farrier sync facet.
 
 //axhci_interaction
 `jjcbs_dispatch` `jjcbs_kit`
-Resolve engine and provisioned context from the infield peer ring.
+Resolve engine and provisioned context from the {jjdw_infield} peer ring.
 Pending: launch-time provisioning.
 
 //axhci_interaction
@@ -135,7 +135,8 @@ Pending: the sweep operation.
 == Pending-citation register (the convergence gauge)
 
 Beats above flag these homes as pending; each hardens to a citation when its sheaf lands:
-the saddle and lunge operations; the sweep operation and its word; the farrier billet and sync facets; launch-time provisioning and the entrance spine; the identify contract; the resync operation and its precision band; the journal ceremony routine sheaf; and the cast's entity quoins (party, dispatch, engine, blotter, studbook, hippodrome, billet, infield).
+the saddle and lunge operations; the sweep operation and its word; the farrier billet and sync facets; launch-time provisioning and the entrance spine; the identify contract; the resync operation and its precision band; the journal ceremony routine sheaf; and the cast's entity quoins (party, dispatch, engine, blotter, studbook, billet).
+Hardened so far: hippodrome and infield ({jjdw_hippodrome}, {jjdw_infield} — the cosmology sheaf, 260705).
 
 Deferred sibling tales, named so they are not smuggled into this one:
 the two-station lock contention tale, the stale-lock break tale, and the stale-trunk resync tale — unhappy paths belong to their own chapbooks.

@@ -28,7 +28,7 @@ not repo-grain.
 == Where it lives
 
 Studbook-side, beside the pedigree (one tackle set per upstream type) — never in the hippodrome,
-which carries no JJ inserts (studbook sheaf, vanilla-hippodrome premise).
+which carries no JJ inserts (canon: the revision-control cosmology sheaf, vanilla-hippodrome premise).
 Tackle and farrier config are sibling entries on the pedigree answering different questions with
 different change cadences: tackle binds *files to rules* (changes when code domains shift);
 farrier binds *the repo to its mechanics* (changes when repo topology shifts).

@@ -17,50 +17,12 @@ Vocabulary below is candidate-minted (chat of 260704): adopted for mulling, form
 
 == What it is
 
-Job Jockey's own record — the gallops, and later the captured chat histories — lives in a git
-repository *separate from the code being jockeyed and global across stations*: the *studbook*.
+The world model — the separate global record, why-decouple, the infield peer ring, the
+hippodrome — is canon: drained 260705 to the revision-control cosmology sheaf
+(`JJSVC-cosmology.adoc`, the `jjdw_` quoins).
+What remains below is the studbook's own contract, still aspirant.
 The gallops stays the live state-concept; the studbook is the physical vessel that holds it.
 A dedicated vvx-driven engine manages the studbook safely; the human never hand-manages its git.
-
-== Why decouple
-
-* *Contamination.* Co-residence makes JJ bookkeeping commits part of the work repo's history and
-  advances its HEAD — the recorded symptom is the pensum-seed eviction (JJ commits advanced HEAD
-  past origin and tripped foray's curia-readiness guard).
-  A separate repo dissolves the whole contamination class, not one instance.
-* *Merge relief.* Across synced clones, every gallops change is today a 3-way merge of canonical
-  JSON; a single global record edited under a lock has no cross-clone merge at all.
-* *Identity collision.* Distributed next-free coronet allocation across divergent clones
-  deterministically double-mints (the `₢BfAA3` incident,
-  `Memos/memo-20260702-jjk-gallops-coronet-collision-incident.md`).
-  One studbook behind one lock means one seed — the collision class dies at the root.
-* *Vanilla hippodromes.* State out of the work repo is what lets a work repo carry no JJ inserts
-  at all (see The peer ring below).
-
-== The peer ring (infield)
-
-All JJ-managed trees are peers in one parent directory — the *infield* (cinched 260704: the
-racing word for the enclosed interior of the track):
-
-* `../jjy_app` — the kit repo (engine, specs); found by peer-ring convention, no per-repo
-  pointer (cinched 260704).
-  JJ's own infield residents carry the `jjy_` dirname family (mnemonic: yard); hippodromes stay
-  consumer-named.
-* `../jjy_studbook` — this record repo.
-* Work clones (*hippodromes*) and their transient worktree *billets* (farrier sheaf).
-* The BUK station family (`../station-files/burs.env`, `../logs-buk`, `../temp-buk`,
-  `../output-buk`) already lives at this level, so every peer tree shares station geography
-  with zero setup.
-
-== Hippodrome — the vanilla work clone
-
-A *hippodrome* is a peer repo clone JJ operates from.
-It carries **no JJ inserts**: no committed dossier, no `.claude/jjm` state, no JJK includes —
-a vanilla external project is a working hippodrome the moment its pedigree exists.
-Identity is the directory name (v1 ruling: no clone-local state at all);
-the upstream key is the clone's origin URL.
-Several clones of one upstream are several hippodromes — the operator's standing
-concurrent-parallel-clone work model is preserved, not replaced.
 
 == Pedigree — the per-upstream record
 
@@ -72,8 +34,8 @@ One *pedigree* per hippodrome upstream type, keyed by origin URL, stored in the 
 * reserved, parked: a per-upstream edit-scope wildcard list, if billets-per-pace ever prove
   insufficient for collision avoidance.
 
-JJ launched anywhere derives origin URL → pedigree → everything it needs.
-A new upstream needs a founding pedigree entry before JJ serves it — a deliberate ceremony.
+A new upstream needs a founding pedigree entry before JJ serves it — a deliberate ceremony
+(the derivation chain itself is world model, homed in the cosmology sheaf).
 
 == The journal ceremony
 
@@ -281,11 +243,15 @@ cited by code and tests via opaque ID; tails minted at implementation) and three
   unbound, held for a future concept).
 * *hippodrome* — the peer work clone; formally cinched 260704. Ground-family alternates
   recorded in the 260630 memo (turf, heath, glebe).
+  INFUSED 260705 (cosmology sheaf, `jjdw_hippodrome`).
 * *infield* — the peer ring; cinched 260704, replacing the memo's *garth* seed (G collided
   with gallops). *Heath* was the semantic runner-up (the Newmarket precedent) but collided
   with hippodrome on H.
+  INFUSED 260705 (cosmology sheaf, `jjdw_infield`).
 * *jjy_* — dirname family for JJ's own infield-resident repos: `jjy_studbook`, `jjy_app`
   (both cinched 260704). Mnemonic: yard.
+  INFUSED 260705 (cosmology sheaf, `jjdw_yard`), with the charter widened to *all* JJ-owned
+  infield residents — the launcher trampolines join the family (paddock delta banked).
 * *counterfoil* — the journaled member→SHA stub naming the issued work commit; one-way by
   construction (the stub stays in the book, the leaf circulates).
   Replaces *pin*, evicted as trodden (digest-pin/version-pin ambience, ~245 whole-word in-house

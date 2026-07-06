@@ -264,7 +264,8 @@ Findings from the dispatch spine (`z-launcher.sh` → `bul_launcher.sh` → regi
 
 == Launch-time provisioning (the vanilla-hippodrome consequence)
 
-Hippodromes carry no JJ inserts (studbook sheaf), which re-gestalts JJK installation:
+Hippodromes carry no JJ inserts (canon: the revision-control cosmology sheaf), which
+re-gestalts JJK installation:
 
 * MCP config, the verb table, and JJ context arrive *at session launch from saddle*
   (session-scoped config + opening prompt), not from repo-resident inserts.
