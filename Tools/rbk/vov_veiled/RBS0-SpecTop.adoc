@@ -58,6 +58,7 @@
 :rbtgi_repository:           <<rbtgi_repository,RB Container Repository>>
 :rbtgi_repository_s:         <<rbtgi_repository,RB Container Repositories>>
 :rbtgi_depot:                <<rbtgi_depot,RB Depot>>
+:rbtgi_depot_s:              <<rbtgi_depot,RB Depots>>
 :rbtgi_depot_project:        <<rbtgi_depot_project,RB Depot Project>>
 :rbtgi_depot_project_s:      <<rbtgi_depot_project,RB Depot Projects>>
 :rbtgi_image:                <<rbtgi_image,RB Image>>
