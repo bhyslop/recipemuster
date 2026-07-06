@@ -212,6 +212,11 @@ Tier 0 — Grammar (maintained, frozen at load): the
 registry (VOF, exists), the
 {voslv_vesture}
 set (the Liturgy, exists), and the file-selection allowlist (new — an explicit allowlist in a distinct file, `.md`/`.adoc`/`.rs`/`.sh` at minimum, recursive, narrowed by a git-tracked-only gate and the cipher/veiled gate).
+A cross-kit direction is recorded (260705, from the ₣Br census-pace experience): the allowlist is anticipated as a projection of JJ's *tackle* table — the scope→discipline binding of the aspirant tackle sheaf (`Tools/jjk/vov_veiled/JJS-aspirant-tackle.adoc`, its representation fork) — read by a shared substrate crate so JJ dispatch and this census select files from one table.
+The discipline a glob carries implies its
+{voslv_vesture}
+(the guides are what keep declaration sites pattern-clean), and the file-role layer (Scan Mechanics) is the same axis at scan grain.
+Until the tackle representation settles, the allowlist is shaped schema-compatible with that table and homed VOK-side.
 
 Tier 1 — Raising the census (mutable Builder): walk -> tokenize -> classify-by-subtraction -> seat each
 {vosli_inscription}
@@ -379,7 +384,21 @@ The distribution boundary holds as for the acronym index: the grimoire's output 
 {vosmm_matricula}
 that reads it never ship (VOr_q4f).
 Rows stay flat and independent — any relationship a later job wants (the asterism, say) enters as a single categorical tag on the row, never a row-to-row edge, until a real traversal earns the graph.
-One tension is recorded, not resolved: the gate is only as sound as the table is complete, so a mint that adds no row silently weakens the lint — a mint-time hook is the likely answer.
+A worked census (the ₣Br mint pace, 260705) sharpened the sketch with field evidence — it ran this gate by hand roughly twenty times against the seating validators' once, the frequency fact for where the operator's word-labor actually lives:
+
+* The completeness tension resolves by making the gate self-maintaining: the gate's input IS an authored row — the candidate word and its forms, the linguistic act a mind performs at probe time — and adoption appends that row to the table.
+  The gate tool and the table maintainer are one act; a rejected candidate's row is discarded with its verdict ledgered.
+  (This supersedes the mint-time-hook lean the sketch previously recorded.)
+* The prose lint (job 1) carries two verdict branches: a hit is a missed citation (enquoin it) or an *innocent homograph* — ordinary-English use of a minted word — to be reworded or formally accepted.
+  Detection is exact-match over row forms (VOr_m7w holds); the branch verdict is meaning, and stays the operator's.
+* Minting is retroactive: a new row owes a one-time sweep of existing prose and strings, because yesterday's innocent prose becomes today's homograph the moment the word mints.
+  The backlog debuts per-row at mint time, never as a big-bang lint.
+* Accepted homographs need a durable record or every scan re-flags them; site-pinned waivers rot, so the lean is acceptance-by-domain carried on the row.
+  Open, recorded.
+* A make-room job joins the three: given a word, report its weighted footprint (code identifiers > wire keys > spec quoins > prose) — the eviction-cost census behind "free this excellent word for a better home" — and its ambient form, the low-footprint inventory of eviction-cheap seats.
+  Footprint advises cost, never verdicts (the pin→counterfoil eviction proceeded at ~245 uses; the billet resolution moved a 10-hit incumbent): value is the operator's judgment, and the execute half is authorship — each prose site needs a written sentence — permanently manual, never a safe-reprefix sibling.
+* The register tag earns its keep immediately: list-by-register is the coffer census, and flat tags sufficed across the whole census pace — no edge was ever needed.
+
 Promotion of this sketch to an aspirant of its own is a later parceling, taken when the
 {vosmm_matricula}
 itself ascends — not here.
