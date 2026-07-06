@@ -1,0 +1,292 @@
+//axvd_sheaf axd_aspirant
+This is an aspirant portion of the {jjs0_imprimatur}: not yet binding — do not rely on it, decide from it, or cite the names it mints until it is infused into the codex.
+
+= Breeze — Attention-Shaped Execution Pipeline (Aspirant Nucleation)
+
+[IMPORTANT]
+====
+*Aspirant nucleation* (AXLA `axd_aspirant`): not yet binding.
+A feature-definition space under active mulling — to be sophisticated and revised until ready for
+development, then infused into this codex or retired.
+A reader must not rely on its content; released code must not cite identifiers it mints.
+This sheaf recasts the execution-model workup of the retired V4 development heat
+(jjk-v4-4-school-breeze-founding, ₣Ah); every name below is *candidate* vocabulary carried for
+mulling, not a minted commitment — the whole vocabulary re-ratifies under MCM Lapidary at
+graduation.
+The workup predates the revision-control substrate (studbook, farrier, blotter, dispatch layer);
+the reconciliation section below is a standing design obligation, and design paces cut from this
+sheaf should devise the better form, not restore the old one.
+====
+
+== What breeze is
+
+A pace enters a schooled state when a frontier-tier planning session — *school* — reads its
+docket, investigates the codebase, and consults the *gait library* (the option set of reusable
+work recipes) to carve a *beat map*: a concrete table of dispatch units, each carrying a fully
+resolved prompt, a model assignment, a file scope, and a concurrency layer.
+The *breeze* process then executes that map with zero human attention, parceling beats out to
+variously configured and targeted LLM sessions — concurrently within a layer, sequentially
+across layers — collecting results and informational output as it goes.
+A human returns only at *corral*, reviewing the composed outcome per pace.
+
+The system is designed around human attention as the bottleneck: the point is not raw
+parallelism but a frictionless serial path for the operator, with the machine absorbing
+everything mechanical between the judgment moments.
+
+== The four phases and the attention model
+
+[cols="1,2,4,1"]
+|===
+| Phase | Tier | What it does | Attention
+
+| Longe
+| read-only, parallel
+| Heat-level readiness assessment: classifies every remaining pace as breezable /
+  needs-refinement / blocked, guiding where groom effort goes before school commits.
+| low
+
+| School
+| frontier, conversational
+| Per-pace planning: assesses docket quality against codebase reality, evaluates confidence
+  gates, then writes the beat map — concrete beat entries with resolved warrants, chukker
+  assignments, and model selections.
+  Its primary discipline is *refusing to plan on weak foundations*: the most valuable output may
+  be "I cannot warrant this docket — here's what's wrong."
+| high
+
+| Breeze
+| orchestrator (small-model)
+| Executes the beat map chukker by chukker: merges prior work, assembles informational context,
+  dispatches warrants to per-beat sessions, collects results and provender, updates status.
+  Precision, not judgment.
+| zero
+
+| Corral
+| human + LLM, per-pace
+| Reviews the composed pace outcome (not individual beats) against the docket.
+  Three outcomes: accept; refine interactively then accept; reject — rejection flows upstream to
+  groom/reslate and eventual re-school. There is no rebreeze; the fix is always upstream.
+| medium
+|===
+
+The refinement cycle: longe identifies readiness → human grooms unready paces → school warrants
+ready paces → breeze executes → corral reviews → longe reassesses.
+
+== Candidate vocabulary
+
+The word *beat* is already Lapidary-reserved for this vocabulary (the AXLA interaction unit was
+deliberately named away from it); the rest is candidate only.
+
+[cols="1,4"]
+|===
+| Word | Meaning (candidate)
+
+| Gait
+| Reusable recipe of beats organized by chukker; can compose other gaits (practical depth ~2).
+  A *school-time* resource: school reads gaits for decomposition guidance and confidence gates,
+  then produces concrete beat entries.
+  Breeze never looks up a gait.
+
+| Quirt
+| Gait identity — an immutable snapshot.
+  Evolution mints a new quirt with the same silks; "latest version" = highest quirt with matching
+  silks; no lineage fields.
+
+| Beat
+| Abstract step within a gait (template with a piaffe) *and* concrete row in the beat map
+  (dispatch unit with a resolved warrant).
+  The home disambiguates: gait library vs execution table.
+
+| Piaffe
+| The prose field of an abstract gait beat template: purpose, approach, and nosebag declarations
+  (produces/expects).
+  School reads piaffes to write concrete warrants.
+
+| Warrant
+| The resolved prompt school writes into one beat row: concrete instructions for one model
+  dispatch, no symbols left to resolve, citing its source quirt for audit.
+  The escalation runs docket → piaffe → warrant: intent → template → concrete.
+
+| Chukker
+| Numbered concurrency layer within a volte: all beats in chukker N execute concurrently,
+  chukkers execute in sequence.
+  One integer per beat — deliberately simpler than an arbitrary dependency DAG.
+
+| Volte
+| One attempt at executing one or more paces; one active volte per heat.
+  School creates it, breeze executes it, corral reviews it.
+
+| Martingale
+| Volte identity (candidate glyph `₼`).
+
+| Kimberwick
+| Beat-instance identity, scoped to its martingale (candidate glyph `₭`).
+  If school exhausts the slot space, breeze and corral what exists — not an error.
+
+| Provender
+| A beat's informational output: one optional markdown document, recorded indelibly on the beat
+  row when status → complete, scoped to the martingale (dies with a rejected volte).
+
+| Nosebag
+| A `##`-labeled subsection within a provender document — the addressable unit of informational
+  flow.
+  Consuming beats declare expected nosebag names in their piaffe; the orchestrator matches `##`
+  headers across prior completed beats and delivers matching sections at dispatch time.
+  Name-matched, never ID-matched; the orchestrator reads structure, never interprets prose.
+
+| Blaze
+| Symbolic file/resource reference (`₿name`) owned by a tackle and resolved by school to
+  concrete paths — breeze never sees symbols.
+  Homed with the maximal-tackle layer in the tackle aspirant sheaf.
+|===
+
+Three naming regimes coexist: minted prefixes (code and specs), silks (gallops entities —
+heats, paces, gaits, tackles), and blazes (tackle slot references, resolved at school time).
+
+== The beat map
+
+Beats are a flat collection, each carrying an immutable pace reference — paces do not contain
+beats; beats point to their pace.
+Each row carries: identity (kimberwick), pace reference, warrant, model assignment, file scope
+(empty = read-only reviewer beat), chukker number, source quirt, status, and provender.
+
+Status has three states only — pending / complete / failed — with no "dispatched" state:
+crash recovery is idempotent re-dispatch of pending beats.
+Provender is the only field that changes after beat creation: set once, indelibly, on
+completion.
+
+The V4 workup placed the beat table in gallops rather than in git branches ("lane isolation" —
+a natural state store with granular status), and held an identity ladder where symbol length
+alone disambiguates (2 = firemark, 3 = quirt, 4 = martingale, 5 = coronet, 6 = kimberwick).
+Both choices re-open under the substrate reconciliation below, and the identity ladder must
+also reconcile with the pace-identity re-gestalt landing in the studbook–farrier heat.
+
+== Execution mechanics (as designed pre-substrate)
+
+Recorded as the V4-era design; the substrate reconciliation below governs what survives.
+
+*Chukker sequencing.*
+Dispatch all beats in chukker N concurrently; wait for completion or failure; advance.
+At each boundary: mechanical merge of prior-chukker work, provender collection, nosebag
+assembly for the beats about to dispatch.
+
+*Branch-per-beat, just-in-time.*
+Branches are execution artifacts, not planning artifacts: created when a beat's chukker becomes
+active, from a staging point produced by merging completed prior-chukker branches.
+Merge conflict at a boundary is a fail-fast signal for human attention.
+
+*Two kinds of merge.*
+Mechanical merge is orchestrator infrastructure (git-level, automatic at every boundary).
+Semantic merge is an explicit beat a gait may name — an LLM reading parallel outputs for
+consistency, receiving assembled context: warrants (intent), beat diffs (outputs), the docket
+(goal), and prior nosebags.
+Tackle integrity declarations (builds, tests, linters) inform whether mechanical merge with
+checks suffices or an alignment beat is needed.
+
+*Failure and recovery.*
+Failed = critical issue needing human attention; open questions remain on whether a failed beat
+re-arms in place or only through a fresh volte.
+Completed provender survives crashes (already indelible); orphan worktrees are swept.
+
+== Concurrent dispatch
+
+The V4-era model dispatches one authenticated agent session per beat, each in its own worktree,
+launches staggered a second or two apart to soften rate-limit pressure.
+Different model tiers draw on independent rate pools, so mixed-tier beat maps get more effective
+throughput than a single-tier map.
+Model-tier enforcement is a hard gate, not an honor system: every orchestrator invocation
+carries a self-reported model identity, and breeze-phase commands refuse frontier-tier callers —
+conducting is small-model work; judgment is reserved for school and corral.
+
+*Bare-prompt reproducibility* is the scientific core: same prompt + same model + same worktree
+state = comparable output.
+A multi-turn conversation is path-dependent; a bare warrant is a function call.
+When a beat produces bad output, change one variable — the prompt or the model — and rerun; the
+closed loop (prompt → output → evaluate → refine) is what makes the gait library a learning
+system.
+Tool use during beat execution is expected but opaque to the orchestrator: it dispatches one
+warrant and collects commits.
+
+The orchestrator handles state and sequencing; the sessions handle work and judgment.
+It emits directives, never interprets warrants or provender prose — a switchboard, not a
+reader.
+
+== The gait library
+
+Gaits live as data, identified by quirt.
+A gait is a playbook the coach consults before writing the game plan — the plan itself (the
+beat map) says exactly what each player does, never "run play #47."
+
+A well-formed gait beat template carries a piaffe (purpose, approach, nosebag produces/expects,
+resources), and may carry auto-tool steps (builds, tests, linters) and quality requirements
+(retry-up-to-N or fail-fast).
+*Confidence gates are the most valuable part* — they encode where this kind of work goes wrong,
+and school evaluates them before committing to a beat map.
+
+The library grows from practice, not design: start with a few single-beat gaits, use them,
+crystallize recurring compositions as named gaits, and let each new quirt version encode
+lessons from prior bare-prompt outcomes.
+Gait selection belongs in school, not at slate time.
+
+== Reconciliation with the revision-control substrate
+
+The standing design obligation.
+The V4 workup was drawn before the studbook, farrier, blotter, and dispatch layer existed;
+each collision below is a design decision for a future pace, not a defect in either side:
+
+* *Beat worktrees vs billets* — branch-per-beat with `jj/martingale/kimberwick` naming predates
+  the billet lifecycle (dirname = branch name, nuke-on-start sweep, liveness join).
+  A beat's execution container is plausibly just a billet; the sweep and retention story should
+  be one story, not two.
+* *Beat map home vs the blotter* — "warrants in gallops for lane isolation" predates the
+  studbook as the gallops' physical vessel and the journal ceremony as the sole write bracket.
+  Where volte execution state lives — and how concurrent beat completions record — must be
+  re-derived over the blotter's single-writer-under-lock model.
+* *One-active-volte vs the guidon* — the volte mutex and the lock discipline should rhyme.
+* *Dispatch vs the dispatch spine* — per-beat session launch must ride jjy_saddle / jjy_lunge
+  and the entrance spine (identify, pedigree lookup, billet-ensure, context provisioning)
+  rather than a parallel launcher.
+* *Identity ladder vs the pace-identity re-gestalt* — quirt/martingale/kimberwick allocation
+  must re-derive over immutable studbook-minted pace identities and the insignia glyph space.
+* *Pace-state enum* — the V4 enum (green / ready / reined / candidate / complete / abandoned)
+  encodes the schooled-state idea; it must re-derive against the pace model as it stands after
+  the studbook cutover.
+* *Tackle's execution layer* — blazes, actions, exclusivity scopes, and gait affinities are the
+  maximal-tackle remainder, homed in the tackle aspirant sheaf; school-time blaze resolution and
+  exclusivity enforcement during concurrent dispatch are joint design between these two sheaves.
+
+== Open forks (carried from the V4 workup)
+
+* Gait record schema — beat templates, confidence gates, model preferences, required blazes;
+  deferred until first gaits are built.
+* Provender emission convention — how a session emits provender (structured block, tool call,
+  delimiter); deferred until first gaits.
+* Provender size limits — same size-guard philosophy as commits?
+* Memory curation — how prior-volte context reaches school prompts.
+* Longe output format and verb surface.
+* Ready vs reined — is the distinction clear enough to earn two states?
+* Chukker 0 semantics — always the first execution layer, or available for setup beats?
+* Kimberwick exhaustion — how surfaced, what remains available.
+* Failed-beat retry — re-arm in place vs new volte only.
+* Command-surface visibility — how beat status, chukker progress, and provender roll up into
+  show/orient; read-only provender inspection for debugging.
+* Phase-boundary validation — pre-school blaze/chain checks, pre-breeze beat-map integrity
+  (including nosebag expectation satisfaction), post-corral volte completion.
+
+== Superseded and landed (history, not carried)
+
+The V4 heat's schema-migration machinery landed long ago through the reprieve mechanism
+(schema-version detection, tack reshaping, bridle retirement) and is retired history — this
+sheaf carries no migration story.
+The maximal-tackle content that shared the V4 paddock now lives in the tackle aspirant sheaf.
+The V4 constellation heats (development / release-cleanup / notional parking) are retired or
+superseded; the notional parking heat remains the only V4-era survivor outside this sheaf.
+
+== Sources (provenance, not authority)
+
+* Retired heat jjk-v4-4-school-breeze-founding (₣Ah) — paddock and design-pace dockets, the
+  primary drain source.
+* `Memos/memo-20260222-jjk-v4-vision.md`, `Memos/memo-20260224-jjk-v4-gaits.md` — superseded
+  design seeds.
+* cchat series 20260224–20260318 — schema decisions, execution model, gait working concept,
+  provender/nosebag/piaffe, symbol selection.
