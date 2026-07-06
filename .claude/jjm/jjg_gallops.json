@@ -9673,8 +9673,8 @@
         "₢BxAAA": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260706-1724",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260706-1049",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "## Character",
                 "High-craft authoring against cinched design; the judgment is spent — do not reopen the mints.",
@@ -9700,7 +9700,7 @@
                 "and the operator has ratified the prose."
               ],
               "jjgtn_silks": "mint-revetment-subsection",
-              "jjgtn_basis": "57d98a9"
+              "jjgtn_basis": "53d3b33"
             }
           ]
         },
