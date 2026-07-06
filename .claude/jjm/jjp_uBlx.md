@@ -63,6 +63,25 @@ and stay deferred with the grimoire by standing decision.
 ₣Bg's terminal fence pace performs the placement walk;
 ₣Bj receives what crosses the fence.
 
+## Revetment audit residue (260706)
+
+The by-hand audit of README.md ran all three batteries and every hit was operator-verdicted.
+RB's revetment was designated in CLAUDE.md, beside the broadside designation, pointing to MCM Lapidary for the concept and the face law.
+
+Two spall were found and evicted (not whitelisted):
+rbid — an interior binary name editorialized into a reference-tree description (README:751, now "[Ifrit] attack-binary source");
+colophon and frontispiece — the BUK tabtarget-naming meta-register surfacing in prose (README:53, now "{prefix}.{label}").
+
+The accepted-homograph roster — face tokens ratified as sanctioned despite colliding with interior vocabulary, which the future facade-lint must NOT flag:
+ashlar-homographs (registered RB ashlars overlapping the interior meta-register) — Census (vs the grep-as-registry census), Tally (vs AXLA axd_tally), Ark, Muniment, Reliquary;
+English homographs (plain sense, unrelated to the interior term) — mint/minted (token-minting, not name-minting), channel (network path, not BUK Channel), seam (code seam, not the test-seam register), roster.
+
+Anchor sweep landed clean: every ](#X) resolves to a declared anchor;
+two orphan anchors (HowThisIsNormallyDone, Roadmap) are benign appendix deep-link targets, noted not fixed.
+
+Second face: the public project page (scaleinv.github.io/recipebottle) as a possible second revetment is deferred;
+README stands as RB's sole revetment for now.
+
 ## Done when
 
 The MCM Lapidary subsection stands (two quoins, the law, the recursion clause);
