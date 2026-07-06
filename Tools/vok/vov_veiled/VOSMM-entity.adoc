@@ -300,6 +300,35 @@ The
 generalizes that narrow, release-time, filename gate to the whole-environment declaration census across every
 {voslv_vesture}.
 
+== Lintel Validators
+
+Two validators read the sheaf/codex declaration pair — the sheaf-side lintel (AXLA
+`axl_lintel`: the `axvd_sheaf` voicing line plus its opening sentence) and the codex-side
+cartouche — rather than the
+{vosls_signet}
+trie.
+Both are mechanical, honoring the never-linguistic invariant (VOr_m7w), and both cite their
+doctrine home rather than restating it (Doctrine Homes below).
+They ride the same walk and frozen census as the seating validators; they are listed apart
+from the MVP delivery, whose definition stands unchanged.
+
+*Attestation agreement* is the cartouche↔lintel cross-check AXLA anticipates
+(`axvd_cartouche`): the dimension tokens a codex attests at an `include::` site must equal
+the tokens the included sheaf's lintel declares.
+A drifted pair emits a
+{vosmp_presentment}
+carrying both sites.
+
+*Timeless prose* mechanizes AXLA's Timeless Prose law (`axl_timeless`) — the skidmark
+detector: a date-shaped token in the body of a sheaf whose lintel carries `axd_normative`,
+`axd_executory`, or `axd_informative` emits a
+{vosmp_presentment}
+citing the law, honoring its two allowances (an `axd_survey` sheaf is exempt entire; a date
+embedded in a memo path is a reference, never a mark on the prose) and its exemption of
+`axd_aspirant`/`axd_notional` sheaves.
+Detection is a date-shaped-token pattern over sheaf bodies with lintel-token context — exact
+and structural, no meaning interpreted.
+
 == Report and Acronym Index
 
 The MVP delivery is a whole-environment scan run as a standalone VOK executable through its own tabtarget, with no MCP surface.
@@ -408,6 +437,7 @@ itself ascends — not here.
 * Minting rules (terminal-exclusivity, exact collision, MCM Lapidary word-selection): CMK/MCM and CLAUDE.md "Prefix Naming Discipline". The
 {vosmm_matricula}
 mechanizes them; it does not redefine them.
+* Lintel-validator doctrine: AXLA — the declaration pair and cross-check (`axl_lintel`, `axvd_cartouche`) and the Timeless Prose law (`axl_timeless`). Mechanized here, defined there.
 * Naming vocabulary (
 {voslc_cipher},
 {vosls_signet},
