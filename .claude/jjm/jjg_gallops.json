@@ -9269,8 +9269,8 @@
         "₢BrAAB": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260705-1702",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260705-2038",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "## Character",
                 "",
@@ -9360,7 +9360,7 @@
                 "  operator verbs (saddle/lunge/unsaddle/break — ashlar at least, likely bondstone)."
               ],
               "jjgtn_silks": "mint-census-sweep",
-              "jjgtn_basis": "5f5a634"
+              "jjgtn_basis": "0e75503"
             }
           ]
         },
