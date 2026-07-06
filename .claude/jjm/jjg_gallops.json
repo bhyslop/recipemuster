@@ -9901,6 +9901,7 @@
       "jjghn_creation_time": "260705",
       "jjghn_status": "jjghe_racing",
       "jjghn_order": [
+        "₢BsAAI",
         "₢BsAAA",
         "₢BsAAB",
         "₢BsAAC",
@@ -9910,7 +9911,7 @@
         "₢BsAAG",
         "₢BsAAH"
       ],
-      "jjghn_next_pace_seed": "AAI",
+      "jjghn_next_pace_seed": "AAJ",
       "jjghn_paces": {
         "₢BsAAA": {
           "jjgpn_tacks": [
@@ -10080,6 +10081,42 @@
               ],
               "jjgtn_silks": "rebaseline-revalidation",
               "jjgtn_basis": "b9782ba"
+            }
+          ]
+        },
+        "₢BsAAI": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260706-0739",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "",
+                "Document-and-wiring repair proven by a practice walk; operator-present for the git ceremony steps.",
+                "",
+                "## Docket",
+                "",
+                "The upstream delivery ceremony (.claude/commands/rbk-prep-release.md) has drifted from the tree:",
+                "its survive-list names .rbk/ and rbev-vessels/, which no longer exist (the tree moved to rbmm_moorings/rbmv_vessels/);",
+                "its strip list predates Tools/apck/ — proprietary content that would ride into a candidate today;",
+                "its marshal-zero step predates rbrw.env and the foedera library;",
+                "and the OPEN_SOURCE_UPSTREAM remote is not configured in this clone (operator supplies the target).",
+                "Repair the ceremony document against the current tree, wire the remote,",
+                "then prove the repair by walking a throwaway candidate cut through the strip and post-strip fast-qualify steps — never pushed,",
+                "and with the full-qualification gate waived for the drill (the rebaseline ladders have not yet run).",
+                "Open item: how the colophon and tabtarget census behaves on the stripped tree",
+                "(withheld tabtargets versus surviving zipper enrollments) —",
+                "resolve it or record precisely what the post-strip qualify must tolerate.",
+                "Discovery: `git remote -v`; the ceremony document itself enumerates every list to check.",
+                "",
+                "## Done when",
+                "",
+                "The ceremony document matches the tree;",
+                "a throwaway candidate strips clean and fast-qualifies, or its failures are dispositioned as ceremony fixes;",
+                "a `git ls-files` review of the practice strip shows no proprietary path surviving."
+              ],
+              "jjgtn_silks": "staging-ceremony-refresh",
+              "jjgtn_basis": "cd2e307"
             }
           ]
         }
