@@ -7,7 +7,7 @@ distributed to consumer projects.
 ### A. File Acronym Mappings — JJK Subdirectory (`Tools/jjk/`)
 
 - **JJS0** → `jjk/vov_veiled/JJS0_JobJockeySpec.adoc` (Job Jockey specification - main file)
-- **JJSCCH** → `jjk/vov_veiled/JJSCCH-chalk.adoc`
+- **JJSAB** → `jjk/vov_veiled/JJSAB-breeze.adoc` (Breeze — aspirant sheaf (JJSA*: aspirant family, B: breeze), founding member of the full-prefix naming the legacy `JJS-aspirant-*` files predate: the attention-shaped execution pipeline recast from the retired V4 workup — longe/school/breeze/corral, school carving a beat map from the gait option-set, breeze parceling beats to variously configured LLM sessions, provender/nosebag informational flow, candidate vocabulary re-ratifying at graduation, and a standing reconciliation obligation against the studbook/farrier/blotter substrate. Mounted in JJS0's Aspirant Nucleations; mulling heat: jjk-10-aspirant-breeze.)
 - **JJSCCU** → `jjk/vov_veiled/JJSCCU-curry.adoc` (Paddock operation - read/write heat paddock files)
 - **JJSCDR** → `jjk/vov_veiled/JJSCDR-draft.adoc`
 - **JJSCFU** → `jjk/vov_veiled/JJSCFU-furlough.adoc`

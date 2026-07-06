@@ -43,6 +43,8 @@ everything mechanical between the judgment moments.
 | read-only, parallel
 | Heat-level readiness assessment: classifies every remaining pace as breezable /
   needs-refinement / blocked, guiding where groom effort goes before school commits.
+  Reads each pace's *chain* — inter-pace dependency metadata set at slate/reslate time, never
+  discovered downstream — as a readiness input.
 | low
 
 | School
@@ -250,7 +252,8 @@ each collision below is a design decision for a future pace, not a defect in eit
   must re-derive over immutable studbook-minted pace identities and the insignia glyph space.
 * *Pace-state enum* — the V4 enum (green / ready / reined / candidate / complete / abandoned)
   encodes the schooled-state idea; it must re-derive against the pace model as it stands after
-  the studbook cutover.
+  the studbook cutover — as must the chain field (the slate-time inter-pace dependency
+  metadata) the V4 workup planned alongside it.
 * *Tackle's execution layer* — blazes, actions, exclusivity scopes, and gait affinities are the
   maximal-tackle remainder, homed in the tackle aspirant sheaf; school-time blaze resolution and
   exclusivity enforcement during concurrent dispatch are joint design between these two sheaves.
@@ -268,6 +271,9 @@ each collision below is a design decision for a future pace, not a defect in eit
 * Chukker 0 semantics — always the first execution layer, or available for setup beats?
 * Kimberwick exhaustion — how surfaced, what remains available.
 * Failed-beat retry — re-arm in place vs new volte only.
+* Beat-completion detection — how the orchestrator knows a session finished its beat (worktree
+  commits, exit code, status file) and maps the result back to the beat row.
+* API-key direct REST dispatch — deferred alternative to session-based dispatch.
 * Command-surface visibility — how beat status, chukker progress, and provender roll up into
   show/orient; read-only provender inspection for debugging.
 * Phase-boundary validation — pre-school blaze/chain checks, pre-breeze beat-map integrity
