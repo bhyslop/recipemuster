@@ -30,7 +30,9 @@ distributed to consumer projects.
 - **JJSRSV** → `jjk/vov_veiled/JJSRSV-save.adoc`
 - **JJSRWP** → `jjk/vov_veiled/JJSRWP-wrap.adoc`
 - **JJSTF** → `jjk/vov_veiled/JJSTF-test-fundus.adoc` (Test Fundus — fundus scenario profiles and preflight contracts)
+- **JJSVB** → `jjk/vov_veiled/JJSVB-blotter.adoc` (Blotter — normative entity sheaf (B: blotter): the locked-store entity — linear, single-writer-under-lock, engine-driven git repo; the lock ref `refs/jjv/guidon` (interior shape settled 260706: one well-known ref per blotter, the store discriminator is the repo itself), the guidon, lockless-read posture, the studbook/mews instances, engine-known bootstrap config; methods summarized by citation to JJSVJ. Homes `jjdb_blotter`/`jjdb_guidon` and the `jjdk_lockless_reads` premise. Mounted in JJS0's Revision Control region.)
 - **JJSVC** → `jjk/vov_veiled/JJSVC-cosmology.adoc` (Revision-Control Cosmology — normative cosmology sheaf: the world model of the revision-control substrate (infield peer ring, hippodrome, yard family, why-decouple), mounted in JJS0's Revision Control region; homes the `jjdw_` quoin category. First member of the **JJSV*** family (V: revision-control) — the destination-sheaf family of the studbook–farrier MVP, non-terminal, siblings landing as the aspirant nucleations drain.)
+- **JJSVJ** → `jjk/vov_veiled/JJSVJ-journal.adoc` (Journal Ceremony and Break Sequence — normative routine sheaf (J: journal): the blotter's shared write bracket — durable-first work half, stake/sight lock take, advance, mutate-and-lodge with counterfoil, atomic lease-bound consign, best-effort pluck — and the lease-guarded never-blind break sequence; the ONE home every blotter-writing operation cites. Homes `jjdb_journal`/`jjdb_break` and the `jjdk_sole_door` premise. Mounted in JJS0's Revision Control region.)
 - **JJW**  → `jjk/jjw_workbench.sh` (workbench)
 
 ### B. Foray Protocol — Fundus constants (rbm values)

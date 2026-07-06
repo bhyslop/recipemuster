@@ -1,0 +1,89 @@
+//axvd_sheaf axd_normative axd_entity
+This is a normative entity sheaf of the {jjs0_imprimatur}: binding — code, tests, and decisions may rely on it.
+
+= Blotter
+
+The locked-store entity: the kind of git repository Job Jockey itself owns and writes.
+Its methods — the shared write bracket and the stale-lock break — are homed in the sibling
+routine sheaf (`JJSVJ-journal.adoc`, {jjdb_journal} and {jjdb_break});
+this sheaf summarizes and cites, never restates.
+
+[NOTE]
+====
+*Forward references.* The farrier and its lock ops (`stake`, `pluck`, `sight`), the studbook,
+the pedigree, the counterfoil, and the mews fleet store are census-minted words (260705) whose
+binding sheaves land after this one;
+where such a word appears below it reads as a forward reference to a forthcoming contract
+home, not a citation.
+====
+
+== The entity
+
+[[jjdb_blotter]]
+//axo_entity
+{jjdb_blotter}::
+A git repository JJ itself owns and drives:
+*linear* — it never branches;
+*single-writer-under-lock*;
+and *engine-driven* — the human never hand-manages its git.
+Git is its source of truth and its journal at once:
+additive history, commit-as-intent, free immutability.
+Linearity plus single-writer make a monotonic ordinal per {jjdb_blotter} clean and
+authoritative.
++
+A {jjdb_blotter} is the physical vessel, not the tenant:
+what the repository holds is each instance's own contract.
++
+Every write passes through the {jjdb_journal} ({jjdk_sole_door});
+a stale lock is cleared only by the {jjdb_break}.
+No writer ever forces:
+history is additive, and the break is lease-guarded, never blind.
+
+== Instances
+
+Two instances are designed; one engine drives both through the same entity machinery:
+
+* the *studbook* — the regional record repo carrying the {jjdgr_gallops}
+  (entity sheaf forthcoming);
+* the *mews fleet store* — the anticipated second instance
+  (sibling nucleation, `JJS-aspirant-mews.adoc`).
+
+Two repos, two locks: instances share machinery, never state.
+The one genuine seam between them is the `(work repo, SHA)` cross-reference both journal —
+in the studbook, the counterfoil.
+
+== Lock ref and guidon
+
+Each {jjdb_blotter} carries exactly one well-known lock ref in its own git namespace:
+`refs/jjv/guidon` (interior shape settled 260706, at the blotter design pace).
+The store discriminator is the repository itself — a {jjdb_blotter_p} lock lives in the
+{jjdb_blotter} it locks — so the namespace interior stays flat:
+one ref, no per-store subtree.
+`refs/jjv/*` is reserved to JJ entire;
+any future resident beyond the guidon ref must be allocated in this sheaf.
+
+The lock is the ref's existence, taken and released by compare-and-swap ref pushes —
+the farrier lock ops `stake`/`pluck`/`sight`, sequence-internal, never operator-typed.
+
+[[jjdb_guidon]]
+{jjdb_guidon}::
+The lock-holder mark flown on the lock ref:
+officium, station, acquire time, and operation.
+The {jjdb_guidon} is what makes break-on-error safe —
+the {jjdb_break} acts only against an observed {jjdb_guidon}, never blind.
+
+== Read posture
+
+[[jjdk_lockless_reads]]
+//axk_premise
+{jjdk_lockless_reads}::
+Reads take no lock and tolerate slight staleness.
+No read-lock machinery exists to cite; the bound is the design itself.
+Consumers reach a {jjdb_blotter_p} content through the engine's read path, never raw JSON.
+
+== Bootstrap config
+
+A {jjdb_blotter_p} own configuration — where each instance lives, remote URL and local clone —
+is *engine-known, never pedigree-resolved*:
+a store cannot look itself up in itself.
+The pedigree resolves consumer repos; the engine carries its own stores' coordinates.
