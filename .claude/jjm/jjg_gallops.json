@@ -7304,7 +7304,7 @@
         "₢BcAAM": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260706-0751",
+              "jjgtn_ts": "260706-0924",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "## Character",
@@ -7324,6 +7324,10 @@
                 "## Cinched",
                 "",
                 "- Designation is by TIER (haiku/sonnet/opus/fable), never model ID — IDs drift, tiers hold.",
+                "- The tier vocabulary's final form is ratified by the session-tier-launch design pace ₢BrAAY",
+                "  in the studbook–farrier heat — a genuine cross-heat gate:",
+                "  implement the ladder as ratified there (flat ladder vs (family, effort) axes,",
+                "  JJ-owned rung words vs vendor family names); the family list above is provisional.",
                 "- New pace state beside rough: bridled = mechanically defined plus tier-designated.",
                 "- Any docket edit (reslate/redocket) to a bridled pace reverts it to rough and wipes the tier.",
                 "- The mount guard holds both directions: a bridled pace mounts only at its designated tier —",
@@ -7347,7 +7351,7 @@
                 "the bridle re-mint is grep-clean or its collisions dispositioned with the operator."
               ],
               "jjgtn_silks": "bridle-verb-and-mount-guard",
-              "jjgtn_basis": "4041a2c"
+              "jjgtn_basis": "ccc830b"
             }
           ]
         }
