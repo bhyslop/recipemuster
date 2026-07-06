@@ -1,5 +1,5 @@
-//axvd_sheaf axd_normative axd_routine
-This is a normative routine sheaf of the {jjs0_imprimatur}: binding — code, tests, and decisions may rely on it.
+//axvd_sheaf axd_executory axd_routine
+This is an executory routine sheaf of the {jjs0_imprimatur}: binding as design — cite it and build to it; the work product does not yet enact it.
 
 = Journal Ceremony and Break Sequence
 
@@ -54,7 +54,7 @@ The bracket:
 Durable-first is the bracket's law, not a preference:
 an orphaned work commit (committed, never journaled) is recoverable;
 a journal entry naming a nonexistent SHA is the worse failure.
-The ordering classifies as a rivet (census 260705);
+The ordering classifies as a rivet;
 its opaque tail mints at implementation, citing this section.
 
 [[jjdk_sole_door]]

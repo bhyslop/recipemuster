@@ -1,5 +1,5 @@
-//axvd_sheaf axd_normative axd_entity
-This is a normative entity sheaf of the {jjs0_imprimatur}: binding — code, tests, and decisions may rely on it.
+//axvd_sheaf axd_executory axd_entity
+This is an executory entity sheaf of the {jjs0_imprimatur}: binding as design — cite it and build to it; the work product does not yet enact it.
 
 = Blotter
 
@@ -10,8 +10,8 @@ this sheaf summarizes and cites, never restates.
 
 [NOTE]
 ====
-*Forward references.* The mews fleet store is a census-minted word (260705) whose binding
-sheaf lands after this one;
+*Forward references.* The mews fleet store is a census-minted word whose binding sheaf
+lands after this one;
 where it appears below it reads as a forward reference to a forthcoming contract home, not a
 citation.
 ====
@@ -53,7 +53,7 @@ in the {jjdb_studbook}, the {jjdb_counterfoil}.
 == Lock ref and guidon
 
 Each {jjdb_blotter} carries exactly one well-known lock ref in its own git namespace:
-`refs/jjv/guidon` (interior shape settled 260706, at the blotter design pace).
+`refs/jjv/guidon`.
 The store discriminator is the repository itself — a {jjdb_blotter_p} lock lives in the
 {jjdb_blotter} it locks — so the namespace interior stays flat:
 one ref, no per-store subtree.

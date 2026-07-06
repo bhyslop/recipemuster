@@ -1,5 +1,5 @@
-//axvd_sheaf axd_normative axd_cosmology
-This is a normative cosmology sheaf of the {jjs0_imprimatur}: binding — code, tests, and decisions may rely on it.
+//axvd_sheaf axd_executory axd_cosmology
+This is an executory cosmology sheaf of the {jjs0_imprimatur}: binding as design — cite it and build to it; the work product does not yet enact it.
 
 = Revision-Control Cosmology
 
@@ -8,9 +8,9 @@ sheaves — store, driver, dispatch — assume and none restates.
 
 [NOTE]
 ====
-*Forward references.* The billet and the dispatch verbs are census-minted words (260705)
-whose binding sheaf lands after this one; where such a word appears below it reads as a
-forward reference to a forthcoming contract home, not a citation.
+*Forward references.* The billet and the dispatch verbs are census-minted words whose
+binding sheaf lands after this one; where such a word appears below it reads as a forward
+reference to a forthcoming contract home, not a citation.
 The words catalogued *here* — {jjdw_infield}, {jjdw_hippodrome}, {jjdw_yard} — bind now.
 ====
 
@@ -67,7 +67,7 @@ gitignore entry — the infield tracks nothing, and nothing JJ owns ever lands i
 [[jjdw_yard]]
 {jjdw_yard}::
 The `jjy_` dirname brand (mnemonic: yard) marking JJ-owned residents of the {jjdw_infield}.
-Charter (widened 260705): *all* JJ-owned infield residents carry it — the repos
+Charter: *all* JJ-owned infield residents carry it — the repos
 (`jjy_app` the kit repo, `jjy_studbook` the record repo) and JJ's launcher scripts
 (dispatch sheaf).
 The split is yard-side vs. wire-side legibility: `jjy_` names what the operator touches on

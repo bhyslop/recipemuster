@@ -1,5 +1,5 @@
-//axvd_sheaf axd_normative axd_entity
-This is a normative entity sheaf of the {jjs0_imprimatur}: binding — code, tests, and decisions may rely on it.
+//axvd_sheaf axd_executory axd_entity
+This is an executory entity sheaf of the {jjs0_imprimatur}: binding as design — cite it and build to it; the work product does not yet enact it.
 
 = Studbook
 
@@ -13,7 +13,7 @@ they record.
 [NOTE]
 ====
 *Forward references.* `refit` (the resync operation, dispatch family), the tackle bindings,
-and the billet are census-minted words (260705) whose binding sheaves land after this one;
+and the billet are census-minted words whose binding sheaves land after this one;
 where such a word appears below it reads as a forward reference to a forthcoming contract
 home, not a citation.
 ====
@@ -77,7 +77,7 @@ dangling {jjdb_counterfoil} from a silent lie into a flagged one.
 The {jjdb_studbook} is a regional record; a worktree path is a station-local fact.
 *No worktree path is ever written into the {jjdb_studbook}* —
 issued work is named by member, SHA, and branch, never by filesystem location.
-The proposition classifies as a rivet (census 260705);
+The proposition classifies as a rivet;
 its opaque tail mints at implementation, citing this section.
 
 == Journal entries as commits

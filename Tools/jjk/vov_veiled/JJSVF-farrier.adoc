@@ -1,5 +1,5 @@
-//axvd_sheaf axd_normative axd_entity
-This is a normative entity sheaf of the {jjs0_imprimatur}: binding — code, tests, and decisions may rely on it.
+//axvd_sheaf axd_executory axd_entity
+This is an executory entity sheaf of the {jjs0_imprimatur}: binding as design — cite it and build to it; the work product does not yet enact it.
 
 = Farrier
 
@@ -15,7 +15,7 @@ no driver ever owns a transaction.
 ====
 *Forward references.* The dispatch layer — the saddle and lunge doors, the entrance spine,
 the billet entity, the refit operation, and the muck sweep — is census-minted vocabulary
-(260705) whose binding sheaf lands after this one;
+whose binding sheaf lands after this one;
 where such a word appears below it reads as a forward reference to a forthcoming contract
 home, not a citation.
 ====
@@ -188,13 +188,13 @@ Hand a branch into the remote's custody.
 Two flavors: plain fast-forward (hippodrome branches) and atomic-under-lease
 ({jjdb_blotter} content — the lease binds the push to the holder's own lock ref,
 {jjdb_journal}).
-*Never force* — the proposition classifies as a rivet (census 260705): the consign
+*Never force* — the proposition classifies as a rivet: the consign
 implementation and the lease-guarded `pluck` of the {jjdb_break} are its citation sites;
 its opaque tail mints at implementation, citing this section.
 
 `counterfoil_verify`::
 Does a journaled SHA still exist, reachable?
-*Deferred past MVP* (260704): the designed answer for when a dangling {jjdb_counterfoil}
+*Deferred past MVP*: the designed answer for when a dangling {jjdb_counterfoil}
 first annoys — merge-based refit and push-at-notch make them rare.
 
 === Lock facet
