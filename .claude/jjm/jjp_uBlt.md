@@ -27,10 +27,10 @@ Three streams, dependency-ordered:
 
 - Chapbook genre law is AXLA's: sheaf genre chapbook, hierarchy chapbook markers
   (chapbook opener carrying the document sprue, actor lanes with internal/external kinds,
-  interaction beats citing the governing contract).
+  interactions citing the governing contract).
   Chapbooks are born aspirant; infusion is a separate operator decision.
 - Theurge fixtures are the story oracles:
-  a chapbook beat that contradicts a passing fixture is wrong, not the fixture.
+  a chapbook interaction that contradicts a passing fixture is wrong, not the fixture.
 - The handbook rendering form (verified units interleaved with teaching-only units;
   one format serving skim, deep-read, and fix-hunt reading strategies)
   is settled prior art from the predecessor heat and is not redesigned here — content currency, not format.
