@@ -1158,7 +1158,10 @@ the
 is a poor judge of its own reserves, since its nature is to adopt the
 {mcm_editor_p}
 word-use quickly, so the census grows by noticing surprise, not by introspection.
-Seed: spine.
+Seed: spine; oracle — the software-testing term of art (the mechanism that decides whether
+observed behavior is correct), already spoken in exactly that sense by the chapbook Oracle
+lines and the theurge suite-composition oracle, and reserved to it: never re-minted for
+another meaning.
 
 [[mcm_fallow_word]]
 {mcm_fallow_word}::
@@ -1175,7 +1178,8 @@ palette.
 Reserved to protect the *editor's* explanatory reach, where
 {mcm_hallowed_word}
 protects the word's resonance.
-Seed: mesentery, constellation, moniker.
+Seed: mesentery, constellation, moniker, lean (the collaboration's noun for a provisional
+preference — "the lean on record" — fluid by need, never to be enclosed as a minted state).
 
 [[mcm_furrowed_word]]
 {mcm_furrowed_word}::

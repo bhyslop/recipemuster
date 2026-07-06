@@ -66,6 +66,9 @@
 :axl_definition_site_s:               <<axl_definition_site,Definition Sites>>
 :axl_detail_site:                     <<axl_detail_site,Detail Site>>
 :axl_detail_site_s:                   <<axl_detail_site,Detail Sites>>
+:axl_lintel:                          <<axl_lintel,Lintel>>
+:axl_lintel_s:                        <<axl_lintel,Lintels>>
+:axl_timeless:                        <<axl_timeless,Timeless Prose>>
 
 // Axial Dimension Terms
 :axd_ashlar:                          <<axd_ashlar,Ashlar>>
@@ -107,6 +110,7 @@
 :axd_wire_type:                       <<axd_wire_type,Wire Type>>
 :axd_xml_form:                        <<axd_xml_form,XML Form>>
 :axd_normative:                       <<axd_normative,Normative>>
+:axd_executory:                       <<axd_executory,Executory>>
 :axd_informative:                     <<axd_informative,Informative>>
 :axd_notional:                        <<axd_notional,Notional>>
 :axd_aspirant:                        <<axd_aspirant,Aspirant>>
@@ -1855,7 +1859,7 @@ Exactly one is required on every
 voicing, and they are mutually exclusive;
 unmarked content reads as
 {axd_normative}.
-The four mark current standing on a ladder of integrity.
+The five mark current standing on a ladder of integrity.
 Enforcement is grain-stratified: required at the
 {mcm_sheaf}
 grain, where the population is small and the stakes whole-document, and defaulted at finer grain.
@@ -1864,6 +1868,32 @@ grain, where the population is small and the stakes whole-document, and defaulte
 {axd_normative}::
 Load-bearing and binding — content that code and tests may rely on.
 The prevailing case, and the reading of unmarked content.
+Connotes enactment: the work product realizes this content to the best of current knowledge;
+a design committed but not yet enacted stands one rung below, at
+{axd_executory}.
+
+[[axd_executory]]
+{axd_executory}::
+Binding as design, not yet enacted: the form is committed — cite it, conform to it, do not
+re-litigate it — and the identifiers it mints are real, but the work product does not yet
+realize the content.
+One rung below
+{axd_normative},
+whose standing it shares in every respect except enactment;
+what is live meanwhile is the codex's to say, at the region that binds the sheaf in.
+Hardening to
+{axd_normative}
+is a judgment act, never a proof — performed by the ceremony that concludes the building
+work (a cutover, a heat's completion), recording that the work product now enacts the
+content to the best of current knowledge.
+Distinct from
+{axd_aspirant}
+by settledness: an
+{axd_aspirant}
+sheaf is still mulling its shape; an
+{axd_executory}
+sheaf is settled and awaiting performance.
+Named for the executory contract — agreed and binding, awaiting performance.
 
 [[axd_informative]]
 {axd_informative}::
@@ -4226,6 +4256,9 @@ The opening sentence is keyed to both axes — status adjective, genre noun, the
 //axvd_sheaf axd_normative axd_operation
 This is a normative operation sheaf of the {rbs0_imprimatur}: binding — code, tests, and decisions may rely on it.
 
+//axvd_sheaf axd_executory axd_entity
+This is an executory entity sheaf of the {rbs0_imprimatur}: binding as design — cite it and build to it; the work product does not yet enact it.
+
 //axvd_sheaf axd_informative axd_cosmology
 This is an informative cosmology sheaf of the {rbs0_imprimatur}: honest but binding nothing — read it as rationale, never as law.
 
@@ -4253,9 +4286,9 @@ It sits immediately above the `include::`; a validator reads that line's path to
 It carries the same two
 {axd_dimension_s}
 as the sheaf's own declaration, in the same fixed order — the codex's attestation of the sheaf's status and genre.
-A future linter cross-checks that attestation against the sheaf's own
-{axvd_sheaf}
-line; until then the two may drift, a silent error the linter will resolve, and a one-token line predates the genre axis as on the sheaf side.
+A future linter cross-checks that attestation against the sheaf's
+{axl_lintel};
+until then the two may drift, a silent error the linter will resolve, and a one-token line predates the genre axis as on the sheaf side.
 +
 [source,asciidoc]
 ----
@@ -4263,6 +4296,62 @@ line; until then the two may drift, a silent error the linter will resolve, and 
 //axvd_cartouche axd_normative axd_operation
 include::RBSLE-lode_ensconce.adoc[]
 ----
+
+=== Composition Structural Terms
+
+Two lexicon terms complete the document-composition vocabulary: the name of the sheaf-side
+declaration unit, and the prose law the declaration pair keys.
+
+[[axl_lintel]]
+{axl_lintel}::
+The head-of-file unit the
+{axvd_sheaf}
+voicing and its opening sentence form together — the sheaf-side declaration a reader passes
+under on every entry into the file.
+The load-bearing member over the sheaf's entrance: it carries the brand — status, genre,
+codex — into the context of whoever edits the file, as the
+{axvd_cartouche}
+carries the same attestation on the codex side, where a reader browsing the codex triages
+sheaves without opening them.
+A validator cross-checks
+{axl_lintel}
+tokens against the
+{axvd_cartouche}
+attestation.
+Named for the masonry member spanning a doorway; joins the ashlar/quoin/hearting course of
+MCM's masonry register.
+
+[[axl_timeless]]
+{axl_timeless}::
+Sheaf prose states the present truth — the best current expression of reality or intent —
+and never journals: no dates, no supersession narrative, no history a reader must execute to
+reach what holds now.
+Provenance lives in git, in memos, and in the decision records an aspirant sheaf carries to
+retirement; a sheaf accreting dated cinch-marks is drifting from specification toward
+journal.
++
+The law is mechanical, keyed to the
+{axl_lintel}:
+a date-shaped token in the body of a sheaf whose
+{axl_lintel}
+carries
+{axd_normative},
+{axd_executory},
+or
+{axd_informative}
+is a violation, with two allowances —
+a sheaf of the
+{axd_survey}
+genre is exempt entire (its recorded signatures are real, verified, and dated by design),
+and a date embedded in a memo path is a reference to a dated artifact, never a mark on the
+prose.
+{axd_aspirant}
+and
+{axd_notional}
+sheaves are exempt: pre-canon mulling surfaces whose decision records — naming ledgers,
+dated cinches, drain notes — retire to provenance with them.
+The matricula mechanizes this law as a presentment-emitting validator (VOSMM), citing this
+section; it does not redefine it.
 
 == Axial Type Universal Terms
 
