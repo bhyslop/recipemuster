@@ -129,23 +129,31 @@ studbook, pedigree, hippodrome, infield, counterfoil, guidon, farrier, saddle, u
 and the jjy_ dirname family.
 Elected 260705 under grep gate: blotter; chapbook (landed in AXLA);
 the jjy_ widening carrying the launcher names jjy_saddle and jjy_lunge.
-Re-mints owed at the census pace:
-farrier ops status/commit/fetch/push;
-the lock trio (guidon-verbs seed held);
-the freshen successor (HARD VOK collision — the farrier sheaf ledger does not yet record it: bank the divergence);
-the sweep door's word (mucking-out seed held);
-the stray pedigree prose use in RBK's getting-started spec (sweep at the census pace);
-weigh advance (English-common gray, no mint collision).
-Allocations with no words yet:
-the lock-ref git namespace;
-JJS0 sub-letter families for the store, dispatch, and driver vocabularies;
-premise-vs-rivet classification of the scattered invariants
-(never-force, trunk-never-pushed-by-JJ, no-worktree-paths-in-studbook, durable-first, reads-take-no-lock, sole-door);
-exposure tiers for the operator-typed verbs (saddle/lunge/unsaddle/break are ashlar at least, likely bondstone).
+CENSUS DISCHARGED (260705): the candidate battery re-ran clean;
+billet settled by eviction — the window-overlay quoin yielded, re-worded jjdxw_hatchment
+(both held alternates were dead: livery foreign-minted in RBK, stall trodden);
+farrier ops re-minted comb/lodge/glean/consign;
+lock trio settled as guidon verbs stake/pluck/sight;
+freshen resolved — refit names the session-facing resync operation, enfold the bare merge primitive,
+the VOK collision banked in the farrier ledger;
+the sweep door is muck;
+weigh advance retained as the boring-register proof-word;
+the RBSGS pedigree stray reworded to provenance,
+plus a JJK-README ghost excision clearing studbook's only foreign hits.
+Allocations landed:
+refs/jjv/* lock-ref namespace (rationale in the state-repo ledger);
+JJS0 legend reserves jjdb_/jjdd_/jjdf_ for the store/dispatch/driver vocabularies;
+invariants classified — rivets never-force / no-worktree-paths / durable-first,
+premises trunk-never-pushed / reads-take-no-lock / sole-door;
+exposure tiers recorded — the six dispatch verbs ashlar, toothing-tier centrality,
+broadside registration owed at infusion.
+Saddle/unsaddle ratified with the gate OPEN by contingency until the interior rename frees the word.
+Elections, alternates, and rationales live in the two sheaf ledgers; this roster is the summary.
 
 ### Deltas to bank into the aspirant sheaves at drain time
 
-- Farrier ledger: record the freshen collision and the resync re-home.
+- Farrier ledger: DONE 260705 — the freshen collision recorded and resolved (refit/enfold);
+  spine and doctrine wording re-cinched to glean-never-merge per the trunk-resync cinch.
 - Billet definition: re-anchor on the partition axis (a root with a lifecycle) —
   worktree is the plain-git implementation; a full clone is the fallback for kinds without worktrees.
 - The sweep supersedes the reaped-at-next-saddle line;
@@ -161,7 +169,6 @@ Settle before the affected change, not before the heat; each item names its sett
 
 - Identify contract shape — the kind-invariant core of its return;
   calcifying: settles at its design pace, before any farrier trait code.
-- Lock trio naming (guidon-verbs seed) — deliberately unsettled; settles at the census pace.
 - Billet dirname convention — lean on record (dirname = the §F branch name verbatim);
   adopted at dispatch-sheaf authoring.
 - Wire-vs-display coronet form (gazette halter typing depends on it) —
