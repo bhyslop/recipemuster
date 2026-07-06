@@ -8756,7 +8756,7 @@
         "₢BrAAY": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260706-0948",
+              "jjgtn_ts": "260706-1029",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "## Character",
@@ -8764,15 +8764,15 @@
                 "Design pace — the session-configuration model spanning dispatch and bridle; frontier tier.",
                 "Includes a minting ceremony under MCM Lapidary.",
                 "Order-free: independent of the design paces ahead of it in heat order — may mount before them.",
-                "Cross-heat gate it OWNS: the bridle pace ₢BcAAM in ₣Bc consumes this pace's ratified tier vocabulary,",
-                "so this pace goes first — mount it ahead of ₢BcAAM.",
+                "The former cross-heat gate this pace owned is disposed (260706 operator ruling):",
+                "the bridle pace in ₣Bc proceeds first on a provisional tier vocabulary — the vendor family words carried by the model wire param — and stores designations in those words;",
+                "this pace ratifies or re-mints that vocabulary afterward, and a re-mint costs only a value migration over stored tiers while one instance operates.",
                 "",
                 "## Done when",
                 "",
                 "The session-launch configuration model is designed whole and cinched in the paddock:",
-                "the designation vocabulary — flat tier ladder vs (family, effort) axes,",
-                "JJ-owned rung words vs vendor family names —",
-                "ratified jointly with the bridle pace ₢BcAAM in ₣Bc, which stores it;",
+                "the designation vocabulary — flat tier ladder vs (family, effort) axes, JJ-owned rung words vs vendor family names —",
+                "ratified against the provisional vendor-family ladder the bridle work landed with (a re-mint is a value migration over stored tiers);",
                 "the validated (model, effort) pair table (effort ceilings are model-gated) and its home;",
                 "the spawn primitive parameterized on the order of (billet, tier, opening prompt),",
                 "its census word minted under the Lapidary gates with exposure tier settled at authoring —",
@@ -8798,7 +8798,7 @@
                 "₢BcAAM docket in ₣Bc; MCM Lapidary (vocabulary isolation, semantic uniqueness, word husbandry)."
               ],
               "jjgtn_silks": "session-tier-launch-design",
-              "jjgtn_basis": "0713405"
+              "jjgtn_basis": "3e1396d"
             }
           ]
         }
