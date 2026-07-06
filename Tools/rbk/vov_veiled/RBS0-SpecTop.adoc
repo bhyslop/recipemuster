@@ -532,6 +532,12 @@
 :rbst_cidr_list:             <<rbst_cidr_list,CIDR List>>
 :rbst_domain_list:           <<rbst_domain_list,Domain List>>
 :rbst_volume_mount_list:     <<rbst_volume_mount_list,Volume Mount List>>
+:rbst_string:                <<rbst_string,String>>
+:rbst_url:                   <<rbst_url,URL>>
+:rbst_version:               <<rbst_version,Version>>
+:rbst_integer:               <<rbst_integer,Integer>>
+:rbst_duration:              <<rbst_duration,Duration>>
+:rbst_username:              <<rbst_username,Username>>
 
 // Recipe Bottle Regime: Nameplate (service deployment configuration)
 :rbrn_regime:                       <<rbrn_regime,RBRN Regime>>
@@ -4782,6 +4788,42 @@ Each element is a valid DNS domain (e.g., `api.anthropic.com www.internic.net`).
 //axl_voices axtu_string axd_list
 {rbst_volume_mount_list}::
 _Historical type (Podman era)._ Volume mounts are now declared in per-nameplate compose fragments (`«moniker».compose.yml`) using Docker Compose `volumes:` syntax with relative paths (portable across Windows/Linux/macOS).
+
+[[rbst_string]]
+//axl_voices axtu_string
+{rbst_string}::
+Generic bounded string value.
+Length bounds are set by the consuming voicing's context.
+
+[[rbst_url]]
+//axl_voices axtu_string
+{rbst_url}::
+Absolute URL.
+Format: `scheme://host[/path][?query]` (e.g., `https://scaleinv.github.io/recipebottle`).
+
+[[rbst_version]]
+//axl_voices axtu_string
+{rbst_version}::
+Software version string identifying a tool or component release.
+Vendor-native form (e.g., a Podman release such as `5.2.1`); 1-64 characters.
+
+[[rbst_integer]]
+//axl_voices axtu_xname
+{rbst_integer}::
+Non-negative decimal integer.
+Range constraints are set per voicing context (e.g., a concurrent-build count).
+
+[[rbst_duration]]
+//axl_voices axtu_string
+{rbst_duration}::
+Time duration in seconds-suffixed form (e.g., `3600s`).
+Consumed by Cloud Build timeout fields.
+
+[[rbst_username]]
+//axl_voices axtu_xname
+{rbst_username}::
+System or service account username naming a login principal.
+Cross-context safe identifier used as a container or runtime user identity.
 
 === Google-specific Types (rbgt_*)
 
