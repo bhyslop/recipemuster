@@ -60,7 +60,7 @@ zrbyc_kindle() {
     readonly "${1}=${z_buym_yelp}"
   }
 
-  # --- Paddock anchor inventory (37 base terms) ---
+  # --- Paddock anchor inventory ---
 
   # Operations
   zrbyc_yk RBYC_ORDAIN    "${z_docs}" "Ordain"
@@ -104,8 +104,6 @@ zrbyc_kindle() {
   zrbyc_yk RBYC_GOVERNOR  "${z_docs}" "Governor"
   zrbyc_yk RBYC_DIRECTOR  "${z_docs}" "Director"
   zrbyc_yk RBYC_RETRIEVER "${z_docs}" "Retriever"
-  zrbyc_yk RBYC_CHARTER   "${z_docs}" "Charter"
-  zrbyc_yk RBYC_KNIGHT    "${z_docs}" "Knight"
 
   # Infrastructure concepts
   zrbyc_yk RBYC_TABTARGET "${z_docs}" "Tabtarget"
