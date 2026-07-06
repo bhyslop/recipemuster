@@ -10412,8 +10412,8 @@
         "₢BtAAJ": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260705-1703",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260705-1728",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "## Character",
                 "",
@@ -10443,7 +10443,7 @@
                 "If declined, the rationale is recorded so the redundancy is understood rather than rediscovered."
               ],
               "jjgtn_silks": "axla-quoin-lane-voicing",
-              "jjgtn_basis": "8aabd6c"
+              "jjgtn_basis": "329cd3c"
             }
           ]
         }
