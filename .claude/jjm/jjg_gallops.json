@@ -12,7 +12,6 @@
     "₣BD",
     "₣Bn",
     "₣Bm",
-    "₣Bk",
     "₣Bj",
     "₣BW",
     "₣BN",
@@ -8859,14 +8858,6 @@
     },
     "₣Bj": {
       "jjghn_silks": "vo-matricula-refinement",
-      "jjghn_creation_time": "260620",
-      "jjghn_status": "jjghe_stabled",
-      "jjghn_order": [],
-      "jjghn_next_pace_seed": "AAA",
-      "jjghn_paces": {}
-    },
-    "₣Bk": {
-      "jjghn_silks": "jjk-10-aspirant-regional-gallops",
       "jjghn_creation_time": "260620",
       "jjghn_status": "jjghe_stabled",
       "jjghn_order": [],
