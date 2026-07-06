@@ -10374,8 +10374,8 @@
         "₢BtAAI": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260705-1657",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260705-1915",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "## Character",
                 "",
@@ -10405,7 +10405,7 @@
                 "no new AXLA motif was minted."
               ],
               "jjgtn_silks": "rbst-primitive-type-catalog",
-              "jjgtn_basis": "3833d4f"
+              "jjgtn_basis": "c2be708"
             }
           ]
         },
