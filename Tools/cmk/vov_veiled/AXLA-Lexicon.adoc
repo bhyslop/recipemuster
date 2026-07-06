@@ -122,7 +122,9 @@
 :axd_roadmap:                         <<axd_roadmap,Roadmap>>
 :axd_chapbook:                        <<axd_chapbook,Chapbook>>
 
-// Chapbook dimensions (required cast kind + interaction licenses + interaction structure)
+// Chapbook dimensions (required opener cast voicing + required cast kind + interaction licenses + interaction structure)
+:axd_sprued:                          <<axd_sprued,Sprued>>
+:axd_quoined:                         <<axd_quoined,Quoined>>
 :axd_external:                        <<axd_external,External>>
 :axd_foreign:                         <<axd_foreign,Foreign>>
 :axd_open:                            <<axd_open,Open>>
@@ -3374,7 +3376,16 @@ declared
 the stitched happy-path tale.
 They lay out a cast of *actors* — optionally quartered into *venues* — and an ordered run of *interactions*, and nothing else:
 no parameters, no outputs, no guarantees — those live in the contracts the interactions cite.
-Cast names are *regional*: sprue-local tokens under a prefix the tale declares, defined and referenced wholly within the file, never catalogued in the
+Every tale declares its *cast voicing* on the
+{axhcb_chapbook}
+opener, exactly one of
+{axd_sprued}
+or
+{axd_quoined} —
+required, no unmarked reading.
+In a
+{axd_sprued}
+tale, cast names are *regional*: sprue-local tokens under a prefix the tale declares, defined and referenced wholly within the file, never catalogued in the
 {mcm_mapping_section}
 (kin to
 {mcm_sprue}
@@ -3386,6 +3397,12 @@ They are project-universe tokens, so they ride the backtick-token stream as
 reads — never the annotation line, which carries ax-universe tokens only: the marker motif and its
 `axd_`
 dimensions.
+In a
+{axd_quoined}
+tale, a cast lane mints no token: its identity is the catalogued quoin it would otherwise merely instantiate, and interactions reference lanes on the
+{mcm_attribute_reference}
+stream — every actor mention resolves through the census, and no quoin-shaped alias stands between the tale and the catalogue.
+Venue identities and legends ride the opener's sprue in both voicings, which is why the opener reads its sprue unconditionally.
 The citation discipline is *cite the governing contract*: an interaction crossing a door cites the operation; an interior interaction cites the routine; only an interaction carrying a licensing
 {axd_dimension}
 may go quoinless — the license fails loud where inference would fail silent, the
@@ -3416,7 +3433,7 @@ tokens beyond the declared arity inside a window are ordinary prose — which is
 The two streams stay independent within one window
 (the
 {axd_inlaid}
-mechanics), and declared inlays lead their window by convention.
+mechanics), and declared reads lead their window by convention.
 
 === Marker Terms and Lookahead Arities
 
@@ -3424,18 +3441,25 @@ mechanics), and declared inlays lead their window by convention.
 |===
 |Marker |Lookahead |Reads
 
-|{axhcb_chapbook}    |1 {mcm_inlay}                |Opens the tale; the inlay is the document's sprue (the regional cast prefix); exactly one per sheaf
+|{axhcb_chapbook}    |1 {mcm_inlay}                |Opens the tale; the line carries exactly one cast voicing ({axd_sprued} or {axd_quoined}); the inlay is the document's sprue (the regional prefix); exactly one per sheaf
 |{axhcv_venue}       |1 {mcm_inlay}                |Opens a venue scope over the actor lanes that follow; the inlay is the venue's identity under the tale's sprue
-|{axhca_actor}       |1 {mcm_inlay} + 1 {mcm_attribute_reference} |A cast lane; the line carries exactly one kind dimension ({axd_internal} or {axd_external}); the inlay is the sprue-local lane token, the attribute lookahead the catalogued quoin this lane instantiates
-|{axhci_interaction} |2 {mcm_inlay} (from, then to; +1 legend under {axd_legend}) + 1 {mcm_attribute_reference} (0 when licensed) |One interaction of the tale; the line carries only dimensions — licenses ({axd_attended}, {axd_foreign}) and structure ({axd_open}, {axd_closed}, {axd_legend}); the inlays are the from-lane then to-lane tokens, the attribute lookahead the governing contract
+|{axhca_actor}       |{axd_sprued}: 1 {mcm_inlay} + 1 {mcm_attribute_reference}; {axd_quoined}: 1 {mcm_attribute_reference} |A cast lane; the line carries exactly one kind dimension ({axd_internal} or {axd_external}); sprued, the inlay is the sprue-local lane token and the attribute lookahead the catalogued quoin it instantiates; quoined, the attribute lookahead is the lane's identity and no token is minted
+|{axhci_interaction} |{axd_sprued}: 2 {mcm_inlay} (from, then to) + 1 {mcm_attribute_reference} (contract); {axd_quoined}: 3 {mcm_attribute_reference} (from, to, then contract); either voicing: +1 legend {mcm_inlay} under {axd_legend}, contract read absent when licensed |One interaction of the tale; the line carries only dimensions — licenses ({axd_attended}, {axd_foreign}) and structure ({axd_open}, {axd_closed}, {axd_legend}); from and to read lane identities declared by prior actor lanes, the contract lookahead the governing contract
 |===
 
 [[axhcb_chapbook]]
 {axhcb_chapbook}::
 Opens the tale.
+The annotation line carries exactly one cast voicing —
+{axd_sprued}
+or
+{axd_quoined} —
+declaring how cast lanes are identified and how interactions reference them; the voicing is required: no unmarked reading.
 Lookahead: 1
 {mcm_inlay} —
-the document's sprue, the regional prefix under which the cast is minted, conventionally derived from the sheaf's own identity.
+the document's sprue, the regional prefix under which venue identities and legends are minted — and, in a
+{axd_sprued}
+tale, the lane tokens — conventionally derived from the sheaf's own identity.
 No attribute lookahead; exactly one per
 {mcm_sheaf}.
 
@@ -3466,7 +3490,7 @@ the box is presentation, the scope is the truth.
 
 [[axhca_actor]]
 {axhca_actor}::
-Mints one cast lane.
+Declares one cast lane.
 The annotation line carries exactly one kind
 {axd_dimension} —
 {axd_internal}
@@ -3474,12 +3498,20 @@ The annotation line carries exactly one kind
 {axd_external}
 (an outside party with its own initiative; its interactions normally cross doors).
 The kind is required: no unmarked reading.
-Lookahead, backtick stream: 1
+In a
+{axd_sprued}
+tale — lookahead, backtick stream: 1
 {mcm_inlay} —
-the sprue-local lane token this marker mints.
-Lookahead, attribute stream: 1
+the sprue-local lane token this marker mints;
+lookahead, attribute stream: 1
 {mcm_attribute_reference} —
-the catalogued quoin this lane instantiates:
+the catalogued quoin this lane instantiates.
+In a
+{axd_quoined}
+tale — lookahead, attribute stream only: 1
+{mcm_attribute_reference} —
+the catalogued quoin that is the lane's identity; no token is minted.
+In either voicing the quoin cited is
 {axo_actor}
 or
 {axo_identity}
@@ -3502,15 +3534,28 @@ the licenses
 {axd_closed},
 and
 {axd_legend}.
-Lookahead, backtick stream: 2
+In a
+{axd_sprued}
+tale — lookahead, backtick stream: 2
 {mcm_inlay} —
 the from-lane token then the to-lane token, both minted by prior
 {axhca_actor}
-reads; a third inlay, the legend, follows under
-{axd_legend}.
-Lookahead, attribute stream: 1
+reads;
+lookahead, attribute stream: 1
 {mcm_attribute_reference} —
-the *governing contract*, an anchor voiced
+the governing contract.
+In a
+{axd_quoined}
+tale — lookahead, attribute stream: 3
+{mcm_attribute_reference} —
+the from-lane quoin, the to-lane quoin, then the governing contract, the lanes declared by prior
+{axhca_actor}
+reads.
+In either voicing a legend
+{mcm_inlay}
+rides the backtick stream under
+{axd_legend}.
+The *governing contract* is an anchor voiced
 {axvo_procedure},
 {axvo_method},
 or
@@ -3519,6 +3564,44 @@ at either exposure: an operation where the interaction crosses a door, a routine
 A licensed interaction may omit the contract lookahead, or cite a handbook or survey home where one exists; by covenant such interactions are rare.
 Interactions are anonymous — identity through position, order is narrative order, as with
 {axhos_step}.
+
+[[axd_sprued]]
+{axd_sprued}::
+A
+{axd_dimension}
+declaring a tale's cast voicing: lane identities are sprue-local tokens minted under the opener's sprue, and interactions reference lanes on the backtick-token stream.
+Each lane still cites, as its attribute lookahead, the catalogued quoin it instantiates — the token is the tale's handle, the quoin its census anchor;
+a lane whose quoin is not yet catalogued names that pendency in its body prose, an aspirant's recorded gap, never a silently absent read.
+The nursery voicing: it serves the cast not yet fully catalogued — a pending actor has no other handle — and the cast where two lanes embody one quoin, which
+{axd_quoined}
+cannot express.
+Exactly one of
+{axd_sprued}
+or
+{axd_quoined}
+appears on each
+{axhcb_chapbook};
+valid there only.
+
+[[axd_quoined]]
+{axd_quoined}::
+A
+{axd_dimension}
+declaring a tale's cast voicing: each lane's identity is a catalogued quoin, no lane token is minted, and interactions reference lanes on the
+{mcm_attribute_reference}
+stream — every actor mention resolves through the census.
+Demands a fully catalogued, *injective* cast — every lane a distinct quoin: two lanes reading one quoin would make from and to references ambiguous, and such a tale is
+{axd_sprued}
+instead.
+The mature voicing: a cast that qualifies should be quoined — a sprue alias standing one line above the quoin it shadows does no work the quoin cannot, and mints a quoin-shaped token the catalogue does not know.
+Venue identities and legends still ride the opener's sprue.
+Exactly one of
+{axd_sprued}
+or
+{axd_quoined}
+appears on each
+{axhcb_chapbook};
+valid there only.
 
 [[axd_foreign]]
 {axd_foreign}::
@@ -3567,7 +3650,7 @@ A
 marking the
 {axhci_interaction}
 that closes the innermost open vertical group.
-Its from inlay must read the opening interaction's to token — the reversal is redundant, and validated.
+Its from identity must read the opening interaction's to identity — lane token or lane quoin per the tale's cast voicing — the reversal is redundant, and validated.
 A close with no group open is malformed.
 The closing interaction is otherwise ordinary:
 it cites its governing contract like any other, and whatever rides home — one fact or several — is named in prose through ordinary citation, never through a typed payload arity.
@@ -3587,7 +3670,11 @@ carries a *legend* — a terse inscription for the interaction, the phrase a der
 under the tale's sprue, shifting no attribute-reference counting
 (the
 {axd_inlaid}
-mechanics), read third on its window's backtick stream — after the from and to tokens, before any incidental backtick of the interaction's prose.
+mechanics) — in a
+{axd_sprued}
+tale read third on its window's backtick stream, after the from and to tokens; in a
+{axd_quoined}
+tale read first, the from and to identities riding the attribute stream — before any incidental backtick of the interaction's prose.
 Declared but unreadable is malformed — never silently legend-less;
 absent the dimension, further backtick tokens in interaction prose are ordinary prose.
 Valid on
@@ -3605,8 +3692,13 @@ precedes every
 define before reference.
 * An
 {axhci_interaction}
-reads, as its from and to inlays, only lane tokens minted by a prior
-{axhca_actor}.
+reads, as its from and to identities, only lanes declared by a prior
+{axhca_actor} —
+lane tokens in a
+{axd_sprued}
+tale, lane quoins in a
+{axd_quoined}
+tale.
 * An
 {axhcv_venue}
 opens a venue scope over the
@@ -3633,13 +3725,25 @@ closes the innermost open group, and every open group closes before the tale end
 line carries
 {axd_chapbook}.
 * The
+{axhcb_chapbook}
+opener carries exactly one cast voicing —
+{axd_sprued}
+or
+{axd_quoined};
+an unvoiced or doubly-voiced opener is malformed.
+* The
 {axhca_actor}
 attribute lookahead must resolve to a catalogued
 {axl_definition_site};
-its lane-token inlay must lex under the tale's sprue.
+in a
+{axd_sprued}
+tale its lane-token inlay must lex under the tale's sprue;
+in a
+{axd_quoined}
+tale no two lanes may read the same quoin — the cast is injective — and every interaction's from and to reads must resolve to quoins declared by prior lanes.
 * An unlicensed
 {axhci_interaction}
-lookahead must resolve to an anchor voiced
+contract lookahead must resolve to an anchor voiced
 {axvo_procedure},
 {axvo_method},
 or
@@ -3652,12 +3756,14 @@ included: the rule is the governing contract, never door-grain.
 or
 {axd_foreign};
 the license marks the exception, never normalizes it.
-* Every chapbook inlay after the opener's own — lane tokens, from and to tokens, venue identities, legends — must lex under the sprue the
+* Every chapbook inlay after the opener's own — in a
+{axd_sprued}
+tale the lane, from, and to tokens; in either voicing the venue identities and legends — must lex under the sprue the
 {axhcb_chapbook}
 opener reads, and must land inside its annotation's read window.
 * An interaction carrying
 {axd_closed}
-must read, as its from inlay, the to token of the innermost open interaction;
+must read, as its from identity, the to identity of the innermost open interaction;
 a dangling
 {axd_open}
 or an unmatched

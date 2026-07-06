@@ -3,7 +3,7 @@ This is an aspirant chapbook of the {jjs0_imprimatur}: not yet binding — do no
 
 = A Typical Job Jockey Session — Chapbook
 
-//axhcb_chapbook
+//axhcb_chapbook axd_sprued
 `jjcbs`
 The happy-path tale of one mounted pace under the revision-control MVP:
 dispatch builds the billet, the session works it, the studbook and hippodrome co-evolve through a notional edit, and teardown waits for the next start.
