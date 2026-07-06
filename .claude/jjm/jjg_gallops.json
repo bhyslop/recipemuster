@@ -9466,8 +9466,8 @@
         "₢BtAAL": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260706-0738",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260706-0846",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "## Character",
                 "",
@@ -9496,7 +9496,7 @@
                 "the anchor sweep passes — every `](#X)` reference has a matching `<a id=\"X\">`."
               ],
               "jjgtn_silks": "readme-roadmap-promise-trim",
-              "jjgtn_basis": "5ef3914"
+              "jjgtn_basis": "3f5f569"
             }
           ]
         },
