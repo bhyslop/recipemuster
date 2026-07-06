@@ -10126,8 +10126,8 @@
         "₢BtAAB": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260705-1206",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260705-2058",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "## Character",
                 "",
@@ -10159,7 +10159,7 @@
                 "chapbook committed clean of reserved-word and annotation-law violations."
               ],
               "jjgtn_silks": "chapbook-provenance-story",
-              "jjgtn_basis": "4abae9a"
+              "jjgtn_basis": "f97e38c"
             }
           ]
         },
