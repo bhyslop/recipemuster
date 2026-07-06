@@ -220,8 +220,8 @@
 // Window emblem overlay
 :jjdxw_emblem:    <<jjdxw_emblem,Emblem>>
 :jjdxw_emblem_s:  <<jjdxw_emblem,Emblems>>
-:jjdxw_billet:    <<jjdxw_billet,Billet>>
-:jjdxw_billet_s:  <<jjdxw_billet,Billets>>
+:jjdxw_hatchment:    <<jjdxw_hatchment,Hatchment>>
+:jjdxw_hatchment_s:  <<jjdxw_hatchment,Hatchments>>
 :jjdxw_marque:    <<jjdxw_marque,Marque>>
 :jjdxw_marque_s:  <<jjdxw_marque,Marques>>
 
@@ -849,7 +849,7 @@ Three distinct identities have all been loosely called "session"; JJS0 keeps the
 
 * the _agent_ session is an {jjdxo_officium};
 * the _Claude Code_ session UUID is captured by the session-recall survey of the {jjdxo_invitatory} commit — the canonical `session: <uuid>` field plus its redundant `session-*` channels, all foreign wire fields;
-* the _iTerm_ window identity is the `<value>` inside a {jjdxw_billet} under the `iterm-session` {jjdxw_marque}.
+* the _iTerm_ window identity is the `<value>` inside a {jjdxw_hatchment} under the `iterm-session` {jjdxw_marque}.
 
 The literal `iterm-session` is a cited paneboard wire constant, not a JJS0 quoin word.
 ====
@@ -870,21 +870,21 @@ A hark ({jjdo_show} carrying {jjda_hark}) sets no identity at all — a retrospe
 So a {jjdt_coronet}, once shown this {jjdxo_officium}, holds for the officium's life: a transient groom of the surrounding heat cannot stamp the heat {jjdt_firemark} over the pace the operator is working.
 The scope is the {jjdxo_officium} itself — a fresh session re-decides on its first mount or groom.
 
-[[jjdxw_billet]]
+[[jjdxw_hatchment]]
 //axve_entity
-{jjdxw_billet}::
+{jjdxw_hatchment}::
 The typed reference binding an {jjdxw_emblem} to a specific window.
-A {jjdxw_billet} is scheme-qualified — `<scheme>/<value>` — where the scheme names a {jjdxw_marque} and the value is the window handle that {jjdxw_marque} resolves (on macOS, the CGWindowID the overlay already enumerates).
+A {jjdxw_hatchment} is scheme-qualified — `<scheme>/<value>` — where the scheme names a {jjdxw_marque} and the value is the window handle that {jjdxw_marque} resolves (on macOS, the CGWindowID the overlay already enumerates).
 That qualification is what lets {jjdxw_emblem_s} generalize to other window types later without collision.
 +
-A {jjdxw_billet} is NOT a {jjdt_insignia} — it has no unicode glyph, no persistent seed, and no fossil-record purpose, precisely as a {jjdt_legatio} is not.
-It is ephemeral and {jjdxo_officium}-scoped: a window handle is stable for its window's life but may be recycled after the window closes, so correctness rests on the reader painting an {jjdxw_emblem} only while its window is in the live window set, with {jjdx_vvx} sweeping its own stale {jjdxw_billet_s}.
-The {jjdxw_billet} equals the per-window file's on-disk key; cross-repo it is the `pbge_pane` lede.
+A {jjdxw_hatchment} is NOT a {jjdt_insignia} — it has no unicode glyph, no persistent seed, and no fossil-record purpose, precisely as a {jjdt_legatio} is not.
+It is ephemeral and {jjdxo_officium}-scoped: a window handle is stable for its window's life but may be recycled after the window closes, so correctness rests on the reader painting an {jjdxw_emblem} only while its window is in the live window set, with {jjdx_vvx} sweeping its own stale {jjdxw_hatchment_s}.
+The {jjdxw_hatchment} equals the per-window file's on-disk key; cross-repo it is the `pbge_pane` lede.
 
 [[jjdxw_marque]]
 //axve_entity
 {jjdxw_marque}::
-A named scheme for identifying a window, together with its resolver leg — the platform-and-terminal-specific code mapping a window to the handle a {jjdxw_billet} carries.
+A named scheme for identifying a window, together with its resolver leg — the platform-and-terminal-specific code mapping a window to the handle a {jjdxw_hatchment} carries.
 The resolver lives in the writer, never in the overlay reader: paneboard holds no resolver and reads each {jjdxw_emblem} by the window handle it already enumerates.
 +
 The sole {jjdxw_marque} today is `iterm-session` (the on-disk scheme literal, paneboard PoC authority): {jjdx_vvx}, an unsandboxed iTerm descendant, self-scripts iTerm's AppleScript API to resolve its own window to the CGWindowID.
