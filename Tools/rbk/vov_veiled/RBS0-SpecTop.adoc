@@ -5380,6 +5380,12 @@ include::RBSYP-chapbook_provenance.adoc[leveloffset=+2]
 //axvd_cartouche axd_aspirant axd_chapbook
 include::RBSYF-chapbook_federation.adoc[leveloffset=+2]
 
+[[rbsyc_aspirant]]
+=== Containment Chapbook
+
+//axvd_cartouche axd_aspirant axd_chapbook
+include::RBSYC-chapbook_containment.adoc[leveloffset=+2]
+
 == Trade Studies
 
 Trade studies document the crystallized results of intensive research into complex technical domains.

@@ -1,0 +1,305 @@
+//axvd_sheaf axd_aspirant axd_chapbook
+This is an aspirant chapbook of the {rbs0_imprimatur}: not yet binding — do not rely on it, decide from it, or cite the names it mints until it is infused into the codex.
+//axhcb_chapbook axd_quoined
+`rbsyc`
+
+== Overview
+
+This chapbook tells the containment tale:
+how a Recipe Bottle runs foreign, untrusted code and lets it reach only what its nameplate sanctions —
+from the local build of the two vessels,
+through the ordered charge that raises the guard before the workload's first packet,
+to the standing guard holding under a determined adversary,
+and how the whole structure is torn down when the run ends.
+
+The tale binds stitching only:
+a cast of actors quartered into venues, and an ordered run of interactions.
+Every parameter, output, guarantee, and rejection band lives in the cited contracts, never here.
+The marker skeleton is the truth;
+any rendered diagram — its boxes, its arrows, its inscriptions — is derived presentation.
+
+*Oracle.*
+The story spine is the siege suite
+(`Tools/rbk/rbtd/src/rbtdra_almanac.rs`, the `siege` entry):
+fully local, no cloud in the path, it chains the vessel build to the charged security run.
+Its builder is
+`rbtdro_kludge_tadmor_standalone`
+(`Tools/rbk/rbtd/src/rbtdro_onboarding.rs`) —
+both vessels kludged and their hallmarks driven —
+and its run is the tadmor crucible fixture
+`RBTDRC_FIXTURE_TADMOR`
+(`Tools/rbk/rbtd/src/rbtdrc_crucible.rs`),
+whose setup charges, whose `RBTDRC_CASES_SECURITY` registry drives the adversary against the standing guard, and whose teardown quenches.
+The airgap sibling
+`RBTDRC_FIXTURE_MORIAH`
+runs the same registry against a bottle built end to end on the cloud.
+An interaction that contradicts a passing case is wrong — the fixture, not the chapbook, is authoritative.
+The tale compresses where the oracle repeats:
+each mechanism is told once, and an interaction notes the cases it compresses.
+
+*Stage geography.*
+Containment rests on one boundary.
+The
+{at_bottle_container} —
+the foreign, untrusted workload —
+holds no network of its own;
+through the runtime's namespace sharing it inherits the stack of the
+{at_pentacle_container},
+whose only exit is routed through the
+{at_sentry_container}.
+The sentry alone straddles the two networks —
+the isolated
+{at_enclave_network}
+the bottle sees and the
+{at_transit_network}
+that reaches the workstation and the world beyond —
+and it admits outward only what the
+{at_nameplate}
+sanctions, by iptables and a frozen DNS allowlist.
+What the workload may reach originates in the nameplate;
+everything the workload attempts is the sentry's to judge.
+The runtime that raises this structure — Docker Compose and its engine — is a foreign substrate, surveyed and never legislated:
+it owns the container and network lifecycle, and the sentry overrides its implicit choices (the default route it would hand to the wrong network) rather than trusting them.
+
+== Cast
+
+//axhca_actor axd_external
+{rbtr_director} —
+the operator wielding every verb of this tale from the station:
+kludges the vessels, charges and quenches the crucible,
+and stands as the party a real deployment answers to.
+
+//axhcv_venue
+`rbsyc_station`
+The operator's local ground — the committed git tree and the container runtime on the workstation, where the vessels are built and the crucible is charged.
+
+//axhca_actor axd_internal
+{rbtga_vessel} —
+the committed build specification for each container image;
+its regime lines are where the freshly built hallmark lands.
+
+//axhca_actor axd_internal
+{at_nameplate} —
+the crucible's configuration:
+the images, the network geometry, and the allowlist the sentry will enforce.
+
+//axhcv_venue
+`rbsyc_ward`
+The charged containment — the running structure the runtime raises and the sentry governs.
+
+//axhca_actor axd_internal
+{rbsc_crucible} —
+the whole a nameplate names:
+one sentry, one pentacle, one bottle, and their two networks,
+charged from the station and raised here, standing and quenched as one.
+
+//axhca_actor axd_internal
+{at_sentry_container} —
+the guard:
+privileged, astride both networks, owning the default route,
+enforcing every outward path by iptables and dnsmasq.
+
+//axhca_actor axd_internal
+{at_pentacle_container} —
+the router:
+it shares the sentry's image, sits on the enclave alone,
+and pins the default route through the sentry so the bottle it shelters can reach nothing else.
+
+//axhca_actor axd_internal
+{at_bottle_container} —
+the caged workload:
+the foreign code the crucible exists to contain,
+holding no network of its own and worst-cased in the oracle as a scripted adversary — the ifrit.
+
+//axhca_actor axd_internal
+{at_enclave_network} —
+the isolated network the bottle sees;
+its only path outward is the sentry.
+
+//axhca_actor axd_internal
+{at_transit_network} —
+the uplink the sentry alone straddles;
+beyond it lies the workstation and the surveyed world the allowlist gates.
+
+== The Tale
+
+=== Movement I — The Local Kludge
+
+Oracle: `rbtdro_kludge_tadmor_standalone`.
+The development-loop build: both vessels made on the station, no cloud in the path.
+
+//axhci_interaction
+. {rbtr_director} {rbtga_vessel} — via
+{rbtgo_ark_kludge},
+the director kludges the crucible's two vessels on the station —
+the sentry that will guard and the bottle that will be caged —
+each a local docker build against the station's cache, no cloud and no credentials, minting a hallmark.
+
+//axhci_interaction
+. {rbtr_director} {at_nameplate} — via
+{rbtgo_nameplate_drive},
+each fresh hallmark is driven into the nameplate — composed one-shot by the kludge itself — and committed;
+the sentry's commits before the bottle's, because the second kludge requires the clean tree the first leaves, and both vessels stand before the charge.
+
+=== Movement II — The Charge
+
+Oracle: `rbtdrc_charge_crucible`.
+One ordered ceremony raises the guard before the workload's first packet.
+
+//axhci_interaction
+. {rbtr_director} {rbsc_crucible} — via
+{rbsc_charge},
+the director charges the nameplate's crucible:
+the runtime instantiates the three containers and two networks,
+and the charge blocks until the whole health chain has passed,
+so nothing downstream runs against a half-built guard.
+
+//axhci_interaction
+. {at_sentry_container} {at_enclave_network} — via
+{opss_sentry_start},
+the sentry comes up first and privileged,
+discovers its interfaces by address and seizes the default route the runtime would otherwise misassign,
+lays its deny-by-default iptables and starts dnsmasq as the enclave's sole resolver,
+and only then signals health — the containment envelope raised over the guarded network before any neighbour exists.
+
+//axhci_interaction
+. {at_pentacle_container} {at_bottle_container} — via
+{mkr_bottle_launch},
+the sentry's health gates the pentacle, which comes up on the enclave alone and pins its default route through the sentry;
+the pentacle's health in turn gates the bottle, which the runtime starts sharing the pentacle's very network namespace, its `NET_ADMIN` capability dropped —
+so the workload is under the guard's policy from its first packet and never configures a network of its own.
+
+=== Movement III — The Standing Guard
+
+Oracle: `rbtdrc_sentry_iptables_loaded`, `rbtdrc_pentacle_ping_sentry`, `rbtdrc_pentacle_dnsmasq_responds`, `rbtdrc_sentry_config_forward_estab_related`, `rbtdrc_sentry_config_prerouting_dnat`, `rbtdrc_sentry_config_postrouting_masquerade`, `rbtdrc_sentry_config_rp_filter`.
+Read back from the running guard — the enclave path answers and each enforcement layer stands loaded.
+
+//axhci_interaction
+. {at_sentry_container} {at_bottle_container} — via
+{scr_iptables_init},
+the sentry lays a deny-by-default spine:
+DROP policies on every chain, the ingress, egress, and forward chains that carry its rules, and a conntrack accept for established return traffic —
+the ground every later permission opens against, and the reason the guard's own output can never become an egress pivot.
+
+//axhci_interaction
+. {at_sentry_container} {at_transit_network} — via
+{scr_access_setup},
+the sentry NATs the enclave's egress and admits it by the nameplate's mode —
+all of it, none of it, or only the sanctioned address ranges —
+so what leaves the enclave is exactly what the nameplate sanctions.
+
+//axhci_interaction
+. {at_sentry_container} {at_enclave_network} — via
+{scr_dns_step},
+the sentry runs dnsmasq as the enclave's only resolver,
+resolving each allowed name once and freezing the answer,
+then sealing the resolver so every other name, port, and resolver is refused.
+
+//axhci_interaction
+. {at_sentry_container} {at_bottle_container} — via
+{scr_port_setup},
+where the nameplate opens an inbound port the sentry publishes it by address translation,
+with the per-source exclusions that keep the entry from reflecting back into the enclave and the reverse-path filter set to match —
+so an opened door admits only its intended traffic.
+
+=== Movement IV — The Sanctioned Path
+
+Oracle: `rbtdrc_ifrit_dns_allowed`, `rbtdrc_ifrit_dns_allowed_example_org`, `rbtdrc_tcp443_allow_example`, `rbtdrc_cidr_all_ports_allowed`, `rbtdrc_sortie_http_end_to_end`.
+Before the refusals, the one thing the guard lets through.
+
+//axhci_interaction
+. {at_bottle_container} {at_transit_network} — via
+{scr_access_setup},
+the workload resolves an allowlisted name through the sentry, opens a connection to it, and carries a full exchange end to end —
+the guard passes exactly the destination the nameplate sanctioned, on any port,
+gating by where the traffic goes rather than by which port it uses.
+
+=== Movement V — The Sorties
+
+Oracle: the `rbtdrc_ifrit_dns_block_*` refusals, the twenty-two `rbtdrc_sortie_*` cases, and the nine `rbtdrc_coordinated_*` cases.
+The workload, worst-cased as the oracle's scripted adversary and armed with the raw-socket capability a normal bottle is denied, drives every escape it knows against the standing guard;
+this movement tells the outer shapes, not the roll — the fixture is authoritative for the rest.
+
+//axhci_interaction
+. {at_bottle_container} {at_sentry_container} — via
+{scr_dns_step},
+the workload tries to make DNS a way out —
+a forbidden name, a direct query to a public resolver, an alternate port or transport, a zone transfer, data smuggled in a subdomain —
+and the sealed resolver answers none of it: only allowlisted names, only from the sentry.
+
+//axhci_interaction
+. {at_bottle_container} {at_transit_network} — via
+{scr_iptables_init},
+the workload reaches past the allowlist by every route it can craft —
+a forbidden address or range, the cloud-metadata endpoint, a spoofed source, a raw or smuggled protocol, a fragmented packet, a second network hop, an IPv6 escape —
+and the deny-by-default filter drops each; only the sanctioned path the nameplate opened ever carries.
+
+//axhci_interaction
+. {at_bottle_container} {at_bottle_container} — via
+{mkr_bottle_launch},
+the workload turns on its own cage —
+reading which capabilities it still holds, trying to write kernel network tunables, rewrite its routes, or find a neighbour beyond its subnet —
+and the dropped `NET_ADMIN` leaves its tunables and routes unwritable and its subnet without neighbours:
+the guard needs no rule for what the kernel already forbids, and the sentry's filter, not a missing capability, is what turns back the raw packets it can still craft.
+
+//axhci_interaction
+. {at_bottle_container} {at_sentry_container} — via
+{scr_iptables_init},
+the workload turns on the guard itself —
+port-scanning for a foothold, forging ARP and DNS and RST storms to poison its neighbour table or hijack its resolver, flooding its bridge —
+and the sentry endures: after each, its rules, its frozen records, and its enclave stand unchanged,
+and it offers no exploitable service to reach beyond the sanctioned resolver, and no pivot to borrow.
+
+//axhci_interaction axd_foreign
+. {at_bottle_container} {at_transit_network} —
+the workload fires a stateless segment with no established flow behind it, and the sentry forwards no reply;
+at the realm's edge, one runtime — Windows Docker Desktop — answers such a segment itself with an off-path reset the sentry never mediated,
+a surveyed deviation the oracle tells from a true breach by the reply's link-layer origin and reads as contained, per
+{rbsq_wdd_offpath_reply}.
+The verdict stays honest by its own controls:
+the same lone segment aimed at a forbidden destination must draw no reply at all, and the provenance test is itself checked against known frames — so the contained reading is never a blind spot.
+
+=== Movement VI — The Quench
+
+Oracle: `rbtdrc_quench_crucible`.
+The run ends where it began — and the guarantee proves to belong to the guard, not to how its neighbour was made.
+
+//axhci_interaction axd_attended
+. {rbtr_director} {rbsc_crucible} — the director quenches:
+every container and network of the nameplate's crucible is torn down, and it no longer stands.
+No operation quoin governs the teardown as one governs the charge — see Surfaced Gaps.
+
+The same registry runs against the airgap nameplate —
+whose bottle was built end to end on the cloud, with no local kludge behind it —
+and holds the guard to the identical refusals.
+Containment is a property of the sentry that stands, not of the supply chain that made the workload beside it:
+the guarantee the tale exists to tell survives the swap of everything but the guard.
+
+== Surfaced Gaps
+
+Story-first authoring exists to surface exactly these.
+Both gaps are graduation conditions for this chapbook, alongside its cast-and-interaction ratification.
+
+*The teardown has no operation quoin.*
+Charge is a catalogued operation —
+{rbsc_charge},
+wielding a contract of preflight, health-gated startup, and hook — and Movement II cites it.
+Quench is only a civic definition:
+it tears the crucible down, but no operation quoin and no contract govern it,
+so Movement VI carries the teardown attended rather than cited.
+The asymmetry is real — the same ceremony that is precise on the way up is unspecified on the way down.
+The breach dissolves when quench is promoted to an operation quoin with its own contract, and the teardown interaction cites it.
+
+*The adversary and its sorties are uncatalogued.*
+The containment guarantee is proven by an adversary —
+the ifrit, a scripted worst-case workload with perfect knowledge and packet-crafting, whose escape attempts are curated as first-class test infrastructure —
+yet the adversary has no citable home.
+Its concept names in the codex (`rbsi_ifrit` and its siblings) are registered in the mapping section but carry no definition site: a dangling reference no interaction can resolve.
+The sortie — the act of mounting one attack — has no operation quoin either, nor does the exec surface the oracle drives it through.
+So this tale cannot cast the ifrit at all.
+It casts the caged workload itself as the adversary —
+the
+{at_bottle_container},
+whose every attempt the guard already judges regardless of intent —
+and Movement V tells each escape as the workload meeting the enforcement routine that contains it, never as an adversarial act it could cite.
+The breach dissolves when the ifrit's concept names are given definition sites and the sortie is minted as an operation quoin, so the adversary can be cast and its escapes cited as the acts they are.
