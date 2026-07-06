@@ -80,6 +80,28 @@ the implementation tail runs at work tier.
   and no gitignore is needed anywhere because the infield is not a repo.
   The jjy_ family charter widens from infield-resident repos to ALL JJ-owned infield residents,
   giving the yard-side/wire-side legibility split: jjy_ names what the operator touches on disk, jjx_ names the MCP wire.
+- Identify contract (260706): the kind-invariant core of the farrier's identify is settled —
+  studbook-blind, network-silent, lock-free, the first link of the derivation chain,
+  taking an explicit probe path (the door captures cwd once; identify itself honors the census no-cwd rule)
+  and answering claim-or-decline: identify doubles as ground detection —
+  the spine probes the kind roster, the claim names the kind,
+  and the spine cross-checks the claiming kind against the pedigree's recorded kind downstream
+  (mismatch is a named rejection: record/ground drift).
+  A claimed tree resolves four things:
+  root (station-local absolute path, transient — never journaled, per the no-worktree-paths rivet;
+  the identity dirname derives as its basename),
+  canonical upstream key (the pedigree key; the kind owns canonicalization,
+  one key per tree — a constellation kind keys on its own upstream),
+  seat (primary or partition; a partition seat carries its primary's root,
+  with linkage mechanics the kind's own: worktree gitdir for plain git,
+  a planted station-local marker for full-clone fallbacks),
+  and line of work (branch or detached, one seat-grain designation even for constellations).
+  Total for a claimed tree: detached, mid-merge, or dirty states report faithfully, never reject;
+  the sole failure is foreign ground (nothing claims), and all refusal policy lives in consumers.
+  Deliberately excluded from the return:
+  position — the member→SHA manifest shape has one home, the counterfoil op;
+  trunk-ness — pedigree-relative, classified downstream, so the seat says primary, never trunk;
+  dirt and staleness — comb's and sync_state's.
 
 ## Canon workup
 
@@ -178,7 +200,9 @@ Elections, alternates, and rationales live in the two sheaf ledgers; this roster
 - Billet definition: re-anchor on the partition axis (a root with a lifecycle) —
   worktree is the plain-git implementation; a full clone is the fallback for kinds without worktrees.
 - The sweep supersedes the reaped-at-next-saddle line;
-  the identify census row sheds its plain-git-only vocabulary.
+  the identify census row sheds its plain-git-only vocabulary,
+  sheds HEAD (position's one home is the counterfoil op, per the identify cinch),
+  and the officium-open composition row updates to match.
 - Studbook sheaf naming ledger: DONE 260705 — the jjy_ entry marked infused with the widened
   charter (all JJ-owned infield residents), the charter itself canon in the cosmology sheaf.
 - Mews sheaf (sibling heat ₣Ba): DONE 260705 — the graduation fork closed in the sheaf itself;
@@ -188,8 +212,6 @@ Elections, alternates, and rationales live in the two sheaf ledgers; this roster
 
 Settle before the affected change, not before the heat; each item names its settling pace:
 
-- Identify contract shape — the kind-invariant core of its return;
-  calcifying: settles at its design pace, before any farrier trait code.
 - Billet dirname convention — lean on record (dirname = the §F branch name verbatim);
   adopted at dispatch-sheaf authoring.
 - Wire-vs-display coronet form (gazette halter typing depends on it) —
