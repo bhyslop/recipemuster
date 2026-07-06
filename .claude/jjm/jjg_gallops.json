@@ -9415,8 +9415,8 @@
         "₢BrAAE": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260705-1634",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260706-0737",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "## Character",
                 "",
@@ -9432,7 +9432,7 @@
                 "the chapbook's studbook flag hardens."
               ],
               "jjgtn_silks": "studbook-entity-sheaf",
-              "jjgtn_basis": "d432287"
+              "jjgtn_basis": "99c3b60"
             }
           ]
         },
