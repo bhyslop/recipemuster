@@ -10176,7 +10176,7 @@
         "₢BsAAJ": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260706-0739",
+              "jjgtn_ts": "260706-0800",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "## Character",
@@ -10204,14 +10204,22 @@
                 "mint the new rbdg family letter provisionally, flagged for operator ratification at review.",
                 "Emplace as the lead visual in README's Foundry Lifecycle, the existing deep-dives staying collapsed below.",
                 "",
+                "Second deliverable, same recipe: the containment sibling from the RBSYC chapbook cast —",
+                "station and ward venues, the ordered charge raising the guard before the workload's first packet,",
+                "the standing guard, and the sortie arrows meeting it, closing on the quench —",
+                "emplaced in README's Crucible region, which is text-only today.",
+                "If the fill window runs short, the federation glance takes precedence",
+                "and the containment sibling is explicitly deferred at wrap rather than silently dropped.",
+                "",
                 "## Done when",
                 "",
-                "The puml source and both rendered SVGs stand committed in lockstep;",
-                "the README emplacement has landed;",
-                "the rbdg letter is ratified or re-minted at diagram review."
+                "The puml sources and both rendered SVG pairs stand committed in lockstep;",
+                "the README emplacements have landed;",
+                "the rbdg letters are ratified or re-minted at diagram review —",
+                "or the containment sibling is explicitly deferred at wrap."
               ],
               "jjgtn_silks": "federation-glance-diagram",
-              "jjgtn_basis": "fcd0c6b"
+              "jjgtn_basis": "12536f9"
             }
           ]
         },
