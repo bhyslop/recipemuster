@@ -29,7 +29,7 @@ Everything it asks of the engine crosses an MCP door.
 
 //axhca_actor axd_internal
 `jjcbs_engine`
-*The engine* — the jjx MCP server and its farrier beneath; pending an engine entity quoin.
+*The engine* — the jjx MCP server and its {jjdf_farrier} beneath; pending an engine entity quoin.
 
 //axhca_actor axd_internal
 `jjcbs_kit`
@@ -61,13 +61,11 @@ Pending: the sweep operation and its word.
 
 //axhci_interaction
 `jjcbs_dispatch` `jjcbs_hippodrome`
-Billet-ensure: create or reuse the pace's worktree and §F branch at trunk tip.
-Pending: the farrier billet facet.
+Billet-ensure: create or reuse the pace's worktree and §F branch at trunk tip — `billet_create`-or-reuse, the {jjdf_farrier_p} {jjdf_billet}.
 
 //axhci_interaction
 `jjcbs_dispatch` `jjcbs_hippodrome`
-Fetch, never merge — staleness becomes known here so the open can report it.
-Pending: the farrier sync facet.
+Fetch, never merge — `glean` without `enfold` ({jjdf_core} sync ops); staleness becomes known here so the open can report it.
 
 //axhci_interaction
 `jjcbs_dispatch` `jjcbs_kit`
@@ -84,9 +82,9 @@ Pending: the entrance spine.
 //axhci_interaction
 `jjcbs_session` `jjcbs_engine`
 {jjdo_open} —
-the officium opens; the engine identifies the billet from the filesystem alone (the same derivation dispatch ran — agreement by independent rediscovery, no env handoff) and reports trunk staleness loudly.
-On a known-stale trunk the mutating doors below would refuse in a precision band naming the resync operation as remedy; open itself never refuses.
-Pending: the identify contract and the resync operation.
+the officium opens; the engine identifies the billet from the filesystem alone ({jjdf_identify} — the same derivation dispatch ran: agreement by independent rediscovery, no env handoff) and reports trunk staleness loudly.
+On a stale trunk the open leads with the staleness warning and the recommended remedy; no verb refuses on staleness — drift, never corruption.
+Pending: the resync operation.
 
 //axhci_interaction
 `jjcbs_session` `jjcbs_engine`
@@ -133,8 +131,8 @@ Pending: the sweep operation.
 == Pending-citation register (the convergence gauge)
 
 Interactions above flag these homes as pending; each hardens to a citation when its sheaf lands:
-the saddle and lunge operations; the sweep operation and its word; the farrier billet and sync facets; launch-time provisioning and the entrance spine; the identify contract; the resync operation and its precision band; and the cast's entity quoins (party, dispatch, engine, billet).
-Hardened so far: hippodrome and infield ({jjdw_hippodrome}, {jjdw_infield} — the cosmology sheaf, 260705); the blotter cast lane and the journal-ceremony interactions ({jjdb_blotter}, {jjdb_journal} — the blotter and journal sheaves, 260706); the studbook cast lane and the counterfoil mentions ({jjdb_studbook}, {jjdb_counterfoil} — the studbook sheaf, 260706).
+the saddle and lunge operations; the sweep operation and its word; launch-time provisioning and the entrance spine; the resync operation; and the cast's entity quoins (party, dispatch, engine, billet).
+Hardened so far: hippodrome and infield ({jjdw_hippodrome}, {jjdw_infield} — the cosmology sheaf, 260705); the blotter cast lane and the journal-ceremony interactions ({jjdb_blotter}, {jjdb_journal} — the blotter and journal sheaves, 260706); the studbook cast lane and the counterfoil mentions ({jjdb_studbook}, {jjdb_counterfoil} — the studbook sheaf, 260706); the farrier interactions — billet-ensure, fetch-never-merge, and the identify at open ({jjdf_farrier}, {jjdf_billet}, {jjdf_core}, {jjdf_identify} — the farrier sheaf, 260706).
 
 Deferred sibling tales, named so they are not smuggled into this one:
 the two-station lock contention tale, the stale-lock break tale, and the stale-trunk resync tale — unhappy paths belong to their own chapbooks.

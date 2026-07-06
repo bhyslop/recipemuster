@@ -12,9 +12,8 @@ they record.
 
 [NOTE]
 ====
-*Forward references.* The farrier, its kind parameters, and its ops (`refit`,
-`counterfoil_verify`), the tackle bindings, and the billet are census-minted words (260705)
-whose binding sheaves land after this one;
+*Forward references.* `refit` (the resync operation, dispatch family), the tackle bindings,
+and the billet are census-minted words (260705) whose binding sheaves land after this one;
 where such a word appears below it reads as a forward reference to a forthcoming contract
 home, not a citation.
 ====
@@ -45,8 +44,8 @@ the derivation chain that consumes the entry is world model, homed in the cosmol
 
 Each {jjdb_pedigree} carries:
 
-* the farrier kind — which revision-control driver serves clones of this upstream — and its
-  parameters (trunk name, remotes posture);
+* the {jjdf_farrier} kind — which revision-control driver serves clones of this upstream —
+  and its parameters (trunk name, remotes posture);
 * tackle bindings (file scope → governing discipline) as sibling entries;
 * reserved, parked: a per-upstream edit-scope wildcard list, if billets-per-pace ever prove
   insufficient for collision avoidance.
@@ -68,10 +67,10 @@ a rebase after journaling rewrites SHAs and dangles the {jjdb_counterfoil} —
 degraded provenance, not corruption; nothing downstream builds on it.
 Convergence discipline already prefers merge over rebase, which preserves
 {jjdb_counterfoil_s};
-billet branches never rebase (refit is merge-based, farrier sheaf),
+billet branches never rebase (refit composes the merge-based `enfold`, a {jjdf_billet} op),
 closing the gap structurally where billets are used.
-An optional `counterfoil_verify` op (deferred past MVP, farrier sheaf) turns a dangling
-{jjdb_counterfoil} from a silent lie into a flagged one.
+An optional `counterfoil_verify` op ({jjdf_farrier} op census, deferred past MVP) turns a
+dangling {jjdb_counterfoil} from a silent lie into a flagged one.
 
 == What never enters the record
 

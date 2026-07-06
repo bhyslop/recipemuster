@@ -8,14 +8,9 @@ lock.
 This sheaf is the ONE home of both sequences:
 every operation that writes a {jjdb_blotter} cites this bracket and restates none of it,
 so the operations cannot drift apart in the shared stretch.
-
-[NOTE]
-====
-*Forward references.* The op names composing the sequences — `lodge`, `glean`, `advance`,
-`consign`, `sync_state`, and the lock trio `stake`/`pluck`/`sight` — are census-minted farrier
-primitives (260705) whose binding home is the forthcoming farrier entity sheaf.
-Where such a word appears below it reads as a forward reference, not a citation.
-====
+The op names composing the sequences — `lodge`, `glean`, `advance`, `consign`, `sync_state`,
+and the lock trio `stake`/`pluck`/`sight` — are {jjdf_farrier} primitives ({jjdf_core} and
+{jjdf_lock}); their method contracts live in the farrier sheaf's op census.
 
 == The journal ceremony
 

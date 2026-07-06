@@ -177,6 +177,8 @@ cited by code and tests via opaque ID; tails minted at implementation) and three
 
 * *never-force* — RIVET: the consign implementation and the break sequence's lease-guarded
   pluck are citation sites; a test can assert no force path exists.
+  INFUSED 260706 (farrier sheaf — the consign contract; opaque tail still mints at
+  implementation).
 * *no-worktree-paths-in-studbook* — RIVET: studbook write sites and the validator cite it.
   INFUSED 260706 (studbook sheaf — What never enters the record; opaque tail still mints at
   implementation).

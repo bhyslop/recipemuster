@@ -10,10 +10,10 @@ this sheaf summarizes and cites, never restates.
 
 [NOTE]
 ====
-*Forward references.* The farrier and its lock ops (`stake`, `pluck`, `sight`) and the mews
-fleet store are census-minted words (260705) whose binding sheaves land after this one;
-where such a word appears below it reads as a forward reference to a forthcoming contract
-home, not a citation.
+*Forward references.* The mews fleet store is a census-minted word (260705) whose binding
+sheaf lands after this one;
+where it appears below it reads as a forward reference to a forthcoming contract home, not a
+citation.
 ====
 
 == The entity
@@ -61,7 +61,8 @@ one ref, no per-store subtree.
 any future resident beyond the guidon ref must be allocated in this sheaf.
 
 The lock is the ref's existence, taken and released by compare-and-swap ref pushes —
-the farrier lock ops `stake`/`pluck`/`sight`, sequence-internal, never operator-typed.
+the {jjdf_farrier} {jjdf_lock} ops `stake`/`pluck`/`sight`, sequence-internal, never
+operator-typed.
 
 [[jjdb_guidon]]
 {jjdb_guidon}::

@@ -9,144 +9,54 @@ This is an aspirant portion of the {jjs0_imprimatur}: not yet binding — do not
 A feature-definition space under active mulling — to be sophisticated and revised until ready for
 development, then infused into this codex or retired.
 A reader must not rely on its content; released code must not cite identifiers it mints.
-Destined to infuse into this codex alongside the studbook sheaf; the two land as one MVP.
-Vocabulary below is candidate-minted (chat of 260704); the census pace ran the formal mint
-ceremony 260705 (gates fresh, elections ledgered) — the words stay aspirant, binding at
-infusion.
+The driver's contract — entity, facets, op census, vocabulary Palisade, rejection kinds — is
+canon: drained 260706 to the farrier entity sheaf (`JJSVF-farrier.adoc`, the `jjdf_` quoins).
+What remains below is the dispatch layer and plan content, still aspirant;
+the census pace ran the formal mint ceremony 260705 (gates fresh, elections ledgered) — the
+un-infused words stay aspirant, binding at infusion.
 ====
 
 == What the farrier is
 
-The *farrier* is JJ's polymorphic revision-control driver: the layer that fits the same JJ intent
-to whatever ground a repo runs on — plain git today, git-with-worktrees within it, submodules and
-Android `repo` constellations later.
-As a farrier shoes the same horse for different terrain, one driver interface serves every
-backend; the pedigree (`JJSVS-studbook.adoc`, `jjdb_pedigree`) selects the farrier kind per
-upstream.
-The studbook itself is driven through the same interface's lock facet — the degenerate
-single-repo case.
-
-The farrier supplies *primitives*; the ceremonies above it (journal ceremony, break sequence,
-saddle) stay JJ's.
-No driver ever owns a transaction.
+Canon: drained 260706 to the farrier entity sheaf (`JJSVF-farrier.adoc`, `jjdf_farrier`) —
+the entity, the facet-split capability model (`jjdf_core`/`jjdf_lock`/`jjdf_billet`, per the
+paddock's farrier-facets cinch), and the no-transaction-ownership line.
 
 == Two axes, two generalization points
 
-The eventual backends sit on two orthogonal axes, each with one generalization point that must be
-right in the MVP so later rungs add without re-minting:
-
-* *Constellation axis* — what a counterfoil names: one repo (scalar SHA) vs. many members.
-  Generalization point: the **counterfoil** is always a member→SHA manifest; single-repo is
-  the one-element case.
-* *Partition axis* — who writes concurrently: shared checkout vs. isolated per-work checkouts.
-  Generalization point: the **billet** (below); every op takes an explicit repo root, so a
-  partition is just another root — op signatures never change when worktrees arrive.
+Canon: drained 260706 to the farrier entity sheaf (`JJSVF-farrier.adoc`), with the billet
+generalization point re-anchored on the partition axis per the banked delta — a root with a
+lifecycle; worktree the plain-git implementation, full clone the fallback for kinds without
+worktrees.
+The constellation-axis counterfoil point was already canon at the studbook sheaf
+(`JJSVS-studbook.adoc`, `jjdb_counterfoil`).
 
 == Hearting ops (MVP census)
 
-Primitives are *capabilities, not commands* — almost none are ever human-typed.
-Boring names by JJS0 Upper API doctrine, with a principled line (re-cinched 260704, superseding
-the earlier keep-the-git-word-on-faithful-subsets rule): *the trait surface is a vocabulary
-Palisade* — git words stop at the driver implementation boundary.
-Below the trait, git vocabulary is the neighbor's own language (Palisade conduct: never
-legislate the neighbor); above it — toothings, specs, error kinds, everything a session reads —
-a git word is interface contamination.
-A faithful-subset git name is correct only up to an invisible boundary, and the boundary is
-exactly what a lesser model does not hold: `commit` fires the amend/stage-all reflex, `push`
-fires force in a recovery scenario — the discipline's forbidden list *is* the git reflex set.
-A fresh word fails loud (the session looks it up — the provisioning pull door exists for
-precisely this); a familiar word fails silent.
-Census names stay boring-register but git-free — distinct and vivid are different axes, and no
-asterism budget is spent below the vivid layer (`advance`, `enfold`, `identify` prove the
-register).
-
-Re-minted at the census pace (260705, under MCM Lapidary, all gates run fresh):
-`status`→`comb` (comb the tree for dirt), `commit`→`lodge` (formally deposit the explicit
-list — the administrative filing sense), `fetch`→`glean` (gather what the remote holds),
-`push`→`consign` (hand the branch into the remote's custody).
-The lock trio settled as guidon verbs: `ref_cas_create`→`stake` (stake the guidon in — the
-claim made atomic), `ref_cas_delete`→`pluck` (pluck it out), `ref_read`→`sight` (sight whose
-guidon flies, read-only).
-The trio spends vividness below the vivid layer deliberately, overruling the counter-lean:
-create/delete/read fire the CRUD reflex exactly as push fires force — a failed create invites
-a "cleanup" delete — and the lock is the maximum-danger facet, where a reflex-firing name
-costs most.
-Of the seed verbs, plant is taken (`jjx_plant`, the live foray command), strike is taken
-(RBSME escheat's orphan sweep), and read is barred outright as the CRUD/git reflex word.
-`advance` weighed and retained: git-free and boring-register — it is the register's own
-proof-word; English-common is the hearting posture, not a defect, below the vivid layer.
-
-[cols="1,1,2,1"]
-|===
-|Op |Facet |Shape |Consumer
-
-|`identify` |orient |Resolve this tree: dirname, origin URL (pedigree key), branch or
-detached state, HEAD, billet-of-which-hippodrome if a worktree. |saddle/lunge (dispatch-time);
-ambient on `jjx_open`
-
-|`comb` |inspect |Clean/dirty, per-path — feeds clean-tree gates and explicit-file commits.
-|sequence-internal
-
-|`sync_state` |inspect |Ahead/behind vs. remote, from last fetch (never blocks on network).
-|ambient at open/orient
-
-|`counterfoil` |inspect |HEAD member→SHA manifest + branch annotation + dirty flag. |ambient
-on record
-
-|`counterfoil_verify` |inspect |Does a journaled SHA still exist, reachable? *Deferred past
-MVP* (260704): the designed answer for when a dangling counterfoil first annoys —
-merge-based refit and notch-push make them rare. |deferred
-
-|`lodge` |mutate |Explicit file list + message; no `-a`, no amend (additive discipline).
-|sequence-internal
-
-|`glean` |sync |Update remote refs. |sequence-internal, opportunistic
-
-|`advance` |sync |Fast-forward-only move to remote tip; fails loud if diverged.
-Deliberately not named "pull" — the farrier never merges or rebases. |journal ceremony
-
-|`consign` |sync |Two flavors: plain fast-forward (hippodrome), `--atomic` + lease (studbook
-content). Never force. |sequence-internal
-
-|`stake` / `pluck` / `sight` |lock |Studbook/mews only; consumed by the
-lock guard and break sequence. |sequence-internal
-
-|`billet_create` / `billet_remove` |billet |Birth/reap a billet (below); remove refuses on
-dirty. |saddle / unsaddle
-
-|`enfold` |billet |Merge trunk *into* the billet branch (never rebase); fail-loud on
-conflict — resolution belongs to the attended session. |refit (the session-facing resync
-operation)
-|===
-
-Cross-cutting rules: every op takes the repo root explicitly (no cwd dependence); every mutating
-op rejects in a named typed-error band (dirty-tree, diverged, lock-held, lock-broken) — sequence
-composition is only safe when primitives fail loud and specifically.
-The taxonomy is settled (260704, RCG-checked): one farrier-wide enum of rejection *kinds* — a
-kind is a shared semantic fact ("diverged" means the same from `advance` or `consign`) — wrapped
-in a context layer naming op, repo, and detail.
-RCG defers error idioms by design; the binding disciplines (Zeroes, Identity Rule, String
-Boundary, Output) all pass, and the typed taxonomy is a deliberate step up from the crate's
-habitual `Result<T, String>` — settled early because error shapes calcify into every op
-signature.
-Deliberately absent: trunk-ward merge (the operator's serializer — `enfold` merges only
-*into* billet branches), rebase, clone, init, log, blame — operator's hands or `jjx_log`.
-
-Entity design: a driver trait with one implementation per farrier kind; the lock is an RAII
-guard (object lifetime = lock lifetime, panic on nested acquire); break is a separate sequence
-acting on someone else's lock, never a guard method.
+Canon: drained 260706 to the farrier entity sheaf (`JJSVF-farrier.adoc`) — the vocabulary
+Palisade (`jjdf_palisade`), the op census as method contracts (with `identify` carrying the
+260706 cinched contract — `jjdf_identify`: explicit probe path, claim-or-decline, the four
+resolutions — superseding the old census row's plain-git shape), the cross-cutting no-cwd and
+named-rejection laws, the rejection-kind taxonomy, the RAII lock-guard entity design, and the
+never-force rivet homed at the consign contract.
+Mint provenance kept here: the census re-mints of 260705 and their rationales live in the
+Naming ledger below;
+the RCG check of the taxonomy (error idioms deferred by design; Zeroes, Identity Rule, String
+Boundary, Output all pass; typed taxonomy a deliberate step up from the crate's habitual
+`Result<T, String>`) is provenance of the settling, recorded 260704.
 
 == Toothing compositions
 
-The journal ceremony (its own routine sheaf, `JJSVJ-journal.adoc`) is the shared write
-bracket; toothings compose the primitives:
+The primitives are canon (`JJSVF-farrier.adoc`); the journal ceremony is its own routine
+sheaf (`JJSVJ-journal.adoc`).
+The compositions below stay aspirant with the dispatch layer:
 
 [cols="1,3"]
 |===
 |Toothing |Composition
 
-|*(officium open — not a spoken verb)* |`identify` (billet, pedigree, branch, HEAD) +
-`sync_state` from last fetch
+|*(officium open — not a spoken verb)* |`identify` (root, upstream key, seat, line of work —
+the `jjdf_identify` resolutions) + `sync_state` from last fetch
 
 |mount / orient |studbook read (no lock) + `sync_state` staleness line
 
@@ -198,8 +108,10 @@ The operator knows the verb at chat-top; the session's billet must be right at l
   roots, provision JJ context, and launch Claude Code in it with the engagement verb as opening
   prompt — and the verb itself carries the tier signal (lunge → planning tier, saddle → work
   tier), so no protocol-sniffing.
-* **billet** — the standing thing a session runs in: worktree + branch-or-detached-tip + env
-  posture.
+* **billet** — the standing thing a session runs in: a root with a lifecycle on the
+  partition axis (worktree the plain-git implementation; full clone the fallback for kinds
+  without worktrees — re-anchored per the banked delta, canon at `JJSVF-farrier.adoc` Two
+  axes) + branch-or-detached-tip + env posture.
   The lifecycle entity the officium records and validates; the object noun completing the
   verbs-act-on-nouns grammar (mount acts on a pace; saddle creates a billet).
   Board on arrival, kept for the duration, collected after.
@@ -234,7 +146,13 @@ Lifecycle doctrine:
   non-JJ session, forever legitimate as such.
   No fallback paths until genuinely forced; the consequence is that the entrance must be
   pleasant very early in the MVP — it is load-bearing, not a convenience.
-* Stale billets: reaped at next saddle if clean; flagged, never auto-destroyed, if dirty.
+* Stale billets: the muck sweep at dispatch time (paddock cinch 260705, superseding the
+  earlier reaped-at-next-saddle-if-clean line) — plan-then-confirm nuke-on-start, retiring
+  billets whose pace is closed past a retention window equal to the officium exsanguination
+  window; refuse-with-advice on dirty anomalies by default, auto-commit-push behind explicit
+  confirm; pace states snapshot under the studbook lock, then reaping proceeds lock-free
+  (completion is monotonic); liveness is the pure JJ-data join (live officia × billets), a
+  platform process-probe only ever belt-and-braces.
 
 == The BUK meld (studied 260704)
 
@@ -306,6 +224,7 @@ doctrine — a vivid word is today spent below the vivid layer), sweep, grep-gat
 == Naming ledger (candidate mints of 260704, alternates preserved)
 
 * *farrier* — the driver API; fits the horse to the ground. F freed by formbook's rejection.
+  INFUSED 260706 (farrier sheaf, `jjdf_farrier`).
 * *saddle* / *unsaddle* — dispatch verbs; the real-world sequence saddle-then-mount lands in
   the right order across the two vocabulary layers. Alternate held: leg-up.
   Election RATIFIED at the census (260705); the grep gate stays OPEN by contingency — it
@@ -333,12 +252,14 @@ doctrine — a vivid word is today spent below the vivid layer), sweep, grep-gat
   at its billet, the deposit sense and the quarters sense reinforcing.
   Independent convergence noted: current-JJ's `jjrvl_validate.rs` doc prose already says
   "consigns the gallops" for the commit act — comment-only, no mint.
+  INFUSED 260706 (farrier sheaf, op census — core facet).
 * *stake* / *pluck* / *sight* — the lock trio (260705), the guidon supplying its verbs; the
-  CRUD-reflex rationale is recorded at the census paragraph in the op census above.
+  CRUD-reflex rationale is canon at the farrier sheaf's lock facet (`JJSVF-farrier.adoc`).
   Seed disposition: plant taken (`jjx_plant`, live foray command), strike taken (RBSME
   escheat's orphan sweep), read barred (the CRUD/git reflex word).
   stake's racing sense (stakes race) noted and accepted: the trio is sequence-internal, never
   operator-typed, and the claim sense dominates in imperative position.
+  INFUSED 260706 (farrier sheaf, op census — lock facet).
 * *freshen* — COLLIDED with VOK (`tt/vow-F.Freshen.sh`; VOSO "Freshen CLAUDE.md"); banked and
   RESOLVED at the census (260705), the word swept from the sheaves.
   The untangle, per the trunk-resync cinch: the session-facing resync operation is *refit* —
@@ -350,6 +271,8 @@ doctrine — a vivid word is today spent below the vivid layer), sweep, grep-gat
   quarters), limber (the artillery-horse attach-to-move sense).
   Disqualified: dress (MCM's exposure-ladder *dressing* is load-bearing masonry vocabulary),
   absorb (a named ROE Palisade conduct step), incorporate (AXLA's include-incorporation).
+  enfold INFUSED 260706 (farrier sheaf, op census — billet facet); refit stays aspirant with
+  the dispatch family.
 * *muck* — the sweep door (elected 260705, census): mucking out the stable — the
   plan-then-confirm nuke-on-start reap of closed-pace billets past retention (paddock cinch).
   Gate clean (0 hits); *sluice* held as alternate (washing — less exact than the spent-bedding
@@ -371,8 +294,9 @@ doctrine — a vivid word is today spent below the vivid layer), sweep, grep-gat
   Provisional lean on record: dirname = the §F branch name verbatim (one string, two homes;
   the coronet segment becomes rot-proof under the pace-identity re-gestalt, state-repo
   aspirant sheaf).
-* Constellation backends (submodules, Android `repo`): future farrier kinds; counterfoil and
-  billet generalization points designed here, implementations deferred.
+* Constellation backends (submodules, Android `repo`): future farrier kinds; the counterfoil
+  and billet generalization points are canon (`JJSVS-studbook.adoc`, `JJSVF-farrier.adoc`),
+  implementations deferred.
 
 == Sources (provenance, not authority)
 

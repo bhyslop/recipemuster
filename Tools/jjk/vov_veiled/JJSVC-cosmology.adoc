@@ -8,9 +8,9 @@ sheaves — store, driver, dispatch — assume and none restates.
 
 [NOTE]
 ====
-*Forward references.* The studbook, pedigree, billet, farrier, and the dispatch verbs are
-census-minted words (260705) whose binding sheaves land after this one; where such a word
-appears below it reads as a forward reference to a forthcoming contract home, not a citation.
+*Forward references.* The billet and the dispatch verbs are census-minted words (260705)
+whose binding sheaf lands after this one; where such a word appears below it reads as a
+forward reference to a forthcoming contract home, not a citation.
 The words catalogued *here* — {jjdw_infield}, {jjdw_hippodrome}, {jjdw_yard} — bind now.
 ====
 
@@ -18,17 +18,17 @@ The words catalogued *here* — {jjdw_infield}, {jjdw_hippodrome}, {jjdw_yard} �
 
 Job Jockey's own record — the {jjdgr_gallops}, and later the captured chat histories — lives
 in a git repository *separate from the code being jockeyed and global across stations*: the
-studbook, whose entity contract is its own sheaf.
+{jjdb_studbook}, whose entity contract is its own sheaf.
 Work happens in vanilla clones of consumer projects ({jjdw_hippodrome_s}) and their transient
 per-pace worktrees (billets), all peers in one parent directory (the {jjdw_infield}).
-A polymorphic revision-control driver (the farrier) fits the same JJ intent to whatever ground
-each repo runs on.
+A polymorphic revision-control driver (the {jjdf_farrier}) fits the same JJ intent to
+whatever ground each repo runs on.
 
 JJ launched anywhere derives everything it needs from where it stands:
-origin URL → pedigree → farrier kind, trunk posture, tackle bindings.
+origin URL → {jjdb_pedigree} → {jjdf_farrier} kind, trunk posture, tackle bindings.
 One derivation chain, no per-repo pointers, no clone-local state.
 The trunk of a {jjdw_hippodrome} belongs to the operator alone — JJ works in billets and
-records in the studbook, and never handles the operator's serializing branch.
+records in the {jjdb_studbook}, and never handles the operator's serializing branch.
 
 == Why decouple
 
@@ -52,7 +52,7 @@ Four recorded pressures, each dissolved structurally rather than patched:
 [[jjdw_infield]]
 {jjdw_infield}::
 The peer ring: one parent directory holding every JJ-managed tree as a sibling.
-Residents: the kit repo and the studbook (both {jjdw_yard} dirnames), consumer
+Residents: the kit repo and the {jjdb_studbook} (both {jjdw_yard} dirnames), consumer
 {jjdw_hippodrome_s} and their transient billets, and the BUK station family
 (`../station-files/burs.env`, `../logs-buk`, `../temp-buk`, `../output-buk`), which already
 resolves to this level — every peer tree shares station geography with zero setup.
@@ -80,7 +80,8 @@ disk; `jjx_` names the MCP wire.
 {jjdw_hippodrome}::
 A work clone JJ operates from — a vanilla clone of a consumer project, carrying *no JJ
 inserts*: no committed dossier, no `.claude/jjm` state, no JJK includes.
-A vanilla external project is a working {jjdw_hippodrome} the moment its pedigree exists.
+A vanilla external project is a working {jjdw_hippodrome} the moment its {jjdb_pedigree}
+exists.
 Identity is the directory name — there is no clone-local state at all (v1 ruling) — and the
 upstream key is the clone's origin URL.
 Several clones of one upstream are several {jjdw_hippodrome_s}: the operator's standing
