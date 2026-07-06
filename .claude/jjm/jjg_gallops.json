@@ -10419,8 +10419,8 @@
         "₢BtAAE": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260705-1029",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260706-0759",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "## Character",
                 "",
@@ -10445,7 +10445,7 @@
                 "the broadside carries the chapbook-surfaced ashlars."
               ],
               "jjgtn_silks": "readme-current-sweep",
-              "jjgtn_basis": "d34c4c1"
+              "jjgtn_basis": "ecf2e53"
             }
           ]
         },
