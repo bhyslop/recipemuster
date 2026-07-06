@@ -262,6 +262,19 @@ Director first-build critic (severity, one line each):
 - Cross-track: decide whether the probe glyphs ([*]/[ ]) warrant a one-line
   legend at first use (critics CC — implicit, DF-6).
 
+**Sweep disposition (docs-integrity pace, 2026-07-06): all four absorbed.**
+The ordain success signal was verified against a live ordain transcript
+(`hist-rbw-fO-sh-20260705-090534`: QUEUED/WORKING/SUCCESS poll ticks per
+phase, automatic vouch closing with 'Vouch complete' and the 'This hallmark
+feeds:' roster; failure path is a red ERROR naming phase + Cloud Build
+status, with the Cloud Console link printed at submission) before the DF
+prose was written. DF Step 2 also gained the mode-check render pointer
+(DF-8's ride-along). CC Step 4 now teaches the expected-vs-actionable tell
+(an expected failure names a field and its fix); CC's closing branches on
+the depot probe state instead of declaring success unconditionally. Decision
+on the glyph legend: yes — both tracks carry a one-line legend at the first
+probe use ("[*] holds, [ ] needs action").
+
 **Declined / false positives:**
 
 - DF-1 "hardcoded absolute path" — capture artifact, not a defect: the

@@ -76,7 +76,7 @@ rbho_director_first_build() {
   buh_line "Google Cloud Build with full SLSA ${RBYC_PROVENANCE}."
   buh_e
 
-  buh_line "Prerequisites:"
+  buh_line "Prerequisites (live probes of this machine — [*] holds, [ ] needs action):"
   buh_e
   if test "${z_has_depot}" = "1"; then
     buh_line "${RBYC_PROBE_YES}${RBYC_DEPOT} configured (RBRD_DEPOT_MONIKER populated)"
@@ -155,7 +155,12 @@ rbho_director_first_build() {
   buh_e
   buh_line "${RBYC_ORDAIN} is the command that triggers the full pipeline —"
   buh_line "it reads the ${RBYC_VESSEL} ${RBYC_RBRV} ${RBYC_REGIME} to determine the mode"
-  buh_line "(${RBYC_CONJURE}, ${RBYC_BIND}, or ${RBYC_GRAFT}) and acts accordingly:"
+  buh_line "(${RBYC_CONJURE}, ${RBYC_BIND}, or ${RBYC_GRAFT}) and acts accordingly."
+  buh_line "To see which mode a ${RBYC_VESSEL} is in, render its ${RBYC_REGIME}:"
+  buh_e
+  buh_tt "   " "${RBZ_RENDER_VESSEL}" "" " ${RBYC_HANDBOOK_VESSEL_REF}"
+  buh_e
+  buh_line "Trigger the build:"
   buh_e
   buh_tt "   " "${RBZ_ORDAIN_HALLMARK}" "" " ${RBYC_HANDBOOK_VESSEL_REF}"
   buh_e
@@ -176,6 +181,18 @@ rbho_director_first_build() {
   buh_warn "Wall-clock: ~15-20 minutes for a 3-platform build."
   buh_line "The command blocks until Cloud Build finishes. Use the time"
   buh_line "to read ahead — the next steps explain what to look for."
+  buh_e
+  buh_line "While it runs, a status line ticks every few seconds — QUEUED,"
+  buh_line "then WORKING, then SUCCESS, once per build phase. Success runs"
+  buh_line "${RBYC_VOUCH} automatically and ends with 'Vouch complete' plus a"
+  buh_line "'This hallmark feeds:' roster of follow-on commands, each shown"
+  buh_line "with your new ${RBYC_HALLMARK} already filled in."
+  buh_e
+  buh_line "On failure, the command stops with a red ERROR naming the phase"
+  buh_line "and its Cloud Build status. Follow the 'Open build in Cloud"
+  buh_line "Console' link printed at submission to read the build log, fix,"
+  buh_line "and re-run ${RBYC_ORDAIN} — each run mints a fresh ${RBYC_HALLMARK}, so a"
+  buh_line "failed attempt never blocks the next."
   buh_e
 
   buh_step1 "Capture the ${RBYC_HALLMARK}"

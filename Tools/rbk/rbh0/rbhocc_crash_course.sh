@@ -86,8 +86,11 @@ rbho_crash_course() {
   buh_tt   "   " "${BUWZ_RS_VALIDATE}"
   buh_e
   buh_line "Read the error if it fails — it names the field and tells you"
-  buh_line "what to fill in."
+  buh_line "what to fill in. That is the mark of an expected failure: it"
+  buh_line "names a field and its fix. A failure that names no field to"
+  buh_line "fill is a real problem, not setup residue — stop and read it."
   buh_e
+  buh_line "A live probe of this machine — [*] holds, [ ] needs action:"
   if test "${z_station_present}" = "1"; then
     buyy_cmd_yawp " [*] ";              local -r z_mark="${z_buym_yelp}"
     buyy_cmd_yawp "${BURD_STATION_FILE}"; local -r z_path="${z_buym_yelp}"
@@ -183,8 +186,16 @@ rbho_crash_course() {
 
   buh_step1 "Next steps"
   buh_e
-  buh_line "Your repo environment is configured. The tools work, errors explain"
-  buh_line "themselves, and ${RBYC_LOGS} land where you told them to."
+  if test "${z_rbrd_populated}" = "1"; then
+    buh_line "Your repo environment is configured. The tools work, errors explain"
+    buh_line "themselves, and ${RBYC_LOGS} land where you told them to."
+  else
+    buh_line "Your local tooling is configured — the tools work, errors explain"
+    buh_line "themselves, and ${RBYC_LOGS} land where you told them to. The depot"
+    buh_line "probe above found ${RBYC_RBRD} blank, so team-facing builds stay out"
+    buh_line "of reach until the ${RBYC_PAYOR} establishes a ${RBYC_MANOR} and a ${RBYC_DEPOT} —"
+    buh_line "that is the ${RBYC_PAYOR} track on the start menu."
+  fi
   buh_e
   buh_line "Return to the start menu for what to do next:"
   buh_tt   "   " "${RBZ_ONBOARD_START_HERE}"
