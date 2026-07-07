@@ -8864,6 +8864,7 @@
       "jjghn_creation_time": "260705",
       "jjghn_status": "jjghe_racing",
       "jjghn_order": [
+        "₢BsAAN",
         "₢BsAAI",
         "₢BsAAA",
         "₢BsAAJ",
@@ -8878,7 +8879,7 @@
         "₢BsAAL",
         "₢BsAAK"
       ],
-      "jjghn_next_pace_seed": "AAN",
+      "jjghn_next_pace_seed": "AAO",
       "jjghn_paces": {
         "₢BsAAA": {
           "jjgpn_tacks": [
@@ -9241,6 +9242,47 @@
               ],
               "jjgtn_silks": "release-hygiene-fixtures",
               "jjgtn_basis": "50721c2"
+            }
+          ]
+        },
+        "₢BsAAN": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260707-1329",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "Mostly mechanical retirement plus prose corrections;",
+                "one small judgment call on where the salvaged content lands.",
+                "",
+                "## Done when",
+                "- `rbw-gPR` / `rbhp_refresh` is retired:",
+                "  zipper enrollment, tabtarget, and the display-handbook module are gone,",
+                "  and the RBSPR spec is retired or reduced per spec-retirement practice.",
+                "- The compromised-secret rotation walk (console: add secret, download new, disable/delete old) —",
+                "  gPR's only unique content — survives in an install-adjacent home (RBSPI or the establish guide RBSPE).",
+                "- OAuth expiry prose is corrected everywhere it appears:",
+                "  an External+Testing consent screen with cloud-platform scope expires refresh tokens 7 days after consent;",
+                "  the \"6 months of non-use\" claim is a different, non-binding rule and must not be presented as the governing one.",
+                "  RBSPI's \"long-lived refresh token\" phrasing adjusted to match.",
+                "- Optional if cheap: the 7-day fact surfaces at the failure moment —",
+                "  an invalid_grant from the payor refresh-token exchange — rather than only in docs.",
+                "",
+                "## Cinched",
+                "- There is one mechanism, not two: `rbhp_refresh` executes nothing —",
+                "  it is a display handbook whose action step is \"run the payor install command\",",
+                "  the same act as `rbw-gPI` (`rbgp_payor_install`).",
+                "  RBSPR itself says \"use this for both initial installation and renewal\".",
+                "  Install-vs-refresh is not a load-bearing distinction; retire, don't repair.",
+                "",
+                "## Sources",
+                "- Discovery recipe: `grep -rn \"RBZ_PAYOR_REFRESH\\|rbhp_refresh\\|gPR\\|RBSPR\" Tools/`",
+                "- Specs: RBSPI (install), RBSPR (refresh), RBSPE (establish).",
+                "- Zipper change regenerates committed files via the build —",
+                "  see claude-rbk-conduct.md \"Build-Generated Files\"."
+              ],
+              "jjgtn_silks": "retire-payor-refresh-handbook",
+              "jjgtn_basis": "c2add2d"
             }
           ]
         }
