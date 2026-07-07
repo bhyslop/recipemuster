@@ -288,6 +288,7 @@
 :jjdo_chalk:          <<jjdo_chalk,jjx_chalk>>
 :jjdo_close:             <<jjdo_close,jjx_close>>
 :jjdo_paddock:           <<jjdo_paddock,jjx_paddock>>
+:jjdo_curry:             <<jjdo_curry,jjx_curry>>
 :jjdo_validate:       <<jjdo_validate,jjx_validate>>
 :jjdo_open:           <<jjdo_open,jjx_open>>
 
@@ -570,8 +571,8 @@ Two directional gazette files within an {jjdxo_exchange}: `gazette_in.md` (agent
 Contain {jjsz_gazette} wire-format markdown.
 Both have single-MCP-call lifetime — every {jjdx_tool_s} call deletes both files on entry before dispatch.
 +
-`gazette_in.md` is written by Claude before setter operations ({jjdo_enroll}, {jjsoprd_revise_docket}, {jjdo_paddock} setter).
-`gazette_out.md` is written by the server after getter operations ({jjdo_orient}, {jjdo_show}, {jjdo_paddock} getter).
+`gazette_in.md` is written by Claude before setter operations ({jjdo_enroll}, {jjsoprd_revise_docket}, {jjdo_curry}).
+`gazette_out.md` is written by the server after getter operations ({jjdo_orient}, {jjdo_show}, {jjdo_paddock}).
 
 [[jjdxo_invitatory]]
 //axvo_procedure axd_internal
@@ -1950,7 +1951,7 @@ Right-align column content.
 The heat-wide context file for a {jjdhr_heat} —
 background, shape, and cinched decisions that orient work across the heat's {jjdpr_pace_s}.
 Stored as an external markdown file outside {jjdgr_gallops}, addressed by {jjdhm_paddock}.
-The file is created by {jjdo_create}; its content is read and written via {jjdo_paddock}.
+The file is created by {jjdo_create}; its content is read via {jjdo_paddock} and written via {jjdo_curry} (or a {jjsoprd_revise_docket} batch).
 
 === {jjsz_gazette}
 
@@ -2223,7 +2224,7 @@ whose own delta has a variable-size content channel:
 {jjdo_record},
 {jjdo_close},
 {jjdo_archive},
-{jjdo_paddock},
+{jjdo_curry},
 {jjdo_enroll},
 {jjdo_redocket},
 {jjdo_landing},
@@ -2414,7 +2415,7 @@ This is the one deliberate softening of "open touches no persistent state" down 
 +
 *{jjsz_gazette} I/O wiring* (output and input operations):
 +
-Output operations ({jjdo_orient}, {jjdo_show}, {jjdo_paddock} getter):
+Output operations ({jjdo_orient}, {jjdo_show}, {jjdo_paddock}):
 
 . Dispatcher creates an empty {jjsz_gazette} with appropriate vocabulary
 . Dispatcher passes `&mut` gazette to the handler
@@ -2426,7 +2427,7 @@ the dispatcher parses one ({jjdo_orient}, exactly one) or more ({jjdo_show}, the
 This input is *hard* — a `firemark` or `targets` parameter is rejected, not a fallback, and an absent gazette is a loud error.
 The forced write is deliberate: it drags the agent's first {jjdxo_gazette} write to the start of the mount or groom ceremony, where the {jjdx_tool_s} `Write` permission surfaces while the operator is present, rather than silently stalling the chat at a later setter.
 +
-Input operations ({jjdo_enroll}, {jjsoprd_revise_docket}, {jjdo_paddock} setter):
+Input operations ({jjdo_enroll}, {jjsoprd_revise_docket}, {jjdo_curry}):
 
 . Dispatcher reads {jjdxo_gazette} at the start of dispatch
 . If gazette file is non-empty, dispatcher immediately overwrites it with empty content (consume)
@@ -2626,6 +2627,19 @@ include::JJSCWP-wrap.adoc[]
 
 //axvd_cartouche axd_normative
 include::JJSCCU-curry.adoc[]
+
+[[jjdo_curry]]
+//axvo_procedure axd_transient axd_inlaid
+==== {jjdo_curry}
+
+`jjrg_curry_apply` (dispatched inline in `jjrm_mcp`)
+
+The write half of the paddock pair:
+consumes one {jjezs_paddock} notice from {jjdxo_gazette}
+and revises the heat's paddock file through the shared dispatch/persist lifecycle.
+Split from {jjdo_paddock} (260707) so a staged notice can never flip a read call into a write —
+mode is named by the command, never inferred from gazette presence.
+Contract detail lives in the shared paddock-operation sheaf at {jjdo_paddock}, not restated here.
 
 [[jjdo_apostille]]
 //axvo_procedure axd_transient axd_inlaid

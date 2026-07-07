@@ -293,7 +293,7 @@ impl jjrz_Gazette {
 
 /// Parse gazette input for enroll (slate) operation.
 /// Returns (silks, docket) from a single slate notice.
-/// Validates: exactly one slate notice, non-empty lede (silks).
+/// Validates: exactly one slate notice, non-empty lede (silks), non-empty body.
 pub fn jjrz_parse_slate_input(markdown: &str) -> Result<(String, String), String> {
     let g = jjrz_Gazette::jjrz_parse(&[jjrz_Slug::Slate], markdown)
         .map_err(|diags| diags.join("\n"))?;
@@ -308,12 +308,16 @@ pub fn jjrz_parse_slate_input(markdown: &str) -> Result<(String, String), String
     if silks.is_empty() {
         return Err("Slate notice missing lede (silks)".to_string());
     }
+    if docket.is_empty() {
+        return Err(zjjrz_empty_body_error(jjrz_Slug::Slate, &silks));
+    }
     Ok((silks, docket))
 }
 
 /// Parse gazette input for revise_docket (reslate) operation.
 /// Returns Vec of (coronet, docket) pairs for mass reslate support.
-/// Validates: at least one reslate notice, all ledes (coronets) non-empty.
+/// Validates: at least one reslate notice, all ledes (coronets) non-empty,
+/// all bodies non-empty.
 pub fn jjrz_parse_reslate_input(markdown: &str) -> Result<Vec<(String, String)>, String> {
     let g = jjrz_Gazette::jjrz_parse(&[jjrz_Slug::Reslate], markdown)
         .map_err(|diags| diags.join("\n"))?;
@@ -321,9 +325,12 @@ pub fn jjrz_parse_reslate_input(markdown: &str) -> Result<Vec<(String, String)>,
     if entries.is_empty() {
         return Err("No reslate notice found in gazette input".to_string());
     }
-    for (coronet, _) in &entries {
+    for (coronet, docket) in &entries {
         if coronet.is_empty() {
             return Err("Reslate notice missing lede (coronet)".to_string());
+        }
+        if docket.is_empty() {
+            return Err(zjjrz_empty_body_error(jjrz_Slug::Reslate, coronet));
         }
     }
     Ok(entries)
@@ -353,9 +360,10 @@ pub fn jjrz_parse_halter_input(markdown: &str) -> Result<Vec<String>, String> {
     Ok(targets)
 }
 
-/// Parse gazette input for paddock setter operation.
+/// Parse gazette input for the curry (paddock revision) operation.
 /// Returns (firemark, content) from a single paddock notice.
-/// Validates: exactly one paddock notice, non-empty lede (firemark).
+/// Validates: exactly one paddock notice, non-empty lede (firemark),
+/// non-empty body.
 pub fn jjrz_parse_paddock_input(markdown: &str) -> Result<(String, String), String> {
     let g = jjrz_Gazette::jjrz_parse(&[jjrz_Slug::Paddock], markdown)
         .map_err(|diags| diags.join("\n"))?;
@@ -369,6 +377,9 @@ pub fn jjrz_parse_paddock_input(markdown: &str) -> Result<(String, String), Stri
     let (firemark, content) = entries.into_iter().next().unwrap();
     if firemark.is_empty() {
         return Err("Paddock notice missing lede (firemark)".to_string());
+    }
+    if content.is_empty() {
+        return Err(zjjrz_empty_body_error(jjrz_Slug::Paddock, &firemark));
     }
     Ok((firemark, content))
 }
@@ -390,8 +401,9 @@ pub struct jjrz_BatchInput {
 
 /// Parse gazette input for a mixed single-heat batch (jjx_redocket extended).
 /// Accepts paddock + reslate + slate notices in one gazette_in.md.
-/// Validates: at most one paddock notice; all ledes non-empty; at least one
-/// notice overall. Slate order is file order so notice order is pace order.
+/// Validates: at most one paddock notice; all ledes non-empty; all bodies
+/// non-empty; at least one notice overall. Slate order is file order so
+/// notice order is pace order.
 pub fn jjrz_parse_batch_input(markdown: &str) -> Result<jjrz_BatchInput, String> {
     let g = jjrz_Gazette::jjrz_parse(
         &[jjrz_Slug::Slate, jjrz_Slug::Reslate, jjrz_Slug::Paddock],
@@ -407,22 +419,31 @@ pub fn jjrz_parse_batch_input(markdown: &str) -> Result<jjrz_BatchInput, String>
             if firemark.is_empty() {
                 return Err("Paddock notice missing lede (firemark)".to_string());
             }
+            if content.is_empty() {
+                return Err(zjjrz_empty_body_error(jjrz_Slug::Paddock, &firemark));
+            }
             Some((firemark, content))
         }
         None => None,
     };
 
     let reslates = g.jjrz_query_by_slug(jjrz_Slug::Reslate);
-    for (coronet, _) in &reslates {
+    for (coronet, docket) in &reslates {
         if coronet.is_empty() {
             return Err("Reslate notice missing lede (coronet)".to_string());
+        }
+        if docket.is_empty() {
+            return Err(zjjrz_empty_body_error(jjrz_Slug::Reslate, coronet));
         }
     }
 
     let slates = g.jjrz_query_by_slug_ordered(jjrz_Slug::Slate);
-    for (silks, _) in &slates {
+    for (silks, docket) in &slates {
         if silks.is_empty() {
             return Err("Slate notice missing lede (silks)".to_string());
+        }
+        if docket.is_empty() {
+            return Err(zjjrz_empty_body_error(jjrz_Slug::Slate, silks));
         }
     }
 
@@ -435,7 +456,7 @@ pub fn jjrz_parse_batch_input(markdown: &str) -> Result<jjrz_BatchInput, String>
 
 // --- Operation output building ---
 
-/// Build gazette output for read operations (orient, parade detail, paddock getter).
+/// Build gazette output for read operations (orient, parade detail, paddock read).
 /// Returns emitted gazette markdown with paddock and optional pace notices.
 /// Paddock lede is the firemark; pace ledes are coronets.
 pub fn jjrz_build_read_output(firemark: &str, paddock_content: &str, paces: &[(&str, &str)]) -> String {
@@ -479,6 +500,26 @@ fn zjjrz_finalize_notice(
         inner.insert(lede.to_string(), content);
         order.push((slug, lede.to_string()));
     }
+}
+
+/// Compose the rejection for a content-bearing input notice whose body
+/// arrived empty (bodies are blank-trimmed at finalize, so empty here covers
+/// whitespace-only). The uniform law for the input slugs slate/reslate/
+/// paddock: an empty body is a staged-by-mistake or half-authored notice,
+/// never intent — executing it would mint a docket-less pace or blank a
+/// living docket or paddock and auto-commit the loss. Halter is exempt
+/// (body-less by design; the lede is the whole signal).
+fn zjjrz_empty_body_error(slug: jjrz_Slug, lede: &str) -> String {
+    let refusal = match slug {
+        jjrz_Slug::Slate => "a new pace is never docket-less",
+        jjrz_Slug::Reslate => "a reslate replaces the whole docket, never blanks it",
+        jjrz_Slug::Paddock => "a paddock revision replaces the whole paddock, never blanks it",
+        jjrz_Slug::Pace | jjrz_Slug::Halter => "an input notice carries its payload in the body",
+    };
+    format!(
+        "{} notice '{}' has an empty body — {}; author the full content beneath the notice line",
+        slug, lede, refusal
+    )
 }
 
 /// Trim leading and trailing blank lines, join remaining with newline

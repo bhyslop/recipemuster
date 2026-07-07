@@ -38,6 +38,9 @@ Pace creation docket.
 Direction: input.
 Lede: {jjdt_silks} of the new pace (no {jjdt_coronet} exists yet).
 Content: docket text for the initial tack.
+The body must be non-empty:
+an empty or whitespace-only body is a loud parse rejection —
+a new pace is never docket-less.
 Serialized as `jjezs_slate` in gazette markdown.
 
 [[jjezs_reslate]]
@@ -47,6 +50,9 @@ Pace docket update.
 Direction: input.
 Lede: {jjdt_coronet} of the target pace.
 Content: replacement docket text.
+The body must be non-empty:
+an empty or whitespace-only body is a loud parse rejection —
+a reslate replaces the whole docket, never blanks it.
 Serialized as `jjezs_reslate` in gazette markdown.
 
 [[jjezs_paddock]]
@@ -56,6 +62,9 @@ Heat paddock content.
 Direction: bidirectional.
 Lede: {jjdt_firemark} of the target heat.
 Content: paddock markdown.
+As input, the body must be non-empty:
+an empty or whitespace-only body is a loud parse rejection —
+a revision replaces the whole paddock, never blanks it.
 Serialized as `jjezs_paddock` in gazette markdown.
 
 [[jjezs_pace]]
@@ -98,15 +107,18 @@ Every {jjdx_tool_s} call, unconditionally, before dispatch:
 Gazette content has single-MCP-call lifetime.
 After the entry rule, the {jjdxo_exchange} is always clean of gazette files.
 
-Setter commands (enroll, redocket, paddock set) use the in-memory content from step 1.
+Setter commands (enroll, redocket, curry) use the in-memory content from step 1.
 If content was absent, the setter fails with a diagnostic.
-Getter commands (orient, show, paddock get) write fresh `gazette_out.md` after processing.
+Getter commands (orient, show, paddock) write fresh `gazette_out.md` after processing.
+The paddock reader additionally rejects loud when step 1 found staged content —
+a read call carries nothing to consume, and executing one anyway is how a pre-staged notice once became a silent write.
 Non-gazette commands silently discard any in-memory content read in step 1.
 
 === Bidirectional Slugs
 
 The {jjezs_paddock} slug is marked bidirectional.
-This means it appears in `gazette_in.md` when writing (setter) and `gazette_out.md` when reading (getter).
+It appears in `gazette_in.md` as write input ({jjdo_curry}, or a {jjsoprd_revise_docket} batch)
+and in `gazette_out.md` as read output ({jjdo_paddock}, {jjdo_orient}, {jjdo_show}).
 Each operation is unidirectional — no single operation touches both files.
 
 == Wire Format

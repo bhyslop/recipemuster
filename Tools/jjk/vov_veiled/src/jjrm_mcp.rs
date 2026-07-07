@@ -79,6 +79,7 @@ const JJRM_CMD_NAME_SEARCH: &str = "jjx_search";
 const JJRM_CMD_NAME_BRIEF: &str = "jjx_brief";
 const JJRM_CMD_NAME_CORONETS: &str = "jjx_coronets";
 const JJRM_CMD_NAME_PADDOCK: &str = "jjx_paddock";
+const JJRM_CMD_NAME_CURRY: &str = "jjx_curry";
 const JJRM_CMD_NAME_TRANSFER: &str = "jjx_transfer";
 const JJRM_CMD_NAME_LANDING: &str = "jjx_landing";
 const JJRM_CMD_NAME_APOSTILLE: &str = "jjx_apostille";
@@ -98,7 +99,7 @@ const JJRM_ALL_COMMANDS: &[&str] = &[
     JJRM_CMD_NAME_REORDER, JJRM_CMD_NAME_REDOCKET, JJRM_CMD_NAME_RELABEL,
     JJRM_CMD_NAME_DROP, JJRM_CMD_NAME_RELOCATE, JJRM_CMD_NAME_ALTER,
     JJRM_CMD_NAME_CLOSE, JJRM_CMD_NAME_SEARCH, JJRM_CMD_NAME_BRIEF,
-    JJRM_CMD_NAME_CORONETS, JJRM_CMD_NAME_PADDOCK,
+    JJRM_CMD_NAME_CORONETS, JJRM_CMD_NAME_PADDOCK, JJRM_CMD_NAME_CURRY,
     JJRM_CMD_NAME_TRANSFER, JJRM_CMD_NAME_LANDING, JJRM_CMD_NAME_APOSTILLE,
     JJRM_CMD_NAME_BIND, JJRM_CMD_NAME_SEND, JJRM_CMD_NAME_PLANT,
     JJRM_CMD_NAME_FETCH, JJRM_CMD_NAME_RELAY, JJRM_CMD_NAME_CHECK,
@@ -465,8 +466,14 @@ pub struct jjrm_GetCoronetsParams {
 
 #[derive(Debug, serde::Deserialize, schemars::JsonSchema)]
 pub struct jjrm_PaddockParams {
+    /// Target heat. Optional in the schema only so an absent value gets the
+    /// instructive paddock/curry-split error instead of a bare serde miss.
     #[serde(default)]
     pub firemark: Option<String>,
+}
+
+#[derive(Debug, serde::Deserialize, schemars::JsonSchema)]
+pub struct jjrm_CurryParams {
     pub note: Option<String>,
     pub size_limit: Option<u64>,
 }
@@ -547,7 +554,7 @@ fn jjrm_empty_object() -> serde_json::Value {
 
 #[derive(Debug, serde::Deserialize, schemars::JsonSchema)]
 pub struct jjrm_JjxParams {
-    #[schemars(description = "Command name: jjx_list, jjx_show, jjx_orient, jjx_record, jjx_log, jjx_validate, jjx_create, jjx_enroll, jjx_close, jjx_archive, jjx_reorder, jjx_redocket, jjx_relabel, jjx_drop, jjx_relocate, jjx_alter, jjx_search, jjx_brief, jjx_coronets, jjx_paddock, jjx_continue, jjx_transfer, jjx_landing, jjx_apostille, jjx_bind, jjx_send, jjx_plant, jjx_fetch, jjx_relay, jjx_check, jjx_open")]
+    #[schemars(description = "Command name: jjx_list, jjx_show, jjx_orient, jjx_record, jjx_log, jjx_validate, jjx_create, jjx_enroll, jjx_close, jjx_archive, jjx_reorder, jjx_redocket, jjx_relabel, jjx_drop, jjx_relocate, jjx_alter, jjx_search, jjx_brief, jjx_coronets, jjx_paddock, jjx_curry, jjx_continue, jjx_transfer, jjx_landing, jjx_apostille, jjx_bind, jjx_send, jjx_plant, jjx_fetch, jjx_relay, jjx_check, jjx_open")]
     pub command: String,
     #[schemars(description = "Command parameters as JSON object. See CLAUDE.md for per-command schemas.")]
     #[serde(default = "jjrm_empty_object")]
@@ -2593,63 +2600,76 @@ impl jjrm_McpServer {
             }
             JJRM_CMD_NAME_PADDOCK => {
                 let p = deser!(jjrm_PaddockParams);
-                if let Some(ref content) = gazette_in_content {
-                    // Setter mode: gazette_in.md had paddock content. The paddock
-                    // revision now joins the shared dispatch/persist lifecycle
-                    // (jjri_persist co-commits gallops + paddock under the firemark),
-                    // rather than self-committing on the old curry path.
-                    let (firemark_str, paddock_content) = match jjrz_parse_paddock_input(content) {
-                        Ok(pair) => pair,
-                        Err(e) => return Ok(CallToolResult::error(vec![Content::text(
-                            format!("{}: gazette input error: {}", cmd, e),
-                        )])),
-                    };
-                    let firemark = match crate::jjrf_favor::jjrf_Firemark::jjrf_parse(&firemark_str) {
-                        Ok(fm) => fm,
-                        Err(e) => return Ok(CallToolResult::error(vec![Content::text(
-                            format!("{}: error: {}", cmd, e),
-                        )])),
-                    };
-                    let description = match &p.note {
-                        Some(n) => format!("paddock curried: {}", n),
-                        None => "paddock curried".to_string(),
-                    };
-                    let message = jjrn_format_heat_discussion(&firemark, &description);
-                    let size_limit = p.size_limit.unwrap_or(vvc::VVCG_SIZE_LIMIT);
-                    let firemark_for_handler = firemark.clone();
-                    zjjrm_dispatch_inner_msg(cmd, &firemark, size_limit, message, move |gallops| {
-                        jjrg_curry_apply(gallops, &firemark_for_handler, &paddock_content)?;
-                        Ok(format!("{}: paddock updated", cmd))
-                    })
-                } else {
-                    // Getter mode: no gazette_in.md — read paddock to gazette_out.md
-                    let firemark = match p.firemark {
-                        Some(f) => f,
-                        None => return Ok(CallToolResult::error(vec![Content::text(
-                            format!("{}: getter mode requires 'firemark' param", cmd),
-                        )])),
-                    };
-                    let mut gazette = jjrz_Gazette::jjrz_build(&[jjrz_Slug::Paddock, jjrz_Slug::Pace]);
-                    let (code, mut output) = jjrcu_run_curry(jjrcu_CurryArgs {
-                        file: gallops_pathbuf(),
-                        firemark,
-                        note: p.note,
-                        size_limit: p.size_limit,
-                    }, &mut gazette);
-                    let md = gazette.jjrz_emit();
-                    if !md.is_empty() { std::fs::write(&gazette_out_path, md.as_bytes()).ok(); }
-                    if code == 0 {
-                        // A setter-intent miss (gazette_in landed in the wrong dir)
-                        // surfaces here as silent getter mode, never as an error —
-                        // name both paths so the miss is self-diagnosing.
-                        output.push_str(&format!(
-                            "paddock returned via gazette_out: {}\n(getter mode — no gazette_in.md at {}; write content there to set)\n",
-                            gazette_out_path.display(),
-                            gazette_in_path.display(),
-                        ));
-                    }
-                    jjrm_result((code, output))
+                // Reader, period — the writer is jjx_curry. Staged gazette
+                // input on a read call rejects loud: mode is named by the
+                // command, never inferred from gazette presence (the
+                // inference is how a pre-staged notice once blanked a live
+                // paddock and auto-committed the loss).
+                if gazette_in_content.is_some() {
+                    return Ok(CallToolResult::error(vec![Content::text(format!(
+                        "{}: jjx_paddock is read-only, but gazette_in.md held staged input (consumed on entry, per the universal entry rule). To revise the paddock, re-write {} and call jjx_curry; to read, call again with nothing staged.",
+                        cmd,
+                        gazette_in_path.display(),
+                    ))]));
                 }
+                let firemark = match p.firemark {
+                    Some(f) => f,
+                    None => return Ok(CallToolResult::error(vec![Content::text(
+                        format!("{}: requires 'firemark' param (jjx_paddock reads the paddock; jjx_curry revises it)", cmd),
+                    )])),
+                };
+                let mut gazette = jjrz_Gazette::jjrz_build(&[jjrz_Slug::Paddock, jjrz_Slug::Pace]);
+                let (code, mut output) = jjrcu_run_curry(jjrcu_CurryArgs {
+                    file: gallops_pathbuf(),
+                    firemark,
+                }, &mut gazette);
+                let md = gazette.jjrz_emit();
+                if !md.is_empty() { std::fs::write(&gazette_out_path, md.as_bytes()).ok(); }
+                if code == 0 {
+                    output.push_str(&format!(
+                        "paddock returned via gazette_out: {}\n(read-only — to revise, stage a jjezs_paddock notice at {} and call jjx_curry)\n",
+                        gazette_out_path.display(),
+                        gazette_in_path.display(),
+                    ));
+                }
+                jjrm_result((code, output))
+            }
+            JJRM_CMD_NAME_CURRY => {
+                let p = deser!(jjrm_CurryParams);
+                // Writer, period — the read half is jjx_paddock. The paddock
+                // revision joins the shared dispatch/persist lifecycle
+                // (jjri_persist co-commits gallops + paddock under the
+                // firemark), rather than self-committing on the old curry
+                // path.
+                let staged = match gazette_in_content {
+                    Some(ref content) => content,
+                    None => return Ok(CallToolResult::error(vec![Content::text(
+                        format!("{}: requires gazette_in.md with a jjezs_paddock notice (firemark lede, non-empty body); checked {}. To read the paddock instead, call jjx_paddock with the firemark param.", cmd, gazette_in_path.display()),
+                    )])),
+                };
+                let (firemark_str, paddock_content) = match jjrz_parse_paddock_input(staged) {
+                    Ok(pair) => pair,
+                    Err(e) => return Ok(CallToolResult::error(vec![Content::text(
+                        format!("{}: gazette input error: {}", cmd, e),
+                    )])),
+                };
+                let firemark = match crate::jjrf_favor::jjrf_Firemark::jjrf_parse(&firemark_str) {
+                    Ok(fm) => fm,
+                    Err(e) => return Ok(CallToolResult::error(vec![Content::text(
+                        format!("{}: error: {}", cmd, e),
+                    )])),
+                };
+                let description = match &p.note {
+                    Some(n) => format!("paddock curried: {}", n),
+                    None => "paddock curried".to_string(),
+                };
+                let message = jjrn_format_heat_discussion(&firemark, &description);
+                let size_limit = p.size_limit.unwrap_or(vvc::VVCG_SIZE_LIMIT);
+                let firemark_for_handler = firemark.clone();
+                zjjrm_dispatch_inner_msg(cmd, &firemark, size_limit, message, move |gallops| {
+                    jjrg_curry_apply(gallops, &firemark_for_handler, &paddock_content)?;
+                    Ok(format!("{}: paddock updated", cmd))
+                })
             }
             JJRM_CMD_NAME_TRANSFER => {
                 let p = deser!(jjrm_TransferParams);

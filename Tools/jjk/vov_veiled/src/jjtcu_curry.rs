@@ -2,17 +2,18 @@
 // All rights reserved.
 // SPDX-License-Identifier: LicenseRef-Proprietary
 
-//! Tests for jjx_curry command (paddock getter/setter with chalk)
+//! Tests for the paddock read / curry write pair
 //!
 //! ## Coverage
 //!
-//! - Getter mode: Read and display paddock content
-//! - Setter mode: Mode detection and note formatting
+//! - Firemark parsing (both commands route through it)
+//! - jjrg_curry_apply wipe backstop: empty/whitespace-only content rejects
+//! - Note formatting for the curry revision commit message
 //!
 //! ## Not Tested
 //!
-//! - Setter mode commit behavior: Excluded due to vvc dependency on git operations.
-//!   The jjrg_curry() function calls vvc::machine_commit() which requires:
+//! - Curry commit behavior: Excluded due to vvc dependency on git operations.
+//!   The shared dispatch lifecycle calls vvc::machine_commit() which requires:
 //!   - Valid git repository state
 //!   - Commit lock acquisition
 //!   - File staging and commit execution
@@ -21,7 +22,9 @@
 //!   which is beyond the scope of unit tests. Integration tests should
 //!   cover the full commit workflow.
 
+use std::collections::BTreeMap;
 use super::jjrf_favor::jjrf_Firemark as Firemark;
+use super::jjrg_gallops::{jjrg_Gallops, jjrg_curry_apply};
 
 // ===== Firemark parsing tests (used in both getter and setter modes) =====
 
@@ -54,23 +57,31 @@ fn jjtcu_firemark_parse_invalid_chars() {
     assert!(result.is_err());
 }
 
-// ===== Getter mode behavior tests =====
-// These test the logic flow, not actual file I/O
+// ===== Wipe backstop at the paddock write funnel =====
+// The guard fires before heat lookup or file I/O, so an empty gallops serves.
 
-#[test]
-fn jjtcu_getter_mode_no_stdin_detected() {
-    // In getter mode, stdin_content is None
-    let stdin_content: Option<String> = None;
-
-    assert!(stdin_content.is_none()); // Getter mode detected
+fn empty_gallops() -> jjrg_Gallops {
+    jjrg_Gallops {
+        next_heat_seed: "AB".to_string(),
+        heat_order: vec![],
+        heats: BTreeMap::new(),
+        retention_since: None,
+    }
 }
 
 #[test]
-fn jjtcu_setter_mode_stdin_detected() {
-    // In setter mode, stdin_content is Some(...)
-    let stdin_content: Option<String> = Some("New paddock content".to_string());
+fn jjtcu_curry_apply_rejects_empty_content() {
+    let firemark = Firemark::jjrf_parse("AB").unwrap();
+    let err = jjrg_curry_apply(&empty_gallops(), &firemark, "").unwrap_err();
+    assert!(err.contains("empty paddock"), "got: {}", err);
+    assert!(err.contains("never blanks"), "names the refusal: {}", err);
+}
 
-    assert!(stdin_content.is_some()); // Setter mode detected
+#[test]
+fn jjtcu_curry_apply_rejects_whitespace_only_content() {
+    let firemark = Firemark::jjrf_parse("AB").unwrap();
+    let err = jjrg_curry_apply(&empty_gallops(), &firemark, "  \n\t\n  ").unwrap_err();
+    assert!(err.contains("empty paddock"), "got: {}", err);
 }
 
 // ===== Note field tests =====

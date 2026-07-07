@@ -674,6 +674,17 @@ pub fn jjrg_curry_apply(
     firemark: &Firemark,
     new_content: &str,
 ) -> Result<(), String> {
+    // Wipe backstop: a paddock is born non-empty (jjrg_nominate seeds the
+    // template) and a revision always carries full replacement content, so an
+    // empty write is a mis-staged gazette, never intent. The gazette parsers
+    // reject empty-bodied notices upstream; this funnel guard holds for every
+    // caller.
+    if new_content.trim().is_empty() {
+        return Err(format!(
+            "refusing to write an empty paddock for '{}' — a revision replaces the whole paddock, never blanks it",
+            firemark.jjrf_display()
+        ));
+    }
     let firemark_key = firemark.jjrf_display();
     if !gallops.heats.contains_key(&firemark_key) {
         return Err(format!("Heat '{}' not found", firemark_key));

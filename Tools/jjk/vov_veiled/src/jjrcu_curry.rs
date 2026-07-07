@@ -2,9 +2,12 @@
 // All rights reserved.
 // SPDX-License-Identifier: LicenseRef-Proprietary
 
-//! Curry command - paddock update operation for Heat context
+//! Paddock read — the jjx_paddock reader body.
 //!
-//! Supports getter mode (display paddock) and setter mode (update with chalk entry).
+//! The curry module name is historical: curry is the *write* operation, and
+//! it once lived here as a stdin-driven setter mode. The writer is now the
+//! jjx_curry command (jjrm_mcp CURRY arm over jjrg_curry_apply); what remains
+//! here is the read half, jjx_paddock.
 
 use std::path::PathBuf;
 use vvc::{vvco_err, vvco_Output};
@@ -13,9 +16,9 @@ use crate::jjrg_gallops::{jjrg_Gallops as Gallops};
 use crate::jjri_io::jjri_paddock_path;
 use crate::jjrz_gazette::{jjrz_Gazette, jjrz_Slug};
 
-const JJRCU_CMD_NAME_CURRY: &str = "jjx_curry";
+const JJRCU_CMD_NAME_PADDOCK: &str = "jjx_paddock";
 
-/// Arguments for jjx_curry command
+/// Arguments for the jjx_paddock reader
 #[derive(clap::Args, Debug)]
 pub struct jjrcu_CurryArgs {
     /// Path to the Gallops JSON file
@@ -24,24 +27,17 @@ pub struct jjrcu_CurryArgs {
 
     /// Target Heat identity (Firemark)
     pub firemark: String,
-
-    /// Optional note for chalk entry
-    #[arg(long)]
-    pub note: Option<String>,
-
-    /// Override commit size guard limit in bytes (setter mode only)
-    #[arg(long)]
-    pub size_limit: Option<u64>,
 }
 
-/// Handler for jjx_curry getter — read a Heat's paddock content into the gazette.
+/// Handler for the jjx_paddock reader — read a Heat's paddock content into
+/// the gazette.
 ///
-/// Getter-only. The setter path no longer lives here: a paddock revision is now
-/// applied in-memory via jjrg_curry_apply and committed through the shared
-/// dispatch lifecycle (jjrm_mcp PADDOCK handler), so it folds into one commit
-/// with any batched reslates/slates and stops self-committing on its own path.
+/// Read-only. The write path does not live here: a paddock revision is the
+/// jjx_curry command, applied in-memory via jjrg_curry_apply and committed
+/// through the shared dispatch lifecycle (jjrm_mcp CURRY arm), so it folds
+/// into one commit with any batched reslates/slates.
 pub fn jjrcu_run_curry(args: jjrcu_CurryArgs, gazette: &mut jjrz_Gazette) -> (i32, String) {
-    let cn = JJRCU_CMD_NAME_CURRY;
+    let cn = JJRCU_CMD_NAME_PADDOCK;
 
     let mut output = vvco_Output::buffer();
 

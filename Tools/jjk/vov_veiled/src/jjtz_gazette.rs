@@ -449,6 +449,64 @@ fn jjtz_parse_paddock_input_multiple_notices() {
     assert!(err.contains("Expected one"));
 }
 
+// --- Non-empty-body law: empty input notices reject, never execute ---
+
+#[test]
+fn jjtz_parse_paddock_input_empty_body() {
+    // The wipe shape: a bare pre-staged notice with no body must reject
+    // loud, never execute as "replace the paddock with nothing".
+    let md = format!("# {} ₣Bg\n", JJRZ_SLUG_PADDOCK);
+    let err = jjrz_parse_paddock_input(&md).unwrap_err();
+    assert!(err.contains("empty body"), "got: {}", err);
+    assert!(err.contains("never blanks"), "names the refusal: {}", err);
+}
+
+#[test]
+fn jjtz_parse_paddock_input_whitespace_only_body() {
+    let md = format!("# {} ₣Bg\n\n   \n\t\n", JJRZ_SLUG_PADDOCK);
+    let err = jjrz_parse_paddock_input(&md).unwrap_err();
+    assert!(err.contains("empty body"), "got: {}", err);
+}
+
+#[test]
+fn jjtz_parse_slate_input_empty_body() {
+    let md = format!("# {} hollow-pace\n", JJRZ_SLUG_SLATE);
+    let err = jjrz_parse_slate_input(&md).unwrap_err();
+    assert!(err.contains("empty body"), "got: {}", err);
+    assert!(err.contains("hollow-pace"), "names the lede: {}", err);
+}
+
+#[test]
+fn jjtz_parse_reslate_input_empty_body() {
+    let md = format!("# {} AFAAa\n", JJRZ_SLUG_RESLATE);
+    let err = jjrz_parse_reslate_input(&md).unwrap_err();
+    assert!(err.contains("empty body"), "got: {}", err);
+}
+
+#[test]
+fn jjtz_parse_batch_input_empty_paddock_body() {
+    // A well-formed sibling notice does not launder the empty one.
+    let md = format!("# {} ₣Bg\n\n# {} real-pace\n\ndocket text\n",
+        JJRZ_SLUG_PADDOCK, JJRZ_SLUG_SLATE);
+    let err = jjrz_parse_batch_input(&md).unwrap_err();
+    assert!(err.contains("empty body"), "got: {}", err);
+}
+
+#[test]
+fn jjtz_parse_batch_input_empty_reslate_body() {
+    let md = format!("# {} AFAAa\n", JJRZ_SLUG_RESLATE);
+    let err = jjrz_parse_batch_input(&md).unwrap_err();
+    assert!(err.contains("empty body"), "got: {}", err);
+}
+
+#[test]
+fn jjtz_parse_batch_input_empty_slate_body() {
+    let md = format!("# {} AFAAa\n\nreal docket\n\n# {} hollow-pace\n",
+        JJRZ_SLUG_RESLATE, JJRZ_SLUG_SLATE);
+    let err = jjrz_parse_batch_input(&md).unwrap_err();
+    assert!(err.contains("empty body"), "got: {}", err);
+}
+
 // --- Halter (read-path target selection) input parsing ---
 
 #[test]

@@ -211,7 +211,7 @@ fn jjtm_guard_buckets_partition_the_command_surface() {
     for cmd in [
         "jjx_create", "jjx_enroll", "jjx_redocket", "jjx_relabel", "jjx_drop",
         "jjx_relocate", "jjx_reorder", "jjx_alter", "jjx_close", "jjx_validate",
-        "jjx_archive", "jjx_transfer", "jjx_paddock", "jjx_apostille",
+        "jjx_archive", "jjx_transfer", "jjx_paddock", "jjx_curry", "jjx_apostille",
         "jjx_bind", "jjx_send", "jjx_plant", "jjx_fetch", "jjx_relay", "jjx_check",
     ] {
         assert_eq!(zjjrm_guard_bucket(cmd), zjjrm_GuardBucket::Frontier, "{}", cmd);
