@@ -8867,6 +8867,7 @@
         "₢BsAAI",
         "₢BsAAA",
         "₢BsAAJ",
+        "₢BsAAM",
         "₢BsAAB",
         "₢BsAAC",
         "₢BsAAD",
@@ -8877,7 +8878,7 @@
         "₢BsAAL",
         "₢BsAAK"
       ],
-      "jjghn_next_pace_seed": "AAM",
+      "jjghn_next_pace_seed": "AAN",
       "jjghn_paces": {
         "₢BsAAA": {
           "jjgpn_tacks": [
@@ -9207,6 +9208,39 @@
               ],
               "jjgtn_silks": "cross-platform-freehold-sweep",
               "jjgtn_basis": "3be0115"
+            }
+          ]
+        },
+        "₢BsAAM": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260707-1321",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Mechanize the release-hygiene checks as reveille-registered theurge fixtures, following the cupel precedent (manual release audit becomes a standing suite fixture):",
+                "a license allowlist over the crate graph (cargo metadata parsing — no new external tool),",
+                "LICENSE-file presence at the root,",
+                "and a targeted secrets scan over the tree (known token shapes: PEM headers, OAuth/API-key prefixes, client-secret JSON — deliberately NOT a gitleaks reimplementation).",
+                "Checks must be deterministic tree-invariants — same tree, same verdict — written tree-relative so they pass on BOTH main and the stripped candidate (which loses the apck crates and the veiled content).",
+                "The known-vulnerability advisory audit stays ceremony-side by design (live advisory DB; its verdict varies with no tree change) — record that boundary, do not fixture it.",
+                "Decide at mount whether the rbyc anchor/link check becomes a fixture here or stays a ceremony step in the candidate-cut pace.",
+                "Wire the ceremony's post-strip step to run the fixture(s) on the candidate tree (single-fixture runs are cheap),",
+                "coordinating with the ceremony-repair pace's stripped-tree census finding.",
+                "Register in the almanac (Tools/rbk/rbtd/src/rbtdra_almanac.rs); suite membership reveille.",
+                "",
+                "## Done when",
+                "",
+                "The fixtures run green in reveille on main;",
+                "the ceremony document carries the post-strip fixture run;",
+                "the advisory-audit boundary is recorded;",
+                "the anchor-check placement is decided.",
+                "",
+                "## Character",
+                "",
+                "Test-infra build with a small ceremony-document wiring edit; fill work while long runs await."
+              ],
+              "jjgtn_silks": "release-hygiene-fixtures",
+              "jjgtn_basis": "50721c2"
             }
           ]
         }
