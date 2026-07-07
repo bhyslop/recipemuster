@@ -9802,8 +9802,9 @@
         "₢BxAAD": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260706-1724",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260707-1142",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_opus",
               "jjgtn_text": [
                 "## Character",
                 "Single cross-heat paddock curry through the gazette ceremony; content settled.",
@@ -9829,7 +9830,7 @@
                 "and the fence-walk pace can place the facade lint without re-derivation."
               ],
               "jjgtn_silks": "bank-facade-lint",
-              "jjgtn_basis": "57d98a9"
+              "jjgtn_basis": "8bbad02"
             }
           ]
         }
