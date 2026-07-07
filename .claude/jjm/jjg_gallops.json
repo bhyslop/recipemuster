@@ -8762,8 +8762,8 @@
         "₢BrAAY": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260706-1029",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260707-0953",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "## Character",
                 "",
@@ -8804,7 +8804,7 @@
                 "₢BcAAM docket in ₣Bc; MCM Lapidary (vocabulary isolation, semantic uniqueness, word husbandry)."
               ],
               "jjgtn_silks": "session-tier-launch-design",
-              "jjgtn_basis": "3e1396d"
+              "jjgtn_basis": "d1995c9"
             }
           ]
         }
