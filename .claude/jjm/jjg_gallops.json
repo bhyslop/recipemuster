@@ -8789,8 +8789,9 @@
         "₢BrAAX": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260706-0649",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260707-1343",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_opus",
               "jjgtn_text": [
                 "## Character",
                 "",
@@ -8808,7 +8809,7 @@
                 "and the work-tier implementation tail may begin."
               ],
               "jjgtn_silks": "design-complete-gate",
-              "jjgtn_basis": "f9572a4"
+              "jjgtn_basis": "66ecea6"
             }
           ]
         },
