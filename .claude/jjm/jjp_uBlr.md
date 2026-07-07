@@ -137,6 +137,33 @@ the implementation tail runs at work tier.
   eliminating the loose fixed-alphabet wording a decimal ordinal would otherwise satisfy;
   the algebraic word retained, re-quoining deferred;
   the insignia-family ADT work in ₣BD picks the natures up code-side.
+- Session-launch configuration (260707): designed whole; the former held-for-discussion fork is settled.
+  The tier vocabulary is the vendor family words, ratified —
+  a Palisade admission at one membrane, never a JJ mint (the farrier's git-word posture applied to model families);
+  no tier categories are hardlined: a tier is just a name,
+  and category judgment lives at each policy site as an explicit name-set, never as an attribute a family IS.
+  Effort anchors transparently on Anthropic's own effort classification, likewise unminted;
+  effort never rides the MCP wire, so it is designation-and-dispatch data — the guard reads tier alone.
+  The bridle designation carries the pair: tier required, effort optional
+  (folded into the sibling schema heat's bridle docket by operator ruling 260707).
+  One roster table, baked into the engine as a constant (the blotter's engine-known posture):
+  family name → launch model ID + valid effort set; no default columns;
+  every kind of vendor drift lands as an edit to this one table, spook-on-surprise;
+  fable stays a roster row no launch policy names until its pricing settles — opus is the working judgment tier.
+  The launch primitive is stirrup (hearting per the enfold precedent):
+  parameterized (billet, tier, opening prompt), pace-blind — pace-coupling lives in the caller
+  (the dispatch doors first, per-beat breeze dispatch later, the same spine, no parallel launcher);
+  stirrup is the table's one launch consumer — callers speak tier words, never model IDs,
+  and an invalid (family, effort) pair refuses fair-facedly.
+  The (tier, effort) choice has exactly two sources, split by door:
+  lunge, having no pace, launches the judgment constant — opus/xhigh, one named cell;
+  saddle launches the pace's designation exactly;
+  saddle on an unbridled pace launches the same judgment constant —
+  undesignated work is judgment work: such a session plans toward a bridle or simply finishes fast;
+  a designation without effort launches with the effort knob omitted — the vendor default governs, JJ invents nothing.
+  Guard permanence: every command registers its guard bucket explicitly, no default — absence fails loud;
+  the docket-authoring gate is an explicit accept-set of family names beside the roster (fable + opus today);
+  unknown families sit in no accept-set by construction — OPEN reads only, until a deliberate roster-and-set edit.
 
 ## Canon workup
 
@@ -241,6 +268,12 @@ catchword ₶ (U+20B6, livre tournois) for studbook revisions, varvel ₰ (U+20B
 decimal-ordinal bodies under leading-digit founding;
 tattoo deliberately banked unminted, freezemark rejected for the firemark rhyme, chestnut/hip/accession held as alternates;
 AXLA gains axd_ordinal beside the tightened axd_algebraic.
+SESSION-LAUNCH MINT DISCHARGED (260707): stirrup elected for the launch primitive at the entrance spine's end —
+hearting per the enfold precedent, gate clean;
+launch pre-ruled trodden, launcher BUK-bound, compound forms barred by operator ruling (leg-up and put-up died there);
+spur held as alternate with a false-friend note;
+gee released to deliberate fallow as the operator's trot-advance cry;
+rationale ledgered in the farrier sheaf.
 Elections, alternates, and rationales live in the two sheaf ledgers; this roster is the summary.
 
 ### Deltas to bank into the aspirant sheaves at drain time
@@ -262,6 +295,10 @@ Elections, alternates, and rationales live in the two sheaf ledgers; this roster
 - Pace-identity and store-shape sections: the 260706 design cinches settle the sheaf's
   wire-vs-display open fork and deferred insignia sub-mint;
   bank the settlement at drain time (the re-gestalt amendment stream is the implementing surface).
+- Session-tiers paragraph (farrier sheaf, dispatch layer): the session-launch cinch supersedes its wording —
+  lunge and unbridled-saddle launch the opus/xhigh judgment constant, bridled-saddle consumes the designation,
+  and the verb-carries-the-tier line narrows to the two-source choice function;
+  the haiku orchestration line stays breeze-era; bank at drain time.
 
 ## Held for discussion
 
@@ -269,12 +306,13 @@ Settle before the affected change, not before the heat; each item names its sett
 
 - Billet dirname convention — lean on record (dirname = the §F branch name verbatim);
   adopted at dispatch-sheaf authoring.
-- Session-launch configuration — the designation-tier vocabulary (shared with the bridle work in ₣Bc),
-  the validated (model, effort) pair table and its home,
-  the parameterized spawn primitive with its census word minted under Lapidary
-  (launch disqualified: trodden, and launcher is BUK-bound),
-  and the permanent frontier-only gate on the docket-authoring verbs —
-  settles at its dedicated design pace ahead of the dispatch-sheaf authoring.
+- Stirruped-entry protocol seam — how the mount and groom protocol texts behave when a session
+  arrives through the dispatch doors rather than a hand-opened chat:
+  the opening prompt carries the engagement verb, so target election and its gazette dance shift form;
+  a session on a sub-frontier-designated pace follows the designee protocol landing with the bridle work
+  (orient, work, record, landing, never wrap), not the full mount ceremony;
+  a judgment session keeps the ceremony;
+  settles at dispatch-sheaf authoring alongside the kit-core protocol-text updates.
 
 ## Done when
 
