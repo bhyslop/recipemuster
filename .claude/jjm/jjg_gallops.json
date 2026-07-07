@@ -9015,22 +9015,34 @@
         "₢BsAAG": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260705-0805",
+              "jjgtn_ts": "260707-1346",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
-                "Build the small rbgft data-layer test: the escheat survey's per-deficit classification verdicts (key shape, mantle enum, body-not-JSON, missing rbgft_ fields, body-key mismatch) and the precise engross-412 / expunge-404 clean dispositions, asserted deliberately rather than ridden incidentally.",
-                "Coverage today: polity-denial proves the muniment sub-ops' rejection bands under the http-fault seam, parley the positive round-trip — this closes the thin residue, informed by the orphan-arm live exercise two paces back.",
-                "Homed honestly in test-infra, never a production-family verb.",
-                "The standing itch terrier-atomicity-nature-discussion records the operator's wish to discuss what this proof IS before treating it as settled — honor that at mount.",
+                "Assert the terrier muniment clean dispositions deliberately:",
+                "extend the polity-denial fixture's terrier-band arc so its synthetic subject drives a RE-RUN brevet (second engross meets the 412 arm, disposition \"present\")",
+                "and a RE-RUN unseat (second expunge meets the 404 arm, disposition \"absent\"),",
+                "each asserted as a clean zero exit with the terrier roll unchanged after —",
+                "the verb-grain idempotency claim the retired rbw-dT proof carried, deliberately dodged by every current fixture.",
+                "Real GCS, no fault seam on these two calls (the seam forces codes; these assert the real precondition semantics).",
+                "The arc's existing pre-clean and final-sweep bracket already contains the synthetic subject; extend inside it.",
+                "Entry points: rbtdrv_patrol.rs terrier-band arc, rbgft_terrier.sh \"present\"/\"absent\" case arms.",
+                "",
+                "## Cinched",
+                "",
+                "The escheat survey classifier verdicts are OUT of scope:",
+                "standing coverage declined by operator ruling 260707 (plan-then-confirm is the protection; revival trigger recorded in the itch).",
+                "No new fixture and never a production-family verb — the assertions live inside polity-denial.",
                 "",
                 "## Done when",
-                "The classifier verdicts and the 412/404 dispositions are asserted by a suite-registered test; the operator discussion honored.",
+                "",
+                "polity-denial green with both clean-disposition assertions in place (tt/rbw-tf.FixtureRun.sh polity-denial), on a committed tree.",
                 "",
                 "## Character",
-                "Test-infra build; small."
+                "",
+                "Small mechanical extension of an existing fixture."
               ],
               "jjgtn_silks": "rbgft-data-layer-unit-test",
-              "jjgtn_basis": "b9782ba"
+              "jjgtn_basis": "d48ff7b"
             }
           ]
         },
