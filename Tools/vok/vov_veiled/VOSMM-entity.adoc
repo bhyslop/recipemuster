@@ -428,6 +428,24 @@ A worked census (the ₣Br mint pace, 260705) sharpened the sketch with field ev
   Footprint advises cost, never verdicts (the pin→counterfoil eviction proceeded at ~245 uses; the billet resolution moved a 10-hit incumbent): value is the operator's judgment, and the execute half is authorship — each prose site needs a written sentence — permanently manual, never a safe-reprefix sibling.
 * The register tag earns its keep immediately: list-by-register is the coffer census, and flat tags sufficed across the whole census pace — no edge was ever needed.
 
+*Reserved-word lint — fourth job, how deferred.*
+Recorded here as intent, the how deferred:
+the specific words MCM Lapidary blocks from minting migrate from their current resting place — the Seed: members listed inside MCM's withheld-word and antipattern definitions (`mcm_hallowed_word`, `mcm_fallow_word`, `mcm_furrowed_word`; `mcm_trodden_word`, `mcm_leached_word`) — into the grimoire, which becomes the single home of that membership.
+MCM keeps each category's *meaning*; its Seed: line relaxes to a pointer here, so the words are homed once, not duplicated (ACG reference-the-home).
+The
+{vosmm_matricula}
+then lints those migrated words against the durable documents at least, flagging a blocked word seated where its class forbids.
+Such a word is the photographic negative of a minted
+{vosli_inscription} —
+one deliberately *not* seated — so the identifier scan cannot find it unaided;
+the mechanization reuses what this sketch already carries: the literal forms enumeration, the categorical tag (mint-status joining register as a second tag value), and the innocent-homograph branch with its acceptance-by-domain waiver, sign-flipped from missed-citation to reserve-violation.
+It rides as maintained input to the still-transient
+{vosmm_matricula}
+and so leaves VOr_k3p untouched (distinct from the maintained non-transient census listed above);
+detection is exact-match (VOr_m7w holds) and the blocked-violation-versus-legitimate-use verdict stays the operator's — `spine` is a `mcm_hallowed_word` yet legitimately seated at `rblds_spine.sh` and as "the spine" in ACG, so the lint is advisory, never a gate.
+Whether a blocked word takes a grimoire row (widening the charter from one-row-per-minted-word to *governed words: minted-with-forms or blocked-with-status*, letting a `mcm_furrowed_word` ripen to minted status in place) or rides a sibling table the same tooling reads: open, recorded, the lean toward the single widened table.
+The precise how — row shape, the durable-document set, the accepted-use ledger — is deferred with the rest of the sketch.
+
 Promotion of this sketch to an aspirant of its own is a later parceling, taken when the
 {vosmm_matricula}
 itself ascends — not here.
