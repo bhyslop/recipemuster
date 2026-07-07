@@ -6796,6 +6796,7 @@
       "jjghn_creation_time": "260609",
       "jjghn_status": "jjghe_racing",
       "jjghn_order": [
+        "₢BcAAN",
         "₢BcAAM",
         "₢BcAAI",
         "₢BcAAC",
@@ -6810,7 +6811,7 @@
         "₢BcAAK",
         "₢BcAAL"
       ],
-      "jjghn_next_pace_seed": "AAN",
+      "jjghn_next_pace_seed": "AAO",
       "jjghn_paces": {
         "₢BcAAA": {
           "jjgpn_tacks": [
@@ -7403,6 +7404,43 @@
               ],
               "jjgtn_silks": "bridle-verb-and-mount-guard",
               "jjgtn_basis": "68b5353"
+            }
+          ]
+        },
+        "₢BcAAN": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260707-1158",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "Mechanical rename plus spec registration; word cinched, no design latitude.",
+                "",
+                "## Shape",
+                "Repair the Upper/Lower vocabulary-isolation breach shipped with pace bridling:",
+                "the lower MCP command carries the vivid equestrian word (jjx_bridle),",
+                "and the upper verbs were never registered in JJS0's Upper API catalog.",
+                "Cinched: the lower command renames to jjx_apostille",
+                "(operator word choice 260707, grep-gated clean);",
+                "upper vocabulary — bridle, unbridle, the bridled state, jjdpe_bridled, wire jjgte_bridled — is untouched;",
+                "no serialized field changes, so no reprieve episode (§E does not fire).",
+                "Rust: rename the command constant, params struct, dispatch arm, schemars command list,",
+                "gate comments, and the designation-gate remedy text;",
+                "old name rejected loudly, no alias.",
+                "Discovery recipe: grep jjx_bridle and BRIDLE across Tools/jjk.",
+                "JJS0: mint the lower-tool quoin (jjdo_apostille) in the tool census;",
+                "add jjsuv_bridle and jjsuv_unbridle rows to Upper API Verbs",
+                "(two verbs onto one tool, chivvy/cantle precedent).",
+                "claude-jjk-core.md: verb table, command reference, three-bucket gate text, Bridle Protocol —",
+                "the command string only; equestrian upper prose stays.",
+                "",
+                "## Done when",
+                "grep jjx_bridle lands clean outside historical/archive prose;",
+                "vow-b and vow-t green;",
+                "JJS0 carries the two upper-verb rows and the lower-tool quoin."
+              ],
+              "jjgtn_silks": "apostille-command-rename",
+              "jjgtn_basis": "ecafbe2"
             }
           ]
         }
