@@ -8657,8 +8657,9 @@
         "₢BrAAR": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260705-1634",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260707-1348",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_sonnet",
               "jjgtn_text": [
                 "## Character",
                 "",
@@ -8674,7 +8675,7 @@
                 "offline degrades to warn-and-proceed."
               ],
               "jjgtn_silks": "resync-impl",
-              "jjgtn_basis": "d432287"
+              "jjgtn_basis": "4f9072c"
             }
           ]
         },
