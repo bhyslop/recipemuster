@@ -383,6 +383,15 @@ The concept widens later, and that widening is out of scope for this spec:
 * The engagement determinations — when an ambient check runs, when a gate blocks.
 * The gestalt-label subsystem.
 * A maintained (non-transient) census, which would deliberately supersede VOr_k3p.
+* The probe harness — the
+{vosmm_matricula}
+conducting MCM's cold probe (`mcm_cold_probe`) at mint time:
+dispatching a candidate word and its authored forms to a fresh weak-model reader in a headless session,
+collecting the stated-expectation verdict,
+and running a transcription trial for surface-form mutation toward high-frequency ambient neighbors —
+the writing-side confound the reading-side probe cannot see.
+The harness is dispatch and collection only;
+the verdict is the reader's and the meaning the operator's, so VOr_m7w stays whole.
 * The grimoire — a maintained, flat table of the human-presentation surface forms (every plural, every verb tense, the possessive) of the words a minted
 {vosli_inscription}
 dresses, read by the
