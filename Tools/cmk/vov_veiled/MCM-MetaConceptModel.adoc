@@ -1303,6 +1303,28 @@ verb draws the same heightened care as the
 it acts on: it must be
 {mcm_fair_faced}
 and lodge unaided, dodge overloading in software prose and the adjacent domain, and hold first-letter separation across the set an operator wields at once.
+A
+{mcm_toothing}
+is the act-concept, never the bare word:
+its definition declares a subject slot and an object slot,
+each explicitly valued — a
+{mcm_bondstone}
+(or a supertype
+{mcm_quoin}
+where several children legitimately serve),
+the operator, or none —
+so a deliberate intransitive is never mistaken for a forgotten declaration.
+The verb word is the
+{mcm_toothing}
+minted name — one
+{mcm_quoin}
+carrying act and word together, never a second
+{mcm_quoin}
+for the word alone.
+A different subject or object — none included — is a different act and takes a different word:
+a verb is never overloaded.
+The definition opens with its canonical clause — subject, verb, object in one working sentence —
+so first contact teaches the frame the word rides in.
 
 [[mcm_hearting]]
 {mcm_hearting}::
@@ -1382,6 +1404,46 @@ a spec-interior
 {mcm_quoin}
 need only avoid the third, since its definition is at hand to turn a blank into knowledge.
 A word that draws a blank but evokes the right image is therefore a safe spec-interior mint, where a confidently-misread one is not.
+
+=== The Clause
+
+An operation faces its reader as a clause — subject, verb, object —
+and the grammar above the words is itself governed.
+The
+{mcm_toothing}
+declaration is canonical;
+every rendering is a projection derived from it,
+adding nothing the declaration lacks,
+so the dressed surfaces cannot drift from the word or from one another —
+the word is stored truth, the clause its dress.
+A subject is rendered only where it distinguishes:
+an act any hand may perform shows verb and object alone,
+while an act performed under an assumed authority names that authority,
+because there the subject is the permission model made visible.
+The face law below consumes this rule: a
+{mcm_revetment}
+showing an operation shows its projection, never its declaration.
+
+Not every operation name seats a
+{mcm_toothing}.
+Where a common verb is a transparent functor over its object —
+list, render, validate; the object carrying all the meaning —
+the compound operation name is the minted unit,
+the verb slot stays plain English,
+and no verb
+{mcm_quoin}
+exists.
+A
+{mcm_toothing}
+is earned exactly where the verb must carry what its object cannot —
+blast radius, custody, trust, posture: the discriminating load —
+and the
+{mcm_trodden_word}
+ban resolves at the unit of minting:
+disqualified as a name, a common verb may still serve inside a compound whose whole is the name,
+or stand in the catalog as a categorical coordinate on the minted verb's record —
+never as the rendered verb of a minted act,
+lest six distinct destructions flatten back into one "delete."
 
 === The Revetment
 

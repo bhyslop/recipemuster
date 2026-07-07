@@ -468,6 +468,22 @@ detection is exact-match (VOr_m7w holds) and the blocked-violation-versus-legiti
 Whether a blocked word takes a grimoire row (widening the charter from one-row-per-minted-word to *governed words: minted-with-forms or blocked-with-status*, letting a `mcm_furrowed_word` ripen to minted status in place) or rides a sibling table the same tooling reads: open, recorded, the lean toward the single widened table.
 The precise how — row shape, the durable-document set, the accepted-use ledger — is deferred with the rest of the sketch.
 
+*Toothing slots and the clause grammar (260707 lean).*
+MCM's clause grammar — the deepened toothing declaration and its Clause law in Lapidary — lands in grimoire rows as flat tags, no edges:
+a minted verb's row carries its subject and object slot values, its categorical verb-coordinate (the conventional verb it would flatten to — delete, list, read), and the discriminating fields that earned the mint (blast radius, custody, trust, posture).
+Cinched at the lean:
+the word is canonical and every clause a projection regenerated per use — projections are never stored, so no drift accrues;
+one row serves one toothing, never a word-row apart from the act;
+slots are declared always and valued optionally — none is an answer, silence a defect;
+the verb-coordinate is a catalog coordinate, never a rendered verb;
+a plain-verb compound seats no toothing row — the compound inscription is the minted unit, scanned by the identifier census, not this table.
+The schema mechanizes the verb-rarity judgment:
+a candidate whose row shows empty discriminating fields is the table itself saying a plain compound suffices.
+Row population for the standing verb stock is a defined deployment step at promotion —
+reprieve-shaped: new mints comply from the doctrine's landing; the standing stock converges in one deliberate act, never big-bang —
+preceded by a hand-run sample census (a dozen verbs spanning authority-bearing, operator-plain, intransitive, plain-compound, the destruction family, and the read family) field-validating this schema:
+the doctrine stands ratified, and census findings amend it on evidence — it constrains births, not the living.
+
 Promotion of this sketch to an aspirant of its own is a later parceling, taken when the
 {vosmm_matricula}
 itself ascends — not here.
