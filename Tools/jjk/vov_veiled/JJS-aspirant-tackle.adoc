@@ -127,6 +127,12 @@ Mint follows API.
 | The countable domain binding: one claim rule + one governance bundle.
 | Ruling lean above; the word already exists — no new mint.
 
+| tackle identity
+| The minted, immutable insignia keying one tackle row (as the firemark keys a heat);
+  silks ride inside the row and never anchor a reference.
+| Deliberately unnamed — the glyph, digit count, and word join the insignia-ladder
+  reconciliation at the breeze sheaf; minted there, not here.
+
 | claim rule
 | The intensional membership rule of one tackle: an *anchored* subtree × shape conjunction
   (e.g. `Tools/rbk/rbtd/**` × `*.rs`).
@@ -469,10 +475,46 @@ the relevant ruling ratifies, deliberately not applied yet:
   untouched stores stay byte-canonical, and raw-string tolerance for operator-mutable
   values — bad config never makes the store illegitimate (the `jjgrn_retention_since`
   precedent).
-  The tackle sprue family's own letters run their grep gate at schema-settling, not here.
-  Row identity lean: name-keyed rows (kebab, hand-authored, regime-style) rather than
-  minted insignia — crossbreeding renames at the copy; identity machinery waits for a real
-  need.
+  Sprue family RULED (operator, 260707): the tackle wire family is `jjot`, under a new
+  standing reservation — *`jjo` is the JJ JSON-sprue container*: a non-terminal that names
+  nothing itself; each JJ-authored JSON wire format takes one fourth letter beneath it
+  (`jjot` = tackle; future JJ wire formats mint sibling letters).
+  Full key shape: `jjo«format»«structure»«kind»_term`, keeping the gallops grammar for the
+  tail — one structure letter per record type, kind `n` for field keys, `e` for enum
+  tokens — so tackle keys read `jjotrn_…` (root), `jjottn_…` (tackle row), `jjoten_…`
+  (edge), with the structure-letter legend settled at schema-settling and documented beside
+  the schema (within-family monosemy).
+  `jjg` (gallops) is grandfathered: it predates this rule and is never re-minted to fit it.
+  Provenance of the election (260707 census): the `jj` third-letter space is nearly full —
+  g gallops, e gazette, d quoin categories, r rust src, t testbench, x MCP verbs,
+  w workbench, z zipper, u utility, p/y live code, v the `refs/jjv/` lock-ref namespace,
+  f fundus aliases, and a/b/c/h/i/k/l/m/n/s reserved by the JJK README prefix registry
+  (jjn_ Notch was invisible to code grep and caught only by that table — the registry is
+  part of the gate); clean survivors were jjq and jjo, and the operator elected jjo as a
+  *container* rather than either as a flat family.
+  `jjot` itself grep-gates clean (0 hits, 260707).
+  Owed at delivery: the JJK README prefix registry gains the `jjo` container row and its
+  child-letter convention.
+  Row identity RE-RULED (operator, 260707 — superseding a same-day agent lean toward
+  name-keyed rows): tackles are *insignia-keyed*, on the gallops law — the map key is a
+  minted, immutable identity; the human name is a silks field inside the row, freely
+  relabelable and never a lookup key; every cross-reference (an edge's from/to, any future
+  ordering or overlay) rides the insignia, never the silks.
+  The operator's driving concern: naked-name keys make referential integrity a
+  string-match — a rename silently strands every arrow.
+  Gallops verified clean on exactly this (`jjrt_types.rs`): heats keyed by firemark with
+  `jjghn_silks` inside, paces keyed by coronet, `jjgrn_heat_order`/`jjghn_order`
+  referencing by insignia only, identities minted from next-seed fields under the store
+  lock, glyphs absent from all wire keys (machine context, per the insignia doctrine).
+  Consequences: the table carries a next-tackle-seed field; rows are minted by an engine
+  verb, never hand-invented — which *aligns* tackle editing with blotter doctrine (studbook
+  writes pass through the journal anyway, so hand-authored keys were already off-doctrine;
+  the superseded lean was the inconsistency); crossbreeding re-mints identity at import
+  (derivation is generative, AXLA insignia); the matricula's interim VOK-side allowlist
+  stays plain-named as a proto-projection, minting identities at pedigree migration.
+  Deferred with a pointer: the tackle insignia's glyph, digit count, and word join the
+  identity-ladder reconciliation already owed at the breeze sheaf (quirt / martingale /
+  kimberwick vs the pace-identity re-gestalt) — not minted here.
   Aggregate wire-member candidate (operator, 260707): *remuda* — the herd the table holds,
   each session drawing what it needs; metaphor strain noted (a remuda pools horses, tackle
   is gear), the operator's word to spend or withhold at schema-settling.
