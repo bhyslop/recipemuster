@@ -108,7 +108,8 @@ are MCM's Antipatterns catalog; this section carries only the avoidance moves:
 in hand for inspection: deliberate pace, one animal at a time, the examiner
 setting the rhythm). A dense deliverable is broken into a pre-counted sequence
 of small chunks ("chunk 2 of 6"); each chunk opens with a plain-language
-context reminder before its content; the operator paces the advance ("next"),
+context reminder before its content; the operator paces the advance — the
+cry is "gee" (the driver's go-command; "next" honored too) —
 and the trot absorbs detours — a stray thought mid-walk spawns its own
 discussion, then the walk resumes where it stood. A chunk often leans on work the operator did not author — a
 prior instance's, or a session they convened but did not line-read; there the
