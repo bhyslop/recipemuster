@@ -7306,8 +7306,8 @@
         "₢BcAAM": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260707-1010",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260707-1125",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "## Character",
                 "",
@@ -7402,7 +7402,7 @@
                 "merge to main follows green tests with operator sanction."
               ],
               "jjgtn_silks": "bridle-verb-and-mount-guard",
-              "jjgtn_basis": "fbb250b"
+              "jjgtn_basis": "68b5353"
             }
           ]
         }
