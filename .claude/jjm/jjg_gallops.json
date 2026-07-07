@@ -8948,8 +8948,9 @@
         "₢BsAAD": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260705-0805",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260707-1349",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_opus",
               "jjgtn_text": [
                 "Live-prove the escheat orphan-slice arm against the real depot churn the gauntlet stage just produced.",
                 "The dead-schema arm is live-proven (260702); the orphaned-slice arm — the dead-depot liveness verdict and the dead-folder purge — has never run against a real dead depot.",
@@ -8965,7 +8966,7 @@
                 "Short live exercise riding the gauntlet's wake."
               ],
               "jjgtn_silks": "escheat-orphan-arm-live-proof",
-              "jjgtn_basis": "b9782ba"
+              "jjgtn_basis": "7d157d5"
             }
           ]
         },
