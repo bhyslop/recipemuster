@@ -2046,3 +2046,18 @@ The terrier-atomicity items (the `terrier-atomicity` theurge fixture and the `rb
 ### Context
 
 Raised 2026-06-20 by the operator immediately after accepting the cut of the admission/freehold payor-proofs (path "b": cut the two faked-don proofs, keep terrier-atomicity). Sequenced explicitly AFTER the work of that pace, not during it. The terrier's permanent home is already routed to ₣Bf per the ₣BZ docket ("the terrier scaffold rbw-dt stays until ₣Bf homes the terrier permanently").
+## release-procedure-handbookization
+Port the maintainer release procedure to an executable handbook once the ceremony has stabilized post-release.
+
+### Problem
+
+RELEASE.md and the /rbk-prep-release ceremony are prose, and both drifted badly between releases (retired tabtargets, stale colophon references, bridge-legacy credential vocabulary). Prose rots silently where a probe-wired handbook (rbh family, buh_* interaction) fails loud at the drifted step — the release ceremony is founding-rare, exactly the profile where guided single-path verification earns its keep (HCG).
+
+### Scope
+
+- Handbook-ize the operator steps (payor health, marshal zero, qualification ladder, strip, post-strip qualify); the agent ceremony step remains a hand-off to /rbk-prep-release — its LLM tasks (e.g. the regime-spec completeness check) cannot be bash.
+- Settle the withheld-vs-shipped question first: whether a maintainer-only handbook's tabtarget and zipper enrollment survive the candidate strip (the stripped-tree census open item carried by the ₣Bs ceremony-repair pace).
+
+### Context
+
+Raised 2026-07-07 during ₣Bs grooming, alongside widening the ceremony-repair pace to cover both delivery documents. Deliberately deferred: the procedure is mid-rework under the federation transition (handbook code written now would be written twice), and HCG's precondition — author durable procedure from the walked path — is met only after the heat's two walks (practice cut + real candidate). Trigger: after the real candidate has shipped and the ceremony has stabilized.
