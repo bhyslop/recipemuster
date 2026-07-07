@@ -8682,8 +8682,10 @@
         "₢BrAAS": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260707-0956",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260707-1348",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_sonnet",
+              "jjgtn_effort": "jjgde_high",
               "jjgtn_text": [
                 "## Character",
                 "",
@@ -8702,7 +8704,7 @@
                 "cwd elects the clone; nothing ever lands in a hippodrome."
               ],
               "jjgtn_silks": "dispatch-spine-impl",
-              "jjgtn_basis": "dbb777e"
+              "jjgtn_basis": "6993530"
             }
           ]
         },
