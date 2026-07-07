@@ -8479,8 +8479,9 @@
         "₢BrAAK": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260705-1634",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260707-1344",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_sonnet",
               "jjgtn_text": [
                 "## Character",
                 "",
@@ -8495,7 +8496,7 @@
                 "completing the ceremony gate the census pace recorded for the dispatch verb."
               ],
               "jjgtn_silks": "saddle-word-rename",
-              "jjgtn_basis": "d432287"
+              "jjgtn_basis": "963c7a0"
             }
           ]
         },
