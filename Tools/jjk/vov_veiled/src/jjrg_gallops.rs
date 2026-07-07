@@ -190,7 +190,7 @@ impl jjrg_Gallops {
         Ok(ctx)
     }
 
-    /// Bridle — composed method (designation half of jjx_bridle)
+    /// Bridle — composed method (designation half of jjx_apostille)
     ///
     /// Records that a frontier agent judged this pace mechanically defined:
     /// transitions rough → bridled with the designated execution tier and an
@@ -231,7 +231,7 @@ impl jjrg_Gallops {
         Ok(ctx)
     }
 
-    /// Release — composed method (un-bridle half of jjx_bridle)
+    /// Release — composed method (un-bridle half of jjx_apostille)
     ///
     /// The deliberate frontier escalation path: bridled → rough with tier and
     /// effort wiped, returning the pace to judgment work. Only a bridled pace

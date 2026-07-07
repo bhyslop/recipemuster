@@ -81,7 +81,7 @@ const JJRM_CMD_NAME_CORONETS: &str = "jjx_coronets";
 const JJRM_CMD_NAME_PADDOCK: &str = "jjx_paddock";
 const JJRM_CMD_NAME_TRANSFER: &str = "jjx_transfer";
 const JJRM_CMD_NAME_LANDING: &str = "jjx_landing";
-const JJRM_CMD_NAME_BRIDLE: &str = "jjx_bridle";
+const JJRM_CMD_NAME_APOSTILLE: &str = "jjx_apostille";
 // Legatio commands (remote dispatch)
 const JJRM_CMD_NAME_BIND: &str = "jjx_bind";
 const JJRM_CMD_NAME_SEND: &str = "jjx_send";
@@ -99,7 +99,7 @@ const JJRM_ALL_COMMANDS: &[&str] = &[
     JJRM_CMD_NAME_DROP, JJRM_CMD_NAME_RELOCATE, JJRM_CMD_NAME_ALTER,
     JJRM_CMD_NAME_CLOSE, JJRM_CMD_NAME_SEARCH, JJRM_CMD_NAME_BRIEF,
     JJRM_CMD_NAME_CORONETS, JJRM_CMD_NAME_PADDOCK,
-    JJRM_CMD_NAME_TRANSFER, JJRM_CMD_NAME_LANDING, JJRM_CMD_NAME_BRIDLE,
+    JJRM_CMD_NAME_TRANSFER, JJRM_CMD_NAME_LANDING, JJRM_CMD_NAME_APOSTILLE,
     JJRM_CMD_NAME_BIND, JJRM_CMD_NAME_SEND, JJRM_CMD_NAME_PLANT,
     JJRM_CMD_NAME_FETCH, JJRM_CMD_NAME_RELAY, JJRM_CMD_NAME_CHECK,
 ];
@@ -487,7 +487,7 @@ pub struct jjrm_LandingParams {
 }
 
 #[derive(Debug, serde::Deserialize, schemars::JsonSchema)]
-pub struct jjrm_BridleParams {
+pub struct jjrm_ApostilleParams {
     pub coronet: String,
     /// Designation tier word (haiku|sonnet|opus|fable). Mutually exclusive
     /// with release; exactly one of the two is required.
@@ -547,7 +547,7 @@ fn jjrm_empty_object() -> serde_json::Value {
 
 #[derive(Debug, serde::Deserialize, schemars::JsonSchema)]
 pub struct jjrm_JjxParams {
-    #[schemars(description = "Command name: jjx_list, jjx_show, jjx_orient, jjx_record, jjx_log, jjx_validate, jjx_create, jjx_enroll, jjx_close, jjx_archive, jjx_reorder, jjx_redocket, jjx_relabel, jjx_drop, jjx_relocate, jjx_alter, jjx_search, jjx_brief, jjx_coronets, jjx_paddock, jjx_continue, jjx_transfer, jjx_landing, jjx_bridle, jjx_bind, jjx_send, jjx_plant, jjx_fetch, jjx_relay, jjx_check, jjx_open")]
+    #[schemars(description = "Command name: jjx_list, jjx_show, jjx_orient, jjx_record, jjx_log, jjx_validate, jjx_create, jjx_enroll, jjx_close, jjx_archive, jjx_reorder, jjx_redocket, jjx_relabel, jjx_drop, jjx_relocate, jjx_alter, jjx_search, jjx_brief, jjx_coronets, jjx_paddock, jjx_continue, jjx_transfer, jjx_landing, jjx_apostille, jjx_bind, jjx_send, jjx_plant, jjx_fetch, jjx_relay, jjx_check, jjx_open")]
     pub command: String,
     #[schemars(description = "Command parameters as JSON object. See CLAUDE.md for per-command schemas.")]
     #[serde(default = "jjrm_empty_object")]
@@ -2053,7 +2053,7 @@ pub(crate) enum zjjrm_GuardBucket {
     /// Per-command designation logic at the dispatch arm (orient, record, landing).
     Designation,
     /// Frontier-only: every docket-authoring and state-mutating verb, close,
-    /// validate, bridle, and the remote family.
+    /// validate, apostille, and the remote family.
     Frontier,
 }
 
@@ -2102,7 +2102,7 @@ pub(crate) fn zjjrm_judge_designation(
                 Ok(())
             } else {
                 Err(format!(
-                    "DESIGNATION GATE — pace {} is bridled for tier '{}'; this session's tier is '{}'.\n\nRemedies: run it from a {}-tier session, or have a frontier session release or re-designate it (jjx_bridle).",
+                    "DESIGNATION GATE — pace {} is bridled for tier '{}'; this session's tier is '{}'.\n\nRemedies: run it from a {}-tier session, or have a frontier session release or re-designate it (jjx_apostille).",
                     coronet_key, designated, caller.zjjrm_as_str(), designated
                 ))
             }
@@ -2112,7 +2112,7 @@ pub(crate) fn zjjrm_judge_designation(
                 Ok(())
             } else {
                 Err(format!(
-                    "DESIGNATION GATE — pace {} is {} (not bridled); undesignated work is judgment work, frontier-only.\n\n  This session's tier: {}\n\nRemedy: a frontier session designates it via jjx_bridle {{coronet, tier}}.",
+                    "DESIGNATION GATE — pace {} is {} (not bridled); undesignated work is judgment work, frontier-only.\n\n  This session's tier: {}\n\nRemedy: a frontier session designates it via jjx_apostille {{coronet, tier}}.",
                     coronet_key, state.jjrg_as_str(), caller.zjjrm_as_str()
                 ))
             }
@@ -2346,7 +2346,7 @@ impl jjrm_McpServer {
                                 Ok(())
                             } else {
                                 Err(format!(
-                                    "DESIGNATION GATE — heat {} resolved no actionable pace, so nothing is bridled for this session's tier ('{}').\n\nRemedy: a frontier session designates work via jjx_bridle.",
+                                    "DESIGNATION GATE — heat {} resolved no actionable pace, so nothing is bridled for this session's tier ('{}').\n\nRemedy: a frontier session designates work via jjx_apostille.",
                                     firemark, caller.zjjrm_as_str()
                                 ))
                             }
@@ -2677,8 +2677,8 @@ impl jjrm_McpServer {
                     agent: p.agent,
                 }, p.content.unwrap_or_default()))
             }
-            JJRM_CMD_NAME_BRIDLE => {
-                let p = deser!(jjrm_BridleParams);
+            JJRM_CMD_NAME_APOSTILLE => {
+                let p = deser!(jjrm_ApostilleParams);
                 // Exactly one of tier / release; effort rides only beside tier.
                 match (p.tier.is_some(), p.release) {
                     (true, true) => {

@@ -207,11 +207,11 @@ fn jjtm_guard_buckets_partition_the_command_surface() {
         assert_eq!(zjjrm_guard_bucket(cmd), zjjrm_GuardBucket::Designation, "{}", cmd);
     }
     // FRONTIER-ONLY: docket-authoring and state-mutating verbs, close, validate,
-    // the bridle command itself, and the remote family.
+    // the apostille (bridle/unbridle) command itself, and the remote family.
     for cmd in [
         "jjx_create", "jjx_enroll", "jjx_redocket", "jjx_relabel", "jjx_drop",
         "jjx_relocate", "jjx_reorder", "jjx_alter", "jjx_close", "jjx_validate",
-        "jjx_archive", "jjx_transfer", "jjx_paddock", "jjx_bridle",
+        "jjx_archive", "jjx_transfer", "jjx_paddock", "jjx_apostille",
         "jjx_bind", "jjx_send", "jjx_plant", "jjx_fetch", "jjx_relay", "jjx_check",
     ] {
         assert_eq!(zjjrm_guard_bucket(cmd), zjjrm_GuardBucket::Frontier, "{}", cmd);
@@ -256,5 +256,5 @@ fn jjtm_judge_designation_rough_is_frontier_judgment_work() {
     let err = zjjrm_judge_designation("₢AAAAA", &S::Rough,
         None, zjjrm_CallerTier::Designable(jjrg_Tier::Haiku)).unwrap_err();
     assert!(err.contains("judgment work"), "got: {}", err);
-    assert!(err.contains("jjx_bridle"), "refusal names the remedy: {}", err);
+    assert!(err.contains("jjx_apostille"), "refusal names the remedy: {}", err);
 }

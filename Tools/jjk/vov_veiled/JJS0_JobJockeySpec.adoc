@@ -270,6 +270,7 @@
 :jjdo_coronets:   <<jjdo_coronets,jjx_coronets>>
 :jjdo_brief:       <<jjdo_brief,jjx_brief>>
 :jjdo_landing:        <<jjdo_landing,jjx_landing>>
+:jjdo_apostille:      <<jjdo_apostille,jjx_apostille>>
 :jjdo_list:         <<jjdo_list,jjx_list>>
 :jjdo_create:       <<jjdo_create,jjx_create>>
 :jjdo_record:          <<jjdo_record,jjx_record>>
@@ -342,6 +343,8 @@
 :jjsuv_chivvy:     <<jjsuv_chivvy,chivvy>>
 :jjsuv_cantle:     <<jjsuv_cantle,cantle>>
 :jjsuv_unfurl:     <<jjsuv_unfurl,unfurl>>
+:jjsuv_bridle:     <<jjsuv_bridle,bridle>>
+:jjsuv_unbridle:   <<jjsuv_unbridle,unbridle>>
 
 // Upper API: context artifact
 :jjsuc_insert:  <<jjsuc_insert,CLAUDE.md JJK section>>
@@ -1182,6 +1185,18 @@ Put an image on the diagram viewer (see Diagram Viewer).
 Maps to {jjdo_render}.
 The operator's whole memorized surface for the viewer is this one verb; the register gap to the deliberately boring {jjdo_render} is load-bearing, so the mapping cannot be pattern-guessed.
 The driving model sets the {jjdo_render} `anew` flag from conversational intent — a new or different image, or an explicit fresh look, is `anew`; tweaking the image already up is not — per the heuristic documented in the {jjsuc_insert} verb table.
+
+[[jjsuv_bridle]]
+//axi_cc_claudemd_verb
+{jjsuv_bridle}::
+Designate a {jjdpe_rough} {jjdpr_pace} for execution at a named model tier — the calling frontier agent records that it judged the docket mechanically defined, transitioning the pace to {jjdpe_bridled}.
+Maps to {jjdo_apostille} with tier (and optional effort).
+
+[[jjsuv_unbridle]]
+//axi_cc_claudemd_verb
+{jjsuv_unbridle}::
+Release a {jjdpe_bridled} {jjdpr_pace} back to {jjdpe_rough}, designation wiped — the deliberate reconsideration path, distinct from the automatic revert a docket revision triggers.
+Maps to {jjdo_apostille} with release.
 
 
 === Slash Commands
@@ -2611,6 +2626,19 @@ include::JJSCWP-wrap.adoc[]
 
 //axvd_cartouche axd_normative
 include::JJSCCU-curry.adoc[]
+
+[[jjdo_apostille]]
+//axvo_procedure axd_transient axd_inlaid
+==== {jjdo_apostille}
+
+`jjrg_bridle` / `jjrg_release` (dispatched inline in `jjrm_mcp`)
+
+The lower tool behind {jjsuv_bridle} and {jjsuv_unbridle} — one command, two modes, exactly one of *tier* or *release* per call.
+With *tier* (and optional *effort*): designate a {jjdpe_rough} {jjdpr_pace} for execution, recording {jjdcm_tier} and {jjdcm_effort} on the {jjdcr_tack}.
+With *release*: return a {jjdpe_bridled} {jjdpr_pace} to {jjdpe_rough}, designation wiped.
+Frontier-only.
+Designation semantics — the guard, the revert triggers, close-time provenance — live at {jjdpe_bridled}, {jjdcm_tier}, and {jjdcm_effort}, not here.
+The lower name rides a non-equestrian register (an apostille certifies a document for execution under a foreign authority — here, the docket certified for another tier's session), preserving the Upper API register gap: the feature's first landing shipped the upper word as the tool name (`jjx_bridle`, renamed 260707).
 
 === Read Operations
 
