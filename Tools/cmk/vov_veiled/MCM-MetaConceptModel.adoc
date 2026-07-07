@@ -1162,10 +1162,17 @@ the
 is a poor judge of its own reserves, since its nature is to adopt the
 {mcm_editor_p}
 word-use quickly, so the census grows by noticing surprise, not by introspection.
-Seed: spine; oracle — the software-testing term of art (the mechanism that decides whether
-observed behavior is correct), already spoken in exactly that sense by the chapbook Oracle
-lines and the theurge suite-composition oracle, and reserved to it: never re-minted for
-another meaning.
+Seed: spine.
+Seed also, by term-of-art reservation — each already spoken in exactly its industry sense
+and reserved to it, never re-minted for another meaning:
+oracle, the mechanism that decides whether observed behavior is correct
+(the chapbook Oracle lines, the theurge suite-composition oracle);
+provenance, the recorded origin that grounds trust in an artifact
+(the plumb and vouch surface, the provenance chapbook, a bridle designation persisting
+through close);
+census, a living roster produced by fresh survey rather than kept as a registry
+(grep-as-census in the minting rules, the behavioral tweak census, the farrier op census,
+the Matricula inscription census — and this very family's census, which grows by discovery).
 
 [[mcm_fallow_word]]
 {mcm_fallow_word}::
