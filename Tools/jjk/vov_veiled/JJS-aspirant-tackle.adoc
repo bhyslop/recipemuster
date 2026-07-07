@@ -1,7 +1,7 @@
 //axvd_sheaf axd_aspirant
 This is an aspirant portion of the {jjs0_imprimatur}: not yet binding — do not rely on it, decide from it, or cite the names it mints until it is infused into the codex.
 
-= Tackle — Scope-to-Discipline Binding (Aspirant Nucleation)
+= Tackle — Filesets and Their Interrelating Rulesets (Aspirant Nucleation)
 
 [IMPORTANT]
 ====
@@ -11,61 +11,375 @@ development, then infused into this codex or retired.
 A reader must not rely on its content; released code must not cite identifiers it mints.
 The word *tackle* carried a maximal meaning in the retired V4 execution workup, now recast in
 the breeze aspirant sheaf (JJSAB); the one-word-one-concept resolution is stated below.
+Restructured 260707 around the two-part charter after a design session on inclusion polarity
+and the association graph;
+the exploratory record — the full polarity argument and the SlickEdit specimen autopsy — is
+`Memos/memo-20260707-tackle-polarity-and-graph.md` (provenance, never authority).
 ====
 
-== What MVP tackle is
+== What tackle is
 
-A *tackle* is the standing binding from file scope to governing discipline:
-"these globs are BCG bash, those are RCG rust, that subtree is theurge, that one is ifrit."
-Nearly a table — glob patterns on one side, discipline/guide references on the other — and it is
-the binding that spares the operator from writing "write BCG-compliant code for all the bash you
-touch" into every chat.
+Tackle is a strong way to identify and curate sets of files, and to declare how rulesets
+interrelating those filesets apply (charter, operator wording 260707).
+The charter has exactly two parts, and the model keeps them distinct:
 
-One codebase holds *several* discipline domains at once (ACG's own observation: multiple bash
-domains; discrete rust domains in theurge, ifrit, and JJ itself), so the binding is file-grain,
-not repo-grain.
+* *Filesets* — the identified, curated sets:
+  "these globs are BCG bash, those are RCG rust, that subtree is theurge, that one is ifrit."
+  Identification is the claim rules; curation is the coverage check that keeps every claim
+  deliberate and every gap loud (Scope semantics below).
+* *Interrelating rulesets* — the declared relations between filesets, and the disciplines that
+  govern the relations themselves:
+  a spec family balances an implementation, a test domain exercises a subject domain, a guide
+  governs a fileset (The association graph below).
+
+One codebase holds several discipline domains at once (ACG's own observation; the worked
+census below), so the binding is file-grain, not repo-grain — and it is the binding that
+spares the operator from writing "write BCG-compliant code for all the bash you touch" into
+every chat.
+
+*Tackle already exists in the home repo, denormalized.*
+The CLAUDE.md `@`-include tree, the test-suite table ("regime changes → reveille +
+regime-poison"), the hand-maintained acronym maps, the matricula's file-selection allowlist
+(VOSMM Tier 0), and the retired SlickEdit workspace files (`Tools/vslf-rbw/`) are each a
+hand-maintained *projection* of a scope→discipline→association structure that has no single
+home.
+Tackle is the normalization of that standing structure, not new machinery;
+every consumer becomes a projection that re-derives instead of drifting.
+
+== The worked census (RB home repo, 260707)
+
+The example the concept must serve, sketched at domain grain (rows illustrative, not a
+binding inventory):
+
+[cols="1,2,2"]
+|===
+| Domain | Scope | Governed by
+
+| JJ specs | `Tools/jjk/vov_veiled/**/*.adoc` | MCM/AXLA authoring + JJS0 doctrine
+| RB specs | `Tools/rbk/vov_veiled/**/*.adoc` | MCM/AXLA authoring + RBS0
+| JJ rust | JJ crate `**/*.rs` | RCG
+| JJ tests | JJ crate test modules | RCG + test conduct
+| Theurge | `Tools/rbk/rbtd/**/*.rs` | RCG + RBSTC + theurge-ifrit context
+| Ifrit | `rbev-vessels/common-ifrit-context/` | RBSIP posture
+| BUK bash | `Tools/buk/**/*.sh` | BCG
+| RB bash | `Tools/rbk/*.sh` | BCG + RBK conduct
+| Cloud steps | `Tools/rbk/rbgj*/` | CBG
+| Jailer sh | sentry/pentacle vessel scripts | JDG
+| Tabtargets | `tt/*.sh` | BUS0 dispatch discipline
+| Launchers | `rbmm_moorings/rbml_launchers/*.sh` | BUK launcher discipline
+| Diagrams | `diagrams/*.puml` | PCG
+| Memos | `Memos/**/*.md` | provenance-never-authority
+| Generated | `rbtdgc_consts.rs`, tabtarget-context.md | regenerate-never-hand-edit
+|===
+
+Two structural discoveries the census forces:
+
+* *The operator thinks domains-first.*
+  The census was spoken as named domains ("theurge tests", "ifrit tests"), never as patterns;
+  globs are merely how a domain grabs its files.
+  So the binding factors: globs → domain → everything else — never direct glob→discipline.
+* *Disciplines attach to edges, not only nodes.*
+  ACG is intelligible only as an edge discipline: it governs the *relation* between RB bash
+  and RB specification (reference-the-home, rivet citations), not either fileset alone.
+  "Theurge tests the crucible" and "JJS specs specify JJ rust" are further typed relations.
+  A flat glob→discipline table cannot express any of these.
+
+Humble disciplines are first-class rows: "generated — regenerate, never hand-edit" and
+"provenance, never authority" are genuine governing statements, which is what lets coverage
+close without a catch-all bucket.
+
+The table above is a frozen illustration and deliberately does not grow;
+the *living* census — more domains, the fuzzy edges, and the full arrows inventory — is
+`Memos/memo-20260707-rbm-domain-census.md` (provenance), the concept and its worked example
+flying in formation (operator framing, 260707).
+
+== A tackle is countable (ruling lean, 260707)
+
+The count wobble is the surgery scar at the sheaf's center:
+prior wording defined tackle as *the* binding (mass noun) while V4 residue — including the
+breeze sheaf's own vocabulary table ("silks … gaits, tackles") and "blaze — owned by *a*
+tackle" — uses the countable sense.
+RATIFIED (operator, 260707):
+*a tackle is one domain binding* — a fileset (claim rule) plus the bundle of governance it
+carries;
+the *tackle set* is an upstream's table of them.
+Under this ruling the breeze sheaf's usage already reads correctly with no edit, and V4's
+"silks-identified resource bundle" maps onto the domain node it always wanted to be.
+The aggregate needs no minted name of its own (operator question, 260707; lean NO):
+plain prose — "the tackle set", "the upstream's tackles" — does the work, the pedigree is
+the aggregate's home, and a mint waits until the aggregate itself acquires behavior worth
+naming.
+
+== Candidate vocabulary (breeze idiom: mulling words, gates at graduation)
+
+Slots identified for the subparts; words elected only where the concept has stopped moving.
+Every word below is candidate only, re-ratifying under MCM Lapidary at graduation;
+disqualifications are recorded so they are not re-tried.
+Governing test (operator-affirmed, 260707): a concept earns a quoin when a consumer must
+refer to it across a boundary — never merely because the author finds it distinct.
+Mint follows API.
+
+[cols="1,3,2"]
+|===
+| Slot | Meaning | Word status
+
+| a tackle
+| The countable domain binding: one claim rule + one governance bundle.
+| Ruling lean above; the word already exists — no new mint.
+
+| claim rule
+| The intensional membership rule of one tackle: an *anchored* subtree × shape conjunction
+  (e.g. `Tools/rbk/rbtd/**` × `*.rs`).
+  Distinct from the derived list by design.
+| Demoted from quoin candidacy (operator ok, 260707): a *field* of a tackle — nothing
+  outside a tackle refers to it, so it takes a plain schema name (hearting grade), never an
+  anchor.
+  "Scope" stays a prose placeholder only.
+
+| derived roster
+| The extension: the concrete file list a claim rule yields against a tree state.
+  Always derived, never authored (Scope semantics: intensional table).
+| Unelected, awaiting the API sketch — if consumers only ever receive it as a returned path
+  list, it stays an anonymous return value and no word is spent (mint follows API).
+  *remuda* released from this slot (260707) and re-aimed at the table's aggregate wire
+  member — see the representation fork.
+
+| interrelation
+| One declared, typed edge between two tackles (specifies, tests, crosscuts), able to carry
+  its own governing discipline.
+| Unelected; held candidates: *hame* (the collar-piece traces attach to), *swingletree*
+  (the crossbar that balances the pull of two traces).
+  Disqualified: trace (trodden: stack/tracing), yoke (RBK-minted, RBSDY), harness (trodden).
+
+| governance bundle
+| What a tackle binds to: guide(s) + spec home + conduct + integrity checks — facets read by
+  different consumers.
+| Deliberately unnamed — the registry fork (Open forks) is unresolved; naming now would
+  half-decide it.
+
+| verdicts
+| The three mechanical answers for any path: claimed / unclaimed-inside-universe /
+  beyond-universe.
+| Deliberately unnamed — the middle verdict rhymes exactly with VOSMM's `vosme_estray`
+  (unclaimed-but-ours, surfaced as product); whether that concept generalizes across corpora
+  or needs a sibling word is a Lapidary question held open.
+
+| governed universe
+| The per-upstream declared boundary within which coverage is owed (Scope semantics).
+| Deliberately unnamed — *palisade* was considered and rejected: the ROE Palisade names
+  jurisdiction-impossible (cannot edit), while this boundary is jurisdiction-not-yet-extended
+  (can edit, haven't legislated); overloading a load-bearing ROE word would break
+  one-word-one-concept.
+|===
+
+== Scope semantics (the inclusion-polarity resolution, 260707)
+
+The allowlist/denylist question dissolves once *how a set is defined* (polarity) is separated
+from *what happens to a file nothing claims* (the default).
+Position, recorded as a dated lean with the full argument in the memo:
+
+* *Claims are positive, at domain grain.*
+  A claim rule is an anchored subtree × shape conjunction — wildcards retained as the intension
+  mechanism (`**` subtree recursion, `*.rs` shape globs): what is banned is the *unanchored*
+  floating pattern, and what is audited is maximal width (below).
+  New files and new subdirectories inside a claimed domain auto-fall-in — negative inclusion's
+  auto-coverage exactly where it is correct, because the domain owner chose the criterion
+  once.
+  A *new domain* is not automatic, and that is right: it deserves a founding act, the
+  pedigree's own deliberate-ceremony posture one level down.
+  With domain-grain claims, *placing a file is affiliating it* — the location decision that
+  already happens is the discipline decision.
+* *There is no default.*
+  No catch-all row; totality is reached because humble disciplines (generated, inert asset,
+  provenance-only) are first-class rows, never because a bucket swallowed the remainder.
+* *The failure asymmetry is the decisive argument.*
+  Under-coverage (positive's failure) is mechanically detectable: universe minus claims is a
+  set subtraction any validator runs, no judgment needed.
+  Mis-affiliation (negative's failure) is undetectable by construction: the table *is* the
+  definition of "right", so the wrong discipline surfaces only when it misbehaves — for
+  security-posture bindings, discovery by incident.
+  Given teeth, choose the failure mode that can be automated away.
+  (Prior art agrees: firewall default-deny, gitattributes, CODEOWNERS — see memo.)
+* *Recursion is preserved in the claim; the hazard is anchor width.*
+  Root-anchored recursive claims have maximal swallow radius (the SlickEdit launcher-swallow,
+  memo §autopsy); deep-anchored ones are tame.
+  Claims are therefore always path-anchored, and a root-anchored recursive claim or a bare-`*`
+  shape is an *audit flag*, not a prohibition.
+* *The table is intensional — rules, never lists; every fileset is derived.*
+  The two query directions scale differently and the design leans on that:
+  path→discipline is O(rules) per path with no tree walk (the saddle-time direction — how
+  gitattributes serves million-file repos);
+  the census direction (fileset materialization, coverage audit) walks the declared universe
+  only, is batch by nature, and is where caching lands, keyed (table version, tree state).
+  A materialized roster is derived, per-clone, disposable state: it lives in station-local
+  scratch, *never the studbook* — the same law as worktree paths (regional record,
+  station-local fact).
+  Caching, if the trees go huge, is the deliberate supersession VOSMM's transience invariant
+  (VOr_k3p) already anticipates — never drift.
+* *Coverage is owed within a declared universe; three verdicts.*
+  Per upstream, the pedigree declares the governed universe (for the home repo: the whole
+  git-tracked tree; for a large vanilla upstream: the subtrees JJ works).
+  Any path then has one of three mechanical verdicts:
+  *claimed* (some tackle governs it);
+  *unclaimed inside the universe* (the defect — loud, surfaced by the coverage subtraction);
+  *beyond the universe* (a known-unknown, not a defect, but a session touching one is told
+  so).
+  The same boundary bounds census cost: the coverage walk prunes beyond-universe subtrees
+  entirely — governance honesty and traversal cost turn out to be one boundary.
+* *Dead rows are flagged.*
+  A claim rule matching zero files is rot (the specimen's `RBM-recipes` row); the census
+  reports it (lean: notice, not error).
+
+== The association graph
+
+The scope containment of claim rules is a tree;
+the declared interrelations make it a graph.
+An interrelation is a typed edge between two tackles — *specifies*, *tests*, *crosscuts* are
+the census-observed types; the taxonomy stays open — and an edge can carry its own governing
+discipline:
+ACG is the type specimen, governing the code↔spec citation relation (reference-the-home,
+rivet residue) rather than either side alone.
+
+*Declared, never deduced.*
+Every edge is authored — the pedigree-ceremony posture again — and traversal is mechanical:
+no similarity inference, no embedding neighborhood, no linguistic guess (the VOSMM
+mechanical-never-linguistic ethos, VOr_m7w, applied to context provisioning).
+This is what makes the graph trustworthy enough to *govern* rather than merely suggest.
+
+The consumer horizon (vision, not this sheaf's design):
+a frontier-tier planning session judges "this implementation needs balancing against this
+spec" *once*, captures the judgment as a declared edge, and every later provisioning replays
+it mechanically — school walks the graph to queue exactly the context a weaker session needs
+to execute cheaply.
+A weak model cannot discover missing context; the declared graph is the precondition for
+handing work down-tier at all.
+The same freeze pattern as the grimoire: authored once with full wisdom, read forever by
+exact match.
+Execution-side design (gait affinities, blaze resolution, exclusivity) remains joint work
+with the breeze sheaf (JJSAB, Reconciliation section) and is deferred below.
+
+*Boxes before arrows* (sequencing comfort, 260707): the concept model holds nodes and edges,
+but the build sequence need not — an MVP of nodes alone (scope → bundle) is complete and
+useful on its own, with edges arriving when their first consumer (school, or an ACG-citation
+lint) actually lands.
+The grammar stays tiny either way: a node is a row, an edge is a tagged pair of rows;
+sophistication lives in what consumers do with the tags, app-side, per the substrate split.
+
+== Consumers (all projections)
+
+* *Session provisioning* (farrier sheaf, launch-time): the dispatcher reads the pedigree's
+  tackle set and provisions context at file grain, replacing repo-grain `@`-includes.
+  Honing is prediction and starvation fails silent, so the farrier sheaf's standing repairs
+  ride along: an invariant conduct core ships unhoned, and a pull door turns starvation into
+  one extra round-trip.
+* *The matricula* (VOSMM Tier 0): its file-selection allowlist is tackle's first working
+  consumer — shaped schema-compatible, homed VOK-side until representation settles, migrating
+  to the pedigree home at studbook founding (direction 260705).
+  Its file-role layer (declaration-bearing / reference-only / index-of-record / generated) is
+  the governance bundle's facet at scan grain.
+* *Dynamic context* (the future the operator named 260707): the hand-maintained CLAUDE.md /
+  `claude-*.md` acronym tables become generated projections, presented only when tackle says
+  they are relevant — the matricula MVP's acronym-index regeneration is the first step
+  already in motion.
+  Doctrinal ancestor noted: MCM's task-lens machinery (focused activation, focal depths —
+  Core / Expanded / Suppressed) is this same selective-context idea at concept grain;
+  tackle-driven provisioning is its file-grain sibling, compiling a work-scoped view instead
+  of shipping the whole constellation.
+* *School / breeze* (horizon): gait selection and beat-map context assembly read the graph;
+  design deferred to the joint seam.
+  Type-specimen use case (operator, 260707): the recurring failure where a model writes bash
+  from ambient training habits unless reminded to read BCG.
+  The tackle binding is what lets school *mechanically* place a
+  read-the-governing-guide/review-against-guide beat in the beat map for any beat whose file
+  scope lands in a BCG domain — retiring the operator's memory as the enforcement mechanism.
+  Tackle's part is only the binding and the integrity declarations; the beat-shape is gait
+  design, breeze-side.
+
+Each consumer reads facets of the same rows; none owns the table.
+
+== The substrate split (direction lean, 260707 — not yet an API commitment)
+
+Where tackle services divide between the shared substrate crate (the vvx-land library both
+JJ and the matricula read) and the applications above it.
+The dividing line is the matricula's own mechanical/judgment boundary (VOr_m7w), applied to
+tackle:
+
+* *The crate owns the mechanical half* — everything that is set operations over declared
+  rules, no judgment: schema and load, claim-rule evaluation (path → verdict), roster
+  derivation (rule × tree state → files), coverage subtraction (universe minus claims),
+  declared-edge traversal.
+  Four query surfaces, matching the query directions in Scope semantics: resolve one path,
+  derive one roster, audit coverage, walk edges.
+* *The applications own the judgment half* — what to *do* with verdicts: JJ dispatch decides
+  provisioning policy (honing, conduct core, pull door, warn-vs-refuse at the loudness
+  seats); the matricula maps bundle facets to vestures and scan roles; school composes
+  beats.
+  Policy never sinks into the crate; rules never float into the apps.
+* *Not yet claimable*: signatures, the table's serialized form, and cache mechanics — all
+  representation-fork territory, and the sequencing ruling holds.
+  The shape above is a lean the matricula's interim allowlist reader should stay compatible
+  with, not an interface to build against.
+* *Distribution*: the crate ships (it is the reader the direction fork already places in the
+  shipped substrate library); the matricula consumes it and never flows into it (VOr_q4f);
+  the tackle *data* is regional, pedigree-side, while any materialized cache stays
+  station-local (Scope semantics).
+* *Names in data, shape in code* (operator concern resolved to a lean, 260707): the crate
+  and apps know the *schema* — what a domain row is, what a tagged edge is — and never any
+  particular name: no `BCG`, no `theurge`, no edge-type enum baked into vvx.
+  Guides are referenced by path or id in the table; edge labels are opaque tags the apps
+  match by string; the BURE tweak-name gate is the house precedent (enforce the shape, never
+  the census).
+  A tag graduates into code behavior only by a later deliberate act, never by drift.
+  This is also what keeps domain fluidity cheap: a development-time domain change is a table
+  edit (journaled, studbook-side), never a rebuild.
 
 == Where it lives
 
-Studbook-side, beside the pedigree (one tackle set per upstream type) — never in the hippodrome,
-which carries no JJ inserts (canon: the revision-control cosmology sheaf, vanilla-hippodrome premise).
-Tackle and farrier config are sibling entries on the pedigree answering different questions with
-different change cadences: tackle binds *files to rules* (changes when code domains shift);
+Studbook-side, beside the pedigree (one tackle set per upstream) — never in the hippodrome,
+which carries no JJ inserts (canon: the revision-control cosmology sheaf,
+vanilla-hippodrome premise).
+Tackle and farrier config are sibling entries on the pedigree answering different questions
+with different change cadences:
+tackle binds *files to rules* (changes when code domains shift);
 farrier binds *the repo to its mechanics* (changes when repo topology shifts).
-Letting tackle swallow VCS config would regrow the maximal tackle the MVP deliberately defers.
+The declared governed universe plausibly seats on the pedigree beside the tackle set (open
+fork).
+Letting tackle swallow VCS config would regrow the maximal tackle the MVP deliberately
+defers.
+The vanilla-hippodrome premise also forecloses the gitignore/gitattributes scaling trick of
+in-tree distributed rule files: tackle must be centralized-external, which is what makes the
+intensional-table + live-evaluator design mandatory rather than optional.
 
 == How it reaches a session
 
 At saddle time (farrier sheaf, launch-time provisioning): the dispatcher reads the pedigree's
-tackle bindings and provisions the session's context accordingly.
-This replaces repo-resident `@`-include context at repo grain with runtime binding at file grain,
-and is what lets vanilla external projects receive discipline context without carrying any of it.
+tackle set and provisions the session's context accordingly.
+This replaces repo-resident `@`-include context at repo grain with runtime binding at file
+grain, and is what lets vanilla external projects receive discipline context without carrying
+any of it.
 
 == One word, one concept (the V4 resolution)
 
 The retired V4 execution workup defined a maximal tackle: a silks-identified resource bundle
 carrying ₿-blaze file scopes, actions with exclusivity, gait affinities, read-also entries —
 school-time execution machinery for the breeze pipeline.
-Resolution: *this MVP definition becomes the tackle; the maximal version extends it later.*
+Resolution: *this sheaf's definition is the tackle; the maximal version extends it later.*
 One definition re-homed and grown — never two tackles side by side.
-The maximal layer is banked below (Deferred) as this sheaf's own content; its execution context
-(school, gaits, chukker boundaries) lives in the breeze aspirant sheaf (JJSAB), and the future
-tackle design pace inherits this sheaf as its floor: blazes, actions, exclusivity, and gait
-affinities are additions to the scope→discipline core.
+The count ruling above completes the resolution: V4's countable usage and the MVP's
+table-of-bindings reconcile as node and set.
+The maximal layer is banked below (Deferred); its execution context (school, gaits, chukker
+boundaries) lives in the breeze aspirant sheaf (JJSAB), and the future tackle design pace
+inherits this sheaf as its floor.
 
-== Scope layering (provisional — agent supposition, requires design review)
+== Sequencing (operator ruling, 260704)
 
-A possible reconciliation of the two scopes, recorded 260704 and *not to be acted on without
-design review*: the per-upstream tackle is the standing base (discipline bindings, rarely
-changing); a heat may later overlay heat-scoped additions (blazes, actions) that reference and
-extend the base; "tackle" names the layered whole.
-Operator ruling (260704): tackle architecture waits until the operator has worked inside the
-new system long enough to find footing — it is sequenced *after* the studbook/farrier MVP
-ships, never alongside it.
+Tackle architecture waits until the operator has worked inside the new system long enough to
+find footing — sequenced *after* the studbook/farrier MVP ships, never alongside it.
+The matricula soft landing (Consumers above) is the footing experience that ruling wanted.
 
 == Deferred (explicitly not MVP) — the banked maximal layer
 
-Banked here from the retired V4 workup so the ideas survive their source heat; each is a future
+Banked from the retired V4 workup so the ideas survive their source heat; each is a future
 design decision, not a commitment:
 
 * *₿ blazes* — symbolic file/resource references defined by a tackle; dockets and gaits
@@ -75,48 +389,136 @@ design decision, not a commitment:
   scoped-to-tackle identity (never global in any recording).
   Validation sketch: no duplicate definitions, no orphan references.
 * *Actions* — named commands with exclusivity scopes (candidate enum: worktree / workstation /
-  project), the orchestrator holding mutexes during concurrent dispatch when an action's scope
-  demands it.
+  project), the orchestrator holding mutexes during concurrent dispatch when an action's
+  scope demands it.
 * *Gait affinities and read-also entries* — which gaits a tackle suits, and standing context
   attachments.
 * *Integrity declarations* — build / test / lint checks a tackle makes available, informing
-  chukker-boundary decisions in the breeze pipeline: whether mechanical merge with
-  tackle-declared checks suffices or an explicit alignment beat is needed.
+  chukker-boundary decisions in the breeze pipeline.
+  Note (260707): this is relocation, not speculation — the CLAUDE.md after-code-changes
+  suite table is this content, hand-maintained today; promotion is cheap when its consumer
+  lands.
 * *Tackle–gait interface* — gaits declare required blazes; compatibility validates at school
   time.
 * *Registry shape* — tackles as silks-identified, mutable resource bundles in a top-level
   registry beside the gait registry.
-* Any per-heat tackle mutability story — MVP tackle is per-upstream standing config.
+* *Per-heat tackle mutability* — MVP tackle is per-upstream standing config.
+  A provisional reconciliation (agent supposition 260704, design review required):
+  the per-upstream tackle set is the standing base; a heat may later overlay heat-scoped
+  additions (blazes, actions) that reference and extend the base; "tackle" names the layered
+  whole.
+  This bullet is that fork's one home (a prior separate section stated it twice).
+
+== Reconciliation obligations toward sibling sheaves (banked nudges — not yet applied)
+
+Discovered while driving this sheaf toward gestalt; each is an edit owed to a sibling *after*
+the relevant ruling ratifies, deliberately not applied yet:
+
+* *JJSAB breeze* — its vocabulary table lists tackles among silks-identified gallops
+  entities, consistent with the count ruling; on ratification no edit is owed there, but its
+  "Tackle's execution layer" reconciliation bullet should gain a pointer to this sheaf's
+  association graph (school walks declared edges, not just blazes).
+* *JJSVS studbook* — the pedigree bullet "tackle bindings (file scope → governing
+  discipline) as sibling entries" narrows to the charter's first half; on ratification it
+  should widen to filesets *and* interrelations, and the governed-universe declaration may
+  seat beside it.
+* *Farrier aspirant sheaf* — launch-time provisioning already carries the conduct-core +
+  pull-door repairs; confirm at infusion that they are stated as tackle-consumer obligations,
+  not farrier-local conveniences.
+* *VOSMM* — the allowlist-as-projection direction is already recorded there (260705); owed
+  later: the estray naming question (token-level `vosme_estray` vs file-level
+  unclaimed-inside-universe — one generalizing concept or two words) resolves at tackle
+  graduation, and the file-role layer should be named as a bundle facet once the bundle fork
+  settles.
+* *JJS0 codex, at infusion* — two AXLA obligations discovered on full MCM/AXLA read
+  (260707): the lintel here carries the legacy one-token form (`axd_aspirant` alone), and
+  current AXLA law wants two dimensions in fixed order (normativeness, then genre — for this
+  sheaf plausibly `axd_entity`, the VOSMM exemplar); upgrading the lintel and JJS0's matching
+  cartouche is one act at infusion, never done one-sided (attestation-agreement drift).
+  And the laws this sheaf leans on (no-catch-all, cache-never-studbook, positive-at-domain-
+  grain) are rivet/premise-shaped: at infusion they voice formally (`axvc_dictum` /
+  `axk_premise`) with opaque `JJr_` tails minted then, not now.
 
 == Open forks (the mulling surface)
 
-* Representation: *deliberately undecided* (260704) — no representation commitment and no
+* *Representation* — deliberately undecided (260704): no representation commitment and no
   sibling structures while the concept is still forming; one home or none, never two
   half-homes inviting confabulation between them.
-  Direction recorded 260705 (operator-proposed, census-pace experience): tackle becomes a
-  table a shared substrate crate reads, consumed by BOTH the JJ dispatch layer (session
-  provisioning) and the Vox matricula (its file-universe grammar — VOSMM Tier 0).
-  The convergence: discipline binding and scan role are one axis — the discipline is what
-  keeps declaration sites pattern-clean, and "Memos are provenance, cite-never-authority" is
-  itself a discipline statement — so two parallel file tables would be exactly the two
-  half-homes this fork guards against.
-  This touches two standing rulings (the representation-undecided posture above; the
-  tackle-waits-for-footing sequencing), so the soft landing: the matricula MVP allowlist is
-  shaped schema-compatible as a tackle projection, homed VOK-side, migrating to the cinched
-  pedigree home at studbook founding — the matricula becomes tackle's first working consumer
-  and the footing experience the sequencing ruling wanted.
+  Direction (260705, operator-proposed, census-pace experience): tackle becomes a table a
+  shared substrate crate reads, consumed by BOTH the JJ dispatch layer (session provisioning)
+  and the Vox matricula (its file-universe grammar — VOSMM Tier 0);
+  discipline binding and scan role are one axis, so two parallel file tables would be exactly
+  the two half-homes this fork guards against.
+  Landing: the matricula MVP allowlist is shaped schema-compatible as a tackle projection,
+  homed VOK-side, migrating to the cinched pedigree home at studbook founding.
   Distribution boundary holds: the reader lives in the shipped substrate library; the
   matricula consumes the library and never flows into it (VOr_q4f).
-* Delivery: direction resolved (260704) — app-generated, work-honed context at saddle time,
-  with a retain-everything default until honing intelligence exists (farrier sheaf,
+  Requirement recorded (operator, 260707), representation-agnostic: a tackle serializes as
+  a contiguous, self-contained, diff-clean block (gallops-grade canonical line discipline),
+  so *crossbreeding* — copying a tackle between projects' tables — is a block copy, never
+  surgery.
+  Layout CINCHED (operator, 260707): *one file* per upstream's tackle set — no per-tackle
+  file split; the block-serialization requirement above is what crossbreeding needs, not
+  file granularity.
+  Consequences now settled as direction: the subtables are JSON-style structures, and every
+  RB-authored key carries a sprue, never a bare word — on the gallops precedent
+  (`jjrt_types.rs`): sprue shape `jjg«structure»«kind»_term`, one structure letter per
+  record type, kind letter `n` for field keys and `e` for enum tokens
+  (`jjgrn_heats`, `jjghn_silks`, `jjghe_racing`, `jjgte_bridled`, `jjgde_fable`),
+  with gallops-grade serialization discipline: deterministic key order, skip-when-absent so
+  untouched stores stay byte-canonical, and raw-string tolerance for operator-mutable
+  values — bad config never makes the store illegitimate (the `jjgrn_retention_since`
+  precedent).
+  The tackle sprue family's own letters run their grep gate at schema-settling, not here.
+  Row identity lean: name-keyed rows (kebab, hand-authored, regime-style) rather than
+  minted insignia — crossbreeding renames at the copy; identity machinery waits for a real
+  need.
+  Aggregate wire-member candidate (operator, 260707): *remuda* — the herd the table holds,
+  each session drawing what it needs; metaphor strain noted (a remuda pools horses, tackle
+  is gear), the operator's word to spend or withhold at schema-settling.
+* *Count ruling* — RATIFIED (operator, 260707): a tackle = one domain binding, recorded in
+  its section above.
+* *Overlap* — operator lean (260707), superseding an earlier agent lean toward
+  most-specific-wins precedence: overlap is *permitted and means co-membership* — a file may
+  sit in two domains at once (the standing example: workstation bash that with slight
+  modification also runs in the cloud — BCG and CBG both apply), consumers take the union of
+  bundles, and no precedence machinery exists in the MVP.
+  Tackle wins by being simple rather than over-fitted.
+  What guards against *accidental* overlap: claims written at honest grain (the census's own
+  rows are naturally disjoint), and the audit report showing every overlap so an unintended
+  one is seen — never hand-mirrored exclusions (the SlickEdit disease, memo §autopsy).
+  Coverage accordingly reads *at-least-one* claim, not exactly-one.
+  A supplanting relation ("this specific claim excludes that general one"), if ever truly
+  needed, is a future deliberate addition.
+* *Governance bundle shape* — discipline references point at guide documents directly or at
+  a named registry.
+  A genuine contradiction between two co-governing bundles is surfaced to the operator,
+  never auto-resolved.
+* *Loudness seats* — where the coverage remainder fires: standing census (repo hygiene,
+  batch), saddle time (the session is about to touch an unaffiliated file — the pull-door
+  shape), or both; and warn vs refuse at each seat.
+* *Universe declaration* — its shape and pedigree seating; and the word for beyond-universe
+  territory (palisade rejected, see Candidate vocabulary).
+* *Edge-type taxonomy* — specifies / tests / crosscuts are census-observed, not yet an enum;
+  more census before it deserves one.
+* *Verdict naming* — held with the estray question (Candidate vocabulary).
+* *Word elections* — the unelected slots above (claim rule, derived roster, interrelation);
+  elections run gates at a census-style pace, not mid-mulling.
+* *Delivery* — direction resolved (260704): app-generated, work-honed context at saddle
+  time, with a retain-everything default until honing intelligence exists (farrier sheaf,
   launch-time provisioning).
-* Whether discipline references point at guide documents (BCG, RCG) directly or at a named
-  discipline registry.
 
 == Sources (provenance, not authority)
 
 * Retired heat jjk-v4-4-school-breeze-founding (₣Ah) — its paddock's tackle/blaze vocabulary
-  and its tackle design docket, the maximal layer banked above; the execution context is recast
-  in the breeze aspirant sheaf (JJSAB).
-* ACG (Allocation Coding Guide) — the several-domains observation.
-* Chat gamma-fable-regional-gallops (260704) — the MVP re-scope and pedigree-sibling placement.
+  and its tackle design docket, the maximal layer banked above; the execution context is
+  recast in the breeze aspirant sheaf (JJSAB).
+* ACG (Allocation Coding Guide) — the several-domains observation, and the edge-discipline
+  type specimen.
+* Chat gamma-fable-regional-gallops (260704) — the MVP re-scope and pedigree-sibling
+  placement.
+* Design chat 260707 (Fable) — the charter wording, inclusion-polarity resolution, worked
+  census, association graph, count-ruling lean;
+  exploratory record in `Memos/memo-20260707-tackle-polarity-and-graph.md`.
+* SlickEdit specimen `Tools/vslf-rbw/` + `Tools/vslk/` — the failed worked example mined for
+  fileset-definition lessons (memo §autopsy).
