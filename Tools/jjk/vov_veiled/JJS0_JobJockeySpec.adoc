@@ -3393,6 +3393,62 @@ self-contained within its sheaf and dissolves into this codex's mapping section 
 (or leaves with the sheaf on graduation).
 ====
 
+=== The Mulling Heat
+
+Every aspirant sheaf is paired with a *mulling heat* —
+a stabled heat nominated at the sheaf's founding,
+named by the sheaf at its acronym entry,
+holding the aspirant's place on the muster.
+The aspirant state itself is declared, never inferred:
+the sheaf's `axvd_sheaf` lintel carries `axd_aspirant`
+and every codex `include::` site attests the same in its `axvd_cartouche` —
+the voicing pair is how a reader, a linter, or a groom identifies an aspirant sheaf.
+The pairing divides the record:
+design leans bank in the sheaf, which outlives the heat;
+work-shape banks in the heat's paddock —
+the settling state (dated cinches, a held-for-discussion register whose every item names its settling pace),
+and the obligations the first slating must honor.
+An obligation recorded in the paddock is authority at slate time;
+an itch never is.
+Normativeness lives in the lintel alone:
+paddock prose that restates the binding tier drifts the moment the tokens flip,
+so the paddock records settling progress and the lintel records what binds.
+
+The mulling heat holds no implementation paces while the aspirant strives:
+work that *authors the sheaf itself* may race —
+a mulling heat legitimately runs spec-authoring paces —
+but implementation waits for *settling*,
+and settling is observable, never a feeling:
+the design cinches stand dated in the paddock and are not re-litigated,
+and every held-for-discussion item names the pace that will settle it —
+settle before the affected change, not before the heat.
+
+Settling, not infusion, is the implementation gate.
+The admonition above binds readers and released code;
+a heat that takes an aspirant sheaf as its authority is part of the striving itself,
+and discharges the admonition by draining the sheaf:
+as the build proceeds, aspirant content drains durable-first into binding destination sheaves —
+the destination commits before the aspirant source trims,
+so authority migrates fact-by-fact and never gaps —
+and code cites only what has landed.
+A destination may land *executory* where an incumbent surface stays authoritative until a cutover ceremony,
+hardening to normative there (AXLA normativeness axis).
+Every hardening is a voicing flip — lintel and cartouche together, the AXLA judgment act —
+owned by a ceremony checklist, never by memory.
+
+When the aspirant settles, execution is cut —
+as the mulling heat racing, or as a fresh implementation heat; the topology is the operator's.
+The invariants are not:
+the first pace is a planning pace —
+read the authorities fresh, cut the roster, the planning docket superseded by the real dockets;
+the roster runs judgment-first —
+mint, design, and sheaf-authoring paces front-load at frontier tier, the implementation tail at work tier;
+an operator-attended design-complete gate stands between the two,
+ratifying that planning is done before implementation begins.
+At the end the sheaf has infused into the codex (or graduated out, or retired — AXLA `axd_aspirant`),
+and the convergence gauge — a chapbook's pending-citation register where one exists —
+reads zero.
+
 //axvd_cartouche axd_aspirant
 include::JJS-aspirant-mews.adoc[leveloffset=+2]
 

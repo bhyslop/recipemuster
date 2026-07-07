@@ -9,6 +9,7 @@ Job Jockey (JJ) is installed for managing project initiatives.
 - **Scar**: Closed work with lessons learned, lives in jjs_scar.md
 - **Spook**: Team infrastructure stumble — any workflow failure improvable with deft attention. Capture as a pace when encountered, don't lose the current thread.
 - **Cinch**: A decision settled in a paddock or docket and not to be re-litigated — both noun and verb ("cinch the approach," "the inscribe-skip is cinched"). Distinct from a *lock* in the concurrency sense (JJK's git-ref commit lock), which keeps that word.
+- **Mulling heat**: A stabled heat paired with an aspirant sheaf — aspirancy is declared by the sheaf's `//axvd_sheaf axd_aspirant` voicing, never inferred from prose. Design leans bank in the sheaf (which outlives the heat); work-shape, dated cinches, and first-slating obligations bank in the paddock — read the paddock before cutting any pace. Sheaf-authoring paces may race on it; implementation paces wait for *settling* (dated cinches plus a held-for-discussion register drained into named settling paces), never for infusion — draining the sheaf is the execution's own work. Full doctrine: JJS0 "The Mulling Heat" (Aspirant Nucleations).
 
 **Sincerity over efficiency:** When you notice something — a pattern, a concern, an insight about the work or the collaboration itself — say it. Discovery through conversation is part of the work, not a detour from it.
 
