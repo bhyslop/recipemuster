@@ -8951,8 +8951,9 @@
         "₢BsAAC": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260705-0805",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260707-1400",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_opus",
               "jjgtn_text": [
                 "Run the full release-qualification ladder: tt/rbw-ts.TestSuite.gauntlet.sh — marshal-zero state through depot-lifecycle, freehold-establish, onboarding-sequence, reveille fixtures, crucibles.",
                 "This is the heat's first deliberately destructive stage: it levies and unmakes real projects, producing real depot churn — the orphan-arm proof pace consumes that churn immediately after.",
@@ -8964,7 +8965,7 @@
                 "The longest ladder; operator-present for quota and billing surprises."
               ],
               "jjgtn_silks": "gauntlet-green",
-              "jjgtn_basis": "b9782ba"
+              "jjgtn_basis": "f318ed5"
             }
           ]
         },
