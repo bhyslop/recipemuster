@@ -9117,8 +9117,9 @@
         "₢BsAAJ": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260706-0800",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260707-1349",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_opus",
               "jjgtn_text": [
                 "## Character",
                 "",
@@ -9160,7 +9161,7 @@
                 "or the containment sibling is explicitly deferred at wrap."
               ],
               "jjgtn_silks": "federation-glance-diagram",
-              "jjgtn_basis": "12536f9"
+              "jjgtn_basis": "a4166b7"
             }
           ]
         },
