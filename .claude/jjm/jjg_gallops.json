@@ -9194,8 +9194,9 @@
         "₢BsAAK": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260706-0740",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260707-1400",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_opus",
               "jjgtn_text": [
                 "## Character",
                 "",
@@ -9219,7 +9220,7 @@
                 "the ceremony document carries the link-check step and the recorded URL-base decision."
               ],
               "jjgtn_silks": "candidate-cut-on-rebaseline",
-              "jjgtn_basis": "55a5f80"
+              "jjgtn_basis": "e8704e4"
             }
           ]
         },
