@@ -8631,8 +8631,10 @@
         "₢BrAAQ": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260705-1634",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260707-1348",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_opus",
+              "jjgtn_effort": "jjgde_high",
               "jjgtn_text": [
                 "## Character",
                 "",
@@ -8648,7 +8650,7 @@
                 "reprieve episode registered, source-only date-and-identity branch, no gallops conversion committed."
               ],
               "jjgtn_silks": "pace-identity-regestalt-impl",
-              "jjgtn_basis": "d432287"
+              "jjgtn_basis": "9b05abc"
             }
           ]
         },
