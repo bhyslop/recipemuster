@@ -8423,8 +8423,10 @@
         "₢BrAAI": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260706-0948",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260707-1342",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_opus",
+              "jjgtn_effort": "jjgde_xhigh",
               "jjgtn_text": [
                 "## Character",
                 "",
@@ -8446,7 +8448,7 @@
                 "The chapbook's Act I and teardown flags harden."
               ],
               "jjgtn_silks": "dispatch-billet-sheaf",
-              "jjgtn_basis": "0713405"
+              "jjgtn_basis": "debef1c"
             }
           ]
         },
