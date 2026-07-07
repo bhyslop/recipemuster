@@ -2031,21 +2031,14 @@ The existing `buc_doc_param` / `buc_doc_oparm` could remain for the rare value-l
 Identified 2026-06-18 while reviewing the new `rbgb_managed_folder_add_iam_role` (mirrors the bucket-IAM grant idiom in `rbgb_buckets.sh`). The five-param doc+validate ritual prompted the question "can these consolidate?" — they can't with today's primitives, but a value-aware `buc_doc_param_req` would let them. Deliberately deferred as a whole-family BUC change rather than a local edit.
 
 ## terrier-atomicity-nature-discussion
-Operator wants to revisit what the terrier-atomicity fixture/proof actually is and why, before treating it as settled.
+DISPOSITIONED 2026-07-07 — the deliberate discussion this itch demanded was held (₣Bs groom). Entry retained only for the revival trigger below.
 
-### Problem
+### Disposition
 
-The terrier-atomicity items (the `terrier-atomicity` theurge fixture and the `rbgp_terrier_proof` verb behind `rbw-dT`) came into existence in agent-to-agent work (Opus + Fable) without the operator holding the full issue set in his head. During the ₣BZ payor-proof retirement (2026-06-20) the operator and agent agreed terrier-atomicity is the one *honest* survivor of the payor-credentialed proofs — its claim (GCS precondition atomicity: engross/expunge/peruse with 412-on-conflict and 404-on-absent idempotency) is credential-path-agnostic, so it reads as a real data-layer unit test rather than a faked-don federation proof. But the operator explicitly flagged he has not internalized the design issues and wants a deliberate discussion, NOT a silent acceptance.
-
-### Scope
-
-- Walk the operator through what `rbgp_terrier_proof` asserts and why (the muniment sub-op contract: RBSTR / RBGFT), grounding the artifact from scratch (a trot — he did not line-author it).
-- Decide whether terrier-atomicity stays as-is, gets reframed, or folds into the terrier permanent-home work owned by ₣Bf (the federation-evolution heat).
-- Reconcile with the open paddock items: terrier file format, physical bucket name, `rbgb_` allocation (all listed Open in the ₣BZ paddock).
-
-### Context
-
-Raised 2026-06-20 by the operator immediately after accepting the cut of the admission/freehold payor-proofs (path "b": cut the two faked-don proofs, keep terrier-atomicity). Sequenced explicitly AFTER the work of that pace, not during it. The terrier's permanent home is already routed to ₣Bf per the ₣BZ docket ("the terrier scaffold rbw-dt stays until ₣Bf homes the terrier permanently").
+- The retired `rbw-dT` proof's coverage had already redistributed (positive round-trip → parley + the admission arc; rejection bands → polity-denial's http-fault arc), leaving one real residue: the 412/404 *clean* dispositions (engross-on-existing → "present", expunge-on-absent → "absent" — the verb-grain idempotency claim), which every current fixture deliberately dodges. That residue now has a pace: the ₣Bs pace reslated 260707 extends polity-denial's terrier-band arc with deliberate re-run assertions.
+- The escheat survey classifier verdicts (key-shape, mantle enum, body checks) get NO standing coverage, by operator ruling 260707: escheat is founding-rare, payor-wielded, plan-then-confirm — human plan review is the protection; a wrong strike is recoverable by re-brevet; deterministic coverage would need a seeding scaffold (shape retired by ruling 260702) or a body-level fault seam — machinery cost exceeds value.
+- **Revival trigger**: if escheat ever gains an unattended/no-confirm mode, classifier coverage becomes load-bearing and must land BEFORE that ships — route to ₣Aq (rbk-99-deferred-simple-things), post-MVP.
+- The old ₣BZ open items (terrier file format, physical bucket name, `rbgb_` allocation) are settled in RBSTN (terrier noun spec, carved 260702). ₣Bf retired without inheriting anything from this itch.
 ## release-procedure-handbookization
 Port the maintainer release procedure to an executable handbook once the ceremony has stabilized post-release.
 
