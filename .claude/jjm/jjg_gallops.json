@@ -9037,8 +9037,9 @@
         "₢BsAAH": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260705-0805",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260707-1333",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_sonnet",
               "jjgtn_text": [
                 "Close the rebaseline: re-run the freehold-iterating ladders against the REBUILT substrate — at minimum skirmish, blockade, and parley (the admission-sensitive one) — plus espy and rehearse spot checks.",
                 "Green here is the rebaseline verdict: everything changed since the last full sequences, now proven on a freshly-founded manor.",
@@ -9050,7 +9051,7 @@
                 "Confirmation runs; light judgment."
               ],
               "jjgtn_silks": "rebaseline-revalidation",
-              "jjgtn_basis": "b9782ba"
+              "jjgtn_basis": "77b609e"
             }
           ]
         },
