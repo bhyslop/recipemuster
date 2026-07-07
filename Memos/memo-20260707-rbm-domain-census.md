@@ -41,6 +41,7 @@ Paths are best-current-knowledge, not verified claims; this is a census in progr
 | Generated consts | `rbtdgc_consts.rs`, `claude-rbk-tabtarget-context.md` | regenerate via build, never hand-edit |
 | Public face | `README.md` | MCM revetment law (ashlar-or-prose only) |
 | APCK | `Tools/apck/**` | RCG + APCS0/APCPS, no-JavaScript rule |
+| Aspirant sheaves | `JJS-aspirant-*.adoc` + aspirant-lintel members elsewhere (VOSMM, RBSCV, RBSPC…) | MCM/AXLA + a future Aspirant Refinement Guide (unwritten; this session is its type specimen) |
 
 Notes on fuzziness (deliberate, recorded):
 

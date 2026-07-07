@@ -11,17 +11,14 @@ development, then infused into this codex or retired.
 A reader must not rely on its content; released code must not cite identifiers it mints.
 The word *tackle* carried a maximal meaning in the retired V4 execution workup, now recast in
 the breeze aspirant sheaf (JJSAB); the one-word-one-concept resolution is stated below.
-Restructured 260707 around the two-part charter after a design session on inclusion polarity
-and the association graph;
-the exploratory record — the full polarity argument and the SlickEdit specimen autopsy — is
-`Memos/memo-20260707-tackle-polarity-and-graph.md` (provenance, never authority).
+The exploratory record — the inclusion-polarity argument and the SlickEdit specimen autopsy —
+is `Memos/memo-20260707-tackle-polarity-and-graph.md` (provenance, never authority).
 ====
 
 == What tackle is
 
 Tackle is a strong way to identify and curate sets of files, and to declare how rulesets
-interrelating those filesets apply (charter, operator wording 260707).
-The charter has exactly two parts, and the model keeps them distinct:
+interrelating those filesets apply — the two-part charter this sheaf hangs from:
 
 * *Filesets* — the identified, curated sets:
   "these globs are BCG bash, those are RCG rust, that subtree is theurge, that one is ifrit."
@@ -46,7 +43,7 @@ home.
 Tackle is the normalization of that standing structure, not new machinery;
 every consumer becomes a projection that re-derives instead of drifting.
 
-== The worked census (RB home repo, 260707)
+== The worked census (RB home repo)
 
 The example the concept must serve, sketched at domain grain (rows illustrative, not a
 binding inventory):
@@ -75,7 +72,7 @@ binding inventory):
 Two structural discoveries the census forces:
 
 * *The operator thinks domains-first.*
-  The census was spoken as named domains ("theurge tests", "ifrit tests"), never as patterns;
+  The census speaks in named domains ("theurge tests", "ifrit tests"), never in patterns;
   globs are merely how a domain grabs its files.
   So the binding factors: globs → domain → everything else — never direct glob→discipline.
 * *Disciplines attach to edges, not only nodes.*
@@ -91,21 +88,16 @@ close without a catch-all bucket.
 The table above is a frozen illustration and deliberately does not grow;
 the *living* census — more domains, the fuzzy edges, and the full arrows inventory — is
 `Memos/memo-20260707-rbm-domain-census.md` (provenance), the concept and its worked example
-flying in formation (operator framing, 260707).
+flying in formation.
 
-== A tackle is countable (ruling lean, 260707)
+== A tackle is countable
 
-The count wobble is the surgery scar at the sheaf's center:
-prior wording defined tackle as *the* binding (mass noun) while V4 residue — including the
-breeze sheaf's own vocabulary table ("silks … gaits, tackles") and "blaze — owned by *a*
-tackle" — uses the countable sense.
-RATIFIED (operator, 260707):
-*a tackle is one domain binding* — a fileset (claim rule) plus the bundle of governance it
-carries;
+*A tackle is one domain binding* — a fileset plus the governance it carries;
 the *tackle set* is an upstream's table of them.
-Under this ruling the breeze sheaf's usage already reads correctly with no edit, and V4's
-"silks-identified resource bundle" maps onto the domain node it always wanted to be.
-The aggregate needs no minted name of its own (operator question, 260707; lean NO):
+The breeze sheaf's usage ("blaze — owned by *a* tackle"; tackles among the silks-identified
+gallops entities) agrees, and V4's "silks-identified resource bundle" maps onto the same
+node.
+The aggregate needs no minted name of its own:
 plain prose — "the tackle set", "the upstream's tackles" — does the work, the pedigree is
 the aggregate's home, and a mint waits until the aggregate itself acquires behavior worth
 naming.
@@ -115,8 +107,8 @@ naming.
 Slots identified for the subparts; words elected only where the concept has stopped moving.
 Every word below is candidate only, re-ratifying under MCM Lapidary at graduation;
 disqualifications are recorded so they are not re-tried.
-Governing test (operator-affirmed, 260707): a concept earns a quoin when a consumer must
-refer to it across a boundary — never merely because the author finds it distinct.
+Governing test: a concept earns a quoin when a consumer must refer to it across a
+boundary — never merely because the author finds it distinct.
 Mint follows API.
 
 [cols="1,3,2"]
@@ -159,7 +151,7 @@ Mint follows API.
   Alternate held: swingletree.
   Disqualified: trace (trodden: stack/tracing), yoke (RBK-minted, RBSDY), harness (trodden).
 
-| governance bundle
+| governance attachments
 | What a tackle binds to: guide(s) + spec home + conduct + integrity checks — facets read by
   different consumers.
 | ELECTED: *trappings* — `jjottn_trappings`, carrying direct paths to governing documents;
@@ -168,13 +160,13 @@ Mint follows API.
   auto-resolved.
 
 | verdicts
-| The three mechanical answers for any path: claimed / unclaimed-inside-universe /
-  beyond-universe.
+| The three mechanical answers for any path: claimed / unclaimed-inside-ambit /
+  beyond-ambit.
 | Deliberately unnamed — the middle verdict rhymes exactly with VOSMM's `vosme_estray`
   (unclaimed-but-ours, surfaced as product); whether that concept generalizes across corpora
   or needs a sibling word is a Lapidary question held open.
 
-| governed universe
+| governed boundary
 | The per-upstream declared boundary within which coverage is owed (Scope semantics).
 | ELECTED: *ambit* — `jjotrn_ambit`, the extent of jurisdiction.
   Rejected: *palisade* (the ROE Palisade names jurisdiction-impossible — cannot edit —
@@ -182,19 +174,19 @@ Mint follows API.
   *pale* (already minted RB-side as the upstream trust boundary, the Pale).
 |===
 
-== Scope semantics (the inclusion-polarity resolution, 260707)
+== Scope semantics
 
-The allowlist/denylist question dissolves once *how a set is defined* (polarity) is separated
-from *what happens to a file nothing claims* (the default).
-Position, recorded as a dated lean with the full argument in the memo:
+The allowlist/denylist question dissolves once *how a set is defined* (polarity) is
+separated from *what happens to a file nothing claims* (the default).
+The position, argued in full in the memo:
 
 * *Claims are positive, at domain grain.*
-  A claim rule is an anchored subtree × shape conjunction — wildcards retained as the intension
-  mechanism (`**` subtree recursion, `*.rs` shape globs): what is banned is the *unanchored*
-  floating pattern, and what is audited is maximal width (below).
-  New files and new subdirectories inside a claimed domain auto-fall-in — negative inclusion's
-  auto-coverage exactly where it is correct, because the domain owner chose the criterion
-  once.
+  A claim rule is an anchored subtree × shape conjunction — wildcards retained as the
+  intension mechanism (`**` subtree recursion, `*.rs` shape globs): what is banned is the
+  *unanchored* floating pattern, and what is audited is maximal width (below).
+  New files and new subdirectories inside a claimed domain auto-fall-in — negative
+  inclusion's auto-coverage exactly where it is correct, because the domain owner chose the
+  criterion once.
   A *new domain* is not automatic, and that is right: it deserves a founding act, the
   pedigree's own deliberate-ceremony posture one level down.
   With domain-grain claims, *placing a file is affiliating it* — the location decision that
@@ -202,6 +194,17 @@ Position, recorded as a dated lean with the full argument in the memo:
 * *There is no default.*
   No catch-all row; totality is reached because humble disciplines (generated, inert asset,
   provenance-only) are first-class rows, never because a bucket swallowed the remainder.
+* *Overlap means co-membership.*
+  A file may sit in two domains at once — the standing example: workstation bash that with
+  slight modification also runs in the cloud, BCG and CBG both applying.
+  Consumers take the union of trappings; no precedence machinery exists; coverage reads
+  *at-least-one* claim.
+  Tackle wins by being simple rather than over-fitted.
+  Accidental overlap is guarded by claims written at honest grain (the census's own rows are
+  naturally disjoint) and by the audit report showing every overlap — never hand-mirrored
+  exclusions (the SlickEdit disease, memo §autopsy).
+  A supplanting relation ("this specific claim excludes that general one"), if ever truly
+  needed, is a future deliberate addition.
 * *The failure asymmetry is the decisive argument.*
   Under-coverage (positive's failure) is mechanically detectable: universe minus claims is a
   set subtraction any validator runs, no judgment needed.
@@ -211,30 +214,29 @@ Position, recorded as a dated lean with the full argument in the memo:
   Given teeth, choose the failure mode that can be automated away.
   (Prior art agrees: firewall default-deny, gitattributes, CODEOWNERS — see memo.)
 * *Recursion is preserved in the claim; the hazard is anchor width.*
-  Root-anchored recursive claims have maximal swallow radius (the SlickEdit launcher-swallow,
-  memo §autopsy); deep-anchored ones are tame.
-  Claims are therefore always path-anchored, and a root-anchored recursive claim or a bare-`*`
-  shape is an *audit flag*, not a prohibition.
+  Root-anchored recursive claims have maximal swallow radius (the SlickEdit
+  launcher-swallow, memo §autopsy); deep-anchored ones are tame.
+  Claims are therefore always path-anchored, and a root-anchored recursive claim or a
+  bare-`*` shape is an *audit flag*, not a prohibition.
 * *The table is intensional — rules, never lists; every fileset is derived.*
   The two query directions scale differently and the design leans on that:
   path→discipline is O(rules) per path with no tree walk (the saddle-time direction — how
   gitattributes serves million-file repos);
-  the census direction (fileset materialization, coverage audit) walks the declared universe
-  only, is batch by nature, and is where caching lands, keyed (table version, tree state).
+  the census direction (fileset materialization, coverage audit) walks the ambit only, is
+  batch by nature, and is where caching lands, keyed (table version, tree state).
   A materialized roster is derived, per-clone, disposable state: it lives in station-local
   scratch, *never the studbook* — the same law as worktree paths (regional record,
   station-local fact).
   Caching, if the trees go huge, is the deliberate supersession VOSMM's transience invariant
   (VOr_k3p) already anticipates — never drift.
-* *Coverage is owed within a declared universe; three verdicts.*
-  Per upstream, the pedigree declares the governed universe (for the home repo: the whole
-  git-tracked tree; for a large vanilla upstream: the subtrees JJ works).
+* *Coverage is owed within the ambit; three verdicts.*
+  Per upstream, the pedigree declares the ambit (for the home repo: the whole git-tracked
+  tree; for a large vanilla upstream: the subtrees JJ works).
   Any path then has one of three mechanical verdicts:
   *claimed* (some tackle governs it);
-  *unclaimed inside the universe* (the defect — loud, surfaced by the coverage subtraction);
-  *beyond the universe* (a known-unknown, not a defect, but a session touching one is told
-  so).
-  The same boundary bounds census cost: the coverage walk prunes beyond-universe subtrees
+  *unclaimed inside the ambit* (the defect — loud, surfaced by the coverage subtraction);
+  *beyond the ambit* (a known-unknown, not a defect, but a session touching one is told so).
+  The same boundary bounds census cost: the coverage walk prunes beyond-ambit subtrees
   entirely — governance honesty and traversal cost turn out to be one boundary.
 * *Dead rows are flagged.*
   A claim rule matching zero files is rot (the specimen's `RBM-recipes` row); the census
@@ -244,8 +246,8 @@ Position, recorded as a dated lean with the full argument in the memo:
 
 The scope containment of claim rules is a tree;
 the declared interrelations make it a graph.
-An interrelation is a typed edge between two tackles — *specifies*, *tests*, *crosscuts* are
-the census-observed types; the taxonomy stays open — and an edge can carry its own governing
+A hame is a typed edge between two tackles — *specifies*, *tests*, *crosscuts* are the
+census-observed types; the taxonomy stays open — and an edge can carry its own governing
 discipline:
 ACG is the type specimen, governing the code↔spec citation relation (reference-the-home,
 rivet residue) rather than either side alone.
@@ -268,10 +270,10 @@ exact match.
 Execution-side design (gait affinities, blaze resolution, exclusivity) remains joint work
 with the breeze sheaf (JJSAB, Reconciliation section) and is deferred below.
 
-*Boxes before arrows* (sequencing comfort, 260707): the concept model holds nodes and edges,
-but the build sequence need not — an MVP of nodes alone (scope → bundle) is complete and
-useful on its own, with edges arriving when their first consumer (school, or an ACG-citation
-lint) actually lands.
+*Boxes before arrows* (sequencing comfort): the concept model holds nodes and edges, but the
+build sequence need not — an MVP of nodes alone (remuda → trappings) is complete and useful
+on its own, with hames arriving when their first consumer (school, or an ACG-citation lint)
+actually lands.
 The grammar stays tiny either way: a node is a row, an edge is a tagged pair of rows;
 sophistication lives in what consumers do with the tags, app-side, per the substrate split.
 
@@ -283,22 +285,21 @@ sophistication lives in what consumers do with the tags, app-side, per the subst
   ride along: an invariant conduct core ships unhoned, and a pull door turns starvation into
   one extra round-trip.
 * *The matricula* (VOSMM Tier 0): its file-selection allowlist is tackle's first working
-  consumer — shaped schema-compatible, homed VOK-side until representation settles, migrating
-  to the pedigree home at studbook founding (direction 260705).
+  consumer — shaped schema-compatible, homed VOK-side until representation delivery,
+  migrating to the pedigree home at studbook founding.
   Its file-role layer (declaration-bearing / reference-only / index-of-record / generated) is
-  the governance bundle's facet at scan grain.
-* *Dynamic context* (the future the operator named 260707): the hand-maintained CLAUDE.md /
-  `claude-*.md` acronym tables become generated projections, presented only when tackle says
-  they are relevant — the matricula MVP's acronym-index regeneration is the first step
-  already in motion.
+  the trappings' facet at scan grain.
+* *Dynamic context*: the hand-maintained CLAUDE.md / `claude-*.md` acronym tables become
+  generated projections, presented only when tackle says they are relevant — the matricula
+  MVP's acronym-index regeneration is the first step already in motion.
   Doctrinal ancestor noted: MCM's task-lens machinery (focused activation, focal depths —
   Core / Expanded / Suppressed) is this same selective-context idea at concept grain;
   tackle-driven provisioning is its file-grain sibling, compiling a work-scoped view instead
   of shipping the whole constellation.
 * *School / breeze* (horizon): gait selection and beat-map context assembly read the graph;
   design deferred to the joint seam.
-  Type-specimen use case (operator, 260707): the recurring failure where a model writes bash
-  from ambient training habits unless reminded to read BCG.
+  Type-specimen use case: the recurring failure where a model writes bash from ambient
+  training habits unless reminded to read BCG.
   The tackle binding is what lets school *mechanically* place a
   read-the-governing-guide/review-against-guide beat in the beat map for any beat whose file
   scope lands in a BCG domain — retiring the operator's memory as the enforcement mechanism.
@@ -307,7 +308,7 @@ sophistication lives in what consumers do with the tags, app-side, per the subst
 
 Each consumer reads facets of the same rows; none owns the table.
 
-== The substrate split (direction lean, 260707 — not yet an API commitment)
+== The substrate split (direction — not yet an API commitment)
 
 Where tackle services divide between the shared substrate crate (the vvx-land library both
 JJ and the matricula read) and the applications above it.
@@ -316,26 +317,26 @@ tackle:
 
 * *The crate owns the mechanical half* — everything that is set operations over declared
   rules, no judgment: schema and load, claim-rule evaluation (path → verdict), roster
-  derivation (rule × tree state → files), coverage subtraction (universe minus claims),
+  derivation (rule × tree state → files), coverage subtraction (ambit minus claims),
   declared-edge traversal.
   Four query surfaces, matching the query directions in Scope semantics: resolve one path,
   derive one roster, audit coverage, walk edges.
 * *The applications own the judgment half* — what to *do* with verdicts: JJ dispatch decides
   provisioning policy (honing, conduct core, pull door, warn-vs-refuse at the loudness
-  seats); the matricula maps bundle facets to vestures and scan roles; school composes
+  seats); the matricula maps trappings facets to vestures and scan roles; school composes
   beats.
   Policy never sinks into the crate; rules never float into the apps.
-* *Not yet claimable*: signatures, the table's serialized form, and cache mechanics — all
-  representation-fork territory, and the sequencing ruling holds.
+* *Not yet claimable*: signatures and cache mechanics; the serialized form is settled (the
+  schema section); the sequencing ruling holds.
   The shape above is a lean the matricula's interim allowlist reader should stay compatible
   with, not an interface to build against.
-* *Distribution*: the crate ships (it is the reader the direction fork already places in the
+* *Distribution*: the crate ships (it is the reader the direction already places in the
   shipped substrate library); the matricula consumes it and never flows into it (VOr_q4f);
   the tackle *data* is regional, pedigree-side, while any materialized cache stays
   station-local (Scope semantics).
-* *Names in data, shape in code* (operator concern resolved to a lean, 260707): the crate
-  and apps know the *schema* — what a domain row is, what a tagged edge is — and never any
-  particular name: no `BCG`, no `theurge`, no edge-type enum baked into vvx.
+* *Names in data, shape in code*: the crate and apps know the *schema* — what a domain row
+  is, what a tagged edge is — and never any particular name: no `BCG`, no `theurge`, no
+  edge-type enum baked into vvx.
   Guides are referenced by path or id in the table; edge labels are opaque tags the apps
   match by string; the BURE tweak-name gate is the house precedent (enforce the shape, never
   the census).
@@ -386,7 +387,7 @@ operator-spoken; the spoken five are *silks*, *remuda*, *trappings*, *hames*, *a
   "jjotrn_hames": [
     { "jjoten_from": "‹g›AAB", "jjoten_to": "‹g›AAC",
       "jjoten_tag": "cites-spec",
-      "jjoten_rule": "Tools/cmk/vov_veiled/ACG-AllocationCodingGuide.adoc" }
+      "jjoten_rule": "Tools/cmk/vov_veiled/ACG-AllocationCodingGuide.md" }
   ]
 }
 ----
@@ -401,6 +402,8 @@ Members:
   (`‹g›`, pending eyeball election) plus a 3-character base64url body.
   The glyph rides the wire as type safety — a wrong-type identity fails at the parse
   boundary; the identity is immutable, seed-minted, never re-minted in place.
+  References never ride names, so a relabel strands nothing (the gallops law,
+  `jjrt_types.rs`).
 * `jjottn_silks` — display name; freely relabelable; never a reference target.
 * `jjottn_remuda` — the fileset definition: anchored subtree × shape globs assembling the
   flight of files this tackle governs.
@@ -429,8 +432,7 @@ Tackle and farrier config are sibling entries on the pedigree answering differen
 with different change cadences:
 tackle binds *files to rules* (changes when code domains shift);
 farrier binds *the repo to its mechanics* (changes when repo topology shifts).
-The declared governed universe plausibly seats on the pedigree beside the tackle set (open
-fork).
+The ambit plausibly seats on the pedigree beside the tackle set (open fork).
 Letting tackle swallow VCS config would regrow the maximal tackle the MVP deliberately
 defers.
 The vanilla-hippodrome premise also forecloses the gitignore/gitattributes scaling trick of
@@ -452,17 +454,17 @@ carrying ₿-blaze file scopes, actions with exclusivity, gait affinities, read-
 school-time execution machinery for the breeze pipeline.
 Resolution: *this sheaf's definition is the tackle; the maximal version extends it later.*
 One definition re-homed and grown — never two tackles side by side.
-The count ruling above completes the resolution: V4's countable usage and the MVP's
-table-of-bindings reconcile as node and set.
+The countable ruling completes the resolution: V4's countable usage and the table-of-bindings
+sense reconcile as node and set.
 The maximal layer is banked below (Deferred); its execution context (school, gaits, chukker
 boundaries) lives in the breeze aspirant sheaf (JJSAB), and the future tackle design pace
 inherits this sheaf as its floor.
 
-== Sequencing (operator ruling, 260704)
+== Sequencing (operator ruling)
 
 Tackle architecture waits until the operator has worked inside the new system long enough to
 find footing — sequenced *after* the studbook/farrier MVP ships, never alongside it.
-The matricula soft landing (Consumers above) is the footing experience that ruling wanted.
+The matricula soft landing (Consumers above) is the footing experience that ruling wants.
 
 == Deferred (explicitly not MVP) — the banked maximal layer
 
@@ -482,44 +484,27 @@ design decision, not a commitment:
   attachments.
 * *Integrity declarations* — build / test / lint checks a tackle makes available, informing
   chukker-boundary decisions in the breeze pipeline.
-  Note (260707): this is relocation, not speculation — the CLAUDE.md after-code-changes
-  suite table is this content, hand-maintained today; promotion is cheap when its consumer
-  lands.
+  Note: this is relocation, not speculation — the CLAUDE.md after-code-changes suite table is
+  this content, hand-maintained today; promotion is cheap when its consumer lands.
 * *Tackle–gait interface* — gaits declare required blazes; compatibility validates at school
   time.
 * *Registry shape* — tackles as silks-identified, mutable resource bundles in a top-level
   registry beside the gait registry.
 * *Per-heat tackle mutability* — MVP tackle is per-upstream standing config.
-  A provisional reconciliation (agent supposition 260704, design review required):
+  A provisional reconciliation (unreviewed supposition — design review required):
   the per-upstream tackle set is the standing base; a heat may later overlay heat-scoped
   additions (blazes, actions) that reference and extend the base; "tackle" names the layered
   whole.
-  This bullet is that fork's one home (a prior separate section stated it twice).
+  This bullet is that fork's one home.
 
 == Reconciliation obligations toward sibling sheaves (banked nudges — not yet applied)
 
-Discovered while driving this sheaf toward gestalt; each is an edit owed to a sibling *after*
-the relevant ruling ratifies, deliberately not applied yet:
+Each is an edit owed to a sibling *after* the relevant ruling ratifies, deliberately not
+applied yet:
 
-* *JJSAB breeze* — its vocabulary table lists tackles among silks-identified gallops
-  entities, consistent with the count ruling; on ratification no edit is owed there, but its
-  "Tackle's execution layer" reconciliation bullet should gain a pointer to this sheaf's
-  association graph (school walks declared edges, not just blazes).
-* *JJSVS studbook* — the pedigree bullet "tackle bindings (file scope → governing
-  discipline) as sibling entries" narrows to the charter's first half; on ratification it
-  should widen to filesets *and* interrelations, and the governed-universe declaration may
-  seat beside it.
-* *Farrier aspirant sheaf* — launch-time provisioning already carries the conduct-core +
-  pull-door repairs; confirm at infusion that they are stated as tackle-consumer obligations,
-  not farrier-local conveniences.
-* *VOSMM* — the allowlist-as-projection direction is already recorded there (260705); owed
-  later: the estray naming question (token-level `vosme_estray` vs file-level
-  unclaimed-inside-universe — one generalizing concept or two words) resolves at tackle
-  graduation, and the file-role layer should be named as a bundle facet once the bundle fork
-  settles.
-* *AXLA `axd_insignia`, glyph-carriage amendment* — owed from the 260707 type-sentinel
-  ruling (representation fork above); canon edit, so it lands as a deliberate act under
-  the CMK covenant (in-conversation, operator-ratified), never a drive-by.
+* *AXLA `axd_insignia`, glyph-carriage amendment* — owed from the type-sentinel ruling
+  (schema section); canon edit, so it lands as a deliberate act under the CMK covenant
+  (in-conversation, operator-ratified), never a drive-by.
   Draft replacement for the glyph sentence, wording to settle at the edit:
   "The identity is the bare encoded body; the associated unicode glyph is its *type
   sentinel* — an out-of-alphabet character at position zero naming the identity's type,
@@ -531,145 +516,114 @@ the relevant ruling ratifies, deliberately not applied yet:
   shell arguments), where non-ASCII fragility is real.
   Input is tolerant: readers accept and strip the sentinel, validating it against the
   expected type where declared."
-  Harmonizes with `axd_algebraic`'s existing sentinel sentence rather than adding a second
-  concept; `jjrf_favor.rs` comments stay true (identity = body); gallops store already
-  compliant, no reprieve.
-* *JJS0 codex, at infusion* — two AXLA obligations discovered on full MCM/AXLA read
-  (260707): the lintel here carries the legacy one-token form (`axd_aspirant` alone), and
-  current AXLA law wants two dimensions in fixed order (normativeness, then genre — for this
-  sheaf plausibly `axd_entity`, the VOSMM exemplar); upgrading the lintel and JJS0's matching
+  Harmonizes with `axd_algebraic`'s subordinate sentinel clause rather than adding a second
+  concept; `jjrf_favor.rs` comments stay true (identity = body); the gallops store is
+  already compliant, so no key sweep and no reprieve episode.
+* *JJK README prefix registry* — owed at delivery: the `jjo` container row and its
+  child-letter convention (`jjot` = tackle wire).
+* *JJS0 codex, at infusion* — two AXLA obligations:
+  the lintel here carries the legacy one-token form (`axd_aspirant` alone), and current AXLA
+  law wants two dimensions in fixed order (normativeness, then genre — for this sheaf
+  plausibly `axd_entity`, the VOSMM exemplar); upgrading the lintel and JJS0's matching
   cartouche is one act at infusion, never done one-sided (attestation-agreement drift).
-  And the laws this sheaf leans on (no-catch-all, cache-never-studbook, positive-at-domain-
-  grain) are rivet/premise-shaped: at infusion they voice formally (`axvc_dictum` /
-  `axk_premise`) with opaque `JJr_` tails minted then, not now.
+  And the laws this sheaf leans on (no-catch-all, cache-never-studbook,
+  positive-at-domain-grain) are rivet/premise-shaped: at infusion they voice formally
+  (`axvc_dictum` / `axk_premise`) with opaque `JJr_` tails minted then, not now.
+* *JJSAB breeze* — its vocabulary table lists tackles among silks-identified gallops
+  entities, consistent with the countable ruling; no edit owed there, but its "Tackle's
+  execution layer" reconciliation bullet should gain a pointer to this sheaf's association
+  graph (school walks declared edges, not just blazes), and its identity ladder reconciles
+  around tackle's taken count of 3.
+* *JJSVS studbook* — the pedigree bullet "tackle bindings (file scope → governing
+  discipline) as sibling entries" narrows to the charter's first half; it should widen to
+  filesets *and* interrelations, and the ambit declaration may seat beside it.
+* *Farrier aspirant sheaf* — launch-time provisioning already carries the conduct-core +
+  pull-door repairs; confirm at infusion that they are stated as tackle-consumer
+  obligations, not farrier-local conveniences.
+* *VOSMM* — the allowlist-as-projection direction is already recorded there; owed later:
+  the estray naming question (token-level `vosme_estray` vs file-level
+  unclaimed-inside-ambit — one generalizing concept or two words) resolves at tackle
+  graduation, and the file-role layer should be named as a trappings facet.
+* *AXLA `axl_timeless`, aspirant-exemption question* — raised, not committed: the exemption
+  permits journal content in aspirant sheaves, but this sheaf now practices timeless prose
+  by operator preference (decision records live in git and the memos), while sibling
+  aspirants still carry dated ledgers.
+  If the tighter practice is a standing norm, it wants its doctrine home at AXLA rather
+  than living as per-sheaf habit.
+* *MCM Lapidary, mint-follows-API* — the governing test in Candidate vocabulary (a concept
+  earns a quoin when a consumer must refer to it across a boundary) is general craft, not
+  tackle-specific; candidate for promotion into MCM Lapidary.
+  Until promoted it binds here only.
+
+== Settling register (drain before implementation)
+
+Per the mulling-heat doctrine (JJS0, The Mulling Heat), implementation paces wait for
+*settling*: this register, drained entry by entry into named settling paces or retired.
+Each entry cites its substance's home; nothing is restated here.
+Entries carry a *drain mode*, discriminated by one test — does the choice's outcome reshape
+the pace decomposition?
+
+* SHAPES THE CUT — settle before slating implementation paces at all.
+* SETTLING PACE — judgment work cut as its own early pace; pace order handles precedence.
+* RIDES A PACE — mechanical, folded into an implementation pace.
+
+The counterweight stands: what a mount agent decides better against live code is
+deliberately *not* settled early — the docket anti-patterns govern that direction.
+
+. OUTER GATE — the sequencing ruling: implementation follows the studbook/farrier MVP (see
+  Sequencing); this register drains after that ships.
+. SHAPES THE CUT — the API sketch: the four crate surfaces (substrate split) written
+  against the matricula's and JJ dispatch's *actual* queries; its outcome determines what
+  the implementation paces are, and it settles the remaining word spends (mint follows
+  API).
+. SETTLING PACE — the AXLA glyph-carriage amendment (draft: Reconciliation obligations):
+  the schema's sentinel-in-wire keys are illegal under unamended doctrine, so this pace
+  precedes the schema-implementation pace in order.
+. SETTLING PACE — the tackle identity glyph election: an eyeball election among unused
+  currency glyphs, operator present; the identity-kind word stays optional, minted only
+  when speech demands it (Candidate vocabulary).
+. SETTLING PACE, soft — the semantic-simplification pass: prose that defends words the
+  schema now carries is deletable; the sheaf should read as specification, not
+  deliberation, before it hardens.
+. RIDES A PACE — the JJK README prefix registry gains the `jjo` container row
+  (Reconciliation obligations).
+. RIDES A PACE — the matricula's interim allowlist is confirmed schema-compatible against
+  the settled schema (Consumers; the soft landing), with migration owed at studbook
+  founding.
 
 == Open forks (the mulling surface)
 
-* *Representation* — deliberately undecided (260704): no representation commitment and no
-  sibling structures while the concept is still forming; one home or none, never two
-  half-homes inviting confabulation between them.
-  Direction (260705, operator-proposed, census-pace experience): tackle becomes a table a
-  shared substrate crate reads, consumed by BOTH the JJ dispatch layer (session provisioning)
-  and the Vox matricula (its file-universe grammar — VOSMM Tier 0);
-  discipline binding and scan role are one axis, so two parallel file tables would be exactly
-  the two half-homes this fork guards against.
-  Landing: the matricula MVP allowlist is shaped schema-compatible as a tackle projection,
-  homed VOK-side, migrating to the cinched pedigree home at studbook founding.
-  Distribution boundary holds: the reader lives in the shipped substrate library; the
-  matricula consumes the library and never flows into it (VOr_q4f).
-  Requirement recorded (operator, 260707), representation-agnostic: a tackle serializes as
-  a contiguous, self-contained, diff-clean block (gallops-grade canonical line discipline),
-  so *crossbreeding* — copying a tackle between projects' tables — is a block copy, never
-  surgery.
-  Layout CINCHED (operator, 260707): *one file* per upstream's tackle set — no per-tackle
-  file split; the block-serialization requirement above is what crossbreeding needs, not
-  file granularity.
-  Consequences now settled as direction: the subtables are JSON-style structures, and every
-  RB-authored key carries a sprue, never a bare word — on the gallops precedent
-  (`jjrt_types.rs`): sprue shape `jjg«structure»«kind»_term`, one structure letter per
-  record type, kind letter `n` for field keys and `e` for enum tokens
-  (`jjgrn_heats`, `jjghn_silks`, `jjghe_racing`, `jjgte_bridled`, `jjgde_fable`),
-  with gallops-grade serialization discipline: deterministic key order, skip-when-absent so
-  untouched stores stay byte-canonical, and raw-string tolerance for operator-mutable
-  values — bad config never makes the store illegitimate (the `jjgrn_retention_since`
-  precedent).
-  Sprue family RULED (operator, 260707): the tackle wire family is `jjot`, under a new
-  standing reservation — *`jjo` is the JJ JSON-sprue container*: a non-terminal that names
-  nothing itself; each JJ-authored JSON wire format takes one fourth letter beneath it
-  (`jjot` = tackle; future JJ wire formats mint sibling letters).
-  Full key shape: `jjo«format»«structure»«kind»_term`, keeping the gallops grammar for the
-  tail — one structure letter per record type, kind `n` for field keys, `e` for enum
-  tokens — so tackle keys read `jjotrn_…` (root), `jjottn_…` (tackle row), `jjoten_…`
-  (edge), with the structure-letter legend settled at schema-settling and documented beside
-  the schema (within-family monosemy).
-  `jjg` (gallops) is grandfathered: it predates this rule and is never re-minted to fit it.
-  Provenance of the election (260707 census): the `jj` third-letter space is nearly full —
-  g gallops, e gazette, d quoin categories, r rust src, t testbench, x MCP verbs,
-  w workbench, z zipper, u utility, p/y live code, v the `refs/jjv/` lock-ref namespace,
-  f fundus aliases, and a/b/c/h/i/k/l/m/n/s reserved by the JJK README prefix registry
-  (jjn_ Notch was invisible to code grep and caught only by that table — the registry is
-  part of the gate); clean survivors were jjq and jjo, and the operator elected jjo as a
-  *container* rather than either as a flat family.
-  `jjot` itself grep-gates clean (0 hits, 260707).
-  Owed at delivery: the JJK README prefix registry gains the `jjo` container row and its
-  child-letter convention.
-  Row identity RE-RULED (operator, 260707 — superseding a same-day agent lean toward
-  name-keyed rows): tackles are *insignia-keyed*, on the gallops law — the map key is a
-  minted, immutable identity; the human name is a silks field inside the row, freely
-  relabelable and never a lookup key; every cross-reference (an edge's from/to, any future
-  ordering or overlay) rides the insignia, never the silks.
-  The operator's driving concern: naked-name keys make referential integrity a
-  string-match — a rename silently strands every arrow.
-  Gallops verified clean on exactly this (`jjrt_types.rs`): heats keyed by firemark with
-  `jjghn_silks` inside, paces keyed by coronet, `jjgrn_heat_order`/`jjghn_order`
-  referencing by insignia only, identities minted from next-seed fields under the store
-  lock.
-  Glyph in the wire — RULED (operator, 260707, reversing a same-day agent bare-body lean
-  and overriding current AXLA wording): identity values in JJ-authored JSON stores CARRY
-  their glyph (`"₣AA"`, `"₢AAAAA"`, the gallops store's actual on-disk shape per
-  `jjrg_gallops.rs` fixtures) — because the glyph there is a *type sentinel*: an
-  out-of-alphabet character at position zero naming the identity's type, so every
-  persisted identity is self-typing and a wrong-type identity (a coronet pasted where a
-  firemark belongs) fails at the parse boundary instead of deep in logic.
-  The store was right and the doctrine lagged: AXLA `axd_algebraic` already holds the
-  sentinel concept ("an out-of-alphabet sentinel character at a fixed position
-  disambiguates") — the amendment promotes the glyph to the sentinel-at-position-zero.
-  The logical identity remains the bare body (`jjrf_favor.rs` "never part of the identity"
-  stays true — the favor module's body/sigil split already models this); what changes is
-  carriage law, three-way by surface: operator display mandatory (unchanged);
-  JJ-authored structured wires mandatory (the type-safety ruling); foreign-traversed
-  surfaces forbidden (git refs, paths, env vars, shell args — fragility real, branch
-  discipline and officium strip unchanged); input tolerant everywhere (readers accept,
-  strip, and type-check the sentinel).
-  Practical dividend: the gallops store is already compliant — the amendment legitimizes
-  standing bytes, so no key sweep and no reprieve episode.
-  Tackle consequence: remuda keys and edge from/to carry the tackle sentinel once its
-  glyph mints (identity-ladder reconciliation); seed fields stay glyphless — a seed is a
-  counter, not an identity.
-  AXLA amendment owed: see Reconciliation obligations.
-  Consequences: the table carries a next-tackle-seed field; rows are minted by an engine
-  verb, never hand-invented — which *aligns* tackle editing with blotter doctrine (studbook
-  writes pass through the journal anyway, so hand-authored keys were already off-doctrine;
-  the superseded lean was the inconsistency); crossbreeding re-mints identity at import
-  (derivation is generative, AXLA insignia); the matricula's interim VOK-side allowlist
-  stays plain-named as a proto-projection, minting identities at pedigree migration.
-  Deferred with a pointer: the tackle insignia's glyph, digit count, and word join the
-  identity-ladder reconciliation already owed at the breeze sheaf (quirt / martingale /
-  kimberwick vs the pace-identity re-gestalt) — not minted here.
-  Aggregate wire-member candidate (operator, 260707): *remuda* — the herd the table holds,
-  each session drawing what it needs; metaphor strain noted (a remuda pools horses, tackle
-  is gear), the operator's word to spend or withhold at schema-settling.
-* *Count ruling* — RATIFIED (operator, 260707): a tackle = one domain binding, recorded in
-  its section above.
-* *Overlap* — operator lean (260707), superseding an earlier agent lean toward
-  most-specific-wins precedence: overlap is *permitted and means co-membership* — a file may
-  sit in two domains at once (the standing example: workstation bash that with slight
-  modification also runs in the cloud — BCG and CBG both apply), consumers take the union of
-  bundles, and no precedence machinery exists in the MVP.
-  Tackle wins by being simple rather than over-fitted.
-  What guards against *accidental* overlap: claims written at honest grain (the census's own
-  rows are naturally disjoint), and the audit report showing every overlap so an unintended
-  one is seen — never hand-mirrored exclusions (the SlickEdit disease, memo §autopsy).
-  Coverage accordingly reads *at-least-one* claim, not exactly-one.
-  A supplanting relation ("this specific claim excludes that general one"), if ever truly
-  needed, is a future deliberate addition.
-* *Governance bundle shape* — discipline references point at guide documents directly or at
-  a named registry.
-  A genuine contradiction between two co-governing bundles is surfaced to the operator,
-  never auto-resolved.
+* *Representation* — settled: the schema section is the one home (one home or none, never
+  two half-homes inviting confabulation).
+  Still standing from the direction: one table read by a shared substrate crate for BOTH the
+  JJ dispatch layer and the Vox matricula; the matricula MVP allowlist is shaped
+  schema-compatible, homed VOK-side, migrating to the pedigree home at studbook founding;
+  the reader lives in the shipped substrate library, and the matricula consumes the library
+  and never flows into it (VOr_q4f).
+* *Claim-rule kinds* — the aspirant-sheaf domain exposes a new need: some real domains are
+  defined by a *declared in-file marker* (the `axvd_sheaf axd_aspirant` lintel), not by
+  path shape — aspirant sheaves live scattered and name-irregular (JJS-aspirant-*, but
+  also VOSMM, RBSCV, RBSPC).
+  The lintel is designed for mechanical reading (AXLA), so a lintel-predicate claim would
+  still be declared-never-deduced — the declaration simply lives in the file instead of
+  the table.
+  Lean, per simplicity: the remuda stays glob-only and the census *audits* the lintel (a
+  file whose lintel carries `axd_aspirant` outside the aspirant tackle's remuda is a
+  finding); a lintel-predicate claim kind is the anticipated growth if that audit's
+  maintenance burden proves real.
 * *Loudness seats* — where the coverage remainder fires: standing census (repo hygiene,
   batch), saddle time (the session is about to touch an unaffiliated file — the pull-door
   shape), or both; and warn vs refuse at each seat.
-* *Universe declaration* — its shape and pedigree seating; and the word for beyond-universe
-  territory (palisade rejected, see Candidate vocabulary).
-* *Edge-type taxonomy* — specifies / tests / crosscuts are census-observed, not yet an enum;
+* *Ambit declaration* — its exact shape and pedigree seating.
+* *Edge-tag taxonomy* — specifies / tests / crosscuts are census-observed, not yet an enum;
   more census before it deserves one.
 * *Verdict naming* — held with the estray question (Candidate vocabulary).
-* *Word elections* — the unelected slots above (claim rule, derived roster, interrelation);
-  elections run gates at a census-style pace, not mid-mulling.
-* *Delivery* — direction resolved (260704): app-generated, work-honed context at saddle
-  time, with a retain-everything default until honing intelligence exists (farrier sheaf,
-  launch-time provisioning).
+* *Remaining word elections* — the identity glyph (eyeball) and identity-kind word; the
+  integrity-checks member; verdict names.
+  Elections run gates at a census-style pace, not mid-mulling.
+* *Delivery* — direction resolved: app-generated, work-honed context at saddle time, with a
+  retain-everything default until honing intelligence exists (farrier sheaf, launch-time
+  provisioning).
 
 == Sources (provenance, not authority)
 
@@ -680,8 +634,10 @@ the relevant ruling ratifies, deliberately not applied yet:
   type specimen.
 * Chat gamma-fable-regional-gallops (260704) — the MVP re-scope and pedigree-sibling
   placement.
-* Design chat 260707 (Fable) — the charter wording, inclusion-polarity resolution, worked
-  census, association graph, count-ruling lean;
-  exploratory record in `Memos/memo-20260707-tackle-polarity-and-graph.md`.
+* Design chat pym-beta-tackle (260707, Fable) — the charter wording, inclusion-polarity
+  resolution, worked census, association graph, countable ruling, schema settling and word
+  elections; exploratory record in `Memos/memo-20260707-tackle-polarity-and-graph.md`.
 * SlickEdit specimen `Tools/vslf-rbw/` + `Tools/vslk/` — the failed worked example mined for
   fileset-definition lessons (memo §autopsy).
+* Gallops serialization (`Tools/jjk/vov_veiled/src/jjrt_types.rs`) — the sprue grammar,
+  identity-keying law, and store-manners precedents the schema copies.
