@@ -73,7 +73,7 @@ All JJK commands are accessed via the single `mcp__vvx__jjx` MCP tool with four 
 - `command`: string selecting the operation — always the canonical `jjx_*` name (e.g., `"jjx_show"`, `"jjx_enroll"`, `"jjx_record"`)
 - `params`: JSON object with command-specific fields (see reference below)
 - `officium`: officium identity string from `jjx_open` (required on all commands except `jjx_open` — see Officium Protocol below)
-- `model`: agent's verbatim model ID string from its system prompt (e.g., `"claude-opus-4-8"`). Required on ALL commands including `jjx_open`. The server gates commands by model tier — currently all commands require a frontier-tier model (opus, fable, or gpt-5.5).
+- `model`: agent's verbatim model ID string from its system prompt (e.g., `"claude-opus-4-8"`). Required on ALL commands including `jjx_open`. The server gates commands by model tier under a three-bucket per-command policy — OPEN to every tier: `jjx_open` and the read commands (list, show, brief, coronets, log, search); DESIGNATION-GUARDED: orient, record, landing (see Bridle Protocol below); FRONTIER-ONLY (opus or fable): everything else — all docket-authoring and state-mutating verbs, close, validate, `jjx_bridle` itself, and the remote family.
 
 **`params` must be a JSON object, never a string.** If params is accidentally stringified (e.g., `"{\"key\": \"val\"}"` instead of `{"key": "val"}`), deserialization will fail. The server has a defensive fallback for this, but always pass a native object.
 
@@ -94,6 +94,8 @@ NEVER invent param fields — check the reference below first.
 | chivvy | pace | `jjx_enroll {first: true}` |
 | cantle | pace | `jjx_enroll {after: <current_coronet>}` |
 | reslate | pace | `jjx_redocket` |
+| bridle | pace | `jjx_bridle {coronet, tier, effort?}` — see Bridle Protocol below |
+| unbridle | pace | `jjx_bridle {coronet, release: true}` |
 | notch | pace | See Commit Discipline below |
 | wrap | pace | `jjx_close` |
 | rail | heat | `jjx_reorder` |
@@ -129,8 +131,9 @@ jjx_redocket       {size_limit?, before?, after?, first?}           # gazette_in
 jjx_relabel        {coronet, silks}
 jjx_drop           {coronet}
 jjx_brief      {coronet}                                            # raw docket text for ONE pace, returned inline (no gazette) — the clean single-docket read; an abandoned pace's docket leads with an [abandoned] marker line
-jjx_coronets   {firemark, remaining?, rough?}                       # coronet IDs in heat order, one per line, inline — no silks, no docket; the default listing tags an abandoned pace as "<coronet>  [abandoned]" (coronet stays the first token; remaining/rough still exclude abandoned)
+jjx_coronets   {firemark, remaining?, rough?}                       # coronet IDs in heat order, one per line, inline — no silks, no docket; the default listing tags an abandoned pace as "<coronet>  [abandoned]" and a bridled pace as "<coronet>  [bridled <tier>]" (coronet stays the first token; remaining includes bridled, rough excludes it)
 jjx_landing        {coronet, agent, content?}
+jjx_bridle         {coronet, tier?, effort?, release?}               # designate {coronet, tier, effort?} (only a rough pace) or un-bridle {coronet, release: true}; exactly one of tier|release; tiers haiku|sonnet|opus|fable, efforts low|medium|high|xhigh|max; frontier-only
 jjx_validate       {}                                                # normalize-and-report — exit 0 clean / 2 normalized (rewrote+committed) / 1 broken (untouched)
 jjx_bind           {alias, reldir}                                  # remote: create legatio session (alias resolves BURN profile)
 jjx_send           {legatio, command}                               # remote: synchronous exec on fundus
@@ -269,6 +272,51 @@ When user says "groom":
 2. Read `gazette_out.md` directly for full paddock and pace docket content — never the persisted tool-result blob or `jjg_gallops.json` (see "Never reach past the JJK interface" under Key points)
 3. Display overview: heat silks, progress, remaining paces with dockets (from gazette)
 4. Enter planning mode: suggest structural operations (slate new paces, rail to reorder, reslate to refine dockets, paddock review)
+
+### Bridle Protocol
+
+Bridling designates a pace for execution at a specific model tier: a frontier
+agent records that it judged the pace mechanically defined, and the server
+enforces the designation from there. The evaluator is always the calling
+frontier agent, never the server. States: a `rough` pace is undesignated
+judgment work; a `bridled` pace is designated, carrying its tier (and
+optionally an effort word) until it is released, reverted, or closed.
+
+**Bridling (frontier session designates):**
+
+1. Read the candidate pace's docket via `jjx_brief` (and the paddock via
+   `jjx_paddock` getter if heat context is needed for the judgment).
+2. Judge it: mechanically defined means no ambiguities and no lurking
+   design-level decisions. If the docket has gaps, REFUSE to designate and
+   report the gaps to the operator — a gap is a reslate need, not a lower-tier
+   problem.
+3. Otherwise designate: `jjx_bridle {coronet, tier}` with the execution tier
+   (haiku | sonnet | opus | fable), adding `effort` (low | medium | high |
+   xhigh | max — Anthropic's effort words) only where the docket's depth is
+   judged. Only a rough pace may be bridled.
+
+**Designee session (the designated-tier agent executes):**
+
+1. `jjx_orient` on the heat — resolution lands on the bridled pace, and the
+   orient guard admits the session only if its tier matches the designation
+   exactly (both directions: a frontier session is refused on a
+   sub-frontier-bridled pace; a sub-frontier session is refused on rough).
+2. Work the docket. Commit via `jjx_record` against the bridled coronet
+   (firemark-affiliated record stays frontier-only for sub-frontier sessions).
+3. Finish with `jjx_landing {coronet, agent, content}` — the completion report.
+4. NEVER wrap: `jjx_close` is frontier-only, always. A frontier session
+   reviews the landed work and wraps.
+5. On any hole or surprise: stop and surface it — docket-authoring verbs are
+   frontier-only, so a designee cannot restate its own orders.
+
+**Escalation paths (designation is void when its judgment inputs change):**
+
+- Edit-revert: any redocket of a bridled pace (single or mass reslate), and
+  any transfer or relocate, automatically reverts it to rough and wipes the
+  tier and effort. Relabel and reorder revert nothing.
+- Deliberate release: `jjx_bridle {coronet, release: true}` returns the pace
+  to rough judgment work (then optionally re-designate).
+- Tier and effort persist through close as provenance of the executing session.
 
 ### Foray Protocol
 

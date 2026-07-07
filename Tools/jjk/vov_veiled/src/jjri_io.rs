@@ -167,8 +167,10 @@ fn zjjdz_episode_tack_text_to_lines_live(_gallops: &jjrg_Gallops, original_bytes
 ///
 /// The bridle-retirement episode was stripped here 2026-07-07 with its demolition condition
 /// met (dormant, store canonical, sole operating instance) — freeing `jjgte_bridled` for its
-/// re-mint as the live bridled-state wire token. The removed `jjgtn_direction` warrant key is
-/// V3-only surface, covered by the V3→V4 episode's conversion path.
+/// re-mint as the live bridled-state wire token. The tolerance for the removed
+/// `jjgtn_direction` warrant key retired with the episode: no store carrying it survives on
+/// any operated clone. The V3-era `primed` state alias stays (jjrt_types), flagged by the
+/// V3→V4 episode.
 const ZJJDZ_REGISTRY: &[zjjdz_Episode] = &[
     zjjdz_Episode { label: "V3→V4", is_live: zjjdz_episode_v3_to_v4_live },
     zjjdz_Episode { label: "schema_version drop", is_live: zjjdz_episode_schema_version_drop_live },

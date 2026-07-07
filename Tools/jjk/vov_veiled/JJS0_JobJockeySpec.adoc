@@ -110,6 +110,7 @@
 
 // Pace state enum values
 :jjdpe_abandoned: <<jjdpe_abandoned,abandoned>>
+:jjdpe_bridled:   <<jjdpe_bridled,bridled>>
 :jjdpe_complete:  <<jjdpe_complete,complete>>
 :jjdpe_rough:     <<jjdpe_rough,rough>>
 :jjdpe_defined:   <<jjdpe_defined,defined>>
@@ -121,6 +122,8 @@
 :jjdcr_tack_s:      <<jjdcr_tack,Tacks>>
 :jjdcm_ts:          <<jjdcm_ts,ts>>
 :jjdcm_state:       <<jjdcm_state,state>>
+:jjdcm_tier:        <<jjdcm_tier,tier>>
+:jjdcm_effort:      <<jjdcm_effort,effort>>
 :jjdcm_text:        <<jjdcm_text,text>>
 :jjdcm_silks:       <<jjdcm_silks,silks>>
 :jjdcm_basis:       <<jjdcm_basis,commit>>
@@ -1739,6 +1742,24 @@ The
 needs clarification before work can proceed.
 Serialized as `jjgte_rough` in JSON.
 
+[[jjdpe_bridled]]
+//axl_voices axt_enum_value axd_string
+{jjdpe_bridled}::
+The
+{jjdpr_pace}
+is designated for execution: a frontier agent judged it mechanically defined
+and recorded its execution tier (and optionally an effort) on the current
+{jjdcr_tack}.
+A distinct open state — excluded by the rough filter, included by remaining,
+resolved by next-actionable.
+The designation reverts to
+{jjdpe_rough}
+(tier and effort wiped) on any docket revision, transfer, or relocate, and on
+deliberate release; it persists through close as provenance.
+Serialized as `jjgte_bridled` in JSON — a sanctioned re-mint of the retired
+V3-era state's token, its eviction sweep proven by repo-wide grep at the
+re-mint.
+
 [[jjdpe_complete]]
 //axl_voices axt_enum_value axd_string
 {jjdpe_complete}::
@@ -1761,11 +1782,13 @@ Predicates for querying pace states by semantic category.
 
 [[jjdpe_defined]] {jjdpe_defined}:: Pace contributes to heat's scope.
 * rough: true
+* bridled: true
 * complete: true
 * abandoned: false
 
 [[jjdpe_resolved]] {jjdpe_resolved}:: Pace requires no further action.
 * rough: false
+* bridled: false
 * complete: true
 * abandoned: true
 
@@ -1799,10 +1822,46 @@ Serialized as `jjgtn_ts` in JSON.
 is the pace state at this snapshot.
 Values:
 {jjdpe_rough},
+{jjdpe_bridled},
 {jjdpe_complete},
 {jjdpe_abandoned}.
 Serialized as `jjgtn_state` in JSON.
-A pre-retirement on-disk `jjgte_bridled` value (V3 alias `primed`) is demoted to {jjdpe_rough} under {jjdz_reprieve} (the bridle-retirement episode).
+The V3-era `primed` token is demoted to {jjdpe_rough} at the deserialize boundary under {jjdz_reprieve} (the V3→V4 episode).
+
+* [[jjdcm_tier]]
+//axl_voices axr_member axd_optional axt_enumeration axd_property
+{jjdcm_tier}
+is the designation tier — the vendor model-family word a bridle designation
+records and the designation guard matches against the caller's model wire
+param.
+Values: haiku, sonnet, opus, fable — the designable set; tiers, never model
+IDs.
+Present while the pace is
+{jjdpe_bridled}
+and persisting through close as provenance; wiped by release and every revert
+trigger, so a
+{jjdpe_rough}
+pace never carries one.
+Serialized as `jjgtn_tier` in JSON, omitted entirely when absent — an
+undesignated store stays byte-canonical (the additive carve-out that needed no
+{jjdz_reprieve} episode).
+Wire tokens ride the `jjgde_` designation-enum family, shared with
+{jjdcm_effort}.
+
+* [[jjdcm_effort]]
+//axl_voices axr_member axd_optional axt_enumeration axd_property
+{jjdcm_effort}
+is the optional designation effort recorded beside
+{jjdcm_tier},
+anchored transparently on Anthropic's effort classification as the product
+surfaces it (low, medium, high, xhigh, max — verified 2026-07-07); JJ mints no
+effort vocabulary of its own.
+Never present without a tier, never on the MCP wire, never guarded —
+designation-and-dispatch data only.
+Serialized as `jjgtn_effort` in JSON, omitted entirely when absent, so a
+designation without effort is byte-identical to the tier-only form.
+Wire tokens ride the `jjgde_` designation-enum family, shared with
+{jjdcm_tier}.
 
 * [[jjdcm_text]]
 //axl_voices axr_member axd_required axd_repeated axd_property
