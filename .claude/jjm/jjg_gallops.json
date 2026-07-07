@@ -8874,9 +8874,10 @@
         "₢BsAAF",
         "₢BsAAG",
         "₢BsAAH",
+        "₢BsAAL",
         "₢BsAAK"
       ],
-      "jjghn_next_pace_seed": "AAL",
+      "jjghn_next_pace_seed": "AAM",
       "jjghn_paces": {
         "₢BsAAA": {
           "jjgpn_tacks": [
@@ -9052,7 +9053,7 @@
         "₢BsAAI": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260706-0739",
+              "jjgtn_ts": "260707-1314",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "## Character",
@@ -9061,27 +9062,36 @@
                 "",
                 "## Docket",
                 "",
-                "The upstream delivery ceremony (.claude/commands/rbk-prep-release.md) has drifted from the tree:",
+                "Both delivery documents have drifted from the tree — one disease, repaired together, proven by one practice walk.",
+                "",
+                "The upstream delivery ceremony (.claude/commands/rbk-prep-release.md):",
                 "its survive-list names .rbk/ and rbev-vessels/, which no longer exist (the tree moved to rbmm_moorings/rbmv_vessels/);",
                 "its strip list predates Tools/apck/ — proprietary content that would ride into a candidate today;",
                 "its marshal-zero step predates rbrw.env and the foedera library;",
                 "and the OPEN_SOURCE_UPSTREAM remote is not configured in this clone (operator supplies the target).",
-                "Repair the ceremony document against the current tree, wire the remote,",
+                "",
+                "The maintainer release procedure (RELEASE.md, repo root):",
+                "its qualification step invokes the retired pristine-qualification tabtarget (the gauntlet suite is the successor);",
+                "its fast-qualify reference predates the current colophon census;",
+                "and its credential narrative is bridge-legacy (RBRA keyfiles minted by qualification, Mantle/Charter/Knight sequence) —",
+                "a substantive rewrite to the federation-era verbs (avow, gird, brevet, mantle don), not a rename sweep.",
+                "",
+                "Repair both documents against the current tree, wire the remote,",
                 "then prove the repair by walking a throwaway candidate cut through the strip and post-strip fast-qualify steps — never pushed,",
                 "and with the full-qualification gate waived for the drill (the rebaseline ladders have not yet run).",
                 "Open item: how the colophon and tabtarget census behaves on the stripped tree",
                 "(withheld tabtargets versus surviving zipper enrollments) —",
                 "resolve it or record precisely what the post-strip qualify must tolerate.",
-                "Discovery: `git remote -v`; the ceremony document itself enumerates every list to check.",
+                "Discovery: `git remote -v`; each document enumerates its own lists to check.",
                 "",
                 "## Done when",
                 "",
-                "The ceremony document matches the tree;",
+                "Both delivery documents match the tree;",
                 "a throwaway candidate strips clean and fast-qualifies, or its failures are dispositioned as ceremony fixes;",
                 "a `git ls-files` review of the practice strip shows no proprietary path surviving."
               ],
               "jjgtn_silks": "staging-ceremony-refresh",
-              "jjgtn_basis": "cd2e307"
+              "jjgtn_basis": "3be0115"
             }
           ]
         },
@@ -9164,6 +9174,39 @@
               ],
               "jjgtn_silks": "candidate-cut-on-rebaseline",
               "jjgtn_basis": "55a5f80"
+            }
+          ]
+        },
+        "₢BsAAL": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260707-1314",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Qualify the proven rebaseline on non-macOS platforms:",
+                "run the suites that make sense against the STANDING freehold — no manor founding, no depot recreation, no project churn.",
+                "Selection principle: a suite earns a remote run by its LOCAL execution surface (bash dialect, container runtime, kernel networking);",
+                "cloud-side acts are platform-invariant and already proven from the primary station.",
+                "Host subsets (machine registry: Tools/jjk/vov_veiled/claude-jjk-bhyslop.md §I):",
+                "cerebro — reveille, plus siege and bivouac only if a container-runtime check passes;",
+                "rocket WSL — reveille, siege, bivouac, skirmish, blockade (Docker live there).",
+                "siege is the priority platform proof: containment against a native Linux kernel rather than Docker Desktop's VM.",
+                "parley and dogfight are deliberately excluded — near-pure REST and marginal local surface respectively.",
+                "Per-host provisioning is uniform: clone at the rebaseline commit, avow on that host (device flow; the sitting cache is per-machine), run.",
+                "No payor material leaves the primary station — this pace contains no payor acts.",
+                "Suites sequential, never parallel; notch before each run.",
+                "",
+                "## Done when",
+                "",
+                "Each host's subset is green at the rebaseline commit — or every failure dispositioned with the operator —",
+                "and the per-host verdicts are recorded to inform the candidate push.",
+                "",
+                "## Character",
+                "",
+                "Long remote suite runs; operator-present for the per-host avow."
+              ],
+              "jjgtn_silks": "cross-platform-freehold-sweep",
+              "jjgtn_basis": "3be0115"
             }
           ]
         }
