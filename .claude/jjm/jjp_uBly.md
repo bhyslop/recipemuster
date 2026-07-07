@@ -22,3 +22,12 @@ the population census as a defined deployment step
 (reprieve-shaped: new mints comply from the doctrine's landing; the standing stock converges in one deliberate act, never big-bang),
 the probe harness,
 and the lint jobs (missed-citation, printed-string, blocked-word membership).
+
+## At first slating
+
+Obligations the first pace-cutting must honor — recorded here as slate-time authority:
+
+The sample census runs first, before any implementation pace:
+a hand-run of the row schema over a dozen standing verbs
+(authority-bearing, operator-plain, intransitive, plain-compound, the destruction family, the read family),
+its findings amending the doctrine home (MCM's clause grammar) before code consumes it.
