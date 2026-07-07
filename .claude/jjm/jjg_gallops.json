@@ -8606,8 +8606,9 @@
         "₢BrAAP": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260705-1634",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260707-1348",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_sonnet",
               "jjgtn_text": [
                 "## Character",
                 "",
@@ -8623,7 +8624,7 @@
                 "the record/exchange split co-locates for later graduation."
               ],
               "jjgtn_silks": "officium-regestalt-impl",
-              "jjgtn_basis": "d432287"
+              "jjgtn_basis": "6bfa489"
             }
           ]
         },
