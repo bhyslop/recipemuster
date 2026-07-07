@@ -124,44 +124,48 @@ Mint follows API.
 | Slot | Meaning | Word status
 
 | a tackle
-| The countable domain binding: one claim rule + one governance bundle.
-| Ruling lean above; the word already exists — no new mint.
+| The countable domain binding: one fileset + one set of governance attachments.
+| Settled; the word already exists — no new mint.
 
 | tackle identity
 | The minted, immutable insignia keying one tackle row (as the firemark keys a heat);
   silks ride inside the row and never anchor a reference.
-| Deliberately unnamed — the glyph, digit count, and word join the insignia-ladder
-  reconciliation at the breeze sheaf; minted there, not here.
+| Count settled at 3 (base64url body, seed-minted).
+  Glyph: pending an eyeball election among unused currency glyphs.
+  The identity-kind word (the "firemark" analog) waits until speech demands it;
+  the breeze identity ladder reconciles around the taken count.
 
 | claim rule
 | The intensional membership rule of one tackle: an *anchored* subtree × shape conjunction
   (e.g. `Tools/rbk/rbtd/**` × `*.rs`).
   Distinct from the derived list by design.
-| Demoted from quoin candidacy (operator ok, 260707): a *field* of a tackle — nothing
-  outside a tackle refers to it, so it takes a plain schema name (hearting grade), never an
-  anchor.
-  "Scope" stays a prose placeholder only.
+| Demoted from quoin candidacy: the field is `jjottn_remuda` — the globs that assemble the
+  tackle's remuda.
+  The rule/extension distinction stays prose-grade ("the remuda's definition" vs "the
+  remuda's current files"); no second word is spent.
 
 | derived roster
 | The extension: the concrete file list a claim rule yields against a tree state.
   Always derived, never authored (Scope semantics: intensional table).
-| Unelected, awaiting the API sketch — if consumers only ever receive it as a returned path
-  list, it stays an anonymous return value and no word is spent (mint follows API).
-  *remuda* released from this slot (260707) and re-aimed at the table's aggregate wire
-  member — see the representation fork.
+| An anonymous return value unless the API proves otherwise (mint follows API);
+  *remuda* names the fileset concept itself (schema section), and speech covers rule and
+  extension both, naturally.
 
 | interrelation
 | One declared, typed edge between two tackles (specifies, tests, crosscuts), able to carry
   its own governing discipline.
-| Unelected; held candidates: *hame* (the collar-piece traces attach to), *swingletree*
-  (the crossbar that balances the pull of two traces).
+| ELECTED: *hame* (the collar-piece traces attach to) — the edges member is
+  `jjotrn_hames`.
+  Alternate held: swingletree.
   Disqualified: trace (trodden: stack/tracing), yoke (RBK-minted, RBSDY), harness (trodden).
 
 | governance bundle
 | What a tackle binds to: guide(s) + spec home + conduct + integrity checks — facets read by
   different consumers.
-| Deliberately unnamed — the registry fork (Open forks) is unresolved; naming now would
-  half-decide it.
+| ELECTED: *trappings* — `jjottn_trappings`, carrying direct paths to governing documents;
+  a named registry indirection waits for a real need.
+  A genuine contradiction between co-governing trappings is surfaced to the operator, never
+  auto-resolved.
 
 | verdicts
 | The three mechanical answers for any path: claimed / unclaimed-inside-universe /
@@ -172,10 +176,10 @@ Mint follows API.
 
 | governed universe
 | The per-upstream declared boundary within which coverage is owed (Scope semantics).
-| Deliberately unnamed — *palisade* was considered and rejected: the ROE Palisade names
-  jurisdiction-impossible (cannot edit), while this boundary is jurisdiction-not-yet-extended
-  (can edit, haven't legislated); overloading a load-bearing ROE word would break
-  one-word-one-concept.
+| ELECTED: *ambit* — `jjotrn_ambit`, the extent of jurisdiction.
+  Rejected: *palisade* (the ROE Palisade names jurisdiction-impossible — cannot edit —
+  while the ambit is jurisdiction-not-yet-extended: can edit, haven't legislated) and
+  *pale* (already minted RB-side as the upstream trust boundary, the Pale).
 |===
 
 == Scope semantics (the inclusion-polarity resolution, 260707)
@@ -339,6 +343,83 @@ tackle:
   This is also what keeps domain fluidity cheap: a development-time domain change is a table
   edit (journaled, studbook-side), never a rebuild.
 
+== The table — settling schema
+
+One file per upstream's tackle set, studbook-side, engine-written under the journal
+ceremony.
+Serialization is gallops-grade: deterministic key order; optional members skip-when-absent
+so an untouched store stays byte-canonical; operator-mutable values held raw and validated
+at read — bad config never makes the store illegitimate.
+A tackle serializes as one contiguous, self-contained, diff-clean block, so crossbreeding —
+copying a tackle between projects' tables — is a block copy; identity re-mints at import
+(derivation is generative).
+
+Wire keys carry the `jjot` sprue.
+Standing reservation: `jjo` is the JJ JSON-sprue container — a non-terminal naming nothing
+itself; each JJ-authored JSON wire format takes one fourth letter beneath it (`jjot` =
+tackle); gallops `jjg` predates the rule and stands unchanged.
+(The `jj` third-letter space is nearly full, and reservations live partly in the JJK README
+prefix registry, which code grep cannot see — the registry is part of any future gate.)
+Tail grammar per gallops: one structure letter (`r` root, `t` tackle row, `e` hame), then
+kind `n` (field key) or `e` (enum token).
+The sprue carries uniqueness, so tail words stay plain English unless the concept is
+operator-spoken; the spoken five are *silks*, *remuda*, *trappings*, *hames*, *ambit*.
+
+[source,json]
+----
+{
+  "jjotrn_next_tackle_seed": "AAC",
+  "jjotrn_ambit": ["Tools/**", "Memos/**", "tt/*.sh"],
+  "jjotrn_tackles": {
+    "‹g›AAA": {
+      "jjottn_silks": "theurge",
+      "jjottn_remuda": ["Tools/rbk/rbtd/**/*.rs"],
+      "jjottn_trappings": ["Tools/vok/vov_veiled/RCG-RustCodingGuide.md"]
+    },
+    "‹g›AAB": {
+      "jjottn_silks": "rb-bash",
+      "jjottn_remuda": ["Tools/rbk/*.sh"],
+      "jjottn_trappings": ["Tools/buk/vov_veiled/BCG-BashConsoleGuide.md",
+                           "Tools/rbk/claude-rbk-conduct.md"]
+    }
+  },
+  "jjotrn_hames": [
+    { "jjoten_from": "‹g›AAB", "jjoten_to": "‹g›AAC",
+      "jjoten_tag": "cites-spec",
+      "jjoten_rule": "Tools/cmk/vov_veiled/ACG-AllocationCodingGuide.adoc" }
+  ]
+}
+----
+
+Members:
+
+* `jjotrn_next_tackle_seed` — the 3-character base64url mint counter, advanced only under
+  the store lock.
+* `jjotrn_ambit` — the governed boundary: positive globs within which coverage is owed;
+  a beyond-ambit path is a known-unknown, never a defect (Scope semantics).
+* `jjotrn_tackles` — the tackle rows, keyed by tackle identity: the type-sentinel glyph
+  (`‹g›`, pending eyeball election) plus a 3-character base64url body.
+  The glyph rides the wire as type safety — a wrong-type identity fails at the parse
+  boundary; the identity is immutable, seed-minted, never re-minted in place.
+* `jjottn_silks` — display name; freely relabelable; never a reference target.
+* `jjottn_remuda` — the fileset definition: anchored subtree × shape globs assembling the
+  flight of files this tackle governs.
+  Wildcards are the mechanism; unanchored patterns are banned; root-anchored recursion and
+  bare-`*` shapes are audit flags.
+* `jjottn_trappings` — governance attachments: direct paths to the guides, spec homes, and
+  conduct documents the tackle carries.
+  Names live in data, never in code; consumers read facets of the same attachments.
+* `jjotrn_hames` — declared interrelations: `from`/`to` are tackle identities, never silks;
+  `tag` is an opaque label apps match by string; `rule` optionally names the document
+  governing the relation itself (ACG the type specimen).
+  Skip-when-absent: a boxes-only table shows no hames key at all.
+* Reserved, unbuilt: an integrity-checks row member; enum tokens (`jjot«s»e_`) — none yet.
+
+Identity nature: algebraic — fixed count 3, base64url body, seed-minted under lock, no
+hierarchical embedding (a tackle hangs on its pedigree by origin URL, never by prefix).
+The glyph and the identity-kind word (the "firemark" analog) pend: glyph by eyeball
+election, word when speech demands one.
+
 == Where it lives
 
 Studbook-side, beside the pedigree (one tackle set per upstream) — never in the hippodrome,
@@ -436,6 +517,23 @@ the relevant ruling ratifies, deliberately not applied yet:
   unclaimed-inside-universe — one generalizing concept or two words) resolves at tackle
   graduation, and the file-role layer should be named as a bundle facet once the bundle fork
   settles.
+* *AXLA `axd_insignia`, glyph-carriage amendment* — owed from the 260707 type-sentinel
+  ruling (representation fork above); canon edit, so it lands as a deliberate act under
+  the CMK covenant (in-conversation, operator-ratified), never a drive-by.
+  Draft replacement for the glyph sentence, wording to settle at the edit:
+  "The identity is the bare encoded body; the associated unicode glyph is its *type
+  sentinel* — an out-of-alphabet character at position zero naming the identity's type,
+  never contributing to its value.
+  Carriage is surface-keyed, three ways: mandatory in operator-facing output; mandatory in
+  project-authored structured wires (JSON stores and envelopes), where the sentinel makes
+  every persisted identity self-typing and a wrong-type identity fails at the parse
+  boundary; forbidden on foreign-traversed surfaces (git refs, filesystem paths, env vars,
+  shell arguments), where non-ASCII fragility is real.
+  Input is tolerant: readers accept and strip the sentinel, validating it against the
+  expected type where declared."
+  Harmonizes with `axd_algebraic`'s existing sentinel sentence rather than adding a second
+  concept; `jjrf_favor.rs` comments stay true (identity = body); gallops store already
+  compliant, no reprieve.
 * *JJS0 codex, at infusion* — two AXLA obligations discovered on full MCM/AXLA read
   (260707): the lintel here carries the legacy one-token form (`axd_aspirant` alone), and
   current AXLA law wants two dimensions in fixed order (normativeness, then genre — for this
@@ -505,7 +603,30 @@ the relevant ruling ratifies, deliberately not applied yet:
   Gallops verified clean on exactly this (`jjrt_types.rs`): heats keyed by firemark with
   `jjghn_silks` inside, paces keyed by coronet, `jjgrn_heat_order`/`jjghn_order`
   referencing by insignia only, identities minted from next-seed fields under the store
-  lock, glyphs absent from all wire keys (machine context, per the insignia doctrine).
+  lock.
+  Glyph in the wire — RULED (operator, 260707, reversing a same-day agent bare-body lean
+  and overriding current AXLA wording): identity values in JJ-authored JSON stores CARRY
+  their glyph (`"₣AA"`, `"₢AAAAA"`, the gallops store's actual on-disk shape per
+  `jjrg_gallops.rs` fixtures) — because the glyph there is a *type sentinel*: an
+  out-of-alphabet character at position zero naming the identity's type, so every
+  persisted identity is self-typing and a wrong-type identity (a coronet pasted where a
+  firemark belongs) fails at the parse boundary instead of deep in logic.
+  The store was right and the doctrine lagged: AXLA `axd_algebraic` already holds the
+  sentinel concept ("an out-of-alphabet sentinel character at a fixed position
+  disambiguates") — the amendment promotes the glyph to the sentinel-at-position-zero.
+  The logical identity remains the bare body (`jjrf_favor.rs` "never part of the identity"
+  stays true — the favor module's body/sigil split already models this); what changes is
+  carriage law, three-way by surface: operator display mandatory (unchanged);
+  JJ-authored structured wires mandatory (the type-safety ruling); foreign-traversed
+  surfaces forbidden (git refs, paths, env vars, shell args — fragility real, branch
+  discipline and officium strip unchanged); input tolerant everywhere (readers accept,
+  strip, and type-check the sentinel).
+  Practical dividend: the gallops store is already compliant — the amendment legitimizes
+  standing bytes, so no key sweep and no reprieve episode.
+  Tackle consequence: remuda keys and edge from/to carry the tackle sentinel once its
+  glyph mints (identity-ladder reconciliation); seed fields stay glyphless — a seed is a
+  counter, not an identity.
+  AXLA amendment owed: see Reconciliation obligations.
   Consequences: the table carries a next-tackle-seed field; rows are minted by an engine
   verb, never hand-invented — which *aligns* tackle editing with blotter doctrine (studbook
   writes pass through the journal anyway, so hand-authored keys were already off-doctrine;
