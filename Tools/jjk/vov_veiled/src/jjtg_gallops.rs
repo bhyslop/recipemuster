@@ -1348,3 +1348,295 @@ fn jjtg_retention_state_malformed_when_unparseable() {
         }
     }
 }
+
+// ===== Bridle designation: schema, transitions, revert triggers =====
+
+/// Rewrite the canonical single pace's current tack to the given state and designation.
+fn make_designated_gallops(
+    state: jjrg_PaceState,
+    tier: Option<jjrg_Tier>,
+    effort: Option<jjrg_Effort>,
+) -> jjrg_Gallops {
+    let mut g = canonical_gallops();
+    let tack = &mut g.heats.get_mut("₣AC").unwrap().paces.get_mut("₢ACAAA").unwrap().tacks[0];
+    tack.state = state;
+    tack.tier = tier;
+    tack.effort = effort;
+    g
+}
+
+#[test]
+fn jjtg_bridled_state_and_designation_wire_tokens() {
+    // The re-minted state token, and the jjgde_ designation family for both
+    // vocabularies — wire token per variant (RCG Constant Discipline).
+    assert_eq!(serde_json::to_string(&jjrg_PaceState::Bridled).unwrap(), "\"jjgte_bridled\"");
+    assert_eq!(serde_json::to_string(&jjrg_Tier::Haiku).unwrap(), "\"jjgde_haiku\"");
+    assert_eq!(serde_json::to_string(&jjrg_Tier::Sonnet).unwrap(), "\"jjgde_sonnet\"");
+    assert_eq!(serde_json::to_string(&jjrg_Tier::Opus).unwrap(), "\"jjgde_opus\"");
+    assert_eq!(serde_json::to_string(&jjrg_Tier::Fable).unwrap(), "\"jjgde_fable\"");
+    assert_eq!(serde_json::to_string(&jjrg_Effort::Low).unwrap(), "\"jjgde_low\"");
+    assert_eq!(serde_json::to_string(&jjrg_Effort::Medium).unwrap(), "\"jjgde_medium\"");
+    assert_eq!(serde_json::to_string(&jjrg_Effort::High).unwrap(), "\"jjgde_high\"");
+    assert_eq!(serde_json::to_string(&jjrg_Effort::Xhigh).unwrap(), "\"jjgde_xhigh\"");
+    assert_eq!(serde_json::to_string(&jjrg_Effort::Max).unwrap(), "\"jjgde_max\"");
+}
+
+#[test]
+fn jjtg_designation_word_parsing_is_recognized_word_only() {
+    assert_eq!(jjrg_Tier::jjrg_from_word("sonnet").unwrap(), jjrg_Tier::Sonnet);
+    assert_eq!(jjrg_Tier::jjrg_from_word("fable").unwrap(), jjrg_Tier::Fable);
+    assert!(jjrg_Tier::jjrg_from_word("gpt-5.5").is_err());
+    assert!(jjrg_Tier::jjrg_from_word("gemini").is_err());
+    assert!(jjrg_Tier::jjrg_from_word("").is_err());
+    assert_eq!(jjrg_Effort::jjrg_from_word("xhigh").unwrap(), jjrg_Effort::Xhigh);
+    assert!(jjrg_Effort::jjrg_from_word("ultra").is_err());
+}
+
+#[test]
+fn jjtg_untouched_store_carries_no_designation_keys() {
+    // The additive carve-out: an undesignated store serializes byte-identically
+    // to the pre-bridle schema — no jjgtn_tier or jjgtn_effort keys appear, so
+    // the load round-trip gate never trips and no reprieve episode is needed.
+    let bytes = serde_json::to_string_pretty(&canonical_gallops()).unwrap();
+    assert!(!bytes.contains("jjgtn_tier"));
+    assert!(!bytes.contains("jjgtn_effort"));
+    assert!(matches!(zjjrvl_appraise(bytes.as_bytes()), zjjrvl_Appraisal::Canonical(_)));
+}
+
+#[test]
+fn jjtg_bridled_store_round_trips_canonical() {
+    let g = make_designated_gallops(
+        jjrg_PaceState::Bridled, Some(jjrg_Tier::Sonnet), Some(jjrg_Effort::High));
+    let bytes = serde_json::to_string_pretty(&g).unwrap();
+    assert!(bytes.contains("jjgte_bridled"));
+    assert!(bytes.contains("jjgde_sonnet"));
+    assert!(bytes.contains("jjgde_high"));
+    // Canonical means load + round-trip gate + semantic validation all pass.
+    match zjjrvl_appraise(bytes.as_bytes()) {
+        zjjrvl_Appraisal::Canonical(canon) => {
+            let tack = &canon.heats["₣AC"].paces["₢ACAAA"].tacks[0];
+            assert_eq!(tack.state, jjrg_PaceState::Bridled);
+            assert_eq!(tack.tier, Some(jjrg_Tier::Sonnet));
+            assert_eq!(tack.effort, Some(jjrg_Effort::High));
+        }
+        other => panic!("bridled store must appraise Canonical, got {}", appraisal_name(&other)),
+    }
+}
+
+#[test]
+fn jjtg_effort_absent_designation_is_byte_identical_to_tier_only() {
+    let with_none = make_designated_gallops(jjrg_PaceState::Bridled, Some(jjrg_Tier::Haiku), None);
+    let bytes = serde_json::to_string_pretty(&with_none).unwrap();
+    assert!(bytes.contains("jjgtn_tier"));
+    assert!(!bytes.contains("jjgtn_effort"), "effort-absent designation must omit the effort key");
+    assert!(matches!(zjjrvl_appraise(bytes.as_bytes()), zjjrvl_Appraisal::Canonical(_)));
+}
+
+#[test]
+fn jjtg_bridle_designates_rough_pace() {
+    let mut g = canonical_gallops();
+    let ctx = g.jjrg_bridle("ACAAA", jjrg_Tier::Sonnet, Some(jjrg_Effort::Xhigh), "abc1234", "260707-1100").unwrap();
+    assert_eq!(ctx.state, jjrg_PaceState::Rough, "context snapshots the pre-mutation state");
+    let tack = &g.heats["₣AC"].paces["₢ACAAA"].tacks[0];
+    assert_eq!(tack.state, jjrg_PaceState::Bridled);
+    assert_eq!(tack.tier, Some(jjrg_Tier::Sonnet));
+    assert_eq!(tack.effort, Some(jjrg_Effort::Xhigh));
+    assert_eq!(tack.basis, "abc1234");
+    assert_eq!(tack.ts, "260707-1100");
+}
+
+#[test]
+fn jjtg_bridle_refuses_non_rough_pace() {
+    // Only a rough pace may be bridled — the rough filter is the precondition.
+    for state in [jjrg_PaceState::Bridled, jjrg_PaceState::Complete, jjrg_PaceState::Abandoned] {
+        let tier = if state == jjrg_PaceState::Bridled { Some(jjrg_Tier::Haiku) } else { None };
+        let mut g = make_designated_gallops(state.clone(), tier, None);
+        let err = g.jjrg_bridle("ACAAA", jjrg_Tier::Opus, None, "abc1234", "260707-1100").unwrap_err();
+        assert!(err.contains("only a rough pace may be bridled"), "state {:?}: {}", state, err);
+    }
+}
+
+#[test]
+fn jjtg_release_unbridles_and_wipes_designation() {
+    let mut g = make_designated_gallops(
+        jjrg_PaceState::Bridled, Some(jjrg_Tier::Haiku), Some(jjrg_Effort::Low));
+    g.jjrg_release("ACAAA", "abc1234", "260707-1101").unwrap();
+    let tack = &g.heats["₣AC"].paces["₢ACAAA"].tacks[0];
+    assert_eq!(tack.state, jjrg_PaceState::Rough);
+    assert_eq!(tack.tier, None);
+    assert_eq!(tack.effort, None);
+}
+
+#[test]
+fn jjtg_release_refuses_non_bridled_pace() {
+    let mut g = canonical_gallops();
+    let err = g.jjrg_release("ACAAA", "abc1234", "260707-1101").unwrap_err();
+    assert!(err.contains("only a bridled pace may be released"), "got: {}", err);
+}
+
+#[test]
+fn jjtg_redocket_reverts_bridled_to_rough() {
+    // Revert trigger: the docket is a judgment input; editing it voids the designation.
+    let mut g = make_designated_gallops(
+        jjrg_PaceState::Bridled, Some(jjrg_Tier::Sonnet), Some(jjrg_Effort::High));
+    g.jjrg_revise_docket("ACAAA", "revised docket", "abc1234", "260707-1102").unwrap();
+    let tack = &g.heats["₣AC"].paces["₢ACAAA"].tacks[0];
+    assert_eq!(tack.state, jjrg_PaceState::Rough);
+    assert_eq!(tack.tier, None);
+    assert_eq!(tack.effort, None);
+}
+
+#[test]
+fn jjtg_redocket_preserves_resolved_provenance() {
+    // A complete pace's close-time designation provenance survives a docket edit.
+    let mut g = make_designated_gallops(
+        jjrg_PaceState::Complete, Some(jjrg_Tier::Haiku), Some(jjrg_Effort::Max));
+    g.jjrg_revise_docket("ACAAA", "revised docket", "abc1234", "260707-1102").unwrap();
+    let tack = &g.heats["₣AC"].paces["₢ACAAA"].tacks[0];
+    assert_eq!(tack.state, jjrg_PaceState::Complete);
+    assert_eq!(tack.tier, Some(jjrg_Tier::Haiku));
+    assert_eq!(tack.effort, Some(jjrg_Effort::Max));
+}
+
+/// Two-heat gallops for draft/relocate revert tests.
+fn make_two_heat_gallops(state: jjrg_PaceState, tier: Option<jjrg_Tier>, effort: Option<jjrg_Effort>) -> jjrg_Gallops {
+    let mut g = make_designated_gallops(state, tier, effort);
+    let (hk, heat) = make_valid_heat("AD", "dest-heat");
+    g.heat_order.push(hk.clone());
+    g.heats.insert(hk, heat);
+    g
+}
+
+#[test]
+fn jjtg_draft_reverts_bridled_to_rough() {
+    // Revert trigger: relocate/transfer change the paddock context the pace was
+    // judged against, so a bridled pace lands rough with its designation wiped.
+    let mut g = make_two_heat_gallops(
+        jjrg_PaceState::Bridled, Some(jjrg_Tier::Opus), Some(jjrg_Effort::Medium));
+    let result = g.jjrg_draft(jjrg_DraftArgs {
+        coronet: "ACAAA".to_string(),
+        to: "AD".to_string(),
+        before: None,
+        after: None,
+        first: false,
+    }).unwrap();
+    let tack = &g.heats["₣AD"].paces[&result.new_coronet].tacks[0];
+    assert_eq!(tack.state, jjrg_PaceState::Rough);
+    assert_eq!(tack.tier, None);
+    assert_eq!(tack.effort, None);
+}
+
+#[test]
+fn jjtg_draft_carries_resolved_provenance() {
+    let mut g = make_two_heat_gallops(
+        jjrg_PaceState::Complete, Some(jjrg_Tier::Sonnet), None);
+    let result = g.jjrg_draft(jjrg_DraftArgs {
+        coronet: "ACAAA".to_string(),
+        to: "AD".to_string(),
+        before: None,
+        after: None,
+        first: false,
+    }).unwrap();
+    let tack = &g.heats["₣AD"].paces[&result.new_coronet].tacks[0];
+    assert_eq!(tack.state, jjrg_PaceState::Complete);
+    assert_eq!(tack.tier, Some(jjrg_Tier::Sonnet));
+}
+
+#[test]
+fn jjtg_relabel_reverts_nothing() {
+    // Relabel rides tally with a silks-only change: designation carries through.
+    let mut g = make_designated_gallops(
+        jjrg_PaceState::Bridled, Some(jjrg_Tier::Haiku), Some(jjrg_Effort::Low));
+    g.jjrg_tally(jjrg_TallyArgs {
+        coronet: "ACAAA".to_string(),
+        state: None,
+        text: None,
+        silks: Some("renamed-pace".to_string()),
+    }).unwrap();
+    let tack = &g.heats["₣AC"].paces["₢ACAAA"].tacks[0];
+    assert_eq!(tack.state, jjrg_PaceState::Bridled);
+    assert_eq!(tack.tier, Some(jjrg_Tier::Haiku));
+    assert_eq!(tack.effort, Some(jjrg_Effort::Low));
+    assert_eq!(tack.silks, "renamed-pace");
+}
+
+#[test]
+fn jjtg_close_and_drop_persist_designation_as_provenance() {
+    // Wrap (→ complete) and drop (→ abandoned) both ride tally: tier and effort persist.
+    for terminal in [jjrg_PaceState::Complete, jjrg_PaceState::Abandoned] {
+        let mut g = make_designated_gallops(
+            jjrg_PaceState::Bridled, Some(jjrg_Tier::Sonnet), Some(jjrg_Effort::High));
+        g.jjrg_tally(jjrg_TallyArgs {
+            coronet: "ACAAA".to_string(),
+            state: Some(terminal.clone()),
+            text: None,
+            silks: None,
+        }).unwrap();
+        let tack = &g.heats["₣AC"].paces["₢ACAAA"].tacks[0];
+        assert_eq!(tack.state, terminal);
+        assert_eq!(tack.tier, Some(jjrg_Tier::Sonnet));
+        assert_eq!(tack.effort, Some(jjrg_Effort::High));
+    }
+}
+
+#[test]
+fn jjtg_validate_rejects_incoherent_designation() {
+    // Bridled without a tier: the designation IS the tier record.
+    let g = make_designated_gallops(jjrg_PaceState::Bridled, None, None);
+    assert!(jjrg_validate(&g).unwrap_err().iter().any(|e| e.contains("bridled tack must carry a tier")));
+
+    // Rough with a designation: every wipe path must have fired.
+    let g = make_designated_gallops(jjrg_PaceState::Rough, Some(jjrg_Tier::Haiku), None);
+    assert!(jjrg_validate(&g).unwrap_err().iter().any(|e| e.contains("rough tack must carry no tier")));
+
+    // Effort never rides without a tier.
+    let g = make_designated_gallops(jjrg_PaceState::Complete, None, Some(jjrg_Effort::Low));
+    assert!(jjrg_validate(&g).unwrap_err().iter().any(|e| e.contains("effort must not ride without a tier")));
+}
+
+#[test]
+fn jjtg_v3_primed_state_demotes_via_v3_episode() {
+    // The V3-era `primed` alias stays with the V3→V4 episode: a store carrying it
+    // predates heat_order, so that episode flags the file, the alias demotes the
+    // state to Rough at the deserialize boundary, and the write-forward + next
+    // save land the canonical form. The new bridled sense never writes `primed`.
+    let dir = JjkTestDir::new("jjtg_v3_primed_demote");
+    let path = dir.path().join("jjg_gallops.json");
+    let legacy = r#"{
+  "jjgrn_next_heat_seed": "AD",
+  "jjgrn_heats": {
+    "₣AC": {
+      "jjghn_silks": "my-heat",
+      "jjghn_creation_time": "260101",
+      "jjghn_status": "jjghe_racing",
+      "jjghn_order": ["₢ACAAA"],
+      "jjghn_next_pace_seed": "AAB",
+      "jjghn_paces": {
+        "₢ACAAA": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260101-1200",
+              "jjgtn_state": "primed",
+              "jjgtn_text": ["execute this"],
+              "jjgtn_silks": "my-pace",
+              "jjgtn_basis": "0000000"
+            }
+          ]
+        }
+      }
+    }
+  }
+}"#;
+    std::fs::write(&path, legacy).unwrap();
+
+    let gallops = jjrg_Gallops::jjrg_load(&path).expect("v3 primed gallops should load and demote");
+    let tack = &gallops.heats["₣AC"].paces["₢ACAAA"].tacks[0];
+    assert_eq!(tack.state, jjrg_PaceState::Rough);
+    assert_eq!(tack.tier, None);
+    assert_eq!(gallops.heat_order, vec!["₣AC".to_string()], "write-forward populates heat_order");
+
+    gallops.jjrg_save(&path).expect("save converted gallops");
+    let text = std::fs::read_to_string(&path).unwrap();
+    assert!(!text.contains("primed"));
+    assert!(text.contains("jjgte_rough"));
+}
