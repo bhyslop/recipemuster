@@ -293,6 +293,18 @@ optionally an effort word) until it is released, reverted, or closed.
    design-level decisions. If the docket has gaps, REFUSE to designate and
    report the gaps to the operator — a gap is a reslate need, not a lower-tier
    problem.
+
+   Tier is set by where judgment lives during execution, never by how much
+   the pace matters. Operator presence LOWERS the tier requirement: the
+   scarce resource a higher tier substitutes for is judgment, and an
+   operator-present pace has judgment on tap in the room — the designee's
+   job collapses to careful execution, accurate observation, clear
+   surfacing. Stakes (destructive acts, real credentials) hold no tier
+   either: stop-and-surface already forbids the improvisation stakes fear,
+   and the person to surface to is present. What genuinely holds a frontier
+   tier is plausible wrongness the operator cannot cheaply check — work
+   that authors authority downstream work will obey (a ceremony document,
+   a spec narrative), where an error reads fine and propagates.
 3. Before designating a frontier tier, weigh mechanization: if the judgment
    the docket defers could be settled NOW — from the paddock's cinches, landed
    specs, and what this session already holds — propose the reslate that bakes
