@@ -1413,14 +1413,15 @@ fn jjtg_bridled_store_round_trips_canonical() {
     assert!(bytes.contains("jjgde_high"));
     // Canonical means load + round-trip gate + semantic validation all pass.
     match zjjrvl_appraise(bytes.as_bytes()) {
-        zjjrvl_Appraisal::Canonical(canon) => {
-            let tack = &canon.heats["₣AC"].paces["₢ACAAA"].tacks[0];
-            assert_eq!(tack.state, jjrg_PaceState::Bridled);
-            assert_eq!(tack.tier, Some(jjrg_Tier::Sonnet));
-            assert_eq!(tack.effort, Some(jjrg_Effort::High));
-        }
+        zjjrvl_Appraisal::Canonical(_) => {}
         other => panic!("bridled store must appraise Canonical, got {}", appraisal_name(&other)),
     }
+    // And the designation deserializes back intact.
+    let reloaded: jjrg_Gallops = serde_json::from_str(&bytes).unwrap();
+    let tack = &reloaded.heats["₣AC"].paces["₢ACAAA"].tacks[0];
+    assert_eq!(tack.state, jjrg_PaceState::Bridled);
+    assert_eq!(tack.tier, Some(jjrg_Tier::Sonnet));
+    assert_eq!(tack.effort, Some(jjrg_Effort::High));
 }
 
 #[test]
