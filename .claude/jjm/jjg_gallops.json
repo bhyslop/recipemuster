@@ -8884,8 +8884,9 @@
         "₢BsAAA": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260705-0805",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260707-1333",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_sonnet",
               "jjgtn_text": [
                 "Run the self-contained and union suites to green on the current tree: tt/rbw-ts.TestSuite.siege.sh, then tt/rbw-ts.TestSuite.echelon.sh.",
                 "Purpose: baseline the non-freehold-touching breadth — credless, GCP-credentialed, and crucible strata — before the freehold ladders run.",
@@ -8898,7 +8899,7 @@
                 "Long suite runs with watch-and-repair judgment."
               ],
               "jjgtn_silks": "siege-echelon-green",
-              "jjgtn_basis": "b9782ba"
+              "jjgtn_basis": "45b7e05"
             }
           ]
         },
