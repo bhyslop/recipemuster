@@ -293,7 +293,16 @@ optionally an effort word) until it is released, reverted, or closed.
    design-level decisions. If the docket has gaps, REFUSE to designate and
    report the gaps to the operator — a gap is a reslate need, not a lower-tier
    problem.
-3. Otherwise designate: `jjx_apostille {coronet, tier}` with the execution tier
+3. Before designating a frontier tier, weigh mechanization: if the judgment
+   the docket defers could be settled NOW — from the paddock's cinches, landed
+   specs, and what this session already holds — propose the reslate that bakes
+   those decisions into the docket, leaving a residue a lower tier can run.
+   The proposal goes to the operator (a reslate is a work-content change,
+   never applied silently); on approval, redocket, then bridle the mechanized
+   pace. Judgment only the work itself can surface — spec authoring, gates,
+   verification — is not mechanizable: designate it at its tier rather than
+   manufacture a reslate.
+4. Otherwise designate: `jjx_apostille {coronet, tier}` with the execution tier
    (haiku | sonnet | opus | fable), adding `effort` (low | medium | high |
    xhigh | max — Anthropic's effort words) only where the docket's depth is
    judged. Only a rough pace may be bridled.
