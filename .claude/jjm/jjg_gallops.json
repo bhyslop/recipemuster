@@ -9840,8 +9840,8 @@
         "₢BxAAD": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260707-1142",
-              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_ts": "260707-1225",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_tier": "jjgde_opus",
               "jjgtn_text": [
                 "## Character",
@@ -9868,7 +9868,7 @@
                 "and the fence-walk pace can place the facade lint without re-derivation."
               ],
               "jjgtn_silks": "bank-facade-lint",
-              "jjgtn_basis": "8bbad02"
+              "jjgtn_basis": "645edf7"
             }
           ]
         }
