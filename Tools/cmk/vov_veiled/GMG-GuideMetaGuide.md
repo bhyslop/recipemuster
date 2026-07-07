@@ -9,7 +9,7 @@ See LICENSE for terms.
 ## Purpose
 
 GMG is the guide for writing guides. The project's guides — BCG, RCG, WSG, HCG,
-CBG, PCG, ACG, JDG — recur in shape and framing; GMG homes that shared form once
+CBG, PCG, ACG, JDG, AWG — recur in shape and framing; GMG homes that shared form once
 so a guide can **cite the convention rather than re-derive it**, and so a new
 guide starts from a known skeleton instead of a blank page. It is ACG's
 "statements → definition sites" turned on the guide family itself: the

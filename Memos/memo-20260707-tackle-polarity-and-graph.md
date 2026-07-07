@@ -2,7 +2,7 @@
 
 Design-session record, 2026-07-07 (Fable session, operator Brad).
 Provenance, never authority: the settled leans live in the tackle aspirant sheaf
-(`Tools/jjk/vov_veiled/JJS-aspirant-tackle.adoc`); this memo preserves the reasoning,
+(`Tools/jjk/vov_veiled/JJSAT-tackle.adoc`); this memo preserves the reasoning,
 the specimen evidence, and the explorations that did not graduate.
 
 ## 1. The question
@@ -227,9 +227,9 @@ bundle-facet alignment at graduation.
 
 ## 11. Session sources
 
-- `Tools/jjk/vov_veiled/JJS-aspirant-tackle.adoc` (restructured this session)
+- `Tools/jjk/vov_veiled/JJSAT-tackle.adoc` (restructured this session)
 - `Tools/jjk/vov_veiled/JJSVS-studbook.adoc` (pedigree anchor)
-- `Tools/jjk/vov_veiled/JJSAB-breeze.adoc`, `JJS-aspirant-farrier.adoc` (consumption sites)
+- `Tools/jjk/vov_veiled/JJSAB-breeze.adoc`, `JJSAF-farrier.adoc` (consumption sites)
 - `Tools/vok/vov_veiled/VOSMM-entity.adoc` (matricula: allowlist, VOr_k3p/m7w/q4f, file-role
   layer, grimoire residence)
 - `Tools/vslf-rbw/*`, `Tools/vslk/*` (specimen)

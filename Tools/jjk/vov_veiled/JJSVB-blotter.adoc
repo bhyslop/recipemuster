@@ -44,7 +44,7 @@ Two instances are designed; one engine drives both through the same entity machi
 
 * the {jjdb_studbook} — the regional record repo carrying the {jjdgr_gallops};
 * the *mews fleet store* — the anticipated second instance
-  (sibling nucleation, `JJS-aspirant-mews.adoc`).
+  (sibling nucleation, `JJSAM-mews.adoc`).
 
 Two repos, two locks: instances share machinery, never state.
 The one genuine seam between them is the `(work repo, SHA)` cross-reference both journal —

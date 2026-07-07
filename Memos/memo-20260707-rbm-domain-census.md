@@ -5,7 +5,7 @@ Provenance, never authority.
 
 This memo is the *living* census: the concrete inventory of this repo's domains and the
 relations between them, kept separate from the tackle concept itself (the aspirant sheaf,
-`Tools/jjk/vov_veiled/JJS-aspirant-tackle.adoc`) so the concept stays general while the
+`Tools/jjk/vov_veiled/JJSAT-tackle.adoc`) so the concept stays general while the
 example stays real.
 Operator framing: the two "fly in formation" throughout tackle development — the sheaf
 carries a small frozen illustration; this memo is where the census grows.
@@ -41,7 +41,7 @@ Paths are best-current-knowledge, not verified claims; this is a census in progr
 | Generated consts | `rbtdgc_consts.rs`, `claude-rbk-tabtarget-context.md` | regenerate via build, never hand-edit |
 | Public face | `README.md` | MCM revetment law (ashlar-or-prose only) |
 | APCK | `Tools/apck/**` | RCG + APCS0/APCPS, no-JavaScript rule |
-| Aspirant sheaves | `JJS-aspirant-*.adoc` + aspirant-lintel members elsewhere (VOSMM, RBSCV, RBSPC…) | MCM/AXLA + a future Aspirant Refinement Guide (unwritten; this session is its type specimen) |
+| Aspirant sheaves | `Tools/jjk/vov_veiled/JJSA*.adoc` + aspirant-lintel members elsewhere (VOSMM, RBSCV, RBSPC…) | MCM/AXLA + AWG (Aspirant Writing Guide) |
 
 Notes on fuzziness (deliberate, recorded):
 

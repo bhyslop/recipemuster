@@ -2,8 +2,8 @@
 
 **Date:** 2026-06-30
 **Status:** Superseded as mulling home (2026-07-04). The architecture matured into three
-aspirant sheaves — `Tools/jjk/vov_veiled/JJS-aspirant-state-repo.adoc` (studbook),
-`JJS-aspirant-farrier.adoc` (driver + dispatch), `JJS-aspirant-tackle.adoc` — which carry the
+aspirant sheaves — `Tools/jjk/vov_veiled/JJSAS-state-repo.adoc` (studbook),
+`JJSAF-farrier.adoc` (driver + dispatch), `JJSAT-tackle.adoc` — which carry the
 settled vocabulary (studbook, pedigree, farrier, saddle/billet/unsaddle, hippodrome) and
 current design. Read this memo as provenance for the lock/insignia reasoning and the naming
 alternates; the sheaves are the living surface. Aspirant, not authority.
@@ -161,7 +161,7 @@ Principle: **name each repo in the register of what it holds**; the set is **bon
 
 - VVG lock — `Tools/vok/vov_veiled/VOSRL-lock.adoc`, `Tools/vvc/src/vvcc_commit.rs`
   (`vvcc_CommitLock`), `Tools/vok/src/vorm_main.rs` — the local-CAS template generalized to remote.
-- `Tools/jjk/vov_veiled/JJS-aspirant-state-repo.adoc`, `JJS-aspirant-mews.adoc` — the two sheaves.
+- `Tools/jjk/vov_veiled/JJSAS-state-repo.adoc`, `JJSAM-mews.adoc` — the two sheaves.
 - JJS0 — Crash-Safe Architecture (`lock → load → transform → save → unlock`),
   `jjdk_sole_operator`, the `jjdcm_basis` tack member, the `pensum_seed` eviction (JJS0:1547),
   the entity hierarchy worked in `JJSCGZ-gazette.adoc`.

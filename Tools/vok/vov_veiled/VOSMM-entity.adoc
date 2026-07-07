@@ -212,7 +212,7 @@ Tier 0 — Grammar (maintained, frozen at load): the
 registry (VOF, exists), the
 {voslv_vesture}
 set (the Liturgy, exists), and the file-selection allowlist (new — an explicit allowlist in a distinct file, `.md`/`.adoc`/`.rs`/`.sh` at minimum, recursive, narrowed by a git-tracked-only gate and the cipher/veiled gate).
-A cross-kit direction is recorded (260705, from the ₣Br census-pace experience): the allowlist is anticipated as a projection of JJ's *tackle* table — the scope→discipline binding of the aspirant tackle sheaf (`Tools/jjk/vov_veiled/JJS-aspirant-tackle.adoc`, its representation fork) — read by a shared substrate crate so JJ dispatch and this census select files from one table.
+A cross-kit direction is recorded (260705, from the ₣Br census-pace experience): the allowlist is anticipated as a projection of JJ's *tackle* table — the scope→discipline binding of the aspirant tackle sheaf (`Tools/jjk/vov_veiled/JJSAT-tackle.adoc`, its representation fork) — read by a shared substrate crate so JJ dispatch and this census select files from one table.
 The discipline a glob carries implies its
 {voslv_vesture}
 (the guides are what keep declaration sites pattern-clean), and the file-role layer (Scan Mechanics) is the same axis at scan grain.

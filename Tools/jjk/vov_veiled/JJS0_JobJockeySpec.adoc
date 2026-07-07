@@ -3551,20 +3551,20 @@ and the convergence gauge — a chapbook's pending-citation register where one e
 reads zero.
 
 //axvd_cartouche axd_aspirant
-include::JJS-aspirant-mews.adoc[leveloffset=+2]
+include::JJSAM-mews.adoc[leveloffset=+2]
 
 //axvd_cartouche axd_aspirant
-include::JJS-aspirant-state-repo.adoc[leveloffset=+2]
+include::JJSAS-state-repo.adoc[leveloffset=+2]
 
 //axvd_cartouche axd_aspirant
-include::JJS-aspirant-farrier.adoc[leveloffset=+2]
+include::JJSAF-farrier.adoc[leveloffset=+2]
 
 //axvd_cartouche axd_aspirant
-include::JJS-aspirant-tackle.adoc[leveloffset=+2]
+include::JJSAT-tackle.adoc[leveloffset=+2]
 
 //axvd_cartouche axd_aspirant
 include::JJSAB-breeze.adoc[leveloffset=+2]
 
 //axvd_cartouche axd_aspirant axd_chapbook
-include::JJS-aspirant-chapbook-session.adoc[leveloffset=+2]
+include::JJSAC-chapbook-session.adoc[leveloffset=+2]
 

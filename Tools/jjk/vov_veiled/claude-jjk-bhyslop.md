@@ -7,7 +7,12 @@ distributed to consumer projects.
 ### A. File Acronym Mappings — JJK Subdirectory (`Tools/jjk/`)
 
 - **JJS0** → `jjk/vov_veiled/JJS0_JobJockeySpec.adoc` (Job Jockey specification - main file)
-- **JJSAB** → `jjk/vov_veiled/JJSAB-breeze.adoc` (Breeze — aspirant sheaf (JJSA*: aspirant family, B: breeze), founding member of the full-prefix naming the legacy `JJS-aspirant-*` files predate: the attention-shaped execution pipeline recast from the retired V4 workup — longe/school/breeze/corral, school carving a beat map from the gait option-set, breeze parceling beats to variously configured LLM sessions, provender/nosebag informational flow, candidate vocabulary re-ratifying at graduation, and a standing reconciliation obligation against the studbook/farrier/blotter substrate. Mounted in JJS0's Aspirant Nucleations; mulling heat: jjk-13-aspirant-breeze.)
+- **JJSAB** → `jjk/vov_veiled/JJSAB-breeze.adoc` (Breeze — aspirant sheaf (JJSA*: aspirant family, B: breeze): the attention-shaped execution pipeline recast from the retired V4 workup — longe/school/breeze/corral, school carving a beat map from the gait option-set, breeze parceling beats to variously configured LLM sessions, provender/nosebag informational flow, candidate vocabulary re-ratifying at graduation, and a standing reconciliation obligation against the studbook/farrier/blotter substrate. Mounted in JJS0's Aspirant Nucleations; mulling heat: jjk-13-aspirant-breeze.)
+- **JJSAC** → `jjk/vov_veiled/JJSAC-chapbook-session.adoc` (Typical-JJ-session chapbook — aspirant (JJSA*, C: chapbook-session))
+- **JJSAF** → `jjk/vov_veiled/JJSAF-farrier.adoc` (Farrier dispatch layer — aspirant (JJSA*, F: farrier); the driver contract is canon at JJSVF, this sheaf holds the dispatch layer (saddle/lunge/billet/muck/refit), the BUK meld, launch-time provisioning, and the naming ledger)
+- **JJSAM** → `jjk/vov_veiled/JJSAM-mews.adoc` (Mews — aspirant (JJSA*, M: mews); re-gestation home for the veiled BUK jurisdiction apparatus and Windows documentation guides)
+- **JJSAS** → `jjk/vov_veiled/JJSAS-state-repo.adoc` (State repo — aspirant (JJSA*, S: state-repo); officium re-gestalt, pace-identity re-gestalt, chat capture as the studbook's deferred second tenant)
+- **JJSAT** → `jjk/vov_veiled/JJSAT-tackle.adoc` (Tackle — aspirant (JJSA*, T: tackle); filesets and their interrelating rulesets — the settling schema (jjot sprue, remuda/trappings/hames/ambit), scope semantics, association graph, settling register)
 - **JJSCCU** → `jjk/vov_veiled/JJSCCU-curry.adoc` (Paddock operation - read/write heat paddock files)
 - **JJSCDR** → `jjk/vov_veiled/JJSCDR-draft.adoc`
 - **JJSCFU** → `jjk/vov_veiled/JJSCFU-furlough.adoc`

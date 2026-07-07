@@ -602,8 +602,9 @@ deliberately *not* settled early — the docket anti-patterns govern that direct
   and never flows into it (VOr_q4f).
 * *Claim-rule kinds* — the aspirant-sheaf domain exposes a new need: some real domains are
   defined by a *declared in-file marker* (the `axvd_sheaf axd_aspirant` lintel), not by
-  path shape — aspirant sheaves live scattered and name-irregular (JJS-aspirant-*, but
-  also VOSMM, RBSCV, RBSPC).
+  path shape — aspirant sheaves are only partly path-regular: the JJ family rides `JJSA*`,
+  but VOSMM, RBSCV, and RBSPC carry the aspirant lintel inside their codex directories with
+  no path marker.
   The lintel is designed for mechanical reading (AXLA), so a lintel-predicate claim would
   still be declared-never-deduced — the declaration simply lives in the file instead of
   the table.

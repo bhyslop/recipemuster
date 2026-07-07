@@ -93,4 +93,4 @@ the JSON in the {jjdgr_gallops} is truth, the message a denormalized presentatio
 First tenant: the {jjdgr_gallops} only.
 Captured chat histories and action-choices are the *intended second tenant*, deferred;
 their contract — including the chat↔commit correlation — stays aspirant with them
-(`JJS-aspirant-state-repo.adoc`).
+(`JJSAS-state-repo.adoc`).
