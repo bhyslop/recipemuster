@@ -73,6 +73,10 @@ pub fn jjrg_make_tack(
     jjrg_Tack {
         ts: timestamp_full(),
         state,
+        // A fresh tack carries no designation; paths that preserve or set
+        // tier/effort (tally inheritance, bridle) assign after construction.
+        tier: None,
+        effort: None,
         // Split at the write boundary: callers hand flat text (MCP args, stdin,
         // composed notes); storage is the line array.
         text: jjrg_text_to_lines(&text),

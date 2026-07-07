@@ -247,6 +247,7 @@ fn zjjrpd_emit_firemark(
                 let mut complete_count = 0;
                 let mut abandoned_count = 0;
                 let mut rough_count = 0;
+                let mut bridled_count = 0;
                 let mut remaining_paces: Vec<(&String, &crate::jjrg_gallops::jjrg_Pace)> = Vec::new();
                 let mut first_remaining_pace: Option<(&String, &crate::jjrg_gallops::jjrg_Pace)> = None;
 
@@ -256,8 +257,13 @@ fn zjjrpd_emit_firemark(
                             match tack.state {
                                 PaceState::Complete => complete_count += 1,
                                 PaceState::Abandoned => abandoned_count += 1,
-                                PaceState::Rough => {
-                                    rough_count += 1;
+                                // Both open states are remaining; bridled is a
+                                // distinct open state, never folded into rough.
+                                PaceState::Rough | PaceState::Bridled => {
+                                    match tack.state {
+                                        PaceState::Bridled => bridled_count += 1,
+                                        _ => rough_count += 1,
+                                    }
                                     remaining_paces.push((coronet_key, pace));
                                     if first_remaining_pace.is_none() {
                                         first_remaining_pace = Some((coronet_key, pace));
@@ -274,12 +280,12 @@ fn zjjrpd_emit_firemark(
                     HeatStatus::Retired => "retired",
                 };
 
-                let remaining_count = rough_count;
+                let remaining_count = rough_count + bridled_count;
 
                 // Header line with heat info
                 vvco_out!(output, "Heat: {} ({}) [{}]", heat.silks, heat_key, status_str);
-                vvco_out!(output, "Progress: {} complete | {} abandoned | {} remaining ({} rough)",
-                    complete_count, abandoned_count, remaining_count, rough_count);
+                vvco_out!(output, "Progress: {} complete | {} abandoned | {} remaining ({} rough, {} bridled)",
+                    complete_count, abandoned_count, remaining_count, rough_count, bridled_count);
                 vvco_out!(output, "");
 
                 // Table with remaining paces
@@ -517,13 +523,10 @@ pub(crate) fn jjrpd_write_file_bitmap(output: &mut vvco_Output, firemark: &Firem
     }
 }
 
-/// Helper to convert PaceState to display string
+/// Helper to convert PaceState to display string (delegates to the single
+/// display home on the enum).
 fn zjjrpd_pace_state_str(state: &PaceState) -> &'static str {
-    match state {
-        PaceState::Rough => "rough",
-        PaceState::Complete => "complete",
-        PaceState::Abandoned => "abandoned",
-    }
+    state.jjrg_as_str()
 }
 
 /// Encode a column index as a dense character: 1-9 then a-z then A-Z (61 max)

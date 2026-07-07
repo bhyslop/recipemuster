@@ -12,7 +12,7 @@ use std::path::PathBuf;
 use vvc::{vvco_out, vvco_err, vvco_Output};
 
 use crate::jjrf_favor::jjrf_Firemark as Firemark;
-use crate::jjrg_gallops::{jjrg_Gallops as Gallops, jjrg_RestringArgs as LibRestringArgs, jjrg_PaceState};
+use crate::jjrg_gallops::{jjrg_Gallops as Gallops, jjrg_RestringArgs as LibRestringArgs};
 use crate::jjrn_notch::{jjrn_HeatAction as HeatAction, jjrn_format_heat_message as format_heat_message};
 
 const JJRRS_CMD_NAME_RESTRING: &str = "jjx_restring";
@@ -128,11 +128,7 @@ pub fn jjrrs_run(args: jjrrs_RestringArgs, coronets: String) -> (i32, String) {
             "old_coronet": m.old_coronet,
             "new_coronet": m.new_coronet,
             "silks": m.silks,
-            "state": match m.state {
-                jjrg_PaceState::Rough => "rough",
-                jjrg_PaceState::Complete => "complete",
-                jjrg_PaceState::Abandoned => "abandoned",
-            },
+            "state": m.state.jjrg_as_str(),
             "spec": m.spec,
         })
     }).collect();

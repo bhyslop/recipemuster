@@ -135,6 +135,8 @@ impl jjrg_Gallops {
             coronet_key,
             firemark_key,
             state: current.state.clone(),
+            tier: current.tier,
+            effort: current.effort,
             text: jjrg_lines_to_text(&current.text),
             silks: current.silks.clone(),
         })
@@ -160,6 +162,11 @@ impl jjrg_Gallops {
     /// Pure state transform: resolve_pace → update docket → set_tack (replace).
     /// Takes basis and ts from caller (procedure layer captures I/O).
     /// Returns PaceContext so calling procedure has firemark/silks for commit message.
+    ///
+    /// Revert trigger: a designation is void when its judgment inputs change —
+    /// redocketing a bridled pace (single or mass form, both land here) reverts
+    /// it to rough and wipes the tier and effort. Other states pass through with
+    /// their designation provenance intact.
     pub fn jjrg_revise_docket(&mut self, coronet: &str, docket: &str, basis: &str, ts: &str) -> Result<jjrg_PaceContext, String> {
         if docket.is_empty() {
             return Err("docket text must not be empty".to_string());
@@ -167,10 +174,85 @@ impl jjrg_Gallops {
 
         let ctx = self.jjrg_resolve_pace(coronet)?;
 
+        let was_bridled = ctx.state == jjrg_PaceState::Bridled;
         let tack = jjrg_Tack {
             ts: ts.to_string(),
-            state: ctx.state.clone(),
+            state: if was_bridled { jjrg_PaceState::Rough } else { ctx.state.clone() },
+            tier: if was_bridled { None } else { ctx.tier },
+            effort: if was_bridled { None } else { ctx.effort },
             text: jjrg_text_to_lines(docket),
+            silks: ctx.silks.clone(),
+            basis: basis.to_string(),
+        };
+
+        self.jjrg_set_tack(&ctx, tack)?;
+
+        Ok(ctx)
+    }
+
+    /// Bridle — composed method (designation half of jjx_bridle)
+    ///
+    /// Records that a frontier agent judged this pace mechanically defined:
+    /// transitions rough → bridled with the designated execution tier and an
+    /// optional effort on the tack. Only a rough pace may be bridled — the
+    /// rough filter is the precondition, so a bridled pace must be released
+    /// (or reverted by a docket edit) before re-designation.
+    /// Pure transform: caller provides basis and ts. Returns the pre-mutation
+    /// PaceContext for the commit message.
+    pub fn jjrg_bridle(
+        &mut self,
+        coronet: &str,
+        tier: jjrg_Tier,
+        effort: Option<jjrg_Effort>,
+        basis: &str,
+        ts: &str,
+    ) -> Result<jjrg_PaceContext, String> {
+        let ctx = self.jjrg_resolve_pace(coronet)?;
+
+        if ctx.state != jjrg_PaceState::Rough {
+            return Err(format!(
+                "only a rough pace may be bridled; '{}' is {}",
+                ctx.coronet_key, ctx.state.jjrg_as_str()
+            ));
+        }
+
+        let tack = jjrg_Tack {
+            ts: ts.to_string(),
+            state: jjrg_PaceState::Bridled,
+            tier: Some(tier),
+            effort,
+            text: jjrg_text_to_lines(&ctx.text),
+            silks: ctx.silks.clone(),
+            basis: basis.to_string(),
+        };
+
+        self.jjrg_set_tack(&ctx, tack)?;
+
+        Ok(ctx)
+    }
+
+    /// Release — composed method (un-bridle half of jjx_bridle)
+    ///
+    /// The deliberate frontier escalation path: bridled → rough with tier and
+    /// effort wiped, returning the pace to judgment work. Only a bridled pace
+    /// may be released. Pure transform: caller provides basis and ts. Returns
+    /// the pre-mutation PaceContext for the commit message.
+    pub fn jjrg_release(&mut self, coronet: &str, basis: &str, ts: &str) -> Result<jjrg_PaceContext, String> {
+        let ctx = self.jjrg_resolve_pace(coronet)?;
+
+        if ctx.state != jjrg_PaceState::Bridled {
+            return Err(format!(
+                "only a bridled pace may be released; '{}' is {}",
+                ctx.coronet_key, ctx.state.jjrg_as_str()
+            ));
+        }
+
+        let tack = jjrg_Tack {
+            ts: ts.to_string(),
+            state: jjrg_PaceState::Rough,
+            tier: None,
+            effort: None,
+            text: jjrg_text_to_lines(&ctx.text),
             silks: ctx.silks.clone(),
             basis: basis.to_string(),
         };
@@ -194,6 +276,8 @@ mod tests {
         let tack = jjrg_Tack {
             ts: "20260318T120000Z".to_string(),
             state,
+            tier: None,
+            effort: None,
             text: jjrg_text_to_lines(text),
             silks: silks.to_string(),
             basis: "0000000".to_string(),

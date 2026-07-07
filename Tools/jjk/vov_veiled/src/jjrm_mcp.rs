@@ -41,8 +41,8 @@ use crate::jjrrs_restring::{jjrrs_RestringArgs, jjrrs_run};
 use crate::jjrld_landing::{jjrld_LandingArgs, jjrld_run_landing};
 use crate::jjrz_gazette::{jjrz_Gazette, jjrz_Slug, JJRZ_SLUG_HALTER, jjrz_parse_slate_input, jjrz_parse_paddock_input, jjrz_parse_halter_input, jjrz_parse_batch_input};
 use crate::jjrg_gallops::{jjrg_slate, jjrg_curry_apply};
-use crate::jjrt_types::jjrg_SlateArgs;
-use crate::jjrn_notch::jjrn_format_heat_discussion;
+use crate::jjrt_types::{jjrg_SlateArgs, jjrg_PaceState, jjrg_Tier, jjrg_Effort};
+use crate::jjrn_notch::{jjrn_format_heat_discussion, jjrn_format_heat_message, jjrn_HeatAction};
 
 const GALLOPS_PATH: &str = ".claude/jjm/jjg_gallops.json";
 const OFFICIA_DIR: &str = ".claude/jjm/officia";
@@ -81,6 +81,7 @@ const JJRM_CMD_NAME_CORONETS: &str = "jjx_coronets";
 const JJRM_CMD_NAME_PADDOCK: &str = "jjx_paddock";
 const JJRM_CMD_NAME_TRANSFER: &str = "jjx_transfer";
 const JJRM_CMD_NAME_LANDING: &str = "jjx_landing";
+const JJRM_CMD_NAME_BRIDLE: &str = "jjx_bridle";
 // Legatio commands (remote dispatch)
 const JJRM_CMD_NAME_BIND: &str = "jjx_bind";
 const JJRM_CMD_NAME_SEND: &str = "jjx_send";
@@ -98,7 +99,7 @@ const JJRM_ALL_COMMANDS: &[&str] = &[
     JJRM_CMD_NAME_DROP, JJRM_CMD_NAME_RELOCATE, JJRM_CMD_NAME_ALTER,
     JJRM_CMD_NAME_CLOSE, JJRM_CMD_NAME_SEARCH, JJRM_CMD_NAME_BRIEF,
     JJRM_CMD_NAME_CORONETS, JJRM_CMD_NAME_PADDOCK,
-    JJRM_CMD_NAME_TRANSFER, JJRM_CMD_NAME_LANDING,
+    JJRM_CMD_NAME_TRANSFER, JJRM_CMD_NAME_LANDING, JJRM_CMD_NAME_BRIDLE,
     JJRM_CMD_NAME_BIND, JJRM_CMD_NAME_SEND, JJRM_CMD_NAME_PLANT,
     JJRM_CMD_NAME_FETCH, JJRM_CMD_NAME_RELAY, JJRM_CMD_NAME_CHECK,
 ];
@@ -486,6 +487,19 @@ pub struct jjrm_LandingParams {
 }
 
 #[derive(Debug, serde::Deserialize, schemars::JsonSchema)]
+pub struct jjrm_BridleParams {
+    pub coronet: String,
+    /// Designation tier word (haiku|sonnet|opus|fable). Mutually exclusive
+    /// with release; exactly one of the two is required.
+    pub tier: Option<String>,
+    /// Optional effort word (low|medium|high|xhigh|max); rides only beside tier.
+    pub effort: Option<String>,
+    /// Un-bridle: bridled → rough, tier and effort wiped.
+    #[serde(default)]
+    pub release: bool,
+}
+
+#[derive(Debug, serde::Deserialize, schemars::JsonSchema)]
 pub struct jjrm_BindParams {
     pub alias: String,
     pub reldir: String,
@@ -533,7 +547,7 @@ fn jjrm_empty_object() -> serde_json::Value {
 
 #[derive(Debug, serde::Deserialize, schemars::JsonSchema)]
 pub struct jjrm_JjxParams {
-    #[schemars(description = "Command name: jjx_list, jjx_show, jjx_orient, jjx_record, jjx_log, jjx_validate, jjx_create, jjx_enroll, jjx_close, jjx_archive, jjx_reorder, jjx_redocket, jjx_relabel, jjx_drop, jjx_relocate, jjx_alter, jjx_search, jjx_brief, jjx_coronets, jjx_paddock, jjx_continue, jjx_transfer, jjx_landing, jjx_bind, jjx_send, jjx_plant, jjx_fetch, jjx_relay, jjx_check, jjx_open")]
+    #[schemars(description = "Command name: jjx_list, jjx_show, jjx_orient, jjx_record, jjx_log, jjx_validate, jjx_create, jjx_enroll, jjx_close, jjx_archive, jjx_reorder, jjx_redocket, jjx_relabel, jjx_drop, jjx_relocate, jjx_alter, jjx_search, jjx_brief, jjx_coronets, jjx_paddock, jjx_continue, jjx_transfer, jjx_landing, jjx_bridle, jjx_bind, jjx_send, jjx_plant, jjx_fetch, jjx_relay, jjx_check, jjx_open")]
     pub command: String,
     #[schemars(description = "Command parameters as JSON object. See CLAUDE.md for per-command schemas.")]
     #[serde(default = "jjrm_empty_object")]
@@ -1974,38 +1988,146 @@ async fn zjjrm_handle_open(size_limit: u64) -> Result<CallToolResult, McpError> 
 
 
 // ============================================================================
-// Model gate
+// Model gate — three-bucket per-command guard policy
 // ============================================================================
 
-/// Extract model tier from verbatim model ID string.
-/// Returns "fable", "opus", "gpt-5.5", "sonnet", "haiku", or "unknown".
-fn zjjrm_extract_tier(model: &str) -> &'static str {
-    let lower = model.to_ascii_lowercase();
-    if lower.contains("fable") {
-        "fable"
-    } else if lower.contains("opus") {
-        "opus"
-    } else if lower.contains("gpt-5.5") {
-        "gpt-5.5"
-    } else if lower.contains("sonnet") {
-        "sonnet"
-    } else if lower.contains("haiku") {
-        "haiku"
-    } else {
-        "unknown"
+/// Caller tier extracted from the verbatim MCP `model` param — the only thing
+/// the server can enforce from the wire. Designable tiers carry the typed
+/// `jjrg_Tier`; the gpt/codex and gemini families are recognized for
+/// fair-faced diagnostics but sit outside both the frontier and designable
+/// sets, so they never pass a designation match and never pass the frontier
+/// gate (gpt-5.5 is demoted OUT of the frontier gate: frontier = fable + opus).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum zjjrm_CallerTier {
+    Designable(jjrg_Tier),
+    Gpt,
+    Gemini,
+    Unknown,
+}
+
+impl zjjrm_CallerTier {
+    /// Display name for refusal diagnostics.
+    pub(crate) fn zjjrm_as_str(&self) -> &'static str {
+        match self {
+            zjjrm_CallerTier::Designable(t) => t.jjrg_as_str(),
+            zjjrm_CallerTier::Gpt => "gpt",
+            zjjrm_CallerTier::Gemini => "gemini",
+            zjjrm_CallerTier::Unknown => "unknown",
+        }
+    }
+
+    /// Frontier = fable + opus, exactly.
+    pub(crate) fn zjjrm_is_frontier(&self) -> bool {
+        matches!(
+            self,
+            zjjrm_CallerTier::Designable(jjrg_Tier::Fable) | zjjrm_CallerTier::Designable(jjrg_Tier::Opus)
+        )
     }
 }
 
-/// Gate check: require a frontier-tier model (opus, fable, or gpt-5.5). Returns Err with diagnostic on failure.
-fn zjjrm_check_model_gate(model: &str) -> Result<(), String> {
-    let tier = zjjrm_extract_tier(model);
-    if tier == "opus" || tier == "fable" || tier == "gpt-5.5" {
-        return Ok(());
+/// Extract the caller tier from the verbatim model ID string.
+pub(crate) fn zjjrm_extract_tier(model: &str) -> zjjrm_CallerTier {
+    let lower = model.to_ascii_lowercase();
+    if lower.contains("fable") {
+        zjjrm_CallerTier::Designable(jjrg_Tier::Fable)
+    } else if lower.contains("opus") {
+        zjjrm_CallerTier::Designable(jjrg_Tier::Opus)
+    } else if lower.contains("sonnet") {
+        zjjrm_CallerTier::Designable(jjrg_Tier::Sonnet)
+    } else if lower.contains("haiku") {
+        zjjrm_CallerTier::Designable(jjrg_Tier::Haiku)
+    } else if lower.contains("gpt") || lower.contains("codex") {
+        zjjrm_CallerTier::Gpt
+    } else if lower.contains("gemini") {
+        zjjrm_CallerTier::Gemini
+    } else {
+        zjjrm_CallerTier::Unknown
     }
-    Err(format!(
-        "MODEL GATE — this command requires a frontier-tier model (opus, fable, or gpt-5.5).\n\n  Received model: {}\n  Extracted tier: {}\n\nJob Jockey commands currently require a frontier-tier model.",
-        model, tier
-    ))
+}
+
+/// The three guard buckets of the per-command policy.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum zjjrm_GuardBucket {
+    /// No tier check: officium lifecycle and the read-only commands.
+    Open,
+    /// Per-command designation logic at the dispatch arm (orient, record, landing).
+    Designation,
+    /// Frontier-only: every docket-authoring and state-mutating verb, close,
+    /// validate, bridle, and the remote family.
+    Frontier,
+}
+
+/// Map a command name to its guard bucket.
+pub(crate) fn zjjrm_guard_bucket(cmd: &str) -> zjjrm_GuardBucket {
+    match cmd {
+        JJRM_CMD_NAME_OPEN
+        | JJRM_CMD_NAME_LIST
+        | JJRM_CMD_NAME_SHOW
+        | JJRM_CMD_NAME_BRIEF
+        | JJRM_CMD_NAME_CORONETS
+        | JJRM_CMD_NAME_LOG
+        | JJRM_CMD_NAME_SEARCH => zjjrm_GuardBucket::Open,
+        JJRM_CMD_NAME_ORIENT | JJRM_CMD_NAME_RECORD | JJRM_CMD_NAME_LANDING => {
+            zjjrm_GuardBucket::Designation
+        }
+        _ => zjjrm_GuardBucket::Frontier,
+    }
+}
+
+/// Fair-faced frontier refusal: name what was received, what it extracted to,
+/// and the remedy.
+fn zjjrm_frontier_refusal(cmd: &str, model: &str, caller: zjjrm_CallerTier) -> String {
+    format!(
+        "MODEL GATE — {} is frontier-only (opus or fable).\n\n  Received model: {}\n  Extracted tier: {}\n\nRemedy: run this command from a frontier-tier session.",
+        cmd, model, caller.zjjrm_as_str()
+    )
+}
+
+/// Designation guard for one resolved pace against the caller's tier — the
+/// shared judgment for orient, record, and landing. Strict tier equality with
+/// no frontier carve-out on a bridled pace (the persisted tier is honest
+/// provenance of the executing session); a rough pace is judgment work, open
+/// only to frontier callers. Returns Ok(()) to proceed, Err(refusal) with the
+/// pace's designated tier, the caller's tier, and the remedies named.
+pub(crate) fn zjjrm_judge_designation(
+    coronet_key: &str,
+    state: &jjrg_PaceState,
+    tier: Option<jjrg_Tier>,
+    caller: zjjrm_CallerTier,
+) -> Result<(), String> {
+    match state {
+        jjrg_PaceState::Bridled => {
+            let designated = tier.map(|t| t.jjrg_as_str()).unwrap_or("?");
+            if tier.map(zjjrm_CallerTier::Designable) == Some(caller) {
+                Ok(())
+            } else {
+                Err(format!(
+                    "DESIGNATION GATE — pace {} is bridled for tier '{}'; this session's tier is '{}'.\n\nRemedies: run it from a {}-tier session, or have a frontier session release or re-designate it (jjx_bridle).",
+                    coronet_key, designated, caller.zjjrm_as_str(), designated
+                ))
+            }
+        }
+        _ => {
+            if caller.zjjrm_is_frontier() {
+                Ok(())
+            } else {
+                Err(format!(
+                    "DESIGNATION GATE — pace {} is {} (not bridled); undesignated work is judgment work, frontier-only.\n\n  This session's tier: {}\n\nRemedy: a frontier session designates it via jjx_bridle {{coronet, tier}}.",
+                    coronet_key, state.jjrg_as_str(), caller.zjjrm_as_str()
+                ))
+            }
+        }
+    }
+}
+
+/// Load the gallops and judge one coronet's designation against the caller —
+/// the record/landing guard for sub-frontier callers (frontier callers are
+/// unrestricted on those commands and never reach this). Read-only.
+fn zjjrm_check_designation(coronet: &str, caller: zjjrm_CallerTier) -> Result<(), String> {
+    let gallops = crate::jjrg_gallops::jjrg_Gallops::jjrg_load(&gallops_pathbuf())
+        .map_err(|e| format!("error loading Gallops for designation guard: {}", e))?;
+    let ctx = gallops.jjrg_resolve_pace(coronet)?;
+    zjjrm_judge_designation(&ctx.coronet_key, &ctx.state, ctx.tier, caller)
 }
 
 // ============================================================================
@@ -2029,13 +2151,17 @@ impl jjrm_McpServer {
     async fn jjx(&self, Parameters(p): Parameters<jjrm_JjxParams>) -> Result<CallToolResult, McpError> {
         let cmd = p.command.as_str();
 
-        // Model gate: required on all commands, checked first
-        if let Err(msg) = zjjrm_check_model_gate(&p.model) {
+        // Model gate: three-bucket per-command policy, checked first. OPEN
+        // commands take every tier; FRONTIER-ONLY commands refuse here;
+        // DESIGNATION-GUARDED commands (orient, record, landing) apply their
+        // per-command logic at the dispatch arm, after target resolution.
+        let caller = zjjrm_extract_tier(&p.model);
+        if zjjrm_guard_bucket(cmd) == zjjrm_GuardBucket::Frontier && !caller.zjjrm_is_frontier() {
             return Ok(CallToolResult::error(vec![Content::text(
-                format!("jjx {}: {}", cmd, msg),
+                format!("jjx {}: {}", cmd, zjjrm_frontier_refusal(cmd, &p.model, caller)),
             )]));
         }
-        eprintln!("jjx {}: model={}", cmd, p.model);
+        eprintln!("jjx {}: model={} tier={}", cmd, p.model, caller.zjjrm_as_str());
 
         // jjx_open creates the officium — handle before officium validation.
         // size_limit (default 0) is the convergence budget; 0 means open mutates nothing.
@@ -2110,6 +2236,27 @@ impl jjrm_McpServer {
         match cmd {
             JJRM_CMD_NAME_RECORD => {
                 let p = deser!(jjrm_RecordParams);
+                // Designation guard: a sub-frontier caller records only against
+                // a coronet whose pace is bridled at its tier — firemark-
+                // affiliated record stays frontier. Frontier callers are
+                // unrestricted, as before the per-command policy.
+                if !caller.zjjrm_is_frontier() {
+                    let bare = p.identity
+                        .strip_prefix(crate::jjrf_favor::JJRF_CORONET_PREFIX)
+                        .or_else(|| p.identity.strip_prefix(crate::jjrf_favor::JJRF_FIREMARK_PREFIX))
+                        .unwrap_or(&p.identity);
+                    if bare.len() != crate::jjrf_favor::JJRF_CORONET_LEN {
+                        return Ok(CallToolResult::error(vec![Content::text(format!(
+                            "jjx {}: DESIGNATION GATE — firemark-affiliated record is frontier-only; a {}-tier session records only against the coronet of a pace bridled at its tier.",
+                            cmd, caller.zjjrm_as_str()
+                        ))]));
+                    }
+                    if let Err(msg) = zjjrm_check_designation(&p.identity, caller) {
+                        return Ok(CallToolResult::error(vec![Content::text(
+                            format!("jjx {}: {}", cmd, msg),
+                        )]));
+                    }
+                }
                 jjrm_result(jjrnc_run_notch(jjrnc_NotchArgs {
                     identity: p.identity,
                     files: p.files,
@@ -2169,21 +2316,51 @@ impl jjrm_McpServer {
                     file: gallops_pathbuf(),
                     firemark: firemark.clone(),
                 }, &mut gazette).await;
-                let md = gazette.jjrz_emit();
-                if !md.is_empty() { std::fs::write(&gazette_out_path, md.as_bytes()).ok(); }
+                // The gazette is written only after the designation guard below
+                // passes — a refused orient leaves no gazette and no emblem.
                 if code == 0 {
                     // Saddle the identity this mount actually landed on, derived
                     // from saddle's own resolution rather than the halter lede:
                     // the resolved next-actionable coronet — which saddle emitted
                     // as the Pace notice whether the lede was a firemark (next
-                    // rough pace) or a coronet (looked up directly) — else the
-                    // bare firemark lede when the heat has no actionable pace.
-                    let mounted = gazette
+                    // actionable pace) or a coronet (looked up directly) — else
+                    // the bare firemark lede when the heat has no actionable pace.
+                    let resolved_pace = gazette
                         .jjrz_query_by_slug(jjrz_Slug::Pace)
                         .into_iter()
                         .next()
-                        .map(|(lede, _)| lede)
-                        .unwrap_or(firemark);
+                        .map(|(lede, _)| lede);
+
+                    // Designation guard: fires AFTER resolution and never skips
+                    // — orient does not pass over a tier-mismatched pace to a
+                    // later one, because pace order is the dependency tree.
+                    // Both directions hold (strict tier equality on a bridled
+                    // pace; rough is frontier-only judgment work). Refusal
+                    // discards the saddle output: no gazette, no emblem.
+                    let judgment = match resolved_pace {
+                        Some(ref coronet_lede) => {
+                            zjjrm_check_designation(coronet_lede, caller)
+                        }
+                        None => {
+                            if caller.zjjrm_is_frontier() {
+                                Ok(())
+                            } else {
+                                Err(format!(
+                                    "DESIGNATION GATE — heat {} resolved no actionable pace, so nothing is bridled for this session's tier ('{}').\n\nRemedy: a frontier session designates work via jjx_bridle.",
+                                    firemark, caller.zjjrm_as_str()
+                                ))
+                            }
+                        }
+                    };
+                    if let Err(msg) = judgment {
+                        return Ok(CallToolResult::error(vec![Content::text(
+                            format!("jjx {}: {}", cmd, msg),
+                        )]));
+                    }
+
+                    let mounted = resolved_pace.unwrap_or(firemark);
+                    let md = gazette.jjrz_emit();
+                    if !md.is_empty() { std::fs::write(&gazette_out_path, md.as_bytes()).ok(); }
                     zjjrm_refresh_emblem(
                         &zjjrm_exchange_dir(officium_id),
                         Some(zjjrm_resolve_saddle_marker(&mounted)),
@@ -2485,10 +2662,106 @@ impl jjrm_McpServer {
             }
             JJRM_CMD_NAME_LANDING => {
                 let p = deser!(jjrm_LandingParams);
+                // Designation guard: a sub-frontier caller lands only against a
+                // coronet whose pace is bridled at its tier; frontier callers
+                // are unrestricted.
+                if !caller.zjjrm_is_frontier() {
+                    if let Err(msg) = zjjrm_check_designation(&p.coronet, caller) {
+                        return Ok(CallToolResult::error(vec![Content::text(
+                            format!("jjx {}: {}", cmd, msg),
+                        )]));
+                    }
+                }
                 jjrm_result(jjrld_run_landing(jjrld_LandingArgs {
                     coronet: p.coronet,
                     agent: p.agent,
                 }, p.content.unwrap_or_default()))
+            }
+            JJRM_CMD_NAME_BRIDLE => {
+                let p = deser!(jjrm_BridleParams);
+                // Exactly one of tier / release; effort rides only beside tier.
+                match (p.tier.is_some(), p.release) {
+                    (true, true) => {
+                        return Ok(CallToolResult::error(vec![Content::text(format!(
+                            "jjx {}: 'tier' and 'release' are mutually exclusive — pass exactly one.", cmd
+                        ))]));
+                    }
+                    (false, false) => {
+                        return Ok(CallToolResult::error(vec![Content::text(format!(
+                            "jjx {}: exactly one of 'tier' (designate) or 'release: true' (un-bridle) is required.", cmd
+                        ))]));
+                    }
+                    _ => {}
+                }
+                if p.release && p.effort.is_some() {
+                    return Ok(CallToolResult::error(vec![Content::text(format!(
+                        "jjx {}: 'effort' rides only beside 'tier', never beside 'release'.", cmd
+                    ))]));
+                }
+                let firemark = match crate::jjrf_favor::jjrf_Coronet::jjrf_parse(&p.coronet) {
+                    Ok(c) => c.jjrf_parent_firemark(),
+                    Err(e) => {
+                        return Ok(CallToolResult::error(vec![Content::text(
+                            format!("jjx {}: error: {}", cmd, e),
+                        )]));
+                    }
+                };
+                // Capture I/O at the procedure boundary — the gallops transform is pure.
+                let basis = crate::jjru_util::jjrg_capture_commit_sha();
+                let ts = crate::jjrc_core::jjrc_timestamp_full();
+                let coronet = p.coronet.clone();
+                if let Some(ref tier_word) = p.tier {
+                    let tier = match jjrg_Tier::jjrg_from_word(tier_word) {
+                        Ok(t) => t,
+                        Err(e) => {
+                            return Ok(CallToolResult::error(vec![Content::text(
+                                format!("jjx {}: {}", cmd, e),
+                            )]));
+                        }
+                    };
+                    let effort = match p.effort.as_deref().map(jjrg_Effort::jjrg_from_word).transpose() {
+                        Ok(e) => e,
+                        Err(e) => {
+                            return Ok(CallToolResult::error(vec![Content::text(
+                                format!("jjx {}: {}", cmd, e),
+                            )]));
+                        }
+                    };
+                    let designation = match effort {
+                        Some(e) => format!("{} {}", tier.jjrg_as_str(), e.jjrg_as_str()),
+                        None => tier.jjrg_as_str().to_string(),
+                    };
+                    let message = jjrn_format_heat_message(
+                        &firemark,
+                        jjrn_HeatAction::Tally,
+                        &format!("bridled ₢{} at {}", coronet.trim_start_matches('₢'), designation),
+                    );
+                    zjjrm_dispatch_inner_msg(cmd, &firemark, vvc::VVCG_SIZE_LIMIT, message, move |gallops| {
+                        let ctx = gallops.jjrg_bridle(&coronet, tier, effort, &basis, &ts)?;
+                        Ok(format!(
+                            "{} ({}): rough → bridled [{}]",
+                            ctx.coronet_key, ctx.silks, designation
+                        ))
+                    })
+                } else {
+                    let message = jjrn_format_heat_message(
+                        &firemark,
+                        jjrn_HeatAction::Tally,
+                        &format!("released ₢{} to rough", coronet.trim_start_matches('₢')),
+                    );
+                    zjjrm_dispatch_inner_msg(cmd, &firemark, vvc::VVCG_SIZE_LIMIT, message, move |gallops| {
+                        let ctx = gallops.jjrg_release(&coronet, &basis, &ts)?;
+                        let prior = match (ctx.tier, ctx.effort) {
+                            (Some(t), Some(e)) => format!("{} {}", t.jjrg_as_str(), e.jjrg_as_str()),
+                            (Some(t), None) => t.jjrg_as_str().to_string(),
+                            _ => "?".to_string(),
+                        };
+                        Ok(format!(
+                            "{} ({}): bridled [{}] → rough, designation wiped",
+                            ctx.coronet_key, ctx.silks, prior
+                        ))
+                    })
+                }
             }
             JJRM_CMD_NAME_BIND => {
                 let p = deser!(jjrm_BindParams);

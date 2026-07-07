@@ -323,12 +323,20 @@ pub fn jjrg_tally(gallops: &mut jjrg_Gallops, args: jjrg_TallyArgs) -> Result<()
     // Determine new silks
     let new_silks = args.silks.unwrap_or_else(|| current_tack.silks.clone());
 
+    // Designation carries through tally: relabel reverts nothing, and close
+    // (wrap → complete) and drop (→ abandoned) persist tier/effort as
+    // provenance. The revert triggers (redocket, transfer, relocate) run on
+    // their own paths (jjrg_revise_docket, jjrg_draft), not through tally.
+    let (carry_tier, carry_effort) = (current_tack.tier, current_tack.effort);
+
     // Create new Tack
-    let new_tack = jjrg_make_tack(
+    let mut new_tack = jjrg_make_tack(
         new_state,
         new_text,
         new_silks,
     );
+    new_tack.tier = carry_tier;
+    new_tack.effort = carry_effort;
 
     // Replace the pace's single current tack (tack evolution lives in git)
     pace.tacks = vec![new_tack];
@@ -427,11 +435,23 @@ pub fn jjrg_draft(gallops: &mut jjrg_Gallops, args: jjrg_DraftArgs) -> Result<jj
     let draft_note = format!("Drafted from {} in {}.\n\n{}",
         source_coronet_key, source_firemark_key, prior_text);
 
-    let draft_tack = jjrg_make_tack(
-        first_tack.map(|t| t.state.clone()).unwrap_or(jjrg_PaceState::Rough),
+    // Revert trigger: a designation is void when its judgment inputs change —
+    // the paddock context this pace was judged against is gone, so a bridled
+    // pace demotes to rough with tier and effort wiped. Resolved states keep
+    // their designation as provenance.
+    let prior_state = first_tack.map(|t| t.state.clone()).unwrap_or(jjrg_PaceState::Rough);
+    let was_bridled = prior_state == jjrg_PaceState::Bridled;
+    let draft_state = if was_bridled { jjrg_PaceState::Rough } else { prior_state };
+
+    let mut draft_tack = jjrg_make_tack(
+        draft_state,
         draft_note,
         first_tack.map(|t| t.silks.clone()).unwrap_or_default(),
     );
+    if !was_bridled {
+        draft_tack.tier = first_tack.and_then(|t| t.tier);
+        draft_tack.effort = first_tack.and_then(|t| t.effort);
+    }
 
     // A pace holds a single current tack; the draft note captures the prior
     // docket, and tack history lives in git (JJS0 Git-as-Journal).
@@ -593,11 +613,7 @@ fn zjjrg_build_trophy_content(
 
             // The pace's single current tack (tack history lives in git)
             for tack in &pace.tacks {
-                let state_str = match tack.state {
-                    jjrg_PaceState::Rough => "rough",
-                    jjrg_PaceState::Complete => "complete",
-                    jjrg_PaceState::Abandoned => "abandoned",
-                };
+                let state_str = tack.state.jjrg_as_str();
                 content.push_str(&format!("**[{}] {}**\n\n", tack.ts, state_str));
                 let body = jjrg_lines_to_text(&tack.text);
                 content.push_str(&body);

@@ -310,13 +310,14 @@ pub fn zjjrx_run_wrap(args: jjrx_WrapArgs, summary: Option<String>, spook: Optio
             let fm_key = fm.jjrf_display();
             let fm_str = fm.jjrf_as_str();
 
-            // Lookahead: find next actionable pace in this heat
+            // Lookahead: find next actionable pace in this heat (both open
+            // states — a bridled pace is next-actionable, at its tier).
             let next_pace_info = gallops.heats.get(&fm_key).and_then(|heat| {
                 heat.order.iter().find_map(|c| {
                     heat.paces.get(c.as_str()).and_then(|pace| {
                         pace.tacks.first().and_then(|tack| {
                             match tack.state {
-                                jjrg_PaceState::Rough => {
+                                jjrg_PaceState::Rough | jjrg_PaceState::Bridled => {
                                     Some((c.clone(), tack.silks.clone()))
                                 }
                                 _ => None,

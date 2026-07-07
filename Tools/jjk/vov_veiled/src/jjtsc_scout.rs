@@ -29,6 +29,8 @@ fn jjtsc_make_tack(state: jjrg_PaceState, silks: &str, text: &str) -> jjrg_Tack 
     jjrg_Tack {
         ts: "20260612T120000Z".to_string(),
         state,
+        tier: None,
+        effort: None,
         text: vec![text.to_string()],
         silks: silks.to_string(),
         basis: "0000000".to_string(),

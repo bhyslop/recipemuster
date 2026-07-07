@@ -20,19 +20,28 @@ pub const JJRG_UNKNOWN_BASIS: &str = "0000000";
 /// confirmation). Distinct from the persisted serde wire tokens (`jjgte_*`
 /// per-variant renames below); these are the operator-facing labels.
 pub const JJRG_STATE_ROUGH: &str = "rough";
+pub const JJRG_STATE_BRIDLED: &str = "bridled";
 pub const JJRG_STATE_COMPLETE: &str = "complete";
 pub const JJRG_STATE_ABANDONED: &str = "abandoned";
 
 /// Pace state values
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum jjrg_PaceState {
-    // Reprieve JJr_a7c — `jjgte_bridled` (and its V3 alias `primed`) are the
-    // retired bridled state's legacy on-disk tokens; the bridle-retirement episode
-    // demotes them to Rough at the deserialize boundary so a pre-retirement gallops
-    // still parses, then the round-trip gate stand-down lets the next save rewrite
-    // `jjgte_rough`. See jjri_io ZJJDZ_REGISTRY and JJS0 jjdz_reprieve.
-    #[serde(rename = "jjgte_rough", alias = "jjgte_bridled", alias = "primed")]
+    // Reprieve JJr_a7c — `primed` is the V3-era on-disk token for the retired
+    // V3 bridled state; it demotes to Rough at the deserialize boundary under
+    // the V3→V4 episode (frozen reference: jjrt_v3_types.rs). It collides with
+    // nothing current — no live write path emits it.
+    #[serde(rename = "jjgte_rough", alias = "primed")]
     Rough,
+    /// Designated for execution: a frontier agent judged this pace mechanically
+    /// defined and recorded its execution tier (and optionally effort) on the
+    /// tack. A distinct open state — excluded by the rough filter, included by
+    /// remaining, resolved by next-actionable. The wire token is a sanctioned
+    /// re-mint of the retired V3-era state's token (eviction sweep proven by
+    /// repo-wide grep at the re-mint; the old sense demoted through the
+    /// now-stripped bridle-retirement reprieve episode).
+    #[serde(rename = "jjgte_bridled")]
+    Bridled,
     #[serde(rename = "jjgte_complete")]
     Complete,
     #[serde(rename = "jjgte_abandoned")]
@@ -46,8 +55,123 @@ impl jjrg_PaceState {
     pub fn jjrg_as_str(&self) -> &'static str {
         match self {
             jjrg_PaceState::Rough => JJRG_STATE_ROUGH,
+            jjrg_PaceState::Bridled => JJRG_STATE_BRIDLED,
             jjrg_PaceState::Complete => JJRG_STATE_COMPLETE,
             jjrg_PaceState::Abandoned => JJRG_STATE_ABANDONED,
+        }
+    }
+}
+
+/// Canonical human display labels for designation tiers — same pattern as the
+/// pace-state labels above: one display home, distinct from the wire tokens.
+pub const JJRG_TIER_HAIKU: &str = "haiku";
+pub const JJRG_TIER_SONNET: &str = "sonnet";
+pub const JJRG_TIER_OPUS: &str = "opus";
+pub const JJRG_TIER_FABLE: &str = "fable";
+
+/// Designation tier — the vendor model-family word a bridle designation records
+/// and the orient/record/landing guard matches against the caller's model wire
+/// param. Tiers, never model IDs: IDs drift, tiers hold. The designable set is
+/// exactly these four; the gpt/codex and gemini families are recognized by the
+/// caller-tier extractor for diagnostics but are never designable.
+///
+/// Wire tokens ride the `jjgde_` family — gallops designation enum values,
+/// shared by tier and effort (the two designation vocabularies are disjoint
+/// word sets, so each token stays unique; `grep jjgde_` is the census).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub enum jjrg_Tier {
+    #[serde(rename = "jjgde_haiku")]
+    Haiku,
+    #[serde(rename = "jjgde_sonnet")]
+    Sonnet,
+    #[serde(rename = "jjgde_opus")]
+    Opus,
+    #[serde(rename = "jjgde_fable")]
+    Fable,
+}
+
+impl jjrg_Tier {
+    /// Human display label (the vendor family word) — single display home.
+    pub fn jjrg_as_str(&self) -> &'static str {
+        match self {
+            jjrg_Tier::Haiku => JJRG_TIER_HAIKU,
+            jjrg_Tier::Sonnet => JJRG_TIER_SONNET,
+            jjrg_Tier::Opus => JJRG_TIER_OPUS,
+            jjrg_Tier::Fable => JJRG_TIER_FABLE,
+        }
+    }
+
+    /// Parse a designation word (the display label) into the tier — the
+    /// recognized-word validation for the bridle command's `tier` param.
+    pub fn jjrg_from_word(word: &str) -> Result<Self, String> {
+        match word {
+            JJRG_TIER_HAIKU => Ok(jjrg_Tier::Haiku),
+            JJRG_TIER_SONNET => Ok(jjrg_Tier::Sonnet),
+            JJRG_TIER_OPUS => Ok(jjrg_Tier::Opus),
+            JJRG_TIER_FABLE => Ok(jjrg_Tier::Fable),
+            other => Err(format!(
+                "unknown tier '{}' — designable tiers: {}, {}, {}, {}",
+                other, JJRG_TIER_HAIKU, JJRG_TIER_SONNET, JJRG_TIER_OPUS, JJRG_TIER_FABLE
+            )),
+        }
+    }
+}
+
+/// Canonical human display labels for designation efforts — one display home.
+pub const JJRG_EFFORT_LOW: &str = "low";
+pub const JJRG_EFFORT_MEDIUM: &str = "medium";
+pub const JJRG_EFFORT_HIGH: &str = "high";
+pub const JJRG_EFFORT_XHIGH: &str = "xhigh";
+pub const JJRG_EFFORT_MAX: &str = "max";
+
+/// Designation effort — an optional reasoning-effort word recorded beside the
+/// tier at bridle time. Anchored transparently on Anthropic's effort
+/// classification as the product surfaces it (verified against the live
+/// product surface 2026-07-07: low, medium, high, xhigh, max); JJ mints no
+/// effort vocabulary of its own. Effort never rides the MCP wire and is never
+/// guarded — it is designation-and-dispatch data, consumed by the dispatch
+/// layer when it lands. Wire tokens share the `jjgde_` designation family
+/// with the tier (see jjrg_Tier).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub enum jjrg_Effort {
+    #[serde(rename = "jjgde_low")]
+    Low,
+    #[serde(rename = "jjgde_medium")]
+    Medium,
+    #[serde(rename = "jjgde_high")]
+    High,
+    #[serde(rename = "jjgde_xhigh")]
+    Xhigh,
+    #[serde(rename = "jjgde_max")]
+    Max,
+}
+
+impl jjrg_Effort {
+    /// Human display label (Anthropic's effort word) — single display home.
+    pub fn jjrg_as_str(&self) -> &'static str {
+        match self {
+            jjrg_Effort::Low => JJRG_EFFORT_LOW,
+            jjrg_Effort::Medium => JJRG_EFFORT_MEDIUM,
+            jjrg_Effort::High => JJRG_EFFORT_HIGH,
+            jjrg_Effort::Xhigh => JJRG_EFFORT_XHIGH,
+            jjrg_Effort::Max => JJRG_EFFORT_MAX,
+        }
+    }
+
+    /// Parse an effort word (the display label) — the recognized-word
+    /// validation for the bridle command's optional `effort` param.
+    pub fn jjrg_from_word(word: &str) -> Result<Self, String> {
+        match word {
+            JJRG_EFFORT_LOW => Ok(jjrg_Effort::Low),
+            JJRG_EFFORT_MEDIUM => Ok(jjrg_Effort::Medium),
+            JJRG_EFFORT_HIGH => Ok(jjrg_Effort::High),
+            JJRG_EFFORT_XHIGH => Ok(jjrg_Effort::Xhigh),
+            JJRG_EFFORT_MAX => Ok(jjrg_Effort::Max),
+            other => Err(format!(
+                "unknown effort '{}' — recognized efforts: {}, {}, {}, {}, {}",
+                other, JJRG_EFFORT_LOW, JJRG_EFFORT_MEDIUM, JJRG_EFFORT_HIGH,
+                JJRG_EFFORT_XHIGH, JJRG_EFFORT_MAX
+            )),
         }
     }
 }
@@ -73,6 +197,17 @@ pub struct jjrg_Tack {
     pub ts: String,
     #[serde(rename = "jjgtn_state")]
     pub state: jjrg_PaceState,
+    /// Designation tier, present while the pace is bridled and persisting
+    /// through close as provenance of the executing session. Serialized only
+    /// when present so an untouched store stays byte-canonical — the additive
+    /// carve-out that lets this field ride without a reprieve episode.
+    #[serde(default, skip_serializing_if = "Option::is_none", rename = "jjgtn_tier")]
+    pub tier: Option<jjrg_Tier>,
+    /// Optional designation effort beside the tier — same serialized-only-when-
+    /// present posture, so a designation without effort is byte-identical to
+    /// the tier-only form. Never present without a tier.
+    #[serde(default, skip_serializing_if = "Option::is_none", rename = "jjgtn_effort")]
+    pub effort: Option<jjrg_Effort>,
     /// Docket text as a line array — one element per physical line, so pretty-JSON
     /// decomposes the docket line-by-line and git merges it at line granularity.
     /// Custom deserialize tolerates the legacy string shape (the tack-text→lines
@@ -329,6 +464,10 @@ pub struct jjrg_PaceContext {
     pub firemark_key: String,
     /// Current pace state
     pub state: jjrg_PaceState,
+    /// Current designation tier (present while bridled; provenance after close)
+    pub tier: Option<jjrg_Tier>,
+    /// Current designation effort (rides only beside a tier)
+    pub effort: Option<jjrg_Effort>,
     /// Current docket text
     pub text: String,
     /// Current silks

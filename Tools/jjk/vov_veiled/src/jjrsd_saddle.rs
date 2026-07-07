@@ -222,10 +222,13 @@ pub async fn jjrsd_run_saddle(args: jjrsd_SaddleArgs, gazette: &mut jjrz_Gazette
             Some(pace) => {
                 if let Some(tack) = pace.tacks.first() {
                     match tack.state {
-                        PaceState::Rough => {
+                        // Both open states saddle; the orient designation guard
+                        // (MCP layer) judges the resolved pace against the
+                        // caller's tier after this resolution.
+                        PaceState::Rough | PaceState::Bridled => {
                             pace_coronet = Some(coronet_key.clone());
                             pace_silks = Some(tack.silks.clone());
-                            pace_state = Some("rough".to_string());
+                            pace_state = Some(tack.state.jjrg_as_str().to_string());
                             spec = Some(jjrg_lines_to_text(&tack.text));
                         }
                         PaceState::Complete => {
@@ -248,15 +251,18 @@ pub async fn jjrsd_run_saddle(args: jjrsd_SaddleArgs, gazette: &mut jjrz_Gazette
             }
         }
     } else {
-        // Find first actionable pace (rough)
+        // Find first actionable pace. Bridled is a distinct open state that
+        // next-actionable resolution lands on — resolution never skips a
+        // tier-mismatched pace (pace order is the dependency tree); the orient
+        // guard refuses after resolution instead.
         for coronet_key in &heat.order {
             if let Some(pace) = heat.paces.get(coronet_key) {
                 if let Some(tack) = pace.tacks.first() {
                     match tack.state {
-                        PaceState::Rough => {
+                        PaceState::Rough | PaceState::Bridled => {
                             pace_coronet = Some(coronet_key.clone());
                             pace_silks = Some(tack.silks.clone());
-                            pace_state = Some("rough".to_string());
+                            pace_state = Some(tack.state.jjrg_as_str().to_string());
                             spec = Some(jjrg_lines_to_text(&tack.text));
                             break;
                         }

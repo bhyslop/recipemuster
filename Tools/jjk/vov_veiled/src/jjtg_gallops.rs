@@ -94,61 +94,6 @@ fn jjtg_load_legacy_string_text_converts_and_collapses() {
     assert_eq!(pace.tacks[0].text, vec!["first line".to_string(), "second line".to_string()]);
 }
 
-#[test]
-fn jjtg_load_legacy_bridle_demotes_and_drops_direction() {
-    // A pre-retirement gallops: a pace is bridled and carries a direction warrant.
-    // Loading must demote the state to rough (serde alias) and drop the direction key,
-    // the bridle-retirement reprieve episode standing the round-trip gate down so the
-    // bridled→rough reserialization and dropped warrant key land on the next save.
-    let dir = JjkTestDir::new("jjtg_legacy_bridle_retire");
-    let path = dir.path().join("jjg_gallops.json");
-    let legacy = r#"{
-  "jjgrn_next_heat_seed": "AD",
-  "jjgrn_heat_order": ["₣AC"],
-  "jjgrn_heats": {
-    "₣AC": {
-      "jjghn_silks": "my-heat",
-      "jjghn_creation_time": "260101",
-      "jjghn_status": "jjghe_racing",
-      "jjghn_order": ["₢ACAAA"],
-      "jjghn_next_pace_seed": "AAB",
-      "jjghn_paces": {
-        "₢ACAAA": {
-          "jjgpn_tacks": [
-            {
-              "jjgtn_ts": "260101-1200",
-              "jjgtn_state": "jjgte_bridled",
-              "jjgtn_text": ["execute this"],
-              "jjgtn_silks": "my-pace",
-              "jjgtn_basis": "0000000",
-              "jjgtn_direction": "Execute autonomously"
-            }
-          ]
-        }
-      }
-    }
-  }
-}"#;
-    std::fs::write(&path, legacy).unwrap();
-
-    let gallops = jjrg_Gallops::jjrg_load(&path).expect("legacy bridled gallops should load and convert");
-    let pace = gallops.heats["₣AC"].paces.get("₢ACAAA").unwrap();
-    // The retired bridled state is demoted to rough at the deserialize boundary.
-    assert_eq!(pace.tacks[0].state, jjrg_PaceState::Rough);
-
-    // Idempotent: the saved form is canonical (rough state, no direction key), so no
-    // episode is live and the round-trip gate — active again — must pass.
-    gallops.jjrg_save(&path).expect("save converted gallops");
-    let reloaded = jjrg_Gallops::jjrg_load(&path).expect("canonical gallops round-trips");
-    let pace = reloaded.heats["₣AC"].paces.get("₢ACAAA").unwrap();
-    assert_eq!(pace.tacks[0].state, jjrg_PaceState::Rough);
-
-    // The persisted bytes carry neither the retired state token nor the warrant key.
-    let text = std::fs::read_to_string(&path).unwrap();
-    assert!(!text.contains("jjgte_bridled"));
-    assert!(!text.contains("jjgtn_direction"));
-}
-
 // ===== validate normalize-and-report (zjjrvl_appraise) =====
 
 /// A single-heat gallops already canonical at the current schema: heat_order populated, one tack
@@ -352,6 +297,8 @@ fn make_valid_tack(state: jjrg_PaceState, silks: &str) -> jjrg_Tack {
     jjrg_Tack {
         ts: "260101-1200".to_string(),
         state,
+        tier: None,
+        effort: None,
         text: vec!["Test tack text".to_string()],
         silks: silks.to_string(),
         basis: JJRG_UNKNOWN_BASIS.to_string(),

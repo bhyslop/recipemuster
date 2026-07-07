@@ -35,6 +35,8 @@ fn make_heat_with_docket(heat_id: &str, docket: &str) -> (String, jjrg_Heat) {
     let tack = jjrg_Tack {
         ts: "260101-1200".to_string(),
         state: jjrg_PaceState::Rough,
+        tier: None,
+        effort: None,
         text: docket.lines().map(|l| l.to_string()).collect(),
         silks: format!("pace-{}", heat_id),
         basis: JJRG_UNKNOWN_BASIS.to_string(),

@@ -288,4 +288,26 @@ fn zjjrg_validate_tack(pace_ctx: &str, index: usize, tack: &jjrg_Tack, errors: &
             tack_ctx, tack.basis
         ));
     }
+
+    // Rule 9: designation coherence. A bridled pace always carries its tier
+    // (the designation IS the tier record); a rough pace never carries one
+    // (bridle sets it, release and every revert trigger wipe it); resolved
+    // states may carry either as close-time provenance. Effort never rides
+    // without a tier.
+    match tack.state {
+        jjrg_PaceState::Bridled => {
+            if tack.tier.is_none() {
+                errors.push(format!("{}: bridled tack must carry a tier", tack_ctx));
+            }
+        }
+        jjrg_PaceState::Rough => {
+            if tack.tier.is_some() || tack.effort.is_some() {
+                errors.push(format!("{}: rough tack must carry no tier or effort", tack_ctx));
+            }
+        }
+        jjrg_PaceState::Complete | jjrg_PaceState::Abandoned => {}
+    }
+    if tack.effort.is_some() && tack.tier.is_none() {
+        errors.push(format!("{}: effort must not ride without a tier", tack_ctx));
+    }
 }
