@@ -428,6 +428,19 @@ A worked census (the ₣Br mint pace, 260705) sharpened the sketch with field ev
   Footprint advises cost, never verdicts (the pin→counterfoil eviction proceeded at ~245 uses; the billet resolution moved a 10-hit incumbent): value is the operator's judgment, and the execute half is authorship — each prose site needs a written sentence — permanently manual, never a safe-reprefix sibling.
 * The register tag earns its keep immediately: list-by-register is the coffer census, and flat tags sufficed across the whole census pace — no edge was ever needed.
 
+*Residence — studbook, one table (260707 lean).*
+The grimoire's residence lean is the studbook — JJK's regional record repo (JJSVS-studbook.adoc), one store serving every station and every jockeyed project — as an anticipated third tenant behind the gallops and the deferred chats;
+widening that sheaf's scope-at-birth roster is a promotion-time act, not this sketch's.
+Studbook residence makes VOr_q4f structural rather than a veiling convention: that store never distributes.
+The table stays one and flat — never per-upstream files, never per-clone state (two clones of one upstream fork such a file immediately):
+a word's home enters as one more categorical tag on the row, per the flat-row doctrine above,
+because the practiced mint gate already crosses project vocabularies (the ₣Br census killed a held JJK alternate, livery, on RBK's foreign mint) and kit words travel into every consumer repo, where per-upstream tables would either duplicate their rows or miss them.
+The
+{vosmm_matricula}
+still scans one repo at a time: the home tag scopes each scan's interpretation, and a per-universe file split earns itself only when a genuinely separate word-universe appears — not before.
+Write and read land on the store's native paths: adoption's row-append is a journal-ceremony write under the store lock (JJSVJ-journal.adoc), while the read-heavy gate — the frequency fact above — rides the lockless staleness-tolerant read path (JJSVB-blotter.adoc).
+The grimoire is therefore buildable only after that store stands: its promotion sequences behind the studbook–farrier MVP heat (₣Br), banked here so the parceling inherits it.
+
 *Reserved-word lint — fourth job, how deferred.*
 Recorded here as intent, the how deferred:
 the specific words MCM Lapidary blocks from minting migrate from their current resting place — the Seed: members listed inside MCM's withheld-word and antipattern definitions (`mcm_hallowed_word`, `mcm_fallow_word`, `mcm_furrowed_word`; `mcm_trodden_word`, `mcm_leached_word`) — into the grimoire, which becomes the single home of that membership.
