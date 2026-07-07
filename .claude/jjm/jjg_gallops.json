@@ -8906,8 +8906,9 @@
         "₢BsAAB": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260705-0805",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260707-1333",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_sonnet",
               "jjgtn_text": [
                 "Run the freehold-ITERATING release ladders against the standing freehold, in rising footprint: skirmish, dogfight, blockade, parley.",
                 "These reuse the standing depot and trust and must precede anything that destroys or rebuilds them (heat cinch).",
@@ -8920,7 +8921,7 @@
                 "Long suite runs; freehold state preserved throughout."
               ],
               "jjgtn_silks": "freehold-ladder-green",
-              "jjgtn_basis": "b9782ba"
+              "jjgtn_basis": "2d4fa02"
             }
           ]
         },
