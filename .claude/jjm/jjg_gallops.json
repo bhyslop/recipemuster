@@ -8997,8 +8997,9 @@
         "₢BsAAE": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260705-0805",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260707-1400",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_opus",
               "jjgtn_text": [
                 "Walk the whole manor founding process together on the real installation: raze the manor pool (rbw-mR), then rebuild with the real verbs — instaurate (rbw-mI), affiance the standing foedera (entrada directly; keycloak via the facility setup), gird the freehold depot's governor, re-brevet the freehold subject onto its mantles — and prove access recovers (avow, mantle don, rehearse roll).",
                 "This is the destructive rebuild the iterating ladders had to precede (heat cinch); it rebaselines the identity substrate end-to-end through operator-facing verbs alone.",
@@ -9011,7 +9012,7 @@
                 "The heat's centerpiece; deliberate, operator-present, real credentials."
               ],
               "jjgtn_silks": "manor-raze-rebuild-walk",
-              "jjgtn_basis": "b9782ba"
+              "jjgtn_basis": "1f717b8"
             }
           ]
         },
