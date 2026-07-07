@@ -9264,8 +9264,9 @@
         "₢BsAAN": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260707-1329",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260707-1348",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_opus",
               "jjgtn_text": [
                 "## Character",
                 "Mostly mechanical retirement plus prose corrections;",
@@ -9298,7 +9299,7 @@
                 "  see claude-rbk-conduct.md \"Build-Generated Files\"."
               ],
               "jjgtn_silks": "retire-payor-refresh-handbook",
-              "jjgtn_basis": "c2add2d"
+              "jjgtn_basis": "ee48f80"
             }
           ]
         }
