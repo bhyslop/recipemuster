@@ -1,5 +1,5 @@
 {
-  "jjgrn_next_heat_seed": "By",
+  "jjgrn_next_heat_seed": "Bz",
   "jjgrn_heat_order": [
     "₣Bx",
     "₣Br",
@@ -32,7 +32,8 @@
     "₣BC",
     "₣BI",
     "₣BL",
-    "₣Ba"
+    "₣Ba",
+    "₣By"
   ],
   "jjgrn_heats": {
     "₣A9": {
@@ -9833,6 +9834,14 @@
           ]
         }
       }
+    },
+    "₣By": {
+      "jjghn_silks": "jjk-12-aspirant-grimoire",
+      "jjghn_creation_time": "260707",
+      "jjghn_status": "jjghe_stabled",
+      "jjghn_order": [],
+      "jjghn_next_pace_seed": "AAA",
+      "jjghn_paces": {}
     }
   }
 }
