@@ -187,6 +187,20 @@ the implementation tail runs at work tier.
   Refines the Billet sweep cinch's at-dispatch-time framing (the mechanics stand; the door does not)
   and re-cuts the census ashlar roster — saddle/lunge/break/refit typed, muck ashlar by confirm-output alone.
   The Dispatch shell surface cinch already names only the two jjy_ trampolines and stands unchanged.
+- Sheaf register (260708, operator ruling): sheaves — aspirant and canon alike — carry the latest
+  best concept only, never the steps that led there;
+  a date-stamped process trail in a sheaf is a skidmark.
+  Dated records belong to the paddock (this convention) and to git;
+  a resolved open fork simply leaves the mulling list.
+- Dispatch-sheaf authoring decisions (260708, settled at authoring):
+  billet dirnames are jjqb_{coronet} for pace billets and jjqb_{firemark} for groom billets
+  (the yard-split reconciliation superseded the earlier branch-name-verbatim lean;
+  branch = the bare coronet, dirname = the jjqb_ signet, typed by length);
+  groom billets reap on retention alone under the same liveness join (they carry nothing durable);
+  the break-all door is catalogued with the dispatch family, citing the journal break sequence per lock;
+  the trampoline installer verb stays unnamed — a boring hearting name mints at implementation;
+  saddle is infused with its grep gate still OPEN by contingency, completed by the interior-remint pace;
+  broadside registration for the dispatch ashlars defers to cutover alongside the cosmology nouns.
 
 ## Canon workup
 
@@ -226,15 +240,20 @@ the founding-and-cutover section stays aspirant deliberately — it is the conve
   LANDED 260706: `JJSVF-farrier.adoc` (normative entity), mounted in JJS0's Revision Control region;
   homes the `jjdf_` quoins (entity, three facets, identify, vocabulary Palisade)
   and the never-force rivet at the consign contract.
-- Dispatch and billet (operation family): saddle, lunge, the shared entrance spine with muck
-  as its leading billet-clearing step (260708 cinch — no unsaddle door), the sweep mechanics,
-  BUK meld consequences; launch-time provisioning folds in (lean 260705: fold, split only if it dominates the sheaf at authoring).
+- Dispatch and billet (operation family): the two doors, the shared entrance spine with muck leading,
+  refit, the break door, the billet entity, BUK meld, launch-time provisioning, session launch.
+  LANDED 260708: `JJSVD-dispatch.adoc` (executory operation family), mounted in JJS0's Revision Control region;
+  homes the `jjdd_` quoins (saddle, lunge, billet, entrance spine, muck, refit, break door);
+  the farrier and cosmology forward-reference notes retired, the journal break-door pointer hardened,
+  and the studbook sheaf's refit/billet mentions converted to citations.
 - Tackle MVP core: scope-to-discipline binding beside the pedigree.
 - Typical-JJ-session chapbook — AUTHORED 260705, aspirant: `Tools/jjk/vov_veiled/JJSAC-chapbook-session.adoc`,
   mounted in the codex's Aspirant Nucleations with the first two-token cartouche.
   Its pending-citation register is the canon convergence gauge:
   each destination sheaf that lands hardens the tale's flagged beats to citations;
   the tale is expected to reach zero pending flags by heat end.
+  260708: the dispatch flags hardened (Act I, teardown, cast lanes, resync);
+  the register now holds only the party and engine entity quoins.
   Unhappy-path sibling tales (two-station contention, stale-lock break, stale-trunk resync) are named there and deferred.
 
 Amendment streams, not new sheaves:
@@ -305,6 +324,12 @@ muck re-cut from sweep door to the spine's leading step — never typed, ashlar 
 the ashlar roster now reads saddle/lunge/break/refit typed plus muck by output
 (superseding the census line's six-verb count);
 retirement and re-cut ledgered in the farrier sheaf.
+DISPATCH INFUSION (260708): saddle, lunge, billet, muck, refit, the entrance spine, and the break door
+catalogued as `jjdd_` quoins in `JJSVD-dispatch.adoc`;
+their ledger entries marked infused (saddle with its grep gate still open by contingency —
+completion rides the interior-remint pace);
+stirrup stays hearting;
+broadside registration for the dispatch ashlars deferred to cutover with the cosmology nouns.
 Elections, alternates, and rationales live in the two sheaf ledgers; this roster is the summary.
 
 ### Deltas to bank into the aspirant sheaves at drain time
@@ -327,27 +352,20 @@ Elections, alternates, and rationales live in the two sheaf ledgers; this roster
   wire-vs-display open fork and deferred insignia sub-mint.
   The pace-identity banking travels with the relocated ₣Bc re-gestalt pace (its implementing surface);
   the store-shape/insignia settlement still banks here at drain time.
-- Session-tiers paragraph (farrier sheaf, dispatch layer): the session-launch cinch supersedes its wording —
-  lunge and unbridled-saddle launch the opus/xhigh judgment constant, bridled-saddle consumes the designation,
-  and the verb-carries-the-tier line narrows to the two-source choice function;
-  the haiku orchestration line stays breeze-era; bank at drain time.
+- Session-tiers paragraph (farrier sheaf, dispatch layer): DONE 260708 — drained into the
+  dispatch sheaf's Session launch section per the session-launch cinch;
+  the haiku orchestration line stays breeze-era.
 - Unsaddle removal: DONE 260708 — banked into the farrier sheaf (toothing table, dispatch-layer
   section, lifecycle doctrine, naming ledger, exposure tiers), the chapbook's Act I and teardown
-  interactions, and the state-repo ledger pointer, per the 260708 cinch.
+  interactions, and the state-repo ledger pointer, per the 260708 cinch;
+  the dispatch-layer content then drained whole into the dispatch sheaf the same day.
 
 ## Held for discussion
 
-Settle before the affected change, not before the heat; each item names its settling pace:
-
-- Billet dirname convention — lean on record (dirname = the §F branch name verbatim);
-  adopted at dispatch-sheaf authoring.
-- Stirruped-entry protocol seam — how the mount and groom protocol texts behave when a session
-  arrives through the dispatch doors rather than a hand-opened chat:
-  the opening prompt carries the engagement verb, so target election and its gazette dance shift form;
-  a session on a sub-frontier-designated pace follows the designee protocol landing with the bridle work
-  (orient, work, record, landing, never wrap), not the full mount ceremony;
-  a judgment session keeps the ceremony;
-  settles at dispatch-sheaf authoring alongside the kit-core protocol-text updates.
+Settle before the affected change, not before the heat; each item names its settling pace.
+Nothing currently held — the billet dirname convention and the stirruped-entry protocol seam
+both settled at dispatch-sheaf authoring (260708);
+the kit-core protocol-text updates the seam implies ride the implementation tail.
 
 ## Done when
 
