@@ -12,13 +12,12 @@ Patching forward is exactly the bug class this ceremony exists to catch — accu
 
 ## 1. Confirm Payor health
 
-- [Refreshes](README.md#Refresh) the [Payor](README.md#Payor) OAuth token so subsequent [Payor](README.md#Payor)-authority operations do not fail mid-qualification on token expiry
-- Use `tt/rbw-gPI.PayorInstall.sh` instead if [Payor](README.md#Payor) credentials have never been [Installed](README.md#Install) on this workstation
-- Success: the command exits clean
-- Failure: re-[Establish](README.md#Establish) the [Manor](README.md#Manor) before proceeding — the ceremony cannot run without a healthy [Payor](README.md#Payor)
+- Probes the [Payor](README.md#Payor) OAuth credential — exchanges the stored refresh token for a live access token against Google Cloud, so subsequent [Payor](README.md#Payor)-authority operations do not fail mid-qualification on an expired token
+- Success: the probe exits clean — proceed
+- Failure: the stored refresh token is expired or absent. Re-[Install](README.md#Install) it with `tt/rbw-gPI.PayorInstall.sh ~/Downloads/client_secret_*.json`, or re-[Establish](README.md#Establish) the [Manor](README.md#Manor) if the OAuth client itself is gone; then re-run this step
 
 ```
-tt/rbw-gPR.PayorRefresh.sh
+tt/rbw-ap.CheckPayorCredential.sh
 ```
 
 ## 2. Marshal zero, then commit
