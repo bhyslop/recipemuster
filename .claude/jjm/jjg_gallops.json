@@ -9288,8 +9288,8 @@
         "₢BsAAI": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260707-1314",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260708-1321",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "## Character",
                 "",
@@ -9326,7 +9326,7 @@
                 "a `git ls-files` review of the practice strip shows no proprietary path surviving."
               ],
               "jjgtn_silks": "staging-ceremony-refresh",
-              "jjgtn_basis": "3be0115"
+              "jjgtn_basis": "9fd10f6"
             }
           ]
         },
