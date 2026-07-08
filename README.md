@@ -156,23 +156,6 @@ This model **requires a GCP organization and an external OIDC identity provider*
 A qualifying organization is free via Google Cloud Identity once you verify ownership of a **DNS domain**, and a conformant IdP tenant (Microsoft Entra, Keycloak, Okta, …) provisions in minutes — so the real prerequisite is controlling a domain, not paying Google.
 That one-time founding hour buys short-lived sign-in, central revocation at the identity provider, and no static secret at rest.
 
-Critical sequences, rendered from committed PlantUML source through the [pluml](#pluml) [Crucible](#Crucible) — each diagram tracks your light/dark color scheme (click any to expand):
-
-  <details>
-  <summary><strong>Operator login</strong> — two-leg device-flow + STS exchange</summary>
-  <picture><source media="(prefers-color-scheme: dark)" srcset="diagrams/rbdgl_federation-login-dark.svg"><img alt="Operator login — two-leg device-flow + STS exchange" src="diagrams/rbdgl_federation-login.svg"></picture>
-  </details>
-
-  <details>
-  <summary><strong>Federation setup</strong> — Payor-side workforce pool + provider</summary>
-  <picture><source media="(prefers-color-scheme: dark)" srcset="diagrams/rbdgs_federation-setup-dark.svg"><img alt="Federation setup — Payor-side workforce pool + provider" src="diagrams/rbdgs_federation-setup.svg"></picture>
-  </details>
-
-  <details>
-  <summary><strong>The single code seam</strong> — one accessor, every call site model-blind</summary>
-  <picture><source media="(prefers-color-scheme: dark)" srcset="diagrams/rbdgm_federation-seam-dark.svg"><img alt="The single code seam — one accessor, every call site model-blind" src="diagrams/rbdgm_federation-seam.svg"></picture>
-  </details>
-
 #### Establishment and Provisioning
 
 The [Payor](#Payor) begins by [Establishing](#Establish) a GCP project and OAuth consent screen through the Google Cloud Console, then [Installs](#Install) the downloaded client credentials via a browser authorization flow.
@@ -194,13 +177,6 @@ After builds complete, the [Director](#Director) [Tallies](#Tally) [Hallmarks](#
 [Hallmark](#Hallmark) values from the [Tally](#Tally) are recorded into [Nameplate](#Nameplate) [Regime](#Regime) files, completing the chain from build to runtime.
 
 The [Retriever](#Retriever) [Summons](#Summon) [Vouched](#Vouch) images locally for use.
-
-The full provenance tale — capture, the four construction modes, and the vouched pull — rendered from the same committed PlantUML source:
-
-  <details>
-  <summary><strong>The provenance tale</strong> — from tool capture to a nameplate's hallmark line</summary>
-  <picture><source media="(prefers-color-scheme: dark)" srcset="diagrams/rbdgp_provenance-tale-dark.svg"><img alt="The provenance tale — from tool capture to a nameplate's hallmark line" src="diagrams/rbdgp_provenance-tale.svg"></picture>
-  </details>
 
 [Recipe Bottle](#RecipeBottle) builds container images on Google Cloud Build (GCB) and stores them in Google Artifact Registry (GAR):
 
