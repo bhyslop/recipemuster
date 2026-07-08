@@ -9897,9 +9897,10 @@
         "₢BxAAA",
         "₢BxAAB",
         "₢BxAAC",
-        "₢BxAAD"
+        "₢BxAAD",
+        "₢BxAAE"
       ],
-      "jjghn_next_pace_seed": "AAE",
+      "jjghn_next_pace_seed": "AAF",
       "jjghn_paces": {
         "₢BxAAA": {
           "jjgpn_tacks": [
@@ -10035,6 +10036,56 @@
               ],
               "jjgtn_silks": "bank-facade-lint",
               "jjgtn_basis": "645edf7"
+            }
+          ]
+        },
+        "₢BxAAE": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260707-1920",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "Design + authoring under genuine uncertainty, Fable-tier: the true refresh-token",
+                "expiry behavior is not yet known, and the model authored here becomes the authority",
+                "every user-facing surface obeys — a subtly-wrong OAuth fact reads fine and propagates.",
+                "",
+                "## Done when",
+                "- The real Payor OAuth refresh-token expiry behavior is established authoritatively,",
+                "  not assumed.",
+                "  Operator datum: one credential has served a month-plus of active use without reissue,",
+                "  which falsifies the \"7-day-after-consent\" claim now asserted for Testing publishing status.",
+                "  Determine the actual rule (durable? idle-based? scope- or client-type-dependent?)",
+                "  for this client shape (Desktop app, External + Testing, cloud-platform scope) —",
+                "  Google's documented behavior corroborated by operator experience.",
+                "- One canonical statement of the Payor credential lifecycle exists:",
+                "  one human secret; establish then install; \"refresh\" is only the invisible automatic",
+                "  refresh-token to access-token exchange; the true expiry rule; recovery is re-install",
+                "  (or re-establish / rotate-then-install); rbw-ap is the read-only health probe.",
+                "- Every user-facing surface tells a consistent subset and contradicts none:",
+                "  the README glossary (Install / Refresh / RBRO / OAuth Probe), the handbooks",
+                "  (establish, onboarding, RBSPI), RELEASE, and the spec expiry echoes",
+                "  (RBSRO, the RBS0 rbro_refresh_token quoin).",
+                "- The expiry claims committed under the payor-refresh retirement are reconciled to the",
+                "  true model — reverting the \"7-day\" assertions if the behavior proves durable",
+                "  (RBSPI install step + typed outputs, consumer.md, the rbgp_payor.sh refresh-exchange error).",
+                "- The README \"Refresh\" term is resolved per Lapidary: recast to name the real act",
+                "  (re-install) or retired as a distinct term — today it names a phantom operation.",
+                "",
+                "## Cinched",
+                "- \"Refresh\" is not a separate user operation: the only refreshing is the automatic",
+                "  uncached refresh-token to access-token exchange inside every Payor call; recovering an",
+                "  expired or compromised token is re-install. (Cinch of the payor-refresh retirement.)",
+                "",
+                "## Sources",
+                "- The retirement that surfaced this: recent git log, the payor-refresh handbook retirement",
+                "  (RBSPR deleted, RBSPI salvage, the 7-day propagation).",
+                "- Surfaces: README.md glossary anchors (Install / Refresh / RBRO / OAuthProbe), RBSPI,",
+                "  RBSRO, the RBS0 rbro_refresh_token quoin, RELEASE.md Step 1, consumer.md.",
+                "- MCM Lapidary for the broadside/bondstone treatment of the Refresh term."
+              ],
+              "jjgtn_silks": "payor-credential-lifecycle-model",
+              "jjgtn_basis": "1b9f9c3"
             }
           ]
         }
