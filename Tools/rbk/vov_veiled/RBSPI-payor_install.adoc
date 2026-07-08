@@ -17,20 +17,23 @@ is set in the current shell environment
 * {rbhg_require}
 OAuth client JSON file from
 {rbtgo_payor_establish}
-is available locally
+is saved in its durable home — the `client_secrets/` subdirectory of {rbrr_secrets_dir}
 
 //axhos_step
-. *Obtain or rotate the OAuth client JSON* (only when you lack a current one):
-.. For a first install, use the JSON downloaded during
+. *Obtain or rotate the OAuth client JSON* (only when the client itself is lost or compromised):
+.. For a first install, use the JSON saved during
 {rbtgo_payor_establish}.
-.. If the client secret was compromised, or the stored refresh token has expired
-(Payor operations begin failing on an expired or invalid token), mint a fresh secret:
+.. A dead refresh token needs no new JSON —
+re-run this installation with the same saved file
+(the {rbro_regime} lifecycle statement names the death modes).
+.. If the client secret was compromised or its JSON is lost, mint a fresh secret:
 ... Open APIs & Services > Credentials in the {rbtgi_manor} and click the existing
 "Recipe Bottle Payor" OAuth client
 ... Click "+ Add secret", then the download icon beside the NEW secret; the browser
 downloads `client_secret_[id].apps.googleusercontent.com.json`
 ... Click "Disable" on the secret with the older creation date, then the trash icon to
 delete that disabled secret
+... Save the fresh JSON to the durable home, replacing the dead one
 
 //axhos_step
 . *Execute OAuth Credential Installation*:
@@ -42,29 +45,31 @@ to environment (obtained from {rbtgo_payor_establish} step 2)
 [source,bash]
 ----
 export RBRP_BILLING_ACCOUNT_ID=<your-billing-account-id>
-rbgp_payor_install ~/Downloads/client_secret_*.json
+rbgp_payor_install «RBRR_SECRETS_DIR»/client_secrets/client_secret_*.json
 ----
 
+.. The glob assumes one saved JSON in the durable home;
+if more than one exists, pass the exact path
 .. Script validates OAuth JSON file structure
-.. Script performs OAuth authorization flow:
-... Opens browser to Google OAuth consent screen
-... User clicks "Continue" on unverified app warning
-... User grants Recipe Bottle Payor access to cloud resources
-... Google displays authorization code
-... User copies and pastes authorization code to terminal prompt
+.. Script performs OAuth authorization flow (loopback redirect):
+... Presents a Google OAuth consent URL to open in the browser
+... User signs in and grants Recipe Bottle Payor access to cloud resources
+... The browser lands on an unreachable localhost page — expected;
+the authorization code rides the address-bar URL
+... User copies the full URL from the address bar and pastes it at the terminal prompt
 
 //axhos_step
 . *Credential Storage*:
-.. OAuth credentials stored securely in `~/.rbw/payor/rbro.env` with 600 permissions
+.. OAuth credentials stored securely in the payor `rbro.env` under «RBRR_SECRETS_DIR» with 600 permissions
 .. Credentials include:
 ... `RBRO_CLIENT_SECRET`: OAuth client secret for token refresh
 ... `RBRO_REFRESH_TOKEN`: Refresh token for authentication (renew by re-installing)
 .. {rbhg_warn}
-Never commit `~/.rbw/payor/rbro.env` to version control
+Never commit the payor `rbro.env` under «RBRR_SECRETS_DIR» to version control
 
 //axhoot_typed_output
 {rbro_regime}
-* OAuth credentials stored in `~/.rbw/payor/rbro.env`:
+* OAuth credentials stored in the payor `rbro.env` under «RBRR_SECRETS_DIR»:
 ** `RBRO_CLIENT_SECRET`: OAuth client secret for token refresh
 ** `RBRO_REFRESH_TOKEN`: Refresh token for authentication (renew by re-installing)
 

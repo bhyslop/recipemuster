@@ -63,17 +63,18 @@ rbho_payor_handbook() {
 
   buh_step1 "Install OAuth credentials"
   buh_e
-  buh_line "Step 1 ended with downloading a JSON client secret file from the"
-  buh_line "OAuth client you just created. Install it:"
+  buh_line "Step 1 ended with saving a JSON client secret file into its durable"
+  buh_line "home - the client_secrets/ subdirectory of your secrets directory"
+  buh_line "(RBRR_SECRETS_DIR in rbrr.env). Install it:"
   buh_e
-  buh_tt  "  " "${RBZ_PAYOR_INSTALL}" "" " \${HOME}/Downloads/client_secret_*.json"
+  buh_tt  "  " "${RBZ_PAYOR_INSTALL}" "" " «secrets-dir»/client_secrets/client_secret_*.json"
   buh_e
   buh_line "This walks you through the OAuth authorization flow and stores"
   buh_line "the credential securely."
   buh_e
-  buh_line "The path above assumes one freshly downloaded client_secret_*.json in"
-  buh_line "~/Downloads. If your browser saved it elsewhere, or more than one"
-  buh_line "exists (e.g. after rotating a compromised secret), pass its exact path."
+  buh_line "The glob assumes one client_secret_*.json in the durable home. If"
+  buh_line "more than one exists (e.g. after rotating a compromised secret),"
+  buh_line "pass its exact path."
   buh_e
 
   buh_step1 "Instaurate the Manor"

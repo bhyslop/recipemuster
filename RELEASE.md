@@ -14,7 +14,7 @@ Patching forward is exactly the bug class this ceremony exists to catch — accu
 
 - Probes the [Payor](README.md#Payor) OAuth credential — exchanges the stored refresh token for a live access token against Google Cloud, so subsequent [Payor](README.md#Payor)-authority operations do not fail mid-qualification on an expired token
 - Success: the probe exits clean — proceed
-- Failure: the stored refresh token is expired or absent. Re-[Install](README.md#Install) it with `tt/rbw-gPI.PayorInstall.sh ~/Downloads/client_secret_*.json`, or re-[Establish](README.md#Establish) the [Manor](README.md#Manor) if the OAuth client itself is gone; then re-run this step
+- Failure: the stored refresh token is expired or absent. Re-[Install](README.md#Install) it with `tt/rbw-gPI.PayorInstall.sh «RBRR_SECRETS_DIR»/client_secrets/client_secret_*.json` (the JSON saved at [Establish](README.md#Establish); pass the exact path if several exist), or re-[Establish](README.md#Establish) the [Manor](README.md#Manor) if the OAuth client itself is gone; then re-run this step
 
 ```
 tt/rbw-ap.CheckPayorCredential.sh

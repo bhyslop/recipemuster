@@ -4,7 +4,27 @@ This is a normative portion of the {rbs0_imprimatur}: binding — code, tests, a
 {rbro_regime}
 
 This regime specifies OAuth 2.0 credentials used by the Payor role for token generation and API authentication.
-RBRO assignment files are external credential files stored in ~/.rbw/payor/rbro.env with 600 permissions, never committed to version control.
+RBRO assignment files are external credential files,
+written by {rbtgo_payor_install} to the payor subdirectory of {rbrr_secrets_dir} as `rbro.env` with 600 permissions,
+never committed to version control.
+
+The Payor credential lifecycle, canonically:
+the system's one human-held secret is the OAuth client JSON,
+which identifies the application, never a person.
+{rbtgo_payor_establish} creates that client once;
+{rbtgo_payor_install} performs the browser consent that mints the refresh token,
+stored disk-resident in the payor `rbro.env`.
+"Refresh" names no operator act:
+the only refreshing is the automatic refresh-token to access-token exchange inside every Payor call,
+and access tokens live in memory only.
+In the sanctioned console state — Internal audience, gated by {rbtgo_manor_instaurate} — the refresh token carries no scheduled expiry.
+It dies only by explicit revocation,
+six months unused,
+Google's live-token-per-client cap,
+or the organization's sign-in policy (surfaced as `invalid_rapt`).
+Recovery is always re-running {rbtgo_payor_install} with the same client JSON;
+re-running {rbtgo_payor_establish} to rotate the client is warranted only when the client itself is lost or compromised.
+{rbtgo_access_oauth_probe} is the read-only health probe.
 
 //axhrv_variable
 {rbro_client_secret}

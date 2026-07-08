@@ -47,7 +47,10 @@ after credential installation.
 .. Click "Get started" to launch Project Configuration wizard
 .. Complete 4-step wizard:
 ... Step 1 - App Information: Set app name and user support email
-... Step 2 - Audience: Select "External" (testing mode, no verification required)
+... Step 2 - Audience: Select "Internal" — the sanctioned console state, gated by {rbtgo_manor_instaurate}.
+Every RB consumer owns a GCP organization by construction (the workforce pool requires one; Cloud Identity Free suffices),
+so Internal is always available.
+External is a named misconfiguration: it leaves the test-user gate and seven-day token expiry in force.
 ... Step 3 - Contact Information: Provide email for notifications
 ... Step 4 - Finish: Accept User Data Policy and create
 
@@ -60,6 +63,9 @@ after credential installation.
 .. Click CREATE
 .. Popup displays client ID and client secret
 .. Download JSON (filename: `client_secret_[id].apps.googleusercontent.com.json`)
+.. {rbhg_store}
+the JSON in a `client_secrets/` subdirectory of {rbrr_secrets_dir} — its durable private home;
+{rbtgo_payor_install} and every future re-install read it from there
 .. {rbhg_warn}
 Client secret visible only in this popup; June 2025 onwards, Google will not display it after closing
 

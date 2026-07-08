@@ -318,7 +318,7 @@ Formal definitions for all [Foundry](#Foundry) operations, organized by lifecycl
 
 <a id="Install"></a>**[Install](#Install)** — Ingest OAuth client credentials from a downloaded JSON key file.
 [Installing](#Install) triggers a browser authorization flow and stores the resulting refresh token locally with restrictive permissions (`600`).
-This is a one-time [Payor](#Payor) operation — the refresh token persists until explicitly revoked.
+The stored token has no scheduled expiry — it dies only by explicit revocation, six months of disuse, Google's per-client live-token cap, or the organization's sign-in policy — and the recovery for every death is re-[Installing](#Install) with the same JSON file.
 
 <a id="Instaurate"></a>**[Instaurate](#Instaurate)** — Found the [Manor's](#Manor) scriptable identity substrate: the one organization-level workforce pool (ensured by list-and-match against its committed [RBRW](#RBRW) record), the [Terrier](#Terrier) bucket, and the per-[Depot](#Depot) record folders.
 A [Payor](#Payor) operation — ensure-exists, idempotent, never destructive — run after [Establish](#Establish) and [Install](#Install), before any [Affiance](#Affiance).
@@ -330,10 +330,6 @@ This is a [Payor](#Payor) operation that binds [Regime](#Regime) configuration t
 <a id="Unmake"></a>**[Unmake](#Unmake)** — Permanently destroy a [Depot's](#Depot) GCP infrastructure — project, artifact registry, storage bucket, and all contents.
 [Unmaking](#Unmake) is the reverse of [Levying](#Levy).
 This is a [Payor](#Payor) operation and is irreversible.
-
-<a id="Refresh"></a>**[Refresh](#Refresh)** — Refresh an expired [Payor](#Payor) OAuth token.
-OAuth tokens expire periodically; [Refreshing](#Refresh) re-authenticates via the stored refresh token without repeating the full [Install](#Install) flow.
-Run when [Payor](#Payor) operations fail with authentication errors.
 
 <a id="Quota"></a>**[Quota](#Quota)** — Review Cloud Build capacity and usage.
 [Quota](#Quota) displays the current build minute allocation, consumption, and any throttling in effect for the [Depot's](#Depot) GCP project.
@@ -541,7 +537,7 @@ Runs the device-flow [Avowal](#Avow) and STS exchange against the [Manor's](#Man
 [Dons](#Don) the [Governor](#Governor), [Director](#Director), or [Retriever](#Retriever) mantle in the [Depot](#Depot), exercises the minted token against Artifact Registry, and writes the attributed audit entry — or surfaces the access deficit; useful for diagnosing access failures after a [Brevet](#Brevet).
 
 <a id="OAuthProbe"></a>**[OAuth Probe](#OAuthProbe)** — Test [Payor](#Payor) OAuth authentication.
-The [OAuth Probe](#OAuthProbe) verifies that the stored refresh token can obtain a valid access token — useful for diagnosing [Payor](#Payor) operation failures before attempting a full [Refresh](#Refresh).
+The [OAuth Probe](#OAuthProbe) verifies that the stored refresh token can obtain a valid access token — a failed probe's remedy is re-[Installing](#Install) the credential.
 
 <a id="StaleDeleteRead"></a>**["Already Exists" After a Delete](#StaleDeleteRead)** — An operation that fails with "already exists" immediately after you deleted the same-named resource — a service account, a [Depot](#Depot) project — is almost always GCP's [post-delete read flap](#EventualConsistency), not leftover local state.
 Wait a few seconds and retry rather than hunting for a stale resource.

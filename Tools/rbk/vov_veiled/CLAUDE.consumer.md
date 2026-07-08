@@ -200,7 +200,7 @@ Project Root/
 ## Troubleshooting
 
 - **Regime validation fails on startup**: Run the regime's render command to see current values, then validate to identify the specific error. Fix the `.env` file and retry.
-- **OAuth token expired**: re-run payor install with a fresh client-secret JSON (`tt/rbw-gPI.PayorInstall.sh ~/Downloads/client_secret_*.json`).
+- **OAuth token expired**: re-run payor install with the saved client-secret JSON (`tt/rbw-gPI.PayorInstall.sh «RBRR_SECRETS_DIR»/client_secrets/client_secret_*.json`) — a dead token needs no new JSON.
 - **Lost credential file**: Re-run the creation command for that role (payor install, governor mantle, director knight, retriever charter).
 - **Tabtarget not found**: Run `tt/rbw-tq.QualifyFast.sh` to check tabtarget and colophon health.
 - **Build fails**: Check `tt/rbw-ft.RetrieverTalliesHallmarks.sh` for build status. Review logs in the GCP Console for the depot project.

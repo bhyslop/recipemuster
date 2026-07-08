@@ -124,12 +124,19 @@ zrbgp_refresh_capture() {
       "${RBGC_OAUTH_TOKEN_URL}") || z_curl_status=$?
   test "${z_curl_status}" -eq 0 || buc_die "Failed to execute OAuth refresh request (curl exit ${z_curl_status})"
 
-  # Check for error in response
+  # Check for error in response. invalid_rapt is discriminated from the
+  # generic expired-or-invalid die: the token is healthy but the organization's
+  # sign-in policy has lapsed the session, and the remedy is a re-install with
+  # the SAME saved client JSON — no rotation, no console act.
   local z_error
   z_error=$(jq -r '.error // empty' <<<"${z_response}")
   if test -n "${z_error}"; then
+    local z_error_subtype
+    z_error_subtype=$(jq -r '.error_subtype // empty' <<<"${z_response}")
     local z_error_desc
     z_error_desc=$(jq -r '.error_description // .error // "Unknown error"' <<<"${z_response}")
+    test "${z_error_subtype}" != "invalid_rapt" \
+      || buc_die "Payor sign-in session lapsed under your organization's sign-in policy - re-run the Install tabtarget with the saved client-secret JSON: ${z_error_desc}"
     buc_die "OAuth credentials expired or invalid - reinstall payor credentials: ${z_error_desc}"
   fi
 
