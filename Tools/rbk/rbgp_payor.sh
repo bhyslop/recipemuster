@@ -890,8 +890,8 @@ rbgp_payor_install() {
   buyy_ui_yawp "Recipe Bottle Payor wants access"; local -r z_yelp_access="${z_buym_yelp}"
   buh_line "  4. ${z_yelp_access} - Review the requested permissions"
   buh_line "     Check the permission checkboxes to grant access, then click ${z_yelp_continue}"
-  buh_line "  5. The browser then lands on an unreachable localhost page - that is expected;"
-  buh_line "     the authorization code rides the address-bar URL"
+  buh_line "  5. The browser then shows 'This site can't be reached / localhost refused to connect'"
+  buh_line "     - that page IS the success landing: the authorization code rides its address-bar URL"
   buh_e
   local z_auth_paste
   z_auth_paste=$(buh_prompt_secret "Copy the full URL from the address bar and paste here: ")
