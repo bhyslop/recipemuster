@@ -827,7 +827,7 @@ rbgp_payor_install() {
 
   buc_doc_brief "Install Payor OAuth credentials from client JSON file following RBAGS specification"
   buc_doc_param "oauth_json_file" "Path to downloaded OAuth client JSON file from establish procedure"
-  buc_doc_lines "REQUIREMENT: OAuth consent screen must be configured in testing mode"
+  buc_doc_lines "REQUIREMENT: OAuth consent-screen audience must be Internal (instaurate gates it)"
   buc_doc_lines "            and the Payor project must have required APIs enabled"
   buc_doc_lines "REQUIREMENT: RBRP_BILLING_ACCOUNT_ID must be set in environment"
   buc_doc_shown || return 0
@@ -863,7 +863,17 @@ rbgp_payor_install() {
 
   local z_refresh_token=""
   buc_step 'OAuth authorization flow'
-  local -r z_auth_url="${RBGC_OAUTH_AUTHORIZE_URL}?client_id=${z_client_id}&redirect_uri=urn:ietf:wg:oauth:2.0:oob&scope=openid%20email%20https://www.googleapis.com/auth/cloud-platform%20https://www.googleapis.com/auth/cloud-billing&response_type=code&access_type=offline"
+  # Loopback redirect — Google's documented OOB successor for desktop/CLI
+  # (OOB is blocked for production apps, and an Internal app is production
+  # from birth). No listener runs: the browser lands on an unreachable
+  # localhost page and the authorization code rides the address-bar URL,
+  # which the operator pastes back. prompt=consent forces the consent screen
+  # on re-install so a refresh token is always minted (a skipped screen
+  # returns none).
+  local -r z_redirect_uri="http://localhost:8085/"
+  local z_redirect_enc
+  z_redirect_enc=$(rbuh_urlencode_capture "${z_redirect_uri}") || buc_die "Failed to URL-encode redirect URI"
+  local -r z_auth_url="${RBGC_OAUTH_AUTHORIZE_URL}?client_id=${z_client_id}&redirect_uri=${z_redirect_enc}&scope=openid%20email%20https://www.googleapis.com/auth/cloud-platform%20https://www.googleapis.com/auth/cloud-billing&response_type=code&access_type=offline&prompt=consent"
 
   buh_e
   buh_link "Open this URL in your browser: " "Google OAuth Authorization" "${z_auth_url}"
@@ -880,11 +890,23 @@ rbgp_payor_install() {
   buyy_ui_yawp "Recipe Bottle Payor wants access"; local -r z_yelp_access="${z_buym_yelp}"
   buh_line "  4. ${z_yelp_access} - Review the requested permissions"
   buh_line "     Check the permission checkboxes to grant access, then click ${z_yelp_continue}"
-  buh_line "  5. Authorization code will be displayed"
+  buh_line "  5. The browser then lands on an unreachable localhost page - that is expected;"
+  buh_line "     the authorization code rides the address-bar URL"
   buh_e
-  local z_auth_code
-  z_auth_code=$(buh_prompt_secret "Copy the authorization code and paste here: ")
-  test -n "${z_auth_code}" || buc_die "Authorization code is required"
+  local z_auth_paste
+  z_auth_paste=$(buh_prompt_secret "Copy the full URL from the address bar and paste here: ")
+  test -n "${z_auth_paste}" || buc_die "Authorization redirect URL is required"
+
+  # Accept the full redirect URL or a bare code: strip through 'code=', drop
+  # trailing query params, then percent-decode (the code's slash arrives %2F).
+  local z_auth_code="${z_auth_paste}"
+  case "${z_auth_code}" in
+    *code=*) z_auth_code="${z_auth_code#*code=}" ;;
+  esac
+  z_auth_code="${z_auth_code%%&*}"
+  z_auth_code="${z_auth_code%%#*}"
+  z_auth_code=$(printf '%b' "${z_auth_code//\%/\\x}") || buc_die "Failed to percent-decode authorization code"
+  test -n "${z_auth_code}" || buc_die "Could not extract an authorization code from the pasted value"
 
   buc_log_args "Exchanging authorization code for tokens"
 
@@ -900,7 +922,7 @@ rbgp_payor_install() {
         --arg code "${z_auth_code}" \
         --arg client_id "${z_client_id}" \
         --arg client_secret "${z_client_secret}" \
-        --arg redirect_uri "urn:ietf:wg:oauth:2.0:oob" \
+        --arg redirect_uri "${z_redirect_uri}" \
         --arg grant_type "authorization_code" \
         '{code: $code, client_id: $client_id, client_secret: $client_secret, redirect_uri: $redirect_uri, grant_type: $grant_type}') \
       "${RBGC_OAUTH_TOKEN_URL}") || z_curl_status=$?
