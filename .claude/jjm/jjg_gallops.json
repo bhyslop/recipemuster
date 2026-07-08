@@ -9304,8 +9304,9 @@
         "₢BsAAJ": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260708-1143",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260708-1144",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_fable",
               "jjgtn_text": [
                 "## Character",
                 "",
@@ -9358,7 +9359,7 @@
                 "and the updated `rbm-abstract-drawio.svg` — the operator's draw.io re-export carrying the accepted additions — stands committed."
               ],
               "jjgtn_silks": "federation-glance-diagram",
-              "jjgtn_basis": "cefcb2c"
+              "jjgtn_basis": "92ac9e1"
             }
           ]
         },
