@@ -1,0 +1,275 @@
+//axvd_sheaf axd_executory axd_operation
+This is an executory operation sheaf of the {jjs0_imprimatur}: binding as design — cite it and build to it; the work product does not yet enact it.
+
+= Dispatch and Billet
+
+The operation family at JJ's shell edge: two doors — {jjdd_saddle} and {jjdd_lunge} — one
+shared {jjdd_spine}, the {jjdd_billet} a dispatched session runs in, the {jjdd_muck} step
+that clears spent billets, the {jjdd_refit} staleness remedy, and the {jjdd_break_door}.
+Everything here composes {jjdf_farrier} primitives and the {jjdb_journal};
+this sheaf owns no primitive of its own.
+
+*The doors are the sole entrance* (cinched 260704): every JJ-dispatched session arrives
+through {jjdd_saddle} or {jjdd_lunge}, and the two share the one {jjdd_spine}.
+A bare hand-launched session carries no MCP registration and no JJ context — it is simply a
+non-JJ session, forever legitimate as such;
+no fallback paths until genuinely forced.
+The consequence is load-bearing, not cosmetic: the entrance must be pleasant very early —
+which is what forces {jjdd_muck}'s silence when it has nothing to reap.
+
+== The billet
+
+[[jjdd_billet]]
+//axo_entity
+{jjdd_billet}::
+The standing thing a dispatched session runs in: a root with a lifecycle on the partition
+axis (farrier sheaf, Two axes — worktree for plain git, full clone the fallback for kinds
+without worktrees), plus a branch-or-detached-tip and an env posture (the per-billet BURV
+exports below).
+The object noun completing the verbs-act-on-nouns grammar: mount acts on a pace,
+{jjdd_saddle} creates a {jjdd_billet}, {jjdd_muck} collects it.
+Boarded on arrival, kept for the duration, collected after — never by the session inside it.
++
+Two kinds, split by door.
+A *pace billet* ({jjdd_saddle}) seats the pace's branch — the bare {jjdt_coronet}, no glyph:
+a git ref is machine context — and its dirname is `jjqb_{coronet}` per the {jjdw_yard}
+charter.
+A *groom billet* ({jjdd_lunge}) seats a detached checkout at trunk tip — nothing must
+survive it — and its dirname is `jjqb_{firemark}`, the same signet, typed by length exactly
+as identities are everywhere.
+Billets are {jjdw_infield} peers of their {jjdw_hippodrome} — peer placement is load-bearing
+(station geography, cosmology sheaf) — and worktrees share the hippodrome's object store:
+no history duplication, no fetch between billet and hippodrome;
+the billet-side cost is working files and cold build artifacts only.
++
+*Billets are chat-ephemeral; branches are durable.*
+The pace branch is the WIP carrier across chats, journaled in pace state;
+the worktree is disposable scaffolding.
+`git worktree list` is the authoritative local registry of which branch is seated where —
+no worktree path is ever written into the {jjdb_studbook} (the no-worktree-paths rivet,
+studbook sheaf).
++
+*Every dispatched session gets its own billet; trunk belongs to the operator alone.*
+Session isolation is structural, not disciplinary — even a "read-only" groom can run builds.
+Git itself enforces the split: a branch checked out in one worktree cannot be checked out in
+another — pace billets own unique branches and groom billets are detached, so the constraint
+never binds, and a billet mechanically cannot seat the trunk branch while the
+{jjdw_hippodrome} holds it.
+
+== The doors
+
+Cinched (260704): JJ opens the Claude Code sessions we work in.
+The operator knows the verb at chat-top, and the session's {jjdd_billet} must be right at
+launch — mid-session directory change neither reloads project context nor survives the cd
+prohibition.
+The doors are operator-typed at the shell, from within the elected clone: *cwd elects the
+clone* — the pace cannot, since parallel clones of one upstream are all legitimate
+{jjdw_hippodrome_s} — and either door works from trunk or billet alike
+({jjdf_identify} resolves either).
+
+[[jjdd_saddle]]
+{jjdd_saddle}::
+The work dispatch.
+A {jjdt_coronet} saddles that pace;
+a {jjdt_firemark} saddles the heat's *next actionable pace* — mounting a heat has always
+meant mounting its first pace, and the firemark spelling keeps that meaning.
+Either way the session gets a pace billet, and the launch consumes the pace's designation
+per the two-source choice (Session launch below).
+The bash-layer verb is deliberately not "mount" — Unix owns that word; the two-layer split
+is the codex's vocabulary-isolation doctrine at a new boundary.
++
+The word's repo-wide grep gate stands OPEN by contingency (census 260705 ruling): the
+interior orient-context routine currently named saddle (`JJSCSD-saddle.adoc`, `jjrsd_`)
+predates this door and is re-minted to a boring hearting name by its own remint pace;
+this definition is the word's one dispatch-layer home, and the gate completes with that
+remint.
+
+[[jjdd_lunge]]
+{jjdd_lunge}::
+The groom dispatch: working the horse from the ground on the long line, deliberately
+unmounted — assessment without riding.
+A {jjdt_firemark} gets a groom billet (detached at trunk tip);
+the launch takes the judgment constant (Session launch below).
+
+[[jjdd_break_door]]
+{jjdd_break_door}::
+The operator-deliberate break-all door, outside the {jjdd_spine}: `sight` every JJ lock —
+{jjdb_studbook} and mews alike — report the observed {jjdb_guidon_s}, then lease-guarded
+`pluck` per lock, never blind.
+The door cites the {jjdb_break} per lock and adds nothing to it (journal sheaf).
+Operator-deliberate by definition; precedent `/vvc-BREAK-LOCK`.
+
+== The entrance spine
+
+[[jjdd_spine]]
+{jjdd_spine}::
+The one shared sequence behind both doors — a door contributes only its target typing and
+its tier source, never its own spine:
++
+. *{jjdd_muck}* — the billet-clearing sweep, silent when its reap set is empty.
+. *{jjdf_identify}* at the captured invocation path — the door captures cwd exactly once;
+  a decline is the fair-faced foreign-ground rejection.
+. *Pedigree lookup* — a {jjdb_studbook} read, no lock;
+  an upstream with no {jjdb_pedigree} is the unrecorded-upstream rejection, and a claiming
+  kind that contradicts the recorded kind is the record/ground-drift rejection
+  ({jjdf_identify} contract, farrier sheaf).
+. *Billet ensure* — `billet_create`-or-reuse ({jjdf_billet} facet);
+  a groom billet in reuse re-detaches to trunk tip.
+. *`glean`* — the spine fetches and never merges;
+  staleness becomes known here so the open can report it, and {jjdd_refit} is the remedy.
+. *BURV export* — the per-billet env posture (BUK meld below).
+. *Provision* — JJ context and MCP registration, session-scoped (Launch-time provisioning
+  below).
+. *Launch* — start Claude Code inside the {jjdd_billet} with the engagement verb as opening
+  prompt, at the (tier, effort) the two-source choice yields (Session launch below).
+  The interior launch primitive is stirrup — hearting, pace-blind, parameterized (billet,
+  tier, opening prompt); pace-coupling lives in the caller, and later dispatch surfaces
+  reuse the same spine and primitive, never a parallel launcher.
+
+== Muck
+
+[[jjdd_muck]]
+{jjdd_muck}::
+Mucking out the stable: the reap of spent {jjdd_billet_s}, homed as the {jjdd_spine_p}
+leading step — run implicitly on both doors, never directly invoked, no door of its own.
+Reaping is nuke-on-start: teardown belongs to the next dispatch, never to the session whose
+floor a billet is.
++
+The reap set: pace billets whose pace is closed and whose age exceeds retention;
+groom billets past retention (they carry nothing durable).
+The liveness guard is the pure JJ-data join — live {jjdxo_officium_s} × billets — a platform
+process-probe only ever belt-and-braces;
+the retention window equals the {jjdxo_exsanguination} window — one constant, one rhyme.
+The sweep globs `jjqb_*` ({jjdw_yard}), a positive match that structurally excludes the kit
+and record repos it must never reap.
++
+Behavior: snapshot pace states under the {jjdb_studbook} lock, plan, confirm, then reap
+lock-free — completion is monotonic, so a stale snapshot only ever under-reaps.
+Plan-then-confirm when the reap set is non-empty;
+*silent when empty* — the sole-entrance consequence above forces this.
+On a dirty billet, refuse-with-advice by default;
+auto-commit-push rides behind an explicit confirm — never silently.
++
+Deliberately sacrificed for MVP: immediate reap of a not-yet-closed billet.
+Such a billet waits for pace-close plus retention, and the next dispatch takes it.
+
+== Refit
+
+[[jjdd_refit]]
+{jjdd_refit}::
+The session-facing staleness remedy: when the ground moves, refit.
+No verb refuses on a stale trunk — staleness is drift, never corruption (the billet branch
+is additive and the {jjdb_studbook} advances under its own lock) — so {jjdo_open} leads its
+report with the staleness warning and names {jjdd_refit} as the remedy, and notch and wrap
+append the same recommendation whenever trunk has moved.
++
+Behavior: `enfold` trunk into the billet branch — merge, never rebase: journaled
+{jjdb_counterfoil_s} survive, and the branch's interior history dies at the operator's trunk
+merge anyway — then `consign` the merge immediately: the operation exists to clear staleness
+for every station and runs online by construction;
+offline degrades to warn-and-proceed.
+On conflict the attended session resolves as its first order of business — *attended* is the
+load-bearing property, not tier.
+
+== Session launch
+
+The tier vocabulary is the vendor's own family words — a Palisade admission at one membrane,
+never a JJ mint (the {jjdf_palisade} posture applied to model families).
+No tier categories are hardlined: a tier is just a name, and category judgment lives at each
+policy site as an explicit name-set, never as an attribute a family IS.
+Effort anchors transparently on the vendor's effort classification, likewise unminted;
+effort never rides the MCP wire — it is designation-and-dispatch data, and the orient guard
+reads tier alone.
+
+One roster table, baked into the engine as a constant (the {jjdb_blotter_p} engine-known
+posture): family name → launch model ID + valid effort set, no default columns.
+Every kind of vendor drift lands as an edit to this one table, and a surprise is captured as
+a spook.
+Stirrup is the table's one launch consumer — callers speak tier words, never model IDs, and
+an invalid (family, effort) pair refuses fair-facedly.
+The fable family stays a roster row no launch policy names until its pricing settles;
+opus is the working judgment tier.
+
+The (tier, effort) choice has exactly two sources, split by door:
+
+* {jjdd_lunge}, having no pace, launches the *judgment constant* — opus/xhigh, one named
+  cell in the engine.
+* {jjdd_saddle} launches the pace's designation exactly;
+  on an unbridled pace it launches the same judgment constant — undesignated work is
+  judgment work: such a session plans toward a bridle or simply finishes fast.
+  A designation without effort launches with the effort knob omitted — the vendor default
+  governs; JJ invents nothing.
+
+Guard permanence: every command registers its guard bucket explicitly, no default — absence
+fails loud.
+The docket-authoring gate is an explicit accept-set of family names beside the roster;
+an unknown family sits in no accept-set by construction — OPEN reads only, until a
+deliberate roster-and-set edit.
+
+== The BUK meld
+
+BUK dispatch self-anchors — cwd normalizes to the invoked tree's root, and moorings ride
+committed in any worktree — so BUK cannot tell a {jjdd_billet} from a clone, and the station
+family already resolves to the {jjdw_infield} (peer placement load-bearing, cosmology
+sheaf).
+The genuine hazard is concurrency, not geometry: shared per-dispatch output state
+(`../output-buk/current/`, `logs-buk/last.txt`).
+The {jjdd_spine} closes it by exporting per-billet `BURV_OUTPUT_ROOT_DIR`,
+`BURV_TEMP_ROOT_DIR`, and `BURV_LOG_DIR` — absolute paths, the whoever-dispatches-owns-the-knob
+protocol; theurge needs no change (it sets BURV innermost, and innermost wins).
+Named behavior change: chain facts (`current/` → `previous/`) become *billet-scoped* — a
+tabtarget inside the billet and one in a trunk terminal no longer see each other's flow,
+which also closes a latent cross-clone chain race that predates billets.
+
+== The trampolines
+
+The shell doors are {jjdw_infield}-resident trampolines under the `jjy_` signet
+({jjdw_yard}): `jjy_saddle` and `jjy_lunge`, two-line scripts — never symlinks: Windows
+stations — that exec into the kit repo's tabtargets.
+They are stamped by an idempotent kit-repo installer verb at founding — re-running it is
+always safe, and its boring hearting name mints at implementation.
+Nothing ever lands in a {jjdw_hippodrome}, and no gitignore is needed anywhere — the
+{jjdw_infield} is not a repository.
+
+== Launch-time provisioning
+
+{jjdw_hippodrome_s} carry no JJ inserts (cosmology sheaf), so MCP config, the verb table,
+and JJ context arrive *at session launch from the spine* — session-scoped config plus the
+opening prompt — never from repo-resident inserts;
+the project's own CLAUDE.md, whatever the vanilla project ships, still governs its code.
+
+The destination is generated, work-scoped context (guideline cinched 260704): context honed
+to the elected heat or pace.
+Default stance until that intelligence exists: retain everything the current inserts carry,
+removing pieces only as honing is actually built.
+Honing is prediction, and starvation fails silent — the full table is also the index of what
+exists — so two standing repairs ship with every provision: an invariant *conduct core*,
+unhoned (never-reach-past, commit discipline, additive-only), and a *pull door* — a
+context-lookup verb named in the core — turning starvation into one extra round-trip instead
+of silent ignorance.
+Selection is safe only when paired with discoverability.
+
+Officium exchange (gazettes) relocates into the {jjdb_studbook} clone's untracked working
+area, and per-scope discipline context arrives through tackle bindings — both forward
+references to their aspirant homes (state-repo and tackle sheaves), landing with them.
+
+== Stirruped entry
+
+A dispatched session arrives with the engagement verb in its opening prompt, so target
+election shifts form: the door already elected the pace or heat, and the opening prompt
+carries it — the hand-opened session's target-election dance is not performed.
+A session saddled onto a bridled pace follows the designee protocol (orient, work, record,
+landing — never wrap);
+a judgment session — {jjdd_lunge}, or {jjdd_saddle} on an unbridled pace — keeps the full
+ceremony.
+The kit-core protocol texts pick this seam up at implementation.
+
+== Rejections
+
+The {jjdd_spine_p} refusals are fair-faced ashlar output, named per the farrier taxonomy
+where a primitive supplies them:
+foreign ground ({jjdf_identify} declines — no kind claims the tree),
+unrecorded upstream (no {jjdb_pedigree} for the claimed key),
+record/ground drift (claiming kind contradicts the recorded kind),
+and {jjdd_muck_p} dirty-anomaly refusal (refuse-with-advice, above).
+Everything else fails loud through the composed primitive's own named rejection kind.
