@@ -23,8 +23,17 @@ the implementation tail runs at work tier.
 
 - One heat at a time: the conversion heat is cut only after this heat lands,
   from the state-repo sheaf's Founding-and-cutover section, refreshed by build learnings.
-- The pace-identity re-gestalt is a gallops schema change: reprieve-gated
-  (JJS0 `jjdz_reprieve`; CLAUDE.md §E branch delivery, §F branch naming).
+- Pace-identity re-gestalt relocated (260708): the implementation moved to the
+  isolated-schema-changes heat (₣Bc) as its own reprieve-gated pace — this heat does not depend on it.
+  The billet layer needs only the git-ref- and dirname-safe id shape,
+  which grandfathering preserves verbatim, and the scratch rehearsal exercises no transfer or restring.
+  The 260706 pace-id-shape, wire-vs-display, and halter-typing cinches travel as that pace's contract
+  (it banks them into the state-repo sheaf, closing its open fork);
+  they remain recorded below as dated design record.
+  The insignia cinches stay here — this heat's blotter stores consume them;
+  they merely shared the design pace.
+  The conversion heat's entry gate widens: it requires the relocated re-gestalt landed and converged
+  in addition to this heat's rehearsal pass — live billet branches must not rot on transfer.
 - The scratch-studbook rehearsal gate is this heat's final pace and the conversion heat's entry gate.
 - Farrier op names are git-free above the trait (vocabulary Palisade, farrier sheaf);
   all word-picking under MCM Lapidary with repo-wide grep gates.
@@ -215,8 +224,9 @@ the founding-and-cutover section stays aspirant deliberately — it is the conve
 
 Amendment streams, not new sheaves:
 officium re-gestalt (exchange relocation, identify at open);
-pace-identity re-gestalt (reprieve-gated per the standing cinch);
 the interior saddle-routine rename freeing the saddle word.
+The pace-identity re-gestalt amendment stream relocated with its implementation
+to the isolated-schema-changes heat (₣Bc) per the 260708 cinch.
 
 ### Mint roster
 
@@ -293,8 +303,9 @@ Elections, alternates, and rationales live in the two sheaf ledgers; this roster
 - Mews sheaf (sibling heat ₣Ba): DONE 260705 — the graduation fork closed in the sheaf itself;
   the fleet store is a jjy_ peer repo manipulated by the jj app, the blotter's anticipated second instance; no separate kit.
 - Pace-identity and store-shape sections: the 260706 design cinches settle the sheaf's
-  wire-vs-display open fork and deferred insignia sub-mint;
-  bank the settlement at drain time (the re-gestalt amendment stream is the implementing surface).
+  wire-vs-display open fork and deferred insignia sub-mint.
+  The pace-identity banking travels with the relocated ₣Bc re-gestalt pace (its implementing surface);
+  the store-shape/insignia settlement still banks here at drain time.
 - Session-tiers paragraph (farrier sheaf, dispatch layer): the session-launch cinch supersedes its wording —
   lunge and unbridled-saddle launch the opus/xhigh judgment constant, bridled-saddle consumes the designation,
   and the verb-carries-the-tier line narrows to the two-source choice function;
