@@ -8911,8 +8911,8 @@
         "₢BrAAZ": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260707-1941",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260707-1953",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "## Character",
                 "",
@@ -8936,7 +8936,7 @@
                 "and the billet branch/dirname split is recorded where cosmology and §F need it, noting that the pace-id charset must guarantee no leading '-' for git-ref and dirname safety — a constraint owed to the pace-identity re-gestalt, not solved here."
               ],
               "jjgtn_silks": "reconcile-jjq-jjy-yard-split",
-              "jjgtn_basis": "7a263f3"
+              "jjgtn_basis": "ef52182"
             }
           ]
         }
