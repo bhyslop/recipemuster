@@ -10,6 +10,11 @@ The first turns tack docket text into a line array and moves tack history out of
 The second turns validate into a normalize-and-report pass that canonicalizes the store and carries its verdict in the exit code.
 Each registers an episode against the mechanism rather than re-plumbing detection.
 A third schema change — pace bridling — is additive-only and rides no episode; its determination is recorded in Cinched below.
+The heat has since adopted further schema-change paces on the same episode spine:
+the gallops-key glyph strip, and (adopted 260708 from the studbook–farrier heat ₣Br)
+the pace-identity re-gestalt — immutable-for-life pace ids from one global seed,
+relocated here because it is an isolated gallops schema change ₣Br does not depend on;
+its 260706 design cinches travel in its docket, and it must land and converge before the revision-control cutover heat.
 
 A coda then propagates the changes to every install and retires the spent episodes — but not the mechanism.
 Multi-install schema drift is the steady state of this tool, not a transition to be ended: there is always a leading clone where a schema-impacting change lands first and lagging clones not yet converged.
