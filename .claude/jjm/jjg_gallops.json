@@ -9495,8 +9495,8 @@
         "₢BsAAN": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260707-1931",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260708-1206",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "## Status — done, held open only as a reminder",
                 "Retirement landed and committed (handbook + tabtarget, spec RBSPR, the unenrolled duplicate",
@@ -9516,7 +9516,7 @@
                 "  purpose — then wrap ₢BsAAN."
               ],
               "jjgtn_silks": "retire-payor-refresh-handbook",
-              "jjgtn_basis": "ea01e60"
+              "jjgtn_basis": "1cdf753"
             }
           ]
         },
