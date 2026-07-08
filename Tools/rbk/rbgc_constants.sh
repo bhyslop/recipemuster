@@ -129,6 +129,9 @@ zrbgc_kindle() {
   readonly RBGC_API_ROOT_STORAGE="https://storage.googleapis.com"
   readonly RBGC_API_ROOT_SECRETMANAGER="https://secretmanager.googleapis.com"
   readonly RBGC_API_ROOT_LOGGING="https://logging.googleapis.com"
+  # IAP hosts the only API surface over the project's OAuth brand (the consent
+  # screen); RB uses it solely to read orgInternalOnly — the audience gate.
+  readonly RBGC_API_ROOT_IAP="https://iap.googleapis.com"
   readonly RBGC_CONSOLE_URL="https://console.cloud.google.com/"
   readonly RBGC_SIGNUP_URL="https://cloud.google.com/free"
 
@@ -157,6 +160,7 @@ zrbgc_kindle() {
   readonly RBGC_STORAGE_JSON_UPLOAD="/upload/storage/v1"
   readonly RBGC_SECRETMANAGER_V1="/v1"
   readonly RBGC_LOGGING_V2="/v2"
+  readonly RBGC_IAP_V1="/v1"
 
   # REST Path Fragments
   readonly RBGC_PATH_PROJECTS="/projects"

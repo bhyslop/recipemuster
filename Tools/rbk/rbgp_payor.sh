@@ -1581,20 +1581,49 @@ rbgp_manor_instaurate() {
   # === Ensure the payor-project APIs (migrated from the manual payor guide) ===
   # The payor project is the OAuth client's home and so the quota project of every
   # payor-token call — an API must be on here even when the resource lives elsewhere.
-  # iam (workforce pools), storage (terrier bucket), and cloudresourcemanager (the
-  # org grant) serve this finisher's own steps; cloudbilling (the billing links),
+  # iam (workforce pools), storage (terrier bucket), cloudresourcemanager (the
+  # org grant), and iap (the audience gate's brand read) serve this finisher's
+  # own steps; cloudbilling (the billing links),
   # artifactregistry (levy's region validation against the payor project), cloudbuild
   # (levy's worker-pool ops), and iamcredentials carry the levy that follows.
   # serviceusage leads: enabling rides the Service Usage API itself, so a project
   # with it off entirely fails loud on the first call (new projects ship it on; one
   # manual Console enable recovers, and the finisher re-runs cleanly).
   buc_step 'Ensure payor-project APIs enabled'
-  local -r z_payor_api_services="serviceusage cloudresourcemanager cloudbilling iam iamcredentials storage artifactregistry cloudbuild"
+  local -r z_payor_api_services="serviceusage cloudresourcemanager cloudbilling iam iamcredentials storage artifactregistry cloudbuild iap"
   local z_api_service=""
   for z_api_service in ${z_payor_api_services}; do
     rbge_api_enable "${z_api_service}" "${RBRP_PAYOR_PROJECT_ID}" "${z_token}" \
       || buc_die "Failed to enable payor-project API: ${z_api_service}"
   done
+
+  # === Gate the consent-screen audience (Internal-only manor law) ===
+  # The payor project's OAuth brand must be org-internal: External leaves the
+  # manor under the test-user gate and 7-day token expiry. The IAP brands API
+  # is the only programmatic surface over the brand and exposes orgInternalOnly
+  # read-only (create/get/list, no update) — so this is a check with a console
+  # remedy, never an ensure step. Placed first among the substrate checks: a
+  # misconfigured audience fails fast, before any manor mutation beyond API
+  # enablement.
+  buc_step 'Gate the consent-screen audience (Internal-only)'
+  local -r z_brands_url="${RBGC_API_ROOT_IAP}${RBGC_IAP_V1}/projects/${RBRP_PAYOR_PROJECT_ID}/brands"
+  rbuh_json "GET" "${z_brands_url}" "${z_token}" "instaurate_brands_list"
+  rbuh_require_ok "List payor OAuth brands" "instaurate_brands_list"
+  local z_brand_count
+  z_brand_count=$(rbuh_json_field_capture "instaurate_brands_list" '.brands // [] | length') || z_brand_count=0
+  if test "${z_brand_count}" = "0"; then
+    buc_info "No OAuth brand means the consent screen was never configured — the establish guide (rbw-gPE) walks that founding"
+    buc_die "No OAuth brand on payor project ${RBRP_PAYOR_PROJECT_ID} — establish the manor first, then re-run"
+  fi
+  local z_brand_internal
+  z_brand_internal=$(rbuh_json_field_capture "instaurate_brands_list" '.brands[0].orgInternalOnly // false') || z_brand_internal="false"
+  if test "${z_brand_internal}" = "true"; then
+    buc_info "Consent-screen audience is Internal — conformant"
+  else
+    buc_warn "Consent-screen audience is External on payor project ${RBRP_PAYOR_PROJECT_ID} — the test-user gate and 7-day token expiry stay in force"
+    buc_info "Remedy: Console > Google Auth Platform > Audience > 'Make internal', then re-run (the brands API cannot flip this)"
+    buc_die "Consent-screen audience must be Internal"
+  fi
 
   # === Ensure billing linked to the payor project (migrated from the manual guide) ===
   # Must precede the terrier bucket — bucket creation requires an active billing
