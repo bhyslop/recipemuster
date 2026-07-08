@@ -11,15 +11,6 @@ The ceremonies above the trait — the {jjdb_journal}, the {jjdb_break}, the dis
 stay JJ's;
 no driver ever owns a transaction.
 
-[NOTE]
-====
-*Forward references.* The dispatch layer — the saddle and lunge doors, the entrance spine,
-the billet entity, the refit operation, and the muck sweep — is census-minted vocabulary
-whose binding sheaf lands after this one;
-where such a word appears below it reads as a forward reference to a forthcoming contract
-home, not a citation.
-====
-
 == The entity
 
 [[jjdf_farrier]]
@@ -100,7 +91,7 @@ compare-and-swap primitives composed only by the {jjdb_journal} and the {jjdb_br
 [[jjdf_billet]]
 {jjdf_billet}::
 The billet lifecycle ops `billet_create`/`billet_remove`/`enfold`, consumed by the dispatch
-doors (forthcoming sheaf).
+doors ({jjdd_saddle}, {jjdd_lunge} — dispatch sheaf).
 
 == Op census — method contracts
 
@@ -174,7 +165,7 @@ Sequence-internal.
 `glean`::
 Gather what the remote holds: update remote-tracking state, mutate nothing local.
 Sequence-internal, opportunistic;
-the {jjdf_farrier} fetches and never merges — the refit operation (dispatch family) is the
+the {jjdf_farrier} fetches and never merges — {jjdd_refit} (dispatch sheaf) is the
 staleness remedy.
 
 `advance`::
@@ -233,7 +224,7 @@ refuses on dirty.
 `enfold`::
 Merge trunk *into* a billet branch — never rebase;
 fail-loud on conflict, resolution belonging to the attended session.
-The bare primitive beneath the refit operation (dispatch family, forthcoming).
+The bare primitive beneath {jjdd_refit} (dispatch sheaf).
 
 === Deliberately absent
 

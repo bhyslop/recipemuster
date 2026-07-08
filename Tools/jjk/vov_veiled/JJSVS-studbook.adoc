@@ -12,9 +12,9 @@ they record.
 
 [NOTE]
 ====
-*Forward references.* `refit` (the resync operation, dispatch family), the tackle bindings,
-and the billet are census-minted words whose binding sheaves land after this one;
-where such a word appears below it reads as a forward reference to a forthcoming contract
+*Forward references.* The tackle bindings are census-minted vocabulary whose binding sheaf
+lands after this one;
+where the words appear below they read as a forward reference to a forthcoming contract
 home, not a citation.
 ====
 
@@ -67,8 +67,8 @@ a rebase after journaling rewrites SHAs and dangles the {jjdb_counterfoil} —
 degraded provenance, not corruption; nothing downstream builds on it.
 Convergence discipline already prefers merge over rebase, which preserves
 {jjdb_counterfoil_s};
-billet branches never rebase (refit composes the merge-based `enfold`, a {jjdf_billet} op),
-closing the gap structurally where billets are used.
+{jjdd_billet} branches never rebase ({jjdd_refit} composes the merge-based `enfold`, a
+{jjdf_billet} op), closing the gap structurally where {jjdd_billet_s} are used.
 An optional `counterfoil_verify` op ({jjdf_farrier} op census, deferred past MVP) turns a
 dangling {jjdb_counterfoil} from a silent lie into a flagged one.
 

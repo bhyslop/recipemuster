@@ -9,7 +9,7 @@ that clears spent billets, the {jjdd_refit} staleness remedy, and the {jjdd_brea
 Everything here composes {jjdf_farrier} primitives and the {jjdb_journal};
 this sheaf owns no primitive of its own.
 
-*The doors are the sole entrance* (cinched 260704): every JJ-dispatched session arrives
+*The doors are the sole entrance*: every JJ-dispatched session arrives
 through {jjdd_saddle} or {jjdd_lunge}, and the two share the one {jjdd_spine}.
 A bare hand-launched session carries no MCP registration and no JJ context — it is simply a
 non-JJ session, forever legitimate as such;
@@ -58,7 +58,7 @@ never binds, and a billet mechanically cannot seat the trunk branch while the
 
 == The doors
 
-Cinched (260704): JJ opens the Claude Code sessions we work in.
+JJ opens the Claude Code sessions we work in.
 The operator knows the verb at chat-top, and the session's {jjdd_billet} must be right at
 launch — mid-session directory change neither reloads project context nor survives the cd
 prohibition.
@@ -78,7 +78,7 @@ per the two-source choice (Session launch below).
 The bash-layer verb is deliberately not "mount" — Unix owns that word; the two-layer split
 is the codex's vocabulary-isolation doctrine at a new boundary.
 +
-The word's repo-wide grep gate stands OPEN by contingency (census 260705 ruling): the
+The word's repo-wide grep gate stands OPEN by contingency: the
 interior orient-context routine currently named saddle (`JJSCSD-saddle.adoc`, `jjrsd_`)
 predates this door and is re-minted to a boring hearting name by its own remint pace;
 this definition is the word's one dispatch-layer home, and the gate completes with that
@@ -126,6 +126,9 @@ its tier source, never its own spine:
   tier, opening prompt); pace-coupling lives in the caller, and later dispatch surfaces
   reuse the same spine and primitive, never a parallel launcher.
 
+Mount absorbs cold start — billet ensure, glean, orient are the spine's work, and no
+separate cold-start engagement verb exists.
+
 == Muck
 
 [[jjdd_muck]]
@@ -169,7 +172,9 @@ merge anyway — then `consign` the merge immediately: the operation exists to c
 for every station and runs online by construction;
 offline degrades to warn-and-proceed.
 On conflict the attended session resolves as its first order of business — *attended* is the
-load-bearing property, not tier.
+load-bearing property, not tier;
+{jjdd_saddle} may bump the tier when it detects a pending conflict, but tier-escalation
+machinery is deferred past the MVP (breeze-era).
 
 == Session launch
 
@@ -206,6 +211,11 @@ The docket-authoring gate is an explicit accept-set of family names beside the r
 an unknown family sits in no accept-set by construction — OPEN reads only, until a
 deliberate roster-and-set edit.
 
+Programmatic session dispatch for personal tooling is documented product surface (headless
+mode, Agent SDK, `--model`);
+recording that standing determination here is what keeps it from being re-litigated from
+memory.
+
 == The BUK meld
 
 BUK dispatch self-anchors — cwd normalizes to the invoked tree's root, and moorings ride
@@ -238,8 +248,9 @@ and JJ context arrive *at session launch from the spine* — session-scoped conf
 opening prompt — never from repo-resident inserts;
 the project's own CLAUDE.md, whatever the vanilla project ships, still governs its code.
 
-The destination is generated, work-scoped context (guideline cinched 260704): context honed
-to the elected heat or pace.
+The destination is generated, work-scoped context: context honed
+to the elected heat or pace — acronym rows the tackle bindings name, the verb table cut to
+the session type.
 Default stance until that intelligence exists: retain everything the current inserts carry,
 removing pieces only as honing is actually built.
 Honing is prediction, and starvation fails silent — the full table is also the index of what

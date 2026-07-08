@@ -6,21 +6,13 @@ This is an executory cosmology sheaf of the {jjs0_imprimatur}: binding as design
 The world model of the revision-control substrate: the shared gestalt the sibling contract
 sheaves — store, driver, dispatch — assume and none restates.
 
-[NOTE]
-====
-*Forward references.* The billet and the dispatch verbs are census-minted words whose
-binding sheaf lands after this one; where such a word appears below it reads as a forward
-reference to a forthcoming contract home, not a citation.
-The words catalogued *here* — {jjdw_infield}, {jjdw_hippodrome}, {jjdw_yard} — bind now.
-====
-
 == The world model
 
 Job Jockey's own record — the {jjdgr_gallops}, and later the captured chat histories — lives
 in a git repository *separate from the code being jockeyed and global across stations*: the
 {jjdb_studbook}, whose entity contract is its own sheaf.
 Work happens in vanilla clones of consumer projects ({jjdw_hippodrome_s}) and their transient
-per-pace worktrees (billets), all peers in one parent directory (the {jjdw_infield}).
+per-pace worktrees ({jjdd_billet_s}), all peers in one parent directory (the {jjdw_infield}).
 A polymorphic revision-control driver (the {jjdf_farrier}) fits the same JJ intent to
 whatever ground each repo runs on.
 
@@ -53,7 +45,7 @@ Four recorded pressures, each dissolved structurally rather than patched:
 {jjdw_infield}::
 The peer ring: one parent directory holding every JJ-managed tree as a sibling.
 Residents: the kit repo and the {jjdb_studbook} (both {jjdw_yard} dirnames), consumer
-{jjdw_hippodrome_s} and their transient billets, and the BUK station family
+{jjdw_hippodrome_s} and their transient {jjdd_billet_s}, and the BUK station family
 (`../station-files/burs.env`, `../logs-buk`, `../temp-buk`, `../output-buk`), which already
 resolves to this level — every peer tree shares station geography with zero setup.
 Infield-peer placement is therefore load-bearing: nesting a tree deeper breaks the station
