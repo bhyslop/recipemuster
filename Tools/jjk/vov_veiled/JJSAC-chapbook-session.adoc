@@ -56,8 +56,8 @@ Pending: the saddle and lunge operations.
 
 //axhci_interaction
 `jjcbs_dispatch` `jjcbs_studbook`
-Nuke-on-start: the sweep snapshots pace states under the studbook lock, plans retirement of every billet whose pace is closed and whose age exceeds retention, confirms, and reaps — refusing with advice on any dirty anomaly.
-Pending: the sweep operation and its word.
+Nuke-on-start: muck, the spine's leading billet-clearing step, snapshots pace states under the studbook lock, plans retirement of every billet whose pace is closed and whose age exceeds retention, confirms, and reaps — refusing with advice on any dirty anomaly, and silent when the reap set is empty.
+Pending: the muck step of the entrance spine.
 
 //axhci_interaction
 `jjcbs_dispatch` `jjcbs_hippodrome`
@@ -124,14 +124,14 @@ The billet stands — nothing reaps at wrap; the branch is pushed, so the worktr
 
 //axhci_interaction
 `jjcbs_operator` `jjcbs_dispatch`
-Days later, the next saddle: Act I's sweep finds this pace closed and its billet past retention, and reaps it.
-The teardown actor is the dispatch layer at next start — never the session, which cannot remove its own floor.
-Pending: the sweep operation.
+Days later, the next dispatch — either door: Act I's muck step finds this pace closed and its billet past retention, and this crossing it has work, so it plans, confirms, and reaps.
+The teardown actor is the dispatch layer at next start — never the session, which cannot remove its own floor, and never a door of its own (unsaddle was removed when muck folded into the spine).
+Pending: the muck step of the entrance spine.
 
 == Pending-citation register (the convergence gauge)
 
 Interactions above flag these homes as pending; each hardens to a citation when its sheaf lands:
-the saddle and lunge operations; the sweep operation and its word; launch-time provisioning and the entrance spine; the resync operation; and the cast's entity quoins (party, dispatch, engine, billet).
+the saddle and lunge operations; the muck step of the entrance spine; launch-time provisioning and the entrance spine; the resync operation; and the cast's entity quoins (party, dispatch, engine, billet).
 Hardened so far: hippodrome and infield ({jjdw_hippodrome}, {jjdw_infield} — the cosmology sheaf, 260705); the blotter cast lane and the journal-ceremony interactions ({jjdb_blotter}, {jjdb_journal} — the blotter and journal sheaves, 260706); the studbook cast lane and the counterfoil mentions ({jjdb_studbook}, {jjdb_counterfoil} — the studbook sheaf, 260706); the farrier interactions — billet-ensure, fetch-never-merge, and the identify at open ({jjdf_farrier}, {jjdf_billet}, {jjdf_core}, {jjdf_identify} — the farrier sheaf, 260706).
 
 Deferred sibling tales, named so they are not smuggled into this one:

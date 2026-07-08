@@ -252,7 +252,7 @@ cited by code and tests via opaque ID; tails minted at implementation) and three
 * *warden* — dropped: break is a sequence, not an entity.
 * *seat* — disqualified: per-seat licensing troddenness; near-neighbor collision with RBK's
   minted *unseat*.
-* Dispatch-layer words (farrier, saddle, billet, unsaddle) are ledgered in the farrier sheaf;
+* Dispatch-layer words (farrier, saddle, billet) are ledgered in the farrier sheaf;
   *tackle* in the tackle sheaf.
 
 == Sibling rhyme (mews — not a dependency)

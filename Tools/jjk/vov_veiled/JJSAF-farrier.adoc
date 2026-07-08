@@ -69,12 +69,11 @@ ceremony carrying the counterfoil
 
 |slate / reslate / paddock |journal ceremony only — no hippodrome ops
 
-|saddle / lunge |shared entrance spine: `identify` → pedigree lookup →
+|saddle / lunge |shared entrance spine: muck (the billet-clearing sweep, leading — silent
+when its reap set is empty) → `identify` → pedigree lookup →
 `billet_create`-or-reuse → `glean` (the spine never merges — staleness reports at open and
 refit is the remedy; groom billets re-detach to tip) → BURV export →
 launch session
-
-|unsaddle |`billet_remove`, refuse-if-dirty
 
 |break |`sight` every JJ lock (studbook + mews) → report guidons → lease-guarded
 `pluck` per lock, never blind. Operator-deliberate by definition; precedent
@@ -86,7 +85,7 @@ cross-clone state sync, billets partition parallel work, saddle housekeeping rea
 billets, and `sync_state` reports at open — if a whole-infield status panel ever earns its
 keep, it is a report mode, not a verb.
 
-== Saddle, billet, unsaddle — the dispatch layer
+== Saddle, lunge, billet — the dispatch layer
 
 *Cinched (260704): JJ opens the Claude Code sessions we work in.*
 The operator knows the verb at chat-top; the session's billet must be right at launch
@@ -113,9 +112,17 @@ The operator knows the verb at chat-top; the session's billet must be right at l
   without worktrees — re-anchored per the banked delta, canon at `JJSVF-farrier.adoc` Two
   axes) + branch-or-detached-tip + env posture.
   The lifecycle entity the officium records and validates; the object noun completing the
-  verbs-act-on-nouns grammar (mount acts on a pace; saddle creates a billet).
+  verbs-act-on-nouns grammar (mount acts on a pace; saddle creates a billet; muck collects it).
   Board on arrival, kept for the duration, collected after.
-* **unsaddle** — the reap: `billet_remove`, refuse-if-dirty.
+* **muck** — the reap, folded into the spine (260708): the billet-clearing leading step of the
+  shared entrance spine, run implicitly on both doors, never directly invoked.
+  Plan-then-confirm when the reap set (closed-pace × past-retention) is non-empty; *silent when
+  empty* — forced by the entrance-must-be-pleasant invariant below.
+  unsaddle is removed with this folding — no door remains to name, and its refuse-if-dirty was
+  redundant: muck owns the dirty guard (refuse-with-advice by default, auto-commit-push behind
+  confirm).
+  Deliberately sacrificed for MVP: immediate reap of a not-yet-closed billet — such a billet
+  waits for pace-close plus retention, and the next dispatch takes it.
 
 Lifecycle doctrine:
 
@@ -146,8 +153,9 @@ Lifecycle doctrine:
   non-JJ session, forever legitimate as such.
   No fallback paths until genuinely forced; the consequence is that the entrance must be
   pleasant very early in the MVP — it is load-bearing, not a convenience.
-* Stale billets: the muck sweep at dispatch time (paddock cinch 260705, superseding the
-  earlier reaped-at-next-saddle-if-clean line) — plan-then-confirm nuke-on-start, retiring
+* Stale billets: the muck sweep as the spine's leading step (paddock cinches 260705/260708,
+  superseding the earlier reaped-at-next-saddle-if-clean line and the sweep-door form) —
+  plan-then-confirm nuke-on-start, retiring
   billets whose pace is closed past a retention window equal to the officium exsanguination
   window; refuse-with-advice on dirty anomalies by default, auto-commit-push behind explicit
   confirm; pace states snapshot under the studbook lock, then reaping proceeds lock-free
@@ -225,11 +233,15 @@ doctrine — a vivid word is today spent below the vivid layer), sweep, grep-gat
 
 * *farrier* — the driver API; fits the horse to the ground. F freed by formbook's rejection.
   INFUSED 260706 (farrier sheaf, `jjdf_farrier`).
-* *saddle* / *unsaddle* — dispatch verbs; the real-world sequence saddle-then-mount lands in
+* *saddle* — the work-dispatch verb; the real-world sequence saddle-then-mount lands in
   the right order across the two vocabulary layers. Alternate held: leg-up.
   Election RATIFIED at the census (260705); the grep gate stays OPEN by contingency — it
   completes only when the interior-rename pace frees `jjrsd_saddle.rs` / `JJSCSD-saddle.adoc`
   (Prerequisite remint below); gate completion rides that pace, not the census.
+* *unsaddle* — RETIRED 260708, before infusion: the reap folded into the entrance spine as
+  muck's own behavior, leaving no door to name, and its refuse-if-dirty was redundant with
+  muck's dirty guard.
+  Never infused, so the word simply releases; the saddle election above is untouched.
 * *lunge* — the groom dispatch verb (minted 260704): working the horse from the ground on the
   long line, deliberately unmounted — assessment without riding.
   Grep-clean both spellings; US *lunge* elected over UK *longe*.
@@ -273,8 +285,10 @@ doctrine — a vivid word is today spent below the vivid layer), sweep, grep-gat
   absorb (a named ROE Palisade conduct step), incorporate (AXLA's include-incorporation).
   enfold INFUSED 260706 (farrier sheaf, op census — billet facet); refit stays aspirant with
   the dispatch family.
-* *muck* — the sweep door (elected 260705, census): mucking out the stable — the
-  plan-then-confirm nuke-on-start reap of closed-pace billets past retention (paddock cinch).
+* *muck* — the sweep (elected 260705 as the sweep door, census; re-cut 260708 to the spine's
+  leading step — no longer a door, never operator-typed): mucking out the stable — the
+  plan-then-confirm nuke-on-start reap of closed-pace billets past retention (paddock cinch),
+  silent when the reap set is empty.
   Gate clean (0 hits); *sluice* held as alternate (washing — less exact than the spent-bedding
   removal muck names).
 * *stirrup* — the launch primitive (elected 260707, session-launch design pace): the
@@ -289,10 +303,11 @@ doctrine — a vivid word is today spent below the vivid layer), sweep, grep-gat
   Alternates: spur held with a false-friend note (confidently misreads as urging an
   already-running session); gee deliberately released to fallow — the operator's trot-advance
   cry, kept unenclosed like lean.
-* Exposure tiers (census 260705) for the operator-typed dispatch verbs: *saddle*, *lunge*,
-  *unsaddle*, *break*, plus *muck* and *refit*, are ASHLAR — operator-typed or named in
-  output, so fair-faced and coffer-drawn, with broadside registration owed at infusion (JJ's
-  broadside: the JJK README glossary).
+* Exposure tiers (census 260705; re-cut 260708 at the unsaddle retirement): *saddle*, *lunge*,
+  *break*, and *refit* are ASHLAR — operator-typed, so fair-faced and coffer-drawn, with
+  broadside registration owed at infusion (JJ's broadside: the JJK README glossary).
+  *muck* stays ashlar by output alone — never typed, but its confirm plan names the act to the
+  operator; *unsaddle* left the roster with its retirement.
   On the centrality axis they are toothings — the acts performed on the model-constituting
   nouns — with saddle/lunge the heaviest-worn pair; the bondstone nouns they act on (billet,
   studbook, hippodrome, trunk, pedigree, guidon) hold first-letter separation as a set.
