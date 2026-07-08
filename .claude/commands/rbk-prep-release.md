@@ -29,12 +29,13 @@ Before stripping removes the spec documents, verify every enrolled RBK regime va
 | Regime file | Spec document |
 |-------------|---------------|
 | `Tools/rbk/rbrr_regime.sh` | `Tools/rbk/vov_veiled/RBSRR-RegimeRepo.adoc` |
-| `Tools/rbk/rbra_regime.sh` | `Tools/rbk/vov_veiled/RBSRA-CredentialFormat.adoc` |
+| `Tools/rbk/rbrd_regime.sh` | `Tools/rbk/vov_veiled/RBSRT-RegimeDepot.adoc` |
+| `Tools/rbk/rbrf_regime.sh` | `Tools/rbk/vov_veiled/RBSRF-RegimeFederation.adoc` |
 | `Tools/rbk/rbrn_regime.sh` | `Tools/rbk/vov_veiled/RBRN-RegimeNameplate.adoc` |
+| `Tools/rbk/rbro_regime.sh` | `Tools/rbk/vov_veiled/RBSRO-RegimeOauth.adoc` |
 | `Tools/rbk/rbrp_regime.sh` | `Tools/rbk/vov_veiled/RBSRP-RegimePayor.adoc` |
 | `Tools/rbk/rbrv_regime.sh` | `Tools/rbk/vov_veiled/RBSRV-RegimeVessel.adoc` |
-| `Tools/rbk/rbro_regime.sh` | `Tools/rbk/vov_veiled/RBSRO-RegimeOauth.adoc` |
-| `Tools/rbk/rbrs_regime.sh` | `Tools/rbk/vov_veiled/RBSRS-RegimeStation.adoc` |
+| `Tools/rbk/rbrw_regime.sh` | `Tools/rbk/vov_veiled/RBSRW-RegimeWorkforce.adoc` |
 
 For each regime:
 1. Extract all enrolled variable names (look for `buv_*_enroll` calls — first argument is the variable name)
@@ -105,15 +106,16 @@ Run marshal zero while the tabtarget is still available (it will be stripped in 
 tt/rbw-MZ.MarshalZeroes.sh
 ```
 
-This will:
-- Blank site-specific RBRR fields (depot project ID, GAR repository, connection name, worker pool)
-- Pre-fill RBRR defaults (DNS server, machine type, timeout, region, vessel dir, secrets dir)
-- Delete depot-scoped credential files (governor, director, retriever)
-- Blank hallmark values in all nameplate files
+Marshal zero returns the regime tree to the blank onboarding-start template. It:
+- Blanks the site-specific `RBRR_RUNTIME_PREFIX` and pre-fills RBRR defaults (DNS server, GCB timeout, min concurrent builds, vessel dir, secrets dir) in `rbrr.env`
+- Blanks depot identity (`RBRD_CLOUD_PREFIX`, `RBRD_DEPOT_MONIKER`) and pre-fills RBRD defaults (GCP region, GCB machine type) in `rbrd.env`
+- Blanks hallmark pins (`RBRN_SENTRY_HALLMARK`, `RBRN_BOTTLE_HALLMARK`) in every nameplate `rbrn.env`
+- Blanks depot-scoped vessel fields (`RBRV_RELIQUARY`, `RBRV_IMAGE_*_ANCHOR`) in every `rbrv.env`
+- **Preserves** the Payor OAuth credential (`rbro.env`) — payor-scoped, survives a depot change. No credential files are deleted: the federation era mints short-lived mantle tokens, not RBRA keyfiles.
 
-The command will prompt for confirmation — the user must type `reset` to proceed.
+Before mutating, marshal zero gates on a clean, pushed tree and a lint-clean, colophon-complete source set, and aborts if any fails. It then prompts for confirmation — the user types `zero` to proceed — and **auto-commits** the blanked state as a single "Marshal Zero" commit.
 
-After the reset, show `git status` to confirm the changes. Wait for user acknowledgment.
+Show `git log -1 --stat` to confirm the marshal-zero commit, then wait for user acknowledgment.
 
 ## Step 9: Strip proprietary content
 
@@ -205,16 +207,20 @@ After all removals, verify with `git ls-files` that no proprietary content remai
 
 ### What should survive after stripping:
 
-- `.buk/` — `burc.env`, `rbbc_constants.sh`, `launcher.buw_workbench.sh`, `launcher.rbw_workbench.sh`
-- `.rbk/` — all regime `.env` files (already blanked by marshal zero in Step 8)
+- `rbmm_moorings/` — the consumer-config tree (replaces the former `.buk/` + `.rbk/` homes):
+  - `burc.env` and the regime `.env` files (`rbrr.env`, `rbrd.env`, `rbrp.env`, `rbrw.env`) — already blanked by marshal zero in Step 8
+  - `rbmf_foedera/` — the foedus library (holds the federation regime `rbrf.env`)
+  - `rbml_launchers/` — only `launcher.buw_workbench.sh` and `launcher.rbw_workbench.sh` (the rest stripped in 9d)
+  - `rbmv_vessels/` — vessel definitions and README (the former `rbev-vessels/`)
 - `CLAUDE.md` — consumer version (copied in Step 7)
 - `README.md` — consumer-facing, tracked directly at the repo root
 - `LICENSE`
 - `rbm-abstract-drawio.svg`
-- `rbev-vessels/` — vessel definitions and README
 - `Tools/buk/` — all `.sh` files, `busc_shellcheckrc`, `README.md`, `buts/` test support (minus `vov_veiled/`)
 - `Tools/rbk/` — all `.sh` files (minus `vov_veiled/`)
 - `tt/` — `rbw-*` and `buw-*` tabtargets only (minus `rbw-MZ`, `rbw-MP` marshal tabtargets and `rbw-mR` manor-raze)
+
+**Unresolved — decide during the `git ls-files` review (Step 10):** the moorings tree also holds `rbmn_nodes/` (BURN remote-node profiles) and `rbmu_users/` (BURP user profiles), which carry operator-specific machine identities while their reader code (the BURN/BURP apparatus) is already veiled — candidates to strip, not survive. The per-nameplate regime dirs (`rbmm_moorings/<moniker>/rbrn.env`) likewise mix a shipped example (`tadmor`, used by onboarding) with site-specific crucibles. Confirm each disposition on the practice tree; do not assume the current set is release-correct.
 
 ## Step 10: Post-strip verification
 
