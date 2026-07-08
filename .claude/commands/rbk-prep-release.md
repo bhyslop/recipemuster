@@ -133,11 +133,14 @@ git rm -rf --ignore-unmatch Tools/vvk/vov_veiled/
 **9b. Whole directories — internal tools and infrastructure:**
 ```
 git rm -rf --ignore-unmatch .claude/
+git rm -rf --ignore-unmatch .idea/
+git rm -rf --ignore-unmatch .jjk/
 git rm -rf --ignore-unmatch lenses/
 git rm -rf --ignore-unmatch Memos/
 git rm -rf --ignore-unmatch Study/
 git rm -rf --ignore-unmatch _slickedit/
 git rm -rf --ignore-unmatch RBM-nameplates/
+git rm -rf --ignore-unmatch Tools/apck/
 git rm -rf --ignore-unmatch Tools/ccck/
 git rm -rf --ignore-unmatch Tools/cmk/
 git rm -rf --ignore-unmatch Tools/gad/
@@ -154,6 +157,7 @@ git rm -rf --ignore-unmatch Tools/vvk/
 
 **9c. Internal tabtargets (non-rbw, non-buw operational targets):**
 ```
+git rm -f --ignore-unmatch tt/apcw-*.sh
 git rm -f --ignore-unmatch tt/butctt.TestTarget.sh
 git rm -f --ignore-unmatch tt/ccck-s.ConnectShell.sh
 git rm -f --ignore-unmatch tt/study-mpt.Run.*.sh
@@ -167,15 +171,17 @@ git rm -f --ignore-unmatch tt/rbw-mR.PayorRazesManor.sh
 
 `rbw-mR` (manor raze) is internal release-ladder infra — a one-keystroke workforce-pool destroyer. The verb `rbgp_manor_raze` ships (it lives in the surviving `Tools/rbk/rbgp_payor.sh`); only the tabtarget accelerator is withheld, so consumers never get the accelerator.
 
-**9d. Internal .buk/ launchers (for stripped workbenches):**
+**9d. Internal launchers (for stripped workbenches):**
+
+Launchers live under `rbmm_moorings/rbml_launchers/`. Only the `buw` and `rbw` launchers survive; strip every workbench launcher whose kit is stripped above.
 ```
-git rm -f --ignore-unmatch .buk/launcher.cccw_workbench.sh
-git rm -f --ignore-unmatch .buk/launcher.cmw_workbench.sh
-git rm -f --ignore-unmatch .buk/launcher.jjw_workbench.sh
-git rm -f --ignore-unmatch .buk/launcher.study_workbench.sh
-git rm -f --ignore-unmatch .buk/launcher.vow_workbench.sh
-git rm -f --ignore-unmatch .buk/launcher.vslw_workbench.sh
-git rm -f --ignore-unmatch .buk/launcher.vvw_workbench.sh
+git rm -f --ignore-unmatch rbmm_moorings/rbml_launchers/launcher.apcw_workbench.sh
+git rm -f --ignore-unmatch rbmm_moorings/rbml_launchers/launcher.cmw_workbench.sh
+git rm -f --ignore-unmatch rbmm_moorings/rbml_launchers/launcher.jjw_workbench.sh
+git rm -f --ignore-unmatch rbmm_moorings/rbml_launchers/launcher.study_workbench.sh
+git rm -f --ignore-unmatch rbmm_moorings/rbml_launchers/launcher.vow_workbench.sh
+git rm -f --ignore-unmatch rbmm_moorings/rbml_launchers/launcher.vslw_workbench.sh
+git rm -f --ignore-unmatch rbmm_moorings/rbml_launchers/launcher.vvw_workbench.sh
 ```
 
 **9e. Individual files:**
@@ -183,6 +189,10 @@ git rm -f --ignore-unmatch .buk/launcher.vvw_workbench.sh
 git rm -f --ignore-unmatch podman-gateway-proposal.md
 git rm -f --ignore-unmatch brm_recipemuster.iml
 git rm -f --ignore-unmatch index.html .nojekyll
+git rm -f --ignore-unmatch Tools/cccr.env
+git rm -f --ignore-unmatch Tools/crgr.render.sh
+git rm -f --ignore-unmatch Tools/crgv.validate.sh
+git rm -f --ignore-unmatch Tools/xxx_rbn.info.sh
 ```
 
 **9f. Stage the consumer templates and marshal zero changes:**
