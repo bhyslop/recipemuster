@@ -7448,7 +7448,8 @@
           "jjgpn_tacks": [
             {
               "jjgtn_ts": "260708-1051",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_opus",
               "jjgtn_text": [
                 "## Character",
                 "Gallops schema change — reprieve-gated; judgment work, not mechanical.",
@@ -7506,7 +7507,7 @@
                 "build tt/vow-b, test tt/vow-t green."
               ],
               "jjgtn_silks": "pace-identity-regestalt-impl",
-              "jjgtn_basis": "b33a377"
+              "jjgtn_basis": "baa1cb0"
             }
           ]
         }
