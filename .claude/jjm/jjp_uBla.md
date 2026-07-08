@@ -2,7 +2,7 @@
 
 This heat is an *aspirant nucleation*: its design now lives as an aspirant sheaf in the JJK canon, not in this paddock.
 The substance — the operator fleet (provision / register / reserve), its distinct state repo, the privacy and dependency rationale, and the open mulling forks — is recast in
-`Tools/jjk/vov_veiled/JJS-aspirant-mews.adoc`,
+`Tools/jjk/vov_veiled/JJSAM-mews.adoc`,
 included into JJS0 under the Aspirant Nucleations section and voiced `axd_aspirant`.
 
 Mull and sophisticate the feature in the sheaf; this paddock holds only heat shape.
