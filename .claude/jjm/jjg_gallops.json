@@ -8241,6 +8241,7 @@
       "jjghn_creation_time": "260704",
       "jjghn_status": "jjghe_racing",
       "jjghn_order": [
+        "₢BrAAa",
         "₢BrAAZ",
         "₢BrAAA",
         "₢BrAAB",
@@ -8268,7 +8269,7 @@
         "₢BrAAV",
         "₢BrAAW"
       ],
-      "jjghn_next_pace_seed": "AAa",
+      "jjghn_next_pace_seed": "AAb",
       "jjghn_paces": {
         "₢BrAAA": {
           "jjgpn_tacks": [
@@ -9035,6 +9036,35 @@
               ],
               "jjgtn_silks": "reconcile-jjq-jjy-yard-split",
               "jjgtn_basis": "ef52182"
+            }
+          ]
+        },
+        "₢BrAAa": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260708-1307",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "",
+                "Interactive concept-model exploration, human-driven — Fable.",
+                "Urge tackle's model only to the depth the studbook/farrier MVP needs; explicitly not all of tackle.",
+                "",
+                "## Done when",
+                "",
+                "Tackle's concept model is settled just far enough that the landing sheaves reference a real shape, not a placeholder:",
+                "",
+                "- pedigree-sibling shape — what slot tackle occupies beside the pedigree, and whether the ambit seats there too (studbook sheaf JJSVS);",
+                "- discipline-normalization fork — a governing discipline (BCG/RCG/ACG…) as first-class entity vs. raw repeated path: resolved, *and* its rationale (crossbreeding self-containment vs. single-source-of-truth) written down, not left implicit;",
+                "- node/entity structure firm enough that the studbook pedigree entry and the dispatch provisioning seam can point at it.",
+                "",
+                "Out of scope — deferred by the aspirant sheaf's own gates: hames / the association graph, the maximal layer, the crate API, and all word/glyph elections.",
+                "",
+                "Outcome banks into the aspirant JJSAT-tackle plus the reconciliation nudges owed to JJSVS and the dispatch sheaf.",
+                "It does not author the canon MVP sheaf — that stays the pace that follows."
+              ],
+              "jjgtn_silks": "urge-tackle-concept-model",
+              "jjgtn_basis": "26c0f75"
             }
           ]
         }
