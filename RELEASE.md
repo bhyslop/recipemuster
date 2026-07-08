@@ -1,11 +1,11 @@
 # Release Procedure
 
 The release qualification ceremony for the project maintainer — five operator steps, roughly one hour wall-clock, with cloud cost on the order of two GCP projects per run.
-The ceremony exists to catch silent first-build assumptions that the routine `tt/rbw-tf.QualifyFast.sh` and `tt/rbw-tr.QualifyRelease.sh` tiers tolerate by design.
+The ceremony exists to catch silent first-build assumptions that the routine `tt/rbw-tq.QualifyFast.sh` and `tt/rbw-tr.QualifyRelease.sh` tiers tolerate by design.
 
-[Payor](README.md#Payor) OAuth is the only prerequisite credential.
-All other credentials — [Governor](README.md#Governor), [Director](README.md#Director), and [Retriever](README.md#Retriever) service-account [RBRA](README.md#RBRA) files — are minted by the qualification itself, not restored from backup.
-The entire credential chain must be reproducible from a clean local state.
+[Payor](README.md#Payor) OAuth is the only durable prerequisite credential — the system's sole standing secret.
+No service-account keyfiles are restored from backup: the depot's [Mantle](README.md#Mantle) service accounts ([Governor](README.md#Governor), [Director](README.md#Director), [Retriever](README.md#Retriever)) are seated by the qualification's own founding verbs and reached only through short-lived federated tokens — [Avow](README.md#Avow) opens a [Sitting](README.md#Sitting), then [Don](README.md#Don) mints a mantle token per call.
+The entire access chain must be reproducible from the Payor OAuth alone, against a clean local state.
 
 **Failure mode contract.** Mid-qualification failure means start over from step 2, not patch-and-continue.
 Patching forward is exactly the bug class this ceremony exists to catch — accumulated state hides first-build assumptions.
@@ -20,52 +20,51 @@ Patching forward is exactly the bug class this ceremony exists to catch — accu
 tt/rbw-ap.CheckPayorCredential.sh
 ```
 
-## 2. Marshal zero, then commit
+## 2. Marshal zero
 
-The marshal-zero operation returns local state to a blank template:
+The marshal-zero operation returns local state to the blank onboarding-start template:
 
-- Blanks [Repo Regime](README.md#RBRR) fields ([Depot](README.md#Depot) identity, project ID, prefixes)
-- Deletes all [RBRA](README.md#RBRA) credential files ([Governor](README.md#Governor), [Director](README.md#Director), [Retriever](README.md#Retriever))
-- Blanks [Hallmark](README.md#Hallmark) pins in each [Nameplate](README.md#Nameplate) regime file ([RBRN](README.md#RBRN))
-- Blanks depot-scoped fields in each [Vessel](README.md#Vessel) regime file ([RBRV](README.md#RBRV))
+- Blanks the site-specific [Repo Regime](README.md#RBRR) field (`RBRR_RUNTIME_PREFIX`) and the [Depot](README.md#Depot)-identity fields (`RBRD_CLOUD_PREFIX`, `RBRD_DEPOT_MONIKER`)
+- Blanks [Hallmark](README.md#Hallmark) pins (`RBRN_SENTRY_HALLMARK`, `RBRN_BOTTLE_HALLMARK`) in each [Nameplate](README.md#Nameplate) regime file ([RBRN](README.md#RBRN))
+- Blanks depot-scoped fields (`RBRV_RELIQUARY`, `RBRV_IMAGE_*_ANCHOR`) in each [Vessel](README.md#Vessel) regime file ([RBRV](README.md#RBRV))
+- **Preserves** the [Payor](README.md#Payor) OAuth credential — no credential files are deleted (there are none to delete: the federation era holds no service-account keyfiles)
 
-Then commit the result with the marshal-zero signature in the commit message — step 3 detects that signature on `HEAD` and refuses to run otherwise.
+Marshal zero gates on a clean, pushed tree, prompts for confirmation (type `zero`), and **auto-commits** the blanked state as a single "Marshal Zero" commit. There is no manual commit step — the pristine baseline lands as one commit by construction.
 
-- Success: working tree clean and `HEAD` carries the signature
+- Success: working tree clean and `HEAD` is the marshal-zero commit
 - Failure: review the marshal output for files the operation would not zero, resolve, and retry
 
 ```
 tt/rbw-MZ.MarshalZeroes.sh
 ```
 
-## 3. Run the pristine qualification
+## 3. Run the gauntlet
 
-The release gate.
+The release gate — the full release-qualification ladder, run from the marshal-zero baseline.
 
-**Entry contract** — `rbw-tP` refuses to run unless ALL of the following hold:
+**Entry contract** — the gauntlet's first fixture (the marshal-zero attestation gate) refuses to run unless ALL of the following hold:
 
-- marshal-zero signature on `HEAD`
 - working tree clean
-- [RBRA](README.md#RBRA) files absent
-- [Repo Regime](README.md#RBRR) fields blank
+- the site-specific [Repo Regime](README.md#RBRR) field (`RBRR_RUNTIME_PREFIX`) blank, and the [Depot](README.md#Depot)-identity fields (`RBRD_CLOUD_PREFIX`, `RBRD_DEPOT_MONIKER`) blank
 - [Hallmark](README.md#Hallmark) pins blank in every [Nameplate](README.md#Nameplate) regime ([RBRN](README.md#RBRN))
-- depot-scoped fields blank in every [Vessel](README.md#Vessel) regime file ([RBRV](README.md#RBRV))
+- depot-scoped fields (`RBRV_RELIQUARY`, `RBRV_IMAGE_*_ANCHOR`) blank in every [Vessel](README.md#Vessel) regime file ([RBRV](README.md#RBRV))
 
-The contract is enforced by the test itself, not by ceremony or operator discipline — that property is what lets this tier catch silent-first-build assumptions by construction.
+The gate reads the actual blank fields — not a commit-message signature — and is enforced by the test itself, not by ceremony or operator discipline; that property is what lets this tier catch silent-first-build assumptions by construction.
 
 **Cost** — ~1 hour wall-clock plus two GCP projects per run:
 
-- one throwaway [Depot](README.md#Depot) created and torn down by the `pristine-lifecycle` fixture's `depot-lifecycle` case
-- one canonical [Depot](README.md#Depot) [Levied](README.md#Levy) by the canonical-infrastructure setup phase
+- one ephemeral leasehold [Depot](README.md#Depot) [Levied](README.md#Levy) and torn down by the `depot-lifecycle` fixture (the full create→destroy proof)
+- one durable freehold [Depot](README.md#Depot) [Levied](README.md#Levy) by the `freehold-establish` fixture, inherited by every downstream fixture
 - GCP project deletion is asynchronous (30-day soft delete) — each run leaves pending-delete projects in the project list; this is accepted cost
 
-**Sequence**:
+**Sequence** (fail-fast across fixtures):
 
-- `pristine-lifecycle` fixture — marshal-zero gate plus idempotent throwaway lifecycles for [Depot](README.md#Depot), [Governor](README.md#Governor), [Retriever](README.md#Retriever), and [Director](README.md#Director)
-- canonical infrastructure setup — [Mantle](README.md#Mantle) the [Governor](README.md#Governor) + deploy [RBRA](README.md#RBRA), [Charter](README.md#Charter) the [Retriever](README.md#Retriever) + deploy [RBRA](README.md#RBRA), [Knight](README.md#Knight) the [Director](README.md#Director) + deploy [RBRA](README.md#RBRA), [Levy](README.md#Levy) the canonical [Depot](README.md#Depot)
-- supply chain — inscribe [Reliquary](README.md#Reliquary), [Ordain](README.md#Ordain) all [Hallmarks](README.md#Hallmark)
-- [Crucible](README.md#Crucible) suite
-- cleanup
+- enrollment-validation, then the marshal-zero attestation gate (the entry contract above)
+- `depot-lifecycle` — mint and tear down the ephemeral leasehold [Depot](README.md#Depot)
+- `freehold-establish` — stand up the durable freehold [Depot](README.md#Depot): the [Levy](README.md#Levy) seats the three [Mantle](README.md#Mantle) service accounts, the [Payor](README.md#Payor) [Girds](README.md#Gird) the freehold subject as first [Governor](README.md#Governor), who then [Brevets](README.md#Brevet) the subject onto the [Director](README.md#Director) and [Retriever](README.md#Retriever) mantles and [Dons](README.md#Don) each — the federation replacement for the retired keyfile-deploy sequence
+- credential-readiness — verify the [Sitting](README.md#Sitting) and the [Director](README.md#Director)/[Retriever](README.md#Retriever) [Dons](README.md#Don) before any build spends
+- onboarding-sequence, the regime / hygiene / foundry fixtures, cupel, conformance, the chaining-fact band, hallmark-lifecycle
+- the [Crucible](README.md#Crucible) suite (tadmor, moriah, srjcl, pluml)
 
 Outcome:
 
@@ -73,7 +72,7 @@ Outcome:
 - Failure: return to step 2 — never patch-and-continue
 
 ```
-tt/rbw-tP.QualifyPristine.sh
+tt/rbw-ts.TestSuite.gauntlet.sh
 ```
 
 ## 4. Prepare the upstream release
