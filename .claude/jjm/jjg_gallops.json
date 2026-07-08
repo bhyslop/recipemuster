@@ -10076,8 +10076,10 @@
         "₢BxAAE": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260707-1920",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260707-1925",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_fable",
+              "jjgtn_effort": "jjgde_xhigh",
               "jjgtn_text": [
                 "## Character",
                 "Design + authoring under genuine uncertainty, Fable-tier: the true refresh-token",
@@ -10119,7 +10121,7 @@
                 "- MCM Lapidary for the broadside/bondstone treatment of the Refresh term."
               ],
               "jjgtn_silks": "payor-credential-lifecycle-model",
-              "jjgtn_basis": "1b9f9c3"
+              "jjgtn_basis": "5b435f2"
             }
           ]
         }
