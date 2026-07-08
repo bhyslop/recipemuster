@@ -7,39 +7,7 @@ distributed to consumer projects.
 ### A. File Acronym Mappings — JJK Subdirectory (`Tools/jjk/`)
 
 - **JJS0** → `jjk/vov_veiled/JJS0_JobJockeySpec.adoc` (Job Jockey specification - main file)
-- **JJSAB** → `jjk/vov_veiled/JJSAB-breeze.adoc` (Breeze — aspirant sheaf (JJSA*: aspirant family, B: breeze): the attention-shaped execution pipeline recast from the retired V4 workup — longe/school/breeze/corral, school carving a beat map from the gait option-set, breeze parceling beats to variously configured LLM sessions, provender/nosebag informational flow, candidate vocabulary re-ratifying at graduation, and a standing reconciliation obligation against the studbook/farrier/blotter substrate. Mounted in JJS0's Aspirant Nucleations; mulling heat: jjk-13-aspirant-breeze.)
-- **JJSAC** → `jjk/vov_veiled/JJSAC-chapbook-session.adoc` (Typical-JJ-session chapbook — aspirant (JJSA*, C: chapbook-session))
-- **JJSAF** → `jjk/vov_veiled/JJSAF-farrier.adoc` (Farrier dispatch layer — aspirant (JJSA*, F: farrier); the driver contract is canon at JJSVF, this sheaf holds the dispatch layer (saddle/lunge/billet/muck/refit), the BUK meld, launch-time provisioning, and the naming ledger)
-- **JJSAM** → `jjk/vov_veiled/JJSAM-mews.adoc` (Mews — aspirant (JJSA*, M: mews); re-gestation home for the veiled BUK jurisdiction apparatus and Windows documentation guides)
-- **JJSAS** → `jjk/vov_veiled/JJSAS-state-repo.adoc` (State repo — aspirant (JJSA*, S: state-repo); officium re-gestalt, pace-identity re-gestalt, chat capture as the studbook's deferred second tenant)
-- **JJSAT** → `jjk/vov_veiled/JJSAT-tackle.adoc` (Tackle — aspirant (JJSA*, T: tackle); filesets and their interrelating rulesets — the settling schema (jjot sprue, remuda/trappings/hames/ambit), scope semantics, association graph, settling register)
-- **JJSCCU** → `jjk/vov_veiled/JJSCCU-curry.adoc` (Paddock operation - read/write heat paddock files)
-- **JJSCDR** → `jjk/vov_veiled/JJSCDR-draft.adoc`
-- **JJSCFU** → `jjk/vov_veiled/JJSCFU-furlough.adoc`
-- **JJSCMU** → `jjk/vov_veiled/JJSCMU-muster.adoc`
-- **JJSCNC** → `jjk/vov_veiled/JJSCNC-notch.adoc`
-- **JJSCNO** → `jjk/vov_veiled/JJSCNO-nominate.adoc`
-- **JJSCPD** → `jjk/vov_veiled/JJSCPD-parade.adoc`
-- **JJSCRL** → `jjk/vov_veiled/JJSCRL-rail.adoc`
-- **JJSCRN** → `jjk/vov_veiled/JJSCRN-rein.adoc`
-- **JJSCRP** → `jjk/vov_veiled/JJSCRP-reprieve.adoc` (Reprieve — schema-change tolerance doctrine: the mechanism, the multi-install convergence model, schema-change delivery, and episode registration; `include::`d into JJS0 `== Serialization` at `jjdz_reprieve`)
-- **JJSCRT** → `jjk/vov_veiled/JJSCRT-retire.adoc`
-- **JJSCSC** → `jjk/vov_veiled/JJSCSC-scout.adoc`
-- **JJSCSD** → `jjk/vov_veiled/JJSCSD-saddle.adoc`
-- **JJSCSL** → `jjk/vov_veiled/JJSCSL-slate.adoc`
-- **JJSCTL** → `jjk/vov_veiled/JJSCTL-tally.adoc`
-- **JJSCVL** → `jjk/vov_veiled/JJSCVL-validate.adoc`
-- **JJSCWP** → `jjk/vov_veiled/JJSCWP-wrap.adoc` (Close/wrap operation - mark pace complete and commit)
-- **JJSRLD** → `jjk/vov_veiled/JJSRLD-load.adoc`
-- **JJSRPS** → `jjk/vov_veiled/JJSRPS-persist.adoc`
-- **JJSRSV** → `jjk/vov_veiled/JJSRSV-save.adoc`
-- **JJSRWP** → `jjk/vov_veiled/JJSRWP-wrap.adoc`
-- **JJSTF** → `jjk/vov_veiled/JJSTF-test-fundus.adoc` (Test Fundus — fundus scenario profiles and preflight contracts)
-- **JJSVB** → `jjk/vov_veiled/JJSVB-blotter.adoc` (Blotter — executory entity sheaf (B: blotter): the locked-store entity — linear, single-writer-under-lock, engine-driven git repo; the lock ref `refs/jjv/guidon` (interior shape settled 260706: one well-known ref per blotter, the store discriminator is the repo itself), the guidon, lockless-read posture, the studbook/mews instances, engine-known bootstrap config; methods summarized by citation to JJSVJ. Homes `jjdb_blotter`/`jjdb_guidon` and the `jjdk_lockless_reads` premise. Mounted in JJS0's Revision Control region.)
-- **JJSVC** → `jjk/vov_veiled/JJSVC-cosmology.adoc` (Revision-Control Cosmology — executory cosmology sheaf: the world model of the revision-control substrate (infield peer ring, hippodrome, yard family, why-decouple), mounted in JJS0's Revision Control region; homes the `jjdw_` quoin category. First member of the **JJSV*** family (V: revision-control) — the destination-sheaf family of the studbook–farrier MVP, non-terminal, siblings landing as the aspirant nucleations drain.)
-- **JJSVF** → `jjk/vov_veiled/JJSVF-farrier.adoc` (Farrier — executory entity sheaf (F: farrier): the polymorphic revision-control driver — one trait, one implementation per farrier kind, capability structural via the three facets (core/lock/billet: blotter carrier core+lock, hippodrome kind core+billet); homes `jjdf_farrier`/`jjdf_core`/`jjdf_lock`/`jjdf_billet`, the identify contract `jjdf_identify` (explicit probe path, claim-or-decline ground detection, the four resolutions root/upstream-key/seat/line-of-work, total for a claimed tree), the vocabulary Palisade `jjdf_palisade` (git words stop at the driver implementation boundary), the op census as method contracts under the census words (comb/lodge/glean/consign, guidon verbs stake/pluck/sight, billet ops billet_create/billet_remove/enfold, deferred counterfoil_verify), the rejection-kind taxonomy, and the never-force rivet homed at the consign contract. Mounted in JJS0's Revision Control region.)
-- **JJSVJ** → `jjk/vov_veiled/JJSVJ-journal.adoc` (Journal Ceremony and Break Sequence — executory routine sheaf (J: journal): the blotter's shared write bracket — durable-first work half, stake/sight lock take, advance, mutate-and-lodge with counterfoil, atomic lease-bound consign, best-effort pluck — and the lease-guarded never-blind break sequence; the ONE home every blotter-writing operation cites. Homes `jjdb_journal`/`jjdb_break` and the `jjdk_sole_door` premise. Mounted in JJS0's Revision Control region.)
-- **JJSVS** → `jjk/vov_veiled/JJSVS-studbook.adoc` (Studbook — executory entity sheaf (S: studbook): the regional record repo as the blotter's first instance — the gallops' physical vessel, one store serving every station and every jockeyed project. Homes `jjdb_studbook`, `jjdb_pedigree` (the per-upstream record: farrier kind + tackle bindings, keyed by origin URL), and `jjdb_counterfoil` (the journaled member→SHA stub, one-way reference, rebase soft spot); also the no-worktree-paths rivet home, journal-entries-as-commits, and scope at birth (gallops first tenant, chats the deferred second). Mounted in JJS0's Revision Control region.)
+> **JJS\* sub-sheaf entries are intentionally not listed here.** The Job Jockey spec sheaves (aspirant `JJSA*`, command `JJSC*`, revision-control `JJSV*`, and the rest) load on demand, not always. Discipline: to reach any sheaf, read the SpecTop **JJS0** (`jjk/vov_veiled/JJS0_JobJockeySpec.adoc`) FIRST — it is the required entry point and indexes them; the sheaves live beside it as `jjk/vov_veiled/JJS*.adoc`.
 - **JJW**  → `jjk/jjw_workbench.sh` (workbench)
 
 ### B. Foray Protocol — Fundus constants (rbm values)
@@ -194,7 +162,7 @@ Segment rules:
 
 ### G. Diagram review via unfurl (rbm-specific)
 
-Companion to the public Unfurl Protocol in `claude-jjk-core.md`: in rbm a
+Companion to the Unfurl directions in `Tools/jjk/claude-jjk-images.md`: in rbm a
 committed diagram is reviewed by *unfurling* it onto the viewer and working it
 by hand — never via an RB-side tool (the viewing is a generic JJK act; RB is
 merely the first image producer). Unfurl the light `.svg` together with its
