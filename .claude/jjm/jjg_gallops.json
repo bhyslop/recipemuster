@@ -8887,6 +8887,7 @@
       "jjghn_creation_time": "260705",
       "jjghn_status": "jjghe_racing",
       "jjghn_order": [
+        "₢BsAAO",
         "₢BsAAN",
         "₢BsAAI",
         "₢BsAAA",
@@ -8902,7 +8903,7 @@
         "₢BsAAL",
         "₢BsAAK"
       ],
-      "jjghn_next_pace_seed": "AAO",
+      "jjghn_next_pace_seed": "AAP",
       "jjghn_paces": {
         "₢BsAAA": {
           "jjgpn_tacks": [
@@ -9330,6 +9331,39 @@
               ],
               "jjgtn_silks": "retire-payor-refresh-handbook",
               "jjgtn_basis": "ee48f80"
+            }
+          ]
+        },
+        "₢BsAAO": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260707-1920",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "Blocking checkpoint — no work, a gate.",
+                "The rebaseline must not reach any release-qualifying stage while the Payor credential",
+                "story is incoherent or its expiry facts unverified.",
+                "",
+                "## Done when",
+                "- The Payor OAuth credential-lifecycle model is authored and propagated coherently across",
+                "  every user-facing surface — the ₢BxAAE pace — with the true refresh-token expiry",
+                "  behavior established, not assumed.",
+                "- No release candidate is cut on this baseline until the above holds: a release that ships",
+                "  a contradictory or false credential-expiry story is the failure this gate exists to prevent.",
+                "",
+                "## Cinched",
+                "- The \"7-day-after-consent\" expiry claim is under doubt — falsified by month-plus operator",
+                "  use without reissue — and must be resolved (not papered over) before any user-facing release.",
+                "  The demoted \"6 months of non-use\" text may have described the real idle-based behavior;",
+                "  direction of the error is itself unresolved.",
+                "",
+                "## Sources",
+                "- The model deliverable this gate waits on: the ₢BxAAE pace.",
+                "- Surfaced during the payor-refresh retirement in this heat."
+              ],
+              "jjgtn_silks": "gate-payor-credential-coherence",
+              "jjgtn_basis": "b3563be"
             }
           ]
         }
