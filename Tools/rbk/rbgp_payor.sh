@@ -130,7 +130,7 @@ zrbgp_refresh_capture() {
   if test -n "${z_error}"; then
     local z_error_desc
     z_error_desc=$(jq -r '.error_description // .error // "Unknown error"' <<<"${z_response}")
-    buc_die "OAuth credentials expired or invalid - reinstall payor credentials (in testing mode, refresh tokens expire 7 days after consent): ${z_error_desc}"
+    buc_die "OAuth credentials expired or invalid - reinstall payor credentials: ${z_error_desc}"
   fi
 
   local z_access_token
