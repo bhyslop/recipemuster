@@ -6808,9 +6808,10 @@
         "₢BcAAD",
         "₢BcAAE",
         "₢BcAAK",
-        "₢BcAAL"
+        "₢BcAAL",
+        "₢BcAAO"
       ],
-      "jjghn_next_pace_seed": "AAO",
+      "jjghn_next_pace_seed": "AAP",
       "jjghn_paces": {
         "₢BcAAA": {
           "jjgpn_tacks": [
@@ -7440,6 +7441,72 @@
               ],
               "jjgtn_silks": "apostille-command-rename",
               "jjgtn_basis": "ecafbe2"
+            }
+          ]
+        },
+        "₢BcAAO": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260708-1051",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "Gallops schema change — reprieve-gated; judgment work, not mechanical.",
+                "Relocated (260708) from the studbook–farrier heat (₣Br), which does not depend on it:",
+                "its billet layer needs only the git-ref- and dirname-safe id shape, which grandfathering preserves,",
+                "and its scratch rehearsal exercises no transfer or restring.",
+                "",
+                "## Goal",
+                "Pace identities become immutable for life:",
+                "minted atomically from one global seed under the store's single-writer lock",
+                "(the seed is store data — it lives in the gallops now and migrates with the store when the studbook becomes authoritative);",
+                "restring and transfer re-affiliate without re-keying;",
+                "display is heat-qualified at emission only, rendered from live affiliation at output time.",
+                "",
+                "## Cinched",
+                "Authority: JJSAS \"Pace identity re-gestalt\" (`Tools/jjk/vov_veiled/JJSAS-state-repo.adoc`),",
+                "plus the ₣Br paddock's 260706 settlements, which travel with this pace as its contract:",
+                "- Pace-id shape: five charset characters from the one global seed;",
+                "  existing coronets grandfather verbatim — immutable-for-life includes the already-living —",
+                "  and the seed founds above the highest grandfathered body,",
+                "  so collision with the legacy heat-embedded space is structurally impossible",
+                "  (one founding-time comparison, no reserved-set check).",
+                "- Wire-vs-display: the bare immutable id is the identity in every machine context",
+                "  (gallops keys, MCP params, git refs; billet branch names when the ₣Br surface consumes it);",
+                "  heat qualification is emission-only — glyph + current heat + interpunct + immutable id —",
+                "  so transfer changes tomorrow's rendering, never the identity;",
+                "  input tolerates emitted forms (glyph and qualifier stripped on ingest, bare id looked up);",
+                "  frozen emissions keep the qualified form as record-of-the-moment, never a live reference;",
+                "  full-form never-abbreviate display discipline carries over, firemark display untouched.",
+                "- Halter typing: strip the glyph if present;",
+                "  a token containing the interpunct is a qualified coronet — the five-character tail resolves, qualifier ignored;",
+                "  otherwise type by length exactly as today (2 firemark, 5 coronet);",
+                "  the %-sentinel pensum untouched.",
+                "These settlements close the JJSAS wire-vs-display open fork:",
+                "bank them into the sheaf as part of this pace, durable-first — the sheaf commits before any provenance trims.",
+                "The revision-insignia sub-mint (catchword/varvel) does NOT travel — it stays ₣Br design context;",
+                "it shared only the design pace, not this surface.",
+                "",
+                "## Schema change",
+                "MANDATORY: CLAUDE.md §E and §F and JJSCRP (jjdz_reprieve) govern delivery —",
+                "reprieve episode registered, source-only date-and-identity branch, no gallops conversion committed.",
+                "Do not improvise this part.",
+                "",
+                "## Sequencing",
+                "Must land and converge before the JJ revision-control conversion/cutover heat:",
+                "live billet branches embed the immutable id and must not rot on transfer.",
+                "Neither ₣Br pace depends on this one.",
+                "",
+                "## Done when",
+                "Pace identities are immutable for life, minted atomically under the store lock from the global seed;",
+                "restring and transfer re-affiliate without re-keying;",
+                "display renders heat-qualified with the interpunct and ingest tolerates emitted forms per the cinches above;",
+                "the JJSAS open fork is banked closed;",
+                "a reprieve episode is registered and older on-disk gallops still read;",
+                "build tt/vow-b, test tt/vow-t green."
+              ],
+              "jjgtn_silks": "pace-identity-regestalt-impl",
+              "jjgtn_basis": "b33a377"
             }
           ]
         }
