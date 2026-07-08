@@ -248,3 +248,25 @@ fundus-host list points here for the full registry.
   `--ignored` required; fundus accounts must be provisioned on cerebro first).
 - **localhost** — local fundus for JJK scenario tests via `jjfu-*` ssh aliases
   (`jjfu-full`, `jjfu-nogit`, `jjfu-nokey`, `jjfu-norepo`).
+
+### J. Infield Resident Brands (`jjq_` / `jjy_`)
+
+The dirname brands for JJ-owned infield residents. Concept home: `jjdw_yard` (JJSVC
+cosmology) — this is the quick-lookup pointer, not the definition.
+
+- **`jjq_`** — infield **directory** residents (has children; names no bare dir):
+  - `jjqa_app` — the kit repo (engine + provisioned context; was `jjy_app`).
+  - `jjqs_studbook` — the record repo (was `jjy_studbook`).
+  - `jjqb_{coronet}` — a pace **billet** (per-pace worktree dir).
+- **`jjy_`** — infield **launcher scripts** (stiles): `jjy_saddle`, `jjy_lunge` (flat).
+
+Two letters, not one: terminal-exclusivity forbids `jjy_`'s flat script names coexisting with a
+sub-lettered billet container, and `jjq` was one of the last two free `jj`-letters (260707
+census). The split is by resident kind — directories vs scripts.
+
+**Billet naming: one coronet, two derivations.** The billet's **git branch** is the *bare
+coronet* (`XxAAA` — machine context per the wire-vs-display rule, NOT the §F human-branch
+form); its **dirname** is `jjqb_{coronet}`; `git worktree list` ties them. The muck sweep globs
+`jjqb_*` — a positive match that structurally excludes the `jjqa_`/`jjqs_` repos it must never
+reap. Constraint owed upstream: the pace-id re-gestalt must keep the coronet charset git-ref-
+and dirname-safe (no leading `-`).

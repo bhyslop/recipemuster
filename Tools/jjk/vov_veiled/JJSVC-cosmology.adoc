@@ -66,12 +66,15 @@ gitignore entry — the infield tracks nothing, and nothing JJ owns ever lands i
 
 [[jjdw_yard]]
 {jjdw_yard}::
-The `jjy_` dirname brand (mnemonic: yard) marking JJ-owned residents of the {jjdw_infield}.
-Charter: *all* JJ-owned infield residents carry it — the repos
-(`jjy_app` the kit repo, `jjy_studbook` the record repo) and JJ's launcher scripts
+The dirname brand (mnemonic: yard) marking JJ-owned residents of the {jjdw_infield},
+carried by two signets split by resident kind:
+`jjq_` for the directory residents — `jjqa_app` the kit repo, `jjqs_studbook` the record
+repo, and each `jjqb_{coronet}` pace billet — and `jjy_` for the launcher scripts
 (dispatch sheaf).
-The split is yard-side vs. wire-side legibility: `jjy_` names what the operator touches on
-disk; `jjx_` names the MCP wire.
+Charter: *every* JJ-owned infield resident carries a yard brand — `jjq_` if a directory,
+`jjy_` if a script.
+The split is yard-side vs. wire-side legibility: the yard signets name what the operator
+touches on disk; `jjx_` names the MCP wire.
 {jjdw_hippodrome_s} stay consumer-named — the brand marks JJ's own residents only.
 
 == Hippodrome

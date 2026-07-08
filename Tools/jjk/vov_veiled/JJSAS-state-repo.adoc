@@ -215,10 +215,13 @@ cited by code and tests via opaque ID; tails minted at implementation) and three
   with gallops). *Heath* was the semantic runner-up (the Newmarket precedent) but collided
   with hippodrome on H.
   INFUSED 260705 (cosmology sheaf, `jjdw_infield`).
-* *jjy_* — dirname family for JJ's own infield-resident repos: `jjy_studbook`, `jjy_app`
-  (both cinched 260704). Mnemonic: yard.
-  INFUSED 260705 (cosmology sheaf, `jjdw_yard`), with the charter widened to *all* JJ-owned
-  infield residents — the launcher trampolines join the family (paddock delta banked).
+* *yard* (mnemonic) — the dirname brand for JJ's own {jjdw_infield} residents. Cinched 260704
+  as `jjy_` over the repos (`jjy_studbook`, `jjy_app`); infused 260705 (cosmology sheaf,
+  `jjdw_yard`), charter widened to all residents. Re-cut 260707 into two signets by resident
+  kind: `jjq_` for directory residents (`jjqa_app` kit repo, `jjqs_studbook` record repo,
+  `jjqb_{coronet}` pace billet) and `jjy_` for launcher scripts (`jjy_saddle`, `jjy_lunge`) —
+  terminal-exclusivity forbade a sub-lettered billet container sharing a signet with the
+  scripts' flat `jjy_` names, and `jjq` was one of the two free jj-letters left.
 * *blotter* — the locked-store entity the studbook instantiates; elected 260705 at the canon
   workup under grep gate (paddock cinch). Alternates held: ratchet, cadastre.
   INFUSED 260706 (blotter sheaf, `jjdb_blotter`).

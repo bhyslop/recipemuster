@@ -236,7 +236,7 @@
 :jjdw_hippodrome:    <<jjdw_hippodrome,Hippodrome>>
 :jjdw_hippodrome_s:  <<jjdw_hippodrome,Hippodromes>>
 :jjdw_infield:       <<jjdw_infield,Infield>>
-:jjdw_yard:          <<jjdw_yard,jjy_ family>>
+:jjdw_yard:          <<jjdw_yard,yard>>
 
 // Blotter store (locked-store entity; journal ceremony + break sequence; studbook instance)
 :jjdb_blotter:    <<jjdb_blotter,Blotter>>

@@ -33,7 +33,7 @@ Everything it asks of the engine crosses an MCP door.
 
 //axhca_actor axd_internal
 `jjcbs_kit`
-*The kit repo* — the `jjy_app` peer in the {jjdw_infield}, a {jjdw_yard} resident, source of the engine and the provisioned context.
+*The kit repo* — the `jjqa_app` peer in the {jjdw_infield}, a {jjdw_yard} resident, source of the engine and the provisioned context.
 
 //axhca_actor axd_internal
 `jjcbs_studbook`
