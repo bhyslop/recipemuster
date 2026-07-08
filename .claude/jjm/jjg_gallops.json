@@ -8115,6 +8115,7 @@
       "jjghn_creation_time": "260704",
       "jjghn_status": "jjghe_racing",
       "jjghn_order": [
+        "₢BrAAZ",
         "₢BrAAA",
         "₢BrAAB",
         "₢BrAAC",
@@ -8141,7 +8142,7 @@
         "₢BrAAV",
         "₢BrAAW"
       ],
-      "jjghn_next_pace_seed": "AAZ",
+      "jjghn_next_pace_seed": "AAa",
       "jjghn_paces": {
         "₢BrAAA": {
           "jjgpn_tacks": [
@@ -8877,6 +8878,38 @@
               ],
               "jjgtn_silks": "session-tier-launch-design",
               "jjgtn_basis": "d1995c9"
+            }
+          ]
+        },
+        "₢BrAAZ": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260707-1941",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "",
+                "Mechanical canon-reconciliation plus one bounded concept-reword; opus.",
+                "The naming split is decided — this pace homes it in canon, it does not re-open it.",
+                "",
+                "## Cinched",
+                "",
+                "The jjq/jjy split, settled in conversation and gate-clean (terminal-exclusivity verified by hand):",
+                "jjq_ brands the infield directory residents — jjqa_app (kit repo), jjqs_studbook (record repo), jjqb_{coronet} (pace billet);",
+                "jjy_ stays flat for the launcher scripts (stiles) — jjy_saddle, jjy_lunge.",
+                "The billet branch is the bare coronet (wire-vs-display machine context); the billet dirname is jjqb_{coronet}; git worktree list ties the two.",
+                "The muck sweep globs jjqb_*, structurally isolated from the jjqa/jjqs repos it must never touch.",
+                "",
+                "## Done when",
+                "",
+                "The split is homed in canon:",
+                "jjdw_yard (JJSVC cosmology) is re-cut — the yard brand now spans two letters, jjq_ for directories and jjy_ for scripts, and the former \"all residents carry jjy_\" charter is reworded to that two-brand reality;",
+                "the chapbook (JJSAC) jjy_app citation reads jjqa_app;",
+                "the jjq family is entered in the acronym file (claude-jjk-bhyslop.md);",
+                "and the billet branch/dirname split is recorded where cosmology and §F need it, noting that the pace-id charset must guarantee no leading '-' for git-ref and dirname safety — a constraint owed to the pace-identity re-gestalt, not solved here."
+              ],
+              "jjgtn_silks": "reconcile-jjq-jjy-yard-split",
+              "jjgtn_basis": "7a263f3"
             }
           ]
         }
