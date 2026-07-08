@@ -9523,8 +9523,8 @@
         "₢BsAAO": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260707-1920",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260708-1206",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "## Character",
                 "Blocking checkpoint — no work, a gate.",
@@ -9549,7 +9549,7 @@
                 "- Surfaced during the payor-refresh retirement in this heat."
               ],
               "jjgtn_silks": "gate-payor-credential-coherence",
-              "jjgtn_basis": "b3563be"
+              "jjgtn_basis": "8ad4b22"
             }
           ]
         }
