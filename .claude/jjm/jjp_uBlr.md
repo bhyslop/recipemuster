@@ -173,6 +173,20 @@ the implementation tail runs at work tier.
   Guard permanence: every command registers its guard bucket explicitly, no default — absence fails loud;
   the docket-authoring gate is an explicit accept-set of family names beside the roster (fable + opus today);
   unknown families sit in no accept-set by construction — OPEN reads only, until a deliberate roster-and-set edit.
+- Unsaddle removed; muck folds into the spine (260708): the stiles collapse to two — saddle and lunge.
+  muck ceases to be a door and becomes the billet-clearing behavior itself:
+  the leading step of the shared entrance spine, run implicitly on both stiles, never directly invoked;
+  its concept-home moves from its own operation to a step within the spine.
+  It stays plan-then-confirm but is silent when its reap set (closed-pace × past-retention) is empty —
+  forced by the entrance-must-be-pleasant invariant.
+  unsaddle's refuse-if-dirty was redundant: muck already owns the dirty guard
+  (refuse-with-advice by default, auto-commit-push behind explicit confirm), so the door vanishes whole,
+  the word released unminted (never infused; retirement ledgered in the farrier sheaf).
+  Deliberately sacrificed for MVP: immediate reap of a not-yet-closed billet —
+  such a billet waits for pace-close plus retention, and the next stile crossing takes it.
+  Refines the Billet sweep cinch's at-dispatch-time framing (the mechanics stand; the door does not)
+  and re-cuts the census ashlar roster — saddle/lunge/break/refit typed, muck ashlar by confirm-output alone.
+  The Dispatch shell surface cinch already names only the two jjy_ trampolines and stands unchanged.
 
 ## Canon workup
 
@@ -212,7 +226,8 @@ the founding-and-cutover section stays aspirant deliberately — it is the conve
   LANDED 260706: `JJSVF-farrier.adoc` (normative entity), mounted in JJS0's Revision Control region;
   homes the `jjdf_` quoins (entity, three facets, identify, vocabulary Palisade)
   and the never-force rivet at the consign contract.
-- Dispatch and billet (operation family): saddle, lunge, unsaddle, the entrance spine, the sweep,
+- Dispatch and billet (operation family): saddle, lunge, the shared entrance spine with muck
+  as its leading billet-clearing step (260708 cinch — no unsaddle door), the sweep mechanics,
   BUK meld consequences; launch-time provisioning folds in (lean 260705: fold, split only if it dominates the sheaf at authoring).
 - Tackle MVP core: scope-to-discipline binding beside the pedigree.
 - Typical-JJ-session chapbook — AUTHORED 260705, aspirant: `Tools/jjk/vov_veiled/JJSAC-chapbook-session.adoc`,
@@ -284,6 +299,12 @@ launch pre-ruled trodden, launcher BUK-bound, compound forms barred by operator 
 spur held as alternate with a false-friend note;
 gee released to deliberate fallow as the operator's trot-advance cry;
 rationale ledgered in the farrier sheaf.
+UNSADDLE RETIREMENT (260708): unsaddle removed before infusion — the reap folded into the
+entrance spine as muck's own behavior, leaving no door to name; the word releases unminted.
+muck re-cut from sweep door to the spine's leading step — never typed, ashlar by confirm-output alone;
+the ashlar roster now reads saddle/lunge/break/refit typed plus muck by output
+(superseding the census line's six-verb count);
+retirement and re-cut ledgered in the farrier sheaf.
 Elections, alternates, and rationales live in the two sheaf ledgers; this roster is the summary.
 
 ### Deltas to bank into the aspirant sheaves at drain time
@@ -310,6 +331,9 @@ Elections, alternates, and rationales live in the two sheaf ledgers; this roster
   lunge and unbridled-saddle launch the opus/xhigh judgment constant, bridled-saddle consumes the designation,
   and the verb-carries-the-tier line narrows to the two-source choice function;
   the haiku orchestration line stays breeze-era; bank at drain time.
+- Unsaddle removal: DONE 260708 — banked into the farrier sheaf (toothing table, dispatch-layer
+  section, lifecycle doctrine, naming ledger, exposure tiers), the chapbook's Act I and teardown
+  interactions, and the state-repo ledger pointer, per the 260708 cinch.
 
 ## Held for discussion
 
