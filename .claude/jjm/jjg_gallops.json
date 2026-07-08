@@ -9703,8 +9703,8 @@
         "₢BxAAE": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260708-0823",
-              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_ts": "260708-1136",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_tier": "jjgde_fable",
               "jjgtn_text": [
                 "## Character",
@@ -9785,7 +9785,7 @@
                 "- MCM Lapidary for the broadside/bondstone treatment of the Refresh term."
               ],
               "jjgtn_silks": "payor-credential-lifecycle-model",
-              "jjgtn_basis": "e27dd99"
+              "jjgtn_basis": "0f1834d"
             }
           ]
         }
