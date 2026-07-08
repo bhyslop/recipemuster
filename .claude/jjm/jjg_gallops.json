@@ -9604,7 +9604,8 @@
           "jjgpn_tacks": [
             {
               "jjgtn_ts": "260708-0823",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_fable",
               "jjgtn_text": [
                 "## Character",
                 "Authoring + surface reconciliation against a now-established model, Fable-tier:",
@@ -9684,7 +9685,7 @@
                 "- MCM Lapidary for the broadside/bondstone treatment of the Refresh term."
               ],
               "jjgtn_silks": "payor-credential-lifecycle-model",
-              "jjgtn_basis": "c1e0f39"
+              "jjgtn_basis": "e27dd99"
             }
           ]
         }
