@@ -28,7 +28,7 @@ use crate::rbtdgc_consts::{
     RBTDGC_ONBOARD_CRASH_COURSE, RBTDGC_ONBOARD_DIR_FIRST_BUILD,
     RBTDGC_ONBOARD_FIRST_CRUCIBLE,
     RBTDGC_ONBOARD_PAYOR_HB, RBTDGC_ONBOARD_START_HERE,
-    RBTDGC_PAYOR_ESTABLISH, RBTDGC_PAYOR_REFRESH,
+    RBTDGC_PAYOR_ESTABLISH,
     RBTDGC_QUOTA_BUILD,
 };
 use crate::rbtdrm_manifest::RBTDRM_FIXTURE_HANDBOOK_RENDER;
@@ -98,14 +98,10 @@ fn rbtdrf_hb_onboard_payor_hb(dir: &Path) -> rbtdre_Verdict {
     rbtdrf_hb_render(dir, RBTDGC_ONBOARD_PAYOR_HB, "onboard-payor-hb")
 }
 
-// ── Payor cases (3) ─────────────────────────────────────────
+// ── Payor cases (2) ─────────────────────────────────────────
 
 fn rbtdrf_hb_payor_establish(dir: &Path) -> rbtdre_Verdict {
     rbtdrf_hb_render(dir, RBTDGC_PAYOR_ESTABLISH, "payor-establish")
-}
-
-fn rbtdrf_hb_payor_refresh(dir: &Path) -> rbtdre_Verdict {
-    rbtdrf_hb_render(dir, RBTDGC_PAYOR_REFRESH, "payor-refresh")
 }
 
 fn rbtdrf_hb_quota_build(dir: &Path) -> rbtdre_Verdict {
@@ -121,7 +117,6 @@ pub static RBTDRF_CASES_HANDBOOK_RENDER: &[rbtdre_Case] = &[
     case!(rbtdrf_hb_onboard_dir_first_build),
     case!(rbtdrf_hb_onboard_payor_hb),
     case!(rbtdrf_hb_payor_establish),
-    case!(rbtdrf_hb_payor_refresh),
     case!(rbtdrf_hb_quota_build),
 ];
 

@@ -359,7 +359,6 @@ pub fn rbtdrm_required_colophons(fixture: &str) -> Option<&'static [&'static str
             RBTDGC_ONBOARD_DIR_FIRST_BUILD,
             RBTDGC_ONBOARD_PAYOR_HB,
             RBTDGC_PAYOR_ESTABLISH,
-            RBTDGC_PAYOR_REFRESH,
             RBTDGC_QUOTA_BUILD,
         ]),
         _ => None,

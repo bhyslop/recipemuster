@@ -40,7 +40,6 @@ rbhw_handbook_top() {
   buh_section  "Payor — billing and OAuth ceremonies"
   buh_line     "  GCP project ownership, OAuth consent, credential refresh."
   buh_tt       "  Establish: " "${RBZ_PAYOR_ESTABLISH}"
-  buh_tt       "  Refresh:   " "${RBZ_PAYOR_REFRESH}"
   buh_tt       "  Quota:     " "${RBZ_QUOTA_BUILD}"
   buh_e
   buh_section  "Windows — test infrastructure"

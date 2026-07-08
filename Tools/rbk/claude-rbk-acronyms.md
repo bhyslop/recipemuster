@@ -141,8 +141,7 @@
 - **RBSPE** → `rbk/vov_veiled/RBSPE-payor_establish.adoc`
 - **RBSPG** → `rbk/vov_veiled/RBSPG-governor_gird.adoc` (Polity demesne — gird: the payor-wielded founding admission that seats the FIRST governor of a fresh depot, the one admission outside governor wielding (a fresh-levied depot has no governor yet to brevet one). Drives the shared `zrbgp_brevet_core` with the payor's OAuth token, governor mantle hardcoded. Verb body `rbgp_gird`, colophon `rbw-mG`. Federation successor to the retiring keyfile `rbw-aE` PayorEnrobesGovernor. Operator-sanctioned mid-heat mint (260620), flagged for Fable's terminal review per the jilt precedent.)
 - **RBSPI** → `rbk/vov_veiled/RBSPI-payor_install.adoc`
-- **RBSPO** → `rbk/vov_veiled/RBSPO-terrier_rehearse.adoc` (Polity demesne — rehearse: pure manor-wide read of the terrier muniment roll, mutates nothing. Verb body `rbgp_rehearse`, colophon `rbw-pr`. Acronym tail `O` because `R` is taken by RBSPR payor_refresh.)
-- **RBSPR** → `rbk/vov_veiled/RBSPR-payor_refresh.adoc`
+- **RBSPO** → `rbk/vov_veiled/RBSPO-terrier_rehearse.adoc` (Polity demesne — rehearse: pure manor-wide read of the terrier muniment roll, mutates nothing. Verb body `rbgp_rehearse`, colophon `rbw-pr`. Acronym tail `O` because `R` was taken by the since-retired RBSPR payor_refresh.)
 - **RBSPT** → `rbk/vov_veiled/RBSPT-port_setup.adoc`
 - **RBSPU** → `rbk/vov_veiled/RBSPU-citizen_unseat.adoc` (Polity demesne — unseat: everyday withdrawal of one mantle from a citizen — expunge the muniment + revoke `tokenCreator`, leaving the depot-scoped binding in place (suspension, not erasure). Verb body `rbgp_unseat`, colophon `rbw-pU`. Federation successor to the bridge-legacy defrock specs RBSDD/RBSRD.)
 - **RBSQB** → `rbk/vov_veiled/RBSQB-quota_build.adoc`

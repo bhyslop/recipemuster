@@ -217,8 +217,8 @@ If `~/.rbw/payor/rbro.env` is lost, the administrator obtains a fresh
 from Google Cloud Console and re-executes
 {rbtgo_payor_install}.
 
-If OAuth tokens expire,
-{rbtgo_payor_refresh}
+If OAuth tokens expire, re-executing
+{rbtgo_payor_install}
 obtains fresh credentials.
 
 // FABLE-REANCHOR (₣BZ terminal review / ₣A6 handbook): the keyfile credential rotation/revocation narrative (governor-enrobe re-key, defrock) was demolished here. In federation there is no Google-side key to rotate — the IdP owns credential rotation — and access is withdrawn by governor-wielded unseat (one mantle) or attaint (whole citizen). Author the federation account here. See the M7 record in memo-20260615-BZ-pace-design.md.

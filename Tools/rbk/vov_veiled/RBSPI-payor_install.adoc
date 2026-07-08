@@ -20,6 +20,21 @@ OAuth client JSON file from
 is available locally
 
 //axhos_step
+. *Obtain or rotate the OAuth client JSON* (only when you lack a current one):
+.. For a first install, use the JSON downloaded during
+{rbtgo_payor_establish}.
+.. If the client secret was compromised, or the refresh token expired — in Testing
+publishing status an External consent screen holding the `cloud-platform` scope
+expires refresh tokens 7 days after consent (the "6 months of non-use" rule governs
+only Production apps and does not apply here) — mint a fresh secret:
+... Open APIs & Services > Credentials in the {rbtgi_manor} and click the existing
+"Recipe Bottle Payor" OAuth client
+... Click "+ Add secret", then the download icon beside the NEW secret; the browser
+downloads `client_secret_[id].apps.googleusercontent.com.json`
+... Click "Disable" on the secret with the older creation date, then the trash icon to
+delete that disabled secret
+
+//axhos_step
 . *Execute OAuth Credential Installation*:
 .. Export
 {rbrp_billing_account_id}
@@ -45,7 +60,7 @@ rbgp_payor_install ~/Downloads/client_secret_*.json
 .. OAuth credentials stored securely in `~/.rbw/payor/rbro.env` with 600 permissions
 .. Credentials include:
 ... `RBRO_CLIENT_SECRET`: OAuth client secret for token refresh
-... `RBRO_REFRESH_TOKEN`: Long-lived refresh token for authentication
+... `RBRO_REFRESH_TOKEN`: Refresh token for authentication (in Testing publishing status, expires 7 days after consent)
 .. {rbhg_warn}
 Never commit `~/.rbw/payor/rbro.env` to version control
 
@@ -53,7 +68,7 @@ Never commit `~/.rbw/payor/rbro.env` to version control
 {rbro_regime}
 * OAuth credentials stored in `~/.rbw/payor/rbro.env`:
 ** `RBRO_CLIENT_SECRET`: OAuth client secret for token refresh
-** `RBRO_REFRESH_TOKEN`: Long-lived refresh token for authentication
+** `RBRO_REFRESH_TOKEN`: Refresh token for authentication (in Testing publishing status, expires 7 days after consent)
 
 //axhoot_typed_output
 {rbrp_regime}

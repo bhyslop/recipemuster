@@ -102,7 +102,6 @@ The Folio column shows how each tabtarget receives it:
 |----------|-------------|-------|---------|
 | `rbw-gPI` | PayorInstall | param1 | Ingest payor OAuth credentials from the downloaded client secret JSON |
 | `rbw-gPE` | PayorEstablish | — | Guided Manor establishment — GCP project + OAuth consent screen |
-| `rbw-gPR` | PayorRefresh | — | Refresh expired OAuth tokens |
 | `rbw-gPQ` | QuotaBuild | — | Display Cloud Build capacity review procedure |
 | `rbw-gPF` | PayorFederationEntra | — | Guided Entra federation setup — IdP-console app registration yielding the foedus core values |
 

@@ -143,7 +143,6 @@
 :rbtgo_manor_escheat:             <<rbtgo_manor_escheat,rbgp_manor_escheat>>
 :rbtgo_payor_establish:           <<rbtgo_payor_establish,rbhp_establish>>
 :rbtgo_payor_install:             <<rbtgo_payor_install,rbgp_payor_install>>
-:rbtgo_payor_refresh:             <<rbtgo_payor_refresh,rbhp_refresh>>
 :rbtgo_quota_build:               <<rbtgo_quota_build,rbhp_quota_build>>
 :rbtgo_trigger_build:             <<rbtgo_trigger_build,rbfd_build>>
 :rbtgo_access_oauth_probe:        <<rbtgo_access_oauth_probe,rbgv_payor_oauth_probe>>
@@ -1190,19 +1189,6 @@ by performing authorization flow, storing credentials, and validating {rbtgi_man
 
 //axvd_cartouche axd_normative
 include::RBSPI-payor_install.adoc[]
-
-[[rbtgo_payor_refresh]]
-//axvo_method axd_transient axd_attended axd_inlaid axd_grouped
-=== {rbtgo_payor_refresh}
-
-`rbhp_refresh` —
-Refreshes
-{rbtr_payor}
-OAuth credentials
-({rbtgog_payor}).
-
-//axvd_cartouche axd_normative
-include::RBSPR-payor_refresh.adoc[]
 
 [[rbtgo_access_oauth_probe]]
 //axvo_method axd_transient axd_inlaid axd_grouped
@@ -5025,7 +5011,7 @@ with error description,
 . handles 400/401 errors by triggering
 {rbbc_fatal}
 with "OAuth credentials expired or invalid - run
-{rbtgo_payor_refresh}
+{rbtgo_payor_install}
 ".
 
 [[rbtoe_payor_authenticate]]

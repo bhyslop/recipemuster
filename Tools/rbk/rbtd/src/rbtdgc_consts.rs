@@ -49,7 +49,6 @@ pub const RBTDGC_PRESAGE_IMMURE: &str = "rbw-lp";
 pub const RBTDGC_BANISH_LODE: &str = "rbw-lB";
 pub const RBTDGC_PAYOR_INSTALL: &str = "rbw-gPI";
 pub const RBTDGC_PAYOR_ESTABLISH: &str = "rbw-gPE";
-pub const RBTDGC_PAYOR_REFRESH: &str = "rbw-gPR";
 pub const RBTDGC_QUOTA_BUILD: &str = "rbw-gPQ";
 pub const RBTDGC_FEDERATION_ENTRA: &str = "rbw-gPF";
 pub const RBTDGC_ONBOARD_START_HERE: &str = "rbw-o";

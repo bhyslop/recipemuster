@@ -23,7 +23,6 @@
 #     zrbgp_refresh_capture         (~76)   refresh-token exchange
 #     zrbgp_authenticate_capture    (~122)  load + exchange
 #     rbgp_payor_install            (~400)  full install ceremony
-#     rbgp_payor_oauth_refresh      (~1229) display refresh procedure
 #   Depot lifecycle operations:
 #     zrbgp_billing_attach/detach, liens, bucket helpers (~196-395)
 #     rbgp_depot_levy / unmake / list (~568-1163)
@@ -131,7 +130,7 @@ zrbgp_refresh_capture() {
   if test -n "${z_error}"; then
     local z_error_desc
     z_error_desc=$(jq -r '.error_description // .error // "Unknown error"' <<<"${z_response}")
-    buc_die "OAuth credentials expired or invalid - run rbgp_payor_oauth_refresh: ${z_error_desc}"
+    buc_die "OAuth credentials expired or invalid - reinstall payor credentials (in testing mode, refresh tokens expire 7 days after consent): ${z_error_desc}"
   fi
 
   local z_access_token
@@ -3284,45 +3283,6 @@ rbgp_attribution_trail() {
   done < "${z_render_file}"
 
   buc_success "Attribution trail rendered for ${z_depot}: find the freehold subject (${RBPC_freehold_subject:-<rbpc not sourced>}) in the rightmost column on artifactregistry rows — that is the human, by immutable IdP claim"
-}
-
-rbgp_payor_oauth_refresh() {
-  zrbgp_sentinel
-
-  buc_doc_brief "Refresh expired OAuth credentials following RBAGS manual procedure"
-  buc_doc_lines "Use this when OAuth tokens expire after 6 months or are compromised"
-  buc_doc_lines "Requires downloading new OAuth JSON from Google Cloud Console"
-  buc_doc_shown || return 0
-
-  buc_step 'Display OAuth refresh procedure'
-  buc_info ""
-  buc_info "=== Manual Payor OAuth Refresh Procedure ==="
-  buc_info ""
-  buc_info "OAuth credentials need to be refreshed. Follow these steps:"
-  buc_info ""
-  buc_info "1. Navigate to APIs & Services > Credentials in Payor Project"
-  buc_info "   Console URL: https://console.cloud.google.com/apis/credentials?project=${RBRP_PAYOR_PROJECT_ID}"
-  buc_info ""
-  buc_info "2. Find existing 'Recipe Bottle Payor' OAuth client"
-  buc_info ""  
-  buc_info "3. Download new JSON credentials:"
-  buc_info "   - Click the download icon next to the OAuth client"
-  buc_info "   - Or regenerate client secret if compromised"
-  buc_info ""
-  date +%Y%m%d > "${ZRBGP_SCRATCH_FILE}" 2>/dev/null || true
-  local z_today_stamp=$(<"${ZRBGP_SCRATCH_FILE}")
-  buc_info "4. Save as timestamped file:"
-  buc_info "   - Example: payor-oauth-${z_today_stamp}.json"
-  buc_info ""
-  buc_info "5. Run installation command with new JSON:"
-  buc_info "   rbgp_payor_install /path/to/payor-oauth-[timestamp].json"
-  buc_info ""
-  buc_info "This will regenerate OAuth credentials and update RBRO file."
-  buc_info ""
-  
-  buc_success "OAuth refresh procedure displayed"
-  buc_info "Note: OAuth refresh tokens expire after 6 months of non-use in testing mode"
-  buc_info "Any successful payor operation resets the 6-month timer"
 }
 
 # eof

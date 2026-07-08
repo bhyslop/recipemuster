@@ -71,9 +71,6 @@ rbho_payor_handbook() {
   buh_line "This walks you through the OAuth authorization flow and stores"
   buh_line "the credential securely."
   buh_e
-  buh_line "If you are refreshing an existing credential that has expired:"
-  buh_tt  "  " "${RBZ_PAYOR_REFRESH}"
-  buh_e
 
   buh_step1 "Instaurate the Manor"
   buh_e

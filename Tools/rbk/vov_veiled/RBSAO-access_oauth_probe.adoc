@@ -43,7 +43,7 @@ if `«DELAY_MS»` is not a non-negative integer: "Delay must be a non-negative i
 `«PAYOR_TOKEN»` from authentication result
 .... {rbbc_fatal}
 if authentication fails: "Iteration «I»: Payor OAuth authentication failed — run
-{rbtgo_payor_refresh}
+{rbtgo_payor_install}
 to renew credentials"
 
 ... *Call Cloud Resource Manager Projects API*:
@@ -67,7 +67,7 @@ link:https://cloud.google.com/resource-manager/reference/rest/v1/projects/get[cl
 .... If `«HTTP_STATUS»` is 401:
 ..... {rbbc_fatal}
 "Iteration «I»: Payor token rejected — HTTP 401 (OAuth credentials expired — run
-{rbtgo_payor_refresh})"
+{rbtgo_payor_install})"
 .... If `«HTTP_STATUS»` is one of 500, 502, 503, or 504 (transient server-side error):
 ..... Re-execute the {rbbc_call} up to 3 total attempts, sleeping with exponential backoff between attempts (2s, then 4s)
 ..... On any non-5xx response within the retry window, re-enter *Evaluate Response* with that status
