@@ -7,9 +7,9 @@ the in-repo gallops stays authoritative until the cutover ceremony, which is NOT
 
 Authority is the three aspirant sheaves; dated cinches (260704) are settled and not re-litigated:
 
-- `Tools/jjk/vov_veiled/JJS-aspirant-state-repo.adoc` — studbook, journal ceremony, counterfoil, guidon, pace-identity re-gestalt, founding-and-cutover.
-- `Tools/jjk/vov_veiled/JJS-aspirant-farrier.adoc` — driver op census under the vocabulary-Palisade naming rule, lock guard, saddle/lunge dispatch, BUK meld.
-- `Tools/jjk/vov_veiled/JJS-aspirant-tackle.adoc` — MVP tackle only; scope layering is post-MVP supposition, do not act on it.
+- `Tools/jjk/vov_veiled/JJSAS-state-repo.adoc` — studbook, journal ceremony, counterfoil, guidon, pace-identity re-gestalt, founding-and-cutover.
+- `Tools/jjk/vov_veiled/JJSAF-farrier.adoc` — driver op census under the vocabulary-Palisade naming rule, lock guard, saddle/lunge dispatch, BUK meld.
+- `Tools/jjk/vov_veiled/JJSAT-tackle.adoc` — MVP tackle only; scope layering is post-MVP supposition, do not act on it.
 
 The 260630 revision-control memo and 260702 collision memo are provenance, never authority.
 A canon-workup groom (260705) added the specification architecture below;
@@ -206,7 +206,7 @@ the founding-and-cutover section stays aspirant deliberately — it is the conve
 - Dispatch and billet (operation family): saddle, lunge, unsaddle, the entrance spine, the sweep,
   BUK meld consequences; launch-time provisioning folds in (lean 260705: fold, split only if it dominates the sheaf at authoring).
 - Tackle MVP core: scope-to-discipline binding beside the pedigree.
-- Typical-JJ-session chapbook — AUTHORED 260705, aspirant: `Tools/jjk/vov_veiled/JJS-aspirant-chapbook-session.adoc`,
+- Typical-JJ-session chapbook — AUTHORED 260705, aspirant: `Tools/jjk/vov_veiled/JJSAC-chapbook-session.adoc`,
   mounted in the codex's Aspirant Nucleations with the first two-token cartouche.
   Its pending-citation register is the canon convergence gauge:
   each destination sheaf that lands hardens the tale's flagged beats to citations;
