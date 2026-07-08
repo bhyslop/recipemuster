@@ -9043,7 +9043,8 @@
           "jjgpn_tacks": [
             {
               "jjgtn_ts": "260708-1307",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_fable",
               "jjgtn_text": [
                 "## Character",
                 "",
@@ -9064,7 +9065,7 @@
                 "It does not author the canon MVP sheaf — that stays the pace that follows."
               ],
               "jjgtn_silks": "urge-tackle-concept-model",
-              "jjgtn_basis": "26c0f75"
+              "jjgtn_basis": "e7cc030"
             }
           ]
         }
