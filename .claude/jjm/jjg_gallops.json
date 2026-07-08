@@ -7551,9 +7551,10 @@
         "₢BgAAC",
         "₢BgAAD",
         "₢BgAAE",
-        "₢BgAAF"
+        "₢BgAAF",
+        "₢BgAAG"
       ],
-      "jjghn_next_pace_seed": "AAG",
+      "jjghn_next_pace_seed": "AAH",
       "jjghn_paces": {
         "₢BgAAA": {
           "jjgpn_tacks": [
@@ -7726,6 +7727,33 @@
               ],
               "jjgtn_silks": "bound-the-aspirant-gestalt",
               "jjgtn_basis": "9e7c441"
+            }
+          ]
+        },
+        "₢BgAAG": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260707-1941",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "",
+                "Capture, not yet build — a cross-kit requirement surfaced by the ₣Br dispatch-naming work; tier decided at mount.",
+                "",
+                "## Done when",
+                "",
+                "The Liturgy/Matricula can census and validate the infield-resident brands — the JJ-owned infield trees and launcher scripts (the jjq_ and jjy_ families):",
+                "a voslv_vesture exists for the new inscription kind (a signet naming a runtime infield resident, declared in source though the named tree lives outside the git-tracked tree),",
+                "with the jjq sub-letters modeled as vosln_ ensigns (jjqa app, jjqs studbook, jjqb billet).",
+                "",
+                "The crux to settle first: a vesture needs a structural declaration-site recognizer, and infield-resident brands have no canonical source-declaration home today — the physical dirs are runtime, and the signets scatter across dispatch code and cosmology prose.",
+                "So this decides where and how such a brand is declared in git-tracked source (a code constant registry, or a spec table the census reads).",
+                "",
+                "Motivation: the jjy-mix terminal-exclusivity violation the dispatch work hand-caught is exactly what the Matricula mechanizes — but only for inscription kinds with a vesture; this closes that blind spot.",
+                "Bank the outcome into VOSMM, whose Deferred Scope already carries a prior cross-kit direction from ₣Br census experience."
+              ],
+              "jjgtn_silks": "infield-resident-brand-vesture",
+              "jjgtn_basis": "f03887c"
             }
           ]
         }
