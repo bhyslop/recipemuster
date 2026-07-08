@@ -2,7 +2,7 @@
 
 This heat is an *aspirant nucleation*: its design lives as an aspirant sheaf in the JJK canon, not in this paddock.
 The substance — the scope-to-discipline binding seated beside the pedigree, the MVP core, the deferred maximal layer (blazes, actions, exclusivity scopes, gait affinities), and the open representation fork —
-is carried by `Tools/jjk/vov_veiled/JJS-aspirant-tackle.adoc`,
+is carried by `Tools/jjk/vov_veiled/JJSAT-tackle.adoc`,
 included into JJS0 under the Aspirant Nucleations section and voiced `axd_aspirant`.
 
 Mull and sophisticate the feature in the sheaf; this paddock holds only heat shape.
