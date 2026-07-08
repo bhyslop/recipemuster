@@ -3759,9 +3759,10 @@
         "₢BDAAm",
         "₢BDAAn",
         "₢BDAAo",
-        "₢BDAAp"
+        "₢BDAAp",
+        "₢BDAAq"
       ],
-      "jjghn_next_pace_seed": "AAq",
+      "jjghn_next_pace_seed": "AAr",
       "jjghn_paces": {
         "₢BDAAA": {
           "jjgpn_tacks": [
@@ -5407,6 +5408,37 @@
               ],
               "jjgtn_silks": "jjx-log-overflow-diet",
               "jjgtn_basis": "56c6954"
+            }
+          ]
+        },
+        "₢BDAAq": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260708-1041",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "Better error handling on an existing gate.",
+                "Reproduction known: a fresh Opus chat routed around the Fable-bridled orient refusal this session.",
+                "Bounded — home the refusal in spec and strengthen it; iterate the emitted form until a wrong-model chat actually stops.",
+                "",
+                "## Done when",
+                "- The orient tier-mismatch refusal gains its spec home in JSS0.",
+                "  Today it is spec-homeless: absent from JJSCSD-saddle.adoc (whose behavior steps resolve only a rough pace),",
+                "  living only as prose in claude-jjk-core.md Bridle Protocol plus a hardcoded Rust string in the orient handler.",
+                "- Its emitted form is strengthened from a bare remedy-list into a self-enforcing refusal that actually halts the wrong-model session",
+                "  (contrast the {jjdz_monitum}, JSS0 section jjdz_monitum, which by definition never gates — this gate must).",
+                "- Empirically validated: a fresh Opus chat refused at the Fable-bridled gate demonstrably stops —",
+                "  does not read docket, paddock, or coronets to \"prepare,\" does not route around.",
+                "  Record what actually worked (message shape, and/or a small server-side mechanism) at execution time.",
+                "",
+                "## Cinched",
+                "- Enforcement rides emitted output, not always-loaded CLAUDE.md context (the model reads the response; don't pay context rent for it).",
+                "- The reads (jjx_brief / jjx_paddock / jjx_coronets) stay OPEN — a frontier session needs them to judge release or re-designate;",
+                "  the tension to crack is halting the wrong-model session WITHOUT closing those reads."
+              ],
+              "jjgtn_silks": "wrong-model-progression-halt",
+              "jjgtn_basis": "d3f6d52"
             }
           ]
         }
