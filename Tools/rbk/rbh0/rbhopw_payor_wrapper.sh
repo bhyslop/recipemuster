@@ -71,6 +71,10 @@ rbho_payor_handbook() {
   buh_line "This walks you through the OAuth authorization flow and stores"
   buh_line "the credential securely."
   buh_e
+  buh_line "The path above assumes one freshly downloaded client_secret_*.json in"
+  buh_line "~/Downloads. If your browser saved it elsewhere, or more than one"
+  buh_line "exists (e.g. after rotating a compromised secret), pass its exact path."
+  buh_e
 
   buh_step1 "Instaurate the Manor"
   buh_e
