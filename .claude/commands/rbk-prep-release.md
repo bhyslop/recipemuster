@@ -10,21 +10,25 @@ You are preparing a release candidate branch for upstream delivery to OPEN_SOURC
 - Be methodical — show output at each step
 - Stop immediately on errors
 - User maintains control throughout
-- All destructive transforms happen on a candidate branch, never on main
+- All destructive transforms happen inside a throwaway proof clone, never in the working repository
+
+**Where this ceremony runs.** Steps 0–3 run in the working repository. Step 4 creates an isolated **proof clone** (`rbw-MP`); every step from 5 onward runs *inside that clone*. This is load-bearing, not hygiene theater: marshal zero (Step 5) blanks the regime `.env` files in place and auto-commits the result, and the candidate is built by squashing that blanked tree — doing this in a clone is what keeps the operator's working config untouched. It also gives marshal zero a tree whose `HEAD` equals its `origin` snapshot by construction, so its pushed-state gate passes without pushing anything (see Step 5). After Step 4, restart Claude Code (or your shell) inside the clone directory before continuing.
 
 ## Step 0: Request permissions
 
-Ask the user for permission to execute all git operations needed (checkout, branch creation, squash merge, file removal, commit). Get explicit approval before proceeding.
+Ask the user for permission to execute all git operations needed (clone, checkout, branch creation, squash merge, file removal, commit). Get explicit approval before proceeding.
 
 ## Step 1: Verify main is clean and pushed
 
-- Check `git status` on main branch — must be clean
-- Verify main is pushed to origin
+- Check `git status` on the main branch — must be clean
+- Verify main is pushed to origin (`git rev-list --count origin/main..main` is `0`)
 - If dirty or unpushed, **STOP** and ask user to resolve
+
+The clone in Step 4 is taken from this working repo, so the candidate reflects exactly what is committed here.
 
 ## Step 2: Regime variable completeness check (LLM task)
 
-Before stripping removes the spec documents, verify every enrolled RBK regime variable has spec treatment. For each regime, read the enrollment file and corresponding spec:
+Before stripping removes the spec documents, verify every enrolled RBK regime variable has spec treatment. This runs in the working repo, where the specs are still present. For each regime, read the enrollment file and corresponding spec:
 
 | Regime file | Spec document |
 |-------------|---------------|
@@ -48,59 +52,35 @@ Wait for user acknowledgment.
 
 ## Step 3: Pre-strip qualification
 
-Run full release qualification on main to verify the complete codebase is healthy before any transforms:
+Run full release qualification in the working repo to verify the complete codebase is healthy before any transforms:
 
 ```
 tt/rbw-tr.QualifyRelease.sh
 ```
 
-This runs shellcheck and the `complete` test suite. The suite includes the **cupel** command-dependency lint (theurge fixture), which statically enforces BCG's POSIX-floor / declared-dependency / eviction-table discipline across all kit bash — the automated successor to the former manual external-command audit.
+This runs shellcheck and the `echelon` test suite. The suite includes the **cupel** command-dependency lint (theurge fixture), which statically enforces BCG's POSIX-floor / declared-dependency / eviction-table discipline across all kit bash — the automated successor to the former manual external-command audit.
 
 If qualification fails, **STOP**. The full codebase must pass before we proceed.
 
 Show the qualification result and wait for user acknowledgment.
 
-## Step 4: Fetch upstream state
+## Step 4: Create the proof clone
 
-- `git fetch OPEN_SOURCE_UPSTREAM`
-- If fetch fails, **ABORT** and ask user to verify remote configuration
-
-Show results and wait for user acknowledgment.
-
-## Step 5: Auto-detect next candidate branch
-
-- Find max batch from upstream: `git ls-remote --heads OPEN_SOURCE_UPSTREAM | grep 'candidate-'`
-- Find max batch from local branches
-- If batch exists upstream: new batch (previous was merged)
-- If batch not upstream: redo (increment revision)
-- Tell user which branch name was chosen and why
-
-Wait for user approval of the branch name.
-
-## Step 6: Create candidate branch and squash merge
-
-- Show commits that will be included: `git log OPEN_SOURCE_UPSTREAM/main..main --oneline`
-- `git checkout -b candidate-NNN-R OPEN_SOURCE_UPSTREAM/main`
-- Execute: `git merge --squash main`
-- Show the merge result summary
-
-Wait for user acknowledgment.
-
-## Step 7: Extract consumer templates
-
-The consumer `CLAUDE.md` template lives in `vov_veiled/`, which will be stripped in Step 9. Extract it now. `README.md` is tracked directly at the repo root (consumer-facing) and needs no extraction.
+Create the isolated clone that hosts every remaining step:
 
 ```
-cp Tools/rbk/vov_veiled/CLAUDE.consumer.md CLAUDE.md
+tt/rbw-MP.MarshalProofs.sh <absolute-target-dir>
 ```
 
-Note: `CLAUDE.md` is overwritten (replacing the development version).
+This clones the working repo to `<target-dir>/<repo-name>`, re-points the clone's `origin` at the real origin URL, carries `OPEN_SOURCE_UPSTREAM` across if configured, and copies the operator's station files and secrets (the payor OAuth credential the ceremony's tools need). The target directory must not already exist.
 
-Show the user what was copied. Wait for acknowledgment.
+**Everything from here runs inside the clone.** Restart Claude Code (or `cd`) in the clone directory before Step 5. The working repository is now untouched for the rest of the ceremony.
 
-## Step 8: Marshal zero
+Show the proof output and wait for user acknowledgment.
 
-Run marshal zero while the tabtarget is still available (it will be stripped in Step 9):
+## Step 5: Marshal zero (in the clone)
+
+Run marshal zero on the clone's main branch:
 
 ```
 tt/rbw-MZ.MarshalZeroes.sh
@@ -113,15 +93,55 @@ Marshal zero returns the regime tree to the blank onboarding-start template. It:
 - Blanks depot-scoped vessel fields (`RBRV_RELIQUARY`, `RBRV_IMAGE_*_ANCHOR`) in every `rbrv.env`
 - **Preserves** the Payor OAuth credential (`rbro.env`) — payor-scoped, survives a depot change. No credential files are deleted: the federation era mints short-lived mantle tokens, not RBRA keyfiles.
 
-Before mutating, marshal zero gates on a clean, pushed tree and a lint-clean, colophon-complete source set, and aborts if any fails. It then prompts for confirmation — the user types `zero` to proceed — and **auto-commits** the blanked state as a single "Marshal Zero" commit.
+**Why this must be the clone, and before the candidate cut.** `rbw-MZ` is a source-side tool, withheld from delivery (it is stripped in Step 10); it gates on a clean, pushed, lint-clean, colophon-complete tree, *before* any mutation. A candidate branch is unpushed by construction, so marshal zero can never gate-pass there — that is why it runs here, on the clone's main, before the cut. A fresh clone's `HEAD` equals its `origin/main` snapshot, so the pushed-state gate is satisfied by construction without pushing. Marshal zero then prompts for confirmation (type `zero`) and **auto-commits** the blanked state as a single "Marshal Zero" commit on the clone's main.
 
 Show `git log -1 --stat` to confirm the marshal-zero commit, then wait for user acknowledgment.
 
-## Step 9: Strip proprietary content
+## Step 6: Fetch upstream state
+
+- `git fetch OPEN_SOURCE_UPSTREAM`
+- If fetch fails, **ABORT** and ask user to verify remote configuration
+
+Show results and wait for user acknowledgment.
+
+## Step 7: Auto-detect next candidate branch
+
+- Find max batch from upstream: `git ls-remote --heads OPEN_SOURCE_UPSTREAM | grep 'candidate-'`
+- Find max batch from local branches
+- If batch exists upstream: new batch (previous was merged)
+- If batch not upstream: redo (increment revision)
+- Tell user which branch name was chosen and why
+
+Wait for user approval of the branch name.
+
+## Step 8: Create candidate branch and squash merge
+
+- Show commits that will be included: `git log OPEN_SOURCE_UPSTREAM/main..main --oneline`
+- `git checkout -b candidate-NNN-R OPEN_SOURCE_UPSTREAM/main`
+- Execute: `git merge --squash main` (main here is the clone's blanked main from Step 5)
+- **Resolve any merge conflicts to match the blanked main.** When the upstream base has drifted far from main, the squash can conflict — a file main deleted but upstream modified (resolve by `git rm <file>`), or a content conflict on a surviving file (repopulate main's version with `git show main:<file> > <file>` then `git add <file>`; do not use `git checkout`/`git restore`). Confirm `git diff --name-only --diff-filter=U` is empty.
+- Commit the squash so the working tree is clean for the steps that follow.
+- Show the merge result summary
+
+Wait for user acknowledgment.
+
+## Step 9: Extract consumer templates
+
+The consumer `CLAUDE.md` template lives in `vov_veiled/`, which will be stripped in Step 10. Extract it now. `README.md` is tracked directly at the repo root (consumer-facing) and needs no extraction.
+
+```
+cp Tools/rbk/vov_veiled/CLAUDE.consumer.md CLAUDE.md
+```
+
+Note: `CLAUDE.md` is overwritten (replacing the development version).
+
+Show the user what was copied. Wait for acknowledgment.
+
+## Step 10: Strip proprietary content
 
 Remove all proprietary content from the candidate branch. Present the full strip plan to the user, then execute after approval.
 
-**9a. Recursive glob — all vov_veiled directories:**
+**10a. Recursive glob — all vov_veiled directories:**
 ```
 git rm -rf --ignore-unmatch Tools/buk/vov_veiled/
 git rm -rf --ignore-unmatch Tools/cmk/vov_veiled/
@@ -132,7 +152,7 @@ git rm -rf --ignore-unmatch Tools/vok/vov_veiled/
 git rm -rf --ignore-unmatch Tools/vvk/vov_veiled/
 ```
 
-**9b. Whole directories — internal tools and infrastructure:**
+**10b. Whole directories — internal tools and infrastructure:**
 ```
 git rm -rf --ignore-unmatch .claude/
 git rm -rf --ignore-unmatch .idea/
@@ -155,13 +175,18 @@ git rm -rf --ignore-unmatch Tools/vslf-rbw/
 git rm -rf --ignore-unmatch Tools/vslk/
 git rm -rf --ignore-unmatch Tools/vvc/
 git rm -rf --ignore-unmatch Tools/vvk/
+git rm -rf --ignore-unmatch rbmm_moorings/rbmn_nodes/
+git rm -rf --ignore-unmatch rbmm_moorings/rbmu_users/
 ```
 
-**9c. Internal tabtargets (non-rbw, non-buw operational targets):**
+`rbmn_nodes/` (BURN remote-node profiles) and `rbmu_users/` (BURP user profiles) carry operator-specific machine identities; their reader code (the BURN/BURP apparatus) is already veiled, so nothing consumer-visible consumes them.
+
+**10c. Internal tabtargets (non-rbw, non-buw operational targets):**
 ```
 git rm -f --ignore-unmatch tt/apcw-*.sh
 git rm -f --ignore-unmatch tt/butctt.TestTarget.sh
 git rm -f --ignore-unmatch tt/ccck-s.ConnectShell.sh
+git rm -f --ignore-unmatch tt/jjw-*.sh
 git rm -f --ignore-unmatch tt/study-mpt.Run.*.sh
 git rm -f --ignore-unmatch tt/vow-*.sh
 git rm -f --ignore-unmatch tt/vslk-*.sh
@@ -171,9 +196,9 @@ git rm -f --ignore-unmatch tt/rbw-MP.MarshalProofs.sh
 git rm -f --ignore-unmatch tt/rbw-mR.PayorRazesManor.sh
 ```
 
-`rbw-mR` (manor raze) is internal release-ladder infra — a one-keystroke workforce-pool destroyer. The verb `rbgp_manor_raze` ships (it lives in the surviving `Tools/rbk/rbgp_payor.sh`); only the tabtarget accelerator is withheld, so consumers never get the accelerator.
+`tt/jjw-*.sh` are JJK fundus-test tabtargets whose workbench and launcher are stripped above. `rbw-mR` (manor raze) is internal release-ladder infra — a one-keystroke workforce-pool destroyer. The verb `rbgp_manor_raze` ships (it lives in the surviving `Tools/rbk/rbgp_payor.sh`); only the tabtarget accelerator is withheld, so consumers never get the accelerator.
 
-**9d. Internal launchers (for stripped workbenches):**
+**10d. Internal launchers (for stripped workbenches):**
 
 Launchers live under `rbmm_moorings/rbml_launchers/`. Only the `buw` and `rbw` launchers survive; strip every workbench launcher whose kit is stripped above.
 ```
@@ -186,18 +211,22 @@ git rm -f --ignore-unmatch rbmm_moorings/rbml_launchers/launcher.vslw_workbench.
 git rm -f --ignore-unmatch rbmm_moorings/rbml_launchers/launcher.vvw_workbench.sh
 ```
 
-**9e. Individual files:**
+**10e. Individual files:**
 ```
 git rm -f --ignore-unmatch podman-gateway-proposal.md
 git rm -f --ignore-unmatch brm_recipemuster.iml
 git rm -f --ignore-unmatch index.html .nojekyll
+git rm -f --ignore-unmatch .mcp.json
+git rm -f --ignore-unmatch wsl@rocket
 git rm -f --ignore-unmatch Tools/cccr.env
 git rm -f --ignore-unmatch Tools/crgr.render.sh
 git rm -f --ignore-unmatch Tools/crgv.validate.sh
 git rm -f --ignore-unmatch Tools/xxx_rbn.info.sh
 ```
 
-**9f. Stage the consumer templates and marshal zero changes:**
+`.mcp.json` configures the internal `vvx` MCP server (`Tools/vvk/`), which is stripped. `wsl@rocket` is a BURS station regime config for the `wsl@rocket` ssh test host (operator-site-specific: `BURS_USER`/`BURS_TINCTURE`/`BURS_LOG_DIR`), sitting at the repo root — a site-specific config of the same kind as the `rbmn_nodes/`/`rbmu_users/` profiles stripped in 10b, withheld for the same reason.
+
+**10f. Stage the consumer templates and marshal zero changes:**
 ```
 git add CLAUDE.md
 git add -u
@@ -208,21 +237,40 @@ After all removals, verify with `git ls-files` that no proprietary content remai
 ### What should survive after stripping:
 
 - `rbmm_moorings/` — the consumer-config tree (replaces the former `.buk/` + `.rbk/` homes):
-  - `burc.env` and the regime `.env` files (`rbrr.env`, `rbrd.env`, `rbrp.env`, `rbrw.env`) — already blanked by marshal zero in Step 8
-  - `rbmf_foedera/` — the foedus library (holds the federation regime `rbrf.env`)
-  - `rbml_launchers/` — only `launcher.buw_workbench.sh` and `launcher.rbw_workbench.sh` (the rest stripped in 9d)
+  - `burc.env` and the regime `.env` files (`rbrr.env`, `rbrd.env`, `rbrp.env`, `rbrw.env`) — already blanked by marshal zero in Step 5
+  - `rbmf_foedera/` — the foedus library (holds the federation regime: `rbef_entrada/rbrf.env` and the committed `rbef_keycloak/rbrf.env.template`)
+  - `rbml_launchers/` — only `launcher.buw_workbench.sh` and `launcher.rbw_workbench.sh` (the rest stripped in 10d)
   - `rbmv_vessels/` — vessel definitions and README (the former `rbev-vessels/`)
-- `CLAUDE.md` — consumer version (copied in Step 7)
+  - the per-nameplate dirs `ccyolo/ moriah/ nineveh/ pluml/ srjcl/ tadmor/ fdkyclk/` — **all ship**: README documents each as an example crucible with its own anchor, and the onboarding handbooks walk several. `srjcl/workspace/` (the Jupyter sample content) ships with it.
+- `Tools/rbk/rbxk_cli.sh` + `rbxk_keycloak.sh`, `tt/rbw-qjK.*` / `rbw-qjQ.*` / `rbw-cC.Charge.fdkyclk.sh` / `rbw-cQ.Quench.fdkyclk.sh`, the `fdkyclk` nameplate + `rbev-bottle-fdkyclk` vessel + `rbef_keycloak` foedus template — the whole Keycloak synthetic-federation test facility **ships** as RB's federation test surface.
+- `CLAUDE.md` — consumer version (copied in Step 9)
 - `README.md` — consumer-facing, tracked directly at the repo root
 - `LICENSE`
 - `rbm-abstract-drawio.svg`
+- `diagrams/` — the `rbdg*` PlantUML sources and rendered light/dark `.svg` pairs
 - `Tools/buk/` — all `.sh` files, `busc_shellcheckrc`, `README.md`, `buts/` test support (minus `vov_veiled/`)
-- `Tools/rbk/` — all `.sh` files (minus `vov_veiled/`)
+- `Tools/rbk/` — all `.sh` files (minus `vov_veiled/`), including the theurge crate `rbtd/`
 - `tt/` — `rbw-*` and `buw-*` tabtargets only (minus `rbw-MZ`, `rbw-MP` marshal tabtargets and `rbw-mR` manor-raze)
 
-**Unresolved — decide during the `git ls-files` review (Step 10):** the moorings tree also holds `rbmn_nodes/` (BURN remote-node profiles) and `rbmu_users/` (BURP user profiles), which carry operator-specific machine identities while their reader code (the BURN/BURP apparatus) is already veiled — candidates to strip, not survive. The per-nameplate regime dirs (`rbmm_moorings/<moniker>/rbrn.env`) likewise mix a shipped example (`tadmor`, used by onboarding) with site-specific crucibles. Confirm each disposition on the practice tree; do not assume the current set is release-correct.
+**Do NOT strip the fdkyclk caged credentials.** `rbmm_moorings/fdkyclk/fdkyclk-asserter-key.pem` (a real `BEGIN PRIVATE KEY`) and `fdkyclk-client-secret.txt` look alarming and a secret scanner will flag them, but they are **intentional committed test scaffolding** — the caged asserter keypair whose public half is baked into the realm's `publicKeySignatureVerifier`, and the confidential-client secret matching that realm (RBSFK "two-keys"). Git-ignoring or stripping them breaks the test-bed's determinism; the realm expects exactly those. The security posture is handled by documentation, not removal — see the fdkyclk caution in `README.md`. The realm's *own* signing key (the id-tokens Keycloak issues) is a separate, ephemeral key minted per charge and committed nowhere; the live `rbef_keycloak/rbrf.env` that snapshots it is git-ignored and never ships.
 
-## Step 10: Post-strip verification
+## Step 11: Regenerate derived files
+
+The strip removed tabtargets from `tt/`, and the committed tabtarget context (`Tools/rbk/claude-rbk-tabtarget-context.md`) is generated by enumerating `tt/` on disk — so it is now stale, and Step 12's freshness gate will reject it. Regenerate from the stripped tree:
+
+```
+tt/rbw-tb.Build.sh
+```
+
+This rewrites `claude-rbk-tabtarget-context.md` to reflect the surviving tabtarget set. (The Rust colophon consts `rbtdgc_consts.rs` are zipper-driven, not disk-driven, so they do not change — the withheld `rbw-MZ/MP/mR` colophons stay enrolled there, which is fine: Step 12's fast-qualify sweeps disk→registry, never registry→disk.) Stage the regenerated file:
+
+```
+git add Tools/rbk/claude-rbk-tabtarget-context.md
+```
+
+Show the user what regenerated and wait for acknowledgment.
+
+## Step 12: Post-strip verification
 
 Run fast qualification only on the stripped candidate tree:
 
@@ -230,13 +278,13 @@ Run fast qualification only on the stripped candidate tree:
 tt/rbw-tq.QualifyFast.sh
 ```
 
-This validates that stripping didn't break wiring — tabtargets resolve, colophons match surviving modules, nameplate preflight passes. No shellcheck, no test suite — the full `.complete.` test already passed pre-strip on main in Step 3, and the stripped tree lacks cloud infrastructure to run integration tests.
+This validates that stripping didn't break wiring — tabtargets resolve, colophons match surviving modules, the generated context and Rust consts are fresh, README anchors resolve, and nameplate preflight passes. No shellcheck, no test suite — the full `echelon` test already passed pre-strip in Step 3, and the stripped tree lacks cloud infrastructure to run integration tests.
 
 **If fast qualification fails, STOP.** This means something in the consumer-visible code depends on stripped content. Report the specific failure to the user — this is a real finding that must be investigated before proceeding.
 
 Show the result and wait for user acknowledgment.
 
-## Step 11: Generate commit
+## Step 13: Generate commit
 
 - Stage any remaining changes: `git add -u`
 - Analyze all changes for a consolidated commit message
@@ -244,11 +292,12 @@ Show the result and wait for user acknowledgment.
 - Create commit (no attribution footer — this is a release candidate)
 - Show `git log -1 --stat`
 
-## Step 12: Final review
+## Step 14: Final review
 
 Show the user:
 - The commit stat summary
-- Push instructions: `git push OPEN_SOURCE_UPSTREAM candidate-NNN-R`
+- Push instructions (from the clone): `git push OPEN_SOURCE_UPSTREAM candidate-NNN-R`
 - Reminder: inspect the result on GitHub before merging to main
+- Reminder: the proof clone is a throwaway — delete its directory once the candidate is pushed
 
 **STOP** — user reviews and pushes manually.

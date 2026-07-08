@@ -261,6 +261,7 @@ The [nineveh](#nineveh) [Nameplate](#Nameplate) pairs the [Sentry](#Sentry) with
 
 <a id="fdkyclk"></a>**[fdkyclk](#fdkyclk)** — Keycloak synthetic-federation test identity provider.
 The [fdkyclk](#fdkyclk) [Nameplate](#Nameplate) pairs the [Sentry](#Sentry) with a [Conjure](#Conjure)-mode Keycloak [Bottle](#Bottle) that mints programmatic OIDC tokens — the self-contained IdP the federation test-bed [Charges](#Charge) to prove federated sign-in end to end without a corporate identity tenant. No outbound network; workstation entry only.
+**Caution — synthetic test IdP, not a security boundary.** Its asserter signing key and client secret are committed in this repository *by design*, so the federation-admission path can be proven deterministically with no human and no corporate tenant. That makes fdkyclk safe only as an isolated local test-bed: never trust its issuer from a production federation, reuse its committed key/secret/realm in a real setup, or drop its `fdkyclk-test-` subject namespacing — anyone holding this repository can forge its assertions, so any production trust that admits them is trivially bypassable.
 
 ## <a id="ReleaseProcedure"></a>Release Procedure
 
