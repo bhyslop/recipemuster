@@ -178,55 +178,87 @@ rbge_api_enable() {
 
   buc_log_args "Enabling API ${z_api_service} in project ${z_project_id}"
 
-  local -r z_infix="api-enable-${z_api_service}"
   local -r z_enable_url="https://serviceusage.googleapis.com/v1/projects/${z_project_id}/services/${z_api_service}.googleapis.com:enable"
+  local -r z_poll_root="https://serviceusage.googleapis.com/v1"
 
-  # Attempt to enable the API
-  rbuh_json "POST" "${z_enable_url}" "${z_token}" "${z_infix}" ""
+  # Whole-attempt retry over the serviceusage INTERNAL flake — rivets RBr_4e7
+  # (signature) / RBr_d21 (membrane) at RBS0 rbtoe_api_enable.
+  local z_attempt=1
+  while :; do
+    local z_infix="api-enable-${z_api_service}-a${z_attempt}"
 
-  local z_code
-  z_code=$(rbuh_code_capture "${z_infix}") || buc_die "rbge_api_enable: failed to read HTTP code"
+    # Attempt to enable the API
+    rbuh_json "POST" "${z_enable_url}" "${z_token}" "${z_infix}" ""
 
-  case "${z_code}" in
-    200|201|204)
-      buc_log_args "API enable request successful (HTTP ${z_code})"
-      ;;
-    400)
-      # Check if already enabled
-      local z_err
-      z_err=$(rbge_error_message_capture "${z_infix}") || z_err="Unknown error"
-      if [[ "${z_err}" =~ already.enabled ]] || [[ "${z_err}" =~ "already enabled" ]]; then
-        buc_log_args "API ${z_api_service} already enabled"
-        return 0
-      else
+    local z_code
+    z_code=$(rbuh_code_capture "${z_infix}") || buc_die "rbge_api_enable: failed to read HTTP code"
+
+    case "${z_code}" in
+      200|201|204)
+        buc_log_args "API enable request successful (HTTP ${z_code})"
+        ;;
+      400)
+        # Check if already enabled
+        local z_err
+        z_err=$(rbge_error_message_capture "${z_infix}") || z_err="Unknown error"
+        if [[ "${z_err}" =~ already.enabled ]] || [[ "${z_err}" =~ "already enabled" ]]; then
+          buc_log_args "API ${z_api_service} already enabled"
+          return 0
+        else
+          buc_die "rbge_api_enable (HTTP ${z_code}): ${z_err}"
+        fi
+        ;;
+      *)
+        local z_err
+        z_err=$(rbge_error_message_capture "${z_infix}") || z_err="Unknown error"
         buc_die "rbge_api_enable (HTTP ${z_code}): ${z_err}"
-      fi
-      ;;
-    *)
-      local z_err
-      z_err=$(rbge_error_message_capture "${z_infix}") || z_err="Unknown error"
-      buc_die "rbge_api_enable (HTTP ${z_code}): ${z_err}"
-      ;;
-  esac
+        ;;
+    esac
 
-  # Check if this returned an LRO that needs polling
-  local z_operation_name
-  z_operation_name=$(rbuh_json_field_capture "${z_infix}" ".name") || z_operation_name=""
+    # Await the enable LRO inline when one was returned (non-LRO response -> done)
+    local z_final_infix="${z_infix}"
+    local z_operation_name
+    z_operation_name=$(rbuh_json_field_capture "${z_infix}" ".name") || z_operation_name=""
 
-  if test -n "${z_operation_name}"; then
-    buc_log_args "API enable returned LRO, polling for completion"
-    # Use the LRO polling mechanism
-    local -r z_poll_root="https://serviceusage.googleapis.com/v1"
-    rbge_lro_ok \
-      "API Enable ${z_api_service}" \
-      "${z_token}" \
-      "${z_enable_url}" \
-      "${z_infix}" \
-      "" \
-      ".name" \
-      "${z_poll_root}" \
-      ""
-  fi
+    if test -n "${z_operation_name}"; then
+      local z_done
+      z_done=$(rbuh_json_field_capture "${z_final_infix}" ".done") || z_done=""
+
+      local z_elapsed=0
+      while test "${z_done}" != "true"; do
+        test "${z_elapsed}" -lt "${RBGC_MAX_CONSISTENCY_SEC}" || buc_die "API Enable ${z_api_service}: timeout after ${z_elapsed}s"
+        sleep "${RBGC_EVENTUAL_CONSISTENCY_SEC}"
+        z_elapsed=$((z_elapsed + RBGC_EVENTUAL_CONSISTENCY_SEC))
+
+        z_final_infix="${z_infix}-poll-${z_elapsed}s"
+        rbuh_json "GET" "${z_poll_root}/${z_operation_name}" "${z_token}" "${z_final_infix}"
+
+        local z_poll_code
+        z_poll_code=$(rbuh_code_capture "${z_final_infix}") || z_poll_code=""
+        test "${z_poll_code}" = "200" || buc_die "API Enable ${z_api_service}: poll failed (HTTP ${z_poll_code})"
+
+        z_done=$(rbuh_json_field_capture "${z_final_infix}" ".done") || z_done=""
+      done
+    fi
+
+    local z_lro_error
+    z_lro_error=$(rbuh_json_field_capture "${z_final_infix}" '.error.message // empty') || z_lro_error=""
+
+    test -n "${z_lro_error}" || break
+
+    local z_lro_resp_file="${ZRBUH_PREFIX}${z_final_infix}${ZRBUH_POSTFIX_JSON}"
+    buc_warn "API Enable ${z_api_service}: LRO completed with error — response saved: ${z_lro_resp_file}"
+
+    local z_lro_code
+    z_lro_code=$(rbuh_json_field_capture "${z_final_infix}" '.error.code // empty') || z_lro_code=""
+
+    test "${z_lro_code}" = "13" || buc_die "API Enable ${z_api_service}: ${z_lro_error}"
+    test "${z_attempt}" -lt "${RBGC_API_ENABLE_RETRY_ATTEMPTS}" || buc_die "API Enable ${z_api_service}: INTERNAL persisted through ${z_attempt} attempts: ${z_lro_error}"
+
+    buc_warn "API Enable ${z_api_service}: transient INTERNAL (attempt ${z_attempt}/${RBGC_API_ENABLE_RETRY_ATTEMPTS}) — retrying in ${RBGC_API_ENABLE_RETRY_PAUSE_SEC}s"
+    sleep "${RBGC_API_ENABLE_RETRY_PAUSE_SEC}"
+    z_attempt=$((z_attempt + 1))
+  done
 
   # Verify API is enabled
   local -r z_verify_infix="api-verify-${z_api_service}"

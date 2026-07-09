@@ -4985,11 +4985,35 @@ A pattern that ensures a specified Google Cloud API is enabled in a project with
 . executes
 {rbbc_await}
 if Long Running Operation returned,
+. when the awaited operation completes bearing the RBr_4e7 signature,
+retries the whole enable-and-await attempt under the RBr_d21 membrane budget,
 . verifies API state is ENABLED via serviceusage.services.get,
 . triggers
 {rbbc_fatal}
-on unexpected errors (409 conflicts, permission denied, etc.),
+on unexpected errors (409 conflicts, permission denied, LRO errors outside the surveyed signature, exhausted membrane budget, etc.),
 . returns success when API is confirmed enabled.
++
+--
+[[RBr_4e7]]
+//axvc_spoor
+RBr_4e7::
+serviceusage `services:enable` may complete its operation `done:true` carrying `error.code` 13:
+`[service «api».googleapis.com encountered INTERNAL error: Help Token: «token»] with failed services [«api».googleapis.com]`,
+detail `PreconditionFailure` with violation subject `googleapis.com/160009`.
+Surveyed 2026-07-09 on a depot project seconds old (gauntlet fresh levy, `containeranalysis`),
+while the identical enable on a sibling fresh project had succeeded in 3s minutes earlier —
+a provisioning race inside Google, not a function of the request.
+
+[[RBr_d21]]
+//axvc_membrane
+RBr_d21::
+`rbge_api_enable` absorbs exactly the RBr_4e7 signature:
+a whole-attempt bounded retry (`RBGC_API_ENABLE_RETRY_ATTEMPTS` attempts, `RBGC_API_ENABLE_RETRY_PAUSE_SEC` pause),
+warning on every bend;
+any other LRO error, and the exhausted budget, still die fast.
+Retirement condition: when fresh-levy ladder runs no longer log the bend warning across a full rebaseline cycle,
+remove the retry loop and let the enable die on its first LRO error again.
+--
 
 
 [[rbtoe_oauth_refresh]]
