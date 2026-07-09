@@ -9136,9 +9136,10 @@
         "₢BsAAH",
         "₢BsAAL",
         "₢BsAAK",
-        "₢BsAAR"
+        "₢BsAAR",
+        "₢BsAAS"
       ],
-      "jjghn_next_pace_seed": "AAS",
+      "jjghn_next_pace_seed": "AAT",
       "jjghn_paces": {
         "₢BsAAA": {
           "jjgpn_tacks": [
@@ -9696,6 +9697,32 @@
               ],
               "jjgtn_silks": "carry-out-release",
               "jjgtn_basis": "591b68d"
+            }
+          ]
+        },
+        "₢BsAAS": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260709-1122",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Nominate the post-release heat and slate its opening paces from the items banked during this heat's grooming:",
+                "the test-infra denormalization arc — almanac recomposition informed by the cost data the fixture-expectation instrumentation accumulated across this heat's runs;",
+                "the inner×wrapper lift and consolidation slate from the 260623 audit (memo-20260623-theurge-test-consolidation-audit.md);",
+                "charge amortization across crucible fixtures;",
+                "graduating call-count violations from warning to error where a season of green runs proves them deterministic;",
+                "plus whatever the operator sweeps in from the itch file at nomination time.",
+                "",
+                "## Done when",
+                "",
+                "The new heat stands nominated with a paddock and opening paces slated; this heat's residue is dispositioned into it or explicitly declined.",
+                "",
+                "## Character",
+                "",
+                "Grooming and nomination session; operator-present judgment."
+              ],
+              "jjgtn_silks": "nominate-post-release-heat",
+              "jjgtn_basis": "5331882"
             }
           ]
         }
