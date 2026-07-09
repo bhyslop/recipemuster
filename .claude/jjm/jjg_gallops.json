@@ -5035,8 +5035,8 @@
         "₢BDAAj": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260709-1623",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260709-1632",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "## Character",
                 "Capture pace — durable record of musings to explore and expand.",
@@ -5112,7 +5112,7 @@
                 "or explicitly declined; this capture pace is then wrapped."
               ],
               "jjgtn_silks": "explore-and-expand-capture-and-display-musings",
-              "jjgtn_basis": "c1ff7f4"
+              "jjgtn_basis": "36da3c5"
             }
           ]
         },
