@@ -9475,7 +9475,8 @@
           "jjgpn_tacks": [
             {
               "jjgtn_ts": "260709-1043",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_opus",
               "jjgtn_text": [
                 "Qualify the proven rebaseline on non-macOS platforms:",
                 "run the suites that make sense against the STANDING freehold — no manor founding, no depot recreation, no project churn.",
@@ -9505,7 +9506,7 @@
                 "Long remote suite runs; operator-present for the per-host avow."
               ],
               "jjgtn_silks": "cross-platform-freehold-sweep",
-              "jjgtn_basis": "909d64c"
+              "jjgtn_basis": "a75ac25"
             }
           ]
         },
