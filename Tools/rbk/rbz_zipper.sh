@@ -79,7 +79,8 @@ zrbz_kindle() {
   # Manor — IdP federation founding (rbw-m). The payor founding trio —
   # affiance / jilt / gird (gird seats a fresh depot's first governor, the one
   # admission the payor wields) — plus instaurate, the ensure-exists manor-setup finisher
-  # (workforce pool + terrier bucket + polity folder), raze, its withheld
+  # (workforce pool + terrier bucket; the depot-grain polity folder is founded at
+  # depot levy), raze, its withheld
   # pool-destroyer inverse (internal release-ladder infra, stripped at delivery),
   # and escheat, the terrier-hygiene sweep (RBSME).
   # The M5 colophon regroup later gathers levy/establish into it.
@@ -88,9 +89,10 @@ zrbz_kindle() {
   buz_enroll RBZ_AFFIANCE_MANOR         "rbw-mA"  "${z_mod}" "rbgp_manor_affiance" "param1"  "Affiance a foedus to its IdP — seat the named foedus's provider and attribute mapping under the standing workforce pool (args: foedus)"
   buz_enroll RBZ_JILT_MANOR             "rbw-mJ"  "${z_mod}" "rbgp_manor_jilt"     "param1"  "Jilt one foedus — delete the named foedus's provider from the manor's standing workforce pool (the pool stands; args: foedus)"
   # instaurate is the ensure-exists manor-setup finisher: idempotently founds the one
-  # workforce pool (list-and-match drift guard), the terrier bucket, and the polity
-  # folder + grain IAM. The inverse of raze; ships to consumers (not withheld).
-  buz_enroll RBZ_INSTAURATE_MANOR            "rbw-mI"  "${z_mod}" "rbgp_manor_instaurate"    ""  "Instaurate the manor — idempotently ensure payor-project APIs, billing linkage, the workforce pool, terrier bucket, and polity folder (post-payor-guide manor-setup finisher)"
+  # workforce pool (list-and-match drift guard) and the terrier bucket. The depot-grain
+  # polity folder + grain IAM are founded at depot levy, not here. The inverse of raze;
+  # ships to consumers (not withheld).
+  buz_enroll RBZ_INSTAURATE_MANOR            "rbw-mI"  "${z_mod}" "rbgp_manor_instaurate"    ""  "Instaurate the manor — idempotently ensure payor-project APIs, billing linkage, the workforce pool, and terrier bucket (post-payor-guide manor-setup finisher)"
   # raze force-deletes the whole pool — the deliberate destroyer, distinct from
   # jilt's provider-level break. WITHHELD from delivery (prep-release Step 9c
   # strips the tabtarget); the verb ships in rbgp_payor.sh. Internal release-ladder

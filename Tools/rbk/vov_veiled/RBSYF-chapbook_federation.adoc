@@ -98,7 +98,8 @@ The manor's holdings — the commanded organization and the payor project.
 //axhca_actor axd_internal
 {rbtgi_manor} —
 the composite administrative holding;
-its scriptable substrate — pool, terrier bucket, polity folder — is where founding lands.
+its scriptable substrate — pool and terrier bucket — is where manor founding lands
+(the depot-grain polity folder is founded at depot levy).
 
 //axhca_actor axd_internal
 {rbtf_foedus} —
@@ -143,9 +144,10 @@ parley and polity-denial baseline-assert against a standing manor, and freehold-
 {rbtgo_manor_instaurate},
 the payor founds the manor's scriptable substrate:
 the one workforce pool ensured by list-and-match against its committed record
-({rbrw_regime}),
-the terrier bucket, and the per-polity managed folder —
-ensure-exists, idempotent, never destructive.
+({rbrw_regime})
+and the terrier bucket —
+ensure-exists, idempotent, never destructive
+(the depot-grain polity folder is founded at depot levy).
 
 //axhci_interaction axd_attended axd_foreign
 . {rbtr_payor} {rbtf_census} — at the census's own console,

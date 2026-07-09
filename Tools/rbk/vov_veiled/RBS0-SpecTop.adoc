@@ -1242,11 +1242,13 @@ include::RBSMJ-manor_jilt.adoc[]
 Instaurates the scriptable substrate of the
 {rbtgi_manor}
 ({rbtgog_payor}):
-the one workforce pool (list-and-match ensure-exists), the
+the one workforce pool (list-and-match ensure-exists) and the
 {rbtf_terrier}
-bucket, and the per-polity managed folder with its grain IAM — the manor-setup finisher,
+bucket — the manor-setup finisher,
 the ensure-exists inverse of
 {rbtgo_manor_raze}.
+The depot-grain polity folder with its grain IAM is founded at
+{rbtgo_depot_levy}.
 
 //axvd_cartouche axd_normative
 include::RBSMS-manor_instaurate.adoc[]

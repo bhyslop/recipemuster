@@ -236,10 +236,43 @@ set is heterogeneous — project roles, `serviceAccountUser` on
 and on the mantle itself, and the complete Artifact Registry repo policy — which is why it is a function, not a flat list.)
 
 //axhos_step
+. *Found the polity terrier folder and its grain IAM* (depot-grain, payor-provisioned):
+.. NOTE: The
+{rbtf_terrier}
+bucket is manor-grain and already stands, founded by
+{rbtgo_manor_instaurate};
+the per-polity managed folder inside it is named by this depot and grants the fresh governor
+{rbtf_mantle}
+its terrier bindings — depot-grain resource IAM, founded here so the settle gate below stays true.
+The folder lives inside the payor-project bucket, so its creation and grain IAM ride the levy's payor credential (the folder-step credential boundary);
+only the runtime
+{rbtf_muniment}
+writes into the standing folder are governor-credentialed (the admission verbs).
+An absent bucket fails the levy loud — the remedy is the finisher, then re-levy.
+.. {rbbc_submit}
+link:https://cloud.google.com/storage/docs/json_api/v1/managedFolders/insert[managedFolders.insert] for the polity folder named `«DEPOT_PROJECT_ID»/` in the terrier bucket.
+.. {rbbc_require}
+the folder present. *Ensure-only* — an already-present folder (HTTP `409`) is left as it stands; the levy never empties a standing folder.
+.. {rbbc_submit}
+a folder-scoped
+link:https://cloud.google.com/storage/docs/json_api/v1/managedFolders/setIamPolicy[managedFolders.setIamPolicy]
+granting the governor
+{rbtf_mantle}
+`roles/storage.objectAdmin` on its own polity folder (own-polity write).
+.. {rbbc_submit}
+a bucket-level
+link:https://cloud.google.com/storage/docs/json_api/v1/buckets/setIamPolicy[buckets.setIamPolicy]
+granting the governor
+{rbtf_mantle}
+`roles/storage.objectViewer` on the terrier bucket (manor-wide read).
+.. {rbbc_require}
+both bindings present via a getIamPolicy read-back (etag read-modify-write, idempotent).
+
+//axhos_step
 . *Settle Gate — freeze the depot's resource IAM*:
 .. NOTE: Every resource binding the depot will carry is now written —
 {rbtr_mason}'s
-grants, the Cloud Build agent impersonation, and the three mantle capability-sets.
+grants, the Cloud Build agent impersonation, the three mantle capability-sets, and the governor's terrier grain bindings.
 This gate is the freeze.
 Past it the depot's resource IAM is settled once and no hot path mutates it again: the everyday admission verbs
 ({rbtf_brevet},

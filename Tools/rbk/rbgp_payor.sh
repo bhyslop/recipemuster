@@ -1047,7 +1047,7 @@ rbgp_payor_install() {
   buc_info ""
   if test "${z_config_ok}" = "true"; then
     buc_info "Next: instaurate the manor — idempotently enables payor-project APIs, links billing, and founds the manor substrate"
-    buc_info "(set RBRD_DEPOT_MONIKER and RBRD_GCP_REGION in rbrd.env first — the polity folder is named by the depot):"
+    buc_info "(set RBRD_DEPOT_MONIKER and RBRD_GCP_REGION in rbrd.env first — the depot regime is enforced and the terrier bucket's region rides RBRD_GCP_REGION):"
     buc_tabtarget "${RBZ_INSTAURATE_MANOR}"
     buc_info "Then levy the depot:"
     buc_tabtarget "${RBZ_LEVY_DEPOT}"
@@ -1585,16 +1585,16 @@ rbgp_manor_raze() {
 # credential boundary), then founds three things: the org-level workforcePoolAdmin grant
 # (spike F1), the ONE workforce pool (via a list-and-match drift guard, never a bare
 # get-by-id — a drifted RBRW_WORKFORCE_POOL_ID must surface, not silently spawn a
-# second empty pool), the terrier bucket (manor-grain, in the payor project), and the
-# per-polity managed folder + grain IAM (depot-grain, but payor-provisioned since the
-# folder lives inside the payor-project bucket). Ensure-exists throughout — created when
-# absent, reconciled when present, NEVER deleted (clearing the ground is manor_raze).
-# Reads the pool from RBRW and the polity/depot coordinates from RBRD (enforced by the
-# caller's furnish); RBRP supplies the payor project and operator email.
+# second empty pool), and the terrier bucket (manor-grain, in the payor project). The
+# depot-grain polity folder + grain IAM are founded at depot levy, not here. Ensure-
+# exists throughout — created when absent, reconciled when present, NEVER deleted
+# (clearing the ground is manor_raze). Reads the pool from RBRW and the bucket region
+# from RBRD (enforced by the caller's furnish); RBRP supplies the payor project and
+# operator email.
 rbgp_manor_instaurate() {
   zrbgp_sentinel
 
-  buc_doc_brief "Instaurate the manor — idempotently ensure the workforce pool, terrier bucket, and polity folder (post-payor-guide manor-setup finisher)"
+  buc_doc_brief "Instaurate the manor — idempotently ensure the workforce pool and terrier bucket (post-payor-guide manor-setup finisher)"
   buc_doc_shown || return 0
 
   local -r z_org="organizations/${RBRW_ORG_ID}"
@@ -1844,49 +1844,13 @@ rbgp_manor_instaurate() {
   fi
 
   # === Ensure the terrier bucket (manor-grain, in the payor project) ===
+  # Bucket only: the per-polity managed folder inside it is depot-grain — named by
+  # a depot, granted to that depot's governor mantle — and is founded at depot levy.
   buc_step "Ensure terrier bucket ${RBGP_TERRIER_BUCKET} in payor project ${RBRP_PAYOR_PROJECT_ID}"
   rbgb_bucket_ensure "${z_token}" "${RBRP_PAYOR_PROJECT_ID}" "${RBGP_TERRIER_BUCKET}" "${RBRD_GCP_REGION}"
 
-  # === Ensure the per-polity managed folder + grain IAM (depot-grain, ensure-only) ===
-  # The folder is named by the depot it homes and lives inside the payor-project
-  # bucket, so its creation and grain IAM need the payor credential (the folder-step
-  # credential boundary). Ensure-only — unlike the interim scaffold's destroy-then-
-  # create, the finisher never empties a standing folder.
-  local -r z_gov_mantle_email="${RBCC_account_mantle_governor}@${RBGD_SA_EMAIL_FULL}"
-  local -r z_folder="${RBDC_DEPOT_PROJECT_ID}/"
-
-  buc_step "Ensure the polity managed folder ${z_folder} (ensure-only)"
-  rbgb_managed_folder_ensure "${z_token}" "${RBGP_TERRIER_BUCKET}" "${z_folder}"
-
-  buc_step 'Grant folder-scoped write to the governor mantle (own-polity)'
-  rbgb_managed_folder_add_iam_role "${z_token}" "${RBGP_TERRIER_BUCKET}" "${z_folder}" \
-    "${z_gov_mantle_email}" "${RBGC_ROLE_STORAGE_OBJECT_ADMIN}"
-
-  buc_step 'Grant bucket-level read to the governor mantle (manor-wide)'
-  rbgi_add_bucket_iam_role "${z_token}" "${RBGP_TERRIER_BUCKET}" "${z_gov_mantle_email}" "${RBGC_ROLE_STORAGE_OBJECT_VIEWER}"
-
-  buc_step 'Verify bucket-level read via getIamPolicy read-back'
-  rbuh_json "GET" \
-    "${RBGC_API_BASE_GCS}/b/${RBGP_TERRIER_BUCKET}/iam?optionsRequestedPolicyVersion=3" \
-    "${z_token}" "instaurate_terrier_bucket_iam"
-  rbuh_require_ok "Read terrier bucket IAM policy" "instaurate_terrier_bucket_iam"
-  zrbgp_recognosce_require_binding "instaurate_terrier_bucket_iam" \
-    "${RBGC_ROLE_STORAGE_OBJECT_VIEWER}" "serviceAccount:${z_gov_mantle_email}" \
-    "terrier bucket (governor manor-wide read)"
-
-  buc_step 'Verify folder-scoped write via getIamPolicy read-back'
-  local z_folder_enc
-  z_folder_enc=$(rbuh_urlencode_capture "${z_folder}") || buc_die "Failed to encode terrier folder"
-  rbuh_json "GET" \
-    "${RBGC_API_BASE_GCS}/b/${RBGP_TERRIER_BUCKET}/managedFolders/${z_folder_enc}/iam?optionsRequestedPolicyVersion=3" \
-    "${z_token}" "instaurate_terrier_folder_iam"
-  rbuh_require_ok "Read terrier folder IAM policy" "instaurate_terrier_folder_iam"
-  zrbgp_recognosce_require_binding "instaurate_terrier_folder_iam" \
-    "${RBGC_ROLE_STORAGE_OBJECT_ADMIN}" "serviceAccount:${z_gov_mantle_email}" \
-    "terrier folder (governor own-polity write)"
-
   buc_step 'Manor instaurated'
-  buc_success "Manor instaurated: workforce pool ${z_pool_id} under ${z_org}, terrier bucket ${RBGP_TERRIER_BUCKET}, polity folder ${z_folder}"
+  buc_success "Manor instaurated: workforce pool ${z_pool_id} under ${z_org}, terrier bucket ${RBGP_TERRIER_BUCKET}"
   buc_info "A foedus is now affianceable under the standing pool (rbw-mA); raze (rbw-mR) is the inverse teardown"
 }
 
@@ -2488,10 +2452,51 @@ rbgp_depot_levy() {
   zrbgp_establish_mantle_sa "${z_token}" "${RBCC_account_mantle_retriever}" "retriever"
   rbgw_grant_retriever_capabilities "${z_token}" "${z_ret_mantle_email}"
 
+  # === Found the polity terrier folder + grain IAM (depot-grain, ensure-only) ===
+  # The polity managed folder is named by this depot and grants the fresh governor
+  # mantle its terrier bindings (own-polity write, manor-wide read) — depot-grain
+  # resource IAM, founded here so the settle gate below stays true. The folder
+  # lives inside the payor-project terrier bucket, so its creation and grain IAM
+  # ride the payor credential in hand (the folder-step credential boundary). The
+  # bucket itself is manor-grain, founded by the instaurate finisher — an absent
+  # bucket fails loud here, and the remedy is the finisher, then re-levy.
+  local -r z_terrier_folder="${RBDC_DEPOT_PROJECT_ID}/"
+
+  buc_step "Ensure the polity managed folder ${z_terrier_folder} (ensure-only)"
+  rbgb_managed_folder_ensure "${z_token}" "${RBGP_TERRIER_BUCKET}" "${z_terrier_folder}"
+
+  buc_step 'Grant folder-scoped write to the governor mantle (own-polity)'
+  rbgb_managed_folder_add_iam_role "${z_token}" "${RBGP_TERRIER_BUCKET}" "${z_terrier_folder}" \
+    "${z_gov_mantle_email}" "${RBGC_ROLE_STORAGE_OBJECT_ADMIN}"
+
+  buc_step 'Grant bucket-level read to the governor mantle (manor-wide)'
+  rbgi_add_bucket_iam_role "${z_token}" "${RBGP_TERRIER_BUCKET}" "${z_gov_mantle_email}" "${RBGC_ROLE_STORAGE_OBJECT_VIEWER}"
+
+  buc_step 'Verify bucket-level read via getIamPolicy read-back'
+  rbuh_json "GET" \
+    "${RBGC_API_BASE_GCS}/b/${RBGP_TERRIER_BUCKET}/iam?optionsRequestedPolicyVersion=3" \
+    "${z_token}" "levy_terrier_bucket_iam"
+  rbuh_require_ok "Read terrier bucket IAM policy" "levy_terrier_bucket_iam"
+  zrbgp_recognosce_require_binding "levy_terrier_bucket_iam" \
+    "${RBGC_ROLE_STORAGE_OBJECT_VIEWER}" "serviceAccount:${z_gov_mantle_email}" \
+    "terrier bucket (governor manor-wide read)"
+
+  buc_step 'Verify folder-scoped write via getIamPolicy read-back'
+  local z_terrier_folder_enc
+  z_terrier_folder_enc=$(rbuh_urlencode_capture "${z_terrier_folder}") || buc_die "Failed to encode terrier folder"
+  rbuh_json "GET" \
+    "${RBGC_API_BASE_GCS}/b/${RBGP_TERRIER_BUCKET}/managedFolders/${z_terrier_folder_enc}/iam?optionsRequestedPolicyVersion=3" \
+    "${z_token}" "levy_terrier_folder_iam"
+  rbuh_require_ok "Read terrier folder IAM policy" "levy_terrier_folder_iam"
+  zrbgp_recognosce_require_binding "levy_terrier_folder_iam" \
+    "${RBGC_ROLE_STORAGE_OBJECT_ADMIN}" "serviceAccount:${z_gov_mantle_email}" \
+    "terrier folder (governor own-polity write)"
+
   buc_step 'Settle gate — depot resource IAM frozen'
-  # Every resource binding the depot will carry is now written and self-confirmed by
-  # each capability-set grant; this is the freeze. Post-levy admission writes only the
-  # per-citizen tokenCreator + serviceUsageConsumer bindings, never a resource binding.
+  # Every resource binding the depot will carry is now written and self-confirmed —
+  # the three capability-set grants and the governor's terrier grain bindings; this
+  # is the freeze. Post-levy admission writes only the per-citizen tokenCreator +
+  # serviceUsageConsumer bindings, never a resource binding.
 
   zrbgp_enable_ar_audit_logs "${z_token}"
 

@@ -102,8 +102,9 @@ zrbgp_furnish() {
   # instead of the depot/repo regimes. manor_raze (the pool-destroyer) touches
   # only the pool, so it enforces RBRW alone — it reads no provider field.
   # manor_instaurate (the manor-setup finisher) founds the pool AND the payor-project
-  # terrier bucket plus the depot-named polity folder, so it enforces RBRW (pool)
-  # + RBRD (the depot coordinates the folder is named by) — no provider, no repo.
+  # terrier bucket, so it enforces RBRW (pool) + RBRD (the bucket's region rides
+  # RBRD_GCP_REGION) — no provider, no repo; the depot-grain polity folder is
+  # founded at depot levy, not here.
   # The polity admission verbs
   # (brevet/unseat/attaint/rehearse) work a specific depot AND don the governor
   # mantle, so they enforce the federation regimes (RBRW pool id + RBRF provider +

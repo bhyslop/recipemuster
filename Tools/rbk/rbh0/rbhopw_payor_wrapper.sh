@@ -81,10 +81,10 @@ rbho_payor_handbook() {
   buh_e
   buh_line "One idempotent command readies the ${RBYC_MANORS} scriptable"
   buh_line "substrate: it enables the payor-project APIs, links billing, seats"
-  buh_line "the workforce identity pool, and provisions the terrier bucket"
-  buh_line "with its polity folder. Set RBRD_DEPOT_MONIKER and RBRD_GCP_REGION"
-  buh_line "in ${RBYC_RBRD} first — the polity folder is named by the ${RBYC_DEPOT}"
-  buh_line "it will home. Safe to re-run at any time (ensure-exists):"
+  buh_line "the workforce identity pool, and provisions the terrier bucket."
+  buh_line "Set RBRD_DEPOT_MONIKER and RBRD_GCP_REGION in ${RBYC_RBRD} first —"
+  buh_line "the depot regime is enforced and the bucket's region rides"
+  buh_line "RBRD_GCP_REGION. Safe to re-run at any time (ensure-exists):"
   buh_e
   buh_tt  "  " "${RBZ_INSTAURATE_MANOR}"
   buh_e
