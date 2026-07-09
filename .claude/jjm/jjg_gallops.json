@@ -9163,23 +9163,22 @@
         "₢BsAAB": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260709-1043",
-              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_ts": "260709-1758",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_tier": "jjgde_sonnet",
               "jjgtn_text": [
-                "Run the freehold-ITERATING release ladders against the standing freehold, in rising footprint: skirmish, dogfight, parley.",
-                "blockade is deliberately omitted: blockade ⊆ skirmish exactly (credential-readiness and the moriah crucible are both skirmish members), so its coverage rides the skirmish run — the paddock's fixture-grain cinch.",
+                "Run the freehold-ITERATING release ladders against the standing freehold, in rising footprint: skirmish, dogfight, blockade, parley.",
                 "These reuse the standing depot and trust and must precede anything that destroys or rebuilds them (heat cinch).",
-                "Per-suite preconditions are the almanac's: standing depot levied; moriah hallmark ordained (skirmish charges it); the freehold subject brevetted onto retriever for parley.",
+                "Per-suite preconditions are the almanac's: standing depot levied; moriah hallmark ordained for blockade; the freehold subject brevetted onto retriever for parley.",
                 "",
                 "## Done when",
-                "All three ladders green against the standing freehold; any failure dispositioned with the operator.",
+                "All four ladders green against the standing freehold; any failure dispositioned with the operator.",
                 "",
                 "## Character",
                 "Long suite runs; freehold state preserved throughout."
               ],
               "jjgtn_silks": "freehold-ladder-green",
-              "jjgtn_basis": "fbceaf4"
+              "jjgtn_basis": "51ba4eb"
             }
           ]
         },
