@@ -9271,9 +9271,8 @@
         "₢BsAAC": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260709-2306",
-              "jjgtn_state": "jjgte_bridled",
-              "jjgtn_tier": "jjgde_fable",
+              "jjgtn_ts": "260709-2359",
+              "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "Run the full release-qualification ladder: tt/rbw-ts.TestSuite.gauntlet.sh — marshal-zero state through depot-lifecycle, freehold-establish, onboarding-sequence, reveille fixtures, crucibles.",
                 "Run the gauntlet at most once per chat:",
@@ -9281,10 +9280,19 @@
                 "and the next attempt starts as a fresh mount of this pace.",
                 "This is the heat's first deliberately destructive stage: it levies and unmakes real projects, producing real depot churn — the orphan-arm proof pace consumes that churn immediately after.",
                 "Begin by marshal-zeroing and pushing: the ladder's attestation gates on committed-blank moorings and a pushed HEAD (BURE_CONFIRM=skip drives the confirm; marshal-zero self-commits).",
-                "A prior attempt caught and fixed the fresh-levy founding gap — depot levy now founds the polity terrier folder + governor grain IAM (moved out of instaurate; RBSMS/RBSMF/RBSTN/RBS0 re-pointed) — so the rerun is the live proof of that fix; a brevet 403 on storage.objects.create means it regressed.",
-                "A second attempt died at freehold-establish on Google's fresh-project serviceusage INTERNAL flake; rbge_api_enable now absorbs exactly that signature with a bounded warned retry (rivets RBr_4e7/RBr_d21 at RBS0 rbtoe_api_enable) — a bend warning during levy is the membrane working; any other LRO error is not.",
-                "The first governor-don after gird may still hit IAM propagation lag (brevet exit 109 observed once, healthy sitting); a single direct rbw-pB retry disambiguates transient from regression before deeper digging.",
-                "Stranded canest depots (…100002, …100005) are deliberate terrier churn for the escheat pace — leave them.",
+                "Attempt 1 caught and fixed the fresh-levy founding gap — depot levy now founds the polity terrier folder + governor grain IAM;",
+                "attempt 3's fresh levy live-proved the fix (brevet engrossed the muniment clean);",
+                "a brevet 403 on storage.objects.create means it regressed.",
+                "Attempt 2 died at freehold-establish on Google's fresh-project serviceusage INTERNAL flake;",
+                "rbge_api_enable absorbs exactly that signature with a bounded warned retry (rivets RBr_4e7/RBr_d21 at RBS0 rbtoe_api_enable) —",
+                "a bend warning during levy is the membrane working; any other LRO error is not.",
+                "Attempt 3 died at freehold-establish on the don-after-fresh-admission Class-C race",
+                "(brevet-don-director exit 109 seconds after gird, healthy sitting; the prescribed direct rbw-pB retry ran clean, proving transient);",
+                "the theurge now absorbs exactly that signature — rbtdrk_invoke_admission_settled re-invokes on exit 109 under the shared RBSCIP budget",
+                "(rivets RBr_7a9/RBr_3f4 at RBSCIP) —",
+                "a propagation-bend log line during freehold-establish is the membrane working;",
+                "a 109 failure now means the budget exhausted: a real admission deficit, not lag.",
+                "Stranded canest depots (…100002, …100005, …100009) are deliberate terrier churn for the escheat pace — leave them.",
                 "",
                 "## Done when",
                 "Gauntlet green end-to-end; the unmade depots' terrier churn left standing for the next pace (do not escheat first).",
@@ -9293,7 +9301,7 @@
                 "The longest ladder; operator-present for quota and billing surprises."
               ],
               "jjgtn_silks": "gauntlet-green",
-              "jjgtn_basis": "0820baa"
+              "jjgtn_basis": "192c87e"
             }
           ]
         },
