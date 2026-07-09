@@ -12,6 +12,9 @@ use std::ffi::OsString;
 use std::path::PathBuf;
 use std::process::ExitCode;
 
+// RCG output discipline: all emission via vvc::vvco_Output — no direct println!/eprintln!
+use vvc::{vvco_Output, vvco_err, vvco_out};
+
 #[derive(Parser)]
 #[command(name = "vvr")]
 #[command(version)]
@@ -234,8 +237,8 @@ fn run_guard(args: GuardArgs) -> i32 {
         limit: args.limit,
         warn: args.warn,
     };
-    let mut output = vvc::vvco_Output::console();
-    vvc::guard(&vvc_args, None, &mut output)
+    let mut out = vvco_Output::console();
+    vvc::guard(&vvc_args, None, &mut out)
 }
 
 /// Run commit command using vvc
@@ -248,8 +251,8 @@ fn run_commit(args: CommitArgs) -> i32 {
         size_limit: vvc::VVCG_SIZE_LIMIT,
         warn_limit: vvc::VVCG_WARN_LIMIT,
     };
-    let mut output = vvc::vvco_Output::console();
-    vvc::commit(&vvc_args, &mut output)
+    let mut out = vvco_Output::console();
+    vvc::commit(&vvc_args, &mut out)
 }
 
 /// Diagnostic: derive and print this process's emblem target — the iTerm window
@@ -258,8 +261,10 @@ fn run_commit(args: CommitArgs) -> i32 {
 /// ITERM_SESSION_ID actually inherits into a running vvx (the same Claude Code
 /// child chain the MCP server rides), rather than only into a manual proof.
 fn run_emblem_probe() -> i32 {
+    let mut out = vvco_Output::console();
     let raw = std::env::var("ITERM_SESSION_ID");
-    println!(
+    vvco_out!(
+        out,
         "ITERM_SESSION_ID: {}",
         match &raw {
             Ok(v) => v.as_str(),
@@ -271,58 +276,60 @@ fn run_emblem_probe() -> i32 {
     {
         match jjk::jjrm_mcp::jjrm_iterm_window_ref() {
             Some(window_ref) => {
-                println!("window reference: {}", window_ref);
+                vvco_out!(out, "window reference: {}", window_ref);
                 match jjk::jjrm_mcp::jjrm_emblem_root() {
                     Some(root) => {
                         let file = jjk::jjrm_mcp::jjrm_emblem_path(&root, &window_ref);
-                        println!("emblem root:      {}", root.display());
-                        println!("emblem file:      {}", file.display());
+                        vvco_out!(out, "emblem root:      {}", root.display());
+                        vvco_out!(out, "emblem file:      {}", file.display());
                     }
-                    None => println!("emblem root:      (skipped — HOME unset)"),
+                    None => vvco_out!(out, "emblem root:      (skipped — HOME unset)"),
                 }
             }
-            None => println!("window reference: (skipped — no usable iTerm session)"),
+            None => vvco_out!(out, "window reference: (skipped — no usable iTerm session)"),
         }
         0
     }
     #[cfg(not(feature = "jjk"))]
     {
-        eprintln!("vvx_emblem_probe: error: jjk feature not enabled");
+        vvco_err!(out, "vvx_emblem_probe: error: jjk feature not enabled");
         1
     }
 }
 
 /// Run MCP stdio server
 async fn run_mcp() -> i32 {
+    let mut out = vvco_Output::console();
     #[cfg(feature = "jjk")]
     {
         match jjk::jjrm_mcp::jjrm_serve_stdio().await {
             Ok(()) => 0,
             Err(e) => {
-                eprintln!("mcp: error: {}", e);
+                vvco_err!(out, "mcp: error: {}", e);
                 1
             }
         }
     }
     #[cfg(not(feature = "jjk"))]
     {
-        eprintln!("mcp: error: jjk feature not enabled");
+        vvco_err!(out, "mcp: error: jjk feature not enabled");
         1
     }
 }
 
 /// Dispatch external subcommands to appropriate kit CLIs
 async fn dispatch_external(args: Vec<OsString>) -> i32 {
+    let mut out = vvco_Output::console();
     if args.is_empty() {
-        eprintln!("vvx: error: no subcommand provided");
+        vvco_err!(out, "vvx: error: no subcommand provided");
         return 1;
     }
 
     let cmd_name = args[0].to_string_lossy();
 
     // Unknown external subcommand
-    eprintln!("vvx: error: unknown command '{}'", cmd_name);
-    eprintln!("Run 'vvx --help' for available commands");
+    vvco_err!(out, "vvx: error: unknown command '{}'", cmd_name);
+    vvco_err!(out, "Run 'vvx --help' for available commands");
     1
 }
 
@@ -332,6 +339,8 @@ const LOCK_REF: &str = "refs/vvg/locks/vvx";
 /// Force-break a stuck lock
 fn run_unlock() -> i32 {
     use std::process::Command;
+
+    let mut out = vvco_Output::console();
 
     // Check if lock exists
     let check = Command::new("git")
@@ -347,27 +356,27 @@ fn run_unlock() -> i32 {
 
             match delete {
                 Ok(output) if output.status.success() => {
-                    eprintln!("unlock: lock broken successfully");
+                    vvco_err!(out, "unlock: lock broken successfully");
                     0
                 }
                 Ok(output) => {
-                    eprintln!("unlock: error: failed to delete lock: {}",
+                    vvco_err!(out, "unlock: error: failed to delete lock: {}",
                         String::from_utf8_lossy(&output.stderr));
                     1
                 }
                 Err(e) => {
-                    eprintln!("unlock: error: {}", e);
+                    vvco_err!(out, "unlock: error: {}", e);
                     1
                 }
             }
         }
         Ok(_) => {
             // Lock doesn't exist
-            eprintln!("unlock: no lock held");
+            vvco_err!(out, "unlock: no lock held");
             0
         }
         Err(e) => {
-            eprintln!("unlock: error checking lock: {}", e);
+            vvco_err!(out, "unlock: error checking lock: {}", e);
             1
         }
     }
@@ -376,7 +385,8 @@ fn run_unlock() -> i32 {
 fn run_push(args: PushArgs) -> i32 {
     use std::process::Command;
 
-    eprintln!("push: acquiring lock...");
+    let mut out = vvco_Output::console();
+    vvco_err!(out, "push: acquiring lock...");
     let head_output = Command::new("git")
         .args(["rev-parse", "HEAD"])
         .output();
@@ -397,7 +407,7 @@ fn run_push(args: PushArgs) -> i32 {
             // Lock acquired
         }
         _ => {
-            eprintln!("push: error: Another operation in progress - lock held");
+            vvco_err!(out, "push: error: Another operation in progress - lock held");
             return 1;
         }
     }
@@ -410,11 +420,11 @@ fn run_push(args: PushArgs) -> i32 {
 
     match result {
         Ok(()) => {
-            eprintln!("push: success");
+            vvco_err!(out, "push: success");
             0
         }
         Err(e) => {
-            eprintln!("push: error: {}", e);
+            vvco_err!(out, "push: error: {}", e);
             1
         }
     }
@@ -422,6 +432,8 @@ fn run_push(args: PushArgs) -> i32 {
 
 fn run_push_workflow(args: &PushArgs) -> Result<(), String> {
     use std::process::Command;
+
+    let mut out = vvco_Output::console();
 
     let branch = match &args.branch {
         Some(b) => b.clone(),
@@ -439,7 +451,7 @@ fn run_push_workflow(args: &PushArgs) -> Result<(), String> {
         }
     };
 
-    eprintln!("push: pushing {} to {}", branch, args.remote);
+    vvco_err!(out, "push: pushing {} to {}", branch, args.remote);
 
     let mut push_args = vec!["push", &args.remote, &branch];
     if args.force {
@@ -461,10 +473,11 @@ fn run_push_workflow(args: &PushArgs) -> Result<(), String> {
 
 /// Run release_collect command
 fn run_release_collect(args: ReleaseCollectArgs) -> i32 {
-    eprintln!("release_collect: collecting assets...");
-    eprintln!("  staging: {}", args.staging.display());
-    eprintln!("  tools_dir: {}", args.tools_dir.display());
-    eprintln!("  install_script: {}", args.install_script.display());
+    let mut out = vvco_Output::console();
+    vvco_err!(out, "release_collect: collecting assets...");
+    vvco_err!(out, "  staging: {}", args.staging.display());
+    vvco_err!(out, "  tools_dir: {}", args.tools_dir.display());
+    vvco_err!(out, "  install_script: {}", args.install_script.display());
 
     // Parse comma-separated kit list
     let managed_kits: Vec<String> = args.managed_kits
@@ -486,12 +499,12 @@ fn run_release_collect(args: ReleaseCollectArgs) -> i32 {
                 .collect();
             output.insert("kit_counts".to_string(), serde_json::Value::Object(kit_counts));
 
-            println!("{}", serde_json::to_string_pretty(&serde_json::Value::Object(output)).unwrap());
-            eprintln!("release_collect: success - {} files collected", result.total_files);
+            vvco_out!(out, "{}", serde_json::to_string_pretty(&serde_json::Value::Object(output)).unwrap());
+            vvco_err!(out, "release_collect: success - {} files collected", result.total_files);
             0
         }
         Err(e) => {
-            eprintln!("release_collect: error: {}", e);
+            vvco_err!(out, "release_collect: error: {}", e);
             1
         }
     }
@@ -499,10 +512,11 @@ fn run_release_collect(args: ReleaseCollectArgs) -> i32 {
 
 /// Run release_brand command
 fn run_release_brand(args: ReleaseBrandArgs) -> i32 {
-    eprintln!("release_brand: branding staging...");
-    eprintln!("  staging: {}", args.staging.display());
-    eprintln!("  registry: {}", args.registry.display());
-    eprintln!("  commit: {}", args.commit);
+    let mut out = vvco_Output::console();
+    vvco_err!(out, "release_brand: branding staging...");
+    vvco_err!(out, "  staging: {}", args.staging.display());
+    vvco_err!(out, "  registry: {}", args.registry.display());
+    vvco_err!(out, "  commit: {}", args.commit);
 
     // Parse comma-separated kit list
     let managed_kits: Vec<String> = args.managed_kits
@@ -514,17 +528,17 @@ fn run_release_brand(args: ReleaseBrandArgs) -> i32 {
     match vof::vofr_brand(&args.staging, &args.registry, &args.commit, &managed_kits) {
         Ok(result) => {
             // Output brand for bash to use in tarball name
-            println!("{}", result.brand);
+            vvco_out!(out, "{}", result.brand);
             if result.is_new {
-                eprintln!("release_brand: allocated new brand {}", result.brand);
+                vvco_err!(out, "release_brand: allocated new brand {}", result.brand);
             } else {
-                eprintln!("release_brand: reusing existing brand {}", result.brand);
+                vvco_err!(out, "release_brand: reusing existing brand {}", result.brand);
             }
-            eprintln!("release_brand: super-SHA: {}", result.super_sha);
+            vvco_err!(out, "release_brand: super-SHA: {}", result.super_sha);
             0
         }
         Err(e) => {
-            eprintln!("release_brand: error: {}", e);
+            vvco_err!(out, "release_brand: error: {}", e);
             1
         }
     }
@@ -532,9 +546,10 @@ fn run_release_brand(args: ReleaseBrandArgs) -> i32 {
 
 /// Run vvx_emplace command
 fn run_emplace(args: EmplaceArgs) -> i32 {
-    eprintln!("emplace: installing kit assets...");
-    eprintln!("  parcel: {}", args.parcel.display());
-    eprintln!("  burc: {}", args.burc.display());
+    let mut out = vvco_Output::console();
+    vvco_err!(out, "emplace: installing kit assets...");
+    vvco_err!(out, "  parcel: {}", args.parcel.display());
+    vvco_err!(out, "  burc: {}", args.burc.display());
 
     let emplace_args = vof::vofe_EmplaceArgs {
         parcel_dir: args.parcel,
@@ -563,14 +578,14 @@ fn run_emplace(args: EmplaceArgs) -> i32 {
                 .collect();
             output.insert("claude_sections_updated".to_string(), serde_json::Value::Array(sections));
 
-            println!("{}", serde_json::to_string_pretty(&serde_json::Value::Object(output)).unwrap());
+            vvco_out!(out, "{}", serde_json::to_string_pretty(&serde_json::Value::Object(output)).unwrap());
 
-            eprintln!("emplace: success - {} files, {} commands, {} hooks",
+            vvco_err!(out, "emplace: success - {} files, {} commands, {} hooks",
                 result.files_copied, result.commands_routed, result.hooks_routed);
             0
         }
         Err(e) => {
-            eprintln!("emplace: error: {}", e);
+            vvco_err!(out, "emplace: error: {}", e);
             1
         }
     }
@@ -578,8 +593,9 @@ fn run_emplace(args: EmplaceArgs) -> i32 {
 
 /// Run vvx_vacate command
 fn run_vacate(args: VacateArgs) -> i32 {
-    eprintln!("vacate: removing kit assets...");
-    eprintln!("  burc: {}", args.burc.display());
+    let mut out = vvco_Output::console();
+    vvco_err!(out, "vacate: removing kit assets...");
+    vvco_err!(out, "  burc: {}", args.burc.display());
 
     let vacate_args = vof::vofe_VacateArgs {
         burc_path: args.burc,
@@ -606,14 +622,14 @@ fn run_vacate(args: VacateArgs) -> i32 {
                 .collect();
             output.insert("claude_sections_collapsed".to_string(), serde_json::Value::Array(sections));
 
-            println!("{}", serde_json::to_string_pretty(&serde_json::Value::Object(output)).unwrap());
+            vvco_out!(out, "{}", serde_json::to_string_pretty(&serde_json::Value::Object(output)).unwrap());
 
-            eprintln!("vacate: success - {} files, {} commands, {} hooks removed",
+            vvco_err!(out, "vacate: success - {} files, {} commands, {} hooks removed",
                 result.files_deleted, result.commands_removed, result.hooks_removed);
             0
         }
         Err(e) => {
-            eprintln!("vacate: error: {}", e);
+            vvco_err!(out, "vacate: error: {}", e);
             1
         }
     }
@@ -621,18 +637,19 @@ fn run_vacate(args: VacateArgs) -> i32 {
 
 /// Run vvx_freshen command
 fn run_freshen(args: FreshenArgs) -> i32 {
-    eprintln!("freshen: updating CLAUDE.md from forge templates...");
-    eprintln!("  burc: {}", args.burc.display());
+    let mut out = vvco_Output::console();
+    vvco_err!(out, "freshen: updating CLAUDE.md from forge templates...");
+    vvco_err!(out, "  burc: {}", args.burc.display());
 
     match vof::vofe_freshen_forge(&args.burc) {
         Ok(result) => {
             let total = result.updated.len() + result.expanded.len() + result.appended.len();
-            eprintln!("freshen: success - {} sections processed ({} updated, {} expanded, {} appended)",
+            vvco_err!(out, "freshen: success - {} sections processed ({} updated, {} expanded, {} appended)",
                 total, result.updated.len(), result.expanded.len(), result.appended.len());
             0
         }
         Err(e) => {
-            eprintln!("freshen: error: {}", e);
+            vvco_err!(out, "freshen: error: {}", e);
             1
         }
     }
