@@ -1185,22 +1185,27 @@ the Matricula inscription census — and this very family's census, which grows 
 
 [[mcm_fallow_word]]
 {mcm_fallow_word}::
-A word withheld from minting because the
-{mcm_editor}
-keeps it in active use for context-painting — improvised explanation that needs the word to stay fluid and polysemous.
+A word withheld from minting because the collaboration keeps it in active use for context-painting — improvised explanation that needs the word to stay fluid and polysemous.
 The name is the gestalt: fallow ground, left as commons rather than enclosed, so it stays freely grazable.
+The grazing is joint — the
+{mcm_editor}
+and the
+{mcm_digital_mind}
+alike.
 Minting encloses a word into one meaning;
 a
 {mcm_fallow_word}
-resists enclosure to remain a brush on the
-{mcm_editor_p}
-palette.
-Reserved to protect the *editor's* explanatory reach, where
+resists enclosure to remain a brush on the collaboration's palette.
+Reserved to protect the collaboration's explanatory reach, where
 {mcm_hallowed_word}
 protects the word's resonance.
 Seed: mesentery, constellation, moniker, corpus (a body of documents spoken of as one),
 lean (the collaboration's noun for a provisional
-preference — "the lean on record" — fluid by need, never to be enclosed as a minted state).
+preference — "the lean on record" — fluid by need, never to be enclosed as a minted state),
+fork (its noun for an unresolved branch point — "open forks, the mulling surface" — twin to lean
+in shape and in reservation),
+bank (its verb for depositing a thought where it outlives the current context — "banked in the
+sheaf" — already load-bearing in normative prose, reserved here before that prose hardens into a mint).
 
 [[mcm_furrowed_word]]
 {mcm_furrowed_word}::
