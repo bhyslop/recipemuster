@@ -9462,8 +9462,8 @@
         "₢BsAAM": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260707-1321",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260709-0853",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "Mechanize the release-hygiene checks as reveille-registered theurge fixtures, following the cupel precedent (manual release audit becomes a standing suite fixture):",
                 "a license allowlist over the crate graph (cargo metadata parsing — no new external tool),",
@@ -9488,7 +9488,7 @@
                 "Test-infra build with a small ceremony-document wiring edit; fill work while long runs await."
               ],
               "jjgtn_silks": "release-hygiene-fixtures",
-              "jjgtn_basis": "50721c2"
+              "jjgtn_basis": "a42efd4"
             }
           ]
         },
