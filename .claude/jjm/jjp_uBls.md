@@ -2,7 +2,7 @@
 
 This heat runs the full process surface of the installation end-to-end and re-proves the longest test sequences on a freshly rebuilt baseline.
 Much has changed since the last full-sequence runs — the federation identity rework, the admission and terrier surfaces, the accessor and sitting lifecycle, the curl-containment sweep — without a full-ladder proof over the accumulated result.
-The heat's product is a green rebaseline: every suite green, the manor rebuilt through the real founding verbs alone, and the standing freehold healthy on the far side.
+The heat's product is a green rebaseline: the full fixture corpus green, the manor rebuilt through the real founding verbs alone, and the standing freehold healthy on the far side.
 The heat also carries the upstream-delivery thread:
 the drifted release ceremony is repaired and practiced early,
 and a real candidate is cut on the proven baseline at the close.
@@ -17,10 +17,14 @@ Destructive stages (the gauntlet, the raze-and-rebuild walk) are operator-presen
 Staging is practiced early and delivered late:
 the ceremony practice cut is a throwaway — never pushed, its full-qualification gate waived for the drill —
 while the real candidate cut rides only the closed green revalidation.
+Suite coverage is owed at fixture grain, not suite grain:
+a suite whose members all ride inside another suite already run green on the same baseline is not separately owed
+(the almanac's containment facts — blockade inside skirmish, picket and bivouac inside echelon, the reveille base inside every bearer — are compile-guarded).
 
 ## Shape
 
 In pace order:
+the fixture-cost-expectation instrumentation, landed first so the heat's own long runs calibrate it;
 the delivery-ceremony repair with its throwaway practice cut;
 the standing-substrate sweeps — the self-contained and union suites, then the freehold-iterating release ladders —
 with README diagram authoring slotted as fill work while the long runs await;
@@ -29,7 +33,8 @@ finally the real candidate cut on the proven baseline.
 
 ## Done when
 
-Every suite in the almanac has run green on this baseline;
+Every fixture the almanac lists in any suite has run green on this baseline —
+the fixture cover is gauntlet + echelon + dogfight + siege + parley, and containment-redundant suite runs are not separately owed;
 the manor has been razed and rebuilt via the real verbs with access proven recovered;
 the escheat orphan arm is live-proven;
 the caged subject stands as the second roster citizen;
