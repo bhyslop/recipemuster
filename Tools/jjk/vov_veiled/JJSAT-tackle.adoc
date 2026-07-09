@@ -658,6 +658,10 @@ deliberately *not* settled early — the docket anti-patterns govern that direct
 * *Remaining word elections* — the identity glyph (eyeball) and identity-kind word; the
   integrity-checks member; verdict names.
   Elections run gates at a census-style pace, not mid-mulling.
+  Word-health evidence banked for that gate: remuda mutated in operator recall ("Remula");
+  ambit reported not-working by the operator;
+  tackle itself sits two letters from the minted gallops tack — an audible-register hazard;
+  the family re-ratifies with this evidence weighed.
 * *Delivery* — direction resolved: app-generated, work-honed context at saddle time, with a
   retain-everything default until honing intelligence exists (farrier sheaf, launch-time
   provisioning).
