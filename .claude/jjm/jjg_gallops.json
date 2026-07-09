@@ -9188,12 +9188,15 @@
         "₢BsAAC": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260707-1400",
-              "jjgtn_state": "jjgte_bridled",
-              "jjgtn_tier": "jjgde_opus",
+              "jjgtn_ts": "260709-2230",
+              "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "Run the full release-qualification ladder: tt/rbw-ts.TestSuite.gauntlet.sh — marshal-zero state through depot-lifecycle, freehold-establish, onboarding-sequence, reveille fixtures, crucibles.",
                 "This is the heat's first deliberately destructive stage: it levies and unmakes real projects, producing real depot churn — the orphan-arm proof pace consumes that churn immediately after.",
+                "Begin by marshal-zeroing and pushing: the ladder's attestation gates on committed-blank moorings and a pushed HEAD (BURE_CONFIRM=skip drives the confirm; marshal-zero self-commits).",
+                "A prior attempt on this pace caught and fixed the fresh-levy founding gap — depot levy now founds the polity terrier folder + governor grain IAM (moved out of instaurate; RBSMS/RBSMF/RBSTN/RBS0 re-pointed) — so the rerun is the live proof of that fix; a brevet 403 on storage.objects.create means it regressed.",
+                "The first governor-don after gird may still hit IAM propagation lag (brevet exit 109 observed once, healthy sitting); a single direct rbw-pB retry disambiguates transient from regression before deeper digging.",
+                "Stranded canest depots (…100002, …100005) are deliberate terrier churn for the escheat pace — leave them.",
                 "",
                 "## Done when",
                 "Gauntlet green end-to-end; the unmade depots' terrier churn left standing for the next pace (do not escheat first).",
@@ -9202,7 +9205,7 @@
                 "The longest ladder; operator-present for quota and billing surprises."
               ],
               "jjgtn_silks": "gauntlet-green",
-              "jjgtn_basis": "f318ed5"
+              "jjgtn_basis": "00ba62d"
             }
           ]
         },
