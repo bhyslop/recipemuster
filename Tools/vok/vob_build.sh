@@ -93,13 +93,19 @@ vob_build() {
   test -f "${ZVOB_TARGET_BINARY}" || buc_die "Binary not found: ${ZVOB_TARGET_BINARY}"
   test -d "${VVB_BIN_DIR}" || mkdir -p "${VVB_BIN_DIR}" || buc_die "Failed to create: ${VVB_BIN_DIR}"
 
-  cp "${ZVOB_TARGET_BINARY}" "${VVB_VVX_BINARY}" || buc_die "Failed to copy binary"
-  chmod +x "${VVB_VVX_BINARY}" || buc_die "Failed to chmod"
+  local z_tmp
+  z_tmp="$(mktemp "${VVB_VVX_BINARY}.XXXXXX")" || buc_die "Failed to create temp file for atomic install"
+  cp "${ZVOB_TARGET_BINARY}" "${z_tmp}" || buc_die "Failed to copy binary"
+  chmod +x "${z_tmp}" || buc_die "Failed to chmod"
 
   # Ad-hoc codesign for macOS (prevents quarantine kills)
   if command -v codesign >/dev/null 2>&1; then
-    codesign --force --sign - "${VVB_VVX_BINARY}" 2>/dev/null || buc_warn "codesign failed (non-fatal)"
+    codesign --force --sign - "${z_tmp}" 2>/dev/null || buc_warn "codesign failed (non-fatal)"
   fi
+
+  # Atomic rename: repoints the directory entry without touching the inode a live
+  # MCP server holds open, avoiding ETXTBSY on an in-place overwrite.
+  mv -f "${z_tmp}" "${VVB_VVX_BINARY}" || buc_die "Failed to install binary"
 
   buc_success "Built and installed to ${VVB_VVX_BINARY}"
 }
