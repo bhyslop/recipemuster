@@ -224,6 +224,14 @@ the implementation tail runs at work tier.
   the bodies of work outlive JJ.
   Entries conclude by status, never deletion (the studbook keeps history);
   a disengagement ceremony (footprint retirement per the posture) is post-MVP.
+- Chat-capture parking (260709): the recurring chat-capture work (formerly a fast-tweaks pace, now parked)
+  was overtaken by the footprint-posture cinch —
+  chat captures are JJ knowledge products and never land in the work repo;
+  its redo (store home: the studbook or a blotter instance, capture riding the post-MVP ceremony surface)
+  is reconsidered once this heat lands.
+  Standing obligation meanwhile: the host-separated rough-backfill chat store in the work repo
+  is the sole copy of off-machine chat history —
+  it must not be flattened, migrated, or discarded before the successor design lands.
 
 ## Canon workup
 
