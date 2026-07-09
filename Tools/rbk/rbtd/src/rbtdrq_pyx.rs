@@ -240,13 +240,33 @@ pub(crate) const ZRBTDRQ_SECRET_ROOTS: &[&str] = &["Tools/buk", "Tools/rbk", "tt
 /// roots above — the consumer-facing documents at the repo root.
 pub(crate) const ZRBTDRQ_SECRET_FILES: &[&str] = &["README.md", "RELEASE.md"];
 
-/// This module's own source, exempted from the secret-shape scan. The shape
-/// table below necessarily spells the prefixes it hunts for, and the PEM shape
-/// is a bare literal that matches itself. The exemption is safe precisely
-/// because the matcher is proved against in-memory positives and negatives in
-/// its own case — the live-tree verdict rests on a matcher checked elsewhere,
-/// not on a file that excuses itself.
+/// This module's own source. Named as a constant because it is both an exempt
+/// path below and the file a table-consistency finding points at.
 pub(crate) const ZRBTDRQ_SELF_EXEMPT: &str = "Tools/rbk/rbtd/src/rbtdrq_pyx.rs";
+
+/// Repo-relative paths exempt from the secret-shape scan, each with the reason
+/// it is exempt. An exemption is an OPERATOR ACT, not a maintenance chore: every
+/// row here is a place the scan has been told to stay silent, so a row added to
+/// quiet a finding rather than to record a judgment is how this check dies. The
+/// list is exact-path, never a prefix — a directory exemption would silently
+/// cover files that do not yet exist.
+pub(crate) const ZRBTDRQ_EXEMPT: &[(&str, &str)] = &[
+    // The shape table necessarily spells the prefixes it hunts for, and the PEM
+    // shape is a bare literal that matches itself. Safe precisely because the
+    // matcher is proved against in-memory positives and negatives in its own
+    // case: the live-tree verdict rests on a matcher checked elsewhere, not on a
+    // file that excuses itself.
+    (ZRBTDRQ_SELF_EXEMPT, "the shape table spells the shapes it hunts"),
+    // Caged test scaffolding, committed deliberately (993985c91). This key signs
+    // RFC 7523 assertions to the fdkyclk Keycloak realm, whose baked
+    // publicKeySignatureVerifier is this key's public half. It grants authority
+    // over nothing but an ephemeral local container, and the realm cannot be
+    // exercised without it. A real credential never belongs beside it.
+    (
+        "rbmm_moorings/fdkyclk/fdkyclk-asserter-key.pem",
+        "caged asserter key for the local Keycloak test realm; no live authority",
+    ),
+];
 
 /// Directory basenames skipped by the secret-shape walk. Build output is
 /// untracked, never ships, and holds enough compiled bytes that walking it turns
@@ -655,6 +675,12 @@ fn rbtdrq_secret_shapes(dir: &Path) -> rbtdre_Verdict {
     let mut findings = zrbtdrq_matcher_self_proof();
     let mut inventory = BTreeSet::new();
 
+    // The exemptions ride the inventory trace: a reader of the scan's record
+    // sees what was NOT scanned and why, without reading this source.
+    for (path, reason) in ZRBTDRQ_EXEMPT {
+        inventory.insert(format!("{}\texempt: {}", path, reason));
+    }
+
     let mut files = Vec::new();
     for sub in ZRBTDRQ_SECRET_ROOTS {
         let path = root.join(sub);
@@ -675,7 +701,7 @@ fn rbtdrq_secret_shapes(dir: &Path) -> rbtdre_Verdict {
             .unwrap_or(&path)
             .to_string_lossy()
             .to_string();
-        if rel == ZRBTDRQ_SELF_EXEMPT {
+        if ZRBTDRQ_EXEMPT.iter().any(|(path, _)| *path == rel) {
             continue;
         }
         inventory.insert(rel.clone());
