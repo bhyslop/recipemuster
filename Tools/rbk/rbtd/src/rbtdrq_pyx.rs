@@ -248,6 +248,11 @@ pub(crate) const ZRBTDRQ_SECRET_FILES: &[&str] = &["README.md", "RELEASE.md"];
 /// not on a file that excuses itself.
 pub(crate) const ZRBTDRQ_SELF_EXEMPT: &str = "Tools/rbk/rbtd/src/rbtdrq_pyx.rs";
 
+/// Directory basenames skipped by the secret-shape walk. Build output is
+/// untracked, never ships, and holds enough compiled bytes that walking it turns
+/// a sub-second fixture into a multi-minute one.
+pub(crate) const ZRBTDRQ_SKIP_DIRS: &[&str] = &["target"];
+
 /// File extensions skipped by the secret-shape walk — compiled, compressed, or
 /// raster payloads in which a token shape cannot be authored by hand and a
 /// byte-coincidence would be a false positive.
@@ -567,7 +572,14 @@ fn zrbtdrq_walk(dir: &Path, out: &mut Vec<PathBuf>) {
     for entry in entries.flatten() {
         let path = entry.path();
         if path.is_dir() {
-            zrbtdrq_walk(&path, out);
+            let skipped = path
+                .file_name()
+                .and_then(|s| s.to_str())
+                .map(|name| ZRBTDRQ_SKIP_DIRS.contains(&name))
+                .unwrap_or(false);
+            if !skipped {
+                zrbtdrq_walk(&path, out);
+            }
             continue;
         }
         let skipped = path
