@@ -190,74 +190,6 @@ rbq_qualify_rust_consts() {
   buc_log_args "Rust consts file is fresh"
 }
 
-# rbq_qualify_anchors() - The handbook anchor-resolution gate, file-to-file and
-# no network: every glossary anchor consumed by an rbyc_common.sh linked term,
-# and every internal `](#X)` reference in README, must land on an `<a id="X">`
-# target in README. The OSC-8 links the handbooks emit resolve against the
-# public docs page rendered from this same README, so resolution here proves
-# the published links cannot dangle.
-rbq_qualify_anchors() {
-  zrbq_sentinel
-
-  buc_step "Qualifying README anchor resolution"
-
-  local -r z_readme="${ZRBQ_PROJECT_ROOT}/README.md"
-  local -r z_rbyc="${ZRBQ_RBW_DIR}/rbyc_common.sh"
-
-  test -f "${z_readme}" || buc_die "README not found: ${z_readme}"
-  test -f "${z_rbyc}"   || buc_die "Vocabulary module not found: ${z_rbyc}"
-
-  # Anchor targets: <a id="X"> definitions in README
-  local z_targets=""
-  z_targets=$(grep -oE '<a id="[^"]+"' "${z_readme}" | sed -E 's/^<a id="//; s/"$//' | sort -u) \
-    || buc_die "No <a id> anchor targets found in ${z_readme}"
-
-  # Consumed set 1: internal markdown references ](#X) in README
-  local z_refs=""
-  z_refs=$(grep -oE '\]\(#[^)]+\)' "${z_readme}" | sed -E 's/^\]\(#//; s/\)$//' | sort -u) \
-    || buc_die "No internal ](#anchor) references found in ${z_readme}"
-
-  # Consumed set 2: anchors minted by rbyc linked terms (third zrbyc_yk arg).
-  # The empty-anchor page-root mint is excluded by the [^"]+ requirement.
-  local z_minted=""
-  z_minted=$(grep -oE 'zrbyc_yk[[:space:]]+RBYC_[A-Z_]+[[:space:]]+"[$][{]z_docs[}]"[[:space:]]+"[^"]+"' "${z_rbyc}" \
-    | sed -E 's/^.*"([^"]+)"$/\1/' | sort -u) \
-    || buc_die "No rbyc linked-term anchor mints found in ${z_rbyc}"
-
-  local z_fail_names=()
-  local z_fail_sources=()
-
-  local z_name=""
-  while IFS= read -r z_name; do
-    test -n "${z_name}" || continue
-    printf '%s\n' "${z_targets}" | grep -Fxq "${z_name}" || {
-      z_fail_names+=("${z_name}")
-      z_fail_sources+=("README internal ref")
-    }
-  done <<< "${z_refs}"
-
-  while IFS= read -r z_name; do
-    test -n "${z_name}" || continue
-    printf '%s\n' "${z_targets}" | grep -Fxq "${z_name}" || {
-      z_fail_names+=("${z_name}")
-      z_fail_sources+=("rbyc linked term")
-    }
-  done <<< "${z_minted}"
-
-  if (( ${#z_fail_names[@]} )); then
-    local z_j=0
-    for z_j in "${!z_fail_names[@]}"; do
-      buc_warn "dangling anchor '#${z_fail_names[$z_j]}' (${z_fail_sources[$z_j]})"
-    done
-    buc_die "Anchor qualification failed: ${#z_fail_names[@]} dangling reference(s)"
-  fi
-
-  local -r z_target_count=$(printf '%s\n' "${z_targets}" | wc -l | tr -d ' ')
-  local -r z_ref_count=$(printf '%s\n' "${z_refs}" | wc -l | tr -d ' ')
-  local -r z_minted_count=$(printf '%s\n' "${z_minted}" | wc -l | tr -d ' ')
-  buc_log_args "All ${z_ref_count} internal refs and ${z_minted_count} linked-term anchors resolve against ${z_target_count} targets"
-}
-
 rbq_qualify_fast() {
   zrbq_sentinel
 
@@ -271,7 +203,6 @@ rbq_qualify_fast() {
   rbq_qualify_colophons
   rbq_qualify_context
   rbq_qualify_rust_consts
-  rbq_qualify_anchors
   rbrn_preflight
 
   buc_step "Fast qualification passed"

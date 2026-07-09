@@ -335,7 +335,9 @@ pub(crate) const ZRBTDRQ_SHAPES: &[zrbtdrq_Shape] = &[
 /// Repo-relative source of the linked-term anchors the handbook yelps point at.
 pub(crate) const ZRBTDRQ_ANCHOR_SOURCE: &str = "Tools/rbk/rbyc_common.sh";
 
-/// Repo-relative document that must define every anchor pointed at.
+/// Repo-relative document that must define every anchor pointed at. It is also
+/// the second consumer: its own internal cross-references must land on its own
+/// anchors.
 pub(crate) const ZRBTDRQ_ANCHOR_TARGET: &str = "README.md";
 
 /// The call whose third argument names an anchor in the target document.
@@ -346,6 +348,15 @@ pub(crate) const ZRBTDRQ_ANCHOR_CALL: &str = "zrbyc_yk";
 /// heading-slug derivation, so the anchor a handbook link resolves is a literal
 /// present in the source and checkable without a Markdown parser.
 pub(crate) const ZRBTDRQ_ANCHOR_DECL: &str = "<a id=\"";
+
+/// How the target document references its own anchors: the tail of a Markdown
+/// inline link whose destination is a same-page fragment.
+pub(crate) const ZRBTDRQ_ANCHOR_REF_OPEN: &str = "](#";
+
+/// Names the consumed set a dangling anchor was reached from, so a finding says
+/// where to go and fix it.
+pub(crate) const ZRBTDRQ_CONSUMER_YELP: &str = "handbook linked term";
+pub(crate) const ZRBTDRQ_CONSUMER_README: &str = "README internal reference";
 
 // ── Findings ────────────────────────────────────────────────
 
@@ -758,10 +769,40 @@ pub(crate) fn zrbtdrq_defined_anchors(target: &str) -> BTreeSet<String> {
     anchors
 }
 
-/// Every anchor a handbook yelp links to must be defined in the consumer-facing
-/// README. A handbook line that renders as a link into the public documentation
-/// and lands on nothing is a defect no consumer can route around, and it is
-/// invisible until someone clicks it.
+/// Extract every same-page fragment the target document links to — the anchor
+/// between `](#` and the closing paren. A destination carrying anything but a
+/// bare fragment (a path, a URL) is not a same-page reference and is skipped.
+pub(crate) fn zrbtdrq_referenced_anchors(target: &str) -> BTreeSet<String> {
+    let mut anchors = BTreeSet::new();
+    for line in target.lines() {
+        let mut rest = line;
+        while let Some(at) = rest.find(ZRBTDRQ_ANCHOR_REF_OPEN) {
+            rest = &rest[at + ZRBTDRQ_ANCHOR_REF_OPEN.len()..];
+            if let Some(end) = rest.find(')') {
+                let anchor = &rest[..end];
+                if !anchor.is_empty() {
+                    anchors.insert(anchor.to_string());
+                }
+                rest = &rest[end..];
+            } else {
+                break;
+            }
+        }
+    }
+    anchors
+}
+
+/// Every anchor consumed must be defined in the consumer-facing README: both the
+/// anchors a handbook linked term points at, and the README's own internal
+/// cross-references. A handbook line renders as a link into the public
+/// documentation page built from this same README, so resolution here proves the
+/// published links cannot dangle — a defect no consumer can route around, and
+/// one invisible until someone clicks it.
+///
+/// An empty consumed or defined set is a FINDING, not a pass. Both sets are
+/// extracted by matching literals in the source files, and the failure mode of
+/// an extractor is to match nothing — which without this guard reports a clean
+/// tree with a checker that has quietly stopped checking.
 fn rbtdrq_readme_anchors(dir: &Path) -> rbtdre_Verdict {
     let root = match zrbtdrq_root() {
         Ok(r) => r,
@@ -781,25 +822,47 @@ fn rbtdrq_readme_anchors(dir: &Path) -> rbtdre_Verdict {
         }
     };
 
-    let declared = zrbtdrq_declared_anchors(&source);
     let defined = zrbtdrq_defined_anchors(&target);
+    let consumed = [
+        (ZRBTDRQ_CONSUMER_YELP, ZRBTDRQ_ANCHOR_SOURCE, zrbtdrq_declared_anchors(&source)),
+        (ZRBTDRQ_CONSUMER_README, ZRBTDRQ_ANCHOR_TARGET, zrbtdrq_referenced_anchors(&target)),
+    ];
 
     let mut findings = Vec::new();
-    for anchor in &declared {
-        if !defined.contains(anchor) {
+    let mut inventory = BTreeSet::new();
+
+    if defined.is_empty() {
+        findings.push(zrbtdrq_Finding {
+            file: ZRBTDRQ_ANCHOR_TARGET.to_string(),
+            line: 0,
+            detail: "defines no anchors at all — the extractor matched nothing".to_string(),
+        });
+    }
+
+    for (consumer, file, anchors) in &consumed {
+        if anchors.is_empty() {
             findings.push(zrbtdrq_Finding {
-                file: ZRBTDRQ_ANCHOR_SOURCE.to_string(),
+                file: file.to_string(),
                 line: 0,
-                detail: format!(
-                    "linked term points at anchor {:?}, undefined in {}",
-                    anchor, ZRBTDRQ_ANCHOR_TARGET
-                ),
+                detail: format!("no {} anchors found — the extractor matched nothing", consumer),
             });
+        }
+        for anchor in anchors {
+            inventory.insert(format!("{}\t{}", anchor, consumer));
+            if !defined.contains(anchor) {
+                findings.push(zrbtdrq_Finding {
+                    file: file.to_string(),
+                    line: 0,
+                    detail: format!(
+                        "{} points at anchor {:?}, undefined in {}",
+                        consumer, anchor, ZRBTDRQ_ANCHOR_TARGET
+                    ),
+                });
+            }
         }
     }
 
-    let inventory = declared;
-    zrbtdrq_report(dir, "anchor", &findings, &inventory, "handbook-anchor violation(s)")
+    zrbtdrq_report(dir, "anchor", &findings, &inventory, "dangling-anchor violation(s)")
 }
 
 // ── Cases and fixture ───────────────────────────────────────

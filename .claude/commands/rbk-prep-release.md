@@ -58,7 +58,7 @@ Run full release qualification in the working repo to verify the complete codeba
 tt/rbw-tr.QualifyRelease.sh
 ```
 
-This runs shellcheck and the `echelon` test suite. The suite includes the **cupel** command-dependency lint (theurge fixture), which statically enforces BCG's POSIX-floor / declared-dependency / eviction-table discipline across all kit bash — the automated successor to the former manual external-command audit.
+This runs shellcheck and the `echelon` test suite. Two theurge fixtures in that suite stand in for audits a maintainer once ran by hand: **cupel**, the command-dependency lint statically enforcing BCG's POSIX-floor / declared-dependency / eviction-table discipline across all kit bash; and **pyx**, the release-hygiene assay (crate licenses, root LICENSE, secret shapes, anchor resolution). Pyx runs again post-strip in Step 12 against the candidate tree.
 
 If qualification fails, **STOP**. The full codebase must pass before we proceed.
 
@@ -272,15 +272,25 @@ Show the user what regenerated and wait for acknowledgment.
 
 ## Step 12: Post-strip verification
 
-Run fast qualification only on the stripped candidate tree:
+Run fast qualification on the stripped candidate tree:
 
 ```
 tt/rbw-tq.QualifyFast.sh
 ```
 
-This validates that stripping didn't break wiring — tabtargets resolve, colophons match surviving modules, the generated context and Rust consts are fresh, README anchors resolve, and nameplate preflight passes. No shellcheck, no test suite — the full `echelon` test already passed pre-strip in Step 3, and the stripped tree lacks cloud infrastructure to run integration tests.
+This validates that stripping didn't break wiring — tabtargets resolve, colophons match surviving modules, the generated context and Rust consts are fresh, and nameplate preflight passes. No shellcheck, no test suite — the full `echelon` test already passed pre-strip in Step 3, and the stripped tree lacks cloud infrastructure to run integration tests.
 
-**If fast qualification fails, STOP.** This means something in the consumer-visible code depends on stripped content. Report the specific failure to the user — this is a real finding that must be investigated before proceeding.
+Then run the **pyx** release-hygiene fixture against the candidate tree:
+
+```
+tt/rbw-tf.FixtureRun.sh pyx
+```
+
+Pyx asserts what must hold of the tree we are about to publish: every crate in the shipping lockfile is license-vetted, the root LICENSE stands, no shipping file carries a credential shape, and every anchor the handbooks and README link to resolves. It ran green pre-strip inside Step 3's suite; running it again here is what proves the *stripped* tree — a different tree, with different files — is fit to publish. Its checks are deterministic tree-invariants over committed files: no credentials, no network, seconds to run.
+
+Note what pyx does NOT cover: the known-vulnerability advisory audit. That verdict moves with a live advisory database while the tree stands still, so it cannot be a fixture. It stays here, as a step you own.
+
+**If either check fails, STOP.** A fast-qualification failure means something in the consumer-visible code depends on stripped content. A pyx failure means the candidate is not fit to publish. Either is a real finding that must be investigated before proceeding.
 
 Show the result and wait for user acknowledgment.
 
