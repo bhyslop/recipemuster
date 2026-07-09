@@ -3759,9 +3759,10 @@
         "₢BDAAn",
         "₢BDAAo",
         "₢BDAAp",
-        "₢BDAAq"
+        "₢BDAAq",
+        "₢BDAAr"
       ],
-      "jjghn_next_pace_seed": "AAr",
+      "jjghn_next_pace_seed": "AAs",
       "jjghn_paces": {
         "₢BDAAA": {
           "jjgpn_tacks": [
@@ -5438,6 +5439,48 @@
               ],
               "jjgtn_silks": "wrong-model-progression-halt",
               "jjgtn_basis": "d3f6d52"
+            }
+          ]
+        },
+        "₢BDAAr": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260709-0901",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Notch is the only verb that refuses an empty commit.",
+                "Its siblings already permit one: wrap commits a clean tree and announces `no staged changes, proceeding with state transition only`, and the chalk marker it rides is *defined* as an empty commit.",
+                "The asymmetry looks unchosen rather than decided.",
+                "",
+                "Make notch always allow an empty commit, and emit a non-gating warning after the fact naming what happened.",
+                "The motivating case is a verification run: a session proves something on two platforms, changes nothing on disk, and has no way to notch the result into its pace's swim lane.",
+                "Today that record must be a bare `git commit --allow-empty`, which carries no pace affiliation and vanishes from the lane and the file-touch bitmap.",
+                "",
+                "## Cinched",
+                "",
+                "Always allow, never gate — the warning is the whole safety mechanism.",
+                "Operator ruling: an empty notch is legitimate work worth recording, not an error to refuse.",
+                "",
+                "## Character",
+                "",
+                "Small mechanism, one naming question that should be settled before the code.",
+                "",
+                "## Open",
+                "",
+                "Whether the warning is a {jjdz_monitum} or a sibling concept.",
+                "The genus fits — read-only, best-effort, never gating, reports a condition rather than enforcing one.",
+                "The differentia does not: JJS0 defines a monitum as *open-time*, reporting a *standing condition of this install*, while this warning fires at notch and reports what the call just did.",
+                "Either the concept widens to cover event-time self-reports, or this needs its own name.",
+                "JJS0 says two instances exist and no shared abstraction is warranted \"until a third instance earns it\" — this would be the third.",
+                "Settle that, then write the code.",
+                "",
+                "## Sources",
+                "",
+                "JJSCNC-notch.adoc (the refusal: \"If empty: exit 1\"), JJS0 `jjdz_monitum` definition site, JJSCCH-chalk.adoc (the existing allow-empty), JJSRWP-wrap.adoc (the announcing sibling).",
+                "Gallops schema untouched — no reprieve episode."
+              ],
+              "jjgtn_silks": "allow-empty-notch",
+              "jjgtn_basis": "4578a8c"
             }
           ]
         }
