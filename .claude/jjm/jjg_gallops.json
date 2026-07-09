@@ -9784,8 +9784,9 @@
         "₢BsAAT": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260709-1639",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260709-1640",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_opus",
               "jjgtn_text": [
                 "Repatriate stray quoin definition sites from the RB sheaves into the codex,",
                 "restoring the MCM law that the codex defines the vocabulary and a sheaf consumes rather than mints",
@@ -9826,7 +9827,7 @@
                 "Touches only the veiled RB spec tree (`Tools/rbk/vov_veiled/*.adoc`)."
               ],
               "jjgtn_silks": "codex-quoin-repatriation",
-              "jjgtn_basis": "b988cd0"
+              "jjgtn_basis": "d130eb4"
             }
           ]
         }
