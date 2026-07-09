@@ -6,7 +6,10 @@ Tactical heat for V4-era JJK improvements that are ready to mount — settled de
 
 Fast tweaks. Bounded scope. No architectural change.
 
-A pace lives here only if its docket is mount-ready — design settled, files identified, exit criteria concrete. If a pace grows hair (uncovered design questions, scope creep, prerequisite hunts), bump it back to ₣Am rather than letting it linger here.
+A pace lives here only if its docket is mount-ready — design settled, files identified, exit criteria concrete.
+If a pace grows hair (uncovered design questions, scope creep, prerequisite hunts),
+it does not belong here — surface it to the operator for re-homing or drop
+(the original ₣Am parking lot is archived; there is no standing bump-back target).
 
 ## Inclusion criteria
 
@@ -38,6 +41,9 @@ Each pace's docket was scanned for V3-era assumptions before transfer. All refer
 
 ## Related Heats
 
-- ₣Am (jjk-v5-notional) — source parking lot; remaining paces stay there
+- ₣Am (jjk-v5-notional) — source parking lot at the 260507 carve-out; since archived
 - ₣Ah (jjk-v4-1-school-breeze-founding) — primary V4 development heat
 - ₣An (jjk-v4-2-release-and-legacy-removal) — V4 cleanup heat
+- ₣Br (jjk-09-studbook-farrier-mvp) — the revision-control MVP; its 260709 footprint-posture cinch
+  overtook this heat's substrate-surveyor and chat-capture paces (both dropped 260709,
+  successor obligation recorded in ₣Br's paddock)
