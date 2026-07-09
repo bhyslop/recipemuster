@@ -5385,8 +5385,9 @@
         "₢BDAAp": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260709-1542",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260709-1544",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_opus",
               "jjgtn_text": [
                 "jjx_log on a long heat overflows the tool-result channel:",
                 "heat ₣BZ's 215-commit log rendered ~510KB because every jjb subject is paragraph-length,",
@@ -5418,7 +5419,7 @@
                 "Mechanical JJK-crate change plus its JJS0 contract update. No design decisions remain."
               ],
               "jjgtn_silks": "jjx-log-overflow-diet",
-              "jjgtn_basis": "707b622"
+              "jjgtn_basis": "2678d63"
             }
           ]
         },
