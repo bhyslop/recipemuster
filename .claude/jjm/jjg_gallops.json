@@ -9119,6 +9119,7 @@
       "jjghn_creation_time": "260705",
       "jjghn_status": "jjghe_racing",
       "jjghn_order": [
+        "₢BsAAP",
         "₢BsAAO",
         "₢BsAAN",
         "₢BsAAI",
@@ -9135,7 +9136,7 @@
         "₢BsAAL",
         "₢BsAAK"
       ],
-      "jjghn_next_pace_seed": "AAP",
+      "jjghn_next_pace_seed": "AAQ",
       "jjghn_paces": {
         "₢BsAAA": {
           "jjgpn_tacks": [
@@ -9593,6 +9594,52 @@
               ],
               "jjgtn_silks": "gate-payor-credential-coherence",
               "jjgtn_basis": "8ad4b22"
+            }
+          ]
+        },
+        "₢BsAAP": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260709-1022",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Give every fixture registration optional declared cost expectations —",
+                "minimum wall-clock, maximum wall-clock, and tabtarget-invocation count —",
+                "checked by the engine as each fixture completes (None = unchecked; legitimately variable fixtures declare nothing).",
+                "Count subprocess invocations at the single spawn funnel in the invocation layer, setup/teardown (charge/quench) included;",
+                "verify no invocation path bypasses the funnel (the 260623 theurge consolidation audit memo flagged hand-inlined invocation shapes, e.g. dogfight's).",
+                "Surface per-fixture elapsed and call count in the run summaries plus a suite-end drift table,",
+                "with one stable grep token so the logs-buk history serves as the drift census;",
+                "the no-arg fixture/case listing prints declared costs so a planned run sums to an ETA.",
+                "Seed declarations from observed greens — both operator-mutable external data roots:",
+                "the primary station's ../logs-buk/hist-rbw-ts-* self-logs (greens of 260701-260709)",
+                "and cerebro's ~/projects/logs-buk/hist-rbw-ts-skirmish-20260709-160505-1658539-976.txt for Linux spread.",
+                "Seed conservatively: min well below the fastest observed green (a vacuity detector, not a jitter alarm),",
+                "max generously above the slowest, counts exact only where deterministic;",
+                "expect a tuning round as the heat's long runs surface drift.",
+                "",
+                "## Cinched",
+                "",
+                "A minimum-time violation is a fixture FAILURE — a green that fast is vacuous —",
+                "and it stops the suite through the runner's existing break-on-failure; no second stopping mechanism.",
+                "Maximum-time and call-count violations are warnings, never verdict-affecting:",
+                "max-time is Palisade weather (cloud queue, cold image pulls) and must not make the verdict host-dependent.",
+                "Every violation prints declared vs observed so adjustment is a one-line edit at the declaration site.",
+                "",
+                "## Done when",
+                "",
+                "The three optional fields live on the fixture statics with engine checks, summaries, and drift table in place;",
+                "declarations are seeded for the reveille base and for the cloud/crucible fixtures the cited logs cover;",
+                "a deliberate violation of each kind emits correctly (evaluation seam unit-tested);",
+                "undeclared fixtures run exactly as before;",
+                "reveille green on a committed tree.",
+                "",
+                "## Character",
+                "",
+                "Instrumentation schema change plus calibration judgment; verdict-neutral except the deliberate min-time error."
+              ],
+              "jjgtn_silks": "fixture-cost-expectations",
+              "jjgtn_basis": "2ea80f2"
             }
           ]
         }
