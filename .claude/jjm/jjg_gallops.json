@@ -9183,9 +9183,10 @@
         "₢BsAAL",
         "₢BsAAK",
         "₢BsAAR",
-        "₢BsAAS"
+        "₢BsAAS",
+        "₢BsAAT"
       ],
-      "jjghn_next_pace_seed": "AAT",
+      "jjghn_next_pace_seed": "AAU",
       "jjghn_paces": {
         "₢BsAAA": {
           "jjgpn_tacks": [
@@ -9777,6 +9778,55 @@
               ],
               "jjgtn_silks": "nominate-post-release-heat",
               "jjgtn_basis": "5331882"
+            }
+          ]
+        },
+        "₢BsAAT": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260709-1639",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Repatriate stray quoin definition sites from the RB sheaves into the codex,",
+                "restoring the MCM law that the codex defines the vocabulary and a sheaf consumes rather than mints",
+                "(MCM `mcm_codex`, `mcm_sheaf`).",
+                "Specification files only — no code changes, no test runs; safe to execute alongside long suite runs.",
+                "",
+                "## Census mechanism",
+                "",
+                "Re-derive the census at mount; do not trust any prior enumeration — sheaf contents shift.",
+                "Derive the sheaf set from the codex's own `include::` directives (check included sheaves for nested `include::` lines too),",
+                "then grep `^\\[\\[` across that sheaf set, the codex itself excluded.",
+                "Classify each anchor found:",
+                "",
+                "- anchor name is an `RBr_` rivet ID → rivet, lawful at its constraint site: leave.",
+                "- anchor followed by an `{attribute}::` definition-list opener (an `//ax...` annotation line may sit between) → definition site: IN SCOPE, repatriate.",
+                "- anchor followed by a section heading or anything else → section anchor: leave.",
+                "",
+                "## Move rule",
+                "",
+                "For each in-scope site, relocate the whole definition block — the `[[anchor]]` line, any annotation line, the `{attribute}::` line, and the definition body — into the codex:",
+                "place it in the codex section that already defines sibling quoins of the same prefix family;",
+                "if the family has no codex definition block, land it inside the codex section that wraps that sheaf's `include::`, above the include line.",
+                "The mapping section needs no edits — `<<anchor>>` targets resolve pandect-wide.",
+                "Heal each sheaf where a block left:",
+                "surrounding prose keeps citing the quoin by attribute reference and must still read as continuous narrative;",
+                "never leave a restated definition body behind (one home, per ACG allocation discipline).",
+                "",
+                "## Done when",
+                "",
+                "The census grep, re-run, shows zero in-scope definition sites outside the codex;",
+                "a scripted check confirms every `:attr:` mapping target in the codex resolves to exactly one `[[anchor]]` across the codex plus its included sheaves;",
+                "each touched sheaf reads coherently at its excision points.",
+                "",
+                "## Cinched",
+                "",
+                "Rivets and heading anchors stay put — distinct genres, ruled at slate time; if a case fits neither classification bucket, stop and surface it rather than improvise.",
+                "The mapping-section monopoly already holds; do not restructure the mapping section.",
+                "Touches only the veiled RB spec tree (`Tools/rbk/vov_veiled/*.adoc`)."
+              ],
+              "jjgtn_silks": "codex-quoin-repatriation",
+              "jjgtn_basis": "b988cd0"
             }
           ]
         }
