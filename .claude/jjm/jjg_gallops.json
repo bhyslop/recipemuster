@@ -5375,8 +5375,8 @@
                 "## Noted, not in scope",
                 "The open size_limit convergence-budget hard-fail is a plausible further interdictum instance — evaluate, do not fold in."
               ],
-              "jjgtn_silks": "interdict-size-gate",
-              "jjgtn_basis": "707b622"
+              "jjgtn_silks": "size-guard-interdictum",
+              "jjgtn_basis": "eb3b2d0"
             }
           ]
         },
