@@ -160,6 +160,12 @@ pub const RBTDRM_FIXTURE_CHAINING_LIVERY: &str = "chaining-fact-livery";
 // Cupel — BCG command-dependency static analysis over all Tools/ bash. No
 // external dependency; partitions kit-bash (strict) from GCB-bash (looser).
 pub const RBTDRM_FIXTURE_CUPEL: &str = "cupel";
+// Pyx — release-hygiene tree-invariants: crate-license allowlist over the
+// committed Cargo.lock, root LICENSE presence, a curated secret-shape scan over
+// the shipping roots, and the handbook-anchor check against README. No external
+// dependency; every root is existence-tolerant so the checks hold on the
+// stripped candidate tree as well as on main.
+pub const RBTDRM_FIXTURE_PYX: &str = "pyx";
 // Depot-lifecycle fixture (marshal-zero gate + ephemeral create→destroy arc).
 // Shares the freehold scheme with the durable fixtures; tears down only the
 // fresh leasehold it mints, never the standing freehold.
@@ -294,6 +300,7 @@ pub fn rbtdrm_required_colophons(fixture: &str) -> Option<&'static [&'static str
         | RBTDRM_FIXTURE_REGIME_SMOKE
         | RBTDRM_FIXTURE_FOUNDRY_PATH
         | RBTDRM_FIXTURE_CUPEL
+        | RBTDRM_FIXTURE_PYX
         | RBTDRM_FIXTURE_CONFORMANCE
         | RBTDRM_FIXTURE_CALIBRANT_VERDICTS
         | RBTDRM_FIXTURE_CALIBRANT_FAIL_FAST
