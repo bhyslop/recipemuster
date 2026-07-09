@@ -201,6 +201,29 @@ the implementation tail runs at work tier.
   the trampoline installer verb stays unnamed — a boring hearting name mints at implementation;
   saddle is infused with its grep gate still OPEN by contingency, completed by the interior-remint pace;
   broadside registration for the dispatch ashlars defers to cutover alongside the cosmology nouns.
+- Registered-identity durability (260709): the registered external body of work is transport-independent identity —
+  it may arrive as a git clone today and a tarball someday under another driver kind,
+  so the pedigree keys on a minted immutable identity,
+  and the origin URL is a kind-owned mutable address attribute, never the key.
+  Identify is untouched (it still derives the kind-canonical key from ground, studbook-blind);
+  the spine's pedigree lookup gains one indirection: derived key → registered identity → pedigree.
+  Supersedes only the "the pedigree key" clause of the identify cinch.
+  The word election for the concept is HELD (candidate sire, grep-clean 260709);
+  the canon wording sweep of upstream/origin-URL phrasing across JJSVC/JJSVS/JJSVF/JJSVD
+  follows the election as one deliberate act, never piecemeal.
+- Footprint posture (260709): work products (commits, branches — the code changes themselves)
+  are the registered body's property, delivered in the form its owner tolerates;
+  knowledge products (records, counterfoils, chat captures, guides, grimoire) are JJ's
+  and never land there.
+  The pedigree's remotes-posture parameter generalizes to a per-pedigree footprint posture —
+  default: personal branches;
+  constrained: one personal branch carrying a prepared patch series (format-patch lineage),
+  spoken by a future driver kind.
+- Engagement inversion (260709): a pedigree records a bounded engagement —
+  JJ arrives, delivers traction on a body of work, and evaporates when done;
+  the bodies of work outlive JJ.
+  Entries conclude by status, never deletion (the studbook keeps history);
+  a disengagement ceremony (footprint retirement per the posture) is post-MVP.
 
 ## Canon workup
 
