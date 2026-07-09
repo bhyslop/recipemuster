@@ -4859,8 +4859,8 @@
         "₢BDAAe": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260709-1620",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260709-1632",
+              "jjgtn_state": "jjgte_abandoned",
               "jjgtn_text": [
                 "## Character",
                 "Parked pending ₣Br (jjk-09-studbook-farrier-mvp) — overtaken as designed; reassess after that heat lands.",
@@ -4896,7 +4896,7 @@
                 "Design rationale: Memos/memo-20260620-claude-permission-stalls-and-mcp-absorption.md (provenance, not authority)."
               ],
               "jjgtn_silks": "revision-substrate-surveyor",
-              "jjgtn_basis": "13e1180"
+              "jjgtn_basis": "72d3d54"
             }
           ]
         },
