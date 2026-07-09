@@ -51,11 +51,68 @@ zrbq_kindle() {
   # to zero and the colophon net silently lifts.
   readonly ZRBQ_RBW_LAUNCHER="launcher.rbw_workbench.sh"
 
+  z_rbq_scan_hits=()
+
   readonly ZRBQ_KINDLED=1
 }
 
 zrbq_sentinel() {
   test "${ZRBQ_KINDLED:-}" = "1" || buc_die "Module rbq not kindled - call zrbq_kindle first"
+}
+
+# Membership over a value list. Status only, never dies.
+zrbq_member_predicate() {
+  zrbq_sentinel
+
+  test "$#" -gt 0 || return 1
+
+  local -r z_needle="${1}"
+  shift
+
+  local z_candidate=""
+  for z_candidate in "$@"; do
+    if test "${z_candidate}" = "${z_needle}"; then
+      return 0
+    fi
+  done
+
+  return 1
+}
+
+# Collect every capture-group-1 match of an ERE across a file into the
+# deduplicated roll z_rbq_scan_hits, first-seen order. A line is rescanned
+# after the whole match is stripped, so several hits on one line all land.
+zrbq_scan_captures() {
+  zrbq_sentinel
+
+  local -r z_file="${1:-}"
+  local -r z_regex="${2:-}"
+
+  test -f "${z_file}" || buc_die "Scan target not found: ${z_file}"
+  test -n "${z_regex}" || buc_die "Scan regex required"
+
+  z_rbq_scan_hits=()
+
+  local z_line=""
+  local z_rest=""
+  local z_hit=""
+  local z_whole=""
+  while IFS= read -r z_line || test -n "${z_line}"; do
+    z_rest="${z_line}"
+    while [[ "${z_rest}" =~ ${z_regex} ]]; do
+      z_hit="${BASH_REMATCH[1]}"
+      z_whole="${BASH_REMATCH[0]}"
+      test -n "${z_whole}" || buc_die "Scan regex matched empty text: ${z_regex}"
+      if (( ${#z_rbq_scan_hits[@]} )); then
+        if ! zrbq_member_predicate "${z_hit}" "${z_rbq_scan_hits[@]}"; then
+          z_rbq_scan_hits+=("${z_hit}")
+        fi
+      else
+        z_rbq_scan_hits+=("${z_hit}")
+      fi
+      z_rest="${z_rest#*"${z_whole}"}"
+    done
+  done < "${z_file}"
 }
 
 ######################################################################
@@ -207,42 +264,52 @@ rbq_qualify_anchors() {
   test -f "${z_readme}" || buc_die "README not found: ${z_readme}"
   test -f "${z_rbyc}"   || buc_die "Vocabulary module not found: ${z_rbyc}"
 
+  # The empty-anchor page-root mint is excluded by the [^"]+ requirement.
+  local -r z_target_re='<a id="([^"]+)"'
+  local -r z_ref_re='\]\(#([^)]+)\)'
+  local -r z_mint_re='zrbyc_yk[[:space:]]+RBYC_[A-Z_]+[[:space:]]+"[$][{]z_docs[}]"[[:space:]]+"([^"]+)"'
+
   # Anchor targets: <a id="X"> definitions in README
-  local z_targets=""
-  z_targets=$(grep -oE '<a id="[^"]+"' "${z_readme}" | sed -E 's/^<a id="//; s/"$//' | sort -u) \
-    || buc_die "No <a id> anchor targets found in ${z_readme}"
+  local z_targets=()
+  zrbq_scan_captures "${z_readme}" "${z_target_re}"
+  if (( ${#z_rbq_scan_hits[@]} )); then
+    z_targets=("${z_rbq_scan_hits[@]}")
+  fi
+  test "${#z_targets[@]}" -gt 0 || buc_die "No <a id> anchor targets found in ${z_readme}"
 
   # Consumed set 1: internal markdown references ](#X) in README
-  local z_refs=""
-  z_refs=$(grep -oE '\]\(#[^)]+\)' "${z_readme}" | sed -E 's/^\]\(#//; s/\)$//' | sort -u) \
-    || buc_die "No internal ](#anchor) references found in ${z_readme}"
+  local z_refs=()
+  zrbq_scan_captures "${z_readme}" "${z_ref_re}"
+  if (( ${#z_rbq_scan_hits[@]} )); then
+    z_refs=("${z_rbq_scan_hits[@]}")
+  fi
+  test "${#z_refs[@]}" -gt 0 || buc_die "No internal ](#anchor) references found in ${z_readme}"
 
   # Consumed set 2: anchors minted by rbyc linked terms (third zrbyc_yk arg).
-  # The empty-anchor page-root mint is excluded by the [^"]+ requirement.
-  local z_minted=""
-  z_minted=$(grep -oE 'zrbyc_yk[[:space:]]+RBYC_[A-Z_]+[[:space:]]+"[$][{]z_docs[}]"[[:space:]]+"[^"]+"' "${z_rbyc}" \
-    | sed -E 's/^.*"([^"]+)"$/\1/' | sort -u) \
-    || buc_die "No rbyc linked-term anchor mints found in ${z_rbyc}"
+  local z_minted=()
+  zrbq_scan_captures "${z_rbyc}" "${z_mint_re}"
+  if (( ${#z_rbq_scan_hits[@]} )); then
+    z_minted=("${z_rbq_scan_hits[@]}")
+  fi
+  test "${#z_minted[@]}" -gt 0 || buc_die "No rbyc linked-term anchor mints found in ${z_rbyc}"
 
   local z_fail_names=()
   local z_fail_sources=()
 
   local z_name=""
-  while IFS= read -r z_name; do
-    test -n "${z_name}" || continue
-    printf '%s\n' "${z_targets}" | grep -Fxq "${z_name}" || {
+  for z_name in "${z_refs[@]}"; do
+    if ! zrbq_member_predicate "${z_name}" "${z_targets[@]}"; then
       z_fail_names+=("${z_name}")
       z_fail_sources+=("README internal ref")
-    }
-  done <<< "${z_refs}"
+    fi
+  done
 
-  while IFS= read -r z_name; do
-    test -n "${z_name}" || continue
-    printf '%s\n' "${z_targets}" | grep -Fxq "${z_name}" || {
+  for z_name in "${z_minted[@]}"; do
+    if ! zrbq_member_predicate "${z_name}" "${z_targets[@]}"; then
       z_fail_names+=("${z_name}")
       z_fail_sources+=("rbyc linked term")
-    }
-  done <<< "${z_minted}"
+    fi
+  done
 
   if (( ${#z_fail_names[@]} )); then
     local z_j=0
@@ -252,10 +319,7 @@ rbq_qualify_anchors() {
     buc_die "Anchor qualification failed: ${#z_fail_names[@]} dangling reference(s)"
   fi
 
-  local -r z_target_count=$(printf '%s\n' "${z_targets}" | wc -l | tr -d ' ')
-  local -r z_ref_count=$(printf '%s\n' "${z_refs}" | wc -l | tr -d ' ')
-  local -r z_minted_count=$(printf '%s\n' "${z_minted}" | wc -l | tr -d ' ')
-  buc_log_args "All ${z_ref_count} internal refs and ${z_minted_count} linked-term anchors resolve against ${z_target_count} targets"
+  buc_log_args "All ${#z_refs[@]} internal refs and ${#z_minted[@]} linked-term anchors resolve against ${#z_targets[@]} targets"
 }
 
 rbq_qualify_fast() {
