@@ -9600,8 +9600,9 @@
         "₢BsAAP": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260709-1022",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260709-1029",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_opus",
               "jjgtn_text": [
                 "Give every fixture registration optional declared cost expectations —",
                 "minimum wall-clock, maximum wall-clock, and tabtarget-invocation count —",
@@ -9639,7 +9640,7 @@
                 "Instrumentation schema change plus calibration judgment; verdict-neutral except the deliberate min-time error."
               ],
               "jjgtn_silks": "fixture-cost-expectations",
-              "jjgtn_basis": "2ea80f2"
+              "jjgtn_basis": "bd3e81c"
             }
           ]
         }
