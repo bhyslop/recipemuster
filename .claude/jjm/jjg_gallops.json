@@ -9135,9 +9135,10 @@
         "₢BsAAG",
         "₢BsAAH",
         "₢BsAAL",
-        "₢BsAAK"
+        "₢BsAAK",
+        "₢BsAAR"
       ],
-      "jjghn_next_pace_seed": "AAR",
+      "jjghn_next_pace_seed": "AAS",
       "jjghn_paces": {
         "₢BsAAA": {
           "jjgpn_tacks": [
@@ -9672,6 +9673,29 @@
               ],
               "jjgtn_silks": "observed-duration-census",
               "jjgtn_basis": "d3af682"
+            }
+          ]
+        },
+        "₢BsAAR": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260709-1122",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Carry out the release: take the candidate the cut pace left standing at the push gate (stripped, fast-qualified, link-checked) through the actual delivery —",
+                "the operator's push to the public repository and the post-push verification the ceremony document prescribes (published-docs URL reachable, delivered tree sane at the remote).",
+                "The ceremony document (RELEASE.md plus the refreshed rbk-prep-release flow) is the authority for steps; this pace exists so the delivery itself is chalked work, not an afterthought of the cut.",
+                "",
+                "## Done when",
+                "",
+                "The candidate is pushed and publicly visible; post-push checks green; the release recorded per the ceremony document.",
+                "",
+                "## Character",
+                "",
+                "Operator-present delivery ceremony; short, high-stakes."
+              ],
+              "jjgtn_silks": "carry-out-release",
+              "jjgtn_basis": "591b68d"
             }
           ]
         }
