@@ -62,6 +62,7 @@ pub mod rbtdru_bash;
 pub mod rbtdru_cupel;
 pub mod rbtdru_python;
 pub mod rbtdrv_patrol;
+pub mod rbtdrw_dowse;
 pub mod rbtdrx_platform;
 
 #[cfg(test)]
@@ -84,5 +85,7 @@ mod rbtdtm_manifest;
 mod rbtdto_onboarding;
 #[cfg(test)]
 mod rbtdtu_cupel;
+#[cfg(test)]
+mod rbtdtw_dowse;
 #[cfg(test)]
 mod rbtdtx_platform;

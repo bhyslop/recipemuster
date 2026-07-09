@@ -162,4 +162,21 @@ rbte_single() {
   "${ZRBTE_BINARY}" single ${z_fixture:+"${z_fixture}"} ${z_case:+"${z_case}"}
 }
 
+rbte_dowse() {
+  zrbte_sentinel
+
+  zrbte_build_binary
+
+  # Read-only census over the station's self-logs. The log dir is a station
+  # regime value (BURS_LOG_DIR); dispatch does not export it to children, so
+  # reach it by sourcing the launcher-exported station file — the burs_cli
+  # pattern.
+  test -n "${BURD_STATION_FILE:-}" || buc_die "BURD_STATION_FILE not set - launch via tabtarget"
+  source "${BURD_STATION_FILE}" || buc_die "Failed to source station file: ${BURD_STATION_FILE}"
+  test -n "${BURS_LOG_DIR:-}" || buc_die "BURS_LOG_DIR not set in ${BURD_STATION_FILE}"
+
+  buc_step "Dowsing observed tariff history"
+  "${ZRBTE_BINARY}" dowse "${BURS_LOG_DIR}"
+}
+
 # eof

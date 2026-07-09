@@ -204,6 +204,7 @@ The Folio column shows how each tabtarget receives it:
 | `rbw-ts` | TestSuite | imprint | Run a named test suite |
 | `rbw-tf` | FixtureRun | param1 | Run a single named test fixture |
 | `rbw-tc` | FixtureCase | param1 | Run one case against a charged crucible (omit to list fixtures/cases) |
+| `rbw-td` | TariffDowse | — | Dowse observed tariff history — per-suite and per-fixture durations from the station's logs-buk self-logs (read-only) |
 | `rbw-tq` | QualifyFast | — | Fast qualify: tabtargets, colophons, nameplate health |
 | `rbw-tr` | QualifyRelease | — | Release qualify: + shellcheck, full test suite |
 | `rbw-tl` | Shellcheck | — | Shellcheck only: BCG-configured static analysis, no test suite |

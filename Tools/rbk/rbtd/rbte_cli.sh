@@ -34,6 +34,7 @@ zrbte_furnish() {
   buc_doc_env "BURD_BUK_DIR          " "BUK module directory (dispatch-provided)"
   buc_doc_env "BURD_TABTARGET_DIR    " "Tabtarget directory (dispatch-provided; codegen input)"
   buc_doc_env "BURD_TEMP_DIR         " "Temp directory (dispatch-provided; codegen scratch)"
+  buc_doc_env "BURD_STATION_FILE     " "Station regime file (launcher-provided; dowse log-dir source)"
   buc_doc_env_done || return 0
 
   local z_cli_dir="${BASH_SOURCE[0]%/*}"

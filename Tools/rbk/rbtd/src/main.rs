@@ -24,6 +24,9 @@
 //     in bash) and run each in sequence, fail-fast, with one aggregate summary.
 //   rbtd single <fixture> [case]
 //     Single-case runner — no charge/quench. List cases or run one.
+//   rbtd dowse <log-dir>
+//     Observed-tariff census — read-only report over the station's logs-buk
+//     history; no tree guard, no roots, no context.
 
 // RCG output discipline: all emission via rbtdrg_*! — no direct println!/eprintln!
 
@@ -47,6 +50,7 @@ use rbtd::rbtdri_invocation::{
     rbtdri_Context, rbtdri_invoke_global,
     RBTDRI_BURD_TEMP_DIR_KEY,
 };
+use rbtd::rbtdrw_dowse::rbtdrw_dowse;
 use rbtd::rbtdgc_consts::RBTDGC_CRUCIBLE_ACTIVE;
 use rbtd::rbtdrx_platform::rbtdrx_path_from_env;
 
@@ -56,7 +60,24 @@ fn main() -> ExitCode {
     match args.get(1).map(|s| s.as_str()) {
         Some("single") => rbtdb_run_single(&args[2..]),
         Some("suite") => rbtdb_run_suite(&args[2..]),
+        Some("dowse") => rbtdb_run_dowse(&args[2..]),
         _ => rbtdb_run_fixture(&args[1..]),
+    }
+}
+
+// ── Dowse (observed-tariff census) ───────────────────────────
+
+fn rbtdb_run_dowse(args: &[String]) -> ExitCode {
+    let log_dir = match args.first() {
+        Some(d) => PathBuf::from(d),
+        None => rbtd::rbtdrg_fatal_now!(
+            "rbtd dowse: usage: rbtd dowse <log-dir>\n\
+             launch via tabtarget: tt/rbw-td.TariffDowse.sh"
+        ),
+    };
+    match rbtdrw_dowse(&log_dir) {
+        Ok(()) => ExitCode::SUCCESS,
+        Err(msg) => rbtd::rbtdrg_fatal_now!("rbtd: {}", msg),
     }
 }
 

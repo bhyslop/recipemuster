@@ -111,6 +111,7 @@ pub const RBTDGC_THEURGE_TEST: &str = "rbw-tt";
 pub const RBTDGC_THEURGE_SUITE: &str = "rbw-ts";
 pub const RBTDGC_THEURGE_FIXTURE: &str = "rbw-tf";
 pub const RBTDGC_THEURGE_CASE: &str = "rbw-tc";
+pub const RBTDGC_THEURGE_DOWSE: &str = "rbw-td";
 pub const RBTDGC_QUALIFY_FAST: &str = "rbw-tq";
 pub const RBTDGC_QUALIFY_RELEASE: &str = "rbw-tr";
 pub const RBTDGC_QUALIFY_SHELLCHECK: &str = "rbw-tl";
