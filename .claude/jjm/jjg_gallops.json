@@ -9097,8 +9097,8 @@
         "₢BsAAA": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260707-1333",
-              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_ts": "260709-0749",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_tier": "jjgde_sonnet",
               "jjgtn_text": [
                 "Run the self-contained and union suites to green on the current tree: tt/rbw-ts.TestSuite.siege.sh, then tt/rbw-ts.TestSuite.echelon.sh.",
@@ -9112,7 +9112,7 @@
                 "Long suite runs with watch-and-repair judgment."
               ],
               "jjgtn_silks": "siege-echelon-green",
-              "jjgtn_basis": "45b7e05"
+              "jjgtn_basis": "80f5cbe"
             }
           ]
         },
