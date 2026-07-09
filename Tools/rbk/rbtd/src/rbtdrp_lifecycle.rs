@@ -34,7 +34,7 @@ use std::path::Path;
 use crate::case;
 use crate::rbtdrb_probe::{rbtdrb_assert, rbtdrb_Probe};
 use crate::rbtdrc_crucible::rbtdrc_with_ctx;
-use crate::rbtdre_engine::{rbtdre_Case, rbtdre_Disposition, rbtdre_Fixture, rbtdre_Verdict};
+use crate::rbtdre_engine::{rbtdre_Case, rbtdre_Disposition, rbtdre_Fixture, rbtdre_Tariff, rbtdre_Verdict};
 use crate::rbtdri_invocation::{
     rbtdri_Context,
     RBTDRI_BURE_CONFIRM_KEY,
@@ -368,5 +368,6 @@ pub static RBTDRP_FIXTURE_DEPOT_LIFECYCLE: rbtdre_Fixture = rbtdre_Fixture {
     teardown: None,
     cases: RBTDRP_CASES_DEPOT_LIFECYCLE,
     credless: false,
+    tariff: rbtdre_Tariff::UNCHECKED,
 };
 const _: () = assert!(RBTDRP_FIXTURE_DEPOT_LIFECYCLE.cases.len() == 4);

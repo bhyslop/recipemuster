@@ -30,6 +30,7 @@ use std::process::{Command, Stdio};
 use crate::case;
 use crate::rbtdra_almanac::rbtdra_lookup_fixture;
 use crate::rbtdre_engine::{
+    rbtdre_Tariff,
     rbtdre_Case, rbtdre_Disposition, rbtdre_Fixture, rbtdre_Verdict,
 };
 use crate::rbtdri_invocation::{
@@ -2429,6 +2430,7 @@ pub static RBTDRC_FIXTURE_TADMOR: rbtdre_Fixture = rbtdre_Fixture {
     teardown: Some(rbtdrc_quench_crucible),
     cases: RBTDRC_CASES_SECURITY,
     credless: false,
+    tariff: rbtdre_Tariff::UNCHECKED,
 };
 
 // Moriah is the airgap-bottle nameplate; runtime semantics are identical
@@ -2441,6 +2443,7 @@ pub static RBTDRC_FIXTURE_MORIAH: rbtdre_Fixture = rbtdre_Fixture {
     teardown: Some(rbtdrc_quench_crucible),
     cases: RBTDRC_CASES_SECURITY,
     credless: false,
+    tariff: rbtdre_Tariff::UNCHECKED,
 };
 
 pub static RBTDRC_FIXTURE_SRJCL: rbtdre_Fixture = rbtdre_Fixture {
@@ -2450,6 +2453,7 @@ pub static RBTDRC_FIXTURE_SRJCL: rbtdre_Fixture = rbtdre_Fixture {
     teardown: Some(rbtdrc_quench_crucible),
     cases: RBTDRC_CASES_SRJCL,
     credless: false,
+    tariff: rbtdre_Tariff::UNCHECKED,
 };
 
 pub static RBTDRC_FIXTURE_PLUML: rbtdre_Fixture = rbtdre_Fixture {
@@ -2459,6 +2463,7 @@ pub static RBTDRC_FIXTURE_PLUML: rbtdre_Fixture = rbtdre_Fixture {
     teardown: Some(rbtdrc_quench_crucible),
     cases: RBTDRC_CASES_PLUML,
     credless: false,
+    tariff: rbtdre_Tariff::UNCHECKED,
 };
 
 

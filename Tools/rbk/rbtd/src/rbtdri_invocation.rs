@@ -193,6 +193,38 @@ pub fn rbtdri_credless_armed() -> bool {
     RBTDRI_CREDLESS_ARMED.with(|c| c.get())
 }
 
+// ── Tariff invocation tally ──────────────────────────────────
+
+thread_local! {
+    /// Per-fixture tabtarget-invocation tally, feeding the tariff footprint.
+    /// Thread-local for the same reason as the credless guard: the fixture's
+    /// setup, cases, and teardown all run on the thread that installed the
+    /// context, so a tally reset before the fixture and read after it captures
+    /// exactly that fixture's tabtarget launches. Unit tests on parallel threads
+    /// cannot perturb one another.
+    static RBTDRI_TARIFF_COUNT: std::cell::Cell<u32> = const { std::cell::Cell::new(0) };
+}
+
+/// Zero the current thread's tariff tally. Called by the engine before a
+/// fixture's setup so the count spans the whole fixture footprint.
+pub fn rbtdri_tariff_reset() {
+    RBTDRI_TARIFF_COUNT.with(|c| c.set(0));
+}
+
+/// Read the current thread's tariff tally — the tabtarget-invocation count since
+/// the last reset. Read by the engine after a fixture's teardown.
+pub fn rbtdri_tariff_count() -> u32 {
+    RBTDRI_TARIFF_COUNT.with(|c| c.get())
+}
+
+/// Bump the tariff tally by one. Called once per tabtarget launch from the
+/// single construction funnel below (`rbtdri_tabtarget_command`) — the one
+/// chokepoint every tabtarget spawn passes through, funnelled and direct-Command
+/// alike. Saturating so a runaway fixture cannot wrap the counter.
+fn zrbtdri_tariff_bump() {
+    RBTDRI_TARIFF_COUNT.with(|c| c.set(c.get().saturating_add(1)));
+}
+
 // ── Tabtarget discovery ──────────────────────────────────────
 
 /// Find the tabtarget script for a colophon + imprint (nameplate or role).
@@ -318,11 +350,16 @@ pub fn rbtdri_bash_program() -> &'static str {
 /// so the call site is unconditional. Callers chain `.args(...)`,
 /// `.current_dir(...)`, and `.env(...)` as on any `Command::new` result.
 ///
-/// The credless guard lands here — the one constructor every tabtarget launch
-/// goes through, including the direct-Command case helpers that bypass
-/// `rbtdri_invoke*` — so a reveille-tier fixture cannot spawn an unguarded
-/// tabtarget by construction.
+/// The credless guard AND the tariff tally both land here — the one constructor
+/// every tabtarget launch goes through, including the direct-Command case
+/// helpers that bypass `rbtdri_invoke*`. A reveille-tier fixture cannot spawn an
+/// unguarded tabtarget by construction, and no tabtarget launch escapes the
+/// invocation count. Non-tabtarget subprocesses (docker/curl/git in the
+/// verification helpers, the inline `bash -c` in rbtdrf) are deliberately NOT
+/// built here and so are deliberately NOT tallied — the tariff counts tabtarget
+/// invocations, not every child process.
 pub fn rbtdri_tabtarget_command(tabtarget: &Path) -> Command {
+    zrbtdri_tariff_bump();
     let mut cmd = Command::new(rbtdri_bash_program());
     cmd.arg(rbtdrx_native_to_posix(tabtarget));
     if rbtdri_credless_armed() {

@@ -40,7 +40,8 @@ use rbtd::rbtdra_almanac::{
 use rbtd::rbtdrc_crucible::{rbtdrc_set_context, rbtdrc_take_context};
 use rbtd::rbtdre_engine::{
     rbtdre_detect_colors, rbtdre_find_case, rbtdre_list_cases, rbtdre_print_summary,
-    rbtdre_run_fixture, rbtdre_run_single_case, rbtdre_tree_clean,
+    rbtdre_print_tariff_table, rbtdre_run_fixture, rbtdre_run_single_case,
+    rbtdre_tariff_declared, rbtdre_tree_clean, rbtdre_TariffRow,
 };
 use rbtd::rbtdri_invocation::{
     rbtdri_Context, rbtdri_invoke_global,
@@ -210,6 +211,8 @@ fn rbtdb_run_suite(args: &[String]) -> ExitCode {
     let mut total_failed = 0usize;
     let mut total_skipped = 0usize;
     let mut ran = 0usize;
+    // Collected per-fixture tariff footprints for the suite-end drift table.
+    let mut tariff_rows: Vec<rbtdre_TariffRow> = Vec::new();
 
     // Sequential, fail-fast across fixtures — matches the bash for-loop under
     // `set -e`. A fixture whose cases fail (or whose setup errors) stops the
@@ -244,6 +247,12 @@ fn rbtdb_run_suite(args: &[String]) -> ExitCode {
         match run_result {
             Ok(result) => {
                 rbtdre_print_summary(&result, &colors);
+                tariff_rows.push(rbtdre_TariffRow {
+                    name: fixture.name.to_string(),
+                    tariff: fixture.tariff,
+                    elapsed_secs: result.elapsed_secs,
+                    invocations: result.invocations,
+                });
                 total_passed += result.passed;
                 total_failed += result.failed;
                 total_skipped += result.skipped;
@@ -260,6 +269,8 @@ fn rbtdb_run_suite(args: &[String]) -> ExitCode {
             }
         }
     }
+
+    rbtdre_print_tariff_table(&tariff_rows);
 
     rbtd::rbtdrg_info_now!(
         "Suite '{}': {} fixture(s) run, {} passed, {} failed, {} skipped",
@@ -353,6 +364,10 @@ fn rbtdb_run_single(args: &[String]) -> ExitCode {
     // No case argument — list all cases
     let case_name = match args.get(1) {
         None => {
+            rbtd::rbtdrg_info_now!(
+                "fixture '{}' declared tariff: [{}]",
+                fixture, rbtdre_tariff_declared(&fixture_def.tariff)
+            );
             rbtdre_list_cases(cases);
             return ExitCode::SUCCESS;
         }
@@ -389,7 +404,18 @@ fn rbtdb_run_single(args: &[String]) -> ExitCode {
 
 fn rbtdb_list_fixtures() {
     rbtd::rbtdrg_info_now!("available fixtures:");
+    let mut eta_min = 0u64;
+    let mut eta_max = 0u64;
     for f in RBTDRA_FIXTURES {
-        rbtd::rbtdrg_info_now!("  {}", f.name);
+        rbtd::rbtdrg_info_now!("  {:<28} [{}]", f.name, rbtdre_tariff_declared(&f.tariff));
+        eta_min += f.tariff.min_secs.unwrap_or(0);
+        eta_max += f.tariff.max_secs.unwrap_or(0);
     }
+    // Declared-cost ETA envelope: the sum of declared min/max wall-clock across
+    // the roster. Undeclared bounds contribute zero, so this is a lower bound on
+    // the envelope, not a promise — it grows as declarations are seeded.
+    rbtd::rbtdrg_info_now!(
+        "declared-cost ETA envelope (sum of declared bounds): min {}s, max {}s",
+        eta_min, eta_max
+    );
 }

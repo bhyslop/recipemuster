@@ -62,6 +62,7 @@ use std::path::{
 
 use crate::case;
 use crate::rbtdre_engine::{
+    rbtdre_Tariff,
     rbtdre_Case,
     rbtdre_Disposition,
     rbtdre_Fixture,
@@ -881,4 +882,5 @@ pub static RBTDRQ_FIXTURE_PYX: rbtdre_Fixture = rbtdre_Fixture {
     teardown: None,
     cases: RBTDRQ_CASES_PYX,
     credless: true,
+    tariff: rbtdre_Tariff::UNCHECKED,
 };

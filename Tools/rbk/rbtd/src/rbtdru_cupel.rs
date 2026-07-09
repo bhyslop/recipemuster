@@ -54,6 +54,7 @@ use std::path::{
 
 use crate::case;
 use crate::rbtdre_engine::{
+    rbtdre_Tariff,
     rbtdre_Case,
     rbtdre_Disposition,
     rbtdre_Fixture,
@@ -380,4 +381,5 @@ pub static RBTDRU_FIXTURE_CUPEL: rbtdre_Fixture = rbtdre_Fixture {
     teardown: None,
     cases: RBTDRU_CASES_CUPEL,
     credless: true,
+    tariff: rbtdre_Tariff::UNCHECKED,
 };

@@ -380,6 +380,187 @@ pub fn rbtdre_config_zero(file: &Path, field: &str) -> Result<(), String> {
     rbtdre_config_set_field(file, field, "")
 }
 
+// ── Tariff (declared cost expectation) ─────────────────────────
+//
+// A fixture's tariff is its declared cost schedule: the wall-clock and
+// tabtarget-invocation footprint a healthy green is expected to carry. Each of
+// the three bounds is independently optional — None means "unchecked" for that
+// bound, and the all-None UNCHECKED default leaves a fixture entirely
+// unevaluated (it runs exactly as it did before tariffs existed).
+//
+// The three bounds are NOT symmetric in consequence:
+//   * min_secs is a VACUITY floor — a green that finished faster than the work
+//     could possibly take did not do the work, so a too-fast observation is a
+//     fixture FAILURE. It stops the suite through the runner's existing
+//     break-on-failure (a too-fast fold into the case-failure count), never a
+//     second stopping mechanism.
+//   * max_secs and invocations are DRIFT warnings — never verdict-affecting.
+//     max-time is Palisade weather (cloud queue, cold image pulls) and must not
+//     make the verdict host-dependent; a count that drifted is a structural
+//     signal, printed for the operator, not a failure.
+// Every violation prints declared-vs-observed so an adjustment is a one-line
+// edit at the declaration site.
+
+/// A fixture's declared cost expectation. See the section header for the
+/// asymmetry between the vacuity floor (min) and the two drift warnings.
+#[derive(Copy, Clone)]
+pub struct rbtdre_Tariff {
+    pub min_secs: Option<u64>,
+    pub max_secs: Option<u64>,
+    pub invocations: Option<u32>,
+}
+
+impl rbtdre_Tariff {
+    /// The undeclared default — every bound unchecked. A fixture carrying this
+    /// is never tariff-evaluated: legitimately-variable fixtures (and any not
+    /// yet seeded from observed greens) declare it and run exactly as before.
+    pub const UNCHECKED: rbtdre_Tariff = rbtdre_Tariff {
+        min_secs: None,
+        max_secs: None,
+        invocations: None,
+    };
+}
+
+/// Grep token leading every tariff line (per-fixture and suite-end table) — one
+/// stable handle so the logs-buk history greps into a drift census. Minted
+/// grep-clean repo-wide.
+pub const RBTDRE_TARIFF_TOKEN: &str = "tariff";
+
+/// Outcome of evaluating a fixture's observed footprint against its declared
+/// tariff. Produced by the pure `rbtdre_evaluate_tariff` seam from (declared,
+/// observed) alone — no I/O — so the three violation kinds are unit-testable
+/// without spawning a single subprocess.
+pub struct rbtdre_TariffReport {
+    pub elapsed_secs: u64,
+    pub invocations: u32,
+    /// Observed wall-clock strictly below the declared min — a FAILURE.
+    pub too_fast: bool,
+    /// Observed wall-clock strictly above the declared max — a warning.
+    pub too_slow: bool,
+    /// Observed invocation count != the declared count — a warning.
+    pub count_drift: bool,
+}
+
+/// The pure tariff-evaluation seam: declared tariff + observed footprint →
+/// report. No timing, no spawning, no console — every unchecked (None) bound
+/// yields its violation flag false, so an UNCHECKED tariff reports all-clear.
+/// This is the unit-tested heart of the feature (deliberate violation of each
+/// kind asserts the corresponding flag).
+pub fn rbtdre_evaluate_tariff(
+    tariff: &rbtdre_Tariff,
+    elapsed_secs: u64,
+    invocations: u32,
+) -> rbtdre_TariffReport {
+    rbtdre_TariffReport {
+        elapsed_secs,
+        invocations,
+        too_fast: tariff.min_secs.is_some_and(|m| elapsed_secs < m),
+        too_slow: tariff.max_secs.is_some_and(|m| elapsed_secs > m),
+        count_drift: tariff.invocations.is_some_and(|c| invocations != c),
+    }
+}
+
+/// Render one optional wall-clock bound for display — a declared value as
+/// `Ns`, an unchecked bound as an em-dash.
+fn rbtdre_fmt_secs(o: Option<u64>) -> String {
+    o.map_or_else(|| "—".to_string(), |v| format!("{}s", v))
+}
+
+/// Render one optional count bound for display — a declared value, or an
+/// em-dash when unchecked.
+fn rbtdre_fmt_count(o: Option<u32>) -> String {
+    o.map_or_else(|| "—".to_string(), |v| v.to_string())
+}
+
+/// Compact one-line rendering of a declared tariff — unchecked bounds as
+/// em-dash. Used by the no-arg fixture/case listing so declared costs surface
+/// and a planned run sums to an ETA.
+pub fn rbtdre_tariff_declared(tariff: &rbtdre_Tariff) -> String {
+    format!(
+        "min={} max={} inv={}",
+        rbtdre_fmt_secs(tariff.min_secs),
+        rbtdre_fmt_secs(tariff.max_secs),
+        rbtdre_fmt_count(tariff.invocations),
+    )
+}
+
+/// Print the per-fixture tariff line under the grep token: observed footprint
+/// plus the declared bounds it was checked against (unchecked bounds shown as
+/// em-dash so the observed values still seed a future declaration). A too-fast
+/// observation additionally prints a FAILED line (the caller folds it into the
+/// failure count); too-slow and count-drift print advisory WARNING lines.
+pub fn rbtdre_print_tariff(
+    name: &str,
+    tariff: &rbtdre_Tariff,
+    report: &rbtdre_TariffReport,
+    colors: &rbtdre_Colors,
+) {
+    crate::rbtdrg_info_now!(
+        "{} {}: elapsed={}s invocations={} [declared min={} max={} invocations={}]",
+        RBTDRE_TARIFF_TOKEN, name, report.elapsed_secs, report.invocations,
+        rbtdre_fmt_secs(tariff.min_secs), rbtdre_fmt_secs(tariff.max_secs),
+        rbtdre_fmt_count(tariff.invocations),
+    );
+    if report.too_fast {
+        crate::rbtdrg_info_now!(
+            "{}FAILED:{} {} tariff too-fast — elapsed {}s below declared min {} (vacuous green)",
+            colors.red, colors.reset, name, report.elapsed_secs,
+            rbtdre_fmt_secs(tariff.min_secs),
+        );
+    }
+    if report.too_slow {
+        crate::rbtdrg_info_now!(
+            "{}WARNING:{} {} tariff too-slow — elapsed {}s above declared max {} (advisory)",
+            colors.yellow, colors.reset, name, report.elapsed_secs,
+            rbtdre_fmt_secs(tariff.max_secs),
+        );
+    }
+    if report.count_drift {
+        crate::rbtdrg_info_now!(
+            "{}WARNING:{} {} tariff count-drift — {} invocations vs declared {} (advisory)",
+            colors.yellow, colors.reset, name, report.invocations,
+            rbtdre_fmt_count(tariff.invocations),
+        );
+    }
+}
+
+/// One collected row of the suite-end tariff drift table.
+pub struct rbtdre_TariffRow {
+    pub name: String,
+    pub tariff: rbtdre_Tariff,
+    pub elapsed_secs: u64,
+    pub invocations: u32,
+}
+
+/// Print the consolidated suite-end tariff drift table — every fixture's
+/// observed footprint beside its declaration, each row under the grep token so
+/// the whole census is greppable out of one suite log. A no-op when no rows were
+/// collected (single-fixture runs print only the per-fixture line above).
+pub fn rbtdre_print_tariff_table(rows: &[rbtdre_TariffRow]) {
+    if rows.is_empty() {
+        return;
+    }
+    crate::rbtdrg_info_now!("{} drift table (observed vs declared):", RBTDRE_TARIFF_TOKEN);
+    for r in rows {
+        let report = rbtdre_evaluate_tariff(&r.tariff, r.elapsed_secs, r.invocations);
+        let flag = if report.too_fast {
+            " TOO-FAST"
+        } else if report.too_slow {
+            " too-slow"
+        } else if report.count_drift {
+            " count-drift"
+        } else {
+            ""
+        };
+        crate::rbtdrg_info_now!(
+            "{}  {:<28} elapsed={:>4}s inv={:>3}  decl[min={} max={} inv={}]{}",
+            RBTDRE_TARIFF_TOKEN, r.name, r.elapsed_secs, r.invocations,
+            rbtdre_fmt_secs(r.tariff.min_secs), rbtdre_fmt_secs(r.tariff.max_secs),
+            rbtdre_fmt_count(r.tariff.invocations), flag,
+        );
+    }
+}
+
 // ── Case and Fixture ───────────────────────────────────────────
 
 /// A named test case with a function that receives its isolated temp directory.
@@ -414,6 +595,11 @@ pub struct rbtdre_Fixture {
     /// reveille-suite members; a guarded fixture's cases carry no tweaks of their
     /// own (in the reveille tier the slot belongs to the guard).
     pub credless: bool,
+    /// Declared cost expectation — the wall-clock and invocation footprint a
+    /// healthy green is checked against as the fixture completes. `UNCHECKED`
+    /// (the undeclared default) leaves the fixture entirely unevaluated. See
+    /// `rbtdre_Tariff`.
+    pub tariff: rbtdre_Tariff,
 }
 
 /// A named suite — an ordered set of fixtures run as one sequential batch.
@@ -490,6 +676,13 @@ pub struct rbtdre_RunResult {
     pub failed: usize,
     pub skipped: usize,
     pub temp_dir: PathBuf,
+    /// Observed whole-fixture wall-clock (setup + cases + teardown), in seconds.
+    /// Populated by `rbtdre_run_fixture`; zero on the case-only runners, which
+    /// have no fixture footprint to measure.
+    pub elapsed_secs: u64,
+    /// Observed tabtarget-invocation count over the whole fixture, read from the
+    /// invocation-layer tally. Zero on the case-only runners.
+    pub invocations: u32,
 }
 
 /// Run all cases sequentially, dispatching each with per-case temp dir isolation.
@@ -540,6 +733,8 @@ pub fn rbtdre_run_cases(
         failed,
         skipped,
         temp_dir: root_temp.to_path_buf(),
+        elapsed_secs: 0,
+        invocations: 0,
     })
 }
 
@@ -589,12 +784,19 @@ pub fn rbtdre_run_fixture(
     colors: &rbtdre_Colors,
     root_temp: &Path,
 ) -> Result<rbtdre_RunResult, String> {
+    // Reset the invocation tally and start the wall-clock BEFORE setup, so the
+    // tariff footprint spans setup/teardown (charge/quench) as well as the
+    // cases — the whole fixture, not just its case bodies. The tally is a
+    // thread-local and the cases run on this thread, so the count is coherent.
+    crate::rbtdri_invocation::rbtdri_tariff_reset();
+    let started = Instant::now();
+
     let setup_result = match fixture.setup {
         Some(f) => f(),
         None => Ok(()),
     };
 
-    let run_result = match setup_result {
+    let mut run_result = match setup_result {
         Ok(()) => {
             let fail_fast = rbtdre_resolve_fail_fast(fixture.disposition, false)
                 .expect("disposition-default mode never fails policy resolution");
@@ -605,6 +807,24 @@ pub fn rbtdre_run_fixture(
 
     if let Some(f) = fixture.teardown {
         f();
+    }
+
+    // Tariff evaluation — the fixture is complete (setup + cases + teardown), so
+    // wall-clock and tally are final. Evaluate against the declared tariff via
+    // the pure seam, print the per-fixture line, and fold a too-fast verdict
+    // into the case-failure count so the suite stops through the runner's
+    // EXISTING break-on-failure — no second stopping mechanism. A setup failure
+    // (Err run_result) already fails the fixture and is left untouched.
+    let elapsed_secs = started.elapsed().as_secs();
+    let invocations = crate::rbtdri_invocation::rbtdri_tariff_count();
+    if let Ok(result) = run_result.as_mut() {
+        result.elapsed_secs = elapsed_secs;
+        result.invocations = invocations;
+        let report = rbtdre_evaluate_tariff(&fixture.tariff, elapsed_secs, invocations);
+        rbtdre_print_tariff(fixture.name, &fixture.tariff, &report, colors);
+        if report.too_fast {
+            result.failed += 1;
+        }
     }
 
     run_result
@@ -643,5 +863,7 @@ pub fn rbtdre_run_single_case(
         failed,
         skipped,
         temp_dir: root_temp.to_path_buf(),
+        elapsed_secs: 0,
+        invocations: 0,
     })
 }

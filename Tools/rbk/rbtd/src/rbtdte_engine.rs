@@ -412,3 +412,66 @@ fn rbtdte_commit_nameplates_scopes_to_named_class_only() {
     );
     let _ = std::fs::remove_dir_all(&tmp);
 }
+
+// ── Tariff evaluation seam ─────────────────────────────────────
+//
+// The pure seam is the tariff feature's testable heart: given a declared tariff
+// and an observed (elapsed, invocations), it must flag exactly the violated
+// bounds and nothing else. No spawning, no timing — deliberate violation of each
+// kind asserts its flag, and every unchecked bound stays silent.
+
+#[test]
+fn rbtdte_tariff_unchecked_never_flags() {
+    // UNCHECKED (all bounds None) must report all-clear no matter how extreme
+    // the observation — this is what "undeclared fixtures run exactly as before"
+    // rests on.
+    let r = rbtdre_evaluate_tariff(&rbtdre_Tariff::UNCHECKED, 0, 0);
+    assert!(!r.too_fast && !r.too_slow && !r.count_drift);
+    let r = rbtdre_evaluate_tariff(&rbtdre_Tariff::UNCHECKED, 99_999, 9_999);
+    assert!(!r.too_fast && !r.too_slow && !r.count_drift);
+}
+
+#[test]
+fn rbtdte_tariff_min_is_a_strict_floor() {
+    let t = rbtdre_Tariff { min_secs: Some(10), max_secs: None, invocations: None };
+    // Strictly below → too_fast (the vacuity catch).
+    assert!(rbtdre_evaluate_tariff(&t, 9, 0).too_fast);
+    // Exactly at, and above → clear (a boundary green is not vacuous).
+    assert!(!rbtdre_evaluate_tariff(&t, 10, 0).too_fast);
+    assert!(!rbtdre_evaluate_tariff(&t, 11, 0).too_fast);
+    // The floor never trips the drift warnings.
+    let r = rbtdre_evaluate_tariff(&t, 9, 0);
+    assert!(!r.too_slow && !r.count_drift);
+}
+
+#[test]
+fn rbtdte_tariff_max_is_a_strict_ceiling_warning() {
+    let t = rbtdre_Tariff { min_secs: None, max_secs: Some(60), invocations: None };
+    assert!(rbtdre_evaluate_tariff(&t, 61, 0).too_slow);
+    assert!(!rbtdre_evaluate_tariff(&t, 60, 0).too_slow);
+    assert!(!rbtdre_evaluate_tariff(&t, 59, 0).too_slow);
+    // A too-slow observation is never also a failure.
+    assert!(!rbtdre_evaluate_tariff(&t, 61, 0).too_fast);
+}
+
+#[test]
+fn rbtdte_tariff_count_drift_is_exact_mismatch() {
+    let t = rbtdre_Tariff { min_secs: None, max_secs: None, invocations: Some(23) };
+    assert!(rbtdre_evaluate_tariff(&t, 0, 22).count_drift);
+    assert!(rbtdre_evaluate_tariff(&t, 0, 24).count_drift);
+    assert!(!rbtdre_evaluate_tariff(&t, 0, 23).count_drift);
+}
+
+#[test]
+fn rbtdte_tariff_bounds_are_independent() {
+    // All three declared: a clean observation flags nothing; a mixed violation
+    // (too-fast AND count-drift) flags exactly those two, leaving too-slow off.
+    let t = rbtdre_Tariff { min_secs: Some(5), max_secs: Some(50), invocations: Some(3) };
+    let clean = rbtdre_evaluate_tariff(&t, 20, 3);
+    assert!(!clean.too_fast && !clean.too_slow && !clean.count_drift);
+    let mixed = rbtdre_evaluate_tariff(&t, 2, 4);
+    assert!(mixed.too_fast && mixed.count_drift && !mixed.too_slow);
+    // The report echoes the observation for the declared-vs-observed print.
+    assert_eq!(mixed.elapsed_secs, 2);
+    assert_eq!(mixed.invocations, 4);
+}

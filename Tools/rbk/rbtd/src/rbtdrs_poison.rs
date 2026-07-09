@@ -54,6 +54,7 @@ use crate::rbtdgc_consts::{
     RBTDGC_VALIDATE_VESSEL,
 };
 use crate::rbtdre_engine::{
+    rbtdre_Tariff,
     rbtdre_Case,
     rbtdre_Disposition,
     rbtdre_Fixture,
@@ -426,4 +427,5 @@ pub static RBTDRS_FIXTURE_REGIME_POISON: rbtdre_Fixture = rbtdre_Fixture {
     teardown: None,
     cases: RBTDRS_CASES_REGIME_POISON,
     credless: false,
+    tariff: rbtdre_Tariff::UNCHECKED,
 };

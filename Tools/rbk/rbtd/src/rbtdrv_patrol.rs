@@ -27,7 +27,7 @@ use std::process::{Command, Stdio};
 
 use crate::case;
 use crate::rbtdrc_crucible::rbtdrc_with_ctx;
-use crate::rbtdre_engine::{rbtdre_Case, rbtdre_Disposition, rbtdre_Fixture, rbtdre_Verdict};
+use crate::rbtdre_engine::{rbtdre_Case, rbtdre_Disposition, rbtdre_Fixture, rbtdre_Tariff, rbtdre_Verdict};
 use crate::rbtdri_invocation::{
     rbtdri_Context, rbtdri_InvokeResult, rbtdri_gar_ref_categorical, rbtdri_invoke_global,
     rbtdri_invoke_or_fail,
@@ -67,6 +67,7 @@ pub static RBTDRV_FIXTURE_HALLMARK_LIFECYCLE: rbtdre_Fixture = rbtdre_Fixture {
     teardown: None,
     cases: RBTDRV_CASES_HALLMARK_LIFECYCLE,
     credless: false,
+    tariff: rbtdre_Tariff::UNCHECKED,
 };
 
 pub static RBTDRV_FIXTURE_LODE_LIFECYCLE: rbtdre_Fixture = rbtdre_Fixture {
@@ -76,6 +77,7 @@ pub static RBTDRV_FIXTURE_LODE_LIFECYCLE: rbtdre_Fixture = rbtdre_Fixture {
     teardown: None,
     cases: RBTDRV_CASES_LODE_LIFECYCLE,
     credless: false,
+    tariff: rbtdre_Tariff::UNCHECKED,
 };
 
 pub static RBTDRV_FIXTURE_RELIQUARY_LIFECYCLE: rbtdre_Fixture = rbtdre_Fixture {
@@ -85,6 +87,7 @@ pub static RBTDRV_FIXTURE_RELIQUARY_LIFECYCLE: rbtdre_Fixture = rbtdre_Fixture {
     teardown: None,
     cases: RBTDRV_CASES_RELIQUARY_LIFECYCLE,
     credless: false,
+    tariff: rbtdre_Tariff::UNCHECKED,
 };
 
 pub static RBTDRV_FIXTURE_WSL_LIFECYCLE: rbtdre_Fixture = rbtdre_Fixture {
@@ -94,6 +97,7 @@ pub static RBTDRV_FIXTURE_WSL_LIFECYCLE: rbtdre_Fixture = rbtdre_Fixture {
     teardown: None,
     cases: RBTDRV_CASES_WSL_LIFECYCLE,
     credless: false,
+    tariff: rbtdre_Tariff::UNCHECKED,
 };
 
 pub static RBTDRV_FIXTURE_PODVM_LIFECYCLE: rbtdre_Fixture = rbtdre_Fixture {
@@ -103,6 +107,7 @@ pub static RBTDRV_FIXTURE_PODVM_LIFECYCLE: rbtdre_Fixture = rbtdre_Fixture {
     teardown: None,
     cases: RBTDRV_CASES_PODVM_LIFECYCLE,
     credless: false,
+    tariff: rbtdre_Tariff::UNCHECKED,
 };
 
 pub static RBTDRV_FIXTURE_FOEDUS_LIFECYCLE: rbtdre_Fixture = rbtdre_Fixture {
@@ -112,6 +117,7 @@ pub static RBTDRV_FIXTURE_FOEDUS_LIFECYCLE: rbtdre_Fixture = rbtdre_Fixture {
     teardown: None,
     cases: RBTDRV_CASES_FOEDUS_LIFECYCLE,
     credless: false,
+    tariff: rbtdre_Tariff::UNCHECKED,
 };
 
 pub static RBTDRV_FIXTURE_FOEDUS_REUSE: rbtdre_Fixture = rbtdre_Fixture {
@@ -121,6 +127,7 @@ pub static RBTDRV_FIXTURE_FOEDUS_REUSE: rbtdre_Fixture = rbtdre_Fixture {
     teardown: None,
     cases: RBTDRV_CASES_FOEDUS_REUSE,
     credless: false,
+    tariff: rbtdre_Tariff::UNCHECKED,
 };
 
 pub static RBTDRV_FIXTURE_BATCH_VOUCH: rbtdre_Fixture = rbtdre_Fixture {
@@ -130,6 +137,7 @@ pub static RBTDRV_FIXTURE_BATCH_VOUCH: rbtdre_Fixture = rbtdre_Fixture {
     teardown: None,
     cases: RBTDRV_CASES_BATCH_VOUCH,
     credless: false,
+    tariff: rbtdre_Tariff::UNCHECKED,
 };
 
 pub static RBTDRV_FIXTURE_ACCESS_PROBE: rbtdre_Fixture = rbtdre_Fixture {
@@ -139,6 +147,7 @@ pub static RBTDRV_FIXTURE_ACCESS_PROBE: rbtdre_Fixture = rbtdre_Fixture {
     teardown: None,
     cases: RBTDRV_CASES_ACCESS_PROBE,
     credless: false,
+    tariff: rbtdre_Tariff::UNCHECKED,
 };
 
 pub static RBTDRV_FIXTURE_CREDENTIAL_READINESS: rbtdre_Fixture = rbtdre_Fixture {
@@ -148,6 +157,7 @@ pub static RBTDRV_FIXTURE_CREDENTIAL_READINESS: rbtdre_Fixture = rbtdre_Fixture 
     teardown: None,
     cases: RBTDRV_CASES_CREDENTIAL_READINESS,
     credless: false,
+    tariff: rbtdre_Tariff::UNCHECKED,
 };
 
 pub static RBTDRV_FIXTURE_POLITY_DENIAL: rbtdre_Fixture = rbtdre_Fixture {
@@ -157,6 +167,7 @@ pub static RBTDRV_FIXTURE_POLITY_DENIAL: rbtdre_Fixture = rbtdre_Fixture {
     teardown: None,
     cases: RBTDRV_CASES_POLITY_DENIAL,
     credless: false,
+    tariff: rbtdre_Tariff::UNCHECKED,
 };
 
 pub static RBTDRV_FIXTURE_PARLEY: rbtdre_Fixture = rbtdre_Fixture {
@@ -166,6 +177,7 @@ pub static RBTDRV_FIXTURE_PARLEY: rbtdre_Fixture = rbtdre_Fixture {
     teardown: None,
     cases: RBTDRV_CASES_PARLEY,
     credless: false,
+    tariff: rbtdre_Tariff::UNCHECKED,
 };
 
 // Chaining-fact livery — the cloud sibling of the local chaining-fact band
@@ -180,6 +192,7 @@ pub static RBTDRV_FIXTURE_CHAINING_LIVERY: rbtdre_Fixture = rbtdre_Fixture {
     teardown: None,
     cases: RBTDRV_CASES_CHAINING_LIVERY,
     credless: false,
+    tariff: rbtdre_Tariff::UNCHECKED,
 };
 
 // ── Hallmark / ark vocabulary and docker helpers ─────────────

@@ -22,7 +22,7 @@
 use std::path::Path;
 
 use crate::case;
-use crate::rbtdre_engine::{rbtdre_Case, rbtdre_Disposition, rbtdre_Fixture, rbtdre_Verdict};
+use crate::rbtdre_engine::{rbtdre_Case, rbtdre_Disposition, rbtdre_Fixture, rbtdre_Tariff, rbtdre_Verdict};
 use crate::rbtdri_invocation::{rbtdri_find_tabtarget_global, rbtdri_tabtarget_command};
 use crate::rbtdgc_consts::{
     RBTDGC_ONBOARD_CRASH_COURSE, RBTDGC_ONBOARD_DIR_FIRST_BUILD,
@@ -129,4 +129,5 @@ pub static RBTDRF_FIXTURE_HANDBOOK_RENDER: rbtdre_Fixture = rbtdre_Fixture {
     teardown: None,
     cases: RBTDRF_CASES_HANDBOOK_RENDER,
     credless: true,
+    tariff: rbtdre_Tariff::UNCHECKED,
 };

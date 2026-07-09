@@ -43,6 +43,7 @@ use crate::rbtdrv_patrol::{
     RBTDRV_ARK_BASENAME_VOUCH, RBTDRV_GAR_CATEGORY_HALLMARKS,
 };
 use crate::rbtdre_engine::{
+    rbtdre_Tariff,
     rbtdre_commit_nameplates, rbtdre_commit_vessels, rbtdre_commit_vessels_all,
     rbtdre_config_set_field, rbtdre_Case, rbtdre_Disposition, rbtdre_Fixture, rbtdre_Verdict,
 };
@@ -559,6 +560,7 @@ pub static RBTDRO_FIXTURE_KLUDGE_TADMOR: rbtdre_Fixture = rbtdre_Fixture {
     teardown: None,
     cases: RBTDRO_CASES_KLUDGE_TADMOR,
     credless: false,
+    tariff: rbtdre_Tariff::UNCHECKED,
 };
 
 /// Build ccyolo sentry and bottle locally, then anoint graft-demo off the
@@ -1221,5 +1223,6 @@ pub static RBTDRO_FIXTURE_ONBOARDING_SEQUENCE: rbtdre_Fixture = rbtdre_Fixture {
     teardown: None,
     cases: RBTDRO_CASES_ONBOARDING_SEQUENCE,
     credless: false,
+    tariff: rbtdre_Tariff::UNCHECKED,
 };
 const _: () = assert!(RBTDRO_FIXTURE_ONBOARDING_SEQUENCE.cases.len() == 8);

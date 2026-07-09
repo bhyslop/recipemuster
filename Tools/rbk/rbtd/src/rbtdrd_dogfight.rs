@@ -48,7 +48,7 @@ use crate::rbtdrv_patrol::{
     rbtdrv_docker_config_label, rbtdrv_docker_inspect, RBTDRV_ARK_BASENAME_IMAGE,
     RBTDRV_BUSYBOX_VESSEL_DIR,
 };
-use crate::rbtdre_engine::{rbtdre_Case, rbtdre_Disposition, rbtdre_Fixture, rbtdre_Verdict};
+use crate::rbtdre_engine::{rbtdre_Case, rbtdre_Disposition, rbtdre_Fixture, rbtdre_Tariff, rbtdre_Verdict};
 use crate::rbtdri_invocation::{
     rbtdri_gar_ref_fact, rbtdri_invoke_or_fail, rbtdri_ordain_capture_full, rbtdri_Context,
     RBTDRI_BURE_CONFIRM_KEY, RBTDRI_BURE_CONFIRM_SKIP,
@@ -255,4 +255,5 @@ pub static RBTDRD_FIXTURE_DOGFIGHT: rbtdre_Fixture = rbtdre_Fixture {
     teardown: None,
     cases: RBTDRD_CASES_DOGFIGHT,
     credless: false,
+    tariff: rbtdre_Tariff::UNCHECKED,
 };

@@ -44,7 +44,7 @@ use std::path::Path;
 use crate::case;
 use crate::rbtdrb_probe::{rbtdrb_assert, rbtdrb_Probe};
 use crate::rbtdrc_crucible::rbtdrc_with_ctx;
-use crate::rbtdre_engine::{rbtdre_Case, rbtdre_Disposition, rbtdre_Fixture, rbtdre_Verdict};
+use crate::rbtdre_engine::{rbtdre_Case, rbtdre_Disposition, rbtdre_Fixture, rbtdre_Tariff, rbtdre_Verdict};
 use crate::rbtdri_invocation::rbtdri_Context;
 use crate::rbtdgc_consts::{
     RBTDGC_ACCOUNT_DIRECTOR,
@@ -466,6 +466,7 @@ pub static RBTDRK_FIXTURE_FREEHOLD_ESTABLISH: rbtdre_Fixture = rbtdre_Fixture {
     teardown: None,
     cases: RBTDRK_CASES_FREEHOLD_ESTABLISH,
     credless: false,
+    tariff: rbtdre_Tariff::UNCHECKED,
 };
 const _: () = assert!(RBTDRK_FIXTURE_FREEHOLD_ESTABLISH.cases.len() == 6);
 
@@ -485,5 +486,6 @@ pub static RBTDRK_FIXTURE_FREEHOLD_CHURN: rbtdre_Fixture = rbtdre_Fixture {
     teardown: None,
     cases: RBTDRK_CASES_FREEHOLD_CHURN,
     credless: false,
+    tariff: rbtdre_Tariff::UNCHECKED,
 };
 const _: () = assert!(RBTDRK_FIXTURE_FREEHOLD_CHURN.cases.len() == 1);

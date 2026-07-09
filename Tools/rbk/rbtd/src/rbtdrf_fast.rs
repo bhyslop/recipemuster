@@ -24,7 +24,7 @@ use std::path::Path;
 use std::process::Command;
 
 use crate::case;
-use crate::rbtdre_engine::{rbtdre_Case, rbtdre_Disposition, rbtdre_Fixture, rbtdre_Verdict};
+use crate::rbtdre_engine::{rbtdre_Case, rbtdre_Disposition, rbtdre_Fixture, rbtdre_Tariff, rbtdre_Verdict};
 use crate::rbtdri_invocation::{rbtdri_find_tabtarget_global, rbtdri_tabtarget_command, rbtdri_bash_program};
 use crate::rbtdgc_consts::{
     BUWGC_RC_RENDER,
@@ -1899,6 +1899,7 @@ pub static RBTDRF_FIXTURE_ENROLLMENT_VALIDATION: rbtdre_Fixture = rbtdre_Fixture
     teardown: None,
     cases: RBTDRF_CASES_ENROLLMENT_VALIDATION,
     credless: true,
+    tariff: rbtdre_Tariff::UNCHECKED,
 };
 
 pub static RBTDRF_FIXTURE_REGIME_VALIDATION: rbtdre_Fixture = rbtdre_Fixture {
@@ -1908,6 +1909,7 @@ pub static RBTDRF_FIXTURE_REGIME_VALIDATION: rbtdre_Fixture = rbtdre_Fixture {
     teardown: None,
     cases: RBTDRF_CASES_REGIME_VALIDATION,
     credless: true,
+    tariff: rbtdre_Tariff::UNCHECKED,
 };
 
 pub static RBTDRF_FIXTURE_REGIME_SMOKE: rbtdre_Fixture = rbtdre_Fixture {
@@ -1917,6 +1919,7 @@ pub static RBTDRF_FIXTURE_REGIME_SMOKE: rbtdre_Fixture = rbtdre_Fixture {
     teardown: None,
     cases: RBTDRF_CASES_REGIME_SMOKE,
     credless: true,
+    tariff: rbtdre_Tariff::UNCHECKED,
 };
 
 pub static RBTDRF_CASES_DOCKERFILE_HYGIENE: &[rbtdre_Case] = &[
@@ -1938,6 +1941,7 @@ pub static RBTDRF_FIXTURE_DOCKERFILE_HYGIENE: rbtdre_Fixture = rbtdre_Fixture {
     teardown: None,
     cases: RBTDRF_CASES_DOCKERFILE_HYGIENE,
     credless: true,
+    tariff: rbtdre_Tariff::UNCHECKED,
 };
 
 pub static RBTDRF_CASES_FOUNDRY_PATH: &[rbtdre_Case] = &[
@@ -1956,6 +1960,7 @@ pub static RBTDRF_FIXTURE_FOUNDRY_PATH: rbtdre_Fixture = rbtdre_Fixture {
     teardown: None,
     cases: RBTDRF_CASES_FOUNDRY_PATH,
     credless: true,
+    tariff: rbtdre_Tariff::UNCHECKED,
 };
 
 pub static RBTDRF_CASES_CLIPBOARD: &[rbtdre_Case] = &[
@@ -1970,6 +1975,7 @@ pub static RBTDRF_FIXTURE_CLIPBOARD: rbtdre_Fixture = rbtdre_Fixture {
     teardown: None,
     cases: RBTDRF_CASES_CLIPBOARD,
     credless: true,
+    tariff: rbtdre_Tariff::UNCHECKED,
 };
 
 pub static RBTDRF_CASES_RECIPE_VALIDATION: &[rbtdre_Case] = &[
@@ -1992,6 +1998,7 @@ pub static RBTDRF_FIXTURE_RECIPE_VALIDATION: rbtdre_Fixture = rbtdre_Fixture {
     teardown: None,
     cases: RBTDRF_CASES_RECIPE_VALIDATION,
     credless: true,
+    tariff: rbtdre_Tariff::UNCHECKED,
 };
 
 // ── Podvm-resolve cases ─────────────────────────────────────
@@ -2087,4 +2094,5 @@ pub static RBTDRF_FIXTURE_PODVM_RESOLVE: rbtdre_Fixture = rbtdre_Fixture {
     teardown: None,
     cases: RBTDRF_CASES_PODVM_RESOLVE,
     credless: true,
+    tariff: rbtdre_Tariff::UNCHECKED,
 };

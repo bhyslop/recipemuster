@@ -37,7 +37,7 @@ use std::path::Path;
 
 use crate::case;
 use crate::rbtdrb_probe::{rbtdrb_assert, rbtdrb_Probe};
-use crate::rbtdre_engine::{rbtdre_Case, rbtdre_Disposition, rbtdre_Fixture, rbtdre_Verdict};
+use crate::rbtdre_engine::{rbtdre_Case, rbtdre_Disposition, rbtdre_Fixture, rbtdre_Tariff, rbtdre_Verdict};
 use crate::rbtdrm_manifest::{
     RBTDRM_FIXTURE_CALIBRANT_FAIL_FAST, RBTDRM_FIXTURE_CALIBRANT_PROGRESSING,
     RBTDRM_FIXTURE_CALIBRANT_SENTINEL, RBTDRM_FIXTURE_CALIBRANT_VERDICTS,
@@ -185,6 +185,7 @@ pub static RBTDRL_FIXTURE_VERDICTS: rbtdre_Fixture = rbtdre_Fixture {
     teardown: None,
     cases: RBTDRL_CASES_VERDICTS,
     credless: false,
+    tariff: rbtdre_Tariff::UNCHECKED,
 };
 const _: () = assert!(RBTDRL_FIXTURE_VERDICTS.cases.len() == 4);
 
@@ -195,6 +196,7 @@ pub static RBTDRL_FIXTURE_FAIL_FAST: rbtdre_Fixture = rbtdre_Fixture {
     teardown: None,
     cases: RBTDRL_CASES_FAIL_FAST,
     credless: false,
+    tariff: rbtdre_Tariff::UNCHECKED,
 };
 const _: () = assert!(RBTDRL_FIXTURE_FAIL_FAST.cases.len() == 3);
 
@@ -205,6 +207,7 @@ pub static RBTDRL_FIXTURE_PROGRESSING: rbtdre_Fixture = rbtdre_Fixture {
     teardown: None,
     cases: RBTDRL_CASES_PROGRESSING,
     credless: false,
+    tariff: rbtdre_Tariff::UNCHECKED,
 };
 const _: () = assert!(RBTDRL_FIXTURE_PROGRESSING.cases.len() == 2);
 
@@ -215,5 +218,6 @@ pub static RBTDRL_FIXTURE_SENTINEL: rbtdre_Fixture = rbtdre_Fixture {
     teardown: None,
     cases: RBTDRL_CASES_SENTINEL,
     credless: false,
+    tariff: rbtdre_Tariff::UNCHECKED,
 };
 const _: () = assert!(RBTDRL_FIXTURE_SENTINEL.cases.len() == 1);

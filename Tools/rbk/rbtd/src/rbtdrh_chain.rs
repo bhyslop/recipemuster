@@ -66,6 +66,7 @@ use crate::rbtdgc_consts::{
     RBTDGC_YOKE_RELIQUARY,
 };
 use crate::rbtdre_engine::{
+    rbtdre_Tariff,
     rbtdre_Case,
     rbtdre_Disposition,
     rbtdre_Fixture,
@@ -744,4 +745,5 @@ pub static RBTDRH_FIXTURE_CHAINING_FACT_BAND: rbtdre_Fixture = rbtdre_Fixture {
     teardown: None,
     cases: RBTDRH_CASES_CHAINING_FACT_BAND,
     credless: true,
+    tariff: rbtdre_Tariff::UNCHECKED,
 };
