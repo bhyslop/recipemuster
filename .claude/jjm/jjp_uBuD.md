@@ -39,6 +39,12 @@ Restrung from ₣Am on 260507 during groom session. Candidates identified as "re
 
 Each pace's docket was scanned for V3-era assumptions before transfer. All references current MCP surface (jjx_open, gazette, officium, current commit-pattern grammar). Prereq verification still required at mount-time for AAH (₣Ag migration completion).
 
+## Standing bridle plan (260709)
+
+When the interdictum genre-mint pace wraps,
+bridle its two consumer paces — the size-guard emission sweep and the empty-notch warning — at opus
+(groom-ratified 260709; both dockets carry the do-not-mount-before dependency).
+
 ## Related Heats
 
 - ₣Am (jjk-v5-notional) — source parking lot at the 260507 carve-out; since archived
