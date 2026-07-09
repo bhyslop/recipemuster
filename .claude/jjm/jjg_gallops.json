@@ -9162,8 +9162,8 @@
         "₢BsAAB": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260707-1333",
-              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_ts": "260709-1758",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_tier": "jjgde_sonnet",
               "jjgtn_text": [
                 "Run the freehold-ITERATING release ladders against the standing freehold, in rising footprint: skirmish, dogfight, blockade, parley.",
@@ -9177,7 +9177,7 @@
                 "Long suite runs; freehold state preserved throughout."
               ],
               "jjgtn_silks": "freehold-ladder-green",
-              "jjgtn_basis": "2d4fa02"
+              "jjgtn_basis": "51ba4eb"
             }
           ]
         },
