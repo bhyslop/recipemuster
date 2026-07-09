@@ -450,6 +450,9 @@ guidance — or *central*: the operator's proprietary corpus, as closed as the r
 never planted in a governed repo, its existence undisclosed to a foreign upstream or
 disclosed only as deliberately whittled variants.
 The home repo's in-tree guides are simply the first locale instance.
+The central corpus is the guide family plus the cross-project law documents (MCM, AXLA,
+GMG) — author-facing discipline portable to any sire bearing the artifact class — while a
+system's specs are locale documents of their own sire.
 A trappings reference names the guide's home in either case — never an ambiguous bare
 path; which private home holds the central corpus, and with it the reference form, is an
 open fork (Open forks).
@@ -630,6 +633,9 @@ deliberately *not* settled early — the docket anti-patterns govern that direct
   entries give one home per guide (a moved path lands once) and carry whittled per-project
   variants naturally (one logical guide, several disclosure-tier artifacts, elected per
   upstream).
+  Further live evidence toward the entry pole: intended partial-release whittling of BCG,
+  and guide-version experiments (one guide at two versions, outcomes compared) —
+  version-pinned, variant-bearing references outgrow raw paths.
 * *Claim-rule kinds* — the aspirant-sheaf domain exposes a new need: some real domains are
   defined by a *declared in-file marker* (the `axvd_sheaf axd_aspirant` lintel), not by
   path shape — aspirant sheaves are only partly path-regular: the JJ family rides `JJSA*`,
