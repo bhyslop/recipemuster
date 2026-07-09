@@ -1114,13 +1114,13 @@ prefix-side sibling: `Memos/memo-20260110-acronym-selection-study.md`.
 
 === The Soil Family
 
-Four states of ground name the ways a word can be unavailable for minting.
+Five states of ground name the ways a word can be unavailable for minting.
 Two *disqualify* a word for a defect: a
 {mcm_trodden_word}
 fires the wrong valence — over-walked in a specific domain — and a
 {mcm_leached_word}
 fires none at all, worn smooth by universal use.
-Two *reserve* a sound word by deliberate choice, withholding it from minting so a resource stays available;
+Three *reserve* a sound word by deliberate choice, withholding it from minting — two so a resource stays available, one until the concept that will bear it arrives;
 a reserved word is not unmintable in itself, and the census of each grows by discovery rather than being settled in advance.
 The disqualified pair are also
 {mcm_antipattern_s},
@@ -1163,7 +1163,7 @@ evokes *nothing*: too generic to lodge in a reader or to do semantic work.
 A word withheld from minting because it carries strong resonance to the
 {mcm_digital_mind_p}
 nature, such that enclosing it in one frozen meaning would dull a resource the collaboration relies on.
-The name is the gestalt: hallowed ground, set apart and not to be trodden.
+The name is the gestalt: hallowed ground, set apart — freely walked, never parceled.
 Reserved to protect the *word's* resonance.
 The tell that a word belongs here is a redefinition in context that lands with a jarring loss of valence;
 the
@@ -1215,7 +1215,7 @@ Distinct from its reserve-siblings by *intent to mint* — where
 {mcm_hallowed_word}
 and
 {mcm_fallow_word}
-are withheld to stay unminted (one to protect the word's resonance, one the editor's reach), a
+are withheld to stay unminted (one to protect the word's resonance, one the collaboration's reach), a
 {mcm_furrowed_word}
 is enclosure merely deferred: it will be minted once its concept is ready, or released if the intent lapses.
 Seed: tendon, blazon.
