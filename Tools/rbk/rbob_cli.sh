@@ -137,6 +137,7 @@ zrbob_furnish() {
   source "${BURD_BUK_DIR}/bug_git.sh"
   source "${z_rbk_kit_dir}/rbfh_hygiene.sh"
   source "${z_rbk_kit_dir}/rbfk_kludge.sh"
+  source "${z_rbk_kit_dir}/rbfb_beckon.sh"
   source "${z_rbk_kit_dir}/rboo_observe.sh"
   source "${BURD_BUK_DIR}/buz_zipper.sh"
   source "${z_rbk_kit_dir}/rbz_zipper.sh"
