@@ -9609,8 +9609,8 @@
         "₢BsAAP": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260709-1029",
-              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_ts": "260709-2125",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_tier": "jjgde_opus",
               "jjgtn_text": [
                 "Give every fixture registration optional declared cost expectations —",
@@ -9649,7 +9649,7 @@
                 "Instrumentation schema change plus calibration judgment; verdict-neutral except the deliberate min-time error."
               ],
               "jjgtn_silks": "fixture-cost-expectations",
-              "jjgtn_basis": "bd3e81c"
+              "jjgtn_basis": "62530a5"
             }
           ]
         },
