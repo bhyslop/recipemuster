@@ -200,6 +200,7 @@ The boundary stands on four independent guards: its source is not collected (VOK
 ), its behavior is not linked into the shipped `vvx` (never a `vof`/`vvr` dependency), and its built binary is never committed (it lands in a gitignored `target/release/` under the veil).
 Inclusion would require a deliberate, auditable act — a new managed-kit entry, a new `vvr` dependency, or an explicit copy into the parcel — never a silent compile flag.
 This is the whole reason the runtime is a standalone binary rather than a feature-stripped subcommand of a shipped tool.
+The store-side complement: the implementation lives in kit source, never in the studbook — the store holds what JJ knows, kit repos hold what JJ is, and a blotter carries no code (the engine-known posture, JJSVB-blotter.adoc).
 
 == Decomposition
 
@@ -437,8 +438,8 @@ A worked census (the ₣Br mint pace, 260705) sharpened the sketch with field ev
   Footprint advises cost, never verdicts (the pin→counterfoil eviction proceeded at ~245 uses; the billet resolution moved a 10-hit incumbent): value is the operator's judgment, and the execute half is authorship — each prose site needs a written sentence — permanently manual, never a safe-reprefix sibling.
 * The register tag earns its keep immediately: list-by-register is the coffer census, and flat tags sufficed across the whole census pace — no edge was ever needed.
 
-*Residence — studbook, one table (260707 lean).*
-The grimoire's residence lean is the studbook — JJK's regional record repo (JJSVS-studbook.adoc), one store serving every station and every jockeyed project — as an anticipated third tenant behind the gallops and the deferred chats;
+*Residence — studbook, one table (ruled).*
+The grimoire resides in the studbook — JJK's regional record repo (JJSVS-studbook.adoc), one store serving every station and every jockeyed project — as an anticipated third tenant behind the gallops and the deferred chats;
 widening that sheaf's scope-at-birth roster is a promotion-time act, not this sketch's.
 Studbook residence makes VOr_q4f structural rather than a veiling convention: that store never distributes.
 The table stays one and flat — never per-upstream files, never per-clone state (two clones of one upstream fork such a file immediately):
