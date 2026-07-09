@@ -4965,8 +4965,9 @@
         "₢BDAAf": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260709-1542",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260709-1544",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_opus",
               "jjgtn_text": [
                 "## Character",
                 "Spec-sync, mechanical-to-moderate.",
@@ -5002,7 +5003,7 @@
                 "Not a gallops schema change (spec prose only) — no reprieve episode."
               ],
               "jjgtn_silks": "jjk-spec-sync-mixed-batch",
-              "jjgtn_basis": "707b622"
+              "jjgtn_basis": "ebe5b52"
             }
           ]
         },
