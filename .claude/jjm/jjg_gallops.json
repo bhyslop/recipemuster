@@ -5009,8 +5009,9 @@
         "₢BDAAg": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260621-1843",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260709-1544",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_sonnet",
               "jjgtn_text": [
                 "## Character",
                 "Spook fix, clear repair — a few-line change to one install step.",
@@ -5030,7 +5031,7 @@
                 "Surfaced as the wrap spook of ₢BDAAd (vvx_tt tabtarget-runner): every vvx-binary change hits ETXTBSY because the running server holds the binary open; that pace worked around it by hand with temp+mv."
               ],
               "jjgtn_silks": "vow-build-atomic-binary-install",
-              "jjgtn_basis": "6f7d59d"
+              "jjgtn_basis": "fca50c7"
             }
           ]
         },
