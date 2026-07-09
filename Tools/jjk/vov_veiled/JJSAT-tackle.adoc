@@ -154,9 +154,10 @@ Mint follows API.
 | governance attachments
 | What a tackle binds to: guide(s) + spec home + conduct + integrity checks — facets read by
   different consumers.
-| ELECTED: *trappings* — `jjottn_trappings`, carrying home-qualified references to
-  governing documents (the guides live outside the governed repo — Where it lives);
-  the reference form — qualified path vs first-class guide entry — is an open fork.
+| ELECTED: *trappings* — `jjottn_trappings`, carrying home-naming references to governing
+  documents — locale (the upstream's own tree) or central (the proprietary corpus —
+  Where it lives); the central reference form — qualified path vs first-class guide
+  entry — is an open fork.
   A genuine contradiction between co-governing trappings is surfaced to the operator, never
   auto-resolved.
 
@@ -412,8 +413,9 @@ Members:
   bare-`*` shapes are audit flags.
 * `jjottn_trappings` — governance attachments: references to the guides, spec homes, and
   conduct documents the tackle carries.
-  A reference names the guide's home — the illustrated bare paths are the home repo's
-  self-governing special case — with the form pending the guide-home fork (Open forks).
+  A reference names the guide's home: a bare path reads as the governed upstream's own
+  tree (a locale guide — the illustrated rows), while a central-corpus reference carries a
+  home qualifier whose form pends the guide-home fork (Open forks).
   Names live in data, never in code; consumers read facets of the same attachments.
 * `jjotrn_hames` — declared interrelations: `from`/`to` are tackle identities, never silks;
   `tag` is an opaque label apps match by string; `rule` optionally names the document
@@ -442,15 +444,15 @@ The vanilla-hippodrome premise also forecloses the gitignore/gitattributes scali
 in-tree distributed rule files: tackle must be centralized-external, which is what makes the
 intensional-table + live-evaluator design mandatory rather than optional.
 
-The trappings' targets obey the same exclusion, harder: the guides are proprietary — as
-closed as the record itself — so a governed repo never carries them, and JJ operates on a
-foreign upstream without disclosing that they exist, or disclosing only deliberately
-whittled variants.
-The home repo's in-tree guides are an ownership coincidence — the one upstream that owns
-its own guides — never the pattern.
-A trappings reference therefore names the guide's home, never a bare governed-repo-relative
-path; which private home holds the guides, and with it the reference form, is an open fork
-(Open forks).
+The trappings' targets divide by home: a guide is either *locale* — living in the upstream
+it serves, a legitimate and expected pattern as an upstream accretes its own excellent
+guidance — or *central*: the operator's proprietary corpus, as closed as the record itself,
+never planted in a governed repo, its existence undisclosed to a foreign upstream or
+disclosed only as deliberately whittled variants.
+The home repo's in-tree guides are simply the first locale instance.
+A trappings reference names the guide's home in either case — never an ambiguous bare
+path; which private home holds the central corpus, and with it the reference form, is an
+open fork (Open forks).
 
 == How it reaches a session
 
@@ -613,8 +615,10 @@ deliberately *not* settled early — the docket anti-patterns govern that direct
   schema-compatible, homed VOK-side, migrating to the pedigree home at studbook founding;
   the reader lives in the shipped substrate library, and the matricula consumes the library
   and never flows into it (VOr_q4f).
-* *Guide home and trappings reference form* — settled: the guides never live in a governed
-  repo (Where it lives); open: which private, never-distributed home holds them —
+* *Guide home and trappings reference form* — settled: a guide is locale (living in the
+  upstream it serves) or central (the proprietary corpus, never planted in a governed
+  repo — Where it lives); open: which private, never-distributed home holds the central
+  corpus —
   the studbook as its first hand-edited documents tenant (operator inclination: one regional
   data home; friction: the blotter is engine-written and linear, so documents need a
   declared carve-out area or an edit ceremony),
