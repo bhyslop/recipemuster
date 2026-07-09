@@ -3762,9 +3762,10 @@
         "₢BDAAt",
         "₢BDAAj",
         "₢BDAAe",
-        "₢BDAAY"
+        "₢BDAAY",
+        "₢BDAAu"
       ],
-      "jjghn_next_pace_seed": "AAu",
+      "jjghn_next_pace_seed": "AAv",
       "jjghn_paces": {
         "₢BDAAA": {
           "jjgpn_tacks": [
@@ -5527,6 +5528,39 @@
               ],
               "jjgtn_silks": "mount-digest-census-rework",
               "jjgtn_basis": "3edc73c"
+            }
+          ]
+        },
+        "₢BDAAu": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260709-1655",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "The vof library crate carries eleven naked `eprintln!` sites and restates the CLI shell's",
+                "emplace and vacate banners, so the operator sees every banner and success line twice per invocation.",
+                "vof was left out of scope when the sibling vvr binary was brought onto `vvc::vvco_Output`,",
+                "because it is a separate Cargo package with no vvc edge.",
+                "No MCP hazard — every site is stderr — so this is RCG output-discipline debt plus a real duplication bug.",
+                "",
+                "## Done when",
+                "- `Tools/vok/vof/` declares a vvc dependency and carries the RCG sentinel comment above its import.",
+                "- No naked `println!`/`eprintln!`/`print!`/`eprint!` remains under `Tools/vok/vof/src/`.",
+                "- The emplace and vacate banner and success lines each emit exactly once per invocation.",
+                "- The library's per-item narration survives, routed through `vvco_Output` — vacate's per-file removal lines and freshen's updated/expanded/appended lines.",
+                "- `tt/vow-b.Build.sh` and `tt/vow-t.Test.sh` land green.",
+                "",
+                "## Cinched",
+                "- Reuse `vvc::vvco_Output`. Do not author a vof-native output module, and do not adopt RCG's fuller four-level surface — the same cinch the vvr binary's conversion carried.",
+                "- vof constructs `vvco_Output::console()` locally in each function that narrates, mirroring the per-function pattern vorm_main already uses. No `&mut vvco_Output` parameter is threaded through vof's public signatures, so no call site changes.",
+                "- Deduplication resolves toward the shell: vorm_main keeps its banner and success lines; vof drops its copies of them. The library narrates detail, it never announces.",
+                "- jjk's own naked `eprintln!` sites are out of scope. They carry an unsettled keep-stderr-versus-route-to-buffer question and an output-parameter decision, and wait on their own pace.",
+                "",
+                "## Character",
+                "Mechanical. One crate, one Cargo dependency line, a set of deletions, and a one-for-one macro swap. No design decisions remain."
+              ],
+              "jjgtn_silks": "vof-output-discipline-and-banner-dedup",
+              "jjgtn_basis": "0377849"
             }
           ]
         }
