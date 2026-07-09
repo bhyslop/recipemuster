@@ -5069,8 +5069,8 @@
         "₢BDAAi": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260622-1017",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260709-1542",
+              "jjgtn_state": "jjgte_abandoned",
               "jjgtn_text": [
                 "## Done when",
                 "JSSCGZ's \"No ordering\" invariant no longer overstates the case.",
@@ -5087,7 +5087,7 @@
                 "Small spec-prose correction; judgment only on how narrowly to scope the corrected invariant."
               ],
               "jjgtn_silks": "gazette-ordering-invariant-correction",
-              "jjgtn_basis": "fff1ec6"
+              "jjgtn_basis": "74a0b3c"
             }
           ]
         },
