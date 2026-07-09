@@ -56,6 +56,7 @@ pub mod rbtdrn_conformance;
 pub mod rbtdro_onboarding;
 pub mod rbtdrp_attest;
 pub mod rbtdrp_lifecycle;
+pub mod rbtdrq_pyx;
 pub mod rbtdrs_poison;
 pub mod rbtdru_bash;
 pub mod rbtdru_cupel;
