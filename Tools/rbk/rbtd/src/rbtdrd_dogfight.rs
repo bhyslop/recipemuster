@@ -255,5 +255,5 @@ pub static RBTDRD_FIXTURE_DOGFIGHT: rbtdre_Fixture = rbtdre_Fixture {
     teardown: None,
     cases: RBTDRD_CASES_DOGFIGHT,
     credless: false,
-    tariff: rbtdre_Tariff::UNCHECKED,
+    tariff: rbtdre_Tariff { min_secs: Some(60), max_secs: Some(1800), invocations: None },
 };

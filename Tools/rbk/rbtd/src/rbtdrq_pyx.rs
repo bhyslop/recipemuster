@@ -882,5 +882,5 @@ pub static RBTDRQ_FIXTURE_PYX: rbtdre_Fixture = rbtdre_Fixture {
     teardown: None,
     cases: RBTDRQ_CASES_PYX,
     credless: true,
-    tariff: rbtdre_Tariff::UNCHECKED,
+    tariff: rbtdre_Tariff { min_secs: None, max_secs: None, invocations: Some(0) },
 };

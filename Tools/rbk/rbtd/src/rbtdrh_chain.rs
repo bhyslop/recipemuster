@@ -745,5 +745,5 @@ pub static RBTDRH_FIXTURE_CHAINING_FACT_BAND: rbtdre_Fixture = rbtdre_Fixture {
     teardown: None,
     cases: RBTDRH_CASES_CHAINING_FACT_BAND,
     credless: true,
-    tariff: rbtdre_Tariff::UNCHECKED,
+    tariff: rbtdre_Tariff { min_secs: None, max_secs: Some(20), invocations: Some(15) },
 };

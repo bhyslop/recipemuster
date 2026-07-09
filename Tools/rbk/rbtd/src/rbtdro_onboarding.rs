@@ -560,7 +560,7 @@ pub static RBTDRO_FIXTURE_KLUDGE_TADMOR: rbtdre_Fixture = rbtdre_Fixture {
     teardown: None,
     cases: RBTDRO_CASES_KLUDGE_TADMOR,
     credless: false,
-    tariff: rbtdre_Tariff::UNCHECKED,
+    tariff: rbtdre_Tariff { min_secs: None, max_secs: Some(600), invocations: None },
 };
 
 /// Build ccyolo sentry and bottle locally, then anoint graft-demo off the
@@ -1223,6 +1223,6 @@ pub static RBTDRO_FIXTURE_ONBOARDING_SEQUENCE: rbtdre_Fixture = rbtdre_Fixture {
     teardown: None,
     cases: RBTDRO_CASES_ONBOARDING_SEQUENCE,
     credless: false,
-    tariff: rbtdre_Tariff::UNCHECKED,
+    tariff: rbtdre_Tariff { min_secs: Some(60), max_secs: None, invocations: None },
 };
 const _: () = assert!(RBTDRO_FIXTURE_ONBOARDING_SEQUENCE.cases.len() == 8);

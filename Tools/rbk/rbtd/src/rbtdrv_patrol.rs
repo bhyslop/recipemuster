@@ -147,7 +147,7 @@ pub static RBTDRV_FIXTURE_ACCESS_PROBE: rbtdre_Fixture = rbtdre_Fixture {
     teardown: None,
     cases: RBTDRV_CASES_ACCESS_PROBE,
     credless: false,
-    tariff: rbtdre_Tariff::UNCHECKED,
+    tariff: rbtdre_Tariff { min_secs: None, max_secs: Some(60), invocations: None },
 };
 
 pub static RBTDRV_FIXTURE_CREDENTIAL_READINESS: rbtdre_Fixture = rbtdre_Fixture {
@@ -157,7 +157,7 @@ pub static RBTDRV_FIXTURE_CREDENTIAL_READINESS: rbtdre_Fixture = rbtdre_Fixture 
     teardown: None,
     cases: RBTDRV_CASES_CREDENTIAL_READINESS,
     credless: false,
-    tariff: rbtdre_Tariff::UNCHECKED,
+    tariff: rbtdre_Tariff { min_secs: None, max_secs: Some(60), invocations: None },
 };
 
 pub static RBTDRV_FIXTURE_POLITY_DENIAL: rbtdre_Fixture = rbtdre_Fixture {
@@ -177,7 +177,7 @@ pub static RBTDRV_FIXTURE_PARLEY: rbtdre_Fixture = rbtdre_Fixture {
     teardown: None,
     cases: RBTDRV_CASES_PARLEY,
     credless: false,
-    tariff: rbtdre_Tariff::UNCHECKED,
+    tariff: rbtdre_Tariff { min_secs: None, max_secs: Some(120), invocations: None },
 };
 
 // Chaining-fact livery — the cloud sibling of the local chaining-fact band

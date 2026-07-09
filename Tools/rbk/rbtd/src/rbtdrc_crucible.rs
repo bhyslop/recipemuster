@@ -2430,7 +2430,7 @@ pub static RBTDRC_FIXTURE_TADMOR: rbtdre_Fixture = rbtdre_Fixture {
     teardown: Some(rbtdrc_quench_crucible),
     cases: RBTDRC_CASES_SECURITY,
     credless: false,
-    tariff: rbtdre_Tariff::UNCHECKED,
+    tariff: rbtdre_Tariff { min_secs: None, max_secs: Some(1200), invocations: None },
 };
 
 // Moriah is the airgap-bottle nameplate; runtime semantics are identical
@@ -2443,7 +2443,7 @@ pub static RBTDRC_FIXTURE_MORIAH: rbtdre_Fixture = rbtdre_Fixture {
     teardown: Some(rbtdrc_quench_crucible),
     cases: RBTDRC_CASES_SECURITY,
     credless: false,
-    tariff: rbtdre_Tariff::UNCHECKED,
+    tariff: rbtdre_Tariff { min_secs: None, max_secs: Some(1200), invocations: None },
 };
 
 pub static RBTDRC_FIXTURE_SRJCL: rbtdre_Fixture = rbtdre_Fixture {
@@ -2453,7 +2453,7 @@ pub static RBTDRC_FIXTURE_SRJCL: rbtdre_Fixture = rbtdre_Fixture {
     teardown: Some(rbtdrc_quench_crucible),
     cases: RBTDRC_CASES_SRJCL,
     credless: false,
-    tariff: rbtdre_Tariff::UNCHECKED,
+    tariff: rbtdre_Tariff { min_secs: None, max_secs: Some(600), invocations: None },
 };
 
 pub static RBTDRC_FIXTURE_PLUML: rbtdre_Fixture = rbtdre_Fixture {
@@ -2463,7 +2463,7 @@ pub static RBTDRC_FIXTURE_PLUML: rbtdre_Fixture = rbtdre_Fixture {
     teardown: Some(rbtdrc_quench_crucible),
     cases: RBTDRC_CASES_PLUML,
     credless: false,
-    tariff: rbtdre_Tariff::UNCHECKED,
+    tariff: rbtdre_Tariff { min_secs: None, max_secs: Some(600), invocations: None },
 };
 
 

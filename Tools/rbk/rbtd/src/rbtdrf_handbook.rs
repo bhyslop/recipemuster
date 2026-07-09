@@ -129,5 +129,5 @@ pub static RBTDRF_FIXTURE_HANDBOOK_RENDER: rbtdre_Fixture = rbtdre_Fixture {
     teardown: None,
     cases: RBTDRF_CASES_HANDBOOK_RENDER,
     credless: true,
-    tariff: rbtdre_Tariff::UNCHECKED,
+    tariff: rbtdre_Tariff { min_secs: None, max_secs: None, invocations: Some(7) },
 };
