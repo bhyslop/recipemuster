@@ -5038,8 +5038,9 @@
         "₢BDAAh": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260709-1542",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260709-1544",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_sonnet",
               "jjgtn_text": [
                 "Introduce an output module for the vok crate so the stdout-vs-stderr split is",
                 "enforced by construction, not by author vigilance.",
@@ -5063,7 +5064,7 @@
                 "Mechanical, contained to the vok crate. No design decisions remain."
               ],
               "jjgtn_silks": "vok-output-discipline-module",
-              "jjgtn_basis": "707b622"
+              "jjgtn_basis": "a823957"
             }
           ]
         },
