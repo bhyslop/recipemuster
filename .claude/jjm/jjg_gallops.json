@@ -5534,8 +5534,10 @@
         "₢BDAAu": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260709-1655",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260709-1656",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_sonnet",
+              "jjgtn_effort": "jjgde_medium",
               "jjgtn_text": [
                 "The vof library crate carries eleven naked `eprintln!` sites and restates the CLI shell's",
                 "emplace and vacate banners, so the operator sees every banner and success line twice per invocation.",
@@ -5560,7 +5562,7 @@
                 "Mechanical. One crate, one Cargo dependency line, a set of deletions, and a one-for-one macro swap. No design decisions remain."
               ],
               "jjgtn_silks": "vof-output-discipline-and-banner-dedup",
-              "jjgtn_basis": "0377849"
+              "jjgtn_basis": "2a92912"
             }
           ]
         }
