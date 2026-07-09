@@ -3759,11 +3759,12 @@
         "₢BDAAo",
         "₢BDAAr",
         "₢BDAAq",
+        "₢BDAAt",
         "₢BDAAj",
         "₢BDAAe",
         "₢BDAAY"
       ],
-      "jjghn_next_pace_seed": "AAt",
+      "jjghn_next_pace_seed": "AAu",
       "jjghn_paces": {
         "₢BDAAA": {
           "jjgpn_tacks": [
@@ -5477,6 +5478,51 @@
               ],
               "jjgtn_silks": "interdictum-verdict-genre",
               "jjgtn_basis": "784f0fe"
+            }
+          ]
+        },
+        "₢BDAAt": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260709-1622",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "Render-side output shaping in the jjk crate plus small spec touches.",
+                "The mount half is fully cinched; one bounded encoding choice at groom settles with one measurement at mount.",
+                "Graduated from the musings ledger's item 8 (mount over-renders heat-scoped bitmaps).",
+                "",
+                "## Goal",
+                "Stop mount from rendering heat-wide retrospectives that carry no pace-action signal,",
+                "replacing them with a mounted-pace digest;",
+                "right-size the groom/parade census artifacts for their actual reader —",
+                "the agent, whose positional counting over dotted bitmap rows is unreliable.",
+                "",
+                "## Cinched (groom 260709)",
+                "- Mount drops the heat-wide file-touch bitmap and commit swim lanes entirely.",
+                "- Mount instead renders a mounted-pace digest:",
+                "  the files this pace's commits touched, and per file, which other paces also touched it (collision awareness).",
+                "  A pace with no commits renders nothing — the original complaint case.",
+                "- Groom and parade keep the heat-wide retrospectives; swim lanes keep their existing last-35 bound.",
+                "- Sparse-encoding insight recorded: the file-touch matrix is sparse (typically 2–6 marks across ~30 columns);",
+                "  explicit per-file pace lists are count-free at roughly token parity.",
+                "  Bitmaps earn their keep only when dense or when the reader is a human eye.",
+                "",
+                "## Open (settle at mount with one measurement)",
+                "The groom/parade file-touch encoding:",
+                "(a) re-encode as sparse per-file pace lists,",
+                "(b) keep the bitmap but bound rows to files touched by two or more paces (cross-pace files are the planning signal),",
+                "or (c) both.",
+                "Measure the token delta on a real wide heat (₣BD's ~30-pace matrix) before choosing.",
+                "",
+                "## Done when",
+                "- Mount output carries the pace digest and no heat-wide bitmap or swim lanes.",
+                "- Groom and parade carry the chosen encoding.",
+                "- The saddle and parade command specs (JJSCSD, JJSCPD) describing these renders are updated in the same pass — spec and code together.",
+                "- Kit tests green (tt/vow-t.Test.sh)."
+              ],
+              "jjgtn_silks": "mount-digest-census-rework",
+              "jjgtn_basis": "35247c0"
             }
           ]
         }
