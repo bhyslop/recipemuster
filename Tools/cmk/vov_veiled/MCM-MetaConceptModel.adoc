@@ -1033,6 +1033,15 @@ and any persistent name a system mints: verbs, nouns, file words, command words.
 They constrain births, not the living —
 existing names are swept only by deliberate remint tooling, never piecemeal.
 
+* *Mint follows API.*
+A concept earns a
+{mcm_quoin}
+only when a consumer must refer to it across a boundary —
+never merely because the author finds it distinct.
+Slots before words:
+a slot is named and carried with candidates, alternates, and ledgered disqualifications
+so dead ends are not re-tried,
+and elections run their gates at deliberate moments, never mid-mulling.
 * *Semantic uniqueness.*
 One meaning per word across all persistent names, repo-wide.
 A word already bound to a meaning anywhere in the system is unavailable for a second meaning, however distant the domain.
@@ -1189,7 +1198,8 @@ palette.
 Reserved to protect the *editor's* explanatory reach, where
 {mcm_hallowed_word}
 protects the word's resonance.
-Seed: mesentery, constellation, moniker, lean (the collaboration's noun for a provisional
+Seed: mesentery, constellation, moniker, corpus (a body of documents spoken of as one),
+lean (the collaboration's noun for a provisional
 preference — "the lean on record" — fluid by need, never to be enclosed as a minted state).
 
 [[mcm_furrowed_word]]

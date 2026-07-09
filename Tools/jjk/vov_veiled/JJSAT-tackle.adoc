@@ -107,9 +107,7 @@ naming.
 Slots identified for the subparts; words elected only where the concept has stopped moving.
 Every word below is candidate only, re-ratifying under MCM Lapidary at graduation;
 disqualifications are recorded so they are not re-tried.
-Governing test: a concept earns a quoin when a consumer must refer to it across a
-boundary — never merely because the author finds it distinct.
-Mint follows API.
+Governing test: MCM Lapidary's mint-follows-API rule (cited, never restated).
 
 [cols="1,3,2"]
 |===
@@ -568,10 +566,6 @@ applied yet:
   aspirants still carry dated ledgers.
   If the tighter practice is a standing norm, it wants its doctrine home at AXLA rather
   than living as per-sheaf habit.
-* *MCM Lapidary, mint-follows-API* — the governing test in Candidate vocabulary (a concept
-  earns a quoin when a consumer must refer to it across a boundary) is general craft, not
-  tackle-specific; candidate for promotion into MCM Lapidary.
-  Until promoted it binds here only.
 
 == Settling register (drain before implementation)
 
