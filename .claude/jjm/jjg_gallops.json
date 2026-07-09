@@ -9313,7 +9313,8 @@
           "jjgpn_tacks": [
             {
               "jjgtn_ts": "260709-1043",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_sonnet",
               "jjgtn_text": [
                 "Close the rebaseline: re-run the freehold-iterating ladders against the REBUILT substrate — at minimum skirmish and parley (the admission-sensitive one) — plus espy and rehearse spot checks.",
                 "blockade is deliberately omitted: blockade ⊆ skirmish exactly, so the airgap moriah proof rides the skirmish run — the paddock's fixture-grain cinch.",
@@ -9326,7 +9327,7 @@
                 "Confirmation runs; light judgment."
               ],
               "jjgtn_silks": "rebaseline-revalidation",
-              "jjgtn_basis": "909d64c"
+              "jjgtn_basis": "b5cd382"
             }
           ]
         },
