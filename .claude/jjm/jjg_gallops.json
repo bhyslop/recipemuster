@@ -5363,7 +5363,7 @@
         "₢BDAAq": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260709-1542",
+              "jjgtn_ts": "260709-1649",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "## Character",
@@ -5374,7 +5374,8 @@
                 "Reproduction known: a fresh Opus chat routed around the Fable-bridled orient refusal (pre-interdictum form).",
                 "",
                 "## Done when",
-                "- The orient tier-mismatch refusal gains its spec home: JJSCSD-saddle.adoc's behavior steps cover resolution onto a bridled pace and the tier-match gate (today they resolve only a rough pace); the message law is cited from the interdictum genre, not restated.",
+                "- The orient tier-mismatch refusal gains its spec home: the orient command spec's behavior steps cover resolution onto a bridled pace and the tier-match gate (today they resolve only a rough pace); the message law is cited from the interdictum genre, not restated.",
+                "  (That spec is JJSCSD-saddle.adoc today; ₣Br's saddle-word remint may rename the file and its jjrsd module before this mounts — follow the rename, the behavior contract is the target, not the filename.)",
                 "- Empirically validated: a fresh sub-frontier chat hitting the bridled orient refusal demonstrably stops — does not read docket, paddock, or coronets to \"prepare,\" does not route around, reports verbatim, waits. Record at execution time what actually worked (message shape, and/or a small server-side mechanism).",
                 "- If the halt fails, iterate the emitted message within the interdictum message law — never by adding guard-mechanism prose back into standing context.",
                 "",
@@ -5384,14 +5385,14 @@
                 "- Validation requires the operator convening fresh sub-frontier chats — stays unbridled, frontier-run."
               ],
               "jjgtn_silks": "wrong-model-progression-halt",
-              "jjgtn_basis": "707b622"
+              "jjgtn_basis": "3edc73c"
             }
           ]
         },
         "₢BDAAr": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260709-1542",
+              "jjgtn_ts": "260709-1649",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "Notch is the only verb that refuses an empty commit.",
@@ -5413,6 +5414,10 @@
                 "## Done when",
                 "- Notch permits an empty commit (pace- or heat-affiliated), emitting a monitum-genre warning naming what happened.",
                 "- JJS0's jjdz_monitum definition is widened per the cinch, and the notch warning stands among its instances.",
+                "- The monitum instance census reflects any sibling instances landed by mount time —",
+                "  ₣Br's resync staleness warning at jjx_open/notch/wrap is a known monitum-shaped candidate:",
+                "  classify it in the census if landed; do NOT build a shared emission API for it",
+                "  (spec-side classification only; an emission abstraction waits until the landed instances prove a common shape).",
                 "- JJSCNC-notch.adoc's \"If empty: exit 1\" step is replaced by the allow+warn behavior.",
                 "- Kit tests green (tt/vow-t.Test.sh).",
                 "",
@@ -5423,7 +5428,7 @@
                 "Small mechanism plus one scoped spec widening. Mechanical once ₢BDAAs lands."
               ],
               "jjgtn_silks": "allow-empty-notch",
-              "jjgtn_basis": "707b622"
+              "jjgtn_basis": "3edc73c"
             }
           ]
         },
@@ -5482,7 +5487,7 @@
         "₢BDAAt": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260709-1622",
+              "jjgtn_ts": "260709-1649",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "## Character",
@@ -5516,11 +5521,12 @@
                 "## Done when",
                 "- Mount output carries the pace digest and no heat-wide bitmap or swim lanes.",
                 "- Groom and parade carry the chosen encoding.",
-                "- The saddle and parade command specs (JJSCSD, JJSCPD) describing these renders are updated in the same pass — spec and code together.",
+                "- The orient and parade command specs describing these renders are updated in the same pass — spec and code together.",
+                "  (Those are JJSCSD-saddle.adoc and JJSCPD-parade.adoc today; ₣Br's saddle-word remint may rename the former before this mounts — follow the rename.)",
                 "- Kit tests green (tt/vow-t.Test.sh)."
               ],
               "jjgtn_silks": "mount-digest-census-rework",
-              "jjgtn_basis": "35247c0"
+              "jjgtn_basis": "3edc73c"
             }
           ]
         }
