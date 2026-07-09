@@ -70,9 +70,11 @@ zrbgc_kindle() {
   readonly RBGC_SA_KEY_CREATE_RETRY_DELAY_SEC=10
 
   # IAM-grant propagation retry — exponential-backoff budget shared by every
-  # get-modify-set IAM grant site in rbgi_iam.sh plus the capabilities GAR
-  # IAM loops in rbgw_capabilities.sh. RBSCIP locks the profile and homes
-  # the rationale (the three propagation classes; why the 403 wait is blind).
+  # get-modify-set IAM grant site in rbgi_iam.sh, the capabilities GAR IAM
+  # loops in rbgw_capabilities.sh, and the theurge's post-admission
+  # invocations (projected to Rust via rbgc_emit_consts). RBSCIP locks the
+  # profile and homes the rationale (the propagation classes; why the 403
+  # wait is blind).
   readonly RBGC_PROPAGATION_INITIAL_DELAY_SEC=3
   readonly RBGC_PROPAGATION_MAX_DELAY_SEC=20
   readonly RBGC_PROPAGATION_DEADLINE_SEC=420
@@ -475,6 +477,30 @@ zrbgc_kindle() {
 
 zrbgc_sentinel() {
   test "${ZRBGC_KINDLED:-}" = "1" || buc_die "Module rbgc not kindled - call zrbgc_kindle first"
+}
+
+# rbgc_emit_consts() - Emit the RBGC-owned propagation budget as Rust i32
+# consts to stdout via buz_emit_const_i32 (BUK zipper must be kindled).
+# Same arrangement as rbcc_emit_consts/rbpc_emit_consts: rbz_emit_consts
+# calls this because every emit caller sources and kindles rbgc alongside
+# rbz. RBSCIP locks the profile; the theurge's post-admission invocations
+# consume it (RBr_3f4).
+rbgc_emit_consts() {
+  zrbgc_sentinel
+
+  printf '%s\n' "// RBGC propagation budget (rbgc_constants.sh; profile locked by RBSCIP)"
+
+  local z_name=""
+  local z_stem=""
+  for z_name in \
+    RBGC_PROPAGATION_INITIAL_DELAY_SEC \
+    RBGC_PROPAGATION_MAX_DELAY_SEC     \
+    RBGC_PROPAGATION_DEADLINE_SEC      \
+  ; do
+    z_stem="${z_name#RBGC_}"
+    buz_emit_const_i32 "RBTDGC_${z_stem}" "${!z_name}" \
+      || buc_die "rbgc_emit_consts: emit failed for ${z_name}"
+  done
 }
 
 # eof

@@ -73,6 +73,7 @@ use crate::rbtdrk_freehold::{
     rbtdrk_family_stem,
     rbtdrk_install_depot_moniker,
     rbtdrk_install_freehold_prefixes,
+    rbtdrk_invoke_admission_settled,
     rbtdrk_invoke_logged,
     rbtdrk_pick_next_moniker,
     rbtdrk_probe_freehold_moniker,
@@ -389,12 +390,14 @@ fn rbtdrk_brevet_don_impl(
     mantle: &str,
     mantle_token: &str,
 ) -> rbtdre_Verdict {
+    // Both invocations sit immediately downstream of a fresh admission grant
+    // (brevet's governor don follows gird; the mantle don follows brevet), so
+    // both ride the admission-settled wrapper (RBr_3f4).
     let label_brevet = format!("brevet-{}", mantle);
-    let brevet = match rbtdrk_invoke_logged(
+    let brevet = match rbtdrk_invoke_admission_settled(
         ctx,
         RBTDGC_BREVET_POLITY,
         &[RBTDGC_FREEHOLD_SUBJECT, mantle],
-        &[],
         dir,
         &label_brevet,
     ) {
@@ -409,7 +412,7 @@ fn rbtdrk_brevet_don_impl(
     }
 
     let label_don = format!("don-{}", mantle);
-    let don = match rbtdrk_invoke_logged(ctx, RBTDGC_CHECK_MANTLE, &[mantle_token], &[], dir, &label_don) {
+    let don = match rbtdrk_invoke_admission_settled(ctx, RBTDGC_CHECK_MANTLE, &[mantle_token], dir, &label_don) {
         Ok(r) => r,
         Err(e) => return rbtdre_Verdict::Fail(format!("don {}: {}", mantle, e)),
     };

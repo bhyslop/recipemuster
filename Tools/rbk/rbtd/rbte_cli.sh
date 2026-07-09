@@ -44,6 +44,7 @@ zrbte_furnish() {
   source "${BURD_BUK_DIR}/buwz_zipper.sh"
   source "${z_cli_dir}/../rbcc_constants.sh"
   source "${z_cli_dir}/../rbpc_constants.sh"
+  source "${z_cli_dir}/../rbgc_constants.sh"
   source "${z_cli_dir}/../rbz_zipper.sh"
   source "${z_cli_dir}/rbte_engine.sh"
 
@@ -52,6 +53,7 @@ zrbte_furnish() {
   zbuz_kindle
   zrbz_kindle
   zbuwz_kindle
+  zrbgc_kindle
   zrbte_kindle
 }
 

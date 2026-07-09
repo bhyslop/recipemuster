@@ -24,14 +24,19 @@ budget defined by the `RBGC_PROPAGATION_*` constants:
 
 Class C is time-bounded only — no body fingerprinting. The bound itself is
 the discriminator: real propagation succeeds within budget, real denial
-waits the budget and fails cleanly. The same model was also proven in the
-retired keyfile JWT access-probe. Resource-scope sites — both grant (`rbgi_add_*`)
+waits the budget and fails cleanly. The same time-bound-discriminator model
+is live-proven on the federation surface by the mantle don against a fresh
+admission grant (the RBr_7a9 signature and its evidence row below).
+Resource-scope sites — both grant (`rbgi_add_*`)
 and revoke (`rbgi_revoke_*`) — declare 403 tolerance with an empty body-glob;
 project-scope sites do not. Class C attaches to how recently the *caller* was
 empowered against the resource-scope IAM cache, not to the direction of the
 policy edit: any resource-scope `getIamPolicy` / `setIamPolicy` issued by a
 recently-empowered caller can draw the 403, whether it adds or removes a
-member.
+member. The don is the same physics at a third operation type:
+`generateAccessToken` on the mantle SA, issued by a principal whose
+tokenCreator binding was written seconds earlier, draws the identical
+resource-scope 403 until the admission grant reaches the enforcement cache.
 
 The blind absorption is safe by construction, not oversight: every consumer of
 the shared budget sits immediately downstream of a grant or revoke the same
@@ -45,7 +50,48 @@ the federation legs and the access probes — fail fast on any 401/403
 Neither narrows into the other: the budget is the correctness mechanism at
 these sites, not a tuning knob.
 
-// FABLE-REANCHOR (₣BZ terminal review): the Class C paragraph above cited the keyfile JWT access-probe as its proof point; that probe was demolished with the RBRA estate. Fable re-anchors the time-bound-discriminator evidence to a surviving federation proof point (the avowal STS exchange / mantle don) or prunes the citation, alongside the keyfile-churn race bullets below. See the M7 record in memo-20260615-BZ-pace-design.md.
+The admission-grant window is where the two postures meet, and the siting
+rule follows from who *can* prove propagation. Only actual access as the
+principal proves an admission grant enforced (the granting verb — gird,
+brevet — runs payor- or governor-credentialed and structurally cannot
+perform the citizen's don; a policy read-back reflects intent, not
+enforcement). So the don itself stays a fail-fast cold call, and the
+*consumer sitting immediately downstream of the grant* owns the budget —
+today the theurge freehold fixture, whose brevet-and-don invocations follow
+gird and brevet within seconds. Operators hitting the same window after a
+hand-run gird/brevet retry by hand; the don's 403 forensic line says so.
+
+--
+[[RBr_7a9]]
+//axvc_spoor
+RBr_7a9::
+The first don (`generateAccessToken`) exercising a just-written admission
+binding may draw HTTP 403 `iam.serviceAccounts.getAccessToken` denied
+("or it may not exist") on the mantle SA, surfacing as the
+`BUBC_band_admission` exit — with the sitting healthy and the identical don
+succeeding on a bare retry minutes later.
+Surveyed 2026-07-09 (gauntlet fresh levy `cancbhm-d-canest3bhm100009`:
+brevet-director's governor don 403'd seconds after gird wrote the binding,
+sitting runway 14754s; the direct rerun ~2min later ran clean), matching a
+prior single observation on the freehold ladder (brevet exit 109, healthy
+sitting, one direct retry clean).
+
+[[RBr_3f4]]
+//axvc_membrane
+RBr_3f4::
+The theurge absorbs exactly the RBr_7a9 signature at its post-admission
+invocations (`rbtdrk_invoke_admission_settled`): re-invoke while the exit is
+exactly `BUBC_band_admission`, under the shared `RBGC_PROPAGATION_*` budget,
+logging every bend. Re-invoking the mutating brevet is safe because the
+admission band is minted only at the don preamble, before the verb body
+runs; any other exit returns immediately, and an exhausted budget surfaces
+the final admission exit so a real denial still fails the case. The
+production don stays lean — no retry rides `rba_don_capture`.
+Retirement condition: a vendor terminal-state contract for IAM-grant
+propagation (the Axis-B premise — `memo-20260521` — expects never) or the
+retirement of hot-path admission grants; standing absorption of a permanent
+premise, not a demolition-dated flake workaround.
+--
 
 * **Secret access readiness**: The CB v2 connection creation LRO itself serves as the propagation test.
   If the Cloud Build Service Agent cannot yet access the secrets (IAM grant not propagated), the LRO fails.
@@ -174,6 +220,9 @@ and any need for `roles/iam.serviceAccountTokenCreator` grants for the readiness
 
 |Resource-scope `getIamPolicy` on a *revoke* draws a Class-C 403 when the caller was just re-empowered (governor re-enrobe); a single 403 is not denial
 |`Memos/memo-20260604-credential-churn-leak-and-propagation-races.md` (revoke-side addendum) -- transcript-level evidence, canonical depot `cancbhm-d-canest3bhm100001`, 2026-06-05: defrock repo `getIamPolicy` 403 at 0/3/9/21/41/61s, 200 at 81s, then revoked with no `deleted:` tombstone
+
+|First don against a just-written admission binding draws a Class-C 403 on `generateAccessToken` (the RBr_7a9 signature); a bare retry minutes later succeeds
+|Transcript-level evidence, gauntlet fresh levy `cancbhm-d-canest3bhm100009`, 2026-07-09: brevet-director's governor don 403'd seconds after gird (sitting runway 14754s, exit `BUBC_band_admission`); the direct rerun ~2min later breveted and donned clean. Second observation of the signature -- the first rode the freehold ladder (brevet exit 109, healthy sitting, single retry clean)
 |===
 
 ==== What Dies

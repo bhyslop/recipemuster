@@ -33,6 +33,10 @@
 // freehold-churn ever destroys the freehold itself.
 
 use std::path::{Path, PathBuf};
+use std::time::{
+    Duration,
+    Instant,
+};
 
 use crate::rbtdre_engine::{
     rbtdre_commit_regime,
@@ -49,7 +53,11 @@ use crate::rbtdri_invocation::{
     rbtdri_invoke_global,
 };
 use crate::rbtdgc_consts::{
+    RBTDGC_BAND_ADMISSION,
     RBTDGC_LIST_DEPOT,
+    RBTDGC_PROPAGATION_DEADLINE_SEC,
+    RBTDGC_PROPAGATION_INITIAL_DELAY_SEC,
+    RBTDGC_PROPAGATION_MAX_DELAY_SEC,
     RBTDGC_RBRD_FILE,
     RBTDGC_RBRR_FILE,
     RBTDGC_UNMAKE_DEPOT,
@@ -366,6 +374,49 @@ pub(crate) fn rbtdrk_invoke_logged(
     let _ = std::fs::write(dir.join(format!("{}-stdout.txt", label)), &result.stdout);
     let _ = std::fs::write(dir.join(format!("{}-stderr.txt", label)), &result.stderr);
     Ok(result)
+}
+
+/// Post-admission-grant invocation: `rbtdrk_invoke_logged`, re-invoked while
+/// the exit is exactly `RBTDGC_BAND_ADMISSION` under the RBSCIP propagation
+/// budget (RBr_3f4). A fixture invocation issued immediately downstream of a
+/// fresh admission grant (gird, brevet) is a post-grant site: its first don
+/// can draw the Class-C 403 while the just-written binding propagates, and
+/// the production don is cinched fail-fast (RBr_7a9), so the fixture owns
+/// the wait. The band code is minted only at the don preamble — before the
+/// verb body mutates anything — so re-invoking on it is safe for mutating
+/// verbs. Any other exit returns immediately; an exhausted budget returns
+/// the final 109 result, so a real admission denial still fails the case.
+pub(crate) fn rbtdrk_invoke_admission_settled(
+    ctx: &mut rbtdri_Context,
+    colophon: &str,
+    args: &[&str],
+    dir: &Path,
+    label: &str,
+) -> Result<rbtdri_InvokeResult, String> {
+    let deadline = Duration::from_secs(RBTDGC_PROPAGATION_DEADLINE_SEC as u64);
+    let max_delay = Duration::from_secs(RBTDGC_PROPAGATION_MAX_DELAY_SEC as u64);
+    let mut delay = Duration::from_secs(RBTDGC_PROPAGATION_INITIAL_DELAY_SEC as u64);
+    let start = Instant::now();
+    let mut bend = 0u32;
+    loop {
+        let result = rbtdrk_invoke_logged(ctx, colophon, args, &[], dir, label)?;
+        if result.exit_code != RBTDGC_BAND_ADMISSION {
+            return Ok(result);
+        }
+        if start.elapsed() + delay > deadline {
+            return Ok(result);
+        }
+        bend += 1;
+        crate::rbtdrg_info_now!(
+            "{}: admission-band exit {} with a fresh grant upstream — propagation bend {} (RBr_3f4); retrying in {}s",
+            label,
+            RBTDGC_BAND_ADMISSION,
+            bend,
+            delay.as_secs()
+        );
+        std::thread::sleep(delay);
+        delay = std::cmp::min(delay * 2, max_delay);
+    }
 }
 
 // ── Probes ───────────────────────────────────────────────────

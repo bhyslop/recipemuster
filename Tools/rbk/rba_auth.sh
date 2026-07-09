@@ -843,7 +843,9 @@ rba_don_capture() {
          > "${ZRBA_FED_DON_ERROR_FILE}" 2>"${ZRBA_FED_JQ_STDERR_FILE}" \
          || : > "${ZRBA_FED_DON_ERROR_FILE}"
       local -r z_errmsg=$(<"${ZRBA_FED_DON_ERROR_FILE}")
-      buc_log_args "Leg 3 (don) denied (HTTP 403) for mantle ${z_mantle_email}: ${z_errmsg} — admission deficit, not a propagation race; brevet the avowed citizen onto the mantle (tokenCreator on the mantle SA + serviceUsageConsumer on the depot project); not retried"
+      # Deliberately not retried: the don is a cold-call site — post-grant
+      # callers own the propagation budget (RBSCIP; RBr_7a9).
+      buc_log_args "Leg 3 (don) denied (HTTP 403) for mantle ${z_mantle_email}: ${z_errmsg} — either an admission deficit (brevet the avowed citizen onto the mantle: tokenCreator on the mantle SA + serviceUsageConsumer on the depot project) or, immediately after gird/brevet, a just-written grant still propagating (wait a minute and retry); not retried here"
       return "${BUBC_band_admission}" ;;
     *)
       buc_log_args "Leg 3 (don) failed (HTTP ${z_code}) for mantle ${z_mantle_email}; see ${ZRBA_FED_DON_RESPONSE_FILE}"
