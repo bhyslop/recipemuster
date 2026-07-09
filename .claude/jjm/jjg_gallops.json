@@ -4638,8 +4638,8 @@
         "₢BDAAY": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260709-1620",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260709-1632",
+              "jjgtn_state": "jjgte_abandoned",
               "jjgtn_text": [
                 "## Character",
                 "Parked pending ₣Br (jjk-09-studbook-farrier-mvp) — the settled store topology now contradicts a ₣Br cinch by name; reconsider once that heat lands.",
@@ -4679,7 +4679,7 @@
                 "and this parking docket retires into it."
               ],
               "jjgtn_silks": "chat-capture-auto-recurring",
-              "jjgtn_basis": "13e1180"
+              "jjgtn_basis": "666e7fe"
             }
           ]
         },
