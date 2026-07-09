@@ -3760,9 +3760,10 @@
         "₢BDAAo",
         "₢BDAAp",
         "₢BDAAq",
-        "₢BDAAr"
+        "₢BDAAr",
+        "₢BDAAs"
       ],
-      "jjghn_next_pace_seed": "AAs",
+      "jjghn_next_pace_seed": "AAt",
       "jjghn_paces": {
         "₢BDAAA": {
           "jjgpn_tacks": [
@@ -5481,6 +5482,58 @@
               ],
               "jjgtn_silks": "allow-empty-notch",
               "jjgtn_basis": "4578a8c"
+            }
+          ]
+        },
+        "₢BDAAs": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260709-1521",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Mint the gating verdict genre interdictum (jjdz_interdictum) into JJS0 beside jjdz_monitum,",
+                "as the enforcing complement of the never-gating monitum:",
+                "a server refusal that terminates the attempted act,",
+                "distinct from a correctable calling error (fix and retry) and from a monitum (note and continue).",
+                "Provenance: the 260709 spook — an opus session re-derived the orient guard's tier match by hand (redundant jjx_coronets call)",
+                "because claude-jjk-core.md over-describes guard mechanism;",
+                "a self-check is a second implementation of the guard, and second sources drift.",
+                "",
+                "Settled properties:",
+                "recognition is by wire token alone — every emission leads with the token INTERDICTUM, and agent context keys on the token, never on guard knowledge;",
+                "the stop grain is the attempted act and its objective by any route (report verbatim, no altered-params retry, no alternate route to the same end), never the whole session;",
+                "message self-sufficiency is normative — each emission names what refused, why, and the remedies, because agent context deliberately says nothing about generators;",
+                "the generator census lives spec-side in JJS0 only — rationale-of-genre, not rationale-of-instance; the aim is salience management, not secrecy.",
+                "",
+                "Three surfaces:",
+                "JJS0 definition beside jjdz_monitum with the explicit contrast (monitum never gates, interdictum always gates, nothing is both), the message law, and the generator census;",
+                "the jjk crate's existing refusal sites swept to lead with the token — the jjx_orient designation-gate refusal is the type specimen (discovery: grep the crate for its message; the frontier-only tier refusals and the open always-gate on a non-pristine store are siblings);",
+                "claude-jjk-core.md gains the short genre rule (recognize token → stop the act, report verbatim, remedies ride the message, one clause of genre rationale)",
+                "and loses the now-covered mechanism prose under the walls-unlisted/paths-listed razor:",
+                "the three-bucket tier-policy enumeration, the bridle designee step's guard mechanics, scattered frontier-only annotations.",
+                "Text that helps choose the right action stays (designees finish with landing; a frontier session wraps); text that explains enforcement of deviation goes.",
+                "jjx_coronets tier tags stay (designator path data); the designee section stops referencing tier semantics.",
+                "",
+                "## Cinched",
+                "",
+                "The word is interdictum — canon-law escalation sibling of monitum (monitum warns, interdictum bars); grep-clean 260709.",
+                "No shared monitum/interdictum emission abstraction — JJS0's standing rule: no abstraction until a third instance earns it.",
+                "No gallops schema change, so no reprieve episode.",
+                "Net context word count goes down — the genre rule earns its keep only if the covered prose leaves.",
+                "",
+                "## Done when",
+                "",
+                "jjdz_interdictum stands defined in JJS0 with contrast clause, message law, and generator census;",
+                "every existing refusal site leads with the token;",
+                "claude-jjk-core.md carries the genre rule and is net-shorter with the mechanism prose swept;",
+                "kit tests green (tt/vow-t.Test.sh).",
+                "",
+                "## Character",
+                "",
+                "Spec mint plus mechanical server sweep plus context trim; frontier judgment on the razor."
+              ],
+              "jjgtn_silks": "interdictum-verdict-genre",
+              "jjgtn_basis": "784f0fe"
             }
           ]
         }
