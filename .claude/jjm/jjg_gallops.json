@@ -9656,8 +9656,8 @@
         "₢BsAAQ": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260709-1121",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260709-2142",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "Add the observed-duration census: a read-only theurge entry point (espy/divine register — a report verb, never a fixture) that parses the per-fixture drift-token lines the fixture-cost-expectations instrumentation emits into the logs-buk self-logs and prints observed cost history per suite and per fixture.",
                 "Fixtures assert, and reveille verdicts stay functions of the tree, never of host log history — hence a verb, not a fixture.",
@@ -9673,7 +9673,7 @@
                 "Small read-only reporting verb; mint-and-parse care."
               ],
               "jjgtn_silks": "observed-duration-census",
-              "jjgtn_basis": "d3af682"
+              "jjgtn_basis": "9f223dd"
             }
           ]
         },
