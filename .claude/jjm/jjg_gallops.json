@@ -9220,9 +9220,10 @@
         "₢BsAAK",
         "₢BsAAR",
         "₢BsAAS",
-        "₢BsAAT"
+        "₢BsAAT",
+        "₢BsAAU"
       ],
-      "jjghn_next_pace_seed": "AAU",
+      "jjghn_next_pace_seed": "AAV",
       "jjghn_paces": {
         "₢BsAAA": {
           "jjgpn_tacks": [
@@ -9873,6 +9874,36 @@
               ],
               "jjgtn_silks": "codex-quoin-repatriation",
               "jjgtn_basis": "d130eb4"
+            }
+          ]
+        },
+        "₢BsAAU": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260710-0003",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Mint the hyperscaler no-completion-contract doctrine — Axis B of Memos/memo-20260521-hyperscaler-cost-cap-and-api-consistency-premise.md — as a Key Premise quoin in RBS0's == Key Premises section, voiced //axk_premise, sibling to rbsk_no_gcloud and rbsk_human_present.",
+                "The premise distills: the vendor withholds terminal-state contracts on exactly the racy operations (IAM propagation, billing linkage),",
+                "so retry/poll/timeout scaffolding is permanent design, never a workaround awaiting a vendor fix;",
+                "poll-until-terminal-state is the honest shape and a blind sleep is the laziness fingerprint (the memo's smell test).",
+                "RBSCIP is the operational law instantiating it — its call-context rule (post-grant sites wait the budget; cold-call sites fail fast) and the single RBGC_PROPAGATION_* budget become corollaries;",
+                "re-point RBSCIP to cite the premise,",
+                "and re-point the RBr_3f4 membrane's retirement condition from the memo path to the premise quoin.",
+                "The word itself needs a true mint (Lapidary: grep gate, no trodden words, asterism fit — the Palisade register suits a standing characterization of an ungovernable neighbor).",
+                "The memo stays as provenance; Axis A (the cost-cap refusal) is a natural later sibling, out of scope here.",
+                "",
+                "## Done when",
+                "The premise quoin stands in RBS0 Key Premises voiced //axk_premise;",
+                "RBSCIP and the RBr_3f4 retirement condition cite it;",
+                "the memo is cited as provenance only;",
+                "repo-wide grep gate clean on the minted word.",
+                "",
+                "## Character",
+                "Spec authoring with a mint — judgment work."
+              ],
+              "jjgtn_silks": "axis-b-premise-mint",
+              "jjgtn_basis": "26216a6"
             }
           ]
         }
