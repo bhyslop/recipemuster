@@ -9258,9 +9258,10 @@
         "₢BsAAR",
         "₢BsAAS",
         "₢BsAAT",
-        "₢BsAAU"
+        "₢BsAAU",
+        "₢BsAAV"
       ],
-      "jjghn_next_pace_seed": "AAV",
+      "jjghn_next_pace_seed": "AAW",
       "jjghn_paces": {
         "₢BsAAA": {
           "jjgpn_tacks": [
@@ -9949,6 +9950,27 @@
               ],
               "jjgtn_silks": "axis-b-premise-mint",
               "jjgtn_basis": "26216a6"
+            }
+          ]
+        },
+        "₢BsAAV": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260710-1201",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Study and repair how confirmation-gate text renders on the interactive path — when BURE_CONFIRM=skip is NOT supplied",
+                "(operator observed the defect running a confirm-gated verb by hand during gauntlet-attempt-7 preflight; the skip path renders fine).",
+                "Characterize the exact rendering symptom on a real terminal first, then repair;",
+                "reproduce on any confirm-gated verb (rbw-dU, rbw-MZ) with BURE_CONFIRM unset.",
+                "Discovery: grep -rn \"BURE_CONFIRM\" Tools/buk/ locates the confirm gate's home.",
+                "",
+                "## Done when",
+                "The interactive confirm prompt renders cleanly on a real terminal;",
+                "the BURE_CONFIRM=skip path's output is unchanged."
+              ],
+              "jjgtn_silks": "confirm-prompt-render-repair",
+              "jjgtn_basis": "57c42b0"
             }
           ]
         }
