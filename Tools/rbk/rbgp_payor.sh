@@ -2258,6 +2258,29 @@ rbgp_depot_levy() {
 
   local -r z_billing_url="${RBGC_API_ROOT_CLOUDBILLING}${RBGC_CLOUDBILLING_V1}/projects/${RBDC_DEPOT_PROJECT_ID}/billingInfo"
   rbuh_json "PUT" "${z_billing_url}" "${z_token}" "depot_billing_link" "${z_billing_body}"
+
+  # Billing-account link quota decode: Google refuses the link with a bare
+  # "Precondition check failed." whose QuotaFailure detail names the real
+  # cause. Surface the violation and the remedy; the project shell already
+  # exists at this point, so name it for disposal. Any other failure falls
+  # through to the uniform require_ok die unchanged.
+  local z_billing_code
+  z_billing_code=$(rbuh_code_capture "depot_billing_link") || z_billing_code=""
+  local z_billing_quota=""
+  if test "${z_billing_code}" = "400"; then
+    z_billing_quota=$(rbuh_json_field_capture "depot_billing_link" \
+      '[.error.details[]? | select(."@type" | endswith("QuotaFailure")) | .violations[]?.description] | join("; ")') \
+      || z_billing_quota=""
+  fi
+  if test -n "${z_billing_quota}"; then
+    buc_warn "Billing account billingAccounts/${RBRP_BILLING_ACCOUNT_ID} refused a new project link: ${z_billing_quota}"
+    buc_warn "The depot project ${RBDC_DEPOT_PROJECT_ID} was created but stands unlinked — unmake it before retrying:"
+    buc_tabtarget "${RBZ_UNMAKE_DEPOT}" "${RBDC_DEPOT_PROJECT_ID}"
+    buc_warn "Free a link slot by unmaking a stranded depot (unmake unlinks billing; list candidates):"
+    buc_tabtarget "${RBZ_LIST_DEPOT}"
+    buc_warn "Or request a billing-account quota increase: https://support.google.com/code/contact/billing_quota_increase"
+    buc_die "Link billing account: billing-account project-link quota exhausted"
+  fi
   rbuh_require_ok "Link billing account" "depot_billing_link"
 
   buc_step 'Get depot project number'
