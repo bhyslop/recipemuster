@@ -5571,7 +5571,9 @@
           "jjgpn_tacks": [
             {
               "jjgtn_ts": "260709-1711",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_sonnet",
+              "jjgtn_effort": "jjgde_low",
               "jjgtn_text": [
                 "The wrap command's next-pace lookahead in `jjrwp_wrap.rs` binds the whole tack but discards",
                 "its tier and effort, so the operator is told which pace comes next but not which model to run as.",
@@ -5597,7 +5599,7 @@
                 "Mechanical. One function in one file. No design decisions remain."
               ],
               "jjgtn_silks": "wrap-lookahead-designation-and-glyph-repair",
-              "jjgtn_basis": "cd4355a"
+              "jjgtn_basis": "1001533"
             }
           ]
         }
