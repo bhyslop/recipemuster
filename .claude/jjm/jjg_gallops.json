@@ -3719,6 +3719,7 @@
       "jjghn_creation_time": "260507",
       "jjghn_status": "jjghe_racing",
       "jjghn_order": [
+        "₢BDAAv",
         "₢BDAAa",
         "₢BDAAA",
         "₢BDAAB",
@@ -3765,7 +3766,7 @@
         "₢BDAAY",
         "₢BDAAu"
       ],
-      "jjghn_next_pace_seed": "AAv",
+      "jjghn_next_pace_seed": "AAw",
       "jjghn_paces": {
         "₢BDAAA": {
           "jjgpn_tacks": [
@@ -5563,6 +5564,40 @@
               ],
               "jjgtn_silks": "vof-output-discipline-and-banner-dedup",
               "jjgtn_basis": "2a92912"
+            }
+          ]
+        },
+        "₢BDAAv": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260709-1711",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "The wrap command's next-pace lookahead in `jjrwp_wrap.rs` binds the whole tack but discards",
+                "its tier and effort, so the operator is told which pace comes next but not which model to run as.",
+                "The same two format lines prepend a coronet sigil to values that already carry one,",
+                "so both coronets emit doubled — `AGENT_RESPONSE: ₢₢BDAAh wrapped. Next: … (₢₢BDAAp)`.",
+                "",
+                "## Done when",
+                "- When the next pace is bridled, the wrap AGENT_RESPONSE line names its designated tier, and its effort when one is set.",
+                "- A rough next pace gains no designation suffix — absence reads as undesignated judgment work.",
+                "- Coronets in both AGENT_RESPONSE lines (next-pace and all-paces-complete) emit exactly one sigil.",
+                "- The wrapped pace's coronet renders through the parsed identity rather than echoing the raw command parameter, so a caller passing a bare coronet still gets the sigil.",
+                "- `tt/vow-b.Build.sh` and `tt/vow-t.Test.sh` land green.",
+                "",
+                "## Cinched",
+                "- Both repairs land in one commit. They occupy the same two format lines; splitting them would make the second a gratuitous re-edit of the first.",
+                "- Render the designation in the `[bridled <tier> <effort>]` shape `jjx_coronets` already prints. Do not mint new wording for it.",
+                "- Stringify through `jjrg_Tier::jjrg_as_str` and `jjrg_Effort::jjrg_as_str` — each is the declared single display home. Do not add a second stringifier.",
+                "- The sigil belongs to the identity's display home, not to a format-string literal. Drop the literal sigil from the format strings rather than stripping sigils from the values.",
+                "- No spec companion and no test update: no `.adoc` pins the AGENT_RESPONSE text and no test asserts it. This is pure render-side shaping.",
+                "- No gallops schema change — tier and effort already serialize on the tack. The slate-time schema-impact check was done: no reprieve episode needed.",
+                "",
+                "## Character",
+                "Mechanical. One function in one file. No design decisions remain."
+              ],
+              "jjgtn_silks": "wrap-lookahead-designation-and-glyph-repair",
+              "jjgtn_basis": "cd4355a"
             }
           ]
         }
