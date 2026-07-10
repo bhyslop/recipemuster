@@ -106,6 +106,47 @@ zrbndb_docker_login() {
   done
 }
 
+# Run a host-docker registry read (manifest inspect, pull) with bounded
+# retry on the same moby#44350 premature-timeout transient login wraps
+# above. The docker client's internal retry covers only layer downloads;
+# the initial resolve leg (token fetch + manifest HEAD) is one-shot, so a
+# single daemon->registry timeout otherwise kills the command. Absorbs
+# ONLY the surveyed signature, warning each bend. A non-matching failure
+# returns rc to the caller's own error path untouched. An exhausted budget
+# dies HERE naming the transient — falling through to the caller would
+# misdiagnose a network timeout as the caller's condition (rbrd_check's
+# absent-tripwire path prescribes depot re-levy; that must never fire on
+# a timeout).
+# Args: stdout_file stderr_file command...
+zrbndb_registry_read() {
+  zrbndb_sentinel
+
+  local -r z_stdout_file="${1}"
+  local -r z_stderr_file="${2}"
+  shift 2
+
+  local z_attempt=0
+  local z_rc=0
+
+  while :; do
+    z_attempt=$((z_attempt + 1))
+
+    z_rc=0
+    "$@" > "${z_stdout_file}" 2>"${z_stderr_file}" || z_rc=$?
+
+    test "${z_rc}" -ne 0 || return 0
+
+    [[ "$(<"${z_stderr_file}")" == *"${RBGC_DOCKER_LOGIN_TRANSIENT_SIGNATURE}"* ]] \
+      || return "${z_rc}"
+
+    test "${z_attempt}" -lt "${RBGC_HTTP_TRANSIENT_RETRY_ATTEMPTS}" \
+      || buc_die "${1} registry read failed after ${RBGC_HTTP_TRANSIENT_RETRY_ATTEMPTS} attempts (transient daemon->registry timeout, moby#44350) — see ${z_stderr_file}"
+
+    buc_warn "Registry read transient (attempt ${z_attempt}/${RBGC_HTTP_TRANSIENT_RETRY_ATTEMPTS}, moby#44350 timeout) — retrying in ${RBGC_HTTP_TRANSIENT_RETRY_SLEEP_SEC}s"
+    sleep "${RBGC_HTTP_TRANSIENT_RETRY_SLEEP_SEC}"
+  done
+}
+
 ######################################################################
 # External Functions (rbrd_*)
 
@@ -214,7 +255,8 @@ rbrd_check() {
   zrbndb_docker_login "${z_token}" "${z_login_stderr}"
 
   buc_log_args "Existence check via docker manifest inspect"
-  docker manifest inspect "${ZRBNDB_TRIPWIRE_IMAGE}" > /dev/null 2>"${z_manifest_stderr}" \
+  zrbndb_registry_read /dev/null "${z_manifest_stderr}" \
+      docker manifest inspect "${ZRBNDB_TRIPWIRE_IMAGE}" \
     || {
       buc_warn "Tripwire image absent or unreachable: ${ZRBNDB_TRIPWIRE_IMAGE}"
       buc_info "Manifest-inspect stderr: ${z_manifest_stderr}"
@@ -229,8 +271,8 @@ rbrd_check() {
   # inscribed single-platform (see rbrd_inscribe), so a host-default pull would
   # fail on any host whose native arch differs from RBGC_BUILD_RUNNER_PLATFORM.
   buc_log_args "Pull tripwire image"
-  docker pull --platform "${RBGC_BUILD_RUNNER_PLATFORM}" "${ZRBNDB_TRIPWIRE_IMAGE}" \
-      > "${z_pull_stdout}" 2>"${z_pull_stderr}" \
+  zrbndb_registry_read "${z_pull_stdout}" "${z_pull_stderr}" \
+      docker pull --platform "${RBGC_BUILD_RUNNER_PLATFORM}" "${ZRBNDB_TRIPWIRE_IMAGE}" \
     || buc_die "docker pull failed for ${ZRBNDB_TRIPWIRE_IMAGE} — see ${z_pull_stderr}"
 
   buc_log_args "Create temp container to extract /${RBCC_rbrd_basename}"
