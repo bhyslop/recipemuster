@@ -5570,8 +5570,8 @@
         "₢BDAAv": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260709-1711",
-              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_ts": "260709-1727",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_tier": "jjgde_sonnet",
               "jjgtn_effort": "jjgde_low",
               "jjgtn_text": [
@@ -5599,7 +5599,7 @@
                 "Mechanical. One function in one file. No design decisions remain."
               ],
               "jjgtn_silks": "wrap-lookahead-designation-and-glyph-repair",
-              "jjgtn_basis": "1001533"
+              "jjgtn_basis": "ca53357"
             }
           ]
         }
