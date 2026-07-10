@@ -468,7 +468,10 @@ zbuv_check_capture() {
 
     fqin)
       if test -z "${z_val}"; then
-        echo "${BUV_check_fail}${z_varname} must not be empty"
+        if test "${z_p1}" -gt 0; then
+          echo "${BUV_check_fail}${z_varname} must not be empty"
+          return 0
+        fi
         return 0
       fi
       if test "${#z_val}" -lt "${z_p1}"; then

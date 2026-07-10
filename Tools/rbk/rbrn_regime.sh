@@ -46,8 +46,8 @@ zrbrn_kindle() {
   buv_group_enroll "Container Image Configuration"
   buv_fqin_enroll    RBRN_SENTRY_VESSEL            1  128  "Vessel identifier for Sentry Image"
   buv_fqin_enroll    RBRN_BOTTLE_VESSEL            1  128  "Vessel identifier for Bottle Image"
-  buv_fqin_enroll    RBRN_SENTRY_HALLMARK      1  128  "Hallmark tag for Sentry Image"
-  buv_fqin_enroll    RBRN_BOTTLE_HALLMARK      1  128  "Hallmark tag for Bottle Image"
+  buv_fqin_enroll    RBRN_SENTRY_HALLMARK      0  128  "Hallmark tag for Sentry Image (vacant until a build is driven; marshal-zero blanks it)"
+  buv_fqin_enroll    RBRN_BOTTLE_HALLMARK      0  128  "Hallmark tag for Bottle Image (vacant until a build is driven; marshal-zero blanks it)"
 
   buv_group_enroll "Service Readiness"
   buv_decimal_enroll RBRN_BOTTLE_READINESS_DELAY_SEC  0  300  "Seconds to wait after compose-up for bottle services to become ready (0 = no wait)"

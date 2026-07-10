@@ -513,6 +513,14 @@ rbob_charge() {
   # Cross-nameplate validation (silent on success, dies on conflict)
   rbrn_preflight
 
+  # Vacancy gate: hallmarks enroll min-0 (blank is the canonical marshal-zero
+  # state), so consumption is where an unarmed nameplate must refuse — quench
+  # and the exec verbs stay legal on a vacant nameplate.
+  test -n "${RBRN_SENTRY_HALLMARK}" \
+    || buc_die "Nameplate '${RBRN_MONIKER}' is not armed: RBRN_SENTRY_HALLMARK is vacant — kludge or ordain the sentry vessel and drive its hallmark (rbw-nd), then recharge"
+  test -n "${RBRN_BOTTLE_HALLMARK}" \
+    || buc_die "Nameplate '${RBRN_MONIKER}' is not armed: RBRN_BOTTLE_HALLMARK is vacant — kludge or ordain the bottle vessel and drive its hallmark (rbw-nd), then recharge"
+
   # Preflight: ensure all hallmark arks exist locally. Vouch presence is the
   # hallmark-level signal — if vouch is missing, the full hallmark is treated
   # as not-yet-summoned and all three arks are pulled together. Image-only

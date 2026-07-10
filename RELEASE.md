@@ -20,7 +20,18 @@ Patching forward is exactly the bug class this ceremony exists to catch — accu
 tt/rbw-ap.CheckPayorCredential.sh
 ```
 
-## 2. Marshal zero
+## 2. Open a fresh Sitting
+
+- [Novate](README.md#Novate) the [Sitting](README.md#Sitting) — extinguish any standing one and open a fresh full-window sitting via the device-flow browser sign-in
+- The qualification's build verbs are runway-gated: the long captures demand two hours of remaining [Sitting](README.md#Sitting) window, so a day-old standing sitting passes the early rungs and then dies mid-ladder at the floor — a fresh window removes the class by construction
+- Success: the device-flow sign-in completes and the fresh sitting is reported (spot-check anytime with `tt/rbw-as.EspySitting.sh`)
+- Failure: the avowal failed — re-run and complete the browser sign-in; if the trust itself is unhealthy, descry the active foedus with `tt/rbw-jd.FoedusDescry.sh`
+
+```
+tt/rbw-aN.NovateSitting.sh
+```
+
+## 3. Marshal zero
 
 The marshal-zero operation returns local state to the blank onboarding-start template:
 
@@ -38,7 +49,7 @@ Marshal zero gates on a clean, pushed tree, prompts for confirmation (type `zero
 tt/rbw-MZ.MarshalZeroes.sh
 ```
 
-## 3. Run the gauntlet
+## 4. Run the gauntlet
 
 The release gate — the full release-qualification ladder, run from the marshal-zero baseline.
 
@@ -69,13 +80,13 @@ The gate reads the actual blank fields — not a commit-message signature — an
 Outcome:
 
 - Success: green tally and clean exit
-- Failure: return to step 2 — never patch-and-continue
+- Failure: return to step 2 — never patch-and-continue. Also unmake the failed run's stranded freehold [Depot](README.md#Depot) once its diagnosis is extracted (`tt/rbw-dU.PayorUnmakesDepot.sh «project-id»`): each strand holds a billing-account link, the account's link quota is small, and the [Levy](README.md#Levy) refuses at the quota wall — unmake releases the link while the strand's terrier records survive
 
 ```
 tt/rbw-ts.TestSuite.gauntlet.sh
 ```
 
-## 4. Prepare the upstream release
+## 5. Prepare the upstream release
 
 - Claude Code slash command, not a tabtarget — the contribution ceremony is interactive by design
 - Drives the upstream contribution review and produces the contribution-ready branch
@@ -86,7 +97,7 @@ tt/rbw-ts.TestSuite.gauntlet.sh
 /rbk-prep-release
 ```
 
-## 5. Push to the upstream remote
+## 6. Push to the upstream remote
 
 - Universal git operation; no tabtarget
 - Pushes the contribution-ready branch produced by step 4
