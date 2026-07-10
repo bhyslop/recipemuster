@@ -15,7 +15,7 @@ use vvc::{vvco_out, vvco_err, vvco_Output};
 const JJRWP_CMD_NAME_WRAP: &str = "jjx_wrap";
 
 use crate::jjrf_favor::{jjrf_Coronet as Coronet};
-use crate::jjrg_gallops::{jjrg_Gallops as Gallops, jjrg_TallyArgs as LibTallyArgs, jjrg_PaceState};
+use crate::jjrg_gallops::{jjrg_Gallops as Gallops, jjrg_TallyArgs as LibTallyArgs, jjrg_PaceState, jjrg_Tier, jjrg_Effort, JJRG_STATE_BRIDLED};
 use crate::jjrn_notch::{jjrn_ChalkMarker, jjrn_format_notch_prefix, jjrn_format_chalk_message};
 
 /// Arguments for jjx_wrap command
@@ -27,6 +27,22 @@ pub struct jjrx_WrapArgs {
     /// Size limit in bytes (overrides default 50KB guard)
     #[arg(long)]
     pub size_limit: Option<u64>,
+}
+
+/// Render a bridled next-pace's designation as `" [bridled tier effort]"`,
+/// mirroring the bracket shape `jjx_coronets` prints; a rough (undesignated)
+/// pace has no tier, so it renders as an empty suffix.
+fn zjjrx_designation_suffix(tier: Option<jjrg_Tier>, effort: Option<jjrg_Effort>) -> String {
+    match tier {
+        Some(t) => {
+            let designation = match effort {
+                Some(e) => format!("{} {}", t.jjrg_as_str(), e.jjrg_as_str()),
+                None => t.jjrg_as_str().to_string(),
+            };
+            format!(" [{} {}]", JJRG_STATE_BRIDLED, designation)
+        }
+        None => String::new(),
+    }
 }
 
 /// Helper to get pace silks or return default message
@@ -318,7 +334,7 @@ pub fn zjjrx_run_wrap(args: jjrx_WrapArgs, summary: Option<String>, spook: Optio
                         pace.tacks.first().and_then(|tack| {
                             match tack.state {
                                 jjrg_PaceState::Rough | jjrg_PaceState::Bridled => {
-                                    Some((c.clone(), tack.silks.clone()))
+                                    Some((c.clone(), tack.silks.clone(), tack.tier, tack.effort))
                                 }
                                 _ => None,
                             }
@@ -329,13 +345,14 @@ pub fn zjjrx_run_wrap(args: jjrx_WrapArgs, summary: Option<String>, spook: Optio
 
             vvco_out!(output, "");
             match next_pace_info {
-                Some((next_coronet, next_silks)) => {
-                    vvco_out!(output, "AGENT_RESPONSE: \u{20a2}{} wrapped. Next: {} (\u{20a2}{}) \u{2014} `/clear` then `mount {}`",
-                        args.coronet, next_silks, next_coronet, fm_str);
+                Some((next_coronet, next_silks, tier, effort)) => {
+                    let designation = zjjrx_designation_suffix(tier, effort);
+                    vvco_out!(output, "AGENT_RESPONSE: {} wrapped. Next: {} ({}{}) \u{2014} `/clear` then `mount {}`",
+                        coronet.jjrf_display(), next_silks, next_coronet, designation, fm_str);
                 }
                 None => {
-                    vvco_out!(output, "AGENT_RESPONSE: \u{20a2}{} wrapped. All paces complete \u{2014} `/clear` then `retire {}`",
-                        args.coronet, fm_str);
+                    vvco_out!(output, "AGENT_RESPONSE: {} wrapped. All paces complete \u{2014} `/clear` then `retire {}`",
+                        coronet.jjrf_display(), fm_str);
                 }
             }
             (0, output.vvco_finish())
