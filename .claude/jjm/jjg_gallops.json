@@ -9309,29 +9309,35 @@
         "₢BsAAC": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260709-2359",
-              "jjgtn_state": "jjgte_bridled",
-              "jjgtn_tier": "jjgde_fable",
+              "jjgtn_ts": "260710-1133",
+              "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "Run the full release-qualification ladder: tt/rbw-ts.TestSuite.gauntlet.sh — marshal-zero state through depot-lifecycle, freehold-establish, onboarding-sequence, reveille fixtures, crucibles.",
                 "Run the gauntlet at most once per chat:",
                 "a red ladder is diagnosed and repaired in the chat that watched it fail,",
                 "and the next attempt starts as a fresh mount of this pace.",
                 "This is the heat's first deliberately destructive stage: it levies and unmakes real projects, producing real depot churn — the orphan-arm proof pace consumes that churn immediately after.",
-                "Begin by marshal-zeroing and pushing: the ladder's attestation gates on committed-blank moorings and a pushed HEAD (BURE_CONFIRM=skip drives the confirm; marshal-zero self-commits).",
+                "Begin by novating the sitting (rbw-aN, device flow, operator present):",
+                "the ladder's long captures enforce a 2h runway floor and a reused day-old sitting passes the early rungs then dies mid-ladder at the floor",
+                "(attempt 5, exit 115, 29 seconds short — the gate is honest; the fresh window is the fix, never an absorb).",
+                "Then marshal-zero and push: the ladder's attestation gates on committed-blank moorings and a pushed HEAD (BURE_CONFIRM=skip drives the confirm; marshal-zero self-commits).",
+                "Dispose-after-diagnosis: once a red run's diagnosis is extracted, the operator unmakes its stranded freehold depot (rbw-dU; rbw-dl lists candidates) —",
+                "each strand holds a billing-account link (quota 5; three kept strands walked attempt 4 into the wall)",
+                "and unmake releases the link while the strand's terrier slices survive as the escheat pace's churn.",
+                "RELEASE.md steps 2 and 4 now carry the novate and disposal prescriptions.",
                 "Attempt 1 caught and fixed the fresh-levy founding gap — depot levy now founds the polity terrier folder + governor grain IAM;",
-                "attempt 3's fresh levy live-proved the fix (brevet engrossed the muniment clean);",
                 "a brevet 403 on storage.objects.create means it regressed.",
                 "Attempt 2 died at freehold-establish on Google's fresh-project serviceusage INTERNAL flake;",
                 "rbge_api_enable absorbs exactly that signature with a bounded warned retry (rivets RBr_4e7/RBr_d21 at RBS0 rbtoe_api_enable) —",
                 "a bend warning during levy is the membrane working; any other LRO error is not.",
-                "Attempt 3 died at freehold-establish on the don-after-fresh-admission Class-C race",
-                "(brevet-don-director exit 109 seconds after gird, healthy sitting; the prescribed direct rbw-pB retry ran clean, proving transient);",
-                "the theurge now absorbs exactly that signature — rbtdrk_invoke_admission_settled re-invokes on exit 109 under the shared RBSCIP budget",
-                "(rivets RBr_7a9/RBr_3f4 at RBSCIP) —",
-                "a propagation-bend log line during freehold-establish is the membrane working;",
+                "Attempt 3 died at freehold-establish on the don-after-fresh-admission Class-C race;",
+                "the theurge absorbs exit 109 under the shared RBSCIP budget (rivets RBr_7a9/RBr_3f4 at RBSCIP) —",
                 "a 109 failure now means the budget exhausted: a real admission deficit, not lag.",
-                "Stranded canest depots (…100002, …100005, …100009) are deliberate terrier churn for the escheat pace — leave them.",
+                "Attempt 4 died at depot levy on the billing-account link quota (the kept-strand accumulation above);",
+                "the levy's billing-link failure now decodes the QuotaFailure into the violation, the unlinked shell's disposal, and the quota remedies.",
+                "Attempt 6 died at regime-validation on vacant nameplate hallmarks — the two nameplates no gauntlet fixture re-arms (nineveh, fdkyclk) after marshal-zero blanks all seven:",
+                "vacancy is now legal in RBRN (fqin min-0, the canonical marshal-zero state) and charge is the refusal point —",
+                "a vacant-hallmark validation failure means that regressed.",
                 "",
                 "## Done when",
                 "Gauntlet green end-to-end; the unmade depots' terrier churn left standing for the next pace (do not escheat first).",
@@ -9340,7 +9346,7 @@
                 "The longest ladder; operator-present for quota and billing surprises."
               ],
               "jjgtn_silks": "gauntlet-green",
-              "jjgtn_basis": "9bdd437"
+              "jjgtn_basis": "4ac58c6"
             }
           ]
         },
@@ -9452,11 +9458,11 @@
         "₢BsAAH": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260709-1043",
-              "jjgtn_state": "jjgte_bridled",
-              "jjgtn_tier": "jjgde_sonnet",
+              "jjgtn_ts": "260710-1133",
+              "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "Close the rebaseline: re-run the freehold-iterating ladders against the REBUILT substrate — at minimum skirmish and parley (the admission-sensitive one) — plus espy and rehearse spot checks.",
+                "Novate first (rbw-aN, device flow): the build verbs enforce sitting-runway floors and a long ladder on a reused sitting dies mid-run at the floor — the gauntlet's attempt-5 lesson.",
                 "blockade is deliberately omitted: blockade ⊆ skirmish exactly, so the airgap moriah proof rides the skirmish run — the paddock's fixture-grain cinch.",
                 "Green here is the rebaseline verdict: everything changed since the last full sequences, now proven on a freshly-founded manor.",
                 "",
@@ -9467,7 +9473,7 @@
                 "Confirmation runs; light judgment."
               ],
               "jjgtn_silks": "rebaseline-revalidation",
-              "jjgtn_basis": "b5cd382"
+              "jjgtn_basis": "4ac58c6"
             }
           ]
         },
