@@ -6118,6 +6118,7 @@
         "₢BbAAN",
         "₢BbAAG",
         "₢BbAAK",
+        "₢BbAAX",
         "₢BbAAT",
         "₢BbAAS",
         "₢BbAAU",
@@ -6129,7 +6130,7 @@
         "₢BbAAE",
         "₢BbAAF"
       ],
-      "jjghn_next_pace_seed": "AAX",
+      "jjghn_next_pace_seed": "AAY",
       "jjghn_paces": {
         "₢BbAAA": {
           "jjgpn_tacks": [
@@ -7022,6 +7023,37 @@
               ],
               "jjgtn_silks": "allocation-word-eviction",
               "jjgtn_basis": "bf14427"
+            }
+          ]
+        },
+        "₢BbAAX": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260711-1307",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "Judgment spec surgery at Fable in the operator's chat — the conjure pilot's A6/A7 residue, ruled by the operator and landed in the same session.",
+                "",
+                "## Goal",
+                "Land the two operator rulings that closed conjure-pilot amendments A6 and A7 (`Memos/memo-20260704-acg-pilot-conjure-findings.md`).",
+                "Rivet placement (A7): a rivet has one definition site, hoisted to the codex when a second sheaf cites it; spec-side citation carries at most a one-clause gist.",
+                "Law at MCM `mcm_rivet`, built shape at ACG's rivet section;",
+                "worked by hoisting `RBr_b4e` from the conjure sheaf to the RBS0 codex, the conjure sheaf keeping a bare citation and the plumb sheaf's gist restatement collapsing to one clause.",
+                "Name-identity triage (A6): census before exception — a display/inlay disagreement first asks whether the operation census matches the colophon surface;",
+                "a unitary N-mode operation over a shared core links through the core.",
+                "Rule at ACGm_102 Triage;",
+                "worked by repairing the ark-inspect method's display to its `zrbfc_plumb_core` inlay (the mode census already stands as the plumb colophon quoins).",
+                "",
+                "## Cinched",
+                "- Both rulings are operator-ratified this session; this pace homes them — the docket points, the homes carry the words.",
+                "- Spec/guide-only work: inside the release rider, no runtime edit.",
+                "",
+                "## Done when",
+                "Placement law recorded at MCM and cited from ACG; ACGm_102 carries the census-first triage; RBr_b4e defined once at the codex with both sheaves citing under the gist license; the inspect display equals its inlay; reveille green."
+              ],
+              "jjgtn_silks": "rivet-codex-hoist-and-census-link",
+              "jjgtn_basis": "7432ba8"
             }
           ]
         }
