@@ -5295,8 +5295,9 @@
         "₢BDAAo": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260709-1542",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260711-1348",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_opus",
               "jjgtn_text": [
                 "## Character",
                 "Consumer of the landed interdictum genre — census entry, emission sweep, one context deletion.",
@@ -5326,7 +5327,7 @@
                 "The open size_limit convergence-budget hard-fail is a plausible further interdictum instance — evaluate, do not fold in."
               ],
               "jjgtn_silks": "size-guard-interdictum",
-              "jjgtn_basis": "eb3b2d0"
+              "jjgtn_basis": "28a8560"
             }
           ]
         },
