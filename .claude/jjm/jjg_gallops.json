@@ -3552,8 +3552,8 @@
         "₢BCAAA": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260711-1627",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260711-1659",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "## Character",
                 "",
@@ -3598,7 +3598,7 @@
                 "child runs leave the station's logs-buk untouched, proven by asserting the child's self-logs appear in the override dir."
               ],
               "jjgtn_silks": "calibrant-surface-fixture",
-              "jjgtn_basis": "8f07062"
+              "jjgtn_basis": "e01a370"
             }
           ]
         },
