@@ -83,33 +83,41 @@ an earlier revision of this paddock paraphrased the guide and has been drained).
 ## Sequencing & lanes
 
 ₣BH landed and retired; every gate it imposed on this heat is open.
-The remaining slate is fully workable except one deferral noted below.
+The axvo symbol-lookahead amendment has landed;
+the front is the conjure pilot finish,
+whose roster recommendation the post-pilot groom needs.
 
-Front, in order:
-the axvo symbol-lookahead amendment first —
-it makes ACGm_102 mechanically decidable,
-hardening the move catalog before the third pilot exercises it;
-then the conjure pilot,
-whose roster recommendation the post-pilot groom needs;
-then the rbrv.env single-home sweeps
-(bash first, the rust projection riding immediately behind it)
-and the two noun-cluster curations, all unblocked by ₣BH's landing.
-The two cross-language consolidation paces are Fable-session design work,
-order-free, workable whenever a Fable chat is open.
-The command-exposure voicing family runs last:
-its AXLA/BUS0 share is ungated,
-but its RBS0 membrane names concrete colophons across federation surface
-₣Bf is still moving,
-so the pace cannot wrap until that lane settles.
+Release-window rider (groomed 260711, drains when the release lands):
+a release process is near, so runtime behavior is frozen —
+spec, guide, and comment-only source changes provable by inspection are
+permitted; runtime edits defer.
+Order under the rider:
+the conjure pilot finish first,
+holding F10 and any held step-script move not provable by inspection
+(F10's only verifier is a live conjure);
+then the two Fable-gated consolidation paces —
+chaining-prose consolidation, then cross-language premises;
+then the inspection-provable source tranche —
+the rbgc/rba comment collapses, then the two noun-cluster curations;
+then the command-exposure voicing family;
+the rbrv.env single-home sweeps run last —
+the slate's only runtime edits, waiting out the release window.
+
+The command-exposure voicing family's ₣Bf gate has cleared as written:
+₣Bf and ₣BZ have both retired.
+Residual check before the RBS0 membrane lands:
+confirm no racing heat is still moving colophon surface
+(₣Bs rebaseline is racing, and ₣Bq's sitting-lifecycle work minted the
+newest access colophons).
 
 Triage rider across all audit work:
 reliquary / Lode / Hallmark vocabulary settled when ₣BH's terminal scrub
 landed,
 but term curation against it stays out of this heat's scope —
 allocation findings only.
-Manor / Depot / federation vocabulary remains ₣BZ/₣Bf's lane
-(₣BZ complete but unretired; ₣Bf racing with active federation commits) —
-report, never touch, until ₣Bf retires.
+Manor / Depot / federation vocabulary was ₣BZ/₣Bf's lane;
+both heats have retired, lifting the report-never-touch bar,
+but curation there stays out of this heat's scope — allocation findings only.
 Verb clusters stay unslated until their owning heats land;
 slating against terms a hot heat is still moving would re-create the drift
 this heat exists to kill.
