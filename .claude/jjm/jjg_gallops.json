@@ -4225,9 +4225,10 @@
         "₢BbAAY",
         "₢BbAAR",
         "₢BbAAE",
-        "₢BbAAF"
+        "₢BbAAF",
+        "₢BbAAZ"
       ],
-      "jjghn_next_pace_seed": "AAZ",
+      "jjghn_next_pace_seed": "AAa",
       "jjghn_paces": {
         "₢BbAAA": {
           "jjgpn_tacks": [
@@ -5209,6 +5210,57 @@
               ],
               "jjgtn_silks": "facing-census-completion",
               "jjgtn_basis": "b7b8034"
+            }
+          ]
+        },
+        "₢BbAAZ": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260711-1628",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "Spec-side allodial sweep — the judgment is cinched below;",
+                "the residue is census plus prose edits.",
+                "Tier: sonnet.",
+                "",
+                "## Goal",
+                "Single-home every numeric validation bound across the RB regime spec surface:",
+                "each rbst_ type home carries a number only where the number is intrinsic to the type;",
+                "each regime variable's bound is stated exactly once spec-side, at its RBS0 definition site;",
+                "regime subdocs carry operational prose with no numeric bounds.",
+                "Ground truth is the buv_*_enroll calls — the spec bends to code.",
+                "",
+                "## Cinched",
+                "- Code is truth. If an enrollment bound itself looks wrong, stop and surface;",
+                "  runtime edits are barred (release rider in the paddock).",
+                "- Two-tier type rule: a type home keeps its numeric bound only where the number",
+                "  IS the type (port, netmask, xname's identifier ceiling — all citers must satisfy it,",
+                "  instances may narrow, never widen).",
+                "  Where a sane instance exceeds the type's number, the number was incidental —",
+                "  delete it from the type home rather than widen it toward the widest tenant.",
+                "  Worked instance: rbst_description's 0-240 is a phantom —",
+                "  RBRV_DESCRIPTION enrolls wider, RBRN_DESCRIPTION narrower, nothing enforces 240.",
+                "- Instance-bound spec home is the RBS0 definition site (operator ruling 260711);",
+                "  the regime subdocs (RBSRV, RBRN, and siblings) lose their bound restatements —",
+                "  rbrn_moniker's range currently stated in both places is the worked instance.",
+                "- Discovery recipe, not a site list:",
+                "  grep buv_string_enroll/buv_xname_enroll across Tools/rbk/rbr*_regime.sh for ground truth;",
+                "  grep '{rbst_' in RBS0 for the typed population;",
+                "  grep for character-count and range phrases across the regime subdocs for stray numbers.",
+                "- Bounds only. Character-class, format, and semantic claims are out of scope —",
+                "  note-and-skip any non-bound finding.",
+                "",
+                "## Done when",
+                "Every numbered rbst_ type either holds an intrinsic outer bound all citers satisfy",
+                "or holds no number;",
+                "every RB regime variable's bound appears exactly once spec-side, at its RBS0 definition;",
+                "regime subdocs number-free;",
+                "no spec bound contradicts its enrollment;",
+                "reveille green (tt/rbw-ts.TestSuite.reveille.sh)."
+              ],
+              "jjgtn_silks": "regime-bound-single-homing",
+              "jjgtn_basis": "8114b80"
             }
           ]
         }
