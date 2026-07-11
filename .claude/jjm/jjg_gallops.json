@@ -9400,8 +9400,8 @@
         "₢BsAAD": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260707-1349",
-              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_ts": "260711-1923",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_tier": "jjgde_opus",
               "jjgtn_text": [
                 "Live-prove the escheat orphan-slice arm against the real depot churn the gauntlet stage just produced.",
@@ -9418,7 +9418,7 @@
                 "Short live exercise riding the gauntlet's wake."
               ],
               "jjgtn_silks": "escheat-orphan-arm-live-proof",
-              "jjgtn_basis": "7d157d5"
+              "jjgtn_basis": "74efac5"
             }
           ]
         },
