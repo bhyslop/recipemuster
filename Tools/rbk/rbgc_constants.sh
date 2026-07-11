@@ -59,12 +59,7 @@ zrbgc_kindle() {
   # Timeouts
   readonly RBGC_MAX_CONSISTENCY_SEC=90
   readonly RBGC_EVENTUAL_CONSISTENCY_SEC=3
-  # Consecutive 404s rbuh_poll_until_gone requires before declaring a deleted
-  # resource durably gone. GCP IAM's SA read path is multi-replica eventually-
-  # consistent: a post-DELETE GET flaps 200<->404 for seconds as replicas
-  # converge, so a single 404 is not durable proof — a same-name recreate can
-  # still race a lagging replica's existence preflight. The streak debounces
-  # that flap; any intervening 200 resets it. Bounded by RBGC_MAX_CONSISTENCY_SEC.
+  # The confirmation streak rbuh_poll_until_gone counts (RBr_c81).
   readonly RBGC_GONE_CONFIRM_STREAK=3
   readonly RBGC_SA_KEY_CREATE_RETRY_MAX=7
   readonly RBGC_SA_KEY_CREATE_RETRY_DELAY_SEC=10
@@ -223,30 +218,16 @@ zrbgc_kindle() {
   readonly RBGC_GAR_CATEGORY_DEPOT_FACTS="rbi_df"
   readonly RBGC_GAR_CATEGORY_LODES="rbi_ld"
 
-  # GAR Lode Layout (fetched-side universal capture — see RBSL)
-  # One Lode = one GAR package named rbi_ld/<kind-letter><stamp>; that package
-  # IS the atomic-delete unit (single `packages delete`). Members and provenance
-  # ride as TAGS within the one package, never as /-path-segments (GAR has no
-  # subtree delete). Stamp matches the hallmark second-granular form YYMMDDHHMMSS.
-  #
-  # Kind letters (one per capture kind; podvm carries two for its quay families):
-  #   b  bole | r  reliquary | w  wsl | vw  podvm-wsl | vn  podvm-native
-  # Five kinds, not six: the single-tool kind ('t') was dropped as non-load-
-  # bearing — it split from reliquary on cardinality alone, has no consumer
-  # (tool images are only ever consumed as a co-versioned cohort), and the
-  # package layer already carries 1-vs-N for free (RBSL "Why five kinds, not four").
+  # Lode kind letters — the leading segment of a touchmark.
   readonly RBGC_LODE_KIND_BOLE="b"
   readonly RBGC_LODE_KIND_RELIQUARY="r"
   readonly RBGC_LODE_KIND_WSL="w"
   readonly RBGC_LODE_KIND_PODVM_WSL="vw"
   readonly RBGC_LODE_KIND_PODVM_NATIVE="vn"
 
-  # Kind-brand enum — the touchmark's kind carried in the host-side single-form
-  # chaining fact a derived-pull election reads to resolve the member tag. It is
-  # read as its own fact, NOT parsed from the touchmark's kind-letter prefix
-  # (the chaining channel is single-form: opaque values, never parsed). Each kind
-  # adds its brand here with its vertical; the brand string is also the envelope's
-  # `kind` field, and — for podvm — the operator-typed `immure` family argument.
+  # Kind-brand enum — the kind's spelled name: the vouch envelope's `kind` field,
+  # the display label, and — for podvm — the operator-typed `immure` family
+  # argument. Not a chaining fact; nothing reads a brand off the chain.
   readonly RBGC_LODE_BRAND_BOLE="bole"
   readonly RBGC_LODE_BRAND_RELIQUARY="reliquary"
   readonly RBGC_LODE_BRAND_WSL="wsl"
@@ -286,88 +267,21 @@ zrbgc_kindle() {
   # reads it) and the repo-wide grep gate keeps the two in sync.
   readonly RBGC_IMAGE_LABEL_RESOLVED_BASE="rbi_resolved_base"
 
-  # wsl-kind acquisition convention — NOT a resolved coordinate (see RBSLU). Per
-  # the no-FQIN premise, intent stays declarative and the pipeline computes the
-  # coordinate: underpin takes the substrate version as ARGUMENTS (release + point,
-  # e.g. `24.04 4`); the host _capture function assembles the tarball URL from this
-  # path-convention template, and the cloud step DISCOVERS the checksum at capture
-  # — it fetches Canonical's published, GPG-signed SHA256SUMS, verifies the
-  # signature against the pinned signing-key fingerprint below, then verifies the
-  # rootfs bytes. No full URL and no digest are pinned here; advancing the version
-  # is a different argument, not a constant edit. The template bets on Canonical's
-  # cdimage path scheme staying stable — a fail-loud bet (a 404 / missing sums-line
-  # dies clean). printf args: (release, release.point, arch).
-  #
-  # Palisade note (RBSLU): the paddock named cloud-images.ubuntu.com/wsl/, but that
-  # path retired its checksummed-tarball publication — noble/ now ships only
-  # .manifest files and a Store-delivered .wsl. Ubuntu Base (cdimage) is the
-  # genuinely-checksummed, GPG-signed, wsl --import-shaped Canonical equivalent.
-  # Acquisition-only this heat, so the distro flavor is not load-bearing; the
-  # WSL-specific seed is a consumption-time re-pin (wsl --import deferred — see
-  # RBSLU, paddock Heat nature). The signing fingerprint is per-source: re-pin it
-  # with any source change. Retire the note if the wsl/ tarball publication returns.
+  # The wsl capture source (RBr_6f2). printf args: (release, release.point, arch).
   readonly RBGC_LODE_WSL_URL_TEMPLATE="https://cdimage.ubuntu.com/ubuntu-base/releases/%s/release/ubuntu-base-%s-base-%s.tar.gz"
   readonly RBGC_LODE_WSL_ARCH_DEFAULT="amd64"
   # Ubuntu CD Image Automatic Signing Key (2012, RSA4096), cdimage@ubuntu.com —
-  # signs cdimage SHA256SUMS.gpg. The trust anchor: tiny, stable, auditable. The
-  # cloud step fetches the key BY this fingerprint into a clean keyring, so the
-  # keyserver is never trusted — only a signature from exactly this key passes.
+  # signs the SHA256SUMS.gpg published beside the tarball above (RBr_6f2).
   readonly RBGC_LODE_WSL_SIGNING_FPR="843938DF228D22F7B3742BC0D94AA3F0EFE21092"
 
-  # podvm-kind acquisition convention — NOT resolved coordinates (see RBSLI). Per
-  # the no-FQIN premise, intent stays declarative and the pipeline resolves leaf
-  # digests at capture: immure takes the quay FAMILY and the podman VERSION as
-  # arguments (e.g. `podvm-wsl 5.6`); the cloud select step reads the family's
-  # multi-arch OCI index at that version and picks the curated {disktype × arch}
-  # leaves below from the index child DESCRIPTOR's platform.architecture +
-  # annotations.disktype — never the layer filename, which is unreliable (the 5.6
-  # wsl x86_64 leaf is titled `5.0-rootfs-amd64.tar.zst`; memo-20260608 §3.4). No
-  # digest is pinned; advancing the version is a different argument, not a constant
-  # edit. Trust grade is recorded-at-acquisition — quay rotates podvm out within
-  # days and publishes no durable checksum, so RB attests only the digest captured.
-  #
-  # Two quay families, one verb (immure spans both via the family argument). The
-  # disktype leaves carry the ALT arch spelling (x86_64/aarch64), not the OCI
-  # amd64/arm64 the plain container children use — selection keys on that spelling.
+  # The two quay families immure spans, selected by its family argument.
   readonly RBGC_LODE_PODVM_FAMILY_WSL="quay.io/podman/machine-os-wsl"
   readonly RBGC_LODE_PODVM_FAMILY_NATIVE="quay.io/podman/machine-os"
-  # Curated leaf selection per family — declarative `disktype:arch` rows the select
-  # step matches against index child descriptors (alt arch spelling: x86_64/aarch64).
-  # Member tag composes as :<sprue><disktype>-<arch> (e.g. rbi_wsl-x86_64);
-  # disktype+arch are RB-selected from the index, so sprued.
-  # WSL family: 2-leaf set (both wsl-disktype leaves). The podvm-wsl fixture proves
-  # this end-to-end with the multi-member machinery and per-member-jettison path.
+  # Curated leaf selection per family — `disktype:arch` rows the select step matches
+  # against the index child descriptors. Arch carries the ALT spelling (x86_64 /
+  # aarch64) the disktype leaves declare, not the OCI amd64 / arm64.
   readonly RBGC_LODE_PODVM_WSL_SELECTION="wsl:x86_64 wsl:aarch64"
-  # Native family: full 8-leaf curation — {applehv, hyperv, qemu, wsl} × {x86_64, aarch64}.
-  # Sourced from memo-20260608 §5 (the machine-os index carries exactly these 8 disktype
-  # children at the 5.6 observation point; the 2 plain-container children are EXCLUDED
-  # by disktype-key selection). This pace (lode-podvm-platform-fanout) lands full
-  # curation; the "FOLLOWING pace" deferral is retired. Native full-curation is gated
-  # one-time (not a recurring service fixture) — see the podvm-lifecycle fixture comment.
   readonly RBGC_LODE_PODVM_NATIVE_SELECTION="applehv:x86_64 applehv:aarch64 hyperv:x86_64 hyperv:aarch64 qemu:x86_64 qemu:aarch64 wsl:x86_64 wsl:aarch64"
-
-  # rbi_df layout: flat namespace. No subdirs. Each filename names one
-  # depot-scoped artifact; tag varies by artifact role.
-  #
-  # Current artifacts:
-  #   probe-tether:probe   — tether pool levy-time capability probe
-  #                          (cloud-pushed marker image, FROM scratch)
-  #   probe-airgap:probe   — airgap pool levy-time capability probe
-  #                          (cloud-pushed marker image, FROM scratch)
-  #   rbrd:tripwire        — depot regime tripwire (FROM-scratch image
-  #                          carrying rbmm_moorings/rbrd.env). Host-inscribed by
-  #                          Payor at end of levy; pulled + byte-diffed
-  #                          by every cloud-submitting command. See
-  #                          Tools/rbk/rbndb_base.sh.
-  #
-  # The depot-time-immutable identity and pool settings (CLOUD_PREFIX,
-  # DEPOT_MONIKER, GCP_REGION, GCB_MACHINE_TYPE) live in the RBRD regime
-  # and are also inscribed into rbi_df at the rbrd:tripwire tag so post-
-  # levy drift can be detected at every subsequent cloud submission.
-  #
-  # Enumerators (rbw-iah / rbw-iar) ignore rbi_df by design — its
-  # contents are operational, not part of the hallmark/reliquary
-  # image catalogue.
 
   # Reliquary Tool Basenames (cohort seeds for the conclave Lode)
   # Canonical tool names; the resolver composes RBGC_LODE_TAG_SPRUE onto each to
@@ -378,13 +292,6 @@ zrbgc_kindle() {
   readonly RBGC_RELIQUARY_TOOL_ALPINE="alpine"
   readonly RBGC_RELIQUARY_TOOL_SYFT="syft"
   readonly RBGC_RELIQUARY_TOOL_BINFMT="binfmt"
-  # gcrane is in the cohort for two reasons: (1) sealed-reliquary-consuming captures
-  # (bole/wsl) resolve a PINNED gcrane builder from the reliquary, never the floating
-  # gcr.io bootstrap (supply-chain pinning boundary — RBS0 rbsk_pinning_boundary,
-  # RBSCB); (2) the bind mirror step (rbgjm01) uses gcrane cp for registry-to-registry
-  # copy, authenticating GAR ambiently via google.Keychain. Mirrored as the :debug
-  # variant (busybox shell) so the resolved builder carries the orchestration shell
-  # its steps need.
   readonly RBGC_RELIQUARY_TOOL_GCRANE="gcrane"
 
   # Fact-file filenames (written to BURD_OUTPUT_DIR by producers)

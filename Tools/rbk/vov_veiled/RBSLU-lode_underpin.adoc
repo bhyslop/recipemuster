@@ -47,6 +47,27 @@ verifies the fetched rootfs bytes against it.
 This is the `verified-against-published` trust grade in its strongest form: the
 vendor publishes and signs the checksum; RB pins only the signing key.
 
+--
+[[RBr_6f2]]
+//axvc_spoor
+RBr_6f2::
+Canonical's `cloud-images.ubuntu.com/wsl/` path — the WSL-flavored publication
+this capture was first designed against — retired its checksummed-tarball
+publication: `noble/` ships only `.manifest` files plus a Store-delivered
+`.wsl`, with no signed `SHA256SUMS` to verify bytes against.
+Ubuntu Base (`cdimage.ubuntu.com`) is the Canonical equivalent that remains
+genuinely checksummed, GPG-signed, and `wsl --import`-shaped, so the capture
+draws its source there.
+The distro flavor is not load-bearing while underpin stops at acquisition; a
+WSL-specific seed would be a consumption-time re-pin.
+The signing-key fingerprint is per-source — a change of source re-pins it,
+since the key signing cdimage is not the key that would sign another
+publication — and the path-convention template bets on the cdimage scheme
+holding, a fail-loud bet: a 404 or a missing sums line dies clean.
+Retirement condition: Canonical restores checksummed tarball publication under
+`wsl/`.
+--
+
 NOTE: Underpin bootstraps from no reliquary.
 Its acquisition tool is curl over HTTPS (with gnupg and docker buildx, all present
 on the Google-hosted `gcr.io/cloud-builders/docker` builder), not a registry pull,

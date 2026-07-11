@@ -2348,9 +2348,8 @@ fn rbtdrv_podvm_lifecycle(dir: &Path) -> rbtdre_Verdict {
         // recurring suite proves: refresh reuses the existing touchmark (no new Lode),
         // derives the locked version from the envelope (it takes no version argument),
         // re-reads the GAR member tags as the source of truth, preserves both originals
-        // verbatim, and re-authors :rbi_vouch. The widen-adds-a-member path is the
-        // one-time native gate (full 8-leaf machine-os, multi-GB), deliberately kept
-        // OUT of the recurring suite; see rbgc_constants RBGC_LODE_PODVM_NATIVE_SELECTION.
+        // verbatim, and re-authors :rbi_vouch. The widen-adds-a-member path is not
+        // exercised here.
         let _ = std::fs::write(dir.join("03b-refresh.txt"), "refreshing podvm-wsl Lode (all-preserved)");
         match rbtdri_invoke_global(
             ctx,

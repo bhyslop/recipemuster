@@ -91,6 +91,19 @@ Retirement condition: a vendor terminal-state contract for IAM-grant
 propagation (the Axis-B premise — `memo-20260521` — expects never) or the
 retirement of hot-path admission grants; standing absorption of a permanent
 premise, not a demolition-dated flake workaround.
+
+[[RBr_c81]]
+//axvc_membrane
+RBr_c81::
+`rbuh_poll_until_gone` requires `RBGC_GONE_CONFIRM_STREAK` consecutive 404
+observations before it declares a deleted resource durably gone; any
+intervening 200 resets the streak, and the total wait stays bounded by
+`RBGC_MAX_CONSISTENCY_SEC`. A single 404 is not durable proof — the signature
+absorbed is the SA delete read-path flap below, where a same-name recreate
+races a still-lagging replica and trips the enrobe existence preflight.
+Retirement condition: a purge-settled signal for `serviceAccounts.delete` (an
+LRO handle or equivalent terminal-state contract), which would retire
+consecutive-404 confirmation as the only available proxy.
 --
 
 * **Secret access readiness**: The CB v2 connection creation LRO itself serves as the propagation test.
@@ -129,9 +142,7 @@ premise, not a demolition-dated flake workaround.
   (retriever / director re-enrobe) racing a still-lagging replica then trips the
   enrobe existence preflight (200 → fail-loud "already exists").  Empirically observed where
   `rbuh_poll_until_gone` saw GET 200,200,404 and declared gone at 6s, then the recreate's preflight GET
-  returned 200 two seconds later.  Mitigation: `rbuh_poll_until_gone` requires `RBGC_GONE_CONFIRM_STREAK`
-  consecutive 404 observations before declaring the resource durably gone; any intervening 200 resets the
-  streak, and the total wait stays bounded by `RBGC_MAX_CONSISTENCY_SEC`.  Same underlying physics as the
+  returned 200 two seconds later.  Mitigation: rivet RBr_c81.  Same underlying physics as the
   create-side flap (multi-replica read convergence after a parent mutation).  See evidence row below.
 
 * **Lifecycle split relocates both SA-churn races (keyfile tier)**: the

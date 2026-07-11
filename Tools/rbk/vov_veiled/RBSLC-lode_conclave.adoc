@@ -32,6 +32,12 @@ Both steps ride the Google-hosted `gcr.io/cloud-builders/docker` builder (always
 {rbtga_lode_vouch}
 envelope — not the acquisition tool — is the unifier, so a docker-pull path alongside the bole kind's gcrane capture is correct.
 
+NOTE: `gcrane` is captured as its `:debug` variant.
+That variant carries a busybox shell, and a cohort member is resolved as a Cloud Build
+step image — so without a shell the resolved builder could not run the step orchestration
+its own steps are written in.
+The cohort's other members are captured as published.
+
 NOTE: *Dirty-tree guard*.
 Conclave refuses on a working tree with unstaged or staged changes, per the uniform Lode capture guard — see {rbtgo_lode_ensconce}.
 

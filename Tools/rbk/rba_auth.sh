@@ -760,15 +760,6 @@ rba_novate() {
 # cached-federated-token read below returns 1 once the sitting lapses, carrying the
 # avow instruction.
 #
-# Single attempt by design. The Leg-3 403 is the structural admission-deficit
-# Palisade signature (spike F2): a workforce federated token carries no
-# API-consumer project, so a citizen not yet brevetted onto the mantle, or a
-# missing quota-project header, 403s with "Method doesn't allow unregistered
-# callers" — which reads like an API-key complaint, not an IAM denial, and no
-# propagation wait fixes it. It is logged as the admission deficit it is and
-# returned, NEVER retried as a propagation race, unlike the SA-propagation loops
-# the keyfile accessor carries.
-#
 # The reveille-tier credless guard lives at the avowal entry (rba_avow): no
 # verb dons without a live sitting, and the sitting read below returns 1 when none
 # is cached, so a credless run never reaches the mint.
@@ -843,8 +834,7 @@ rba_don_capture() {
          > "${ZRBA_FED_DON_ERROR_FILE}" 2>"${ZRBA_FED_JQ_STDERR_FILE}" \
          || : > "${ZRBA_FED_DON_ERROR_FILE}"
       local -r z_errmsg=$(<"${ZRBA_FED_DON_ERROR_FILE}")
-      # Deliberately not retried: the don is a cold-call site — post-grant
-      # callers own the propagation budget (RBSCIP; RBr_7a9).
+      # Deliberately not retried here (RBr_7a9, RBr_b93).
       buc_log_args "Leg 3 (don) denied (HTTP 403) for mantle ${z_mantle_email}: ${z_errmsg} — either an admission deficit (brevet the avowed citizen onto the mantle: tokenCreator on the mantle SA + serviceUsageConsumer on the depot project) or, immediately after gird/brevet, a just-written grant still propagating (wait a minute and retry); not retried here"
       return "${BUBC_band_admission}" ;;
     *)

@@ -77,6 +77,15 @@ The single-capture kinds (bole / reliquary / wsl) omit the per-member twins beca
 authoring coincides with capture; the asymmetry tracks refresh-capability, and a
 uniformity sweep must not graft them onto those kinds.
 
+NOTE: The native family's curation is captured once, deliberately.
+Its full eight-leaf set (`{applehv, hyperv, qemu, wsl}` × `{x86_64, aarch64}`) runs to
+multiple gigabytes, so that capture is an operator-gated one-time act and not a
+recurring exercise.
+The two-leaf `podvm-wsl` family carries the multi-member and per-member-jettison
+machinery on the recurring cadence instead, proving the same paths at a fraction of
+the bytes — so a fixture that refreshes a wsl Lode exercises the all-preserved
+convergent path, never the widen-adds-a-member one.
+
 NOTE: Immure selects leaves by the index DESCRIPTOR, never the layer filename.
 The upstream tag is a multi-arch OCI index mixing real container images and disk
 artifacts; selection keys on each child descriptor's `platform.architecture` (the alt

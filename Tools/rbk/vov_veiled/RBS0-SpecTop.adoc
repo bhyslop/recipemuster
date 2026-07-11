@@ -2465,6 +2465,13 @@ first-contact trips — is the subdoc below.
 //axvd_cartouche axd_normative
 include::RBSFK-foedus_realm.adoc[leveloffset=+1]
 
+[[RBr_b93]]
+//axvc_spoor
+RBr_b93::
+A {rbtf_don} denied for want of the depot-scoped `serviceUsageConsumer` binding answers with `Method doesn't allow unregistered callers` — an API-key-shaped complaint, not the IAM denial it is.
+The cause is structural: a workforce federated token carries no API-consumer project of its own, so the depot must be named as the quota project (`x-goog-user-project`) and the citizen must hold that binding on it ({rbtf_brevet}); absent either, the vendor's message names the wrong fault.
+The message misleads and the fix is admission — never a propagation wait ({rbtf_don} fault posture).
+
 === {gcp_service} Definitions
 
 [[rbtgi_depot_project]]
@@ -2844,6 +2851,11 @@ Single and compound Lodes are the same shape — a cardinality attribute, not a 
 A bole Lode is a 1-member package; a forthcoming reliquary or podvm cohort is an N-member package.
 Same delete primitive, same provenance attachment point, same wire shape.
 +
+The census is five kinds: `bole` (an upstream base image), `reliquary` (the co-versioned build-tool cohort), `wsl` (a vendor rootfs tarball), and the two podvm families (`podvm-wsl`, `podvm-native`).
+A kind earns its separation on *acquisition, payload, or consumer* — never on cardinality, since the package layer already carries 1-versus-N for free (above).
+A single-tool kind is declined under that rule: it would split from `reliquary` on member count alone, and tool images are only ever consumed as a co-versioned cohort.
+The two podvm families are the one separation past the four founding needs, and they earn it on consumer: quay publishes `machine-os-wsl` for the Windows-via-WSL host path and `machine-os` for the macOS/Linux native path, whose host-platform consumption is asymmetric.
++
 For the bole kind, the member tags on the package are:
 +
 * `:rbi_bole` — uniform greppable handle for the singleton base
@@ -2866,7 +2878,7 @@ The identifier marking a captured
 Minted host-side before submission, so the touchmark is known before the build (the host owns the stamp in order to write the {rbf_fact_lode}).
 +
 Format: `«KIND»«YYMMDDHHMMSS»`, where `«KIND»` is the one- or two-letter kind code and the datestamp matches the hallmark's second-granular form.
-Kind letters: `b` bole, `t` tool, `r` reliquary, `w` wsl, `vw` podvm-wsl, `vn` podvm-native.
+Kind letters: `b` bole, `r` reliquary, `w` wsl, `vw` podvm-wsl, `vn` podvm-native.
 Example: `b260602120000`.
 +
 The shared `-mark` suffix with {rbtga_hallmark} is a deliberate role-signal: any `*mark` is a specific-instance handle; the first syllable carries the side — `hall-` what we forged, `touch-` what we captured.
@@ -4761,7 +4773,7 @@ Regex: `[cbg]\d{12}-r\d{12}`.
 //axl_voices axtu_string
 {rbst_touchmark}::
 Datestamp identifying a {rbtga_lode} — the GAR package holding a captured upstream artifact and its provenance.
-Format: `«KIND»YYMMDDHHMMSS`, where `«KIND»` is the kind-letter (`b` bole, `t` tool, `r` reliquary, `w` wsl, `vw`/`vn` podvm) and the datestamp is second-granular (e.g., `b260602120000`).
+Format: `«KIND»YYMMDDHHMMSS`, where `«KIND»` is the kind-letter (`b` bole, `r` reliquary, `w` wsl, `vw`/`vn` podvm) and the datestamp is second-granular (e.g., `b260602120000`).
 Regex: `[a-z]{1,2}\d{12}`.
 Mints host-side at {rbtgo_lode_ensconce} time and serves as the GAR path segment (`{gar_lodes_namespace}/«TOUCHMARK»`), so a single value names the whole Lode package.
 The fetched-side parallel of {rbst_hallmark}; carried as the concept {rbtga_touchmark}.
