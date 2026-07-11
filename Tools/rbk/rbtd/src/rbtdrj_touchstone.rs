@@ -47,31 +47,49 @@ use std::path::{Path, PathBuf};
 
 use crate::case;
 use crate::rbtdgc_consts::{
-    RBTDGC_THEURGE_CASE, RBTDGC_THEURGE_FIXTURE, RBTDGC_THEURGE_SUITE,
+    RBTDGC_THEURGE_CASE,
+    RBTDGC_THEURGE_FIXTURE,
+    RBTDGC_THEURGE_SUITE,
 };
 use crate::rbtdra_almanac::RBTDRA_SUITE_NAME_CALIBRANT;
 use crate::rbtdrc_crucible::rbtdrc_with_ctx;
 use crate::rbtdre_engine::{
-    rbtdre_Case, rbtdre_Disposition, rbtdre_Fixture, rbtdre_Tariff, rbtdre_Verdict,
-    RBTDRE_FLAG_KEEP_GOING, RBTDRE_TRACE_FILE,
+    RBTDRE_FLAG_KEEP_GOING,
+    RBTDRE_TRACE_FILE,
+    RBTDRE_WORD_FAILED,
+    RBTDRE_WORD_PASSED,
+    RBTDRE_WORD_SKIPPED,
+    rbtdre_Case,
+    rbtdre_Disposition,
+    rbtdre_Fixture,
+    rbtdre_Tariff,
+    rbtdre_Verdict,
 };
 use crate::rbtdri_invocation::{
-    rbtdri_invoke_global, rbtdri_invoke_imprint_env, rbtdri_InvokeResult,
+    rbtdri_InvokeResult,
+    rbtdri_invoke_global,
+    rbtdri_invoke_imprint_env,
 };
 use crate::rbtdrl_calibrant::{
-    RBTDRL_CASES_FAIL_FAST, RBTDRL_CASES_PROGRESSING, RBTDRL_CASES_SENTINEL,
-    RBTDRL_CASES_VERDICTS, RBTDRL_OUTPUT_FILE, RBTDRL_SENTINEL_FILE,
+    RBTDRL_CASES_FAIL_FAST,
+    RBTDRL_CASES_PROGRESSING,
+    RBTDRL_CASES_SENTINEL,
+    RBTDRL_CASES_VERDICTS,
+    RBTDRL_OUTPUT_FILE,
+    RBTDRL_SENTINEL_FILE,
 };
 use crate::rbtdrm_manifest::{
-    RBTDRM_FIXTURE_CALIBRANT_FAIL_FAST, RBTDRM_FIXTURE_CALIBRANT_PROGRESSING,
-    RBTDRM_FIXTURE_CALIBRANT_VERDICTS, RBTDRM_FIXTURE_TOUCHSTONE,
+    RBTDRM_FIXTURE_CALIBRANT_FAIL_FAST,
+    RBTDRM_FIXTURE_CALIBRANT_PROGRESSING,
+    RBTDRM_FIXTURE_CALIBRANT_VERDICTS,
+    RBTDRM_FIXTURE_TOUCHSTONE,
 };
 use crate::rbtdrx_platform::rbtdrx_native_to_posix;
 
 /// Child dispatch's trace-tree subdir under its BURD_TEMP_DIR — pinned to the
 /// literal in rbtdb_allocate_roots (main.rs). A layout change there fails
 /// these assertions loudly rather than letting them pass vacuously.
-const RBTDRJ_CHILD_TRACE_SUBDIR: &str = "rbtd";
+const ZRBTDRJ_CHILD_TRACE_SUBDIR: &str = "rbtd";
 
 // ── Child runner ─────────────────────────────────────────────
 
@@ -80,7 +98,7 @@ const RBTDRJ_CHILD_TRACE_SUBDIR: &str = "rbtd";
 /// child's dispatch minted its temp-<stamp>/ generation, holding the child
 /// rbtd trace tree) and the BURV_LOG_DIR override (None for a BURD_NO_LOG
 /// child, which writes no logs at all).
-struct rbtdrj_Child {
+struct zrbtdrj_Child {
     exit_code: i32,
     stdout: String,
     stderr: String,
@@ -98,7 +116,7 @@ fn zrbtdrj_child(
     imprint: Option<&str>,
     args: &[&str],
     no_log: bool,
-) -> Result<rbtdrj_Child, rbtdre_Verdict> {
+) -> Result<zrbtdrj_Child, rbtdre_Verdict> {
     let mut env: Vec<(String, String)> = vec![("TERM".to_string(), "dumb".to_string())];
     let log_dir = if no_log {
         env.push(("BURD_NO_LOG".to_string(), "1".to_string()));
@@ -147,7 +165,7 @@ fn zrbtdrj_child(
     let _ = std::fs::write(dir.join(format!("{}-stdout.txt", label)), &result.stdout);
     let _ = std::fs::write(dir.join(format!("{}-stderr.txt", label)), &result.stderr);
 
-    Ok(rbtdrj_Child {
+    Ok(zrbtdrj_Child {
         exit_code: result.exit_code,
         stdout: result.stdout,
         stderr: result.stderr,
@@ -204,7 +222,7 @@ fn zrbtdrj_expect_lacks(hay: &str, needle: &str, what: &str) -> Result<(), rbtdr
     )
 }
 
-fn zrbtdrj_expect_nonzero(child: &rbtdrj_Child, what: &str) -> Result<(), rbtdre_Verdict> {
+fn zrbtdrj_expect_nonzero(child: &zrbtdrj_Child, what: &str) -> Result<(), rbtdre_Verdict> {
     zrbtdrj_expect(
         child.exit_code != 0,
         format!(
@@ -215,7 +233,7 @@ fn zrbtdrj_expect_nonzero(child: &rbtdrj_Child, what: &str) -> Result<(), rbtdre
     )
 }
 
-fn zrbtdrj_expect_zero(child: &rbtdrj_Child, what: &str) -> Result<(), rbtdre_Verdict> {
+fn zrbtdrj_expect_zero(child: &zrbtdrj_Child, what: &str) -> Result<(), rbtdre_Verdict> {
     zrbtdrj_expect(
         child.exit_code == 0,
         format!(
@@ -231,7 +249,10 @@ fn zrbtdrj_expect_zero(child: &rbtdrj_Child, what: &str) -> Result<(), rbtdre_Ve
 /// Resolve the single temp-<stamp>/ generation the child's dispatch minted
 /// under the BURV temp root this fixture handed it. Exactly one is expected —
 /// one dispatch per invoke; zero means the chain never reached dispatch.
-fn zrbtdrj_child_temp_gen(child: &rbtdrj_Child, label: &str) -> Result<PathBuf, rbtdre_Verdict> {
+fn zrbtdrj_child_temp_gen(
+    child: &zrbtdrj_Child,
+    label: &str,
+) -> Result<PathBuf, rbtdre_Verdict> {
     let entries = std::fs::read_dir(&child.burv_temp).map_err(|e| {
         rbtdre_Verdict::Fail(format!(
             "{}: read child temp root {}: {}",
@@ -264,12 +285,12 @@ fn zrbtdrj_child_temp_gen(child: &rbtdrj_Child, label: &str) -> Result<PathBuf, 
 /// One case's directory in the child rbtd's trace tree:
 /// temp-<stamp>/rbtd/<case fn name>/.
 fn zrbtdrj_child_case_dir(
-    child: &rbtdrj_Child,
+    child: &zrbtdrj_Child,
     label: &str,
     case_name: &str,
 ) -> Result<PathBuf, rbtdre_Verdict> {
     Ok(zrbtdrj_child_temp_gen(child, label)?
-        .join(RBTDRJ_CHILD_TRACE_SUBDIR)
+        .join(ZRBTDRJ_CHILD_TRACE_SUBDIR)
         .join(case_name))
 }
 
@@ -297,22 +318,22 @@ fn zrbtdrj_run(body: impl FnOnce() -> Result<(), rbtdre_Verdict>) -> rbtdre_Verd
 /// the operator stream, trace file recording the verdict.
 fn rbtdrj_verdict_pass_exits_zero(dir: &Path) -> rbtdre_Verdict {
     zrbtdrj_run(|| {
+        let label = "single-pass";
         let pass_case = RBTDRL_CASES_VERDICTS[0].name;
         let child = zrbtdrj_child(
             dir,
-            "single-pass",
+            label,
             RBTDGC_THEURGE_CASE,
             None,
             &[RBTDRM_FIXTURE_CALIBRANT_VERDICTS, pass_case],
             false,
         )?;
-        zrbtdrj_expect_zero(&child, "single-pass")?;
-        zrbtdrj_expect_contains(&child.stdout, "PASSED:", "single-pass stdout")?;
+        zrbtdrj_expect_zero(&child, label)?;
+        zrbtdrj_expect_contains(&child.stdout, RBTDRE_WORD_PASSED, "single-pass stdout")?;
         zrbtdrj_expect_contains(&child.stdout, pass_case, "single-pass stdout")?;
-        let trace = zrbtdrj_child_case_dir(&child, "single-pass", pass_case)?
-            .join(RBTDRE_TRACE_FILE);
+        let trace = zrbtdrj_child_case_dir(&child, label, pass_case)?.join(RBTDRE_TRACE_FILE);
         let content = zrbtdrj_read(&trace, "single-pass trace")?;
-        zrbtdrj_expect_contains(&content, "PASSED", "single-pass trace content")
+        zrbtdrj_expect_contains(&content, RBTDRE_WORD_PASSED, "single-pass trace content")
     })
 }
 
@@ -320,21 +341,21 @@ fn rbtdrj_verdict_pass_exits_zero(dir: &Path) -> rbtdre_Verdict {
 /// failure, so the child exits 0 with SKIPPED on the operator stream.
 fn rbtdrj_verdict_skip_exits_zero(dir: &Path) -> rbtdre_Verdict {
     zrbtdrj_run(|| {
+        let label = "single-skip";
         let skip_case = RBTDRL_CASES_VERDICTS[2].name;
         let child = zrbtdrj_child(
             dir,
-            "single-skip",
+            label,
             RBTDGC_THEURGE_CASE,
             None,
             &[RBTDRM_FIXTURE_CALIBRANT_VERDICTS, skip_case],
             false,
         )?;
-        zrbtdrj_expect_zero(&child, "single-skip")?;
-        zrbtdrj_expect_contains(&child.stdout, "SKIPPED:", "single-skip stdout")?;
-        let trace = zrbtdrj_child_case_dir(&child, "single-skip", skip_case)?
-            .join(RBTDRE_TRACE_FILE);
+        zrbtdrj_expect_zero(&child, label)?;
+        zrbtdrj_expect_contains(&child.stdout, RBTDRE_WORD_SKIPPED, "single-skip stdout")?;
+        let trace = zrbtdrj_child_case_dir(&child, label, skip_case)?.join(RBTDRE_TRACE_FILE);
         let content = zrbtdrj_read(&trace, "single-skip trace")?;
-        zrbtdrj_expect_contains(&content, "SKIPPED", "single-skip trace content")
+        zrbtdrj_expect_contains(&content, RBTDRE_WORD_SKIPPED, "single-skip trace content")
     })
 }
 
@@ -343,28 +364,29 @@ fn rbtdrj_verdict_skip_exits_zero(dir: &Path) -> rbtdre_Verdict {
 /// never run — their trace dirs are never created.
 fn rbtdrj_verdict_fail_exits_nonzero(dir: &Path) -> rbtdre_Verdict {
     zrbtdrj_run(|| {
+        let label = "verdicts-default";
         let pass_case = RBTDRL_CASES_VERDICTS[0].name;
         let fail_case = RBTDRL_CASES_VERDICTS[1].name;
         let skip_case = RBTDRL_CASES_VERDICTS[2].name;
         let child = zrbtdrj_child(
             dir,
-            "verdicts-default",
+            label,
             RBTDGC_THEURGE_FIXTURE,
             None,
             &[RBTDRM_FIXTURE_CALIBRANT_VERDICTS],
             false,
         )?;
-        zrbtdrj_expect_nonzero(&child, "verdicts-default")?;
-        zrbtdrj_expect_contains(&child.stdout, "PASSED:", "verdicts-default stdout")?;
+        zrbtdrj_expect_nonzero(&child, label)?;
+        zrbtdrj_expect_contains(&child.stdout, RBTDRE_WORD_PASSED, "verdicts-default stdout")?;
         zrbtdrj_expect_contains(&child.stdout, pass_case, "verdicts-default stdout")?;
-        zrbtdrj_expect_contains(&child.stdout, "FAILED:", "verdicts-default stdout")?;
+        zrbtdrj_expect_contains(&child.stdout, RBTDRE_WORD_FAILED, "verdicts-default stdout")?;
         zrbtdrj_expect_contains(&child.stdout, fail_case, "verdicts-default stdout")?;
         zrbtdrj_expect_contains(
             &child.stdout,
             "calibrant deterministic fail verdict",
             "verdicts-default stdout",
         )?;
-        let skip_dir = zrbtdrj_child_case_dir(&child, "verdicts-default", skip_case)?;
+        let skip_dir = zrbtdrj_child_case_dir(&child, label, skip_case)?;
         zrbtdrj_expect(
             !skip_dir.exists(),
             format!(
@@ -380,32 +402,33 @@ fn rbtdrj_verdict_fail_exits_nonzero(dir: &Path) -> rbtdre_Verdict {
 /// file, and the summary counts all four.
 fn rbtdrj_verdict_keep_going_runs_all(dir: &Path) -> rbtdre_Verdict {
     zrbtdrj_run(|| {
+        let label = "verdicts-keep-going";
         let output_case = RBTDRL_CASES_VERDICTS[3].name;
         let child = zrbtdrj_child(
             dir,
-            "verdicts-keep-going",
+            label,
             RBTDGC_THEURGE_FIXTURE,
             None,
             &[RBTDRM_FIXTURE_CALIBRANT_VERDICTS, RBTDRE_FLAG_KEEP_GOING],
             false,
         )?;
-        zrbtdrj_expect_nonzero(&child, "verdicts-keep-going")?;
-        zrbtdrj_expect_contains(&child.stdout, "SKIPPED:", "verdicts-keep-going stdout")?;
+        zrbtdrj_expect_nonzero(&child, label)?;
+        zrbtdrj_expect_contains(&child.stdout, RBTDRE_WORD_SKIPPED, "verdicts-keep-going stdout")?;
         zrbtdrj_expect_contains(
             &child.stdout,
             "2 passed, 1 failed, 1 skipped (4 total)",
             "verdicts-keep-going stdout",
         )?;
         for case in RBTDRL_CASES_VERDICTS {
-            let trace = zrbtdrj_child_case_dir(&child, "verdicts-keep-going", case.name)?
-                .join(RBTDRE_TRACE_FILE);
+            let trace =
+                zrbtdrj_child_case_dir(&child, label, case.name)?.join(RBTDRE_TRACE_FILE);
             zrbtdrj_expect(
                 trace.is_file(),
                 format!("verdicts-keep-going: missing trace {}", trace.display()),
             )?;
         }
-        let output = zrbtdrj_child_case_dir(&child, "verdicts-keep-going", output_case)?
-            .join(RBTDRL_OUTPUT_FILE);
+        let output =
+            zrbtdrj_child_case_dir(&child, label, output_case)?.join(RBTDRL_OUTPUT_FILE);
         let content = zrbtdrj_read(&output, "verdicts-keep-going case output")?;
         zrbtdrj_expect_contains(
             &content,
@@ -421,18 +444,19 @@ fn rbtdrj_verdict_keep_going_runs_all(dir: &Path) -> rbtdre_Verdict {
 /// deterministic fail never runs — its sentinel is absent.
 fn rbtdrj_failfast_default_halts_trailing(dir: &Path) -> rbtdre_Verdict {
     zrbtdrj_run(|| {
+        let label = "failfast-default";
         let trailing = RBTDRL_CASES_FAIL_FAST.last().expect("fail-fast has cases").name;
         let child = zrbtdrj_child(
             dir,
-            "failfast-default",
+            label,
             RBTDGC_THEURGE_FIXTURE,
             None,
             &[RBTDRM_FIXTURE_CALIBRANT_FAIL_FAST],
             false,
         )?;
-        zrbtdrj_expect_nonzero(&child, "failfast-default")?;
-        let sentinel = zrbtdrj_child_case_dir(&child, "failfast-default", trailing)?
-            .join(RBTDRL_SENTINEL_FILE);
+        zrbtdrj_expect_nonzero(&child, label)?;
+        let sentinel =
+            zrbtdrj_child_case_dir(&child, label, trailing)?.join(RBTDRL_SENTINEL_FILE);
         zrbtdrj_expect(
             !sentinel.exists(),
             format!(
@@ -447,18 +471,19 @@ fn rbtdrj_failfast_default_halts_trailing(dir: &Path) -> rbtdre_Verdict {
 /// its sentinel is present — while the fail still yields a nonzero exit.
 fn rbtdrj_failfast_keep_going_reaches_trailing(dir: &Path) -> rbtdre_Verdict {
     zrbtdrj_run(|| {
+        let label = "failfast-keep-going";
         let trailing = RBTDRL_CASES_FAIL_FAST.last().expect("fail-fast has cases").name;
         let child = zrbtdrj_child(
             dir,
-            "failfast-keep-going",
+            label,
             RBTDGC_THEURGE_FIXTURE,
             None,
             &[RBTDRM_FIXTURE_CALIBRANT_FAIL_FAST, RBTDRE_FLAG_KEEP_GOING],
             false,
         )?;
-        zrbtdrj_expect_nonzero(&child, "failfast-keep-going")?;
-        let sentinel = zrbtdrj_child_case_dir(&child, "failfast-keep-going", trailing)?
-            .join(RBTDRL_SENTINEL_FILE);
+        zrbtdrj_expect_nonzero(&child, label)?;
+        let sentinel =
+            zrbtdrj_child_case_dir(&child, label, trailing)?.join(RBTDRL_SENTINEL_FILE);
         zrbtdrj_expect(
             sentinel.is_file(),
             format!(
@@ -475,20 +500,21 @@ fn rbtdrj_failfast_keep_going_reaches_trailing(dir: &Path) -> rbtdre_Verdict {
 /// probe cases run (Ok passes, Err fails), nonzero exit.
 fn rbtdrj_progressing_default_runs_fail_fast(dir: &Path) -> rbtdre_Verdict {
     zrbtdrj_run(|| {
+        let label = "progressing-default";
         let ok_case = RBTDRL_CASES_PROGRESSING[0].name;
         let err_case = RBTDRL_CASES_PROGRESSING[1].name;
         let child = zrbtdrj_child(
             dir,
-            "progressing-default",
+            label,
             RBTDGC_THEURGE_FIXTURE,
             None,
             &[RBTDRM_FIXTURE_CALIBRANT_PROGRESSING],
             false,
         )?;
-        zrbtdrj_expect_nonzero(&child, "progressing-default")?;
-        zrbtdrj_expect_contains(&child.stdout, "PASSED:", "progressing-default stdout")?;
+        zrbtdrj_expect_nonzero(&child, label)?;
+        zrbtdrj_expect_contains(&child.stdout, RBTDRE_WORD_PASSED, "progressing-default stdout")?;
         zrbtdrj_expect_contains(&child.stdout, ok_case, "progressing-default stdout")?;
-        zrbtdrj_expect_contains(&child.stdout, "FAILED:", "progressing-default stdout")?;
+        zrbtdrj_expect_contains(&child.stdout, RBTDRE_WORD_FAILED, "progressing-default stdout")?;
         zrbtdrj_expect_contains(&child.stdout, err_case, "progressing-default stdout")
     })
 }
@@ -498,22 +524,23 @@ fn rbtdrj_progressing_default_runs_fail_fast(dir: &Path) -> rbtdre_Verdict {
 /// stream, and neither case's trace dir ever created.
 fn rbtdrj_progressing_keep_going_refused(dir: &Path) -> rbtdre_Verdict {
     zrbtdrj_run(|| {
+        let label = "progressing-refused";
         let child = zrbtdrj_child(
             dir,
-            "progressing-refused",
+            label,
             RBTDGC_THEURGE_FIXTURE,
             None,
             &[RBTDRM_FIXTURE_CALIBRANT_PROGRESSING, RBTDRE_FLAG_KEEP_GOING],
             false,
         )?;
-        zrbtdrj_expect_nonzero(&child, "progressing-refused")?;
+        zrbtdrj_expect_nonzero(&child, label)?;
         zrbtdrj_expect_contains(
             &child.stdout,
             "keep-going mode refused for StateProgressing",
             "progressing-refused stdout",
         )?;
         for case in RBTDRL_CASES_PROGRESSING {
-            let case_dir = zrbtdrj_child_case_dir(&child, "progressing-refused", case.name)?;
+            let case_dir = zrbtdrj_child_case_dir(&child, label, case.name)?;
             zrbtdrj_expect(
                 !case_dir.exists(),
                 format!(
@@ -533,15 +560,16 @@ fn rbtdrj_progressing_keep_going_refused(dir: &Path) -> rbtdre_Verdict {
 /// pinned to rbtdrl_progressing_probe_err's rbtdrb_Probe literal.
 fn rbtdrj_probe_diagnostic_shape(dir: &Path) -> rbtdre_Verdict {
     zrbtdrj_run(|| {
+        let label = "probe-shape";
         let child = zrbtdrj_child(
             dir,
-            "probe-shape",
+            label,
             RBTDGC_THEURGE_FIXTURE,
             None,
             &[RBTDRM_FIXTURE_CALIBRANT_PROGRESSING],
             false,
         )?;
-        zrbtdrj_expect_nonzero(&child, "probe-shape")?;
+        zrbtdrj_expect_nonzero(&child, label)?;
         zrbtdrj_expect_contains(
             &child.stdout,
             "precondition 'calibrant deterministic err' not met:",
@@ -558,25 +586,26 @@ fn rbtdrj_probe_diagnostic_shape(dir: &Path) -> rbtdre_Verdict {
 /// runs — one fixture reported, the sentinel's trace dir absent.
 fn rbtdrj_suite_abort_halts_sentinel(dir: &Path) -> rbtdre_Verdict {
     zrbtdrj_run(|| {
+        let label = "suite-abort";
         let fail_case = RBTDRL_CASES_FAIL_FAST[1].name;
         let sentinel_case = RBTDRL_CASES_SENTINEL[0].name;
         let child = zrbtdrj_child(
             dir,
-            "suite-abort",
+            label,
             RBTDGC_THEURGE_SUITE,
             Some(RBTDRA_SUITE_NAME_CALIBRANT),
             &[],
             false,
         )?;
-        zrbtdrj_expect_nonzero(&child, "suite-abort")?;
-        zrbtdrj_expect_contains(&child.stdout, "FAILED:", "suite-abort stdout")?;
+        zrbtdrj_expect_nonzero(&child, label)?;
+        zrbtdrj_expect_contains(&child.stdout, RBTDRE_WORD_FAILED, "suite-abort stdout")?;
         zrbtdrj_expect_contains(&child.stdout, fail_case, "suite-abort stdout")?;
         zrbtdrj_expect_contains(
             &child.stdout,
             &format!("Suite '{}': 1 fixture(s) run", RBTDRA_SUITE_NAME_CALIBRANT),
             "suite-abort stdout",
         )?;
-        let sentinel_dir = zrbtdrj_child_case_dir(&child, "suite-abort", sentinel_case)?;
+        let sentinel_dir = zrbtdrj_child_case_dir(&child, label, sentinel_case)?;
         zrbtdrj_expect(
             !sentinel_dir.exists(),
             format!(
@@ -592,15 +621,16 @@ fn rbtdrj_suite_abort_halts_sentinel(dir: &Path) -> rbtdre_Verdict {
 /// An unknown fixture name errors clearly, naming the fixture.
 fn rbtdrj_cli_unknown_fixture_errors(dir: &Path) -> rbtdre_Verdict {
     zrbtdrj_run(|| {
+        let label = "cli-unknown";
         let child = zrbtdrj_child(
             dir,
-            "cli-unknown",
+            label,
             RBTDGC_THEURGE_FIXTURE,
             None,
             &["touchstone-nonesuch"],
             false,
         )?;
-        zrbtdrj_expect_nonzero(&child, "cli-unknown")?;
+        zrbtdrj_expect_nonzero(&child, label)?;
         zrbtdrj_expect_contains(&child.stdout, "touchstone-nonesuch", "cli-unknown stdout")?;
         zrbtdrj_expect_contains(&child.stdout, "has no registered Fixture", "cli-unknown stdout")
     })
@@ -609,9 +639,9 @@ fn rbtdrj_cli_unknown_fixture_errors(dir: &Path) -> rbtdre_Verdict {
 /// A fixture run with no folio dies at the bash usage gate.
 fn rbtdrj_cli_missing_fixture_usage(dir: &Path) -> rbtdre_Verdict {
     zrbtdrj_run(|| {
-        let child =
-            zrbtdrj_child(dir, "cli-no-folio", RBTDGC_THEURGE_FIXTURE, None, &[], false)?;
-        zrbtdrj_expect_nonzero(&child, "cli-no-folio")?;
+        let label = "cli-no-folio";
+        let child = zrbtdrj_child(dir, label, RBTDGC_THEURGE_FIXTURE, None, &[], false)?;
+        zrbtdrj_expect_nonzero(&child, label)?;
         zrbtdrj_expect_contains(&child.stdout, "No fixture", "cli-no-folio stdout")
     })
 }
@@ -620,15 +650,16 @@ fn rbtdrj_cli_missing_fixture_usage(dir: &Path) -> rbtdre_Verdict {
 /// cases and its declared tariff, exiting 0.
 fn rbtdrj_cli_case_listing(dir: &Path) -> rbtdre_Verdict {
     zrbtdrj_run(|| {
+        let label = "cli-case-list";
         let child = zrbtdrj_child(
             dir,
-            "cli-case-list",
+            label,
             RBTDGC_THEURGE_CASE,
             None,
             &[RBTDRM_FIXTURE_CALIBRANT_VERDICTS],
             false,
         )?;
-        zrbtdrj_expect_zero(&child, "cli-case-list")?;
+        zrbtdrj_expect_zero(&child, label)?;
         zrbtdrj_expect_contains(&child.stdout, "declared tariff", "cli-case-list stdout")?;
         for case in RBTDRL_CASES_VERDICTS {
             zrbtdrj_expect_contains(&child.stdout, case.name, "cli-case-list stdout")?;
@@ -641,8 +672,9 @@ fn rbtdrj_cli_case_listing(dir: &Path) -> rbtdre_Verdict {
 /// listing, exiting nonzero.
 fn rbtdrj_cli_single_usage_lists_fixtures(dir: &Path) -> rbtdre_Verdict {
     zrbtdrj_run(|| {
-        let child = zrbtdrj_child(dir, "cli-single-usage", RBTDGC_THEURGE_CASE, None, &[], false)?;
-        zrbtdrj_expect_nonzero(&child, "cli-single-usage")?;
+        let label = "cli-single-usage";
+        let child = zrbtdrj_child(dir, label, RBTDGC_THEURGE_CASE, None, &[], false)?;
+        zrbtdrj_expect_nonzero(&child, label)?;
         zrbtdrj_expect_contains(&child.stdout, "usage: rbtd single", "cli-single-usage stdout")?;
         zrbtdrj_expect_contains(&child.stdout, "available fixtures:", "cli-single-usage stdout")
     })
@@ -652,26 +684,27 @@ fn rbtdrj_cli_single_usage_lists_fixtures(dir: &Path) -> rbtdre_Verdict {
 
 /// Under BURD_NO_LOG the dispatch leaves the coordinator's streams unmerged,
 /// so this is where the placement contract itself is provable: rbtd's
-/// diagnostics land on stderr, not stdout (per the cinched assertion-surface
-/// doctrine, every other case reads the folded stdout instead).
+/// diagnostics land on stderr, not stdout. Every other case reads the folded
+/// stdout the logged chain produces.
 fn rbtdrj_stream_placement_diags_on_stderr(dir: &Path) -> rbtdre_Verdict {
     zrbtdrj_run(|| {
+        let label = "stream-placement";
         let child = zrbtdrj_child(
             dir,
-            "stream-placement",
+            label,
             RBTDGC_THEURGE_FIXTURE,
             None,
             &[RBTDRM_FIXTURE_CALIBRANT_VERDICTS],
             true,
         )?;
-        zrbtdrj_expect_nonzero(&child, "stream-placement")?;
-        zrbtdrj_expect_contains(&child.stderr, "FAILED:", "stream-placement stderr")?;
+        zrbtdrj_expect_nonzero(&child, label)?;
+        zrbtdrj_expect_contains(&child.stderr, RBTDRE_WORD_FAILED, "stream-placement stderr")?;
         zrbtdrj_expect_contains(
             &child.stderr,
             "calibrant deterministic fail verdict",
             "stream-placement stderr",
         )?;
-        zrbtdrj_expect_lacks(&child.stdout, "FAILED:", "stream-placement stdout")
+        zrbtdrj_expect_lacks(&child.stdout, RBTDRE_WORD_FAILED, "stream-placement stdout")
     })
 }
 
@@ -682,16 +715,17 @@ fn rbtdrj_stream_placement_diags_on_stderr(dir: &Path) -> rbtdre_Verdict {
 /// and a deliberately-failing child can never write the station's logs-buk.
 fn rbtdrj_log_override_isolates(dir: &Path) -> rbtdre_Verdict {
     zrbtdrj_run(|| {
+        let label = "log-isolation";
         let pass_case = RBTDRL_CASES_VERDICTS[0].name;
         let child = zrbtdrj_child(
             dir,
-            "log-isolation",
+            label,
             RBTDGC_THEURGE_CASE,
             None,
             &[RBTDRM_FIXTURE_CALIBRANT_VERDICTS, pass_case],
             false,
         )?;
-        zrbtdrj_expect_zero(&child, "log-isolation")?;
+        zrbtdrj_expect_zero(&child, label)?;
         let log_dir = child.log_dir.clone().expect("logged child carries a log dir");
         zrbtdrj_expect_contains(
             &child.stdout,

@@ -46,9 +46,18 @@ use rbtd::rbtdra_almanac::{
 };
 use rbtd::rbtdrc_crucible::{rbtdrc_set_context, rbtdrc_take_context};
 use rbtd::rbtdre_engine::{
-    rbtdre_detect_colors, rbtdre_find_case, rbtdre_list_cases, rbtdre_parse_keep_going,
-    rbtdre_print_summary, rbtdre_print_tariff_table, rbtdre_run_fixture,
-    rbtdre_run_single_case, rbtdre_tariff_declared, rbtdre_tree_clean, rbtdre_TariffRow,
+    RBTDRE_FLAG_KEEP_GOING,
+    rbtdre_TariffRow,
+    rbtdre_detect_colors,
+    rbtdre_find_case,
+    rbtdre_list_cases,
+    rbtdre_parse_keep_going,
+    rbtdre_print_summary,
+    rbtdre_print_tariff_table,
+    rbtdre_run_fixture,
+    rbtdre_run_single_case,
+    rbtdre_tariff_declared,
+    rbtdre_tree_clean,
 };
 use rbtd::rbtdri_invocation::{
     rbtdri_Context, rbtdri_invoke_global,
@@ -125,14 +134,15 @@ fn rbtdb_run_fixture(args: &[String]) -> ExitCode {
     let fixture = match positionals.first() {
         Some(n) => n,
         None => rbtd::rbtdrg_fatal_now!(
-            "rbtd: usage: rbtd <fixture> [--keep-going]\n\
-             theurge must be launched via tabtarget (e.g. tt/rbw-tf.FixtureRun.sh tadmor)"
+            "rbtd: usage: rbtd <fixture> [{}]\n\
+             theurge must be launched via tabtarget (e.g. tt/rbw-tf.FixtureRun.sh tadmor)",
+            RBTDRE_FLAG_KEEP_GOING
         ),
     };
     if positionals.len() > 1 {
         rbtd::rbtdrg_fatal_now!(
-            "rbtd: unexpected argument '{}' — usage: rbtd <fixture> [--keep-going]",
-            positionals[1]
+            "rbtd: unexpected argument '{}' — usage: rbtd <fixture> [{}]",
+            positionals[1], RBTDRE_FLAG_KEEP_GOING
         );
     }
 
@@ -221,8 +231,8 @@ fn rbtdb_run_suite(args: &[String]) -> ExitCode {
     };
     if positionals.len() > 1 {
         rbtd::rbtdrg_fatal_now!(
-            "rbtd suite: unexpected argument '{}' — usage: rbtd suite <suite> [--keep-going]",
-            positionals[1]
+            "rbtd suite: unexpected argument '{}' — usage: rbtd suite <suite> [{}]",
+            positionals[1], RBTDRE_FLAG_KEEP_GOING
         );
     }
 

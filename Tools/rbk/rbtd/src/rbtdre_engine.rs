@@ -530,8 +530,8 @@ pub fn rbtdre_print_tariff(
     );
     if report.too_fast {
         crate::rbtdrg_info_now!(
-            "{}FAILED:{} {} tariff too-fast — elapsed {}s below declared min {} (vacuous green)",
-            colors.red, colors.reset, name, report.elapsed_secs,
+            "{}{}{} {} tariff too-fast — elapsed {}s below declared min {} (vacuous green)",
+            colors.red, RBTDRE_WORD_FAILED, colors.reset, name, report.elapsed_secs,
             rbtdre_fmt_secs(tariff.min_secs),
         );
     }
@@ -688,13 +688,22 @@ pub fn rbtdre_detect_colors() -> rbtdre_Colors {
 /// the same name the engine writes.
 pub const RBTDRE_TRACE_FILE: &str = "trace.txt";
 
+/// Verdict words as emitted on the operator stream and written into trace
+/// files — single definitions consumed by the case runners here and asserted
+/// against child output by the touchstone surface fixture.
+pub const RBTDRE_WORD_PASSED: &str = "PASSED:";
+pub const RBTDRE_WORD_FAILED: &str = "FAILED:";
+pub const RBTDRE_WORD_SKIPPED: &str = "SKIPPED:";
+
 /// Write verdict and detail to a trace file in the case temp directory.
 fn rbtdre_write_trace(case_dir: &Path, display_name: &str, verdict: &rbtdre_Verdict) {
     let content = match verdict {
-        rbtdre_Verdict::Pass => format!("PASSED: {}\n", display_name),
-        rbtdre_Verdict::Fail(detail) => format!("FAILED: {}\n\n{}\n", display_name, detail),
+        rbtdre_Verdict::Pass => format!("{} {}\n", RBTDRE_WORD_PASSED, display_name),
+        rbtdre_Verdict::Fail(detail) => {
+            format!("{} {}\n\n{}\n", RBTDRE_WORD_FAILED, display_name, detail)
+        }
         rbtdre_Verdict::Skip(reason) => {
-            format!("SKIPPED: {}\n\nReason: {}\n", display_name, reason)
+            format!("{} {}\n\nReason: {}\n", RBTDRE_WORD_SKIPPED, display_name, reason)
         }
     };
     let _ = std::fs::write(case_dir.join(RBTDRE_TRACE_FILE), content);
@@ -739,11 +748,17 @@ pub fn rbtdre_run_cases(
 
         match &verdict {
             rbtdre_Verdict::Pass => {
-                crate::rbtdrg_info_now!("{}PASSED:{} {}", colors.green, colors.reset, case.name);
+                crate::rbtdrg_info_now!(
+                    "{}{}{} {}",
+                    colors.green, RBTDRE_WORD_PASSED, colors.reset, case.name
+                );
                 passed += 1;
             }
             rbtdre_Verdict::Fail(msg) => {
-                crate::rbtdrg_info_now!("{}FAILED:{} {}", colors.red, colors.reset, case.name);
+                crate::rbtdrg_info_now!(
+                    "{}{}{} {}",
+                    colors.red, RBTDRE_WORD_FAILED, colors.reset, case.name
+                );
                 crate::rbtdrg_info_now!("{}", msg);
                 failed += 1;
                 if fail_fast {
@@ -752,8 +767,8 @@ pub fn rbtdre_run_cases(
             }
             rbtdre_Verdict::Skip(_) => {
                 crate::rbtdrg_info_now!(
-                    "{}SKIPPED:{} {}",
-                    colors.yellow, colors.reset, case.name
+                    "{}{}{} {}",
+                    colors.yellow, RBTDRE_WORD_SKIPPED, colors.reset, case.name
                 );
                 skipped += 1;
             }
@@ -879,15 +894,24 @@ pub fn rbtdre_run_single_case(
 
     let (passed, failed, skipped) = match &verdict {
         rbtdre_Verdict::Pass => {
-            crate::rbtdrg_info_now!("{}PASSED:{} {}", colors.green, colors.reset, case.name);
+            crate::rbtdrg_info_now!(
+                "{}{}{} {}",
+                colors.green, RBTDRE_WORD_PASSED, colors.reset, case.name
+            );
             (1, 0, 0)
         }
         rbtdre_Verdict::Fail(_) => {
-            crate::rbtdrg_info_now!("{}FAILED:{} {}", colors.red, colors.reset, case.name);
+            crate::rbtdrg_info_now!(
+                "{}{}{} {}",
+                colors.red, RBTDRE_WORD_FAILED, colors.reset, case.name
+            );
             (0, 1, 0)
         }
         rbtdre_Verdict::Skip(_) => {
-            crate::rbtdrg_info_now!("{}SKIPPED:{} {}", colors.yellow, colors.reset, case.name);
+            crate::rbtdrg_info_now!(
+                "{}{}{} {}",
+                colors.yellow, RBTDRE_WORD_SKIPPED, colors.reset, case.name
+            );
             (0, 0, 1)
         }
     };
