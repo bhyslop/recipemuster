@@ -5404,8 +5404,8 @@
         "₢BDAAr": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260711-1349",
-              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_ts": "260711-1423",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_tier": "jjgde_opus",
               "jjgtn_text": [
                 "Notch is the only verb that refuses an empty commit.",
@@ -5441,7 +5441,7 @@
                 "Small mechanism plus one scoped spec widening. Mechanical once ₢BDAAs lands."
               ],
               "jjgtn_silks": "allow-empty-notch",
-              "jjgtn_basis": "07a517a"
+              "jjgtn_basis": "3e904c6"
             }
           ]
         },
