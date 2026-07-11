@@ -9538,8 +9538,8 @@
         "₢BsAAE": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260711-2021",
-              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_ts": "260711-2141",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_tier": "jjgde_fable",
               "jjgtn_effort": "jjgde_high",
               "jjgtn_text": [
@@ -9586,7 +9586,7 @@
                 "The heat's centerpiece; deliberate, operator-present, real credentials, one config edit."
               ],
               "jjgtn_silks": "manor-raze-rebuild-walk",
-              "jjgtn_basis": "e7380ee"
+              "jjgtn_basis": "2dca1f1"
             }
           ]
         },
