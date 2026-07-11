@@ -3552,8 +3552,10 @@
         "₢BCAAA": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260711-1607",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260711-1610",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_opus",
+              "jjgtn_effort": "jjgde_high",
               "jjgtn_text": [
                 "## Character",
                 "",
@@ -3582,7 +3584,7 @@
                 "Reveille runs green with the surface fixture as a member; each catalog behavior is asserted against a child run; keep-going is drivable from a tabtarget and refused for StateProgressing; suite-abort is proven via the registered calibrant suite."
               ],
               "jjgtn_silks": "calibrant-surface-fixture",
-              "jjgtn_basis": "3cf00b1"
+              "jjgtn_basis": "e0c77a5"
             }
           ]
         },
