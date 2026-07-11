@@ -20,6 +20,7 @@
 
 use crate::vvcc_commit::vvcc_CommitLock;
 use crate::vvcg_guard;
+use crate::vvcg_guard::vvcg_Cost;
 use crate::vvco_output::vvco_Output;
 use crate::vvco_err;
 
@@ -34,6 +35,40 @@ pub struct vvcm_CommitArgs {
     pub size_limit: u64,
     /// Warning threshold in bytes for guard check
     pub warn_limit: u64,
+}
+
+/// Why a machine commit did not land.
+///
+/// The size-guard refusal is its own variant rather than a message, because the
+/// caller — not this crate — owns how a refusal reads to whoever must act on it.
+/// The variant carries the measurement so that caller can say *why*, naming the
+/// bytes and the files, without re-running the guard.
+#[derive(Debug, Clone)]
+pub enum vvcm_CommitError {
+    /// Staged content costs more than the caller's limit. Nothing was committed;
+    /// the files remain staged.
+    OverLimit { cost: vvcg_Cost, limit: u64 },
+    /// Anything else: empty args, staging failure, git failure.
+    Fault(String),
+}
+
+impl std::fmt::Display for vvcm_CommitError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            vvcm_CommitError::OverLimit { cost, limit } => write!(
+                f,
+                "staged content {} bytes exceeds size limit {} bytes",
+                cost.total, limit
+            ),
+            vvcm_CommitError::Fault(m) => write!(f, "{}", m),
+        }
+    }
+}
+
+impl From<String> for vvcm_CommitError {
+    fn from(m: String) -> Self {
+        vvcm_CommitError::Fault(m)
+    }
 }
 
 /// Machine commit for programmatic operations.
@@ -52,35 +87,31 @@ pub fn vvcm_commit(
     _lock: &vvcc_CommitLock,
     args: &vvcm_CommitArgs,
     output: &mut vvco_Output,
-) -> Result<String, String> {
+) -> Result<String, vvcm_CommitError> {
     // Validate args
     if args.files.is_empty() {
-        return Err("files list must not be empty".to_string());
+        return Err("files list must not be empty".to_string().into());
     }
     if args.message.is_empty() {
-        return Err("message must not be empty".to_string());
+        return Err("message must not be empty".to_string().into());
     }
 
     // Stage explicit files
     zvvcm_stage_files(&args.files)?;
 
-    // Run guard with custom limits
-    let guard_args = vvcg_guard::vvcg_GuardArgs {
-        limit: args.size_limit,
-        warn: args.warn_limit,
-    };
-    let guard_result = vvcg_guard::vvcg_run(&guard_args, None, output);
-    match guard_result {
-        0 => {}
-        1 => return Err("Staged content exceeds size limit".to_string()),
-        2 => {
-            vvco_err!(output, "vvcm_commit: WARNING - staged content near size limit");
-        }
-        _ => return Err(format!("Guard returned unexpected code: {}", guard_result)),
+    // Measure staged content, then judge it against the caller's limits. The
+    // refusal returns the measurement rather than printing a verdict: the caller
+    // renders it.
+    let cost = vvcg_guard::vvcg_cost(None)?;
+    if cost.total > args.size_limit {
+        return Err(vvcm_CommitError::OverLimit { cost, limit: args.size_limit });
+    }
+    if cost.total > args.warn_limit {
+        vvco_err!(output, "vvcm_commit: WARNING - staged content near size limit");
     }
 
     // Commit with message (no Co-Authored-By)
-    zvvcm_execute_commit(&args.message)
+    Ok(zvvcm_execute_commit(&args.message)?)
 }
 
 /// Stage specific files using git add

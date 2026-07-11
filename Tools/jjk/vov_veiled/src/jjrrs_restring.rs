@@ -117,6 +117,17 @@ pub fn jjrrs_run(args: jjrrs_RestringArgs, coronets: String) -> (i32, String) {
         Ok(hash) => {
             vvco_out!(output, "{}: committed {}", cn, &hash[..8]);
         }
+        Err(e @ vvc::vvcm_CommitError::OverLimit { .. }) => {
+            // A barred act leaves nothing behind: restore the files this restring
+            // wrote, so the refusal is a refusal and not a half-applied transfer
+            // waiting to ride the next command's commit.
+            for f in &commit_args.files {
+                let _ = vvc::vvce_git_command(&["checkout", "HEAD", "--", f.as_str()]).output();
+                let _ = vvc::vvce_git_command(&["reset", "--quiet", "--", f.as_str()]).output();
+            }
+            vvco_err!(output, "{}", crate::jjri_io::jjri_commit_refusal(cn, &e));
+            return (1, output.vvco_finish());
+        }
         Err(e) => {
             vvco_err!(output, "{}: commit warning: {}", cn, e);
         }

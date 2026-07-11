@@ -90,7 +90,7 @@ pub fn jjrx_run_nominate(args: jjrx_NominateArgs) -> (i32, String) {
                     vvco_out!(output, "{}: committed {}", cn, &hash[..8]);
                 }
                 Err(e) => {
-                    vvco_err!(output, "{}: error: {}", cn, e);
+                    vvco_err!(output, "{}", crate::jjri_io::jjri_commit_refusal(cn, &e));
                     return (1, output.vvco_finish());
                 }
             }

@@ -92,7 +92,7 @@ pub fn jjrsl_run_slate(args: jjrsl_SlateArgs, docket: String) -> (i32, String) {
             match crate::jjri_io::jjri_persist(&lock, &gallops, &args.file, &fm, message, size_limit, &mut output) {
                 Ok(_hash) => {}
                 Err(e) => {
-                    vvco_err!(output, "{}: error: {}", cn, e);
+                    vvco_err!(output, "{}", crate::jjri_io::jjri_commit_refusal(cn, &e));
                     return (1, output.vvco_finish());
                 }
             }

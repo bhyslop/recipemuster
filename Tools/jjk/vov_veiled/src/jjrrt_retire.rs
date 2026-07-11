@@ -147,7 +147,7 @@ pub fn jjrrt_run_retire(args: jjrrt_RetireArgs) -> (i32, String) {
             vvco_out!(output, "{}: committed {}", cn, &hash[..8]);
         }
         Err(e) => {
-            vvco_err!(output, "{}: error: commit failed: {}", cn, e);
+            vvco_err!(output, "{}", crate::jjri_io::jjri_commit_refusal(cn, &e));
             // Rollback: restore gallops and paddock from HEAD, remove trophy
             let gp = args.file.to_string_lossy().to_string();
             let _ = vvc::vvce_git_command(&["checkout", "HEAD", "--", &gp, &result.paddock_path])

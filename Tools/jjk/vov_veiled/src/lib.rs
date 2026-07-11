@@ -109,13 +109,16 @@ mod jjtz_gazette;
 #[cfg(test)]
 mod jjtm_mcp;
 
+#[cfg(test)]
+mod jjti_io;
+
 // Re-export commonly used types (with RCG prefixes)
 pub use jjrf_favor::{jjrf_Coronet, jjrf_Firemark, jjrf_Incipit, jjrf_Pensum};
 pub use jjrn_notch::{jjrn_ChalkMarker, jjrn_HeatAction, jjrn_format_notch_prefix, jjrn_format_heat_message, jjrn_format_heat_discussion};
 pub use jjrs_steeplechase::{jjrs_ReinArgs, jjrs_SteeplechaseEntry, jjrs_get_entries};
 
 // Re-export new I/O routines
-pub use jjri_io::{jjdr_load, jjdr_save, jjdr_ValidatedGallops, jjri_persist, jjri_consign};
+pub use jjri_io::{jjdr_load, jjdr_save, jjdr_ValidatedGallops, jjri_persist, jjri_consign, jjri_commit_refusal, jjri_size_interdictum};
 
 // Re-export the reprieve mechanism (schema-migration tolerance: rivet, probe, status, transform)
 pub use jjri_io::{jjdz_probe, jjdz_Status, jjdz_write_forward, JJDZ_LABEL_REPRIEVE, JJDZ_RIVET_REPRIEVE};

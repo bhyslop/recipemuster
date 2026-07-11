@@ -165,7 +165,7 @@ pub fn jjrtl_run_relabel(args: jjrtl_RelabelArgs) -> (i32, String) {
                     (0, output.vvco_finish())
                 }
                 Err(e) => {
-                    vvco_err!(output, "{}: error: {}", cn, e);
+                    vvco_err!(output, "{}", crate::jjri_io::jjri_commit_refusal(cn, &e));
                     (1, output.vvco_finish())
                 }
             }
@@ -253,7 +253,7 @@ pub fn jjrtl_run_drop(args: jjrtl_DropArgs) -> (i32, String) {
                     (0, output.vvco_finish())
                 }
                 Err(e) => {
-                    vvco_err!(output, "{}: error: {}", cn, e);
+                    vvco_err!(output, "{}", crate::jjri_io::jjri_commit_refusal(cn, &e));
                     (1, output.vvco_finish())
                 }
             }

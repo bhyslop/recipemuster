@@ -172,6 +172,22 @@ pub fn jjrnc_run_notch(args: jjrnc_NotchArgs) -> (i32, String) {
         }
     }
 
+    // Size gate, ahead of the commit. The commit routine guards too, but it reports a
+    // refusal in its own plain form; notch judges the staged cost itself so the refusal
+    // it hands back is the interdictum, carrying the bytes the operator must review.
+    let size_limit = args.size_limit.unwrap_or(vvc::VVCG_SIZE_LIMIT);
+    match vvc::vvcg_cost(None) {
+        Ok(cost) if cost.total > size_limit => {
+            vvco_err!(output, "{}", crate::jjri_io::jjri_size_interdictum(cn, &cost, size_limit));
+            return (1, output.vvco_finish());
+        }
+        Ok(_) => {}
+        Err(e) => {
+            vvco_err!(output, "{}: error: {}", cn, e);
+            return (1, output.vvco_finish());
+        }
+    }
+
     // Commit using vvc with the generated message prefix
     // If --intent provided, use it as the message; otherwise let haiku generate it
     let commit_args = if let Some(intent) = args.intent {

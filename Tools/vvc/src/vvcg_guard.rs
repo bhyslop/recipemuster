@@ -68,12 +68,23 @@ pub struct vvcg_GuardArgs {
     pub warn: u64,
 }
 
-/// Entry for a staged file with its diff size
+/// Entry for a staged file with its incremental storage cost
+#[derive(Debug, Clone)]
+pub struct vvcg_StagedFile {
+    pub path: String,
+    pub size: u64,
+}
+
+/// The measured incremental storage cost of staged content.
 ///
-/// Public for testing. External callers should use vvcg_run.
-pub(crate) struct zvvcg_StagedFile {
-    pub(crate) path: String,
-    pub(crate) size: u64,
+/// The measurement, not the verdict: the caller compares `total` against its own
+/// limit. Callers that must report *why* they refused (rather than only that they
+/// did) take the cost and format it themselves; `files` is sorted largest-first so
+/// a breakdown reads in the order that explains the total.
+#[derive(Debug, Clone)]
+pub struct vvcg_Cost {
+    pub total: u64,
+    pub files: Vec<vvcg_StagedFile>,
 }
 
 /// Get list of staged files with their diff sizes
@@ -81,7 +92,7 @@ pub(crate) struct zvvcg_StagedFile {
 /// Uses -M flag for rename detection. Git renames (R status) are costed
 /// by their actual storage impact: exact renames (R100) cost 0, renames
 /// with edits cost their diff or blob size depending on content type.
-fn zvvcg_get_staged_files(repo_dir: Option<&Path>) -> Result<Vec<zvvcg_StagedFile>, String> {
+fn zvvcg_get_staged_files(repo_dir: Option<&Path>) -> Result<Vec<vvcg_StagedFile>, String> {
     // Use -M to enable rename detection so renames appear as R instead of A+D
     let mut cmd = crate::vvce_git_command(&["diff", "--cached", "-M", "--name-status"]);
     if let Some(dir) = repo_dir {
@@ -133,7 +144,7 @@ fn zvvcg_get_staged_files(repo_dir: Option<&Path>) -> Result<Vec<zvvcg_StagedFil
                     zvvcg_get_rename_diff_size(old_path, new_path, repo_dir)?
                 };
 
-                files.push(zvvcg_StagedFile {
+                files.push(vvcg_StagedFile {
                     path: new_path.to_string(),
                     size,
                 });
@@ -143,7 +154,7 @@ fn zvvcg_get_staged_files(repo_dir: Option<&Path>) -> Result<Vec<zvvcg_StagedFil
                 let path = parts.get(1).ok_or_else(||
                     format!("Missing path in status line: {}", line))?;
                 let size = zvvcg_get_diff_size(path, repo_dir)?;
-                files.push(zvvcg_StagedFile {
+                files.push(vvcg_StagedFile {
                     path: path.to_string(),
                     size,
                 });
@@ -333,6 +344,19 @@ pub(crate) fn zvvcg_get_diff_size(path: &str, repo_dir: Option<&Path>) -> Result
     }
 }
 
+/// Measure the incremental storage cost of staged content.
+///
+/// `repo_dir`: Optional path to git repository. If None, uses current working directory.
+///
+/// The measurement alone — no limit, no verdict, no output. `vvcg_run` renders it as
+/// an exit code; a caller that must explain its refusal takes the cost itself.
+pub fn vvcg_cost(repo_dir: Option<&Path>) -> Result<vvcg_Cost, String> {
+    let mut files = zvvcg_get_staged_files(repo_dir)?;
+    let total = files.iter().map(|f| f.size).sum();
+    files.sort_by(|a, b| b.size.cmp(&a.size));
+    Ok(vvcg_Cost { total, files })
+}
+
 /// Run the guard check on staged content.
 ///
 /// `repo_dir`: Optional path to git repository. If None, uses current working directory.
@@ -342,38 +366,34 @@ pub(crate) fn zvvcg_get_diff_size(path: &str, repo_dir: Option<&Path>) -> Result
 /// - 1: Over limit (BLOCKED)
 /// - 2: Over warn threshold (WARNING)
 pub fn vvcg_run(args: &vvcg_GuardArgs, repo_dir: Option<&Path>, output: &mut vvco_Output) -> i32 {
-    let files = match zvvcg_get_staged_files(repo_dir) {
-        Ok(f) => f,
+    let cost = match vvcg_cost(repo_dir) {
+        Ok(c) => c,
         Err(e) => {
             vvco_err!(output, "guard: error: {}", e);
             return 1;
         }
     };
 
-    let total_size: u64 = files.iter().map(|f| f.size).sum();
-
-    if total_size > args.limit {
+    if cost.total > args.limit {
         vvco_err!(output,
             "guard: BLOCKED - staged content {} bytes exceeds limit {} bytes",
-            total_size, args.limit
+            cost.total, args.limit
         );
         vvco_err!(output, "");
         vvco_err!(output, "Breakdown by file:");
-        let mut sorted_files = files;
-        sorted_files.sort_by(|a, b| b.size.cmp(&a.size));
-        for f in sorted_files.iter().take(10) {
+        for f in cost.files.iter().take(10) {
             vvco_err!(output, "  {:>10} bytes  {}", f.size, f.path);
         }
-        if sorted_files.len() > 10 {
-            vvco_err!(output, "  ... and {} more files", sorted_files.len() - 10);
+        if cost.files.len() > 10 {
+            vvco_err!(output, "  ... and {} more files", cost.files.len() - 10);
         }
         return 1;
     }
 
-    if total_size > args.warn {
+    if cost.total > args.warn {
         vvco_err!(output,
             "guard: WARNING - staged content {} bytes exceeds warning threshold {} bytes",
-            total_size, args.warn
+            cost.total, args.warn
         );
         return 2;
     }

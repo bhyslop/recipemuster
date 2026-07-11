@@ -205,7 +205,7 @@ fn zjjrm_dispatch_inner_msg(
         Ok(_hash) => {}
         Err(e) => {
             return Ok(CallToolResult::error(vec![Content::text(
-                format!("jjx {}: error: {}", cmd, e),
+                crate::jjri_io::jjri_commit_refusal(cmd, &e),
             )]));
         }
     }

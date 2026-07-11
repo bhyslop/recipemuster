@@ -382,13 +382,57 @@ pub fn jjdr_save(gallops: &jjrg_Gallops, path: &Path) -> Result<(), String> {
     }
 }
 
+/// The size gate's refusal — an interdictum (JJS0 `jjdz_interdictum`), and the
+/// single home for its text.
+///
+/// The token leads, spelled literally — `grep INTERDICTUM` is the generator census —
+/// and the body stands alone under the genre's message law: standing agent context
+/// carries nothing about this guard, so the emission itself must name what refused,
+/// why, and the remedies. The bytes and the per-file breakdown are the facts the
+/// operator needs to judge the bulk, which is the review the ceiling exists to force.
+pub fn jjri_size_interdictum(cmd: &str, cost: &vvc::vvcg_Cost, limit: u64) -> String {
+    let mut msg = format!(
+        "INTERDICTUM — size gate: {} refuses; the staged commit costs {} bytes, over the {}-byte ceiling.\n\n",
+        cmd, cost.total, limit
+    );
+    msg.push_str("Staged cost by file (largest first):\n");
+    for f in cost.files.iter().take(10) {
+        msg.push_str(&format!("  {:>10} bytes  {}\n", f.size, f.path));
+    }
+    if cost.files.len() > 10 {
+        msg.push_str(&format!("  ... and {} more files\n", cost.files.len() - 10));
+    }
+    msg.push_str("\nNothing was committed; the files remain staged.\n");
+    msg.push_str(
+        "\nRemedies: the ceiling is a byte-sanity review the operator performs — report this \
+         breakdown and let them judge the bytes. If they hold the bulk legitimate, they may \
+         direct a raised size_limit; if it is unintended (a stray binary, a build artifact, a \
+         generated file), it leaves the commit first.",
+    );
+    msg
+}
+
+/// Render a commit failure for the wire.
+///
+/// The size gate emits its token with no prefix ahead of it — a prefix breaks the one
+/// thing the agent keys on. Every other failure is an ordinary error and keeps the
+/// command name in front.
+pub fn jjri_commit_refusal(cmd: &str, err: &vvc::vvcm_CommitError) -> String {
+    match err {
+        vvc::vvcm_CommitError::OverLimit { cost, limit } => jjri_size_interdictum(cmd, cost, *limit),
+        vvc::vvcm_CommitError::Fault(m) => format!("{}: error: {}", cmd, m),
+    }
+}
+
 /// Save Gallops and commit with paddock in a single operation
 ///
 /// This is the standard routine for JJK operations that modify gallops.
 /// It saves the gallops file, then commits both the gallops and the paddock file
 /// for the given heat using machine_commit.
 ///
-/// Returns the commit hash on success.
+/// Returns the commit hash on success. The error is typed so a caller can tell the
+/// size gate's refusal (which it must emit as an interdictum, via jjri_commit_refusal)
+/// from an ordinary fault.
 pub fn jjri_persist(
     lock: &vvc::vvcc_CommitLock,
     gallops: &jjrg_Gallops,
@@ -397,7 +441,7 @@ pub fn jjri_persist(
     message: String,
     size_limit: u64,
     output: &mut vvc::vvco_Output,
-) -> Result<String, String> {
+) -> Result<String, vvc::vvcm_CommitError> {
     // Save gallops first
     jjdr_save(gallops, file)?;
 
@@ -442,7 +486,7 @@ pub fn jjri_consign(
     message: String,
     size_limit: u64,
     output: &mut vvc::vvco_Output,
-) -> Result<Option<String>, String> {
+) -> Result<Option<String>, vvc::vvcm_CommitError> {
     // Save the canonical gallops first (atomic write + load-back validation).
     jjdr_save(gallops, file)?;
 

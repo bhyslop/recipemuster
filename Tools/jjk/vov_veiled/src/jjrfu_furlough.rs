@@ -95,7 +95,7 @@ pub fn jjrfu_run_furlough(args: jjrfu_FurloughArgs) -> (i32, String) {
                     vvco_out!(output, "{}: committed {}", cn, &hash[..8]);
                 }
                 Err(e) => {
-                    vvco_err!(output, "{}: error: {}", cn, e);
+                    vvco_err!(output, "{}", crate::jjri_io::jjri_commit_refusal(cn, &e));
                     return (1, output.vvco_finish());
                 }
             }

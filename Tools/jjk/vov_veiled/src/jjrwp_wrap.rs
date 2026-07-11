@@ -108,63 +108,28 @@ pub fn zjjrx_run_wrap(args: jjrx_WrapArgs, summary: Option<String>, spook: Optio
         return (1, output.vvco_finish());
     }
 
-    // Size guard check
+    // Size gate. Wrap commits its content with git directly, so it weighs the staged
+    // tree itself — through the same cost model every other commanding path is judged
+    // by, against the same ceiling. (It formerly summed added+deleted *lines* from
+    // numstat and compared that count to a byte limit, which let any bulk through so
+    // long as it arrived on few enough lines.)
     let size_limit = args.size_limit.unwrap_or(vvc::VVCG_SIZE_LIMIT);
-    let diff_output = match vvc::vvce_git_command(&["diff", "--cached", "--stat"])
-        .output()
-    {
-        Ok(o) => o,
+    let cost = match vvc::vvcg_cost(None) {
+        Ok(c) => c,
         Err(e) => {
-            vvco_err!(output, "{}: error: failed to run git diff: {}", cn, e);
+            vvco_err!(output, "{}: error: {}", cn, e);
             return (1, output.vvco_finish());
         }
     };
 
-    if !diff_output.status.success() {
-        vvco_err!(output, "{}: error: git diff failed", cn);
-        return (1, output.vvco_finish());
-    }
-
-    // Parse size from last line of --stat output (format: "N files changed, M insertions(+), K deletions(-)")
-    // Better size check: get actual staged content size
-    let numstat_output = match vvc::vvce_git_command(&["diff", "--cached", "--numstat"])
-        .output()
-    {
-        Ok(o) => o,
-        Err(e) => {
-            vvco_err!(output, "{}: error: failed to run git diff --numstat: {}", cn, e);
-            return (1, output.vvco_finish());
-        }
-    };
-
-    if !numstat_output.status.success() {
-        vvco_err!(output, "{}: error: git diff --numstat failed", cn);
-        return (1, output.vvco_finish());
-    }
-
-    let numstat_str = String::from_utf8_lossy(&numstat_output.stdout);
-    let mut total_size: u64 = 0;
-    for line in numstat_str.lines() {
-        let parts: Vec<&str> = line.split_whitespace().collect();
-        if parts.len() >= 2 {
-            // Format: added\tdeleted\tfilename
-            if let Ok(added) = parts[0].parse::<u64>() {
-                total_size += added;
-            }
-            if let Ok(deleted) = parts[1].parse::<u64>() {
-                total_size += deleted;
-            }
-        }
-    }
-
-    if total_size > size_limit {
-        vvco_err!(output, "{}: error: staged changes exceed size limit ({} > {} bytes)", cn, total_size, size_limit);
+    if cost.total > size_limit {
+        vvco_err!(output, "{}", crate::jjri_io::jjri_size_interdictum(cn, &cost, size_limit));
         // Lock released automatically by Drop
         return (2, output.vvco_finish());
     }
 
     // Check if there are staged changes to commit
-    let has_staged_changes = !numstat_str.trim().is_empty();
+    let has_staged_changes = !cost.files.is_empty();
 
     // Only generate commit message and commit if there are staged changes
     if has_staged_changes {
@@ -358,8 +323,8 @@ pub fn zjjrx_run_wrap(args: jjrx_WrapArgs, summary: Option<String>, spook: Optio
             (0, output.vvco_finish())
         }
         Err(e) => {
-            vvco_err!(output, "{}: error: chalk commit failed: {}", cn, e);
-            vvco_err!(output, "{}: warning: gallops state updated but not committed", cn);
+            vvco_err!(output, "{}", crate::jjri_io::jjri_commit_refusal(cn, &e));
+            vvco_err!(output, "{}: warning: chalk uncommitted — gallops state updated but not committed", cn);
             (1, output.vvco_finish())
         }
     }

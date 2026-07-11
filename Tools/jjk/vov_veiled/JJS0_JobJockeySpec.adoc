@@ -2087,12 +2087,13 @@ An {jjdz_interdictum} whose body omits a remedy is a defect in the emission, nev
 +
 *Generator census.*
 `grep INTERDICTUM` over the crate is the live census; there is no registry, and every emission spells the token literally so that grep lands on it.
-Four generators stand:
+Five generators stand:
 +
 . The disk-space gate — a station over the free-space threshold refuses {jjdo_open}, {jjdo_orient}, and {jjdo_show} before any state changes.
 . The pristine-store always-gate on {jjdo_open} (see below) — a staged or conflicted managed store must be resolved by hand.
 . The model gate — a command outside the caller's tier bucket refuses at dispatch, before target resolution.
 . The designation gate — the tier-match judgment on {jjdo_orient}, {jjdo_record}, and {jjdo_landing} against a pace's {jjdo_apostille} designation. The type specimen of the genre: it is the guard whose mechanism, once described in standing context, produced the redundant self-check that the genre exists to retire.
+. The size gate — staged content over the {jjda_size_limit} ceiling refuses every {jjdx_tool} that accepts that keyword. The condition lying outside the call is the operator's byte-sanity review, which is the whole purpose of the ceiling: the agent cannot perform that review on its own behalf, so it cannot correct the refusal, and the emission carries the bytes and the per-file breakdown the operator needs in order to judge. The remedies are the operator's — a raise they direct, or bulk that leaves the commit — and the genre's own stop grain forbids the two evasions the guard previously invited, a self-raised ceiling and a re-scoped commit that carries the same bulk in pieces.
 +
 No shared {jjdz_monitum}/{jjdz_interdictum} emission abstraction exists, and none is due until a third instance earns it — the same standing rule the {jjdz_monitum} keeps.
 
@@ -2283,6 +2284,8 @@ that accept this argument.
 +
 The guard's purpose is byte-sanity review: it surfaces unintended bulk before a commit lands, expecting the operator to confirm the bytes are legitimate and authorize a raise on retry.
 Per-operation defaults are deliberately *not* part of this contract — uniform 50KB ensures the review fires on the same threshold everywhere, eliminating drift and the false-confidence failure mode where a silently-higher op-specific ceiling masks bulk that the operator believed was being checked.
+The review is the operator's, never the agent's, so the refusal is an {jjdz_interdictum} — the size gate, one of its registered generators — and the raise it names is a remedy the operator directs, not one the caller may take.
+The measurement is uniform with the ceiling: every guarded path weighs staged content by the same incremental-storage cost model, so what trips at 50KB is the same content anywhere.
 +
 Accepted by
 {jjdx_tool_s}
