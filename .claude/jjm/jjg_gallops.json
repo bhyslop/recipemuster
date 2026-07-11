@@ -4355,8 +4355,9 @@
         "₢BbAAD": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260704-1222",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260711-1527",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_opus",
               "jjgtn_text": [
                 "## Character",
                 "Stable-noun curation — terms are BH/BZ-safe so the docket is concrete.",
@@ -4393,7 +4394,7 @@
                 "reveille green (tt/rbw-ts.TestSuite.reveille.sh)."
               ],
               "jjgtn_silks": "noun-cluster-vessel-identity",
-              "jjgtn_basis": "03ca13a"
+              "jjgtn_basis": "e1488fe"
             }
           ]
         },
