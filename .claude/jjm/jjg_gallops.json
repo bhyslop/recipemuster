@@ -4451,8 +4451,9 @@
         "₢BbAAF": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260704-1222",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260711-1527",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_sonnet",
               "jjgtn_text": [
                 "## Character",
                 "Mechanical — RCG Constant Discipline:",
@@ -4490,7 +4491,7 @@
                 "tt/rbw-tb.Build.sh and tt/rbw-tt.Test.sh green."
               ],
               "jjgtn_silks": "rbrv-env-rust-sweep",
-              "jjgtn_basis": "03ca13a"
+              "jjgtn_basis": "d134d20"
             }
           ]
         },
