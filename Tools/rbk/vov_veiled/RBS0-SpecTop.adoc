@@ -20,7 +20,6 @@
 // gcs_ prefix: Google Cloud Storage (generic service)
 // gcb_ prefix: Google Cloud Build (generic service)
 // giam_ prefix: Google Cloud Identity and Access Management
-// rbtc_ prefix: RB Term Colophon (tabtarget entry points)
 // rbrr_ prefix: Repository Regime configuration
 
 // Local Architecture Terms (bottle deployment architecture):
@@ -180,11 +179,6 @@
 :rbtgog_lode:                     <<rbtgog_lode,Lode Group>>
 :rbtgog_payor:                    <<rbtgog_payor,Payor Group>>
 :rbtgog_rubric:                   <<rbtgog_rubric,Build Definition Group>>
-
-// Recipe Bottle Term Colophon (tabtarget entry points)
-// rbtc_refresh_gcb_pins eliminated — RBRG regime removed, reliquaries replace pin refresh
-:rbtc_plumb_full:                <<rbtc_plumb_full,rbw-fpf>>
-:rbtc_plumb_compact:             <<rbtc_plumb_compact,rbw-fpc>>
 
 :rbtoe_check_cbv2_connection:     <<rbtoe_check_cbv2_connection,CB v2 Connection Check>>
 :rbtoe_depot_list_update:         <<rbtoe_depot_list_update,Depot List Update Pattern>>
@@ -1935,7 +1929,7 @@ Plumbs an
 locally
 ({rbtgog_ark}),
 displaying trust posture from locally-present about and vouch artifacts.
-Two modes: {rbtc_plumb_full} (full detail) and {rbtc_plumb_compact} (summary).
+Two modes: full (complete detail) and compact (summary).
 
 //axvd_cartouche axd_normative
 include::RBSAP-ark_plumb.adoc[]
@@ -3570,21 +3564,150 @@ A logically visible subdivision of IP network address space.
 {st_gateway}::
 A network node that serves as the entry point between two networks.
 
-=== Tabtarget Colophons
+== Command Facing
 
+The join between this specification's operations and the tabtarget
+colophons exposing them —
+the sole site in the pandect naming a concrete colophon
+(AXLA, Axial Hierarchy Facing Markers).
+Operation definitions and detail sites stay colophon-blind;
+frontispiece, folio, and purpose live only in the build-generated
+tabtarget inventory.
+A colophon whose operation holds no quoin stays inventory-only.
 
-// rbtc_refresh_gcb_pins eliminated — RBRG regime removed, reliquaries replace pin refresh
-// rbtc_refresh_binary_pins eliminated — slsa-verifier dropped
+//axhfb_facing axd_tabtarget
 
-[[rbtc_plumb_full]]
-{rbtc_plumb_full}::
-Tabtarget colophon for full hallmark plumb.
-Displays complete trust posture including package inventory, licensing, cache delta, and Dockerfile.
+//axhfi_identifier
+{rbtgo_payor_establish} `rbw-gPE`
 
-[[rbtc_plumb_compact]]
-{rbtc_plumb_compact}::
-Tabtarget colophon for compact hallmark plumb.
-Displays trust posture summary: vessel type, source, SLSA provenance, base image, build output, cache delta, SBOM summary, and vouch results.
+//axhfi_identifier
+{rbtgo_payor_install} `rbw-gPI`
+
+//axhfi_identifier
+{rbtgo_access_oauth_probe} `rbw-ap`
+
+//axhfi_identifier
+{rbtgo_manor_affiance} `rbw-mA`
+
+//axhfi_identifier
+{rbtgo_manor_jilt} `rbw-mJ`
+
+//axhfi_identifier
+{rbtgo_manor_instaurate} `rbw-mI`
+
+//axhfi_identifier
+{rbtgo_manor_raze} `rbw-mR`
+
+//axhfi_identifier
+{rbtgo_manor_escheat} `rbw-mE`
+
+//axhfi_identifier
+{rbtgo_foedus_descry} `rbw-jd`
+
+//axhfi_identifier
+{rbtgo_foedus_instate} `rbw-jI`
+
+//axhfi_identifier
+{rbtgo_depot_levy} `rbw-dL`
+
+//axhfi_identifier
+{rbtgo_depot_unmake} `rbw-dU`
+
+//axhfi_identifier
+{rbtgo_depot_list} `rbw-dl`
+
+//axhfi_identifier
+{rbtgo_depot_recognosce} `rbw-dr`
+
+//axhfi_identifier
+{rbtgo_quota_build} `rbw-gPQ`
+
+//axhfi_identifier
+{rbtgo_governor_gird} `rbw-mG`
+
+//axhfi_identifier
+{rbtgo_citizen_brevet} `rbw-pB`
+
+//axhfi_identifier
+{rbtgo_citizen_unseat} `rbw-pU`
+
+//axhfi_identifier
+{rbtgo_citizen_attaint} `rbw-pA`
+
+//axhfi_identifier
+{rbtgo_terrier_rehearse} `rbw-pr`
+
+//axhfi_identifier
+{rbtgo_director_yoke} `rbw-rvy`
+
+//axhfi_identifier
+{rbtgo_director_feoff} `rbw-rvf`
+
+//axhfi_identifier
+{rbtgo_nameplate_drive} `rbw-nd`
+
+//axhfi_identifier
+{rbtgo_image_delete} `rbw-iJ`
+
+//axhfi_identifier
+{rbtgo_image_delete} `rbw-iJh`
+
+//axhfi_identifier
+{rbtgo_image_retrieve} `rbw-iw`
+
+//axhfi_identifier
+{rbtgo_image_retrieve} `rbw-iwh`
+
+//axhfi_identifier
+{rbtgo_image_rekon} `rbw-irh`
+
+//axhfi_identifier
+{rbtgo_image_audit} `rbw-iah`
+
+//axhfi_identifier
+{rbtgo_ark_abjure} `rbw-fA`
+
+//axhfi_identifier
+{rbtgo_ark_ordain} `rbw-fO`
+
+//axhfi_identifier
+{rbtgo_ark_kludge} `rbw-fk`
+
+//axhfi_identifier
+{rbtgo_director_vouch} `rbw-fV`
+
+//axhfi_identifier
+{rbtgo_lode_ensconce} `rbw-lE`
+
+//axhfi_identifier
+{rbtgo_lode_conclave} `rbw-lC`
+
+//axhfi_identifier
+{rbtgo_lode_underpin} `rbw-lU`
+
+//axhfi_identifier
+{rbtgo_lode_immure} `rbw-lI`
+
+//axhfi_identifier
+{rbtgo_lode_divine} `rbw-ld`
+
+//axhfi_identifier
+{rbtgo_lode_augur} `rbw-la`
+
+//axhfi_identifier
+{rbtgo_lode_banish} `rbw-lB`
+
+//axhfi_identifier
+{rbtgo_hallmark_tally} `rbw-ft`
+
+//axhfi_identifier
+{rbtgo_ark_summon} `rbw-fs`
+
+//axhfi_identifier
+{rbtgo_ark_inspect} `rbw-fpf`
+
+//axhfi_identifier
+{rbtgo_ark_inspect} `rbw-fpc`
 
 
 == Theurge Test Cosmology

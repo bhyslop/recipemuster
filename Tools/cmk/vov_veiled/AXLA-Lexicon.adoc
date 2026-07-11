@@ -221,6 +221,10 @@
 :axhos_step:                          <<axhos_step,Hierarchy Step>>
 :axhos_waymark:                       <<axhos_waymark,Hierarchy Waymark>>
 
+// Axial Hierarchy Facing Terms (standalone facing markers)
+:axhfb_facing:                        <<axhfb_facing,Hierarchy Facing>>
+:axhfi_identifier:                    <<axhfi_identifier,Hierarchy Identifier>>
+
 // Axial Hierarchy Protocol Terms (standalone hierarchy markers)
 :axhpb_protocol:                      <<axhpb_protocol,Hierarchy Protocol>>
 :axhpc_call:                          <<axhpc_call,Hierarchy Call>>
@@ -2877,6 +2881,15 @@ quoins via
 reusing the procedure/method hierarchy markers without alteration.
 Second-order constraints — which markers apply, which don't,
 under what conditions — are deferred to future articulation.
++
+The quoin-per-tabtarget posture suits a surface whose tabtargets are
+themselves the catalogued concepts — a small kit-level census.
+A document whose operations already hold quoins instead declares a
+facing block
+({axhfb_facing})
+carrying identifiers as values, minting nothing;
+one posture per surface
+(see Axial Hierarchy Facing Markers).
 
 === New Operation Dimension Terms
 
@@ -3314,6 +3327,132 @@ only
 uses
 {axd_grouped},
 the method's affiliated entity must equal the group's affiliated entity
+
+== Axial Hierarchy Facing Markers
+
+{axhf*} markers declare a document's facing — the join between its
+operation terms and the concrete identifiers exposing them on one
+command surface.
+They appear as standalone annotations, paralleling the
+{axho*}
+operation hierarchy markers, but bind identifiers rather than detail
+prose:
+a facing block is the single site where a document names the concrete
+routing identifiers of its command surface,
+so operation definitions and detail sites elsewhere stay
+identifier-blind.
+Frontispiece, folio, and purpose prose live only in a surface's
+build-generated inventory, never on facing rows —
+the row is the join, not the catalog.
+
+Two postures serve the operation-to-identifier join, and a surface
+commits to exactly one:
+
+* {axvo_tabtarget}
+mints one
+{mcm_quoin}
+per tabtarget —
+right where the tabtarget is itself the catalogued concept and the
+census is small (a kit-level catalog).
+* A facing block mints no quoins —
+right where the operations already hold quoins and the surface is
+broad; the identifier rides the row as a value.
+
+=== Marker Terms and Lookahead Arities
+
+[cols="<,^,<",options="header"]
+|===
+|Marker |Lookahead |Reads
+
+|{axhfb_facing}     |0                                           |Opens the facing block for one exposure kind; bare marker, exposure dimension on the annotation line
+|{axhfi_identifier} |1 {mcm_attribute_reference} + 1 {mcm_sprue} |One exposed operation and the full routing identifier reaching it
+|===
+
+[[axhfb_facing]]
+{axhfb_facing}::
+Opens a facing block.
+0-arity bare marker — no lookahead; rows follow.
+The annotation line carries exactly one exposure dimension
+({axd_tabtarget}
+or
+{axd_slash_command};
+a further exposure kind — an MCP tool surface, for one — is admitted
+as a dimension when first instantiated),
+typing every identifier in the block.
+At most one facing block per exposure dimension per document.
+
+[[axhfi_identifier]]
+{axhfi_identifier}::
+Marks one row of a facing block: one operation, one identifier
+exposing it.
+Lookahead: 1
+{mcm_attribute_reference}
+then 1
+{mcm_sprue},
+both on the single line following the marker,
+consumed left-to-right per the lookahead composition rule
+(see
+{axd_imprint});
+by convention the attribute reference leads and the
+{mcm_sprue}
+follows.
+The attribute reference must resolve to a term voiced
+{axvo_procedure}
+or
+{axvo_method};
+the
+{mcm_sprue}
+is the full routing identifier as it appears on the wire —
+for a tabtarget-typed block, a colophon.
+An operation exposed by several identifiers takes several rows;
+an identifier appears on at most one row per block.
+
+The surface syntax:
+
+[source,asciidoc]
+----
+//axhfb_facing axd_tabtarget
+
+//axhfi_identifier
+{rbtgo_depot_levy} `rbw-dL`
+----
+
+=== Nesting Rules
+
+* {axhfb_facing}
+opens the block; every subsequent
+{axhfi_identifier}
+row belongs to it until the next
+{axhfb_facing}
+or the end of the enclosing section
+* {axhfi_identifier}
+must appear within
+{axhfb_facing}
+scope
+* Rows carry no dimensions —
+the block's exposure dimension types every identifier in it
+
+=== Cross-Document Validation
+
+* {axhfi_identifier}
+attribute reference must match an operation defined with
+{axvo_procedure}
+or
+{axvo_method}
+at the
+{axl_definition_site}
+* Identifiers are unique within a block
+* A facing block reconciles against its surface's build-generated
+inventory: every row identifier exists on the surface;
+the reverse is not required —
+an identifier whose operation holds no quoin stays inventory-only
+* One posture per surface:
+a surface catalogued with
+{axvo_tabtarget}
+quoins takes no facing block,
+and a facing-block surface mints no
+{axvo_tabtarget}
+quoins
 
 == Axial Hierarchy Protocol Markers
 

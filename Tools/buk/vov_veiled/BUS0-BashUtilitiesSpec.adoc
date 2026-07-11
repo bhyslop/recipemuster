@@ -335,6 +335,18 @@ Examples:
 * `rbw-cr.Rack.tadmor.sh` — same, with imprint specifying target
 * `jjw-.HeatMount.sh` — JJK workbench, HeatMount operation
 * `buw-tt.LauncherList.sh` — BUK tabtarget testbench, LauncherList operation
++
+Two AXLA cataloguing postures exist for a tabtarget surface:
+this document's Tabtarget Catalog voices each tabtarget as its own
+quoin (`//axvo_tabtarget`) — the posture for a small kit-level
+census —
+while a specification whose operations already hold quoins declares
+one facing block instead
+(`//axhfb_facing axd_tabtarget`; AXLA, Axial Hierarchy Facing
+Markers),
+whose rows carry
+{busdc_colophon_s}
+as values, minting nothing.
 
 == Dispatch
 
@@ -373,6 +385,12 @@ Examples:
 * `rbw-` routes to RBW workbench
 * `jjw-` routes to JJK workbench
 * `buw-tt-` routes to BUK tabtarget testbench
++
+On a tabtarget-typed AXLA facing row
+(`//axhfi_identifier`),
+the identifier value is a
+{busdc_colophon} —
+the routing identifier alone, never the frontispiece or imprint.
 
 [[busdf_frontispiece]]
 //axl_voices axt_string
