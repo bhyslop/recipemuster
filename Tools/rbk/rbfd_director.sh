@@ -67,6 +67,10 @@ zrbfd_kindle() {
   buc_log_args 'Define context push operation files'
   readonly ZRBFD_CONTEXT_PREFIX="${BURD_TEMP_DIR}/rbfd_context_"
 
+  # Step id of the hallmark-echoing build step, shared by the conjure step
+  # defs and the consistency assert so the two sites cannot drift apart
+  readonly ZRBFD_HALLMARK_ECHO_STEP_ID="derive-tag-base"
+
   buc_log_args 'Kindle verify module (cross-module calls from ordain)'
   zrbfv_kindle
 
@@ -485,7 +489,7 @@ zrbfd_stitch_build_json() {
   # Pipeline: resolve base digests → buildx --push → per-platform pullback → SLSA
   # provenance via images: field
   local z_step_defs=(
-    "rbgjb01-derive-tag-base.sh|${z_rbfc_tool_gcloud}|bash|derive-tag-base"
+    "rbgjb01-derive-tag-base.sh|${z_rbfc_tool_gcloud}|bash|${ZRBFD_HALLMARK_ECHO_STEP_ID}"
   )
   if test "${z_needs_binfmt}" = "true"; then
     z_step_defs+=("rbgjb02-qemu-binfmt.sh|${z_rbfc_tool_docker}|bash|qemu-binfmt")
@@ -1026,27 +1030,38 @@ rbfd_build() {
 
   zrbfc_wait_build_completion "${ZRBFC_BUILD_POLL_CEILING_CONJURE}" "Conjure"
 
-  # Consistency assert: verify Cloud Build echoed back the same hallmark we minted
+  # Consistency assert: verify Cloud Build echoed back the same hallmark we
+  # minted. buildStepOutputs is index-aligned with the steps array (a step
+  # that writes no output still holds a slot), so the echoing step's slot is
+  # located by id from the same response, never by a fixed index.
   buc_step "Verifying hallmark consistency"
 
+  local z_step_index=""
+  jq -r --arg id "${ZRBFD_HALLMARK_ECHO_STEP_ID}" \
+    '.steps | map(.id) | index($id) // empty' \
+    "${ZRBFC_BUILD_STATUS_FILE}" > "${ZRBFC_SCRATCH_FILE}" \
+    || buc_die "Failed to locate step ${ZRBFD_HALLMARK_ECHO_STEP_ID} in build response"
+  z_step_index=$(<"${ZRBFC_SCRATCH_FILE}")
+  test -n "${z_step_index}" \
+    || buc_die "Step ${ZRBFD_HALLMARK_ECHO_STEP_ID} not found in build response steps"
+
   local z_step_output=""
-  jq -r '.results.buildStepOutputs[1] // empty' "${ZRBFC_BUILD_STATUS_FILE}" > "${ZRBFC_SCRATCH_FILE}" \
-    || buc_die "Failed to extract buildStepOutputs[1] from build response"
+  jq -r ".results.buildStepOutputs[${z_step_index}] // empty" "${ZRBFC_BUILD_STATUS_FILE}" > "${ZRBFC_SCRATCH_FILE}" \
+    || buc_die "Failed to extract buildStepOutputs[${z_step_index}] from build response"
   z_step_output=$(<"${ZRBFC_SCRATCH_FILE}")
-  if test -n "${z_step_output}"; then
-    local -r z_step_b64_file="${BURD_TEMP_DIR}/rbfd_step_b64.txt"
-    local -r z_step_decoded_file="${BURD_TEMP_DIR}/rbfd_step_decoded.txt"
-    printf '%s\n' "${z_step_output}" > "${z_step_b64_file}" \
-      || buc_die "Failed to write step output for decoding"
-    rbgo_base64_decode_file_to_file "${z_step_b64_file}" "${z_step_decoded_file}" \
-      || buc_die "Failed to base64-decode build step output"
-    local -r z_found_hallmark=$(<"${z_step_decoded_file}")
-    test "${z_found_hallmark}" = "${z_hallmark}" \
-      || buc_die "Hallmark mismatch: host minted '${z_hallmark}' but build returned '${z_found_hallmark}'"
-    buc_info "Hallmark consistency verified: ${z_hallmark}"
-  else
-    buc_warn "Build step output empty — skipping consistency check (hallmark trusted from host)"
-  fi
+  test -n "${z_step_output}" \
+    || buc_die "Build echoed no hallmark (buildStepOutputs[${z_step_index}] empty) — cannot corroborate host-minted hallmark"
+
+  local -r z_step_b64_file="${BURD_TEMP_DIR}/rbfd_step_b64.txt"
+  local -r z_step_decoded_file="${BURD_TEMP_DIR}/rbfd_step_decoded.txt"
+  printf '%s\n' "${z_step_output}" > "${z_step_b64_file}" \
+    || buc_die "Failed to write step output for decoding"
+  rbgo_base64_decode_file_to_file "${z_step_b64_file}" "${z_step_decoded_file}" \
+    || buc_die "Failed to base64-decode build step output"
+  local -r z_found_hallmark=$(<"${z_step_decoded_file}")
+  test "${z_found_hallmark}" = "${z_hallmark}" \
+    || buc_die "Hallmark mismatch: host minted '${z_hallmark}' but build returned '${z_found_hallmark}'"
+  buc_info "Hallmark consistency verified: ${z_hallmark}"
 
   # Persist to output directory for test harness consumption
   echo "${z_vessel_dir}" > "${ZRBFC_OUTPUT_VESSEL_DIR}" \
