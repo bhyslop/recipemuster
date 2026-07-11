@@ -10231,8 +10231,8 @@
         "₢BsAAX": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260711-1302",
-              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_ts": "260711-2100",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_tier": "jjgde_fable",
               "jjgtn_effort": "jjgde_high",
               "jjgtn_text": [
@@ -10264,7 +10264,7 @@
                 "Small repair, expensive verifier. One paid build buys the proof — get the fix right before spending it."
               ],
               "jjgtn_silks": "conjure-consistency-assert-repair",
-              "jjgtn_basis": "cd8b134"
+              "jjgtn_basis": "d2ea8ab"
             }
           ]
         }
