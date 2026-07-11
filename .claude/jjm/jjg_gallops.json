@@ -4313,8 +4313,8 @@
         "₢BbAAC": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260704-1222",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260711-1519",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "## Character",
                 "Stable-noun curation — terms are BH/BZ-safe so the docket is concrete.",
@@ -4348,7 +4348,7 @@
                 "reveille green (tt/rbw-ts.TestSuite.reveille.sh)."
               ],
               "jjgtn_silks": "noun-cluster-crucible-family",
-              "jjgtn_basis": "03ca13a"
+              "jjgtn_basis": "2ef0539"
             }
           ]
         },
