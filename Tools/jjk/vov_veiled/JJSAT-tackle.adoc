@@ -680,6 +680,10 @@ deliberately *not* settled early — the docket anti-patterns govern that direct
 . RIDES A PACE — the matricula's interim allowlist is confirmed schema-compatible against
   the settled schema (Consumers; the soft landing), with migration owed at studbook
   founding.
+. RIDES A PACE — the home-repo census cut at real-table authoring: the worked census's
+  RB bash row splits into finer tackles so the check members route honestly (the
+  after-code-changes suite table keys on subdomains — regime, foundry, bottle);
+  fineness is an authoring-time judgment weighed against maintenance drag.
 
 == Open forks (the mulling surface)
 
@@ -726,6 +730,12 @@ deliberately *not* settled early — the docket anti-patterns govern that direct
   failure (run-all vs stop-on-first), whether the members interdepend (a test presumes its
   build), tier ladders (a fast check vs a release suite), and where declared semantics stop
   before they recreate gait-side policy.
+  One shape point leans settled ahead of the rest: every check entry is a tabtarget —
+  self-logging, dispatch-disciplined, and operator-authored, so a check is a deliberate
+  authorship act rather than a raw string executed on faith; for a foreign body the
+  tabtarget lives JJ-side (the vanilla-hippodrome premise bars planting one in the governed
+  tree; its infield home rides this same deferred design), which contains — never removes —
+  the inherent run-their-code exposure of verifying a foreign body.
   Until settled, consumers treat the check lists as surfaced advice, never an executed
   contract.
 * *Edge-tag taxonomy* — specifies / tests / crosscuts are census-observed, not yet an enum;
