@@ -6108,6 +6108,7 @@
       "jjghn_status": "jjghe_racing",
       "jjghn_order": [
         "₢BbAAV",
+        "₢BbAAW",
         "₢BbAAH",
         "₢BbAAI",
         "₢BbAAJ",
@@ -6128,7 +6129,7 @@
         "₢BbAAE",
         "₢BbAAF"
       ],
-      "jjghn_next_pace_seed": "AAW",
+      "jjghn_next_pace_seed": "AAX",
       "jjghn_paces": {
         "₢BbAAA": {
           "jjgpn_tacks": [
@@ -6978,6 +6979,49 @@
               ],
               "jjgtn_silks": "heat-purpose-reorientation",
               "jjgtn_basis": "4dd4ce9"
+            }
+          ]
+        },
+        "₢BbAAW": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260711-1141",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "Word sweep, mechanical with per-site judgment;",
+                "prose and comment-only, inspection-provable (release-window safe).",
+                "",
+                "## Goal",
+                "Evict the word \"allocation\" (and inflections: allocate/allocated/allocation-facing)",
+                "from durable prose in favor of allodial-register wording,",
+                "completing the 260711 Allodial rename — the guide's name changed but the word",
+                "survived in prose, and its trodden reading (memory allocation) distracts.",
+                "",
+                "## Scope",
+                "Durable documents and source comments repo-wide:",
+                "the ACG body itself, the guide-family cross-refs (BCG/RCG \"the allocation instance\"),",
+                "CLAUDE.md, kit context files, and this heat's paddock Shape section (via curry).",
+                "Discovery recipe: grep -rin \"allocat\" over Tools/, tt/, CLAUDE.md, README.md, lenses/.",
+                "Dated artifacts (Memos/, scars) are exempt as history.",
+                "",
+                "## Cinched",
+                "- Replacement register is allodial (operator ruling 260711);",
+                "  ACG's spine wording (\"reference the home\") is untouched authority.",
+                "- A genuinely non-ACG-sense use (foreign-schema text, vendor vocabulary,",
+                "  ordinary resource-allocation English) is kept, judged per site.",
+                "- Per ACG's conformance-fixture rule (retire a term, add a row):",
+                "  decide at mount whether \"allocation\" earns a kill-stem row with keep_contexts",
+                "  or whether its trodden ubiquity makes a row unaffordable;",
+                "  record the decision either way.",
+                "",
+                "## Done when",
+                "Grep of durable prose returns no ACG-sense \"allocation\";",
+                "the conformance-row decision is recorded;",
+                "reveille green if any source comment changed."
+              ],
+              "jjgtn_silks": "allocation-word-eviction",
+              "jjgtn_basis": "31014d8"
             }
           ]
         }
