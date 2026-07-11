@@ -4238,11 +4238,12 @@
         "₢BbAAD",
         "₢BbAAY",
         "₢BbAAR",
+        "₢BbAAa",
         "₢BbAAE",
         "₢BbAAF",
         "₢BbAAZ"
       ],
-      "jjghn_next_pace_seed": "AAa",
+      "jjghn_next_pace_seed": "AAb",
       "jjghn_paces": {
         "₢BbAAA": {
           "jjgpn_tacks": [
@@ -5276,6 +5277,52 @@
               ],
               "jjgtn_silks": "regime-bound-single-homing",
               "jjgtn_basis": "d5c8490"
+            }
+          ]
+        },
+        "₢BbAAa": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260711-1646",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "Mechanical tidemark drain plus display-text reconciliation, grep-verifiable against the zipper.",
+                "Tier: sonnet — the zipper is the authority; no naming judgment.",
+                "",
+                "## Goal",
+                "Drain the stale contract-deferred language from the foedus-cardinality spec surfaces",
+                "now that the rbof_ verbs are enrolled and fixture-composed,",
+                "and reconcile mapping display texts with the enrolled function names.",
+                "",
+                "## Cinched",
+                "- Verify first, then drain: confirm by grep that rbz_zipper.sh enrolls",
+                "  rbof_descry (rbw-jd), rbof_instate (rbw-jI), rbof_canvass (rbw-jc)",
+                "  and that the foedus-reuse theurge fixture composes them;",
+                "  if the census fails, stop and surface — drain nothing.",
+                "- Sites by recipe, not enumeration:",
+                "  grep \"deferred\" and \"Contract, not yet built\" across Tools/rbk/vov_veiled/RBSF*.adoc",
+                "  and RBS0's foedus operation definitions;",
+                "  drain only the claims the enrollment census proves false.",
+                "- rbtgo_foedus_establish and rbtgo_foedus_acquire remain genuinely deferred",
+                "  (civic verbs unbuilt) — their deferred language stands untouched.",
+                "- Display reconciliation: a built verb's mapping display carries the enrolled",
+                "  function name (the rbtgo_director_feoff -> rbfl_feoff pattern);",
+                "  rbtgo_foedus_descry / rbtgo_foedus_instate / rbtgo_foedus_canvass displays",
+                "  become rbof_descry / rbof_instate / rbof_canvass;",
+                "  establish/acquire keep title-case displays as unbuilt.",
+                "- rbtgo_access_oauth_probe's mapping display says rbgv_payor_oauth_probe where",
+                "  the zipper enrolls rbgv_check_payor and the definition body already names it:",
+                "  the zipper wins; repoint the display.",
+                "- Spec-only; no runtime edits (release rider in the paddock).",
+                "",
+                "## Done when",
+                "The deferred-contract phrasing survives only on establish/acquire;",
+                "the four repointed displays match the zipper's enrolled function names;",
+                "repo-wide grep shows no unresolved attribute references."
+              ],
+              "jjgtn_silks": "foedus-tidemark-drain",
+              "jjgtn_basis": "1297038"
             }
           ]
         }
