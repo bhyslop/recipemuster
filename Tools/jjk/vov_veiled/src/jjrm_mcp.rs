@@ -1821,11 +1821,14 @@ async fn zjjrm_handle_open(size_limit: u64) -> Result<CallToolResult, McpError> 
     }
 
     // Always-gate: a staged or conflicted managed store is never legitimate — refuse before
-    // creating any officium, so the failure is clean and no officium is delivered.
+    // creating any officium, so the failure is clean and no officium is delivered. Interdictum
+    // (JJS0 `jjdz_interdictum`): token-led, and the token is spelled literally here because
+    // `grep INTERDICTUM` is the generator census.
     if let Err(e) = zjjrm_managed_clean() {
-        return Ok(CallToolResult::error(vec![Content::text(
-            format!("{}: refusing open — {}", cn, e),
-        )]));
+        return Ok(CallToolResult::error(vec![Content::text(format!(
+            "INTERDICTUM — pristine-store gate: {} refuses; the managed store is staged or conflicted, which is never a legitimate state to open over.\n\n  {}\n\nRemedy: resolve the store by hand (commit, or resolve the conflict), then re-attempt.",
+            cn, e,
+        ))]));
     }
 
     let officia = PathBuf::from(OFFICIA_DIR);
@@ -2087,11 +2090,13 @@ pub(crate) fn zjjrm_guard_bucket(cmd: &str) -> zjjrm_GuardBucket {
     }
 }
 
-/// Fair-faced frontier refusal: name what was received, what it extracted to,
-/// and the remedy.
-fn zjjrm_frontier_refusal(cmd: &str, model: &str, caller: zjjrm_CallerTier) -> String {
+/// Fair-faced frontier refusal — an interdictum (JJS0 `jjdz_interdictum`): the
+/// token leads, and the body stands alone (what refused, why, the remedy),
+/// because standing agent context carries nothing about the generators. Token
+/// spelled literally: `grep INTERDICTUM` is the generator census.
+pub(crate) fn zjjrm_frontier_refusal(cmd: &str, model: &str, caller: zjjrm_CallerTier) -> String {
     format!(
-        "MODEL GATE — {} is frontier-only (opus or fable).\n\n  Received model: {}\n  Extracted tier: {}\n\nRemedy: run this command from a frontier-tier session.",
+        "INTERDICTUM — model gate: {} is frontier-only (opus or fable).\n\n  Received model: {}\n  Extracted tier: {}\n\nRemedy: run this command from a frontier-tier session.",
         cmd, model, caller.zjjrm_as_str()
     )
 }
@@ -2102,7 +2107,13 @@ fn zjjrm_frontier_refusal(cmd: &str, model: &str, caller: zjjrm_CallerTier) -> S
 /// provenance of the executing session); a rough pace is judgment work, open
 /// only to frontier callers. Returns Ok(()) to proceed, Err(refusal) with the
 /// pace's designated tier, the caller's tier, and the remedies named.
+///
+/// The refusal is an interdictum (JJS0 `jjdz_interdictum`): the token leads,
+/// and `cmd` rides the body so the emission stands alone without a caller-side
+/// prefix ahead of the token. Token spelled literally: `grep INTERDICTUM` is
+/// the generator census.
 pub(crate) fn zjjrm_judge_designation(
+    cmd: &str,
     coronet_key: &str,
     state: &jjrg_PaceState,
     tier: Option<jjrg_Tier>,
@@ -2115,8 +2126,8 @@ pub(crate) fn zjjrm_judge_designation(
                 Ok(())
             } else {
                 Err(format!(
-                    "DESIGNATION GATE — pace {} is bridled for tier '{}'; this session's tier is '{}'.\n\nRemedies: run it from a {}-tier session, or have a frontier session release or re-designate it (jjx_apostille).",
-                    coronet_key, designated, caller.zjjrm_as_str(), designated
+                    "INTERDICTUM — designation gate: {} refuses; pace {} is bridled for tier '{}', and this session's tier is '{}'.\n\nRemedies: run it from a {}-tier session, or have a frontier session release or re-designate it (jjx_apostille).",
+                    cmd, coronet_key, designated, caller.zjjrm_as_str(), designated
                 ))
             }
         }
@@ -2125,8 +2136,8 @@ pub(crate) fn zjjrm_judge_designation(
                 Ok(())
             } else {
                 Err(format!(
-                    "DESIGNATION GATE — pace {} is {} (not bridled); undesignated work is judgment work, frontier-only.\n\n  This session's tier: {}\n\nRemedy: a frontier session designates it via jjx_apostille {{coronet, tier}}.",
-                    coronet_key, state.jjrg_as_str(), caller.zjjrm_as_str()
+                    "INTERDICTUM — designation gate: {} refuses; pace {} is {} (not bridled), and undesignated work is judgment work.\n\n  This session's tier: {}\n\nRemedy: a frontier session designates it via jjx_apostille {{coronet, tier}}.",
+                    cmd, coronet_key, state.jjrg_as_str(), caller.zjjrm_as_str()
                 ))
             }
         }
@@ -2136,11 +2147,12 @@ pub(crate) fn zjjrm_judge_designation(
 /// Load the gallops and judge one coronet's designation against the caller —
 /// the record/landing guard for sub-frontier callers (frontier callers are
 /// unrestricted on those commands and never reach this). Read-only.
-fn zjjrm_check_designation(coronet: &str, caller: zjjrm_CallerTier) -> Result<(), String> {
+fn zjjrm_check_designation(cmd: &str, coronet: &str, caller: zjjrm_CallerTier) -> Result<(), String> {
     let gallops = crate::jjrg_gallops::jjrg_Gallops::jjrg_load(&gallops_pathbuf())
-        .map_err(|e| format!("error loading Gallops for designation guard: {}", e))?;
-    let ctx = gallops.jjrg_resolve_pace(coronet)?;
-    zjjrm_judge_designation(&ctx.coronet_key, &ctx.state, ctx.tier, caller)
+        .map_err(|e| format!("jjx {}: error loading Gallops for designation guard: {}", cmd, e))?;
+    let ctx = gallops.jjrg_resolve_pace(coronet)
+        .map_err(|e| format!("jjx {}: {}", cmd, e))?;
+    zjjrm_judge_designation(cmd, &ctx.coronet_key, &ctx.state, ctx.tier, caller)
 }
 
 // ============================================================================
@@ -2171,7 +2183,7 @@ impl jjrm_McpServer {
         let caller = zjjrm_extract_tier(&p.model);
         if zjjrm_guard_bucket(cmd) == zjjrm_GuardBucket::Frontier && !caller.zjjrm_is_frontier() {
             return Ok(CallToolResult::error(vec![Content::text(
-                format!("jjx {}: {}", cmd, zjjrm_frontier_refusal(cmd, &p.model, caller)),
+                zjjrm_frontier_refusal(cmd, &p.model, caller),
             )]));
         }
         eprintln!("jjx {}: model={} tier={}", cmd, p.model, caller.zjjrm_as_str());
@@ -2260,14 +2272,12 @@ impl jjrm_McpServer {
                         .unwrap_or(&p.identity);
                     if bare.len() != crate::jjrf_favor::JJRF_CORONET_LEN {
                         return Ok(CallToolResult::error(vec![Content::text(format!(
-                            "jjx {}: DESIGNATION GATE — firemark-affiliated record is frontier-only; a {}-tier session records only against the coronet of a pace bridled at its tier.",
-                            cmd, caller.zjjrm_as_str()
+                            "INTERDICTUM — designation gate: {} refuses; the identity '{}' is heat-affiliated, and a {}-tier session records only against the coronet of a pace bridled at its tier.\n\nRemedy: record against the bridled pace's coronet, or have a frontier session make the heat-affiliated commit.",
+                            cmd, p.identity, caller.zjjrm_as_str()
                         ))]));
                     }
-                    if let Err(msg) = zjjrm_check_designation(&p.identity, caller) {
-                        return Ok(CallToolResult::error(vec![Content::text(
-                            format!("jjx {}: {}", cmd, msg),
-                        )]));
+                    if let Err(msg) = zjjrm_check_designation(cmd, &p.identity, caller) {
+                        return Ok(CallToolResult::error(vec![Content::text(msg)]));
                     }
                 }
                 jjrm_result(jjrnc_run_notch(jjrnc_NotchArgs {
@@ -2369,23 +2379,21 @@ impl jjrm_McpServer {
                     // discards the saddle output: no gazette, no emblem.
                     let judgment = match resolved_pace {
                         Some(ref coronet_lede) => {
-                            zjjrm_check_designation(coronet_lede, caller)
+                            zjjrm_check_designation(cmd, coronet_lede, caller)
                         }
                         None => {
                             if caller.zjjrm_is_frontier() {
                                 Ok(())
                             } else {
                                 Err(format!(
-                                    "DESIGNATION GATE — heat {} resolved no actionable pace, so nothing is bridled for this session's tier ('{}').\n\nRemedy: a frontier session designates work via jjx_apostille.",
-                                    firemark, caller.zjjrm_as_str()
+                                    "INTERDICTUM — designation gate: {} refuses; heat {} resolved no actionable pace, so nothing is bridled for this session's tier ('{}').\n\nRemedy: a frontier session designates work via jjx_apostille.",
+                                    cmd, firemark, caller.zjjrm_as_str()
                                 ))
                             }
                         }
                     };
                     if let Err(msg) = judgment {
-                        return Ok(CallToolResult::error(vec![Content::text(
-                            format!("jjx {}: {}", cmd, msg),
-                        )]));
+                        return Ok(CallToolResult::error(vec![Content::text(msg)]));
                     }
 
                     let mounted = resolved_pace.unwrap_or(firemark);
@@ -2709,10 +2717,8 @@ impl jjrm_McpServer {
                 // coronet whose pace is bridled at its tier; frontier callers
                 // are unrestricted.
                 if !caller.zjjrm_is_frontier() {
-                    if let Err(msg) = zjjrm_check_designation(&p.coronet, caller) {
-                        return Ok(CallToolResult::error(vec![Content::text(
-                            format!("jjx {}: {}", cmd, msg),
-                        )]));
+                    if let Err(msg) = zjjrm_check_designation(cmd, &p.coronet, caller) {
+                        return Ok(CallToolResult::error(vec![Content::text(msg)]));
                     }
                 }
                 jjrm_result(jjrld_run_landing(jjrld_LandingArgs {

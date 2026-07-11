@@ -72,7 +72,10 @@ pub fn jjrdk_check_disk_space() -> Result<String, String> {
         return Ok(survey);
     }
 
-    let mut msg = String::from("DISK SPACE CRITICAL — Job Jockey refusing to proceed.\n\n");
+    // Interdictum (JJS0 `jjdz_interdictum`): a gating refusal, token-led so the
+    // agent recognizes the genre from the wire alone. Token spelled literally —
+    // `grep INTERDICTUM` is the generator census.
+    let mut msg = String::from("INTERDICTUM — disk-space gate: a disk is over the free-space threshold, so Job Jockey refuses to proceed.\n\n");
     for v in &violations {
         msg.push_str(&format!(
             "  {}: {:.1}% full ({} free of {})\n",
@@ -82,7 +85,7 @@ pub fn jjrdk_check_disk_space() -> Result<String, String> {
             zjjrdk_format_bytes(v.total),
         ));
     }
-    msg.push_str("\nFree space before retrying. Quick wins:\n");
+    msg.push_str("\nRemedy: free space, then re-attempt. Quick wins:\n");
     msg.push_str("  docker container prune       # remove stopped containers\n");
     msg.push_str("  docker image prune            # remove dangling images\n");
     msg.push_str("  docker system prune -a        # remove ALL unused images (will need re-pull)\n");

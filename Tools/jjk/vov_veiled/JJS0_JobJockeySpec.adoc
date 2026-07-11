@@ -337,6 +337,7 @@
 // Serialization
 :jjdz_charset:      <<jjdz_charset,Charset>>
 :jjdz_encoding:     <<jjdz_encoding,Identity Encoding>>
+:jjdz_interdictum:  <<jjdz_interdictum,Interdictum>>
 :jjdz_monitum:      <<jjdz_monitum,Monitum>>
 :jjdz_reprieve:     <<jjdz_reprieve,Reprieve>>
 
@@ -2057,6 +2058,44 @@ the {jjdz_reprieve} nag, the first instance, reporting per-episode schema-tolera
 and the retention {jjdz_monitum}, the second, reporting the {jjdgm_retention} chat-history policy in three states — off is quiet (no line), on prints the since-date, and a malformed date prints loud and notes capture is disabled.
 That malformed case is the {jjdz_monitum}'s fail-loud: a typo'd date is a loud line at every open, never a hard gate, because bad config never makes the {jjdgr_gallops} illegitimate.
 
+=== {jjdz_interdictum}
+
+[[jjdz_interdictum]]
+//axve_entity
+{jjdz_interdictum}::
+A gating verdict: a server refusal that bars the attempted act, which does not happen and leaves nothing behind.
+It is the enforcing complement of the {jjdz_monitum} — a {jjdz_monitum} never gates, an {jjdz_interdictum} always gates, and nothing is both.
+Both are distinct from a calling error, the third verdict: a malformed parameter, an unresolvable identity, an empty gazette body.
+A calling error is *correctable* — the caller fixes the call and retries, and the act then happens.
+An {jjdz_interdictum} is not correctable by the caller: the condition it names lies outside the call, so no retry and no other command reaches the act's objective until that condition changes.
++
+*Recognition is by wire token alone.*
+Every emission leads with the literal token `INTERDICTUM`.
+An agent's standing context keys on that token and on nothing else — never on knowledge of which conditions generate one.
+This is deliberate: guard mechanism described in standing context invites the agent to re-implement the guard as a pre-flight self-check, and a second implementation of a rule drifts from the first.
+The server enforces; the agent attempts the act and obeys the token.
+The aim is salience management, not secrecy — the generators are catalogued here, in the spec, where they are rationale-of-genre rather than rationale-of-instance.
++
+*The stop grain is the act and its objective, never the session.*
+On an {jjdz_interdictum} the agent halts that act, reports the emission verbatim, and does not retry with altered parameters or reach the same end by another route.
+Work unrelated to the barred act continues normally.
++
+*Message self-sufficiency is normative.*
+Because standing context deliberately carries nothing about the generators, each emission must stand alone: it names what refused, why, and the remedies.
+The division is exact — the token carries the genre behavior (which the agent knows), the body carries the instance facts (which it cannot know).
+An {jjdz_interdictum} whose body omits a remedy is a defect in the emission, never a gap to be filled by teaching standing context about the guard.
++
+*Generator census.*
+`grep INTERDICTUM` over the crate is the live census; there is no registry, and every emission spells the token literally so that grep lands on it.
+Four generators stand:
++
+. The disk-space gate — a station over the free-space threshold refuses {jjdo_open}, {jjdo_orient}, and {jjdo_show} before any state changes.
+. The pristine-store always-gate on {jjdo_open} (see below) — a staged or conflicted managed store must be resolved by hand.
+. The model gate — a command outside the caller's tier bucket refuses at dispatch, before target resolution.
+. The designation gate — the tier-match judgment on {jjdo_orient}, {jjdo_record}, and {jjdo_landing} against a pace's {jjdo_apostille} designation. The type specimen of the genre: it is the guard whose mechanism, once described in standing context, produced the redundant self-check that the genre exists to retire.
++
+No shared {jjdz_monitum}/{jjdz_interdictum} emission abstraction exists, and none is due until a third instance earns it — the same standing rule the {jjdz_monitum} keeps.
+
 === Open Ceremony Contract
 
 Each {jjdo_open} {jjdz_monitum} peek is read-only, best-effort, and never gating: it reads the {jjdgr_gallops} without the commit lock, emits nothing on any read or parse failure, and mutates nothing — the lockless read is safe because {jjdr_save} renames atomically, so the peek sees only whole files.
@@ -2065,6 +2104,7 @@ At 0 the ceremony mutates nothing beyond its invitatory marker — the standing 
 Above 0 it opts into a bulk-authorized convergence commit: load (running any pending write-forward), save, and commit the managed store under that budget as the invitatory, so a {jjdz_reprieve} conversion self-persists at the next session start (chat capture rides the same path later).
 A convergence over budget hard-fails: the required size is reported, the store is reverted to HEAD, and the freshly-claimed officium is rolled back — no officium delivered, no staged store left behind — with no internal retries (a wedged commit lock is broken out-of-band).
 An always-gate guards both paths: open refuses unless every managed file is pristine (neither staged nor conflicted), since a non-pristine managed store is never legitimate and must be resolved by hand.
+That refusal is an {jjdz_interdictum} — it bars the open outright, and the hand-resolution it names is the only route past it.
 So {jjdo_open} no longer "always succeeds"; it succeeds iff its managed store is clean — the {jjdz_monitum}s alone still never cause failure.
 
 == Arguments

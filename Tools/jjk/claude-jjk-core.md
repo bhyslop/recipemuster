@@ -70,9 +70,15 @@ All JJK commands are accessed via the single `mcp__vvx__jjx` MCP tool with four 
 - `command`: string selecting the operation — always the canonical `jjx_*` name (e.g., `"jjx_show"`, `"jjx_record"`)
 - `params`: JSON object with command-specific fields (see reference below)
 - `officium`: officium identity string from `jjx_open` (required on all commands except `jjx_open` — see Officium Protocol below)
-- `model`: agent's verbatim model ID string from its system prompt (e.g., `"claude-opus-4-8"`). Required on ALL commands including `jjx_open`. The server gates commands by model tier under a three-bucket per-command policy — OPEN to every tier: `jjx_open` and the read commands (list, show, brief, coronets, log, search); DESIGNATION-GUARDED: orient, record, landing (see Bridle Protocol below); FRONTIER-ONLY (opus or fable): everything else (all docket-authoring/state-mutating verbs, close, validate, `jjx_apostille`, remote family).
+- `model`: agent's verbatim model ID string from its system prompt (e.g., `"claude-opus-4-8"`). Required on ALL commands including `jjx_open`.
 
 **`params` must be a JSON object, never a string.** If params is accidentally stringified (e.g., `"{\"key\": \"val\"}"` instead of `{"key": "val"}`), deserialization will fail. The server has a defensive fallback for this, but always pass a native object.
+
+**Interdictum — the gating refusal.** A jjx result whose first word is `INTERDICTUM` bars the act; it is not a calling error to fix and retry.
+
+- **Stop the act and its objective by any route** — no altered-params retry, no other command to the same end. Unrelated work continues.
+- **Report it verbatim.** The message is self-sufficient: what refused, why, the remedies. Pursue one only if the operator directs it.
+- **Do not model the guard.** This context says nothing about what generates an interdictum — carried mechanism becomes a self-check, and second implementations drift. Attempt the act; obey the token.
 
 **Verb names are NOT command names**: there is no `jjx_slate`, `jjx_mount`, `jjx_notch`, `jjx_groom` command. The verb table below maps horse vocabulary to actual MCP commands.
 NEVER invent param fields — check the reference below first.
@@ -132,7 +138,7 @@ jjx_drop           {coronet}
 jjx_brief      {coronet}                                            # raw docket text for ONE pace, returned inline (no gazette) — the clean single-docket read; an abandoned pace's docket leads with an [abandoned] marker line
 jjx_coronets   {firemark, remaining?, rough?}                       # coronet IDs in heat order, one per line, inline — no silks, no docket; the default listing tags an abandoned pace as "<coronet>  [abandoned]" and a bridled pace as "<coronet>  [bridled <tier>]" (coronet stays the first token; remaining includes bridled, rough excludes it)
 jjx_landing        {coronet, agent, content?}
-jjx_apostille      {coronet, tier?, effort?, release?}               # bridle/unbridle: designate {coronet, tier, effort?} (only a rough pace) or release {coronet, release: true}; exactly one of tier|release; tiers haiku|sonnet|opus|fable, efforts low|medium|high|xhigh|max; frontier-only
+jjx_apostille      {coronet, tier?, effort?, release?}               # bridle/unbridle: designate {coronet, tier, effort?} (only a rough pace) or release {coronet, release: true}; exactly one of tier|release; tiers haiku|sonnet|opus|fable, efforts low|medium|high|xhigh|max
 jjx_validate       {}                                                # normalize-and-report — exit 0 clean / 2 normalized (rewrote+committed) / 1 broken (untouched)
 jjx_bind           {alias, reldir}                                  # remote: create legatio session (alias resolves BURN profile)
 jjx_send           {legatio, command}                               # remote: synchronous exec on fundus
@@ -266,11 +272,10 @@ When user says "groom":
 ### Bridle Protocol
 
 Bridling designates a pace for execution at a specific model tier: a frontier
-agent (always the calling agent, never the server) records that it judged the
-pace mechanically defined, and the server enforces the designation from there.
-States: a `rough` pace is undesignated judgment work; a `bridled` pace is
-designated, carrying its tier (and optionally an effort word) until it is
-released, reverted, or closed.
+agent — always the calling agent, never the server — records that it judged the
+pace mechanically defined. States: a `rough` pace is undesignated judgment work;
+a `bridled` pace is designated, carrying its tier (and optionally an effort word)
+until it is released, reverted, or closed.
 
 **Bridling (frontier session designates):**
 
@@ -302,17 +307,12 @@ released, reverted, or closed.
 
 **Designee session (the designated-tier agent executes):**
 
-1. `jjx_orient` on the heat — resolution lands on the bridled pace, and the
-   orient guard admits the session only if its tier matches the designation
-   exactly (both directions: a frontier session is refused on a
-   sub-frontier-bridled pace; a sub-frontier session is refused on rough).
-2. Work the docket. Commit via `jjx_record` against the bridled coronet
-   (firemark-affiliated record stays frontier-only for sub-frontier sessions).
+1. `jjx_orient` on the heat — resolution lands on the bridled pace.
+2. Work the docket. Commit via `jjx_record` against the bridled coronet.
 3. Finish with `jjx_landing {coronet, agent, content}` — the completion report.
-4. NEVER wrap: `jjx_close` is frontier-only, always. A frontier session
-   reviews the landed work and wraps.
-5. On any hole or surprise: stop and surface it — docket-authoring verbs are
-   frontier-only, so a designee cannot restate its own orders.
+4. NEVER wrap. A frontier session reviews the landed work and wraps.
+5. On any hole or surprise: stop and surface it — a designee never restates its
+   own orders.
 
 **Escalation paths (designation is void when its judgment inputs change):**
 
