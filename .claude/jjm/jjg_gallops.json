@@ -9416,9 +9416,10 @@
         "₢BsAAS",
         "₢BsAAT",
         "₢BsAAU",
-        "₢BsAAW"
+        "₢BsAAW",
+        "₢BsAAY"
       ],
-      "jjghn_next_pace_seed": "AAY",
+      "jjghn_next_pace_seed": "AAZ",
       "jjghn_paces": {
         "₢BsAAA": {
           "jjgpn_tacks": [
@@ -10265,6 +10266,47 @@
               ],
               "jjgtn_silks": "conjure-consistency-assert-repair",
               "jjgtn_basis": "d2ea8ab"
+            }
+          ]
+        },
+        "₢BsAAY": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260711-1404",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "Substrate-semantics design with a live security tension; frontier tier, operator present.",
+                "The chain-lifetime law is the crux — settle it with the operator before touching code.",
+                "",
+                "## Ruled intent (operator, 260711)",
+                "A successful chain consumption must NOT end the fact's availability:",
+                "one capture serves several consumers (the same Lode elected into several vessels).",
+                "The landed consume-on-success depth-1 behavior is drift from intent, not design —",
+                "this ruling supersedes the earlier no-relay cinch (the rbk-01 loose-ends heat's resolver rule).",
+                "The leak concern that cinch answered is still real, and the new law must answer it:",
+                "state what bounds a fact's life — what replaces or ends it —",
+                "so a stale capture cannot silently ride into a much-later unrelated election.",
+                "The failed-consumer retry story falls out of the same law and must be stated with it.",
+                "",
+                "## The contradiction, and where everything lives",
+                "RBS0 \"Chaining-Fact Roles\" defines the role quoins and rivets RBr_3e7 (terminal consumption) and RBr_a52 —",
+                "the consolidated single definition sites this pace amends; do not re-scatter.",
+                "RBS0's rbf_fact_lode sentence (\"election survives an election failure … fan-out iterates by reading the fact\") is the intent, currently unimplemented.",
+                "BUS0 \"Fact-File Pattern\" owns the substrate: dispatch promotion, buf_relay (built for this, zero production callers), buf_elect_fact_capture (contract says never relays).",
+                "History: the Stage-1 relay plan (commit e969a940e) vs the no-relay pivot (commit 2c41f3736).",
+                "Discovery: grep RBr_3e7 for every consumer site; grep buf_relay and buf_elect_fact_capture for the substrate seams;",
+                "the chaining-fact-band fixture and the BUK facts self-test assert today's semantics and must be re-formed to the settled law.",
+                "The beckon's express-filled consumer roster interacts with no-arg reuse — reconcile, don't duplicate.",
+                "",
+                "## Done when",
+                "- The chain-lifetime law is operator-settled and homed at the existing single sites (RBS0 role and rivet definitions, BUS0 substrate), with every by-contrast citation following.",
+                "- Code implements the law across substrate and all consumers; buf_relay gains its callers or is removed, per the law.",
+                "- Fixtures assert the law, including the multi-consumer reuse the ruling requires and the failed-consumer retry behavior.",
+                "- The suites the change touches are re-proven green on this heat's baseline."
+              ],
+              "jjgtn_silks": "chaining-fact-lifetime-repair",
+              "jjgtn_basis": "6d9ab0f"
             }
           ]
         }
