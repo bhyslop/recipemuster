@@ -9282,6 +9282,7 @@
       "jjghn_creation_time": "260705",
       "jjghn_status": "jjghe_racing",
       "jjghn_order": [
+        "₢BsAAX",
         "₢BsAAP",
         "₢BsAAQ",
         "₢BsAAO",
@@ -9306,7 +9307,7 @@
         "₢BsAAU",
         "₢BsAAW"
       ],
-      "jjghn_next_pace_seed": "AAX",
+      "jjghn_next_pace_seed": "AAY",
       "jjghn_paces": {
         "₢BsAAA": {
           "jjgpn_tacks": [
@@ -10080,6 +10081,42 @@
               ],
               "jjgtn_silks": "indeterminacy-census-sheaf",
               "jjgtn_basis": "2f48d53"
+            }
+          ]
+        },
+        "₢BsAAX": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260711-1956",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "The conjure driver's hallmark consistency assert reads the build's echoed output from a hardcoded `buildStepOutputs` slot.",
+                "An in-pool step was later prepended and every slot shifted, so the assert has silently taken its empty arm — \"skipping consistency check (hallmark trusted from host)\" — on every conjure since 2026-05-01.",
+                "Find it: `grep -n buildStepOutputs Tools/rbk/rbfd_director.sh`.",
+                "Full analysis, including the log-proof of the silent skip, is finding **F10** in `Memos/memo-20260704-acg-pilot-conjure-findings.md`.",
+                "",
+                "Repair the slot so the assert fires again.",
+                "The one-token index bump is the floor, not the goal: prefer locating the slot by step id, or parameterizing it the way `zrbld_spine_extract` in `rblds_spine.sh` already does — a magic index is precisely what broke this once and will break it again on the next prepended step.",
+                "",
+                "Weigh the empty arm itself, which is the defect that hid this for two months: a warn-and-continue that silently promotes the host to sole authority over a value the build was supposed to corroborate.",
+                "Decide whether it survives the repair, and record the reasoning in the commit.",
+                "",
+                "Only a live conjure verifies this — no credless tier can see it.",
+                "Spend one real paid cloud build and watch the assert fire and pass.",
+                "",
+                "## Cinched",
+                "Runs on the STANDING substrate, ahead of the manor raze-rebuild walk — this is the heat's freehold-iterating cinch, not an exception to it.",
+                "A wrong slot turns today's silent skip into a loud die on every conjure, so it must be proven calm rather than amid the identity churn of the rebuild.",
+                "Being a runtime edit to the conjure path, it must also land before the rebaseline revalidation and never after — a later edit invalidates that green.",
+                "",
+                "## Done when",
+                "The assert fires on a live conjure and verifies the hallmark, taking the real arm rather than the empty one; the log line proving it is quoted in the wrap summary; F10 is marked repaired in the memo.",
+                "",
+                "## Character",
+                "Small repair, expensive verifier. One paid build buys the proof — get the fix right before spending it."
+              ],
+              "jjgtn_silks": "conjure-consistency-assert-repair",
+              "jjgtn_basis": "a1190e3"
             }
           ]
         }
