@@ -9,7 +9,7 @@
 //! Classification policy: a git failure that the farrier sheaf names as a known
 //! rejection kind (foreign ground, dirty tree, diverged) translates to
 //! `jjrfr_Rejection` and is returned. A git failure this driver cannot classify —
-//! the studbook sheaf's taxonomy has no bucket variant by design
+//! the farrier sheaf's taxonomy has no bucket variant by design
 //! (`jjdk_no_catch_all`) — is a plumbing fault, not a domain rejection, and panics
 //! with the raw detail attached rather than being silently mislabeled.
 
