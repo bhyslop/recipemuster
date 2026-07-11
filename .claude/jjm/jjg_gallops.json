@@ -8314,8 +8314,9 @@
         "₢BsAAU": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260710-0003",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260711-2241",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_fable",
               "jjgtn_text": [
                 "Mint the hyperscaler no-completion-contract doctrine — Axis B of Memos/memo-20260521-hyperscaler-cost-cap-and-api-consistency-premise.md — as a Key Premise quoin in RBS0's == Key Premises section, voiced //axk_premise, sibling to rbsk_no_gcloud and rbsk_human_present.",
                 "The premise distills: the vendor withholds terminal-state contracts on exactly the racy operations (IAM propagation, billing linkage),",
@@ -8337,7 +8338,7 @@
                 "Spec authoring with a mint — judgment work."
               ],
               "jjgtn_silks": "axis-b-premise-mint",
-              "jjgtn_basis": "26216a6"
+              "jjgtn_basis": "fbf27a1"
             }
           ]
         },
