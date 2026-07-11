@@ -208,9 +208,19 @@ the implementation tail runs at work tier.
   Identify is untouched (it still derives the kind-canonical key from ground, studbook-blind);
   the spine's pedigree lookup gains one indirection: derived key → registered identity → pedigree.
   Supersedes only the "the pedigree key" clause of the identify cinch.
-  The word election for the concept is HELD (candidate sire, grep-clean 260709);
-  the canon wording sweep of upstream/origin-URL phrasing across JJSVC/JJSVS/JJSVF/JJSVD
-  follows the election as one deliberate act, never piecemeal.
+  The word ELECTED 260711: *sire*, under a re-run clean grep gate,
+  and the wording sweep landed the same act —
+  JJS0's pedigree glossary row and JJSVC/JJSVS/JJSVF/JJSVD re-worded
+  carrying the key-indirection re-cut (derived key → sire → pedigree)
+  and the unrecorded-sire rejection rename,
+  JJSAT's per-upstream and governed-body placeholders swept
+  with its discharged reconciliation bullet removed,
+  JJSAS re-worded with the election ledgered.
+  Deliberately untouched by judgment:
+  identify's ground-level upstream-key vocabulary (identify is sire-blind),
+  JJSAB's directional "flows upstream", and RB's Pale mint;
+  the journal/blotter "work repo" phrasing was ruled outside the recorded scope.
+  Plain prose, no quoin — cataloguing a sire quoin is a deliberate later act.
 - Footprint posture (260709): work products (commits, branches — the code changes themselves)
   are the registered body's property, delivered in the form its owner tolerates;
   knowledge products (records, counterfoils, chat captures, guides, grimoire) are JJ's
@@ -392,6 +402,10 @@ their ledger entries marked infused (saddle with its grep gate still open by con
 completion rides the interior-remint pace);
 stirrup stays hearting;
 broadside registration for the dispatch ashlars deferred to cutover with the cosmology nouns.
+SIRE ELECTION (260711): sire elected for the registered external body of work
+under a re-run clean grep gate (held since 260709, no alternates banked);
+plain prose, no quoin minted;
+rationale ledgered in the state-repo sheaf's naming ledger.
 Elections, alternates, and rationales live in the two sheaf ledgers; this roster is the summary.
 
 ### Deltas to bank into the aspirant sheaves at drain time
