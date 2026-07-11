@@ -16,7 +16,7 @@ Resist becoming the junk drawer for unrelated cleanups.
 
 ## Governing idea
 
-The authority is ACG (Tools/cmk/vov_veiled/ACG-AllocationCodingGuide.md) —
+The authority is ACG (Tools/cmk/vov_veiled/ACG-AllodialCodingGuide.md) —
 the spine, the three homes, the move discipline, and the numbered move catalog
 all live there.
 This paddock cites and never restates
@@ -25,8 +25,11 @@ an earlier revision of this paddock paraphrased the guide and has been drained).
 
 ## Cinched
 
-- ACG = "Allocation Coding Guide" (not "Asciidoc" — the guide governs source
-  authoring/allocation; asciidoc is MCM's domain).
+- ACG = "Allodial Coding Guide"
+  (renamed from "Allocation Coding Guide" by operator ruling 260711;
+  allodial — held in absolute ownership, owing no superior:
+  the home owns the fact outright, every other site a tenant-by-citation;
+  acronym and ACGm_ move IDs unchanged, so every citer survived the rename).
   Veiled/proprietary, guide-family sibling to BCG/RCG/WSG/CBG.
   Not released at MVP.
 - v1 posture: bless and name emergent practice; no mandated universals;
@@ -70,6 +73,12 @@ an earlier revision of this paddock paraphrased the guide and has been drained).
 - Remaining pilots apply the citation-collapse pattern where it fits rather
   than re-deriving it; their amendment hunting aims at ground pilot 1 did not
   cover.
+- A8 ratified (operator ruling 260711): residue form in shipped source is
+  rivet or nothing — the ruling's full statement lives in ACG's rivet-section
+  rulings, cited not restated here.
+  The two rivets are minted and the first tranche's residues re-formed;
+  the pre-existing spec-acronym citations across shipped source are a
+  corpus-sweep population for the roster, not the pilot finish.
 - The jailer dialect (zero-dependency in-vessel POSIX sh) gets its own guide,
   promoted ahead of rule-of-3;
   rationale recorded in the pilot findings memo
