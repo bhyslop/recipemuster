@@ -8332,8 +8332,8 @@
         "₢BsAAT": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260709-1640",
-              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_ts": "260711-2337",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_tier": "jjgde_opus",
               "jjgtn_text": [
                 "Repatriate stray quoin definition sites from the RB sheaves into the codex,",
@@ -8375,7 +8375,7 @@
                 "Touches only the veiled RB spec tree (`Tools/rbk/vov_veiled/*.adoc`)."
               ],
               "jjgtn_silks": "codex-quoin-repatriation",
-              "jjgtn_basis": "d130eb4"
+              "jjgtn_basis": "933d174"
             }
           ]
         },
