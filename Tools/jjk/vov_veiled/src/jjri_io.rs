@@ -220,11 +220,12 @@ pub fn jjdz_write_forward(gallops: &mut jjrg_Gallops) {
 // ============================================================================
 // Retention — chat-history capture policy (read + classify)
 //
-// An instance of the open-time monitum (JJS0 `jjdz_monitum`): a read-only, best-effort,
-// never-gating self-report at officium open. Sibling to the reprieve nag, deliberately kept
-// independent — no shared monitum abstraction until a third instance earns it. The field is read
-// here and surfaced by the open monitum; the value is consumed by the capture mechanism and set by
-// its operator-facing setter, both of which land separately.
+// An open-time instance of the monitum (JJS0 `jjdz_monitum`): a read-only, best-effort,
+// never-gating self-report at officium open. Sibling to the reprieve nag and to notch's
+// event-time empty-notch monitum, all deliberately kept independent — no shared monitum
+// abstraction until the landed instances prove a common shape. The field is read here and
+// surfaced by the open monitum; the value is consumed by the capture mechanism and set by its
+// operator-facing setter, both of which land separately.
 // ============================================================================
 
 /// The ISO date format the retention field is validated against — operator-typeable and

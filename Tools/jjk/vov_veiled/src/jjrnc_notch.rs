@@ -24,8 +24,7 @@ pub struct jjrnc_NotchArgs {
     /// Identity: Coronet (5-char, pace-affiliated) or Firemark (2-char, heat-only)
     pub identity: String,
 
-    /// Files to commit (required, at least one)
-    #[arg(required = true)]
+    /// Files to commit; empty is legitimate — the empty notch (JJS0 `jjdz_monitum`)
     pub files: Vec<String>,
 
     /// Size limit in bytes (overrides default 50KB guard)
@@ -44,12 +43,6 @@ pub struct jjrnc_NotchArgs {
 pub fn jjrnc_run_notch(args: jjrnc_NotchArgs) -> (i32, String) {
     let cn = JJRNC_CMD_NAME_RECORD;
     let mut output = vvco_Output::buffer();
-
-    // Require non-empty files list
-    if args.files.is_empty() {
-        vvco_err!(output, "{}: error: at least one file required", cn);
-        return (1, output.vvco_finish());
-    }
 
     // Check each file either exists on disk or is tracked by git (for deletions)
     let mut staged_deletions: HashSet<String> = HashSet::new();
@@ -172,6 +165,27 @@ pub fn jjrnc_run_notch(args: jjrnc_NotchArgs) -> (i32, String) {
         }
     }
 
+    // Is the commit ahead of us empty? Asked of the index, not of the file list: listed
+    // files that hold no changes stage nothing, and that is the case the monitum below
+    // exists to name.
+    let staged = match vvc::vvce_git_command(&["diff", "--cached", "--quiet"]).output() {
+        Ok(o) => o,
+        Err(e) => {
+            vvco_err!(output, "{}: error: failed to check staged changes: {}", cn, e);
+            return (1, output.vvco_finish());
+        }
+    };
+    let is_empty = staged.status.success();
+
+    // The haiku fallback describes a diff, and an empty notch has none — so an empty
+    // commit's whole content is its intent, and the absent intent is a calling error the
+    // caller corrects by naming what the commit records. The emptiness itself is never
+    // refused (JJS0 `jjdz_monitum`).
+    if is_empty && args.intent.is_none() {
+        vvco_err!(output, "{}: error: an empty notch has no diff to describe, so --intent is required: name what this commit records", cn);
+        return (1, output.vvco_finish());
+    }
+
     // Size gate, ahead of the commit. The commit routine guards too, but it reports a
     // refusal in its own plain form; notch judges the staged cost itself so the refusal
     // it hands back is the interdictum, carrying the bytes the operator must review.
@@ -194,24 +208,57 @@ pub fn jjrnc_run_notch(args: jjrnc_NotchArgs) -> (i32, String) {
         vvc::vvcc_CommitArgs {
             prefix: None,
             message: Some(format!("{}{}", message, intent)),
-            allow_empty: false,
+            allow_empty: true,
             no_stage: true,  // We already staged above
-            size_limit: args.size_limit.unwrap_or(vvc::VVCG_SIZE_LIMIT),
+            size_limit,
             warn_limit: vvc::VVCG_WARN_LIMIT,
         }
     } else {
         vvc::vvcc_CommitArgs {
             prefix: Some(message),
             message: None,
-            allow_empty: false,
+            allow_empty: true,
             no_stage: true,  // We already staged above
-            size_limit: args.size_limit.unwrap_or(vvc::VVCG_SIZE_LIMIT),
+            size_limit,
             warn_limit: vvc::VVCG_WARN_LIMIT,
         }
     };
 
     let rc = vvc::commit(&commit_args, &mut output);
+
+    // After the fact, never ahead of it: the commit has landed, and the monitum names what
+    // it recorded. The advisory is the whole safety mechanism of the allowed empty notch,
+    // so it never gates — the exit code stays the commit's own.
+    if rc == 0 && is_empty {
+        vvco_err!(output, "{}", jjrnc_empty_notch_monitum(&args.files));
+    }
+
     (rc, output.vvco_finish())
+}
+
+/// The empty-notch self-report — a monitum (JJS0 `jjdz_monitum`): non-gating, emitted after
+/// the commit lands, naming what it actually recorded.
+///
+/// Two shapes, because the surprise differs. With no files listed, the empty commit is the
+/// deliberate act — a verification run that changed nothing on disk — and the line says so.
+/// With files listed, the caller expected content and got none, so the line names the gap and
+/// its likeliest causes: a contentless commit under an expectant file list is the accident
+/// this advisory exists to catch.
+pub fn jjrnc_empty_notch_monitum(files: &[String]) -> String {
+    let mut msg = String::from(
+        "warning: empty notch — the commit landed with a tree identical to its parent's: it \
+         records the affiliation and the intent, and no file content.\n",
+    );
+    if files.is_empty() {
+        msg.push_str("  No files were listed — the empty notch, recording work that changed nothing on disk.");
+    } else {
+        msg.push_str(&format!(
+            "  {} file(s) were listed and none held changes to stage. If content was expected, it may \
+             already be committed (possibly by another officium), or the paths may be wrong.",
+            files.len()
+        ));
+    }
+    msg
 }
 
 /// Compute the warning lines for porcelain status entries not covered by the file list.

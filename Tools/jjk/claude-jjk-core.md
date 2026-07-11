@@ -370,6 +370,9 @@ Use `jjx_record` with `{identity: "CORONET", files: ["file1", "file2"], intent: 
 **Heat-affiliated commit** (no active pace, but part of heat work):
 Use `jjx_record` with `{identity: "FIREMARK", files: ["file1", "file2"], intent: "description"}`
 
+**Empty commit** (work that changed nothing on disk — a verification run, a platform proof):
+Use `jjx_record` with `files: []`. The commit lands, affiliated, carrying `intent` as its whole content; a warning names it afterward. `intent` is required here — there is no diff to describe.
+
 Synthesize intent from the conversation — describe *what* was accomplished, not *how*.
 
 When user says "notch", determine context (pace or heat affiliated) and invoke `jjx_record` with the appropriate identity and explicit file list.

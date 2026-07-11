@@ -7,11 +7,12 @@ Create a JJ-aware git commit with heat/pace context prefix.
 //axd_required
 * identity (positional) — {jjdt_coronet} for pace-affiliated commit, or {jjdt_firemark} for heat-only commit
 
-//axd_required
-* files (positional, repeated) — paths to commit (at least one required)
+//axd_optional
+* files (positional, repeated) — paths to commit.
+An empty list is legitimate: the empty notch, recording work that changed nothing on disk.
 
 //axd_optional
-* `--intent` — commit subject provided by opus (if omitted, falls back to haiku diff description)
+* {jjda_intent} — commit subject provided by opus (if omitted, falls back to haiku diff description; required when the commit is empty)
 
 //axd_optional
 * {jjda_size_limit}
@@ -25,8 +26,7 @@ Create a JJ-aware git commit with heat/pace context prefix.
 . Parse identity:
 .. If 5 base64 chars (Coronet): pace-affiliated commit
 .. If 2 base64 chars (Firemark): heat-only commit (no pace affiliation)
-. Validate file list:
-.. If empty: exit 1 with "error: no files specified"
+. Validate file list (an empty list validates: it stages nothing):
 .. For each file, verify it is valid by one of:
 ... Filesystem existence (additions and modifications)
 ... Git index tracking via `git ls-files --error-unmatch` (unstaged deletions)
@@ -42,13 +42,22 @@ warning: uncommitted changes outside file list:
 ----
 . Acquire lock (`refs/vvg/locks/vvx`)
 . Stage specified files only (`git add <file1> <file2> ...`)
+. Determine whether the commit is empty — ask the index (`git diff --cached --quiet`), never the file list.
+Listed files holding no changes stage nothing, so a non-empty list can still yield an empty commit.
+.. If empty and {jjda_intent} is absent: exit 1 with a calling error naming the fix.
+There is no diff for the haiku fallback to describe, and an empty commit's whole content is its intent.
+The emptiness is not what refuses — the missing subject is, and the caller corrects it.
 . Run size guard check at {jjda_size_limit}
 . Determine commit subject:
-.. If `--intent` provided: use the supplied intent string
+.. If {jjda_intent} provided: use the supplied intent string
 .. Otherwise: run `claude --print "Generate commit message for this diff: $(git diff --cached)"`
 . Format full message based on identity type:
 .. Coronet: `jjb:BRAND:₢XXXXX:n: message\n\nCo-Authored-By: ...`
 .. Firemark: `jjb:BRAND:₣XX:n: message\n\nCo-Authored-By: ...`
-. Run `git commit -m "..."`
+. Run `git commit --allow-empty -m "..."` — {jjdo_record} never refuses an empty commit.
+Its siblings already permit one: {jjdo_close} commits a clean tree, and the chalk marker is *defined* as an empty commit.
+The motivating case is a verification run — a session that proves something and changes nothing on disk — whose record would otherwise have to be a bare `git commit --allow-empty`, carrying no affiliation and vanishing from the pace's swim lane.
+. If the commit was empty, emit the empty-notch {jjdz_monitum} — after the fact, never ahead of it, and never gating (the exit code stays the commit's own).
+The advisory is the whole safety mechanism of the allowed empty commit: it names what the commit recorded, and, when files were listed but held no changes, that gap and its likeliest causes.
 . Release lock
 . Output commit hash

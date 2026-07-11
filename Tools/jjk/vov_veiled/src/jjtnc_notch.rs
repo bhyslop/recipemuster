@@ -4,7 +4,7 @@
 
 use std::collections::HashSet;
 
-use super::jjrnc_notch::jjrnc_outside_list_warnings;
+use super::jjrnc_notch::{jjrnc_empty_notch_monitum, jjrnc_outside_list_warnings};
 
 fn jjtnc_files_set<'a>(files: &'a [&'a str]) -> HashSet<&'a str> {
     files.iter().copied().collect()
@@ -82,4 +82,31 @@ fn jjtnc_rename_covered_stray_still_warns() {
     let warnings = jjrnc_outside_list_warnings(status, &files);
     assert_eq!(warnings.len(), 1);
     assert!(warnings[0].contains("stray.rs"));
+}
+
+// The empty-notch monitum is an advisory, never a refusal: it reports the landed commit.
+#[test]
+fn jjtnc_empty_notch_monitum_reports_the_landed_commit() {
+    let monitum = jjrnc_empty_notch_monitum(&[]);
+    assert!(monitum.starts_with("warning: "), "a monitum never gates — it warns: {}", monitum);
+    assert!(monitum.contains("empty notch"));
+    assert!(!monitum.contains("INTERDICTUM"), "an interdictum bars the act; this one landed");
+}
+
+// With no files listed, the monitum names the deliberate act — work that changed nothing on disk.
+#[test]
+fn jjtnc_empty_notch_monitum_no_files_names_the_deliberate_act() {
+    let monitum = jjrnc_empty_notch_monitum(&[]);
+    assert!(monitum.contains("No files were listed"));
+    assert!(monitum.contains("changed nothing on disk"));
+}
+
+// With files listed and nothing staged, the monitum names the gap the caller did not expect.
+#[test]
+fn jjtnc_empty_notch_monitum_listed_files_name_the_gap() {
+    let files = vec!["a.rs".to_string(), "b.rs".to_string()];
+    let monitum = jjrnc_empty_notch_monitum(&files);
+    assert!(monitum.contains("2 file(s) were listed"));
+    assert!(monitum.contains("none held changes"));
+    assert!(!monitum.contains("No files were listed"));
 }

@@ -2068,12 +2068,23 @@ include::JJSCRP-reprieve.adoc[leveloffset=+2]
 [[jjdz_monitum]]
 //axve_entity
 {jjdz_monitum}::
-An open-time self-report: a line {jjdo_open} emits about a standing condition of this install — read-only, best-effort, and never gating.
-A {jjdz_monitum} reads on-disk state without the commit lock, emits nothing on any read or parse failure, and can never cause open to fail: it reports a condition, it does not enforce one.
-Two instances exist, kept deliberately independent in code — no shared {jjdz_monitum} abstraction until a third instance earns it:
-the {jjdz_reprieve} nag, the first instance, reporting per-episode schema-tolerance status, one line each carrying the rivet token;
-and the retention {jjdz_monitum}, the second, reporting the {jjdgm_retention} chat-history policy in three states — off is quiet (no line), on prints the since-date, and a malformed date prints loud and notes capture is disabled.
-That malformed case is the {jjdz_monitum}'s fail-loud: a typo'd date is a loud line at every open, never a hard gate, because bad config never makes the {jjdgr_gallops} illegitimate.
+A non-gating advisory: a line the server emits about a condition it observed, which never bars the act it accompanies.
+It is the permissive complement of the {jjdz_interdictum} — a {jjdz_monitum} never gates, an {jjdz_interdictum} always gates, and nothing is both.
+Never-gating is the whole differentia.
+The moment of emission is accidental to the genre: a {jjdz_monitum} may report a standing condition of this install at {jjdo_open}, or self-report an event at the moment the server performs it.
++
+*Instance census.*
+Three instances stand, kept deliberately independent in code — no shared {jjdz_monitum} abstraction until the landed instances prove a common shape:
++
+. The {jjdz_reprieve} nag, at {jjdo_open} — per-episode schema-tolerance status, one line each carrying the rivet token.
+. The retention {jjdz_monitum}, at {jjdo_open} — the {jjdgm_retention} chat-history policy in three states: off is quiet (no line), on prints the since-date, and a malformed date prints loud and notes capture is disabled.
+That malformed case is the genre's fail-loud: a typo'd date is a loud line at every open, never a hard gate, because bad config never makes the {jjdgr_gallops} illegitimate.
+. The empty-notch {jjdz_monitum}, at {jjdo_record} — the event-time self-report, naming a commit that landed with a tree identical to its parent's: it records affiliation and intent, and no file content.
+It is the whole safety mechanism of the allowed empty commit.
+{jjdo_record} never refuses one, so the advisory is what keeps a silently contentless commit from passing unremarked — most sharply when files *were* listed and none of them held changes to stage.
++
+The two {jjdo_open} instances share the open-time peek's further discipline, which belongs to the peek and not to the genus: each reads on-disk state without the commit lock, emits nothing on any read or parse failure, and can never cause {jjdo_open} to fail — it reports a condition, it does not enforce one.
+The empty-notch instance reads no store at all: it reports an act the server has just performed.
 
 === {jjdz_interdictum}
 
@@ -2112,7 +2123,7 @@ Five generators stand:
 . The designation gate — the tier-match judgment on {jjdo_orient}, {jjdo_record}, and {jjdo_landing} against a pace's {jjdo_apostille} designation. The type specimen of the genre: it is the guard whose mechanism, once described in standing context, produced the redundant self-check that the genre exists to retire.
 . The size gate — staged content over the {jjda_size_limit} ceiling refuses every {jjdx_tool} that accepts that keyword. The condition lying outside the call is the operator's byte-sanity review, which is the whole purpose of the ceiling: the agent cannot perform that review on its own behalf, so it cannot correct the refusal, and the emission carries the bytes and the per-file breakdown the operator needs in order to judge. The remedies are the operator's — a raise they direct, or bulk that leaves the commit — and the genre's own stop grain forbids the two evasions the guard previously invited, a self-raised ceiling and a re-scoped commit that carries the same bulk in pieces.
 +
-No shared {jjdz_monitum}/{jjdz_interdictum} emission abstraction exists, and none is due until a third instance earns it — the same standing rule the {jjdz_monitum} keeps.
+No shared {jjdz_monitum}/{jjdz_interdictum} emission abstraction exists, and none is due until the landed instances prove a common shape — the same standing rule the {jjdz_monitum} keeps.
 
 === Open Ceremony Contract
 
@@ -2185,6 +2196,7 @@ Commit subject provided by opus.
 If provided, used as commit subject in
 {jjdo_record};
 if omitted, falls back to haiku diff description.
+An empty {jjdo_record} has no diff to describe, so the fallback has nothing to work from: there {jjda_intent} is required, and its absence is a calling error — the emptiness itself is never refused.
 
 [[jjda_created]]
 //axl_voices axa_keyword axd_internal
