@@ -577,6 +577,7 @@ pub fn jjrpd_format_pace_digest(firemark: &Firemark, heat: &Heat, coronet_displa
             writeln!(output, "  {:width$}  also: {}", file, others.join(", "), width = width).unwrap();
         }
     }
+    writeln!(output).unwrap();
 
     Ok(output)
 }
