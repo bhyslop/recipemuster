@@ -2,15 +2,33 @@
 // All rights reserved.
 // SPDX-License-Identifier: LicenseRef-Proprietary
 
-use super::jjrfg_plaingit::jjrfg_PlainGit;
+use super::jjrfg_plaingit::{
+    jjrfg_PlainGit,
+    zjjrfg_canonicalize_upstream,
+    zjjrfg_push_rejected,
+    zjjrfg_resolve_relative,
+};
 use super::jjrfr_farrier::{
-    jjrfr_ConsignLease, jjrfr_FarrierCore, jjrfr_GleanOutcome, jjrfr_LineOfWork, jjrfr_RejectionKind, jjrfr_Seat,
+    jjrfr_ConsignLease,
+    jjrfr_FarrierCore,
+    jjrfr_GleanOutcome,
+    jjrfr_LineOfWork,
+    jjrfr_RejectionKind,
+    jjrfr_Seat,
     jjrfr_SyncState,
 };
 use super::jjtu_testdir::JjkTestDir;
-use std::path::{Path, PathBuf};
+use std::path::{
+    Path,
+    PathBuf,
+};
 
 const ZJJTFG_TRUNK: &str = "jjtfg-trunk";
+
+/// The remote-tracking name of the test trunk, derived from the trunk const.
+fn zjjtfg_remote_trunk() -> String {
+    format!("origin/{}", ZJJTFG_TRUNK)
+}
 
 fn zjjtfg_git(dir: &Path, args: &[&str]) -> String {
     let out = std::process::Command::new("git")
@@ -62,7 +80,58 @@ fn jjtfg_identify_claims_a_git_tree() {
 
     assert_eq!(identity.seat, jjrfr_Seat::Primary);
     assert_eq!(identity.line_of_work, jjrfr_LineOfWork::Branch(ZJJTFG_TRUNK.to_string()));
-    assert_eq!(identity.upstream_key, "");
+    assert_eq!(identity.upstream_key, None);
+}
+
+#[test]
+fn jjtfg_identify_canonicalizes_the_upstream_key() {
+    let td = JjkTestDir::new("jjtfg_identify_canonicalizes_the_upstream_key");
+    zjjtfg_init_local(td.path());
+    zjjtfg_commit_all(td.path(), "a.txt", "hello", "init");
+    zjjtfg_git(td.path(), &["remote", "add", "origin", "/somewhere/upstream.git"]);
+
+    let identity = jjrfg_PlainGit.jjrfr_identify(td.path()).unwrap();
+
+    assert_eq!(identity.upstream_key, Some("/somewhere/upstream".to_string()));
+}
+
+#[test]
+fn jjtfg_identify_partition_seat_carries_primary_root() {
+    let primary = JjkTestDir::new("jjtfg_identify_partition_primary");
+    zjjtfg_init_local(primary.path());
+    zjjtfg_commit_all(primary.path(), "a.txt", "hello", "init");
+    let partition = JjkTestDir::new("jjtfg_identify_partition_worktree");
+    // The guard pre-creates its directory, but a worktree seat wants to create its own
+    std::fs::remove_dir_all(partition.path()).unwrap();
+    zjjtfg_git(
+        primary.path(),
+        &["worktree", "add", "-q", "-b", "jjtfg-partition", &partition.path().to_string_lossy()],
+    );
+
+    let identity = jjrfg_PlainGit.jjrfr_identify(partition.path()).unwrap();
+
+    match &identity.seat {
+        jjrfr_Seat::Partition { primary_root } => {
+            assert_eq!(
+                primary_root.canonicalize().unwrap(),
+                primary.path().canonicalize().unwrap(),
+            );
+        }
+        other => panic!("expected a partition seat, got {:?}", other),
+    }
+    assert_eq!(identity.line_of_work, jjrfr_LineOfWork::Branch("jjtfg-partition".to_string()));
+}
+
+#[test]
+fn jjtfg_identify_detached_reports_position_faithfully() {
+    let td = JjkTestDir::new("jjtfg_identify_detached_reports_position_faithfully");
+    zjjtfg_init_local(td.path());
+    let sha = zjjtfg_commit_all(td.path(), "a.txt", "hello", "init");
+    zjjtfg_git(td.path(), &["checkout", "-q", "--detach"]);
+
+    let identity = jjrfg_PlainGit.jjrfr_identify(td.path()).unwrap();
+
+    assert_eq!(identity.line_of_work, jjrfr_LineOfWork::Detached(sha));
 }
 
 #[test]
@@ -209,9 +278,7 @@ fn jjtfg_advance_fast_forwards_to_remote_tip() {
     zjjtfg_git(local2.path(), &["push", "-q", "origin", ZJJTFG_TRUNK]);
 
     jjrfg_PlainGit.jjrfr_glean(local1.path());
-    jjrfg_PlainGit
-        .jjrfr_advance(local1.path(), &format!("{}/{}", "origin", ZJJTFG_TRUNK))
-        .unwrap();
+    jjrfg_PlainGit.jjrfr_advance(local1.path()).unwrap();
 
     let head = zjjtfg_git(local1.path(), &["rev-parse", "HEAD"]);
     assert_eq!(head, tip);
@@ -226,7 +293,7 @@ fn jjtfg_advance_rejects_dirty_tree() {
     jjrfg_PlainGit.jjrfr_glean(local1.path());
     zjjtfg_write(local1.path(), "uncommitted.txt", "dirty");
 
-    let result = jjrfg_PlainGit.jjrfr_advance(local1.path(), &format!("{}/{}", "origin", ZJJTFG_TRUNK));
+    let result = jjrfg_PlainGit.jjrfr_advance(local1.path());
 
     assert_eq!(result.unwrap_err().kind, jjrfr_RejectionKind::DirtyTree);
 }
@@ -242,7 +309,7 @@ fn jjtfg_advance_rejects_diverged_when_ff_impossible() {
     zjjtfg_commit_all(local1.path(), "from-local1.txt", "from local1", "from local1");
     jjrfg_PlainGit.jjrfr_glean(local1.path());
 
-    let result = jjrfg_PlainGit.jjrfr_advance(local1.path(), &format!("{}/{}", "origin", ZJJTFG_TRUNK));
+    let result = jjrfg_PlainGit.jjrfr_advance(local1.path());
 
     assert_eq!(result.unwrap_err().kind, jjrfr_RejectionKind::Diverged);
 }
@@ -276,7 +343,7 @@ fn jjtfg_consign_rejects_diverged_without_lease() {
 fn jjtfg_consign_atomic_lease_succeeds_when_expected_matches() {
     let bare = JjkTestDir::new("jjtfg_consign_lease_ok_bare");
     let (local1, _local2) = zjjtfg_two_clones_from_baseline(bare.path(), "jjtfg_consign_lease_ok");
-    let expected = zjjtfg_git(local1.path(), &["rev-parse", &format!("{}/{}", "origin", ZJJTFG_TRUNK)]);
+    let expected = zjjtfg_git(local1.path(), &["rev-parse", &zjjtfg_remote_trunk()]);
     let tip = zjjtfg_commit_all(local1.path(), "new.txt", "new", "new");
 
     jjrfg_PlainGit
@@ -291,7 +358,7 @@ fn jjtfg_consign_atomic_lease_succeeds_when_expected_matches() {
 fn jjtfg_consign_atomic_lease_rejects_when_stale() {
     let bare = JjkTestDir::new("jjtfg_consign_lease_stale_bare");
     let (local1, local2) = zjjtfg_two_clones_from_baseline(bare.path(), "jjtfg_consign_lease_stale");
-    let stale_expected = zjjtfg_git(local1.path(), &["rev-parse", &format!("{}/{}", "origin", ZJJTFG_TRUNK)]);
+    let stale_expected = zjjtfg_git(local1.path(), &["rev-parse", &zjjtfg_remote_trunk()]);
 
     zjjtfg_commit_all(local2.path(), "from-local2.txt", "from local2", "from local2");
     zjjtfg_git(local2.path(), &["push", "-q", "origin", ZJJTFG_TRUNK]);
@@ -305,4 +372,26 @@ fn jjtfg_consign_atomic_lease_rejects_when_stale() {
     );
 
     assert_eq!(result.unwrap_err().kind, jjrfr_RejectionKind::Diverged);
+}
+
+#[test]
+fn jjtfg_canonicalize_upstream_strips_suffix_and_whitespace() {
+    assert_eq!(zjjrfg_canonicalize_upstream("/somewhere/upstream.git\n"), "/somewhere/upstream");
+    assert_eq!(zjjrfg_canonicalize_upstream("  /plain/path  "), "/plain/path");
+    assert_eq!(zjjrfg_canonicalize_upstream("git@host:org/repo.git"), "git@host:org/repo");
+}
+
+#[test]
+fn jjtfg_push_rejected_matches_transport_vocabulary_only() {
+    assert!(zjjrfg_push_rejected("! [rejected] trunk -> trunk (fetch first)"));
+    assert!(zjjrfg_push_rejected("! [remote rejected] trunk -> trunk (stale info)"));
+    assert!(zjjrfg_push_rejected("Updates were rejected because a pushed branch tip is non-fast-forward"));
+    assert!(!zjjrfg_push_rejected("fatal: Could not read from remote repository."));
+}
+
+#[test]
+fn jjtfg_resolve_relative_joins_only_relative_paths() {
+    let base = Path::new("/base/repo");
+    assert_eq!(zjjrfg_resolve_relative(base, "/already/absolute"), PathBuf::from("/already/absolute"));
+    assert_eq!(zjjrfg_resolve_relative(base, ".git"), PathBuf::from("/base/repo/.git"));
 }

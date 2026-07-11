@@ -3,7 +3,9 @@
 // SPDX-License-Identifier: LicenseRef-Proprietary
 
 use super::jjrfr_farrier::{
-    jjrfr_CombReport, jjrfr_Rejection, jjrfr_RejectionKind,
+    jjrfr_CombReport,
+    jjrfr_Rejection,
+    jjrfr_RejectionKind,
 };
 use std::path::PathBuf;
 

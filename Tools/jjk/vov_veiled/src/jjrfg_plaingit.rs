@@ -8,16 +8,28 @@
 //!
 //! Classification policy: a git failure that the farrier sheaf names as a known
 //! rejection kind (foreign ground, dirty tree, diverged) translates to
-//! `jjrfr_Rejection` and is returned. A git failure this driver cannot classify —
-//! the farrier sheaf's taxonomy has no bucket variant by design
-//! (`jjdk_no_catch_all`) — is a plumbing fault, not a domain rejection, and panics
-//! with the raw detail attached rather than being silently mislabeled.
+//! `jjrfr_Rejection` and is returned. A git failure this driver cannot classify is
+//! a plumbing fault, not a domain rejection — the taxonomy is closed by the sheaf,
+//! with no catch-all variant to hide in — so it panics with the raw detail
+//! attached rather than being silently mislabeled under a familiar kind.
 
 use crate::jjrfr_farrier::{
-    jjrfr_CombReport, jjrfr_ConsignLease, jjrfr_Counterfoil, jjrfr_FarrierCore, jjrfr_GleanOutcome,
-    jjrfr_Identity, jjrfr_LineOfWork, jjrfr_Rejection, jjrfr_RejectionKind, jjrfr_Seat, jjrfr_SyncState,
+    jjrfr_CombReport,
+    jjrfr_ConsignLease,
+    jjrfr_Counterfoil,
+    jjrfr_FarrierCore,
+    jjrfr_GleanOutcome,
+    jjrfr_Identity,
+    jjrfr_LineOfWork,
+    jjrfr_Rejection,
+    jjrfr_RejectionKind,
+    jjrfr_Seat,
+    jjrfr_SyncState,
 };
-use std::path::{Path, PathBuf};
+use std::path::{
+    Path,
+    PathBuf,
+};
 
 /// The plain-git farrier kind. Zero-sized and stateless — every op takes its repo
 /// root explicitly (the no-cwd rule); `self` exists only to select this kind at a
@@ -28,6 +40,17 @@ pub struct jjrfg_PlainGit;
 /// The sole remote this kind addresses. Spec names no multi-remote requirement;
 /// widening past "origin" is a future kind concern, not this one's.
 const ZJJRFG_REMOTE: &str = "origin";
+
+/// The op tags carried in rejection and panic context — one const per op, so
+/// every failure site of an op names it identically.
+const ZJJRFG_OP_IDENTIFY: &str = "identify";
+const ZJJRFG_OP_COMB: &str = "comb";
+const ZJJRFG_OP_SYNC_STATE: &str = "sync_state";
+const ZJJRFG_OP_COUNTERFOIL: &str = "counterfoil";
+const ZJJRFG_OP_LODGE: &str = "lodge";
+const ZJJRFG_OP_ADVANCE: &str = "advance";
+const ZJJRFG_OP_CONSIGN: &str = "consign";
+const ZJJRFG_OP_LINE_OF_WORK: &str = "line_of_work";
 
 struct zjjrfg_GitOutput {
     ok: bool,
@@ -60,7 +83,7 @@ fn zjjrfg_unexpected(op: &str, root: &Path, detail: &str) -> ! {
     panic!("plain-git {} hit an unclassified git failure at {}: {}", op, root.display(), detail.trim())
 }
 
-fn zjjrfg_resolve_relative(base: &Path, maybe_relative: &str) -> PathBuf {
+pub(crate) fn zjjrfg_resolve_relative(base: &Path, maybe_relative: &str) -> PathBuf {
     let p = Path::new(maybe_relative);
     if p.is_absolute() {
         p.to_path_buf()
@@ -72,20 +95,20 @@ fn zjjrfg_resolve_relative(base: &Path, maybe_relative: &str) -> PathBuf {
 /// Minimal canonicalization: strip a trailing `.git` suffix and surrounding
 /// whitespace. Scheme/host unification across ssh and https forms of the same
 /// upstream is a future kind concern the spec does not detail; this is not that.
-fn zjjrfg_canonicalize_upstream(raw: &str) -> String {
+pub(crate) fn zjjrfg_canonicalize_upstream(raw: &str) -> String {
     raw.trim().strip_suffix(".git").unwrap_or(raw.trim()).to_string()
 }
 
 fn zjjrfg_line_of_work(root: &Path) -> jjrfr_LineOfWork {
     let branch = zjjrfg_run_git(root, &["rev-parse", "--abbrev-ref", "HEAD"]);
     if !branch.ok {
-        zjjrfg_unexpected("line_of_work", root, &branch.stderr);
+        zjjrfg_unexpected(ZJJRFG_OP_LINE_OF_WORK, root, &branch.stderr);
     }
     let name = branch.stdout.trim();
     if name == "HEAD" {
         let sha = zjjrfg_run_git(root, &["rev-parse", "HEAD"]);
         if !sha.ok {
-            zjjrfg_unexpected("line_of_work", root, &sha.stderr);
+            zjjrfg_unexpected(ZJJRFG_OP_LINE_OF_WORK, root, &sha.stderr);
         }
         jjrfr_LineOfWork::Detached(sha.stdout.trim().to_string())
     } else {
@@ -95,7 +118,7 @@ fn zjjrfg_line_of_work(root: &Path) -> jjrfr_LineOfWork {
 
 /// Git's own stable rejection vocabulary for a non-fast-forward push, plain or
 /// lease-guarded — not a guess, the literal tokens git's transport layer emits.
-fn zjjrfg_push_rejected(stderr: &str) -> bool {
+pub(crate) fn zjjrfg_push_rejected(stderr: &str) -> bool {
     stderr.contains("[rejected]") || stderr.contains("stale info") || stderr.contains("non-fast-forward")
 }
 
@@ -105,7 +128,7 @@ impl jjrfr_FarrierCore for jjrfg_PlainGit {
         if !top.ok {
             return Err(jjrfr_Rejection::jjrfr_new(
                 jjrfr_RejectionKind::ForeignGround,
-                "identify",
+                ZJJRFG_OP_IDENTIFY,
                 probe_path,
                 top.stderr,
             ));
@@ -115,7 +138,7 @@ impl jjrfr_FarrierCore for jjrfg_PlainGit {
         let git_dir = zjjrfg_run_git(&root, &["rev-parse", "--git-dir"]);
         let common_dir = zjjrfg_run_git(&root, &["rev-parse", "--git-common-dir"]);
         if !git_dir.ok || !common_dir.ok {
-            zjjrfg_unexpected("identify", &root, &format!("{}{}", git_dir.stderr, common_dir.stderr));
+            zjjrfg_unexpected(ZJJRFG_OP_IDENTIFY, &root, &format!("{}{}", git_dir.stderr, common_dir.stderr));
         }
         let seat = if git_dir.stdout.trim() == common_dir.stdout.trim() {
             jjrfr_Seat::Primary
@@ -129,9 +152,9 @@ impl jjrfr_FarrierCore for jjrfg_PlainGit {
 
         let remote = zjjrfg_run_git(&root, &["remote", "get-url", ZJJRFG_REMOTE]);
         let upstream_key = if remote.ok {
-            zjjrfg_canonicalize_upstream(&remote.stdout)
+            Some(zjjrfg_canonicalize_upstream(&remote.stdout))
         } else {
-            String::new()
+            None
         };
 
         Ok(jjrfr_Identity { root, upstream_key, seat, line_of_work })
@@ -140,7 +163,7 @@ impl jjrfr_FarrierCore for jjrfg_PlainGit {
     fn jjrfr_comb(&self, root: &Path) -> Result<jjrfr_CombReport, jjrfr_Rejection> {
         let out = zjjrfg_run_git(root, &["status", "--porcelain"]);
         if !out.ok {
-            zjjrfg_unexpected("comb", root, &out.stderr);
+            zjjrfg_unexpected(ZJJRFG_OP_COMB, root, &out.stderr);
         }
         let dirty_paths = out
             .stdout
@@ -160,18 +183,18 @@ impl jjrfr_FarrierCore for jjrfg_PlainGit {
         let ahead: u32 = counts
             .next()
             .and_then(|s| s.parse().ok())
-            .unwrap_or_else(|| zjjrfg_unexpected("sync_state", root, &out.stdout));
+            .unwrap_or_else(|| zjjrfg_unexpected(ZJJRFG_OP_SYNC_STATE, root, &out.stdout));
         let behind: u32 = counts
             .next()
             .and_then(|s| s.parse().ok())
-            .unwrap_or_else(|| zjjrfg_unexpected("sync_state", root, &out.stdout));
+            .unwrap_or_else(|| zjjrfg_unexpected(ZJJRFG_OP_SYNC_STATE, root, &out.stdout));
         Ok(jjrfr_SyncState::Tracking { ahead, behind })
     }
 
     fn jjrfr_counterfoil(&self, root: &Path) -> Result<jjrfr_Counterfoil, jjrfr_Rejection> {
         let sha = zjjrfg_run_git(root, &["rev-parse", "HEAD"]);
         if !sha.ok {
-            zjjrfg_unexpected("counterfoil", root, &sha.stderr);
+            zjjrfg_unexpected(ZJJRFG_OP_COUNTERFOIL, root, &sha.stderr);
         }
         let comb = self.jjrfr_comb(root)?;
         let line_of_work = zjjrfg_line_of_work(root);
@@ -195,14 +218,14 @@ impl jjrfr_FarrierCore for jjrfg_PlainGit {
         add_args.extend(file_strs.iter().map(String::as_str));
         let add_out = zjjrfg_run_git(root, &add_args);
         if !add_out.ok {
-            zjjrfg_unexpected("lodge", root, &add_out.stderr);
+            zjjrfg_unexpected(ZJJRFG_OP_LODGE, root, &add_out.stderr);
         }
 
         let mut commit_args: Vec<&str> = vec!["commit", "-m", message, "--"];
         commit_args.extend(file_strs.iter().map(String::as_str));
         let out = zjjrfg_run_git(root, &commit_args);
         if !out.ok {
-            zjjrfg_unexpected("lodge", root, &out.stderr);
+            zjjrfg_unexpected(ZJJRFG_OP_LODGE, root, &out.stderr);
         }
         Ok(())
     }
@@ -216,19 +239,25 @@ impl jjrfr_FarrierCore for jjrfg_PlainGit {
         }
     }
 
-    fn jjrfr_advance(&self, root: &Path, remote_ref: &str) -> Result<(), jjrfr_Rejection> {
+    fn jjrfr_advance(&self, root: &Path) -> Result<(), jjrfr_Rejection> {
         let comb = self.jjrfr_comb(root)?;
         if !comb.jjrfr_is_clean() {
             return Err(jjrfr_Rejection::jjrfr_new(
                 jjrfr_RejectionKind::DirtyTree,
-                "advance",
+                ZJJRFG_OP_ADVANCE,
                 root,
                 "uncommitted changes block a fast-forward move",
             ));
         }
-        let out = zjjrfg_run_git(root, &["merge", "--ff-only", remote_ref]);
+        // Advancing a line with no remote counterpart is a composition fault —
+        // sync_state's Untracked answer is the guard callers consult first.
+        let upstream = zjjrfg_run_git(root, &["rev-parse", "--abbrev-ref", "@{upstream}"]);
+        if !upstream.ok {
+            zjjrfg_unexpected(ZJJRFG_OP_ADVANCE, root, &upstream.stderr);
+        }
+        let out = zjjrfg_run_git(root, &["merge", "--ff-only", upstream.stdout.trim()]);
         if !out.ok {
-            return Err(jjrfr_Rejection::jjrfr_new(jjrfr_RejectionKind::Diverged, "advance", root, out.stderr));
+            return Err(jjrfr_Rejection::jjrfr_new(jjrfr_RejectionKind::Diverged, ZJJRFG_OP_ADVANCE, root, out.stderr));
         }
         Ok(())
     }
@@ -238,6 +267,7 @@ impl jjrfr_FarrierCore for jjrfg_PlainGit {
         let lease_flag;
         let mut args: Vec<&str> = vec!["push"];
         if let Some(jjrfr_ConsignLease(expected_sha)) = lease {
+            // JJr_d81
             lease_flag = format!("--force-with-lease={}:{}", branch, expected_sha);
             args.push(&lease_flag);
         }
@@ -249,8 +279,8 @@ impl jjrfr_FarrierCore for jjrfg_PlainGit {
             return Ok(());
         }
         if zjjrfg_push_rejected(&out.stderr) {
-            return Err(jjrfr_Rejection::jjrfr_new(jjrfr_RejectionKind::Diverged, "consign", root, out.stderr));
+            return Err(jjrfr_Rejection::jjrfr_new(jjrfr_RejectionKind::Diverged, ZJJRFG_OP_CONSIGN, root, out.stderr));
         }
-        zjjrfg_unexpected("consign", root, &out.stderr)
+        zjjrfg_unexpected(ZJJRFG_OP_CONSIGN, root, &out.stderr)
     }
 }

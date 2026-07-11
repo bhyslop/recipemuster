@@ -181,9 +181,9 @@ Hand a branch into the remote's custody.
 Two flavors: plain fast-forward (hippodrome branches) and atomic-under-lease
 ({jjdb_blotter} content — the lease binds the push to the holder's own lock ref,
 {jjdb_journal}).
-*Never force* — the proposition classifies as a rivet: the consign
-implementation and the lease-guarded `pluck` of the {jjdb_break} are its citation sites;
-its opaque tail mints at implementation, citing this section.
+*Never force* — a rivet, cited in shipped code by the opaque token `JJr_d81`:
+the consign implementation and the lease-guarded `pluck` of the {jjdb_break} are its
+citation sites, and one `grep JJr_d81` returns this definition and every site it guards.
 
 `counterfoil_verify`::
 Does a journaled SHA still exist, reachable?

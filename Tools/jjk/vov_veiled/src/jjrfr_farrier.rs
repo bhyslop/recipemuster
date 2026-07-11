@@ -16,13 +16,16 @@
 //! loud — the caller looks it up; a familiar git word fires the wrong reflex (amend,
 //! force, CRUD).
 
-use std::path::{Path, PathBuf};
+use std::path::{
+    Path,
+    PathBuf,
+};
 
 // ---- Rejection taxonomy ----
 
-/// One farrier-wide rejection-kind taxonomy. Closed at MVP by the farrier sheaf: a
-/// new kind is allocated there, never invented ad hoc by a kind implementation
-/// (`jjdk_no_catch_all` — totality by humble first-class rows, never a bucket).
+/// One farrier-wide rejection-kind taxonomy. Closed by the farrier sheaf: a new
+/// kind must be allocated there and named git-free per the vocabulary Palisade —
+/// never invented ad hoc by a kind implementation, and never a catch-all bucket.
 /// A kind is a shared semantic fact — `Diverged` means the same thing whether it
 /// surfaces from `jjrfr_advance` or `jjrfr_consign` — so consumers branch on kind,
 /// never on message text.
@@ -105,11 +108,12 @@ pub enum jjrfr_LineOfWork {
 /// The four resolutions `jjdf_identify` returns for a claimed tree. `root` is
 /// station-local and transient — never journaled (the no-worktree-paths rivet,
 /// studbook sheaf); the identity dirname derives as its basename. `upstream_key` is
-/// the kind-canonicalized upstream address, one key per tree.
+/// the kind-canonicalized upstream address — one key per tree, `None` for a tree
+/// with no upstream to key on.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct jjrfr_Identity {
     pub root: PathBuf,
-    pub upstream_key: String,
+    pub upstream_key: Option<String>,
     pub seat: jjrfr_Seat,
     pub line_of_work: jjrfr_LineOfWork,
 }
@@ -195,15 +199,18 @@ pub trait jjrfr_FarrierCore {
     /// local. Sequence-internal, opportunistic; fetches and never merges.
     fn jjrfr_glean(&self, root: &Path) -> jjrfr_GleanOutcome;
 
-    /// Fast-forward-only move of `root` to `remote_ref`; rejects `Diverged` when
-    /// fast-forward is impossible, `DirtyTree` when uncommitted changes block it.
-    /// Never merges toward a remote, never rebases. Composed by the journal.
-    fn jjrfr_advance(&self, root: &Path, remote_ref: &str) -> Result<(), jjrfr_Rejection>;
+    /// Fast-forward-only move of the tree's line of work to its remote
+    /// counterpart's tip, as of the last `jjrfr_glean`. The kind resolves the
+    /// counterpart itself — callers never speak a kind-native ref dialect.
+    /// Rejects `Diverged` when fast-forward is impossible, `DirtyTree` when
+    /// uncommitted changes block it. Never merges toward a remote, never
+    /// rebases. Composed by the journal.
+    fn jjrfr_advance(&self, root: &Path) -> Result<(), jjrfr_Rejection>;
 
     /// Hand `branch` into the remote's custody. `lease` absent selects plain
     /// fast-forward (hippodrome branches); present selects atomic-under-lease
     /// (blotter content — the lease binds the push to what the caller last
-    /// observed). Never force in either flavor.
+    /// observed). Never force in either flavor (`JJr_d81`).
     fn jjrfr_consign(&self, root: &Path, branch: &str, lease: Option<&jjrfr_ConsignLease>) -> Result<(), jjrfr_Rejection>;
 }
 
