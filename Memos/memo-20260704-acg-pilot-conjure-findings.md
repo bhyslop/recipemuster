@@ -147,6 +147,14 @@ change (or better: locate the slot by step id / parameterize like
 reveille cannot see it. → repair as its own reviewed move, verified on the
 next live conjure (dogfight tier); the licensing story is amendment A1.
 
+**REPAIRED 2026-07-11 (₢BsAAX).** The slot is located by step id from the
+same build response (`.steps | map(.id) | index($id)`), the id minted once
+(`RBFD_hallmark_echo_step_id`) and shared with the step defs; the
+warn-and-continue empty arm is dead — an empty slot now dies loud.
+Verified on a live conjure of rbev-busybox:
+"Hallmark consistency verified: c260711205204-r260711205208" —
+the first real-arm pass since 2026-04-30.
+
 ### F11 — mechanics drift (the rot ACG predicts): three stale lines
 
 - `rbfd_director.sh:649` "images: field uses inscribe_ts" — false; the images
