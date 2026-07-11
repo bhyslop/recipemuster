@@ -8512,8 +8512,8 @@
         "₢BsAAZ": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260711-2241",
-              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_ts": "260711-2319",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_tier": "jjgde_opus",
               "jjgtn_text": [
                 "Drop the provider segment from the terrier muniment — key and content — so the ledger's grain matches the pool-scoped IAM grant it records: (depot, mantle, subject).",
@@ -8538,7 +8538,7 @@
                 "Contained wire-format change across data layer, verbs, specs, and fixtures; moderate care, little open design — the cinches settle the shape."
               ],
               "jjgtn_silks": "terrier-provider-segment-drop",
-              "jjgtn_basis": "b16c0ae"
+              "jjgtn_basis": "16305e2"
             }
           ]
         }
