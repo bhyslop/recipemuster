@@ -7295,7 +7295,8 @@
           "jjgpn_tacks": [
             {
               "jjgtn_ts": "260711-1542",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_opus",
               "jjgtn_text": [
                 "## Character",
                 "",
@@ -7330,7 +7331,7 @@
                 "tackle implementation, not here."
               ],
               "jjgtn_silks": "convergence-audit",
-              "jjgtn_basis": "74bb746"
+              "jjgtn_basis": "e2b383e"
             }
           ]
         },
