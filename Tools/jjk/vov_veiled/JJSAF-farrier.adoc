@@ -110,10 +110,10 @@ The haiku orchestration line stays breeze-era (breeze sheaf).
 
 == Prerequisite remint
 
-*saddle* currently names the interior orient-context routine (`jjrsd_saddle.rs`,
-`JJSCSD-saddle.adoc`).
-Before infusion: rename the interior routine to a boring hearting name (which *improves* JJS0
-doctrine — a vivid word is today spent below the vivid layer), sweep, grep-gate.
+DONE: the interior orient-context routine formerly named saddle (`jjrsd_saddle.rs`,
+`JJSCSD-saddle.adoc`) is re-minted to the boring hearting name `mount` (`jjrmt_mount.rs`,
+`JJSCMT-mount.adoc`), every reference swept, repo-wide grep for saddle clean of interior
+uses.
 
 == Naming ledger (candidate mints of 260704, alternates preserved)
 
@@ -121,11 +121,11 @@ doctrine — a vivid word is today spent below the vivid layer), sweep, grep-gat
   INFUSED 260706 (farrier sheaf, `jjdf_farrier`).
 * *saddle* — the work-dispatch verb; the real-world sequence saddle-then-mount lands in
   the right order across the two vocabulary layers. Alternate held: leg-up.
-  Election RATIFIED at the census (260705); the grep gate stays OPEN by contingency — it
-  completes only when the interior-rename pace frees `jjrsd_saddle.rs` / `JJSCSD-saddle.adoc`
-  (Prerequisite remint below); gate completion rides that pace, not the census.
-  INFUSED (dispatch sheaf, `jjdd_saddle`) with the gate still open — the contingency
-  is noted at the definition site.
+  Election RATIFIED at the census (260705); the grep gate was OPEN by contingency until
+  the interior-rename pace freed the word — `jjrsd_saddle.rs` / `JJSCSD-saddle.adoc` are
+  now `jjrmt_mount.rs` / `JJSCMT-mount.adoc` (Prerequisite remint above).
+  INFUSED (dispatch sheaf, `jjdd_saddle`); the gate is now CLOSED, noted at the definition
+  site.
 * *unsaddle* — RETIRED before infusion: the reap folded into the entrance spine as
   muck's own behavior, leaving no door to name, and its refuse-if-dirty was redundant with
   muck's dirty guard.

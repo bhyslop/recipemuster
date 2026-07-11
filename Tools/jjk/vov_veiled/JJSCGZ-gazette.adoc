@@ -87,7 +87,7 @@ Read-path target selection for {jjdo_orient} and {jjdo_show}.
 Direction: input.
 Lede: {jjdt_firemark} (expand the heat) or {jjdt_coronet} (single pace), self-typed downstream by length.
 Content: none — a halter notice is body-less, its lede carrying the whole signal.
-One notice per target: {jjdo_orient} saddles exactly one; {jjdo_show} accepts the heterogeneous set.
+One notice per target: {jjdo_orient} mounts exactly one; {jjdo_show} accepts the heterogeneous set.
 At least one notice is required — an absent gazette is a loud error, never a silent default.
 Serialized as `jjezs_halter` in gazette markdown.
 

@@ -2,7 +2,7 @@
 // All rights reserved.
 // SPDX-License-Identifier: LicenseRef-Proprietary
 
-//! Saddle command - Return context needed to saddle up on a Heat
+//! Mount command - Return context needed to mount a Heat
 
 use std::fs;
 use std::path::PathBuf;
@@ -24,11 +24,11 @@ use crate::jjrs_steeplechase::{jjrs_get_entries, jjrs_ReinArgs};
 use crate::jjrpd_parade::jjrpd_write_pace_digest;
 use crate::jjrz_gazette::{jjrz_Gazette, jjrz_Slug};
 
-const JJRSD_CMD_NAME_ORIENT: &str = "jjx_orient";
+const JJRMT_CMD_NAME_ORIENT: &str = "jjx_orient";
 
-/// Arguments for saddle command
+/// Arguments for mount command
 #[derive(clap::Args, Debug)]
-pub struct jjrsd_SaddleArgs {
+pub struct jjrmt_MountArgs {
     /// Path to the Gallops JSON file
     #[arg(long, short = 'f', default_value = ".claude/jjm/jjg_gallops.json")]
     pub file: PathBuf,
@@ -37,9 +37,9 @@ pub struct jjrsd_SaddleArgs {
     pub firemark: String,
 }
 
-/// Run the saddle command - return Heat context
-pub async fn jjrsd_run_saddle(args: jjrsd_SaddleArgs, gazette: &mut jjrz_Gazette) -> (i32, String) {
-    let cn = JJRSD_CMD_NAME_ORIENT;
+/// Run the mount command - return Heat context
+pub async fn jjrmt_run_mount(args: jjrmt_MountArgs, gazette: &mut jjrz_Gazette) -> (i32, String) {
+    let cn = JJRMT_CMD_NAME_ORIENT;
     let mut output = vvco_Output::buffer();
 
     // Disk space guard — report survey or block if critical
@@ -186,9 +186,9 @@ pub async fn jjrsd_run_saddle(args: jjrsd_SaddleArgs, gazette: &mut jjrz_Gazette
         }
     };
 
-    // Check if heat is stabled (cannot saddle stabled heat)
+    // Check if heat is stabled (cannot mount stabled heat)
     if heat.status == HeatStatus::Stabled {
-        vvco_err!(output, "{}: error: Cannot saddle stabled heat '{}'", cn, heat_key);
+        vvco_err!(output, "{}: error: Cannot mount stabled heat '{}'", cn, heat_key);
         return (1, output.vvco_finish());
     }
 
@@ -222,7 +222,7 @@ pub async fn jjrsd_run_saddle(args: jjrsd_SaddleArgs, gazette: &mut jjrz_Gazette
             Some(pace) => {
                 if let Some(tack) = pace.tacks.first() {
                     match tack.state {
-                        // Both open states saddle; the orient designation guard
+                        // Both open states are mountable; the orient designation guard
                         // (MCP layer) judges the resolved pace against the
                         // caller's tier after this resolution.
                         PaceState::Rough | PaceState::Bridled => {
@@ -308,7 +308,7 @@ pub async fn jjrsd_run_saddle(args: jjrsd_SaddleArgs, gazette: &mut jjrz_Gazette
         }
     }
 
-    // The digest is scoped to the pace being saddled — a mount asks what this
+    // The digest is scoped to the pace being mounted — a mount asks what this
     // pace touches and who else is in those files, never what the whole heat
     // has moved. It is silent for a pace with no commits, which is the ordinary
     // case at mount.

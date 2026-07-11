@@ -348,7 +348,7 @@ pub fn jjrz_parse_reslate_input(markdown: &str) -> Result<Vec<(String, String)>,
 /// body-less, its lede carrying the whole signal.
 /// Validates: at least one halter notice, every lede non-empty.
 /// Cardinality beyond "at least one" is the caller's to enforce — orient
-/// saddles exactly one target, show accepts the heterogeneous set.
+/// mounts exactly one target, show accepts the heterogeneous set.
 pub fn jjrz_parse_halter_input(markdown: &str) -> Result<Vec<String>, String> {
     let g = jjrz_Gazette::jjrz_parse(&[jjrz_Slug::Halter], markdown)
         .map_err(|diags| diags.join("\n"))?;

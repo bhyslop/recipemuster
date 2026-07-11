@@ -23,7 +23,7 @@ use crate::jjrnc_notch::{jjrnc_NotchArgs, jjrnc_run_notch};
 use crate::jjrrn_rein::{jjrrn_ReinArgs, jjrrn_run_rein};
 use crate::jjrvl_validate::{jjrvl_ValidateArgs, jjrvl_run_validate};
 use crate::jjrmu_muster::{jjrmu_MusterArgs, jjrmu_run_muster};
-use crate::jjrsd_saddle::{jjrsd_SaddleArgs, jjrsd_run_saddle};
+use crate::jjrmt_mount::{jjrmt_MountArgs, jjrmt_run_mount};
 use crate::jjrpd_parade::{jjrpd_ParadeArgs, jjrpd_run_parade};
 use crate::jjrrt_retire::{jjrrt_RetireArgs, jjrrt_run_retire};
 use crate::jjrno_nominate::{jjrx_NominateArgs, jjrx_run_nominate};
@@ -1264,23 +1264,24 @@ pub const JJRM_EMBLEM_SUFFIX: &str = "emblem";
 /// `GALLOPS_PATH` under `.claude/jjm/`; the `jje_` file prefix is its home.
 const EMBLEM_STYLE_PATH: &str = ".claude/jjm/jje_emblem.json";
 
-/// Officium-resident marker recording what this session last *saddled* (mounted
-/// or groomed): the work identity plus its resolved silks. Written by the mount
-/// and groom arms — orient saddles the mounted pace's coronet (the resolved
-/// next-actionable one, never the bare firemark lede) with its pace+heat silks,
-/// show the heat firemark with heat silks only — and read by the emblem writer
-/// so every later jjx engagement — `record`, `list`, `close`, … — paints that
-/// identity, not just orient/show itself. Which identity is JJK's mount/groom
-/// semantics, not the agent's lede choice (paddock "Emblem and window
-/// reference"). The silks are resolved once at mount/groom and cached here, so
-/// the per-engagement writer reads them without a gallops touch (they refresh
-/// on the next mount/groom, the same staleness window as the identity itself).
-/// Absent before the first mount: the emblem then degrades to the bare officium
-/// identity (see `zjjrm_refresh_emblem`). Lives under the gitignored officia
-/// tree, alongside `heartbeat`.
-const SADDLE_MARKER_FILE: &str = "saddle";
+/// Officium-resident marker recording what work identity this session last
+/// resolved onto (mount or groom): the identity plus its resolved silks.
+/// Written by the mount and groom arms — orient records the mounted pace's
+/// coronet (the resolved next-actionable one, never the bare firemark lede)
+/// with its pace+heat silks, show records the heat firemark with heat silks
+/// only — and read by the emblem writer so every later jjx engagement —
+/// `record`, `list`, `close`, … — paints that identity, not just orient/show
+/// itself. Which identity is JJK's mount/groom semantics, not the agent's lede
+/// choice (paddock "Emblem and window reference"). The silks are resolved once
+/// at mount/groom and cached here, so the per-engagement writer reads them
+/// without a gallops touch (they refresh on the next mount/groom, the same
+/// staleness window as the identity itself). Absent before the first mount:
+/// the emblem then degrades to the bare officium identity (see
+/// `zjjrm_refresh_emblem`). Lives under the gitignored officia tree, alongside
+/// `heartbeat`.
+const EMBLEM_MARKER_FILE: &str = "emblem";
 
-/// The saddle marker's on-disk shape (JSON under `SADDLE_MARKER_FILE`). Carries
+/// The emblem marker's on-disk shape (JSON under `EMBLEM_MARKER_FILE`). Carries
 /// the glyph-prefixed work `identity` (coronet or firemark — the top/bottom
 /// glance datum) plus the silks the emblem's middle band reads: `pace_silks` is
 /// present only on a pace-mount (a coronet) and absent on a heat-mount/groom (a
@@ -1290,7 +1291,7 @@ const SADDLE_MARKER_FILE: &str = "saddle";
 /// and a stale or pre-silks marker that fails to parse simply degrades to the
 /// bare officium handle until the next mount rewrites it.
 #[derive(serde::Serialize, serde::Deserialize)]
-struct jjrm_SaddleMarker {
+struct jjrm_EmblemMarker {
     identity: String,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pace_silks: Option<String>,
@@ -1362,7 +1363,7 @@ fn zjjrm_normalize_identity(raw: &str) -> String {
 /// Derive the heat firemark (full glyph-prefixed display form) from a halter
 /// lede — the groom emblem identity. A coronet lede folds to its parent
 /// firemark; a firemark lede passes through. Fail-soft: an unparseable lede
-/// yields `None`, so the emblem keeps its standing marker rather than saddle a
+/// yields `None`, so the emblem keeps its standing marker rather than record a
 /// bad identity. The grooming counterpart of orient's resolved-coronet
 /// derivation (paddock "Emblem and window reference": coronet when mounted on a
 /// pace, else the heat firemark).
@@ -1453,7 +1454,7 @@ fn zjjrm_compose_emblem(
     out
 }
 
-/// Resolve the saddle marker — identity plus its silks — for a freshly mounted
+/// Resolve the emblem marker — identity plus its silks — for a freshly mounted
 /// or groomed work identity, by looking the silks up in the gallops once at the
 /// mount/groom moment (paddock "Emblem and window reference"). A coronet yields
 /// both its pace silks (the head tack) and its parent heat's silks; a firemark
@@ -1461,9 +1462,9 @@ fn zjjrm_compose_emblem(
 /// unparseable identity, or one absent from the gallops yields the identity with
 /// no silks, so the emblem still paints the glyph. The result is cached in the
 /// marker so the per-engagement writer never re-touches the gallops.
-fn zjjrm_resolve_saddle_marker(identity: &str) -> jjrm_SaddleMarker {
+fn zjjrm_resolve_emblem_marker(identity: &str) -> jjrm_EmblemMarker {
     use crate::jjrf_favor::{jjrf_Firemark as Firemark, jjrf_Coronet as Coronet, JJRF_FIREMARK_LEN, JJRF_CORONET_LEN};
-    let mut marker = jjrm_SaddleMarker {
+    let mut marker = jjrm_EmblemMarker {
         identity: zjjrm_normalize_identity(identity),
         pace_silks: None,
         heat_silks: String::new(),
@@ -1500,19 +1501,19 @@ fn zjjrm_resolve_saddle_marker(identity: &str) -> jjrm_SaddleMarker {
     marker
 }
 
-/// True when this officium's standing saddle marker already holds a *coronet*
+/// True when this officium's standing emblem marker already holds a *coronet*
 /// identity — the coronet-sticks guard (JJS0 `jjdxw_emblem`): once a mount has
-/// saddled a coronet, a later groom must not demote it to the heat
+/// resolved onto a coronet, a later groom must not demote it to the heat
 /// firemark. A coronet is exactly what the `jjrf_Coronet` parser accepts (glyph
 /// stripped, five base64 chars in the charset), so the parser is the
 /// discriminator — a firemark identity fails it on the `₣` glyph. A missing,
 /// empty, unparseable, or firemark-identity marker all yield false — the slot
-/// is fillable, so the groom saddles normally. Officium-scoped, like the marker
+/// is fillable, so the groom resolves normally. Officium-scoped, like the marker
 /// itself.
 fn zjjrm_standing_is_coronet(officium_dir: &Path) -> bool {
-    std::fs::read_to_string(officium_dir.join(SADDLE_MARKER_FILE))
+    std::fs::read_to_string(officium_dir.join(EMBLEM_MARKER_FILE))
         .ok()
-        .and_then(|s| serde_json::from_str::<jjrm_SaddleMarker>(&s).ok())
+        .and_then(|s| serde_json::from_str::<jjrm_EmblemMarker>(&s).ok())
         .map(|m| crate::jjrf_favor::jjrf_Coronet::jjrf_parse(m.identity.trim()).is_ok())
         .unwrap_or(false)
 }
@@ -1542,21 +1543,21 @@ fn zjjrm_write_emblem_atomic(path: &Path, contents: &str) -> std::io::Result<()>
 /// fold to a silent no-op, so a jjx command returns its normal result with no
 /// added error and only a microsecond file touch.
 ///
-/// `new_marker` is the freshly-resolved saddle marker to persist. The mounting
+/// `new_marker` is the freshly-resolved emblem marker to persist. The mounting
 /// and grooming commands build it from their own resolution and pass it in AFTER
 /// they run — orient the resolved next-actionable coronet (else the heat firemark
 /// when the heat has no actionable pace) with pace+heat silks, show the heat
 /// firemark with heat silks; the up-front per-engagement call and every other
 /// command (and `jjx_open`) pass `None`. When present it overwrites the
-/// officium's `SADDLE_MARKER_FILE`; the emblem is then composed from whatever
+/// officium's `EMBLEM_MARKER_FILE`; the emblem is then composed from whatever
 /// marker stands there, degrading to the bare officium handle (the `☉` session
 /// id) with no silks when no mount has happened yet.
-fn zjjrm_refresh_emblem(officium_dir: &Path, new_marker: Option<jjrm_SaddleMarker>) {
+fn zjjrm_refresh_emblem(officium_dir: &Path, new_marker: Option<jjrm_EmblemMarker>) {
     // Persist a freshly-resolved marker (orient/show only); best-effort. Recorded
     // even when no emblem can be painted — the mount happened regardless.
     if let Some(ref m) = new_marker {
         if let Ok(json) = serde_json::to_string(m) {
-            let _ = std::fs::write(officium_dir.join(SADDLE_MARKER_FILE), json.as_bytes());
+            let _ = std::fs::write(officium_dir.join(EMBLEM_MARKER_FILE), json.as_bytes());
         }
     }
 
@@ -1573,8 +1574,8 @@ fn zjjrm_refresh_emblem(officium_dir: &Path, new_marker: Option<jjrm_SaddleMarke
 
     // Standing marker (JSON). A missing, empty, or pre-silks-format file fails
     // to parse and folds to None → bare officium handle, no silks.
-    let marker: Option<jjrm_SaddleMarker> =
-        std::fs::read_to_string(officium_dir.join(SADDLE_MARKER_FILE))
+    let marker: Option<jjrm_EmblemMarker> =
+        std::fs::read_to_string(officium_dir.join(EMBLEM_MARKER_FILE))
             .ok()
             .and_then(|s| serde_json::from_str(&s).ok());
 
@@ -1862,7 +1863,7 @@ async fn zjjrm_handle_open(size_limit: u64) -> Result<CallToolResult, McpError> 
     // No gazette files created at open — they are ephemeral, single-MCP-call lifetime.
     std::fs::write(exchange.join(HEARTBEAT_FILE), b"").ok();
 
-    // Degraded emblem paint: a freshly-opened officium has no saddled identity
+    // Degraded emblem paint: a freshly-opened officium has no resolved identity
     // yet, so the label shows the bare officium handle until the first mount.
     zjjrm_refresh_emblem(&exchange, None);
 
@@ -2239,8 +2240,8 @@ impl jjrm_McpServer {
         // Emblem overlay (best-effort, fail-soft): repaint this window's
         // work-identity label once per engagement, here at the single dispatcher
         // entry after the model/officium gates, reading whatever identity the
-        // session last saddled. The mounting and grooming commands (orient,
-        // show) re-derive and re-saddle the correct identity from their OWN
+        // session last resolved onto. The mounting and grooming commands (orient,
+        // show) re-derive and re-record the correct identity from their OWN
         // resolution after they run — orient the resolved next-actionable
         // coronet (never the bare firemark lede), show the heat firemark — so
         // which identity rides the emblem is JJK's mount/groom semantics, not
@@ -2333,7 +2334,7 @@ impl jjrm_McpServer {
                         cmd, JJRZ_SLUG_HALTER, bad,
                     ))]));
                 }
-                // Require the gazette halter notice; orient saddles exactly one target.
+                // Require the gazette halter notice; orient mounts exactly one target.
                 let targets = match gazette_in_content {
                     Some(ref content) => match jjrz_parse_halter_input(content) {
                         Ok(t) => t,
@@ -2347,24 +2348,25 @@ impl jjrm_McpServer {
                 };
                 if targets.len() != 1 {
                     return Ok(CallToolResult::error(vec![Content::text(format!(
-                        "{}: orient saddles one target — expected exactly one {} notice, got {}", cmd, JJRZ_SLUG_HALTER, targets.len(),
+                        "{}: orient mounts one target — expected exactly one {} notice, got {}", cmd, JJRZ_SLUG_HALTER, targets.len(),
                     ))]));
                 }
                 let firemark = targets.into_iter().next().unwrap();
                 let mut gazette = jjrz_Gazette::jjrz_build(&[jjrz_Slug::Paddock, jjrz_Slug::Pace]);
-                let (code, mut output) = jjrsd_run_saddle(jjrsd_SaddleArgs {
+                let (code, mut output) = jjrmt_run_mount(jjrmt_MountArgs {
                     file: gallops_pathbuf(),
                     firemark: firemark.clone(),
                 }, &mut gazette).await;
                 // The gazette is written only after the designation guard below
                 // passes — a refused orient leaves no gazette and no emblem.
                 if code == 0 {
-                    // Saddle the identity this mount actually landed on, derived
-                    // from saddle's own resolution rather than the halter lede:
-                    // the resolved next-actionable coronet — which saddle emitted
-                    // as the Pace notice whether the lede was a firemark (next
-                    // actionable pace) or a coronet (looked up directly) — else
-                    // the bare firemark lede when the heat has no actionable pace.
+                    // Record the identity this mount actually landed on, derived
+                    // from the mount routine's own resolution rather than the
+                    // halter lede: the resolved next-actionable coronet — which
+                    // it emitted as the Pace notice whether the lede was a
+                    // firemark (next actionable pace) or a coronet (looked up
+                    // directly) — else the bare firemark lede when the heat has
+                    // no actionable pace.
                     let resolved_pace = gazette
                         .jjrz_query_by_slug(jjrz_Slug::Pace)
                         .into_iter()
@@ -2376,7 +2378,7 @@ impl jjrm_McpServer {
                     // later one, because pace order is the dependency tree.
                     // Both directions hold (strict tier equality on a bridled
                     // pace; rough is frontier-only judgment work). Refusal
-                    // discards the saddle output: no gazette, no emblem.
+                    // discards the mount output: no gazette, no emblem.
                     let judgment = match resolved_pace {
                         Some(ref coronet_lede) => {
                             zjjrm_check_designation(cmd, coronet_lede, caller)
@@ -2401,7 +2403,7 @@ impl jjrm_McpServer {
                     if !md.is_empty() { std::fs::write(&gazette_out_path, md.as_bytes()).ok(); }
                     zjjrm_refresh_emblem(
                         &zjjrm_exchange_dir(officium_id),
-                        Some(zjjrm_resolve_saddle_marker(&mounted)),
+                        Some(zjjrm_resolve_emblem_marker(&mounted)),
                     );
                     output.push('\n');
                     output.push_str(&zjjrm_gazette_paths_block(&gazette_in_path, &gazette_out_path));
@@ -2430,7 +2432,7 @@ impl jjrm_McpServer {
                         format!("{}: requires gazette_in.md with {} notice(s) (one lede = firemark or coronet per target); checked {}", cmd, JJRZ_SLUG_HALTER, gazette_in_path.display()),
                     )])),
                 };
-                // Groom saddles the heat firemark (paddock "Emblem and window
+                // Groom marks the heat firemark (paddock "Emblem and window
                 // reference": coronet when mounted on a pace, else the heat
                 // firemark). Derive it from the first target before `targets`
                 // moves into the parade; a coronet target folds to its parent
@@ -2460,8 +2462,8 @@ impl jjrm_McpServer {
                     if p.hark.is_none() {
                         if let Some(ref fm) = groom_firemark {
                             // Coronet-sticks (JJS0 `jjdxw_emblem`): a groom never
-                            // demotes a coronet a prior mount saddled this
-                            // officium. When a coronet already stands, saddle nothing
+                            // demotes a coronet a prior mount resolved onto this
+                            // officium. When a coronet already stands, record nothing
                             // (`None` — the emblem still repaints from the held
                             // coronet); otherwise fill the empty-or-firemark slot with
                             // the heat firemark as before.
@@ -2469,7 +2471,7 @@ impl jjrm_McpServer {
                             let groom_marker = if zjjrm_standing_is_coronet(&exchange) {
                                 None
                             } else {
-                                Some(zjjrm_resolve_saddle_marker(fm))
+                                Some(zjjrm_resolve_emblem_marker(fm))
                             };
                             zjjrm_refresh_emblem(&exchange, groom_marker);
                         }
@@ -3280,10 +3282,10 @@ rbm_beta_recipemuster
     fn standing_is_coronet_discriminates_marker_identity() {
         // The coronet-sticks discriminator (JJS0 jjdxw_emblem): only a standing
         // *coronet* marker blocks a groom's overwrite. A firemark, an absent
-        // marker, and garbage are all "fillable" — the groom saddles normally.
+        // marker, and garbage are all "fillable" — the groom resolves normally.
         let officia = scratch_officia("standing_coronet");
-        let marker_path = officia.join(SADDLE_MARKER_FILE);
-        let write = |m: &jjrm_SaddleMarker| {
+        let marker_path = officia.join(EMBLEM_MARKER_FILE);
+        let write = |m: &jjrm_EmblemMarker| {
             std::fs::write(&marker_path, serde_json::to_string(m).unwrap()).unwrap();
         };
 
@@ -3291,7 +3293,7 @@ rbm_beta_recipemuster
         assert!(!zjjrm_standing_is_coronet(&officia));
 
         // Firemark identity (heat-mount or groom) → fillable, a groom may replace it.
-        write(&jjrm_SaddleMarker {
+        write(&jjrm_EmblemMarker {
             identity: "₣Bh".to_string(),
             pace_silks: None,
             heat_silks: "heat".to_string(),
@@ -3299,7 +3301,7 @@ rbm_beta_recipemuster
         assert!(!zjjrm_standing_is_coronet(&officia));
 
         // Coronet identity (pace-mount) → sticks, a groom must not demote it.
-        write(&jjrm_SaddleMarker {
+        write(&jjrm_EmblemMarker {
             identity: "₢BhAAT".to_string(),
             pace_silks: Some("pace".to_string()),
             heat_silks: "heat".to_string(),

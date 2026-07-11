@@ -2828,10 +2828,10 @@ include::JJSCLD-landing.adoc[]
 //axvo_procedure axd_transient axd_inlaid
 ==== {jjdo_orient}
 
-`jjrsd_run_saddle`
+`jjrmt_run_mount`
 
 //axvd_cartouche axd_normative
-include::JJSCSD-saddle.adoc[]
+include::JJSCMT-mount.adoc[]
 
 [[jjdo_search]]
 //axvo_procedure axd_transient axd_inlaid

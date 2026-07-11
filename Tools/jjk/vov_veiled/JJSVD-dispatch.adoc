@@ -78,11 +78,10 @@ per the two-source choice (Session launch below).
 The bash-layer verb is deliberately not "mount" — Unix owns that word; the two-layer split
 is the codex's vocabulary-isolation doctrine at a new boundary.
 +
-The word's repo-wide grep gate stands OPEN by contingency: the
-interior orient-context routine currently named saddle (`JJSCSD-saddle.adoc`, `jjrsd_`)
-predates this door and is re-minted to a boring hearting name by its own remint pace;
-this definition is the word's one dispatch-layer home, and the gate completes with that
-remint.
+The word's repo-wide grep gate is CLOSED: the interior orient-context routine that
+predated this door (`JJSCSD-saddle.adoc`, `jjrsd_`) has been re-minted to the boring
+hearting name `mount` (`JJSCMT-mount.adoc`, `jjrmt_`); this definition is the word's
+one dispatch-layer home.
 
 [[jjdd_lunge]]
 {jjdd_lunge}::

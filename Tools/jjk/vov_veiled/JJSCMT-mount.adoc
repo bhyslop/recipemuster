@@ -1,6 +1,6 @@
 //axvd_sheaf axd_normative
 This is a normative portion of the {jjs0_imprimatur}: binding — code, tests, and decisions may rely on it.
-Return context needed to saddle up on a
+Return context needed to mount a
 {jjdhr_heat}:
 the current
 {jjdpr_pace}
@@ -21,10 +21,10 @@ details.
 or
 {jjdpr_pace}
 ({jjdt_coronet})
-to saddle, self-typed by length.
+to mount, self-typed by length.
 Provided solely via a single {jjezs_halter} notice in `gazette_in.md` (lede = firemark or coronet); there is no target parameter.
 {jjdo_orient}
-saddles exactly one target — an absent gazette, an empty lede, or more than one
+mounts exactly one target — an absent gazette, an empty lede, or more than one
 {jjezs_halter}
 notice is a loud error, never a silent default.
 This forces the agent's first gazette write to the start of the mount ceremony, where its
@@ -85,8 +85,8 @@ Session-probe:
 Sections `Next:` through `Work-files:` are absent if no actionable pace exists.
 Field `pace_silks` is derived from `tacks[0].silks`.
 Section `Paddock-content:` contains the full text of the paddock file, indented 2 spaces.
-Section `Work-files:` is the saddled pace's digest: the files that pace's own commits touched (excluding `.claude/jjm/*`), sorted, one per line, each naming inline the other paces that touched it — collision awareness for the work about to begin.
-A pace with no commits has no digest, and the section is absent entirely; that is the ordinary case at mount, since a pace is usually saddled before any work lands against it.
+Section `Work-files:` is the mounted pace's digest: the files that pace's own commits touched (excluding `.claude/jjm/*`), sorted, one per line, each naming inline the other paces that touched it — collision awareness for the work about to begin.
+A pace with no commits has no digest, and the section is absent entirely; that is the ordinary case at mount, since a pace is usually mounted before any work lands against it.
 The digest names the colliding paces in full rather than by a legend mark, so the section is read without decoding anything outside it.
 {jjdo_orient}
 renders no heat-wide retrospective — neither the file-touch census nor the commit swim lanes that
@@ -126,7 +126,7 @@ exists with given
 {jjdhm_status}
 is
 {jjdhe_stabled}
-("Cannot saddle stabled heat {firemark}")
+("Cannot mount stabled heat {firemark}")
 . Output `heat_silks` from
 {jjdhr_heat}
 . Output `paddock_file` from
@@ -134,7 +134,7 @@ is
 . Read paddock file contents, output as `paddock_content`
 . Resolve the
 {jjdpr_pace}
-to saddle, by the target's type:
+to mount, by the target's type:
 .. A
 {jjdt_coronet}
 target is looked up directly in the
@@ -143,7 +143,7 @@ A
 {jjdpe_resolved}
 pace is a calling error naming its state: it is finished work, and
 {jjdo_orient}
-saddles work that stands.
+mounts work that stands.
 .. A
 {jjdt_firemark}
 target walks
@@ -205,12 +205,12 @@ discards the context it assembled: no
 {jjsz_gazette}
 notice is written, and no
 {jjdxw_emblem}
-is saddled.
+is recorded.
 This is what makes the refusal a halt rather than a speed bump — a refused mount hands the session no docket, no paddock, and no mounted identity to carry forward, so there is nothing to proceed *from*.
 Only a frontier session's
 {jjdo_apostille}
 lifts the bar, which is what places the condition outside the call.
-. Saddle the resolved work identity for the {jjdxw_emblem} — the actionable
+. Record the resolved work identity for the {jjdxw_emblem} — the actionable
 {jjdt_coronet},
 or the heat
 {jjdt_firemark}

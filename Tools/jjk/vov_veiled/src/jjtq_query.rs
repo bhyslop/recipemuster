@@ -75,7 +75,7 @@ fn jjtq_muster_output_format() {
     assert!(expected_format.contains("2")); // pace count
 }
 
-// Note: saddle output is now plain text format instead of JSON.
+// Note: mount output is now plain text format instead of JSON.
 // Output format is tested through integration tests.
 
 #[test]

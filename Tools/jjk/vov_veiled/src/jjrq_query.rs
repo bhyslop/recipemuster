@@ -12,7 +12,7 @@
 //! - jjrgs_get_spec.rs (get_spec)
 //! - jjrgc_get_coronets.rs (get_coronets)
 //! - jjrrt_retire.rs (retire)
-//! - jjrsd_saddle.rs (saddle)
+//! - jjrmt_mount.rs (mount)
 
 use crate::jjrs_steeplechase::{jjrs_ReinArgs, jjrs_get_entries};
 

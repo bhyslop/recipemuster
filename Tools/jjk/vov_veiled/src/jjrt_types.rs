@@ -62,7 +62,7 @@ impl jjrg_PaceState {
     }
 
     /// The JJS0 `jjdpe_resolved` predicate: this pace requires no further
-    /// action. Its negation is *actionable* — the open set an orient saddles
+    /// action. Its negation is *actionable* — the open set an orient mounts
     /// and a `--first` positioning aims at.
     ///
     /// Query logic asks this predicate rather than matching state names, so a
