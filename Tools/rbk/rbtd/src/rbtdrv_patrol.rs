@@ -1796,6 +1796,44 @@ fn zrbtdrv_terrier_poison_drive(
     Ok(())
 }
 
+/// Drive a real (unfaulted) polity verb RE-RUN against an already-mutated synthetic
+/// muniment, asserting the clean-disposition idempotency claim the retired rbw-dT
+/// proof carried, deliberately dodged by every fault-seam drive above (those force a
+/// captured code and assert a rejection band; this issues no fault and asserts the
+/// REAL GCS precondition semantics): the sub-op's 412/"present" or 404/"absent" arm
+/// (rbgft_terrier.sh) surfaces as a clean exit 0 through the polity verb, and the
+/// manor roll — captured before and after via `zrbtdrv_rehearse_roll` — is byte-
+/// identical, since the idempotent arm mutates nothing.
+fn zrbtdrv_terrier_idempotent_rerun_drive(
+    ctx: &mut rbtdri_Context,
+    dir: &Path,
+    colophon: &str,
+    args: &[&str],
+    label: &str,
+) -> Result<(), rbtdre_Verdict> {
+    let roll_before = zrbtdrv_rehearse_roll(ctx, dir, &format!("{}-roll-before", label))?;
+
+    let result = match crate::rbtdrk_freehold::rbtdrk_invoke_logged(ctx, colophon, args, &[], dir, label) {
+        Ok(r) => r,
+        Err(e) => return Err(rbtdre_Verdict::Fail(format!("{}: {} invocation: {}", label, colophon, e))),
+    };
+    if result.exit_code != 0 {
+        return Err(rbtdre_Verdict::Fail(format!(
+            "{}: {} re-run exited {} (expected 0 — the idempotent precondition arm)\nstdout:\n{}\nstderr:\n{}",
+            label, colophon, result.exit_code, result.stdout, result.stderr
+        )));
+    }
+
+    let roll_after = zrbtdrv_rehearse_roll(ctx, dir, &format!("{}-roll-after", label))?;
+    if roll_after != roll_before {
+        return Err(rbtdre_Verdict::Fail(format!(
+            "{}: manor roll changed across the idempotent re-run — before:\n{}\nafter:\n{}",
+            label, roll_before, roll_after
+        )));
+    }
+    Ok(())
+}
+
 fn rbtdrv_polity_denial(dir: &Path) -> rbtdre_Verdict {
     rbtdrc_with_ctx(|ctx| {
         // Self-skip gate: stay green on a machine with no GCP credentials.
@@ -1920,6 +1958,19 @@ fn rbtdrv_polity_denial(dir: &Path) -> rbtdre_Verdict {
             return v;
         }
 
+        // Re-run engross — the muniment the poisoned engross above just wrote for real
+        // (only its reported code was forced) now stands PRESENT, so a clean, unfaulted
+        // brevet re-run must meet GCS's real 412 precondition and take the "present" arm
+        // (rbgft_terrier.sh rbgft_engross): exit 0, manor roll unchanged.
+        if let Err(v) = zrbtdrv_terrier_idempotent_rerun_drive(
+            ctx, dir, RBTDGC_BREVET_POLITY,
+            &[RBTDRV_TERRIER_POISON_SUBJECT, RBTDGC_ACCOUNT_RETRIEVER],
+            "07b-brevet-reengross-present",
+        ) {
+            zrbtdrv_terrier_poison_sweep(ctx, dir, "07b-sweep-on-fail");
+            return v;
+        }
+
         // expunge band — unseat's first act is the muniment expunge; the fault forces
         // the delete's captured code. The real DELETE also strikes the muniment the
         // engross drive created.
@@ -1929,6 +1980,19 @@ fn rbtdrv_polity_denial(dir: &Path) -> rbtdre_Verdict {
             RBTDRV_TERRIER_FAULT_EXPUNGE, RBTDGC_BAND_EXPUNGE, "08-unseat-expunge-poison",
         ) {
             zrbtdrv_terrier_poison_sweep(ctx, dir, "08-sweep-on-fail");
+            return v;
+        }
+
+        // Re-run expunge — the muniment the poisoned expunge above just struck for real
+        // now stands ABSENT, so a clean, unfaulted unseat re-run must meet GCS's real 404
+        // and take the "absent" arm (rbgft_terrier.sh rbgft_expunge): exit 0, manor roll
+        // unchanged. The mirror idempotency claim on the withdrawal side.
+        if let Err(v) = zrbtdrv_terrier_idempotent_rerun_drive(
+            ctx, dir, RBTDGC_UNSEAT_POLITY,
+            &[RBTDRV_TERRIER_POISON_SUBJECT, RBTDGC_ACCOUNT_RETRIEVER],
+            "08b-unseat-reexpunge-absent",
+        ) {
+            zrbtdrv_terrier_poison_sweep(ctx, dir, "08b-sweep-on-fail");
             return v;
         }
 
