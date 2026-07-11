@@ -46,11 +46,9 @@ rbfl_anoint() {
 
   # Read the chained build facts through the shared express-or-chain resolver —
   # anoint carries no express path, so an empty express makes each resolve a pure
-  # chain read, routing through the same footing every other fact consumer uses.
-  # The previous dispatch must be a build (kludge or ordain); a broken chain
-  # rejects with the named chaining band (BUBC_band_chain), uniform with the other
-  # durable-config links feoff and yoke (RBS0 rbch_enchase) — anoint writes durable
-  # config, so a bad resolve is a deliberate rejection, never a bare die.
+  # chain read through the same footing every other fact consumer uses. The
+  # previous dispatch must be a build (kludge or ordain); the chain is terminally
+  # consumed (RBr_3e7).
   buc_step "Reading chained build facts"
   local z_hallmark=""
   z_hallmark=$(buf_elect_fact_capture "" "${RBF_FACT_HALLMARK}") \

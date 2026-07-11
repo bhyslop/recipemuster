@@ -19,9 +19,8 @@
 # Recipe Bottle Foundry Ledger - feoff cluster (guard-free, sourced by rbfl0_):
 # elect one conjure base anchor — resolve a bole Lode touchmark express-or-chain,
 # decode-and-gate its kind to bole, then rewrite RBRV_IMAGE_n_ANCHOR in one
-# vessel's rbrv.env. The chain LINK extracted out of conjure (rbfd_build) so
-# conjure stays a pure chain head that reads no fact and builds only from
-# committed config. Operator-committed, never self-committing.
+# vessel's rbrv.env. Extracted out of conjure (rbfd_build) so conjure reads no
+# fact. Operator-committed, never self-committing (RBr_a52).
 
 set -euo pipefail
 
@@ -53,14 +52,8 @@ rbfl_feoff() {
   z_sigil="${z_sigil##*/}"
 
   # Resolve the bole touchmark express-or-chain: an express argument wins; absent,
-  # fall back to the touchmark an ensconce handed forward through the depth-1 chain.
-  # NEVER relays — depth-1, terminally consumed. This is the leak-elimination
-  # invariant: a relayed touchmark would forward a stale capture into a later
-  # unrelated election (cross-vessel leakage), the very thing no-relay prevents.
-  # The git clean-tree gate is an ergonomic backstop only, never the safety
-  # mechanism — feoff deliberately does NOT gate, since it writes the very change
-  # the operator is about to commit. Safety is operator-trust plus the loud-on-
-  # success output below plus the commit-review gate.
+  # fall back to the touchmark an ensconce handed forward through the depth-1
+  # chain, terminally consumed (RBr_3e7). No clean-tree gate here (RBr_a52).
   local z_touchmark=""
   z_touchmark=$(buf_elect_fact_capture "${z_express}" "${RBF_FACT_LODE_TOUCHMARK}") \
     || buc_reject "${BUBC_band_chain}" "No bole touchmark — pass one (param2) or run a bole ensconce immediately before feoff"

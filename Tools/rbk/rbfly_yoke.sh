@@ -36,8 +36,7 @@ rbfl_yoke() {
 
   # Resolve the reliquary touchmark express-or-chain: an express argument wins;
   # absent, fall back to the touchmark a conclave handed forward through the
-  # depth-1 chain. NEVER relays — depth-1, terminally consumed (the leak-
-  # elimination invariant; see rbfl_feoff's no-buf_relay rationale, the sibling link).
+  # depth-1 chain, terminally consumed (RBr_3e7).
   local z_stamp=""
   z_stamp=$(buf_elect_fact_capture "${z_express}" "${RBF_FACT_LODE_TOUCHMARK}") \
     || buc_reject "${BUBC_band_chain}" "No reliquary touchmark — pass one (param1) or run a reliquary conclave immediately before yoke"

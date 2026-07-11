@@ -34,7 +34,7 @@ NOTE: The conjure Cloud Build job carries the {rbsk_in_pool_preflight} as its st
 NOTE: *Dirty-tree guard*.
 Conjure refuses on a working tree with unstaged or staged changes (`bug_require_clean_tree_creed`), before anything leaves the host.
 The build stamps HEAD into the image (`git.commit` label, about build_info) and ships working-tree bytes (the pouch context, the composed step scripts), so the recorded commit must match the bytes built.
-Conjure reads no chaining fact and performs no post-gate config write: it builds only from committed configuration — it is a pure chain head, output only.
+Conjure reads no chaining fact and performs no post-gate config write — it is a pure {rbch_wellhead}, output only.
 The base anchor (`RBRV_IMAGE_n_ANCHOR`) is elected separately by {rbtgo_director_feoff} *before* conjure runs (ceremony: ensconce → feoff → commit → conjure), so the anchor conjure resolves is already committed when the build stamps HEAD.
 This closes the provenance hole of the former in-build election, which wrote the anchor after the clean-tree gate and built from an uncommitted value, so the stamped commit named a tree whose {rbrv_regime} still held the prior anchor.
 Graft is the deliberate exception to the guard — see {rbtgo_ark_graft}.
@@ -43,7 +43,7 @@ Graft is the deliberate exception to the guard — see {rbtgo_ark_graft}.
 //axvc_dictum
 RBr_9c2::
 Invariant defended: the stamped HEAD must name exactly what was built —
-the dirty-tree refusal and the pure-chain-head posture are its two defenses.
+the dirty-tree refusal and the pure-{rbch_wellhead} posture are its two defenses.
 
 The conjure operation:
 

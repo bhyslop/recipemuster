@@ -62,13 +62,9 @@ rbfr_summon() {
   buc_doc_shown || return 0
 
   # Resolve the hallmark express-or-chain: an express argument wins; absent, fall
-  # back to the hallmark a prior build (ordain or kludge) handed forward through the
-  # depth-1 chain — so a no-arg summon immediately after a build pulls the just-built
-  # hallmark. NEVER relays — depth-1, terminally consumed. Summon is a read-side chain
-  # consumer (RBS0 rbch_palpate): a broken resolve band-rejects with BUBC_band_chain,
-  # the same band the rbch_enchase durable-config links use; the read/write split is by
-  # effect, not exit code, since summon writes no durable config. Hallmarks carry no
-  # sub-kind these verbs discriminate, so the resolve is the whole typecheck.
+  # back to the hallmark a prior build (ordain or kludge) handed forward through
+  # the depth-1 chain — so a no-arg summon immediately after a build pulls the
+  # just-built hallmark. Terminally consumed (RBr_3e7).
   local z_hallmark=""
   z_hallmark=$(buf_elect_fact_capture "${z_express}" "${RBF_FACT_HALLMARK}") \
     || buc_reject "${BUBC_band_chain}" "No hallmark — pass one (use rbw-ft to tally vouched hallmarks) or run a build immediately before summon"

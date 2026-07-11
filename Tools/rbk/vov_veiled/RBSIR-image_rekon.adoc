@@ -20,12 +20,7 @@ Rekon over Lodes is intentionally omitted: a reliquary cohort is a conclave {rbt
 
 == Hallmark Rekon
 
-NOTE: Rekon is a {rbch_palpate} over the {rbf_fact_hallmark} chain — it resolves the hallmark express-or-chain for a transient presence enumeration only and writes no durable config.
-A broken resolve rejects with the named chaining band; the distinction from the {rbch_enchase} write side is by effect, not exit code — a wrong read misdirects only this enumeration, never a regime file.
-Unlike the kind-gated durable-config links, the resolve carries no kind decode: a
-{rbst_hallmark}
-bears no sub-kind these verbs discriminate, so the express-or-chain resolution is the whole typecheck.
-Rekon must never be extended to write durable config without joining the {rbch_enchase} surface and its depth-1 no-relay discipline.
+NOTE: Rekon is a {rbch_palpate} over the {rbf_fact_hallmark} chain — it resolves the hallmark express-or-chain for a transient presence enumeration only, writing no durable config.
 
 The
 {rbtr_director}
@@ -34,7 +29,7 @@ rekons basenames under a hallmark:
 //axhopt_typed_parameter
 {rbst_hallmark}
 . *Resolve the Hallmark* (express-or-chain):
-.. `«INPUT_HALLMARK»` resolves express-or-chain: an express folio argument wins; absent, it falls back to the hallmark a prior build ({rbtgo_ark_ordain} or {rbtgo_ark_kludge}) handed forward through the depth-1 cross-tabtarget chain — so a no-arg rekon immediately after a build inspects the just-built hallmark. The chain is read terminally — never relayed.
+.. `«INPUT_HALLMARK»` resolves express-or-chain: an express folio argument wins; absent, it falls back to the hallmark a prior build ({rbtgo_ark_ordain} or {rbtgo_ark_kludge}) handed forward through the depth-1 cross-tabtarget chain — so a no-arg rekon immediately after a build inspects the just-built hallmark.
 .. {rbbc_fatal}
 if neither an express argument nor a chained hallmark is present — a broken chain
 

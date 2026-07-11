@@ -21,19 +21,14 @@ NOTE: Two entry points provide different detail levels:
 
 NOTE: Plumb takes a single hallmark and navigates the `{gar_hallmarks_namespace}/«HALLMARK»/` subtree to locate the basenames, recovering the vessel identity from the vouch artifact's `vouch_summary.json`.
 
-NOTE: Plumb is a {rbch_palpate} over the {rbf_fact_hallmark} chain — it resolves the hallmark express-or-chain for a transient inspection only and writes no durable config.
-A broken resolve rejects with the named chaining band; the distinction from the {rbch_enchase} write side is by effect, not exit code — a wrong read misdirects only this inspection, never a regime file.
-Unlike the kind-gated durable-config links, the resolve carries no kind decode: a
-{rbst_hallmark}
-bears no sub-kind these verbs discriminate, so the express-or-chain resolution is the whole typecheck.
-Plumb must never be extended to write durable config without joining the {rbch_enchase} surface and its depth-1 no-relay discipline.
+NOTE: Plumb is a {rbch_palpate} over the {rbf_fact_hallmark} chain — it resolves the hallmark express-or-chain for a transient inspection only, writing no durable config.
 
 The plumb operation:
 
 //axhopt_typed_parameter
 {rbst_hallmark}
 . *Resolve the Hallmark* (express-or-chain):
-.. `«HALLMARK»` resolves express-or-chain: an express folio argument (e.g., `c260305133650-r260305160530`) wins; absent, it falls back to the hallmark a prior build ({rbtgo_ark_ordain} or {rbtgo_ark_kludge}) handed forward through the depth-1 cross-tabtarget chain — so a no-arg plumb immediately after a build inspects the just-built hallmark. The chain is read terminally — never relayed.
+.. `«HALLMARK»` resolves express-or-chain: an express folio argument (e.g., `c260305133650-r260305160530`) wins; absent, it falls back to the hallmark a prior build ({rbtgo_ark_ordain} or {rbtgo_ark_kludge}) handed forward through the depth-1 cross-tabtarget chain — so a no-arg plumb immediately after a build inspects the just-built hallmark.
 .. {rbbc_fatal}
 if neither an express argument nor a chained hallmark is present — a broken chain
 

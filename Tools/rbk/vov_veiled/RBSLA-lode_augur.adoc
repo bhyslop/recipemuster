@@ -26,9 +26,7 @@ It decodes the kind from the
 {rbtga_touchmark}
 leading letter and reads the same-shaped envelope every kind carries — so a new Lode kind needs no change here.
 
-NOTE: Augur is a {rbch_palpate} over the {rbf_fact_lode} touchmark chain — it resolves the touchmark express-or-chain for a transient inspection only and writes no durable config.
-A broken resolve, or a touchmark of unknown kind, rejects with the named chaining band; the distinction from the {rbch_enchase} write side is by effect, not exit code — a wrong read misdirects only this inspection, never a regime file.
-Augur must never be extended to write durable config without joining the {rbch_enchase} surface and its depth-1 no-relay discipline.
+NOTE: Augur is a {rbch_palpate} over the {rbf_fact_lode} touchmark chain — it resolves the touchmark express-or-chain for a transient inspection only, writing no durable config; a touchmark of unknown kind rejects in the same chaining band as a broken resolve.
 
 The
 {rbtr_director}
@@ -39,7 +37,7 @@ augurs a Lode:
 . *Resolve the Touchmark* (express-or-chain):
 .. `«TOUCHMARK»` resolves express-or-chain: an express folio argument (e.g., `b260602120000`) wins; absent, it falls back to the touchmark any
 {rbtga_lode}
-capture handed forward through the depth-1 cross-tabtarget chain — so a no-arg augur immediately after a capture inspects the just-captured Lode. The chain is read terminally — never relayed.
+capture handed forward through the depth-1 cross-tabtarget chain — so a no-arg augur immediately after a capture inspects the just-captured Lode.
 .. {rbbc_fatal}
 if neither an express argument nor a chained touchmark is present — a broken chain
 .. {rbbc_require}

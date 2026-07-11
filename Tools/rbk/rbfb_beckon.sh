@@ -17,19 +17,18 @@
 # Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 #
 # Recipe Bottle Foundry - beckon cluster (guard-free): the per-fact "next
-# tabtargets" signpost (RBS0 rbch_beckon). After a chain HEAD writes a fact,
-# the emitter for that fact announces the tabtargets that CONSUME it, so the
-# operator sees what the fresh fact unlocks. One emitter per fact type owns its
+# tabtargets" signpost — after a fact is written, the emitter for that fact
+# announces the tabtargets that CONSUME it. One emitter per fact type owns its
 # consumer roster; today only the hallmark fact (RBF_FACT_HALLMARK) has one.
 # Composes the BUK buc_tabtarget primitive — no BUK change. Sourced by the
-# hallmark-fact producing HEADs (rbfd director ordain, rbfk kludge).
+# hallmark-fact producers (rbfd director ordain, rbfk kludge).
 
 set -euo pipefail
 
 ######################################################################
 # Beckon (rbfb_*)
 
-# Announce the consumers of the hallmark fact just written by a chain HEAD.
+# Announce the consumers of the hallmark fact just written (ordain or kludge).
 #
 # The roster is exactly the RBF_FACT_HALLMARK chain consumers enumerated in
 # RBS0 "Chaining-Fact Roles": the rbch_palpate readers (summon, plumb, rekon)

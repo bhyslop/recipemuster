@@ -912,7 +912,7 @@ rbfd_ordain() {
       ;;
   esac
 
-  # Beckon the consumers of the hallmark this ordain just wrote (RBS0 rbch_beckon)
+  # Beckon the consumers of the hallmark this ordain just wrote
   rbfb_beckon_hallmark "${z_hallmark}"
 }
 

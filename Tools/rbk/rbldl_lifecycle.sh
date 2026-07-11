@@ -131,12 +131,9 @@ rbld_augur() {
   buc_doc_shown || return 0
 
   # Resolve the touchmark express-or-chain: an express argument wins; absent, fall
-  # back to the touchmark any capture handed forward through the depth-1 chain, so a
-  # no-arg augur immediately after a capture inspects the just-captured Lode. NEVER
-  # relays — depth-1, terminally consumed (the leak-elimination invariant). Augur is a
-  # read-side chain consumer (RBS0 rbch_palpate): a broken resolve band-rejects with
-  # BUBC_band_chain, the same band the rbch_enchase durable-config links use; the
-  # read/write split is by effect, not exit code, since augur writes no durable config.
+  # back to the touchmark any capture handed forward through the depth-1 chain — so
+  # a no-arg augur immediately after a capture inspects the just-captured Lode.
+  # Terminally consumed (RBr_3e7).
   local z_touchmark=""
   z_touchmark=$(buf_elect_fact_capture "${z_express}" "${RBF_FACT_LODE_TOUCHMARK}") \
     || buc_reject "${BUBC_band_chain}" "No touchmark — pass one (param1) or run any Lode capture immediately before augur"

@@ -239,7 +239,7 @@ rbfk_kludge() {
   buc_bare "    tt/rbw-cKB.KludgeBottle.sh <moniker>   (bottle vessel)"
   buc_bare "    tt/rbw-cKS.KludgeSentry.sh <moniker>   (sentry vessel)"
 
-  # Beckon the consumers of the hallmark this kludge just wrote (RBS0 rbch_beckon)
+  # Beckon the consumers of the hallmark this kludge just wrote
   rbfb_beckon_hallmark "${z_hallmark}"
 }
 

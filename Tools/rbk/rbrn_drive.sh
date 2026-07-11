@@ -59,14 +59,9 @@ rbrn_drive() {
   local -r z_rbrn_file="${RBCC_moorings_dir}/${z_nameplate}/${RBCC_rbrn_file}"
   test -f "${z_rbrn_file}" || buc_die "Nameplate regime file not found: ${z_rbrn_file}"
 
-  # Resolve the hallmark express-or-chain through the shared footing — an express
-  # argument wins; absent, the value a build (kludge or ordain) handed forward
-  # through the depth-1 cross-tabtarget chain. NEVER relays — the leak-elimination
-  # invariant. A broken resolve rejects with the named chaining band, uniform with
-  # the other durable-config links feoff/anoint/yoke (RBS0 rbch_enchase): the drive
-  # writes durable config, so a bad resolve is a deliberate rejection, never a bare
-  # die. It does NOT gate on a clean tree — it writes the very change the operator
-  # is about to commit; the git gate is an ergonomic backstop, never the safety.
+  # Resolve the hallmark express-or-chain: an express argument wins; absent, the
+  # value a build (kludge or ordain) handed forward through the depth-1 chain,
+  # terminally consumed (RBr_3e7). No clean-tree gate here (RBr_a52).
   local z_hallmark=""
   z_hallmark=$(buf_elect_fact_capture "${z_express}" "${RBF_FACT_HALLMARK}") \
     || buc_reject "${BUBC_band_chain}" "No hallmark — pass one (param3) or run a build (kludge or ordain) immediately before drive"

@@ -21,7 +21,7 @@ yokes a reliquary touchmark across every vessel:
 . *Resolve the Reliquary Touchmark* (express-or-chain):
 .. `«TOUCHMARK»` resolves express-or-chain: an express first positional argument (e.g., `r260327172456`) wins; absent, it falls back to the reliquary touchmark a
 {rbtgo_lode_conclave}
-handed forward through the depth-1 cross-tabtarget chain. The chain is read terminally — never relayed.
+handed forward through the depth-1 cross-tabtarget chain.
 .. {rbbc_fatal}
 if neither an express argument nor a chained touchmark is present — a broken chain
 .. {rbbc_require}

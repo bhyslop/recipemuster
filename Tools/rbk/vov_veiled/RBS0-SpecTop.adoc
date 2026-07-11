@@ -101,6 +101,8 @@
 :rbf_fact_lode:              <<rbf_fact_lode,Lode Capture Facts>>
 
 // Recipe Bottle Chaining-Fact Roles (how a verb consumes a chained fact)
+:rbch_wellhead:              <<rbch_wellhead,Chain Wellhead>>
+:rbch_wellhead_s:            <<rbch_wellhead,Chain Wellheads>>
 :rbch_enchase:               <<rbch_enchase,Durable-Config Link>>
 :rbch_palpate:               <<rbch_palpate,Read-Side Chain Consumer>>
 :rbch_beckon:                <<rbch_beckon,Consumer Beckon>>
@@ -1599,7 +1601,7 @@ include::RBSDY-director_yoke.adoc[]
 Elects a vessel's conjure base anchor:
 resolves a bole {rbtga_lode} touchmark express-or-chain, then writes `RBRV_IMAGE_n_ANCHOR` into one named {rbrv_regime} file under `${RBRR_VESSEL_DIR}`
 ({rbtgog_depot}).
-The chain LINK extracted out of {rbtgo_ark_conjure} so conjure stays a pure chain head — ceremony ensconce → feoff → commit → conjure.
+The {rbch_enchase} extracted out of {rbtgo_ark_conjure} so conjure stays a pure {rbch_wellhead} — ceremony ensconce → feoff → commit → conjure.
 
 //axvd_cartouche axd_normative
 include::RBSDF-director_feoff.adoc[]
@@ -2908,6 +2910,7 @@ Future signing is reserved via cosign or the OCI referrers API once GAR maturity
 //axpof_fact
 {rbf_fact_hallmark}::
 Hallmark string.
+It bears no sub-kind its consumers discriminate, so the express-or-chain resolution is the whole typecheck — in contrast to the {rbf_fact_lode} touchmark, whose kind-letter prefix decode is the consumer's kind gate.
 
 [[rbf_fact_gar_root]]
 //axpof_fact
@@ -2934,20 +2937,28 @@ The consumption-side touchmark election ({rbtgo_director_feoff}, {rbtgo_director
 
 === Chaining-Fact Roles
 
+[[rbch_wellhead]]
+{rbch_wellhead}::
+The origin role a verb plays toward a chained fact: it writes the fact and reads none.
+A wellhead builds only from committed configuration, gating on a clean tree before anything leaves the host — the graft mode is the chartered exception ({rbtgo_ark_graft}) — and even there the gate is an ergonomic backstop, not the safety mechanism (rivet RBr_a52).
+Its facts ride the success path only, written at result extraction from a completed build, so a failed wellhead leaves no fresh fact and the next chain read rejects loud rather than electing stale.
+Having written, it raises the {rbch_beckon}.
+Members are defined by this nature, not a fixed roster: {rbtgo_ark_ordain} and {rbtgo_ark_kludge} write the {rbf_fact_hallmark}; the Lode captures ({rbtgo_lode_ensconce}, {rbtgo_lode_conclave}, {rbtgo_lode_underpin}, {rbtgo_lode_immure}) write the {rbf_fact_lode} touchmark.
+
 [[rbch_enchase]]
 {rbch_enchase}::
 The write-style role a verb plays toward a chained fact.
 It resolves one chained value express-or-chain — an express argument wins; absent, the value a prior tabtarget handed forward through the depth-1 cross-tabtarget chain (the {rbf_fact_lode} touchmark, or the {rbf_fact_hallmark}) — and writes it into exactly one durable config field.
 This is the sanctioned crossing of a transient chained value into durable, committed config, and the only place that crossing is allowed.
 A broken resolve rejects with the named chaining band (`BUBC_band_chain`), never a bare nonzero.
-The chain is read terminally, never relayed — the depth-1 no-relay leak-elimination invariant, since a relayed value would leak a stale capture forward into a later unrelated election.
-It does not gate on a clean tree: it writes the very change the operator is about to commit, where the durable effect is sealed and reviewed.
+The chain is read terminally, never relayed (rivet RBr_3e7).
+It does not gate on a clean tree, and the tool never commits — the operator seals the durable effect with their own commit (rivet RBr_a52).
 Members are defined by this nature, not a fixed roster: {rbtgo_director_feoff}, {rbtgo_director_yoke}, anoint, and {rbtgo_nameplate_drive} — spanning both the touchmark and hallmark chains and both the {rbrv_regime} and {rbrn_regime} families.
 
 [[rbch_palpate]]
 {rbch_palpate}::
 The read-style role a verb plays toward a chained fact.
-It resolves the same chained value express-or-chain, depth-1, read terminally and never relayed, but writes no durable config — it uses the value for a transient action only: inspection, retrieval, or enumeration.
+It resolves the same chained value express-or-chain, depth-1, read terminally and never relayed (rivet RBr_3e7), but writes no durable config — it uses the value for a transient action only: inspection, retrieval, or enumeration.
 A broken resolve rejects with the same named chaining band (`BUBC_band_chain`) as {rbch_enchase}, reused rather than a second code: a read and a durable-config write never share one tabtarget, so the band stays unambiguous per tabtarget.
 The distinction from {rbch_enchase} is therefore by EFFECT, not exit code — a wrong read corrupts only a transient action, never a regime file.
 Members span the fact families: {rbtgo_ark_summon}, {rbtgo_ark_inspect}, and {rbtgo_image_rekon} read the {rbf_fact_hallmark} chain; {rbtgo_lode_augur} reads the {rbf_fact_lode} touchmark.
@@ -2955,12 +2966,26 @@ A {rbch_palpate} must never be extended to write durable config without joining 
 
 [[rbch_beckon]]
 {rbch_beckon}::
-The outbound signpost a chain HEAD raises on its success path: having written a fact, it announces the tabtargets that CONSUME that fact, so the operator sees what the fresh fact unlocks.
+The outbound signpost a {rbch_wellhead} raises on its success path: having written a fact, it announces the tabtargets that CONSUME that fact, so the operator sees what the fresh fact unlocks.
 Unlike {rbch_enchase} and {rbch_palpate}, a beckon resolves no chained value and rejects nothing — it is a courtesy emission after the write, not a fact consumer, so it carries no chaining band.
 One emitter per fact type owns its consumer roster; today only the {rbf_fact_hallmark} fact has one.
 That roster is exactly this fact's chain consumers — the {rbch_palpate} readers ({rbtgo_ark_summon}, {rbtgo_ark_inspect}, {rbtgo_image_rekon}) plus the {rbch_enchase} writers that resolve this same fact (anoint, {rbtgo_nameplate_drive}) — and it MUST agree with the enumerations above: a consumer added to a role without a matching beckon line, or removed from a role while its beckon line lingers, is the drift this single home exists to prevent.
 It composes the `buc_tabtarget` primitive with only light context filtering — a consumer whose folio IS the written fact gets it filled, a consumer taking a different folio prints a placeholder — never a per-mode predicate farm.
-Code home: the guard-free `rbfb_beckon.sh`, sourced by the {rbf_fact_hallmark} producing HEADs ({rbtgo_ark_ordain}, {rbtgo_ark_kludge}).
+Code home: the guard-free `rbfb_beckon.sh`, sourced by the {rbf_fact_hallmark}-producing {rbch_wellhead_s} ({rbtgo_ark_ordain}, {rbtgo_ark_kludge}).
+
+[[RBr_3e7]]
+//axvc_dictum
+RBr_3e7::
+Invariant defended: a chained fact is consumed terminally at depth-1 — never relayed.
+The consumer reads the immediately-prior dispatch's fact and hands nothing forward; a relayed value would leak a stale capture into a later unrelated election.
+The substrate offers a baton-forward primitive for multi-hop chains; no chaining verb calls it.
+
+[[RBr_a52]]
+//axvc_camber
+RBr_a52::
+A {rbch_enchase} deliberately does not gate on a clean tree — it writes the very change the operator is about to commit, so the seductive fix of adding the {rbch_wellhead} gate would refuse the verb its whole purpose.
+Safety is the triad: operator trust, loud-on-success output naming exactly what was written where, and the commit-review gate where the durable effect is sealed.
+The wellhead's clean-tree gate is the boundary's other half — and even there an ergonomic backstop atop the same triad, not the safety mechanism.
 
 === Payor Fact Files
 

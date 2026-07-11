@@ -721,7 +721,7 @@ The `current/` path segment maps
 inside the BURV isolation tree.
 Fact-file constants are defined as `readonly` in kindle (e.g., `RBF_FACT_HALLMARK`).
 +
-*Cross-tabtarget chaining.* Beyond the same-dispatch producer/consumer above, a fact written by one tabtarget is read by a *later* tabtarget through the depth-1 chain: at dispatch start {burd_output_dir} (`current/`) is promoted to {burd_previous_dir} (`previous/`), so the prior tabtarget's facts are readable via {buf_read_fact_capture} from {burd_previous_dir}. A consuming tabtarget calls {buf_relay} first to forward the baton (so the chain survives more than one hop), then {buf_read_fact_capture} for the fact it needs (or {buf_elect_fact_capture} to prefer an express value and fall back to the chain).
+*Cross-tabtarget chaining.* Beyond the same-dispatch producer/consumer above, a fact written by one tabtarget is read by a *later* tabtarget through the depth-1 chain: at dispatch start {burd_output_dir} (`current/`) is promoted to {burd_previous_dir} (`previous/`), so the prior tabtarget's facts are readable via {buf_read_fact_capture} from {burd_previous_dir}. Promotion happens at every dispatch start, so an unrelayed fact survives exactly one following dispatch — any intervening tabtarget drops the chain. A consumer that must keep the chain alive past its own dispatch calls {buf_relay} first to forward the baton, then reads; a terminal consumer skips the relay and consumes at depth-1 via {buf_read_fact_capture} (or {buf_elect_fact_capture} to prefer an express value and fall back to the chain).
 
 [[busff_multi_fact]]
 //axl_voices axo_entity

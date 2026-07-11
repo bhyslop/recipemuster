@@ -9,7 +9,7 @@ One primitive serves both build paths: the local {rbtgo_ark_kludge} composes it 
 
 NOTE: *No GAR call, no clean-tree gate, no fact.*
 The drive resolves the hallmark purely express-or-chain and rewrites one line of the {rbrn_regime} — it makes no {gar_service} call.
-It does not gate on a clean tree — it writes the very change the operator is about to commit — and it emits no chaining fact: a {rbch_enchase} terminates the chain it reads, never relaying it (the depth-1 no-relay leak-elimination invariant — a relayed hallmark would forward a stale build into a later unrelated drive).
+It does not gate on a clean tree (rivet RBr_a52), and it emits no chaining fact: a {rbch_enchase} terminates the chain it reads, never relaying it (rivet RBr_3e7).
 This primitive does not commit; the operator commits the {rbrn_regime} change.
 
 NOTE: *Addressed by moniker, never loaded.*
@@ -37,7 +37,7 @@ if the field is absent, or is neither `bottle` nor `sentry`
 
 //axhos_step
 . *Resolve the Hallmark* (express-or-chain):
-.. `«HALLMARK»` resolves express-or-chain: an express third positional argument (e.g., `k260327172456`) wins; absent, it falls back to the hallmark a build ({rbtgo_ark_kludge} or {rbtgo_ark_ordain}) handed forward through the depth-1 cross-tabtarget chain. The chain is read terminally — never relayed.
+.. `«HALLMARK»` resolves express-or-chain: an express third positional argument (e.g., `k260327172456`) wins; absent, it falls back to the hallmark a build ({rbtgo_ark_kludge} or {rbtgo_ark_ordain}) handed forward through the depth-1 cross-tabtarget chain.
 .. {rbbc_fatal}
 if neither an express argument nor a chained hallmark is present — a broken chain; the rejection rides the chaining precision band
 
