@@ -100,7 +100,7 @@
 :axd_tabtarget:                       <<axd_tabtarget,Tabtarget>>
 :axd_fact:                            <<axd_fact,Fact>>
 :axd_tally:                           <<axd_tally,Tally>>
-:axd_algebraic:                       <<axd_algebraic,Algebraic>>
+:axd_seeded:                          <<axd_seeded,Seeded>>
 :axd_ordinal:                         <<axd_ordinal,Ordinal>>
 :axd_temporal:                        <<axd_temporal,Temporal>>
 :axd_insignia:                        <<axd_insignia,Insignia>>
@@ -1789,22 +1789,40 @@ a
 structure never seals, and mutation is its standing condition rather than a bounded build phase.
 Worked instances: the Job Jockey gallops records — gallops, heat, pace, tack — whose members are incremented, appended, and updated by the jjx operations.
 
-=== Insignia Dimensions
+=== Minted-Mark Dimensions
 
 These
 {axd_dimension_s}
 qualify
 {axo_entity}
-voicings to declare a minted identity mark.
+voicings to declare a minted mark.
+Two marks, split by referential standing:
 {axd_insignia}
-names the character;
-the encoding natures
-({axd_algebraic},
-{axd_ordinal},
+is constitutive — the mint creates the identity itself —
+while
+{axd_ordinal}
+is annotative — a minted order label on an entity whose identity pre-exists elsewhere.
+The mint natures
+({axd_seeded},
 {axd_temporal})
-name how a value is minted,
-and exactly one nature must accompany every
-{axd_insignia}.
+name how an
+{axd_insignia}
+value is minted, and exactly one must accompany it.
+
+A minted mark's unicode glyph is its *type sentinel* —
+an out-of-alphabet character at position zero naming the mark's type, never contributing to its value.
+Carriage is surface-keyed, three ways:
+mandatory in operator-facing output;
+mandatory in project-authored structured wires (JSON stores and envelopes),
+where the sentinel makes every persisted mark self-typing and a wrong-type value fails at the parse boundary;
+forbidden on foreign-traversed surfaces (git refs, filesystem paths, env vars, shell arguments),
+where non-ASCII fragility is real.
+Input is tolerant:
+readers accept and strip the sentinel, validating it against the expected type where declared.
+The same surface-keyed carriage extends beyond minted marks
+to a domain's declared sigiled role words — table-defined names, late-bound to their referents,
+whose sigil marks the key as a role reference and fails a wrong-kind reference at the same parse boundary.
+The mark census, per-mark glyphs, and disambiguation rules live in the consuming domain model, not here.
 
 [[axd_insignia]]
 {axd_insignia}::
@@ -1813,34 +1831,36 @@ A
 marking an
 {axo_entity}
 as a minted identity value: a fixed-format encoded string, set at construction and never after.
+The mark is constitutive:
+the mint creates the identity itself — before minting the entity has no name,
+and there is no deeper truth the mark aliases.
 Requires an explicit
 {axd_immutable}
-beside it — the phase is declared, never implied — and exactly one encoding-nature:
-{axd_algebraic},
-{axd_ordinal},
+beside it — the phase is declared, never implied — and exactly one mint nature:
+{axd_seeded}
 or
 {axd_temporal}.
-The identity is the bare encoded body.
-The associated unicode glyph is a render-layer sigil with audience-keyed obligation:
-mandatory in operator-facing output, forbidden in machine contexts (git refs, on-disk paths, wire keys), ignored on input.
+The identity is the bare encoded body;
+carriage of its type sentinel is the section's surface-keyed law.
 Derivation is generative, never mutative:
 any operation yielding a related identity (successor, parent, child) returns a fresh immutable value, and the source is never altered.
-The member census, per-member glyphs, and disambiguation rules live in the consuming domain model, not here.
 
-[[axd_algebraic]]
-{axd_algebraic}::
+[[axd_seeded]]
+{axd_seeded}::
 A
 {axd_dimension}
-indicating seed-derived positional encoding for an
+indicating counter-minted positional encoding for an
 {axd_insignia}
-entity over exactly the 64-character URL-safe base64 alphabet
+entity: minted from a monotonic seed incremented under lock,
+over exactly the 64-character URL-safe base64 alphabet
 (RFC 4648 §5: `A`–`Z`, `a`–`z`, `0`–`9`, `-`, `_`; position is value, `A`=0 through `-`=62 and `_`=63; case distinguishes).
 The alphabet is the nature's own, never the consuming domain's to vary:
 a domain catalogues its operational charset quoin but may not substitute another alphabet —
 a different encoding is a different nature.
-Fixed digit count; minted from a monotonic seed incremented under lock.
+Fixed digit count, so capacity is bounded and saturation is a mint-time error.
 Digit count is the primary type discriminator within a family;
-where two members share a count, an out-of-alphabet sentinel character at a fixed position disambiguates,
+where two members share a count, an in-body sentinel disambiguates —
+the same type-sentinel notion, carried within the body at a fixed interior position and so present on every surface —
 and the consuming domain model names the sentinel.
 Hierarchical embedding via prefix substring: a child identity's leading characters are the parent identity's value.
 
@@ -1848,21 +1868,26 @@ Hierarchical embedding via prefix substring: a child identity's leading characte
 {axd_ordinal}::
 A
 {axd_dimension}
-indicating decimal sequential encoding for an
-{axd_insignia}
-entity: base-ten digits, monotonic per store, allocated under the store's single-writer lock.
-The value is a denormalized label aliasing an underlying identity —
-the underlying identity stays truth, and the label is baked once at allocation, never recomputed.
+marking an
+{axo_entity}
+with a minted order label: base-ten digits, monotonic per store, allocated under the store's single-writer lock.
+The mark is annotative, never constitutive —
+the entity's identity pre-exists, often foreign-minted (a git commit SHA),
+and the label is a denormalized alias:
+baked once at allocation, never recomputed, and never truth —
+machine contexts carry the underlying identity.
+Requires an explicit
+{axd_immutable}
+beside it, and takes no mint nature — decimal sequence is its whole encoding.
 Width is pinned by founding value, not zero-padding:
-the seed founds at a leading-digit boundary sized to the store's write-rate horizon,
+the counter founds at a leading-digit boundary sized to the store's write-rate horizon,
 so lexicographic and numeric order agree until natural width growth,
 and distinct stores found at distinct leading-digit × width pairs.
 No hierarchical embedding.
 Decimal digits are members of the
-{axd_algebraic}
+{axd_seeded}
 alphabet, so an ordinal body never circulates glyphless:
-machine contexts carry the underlying identity,
-and — tightening the general insignia input posture — any ingestion path requires the glyph.
+tightening the general tolerant-input posture, any ingestion path requires the glyph.
 
 [[axd_temporal]]
 {axd_temporal}::
@@ -3880,11 +3905,14 @@ optional
 {axd_insignia},
 which requires
 {axd_immutable}
-and exactly one encoding-nature
-({axd_algebraic},
-{axd_ordinal},
+and exactly one mint nature
+({axd_seeded}
 or
-{axd_temporal}).
+{axd_temporal});
+optional
+{axd_ordinal},
+which requires
+{axd_immutable}.
 
 === Standalone Hierarchy Markers (axhe*_)
 

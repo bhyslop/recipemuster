@@ -727,7 +727,7 @@ not the `heats` object directly.
 Job Jockey uses the
 {jjdt_insignia}
 type system for all entity identities.
-{axd_algebraic}
+{axd_seeded}
 {jjdt_insignia_s}
 ({jjdt_firemark},
 {jjdt_coronet},
@@ -822,7 +822,7 @@ in the Types section.
 {jjdxp_pensum}::
 Job identity (dispatch record).
 Globally unique
-{axd_algebraic}
+{axd_seeded}
 {jjdt_insignia}
 that correlates
 {jjdxr_curia}-side
@@ -1259,12 +1259,12 @@ the unicode glyph is a render-layer sigil with audience-keyed obligation —
 mandatory in operator-facing output, forbidden in machine contexts (git refs, directory names, JSON keys), ignored on input.
 Every
 {jjdt_insignia}
-has a fixed encoding format, a mint-time allocation discipline named by its encoding nature, and optional hierarchical embedding (parent identity encoded as a prefix substring).
+has a fixed encoding format, a mint-time allocation discipline named by its mint nature, and optional hierarchical embedding (parent identity encoded as a prefix substring).
 +
-Two encoding natures, declared via dimension:
+Two mint natures, declared via dimension:
 +
-* {axd_algebraic} — {jjdz_charset} characters, fixed digit count, seed incremented per allocation ({jjdt_firemark}/{jjdt_coronet} under commit lock; {jjdt_pensum} in officium-local storage).
-Digit count disambiguates type within the algebraic family, with one exception: {jjdt_pensum} shares digit count 5 with {jjdt_coronet} and uses a `%` sentinel at position 3 for disambiguation.
+* {axd_seeded} — {jjdz_charset} characters, fixed digit count, seed incremented per allocation ({jjdt_firemark}/{jjdt_coronet} under commit lock; {jjdt_pensum} in officium-local storage).
+Digit count disambiguates type within the seeded family, with one exception: {jjdt_pensum} shares digit count 5 with {jjdt_coronet} and uses a `%` sentinel at position 3 for disambiguation.
 Case matters: the final character's case distinguishes identities.
 +
 * {axd_temporal} — datestamp + autonumber (YYMMDD-NNNN), allocated by filesystem enumeration.
@@ -1280,12 +1280,12 @@ No hierarchical embedding.
 | ☉ | {jjdt_incipit}    | U+2609 | — | YYMMDD-NNNN                          | temporal
 |===
 
-=== Algebraic {jjdt_insignia_s}
+=== Seeded {jjdt_insignia_s}
 
 [[jjdt_firemark]]
-//axve_entity axd_immutable axd_insignia axd_algebraic
+//axve_entity axd_immutable axd_insignia axd_seeded
 {jjdt_firemark}::
-{axd_algebraic}
+{axd_seeded}
 {jjdt_insignia}
 for
 {jjdhr_heat}
@@ -1301,9 +1301,9 @@ Used as JSON keys and in CLI arguments.
 Input may omit the `₣` prefix; output always includes it.
 
 [[jjdt_coronet]]
-//axve_entity axd_immutable axd_insignia axd_algebraic
+//axve_entity axd_immutable axd_insignia axd_seeded
 {jjdt_coronet}::
-{axd_algebraic}
+{axd_seeded}
 {jjdt_insignia}
 for
 {jjdpr_pace}
@@ -1340,9 +1340,9 @@ Pace data is preserved, with a note recording the original
 {jjdt_coronet}.
 
 [[jjdt_pensum]]
-//axve_entity axd_immutable axd_insignia axd_algebraic
+//axve_entity axd_immutable axd_insignia axd_seeded
 {jjdt_pensum}::
-{axd_algebraic}
+{axd_seeded}
 {jjdt_insignia}
 for remote dispatch job identity.
 Format: `₱` + 2 {jjdz_charset} (heat
