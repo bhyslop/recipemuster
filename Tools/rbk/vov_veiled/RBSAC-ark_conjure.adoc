@@ -39,6 +39,12 @@ The base anchor (`RBRV_IMAGE_n_ANCHOR`) is elected separately by {rbtgo_director
 This closes the provenance hole of the former in-build election, which wrote the anchor after the clean-tree gate and built from an uncommitted value, so the stamped commit named a tree whose {rbrv_regime} still held the prior anchor.
 Graft is the deliberate exception to the guard — see {rbtgo_ark_graft}.
 
+[[RBr_9c2]]
+//axvc_dictum
+RBr_9c2::
+Invariant defended: the stamped HEAD must name exactly what was built —
+the dirty-tree refusal and the pure-chain-head posture are its two defenses.
+
 The conjure operation:
 
 //axhopt_typed_parameter

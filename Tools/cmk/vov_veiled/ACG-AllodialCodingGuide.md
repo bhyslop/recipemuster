@@ -454,7 +454,7 @@ vocabulary that is grep-locatable by prefix but owns no subdocument. An AXLA
 prefix naming resident artifact types (e.g. `rbi_` GAR tags), `axvs_fascicle` for
 the field keys of one wire envelope (e.g. `rblv_`).
 
-Two rulings, now live rather than pending:
+Three rulings, now live rather than pending:
 
 - **Test names never appear in source comments.** A comment naming its defending
   tests goes stale on every test rename with no forcing function. The linkage
@@ -462,6 +462,14 @@ Two rulings, now live rather than pending:
 - **Tripwire residues cite the rivet.** A residue cites the rivet ID in prose;
   the relocation sweeps this pace gates may now land each citation once, against
   a real anchor.
+- **Shipped source cites no spec acronym — rivet or nothing.** The `.sh` files
+  ship while the closed specs do not: a readable spec name in released source
+  leaks the veiled tree's structure, dangles for every consumer, and drifts on
+  spec renames and decompositions, where a cited rivet is never renumbered. The
+  residue form in shipped source is a rivet ID where a normative proposition
+  needs an anchor at the code, and *nothing* where name-identity already
+  carries the link (move discipline, rule 3). Spec acronyms remain licensed
+  spec-to-spec and in veiled context files, which never ship.
 
 ## Related Guides
 

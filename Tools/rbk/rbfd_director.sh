@@ -79,7 +79,7 @@ zrbfd_sentinel() {
 }
 
 
-# Verify reliquary tool images exist in GAR: RBSAC "Registry Preflight", reliquary check.
+# Verify reliquary tool images exist in GAR.
 # Args: token vessel_dir
 zrbfd_preflight_reliquary() {
   zrbfd_sentinel
@@ -112,7 +112,6 @@ zrbfd_preflight_reliquary() {
   local z_stderr_file=""
   local z_http_code=""
 
-  # Conclave Lode layout: RBSLC.
   for z_tool in "${z_canonical_tools[@]}"; do
     z_pkg="${RBGL_LODES_ROOT}/${z_reliquary}"
     z_tag="${RBGC_LODE_TAG_SPRUE}${z_tool}"
@@ -242,8 +241,7 @@ zrbfd_quota_preflight() {
   fi
 }
 
-# Internal: the host-side registry preflight — RBSAC "Registry Preflight"
-# (reliquary layer, then base-image layer).
+# Internal: the host-side registry preflight (reliquary layer, then base-image layer).
 # Must be called after vessel load (reads RBRV_RELIQUARY, RBRV_IMAGE_*_ANCHOR)
 # and authentication (needs token for registry API).
 zrbfd_registry_preflight() {
@@ -257,7 +255,7 @@ zrbfd_registry_preflight() {
   # --- Layer 1: Reliquary tool images ---
   zrbfd_preflight_reliquary "${z_token}" "${z_vessel_dir}"
 
-  # --- Layer 2: Base images — RBSAC "Registry Preflight", anchor check ---
+  # --- Layer 2: Base images — anchor check ---
 
   buc_step "Verifying base images exist in GAR"
 
@@ -283,10 +281,10 @@ zrbfd_registry_preflight() {
     # Skip slots without an origin (no base image to capture).
     test -n "${z_origin}" || continue
 
-    # Egress-mode anchor rule: RBSAC "Registry Preflight", airgap anchor requirement.
+    # Egress-mode anchor rule.
     if test -z "${z_anchor}"; then
       if test "${RBRV_EGRESS_MODE:-}" = "rbnve_airgap"; then
-        # Bole vs hallmark-pin discrimination: RBSAC airgap anchor requirement.
+        # Bole vs hallmark-pin discrimination.
         if test -d "${RBRR_VESSEL_DIR}/${z_origin}"; then
           buc_warn "Airgap vessel ${RBRV_SIGIL} has empty ${z_anchor_var}; origin ${z_origin} names a producer vessel"
           buc_bare "  ${z_anchor_var} is a hallmark-pin, not a bole locator — ensconce is not invoked on this vessel."
@@ -389,7 +387,6 @@ zrbfd_stitch_build_json() {
   local -r z_platforms="${RBRV_CONJURE_PLATFORMS// /,}"
 
   # Resolve base images: ANCHOR (locator) → full GAR reference, or pass ORIGIN through.
-  # Spec: RBSAC step "Resolve Base Images"
   # The locator carries its own namespace path (e.g. rbi_ld/<touchmark>:rbi_bole);
   # paths within a GAR repo are prefix-free per the wrest/jettison convention.
   # Locator captures (z_image_locator_n) feed _RBGR_BASE_LOCATOR_n substitutions
@@ -877,7 +874,7 @@ rbfd_ordain() {
 
   # Mode dispatch. Each mode owns its own dirty-tree posture: conjure gates
   # inside rbfd_build, bind gates inside rbfd_mirror, graft is deliberately
-  # ungated (RBSAG).
+  # ungated (rivet RBr_d71).
   case "${z_mode}" in
     rbnve_conjure) rbfd_build "${z_vessel_dir}" ;;
     rbnve_bind)    rbfd_mirror "${z_vessel_dir}" ;;
@@ -936,7 +933,7 @@ rbfd_build() {
     buc_die "Vessel directory required"
   fi
 
-  # Dirty-tree guard + pure-chain-head posture: RBSAC dirty-tree NOTE / RBSDF.
+  # Dirty-tree guard + pure-chain-head posture: rivet RBr_9c2.
   bug_require_clean_tree_creed "${RBCC_creed_clean_build}"
 
   # Load and validate vessel
@@ -1382,7 +1379,7 @@ rbfd_graft() {
 
   local -r z_local_image="${RBRV_GRAFT_IMAGE}"
 
-  # No dirty-tree guard — deliberate; RBSAG homes the rationale.
+  # No dirty-tree guard — deliberate; rivet RBr_d71.
 
   # Verify local image exists
   buc_step "Verifying local image exists"
