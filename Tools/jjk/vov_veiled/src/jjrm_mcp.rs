@@ -251,7 +251,8 @@ pub fn jjrm_resolve_batch_firemark(
 
 /// Apply a resolved single-heat batch to the in-memory gallops: paddock revision
 /// (writes the paddock file), then reslates (order-free), then slates in file
-/// order with only the first taking the cursor (before/after/first). Pure
+/// order — the first takes the cursor (before/after/first) and each later one
+/// follows its predecessor, so the run lands contiguous wherever it was aimed. Pure
 /// transform over gallops + one paddock-file side effect — no lock, no commit;
 /// the shared dispatch lifecycle persists the result in one commit. Returns the
 /// human-readable per-notice summary. Public so tests exercise it directly.
@@ -273,15 +274,19 @@ pub fn jjrm_apply_batch(
     for (coronet, docket) in &batch.reslates {
         let diff = jjrtl_run_revise_docket(gallops, coronet, docket)?;
         if !diff.is_empty() {
-            lines.push(format!("--- ₢{} reslate diff ---\n{}", coronet, diff));
+            let display = crate::jjrf_favor::jjrf_Coronet::jjrf_parse(coronet)?.jjrf_display();
+            lines.push(format!("--- {} reslate diff ---\n{}", display, diff));
         }
     }
-    // Slates — file order is pace order; only the first takes the cursor.
-    for (idx, (silks, docket)) in batch.slates.iter().enumerate() {
-        let (b, a, f) = if idx == 0 {
-            (before.clone(), after.clone(), first)
-        } else {
-            (None, None, false)
+    // Slates — file order is pace order. The first slate takes the caller's
+    // cursor (before/after/first); every later slate goes after its
+    // predecessor, so a positioned batch folds in contiguously instead of
+    // scattering its tail to the end of the heat.
+    let mut predecessor: Option<String> = None;
+    for (silks, docket) in &batch.slates {
+        let (b, a, f) = match &predecessor {
+            None => (before.clone(), after.clone(), first),
+            Some(prev) => (None, Some(prev.clone()), false),
         };
         let res = jjrg_slate(gallops, jjrg_SlateArgs {
             firemark: firemark.jjrf_display(),
@@ -291,7 +296,8 @@ pub fn jjrm_apply_batch(
             after: a,
             first: f,
         })?;
-        lines.push(format!("slated ₢{}", res.coronet));
+        lines.push(format!("slated {}", res.coronet));
+        predecessor = Some(res.coronet);
     }
     let mut output = format!(
         "Batch applied: {} paddock, {} reslate, {} slate",

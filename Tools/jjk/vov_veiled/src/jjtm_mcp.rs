@@ -10,7 +10,9 @@
 //!   rejection (paddock-vs-reslate, reslate-vs-reslate / the closed mass-reslate
 //!   misattribution), and slate-only rejection.
 //! - jjrm_apply_batch: a mixed batch applies to one in-memory gallops — reslate
-//!   revises, slates append in file order (notice order = pace order).
+//!   revises, slates append in file order (notice order = pace order), and a
+//!   positioned run folds in contiguously at the cursor rather than leaving its
+//!   tail at the end of the heat.
 //!
 //! The single-commit-per-batch property is structural: jjrm_apply_batch is a
 //! pure transform run inside the one shared dispatch/persist lifecycle (one
@@ -129,6 +131,35 @@ fn jjtm_apply_batch_reslates_and_slates_in_file_order() {
     let s2 = &heat.paces.get(&heat.order[2]).unwrap().tacks.first().unwrap().silks;
     assert_eq!(s1, "yankee-pace");
     assert_eq!(s2, "bravo-pace");
+}
+
+#[test]
+fn jjtm_apply_batch_positioned_slates_fold_in_contiguously() {
+    let mut gallops = jjrg_Gallops {
+        next_heat_seed: "AB".to_string(),
+        heat_order: vec![],
+        heats: BTreeMap::new(),
+        retention_since: None,
+    };
+    let (k, h) = make_heat_with_docket("BD", "## Goal\nstanding pace");
+    gallops.heats.insert(k, h);
+
+    let md = "# jjezs_slate yankee-pace\n\nfirst slate\n\n# jjezs_slate bravo-pace\n\nsecond slate\n\n# jjezs_reslate ₢BDAAA\n\n## Goal\nstanding pace\n";
+    let b = jjrz_parse_batch_input(md).unwrap();
+    let fm = jjrm_resolve_batch_firemark(&b).unwrap();
+
+    // first=true aims the run at the head of the heat.
+    jjrm_apply_batch(&mut gallops, &b, &fm, None, None, true).unwrap();
+
+    let heat = gallops.heats.get("₣BD").unwrap();
+    assert_eq!(heat.order.len(), 3);
+    // Both slates land at the head, in file order, ahead of the standing pace —
+    // the second does not scatter to the tail behind it.
+    let s0 = &heat.paces.get(&heat.order[0]).unwrap().tacks.first().unwrap().silks;
+    let s1 = &heat.paces.get(&heat.order[1]).unwrap().tacks.first().unwrap().silks;
+    assert_eq!(s0, "yankee-pace");
+    assert_eq!(s1, "bravo-pace");
+    assert_eq!(heat.order[2], "₢BDAAA");
 }
 
 // ===== session-procmap selection =====
