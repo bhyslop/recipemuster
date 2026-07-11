@@ -147,11 +147,11 @@ workbench_main "$@"
 tt/jjt-f.TestFavor.sh → Launcher → BUD → jjt_testbench.sh
                                               │
                                               ▼ invokes
-                                    tt/jjw-hs.HeatSaddle.sh → Launcher → BUD → jjw_workbench.sh
-                                              │                    ▲
-                                              ▼ assesses           │
-                                         [pass/fail]          environment
-                                                                 gate
+                                    tt/jjw-tfP1.ProvisionPhase1.sh → Launcher → BUD → jjw_workbench.sh
+                                              │                           ▲
+                                              ▼ assesses                  │
+                                         [pass/fail]                 environment
+                                                                        gate
 ```
 
 **Critical**: Each tabtarget under test passes through its own launcher. The launcher acts as an **environment gate**—testbench configuration cannot bleed into workbench execution. This isolation ensures tests exercise real dispatch paths.

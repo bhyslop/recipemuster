@@ -124,8 +124,7 @@ uses.
   Election RATIFIED at the census (260705); the grep gate was OPEN by contingency until
   the interior-rename pace freed the word — `jjrsd_saddle.rs` / `JJSCSD-saddle.adoc` are
   now `jjrmt_mount.rs` / `JJSCMT-mount.adoc` (Prerequisite remint above).
-  INFUSED (dispatch sheaf, `jjdd_saddle`); the gate is now CLOSED, noted at the definition
-  site.
+  INFUSED (dispatch sheaf, `jjdd_saddle`); the gate is CLOSED.
 * *unsaddle* — RETIRED before infusion: the reap folded into the entrance spine as
   muck's own behavior, leaving no door to name, and its refuse-if-dirty was redundant with
   muck's dirty guard.

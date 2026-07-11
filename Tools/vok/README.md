@@ -318,7 +318,7 @@ Kits may implement one or more facilities. Most kits have multiple.
 - Any "install into target repo" logic
 
 **Workbench** — Use for human-invoked operations via tabtargets:
-- Commands that humans run from terminal (`tt/jjw-H.HeatSaddle.sh`)
+- Commands that humans run from terminal (`tt/buw-SI.StationInit.sh`)
 - Operations that don't need Claude (pure bash workflows)
 - Tools that predate or complement Claude integration
 
