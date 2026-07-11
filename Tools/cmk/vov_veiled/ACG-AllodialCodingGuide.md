@@ -96,7 +96,12 @@ comment's content, collapsed to announcement-borne rivet citations.
 Two edit-time/execution-time source-doc forms are distinct and **both blessed**:
 
 - **Contract header** — a bounded edit-time comment stating a function's input
-  contract and invariants. Read when editing the function.
+  contract and invariants. Read when editing the function. The boundary test
+  runs sentence by sentence: a sentence survives if it states what a caller or
+  editor must know *at the code* — args, preconditions, side effects, result
+  channel, announce posture. A sentence about why the system is shaped so goes
+  to the design-time home; audited headers are routinely design restatement
+  wrapped around a thin contract.
 - **Intent announcement** — an execution-time printout naming what the operation
   is doing. Read when running it.
 
@@ -184,6 +189,16 @@ Code-side moves — the value resolves through a named constant, and shellcheck
 plus the reveille suite verify it — may mutate now. Spec- and document-side moves are
 detect-and-report until the lexer/linter that would catch a wrong move exists.
 
+**The verifier has a tier, and the litmus prices it.** "Cheaply caught" is a
+property of the verifier, not of the edit: shellcheck and reveille are free, a
+suite tier costs minutes, a live cloud build costs money and a human trigger. A
+value only a live run exercises — a step index, a substitution name, a workspace
+filename — is mutate-now only with an explicit verify-on-next-live-run note
+riding the landing; otherwise the move is detect-only, however mechanical the
+edit looks. Motivating specimen: a stale `buildStepOutputs` index behind a
+consistency assert — reveille-green while the assert warned itself to death,
+because the only verifier that could see it is a paid conjure.
+
 Three rules ride that litmus:
 
 1. **Triage is part of every move, not an afterthought.** Exclude the
@@ -241,9 +256,16 @@ detect-only** (read and report; no repair until a verifier exists). Numbered fro
 - **Licensing:** mutate-now — the constant either resolves or the verifier fails,
   so a wrong move dies loud and immediately.
 - **Verifier:** bash — `tt/rbw-tl.Shellcheck.sh` + `tt/rbw-ts.TestSuite.reveille.sh`
-  green; Rust — `tt/rbw-tb.Build.sh` + `tt/rbw-tt.Test.sh` green.
+  green; Rust — `tt/rbw-tb.Build.sh` + `tt/rbw-tt.Test.sh` green. A site only a
+  live run exercises escalates per the verifier-tier rule (move discipline).
 - **Done:** every genuine construction site resolves through the constant; the
   constant carries a breadcrumb to its spec quoin.
+- **Foreign-environment license:** when the file's environment cannot source the
+  constant home — a cloud step, a jailer script — the literal at the foreign
+  site is licensed; the host constant remains the home, and the home's comment
+  declares the pairing and the grep gate that keeps the two in sync. Worked
+  example: `RBGC_IMAGE_LABEL_RESOLVED_BASE` paired with the
+  `rbi_resolved_base_n` label literal in the buildx cloud step.
 - **Triage:** naming a file *for a human* in a message is not a magic string —
   `doc_params`, `buc_info`/`buh_line` messages, and comments keep the literal.
   Exclude that class before sweeping.
@@ -293,6 +315,10 @@ detect-only** (read and report; no repair until a verifier exists). Numbered fro
   are mechanically greppable) and the declared-authority question is
   pre-answered: the cited home is authoritative by the comment's own admission,
   so the move degenerates directly to citation-collapse.
+- **Authority is never a comment:** a citation whose target is another comment
+  ("see the comment in X") is itself a finding — a comment cannot be a home.
+  Repoint the citation to the real home; where none exists, the move creates or
+  extends one (Authority, below).
 - **Authority:** the three-homes table. The spec quoin is the design-time home;
   where no quoin exists, the move creates or extends one, then cites it; where
   the home already carries the content, the move degenerates to
@@ -476,6 +502,15 @@ Three rulings, now live rather than pending:
 Which guide governs a file is itself a homing question with a single
 answer: **one file answers to exactly one guide, chosen by its environment.**
 Guides may overlap in content; a file is never subject to two.
+
+That law governs dialect only; ACG is not a competing guide but the orthogonal
+homing axis. Its moves reach into BCG-, RCG-, WSG-, CBG-, and JDG-governed
+files alike, and a collapse writes its residue in the host guide's comment
+idiom. An environment that *ships* its comments — a cloud step's body rides
+the submitted build JSON — changes nothing here: shipping is not reading, and
+a shipped comment is still edit-time, with no forcing function re-reading it
+at run. (What shipping does change is the residue form — see the rivet-section
+ruling: shipped source cites no spec acronym.)
 
 - **BCG** — host bash. Constant Discipline and Interface Contamination are the
   bash instances of the spine.
