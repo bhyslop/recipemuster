@@ -1796,14 +1796,25 @@ fn zrbtdrv_terrier_poison_drive(
     Ok(())
 }
 
+/// Filter a rehearse roll capture down to muniment rows alone — each is the exact
+/// "<depot>\t<mantle>\t<provider>\t<subject>" tab-separated shape rehearse emits
+/// (RBSPO depot-attributed emission, three tabs). Strips the invoked tabtarget's own
+/// stdout preamble (self-log paths, the sitting-reuse banner) carrying volatile
+/// per-invocation content — a temp-dir invoke counter, a ticking runway-seconds
+/// countdown — that a raw full-capture comparison would misread as roll drift.
+fn zrbtdrv_roll_muniment_lines(roll: &str) -> Vec<&str> {
+    roll.lines().filter(|l| l.matches('\t').count() == 3).collect()
+}
+
 /// Drive a real (unfaulted) polity verb RE-RUN against an already-mutated synthetic
 /// muniment, asserting the clean-disposition idempotency claim the retired rbw-dT
 /// proof carried, deliberately dodged by every fault-seam drive above (those force a
 /// captured code and assert a rejection band; this issues no fault and asserts the
 /// REAL GCS precondition semantics): the sub-op's 412/"present" or 404/"absent" arm
 /// (rbgft_terrier.sh) surfaces as a clean exit 0 through the polity verb, and the
-/// manor roll — captured before and after via `zrbtdrv_rehearse_roll` — is byte-
-/// identical, since the idempotent arm mutates nothing.
+/// manor roll — captured before and after via `zrbtdrv_rehearse_roll`, compared at
+/// muniment-row grain via `zrbtdrv_roll_muniment_lines` — is unchanged, since the
+/// idempotent arm mutates nothing.
 fn zrbtdrv_terrier_idempotent_rerun_drive(
     ctx: &mut rbtdri_Context,
     dir: &Path,
@@ -1825,7 +1836,7 @@ fn zrbtdrv_terrier_idempotent_rerun_drive(
     }
 
     let roll_after = zrbtdrv_rehearse_roll(ctx, dir, &format!("{}-roll-after", label))?;
-    if roll_after != roll_before {
+    if zrbtdrv_roll_muniment_lines(&roll_after) != zrbtdrv_roll_muniment_lines(&roll_before) {
         return Err(rbtdre_Verdict::Fail(format!(
             "{}: manor roll changed across the idempotent re-run — before:\n{}\nafter:\n{}",
             label, roll_before, roll_after
