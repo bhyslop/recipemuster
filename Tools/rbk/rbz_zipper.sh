@@ -53,18 +53,18 @@ zrbz_kindle() {
   # Crucible — container runtime (rbw-c)
   buz_group RBZ__GROUP_CRUCIBLE   "rbw-c"   "Crucible — Container runtime"
   z_mod="rbob_cli.sh"
-  buz_enroll RBZ_CRUCIBLE_CHARGE  "rbw-cC"  "${z_mod}" "rbob_charge"       "imprint"  "Charge crucible (sentry + pentacle + bottle containers)"
-  buz_enroll RBZ_CRUCIBLE_QUENCH  "rbw-cQ"  "${z_mod}" "rbob_quench"       "imprint"  "Quench crucible"
-  buz_enroll RBZ_CRUCIBLE_SSH     "rbw-cS"  "${z_mod}" "rbob_ssh"          "imprint"  "SSH into the bottle container"
-  buz_enroll RBZ_CRUCIBLE_HAIL    "rbw-ch"  "${z_mod}" "rbob_hail"         "param1"   "Shell into the sentry container"
-  buz_enroll RBZ_CRUCIBLE_RACK    "rbw-cr"  "${z_mod}" "rbob_rack"         "param1"   "Shell into the bottle container"
-  buz_enroll RBZ_CRUCIBLE_SCRY    "rbw-cs"  "${z_mod}" "rbob_scry"         "param1"   "Observe network traffic on crucible containers"
-  buz_enroll RBZ_CRUCIBLE_WRIT    "rbw-cw"  "${z_mod}" "rbob_writ"         "imprint"  "Non-interactive exec in sentry container"
-  buz_enroll RBZ_CRUCIBLE_FIAT    "rbw-cf"  "${z_mod}" "rbob_fiat"         "imprint"  "Non-interactive exec in pentacle container"
-  buz_enroll RBZ_CRUCIBLE_BARK    "rbw-cb"  "${z_mod}" "rbob_bark"         "imprint"  "Non-interactive exec in bottle container"
-  buz_enroll RBZ_CRUCIBLE_ACTIVE  "rbw-cic" "${z_mod}" "rbob_charged"      "param1"   "Check if crucible is currently charged"
-  buz_enroll RBZ_CRUCIBLE_KLUDGE_BOTTLE "rbw-cKB" "${z_mod}" "rbob_kludge_bottle" "param1" "Kludge bottle vessel and drive hallmark into nameplate"
-  buz_enroll RBZ_CRUCIBLE_KLUDGE_SENTRY "rbw-cKS" "${z_mod}" "rbob_kludge_sentry" "param1" "Kludge sentry vessel and drive hallmark into nameplate"
+  buz_enroll RBZ_CRUCIBLE_CHARGE  "rbw-cC"  "${z_mod}" "rbob_charge"       "imprint"  "Charge Crucible (Sentry + Pentacle + Bottle containers)"
+  buz_enroll RBZ_CRUCIBLE_QUENCH  "rbw-cQ"  "${z_mod}" "rbob_quench"       "imprint"  "Quench Crucible"
+  buz_enroll RBZ_CRUCIBLE_SSH     "rbw-cS"  "${z_mod}" "rbob_ssh"          "imprint"  "SSH into the Bottle container"
+  buz_enroll RBZ_CRUCIBLE_HAIL    "rbw-ch"  "${z_mod}" "rbob_hail"         "param1"   "Shell into the Sentry container"
+  buz_enroll RBZ_CRUCIBLE_RACK    "rbw-cr"  "${z_mod}" "rbob_rack"         "param1"   "Shell into the Bottle container"
+  buz_enroll RBZ_CRUCIBLE_SCRY    "rbw-cs"  "${z_mod}" "rbob_scry"         "param1"   "Observe network traffic on Crucible containers"
+  buz_enroll RBZ_CRUCIBLE_WRIT    "rbw-cw"  "${z_mod}" "rbob_writ"         "imprint"  "Non-interactive exec in Sentry container"
+  buz_enroll RBZ_CRUCIBLE_FIAT    "rbw-cf"  "${z_mod}" "rbob_fiat"         "imprint"  "Non-interactive exec in Pentacle container"
+  buz_enroll RBZ_CRUCIBLE_BARK    "rbw-cb"  "${z_mod}" "rbob_bark"         "imprint"  "Non-interactive exec in Bottle container"
+  buz_enroll RBZ_CRUCIBLE_ACTIVE  "rbw-cic" "${z_mod}" "rbob_charged"      "param1"   "Check whether the Crucible is charged (compose project has running containers)"
+  buz_enroll RBZ_CRUCIBLE_KLUDGE_BOTTLE "rbw-cKB" "${z_mod}" "rbob_kludge_bottle" "param1" "Kludge Bottle vessel and drive hallmark into nameplate"
+  buz_enroll RBZ_CRUCIBLE_KLUDGE_SENTRY "rbw-cKS" "${z_mod}" "rbob_kludge_sentry" "param1" "Kludge Sentry vessel and drive hallmark into nameplate"
 
   # Depot — GCP project infrastructure (rbw-d, UPPER=mutates, lower=read)
   buz_group RBZ__GROUP_DEPOT      "rbw-d"   "Depot — GCP project infrastructure"
@@ -162,7 +162,7 @@ zrbz_kindle() {
   z_mod="rbh0/rbho0_cli.sh"
   buz_enroll RBZ_ONBOARD_START_HERE    "rbw-o"   "${z_mod}" "rbho_start_here"            ""  "Onboarding start — probe-aware menu into handbook tracks"
   buz_enroll RBZ_ONBOARD_CRASH_COURSE  "rbw-Occ" "${z_mod}" "rbho_crash_course"          ""  "Crash Course — universal prerequisite: tabtargets, regimes, diagnostic failure"
-  buz_enroll RBZ_ONBOARD_FIRST_CRUCIBLE "rbw-Ofc" "${z_mod}" "rbho_first_crucible"       ""  "Start a Crucible using local builds — kludge, charge, rack"
+  buz_enroll RBZ_ONBOARD_FIRST_CRUCIBLE "rbw-Ofc" "${z_mod}" "rbho_first_crucible"       ""  "Start a Crucible using local builds — kludge, charge, SSH, verify containment"
   buz_enroll RBZ_ONBOARD_TADMOR_SECURITY "rbw-Ots" "${z_mod}" "rbho_tadmor_security"     ""  "Verify Crucible containment under attack — charge tadmor and run the adversarial suite"
   buz_enroll RBZ_ONBOARD_DIR_FIRST_BUILD "rbw-Odf" "${z_mod}" "rbho_director_first_build" "" "Your First Cloud Build — conclave, conjure, tour, summon, abjure"
   buz_enroll RBZ_ONBOARD_DIR_AIRGAP     "rbw-Oda" "${z_mod}" "rbho_director_airgap"      ""  "Airgap Cloud Build — ensconce, conjure base, conjure airgap, charge moriah, compare plumb"
@@ -192,7 +192,7 @@ zrbz_kindle() {
   # Ifrit — attack binary (rbw-I)
   buz_group RBZ__GROUP_IFRIT      "rbw-I"   "Ifrit — Attack binary"
   z_mod="rbob_cli.sh"
-  buz_enroll RBZ_BOTTLE_SORTIE  "rbw-Is"  "${z_mod}" "rbob_ifrit_sortie"  "imprint"  "Run automated security test scripts inside the bottle"
+  buz_enroll RBZ_BOTTLE_SORTIE  "rbw-Is"  "${z_mod}" "rbob_ifrit_sortie"  "imprint"  "Run automated security test scripts inside the Bottle"
 
   # Image — container image operations (rbw-i, UPPER=mutates, lower=read)
   #
@@ -277,7 +277,7 @@ zrbz_kindle() {
   buz_enroll RBZ_THEURGE_TEST     "rbw-tt"  "${z_mod}" "rbte_test"    "imprint"  "Run theurge unit tests"
   buz_enroll RBZ_THEURGE_SUITE    "rbw-ts"  "${z_mod}" "rbte_suite"   "imprint"  "Run a named test suite"
   buz_enroll RBZ_THEURGE_FIXTURE  "rbw-tf"  "${z_mod}" "rbte_run"     "param1"   "Run a single named test fixture"
-  buz_enroll RBZ_THEURGE_CASE     "rbw-tc"  "${z_mod}" "rbte_single"  "param1"   "Run one case against a charged crucible (omit to list fixtures/cases)"
+  buz_enroll RBZ_THEURGE_CASE     "rbw-tc"  "${z_mod}" "rbte_single"  "param1"   "Run one case against a charged Crucible (omit to list fixtures/cases)"
   buz_enroll RBZ_THEURGE_DOWSE    "rbw-td"  "${z_mod}" "rbte_dowse"   ""         "Dowse observed tariff history — per-suite and per-fixture durations from the station's logs-buk self-logs (read-only)"
   z_mod="rbq_cli.sh"
   buz_enroll RBZ_QUALIFY_FAST       "rbw-tq"   "${z_mod}" "rbq_qualify_fast"        ""        "Fast qualify: tabtargets, colophons, nameplate health"

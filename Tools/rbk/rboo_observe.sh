@@ -108,7 +108,7 @@ rboo_observe() {
   "${ZRBOB_RUNTIME}" exec "${ZRBOB_SENTRY}" \
     ip -o addr show to "${RBRN_ENCLAVE_SENTRY_IP}" \
     > "${z_enclave_file}" 2>"${z_enclave_stderr}" \
-    || buc_die "scry: cannot query sentry interfaces (is the crucible charged?) — see ${z_enclave_stderr}"
+    || buc_die "scry: cannot query Sentry interfaces (is the Crucible charged?) — see ${z_enclave_stderr}"
 
   # ip -o emits "<idx>: <ifname> ..."; the first line's second field is the leg.
   local z_if_idx=""
@@ -116,14 +116,14 @@ rboo_observe() {
   local z_sentry_enclave_if=""
   read -r z_if_idx z_sentry_enclave_if z_if_rest < "${z_enclave_file}" || true
   test -n "${z_sentry_enclave_if}" \
-    || buc_die "scry: no sentry interface holds enclave IP ${RBRN_ENCLAVE_SENTRY_IP} (is the crucible charged?)"
+    || buc_die "scry: no Sentry interface holds enclave IP ${RBRN_ENCLAVE_SENTRY_IP} (is the Crucible charged?)"
 
   local z_uplink_file="${ZRBOO_SCRY_PREFIX}uplink_addr.txt"
   local z_uplink_stderr="${ZRBOO_SCRY_PREFIX}uplink_stderr.txt"
   "${ZRBOB_RUNTIME}" exec "${ZRBOB_SENTRY}" \
     ip -o -4 addr show scope global \
     > "${z_uplink_file}" 2>"${z_uplink_stderr}" \
-    || buc_die "scry: cannot query sentry uplink interfaces — see ${z_uplink_stderr}"
+    || buc_die "scry: cannot query Sentry uplink interfaces — see ${z_uplink_stderr}"
 
   # First global interface whose name differs from the enclave leg is the uplink.
   local z_ifname=""
@@ -136,7 +136,7 @@ rboo_observe() {
     fi
   done < "${z_uplink_file}"
   test -n "${z_sentry_uplink_if}" \
-    || buc_die "scry: no sentry uplink interface found (enclave=${z_sentry_enclave_if})"
+    || buc_die "scry: no Sentry uplink interface found (enclave=${z_sentry_enclave_if})"
 
   buc_info "Network topology:"
   buc_info "  SENTRY:          enclave=${z_sentry_enclave_if} uplink=${z_sentry_uplink_if}"
@@ -159,19 +159,19 @@ rboo_observe() {
   fi
 
   # Pentacle/bottle leg — shared namespace with the bottle, enclave-only.
-  buc_info "Starting pentacle/bottle capture (eth0)"
+  buc_info "Starting Pentacle/Bottle capture (eth0)"
   "${ZRBOB_RUNTIME}" exec "${ZRBOB_PENTACLE}" ${z_timeout[@]+"${z_timeout[@]}"} \
     tcpdump "${ZRBOO_TCPDUMP_OPTS[@]}" -i eth0 ${z_filter_args[@]+"${z_filter_args[@]}"} \
     2>&1 | zrboo_prefix "${ZRBOO_YELLOW}" "PENTACLE/BOTTLE" &
 
   # Both sentry legs — enclave and uplink — so the full enclave<->uplink path
   # is visible in one run (previously enclave-only).
-  buc_info "Starting sentry enclave capture (${z_sentry_enclave_if})"
+  buc_info "Starting Sentry enclave capture (${z_sentry_enclave_if})"
   "${ZRBOB_RUNTIME}" exec "${ZRBOB_SENTRY}" ${z_timeout[@]+"${z_timeout[@]}"} \
     tcpdump "${ZRBOO_TCPDUMP_OPTS[@]}" -i "${z_sentry_enclave_if}" ${z_filter_args[@]+"${z_filter_args[@]}"} \
     2>&1 | zrboo_prefix "${ZRBOO_WHITE}" "SENTRY/ENCLAVE" &
 
-  buc_info "Starting sentry uplink capture (${z_sentry_uplink_if})"
+  buc_info "Starting Sentry uplink capture (${z_sentry_uplink_if})"
   "${ZRBOB_RUNTIME}" exec "${ZRBOB_SENTRY}" ${z_timeout[@]+"${z_timeout[@]}"} \
     tcpdump "${ZRBOO_TCPDUMP_OPTS[@]}" -i "${z_sentry_uplink_if}" ${z_filter_args[@]+"${z_filter_args[@]}"} \
     2>&1 | zrboo_prefix "${ZRBOO_CYAN}" "SENTRY/UPLINK" &

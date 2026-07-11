@@ -278,7 +278,7 @@ zrbxk_render_live() {
 rbxk_setup() {
   zrbxk_sentinel
 
-  buc_doc_brief "Stand up the Keycloak programmatic test facility — charge the crucible, render its ephemeral JWKS into the ignored live regime, and affiance rbef_keycloak (RBSMA)"
+  buc_doc_brief "Stand up the Keycloak programmatic test facility — charge the Crucible, render its ephemeral JWKS into the ignored live regime, and affiance rbef_keycloak (RBSMA)"
   buc_doc_shown || return 0
 
   # Clean-tree gate FIRST — the precision-band creed variant (BCG Precision
@@ -289,7 +289,7 @@ rbxk_setup() {
   # mint a near-duplicate. Gating here fails fast, before charge, instead of after.
   bug_require_clean_tree_creed "${RBCC_creed_clean_affiance}"
 
-  buc_step "Charge the ${RBXK_moniker} crucible"
+  buc_step "Charge the ${RBXK_moniker} Crucible"
   zrbxk_run_tabtarget "rbw-cC" "${RBXK_moniker}"
 
   zrbxk_poll_ready
@@ -302,13 +302,13 @@ rbxk_setup() {
   buc_step "Affiance ${RBXK_foedus}"
   zrbxk_run_tabtarget "rbw-mA" "" "${RBXK_foedus}"
 
-  buc_success "Keycloak facility up — crucible ${RBXK_moniker} charged, ${RBXK_foedus} affianced with a fresh JWKS"
+  buc_success "Keycloak facility up — Crucible ${RBXK_moniker} charged, ${RBXK_foedus} affianced with a fresh JWKS"
 }
 
 rbxk_teardown() {
   zrbxk_sentinel
 
-  buc_doc_brief "Tear down the Keycloak programmatic test facility — jilt rbef_keycloak, then quench the crucible (idempotent)"
+  buc_doc_brief "Tear down the Keycloak programmatic test facility — jilt rbef_keycloak, then quench the Crucible (idempotent)"
   buc_doc_shown || return 0
 
   # Jilt the foedus, then quench. jilt is operator-confirmed (dangerous — it
@@ -324,10 +324,10 @@ rbxk_teardown() {
   BURE_CONFIRM=skip "${z_jilt_tt}" "${RBXK_foedus}" || z_rc=$?
   test "${z_rc}" -eq 0 || buc_die "Jilt tabtarget ${z_jilt_tt##*/} failed (exit ${z_rc})"
 
-  buc_step "Quench the ${RBXK_moniker} crucible"
+  buc_step "Quench the ${RBXK_moniker} Crucible"
   zrbxk_run_tabtarget "rbw-cQ" "${RBXK_moniker}"
 
-  buc_success "Keycloak facility down — ${RBXK_foedus} jilted, crucible ${RBXK_moniker} quenched"
+  buc_success "Keycloak facility down — ${RBXK_foedus} jilted, Crucible ${RBXK_moniker} quenched"
 }
 
 # eof

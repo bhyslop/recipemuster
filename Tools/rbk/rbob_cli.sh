@@ -18,14 +18,7 @@
 #
 # RBOB CLI - Recipe Bottle Orchestration Bottle command-line interface
 #
-# Commands:
-#   start           Start crucible (sentry + pentacle + bottle)
-#   stop            Stop crucible
-#   hail            Hail sentry (interactive shell)
-#   rack            Rack bottle (interactive shell)
-#   scry            Scry network traffic (tcpdump)
-#   info            Show container names, network, and runtime
-#   validate        Validate configuration is complete
+# Command roster: rbz_zipper.sh (rbw-c Crucible group).
 
 set -euo pipefail
 
@@ -83,7 +76,7 @@ rbob_info() {
 rbob_scry() {
   zrbob_sentinel
 
-  buc_doc_brief "Scry network traffic on crucible containers"
+  buc_doc_brief "Observe network traffic on Crucible containers"
   buc_doc_oparm "duration" "bounded capture window for scripted use (e.g. 10, 30s, 1m); omit for interactive run-until-Ctrl+C"
   buc_doc_oparm "filter"   "tcpdump filter expression scoping every leg (e.g. 'host 10.242.0.2')"
   buc_doc_shown || return 0
@@ -96,7 +89,7 @@ rbob_scry() {
 rbob_charged() {
   zrbob_sentinel
 
-  buc_doc_brief "Check whether the crucible is charged (compose project has running containers)"
+  buc_doc_brief "Check whether the Crucible is charged (compose project has running containers)"
   buc_doc_shown || return 0
 
   rbob_charged_predicate

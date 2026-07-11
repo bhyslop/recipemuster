@@ -503,7 +503,7 @@ zrbob_render_charge_note() {
 rbob_charge() {
   zrbob_sentinel
 
-  buc_step "Starting crucible: ${RBRN_MONIKER}"
+  buc_step "Starting Crucible: ${RBRN_MONIKER}"
 
   # Gate: nameplate must have no uncommitted changes
   if ! git diff --quiet -- "${ZRBOB_ENV_RBRN}" 2>/dev/null; then
@@ -517,9 +517,9 @@ rbob_charge() {
   # state), so consumption is where an unarmed nameplate must refuse — quench
   # and the exec verbs stay legal on a vacant nameplate.
   test -n "${RBRN_SENTRY_HALLMARK}" \
-    || buc_die "Nameplate '${RBRN_MONIKER}' is not armed: RBRN_SENTRY_HALLMARK is vacant — kludge or ordain the sentry vessel and drive its hallmark (rbw-nd), then recharge"
+    || buc_die "Nameplate '${RBRN_MONIKER}' is not armed: RBRN_SENTRY_HALLMARK is vacant — kludge or ordain the Sentry vessel and drive its hallmark (rbw-nd), then recharge"
   test -n "${RBRN_BOTTLE_HALLMARK}" \
-    || buc_die "Nameplate '${RBRN_MONIKER}' is not armed: RBRN_BOTTLE_HALLMARK is vacant — kludge or ordain the bottle vessel and drive its hallmark (rbw-nd), then recharge"
+    || buc_die "Nameplate '${RBRN_MONIKER}' is not armed: RBRN_BOTTLE_HALLMARK is vacant — kludge or ordain the Bottle vessel and drive its hallmark (rbw-nd), then recharge"
 
   # Preflight: ensure all hallmark arks exist locally. Vouch presence is the
   # hallmark-level signal — if vouch is missing, the full hallmark is treated
@@ -527,7 +527,7 @@ rbob_charge() {
   # auto-summon below is defense-in-depth for partial-state cases.
   if ! ${ZRBOB_RUNTIME} image inspect "${ZRBOB_SENTRY_VOUCH}" >/dev/null 2>&1; then
     if zrbob_hallmark_is_kludge "${RBRN_SENTRY_HALLMARK}"; then
-      buc_die "Kludge sentry hallmark not built locally: ${RBRN_SENTRY_HALLMARK}"
+      buc_die "Kludge Sentry hallmark not built locally: ${RBRN_SENTRY_HALLMARK}"
     fi
     buc_warn "Sentry vouch artifact missing locally: ${ZRBOB_SENTRY_VOUCH}"
     zrbob_summon_full_hallmark "${RBRN_SENTRY_HALLMARK}"
@@ -535,7 +535,7 @@ rbob_charge() {
 
   if ! ${ZRBOB_RUNTIME} image inspect "${ZRBOB_BOTTLE_VOUCH}" >/dev/null 2>&1; then
     if zrbob_hallmark_is_kludge "${RBRN_BOTTLE_HALLMARK}"; then
-      buc_die "Kludge bottle hallmark not built locally: ${RBRN_BOTTLE_HALLMARK}"
+      buc_die "Kludge Bottle hallmark not built locally: ${RBRN_BOTTLE_HALLMARK}"
     fi
     buc_warn "Bottle vouch artifact missing locally: ${ZRBOB_BOTTLE_VOUCH}"
     zrbob_summon_full_hallmark "${RBRN_BOTTLE_HALLMARK}"
@@ -543,7 +543,7 @@ rbob_charge() {
 
   if ! ${ZRBOB_RUNTIME} image inspect "${ZRBOB_SENTRY_IMAGE}" >/dev/null 2>&1; then
     if zrbob_hallmark_is_kludge "${RBRN_SENTRY_HALLMARK}"; then
-      buc_die "Kludge sentry hallmark not built locally: ${RBRN_SENTRY_HALLMARK}"
+      buc_die "Kludge Sentry hallmark not built locally: ${RBRN_SENTRY_HALLMARK}"
     fi
     buc_warn "Sentry image not found locally: ${ZRBOB_SENTRY_IMAGE}"
     zrbob_vouch_gate_and_summon "${RBRN_SENTRY_VESSEL}" "${RBRN_SENTRY_HALLMARK}" "${ZRBOB_SENTRY_IMAGE}"
@@ -551,7 +551,7 @@ rbob_charge() {
 
   if ! ${ZRBOB_RUNTIME} image inspect "${ZRBOB_BOTTLE_IMAGE}" >/dev/null 2>&1; then
     if zrbob_hallmark_is_kludge "${RBRN_BOTTLE_HALLMARK}"; then
-      buc_die "Kludge bottle hallmark not built locally: ${RBRN_BOTTLE_HALLMARK}"
+      buc_die "Kludge Bottle hallmark not built locally: ${RBRN_BOTTLE_HALLMARK}"
     fi
     buc_warn "Bottle image not found locally: ${ZRBOB_BOTTLE_IMAGE}"
     zrbob_vouch_gate_and_summon "${RBRN_BOTTLE_VESSEL}" "${RBRN_BOTTLE_HALLMARK}" "${ZRBOB_BOTTLE_IMAGE}"
@@ -576,7 +576,7 @@ rbob_charge() {
   buc_step "Crucible started: ${RBRN_MONIKER}"
 
   if test "${RBRN_BOTTLE_READINESS_DELAY_SEC}" -gt 0; then
-    buc_step "Waiting ${RBRN_BOTTLE_READINESS_DELAY_SEC}s for bottle service readiness"
+    buc_step "Waiting ${RBRN_BOTTLE_READINESS_DELAY_SEC}s for Bottle service readiness"
     sleep "${RBRN_BOTTLE_READINESS_DELAY_SEC}"
   fi
 
@@ -619,7 +619,7 @@ rbob_charged_predicate() {
 rbob_quench() {
   zrbob_sentinel
 
-  buc_step "Stopping crucible: ${RBRN_MONIKER}"
+  buc_step "Stopping Crucible: ${RBRN_MONIKER}"
 
   zrbob_compose --profile sessile down --remove-orphans
 
@@ -629,7 +629,7 @@ rbob_quench() {
 # Hail sentry — call out to the guard (interactive shell)
 rbob_hail() {
   zrbob_sentinel
-  buc_step "Hailing sentry: ${ZRBOB_SENTRY}"
+  buc_step "Hailing Sentry: ${ZRBOB_SENTRY}"
   exec ${ZRBOB_RUNTIME} exec -it "${ZRBOB_SENTRY}" /bin/bash
 }
 
@@ -637,7 +637,7 @@ rbob_hail() {
 rbob_ssh() {
   zrbob_sentinel
   local z_ssh_user="${ZRBOB_BOTTLE_USER:-root}"
-  buc_step "SSH to bottle via port ${RBRN_ENTRY_PORT_WORKSTATION} as ${z_ssh_user}"
+  buc_step "SSH to Bottle via port ${RBRN_ENTRY_PORT_WORKSTATION} as ${z_ssh_user}"
   exec ssh -t -p "${RBRN_ENTRY_PORT_WORKSTATION}" \
     -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
     "${z_ssh_user}@localhost"
@@ -646,35 +646,35 @@ rbob_ssh() {
 # Rack bottle — compel the demon to reveal state (interactive shell)
 rbob_rack() {
   zrbob_sentinel
-  buc_step "Racking bottle: ${ZRBOB_BOTTLE}"
+  buc_step "Racking Bottle: ${ZRBOB_BOTTLE}"
   exec ${ZRBOB_RUNTIME} exec -it "${ZRBOB_BOTTLE}" /bin/bash
 }
 
 # Writ sentry — non-interactive command execution in sentry
 rbob_writ() {
   zrbob_sentinel
-  buc_step "Writ to sentry: ${ZRBOB_SENTRY}"
+  buc_step "Writ to Sentry: ${ZRBOB_SENTRY}"
   exec ${ZRBOB_RUNTIME} exec "${ZRBOB_SENTRY}" "$@"
 }
 
 # Fiat pentacle — non-interactive command execution in pentacle
 rbob_fiat() {
   zrbob_sentinel
-  buc_step "Fiat to pentacle: ${ZRBOB_PENTACLE}"
+  buc_step "Fiat to Pentacle: ${ZRBOB_PENTACLE}"
   exec ${ZRBOB_RUNTIME} exec "${ZRBOB_PENTACLE}" "$@"
 }
 
 # Bark bottle — non-interactive command execution in bottle
 rbob_bark() {
   zrbob_sentinel
-  buc_step "Bark to bottle: ${ZRBOB_BOTTLE}"
+  buc_step "Bark to Bottle: ${ZRBOB_BOTTLE}"
   exec ${ZRBOB_RUNTIME} exec "${ZRBOB_BOTTLE}" "$@"
 }
 
 # Run ifrit sortie adjutant inside bottle (security test dispatch)
 rbob_ifrit_sortie() {
   zrbob_sentinel
-  buc_step "Running ifrit sortie adjutant in bottle: ${ZRBOB_BOTTLE}"
+  buc_step "Running ifrit sortie adjutant in Bottle: ${ZRBOB_BOTTLE}"
   ${ZRBOB_RUNTIME} exec -w "${RBRR_BOTTLE_WORKSPACE}" "${ZRBOB_BOTTLE}" \
     python3 rbtia_adjutant.py "$@"
 }
@@ -686,7 +686,7 @@ rbob_kludge_bottle() {
   zrbob_sentinel
   zrbfc_sentinel
 
-  buc_doc_brief "Build bottle vessel locally and drive hallmark into nameplate"
+  buc_doc_brief "Kludge Bottle vessel and drive hallmark into nameplate"
   buc_doc_shown || return 0
 
   buc_step "Kludge: ${RBRN_MONIKER} (${RBRN_BOTTLE_VESSEL})"
@@ -714,7 +714,7 @@ rbob_kludge_sentry() {
   zrbob_sentinel
   zrbfc_sentinel
 
-  buc_doc_brief "Build sentry vessel locally and drive hallmark into nameplate"
+  buc_doc_brief "Kludge Sentry vessel and drive hallmark into nameplate"
   buc_doc_shown || return 0
 
   buc_step "Kludge: ${RBRN_MONIKER} (${RBRN_SENTRY_VESSEL})"

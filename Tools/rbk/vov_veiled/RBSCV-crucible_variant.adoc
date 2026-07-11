@@ -112,7 +112,6 @@ Existing codex vocabulary this sheaf reframes (defined at the cosmology top, not
 {at_bottle_container},
 {at_sentry_container},
 {at_pentacle_container},
-{rbsc_pentacle},
 {rbsi_ifrit}.
 Adjacent Horizon Roadmap entries: "Podman as first-class deployment target" (macOS-native / podman-machine), "Hairpin peer access between crucibles" (sentry-as-sole-enforcement-point preserved under a new topology).
 

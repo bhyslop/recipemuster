@@ -279,10 +279,7 @@
 :at_bottle_container_s:      <<at_bottle_container,Bottle Containers>>
 :rbsc_crucible:              <<rbsc_crucible,Crucible>>
 :rbsc_crucible_s:            <<rbsc_crucible,Crucibles>>
-:rbsc_pentacle:              <<rbsc_pentacle,Pentacle>>
-:rbsc_agile:                 <<rbsc_agile,Agile>>
-:rbsc_sessile:               <<rbsc_sessile,Sessile>>
-:at_pentacle_container:        <<at_pentacle_container,Pentacle Container>>
+:at_pentacle_container:      <<at_pentacle_container,Pentacle Container>>
 :at_container_registry:      <<at_container_registry,Container Registry>>
 // :at_ebpf_program: removed — historical (Podman era), superseded by compose network_mode
 // :at_enclave_namespace_name: removed — historical (Podman era), compose manages network naming
@@ -3300,18 +3297,20 @@ Podman compose support is architecturally accommodated (podman compose delegates
 {at_sessile_service}::
 A long-running
 {rbsc_crucible}
-that charges via
+whose bottle container runs persistently:
+charged via
 {rbsc_charge}
-and persists until explicitly quenched.
+and standing until explicitly quenched.
 The sessile pattern is used for services that maintain state and provide ongoing functionality.
 
 [[at_agile_service]]
 {at_agile_service}::
-A transient
+A
 {rbsc_crucible}
-that executes via
+operated with transient bottles:
+each invocation via
 {rbsc_enjoin}
-and terminates when its command completes.
+dispatches an ephemeral bottle into the already-running sentry and pentacle, and the bottle terminates when its command completes.
 The agile pattern is used for one-shot operations that produce output and exit.
 
 [[rbsc_crucible]]
@@ -3325,39 +3324,6 @@ and one
 working together to provide secure functionality.
 Orchestrated by Docker Compose with a base compose file (`rbob_compose.yml`) defining the three-container topology and health check chains, plus optional per-nameplate compose fragments for volume mounts.
 Each service maintains strict file system and network boundaries while enabling controlled access to resources.
-
-[[rbsc_pentacle]]
-{rbsc_pentacle}::
-The privileged container within a
-{rbsc_crucible}
-that establishes authority over the contained network space.
-Shares the
-{at_sentry_image}
-and configures routing so all traffic flows through the
-{at_sentry_container}.
-The
-{at_bottle_container}
-shares its network namespace via compose `network_mode: "service:pentacle"`.
-
-[[rbsc_sessile]]
-{rbsc_sessile}::
-A
-{rbsc_crucible}
-service mode where the bottle container runs persistently.
-Charged via
-{rbsc_charge}
-and persists until explicitly quenched.
-Used for services that maintain state and provide ongoing functionality.
-
-[[rbsc_agile]]
-{rbsc_agile}::
-A
-{rbsc_crucible}
-service mode where transient bottles are dispatched into an already-running sentry and pentacle.
-Each invocation via
-{rbsc_enjoin}
-creates an ephemeral bottle that terminates when its command completes.
-Used for one-shot operations that produce output and exit.
 
 [[rbsc_quench]]
 {rbsc_quench}::
@@ -3403,8 +3369,10 @@ Initialization and iptables configuration scripts are baked into the image at bu
 
 [[at_pentacle_container]]
 {at_pentacle_container}::
-A privileged container sharing the
-{at_sentry_image}
+A privileged container within a
+{rbsc_crucible},
+sharing the
+{at_sentry_image},
 that configures routing to ensure all traffic flows through the
 {at_sentry_container}.
 The

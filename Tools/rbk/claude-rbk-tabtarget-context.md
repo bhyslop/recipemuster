@@ -24,18 +24,18 @@ The Folio column shows how each tabtarget receives it:
 
 | Colophon | Frontispiece | Folio | Purpose |
 |----------|-------------|-------|---------|
-| `rbw-cC` | Charge | imprint | Charge crucible (sentry + pentacle + bottle containers) |
-| `rbw-cQ` | Quench | imprint | Quench crucible |
-| `rbw-cS` | SshTo | imprint | SSH into the bottle container |
-| `rbw-ch` | Hail | param1 | Shell into the sentry container |
-| `rbw-cr` | Rack | param1 | Shell into the bottle container |
-| `rbw-cs` | Scry | param1 | Observe network traffic on crucible containers |
-| `rbw-cw` | Writ | imprint | Non-interactive exec in sentry container |
-| `rbw-cf` | Fiat | imprint | Non-interactive exec in pentacle container |
-| `rbw-cb` | Bark | imprint | Non-interactive exec in bottle container |
-| `rbw-cic` | CrucibleIsCharged | param1 | Check if crucible is currently charged |
-| `rbw-cKB` | KludgeBottle | param1 | Kludge bottle vessel and drive hallmark into nameplate |
-| `rbw-cKS` | KludgeSentry | param1 | Kludge sentry vessel and drive hallmark into nameplate |
+| `rbw-cC` | Charge | imprint | Charge Crucible (Sentry + Pentacle + Bottle containers) |
+| `rbw-cQ` | Quench | imprint | Quench Crucible |
+| `rbw-cS` | SshTo | imprint | SSH into the Bottle container |
+| `rbw-ch` | Hail | param1 | Shell into the Sentry container |
+| `rbw-cr` | Rack | param1 | Shell into the Bottle container |
+| `rbw-cs` | Scry | param1 | Observe network traffic on Crucible containers |
+| `rbw-cw` | Writ | imprint | Non-interactive exec in Sentry container |
+| `rbw-cf` | Fiat | imprint | Non-interactive exec in Pentacle container |
+| `rbw-cb` | Bark | imprint | Non-interactive exec in Bottle container |
+| `rbw-cic` | CrucibleIsCharged | param1 | Check whether the Crucible is charged (compose project has running containers) |
+| `rbw-cKB` | KludgeBottle | param1 | Kludge Bottle vessel and drive hallmark into nameplate |
+| `rbw-cKS` | KludgeSentry | param1 | Kludge Sentry vessel and drive hallmark into nameplate |
 
 ### Depot — GCP project infrastructure (`rbw-d`)
 
@@ -111,7 +111,7 @@ The Folio column shows how each tabtarget receives it:
 |----------|-------------|-------|---------|
 | `rbw-o` | ONBOARDING | — | Onboarding start — probe-aware menu into handbook tracks |
 | `rbw-Occ` | OnboardingConfigureEnvironment | — | Crash Course — universal prerequisite: tabtargets, regimes, diagnostic failure |
-| `rbw-Ofc` | OnboardingFirstCrucible | — | Start a Crucible using local builds — kludge, charge, rack |
+| `rbw-Ofc` | OnboardingFirstCrucible | — | Start a Crucible using local builds — kludge, charge, SSH, verify containment |
 | `rbw-Ots` | OnboardingTadmorSecurity | — | Verify Crucible containment under attack — charge tadmor and run the adversarial suite |
 | `rbw-Odf` | OnboardingDirectorFirstBuild | — | Your First Cloud Build — conclave, conjure, tour, summon, abjure |
 | `rbw-Oda` | OnboardingDirectorAirgap | — | Airgap Cloud Build — ensconce, conjure base, conjure airgap, charge moriah, compare plumb |
@@ -138,7 +138,7 @@ The Folio column shows how each tabtarget receives it:
 
 | Colophon | Frontispiece | Folio | Purpose |
 |----------|-------------|-------|---------|
-| `rbw-Is` | IfritSortie | imprint | Run automated security test scripts inside the bottle |
+| `rbw-Is` | IfritSortie | imprint | Run automated security test scripts inside the Bottle |
 
 ### Image — Container image operations (`rbw-i`)
 
@@ -203,7 +203,7 @@ The Folio column shows how each tabtarget receives it:
 | `rbw-tt` | Test | imprint | Run theurge unit tests |
 | `rbw-ts` | TestSuite | imprint | Run a named test suite |
 | `rbw-tf` | FixtureRun | param1 | Run a single named test fixture |
-| `rbw-tc` | FixtureCase | param1 | Run one case against a charged crucible (omit to list fixtures/cases) |
+| `rbw-tc` | FixtureCase | param1 | Run one case against a charged Crucible (omit to list fixtures/cases) |
 | `rbw-td` | TariffDowse | — | Dowse observed tariff history — per-suite and per-fixture durations from the station's logs-buk self-logs (read-only) |
 | `rbw-tq` | QualifyFast | — | Fast qualify: tabtargets, colophons, nameplate health |
 | `rbw-tr` | QualifyRelease | — | Release qualify: + shellcheck, full test suite |
