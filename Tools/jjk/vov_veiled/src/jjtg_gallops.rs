@@ -799,6 +799,30 @@ fn jjtg_slate_first_appends_when_nothing_is_actionable() {
 }
 
 #[test]
+fn jjtg_draft_first_aims_at_destination_first_actionable_slot() {
+    let mut gallops = make_valid_gallops();
+    let (dest_key, dest) = make_heat_with_history("AB");
+    let (src_key, src) = make_valid_heat("CD", "src-heat");
+    gallops.heats.insert(dest_key.clone(), dest);
+    gallops.heats.insert(src_key, src);
+
+    let result = gallops.jjrg_draft(jjrg_DraftArgs {
+        coronet: "₢CDAAA".to_string(),
+        to: "AB".to_string(),
+        before: None,
+        after: None,
+        first: true,
+    }).unwrap();
+
+    let dest = gallops.heats.get(&dest_key).unwrap();
+    // Same rule as slate and rail: the destination's completed work keeps its
+    // place, and the relocated pace lands at the head of what remains.
+    assert_eq!(dest.order[0], "₢ABAAA");
+    assert_eq!(dest.order[1], result.new_coronet);
+    assert_eq!(dest.order[2], "₢ABAAB");
+}
+
+#[test]
 fn jjtg_slate_heat_not_found() {
     let mut gallops = make_valid_gallops();
 

@@ -68,7 +68,7 @@ extract from message prefix (`n:`, `A:`, `W:`, `F:`, `d:`)
 {jjdo_reorder}
 — reorders paces with action `r`
 *
-{jjdo_arm},
+{jjdo_apostille},
 {jjdo_relabel},
 {jjdo_drop}
 — add new tack with action `T`

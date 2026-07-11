@@ -58,8 +58,11 @@ in destination
 
 //axd_optional
 * {jjda_first}
-— insert at beginning of destination
+— insert at the first actionable slot in the destination
 {jjdhm_order}
+(contract at
+{jjda_first};
+the destination's completed work is never displaced)
 
 *Positioning:* Only one of
 {jjda_before},

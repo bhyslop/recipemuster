@@ -417,7 +417,8 @@ pub fn jjrg_draft(gallops: &mut jjrg_Gallops, args: jjrg_DraftArgs) -> Result<jj
             .ok_or_else(|| format!("Target pace {} not found in heat {}", target_key, dest_firemark_key))?;
         Some(pos + 1)
     } else if args.first {
-        Some(0)
+        let dest_heat = gallops.heats.get(&dest_firemark_key).unwrap();
+        Some(zjjrg_first_actionable_idx(dest_heat).unwrap_or(dest_heat.order.len()))
     } else {
         None // Append to end
     };
